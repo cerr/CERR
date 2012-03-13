@@ -1,0 +1,38 @@
+<TITLE>/</TITLE>
+<BODY>
+<A HREF = "index.html">[Index for ./dicomrt-toolbox/display]</A>
+<A HREF = "../index.html">[Return to Master Index]</A>
+<H1>dicomrt_surfdose</H1>
+<H2>(./dicomrt-toolbox/display/dicomrt_surfdose.m)</H2>
+<HR><H3>Function Synopsis</H3>
+<pre>[surf] = dicomrt_surfdose(inputdose,dose_xmesh,dose_ymesh,dose_zmesh,slice2disp,VOI,voi2use)</pre>
+<HR><H3>Help text</H3>
+<pre>
+ dicomrt_surfdose(inputdose,dose_xmesh,dose_ymesh,dose_zmesh,slice2disp,VOI,voi2use)
+
+ Show 2D dose distribution in 3D.
+ 
+ inputdose contains the 3D dose distribution
+ dose_xmesh,dose_ymesh,dose_zmesh are x-y-z coordinates of the center of the dose-pixel 
+ slice2disp is a vector containing the number of the slice to be meshed (not the coordinate !)
+ VOI is an OPTIONAL cell array which contain the patients VOIs as read by dicomrt_loadVOI
+ voi2use is the number of the VOI to be used for masking the dose matrix.
+
+ NOTE: voi2use cannot be a vector. VOIs can be added to the plot later holding it on and using <A HREF = "../display/dicomrt_rendervoi.html">dicomrt_rendervoi</A>.
+
+ Example:
+
+ dicomrt_surfdose(A,xmesh,ymesh,zmesh,'x',[10 15],A_voi,1)
+
+ shows a surface plot of the planar dose matrix A perpendicular to the X axis on slices 10 and 15.
+ A matrix is masked with structure #1 from A_voi cell array.
+
+ See also dicomrt_dosegradient, dicomrt_voiboundaries
+
+ Copyright (C) 2002 Emiliano Spezi (emiliano.spezi@physics.org) 
+</pre>
+<HR>
+Produced by <A HREF="http://www.mathworks.com/support/ftp/toolsv4.shtml">mat2html</A> on Mon Oct 20 15:21:43 2003
+<BR>
+Cross-Directory links are: OFF<BR>
+</BODY>

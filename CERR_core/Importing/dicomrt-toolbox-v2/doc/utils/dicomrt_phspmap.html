@@ -1,0 +1,64 @@
+<TITLE>/</TITLE>
+<BODY>
+<A HREF = "index.html">[Index for ./dicomrt-toolbox/mctp/utils]</A>
+<A HREF = "../index.html">[Return to Master Index]</A>
+<H1>dicomrt_phspmap</H1>
+<H2>(./dicomrt-toolbox/mctp/utils/dicomrt_phspmap.m)</H2>
+<HR><H3>Function Synopsis</H3>
+<pre>[FLvsP,EFLvsP,FL_CAX,E_CAX,ME,xbound,ybound,xgrid,ygrid]=dicomrt_phspmap(phspfile,xmin,xmax,ymin,ymax,xspacing,yspacing,flutype,logopt,ptype,npart)</pre>
+<HR><H3>Help text</H3>
+<pre>
+ dicomrt_phspmap(phspfile,xmin,xmax,ymin,ymax,xspacing,yspacing,flutype,logopt,ptype,npart)
+ 
+ Analyze and create fluence maps in phase space files.
+
+ phspfile  name of the phase space file
+ xmin      ROI's xmin
+ xmax      ROI's xmax
+ ymin      ROI's ymin
+ ymax      ROI's ymax
+ xspacing  ROI's x resolution
+ yspacing  ROI's y resolution
+ flutype   switch between estimate of real fluence (~=0) of planar fluence (=0)
+ logopt    OPTIONAL parameter to export a text file containing particles' information
+ ptype     OPTIONAL particle type to list (0=photons, 1=electrons, 2=all, 3=positions, default=2)
+ npart     OPTIONAL number of particles to read for logfile export (default to 100 when logopt in on)
+
+ This function return 6D arrays/vectors. Photons' quantities are stored in the first dimension 
+ (e.g. FLvsP(:,:,1)) electrons' in the second dimension (e.g. FLvsP(:,:,2)) and
+ positrons' in the third dimension (e.g. FLvsP(:,:,3)). Standard deviations are stored 
+ are stored in the subsequent vectors in the same order. 
+ See C.-M. Ma and D.W.O. Rogers &quot;BEAMDP as a General-Purpose Utility&quot; NRCC Report PIRS-0509(E)
+ for analysis of statistical uncertainties.
+
+ This is list of some useful variables used and retuned by this function:
+ 
+ used:
+ 
+ phspmode      phsp file mode
+ npphsp        number of particles in phsp file
+ nphotphsp     number of photons in phsp file
+ ekmaxphsp     max kinetic energy of particles stored in phsp file
+ ekminphsp     minimum electron kinetic energy
+ nincphsp      total number of particles incident from original source
+ npass         number of times the particle has crossed the scoring plane (not used in this version)
+
+ returned:
+
+ FLvsP         fluence vs position (Fluence/cm2/incident particle)
+ EFLvsP        energy fluence vs position (Energy Fluence/cm2/incident particle/MeV)
+ FL_CAX        fluence (Fluence/cm2/incident particle) on a circular area (1cm2) around the central axis (CAX)
+ E_CAX         energy on a circular area (1cm2) around the central axis (CAX)
+ ME            mean energy of particles within ROI
+ xbound        x-boundaries of the grid used for phsp mapping 
+ ybound        y-boundaries of the grid used for phsp mapping 
+ xgrid         centres of the boundaries in xbound (to use with <A HREF = "../utils/dicomrt_plotfluence.html">dicomrt_plotfluence</A>)
+ ygrid         centres of the boundaries in ybound (to use with <A HREF = "../utils/dicomrt_plotfluence.html">dicomrt_plotfluence</A>)
+
+ Copyright (C) 2002 Emiliano Spezi (emiliano.spezi@physics.org) 
+</pre>
+<HR>
+Produced by <A HREF="http://www.mathworks.com/support/ftp/toolsv4.shtml">mat2html</A> on Mon Oct 20 15:21:43 2003
+<BR>
+Cross-Directory links are: OFF<BR>
+</BODY>

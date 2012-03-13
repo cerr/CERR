@@ -1,0 +1,44 @@
+<TITLE>/</TITLE>
+<BODY>
+<A HREF = "index.html">[Index for ./dicomrt-toolbox/mctp/plan]</A>
+<A HREF = "../index.html">[Return to Master Index]</A>
+<H1>dicomrt_ctcreate</H1>
+<H2>(./dicomrt-toolbox/mctp/plan/dicomrt_ctcreate.m)</H2>
+<HR><H3>Function Synopsis</H3>
+<pre>[ctmediumphantom,ctdensityphantom] = dicomrt_ctcreate(inpct_matrix,ct_xmesh,ct_ymesh,ct_zmesh,rtdose_xmesh,rtdose_ymesh,rtdose_zmesh,plotramp,int)</pre>
+<HR><H3>Help text</H3>
+<pre>
+ dicomrt_ctcreate(inpct_matrix,ct_xmesh,ct_ymesh,ct_zmesh,rtdose_xmesh,rtdose_ymesh,rtdose_zmesh,plotramp,int)
+
+ Create a ct phantom for BEAM/DOSXYZ simulation. Light Version.
+
+ inpct_matrix is the CT dataset
+ ct_xmesh, ct_ymesh, ct_zmesh are the coordinates of the voxels for the CT dataset
+ rtdose_xmesh, rtdose_ymesh, rtdose_zmesh are the coordinates of the voxels
+ of the 3D dose distribution
+ plotramp is an option for plotting the CT ramp (~=0 plot, =0[default] no plot)
+ Int is a parameter for interactive session. 
+     If int ~=1 or if int is not given session is not interactive
+     and default parameters (e.g. directories names) will be used. If int = 1 the user will 
+     be asked to set some parameters.
+
+ Parameters for this specific m file are:
+
+ nmat				    number of material
+ materials			    materials name
+ medium				materials number
+ mat_ct_up_bound		materials upper bound (see dosxyz user's manual)
+ density_lo_bound		density lower bound (see dosxyz user's manual)
+ density_up_bound		density upper bound (see dosxyz user's manual)
+ estepe				estepe (see dosxyz user's manual)
+ filename			    ct phantom filename for export
+
+ See also dicomrt_loaddose, dicomrt_rotate180x
+
+ Copyright (C) 2002 Emiliano Spezi (emiliano.spezi@physics.org) 
+</pre>
+<HR>
+Produced by <A HREF="http://www.mathworks.com/support/ftp/toolsv4.shtml">mat2html</A> on Mon Oct 20 15:21:43 2003
+<BR>
+Cross-Directory links are: OFF<BR>
+</BODY>

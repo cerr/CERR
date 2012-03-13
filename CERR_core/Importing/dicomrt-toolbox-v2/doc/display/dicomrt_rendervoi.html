@@ -1,0 +1,41 @@
+<TITLE>/</TITLE>
+<BODY>
+<A HREF = "index.html">[Index for ./dicomrt-toolbox/display]</A>
+<A HREF = "../index.html">[Return to Master Index]</A>
+<H1>dicomrt_rendervoi</H1>
+<H2>(./dicomrt-toolbox/display/dicomrt_rendervoi.m)</H2>
+<HR><H3>Function Synopsis</H3>
+<pre>[data] = dicomrt_rendervoi(voi,voi2render,int,addopt,nolegend)</pre>
+<HR><H3>Help text</H3>
+<pre>
+ dicomrt_rendervoi(voi,voi2render,int,addopt,nolegend)
+
+ Plot 3D Volumes Of Interests (VOIs) 
+
+ voi is the VOI cell array as created by dicomrt_loadvoi
+ voi2render is a vector containing the number of the VOI to be plotted
+ int is an OPTIONAL parameter which if set to &quot;1&quot; allow the user to select line properties
+ addopt is an OPTIONAL parameter which if set to &quot;1&quot; add VOIs plots to an existing figure
+ nolegend is an OPTIONAL parameter which if set to &quot;1&quot; do not plot legend in the figure
+
+ Example:
+
+ dicomrt_rendervoi(A,2) 
+
+ plot VOI number 2 stored in cell array A
+
+ See also dicomrt_loadvoi
+
+ Copyright (C) 2002 Emiliano Spezi (emiliano.spezi@physics.org) 
+</pre>
+<HR><H3>Cross-Reference Information</H3>This function is called by
+<pre><UL>
+<LI><A HREF = "../display/dicomrt_contourslice.html">dicomrt_contourslice</A>./dicomrt-toolbox/display/dicomrt_contourslice.m</LI>
+<LI><A HREF = "../display/dicomrt_explore.html">dicomrt_explore</A>./dicomrt-toolbox/display/dicomrt_explore.m</LI>
+<LI><A HREF = "../display/dicomrt_isosurface.html">dicomrt_isosurface</A>./dicomrt-toolbox/display/dicomrt_isosurface.m</LI>
+</UL></pre>
+<HR>
+Produced by <A HREF="http://www.mathworks.com/support/ftp/toolsv4.shtml">mat2html</A> on Mon Oct 20 15:21:43 2003
+<BR>
+Cross-Directory links are: OFF<BR>
+</BODY>

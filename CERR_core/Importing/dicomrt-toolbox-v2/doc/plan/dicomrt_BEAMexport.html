@@ -1,0 +1,79 @@
+<TITLE>/</TITLE>
+<BODY>
+<A HREF = "index.html">[Index for ./dicomrt-toolbox/mctp/plan]</A>
+<A HREF = "../index.html">[Return to Master Index]</A>
+<H1>dicomrt_BEAMexport</H1>
+<H2>(./dicomrt-toolbox/mctp/plan/dicomrt_BEAMexport.m)</H2>
+<HR><H3>Function Synopsis</H3>
+<pre>BEAMexport = dicomrt_BEAMexport(study,int)</pre>
+<HR><H3>Help text</H3>
+<pre>
+ dicomrt_BEAMexport(study,int)
+
+ Export rt plan parameters to BEAM00 compliant input files (beam collimation).
+
+ rtplanformc contain plan data coded (warmed) by <A HREF = "../plan/dicomrt_mcwarm.html">dicomrt_mcwarm</A>.
+
+ Output filename convention:
+
+ nameof(rtplanformc)_bnsm
+
+ where: nameof(rtplanformc) is the actual name of the input argument rtplanformc
+        bn is beam # n
+        sm is segment # m 
+
+ Int is interactive option. If int ~=1 or if int is not given session is not interactive
+ and default parameters (e.g. directories names) will be used. If int = 1 the user will 
+ be asked to set some parameters.
+ Parameters for this specific m file are:
+
+ SPCNAM				phase space file name
+ BEAM_MODULE			beam module name
+
+ Example:
+
+ dicomrt_BEAMexport(A)
+
+ if A is the rtplanformc for a plan with 3 beams and 1 segment for 1st beam, 2 segments
+ for 2nd beam and 3 segments for 3rd beam the command will produce the following files:
+ 
+ A_b1s1, A_b2s1, A_b2s2, A_b3s1, A_b3s2, A_b3s3
+
+ A file called nameof(rtplanformc).dcmlog will be also produced in the working directory. 
+ nameof(rtplanformc).dcmlog contains useful information such us time and date of the export
+ session and &quot;FILENAME&quot;,&quot;DIFF MU&quot;,&quot;# PARTICLES&quot; of each segment.It can be imported in spreadsheets 
+ and used to check the study's parameters. Different session's logs will bea appended to the file.
+
+ rtplanformc is a cell array with the following structure
+
+   beam name   common beam            primary collimator position         MLC and MU
+                  data
+  ---------------------------------------------------------------------------------------------------
+  | [beam 1] |gantry angle    | [jawsx 1st segment] [jawsy 1st segment]| [mlc 1st segment] [diff MU]|
+  |          |coll angle      |----------------------------------------------------------------------
+  |          |iso position (3)| [jawsx 2nd segment] [jawsy 2nd segment]| [mlc 2nd segment] [diff MU]|
+  |          |StBLD dist   (3)|----------------------------------------------------------------------
+  |          |voxel dim       |                   ...                  |             ...            |
+  |          |patient position|---------------------------------------------------------------------- 
+  |          |                | [jawsx nth segment] [jawsy nth segment]| [mlc nth segment] [diff MU]|
+  ---------------------------------------------------------------------------------------------------
+  |               ...                                    ...                                ...               
+  ---------------------------------------------------------------------------------------------------
+  | [beam n] |gantry angle    | [jawsx 1st segment] [jawsy 1st segment]| [mlc 1st segment] [diff MU]|
+  |          |coll angle      |----------------------------------------------------------------------
+  |          |iso position (3)| [jawsx 2nd segment] [jawsy 2nd segment]| [mlc 2nd segment] [diff MU]|
+  |          |StBLD dist   (3)|----------------------------------------------------------------------
+  |          |voxel dim       |                   ...                  |             ...            |
+  |          |patient position|---------------------------------------------------------------------- 
+  |          |                | [jawsx nth segment] [jawsy nth segment]| [mlc nth segment] [diff MU]|
+  ---------------------------------------------------------------------------------------------------
+
+ See also dicomrt_loaddose, dicomrt_loadct, <A HREF = "../plan/dicomrt_mcwarm.html">dicomrt_mcwarm</A>
+
+ Copyright (C) 2002 Emiliano Spezi (emiliano.spezi@physics.org) 
+</pre>
+<HR>
+Produced by <A HREF="http://www.mathworks.com/support/ftp/toolsv4.shtml">mat2html</A> on Mon Oct 20 15:21:43 2003
+<BR>
+Cross-Directory links are: OFF<BR>
+</BODY>

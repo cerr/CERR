@@ -1,0 +1,71 @@
+<TITLE>/</TITLE>
+<BODY>
+<A HREF = "index.html">[Index for ./dicomrt-toolbox/analysis]</A>
+<A HREF = "../index.html">[Return to Master Index]</A>
+<H1>dicomrt_gahcal</H1>
+<H2>(./dicomrt-toolbox/analysis/dicomrt_gahcal.m)</H2>
+<HR><H3>Function Synopsis</H3>
+<pre>[GAH] = dicomrt_gahcal(VOI,gamma,gamma_xmesh,gamma_ymesh,gamma_zmesh,gahselect,xgrid)</pre>
+<HR><H3>Help text</H3>
+<pre>
+ dicomrt_gahcal(VOI,gamma,gamma_xmesh,gamma_ymesh,gamma_zmesh,gahselect,xgrid)
+
+ Calculate GAMMA-AREA-HISTOGRAMS for VOIs and cell_case_study.
+ This function calculate GAHs for all the available VOIs or for a selected number of them.
+
+ gamma contains the 3D gamma map
+ gamma_xmesh,gamma_ymesh,gamma_zmesh are x-y-z coordinates of the center of the gamma-voxels 
+ VOIs is a cell array and contains all the Volumes of Interest
+ gahselect is an OPTIONAL parameter which contains the number of the VOI to calculate GAHs for.
+ xgrid is an OPTIONAL parameter that sets the resolution for GAH calculation (default = 30)
+
+ GAHs are stored in a cell array with the following structure:
+
+  -------------------------------
+  | [GAH-name] | [3D gamma mask] |
+  |            -------------------
+  |            | [gah section 1] |
+  |            | [gah section 2] |
+  |            |     ...         |
+  |            | [gah section m] |
+  |            -------------------
+  |            | [info area 1]   |
+  |            | [info area 2]   |
+  |            |     ...         |  
+  |            | [info area m]   |
+  |            -------------------
+  |            | Pixel area      | 
+  --------------------------------
+
+ [gamma data] is a 2 columns vector with following structure:
+
+ -----------------
+ | gamma | count |
+ -----------------
+ |       |       |
+ |       |       |
+ |       |       |
+ |       |       |
+ -----------------
+
+ [info area] is a 2 columns vector with following structure:
+
+ ---------------------------------
+ | area sec | z location section |
+ ---------------------------------
+
+ Example:
+
+ gah=dicomrt_gahcal(VOI,gamma,gamma_xmesh,gamma_ymesh,gamma_zmesh,4) returns 
+ the GAH for the VOI number 4 in VOI and the gamma distribution stored in the 
+ 3D matrix 'gamma'.
+
+ See also <A HREF = "../analysis/dicomrt_gvhcal.html">dicomrt_gvhcal</A>, dicomrt_gvhplot
+           
+ Copyright (C) 2002 Emiliano Spezi (emiliano.spezi@physics.org) 
+</pre>
+<HR>
+Produced by <A HREF="http://www.mathworks.com/support/ftp/toolsv4.shtml">mat2html</A> on Mon Oct 20 15:21:43 2003
+<BR>
+Cross-Directory links are: OFF<BR>
+</BODY>

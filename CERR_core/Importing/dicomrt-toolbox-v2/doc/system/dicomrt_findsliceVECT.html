@@ -1,0 +1,42 @@
+<TITLE>/</TITLE>
+<BODY>
+<A HREF = "index.html">[Index for ./dicomrt-toolbox/system]</A>
+<A HREF = "../index.html">[Return to Master Index]</A>
+<H1>dicomrt_findsliceVECT</H1>
+<H2>(./dicomrt-toolbox/system/dicomrt_findsliceVECT.m)</H2>
+<HR><H3>Function Synopsis</H3>
+<pre>[slice_number]=dicomrt_findsliceVECT(vectref,slice,vect,PatientPosition,edges)</pre>
+<HR><H3>Help text</H3>
+<pre>
+ dicomrt_findsliceVECT(vectref,slice,vect,PatientPosition,edges)
+
+ Find the location of a point among different vectors.
+
+ vectref is the vector of reference
+ slice is the slice number (defined in voilookup)
+ vect is the vector where to search for slice
+ PatientPoisition is the code which defines the patient orientation 
+ edges is an OPTIONAL parameter 
+     if edges==1 vectors define boundaries of pixels
+     if edges==0 (default) vectors define centers of pixels
+ 
+ Example:
+
+ [num]=dicomrt_findsliceVECT(dose_xmesh,30,ct_xmesh);
+
+ returns in num the slice number in ct_xmesh which correspond to slice &quot;30&quot; in dose_xmesh.
+
+ See also <A HREF = "../system/dicomrt_findslice.html">dicomrt_findslice</A>, dicomrt_getPatientPosition, hist, histc
+ 
+ Copyright (C) 2002 Emiliano Spezi (emiliano.spezi@physics.org) 
+</pre>
+<HR><H3>Cross-Reference Information</H3>This function is called by
+<pre><UL>
+<LI><A HREF = "../system/dicomrt_findvoi2slice.html">dicomrt_findvoi2slice</A>./dicomrt-toolbox/system/dicomrt_findvoi2slice.m</LI>
+<LI><A HREF = "../system/dicomrt_mask.html">dicomrt_mask</A>   ./dicomrt-toolbox/system/dicomrt_mask.m</LI>
+</UL></pre>
+<HR>
+Produced by <A HREF="http://www.mathworks.com/support/ftp/toolsv4.shtml">mat2html</A> on Mon Oct 20 15:21:43 2003
+<BR>
+Cross-Directory links are: OFF<BR>
+</BODY>

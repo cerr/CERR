@@ -1,0 +1,47 @@
+<TITLE>/</TITLE>
+<BODY>
+<A HREF = "index.html">[Index for ./dicomrt-toolbox/mctp/load]</A>
+<A HREF = "../index.html">[Return to Master Index]</A>
+<H1>dicomrt_addmcdose</H1>
+<H2>(./dicomrt-toolbox/mctp/load/dicomrt_addmcdose.m)</H2>
+<HR><H3>Function Synopsis</H3>
+<pre>[totalMCdose,totalMCerror] = dicomrt_addmcdose(MCdose,MCerror)</pre>
+<HR><H3>Help text</H3>
+<pre>
+ dicomrt_addmcdose(MCdose,MCerror)
+
+ Add segment's contribution of Monte Carlo 3D dose distribution calculated for rtplanformc 
+ 
+ MCdose and MCerror are two cell arrays with the following structure
+
+   beam name     3d matrix/segment
+  --------------------------------------
+  | [beam 1] | [1st segment 3dmatrix ] |
+  |          | [1st segment 3dmatrix ] |
+  |          |                         |
+  |          | [nth segment 3dmatrix ] |
+  --------------------------------------
+  |   ...               ...            |
+  --------------------------------------
+  | [beam 2] | [1st segment 3dmatrix ] |
+  |          | [1st segment 3dmatrix ] |
+  |          |                         |
+  |          | [nth segment 3dmatrix ] |
+  --------------------------------------
+
+ Example:
+
+ [totalMCdose,totalMCerror]=dicomrt_addmcdose(A,B)
+
+ add all the 3D MC dose and errors from segments, stored respectively in A and B,  
+ and return them in totalMCdose and totalMCerror
+
+ See also dicomrt_read3ddose, dicomrt_loaddose, <A HREF = "../load/dicomrt_loadmcdose.html">dicomrt_loadmcdose</A>
+
+ Copyright (C) 2002 Emiliano Spezi (emiliano.spezi@physics.org) 
+</pre>
+<HR>
+Produced by <A HREF="http://www.mathworks.com/support/ftp/toolsv4.shtml">mat2html</A> on Mon Oct 20 15:21:43 2003
+<BR>
+Cross-Directory links are: OFF<BR>
+</BODY>

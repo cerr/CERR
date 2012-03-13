@@ -1,0 +1,46 @@
+<TITLE>/</TITLE>
+<BODY>
+<A HREF = "index.html">[Index for ./dicomrt-toolbox/load]</A>
+<A HREF = "../index.html">[Return to Master Index]</A>
+<H1>dicomrt_loadct</H1>
+<H2>(./dicomrt-toolbox/load/dicomrt_loadct.m)</H2>
+<HR><H3>Function Synopsis</H3>
+<pre>[ctcell,ct_xmesh,ct_ymesh,ct_zmesh] = dicomrt_loadct(filename,sorting)</pre>
+<HR><H3>Help text</H3>
+<pre>
+ dicomrt_loadct(filename,sorting)
+
+ Read dicom CT for a case using MATLAB native function dicomread. Light Version.
+
+ filename contains a list of CT slices to import 
+ 
+ CT are stored in a single 3D matrix: case_study
+ x-y-z coordinates of the center of the ct-pixel are stored in ct_xmesh, ct_ymesh and ct_zmesh.
+
+ NOTE:  CT numbers range from -1000 for air to 1000 for bone with that for water set to 0.
+ CT numbers normalized in this manner are called Hounfield numbers or units (HU):
+
+ HU = ((mu_tissue-mu_water)/mu_water)*1000
+
+ Following DICOM RT standard HU = m*(SV)+b where m is RescaleSlope, b RescaleIntercept
+ and SV are pixel (stored) values.
+
+ Often CT scale is shifted so that HU(water)=1000 (=CToffset) instead of 0. 
+
+ NOTE: as opposed to dicomrt_loadct ct_xmesh, ct_ymesh and ct_zmesh are vectors and not
+ matrices. This allow to run this functions also in &quot;low&quot; memory pcs.
+
+ See also <A HREF = "../load/dicomrt_loaddose.html">dicomrt_loaddose</A>, dicomrt_getPatientPosition
+
+ Copyright (C) 2002 Emiliano Spezi (emiliano.spezi@physics.org) 
+</pre>
+<HR><H3>Cross-Reference Information</H3>This function calls
+<pre><UL>
+<LI><A HREF = "../load/dicomrt_loadctlist.html">dicomrt_loadctlist</A>./dicomrt-toolbox/load/dicomrt_loadctlist.m</LI>
+<LI><A HREF = "../load/dicomrt_sortct.html">dicomrt_sortct</A> ./dicomrt-toolbox/load/dicomrt_sortct.m</LI>
+</UL></pre>
+<HR>
+Produced by <A HREF="http://www.mathworks.com/support/ftp/toolsv4.shtml">mat2html</A> on Mon Oct 20 15:21:43 2003
+<BR>
+Cross-Directory links are: OFF<BR>
+</BODY>

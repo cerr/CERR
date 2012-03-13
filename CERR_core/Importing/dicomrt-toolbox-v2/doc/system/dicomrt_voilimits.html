@@ -1,0 +1,45 @@
+<TITLE>/</TITLE>
+<BODY>
+<A HREF = "index.html">[Index for ./dicomrt-toolbox/system]</A>
+<A HREF = "../index.html">[Return to Master Index]</A>
+<H1>dicomrt_voilimits</H1>
+<H2>(./dicomrt-toolbox/system/dicomrt_voilimits.m)</H2>
+<HR><H3>Function Synopsis</H3>
+<pre>[locate_voi_min_1,locate_voi_max_1,locate_voi_min_2,locate_voi_max_2] = dicomrt_voilimits(slice,voiref,dose_1mesh,dose_2mesh,VOI,voi2use,PatientPosition)</pre>
+<HR><H3>Help text</H3>
+<pre>
+ dicomrt_voilimits(slice,voiref,dose_1mesh,dose_2mesh,VOI,voi2use,PatientPosition)
+
+ Returns the voxel index of the smallest and largest coordinate of the selected VOI in the specified Z slice.
+
+ slice is the slice number where the mins and maxs will be calculated.
+      Slice number is relative to voiref.
+ voiref is the voi of reference
+ dose_1mesh,dose_2mesh, are coordinates of the center of the dose-pixel 
+ VOI is a cell array which contain the patients VOIs as read by dicomrt_loadvoi
+ voi2use is a vector pointing to the number of VOIs to be used 
+
+ Example:
+
+ [xmin,xmax,ymin,ymax]=dicomrt_voiboundariesZ(12,1,xmesh,xmesh,VOI,5)
+
+ returns in xmin,xmax,ymin,ymax the pixel numbers which correspond to the edges of 
+ structure &quot;5&quot; (e.g. target) in slice number 12 with reference to structure number &quot;1&quot;.
+
+ See also <A HREF = "../system/dicomrt_voiboundaries.html">dicomrt_voiboundaries</A>, dicomrt_dosegradient, dicomrt_surfdose
+
+ Copyright (C) 2002 Emiliano Spezi (emiliano.spezi@physics.org) 
+</pre>
+<HR><H3>Cross-Reference Information</H3>This function calls
+<pre><UL>
+<LI><A HREF = "../system/dicomrt_checkinput.html">dicomrt_checkinput</A>./dicomrt-toolbox/system/dicomrt_checkinput.m</LI>
+<LI><A HREF = "../system/dicomrt_createboundgrid.html">dicomrt_createboundgrid</A>./dicomrt-toolbox/system/dicomrt_createboundgrid.m</LI>
+<LI><A HREF = "../system/dicomrt_findpointVECT.html">dicomrt_findpointVECT</A>./dicomrt-toolbox/system/dicomrt_findpointVECT.m</LI>
+<LI><A HREF = "../system/dicomrt_findslice.html">dicomrt_findslice</A>./dicomrt-toolbox/system/dicomrt_findslice.m</LI>
+<LI><A HREF = "../system/dicomrt_varfilter.html">dicomrt_varfilter</A>./dicomrt-toolbox/system/dicomrt_varfilter.m</LI>
+</UL></pre>
+<HR>
+Produced by <A HREF="http://www.mathworks.com/support/ftp/toolsv4.shtml">mat2html</A> on Mon Oct 20 15:21:43 2003
+<BR>
+Cross-Directory links are: OFF<BR>
+</BODY>

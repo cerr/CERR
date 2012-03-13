@@ -1,0 +1,16 @@
+function [Version, date] = CERRCurrentVersion
+%function [ver, date] = CERRCurrentVersion
+%Return the official CERR version number and date posted.
+%This is the official repository of the version number.
+% copyright (c) 2001-2006, Washington University in St. Louis.
+% Permission is granted to use or modify only for non-commercial, 
+% non-treatment-decision applications, and further only if this header is 
+% not removed from any file. No warranty is expressed or implied for any 
+% use whatever: use at your own risk.  Users can request use of CERR for 
+% institutional review board-approved protocols.  Commercial users can 
+% request a license.  Contact Joe Deasy for more information 
+% (radonc.wustl.edu@jdeasy, reversed).
+
+Version  = '3.2 Beta 3';
+date =  '02-NOV-09';
+

@@ -1,0 +1,59 @@
+<TITLE>/</TITLE>
+<BODY>
+<A HREF = "index.html">[Index for ./dicomrt-toolbox/display]</A>
+<A HREF = "../index.html">[Return to Master Index]</A>
+<H1>dicomrt_displaycontour</H1>
+<H2>(./dicomrt-toolbox/display/dicomrt_displaycontour.m)</H2>
+<HR><H3>Function Synopsis</H3>
+<pre>[contour] = dicomrt_displaycontour(matrix,xmesh,ymesh,zmesh,dose,dose_xmesh,dose_ymesh,dose_zmesh,axis,slice,norm,levels,VOI,voi2use)</pre>
+<HR><H3>Help text</H3>
+<pre>
+ dicomrt_displaycontour(matrix,xmesh,ymesh,zmesh,dose,dose_xmesh,dose_ymesh,dose_zmesh,axis,slice,norm,levels,VOI,voi2use)
+
+ Display dose contour overlayed in a slice. VOIs can be also plotted.
+
+ matrix contains the 3D dose distribution
+ xmesh,ymesh,zmesh,dose_xmesh,dose_ymesh,dose_zmesh are x-y-z coordinates of the center of the matrix voxels
+ axis is a character (X Y or Z) and refers to the axis used for the slice display
+ Slice is the slice number to be displayed
+ norm is the dose normalization level
+ norm =0 (default) no normalization is carried out
+      ~=0 doses are normalized to norm (100%)
+ levels is a vector which contains dose contour levels to be plotted consistently to the input matrix
+ VOI is an OPTIONAL cell array which contain the patients VOIs. 
+ voi2use is an OPTIONAL vector pointing to the number of VOIs to be displayed
+
+ Colors for contours are automatically set using the following convention:
+
+ |---------------|----------|
+ |dose value (%) |  color   |
+ |---------------|----------|
+ |   &gt; 105       |  magenta |
+ |   95-105      |  red     |
+ |   80-95       |  green   |
+ |   50-80       |  cyan    |
+ |   0-50        |  blu     |
+ |---------------|----------|
+
+ Example:
+
+ dicomrt_displaycontour(CT,ct_xmesh,ct_ymesh,ct_zmesh,A,dose_xmesh,dose_ymesh,dose_zmesh,...
+       'z',26,60,[100 95 50],A_voi,[1 11 10]);
+
+ display dose contours for slice 26 of A along the z axis superimposed to
+ the corresponding CT image from matrix. Dose is normalized to 60Gy and 
+ contours of 100% 95% and 50% are shown with overlays from VOIs 1 11 and 10.
+
+ See also dicomrt_displaycontourcomp, dicomrt_build3dVOImtx, dicomrt_plot3dVOI
+
+ Copyright (C) 2002 Emiliano Spezi (emiliano.spezi@physics.org) 
+</pre>
+<HR><H3>Cross-Reference Information</H3>This function calls
+<pre><UL>
+<LI><A HREF = "../display/dicomrt_plotVOI.html">dicomrt_plotVOI</A>./dicomrt-toolbox/display/dicomrt_plotVOI.m</LI>
+</UL></pre>
+<HR>
+Produced by <A HREF="http://www.mathworks.com/support/ftp/toolsv4.shtml">mat2html</A> on Mon Oct 20 15:21:43 2003
+<BR>
+Cross-Directory links are: OFF<BR>
+</BODY>

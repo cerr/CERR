@@ -1,0 +1,49 @@
+<TITLE>/</TITLE>
+<BODY>
+<A HREF = "index.html">[Index for ./dicomrt-toolbox/load]</A>
+<A HREF = "../index.html">[Return to Master Index]</A>
+<H1>dicomrt_loadvoi</H1>
+<H2>(./dicomrt-toolbox/load/dicomrt_loadvoi.m)</H2>
+<HR><H3>Function Synopsis</H3>
+<pre>[cellVOI] = dicomrt_loadvoi(rtstruct_filename)</pre>
+<HR><H3>Help text</H3>
+<pre>
+ dicomrt_loadvoi(rtstruct_filename)
+
+ Load Volumes Of Interests (VOIs) from dicom-rt export file.
+
+ A=dicomrt_dvhcal('rtstruct_filename') load into A the VOIs
+ extracted from the file 'rtstruct_filename'
+
+ VOIs are stored in a cell array with the following structure:
+
+  -----------------------------
+  | [OAR 1] | [xyz contour 1] |
+  |         -------------------
+  |         | [xyz contour 2] |
+  |         -------------------
+  |         |     ...         |
+  |         ------------------- 
+  |         | [xyz contour n] |
+  -----------------------------
+  |   ...   |     ...         |
+  -----------------------------
+  | [OAR n] | [xyz contour 1] |
+  |         ------------------- 
+  |         | [xyz contour 2] |
+  |         -------------------
+  |         |     ...         |
+  |         ------------------- 
+  |         | [xyz contour n] |
+  -----------------------------
+
+
+ See also <A HREF = "../load/dicomrt_loaddose.html">dicomrt_loaddose</A>, <A HREF = "../load/dicomrt_loadct.html">dicomrt_loadct</A>, dicomrt_dvhcal
+
+ Copyright (C) 2002 Emiliano Spezi (emiliano.spezi@physics.org) 
+</pre>
+<HR>
+Produced by <A HREF="http://www.mathworks.com/support/ftp/toolsv4.shtml">mat2html</A> on Mon Oct 20 15:21:43 2003
+<BR>
+Cross-Directory links are: OFF<BR>
+</BODY>

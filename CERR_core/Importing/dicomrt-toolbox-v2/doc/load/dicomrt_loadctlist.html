@@ -1,0 +1,52 @@
+<TITLE>/</TITLE>
+<BODY>
+<A HREF = "index.html">[Index for ./dicomrt-toolbox/load]</A>
+<A HREF = "../index.html">[Return to Master Index]</A>
+<H1>dicomrt_loadctlist</H1>
+<H2>(./dicomrt-toolbox/load/dicomrt_loadctlist.m)</H2>
+<HR><H3>Function Synopsis</H3>
+<pre>[filelistAXIAL,xlocationAXIAL,ylocationAXIAL,zlocationAXIAL,change,user_option] = dicomrt_loadctlist(filename)</pre>
+<HR><H3>Help text</H3>
+<pre>
+ dicomrt_loadctlist(filename)
+
+ Parse CT data set specified in filename. If more than one study are found within the CT data set
+ the user can select a study and dicomrt_loadctlist return a filelist and x,y,z coordinates of the
+ selected CT subset
+
+ filename contains a list of CT slices to import 
+
+ change is 1 if any change to the filelist have been done, 0 otherwise
+ user_option is 1 if the user select not to continue with the program, 0 otherwise
+
+ Example:
+ [list,x,y,z,change,user_option]=dicomrt_loadctlist(filename)
+
+ with filename containint the following:
+ ct1 (group1)
+ ct2 (group2)
+ ct3 (group1)
+ ct4 (group2)
+
+ if the user select one of them (e.g. group1):
+ list= contain only ct1 and ct3,
+ x= xlocation of ct1 and ct3 ,
+ y= ylocation of ct1 and ct3 ,
+ z= zlocation of ct1 and ct3 ,
+ change= 1,
+ user_option= 0
+
+ See also <A HREF = "../load/dicomrt_loaddose.html">dicomrt_loaddose</A> <A HREF = "../load/dicomrt_loadct.html">dicomrt_loadct</A> <A HREF = "../load/dicomrt_sortct.html">dicomrt_sortct</A>
+
+ Copyright (C) 2002 Emiliano Spezi (emiliano.spezi@physics.org) 
+</pre>
+<HR><H3>Cross-Reference Information</H3>This function is called by
+<pre><UL>
+<LI><A HREF = "../load/dicomrt_DICOMimport.html">dicomrt_DICOMimport</A>./dicomrt-toolbox/load/dicomrt_DICOMimport.m</LI>
+<LI><A HREF = "../load/dicomrt_loadct.html">dicomrt_loadct</A> ./dicomrt-toolbox/load/dicomrt_loadct.m</LI>
+</UL></pre>
+<HR>
+Produced by <A HREF="http://www.mathworks.com/support/ftp/toolsv4.shtml">mat2html</A> on Mon Oct 20 15:21:43 2003
+<BR>
+Cross-Directory links are: OFF<BR>
+</BODY>

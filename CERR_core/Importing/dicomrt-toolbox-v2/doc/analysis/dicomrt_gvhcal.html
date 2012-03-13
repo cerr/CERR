@@ -1,0 +1,63 @@
+<TITLE>/</TITLE>
+<BODY>
+<A HREF = "index.html">[Index for ./dicomrt-toolbox/analysis]</A>
+<A HREF = "../index.html">[Return to Master Index]</A>
+<H1>dicomrt_gvhcal</H1>
+<H2>(./dicomrt-toolbox/analysis/dicomrt_gvhcal.m)</H2>
+<HR><H3>Function Synopsis</H3>
+<pre>[GVH] = dicomrt_gvhcal(VOI,gamma,gamma_xmesh,gamma_ymesh,gamma_zmesh,gvhselect,xgrid)</pre>
+<HR><H3>Help text</H3>
+<pre>
+ dicomrt_gvhcal(VOI,gamma,gamma_xmesh,gamma_ymesh,gamma_zmesh,gvhselect,xgrid)
+
+ Calculate GAMMA-VOLUME-HISTOGRAMS for VOIs and cell_case_study. Light Version.
+ This function calculate GVHs for all the available VOIs or for a selected number of them.
+
+ gamma contains the 3D gamma map
+ gamma_xmesh,gamma_ymesh,gamma_zmesh are x-y-z coordinates of the center of the gamma-voxels 
+ VOIs        cell array and contains all the Volumes of Interest
+ gvhselect   number corresponding to the VOI to calculate GVHs for
+ xgrid       OPTIONAL parameter that sets the resolution for GVH
+             calculation. If not set a default grid is used with a
+             resolution of 0.1 for GAMMA values between 0 and 1.
+
+
+ GVHs are stored in a cell array with the following structure:
+
+  --------------------------------
+  | [GVH-name] | [3D gamma mask] |
+  |            -------------------
+  |            | [gvh data]      |
+  |            -------------------
+  |            | VOI volume      | 
+  |            -------------------
+  |            | Voxel volume    | 
+  --------------------------------
+
+ [gvh data] is a 2 columns vector with following structure:
+
+ ----------------------
+ | gamma grid | count |
+ ----------------------
+ |            |       |
+ |            |       |
+ |            |       |
+ |            |       |
+ ----------------------
+
+
+ Example:
+
+ gvh=dicomrt_gvhcal(VOI,gamma,gamma_xmesh,gamma_ymesh,gamma_zmesh,4) returns 
+ the GVH for the VOI number 4 in VOI and the gamma distribution stored in the 
+ 3D matrix 'gamma'.
+
+ See also dicomrt_loaddose, roifilt2, roipoly, dicomrt_gvhplot, dicomrt_GAMMAcal2D
+           
+ Copyright (C) 2002 Emiliano Spezi (emiliano.spezi@physics.org) 
+</pre>
+<HR>
+Produced by <A HREF="http://www.mathworks.com/support/ftp/toolsv4.shtml">mat2html</A> on Mon Oct 20 15:21:43 2003
+<BR>
+Cross-Directory links are: OFF<BR>
+</BODY>

@@ -1,0 +1,56 @@
+<TITLE>/</TITLE>
+<BODY>
+<A HREF = "index.html">[Index for ./dicomrt-toolbox/analysis]</A>
+<A HREF = "../index.html">[Return to Master Index]</A>
+<H1>dicomrt_dosediff</H1>
+<H2>(./dicomrt-toolbox/analysis/dicomrt_dosediff.m)</H2>
+<HR><H3>Function Synopsis</H3>
+<pre>[diff_dose] = dicomrt_dosediff(doseone,dosetwo,method,dose_xmesh,dose_ymesh,dose_zmesh,VOI,voi2use)</pre>
+<HR><H3>Help text</H3>
+<pre>
+ dicomrt_dosediff(doseone,dosetwo,method,dose_xmesh,dose_ymesh,dose_zmesh,VOI,voi2use)
+
+ Calculate dose difference between two 3D matrices
+ 
+ doseone and dosetwo can be rtplan and/or monte carlo 3D dose distributions.
+ method is an OPTIONAL rameter which specify the way doses are normalised
+
+ 1. method=a          matrices are normalised to the value a expressed in Gy
+ 2. method=[x, y, z]  matrices are independently normalised to the dose value at point (x,y,z) (in cm)
+ 3. method=dmean      matrices are independently normalised to the mean dose value in VOI voi2use (key insensitive)
+ 4. method=0          matrices are not normalised (default)   
+
+ dose_xmesh,dose_ymesh,dose_zmesh are OPTIONAL x-y-z coordinates of the center of the matrix voxels
+ VOI is a cell array which contain the patients VOIs (OPTIONAL to use with option 3)
+ voi2use is a vector pointing to the number of VOI (OPTIONAL to use with option 3)
+
+ Examples:
+
+ C=dicomrt_dosediff(A,B,0,dose_xmesh,dose_ymesh,dose_zmesh,VOI,0)
+ Store in C the dose difference between B and A. C=(B-A). 
+
+ C=dicomrt_dosediff(A,B,60,method,dose_xmesh,dose_ymesh,dose_zmesh,VOI,voi2use)
+ Store in C the dose difference between Bnorm and Anorm. C=(Bnorm-Anorm), where
+ Bnorm and Anorm are normalised to 60Gy (100%).
+
+ C=dicomrt_dosediff(A,B,[10.5 -18 7],method,dose_xmesh,dose_ymesh,dose_zmesh)
+ Store in C the dose difference between Bnorm and Anorm. C=(Bnorm-Anorm), where
+ Bnorm and Anorm are normalised to the respective dose values at dnorm=(10.5 -18 7).
+
+ C=dicomrt_dosediff(A,B,'Dmean',method,dose_xmesh,dose_ymesh,dose_zmesh,VOI,3)
+ Store in C the dose difference between Bnorm and Anorm. C=(Bnorm-Anorm), where
+ Bnorm and Anorm are normalised to the respective mean dose values in VOI number 3
+
+ See also: <A HREF = "../analysis/dicomrt_doseratio.html">dicomrt_doseratio</A>, dicomrt_loadmcdose
+
+ Copyright (C) 2002 Emiliano Spezi (emiliano.spezi@physics.org) 
+</pre>
+<HR><H3>Cross-Reference Information</H3>This function calls
+<pre><UL>
+<LI><A HREF = "../analysis/dicomrt_MDcal.html">dicomrt_MDcal</A>  ./dicomrt-toolbox/analysis/dicomrt_MDcal.m</LI>
+</UL></pre>
+<HR>
+Produced by <A HREF="http://www.mathworks.com/support/ftp/toolsv4.shtml">mat2html</A> on Mon Oct 20 15:21:43 2003
+<BR>
+Cross-Directory links are: OFF<BR>
+</BODY>

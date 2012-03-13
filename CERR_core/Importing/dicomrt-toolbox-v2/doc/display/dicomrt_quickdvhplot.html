@@ -1,0 +1,52 @@
+<TITLE>/</TITLE>
+<BODY>
+<A HREF = "index.html">[Index for ./dicomrt-toolbox/display]</A>
+<A HREF = "../index.html">[Return to Master Index]</A>
+<H1>dicomrt_quickdvhplot</H1>
+<H2>(./dicomrt-toolbox/display/dicomrt_quickdvhplot.m)</H2>
+<HR><H3>Function Synopsis</H3>
+<pre>[dvh] = dicomrt_quickdvhplot(VOI,cell_case_study,dose_xmesh,dose_ymesh,dose_zmesh,type)</pre>
+<HR><H3>Help text</H3>
+<pre>
+ dicomrt_quickdvhplot(VOI,cell_case_study,dose_xmesh,dose_ymesh,dose_zmesh,type)
+
+ Select VOI for DOSE-VOLUME-HISTOGRAM calculation and plot. Light Version
+
+ NOTE: as opposed to dicomrt_dvhcal_single *mesh* arguments are vectors and not
+ matrices. This allow to run this functions also in &quot;low&quot; memory pcs.
+
+ VOIs is a cell array and contains all the Volumes of Interest
+ cell_case_study is a simple cell array with the following structure:
+
+  ------------------------
+  | [ rtplan structure ] |
+  | ----------------------
+  | [ 3D dose matrix   ] |
+  ------------------------
+
+ xmesh and ymesh are needed to precisely mask dose distribution 
+ using VOIs contours
+ zmesh is used to match the z position of the VOI's contour with
+ the appropriate dose plane
+
+ Options are:
+
+ type    = 1   cumulative histogram
+ type    ~ 1   frequency plot (default)
+
+ This function calls dicomrt_dvhcal_single, plots the selected VOI
+ and exits. It's light and quick. DVH calculation are done on-the-fly
+ with the same algorithm used for dicomrt_dvhcal_all.
+
+ To produce plot with multiple DVHs and labels use: 
+ dicomrt_dvhcal_all followed by <A HREF = "../display/dicomrt_dvhplot.html">dicomrt_dvhplot</A>
+
+ See also dicomrt_loaddose, dicomrt_dvhcal, <A HREF = "../display/dicomrt_dvhplot.html">dicomrt_dvhplot</A>
+
+ Copyright (C) 2002 Emiliano Spezi (emiliano.spezi@physics.org) 
+</pre>
+<HR>
+Produced by <A HREF="http://www.mathworks.com/support/ftp/toolsv4.shtml">mat2html</A> on Sun Oct 19 15:47:40 2003
+<BR>
+Cross-Directory links are: OFF<BR>
+</BODY>

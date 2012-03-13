@@ -1,0 +1,54 @@
+<TITLE>/</TITLE>
+<BODY>
+<A HREF = "index.html">[Index for ./dicomrt-toolbox/mctp/plan]</A>
+<A HREF = "../index.html">[Return to Master Index]</A>
+<H1>dicomrt_createmcscripts</H1>
+<H2>(./dicomrt-toolbox/mctp/plan/dicomrt_createmcscripts.m)</H2>
+<HR><H3>Function Synopsis</H3>
+<pre>dicomrt_createmcscripts = dicomrt_createmcscripts(study,mcmodule,hostlist)</pre>
+<HR><H3>Help text</H3>
+<pre>
+ dicomrt_createmcscripts(study,mcmodule,hostlist)
+
+ Create scripts for automatic launch of MC simulation on &quot;hostlist&quot;
+
+ Example:
+
+ dicomrt_createmcscripts(A,dosxyz,beowulf)
+
+ will create:
+
+ if mcmodule~=dosxyz
+
+ A_b?.launch       when executed launch BEAM MC simulation for segments of beam &quot;?&quot;
+                   using BEAM module &quot;mcmodule&quot;
+
+ if mcmodule=dosxyz
+
+ A_xyz_b?.launch   when executed launch DOSXYZ MC simulation for segments of beam &quot;?&quot;
+
+ Simulations will be submitted to remote hosts specified in beowulf.
+ File beowulf must contain a valid list of remote hosts in the following format
+ 
+ host1
+ host2
+  ...
+ hostn
+ 
+ NOTE1: beowulf filename must be a character string
+ NOTE2: if # of segments exeed # of hosts exeeding simulations will be submitted 
+        restarting from first remote host in the list
+
+ See also dicomrt_BEAMexport, dicomrt_DOSXYZexport
+
+ Copyright (C) 2002 Emiliano Spezi (emiliano.spezi@physics.org)
+</pre>
+<HR><H3>Cross-Reference Information</H3>This function calls
+<pre><UL>
+<LI><A HREF = "../plan/dicomrt_mcwarm.html">dicomrt_mcwarm</A> ./dicomrt-toolbox/mctp/plan/dicomrt_mcwarm.m</LI>
+</UL></pre>
+<HR>
+Produced by <A HREF="http://www.mathworks.com/support/ftp/toolsv4.shtml">mat2html</A> on Mon Oct 20 15:21:43 2003
+<BR>
+Cross-Directory links are: OFF<BR>
+</BODY>

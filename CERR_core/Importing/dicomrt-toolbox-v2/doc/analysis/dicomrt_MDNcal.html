@@ -1,0 +1,40 @@
+<TITLE>/</TITLE>
+<BODY>
+<A HREF = "index.html">[Index for ./dicomrt-toolbox/analysis]</A>
+<A HREF = "../index.html">[Return to Master Index]</A>
+<H1>dicomrt_MDNcal</H1>
+<H2>(./dicomrt-toolbox/analysis/dicomrt_MDNcal.m)</H2>
+<HR><H3>Function Synopsis</H3>
+<pre>[MDN,MDN_aerr] = dicomrt_MDNcal(inputdose,inputerror,dose_xmesh,dose_ymesh,dose_zmesh,VOI,voi2use)</pre>
+<HR><H3>Help text</H3>
+<pre>
+ dicomrt_MDNcal(inputdose,inputerror,dose_xmesh,dose_ymesh,dose_zmesh,VOI,voi2use)
+
+ Calculate the median dose for a given 3D dose distribution within a given VOI
+ 
+ inputdose is the input 3D dose (e.g. RTPLAN or MC generated)
+ inputerror is the relative error asociated with the calculated dose. If inputerror=0 error
+ calculation is not performed (e.g. for TPS dose matrices), otherwise
+ inputerror dimensions must match those of inputdose (e.g. for MC dose matrices).
+ dose_xmesh,dose_ymesh,dose_zmesh are x-y-z coordinates of the center of the dose-pixel 
+ 
+ VOI is a cell array which contain the patients VOIs as read by dicomrt_loadvoi
+ voi2use is a vector pointing to the number of VOIs to be used ot the analysis and for the display.
+ NOTE: voi2use cannot be a vector. VOIs can be added to the plot later holding it on and using dicomrt_rendervoi.
+ NOTE:isocontour on each sclice must be a closed single line!!!!! 
+
+ Example:
+
+ [A]=dicomrt_MDNcal(B,dose_xmesh,dose_ymesh,dose_zmesh,demo_voi,9);
+ 
+ returns in A the median dose for the dose matrix B and the voi # 9 within demo_voi.
+
+ See also dicomrt_MDcal, dicomrt_MAXcal, dicomrt_MINcal
+
+ Copyright (C) 2002 Emiliano Spezi (emiliano.spezi@physics.org) 
+</pre>
+<HR>
+Produced by <A HREF="http://www.mathworks.com/support/ftp/toolsv4.shtml">mat2html</A> on Mon Oct 20 15:21:43 2003
+<BR>
+Cross-Directory links are: OFF<BR>
+</BODY>

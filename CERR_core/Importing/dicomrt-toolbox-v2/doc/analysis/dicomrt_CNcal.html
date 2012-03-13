@@ -1,0 +1,62 @@
+<TITLE>/</TITLE>
+<BODY>
+<A HREF = "index.html">[Index for ./dicomrt-toolbox/analysis]</A>
+<A HREF = "../index.html">[Return to Master Index]</A>
+<H1>dicomrt_CNcal</H1>
+<H2>(./dicomrt-toolbox/analysis/dicomrt_CNcal.m)</H2>
+<HR><H3>Function Synopsis</H3>
+<pre>[CN,Vt_dref,Vt,Vdref] = dicomrt_CNcal(inputdose,dose_xmesh,dose_ymesh,dose_zmesh,norm,dref,VOI,voi2use)</pre>
+<HR><H3>Help text</H3>
+<pre>
+ dicomrt_CNcal(inputdose,dose_xmesh,dose_ymesh,dose_zmesh,norm,dref,VOI,voi2use)
+
+ Calculate Conformity index for a given 3D dose distribution
+
+ inputdose is the input 3D dose (e.g. RTPLAN or MC generated)
+ dose_xmesh,dose_ymesh,dose_zmesh are x-y-z coordinates of the center of the dose-pixel 
+ dref is the dose level that will be used for the calculation of the CN (Gy)
+ norm is the dose normalization level
+ norm =0 (default) no normalization is carried out
+      ~=0 doses are normalized to norm (100%)
+ 
+ VOI is a cell array which contain the patients VOIs as read by dicomrt_loadvoi
+ voi2use is a vector pointing to the number of VOIs to be used ot the analysis and for the display.
+ This function calculates the conformity index (or number ==&gt; CN) accordingly to
+ van't Riet etal IJROBP (1997) Vol.37 No.3 pp.731-736 :
+
+ CN=(Vt_dref/Vt)*(Vt_dref/Vdref)
+
+ where:
+ Vt            volume of the target &quot;t&quot;
+ Vt_dref       volume of &quot;t&quot; receiving a dose &gt;= than the reference dose &quot;dref&quot; 
+ Vdref         volume receiving a dose &gt;= than the dreference dose &quot;dref&quot; 
+
+ The first term of eq. (1) represents the coverage of the target volume. 
+ The second term dreferes to the volume of healthy tissues receiving a dose equal or grater than 
+ the dreference dose &quot;dref&quot;.
+ This is function increasing with conformity: 0&lt;CN&lt;1.
+ It is important to note that CN~=0 when poor conformity in achieved (Vdref &gt;&gt; Vt_dref) 
+ or when a geometrical miss occurs (Vt_dref~=0).
+
+ Example:
+
+ [volume_VOI,volume_threshold,conformity_index]=dicomrt_CNcal(A,dose_xmesh,dose_ymesh,dose_zmesh,...
+    105,60,demo_voi,9);
+
+ calculates the CN for the dose matrix A and returns it in conformity_index.
+ The volumes ot the VOI # 9 and the volume of the isodose volume for 105% (60 Gy = 100%) are also 
+ returned into volume_VOI and volume_threshold respectively
+ The above call is equavilent to the following:
+
+ [volume_VOI,volume_threshold,conformity_index]=dicomrt_CNcal(A,dose_xmesh,dose_ymesh,dose_zmesh,...
+    63,0,demo_voi,9);
+
+ See also dicomrt_CIcal, dicomrt_mask
+
+ Copyright (C) 2002 Emiliano Spezi (emiliano.spezi@physics.org) 
+</pre>
+<HR>
+Produced by <A HREF="http://www.mathworks.com/support/ftp/toolsv4.shtml">mat2html</A> on Mon Oct 20 15:21:43 2003
+<BR>
+Cross-Directory links are: OFF<BR>
+</BODY>

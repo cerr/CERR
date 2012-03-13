@@ -1,0 +1,8 @@
+<!ELEMENT dictionary (element)*>
+<!ATTLIST dictionary creator CDATA #IMPLIED>
+<!ELEMENT element (#PCDATA)>
+<!ATTLIST element tag CDATA #REQUIRED>
+<!ATTLIST element alias CDATA #REQUIRED>
+<!ATTLIST element vr CDATA #IMPLIED>
+<!ATTLIST element vm CDATA #IMPLIED>
+<!ATTLIST element ret CDATA #IMPLIED>

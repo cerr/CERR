@@ -1,0 +1,48 @@
+<TITLE>/</TITLE>
+<BODY>
+<A HREF = "index.html">[Index for ./dicomrt-toolbox/system]</A>
+<A HREF = "../index.html">[Return to Master Index]</A>
+<H1>dicomrt_voiboundaries</H1>
+<H2>(./dicomrt-toolbox/system/dicomrt_voiboundaries.m)</H2>
+<HR><H3>Function Synopsis</H3>
+<pre>[locate_voi_min_x,locate_voi_max_x,locate_voi_min_y,locate_voi_max_y,locate_voi_min_z,locate_voi_max_z] = dicomrt_voiboundaries(dose_xmesh,dose_ymesh,dose_zmesh,VOI,voi2use,PatientPosition)</pre>
+<HR><H3>Help text</H3>
+<pre>
+ dicomrt_voiboundaries(dose_xmesh,dose_ymesh,dose_zmesh,VOI,voi2use,PatientPosition)
+
+ Returns the voxel index of the smallest and largest coordinate of the selected VOI in the specified Z slice.
+
+ slice is the slice number where the mins and maxs will be calculated.
+      Slice number is relative to voiref.
+ voiref is the voi of reference
+ dose_xmesh,dose_ymesh, are coordinates of the center of the dose-pixel 
+ VOI is a cell array which contain the patients VOIs as read by dicomrt_loadvoi
+ voi2use is a vector pointing to the number of VOIs to be used 
+
+ Example:
+
+ [xmin,xmax,ymin,ymax]=dicomrt_voiboundariesZ(12,1,xmesh,xmesh,VOI,5)
+
+ returns in xmin,xmax,ymin,ymax the pixel numbers which correspond to the edges of 
+ structure &quot;5&quot; (e.g. target) in slice number 12 with reference to structure number &quot;1&quot;.
+
+ See also dicomrt_voiboundaries, dicomrt_surfdose
+
+ Copyright (C) 2002 Emiliano Spezi (emiliano.spezi@physics.org) 
+</pre>
+<HR><H3>Cross-Reference Information</H3>This function calls
+<pre><UL>
+<LI><A HREF = "../system/dicomrt_checkinput.html">dicomrt_checkinput</A>./dicomrt-toolbox/system/dicomrt_checkinput.m</LI>
+<LI><A HREF = "../system/dicomrt_findpointVECT.html">dicomrt_findpointVECT</A>./dicomrt-toolbox/system/dicomrt_findpointVECT.m</LI>
+<LI><A HREF = "../system/dicomrt_varfilter.html">dicomrt_varfilter</A>./dicomrt-toolbox/system/dicomrt_varfilter.m</LI>
+<LI><A HREF = "../system/dicomrt_voiboundaries_single.html">dicomrt_voiboundaries_single</A>./dicomrt-toolbox/system/dicomrt_voiboundaries_single.m</LI>
+</UL></pre>
+This function is called by
+<pre><UL>
+<LI><A HREF = "../system/dicomrt_trim.html">dicomrt_trim</A>   ./dicomrt-toolbox/system/dicomrt_trim.m</LI>
+</UL></pre>
+<HR>
+Produced by <A HREF="http://www.mathworks.com/support/ftp/toolsv4.shtml">mat2html</A> on Mon Oct 20 15:21:43 2003
+<BR>
+Cross-Directory links are: OFF<BR>
+</BODY>

@@ -1,0 +1,5 @@
+function im=jp2read(filename)
+  tmp=[tempname '.pgx'];
+  system(sprintf('jasper --input "%s" --output "%s" ',filename,tmp));
+  im=pgxread(filename);
+  

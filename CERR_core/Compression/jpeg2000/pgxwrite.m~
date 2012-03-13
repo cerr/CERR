@@ -1,0 +1,9 @@
+function pgxwrite(IM,filename)
+  f=fopen(filename,'w','b');
+  si=size(IM);
+  fprintf(f,'PG ML + 16 %d %d\n',si(1:2));
+  fwrite(f,IM,'uint16');
+  fclose(f);
+  return;
+  
+  

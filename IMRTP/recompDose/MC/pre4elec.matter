@@ -1,0 +1,102 @@
+ This file is part of set:
+ pre4elec
+ HEADER section: Material data file for DPM.
+ [Emin_ph,Emin,Emax] (eV): energy interval in which data is to be generated:    
+                      
+  4.9000000E+04  1.9900000E+05  2.1000000E+07
+ Wcc & Wcb (eV), cutoffs energies for collision and bremsstrahlung respectively:
+                      
+  2.0000000E+05  5.0000000E+04
+ Step length parameters shigh(cm),slow(cm),ecross(eV):                          
+                      
+  1.000E+00  5.000E-01  1.200E+07
+ No of materials in this file:                                                  
+                      
+   5
+  
+ MATERIAL: Water
+ Reference density (g/cm^3):
+  1.0000000E+00
+ No elements in molecule:
+   2
+     1  2.0000000E+00
+     8  1.0000000E+00
+ Total atno(Z), Z^2 & Z(Z+1):
+  1.0000000E+01  6.6000000E+01  7.6000000E+01
+ Atomic mass (amu):
+  1.8014800E+01
+ AtNo AtNo^2 to mass ratios with respect to ref:
+  1.0000000E+00  1.0000000E+00
+  
+ MATERIAL: LungICRP
+ Reference density (g/cm^3):
+  3.0000000E-01
+ No elements in molecule:
+  13
+     1  6.3314600E-01
+     6  5.3671600E-02
+     7  1.2888300E-02
+     8  2.9815300E-01
+    11  5.0430100E-04
+    12  1.8924900E-04
+    15  1.6274300E-04
+    16  4.4220600E-04
+    17  4.7275300E-04
+    19  3.1264400E-04
+    20  1.4148800E-05
+    26  4.1745400E-05
+    30  9.6374300E-07
+ Total atno(Z), Z^2 & Z(Z+1):
+  3.4633267E+00  2.2800973E+01  2.6264300E+01
+ Atomic mass (amu):
+  6.3008336E+00
+ AtNo AtNo^2 to mass ratios with respect to ref:
+  9.9020452E-01  9.8773601E-01
+  
+ MATERIAL: CorticalBone
+ Reference density (g/cm^3):
+  1.8500000E+00
+ No elements in molecule:
+   9
+     1  4.7540200E-01
+     6  1.2189900E-01
+     7  3.0411200E-02
+     8  2.8284500E-01
+    12  9.1822800E-04
+    15  3.4379100E-02
+    16  9.9671300E-04
+    20  5.3133700E-02
+    30  1.5516000E-05
+ Total atno(Z), Z^2 & Z(Z+1):
+  5.2882265E+00  5.3846120E+01  5.9134347E+01
+ Atomic mass (amu):
+  1.0144137E+01
+ AtNo AtNo^2 to mass ratios with respect to ref:
+  9.3912715E-01  1.4488547E+00
+  
+ MATERIAL: Al
+ Reference density (g/cm^3):
+  2.6989000E+00
+ No elements in molecule:
+   1
+    13  1.0000000E+00
+ Total atno(Z), Z^2 & Z(Z+1):
+  1.3000000E+01  1.6900000E+02  1.8200000E+02
+ Atomic mass (amu):
+  2.6982000E+01
+ AtNo AtNo^2 to mass ratios with respect to ref:
+  8.6795790E-01  1.7096140E+00
+  
+ MATERIAL: Ti
+ Reference density (g/cm^3):
+  4.5400000E+00
+ No elements in molecule:
+   1
+    22  1.0000000E+00
+ Total atno(Z), Z^2 & Z(Z+1):
+  2.2000000E+01  4.8400000E+02  5.0600000E+02
+ Atomic mass (amu):
+  4.7880000E+01
+ AtNo AtNo^2 to mass ratios with respect to ref:
+  8.2774770E-01  2.7591590E+00
+  

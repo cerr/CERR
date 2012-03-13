@@ -1,0 +1,35 @@
+<TITLE>/</TITLE>
+<BODY>
+<A HREF = "index.html">[Index for ./dicomrt-toolbox/analysis]</A>
+<A HREF = "../index.html">[Return to Master Index]</A>
+<H1>dicomrt_doseratio</H1>
+<H2>(./dicomrt-toolbox/analysis/dicomrt_doseratio.m)</H2>
+<HR><H3>Function Synopsis</H3>
+<pre>[dose_ratio] = dicomrt_doseratio(doseone,dosetwo)</pre>
+<HR><H3>Help text</H3>
+<pre>
+ dicomrt_doseratio(doseone,dosetwo)
+
+ Calculate dose ratio between two 3D matrices
+
+ doseone and dosetwo can be rtplan and/or monte carlo 3D dose distributions.
+
+ NOTE:
+ Warnings for divisions by zero are switched off during the call to this function.
+ Infinite values are set to nan (not-a-number).
+
+ Example:
+
+ [doseratio]=dicomrt_doseratio(doseone,dosetwo)
+
+ returns in doseratio the ratio: dosetwo/doseone. 
+
+ See also: <A HREF = "../analysis/dicomrt_dosediff.html">dicomrt_dosediff</A>
+
+ Copyright (C) 2002 Emiliano Spezi (emiliano.spezi@physics.org) 
+</pre>
+<HR>
+Produced by <A HREF="http://www.mathworks.com/support/ftp/toolsv4.shtml">mat2html</A> on Mon Oct 20 15:21:43 2003
+<BR>
+Cross-Directory links are: OFF<BR>
+</BODY>

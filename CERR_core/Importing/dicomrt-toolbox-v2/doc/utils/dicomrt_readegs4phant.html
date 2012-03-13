@@ -1,0 +1,36 @@
+<TITLE>/</TITLE>
+<BODY>
+<A HREF = "index.html">[Index for ./dicomrt-toolbox/mctp/utils]</A>
+<A HREF = "../index.html">[Return to Master Index]</A>
+<H1>dicomrt_readegs4phant</H1>
+<H2>(./dicomrt-toolbox/mctp/utils/dicomrt_readegs4phant.m)</H2>
+<HR><H3>Function Synopsis</H3>
+<pre>[media,density,medname,xbound,ybound,zbound] = dicomrt_readegs4phant(patient_position,filename)</pre>
+<HR><H3>Help text</H3>
+<pre>
+ dicomrt_readegs4phant(patient_position,filename)
+
+ Read a ct phantom which comply to BEAM/DOSXYZ file format
+ Return media matrix and density matrix.
+
+ patient_position is a code which correspond to one of the supported
+ patient position cases
+ Filename is an character string which contain the name of the egs4phantom file (no extension).
+
+ Example:
+
+ [A,B,medname]=dicomrt_readegs4phant(1,'demo')
+
+ will store in A the medium number and in B the density read from the egs4phantom demo.egs4phant;
+ Materials name are stored in medname. This information is required when converting 
+ dose2medium &lt;-&gt; dose2water.
+
+ See also dicomrt_ctcreate, dicomrt_getPatientPosition
+
+ Copyright (C) 2002 Emiliano Spezi (emiliano.spezi@physics.org) 
+</pre>
+<HR>
+Produced by <A HREF="http://www.mathworks.com/support/ftp/toolsv4.shtml">mat2html</A> on Mon Oct 20 15:21:43 2003
+<BR>
+Cross-Directory links are: OFF<BR>
+</BODY>

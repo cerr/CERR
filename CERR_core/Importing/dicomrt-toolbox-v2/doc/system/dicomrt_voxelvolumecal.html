@@ -1,0 +1,40 @@
+<TITLE>/</TITLE>
+<BODY>
+<A HREF = "index.html">[Index for ./dicomrt-toolbox/system]</A>
+<A HREF = "../index.html">[Return to Master Index]</A>
+<H1>dicomrt_voxelvolumecal</H1>
+<H2>(./dicomrt-toolbox/system/dicomrt_voxelvolumecal.m)</H2>
+<HR><H3>Function Synopsis</H3>
+<pre>[volume,status] = dicomrt_voxelvolumecal(inpstudy,xmesh,ymesh,zmesh)</pre>
+<HR><H3>Help text</H3>
+<pre>
+ dicomrt_voxelvolumecal(inpstudy,xmesh,ymesh,zmesh)
+
+ Calculates the volume of voxels on eaxh slice of the provided study.
+
+ If the modality of the study is RTPLAN the slice thickness is calculated as
+ the difference between two consecutive slices, assuming that they are equally spaced.
+ If the modality of the study is CT the slice thickness is calculated first
+ on the basis of the SliceThickness DICOM value for each slice. 
+
+ In the first case (RTPLAN) the returned volme is a single value.
+ In the second case (CT) the returned volme is an array of volumes.
+ In both cases voxels are assumed to have uniform spacing along X and Y.
+ 
+ Copyright (C) 2002 Emiliano Spezi (emiliano.spezi@physics.org) 
+</pre>
+<HR><H3>Cross-Reference Information</H3>This function calls
+<pre><UL>
+<LI><A HREF = "../system/dicomrt_checkinput.html">dicomrt_checkinput</A>./dicomrt-toolbox/system/dicomrt_checkinput.m</LI>
+<LI><A HREF = "../system/dicomrt_mmdigit.html">dicomrt_mmdigit</A>./dicomrt-toolbox/system/dicomrt_mmdigit.m</LI>
+<LI><A HREF = "../system/dicomrt_varfilter.html">dicomrt_varfilter</A>./dicomrt-toolbox/system/dicomrt_varfilter.m</LI>
+</UL></pre>
+This function is called by
+<pre><UL>
+<LI><A HREF = "../system/dicomrt_mask.html">dicomrt_mask</A>   ./dicomrt-toolbox/system/dicomrt_mask.m</LI>
+</UL></pre>
+<HR>
+Produced by <A HREF="http://www.mathworks.com/support/ftp/toolsv4.shtml">mat2html</A> on Mon Oct 20 15:21:43 2003
+<BR>
+Cross-Directory links are: OFF<BR>
+</BODY>

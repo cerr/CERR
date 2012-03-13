@@ -1,0 +1,74 @@
+<TITLE>/</TITLE>
+<BODY>
+<A HREF = "index.html">[Index for ./dicomrt-toolbox/display]</A>
+<A HREF = "../index.html">[Return to Master Index]</A>
+<H1>dicomrt_gahplot</H1>
+<H2>(./dicomrt-toolbox/display/dicomrt_gahplot.m)</H2>
+<HR><H3>Function Synopsis</H3>
+<pre>[areagrid2e,GAMMAgrid2e] = dicomrt_gahplot(GAH,type,norm,int)</pre>
+<HR><H3>Help text</H3>
+<pre>
+ dicomrt_gahplot(GAH,type,norm,int)
+
+ Display in 3D GAMMA Area Histogram (GAH) for selected Volume Of Interest (VOI), section by section.
+
+ GAH is a GAH cell matrix generated with dicomrt_gahcal
+ type is a parameter which switch between cumulative (=0 default)
+      and frequency (~=0) histogram 
+ norm is a parameter which switch between normalized (~=0)
+      and non normalized (=0 default) GAMMA axis
+      if norm~=1 user input is required to get normalization value 
+      THIS REMAINS FOR CONSISTENCY WITH <A HREF = "../display/dicomrt_dvhplot.html">dicomrt_dvhplot</A>: 
+      USE ZERO FOR THIS PARAMETER.
+ int  is an OPTIONAL parameter that allows the user to define colors for
+      gah plot. If not passed as input default color, style and marker are used.
+
+ GAHs are stored in a cell array with the following structure:
+
+  -------------------------------
+  | [GAH-name] | [3D gamma mask] |
+  |            -------------------
+  |            | [gah section 1] |
+  |            | [gah section 2] |
+  |            |     ...         |
+  |            | [gah section m] |
+  |            -------------------
+  |            | [info area 1]   |
+  |            | [info area 2]   |
+  |            |     ...         |  
+  |            | [info area m]   |
+  |            -------------------
+  |            | Pixel area      | 
+  --------------------------------
+
+ [gamma data] is a 2 columns vector with following structure:
+
+ -----------------
+ | gamma | count |
+ -----------------
+ |       |       |
+ |       |       |
+ |       |       |
+ |       |       |
+ -----------------
+
+ [info area] is a 2 columns vector with following structure:
+
+ ---------------------------------
+ | area sec | z location section |
+ ---------------------------------
+
+ Example:
+
+ dicomrt_gahplot(A,2,2) plot a series of cumulative GAH for sections in VOI 2.
+ Data are from GAH in cell array A.
+
+ See also dicomrt_loaddose, roifilt2, dicomrt_gahcal
+
+ Copyright (C) 2002 Emiliano Spezi (emiliano.spezi@physics.org) 
+</pre>
+<HR>
+Produced by <A HREF="http://www.mathworks.com/support/ftp/toolsv4.shtml">mat2html</A> on Mon Oct 20 15:21:43 2003
+<BR>
+Cross-Directory links are: OFF<BR>
+</BODY>

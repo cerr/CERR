@@ -1,0 +1,51 @@
+<TITLE>/</TITLE>
+<BODY>
+<A HREF = "index.html">[Index for ./dicomrt-toolbox/load]</A>
+<A HREF = "../index.html">[Return to Master Index]</A>
+<H1>dicomrt_DICOMimport</H1>
+<H2>(./dicomrt-toolbox/load/dicomrt_DICOMimport.m)</H2>
+<HR><H3>Function Synopsis</H3>
+<pre>[item1,xm1,ym1,zm1,item2,xm2,ym2,zm2,item3]=dicomrt_DICOMimport(path2scan,scantype,memopt);</pre>
+<HR><H3>Help text</H3>
+<pre>
+ [item1,xm1,ym1,zm1,item2,xm2,ym2,zm2,item3]=dicomrt_DICOMimport(path2scan,scantype);
+
+ Scan a directory for DICOM studies and guides users to import rtplans, ct scans and VOIs.
+ This function is interactive and requires user input.
+
+ path2scan is the directory path that will be scanned. Scan is not recursive.
+ scantype specifies the type of scan. Options are:
+          s=single
+          r=recursive (default)
+ memopt is a memory option parameter. The load of CT volumes is an intensive task. 
+   Choose this option if a &quot;OUT OF MEMORY&quot; message is received while loading DICOM study
+   in normal conditions. If memopt is ~=0 the CT loading process is split into 2 steps.
+   The default is memopt=1.
+
+ Data are returned in variables: [item1,xm1,ym1,zm1,item2,xm2,ym2,zm2,item3] where:
+
+ item1 can be an rtplan as loaded by <A HREF = "../load/dicomrt_loaddose.html">dicomrt_loaddose</A> or as loaded by dicominfo
+ xm1,ym1,zm1, are x-y-z coordinates of the center of the dose-pixel if rtdose is loaded (otherwise are set to zero)
+ item2 can be ct scan matrix as loaded by <A HREF = "../load/dicomrt_loadct.html">dicomrt_loadct</A>
+ xm2,ym2,zm2, are x-y-z coordinates of the center of the ct images if ct scan is loaded (otherwise are set to zero)
+ item3 can be the VOI set as loaded by <A HREF = "../load/dicomrt_loadvoi.html">dicomrt_loadvoi</A> (otherwise is set to zero)
+
+ See also dicomrt_DICOMdirscan, dicomrt_DICOMscan, <A HREF = "../load/dicomrt_loadct.html">dicomrt_loadct</A>, <A HREF = "../load/dicomrt_loaddose.html">dicomrt_loaddose</A>, <A HREF = "../load/dicomrt_loadvoi.html">dicomrt_loadvoi</A>
+
+ Copyright (C) 2002 Emiliano Spezi (emiliano.spezi@physics.org) 
+</pre>
+<HR><H3>Cross-Reference Information</H3>This function calls
+<pre><UL>
+<LI><A HREF = "../load/dicomrt_DICOMscan.html">dicomrt_DICOMscan</A>./dicomrt-toolbox/load/dicomrt_DICOMscan.m</LI>
+<LI><A HREF = "../load/dicomrt_loadctlist.html">dicomrt_loadctlist</A>./dicomrt-toolbox/load/dicomrt_loadctlist.m</LI>
+<LI><A HREF = "../load/dicomrt_sortct.html">dicomrt_sortct</A> ./dicomrt-toolbox/load/dicomrt_sortct.m</LI>
+</UL></pre>
+This function is called by
+<pre><UL>
+<LI><A HREF = "../load/dicomrt_DICOMdirscan.html">dicomrt_DICOMdirscan</A>./dicomrt-toolbox/load/dicomrt_DICOMdirscan.m</LI>
+</UL></pre>
+<HR>
+Produced by <A HREF="http://www.mathworks.com/support/ftp/toolsv4.shtml">mat2html</A> on Mon Oct 20 15:21:43 2003
+<BR>
+Cross-Directory links are: OFF<BR>
+</BODY>

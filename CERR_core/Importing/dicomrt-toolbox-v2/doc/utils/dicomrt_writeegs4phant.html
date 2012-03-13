@@ -1,0 +1,32 @@
+<TITLE>/</TITLE>
+<BODY>
+<A HREF = "index.html">[Index for ./dicomrt-toolbox/mctp/utils]</A>
+<A HREF = "../index.html">[Return to Master Index]</A>
+<H1>dicomrt_writeegs4phant</H1>
+<H2>(./dicomrt-toolbox/mctp/utils/dicomrt_writeegs4phant.m)</H2>
+<HR><H3>Function Synopsis</H3>
+<pre>[media, density] = dicomrt_writeegs4phant(patient_position,nummedia,medname,estepe,xnum,ynum,znum,xbound,ybound,zbound,media,density,filename)</pre>
+<HR><H3>Help text</H3>
+<pre>
+ dicomrt_writeegs4phant(patient_position,nummedia,medname,estepe,xnum,ynum,znum,xbound,ybound,zbound,media,density,filename)
+
+ Write an egs4 phantom file which conforms to the NRC BEAM standard format.
+
+ patient_position is a number which correspond to the supported Patient Position Coordinate System. 
+ The egs4phantom will be generated accordingly to the patient position coordinate 
+ system and Monte Carlo (DOSXYZ) coordinate system.
+
+ Example:
+
+ [A,B]=dicomrt_writeegs4phant(patient_position,nummedia,medname,estepe,xnum,ynum,znum,xbound,ybound,zbound,media,density,filename)
+ returns in A the media phantom and in B the density phantom and write the egs4phantom in the file &quot;filename&quot;.
+
+ See also dicomrt_ctcreate, dicomrt_createwphantom, dicomrt_getPatientPosition
+
+ Copyright (C) 2002 Emiliano Spezi (emiliano.spezi@physics.org) 
+</pre>
+<HR>
+Produced by <A HREF="http://www.mathworks.com/support/ftp/toolsv4.shtml">mat2html</A> on Mon Oct 20 15:21:43 2003
+<BR>
+Cross-Directory links are: OFF<BR>
+</BODY>

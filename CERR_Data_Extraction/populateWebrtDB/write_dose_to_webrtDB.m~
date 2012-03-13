@@ -1,0 +1,152 @@
+function write_dose_to_webrtDB(patient_id,scan_id)
+%function write_dose_to_db(patient_id,scan_id)
+%
+%input: writes all doses from global planc to database
+%
+%apa, 02/27/2011
+
+global planC
+indexS = planC{end};
+
+
+columnNames = {'scan_id', 'dose_number', 'dose_type', 'dose_units', 'dose_scale', 'fraction_group_id', ...
+    'number_of_tx', 'size_of_dimension1', 'size_of_dimension2', 'size_of_dimension3', 'coord1_of_first_point', ...
+    'coord2_of_first_point', 'horizontal_grid_interval', 'vertical_grid_interval', 'dose_uid', 'patient_id'};
+
+numDoses = length(planC{indexS.dose});
+allDosesV = 
+
+for scanNum = 1:length(planC{indexS.scan})
+    
+    %Find matching scan in DB
+    scanUID = planC{indexS.scan}(scanNum).scanUID;
+    sqlq_find_scan = ['Select id from scans where scan_uid = ''', scanUID,''''];
+    scan_raw = exec(conn, sqlq_find_scan);
+    scan = fetch(scan_raw);
+    scan = scan.Data;
+    if ~isstruct(scan)
+        warning('Scan does not exist in DB. Cannnot write structures. Proceed to next scan')
+    else
+        scan_id = scan.id;
+    end
+    
+    %Loop over structures belonging to this scan
+    assocDosesV = getDoseAssociatedScan(allStructsV, planC);
+    
+    matchingScansV = find(assocScansV == scanNum);
+    
+    indMatchStructsV = allStructsV(matchingScansV);
+    
+    for doseNum = 1:length(planC{indexS.dose})
+        
+        %find the dose with dose_uid matching this dose's doseUID frp, planC
+        doseUID = planC{indexS.dose}(doseNum).doseUID;
+        whereclause = {['where dose_uid = ''', doseUID,'''']};
+        sqlq_find_dose = ['select dose_id from dose where dose_uid = ''', doseUID,''''];
+        dose_raw = exec(conn, sqlq_find_dose);
+        dose = fetch(dose_raw);
+        dose = dose.data;
+        if ~isstruct(dose)
+            %dose_id = char(java.util.UUID.randomUUID);
+            dose_id = '';
+            isNewRecord = 1;
+        else
+            dose_id = dose.dose_id{1};
+            isNewRecord = 0;
+        end
+        
+        %get dose-units and convert to gy
+        if any(strcmpi(planC{indexS.dose}(doseNum).doseUnits,{'cgy','cgys','cgray','cgrays'}))
+            planC{indexS.dose}(doseNum).doseArray = planC{indexS.dose}(doseNum).doseArray * 0.01;
+            planC{indexS.dose}(doseNum).doseUnits = 'grays';
+        end
+        
+        doseS = planC{indexS.dose}(doseNum);
+        
+        %scan_id
+        %Get associated scanUID
+        scanUID = doseS.assocScanUID;
+        
+        %Find scan_id for this scan
+        sqlq_find_scan = ['Select scan_id from scan where scan_uid = ''', scanUID,''''];
+        scan_raw = exec(conn, sqlq_find_scan);
+        scan = fetch(scan_raw);
+        scan = scan.Data;
+        if ~isstruct(scan)
+            scan_id = '';
+        else
+            scan_id = scan.scan_id{1};
+        end
+        recC{2} = scan_id;
+        
+        %dose_number
+        recC{3} = doseS.doseNumber;
+        if isempty(recC{3})
+            recC{3} = NaN;
+        end
+        
+        %dose_type
+        recC{4} = doseS.doseType;
+        if isempty(recC{4})
+            recC{4} = NaN;
+        end
+        
+        %dose_units
+        recC{5} = doseS.doseUnits;
+        
+        %dose_scale
+        recC{6} = doseS.doseScale;
+        if isempty(recC{6})
+            recC{6} = NaN;
+        end
+        
+        %fraction_group_id
+        recC{7} = doseS.fractionGroupID;
+        
+        %number_of_tx
+        recC{8} = doseS.numberOfTx;
+        if isempty(recC{8})
+            recC{8} = NaN;
+        end
+        
+        %size_of_dimension1
+        recC{9} = doseS.sizeOfDimension1;
+        
+        %size_of_dimension2
+        recC{10} = doseS.sizeOfDimension2;
+        
+        %size_of_dimension3
+        recC{11} = doseS.sizeOfDimension3;
+        
+        %coord1_of_first_point
+        recC{12} = doseS.coord1OFFirstPoint;
+        
+        %coord2_of_first_point
+        recC{13} = doseS.coord2OFFirstPoint;
+        
+        %horizontal_grid_interval
+        recC{14} = doseS.horizontalGridInterval;
+        
+        %vertical_grid_interval
+        recC{15} = doseS.verticalGridInterval;
+        
+        %dose_uid
+        recC{16} = doseS.doseUID;
+        
+        %patient_id
+        recC{17} = patient_id;
+        
+        if isNewRecord
+            insert(conn,'dose',columnNames,recC);
+        else
+            update(conn,'dose',columnNames,recC,whereclause);
+        end
+        
+        pause(0.05)
+        
+    end
+    
+    
+end
+
+

@@ -1,0 +1,12 @@
+/private/isocontrols.m
+
+/private/slicecontrols.m
+
+/private/sliceomaticfigure.m
+
+/private/sliceomaticmotion.m
+
+/private/sliceomaticsetdata.m
+
+/sliceomatic.m
+

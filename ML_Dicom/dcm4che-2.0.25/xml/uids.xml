@@ -1,0 +1,309 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<uids>
+<uid value="1.2.40.0.13.1.3.1.2.3.1.1" alias="Dcm4cheAttributesModificationNotificationSOPClass" type="SOP Class">Dcm4che Attributes Modification Notification SOP Class</uid>
+<uid value="1.2.40.0.13.1.5.1.4.1.2.2.1" alias="PrivateStudyRootQueryRetrieveInformationModelFIND" type="SOP Class">Private Study Root Query/Retrieve Information Model - FIND</uid>
+<uid value="1.2.40.0.13.1.5.1.4.1.2.2.1.1" alias="PrivateBlockedStudyRootQueryRetrieveInformationModelFIND" type="SOP Class">Private Blocked Study Root Query/Retrieve Information Model - FIND</uid>
+<uid value="1.2.40.0.13.1.5.1.4.1.2.2.1.2" alias="PrivateVirtualMultiframeStudyRootQueryRetrieveInformationModelFIND" type="SOP Class">Private Virtual Multiframe Study Root Query/Retrieve Information Model - FIND</uid>
+<uid value="1.2.840.10008.1.1" alias="VerificationSOPClass" type="SOP Class">Verification SOP Class</uid>
+<uid value="1.2.840.10008.1.2" alias="ImplicitVRLittleEndian" type="Transfer Syntax">Implicit VR Little Endian</uid>
+<uid value="1.2.840.10008.1.2.1" alias="ExplicitVRLittleEndian" type="Transfer Syntax">Explicit VR Little Endian</uid>
+<uid value="1.2.840.10008.1.2.1.99" alias="DeflatedExplicitVRLittleEndian" type="Transfer Syntax">Deflated Explicit VR Little Endian</uid>
+<uid value="1.2.840.10008.1.2.2" alias="ExplicitVRBigEndian" type="Transfer Syntax">Explicit VR Big Endian</uid>
+<uid value="1.2.840.10008.1.2.4.100" alias="MPEG2" type="Transfer Syntax">MPEG2 Main Profile @ Main Level</uid>
+<uid value="1.2.840.10008.1.2.4.101" alias="MPEG2MainProfileHighLevel" type="Transfer Syntax">MPEG2 Main Profile @ High Level</uid>
+<uid value="1.2.840.10008.1.2.4.50" alias="JPEGBaseline1" type="Transfer Syntax">JPEG Baseline (Process 1)</uid>
+<uid value="1.2.840.10008.1.2.4.51" alias="JPEGExtended24" type="Transfer Syntax">JPEG Extended (Process 2 &amp; 4)</uid>
+<uid value="1.2.840.10008.1.2.4.52" alias="JPEGExtended35Retired" type="Transfer Syntax">JPEG Extended (Process 3 &amp; 5) (Retired)</uid>
+<uid value="1.2.840.10008.1.2.4.53" alias="JPEGSpectralSelectionNonHierarchical68Retired" type="Transfer Syntax">JPEG Spectral Selection, Non-Hierarchical (Process 6 &amp; 8) (Retired)</uid>
+<uid value="1.2.840.10008.1.2.4.54" alias="JPEGSpectralSelectionNonHierarchical79Retired" type="Transfer Syntax">JPEG Spectral Selection, Non-Hierarchical (Process 7 &amp; 9) (Retired)</uid>
+<uid value="1.2.840.10008.1.2.4.55" alias="JPEGFullProgressionNonHierarchical1012Retired" type="Transfer Syntax">JPEG Full Progression, Non-Hierarchical (Process 10 &amp; 12) (Retired)</uid>
+<uid value="1.2.840.10008.1.2.4.56" alias="JPEGFullProgressionNonHierarchical1113Retired" type="Transfer Syntax">JPEG Full Progression, Non-Hierarchical (Process 11 &amp; 13) (Retired)</uid>
+<uid value="1.2.840.10008.1.2.4.57" alias="JPEGLosslessNonHierarchical14" type="Transfer Syntax">JPEG Lossless, Non-Hierarchical (Process 14)</uid>
+<uid value="1.2.840.10008.1.2.4.58" alias="JPEGLosslessNonHierarchical15Retired" type="Transfer Syntax">JPEG Lossless, Non-Hierarchical (Process 15) (Retired)</uid>
+<uid value="1.2.840.10008.1.2.4.59" alias="JPEGExtendedHierarchical1618Retired" type="Transfer Syntax">JPEG Extended, Hierarchical (Process 16 &amp; 18) (Retired)</uid>
+<uid value="1.2.840.10008.1.2.4.60" alias="JPEGExtendedHierarchical1719Retired" type="Transfer Syntax">JPEG Extended, Hierarchical (Process 17 &amp; 19) (Retired)</uid>
+<uid value="1.2.840.10008.1.2.4.61" alias="JPEGSpectralSelectionHierarchical2022Retired" type="Transfer Syntax">JPEG Spectral Selection, Hierarchical (Process 20 &amp; 22) (Retired)</uid>
+<uid value="1.2.840.10008.1.2.4.62" alias="JPEGSpectralSelectionHierarchical2123Retired" type="Transfer Syntax">JPEG Spectral Selection, Hierarchical (Process 21 &amp; 23) (Retired)</uid>
+<uid value="1.2.840.10008.1.2.4.63" alias="JPEGFullProgressionHierarchical2426Retired" type="Transfer Syntax">JPEG Full Progression, Hierarchical (Process 24 &amp; 26) (Retired)</uid>
+<uid value="1.2.840.10008.1.2.4.64" alias="JPEGFullProgressionHierarchical2527Retired" type="Transfer Syntax">JPEG Full Progression, Hierarchical (Process 25 &amp; 27) (Retired)</uid>
+<uid value="1.2.840.10008.1.2.4.65" alias="JPEGLosslessHierarchical28Retired" type="Transfer Syntax">JPEG Lossless, Hierarchical (Process 28) (Retired)</uid>
+<uid value="1.2.840.10008.1.2.4.66" alias="JPEGLosslessHierarchical29Retired" type="Transfer Syntax">JPEG Lossless, Hierarchical (Process 29) (Retired)</uid>
+<uid value="1.2.840.10008.1.2.4.70" alias="JPEGLossless" type="Transfer Syntax">JPEG Lossless, Non-Hierarchical, First-Order Prediction (Process 14 [Selection Value 1])</uid>
+<uid value="1.2.840.10008.1.2.4.80" alias="JPEGLSLossless" type="Transfer Syntax">JPEG-LS Lossless Image Compression</uid>
+<uid value="1.2.840.10008.1.2.4.81" alias="JPEGLSLossyNearLossless" type="Transfer Syntax">JPEG-LS Lossy (Near-Lossless) Image Compression</uid>
+<uid value="1.2.840.10008.1.2.4.90" alias="JPEG2000LosslessOnly" type="Transfer Syntax">JPEG 2000 Image Compression (Lossless Only)</uid>
+<uid value="1.2.840.10008.1.2.4.91" alias="JPEG2000" type="Transfer Syntax">JPEG 2000 Image Compression</uid>
+<uid value="1.2.840.10008.1.2.4.92" alias="JPEG2000Part2MulticomponentLosslessOnly" type="Transfer Syntax">JPEG 2000 Part 2 Multi-component Image Compression (Lossless Only)</uid>
+<uid value="1.2.840.10008.1.2.4.93" alias="JPEG2000Part2Multicomponent" type="Transfer Syntax">JPEG 2000 Part 2 Multi-component Image Compression</uid>
+<uid value="1.2.840.10008.1.2.4.94" alias="JPIPReferenced" type="Transfer Syntax">JPIP Referenced</uid>
+<uid value="1.2.840.10008.1.2.4.95" alias="JPIPReferencedDeflate" type="Transfer Syntax">JPIP Referenced Deflate</uid>
+<uid value="1.2.840.10008.1.2.4.96" alias="NoPixelData" type="Transfer Syntax">No Pixel Data</uid>
+<uid value="1.2.840.10008.1.2.4.97" alias="NoPixelDataDeflate" type="Transfer Syntax">No Pixel Data Deflate</uid>
+<uid value="1.2.840.10008.1.2.5" alias="RLELossless" type="Transfer Syntax">RLE Lossless</uid>
+<uid value="1.2.840.10008.1.2.6.1" alias="RFC2557MIMEencapsulation" type="Transfer Syntax">RFC 2557 MIME encapsulation</uid>
+<uid value="1.2.840.10008.1.2.6.2" alias="XMLEncoding" type="Transfer Syntax">XML Encoding</uid>
+<uid value="1.2.840.10008.1.20.1" alias="StorageCommitmentPushModelSOPClass" type="SOP Class">Storage Commitment Push Model SOP Class</uid>
+<uid value="1.2.840.10008.1.20.1.1" alias="StorageCommitmentPushModelSOPInstance" type="Well-known SOP Instance">Storage Commitment Push Model SOP Instance</uid>
+<uid value="1.2.840.10008.1.20.2" alias="StorageCommitmentPullModelSOPClassRetired" type="SOP Class">Storage Commitment Pull Model SOP Class (Retired)</uid>
+<uid value="1.2.840.10008.1.20.2.1" alias="StorageCommitmentPullModelSOPInstanceRetired" type="Well-known SOP Instance">Storage Commitment Pull Model SOP Instance (Retired)</uid>
+<uid value="1.2.840.10008.1.3.10" alias="MediaStorageDirectoryStorage" type="SOP Class">Media Storage Directory Storage</uid>
+<uid value="1.2.840.10008.1.4.1.1" alias="TalairachBrainAtlasFrameofReference" type="Well-known frame of reference">Talairach Brain Atlas Frame of Reference</uid>
+<uid value="1.2.840.10008.1.4.1.10" alias="SPM2GRAYFrameofReference" type="Well-known frame of reference">SPM2 GRAY Frame of Reference</uid>
+<uid value="1.2.840.10008.1.4.1.11" alias="SPM2WHITEFrameofReference" type="Well-known frame of reference">SPM2 WHITE Frame of Reference</uid>
+<uid value="1.2.840.10008.1.4.1.12" alias="SPM2CSFFrameofReference" type="Well-known frame of reference">SPM2 CSF Frame of Reference</uid>
+<uid value="1.2.840.10008.1.4.1.13" alias="SPM2BRAINMASKFrameofReference" type="Well-known frame of reference">SPM2 BRAINMASK Frame of Reference</uid>
+<uid value="1.2.840.10008.1.4.1.14" alias="SPM2AVG305T1FrameofReference" type="Well-known frame of reference">SPM2 AVG305T1 Frame of Reference</uid>
+<uid value="1.2.840.10008.1.4.1.15" alias="SPM2AVG152T1FrameofReference" type="Well-known frame of reference">SPM2 AVG152T1 Frame of Reference</uid>
+<uid value="1.2.840.10008.1.4.1.16" alias="SPM2AVG152T2FrameofReference" type="Well-known frame of reference">SPM2 AVG152T2 Frame of Reference</uid>
+<uid value="1.2.840.10008.1.4.1.17" alias="SPM2AVG152PDFrameofReference" type="Well-known frame of reference">SPM2 AVG152PD Frame of Reference</uid>
+<uid value="1.2.840.10008.1.4.1.18" alias="SPM2SINGLESUBJT1FrameofReference" type="Well-known frame of reference">SPM2 SINGLESUBJT1 Frame of Reference</uid>
+<uid value="1.2.840.10008.1.4.1.2" alias="SPM2T1FrameofReference" type="Well-known frame of reference">SPM2 T1 Frame of Reference</uid>
+<uid value="1.2.840.10008.1.4.1.3" alias="SPM2T2FrameofReference" type="Well-known frame of reference">SPM2 T2 Frame of Reference</uid>
+<uid value="1.2.840.10008.1.4.1.4" alias="SPM2PDFrameofReference" type="Well-known frame of reference">SPM2 PD Frame of Reference</uid>
+<uid value="1.2.840.10008.1.4.1.5" alias="SPM2EPIFrameofReference" type="Well-known frame of reference">SPM2 EPI Frame of Reference</uid>
+<uid value="1.2.840.10008.1.4.1.6" alias="SPM2FILT1FrameofReference" type="Well-known frame of reference">SPM2 FIL T1 Frame of Reference</uid>
+<uid value="1.2.840.10008.1.4.1.7" alias="SPM2PETFrameofReference" type="Well-known frame of reference">SPM2 PET Frame of Reference</uid>
+<uid value="1.2.840.10008.1.4.1.8" alias="SPM2TRANSMFrameofReference" type="Well-known frame of reference">SPM2 TRANSM Frame of Reference</uid>
+<uid value="1.2.840.10008.1.4.1.9" alias="SPM2SPECTFrameofReference" type="Well-known frame of reference">SPM2 SPECT Frame of Reference</uid>
+<uid value="1.2.840.10008.1.4.2.1" alias="ICBM452T1FrameofReference" type="Well-known frame of reference">ICBM 452 T1 Frame of Reference</uid>
+<uid value="1.2.840.10008.1.4.2.2" alias="ICBMSingleSubjectMRIFrameofReference" type="Well-known frame of reference">ICBM Single Subject MRI Frame of Reference</uid>
+<uid value="1.2.840.10008.1.40" alias="ProceduralEventLoggingSOPClass" type="SOP Class">Procedural Event Logging SOP Class</uid>
+<uid value="1.2.840.10008.1.40.1" alias="ProceduralEventLoggingSOPInstance" type="Well-known SOP Instance">Procedural Event Logging SOP Instance</uid>
+<uid value="1.2.840.10008.1.42" alias="SubstanceAdministrationLoggingSOPClass" type="SOP Class">Substance Administration Logging SOP Class</uid>
+<uid value="1.2.840.10008.1.42.1" alias="SubstanceAdministrationLoggingSOPInstance" type="Well-known SOP Instance">Substance Administration Logging SOP Instance</uid>
+<uid value="1.2.840.10008.1.5.1" alias="HotIronColorPaletteSOPInstance" type="Well-known SOP Instance">Hot Iron Color Palette SOP Instance</uid>
+<uid value="1.2.840.10008.1.5.2" alias="PETColorPaletteSOPInstance" type="Well-known SOP Instance">PET Color Palette SOP Instance</uid>
+<uid value="1.2.840.10008.1.5.3" alias="HotMetalBlueColorPaletteSOPInstance" type="Well-known SOP Instance">Hot Metal Blue Color Palette SOP Instance</uid>
+<uid value="1.2.840.10008.1.5.4" alias="PET20StepColorPaletteSOPInstance" type="Well-known SOP Instance">PET 20 Step Color Palette SOP Instance</uid>
+<uid value="1.2.840.10008.1.9" alias="BasicStudyContentNotificationSOPClassRetired" type="SOP Class">Basic Study Content Notification SOP Class (Retired)</uid>
+<uid value="1.2.840.10008.15.0.3.1" alias="dicomDeviceName" type="LDAP OID">dicomDeviceName</uid>
+<uid value="1.2.840.10008.15.0.3.10" alias="dicomAssociationInitiator" type="LDAP OID">dicomAssociationInitiator</uid>
+<uid value="1.2.840.10008.15.0.3.11" alias="dicomAssociationAcceptor" type="LDAP OID">dicomAssociationAcceptor</uid>
+<uid value="1.2.840.10008.15.0.3.12" alias="dicomHostname" type="LDAP OID">dicomHostname</uid>
+<uid value="1.2.840.10008.15.0.3.13" alias="dicomPort" type="LDAP OID">dicomPort</uid>
+<uid value="1.2.840.10008.15.0.3.14" alias="dicomSOPClass" type="LDAP OID">dicomSOPClass</uid>
+<uid value="1.2.840.10008.15.0.3.15" alias="dicomTransferRole" type="LDAP OID">dicomTransferRole</uid>
+<uid value="1.2.840.10008.15.0.3.16" alias="dicomTransferSyntax" type="LDAP OID">dicomTransferSyntax</uid>
+<uid value="1.2.840.10008.15.0.3.17" alias="dicomPrimaryDeviceType" type="LDAP OID">dicomPrimaryDeviceType</uid>
+<uid value="1.2.840.10008.15.0.3.18" alias="dicomRelatedDeviceReference" type="LDAP OID">dicomRelatedDeviceReference</uid>
+<uid value="1.2.840.10008.15.0.3.19" alias="dicomPreferredCalledAETitle" type="LDAP OID">dicomPreferredCalledAETitle</uid>
+<uid value="1.2.840.10008.15.0.3.2" alias="dicomDescription" type="LDAP OID">dicomDescription</uid>
+<uid value="1.2.840.10008.15.0.3.20" alias="dicomTLSCyphersuite" type="LDAP OID">dicomTLSCyphersuite</uid>
+<uid value="1.2.840.10008.15.0.3.21" alias="dicomAuthorizedNodeCertificateReference" type="LDAP OID">dicomAuthorizedNodeCertificateReference</uid>
+<uid value="1.2.840.10008.15.0.3.22" alias="dicomThisNodeCertificateReference" type="LDAP OID">dicomThisNodeCertificateReference</uid>
+<uid value="1.2.840.10008.15.0.3.23" alias="dicomInstalled" type="LDAP OID">dicomInstalled</uid>
+<uid value="1.2.840.10008.15.0.3.24" alias="dicomStationName" type="LDAP OID">dicomStationName</uid>
+<uid value="1.2.840.10008.15.0.3.25" alias="dicomDeviceSerialNumber" type="LDAP OID">dicomDeviceSerialNumber</uid>
+<uid value="1.2.840.10008.15.0.3.26" alias="dicomInstitutionName" type="LDAP OID">dicomInstitutionName</uid>
+<uid value="1.2.840.10008.15.0.3.27" alias="dicomInstitutionAddress" type="LDAP OID">dicomInstitutionAddress</uid>
+<uid value="1.2.840.10008.15.0.3.28" alias="dicomInstitutionDepartmentName" type="LDAP OID">dicomInstitutionDepartmentName</uid>
+<uid value="1.2.840.10008.15.0.3.29" alias="dicomIssuerOfPatientID" type="LDAP OID">dicomIssuerOfPatientID</uid>
+<uid value="1.2.840.10008.15.0.3.3" alias="dicomManufacturer" type="LDAP OID">dicomManufacturer</uid>
+<uid value="1.2.840.10008.15.0.3.30" alias="dicomPreferredCallingAETitle" type="LDAP OID">dicomPreferredCallingAETitle</uid>
+<uid value="1.2.840.10008.15.0.3.31" alias="dicomSupportedCharacterSet" type="LDAP OID">dicomSupportedCharacterSet</uid>
+<uid value="1.2.840.10008.15.0.3.4" alias="dicomManufacturerModelName" type="LDAP OID">dicomManufacturerModelName</uid>
+<uid value="1.2.840.10008.15.0.3.5" alias="dicomSoftwareVersion" type="LDAP OID">dicomSoftwareVersion</uid>
+<uid value="1.2.840.10008.15.0.3.6" alias="dicomVendorData" type="LDAP OID">dicomVendorData</uid>
+<uid value="1.2.840.10008.15.0.3.7" alias="dicomAETitle" type="LDAP OID">dicomAETitle</uid>
+<uid value="1.2.840.10008.15.0.3.8" alias="dicomNetworkConnectionReference" type="LDAP OID">dicomNetworkConnectionReference</uid>
+<uid value="1.2.840.10008.15.0.3.9" alias="dicomApplicationCluster" type="LDAP OID">dicomApplicationCluster</uid>
+<uid value="1.2.840.10008.15.0.4.1" alias="dicomConfigurationRoot" type="LDAP OID">dicomConfigurationRoot</uid>
+<uid value="1.2.840.10008.15.0.4.2" alias="dicomDevicesRoot" type="LDAP OID">dicomDevicesRoot</uid>
+<uid value="1.2.840.10008.15.0.4.3" alias="dicomUniqueAETitlesRegistryRoot" type="LDAP OID">dicomUniqueAETitlesRegistryRoot</uid>
+<uid value="1.2.840.10008.15.0.4.4" alias="dicomDevice" type="LDAP OID">dicomDevice</uid>
+<uid value="1.2.840.10008.15.0.4.5" alias="dicomNetworkAE" type="LDAP OID">dicomNetworkAE</uid>
+<uid value="1.2.840.10008.15.0.4.6" alias="dicomNetworkConnection" type="LDAP OID">dicomNetworkConnection</uid>
+<uid value="1.2.840.10008.15.0.4.7" alias="dicomUniqueAETitle" type="LDAP OID">dicomUniqueAETitle</uid>
+<uid value="1.2.840.10008.15.0.4.8" alias="dicomTransferCapability" type="LDAP OID">dicomTransferCapability</uid>
+<uid value="1.2.840.10008.2.16.4" alias="DICOMControlledTerminology" type="Coding Scheme">DICOM Controlled Terminology</uid>
+<uid value="1.2.840.10008.2.6.1" alias="DICOMUIDRegistry" type="DICOM UIDs as a Coding Scheme">DICOM UID Registry</uid>
+<uid value="1.2.840.10008.3.1.1.1" alias="DICOMApplicationContextName" type="Application Context Name">DICOM Application Context Name</uid>
+<uid value="1.2.840.10008.3.1.2.1.1" alias="DetachedPatientManagementSOPClassRetired" type="SOP Class">Detached Patient Management SOP Class (Retired)</uid>
+<uid value="1.2.840.10008.3.1.2.1.4" alias="DetachedPatientManagementMetaSOPClassRetired" type="Meta SOP Class">Detached Patient Management Meta SOP Class (Retired)</uid>
+<uid value="1.2.840.10008.3.1.2.2.1" alias="DetachedVisitManagementSOPClassRetired" type="SOP Class">Detached Visit Management SOP Class (Retired)</uid>
+<uid value="1.2.840.10008.3.1.2.3.1" alias="DetachedStudyManagementSOPClassRetired" type="SOP Class">Detached Study Management SOP Class (Retired)</uid>
+<uid value="1.2.840.10008.3.1.2.3.2" alias="StudyComponentManagementSOPClassRetired" type="SOP Class">Study Component Management SOP Class (Retired)</uid>
+<uid value="1.2.840.10008.3.1.2.3.3" alias="ModalityPerformedProcedureStepSOPClass" type="SOP Class">Modality Performed Procedure Step SOP Class</uid>
+<uid value="1.2.840.10008.3.1.2.3.4" alias="ModalityPerformedProcedureStepRetrieveSOPClass" type="SOP Class">Modality Performed Procedure Step Retrieve SOP Class</uid>
+<uid value="1.2.840.10008.3.1.2.3.5" alias="ModalityPerformedProcedureStepNotificationSOPClass" type="SOP Class">Modality Performed Procedure Step Notification SOP Class</uid>
+<uid value="1.2.840.10008.3.1.2.5.1" alias="DetachedResultsManagementSOPClassRetired" type="SOP Class">Detached Results Management SOP Class (Retired)</uid>
+<uid value="1.2.840.10008.3.1.2.5.4" alias="DetachedResultsManagementMetaSOPClassRetired" type="Meta SOP Class">Detached Results Management Meta SOP Class (Retired)</uid>
+<uid value="1.2.840.10008.3.1.2.5.5" alias="DetachedStudyManagementMetaSOPClassRetired" type="Meta SOP Class">Detached Study Management Meta SOP Class (Retired)</uid>
+<uid value="1.2.840.10008.3.1.2.6.1" alias="DetachedInterpretationManagementSOPClassRetired" type="SOP Class">Detached Interpretation Management SOP Class (Retired)</uid>
+<uid value="1.2.840.10008.4.2" alias="StorageServiceClass" type="Service Class">Storage Service Class</uid>
+<uid value="1.2.840.10008.5.1.1.1" alias="BasicFilmSessionSOPClass" type="SOP Class">Basic Film Session SOP Class</uid>
+<uid value="1.2.840.10008.5.1.1.14" alias="PrintJobSOPClass" type="SOP Class">Print Job SOP Class</uid>
+<uid value="1.2.840.10008.5.1.1.15" alias="BasicAnnotationBoxSOPClass" type="SOP Class">Basic Annotation Box SOP Class</uid>
+<uid value="1.2.840.10008.5.1.1.16" alias="PrinterSOPClass" type="SOP Class">Printer SOP Class</uid>
+<uid value="1.2.840.10008.5.1.1.16.376" alias="PrinterConfigurationRetrievalSOPClass" type="SOP Class">Printer Configuration Retrieval SOP Class</uid>
+<uid value="1.2.840.10008.5.1.1.17" alias="PrinterSOPInstance" type="Well-known Printer SOP Instance">Printer SOP Instance</uid>
+<uid value="1.2.840.10008.5.1.1.17.376" alias="PrinterConfigurationRetrievalSOPInstance" type="Well-known Printer SOP Instance">Printer Configuration Retrieval SOP Instance</uid>
+<uid value="1.2.840.10008.5.1.1.18" alias="BasicColorPrintManagementMetaSOPClass" type="Meta SOP Class">Basic Color Print Management Meta SOP Class</uid>
+<uid value="1.2.840.10008.5.1.1.18.1" alias="ReferencedColorPrintManagementMetaSOPClassRetired" type="Meta SOP Class">Referenced Color Print Management Meta SOP Class (Retired)</uid>
+<uid value="1.2.840.10008.5.1.1.2" alias="BasicFilmBoxSOPClass" type="SOP Class">Basic Film Box SOP Class</uid>
+<uid value="1.2.840.10008.5.1.1.22" alias="VOILUTBoxSOPClass" type="SOP Class">VOI LUT Box SOP Class</uid>
+<uid value="1.2.840.10008.5.1.1.23" alias="PresentationLUTSOPClass" type="SOP Class">Presentation LUT SOP Class</uid>
+<uid value="1.2.840.10008.5.1.1.24" alias="ImageOverlayBoxSOPClassRetired" type="SOP Class">Image Overlay Box SOP Class (Retired)</uid>
+<uid value="1.2.840.10008.5.1.1.24.1" alias="BasicPrintImageOverlayBoxSOPClassRetired" type="SOP Class">Basic Print Image Overlay Box SOP Class (Retired)</uid>
+<uid value="1.2.840.10008.5.1.1.25" alias="PrintQueueSOPInstanceRetired" type="Well-known Print Queue SOP Instance">Print Queue SOP Instance (Retired)</uid>
+<uid value="1.2.840.10008.5.1.1.26" alias="PrintQueueManagementSOPClassRetired" type="SOP Class">Print Queue Management SOP Class (Retired)</uid>
+<uid value="1.2.840.10008.5.1.1.27" alias="StoredPrintStorageSOPClassRetired" type="SOP Class">Stored Print Storage SOP Class (Retired)</uid>
+<uid value="1.2.840.10008.5.1.1.29" alias="HardcopyGrayscaleImageStorageSOPClassRetired" type="SOP Class">Hardcopy Grayscale Image Storage SOP Class (Retired)</uid>
+<uid value="1.2.840.10008.5.1.1.30" alias="HardcopyColorImageStorageSOPClassRetired" type="SOP Class">Hardcopy Color Image Storage SOP Class (Retired)</uid>
+<uid value="1.2.840.10008.5.1.1.31" alias="PullPrintRequestSOPClassRetired" type="SOP Class">Pull Print Request SOP Class (Retired)</uid>
+<uid value="1.2.840.10008.5.1.1.32" alias="PullStoredPrintManagementMetaSOPClassRetired" type="Meta SOP Class">Pull Stored Print Management Meta SOP Class (Retired)</uid>
+<uid value="1.2.840.10008.5.1.1.33" alias="MediaCreationManagementSOPClassUID" type="SOP Class">Media Creation Management SOP Class UID</uid>
+<uid value="1.2.840.10008.5.1.1.4" alias="BasicGrayscaleImageBoxSOPClass" type="SOP Class">Basic Grayscale Image Box SOP Class</uid>
+<uid value="1.2.840.10008.5.1.1.4.1" alias="BasicColorImageBoxSOPClass" type="SOP Class">Basic Color Image Box SOP Class</uid>
+<uid value="1.2.840.10008.5.1.1.4.2" alias="ReferencedImageBoxSOPClassRetired" type="SOP Class">Referenced Image Box SOP Class (Retired)</uid>
+<uid value="1.2.840.10008.5.1.1.9" alias="BasicGrayscalePrintManagementMetaSOPClass" type="Meta SOP Class">Basic Grayscale Print Management Meta SOP Class</uid>
+<uid value="1.2.840.10008.5.1.1.9.1" alias="ReferencedGrayscalePrintManagementMetaSOPClassRetired" type="Meta SOP Class">Referenced Grayscale Print Management Meta SOP Class (Retired)</uid>
+<uid value="1.2.840.10008.5.1.4.1.1.1" alias="ComputedRadiographyImageStorage" type="SOP Class">Computed Radiography Image Storage</uid>
+<uid value="1.2.840.10008.5.1.4.1.1.1.1" alias="DigitalXRayImageStorageForPresentation" type="SOP Class">Digital X-Ray Image Storage - For Presentation</uid>
+<uid value="1.2.840.10008.5.1.4.1.1.1.1.1" alias="DigitalXRayImageStorageForProcessing" type="SOP Class">Digital X-Ray Image Storage - For Processing</uid>
+<uid value="1.2.840.10008.5.1.4.1.1.1.2" alias="DigitalMammographyXRayImageStorageForPresentation" type="SOP Class">Digital Mammography X-Ray Image Storage - For Presentation</uid>
+<uid value="1.2.840.10008.5.1.4.1.1.1.2.1" alias="DigitalMammographyXRayImageStorageForProcessing" type="SOP Class">Digital Mammography X-Ray Image Storage - For Processing</uid>
+<uid value="1.2.840.10008.5.1.4.1.1.1.3" alias="DigitalIntraoralXRayImageStorageForPresentation" type="SOP Class">Digital Intra-oral X-Ray Image Storage - For Presentation</uid>
+<uid value="1.2.840.10008.5.1.4.1.1.1.3.1" alias="DigitalIntraoralXRayImageStorageForProcessing" type="SOP Class">Digital Intra-oral X-Ray Image Storage - For Processing</uid>
+<uid value="1.2.840.10008.5.1.4.1.1.10" alias="StandaloneModalityLUTStorageRetired" type="SOP Class">Standalone Modality LUT Storage (Retired)</uid>
+<uid value="1.2.840.10008.5.1.4.1.1.104.1" alias="EncapsulatedPDFStorage" type="SOP Class">Encapsulated PDF Storage</uid>
+<uid value="1.2.840.10008.5.1.4.1.1.104.2" alias="EncapsulatedCDAStorage" type="SOP Class">Encapsulated CDA Storage</uid>
+<uid value="1.2.840.10008.5.1.4.1.1.11" alias="StandaloneVOILUTStorageRetired" type="SOP Class">Standalone VOI LUT Storage (Retired)</uid>
+<uid value="1.2.840.10008.5.1.4.1.1.11.1" alias="GrayscaleSoftcopyPresentationStateStorageSOPClass" type="SOP Class">Grayscale Softcopy Presentation State Storage SOP Class</uid>
+<uid value="1.2.840.10008.5.1.4.1.1.11.2" alias="ColorSoftcopyPresentationStateStorageSOPClass" type="SOP Class">Color Softcopy Presentation State Storage SOP Class</uid>
+<uid value="1.2.840.10008.5.1.4.1.1.11.3" alias="PseudoColorSoftcopyPresentationStateStorageSOPClass" type="SOP Class">Pseudo-Color Softcopy Presentation State Storage SOP Class</uid>
+<uid value="1.2.840.10008.5.1.4.1.1.11.4" alias="BlendingSoftcopyPresentationStateStorageSOPClass" type="SOP Class">Blending Softcopy Presentation State Storage SOP Class</uid>
+<uid value="1.2.840.10008.5.1.4.1.1.11.5" alias="XAXRFGrayscaleSoftcopyPresentationStateStorage" type="SOP Class">XA/XRF Grayscale Softcopy Presentation State Storage</uid>
+<uid value="1.2.840.10008.5.1.4.1.1.12.1" alias="XRayAngiographicImageStorage" type="SOP Class">X-Ray Angiographic Image Storage</uid>
+<uid value="1.2.840.10008.5.1.4.1.1.12.1.1" alias="EnhancedXAImageStorage" type="SOP Class">Enhanced XA Image Storage</uid>
+<uid value="1.2.840.10008.5.1.4.1.1.12.2" alias="XRayRadiofluoroscopicImageStorage" type="SOP Class">X-Ray Radiofluoroscopic Image Storage</uid>
+<uid value="1.2.840.10008.5.1.4.1.1.12.2.1" alias="EnhancedXRFImageStorage" type="SOP Class">Enhanced XRF Image Storage</uid>
+<uid value="1.2.840.10008.5.1.4.1.1.12.3" alias="XRayAngiographicBiPlaneImageStorageRetired" type="SOP Class">X-Ray Angiographic Bi-Plane Image Storage (Retired)</uid>
+<uid value="1.2.840.10008.5.1.4.1.1.128" alias="PositronEmissionTomographyImageStorage" type="SOP Class">Positron Emission Tomography Image Storage</uid>
+<uid value="1.2.840.10008.5.1.4.1.1.129" alias="StandalonePETCurveStorageRetired" type="SOP Class">Standalone PET Curve Storage (Retired)</uid>
+<uid value="1.2.840.10008.5.1.4.1.1.13.1.1" alias="XRay3DAngiographicImageStorage" type="SOP Class">X-Ray 3D Angiographic Image Storage</uid>
+<uid value="1.2.840.10008.5.1.4.1.1.13.1.2" alias="XRay3DCraniofacialImageStorage" type="SOP Class">X-Ray 3D Craniofacial Image Storage</uid>
+<uid value="1.2.840.10008.5.1.4.1.1.13.1.3" alias="BreastTomosynthesisImageStorage" type="SOP Class">Breast Tomosynthesis Image Storage</uid>
+<uid value="1.2.840.10008.5.1.4.1.1.130" alias="EnhancedPETImageStorage" type="SOP Class">Enhanced PET Image Storage</uid>
+<uid value="1.2.840.10008.5.1.4.1.1.131" alias="BasicStructuredDisplayStorage" type="SOP Class">Basic Structured Display Storage</uid>
+<uid value="1.2.840.10008.5.1.4.1.1.2" alias="CTImageStorage" type="SOP Class">CT Image Storage</uid>
+<uid value="1.2.840.10008.5.1.4.1.1.2.1" alias="EnhancedCTImageStorage" type="SOP Class">Enhanced CT Image Storage</uid>
+<uid value="1.2.840.10008.5.1.4.1.1.20" alias="NuclearMedicineImageStorage" type="SOP Class">Nuclear Medicine Image Storage</uid>
+<uid value="1.2.840.10008.5.1.4.1.1.3" alias="UltrasoundMultiframeImageStorageRetired" type="SOP Class">Ultrasound Multi-frame Image Storage (Retired)</uid>
+<uid value="1.2.840.10008.5.1.4.1.1.3.1" alias="UltrasoundMultiframeImageStorage" type="SOP Class">Ultrasound Multi-frame Image Storage</uid>
+<uid value="1.2.840.10008.5.1.4.1.1.4" alias="MRImageStorage" type="SOP Class">MR Image Storage</uid>
+<uid value="1.2.840.10008.5.1.4.1.1.4.1" alias="EnhancedMRImageStorage" type="SOP Class">Enhanced MR Image Storage</uid>
+<uid value="1.2.840.10008.5.1.4.1.1.4.2" alias="MRSpectroscopyStorage" type="SOP Class">MR Spectroscopy Storage</uid>
+<uid value="1.2.840.10008.5.1.4.1.1.4.3" alias="EnhancedMRColorImageStorage" type="SOP Class">Enhanced MR Color Image Storage</uid>
+<uid value="1.2.840.10008.5.1.4.1.1.481.1" alias="RTImageStorage" type="SOP Class">RT Image Storage</uid>
+<uid value="1.2.840.10008.5.1.4.1.1.481.2" alias="RTDoseStorage" type="SOP Class">RT Dose Storage</uid>
+<uid value="1.2.840.10008.5.1.4.1.1.481.3" alias="RTStructureSetStorage" type="SOP Class">RT Structure Set Storage</uid>
+<uid value="1.2.840.10008.5.1.4.1.1.481.4" alias="RTBeamsTreatmentRecordStorage" type="SOP Class">RT Beams Treatment Record Storage</uid>
+<uid value="1.2.840.10008.5.1.4.1.1.481.5" alias="RTPlanStorage" type="SOP Class">RT Plan Storage</uid>
+<uid value="1.2.840.10008.5.1.4.1.1.481.6" alias="RTBrachyTreatmentRecordStorage" type="SOP Class">RT Brachy Treatment Record Storage</uid>
+<uid value="1.2.840.10008.5.1.4.1.1.481.7" alias="RTTreatmentSummaryRecordStorage" type="SOP Class">RT Treatment Summary Record Storage</uid>
+<uid value="1.2.840.10008.5.1.4.1.1.481.8" alias="RTIonPlanStorage" type="SOP Class">RT Ion Plan Storage</uid>
+<uid value="1.2.840.10008.5.1.4.1.1.481.9" alias="RTIonBeamsTreatmentRecordStorage" type="SOP Class">RT Ion Beams Treatment Record Storage</uid>
+<uid value="1.2.840.10008.5.1.4.1.1.5" alias="NuclearMedicineImageStorageRetired" type="SOP Class">Nuclear Medicine Image Storage (Retired)</uid>
+<uid value="1.2.840.10008.5.1.4.1.1.6" alias="UltrasoundImageStorageRetired" type="SOP Class">Ultrasound Image Storage (Retired)</uid>
+<uid value="1.2.840.10008.5.1.4.1.1.6.1" alias="UltrasoundImageStorage" type="SOP Class">Ultrasound Image Storage</uid>
+<uid value="1.2.840.10008.5.1.4.1.1.6.2" alias="EnhancedUSVolumeStorage" type="SOP Class">Enhanced US Volume Storage</uid>
+<uid value="1.2.840.10008.5.1.4.1.1.66" alias="RawDataStorage" type="SOP Class">Raw Data Storage</uid>
+<uid value="1.2.840.10008.5.1.4.1.1.66.1" alias="SpatialRegistrationStorage" type="SOP Class">Spatial Registration Storage</uid>
+<uid value="1.2.840.10008.5.1.4.1.1.66.2" alias="SpatialFiducialsStorage" type="SOP Class">Spatial Fiducials Storage</uid>
+<uid value="1.2.840.10008.5.1.4.1.1.66.3" alias="DeformableSpatialRegistrationStorage" type="SOP Class">Deformable Spatial Registration Storage</uid>
+<uid value="1.2.840.10008.5.1.4.1.1.66.4" alias="SegmentationStorage" type="SOP Class">Segmentation Storage</uid>
+<uid value="1.2.840.10008.5.1.4.1.1.66.5" alias="SurfaceSegmentationStorage" type="SOP Class">Surface Segmentation Storage</uid>
+<uid value="1.2.840.10008.5.1.4.1.1.67" alias="RealWorldValueMappingStorage" type="SOP Class">Real World Value Mapping Storage</uid>
+<uid value="1.2.840.10008.5.1.4.1.1.7" alias="SecondaryCaptureImageStorage" type="SOP Class">Secondary Capture Image Storage</uid>
+<uid value="1.2.840.10008.5.1.4.1.1.7.1" alias="MultiframeSingleBitSecondaryCaptureImageStorage" type="SOP Class">Multi-frame Single Bit Secondary Capture Image Storage</uid>
+<uid value="1.2.840.10008.5.1.4.1.1.7.2" alias="MultiframeGrayscaleByteSecondaryCaptureImageStorage" type="SOP Class">Multi-frame Grayscale Byte Secondary Capture Image Storage</uid>
+<uid value="1.2.840.10008.5.1.4.1.1.7.3" alias="MultiframeGrayscaleWordSecondaryCaptureImageStorage" type="SOP Class">Multi-frame Grayscale Word Secondary Capture Image Storage</uid>
+<uid value="1.2.840.10008.5.1.4.1.1.7.4" alias="MultiframeTrueColorSecondaryCaptureImageStorage" type="SOP Class">Multi-frame True Color Secondary Capture Image Storage</uid>
+<uid value="1.2.840.10008.5.1.4.1.1.77.1" alias="VLImageStorageTrialRetired" type="">VL Image Storage - Trial (Retired)</uid>
+<uid value="1.2.840.10008.5.1.4.1.1.77.1.1" alias="VLEndoscopicImageStorage" type="SOP Class">VL Endoscopic Image Storage</uid>
+<uid value="1.2.840.10008.5.1.4.1.1.77.1.1.1" alias="VideoEndoscopicImageStorage" type="SOP Class">Video Endoscopic Image Storage</uid>
+<uid value="1.2.840.10008.5.1.4.1.1.77.1.2" alias="VLMicroscopicImageStorage" type="SOP Class">VL Microscopic Image Storage</uid>
+<uid value="1.2.840.10008.5.1.4.1.1.77.1.2.1" alias="VideoMicroscopicImageStorage" type="SOP Class">Video Microscopic Image Storage</uid>
+<uid value="1.2.840.10008.5.1.4.1.1.77.1.3" alias="VLSlideCoordinatesMicroscopicImageStorage" type="SOP Class">VL Slide-Coordinates Microscopic Image Storage</uid>
+<uid value="1.2.840.10008.5.1.4.1.1.77.1.4" alias="VLPhotographicImageStorage" type="SOP Class">VL Photographic Image Storage</uid>
+<uid value="1.2.840.10008.5.1.4.1.1.77.1.4.1" alias="VideoPhotographicImageStorage" type="SOP Class">Video Photographic Image Storage</uid>
+<uid value="1.2.840.10008.5.1.4.1.1.77.1.5.1" alias="OphthalmicPhotography8BitImageStorage" type="SOP Class">Ophthalmic Photography 8 Bit Image Storage</uid>
+<uid value="1.2.840.10008.5.1.4.1.1.77.1.5.2" alias="OphthalmicPhotography16BitImageStorage" type="SOP Class">Ophthalmic Photography 16 Bit Image Storage</uid>
+<uid value="1.2.840.10008.5.1.4.1.1.77.1.5.3" alias="StereometricRelationshipStorage" type="SOP Class">Stereometric Relationship Storage</uid>
+<uid value="1.2.840.10008.5.1.4.1.1.77.1.5.4" alias="OphthalmicTomographyImageStorage" type="SOP Class">Ophthalmic Tomography Image Storage</uid>
+<uid value="1.2.840.10008.5.1.4.1.1.77.2" alias="VLMultiframeImageStorageTrialRetired" type="">VL Multi-frame Image Storage - Trial (Retired)</uid>
+<uid value="1.2.840.10008.5.1.4.1.1.78.1" alias="LensometryMeasurementsStorage" type="SOP Class">Lensometry Measurements Storage</uid>
+<uid value="1.2.840.10008.5.1.4.1.1.78.2" alias="AutorefractionMeasurementsStorage" type="SOP Class">Autorefraction Measurements Storage</uid>
+<uid value="1.2.840.10008.5.1.4.1.1.78.3" alias="KeratometryMeasurementsStorage" type="SOP Class">Keratometry Measurements Storage</uid>
+<uid value="1.2.840.10008.5.1.4.1.1.78.4" alias="SubjectiveRefractionMeasurementsStorage" type="SOP Class">Subjective Refraction Measurements Storage</uid>
+<uid value="1.2.840.10008.5.1.4.1.1.78.5" alias="VisualAcuityMeasurements" type="SOP Class">Visual Acuity Measurements</uid>
+<uid value="1.2.840.10008.5.1.4.1.1.78.6" alias="SpectaclePrescriptionReportsStorage" type="SOP Class">Spectacle Prescription Reports Storage</uid>
+<uid value="1.2.840.10008.5.1.4.1.1.79.1" alias="MacularGridThicknessandVolumeReportStorage" type="SOP Class">Macular Grid Thickness and Volume Report Storage</uid>
+<uid value="1.2.840.10008.5.1.4.1.1.8" alias="StandaloneOverlayStorageRetired" type="SOP Class">Standalone Overlay Storage (Retired)</uid>
+<uid value="1.2.840.10008.5.1.4.1.1.88.1" alias="TextSRStorageTrialRetired" type="SOP Class">Text SR Storage - Trial (Retired)</uid>
+<uid value="1.2.840.10008.5.1.4.1.1.88.11" alias="BasicTextSRStorage" type="SOP Class">Basic Text SR Storage</uid>
+<uid value="1.2.840.10008.5.1.4.1.1.88.2" alias="AudioSRStorageTrialRetired" type="SOP Class">Audio SR Storage - Trial (Retired)</uid>
+<uid value="1.2.840.10008.5.1.4.1.1.88.22" alias="EnhancedSRStorage" type="SOP Class">Enhanced SR Storage</uid>
+<uid value="1.2.840.10008.5.1.4.1.1.88.3" alias="DetailSRStorageTrialRetired" type="SOP Class">Detail SR Storage - Trial (Retired)</uid>
+<uid value="1.2.840.10008.5.1.4.1.1.88.33" alias="ComprehensiveSRStorage" type="SOP Class">Comprehensive SR Storage</uid>
+<uid value="1.2.840.10008.5.1.4.1.1.88.4" alias="ComprehensiveSRStorageTrialRetired" type="SOP Class">Comprehensive SR Storage - Trial (Retired)</uid>
+<uid value="1.2.840.10008.5.1.4.1.1.88.40" alias="ProcedureLogStorage" type="SOP Class">Procedure Log Storage</uid>
+<uid value="1.2.840.10008.5.1.4.1.1.88.50" alias="MammographyCADSRStorage" type="SOP Class">Mammography CAD SR Storage</uid>
+<uid value="1.2.840.10008.5.1.4.1.1.88.59" alias="KeyObjectSelectionDocumentStorage" type="SOP Class">Key Object Selection Document Storage</uid>
+<uid value="1.2.840.10008.5.1.4.1.1.88.65" alias="ChestCADSRStorage" type="SOP Class">Chest CAD SR Storage</uid>
+<uid value="1.2.840.10008.5.1.4.1.1.88.67" alias="XRayRadiationDoseSRStorage" type="SOP Class">X-Ray Radiation Dose SR Storage</uid>
+<uid value="1.2.840.10008.5.1.4.1.1.88.69" alias="ColonCADSRStorage" type="SOP Class">Colon CAD SR Storage</uid>
+<uid value="1.2.840.10008.5.1.4.1.1.9" alias="StandaloneCurveStorageRetired" type="SOP Class">Standalone Curve Storage (Retired)</uid>
+<uid value="1.2.840.10008.5.1.4.1.1.9.1" alias="WaveformStorageTrialRetired" type="SOP Class">Waveform Storage - Trial (Retired)</uid>
+<uid value="1.2.840.10008.5.1.4.1.1.9.1.1" alias="_12leadECGWaveformStorage" type="SOP Class">12-lead ECG Waveform Storage</uid>
+<uid value="1.2.840.10008.5.1.4.1.1.9.1.2" alias="GeneralECGWaveformStorage" type="SOP Class">General ECG Waveform Storage</uid>
+<uid value="1.2.840.10008.5.1.4.1.1.9.1.3" alias="AmbulatoryECGWaveformStorage" type="SOP Class">Ambulatory ECG Waveform Storage</uid>
+<uid value="1.2.840.10008.5.1.4.1.1.9.2.1" alias="HemodynamicWaveformStorage" type="SOP Class">Hemodynamic Waveform Storage</uid>
+<uid value="1.2.840.10008.5.1.4.1.1.9.3.1" alias="CardiacElectrophysiologyWaveformStorage" type="SOP Class">Cardiac Electrophysiology Waveform Storage</uid>
+<uid value="1.2.840.10008.5.1.4.1.1.9.4.1" alias="BasicVoiceAudioWaveformStorage" type="SOP Class">Basic Voice Audio Waveform Storage</uid>
+<uid value="1.2.840.10008.5.1.4.1.1.9.4.2" alias="GeneralAudioWaveformStorage" type="SOP Class">General Audio Waveform Storage</uid>
+<uid value="1.2.840.10008.5.1.4.1.1.9.5.1" alias="ArterialPulseWaveformStorage" type="SOP Class">Arterial Pulse Waveform Storage</uid>
+<uid value="1.2.840.10008.5.1.4.1.1.9.6.1" alias="RespiratoryWaveformStorage" type="SOP Class">Respiratory Waveform Storage</uid>
+<uid value="1.2.840.10008.5.1.4.1.2.1.1" alias="PatientRootQueryRetrieveInformationModelFIND" type="SOP Class">Patient Root Query/Retrieve Information Model - FIND</uid>
+<uid value="1.2.840.10008.5.1.4.1.2.1.2" alias="PatientRootQueryRetrieveInformationModelMOVE" type="SOP Class">Patient Root Query/Retrieve Information Model - MOVE</uid>
+<uid value="1.2.840.10008.5.1.4.1.2.1.3" alias="PatientRootQueryRetrieveInformationModelGET" type="SOP Class">Patient Root Query/Retrieve Information Model - GET</uid>
+<uid value="1.2.840.10008.5.1.4.1.2.2.1" alias="StudyRootQueryRetrieveInformationModelFIND" type="SOP Class">Study Root Query/Retrieve Information Model - FIND</uid>
+<uid value="1.2.840.10008.5.1.4.1.2.2.2" alias="StudyRootQueryRetrieveInformationModelMOVE" type="SOP Class">Study Root Query/Retrieve Information Model - MOVE</uid>
+<uid value="1.2.840.10008.5.1.4.1.2.2.3" alias="StudyRootQueryRetrieveInformationModelGET" type="SOP Class">Study Root Query/Retrieve Information Model - GET</uid>
+<uid value="1.2.840.10008.5.1.4.1.2.3.1" alias="PatientStudyOnlyQueryRetrieveInformationModelFINDRetired" type="SOP Class">Patient/Study Only Query/Retrieve Information Model - FIND (Retired)</uid>
+<uid value="1.2.840.10008.5.1.4.1.2.3.2" alias="PatientStudyOnlyQueryRetrieveInformationModelMOVERetired" type="SOP Class">Patient/Study Only Query/Retrieve Information Model - MOVE (Retired)</uid>
+<uid value="1.2.840.10008.5.1.4.1.2.3.3" alias="PatientStudyOnlyQueryRetrieveInformationModelGETRetired" type="SOP Class">Patient/Study Only Query/Retrieve Information Model - GET (Retired)</uid>
+<uid value="1.2.840.10008.5.1.4.1.2.4.2" alias="CompositeInstanceRootRetrieveMOVE" type="SOP Class">Composite Instance Root Retrieve - MOVE</uid>
+<uid value="1.2.840.10008.5.1.4.1.2.4.3" alias="CompositeInstanceRootRetrieveGET" type="SOP Class">Composite Instance Root Retrieve - GET</uid>
+<uid value="1.2.840.10008.5.1.4.1.2.5.3" alias="CompositeInstanceRetrieveWithoutBulkDataGET" type="SOP Class">Composite Instance Retrieve Without Bulk Data - GET</uid>
+<uid value="1.2.840.10008.5.1.4.31" alias="ModalityWorklistInformationModelFIND" type="SOP Class">Modality Worklist Information Model - FIND</uid>
+<uid value="1.2.840.10008.5.1.4.32" alias="GeneralPurposeWorklistManagementMetaSOPClass" type="Meta SOP Class">General Purpose Worklist Management Meta SOP Class</uid>
+<uid value="1.2.840.10008.5.1.4.32.1" alias="GeneralPurposeWorklistInformationModelFIND" type="SOP Class">General Purpose Worklist Information Model - FIND</uid>
+<uid value="1.2.840.10008.5.1.4.32.2" alias="GeneralPurposeScheduledProcedureStepSOPClass" type="SOP Class">General Purpose Scheduled Procedure Step SOP Class</uid>
+<uid value="1.2.840.10008.5.1.4.32.3" alias="GeneralPurposePerformedProcedureStepSOPClass" type="SOP Class">General Purpose Performed Procedure Step SOP Class</uid>
+<uid value="1.2.840.10008.5.1.4.33" alias="InstanceAvailabilityNotificationSOPClass" type="SOP Class">Instance Availability Notification SOP Class</uid>
+<uid value="1.2.840.10008.5.1.4.34.1" alias="RTBeamsDeliveryInstructionStorageSupplement74FrozenDraft" type="SOP Class">RT Beams Delivery Instruction Storage (Supplement 74 Frozen Draft)</uid>
+<uid value="1.2.840.10008.5.1.4.34.2" alias="RTConventionalMachineVerificationSupplement74FrozenDraft" type="SOP Class">RT Conventional Machine Verification (Supplement 74 Frozen Draft)</uid>
+<uid value="1.2.840.10008.5.1.4.34.3" alias="RTIonMachineVerificationSupplement74FrozenDraft" type="SOP Class">RT Ion Machine Verification (Supplement 74 Frozen Draft)</uid>
+<uid value="1.2.840.10008.5.1.4.34.4" alias="UnifiedWorklistandProcedureStepServiceClass" type="Service Class">Unified Worklist and Procedure Step Service Class</uid>
+<uid value="1.2.840.10008.5.1.4.34.4.1" alias="UnifiedProcedureStepPushSOPClass" type="SOP Class">Unified Procedure Step - Push SOP Class</uid>
+<uid value="1.2.840.10008.5.1.4.34.4.2" alias="UnifiedProcedureStepWatchSOPClass" type="SOP Class">Unified Procedure Step - Watch SOP Class</uid>
+<uid value="1.2.840.10008.5.1.4.34.4.3" alias="UnifiedProcedureStepPullSOPClass" type="SOP Class">Unified Procedure Step - Pull SOP Class</uid>
+<uid value="1.2.840.10008.5.1.4.34.4.4" alias="UnifiedProcedureStepEventSOPClass" type="SOP Class">Unified Procedure Step - Event SOP Class</uid>
+<uid value="1.2.840.10008.5.1.4.34.5" alias="UnifiedWorklistandProcedureStepSOPInstance" type="Well-known SOP Instance">Unified Worklist and Procedure Step SOP Instance</uid>
+<uid value="1.2.840.10008.5.1.4.37.1" alias="GeneralRelevantPatientInformationQuery" type="SOP Class">General Relevant Patient Information Query</uid>
+<uid value="1.2.840.10008.5.1.4.37.2" alias="BreastImagingRelevantPatientInformationQuery" type="SOP Class">Breast Imaging Relevant Patient Information Query</uid>
+<uid value="1.2.840.10008.5.1.4.37.3" alias="CardiacRelevantPatientInformationQuery" type="SOP Class">Cardiac Relevant Patient Information Query</uid>
+<uid value="1.2.840.10008.5.1.4.38.1" alias="HangingProtocolStorage" type="SOP Class">Hanging Protocol Storage</uid>
+<uid value="1.2.840.10008.5.1.4.38.2" alias="HangingProtocolInformationModelFIND" type="SOP Class">Hanging Protocol Information Model - FIND</uid>
+<uid value="1.2.840.10008.5.1.4.38.3" alias="HangingProtocolInformationModelMOVE" type="SOP Class">Hanging Protocol Information Model - MOVE</uid>
+<uid value="1.2.840.10008.5.1.4.38.4" alias="HangingProtocolInformationModelGET" type="SOP Class">Hanging Protocol Information Model - GET</uid>
+<uid value="1.2.840.10008.5.1.4.39.1" alias="ColorPaletteStorage" type="Transfer">Color Palette Storage</uid>
+<uid value="1.2.840.10008.5.1.4.39.2" alias="ColorPaletteInformationModelFIND" type="Query/Retrieve">Color Palette Information Model - FIND</uid>
+<uid value="1.2.840.10008.5.1.4.39.3" alias="ColorPaletteInformationModelMOVE" type="Query/Retrieve">Color Palette Information Model - MOVE</uid>
+<uid value="1.2.840.10008.5.1.4.39.4" alias="ColorPaletteInformationModelGET" type="Query/Retrieve">Color Palette Information Model - GET</uid>
+<uid value="1.2.840.10008.5.1.4.41" alias="ProductCharacteristicsQuerySOPClass" type="SOP Class">Product Characteristics Query SOP Class</uid>
+<uid value="1.2.840.10008.5.1.4.42" alias="SubstanceApprovalQuerySOPClass" type="SOP Class">Substance Approval Query SOP Class</uid>
+<uid value="1.3.12.2.1107.5.9.1" alias="SiemensCSANonImageStorage" type="SOP Class">Siemens CSA Non-Image Storage</uid>
+</uids>

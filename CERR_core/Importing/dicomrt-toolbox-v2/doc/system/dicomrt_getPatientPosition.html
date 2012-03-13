@@ -1,0 +1,42 @@
+<TITLE>/</TITLE>
+<BODY>
+<A HREF = "index.html">[Index for ./dicomrt-toolbox/system]</A>
+<A HREF = "../index.html">[Return to Master Index]</A>
+<H1>dicomrt_getPatientPosition</H1>
+<H2>(./dicomrt-toolbox/system/dicomrt_getPatientPosition.m)</H2>
+<HR><H3>Function Synopsis</H3>
+<pre>[CODE] = dicomrt_getPatientPosition(study)</pre>
+<HR><H3>Help text</H3>
+<pre>
+ dicomrt_getPatientPosition(study)
+
+ Get Patient Position 
+ Return a number (CODE) which correspond to one of the supported cases
+ 
+ Patient Position codes: 
+
+ Head First Supine (HFS) - CODE=1
+ Feet First Supine (FFS) - CODE=2 
+ Head First Prone  (HFP) - CODE=3
+ Feet First Prone  (FFP) - CODE=4
+ 
+ Example:
+
+ [B]=dicomrt_getPatientPosition(A)
+
+ if patient position is HFS, dicomrt_getPatientPosition returns &quot;1&quot; in B.
+
+ See also: dicomrt_loaddose, dicomrt_ctcreate, dicomrt_createwphantom
+
+ Copyright (C) 2002 Emiliano Spezi (emiliano.spezi@physics.org) 
+</pre>
+<HR><H3>Cross-Reference Information</H3>This function is called by
+<pre><UL>
+<LI><A HREF = "../system/dicomrt_checkinput.html">dicomrt_checkinput</A>./dicomrt-toolbox/system/dicomrt_checkinput.m</LI>
+<LI><A HREF = "../system/dicomrt_checkinputanderr.html">dicomrt_checkinputanderr</A>./dicomrt-toolbox/system/dicomrt_checkinputanderr.m</LI>
+</UL></pre>
+<HR>
+Produced by <A HREF="http://www.mathworks.com/support/ftp/toolsv4.shtml">mat2html</A> on Mon Oct 20 15:21:43 2003
+<BR>
+Cross-Directory links are: OFF<BR>
+</BODY>
