@@ -43,7 +43,8 @@ rtplan_location=fgetl(fid);
 
 dictFlg = checkDictUse;
 if dictFlg
-    rtplan=dicominfo(rtplan_location,'dictionary', 'ES - IPT4.1CompatibleDictionary.mat');
+    % rtplan=dicominfo(rtplan_location,'dictionary', 'ES - IPT4.1CompatibleDictionary.mat');
+    rtplan=dicominfo(rtplan_location,'dictionary', [getCERRPath,'bin\ES - IPT4.1CompatibleDictionary.mat']); % for compiled CERR
 else
     rtplan=dicominfo(rtplan_location);
 end

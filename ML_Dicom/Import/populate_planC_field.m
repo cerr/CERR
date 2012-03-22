@@ -381,7 +381,10 @@ switch cellName
         %Implementation is unnecessary.
         
     case 'CERROptions'
-        dataS = CERROptions;
+        % dataS = CERROptions;
+        pathStr = getCERRPath;
+        optName = [pathStr 'CERROptions.m'];
+        dataS = opts4Exe(optName);        
         
     case 'indexS'
         %Implementation is unnecessary.

@@ -34,7 +34,10 @@ function saveParam = getSaveInfo();
 saveParam = [];
 verInfo = ver('MATLAB');
 if strcmpi(verInfo.Version(1), '7')
-    tmpOptS = CERROptions;
+    % tmpOptS = CERROptions; % for source code version
+    pathStr = getCERRPath;
+    optName = [pathStr 'CERROptions.m'];
+    tmpOptS = opts4Exe(optName);
 	if isfield(tmpOptS, 'saveFormat') & ~isempty(tmpOptS.saveFormat)
         saveParam = tmpOptS.saveFormat;
 	end

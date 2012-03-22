@@ -231,6 +231,9 @@ if isempty(voi)==0
 end
 
 % Store options and indexS
+pathStr = getCERRPath;
+optName = [pathStr 'CERROptions.m'];
+optS = opts4Exe(optName);
 planC{indexS.CERROptions} = optS;
 planC{indexS.indexS} = indexS;
 

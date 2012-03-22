@@ -23,6 +23,7 @@ function  bzip2Matlab
 tic
 oldDir = pwd;
 pathStr = getCERRPath;
+pathStr = [getCERRPath,'\bin\Compression']; % for compiled CERR
 cd(pathname);
 l = length(fname);
 fmat = ''; outstr = '';
