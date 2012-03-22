@@ -300,11 +300,13 @@ switch upper(instr)
         %stateS.handle.rulerTrans = uicontrol(hCSV,'units',units,'pos',[0.11*512, 345 dx - 25, 20]/512,'string','Ruler','fontsize',fontsize, 'BackgroundColor',uicolor, 'callback','sliceCallBack(''toggleRuler'');','Style','checkbox','value',0,'max',1,'min',0,'tooltipstring','Draw ruler line.');
         
         %Zoom Controls.
-        [I,map] = imread('tool_zoom.gif','gif');
+        % [I,map] = imread('tool_zoom.gif','gif');
+        [I,map] = imread(fullfile(getCERRPath,'pics','Icons','tool_zoom.gif'),'gif'); % for compiled CERR
         zoomImg = ind2rgb(I,map);
         stateS.handle.zoom = uicontrol(hCSV,'units',units,'style', 'togglebutton', 'position',[0.018*512+dx, 345, dx - 35, 20]/512,'cdata',zoomImg,'BackgroundColor',uicolor, 'callback','sliceCallBack(''togglezoom'')','interruptible','on','tooltipstring', 'Toggle ZoomIn(Left)/ZoomOut(Right)');
 
-        [I,map] = imread('reset_zoom.GIF','gif');
+        % [I,map] = imread('reset_zoom.GIF','gif');
+        [I,map] = imread(fullfile(getCERRPath,'pics','Icons','reset_zoom.GIF'),'gif'); % for compiled CERR
         resetZoomImg = ind2rgb(I,map);
         stateS.handle.resetZoom = uicontrol(hCSV,'units',units,'style', 'PushButton', 'position',[0.018*512+dx*1.4, 345, dx - 35, 20]/512,'cdata',resetZoomImg,'BackgroundColor',uicolor, 'callback','sliceCallBack(''ZOOMRESET'')','interruptible','on','tooltipstring', 'Reset Zoom to Original');
 
@@ -316,7 +318,7 @@ switch upper(instr)
         stateS.handle.buttonDwn = uicontrol(hCSV,'units',units,'style', 'pushbutton', 'pos',[0.018*512+dx*0.4, 345 dx/2-10, 20]/512,'string','S-','fontsize',fontsize, 'BackgroundColor',uicolor, 'callback','sliceCallBack(''ChangeSlc'',''prevslice'')','interruptible','on');
 
         % Capture Button on CERR
-        %[I,map] = imread('capture.GIF','gif');
+        % [I,map] = imread('capture.GIF','gif');
         %captureImg = ind2rgb(I,map);
         %stateS.handle.capture = uicontrol(hCSV,'units',units,'style', 'pushbutton', 'position',[0.17*512, 345 dx/2-10, 20]/512,'Cdata',captureImg, 'BackgroundColor',uicolor, 'callback','LabBookGui(''CAPTURE'');','interruptible','on','tooltipstring', 'CERR Screen Capture');
 
@@ -571,10 +573,11 @@ switch upper(instr)
             stateS.handle.CERRFileMenu    = putFileMenu(hCSV);
             stateS.handle.CERRViewMenu    = putViewMenu(hCSV);
             stateS.handle.CERRDoseMenu    = putDoseMenu(hCSV);
-            IMRTPdir = fileparts(which('IMRTP'));
-            if ~isempty(IMRTPdir)
-                stateS.handle.CERRIMRTPMenu   = putIMRTPMenu(hCSV);
-            end
+            %IMRTPdir = fileparts(which('IMRTP'));
+            %if ~isempty(IMRTPdir)
+            %    stateS.handle.CERRIMRTPMenu   = putIMRTPMenu(hCSV);
+            %end
+            stateS.handle.CERRIMRTPMenu   = putIMRTPMenu(hCSV);
             stateS.handle.CERRMetricMenu  = putMetricsMenu(hCSV);
             stateS.handle.CERRScanMenu    = putScanMenu(hCSV);
             stateS.handle.CERRStructMenu  = putStructMenu(hCSV);          
@@ -3591,5 +3594,6 @@ switch upper(instr)
 %         end
 
 end
+
 
 

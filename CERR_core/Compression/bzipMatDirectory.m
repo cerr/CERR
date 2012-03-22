@@ -83,12 +83,14 @@ elseif nargin == 2  & strcmp(lower(userSelect),'compress')
         %tar and compress the subdirectory
         name = allStuff(i).name;
         strDir = [pathStr '/Compression/tar.exe -vcf ' name '.tar ' name];
+        strDir = [pathStr 'bin/Compression/tar.exe -vcf ' name '.tar ' name]; % for compiled CERR        
         system(strDir,'-echo')
         tarFile = dir([name '.tar']);
         %next compress it:
         str = [pathname '\' name '.tar'];
         
         exec = [pathStr '/Compression/bzip2-102-x86-win32.exe -vz' compressionLevel ' ', str];
+        exec = [pathStr 'bin/Compression/bzip2-102-x86-win32.exe -vz' compressionLevel ' ', str]; % for compiled CERR 
         system(exec,'-echo')
         %check for success
         bzFile = dir([str '.bz2']);
@@ -132,8 +134,10 @@ elseif nargin == 2  & strcmp(lower(userSelect),'uncompress')
         str = [pathname '\' name];
         pathStr = getCERRPath;
         exec = [pathStr 'Compression/bzip2-102-x86-win32.exe -vd ', str];
+        exec = [pathStr 'bin/Compression/bzip2-102-x86-win32.exe -vd ', str]; % for compiled CERR
         system(exec,'-echo')
         tarStr = [pathStr 'Compression/tar.exe -vxf ' name(1:end-4)];
+        tarStr = [pathStr 'bin/Compression/tar.exe -vxf ' name(1:end-4)]; % for compiled CERR
         system(tarStr,'-echo')
 
         %did tar work?

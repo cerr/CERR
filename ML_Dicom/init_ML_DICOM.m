@@ -31,47 +31,64 @@ function initFlag = init_ML_DICOM
 
 initFlag = 1;
 
-javaVersion = version('-java');
-if isempty(num2str(javaVersion(8))) || num2str(javaVersion(8)) < 5
-    warndlg('The current MATLAB Java VM is not compatible. Please see Export documentation on how to update Java VM to Java 1.5.0_06');
-    initFlag = 0;
-end
+% javaVersion = version('-java');
+% if isempty(num2str(javaVersion(8))) || num2str(javaVersion(8)) < 5
+%     warndlg('The current MATLAB Java VM is not compatible. Please see Export documentation on how to update Java VM to Java 1.5.0_06');
+%     initFlag = 0;
+% end
+% 
+% MATLABVer = version;
+% [num1,remain] = strtok(MATLABVer,'.');
+% num2 = strtok(remain(2:end),'.');
+% ML_main_version = str2num(num1);
+% ML_sub_version = str2num(num2);
+% 
+% if ML_main_version >= 7
+%     path1 = which('dcm4che-core-2.0.25.jar');
+%     path2 = which('log4j-1.2.16.jar');
+%     path3 = which('slf4j-api-1.6.1.jar');
+%     path4 = which('slf4j-log4j12-1.6.1.jar');
+%     path5 = which('dcm4che-image-2.0.25.jar');
+%     path6 = which('dcm4che-imageio-2.0.25.jar');
+%     path7 = which('dcm4che-imageio-rle-2.0.25.jar');
+%     path8 = which('dcm4che-iod-2.0.25.jar');
+%     path9 = which('dcm4che-net-2.0.25.jar');
+% else
+%     oldpath = pwd;
+%     ML_dcm = what(fullfile('dcm4che-2.0.25','lib'));
+%     path1 = fullfile(ML_dcm.path,'dcm4che-core-2.0.25.jar');
+%     path2 = fullfile(ML_dcm.path,'log4j-1.2.16.jar');
+%     path3 = fullfile(ML_dcm.path,'slf4j-api-1.6.1.jar');
+%     path4 = fullfile(ML_dcm.path,'slf4j-log4j12-1.6.1.jar');
+%     path5 = fullfile(ML_dcm.path,'dcm4che-image-2.0.25.jar');
+%     path6 = fullfile(ML_dcm.path,'dcm4che-imageio-2.0.25.jar');
+%     path7 = fullfile(ML_dcm.path,'dcm4che-imageio-rle-2.0.25.jar');
+%     path8 = fullfile(ML_dcm.path,'dcm4che-iod-2.0.25.jar');
+%     path9 = fullfile(ML_dcm.path,'dcm4che-net-2.0.25.jar');
+%     cd(oldpath);
+% end
+% 
+% if isempty(path1) || isempty(path2) || isempty(path3) || isempty(path4) || isempty(path5) || isempty(path6) || isempty(path7) || isempty(path8) || isempty(path9)
+%     warndlg('File "dcm4che-core-2.0.25.jar" is not added to MATLAB path. Add the folder "dcm4che-2.0.25" to MATLAB path and start again');
+%     initFlag = 0;
+%     return;
+% else
+%     javaaddpath({path1,path2,path3,path4,path5,path6,path7,path8,path9});
+% end
 
-MATLABVer = version;
-[num1,remain] = strtok(MATLABVer,'.');
-num2 = strtok(remain(2:end),'.');
-ML_main_version = str2num(num1);
-ML_sub_version = str2num(num2);
+%% for compiled CERR
+path1 = [getCERRPath,'bin\dcm4che-2.0.27\lib\dcm4che-core-2.0.27.jar'];
+path2 = [getCERRPath,'bin\dcm4che-2.0.27\lib\log4j-1.2.16.jar'];
+path3 = [getCERRPath,'bin\dcm4che-2.0.27\lib\slf4j-api-1.6.1.jar'];
+path4 = [getCERRPath,'bin\dcm4che-2.0.27\lib\slf4j-log4j12-1.6.1.jar'];
+path5 = [getCERRPath,'bin\dcm4che-2.0.27\lib\dcm4che-image-2.0.27.jar'];
+path6 = [getCERRPath,'bin\dcm4che-2.0.27\lib\dcm4che-imageio-2.0.27.jar'];
+path7 = [getCERRPath,'bin\dcm4che-2.0.27\lib\dcm4che-imageio-rle-2.0.27.jar'];
+path8 = [getCERRPath,'bin\dcm4che-2.0.27\lib\dcm4che-iod-2.0.27.jar'];
+path9 = [getCERRPath,'bin\dcm4che-2.0.27\lib\dcm4che-net-2.0.27.jar'];
+%javarmpath(path1,path2,path3,path4,path5,path6,path7,path8,path9);
+javaaddpath({path1,path2,path3,path4,path5,path6,path7,path8,path9});
 
-if ML_main_version >= 7
-    path1 = which('dcm4che-core-2.0.27.jar');
-    path2 = which('log4j-1.2.16.jar');
-    path3 = which('slf4j-api-1.6.1.jar');
-    path4 = which('slf4j-log4j12-1.6.1.jar');
-    path5 = which('dcm4che-image-2.0.27.jar');
-    path6 = which('dcm4che-imageio-2.0.27.jar');
-    path7 = which('dcm4che-imageio-rle-2.0.27.jar');
-    path8 = which('dcm4che-iod-2.0.27.jar');
-    path9 = which('dcm4che-net-2.0.27.jar');
-else
-    oldpath = pwd;
-    ML_dcm = what(fullfile('dcm4che-2.0.27','lib'));
-    path1 = fullfile(ML_dcm.path,'dcm4che-core-2.0.27.jar');
-    path2 = fullfile(ML_dcm.path,'log4j-1.2.16.jar');
-    path3 = fullfile(ML_dcm.path,'slf4j-api-1.6.1.jar');
-    path4 = fullfile(ML_dcm.path,'slf4j-log4j12-1.6.1.jar');
-    path5 = fullfile(ML_dcm.path,'dcm4che-image-2.0.27.jar');
-    path6 = fullfile(ML_dcm.path,'dcm4che-imageio-2.0.27.jar');
-    path7 = fullfile(ML_dcm.path,'dcm4che-imageio-rle-2.0.27.jar');
-    path8 = fullfile(ML_dcm.path,'dcm4che-iod-2.0.27.jar');
-    path9 = fullfile(ML_dcm.path,'dcm4che-net-2.0.27.jar');
-    cd(oldpath);
-end
+% path_dir = [getCERRPath,'bin\dcm4che-2.0.25\lib'];
+% javaaddpath(path_dir);
 
-if isempty(path1) || isempty(path2) || isempty(path3) || isempty(path4) || isempty(path5) || isempty(path6) || isempty(path7) || isempty(path8) || isempty(path9)
-    warndlg('File "dcm4che-core-2.0.25.jar" is not added to MATLAB path. Add the folder "dcm4che-2.0.25" to MATLAB path and start again');
-    initFlag = 0;
-    return;
-else
-    javaaddpath({path1,path2,path3,path4,path5,path6,path7,path8,path9});
-end

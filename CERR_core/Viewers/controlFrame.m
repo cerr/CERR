@@ -1354,7 +1354,8 @@ switch command
                 %
                 leftMarginWidth = 195; %obtained from from sliceCallback.m
                 uicontrol(hFig,'style','toggle','units','pixels','Position',[leftMarginWidth+10 490 25 20], 'tag','toggleBasMov','string','B/M','fontWeight','normal','callBack','sliceCallBack(''toggleBaseMoving'');');
-                [I,map] = imread('lock.gif','gif');
+                % [I,map] = imread('unlock.GIF','gif');
+                [I,map] = imread('pics\Icons\unlock.GIF','gif'); % for compiled CERR
                 lockImg = ind2rgb(I,map);
                 uicontrol(hFig,'style','toggle','value',1,'units','pixels','cdata',lockImg,'Position',[leftMarginWidth+10 460 25 20], 'tag','toggleLockMoving','string','','fontWeight','normal','callBack','sliceCallBack(''toggleLockMoving'');');
                 
@@ -1593,7 +1594,8 @@ switch command
                     absPos([.05 .52+dy .90 .05], posFrame),'string', 'Auto Rigid Register','tooltipstring','Auto Registration', ...
                     'callback', 'controlFrame(''fusion'', ''rigid_registration'')','tag', 'controlFrameItem');
 
-                [I,map] = imread('tool_rotate_3d.gif','gif');
+                % [I,map] = imread('tool_rotate_3d.gif','gif');
+                [I,map] = imread('pics\Icons\tool_rotate_3d.gif','gif'); % for compiled CERR
                 rotateImg = ind2rgb(I,map);
                 
                 ud.handles.rotateButton = uicontrol(hFig, 'style', 'togglebutton', 'cdata', rotateImg, 'units', units, 'position',...
@@ -1909,10 +1911,10 @@ switch command
                 if button_state == get(hObject,'Max')
                     % toggle button is pressed
                     stateS.toggle_rotation = 1;
-                    
-                    %[I,map] = imread('rotate_cursor','gif');
-                    %I = double(I);
-                    %I(find(I<1))= NaN;
+                    % [I,map] = imread('rotate_cursor','gif');
+                    [I,map] = imread([getCERRPath,'pics\Icons\rotate_cursor'],'gif'); % for compiled CERR
+                    I = double(I);
+                    I(find(I<1))= NaN;
                     %set(hFig,'Pointer','custom','PointerShapeCData',I,'PointerShapeHotSpot',[9 9]);
                     
                     %                     leftMarginWidth = 195; %from slicecallback;

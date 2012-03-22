@@ -28,7 +28,7 @@ for baseNum = 1:length(baseScansC)
         [planC, planD] = register_scans(planC, planD, baseScanNum, movScanNum, algorithm);        
         
         % Find deformS matching base and moving scan UIDs
-        deformS = findDeformObject(planC{indexS.deform},)
+        %deformS = findDeformObject(planC{indexS.deform},)
         
         
         % Warp scan

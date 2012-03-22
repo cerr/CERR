@@ -15,23 +15,26 @@ function pathStr = getCERRPath
 % institutional review board-approved protocols.  Commercial users can 
 % request a license.  Contact Joe Deasy for more information 
 % (radonc.wustl.edu@jdeasy, reversed).
-global stateS
 
-%Get path to gzip.exe
-try
-	str = which('CERR.root');
-	if ispc
-      indV = find(str == '\');
-      ind = max(indV);
-	elseif isunix
-      indV = find(str == '/');
-      ind = max(indV);
-	end
-	
-	pathStr = str(1:ind);
-catch
-	%This catch exists because "which" cannot be executed from compiled code, 
-	%so instead we use the stateS.workingDirectory, which is set when the 
-	%viewer is first run.
-    pathStr = stateS.workingDirectory;
-end
+% global stateS
+% 
+% %Get path to gzip.exe
+% try
+% 	str = which('CERR.root');
+% 	if ispc
+%       indV = find(str == '\');
+%       ind = max(indV);
+% 	elseif isunix
+%       indV = find(str == '/');
+%       ind = max(indV);
+% 	end
+% 	
+% 	pathStr = str(1:ind);
+% catch
+% 	%This catch exists because "which" cannot be executed from compiled code, 
+% 	%so instead we use the stateS.workingDirectory, which is set when the 
+% 	%viewer is first run.
+%     pathStr = stateS.workingDirectory;
+% end
+
+pathStr = [cd,'\'];

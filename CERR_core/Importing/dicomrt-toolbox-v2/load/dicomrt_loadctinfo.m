@@ -24,7 +24,8 @@ while (feof(fid)~=1);
     ct_file_location{1,nct}=fgetl(fid);
     dictFlg = checkDictUse;
     if dictFlg
-        temp_info=dicominfo(ct_file_location{1,nct}, 'dictionary', 'ES - IPT4.1CompatibleDictionary.mat');
+        % temp_info=dicominfo(ct_file_location{1,nct}, 'dictionary', 'ES - IPT4.1CompatibleDictionary.mat');
+        temp_info=dicominfo(ct_file_location{1,nct}, 'dictionary', [getCERRPath,'bin\ES - IPT4.1CompatibleDictionary.mat']); % for compiled CERR        
     else
         temp_info=dicominfo(ct_file_location{1,nct});
     end

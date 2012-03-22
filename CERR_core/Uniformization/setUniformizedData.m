@@ -41,7 +41,10 @@ if ~exist('scanNumV','var')
 end
 
 if ~isfield(cerr_optS,'lowerLimitUniformCTSliceSpacing')
-    opt_S = CERROptions;
+    % opt_S = CERROptions;    
+    pathStr = getCERRPath;
+    optName = [pathStr 'CERROptions.m'];
+    opt_S = opts4Exe(optName);
     cerr_optS.lowerLimitUniformCTSliceSpacing = opt_S.lowerLimitUniformCTSliceSpacing;
     cerr_optS.upperLimitUniformCTSliceSpacing = opt_S.upperLimitUniformCTSliceSpacing;
     cerr_optS.alternateLimitUniformCTSliceSpacing = opt_S.alternateLimitUniformCTSliceSpacing;

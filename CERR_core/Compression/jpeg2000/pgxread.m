@@ -13,7 +13,7 @@ function [im,map,bits]=pgxread(filename)
 % Se also: JP2IMFORMATS, PGXWRITE, JP2READ, JP2WRITE, IMREAD, IMWRITE, IMFINFO
   
   map=[];
-  try,f=fopen(filename,'r'); fclose(f);catch er=lasterror; if strcmp(E.identifier,'MATLAB:interupt'),rethrow(er);end,end
+  try,f=fopen(filename,'r'); fclose(f);catch, er=lasterror; if strcmp(E.identifier,'MATLAB:interupt'),rethrow(er);end,end
   if f==-1, if length( which(filename) ), filename=which(filename); f=inf; end; end
   if f==-1, error('File "%s" does not exist or is not possible to read from.',filename); end
   f=fopen(filename,'r','b');

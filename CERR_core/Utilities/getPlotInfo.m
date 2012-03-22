@@ -31,20 +31,33 @@ function plotParam = getPlotInfo();
 % You should have received a copy of the GNU General Public License
 % along with CERR.  If not, see <http://www.gnu.org/licenses/>.
 
-global stateS;
-
-if isfield(stateS, 'MLVersion')
-    versionNum = stateS.MLVersion;
-else
-    verInfo = ver('MATLAB');    
-    versionNum = str2num(verInfo.Version(1));
-    stateS.MLVersion = versionNum;    
-end
+% global stateS;
+% 
+% if isfield(stateS, 'MLVersion')
+%     versionNum = stateS.MLVersion;
+% else
+%     verInfo = ver('MATLAB');    
+%     versionNum = str2num(verInfo.Version(1));
+%     stateS.MLVersion = versionNum;    
+% end
+% 
+% plotParam = [];
+% if versionNum >= 7
+%     tmpOptS = CERROptions;
+% 	if isfield(tmpOptS, 'plotObjFormat') & ~isempty(tmpOptS.plotObjFormat)
+%         plotParam = tmpOptS.plotObjFormat;
+% 	end
+% end
 
 plotParam = [];
-if versionNum >= 7
-    tmpOptS = CERROptions;
+verInfo = ver('MATLAB');
+if strcmpi(verInfo.Version(1), '7')
+    pathStr = getCERRPath;
+    optName = [pathStr 'CERROptions.m'];
+    tmpOptS = opts4Exe(optName);
 	if isfield(tmpOptS, 'plotObjFormat') && ~isempty(tmpOptS.plotObjFormat)
         plotParam = tmpOptS.plotObjFormat;
 	end
 end
+% For Compiled version
+%plotParam = 'v6';
