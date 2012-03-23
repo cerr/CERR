@@ -50,7 +50,10 @@ for studyNum = 1:length(dcmdir_PATIENT.STUDY)
         tmpFields = fields(tmp);
         
         if length(tmpFields) == 2; %wy 1-->2
-            typeC{end+1} = tmp.Modality; % wy tmpFields{:};                
+            imgModality = tmp.Modality;
+            imgModality = parseModality(imgModality);
+            typeC{end+1} = imgModality;
+            %typeC{end+1} = tmp.Modality; % wy tmpFields{:};                
         else
            error('Improperly formed dcmdir_PATIENT structure passed to extract_all_series.'); 
         end
@@ -58,3 +61,30 @@ for studyNum = 1:length(dcmdir_PATIENT.STUDY)
     end
     
 end
+
+return;
+
+
+function imgModality = parseModality(imgModality)
+%function imgModality = parseModality(imgModality)
+%
+% This function parses image modality and returns valid DICOM modality. For
+% example, "CT SCAN", "M_CT" will be considered as belonging to modality "CT"
+
+imgModality = upper(imgModality);
+indCT = findstr(imgModality,'CT');
+indPT = findstr(imgModality,'PT');
+indPET = findstr(imgModality,'PET');
+
+if ~isempty(indCT) && isempty([indPT indPET])
+    imgModality = 'CT';
+elseif ~isempty(indPT) && isempty([indCT indPET])
+    imgModality = 'PT';
+elseif ~isempty(indPET) && isempty([indCT indPT])
+    imgModality = 'PT';
+end
+
+return;
+
+
+
