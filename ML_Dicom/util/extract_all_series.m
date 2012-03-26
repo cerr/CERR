@@ -72,9 +72,18 @@ function imgModality = parseModality(imgModality)
 % example, "CT SCAN", "M_CT" will be considered as belonging to modality "CT"
 
 imgModality = upper(imgModality);
-indCT = findstr(imgModality,'CT');
-indPT = findstr(imgModality,'PT');
-indPET = findstr(imgModality,'PET');
+
+indStruct = strfind(imgModality,'STRUCT');
+indDose = strfind(imgModality,'DOSE');
+indPlan = strfind(imgModality,'PLAN');
+
+if ~isempty([indStruct indDose indPlan])
+    return;
+end
+
+indCT = strfind(imgModality,'CT');
+indPT = strfind(imgModality,'PT');
+indPET = strfind(imgModality,'PET');
 
 if ~isempty(indCT) && isempty([indPT indPET])
     imgModality = 'CT';
