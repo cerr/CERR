@@ -19,7 +19,7 @@
 %   lst=parse_parameter_list('str2num',st)
 %
 %
-function [st,st2]=parse_parameter_list(varargin)
+function [st,st2]=parse_image_args(varargin)
   if ischar(varargin{1})
     mode=varargin{1};
     indata=varargin{2};
@@ -55,13 +55,13 @@ function [st,st2]=parse_parameter_list(varargin)
     st=rmfield(st,arg);
   end
   switch mode,
-   case 'cell':
+   case 'cell'
     st=struct2cell(st);
-   case 'str2num':
+   case 'str2num'
     st=strfields2num(st);
-   case 'num2str':
+   case 'num2str'
     st=strfields2num(st);
-   case 'jasper':
+   case 'jasper'
     lst=struct2cell(numfields2str(st));
     st=printf(' -O %s=%s ',lst{:});
   end
