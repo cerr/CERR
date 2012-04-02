@@ -30,11 +30,12 @@ function bool = QIBPresent
 % You should have received a copy of the GNU General Public License
 % along with CERR.  If not, see <http://www.gnu.org/licenses/>.
 
-bool = 0;
-IMRTPdir = fileparts(which('IMRTP'));
-if exist(fullfile(IMRTPdir, 'QIBData', 'aahn6b.dat'), 'file') == 2 & ...
-   exist(fullfile(IMRTPdir, 'QIBData', 'aahn18b.dat'), 'file') == 2 & ...
-   exist(fullfile(IMRTPdir, 'QIBData', 'QIB_lin_0pt125.mat'), 'file') == 2 & ...
-   exist(fullfile(IMRTPdir, 'QIBData', 'QIBGauss_lin_0pt125.mat'), 'file') == 2
-   bool = 1;
-end
+bool = 1;
+% bool = 0;
+% IMRTPdir = fileparts(which('IMRTP'));
+% if exist(fullfile(IMRTPdir, 'QIBData', 'aahn6b.dat'), 'file') == 2 & ...
+%    exist(fullfile(IMRTPdir, 'QIBData', 'aahn18b.dat'), 'file') == 2 & ...
+%    exist(fullfile(IMRTPdir, 'QIBData', 'QIB_lin_0pt125.mat'), 'file') == 2 & ...
+%    exist(fullfile(IMRTPdir, 'QIBData', 'QIBGauss_lin_0pt125.mat'), 'file') == 2
+%    bool = 1;
+% end
