@@ -31,8 +31,9 @@ function bool = VMCPresent
 % along with CERR.  If not, see <http://www.gnu.org/licenses/>.
 
 bool = 0;
-IMRTPdir = fileparts(which('IMRTP'));
-if exist(fullfile(IMRTPdir, 'vmc++', 'bin', 'vmc_Linux.exe'), 'file') == 2 & ...
-   exist(fullfile(IMRTPdir, 'vmc++', 'bin', 'vmc_Windows.exe'), 'file') == 2
-   bool = 1;
-end
+% bool = 0;
+% IMRTPdir = fileparts(which('IMRTP'));
+% if exist(fullfile(IMRTPdir, 'vmc++', 'bin', 'vmc_Linux.exe'), 'file') == 2 & ...
+%    exist(fullfile(IMRTPdir, 'vmc++', 'bin', 'vmc_Windows.exe'), 'file') == 2
+%    bool = 1;
+% end
