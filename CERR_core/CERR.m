@@ -161,7 +161,7 @@ else
             closereq;
 
         case 'HELP'
-            web http://radium.wustl.edu/wiki/index.php/CERR
+            web http://cerr.info/cerrwiki/index.php/CERR?w=CERRWiKi
             
         case 'VIEW LOG'
             fileName = fullfile(tempdir,'publishLog.html');
