@@ -269,9 +269,9 @@ switch lower(command)
                 dlmwrite('tempfile', exportData(i).array, '-append', 'delimiter', '\t', 'precision', 6);                                                                
             end
             %Save file
-            [pathstr, name, ext, versn] = fileparts(stateS.CERRFile);
+            [pathstr, name, ext] = fileparts(stateS.CERRFile);
             if strcmpi(ext, '.bz2')
-                [pathstr, name, ext, versn] = fileparts(fullfile(pathstr,name));
+                [pathstr, name, ext] = fileparts(fullfile(pathstr,name));
             end
             [fname, pname] = uiputfile('*.txt', 'Save as', fullfile(pathstr,name));
             if isequal(fname,0) || isequal(pname,0)
