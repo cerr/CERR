@@ -72,7 +72,7 @@ for i = 1:fileCount
         dvhFileName = fullfile(PathName, FileName);
     end
 
-    [pathstr, name, ext, versn] = fileparts(dvhFileName);
+    [pathstr, name, ext] = fileparts(dvhFileName);
     name = [name,'.',ext];
     strName = ext(2:end);
     indName = strfind(name, '.');
