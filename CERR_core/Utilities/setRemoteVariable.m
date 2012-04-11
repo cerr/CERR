@@ -50,7 +50,7 @@ switch upper(storageType)
         outData.storageType  = 'Zip';
         
         fullTemp = tempname;
-        [tempdir, fileprefix, ext, versn] = fileparts(fullTemp);
+        [tempdir, fileprefix, ext] = fileparts(fullTemp);
         filename = [fileprefix '.mat'];    
 
         outData.remotePath = filename;
