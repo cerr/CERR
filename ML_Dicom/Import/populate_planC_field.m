@@ -347,7 +347,7 @@ switch cellName
             test = populate_planC_beamGeometry_field(rtPlans(i), dataS);
             
             for j = 1:length(test)
-                dataS = dissimilarInsert(dataS, test(j));
+                dataS = dissimilarInsert(dataS, test(j), length(dataS)+1);
             end
         end
         
@@ -362,7 +362,8 @@ switch cellName
         % %
         % %                     try
         % %                         if plansAdded == 0m
-        % %                             dataS = dicominfo(seriesC{seriesNum}.Data(planNum).file);
+        % %                             dataS =
+        % dicominfo(seriesC{seriesNum}.Data(planNum).file);
         % %                         else
         % %                             dataS(plansAdded + 1) = dicominfo(seriesC{seriesNum}.Data(planNum).file);
         % %                         end
