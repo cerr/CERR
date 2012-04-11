@@ -57,19 +57,19 @@ for i = 1:length(all_plans)
     
     CERRPlantoImport = fullfile(vitaliDir, planName);
 
-    [pathstr, name, ext, versn] = fileparts(CERRPlantoImport);
+    [pathstr, name, ext] = fileparts(CERRPlantoImport);
 
     if strcmpi(ext, '.bz2')
         zipFile = 1;
         CERRStatusString(['Decompressing ' name ext '...']);
         outstr = gnuCERRCompression(CERRPlantoImport, 'uncompress');
         loadfile = fullfile(pathstr, name);
-        [pathstr, name, ext, versn] = fileparts(fullfile(pathstr, name));
+        [pathstr, name, ext] = fileparts(fullfile(pathstr, name));
     elseif strcmpi(ext, '.zip')
         zipFile = 1;
         unzip(CERRPlantoImport,pathstr)
         loadfile = fullfile(pathstr, name);
-        [pathstr, name, ext, versn] = fileparts(fullfile(pathstr, name));
+        [pathstr, name, ext] = fileparts(fullfile(pathstr, name));
     else
         zipFile = 0;
         loadfile = CERRPlantoImport;
