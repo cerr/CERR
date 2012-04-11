@@ -45,6 +45,7 @@ function status = runCERRCommand(varargin);
 global stateS planC
 
 if ~stateS.planLoaded
+    error('Please load a plan first to use the command line help.')
     return;
 end
 
