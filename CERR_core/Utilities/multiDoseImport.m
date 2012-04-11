@@ -39,7 +39,7 @@ if filename == 0
     return
 end
 
-[pathstr, name, ext, versn] = fileparts(file);
+[pathstr, name, ext] = fileparts(file);
 
 if strcmpi(ext, '.bz2')
     zipFile = 1;
@@ -47,7 +47,7 @@ if strcmpi(ext, '.bz2')
     outstr = gnuCERRCompression(file, 'uncompress');
     loadfile = fullfile(pathstr, name);
 
-    [pathstr, name, ext, versn] = fileparts(fullfile(pathstr, name));
+    [pathstr, name, ext] = fileparts(fullfile(pathstr, name));
 
 else
     zipFile = 0;
