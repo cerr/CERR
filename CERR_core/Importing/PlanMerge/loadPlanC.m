@@ -36,7 +36,7 @@ if strcmpi(ext, '.tar')
         fileToUnzip = fullfile(pathstr, name);
     end    
     file = fileToUnzip;
-    [pathstr, name, ext, versn] = fileparts(fullfile(pathstr, name));
+    [pathstr, name, ext] = fileparts(fullfile(pathstr, name));
     tarFile = 1;
 end
 
@@ -59,7 +59,7 @@ elseif strcmpi(ext, '.zip') && length(name)>3 && strcmpi(name(end-3:end),'.mat')
         unzip(filename,pathstr)
         loadfile    = fullfile(pathstr, name);
     end    
-    [pathstr, name, ext, versn] = fileparts(fullfile(pathstr, name));
+    [pathstr, name, ext] = fileparts(fullfile(pathstr, name));
 else
     bzFile      = 0;
     loadfile    = filename;
