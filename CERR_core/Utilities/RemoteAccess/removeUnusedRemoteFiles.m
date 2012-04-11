@@ -34,7 +34,7 @@ global planC stateS
 if isempty(stateS) | ~isfield(stateS,'CERRFile') | ~isfield(stateS,'reqdRemoteFiles')
     return;
 else
-    [pathstr, name, ext, versn] = fileparts(stateS.CERRFile);
+    [pathstr, name, ext] = fileparts(stateS.CERRFile);
 end
 
 %Prepare a list of remote files.
