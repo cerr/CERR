@@ -2162,11 +2162,13 @@ switch upper(instr)
         return
 
     case 'ABOUTDICOMRT'
-        html_file = which('index.html');
-        showToolbar = 1;
-        showAddressBox = 1;
-        activeBrowser = com.mathworks.mde.webbrowser.WebBrowser.createBrowser(showToolbar, showAddressBox);
-        activeBrowser.setCurrentLocation(html_file);
+%         html_file = which('index.html');
+%         showToolbar = 1;
+%         showAddressBox = 1;
+%         activeBrowser = com.mathworks.mde.webbrowser.WebBrowser.createBrowser(showToolbar, showAddressBox);
+%         activeBrowser.setCurrentLocation(html_file);
+
+        web http://cerr.info/cerrwiki/index.php/CERR?w=CERRWiKi#DICOM_Import.2C_which_is_DICOMJ
 
     case 'TARGETPIXEL'
         x = varargin{1};
