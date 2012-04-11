@@ -68,7 +68,7 @@ end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-[pathstr, name, ext, versn] = fileparts(fileToExport);
+[pathstr, name, ext] = fileparts(fileToExport);
 
 % %untar if it is a .tar file
 % tarFile = 0;
@@ -76,7 +76,7 @@ end
 %     untar(fileToExport,pathstr)
 %     fileToUnzip = fullfile(pathstr, name);
 %     file = fileToUnzip;
-%     [pathstr, name, ext, versn] = fileparts(fullfile(pathstr, name));
+%     [pathstr, name, ext] = fileparts(fullfile(pathstr, name));
 %     tarFile = 1;
 % end
 
@@ -99,7 +99,7 @@ if strcmpi(ext, '.bz2')
     else
         loadfile = fullfile(pathstr, name);
     end    
-    [pathstr, name, ext, versn] = fileparts(fullfile(pathstr, name));
+    [pathstr, name, ext] = fileparts(fullfile(pathstr, name));
 elseif strcmpi(ext, '.zip')
     zipFile = 1;
     unzip(fileToExport,pathstr)
@@ -110,7 +110,7 @@ elseif strcmpi(ext, '.zip')
         unzip(file,pathstr)
         loadfile = fullfile(pathstr, name);
     end
-    [pathstr, name, ext, versn] = fileparts(fullfile(pathstr, name));
+    [pathstr, name, ext] = fileparts(fullfile(pathstr, name));
 else
     zipFile = 0;
     loadfile = fileToExport;
