@@ -132,7 +132,7 @@ while permission == 0   %Use while statement in case permission to overwrite fil
             %get storage directory for remote variables in the original plan
             remotePath = [];
             if isfield(stateS,'CERRFile') && ~isempty(stateS.CERRFile)
-                [pathstr, name, ext, versn] = fileparts(stateS.CERRFile);
+                [pathstr, name, ext] = fileparts(stateS.CERRFile);
                 remotePath = fullfile(pathstr,[name,'_store']);
             end
 
@@ -206,7 +206,7 @@ end
 %Remind CERR where the current file is, in case of filename change.
 stateS.CERRFile = saveFile;
 
-[pathstr, name, ext, versn] = fileparts(stateS.CERRFile);
+[pathstr, name, ext] = fileparts(stateS.CERRFile);
 switch lower(ans)
     case 'yes'
         if strcmpi(extSave,'bz2')
