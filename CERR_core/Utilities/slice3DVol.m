@@ -66,7 +66,7 @@ zLims = [zV(1) zV(end)];
 
 %Check for transM, and if it has any rotation component.
 rotation = 0; xT = 0; yT = 0; zT = 0;
-if exist('transM') & ~isempty(transM);
+if exist('transM') && ~isempty(transM) && ~isequal(transM, eye(4))
     [rotation, xT, yT, zT] = isrotation(transM);
 end
 
