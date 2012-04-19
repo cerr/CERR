@@ -147,7 +147,7 @@ interpV(rowNaN | colNaN | slcNaN) = OOBV;
 %2D interpolate last slice
 if any(slcLast)
     if strcmpi(computer,'PCWIN64') || strcmpi(computer,'MACI64')
-        interpV(slcLast) = interp2(yFieldV(1):yFieldV(2):yFieldV(3), xFieldV(1):xFieldV(2):xFieldV(3), double(field3M(:,:,end)'), xInterpLastV, yInterpLastV,'linear',OOBV);
+        interpV(slcLast) = interp2(xFieldV(1):xFieldV(2):xFieldV(3), yFieldV(1):yFieldV(2):yFieldV(3), double(field3M(:,:,end)), xInterpLastV, yInterpLastV,'linear',OOBV);
     else
         interpV(slcLast) = interp2(xFieldV(1):xFieldV(2):xFieldV(3), yFieldV(1):yFieldV(2):yFieldV(3), double(field3M(:,:,end)), xInterpLastV, yInterpLastV,'linear',OOBV);
     end
