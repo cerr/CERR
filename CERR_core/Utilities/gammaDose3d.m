@@ -1,5 +1,5 @@
-function gammaM = gammaDose3d(doseArray1, doseArray2, deltaXYZv, dosePercent, distAgreement)
-% function gammaM = gammaDose3d(doseArray1, doseArray2, deltaXYZv, dosePercent, distAgreement)
+function gammaM = gammaDose3d(doseArray1, doseArray2, deltaXYZv, doseAgreement, distAgreement)
+% function gammaM = gammaDose3d(doseArray1, doseArray2, deltaXYZv, doseAgreement, distAgreement)
 %
 % APA, 04/27/2012
 
@@ -8,28 +8,25 @@ deltaY = deltaXYZv(1);
 deltaZ = deltaXYZv(1);
 incrementRadius = min([deltaX deltaY deltaZ]);
 
-% Calculate until twice the permissible distance to agreement.
+% Initial gamma
+gammaM = ((doseArray1-doseArray2).^2).^0.5/doseAgreement;
+convergedM = false(size(gammaM));
+
+% Calculate until 4 times the permissible distance to agreement.
 maxDistance = distAgreement*4;
 outerRadiusV = incrementRadius:incrementRadius:maxDistance;
-innerRadiusV = 0:incrementRadius:maxDistance-incrementRadius;
-
-%
-regu = 0;
-gammaM = doseArray1 - doseArray2;
-convergedM = gammaM.^2 <= regu^2;
-gammaM(convergedM) = 0;
-
-gammaM(~convergedM) = (100*(gammaM(~convergedM)./(doseArray1(~convergedM)+regu))/dosePercent).^2;
 
 siz = size(gammaM);
-minDoseRatioM = zeros(siz,'single');
-maxDoseRatioM = minDoseRatioM;
+minDoseDiffM = zeros(siz,'single');
+maxDoseDiffM = minDoseDiffM;
+
+convergenceCountM = zeros(siz,'uint8');
 
 for radNum = 1:length(outerRadiusV)
     
-    disp('--- Iteraion ----')
-    disp(radNum)
+    disp(['--- Iteraion ', num2str(radNum), ' ----'])    
     
+    % Create an ellipsoid ring neighborhood
     outerRadius = outerRadiusV(radNum);    
     
     rowOutV = floor(outerRadius/deltaY);
@@ -41,19 +38,35 @@ for radNum = 1:length(outerRadiusV)
     % Compute Min and Max for the ellipsoid neighborhood
     [minLocalM, maxLocalM] = getMinMaxIM(doseArray2,NHOOD_outer);
     
-    minDoseRatioM(~convergedM) = (100*(doseArray1(~convergedM)-minLocalM(~convergedM))./(doseArray1(~convergedM)+regu)).^2 / dosePercent^2;
-    maxDoseRatioM(~convergedM) = (100*(doseArray1(~convergedM)-maxLocalM(~convergedM))./(doseArray1(~convergedM)+regu)).^2 / dosePercent^2;
+    % Compute difference between dose1 and (min,max) for dose2
+    minDoseDiffM(~convergedM) = doseArray1(~convergedM) - minLocalM(~convergedM);
+    maxDoseDiffM(~convergedM) = maxLocalM(~convergedM) - doseArray1(~convergedM);
     
-    gammaM(~convergedM) = (min(minDoseRatioM(~convergedM),maxDoseRatioM(~convergedM)) + (outerRadius/distAgreement)^2).^0.5;
+    % If dose1 is contained within (min,max) for dose2, then it converged!
+    newConvergedM = ~convergedM & minDoseDiffM >= 0 & maxDoseDiffM >= 0;
+    
+    % Compute gamma for voxels that converged
+    gammaM(newConvergedM) =  min(gammaM(newConvergedM), outerRadius/distAgreement);
+    
+    % Add newly converged voxels to the list
+    convergedM = convergedM | newConvergedM;    
+    
+    % Compute gamma for voxels that have not yet converged
+    gammaForNotConvergedM =  (min((minDoseDiffM(~convergedM)-doseAgreement).^2, (maxDoseDiffM(~convergedM)-doseAgreement).^2)./doseAgreement^2 + (outerRadius/distAgreement)^2).^0.5;
+    gammaM(~convergedM) = min(gammaM(~convergedM), gammaForNotConvergedM);
        
-    convergedM = convergedM | minDoseRatioM <= 1 | maxDoseRatioM <= 1;    
+    % Count number of consecutive gamma increments for each uncoverged voxel
+    indConvergeM = false(size(gammaM));
+    indConvergeM(~convergedM) = gammaM(~convergedM) <= gammaForNotConvergedM;
+    convergenceCountM(indConvergeM) = convergenceCountM(indConvergeM) + 1;
     
+    % If gamma increases 4 consecutive times for a voxel, then assume it has converged
+    convergedM(convergenceCountM > 3) = 1;
+        
     if all(convergedM(:))
         disp('All converged!!!')
         break
     end
     
 end
-
-gammaM = gammaM.^0.5;
 
