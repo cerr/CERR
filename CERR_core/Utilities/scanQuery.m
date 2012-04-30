@@ -77,7 +77,7 @@ switch upper(command)
         %Get the actual scan value using the converted point.
         scan = getScanAt(scanSet,xD,yD,zD,planC);
         indexS = planC{end};
-        imageType = planC{indexS.scan}.scanInfo(1).imageType;
+        imageType = planC{indexS.scan}(scanSet).scanInfo(1).imageType;
         if strfind(upper(imageType), 'CT')
             CTOffset = planC{indexS.scan}(scanSet).scanInfo(1).CTOffset;
             scan = scan - CTOffset;
