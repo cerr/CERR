@@ -3,7 +3,7 @@ function gammaM = createGammaDose(doseNum1,doseNum2,dosePercent,distAgreement)
 %
 % This function creates and adds a gamma dose to planC.
 % 3D Gamma is calculated between doseNum1 and doseNum2.
-% dosePercent is the allowable fraction of doseNum1. 
+% dosePercent is the dose criteria based on max(doseNum1). 
 % doseAgreement = max(doseNum1)*dosePercent/100;
 % distAgreement is in cm.
 %
