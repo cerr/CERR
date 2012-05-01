@@ -248,6 +248,7 @@ switch upper(command)
         subPlotSize = max(1,ceil(sqrt(nDoses)));
         dh = thumbRegion(4)/subPlotSize;
         dw = thumbRegion(3)/subPlotSize;
+        ud.handles.thumbaxis = [];
         for i =1:subPlotSize^2
             row = subPlotSize - ceil(i/subPlotSize) + 1;
             col = mod(i-1,subPlotSize)+1;
@@ -275,9 +276,9 @@ switch upper(command)
         if ~isempty(maxDose)
             doseManagementGui('REFRESHFIELDS');
         end
-
         
-
+        
+        
     case 'PREVIEWBUTTONDOWN'
         %Button clicked in the preview window.
         ud = get(h, 'userdata');
@@ -603,6 +604,7 @@ switch upper(command)
             doseManagementGui;
         else
         end
+               
 
         %Refresh CERR axes in the case of changed dose sets.
         if refreshViewer
