@@ -15,16 +15,24 @@ convergedM = false(size(gammaM));
 % Calculate until 4 times the permissible distance to agreement.
 maxDistance = distAgreement*4;
 outerRadiusV = incrementRadius:incrementRadius:maxDistance;
+numIters = length(outerRadiusV);
 
 siz = size(gammaM);
 minDoseDiffM = zeros(siz,'single');
 maxDoseDiffM = minDoseDiffM;
 
-convergenceCountM = zeros(siz,'uint8');
+% convergenceCountM = zeros(siz,'uint8');
 
-for radNum = 1:length(outerRadiusV)
+% Update waitbar on gamma GUI
+gammaGUIFig = findobj('tag','CERRgammaInputGUI');
+if ~isempty(gammaGUIFig)
+    ud = get(gammaGUIFig,'userdata');
+    set(ud.wb.patch,'xData',[0 0 0 0])
+end
+
+for radNum = 1:numIters
     
-    disp(['--- Iteraion ', num2str(radNum), ' ----'])    
+    disp(['--- Gamma Calculation Iteraion ', num2str(radNum), ' ----'])    
     
     % Create an ellipsoid ring neighborhood
     outerRadius = outerRadiusV(radNum);    
@@ -55,16 +63,27 @@ for radNum = 1:length(outerRadiusV)
     gammaForNotConvergedM =  (min((minDoseDiffM(~convergedM)-doseAgreement).^2, (maxDoseDiffM(~convergedM)-doseAgreement).^2)./doseAgreement^2 + (outerRadius/distAgreement)^2).^0.5;
     gammaM(~convergedM) = min(gammaM(~convergedM), gammaForNotConvergedM);
        
-    % Count number of consecutive gamma increments for each uncoverged voxel
-    indConvergeM = false(size(gammaM));
-    indConvergeM(~convergedM) = gammaM(~convergedM) <= gammaForNotConvergedM;
-    convergenceCountM(indConvergeM) = convergenceCountM(indConvergeM) + 1;
+    % If gamma is less or equal to outerRadius/distAgreement, then the voxel conveged!
+    convergedM(~convergedM) = gammaM(~convergedM) <= outerRadius/distAgreement;
     
-    % If gamma increases 4 consecutive times for a voxel, then assume it has converged
-    convergedM(convergenceCountM > 3) = 1;
+%     % Count number of consecutive gamma increments for each uncoverged voxel
+%     indConvergeM = false(size(gammaM));
+%     indConvergeM(~convergedM) = gammaM(~convergedM) <= gammaForNotConvergedM;
+%     convergenceCountM(indConvergeM) = convergenceCountM(indConvergeM) + 1;
+%     
+%     % If gamma increases 4 consecutive times for a voxel, then assume it has converged
+%     convergedM(convergenceCountM > 3) = 1;
+    
+    if ~isempty(gammaGUIFig)
+        set(ud.wb.patch,'xData',[0 0 radNum/numIters radNum/numIters])
+        drawnow
+    end
         
     if all(convergedM(:))
         disp('All converged!!!')
+        if ~isempty(gammaGUIFig)
+            set(ud.wb.patch,'xData',[0 0 1 1])
+        end
         break
     end
     
