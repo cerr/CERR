@@ -1143,6 +1143,15 @@ if ~isempty(in_str)
 
                 end
                 CERRRefresh
+                
+            case 'create'
+                
+                w2 = word(in_str,2);
+                switch lower(w2)                    
+                    case 'structure'                        
+                        createROI();                        
+                end                
+                
             case 'vol'
                 structNum = word(in_str,3);
 
