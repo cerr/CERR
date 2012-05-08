@@ -1,4 +1,4 @@
-function plotIVH(surfV, volV, avgV, absV, newFlag, gridFlag)
+function plotIVH(surfV, volV, avgV, absV, newFlag, gridFlag, cum_diff_string)
 %"plotIVH"
 %   Plot a set of IVHs/DSHs, given a vector of length nIVH which contains
 %   boolean values, 1 if that IVH/DSH should be rendered and zero if not.
@@ -125,7 +125,7 @@ for i = 1 : length(volV)
             sameName = find(strcmpi(sNames, str) & surfV);
             flagLSS = find(sameName == i);
             %Draw the surface DSH.
-            showDSH(hAxis, IVHNum, scanSet, gridSetting, flagLSS, absV(i), gridFlag);
+            showDSH(hAxis, IVHNum, scanSet, gridSetting, flagLSS, absV(i), gridFlag, cum_diff_string);
             drawnow
         else
             warning('There is no structure by that name:  only a IVH was saved.')
@@ -145,7 +145,7 @@ for i = 1 : length(volV)
         flagLSS = find(sameName == i);
         %Draw the volume IVH.
         %[planC] = showIVH(hAxis, IVHNum, scanSet, gridSetting, flagLSS, absV(i), gridFlag);
-        showIVH(hAxis, IVHNum, scanSet, gridSetting, flagLSS, absV(i), gridFlag);
+        showIVH(hAxis, IVHNum, scanSet, gridSetting, flagLSS, absV(i), gridFlag, cum_diff_string);
         drawnow
     end
 
@@ -178,7 +178,7 @@ hold off
 
 
 %=================================%
-function showDSH(hAxis, IVHNum, scanSet, gridSetting, flagLSS, absFlag, gridFlag)
+function showDSH(hAxis, IVHNum, scanSet, gridSetting, flagLSS, absFlag, gridFlag, cum_diff_string)
 %Draw the DSH in the current figure.
 global planC
 global stateS
@@ -214,12 +214,18 @@ else
 end
 
 %Shift the DSH/IVH data by the offset, if it exists and plot.
-try
-    h = plot([0; scanSortV(:) - planC{indexS.scan}(scanSet).scanOffset], [1; cumArea2V(:)/cumAreaV(end)], 'parent', hAxis);
+if isfield(planC{indexS.scan}(scanSet),'scanOffset')
+    offset = planC{indexS.scan}(scanSet).scanOffset;
+else
+    offset = 0;
+end
+if strcmpi(cum_diff_string,'CUMU')
+    h = plot([0; scanSortV(:) - offset], [1; cumArea2V(:)/cumAreaV(end)], 'parent', hAxis);
     addDVHtoFig(hFig, struct, scanSet, h, [0; scanSortV(:) - planC{indexS.scan}(scanSet).scanOffset], [1; cumArea2V(:)/cumAreaV(end)], 'DSH','NOABS',scanV, areaV, scanName);
-catch
-    h = plot([0; scanSortV(:)], [1; cumArea2V(:)/cumAreaV(end)], 'parent', hAxis);
-    addDVHtoFig(hFig, struct, scanSet, h, [0; scanSortV(:)], [1; cumArea2V(:)/cumAreaV(end)], 'DSH', 'NOABS', scanV, areaV, scanName);
+elseif strcmpi(cum_diff_string,'DIFF')
+    indPlot = find(areaSortV);
+    h = plot(scanSortV(indPlot), areaSortV(indPlot)/cumAreaV(end));
+    addDVHtoFig(hFig, struct, scanSet, h, scanSortV(indPlot), areaSortV(indPlot)/cumAreaV(end), 'DSH', 'NOABS', scanV, areaV, scanName);
 end
 
 set(hAxis,'nextplot','add')
@@ -307,7 +313,7 @@ if absFlag == 1
 end
 
 
-function showIVH(hAxis, IVHNum, scanSet, gridSetting, flagLSS, absFlag, gridFlag);
+function showIVH(hAxis, IVHNum, scanSet, gridSetting, flagLSS, absFlag, gridFlag, cum_diff_string)
 %Draw a IVH in hAxis.
 
 global planC
@@ -363,7 +369,7 @@ if ~isempty(planC{indexS.IVH}(IVHNum).IVHMatrix)
             volumeScale   = planC{indexS.IVH}(IVHNum).volumeScale;
             volsHistV = IVHM(:,2)' * volumeScale / 100;
 
-        case 'absolute'
+        case {'absolute', 'differential', 'cumulative'}
 
             volsHistV = IVHM(:,2)';
 
@@ -373,17 +379,23 @@ if ~isempty(planC{indexS.IVH}(IVHNum).IVHMatrix)
 
     cumVols2V  = cumVolsV(end) - cumVolsV;  %cumVolsV is the cumulative volume lt that corresponding scan
     %including that scan bin.
-
-    %Shift IVH by scanOffset if it exists.
-    try
-        h = plot([0, scanBinsV - planC{indexS.scan}(scanSet).scanOffset], [1, cumVols2V/cumVolsV(end)]);
-        addDVHtoFig(hFig, struct, scanSet, h, [0, scanBinsV - planC{indexS.scan}(scanSet).scanOffset], [1, cumVols2V/cumVolsV(end)], 'IVH', 'NOABS', scanBinsV, volsHistV, scanName);
-
-    catch
-        h = plot([0, scanBinsV], [1, cumVols2V/cumVolsV(end)]);
-        addDVHtoFig(hFig, struct, scanSet, h, [0, scanBinsV], [1, cumVols2V/cumVolsV(end)], 'IVH', 'NOABS', scanBinsV, volsHistV, scanName);
+    
+    if isfield(planC{indexS.scan}(scanSet),'scanOffset')
+        offset = planC{indexS.scan}(scanSet).scanOffset;
+    else
+        offset = 0;
     end
 
+    %No need to shift DVH by doseOffset since it is already included in doseBinsV.
+    if strcmpi(cum_diff_string,'CUMU')
+        h = plot([0, scanBinsV - offset], [1, cumVols2V/cumVolsV(end)]);
+        addDVHtoFig(hFig, struct, scanSet, h, [0, scanBinsV - offset], [1, cumVols2V/cumVolsV(end)], 'IVH', 'NOABS', scanBinsV, volsHistV, scanName);
+    elseif strcmpi(cum_diff_string,'DIFF')
+        indPlot = find(volsHistV);
+        h = plot(scanBinsV(indPlot), volsHistV(indPlot)/cumVolsV(end));
+        addDVHtoFig(hFig, struct, scanSet, h, scanBinsV(indPlot), volsHistV(indPlot)/cumVolsV(end), 'DVH', 'NOABS', scanBinsV, volsHistV, scanName);
+    end    
+    
     set(hAxis,'nextplot','add')
     structNum = getStructNum(struct,planC,indexS);
 
@@ -425,19 +437,22 @@ else   %compute yer own
 
     cumVols2V  = cumVolsV(end) - cumVolsV;  %cumVolsV is the cumulative volume lt that corresponding scan
     %including that scan bin.
-    try
-        if ~isempty(planC{indexS.scan}(scanSet).scanOffset)
-            h = plot([0, scanBinsV - planC{indexS.scan}(scanSet).scanOffset], [1, cumVols2V/cumVolsV(end)]);
-            addDVHtoFig(hFig, struct, scanSet, h, [0, scanBinsV - planC{indexS.scan}(scanSet).scanOffset], [1, cumVols2V/cumVolsV(end)], 'IVH', 'NOABS', scanBinsV, volsHistV, scanName);
-        else
-            h = plot([0, scanBinsV], [1, cumVols2V/cumVolsV(end)]);
-            addDVHtoFig(hFig, struct, scanSet, h, [0, scanBinsV], [1, cumVols2V/cumVolsV(end)], 'IVH', 'NOABS', scanBinsV, volsHistV, scanName);
-        end
-    catch
-        h = plot([0, scanBinsV], [1, cumVols2V/cumVolsV(end)]);
-        addDVHtoFig(hFig, struct, scanSet, h, [0, scanBinsV], [1, cumVols2V/cumVolsV(end)], 'IVH', 'NOABS', scanBinsV, volsHistV, scanName);
+    
+    if isfield(planC{indexS.scan}(scanSet),'scanOffset')
+        offset = planC{indexS.scan}(scanSet).scanOffset;
+    else
+        offset = 0;
     end
 
+    %No need to shift DVH by doseOffset since it is already included in doseBinsV.
+    if strcmpi(cum_diff_string,'CUMU')
+        h = plot([0, scanBinsV - offset], [1, cumVols2V/cumVolsV(end)]);
+        addDVHtoFig(hFig, struct, scanSet, h, [0, scanBinsV - offset], [1, cumVols2V/cumVolsV(end)], 'IVH', 'NOABS', scanBinsV, volsHistV, scanName);
+    elseif strcmpi(cum_diff_string,'DIFF')
+        indPlot = find(volsHistV);
+        h = plot(scanBinsV(indPlot), volsHistV(indPlot)/cumVolsV(end));
+        addDVHtoFig(hFig, struct, scanSet, h, scanBinsV(indPlot), volsHistV(indPlot)/cumVolsV(end), 'DVH', 'NOABS', scanBinsV, volsHistV, scanName);
+    end
 
     set(hAxis,'nextplot','add')
     set(h,'linewidth',stateS.optS.IVHLineWidth)
@@ -487,6 +502,22 @@ if absFlag == 1
     set(absAxis,'xgrid',gridSetting)
     set(absAxis,'ygrid',gridSetting)
     set(h,'tag','CERRAbsIVHPlot')
+    if isfield(planC{indexS.scan}(scanSet),'scanOffset')
+        offset = planC{indexS.scan}(scanSet).scanOffset;
+    else
+        offset = 0;
+    end
+    
+    %No need to shift DVH by doseOffset since it is already included in doseBinsV.
+    if strcmpi(cum_diff_string,'CUMU')
+        h = plot([0, scanBinsV - offset], [1, cumVols2V]);
+        addDVHtoFig(hFig, struct, scanSet, h, [0, scanBinsV - offset], [1, cumVols2V], 'IVH', 'NOABS', scanBinsV, volsHistV, scanName);
+    elseif strcmpi(cum_diff_string,'DIFF')
+        indPlot = find(volsHistV);
+        h = plot(scanBinsV(indPlot), volsHistV(indPlot));
+        addDVHtoFig(hFig, struct, scanSet, h, scanBinsV(indPlot), volsHistV(indPlot), 'DVH', 'NOABS', scanBinsV, volsHistV, scanName);
+    end
+    
     %  IVHOptS(IVHNum).hAbsAxis = h;
     if structNum ~= 0
         %colorV = getColor(structNum, optS.colorOrder);
