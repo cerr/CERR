@@ -111,8 +111,10 @@ switch command
                 for i = 2:intrepLength+1
                     ROIInterpretedType{i} = intrepNames{i-1};
                 end
+                % Find index of "ORGAN" structure
+                indOrgan = find(strcmp(ROIInterpretedType,'ORGAN'));
                 ud.handles.ROIInterpretedText = uicontrol(hFig, 'style', 'text', 'enable', 'inactive' , 'units', units, 'position', absPos([.04 .7 .28 .05], posFrame), 'string', 'Category:', 'tag', 'controlFrameItem', 'horizontalAlignment', 'left');
-                ud.handles.ROIInterpretedType = uicontrol(hFig, 'style', 'popupmenu', 'enable', 'on' , 'units', units, 'position', absPos([.34 .7 .65 .05], posFrame), 'string', ROIInterpretedType, 'tag', 'controlFrameItem', 'horizontalAlignment', 'left', 'callback', 'controlFrame(''contour'', ''ROIIntrepretedType'')');
+                ud.handles.ROIInterpretedType = uicontrol(hFig, 'style', 'popupmenu', 'enable', 'on' , 'units', units, 'position', absPos([.34 .7 .65 .05], posFrame), 'string', ROIInterpretedType, 'value', indOrgan(1), 'tag', 'controlFrameItem', 'horizontalAlignment', 'left', 'callback', 'controlFrame(''contour'', ''ROIIntrepretedType'')');
                 
                 %Controls for creation of new structures.
                 ud.handles.asCopyOfCurrent  = uicontrol(hFig, 'style', 'radiobutton', 'value', 0, 'units', units, 'position', absPos([.04 .60 .65 .05], posFrame), 'string', 'As copy of current', 'tag', 'controlFrameItem', 'horizontalAlignment', 'left', 'callback', 'controlFrame(''contour'', ''asCopyOfCurrent'')');
@@ -363,12 +365,17 @@ switch command
                 set(ud.handles.asBlank, 'value', 0);
                 set(ud.handles.scanSelect, 'enable', 'off');
                 
-            case 'selectMode'
+            case 'selectMode'                
+                
                 ud = get(hFrame, 'userdata');
                 
                 structNum   = get(ud.handles.structPopup, 'value');
                 
                 strUd = get(ud.handles.structPopup, 'userdata');
+                
+                if isempty(strUd)
+                    return;
+                end                
                 
                 structNum = strUd.strNumsV(structNum);
                 
@@ -496,9 +503,9 @@ switch command
                 strUd = get(ud.handles.structPopup, 'userdata');
                 ROIInterpretedTypeNum = get(ud.handles.ROIInterpretedType,'value') - 1;
                 ROIInterpretedType = fieldnames(initROIInterpretedType);
-                if ROIInterpretedTypeNum == 0
+                if ROIInterpretedTypeNum == 0 && ~isempty(strUd)
                     planC{indexS.structures}(strUd.strNumsV(strNum)).ROIInterpretedType = '';
-                else
+                elseif ~isempty(strUd)
                     planC{indexS.structures}(strUd.strNumsV(strNum)).ROIInterpretedType = ROIInterpretedType{ROIInterpretedTypeNum};
                 end
                 controlFrame('contour', 'refresh')
