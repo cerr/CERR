@@ -72,6 +72,9 @@ planC{indexS.structures} = dissimilarInsert(planC{indexS.structures}, newStructS
 planC = getRasterSegs(planC, newStructNum);
 planC = updateStructureMatrices(planC, newStructNum, uniqueSlices);
 
+% Refresh View
+CERRRefresh
+
 return;
 
 function indC = getSegIndices(C)
