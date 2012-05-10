@@ -1,5 +1,5 @@
-function createROI(xyzCoord,xyzWidth,scanNum,planC)
-% function createROI(xyzCoord)
+function createROI(clipBoxMsg,planC)
+% function createROI(clipBoxMsg, planC)
 %
 % APA, 05/04/2012
 
@@ -9,74 +9,78 @@ end
 indexS = planC{end};
 global stateS
 
-if ~exist('xyzCoord','var')
-    msgText = 'click on an axis to obtain point to create ROI around it';
-    hMsg = msgbox(msgText,'Click to get a point');
-    [x,y] = ginput(1);
-    close(hMsg)
-    % get View that was clicked
-    viewType = getAxisInfo(gca,'view');
-    switch upper(viewType)
-        case 'TRANSVERSE'
-            z = getAxisInfo(gca,'coord');
-        case 'SAGITTAL'
-            z = y;
-            y = x;
-            x = getAxisInfo(gca,'coord');            
-        case 'CORONAL'
-            z = y;
-            y = getAxisInfo(gca,'coord');   
+if nargin == 0
+    ButtonName = questdlg('Draw clip-boxes on any of the two views', 'Create ROI', 'Continue', 'Cancel', 'Continue');
+    if strcmpi(ButtonName, 'Continue')
+        stateS.ROIcreationMode = 1;
+        stateS.clipState = 1;
+        figure(stateS.handle.CERRSliceViewer)
     end
-    
-else
-    
-    x = xyzCoord(1);
-    y = xyzCoord(2);
-    z = xyzCoord(3);
-    
-end
-
-if ~exist('xyzWidth','var')
-
-    prompt={'Enter the ROI width in Sagital direction (cm):','Enter the ROI width in Coronal direction (cm):', 'Enter the ROI width in Transverse direction (cm):'};
-    name='ROI Dimensions';
-    numlines=1;
-    defaultanswer={'3','3','3'};
-    roiSizeC = inputdlg(prompt,name,numlines,defaultanswer);
-    xWidth = str2num(roiSizeC{1});
-    yWidth = str2num(roiSizeC{2});
-    zWidth = str2num(roiSizeC{3});
-    if isempty(xWidth) || isempty(yWidth) || isempty(zWidth)
-        error('One or all the dimensions entered are invalid')
+    return;    
+elseif nargin == 1 && strcmpi(clipBoxMsg,'clipBoxDrawn')
+    clipHv = [];
+    for axisNum = 1:length(stateS.handle.CERRAxis)
+        clipHv = [clipHv findobj(stateS.handle.CERRAxis(axisNum),'tag','clipBox')];
     end
-    
-else
-    xWidth = xyzWidth(1);
-    yWidth = xyzWidth(2);
-    zWidth = xyzWidth(3);   
-    
+    if length(clipHv) ~= 2
+        return;
+    else        
+        stateS.clipState = 0;        
+        % Continue to create an ROI based on clip boxes
+    end
 end
 
-if ~exist('scanNum','var')
-   scanNum = getAxisInfo(gca,'scanSets');
-   scanNum = scanNum(1);
+xmin = Inf;
+xmax = -Inf;
+ymin = Inf;
+ymax = -Inf;
+zmin = Inf;
+zmax = -Inf;
+
+for axisNum = 1:length(stateS.handle.CERRAxis)    
+    hClip = findobj(stateS.handle.CERRAxis(axisNum),'tag','clipBox');
+    if ~isempty(hClip)
+        axisView = getAxisInfo(stateS.handle.CERRAxis(axisNum),'view');
+        switch upper(axisView)
+            case 'TRANSVERSE'
+                xData = get(hClip,'xData');
+                yData = get(hClip,'yData');
+                xmin = min([xData,xmin]);
+                ymin = min([yData,ymin]);
+                xmax = max([xData,xmax]);
+                ymax = max([yData,ymax]);
+            case 'SAGITTAL'
+                yData = get(hClip,'xData');
+                zData = get(hClip,'yData');
+                ymin = min([yData,ymin]);
+                zmin = min([zData,zmin]);
+                ymax = max([yData,ymax]);
+                zmax = max([zData,zmax]);                
+            case 'CORONAL'
+                xData = get(hClip,'xData');
+                zData = get(hClip,'yData');
+                xmin = min([xData,xmin]);
+                zmin = min([zData,zmin]);
+                xmax = max([xData,xmax]);
+                zmax = max([zData,zmax]);
+        end
+    end
 end
 
-zMin = z - zWidth/2;
-zMax = z + zWidth/2;
-xMin = x - xWidth/2;
-xMax = x + xWidth/2;
-yMin = y - yWidth/2;
-yMax = y + yWidth/2;
+% delete clipbox
+delete(clipHv)
 
-xV = [xMin xMax xMax xMin xMin];
-yV = [yMin yMin yMax yMax yMin];
+scanNum = getAxisInfo(gca,'scanSets');
+scanNum = scanNum(1);
+
+xV = [xmin xmax xmax xmin xmin];
+yV = [ymin ymin ymax ymax ymin];
 pointsM = [xV' yV'];
 
 % get min and max slices
-zValsV = [planC{indexS.scan}.scanInfo.zValue];
-minSliceIndex = findnearest(zValsV,zMin);
-maxSliceIndex = findnearest(zValsV,zMax);
+zValsV = [planC{indexS.scan}(scanNum).scanInfo.zValue];
+minSliceIndex = findnearest(zValsV,zmin);
+maxSliceIndex = findnearest(zValsV,zmax);
 slcsV = minSliceIndex:maxSliceIndex;
 
 % Create a rectangular ROI on each transverse slice
@@ -94,7 +98,7 @@ end
 
 stateS.structsChanged = 1;
 
-newStructS.structureName    = ['ROI_',num2str(xWidth),'x',num2str(yWidth),'x',num2str(zWidth)];
+newStructS.structureName    = 'ROI';
 
 planC{indexS.structures} = dissimilarInsert(planC{indexS.structures}, newStructS, newStructNum);
 planC = getRasterSegs(planC, newStructNum);
