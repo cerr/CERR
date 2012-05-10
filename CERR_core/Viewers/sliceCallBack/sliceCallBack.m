@@ -2558,7 +2558,11 @@ switch upper(instr)
         %save line handles to miscHandle;
         oldMiscHandles = getAxisInfo(gca, 'miscHandles');
         hBox = findobj(gca, 'tag', 'clipBox');
-        setAxisInfo(gca, 'miscHandles', [oldMiscHandles reshape(hBox, 1, [])]);        
+        setAxisInfo(gca, 'miscHandles', [oldMiscHandles reshape(hBox, 1, [])]);   
+        
+        if isfield(stateS,'ROIcreationMode') && stateS.ROIcreationMode == 1            
+            createROI('clipBoxDrawn')
+        end
         return;
         %     wy
 
