@@ -1,4 +1,4 @@
-function [dcmdirS] = scandir_mldcm(path, hWaitbar, dirNum)
+function [dcmdirS] = scandir_mldcm(dirPath, hWaitbar, dirNum)
 %"scandir_mldcm"
 %   Scans a passed directory for DICOM files, checking each file in the
 %   directory for properly formatted DICOM regardless of file extension.
@@ -37,26 +37,28 @@ function [dcmdirS] = scandir_mldcm(path, hWaitbar, dirNum)
 % You should have received a copy of the GNU General Public License
 % along with CERR.  If not, see <http://www.gnu.org/licenses/>.
 
-%Check that path is a string
+%Check that dirPath is a string
 
-switch lower(class(path))
+switch lower(class(dirPath))
     case 'char'
     otherwise
         error('Input to scandir_mldcm must be a string.');
 end
 
-%Check that it's a real path.
-if ~isdir(path)
+%Check that it's a real dirPath.
+if ~isdir(dirPath)
     error('Input to scandir_mldcm must be a directory.');
 end
 
-if ispc
-    %Get directory contents
-    filesV = dir([path '\*.*']);
-else
-    %filesV = dir([path '/*.*']);
-    filesV = dir([path]);
-end
+% if ispc
+%     %Get directory contents
+%     filesV = dir([dirPath '\*.*']);
+% else
+%     %filesV = dir([dirPath '/*.*']);
+%     filesV = dir([dirPath]);
+% end
+
+filesV = dir(dirPath);
 
 %Remove directories from the fileList.
 filesV([filesV.isdir]) = [];
@@ -66,7 +68,7 @@ dcmdirS = [];
 
 for i=1:length(filesV)
 
-    filename = fullfile(path, filesV(i).name);
+    filename = fullfile(dirPath, filesV(i).name);
     [dcmObj, isDcm] = scanfile_mldcm(filename);
 
     if isDcm
