@@ -376,7 +376,7 @@ for j=1:length(axisInfo.doseObj)
 
                             CTYVals = axisInfo.scanObj(CTImages(i)).yV;
 
-                            [cData3M, xLim, yLim] = CERRDoseColorWash(hAxis, dose2M, doseXVals, doseYVals, offset, CT2M, CTXVals, CTYVals);
+                            [cData3M, xLim, yLim] = CERRDoseColorWash(hAxis, dose2M, doseXVals, doseYVals, offset, CT2M, CTXVals, CTYVals, scanSet);
 
                             hImage = image(cData3M, 'XData', xLim, 'YData', yLim, 'hittest', 'off', 'tag', 'DoseImage', 'parent', hAxis, 'visible', 'on');
 
