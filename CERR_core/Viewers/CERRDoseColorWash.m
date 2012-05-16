@@ -1,4 +1,4 @@
-function [cData3M, xLim, yLim] = CERRDoseColorWash(hAxis, dose2M, doseXVals, doseYVals, offset, CT2M, CTXVals, CTYVals,dim)
+function [cData3M, xLim, yLim] = CERRDoseColorWash(hAxis, dose2M, doseXVals, doseYVals, offset, CT2M, CTXVals, CTYVals, scanSet)
 % function CERRDoseColorWash"
 % Create dose display as a colorwash in axis hAxis, using dose2M as
 % defined at doseXVals, doseYVals. CT2M is a B&W CT image defined at
@@ -225,18 +225,10 @@ end
 
 CTBackground3M = [];
 
-if stateS.CTToggle == 1 & ~noCT%Don't show very low doses
-    colorCT = CERRColorMap(stateS.optS.CTColormap);
-
-    %wy
-    CTOffset    = 1024;
-    try
-        if strcmpi(planC{3}(1).scanInfo(1).imageType, 'US')
-            CTOffset = 128;
-        end
-    catch
-       disp('if strcmpi(planC{3}(1).scanInfo(1).imageType, ''US'')'); 
-    end
+if stateS.CTToggle == 1 && ~noCT %Don't show very low doses
+    colorCT = CERRColorMap(stateS.optS.CTColormap);    
+    
+    CTOffset = planC{indexS.scan}(scanSet).scanInfo(1).CTOffset;
     
     CTLevel     = stateS.optS.CTLevel + CTOffset;
     CTWidth     = stateS.optS.CTWidth;
