@@ -393,7 +393,7 @@ if ~isempty(planC{indexS.IVH}(IVHNum).IVHMatrix)
     elseif strcmpi(cum_diff_string,'DIFF')
         indPlot = find(volsHistV);
         h = plot(scanBinsV(indPlot), volsHistV(indPlot)/cumVolsV(end));
-        addDVHtoFig(hFig, struct, scanSet, h, scanBinsV(indPlot), volsHistV(indPlot)/cumVolsV(end), 'DVH', 'NOABS', scanBinsV, volsHistV, scanName);
+        addDVHtoFig(hFig, struct, scanSet, h, scanBinsV(indPlot), volsHistV(indPlot)/cumVolsV(end), 'IVH', 'NOABS', scanBinsV, volsHistV, scanName);
     end    
     
     set(hAxis,'nextplot','add')
