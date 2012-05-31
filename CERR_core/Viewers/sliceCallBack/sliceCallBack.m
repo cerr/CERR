@@ -353,73 +353,9 @@ switch upper(instr)
 
         planC = updatePlanFields(planC);
         indexS = planC{end};
-
-        %Check for mesh representation and load meshes into memory
         
-        currDir = cd;
-        
-        meshDir = fileparts(which('libMeshContour.dll'));
-        
-        cd(meshDir);
-        
-        for strNum = 1:length(planC{indexS.structures})
-            if isfield(planC{indexS.structures}(strNum),'meshRep') && ~isempty(planC{indexS.structures}(strNum).meshRep) && planC{indexS.structures}(strNum).meshRep
-                try
-                    calllib('libMeshContour','loadSurface',planC{indexS.structures}(strNum).strUID,planC{indexS.structures}(strNum).meshS)
-                catch
-                    planC{indexS.structures}(strNum).meshRep    = 0;
-                    planC{indexS.structures}(strNum).meshS      = [];
-                end
-            end
-        end
-        
-        cd(currDir)
-
-        %Check color assignment for displaying structures
-        [assocScanV,relStrNumV] = getStructureAssociatedScan(1:length(planC{indexS.structures}),planC);
-        for scanNum = 1:length(planC{indexS.scan})
-            scanIndV = find(assocScanV==scanNum);
-            for i = 1:length(scanIndV)
-                strNum = scanIndV(i);
-                colorNum = relStrNumV(strNum);
-                if isempty(planC{indexS.structures}(strNum).structureColor)
-                    color = stateS.optS.colorOrder( mod(colorNum-1, size(stateS.optS.colorOrder,1))+1,:);
-                    planC{indexS.structures}(strNum).structureColor = color;
-                end
-            end
-        end
-              
-        %Check dose-grid
-        for doseNum = 1:length(planC{indexS.dose})
-            if length(planC{indexS.dose}(doseNum).zValues) > 1
-                %Check z grid
-                if planC{indexS.dose}(doseNum).zValues(2) - planC{indexS.dose}(doseNum).zValues(1) < 0
-                    planC{indexS.dose}(doseNum).zValues = flipud(planC{indexS.dose}(doseNum).zValues);
-                    planC{indexS.dose}(doseNum).doseArray = flipdim(planC{indexS.dose}(doseNum).doseArray,3);
-                end
-                %Check y grid
-                if planC{indexS.dose}(doseNum).verticalGridInterval > 0
-                    planC{indexS.dose}(doseNum).coord2OFFirstPoint = planC{indexS.dose}(doseNum).coord2OFFirstPoint + abs(planC{indexS.dose}(doseNum).verticalGridInterval) * planC{indexS.dose}(doseNum).sizeOfDimension2;
-                    planC{indexS.dose}(doseNum).verticalGridInterval = -planC{indexS.dose}(doseNum).verticalGridInterval;
-                    planC{indexS.dose}(doseNum).doseArray = flipdim(planC{indexS.dose}(doseNum).doseArray,1);
-                end
-            end
-        end
-        
-        %Check DSH Points for old CERR versions        
-        if ~isfield(planC{indexS.header},'CERRImportVersion') || (isfield(planC{indexS.header},'CERRImportVersion') && isempty(planC{indexS.header}.CERRImportVersion))
-            CERRImportVersion = '0';
-        else            
-            CERRImportVersion = planC{indexS.header}.CERRImportVersion;
-        end
-        
-        if str2num(CERRImportVersion(1)) < 4
-            for structNum = 1:length(planC{indexS.structures})
-                if ~isempty(planC{indexS.structures}(structNum).DSHPoints)
-                    planC = getDSHPoints(planC, stateS.optS, structNum);
-                end
-            end
-        end
+        % Quality assure
+        quality_assure_planC
 
         %Set Patient-Name string
         patName = planC{indexS.scan}(1).scanInfo(1).patientName;
