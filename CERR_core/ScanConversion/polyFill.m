@@ -1,5 +1,5 @@
 function result = polyFill(xSize, ySize, rowV, colV)
-%function result = fastPolyFill_new(xSize, ySize, contour,segment)
+%function result = polyFill(xSize, ySize, rowV, colV)
 %
 %Author: Tim Simpson
 %
@@ -67,7 +67,7 @@ end
 % Let's get some min and max values to limit the space we're
 % considering.  There's no need to consider a bunch of empty lines.
 minY = min(edgeList(:,2));
-maxY = max(edgeList(:,2));
+maxY = max(edgeList(:,4));
 
 % Loop over the relevant lines in the image.
 for y = ceil(minY):floor(maxY)
