@@ -99,7 +99,11 @@ for i=1:length(structures)
 %    segs = [structures(i).contour.segments];
     for j=1:length(structures(i).contour)
        segs = [structures(i).contour(j).segments];
-       pts = vertcat(segs.points);
+       if isfield(segs,'points')
+           pts = vertcat(segs.points);
+       else
+           pts = vertcat(segs);
+       end
        maxV = max(pts);
        minV = min(pts);
        if isempty(maxV)
@@ -111,8 +115,16 @@ for i=1:length(structures)
        yMin = min(yMin, minV(2));
        yMax = max(yMax, maxV(2));
        
-       zVals(j) = pts(1,3);
+       if isfield(segs,'points')
+           zVals(j) = pts(1,3);
+       else
+           zVals = [zVals pts(1,3)];
+       end
     end
+end
+
+if ~isfield(segs,'points')
+    zVals = unique(sort(zVals));
 end
 
 xWid = (xMax-xMin);
