@@ -67,12 +67,12 @@ end
 
 % process scan zValues for US
 try
-    if isempty(planC{3}.scanInfo(1).zValue)
-        if strcmpi(planC{3}.scanInfo(1).imageType, 'US')
+    if isempty(planC{indexS.scan}.scanInfo(1).zValue)
+        if strcmpi(planC{indexS.scan}.scanInfo(1).imageType, 'US')
             if ~isempty(planC{8})
                 zValues = planC{8}.zValues;
-                for i=1:length(planC{3}.scanInfo)
-                   planC{3}.scanInfo(i).zValue = zValues(i); 
+                for i=1:length(planC{indexS.scan}.scanInfo)
+                   planC{indexS.scan}.scanInfo(i).zValue = zValues(i); 
                 end
             end
         end
@@ -105,15 +105,15 @@ try
 		positionMatrix = [positionMatrix; 0 0 0 1];
 		
 		positionMatrixInv = inv(positionMatrix);
-		planC{3}.Image2PhysicalTransM = positionMatrix;
+		planC{indexS.scan}.Image2PhysicalTransM = positionMatrix;
 		
-		[xs,ys,zs]=getScanXYZVals(planC{3});
+		[xs,ys,zs]=getScanXYZVals(planC{indexS.scan});
 		dx = xs(2)-xs(1);
 		dy = ys(2)-ys(1);
 		nx = length(xs);
 		ny = length(ys);
 		virPosMtx = [dx 0 0 xs(1);0 dy 0 ys(1); 0 0 slice_distance zs(1); 0 0 0 1];
-		planC{3}.Image2VirtualPhysicalTransM = virPosMtx;
+		planC{indexS.scan}.Image2VirtualPhysicalTransM = virPosMtx;
 
 		N = length(planC{indexS.structures});
 		if N>0
@@ -203,14 +203,24 @@ end
 % end of changes by Deshan Yang
 
 
-scanNum = length(planC{3});
+% Create a Dummy Scan if no scan is available
+if isempty(planC{indexS.scan})
+    planC = createDummyScan(planC);
+    %associate all structures to the first scanset.
+    strNum = length(planC{indexS.structures});
+    for i=1:strNum
+        planC{indexS.structures}(i).assocScanUID = planC{indexS.scan}(1).scanUID;
+    end
+end
+
+scanNum = length(planC{indexS.scan});
 if (scanNum>1)
     button = questdlg(['There are ' num2str(scanNum) 'scans, do you want to put them together?'],'Merge CT in 4D Series', ...
             'Yes', 'No', 'default');
     switch lower(button)
         case 'yes'
             %sort the all scan series
-            if (planC{3}(1).scanInfo(2).zValue > planC{3}(1).scanInfo(1).zValue)
+            if (planC{indexS.scan}(1).scanInfo(2).zValue > planC{indexS.scan}(1).scanInfo(1).zValue)
                 sortingMode = 'ascend';
             else
                 sortingMode = 'descend';
@@ -230,14 +240,14 @@ if (scanNum>1)
             end
             
             %delete all other scans
-            planC{3} = planC{3}(1); 
-            planC{3}.scanArray = scanArray;
-            planC{3}.scanInfo = scanInfo;
+            planC{indexS.scan} = planC{indexS.scan}(1); 
+            planC{indexS.scan}.scanArray = scanArray;
+            planC{indexS.scan}.scanInfo = scanInfo;
             
             %associate all structures to the first scanset.
-            strNum = length(planC{4});
+            strNum = length(planC{indexS.structures});
             for i=1:strNum
-                planC{4}(i).assocScanUID = planC{3}(1).scanUID;
+                planC{indexS.structures}(i).assocScanUID = planC{indexS.scan}(1).scanUID;
             end
                         
         case 'no'
