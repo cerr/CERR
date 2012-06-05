@@ -115,10 +115,11 @@ ind = length(planC{indexS.scan}) + 1;
 planC{indexS.scan}(ind).scanArray = repmat(uint16(0), [length(yVals) length(xVals) length(zVals)]);
 planC{indexS.scan}(ind).scanArray(1,1,1) = 1; %set one voxel on in order that max ~= min.
 planC{indexS.scan}(ind).scanType = 'Dummy Scan';
-planC{indexS.scan}(ind).uniformScanInfo = [];
-planC{indexS.scan}(ind).scanArrayInferior = [];
-planC{indexS.scan}(ind).scanArraySuperior = [];
-planC{indexS.scan}(ind).thumbnails = [];
+planC{indexS.scan}(ind).scanUID = createUID('scan'); 
+%planC{indexS.scan}(ind).uniformScanInfo = [];
+%planC{indexS.scan}(ind).scanArrayInferior = [];
+%planC{indexS.scan}(ind).scanArraySuperior = [];
+%planC{indexS.scan}(ind).thumbnails = [];
 
 scanInfo = initializeScanInfo;
 
