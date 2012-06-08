@@ -86,11 +86,11 @@ if strcmpi(view,'TRANSVERSE') | strcmpi(view,'SAGITTAL') |strcmpi(view,'CORONAL'
         else
             switch upper(view)
                 case 'TRANSVERSE'
-                    coord = median(zV);
+                    coord = zV(ceil(length(zV)/2));
                 case 'SAGITTAL'
-                    coord =  median(xV);
+                    coord = xV(ceil(length(xV)/2));
                 case 'CORONAL'
-                    coord = median(yV);
+                    coord = yV(ceil(length(yV)/2));
             end
 
         end
