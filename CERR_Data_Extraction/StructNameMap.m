@@ -63,6 +63,8 @@ infoS(1) = [];
         try
             planC = loadPlanC(fileC{iFile},tempdir);
             planC = updatePlanFields(planC);
+            % Quality assure
+            quality_assure_planC
         catch
             disp([fileC{iFile}, ' failed to load'])
             infoS(fileNum).error = 'Failed to Load';
