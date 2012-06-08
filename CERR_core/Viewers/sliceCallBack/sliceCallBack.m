@@ -554,7 +554,7 @@ switch upper(instr)
                     case 'sagittal'
                         setAxisInfo(hAxis, 'coord', xV(ceil(length(xV)/2)));
                     case 'coronal'
-                        setAxisInfo(hAxis, 'coord', yV(ceil(length(xV)/2)));
+                        setAxisInfo(hAxis, 'coord', yV(ceil(length(yV)/2)));
                 end
             end
 
