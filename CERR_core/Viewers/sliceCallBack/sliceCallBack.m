@@ -550,16 +550,16 @@ switch upper(instr)
             else
                 switch view
                     case 'transverse'
-                        setAxisInfo(hAxis, 'coord', median(zV));
+                        setAxisInfo(hAxis, 'coord', zV(ceil(length(zV)/2)));
                     case 'sagittal'
-                        setAxisInfo(hAxis, 'coord', median(xV));
+                        setAxisInfo(hAxis, 'coord', xV(ceil(length(xV)/2)));
                     case 'coronal'
-                        setAxisInfo(hAxis, 'coord', median(yV));
+                        setAxisInfo(hAxis, 'coord', yV(ceil(length(xV)/2)));
                 end
             end
 
             %Initialize context menu.
-            CERRAxisMenu(stateS.handle.CERRAxis(i));
+            CERRAxisMenu(hAxis);
         end
 
         stateS.supInfScansCreated = 0; %the superior and inferior portions of the CT scan for sag/cor viewing have not yet been created.
@@ -1735,7 +1735,7 @@ switch upper(instr)
         %Update scale
         indAxis = find(hAxis == stateS.handle.CERRAxis);
         showScale(hAxis, indAxis)
-        cleanupAxes(hAxis);
+        %cleanupAxes(hAxis);
         return
         %CALLBACKS TO OPERATE doseProfile.
 
