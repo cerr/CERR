@@ -26,6 +26,11 @@ function [infoS, doseMapS] = StructNameMap(dirPath,structures_to_extract,dose_to
 % You should have received a copy of the GNU General Public License
 % along with CERR.  If not, see <http://www.gnu.org/licenses/>.
 
+global planC stateS
+if isempty(stateS) || ~isfield(stateS,'optS')
+    stateS.optS = opts4Exe(fullfile(getCERRPath,'CERROptions.m'));
+end
+
 tic
 % dirPath = 'I:\3dplans\Reference_plans\plans_dearchived\prostate';
 % structures_to_extract = {'Prostate','Prostate Bed','Skin'};
@@ -60,11 +65,11 @@ infoS(1) = [];
         
         fileNum = length(infoS)+1;
 
-        try
+        try            
             planC = loadPlanC(fileC{iFile},tempdir);
             planC = updatePlanFields(planC);
             % Quality assure
-            quality_assure_planC
+            quality_assure_planC(fileC{iFile})
         catch
             disp([fileC{iFile}, ' failed to load'])
             infoS(fileNum).error = 'Failed to Load';
