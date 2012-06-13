@@ -1,5 +1,5 @@
-function quality_assure_planC
-%function quality_assure_planC
+function quality_assure_planC(fileName)
+%function quality_assure_planC(fileName)
 %
 % This function quality assures planC.
 %
@@ -104,8 +104,13 @@ end
 
 % Overwrite the existing CERR file if a bug is found and fixed
 if ~isempty(stateS) && isfield(stateS.optS,'overwrite_CERR_File') && stateS.optS.overwrite_CERR_File == 1 && bug_found    
-    try
-        save_planC(planC, stateS.optS, 'passed', stateS.CERRFile); 
+    try 
+        if exist('fileName','var') 
+            % do nothing
+        elseif isfield(stateS,'CERRFile')
+            fileName = stateS.CERRFile;
+        end
+        save_planC(planC, stateS.optS, 'passed', fileName); 
     catch
         disp('Could not overwrite the exisitng file. Please save manually')
     end
