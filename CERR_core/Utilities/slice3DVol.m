@@ -146,7 +146,7 @@ if rotation
     [jnk, maxZ] = findnearest(zV, max(zM(:)));
 
     %Take care of numerical noise
-    delta = 1e-8;
+    delta = 1e-5;
     %Prepare the x,y,z vector inputs for finterp3.
     xVec = [xV(minX)-delta xV(2)-xV(1) xV(maxX)+delta];
     yVec = [yV(minY)-delta yV(2)-yV(1) yV(maxY)+delta];
