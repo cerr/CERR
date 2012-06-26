@@ -12,6 +12,10 @@ incrementRadius = min([deltaX deltaY deltaZ]);
 gammaM = ((doseArray1-doseArray2).^2).^0.5/doseAgreement;
 convergedM = false(size(gammaM));
 
+% Find regions of zero dose and exclude from calculation
+convergedM = doseArray1 == 0;
+gammaM(convergedM) = NaN;
+
 % Calculate until 4 times the permissible distance to agreement.
 if ~exist('maxDistance', 'var')
     maxDistance = distAgreement*4;
