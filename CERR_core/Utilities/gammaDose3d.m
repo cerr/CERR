@@ -1,5 +1,5 @@
-function gammaM = gammaDose3d(doseArray1, doseArray2, deltaXYZv, doseAgreement, distAgreement)
-% function gammaM = gammaDose3d(doseArray1, doseArray2, deltaXYZv, doseAgreement, distAgreement)
+function gammaM = gammaDose3d(doseArray1, doseArray2, deltaXYZv, doseAgreement, distAgreement, maxDistance)
+% function gammaM = gammaDose3d(doseArray1, doseArray2, deltaXYZv, doseAgreement, distAgreement, maxDistance)
 %
 % APA, 04/27/2012
 
@@ -13,7 +13,9 @@ gammaM = ((doseArray1-doseArray2).^2).^0.5/doseAgreement;
 convergedM = false(size(gammaM));
 
 % Calculate until 4 times the permissible distance to agreement.
-maxDistance = distAgreement*4;
+if ~exist('maxDistance', 'var')
+    maxDistance = distAgreement*4;
+end
 outerRadiusV = incrementRadius:incrementRadius:maxDistance;
 numIters = length(outerRadiusV);
 
