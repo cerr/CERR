@@ -156,8 +156,24 @@ for dirNum = 1:length(allDirS)
                 sourceDirName = [oneDirUp,'_',sourceDir(rtStartIndex:rtEndIndex)];
                 % For Metropolis with one plan per patient
                 sourceDirName = [oneDirUp];
+                % For Irene PET/CT Histogram cauto-segmentation project
+                dirUpNum = 2;
+                twoDirUp = sourceDir(slashIndex(end-dirUpNum)+1:slashIndex(end-dirUpNum+1)-1);
+                sourceDirName = [twoDirUp];
+                indexS = planC{end};
+                sourceDirName = [sourceDirName,'_',planC{indexS.scan}.scanInfo(1).imageType];
+                % For Mike Folkert MR/PET data
+                dirUpNum = 1;
+                pre_post = sourceDir(slashIndex(end-dirUpNum)+1:slashIndex(end-dirUpNum+1)-1);
+                dirUpNum = 2;
+                modality = sourceDir(slashIndex(end-dirUpNum)+1:slashIndex(end-dirUpNum+1)-1);
+                dirUpNum = 3;
+                mrn = sourceDir(slashIndex(end-dirUpNum)+1:slashIndex(end-dirUpNum+1)-1);
+                seriesName = sourceDir(slashIndex(end-0)+1:end);
+                sourceDirName = fullfile(modality, pre_post, [mrn,'~',seriesName]);
                 % General case
-                % sourceDirName = sourceDir(rtStartIndex:rtEndIndex);
+                sourceDirName = sourceDir(rtStartIndex:rtEndIndex);
+                
                 %Check fr duplicate name of sourceDirName
                 dirOut = dir(destinationDir);
                 allOutNames = {dirOut.name};
@@ -171,6 +187,10 @@ for dirNum = 1:length(allDirS)
                     sourceDirName = [sourceDir(rtStartIndex:rtEndIndex),'duplicate_',num2str(rand(1))];
                 end
                 % save_planC(planC,[], 'passed', fullfile(destinationDir,[sourceDirName,'.mat.bz2']));
+                saved_fullFileName = fullfile(destinationDir,[sourceDirName,'.mat']);
+                if ~exist(fileparts(saved_fullFileName),'dir')
+                    mkdir(fileparts(saved_fullFileName))
+                end
                 save_planC(planC,[], 'passed', fullfile(destinationDir,[sourceDirName,'.mat']));
                 clear planC
                 convertedC{end+1} = sourceDir;
