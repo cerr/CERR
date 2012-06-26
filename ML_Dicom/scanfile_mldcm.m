@@ -44,11 +44,16 @@ function [dcmObj, isDcm] = scanfile_mldcm(filename)
 %Create a java file object associated with this filename
 ifile = java.io.File(filename);
 
-%Create a DicomInputStream to read this input file.
-in = org.dcm4che2.io.DicomInputStream(ifile);
-
 %Create a new BasicDicomObject to hold DICOM data.
 dcmObj = org.dcm4che2.data.BasicDicomObject;
+
+%Create a DicomInputStream to read this input file.
+try
+    in = org.dcm4che2.io.DicomInputStream(ifile);
+catch
+    isDcm = 0;
+    return;
+end
 
 %Assume the file is not DICOM to start, if any failures occur along the way
 %it will return with this value.
