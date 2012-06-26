@@ -185,18 +185,18 @@ switch upper(gamaCommand)
         [xValsBase, yValsBase, zValsBase] = getDoseXYZVals(planC{indexS.dose}(baseDose));        
         [xValsRef, yValsRef, zValsRef] = getDoseXYZVals(planC{indexS.dose}(refDose)); 
         
-        if length(xValsBase)==length(xValsRef) && length(yValsBase)==length(yValsRef) && length(zValsBase)==length(zValsRef)
-            xDiff = sum((xValsBase-xValsRef).^2);
-            yDiff = sum((yValsBase-yValsRef).^2);
-            zDiff = sum((zValsBase-zValsRef).^2);
-            if max([xDiff yDiff zDiff]) > 1e-3
-                warndlg('Base and Reference dose grids do not match');
-                return
-            end
-        else
-            warndlg('Base and Reference dose grids do not match');
-            return;
-        end
+%         if length(xValsBase)==length(xValsRef) && length(yValsBase)==length(yValsRef) && length(zValsBase)==length(zValsRef)
+%             xDiff = sum((xValsBase-xValsRef).^2);
+%             yDiff = sum((yValsBase-yValsRef).^2);
+%             zDiff = sum((zValsBase-zValsRef).^2);
+%             if max([xDiff yDiff zDiff]) > 1e-3
+%                 warndlg('Base and Reference dose grids do not match');
+%                 return
+%             end
+%         else
+%             warndlg('Base and Reference dose grids do not match');
+%             return;
+%         end
             
         gammaM = createGammaDose(baseDose,refDose,doseDiffIN,DTA);
         
