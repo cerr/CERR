@@ -52,9 +52,13 @@ for i = 1:length(doseNums)
     %Get associated scan
     assocScanV{doseNum} = getAssociatedScan(planC{indexS.dose}(doseNum).assocScanUID);
 end
-newXgrid = linspace(min(cell2mat(xGrid)),max(cell2mat(xGrid)),max(cell2mat(xRes)));
-newYgrid = linspace(max(cell2mat(yGrid)),min(cell2mat(yGrid)),max(cell2mat(yRes)));
-newZgrid = linspace(min(cell2mat(zGrid)),max(cell2mat(zGrid)),max(cell2mat(zRes)));
+% newXgrid = linspace(min(cell2mat(xGrid)),max(cell2mat(xGrid)),max(cell2mat(xRes)));
+% newYgrid = linspace(max(cell2mat(yGrid)),min(cell2mat(yGrid)),max(cell2mat(yRes)));
+% newZgrid = linspace(min(cell2mat(zGrid)),max(cell2mat(zGrid)),max(cell2mat(zRes)));
+
+newXgrid = linspace(max(cellfun(@min,xGrid)),min(cellfun(@max,xGrid)),max(cell2mat(xRes)));
+newYgrid = linspace(min(cellfun(@max,yGrid)),max(cellfun(@min,yGrid)),max(cell2mat(yRes)));
+newZgrid = linspace(max(cellfun(@min,zGrid)),min(cellfun(@max,zGrid)),max(cell2mat(zRes)));
 
 %Obtain doses with same grid
 if isempty(assocTransM)
@@ -181,4 +185,5 @@ for i = 1:length(doseNums)
     
 end
 
+close(hWait)
 
