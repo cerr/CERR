@@ -1,5 +1,5 @@
-function gammaM = createGammaDose(doseNum1,doseNum2,dosePercent,distAgreement)
-% function gammaM = createGammaDose(doseNum1,doseNum2,dosePercent,distAgreement)
+function gammaM = createGammaDose(doseNum1,doseNum2,dosePercent,distAgreement,thresholdPercentMax)
+% function gammaM = createGammaDose(doseNum1,doseNum2,dosePercent,distAgreement,thresholdPercentMax)
 %
 % This function creates and adds a gamma dose to planC.
 % 3D Gamma is calculated between doseNum1 and doseNum2.
@@ -16,7 +16,6 @@ indexS = planC{end};
 [newXgrid, newYgrid, newZgrid, doseArray1, doseArray2] = prepareDosesForGamma(doseNum1,doseNum2,1, planC);
 
 
-
 % % Get deltaX, deltaY, deltaZ
 % [xDoseVals, yDoseVals, zDoseVals] = getDoseXYZVals(planC{indexS.dose}(doseNum1));
 % deltaX = abs(xDoseVals(2) - xDoseVals(1));
@@ -31,7 +30,9 @@ deltaZ = abs(newZgrid(2) - newZgrid(1));
 doseAgreement = dosePercent*max(planC{indexS.dose}(doseNum1).doseArray(:))/100;
 % gammaM = gammaDose3d(planC{indexS.dose}(doseNum1).doseArray, planC{indexS.dose}(doseNum2).doseArray, [deltaX deltaY deltaZ], doseAgreement, distAgreement);
 
-gammaM = gammaDose3d(doseArray1, doseArray2, [deltaX deltaY deltaZ], doseAgreement, distAgreement);
+thresholdAbsolute = thresholdPercentMax*max(planC{indexS.dose}(doseNum1).doseArray(:))/100;
+
+gammaM = gammaDose3d(doseArray1, doseArray2, [deltaX deltaY deltaZ], doseAgreement, distAgreement, [], thresholdAbsolute);
 
 newDoseNum = length(planC{indexS.dose}) + 1;
 
@@ -63,7 +64,7 @@ planC{indexS.dose}(newDoseNum).zValues = newZgrid;
 planC{indexS.dose}(newDoseNum).doseUnits = 'Gy';
 planC{indexS.dose}(newDoseNum).doseArray = gammaM;
 planC{indexS.dose}(newDoseNum).doseUID = createUID('dose');
-planC{indexS.dose}(newDoseNum).fractionGroupID = 'Gamma 3D';
+planC{indexS.dose}(newDoseNum).fractionGroupID = ['Gamma_',num2str(dosePercent),'%_',num2str(distAgreement*10),'mm'];
 
 %Switch to new dose
 sliceCallBack('selectDose', num2str(newDoseNum));
