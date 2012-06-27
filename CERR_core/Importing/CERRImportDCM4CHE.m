@@ -92,12 +92,19 @@ elseif strcmpi(selected,'all')
         end
     end
     combinedDcmdirS = newCombinedDcmdirS;
-    for i = 2:length(patNameC)
-        for j = 1:length(dcmdirS.(patNameC{i}).STUDY.SERIES)
-            combinedDcmdirS.STUDY.SERIES(end+1) = dcmdirS.(patNameC{i}).STUDY.SERIES(j);
+%     for i = 2:length(patNameC)
+%         for j = 1:length(dcmdirS.(patNameC{i}).STUDY.SERIES)
+%             combinedDcmdirS.STUDY.SERIES(end+1) = dcmdirS.(patNameC{i}).STUDY.SERIES(j);
+%         end
+%     end
+for i = 2:length(patNameC)
+    for  k = 1:length(dcmdirS.(patNameC{i}).STUDY)
+        for j = 1:length(dcmdirS.(patNameC{i}).STUDY(k).SERIES)
+            combinedDcmdirS.STUDY.SERIES(end+1) = dcmdirS.(patNameC{i}).STUDY(k).SERIES(j);
         end
     end
-    % Pass the java dicom structures to function to create CERR plan
+end
+% Pass the java dicom structures to function to create CERR plan
     planC = dcmdir2planC(combinedDcmdirS);
 else
     % Pass the java dicom structures to function to create CERR plan
