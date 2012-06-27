@@ -1,5 +1,5 @@
-function gammaM = gammaDose3d(doseArray1, doseArray2, deltaXYZv, doseAgreement, distAgreement, maxDistance)
-% function gammaM = gammaDose3d(doseArray1, doseArray2, deltaXYZv, doseAgreement, distAgreement, maxDistance)
+function gammaM = gammaDose3d(doseArray1, doseArray2, deltaXYZv, doseAgreement, distAgreement, maxDistance, thresholdAbsolute)
+% function gammaM = gammaDose3d(doseArray1, doseArray2, deltaXYZv, doseAgreement, distAgreement, maxDistance, thresholdAbsolute)
 %
 % APA, 04/27/2012
 
@@ -13,11 +13,14 @@ gammaM = ((doseArray1-doseArray2).^2).^0.5/doseAgreement;
 convergedM = false(size(gammaM));
 
 % Find regions of zero dose and exclude from calculation
-convergedM = doseArray1 == 0;
+if ~exist('thresholdAbsolute', 'var') 
+    doseThreshold = 0;
+end
+convergedM = doseArray1 <= thresholdAbsolute;
 gammaM(convergedM) = NaN;
 
 % Calculate until 4 times the permissible distance to agreement.
-if ~exist('maxDistance', 'var')
+if ~exist('maxDistance', 'var') || (exist('maxDistance', 'var') && isempty(maxDistance))
     maxDistance = distAgreement*4;
 end
 outerRadiusV = incrementRadius:incrementRadius:maxDistance;
