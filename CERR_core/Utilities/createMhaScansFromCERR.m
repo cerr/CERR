@@ -20,8 +20,10 @@ try
     % Write .mha for scanNum1
     [uniformCT, uniformScanInfoS] = getUniformizedCTScan(0,scanNum);
     uniformCT = permute(uniformCT, [2 1 3]);
-    uniformCT = flipdim(uniformCT,1);
     uniformCT = flipdim(uniformCT,3);
+    
+    % Change data type to int16 to allow (-)ve values
+    uniformCT = int16(uniformCT) - int16(planC{indexS.scan}(scanNum).scanInfo(1).CTOffset);
     
     % [dx, dy, dz]
     resolution = [uniformScanInfoS.grid2Units, uniformScanInfoS.grid1Units, uniformScanInfoS.sliceThickness] * 10;
