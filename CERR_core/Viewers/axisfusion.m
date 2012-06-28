@@ -550,7 +550,9 @@ switch method
                 end
                 
             catch 
-                CERRStatusString('...eee...');
+                % CERRStatusString('...eee...');                
+                err = lasterror;
+                disp(err.message)
                 set(gcf,'Pointer','arrow');
             end
             
