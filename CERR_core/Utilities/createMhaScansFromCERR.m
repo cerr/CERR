@@ -24,11 +24,11 @@ try
     uniformCT = flipdim(uniformCT,3);
     
     % [dx, dy, dz]
-    resolution = [uniformScanInfoS.grid2Units, uniformScanInfoS.grid1Units, uniformScanInfoS.sliceThickness];
+    resolution = [uniformScanInfoS.grid2Units, uniformScanInfoS.grid1Units, uniformScanInfoS.sliceThickness] * 10;
     
     [xVals, yVals, zVals] = getUniformScanXYZVals(planC{indexS.scan}(scanNum));
     
-    offset = [xVals(1) -yVals(1) -zVals(end)];
+    offset = [xVals(1) -yVals(1) -zVals(end)] * 10;
     
     % Write .mha file for scanNum1
     writemetaimagefile(scanFileName, uniformCT, resolution, offset)    
