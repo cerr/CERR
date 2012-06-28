@@ -1245,6 +1245,7 @@ switch command
                 stateS.optS.blockmatch = 0;
                 stateS.optS.mirrorscope = 0;
                 stateS.optS.mirrchecker = 0;
+                stateS.optS.mirrorCheckerBoard = 0;
                 stateS.imageFusion.lockMoving = 0;
                 %wy
                 
