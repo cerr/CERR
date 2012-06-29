@@ -40,12 +40,12 @@ function im = RegdoMirrCheckboard(Im1, Im2, numRows, numCols)
 %     tile = [black black; black black];
 %     I = repmat(tile, [ceil(m/(2*m1)) ceil(n/(2*n1)) p]);
      
-    I = Im1*0;
+    I = logical(size(Im1));
     I(1:numRows*m1,1:numCols*n1) = repmat(black,numRows, numCols);
     
-    CA_Image = I;
+    CA_Image = min(Im1(:))*single(I);
     
-    Imov = 0*I;
+    Imov = I*0;
     
     for rowNum = 1:numRows
         
@@ -73,22 +73,18 @@ function im = RegdoMirrCheckboard(Im1, Im2, numRows, numCols)
             CA_Image(iV,(j2Start+1):jEnd) = Iblock;
             
             IblockMov(1:m1,1:floor(n1/2)) = 1;
-            if mod(j1Start,2) == 0
-                Imov(iV,(j2Start+1):(j1Start-1)) = IblockMov;
-            else
-                Imov(iV,(j2Start+1):(j1Start)) = IblockMov;
-            end
-            
+            Imov(iV,(j2Start+1):j2Start+size(IblockMov,2)) = IblockMov;            
             
         end
         
     end
     
-    
-    CA_Image = CA_Image.*I;
-    
+      
+    CA_Image(I==0) = min(Im1(:));
     Imov = Imov.*I;
 
+    
+%     % Apply different color for moving half of the image
 %     CA_Image(:,:,2) = CA_Image(:,:,1);
 %     CA_Image(:,:,3) = CA_Image(:,:,1);
 %     
@@ -96,7 +92,7 @@ function im = RegdoMirrCheckboard(Im1, Im2, numRows, numCols)
 %     CA_Image(:,:,2) = CA_Image(:,:,2) + Imov*0.136;
 %     CA_Image(:,:,3) = CA_Image(:,:,3) + Imov*0.136;
 %     CA_Image = min(CA_Image,1);
-        
+%     % Apply different color for moving half of the image ends
     
     
 %     c1 = I(1:m, 1:n, 1:p);
@@ -112,7 +108,7 @@ function im = RegdoMirrCheckboard(Im1, Im2, numRows, numCols)
 %     CA_Image(:,:,2) = CA_Image(:,:,2) + c1*0.136;
 %     CA_Image(:,:,3) = CA_Image(:,:,3) + c1*0.136;
 %     CA_Image = min(CA_Image,1);
-    
+%     
     
     im = CA_Image;
     
