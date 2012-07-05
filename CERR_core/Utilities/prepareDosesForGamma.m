@@ -1,10 +1,12 @@
 function [newXgrid, newYgrid, newZgrid, doseArray1, doseArray2] = prepareDosesForGamma(doseNum1,doseNum2, assocScan, planC)
-% function [xDoseVals, yDoseVals, zDoseVals, doseArray1, doseArray2, baseDoseIndex] = prepareDosesForGamma(doseNum1,doseNum2, assocScan, planC)
+% function [xDoseVals, yDoseVals, zDoseVals, doseArray1, doseArray2] = prepareDosesForGamma(doseNum1,doseNum2, assocScan, planC)
 %
 % APA, 06/15/2012
 
+if ~exist('planC','var')
+    global planC
+end
 indexS = planC{end};
-wtfactor = [1 1];
 
 if assocScan > 0
     assocScanUID = planC{indexS.scan}(assocScan).scanUID;
@@ -52,49 +54,10 @@ for i = 1:length(doseNums)
     %Get associated scan
     assocScanV{doseNum} = getAssociatedScan(planC{indexS.dose}(doseNum).assocScanUID);
 end
-% newXgrid = linspace(min(cell2mat(xGrid)),max(cell2mat(xGrid)),max(cell2mat(xRes)));
-% newYgrid = linspace(max(cell2mat(yGrid)),min(cell2mat(yGrid)),max(cell2mat(yRes)));
-% newZgrid = linspace(min(cell2mat(zGrid)),max(cell2mat(zGrid)),max(cell2mat(zRes)));
 
-newXgrid = linspace(max(cellfun(@min,xGrid)),min(cellfun(@max,xGrid)),max(cell2mat(xRes)));
-newYgrid = linspace(min(cellfun(@max,yGrid)),max(cellfun(@min,yGrid)),max(cell2mat(yRes)));
-newZgrid = linspace(max(cellfun(@min,zGrid)),min(cellfun(@max,zGrid)),max(cell2mat(zRes)));
-
-%Obtain doses with same grid
-if isempty(assocTransM)
-    assocTransM = eye(4);
-end
-doseIndC = {};
-doseNumsTmp = doseNums;
-for iSortAll = 1:length(doseNums)
-    iSort = doseNums(iSortAll);
-    indRemaining = doseNums;
-    indRemaining(iSortAll) = [];
-    doseSortM = [iSort];
-    if ~ismember(iSort,[doseIndC{:}])
-        for jSortAll = 1:length(indRemaining)
-            jSort = indRemaining(jSortAll);
-            if ~isempty(getTransM('dose',iSort,planC))
-                doseITM = inv(assocTransM) * getTransM('dose',iSort,planC);
-            else
-                doseITM = inv(assocTransM);
-            end
-            if ~isempty(getTransM('dose',jSort,planC))
-                doseJTM = inv(assocTransM) * getTransM('dose',jSort,planC);
-            else
-                doseJTM = inv(assocTransM);
-            end
-            if isequal([xRes{iSort},yRes{iSort},zRes{iSort}],[xRes{jSort},yRes{jSort},zRes{jSort}]) && isequal(doseITM,doseJTM)
-                doseSortM(end+1) = jSort;
-                indJsort = find(doseNumsTmp == jSort);
-                doseNumsTmp(indJsort) = [];
-            end
-        end
-    end
-    doseIndC{iSort} = doseSortM;
-end
-
-doseNums = doseNumsTmp;
+newXgrid = linspace(max(cellfun(@min,xGrid(~cellfun(@isempty,xGrid)))),min(cellfun(@max,xGrid(~cellfun(@isempty,xGrid)))),max(cell2mat(xRes(~cellfun(@isempty,xRes)))));
+newYgrid = linspace(min(cellfun(@max,yGrid(~cellfun(@isempty,yGrid)))),max(cellfun(@min,yGrid(~cellfun(@isempty,yGrid)))),max(cell2mat(yRes(~cellfun(@isempty,yRes)))));
+newZgrid = linspace(max(cellfun(@min,zGrid(~cellfun(@isempty,zGrid)))),min(cellfun(@max,zGrid(~cellfun(@isempty,zGrid)))),max(cell2mat(zRes(~cellfun(@isempty,zRes)))));
 
 %Loop over doses and add over new grid
 hWait = waitbar(0,'Summing Dose distributions');
@@ -120,40 +83,15 @@ for i = 1:length(doseNums)
             inputTM = eye(4);
         end
     end
-    
-    %Get the summation for this grid
-    doseCombinedM = [];
-    for iDoseAll = 1:length(doseIndC{doseNum})
-        iDose = doseIndC{doseNum}(iDoseAll);
-        doseUnits2 = getDoseUnitsStr(iDose,planC);
-        if strcmpi(doseUnits, 'Gy') && strcmpi(doseUnits2, 'cGy')
-            multFact = 0.01;
-        elseif strcmpi(doseUnits, 'cGy') && strcmpi(doseUnits2, 'Gy')
-            multFact = 100;
-        else
-            multFact = 1;
-        end
-        doseOffset = planC{indexS.dose}(iDose).doseOffset;
-        if isempty(doseOffset)
-            doseOffset = 0;
-        end
-        if ~isempty(doseCombinedM)
-            doseCombinedM = doseCombinedM + multFact * wtfactor(iDose) * single(getDoseArray(planC{indexS.dose}(iDose)) - doseOffset);
-        else
-            doseCombinedM = multFact * wtfactor(iDose) * single(getDoseArray(planC{indexS.dose}(iDose)) - doseOffset);
-        end
-    end
-    
+        
     %Check if this dose is on same grid as the new one
-    %if isequal(xGrid{doseNum},newXgrid) && isequal(yGrid{doseNum},newYgrid) && isequal(zGrid{doseNum},newZgrid)
     chkLength = length(xGrid{doseNum})==length(newXgrid) && length(yGrid{doseNum})==length(newYgrid) && length(zGrid{doseNum})==length(newZgrid);
     if sum(sum((inputTM-eye(4)).^2)) < 1e-3 && chkLength && max(abs(xGrid{doseNum}-newXgrid)) < 1e-3 && max(abs(yGrid{doseNum}-newYgrid)) < 1e-3 && max(abs(zGrid{doseNum}-newZgrid)) < 1e-3
         
-        % doseSumM = doseSumM + doseCombinedM;
         if i == 1
-            doseArray1 = doseCombinedM;
+            doseArray1 = getDoseArray(planC{indexS.dose}(doseNum));
         else
-            doseArray2 = doseCombinedM;            
+            doseArray2 = getDoseArray(planC{indexS.dose}(doseNum));            
         end
             
         waitbar((i-1)/length(doseNums),hWait,['Calculating contribution from Dose ', num2str(doseNum)])
@@ -162,10 +100,10 @@ for i = 1:length(doseNums)
         
         %Transform this dose
         doseTmpM = [];
-        
+        dA = getDoseArray(planC{indexS.dose}(doseNum));
         for slcNum=1:length(newZgrid)
             [xV, yV, zV] = getDoseXYZVals(planC{indexS.dose}(doseNum));
-            doseTmp = slice3DVol(doseCombinedM, xV, yV, zV, newZgrid(slcNum), 3, 'linear', inputTM, [], newXgrid, newYgrid);
+            doseTmp = slice3DVol(dA, xV, yV, zV, newZgrid(slcNum), 3, 'linear', inputTM, [], newXgrid, newYgrid);
             if isempty(doseTmp)
                 doseTmpM(:,:,slcNum) = doseEmptyM;
             else
@@ -174,7 +112,8 @@ for i = 1:length(doseNums)
             waitbar((i-1)/length(doseNums) + (slcNum-1)/length(newZgrid)/length(doseNums) ,hWait,['Calculating contribution from Dose ', num2str(doseNum)])
         end
         
-        % doseSumM = doseSumM + doseTmpM;
+        clear dA
+        
         if i == 1
             doseArray1 = doseTmpM;
         else
