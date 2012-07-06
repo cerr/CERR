@@ -1,5 +1,5 @@
-function inv_vf = calc_inv_vf(vf_file_name,baseXv,baseYv,baseZv,movXv,movYv,movZv,planC)
-% function inv_vf = calc_inv_vf(vf_file_name,baseXv,baseYv,baseZv,movXv,movYv,movZv,planC)
+function inv_vf = calc_inv_vf(vf_file_name,baseXv,baseYv,baseZv,movXv,movYv,movZv)
+% function inv_vf = calc_inv_vf(vf_file_name,baseXv,baseYv,baseZv,movXv,movYv,movZv)
 %
 % This function calculates the inverse vector field.
 %
@@ -14,10 +14,6 @@ function inv_vf = calc_inv_vf(vf_file_name,baseXv,baseYv,baseZv,movXv,movYv,movZ
 % movXv,movYv,movZv are x,y,z vectors corresponding to the moving scan grid
 %
 % APA, 07/06/2012
-
-if ~exist('planC','var')
-    global planC
-end
 
 % Get base and moving image sizes
 sizeBase = [length(baseYv) length(baseXv) length(baseZv)];
