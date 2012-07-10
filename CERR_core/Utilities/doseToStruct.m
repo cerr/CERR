@@ -90,8 +90,11 @@ newStructS.structureName    = [planC{indexS.dose}(doseNum).fractionGroupID,'_Lev
 planC{indexS.structures} = dissimilarInsert(planC{indexS.structures}, newStructS, newStructNum);
 planC = getRasterSegs(planC, newStructNum);
 planC = updateStructureMatrices(planC, newStructNum);
-stateS.structsChanged = 1;
-CERRRefresh
+% Refresh GUI if it exists
+if ~isempty(stateS) && isfield(stateS,'handle') && isfield(stateS.handle,'CERRSliceViewer') && isnumeric(stateS.handle.CERRSliceViewer)
+    stateS.structsChanged = 1;
+    CERRRefresh
+end
 
 return;
 
