@@ -1343,7 +1343,7 @@ switch upper(instr)
             lockImg = ind2rgb(I,map);
             set(gcbo,'cdata',lockImg,'fontWeight','bold','foregroundColor', [1 0 0]);
         else 
-            [I,map] = imread('unlock','gif');
+            [I,map] = imread('unlock.GIF','gif');
             lockImg = ind2rgb(I,map);
             set(gcbo,'cdata',lockImg,'fontWeight','bold','foregroundColor',[0.5 0.5 0.5]);
         end
