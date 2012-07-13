@@ -2,7 +2,7 @@ function planC = mha2cerr(infoS,data3M)
 %"mha2cerr"
 %   Create an scan based mha header and 3D volume. 
 %
-%   APA
+%   APA, 07/05/2012
 %
 %   Usage: planC = mha2cerr(infoS,data3M)
 %
