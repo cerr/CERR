@@ -447,11 +447,11 @@ else   %compute yer own
     %No need to shift DVH by doseOffset since it is already included in doseBinsV.
     if strcmpi(cum_diff_string,'CUMU')
         h = plot([0, scanBinsV - offset], [1, cumVols2V/cumVolsV(end)]);
-        addDVHtoFig(hFig, struct, scanSet, h, [0, scanBinsV - offset], [1, cumVols2V/cumVolsV(end)], 'IVH', 'NOABS', scanBinsV, volsHistV, scanName);
+        addDVHtoFig(hFig, struct, scanSet, h, [0, scanBinsV - offset], [1, cumVols2V/cumVolsV(end)], 'IVH', 'NOABS', scanBinsV-offset, volsHistV, scanName);
     elseif strcmpi(cum_diff_string,'DIFF')
         indPlot = find(volsHistV);
-        h = plot(scanBinsV(indPlot), volsHistV(indPlot)/cumVolsV(end));
-        addDVHtoFig(hFig, struct, scanSet, h, scanBinsV(indPlot), volsHistV(indPlot)/cumVolsV(end), 'DVH', 'NOABS', scanBinsV, volsHistV, scanName);
+        h = plot(scanBinsV(indPlot)-offset, volsHistV(indPlot)/cumVolsV(end));
+        addDVHtoFig(hFig, struct, scanSet, h, scanBinsV(indPlot), volsHistV(indPlot)/cumVolsV(end), 'DVH', 'NOABS', scanBinsV(indPlot)-offset, volsHistV(indPlot), scanName);
     end
 
     set(hAxis,'nextplot','add')
