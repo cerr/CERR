@@ -378,6 +378,20 @@ seedGeometryInitS = struct(...
     'pointsM'                    ,   '' ...  %CERR addition;
     );
 
+deformS         = struct(...
+ 'baseScanUID'                  ,   '', ...
+ 'movScanUID'                   ,   '', ...
+ 'deformedScanUID'              ,   '', ...
+ 'deformUID'                    ,   '', ...
+ 'bsp_img_origin'               ,   '', ...
+ 'bsp_img_spacing'              ,   '', ...
+ 'bsp_img_dim'                  ,   '', ...
+ 'bsp_roi_offset'               ,   '', ...
+ 'bsp_roi_dim'                  ,   '', ...
+ 'bsp_vox_per_rgn'              ,   '', ...
+ 'bsp_coefficients'             ,   '', ...
+ 'vectorField4M'                ,   ''  ...
+  );
 
 RTTreatmentInitS = struct('');          %CERR addition
 
@@ -403,27 +417,27 @@ indexS.beamGeometry         = 8;
 indexS.dose                 = 9;
 indexS.DVH                  = 10;
 indexS.IVH                  = 11;
-
 indexS.planParam            = 12;
 indexS.seedGeometry         = 13;
 indexS.digitalFilm          = 14;
 indexS.RTTreatment          = 15;
 indexS.IM                   = 16;
-indexS.importLog            = 17;
-indexS.CERROptions          = 18;
+indexS.deform               = 17;
+indexS.importLog            = 18;
+indexS.CERROptions          = 19;
 
 % check if this is microRT and/or RPC film study and change the study
 % accordingly
 try
     if stateS.optS.chkMicroRT
-        indexS.microRTP = 19;
-        indexS.indexS   = 20;
+        indexS.microRTP = 20;
+        indexS.indexS   = 21;
         microRTPInitS = initializeMicroRTP(planInitC);
     else
-        indexS.indexS = 19;
+        indexS.indexS = 20;
     end
 catch
-    indexS.indexS = 19;
+    indexS.indexS = 20;
 end
 
 
@@ -434,6 +448,7 @@ headerInitS(1) = []; commentInitS(1) = []; scanInitS(1) = []; doseInitS(1) = [];
 planInitC(1) = [];  DVHInitS(1) = []; IVHInitS(1) = [];
 digitalFilmInitS(1) = []; importLogInitS(1) = []; IMInitS(1) = [];structureInitS(1) = [];
 beamGeometryInitS(1) = []; structureArrayInitS(1) = []; seedGeometryInitS(1) = [];
+deformS(1) = [];
 % seedGeometryInitS(1) = []; This is never used commented by DK
 
 planInitC{indexS.header}            = headerInitS;
@@ -451,6 +466,7 @@ planInitC{indexS.planParam}         = planParamS;
 planInitC{indexS.seedGeometry}      = seedGeometryInitS;
 planInitC{indexS.digitalFilm}       = digitalFilmInitS;
 planInitC{indexS.RTTreatment}       = RTTreatmentInitS;
+planInitC{indexS.deform}            = deformS;
 planInitC{indexS.importLog}         = importLogInitS;
 planInitC{indexS.IM}                = IMInitS;
 planInitC{indexS.CERROptions}       = struct([]); %Currently blank.  Set on planC creation.
