@@ -27,13 +27,13 @@ end
 success = createMhaScansFromCERR(movScanNum, movScanFileName, movPlanC);
 
 % Create a command file for plastimatch
-cmdFileName = fullfile(getCERRPath,'ImageRegistration','plastimatch_command',[baseScanUniqName,'_',movScanUniqName,'.txt']);
+cmdFileName = fullfile(getCERRPath,'ImageRegistration','plastimatch_command',[baseScanUID,'_',movScanUID,'.txt']);
 try
     delete(cmdFileName)
 end
 
 % Create a file name for storing bspline coefficients
-bspFileName = fullfile(getCERRPath,'ImageRegistration','tmpFiles',['bsp_coeffs_',baseScanUniqName,'_',movScanUniqName,'.txt']);
+bspFileName = fullfile(getCERRPath,'ImageRegistration','tmpFiles',['bsp_coeffs_',baseScanUID,'_',movScanUID,'.txt']);
 try
     delete(bspFileName)
 end
