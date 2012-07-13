@@ -1,4 +1,4 @@
-function basePlanC = register_scans(basePlanC, movPlanC, baseScanNum, movScanNum, algorithm)
+function [basePlanC, movPlanC] = register_scans(basePlanC, movPlanC, baseScanNum, movScanNum, algorithm)
 % function basePlanC = register_scans(basePlanC, movPlanC, baseScanNum, movScannum, algorithm)
 %
 % APA, 07/12/2012
