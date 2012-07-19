@@ -8,7 +8,7 @@ function cell2file(dataC,fileName)
 % APA, 07/12/2012
 
 fid = fopen(fileName,'wb');
-for rowNum = 1:size(dataC,1)
-    fprintf(fid,[dataC{rowNum,1},'\n'])
+for rowNum = 1:length(dataC)
+    fprintf(fid,[dataC{rowNum,1},'\n']);
 end
 fclose(fid)
