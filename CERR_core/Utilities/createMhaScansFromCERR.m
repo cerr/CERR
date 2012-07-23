@@ -1,7 +1,7 @@
 function success = createMhaScansFromCERR(scanNum, scanFileName, planC)
 % function success = createMhaScansFromCERR(scanNum, scanFileName, planC)
 %
-% Tis function creates .Mha files form CERR scan object and returns
+% This function creates .Mha files form CERR scan object and returns
 % success (=1) if the .mha gets successfully created. This file can then
 % be used an input to Plastimatch for deformable image registration.
 %
