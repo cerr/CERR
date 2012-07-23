@@ -77,3 +77,11 @@ movPlanC{indexMovS.deform}  = dissimilarInsert(movPlanC{indexMovS.deform},deform
 
 movPlanC{indexMovS.deform}(movDeformIndex) = deformS;
 
+% Cleanup
+try
+    delete(baseScanFileName);
+    delete(movScanFileName);
+    delete(cmdFileName);
+    delete(bspFileName)
+end
+
