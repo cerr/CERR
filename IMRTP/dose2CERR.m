@@ -1,5 +1,5 @@
-function dose2CERR(doseNew,doseError,fractionGroupID,doseEdition,description,register,regParamsS,overWrite,assocScanUID)
-%function dose2CERR(doseNew,doseError,fractionGroupID,doseEdition,description,register,regParamsS,overWrite)
+function planC = dose2CERR(doseNew,doseError,fractionGroupID,doseEdition,description,register,regParamsS,overWrite,assocScanUID,planC)
+%function dose2CERR(doseNew,doseError,fractionGroupID,doseEdition,description,register,regParamsS,overWrite,planC)
 %Use this function to put a new dose distribution into CERR.
 %See test_dose2CERR in the putNewDose subdirectory for an example of its use.
 %doseNew - 3-D array of dose values.
@@ -46,7 +46,9 @@ function dose2CERR(doseNew,doseError,fractionGroupID,doseEdition,description,reg
 % You should have received a copy of the GNU General Public License
 % along with CERR.  If not, see <http://www.gnu.org/licenses/>.
 
-global planC  stateS
+if ~exist('planC','var')
+    global planC
+end
 indexS=planC{end};
 W = size(doseNew);
 
@@ -172,7 +174,7 @@ elseif nargin > 6 & strcmpi(register,'UniformCT')
     % get from CT info:
 
     %sizeArray = getUniformizedSize(planC)
-    sizeArray = getUniformScanSize(planC{indexS.scan}(scanNum))
+    sizeArray = getUniformScanSize(planC{indexS.scan}(scanNum));
     numSlices = sizeArray(3);
 %    numSlices = size(CTUniform3D,3);
 
