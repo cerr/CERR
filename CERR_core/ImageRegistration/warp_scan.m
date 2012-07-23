@@ -31,3 +31,10 @@ system(['plastimatch warp --input ', escapeSlashes(movScanFileName), ' --output-
 infoS  = mha_read_header(warpedMhaFileName);
 data3M = mha_read_volume(infoS);
 planC  = mha2cerr(infoS,data3M, planC);
+
+% Cleanup
+try
+    delete(bspFileName)
+    delete(movScanFileName)
+    delete(warpedMhaFileName)
+end
