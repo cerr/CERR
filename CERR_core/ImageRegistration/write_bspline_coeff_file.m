@@ -1,16 +1,16 @@
-function success = write_bspline_coeff_file(bspFileName,deformS)
-% function success = write_bspline_coeff_file(bspFileName,deformS)
+function success = write_bspline_coeff_file(bspFileName,bsplineParamsS)
+% function success = write_bspline_coeff_file(bspFileName,bsplineParamsS)
 % 
 % APA, 07/17/2012
 
-bsp_img_origin     = deformS.bsp_img_origin;
-bsp_img_spacing    = deformS.bsp_img_spacing;
-bsp_img_dim        = deformS.bsp_img_dim;
-bsp_roi_offset     = deformS.bsp_roi_offset;
-bsp_roi_dim        = deformS.bsp_roi_dim;
-bsp_vox_per_rgn    = deformS.bsp_vox_per_rgn;
-bsp_direction_cosines  = deformS.bsp_direction_cosines;
-bsp_coefficients   = deformS.bsp_coefficients;
+bsp_img_origin          = bsplineParamsS.bsp_img_origin;
+bsp_img_spacing         = bsplineParamsS.bsp_img_spacing;
+bsp_img_dim             = bsplineParamsS.bsp_img_dim;
+bsp_roi_offset          = bsplineParamsS.bsp_roi_offset;
+bsp_roi_dim             = bsplineParamsS.bsp_roi_dim;
+bsp_vox_per_rgn         = bsplineParamsS.bsp_vox_per_rgn;
+bsp_direction_cosines   = bsplineParamsS.bsp_direction_cosines;
+bsp_coefficients        = bsplineParamsS.bsp_coefficients;
 
 
 fileC{1,1} = 'MGH_GPUIT_BSP <experimental>';

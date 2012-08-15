@@ -9,7 +9,7 @@ indexMovS = movPlanC{end};
 baseScanUID = deformS.baseScanUID;
 movScanUID  = deformS.movScanUID;
 bspFileName = fullfile(getCERRPath,'ImageRegistration','tmpFiles',['bsp_coeffs_',baseScanUID,'_',movScanUID,'.txt']);
-success = write_bspline_coeff_file(bspFileName,deformS);
+success = write_bspline_coeff_file(bspFileName,deformS.algorithmParamsS);
 
 
 for structNum = movStructNumsV
