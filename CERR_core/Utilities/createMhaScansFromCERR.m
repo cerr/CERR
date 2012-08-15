@@ -18,7 +18,7 @@ success = 1;
 try
     
     % Write .mha for scanNum1
-    [uniformCT, uniformScanInfoS] = getUniformizedCTScan(0,scanNum);
+    [uniformCT, uniformScanInfoS] = getUniformizedCTScan(0,scanNum,planC);
     uniformCT = permute(uniformCT, [2 1 3]);
     uniformCT = flipdim(uniformCT,3);
     
