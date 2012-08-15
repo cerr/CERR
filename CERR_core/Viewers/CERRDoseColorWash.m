@@ -228,7 +228,7 @@ CTBackground3M = [];
 if stateS.CTToggle == 1 && ~noCT %Don't show very low doses
     colorCT = CERRColorMap(stateS.optS.CTColormap);    
     
-    CTOffset = planC{indexS.scan}(scanSet).scanInfo(1).CTOffset;
+    CTOffset = planC{indexS.scan}(scanSet(1)).scanInfo(1).CTOffset;
     
     CTLevel     = stateS.optS.CTLevel + CTOffset;
     CTWidth     = stateS.optS.CTWidth;
