@@ -1,11 +1,14 @@
-function quality_assure_planC(fileName)
-%function quality_assure_planC(fileName)
+function planC = quality_assure_planC(fileName, planC)
+%function planC = quality_assure_planC(fileName, planC)
 %
 % This function quality assures planC.
 %
 %APA, 04/07/2011
 
-global planC stateS
+if ~exist('planC','var')
+    global planC
+end
+global stateS
 indexS = planC{end};
 
 % Quality Assurance
@@ -19,7 +22,7 @@ else
 end
 
 if ~isempty(str2double(lastSavedInVer)) && (isempty(lastSavedInVer) || str2double(lastSavedInVer) < 4.1) && ~isempty(planC{indexS.structures})
-    reRasterAndUniformize;
+    planC = reRasterAndUniformize(planC);
     bug_found = 1;
 end
 
@@ -110,7 +113,7 @@ if ~isempty(stateS) && isfield(stateS.optS,'overwrite_CERR_File') && stateS.optS
         elseif isfield(stateS,'CERRFile')
             fileName = stateS.CERRFile;
         end
-        save_planC(planC, stateS.optS, 'passed', fileName); 
+        planC = save_planC(planC, stateS.optS, 'passed', fileName); 
     catch
         disp('Could not overwrite the exisitng file. Please save manually')
     end
