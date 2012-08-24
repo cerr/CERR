@@ -1,4 +1,4 @@
-function struct = newCERRStructure(scanSet, planC)
+function struct = newCERRStructure(scanSet, planC, colorNum)
 %"newCERRStructure"
 %   Returns an empty, but valid CERR structure. This includes a null string
 %   for the structure name and an appropriately formatted contour field.
@@ -67,7 +67,9 @@ visible = 1;
 %Assign color for this structure
 assocScanV = getStructureAssociatedScan(1:length(planC{indexS.structures}),planC);
 scanIndV = find(assocScanV==scanSet);
-colorNum = length(scanIndV) + 1;
+if ~exist('colorNum','var')
+    colorNum = length(scanIndV) + 1;
+end
 if isfield(stateS,'optS')
     color = stateS.optS.colorOrder( mod(colorNum-1, size(stateS.optS.colorOrder,1))+1,:);
 else
