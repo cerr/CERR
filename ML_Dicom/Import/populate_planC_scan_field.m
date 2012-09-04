@@ -112,7 +112,7 @@ switch fieldname
                 
                 % Get calibration factor which is the Rescale slope Attribute Name in DICOM
                 calibration_factor=dicomHeaderS.RescaleSlope;
-                slice2D = single(slice2D*calibration_factor);
+                slice2D = single(slice2D)*calibration_factor;
                 
                 % Obtain SUV conversion flag from CERROptions.m
                 pathStr = getCERRPath;
