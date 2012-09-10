@@ -94,6 +94,9 @@ switch tag
         el = ml2dcm_Element(el, data);                
         
     case 805568514  %3004,0002  Dose Units
+        if isempty(doseUnits)
+            doseUnits = 'relative';
+        end
         switch upper(doseUnits);
             case 'GY' %Add more cases here if required.
                 data = 'GY';
