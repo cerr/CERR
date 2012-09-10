@@ -1,5 +1,5 @@
 function indMatchV = getMatchingIndex(str,strC,matchCriteria)
-%function indMatchV = getMatchingIndex(str,strC);
+%function indMatchV = getMatchingIndex(str,strC,matchCriteria)
 %
 %This function returns the matching pattern str in strC.
 %
@@ -38,9 +38,9 @@ switch upper(matchCriteria)
         indMatchV = [];
         if ~isempty(strC)
             indMatchV = strmatch(lower(str),lower(strC),'exact');
-            if length(indMatchV) > 1
-                indMatchV = [];
-            end
+            %if length(indMatchV) > 1
+            %    indMatchV = [];
+            %end
         end
         
         
