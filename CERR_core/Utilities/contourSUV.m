@@ -1,5 +1,5 @@
-function contourSUV(structNum,percent)
-%function contourSUV(structNum,percent)
+function planC = contourSUV(structNum,percent,planC)
+%function contourSUV(structNum,percent,planC)
 %
 %This function creates structure at percent% SUV level for structNum
 %
@@ -27,16 +27,19 @@ function contourSUV(structNum,percent)
 % You should have received a copy of the GNU General Public License
 % along with CERR.  If not, see <http://www.gnu.org/licenses/>.
 
-global planC stateS
+global stateS
+if ~exist('planC','var')
+    global planC
+end
 indexS = planC{end};
 
-scanNum                             = getStructureAssociatedScan(structNum);
+scanNum                             = getStructureAssociatedScan(structNum,planC);
 [rasterSegments, planC, isError]    = getRasterSegments(structNum,planC);
 if isempty(rasterSegments)
     warning('Could not create conotour.')
     return
 end
-[mask3M, uniqueSlices]              = rasterToMask(rasterSegments, scanNum);
+[mask3M, uniqueSlices]              = rasterToMask(rasterSegments, scanNum, planC);
 scanArray3M                         = double(getScanArray(planC{indexS.scan}(scanNum)));
 %%%% reverse data
 %maxscan=max(scanArray3M(:));
@@ -64,7 +67,6 @@ end
 for l = max(uniqueSlices)+1 : length(planC{indexS.scan}(scanNum).scanInfo)
     newStructS.contour(l).segments.points = [];
 end
-stateS.structsChanged = 1;
 
 newStructS.structureName    = [planC{indexS.structures}(structNum).structureName 'SUVMax',num2str(percent)];
 
@@ -72,8 +74,11 @@ planC{indexS.structures} = dissimilarInsert(planC{indexS.structures}, newStructS
 planC = getRasterSegs(planC, newStructNum);
 planC = updateStructureMatrices(planC, newStructNum, uniqueSlices);
 
-% Refresh View
-CERRRefresh
+if ~isempty(stateS) && isfield(stateS,'handle') && isfield(stateS.handle,'CERRSliceViewer') && isnumeric(stateS.handle.CERRSliceViewer)
+    stateS.structsChanged = 1;    
+    % Refresh View
+    CERRRefresh
+end
 
 return;
 
