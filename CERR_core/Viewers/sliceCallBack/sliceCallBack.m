@@ -234,6 +234,10 @@ switch upper(instr)
         stateS.handle.CERRMetricMenu        = putMetricsMenu(hCSV);
         stateS.handle.CERRScanMenu          = putScanMenu(hCSV);
         stateS.handle.CERRStructMenu        = putStructMenu(hCSV);
+        BMfileFlag = exist('putBMmenu.m','file');
+        if BMfileFlag
+            stateS.handle.CERRBMMenu        = putBMmenu(hCSV);
+        end        
         stateS.handle.CERRHelpMenu          = putHelpMenu(hCSV);
 
         %Make invisible frames to subdivide screenspace.  For resizing.
@@ -450,6 +454,10 @@ switch upper(instr)
             stateS.handle.CERRMetricMenu  = putMetricsMenu(hCSV);
             stateS.handle.CERRScanMenu    = putScanMenu(hCSV);
             stateS.handle.CERRStructMenu  = putStructMenu(hCSV);
+            BMfileFlag = exist('putBMmenu.m','file');
+            if BMfileFlag
+                stateS.handle.CERRBMMenu        = putBMmenu(hCSV);
+            end            
             stateS.handle.CERRHelpMenu    = putHelpMenu(hCSV);
             
             %Wipe out the contents of all axes.
