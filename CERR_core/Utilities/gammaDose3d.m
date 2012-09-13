@@ -4,8 +4,8 @@ function gammaM = gammaDose3d(doseArray1, doseArray2, deltaXYZv, doseAgreement, 
 % APA, 04/27/2012
 
 deltaX = deltaXYZv(1);
-deltaY = deltaXYZv(1);
-deltaZ = deltaXYZv(1);
+deltaY = deltaXYZv(2);
+deltaZ = deltaXYZv(3);
 incrementRadius = min([deltaX deltaY deltaZ]);
 
 % Initial gamma
