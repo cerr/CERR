@@ -1133,7 +1133,11 @@ switch upper(command)
         else
             doseNameC = ud.nameMapS(planNum).allDoseNames;
         end
-        ud.newNameMapS(planNum).doseMap = getMatchingIndex(dose_to_extract,doseNameC);
+        if length(doseNameC) == 1
+            ud.newNameMapS(planNum).doseMap = 1;
+        else
+            ud.newNameMapS(planNum).doseMap = getMatchingIndex(dose_to_extract,doseNameC);            
+        end
         
         set(hFig,'userdata',ud)
         
@@ -1850,7 +1854,7 @@ switch upper(command)
                 for ex_ind = 1:length(excel_fileNameC)
                     excel_fileNameC{ex_ind} = num2str(excel_fileNameC{ex_ind});
                 end
-                [jnk,indexMapV] = ismember(ddbs_fileNameC,excel_fileNameC);
+                [jnk,indexMapV] = ismember(strtok(ddbs_fileNameC,'_'),excel_fileNameC);
                 
                 %set metrics fields
                 for i=1:length(selMetricsIndV)
