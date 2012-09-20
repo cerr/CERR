@@ -32,6 +32,7 @@
 % along with CERR.  If not, see <http://www.gnu.org/licenses/>.
 
 global planC
+indexS = planC{end};
 
 PHI = {'studyNumberOfOrigin','PatientName','caseNumber','archive','PatientID'};
 
