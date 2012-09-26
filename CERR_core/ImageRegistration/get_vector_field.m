@@ -29,20 +29,21 @@ system(['plastimatch xf-convert --input ',escapeSlashes(bspFileName), ' --output
 
 if calc_inv_vf_flag
     % Get dims, origin, spacing for toScan
-    [uniformCT, uniformScanInfoS] = getUniformizedCTScan(0,toScanNum,planC);
+    [uniformCT, uniformScanInfoS] = getUniformizedCTScan(0,toScanNum,toPlanC);
     uniformCT = permute(uniformCT, [2 1 3]);
     uniformCT = flipdim(uniformCT,3);
     % Change data type to int16 to allow (-)ve values
-    uniformCT = int16(uniformCT) - int16(planC{indexS.scan}(toScanNum).scanInfo(1).CTOffset);    
+    uniformCT = int16(uniformCT) - int16(toPlanC{indexS.scan}(toScanNum).scanInfo(1).CTOffset);    
     % [dx, dy, dz]
     resolution = [uniformScanInfoS.grid2Units, uniformScanInfoS.grid1Units, uniformScanInfoS.sliceThickness] * 10;    
-    [xVals, yVals, zVals] = getUniformScanXYZVals(planC{indexS.scan}(toScanNum));    
+    [xVals, yVals, zVals] = getUniformScanXYZVals(toPlanC{indexS.scan}(toScanNum));    
     offset = [xVals(1) -yVals(1) -zVals(end)] * 10;
     img_size = size(uniformCT);   
     system(['vf_invert --input ', escapeSlashes(vfFileName), ' --output ', escapeSlashes(vfFileName), ' --dims="',num2str(img_size),'" --origin="',num2str(offset),'" --spacing="',num2str(resolution),'"'])
 end
 
-infoS  = mha_read_header(vfFileName);
-vf = mha_read_volume(infoS);
+%infoS  = mha_read_header(vfFileName);
+%vf = mha_read_volume(infoS);
+[vf,infoS] = readmha(vfFileName);
 vf = flipdim(permute(vf,[2,1,3]),3);
 
