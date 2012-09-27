@@ -1,4 +1,4 @@
-function vf = get_vector_field(deformS,toPlanC,toScanNum,fromPlanC,fromScanNum)
+function vf_out = get_vector_field(deformS,toPlanC,toScanNum,fromPlanC,fromScanNum)
 % function vf = get_vector_field(deformS,toPlanC,toScanNum,fromPlanC,fromScanNum)
 % 
 % APA, 09/24/2012
@@ -47,3 +47,6 @@ end
 [vf,infoS] = readmha(vfFileName);
 vf = flipdim(permute(vf,[2,1,3]),3);
 
+vf_out(:,:,:,1) = flipdim(permute(vf(:,:,:,1),[2,1,3]),3);
+vf_out(:,:,:,2) = flipdim(permute(vf(:,:,:,2),[2,1,3]),3);
+vf_out(:,:,:,3) = flipdim(permute(vf(:,:,:,3),[2,1,3]),3);
