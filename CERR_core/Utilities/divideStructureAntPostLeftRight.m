@@ -68,11 +68,16 @@ end
 
 stateS.structsChanged = 1;
 
-newStructTS.structureName = [planC{indexS.structures}(structNum).structureName '_ANTERIOR'];
 newStructLS.structureName = [planC{indexS.structures}(structNum).structureName '_RIGHT'];
-newStructBS.structureName = [planC{indexS.structures}(structNum).structureName '_POSTERIOR'];
 newStructRS.structureName = [planC{indexS.structures}(structNum).structureName '_LEFT'];
-
+patientPosition = planC{indexS.scan}.scanInfo(1).DICOMHeaders.PatientPosition;
+if isequal(patientPosition,'HFP') || isequal(patientPosition,'FFP')
+    newStructTS.structureName = [planC{indexS.structures}(structNum).structureName '_POSTERIOR'];
+    newStructBS.structureName = [planC{indexS.structures}(structNum).structureName '_ANTERIOR'];
+else
+    newStructTS.structureName = [planC{indexS.structures}(structNum).structureName '_ANTERIOR'];
+    newStructBS.structureName = [planC{indexS.structures}(structNum).structureName '_POSTERIOR'];    
+end
 planC{indexS.structures} = dissimilarInsert(planC{indexS.structures}, newStructTS, newStructNumT);
 planC{indexS.structures} = dissimilarInsert(planC{indexS.structures}, newStructLS, newStructNumL);
 planC{indexS.structures} = dissimilarInsert(planC{indexS.structures}, newStructBS, newStructNumB);

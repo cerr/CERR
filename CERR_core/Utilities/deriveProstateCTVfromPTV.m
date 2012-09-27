@@ -37,8 +37,14 @@ for slcNum = 1:length(planC{indexS.scan}(scanNum).scanInfo)
         rasterSegmentsShrinked_10 = structMargin(rasterSegs, 10/10, scanNum, planC);
         rasterSegmentsShrinked_10 = structDiff(rasterSegs,rasterSegmentsShrinked_10, scanNum, planC);
         
-        rasterSegmentsPosterior = rasterSegmentsShrinked_10_6(rasterSegmentsShrinked_10_6(:,2) <= meanY, :);
-        rasterSegmentsAnterior = rasterSegmentsShrinked_10(rasterSegmentsShrinked_10(:,2) > meanY, :);
+        patientPosition = planC{indexS.scan}.scanInfo(1).DICOMHeaders.PatientPosition;
+        if isequal(patientPosition,'HFP') || isequal(patientPosition,'FFP')
+            rasterSegmentsAnterior = rasterSegmentsShrinked_10(rasterSegmentsShrinked_10(:,2) <= meanY, :);
+            rasterSegmentsPosterior = rasterSegmentsShrinked_10_6(rasterSegmentsShrinked_10_6(:,2) > meanY, :);            
+        else            
+            rasterSegmentsPosterior = rasterSegmentsShrinked_10_6(rasterSegmentsShrinked_10_6(:,2) <= meanY, :);
+            rasterSegmentsAnterior = rasterSegmentsShrinked_10(rasterSegmentsShrinked_10(:,2) > meanY, :);
+        end
         
         rasterSegments = [rasterSegments; rasterSegmentsAnterior; rasterSegmentsPosterior];
         
