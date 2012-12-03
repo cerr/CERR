@@ -54,7 +54,7 @@ end
 if stateS.currentAxis == i;
     color = [0 1 0];
 else
-    color = [1 1 1];
+    color = [1 1 0];
 end
 try
     transM = getTransM('scan', scanSet(1), planC);

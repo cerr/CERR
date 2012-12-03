@@ -975,12 +975,12 @@ switch upper(instr)
             if parentAxis == stateS.currentAxis;
                 set(planeLocators(i), 'color', [0 1 0]);
             else
-                set(planeLocators(i), 'color', [1 1 1]);
+                set(planeLocators(i), 'color', [1 1 0]);
             end
         end
         try % case where the axes is deleted stateS.lastAxis exceeds matrix dimention
-            set(stateS.handle.CERRAxisLabel1(stateS.lastAxis), 'color', 'white');
-            set(stateS.handle.CERRAxisLabel2(stateS.lastAxis), 'color', 'white');
+            set(stateS.handle.CERRAxisLabel1(stateS.lastAxis), 'color', [1 1 0]);
+            set(stateS.handle.CERRAxisLabel2(stateS.lastAxis), 'color', [1 1 0]);
         end
         set(stateS.handle.CERRAxisLabel1(stateS.currentAxis), 'color', 'green');
         set(stateS.handle.CERRAxisLabel2(stateS.currentAxis), 'color', 'green');
