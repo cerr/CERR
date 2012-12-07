@@ -1477,17 +1477,32 @@ switch command
                     'tooltipstring','View in CheckerBoard', 'fontsize', 7, 'interrupt', 'off');
                 
                 ud.handles.ckSizeText = uicontrol(hFig, 'style',  'text','units', units, 'position', absPos([.05 .205+dy .15 .05], posFrame),...
-                    'string', 'size:', 'tag', 'controlFrameItem', ...
+                    'string', 'Size:', 'tag', 'controlFrameItem', ...
                     'tooltipstring','CheckerBoard Size', 'visible', 'off');
                 
-                ud.handles.ckSizeValue = uicontrol(hFig, 'style',  'text','units', units, 'position', absPos([.20 .205+dy .1 .05], posFrame),...
+                ud.handles.ckSizeValue = uicontrol(hFig, 'style',  'text','units', units, 'position', absPos([.17 .205+dy .09 .05], posFrame),...
                     'string', '4', 'tag', 'controlFrameItem', ...
                     'tooltipstring','CheckerBoard Size', 'visible', 'off');
                 
-                ud.handles.newcheckerSize= uicontrol(hFig, 'style',  'slider','units', units, 'position', absPos([.30 .22+dy .65 .04], posFrame),...
+                ud.handles.newcheckerSize= uicontrol(hFig, 'style',  'slider','units', units, 'position', absPos([.27 .22+dy .35 .04], posFrame),...
                     'string', 'CB Size', 'tag', 'controlFrameItem', 'min', 2, 'max', 20, 'sliderstep', [0.1 0.2], 'value', 4, ...
                     'BusyAction', 'cancel', 'Interruptible', 'off', ...
                     'tooltipstring','CheckerBoard Size', 'callback', 'controlFrame(''fusion'', ''checkerSlider'')', 'visible', 'off');
+                
+                ud.handles.mirrorcheckerOrientation = uicontrol(hFig, 'style','popupmenu','units', units, 'position', absPos([.65 .23+dy .3 .04], posFrame),...
+                    'string', {'Left Mirror','Right Mirror'}, 'tag', 'controlFrameItem', 'value', 1, ...
+                    'BusyAction', 'cancel', 'Interruptible', 'off', ...
+                    'tooltipstring','Left/Right size mirror', 'callback', 'CERRRefresh', 'visible', 'off');
+                
+                ud.handles.mirrorcheckerMetricString = uicontrol(hFig, 'style','text','units', units, 'position', absPos([.05 .15+dy .15 .04], posFrame),...
+                    'string', 'Metric', 'tag', 'controlFrameItem', ...
+                    'BusyAction', 'cancel', 'Interruptible', 'off', ...
+                    'tooltipstring','Metric for comparison', 'visible', 'off');
+                
+                ud.handles.mirrorcheckerMetricPopup = uicontrol(hFig, 'style','popupmenu','units', units, 'position', absPos([.25 .16+dy .25 .04], posFrame),...
+                    'string', {'MI (Mutual INformation)', 'MSE (Mean Squared Error)'}, 'tag', 'controlFrameItem', ...
+                    'BusyAction', 'cancel', 'Interruptible', 'off', ...
+                    'tooltipstring','Metric for comparison', 'callback', 'CERRRefresh', 'visible', 'off');
                 
                 %--------------mirror------------
                 
@@ -2160,21 +2175,31 @@ switch command
                     set(ud.handles.ckSizeText, 'visible', 'on');
                     set(ud.handles.ckSizeValue, 'visible', 'on');
                     set(ud.handles.newcheckerSize, 'visible', 'on');
+                    set(ud.handles.newcheckerSize, 'visible', 'on');
+                    set(ud.handles.mirrorcheckerOrientation, 'visible', 'on');
+                    set(ud.handles.mirrorcheckerMetricString, 'visible', 'on');
+                    set(ud.handles.mirrorcheckerMetricPopup, 'visible', 'on');
                     
                     set(ud.handles.differToggle, 'enable', 'off');
                     set(ud.handles.newcheckerToggle, 'enable', 'off');
+                    set(ud.handles.checkerToggle, 'enable', 'off');
                     set(ud.handles.mirrorToggle, 'visible', 'off');
                     set(ud.handles.mirrorScopeToggle, 'visible', 'off');
                     set(ud.handles.blockMatchToggle, 'visible', 'off');
+                    
                 elseif button_state == get(hObject,'Min')
                     % toggle button is not pressed
                     stateS.optS.mirrorCheckerBoard = 0;
                     set(ud.handles.ckSizeText, 'visible', 'off');
                     set(ud.handles.ckSizeValue, 'visible', 'off');
                     set(ud.handles.newcheckerSize, 'visible', 'off');
+                    set(ud.handles.mirrorcheckerOrientation, 'visible', 'off');
+                    set(ud.handles.mirrorcheckerMetricString, 'visible', 'off');
+                    set(ud.handles.mirrorcheckerMetricPopup, 'visible', 'off');
                     
                     set(ud.handles.differToggle, 'enable', 'on');
                     set(ud.handles.newcheckerToggle, 'enable', 'on');
+                    set(ud.handles.checkerToggle, 'enable', 'on');
                     set(ud.handles.mirrorToggle, 'visible', 'on');
                     set(ud.handles.mirrorScopeToggle, 'visible', 'on');
                     set(ud.handles.blockMatchToggle, 'visible', 'on');
@@ -2368,6 +2393,7 @@ switch command
                     set(udf.handles.blockMatchToggle, 'visible', 'off');
                     
                     set(udf.handles.differToggle, 'enable', 'off');
+                    set(udf.handles.mirror_checkerToggle, 'enable', 'off');
                     set(udf.handles.checkerToggle, 'enable', 'off');
                     set(udf.handles.newcheckerToggle, 'enable', 'off');
                     set(udf.handles.mirrorToggle, 'enable', 'off');
@@ -2446,6 +2472,7 @@ switch command
                     set(udf.handles.blockMatchToggle, 'visible', 'on');
                     
                     set(udf.handles.differToggle, 'enable', 'on');
+                    set(udf.handles.mirror_checkerToggle, 'enable', 'on');
                     set(udf.handles.checkerToggle, 'enable', 'on');
                     set(udf.handles.newcheckerToggle, 'enable', 'on');
                     set(udf.handles.mirrorToggle, 'enable', 'on');

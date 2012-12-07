@@ -514,7 +514,11 @@ switch method
                     return;
                     
                 elseif stateS.optS.mirrorCheckerBoard
-                    imgOv = RegdoMirrCheckboard(img1, img2, checkerSize, checkerSize);
+                    orientationVal = get(ud.handles.mirrorcheckerOrientation,'value');
+                    orientationStr = get(ud.handles.mirrorcheckerOrientation,'string');
+                    orientation = orientationStr{orientationVal};
+                    metricVal = get(ud.handles.mirrorcheckerMetricPopup,'value');
+                    imgOv = RegdoMirrCheckboard(img1, img2, checkerSize, checkerSize, orientation, metricVal);
                     set(surfaces(end-1), 'cData', double(imgOv));
                     set(surfaces(1:end), 'facealpha', 0);
                     set(surfaces(end-1), 'facealpha', 1);
