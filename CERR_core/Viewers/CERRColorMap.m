@@ -1584,5 +1584,25 @@ switch lower(in)
         map = linspace(0,1,100)';
         map = [map*0 map*0 map];
         
+    case 'fireice'
+        
+        m = 64;
+        
+        % LightCyan-Cyan-Blue-Black-Red-Yellow-LightYellow
+        clrs = [0.75 1 1; 0 1 1; 0 0 1;...
+            0 0 0; 1 0 0; 1 1 0; 1 1 0.75];
+        
+        y = -3:3;
+        if mod(m,2)
+            delta = min(1,6/(m-1));
+            half = (m-1)/2;
+            yi = delta*(-half:half)';
+        else
+            delta = min(1,6/m);
+            half = m/2;
+            yi = delta*nonzeros(-half:half);
+        end
+        map = interp2(1:3,y,clrs,1:3,yi);
+        
                       
 end

@@ -271,7 +271,7 @@ switch upper(instr)
         %Presets dropdown.
         stateS.handle.CTPreset = uicontrol(hCSV,'units','pixels', 'BackgroundColor',uicolor,'Position',[20 545 (frameWidth-30)/2 25], 'String',{stateS.optS.windowPresets.name},'Style','popup','Tag','CTPreset', 'callback','sliceCallBack(''CTPreset'');','tooltipstring','Select Preset Window');
         %Base Colormap Presets dropdown.
-        stateS.handle.BaseCMap = uicontrol(hCSV,'units','pixels', 'BackgroundColor',uicolor,'Position',[(frameWidth-30)/2+20+10 545 (frameWidth-30)/2 25], 'String',{stateS.optS.scanColorMap.name},'Style','popup','Tag','CMapPreset', 'callback','sliceCallBack(''BaseColorMap'');','tooltipstring','Select Scan Color Map','Enable','Off');
+        stateS.handle.BaseCMap = uicontrol(hCSV,'units','pixels', 'BackgroundColor',uicolor,'Position',[(frameWidth-30)/2+20+10 545 (frameWidth-30)/2 25], 'String',{stateS.optS.scanColorMap.name},'Style','popup','Tag','CMapPreset', 'callback','sliceCallBack(''BaseColorMap'');','tooltipstring','Select Scan Color Map','Enable','on');
         %CTLevel edit box
         stateS.handle.CTLevel = uicontrol(hCSV,'units','pixels', 'BackgroundColor',uicolor,'Position',[20 500 (frameWidth-30)/2 20], 'String',num2str(stateS.optS.CTLevel),'Style','edit','Tag','CTLevel', 'callback','sliceCallBack(''CTLevel'');','tooltipstring','Change CT window center');
         %CT Width edit box.
@@ -579,6 +579,13 @@ switch upper(instr)
         catch
             delete(findobj('Tag', 'TMWWaitbar'));
         end
+        
+        % Save scan statistics for fast image rendering
+        for scanNum = 1:length(planC{indexS.scan})
+            stateS.scanStats.minScanVal.(repSpaceHyp(planC{indexS.scan}(scanNum).scanUID)) = min(planC{indexS.scan}(scanNum).scanArray(:)) - planC{indexS.scan}(scanNum).scanInfo(1).CTOffset;
+            stateS.scanStats.maxScanVal.(repSpaceHyp(planC{indexS.scan}(scanNum).scanUID)) = max(planC{indexS.scan}(scanNum).scanArray(:)) - planC{indexS.scan}(scanNum).scanInfo(1).CTOffset;
+        end
+        
         %If any duplicates, remove them and make new entry first.
         if any(strcmpi(stateS.planHistory, stateS.CERRFile));
             ind = find(strcmpi(stateS.planHistory, stateS.CERRFile));
@@ -1327,7 +1334,7 @@ switch upper(instr)
         stateS.doseAlphaValue.trans = get(gcbo,'value');        
         udFrame = get(stateS.handle.controlFrame,'userdata');
         clrVal = get(udFrame.handles.displayModeColor,'value');        
-        clrM = [0 0 0; 1 0.8 0.5; 1 0 0; 0 1 0; 0 0 1; 1 0.5 0.5];
+        clrM = [0 0 0; 1 0.8 0.5; 1 0 0; 0 1 0; 0 0 1; 1 0.5 0.5; 1 0.5 0.5];
         if stateS.doseAlphaValue.trans == 1
             set(gcbo,'string','M','fontWeight','bold','foregroundColor',clrM(clrVal,:))
         else 

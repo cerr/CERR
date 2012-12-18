@@ -230,7 +230,7 @@ switch command
                         ud.handle.ovrlayWindowCenterEdt = uicontrol(hFig,'style','edit','string','0','units',units,'position',[0.1 0.40 0.35 0.1], 'callback', 'controlFrame(''contour'', ''selectOverlayOptions'',''setManualWindow'')');
                         ud.handle.ovrlayWindowWidthTxt  = uicontrol(hFig,'style','text','string','Width','units',units,'position',[0.55 0.50 0.35 0.1]);
                         ud.handle.ovrlayWindowWidthEdt  = uicontrol(hFig,'style','edit','string','300','units',units,'position',[0.55 0.40 0.35 0.1], 'callback', 'controlFrame(''contour'', ''selectOverlayOptions'',''setManualWindow'')');
-                        colorbarStrC = {'Copper','Red','Green','Blue','StarInterp'};
+                        colorbarStrC = {'Copper','Red','Green','Blue','StarInterp','hotCold'};
                         ud.handle.ovrlayMapTxt          = uicontrol(hFig,'style','text','string','Colorbar','units',units,'position',[0.05 0.20 0.3 0.1]);
                         ud.handle.ovrlayMapChoices      = uicontrol(hFig,'style','popup','string',colorbarStrC,'units',units,'position',[0.40 0.20 0.45 0.1],'value',1, 'callback', 'controlFrame(''contour'', ''selectOverlayOptions'',''fieldClicked'')');
                         
@@ -267,7 +267,7 @@ switch command
                             stateS.contourOvrlyOptS.center = str2num(get(ud.handle.ovrlayWindowCenterEdt,'String'));
                             stateS.contourOvrlyOptS.width  = str2num(get(ud.handle.ovrlayWindowWidthEdt,'String'));
                         end
-                        colorbarStrC = {'Copper','Red','Green','Blue','StarInterp'};
+                        colorbarStrC = {'Copper','Red','Green','Blue','StarInterp','hotCold'};
                         stateS.contourOvrlyOptS.colormap = colorbarStrC{get(ud.handle.ovrlayMapChoices,'Value')};
                         stateS.CTDisplayChanged = 1;
                         CERRRefresh;
@@ -1408,7 +1408,7 @@ switch command
                 %Select display mode.
                 ud.handles.displayModeColor= uicontrol(hFig, 'style', 'popupmenu', 'units', units, ...
                     'position', [(frameWidth-30)/2+20+10 600-205-dy (frameWidth-30)/2 20],...
-                    'string', {'gray', 'copper','Red', 'Green', 'Blue','StarInterp'}, 'value', dispMode, ...
+                    'string', {'gray', 'copper','Red', 'Green', 'Blue','StarInterp', 'hotCold'}, 'value', dispMode, ...
                     'tag', 'controlFrameItem', 'horizontalAlignment', 'left',...
                     'callback', 'controlFrame(''fusion'', ''display_mode'')');
                 
@@ -1500,9 +1500,16 @@ switch command
                     'tooltipstring','Metric for comparison', 'visible', 'off');
                 
                 ud.handles.mirrorcheckerMetricPopup = uicontrol(hFig, 'style','popupmenu','units', units, 'position', absPos([.25 .16+dy .25 .04], posFrame),...
-                    'string', {'MI (Mutual INformation)', 'MSE (Mean Squared Error)'}, 'tag', 'controlFrameItem', ...
+                    'string', {'MI (Mutual Information)', 'MSE (Mean Squared Error)'}, 'tag', 'controlFrameItem', ...
                     'BusyAction', 'cancel', 'Interruptible', 'off', ...
                     'tooltipstring','Metric for comparison', 'callback', 'CERRRefresh', 'visible', 'off');
+                
+%                 ud.handles.mirrorcheckerAxis = axes('units', units, 'position', absPos([.65 .15+dy .15 .04], posFrame), 'xTickLabel', [], 'yTickLabel', [], 'xTick', [], 'yTick', [], 'visible', 'on');
+%                 cM = CERRColorMap('starinterp');
+%                 nColors = size(cM,1);
+%                 tmpV    = nColors:-1:1;
+%                 cB      = ind2rgb(tmpV, cM);
+%                 imagesc([0 1],[0.5 0.5] ,cB, 'parent',ud.handles.mirrorcheckerAxis)
                 
                 %--------------mirror------------
                 
@@ -1765,7 +1772,7 @@ switch command
                 %change color of Base-Moving toggle-button
                 udFrame = get(stateS.handle.controlFrame,'userdata');
                 clrVal = get(udFrame.handles.displayModeColor,'value');
-                clrM = [0 0 0; 1 0.8 0.5; 1 0 0; 0 1 0; 0 0 1];
+                clrM = [0 0 0; 1 0.8 0.5; 1 0 0; 0 1 0; 0 0 1; 0 1 0; 0 0 1];
                 hToggleBaseMov = findobj('tag', 'toggleBasMov');
                 if get(hToggleBaseMov,'value') == 1
                     set(hToggleBaseMov,'string','M','fontWeight','bold','foregroundColor',clrM(clrVal,:))
@@ -2179,6 +2186,7 @@ switch command
                     set(ud.handles.mirrorcheckerOrientation, 'visible', 'on');
                     set(ud.handles.mirrorcheckerMetricString, 'visible', 'on');
                     set(ud.handles.mirrorcheckerMetricPopup, 'visible', 'on');
+                    %set(ud.handles.mirrorcheckerAxis, 'visible', 'on');                   
                     
                     set(ud.handles.differToggle, 'enable', 'off');
                     set(ud.handles.newcheckerToggle, 'enable', 'off');
@@ -2196,6 +2204,7 @@ switch command
                     set(ud.handles.mirrorcheckerOrientation, 'visible', 'off');
                     set(ud.handles.mirrorcheckerMetricString, 'visible', 'off');
                     set(ud.handles.mirrorcheckerMetricPopup, 'visible', 'off');
+                    %set(ud.handles.mirrorcheckerAxis, 'visible', 'off');
                     
                     set(ud.handles.differToggle, 'enable', 'on');
                     set(ud.handles.newcheckerToggle, 'enable', 'on');

@@ -672,6 +672,25 @@ switch method
                         return
                     end                    
 
+                case '7' %hotcold
+                    cmap = CERRColorMap('hotcold');
+
+                    img2 = (img2 - cLim(1)) / (cLim(2)-cLim(1))*(size(cmap,1)-1);
+
+                    clipImg = clip(round(img2(:)),1,size(cmap,1),'limits');
+
+                    try
+
+                        img23D = reshape(cmap(clipImg, 1:3),size(img2,1),size(img2,2),3);
+
+                    catch
+                        return
+                    end
+
+                    if stateS.optS.checkerBoard
+                        img23D = img23D.*repmat(I, [1 1 3]);
+                    end
+                    
                 otherwise % case '3'(red) case '4'(green) case '5'(blue)
                     img2 = (img2 - cLim(1)) / (cLim(2)-cLim(1));
                     img2 = clip(img2, 0, 1, 'limits');

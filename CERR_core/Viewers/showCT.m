@@ -147,7 +147,18 @@ for i=1:length(axisInfo.scanObj)
                 CTWidth     = stateS.optS.CTWidth;
                 CTLow       = CTLevel - CTWidth/2;
                 CTHigh      = CTLevel + CTWidth/2;
+                scanMin = stateS.scanStats.minScanVal.(repSpaceHyp(planC{indexS.scan}(scanSet).scanUID));
+                scanMax = stateS.scanStats.maxScanVal.(repSpaceHyp(planC{indexS.scan}(scanSet).scanUID));
+                CTLow = max(CTLow,scanMin);
+                CTHigh = min(CTHigh,scanMax);                
                 clippedCT = clip(im, CTLow, CTHigh, 'limits');
+                
+                hFrame = stateS.handle.controlFrame;
+                ud = get(hFrame, 'userdata');
+                colorMapC = get(ud.handles.basedisplayModeColor,'string');
+                colorMapVal = get(ud.handles.basedisplayModeColor,'value');
+                map = CERRColorMap(colorMapC{colorMapVal});
+                colormap(hAxis, map);
 
                 %% DK for Scan color map change
                 %                 clrVal = get(stateS.handle.BaseCMap,'value');
@@ -183,6 +194,10 @@ for i=1:length(axisInfo.scanObj)
                 CTWidth     = stateS.Mov.CTWidth;
                 CTLow       = CTLevel - CTWidth/2;
                 CTHigh      = CTLevel + CTWidth/2;
+                scanMin = stateS.scanStats.minScanVal.(repSpaceHyp(planC{indexS.scan}(scanSet).scanUID));
+                scanMax = stateS.scanStats.maxScanVal.(repSpaceHyp(planC{indexS.scan}(scanSet).scanUID));
+                CTLow = max(CTLow,scanMin);
+                CTHigh = min(CTHigh,scanMax);                
                 %wy Apply window and level by clipping CT.
                 clippedCT = clip(im, CTLow, CTHigh, 'limits');
 
@@ -199,18 +214,27 @@ for i=1:length(axisInfo.scanObj)
             CTWidth     = stateS.optS.CTWidth;
             CTLow       = CTLevel - CTWidth/2;
             CTHigh      = CTLevel + CTWidth/2;
+            scanMin = stateS.scanStats.minScanVal.(repSpaceHyp(planC{indexS.scan}(scanSet).scanUID));
+            scanMax = stateS.scanStats.maxScanVal.(repSpaceHyp(planC{indexS.scan}(scanSet).scanUID));
+            CTLow = max(CTLow,scanMin);
+            CTHigh = min(CTHigh,scanMax);
 
             %wy Apply window and level by clipping CT.
             clippedCT = clip(im, CTLow, CTHigh, 'limits');
 
             set(hFig, 'renderer', 'zbuffer');
+            
+            colorMapC = get(stateS.handle.BaseCMap,'string');
+            colorMapVal = get(stateS.handle.BaseCMap,'value');
+            map = CERRColorMap(colorMapC{colorMapVal});
+            colormap(hAxis, map);
 
-        end
-        
+        end       
         
         
 
-        colormap(hAxis, 'gray');
+        %colormap(hAxis, 'gray');
+        
 
         if stateS.imageRegistrationBaseDataset == scanSet & strcmpi(stateS.imageRegistrationBaseDatasetType, 'scan')
             alpha = 1;
