@@ -339,8 +339,9 @@ switch upper(command)
         mergePlan = getappdata(hFig, 'MERGEPLAN');
         
         global planC
+        fileName = fullfile(get(ud.handles.pathText,'string'),get(ud.handles.filenameText,'string'));
         planMergeGui('status', 'Merging, please wait...');
-        planC = planMerge(planC, mergePlan, find(ud.checkedScans), find(ud.checkedDoses), find(ud.checkedStructs));                
+        planC = planMerge(planC, mergePlan, find(ud.checkedScans), find(ud.checkedDoses), find(ud.checkedStructs), fileName);
         
         clear mergePlan;
         rmappdata(hFig, 'MERGEPLAN');        

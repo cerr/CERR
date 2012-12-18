@@ -1,4 +1,4 @@
-function planC = planMerge(planC, planD, scanIndV, doseIndV, structIndV)
+function planC = planMerge(planC, planD, scanIndV, doseIndV, structIndV, mergefileName)
 %"planMerge"
 %   Merge part or all of planD into planC.  If no other parameters
 %   beyond the two plans are provided, all doses, scans, structures, and
@@ -46,6 +46,10 @@ global stateS
 % indexSD = planD{end};
 
 planD = updatePlanFields(planD);
+
+% Quality assure
+planD = quality_assure_planC(mergefileName, planD);
+
 indexSD = planD{end};
 
 doses = planD{indexSD.dose};
@@ -314,3 +318,10 @@ if isempty(whichScan)
 else
     planC = setUniformizedData(planC);
 end
+
+% Save scan statistics for fast image rendering
+for scanNum = 1:length(planD{indexSD.scan})
+    stateS.scanStats.minScanVal.(repSpaceHyp(planD{indexSD.scan}(scanNum).scanUID)) = min(planD{indexSD.scan}(scanNum).scanArray(:)) - planD{indexSD.scan}(scanNum).scanInfo(1).CTOffset;
+    stateS.scanStats.maxScanVal.(repSpaceHyp(planD{indexSD.scan}(scanNum).scanUID)) = max(planD{indexSD.scan}(scanNum).scanArray(:)) - planD{indexSD.scan}(scanNum).scanInfo(1).CTOffset;
+end
+
