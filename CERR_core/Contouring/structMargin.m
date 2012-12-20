@@ -111,12 +111,20 @@ function result = calculateMargin(data, margin, scanNum, planC)
     
 function mask = getmask(xinterval, yinterval, radius)
 
-    xRadius = floor(radius/xinterval) * xinterval;
-    yRadius = floor(radius/yinterval) * yinterval;
+    if length(radius) == 2
+        radiusX = radius(2);
+        radiusY = radius(1);
+    else
+        radiusX = radius;
+        radiusY = radius;
+    end
+    xRadius = floor(radiusX/xinterval) * xinterval;
+    yRadius = floor(radiusY/yinterval) * yinterval;
     
 	[X,Y] = meshgrid(-xRadius:xinterval:xRadius, -yRadius:yinterval:yRadius);
-	R = sqrt(X.^2 + Y.^2) + eps;
-	mask = R<radius;
+	%R = sqrt(X.^2 + Y.^2) + eps;
+	%mask = R<radius;
+    mask = X.^2/xRadius^2 + Y.^2/yRadius^2 < 1;
 
     
 function E = edginess(A) 

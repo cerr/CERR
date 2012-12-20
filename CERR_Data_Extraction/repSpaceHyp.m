@@ -26,7 +26,7 @@ function str = repSpaceHyp(str)
 
 indSpace = findstr(str,' ');
 indDot = findstr(str,'.');
-str(indDot) = [];
+str(indDot) = 'p';
 indOpenParan = findstr(str,'(');
 indCloseParan = findstr(str,')');
 indPlus = findstr(str,'+');

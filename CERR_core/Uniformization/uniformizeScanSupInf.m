@@ -42,8 +42,8 @@ for scanNum=1:length(planC{indexS.scan})
 	sliceNumSup = uniformScanInfo.sliceNumSup; %superior slice number of original CT scan still being used
 	sliceNumInf = uniformScanInfo.sliceNumInf; %inferior slice number of original CT scan still being used
 	uniformSliceThickness = uniformScanInfo.sliceThickness;
-	scanArray = planC{indexS.scan}(scanNum).scanArray;
-	scanInfo = planC{indexS.scan}(scanNum).scanInfo;
+	%scanArray = planC{indexS.scan}(scanNum).scanArray;
+	%scanInfo = planC{indexS.scan}(scanNum).scanInfo;
 	
 	[scanArraySup, scanArrayInf, uniformScanFirstZValue] = uniformizeScanEnds(scanStruct, sliceNumSup, sliceNumInf, uniformSliceThickness, tMin, tMax, optS, hBar);
 	

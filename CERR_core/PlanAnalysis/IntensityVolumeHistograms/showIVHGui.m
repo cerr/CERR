@@ -111,8 +111,12 @@ switch upper(command)
         uicontrol(hFig, 'style', 'checkbox', 'units', units, 'position', [afX+460 afY-5 20 22], 'value', ud.af.newPlot, ...
             'horizontalAlignment', 'left', 'callback', 'showIVHGui(''NEWFIGCLICKED'')');
         %Add plot button and tag.
-        uicontrol(hFig, 'style', 'pushbutton', 'units', units, 'position',[afX+640 afY+10 100 25], 'string', 'Plot',...
-            'horizontalAlignment', 'left', 'callback', 'showIVHGui(''PLOT'')');
+        %uicontrol(hFig, 'style', 'pushbutton', 'units', units, 'position',[afX+640 afY+10 100 25], 'string', 'Plot',...
+        %    'horizontalAlignment', 'left', 'callback', 'showIVHGui(''PLOT'')');
+
+        uicontrol(hFig, 'style', 'pushbutton', 'units', units, 'position', [afX+640 afY + 25 100 20], 'string', 'Plot Cumulative', 'horizontalAlignment', 'left', 'callback', 'showIVHGui(''PLOT'',''CUMU'')');
+        uicontrol(hFig, 'style', 'pushbutton', 'units', units, 'position', [afX+640 afY + 2 100 20], 'string', 'Plot Differential', 'horizontalAlignment', 'left', 'callback', 'showIVHGui(''PLOT'',''DIFF'')');
+
 
         %Set parameters for each row of IVHs
         ud.df.rowH = 20;
@@ -272,7 +276,8 @@ switch upper(command)
 
     case 'PLOT'
         ud = get(hFig, 'userdata');
-        plotIVH(ud.state.surf, ud.state.vol, ud.state.avg, ud.state.abs, ud.af.newPlot, ud.af.grid);
+        cum_diff_string = varargin{1};
+        plotIVH(ud.state.surf, ud.state.vol, ud.state.avg, ud.state.abs, ud.af.newPlot, ud.af.grid, cum_diff_string);
         showIVHGui('REFRESH');
 
     case 'VOLMASTER'
@@ -312,7 +317,7 @@ switch upper(command)
         end
 
         ud = get(hFig, 'userdata');
-        if length(planC{indexS.IVH}) > 0
+        if ~isempty(planC{indexS.IVH})
             planC{indexS.IVH}(1:end) = [];
             ud.state.vol (1:end) = [];
             ud.state.surf(1:end) = [];

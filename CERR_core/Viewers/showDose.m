@@ -331,12 +331,14 @@ for j=1:length(axisInfo.doseObj)
                     if (stateS.imageRegistrationBaseDataset == doseSet && strcmpi(stateS.imageRegistrationBaseDatasetType, 'dose')) || (stateS.imageRegistrationMovDataset == doseSet && strcmpi(stateS.imageRegistrationMovDatasetType, 'dose'))
                         alpha = dO.dispMode.alpha;
                         stateS.doseFusionAlpha = dO.dispMode.alpha;
+                        scanSet = getDoseAssociatedScan(doseSet);
                     else
                         alpha = stateS.doseAlphaValue.trans;
                         stateS.doseFusionAlpha = alpha;
-                    end                    
-
-                    [cData3M, xLim, yLim] = CERRDoseColorWash(hAxis, dose2M, doseXVals, doseYVals, offset);
+                        scanSet = axisInfo.scanSets;
+                    end 
+                    
+                    [cData3M, xLim, yLim] = CERRDoseColorWash(hAxis, dose2M, doseXVals, doseYVals, offset, [], [], [], scanSet);
 
                     [xM, yM] = meshgrid(xLim, yLim);
 
@@ -376,7 +378,7 @@ for j=1:length(axisInfo.doseObj)
 
                             CTYVals = axisInfo.scanObj(CTImages(i)).yV;
 
-                            [cData3M, xLim, yLim] = CERRDoseColorWash(hAxis, dose2M, doseXVals, doseYVals, offset, CT2M, CTXVals, CTYVals);
+                            [cData3M, xLim, yLim] = CERRDoseColorWash(hAxis, dose2M, doseXVals, doseYVals, offset, CT2M, CTXVals, CTYVals, scanSet);
 
                             hImage = image(cData3M, 'XData', xLim, 'YData', yLim, 'hittest', 'off', 'tag', 'DoseImage', 'parent', hAxis, 'visible', 'on');
 

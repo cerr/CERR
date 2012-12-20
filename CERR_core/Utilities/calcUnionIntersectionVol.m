@@ -1,7 +1,7 @@
 function [unionVolume,intersectVolume] = calcUnionIntersectionVol(structNumV,planC)
 %function planC = calcUnionIntersectionVol(structNumV,planC)
 %
-%This function calculates volume of union and intersection from structNumV. The structures in
+%This function calculates volume of union and intersection from structNumV.
 %
 %APA, 01/25/08
 %
@@ -93,7 +93,7 @@ for strInd = 2:length(structNumV)
 
     else % structure associated to same base scan
         
-        structureC{strInd} = getUniformStr(structNumV(structNum));
+        structureC{strInd} = getUniformStr(structNum);
         
     end
 
@@ -103,7 +103,7 @@ combineStr3M = structureC{1};
 for i=2:length(structureC)
     combineStr3M = combineStr3M + structureC{i};
 end
-intersectStr3M = combineStr3M==2;
+intersectStr3M = combineStr3M==length(structureC);
 unionStr3M = combineStr3M>0;
 
 dx = abs(scanXv(1)-scanXv(2));

@@ -84,42 +84,35 @@ switch fieldname
 
             switch pixRep
                 case 0
-                    if ischar(dataS)
-                        if ~strcmpi(type, 'CT')
-                            dataS = single([]);
-                        else
-                            dataS = uint16([]);
+                    if bitsAllocated == 16
+                        if strcmpi(class(sliceV),'int32')
+                            sliceV = typecast(sliceV,'uint16');
+                            sliceV = sliceV(1:2:end);
+                        else                            
+                            sliceV = typecast(sliceV,'uint16');
                         end
                     end
-                    if strcmpi(type, 'CT')                        
-                        sliceV = uint16(sliceV);
-                    end
-                    %Shape the slice.
-                    slice2D = reshape(sliceV, [nCols nRows]);
                 case 1
-                    if ischar(dataS)
-                        %dataS = int16([]);
-                        if ~strcmpi(type, 'CT')
-                            dataS = single([]);
+                    if bitsAllocated == 16
+                        if strcmpi(class(sliceV),'int32')
+                            sliceV = typecast(sliceV,'int16');
+                            sliceV = sliceV(1:2:end);
                         else
-                            dataS = int16([]);
+                            sliceV = typecast(sliceV,'int16');
                         end                        
                     end
-                    if strcmpi(type, 'CT')
-                        sliceV = typecast(sliceV,'int16');
-                        sliceV = sliceV(1:2:end);
-                    end
-                    %Shape the slice.
-                    slice2D = reshape(sliceV, [nCols nRows]);
 
             end
+            %Shape the slice.
+            slice2D = reshape(sliceV, [nCols nRows]);
+            
             if (strcmpi(type, 'PT')) || (strcmpi(type, 'PET')) %Compute SUV for PET scans
                 dcmobj = scanfile_mldcm(IMAGE.file);
                 dicomHeaderS = dcm2ml_Object(dcmobj);
                 
                 % Get calibration factor which is the Rescale slope Attribute Name in DICOM
                 calibration_factor=dicomHeaderS.RescaleSlope;
-                slice2D = single(slice2D*calibration_factor);
+                slice2D = single(slice2D)*calibration_factor;
                 
                 % Obtain SUV conversion flag from CERROptions.m
                 pathStr = getCERRPath;
@@ -129,7 +122,11 @@ switch fieldname
                     slice2D = calc_suv(dicomHeaderS, slice2D);
                 end
             elseif ~strcmpi(type, 'CT')
-                slice2D = single(slice2D);
+                %slice2D = single(slice2D);
+            end
+            
+            if ischar(dataS)
+                dataS = typecast([],class(slice2D));
             end
 
             %Store zValue for sorting, converting DICOM mm to CERR cm and

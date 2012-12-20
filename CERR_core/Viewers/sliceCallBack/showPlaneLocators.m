@@ -84,13 +84,13 @@ for i=1:length(stateS.handle.CERRAxis)
                 for j=1:length(xVals)
                     if ~isempty(xVals{j}) & isequal(planeLocatorLastCall, thisCallTime)
                         line([xVals{j} xVals{j}], vertiLimit, [2 2], 'parent', hAxis, 'color', [0 0 0], 'tag', 'planeLocatorShadow', 'userdata', {'vert', 'trans', j}, 'hittest', 'off', 'erasemode', 'xor', 'linewidth', 2);
-                        line([xVals{j} xVals{j}], vertiLimit, [2 2], 'parent', hAxis, 'color', [1 1 1], 'tag', 'planeLocator', 'buttondownfcn', 'sliceCallBack(''locatorClicked'')', 'userdata', {'vert', 'trans', j}, 'hittest', 'on', 'erasemode', 'xor');
+                        line([xVals{j} xVals{j}], vertiLimit, [2 2], 'parent', hAxis, 'color', [1 1 0], 'tag', 'planeLocator', 'buttondownfcn', 'sliceCallBack(''locatorClicked'')', 'userdata', {'vert', 'trans', j}, 'hittest', 'on', 'erasemode', 'xor');
                     end
                 end
                 for j=1:length(yVals)
                     if ~isempty(yVals{j}) & isequal(planeLocatorLastCall, thisCallTime)
                         line(horizLimit, [yVals{j} yVals{j}], [2 2], 'parent', hAxis, 'color', [0 0 0], 'tag', 'planeLocatorShadow', 'userdata', {'horz', 'trans', j}, 'hittest', 'off', 'erasemode', 'xor', 'linewidth', 2);
-                        line(horizLimit, [yVals{j} yVals{j}], [2 2], 'parent', hAxis, 'color', [1 1 1], 'tag', 'planeLocator', 'buttondownfcn', 'sliceCallBack(''locatorClicked'')', 'userdata', {'horz', 'trans', j}, 'hittest', 'on', 'erasemode', 'xor');
+                        line(horizLimit, [yVals{j} yVals{j}], [2 2], 'parent', hAxis, 'color', [1 1 0], 'tag', 'planeLocator', 'buttondownfcn', 'sliceCallBack(''locatorClicked'')', 'userdata', {'horz', 'trans', j}, 'hittest', 'on', 'erasemode', 'xor');
                     end
                 end
 
@@ -98,13 +98,13 @@ for i=1:length(stateS.handle.CERRAxis)
                 for j=1:length(yVals)
                     if ~isempty(yVals{j}) & isequal(planeLocatorLastCall, thisCallTime)
                         line([yVals{j} yVals{j}], vertiLimit, [2 2], 'parent', hAxis, 'color', [0 0 0], 'tag', 'planeLocatorShadow', 'userdata', {'vert', 'sag', j}, 'hittest', 'off', 'erasemode', 'xor', 'linewidth', 2);
-                        line([yVals{j} yVals{j}], vertiLimit, [2 2], 'parent', hAxis, 'color', [1 1 1], 'tag', 'planeLocator', 'buttondownfcn', 'sliceCallBack(''locatorClicked'')', 'userdata', {'vert', 'sag', j}, 'hittest', 'on', 'erasemode', 'xor');
+                        line([yVals{j} yVals{j}], vertiLimit, [2 2], 'parent', hAxis, 'color', [1 1 0], 'tag', 'planeLocator', 'buttondownfcn', 'sliceCallBack(''locatorClicked'')', 'userdata', {'vert', 'sag', j}, 'hittest', 'on', 'erasemode', 'xor');
                     end
                 end
                 for j=1:length(zVals)
                     if ~isempty(zVals{j}) & isequal(planeLocatorLastCall, thisCallTime)
                         line(horizLimit, [zVals{j} zVals{j}], [2 2], 'parent', hAxis, 'color', [0 0 0], 'tag', 'planeLocatorShadow', 'userdata', {'horz', 'sag', j}, 'hittest', 'off', 'erasemode', 'xor', 'linewidth', 2);
-                        line(horizLimit, [zVals{j} zVals{j}], [2 2], 'parent', hAxis, 'color', [1 1 1], 'tag', 'planeLocator', 'buttondownfcn', 'sliceCallBack(''locatorClicked'')', 'userdata', {'horz', 'sag', j}, 'hittest', 'on', 'erasemode', 'xor');
+                        line(horizLimit, [zVals{j} zVals{j}], [2 2], 'parent', hAxis, 'color', [1 1 0], 'tag', 'planeLocator', 'buttondownfcn', 'sliceCallBack(''locatorClicked'')', 'userdata', {'horz', 'sag', j}, 'hittest', 'on', 'erasemode', 'xor');
                     end
                 end
 
@@ -112,13 +112,13 @@ for i=1:length(stateS.handle.CERRAxis)
                 for j=1:length(xVals)
                     if ~isempty(xVals{j}) & isequal(planeLocatorLastCall, thisCallTime)
                         line([xVals{j} xVals{j}], vertiLimit, [2 2],'parent', hAxis, 'color', [0 0 0], 'tag', 'planeLocatorShadow', 'userdata', {'vert', 'cor', j}, 'hittest', 'off', 'erasemode', 'xor', 'linewidth', 2);
-                        line([xVals{j} xVals{j}], vertiLimit, [2 2],'parent', hAxis, 'color', [1 1 1], 'tag', 'planeLocator', 'buttondownfcn', 'sliceCallBack(''locatorClicked'')', 'userdata', {'vert', 'cor', j}, 'hittest', 'on', 'erasemode', 'xor');
+                        line([xVals{j} xVals{j}], vertiLimit, [2 2],'parent', hAxis, 'color', [1 1 0], 'tag', 'planeLocator', 'buttondownfcn', 'sliceCallBack(''locatorClicked'')', 'userdata', {'vert', 'cor', j}, 'hittest', 'on', 'erasemode', 'xor');
                     end
                 end
                 for j=1:length(zVals)
                     if ~isempty(zVals{j}) & isequal(planeLocatorLastCall, thisCallTime)
                         line(horizLimit, [zVals{j} zVals{j}], [2 2], 'parent', hAxis, 'color', [0 0 0], 'tag', 'planeLocatorShadow', 'userdata', {'horz', 'cor', j}, 'hittest', 'on', 'erasemode', 'xor', 'linewidth', 2);
-                        line(horizLimit, [zVals{j} zVals{j}], [2 2], 'parent', hAxis, 'color', [1 1 1], 'tag', 'planeLocator', 'buttondownfcn', 'sliceCallBack(''locatorClicked'')', 'userdata', {'horz', 'cor', j}, 'hittest', 'on', 'erasemode', 'xor');
+                        line(horizLimit, [zVals{j} zVals{j}], [2 2], 'parent', hAxis, 'color', [1 1 0], 'tag', 'planeLocator', 'buttondownfcn', 'sliceCallBack(''locatorClicked'')', 'userdata', {'horz', 'cor', j}, 'hittest', 'on', 'erasemode', 'xor');
                     end
                 end
         end

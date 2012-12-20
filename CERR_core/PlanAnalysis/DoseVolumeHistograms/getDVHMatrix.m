@@ -71,7 +71,7 @@ if isempty(volsHistV)
     elseif nargin == 4
         binWidth = max(dosesV)./numBins;
         %Histogram the volumes by dose.
-        [doseBinsV, volsHistV] = doseHist(dosesV, volsV, binWidth, numBins);
+        [doseBinsV, volsHistV] = doseHist(dosesV, volsV, binWidth);
     end
     
     %Create a new DVH element.

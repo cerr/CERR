@@ -93,7 +93,11 @@ switch lower(type)
             transM = planField.transM;
         elseif isfield(planField, 'assocScanUID') & ~isempty(planField.assocScanUID)
             aS = getAssociatedScan(planField.assocScanUID,planC);
-            transM = getTransM('scan', aS, planC);
+            if aS == 0
+                transM = eye(4);
+            else
+                transM = getTransM('scan', aS, planC);
+            end
         end
     case {'struct', 'structure'}
         %If the structure is associated with a scan, return that scan's

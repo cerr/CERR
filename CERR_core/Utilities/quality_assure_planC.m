@@ -1,9 +1,32 @@
-function quality_assure_planC
+function planC = quality_assure_planC(fileName, planC)
+%function planC = quality_assure_planC(fileName, planC)
+%
+% This function quality assures planC.
+%
+%APA, 04/07/2011
 
-global planC
-i
+if ~exist('planC','var')
+    global planC
+end
+global stateS
+indexS = planC{end};
 
 % Quality Assurance
+bug_found = 0;
+
+% Detect and Fix incorrect rasterSegments
+if isfield(planC{indexS.header}(1), 'lastSavedInVer')
+    lastSavedInVer = planC{indexS.header}(1).lastSavedInVer;
+else
+    lastSavedInVer = '';
+end
+
+if ~isempty(str2double(lastSavedInVer)) && (isempty(lastSavedInVer) || str2double(lastSavedInVer) < 4.1) && ~isempty(planC{indexS.structures})
+    planC = reRasterAndUniformize(planC);
+    bug_found = 1;
+end
+
+
 %Check for mesh representation and load meshes into memory
 currDir = cd;
 meshDir = fileparts(which('libMeshContour.dll'));
@@ -66,3 +89,33 @@ if length(planC{indexS.structureArrayMore}) ~= length(planC{indexS.structureArra
         end
     end
 end
+
+%Check DSH Points for old CERR versions
+if ~isfield(planC{indexS.header},'CERRImportVersion') || (isfield(planC{indexS.header},'CERRImportVersion') && isempty(planC{indexS.header}.CERRImportVersion))
+    CERRImportVersion = '0';
+else
+    CERRImportVersion = planC{indexS.header}.CERRImportVersion;
+end
+
+if str2num(CERRImportVersion(1)) < 4
+    for structNum = 1:length(planC{indexS.structures})
+        if ~isempty(planC{indexS.structures}(structNum).DSHPoints)
+            planC = getDSHPoints(planC, stateS.optS, structNum);
+        end
+    end
+end
+
+% Overwrite the existing CERR file if a bug is found and fixed
+if ~isempty(stateS) && isfield(stateS.optS,'overwrite_CERR_File') && stateS.optS.overwrite_CERR_File == 1 && bug_found    
+    try 
+        if exist('fileName','var') 
+            % do nothing
+        elseif isfield(stateS,'CERRFile')
+            fileName = stateS.CERRFile;
+        end
+        planC = save_planC(planC, stateS.optS, 'passed', fileName); 
+    catch
+        disp('Could not overwrite the exisitng file. Please save manually')
+    end
+end
+

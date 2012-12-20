@@ -1,4 +1,4 @@
-function im = RegdoMirrCheckboard(Im1, Im2, numRows, numCols)
+function im = RegdoMirrCheckboard(Im1, Im2, numRows, numCols, orientation, metric)
 %
 % Copyright 2010, Joseph O. Deasy, on behalf of the CERR development team.
 % 
@@ -40,12 +40,12 @@ function im = RegdoMirrCheckboard(Im1, Im2, numRows, numCols)
 %     tile = [black black; black black];
 %     I = repmat(tile, [ceil(m/(2*m1)) ceil(n/(2*n1)) p]);
      
-    I = Im1*0;
+    I = logical(size(Im1));
     I(1:numRows*m1,1:numCols*n1) = repmat(black,numRows, numCols);
     
-    CA_Image = I;
+    CA_Image = min(Im1(:))*single(I);
     
-    Imov = 0*I;
+    Imov = I*0;
     
     for rowNum = 1:numRows
         
@@ -65,38 +65,85 @@ function im = RegdoMirrCheckboard(Im1, Im2, numRows, numCols)
             
             Iblock = CA_Image(iV,(j2Start+1):jEnd);
             
-            IblockMov = Imov(iV,1:floor(n1/2));
+            %IblockMov = Imov(iV,1:floor(n1/2)); % for painting half block
+            IblockMov = Imov(iV,1:n1); % for painting full block
            
-            Iblock(1:m1,(n1-floor(n1/2)+1):n1) = Im1(iV,j1V);
-            Iblock(1:m1,1:floor(n1/2)) = flipdim(Im2(iV,j1V),2);
+            if strcmpi(orientation,'Left Mirror')
+                Iblock(1:m1,1:floor(n1/2)) = Im1(iV,j2V);
+                Iblock(1:m1,(n1-floor(n1/2)+1):n1) = flipdim(Im2(iV,j2V),2);
+            else
+                Iblock(1:m1,(n1-floor(n1/2)+1):n1) = Im1(iV,j1V);
+                Iblock(1:m1,1:floor(n1/2)) = flipdim(Im2(iV,j1V),2);
+            end
+            
             
             CA_Image(iV,(j2Start+1):jEnd) = Iblock;
             
-            IblockMov(1:m1,1:floor(n1/2)) = 1;
-            if mod(j1Start,2) == 0
-                Imov(iV,(j2Start+1):(j1Start-1)) = IblockMov;
-            else
-                Imov(iV,(j2Start+1):(j1Start)) = IblockMov;
+            % Calculate registration accuracy within each block
+            %IblockMov(1:m1,1:floor(n1/2)) = 1; % for painting half block
+            %IblockMov(1:m1,1:n1) = 1;  % for painting full block
+            % MSE
+            blockImage1M = Im1(iV,j1V);
+            blockImage2M = Im2(iV,j1V);
+            if metric == 2 % MI
+                blockMetric = sum((blockImage1M(:) - blockImage2M(:)).^2);
+            elseif metric == 1 % MI
+                minBlock1 = min(blockImage1M(:));
+                minBlock2 = min(blockImage2M(:));
+                blockImage1M = (blockImage1M-minBlock1)/(max(blockImage1M(:))+1e3*eps - minBlock1)*255;
+                blockImage2M = (blockImage2M-minBlock2)/(max(blockImage2M(:))+1e3*eps - minBlock2)*255;
+                blockMetric = get_mi(blockImage1M,blockImage2M,256);
             end
-            
+            IblockMov(1:m1,1:n1) = blockMetric;
+            Imov(iV,(j2Start+1):j2Start+size(IblockMov,2)) = IblockMov;            
             
         end
         
     end
     
-    
-    CA_Image = CA_Image.*I;
-    
+      
+    CA_Image(I==0) = min(Im1(:));
     Imov = Imov.*I;
+    
 
+%     % Apply different color for moving half of the image
+
+    ctSize = size(CA_Image);
+
+    colorCT = CERRColorMap('gray256');
+    CTLow = min(CA_Image(:));
+    CTHigh = max(CA_Image(:));
+    ctScaled = (CA_Image - CTLow) / ((CTHigh - CTLow) / size(colorCT,1)) + 1;
+    ctClip = uint32(ctScaled);
+    colorCT(end+1,:) = colorCT(end,:);
+    CTBackground3M = reshape(colorCT(ctClip(1:ctSize(1),1:ctSize(2)),1:3),ctSize(1),ctSize(2),3);
+    
+    colorMSE = CERRColorMap('starinterp');    
+    minBlocks = min(Imov(:));
+    maxBlocks = max(Imov(:));
+    Imov = (Imov - minBlocks)/((maxBlocks-minBlocks)/size(colorMSE,1)) + 1;
+    mseClip = uint32(Imov);
+    colorMSE(end+1,:) = colorMSE(end,:);
+    mse3M = reshape(colorMSE(mseClip(1:ctSize(1),1:ctSize(2)),1:3),ctSize(1),ctSize(2),3);
+        
+    CA_Image = CTBackground3M*0.8 + mse3M*0.2;
+    
+    I3M(:,:,1) = I;
+    I3M(:,:,2) = I;
+    I3M(:,:,3) = I;
+    CA_Image(I3M==0) = NaN;
+    
 %     CA_Image(:,:,2) = CA_Image(:,:,1);
 %     CA_Image(:,:,3) = CA_Image(:,:,1);
 %     
 %     CA_Image = (CA_Image - min(CA_Image(:))) / (max(CA_Image(:))-min(CA_Image(:)));
-%     CA_Image(:,:,2) = CA_Image(:,:,2) + Imov*0.136;
-%     CA_Image(:,:,3) = CA_Image(:,:,3) + Imov*0.136;
+%     %CA_Image(:,:,2) = CA_Image(:,:,2) + Imov*0.136;
+%     %CA_Image(:,:,2) = CA_Image(:,:,2) + Imov;
+%     %CA_Image(:,:,3) = CA_Image(:,:,3) + Imov*0.136;
+%     CA_Image(:,:,3) = CA_Image(:,:,3) + Imov;
 %     CA_Image = min(CA_Image,1);
-        
+%     CA_Image = [Imov(:) CA_Image(:)] * [0.5 0.5]';
+% %     % Apply different color for moving half of the image ends
     
     
 %     c1 = I(1:m, 1:n, 1:p);
@@ -112,7 +159,7 @@ function im = RegdoMirrCheckboard(Im1, Im2, numRows, numCols)
 %     CA_Image(:,:,2) = CA_Image(:,:,2) + c1*0.136;
 %     CA_Image(:,:,3) = CA_Image(:,:,3) + c1*0.136;
 %     CA_Image = min(CA_Image,1);
-    
+%     
     
     im = CA_Image;
     

@@ -277,8 +277,8 @@ switch cellName
                             dataS(dvhsAdded+1).structureName = structureNameC{indROINumber};
                             dataS(dvhsAdded+1).doseScale = dvhsequence.(['Item_',num2str(i)]).DVHDoseScaling;
                             binWidthsV = dvhsequence.(['Item_',num2str(i)]).DVHData(1:2:end);
-                            maxDVHDose = dvhsequence.(['Item_',num2str(i)]).DVHMaximumDose;
-                            minDVHDose = dvhsequence.(['Item_',num2str(i)]).DVHMinimumDose;
+                            %maxDVHDose = dvhsequence.(['Item_',num2str(i)]).DVHMaximumDose;
+                            %minDVHDose = dvhsequence.(['Item_',num2str(i)]).DVHMinimumDose;
                             doseBinsV = [];
                             doseBinsV(1) = 0;
                             for iBin = 2:length(binWidthsV)

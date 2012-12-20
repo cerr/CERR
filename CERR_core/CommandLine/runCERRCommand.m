@@ -136,11 +136,15 @@ if ~isempty(in_str)
                         num_lines = 1;
                         def = {''};
                         in_str2 = inputdlg(prompt,dlg_title,num_lines,def);
-                        if isempty(zNum)
+                        if isempty(in_str2)
                             return
-                        end
+                        end                        
                     end
-
+                    
+                    if iscell(in_str2)
+                        in_str2 = in_str2{1};
+                    end
+                    
                     optS = setOptsExe(in_str2,optS);
 
                     stateS.optS = optS;
@@ -1143,6 +1147,15 @@ if ~isempty(in_str)
 
                 end
                 CERRRefresh
+                
+            case 'create'
+                
+                w2 = word(in_str,2);
+                switch lower(w2)                    
+                    case 'structure'                        
+                        createROI();                        
+                end                
+                
             case 'vol'
                 structNum = word(in_str,3);
 

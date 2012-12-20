@@ -28,9 +28,11 @@ function [mask3MU, zValues] = getMask3D(structNum,planC)
 
 indexS = planC{end};
 
-ROIImageSize   = [planC{indexS.scan}.scanInfo(1).sizeOfDimension1  planC{indexS.scan}.scanInfo(1).sizeOfDimension2];
+scanNum = getStructureAssociatedScan(structNum, planC);
 
-numSlices = length(planC{indexS.scan}.scanInfo);
+ROIImageSize   = [planC{indexS.scan}(scanNum).scanInfo(1).sizeOfDimension1  planC{indexS.scan}(scanNum).scanInfo(1).sizeOfDimension2];
+
+numSlices = length(planC{indexS.scan}(scanNum).scanInfo);
 
 mask3MU = uint8(zeros(ROIImageSize(1),ROIImageSize(2),numSlices));
 
@@ -38,7 +40,7 @@ zValues = [];
 
 for sliceNum = 1 : numSlices
 
-  z    = planC{indexS.scan}.scanInfo(sliceNum).zValue;
+  z    = planC{indexS.scan}(scanNum).scanInfo(sliceNum).zValue;
 
   zValues = [zValues, z];
 

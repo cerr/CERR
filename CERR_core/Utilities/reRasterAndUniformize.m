@@ -1,3 +1,4 @@
+function planC = reRasterAndUniformize(planC)
 %reRasterAndUniformize.m
 %script to delete all existing rasterSegments and re-uniformize the plan
 %
@@ -25,7 +26,9 @@
 % You should have received a copy of the GNU General Public License
 % along with CERR.  If not, see <http://www.gnu.org/licenses/>.
 
-global planC
+if ~exist('planC','var')
+    global planC
+end
 indexS = planC{end};
 
 for scanNum = 1:length(indexS.scan)

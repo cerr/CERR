@@ -67,13 +67,11 @@ if strcmpi(sourceDir(end),slashType)
 end
 slashIndex = strfind(sourceDir,slashType);
 allDirS = dir(sourceDir);
-if length(allDirS) == 121
-    allDirS = allDirS(106:end);
-end
 
 for dirNum = 1:length(allDirS)
     [pathStr,nameStr,extStr] = fileparts(allDirS(dirNum).name);
     if ~allDirS(dirNum).isdir && ~strcmpi(extStr,'.zip') && ~ismember(sourceDir,convertedC)
+ 
         if isrtog(fullfile(sourceDir,allDirS(dirNum).name))
             if ~strcmpi(sourceDir(end),slashType)
                 sourceDir_rtog = [sourceDir,slashType];
@@ -105,7 +103,7 @@ for dirNum = 1:length(allDirS)
                     sourceDirName = sourceDir(slashIndex(end-2)+1:end);
                     sourceDirName(findstr(sourceDirName,slashType)) = deal('_');
                 end
-                save_planC(planC,[], 'passed', fullfile(destinationDir,[sourceDirName,'.mat.bz2']));
+                save_planC(planC,[], 'passed', fullfile(destinationDir,[sourceDirName,'.mat.bz2']));                
                 clear planC
                 convertedC{end+1} = sourceDir;
                 planNameC{end+1} = [sourceDirName,'.mat.bz2'];
@@ -117,6 +115,16 @@ for dirNum = 1:length(allDirS)
         elseif isdicom(fullfile(sourceDir,allDirS(dirNum).name))   
             disp(['Importing ',sourceDir,' ...'])
             try
+                
+%                 % temporary: for Mike Folkert data import of PET data only.
+%                 dirUpNum = 2;
+%                 modality = sourceDir(slashIndex(end-dirUpNum)+1:slashIndex(end-dirUpNum+1)-1);
+%                 if strcmpi(modality,'mr')
+%                     continue;
+%                 end
+%                 % temporary ends
+                
+                
                 hWaitbar = waitbar(0,'Scanning Directory Please wait...');
                 patient = scandir_mldcm(sourceDir, hWaitbar, 1);
                 close(hWaitbar);
@@ -153,12 +161,28 @@ for dirNum = 1:length(allDirS)
                 end
                 oneDirUp = sourceDir(slashIndex(end-1)+1:slashIndex(end)-1);
                 % For Metropolis with all plans per patient
-                sourceDirName = [oneDirUp,'_',sourceDir(rtStartIndex:rtEndIndex)];
-                % For Metropolis with one plan per patient
-                sourceDirName = [oneDirUp];
-                % General case
-                % sourceDirName = sourceDir(rtStartIndex:rtEndIndex);
-                %Check fr duplicate name of sourceDirName
+%                 sourceDirName = [oneDirUp,'_',sourceDir(rtStartIndex:rtEndIndex)];
+%                 % For Metropolis with one plan per patient
+%                 sourceDirName = [oneDirUp];
+%                 % For Irene PET/CT Histogram cauto-segmentation project
+%                 dirUpNum = 2;
+%                 twoDirUp = sourceDir(slashIndex(end-dirUpNum)+1:slashIndex(end-dirUpNum+1)-1);
+%                 sourceDirName = [twoDirUp];
+%                 indexS = planC{end};
+%                 sourceDirName = [sourceDirName,'_',planC{indexS.scan}.scanInfo(1).imageType];
+%                 % For Mike Folkert MR/PET data
+                dirUpNum = 1;
+                pre_post = sourceDir(slashIndex(end-dirUpNum)+1:slashIndex(end-dirUpNum+1)-1);
+                dirUpNum = 2;
+                modality = sourceDir(slashIndex(end-dirUpNum)+1:slashIndex(end-dirUpNum+1)-1);
+                dirUpNum = 3;
+                mrn = sourceDir(slashIndex(end-dirUpNum)+1:slashIndex(end-dirUpNum+1)-1);
+                seriesName = sourceDir(slashIndex(end-0)+1:end);
+                sourceDirName = fullfile(modality, pre_post, [mrn,'~',seriesName]);
+%                 % General case
+%                 sourceDirName = sourceDir(rtStartIndex:rtEndIndex);
+                
+                %Check for duplicate name of sourceDirName
                 dirOut = dir(destinationDir);
                 allOutNames = {dirOut.name};
                 indexSlash = 1;
@@ -171,7 +195,11 @@ for dirNum = 1:length(allDirS)
                     sourceDirName = [sourceDir(rtStartIndex:rtEndIndex),'duplicate_',num2str(rand(1))];
                 end
                 % save_planC(planC,[], 'passed', fullfile(destinationDir,[sourceDirName,'.mat.bz2']));
-                save_planC(planC,[], 'passed', fullfile(destinationDir,[sourceDirName,'.mat']));
+                saved_fullFileName = fullfile(destinationDir,[sourceDirName,'.mat']);
+                if ~exist(fileparts(saved_fullFileName),'dir')
+                    mkdir(fileparts(saved_fullFileName))
+                end
+                save_planC(planC,[], 'passed', saved_fullFileName);
                 clear planC
                 convertedC{end+1} = sourceDir;
                 planNameC{end+1} = [sourceDirName,'.mat.bz2'];

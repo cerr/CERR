@@ -514,7 +514,11 @@ switch method
                     return;
                     
                 elseif stateS.optS.mirrorCheckerBoard
-                    imgOv = RegdoMirrCheckboard(img1, img2, checkerSize, checkerSize);
+                    orientationVal = get(ud.handles.mirrorcheckerOrientation,'value');
+                    orientationStr = get(ud.handles.mirrorcheckerOrientation,'string');
+                    orientation = orientationStr{orientationVal};
+                    metricVal = get(ud.handles.mirrorcheckerMetricPopup,'value');
+                    imgOv = RegdoMirrCheckboard(img1, img2, checkerSize, checkerSize, orientation, metricVal);
                     set(surfaces(end-1), 'cData', double(imgOv));
                     set(surfaces(1:end), 'facealpha', 0);
                     set(surfaces(end-1), 'facealpha', 1);
@@ -550,7 +554,9 @@ switch method
                 end
                 
             catch 
-                CERRStatusString('...eee...');
+                % CERRStatusString('...eee...');                
+                err = lasterror;
+                disp(err.message)
                 set(gcf,'Pointer','arrow');
             end
             
@@ -666,6 +672,25 @@ switch method
                         return
                     end                    
 
+                case '7' %hotcold
+                    cmap = CERRColorMap('hotcold');
+
+                    img2 = (img2 - cLim(1)) / (cLim(2)-cLim(1))*(size(cmap,1)-1);
+
+                    clipImg = clip(round(img2(:)),1,size(cmap,1),'limits');
+
+                    try
+
+                        img23D = reshape(cmap(clipImg, 1:3),size(img2,1),size(img2,2),3);
+
+                    catch
+                        return
+                    end
+
+                    if stateS.optS.checkerBoard
+                        img23D = img23D.*repmat(I, [1 1 3]);
+                    end
+                    
                 otherwise % case '3'(red) case '4'(green) case '5'(blue)
                     img2 = (img2 - cLim(1)) / (cLim(2)-cLim(1));
                     img2 = clip(img2, 0, 1, 'limits');

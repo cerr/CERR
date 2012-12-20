@@ -1,0 +1,48 @@
+# User defined command_file for plastimatch registration
+
+[STAGE]
+xform=align_center
+ 
+[STAGE]
+xform=translation
+optim=rsg
+max_its=50
+res=4 4 3
+# B-spline grid spacing (in mm)
+grid_spac=100 100 100 
+
+[STAGE]
+xform=translation
+optim=rsg
+max_its=50
+res=2 2 2
+# B-spline grid spacing (in mm)
+grid_spac=50 50 50 
+
+
+[STAGE]
+xform=bspline
+res=4 4 2
+max_its=100
+regularization_lambda=0.1
+grid_spac=150 150 150
+ 
+[STAGE]
+xform=bspline
+res=4 4 2
+max_its=100
+grid_spac=120 120 120
+ 
+[STAGE]
+xform=bspline
+res=2 2 1
+max_its=100
+grid_spac=100 100 100
+ 
+[STAGE]
+xform=bspline
+res=1 1 1
+max_its=50
+grid_spac=50 50 50
+ 
+

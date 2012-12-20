@@ -234,6 +234,10 @@ switch upper(instr)
         stateS.handle.CERRMetricMenu        = putMetricsMenu(hCSV);
         stateS.handle.CERRScanMenu          = putScanMenu(hCSV);
         stateS.handle.CERRStructMenu        = putStructMenu(hCSV);
+        BMfileFlag = exist('putBMmenu.m','file');
+        if BMfileFlag
+            stateS.handle.CERRBMMenu        = putBMmenu(hCSV);
+        end        
         stateS.handle.CERRHelpMenu          = putHelpMenu(hCSV);
 
         %Make invisible frames to subdivide screenspace.  For resizing.
@@ -267,7 +271,7 @@ switch upper(instr)
         %Presets dropdown.
         stateS.handle.CTPreset = uicontrol(hCSV,'units','pixels', 'BackgroundColor',uicolor,'Position',[20 545 (frameWidth-30)/2 25], 'String',{stateS.optS.windowPresets.name},'Style','popup','Tag','CTPreset', 'callback','sliceCallBack(''CTPreset'');','tooltipstring','Select Preset Window');
         %Base Colormap Presets dropdown.
-        stateS.handle.BaseCMap = uicontrol(hCSV,'units','pixels', 'BackgroundColor',uicolor,'Position',[(frameWidth-30)/2+20+10 545 (frameWidth-30)/2 25], 'String',{stateS.optS.scanColorMap.name},'Style','popup','Tag','CMapPreset', 'callback','sliceCallBack(''BaseColorMap'');','tooltipstring','Select Scan Color Map','Enable','Off');
+        stateS.handle.BaseCMap = uicontrol(hCSV,'units','pixels', 'BackgroundColor',uicolor,'Position',[(frameWidth-30)/2+20+10 545 (frameWidth-30)/2 25], 'String',{stateS.optS.scanColorMap.name},'Style','popup','Tag','CMapPreset', 'callback','sliceCallBack(''BaseColorMap'');','tooltipstring','Select Scan Color Map','Enable','on');
         %CTLevel edit box
         stateS.handle.CTLevel = uicontrol(hCSV,'units','pixels', 'BackgroundColor',uicolor,'Position',[20 500 (frameWidth-30)/2 20], 'String',num2str(stateS.optS.CTLevel),'Style','edit','Tag','CTLevel', 'callback','sliceCallBack(''CTLevel'');','tooltipstring','Change CT window center');
         %CT Width edit box.
@@ -356,74 +360,9 @@ switch upper(instr)
 
         planC = updatePlanFields(planC);
         indexS = planC{end};
-
-        %Check for mesh representation and load meshes into memory
         
-        currDir = cd;
-        
-        % meshDir = fileparts(which('libMeshContour.dll'));
-        meshDir = [getCERRPath, 'bin\MeshInterp']; % for compiled CERR
-        
-        cd(meshDir);
-        
-        for strNum = 1:length(planC{indexS.structures})
-            if isfield(planC{indexS.structures}(strNum),'meshRep') && ~isempty(planC{indexS.structures}(strNum).meshRep) && planC{indexS.structures}(strNum).meshRep
-                try
-                    calllib('libMeshContour','loadSurface',planC{indexS.structures}(strNum).strUID,planC{indexS.structures}(strNum).meshS)
-                catch
-                    planC{indexS.structures}(strNum).meshRep    = 0;
-                    planC{indexS.structures}(strNum).meshS      = [];
-                end
-            end
-        end
-        
-        cd(currDir)
-
-        %Check color assignment for displaying structures
-        [assocScanV,relStrNumV] = getStructureAssociatedScan(1:length(planC{indexS.structures}),planC);
-        for scanNum = 1:length(planC{indexS.scan})
-            scanIndV = find(assocScanV==scanNum);
-            for i = 1:length(scanIndV)
-                strNum = scanIndV(i);
-                colorNum = relStrNumV(strNum);
-                if isempty(planC{indexS.structures}(strNum).structureColor)
-                    color = stateS.optS.colorOrder( mod(colorNum-1, size(stateS.optS.colorOrder,1))+1,:);
-                    planC{indexS.structures}(strNum).structureColor = color;
-                end
-            end
-        end
-              
-        %Check dose-grid
-        for doseNum = 1:length(planC{indexS.dose})
-            if length(planC{indexS.dose}(doseNum).zValues) > 1
-                %Check z grid
-                if planC{indexS.dose}(doseNum).zValues(2) - planC{indexS.dose}(doseNum).zValues(1) < 0
-                    planC{indexS.dose}(doseNum).zValues = flipud(planC{indexS.dose}(doseNum).zValues);
-                    planC{indexS.dose}(doseNum).doseArray = flipdim(planC{indexS.dose}(doseNum).doseArray,3);
-                end
-                %Check y grid
-                if planC{indexS.dose}(doseNum).verticalGridInterval > 0
-                    planC{indexS.dose}(doseNum).coord2OFFirstPoint = planC{indexS.dose}(doseNum).coord2OFFirstPoint + abs(planC{indexS.dose}(doseNum).verticalGridInterval) * planC{indexS.dose}(doseNum).sizeOfDimension2;
-                    planC{indexS.dose}(doseNum).verticalGridInterval = -planC{indexS.dose}(doseNum).verticalGridInterval;
-                    planC{indexS.dose}(doseNum).doseArray = flipdim(planC{indexS.dose}(doseNum).doseArray,1);
-                end
-            end
-        end
-        
-        %Check DSH Points for old CERR versions        
-        if ~isfield(planC{indexS.header},'CERRImportVersion') || (isfield(planC{indexS.header},'CERRImportVersion') && isempty(planC{indexS.header}.CERRImportVersion))
-            CERRImportVersion = '0';
-        else            
-            CERRImportVersion = planC{indexS.header}.CERRImportVersion;
-        end
-        
-        if str2num(CERRImportVersion(1)) < 4
-            for structNum = 1:length(planC{indexS.structures})
-                if ~isempty(planC{indexS.structures}(structNum).DSHPoints)
-                    planC = getDSHPoints(planC, stateS.optS, structNum);
-                end
-            end
-        end
+        % Quality assure
+        quality_assure_planC
 
         %Set Patient-Name string
         patName = planC{indexS.scan}(1).scanInfo(1).patientName;
@@ -519,6 +458,10 @@ switch upper(instr)
             stateS.handle.CERRMetricMenu  = putMetricsMenu(hCSV);
             stateS.handle.CERRScanMenu    = putScanMenu(hCSV);
             stateS.handle.CERRStructMenu  = putStructMenu(hCSV);
+            BMfileFlag = exist('putBMmenu.m','file');
+            if BMfileFlag
+                stateS.handle.CERRBMMenu        = putBMmenu(hCSV);
+            end            
             stateS.handle.CERRHelpMenu    = putHelpMenu(hCSV);
             
             %Wipe out the contents of all axes.
@@ -619,16 +562,16 @@ switch upper(instr)
             else
                 switch view
                     case 'transverse'
-                        setAxisInfo(hAxis, 'coord', median(zV));
+                        setAxisInfo(hAxis, 'coord', zV(ceil(length(zV)/2)));
                     case 'sagittal'
-                        setAxisInfo(hAxis, 'coord', median(xV));
+                        setAxisInfo(hAxis, 'coord', xV(ceil(length(xV)/2)));
                     case 'coronal'
-                        setAxisInfo(hAxis, 'coord', median(yV));
+                        setAxisInfo(hAxis, 'coord', yV(ceil(length(yV)/2)));
                 end
             end
 
             %Initialize context menu.
-            CERRAxisMenu(stateS.handle.CERRAxis(i));
+            CERRAxisMenu(hAxis);
         end
 
         stateS.supInfScansCreated = 0; %the superior and inferior portions of the CT scan for sag/cor viewing have not yet been created.
@@ -640,6 +583,13 @@ switch upper(instr)
         catch
             delete(findobj('Tag', 'TMWWaitbar'));
         end
+        
+        % Save scan statistics for fast image rendering
+        for scanNum = 1:length(planC{indexS.scan})
+            stateS.scanStats.minScanVal.(repSpaceHyp(planC{indexS.scan}(scanNum).scanUID)) = min(planC{indexS.scan}(scanNum).scanArray(:)) - planC{indexS.scan}(scanNum).scanInfo(1).CTOffset;
+            stateS.scanStats.maxScanVal.(repSpaceHyp(planC{indexS.scan}(scanNum).scanUID)) = max(planC{indexS.scan}(scanNum).scanArray(:)) - planC{indexS.scan}(scanNum).scanInfo(1).CTOffset;
+        end
+        
         %If any duplicates, remove them and make new entry first.
         if any(strcmpi(stateS.planHistory, stateS.CERRFile));
             ind = find(strcmpi(stateS.planHistory, stateS.CERRFile));
@@ -1036,12 +986,12 @@ switch upper(instr)
             if parentAxis == stateS.currentAxis;
                 set(planeLocators(i), 'color', [0 1 0]);
             else
-                set(planeLocators(i), 'color', [1 1 1]);
+                set(planeLocators(i), 'color', [1 1 0]);
             end
         end
         try % case where the axes is deleted stateS.lastAxis exceeds matrix dimention
-            set(stateS.handle.CERRAxisLabel1(stateS.lastAxis), 'color', 'white');
-            set(stateS.handle.CERRAxisLabel2(stateS.lastAxis), 'color', 'white');
+            set(stateS.handle.CERRAxisLabel1(stateS.lastAxis), 'color', [1 1 0]);
+            set(stateS.handle.CERRAxisLabel2(stateS.lastAxis), 'color', [1 1 0]);
         end
         set(stateS.handle.CERRAxisLabel1(stateS.currentAxis), 'color', 'green');
         set(stateS.handle.CERRAxisLabel2(stateS.currentAxis), 'color', 'green');
@@ -1388,7 +1338,7 @@ switch upper(instr)
         stateS.doseAlphaValue.trans = get(gcbo,'value');        
         udFrame = get(stateS.handle.controlFrame,'userdata');
         clrVal = get(udFrame.handles.displayModeColor,'value');        
-        clrM = [0 0 0; 1 0.8 0.5; 1 0 0; 0 1 0; 0 0 1; 1 0.5 0.5];
+        clrM = [0 0 0; 1 0.8 0.5; 1 0 0; 0 1 0; 0 0 1; 1 0.5 0.5; 1 0.5 0.5];
         if stateS.doseAlphaValue.trans == 1
             set(gcbo,'string','M','fontWeight','bold','foregroundColor',clrM(clrVal,:))
         else 
@@ -1806,7 +1756,7 @@ switch upper(instr)
         %Update scale
         indAxis = find(hAxis == stateS.handle.CERRAxis);
         showScale(hAxis, indAxis)
-        cleanupAxes(hAxis);
+        %cleanupAxes(hAxis);
         return
         %CALLBACKS TO OPERATE doseProfile.
 
@@ -2565,7 +2515,11 @@ switch upper(instr)
         %save line handles to miscHandle;
         oldMiscHandles = getAxisInfo(gca, 'miscHandles');
         hBox = findobj(gca, 'tag', 'clipBox');
-        setAxisInfo(gca, 'miscHandles', [oldMiscHandles reshape(hBox, 1, [])]);        
+        setAxisInfo(gca, 'miscHandles', [oldMiscHandles reshape(hBox, 1, [])]);   
+        
+        if isfield(stateS,'ROIcreationMode') && stateS.ROIcreationMode == 1            
+            createROI('clipBoxDrawn')
+        end
         return;
         %     wy
 

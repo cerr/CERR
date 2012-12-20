@@ -66,7 +66,7 @@ zLims = [zV(1) zV(end)];
 
 %Check for transM, and if it has any rotation component.
 rotation = 0; xT = 0; yT = 0; zT = 0;
-if exist('transM') & ~isempty(transM);
+if exist('transM') && ~isempty(transM) && ~isequal(transM, eye(4))
     [rotation, xT, yT, zT] = isrotation(transM);
 end
 
@@ -146,7 +146,7 @@ if rotation
     [jnk, maxZ] = findnearest(zV, max(zM(:)));
 
     %Take care of numerical noise
-    delta = 1e-8;
+    delta = 1e-5;
     %Prepare the x,y,z vector inputs for finterp3.
     xVec = [xV(minX)-delta xV(2)-xV(1) xV(maxX)+delta];
     yVec = [yV(minY)-delta yV(2)-yV(1) yV(maxY)+delta];

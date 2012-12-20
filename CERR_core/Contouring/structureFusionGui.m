@@ -489,12 +489,12 @@ switch upper(command)
                 [xSca, ySca, zSca] = getScanXYZVals(planC{indexS.scan}(userData.structures(structToEval).assocScan));
                 unisiz = getUniformScanSize(planC{indexS.scan}(userData.structures(structToEval).assocScan));
                 normsiz = size(getScanArray(planC{indexS.scan}(userData.structures(structToEval).assocScan)));
-                tmpM = repmat(logical(0), normsiz);
+                tmpM = false(normsiz);
                 for i=1:normsiz(3)
                     zVal = zSca(i);
-                    uB = min(find(zUni > zVal));
-                    lB = max(find(zUni <= zVal));
-                    if isempty(uB) | isempty(lB)
+                    uB = find(zUni > zVal, 1 );
+                    lB = find(zUni <= zVal, 1, 'last' );
+                    if isempty(uB) || isempty(lB)
                         continue
                     end
                     if abs(zUni(uB) - zVal) < abs(zUni(lB) - zVal)

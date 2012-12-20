@@ -134,11 +134,11 @@ for dirNum = 1:length(allDirS)
             convertedC{end+1} = fileName;
             planNameC{end+1} = 'NOT CONVERTED';
             researchNumberC{end+1} = num2str(researchNumber);
-            disp(['NOT CONVERTED ',sourceDir_rtog,' ...'])
+            disp(['NOT CONVERTED ',fileName,' ...'])
         end
         
     elseif allDirS(dirNum).isdir && ~strcmp(allDirS(dirNum).name,'.') && ~strcmp(allDirS(dirNum).name,'..')
-        batchConvert(fullfile(sourceDir,allDirS(dirNum).name),destinationDir)
+        batch_anonymize_CERR_plans(fullfile(sourceDir,allDirS(dirNum).name),destinationDir)
     end    
 end
 if isempty(varargin)

@@ -249,7 +249,7 @@ optS.DVHLineWidth  = 1.5;       %Line thickness of DVH and DSH lines.
 %optS.ROISampleRate = 1;         Uses the same as DVH
 
 
-optS.IVHBinWidth = .2;       %Store and display IVHs with this width, in units of Gy.
+optS.IVHBinWidth = 0.05;       %Store and display IVHs with this width, in units of Gy.
 
 
 optS.IVHBlockSize = 5000;      %Block processing parameter.  5000 is the default.  This results in much less temporary
@@ -313,7 +313,7 @@ optS.planMetrics = {'meanDose', 'maxDose', 'minDose', 'Vx', 'Dx', 'EUD', 'ERP', 
 optS.windowPresets = [struct('name', '--Manual--', 'center', 0, 'width', 0) struct('name', 'Abd/Med', 'center', -10, 'width', 330) struct('name', 'Head', 'center', 45, 'width', 125) struct('name', 'Liver', 'center', 80, 'width', 305) struct('name', 'Lung', 'center', -500, 'width', 1500) struct('name', 'Spine', 'center', 30, 'width', 300)    struct('name', 'Vrt/Bone', 'center', 400, 'width', 1500)   struct('name', 'PET', 'center', 4500, 'width', 11000) struct('name', 'MR', 'center', -500, 'width', 1350) struct('name', 'SPECT', 'center', 400, 'width', 1000) struct('name', 'Top 90', 'center', 400, 'width', 1000)];
 
 %--Color Map base scan----------------------------------------------------%
-optS.scanColorMap = [struct('name', 'Gray') struct('name', 'copper') struct('name', 'Red') struct('name', 'Green') struct('name', 'Blue') struct('name', 'StarInterp')];
+optS.scanColorMap = [struct('name', 'Gray') struct('name', 'copper') struct('name', 'Red') struct('name', 'Green') struct('name', 'Blue') struct('name', 'StarInterp') struct('name', 'hotCold')];
 
 %--Caching Options--------------------------------------------------------%
 optS.cachingEnabled = 0; % set to 1 to enable caching, 0 to disable.
@@ -356,7 +356,10 @@ optS.ROIInterpretedType = initROIInterpretedType;
 %--RPC film options-------------------------------------------------------%
 
 %-- Option to convert PET to SUV
-optS.convert_PET_to_SUV = 0; % 0: Do not convert to SUV, 1: Convert to SUV
+optS.convert_PET_to_SUV = 1; % 0: Do not convert to SUV, 1: Convert to SUV
+
+%-- Option to overwrite CERR file if a bug is found during QA
+optS.overwrite_CERR_File = 1; % 0: Do not overwrite, 1: overwrite
 
 
 %-------------------------------------------fini--------------------------%

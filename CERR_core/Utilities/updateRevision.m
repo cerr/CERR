@@ -38,3 +38,4 @@ else
 end
 
 planC{indexS.header}(1).timeSaved = timesaved;
+planC{indexS.header}(1).lastSavedInVer = CERRCurrentVersion;

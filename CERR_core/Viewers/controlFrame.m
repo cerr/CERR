@@ -111,8 +111,10 @@ switch command
                 for i = 2:intrepLength+1
                     ROIInterpretedType{i} = intrepNames{i-1};
                 end
+                % Find index of "ORGAN" structure
+                indOrgan = find(strcmp(ROIInterpretedType,'ORGAN'));
                 ud.handles.ROIInterpretedText = uicontrol(hFig, 'style', 'text', 'enable', 'inactive' , 'units', units, 'position', absPos([.04 .7 .28 .05], posFrame), 'string', 'Category:', 'tag', 'controlFrameItem', 'horizontalAlignment', 'left');
-                ud.handles.ROIInterpretedType = uicontrol(hFig, 'style', 'popupmenu', 'enable', 'on' , 'units', units, 'position', absPos([.34 .7 .65 .05], posFrame), 'string', ROIInterpretedType, 'tag', 'controlFrameItem', 'horizontalAlignment', 'left', 'callback', 'controlFrame(''contour'', ''ROIIntrepretedType'')');
+                ud.handles.ROIInterpretedType = uicontrol(hFig, 'style', 'popupmenu', 'enable', 'on' , 'units', units, 'position', absPos([.34 .7 .65 .05], posFrame), 'string', ROIInterpretedType, 'value', indOrgan(1), 'tag', 'controlFrameItem', 'horizontalAlignment', 'left', 'callback', 'controlFrame(''contour'', ''ROIIntrepretedType'')');
                 
                 %Controls for creation of new structures.
                 ud.handles.asCopyOfCurrent  = uicontrol(hFig, 'style', 'radiobutton', 'value', 0, 'units', units, 'position', absPos([.04 .60 .65 .05], posFrame), 'string', 'As copy of current', 'tag', 'controlFrameItem', 'horizontalAlignment', 'left', 'callback', 'controlFrame(''contour'', ''asCopyOfCurrent'')');
@@ -228,7 +230,7 @@ switch command
                         ud.handle.ovrlayWindowCenterEdt = uicontrol(hFig,'style','edit','string','0','units',units,'position',[0.1 0.40 0.35 0.1], 'callback', 'controlFrame(''contour'', ''selectOverlayOptions'',''setManualWindow'')');
                         ud.handle.ovrlayWindowWidthTxt  = uicontrol(hFig,'style','text','string','Width','units',units,'position',[0.55 0.50 0.35 0.1]);
                         ud.handle.ovrlayWindowWidthEdt  = uicontrol(hFig,'style','edit','string','300','units',units,'position',[0.55 0.40 0.35 0.1], 'callback', 'controlFrame(''contour'', ''selectOverlayOptions'',''setManualWindow'')');
-                        colorbarStrC = {'Copper','Red','Green','Blue','StarInterp'};
+                        colorbarStrC = {'Copper','Red','Green','Blue','StarInterp','hotCold'};
                         ud.handle.ovrlayMapTxt          = uicontrol(hFig,'style','text','string','Colorbar','units',units,'position',[0.05 0.20 0.3 0.1]);
                         ud.handle.ovrlayMapChoices      = uicontrol(hFig,'style','popup','string',colorbarStrC,'units',units,'position',[0.40 0.20 0.45 0.1],'value',1, 'callback', 'controlFrame(''contour'', ''selectOverlayOptions'',''fieldClicked'')');
                         
@@ -265,7 +267,7 @@ switch command
                             stateS.contourOvrlyOptS.center = str2num(get(ud.handle.ovrlayWindowCenterEdt,'String'));
                             stateS.contourOvrlyOptS.width  = str2num(get(ud.handle.ovrlayWindowWidthEdt,'String'));
                         end
-                        colorbarStrC = {'Copper','Red','Green','Blue','StarInterp'};
+                        colorbarStrC = {'Copper','Red','Green','Blue','StarInterp','hotCold'};
                         stateS.contourOvrlyOptS.colormap = colorbarStrC{get(ud.handle.ovrlayMapChoices,'Value')};
                         stateS.CTDisplayChanged = 1;
                         CERRRefresh;
@@ -363,12 +365,17 @@ switch command
                 set(ud.handles.asBlank, 'value', 0);
                 set(ud.handles.scanSelect, 'enable', 'off');
                 
-            case 'selectMode'
+            case 'selectMode'                
+                
                 ud = get(hFrame, 'userdata');
                 
                 structNum   = get(ud.handles.structPopup, 'value');
                 
                 strUd = get(ud.handles.structPopup, 'userdata');
+                
+                if isempty(strUd)
+                    return;
+                end                
                 
                 structNum = strUd.strNumsV(structNum);
                 
@@ -496,9 +503,9 @@ switch command
                 strUd = get(ud.handles.structPopup, 'userdata');
                 ROIInterpretedTypeNum = get(ud.handles.ROIInterpretedType,'value') - 1;
                 ROIInterpretedType = fieldnames(initROIInterpretedType);
-                if ROIInterpretedTypeNum == 0
+                if ROIInterpretedTypeNum == 0 && ~isempty(strUd)
                     planC{indexS.structures}(strUd.strNumsV(strNum)).ROIInterpretedType = '';
-                else
+                elseif ~isempty(strUd)
                     planC{indexS.structures}(strUd.strNumsV(strNum)).ROIInterpretedType = ROIInterpretedType{ROIInterpretedTypeNum};
                 end
                 controlFrame('contour', 'refresh')
@@ -1239,6 +1246,7 @@ switch command
                 stateS.optS.blockmatch = 0;
                 stateS.optS.mirrorscope = 0;
                 stateS.optS.mirrchecker = 0;
+                stateS.optS.mirrorCheckerBoard = 0;
                 stateS.imageFusion.lockMoving = 0;
                 %wy
                 
@@ -1401,7 +1409,7 @@ switch command
                 %Select display mode.
                 ud.handles.displayModeColor= uicontrol(hFig, 'style', 'popupmenu', 'units', units, ...
                     'position', [(frameWidth-30)/2+20+10 600-205-dy (frameWidth-30)/2 20],...
-                    'string', {'gray', 'copper','Red', 'Green', 'Blue','StarInterp'}, 'value', dispMode, ...
+                    'string', {'gray', 'copper','Red', 'Green', 'Blue','StarInterp', 'hotCold'}, 'value', dispMode, ...
                     'tag', 'controlFrameItem', 'horizontalAlignment', 'left',...
                     'callback', 'controlFrame(''fusion'', ''display_mode'')');
                 
@@ -1471,17 +1479,39 @@ switch command
                     'tooltipstring','View in CheckerBoard', 'fontsize', 7, 'interrupt', 'off');
                 
                 ud.handles.ckSizeText = uicontrol(hFig, 'style',  'text','units', units, 'position', absPos([.05 .205+dy .15 .05], posFrame),...
-                    'string', 'size:', 'tag', 'controlFrameItem', ...
+                    'string', 'Size:', 'tag', 'controlFrameItem', ...
                     'tooltipstring','CheckerBoard Size', 'visible', 'off');
                 
-                ud.handles.ckSizeValue = uicontrol(hFig, 'style',  'text','units', units, 'position', absPos([.20 .205+dy .1 .05], posFrame),...
+                ud.handles.ckSizeValue = uicontrol(hFig, 'style',  'text','units', units, 'position', absPos([.17 .205+dy .09 .05], posFrame),...
                     'string', '4', 'tag', 'controlFrameItem', ...
                     'tooltipstring','CheckerBoard Size', 'visible', 'off');
                 
-                ud.handles.newcheckerSize= uicontrol(hFig, 'style',  'slider','units', units, 'position', absPos([.30 .22+dy .65 .04], posFrame),...
+                ud.handles.newcheckerSize= uicontrol(hFig, 'style',  'slider','units', units, 'position', absPos([.27 .22+dy .35 .04], posFrame),...
                     'string', 'CB Size', 'tag', 'controlFrameItem', 'min', 2, 'max', 20, 'sliderstep', [0.1 0.2], 'value', 4, ...
                     'BusyAction', 'cancel', 'Interruptible', 'off', ...
                     'tooltipstring','CheckerBoard Size', 'callback', 'controlFrame(''fusion'', ''checkerSlider'')', 'visible', 'off');
+                
+                ud.handles.mirrorcheckerOrientation = uicontrol(hFig, 'style','popupmenu','units', units, 'position', absPos([.65 .23+dy .3 .04], posFrame),...
+                    'string', {'Left Mirror','Right Mirror'}, 'tag', 'controlFrameItem', 'value', 1, ...
+                    'BusyAction', 'cancel', 'Interruptible', 'off', ...
+                    'tooltipstring','Left/Right size mirror', 'callback', 'CERRRefresh', 'visible', 'off');
+                
+                ud.handles.mirrorcheckerMetricString = uicontrol(hFig, 'style','text','units', units, 'position', absPos([.05 .15+dy .15 .04], posFrame),...
+                    'string', 'Metric', 'tag', 'controlFrameItem', ...
+                    'BusyAction', 'cancel', 'Interruptible', 'off', ...
+                    'tooltipstring','Metric for comparison', 'visible', 'off');
+                
+                ud.handles.mirrorcheckerMetricPopup = uicontrol(hFig, 'style','popupmenu','units', units, 'position', absPos([.25 .16+dy .25 .04], posFrame),...
+                    'string', {'MI (Mutual Information)', 'MSE (Mean Squared Error)'}, 'tag', 'controlFrameItem', ...
+                    'BusyAction', 'cancel', 'Interruptible', 'off', ...
+                    'tooltipstring','Metric for comparison', 'callback', 'CERRRefresh', 'visible', 'off');
+                
+%                 ud.handles.mirrorcheckerAxis = axes('units', units, 'position', absPos([.65 .15+dy .15 .04], posFrame), 'xTickLabel', [], 'yTickLabel', [], 'xTick', [], 'yTick', [], 'visible', 'on');
+%                 cM = CERRColorMap('starinterp');
+%                 nColors = size(cM,1);
+%                 tmpV    = nColors:-1:1;
+%                 cB      = ind2rgb(tmpV, cM);
+%                 imagesc([0 1],[0.5 0.5] ,cB, 'parent',ud.handles.mirrorcheckerAxis)
                 
                 %--------------mirror------------
                 
@@ -1745,7 +1775,7 @@ switch command
                 %change color of Base-Moving toggle-button
                 udFrame = get(stateS.handle.controlFrame,'userdata');
                 clrVal = get(udFrame.handles.displayModeColor,'value');
-                clrM = [0 0 0; 1 0.8 0.5; 1 0 0; 0 1 0; 0 0 1];
+                clrM = [0 0 0; 1 0.8 0.5; 1 0 0; 0 1 0; 0 0 1; 0 1 0; 0 0 1];
                 hToggleBaseMov = findobj('tag', 'toggleBasMov');
                 if get(hToggleBaseMov,'value') == 1
                     set(hToggleBaseMov,'string','M','fontWeight','bold','foregroundColor',clrM(clrVal,:))
@@ -2155,21 +2185,33 @@ switch command
                     set(ud.handles.ckSizeText, 'visible', 'on');
                     set(ud.handles.ckSizeValue, 'visible', 'on');
                     set(ud.handles.newcheckerSize, 'visible', 'on');
+                    set(ud.handles.newcheckerSize, 'visible', 'on');
+                    set(ud.handles.mirrorcheckerOrientation, 'visible', 'on');
+                    set(ud.handles.mirrorcheckerMetricString, 'visible', 'on');
+                    set(ud.handles.mirrorcheckerMetricPopup, 'visible', 'on');
+                    %set(ud.handles.mirrorcheckerAxis, 'visible', 'on');                   
                     
                     set(ud.handles.differToggle, 'enable', 'off');
                     set(ud.handles.newcheckerToggle, 'enable', 'off');
+                    set(ud.handles.checkerToggle, 'enable', 'off');
                     set(ud.handles.mirrorToggle, 'visible', 'off');
                     set(ud.handles.mirrorScopeToggle, 'visible', 'off');
                     set(ud.handles.blockMatchToggle, 'visible', 'off');
+                    
                 elseif button_state == get(hObject,'Min')
                     % toggle button is not pressed
                     stateS.optS.mirrorCheckerBoard = 0;
                     set(ud.handles.ckSizeText, 'visible', 'off');
                     set(ud.handles.ckSizeValue, 'visible', 'off');
                     set(ud.handles.newcheckerSize, 'visible', 'off');
+                    set(ud.handles.mirrorcheckerOrientation, 'visible', 'off');
+                    set(ud.handles.mirrorcheckerMetricString, 'visible', 'off');
+                    set(ud.handles.mirrorcheckerMetricPopup, 'visible', 'off');
+                    %set(ud.handles.mirrorcheckerAxis, 'visible', 'off');
                     
                     set(ud.handles.differToggle, 'enable', 'on');
                     set(ud.handles.newcheckerToggle, 'enable', 'on');
+                    set(ud.handles.checkerToggle, 'enable', 'on');
                     set(ud.handles.mirrorToggle, 'visible', 'on');
                     set(ud.handles.mirrorScopeToggle, 'visible', 'on');
                     set(ud.handles.blockMatchToggle, 'visible', 'on');
@@ -2363,6 +2405,7 @@ switch command
                     set(udf.handles.blockMatchToggle, 'visible', 'off');
                     
                     set(udf.handles.differToggle, 'enable', 'off');
+                    set(udf.handles.mirror_checkerToggle, 'enable', 'off');
                     set(udf.handles.checkerToggle, 'enable', 'off');
                     set(udf.handles.newcheckerToggle, 'enable', 'off');
                     set(udf.handles.mirrorToggle, 'enable', 'off');
@@ -2441,6 +2484,7 @@ switch command
                     set(udf.handles.blockMatchToggle, 'visible', 'on');
                     
                     set(udf.handles.differToggle, 'enable', 'on');
+                    set(udf.handles.mirror_checkerToggle, 'enable', 'on');
                     set(udf.handles.checkerToggle, 'enable', 'on');
                     set(udf.handles.newcheckerToggle, 'enable', 'on');
                     set(udf.handles.mirrorToggle, 'enable', 'on');

@@ -53,9 +53,11 @@ else
     %KU change
     %uimenu(hDoseMenu, 'label', 'Dose Subtraction', 'callback',['doseSubtractionMenu'],'interruptible','on', 'tag', 'doseSubtraction');
     uimenu(hDoseMenu, 'label', 'Add/Subtract/Reassign', 'callback',['doseSummationMenu'],'interruptible','on', 'tag', 'doseSummation');
-    hDAnalysis = uimenu(hDoseMenu, 'label', '&Gamma Analyasis', 'callback', ' ', 'interruptible','on');
+    
+%     hDAnalysis = uimenu(hDoseMenu, 'label', '&Gamma Analyasis', 'callback', ' ', 'interruptible','on');
+%     uimenu(hDAnalysis,'label','&Gamma 2D','callback','CERRGammafnc(''INIT2D'')','interruptible','on');
 
-    uimenu(hDAnalysis,'label','&Gamma 2D','callback','CERRGammafnc(''INIT2D'')','interruptible','on');
+    uimenu(hDoseMenu,'label','Gamma 3D','callback','CERRGammafnc(''INIT3D'')','interruptible','on');
 
     % uimenu(hDAnalysis,'label','&Gamma 3D','callback','RPCCallBack(''GETGAMMAINPUT'',''3D'')','interruptible','on');
 end
