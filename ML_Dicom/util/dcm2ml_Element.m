@@ -90,7 +90,8 @@ switch upper(vr)
     case 'FL'
         %Needs implementation
         %wy
-        data =  float(el.getFloat(buf));
+        %data =  float(el.getFloat(buf));
+        data =  el.getFloats(buf);
         
     case 'FD'
         data = el.getDouble(buf);
