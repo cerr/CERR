@@ -81,7 +81,7 @@ indNoMapV = ~ismember(1:prod(sizeMov),indV);
 % Create inverse index mapping matrix
 %invIndM = NaN*ones(sizeMov);
 invIndM = zeros(sizeMov);
-allIndV = 1:prod(sizeBase);
+allIndV = 1:prod(sizeMov);
 allNonMapV = ~ismember(allIndV,indV);
 invIndM(indV) = 1:prod(sizeBase);
 invIndErodeM = inf*ones(sizeMov);
@@ -97,7 +97,7 @@ if strcmpi(interpFlag,'nearest')
     disp('filling in unmapped points...')
     while any(indNoMapV)
         count = count + 1;
-        disp([num2str(count), '. ', num2str(length(find(indNoMapV==1))/prod(sizeBase)*100), '% filled.'])
+        disp([num2str(count), '. ', num2str(length(find(indNoMapV==1))/prod(sizeMov)*100), '% filled.'])
         invIndTmpM = imdilate(invIndM,nHood);        
         invIndM(indNoMapV) = invIndTmpM(indNoMapV);        
         invIndTmpErodeM = imerode(invIndErodeM,nHood);    
@@ -105,17 +105,58 @@ if strcmpi(interpFlag,'nearest')
         indNoMapV = invIndM(:) == 0;
     end
     
-    XdeformTmp = (Xdeform(invIndM) + Xdeform(invIndErodeM))/2;
-    YdeformTmp = (Ydeform(invIndM) + Ydeform(invIndErodeM))/2;
-    ZdeformTmp = (Zdeform(invIndM) + Zdeform(invIndErodeM))/2;
-    Xdeform(allNonMapV) = XdeformTmp(allNonMapV);
-    Ydeform(allNonMapV) = YdeformTmp(allNonMapV);
-    Zdeform(allNonMapV) = ZdeformTmp(allNonMapV);
+%     XdeformTmp = (Xdeform(invIndM) + Xdeform(invIndErodeM))/2;
+%     YdeformTmp = (Ydeform(invIndM) + Ydeform(invIndErodeM))/2;
+%     ZdeformTmp = (Zdeform(invIndM) + Zdeform(invIndErodeM))/2;
+%     Xdeform(allNonMapV) = XdeformTmp(allNonMapV);
+%     Ydeform(allNonMapV) = YdeformTmp(allNonMapV);
+%     Zdeform(allNonMapV) = ZdeformTmp(allNonMapV);
     
     % Build the inverse vector field
     inv_vf(:,:,:,1) = -Xdeform(invIndM);
     inv_vf(:,:,:,2) = -Ydeform(invIndM);
     inv_vf(:,:,:,3) = -Zdeform(invIndM);
+    
+elseif strcmpi(interpFlag,'dummy')
+    invIndM(indNoMapV) = 1;
+    inv_vf(:,:,:,1) = -Xdeform(invIndM);
+    inv_vf(:,:,:,2) = -Ydeform(invIndM);
+    inv_vf(:,:,:,3) = -Zdeform(invIndM);
+    
+elseif strcmpi(interpFlag,'mean')
+    % Inverse deformation matrices 
+    XdeformInvM = zeros(sizeMov);
+    YdeformInvM = zeros(sizeMov);
+    ZdeformInvM = zeros(sizeMov);
+    XdeformInvM(indV) = -Xdeform(invIndM(indV));    
+    YdeformInvM(indV) = -Ydeform(invIndM(indV));
+    ZdeformInvM(indV) = -Zdeform(invIndM(indV));
+    mappedMaskM = invIndM > 0;
+    
+    % Calculate inverse indices for points that did not map
+    count = 0;
+    nHood(:,:,1) = [0 0 0; 0 1 0; 0 0 0];
+    nHood(:,:,2) = [0 1 0; 1 1 1; 0 1 0];   
+    nHood(:,:,3) = [0 0 0; 0 1 0; 0 0 0];
+    disp('filling in unmapped points...')
+    while ~all(mappedMaskM(:))
+        count = count + 1;
+        disp([num2str(count), '. ', num2str(length(find(mappedMaskM==0))/prod(sizeMov)*100), '% filled.'])
+        mappedMaskM = convn(mappedMaskM,nHood,'same');        
+        XdeformInvTmpM = convn(XdeformInvM,nHood,'same');
+        YdeformInvTmpM = convn(YdeformInvM,nHood,'same');
+        ZdeformInvTmpM = convn(ZdeformInvM,nHood,'same');
+        XdeformInvM(allNonMapV) = XdeformInvTmpM(allNonMapV)./mappedMaskM(allNonMapV);
+        YdeformInvM(allNonMapV) = YdeformInvTmpM(allNonMapV)./mappedMaskM(allNonMapV);
+        ZdeformInvM(allNonMapV) = ZdeformInvTmpM(allNonMapV)./mappedMaskM(allNonMapV);
+        XdeformInvM(isnan(XdeformInvM)) = 0;
+        mappedMaskM = mappedMaskM > 0;        
+    end
+    
+    % Build the inverse vector field
+    inv_vf(:,:,:,1) = XdeformInvM;
+    inv_vf(:,:,:,2) = XdeformInvM;
+    inv_vf(:,:,:,3) = XdeformInvM;
     
 elseif strcmpi(interpFlag,'krig')
     
