@@ -1318,7 +1318,7 @@ switch upper(instr)
         hToggleBasMov = findobj(stateS.handle.CERRSliceViewer,'tag','toggleBasMov');
         %change color of Base-Moving toggle-button if it exists
         udFrame = get(stateS.handle.controlFrame,'userdata');        
-        clrM = [0 0 0; 1 0.8 0.5; 1 0 0; 0 1 0; 0 0 1; 1 0.5 0.5];        
+        clrM = [0 0 0; 1 0.8 0.5; 1 0 0; 0 1 0; 0 0 1; 1 0.5 0.5; 1 0.5 0.5];        
         if ~isempty(hToggleBasMov) && stateS.doseAlphaValue.trans > 0 && stateS.doseAlphaValue.trans < 1
             set(hToggleBasMov,'string','B/M','fontWeight','normal','foregroundColor',[0 0 0],'value',0)
         elseif ~isempty(hToggleBasMov) && stateS.doseAlphaValue.trans == 1

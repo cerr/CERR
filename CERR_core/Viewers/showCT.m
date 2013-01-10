@@ -200,6 +200,7 @@ for i=1:length(axisInfo.scanObj)
                 CTHigh = min(CTHigh,scanMax);                
                 %wy Apply window and level by clipping CT.
                 clippedCT = clip(im, CTLow, CTHigh, 'limits');
+                             
 
             end
 
@@ -233,7 +234,7 @@ for i=1:length(axisInfo.scanObj)
         
         
 
-        %colormap(hAxis, 'gray');
+        colormap(hAxis, 'gray');
         
 
         if stateS.imageRegistrationBaseDataset == scanSet & strcmpi(stateS.imageRegistrationBaseDatasetType, 'scan')
