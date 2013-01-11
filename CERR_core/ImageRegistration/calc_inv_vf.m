@@ -149,14 +149,17 @@ elseif strcmpi(interpFlag,'mean')
         XdeformInvM(allNonMapV) = XdeformInvTmpM(allNonMapV)./mappedMaskM(allNonMapV);
         YdeformInvM(allNonMapV) = YdeformInvTmpM(allNonMapV)./mappedMaskM(allNonMapV);
         ZdeformInvM(allNonMapV) = ZdeformInvTmpM(allNonMapV)./mappedMaskM(allNonMapV);
-        XdeformInvM(isnan(XdeformInvM)) = 0;
+        indNanV = isnan(XdeformInvM);
+        XdeformInvM(indNanV) = 0;
+        YdeformInvM(indNanV) = 0;
+        ZdeformInvM(indNanV) = 0;
         mappedMaskM = mappedMaskM > 0;        
     end
     
     % Build the inverse vector field
     inv_vf(:,:,:,1) = XdeformInvM;
-    inv_vf(:,:,:,2) = XdeformInvM;
-    inv_vf(:,:,:,3) = XdeformInvM;
+    inv_vf(:,:,:,2) = YdeformInvM;
+    inv_vf(:,:,:,3) = ZdeformInvM;
     
 elseif strcmpi(interpFlag,'krig')
     
