@@ -153,12 +153,12 @@ for i=1:length(axisInfo.scanObj)
                 CTHigh = min(CTHigh,scanMax);                
                 clippedCT = clip(im, CTLow, CTHigh, 'limits');
                 
-                hFrame = stateS.handle.controlFrame;
-                ud = get(hFrame, 'userdata');
-                colorMapC = get(ud.handles.basedisplayModeColor,'string');
-                colorMapVal = get(ud.handles.basedisplayModeColor,'value');
-                map = CERRColorMap(colorMapC{colorMapVal});
-                colormap(hAxis, map);
+%                 hFrame = stateS.handle.controlFrame;
+%                 ud = get(hFrame, 'userdata');
+%                 colorMapC = get(ud.handles.basedisplayModeColor,'string');
+%                 colorMapVal = get(ud.handles.basedisplayModeColor,'value');
+%                 map = CERRColorMap(colorMapC{colorMapVal});
+%                 colormap(hAxis, map);
 
                 %% DK for Scan color map change
                 %                 clrVal = get(stateS.handle.BaseCMap,'value');
@@ -208,6 +208,8 @@ for i=1:length(axisInfo.scanObj)
             clippedCT = clippedCT / double( CTHigh - CTLow);
             
             set(hFig, 'renderer', 'openGL');
+            
+            colormap(hAxis, 'gray');
 
         else
             CTOffset    = planC{indexS.scan}(scanSet).scanInfo(1).CTOffset;
@@ -234,7 +236,7 @@ for i=1:length(axisInfo.scanObj)
         
         
 
-        colormap(hAxis, 'gray');
+        %colormap(hAxis, 'gray');
         
 
         if stateS.imageRegistrationBaseDataset == scanSet & strcmpi(stateS.imageRegistrationBaseDatasetType, 'scan')
