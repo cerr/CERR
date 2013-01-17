@@ -220,7 +220,7 @@ for i=1:length(axisInfo.scanObj)
             scanMin = stateS.scanStats.minScanVal.(repSpaceHyp(planC{indexS.scan}(scanSet).scanUID));
             scanMax = stateS.scanStats.maxScanVal.(repSpaceHyp(planC{indexS.scan}(scanSet).scanUID));
             CTLow = max(CTLow,scanMin);
-            CTHigh = min(CTHigh,scanMax);
+            CTHigh = max(CTLow,min(CTHigh,scanMax));
 
             %wy Apply window and level by clipping CT.
             clippedCT = clip(im, CTLow, CTHigh, 'limits');
