@@ -267,7 +267,7 @@ switch command
                             stateS.contourOvrlyOptS.center = str2num(get(ud.handle.ovrlayWindowCenterEdt,'String'));
                             stateS.contourOvrlyOptS.width  = str2num(get(ud.handle.ovrlayWindowWidthEdt,'String'));
                         end
-                        colorbarStrC = {'Copper','Red','Green','Blue','StarInterp','hotCold'};
+                        colorbarStrC = {'Gray256','Copper','Red','Green','Blue','StarInterp','hotCold'};
                         stateS.contourOvrlyOptS.colormap = colorbarStrC{get(ud.handle.ovrlayMapChoices,'Value')};
                         stateS.CTDisplayChanged = 1;
                         CERRRefresh;
