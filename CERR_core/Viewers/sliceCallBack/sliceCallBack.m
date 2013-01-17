@@ -1163,10 +1163,11 @@ switch upper(instr)
         end
         stateS.doseToggle = - stateS.doseToggle;
         try
+            hDoseToggle = findobj(stateS.handle.CERRSliceViewer,'tag', 'doseToggle');
             if stateS.doseToggle == 1
-                set(gcbo, 'checked', 'on')
+                set(hDoseToggle, 'checked', 'on')
             else
-                set(gcbo, 'checked', 'off')
+                set(hDoseToggle, 'checked', 'off')
             end
         end
         stateS.doseSetChanged = 1;
@@ -1884,13 +1885,16 @@ switch upper(instr)
         if toggleState == 1
             CERRStatusString('Click and drag mouse on a view')
             stateS.scanWindowState = 1;
-            if stateS.doseToggle
+            stateS.turnDoseOnInteractiveWindowing = 0;
+            if stateS.doseToggle == 1
+                stateS.turnDoseOnInteractiveWindowing = 1;
                 sliceCallBack('doseToggle')
             end
         else
             CERRStatusString('')
             stateS.scanWindowState = 0;
-            if stateS.doseToggle
+            if stateS.turnDoseOnInteractiveWindowing
+                stateS = rmfield(stateS,'turnDoseOnInteractiveWindowing');
                 sliceCallBack('doseToggle')
             end            
         end
@@ -1910,17 +1914,17 @@ switch upper(instr)
         cP    = get(hAxis, 'CurrentPoint');
         pointDiff =  cP(1,1:2) - stateS.scanWindowCurrentPoint;
         [dX,dY] = getAxisInfo(hAxis,'xRange','yRange');
-        percentMov = abs(pointDiff./[dX(2)-dX(1) dY(2)-dY(1)]);
+        percentMov = abs(pointDiff./[dX(2)-dX(1)+eps dY(2)-dY(1)+eps]);
         percentMov = percentMov/max(percentMov);
         pointDiff = sign(pointDiff);
         stateS.scanWindowCurrentPoint = cP(1,1:2);   
         maxScanVal = stateS.scanStats.maxScanVal.(repSpaceHyp(planC{indexS.scan}(getAxisInfo(gca,'scanSets')).scanUID));
         minScanVal = stateS.scanStats.minScanVal.(repSpaceHyp(planC{indexS.scan}(getAxisInfo(gca,'scanSets')).scanUID));
         dMov = maxScanVal - minScanVal;
-        stateS.optS.CTLevel = stateS.optS.CTLevel + pointDiff(2)*dMov*0.025*percentMov(2);        
-        stateS.optS.CTWidth = stateS.optS.CTWidth + pointDiff(1)*dMov*0.05*percentMov(1); 
-        stateS.optS.CTLevel = round(stateS.optS.CTLevel);
-        stateS.optS.CTWidth = max([1 round(stateS.optS.CTWidth)]);
+        stateS.optS.CTLevel = stateS.optS.CTLevel + pointDiff(2)*dMov*1/100*percentMov(2);        
+        stateS.optS.CTWidth = stateS.optS.CTWidth + pointDiff(1)*dMov*0.5/100*percentMov(1); 
+        stateS.optS.CTLevel = (stateS.optS.CTLevel);
+        stateS.optS.CTWidth = max([1 (stateS.optS.CTWidth)]);
         set(stateS.handle.CTLevel,'String',stateS.optS.CTLevel)
         set(stateS.handle.CTWidth,'String',stateS.optS.CTWidth)
         for hAxis = stateS.handle.CERRAxis
@@ -2591,6 +2595,10 @@ switch upper(instr)
     case 'BASECOLORMAP'
         % change display mode to different color maps for moving set
         hAxes = stateS.handle.CERRAxis;
+        
+        % Set the new colormap
+        colorMapIndex = get(stateS.handle.BaseCMap,'value');
+        stateS.optS.CTColormap = stateS.optS.scanColorMap(colorMapIndex).name;
 
         stateS.optS.fusionDisplayMode = 'colorblend';
 
@@ -2599,6 +2607,9 @@ switch upper(instr)
             for j=1:length(ud.scanObj);
                 ud.scanObj(j).redraw = 1;
             end
+            for j=1:length(ud.doseObj);
+                ud.doseObj(j).redraw = 1;
+            end            
             set(hAxes(i), 'userdata', ud);
             showCT(hAxes(i));
             showDose(hAxes(i));
