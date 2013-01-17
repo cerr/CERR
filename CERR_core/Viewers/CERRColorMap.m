@@ -1572,17 +1572,16 @@ switch lower(in)
         
     
     case 'red'
-        map = linspace(0,1,100)';
-        map = [map*0 map*0 map];
+        map = zeros(256,3);
+        map(:,1) = linspace(0,1,256);
         
     case 'green'
-        map = linspace(0,1,100)';
-        map = [map*0 map map*0];
-        
+        map = zeros(256,3);
+        map(:,2) = linspace(0,1,256);        
         
     case 'blue'
-        map = linspace(0,1,100)';
-        map = [map*0 map*0 map];
+        map = zeros(256,3);
+        map(:,3) = linspace(0,1,256); 
         
     case 'fireice'
         
