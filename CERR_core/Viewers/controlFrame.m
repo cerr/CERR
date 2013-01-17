@@ -1173,6 +1173,7 @@ switch command
                 set(stateS.handle.BaseCMap, 'visible', 'off');
                 set(stateS.handle.CTWidth, 'visible', 'off');
                 set(stateS.handle.CTLevel, 'visible', 'off');
+                set(stateS.handle.CTLevelWidthInteractive, 'visible', 'off');
                 
                 %tempControlPos = get(stateS.handle.controlFrame, 'pos');
                 set(stateS.handle.controlFrame, 'pos', [0 0 195 600-270]);
@@ -2663,6 +2664,7 @@ switch command
                 set(stateS.handle.BaseCMap, 'visible', 'on');
                 set(stateS.handle.CTWidth, 'visible', 'on');
                 set(stateS.handle.CTLevel, 'visible', 'on');
+                set(stateS.handle.CTLevelWidthInteractive, 'visible', 'on');
                 
                 %set(stateS.handle.controlFrame, 'pos', tempControlPos);
                 leftMarginWidth = 195;
