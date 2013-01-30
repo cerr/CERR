@@ -255,7 +255,7 @@ for i=1:length(axisInfo.scanObj)
         if stateS.imageRegistration %wy
             set(hAxis, 'cLim', [0 1]);
         else
-            set(hAxis, 'cLim', [CTLow CTHigh]);
+            set(hAxis, 'cLim', [CTLow-1e-3 CTHigh+1e-3]);
         end
 
         axisInfo.scanObj(i).handles = hImage;
