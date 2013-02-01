@@ -59,7 +59,7 @@ switch fieldname
         dataS = dcm2ml_Element(refImageObj.get(hex2dec('00081155')));
         
         
-    case 'graphicAnnotation'
+    case 'graphicAnnotationS'
         %Graphic Object Sequence
         graphicObjSeq = annotObj.get(hex2dec('00700009'));
 
@@ -69,21 +69,21 @@ switch fieldname
 
         numGraphicAnnot = graphicObjSeq.countItems;
         
-        graphicAnnotation(1:numGraphicAnnot) = struct();
+        graphicAnnotationS(1:numGraphicAnnot) = struct();
         for i = 1:numGraphicAnnot
             aGraphicAnnot = graphicObjSeq.getDicomObject(i-1);
-            graphicAnnotation(i).graphicAnnotationUnits   = dcm2ml_Element(aGraphicAnnot.get(hex2dec('00700005')));
-            graphicAnnotation(i).graphicAnnotationDims    = dcm2ml_Element(aGraphicAnnot.get(hex2dec('00700020')));
-            graphicAnnotation(i).graphicAnnotationNumPts  = dcm2ml_Element(aGraphicAnnot.get(hex2dec('00700021')));
-            graphicAnnotation(i).graphicAnnotationData    = dcm2ml_Element(aGraphicAnnot.get(hex2dec('00700022')));
-            graphicAnnotation(i).graphicAnnotationType    = dcm2ml_Element(aGraphicAnnot.get(hex2dec('00700023')));
-            graphicAnnotation(i).graphicAnnotationFilled  = dcm2ml_Element(aGraphicAnnot.get(hex2dec('00700024')));            
+            graphicAnnotationS(i).graphicAnnotationUnits   = dcm2ml_Element(aGraphicAnnot.get(hex2dec('00700005')));
+            graphicAnnotationS(i).graphicAnnotationDims    = dcm2ml_Element(aGraphicAnnot.get(hex2dec('00700020')));
+            graphicAnnotationS(i).graphicAnnotationNumPts  = dcm2ml_Element(aGraphicAnnot.get(hex2dec('00700021')));
+            graphicAnnotationS(i).graphicAnnotationData    = dcm2ml_Element(aGraphicAnnot.get(hex2dec('00700022')));
+            graphicAnnotationS(i).graphicAnnotationType    = dcm2ml_Element(aGraphicAnnot.get(hex2dec('00700023')));
+            graphicAnnotationS(i).graphicAnnotationFilled  = dcm2ml_Element(aGraphicAnnot.get(hex2dec('00700024')));            
         end
         
-        dataS = graphicAnnotation;
+        dataS = graphicAnnotationS;
         
 
-    case 'textAnnotation'
+    case 'textAnnotationS'
         %Text Object Sequence
         textObjSeq = annotObj.get(hex2dec('00700008'));
 
@@ -93,21 +93,21 @@ switch fieldname
 
         numTextAnnot = textObjSeq.countItems;
         
-        textAnnotation(1:numTextAnnot) = struct();
+        textAnnotationS(1:numTextAnnot) = struct();
         
         for i = 1:numTextAnnot
             aTextAnnot = textObjSeq.getDicomObject(i-1);
-            textAnnotation(i).boundingBoxAnnotationUnits                = dcm2ml_Element(aTextAnnot.get(hex2dec('00700003')));
-            textAnnotation(i).anchorPtAnnotationUnits                   = dcm2ml_Element(aTextAnnot.get(hex2dec('00700004')));
-            textAnnotation(i).unformattedTextValue                      = dcm2ml_Element(aTextAnnot.get(hex2dec('00700006')));            
-            textAnnotation(i).boundingBoxTopLeftHandCornerPt            = dcm2ml_Element(aTextAnnot.get(hex2dec('00700010')));            
-            textAnnotation(i).boundingBoxBottomRightHandCornerPt        = dcm2ml_Element(aTextAnnot.get(hex2dec('00700011')));            
-            textAnnotation(i).boundingBoxTextHorizontalJustification    = dcm2ml_Element(aTextAnnot.get(hex2dec('00700012')));            
-            textAnnotation(i).anchorPoint                               = dcm2ml_Element(aTextAnnot.get(hex2dec('00700014')));            
-            textAnnotation(i).anchorPointVisibility                     = dcm2ml_Element(aTextAnnot.get(hex2dec('00700015')));                        
+            textAnnotationS(i).boundingBoxAnnotationUnits                = dcm2ml_Element(aTextAnnot.get(hex2dec('00700003')));
+            textAnnotationS(i).anchorPtAnnotationUnits                   = dcm2ml_Element(aTextAnnot.get(hex2dec('00700004')));
+            textAnnotationS(i).unformattedTextValue                      = dcm2ml_Element(aTextAnnot.get(hex2dec('00700006')));            
+            textAnnotationS(i).boundingBoxTopLeftHandCornerPt            = dcm2ml_Element(aTextAnnot.get(hex2dec('00700010')));            
+            textAnnotationS(i).boundingBoxBottomRightHandCornerPt        = dcm2ml_Element(aTextAnnot.get(hex2dec('00700011')));            
+            textAnnotationS(i).boundingBoxTextHorizontalJustification    = dcm2ml_Element(aTextAnnot.get(hex2dec('00700012')));            
+            textAnnotationS(i).anchorPoint                               = dcm2ml_Element(aTextAnnot.get(hex2dec('00700014')));            
+            textAnnotationS(i).anchorPointVisibility                     = dcm2ml_Element(aTextAnnot.get(hex2dec('00700015')));                        
         end
         
-        dataS = textAnnotation;
+        dataS = textAnnotationS;
                 
 
 end
