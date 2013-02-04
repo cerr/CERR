@@ -220,7 +220,7 @@ for dirNum = 1:length(allDirS)
             end
         end
     elseif allDirS(dirNum).isdir && ~strcmp(allDirS(dirNum).name,'.') && ~strcmp(allDirS(dirNum).name,'..')
-        batchConvert(fullfile(sourceDir,allDirS(dirNum).name),destinationDir)
+        batchConvert(fullfile(sourceDir,allDirS(dirNum).name),destinationDir, zipFlag)
     end
 end
 if isempty(varargin)    
