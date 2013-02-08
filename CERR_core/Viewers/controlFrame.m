@@ -2936,6 +2936,9 @@ switch command
                 ud.handles.sliceText = uicontrol(hFig, 'style', 'text', 'enable', 'inactive' , 'units', units, 'position', absPos([.3 .82 .4 .05], posFrame), 'string', ['Image 1/',num2str(length(matchingSliceIndV))], 'tag', 'controlFrameItem', 'horizontalAlignment', 'center');
                 ud.handles.prevSlcPush = uicontrol(hFig, 'style', 'push', 'units', units, 'position', absPos([.05 .82 .2 .05], posFrame), 'string', '<<', 'tag', 'controlFrameItem', 'visible', 'on', 'callBack','controlFrame(''ANNOTATION'',''prevSlc'')', 'horizontalAlignment', 'center');
                 ud.handles.nextSlcPush = uicontrol(hFig, 'style', 'push', 'units', units, 'position', absPos([.8 .82 .15 .05], posFrame), 'string', '>>', 'tag', 'controlFrameItem', 'visible', 'on', 'callBack','controlFrame(''ANNOTATION'',''nextSlc'')', 'horizontalAlignment', 'center');
+                ud.handles.AnnotSelectTxt = uicontrol(hFig, 'style', 'text', 'enable', 'inactive', 'units', units, 'position', absPos([.05 .72 .35 .05], posFrame), 'string', 'Item #', 'tag', 'controlFrameItem', 'visible', 'on', 'horizontalAlignment', 'center');
+                ud.handles.AnnotSelect = uicontrol(hFig, 'style', 'popup', 'units', units, 'position', absPos([.4 .72 .55 .05], posFrame), 'string', '','value',1, 'tag', 'controlFrameItem', 'visible', 'on', 'callBack','controlFrame(''ANNOTATION'',''show'')', 'horizontalAlignment', 'center');
+                ud.handles.AnnotStat1 = uicontrol(hFig, 'style', 'text', 'enable', 'inactive', 'units', units, 'position', absPos([.1 .65 .65 .05], posFrame), 'string', '', 'tag', 'controlFrameItem', 'visible', 'on', 'horizontalAlignment', 'left');
                 ud.handles.quitPush = uicontrol(hFig, 'style', 'push', 'units', units, 'position', absPos([.4 .1 .2 .05], posFrame), 'string', 'Quit', 'tag', 'controlFrameItem', 'visible', 'on', 'callBack','controlFrame(''ANNOTATION'',''quit'')', 'horizontalAlignment', 'center');
                 
                 ud.annotation.currentMatchingSlc = 1;
@@ -2943,6 +2946,7 @@ switch command
                 ud.annotation.matchingSliceIndV = matchingSliceIndV;
                 ud.annotation.matchingGSPSIndV = matchingGSPSIndV;
                 set(hFrame, 'userdata', ud);
+                controlFrame('ANNOTATION','updateAnnotationList')
                 controlFrame('ANNOTATION','show',1)
                 
             case 'prevSlc'
@@ -2951,6 +2955,7 @@ switch command
                 end
                 ud.annotation.currentMatchingSlc = ud.annotation.currentMatchingSlc - 1;
                 set(hFrame, 'userdata', ud);
+                controlFrame('ANNOTATION','updateAnnotationList')
                 controlFrame('ANNOTATION','show')
                 
             case 'nextSlc'
@@ -2959,7 +2964,16 @@ switch command
                 end
                 ud.annotation.currentMatchingSlc = ud.annotation.currentMatchingSlc + 1;
                 set(hFrame, 'userdata', ud);
+                controlFrame('ANNOTATION','updateAnnotationList')
                 controlFrame('ANNOTATION','show')
+                
+            case 'updateAnnotationList'
+                gspsNum = ud.annotation.matchingGSPSIndV(ud.annotation.currentMatchingSlc);
+                graphicAnnotationTypeC{1} = 'None';
+                for iGraphic = 1:length(planC{indexS.GSPS}(gspsNum).graphicAnnotationS)
+                    graphicAnnotationTypeC{iGraphic} = planC{indexS.GSPS}(gspsNum).graphicAnnotationS(iGraphic).graphicAnnotationType;                    
+                end
+                set(ud.handles.AnnotSelect,'string',graphicAnnotationTypeC,'value',1)
                 
             case 'show'
                 
@@ -2983,8 +2997,38 @@ switch command
                     rowV = graphicAnnotationData(1:2:end);
                     colV = graphicAnnotationData(2:2:end);
                     [xV, yV] = mtoaapm(colV, rowV, Dims, gridUnits, offset);
-                    plot(xV,yV,'r')
+                    if strcmpi(graphicAnnotationType,'POLYLINE')
+                        plot(xV,yV,'r')
+                    elseif strcmpi(graphicAnnotationType,'ELLIPSE')
+                        plot(xV(1:2),yV(1:2),'r','linewidth',2)
+                        plot(xV(3:4),yV(3:4),'r','linewidth',2)                        
+                    end
+                    
                 end
+                
+                % Highlight the selected Item
+                iGraphic = get(ud.handles.AnnotSelect,'value');
+                graphicAnnotationType = planC{indexS.GSPS}(gspsNum).graphicAnnotationS(iGraphic).graphicAnnotationType;
+                graphicAnnotationData = planC{indexS.GSPS}(gspsNum).graphicAnnotationS(iGraphic).graphicAnnotationData;rowV = graphicAnnotationData(1:2:end);
+                graphicAnnotationNumPts = planC{indexS.GSPS}(gspsNum).graphicAnnotationS(iGraphic).graphicAnnotationNumPts;
+                rowV = graphicAnnotationData(1:2:end);
+                colV = graphicAnnotationData(2:2:end);
+                [xV, yV] = mtoaapm(colV, rowV, Dims, gridUnits, offset);                
+                
+                if strcmpi(graphicAnnotationType,'POLYLINE') && graphicAnnotationNumPts == 2
+                    lineLen = sqrt((xV(1)-xV(2))^2 + (yV(1)-yV(2))^2);
+                    set(ud.handles.AnnotStat1,'string',['Length = ',num2str(lineLen),' cm'])
+                    plot(xV,yV,'r','linewidth',2)
+                    
+                elseif strcmpi(graphicAnnotationType,'ELLIPSE')
+                    lineLenAx1 = sqrt((xV(1)-xV(2))^2 + (yV(1)-yV(2))^2);
+                    lineLenAx2 = sqrt((xV(3)-xV(4))^2 + (yV(3)-yV(4))^2);
+                    EllipseArea = pi*lineLenAx1*lineLenAx2;
+                    set(ud.handles.AnnotStat1,'string',['Area = ',num2str(EllipseArea), ' sq. cm'])
+                    plot(xV(1:2),yV(1:2),'r','linewidth',2)
+                    plot(xV(3:4),yV(3:4),'r','linewidth',2)
+                end
+                
                 
               case 'quit'
 
