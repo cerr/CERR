@@ -1833,7 +1833,7 @@ switch upper(command)
                         % Extract user-defined metrics
                         for k = 1:length(additionalMetricsC)
                             try
-                                ddbs(ddbsIndex).([additionalMetricsC{k},'_',ud.scanDir.strNamC{j}]) = feval(additionalMetricsC{k}, planC, ud.newNameMapS(planNum).structMap{j}, ud.newNameMapS(planNum).doseMap);
+                                ddbs(ddbsIndex).([additionalMetricsC{k},'_',repSpaceHyp(ud.scanDir.strNamC{j})]) = feval(additionalMetricsC{k}, planC, ud.newNameMapS(planNum).structMap{j}, ud.newNameMapS(planNum).doseMap);
                             catch
                                 warning(['Could not extract ', additionalMetricsC{k}, ' metric'])
                             end
