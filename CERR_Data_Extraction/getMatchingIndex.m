@@ -43,6 +43,8 @@ switch upper(matchCriteria)
             %end
         end
         
+    case 'FIRSTCHARS'
+        indMatchV = strmatch(str,strC);        
         
     otherwise
         
