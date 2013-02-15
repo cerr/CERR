@@ -55,7 +55,16 @@ dcmobj.subSet(patienttemplate).copyTo(patient);
 %Search the patient list for this patient.
 match = 0;
 for i=1:length(dcmdirS.PATIENT)
-    if patient.matches(dcmdirS.PATIENT(i).info, 1) || patient.equals(dcmdirS.PATIENT(i).info)
+    matchFlag = 0;
+    try
+        matchFlag = matchFlag || patient.equals(dcmdirS.PATIENT(i).info);
+    catch
+    end
+    try
+        matchFlag = matchFlag || patient.matches(dcmdirS.PATIENT(i).info, 1);
+    catch
+    end
+    if matchFlag %patient.matches(dcmdirS.PATIENT(i).info, 1) || patient.equals(dcmdirS.PATIENT(i).info)
         dcmdirS.PATIENT(i) = searchAndAddStudy(filename, dcmobj, dcmdirS.PATIENT(i));
         match = 1;
     end
@@ -131,7 +140,7 @@ for i=1:length(studyS.SERIES)
     thisUID = studyS.SERIES(i).info.subSet(hex2dec(seriesUIDTag));
     %to avoid different modality data in one series, it must compare whole
     %series structure, but not just UID.
-    if series.matches(studyS.SERIES(i).info, 1)
+    if series.matches(thisUID, 1) % series.matches(studyS.SERIES(i).info, 1)
         studyS.SERIES(i) = searchAndAddSeriesMember(filename, dcmobj, studyS.SERIES(i));
         match = 1;
     end
