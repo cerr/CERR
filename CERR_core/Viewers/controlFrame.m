@@ -2910,9 +2910,13 @@ switch command
         switch varargin{1}
             case 'init'
                 
+                if isempty(planC{indexS.GSPS})
+                    herror=errordlg({'No annotations exist for this scan'},'Annotations NOT available','modal');
+                    return;
+                end
                 udAxis = get(stateS.handle.CERRAxis(1),'userdata');
                 if ~strcmpi(udAxis.view,'transverse')
-                    herror=errordlg({'Contouring can be done only on Transverse Views','Please Select 1st view to be transverse for contouring'},'Not a transverse view','on');
+                    herror=errordlg({'Annotations can be shown only on Transverse Views','Please Select 1st view to be transverse for contouring'},'Not a transverse view','modal');
                     return
                 end
                 
