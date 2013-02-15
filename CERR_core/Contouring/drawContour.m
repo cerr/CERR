@@ -153,11 +153,12 @@ switch command
         hAxis = gcbo;
 %         check if zoom is enabled
 %         val = get(stateS.handle.zoom, 'value');
-        val = stateS.zoomState;
-        if val
+        isZoomON = stateS.zoomState;
+        isWindowingON = stateS.scanWindowState;
+        if isZoomON || isWindowingON 
             sliceCallBack('axisclicked')
             return
-        end
+        end        
 
         %Arg, temporary tie to slice viewer! Remove later.
         try
