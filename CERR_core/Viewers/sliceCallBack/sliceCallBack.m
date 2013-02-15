@@ -927,17 +927,18 @@ switch upper(instr)
                     CTImageRotation('down', hAxis);
                     return;
                 end %wy
-
-                if stateS.contourState
-                    contourControl('Axis_Focus_Changed');
-                    return;
-                end      
                 
                 if stateS.scanWindowState
                     set(hFig, 'WindowButtonMotionFcn', 'sliceCallBack(''scanWindowMotion'')', 'WindowButtonUpFcn', 'sliceCallBack(''scanWindowMotionDone'')');
                     sliceCallBack('scanWindowStart');
                     return;
-                end                
+                end
+                
+                if stateS.contourState
+                    contourControl('Axis_Focus_Changed');
+                    return;
+                end
+                
 
                 
             case {'alt' 'extend'}
@@ -1921,8 +1922,8 @@ switch upper(instr)
         maxScanVal = stateS.scanStats.maxScanVal.(repSpaceHyp(planC{indexS.scan}(getAxisInfo(gca,'scanSets')).scanUID));
         minScanVal = stateS.scanStats.minScanVal.(repSpaceHyp(planC{indexS.scan}(getAxisInfo(gca,'scanSets')).scanUID));
         dMov = maxScanVal - minScanVal;
-        stateS.optS.CTLevel = stateS.optS.CTLevel + pointDiff(2)*dMov*1/100*percentMov(2);        
-        stateS.optS.CTWidth = stateS.optS.CTWidth + pointDiff(1)*dMov*0.5/100*percentMov(1); 
+        stateS.optS.CTLevel = stateS.optS.CTLevel + pointDiff(2)*dMov*0.125/100*percentMov(2);        
+        stateS.optS.CTWidth = stateS.optS.CTWidth + pointDiff(1)*dMov*0.0625/100*percentMov(1); 
         stateS.optS.CTLevel = (stateS.optS.CTLevel);
         stateS.optS.CTWidth = max([1 (stateS.optS.CTWidth)]);
         set(stateS.handle.CTLevel,'String',stateS.optS.CTLevel)
