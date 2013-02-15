@@ -448,7 +448,7 @@ headerInitS(1) = []; commentInitS(1) = []; scanInitS(1) = []; doseInitS(1) = [];
 planInitC(1) = [];  DVHInitS(1) = []; IVHInitS(1) = [];
 digitalFilmInitS(1) = []; importLogInitS(1) = []; IMInitS(1) = [];structureInitS(1) = [];
 beamGeometryInitS(1) = []; structureArrayInitS(1) = []; seedGeometryInitS(1) = [];
-deformS(1) = [];
+deformS(1) = []; GSPSInitS(1) = [];
 % seedGeometryInitS(1) = []; This is never used commented by DK
 
 planInitC{indexS.header}            = headerInitS;
