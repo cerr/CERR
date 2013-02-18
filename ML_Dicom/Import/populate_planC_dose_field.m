@@ -231,6 +231,9 @@ switch fieldname
         if (imgOri(2)==-1)
             dataS = iPP(2) + (abs(pixspac(1)) * (nRows - 1));
             dataS = dataS / 10;
+        elseif (imgOri(2)==0) && strcmpi(pPos,'FFP') % flip is necessary to display couch at the bottom. How anout HFP?
+            dataS = iPP(2) + (abs(pixspac(1)) * (nRows - 1));
+            dataS = dataS / 10;            
         else
             dataS = iPP(2) / 10;            
         end        

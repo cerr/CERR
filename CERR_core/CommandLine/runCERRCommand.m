@@ -1,4 +1,4 @@
-function status = runCERRCommand(varargin);
+function status = runCERRCommand(varargin)
 %Hold all the defined commands.
 %User-defined commands can be added, preferably at the bottom!
 %If you add a command, please also add it to the help list in helpListC, just
@@ -42,9 +42,13 @@ function status = runCERRCommand(varargin);
 % along with CERR.  If not, see <http://www.gnu.org/licenses/>.
 
 
-global stateS planC
+global stateS 
 
-if ~stateS.planLoaded
+if ~exist('planC','var')
+    global planC
+end
+
+if isfield(stateS,'planLoaded') && ~stateS.planLoaded
     error('Please load a plan first to use the command line help.')
     return;
 end

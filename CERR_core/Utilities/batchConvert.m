@@ -1,5 +1,5 @@
 function batchConvert(varargin)
-%function batchConvert(sourceDir,destinationDir)
+%function batchConvert(sourceDir,destinationDir,zipFlag)
 %
 %Type "init_ML_DICOM; batchConvert" (without quotes) in Command window to run batch conversion. User will be
 %prompted to select source and destination directories. This function converts DICOM and RTOG files 
@@ -33,7 +33,8 @@ function batchConvert(varargin)
 % Example-run
 % sourceDir = 'J:\bioruser\apte\batch code';
 % destinationDir = 'J:\bioruser\apte\batch code\OUT';
-% batchConvert(sourceDir,destinationDir)
+% zipFlag = 'No';
+% batchConvert(sourceDir,destinationDir,zipFlag)
 
 feature accel off
 
@@ -50,11 +51,13 @@ if isempty(varargin)
     if isnumeric(destinationDir)        
         return;
     end
+    zipFlag = questdlg('Do you want to bz2 zip output CERR files?', 'bz2 Zip files?', 'Yes','No','No');
 else    
     convertedC = {'Source Directory:'};
     planNameC = {'Converted Plan Name:'};    
     sourceDir = varargin{1};
     destinationDir = varargin{2};
+    zipFlag = varargin{3};
 end
 
 if ispc
@@ -103,7 +106,11 @@ for dirNum = 1:length(allDirS)
                     sourceDirName = sourceDir(slashIndex(end-2)+1:end);
                     sourceDirName(findstr(sourceDirName,slashType)) = deal('_');
                 end
-                save_planC(planC,[], 'passed', fullfile(destinationDir,[sourceDirName,'.mat.bz2']));                
+                if strcmpi(zipFlag,'Yes')
+                    save_planC(planC,[], 'passed', fullfile(destinationDir,[sourceDirName,'.mat.bz2']));
+                else
+                    save_planC(planC,[], 'passed', fullfile(destinationDir,[sourceDirName,'.mat']));
+                end
                 clear planC
                 convertedC{end+1} = sourceDir;
                 planNameC{end+1} = [sourceDirName,'.mat.bz2'];
@@ -160,7 +167,7 @@ for dirNum = 1:length(allDirS)
                     end
                 end
                 oneDirUp = sourceDir(slashIndex(end-1)+1:slashIndex(end)-1);
-                % For Metropolis with all plans per patient
+%                 % For Metropolis with all plans per patient
 %                 sourceDirName = [oneDirUp,'_',sourceDir(rtStartIndex:rtEndIndex)];
 %                 % For Metropolis with one plan per patient
 %                 sourceDirName = [oneDirUp];
@@ -171,16 +178,16 @@ for dirNum = 1:length(allDirS)
 %                 indexS = planC{end};
 %                 sourceDirName = [sourceDirName,'_',planC{indexS.scan}.scanInfo(1).imageType];
 %                 % For Mike Folkert MR/PET data
-                dirUpNum = 1;
-                pre_post = sourceDir(slashIndex(end-dirUpNum)+1:slashIndex(end-dirUpNum+1)-1);
-                dirUpNum = 2;
-                modality = sourceDir(slashIndex(end-dirUpNum)+1:slashIndex(end-dirUpNum+1)-1);
-                dirUpNum = 3;
-                mrn = sourceDir(slashIndex(end-dirUpNum)+1:slashIndex(end-dirUpNum+1)-1);
-                seriesName = sourceDir(slashIndex(end-0)+1:end);
-                sourceDirName = fullfile(modality, pre_post, [mrn,'~',seriesName]);
+%                 dirUpNum = 1;
+%                 pre_post = sourceDir(slashIndex(end-dirUpNum)+1:slashIndex(end-dirUpNum+1)-1);
+%                 dirUpNum = 2;
+%                 modality = sourceDir(slashIndex(end-dirUpNum)+1:slashIndex(end-dirUpNum+1)-1);
+%                 dirUpNum = 3;
+%                 mrn = sourceDir(slashIndex(end-dirUpNum)+1:slashIndex(end-dirUpNum+1)-1);
+%                 seriesName = sourceDir(slashIndex(end-0)+1:end);
+%                 sourceDirName = fullfile(modality, pre_post, [mrn,'~',seriesName]);
 %                 % General case
-%                 sourceDirName = sourceDir(rtStartIndex:rtEndIndex);
+                sourceDirName = sourceDir(rtStartIndex:rtEndIndex);
                 
                 %Check for duplicate name of sourceDirName
                 dirOut = dir(destinationDir);
@@ -193,13 +200,16 @@ for dirNum = 1:length(allDirS)
                 end
                 if any(strcmpi([sourceDirName,'.mat.bz2'],allOutNames))
                     sourceDirName = [sourceDir(rtStartIndex:rtEndIndex),'duplicate_',num2str(rand(1))];
-                end
-                % save_planC(planC,[], 'passed', fullfile(destinationDir,[sourceDirName,'.mat.bz2']));
-                saved_fullFileName = fullfile(destinationDir,[sourceDirName,'.mat']);
+                end                                
+                if strcmpi(zipFlag,'Yes')
+                    saved_fullFileName = fullfile(destinationDir,[sourceDirName,'.mat.bz2']);
+                else
+                    saved_fullFileName = fullfile(destinationDir,[sourceDirName,'.mat']);
+                end                 
                 if ~exist(fileparts(saved_fullFileName),'dir')
                     mkdir(fileparts(saved_fullFileName))
                 end
-                save_planC(planC,[], 'passed', saved_fullFileName);
+                save_planC(planC,[], 'passed', saved_fullFileName);               
                 clear planC
                 convertedC{end+1} = sourceDir;
                 planNameC{end+1} = [sourceDirName,'.mat.bz2'];
@@ -210,7 +220,7 @@ for dirNum = 1:length(allDirS)
             end
         end
     elseif allDirS(dirNum).isdir && ~strcmp(allDirS(dirNum).name,'.') && ~strcmp(allDirS(dirNum).name,'..')
-        batchConvert(fullfile(sourceDir,allDirS(dirNum).name),destinationDir)
+        batchConvert(fullfile(sourceDir,allDirS(dirNum).name),destinationDir, zipFlag)
     end
 end
 if isempty(varargin)    

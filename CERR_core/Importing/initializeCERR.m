@@ -398,6 +398,11 @@ IMInitS = struct(...                    %CERR addition
     'IMSetup'                   , '', ...
     'IMDosimetry'               , '');
 
+GSPSInitS = struct(...
+    'SOPInstanceUID'                            ,   '', ...
+    'graphicAnnotationS'                        ,   '', ...
+    'textAnnotationS'                           ,   '');    
+
 planInitC = cell(1,16);
 
 indexS.header               = 1;
@@ -416,22 +421,23 @@ indexS.seedGeometry         = 13;
 indexS.digitalFilm          = 14;
 indexS.RTTreatment          = 15;
 indexS.IM                   = 16;
-indexS.deform               = 17;
-indexS.importLog            = 18;
-indexS.CERROptions          = 19;
+indexS.GSPS                 = 17;
+indexS.deform               = 18;
+indexS.importLog            = 19;
+indexS.CERROptions          = 20;
 
 % check if this is microRT and/or RPC film study and change the study
 % accordingly
 try
     if stateS.optS.chkMicroRT
-        indexS.microRTP = 20;
-        indexS.indexS   = 21;
+        indexS.microRTP = 21;
+        indexS.indexS   = 22;
         microRTPInitS = initializeMicroRTP(planInitC);
     else
-        indexS.indexS = 20;
+        indexS.indexS = 21;
     end
 catch
-    indexS.indexS = 20;
+    indexS.indexS = 21;
 end
 
 
@@ -442,7 +448,7 @@ headerInitS(1) = []; commentInitS(1) = []; scanInitS(1) = []; doseInitS(1) = [];
 planInitC(1) = [];  DVHInitS(1) = []; IVHInitS(1) = [];
 digitalFilmInitS(1) = []; importLogInitS(1) = []; IMInitS(1) = [];structureInitS(1) = [];
 beamGeometryInitS(1) = []; structureArrayInitS(1) = []; seedGeometryInitS(1) = [];
-deformS(1) = [];
+deformS(1) = []; GSPSInitS(1) = [];
 % seedGeometryInitS(1) = []; This is never used commented by DK
 
 planInitC{indexS.header}            = headerInitS;
@@ -463,6 +469,7 @@ planInitC{indexS.RTTreatment}       = RTTreatmentInitS;
 planInitC{indexS.deform}            = deformS;
 planInitC{indexS.importLog}         = importLogInitS;
 planInitC{indexS.IM}                = IMInitS;
+planInitC{indexS.GSPS}              = GSPSInitS;
 planInitC{indexS.CERROptions}       = struct([]); %Currently blank.  Set on planC creation.
 
 %Store the indexS so requesting functions can extract the prototype they

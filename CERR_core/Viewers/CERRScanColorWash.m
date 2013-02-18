@@ -57,20 +57,8 @@ global stateS planC
 indexS = planC{end};
 
 %c = CERRColorMap(stateS.optS.doseColormap);
-switch lower(stateS.contourOvrlyOptS.colormap)
-    case 'copper'
-        c = CERRColorMap('copper');
-    case 'red'
-        c = zeros(256,3);
-        c(:,1) = linspace(0,1,256);
-    case 'green'
-        c = zeros(256,3);
-        c(:,2) = linspace(0,1,256);        
-    case 'blue'
-        c = zeros(256,3);
-        c(:,3) = linspace(0,1,256);        
-end
-
+contourOvrlyColormapName = stateS.contourOvrlyOptS.colormap;
+c = CERRColorMap(contourOvrlyColormapName);
 
 [n, m] = size(dose2M);
 

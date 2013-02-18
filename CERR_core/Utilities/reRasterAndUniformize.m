@@ -42,8 +42,10 @@ for scanNum = 1:length(indexS.scan)
 end
 
 %re-generate raster segments
-[planC{indexS.structures}.rasterized] = deal(0);
-planC = getRasterSegs(planC);
+if ~isempty(planC{indexS.structures})
+    [planC{indexS.structures}.rasterized] = deal(0);
+    planC = getRasterSegs(planC);
+end
 
 %uniformize
 planC = setUniformizedData(planC);

@@ -1805,8 +1805,13 @@ switch upper(command)
                 [jnk, fileName] = fileparts(ud.newNameMapS(planNum).fullFileName);
                 ddbs(ddbsIndex).fileName = fileName;
                 patientName = planC{indexS.scan}.scanInfo(1).patientName;
+                if iscell(patientName)
+                    patientName = patientName{1};
+                end
                 indReplaceV = strfind(patientName,'^');
-                patientName(indReplaceV) = ',';
+                if ~isempty(indReplaceV)  
+                    patientName(indReplaceV) = ',';
+                end
                 ddbs(ddbsIndex).patientName = patientName;
                 for j=1:length(ud.scanDir.strNamC)
                     if ~isempty(ud.newNameMapS(planNum).structMap{j}) && length(ud.newNameMapS(planNum).structMap{j}) == 1   % Do not check for dose % && ~isempty(ud.newNameMapS(planNum).doseMap)
@@ -1828,7 +1833,7 @@ switch upper(command)
                         % Extract user-defined metrics
                         for k = 1:length(additionalMetricsC)
                             try
-                                ddbs(ddbsIndex).([additionalMetricsC{k},'_',ud.scanDir.strNamC{j}]) = feval(additionalMetricsC{k}, planC, ud.newNameMapS(planNum).structMap{j}, ud.newNameMapS(planNum).doseMap);
+                                ddbs(ddbsIndex).([additionalMetricsC{k},'_',repSpaceHyp(ud.scanDir.strNamC{j})]) = feval(additionalMetricsC{k}, planC, ud.newNameMapS(planNum).structMap{j}, ud.newNameMapS(planNum).doseMap);
                             catch
                                 warning(['Could not extract ', additionalMetricsC{k}, ' metric'])
                             end
@@ -1854,7 +1859,7 @@ switch upper(command)
                 for ex_ind = 1:length(excel_fileNameC)
                     excel_fileNameC{ex_ind} = num2str(excel_fileNameC{ex_ind});
                 end
-                [jnk,indexMapV] = ismember(strtok(ddbs_fileNameC,'_'),excel_fileNameC);
+                [jnk,indexMapV] = ismember(strtok(lower(ddbs_fileNameC),'_'),lower(excel_fileNameC));
                 
                 %set metrics fields
                 for i=1:length(selMetricsIndV)

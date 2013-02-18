@@ -106,6 +106,11 @@ if str2num(CERRImportVersion(1)) < 4
     end
 end
 
+% Check for GSPS and make it empty if no objects are present
+if length(planC{indexS.GSPS}) == 1 && isempty(planC{indexS.GSPS}.SOPInstanceUID)
+    planC{indexS.GSPS}(1) = [];
+end
+
 % Overwrite the existing CERR file if a bug is found and fixed
 if ~isempty(stateS) && isfield(stateS.optS,'overwrite_CERR_File') && stateS.optS.overwrite_CERR_File == 1 && bug_found    
     try 

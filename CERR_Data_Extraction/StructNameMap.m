@@ -81,7 +81,13 @@ infoS(1) = [];
         infoS(fileNum).fullFileName = fileC{iFile};
         
         for i=1:length(structures_to_extract)
-            structMap{i} = getMatchingIndex(structures_to_extract{i},{planC{indexS.structures}.structureName});
+            structMap{i} = getMatchingIndex(structures_to_extract{i},{planC{indexS.structures}.structureName},'exact');
+            if isempty(structMap{i})
+                structMap{i} = getMatchingIndex(structures_to_extract{i},{planC{indexS.structures}.structureName},'firstchars');
+                if isempty(structMap{i})
+                    structMap{i} = getMatchingIndex(structures_to_extract{i},{planC{indexS.structures}.structureName},'regex');
+                end
+            end
         end
         infoS(fileNum).structMap = structMap;        
  

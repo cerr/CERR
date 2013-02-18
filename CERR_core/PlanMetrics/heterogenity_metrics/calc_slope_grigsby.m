@@ -1,15 +1,17 @@
-function slope = calc_slope_grigsby(structNum,Thresholds)
-%function slope = calc_slope_grigsby(structNum,Thresholds)
+function slope = calc_slope_grigsby(structNum,Thresholds,planC)
+%function slope = calc_slope_grigsby(structNum,Thresholds,planC)
 %
 %This function returns shape features.
 %
 %IEN & APA, 07/06/2006
 
-global planC stateS
+if ~exist('planC','var')
+    global planC
+end
 indexS = planC{end};
 for i=1:length(Thresholds)
-    contourSUV(structNum,Thresholds(i));
-    structVol(i) = getStructureVol(length(planC{indexS.structures}));
+    planC = contourSUV(structNum,Thresholds(i),planC);
+    structVol(i) = getStructureVol(length(planC{indexS.structures}),planC);
     %runCERRCommand('del','structure',length(planC{indexS.structures}))
     n = length(planC{indexS.structures});
     len = n;

@@ -57,6 +57,9 @@ else
     uimenu(hScanMenu, 'label', 'Image Fusion', 'callback','controlFrame(''fusion'', ''init'');','interruptible','on');
     uimenu(hScanMenu, 'label', 'Append scan', 'callback',['scanSummationMenu'],'interruptible','on', 'tag', 'scanSummation');
     
+    %Annotation selection
+    uimenu(hScanMenu, 'label', 'Significant Images', 'callback','controlFrame(''ANNOTATION'', ''init'');','interruptible','on');
+    
 end
 
 if isempty(planC)
@@ -70,7 +73,7 @@ indexS = planC{end};
 %Find and remove old dose listings.
 kids = get(hScanMenu, 'children');
 numOldMenus = length(kids);
-delete(kids(1:numOldMenus-3));
+delete(kids(1:numOldMenus-4));
 
 %Get list of dose distributions
 numScans = length(planC{indexS.scan});

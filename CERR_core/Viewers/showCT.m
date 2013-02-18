@@ -153,12 +153,12 @@ for i=1:length(axisInfo.scanObj)
                 CTHigh = min(CTHigh,scanMax);                
                 clippedCT = clip(im, CTLow, CTHigh, 'limits');
                 
-                hFrame = stateS.handle.controlFrame;
-                ud = get(hFrame, 'userdata');
-                colorMapC = get(ud.handles.basedisplayModeColor,'string');
-                colorMapVal = get(ud.handles.basedisplayModeColor,'value');
-                map = CERRColorMap(colorMapC{colorMapVal});
-                colormap(hAxis, map);
+%                 hFrame = stateS.handle.controlFrame;
+%                 ud = get(hFrame, 'userdata');
+%                 colorMapC = get(ud.handles.basedisplayModeColor,'string');
+%                 colorMapVal = get(ud.handles.basedisplayModeColor,'value');
+%                 map = CERRColorMap(colorMapC{colorMapVal});
+%                 colormap(hAxis, map);
 
                 %% DK for Scan color map change
                 %                 clrVal = get(stateS.handle.BaseCMap,'value');
@@ -200,6 +200,7 @@ for i=1:length(axisInfo.scanObj)
                 CTHigh = min(CTHigh,scanMax);                
                 %wy Apply window and level by clipping CT.
                 clippedCT = clip(im, CTLow, CTHigh, 'limits');
+                             
 
             end
 
@@ -207,6 +208,8 @@ for i=1:length(axisInfo.scanObj)
             clippedCT = clippedCT / double( CTHigh - CTLow);
             
             set(hFig, 'renderer', 'openGL');
+            
+            colormap(hAxis, 'gray');
 
         else
             CTOffset    = planC{indexS.scan}(scanSet).scanInfo(1).CTOffset;
@@ -217,7 +220,7 @@ for i=1:length(axisInfo.scanObj)
             scanMin = stateS.scanStats.minScanVal.(repSpaceHyp(planC{indexS.scan}(scanSet).scanUID));
             scanMax = stateS.scanStats.maxScanVal.(repSpaceHyp(planC{indexS.scan}(scanSet).scanUID));
             CTLow = max(CTLow,scanMin);
-            CTHigh = min(CTHigh,scanMax);
+            CTHigh = max(CTLow,min(CTHigh,scanMax));
 
             %wy Apply window and level by clipping CT.
             clippedCT = clip(im, CTLow, CTHigh, 'limits');
@@ -252,7 +255,7 @@ for i=1:length(axisInfo.scanObj)
         if stateS.imageRegistration %wy
             set(hAxis, 'cLim', [0 1]);
         else
-            set(hAxis, 'cLim', [CTLow CTHigh]);
+            set(hAxis, 'cLim', [CTLow-1e-3 CTHigh+1e-3]);
         end
 
         axisInfo.scanObj(i).handles = hImage;

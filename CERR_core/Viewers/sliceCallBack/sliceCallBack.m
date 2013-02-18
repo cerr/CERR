@@ -182,6 +182,8 @@ switch upper(instr)
         stateS.CTToggle       =  1;
         stateS.structToggle   =  1;
         stateS.contourState = 0;
+        stateS.scanWindowState = 0;
+        
         %Later used for zooming
         stateS.initial_xLims.trans = [];
         stateS.initial_yLims.trans = [];
@@ -254,28 +256,31 @@ switch upper(instr)
         %General purpose control frame
         stateS.handle.controlFrame = uicontrol(hCSV,'units', 'pixels', 'Position', [0 0 leftMarginWidth 400], 'Style', 'frame', 'Tag', 'controlFrame');
         %Warning message.
-        handle = uicontrol(hCSV, 'units', 'pixels', 'Position', [10 600 leftMarginWidth-20 20], 'Style', 'text', 'enable', 'inactive'  , 'String', 'Not for clinical use', 'foregroundcolor', [1 0 0], 'fontsize', 14);
+        %handle = uicontrol(hCSV, 'units', 'pixels', 'Position', [10 600 leftMarginWidth-20 20], 'Style', 'text', 'enable', 'inactive'  , 'String', 'Not for clinical use', 'foregroundcolor', [1 0 0], 'fontsize', 14);
 
         %CT window and level ui:
         frameWidth = leftMarginWidth - 20;
-        stateS.handle.CTSettingsFrame = uicontrol(hCSV,'units','pixels', 'string', 'ctsettingsFrame', 'BackgroundColor',uicolor, 'Position', [10 490 frameWidth 110],'Style','frame', 'Tag','CTSettingsFrame');
+        stateS.handle.CTSettingsFrame = uicontrol(hCSV,'units','pixels', 'string', 'ctsettingsFrame', 'BackgroundColor',uicolor, 'Position', [10 490 frameWidth 120],'Style','frame', 'Tag','CTSettingsFrame');
         %CT Window text
-        stateS.handle.CTWindow = uicontrol(hCSV,'units','pixels','BackgroundColor',uicolor, 'Position',[20 560 (frameWidth-30)/2 25],'String','Window', 'Style','text', 'enable', 'inactive'  ,'Tag','CTWindow');
+        stateS.handle.CTWindow = uicontrol(hCSV,'units','pixels','BackgroundColor',uicolor, 'Position',[20 580 (frameWidth-30)/2 25],'String','Window', 'Style','text', 'enable', 'inactive'  ,'Tag','CTWindow');
         %Scan ColorMap
-        uicontrol(hCSV,'units','pixels','BackgroundColor',uicolor, 'Position',[(frameWidth-30)/2+20+10 560 (frameWidth-30)/2 25],'String','Colormap', 'Style','text', 'enable', 'inactive'  ,'Tag','CTWindow');
+        uicontrol(hCSV,'units','pixels','BackgroundColor',uicolor, 'Position',[(frameWidth-30)/2+20+10 580 (frameWidth-30)/2 25],'String','Colormap', 'Style','text', 'enable', 'inactive'  ,'Tag','CTWindow');
+        
         %CT Center Text
         uicontrol(hCSV,'units','pixels','BackgroundColor',uicolor, 'Position',[20 510 (frameWidth-30)/2 25], 'String','Center','Style','text', 'enable', 'inactive', 'Tag','CTWindow');
         %CT Width Text
         uicontrol(hCSV,'units','pixels','BackgroundColor',uicolor,'Position',[(frameWidth-30)/2+20+10 510 (frameWidth-30)/2 25], 'String','Width','Style','text', 'enable', 'inactive' ,'Tag','CTWindow');
 
         %Presets dropdown.
-        stateS.handle.CTPreset = uicontrol(hCSV,'units','pixels', 'BackgroundColor',uicolor,'Position',[20 545 (frameWidth-30)/2 25], 'String',{stateS.optS.windowPresets.name},'Style','popup','Tag','CTPreset', 'callback','sliceCallBack(''CTPreset'');','tooltipstring','Select Preset Window');
+        stateS.handle.CTPreset = uicontrol(hCSV,'units','pixels', 'BackgroundColor',uicolor,'Position',[20 565 (frameWidth-30)/2 25], 'String',{stateS.optS.windowPresets.name},'Style','popup','Tag','CTPreset', 'callback','sliceCallBack(''CTPreset'');','tooltipstring','Select Preset Window');
         %Base Colormap Presets dropdown.
-        stateS.handle.BaseCMap = uicontrol(hCSV,'units','pixels', 'BackgroundColor',uicolor,'Position',[(frameWidth-30)/2+20+10 545 (frameWidth-30)/2 25], 'String',{stateS.optS.scanColorMap.name},'Style','popup','Tag','CMapPreset', 'callback','sliceCallBack(''BaseColorMap'');','tooltipstring','Select Scan Color Map','Enable','on');
+        stateS.handle.BaseCMap = uicontrol(hCSV,'units','pixels', 'BackgroundColor',uicolor,'Position',[(frameWidth-30)/2+20+10 565 (frameWidth-30)/2 25], 'String',{stateS.optS.scanColorMap.name},'Style','popup','Tag','CMapPreset', 'callback','sliceCallBack(''BaseColorMap'');','tooltipstring','Select Scan Color Map','Enable','on');
         %CTLevel edit box
         stateS.handle.CTLevel = uicontrol(hCSV,'units','pixels', 'BackgroundColor',uicolor,'Position',[20 500 (frameWidth-30)/2 20], 'String',num2str(stateS.optS.CTLevel),'Style','edit','Tag','CTLevel', 'callback','sliceCallBack(''CTLevel'');','tooltipstring','Change CT window center');
         %CT Width edit box.
         stateS.handle.CTWidth = uicontrol(hCSV,'units','pixels','BackgroundColor',uicolor, 'Position',[(frameWidth-30)/2+20+10 500 (frameWidth-30)/2 20], 'String',num2str(stateS.optS.CTWidth),'Style','edit','Tag','CTWidth', 'callback','sliceCallBack(''CTWidth'');','tooltipstring','Change CT window width');
+        %CT Level/Width pushbutton
+        stateS.handle.CTLevelWidthInteractive = uicontrol(hCSV,'units','pixels','BackgroundColor',uicolor, 'Position',[20 540 frameWidth-20 20], 'String','Interactive Windowing','Style','toggle','Tag','CTInteractiveWindowing', 'callback','sliceCallBack(''TOGGLESCANWINDOWING'');','tooltipstring','Drag mouse on view to change display window');
 
         %Loop controls:
         stateS.handle.loopTrans = uicontrol(hCSV,'units',units,'pos',[0.11*512, 375 dx-5, 20]/512,'string','Loop','fontsize',fontsize, 'BackgroundColor',uicolor, 'callback','sliceCallBack(''loop'')','interruptible','on','tooltipstring','Loop through slices', 'enable', 'off');
@@ -586,8 +591,8 @@ switch upper(instr)
         
         % Save scan statistics for fast image rendering
         for scanNum = 1:length(planC{indexS.scan})
-            stateS.scanStats.minScanVal.(repSpaceHyp(planC{indexS.scan}(scanNum).scanUID)) = min(planC{indexS.scan}(scanNum).scanArray(:)) - planC{indexS.scan}(scanNum).scanInfo(1).CTOffset;
-            stateS.scanStats.maxScanVal.(repSpaceHyp(planC{indexS.scan}(scanNum).scanUID)) = max(planC{indexS.scan}(scanNum).scanArray(:)) - planC{indexS.scan}(scanNum).scanInfo(1).CTOffset;
+            stateS.scanStats.minScanVal.(repSpaceHyp(planC{indexS.scan}(scanNum).scanUID)) = single(min(planC{indexS.scan}(scanNum).scanArray(:))) - planC{indexS.scan}(scanNum).scanInfo(1).CTOffset;
+            stateS.scanStats.maxScanVal.(repSpaceHyp(planC{indexS.scan}(scanNum).scanUID)) = single(max(planC{indexS.scan}(scanNum).scanArray(:))) - planC{indexS.scan}(scanNum).scanInfo(1).CTOffset;
         end
         
         %If any duplicates, remove them and make new entry first.
@@ -926,12 +931,20 @@ switch upper(instr)
                     CTImageRotation('down', hAxis);
                     return;
                 end %wy
-
+                
+                if stateS.scanWindowState
+                    set(hFig, 'WindowButtonMotionFcn', 'sliceCallBack(''scanWindowMotion'')', 'WindowButtonUpFcn', 'sliceCallBack(''scanWindowMotionDone'')');
+                    sliceCallBack('scanWindowStart');
+                    return;
+                end
+                
                 if stateS.contourState
                     contourControl('Axis_Focus_Changed');
                     return;
                 end
+                
 
+                
             case {'alt' 'extend'}
                 if ~stateS.gridState & ~stateS.doseQueryState & ~stateS.doseProfileState & ~stateS.zoomState & ~stateS.imageRegistration;
                     %Re-enable right click menus;
@@ -1149,16 +1162,17 @@ switch upper(instr)
 
     case 'DOSETOGGLE'
         if stateS.doseToggle == 1 & stateS.layout == 7
-            hWarn = warndlg('Dose cannot be turned of in doseCompareMode');
+            hWarn = warndlg('Dose cannot be turned off in doseCompareMode');
             waitfor(hWarn);
             return
         end
         stateS.doseToggle = - stateS.doseToggle;
         try
+            hDoseToggle = findobj(stateS.handle.CERRSliceViewer,'tag', 'doseToggle');
             if stateS.doseToggle == 1
-                set(gcbo, 'checked', 'on')
+                set(hDoseToggle, 'checked', 'on')
             else
-                set(gcbo, 'checked', 'off')
+                set(hDoseToggle, 'checked', 'off')
             end
         end
         stateS.doseSetChanged = 1;
@@ -1322,7 +1336,7 @@ switch upper(instr)
         hToggleBasMov = findobj(stateS.handle.CERRSliceViewer,'tag','toggleBasMov');
         %change color of Base-Moving toggle-button if it exists
         udFrame = get(stateS.handle.controlFrame,'userdata');        
-        clrM = [0 0 0; 1 0.8 0.5; 1 0 0; 0 1 0; 0 0 1; 1 0.5 0.5];        
+        clrM = [0 0 0; 1 0.8 0.5; 1 0 0; 0 1 0; 0 0 1; 1 0.5 0.5; 1 0.5 0.5];        
         if ~isempty(hToggleBasMov) && stateS.doseAlphaValue.trans > 0 && stateS.doseAlphaValue.trans < 1
             set(hToggleBasMov,'string','B/M','fontWeight','normal','foregroundColor',[0 0 0],'value',0)
         elseif ~isempty(hToggleBasMov) && stateS.doseAlphaValue.trans == 1
@@ -1870,6 +1884,68 @@ switch upper(instr)
         set(hFig, 'WindowButtonMotionFcn', '', 'WindowButtonUpFcn', '');
         return;
         %%%%%
+        
+        
+        %CALLBACKS TO SCAN WINDOW            
+    case 'TOGGLESCANWINDOWING'
+        toggleState = get(gcbo,'value');
+        if toggleState == 1
+            CERRStatusString('Click and drag mouse on a view')
+            stateS.scanWindowState = 1;
+            stateS.turnDoseOnInteractiveWindowing = 0;
+            if stateS.doseToggle == 1
+                stateS.turnDoseOnInteractiveWindowing = 1;
+                sliceCallBack('doseToggle')
+            end
+        else
+            CERRStatusString('')
+            stateS.scanWindowState = 0;
+            if stateS.turnDoseOnInteractiveWindowing
+                stateS = rmfield(stateS,'turnDoseOnInteractiveWindowing');
+                sliceCallBack('doseToggle')
+            end            
+        end
+        
+    case 'SCANWINDOWSTART'
+        hAxis = gca;
+        hFig  = get(hAxis, 'parent');
+        cP    = get(hAxis, 'CurrentPoint');
+        set(hFig, 'interruptible', 'off', 'busyaction', 'cancel');
+        stateS.scanWindowCurrentPoint = cP(1,1:2);
+        return;     
+        
+        scanWindowMotion
+    case 'SCANWINDOWMOTION'
+        hAxis = gca;
+        hFig  = get(hAxis, 'parent');
+        cP    = get(hAxis, 'CurrentPoint');
+        pointDiff =  cP(1,1:2) - stateS.scanWindowCurrentPoint;
+        [dX,dY] = getAxisInfo(hAxis,'xRange','yRange');
+        percentMov = abs(pointDiff./[dX(2)-dX(1)+eps dY(2)-dY(1)+eps]);
+        percentMov = percentMov/max(percentMov);
+        pointDiff = sign(pointDiff);
+        stateS.scanWindowCurrentPoint = cP(1,1:2);   
+        maxScanVal = stateS.scanStats.maxScanVal.(repSpaceHyp(planC{indexS.scan}(getAxisInfo(gca,'scanSets')).scanUID));
+        minScanVal = stateS.scanStats.minScanVal.(repSpaceHyp(planC{indexS.scan}(getAxisInfo(gca,'scanSets')).scanUID));
+        dMov = maxScanVal - minScanVal;
+        stateS.optS.CTLevel = stateS.optS.CTLevel + pointDiff(2)*dMov*0.125/100*percentMov(2);        
+        stateS.optS.CTWidth = stateS.optS.CTWidth + pointDiff(1)*dMov*0.0625/100*percentMov(1); 
+        stateS.optS.CTLevel = (stateS.optS.CTLevel);
+        stateS.optS.CTWidth = max([1 (stateS.optS.CTWidth)]);
+        set(stateS.handle.CTLevel,'String',stateS.optS.CTLevel)
+        set(stateS.handle.CTWidth,'String',stateS.optS.CTWidth)
+        for hAxis = stateS.handle.CERRAxis
+            showCT(hAxis)
+            %showDose(hAxis)
+        end
+        return;
+        
+    case 'SCANWINDOWMOTIONDONE' 
+        hFig = gcf;
+        set(hFig, 'interruptible', 'on', 'busyaction', 'queue');
+        set(hFig, 'WindowButtonMotionFcn', '', 'WindowButtonUpFcn', '');
+        return;        
+        
 
         %CALLBACKS TO QUERY DOSE.
     case 'TOGGLEDOSEQUERY'
@@ -2526,6 +2602,10 @@ switch upper(instr)
     case 'BASECOLORMAP'
         % change display mode to different color maps for moving set
         hAxes = stateS.handle.CERRAxis;
+        
+        % Set the new colormap
+        colorMapIndex = get(stateS.handle.BaseCMap,'value');
+        stateS.optS.CTColormap = stateS.optS.scanColorMap(colorMapIndex).name;
 
         stateS.optS.fusionDisplayMode = 'colorblend';
 
@@ -2534,6 +2614,9 @@ switch upper(instr)
             for j=1:length(ud.scanObj);
                 ud.scanObj(j).redraw = 1;
             end
+            for j=1:length(ud.doseObj);
+                ud.doseObj(j).redraw = 1;
+            end            
             set(hAxes(i), 'userdata', ud);
             showCT(hAxes(i));
             showDose(hAxes(i));

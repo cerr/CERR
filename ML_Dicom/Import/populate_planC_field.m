@@ -180,7 +180,7 @@ switch cellName
             
         end
         close(hWaitbar);
-        pause(1);
+        pause(0.1);
         
         %     case 'structureArray'
         %         populate_planC_structureArray_field(fieldName, dcmdir);
@@ -189,7 +189,7 @@ switch cellName
         [seriesC, typeC]    = extract_all_series(dcmdir_patient);
         supportedTypes      = {'RTDOSE'};
         dosesAdded          = 0;
-        
+        frameOfRefUIDC       = {};
         %Place each RTDOSE into its own array element.
         for seriesNum = 1:length(seriesC)
             
@@ -200,6 +200,9 @@ switch cellName
                 for doseNum = 1:length(RTDOSE)
                     doseobj  = scanfile_mldcm(RTDOSE(doseNum).file);
                     
+                    % Frame of Reference UID
+                    frameOfRefUID = dcm2ml_Element(doseobj.get(hex2dec('00200052')));
+                                            
                     %check if it is a DVH                    
                     dvhsequence = populate_planC_dose_field('dvhsequence', RTDOSE(doseNum), doseobj, rtPlans);
                     
@@ -211,12 +214,29 @@ switch cellName
                         for i = 1:length(names)
                             dataS(dosesAdded+1).(names{i}) = populate_planC_dose_field(names{i}, RTDOSE(doseNum), doseobj, rtPlans);
                         end
+                        
+                        if isempty(frameOfRefUIDC)
+                            frameOfRefUIDC{1} = frameOfRefUID;
+                        else
+                            frameOfRefUIDC{end+1} = frameOfRefUID;
+                        end
+                        
+                        % Check if frame of reference UID matches any
+                        % existing doses and add slices.
+                        
+                        % If frame of reference UID does not match, then
+                        % create a new dose                        
                         dosesAdded = dosesAdded + 1;
                     end
                 end
             end
             
         end
+        
+        % Get doses that have same frame of reference UIDs
+        %[uniqFrameOfRefUIDC,jnk,uniqIndV] = unique(frameOfRefUIDC);
+        %dataS(find(uniqIndV==1))
+        
         
     case 'DVH'
         [seriesC, typeC]    = extract_all_series(dcmdir_patient);
@@ -272,9 +292,11 @@ switch cellName
                             dataS(dvhsAdded+1).volumeType = dvhsequence.(['Item_',num2str(i)]).DVHType;                                                        
                             dataS(dvhsAdded+1).doseType = dvhsequence.(['Item_',num2str(i)]).DoseType; 
                             dataS(dvhsAdded+1).doseUnits = dvhsequence.(['Item_',num2str(i)]).DoseUnits; 
-                            structureNumber = dvhsequence.(['Item_',num2str(i)]).DVHReferencedROISequence.Item_1.ReferencedROINumber;
-                            indROINumber = find(structureNumberV==structureNumber);
-                            dataS(dvhsAdded+1).structureName = structureNameC{indROINumber};
+                            if isfield(dvhsequence.(['Item_',num2str(i)]),'DVHReferencedROISequence')
+                                structureNumber = dvhsequence.(['Item_',num2str(i)]).DVHReferencedROISequence.Item_1.ReferencedROINumber;
+                                indROINumber = find(structureNumberV==structureNumber);
+                                dataS(dvhsAdded+1).structureName = structureNameC{indROINumber};
+                            end
                             dataS(dvhsAdded+1).doseScale = dvhsequence.(['Item_',num2str(i)]).DVHDoseScaling;
                             binWidthsV = dvhsequence.(['Item_',num2str(i)]).DVHData(1:2:end);
                             %maxDVHDose = dvhsequence.(['Item_',num2str(i)]).DVHMaximumDose;
@@ -286,9 +308,13 @@ switch cellName
                             end                                                          
                             dataS(dvhsAdded+1).DVHMatrix(:,1) = doseBinsV(:);
                             if strcmpi(dataS(dvhsAdded+1).volumeType,'cumulative')
-                                 volumeBinsV = dvhsequence.(['Item_',num2str(i)]).DVHData(2:2:end);
-                                 volumeBinsV = diff(volumeBinsV(1)-volumeBinsV);
-                                 volumeBinsV = [volumeBinsV(1); volumeBinsV(:)];
+                                if length(dvhsequence.(['Item_',num2str(i)]).DVHData) > 2
+                                    volumeBinsV = dvhsequence.(['Item_',num2str(i)]).DVHData(2:2:end);
+                                    volumeBinsV = diff(volumeBinsV(1)-volumeBinsV);
+                                    volumeBinsV = [volumeBinsV(1); volumeBinsV(:)];
+                                else
+                                    volumeBinsV = dataS(dvhsAdded+1).DVHMatrix(:,1)*NaN;
+                                end
                             else
                                 volumeBinsV = dvhsequence.(['Item_',num2str(i)]).DVHData(2:2:end);
                                 volumeBinsV = volumeBinsV(:);
@@ -377,6 +403,51 @@ switch cellName
         % %
         % %             end
         % %         end
+        
+        
+    case 'GSPS'        
+        [seriesC, typeC]    = extract_all_series(dcmdir_patient);
+        supportedTypes      = {'PR'};
+        gspsAdded          = 0;
+        
+        hWaitbar = waitbar(0,'Loading GSPS. Please wait...');
+        
+        numGspsSeries = length(find(strcmpi(typeC, 'PR')==1));
+        
+        %Place each structure into its own array element.
+        for seriesNum = 1:length(seriesC)
+            
+            %if ismember(typeC{seriesNum}, supportedTypes)
+            if strcmpi(typeC{seriesNum}, 'PR')
+                GSPS = seriesC{seriesNum}.Data;
+                for k = 1:length(GSPS)
+                    gspsobj  = scanfile_mldcm(GSPS(k).file);
+                    
+                    %Graphic Annotation Sequence.             
+                    el = gspsobj.get(hex2dec('00700001'));
+
+                    % ROI = strobj.getInt(org.dcm4che2.data.Tag.ROIContourSequence);
+                    
+                    nGsps = el.countItems;
+                    curGspsNum = 1; %wy modified for suppport multiple RS files
+                    for j = 1:nGsps
+                        
+                        %Populate each field in the structure field set
+                        for i = 1:length(names)
+                            dataS(gspsAdded+1).(names{i}) = populate_planC_gsps_field(names{i}, GSPS, curGspsNum, gspsobj);
+                        end
+                        curGspsNum = curGspsNum + 1;
+                        gspsAdded = gspsAdded + 1;
+                        
+                        waitbar(gspsAdded/(nGsps*length(GSPS)*numGspsSeries), hWaitbar, 'Loading Annotations, Please wait...');
+
+                    end
+                end                
+            end
+            
+        end
+        close(hWaitbar);
+        pause(0.1);
         
     case 'importLog'
         %Implementation is unnecessary.

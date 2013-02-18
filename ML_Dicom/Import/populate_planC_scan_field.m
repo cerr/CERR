@@ -126,7 +126,8 @@ switch fieldname
             end
             
             if ischar(dataS)
-                dataS = typecast([],class(slice2D));
+                % dataS = typecast([],class(slice2D));
+                dataS = zeros(nRows, nCols, nImages,class(slice2D));
             end
 
             %Store zValue for sorting, converting DICOM mm to CERR cm and

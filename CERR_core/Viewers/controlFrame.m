@@ -16,24 +16,24 @@ function controlFrame(command, varargin)
 %   controlFrame(module, command)
 %
 % Copyright 2010, Joseph O. Deasy, on behalf of the CERR development team.
-% 
+%
 % This file is part of The Computational Environment for Radiotherapy Research (CERR).
-% 
+%
 % CERR development has been led by:  Aditya Apte, Divya Khullar, James Alaly, and Joseph O. Deasy.
-% 
+%
 % CERR has been financially supported by the US National Institutes of Health under multiple grants.
-% 
-% CERR is distributed under the terms of the Lesser GNU Public License. 
-% 
+%
+% CERR is distributed under the terms of the Lesser GNU Public License.
+%
 %     This version of CERR is free software: you can redistribute it and/or modify
 %     it under the terms of the GNU General Public License as published by
 %     the Free Software Foundation, either version 3 of the License, or
 %     (at your option) any later version.
-% 
+%
 % CERR is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
 % without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 % See the GNU General Public License for more details.
-% 
+%
 % You should have received a copy of the GNU General Public License
 % along with CERR.  If not, see <http://www.gnu.org/licenses/>.
 
@@ -70,6 +70,9 @@ switch command
         elseif~isempty(findobj('string', 'Rotate View Planes', 'tag', 'controlFrameItem'))
             controlFrame('rotate_axis','quit');
             stateS.rotateView = 0;
+        elseif~isempty(findobj('string', 'Significant Images', 'tag', 'controlFrameItem'))
+            controlFrame('ANNOTATION','quit');
+            stateS.anotationDisplay = 0;
         end
         try
             delete(findobj('tag', 'controlFrameItem'));
@@ -267,7 +270,7 @@ switch command
                             stateS.contourOvrlyOptS.center = str2num(get(ud.handle.ovrlayWindowCenterEdt,'String'));
                             stateS.contourOvrlyOptS.width  = str2num(get(ud.handle.ovrlayWindowWidthEdt,'String'));
                         end
-                        colorbarStrC = {'Copper','Red','Green','Blue','StarInterp','hotCold'};
+                        colorbarStrC = {'Gray256','Copper','Red','Green','Blue','StarInterp','hotCold'};
                         stateS.contourOvrlyOptS.colormap = colorbarStrC{get(ud.handle.ovrlayMapChoices,'Value')};
                         stateS.CTDisplayChanged = 1;
                         CERRRefresh;
@@ -365,7 +368,7 @@ switch command
                 set(ud.handles.asBlank, 'value', 0);
                 set(ud.handles.scanSelect, 'enable', 'off');
                 
-            case 'selectMode'                
+            case 'selectMode'
                 
                 ud = get(hFrame, 'userdata');
                 
@@ -375,7 +378,7 @@ switch command
                 
                 if isempty(strUd)
                     return;
-                end                
+                end
                 
                 structNum = strUd.strNumsV(structNum);
                 
@@ -1153,7 +1156,7 @@ switch command
                 controlFrame('default');
                 
                 if length(planC{planC{end}.scan}) < 2 & length(planC{planC{end}.dose})< 1
-                    hWarn = warndlg('At least scans are needed for image fusion.', 'Not enough data for fusion.');
+                    hWarn = warndlg('At least two scans or one scan and one dose are needed for image fusion.', 'Not enough data for fusion.');
                     waitfor(hWarn);
                     return;
                 end
@@ -1173,6 +1176,7 @@ switch command
                 set(stateS.handle.BaseCMap, 'visible', 'off');
                 set(stateS.handle.CTWidth, 'visible', 'off');
                 set(stateS.handle.CTLevel, 'visible', 'off');
+                set(stateS.handle.CTLevelWidthInteractive, 'visible', 'off');
                 
                 %tempControlPos = get(stateS.handle.controlFrame, 'pos');
                 set(stateS.handle.controlFrame, 'pos', [0 0 195 600-270]);
@@ -1467,7 +1471,7 @@ switch command
                 ud.handles.mirror_checkerToggle= uicontrol(hFig, 'style',  'togglebutton','units', units, 'position', absPos([.50 .34+dy .45 .05], posFrame),...
                     'string', 'Mirror ChkBd', 'tag', 'controlFrameItem', 'callback', 'controlFrame(''fusion'', ''mirror_checker_board'')',...
                     'tooltipstring','Mirror CheckerBoard', 'fontsize', 7, 'interrupt', 'off');
-
+                
                 %-------------------------
                 ud.handles.checkerToggle= uicontrol(hFig, 'style',  'togglebutton','units', units, 'position', absPos([.05 .28+dy .45 .05], posFrame),...
                     'string', 'Blended ChkBd', 'tag', 'controlFrameItem', 'callback', 'controlFrame(''fusion'', ''checker_board'')',...
@@ -1506,12 +1510,12 @@ switch command
                     'BusyAction', 'cancel', 'Interruptible', 'off', ...
                     'tooltipstring','Metric for comparison', 'callback', 'CERRRefresh', 'visible', 'off');
                 
-%                 ud.handles.mirrorcheckerAxis = axes('units', units, 'position', absPos([.65 .15+dy .15 .04], posFrame), 'xTickLabel', [], 'yTickLabel', [], 'xTick', [], 'yTick', [], 'visible', 'on');
-%                 cM = CERRColorMap('starinterp');
-%                 nColors = size(cM,1);
-%                 tmpV    = nColors:-1:1;
-%                 cB      = ind2rgb(tmpV, cM);
-%                 imagesc([0 1],[0.5 0.5] ,cB, 'parent',ud.handles.mirrorcheckerAxis)
+                %                 ud.handles.mirrorcheckerAxis = axes('units', units, 'position', absPos([.65 .15+dy .15 .04], posFrame), 'xTickLabel', [], 'yTickLabel', [], 'xTick', [], 'yTick', [], 'visible', 'on');
+                %                 cM = CERRColorMap('starinterp');
+                %                 nColors = size(cM,1);
+                %                 tmpV    = nColors:-1:1;
+                %                 cB      = ind2rgb(tmpV, cM);
+                %                 imagesc([0 1],[0.5 0.5] ,cB, 'parent',ud.handles.mirrorcheckerAxis)
                 
                 %--------------mirror------------
                 
@@ -2144,7 +2148,7 @@ switch command
                     set(ud.handles.ckSizeValue, 'visible', 'off');
                     set(ud.handles.newcheckerSize, 'visible', 'off');
                     
-                    set(ud.handles.differToggle, 'enable', 'on');     
+                    set(ud.handles.differToggle, 'enable', 'on');
                     set(ud.handles.mirror_checkerToggle, 'enable', 'on');
                     set(ud.handles.checkerToggle, 'enable', 'on');
                     set(ud.handles.mirrorToggle, 'visible', 'on');
@@ -2189,7 +2193,7 @@ switch command
                     set(ud.handles.mirrorcheckerOrientation, 'visible', 'on');
                     set(ud.handles.mirrorcheckerMetricString, 'visible', 'on');
                     set(ud.handles.mirrorcheckerMetricPopup, 'visible', 'on');
-                    %set(ud.handles.mirrorcheckerAxis, 'visible', 'on');                   
+                    %set(ud.handles.mirrorcheckerAxis, 'visible', 'on');
                     
                     set(ud.handles.differToggle, 'enable', 'off');
                     set(ud.handles.newcheckerToggle, 'enable', 'off');
@@ -2215,7 +2219,7 @@ switch command
                     set(ud.handles.mirrorToggle, 'visible', 'on');
                     set(ud.handles.mirrorScopeToggle, 'visible', 'on');
                     set(ud.handles.blockMatchToggle, 'visible', 'on');
-                end      
+                end
                 
                 CERRRefresh
                 
@@ -2464,7 +2468,7 @@ switch command
                         
                         set(hBox, 'Parent', hAxis, 'EdgeColor', [.10 .86 .10], ...
                             'Tag', 'MirrorScope', 'FaceColor', [.10 .10 .86], ...
-                            'FaceAlpha', 0.1, 'LineWidth', 1, ...
+                            'FaceAlpha', 0.1, 'LineWidth', 2, ...
                             'ButtonDownFcn','controlFrame(''fusion'', ''mirrorScopeClicked'')', ...
                             'userdata', ud);
                         
@@ -2666,6 +2670,7 @@ switch command
                 set(stateS.handle.BaseCMap, 'visible', 'on');
                 set(stateS.handle.CTWidth, 'visible', 'on');
                 set(stateS.handle.CTLevel, 'visible', 'on');
+                set(stateS.handle.CTLevelWidthInteractive, 'visible', 'on');
                 
                 %set(stateS.handle.controlFrame, 'pos', tempControlPos);
                 leftMarginWidth = 195;
@@ -2899,8 +2904,144 @@ switch command
                 %leftFrame = findobj(hFig,'Tag', 'leftMargin');
                 %set([leftFrame hFrame],'visible','on')
                 close(ud.handles.display_fig)
-                CERRRefresh
+                CERRRefresh                                
                 
+        end
+        
+    case 'ANNOTATION'        
+        ud = get(hFrame, 'userdata');
+        switch varargin{1}
+            case 'init'
+                
+                if isempty(planC{indexS.GSPS})
+                    herror=errordlg({'No annotations exist for this scan'},'Annotations NOT available','modal');
+                    return;
+                end
+                udAxis = get(stateS.handle.CERRAxis(1),'userdata');
+                if ~strcmpi(udAxis.view,'transverse')
+                    herror=errordlg({'Annotations can be shown only on Transverse Views','Please Select 1st view to be transverse for contouring'},'Not a transverse view','modal');
+                    return
+                end
+                
+                % Build a list of slices that are annotated
+                for slcNum=1:length(planC{indexS.scan}.scanInfo)
+                    SOPInstanceUIDc{slcNum} = planC{indexS.scan}.scanInfo(slcNum).DICOMHeaders.SOPInstanceUID;
+                end
+                numSignificantSlcs = length(planC{indexS.GSPS});
+                matchingSliceIndV = [];
+                matchingGSPSIndV = [];
+                for i=1:numSignificantSlcs
+                    sliceNum = strmatch(planC{indexS.GSPS}(i).SOPInstanceUID, SOPInstanceUIDc);
+                    sliceNumsC{i} = sliceNum;
+                    if ~isempty(sliceNum)
+                        matchingSliceIndV = [matchingSliceIndV sliceNum];
+                        matchingGSPSIndV = [matchingGSPSIndV i];
+                    end
+                end
+                
+                ud.handles.annotText = uicontrol(hFig, 'style', 'text', 'enable', 'inactive' , 'units', units, 'position', absPos([.05 .9 .9 .05], posFrame), 'string', 'Annotations', 'tag', 'controlFrameItem', 'horizontalAlignment', 'center','fontWeight','bold');
+                ud.handles.sliceText = uicontrol(hFig, 'style', 'text', 'enable', 'inactive' , 'units', units, 'position', absPos([.3 .82 .4 .05], posFrame), 'string', ['Image 1/',num2str(length(matchingSliceIndV))], 'tag', 'controlFrameItem', 'horizontalAlignment', 'center');
+                ud.handles.prevSlcPush = uicontrol(hFig, 'style', 'push', 'units', units, 'position', absPos([.05 .82 .2 .05], posFrame), 'string', '<<', 'tag', 'controlFrameItem', 'visible', 'on', 'callBack','controlFrame(''ANNOTATION'',''prevSlc'')', 'horizontalAlignment', 'center');
+                ud.handles.nextSlcPush = uicontrol(hFig, 'style', 'push', 'units', units, 'position', absPos([.8 .82 .15 .05], posFrame), 'string', '>>', 'tag', 'controlFrameItem', 'visible', 'on', 'callBack','controlFrame(''ANNOTATION'',''nextSlc'')', 'horizontalAlignment', 'center');
+                ud.handles.AnnotSelectTxt = uicontrol(hFig, 'style', 'text', 'enable', 'inactive', 'units', units, 'position', absPos([.05 .72 .35 .05], posFrame), 'string', 'Item #', 'tag', 'controlFrameItem', 'visible', 'on', 'horizontalAlignment', 'center');
+                ud.handles.AnnotSelect = uicontrol(hFig, 'style', 'popup', 'units', units, 'position', absPos([.4 .72 .55 .05], posFrame), 'string', '','value',1, 'tag', 'controlFrameItem', 'visible', 'on', 'callBack','controlFrame(''ANNOTATION'',''show'')', 'horizontalAlignment', 'center');
+                ud.handles.AnnotStat1 = uicontrol(hFig, 'style', 'text', 'enable', 'inactive', 'units', units, 'position', absPos([.1 .65 .65 .05], posFrame), 'string', '', 'tag', 'controlFrameItem', 'visible', 'on', 'horizontalAlignment', 'left');
+                ud.handles.quitPush = uicontrol(hFig, 'style', 'push', 'units', units, 'position', absPos([.4 .1 .2 .05], posFrame), 'string', 'Quit', 'tag', 'controlFrameItem', 'visible', 'on', 'callBack','controlFrame(''ANNOTATION'',''quit'')', 'horizontalAlignment', 'center');
+                
+                ud.annotation.currentMatchingSlc = 1;
+                ud.annotation.slicesNumsC = sliceNumsC;
+                ud.annotation.matchingSliceIndV = matchingSliceIndV;
+                ud.annotation.matchingGSPSIndV = matchingGSPSIndV;
+                set(hFrame, 'userdata', ud);
+                controlFrame('ANNOTATION','updateAnnotationList')
+                controlFrame('ANNOTATION','show',1)
+                
+            case 'prevSlc'
+                if ud.annotation.currentMatchingSlc == 1
+                    return;
+                end
+                ud.annotation.currentMatchingSlc = ud.annotation.currentMatchingSlc - 1;
+                set(hFrame, 'userdata', ud);
+                controlFrame('ANNOTATION','updateAnnotationList')
+                controlFrame('ANNOTATION','show')
+                
+            case 'nextSlc'
+                if ud.annotation.currentMatchingSlc == length(ud.annotation.matchingSliceIndV)
+                    return;
+                end
+                ud.annotation.currentMatchingSlc = ud.annotation.currentMatchingSlc + 1;
+                set(hFrame, 'userdata', ud);
+                controlFrame('ANNOTATION','updateAnnotationList')
+                controlFrame('ANNOTATION','show')
+                
+            case 'updateAnnotationList'
+                gspsNum = ud.annotation.matchingGSPSIndV(ud.annotation.currentMatchingSlc);
+                graphicAnnotationTypeC{1} = 'None';
+                for iGraphic = 1:length(planC{indexS.GSPS}(gspsNum).graphicAnnotationS)
+                    graphicAnnotationTypeC{iGraphic} = planC{indexS.GSPS}(gspsNum).graphicAnnotationS(iGraphic).graphicAnnotationType;                    
+                end
+                set(ud.handles.AnnotSelect,'string',graphicAnnotationTypeC,'value',1)
+                
+            case 'show'
+                
+                Dims = size(planC{indexS.scan}.scanArray);
+                Dims(3) = [];
+                gridUnits = [planC{indexS.scan}.scanInfo(1).grid1Units planC{indexS.scan}.scanInfo(1).grid2Units];
+                offset = [planC{indexS.scan}.scanInfo(1).yOffset planC{indexS.scan}.scanInfo(1).xOffset];
+                
+                %gspsNum = varargin{2};
+                gspsNum = ud.annotation.matchingGSPSIndV(ud.annotation.currentMatchingSlc);
+                sliceNum = ud.annotation.slicesNumsC{gspsNum};
+                axes(stateS.handle.CERRAxis(1))
+                goto('SLICE',sliceNum)
+                
+                set(ud.handles.sliceText, 'String', ['Image ',num2str(ud.annotation.currentMatchingSlc),'/',num2str(length(ud.annotation.matchingSliceIndV))])
+                
+                for iGraphic = 1:length(planC{indexS.GSPS}(gspsNum).graphicAnnotationS)
+                    graphicAnnotationType = planC{indexS.GSPS}(gspsNum).graphicAnnotationS(iGraphic).graphicAnnotationType;
+                    graphicAnnotationNumPts = planC{indexS.GSPS}(gspsNum).graphicAnnotationS(iGraphic).graphicAnnotationNumPts;
+                    graphicAnnotationData = planC{indexS.GSPS}(gspsNum).graphicAnnotationS(iGraphic).graphicAnnotationData;rowV = graphicAnnotationData(1:2:end);
+                    rowV = graphicAnnotationData(1:2:end);
+                    colV = graphicAnnotationData(2:2:end);
+                    [xV, yV] = mtoaapm(colV, rowV, Dims, gridUnits, offset);
+                    if strcmpi(graphicAnnotationType,'POLYLINE')
+                        plot(xV,yV,'r')
+                    elseif strcmpi(graphicAnnotationType,'ELLIPSE')
+                        plot(xV(1:2),yV(1:2),'r','linewidth',2)
+                        plot(xV(3:4),yV(3:4),'r','linewidth',2)                        
+                    end
+                    
+                end
+                
+                % Highlight the selected Item
+                iGraphic = get(ud.handles.AnnotSelect,'value');
+                graphicAnnotationType = planC{indexS.GSPS}(gspsNum).graphicAnnotationS(iGraphic).graphicAnnotationType;
+                graphicAnnotationData = planC{indexS.GSPS}(gspsNum).graphicAnnotationS(iGraphic).graphicAnnotationData;rowV = graphicAnnotationData(1:2:end);
+                graphicAnnotationNumPts = planC{indexS.GSPS}(gspsNum).graphicAnnotationS(iGraphic).graphicAnnotationNumPts;
+                rowV = graphicAnnotationData(1:2:end);
+                colV = graphicAnnotationData(2:2:end);
+                [xV, yV] = mtoaapm(colV, rowV, Dims, gridUnits, offset);                
+                
+                if strcmpi(graphicAnnotationType,'POLYLINE') && graphicAnnotationNumPts == 2
+                    lineLen = sqrt((xV(1)-xV(2))^2 + (yV(1)-yV(2))^2);
+                    set(ud.handles.AnnotStat1,'string',['Length = ',num2str(lineLen),' cm'])
+                    plot(xV,yV,'r','linewidth',2)
+                    
+                elseif strcmpi(graphicAnnotationType,'ELLIPSE')
+                    lineLenAx1 = sqrt((xV(1)-xV(2))^2 + (yV(1)-yV(2))^2);
+                    lineLenAx2 = sqrt((xV(3)-xV(4))^2 + (yV(3)-yV(4))^2);
+                    EllipseArea = pi*lineLenAx1*lineLenAx2;
+                    set(ud.handles.AnnotStat1,'string',['Area = ',num2str(EllipseArea), ' sq. cm'])
+                    plot(xV(1:2),yV(1:2),'r','linewidth',2)
+                    plot(xV(3:4),yV(3:4),'r','linewidth',2)
+                end
+                
+                
+              case 'quit'
+
+                controlFrame('default')    
+                CERRRefresh
+        
         end
         
 end
