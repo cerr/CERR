@@ -141,7 +141,8 @@ end
 
 %Check for mesh representation and load meshes into memory
 currDir = cd;
-meshDir = fileparts(which('libMeshContour.dll'));
+% meshDir = fileparts(which('libMeshContour.dll'));
+meshDir = [getCERRPath,'bin\MeshInterp'];
 cd(meshDir)
 for strNum = 1:length(structs)
     if isfield(structs(strNum),'meshRep') && ~isempty(structs(strNum).meshRep) && structs(strNum).meshRep
