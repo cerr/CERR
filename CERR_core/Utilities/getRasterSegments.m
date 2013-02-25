@@ -95,7 +95,9 @@ if isfield(planC{indexS.structures}, 'rasterSegments')
     
     if nargin == 3
         sliceNum = varargin{1};
-        rasterSegments = rasterSegments(find(rasterSegments(:,6) == sliceNum),:);
+        if ~isempty(rasterSegments)
+            rasterSegments = rasterSegments(find(rasterSegments(:,6) == sliceNum),:);
+        end
     end
 else
     isError = errorEncounter('rasterSegments field is nonexistant. Archive appears corrupt.', showWarnings);
