@@ -52,10 +52,11 @@ planD = quality_assure_planC(mergefileName, planD);
 
 indexSD = planD{end};
 
-doses = planD{indexSD.dose};
-scans = planD{indexSD.scan};
+doses   = planD{indexSD.dose};
+scans   = planD{indexSD.scan};
 structs = planD{indexSD.structures};
-IM = planD{indexSD.IM};
+IM      = planD{indexSD.IM};
+gsps    = planD{indexSD.GSPS};
 
 %Handle case of 'all' or unpassed indVs.
 if (exist('scanIndV') & strcmpi(scanIndV, 'all')) | ~exist('scanIndV')
@@ -90,6 +91,7 @@ nDose       = length(planC{indexSC.dose});
 nScans      = length(planC{indexSC.scan});
 nStructs    = length(planC{indexSC.structures});
 nIM         = length(planC{indexSC.IM});
+nGSPS       = length(planC{indexSC.GSPS});
 
 newScanNum  = nScans + 1;
 
@@ -306,6 +308,11 @@ for i=1:length(IM)
     planC{indexSC.IM} = dissimilarInsert(planC{indexSC.IM}, IM(i), nIM+i);
 end
 
+
+%Merge all GSPS objects
+for i=1:length(gsps)
+    planC{indexSC.GSPS} = dissimilarInsert(planC{indexSC.GSPS}, gsps(i), nGSPS+i);
+end
 
 %Uniformize the plan if necessary.
 if isempty(whichScan)
