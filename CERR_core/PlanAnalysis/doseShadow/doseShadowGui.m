@@ -57,6 +57,12 @@ switch upper(varargin{1})
             return
         end
 
+        numStructs = length(planC{indexS.structures});
+        if numStructs < 1
+            warndlg('Cannot initiate without Structure/s','Dose Shadow GUI');
+            return
+        end
+        
         screenSize = get(0,'ScreenSize');
         y = 700; %Initial size of figure in pixels. Figure scales fairly well.
         x = 900;
@@ -944,8 +950,7 @@ switch upper(varargin{1})
         [ud.shadow.upperleft, ud.indices.upperleft, iserror] = calcDoseShadow(structNum, dose, planC, 3, mode, ud.handles.axis.upperleft);
         if (getappdata(stateS.handle.doseShadowFig, 'CallbackRun') == 1)
             if iserror, return, end
-            image(colorize(ud.shadow.upperleft, ud.colormap, [48.3504 88.7412]), 'parent', ud.handles.axis.upperleft, 'tag', 'dose_projection');
-            % image(colorize(ud.shadow.upperleft, ud.colormap, doseRange), 'parent', ud.handles.axis.upperleft, 'tag', 'dose_projection');
+            image(colorize(ud.shadow.upperleft, ud.colormap, doseRange), 'parent', ud.handles.axis.upperleft, 'tag', 'dose_projection');
             kids = get(ud.handles.axis.upperleft,'children');
             index_struct = find(ismember(kids,[hTransSolid; hTransDots]));
             kids(index_struct) = [];
@@ -961,8 +966,7 @@ switch upper(varargin{1})
         [ud.shadow.lowerright, ud.indices.lowerright, iserror] = calcDoseShadow(structNum, dose, planC, 1, mode, ud.handles.axis.lowerright);
         if (getappdata(stateS.handle.doseShadowFig, 'CallbackRun') == 1)
             if iserror, return, end
-            image(colorize(ud.shadow.lowerright, ud.colormap, [48.3504 88.7412]), 'parent', ud.handles.axis.lowerright, 'tag', 'dose_projection');
-            %image(colorize(ud.shadow.lowerright, ud.colormap, doseRange), 'parent', ud.handles.axis.lowerright, 'tag', 'dose_projection');
+            image(colorize(ud.shadow.lowerright, ud.colormap, doseRange), 'parent', ud.handles.axis.lowerright, 'tag', 'dose_projection');
             kids = get(ud.handles.axis.lowerright,'children');
             index_struct = find(ismember(kids,[hSagSolid; hSagDots]));
             kids(index_struct) = [];
@@ -978,8 +982,7 @@ switch upper(varargin{1})
         [ud.shadow.lowerleft, ud.indices.lowerleft, iserror] = calcDoseShadow(structNum, dose, planC, 2, mode, ud.handles.axis.lowerleft);
         if (getappdata(stateS.handle.doseShadowFig, 'CallbackRun') == 1)
             if iserror, return, end            
-            image(colorize(ud.shadow.lowerleft, ud.colormap, [48.3504 88.7412]), 'parent', ud.handles.axis.lowerleft, 'tag', 'dose_projection');
-            %image(colorize(ud.shadow.lowerleft, ud.colormap, doseRange), 'parent', ud.handles.axis.lowerleft, 'tag', 'dose_projection');
+            image(colorize(ud.shadow.lowerleft, ud.colormap, doseRange), 'parent', ud.handles.axis.lowerleft, 'tag', 'dose_projection');
             kids = get(ud.handles.axis.lowerleft,'children');
             index_struct = find(ismember(kids,[hCorSolid; hCorDots]));
             kids(index_struct) = [];
