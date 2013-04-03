@@ -52,6 +52,11 @@ end
 zLims = [min(zV) max(zV)];
 if isfield(planC{indexS.scan}(scanNum), 'transM') & ~isempty(planC{indexS.scan}(scanNum).transM);
     [rotation, xT, yT, zT] = isrotation(planC{indexS.scan}(scanNum).transM);
+else
+    rotation=0;
+    xT=[0 0];
+    yT=[0 0];
+    zT=[0 0];
 end
 if rotation
     %Get the corners of the original scan.
