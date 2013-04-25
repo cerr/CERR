@@ -64,7 +64,7 @@ CTdeltaY            = abs(yV(2) - yV(1));
 %Retrieve the structure's raster segments.
 [allSegmentsM, planC, isError] = getRasterSegments(editStructNum, planC);
 
-reusableZerosM = repmat(logical(0),[sizeArray(2), sizeArray(1)]);
+reusableZerosM = repmat(logical(0),[sizeArray(1), sizeArray(2)]);
 
 %Initialize structureArray and bits array if they dont exist.
 if length(planC{indexS.structureArray}) < scanNum
