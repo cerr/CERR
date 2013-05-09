@@ -47,29 +47,54 @@ if ~path
 end
  
 tic;
- 
+
+% Read options file
+pathStr = getCERRPath;
+optName = [pathStr 'CERROptions.m'];
+optS = opts4Exe(optName);
+
 hWaitbar = waitbar(0,'Scanning Directory Please wait...');
 CERRStatusString('Scanning DICOM directory');
  
-%wy
-filesV = dir(path);
-disp(path);
-dirs = filesV([filesV.isdir]);
-dirs(2) = [];
-dirs(1).name = '';
-dcmdirS = [];
- 
+dcmdirS = []; 
 patientNum = 1;
- 
-for i = 1:length(dirs)
-    patient = scandir_mldcm(fullfile(path, dirs(i).name), hWaitbar, i);
-    if ~isempty(patient)
-        for j = 1:length(patient.PATIENT)
-            dcmdirS.(['patient_' num2str(patientNum)]) = patient.PATIENT(j);
-            patientNum = patientNum + 1;
+
+[filesInCurDir,dirsInCurDir] = rdir(path);
+
+if isfield(optS,'importDICOMsubDirs') && strcmpi(optS.importDICOMsubDirs,'yes') && ~isempty(dirsInCurDir)    
+    
+    for i = 1:length(dirsInCurDir)
+        %     patient = scandir_mldcm(fullfile(path, dirs(i).name), hWaitbar, i);
+        patient = scandir_mldcm(dirsInCurDir(i).fullpath, hWaitbar, i);
+        if ~isempty(patient)
+            for j = 1:length(patient.PATIENT)
+                dcmdirS.(['patient_' num2str(patientNum)]) = patient.PATIENT(j);
+                patientNum = patientNum + 1;
+            end
         end
     end
+    
+else
+    
+    filesV = dir(path);
+    disp(path);
+    dirs = filesV([filesV.isdir]);
+    dirs(2) = [];
+    dirs(1).name = '';
+    
+    for i = 1:length(dirs)
+        patient = scandir_mldcm(fullfile(path, dirs(i).name), hWaitbar, i);
+        if ~isempty(patient)
+            for j = 1:length(patient.PATIENT)
+                dcmdirS.(['patient_' num2str(patientNum)]) = patient.PATIENT(j);
+                patientNum = patientNum + 1;
+            end
+        end
+    end
+    
 end
+
+
 if isempty(dcmdirS)
     close(hWaitbar);
     msgbox('There is no dicom data!','Application Info','warn');
