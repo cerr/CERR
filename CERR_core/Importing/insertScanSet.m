@@ -133,6 +133,10 @@ if match ~= 1  %Selected scan is not yet in current study.
     % Add new scan to planC.       
     planC{planC{end}.scan} = dissimilarInsert(planC{planC{end}.scan}, temp_planC{temp_planC{end}.scan}(1,scanNum));     %add scan
 
+    % Save scan statistics for fast image rendering
+    stateS.scanStats.minScanVal.(repSpaceHyp(planC{indexS.scan}(end).scanUID)) = single(min(planC{indexS.scan}(end).scanArray(:))) - planC{indexS.scan}(end).scanInfo(1).CTOffset;
+    stateS.scanStats.maxScanVal.(repSpaceHyp(planC{indexS.scan}(end).scanUID)) = single(max(planC{indexS.scan}(end).scanArray(:))) - planC{indexS.scan}(end).scanInfo(1).CTOffset;
+    
     %Add new scan to scan menu.
     hCSV = stateS.handle.CERRSliceViewer;
     stateS.handle.CERRScanMenu = putScanMenu(hCSV);
