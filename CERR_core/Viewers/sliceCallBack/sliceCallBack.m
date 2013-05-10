@@ -177,12 +177,13 @@ switch upper(instr)
         stateS.handle.CERRSliceViewerAxis  = [];
         stateS.handle.CERRSurf  = [];  %%CZ init Surf 02-11-03
         stateS.lastDoseArrayMaxValue = [];
-        stateS.lastColorMap = [];
-        stateS.doseToggle     =  1;
-        stateS.CTToggle       =  1;
-        stateS.structToggle   =  1;
-        stateS.contourState = 0;
-        stateS.scanWindowState = 0;
+        stateS.lastColorMap     = [];
+        stateS.doseToggle       =  1;
+        stateS.CTToggle         =  1;
+        stateS.structToggle     =  1;
+        stateS.contourState     = 0;
+        stateS.scanWindowState  = 0;
+        stateS.annotToggle      = -1;
         
         %Later used for zooming
         stateS.initial_xLims.trans = [];
