@@ -13,7 +13,8 @@ binary_msb = 0;
 nchannels = 1;
 Ainfo = [];
 for i=1:20
-  t = fgetl(fp);
+  %t = fgetl(fp);
+  t = fgets(fp);
 
   [a,cnt] = sscanf(t,'NDims = %d',1);
   if (cnt > 0)
@@ -48,6 +49,7 @@ for i=1:20
     [b,cnt] = sscanf(t(ni:end),'%d');
     if (cnt == dims)
       sz = b;
+      Ainfo.Dimensions = sz;
       continue;
     end
   end
@@ -70,7 +72,8 @@ for i=1:20
     ni = ni + length('ElementSpacing = ');
     [b,cnt] = sscanf(t(ni:end),'%g');
     if (cnt == dims)
-      Ainfo.ElementSpacing = b;
+      %Ainfo.ElementSpacing = b;
+      Ainfo.PixelDimensions = b;
       continue;
     end
   end
@@ -89,12 +92,17 @@ for i=1:20
   [a,cnt] = sscanf(t,'ElementDataFile = %s',1);
   if (cnt > 0)
     data_loc = a;
+    if double(t(end)) ~= 10
+        fseek(fp, -1, 0)
+    end
     break;
   end
 end
 
 if (strcmp(element_type,'MET_FLOAT'))
   [A,count] = fread(fp,sz(1)*sz(2)*sz(3)*nchannels,'float');
+elseif (strcmp(element_type,'MET_SHORT'))
+    [A,count] = fread(fp,sz(1)*sz(2)*sz(3)*nchannels,'short');
 elseif (strcmp(element_type,'MET_UCHAR'))
   [A,count] = fread(fp,sz(1)*sz(2)*sz(3)*nchannels,'uchar');
 elseif (strcmp(element_type,'MET_UINT'))
