@@ -1,5 +1,5 @@
-function planC = quality_assure_planC(fileName, planC)
-%function planC = quality_assure_planC(fileName, planC)
+function planC = quality_assure_planC(fileName, planC, forceSaveFlag)
+%function planC = quality_assure_planC(fileName, planC, forceSaveFlag)
 %
 % This function quality assures planC.
 %
@@ -8,6 +8,10 @@ function planC = quality_assure_planC(fileName, planC)
 if ~exist('planC','var')
     global planC
 end
+if ~exist('forceSaveFlag','var')
+    forceSaveFlag = 0;
+end
+
 global stateS
 indexS = planC{end};
 
@@ -111,7 +115,7 @@ if length(planC{indexS.GSPS}) == 1 && isempty(planC{indexS.GSPS}.SOPInstanceUID)
 end
 
 % Overwrite the existing CERR file if a bug is found and fixed
-if ~isempty(stateS) && isfield(stateS.optS,'overwrite_CERR_File') && stateS.optS.overwrite_CERR_File == 1 && bug_found    
+if forceSaveFlag == 1 || (~isempty(stateS) && isfield(stateS.optS,'overwrite_CERR_File') && stateS.optS.overwrite_CERR_File == 1 && bug_found)
     try 
         if exist('fileName','var') 
             % do nothing
