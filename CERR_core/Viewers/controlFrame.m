@@ -2932,7 +2932,7 @@ switch command
                 matchingSliceIndV = [];
                 matchingGSPSIndV = [];
                 for i=1:numSignificantSlcs
-                    sliceNum = strmatch(planC{indexS.GSPS}(i).SOPInstanceUID, SOPInstanceUIDc);
+                    sliceNum = strmatch(planC{indexS.GSPS}(i).SOPInstanceUID, SOPInstanceUIDc, 'exact');
                     sliceNumsC{i} = sliceNum;
                     if ~isempty(sliceNum)
                         matchingSliceIndV = [matchingSliceIndV sliceNum];
@@ -2954,6 +2954,7 @@ switch command
                 ud.annotation.matchingSliceIndV = matchingSliceIndV;
                 ud.annotation.matchingGSPSIndV = matchingGSPSIndV;
                 set(hFrame, 'userdata', ud);
+                stateS.annotToggle = 1;
                 controlFrame('ANNOTATION','updateAnnotationList')
                 controlFrame('ANNOTATION','show',1)
                 
@@ -2995,8 +2996,9 @@ switch command
                 gspsNum = ud.annotation.matchingGSPSIndV(ud.annotation.currentMatchingSlc);
                 sliceNum = ud.annotation.slicesNumsC{gspsNum};
                 axes(stateS.handle.CERRAxis(1))
+                stateS.annotToggle = -1;
                 goto('SLICE',sliceNum)
-                
+                stateS.annotToggle = 1;
                 set(ud.handles.sliceText, 'String', ['Image ',num2str(ud.annotation.currentMatchingSlc),'/',num2str(length(ud.annotation.matchingSliceIndV))])
                 
                 for iGraphic = 1:length(planC{indexS.GSPS}(gspsNum).graphicAnnotationS)
@@ -3074,7 +3076,8 @@ switch command
                 
               case 'quit'
 
-                controlFrame('default')    
+                controlFrame('default')   
+                stateS.annotToggle = -1;
                 CERRRefresh
         
         end
