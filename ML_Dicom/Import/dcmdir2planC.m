@@ -1,4 +1,4 @@
-function planC = dcmdir2planC(dcmdir)
+function planC = dcmdir2planC(dcmdir,mergeScansFlag)
 %"dcmdir2planC"
 %   Convert a dcmdir object representing a patient into a planC.
 %
@@ -6,7 +6,9 @@ function planC = dcmdir2planC(dcmdir)
 %YWU 03/01/08
 %
 %Usage:
-%   planC = dcmdir2planC(dcmdir);
+%   planC = dcmdir2planC(dcmdir,mergeScansFlag);
+%   dcmdir: directory containing DICOM files.
+%   mergeScansFlag: Optional argument to merge scans as a 4-D series. Acceptable values are 'Yes' or 'No'.
 %
 % Copyright 2010, Joseph O. Deasy, on behalf of the CERR development team.
 % 
@@ -215,8 +217,12 @@ end
 
 scanNum = length(planC{indexS.scan});
 if (scanNum>1)
-    button = questdlg(['There are ' num2str(scanNum) 'scans, do you want to put them together?'],'Merge CT in 4D Series', ...
-            'Yes', 'No', 'default');
+    if exist('mergeScansFlag','var')
+        button = mergeScansFlag;
+    else
+        button = questdlg(['There are ' num2str(scanNum) 'scans, do you want to put them together?'],'Merge CT in 4D Series', ...
+            'Yes', 'No', 'No');
+    end
     switch lower(button)
         case 'yes'
             %sort the all scan series
