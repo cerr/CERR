@@ -32,6 +32,7 @@ end
 nDoses = length(planC{indexS.dose});
 nScans = length(planC{indexS.scan});
 nStructures = length(planC{indexS.structures});
+nGSPS = length(planC{indexS.GSPS});
 
 %
 % wy add codes for generate associateScanUID when scan number more than 1;
@@ -66,53 +67,66 @@ end
 %% Create Unique Identifier for Dose, Scan and Structures
 %Extract information about scans.
 % nScans = length(planC{indexS.scan});
-for i = 1:nScans
-    planC{indexS.scan}(i).scanUID = createUID('scan');
+if nScans > 0 && isempty(planC{indexS.scan}(1).scanUID)
+    for i = 1:nScans
+        planC{indexS.scan}(i).scanUID = createUID('scan');
+    end
 end
 
 %Extract information about structures.
 % nStructures = length(planC{indexS.structures});
-for i = 1:nStructures
-    planC{indexS.structures}(i).strUID = createUID('structure');
+if nStructures > 0 && isempty(planC{indexS.structures}(1).strUID)
+    for i = 1:nStructures
+        planC{indexS.structures}(i).strUID = createUID('structure');
+    end
 end
 
 %Extract information about doses.
 % nDoses = length(planC{indexS.dose});
-for i = 1:nDoses
-    planC{indexS.dose}(i).doseUID = createUID('dose');
+if nDoses > 0 && isempty(planC{indexS.dose}(1).doseUID)
+    for i = 1:nDoses
+        planC{indexS.dose}(i).doseUID = createUID('dose');
+    end
 end
 
+if nGSPS > 0 && isempty(planC{indexS.GSPS}(1).annotUID)
+    for i = 1:nGSPS
+        planC{indexS.GSPS}(i).annotUID = createUID('annotation');
+    end    
+end
 
 nDVH = length(planC{indexS.DVH});
 
-if nDVH == 1 & isempty(planC{indexS.DVH}.DVHMatrix)
+if nDVH == 1 && isempty(planC{indexS.DVH}.DVHMatrix)
     planC{indexS.DVH} = initializeCERR('DVH');
 
 else
-    for i = 1: nDVH
-        planC{indexS.DVH}(i).dvhUID = createUID('DVH');
-        % Link UID's in this loop for DVH
-
-        % Link structure to DVH
-        strName = planC{indexS.DVH}(i).structureName;
-        structNum = getStructNum(strName,planC,indexS);
-        if ~structNum
-            CERRStatusString(['No Associated Structure for DVH ' strName ]);
-            planC{indexS.DVH}(i).assocStrUID = '';
-        else
-            planC{indexS.DVH}(i).assocStrUID = planC{indexS.structures}(structNum).strUID;
-        end
-
-        % Link dose to DVH
-        doseIndex = planC{indexS.DVH}(i).doseIndex;
-        if isempty(doseIndex)
-            CERRStatusString(['Dose Link cannot be guessed for DVH ' strName ]);
-            planC{indexS.DVH}(i).assocDoseUID = '';
-        else
-            try
-                planC{indexS.DVH}(i).assocDoseUID = planC{indexS.dose}(doseIndex).doseUID;
-            catch
-                planC{indexS.DVH}(i).assocDoseUID = [];
+    if nDVH > 0 && isempty(planC{indexS.DVH}(1).dvhUID)
+        for i = 1: nDVH
+            planC{indexS.DVH}(i).dvhUID = createUID('DVH');
+            % Link UID's in this loop for DVH
+            
+            % Link structure to DVH
+            strName = planC{indexS.DVH}(i).structureName;
+            structNum = getStructNum(strName,planC,indexS);
+            if ~structNum
+                CERRStatusString(['No Associated Structure for DVH ' strName ]);
+                planC{indexS.DVH}(i).assocStrUID = '';
+            else
+                planC{indexS.DVH}(i).assocStrUID = planC{indexS.structures}(structNum).strUID;
+            end
+            
+            % Link dose to DVH
+            doseIndex = planC{indexS.DVH}(i).doseIndex;
+            if isempty(doseIndex)
+                CERRStatusString(['Dose Link cannot be guessed for DVH ' strName ]);
+                planC{indexS.DVH}(i).assocDoseUID = '';
+            else
+                try
+                    planC{indexS.DVH}(i).assocDoseUID = planC{indexS.dose}(doseIndex).doseUID;
+                catch
+                    planC{indexS.DVH}(i).assocDoseUID = [];
+                end
             end
         end
     end
@@ -266,9 +280,9 @@ elseif nScans > 1 && exist('force','var') && force
 
     for i = 1:length(unique(assocScanIndx))
         strSet = find(assocScanIndx == i);
-        try
+        if ~isempty(planC{indexS.scan}(i).scanUID)
             scanUID = planC{indexS.scan}(i).scanUID;
-        catch
+        else
             scanUID = createUID('scan');
         end
         for j = 1:length(strSet)
