@@ -388,6 +388,12 @@ switch upper(command)
         planC{indexS.scan} = dissimilarInsert(planC{indexS.scan},newScanS,newScanNum);
         planC = setUniformizedData(planC);
 
+        % Save scan statistics for fast image rendering
+        for scanNum = newScanNum
+            stateS.scanStats.minScanVal.(repSpaceHyp(planC{indexS.scan}(scanNum).scanUID)) = single(min(planC{indexS.scan}(scanNum).scanArray(:))) - planC{indexS.scan}(scanNum).scanInfo(1).CTOffset;
+            stateS.scanStats.maxScanVal.(repSpaceHyp(planC{indexS.scan}(scanNum).scanUID)) = single(max(planC{indexS.scan}(scanNum).scanArray(:))) - planC{indexS.scan}(scanNum).scanInfo(1).CTOffset;
+        end
+        
         %switch to new scan, with a short pause to let the dialogue clear.
         pause(.1);
         sliceCallBack('selectScan', num2str(newScanNum));
