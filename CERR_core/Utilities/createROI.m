@@ -102,7 +102,7 @@ newStructS.structureName    = 'ROI';
 
 planC{indexS.structures} = dissimilarInsert(planC{indexS.structures}, newStructS, newStructNum);
 planC = getRasterSegs(planC, newStructNum);
-planC = updateStructureMatrices(planC, newStructNum, slcsV);
+planC = updateStructureMatrices(planC, newStructNum);
 
 % Refresh View
 CERRRefresh
