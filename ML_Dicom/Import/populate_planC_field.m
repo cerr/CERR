@@ -429,7 +429,7 @@ switch cellName
                     % ROI = strobj.getInt(org.dcm4che2.data.Tag.ROIContourSequence);
                     
                     nGsps = el.countItems;
-                    curGspsNum = 1; %wy modified for suppport multiple RS files
+                    curGspsNum = 1;
                     for j = 1:nGsps
                         
                         %Populate each field in the structure field set
