@@ -223,7 +223,8 @@ switch fieldname
         IMAGE   = SERIES.Data(1); % wy {} --> ()
         imgobj  = scanfile_mldcm(IMAGE.file);
         %dataS = char(imgobj.getString(org.dcm4che2.data.Tag.FrameofReferenceUID));
-        %dataS = dcm2ml_Element(imgobj.get(hex2dec('00080018')));
+        dataS = dcm2ml_Element(imgobj.get(hex2dec('00080018')));
+        dataS = ['CT.',dataS];
 
     otherwise
         %         warning(['DICOM Import has no methods defined for import into the planC{indexS.scan}.' fieldname ' field, leaving empty.']);
