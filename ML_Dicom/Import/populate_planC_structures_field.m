@@ -295,6 +295,7 @@ switch fieldname
         %SSRS_1 = SSRS.getDicomObject(0);
         %dataS = char(SSRS_1.getString(org.dcm4che2.data.Tag.ReferencedFrameofReferenceUID));
         dataS = dcm2ml_Element(dcmobj.get(hex2dec('00080018')));
+        dataS = ['CT.',dataS];
 
         %         commented by wy
         %         %Referenced Frame of Reference Sequence
