@@ -218,12 +218,14 @@ switch fieldname
         %Implementation is unnecessary.
     case 'scanUID'
         %Series Instance UID
-        %dataS = dcm2ml_Element(SERIES.info.get(hex2dec('0020000E')));
+        dataS = dcm2ml_Element(SERIES.info.get(hex2dec('0020000E')));
+        
         %wy, use the frame of reference UID to associate dose to scan.
-        IMAGE   = SERIES.Data(1); % wy {} --> ()
-        imgobj  = scanfile_mldcm(IMAGE.file);
+        %IMAGE   = SERIES.Data(1); % wy {} --> ()
+        %imgobj  = scanfile_mldcm(IMAGE.file);
         %dataS = char(imgobj.getString(org.dcm4che2.data.Tag.FrameofReferenceUID));
-        dataS = dcm2ml_Element(imgobj.get(hex2dec('00080018')));
+        %dataS = dcm2ml_Element(imgobj.get(hex2dec('00080018')));
+        %dataS = dcm2ml_Element(imgobj.get(hex2dec('0020000E')));        
         dataS = ['CT.',dataS];
 
     otherwise
