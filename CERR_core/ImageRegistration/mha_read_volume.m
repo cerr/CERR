@@ -76,7 +76,8 @@ switch(info.CompressedData(1))
 
 end
 fclose(fid);
-V = reshape(V,info.Dimensions);
+V = reshape(V,[str2num(info.ElementNumberOfChannels) info.Dimensions]);
+V = shiftdim(V,1);
 
 function M = zlib_decompress(Z,DataType)
 import com.mathworks.mlwidgets.io.InterruptibleStreamCopier
