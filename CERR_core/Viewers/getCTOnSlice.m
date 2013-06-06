@@ -150,8 +150,12 @@ if rotation
     %Need at least 2 Z slices.
     switch dim
         case 3
-            if isequal(minZ, maxZ)
+            if isequal(minZ, maxZ)                
                 maxZ = minZ+1;
+                if size(scanArray,3) < maxZ
+                    minZ = minZ-1;
+                    maxZ = maxZ-1;
+                end
             end
             
         case 2
