@@ -36,8 +36,9 @@ for structNum = movStructNumsV
     system(['plastimatch warp --input ', escapeSlashes(movStrFileName), ' --output-img ', escapeSlashes(warpedMhaFileName), ' --xf ', escapeSlashes(bspFileName), ' --interpolation nn'])
 
     % Read the warped output .mha file within CERR
-    infoS  = mha_read_header(warpedMhaFileName);
-    data3M = mha_read_volume(infoS);
+    %infoS  = mha_read_header(warpedMhaFileName);
+    %data3M = mha_read_volume(infoS);
+    [data3M,infoS] = readmha(warpedMhaFileName);
     data3M = flipdim(permute(data3M,[2,1,3]),3);
     isUniform = 1;
     strName = ['Warped_',movPlanC{indexMovS.structures}(structNum).structureName];
