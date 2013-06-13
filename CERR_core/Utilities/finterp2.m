@@ -56,7 +56,7 @@ if uniformFlag == 1;
 	
 	rowFloor = floor(rows);
 %     rowFloor = clip(rowFloor, 1, length(y), 'limits'); %BLAH    
-    rowNaNIndV = isnan(rowFloor) | rowFloor < 1 | rowFloor >= length(y);;    
+    rowNaNIndV = isnan(rowFloor) | rowFloor < 1 | rowFloor >= length(y);   
     rowFloor(rowNaNIndV) = [];
     rows(rowNaNIndV) = [];
 	rowMod = repmat(mod(rows, 1)', [1 length(colFloor)]);
