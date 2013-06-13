@@ -237,9 +237,9 @@ switch upper(instr)
         stateS.handle.CERRMetricMenu        = putMetricsMenu(hCSV);
         stateS.handle.CERRScanMenu          = putScanMenu(hCSV);
         stateS.handle.CERRStructMenu        = putStructMenu(hCSV);
-        BMfileFlag = exist('putBMmenu.m','file');
+        BMfileFlag = exist('Benchmark','dir');
         if BMfileFlag
-            stateS.handle.CERRBMMenu        = putBMmenu(hCSV);
+            stateS.handle.CERRBMMenu        = putBMMenu(hCSV);
         end        
         stateS.handle.CERRHelpMenu          = putHelpMenu(hCSV);
 
@@ -462,7 +462,7 @@ switch upper(instr)
             stateS.handle.CERRStructMenu  = putStructMenu(hCSV);
             BMfileFlag = exist('putBMmenu.m','file');
             if BMfileFlag
-                stateS.handle.CERRBMMenu        = putBMmenu(hCSV);
+                stateS.handle.CERRBMMenu        = putBMMenu(hCSV);
             end            
             stateS.handle.CERRHelpMenu    = putHelpMenu(hCSV);
             
