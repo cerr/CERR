@@ -124,7 +124,6 @@ switch upper(command)
             for i = 2:length(structNumV)
                 maskM = maskM + single(getUniformStr(structNumV(i)));
             end
-            maskM = maskM >= 3;
             maskM    = maskM/length(structNumV) >= confidenceLevel;            
             maskToCERRStructure(maskM, 1, scanNum, structureName);
 
