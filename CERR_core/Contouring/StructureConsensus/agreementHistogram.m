@@ -120,11 +120,11 @@ switch upper(command)
             maskToCERRStructure(staple3M, 1, scanNum, structureName);
         elseif createMethod == 2
             %Apparent
-            maskM = single(getUniformStr(structNumV(1)));
+            maskM = uint8(getUniformStr(structNumV(1)));
             for i = 2:length(structNumV)
-                maskM = maskM + single(getUniformStr(structNumV(i)));
+                maskM = maskM + uint8(getUniformStr(structNumV(i)));
             end
-            maskM    = maskM/length(structNumV) >= confidenceLevel;            
+            maskM    = maskM >= confidenceLevel * length(structNumV);
             maskToCERRStructure(maskM, 1, scanNum, structureName);
 
         elseif createMethod == 3
