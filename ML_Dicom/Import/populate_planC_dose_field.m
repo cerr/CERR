@@ -524,8 +524,8 @@ try
 
     for i = 1:length(rtPlans)
         if strmatch(rtPlans(i).SOPInstanceUID, ReferencedRTPlanSequence.Item_1.ReferencedSOPInstanceUID)
-            RTPlanLabel = rtPlans.RTPlanLabel;
-            RTPlanUID = rtPlans.BeamUID;
+            RTPlanLabel = rtPlans(i).RTPlanLabel;
+            RTPlanUID = rtPlans(i).BeamUID;
         end
     end
 catch
