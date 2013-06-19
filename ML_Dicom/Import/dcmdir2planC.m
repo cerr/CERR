@@ -265,6 +265,7 @@ end
 for i=1:length(planC{indexS.structures})
     structure = planC{indexS.structures}(i);   
     scanInd = getStructureAssociatedScan(i, planC);    
+    scanInd = scanInd(1);
     
     zmesh   = [planC{indexS.scan}(scanInd).scanInfo.zValue];
     slicethickness = diff(zmesh); 
