@@ -44,27 +44,27 @@ ML_main_version = str2num(num1);
 ML_sub_version = str2num(num2);
 
 if ML_main_version >= 7
-    path1 = which('dcm4che-core-2.0.25.jar');
+    path1 = which('dcm4che-core-2.0.27.jar');
     path2 = which('log4j-1.2.16.jar');
     path3 = which('slf4j-api-1.6.1.jar');
     path4 = which('slf4j-log4j12-1.6.1.jar');
-    path5 = which('dcm4che-image-2.0.25.jar');
-    path6 = which('dcm4che-imageio-2.0.25.jar');
-    path7 = which('dcm4che-imageio-rle-2.0.25.jar');
-    path8 = which('dcm4che-iod-2.0.25.jar');
-    path9 = which('dcm4che-net-2.0.25.jar');
+    path5 = which('dcm4che-image-2.0.27.jar');
+    path6 = which('dcm4che-imageio-2.0.27.jar');
+    path7 = which('dcm4che-imageio-rle-2.0.27.jar');
+    path8 = which('dcm4che-iod-2.0.27.jar');
+    path9 = which('dcm4che-net-2.0.27.jar');
 else
     oldpath = pwd;
-    ML_dcm = what(fullfile('dcm4che-2.0.25','lib'));
-    path1 = fullfile(ML_dcm.path,'dcm4che-core-2.0.25.jar');
+    ML_dcm = what(fullfile('dcm4che-2.0.27','lib'));
+    path1 = fullfile(ML_dcm.path,'dcm4che-core-2.0.27.jar');
     path2 = fullfile(ML_dcm.path,'log4j-1.2.16.jar');
     path3 = fullfile(ML_dcm.path,'slf4j-api-1.6.1.jar');
     path4 = fullfile(ML_dcm.path,'slf4j-log4j12-1.6.1.jar');
-    path5 = fullfile(ML_dcm.path,'dcm4che-image-2.0.25.jar');
-    path6 = fullfile(ML_dcm.path,'dcm4che-imageio-2.0.25.jar');
-    path7 = fullfile(ML_dcm.path,'dcm4che-imageio-rle-2.0.25.jar');
-    path8 = fullfile(ML_dcm.path,'dcm4che-iod-2.0.25.jar');
-    path9 = fullfile(ML_dcm.path,'dcm4che-net-2.0.25.jar');
+    path5 = fullfile(ML_dcm.path,'dcm4che-image-2.0.27.jar');
+    path6 = fullfile(ML_dcm.path,'dcm4che-imageio-2.0.27.jar');
+    path7 = fullfile(ML_dcm.path,'dcm4che-imageio-rle-2.0.27.jar');
+    path8 = fullfile(ML_dcm.path,'dcm4che-iod-2.0.27.jar');
+    path9 = fullfile(ML_dcm.path,'dcm4che-net-2.0.27.jar');
     cd(oldpath);
 end
 
