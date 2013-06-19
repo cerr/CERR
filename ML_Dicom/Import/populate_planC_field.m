@@ -370,10 +370,10 @@ switch cellName
         dataS = initializeCERR('beamGeometry');
         
         for i = 1:length(rtPlans)
-            test = populate_planC_beamGeometry_field(rtPlans(i), dataS);
+            beamGeometryS = populate_planC_beamGeometry_field(rtPlans(i), dataS);
             
-            for j = 1:length(test)
-                dataS = dissimilarInsert(dataS, test(j), length(dataS)+1);
+            for j = 1:length(beamGeometryS)
+                dataS = dissimilarInsert(dataS, beamGeometryS(j), length(dataS)+1);
             end
         end
         
