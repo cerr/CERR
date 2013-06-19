@@ -1,0 +1,150 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<dicom>
+
+  <!-- Transaction UID-->
+  <attr tag="00081195" vr="UI"/>
+
+  <!-- Scheduled Procedure Step Start DateTime -->
+  <attr tag="00404005" vr="DT">2010051208</attr>
+
+  <!-- Scheduled Procedure Step Priority -->
+  <attr tag="00741200" vr="CS">MEDIUM</attr>
+
+  <!-- Procedure Step Label -->
+  <attr tag="00741204" vr="LO">Sample Procedure Step Label</attr>
+
+  <!-- Worklist Label -->
+  <attr tag="00741202" vr="LO">Sample Worklist Label</attr>
+
+  <!-- Scheduled Processing Parameters Sequence -->
+  <attr tag="00741210" vr="SQ"/>
+
+  <!-- Scheduled Processing Applications Code Sequence -->
+  <attr tag="00404004" vr="SQ" />
+
+  <!-- Scheduled Station Name Code Sequence -->
+  <attr tag="00404025" vr="SQ" />
+
+  <!-- Scheduled Station Class Code Sequence -->
+  <attr tag="00404026" vr="SQ" />
+
+  <!-- Scheduled Station Geographic Location Code Sequence -->
+  <attr tag="00404027" vr="SQ" />
+  
+  <!-- Scheduled Human Performers Sequence -->
+  <attr tag="00404034" vr="SQ">
+    <item>
+      <!-- Human Performer Code Sequence -->
+      <attr tag="00404009" vr="SQ">
+        <item>
+          <!-- Code Value -->
+          <attr tag="00080100" vr="SH">axady</attr>
+          <!-- Coding Scheme Designator -->
+          <attr tag="00080102" vr="SH">99Agfa</attr>
+          <!-- Code Meaning -->
+          <attr tag="00080104" vr="LO">Gunter Zeilinger</attr>
+        </item>
+      </attr>
+      <!-- Human Performer’s Name -->
+      <attr tag="00404037" vr="PN">Zeilinger^Gunter</attr>
+      <!-- Human Performer’s Organization -->
+      <attr tag="00404036" vr="LO">Agfa Healthcare</attr>
+    </item>
+  </attr>
+
+  <!-- Scheduled Procedure Step Start Date and Time -->
+  <attr tag="00404005" vr="DT">201006101030</attr>
+
+  <!-- Scheduled Workitem Code Sequence -->
+  <attr tag="00404018" vr="SQ">
+    <item>
+      <!-- Code Value -->
+      <attr tag="00080100" vr="SH">110005</attr>
+      <!-- Coding Scheme Designator -->
+      <attr tag="00080102" vr="SH">DCM</attr>
+      <!-- Code Meaning -->
+      <attr tag="00080104" vr="LO">Interpretation</attr>
+    </item>
+  </attr>
+
+  <!-- Comments on the Scheduled Procedure Step -->
+  <attr tag="00400400" vr="LT" />
+
+  <!-- Input Availability Flag -->
+  <attr tag="00404020" vr="CS">INCOMPLETE</attr>
+
+  <!-- Input Information Sequence -->
+  <attr tag="00404021" vr="SQ" />
+
+  <!-- NonDICOM Input Information Sequence
+  <attr tag="004040XX" vr="SQ" />
+  -->
+
+  <!-- Study Instance UID -->
+  <attr tag="0020000D" vr="UI">1.2.3.4</attr>
+
+  <!-- Patient's Name -->
+  <attr tag="00100010" vr="PN">Simpson^Homer^Jay</attr>
+
+  <!-- Patient ID -->
+  <attr tag="00100020" vr="LO">7431</attr>
+
+  <!-- Issuer Of Patient ID -->
+  <attr tag="00100021" vr="LO">99DCM4CHE</attr>
+
+  <!-- Type Of Patient ID -->
+  <attr tag="00100022" vr="CS" />
+
+  <!-- Other Patient IDs Sequence -->
+  <attr tag="00101002" vr="SQ" />
+
+  <!-- Patient's Birth Date -->
+  <attr tag="00100030" vr="DA">19551005</attr>
+
+  <!-- Patient's Sex -->
+  <attr tag="00100040" vr="CS">M</attr>
+
+  <!-- Admission ID -->
+  <attr tag="00380010" vr="LO" />
+
+  <!-- Issuer of Admission ID Sequence -->
+  <attr tag="00380014" vr="SQ" />
+
+  <!-- Admitting Diagnoses Description -->
+  <attr tag="00081080" vr="LO" />
+
+  <!-- Referenced Request Sequence -->
+  <attr tag="0040A370" vr="SQ">
+    <item>
+
+      <!-- Study Instance UID -->
+      <attr tag="0020000D" vr="UI">1.2.3.4</attr>
+
+      <!-- Accession Number -->
+      <attr tag="00080050" vr="SH">5678</attr>
+
+      <!-- Requested Procedure ID -->
+      <attr tag="00401001" vr="SH">1234</attr>
+
+      <!-- Requested Procedure Description -->
+      <attr tag="00321060" vr="LO" />
+
+      <!-- Requested Procedure Code Sequence -->
+      <attr tag="00321064" vr="SQ" />
+
+    </item>
+  </attr>
+
+  <!-- Related Procedure Step Sequence -->
+  <attr tag="00741220" vr="SQ" />
+
+  <!-- Unified Procedure Step State -->
+  <attr tag="00741000" vr="CS">SCHEDULED</attr>
+
+  <!-- Unified Procedure Step Progress Information Sequence  -->
+  <attr tag="00741002" vr="SQ" />
+
+  <!-- UPS Performed Procedure Sequence -->
+  <attr tag="00741216" vr="SQ" />
+
+</dicom>

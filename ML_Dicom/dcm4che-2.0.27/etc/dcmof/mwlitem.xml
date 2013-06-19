@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<dicom>
+  <!--Specific Character Set-->
+  <attr tag="00080005" vr="CS">ISO_IR 100</attr>
+  <!--Accession Number-->
+  <attr tag="00080050" vr="SH">A-1234</attr>
+  <!--Referring Physician's Name-->
+  <attr tag="00080090" vr="PN">Physician^Referring</attr>
+  <!--Referenced Study Sequence-->
+  <attr tag="00081110" vr="SQ"/>
+  <!--Referenced Patient Sequence-->
+  <attr tag="00081120" vr="SQ"/>
+  <!--Patient's Name-->
+  <attr tag="00100010" vr="PN">Patient^Name</attr>
+  <!--Patient ID-->
+  <attr tag="00100020" vr="LO">PAT-1234</attr>
+  <!--Patient's Birth Date-->
+  <attr tag="00100030" vr="DA">19620502</attr>
+  <!--Patient's Sex-->
+  <attr tag="00100040" vr="CS">M</attr>
+  <!--Patient's Weight-->
+  <attr tag="00101030" vr="DS"/>
+  <!--Medical Alerts-->
+  <attr tag="00102000" vr="LO"/>
+  <!--Contrast Allergies-->
+  <attr tag="00102110" vr="LO"/>
+  <!--Pregnancy Status-->
+  <attr tag="001021C0" vr="US"/>
+  <!--Study Instance UID-->
+  <attr tag="0020000D" vr="UI">1.2.3.4</attr>
+  <!--Requesting Physician's Name-->
+  <attr tag="00321032" vr="PN">Physician^Requesting</attr>
+  <!--Requested Procedure Description-->
+  <attr tag="00321060" vr="LO">Magnetic Resonance Imaging: Ankle</attr>
+  <!--Requested Procedure Code Sequence-->
+  <attr tag="00321064" vr="SQ">
+    <item>
+      <!--Code Value-->
+      <attr tag="00080100" vr="SH">16210</attr>
+      <!--Coding Scheme Designator-->
+      <attr tag="00080102" vr="SH">IHEDEMO</attr>
+      <!--Code Meaning-->
+      <attr tag="00080104" vr="LO">Magnetic Resonance Imaging: Ankle</attr>
+    </item>
+  </attr>
+  <!--Admission ID-->
+  <attr tag="00380010" vr="LO"/>
+  <!--Special Needs-->
+  <attr tag="00380050" vr="LO"/>
+  <!--Current Patient Location-->
+  <attr tag="00380300" vr="LO"/>
+  <!--Patient State-->
+  <attr tag="00380500" vr="LO"/>
+  <!--Scheduled Procedure Step Sequence-->
+  <attr tag="00400100" vr="SQ">
+    <item>
+      <!--Modality-->
+      <attr tag="00080060" vr="CS">MR</attr>
+      <!--Requested Contrast Agent-->
+      <attr tag="00321070" vr="LO"/>
+      <!--Scheduled Station AE Title-->
+      <attr tag="00400001" vr="AE">MR_AET</attr>
+      <!--Scheduled Procedure Step Start Date-->
+      <attr tag="00400002" vr="DA">20060502</attr>
+      <!--Scheduled Procedure Step Start Time-->
+      <attr tag="00400003" vr="TM">015442.000</attr>
+      <!--Scheduled Performing Physician's Name-->
+      <attr tag="00400006" vr="PN">Physician^Performing</attr>
+      <!--Scheduled Procedure Step Description-->
+      <attr tag="00400007" vr="LO">MR: Ankle</attr>
+      <!--Scheduled Protocol Code Sequence-->
+      <attr tag="00400008" vr="SQ">
+        <item>
+          <!--Code Value-->
+          <attr tag="00080100" vr="SH">916210</attr>
+          <!--Coding Scheme Designator-->
+          <attr tag="00080102" vr="SH">IHEDEMO</attr>
+          <!--Code Meaning-->
+          <attr tag="00080104" vr="LO">MR: Ankle</attr>
+        </item>
+      </attr>
+      <!--Scheduled Procedure Step ID-->
+      <attr tag="00400009" vr="SH">SPS-1234</attr>
+      <!--Scheduled Station Name-->
+      <attr tag="00400010" vr="SH"/>
+      <!--Scheduled Procedure Step Location -->
+      <attr tag="00400011" vr="SH"/>
+      <!--Pre-Medication-->
+      <attr tag="00400012" vr="LO"/>
+      <!--Scheduled Procedure Step Status-->
+      <attr tag="00400020" vr="CS"/>
+    </item>
+  </attr>
+  <!--Requested Procedure ID-->
+  <attr tag="00401001" vr="SH">PROC-1234</attr>
+  <!--Requested Procedure Priority-->
+  <attr tag="00401003" vr="SH"/>
+  <!--Patient Transport Arrangements-->
+  <attr tag="00401004" vr="LO"/>
+  <!--Confidentiality constraint on patient data-->
+  <attr tag="00403001" vr="LO"/>
+</dicom>

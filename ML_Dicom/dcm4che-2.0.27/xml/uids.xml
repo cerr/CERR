@@ -1,0 +1,1182 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<uids>
+<uid uid="1.2.840.10008.1.1" keyword="VerificationSOPClass" type="SOP Class">Verification SOP Class</uid>
+<uid uid="1.2.840.10008.1.2" keyword="ImplicitVRLittleEndian" type="Transfer Syntax">Implicit VR Little Endian</uid>
+<uid uid="1.2.840.10008.1.2.1" keyword="ExplicitVRLittleEndian" type="Transfer Syntax">Explicit VR Little Endian</uid>
+<uid uid="1.2.840.10008.1.2.1.99" keyword="DeflatedExplicitVRLittleEndian" type="Transfer Syntax">Deflated Explicit VR Little Endian</uid>
+<uid uid="1.2.840.10008.1.2.2" keyword="ExplicitVRBigEndian" type="Transfer Syntax">Explicit VR Big Endian</uid>
+<uid uid="1.2.840.10008.1.2.4.50" keyword="JPEGBaseline1" type="Transfer Syntax">JPEG Baseline (Process 1)</uid>
+<uid uid="1.2.840.10008.1.2.4.51" keyword="JPEGExtended24" type="Transfer Syntax">JPEG Extended (Process 2 &amp; 4)</uid>
+<uid uid="1.2.840.10008.1.2.4.52" keyword="JPEGExtended35Retired" type="Transfer Syntax">JPEG Extended (Process 3 &amp; 5) (Retired)</uid>
+<uid uid="1.2.840.10008.1.2.4.53" keyword="JPEGSpectralSelectionNonHierarchical68Retired" type="Transfer Syntax">JPEG Spectral Selection, Non-Hierarchical (Process 6 &amp; 8) (Retired)</uid>
+<uid uid="1.2.840.10008.1.2.4.54" keyword="JPEGSpectralSelectionNonHierarchical79Retired" type="Transfer Syntax">JPEG Spectral Selection, Non-Hierarchical (Process 7 &amp; 9) (Retired)</uid>
+<uid uid="1.2.840.10008.1.2.4.55" keyword="JPEGFullProgressionNonHierarchical1012Retired" type="Transfer Syntax">JPEG Full Progression, Non-Hierarchical (Process 10 &amp; 12) (Retired)</uid>
+<uid uid="1.2.840.10008.1.2.4.56" keyword="JPEGFullProgressionNonHierarchical1113Retired" type="Transfer Syntax">JPEG Full Progression, Non-Hierarchical (Process 11 &amp; 13) (Retired)</uid>
+<uid uid="1.2.840.10008.1.2.4.57" keyword="JPEGLosslessNonHierarchical14" type="Transfer Syntax">JPEG Lossless, Non-Hierarchical (Process 14)</uid>
+<uid uid="1.2.840.10008.1.2.4.58" keyword="JPEGLosslessNonHierarchical15Retired" type="Transfer Syntax">JPEG Lossless, Non-Hierarchical (Process 15) (Retired)</uid>
+<uid uid="1.2.840.10008.1.2.4.59" keyword="JPEGExtendedHierarchical1618Retired" type="Transfer Syntax">JPEG Extended, Hierarchical (Process 16 &amp; 18) (Retired)</uid>
+<uid uid="1.2.840.10008.1.2.4.60" keyword="JPEGExtendedHierarchical1719Retired" type="Transfer Syntax">JPEG Extended, Hierarchical (Process 17 &amp; 19) (Retired)</uid>
+<uid uid="1.2.840.10008.1.2.4.61" keyword="JPEGSpectralSelectionHierarchical2022Retired" type="Transfer Syntax">JPEG Spectral Selection, Hierarchical (Process 20 &amp; 22) (Retired)</uid>
+<uid uid="1.2.840.10008.1.2.4.62" keyword="JPEGSpectralSelectionHierarchical2123Retired" type="Transfer Syntax">JPEG Spectral Selection, Hierarchical (Process 21 &amp; 23) (Retired)</uid>
+<uid uid="1.2.840.10008.1.2.4.63" keyword="JPEGFullProgressionHierarchical2426Retired" type="Transfer Syntax">JPEG Full Progression, Hierarchical (Process 24 &amp; 26) (Retired)</uid>
+<uid uid="1.2.840.10008.1.2.4.64" keyword="JPEGFullProgressionHierarchical2527Retired" type="Transfer Syntax">JPEG Full Progression, Hierarchical (Process 25 &amp; 27) (Retired)</uid>
+<uid uid="1.2.840.10008.1.2.4.65" keyword="JPEGLosslessHierarchical28Retired" type="Transfer Syntax">JPEG Lossless, Hierarchical (Process 28) (Retired)</uid>
+<uid uid="1.2.840.10008.1.2.4.66" keyword="JPEGLosslessHierarchical29Retired" type="Transfer Syntax">JPEG Lossless, Hierarchical (Process 29) (Retired)</uid>
+<uid uid="1.2.840.10008.1.2.4.70" keyword="JPEGLossless" type="Transfer Syntax">JPEG Lossless, Non-Hierarchical, First-Order Prediction (Process 14 [Selection Value 1])</uid>
+<uid uid="1.2.840.10008.1.2.4.80" keyword="JPEGLSLossless" type="Transfer Syntax">JPEG-LS Lossless Image Compression</uid>
+<uid uid="1.2.840.10008.1.2.4.81" keyword="JPEGLSLossyNearLossless" type="Transfer Syntax">JPEG-LS Lossy (Near-Lossless) Image Compression</uid>
+<uid uid="1.2.840.10008.1.2.4.90" keyword="JPEG2000LosslessOnly" type="Transfer Syntax">JPEG 2000 Image Compression (Lossless Only)</uid>
+<uid uid="1.2.840.10008.1.2.4.91" keyword="JPEG2000" type="Transfer Syntax">JPEG 2000 Image Compression</uid>
+<uid uid="1.2.840.10008.1.2.4.92" keyword="JPEG2000Part2MultiComponentLosslessOnly" type="Transfer Syntax">JPEG 2000 Part 2 Multi-component Image Compression (Lossless Only)</uid>
+<uid uid="1.2.840.10008.1.2.4.93" keyword="JPEG2000Part2MultiComponent" type="Transfer Syntax">JPEG 2000 Part 2 Multi-component Image Compression</uid>
+<uid uid="1.2.840.10008.1.2.4.94" keyword="JPIPReferenced" type="Transfer Syntax">JPIP Referenced</uid>
+<uid uid="1.2.840.10008.1.2.4.95" keyword="JPIPReferencedDeflate" type="Transfer Syntax">JPIP Referenced Deflate</uid>
+<uid uid="1.2.840.10008.1.2.4.100" keyword="MPEG2" type="Transfer Syntax">MPEG2 Main Profile @ Main Level</uid>
+<uid uid="1.2.840.10008.1.2.4.101" keyword="MPEG2MainProfileHighLevel" type="Transfer Syntax">MPEG2 Main Profile @ High Level</uid>
+<uid uid="1.2.840.10008.1.2.4.102" keyword="MPEG4AVCH264HighProfileLevel41" type="Transfer Syntax">MPEG-4 AVC/H.264 High Profile / Level 4.1</uid>
+<uid uid="1.2.840.10008.1.2.4.103" keyword="MPEG4AVCH264BDCompatibleHighProfileLevel41" type="Transfer Syntax">MPEG-4 AVC/H.264 BD-compatible High Profile / Level 4.1</uid>
+<uid uid="1.2.840.10008.1.2.5" keyword="RLELossless" type="Transfer Syntax">RLE Lossless</uid>
+<uid uid="1.2.840.10008.1.2.6.1" keyword="RFC2557MIMEEncapsulation" type="Transfer Syntax">RFC 2557 MIME encapsulation</uid>
+<uid uid="1.2.840.10008.1.2.6.2" keyword="XMLEncoding" type="Transfer Syntax">XML Encoding</uid>
+<uid uid="1.2.840.10008.1.3.10" keyword="MediaStorageDirectoryStorage" type="SOP Class">Media Storage Directory Storage</uid>
+<uid uid="1.2.840.10008.1.4.1.1" keyword="TalairachBrainAtlasFrameOfReference" type="Well-known frame of reference">Talairach Brain Atlas Frame of Reference</uid>
+<uid uid="1.2.840.10008.1.4.1.2" keyword="SPM2T1FrameOfReference" type="Well-known frame of reference">SPM2 T1 Frame of Reference</uid>
+<uid uid="1.2.840.10008.1.4.1.3" keyword="SPM2T2FrameOfReference" type="Well-known frame of reference">SPM2 T2 Frame of Reference</uid>
+<uid uid="1.2.840.10008.1.4.1.4" keyword="SPM2PDFrameOfReference" type="Well-known frame of reference">SPM2 PD Frame of Reference</uid>
+<uid uid="1.2.840.10008.1.4.1.5" keyword="SPM2EPIFrameOfReference" type="Well-known frame of reference">SPM2 EPI Frame of Reference</uid>
+<uid uid="1.2.840.10008.1.4.1.6" keyword="SPM2FILT1FrameOfReference" type="Well-known frame of reference">SPM2 FIL T1 Frame of Reference</uid>
+<uid uid="1.2.840.10008.1.4.1.7" keyword="SPM2PETFrameOfReference" type="Well-known frame of reference">SPM2 PET Frame of Reference</uid>
+<uid uid="1.2.840.10008.1.4.1.8" keyword="SPM2TRANSMFrameOfReference" type="Well-known frame of reference">SPM2 TRANSM Frame of Reference</uid>
+<uid uid="1.2.840.10008.1.4.1.9" keyword="SPM2SPECTFrameOfReference" type="Well-known frame of reference">SPM2 SPECT Frame of Reference</uid>
+<uid uid="1.2.840.10008.1.4.1.10" keyword="SPM2GRAYFrameOfReference" type="Well-known frame of reference">SPM2 GRAY Frame of Reference</uid>
+<uid uid="1.2.840.10008.1.4.1.11" keyword="SPM2WHITEFrameOfReference" type="Well-known frame of reference">SPM2 WHITE Frame of Reference</uid>
+<uid uid="1.2.840.10008.1.4.1.12" keyword="SPM2CSFFrameOfReference" type="Well-known frame of reference">SPM2 CSF Frame of Reference</uid>
+<uid uid="1.2.840.10008.1.4.1.13" keyword="SPM2BRAINMASKFrameOfReference" type="Well-known frame of reference">SPM2 BRAINMASK Frame of Reference</uid>
+<uid uid="1.2.840.10008.1.4.1.14" keyword="SPM2AVG305T1FrameOfReference" type="Well-known frame of reference">SPM2 AVG305T1 Frame of Reference</uid>
+<uid uid="1.2.840.10008.1.4.1.15" keyword="SPM2AVG152T1FrameOfReference" type="Well-known frame of reference">SPM2 AVG152T1 Frame of Reference</uid>
+<uid uid="1.2.840.10008.1.4.1.16" keyword="SPM2AVG152T2FrameOfReference" type="Well-known frame of reference">SPM2 AVG152T2 Frame of Reference</uid>
+<uid uid="1.2.840.10008.1.4.1.17" keyword="SPM2AVG152PDFrameOfReference" type="Well-known frame of reference">SPM2 AVG152PD Frame of Reference</uid>
+<uid uid="1.2.840.10008.1.4.1.18" keyword="SPM2SINGLESUBJT1FrameOfReference" type="Well-known frame of reference">SPM2 SINGLESUBJT1 Frame of Reference</uid>
+<uid uid="1.2.840.10008.1.4.2.1" keyword="ICBM452T1FrameOfReference" type="Well-known frame of reference">ICBM 452 T1 Frame of Reference</uid>
+<uid uid="1.2.840.10008.1.4.2.2" keyword="ICBMSingleSubjectMRIFrameOfReference" type="Well-known frame of reference">ICBM Single Subject MRI Frame of Reference</uid>
+<uid uid="1.2.840.10008.1.5.1" keyword="HotIronColorPaletteSOPInstance" type="Well-known SOP Instance">Hot Iron Color Palette SOP Instance</uid>
+<uid uid="1.2.840.10008.1.5.2" keyword="PETColorPaletteSOPInstance" type="Well-known SOP Instance">PET Color Palette SOP Instance</uid>
+<uid uid="1.2.840.10008.1.5.3" keyword="HotMetalBlueColorPaletteSOPInstance" type="Well-known SOP Instance">Hot Metal Blue Color Palette SOP Instance</uid>
+<uid uid="1.2.840.10008.1.5.4" keyword="PET20StepColorPaletteSOPInstance" type="Well-known SOP Instance">PET 20 Step Color Palette SOP Instance</uid>
+<uid uid="1.2.840.10008.1.9" keyword="BasicStudyContentNotificationSOPClassRetired" type="SOP Class">Basic Study Content Notification SOP Class (Retired)</uid>
+<uid uid="1.2.840.10008.1.20.1" keyword="StorageCommitmentPushModelSOPClass" type="SOP Class">Storage Commitment Push Model SOP Class</uid>
+<uid uid="1.2.840.10008.1.20.1.1" keyword="StorageCommitmentPushModelSOPInstance" type="Well-known SOP Instance">Storage Commitment Push Model SOP Instance</uid>
+<uid uid="1.2.840.10008.1.20.2" keyword="StorageCommitmentPullModelSOPClassRetired" type="SOP Class">Storage Commitment Pull Model SOP Class (Retired)</uid>
+<uid uid="1.2.840.10008.1.20.2.1" keyword="StorageCommitmentPullModelSOPInstanceRetired" type="Well-known SOP Instance">Storage Commitment Pull Model SOP Instance (Retired)</uid>
+<uid uid="1.2.840.10008.1.40" keyword="ProceduralEventLoggingSOPClass" type="SOP Class">Procedural Event Logging SOP Class</uid>
+<uid uid="1.2.840.10008.1.40.1" keyword="ProceduralEventLoggingSOPInstance" type="Well-known SOP Instance">Procedural Event Logging SOP Instance</uid>
+<uid uid="1.2.840.10008.1.42" keyword="SubstanceAdministrationLoggingSOPClass" type="SOP Class">Substance Administration Logging SOP Class</uid>
+<uid uid="1.2.840.10008.1.42.1" keyword="SubstanceAdministrationLoggingSOPInstance" type="Well-known SOP Instance">Substance Administration Logging SOP Instance</uid>
+<uid uid="1.2.840.10008.2.6.1" keyword="DICOMUIDRegistry" type="DICOM UIDs as a Coding Scheme">DICOM UID Registry</uid>
+<uid uid="1.2.840.10008.2.16.4" keyword="DICOMControlledTerminology" type="Coding Scheme">DICOM Controlled Terminology</uid>
+<uid uid="1.2.840.10008.3.1.1.1" keyword="DICOMApplicationContextName" type="Application Context Name">DICOM Application Context Name</uid>
+<uid uid="1.2.840.10008.3.1.2.1.1" keyword="DetachedPatientManagementSOPClassRetired" type="SOP Class">Detached Patient Management SOP Class (Retired)</uid>
+<uid uid="1.2.840.10008.3.1.2.1.4" keyword="DetachedPatientManagementMetaSOPClassRetired" type="Meta SOP Class">Detached Patient Management Meta SOP Class (Retired)</uid>
+<uid uid="1.2.840.10008.3.1.2.2.1" keyword="DetachedVisitManagementSOPClassRetired" type="SOP Class">Detached Visit Management SOP Class (Retired)</uid>
+<uid uid="1.2.840.10008.3.1.2.3.1" keyword="DetachedStudyManagementSOPClassRetired" type="SOP Class">Detached Study Management SOP Class (Retired)</uid>
+<uid uid="1.2.840.10008.3.1.2.3.2" keyword="StudyComponentManagementSOPClassRetired" type="SOP Class">Study Component Management SOP Class (Retired)</uid>
+<uid uid="1.2.840.10008.3.1.2.3.3" keyword="ModalityPerformedProcedureStepSOPClass" type="SOP Class">Modality Performed Procedure Step SOP Class</uid>
+<uid uid="1.2.840.10008.3.1.2.3.4" keyword="ModalityPerformedProcedureStepRetrieveSOPClass" type="SOP Class">Modality Performed Procedure Step Retrieve SOP Class</uid>
+<uid uid="1.2.840.10008.3.1.2.3.5" keyword="ModalityPerformedProcedureStepNotificationSOPClass" type="SOP Class">Modality Performed Procedure Step Notification SOP Class</uid>
+<uid uid="1.2.840.10008.3.1.2.5.1" keyword="DetachedResultsManagementSOPClassRetired" type="SOP Class">Detached Results Management SOP Class (Retired)</uid>
+<uid uid="1.2.840.10008.3.1.2.5.4" keyword="DetachedResultsManagementMetaSOPClassRetired" type="Meta SOP Class">Detached Results Management Meta SOP Class (Retired)</uid>
+<uid uid="1.2.840.10008.3.1.2.5.5" keyword="DetachedStudyManagementMetaSOPClassRetired" type="Meta SOP Class">Detached Study Management Meta SOP Class (Retired)</uid>
+<uid uid="1.2.840.10008.3.1.2.6.1" keyword="DetachedInterpretationManagementSOPClassRetired" type="SOP Class">Detached Interpretation Management SOP Class (Retired)</uid>
+<uid uid="1.2.840.10008.4.2" keyword="StorageServiceClass" type="Service Class">Storage Service Class</uid>
+<uid uid="1.2.840.10008.5.1.1.1" keyword="BasicFilmSessionSOPClass" type="SOP Class">Basic Film Session SOP Class</uid>
+<uid uid="1.2.840.10008.5.1.1.2" keyword="BasicFilmBoxSOPClass" type="SOP Class">Basic Film Box SOP Class</uid>
+<uid uid="1.2.840.10008.5.1.1.4" keyword="BasicGrayscaleImageBoxSOPClass" type="SOP Class">Basic Grayscale Image Box SOP Class</uid>
+<uid uid="1.2.840.10008.5.1.1.4.1" keyword="BasicColorImageBoxSOPClass" type="SOP Class">Basic Color Image Box SOP Class</uid>
+<uid uid="1.2.840.10008.5.1.1.4.2" keyword="ReferencedImageBoxSOPClassRetired" type="SOP Class">Referenced Image Box SOP Class (Retired)</uid>
+<uid uid="1.2.840.10008.5.1.1.9" keyword="BasicGrayscalePrintManagementMetaSOPClass" type="Meta SOP Class">Basic Grayscale Print Management Meta SOP Class</uid>
+<uid uid="1.2.840.10008.5.1.1.9.1" keyword="ReferencedGrayscalePrintManagementMetaSOPClassRetired" type="Meta SOP Class">Referenced Grayscale Print Management Meta SOP Class (Retired)</uid>
+<uid uid="1.2.840.10008.5.1.1.14" keyword="PrintJobSOPClass" type="SOP Class">Print Job SOP Class</uid>
+<uid uid="1.2.840.10008.5.1.1.15" keyword="BasicAnnotationBoxSOPClass" type="SOP Class">Basic Annotation Box SOP Class</uid>
+<uid uid="1.2.840.10008.5.1.1.16" keyword="PrinterSOPClass" type="SOP Class">Printer SOP Class</uid>
+<uid uid="1.2.840.10008.5.1.1.16.376" keyword="PrinterConfigurationRetrievalSOPClass" type="SOP Class">Printer Configuration Retrieval SOP Class</uid>
+<uid uid="1.2.840.10008.5.1.1.17" keyword="PrinterSOPInstance" type="Well-known Printer SOP Instance">Printer SOP Instance</uid>
+<uid uid="1.2.840.10008.5.1.1.17.376" keyword="PrinterConfigurationRetrievalSOPInstance" type="Well-known Printer SOP Instance">Printer Configuration Retrieval SOP Instance</uid>
+<uid uid="1.2.840.10008.5.1.1.18" keyword="BasicColorPrintManagementMetaSOPClass" type="Meta SOP Class">Basic Color Print Management Meta SOP Class</uid>
+<uid uid="1.2.840.10008.5.1.1.18.1" keyword="ReferencedColorPrintManagementMetaSOPClassRetired" type="Meta SOP Class">Referenced Color Print Management Meta SOP Class (Retired)</uid>
+<uid uid="1.2.840.10008.5.1.1.22" keyword="VOILUTBoxSOPClass" type="SOP Class">VOI LUT Box SOP Class</uid>
+<uid uid="1.2.840.10008.5.1.1.23" keyword="PresentationLUTSOPClass" type="SOP Class">Presentation LUT SOP Class</uid>
+<uid uid="1.2.840.10008.5.1.1.24" keyword="ImageOverlayBoxSOPClassRetired" type="SOP Class">Image Overlay Box SOP Class (Retired)</uid>
+<uid uid="1.2.840.10008.5.1.1.24.1" keyword="BasicPrintImageOverlayBoxSOPClassRetired" type="SOP Class">Basic Print Image Overlay Box SOP Class (Retired)</uid>
+<uid uid="1.2.840.10008.5.1.1.25" keyword="PrintQueueSOPInstanceRetired" type="Well-known Print Queue SOP Instance">Print Queue SOP Instance (Retired)</uid>
+<uid uid="1.2.840.10008.5.1.1.26" keyword="PrintQueueManagementSOPClassRetired" type="SOP Class">Print Queue Management SOP Class (Retired)</uid>
+<uid uid="1.2.840.10008.5.1.1.27" keyword="StoredPrintStorageSOPClassRetired" type="SOP Class">Stored Print Storage SOP Class (Retired)</uid>
+<uid uid="1.2.840.10008.5.1.1.29" keyword="HardcopyGrayscaleImageStorageSOPClassRetired" type="SOP Class">Hardcopy Grayscale Image Storage SOP Class (Retired)</uid>
+<uid uid="1.2.840.10008.5.1.1.30" keyword="HardcopyColorImageStorageSOPClassRetired" type="SOP Class">Hardcopy Color Image Storage SOP Class (Retired)</uid>
+<uid uid="1.2.840.10008.5.1.1.31" keyword="PullPrintRequestSOPClassRetired" type="SOP Class">Pull Print Request SOP Class (Retired)</uid>
+<uid uid="1.2.840.10008.5.1.1.32" keyword="PullStoredPrintManagementMetaSOPClassRetired" type="Meta SOP Class">Pull Stored Print Management Meta SOP Class (Retired)</uid>
+<uid uid="1.2.840.10008.5.1.1.33" keyword="MediaCreationManagementSOPClassUID" type="SOP Class">Media Creation Management SOP Class UID</uid>
+<uid uid="1.2.840.10008.5.1.4.1.1.1" keyword="ComputedRadiographyImageStorage" type="SOP Class">Computed Radiography Image Storage</uid>
+<uid uid="1.2.840.10008.5.1.4.1.1.1.1" keyword="DigitalXRayImageStorageForPresentation" type="SOP Class">Digital X-Ray Image Storage - For Presentation</uid>
+<uid uid="1.2.840.10008.5.1.4.1.1.1.1.1" keyword="DigitalXRayImageStorageForProcessing" type="SOP Class">Digital X-Ray Image Storage - For Processing</uid>
+<uid uid="1.2.840.10008.5.1.4.1.1.1.2" keyword="DigitalMammographyXRayImageStorageForPresentation" type="SOP Class">Digital Mammography X-Ray Image Storage - For Presentation</uid>
+<uid uid="1.2.840.10008.5.1.4.1.1.1.2.1" keyword="DigitalMammographyXRayImageStorageForProcessing" type="SOP Class">Digital Mammography X-Ray Image Storage - For Processing</uid>
+<uid uid="1.2.840.10008.5.1.4.1.1.1.3" keyword="DigitalIntraOralXRayImageStorageForPresentation" type="SOP Class">Digital Intra-oral X-Ray Image Storage - For Presentation</uid>
+<uid uid="1.2.840.10008.5.1.4.1.1.1.3.1" keyword="DigitalIntraOralXRayImageStorageForProcessing" type="SOP Class">Digital Intra-oral X-Ray Image Storage - For Processing</uid>
+<uid uid="1.2.840.10008.5.1.4.1.1.2" keyword="CTImageStorage" type="SOP Class">CT Image Storage</uid>
+<uid uid="1.2.840.10008.5.1.4.1.1.2.1" keyword="EnhancedCTImageStorage" type="SOP Class">Enhanced CT Image Storage</uid>
+<uid uid="1.2.840.10008.5.1.4.1.1.3" keyword="UltrasoundMultiFrameImageStorageRetired" type="SOP Class">Ultrasound Multi-frame Image Storage (Retired)</uid>
+<uid uid="1.2.840.10008.5.1.4.1.1.3.1" keyword="UltrasoundMultiFrameImageStorage" type="SOP Class">Ultrasound Multi-frame Image Storage</uid>
+<uid uid="1.2.840.10008.5.1.4.1.1.4" keyword="MRImageStorage" type="SOP Class">MR Image Storage</uid>
+<uid uid="1.2.840.10008.5.1.4.1.1.4.1" keyword="EnhancedMRImageStorage" type="SOP Class">Enhanced MR Image Storage</uid>
+<uid uid="1.2.840.10008.5.1.4.1.1.4.2" keyword="MRSpectroscopyStorage" type="SOP Class">MR Spectroscopy Storage</uid>
+<uid uid="1.2.840.10008.5.1.4.1.1.4.3" keyword="EnhancedMRColorImageStorage" type="SOP Class">Enhanced MR Color Image Storage</uid>
+<uid uid="1.2.840.10008.5.1.4.1.1.5" keyword="NuclearMedicineImageStorageRetired" type="SOP Class">Nuclear Medicine Image Storage (Retired)</uid>
+<uid uid="1.2.840.10008.5.1.4.1.1.6" keyword="UltrasoundImageStorageRetired" type="SOP Class">Ultrasound Image Storage (Retired)</uid>
+<uid uid="1.2.840.10008.5.1.4.1.1.6.1" keyword="UltrasoundImageStorage" type="SOP Class">Ultrasound Image Storage</uid>
+<uid uid="1.2.840.10008.5.1.4.1.1.6.2" keyword="EnhancedUSVolumeStorage" type="SOP Class">Enhanced US Volume Storage</uid>
+<uid uid="1.2.840.10008.5.1.4.1.1.7" keyword="SecondaryCaptureImageStorage" type="SOP Class">Secondary Capture Image Storage</uid>
+<uid uid="1.2.840.10008.5.1.4.1.1.7.1" keyword="MultiFrameSingleBitSecondaryCaptureImageStorage" type="SOP Class">Multi-frame Single Bit Secondary Capture Image Storage</uid>
+<uid uid="1.2.840.10008.5.1.4.1.1.7.2" keyword="MultiFrameGrayscaleByteSecondaryCaptureImageStorage" type="SOP Class">Multi-frame Grayscale Byte Secondary Capture Image Storage</uid>
+<uid uid="1.2.840.10008.5.1.4.1.1.7.3" keyword="MultiFrameGrayscaleWordSecondaryCaptureImageStorage" type="SOP Class">Multi-frame Grayscale Word Secondary Capture Image Storage</uid>
+<uid uid="1.2.840.10008.5.1.4.1.1.7.4" keyword="MultiFrameTrueColorSecondaryCaptureImageStorage" type="SOP Class">Multi-frame True Color Secondary Capture Image Storage</uid>
+<uid uid="1.2.840.10008.5.1.4.1.1.8" keyword="StandaloneOverlayStorageRetired" type="SOP Class">Standalone Overlay Storage (Retired)</uid>
+<uid uid="1.2.840.10008.5.1.4.1.1.9" keyword="StandaloneCurveStorageRetired" type="SOP Class">Standalone Curve Storage (Retired)</uid>
+<uid uid="1.2.840.10008.5.1.4.1.1.9.1" keyword="WaveformStorageTrialRetired" type="SOP Class">Waveform Storage - Trial (Retired)</uid>
+<uid uid="1.2.840.10008.5.1.4.1.1.9.1.1" keyword="TwelveLeadECGWaveformStorage" type="SOP Class">12-lead ECG Waveform Storage</uid>
+<uid uid="1.2.840.10008.5.1.4.1.1.9.1.2" keyword="GeneralECGWaveformStorage" type="SOP Class">General ECG Waveform Storage</uid>
+<uid uid="1.2.840.10008.5.1.4.1.1.9.1.3" keyword="AmbulatoryECGWaveformStorage" type="SOP Class">Ambulatory ECG Waveform Storage</uid>
+<uid uid="1.2.840.10008.5.1.4.1.1.9.2.1" keyword="HemodynamicWaveformStorage" type="SOP Class">Hemodynamic Waveform Storage</uid>
+<uid uid="1.2.840.10008.5.1.4.1.1.9.3.1" keyword="CardiacElectrophysiologyWaveformStorage" type="SOP Class">Cardiac Electrophysiology Waveform Storage</uid>
+<uid uid="1.2.840.10008.5.1.4.1.1.9.4.1" keyword="BasicVoiceAudioWaveformStorage" type="SOP Class">Basic Voice Audio Waveform Storage</uid>
+<uid uid="1.2.840.10008.5.1.4.1.1.9.4.2" keyword="GeneralAudioWaveformStorage" type="SOP Class">General Audio Waveform Storage</uid>
+<uid uid="1.2.840.10008.5.1.4.1.1.9.5.1" keyword="ArterialPulseWaveformStorage" type="SOP Class">Arterial Pulse Waveform Storage</uid>
+<uid uid="1.2.840.10008.5.1.4.1.1.9.6.1" keyword="RespiratoryWaveformStorage" type="SOP Class">Respiratory Waveform Storage</uid>
+<uid uid="1.2.840.10008.5.1.4.1.1.10" keyword="StandaloneModalityLUTStorageRetired" type="SOP Class">Standalone Modality LUT Storage (Retired)</uid>
+<uid uid="1.2.840.10008.5.1.4.1.1.11" keyword="StandaloneVOILUTStorageRetired" type="SOP Class">Standalone VOI LUT Storage (Retired)</uid>
+<uid uid="1.2.840.10008.5.1.4.1.1.11.1" keyword="GrayscaleSoftcopyPresentationStateStorageSOPClass" type="SOP Class">Grayscale Softcopy Presentation State Storage SOP Class</uid>
+<uid uid="1.2.840.10008.5.1.4.1.1.11.2" keyword="ColorSoftcopyPresentationStateStorageSOPClass" type="SOP Class">Color Softcopy Presentation State Storage SOP Class</uid>
+<uid uid="1.2.840.10008.5.1.4.1.1.11.3" keyword="PseudoColorSoftcopyPresentationStateStorageSOPClass" type="SOP Class">Pseudo-Color Softcopy Presentation State Storage SOP Class</uid>
+<uid uid="1.2.840.10008.5.1.4.1.1.11.4" keyword="BlendingSoftcopyPresentationStateStorageSOPClass" type="SOP Class">Blending Softcopy Presentation State Storage SOP Class</uid>
+<uid uid="1.2.840.10008.5.1.4.1.1.11.5" keyword="XAXRFGrayscaleSoftcopyPresentationStateStorage" type="SOP Class">XA/XRF Grayscale Softcopy Presentation State Storage</uid>
+<uid uid="1.2.840.10008.5.1.4.1.1.12.1" keyword="XRayAngiographicImageStorage" type="SOP Class">X-Ray Angiographic Image Storage</uid>
+<uid uid="1.2.840.10008.5.1.4.1.1.12.1.1" keyword="EnhancedXAImageStorage" type="SOP Class">Enhanced XA Image Storage</uid>
+<uid uid="1.2.840.10008.5.1.4.1.1.12.2" keyword="XRayRadiofluoroscopicImageStorage" type="SOP Class">X-Ray Radiofluoroscopic Image Storage</uid>
+<uid uid="1.2.840.10008.5.1.4.1.1.12.2.1" keyword="EnhancedXRFImageStorage" type="SOP Class">Enhanced XRF Image Storage</uid>
+<uid uid="1.2.840.10008.5.1.4.1.1.12.3" keyword="XRayAngiographicBiPlaneImageStorageRetired" type="SOP Class">X-Ray Angiographic Bi-Plane Image Storage (Retired)</uid>
+<uid uid="1.2.840.10008.5.1.4.1.1.13.1.1" keyword="XRay3DAngiographicImageStorage" type="SOP Class">X-Ray 3D Angiographic Image Storage</uid>
+<uid uid="1.2.840.10008.5.1.4.1.1.13.1.2" keyword="XRay3DCraniofacialImageStorage" type="SOP Class">X-Ray 3D Craniofacial Image Storage</uid>
+<uid uid="1.2.840.10008.5.1.4.1.1.13.1.3" keyword="BreastTomosynthesisImageStorage" type="SOP Class">Breast Tomosynthesis Image Storage</uid>
+<uid uid="1.2.840.10008.5.1.4.1.1.14.1" keyword="IntravascularOpticalCoherenceTomographyImageStorageForPresentation" type="SOP Class">Intravascular Optical Coherence Tomography Image Storage - For Presentation</uid>
+<uid uid="1.2.840.10008.5.1.4.1.1.14.2" keyword="IntravascularOpticalCoherenceTomographyImageStorageForProcessing" type="SOP Class">Intravascular Optical Coherence Tomography Image Storage - For Processing</uid>
+<uid uid="1.2.840.10008.5.1.4.1.1.20" keyword="NuclearMedicineImageStorage" type="SOP Class">Nuclear Medicine Image Storage</uid>
+<uid uid="1.2.840.10008.5.1.4.1.1.66" keyword="RawDataStorage" type="SOP Class">Raw Data Storage</uid>
+<uid uid="1.2.840.10008.5.1.4.1.1.66.1" keyword="SpatialRegistrationStorage" type="SOP Class">Spatial Registration Storage</uid>
+<uid uid="1.2.840.10008.5.1.4.1.1.66.2" keyword="SpatialFiducialsStorage" type="SOP Class">Spatial Fiducials Storage</uid>
+<uid uid="1.2.840.10008.5.1.4.1.1.66.3" keyword="DeformableSpatialRegistrationStorage" type="SOP Class">Deformable Spatial Registration Storage</uid>
+<uid uid="1.2.840.10008.5.1.4.1.1.66.4" keyword="SegmentationStorage" type="SOP Class">Segmentation Storage</uid>
+<uid uid="1.2.840.10008.5.1.4.1.1.66.5" keyword="SurfaceSegmentationStorage" type="SOP Class">Surface Segmentation Storage</uid>
+<uid uid="1.2.840.10008.5.1.4.1.1.67" keyword="RealWorldValueMappingStorage" type="SOP Class">Real World Value Mapping Storage</uid>
+<uid uid="1.2.840.10008.5.1.4.1.1.77.1" keyword="VLImageStorageTrialRetired" type="">VL Image Storage - Trial (Retired)</uid>
+<uid uid="1.2.840.10008.5.1.4.1.1.77.2" keyword="VLMultiFrameImageStorageTrialRetired" type="">VL Multi-frame Image Storage - Trial (Retired)</uid>
+<uid uid="1.2.840.10008.5.1.4.1.1.77.1.1" keyword="VLEndoscopicImageStorage" type="SOP Class">VL Endoscopic Image Storage</uid>
+<uid uid="1.2.840.10008.5.1.4.1.1.77.1.1.1" keyword="VideoEndoscopicImageStorage" type="SOP Class">Video Endoscopic Image Storage</uid>
+<uid uid="1.2.840.10008.5.1.4.1.1.77.1.2" keyword="VLMicroscopicImageStorage" type="SOP Class">VL Microscopic Image Storage</uid>
+<uid uid="1.2.840.10008.5.1.4.1.1.77.1.2.1" keyword="VideoMicroscopicImageStorage" type="SOP Class">Video Microscopic Image Storage</uid>
+<uid uid="1.2.840.10008.5.1.4.1.1.77.1.3" keyword="VLSlideCoordinatesMicroscopicImageStorage" type="SOP Class">VL Slide-Coordinates Microscopic Image Storage</uid>
+<uid uid="1.2.840.10008.5.1.4.1.1.77.1.4" keyword="VLPhotographicImageStorage" type="SOP Class">VL Photographic Image Storage</uid>
+<uid uid="1.2.840.10008.5.1.4.1.1.77.1.4.1" keyword="VideoPhotographicImageStorage" type="SOP Class">Video Photographic Image Storage</uid>
+<uid uid="1.2.840.10008.5.1.4.1.1.77.1.5.1" keyword="OphthalmicPhotography8BitImageStorage" type="SOP Class">Ophthalmic Photography 8 Bit Image Storage</uid>
+<uid uid="1.2.840.10008.5.1.4.1.1.77.1.5.2" keyword="OphthalmicPhotography16BitImageStorage" type="SOP Class">Ophthalmic Photography 16 Bit Image Storage</uid>
+<uid uid="1.2.840.10008.5.1.4.1.1.77.1.5.3" keyword="StereometricRelationshipStorage" type="SOP Class">Stereometric Relationship Storage</uid>
+<uid uid="1.2.840.10008.5.1.4.1.1.77.1.5.4" keyword="OphthalmicTomographyImageStorage" type="SOP Class">Ophthalmic Tomography Image Storage</uid>
+<uid uid="1.2.840.10008.5.1.4.1.1.77.1.6" keyword="VLWholeSlideMicroscopyImageStorage" type="SOP Class">VL Whole Slide Microscopy Image Storage</uid>
+<uid uid="1.2.840.10008.5.1.4.1.1.78.1" keyword="LensometryMeasurementsStorage" type="SOP Class">Lensometry Measurements Storage</uid>
+<uid uid="1.2.840.10008.5.1.4.1.1.78.2" keyword="AutorefractionMeasurementsStorage" type="SOP Class">Autorefraction Measurements Storage</uid>
+<uid uid="1.2.840.10008.5.1.4.1.1.78.3" keyword="KeratometryMeasurementsStorage" type="SOP Class">Keratometry Measurements Storage</uid>
+<uid uid="1.2.840.10008.5.1.4.1.1.78.4" keyword="SubjectiveRefractionMeasurementsStorage" type="SOP Class">Subjective Refraction Measurements Storage</uid>
+<uid uid="1.2.840.10008.5.1.4.1.1.78.5" keyword="VisualAcuityMeasurementsStorage" type="SOP Class">Visual Acuity Measurements Storage</uid>
+<uid uid="1.2.840.10008.5.1.4.1.1.78.6" keyword="SpectaclePrescriptionReportStorage" type="SOP Class">Spectacle Prescription Report Storage</uid>
+<uid uid="1.2.840.10008.5.1.4.1.1.78.7" keyword="OphthalmicAxialMeasurementsStorage" type="SOP Class">Ophthalmic Axial Measurements Storage</uid>
+<uid uid="1.2.840.10008.5.1.4.1.1.78.8" keyword="IntraocularLensCalculationsStorage" type="SOP Class">Intraocular Lens Calculations Storage</uid>
+<uid uid="1.2.840.10008.5.1.4.1.1.79.1" keyword="MacularGridThicknessAndVolumeReportStorage" type="SOP Class">Macular Grid Thickness and Volume Report Storage</uid>
+<uid uid="1.2.840.10008.5.1.4.1.1.80.1" keyword="OphthalmicVisualFieldStaticPerimetryMeasurementsStorage" type="SOP Class">Ophthalmic Visual Field Static Perimetry Measurements Storage</uid>
+<uid uid="1.2.840.10008.5.1.4.1.1.88.1" keyword="TextSRStorageTrialRetired" type="SOP Class">Text SR Storage - Trial (Retired)</uid>
+<uid uid="1.2.840.10008.5.1.4.1.1.88.2" keyword="AudioSRStorageTrialRetired" type="SOP Class">Audio SR Storage - Trial (Retired)</uid>
+<uid uid="1.2.840.10008.5.1.4.1.1.88.3" keyword="DetailSRStorageTrialRetired" type="SOP Class">Detail SR Storage - Trial (Retired)</uid>
+<uid uid="1.2.840.10008.5.1.4.1.1.88.4" keyword="ComprehensiveSRStorageTrialRetired" type="SOP Class">Comprehensive SR Storage - Trial (Retired)</uid>
+<uid uid="1.2.840.10008.5.1.4.1.1.88.11" keyword="BasicTextSRStorage" type="SOP Class">Basic Text SR Storage</uid>
+<uid uid="1.2.840.10008.5.1.4.1.1.88.22" keyword="EnhancedSRStorage" type="SOP Class">Enhanced SR Storage</uid>
+<uid uid="1.2.840.10008.5.1.4.1.1.88.33" keyword="ComprehensiveSRStorage" type="SOP Class">Comprehensive SR Storage</uid>
+<uid uid="1.2.840.10008.5.1.4.1.1.88.40" keyword="ProcedureLogStorage" type="SOP Class">Procedure Log Storage</uid>
+<uid uid="1.2.840.10008.5.1.4.1.1.88.50" keyword="MammographyCADSRStorage" type="SOP Class">Mammography CAD SR Storage</uid>
+<uid uid="1.2.840.10008.5.1.4.1.1.88.59" keyword="KeyObjectSelectionDocumentStorage" type="SOP Class">Key Object Selection Document Storage</uid>
+<uid uid="1.2.840.10008.5.1.4.1.1.88.65" keyword="ChestCADSRStorage" type="SOP Class">Chest CAD SR Storage</uid>
+<uid uid="1.2.840.10008.5.1.4.1.1.88.67" keyword="XRayRadiationDoseSRStorage" type="SOP Class">X-Ray Radiation Dose SR Storage</uid>
+<uid uid="1.2.840.10008.5.1.4.1.1.88.69" keyword="ColonCADSRStorage" type="SOP Class">Colon CAD SR Storage</uid>
+<uid uid="1.2.840.10008.5.1.4.1.1.88.70" keyword="ImplantationPlanSRStorage" type="SOP Class">Implantation Plan SR Storage</uid>
+<uid uid="1.2.840.10008.5.1.4.1.1.104.1" keyword="EncapsulatedPDFStorage" type="SOP Class">Encapsulated PDF Storage</uid>
+<uid uid="1.2.840.10008.5.1.4.1.1.104.2" keyword="EncapsulatedCDAStorage" type="SOP Class">Encapsulated CDA Storage</uid>
+<uid uid="1.2.840.10008.5.1.4.1.1.128" keyword="PositronEmissionTomographyImageStorage" type="SOP Class">Positron Emission Tomography Image Storage</uid>
+<uid uid="1.2.840.10008.5.1.4.1.1.129" keyword="StandalonePETCurveStorageRetired" type="SOP Class">Standalone PET Curve Storage (Retired)</uid>
+<uid uid="1.2.840.10008.5.1.4.1.1.130" keyword="EnhancedPETImageStorage" type="SOP Class">Enhanced PET Image Storage</uid>
+<uid uid="1.2.840.10008.5.1.4.1.1.131" keyword="BasicStructuredDisplayStorage" type="SOP Class">Basic Structured Display Storage</uid>
+<uid uid="1.2.840.10008.5.1.4.1.1.481.1" keyword="RTImageStorage" type="SOP Class">RT Image Storage</uid>
+<uid uid="1.2.840.10008.5.1.4.1.1.481.2" keyword="RTDoseStorage" type="SOP Class">RT Dose Storage</uid>
+<uid uid="1.2.840.10008.5.1.4.1.1.481.3" keyword="RTStructureSetStorage" type="SOP Class">RT Structure Set Storage</uid>
+<uid uid="1.2.840.10008.5.1.4.1.1.481.4" keyword="RTBeamsTreatmentRecordStorage" type="SOP Class">RT Beams Treatment Record Storage</uid>
+<uid uid="1.2.840.10008.5.1.4.1.1.481.5" keyword="RTPlanStorage" type="SOP Class">RT Plan Storage</uid>
+<uid uid="1.2.840.10008.5.1.4.1.1.481.6" keyword="RTBrachyTreatmentRecordStorage" type="SOP Class">RT Brachy Treatment Record Storage</uid>
+<uid uid="1.2.840.10008.5.1.4.1.1.481.7" keyword="RTTreatmentSummaryRecordStorage" type="SOP Class">RT Treatment Summary Record Storage</uid>
+<uid uid="1.2.840.10008.5.1.4.1.1.481.8" keyword="RTIonPlanStorage" type="SOP Class">RT Ion Plan Storage</uid>
+<uid uid="1.2.840.10008.5.1.4.1.1.481.9" keyword="RTIonBeamsTreatmentRecordStorage" type="SOP Class">RT Ion Beams Treatment Record Storage</uid>
+<uid uid="1.2.840.10008.5.1.4.1.1.501.1" keyword="DICOSCTImageStorage" type="SOP Class">DICOS CT Image Storage</uid>
+<uid uid="1.2.840.10008.5.1.4.1.1.501.2.1" keyword="DICOSDigitalXRayImageStorageForPresentation" type="SOP Class">DICOS Digital X-Ray Image Storage - For Presentation</uid>
+<uid uid="1.2.840.10008.5.1.4.1.1.501.2.2" keyword="DICOSDigitalXRayImageStorageForProcessing" type="SOP Class">DICOS Digital X-Ray Image Storage - For Processing</uid>
+<uid uid="1.2.840.10008.5.1.4.1.1.501.3" keyword="DICOSThreatDetectionReportStorage" type="SOP Class">DICOS Threat Detection Report Storage</uid>
+<uid uid="1.2.840.10008.5.1.4.1.1.601.1" keyword="EddyCurrentImageStorage" type="SOP Class">Eddy Current Image Storage</uid>
+<uid uid="1.2.840.10008.5.1.4.1.1.601.2" keyword="EddyCurrentMultiFrameImageStorage" type="SOP Class">Eddy Current Multi-frame Image Storage</uid>
+<uid uid="1.2.840.10008.5.1.4.1.2.1.1" keyword="PatientRootQueryRetrieveInformationModelFIND" type="SOP Class">Patient Root Query/Retrieve Information Model - FIND</uid>
+<uid uid="1.2.840.10008.5.1.4.1.2.1.2" keyword="PatientRootQueryRetrieveInformationModelMOVE" type="SOP Class">Patient Root Query/Retrieve Information Model - MOVE</uid>
+<uid uid="1.2.840.10008.5.1.4.1.2.1.3" keyword="PatientRootQueryRetrieveInformationModelGET" type="SOP Class">Patient Root Query/Retrieve Information Model - GET</uid>
+<uid uid="1.2.840.10008.5.1.4.1.2.2.1" keyword="StudyRootQueryRetrieveInformationModelFIND" type="SOP Class">Study Root Query/Retrieve Information Model - FIND</uid>
+<uid uid="1.2.840.10008.5.1.4.1.2.2.2" keyword="StudyRootQueryRetrieveInformationModelMOVE" type="SOP Class">Study Root Query/Retrieve Information Model - MOVE</uid>
+<uid uid="1.2.840.10008.5.1.4.1.2.2.3" keyword="StudyRootQueryRetrieveInformationModelGET" type="SOP Class">Study Root Query/Retrieve Information Model - GET</uid>
+<uid uid="1.2.840.10008.5.1.4.1.2.3.1" keyword="PatientStudyOnlyQueryRetrieveInformationModelFINDRetired" type="SOP Class">Patient/Study Only Query/Retrieve Information Model - FIND (Retired)</uid>
+<uid uid="1.2.840.10008.5.1.4.1.2.3.2" keyword="PatientStudyOnlyQueryRetrieveInformationModelMOVERetired" type="SOP Class">Patient/Study Only Query/Retrieve Information Model - MOVE (Retired)</uid>
+<uid uid="1.2.840.10008.5.1.4.1.2.3.3" keyword="PatientStudyOnlyQueryRetrieveInformationModelGETRetired" type="SOP Class">Patient/Study Only Query/Retrieve Information Model - GET (Retired)</uid>
+<uid uid="1.2.840.10008.5.1.4.1.2.4.2" keyword="CompositeInstanceRootRetrieveMOVE" type="SOP Class">Composite Instance Root Retrieve - MOVE</uid>
+<uid uid="1.2.840.10008.5.1.4.1.2.4.3" keyword="CompositeInstanceRootRetrieveGET" type="SOP Class">Composite Instance Root Retrieve - GET</uid>
+<uid uid="1.2.840.10008.5.1.4.1.2.5.3" keyword="CompositeInstanceRetrieveWithoutBulkDataGET" type="SOP Class">Composite Instance Retrieve Without Bulk Data - GET</uid>
+<uid uid="1.2.840.10008.5.1.4.31" keyword="ModalityWorklistInformationModelFIND" type="SOP Class">Modality Worklist Information Model - FIND</uid>
+<uid uid="1.2.840.10008.5.1.4.32.1" keyword="GeneralPurposeWorklistInformationModelFIND" type="SOP Class">General Purpose Worklist Information Model - FIND</uid>
+<uid uid="1.2.840.10008.5.1.4.32.2" keyword="GeneralPurposeScheduledProcedureStepSOPClass" type="SOP Class">General Purpose Scheduled Procedure Step SOP Class</uid>
+<uid uid="1.2.840.10008.5.1.4.32.3" keyword="GeneralPurposePerformedProcedureStepSOPClass" type="SOP Class">General Purpose Performed Procedure Step SOP Class</uid>
+<uid uid="1.2.840.10008.5.1.4.32" keyword="GeneralPurposeWorklistManagementMetaSOPClass" type="Meta SOP Class">General Purpose Worklist Management Meta SOP Class</uid>
+<uid uid="1.2.840.10008.5.1.4.33" keyword="InstanceAvailabilityNotificationSOPClass" type="SOP Class">Instance Availability Notification SOP Class</uid>
+<uid uid="1.2.840.10008.5.1.4.34.1" keyword="RTBeamsDeliveryInstructionStorageTrialRetired" type="SOP Class">RT Beams Delivery Instruction Storage - Trial (Retired)</uid>
+<uid uid="1.2.840.10008.5.1.4.34.2" keyword="RTConventionalMachineVerificationTrialRetired" type="SOP Class">RT Conventional Machine Verification - Trial (Retired)</uid>
+<uid uid="1.2.840.10008.5.1.4.34.3" keyword="RTIonMachineVerificationTrialRetired" type="SOP Class">RT Ion Machine Verification - Trial (Retired)</uid>
+<uid uid="1.2.840.10008.5.1.4.34.4" keyword="UnifiedWorklistAndProcedureStepServiceClassTrialRetired" type="Service Class">Unified Worklist and Procedure Step Service Class - Trial (Retired)</uid>
+<uid uid="1.2.840.10008.5.1.4.34.4.1" keyword="UnifiedProcedureStepPushSOPClassTrialRetired" type="SOP Class">Unified Procedure Step - Push SOP Class - Trial (Retired)</uid>
+<uid uid="1.2.840.10008.5.1.4.34.4.2" keyword="UnifiedProcedureStepWatchSOPClassTrialRetired" type="SOP Class">Unified Procedure Step - Watch SOP Class - Trial (Retired)</uid>
+<uid uid="1.2.840.10008.5.1.4.34.4.3" keyword="UnifiedProcedureStepPullSOPClassTrialRetired" type="SOP Class">Unified Procedure Step - Pull SOP Class - Trial (Retired)</uid>
+<uid uid="1.2.840.10008.5.1.4.34.4.4" keyword="UnifiedProcedureStepEventSOPClassTrialRetired" type="SOP Class">Unified Procedure Step - Event SOP Class - Trial (Retired)</uid>
+<uid uid="1.2.840.10008.5.1.4.34.5" keyword="UnifiedWorklistAndProcedureStepSOPInstance" type="Well-known SOP Instance">Unified Worklist and Procedure Step SOP Instance</uid>
+<uid uid="1.2.840.10008.5.1.4.34.6" keyword="UnifiedWorklistAndProcedureStepServiceClass" type="Service Class">Unified Worklist and Procedure Step Service Class</uid>
+<uid uid="1.2.840.10008.5.1.4.34.6.1" keyword="UnifiedProcedureStepPushSOPClass" type="SOP Class">Unified Procedure Step - Push SOP Class</uid>
+<uid uid="1.2.840.10008.5.1.4.34.6.2" keyword="UnifiedProcedureStepWatchSOPClass" type="SOP Class">Unified Procedure Step - Watch SOP Class</uid>
+<uid uid="1.2.840.10008.5.1.4.34.6.3" keyword="UnifiedProcedureStepPullSOPClass" type="SOP Class">Unified Procedure Step - Pull SOP Class</uid>
+<uid uid="1.2.840.10008.5.1.4.34.6.4" keyword="UnifiedProcedureStepEventSOPClass" type="SOP Class">Unified Procedure Step - Event SOP Class</uid>
+<uid uid="1.2.840.10008.5.1.4.34.7" keyword="RTBeamsDeliveryInstructionStorage" type="SOP Class">RT Beams Delivery Instruction Storage</uid>
+<uid uid="1.2.840.10008.5.1.4.34.8" keyword="RTConventionalMachineVerification" type="SOP Class">RT Conventional Machine Verification</uid>
+<uid uid="1.2.840.10008.5.1.4.34.9" keyword="RTIonMachineVerification" type="SOP Class">RT Ion Machine Verification</uid>
+<uid uid="1.2.840.10008.5.1.4.37.1" keyword="GeneralRelevantPatientInformationQuery" type="SOP Class">General Relevant Patient Information Query</uid>
+<uid uid="1.2.840.10008.5.1.4.37.2" keyword="BreastImagingRelevantPatientInformationQuery" type="SOP Class">Breast Imaging Relevant Patient Information Query</uid>
+<uid uid="1.2.840.10008.5.1.4.37.3" keyword="CardiacRelevantPatientInformationQuery" type="SOP Class">Cardiac Relevant Patient Information Query</uid>
+<uid uid="1.2.840.10008.5.1.4.38.1" keyword="HangingProtocolStorage" type="SOP Class">Hanging Protocol Storage</uid>
+<uid uid="1.2.840.10008.5.1.4.38.2" keyword="HangingProtocolInformationModelFIND" type="SOP Class">Hanging Protocol Information Model - FIND</uid>
+<uid uid="1.2.840.10008.5.1.4.38.3" keyword="HangingProtocolInformationModelMOVE" type="SOP Class">Hanging Protocol Information Model - MOVE</uid>
+<uid uid="1.2.840.10008.5.1.4.38.4" keyword="HangingProtocolInformationModelGET" type="SOP Class">Hanging Protocol Information Model - GET</uid>
+<uid uid="1.2.840.10008.5.1.4.39.1" keyword="ColorPaletteStorage" type="Transfer">Color Palette Storage</uid>
+<uid uid="1.2.840.10008.5.1.4.39.2" keyword="ColorPaletteInformationModelFIND" type="Query/Retrieve">Color Palette Information Model - FIND</uid>
+<uid uid="1.2.840.10008.5.1.4.39.3" keyword="ColorPaletteInformationModelMOVE" type="Query/Retrieve">Color Palette Information Model - MOVE</uid>
+<uid uid="1.2.840.10008.5.1.4.39.4" keyword="ColorPaletteInformationModelGET" type="Query/Retrieve">Color Palette Information Model - GET</uid>
+<uid uid="1.2.840.10008.5.1.4.41" keyword="ProductCharacteristicsQuerySOPClass" type="SOP Class">Product Characteristics Query SOP Class</uid>
+<uid uid="1.2.840.10008.5.1.4.42" keyword="SubstanceApprovalQuerySOPClass" type="SOP Class">Substance Approval Query SOP Class</uid>
+<uid uid="1.2.840.10008.5.1.4.43.1" keyword="GenericImplantTemplateStorage" type="SOP Class">Generic Implant Template Storage</uid>
+<uid uid="1.2.840.10008.5.1.4.43.2" keyword="GenericImplantTemplateInformationModelFIND" type="SOP Class">Generic Implant Template Information Model - FIND</uid>
+<uid uid="1.2.840.10008.5.1.4.43.3" keyword="GenericImplantTemplateInformationModelMOVE" type="SOP Class">Generic Implant Template Information Model - MOVE</uid>
+<uid uid="1.2.840.10008.5.1.4.43.4" keyword="GenericImplantTemplateInformationModelGET" type="SOP Class">Generic Implant Template Information Model - GET</uid>
+<uid uid="1.2.840.10008.5.1.4.44.1" keyword="ImplantAssemblyTemplateStorage" type="SOP Class">Implant Assembly Template Storage</uid>
+<uid uid="1.2.840.10008.5.1.4.44.2" keyword="ImplantAssemblyTemplateInformationModelFIND" type="SOP Class">Implant Assembly Template Information Model - FIND</uid>
+<uid uid="1.2.840.10008.5.1.4.44.3" keyword="ImplantAssemblyTemplateInformationModelMOVE" type="SOP Class">Implant Assembly Template Information Model - MOVE</uid>
+<uid uid="1.2.840.10008.5.1.4.44.4" keyword="ImplantAssemblyTemplateInformationModelGET" type="SOP Class">Implant Assembly Template Information Model - GET</uid>
+<uid uid="1.2.840.10008.5.1.4.45.1" keyword="ImplantTemplateGroupStorage" type="SOP Class">Implant Template Group Storage</uid>
+<uid uid="1.2.840.10008.5.1.4.45.2" keyword="ImplantTemplateGroupInformationModelFIND" type="SOP Class">Implant Template Group Information Model - FIND</uid>
+<uid uid="1.2.840.10008.5.1.4.45.3" keyword="ImplantTemplateGroupInformationModelMOVE" type="SOP Class">Implant Template Group Information Model - MOVE</uid>
+<uid uid="1.2.840.10008.5.1.4.45.4" keyword="ImplantTemplateGroupInformationModelGET" type="SOP Class">Implant Template Group Information Model - GET</uid>
+<uid uid="1.2.840.10008.7.1.1" keyword="NativeDICOMModel" type="Application Hosting Model">Native DICOM Model</uid>
+<uid uid="1.2.840.10008.7.1.2" keyword="AbstractMultiDimensionalImageModel" type="Application Hosting Model">Abstract Multi-Dimensional Image Model</uid>
+<uid uid="1.2.840.10008.15.0.3.1" keyword="dicomDeviceName" type="LDAP OID">dicomDeviceName</uid>
+<uid uid="1.2.840.10008.15.0.3.2" keyword="dicomDescription" type="LDAP OID">dicomDescription</uid>
+<uid uid="1.2.840.10008.15.0.3.3" keyword="dicomManufacturer" type="LDAP OID">dicomManufacturer</uid>
+<uid uid="1.2.840.10008.15.0.3.4" keyword="dicomManufacturerModelName" type="LDAP OID">dicomManufacturerModelName</uid>
+<uid uid="1.2.840.10008.15.0.3.5" keyword="dicomSoftwareVersion" type="LDAP OID">dicomSoftwareVersion</uid>
+<uid uid="1.2.840.10008.15.0.3.6" keyword="dicomVendorData" type="LDAP OID">dicomVendorData</uid>
+<uid uid="1.2.840.10008.15.0.3.7" keyword="dicomAETitle" type="LDAP OID">dicomAETitle</uid>
+<uid uid="1.2.840.10008.15.0.3.8" keyword="dicomNetworkConnectionReference" type="LDAP OID">dicomNetworkConnectionReference</uid>
+<uid uid="1.2.840.10008.15.0.3.9" keyword="dicomApplicationCluster" type="LDAP OID">dicomApplicationCluster</uid>
+<uid uid="1.2.840.10008.15.0.3.10" keyword="dicomAssociationInitiator" type="LDAP OID">dicomAssociationInitiator</uid>
+<uid uid="1.2.840.10008.15.0.3.11" keyword="dicomAssociationAcceptor" type="LDAP OID">dicomAssociationAcceptor</uid>
+<uid uid="1.2.840.10008.15.0.3.12" keyword="dicomHostname" type="LDAP OID">dicomHostname</uid>
+<uid uid="1.2.840.10008.15.0.3.13" keyword="dicomPort" type="LDAP OID">dicomPort</uid>
+<uid uid="1.2.840.10008.15.0.3.14" keyword="dicomSOPClass" type="LDAP OID">dicomSOPClass</uid>
+<uid uid="1.2.840.10008.15.0.3.15" keyword="dicomTransferRole" type="LDAP OID">dicomTransferRole</uid>
+<uid uid="1.2.840.10008.15.0.3.16" keyword="dicomTransferSyntax" type="LDAP OID">dicomTransferSyntax</uid>
+<uid uid="1.2.840.10008.15.0.3.17" keyword="dicomPrimaryDeviceType" type="LDAP OID">dicomPrimaryDeviceType</uid>
+<uid uid="1.2.840.10008.15.0.3.18" keyword="dicomRelatedDeviceReference" type="LDAP OID">dicomRelatedDeviceReference</uid>
+<uid uid="1.2.840.10008.15.0.3.19" keyword="dicomPreferredCalledAETitle" type="LDAP OID">dicomPreferredCalledAETitle</uid>
+<uid uid="1.2.840.10008.15.0.3.20" keyword="dicomTLSCyphersuite" type="LDAP OID">dicomTLSCyphersuite</uid>
+<uid uid="1.2.840.10008.15.0.3.21" keyword="dicomAuthorizedNodeCertificateReference" type="LDAP OID">dicomAuthorizedNodeCertificateReference</uid>
+<uid uid="1.2.840.10008.15.0.3.22" keyword="dicomThisNodeCertificateReference" type="LDAP OID">dicomThisNodeCertificateReference</uid>
+<uid uid="1.2.840.10008.15.0.3.23" keyword="dicomInstalled" type="LDAP OID">dicomInstalled</uid>
+<uid uid="1.2.840.10008.15.0.3.24" keyword="dicomStationName" type="LDAP OID">dicomStationName</uid>
+<uid uid="1.2.840.10008.15.0.3.25" keyword="dicomDeviceSerialNumber" type="LDAP OID">dicomDeviceSerialNumber</uid>
+<uid uid="1.2.840.10008.15.0.3.26" keyword="dicomInstitutionName" type="LDAP OID">dicomInstitutionName</uid>
+<uid uid="1.2.840.10008.15.0.3.27" keyword="dicomInstitutionAddress" type="LDAP OID">dicomInstitutionAddress</uid>
+<uid uid="1.2.840.10008.15.0.3.28" keyword="dicomInstitutionDepartmentName" type="LDAP OID">dicomInstitutionDepartmentName</uid>
+<uid uid="1.2.840.10008.15.0.3.29" keyword="dicomIssuerOfPatientID" type="LDAP OID">dicomIssuerOfPatientID</uid>
+<uid uid="1.2.840.10008.15.0.3.30" keyword="dicomPreferredCallingAETitle" type="LDAP OID">dicomPreferredCallingAETitle</uid>
+<uid uid="1.2.840.10008.15.0.3.31" keyword="dicomSupportedCharacterSet" type="LDAP OID">dicomSupportedCharacterSet</uid>
+<uid uid="1.2.840.10008.15.0.4.1" keyword="dicomConfigurationRoot" type="LDAP OID">dicomConfigurationRoot</uid>
+<uid uid="1.2.840.10008.15.0.4.2" keyword="dicomDevicesRoot" type="LDAP OID">dicomDevicesRoot</uid>
+<uid uid="1.2.840.10008.15.0.4.3" keyword="dicomUniqueAETitlesRegistryRoot" type="LDAP OID">dicomUniqueAETitlesRegistryRoot</uid>
+<uid uid="1.2.840.10008.15.0.4.4" keyword="dicomDevice" type="LDAP OID">dicomDevice</uid>
+<uid uid="1.2.840.10008.15.0.4.5" keyword="dicomNetworkAE" type="LDAP OID">dicomNetworkAE</uid>
+<uid uid="1.2.840.10008.15.0.4.6" keyword="dicomNetworkConnection" type="LDAP OID">dicomNetworkConnection</uid>
+<uid uid="1.2.840.10008.15.0.4.7" keyword="dicomUniqueAETitle" type="LDAP OID">dicomUniqueAETitle</uid>
+<uid uid="1.2.840.10008.15.0.4.8" keyword="dicomTransferCapability" type="LDAP OID">dicomTransferCapability</uid>
+<uid uid="1.2.840.10008.15.1.1" keyword="UniversalCoordinatedTime" type="Synchronization Frame of Reference">Universal Coordinated Time</uid>
+<uid uid="1.2.840.10008.6.1.1" keyword="AnatomicModifier2" type="Context Group Name">Anatomic Modifier (2)</uid>
+<uid uid="1.2.840.10008.6.1.2" keyword="AnatomicRegion4" type="Context Group Name">Anatomic Region (4)</uid>
+<uid uid="1.2.840.10008.6.1.3" keyword="TransducerApproach5" type="Context Group Name">Transducer Approach (5)</uid>
+<uid uid="1.2.840.10008.6.1.4" keyword="TransducerOrientation6" type="Context Group Name">Transducer Orientation (6)</uid>
+<uid uid="1.2.840.10008.6.1.5" keyword="UltrasoundBeamPath7" type="Context Group Name">Ultrasound Beam Path (7)</uid>
+<uid uid="1.2.840.10008.6.1.6" keyword="AngiographicInterventionalDevices8" type="Context Group Name">Angiographic Interventional Devices (8)</uid>
+<uid uid="1.2.840.10008.6.1.7" keyword="ImageGuidedTherapeuticProcedures9" type="Context Group Name">Image Guided Therapeutic Procedures (9)</uid>
+<uid uid="1.2.840.10008.6.1.8" keyword="InterventionalDrug10" type="Context Group Name">Interventional Drug (10)</uid>
+<uid uid="1.2.840.10008.6.1.9" keyword="RouteOfAdministration11" type="Context Group Name">Route of Administration (11)</uid>
+<uid uid="1.2.840.10008.6.1.10" keyword="RadiographicContrastAgent12" type="Context Group Name">Radiographic Contrast Agent (12)</uid>
+<uid uid="1.2.840.10008.6.1.11" keyword="RadiographicContrastAgentIngredient13" type="Context Group Name">Radiographic Contrast Agent Ingredient (13)</uid>
+<uid uid="1.2.840.10008.6.1.12" keyword="IsotopesInRadiopharmaceuticals18" type="Context Group Name">Isotopes in Radiopharmaceuticals (18)</uid>
+<uid uid="1.2.840.10008.6.1.13" keyword="PatientOrientation19" type="Context Group Name">Patient Orientation (19)</uid>
+<uid uid="1.2.840.10008.6.1.14" keyword="PatientOrientationModifier20" type="Context Group Name">Patient Orientation Modifier (20)</uid>
+<uid uid="1.2.840.10008.6.1.15" keyword="PatientGantryRelationship21" type="Context Group Name">Patient Gantry Relationship (21)</uid>
+<uid uid="1.2.840.10008.6.1.16" keyword="CranioCaudadAngulation23" type="Context Group Name">Cranio-caudad Angulation (23)</uid>
+<uid uid="1.2.840.10008.6.1.17" keyword="Radiopharmaceuticals25" type="Context Group Name">Radiopharmaceuticals (25)</uid>
+<uid uid="1.2.840.10008.6.1.18" keyword="NuclearMedicineProjections26" type="Context Group Name">Nuclear Medicine Projections (26)</uid>
+<uid uid="1.2.840.10008.6.1.19" keyword="AcquisitionModality29" type="Context Group Name">Acquisition Modality (29)</uid>
+<uid uid="1.2.840.10008.6.1.20" keyword="DICOMDevices30" type="Context Group Name">DICOM Devices (30)</uid>
+<uid uid="1.2.840.10008.6.1.21" keyword="AbstractPriors31" type="Context Group Name">Abstract Priors (31)</uid>
+<uid uid="1.2.840.10008.6.1.22" keyword="NumericValueQualifier42" type="Context Group Name">Numeric Value Qualifier (42)</uid>
+<uid uid="1.2.840.10008.6.1.23" keyword="UnitsOfMeasurement82" type="Context Group Name">Units of Measurement (82)</uid>
+<uid uid="1.2.840.10008.6.1.24" keyword="UnitsForRealWorldValueMapping83" type="Context Group Name">Units for Real World Value Mapping (83)</uid>
+<uid uid="1.2.840.10008.6.1.25" keyword="LevelOfSignificance220" type="Context Group Name">Level of Significance (220)</uid>
+<uid uid="1.2.840.10008.6.1.26" keyword="MeasurementRangeConcepts221" type="Context Group Name">Measurement Range Concepts (221)</uid>
+<uid uid="1.2.840.10008.6.1.27" keyword="NormalityCodes222" type="Context Group Name">Normality Codes (222)</uid>
+<uid uid="1.2.840.10008.6.1.28" keyword="NormalRangeValues223" type="Context Group Name">Normal Range Values (223)</uid>
+<uid uid="1.2.840.10008.6.1.29" keyword="SelectionMethod224" type="Context Group Name">Selection Method (224)</uid>
+<uid uid="1.2.840.10008.6.1.30" keyword="MeasurementUncertaintyConcepts225" type="Context Group Name">Measurement Uncertainty Concepts (225)</uid>
+<uid uid="1.2.840.10008.6.1.31" keyword="PopulationStatisticalDescriptors226" type="Context Group Name">Population Statistical Descriptors (226)</uid>
+<uid uid="1.2.840.10008.6.1.32" keyword="SampleStatisticalDescriptors227" type="Context Group Name">Sample Statistical Descriptors (227)</uid>
+<uid uid="1.2.840.10008.6.1.33" keyword="EquationOrTable228" type="Context Group Name">Equation or Table (228)</uid>
+<uid uid="1.2.840.10008.6.1.34" keyword="YesNo230" type="Context Group Name">Yes-No (230)</uid>
+<uid uid="1.2.840.10008.6.1.35" keyword="PresentAbsent240" type="Context Group Name">Present-Absent (240)</uid>
+<uid uid="1.2.840.10008.6.1.36" keyword="NormalAbnormal242" type="Context Group Name">Normal-Abnormal (242)</uid>
+<uid uid="1.2.840.10008.6.1.37" keyword="Laterality244" type="Context Group Name">Laterality (244)</uid>
+<uid uid="1.2.840.10008.6.1.38" keyword="PositiveNegative250" type="Context Group Name">Positive-Negative (250)</uid>
+<uid uid="1.2.840.10008.6.1.39" keyword="SeverityOfComplication251" type="Context Group Name">Severity of Complication (251)</uid>
+<uid uid="1.2.840.10008.6.1.40" keyword="ObserverType270" type="Context Group Name">Observer Type (270)</uid>
+<uid uid="1.2.840.10008.6.1.41" keyword="ObservationSubjectClass271" type="Context Group Name">Observation Subject Class (271)</uid>
+<uid uid="1.2.840.10008.6.1.42" keyword="AudioChannelSource3000" type="Context Group Name">Audio Channel Source (3000)</uid>
+<uid uid="1.2.840.10008.6.1.43" keyword="ECGLeads3001" type="Context Group Name">ECG Leads (3001)</uid>
+<uid uid="1.2.840.10008.6.1.44" keyword="HemodynamicWaveformSources3003" type="Context Group Name">Hemodynamic Waveform Sources (3003)</uid>
+<uid uid="1.2.840.10008.6.1.45" keyword="CardiovascularAnatomicLocations3010" type="Context Group Name">Cardiovascular Anatomic Locations (3010)</uid>
+<uid uid="1.2.840.10008.6.1.46" keyword="ElectrophysiologyAnatomicLocations3011" type="Context Group Name">Electrophysiology Anatomic Locations (3011)</uid>
+<uid uid="1.2.840.10008.6.1.47" keyword="CoronaryArterySegments3014" type="Context Group Name">Coronary Artery Segments (3014)</uid>
+<uid uid="1.2.840.10008.6.1.48" keyword="CoronaryArteries3015" type="Context Group Name">Coronary Arteries (3015)</uid>
+<uid uid="1.2.840.10008.6.1.49" keyword="CardiovascularAnatomicLocationModifiers3019" type="Context Group Name">Cardiovascular Anatomic Location Modifiers (3019)</uid>
+<uid uid="1.2.840.10008.6.1.50" keyword="CardiologyUnitsOfMeasurement3082" type="Context Group Name">Cardiology Units of Measurement (3082)</uid>
+<uid uid="1.2.840.10008.6.1.51" keyword="TimeSynchronizationChannelTypes3090" type="Context Group Name">Time Synchronization Channel Types (3090)</uid>
+<uid uid="1.2.840.10008.6.1.52" keyword="NMProceduralStateValues3101" type="Context Group Name">NM Procedural State Values (3101)</uid>
+<uid uid="1.2.840.10008.6.1.53" keyword="ElectrophysiologyMeasurementFunctionsAndTechniques3240" type="Context Group Name">Electrophysiology Measurement Functions and Techniques (3240)</uid>
+<uid uid="1.2.840.10008.6.1.54" keyword="HemodynamicMeasurementTechniques3241" type="Context Group Name">Hemodynamic Measurement Techniques (3241)</uid>
+<uid uid="1.2.840.10008.6.1.55" keyword="CatheterizationProcedurePhase3250" type="Context Group Name">Catheterization Procedure Phase (3250)</uid>
+<uid uid="1.2.840.10008.6.1.56" keyword="ElectrophysiologyProcedurePhase3254" type="Context Group Name">Electrophysiology Procedure Phase (3254)</uid>
+<uid uid="1.2.840.10008.6.1.57" keyword="StressProtocols3261" type="Context Group Name">Stress Protocols (3261)</uid>
+<uid uid="1.2.840.10008.6.1.58" keyword="ECGPatientStateValues3262" type="Context Group Name">ECG Patient State Values (3262)</uid>
+<uid uid="1.2.840.10008.6.1.59" keyword="ElectrodePlacementValues3263" type="Context Group Name">Electrode Placement Values (3263)</uid>
+<uid uid="1.2.840.10008.6.1.60" keyword="XYZElectrodePlacementValues3264" type="Context Group Name">XYZ Electrode Placement Values (3264)</uid>
+<uid uid="1.2.840.10008.6.1.61" keyword="HemodynamicPhysiologicalChallenges3271" type="Context Group Name">Hemodynamic Physiological Challenges (3271)</uid>
+<uid uid="1.2.840.10008.6.1.62" keyword="ECGAnnotations3335" type="Context Group Name">ECG Annotations (3335)</uid>
+<uid uid="1.2.840.10008.6.1.63" keyword="HemodynamicAnnotations3337" type="Context Group Name">Hemodynamic Annotations (3337)</uid>
+<uid uid="1.2.840.10008.6.1.64" keyword="ElectrophysiologyAnnotations3339" type="Context Group Name">Electrophysiology Annotations (3339)</uid>
+<uid uid="1.2.840.10008.6.1.65" keyword="ProcedureLogTitles3400" type="Context Group Name">Procedure Log Titles (3400)</uid>
+<uid uid="1.2.840.10008.6.1.66" keyword="TypesOfLogNotes3401" type="Context Group Name">Types of Log Notes (3401)</uid>
+<uid uid="1.2.840.10008.6.1.67" keyword="PatientStatusAndEvents3402" type="Context Group Name">Patient Status and Events (3402)</uid>
+<uid uid="1.2.840.10008.6.1.68" keyword="PercutaneousEntry3403" type="Context Group Name">Percutaneous Entry (3403)</uid>
+<uid uid="1.2.840.10008.6.1.69" keyword="StaffActions3404" type="Context Group Name">Staff Actions (3404)</uid>
+<uid uid="1.2.840.10008.6.1.70" keyword="ProcedureActionValues3405" type="Context Group Name">Procedure Action Values (3405)</uid>
+<uid uid="1.2.840.10008.6.1.71" keyword="NonCoronaryTranscatheterInterventions3406" type="Context Group Name">Non-Coronary Transcatheter Interventions (3406)</uid>
+<uid uid="1.2.840.10008.6.1.72" keyword="PurposeOfReferenceToObject3407" type="Context Group Name">Purpose of Reference to Object (3407)</uid>
+<uid uid="1.2.840.10008.6.1.73" keyword="ActionsWithConsumables3408" type="Context Group Name">Actions with Consumables (3408)</uid>
+<uid uid="1.2.840.10008.6.1.74" keyword="AdministrationOfDrugsContrast3409" type="Context Group Name">Administration of Drugs/Contrast (3409)</uid>
+<uid uid="1.2.840.10008.6.1.75" keyword="NumericParametersOfDrugsContrast3410" type="Context Group Name">Numeric Parameters of Drugs/Contrast (3410)</uid>
+<uid uid="1.2.840.10008.6.1.76" keyword="IntracoronaryDevices3411" type="Context Group Name">Intracoronary Devices (3411)</uid>
+<uid uid="1.2.840.10008.6.1.77" keyword="InterventionActionsAndStatus3412" type="Context Group Name">Intervention Actions and Status (3412)</uid>
+<uid uid="1.2.840.10008.6.1.78" keyword="AdverseOutcomes3413" type="Context Group Name">Adverse Outcomes (3413)</uid>
+<uid uid="1.2.840.10008.6.1.79" keyword="ProcedureUrgency3414" type="Context Group Name">Procedure Urgency (3414)</uid>
+<uid uid="1.2.840.10008.6.1.80" keyword="CardiacRhythms3415" type="Context Group Name">Cardiac Rhythms (3415)</uid>
+<uid uid="1.2.840.10008.6.1.81" keyword="RespirationRhythms3416" type="Context Group Name">Respiration Rhythms (3416)</uid>
+<uid uid="1.2.840.10008.6.1.82" keyword="LesionRisk3418" type="Context Group Name">Lesion Risk (3418)</uid>
+<uid uid="1.2.840.10008.6.1.83" keyword="FindingsTitles3419" type="Context Group Name">Findings Titles (3419)</uid>
+<uid uid="1.2.840.10008.6.1.84" keyword="ProcedureAction3421" type="Context Group Name">Procedure Action (3421)</uid>
+<uid uid="1.2.840.10008.6.1.85" keyword="DeviceUseActions3422" type="Context Group Name">Device Use Actions (3422)</uid>
+<uid uid="1.2.840.10008.6.1.86" keyword="NumericDeviceCharacteristics3423" type="Context Group Name">Numeric Device Characteristics (3423)</uid>
+<uid uid="1.2.840.10008.6.1.87" keyword="InterventionParameters3425" type="Context Group Name">Intervention Parameters (3425)</uid>
+<uid uid="1.2.840.10008.6.1.88" keyword="ConsumablesParameters3426" type="Context Group Name">Consumables Parameters (3426)</uid>
+<uid uid="1.2.840.10008.6.1.89" keyword="EquipmentEvents3427" type="Context Group Name">Equipment Events (3427)</uid>
+<uid uid="1.2.840.10008.6.1.90" keyword="ImagingProcedures3428" type="Context Group Name">Imaging Procedures (3428)</uid>
+<uid uid="1.2.840.10008.6.1.91" keyword="CatheterizationDevices3429" type="Context Group Name">Catheterization Devices (3429)</uid>
+<uid uid="1.2.840.10008.6.1.92" keyword="DateTimeQualifiers3430" type="Context Group Name">DateTime Qualifiers (3430)</uid>
+<uid uid="1.2.840.10008.6.1.93" keyword="PeripheralPulseLocations3440" type="Context Group Name">Peripheral Pulse Locations (3440)</uid>
+<uid uid="1.2.840.10008.6.1.94" keyword="PatientAssessments3441" type="Context Group Name">Patient assessments (3441)</uid>
+<uid uid="1.2.840.10008.6.1.95" keyword="PeripheralPulseMethods3442" type="Context Group Name">Peripheral Pulse Methods (3442)</uid>
+<uid uid="1.2.840.10008.6.1.96" keyword="SkinCondition3446" type="Context Group Name">Skin Condition (3446)</uid>
+<uid uid="1.2.840.10008.6.1.97" keyword="AirwayAssessment3448" type="Context Group Name">Airway Assessment (3448)</uid>
+<uid uid="1.2.840.10008.6.1.98" keyword="CalibrationObjects3451" type="Context Group Name">Calibration Objects (3451)</uid>
+<uid uid="1.2.840.10008.6.1.99" keyword="CalibrationMethods3452" type="Context Group Name">Calibration Methods (3452)</uid>
+<uid uid="1.2.840.10008.6.1.100" keyword="CardiacVolumeMethods3453" type="Context Group Name">Cardiac Volume Methods (3453)</uid>
+<uid uid="1.2.840.10008.6.1.101" keyword="IndexMethods3455" type="Context Group Name">Index Methods (3455)</uid>
+<uid uid="1.2.840.10008.6.1.102" keyword="SubSegmentMethods3456" type="Context Group Name">Sub-segment Methods (3456)</uid>
+<uid uid="1.2.840.10008.6.1.103" keyword="ContourRealignment3458" type="Context Group Name">Contour Realignment (3458)</uid>
+<uid uid="1.2.840.10008.6.1.104" keyword="CircumferentialExtenT3460" type="Context Group Name">Circumferential ExtenT (3460)</uid>
+<uid uid="1.2.840.10008.6.1.105" keyword="RegionalExtent3461" type="Context Group Name">Regional Extent (3461)</uid>
+<uid uid="1.2.840.10008.6.1.106" keyword="ChamberIdentification3462" type="Context Group Name">Chamber Identification (3462)</uid>
+<uid uid="1.2.840.10008.6.1.107" keyword="QAReferenceMethodS3465" type="Context Group Name">QA Reference MethodS (3465)</uid>
+<uid uid="1.2.840.10008.6.1.108" keyword="PlaneIdentification3466" type="Context Group Name">Plane Identification (3466)</uid>
+<uid uid="1.2.840.10008.6.1.109" keyword="EjectionFraction3467" type="Context Group Name">Ejection Fraction (3467)</uid>
+<uid uid="1.2.840.10008.6.1.110" keyword="EDVolume3468" type="Context Group Name">ED Volume (3468)</uid>
+<uid uid="1.2.840.10008.6.1.111" keyword="ESVolume3469" type="Context Group Name">ES Volume (3469)</uid>
+<uid uid="1.2.840.10008.6.1.112" keyword="VesselLumenCrossSectionalAreaCalculationMethods3470" type="Context Group Name">Vessel Lumen Cross-Sectional Area Calculation Methods (3470)</uid>
+<uid uid="1.2.840.10008.6.1.113" keyword="EstimatedVolumes3471" type="Context Group Name">Estimated Volumes (3471)</uid>
+<uid uid="1.2.840.10008.6.1.114" keyword="CardiacContractionPhase3472" type="Context Group Name">Cardiac Contraction Phase (3472)</uid>
+<uid uid="1.2.840.10008.6.1.115" keyword="IVUSProcedurePhases3480" type="Context Group Name">IVUS Procedure Phases (3480)</uid>
+<uid uid="1.2.840.10008.6.1.116" keyword="IVUSDistanceMeasurements3481" type="Context Group Name">IVUS Distance Measurements (3481)</uid>
+<uid uid="1.2.840.10008.6.1.117" keyword="IVUSAreaMeasurements3482" type="Context Group Name">IVUS Area Measurements (3482)</uid>
+<uid uid="1.2.840.10008.6.1.118" keyword="IVUSLongitudinalMeasurements3483" type="Context Group Name">IVUS Longitudinal Measurements (3483)</uid>
+<uid uid="1.2.840.10008.6.1.119" keyword="IVUSIndicesAndRatios3484" type="Context Group Name">IVUS Indices and Ratios (3484)</uid>
+<uid uid="1.2.840.10008.6.1.120" keyword="IVUSVolumeMeasurements3485" type="Context Group Name">IVUS Volume Measurements (3485)</uid>
+<uid uid="1.2.840.10008.6.1.121" keyword="VascularMeasurementSites3486" type="Context Group Name">Vascular Measurement Sites (3486)</uid>
+<uid uid="1.2.840.10008.6.1.122" keyword="IntravascularVolumetricRegions3487" type="Context Group Name">Intravascular Volumetric Regions (3487)</uid>
+<uid uid="1.2.840.10008.6.1.123" keyword="MinMaxMean3488" type="Context Group Name">Min/Max/Mean (3488)</uid>
+<uid uid="1.2.840.10008.6.1.124" keyword="CalciumDistribution3489" type="Context Group Name">Calcium Distribution (3489)</uid>
+<uid uid="1.2.840.10008.6.1.125" keyword="IVUSLesionMorphologies3491" type="Context Group Name">IVUS Lesion Morphologies (3491)</uid>
+<uid uid="1.2.840.10008.6.1.126" keyword="VascularDissectionClassifications3492" type="Context Group Name">Vascular Dissection Classifications (3492)</uid>
+<uid uid="1.2.840.10008.6.1.127" keyword="IVUSRelativeStenosisSeverities3493" type="Context Group Name">IVUS Relative Stenosis Severities (3493)</uid>
+<uid uid="1.2.840.10008.6.1.128" keyword="IVUSNonMorphologicalFindings3494" type="Context Group Name">IVUS Non Morphological Findings (3494)</uid>
+<uid uid="1.2.840.10008.6.1.129" keyword="IVUSPlaqueComposition3495" type="Context Group Name">IVUS Plaque Composition (3495)</uid>
+<uid uid="1.2.840.10008.6.1.130" keyword="IVUSFiducialPoints3496" type="Context Group Name">IVUS Fiducial Points (3496)</uid>
+<uid uid="1.2.840.10008.6.1.131" keyword="IVUSArterialMorphology3497" type="Context Group Name">IVUS Arterial Morphology (3497)</uid>
+<uid uid="1.2.840.10008.6.1.132" keyword="PressureUnits3500" type="Context Group Name">Pressure Units (3500)</uid>
+<uid uid="1.2.840.10008.6.1.133" keyword="HemodynamicResistanceUnits3502" type="Context Group Name">Hemodynamic Resistance Units (3502)</uid>
+<uid uid="1.2.840.10008.6.1.134" keyword="IndexedHemodynamicResistanceUnits3503" type="Context Group Name">Indexed Hemodynamic Resistance Units (3503)</uid>
+<uid uid="1.2.840.10008.6.1.135" keyword="CatheterSizeUnits3510" type="Context Group Name">Catheter Size Units (3510)</uid>
+<uid uid="1.2.840.10008.6.1.136" keyword="SpecimenCollection3515" type="Context Group Name">Specimen Collection (3515)</uid>
+<uid uid="1.2.840.10008.6.1.137" keyword="BloodSourceType3520" type="Context Group Name">Blood Source Type (3520)</uid>
+<uid uid="1.2.840.10008.6.1.138" keyword="BloodGasPressures3524" type="Context Group Name">Blood Gas Pressures (3524)</uid>
+<uid uid="1.2.840.10008.6.1.139" keyword="BloodGasContent3525" type="Context Group Name">Blood Gas Content (3525)</uid>
+<uid uid="1.2.840.10008.6.1.140" keyword="BloodGasSaturation3526" type="Context Group Name">Blood Gas Saturation (3526)</uid>
+<uid uid="1.2.840.10008.6.1.141" keyword="BloodBaseExcess3527" type="Context Group Name">Blood Base Excess (3527)</uid>
+<uid uid="1.2.840.10008.6.1.142" keyword="BloodPH3528" type="Context Group Name">Blood pH (3528)</uid>
+<uid uid="1.2.840.10008.6.1.143" keyword="ArterialVenousContent3529" type="Context Group Name">Arterial / Venous Content (3529)</uid>
+<uid uid="1.2.840.10008.6.1.144" keyword="OxygenAdministrationActions3530" type="Context Group Name">Oxygen Administration Actions (3530)</uid>
+<uid uid="1.2.840.10008.6.1.145" keyword="OxygenAdministration3531" type="Context Group Name">Oxygen Administration (3531)</uid>
+<uid uid="1.2.840.10008.6.1.146" keyword="CirculatorySupportActions3550" type="Context Group Name">Circulatory Support Actions (3550)</uid>
+<uid uid="1.2.840.10008.6.1.147" keyword="VentilationActions3551" type="Context Group Name">Ventilation Actions (3551)</uid>
+<uid uid="1.2.840.10008.6.1.148" keyword="PacingActions3552" type="Context Group Name">Pacing Actions (3552)</uid>
+<uid uid="1.2.840.10008.6.1.149" keyword="CirculatorySupport3553" type="Context Group Name">Circulatory Support (3553)</uid>
+<uid uid="1.2.840.10008.6.1.150" keyword="Ventilation3554" type="Context Group Name">Ventilation (3554)</uid>
+<uid uid="1.2.840.10008.6.1.151" keyword="Pacing3555" type="Context Group Name">Pacing (3555)</uid>
+<uid uid="1.2.840.10008.6.1.152" keyword="BloodPressureMethods3560" type="Context Group Name">Blood Pressure Methods (3560)</uid>
+<uid uid="1.2.840.10008.6.1.153" keyword="RelativeTimes3600" type="Context Group Name">Relative times (3600)</uid>
+<uid uid="1.2.840.10008.6.1.154" keyword="HemodynamicPatientState3602" type="Context Group Name">Hemodynamic Patient State (3602)</uid>
+<uid uid="1.2.840.10008.6.1.155" keyword="ArterialLesionLocations3604" type="Context Group Name">Arterial lesion locations (3604)</uid>
+<uid uid="1.2.840.10008.6.1.156" keyword="ArterialSourceLocations3606" type="Context Group Name">Arterial source locations (3606)</uid>
+<uid uid="1.2.840.10008.6.1.157" keyword="VenousSourceLocations3607" type="Context Group Name">Venous Source locations (3607)</uid>
+<uid uid="1.2.840.10008.6.1.158" keyword="AtrialSourceLocations3608" type="Context Group Name">Atrial source locations (3608)</uid>
+<uid uid="1.2.840.10008.6.1.159" keyword="VentricularSourceLocations3609" type="Context Group Name">Ventricular source locations (3609)</uid>
+<uid uid="1.2.840.10008.6.1.160" keyword="GradientSourceLocations3610" type="Context Group Name">Gradient Source Locations (3610)</uid>
+<uid uid="1.2.840.10008.6.1.161" keyword="PressureMeasurements3611" type="Context Group Name">Pressure Measurements (3611)</uid>
+<uid uid="1.2.840.10008.6.1.162" keyword="BloodVelocityMeasurements3612" type="Context Group Name">Blood Velocity Measurements (3612)</uid>
+<uid uid="1.2.840.10008.6.1.163" keyword="HemodynamicTimeMeasurements3613" type="Context Group Name">Hemodynamic Time Measurements (3613)</uid>
+<uid uid="1.2.840.10008.6.1.164" keyword="ValveAreasNonMitral3614" type="Context Group Name">Valve Areas, non-Mitral (3614)</uid>
+<uid uid="1.2.840.10008.6.1.165" keyword="ValveAreas3615" type="Context Group Name">Valve Areas (3615)</uid>
+<uid uid="1.2.840.10008.6.1.166" keyword="HemodynamicPeriodMeasurements3616" type="Context Group Name">Hemodynamic Period Measurements (3616)</uid>
+<uid uid="1.2.840.10008.6.1.167" keyword="ValveFlows3617" type="Context Group Name">Valve Flows (3617)</uid>
+<uid uid="1.2.840.10008.6.1.168" keyword="HemodynamicFlows3618" type="Context Group Name">Hemodynamic Flows (3618)</uid>
+<uid uid="1.2.840.10008.6.1.169" keyword="HemodynamicResistanceMeasurements3619" type="Context Group Name">Hemodynamic Resistance Measurements (3619)</uid>
+<uid uid="1.2.840.10008.6.1.170" keyword="HemodynamicRatios3620" type="Context Group Name">Hemodynamic Ratios (3620)</uid>
+<uid uid="1.2.840.10008.6.1.171" keyword="FractionalFlowReserve3621" type="Context Group Name">Fractional Flow Reserve (3621)</uid>
+<uid uid="1.2.840.10008.6.1.172" keyword="MeasurementType3627" type="Context Group Name">Measurement Type (3627)</uid>
+<uid uid="1.2.840.10008.6.1.173" keyword="CardiacOutputMethods3628" type="Context Group Name">Cardiac Output Methods (3628)</uid>
+<uid uid="1.2.840.10008.6.1.174" keyword="ProcedureIntent3629" type="Context Group Name">Procedure Intent (3629)</uid>
+<uid uid="1.2.840.10008.6.1.175" keyword="CardiovascularAnatomicLocations3630" type="Context Group Name">Cardiovascular Anatomic Locations (3630)</uid>
+<uid uid="1.2.840.10008.6.1.176" keyword="Hypertension3640" type="Context Group Name">Hypertension (3640)</uid>
+<uid uid="1.2.840.10008.6.1.177" keyword="HemodynamicAssessments3641" type="Context Group Name">Hemodynamic Assessments (3641)</uid>
+<uid uid="1.2.840.10008.6.1.178" keyword="DegreeFindings3642" type="Context Group Name">Degree Findings (3642)</uid>
+<uid uid="1.2.840.10008.6.1.179" keyword="HemodynamicMeasurementPhase3651" type="Context Group Name">Hemodynamic Measurement Phase (3651)</uid>
+<uid uid="1.2.840.10008.6.1.180" keyword="BodySurfaceAreaEquations3663" type="Context Group Name">Body Surface Area Equations (3663)</uid>
+<uid uid="1.2.840.10008.6.1.181" keyword="OxygenConsumptionEquationsAndTables3664" type="Context Group Name">Oxygen Consumption Equations and Tables (3664)</uid>
+<uid uid="1.2.840.10008.6.1.182" keyword="P50Equations3666" type="Context Group Name">P50 Equations (3666)</uid>
+<uid uid="1.2.840.10008.6.1.183" keyword="FraminghamScores3667" type="Context Group Name">Framingham Scores (3667)</uid>
+<uid uid="1.2.840.10008.6.1.184" keyword="FraminghamTables3668" type="Context Group Name">Framingham Tables (3668)</uid>
+<uid uid="1.2.840.10008.6.1.185" keyword="ECGProcedureTypes3670" type="Context Group Name">ECG Procedure Types (3670)</uid>
+<uid uid="1.2.840.10008.6.1.186" keyword="ReasonForECGExam3671" type="Context Group Name">Reason for ECG Exam (3671)</uid>
+<uid uid="1.2.840.10008.6.1.187" keyword="Pacemakers3672" type="Context Group Name">Pacemakers (3672)</uid>
+<uid uid="1.2.840.10008.6.1.188" keyword="Diagnosis3673" type="Context Group Name">Diagnosis (3673)</uid>
+<uid uid="1.2.840.10008.6.1.189" keyword="OtherFilters3675" type="Context Group Name">Other Filters (3675)</uid>
+<uid uid="1.2.840.10008.6.1.190" keyword="LeadMeasurementTechnique3676" type="Context Group Name">Lead Measurement Technique (3676)</uid>
+<uid uid="1.2.840.10008.6.1.191" keyword="SummaryCodesECG3677" type="Context Group Name">Summary Codes ECG (3677)</uid>
+<uid uid="1.2.840.10008.6.1.192" keyword="QTCorrectionAlgorithms3678" type="Context Group Name">QT Correction Algorithms (3678)</uid>
+<uid uid="1.2.840.10008.6.1.193" keyword="ECGMorphologyDescriptions3679" type="Context Group Name">ECG Morphology Descriptions (3679)</uid>
+<uid uid="1.2.840.10008.6.1.194" keyword="ECGLeadNoiseDescriptions3680" type="Context Group Name">ECG Lead Noise Descriptions (3680)</uid>
+<uid uid="1.2.840.10008.6.1.195" keyword="ECGLeadNoiseModifiers3681" type="Context Group Name">ECG Lead Noise Modifiers (3681)</uid>
+<uid uid="1.2.840.10008.6.1.196" keyword="Probability3682" type="Context Group Name">Probability (3682)</uid>
+<uid uid="1.2.840.10008.6.1.197" keyword="Modifiers3683" type="Context Group Name">Modifiers (3683)</uid>
+<uid uid="1.2.840.10008.6.1.198" keyword="Trend3684" type="Context Group Name">Trend (3684)</uid>
+<uid uid="1.2.840.10008.6.1.199" keyword="ConjunctiveTerms3685" type="Context Group Name">Conjunctive Terms (3685)</uid>
+<uid uid="1.2.840.10008.6.1.200" keyword="ECGInterpretiveStatements3686" type="Context Group Name">ECG Interpretive Statements (3686)</uid>
+<uid uid="1.2.840.10008.6.1.201" keyword="ElectrophysiologyWaveformDurations3687" type="Context Group Name">Electrophysiology Waveform Durations (3687)</uid>
+<uid uid="1.2.840.10008.6.1.202" keyword="ElectrophysiologyWaveformVoltages3688" type="Context Group Name">Electrophysiology Waveform Voltages (3688)</uid>
+<uid uid="1.2.840.10008.6.1.203" keyword="CathDiagnosis3700" type="Context Group Name">Cath Diagnosis (3700)</uid>
+<uid uid="1.2.840.10008.6.1.204" keyword="CardiacValvesAndTracts3701" type="Context Group Name">Cardiac Valves and Tracts (3701)</uid>
+<uid uid="1.2.840.10008.6.1.205" keyword="WallMotion3703" type="Context Group Name">Wall Motion (3703)</uid>
+<uid uid="1.2.840.10008.6.1.206" keyword="MyocardiumWallMorphologyFindings3704" type="Context Group Name">Myocardium Wall Morphology Findings (3704)</uid>
+<uid uid="1.2.840.10008.6.1.207" keyword="ChamberSize3705" type="Context Group Name">Chamber Size (3705)</uid>
+<uid uid="1.2.840.10008.6.1.208" keyword="OverallContractility3706" type="Context Group Name">Overall Contractility (3706)</uid>
+<uid uid="1.2.840.10008.6.1.209" keyword="VSDDescription3707" type="Context Group Name">VSD Description (3707)</uid>
+<uid uid="1.2.840.10008.6.1.210" keyword="AorticRootDescription3709" type="Context Group Name">Aortic Root Description (3709)</uid>
+<uid uid="1.2.840.10008.6.1.211" keyword="CoronaryDominance3710" type="Context Group Name">Coronary Dominance (3710)</uid>
+<uid uid="1.2.840.10008.6.1.212" keyword="ValvularAbnormalities3711" type="Context Group Name">Valvular Abnormalities (3711)</uid>
+<uid uid="1.2.840.10008.6.1.213" keyword="VesselDescriptors3712" type="Context Group Name">Vessel Descriptors (3712)</uid>
+<uid uid="1.2.840.10008.6.1.214" keyword="TIMIFlowCharacteristics3713" type="Context Group Name">TIMI Flow Characteristics (3713)</uid>
+<uid uid="1.2.840.10008.6.1.215" keyword="Thrombus3714" type="Context Group Name">Thrombus (3714)</uid>
+<uid uid="1.2.840.10008.6.1.216" keyword="LesionMargin3715" type="Context Group Name">Lesion Margin (3715)</uid>
+<uid uid="1.2.840.10008.6.1.217" keyword="Severity3716" type="Context Group Name">Severity (3716)</uid>
+<uid uid="1.2.840.10008.6.1.218" keyword="MyocardialWallSegments3717" type="Context Group Name">Myocardial Wall Segments (3717)</uid>
+<uid uid="1.2.840.10008.6.1.219" keyword="MyocardialWallSegmentsInProjection3718" type="Context Group Name">Myocardial Wall Segments in Projection (3718)</uid>
+<uid uid="1.2.840.10008.6.1.220" keyword="CanadianClinicalClassification3719" type="Context Group Name">Canadian Clinical Classification (3719)</uid>
+<uid uid="1.2.840.10008.6.1.221" keyword="CardiacHistoryDatesRetired3720" type="Context Group Name">Cardiac History Dates (Retired) (3720)</uid>
+<uid uid="1.2.840.10008.6.1.222" keyword="CardiovascularSurgeries3721" type="Context Group Name">Cardiovascular Surgeries (3721)</uid>
+<uid uid="1.2.840.10008.6.1.223" keyword="DiabeticTherapy3722" type="Context Group Name">Diabetic Therapy (3722)</uid>
+<uid uid="1.2.840.10008.6.1.224" keyword="MITypes3723" type="Context Group Name">MI Types (3723)</uid>
+<uid uid="1.2.840.10008.6.1.225" keyword="SmokingHistory3724" type="Context Group Name">Smoking History (3724)</uid>
+<uid uid="1.2.840.10008.6.1.226" keyword="IndicationsForCoronaryIntervention3726" type="Context Group Name">Indications for Coronary Intervention (3726)</uid>
+<uid uid="1.2.840.10008.6.1.227" keyword="IndicationsForCatheterization3727" type="Context Group Name">Indications for Catheterization (3727)</uid>
+<uid uid="1.2.840.10008.6.1.228" keyword="CathFindings3728" type="Context Group Name">Cath Findings (3728)</uid>
+<uid uid="1.2.840.10008.6.1.229" keyword="AdmissionStatus3729" type="Context Group Name">Admission Status (3729)</uid>
+<uid uid="1.2.840.10008.6.1.230" keyword="InsurancePayor3730" type="Context Group Name">Insurance Payor (3730)</uid>
+<uid uid="1.2.840.10008.6.1.231" keyword="PrimaryCauseOfDeath3733" type="Context Group Name">Primary Cause of Death (3733)</uid>
+<uid uid="1.2.840.10008.6.1.232" keyword="AcuteCoronarySyndromeTimePeriod3735" type="Context Group Name">Acute Coronary Syndrome Time Period (3735)</uid>
+<uid uid="1.2.840.10008.6.1.233" keyword="NYHAClassification3736" type="Context Group Name">NYHA Classification (3736)</uid>
+<uid uid="1.2.840.10008.6.1.234" keyword="NonInvasiveTestIschemia3737" type="Context Group Name">Non-Invasive Test - Ischemia (3737)</uid>
+<uid uid="1.2.840.10008.6.1.235" keyword="PreCathAnginaType3738" type="Context Group Name">Pre-Cath Angina Type (3738)</uid>
+<uid uid="1.2.840.10008.6.1.236" keyword="CathProcedureType3739" type="Context Group Name">Cath Procedure Type (3739)</uid>
+<uid uid="1.2.840.10008.6.1.237" keyword="ThrombolyticAdministration3740" type="Context Group Name">Thrombolytic Administration (3740)</uid>
+<uid uid="1.2.840.10008.6.1.238" keyword="MedicationAdministrationLabVisit3741" type="Context Group Name">Medication Administration, Lab Visit (3741)</uid>
+<uid uid="1.2.840.10008.6.1.239" keyword="MedicationAdministrationPCI3742" type="Context Group Name">Medication Administration, PCI (3742)</uid>
+<uid uid="1.2.840.10008.6.1.240" keyword="ClopidogrelTiclopidineAdministration3743" type="Context Group Name">Clopidogrel/Ticlopidine Administration (3743)</uid>
+<uid uid="1.2.840.10008.6.1.241" keyword="EFTestingMethod3744" type="Context Group Name">EF Testing Method (3744)</uid>
+<uid uid="1.2.840.10008.6.1.242" keyword="CalculationMethod3745" type="Context Group Name">Calculation Method (3745)</uid>
+<uid uid="1.2.840.10008.6.1.243" keyword="PercutaneousEntrySite3746" type="Context Group Name">Percutaneous Entry Site (3746)</uid>
+<uid uid="1.2.840.10008.6.1.244" keyword="PercutaneousClosure3747" type="Context Group Name">Percutaneous Closure (3747)</uid>
+<uid uid="1.2.840.10008.6.1.245" keyword="AngiographicEFTestingMethod3748" type="Context Group Name">Angiographic EF Testing Method (3748)</uid>
+<uid uid="1.2.840.10008.6.1.246" keyword="PCIProcedureResult3749" type="Context Group Name">PCI Procedure Result (3749)</uid>
+<uid uid="1.2.840.10008.6.1.247" keyword="PreviouslyDilatedLesion3750" type="Context Group Name">Previously Dilated Lesion (3750)</uid>
+<uid uid="1.2.840.10008.6.1.248" keyword="GuidewireCrossing3752" type="Context Group Name">Guidewire Crossing (3752)</uid>
+<uid uid="1.2.840.10008.6.1.249" keyword="VascularComplications3754" type="Context Group Name">Vascular Complications (3754)</uid>
+<uid uid="1.2.840.10008.6.1.250" keyword="CathComplications3755" type="Context Group Name">Cath Complications (3755)</uid>
+<uid uid="1.2.840.10008.6.1.251" keyword="CardiacPatientRiskFactors3756" type="Context Group Name">Cardiac Patient Risk Factors (3756)</uid>
+<uid uid="1.2.840.10008.6.1.252" keyword="CardiacDiagnosticProcedures3757" type="Context Group Name">Cardiac Diagnostic Procedures (3757)</uid>
+<uid uid="1.2.840.10008.6.1.253" keyword="CardiovascularFamilyHistory3758" type="Context Group Name">Cardiovascular Family History (3758)</uid>
+<uid uid="1.2.840.10008.6.1.254" keyword="HypertensionTherapy3760" type="Context Group Name">Hypertension Therapy (3760)</uid>
+<uid uid="1.2.840.10008.6.1.255" keyword="AntilipemicAgents3761" type="Context Group Name">Antilipemic agents (3761)</uid>
+<uid uid="1.2.840.10008.6.1.256" keyword="AntiarrhythmicAgents3762" type="Context Group Name">Antiarrhythmic agents (3762)</uid>
+<uid uid="1.2.840.10008.6.1.257" keyword="MyocardialInfarctionTherapies3764" type="Context Group Name">Myocardial Infarction Therapies (3764)</uid>
+<uid uid="1.2.840.10008.6.1.258" keyword="ConcernTypes3769" type="Context Group Name">Concern Types (3769)</uid>
+<uid uid="1.2.840.10008.6.1.259" keyword="ProblemStatus3770" type="Context Group Name">Problem Status (3770)</uid>
+<uid uid="1.2.840.10008.6.1.260" keyword="HealthStatus3772" type="Context Group Name">Health Status (3772)</uid>
+<uid uid="1.2.840.10008.6.1.261" keyword="UseStatus3773" type="Context Group Name">Use Status (3773)</uid>
+<uid uid="1.2.840.10008.6.1.262" keyword="SocialHistory3774" type="Context Group Name">Social History (3774)</uid>
+<uid uid="1.2.840.10008.6.1.263" keyword="ImplantedDevices3777" type="Context Group Name">Implanted Devices (3777)</uid>
+<uid uid="1.2.840.10008.6.1.264" keyword="PlaqueStructures3802" type="Context Group Name">Plaque Structures (3802)</uid>
+<uid uid="1.2.840.10008.6.1.265" keyword="StenosisMeasurementMethods3804" type="Context Group Name">Stenosis Measurement Methods (3804)</uid>
+<uid uid="1.2.840.10008.6.1.266" keyword="StenosisTypes3805" type="Context Group Name">Stenosis Types (3805)</uid>
+<uid uid="1.2.840.10008.6.1.267" keyword="StenosisShape3806" type="Context Group Name">Stenosis Shape (3806)</uid>
+<uid uid="1.2.840.10008.6.1.268" keyword="VolumeMeasurementMethods3807" type="Context Group Name">Volume Measurement Methods (3807)</uid>
+<uid uid="1.2.840.10008.6.1.269" keyword="AneurysmTypes3808" type="Context Group Name">Aneurysm Types (3808)</uid>
+<uid uid="1.2.840.10008.6.1.270" keyword="AssociatedConditions3809" type="Context Group Name">Associated Conditions (3809)</uid>
+<uid uid="1.2.840.10008.6.1.271" keyword="VascularMorphology3810" type="Context Group Name">Vascular Morphology (3810)</uid>
+<uid uid="1.2.840.10008.6.1.272" keyword="StentFindings3813" type="Context Group Name">Stent Findings (3813)</uid>
+<uid uid="1.2.840.10008.6.1.273" keyword="StentComposition3814" type="Context Group Name">Stent Composition (3814)</uid>
+<uid uid="1.2.840.10008.6.1.274" keyword="SourceOfVascularFinding3815" type="Context Group Name">Source of Vascular Finding (3815)</uid>
+<uid uid="1.2.840.10008.6.1.275" keyword="VascularSclerosisTypes3817" type="Context Group Name">Vascular Sclerosis Types (3817)</uid>
+<uid uid="1.2.840.10008.6.1.276" keyword="NonInvasiveVascularProcedures3820" type="Context Group Name">Non-invasive Vascular Procedures (3820)</uid>
+<uid uid="1.2.840.10008.6.1.277" keyword="PapillaryMuscleIncludedExcluded3821" type="Context Group Name">Papillary Muscle Included/Excluded (3821)</uid>
+<uid uid="1.2.840.10008.6.1.278" keyword="RespiratoryStatus3823" type="Context Group Name">Respiratory Status (3823)</uid>
+<uid uid="1.2.840.10008.6.1.279" keyword="HeartRhythm3826" type="Context Group Name">Heart Rhythm (3826)</uid>
+<uid uid="1.2.840.10008.6.1.280" keyword="VesselSegments3827" type="Context Group Name">Vessel Segments (3827)</uid>
+<uid uid="1.2.840.10008.6.1.281" keyword="PulmonaryArteries3829" type="Context Group Name">Pulmonary Arteries (3829)</uid>
+<uid uid="1.2.840.10008.6.1.282" keyword="StenosisLength3831" type="Context Group Name">Stenosis Length (3831)</uid>
+<uid uid="1.2.840.10008.6.1.283" keyword="StenosisGrade3832" type="Context Group Name">Stenosis Grade (3832)</uid>
+<uid uid="1.2.840.10008.6.1.284" keyword="CardiacEjectionFraction3833" type="Context Group Name">Cardiac Ejection Fraction (3833)</uid>
+<uid uid="1.2.840.10008.6.1.285" keyword="CardiacVolumeMeasurements3835" type="Context Group Name">Cardiac Volume Measurements (3835)</uid>
+<uid uid="1.2.840.10008.6.1.286" keyword="TimeBasedPerfusionMeasurements3836" type="Context Group Name">Time-based Perfusion Measurements (3836)</uid>
+<uid uid="1.2.840.10008.6.1.287" keyword="FiducialFeature3837" type="Context Group Name">Fiducial Feature (3837)</uid>
+<uid uid="1.2.840.10008.6.1.288" keyword="DiameterDerivation3838" type="Context Group Name">Diameter Derivation (3838)</uid>
+<uid uid="1.2.840.10008.6.1.289" keyword="CoronaryVeins3839" type="Context Group Name">Coronary Veins (3839)</uid>
+<uid uid="1.2.840.10008.6.1.290" keyword="PulmonaryVeins3840" type="Context Group Name">Pulmonary Veins (3840)</uid>
+<uid uid="1.2.840.10008.6.1.291" keyword="MyocardialSubsegment3843" type="Context Group Name">Myocardial Subsegment (3843)</uid>
+<uid uid="1.2.840.10008.6.1.292" keyword="PartialViewSectionForMammography4005" type="Context Group Name">Partial View Section for Mammography (4005)</uid>
+<uid uid="1.2.840.10008.6.1.293" keyword="DXAnatomyImaged4009" type="Context Group Name">DX Anatomy Imaged (4009)</uid>
+<uid uid="1.2.840.10008.6.1.294" keyword="DXView4010" type="Context Group Name">DX View (4010)</uid>
+<uid uid="1.2.840.10008.6.1.295" keyword="DXViewModifier4011" type="Context Group Name">DX View Modifier (4011)</uid>
+<uid uid="1.2.840.10008.6.1.296" keyword="ProjectionEponymousName4012" type="Context Group Name">Projection Eponymous Name (4012)</uid>
+<uid uid="1.2.840.10008.6.1.297" keyword="AnatomicRegionForMammography4013" type="Context Group Name">Anatomic Region for Mammography (4013)</uid>
+<uid uid="1.2.840.10008.6.1.298" keyword="ViewForMammography4014" type="Context Group Name">View for Mammography (4014)</uid>
+<uid uid="1.2.840.10008.6.1.299" keyword="ViewModifierForMammography4015" type="Context Group Name">View Modifier for Mammography (4015)</uid>
+<uid uid="1.2.840.10008.6.1.300" keyword="AnatomicRegionForIntraOralRadiography4016" type="Context Group Name">Anatomic Region for Intra-oral Radiography (4016)</uid>
+<uid uid="1.2.840.10008.6.1.301" keyword="AnatomicRegionModifierForIntraOralRadiography4017" type="Context Group Name">Anatomic Region Modifier for Intra-oral Radiography (4017)</uid>
+<uid uid="1.2.840.10008.6.1.302" keyword="PrimaryAnatomicStructureForIntraOralRadiographyPermanentDentitionDesignationOfTeeth4018" type="Context Group Name">Primary Anatomic Structure for Intra-oral Radiography (Permanent Dentition - Designation of Teeth) (4018)</uid>
+<uid uid="1.2.840.10008.6.1.303" keyword="PrimaryAnatomicStructureForIntraOralRadiographyDeciduousDentitionDesignationOfTeeth4019" type="Context Group Name">Primary Anatomic Structure for Intra-oral Radiography (Deciduous Dentition - Designation of Teeth) (4019)</uid>
+<uid uid="1.2.840.10008.6.1.304" keyword="PETRadionuclide4020" type="Context Group Name">PET Radionuclide (4020)</uid>
+<uid uid="1.2.840.10008.6.1.305" keyword="PETRadiopharmaceutical4021" type="Context Group Name">PET Radiopharmaceutical (4021)</uid>
+<uid uid="1.2.840.10008.6.1.306" keyword="CraniofacialAnatomicRegions4028" type="Context Group Name">Craniofacial Anatomic Regions (4028)</uid>
+<uid uid="1.2.840.10008.6.1.307" keyword="CTAndMRAnatomyImaged4030" type="Context Group Name">CT and MR Anatomy Imaged (4030)</uid>
+<uid uid="1.2.840.10008.6.1.308" keyword="CommonAnatomicRegions4031" type="Context Group Name">Common Anatomic Regions (4031)</uid>
+<uid uid="1.2.840.10008.6.1.309" keyword="MRSpectroscopyMetabolites4032" type="Context Group Name">MR Spectroscopy Metabolites (4032)</uid>
+<uid uid="1.2.840.10008.6.1.310" keyword="MRProtonSpectroscopyMetabolites4033" type="Context Group Name">MR Proton Spectroscopy Metabolites (4033)</uid>
+<uid uid="1.2.840.10008.6.1.311" keyword="EndoscopyAnatomicRegions4040" type="Context Group Name">Endoscopy Anatomic Regions (4040)</uid>
+<uid uid="1.2.840.10008.6.1.312" keyword="XAXRFAnatomyImaged4042" type="Context Group Name">XA/XRF Anatomy Imaged (4042)</uid>
+<uid uid="1.2.840.10008.6.1.313" keyword="DrugOrContrastAgentCharacteristics4050" type="Context Group Name">Drug or Contrast Agent Characteristics (4050)</uid>
+<uid uid="1.2.840.10008.6.1.314" keyword="GeneralDevices4051" type="Context Group Name">General Devices (4051)</uid>
+<uid uid="1.2.840.10008.6.1.315" keyword="PhantomDevices4052" type="Context Group Name">Phantom Devices (4052)</uid>
+<uid uid="1.2.840.10008.6.1.316" keyword="OphthalmicImagingAgent4200" type="Context Group Name">Ophthalmic Imaging Agent (4200)</uid>
+<uid uid="1.2.840.10008.6.1.317" keyword="PatientEyeMovementCommand4201" type="Context Group Name">Patient Eye Movement Command (4201)</uid>
+<uid uid="1.2.840.10008.6.1.318" keyword="OphthalmicPhotographyAcquisitionDevice4202" type="Context Group Name">Ophthalmic Photography Acquisition Device (4202)</uid>
+<uid uid="1.2.840.10008.6.1.319" keyword="OphthalmicPhotographyIllumination4203" type="Context Group Name">Ophthalmic Photography Illumination (4203)</uid>
+<uid uid="1.2.840.10008.6.1.320" keyword="OphthalmicFilter4204" type="Context Group Name">Ophthalmic Filter (4204)</uid>
+<uid uid="1.2.840.10008.6.1.321" keyword="OphthalmicLens4205" type="Context Group Name">Ophthalmic Lens (4205)</uid>
+<uid uid="1.2.840.10008.6.1.322" keyword="OphthalmicChannelDescription4206" type="Context Group Name">Ophthalmic Channel Description (4206)</uid>
+<uid uid="1.2.840.10008.6.1.323" keyword="OphthalmicImagePosition4207" type="Context Group Name">Ophthalmic Image Position (4207)</uid>
+<uid uid="1.2.840.10008.6.1.324" keyword="MydriaticAgent4208" type="Context Group Name">Mydriatic Agent (4208)</uid>
+<uid uid="1.2.840.10008.6.1.325" keyword="OphthalmicAnatomicStructureImaged4209" type="Context Group Name">Ophthalmic Anatomic Structure Imaged (4209)</uid>
+<uid uid="1.2.840.10008.6.1.326" keyword="OphthalmicTomographyAcquisitionDevice4210" type="Context Group Name">Ophthalmic Tomography Acquisition Device (4210)</uid>
+<uid uid="1.2.840.10008.6.1.327" keyword="OphthalmicOCTAnatomicStructureImaged4211" type="Context Group Name">Ophthalmic OCT Anatomic Structure Imaged (4211)</uid>
+<uid uid="1.2.840.10008.6.1.328" keyword="Languages5000" type="Context Group Name">Languages (5000)</uid>
+<uid uid="1.2.840.10008.6.1.329" keyword="Countries5001" type="Context Group Name">Countries (5001)</uid>
+<uid uid="1.2.840.10008.6.1.330" keyword="OverallBreastComposition6000" type="Context Group Name">Overall Breast Composition (6000)</uid>
+<uid uid="1.2.840.10008.6.1.331" keyword="OverallBreastCompositionFromBIRADS6001" type="Context Group Name">Overall Breast Composition from BI-RADS® (6001)</uid>
+<uid uid="1.2.840.10008.6.1.332" keyword="ChangeSinceLastMammogramOrPriorSurgery6002" type="Context Group Name">Change Since Last Mammogram or Prior Surgery (6002)</uid>
+<uid uid="1.2.840.10008.6.1.333" keyword="ChangeSinceLastMammogramOrPriorSurgeryFromBIRADS6003" type="Context Group Name">Change Since Last Mammogram or Prior Surgery from BI-RADS® (6003)</uid>
+<uid uid="1.2.840.10008.6.1.334" keyword="MammographyCharacteristicsOfShape6004" type="Context Group Name">Mammography Characteristics of Shape (6004)</uid>
+<uid uid="1.2.840.10008.6.1.335" keyword="CharacteristicsOfShapeFromBIRADS6005" type="Context Group Name">Characteristics of Shape from BI-RADS® (6005)</uid>
+<uid uid="1.2.840.10008.6.1.336" keyword="MammographyCharacteristicsOfMargin6006" type="Context Group Name">Mammography Characteristics of Margin (6006)</uid>
+<uid uid="1.2.840.10008.6.1.337" keyword="CharacteristicsOfMarginFromBIRADS6007" type="Context Group Name">Characteristics of Margin from BI-RADS® (6007)</uid>
+<uid uid="1.2.840.10008.6.1.338" keyword="DensityModifier6008" type="Context Group Name">Density Modifier (6008)</uid>
+<uid uid="1.2.840.10008.6.1.339" keyword="DensityModifierFromBIRADS6009" type="Context Group Name">Density Modifier from BI-RADS® (6009)</uid>
+<uid uid="1.2.840.10008.6.1.340" keyword="MammographyCalcificationTypes6010" type="Context Group Name">Mammography Calcification Types (6010)</uid>
+<uid uid="1.2.840.10008.6.1.341" keyword="CalcificationTypesFromBIRADS6011" type="Context Group Name">Calcification Types from BI-RADS® (6011)</uid>
+<uid uid="1.2.840.10008.6.1.342" keyword="CalcificationDistributionModifier6012" type="Context Group Name">Calcification Distribution Modifier (6012)</uid>
+<uid uid="1.2.840.10008.6.1.343" keyword="CalcificationDistributionModifierFromBIRADS6013" type="Context Group Name">Calcification Distribution Modifier from BI-RADS® (6013)</uid>
+<uid uid="1.2.840.10008.6.1.344" keyword="MammographySingleImageFinding6014" type="Context Group Name">Mammography Single Image Finding (6014)</uid>
+<uid uid="1.2.840.10008.6.1.345" keyword="SingleImageFindingFromBIRADS6015" type="Context Group Name">Single Image Finding from BI-RADS® (6015)</uid>
+<uid uid="1.2.840.10008.6.1.346" keyword="MammographyCompositeFeature6016" type="Context Group Name">Mammography Composite Feature (6016)</uid>
+<uid uid="1.2.840.10008.6.1.347" keyword="CompositeFeatureFromBIRADS6017" type="Context Group Name">Composite Feature from BI-RADS® (6017)</uid>
+<uid uid="1.2.840.10008.6.1.348" keyword="ClockfaceLocationOrRegion6018" type="Context Group Name">Clockface Location or Region (6018)</uid>
+<uid uid="1.2.840.10008.6.1.349" keyword="ClockfaceLocationOrRegionFromBIRADS6019" type="Context Group Name">Clockface Location or Region from BI-RADS® (6019)</uid>
+<uid uid="1.2.840.10008.6.1.350" keyword="QuadrantLocation6020" type="Context Group Name">Quadrant Location (6020)</uid>
+<uid uid="1.2.840.10008.6.1.351" keyword="QuadrantLocationFromBIRADS6021" type="Context Group Name">Quadrant Location from BI-RADS® (6021)</uid>
+<uid uid="1.2.840.10008.6.1.352" keyword="Side6022" type="Context Group Name">Side (6022)</uid>
+<uid uid="1.2.840.10008.6.1.353" keyword="SideFromBIRADS6023" type="Context Group Name">Side from BI-RADS® (6023)</uid>
+<uid uid="1.2.840.10008.6.1.354" keyword="Depth6024" type="Context Group Name">Depth (6024)</uid>
+<uid uid="1.2.840.10008.6.1.355" keyword="DepthFromBIRADS6025" type="Context Group Name">Depth from BI-RADS® (6025)</uid>
+<uid uid="1.2.840.10008.6.1.356" keyword="MammographyAssessment6026" type="Context Group Name">Mammography Assessment (6026)</uid>
+<uid uid="1.2.840.10008.6.1.357" keyword="AssessmentFromBIRADS6027" type="Context Group Name">Assessment from BI-RADS® (6027)</uid>
+<uid uid="1.2.840.10008.6.1.358" keyword="MammographyRecommendedFollowUp6028" type="Context Group Name">Mammography Recommended Follow-up (6028)</uid>
+<uid uid="1.2.840.10008.6.1.359" keyword="RecommendedFollowUpFromBIRADS6029" type="Context Group Name">Recommended Follow-up from BI-RADS® (6029)</uid>
+<uid uid="1.2.840.10008.6.1.360" keyword="MammographyPathologyCodes6030" type="Context Group Name">Mammography Pathology Codes (6030)</uid>
+<uid uid="1.2.840.10008.6.1.361" keyword="BenignPathologyCodesFromBIRADS6031" type="Context Group Name">Benign Pathology Codes from BI-RADS® (6031)</uid>
+<uid uid="1.2.840.10008.6.1.362" keyword="HighRiskLesionsPathologyCodesFromBIRADS6032" type="Context Group Name">High Risk Lesions Pathology Codes from BI-RADS® (6032)</uid>
+<uid uid="1.2.840.10008.6.1.363" keyword="MalignantPathologyCodesFromBIRADS6033" type="Context Group Name">Malignant Pathology Codes from BI-RADS® (6033)</uid>
+<uid uid="1.2.840.10008.6.1.364" keyword="IntendedUseOfCADOutput6034" type="Context Group Name">Intended Use of CAD Output (6034)</uid>
+<uid uid="1.2.840.10008.6.1.365" keyword="CompositeFeatureRelations6035" type="Context Group Name">Composite Feature Relations (6035)</uid>
+<uid uid="1.2.840.10008.6.1.366" keyword="ScopeOfFeature6036" type="Context Group Name">Scope of Feature (6036)</uid>
+<uid uid="1.2.840.10008.6.1.367" keyword="MammographyQuantitativeTemporalDifferenceType6037" type="Context Group Name">Mammography Quantitative Temporal Difference Type (6037)</uid>
+<uid uid="1.2.840.10008.6.1.368" keyword="MammographyQualitativeTemporalDifferenceType6038" type="Context Group Name">Mammography Qualitative Temporal Difference Type (6038)</uid>
+<uid uid="1.2.840.10008.6.1.369" keyword="NippleCharacteristic6039" type="Context Group Name">Nipple Characteristic (6039)</uid>
+<uid uid="1.2.840.10008.6.1.370" keyword="NonLesionObjectType6040" type="Context Group Name">Non-Lesion Object Type (6040)</uid>
+<uid uid="1.2.840.10008.6.1.371" keyword="MammographyImageQualityFinding6041" type="Context Group Name">Mammography Image Quality Finding (6041)</uid>
+<uid uid="1.2.840.10008.6.1.372" keyword="StatusOfResults6042" type="Context Group Name">Status of Results (6042)</uid>
+<uid uid="1.2.840.10008.6.1.373" keyword="TypesOfMammographyCADAnalysis6043" type="Context Group Name">Types of Mammography CAD Analysis (6043)</uid>
+<uid uid="1.2.840.10008.6.1.374" keyword="TypesOfImageQualityAssessment6044" type="Context Group Name">Types of Image Quality Assessment (6044)</uid>
+<uid uid="1.2.840.10008.6.1.375" keyword="MammographyTypesOfQualityControlStandard6045" type="Context Group Name">Mammography Types of Quality Control Standard (6045)</uid>
+<uid uid="1.2.840.10008.6.1.376" keyword="UnitsOfFollowUpInterval6046" type="Context Group Name">Units of Follow-up Interval (6046)</uid>
+<uid uid="1.2.840.10008.6.1.377" keyword="CADProcessingAndFindingsSummary6047" type="Context Group Name">CAD Processing and Findings Summary (6047)</uid>
+<uid uid="1.2.840.10008.6.1.378" keyword="CADOperatingPointAxisLabel6048" type="Context Group Name">CAD Operating Point Axis Label (6048)</uid>
+<uid uid="1.2.840.10008.6.1.379" keyword="BreastProcedureReported6050" type="Context Group Name">Breast Procedure Reported (6050)</uid>
+<uid uid="1.2.840.10008.6.1.380" keyword="BreastProcedureReason6051" type="Context Group Name">Breast Procedure Reason (6051)</uid>
+<uid uid="1.2.840.10008.6.1.381" keyword="BreastImagingReportSectionTitle6052" type="Context Group Name">Breast Imaging Report section title (6052)</uid>
+<uid uid="1.2.840.10008.6.1.382" keyword="BreastImagingReportElements6053" type="Context Group Name">Breast Imaging Report Elements (6053)</uid>
+<uid uid="1.2.840.10008.6.1.383" keyword="BreastImagingFindings6054" type="Context Group Name">Breast Imaging Findings (6054)</uid>
+<uid uid="1.2.840.10008.6.1.384" keyword="BreastClinicalFindingOrIndicatedProblem6055" type="Context Group Name">Breast Clinical Finding or Indicated Problem (6055)</uid>
+<uid uid="1.2.840.10008.6.1.385" keyword="AssociatedFindingsForBreast6056" type="Context Group Name">Associated Findings for Breast (6056)</uid>
+<uid uid="1.2.840.10008.6.1.386" keyword="DuctographyFindingsForBreast6057" type="Context Group Name">Ductography Findings for Breast (6057)</uid>
+<uid uid="1.2.840.10008.6.1.387" keyword="ProcedureModifiersForBreast6058" type="Context Group Name">Procedure Modifiers for Breast (6058)</uid>
+<uid uid="1.2.840.10008.6.1.388" keyword="BreastImplantTypes6059" type="Context Group Name">Breast Implant Types (6059)</uid>
+<uid uid="1.2.840.10008.6.1.389" keyword="BreastBiopsyTechniques6060" type="Context Group Name">Breast Biopsy Techniques (6060)</uid>
+<uid uid="1.2.840.10008.6.1.390" keyword="BreastImagingProcedureModifiers6061" type="Context Group Name">Breast Imaging Procedure Modifiers (6061)</uid>
+<uid uid="1.2.840.10008.6.1.391" keyword="InterventionalProcedureComplications6062" type="Context Group Name">Interventional Procedure Complications (6062)</uid>
+<uid uid="1.2.840.10008.6.1.392" keyword="InterventionalProcedureResults6063" type="Context Group Name">Interventional Procedure Results (6063)</uid>
+<uid uid="1.2.840.10008.6.1.393" keyword="UltrasoundFindingsForBreast6064" type="Context Group Name">Ultrasound Findings for Breast (6064)</uid>
+<uid uid="1.2.840.10008.6.1.394" keyword="InstrumentApproach6065" type="Context Group Name">Instrument Approach (6065)</uid>
+<uid uid="1.2.840.10008.6.1.395" keyword="TargetConfirmation6066" type="Context Group Name">Target Confirmation (6066)</uid>
+<uid uid="1.2.840.10008.6.1.396" keyword="FluidColor6067" type="Context Group Name">Fluid Color (6067)</uid>
+<uid uid="1.2.840.10008.6.1.397" keyword="TumorStagesFromAJCC6068" type="Context Group Name">Tumor Stages from AJCC (6068)</uid>
+<uid uid="1.2.840.10008.6.1.398" keyword="NottinghamCombinedHistologicGrade6069" type="Context Group Name">Nottingham Combined Histologic Grade (6069)</uid>
+<uid uid="1.2.840.10008.6.1.399" keyword="BloomRichardsonHistologicGrade6070" type="Context Group Name">Bloom-Richardson Histologic Grade (6070)</uid>
+<uid uid="1.2.840.10008.6.1.400" keyword="HistologicGradingMethod6071" type="Context Group Name">Histologic Grading Method (6071)</uid>
+<uid uid="1.2.840.10008.6.1.401" keyword="BreastImplantFindings6072" type="Context Group Name">Breast Implant Findings (6072)</uid>
+<uid uid="1.2.840.10008.6.1.402" keyword="GynecologicalHormones6080" type="Context Group Name">Gynecological Hormones (6080)</uid>
+<uid uid="1.2.840.10008.6.1.403" keyword="BreastCancerRiskFactors6081" type="Context Group Name">Breast Cancer Risk Factors (6081)</uid>
+<uid uid="1.2.840.10008.6.1.404" keyword="GynecologicalProcedures6082" type="Context Group Name">Gynecological Procedures (6082)</uid>
+<uid uid="1.2.840.10008.6.1.405" keyword="ProceduresForBreast6083" type="Context Group Name">Procedures for Breast (6083)</uid>
+<uid uid="1.2.840.10008.6.1.406" keyword="MammoplastyProcedures6084" type="Context Group Name">Mammoplasty Procedures (6084)</uid>
+<uid uid="1.2.840.10008.6.1.407" keyword="TherapiesForBreast6085" type="Context Group Name">Therapies for Breast (6085)</uid>
+<uid uid="1.2.840.10008.6.1.408" keyword="MenopausalPhase6086" type="Context Group Name">Menopausal Phase (6086)</uid>
+<uid uid="1.2.840.10008.6.1.409" keyword="GeneralRiskFactors6087" type="Context Group Name">General Risk Factors (6087)</uid>
+<uid uid="1.2.840.10008.6.1.410" keyword="OBGYNMaternalRiskFactors6088" type="Context Group Name">OB-GYN Maternal Risk Factors (6088)</uid>
+<uid uid="1.2.840.10008.6.1.411" keyword="Substances6089" type="Context Group Name">Substances (6089)</uid>
+<uid uid="1.2.840.10008.6.1.412" keyword="RelativeUsageExposureAmount6090" type="Context Group Name">Relative Usage, Exposure Amount (6090)</uid>
+<uid uid="1.2.840.10008.6.1.413" keyword="RelativeFrequencyOfEventValues6091" type="Context Group Name">Relative Frequency of Event Values (6091)</uid>
+<uid uid="1.2.840.10008.6.1.414" keyword="QuantitativeConceptsForUsageExposure6092" type="Context Group Name">Quantitative Concepts for Usage, Exposure (6092)</uid>
+<uid uid="1.2.840.10008.6.1.415" keyword="QualitativeConceptsForUsageExposureAmount6093" type="Context Group Name">Qualitative Concepts for Usage, Exposure Amount (6093)</uid>
+<uid uid="1.2.840.10008.6.1.416" keyword="QuaLItativeConceptsForUsageExposureFrequency6094" type="Context Group Name">QuaLItative Concepts for Usage, Exposure Frequency (6094)</uid>
+<uid uid="1.2.840.10008.6.1.417" keyword="NumericPropertiesOfProcedures6095" type="Context Group Name">Numeric Properties of Procedures (6095)</uid>
+<uid uid="1.2.840.10008.6.1.418" keyword="PregnancyStatus6096" type="Context Group Name">Pregnancy Status (6096)</uid>
+<uid uid="1.2.840.10008.6.1.419" keyword="SideOfFamily6097" type="Context Group Name">Side of Family (6097)</uid>
+<uid uid="1.2.840.10008.6.1.420" keyword="ChestComponentCategories6100" type="Context Group Name">Chest Component Categories (6100)</uid>
+<uid uid="1.2.840.10008.6.1.421" keyword="ChestFindingOrFeature6101" type="Context Group Name">Chest Finding or Feature (6101)</uid>
+<uid uid="1.2.840.10008.6.1.422" keyword="ChestFindingOrFeatureModifier6102" type="Context Group Name">Chest Finding or Feature Modifier (6102)</uid>
+<uid uid="1.2.840.10008.6.1.423" keyword="AbnormalLinesFindingOrFeature6103" type="Context Group Name">Abnormal Lines Finding or Feature (6103)</uid>
+<uid uid="1.2.840.10008.6.1.424" keyword="AbnormalOpacityFindingOrFeature6104" type="Context Group Name">Abnormal Opacity Finding or Feature (6104)</uid>
+<uid uid="1.2.840.10008.6.1.425" keyword="AbnormalLucencyFindingOrFeature6105" type="Context Group Name">Abnormal Lucency Finding or Feature (6105)</uid>
+<uid uid="1.2.840.10008.6.1.426" keyword="AbnormalTextureFindingOrFeature6106" type="Context Group Name">Abnormal Texture Finding or Feature (6106)</uid>
+<uid uid="1.2.840.10008.6.1.427" keyword="WidthDescriptor6107" type="Context Group Name">Width Descriptor (6107)</uid>
+<uid uid="1.2.840.10008.6.1.428" keyword="ChestAnatomicStructureAbnormalDistribution6108" type="Context Group Name">Chest Anatomic Structure Abnormal Distribution (6108)</uid>
+<uid uid="1.2.840.10008.6.1.429" keyword="RadiographicAnatomyFindingOrFeature6109" type="Context Group Name">Radiographic Anatomy Finding or Feature (6109)</uid>
+<uid uid="1.2.840.10008.6.1.430" keyword="LungAnatomyFindingOrFeature6110" type="Context Group Name">Lung Anatomy Finding or Feature (6110)</uid>
+<uid uid="1.2.840.10008.6.1.431" keyword="BronchovascularAnatomyFindingOrFeature6111" type="Context Group Name">Bronchovascular Anatomy Finding or Feature (6111)</uid>
+<uid uid="1.2.840.10008.6.1.432" keyword="PleuraAnatomyFindingOrFeature6112" type="Context Group Name">Pleura Anatomy Finding or Feature (6112)</uid>
+<uid uid="1.2.840.10008.6.1.433" keyword="MediastinumAnatomyFindingOrFeature6113" type="Context Group Name">Mediastinum Anatomy Finding or Feature (6113)</uid>
+<uid uid="1.2.840.10008.6.1.434" keyword="OsseousAnatomyFindingOrFeature6114" type="Context Group Name">Osseous Anatomy Finding or Feature (6114)</uid>
+<uid uid="1.2.840.10008.6.1.435" keyword="OsseousAnatomyModifiers6115" type="Context Group Name">Osseous Anatomy Modifiers (6115)</uid>
+<uid uid="1.2.840.10008.6.1.436" keyword="MuscularAnatomy6116" type="Context Group Name">Muscular Anatomy (6116)</uid>
+<uid uid="1.2.840.10008.6.1.437" keyword="VascularAnatomy6117" type="Context Group Name">Vascular Anatomy (6117)</uid>
+<uid uid="1.2.840.10008.6.1.438" keyword="SizeDescriptor6118" type="Context Group Name">Size Descriptor (6118)</uid>
+<uid uid="1.2.840.10008.6.1.439" keyword="ChestBorderShape6119" type="Context Group Name">Chest Border Shape (6119)</uid>
+<uid uid="1.2.840.10008.6.1.440" keyword="ChestBorderDefinition6120" type="Context Group Name">Chest Border Definition (6120)</uid>
+<uid uid="1.2.840.10008.6.1.441" keyword="ChestOrientationDescriptor6121" type="Context Group Name">Chest Orientation Descriptor (6121)</uid>
+<uid uid="1.2.840.10008.6.1.442" keyword="ChestContentDescriptor6122" type="Context Group Name">Chest Content Descriptor (6122)</uid>
+<uid uid="1.2.840.10008.6.1.443" keyword="ChestOpacityDescriptor6123" type="Context Group Name">Chest Opacity Descriptor (6123)</uid>
+<uid uid="1.2.840.10008.6.1.444" keyword="LocationInChest6124" type="Context Group Name">Location in Chest (6124)</uid>
+<uid uid="1.2.840.10008.6.1.445" keyword="GeneralChestLocation6125" type="Context Group Name">General Chest Location (6125)</uid>
+<uid uid="1.2.840.10008.6.1.446" keyword="LocationInLung6126" type="Context Group Name">Location in Lung (6126)</uid>
+<uid uid="1.2.840.10008.6.1.447" keyword="SegmentLocationInLung6127" type="Context Group Name">Segment Location in Lung (6127)</uid>
+<uid uid="1.2.840.10008.6.1.448" keyword="ChestDistributionDescriptor6128" type="Context Group Name">Chest Distribution Descriptor (6128)</uid>
+<uid uid="1.2.840.10008.6.1.449" keyword="ChestSiteInvolvement6129" type="Context Group Name">Chest Site Involvement (6129)</uid>
+<uid uid="1.2.840.10008.6.1.450" keyword="SeverityDescriptor6130" type="Context Group Name">Severity Descriptor (6130)</uid>
+<uid uid="1.2.840.10008.6.1.451" keyword="ChestTextureDescriptor6131" type="Context Group Name">Chest Texture Descriptor (6131)</uid>
+<uid uid="1.2.840.10008.6.1.452" keyword="ChestCalcificationDescriptor6132" type="Context Group Name">Chest Calcification Descriptor (6132)</uid>
+<uid uid="1.2.840.10008.6.1.453" keyword="ChestQuantitativeTemporalDifferenceType6133" type="Context Group Name">Chest Quantitative Temporal Difference Type (6133)</uid>
+<uid uid="1.2.840.10008.6.1.454" keyword="QualitativeTemporalDifferenceType6134" type="Context Group Name">Qualitative Temporal Difference Type (6134)</uid>
+<uid uid="1.2.840.10008.6.1.455" keyword="ImageQualityFinding6135" type="Context Group Name">Image Quality Finding (6135)</uid>
+<uid uid="1.2.840.10008.6.1.456" keyword="ChestTypesOfQualityControlStandard6136" type="Context Group Name">Chest Types of Quality Control Standard (6136)</uid>
+<uid uid="1.2.840.10008.6.1.457" keyword="TypesOfCADAnalysis6137" type="Context Group Name">Types of CAD Analysis (6137)</uid>
+<uid uid="1.2.840.10008.6.1.458" keyword="ChestNonLesionObjectType6138" type="Context Group Name">Chest Non-Lesion Object Type (6138)</uid>
+<uid uid="1.2.840.10008.6.1.459" keyword="NonLesionModifiers6139" type="Context Group Name">Non-Lesion Modifiers (6139)</uid>
+<uid uid="1.2.840.10008.6.1.460" keyword="CalculationMethods6140" type="Context Group Name">Calculation Methods (6140)</uid>
+<uid uid="1.2.840.10008.6.1.461" keyword="AttenuationCoefficientMeasurements6141" type="Context Group Name">Attenuation Coefficient Measurements (6141)</uid>
+<uid uid="1.2.840.10008.6.1.462" keyword="CalculatedValue6142" type="Context Group Name">Calculated Value (6142)</uid>
+<uid uid="1.2.840.10008.6.1.463" keyword="ResponseCriteria6143" type="Context Group Name">Response Criteria (6143)</uid>
+<uid uid="1.2.840.10008.6.1.464" keyword="RECISTResponseCriteria6144" type="Context Group Name">RECIST Response Criteria (6144)</uid>
+<uid uid="1.2.840.10008.6.1.465" keyword="BaselineCategory6145" type="Context Group Name">Baseline Category (6145)</uid>
+<uid uid="1.2.840.10008.6.1.466" keyword="BackgroundEchotexture6151" type="Context Group Name">Background echotexture (6151)</uid>
+<uid uid="1.2.840.10008.6.1.467" keyword="Orientation6152" type="Context Group Name">Orientation (6152)</uid>
+<uid uid="1.2.840.10008.6.1.468" keyword="LesionBoundary6153" type="Context Group Name">Lesion boundary (6153)</uid>
+<uid uid="1.2.840.10008.6.1.469" keyword="EchoPattern6154" type="Context Group Name">Echo pattern (6154)</uid>
+<uid uid="1.2.840.10008.6.1.470" keyword="PosteriorAcousticFeatures6155" type="Context Group Name">Posterior acoustic features (6155)</uid>
+<uid uid="1.2.840.10008.6.1.471" keyword="Vascularity6157" type="Context Group Name">Vascularity (6157)</uid>
+<uid uid="1.2.840.10008.6.1.472" keyword="CorrelationToOtherFindings6158" type="Context Group Name">Correlation to Other Findings (6158)</uid>
+<uid uid="1.2.840.10008.6.1.473" keyword="MalignancyType6159" type="Context Group Name">Malignancy Type (6159)</uid>
+<uid uid="1.2.840.10008.6.1.474" keyword="BreastPrimaryTumorAssessmentFromAJCC6160" type="Context Group Name">Breast Primary Tumor Assessment from AJCC (6160)</uid>
+<uid uid="1.2.840.10008.6.1.475" keyword="ClinicalRegionalLymphNodeAssessmentForBreast6161" type="Context Group Name">Clinical Regional Lymph Node Assessment for Breast (6161)</uid>
+<uid uid="1.2.840.10008.6.1.476" keyword="AssessmentOfMetastasisForBreast6162" type="Context Group Name">Assessment of Metastasis for Breast (6162)</uid>
+<uid uid="1.2.840.10008.6.1.477" keyword="MenstrualCyclePhase6163" type="Context Group Name">Menstrual Cycle Phase (6163)</uid>
+<uid uid="1.2.840.10008.6.1.478" keyword="TimeIntervals6164" type="Context Group Name">Time Intervals (6164)</uid>
+<uid uid="1.2.840.10008.6.1.479" keyword="BreastLinearMeasurements6165" type="Context Group Name">Breast Linear Measurements (6165)</uid>
+<uid uid="1.2.840.10008.6.1.480" keyword="CADGeometrySecondaryGraphicalRepresentation6166" type="Context Group Name">CAD Geometry Secondary Graphical Representation (6166)</uid>
+<uid uid="1.2.840.10008.6.1.481" keyword="DiagnosticImagingReportDocumentTitles7000" type="Context Group Name">Diagnostic Imaging Report Document Titles (7000)</uid>
+<uid uid="1.2.840.10008.6.1.482" keyword="DiagnosticImagingReportHeadings7001" type="Context Group Name">Diagnostic Imaging Report Headings (7001)</uid>
+<uid uid="1.2.840.10008.6.1.483" keyword="DiagnosticImagingReportElements7002" type="Context Group Name">Diagnostic Imaging Report Elements (7002)</uid>
+<uid uid="1.2.840.10008.6.1.484" keyword="DiagnosticImagingReportPurposesOfReference7003" type="Context Group Name">Diagnostic Imaging Report Purposes of Reference (7003)</uid>
+<uid uid="1.2.840.10008.6.1.485" keyword="WaveformPurposesOfReference7004" type="Context Group Name">Waveform Purposes of Reference (7004)</uid>
+<uid uid="1.2.840.10008.6.1.486" keyword="ContributingEquipmentPurposesOfReference7005" type="Context Group Name">Contributing Equipment Purposes of Reference (7005)</uid>
+<uid uid="1.2.840.10008.6.1.487" keyword="SRDocumentPurposesOfReference7006" type="Context Group Name">SR Document Purposes of Reference (7006)</uid>
+<uid uid="1.2.840.10008.6.1.488" keyword="SignaturePurpose7007" type="Context Group Name">Signature Purpose (7007)</uid>
+<uid uid="1.2.840.10008.6.1.489" keyword="MediaImport7008" type="Context Group Name">Media Import (7008)</uid>
+<uid uid="1.2.840.10008.6.1.490" keyword="KeyObjectSelectionDocumentTitle7010" type="Context Group Name">Key Object Selection Document Title (7010)</uid>
+<uid uid="1.2.840.10008.6.1.491" keyword="RejectedForQualityReasons7011" type="Context Group Name">Rejected for Quality Reasons (7011)</uid>
+<uid uid="1.2.840.10008.6.1.492" keyword="BestInSet7012" type="Context Group Name">Best In Set (7012)</uid>
+<uid uid="1.2.840.10008.6.1.493" keyword="DocumentTitles7020" type="Context Group Name">Document Titles (7020)</uid>
+<uid uid="1.2.840.10008.6.1.494" keyword="RCSRegistrationMethodType7100" type="Context Group Name">RCS Registration Method Type (7100)</uid>
+<uid uid="1.2.840.10008.6.1.495" keyword="BrainAtlasFiducials7101" type="Context Group Name">Brain Atlas Fiducials (7101)</uid>
+<uid uid="1.2.840.10008.6.1.496" keyword="SegmentationPropertyCategories7150" type="Context Group Name">Segmentation Property Categories (7150)</uid>
+<uid uid="1.2.840.10008.6.1.497" keyword="SegmentationPropertyTypes7151" type="Context Group Name">Segmentation Property Types (7151)</uid>
+<uid uid="1.2.840.10008.6.1.498" keyword="CardiacStructureSegmentationTypes7152" type="Context Group Name">Cardiac Structure Segmentation Types (7152)</uid>
+<uid uid="1.2.840.10008.6.1.499" keyword="BrainTissueSegmentationTypes7153" type="Context Group Name">Brain Tissue Segmentation Types (7153)</uid>
+<uid uid="1.2.840.10008.6.1.500" keyword="AbdominalOrganSegmentationTypes7154" type="Context Group Name">Abdominal Organ Segmentation Types (7154)</uid>
+<uid uid="1.2.840.10008.6.1.501" keyword="ThoracicTissueSegmentationTypes7155" type="Context Group Name">Thoracic Tissue Segmentation Types (7155)</uid>
+<uid uid="1.2.840.10008.6.1.502" keyword="VascularTissueSegmentationTypes7156" type="Context Group Name">Vascular Tissue Segmentation Types (7156)</uid>
+<uid uid="1.2.840.10008.6.1.503" keyword="DeviceSegmentationTypes7157" type="Context Group Name">Device Segmentation Types (7157)</uid>
+<uid uid="1.2.840.10008.6.1.504" keyword="ArtifactSegmentationTypes7158" type="Context Group Name">Artifact Segmentation Types (7158)</uid>
+<uid uid="1.2.840.10008.6.1.505" keyword="LesionSegmentationTypes7159" type="Context Group Name">Lesion Segmentation Types (7159)</uid>
+<uid uid="1.2.840.10008.6.1.506" keyword="PelvicOrganSegmentationTypes7160" type="Context Group Name">Pelvic Organ Segmentation Types (7160)</uid>
+<uid uid="1.2.840.10008.6.1.507" keyword="PhysiologySegmentationTypes7161" type="Context Group Name">Physiology Segmentation Types (7161)</uid>
+<uid uid="1.2.840.10008.6.1.508" keyword="ReferencedImagePurposesOfReference7201" type="Context Group Name">Referenced Image Purposes of Reference (7201)</uid>
+<uid uid="1.2.840.10008.6.1.509" keyword="SourceImagePurposesOfReference7202" type="Context Group Name">Source Image Purposes of Reference (7202)</uid>
+<uid uid="1.2.840.10008.6.1.510" keyword="ImageDerivation7203" type="Context Group Name">Image Derivation (7203)</uid>
+<uid uid="1.2.840.10008.6.1.511" keyword="PurposeOfReferenceToAlternateRepresentation7205" type="Context Group Name">Purpose Of Reference to Alternate Representation (7205)</uid>
+<uid uid="1.2.840.10008.6.1.512" keyword="RelatedSeriesPurposesOfReference7210" type="Context Group Name">Related Series Purposes Of Reference (7210)</uid>
+<uid uid="1.2.840.10008.6.1.513" keyword="MultiFrameSubsetType7250" type="Context Group Name">Multi-frame Subset Type (7250)</uid>
+<uid uid="1.2.840.10008.6.1.514" keyword="PersonRoles7450" type="Context Group Name">Person Roles (7450)</uid>
+<uid uid="1.2.840.10008.6.1.515" keyword="FamilyMember7451" type="Context Group Name">Family Member (7451)</uid>
+<uid uid="1.2.840.10008.6.1.516" keyword="OrganizationalRoles7452" type="Context Group Name">Organizational Roles (7452)</uid>
+<uid uid="1.2.840.10008.6.1.517" keyword="PerformingRoles7453" type="Context Group Name">Performing Roles (7453)</uid>
+<uid uid="1.2.840.10008.6.1.518" keyword="Species7454" type="Context Group Name">Species (7454)</uid>
+<uid uid="1.2.840.10008.6.1.519" keyword="Sex7455" type="Context Group Name">Sex (7455)</uid>
+<uid uid="1.2.840.10008.6.1.520" keyword="UnitsOfMeasureForAge7456" type="Context Group Name">Units of Measure for Age (7456)</uid>
+<uid uid="1.2.840.10008.6.1.521" keyword="UnitsOfLinearMeasurement7460" type="Context Group Name">Units of Linear Measurement (7460)</uid>
+<uid uid="1.2.840.10008.6.1.522" keyword="UnitsOfAreaMeasurement7461" type="Context Group Name">Units of Area Measurement (7461)</uid>
+<uid uid="1.2.840.10008.6.1.523" keyword="UnitsOfVolumeMeasurement7462" type="Context Group Name">Units of Volume Measurement (7462)</uid>
+<uid uid="1.2.840.10008.6.1.524" keyword="LinearMeasurements7470" type="Context Group Name">Linear Measurements (7470)</uid>
+<uid uid="1.2.840.10008.6.1.525" keyword="AreaMeasurements7471" type="Context Group Name">Area Measurements (7471)</uid>
+<uid uid="1.2.840.10008.6.1.526" keyword="VolumeMeasurements7472" type="Context Group Name">Volume Measurements (7472)</uid>
+<uid uid="1.2.840.10008.6.1.527" keyword="GeneralAreaCalculationMethods7473" type="Context Group Name">General Area Calculation Methods (7473)</uid>
+<uid uid="1.2.840.10008.6.1.528" keyword="GeneralVolumeCalculationMethods7474" type="Context Group Name">General Volume Calculation Methods (7474)</uid>
+<uid uid="1.2.840.10008.6.1.529" keyword="Breed7480" type="Context Group Name">Breed (7480)</uid>
+<uid uid="1.2.840.10008.6.1.530" keyword="BreedRegistry7481" type="Context Group Name">Breed Registry (7481)</uid>
+<uid uid="1.2.840.10008.6.1.531" keyword="GeneralPurposeWorkitemDefinition9231" type="Context Group Name">General Purpose Workitem Definition (9231)</uid>
+<uid uid="1.2.840.10008.6.1.532" keyword="NonDICOMOutputTypes9232" type="Context Group Name">Non-DICOM Output Types (9232)</uid>
+<uid uid="1.2.840.10008.6.1.533" keyword="ProcedureDiscontinuationReasons9300" type="Context Group Name">Procedure Discontinuation Reasons (9300)</uid>
+<uid uid="1.2.840.10008.6.1.534" keyword="ScopeOfAccumulation10000" type="Context Group Name">Scope of Accumulation (10000)</uid>
+<uid uid="1.2.840.10008.6.1.535" keyword="UIDTypes10001" type="Context Group Name">UID Types (10001)</uid>
+<uid uid="1.2.840.10008.6.1.536" keyword="IrradiationEventTypes10002" type="Context Group Name">Irradiation Event Types (10002)</uid>
+<uid uid="1.2.840.10008.6.1.537" keyword="EquipmentPlaneIdentification10003" type="Context Group Name">Equipment Plane Identification (10003)</uid>
+<uid uid="1.2.840.10008.6.1.538" keyword="FluoroModes10004" type="Context Group Name">Fluoro Modes (10004)</uid>
+<uid uid="1.2.840.10008.6.1.539" keyword="XRayFilterMaterials10006" type="Context Group Name">X-Ray Filter Materials (10006)</uid>
+<uid uid="1.2.840.10008.6.1.540" keyword="XRayFilterTypes10007" type="Context Group Name">X-Ray Filter Types (10007)</uid>
+<uid uid="1.2.840.10008.6.1.541" keyword="DoseRelatedDistanceMeasurements10008" type="Context Group Name">Dose Related Distance Measurements (10008)</uid>
+<uid uid="1.2.840.10008.6.1.542" keyword="MeasuredCalculated10009" type="Context Group Name">Measured/Calculated (10009)</uid>
+<uid uid="1.2.840.10008.6.1.543" keyword="DoseMeasurementDevices10010" type="Context Group Name">Dose Measurement Devices (10010)</uid>
+<uid uid="1.2.840.10008.6.1.544" keyword="EffectiveDoseEvaluationMethod10011" type="Context Group Name">Effective Dose Evaluation Method (10011)</uid>
+<uid uid="1.2.840.10008.6.1.545" keyword="CTAcquisitionType10013" type="Context Group Name">CT Acquisition Type (10013)</uid>
+<uid uid="1.2.840.10008.6.1.546" keyword="ContrastImagingTechnique10014" type="Context Group Name">Contrast Imaging Technique (10014)</uid>
+<uid uid="1.2.840.10008.6.1.547" keyword="CTDoseReferenceAuthorities10015" type="Context Group Name">CT Dose Reference Authorities (10015)</uid>
+<uid uid="1.2.840.10008.6.1.548" keyword="AnodeTargetMaterial10016" type="Context Group Name">Anode Target Material (10016)</uid>
+<uid uid="1.2.840.10008.6.1.549" keyword="XRayGrid10017" type="Context Group Name">X-Ray Grid (10017)</uid>
+<uid uid="1.2.840.10008.6.1.550" keyword="UltrasoundProtocolTypes12001" type="Context Group Name">Ultrasound Protocol Types (12001)</uid>
+<uid uid="1.2.840.10008.6.1.551" keyword="UltrasoundProtocolStageTypes12002" type="Context Group Name">Ultrasound Protocol Stage Types (12002)</uid>
+<uid uid="1.2.840.10008.6.1.552" keyword="OBGYNDates12003" type="Context Group Name">OB-GYN Dates (12003)</uid>
+<uid uid="1.2.840.10008.6.1.553" keyword="FetalBiometryRatios12004" type="Context Group Name">Fetal Biometry Ratios (12004)</uid>
+<uid uid="1.2.840.10008.6.1.554" keyword="FetalBiometryMeasurements12005" type="Context Group Name">Fetal Biometry Measurements (12005)</uid>
+<uid uid="1.2.840.10008.6.1.555" keyword="FetalLongBonesBiometryMeasurements12006" type="Context Group Name">Fetal Long Bones Biometry Measurements (12006)</uid>
+<uid uid="1.2.840.10008.6.1.556" keyword="FetalCranium12007" type="Context Group Name">Fetal Cranium (12007)</uid>
+<uid uid="1.2.840.10008.6.1.557" keyword="OBGYNAmnioticSac12008" type="Context Group Name">OB-GYN Amniotic Sac (12008)</uid>
+<uid uid="1.2.840.10008.6.1.558" keyword="EarlyGestationBiometryMeasurements12009" type="Context Group Name">Early Gestation Biometry Measurements (12009)</uid>
+<uid uid="1.2.840.10008.6.1.559" keyword="UltrasoundPelvisAndUterus12011" type="Context Group Name">Ultrasound Pelvis and Uterus (12011)</uid>
+<uid uid="1.2.840.10008.6.1.560" keyword="OBEquationsAndTables12012" type="Context Group Name">OB Equations and Tables (12012)</uid>
+<uid uid="1.2.840.10008.6.1.561" keyword="GestationalAgeEquationsAndTables12013" type="Context Group Name">Gestational Age Equations and Tables (12013)</uid>
+<uid uid="1.2.840.10008.6.1.562" keyword="OBFetalBodyWeightEquationsAndTables12014" type="Context Group Name">OB Fetal Body Weight Equations and Tables (12014)</uid>
+<uid uid="1.2.840.10008.6.1.563" keyword="FetalGrowthEquationsAndTables12015" type="Context Group Name">Fetal Growth Equations and Tables (12015)</uid>
+<uid uid="1.2.840.10008.6.1.564" keyword="EstimatedFetalWeightPercentileEquationsAndTables12016" type="Context Group Name">Estimated Fetal Weight Percentile Equations and Tables (12016)</uid>
+<uid uid="1.2.840.10008.6.1.565" keyword="GrowthDistributionRank12017" type="Context Group Name">Growth Distribution Rank (12017)</uid>
+<uid uid="1.2.840.10008.6.1.566" keyword="OBGYNSummary12018" type="Context Group Name">OB-GYN Summary (12018)</uid>
+<uid uid="1.2.840.10008.6.1.567" keyword="OBGYNFetusSummary12019" type="Context Group Name">OB-GYN Fetus Summary (12019)</uid>
+<uid uid="1.2.840.10008.6.1.568" keyword="VascularSummary12101" type="Context Group Name">Vascular Summary (12101)</uid>
+<uid uid="1.2.840.10008.6.1.569" keyword="TemporalPeriodsRelatingToProcedureOrTherapy12102" type="Context Group Name">Temporal Periods Relating to Procedure or Therapy (12102)</uid>
+<uid uid="1.2.840.10008.6.1.570" keyword="VascularUltrasoundAnatomicLocation12103" type="Context Group Name">Vascular Ultrasound Anatomic Location (12103)</uid>
+<uid uid="1.2.840.10008.6.1.571" keyword="ExtracranialArteries12104" type="Context Group Name">Extracranial Arteries (12104)</uid>
+<uid uid="1.2.840.10008.6.1.572" keyword="IntracranialCerebralVessels12105" type="Context Group Name">Intracranial Cerebral Vessels (12105)</uid>
+<uid uid="1.2.840.10008.6.1.573" keyword="IntracranialCerebralVesselsUnilateral12106" type="Context Group Name">Intracranial Cerebral Vessels (unilateral) (12106)</uid>
+<uid uid="1.2.840.10008.6.1.574" keyword="UpperExtremityArteries12107" type="Context Group Name">Upper Extremity Arteries (12107)</uid>
+<uid uid="1.2.840.10008.6.1.575" keyword="UpperExtremityVeins12108" type="Context Group Name">Upper Extremity Veins (12108)</uid>
+<uid uid="1.2.840.10008.6.1.576" keyword="LowerExtremityArteries12109" type="Context Group Name">Lower Extremity Arteries (12109)</uid>
+<uid uid="1.2.840.10008.6.1.577" keyword="LowerExtremityVeins12110" type="Context Group Name">Lower Extremity Veins (12110)</uid>
+<uid uid="1.2.840.10008.6.1.578" keyword="AbdominalArteriesLateral12111" type="Context Group Name">Abdominal Arteries (lateral) (12111)</uid>
+<uid uid="1.2.840.10008.6.1.579" keyword="AbdominalArteriesUnilateral12112" type="Context Group Name">Abdominal Arteries (unilateral) (12112)</uid>
+<uid uid="1.2.840.10008.6.1.580" keyword="AbdominalVeinsLateral12113" type="Context Group Name">Abdominal Veins (lateral) (12113)</uid>
+<uid uid="1.2.840.10008.6.1.581" keyword="AbdominalVeinsUnilateral12114" type="Context Group Name">Abdominal Veins (unilateral) (12114)</uid>
+<uid uid="1.2.840.10008.6.1.582" keyword="RenalVessels12115" type="Context Group Name">Renal Vessels (12115)</uid>
+<uid uid="1.2.840.10008.6.1.583" keyword="VesselSegmentModifiers12116" type="Context Group Name">Vessel Segment Modifiers (12116)</uid>
+<uid uid="1.2.840.10008.6.1.584" keyword="VesselBranchModifiers12117" type="Context Group Name">Vessel Branch Modifiers (12117)</uid>
+<uid uid="1.2.840.10008.6.1.585" keyword="VascularUltrasoundProperty12119" type="Context Group Name">Vascular Ultrasound Property (12119)</uid>
+<uid uid="1.2.840.10008.6.1.586" keyword="BloodVelocityMeasurementsByUltrasound12120" type="Context Group Name">Blood Velocity Measurements by Ultrasound (12120)</uid>
+<uid uid="1.2.840.10008.6.1.587" keyword="VascularIndicesAndRatios12121" type="Context Group Name">Vascular Indices and Ratios (12121)</uid>
+<uid uid="1.2.840.10008.6.1.588" keyword="OtherVascularProperties12122" type="Context Group Name">Other Vascular Properties (12122)</uid>
+<uid uid="1.2.840.10008.6.1.589" keyword="CarotidRatios12123" type="Context Group Name">Carotid Ratios (12123)</uid>
+<uid uid="1.2.840.10008.6.1.590" keyword="RenalRatios12124" type="Context Group Name">Renal Ratios (12124)</uid>
+<uid uid="1.2.840.10008.6.1.591" keyword="PelvicVasculatureAnatomicalLocation12140" type="Context Group Name">Pelvic Vasculature Anatomical Location (12140)</uid>
+<uid uid="1.2.840.10008.6.1.592" keyword="FetalVasculatureAnatomicalLocation12141" type="Context Group Name">Fetal Vasculature Anatomical Location (12141)</uid>
+<uid uid="1.2.840.10008.6.1.593" keyword="EchocardiographyLeftVentricle12200" type="Context Group Name">Echocardiography Left Ventricle (12200)</uid>
+<uid uid="1.2.840.10008.6.1.594" keyword="LeftVentricleLinear12201" type="Context Group Name">Left Ventricle Linear (12201)</uid>
+<uid uid="1.2.840.10008.6.1.595" keyword="LeftVentricleVolume12202" type="Context Group Name">Left Ventricle Volume (12202)</uid>
+<uid uid="1.2.840.10008.6.1.596" keyword="LeftVentricleOther12203" type="Context Group Name">Left Ventricle Other (12203)</uid>
+<uid uid="1.2.840.10008.6.1.597" keyword="EchocardiographyRightVentricle12204" type="Context Group Name">Echocardiography Right Ventricle (12204)</uid>
+<uid uid="1.2.840.10008.6.1.598" keyword="EchocardiographyLeftAtrium12205" type="Context Group Name">Echocardiography Left Atrium (12205)</uid>
+<uid uid="1.2.840.10008.6.1.599" keyword="EchocardiographyRightAtrium12206" type="Context Group Name">Echocardiography Right Atrium (12206)</uid>
+<uid uid="1.2.840.10008.6.1.600" keyword="EchocardiographyMitralValve12207" type="Context Group Name">Echocardiography Mitral Valve (12207)</uid>
+<uid uid="1.2.840.10008.6.1.601" keyword="EchocardiographyTricuspidValve12208" type="Context Group Name">Echocardiography Tricuspid Valve (12208)</uid>
+<uid uid="1.2.840.10008.6.1.602" keyword="EchocardiographyPulmonicValve12209" type="Context Group Name">Echocardiography Pulmonic Valve (12209)</uid>
+<uid uid="1.2.840.10008.6.1.603" keyword="EchocardiographyPulmonaryArtery12210" type="Context Group Name">Echocardiography Pulmonary Artery (12210)</uid>
+<uid uid="1.2.840.10008.6.1.604" keyword="EchocardiographyAorticValve12211" type="Context Group Name">Echocardiography Aortic Valve (12211)</uid>
+<uid uid="1.2.840.10008.6.1.605" keyword="EchocardiographyAorta12212" type="Context Group Name">Echocardiography Aorta (12212)</uid>
+<uid uid="1.2.840.10008.6.1.606" keyword="EchocardiographyPulmonaryVeins12214" type="Context Group Name">Echocardiography Pulmonary Veins (12214)</uid>
+<uid uid="1.2.840.10008.6.1.607" keyword="EchocardiographyVenaCavae12215" type="Context Group Name">Echocardiography Vena Cavae (12215)</uid>
+<uid uid="1.2.840.10008.6.1.608" keyword="EchocardiographyHepaticVeins12216" type="Context Group Name">Echocardiography Hepatic Veins (12216)</uid>
+<uid uid="1.2.840.10008.6.1.609" keyword="EchocardiographyCardiacShunt12217" type="Context Group Name">Echocardiography Cardiac Shunt (12217)</uid>
+<uid uid="1.2.840.10008.6.1.610" keyword="EchocardiographyCongenital12218" type="Context Group Name">Echocardiography Congenital (12218)</uid>
+<uid uid="1.2.840.10008.6.1.611" keyword="PulmonaryVeinModifiers12219" type="Context Group Name">Pulmonary Vein Modifiers (12219)</uid>
+<uid uid="1.2.840.10008.6.1.612" keyword="EchocardiographyCommonMeasurements12220" type="Context Group Name">Echocardiography Common Measurements (12220)</uid>
+<uid uid="1.2.840.10008.6.1.613" keyword="FlowDirection12221" type="Context Group Name">Flow Direction (12221)</uid>
+<uid uid="1.2.840.10008.6.1.614" keyword="OrificeFlowProperties12222" type="Context Group Name">Orifice Flow Properties (12222)</uid>
+<uid uid="1.2.840.10008.6.1.615" keyword="EchocardiographyStrokeVolumeOrigin12223" type="Context Group Name">Echocardiography Stroke Volume Origin (12223)</uid>
+<uid uid="1.2.840.10008.6.1.616" keyword="UltrasoundImageModes12224" type="Context Group Name">Ultrasound Image Modes (12224)</uid>
+<uid uid="1.2.840.10008.6.1.617" keyword="EchocardiographyImageView12226" type="Context Group Name">Echocardiography Image View (12226)</uid>
+<uid uid="1.2.840.10008.6.1.618" keyword="EchocardiographyMeasurementMethod12227" type="Context Group Name">Echocardiography Measurement Method (12227)</uid>
+<uid uid="1.2.840.10008.6.1.619" keyword="EchocardiographyVolumeMethods12228" type="Context Group Name">Echocardiography Volume Methods (12228)</uid>
+<uid uid="1.2.840.10008.6.1.620" keyword="EchocardiographyAreaMethods12229" type="Context Group Name">Echocardiography Area Methods (12229)</uid>
+<uid uid="1.2.840.10008.6.1.621" keyword="GradientMethods12230" type="Context Group Name">Gradient Methods (12230)</uid>
+<uid uid="1.2.840.10008.6.1.622" keyword="VolumeFlowMethods12231" type="Context Group Name">Volume Flow Methods (12231)</uid>
+<uid uid="1.2.840.10008.6.1.623" keyword="MyocardiumMassMethods12232" type="Context Group Name">Myocardium Mass Methods (12232)</uid>
+<uid uid="1.2.840.10008.6.1.624" keyword="CardiacPhase12233" type="Context Group Name">Cardiac Phase (12233)</uid>
+<uid uid="1.2.840.10008.6.1.625" keyword="RespirationState12234" type="Context Group Name">Respiration State (12234)</uid>
+<uid uid="1.2.840.10008.6.1.626" keyword="MitralValveAnatomicSites12235" type="Context Group Name">Mitral Valve Anatomic Sites (12235)</uid>
+<uid uid="1.2.840.10008.6.1.627" keyword="EchoAnatomicSites12236" type="Context Group Name">Echo Anatomic Sites (12236)</uid>
+<uid uid="1.2.840.10008.6.1.628" keyword="EchocardiographyAnatomicSiteModifiers12237" type="Context Group Name">Echocardiography Anatomic Site Modifiers (12237)</uid>
+<uid uid="1.2.840.10008.6.1.629" keyword="WallMotionScoringSchemes12238" type="Context Group Name">Wall Motion Scoring Schemes (12238)</uid>
+<uid uid="1.2.840.10008.6.1.630" keyword="CardiacOutputProperties12239" type="Context Group Name">Cardiac Output Properties (12239)</uid>
+<uid uid="1.2.840.10008.6.1.631" keyword="LeftVentricleArea12240" type="Context Group Name">Left Ventricle Area (12240)</uid>
+<uid uid="1.2.840.10008.6.1.632" keyword="TricuspidValveFindingSites12241" type="Context Group Name">Tricuspid Valve Finding Sites (12241)</uid>
+<uid uid="1.2.840.10008.6.1.633" keyword="AorticValveFindingSites12242" type="Context Group Name">Aortic Valve Finding Sites (12242)</uid>
+<uid uid="1.2.840.10008.6.1.634" keyword="LeftVentricleFindingSites12243" type="Context Group Name">Left Ventricle Finding Sites (12243)</uid>
+<uid uid="1.2.840.10008.6.1.635" keyword="CongenitalFindingSites12244" type="Context Group Name">Congenital Finding Sites (12244)</uid>
+<uid uid="1.2.840.10008.6.1.636" keyword="SurfaceProcessingAlgorithmFamilies7162" type="Context Group Name">Surface Processing Algorithm Families (7162)</uid>
+<uid uid="1.2.840.10008.6.1.637" keyword="StressTestProcedurePhases3207" type="Context Group Name">Stress Test Procedure Phases (3207)</uid>
+<uid uid="1.2.840.10008.6.1.638" keyword="Stages3778" type="Context Group Name">Stages (3778)</uid>
+<uid uid="1.2.840.10008.6.1.735" keyword="SMLSizeDescriptor252" type="Context Group Name">S-M-L Size Descriptor (252)</uid>
+<uid uid="1.2.840.10008.6.1.736" keyword="MajorCoronaryArteries3016" type="Context Group Name">Major Coronary Arteries (3016)</uid>
+<uid uid="1.2.840.10008.6.1.737" keyword="UnitsOfRadioactivity3083" type="Context Group Name">Units of Radioactivity (3083)</uid>
+<uid uid="1.2.840.10008.6.1.738" keyword="RestStress3102" type="Context Group Name">Rest-Stress (3102)</uid>
+<uid uid="1.2.840.10008.6.1.739" keyword="PETCardiologyProtocols3106" type="Context Group Name">PET Cardiology Protocols (3106)</uid>
+<uid uid="1.2.840.10008.6.1.740" keyword="PETCardiologyRadiopharmaceuticals3107" type="Context Group Name">PET Cardiology Radiopharmaceuticals (3107)</uid>
+<uid uid="1.2.840.10008.6.1.741" keyword="NMPETProcedures3108" type="Context Group Name">NM/PET Procedures (3108)</uid>
+<uid uid="1.2.840.10008.6.1.742" keyword="NuclearCardiologyProtocols3110" type="Context Group Name">Nuclear Cardiology Protocols (3110)</uid>
+<uid uid="1.2.840.10008.6.1.743" keyword="NuclearCardiologyRadiopharmaceuticals3111" type="Context Group Name">Nuclear Cardiology Radiopharmaceuticals (3111)</uid>
+<uid uid="1.2.840.10008.6.1.744" keyword="AttenuationCorrection3112" type="Context Group Name">Attenuation Correction (3112)</uid>
+<uid uid="1.2.840.10008.6.1.745" keyword="TypesOfPerfusionDefects3113" type="Context Group Name">Types of Perfusion Defects (3113)</uid>
+<uid uid="1.2.840.10008.6.1.746" keyword="StudyQuality3114" type="Context Group Name">Study Quality (3114)</uid>
+<uid uid="1.2.840.10008.6.1.747" keyword="StressImagingQualityIssues3115" type="Context Group Name">Stress Imaging Quality Issues (3115)</uid>
+<uid uid="1.2.840.10008.6.1.748" keyword="NMExtracardiacFindings3116" type="Context Group Name">NM Extracardiac Findings (3116)</uid>
+<uid uid="1.2.840.10008.6.1.749" keyword="AttenuationCorrectionMethods3117" type="Context Group Name">Attenuation Correction Methods (3117)</uid>
+<uid uid="1.2.840.10008.6.1.750" keyword="LevelOfRisk3118" type="Context Group Name">Level of Risk (3118)</uid>
+<uid uid="1.2.840.10008.6.1.751" keyword="LVFunction3119" type="Context Group Name">LV Function (3119)</uid>
+<uid uid="1.2.840.10008.6.1.752" keyword="PerfusionFindings3120" type="Context Group Name">Perfusion Findings (3120)</uid>
+<uid uid="1.2.840.10008.6.1.753" keyword="PerfusionMorphology3121" type="Context Group Name">Perfusion Morphology (3121)</uid>
+<uid uid="1.2.840.10008.6.1.754" keyword="VentricularEnlargement3122" type="Context Group Name">Ventricular Enlargement (3122)</uid>
+<uid uid="1.2.840.10008.6.1.755" keyword="StressTestProcedure3200" type="Context Group Name">Stress Test Procedure (3200)</uid>
+<uid uid="1.2.840.10008.6.1.756" keyword="IndicationsForStressTest3201" type="Context Group Name">Indications for Stress Test (3201)</uid>
+<uid uid="1.2.840.10008.6.1.757" keyword="ChestPain3202" type="Context Group Name">Chest Pain (3202)</uid>
+<uid uid="1.2.840.10008.6.1.758" keyword="ExerciserDevice3203" type="Context Group Name">Exerciser Device (3203)</uid>
+<uid uid="1.2.840.10008.6.1.759" keyword="StressAgents3204" type="Context Group Name">Stress Agents (3204)</uid>
+<uid uid="1.2.840.10008.6.1.760" keyword="IndicationsForPharmacologicalStressTest3205" type="Context Group Name">Indications for Pharmacological Stress Test (3205)</uid>
+<uid uid="1.2.840.10008.6.1.761" keyword="NonInvasiveCardiacImagingProcedures3206" type="Context Group Name">Non-invasive Cardiac Imaging Procedures (3206)</uid>
+<uid uid="1.2.840.10008.6.1.763" keyword="SummaryCodesExerciseECG3208" type="Context Group Name">Summary Codes Exercise ECG (3208)</uid>
+<uid uid="1.2.840.10008.6.1.764" keyword="SummaryCodesStressImaging3209" type="Context Group Name">Summary Codes Stress Imaging (3209)</uid>
+<uid uid="1.2.840.10008.6.1.765" keyword="SpeedOfResponse3210" type="Context Group Name">Speed of Response (3210)</uid>
+<uid uid="1.2.840.10008.6.1.766" keyword="BPResponse3211" type="Context Group Name">BP Response (3211)</uid>
+<uid uid="1.2.840.10008.6.1.767" keyword="TreadmillSpeed3212" type="Context Group Name">Treadmill Speed (3212)</uid>
+<uid uid="1.2.840.10008.6.1.768" keyword="StressHemodynamicFindings3213" type="Context Group Name">Stress Hemodynamic Findings (3213)</uid>
+<uid uid="1.2.840.10008.6.1.769" keyword="PerfusionFindingMethod3215" type="Context Group Name">Perfusion Finding Method (3215)</uid>
+<uid uid="1.2.840.10008.6.1.770" keyword="ComparisonFinding3217" type="Context Group Name">Comparison Finding (3217)</uid>
+<uid uid="1.2.840.10008.6.1.771" keyword="StressSymptoms3220" type="Context Group Name">Stress Symptoms (3220)</uid>
+<uid uid="1.2.840.10008.6.1.772" keyword="StressTestTerminationReasons3221" type="Context Group Name">Stress Test Termination Reasons (3221)</uid>
+<uid uid="1.2.840.10008.6.1.773" keyword="QTcMeasurements3227" type="Context Group Name">QTc Measurements (3227)</uid>
+<uid uid="1.2.840.10008.6.1.774" keyword="ECGTimingMeasurements3228" type="Context Group Name">ECG Timing Measurements (3228)</uid>
+<uid uid="1.2.840.10008.6.1.775" keyword="ECGAxisMeasurements3229" type="Context Group Name">ECG Axis Measurements (3229)</uid>
+<uid uid="1.2.840.10008.6.1.776" keyword="ECGFindings3230" type="Context Group Name">ECG Findings (3230)</uid>
+<uid uid="1.2.840.10008.6.1.777" keyword="STSegmentFindings3231" type="Context Group Name">ST Segment Findings (3231)</uid>
+<uid uid="1.2.840.10008.6.1.778" keyword="STSegmentLocation3232" type="Context Group Name">ST Segment Location (3232)</uid>
+<uid uid="1.2.840.10008.6.1.779" keyword="STSegmentMorphology3233" type="Context Group Name">ST Segment Morphology (3233)</uid>
+<uid uid="1.2.840.10008.6.1.780" keyword="EctopicBeatMorphology3234" type="Context Group Name">Ectopic Beat Morphology (3234)</uid>
+<uid uid="1.2.840.10008.6.1.781" keyword="PerfusionComparisonFindings3235" type="Context Group Name">Perfusion Comparison Findings (3235)</uid>
+<uid uid="1.2.840.10008.6.1.782" keyword="ToleranceComparisonFindings3236" type="Context Group Name">Tolerance Comparison Findings (3236)</uid>
+<uid uid="1.2.840.10008.6.1.783" keyword="WallMotionComparisonFindings3237" type="Context Group Name">Wall Motion Comparison Findings (3237)</uid>
+<uid uid="1.2.840.10008.6.1.784" keyword="StressScoringScales3238" type="Context Group Name">Stress Scoring Scales (3238)</uid>
+<uid uid="1.2.840.10008.6.1.785" keyword="PerceivedExertionScales3239" type="Context Group Name">Perceived Exertion Scales (3239)</uid>
+<uid uid="1.2.840.10008.6.1.786" keyword="VentricleIdentification3463" type="Context Group Name">Ventricle Identification (3463)</uid>
+<uid uid="1.2.840.10008.6.1.787" keyword="ColonOverallAssessment6200" type="Context Group Name">Colon Overall Assessment (6200)</uid>
+<uid uid="1.2.840.10008.6.1.788" keyword="ColonFindingOrFeature6201" type="Context Group Name">Colon Finding or Feature (6201)</uid>
+<uid uid="1.2.840.10008.6.1.789" keyword="ColonFindingOrFeatureModifier6202" type="Context Group Name">Colon Finding or Feature Modifier (6202)</uid>
+<uid uid="1.2.840.10008.6.1.790" keyword="ColonNonLesionObjectType6203" type="Context Group Name">Colon Non-Lesion Object Type (6203)</uid>
+<uid uid="1.2.840.10008.6.1.791" keyword="AnatomicNonColonFindings6204" type="Context Group Name">Anatomic Non-Colon Findings (6204)</uid>
+<uid uid="1.2.840.10008.6.1.792" keyword="ClockfaceLocationForColon6205" type="Context Group Name">Clockface Location for Colon (6205)</uid>
+<uid uid="1.2.840.10008.6.1.793" keyword="RecumbentPatientOrientationForColon6206" type="Context Group Name">Recumbent Patient Orientation for Colon (6206)</uid>
+<uid uid="1.2.840.10008.6.1.794" keyword="ColonQuantitativeTemporalDifferenceType6207" type="Context Group Name">Colon Quantitative Temporal Difference Type (6207)</uid>
+<uid uid="1.2.840.10008.6.1.795" keyword="ColonTypesOfQualityControlStandard6208" type="Context Group Name">Colon Types of Quality Control Standard (6208)</uid>
+<uid uid="1.2.840.10008.6.1.796" keyword="ColonMorphologyDescriptor6209" type="Context Group Name">Colon Morphology Descriptor (6209)</uid>
+<uid uid="1.2.840.10008.6.1.797" keyword="LocationInIntestinalTract6210" type="Context Group Name">Location in Intestinal Tract (6210)</uid>
+<uid uid="1.2.840.10008.6.1.798" keyword="AttenuationCoefficientDescriptors6211" type="Context Group Name">Attenuation Coefficient Descriptors (6211)</uid>
+<uid uid="1.2.840.10008.6.1.799" keyword="CalculatedValueForColonFindings6212" type="Context Group Name">Calculated Value for Colon Findings (6212)</uid>
+<uid uid="1.2.840.10008.6.1.800" keyword="OphthalmicHorizontalDirections4214" type="Context Group Name">Ophthalmic Horizontal Directions (4214)</uid>
+<uid uid="1.2.840.10008.6.1.801" keyword="OphthalmicVerticalDirections4215" type="Context Group Name">Ophthalmic Vertical Directions (4215)</uid>
+<uid uid="1.2.840.10008.6.1.802" keyword="OphthalmicVisualAcuityType4216" type="Context Group Name">Ophthalmic Visual Acuity Type (4216)</uid>
+<uid uid="1.2.840.10008.6.1.803" keyword="ArterialPulseWaveform3004" type="Context Group Name">Arterial Pulse Waveform (3004)</uid>
+<uid uid="1.2.840.10008.6.1.804" keyword="RespirationWaveform3005" type="Context Group Name">Respiration Waveform (3005)</uid>
+<uid uid="1.2.840.10008.6.1.805" keyword="UltrasoundContrastBolusAgents12030" type="Context Group Name">Ultrasound Contrast/Bolus Agents (12030)</uid>
+<uid uid="1.2.840.10008.6.1.806" keyword="ProtocolIntervalEvents12031" type="Context Group Name">Protocol Interval Events (12031)</uid>
+<uid uid="1.2.840.10008.6.1.807" keyword="TransducerScanPattern12032" type="Context Group Name">Transducer Scan Pattern (12032)</uid>
+<uid uid="1.2.840.10008.6.1.808" keyword="UltrasoundTransducerGeometry12033" type="Context Group Name">Ultrasound Transducer Geometry (12033)</uid>
+<uid uid="1.2.840.10008.6.1.809" keyword="UltrasoundTransducerBeamSteering12034" type="Context Group Name">Ultrasound Transducer Beam Steering (12034)</uid>
+<uid uid="1.2.840.10008.6.1.810" keyword="UltrasoundTransducerApplication12035" type="Context Group Name">Ultrasound Transducer Application (12035)</uid>
+<uid uid="1.2.840.10008.6.1.811" keyword="InstanceAvailabilityStatus50" type="Context Group Name">Instance Availability Status (50)</uid>
+<uid uid="1.2.840.10008.6.1.812" keyword="ModalityPPSDiscontinuationReasons9301" type="Context Group Name">Modality PPS Discontinuation Reasons (9301)</uid>
+<uid uid="1.2.840.10008.6.1.813" keyword="MediaImportPPSDiscontinuationReasons9302" type="Context Group Name">Media Import PPS Discontinuation Reasons (9302)</uid>
+<uid uid="1.2.840.10008.6.1.814" keyword="DXAnatomyImagedForAnimals7482" type="Context Group Name">DX Anatomy Imaged for Animals (7482)</uid>
+<uid uid="1.2.840.10008.6.1.815" keyword="CommonAnatomicRegionsForAnimals7483" type="Context Group Name">Common Anatomic Regions for Animals (7483)</uid>
+<uid uid="1.2.840.10008.6.1.816" keyword="DXViewForAnimals7484" type="Context Group Name">DX View for Animals (7484)</uid>
+<uid uid="1.2.840.10008.6.1.817" keyword="InstitutionalDepartmentsUnitsAndServices7030" type="Context Group Name">Institutional Departments, Units and Services (7030)</uid>
+<uid uid="1.2.840.10008.6.1.818" keyword="PurposeOfReferenceToPredecessorReport7009" type="Context Group Name">Purpose Of Reference to Predecessor Report (7009)</uid>
+<uid uid="1.2.840.10008.6.1.819" keyword="VisualFixationQualityDuringAcquisition4220" type="Context Group Name">Visual Fixation Quality During Acquisition (4220)</uid>
+<uid uid="1.2.840.10008.6.1.820" keyword="VisualFixationQualityProblem4221" type="Context Group Name">Visual Fixation Quality Problem (4221)</uid>
+<uid uid="1.2.840.10008.6.1.821" keyword="OphthalmicMacularGridProblem4222" type="Context Group Name">Ophthalmic Macular Grid Problem (4222)</uid>
+<uid uid="1.2.840.10008.6.1.822" keyword="Organizations5002" type="Context Group Name">Organizations (5002)</uid>
+<uid uid="1.2.840.10008.6.1.823" keyword="MixedBreeds7486" type="Context Group Name">Mixed Breeds (7486)</uid>
+<uid uid="1.2.840.10008.6.1.824" keyword="BroselowLutenPediatricSizeCategories7040" type="Context Group Name">Broselow-Luten Pediatric Size Categories (7040)</uid>
+<uid uid="1.2.840.10008.6.1.825" keyword="CalciumScoringPatientSizeCategories7042" type="Context Group Name">Calcium Scoring Patient Size Categories (7042)</uid>
+<uid uid="1.2.840.10008.6.1.826" keyword="CardiacUltrasoundReportTitles12245" type="Context Group Name">Cardiac Ultrasound Report Titles (12245)</uid>
+<uid uid="1.2.840.10008.6.1.827" keyword="CardiacUltrasoundIndicationForStudy12246" type="Context Group Name">Cardiac Ultrasound Indication for Study (12246)</uid>
+<uid uid="1.2.840.10008.6.1.828" keyword="PediatricFetalAndCongenitalCardiacSurgicalInterventions12247" type="Context Group Name">Pediatric, Fetal and Congenital Cardiac Surgical Interventions (12247)</uid>
+<uid uid="1.2.840.10008.6.1.829" keyword="CardiacUltrasoundSummaryCodes12248" type="Context Group Name">Cardiac Ultrasound Summary Codes (12248)</uid>
+<uid uid="1.2.840.10008.6.1.830" keyword="CardiacUltrasoundFetalSummaryCodes12249" type="Context Group Name">Cardiac Ultrasound Fetal Summary Codes (12249)</uid>
+<uid uid="1.2.840.10008.6.1.831" keyword="CardiacUltrasoundCommonLinearMeasurements12250" type="Context Group Name">Cardiac Ultrasound Common Linear Measurements (12250)</uid>
+<uid uid="1.2.840.10008.6.1.832" keyword="CardiacUltrasoundLinearValveMeasurements12251" type="Context Group Name">Cardiac Ultrasound Linear Valve Measurements (12251)</uid>
+<uid uid="1.2.840.10008.6.1.833" keyword="CardiacUltrasoundCardiacFunction12252" type="Context Group Name">Cardiac Ultrasound Cardiac Function (12252)</uid>
+<uid uid="1.2.840.10008.6.1.834" keyword="CardiacUltrasoundAreaMeasurements12253" type="Context Group Name">Cardiac Ultrasound Area Measurements (12253)</uid>
+<uid uid="1.2.840.10008.6.1.835" keyword="CardiacUltrasoundHemodynamicMeasurements12254" type="Context Group Name">Cardiac Ultrasound Hemodynamic Measurements (12254)</uid>
+<uid uid="1.2.840.10008.6.1.836" keyword="CardiacUltrasoundMyocardiumMeasurements12255" type="Context Group Name">Cardiac Ultrasound Myocardium Measurements (12255)</uid>
+<uid uid="1.2.840.10008.6.1.837" keyword="CardiacUltrasoundCommonLinearFlowMeasurements12256" type="Context Group Name">Cardiac Ultrasound Common Linear Flow Measurements (12256)</uid>
+<uid uid="1.2.840.10008.6.1.838" keyword="CardiacUltrasoundLeftVentricle12257" type="Context Group Name">Cardiac Ultrasound Left Ventricle (12257)</uid>
+<uid uid="1.2.840.10008.6.1.839" keyword="CardiacUltrasoundRightVentricle12258" type="Context Group Name">Cardiac Ultrasound Right Ventricle (12258)</uid>
+<uid uid="1.2.840.10008.6.1.840" keyword="CardiacUltrasoundVentriclesMeasurements12259" type="Context Group Name">Cardiac Ultrasound Ventricles Measurements (12259)</uid>
+<uid uid="1.2.840.10008.6.1.841" keyword="CardiacUltrasoundPulmonaryArtery12260" type="Context Group Name">Cardiac Ultrasound Pulmonary Artery (12260)</uid>
+<uid uid="1.2.840.10008.6.1.842" keyword="CardiacUltrasoundPulmonaryVein12261" type="Context Group Name">Cardiac Ultrasound Pulmonary Vein (12261)</uid>
+<uid uid="1.2.840.10008.6.1.843" keyword="CardiacUltrasoundPulmonaryValve12262" type="Context Group Name">Cardiac Ultrasound Pulmonary Valve (12262)</uid>
+<uid uid="1.2.840.10008.6.1.844" keyword="CardiacUltrasoundVenousReturnPulmonaryMeasurements12263" type="Context Group Name">Cardiac Ultrasound Venous Return Pulmonary Measurements (12263)</uid>
+<uid uid="1.2.840.10008.6.1.845" keyword="CardiacUltrasoundVenousReturnSystemicMeasurements12264" type="Context Group Name">Cardiac Ultrasound Venous Return Systemic Measurements (12264)</uid>
+<uid uid="1.2.840.10008.6.1.846" keyword="CardiacUltrasoundAtriaAndAtrialSeptumMeasurements12265" type="Context Group Name">Cardiac Ultrasound Atria and Atrial Septum Measurements (12265)</uid>
+<uid uid="1.2.840.10008.6.1.847" keyword="CardiacUltrasoundMitralValve12266" type="Context Group Name">Cardiac Ultrasound Mitral Valve (12266)</uid>
+<uid uid="1.2.840.10008.6.1.848" keyword="CardiacUltrasoundTricuspidValve12267" type="Context Group Name">Cardiac Ultrasound Tricuspid Valve (12267)</uid>
+<uid uid="1.2.840.10008.6.1.849" keyword="CardiacUltrasoundAtrioventricularValvesMeasurements12268" type="Context Group Name">Cardiac Ultrasound Atrioventricular Valves Measurements (12268)</uid>
+<uid uid="1.2.840.10008.6.1.850" keyword="CardiacUltrasoundInterventricularSeptumMeasurements12269" type="Context Group Name">Cardiac Ultrasound Interventricular Septum Measurements (12269)</uid>
+<uid uid="1.2.840.10008.6.1.851" keyword="CardiacUltrasoundAorticValve12270" type="Context Group Name">Cardiac Ultrasound Aortic Valve (12270)</uid>
+<uid uid="1.2.840.10008.6.1.852" keyword="CardiacUltrasoundOutflowTractsMeasurements12271" type="Context Group Name">Cardiac Ultrasound Outflow Tracts Measurements (12271)</uid>
+<uid uid="1.2.840.10008.6.1.853" keyword="CardiacUltrasoundSemilunarValvesAnnulusAndSinusesMeasurements12272" type="Context Group Name">Cardiac Ultrasound Semilunar Valves, Annulus and Sinuses Measurements (12272)</uid>
+<uid uid="1.2.840.10008.6.1.854" keyword="CardiacUltrasoundAorticSinotubularJunction12273" type="Context Group Name">Cardiac Ultrasound Aortic Sinotubular Junction (12273)</uid>
+<uid uid="1.2.840.10008.6.1.855" keyword="CardiacUltrasoundAortaMeasurements12274" type="Context Group Name">Cardiac Ultrasound Aorta Measurements (12274)</uid>
+<uid uid="1.2.840.10008.6.1.856" keyword="CardiacUltrasoundCoronaryArteriesMeasurements12275" type="Context Group Name">Cardiac Ultrasound Coronary Arteries Measurements (12275)</uid>
+<uid uid="1.2.840.10008.6.1.857" keyword="CardiacUltrasoundAortoPulmonaryConnectionsMeasurements12276" type="Context Group Name">Cardiac Ultrasound Aorto Pulmonary Connections Measurements (12276)</uid>
+<uid uid="1.2.840.10008.6.1.858" keyword="CardiacUltrasoundPericardiumAndPleuraMeasurements12277" type="Context Group Name">Cardiac Ultrasound Pericardium and Pleura Measurements (12277)</uid>
+<uid uid="1.2.840.10008.6.1.859" keyword="CardiacUltrasoundFetalGeneralMeasurements12279" type="Context Group Name">Cardiac Ultrasound Fetal General Measurements (12279)</uid>
+<uid uid="1.2.840.10008.6.1.860" keyword="CardiacUltrasoundTargetSites12280" type="Context Group Name">Cardiac Ultrasound Target Sites (12280)</uid>
+<uid uid="1.2.840.10008.6.1.861" keyword="CardiacUltrasoundTargetSiteModifiers12281" type="Context Group Name">Cardiac Ultrasound Target Site Modifiers (12281)</uid>
+<uid uid="1.2.840.10008.6.1.862" keyword="CardiacUltrasoundVenousReturnSystemicFindingSites12282" type="Context Group Name">Cardiac Ultrasound Venous Return Systemic Finding Sites (12282)</uid>
+<uid uid="1.2.840.10008.6.1.863" keyword="CardiacUltrasoundVenousReturnPulmonaryFindingSites12283" type="Context Group Name">Cardiac Ultrasound Venous Return Pulmonary Finding Sites (12283)</uid>
+<uid uid="1.2.840.10008.6.1.864" keyword="CardiacUltrasoundAtriaAndAtrialSeptumFindingSites12284" type="Context Group Name">Cardiac Ultrasound Atria and Atrial Septum Finding Sites (12284)</uid>
+<uid uid="1.2.840.10008.6.1.865" keyword="CardiacUltrasoundAtrioventricularValvesFindiingSites12285" type="Context Group Name">Cardiac Ultrasound Atrioventricular Valves Findiing Sites (12285)</uid>
+<uid uid="1.2.840.10008.6.1.866" keyword="CardiacUltrasoundInterventricularSeptumFindingSites12286" type="Context Group Name">Cardiac Ultrasound Interventricular Septum Finding Sites (12286)</uid>
+<uid uid="1.2.840.10008.6.1.867" keyword="CardiacUltrasoundVentriclesFindingSites12287" type="Context Group Name">Cardiac Ultrasound Ventricles Finding Sites (12287)</uid>
+<uid uid="1.2.840.10008.6.1.868" keyword="CardiacUltrasoundOutflowTractsFindingSites12288" type="Context Group Name">Cardiac Ultrasound Outflow Tracts Finding Sites (12288)</uid>
+<uid uid="1.2.840.10008.6.1.869" keyword="CardiacUltrasoundSemilunarValvesAnnulusAndSinusesFindingSites12289" type="Context Group Name">Cardiac Ultrasound Semilunar Valves, Annulus and Sinuses Finding Sites (12289)</uid>
+<uid uid="1.2.840.10008.6.1.870" keyword="CardiacUltrasoundPulmonaryArteriesFindingSites12290" type="Context Group Name">Cardiac Ultrasound Pulmonary Arteries Finding Sites (12290)</uid>
+<uid uid="1.2.840.10008.6.1.871" keyword="CardiacUltrasoundAortaFindingSites12291" type="Context Group Name">Cardiac Ultrasound Aorta Finding Sites (12291)</uid>
+<uid uid="1.2.840.10008.6.1.872" keyword="CardiacUltrasoundCoronaryArteriesFindingSites12292" type="Context Group Name">Cardiac Ultrasound Coronary Arteries Finding Sites (12292)</uid>
+<uid uid="1.2.840.10008.6.1.873" keyword="CardiacUltrasoundAortoPulmonaryConnectionsFindingSites12293" type="Context Group Name">Cardiac Ultrasound Aorto Pulmonary Connections Finding Sites (12293)</uid>
+<uid uid="1.2.840.10008.6.1.874" keyword="CardiacUltrasoundPericardiumAndPleuraFindingSites12294" type="Context Group Name">Cardiac Ultrasound Pericardium and Pleura Finding Sites (12294)</uid>
+<uid uid="1.2.840.10008.6.1.876" keyword="OphthalmicUltrasoundAxialMeasurementsType4230" type="Context Group Name">Ophthalmic Ultrasound Axial Measurements Type (4230)</uid>
+<uid uid="1.2.840.10008.6.1.877" keyword="LensStatus4231" type="Context Group Name">Lens Status (4231)</uid>
+<uid uid="1.2.840.10008.6.1.878" keyword="VitreousStatus4232" type="Context Group Name">Vitreous Status (4232)</uid>
+<uid uid="1.2.840.10008.6.1.879" keyword="OphthalmicAxialLengthMeasurementsSegmentNames4233" type="Context Group Name">Ophthalmic Axial Length Measurements Segment Names (4233)</uid>
+<uid uid="1.2.840.10008.6.1.880" keyword="RefractiveSurgeryTypes4234" type="Context Group Name">Refractive Surgery Types (4234)</uid>
+<uid uid="1.2.840.10008.6.1.881" keyword="KeratometryDescriptors4235" type="Context Group Name">Keratometry Descriptors (4235)</uid>
+<uid uid="1.2.840.10008.6.1.882" keyword="IOLCalculationFormula4236" type="Context Group Name">IOL Calculation Formula (4236)</uid>
+<uid uid="1.2.840.10008.6.1.883" keyword="LensConstantType4237" type="Context Group Name">Lens Constant Type (4237)</uid>
+<uid uid="1.2.840.10008.6.1.884" keyword="RefractiveErrorTypes4238" type="Context Group Name">Refractive Error Types (4238)</uid>
+<uid uid="1.2.840.10008.6.1.885" keyword="AnteriorChamberDepthDefinition4239" type="Context Group Name">Anterior Chamber Depth Definition (4239)</uid>
+<uid uid="1.2.840.10008.6.1.886" keyword="OphthalmicMeasurementOrCalculationDataSource4240" type="Context Group Name">Ophthalmic Measurement or Calculation Data Source (4240)</uid>
+<uid uid="1.2.840.10008.6.1.887" keyword="OphthalmicAxialLengthSelectionMethod4241" type="Context Group Name">Ophthalmic Axial Length Selection Method (4241)</uid>
+<uid uid="1.2.840.10008.6.1.889" keyword="OphthalmicAxialLengthQualityMetricType4243" type="Context Group Name">Ophthalmic Axial Length Quality Metric Type (4243)</uid>
+<uid uid="1.2.840.10008.6.1.890" keyword="OphthalmicAgentConcentrationUnits4244" type="Context Group Name">Ophthalmic Agent Concentration Units (4244)</uid>
+<uid uid="1.2.840.10008.6.1.891" keyword="FunctionalConditionPresentDuringAcquisition91" type="Context Group Name">Functional condition present during acquisition (91)</uid>
+<uid uid="1.2.840.10008.6.1.892" keyword="JointPositionDuringAcquisition92" type="Context Group Name">Joint position during acquisition (92)</uid>
+<uid uid="1.2.840.10008.6.1.893" keyword="JointPositioningMethod93" type="Context Group Name">Joint positioning method (93)</uid>
+<uid uid="1.2.840.10008.6.1.894" keyword="PhysicalForceAppliedDuringAcquisition94" type="Context Group Name">Physical force applied during acquisition (94)</uid>
+<uid uid="1.2.840.10008.6.1.895" keyword="ECGControlVariablesNumeric3690" type="Context Group Name">ECG Control Variables Numeric (3690)</uid>
+<uid uid="1.2.840.10008.6.1.896" keyword="ECGControlVariablesText3691" type="Context Group Name">ECG Control Variables Text (3691)</uid>
+<uid uid="1.2.840.10008.6.1.897" keyword="WSIReferencedImagePurposesOfReference8120" type="Context Group Name">WSI Referenced Image Purposes of Reference (8120)</uid>
+<uid uid="1.2.840.10008.6.1.898" keyword="WSIMicroscopyLensType8121" type="Context Group Name">WSI Microscopy Lens Type (8121)</uid>
+<uid uid="1.2.840.10008.6.1.899" keyword="MicroscopyIlluminatorAndSensorColor8122" type="Context Group Name">Microscopy Illuminator and Sensor Color (8122)</uid>
+<uid uid="1.2.840.10008.6.1.900" keyword="MicroscopyIlluminationMethod8123" type="Context Group Name">Microscopy Illumination Method (8123)</uid>
+<uid uid="1.2.840.10008.6.1.901" keyword="MicroscopyFilter8124" type="Context Group Name">Microscopy Filter (8124)</uid>
+<uid uid="1.2.840.10008.6.1.902" keyword="MicroscopyIlluminatorType8125" type="Context Group Name">Microscopy Illuminator Type (8125)</uid>
+<uid uid="1.2.840.10008.6.1.903" keyword="AuditEventID400" type="Context Group Name">Audit Event ID (400)</uid>
+<uid uid="1.2.840.10008.6.1.904" keyword="AuditEventTypeCode401" type="Context Group Name">Audit Event Type Code (401)</uid>
+<uid uid="1.2.840.10008.6.1.905" keyword="AuditActiveParticipantRoleIDCode402" type="Context Group Name">Audit Active Participant Role ID Code (402)</uid>
+<uid uid="1.2.840.10008.6.1.906" keyword="SecurityAlertTypeCode403" type="Context Group Name">Security Alert Type Code (403)</uid>
+<uid uid="1.2.840.10008.6.1.907" keyword="AuditParticipantObjectIDTypeCode404" type="Context Group Name">Audit Participant Object ID Type Code (404)</uid>
+<uid uid="1.2.840.10008.6.1.908" keyword="MediaTypeCode405" type="Context Group Name">Media Type Code (405)</uid>
+<uid uid="1.2.840.10008.6.1.909" keyword="VisualFieldStaticPerimetryTestPatterns4250" type="Context Group Name">Visual Field Static Perimetry Test Patterns (4250)</uid>
+<uid uid="1.2.840.10008.6.1.910" keyword="VisualFieldStaticPerimetryTestStrategies4251" type="Context Group Name">Visual Field Static Perimetry Test Strategies (4251)</uid>
+<uid uid="1.2.840.10008.6.1.911" keyword="VisualFieldStaticPerimetryScreeningTestModes4252" type="Context Group Name">Visual Field Static Perimetry Screening Test Modes (4252)</uid>
+<uid uid="1.2.840.10008.6.1.912" keyword="VisualFieldStaticPerimetryFixationStrategy4253" type="Context Group Name">Visual Field Static Perimetry Fixation Strategy (4253)</uid>
+<uid uid="1.2.840.10008.6.1.913" keyword="VisualFieldStaticPerimetryTestAnalysisResults4254" type="Context Group Name">Visual Field Static Perimetry Test Analysis Results (4254)</uid>
+<uid uid="1.2.840.10008.6.1.914" keyword="VisualFieldIlluminationColor4255" type="Context Group Name">Visual Field Illumination Color (4255)</uid>
+<uid uid="1.2.840.10008.6.1.915" keyword="VisualFieldProcedureModifier4256" type="Context Group Name">Visual Field Procedure Modifier (4256)</uid>
+<uid uid="1.2.840.10008.6.1.916" keyword="VisualFieldGlobalIndexName4257" type="Context Group Name">Visual Field Global Index Name (4257)</uid>
+<uid uid="1.2.840.10008.6.1.917" keyword="AbstractMultiDimensionalImageModelComponentSemantics7180" type="Context Group Name">Abstract Multi-Dimensional Image Model Component Semantics (7180)</uid>
+<uid uid="1.2.840.10008.6.1.918" keyword="AbstractMultiDimensionalImageModelComponentUnits7181" type="Context Group Name">Abstract Multi-Dimensional Image Model Component Units (7181)</uid>
+<uid uid="1.2.840.10008.6.1.919" keyword="AbstractMultiDimensionalImageModelDimensionSemantics7182" type="Context Group Name">Abstract Multi-Dimensional Image Model Dimension Semantics (7182)</uid>
+<uid uid="1.2.840.10008.6.1.920" keyword="AbstractMultiDimensionalImageModelDimensionUnits7183" type="Context Group Name">Abstract Multi-Dimensional Image Model Dimension Units (7183)</uid>
+<uid uid="1.2.840.10008.6.1.921" keyword="AbstractMultiDimensionalImageModelAxisDirection7184" type="Context Group Name">Abstract Multi-Dimensional Image Model Axis Direction (7184)</uid>
+<uid uid="1.2.840.10008.6.1.922" keyword="AbstractMultiDimensionalImageModelAxisOrientation7185" type="Context Group Name">Abstract Multi-Dimensional Image Model Axis Orientation (7185)</uid>
+<uid uid="1.2.840.10008.6.1.923" keyword="AbstractMultiDimensionalImageModelQualitativeDimensionSampleSemantics7186" type="Context Group Name">Abstract Multi-Dimensional Image Model Qualitative Dimension Sample Semantics (7186)</uid>
+<uid uid="1.2.840.10008.6.1.924" keyword="PlanningMethods7320" type="Context Group Name">Planning Methods (7320)</uid>
+<uid uid="1.2.840.10008.6.1.925" keyword="DeIdentificationMethod7050" type="Context Group Name">De-identification Method (7050)</uid>
+<uid uid="1.2.840.10008.6.1.926" keyword="MeasurementOrientation12118" type="Context Group Name">Measurement Orientation (12118)</uid>
+<uid uid="1.2.840.10008.6.1.927" keyword="ECGGlobalWaveformDurations3689" type="Context Group Name">ECG Global Waveform Durations (3689)</uid>
+<uid uid="1.2.840.10008.6.1.930" keyword="ICDs3692" type="Context Group Name">ICDs (3692)</uid>
+<uid uid="1.2.840.10008.6.1.931" keyword="RadiotherapyGeneralWorkitemDefinition9241" type="Context Group Name">Radiotherapy General Workitem Definition (9241)</uid>
+<uid uid="1.2.840.10008.6.1.932" keyword="RadiotherapyAcquisitionWorkitemDefinition9242" type="Context Group Name">Radiotherapy Acquisition Workitem Definition (9242)</uid>
+<uid uid="1.2.840.10008.6.1.933" keyword="RadiotherapyRegistrationWorkitemDefinition9243" type="Context Group Name">Radiotherapy Registration Workitem Definition (9243)</uid>
+<uid uid="1.2.840.10008.6.1.934" keyword="IntravascularOCTFlushAgent3850" type="Context Group Name">Intravascular OCT Flush Agent (3850)</uid>
+
+<uid uid="1.2.40.0.13.1.3.1.2.3.1.1" keyword="Dcm4cheAttributesModificationNotificationSOPClass" type="SOP Class">Dcm4che Attributes Modification Notification SOP Class</uid>
+<uid uid="1.2.40.0.13.1.5.1.4.1.2.2.1" keyword="PrivateStudyRootQueryRetrieveInformationModelFIND" type="SOP Class">Private Study Root Query/Retrieve Information Model - FIND</uid>
+<uid uid="1.2.40.0.13.1.5.1.4.1.2.2.1.1" keyword="PrivateBlockedStudyRootQueryRetrieveInformationModelFIND" type="SOP Class">Private Blocked Study Root Query/Retrieve Information Model - FIND</uid>
+<uid uid="1.2.40.0.13.1.5.1.4.1.2.2.1.2" keyword="PrivateVirtualMultiframeStudyRootQueryRetrieveInformationModelFIND" type="SOP Class">Private Virtual Multiframe Study Root Query/Retrieve Information Model - FIND</uid>
+<uid uid="1.3.12.2.1107.5.9.1" keyword="SiemensCSANonImageStorage" type="SOP Class">Siemens CSA Non-Image Storage</uid>
+<uid uid="1.2.392.200036.9116.7.8.1.1.1" keyword="ToshibaUSPrivateDataStorage" type="SOP Class">Toshiba US Private Data Storage</uid>
+<uid uid="1.2.840.10008.1.2.4.96" keyword="NoPixelData" type="Transfer Syntax">No Pixel Data</uid>
+<uid uid="1.2.840.10008.1.2.4.97" keyword="NoPixelDataDeflate" type="Transfer Syntax">No Pixel Data Deflate</uid>
+</uids>

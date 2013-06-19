@@ -1,0 +1,10 @@
+<!ELEMENT dicom (attr)*>
+<!ELEMENT attr (#PCDATA | item)*>
+<!ELEMENT item (#PCDATA | attr)*>
+<!ATTLIST attr tag CDATA #REQUIRED>
+<!ATTLIST attr vr CDATA #IMPLIED>
+<!ATTLIST attr len CDATA #IMPLIED>
+<!ATTLIST attr src CDATA #IMPLIED>
+<!ATTLIST item off CDATA #IMPLIED>
+<!ATTLIST item len CDATA #IMPLIED>
+<!ATTLIST item src CDATA #IMPLIED>
