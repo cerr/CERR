@@ -43,10 +43,10 @@ tags.nimages = nbeams;
 
 %Convert beam geometry
 %Fill beamGeometryInitS.
-temp = beamGeometryInitS;
-t2 = cell(1,nbeams);
-[t2{:}] = deal(temp);
-beamGeometryInitS = [t2{:}];
+% temp = beamGeometryInitS;
+% t2 = cell(1,nbeams);
+% [t2{:}] = deal(temp);
+% beamGeometryInitS = [t2{:}];
 
 %get the beam parameters
 for i=1:nbeams
