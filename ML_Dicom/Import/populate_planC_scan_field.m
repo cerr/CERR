@@ -109,6 +109,7 @@ switch fieldname
             if (strcmpi(type, 'PT')) || (strcmpi(type, 'PET')) %Compute SUV for PET scans
                 dcmobj = scanfile_mldcm(IMAGE.file);
                 dicomHeaderS = dcm2ml_Object(dcmobj);
+                dicomHeaderS.PatientWeight = dcm2ml_Element(imgobj.get(hex2dec('00101030')));
                 
                 % Get calibration factor which is the Rescale slope Attribute Name in DICOM
                 calibration_factor=dicomHeaderS.RescaleSlope;
