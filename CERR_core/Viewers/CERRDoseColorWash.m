@@ -177,6 +177,15 @@ if stateS.optS.transparentZeroDose
     end
 end
 
+if stateS.optS.calcDoseInsideSkinOnly
+    [structNum,isSkinUniform] = getStructureIndex(hAxis,'skin',planC);
+    if isSkinUniform
+        skinMaskM = getSkinMask(hAxis,structNum,planC);
+        maskM = maskM & skinMaskM;
+        %dose2M(skinMaskM) = 0;
+    end
+end
+
 %Fit dose to colormap, but first replace full dose with only dose values that will be displayed.
 lowerBound = colorbarRange(1);
 upperBound = colorbarRange(2);
@@ -286,7 +295,7 @@ end
 
 % If in print mode, replace area outside of skin with white. OR dose
 % outside skin is set to zero. the code repeats so just take the same code
-if stateS.printMode | stateS.optS.calcDoseInsideSkinOnly
+if stateS.printMode % | stateS.optS.calcDoseInsideSkinOnly
 
     %     structNum = strmatch('skin',lower({planC{indexS.structures}.structureName}),'exact');
     %     [assocScan, relStructNum] = getStructureAssociatedScan(structNum, planC);
@@ -296,66 +305,70 @@ if stateS.printMode | stateS.optS.calcDoseInsideSkinOnly
     %%%%%%%%%%% DK replace above two lines with the following code to get
     %%%%%%%%%%% the actual structure number in case there are multiple
     %%%%%%%%%%% structures with the same name.
-    aI = get(hAxis,'userdata');
+%     aI = get(hAxis,'userdata');
+% 
+%     scanSet = aI.scanSets;
+% 
+%     assocScansV = getStructureAssociatedScan(1:length(planC{indexS.structures}), planC);
+% 
+%     indXStr = find(assocScansV == scanSet);
+% 
+%     allStructureNames = {planC{indexS.structures}(indXStr).structureName};
+% 
+%     structNum = find(strcmpi('skin', allStructureNames));
+% 
+%     if structNum <= 52
+%         bitsArray = planC{indexS.structureArray}(scanSet(1)).bitsArray;
+%         isSkinUniform = any(bitget(bitsArray,structNum));        
+%     else
+%         cellNum = ceil((structNum-52)/8)+1;
+%         bitsArray = planC{indexS.structureArrayMore}(scanSet(1)).bitsArray{cellNum-1};
+%         isSkinUniform = any(bitget(bitsArray,structNum-52-(cellNum-2)*8));
+%     end
+% 
+%     if ~isSkinUniform
+%         if ~isempty(structNum)
+%             CERRStatusString('Skin structure is not uniformized. Unable to turn dose off outside skin.')
+%         end
+%         structNum = [];
+%     end
 
-    scanSet = aI.scanSets;
-
-    assocScansV = getStructureAssociatedScan(1:length(planC{indexS.structures}), planC);
-
-    indXStr = find(assocScansV == scanSet);
-
-    allStructureNames = {planC{indexS.structures}(indXStr).structureName};
-
-    structNum = find(strcmpi('skin', allStructureNames));
-
-    if structNum <= 52
-        bitsArray = planC{indexS.structureArray}(scanSet(1)).bitsArray;
-        isSkinUniform = any(bitget(bitsArray,structNum));        
-    else
-        cellNum = ceil((structNum-52)/8)+1;
-        bitsArray = planC{indexS.structureArrayMore}(scanSet(1)).bitsArray{cellNum-1};
-        isSkinUniform = any(bitget(bitsArray,structNum-52-(cellNum-2)*8));
-    end
-
-    if ~isSkinUniform
-        if ~isempty(structNum)
-            CERRStatusString('Skin structure is not uniformized. Unable to turn dose off outside skin.')
-        end
-        structNum = [];
-    end
+    [structNum,isSkinUniform] = getStructureIndex(hAxis,'skin',planC);
 
 
     %%%%%%%%%%%%++++++++++++++++++++++++++++++++++++++++%%%%%%%%%%%%%%%%%%%
 
-    %obtain x,y and z-vals
-    [xUnifV, yUnifV, jnk] = getUniformScanXYZVals(planC{indexS.scan}(scanSet));
-    [jnk1, jnk2, zCTV] = getScanXYZVals(planC{indexS.scan}(scanSet));
+%     %obtain x,y and z-vals
+%     [xUnifV, yUnifV, jnk] = getUniformScanXYZVals(planC{indexS.scan}(scanSet));
+%     [jnk1, jnk2, zCTV] = getScanXYZVals(planC{indexS.scan}(scanSet));
 
     if ~isempty(structNum)
 
-        viewStr = getAxisInfo(hAxis,'view');
-        coord = getAxisInfo(hAxis,'coord');
-        switch lower(viewStr)
-            case 'transverse'
-                dim = 3;
-                sliceNum = findnearest(zCTV,coord);
+%         viewStr = getAxisInfo(hAxis,'view');
+%         coord = getAxisInfo(hAxis,'coord');
+%         switch lower(viewStr)
+%             case 'transverse'
+%                 dim = 3;
+%                 sliceNum = findnearest(zCTV,coord);
+% 
+%                 [segs, planC, isError] = getRasterSegments(structNum, planC, sliceNum);                
+%                 
+%                 maskM = rasterToMask(segs, scanSet,planC);
+% 
+%             case 'sagittal'
+%                 dim = 1;
+%                 sliceNum = findnearest(xUnifV,coord);
+%                 maskM = getStructureMask(structNum, sliceNum, dim, planC);
+% 
+% 
+%             case 'coronal'
+%                 dim = 2;
+%                 sliceNum = findnearest(yUnifV,coord);
+%                 maskM = getStructureMask(structNum, sliceNum, dim, planC);
+%                 
+%         end
 
-                [segs, planC, isError] = getRasterSegments(structNum, planC, sliceNum);                
-                
-                maskM = rasterToMask(segs, scanSet,planC);
-
-            case 'sagittal'
-                dim = 1;
-                sliceNum = findnearest(xUnifV,coord);
-                maskM = getStructureMask(structNum, sliceNum, dim, planC);
-
-
-            case 'coronal'
-                dim = 2;
-                sliceNum = findnearest(yUnifV,coord);
-                maskM = getStructureMask(structNum, sliceNum, dim, planC);
-                
-        end
+        maskM = getSkinMask(hAxis,structNum,planC);
 
         mask3M = repmat(maskM, [1 1 3]);
 
@@ -369,9 +382,9 @@ if stateS.printMode | stateS.optS.calcDoseInsideSkinOnly
             end
         end
 
-        if stateS.optS.calcDoseInsideSkinOnly && ~stateS.printMode && ((isSkinUniform && dim~=3) || dim==3)
-            cData3M(~mask3M) = 0;
-        end
+%         if stateS.optS.calcDoseInsideSkinOnly && ~stateS.printMode && ((isSkinUniform && dim~=3) || dim==3)
+%             cData3M(~mask3M) = 0;
+%         end
     end
 end
 
@@ -380,3 +393,76 @@ set(hAxis, 'nextPlot', 'add');
 
 xLim = CTXVals([1 end]);
 yLim = CTYVals([1 end]);
+
+return;
+
+
+function maskM = getSkinMask(hAxis,structNum,planC)
+
+indexS = planC{end};
+
+%aI = get(hAxis,'userdata');
+scanSet = getAxisInfo(hAxis,'scanSets');
+viewStr = getAxisInfo(hAxis,'view');
+coord = getAxisInfo(hAxis,'coord');
+
+%obtain x,y and z-vals
+[xUnifV, yUnifV, jnk] = getUniformScanXYZVals(planC{indexS.scan}(scanSet));
+[jnk1, jnk2, zCTV] = getScanXYZVals(planC{indexS.scan}(scanSet));
+
+switch lower(viewStr)
+    case 'transverse'
+        dim = 3;
+        sliceNum = findnearest(zCTV,coord);
+        
+        [segs, planC, isError] = getRasterSegments(structNum, planC, sliceNum);
+        
+        maskM = rasterToMask(segs, scanSet,planC);
+        
+    case 'sagittal'
+        dim = 1;
+        sliceNum = findnearest(xUnifV,coord);
+        maskM = getStructureMask(structNum, sliceNum, dim, planC);
+        
+        
+    case 'coronal'
+        dim = 2;
+        sliceNum = findnearest(yUnifV,coord);
+        maskM = getStructureMask(structNum, sliceNum, dim, planC);
+        
+end
+return;
+
+function [structNum,isSkinUniform] = getStructureIndex(hAxis,structName,planC)
+
+indexS = planC{end};
+
+aI = get(hAxis,'userdata');
+
+scanSet = aI.scanSets;
+
+assocScansV = getStructureAssociatedScan(1:length(planC{indexS.structures}), planC);
+
+indXStr = find(assocScansV == scanSet);
+
+allStructureNames = {planC{indexS.structures}(indXStr).structureName};
+
+structNum = find(strcmpi(structName, allStructureNames));
+
+if structNum <= 52
+    bitsArray = planC{indexS.structureArray}(scanSet(1)).bitsArray;
+    isSkinUniform = any(bitget(bitsArray,structNum));
+else
+    cellNum = ceil((structNum-52)/8)+1;
+    bitsArray = planC{indexS.structureArrayMore}(scanSet(1)).bitsArray{cellNum-1};
+    isSkinUniform = any(bitget(bitsArray,structNum-52-(cellNum-2)*8));
+end
+
+if ~isSkinUniform
+    if ~isempty(structNum)
+        CERRStatusString([structName, ' structure is not uniformized. Unable to turn dose off outside ',structName])
+    end
+    structNum = [];
+end
+return;
+
