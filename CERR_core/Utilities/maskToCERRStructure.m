@@ -100,7 +100,7 @@ else
 end
 
 %Make an empty structure, assign name/contour.
-newstr = newCERRStructure(scanNum);
+newstr = newCERRStructure(scanNum, planC);
 newstr.contour = contour;
 newstr.structureName = strname;
 newstr.associatedScan = scanNum;
