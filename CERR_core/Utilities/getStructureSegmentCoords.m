@@ -12,7 +12,7 @@ end
 
 indexS = planC{end};
 pointsM = [];
-for i=length(planC{indexS.structures}(structNum).contour)
+for i=1:length(planC{indexS.structures}(structNum).contour)
     for segNum = 1:length(planC{indexS.structures}(structNum).contour(i).segments)
         pointsM = [pointsM planC{indexS.structures}(structNum).contour(i).segments(segNum).points];
     end
