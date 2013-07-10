@@ -122,7 +122,7 @@ switch fieldname
         %Convert to ML structure format.
         RSSML = dcm2ml_Object(RSS);
 
-        if ~isempty(RSSML)
+        if ~isempty(RSSML) && ~isempty(RSSML.ContourImageSequence)
             %# slices in this series.
             dataS = length(fields(RSSML.ContourImageSequence));
         else
