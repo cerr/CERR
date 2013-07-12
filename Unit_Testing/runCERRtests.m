@@ -11,7 +11,7 @@ CERRPathSlashes = strfind(getCERRPath,filesep);
 topLevelCERRDir = CERRPath(1:CERRPathSlashes(end-1));
 
 % Log file Name
-logFileName = fullfile(topLevelCERRDir,'Unit_Testing',['UnitTestResult_',datestr(now),'.txt']);
+logFileName = fullfile(topLevelCERRDir,'Unit_Testing',['UnitTestResult_',datestr(now,30),'.txt']);
 
 % Tests dir
 testsDir = fullfile(topLevelCERRDir,'Unit_Testing','tests_for_cerr');
