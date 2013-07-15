@@ -53,7 +53,7 @@ for i = 1:length(cellNames)
 end
 
 planC = planInitC;
-planC = guessPlanUID(planC,1);
+planC = guessPlanUID(planC,1,1);
 %After initial import, run any functions to address issues where
 %subfunctions had insufficent data to make relationship determinations.
 
