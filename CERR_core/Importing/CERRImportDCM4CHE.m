@@ -143,5 +143,6 @@ indexS = planC{end};
 planC{indexS.header}.CERRImportVersion = [version, ', ', date];
  
 toc;
+pause(0.05)
 save_planC(planC,planC{indexS.CERROptions});
 
