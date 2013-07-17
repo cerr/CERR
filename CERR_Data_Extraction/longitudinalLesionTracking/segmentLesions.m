@@ -60,7 +60,7 @@ for i=1:length(lesionS)
     end
     
     newStructNum = length(planC{indexS.structures}) + 1;
-    newStructS.structureName = 'Auto ROI';
+    newStructS.structureName = 'Annotation ROI';
     
     planC{indexS.structures} = dissimilarInsert(planC{indexS.structures}, newStructS, newStructNum);
     planC = getRasterSegs(planC, newStructNum);
