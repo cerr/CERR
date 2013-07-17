@@ -32,8 +32,7 @@ scanNum = 1;
 
 global planC
 indexS = planC{end};
-scanS = planC{indexS.scan}(scanNum);
-[xVals, yVals, zVals] = getScanXYZVals(scanS);
+[xVals, yVals, zVals] = getScanXYZVals(planC{indexS.scan}(scanNum));
 xValsDown = linspace(xVals(1),xVals(end),numCols);
 yValsDown = linspace(yVals(1),yVals(end),numRows);
 newGridInterval2 = xValsDown(2) - xValsDown(1);
@@ -76,20 +75,7 @@ end
 planC{indexS.scan}(scanNum).scanArray = newScanArray;
 close(h);
 
-%re-rasterize
-for i = 1:length(planC{indexS.structures})
-    planC{indexS.structures}(i).rasterSegments = [];
-end
-
-% re-uniformize
-planC{indexS.scan}(scanNum).uniformScanInfo = [];
-planC{indexS.scan}(scanNum).scanArraySuperior = [];
-planC{indexS.scan}(scanNum).scanArrayInferior = [];
-planC{indexS.structureArray}(scanNum).indicesArray = [];
-planC{indexS.structureArray}(scanNum).bitsArray = [];
-planC{indexS.structureArrayMore}(scanNum).indicesArray = [];
-planC{indexS.structureArrayMore}(scanNum).bitsArray = [];
-planC = setUniformizedData(planC);
+planC = reRasterAndUniformize;
 
 %save this new planC
 %sliceCallback('SAVEASPLANC')
