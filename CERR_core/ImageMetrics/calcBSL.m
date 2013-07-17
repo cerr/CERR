@@ -17,6 +17,9 @@ voxVol = voxX*voxY*voxZ;
 % Get PET data
 PT = double(planC{indexS.scan}(scanNum).scanArray);
 
+% sets minimum 3D VOI size using 6-voxel conectivity
+minRegionSize = 71*(size(PT,1)/128)^2;
+
 %structNum = 1;
 
 %subplot(14,14,iplot)
@@ -31,6 +34,8 @@ if isempty(rasterSeg)
 end
 [maskRTStmp, uSlices]      = rasterToMask(rasterSeg, scanNum, planC);
 maskRTS = double(maskRTStmp);
+maskRTS = bwareaopen(maskRTS,minRegionSize,6); % remove stray contour fragments
+numel(nonzeros(maskRTS));
 rtsPT = PT(:,:,uSlices);
 
 % Estimate BSL

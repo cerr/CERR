@@ -1,4 +1,41 @@
-function [BSL,BKG] = BSLcalcSheds(Wsheds,nSheds,IMAGE)
+function [BSL,BKG] = BSLcalcShedsVis(Wsheds,nSheds,IMAGE)
+%"BSLcalcShedsVis"
+%   Strips away low values watersheds and calculates BSL 
+%   -- Returns BSL and Background estimates after each water shed is
+%   removed and returns vectors of these values
+%
+% CRS 07/17/13
+%
+%Usage: 
+%   [BSL,BKG] = BSLcalcShedsVis(Wsheds,nSheds,IMAGE)
+%       Wsheds  = Struture that holds:
+%          Wsheds.PET    = PET VOI
+%          Wsheds.Shed   = Watersheds ordered from low mean uptake to high
+%          Wsheds.voxVol = voxel volume
+%       nSheds = total number of sheds
+%       Image  = Flag for display of smoothed BSL vector
+%
+% Copyright 2010, Joseph O. Deasy, on behalf of the CERR development team.
+% 
+% This file is part of The Computational Environment for Radiotherapy Research (CERR).
+% 
+% CERR development has been led by:  Aditya Apte, Divya Khullar, James Alaly, and Joseph O. Deasy.
+% 
+% CERR has been financially supported by the US National Institutes of Health under multiple grants.
+% 
+% CERR is distributed under the terms of the Lesser GNU Public License. 
+% 
+%     This version of CERR is free software: you can redistribute it and/or modify
+%     it under the terms of the GNU General Public License as published by
+%     the Free Software Foundation, either version 3 of the License, or
+%     (at your option) any later version.
+% 
+% CERR is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+% without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+% See the GNU General Public License for more details.
+% 
+% You should have received a copy of the GNU General Public License
+% along with CERR.  If not, see <http://www.gnu.org/licenses/>.%
 %
 %
 %
@@ -29,6 +66,7 @@ PT(ShedTmp <= 0) = 0;
 k = 0;
 while ( sum(ShedTmp(:)) > 0 )
     voxVec = [];
+    
     minShed = min(nonzeros(ShedTmp(:)));
     indS = find(ShedTmp == minShed);
     ShedTmp(indS) = 0;
@@ -53,7 +91,16 @@ while ( sum(ShedTmp(:)) > 0 )
     nVox = numel(voxVec);
     SUViqr = iqr(voxVec);
     IVHBinWidth = 2 * SUViqr * nVox^(-1/3);
-    
+    %%%
+    if (numel(voxVec) < 5)
+        BKG = bkg(1:k);
+        BSL = bsl(1:k);
+        if (IMAGE ~= 0)
+            hold off
+        end
+        return
+    end
+    %%%
     [binHistV, volHistV]  = doseHist(voxVec, voxVol*ones(size(voxVec)), IVHBinWidth);
     nBins = numel(binHistV);
     
@@ -76,6 +123,7 @@ while ( sum(ShedTmp(:)) > 0 )
         end
     end
     SUVcut = Hbkg/3;
+
     voxVec(voxVec < SUVcut) = 0;
     voxVec = nonzeros(voxVec);
     ShedTmp(ShedTmp < SUVcut) = 0;
