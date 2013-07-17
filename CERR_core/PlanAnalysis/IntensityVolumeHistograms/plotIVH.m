@@ -199,7 +199,7 @@ if isempty(scanSet)
 end
 
 %Get the DSH data.
-[scanV, areaV, zV, planC] = getDSH(structNum, scanSet, planC);
+[scanV, areaV, zV, planC] = getISH(structNum, scanSet, planC);
 [scanSortV indV] = sort(scanV);
 areaSortV = areaV(indV);
 cumAreaV = cumsum(areaSortV);
@@ -221,11 +221,11 @@ else
 end
 if strcmpi(cum_diff_string,'CUMU')
     h = plot([0; scanSortV(:) - offset], [1; cumArea2V(:)/cumAreaV(end)], 'parent', hAxis);
-    addDVHtoFig(hFig, struct, scanSet, h, [0; scanSortV(:) - planC{indexS.scan}(scanSet).scanOffset], [1; cumArea2V(:)/cumAreaV(end)], 'DSH','NOABS',scanV, areaV, scanName);
+    addDVHtoFig(hFig, struct, scanSet, h, [0; scanSortV(:) - planC{indexS.scan}(scanSet).scanInfo(1).CTOffset], [1; cumArea2V(:)/cumAreaV(end)], 'DSH','NOABS',scanV, areaV, scanName);
 elseif strcmpi(cum_diff_string,'DIFF')
     indPlot = find(areaSortV);
     h = plot(scanSortV(indPlot), areaSortV(indPlot)/cumAreaV(end));
-    addDVHtoFig(hFig, struct, scanSet, h, scanSortV(indPlot), areaSortV(indPlot)/cumAreaV(end), 'DSH', 'NOABS', scanV, areaV, scanName);
+    addDVHtoFig(hFig, struct, scanSet, h, scanSortV(indPlot)-planC{indexS.scan}(scanSet).scanInfo(1).CTOffset, areaSortV(indPlot)/cumAreaV(end), 'DSH', 'NOABS', scanV, areaV, scanName);
 end
 
 set(hAxis,'nextplot','add')
@@ -497,35 +497,25 @@ if absFlag == 1
     set(h,'numbertitle','off')
     pos = get(h,'position');
     set(h,'position',[pos(1)*(1 - 0.05),pos(2)*(1 - 0.05),pos(3),pos(4)])
-    p = plot(scanBinsV, cumVols2V);
-    addDVHtoFig(h, struct, scanSet, p, scanBinsV, cumVols2V, 'IVH', 'ABS', scanBinsV, volsHistV, scanName);
-    set(absAxis,'xgrid',gridSetting)
-    set(absAxis,'ygrid',gridSetting)
-    set(h,'tag','CERRAbsIVHPlot')
-    if isfield(planC{indexS.scan}(scanSet),'scanOffset')
-        offset = planC{indexS.scan}(scanSet).scanOffset;
-    else
-        offset = 0;
-    end
-    
-    %No need to shift DVH by doseOffset since it is already included in doseBinsV.
-    if strcmpi(cum_diff_string,'CUMU')
-        h = plot([0, scanBinsV - offset], [1, cumVols2V]);
-        addDVHtoFig(hFig, struct, scanSet, h, [0, scanBinsV - offset], [1, cumVols2V], 'IVH', 'NOABS', scanBinsV, volsHistV, scanName);
-    elseif strcmpi(cum_diff_string,'DIFF')
-        indPlot = find(volsHistV);
-        h = plot(scanBinsV(indPlot), volsHistV(indPlot));
-        addDVHtoFig(hFig, struct, scanSet, h, scanBinsV(indPlot), volsHistV(indPlot), 'DVH', 'NOABS', scanBinsV, volsHistV, scanName);
-    end
-    
-    %  IVHOptS(IVHNum).hAbsAxis = h;
     if structNum ~= 0
         %colorV = getColor(structNum, optS.colorOrder);
         colorV = planC{indexS.structures}(structNum).structureColor;
     else
         colorV = getColor(IVHNum, optS.colorOrder);
+    end    
+    
+    %No need to shift DVH by doseOffset since it is already included in doseBinsV.
+    if strcmpi(cum_diff_string,'CUMU')
+        p = plot([0, scanBinsV - offset], [1, cumVols2V]);
+        addDVHtoFig(hFig, struct, scanSet, h, [0, scanBinsV - offset], [1, cumVols2V], 'IVH', 'NOABS', scanBinsV, volsHistV, scanName);
+    elseif strcmpi(cum_diff_string,'DIFF')
+        indPlot = find(volsHistV);
+        p = plot(scanBinsV(indPlot), volsHistV(indPlot));
+        addDVHtoFig(hFig, struct, scanSet, h, scanBinsV(indPlot), volsHistV(indPlot), 'DVH', 'NOABS', scanBinsV, volsHistV, scanName);
     end
     set(p,'color', colorV)
+    %  IVHOptS(IVHNum).hAbsAxis = h;
+
 
     switch mod(flagLSS, 4)
         case 0
