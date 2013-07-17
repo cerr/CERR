@@ -1,5 +1,5 @@
-function [basePlanC, movPlanC] = register_scans(basePlanC, movPlanC, baseScanNum, movScanNum, algorithm)
-% function [basePlanC, movPlanC] = register_scans(basePlanC, movPlanC, baseScanNum, movScannum, algorithm)
+function [basePlanC, movPlanC] = register_scans(basePlanC, movPlanC, baseScanNum, movScanNum, algorithm, baseMask3M, movMask3M, threshold_bone)
+% function [basePlanC, movPlanC] = register_scans(basePlanC, movPlanC, baseScanNum, movScannum, algorithm, baseMask3M, movMask3M, threshold_bone)
 %
 % APA, 07/12/2012
 
@@ -15,20 +15,30 @@ switch upper(algorithm)
         randPart = floor(rand*1000);
         baseScanUniqName = [baseScanUID,num2str(randPart)];
         baseScanFileName = fullfile(getCERRPath,'ImageRegistration','tmpFiles',['baseScan_',baseScanUniqName,'.mha']);
+        baseMaskFileName = fullfile(getCERRPath,'ImageRegistration','tmpFiles',['baseMask_',baseScanUniqName,'.mha']);
         try
             delete(baseScanFileName);
         end
-        success = createMhaScansFromCERR(baseScanNum, baseScanFileName, basePlanC);
+        try
+            delete(baseMaskFileName);
+        end
+        success = createMhaScansFromCERR(baseScanNum, baseScanFileName, basePlanC);        
+        success = createMhaMask(baseScanNum, baseMaskFileName, basePlanC, baseMask3M, threshold_bone);
         
         % Create .mha file for moving scan
         movScanUID = movPlanC{indexMovS.scan}(movScanNum).scanUID;
         randPart = floor(rand*1000);
         movScanUniqName = [movScanUID,num2str(randPart)];
         movScanFileName = fullfile(getCERRPath,'ImageRegistration','tmpFiles',['movScan_',movScanUniqName,'.mha']);
+        movMaskFileName = fullfile(getCERRPath,'ImageRegistration','tmpFiles',['movMask_',movScanUniqName,'.mha']);
         try
             delete(movScanFileName);
         end
+        try
+            delete(movMaskFileName);
+        end        
         success = createMhaScansFromCERR(movScanNum, movScanFileName, movPlanC);
+        success = createMhaMask(movScanNum, movMaskFileName, movPlanC, movMask3M, threshold_bone);
         
         % Create a command file path for plastimatch
         cmdFileName = fullfile(getCERRPath,'ImageRegistration','plastimatch_command',[baseScanUID,'_',movScanUID,'.txt']);
@@ -46,11 +56,17 @@ switch upper(algorithm)
         userCmdFile = fullfile(getCERRPath,'ImageRegistration','plastimatch_command','bspline_register_cmd.txt');
         ursFileC = file2cell(userCmdFile);
         cmdFileC{1,1} = '[GLOBAL]';
-        cmdFileC{2,1} = ['fixed=',escapeSlashes(baseScanFileName)];
-        cmdFileC{3,1} = ['moving=',escapeSlashes(movScanFileName)];
-        cmdFileC{4,1} = ['xform_out=',escapeSlashes(bspFileName)];
-        cmdFileC{5,1} = '';
-        cmdFileC(6:5+size(ursFileC,2),1) = ursFileC(:);
+        cmdFileC{end+1,1} = ['fixed=',escapeSlashes(baseScanFileName)];
+        cmdFileC{end+1,1} = ['moving=',escapeSlashes(movScanFileName)];
+        if ~isempty(baseMask3M) || ~isempty(threshold_bone)
+            cmdFileC{end+1,1} = ['fixed_mask=',escapeSlashes(baseMaskFileName)];
+        end
+        if ~isempty(movMask3M) || ~isempty(threshold_bone)
+            cmdFileC{end+1,1} = ['moving_mask=',escapeSlashes(movMaskFileName)];
+        end
+        cmdFileC{end+1,1} = ['xform_out=',escapeSlashes(bspFileName)];
+        cmdFileC{end+1,1} = '';
+        cmdFileC(end+1:end+size(ursFileC,2),1) = ursFileC(:);
         cell2file(cmdFileC,cmdFileName)
         
         % Run plastimatch Registration
@@ -64,7 +80,9 @@ switch upper(algorithm)
             delete(baseScanFileName);
             delete(movScanFileName);
             delete(cmdFileName);
-            delete(bspFileName)
+            delete(bspFileName);
+            delete(baseMaskFileName);
+            delete(movMaskFileName);
         end
         
         % Create a structure for storing algorithm parameters
