@@ -46,13 +46,15 @@ for i=1:length(fileNamesC)
     seriesDescription = planC{indexS.scan}.scanInfo(1).DICOMHeaders.SeriesDescription;
     if isempty(strmatch('CORONAL', seriesDescription)) && isempty(strmatch('SAGITTAL', seriesDescription))
         scanNum = 1;        
-        scanLesions{uniqueIndexV(i)} = [scanLesions{uniqueIndexV(i)} findLesions(scanNum,planC)];
+        lesionS = findLesions(scanNum,planC);
+        scanLesions{uniqueIndexV(i)} = [scanLesions{uniqueIndexV(i)} lesionS];
+        planC = segmentLesions(planC,lesionS);
+        planC = save_planC(planC,[],'passed',filename);
         scanFileNames{uniqueIndexV(i)} = [scanFileNames{uniqueIndexV(i)}, {filename}];
         [xV,yV,zV] = getScanXYZVals(planC{indexS.scan},planC);
         scanXDims{uniqueIndexV(i)} = [scanXDims{uniqueIndexV(i)}; min(xV) max(xV)];
         scanYDims{uniqueIndexV(i)} = [scanYDims{uniqueIndexV(i)}; min(yV) max(yV)];
-        scanZDims{uniqueIndexV(i)} = [scanZDims{uniqueIndexV(i)}; min(zV) max(zV)];
-        
+        scanZDims{uniqueIndexV(i)} = [scanZDims{uniqueIndexV(i)}; min(zV) max(zV)];        
         filename
         seriesDescription
     else
@@ -63,6 +65,7 @@ for i=1:length(fileNamesC)
     scanDatesV(i) = datenum(planC{indexS.scan}.scanInfo(1).scanDate,'yyyymmdd');
     scanUIDc{i} = planC{indexS.scan}.scanUID;
 end
+
 
 % ---- Code to filter out same annotations. Bugy... use volume-matching in future.
 % for scanNum = 1:length(scanLesions)
@@ -117,7 +120,7 @@ for i=1:length(dateV)
     maxLocZ = find(abs(scanZDims{i}(:,2)-maxZval) < 0.005);
     fileIndex = intersect(intersect(intersect(intersect(intersect(minLocX,minLocY),minLocZ),maxLocX),maxLocY),maxLocZ);
     if ~isempty(fileIndex)
-        filesC{i} = scanFileNames{i}{minLocX};
+        filesC{i} = scanFileNames{i}{fileIndex};
     else
         filesC{i} = [];
     end
@@ -135,10 +138,31 @@ for i=1:length(filesC)-1
     scan2PlanC = loadPlanC(filename2,tempdir);
     indexSscan2 = scan2PlanC{end};
     scan2PlanC{indexSscan2.deform}(1:end) = [];
+    % Create annotations mask from all scans at base date.    
+    baseMask3M = [];
+    filesToCopy = find(~ismember(scanFileNames{i},filename1));
+    scan1PlanC = copyStructsFromFilesToPlanC(scanFileNames{i}(filesToCopy), scan1PlanC);
+    annotROIIndV = strmatch('Annotation ROI',{scan1PlanC{indexSscan1.structures}.structureName});
+    annotStrV = find(annotROIIndV);    
+    if ~isempty(annotStrV)        
+        baseMask3M = getUniformStr(annotStrV,scan1PlanC);
+    end    
+    
+    % Create annotations mask from all scans at follow-up date.
+    movMask3M = [];
+    filesToCopy = find(~ismember(scanFileNames{i+1},filename2));
+    scan2PlanC = copyStructsFromFilesToPlanC(scanFileNames{i+1}(filesToCopy), scan2PlanC);
+    annotROIIndV = strmatch('Annotation ROI',{scan2PlanC{indexSscan1.structures}.structureName});
+    annotStrV = find(annotROIIndV);    
+    if ~isempty(annotStrV)        
+        movMask3M = getUniformStr(annotStrV,scan1PlanC);
+    end    
+    
     baseScanNum = 1;
     movScanNum = 1;
     algorithm = 'BSPLINE PLASTIMATCH';
-    [scan1PlanC, scan2PlanC] = register_scans(scan1PlanC, scan2PlanC, baseScanNum, movScanNum, algorithm);
+    threshold_bone = 100;
+    [scan1PlanC, scan2PlanC] = register_scans(scan1PlanC, scan2PlanC, baseScanNum, movScanNum, algorithm, baseMask3M, movMask3M, threshold_bone);
     scan1PlanC = save_planC(scan1PlanC,[],'passed',filename1);
     scan2PlanC = save_planC(scan2PlanC,[],'passed',filename2);
     clear scan1PlanC scan2PlanC
