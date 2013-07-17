@@ -1,4 +1,7 @@
 function planC = copyStructsFromFilesToPlanC(scanFileNames, planC)
+% function planC = copyStructsFromFilesToPlanC(scanFileNames, planC)
+%
+% APA 07/17/2013
 
 if ~exist('planC','var')
     global planC
@@ -22,7 +25,7 @@ for scanFileIndex = length(scanFileNames)
                 points = scanBasePlanC{indexSbaseScan.structures}(structNum).contour(sliceNum).segments(segNum).points;
                 if ~isempty(points)
                     zValue = points(1,3);
-                    newSliceNum = findNearest(zValsBase,zValue);
+                    newSliceNum = findnearest(zValsBase,zValue);
                     sliceNumsV = [sliceNumsV newSliceNum];
                     points(:,3) = zValsBase(newSliceNum);
                     pointsC{newSliceNum} = points;
