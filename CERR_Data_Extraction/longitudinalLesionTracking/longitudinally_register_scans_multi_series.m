@@ -3,7 +3,7 @@
 % filesC = {'05_19_2010.mat', '08_25_2010.mat', '02_09_2011.mat', '06_04_2011.mat',...
 % '11_26_2011.mat', '03_17_2012.mat', '07_21_2012.mat'};
 
-dirName = '/mnt/RadShared2/Aditya/cerr_data';
+%dirName = '/mnt/RadShared2/Aditya/cerr_data';
 dirS = dir(dirName);
 dirS(1:2) = [];
 fileNamesC = {dirS.name};
@@ -152,10 +152,10 @@ for i=1:length(filesC)-1
     movMask3M = [];
     filesToCopy = find(~ismember(scanFileNames{i+1},filename2));
     scan2PlanC = copyStructsFromFilesToPlanC(scanFileNames{i+1}(filesToCopy), scan2PlanC);
-    annotROIIndV = strmatch('Annotation ROI',{scan2PlanC{indexSscan1.structures}.structureName});
+    annotROIIndV = strmatch('Annotation ROI',{scan2PlanC{indexSscan2.structures}.structureName});
     annotStrV = find(annotROIIndV);    
     if ~isempty(annotStrV)        
-        movMask3M = getUniformStr(annotStrV,scan1PlanC);
+        movMask3M = getUniformStr(annotStrV,scan2PlanC);
     end    
     
     baseScanNum = 1;
