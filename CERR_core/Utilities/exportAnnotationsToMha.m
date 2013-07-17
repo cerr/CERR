@@ -1,5 +1,5 @@
-function [success,annot3M] = exportAnnotationsToMha(toMhaFileName, planC)
-% function exportAnnotationsToMha(toMhaFileName, planC)
+function [success,annot3M] = exportAnnotationsToMha(toMhaFileName, planC, scanLesions)
+% function exportAnnotationsToMha(toMhaFileName, planC, scanLesions)
 %
 % Exports Annotations to Mha file format.
 %
@@ -59,7 +59,9 @@ scanNum = 1;
 
 
 % Find Lesions on this scan
-scanLesions = findLesions(scanNum,planC);
+if ~exist('scanLesions','var')
+    scanLesions = findLesions(scanNum,planC);
+end
 
 % initialize annotations matrix
 unifScanSize = getUniformScanSize(planC{indexS.scan}(scanNum));
