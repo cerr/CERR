@@ -1804,7 +1804,7 @@ switch upper(command)
                 %ddbsIndex = 1;
                 [jnk, fileName] = fileparts(ud.newNameMapS(planNum).fullFileName);
                 ddbs(ddbsIndex).fileName = fileName;
-                patientName = planC{indexS.scan}.scanInfo(1).patientName;
+                patientName = planC{indexS.scan}(1).scanInfo(1).patientName;
                 if iscell(patientName)
                     patientName = patientName{1};
                 end
