@@ -205,7 +205,7 @@ switch command
                 planC{indexS.scan}(overlayScanNum).transM = inv(TMbase)*TMoverlay;
                 stateS.contourOvrlyOptS.center = 0;
                 stateS.contourOvrlyOptS.width  = 300;
-                stateS.contourOvrlyOptS.colormap = 'copper';
+                stateS.contourOvrlyOptS.colormap = 'Gray256';
                 stateS.CTDisplayChanged = 1;
                 CERRRefresh;
                 
@@ -232,8 +232,8 @@ switch command
                         ud.handle.ovrlayWindowCenterTxt = uicontrol(hFig,'style','text','string','Center','units',units,'position',[0.1 0.50 0.35 0.1]);
                         ud.handle.ovrlayWindowCenterEdt = uicontrol(hFig,'style','edit','string','0','units',units,'position',[0.1 0.40 0.35 0.1], 'callback', 'controlFrame(''contour'', ''selectOverlayOptions'',''setManualWindow'')');
                         ud.handle.ovrlayWindowWidthTxt  = uicontrol(hFig,'style','text','string','Width','units',units,'position',[0.55 0.50 0.35 0.1]);
-                        ud.handle.ovrlayWindowWidthEdt  = uicontrol(hFig,'style','edit','string','300','units',units,'position',[0.55 0.40 0.35 0.1], 'callback', 'controlFrame(''contour'', ''selectOverlayOptions'',''setManualWindow'')');
-                        colorbarStrC = {'Copper','Red','Green','Blue','StarInterp','hotCold'};
+                        ud.handle.ovrlayWindowWidthEdt  = uicontrol(hFig,'style','edit','string','300','units',units,'position',[0.55 0.40 0.35 0.1], 'callback', 'controlFrame(''contour'', ''selectOverlayOptions'',''setManualWindow'')');                        
+                        colorbarStrC = {'Gray256','Copper','Red','Green','Blue','StarInterp','hotCold'};
                         ud.handle.ovrlayMapTxt          = uicontrol(hFig,'style','text','string','Colorbar','units',units,'position',[0.05 0.20 0.3 0.1]);
                         ud.handle.ovrlayMapChoices      = uicontrol(hFig,'style','popup','string',colorbarStrC,'units',units,'position',[0.40 0.20 0.45 0.1],'value',1, 'callback', 'controlFrame(''contour'', ''selectOverlayOptions'',''fieldClicked'')');
                         
