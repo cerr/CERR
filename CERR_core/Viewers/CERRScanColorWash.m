@@ -73,7 +73,18 @@ if ~exist('CT2M')
     CTXVals = doseXVals;
     CTYVals = doseYVals;
 else
-    dose2M = finterp2(doseXVals, doseYVals, dose2M, CTXVals, CTYVals, 1, 0);
+%     dose2M = finterp2(doseXVals, doseYVals, dose2M, CTXVals, CTYVals, 1, 0);
+    dxDose = doseXVals(2)-doseXVals(1);
+    dyDose = doseYVals(2)-doseYVals(1);
+    dxScan = CTXVals(2)-CTXVals(1);
+    dyScan = CTYVals(2)-CTYVals(1);     
+    if abs(dxScan*dyScan) <= abs(dxDose*dyDose)
+        dose2M = finterp2(doseXVals, doseYVals, dose2M, CTXVals, CTYVals, 1, 0);
+    else
+        CT2M = finterp2(CTXVals, CTYVals, CT2M, doseXVals, doseYVals, 1, 0);
+        CTXVals = doseXVals;
+        CTYVals = doseYVals;        
+    end
 end
 
 ctSize = [size(CT2M,1), size(CT2M,2)];
