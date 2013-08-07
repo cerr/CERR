@@ -47,7 +47,9 @@ for strNum = 1:length(planC{indexS.structures})
 end
 cd(currDir)
 
-stateS.optS = CERROptions;
+if ~isfield(stateS,'optS')
+    stateS.optS = CERROptions;
+end
 
 %Check color assignment for displaying structures
 [assocScanV,relStrNumV] = getStructureAssociatedScan(1:length(planC{indexS.structures}),planC);
@@ -60,6 +62,10 @@ for scanNum = 1:length(planC{indexS.scan})
             color = stateS.optS.colorOrder( mod(colorNum-1, size(stateS.optS.colorOrder,1))+1,:);
             planC{indexS.structures}(strNum).structureColor = color;
         end
+    end
+    % Check for scanType field and populate it with Series description
+    if isempty(planC{indexS.scan}(scanNum).scanType)
+        planC{indexS.scan}(scanNum).scanType = planC{indexS.scan}(scanNum).scanInfo(1).DICOMHeaders.SeriesDescription;
     end
 end
 
