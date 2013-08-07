@@ -1,16 +1,18 @@
-function [energy,constrast,Entropy,Homogeneity,standard_dev,Ph,Slope] = getHaralicParams(structNum)
+function [energy,constrast,Entropy,Homogeneity,standard_dev,Ph,Slope] = getHaralicParams(structNum,planC)
 %function getHaralicParams(structNum)
 %
 %This function returns the haralic parameters for structure structNum.
 %
 %APA,12/26/2006
 
-global planC stateS
+if ~exist('planC')
+    global planC
+end
 indexS = planC{end};
 
-scanNum                             = getStructureAssociatedScan(structNum);
+scanNum                             = getStructureAssociatedScan(structNum,planC);
 [rasterSegments, planC, isError]    = getRasterSegments(structNum,planC);
-[mask3M, uniqueSlices]              = rasterToMask(rasterSegments, scanNum);
+[mask3M, uniqueSlices]              = rasterToMask(rasterSegments, scanNum, planC);
 scanArray3M                         = getScanArray(planC{indexS.scan}(scanNum));
 SUVvals3M                           = mask3M.*double(scanArray3M(:,:,uniqueSlices));
 [minr, maxr, minc, maxc, mins, maxs]= compute_boundingbox(mask3M);
@@ -35,7 +37,7 @@ init_th  = 10;
 final_th = 80;
 n_th     = 10;
 Thresholds = linspace (init_th, final_th, n_th);
-Slope = calc_slope_grigsby(structNum,Thresholds);
+Slope = calc_slope_grigsby(structNum,Thresholds,planC);
 disp(['Energy     : ',num2str(energy)])
 disp(['Contrast   : ',num2str(constrast)])
 disp(['Entropy    : ',num2str(Entropy)])
