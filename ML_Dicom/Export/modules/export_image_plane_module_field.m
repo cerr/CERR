@@ -69,8 +69,8 @@ switch tag
                 pixWidth    = scanInfoS.grid1Units;
                 pixHeight   = scanInfoS.grid2Units;                
             case 'dose'
-                pixWidth    = doseS.verticalGridInterval;
-                pixHeight   = -doseS.horizontalGridInterval;                                
+                pixWidth    = -doseS.verticalGridInterval;
+                pixHeight   = doseS.horizontalGridInterval;                                
         end
         
         %Convert from CERR cm to DICOM mm.        
