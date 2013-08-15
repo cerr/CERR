@@ -241,7 +241,7 @@ end
 if strcmpi(interpMtd, 'linear')
     slc = double(lowerSlc)*(lowerSlcRatio) + double(upperSlc)*(upperSlcRatio);
 elseif strcmpi(interpMtd, 'nearest')
-    if lowerSlcRatio < .5
+    if lowerSlcRatio > .5
         slc = lowerSlc;
     else
         slc = upperSlc;
