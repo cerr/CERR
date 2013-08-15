@@ -1,4 +1,4 @@
-function [doseM, imageXVals, imageYVals] = calcDoseSlice(doseInfo, coord, dim, planC, compareMode)
+function [doseM, imageXVals, imageYVals] = calcDoseSlice(doseInfo, coord, dim, planC, compareMode, doseInterpolationMethod)
 %"calcDoseSlice"
 %   Calculate the dose on a x y or z slice specified in coordinate space.
 %
@@ -46,6 +46,11 @@ function [doseM, imageXVals, imageYVals] = calcDoseSlice(doseInfo, coord, dim, p
     if ~exist('compareMode')
         compareMode = [];
     end
+    
+    if ~exist('doseInterpolationMethod')
+        doseInterpolationMethod = 'linear';
+    end
+    
     indexS = planC{end};
     
     if ~isstruct(doseInfo)
@@ -71,4 +76,4 @@ function [doseM, imageXVals, imageYVals] = calcDoseSlice(doseInfo, coord, dim, p
     xV(end) = xV(end)+delta;
     yV(1) = yV(1)+delta;
     yV(end) = yV(end)-delta;
-    [doseM, imageYVals, imageXVals] = slice3DVol(dose3M, xV, yV, zV, coord, dim, 'linear', transM, compareMode);
+    [doseM, imageYVals, imageXVals] = slice3DVol(dose3M, xV, yV, zV, coord, dim, doseInterpolationMethod, transM, compareMode);
