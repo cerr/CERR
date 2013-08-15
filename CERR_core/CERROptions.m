@@ -142,6 +142,8 @@ optS.structureDots = 1;         %Set to 0 to disable black dots on structure lin
 optS.displayDoseSet  = '';   %The dose distribution to be displayed.  Defaults to the
 %first dose distribution if this is not available.
 
+optS.doseInterpolationMethod = 'linear'; %How to interpolate dose on to CT grid. 'linear' or 'nearest'
+
 optS.tickInterval   = 1;         %Ruler tick interval in cm.
 
 optS.CTLevel = 0;         %Beginning CT level and width
