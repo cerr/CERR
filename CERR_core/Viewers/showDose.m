@@ -108,7 +108,7 @@ for i=1:length(doseSets);
     if isempty(axisInfo.doseObj) || ~ismember(doseSets(i), [axisInfo.doseObj(:).doseSet])
         compareMode  =  getappdata(hAxis,'compareMode');
         numObjs = length(axisInfo.doseObj);
-        [im, imageXVals, imageYVals]        = calcDoseSlice(doseSets(i), coord, dim, planC,compareMode);
+        [im, imageXVals, imageYVals]        = calcDoseSlice(doseSets(i), coord, dim, planC, compareMode, stateS.optS.doseInterpolationMethod);
         axisInfo.doseObj(numObjs+1).coord   = coord;
         axisInfo.doseObj(numObjs+1).data2M  = im;
         axisInfo.doseObj(numObjs+1).xV      = imageXVals;
