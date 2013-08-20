@@ -17,7 +17,8 @@ for scanFileIndex = length(scanFileNames)
     annotROIIndV = strmatch('Annotation ROI',{scanBasePlanC{indexSbaseScan.structures}.structureName});
     annotStrV = find(annotROIIndV);
     [xValsBase1, yValsBase1, zValsBase1] = getScanXYZVals(scanBasePlanC{indexSbaseScan.scan});
-    for structNum = annotStrV
+    for structIndex = 1:length(annotStrV)
+        structNum = annotStrV(structIndex);
         sliceNumsV = [];
         clear pointsC
         for sliceNum = 1:length(scanBasePlanC{indexSbaseScan.structures}(structNum).contour)
