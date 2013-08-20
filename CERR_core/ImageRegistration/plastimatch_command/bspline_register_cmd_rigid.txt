@@ -1,0 +1,13 @@
+# User defined command_file for plastimatch rigid registration
+
+[STAGE]
+xform=align_center
+ 
+[STAGE]
+xform=rigid
+optim=rsg
+max_its=200
+res=4 4 3
+# B-spline grid spacing (in mm)
+grid_spac=20 20 20 
+
