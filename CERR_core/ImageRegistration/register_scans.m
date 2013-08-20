@@ -41,19 +41,41 @@ switch upper(algorithm)
         success = createMhaMask(movScanNum, movMaskFileName, movPlanC, movMask3M, threshold_bone);
         
         % Create a command file path for plastimatch
-        cmdFileName = fullfile(getCERRPath,'ImageRegistration','plastimatch_command',[baseScanUID,'_',movScanUID,'.txt']);
+        cmdFileName_rigid = fullfile(getCERRPath,'ImageRegistration','plastimatch_command',[baseScanUID,'_',movScanUID,'_rigid.txt']);
+        cmdFileName_dir   = fullfile(getCERRPath,'ImageRegistration','plastimatch_command',[baseScanUID,'_',movScanUID,'_dir.txt']);        
         try
-            delete(cmdFileName);
+            delete(cmdFileName_rigid);
+            delete(cmdFileName_dir);
         end
         
         % Create a file name and path for storing bspline coefficients
+        bspFileName_rigid = fullfile(getCERRPath,'ImageRegistration','tmpFiles',['bsp_coeffs_',baseScanUID,'_',movScanUID,'_rigid.txt']);
         bspFileName = fullfile(getCERRPath,'ImageRegistration','tmpFiles',['bsp_coeffs_',baseScanUID,'_',movScanUID,'.txt']);
         try
+            delete(bspFileName_rigid)
             delete(bspFileName)
         end
         
-        % Call appropriate command file based on algorithm
-        userCmdFile = fullfile(getCERRPath,'ImageRegistration','plastimatch_command','bspline_register_cmd.txt');
+        % ----------- Call appropriate command file based on algorithm -------
+        
+        % Rigid step
+        userCmdFile = fullfile(getCERRPath,'ImageRegistration','plastimatch_command','bspline_register_cmd_rigid.txt');
+        ursFileC = file2cell(userCmdFile);
+        cmdFileC{1,1} = '[GLOBAL]';
+        cmdFileC{end+1,1} = ['fixed=',escapeSlashes(baseScanFileName)];
+        cmdFileC{end+1,1} = ['moving=',escapeSlashes(movScanFileName)];
+        cmdFileC{end+1,1} = ['xform_out=',escapeSlashes(bspFileName_rigid)];
+        cmdFileC{end+1,1} = '';
+        cmdFileC(end+1:end+size(ursFileC,2),1) = ursFileC(:);
+        cell2file(cmdFileC,cmdFileName_rigid)
+        
+        % Run plastimatch Registration
+        system(['plastimatch register ', cmdFileName_rigid]);
+        
+        
+        % Deformable (DIR) step
+        clear cmdFileC
+        userCmdFile = fullfile(getCERRPath,'ImageRegistration','plastimatch_command','bspline_register_cmd_dir.txt');
         ursFileC = file2cell(userCmdFile);
         cmdFileC{1,1} = '[GLOBAL]';
         cmdFileC{end+1,1} = ['fixed=',escapeSlashes(baseScanFileName)];
@@ -64,13 +86,14 @@ switch upper(algorithm)
         if ~isempty(movMask3M) || ~isempty(threshold_bone)
             cmdFileC{end+1,1} = ['moving_mask=',escapeSlashes(movMaskFileName)];
         end
+        cmdFileC{end+1,1} = ['xform_in=',escapeSlashes(bspFileName_rigid)];
         cmdFileC{end+1,1} = ['xform_out=',escapeSlashes(bspFileName)];
         cmdFileC{end+1,1} = '';
         cmdFileC(end+1:end+size(ursFileC,2),1) = ursFileC(:);
-        cell2file(cmdFileC,cmdFileName)
+        cell2file(cmdFileC,cmdFileName_dir)
         
         % Run plastimatch Registration
-        system(['plastimatch register ', cmdFileName]);
+        system(['plastimatch register ', cmdFileName_dir]);
         
         % Read bspline coefficients file
         [bsp_img_origin,bsp_img_spacing,bsp_img_dim,bsp_roi_offset,bsp_roi_dim,bsp_vox_per_rgn,bsp_direction_cosines,bsp_coefficients] = read_bsplice_coeff_file(bspFileName);
