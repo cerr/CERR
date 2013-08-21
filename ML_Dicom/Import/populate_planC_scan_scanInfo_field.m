@@ -151,10 +151,18 @@ switch fieldname
     case 'zValue'
         %Image Position (Patient)
         imgpos = dcm2ml_Element(dcmobj.get(hex2dec('00200032')));
+        
+        seriesDescription =  dcm2ml_Element(dcmobj.get(hex2dec('0008103E')));
 
-        %Convert from DICOM mm to CERR cm, invert to match CERR z dir
-        dataS = - imgpos(3) / 10; %z is always negative
-
+        if strcmpi(seriesDescription,'CORONALS')
+            dataS = - imgpos(2) / 10;
+        elseif strcmpi(seriesDescription,'SAGITTALS')
+            dataS = - imgpos(1) / 10;
+        else
+            %Convert from DICOM mm to CERR cm, invert to match CERR z dir
+            dataS = - imgpos(3) / 10; %z is always negative
+        end
+        
     case 'xOffset'
         %Image Position (Patient)
         imgpos = dcm2ml_Element(dcmobj.get(hex2dec('00200032')));
@@ -311,7 +319,8 @@ switch fieldname
     case 'DICOMHeaders'
         %Read all the dcm data into a MATLAB struct.
         dataS = dcm2ml_Object(dcmobj);
-
+        dataS.PatientWeight = dcm2ml_Element(dcmobj.get(hex2dec('00101030')));
+        
         %Remove pixelData to avoid storing huge amounts of redundant data.
         try
             dataS = rmfield(dataS, 'PixelData');
