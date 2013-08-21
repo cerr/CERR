@@ -287,17 +287,17 @@ for i=1:length(structs)
     planC{indexSC.structures}    = dissimilarInsert(planC{indexSC.structures}, structs(i), nStructs+i);
 end
 
+%Filter by scans to include
+scans = scans(scanIndV);
+
 % reuniformize scan if new structures are added.
-matchingScanUIDs = ismember({structs.assocScanUID},{planC{indexSC.scan}(scanIndV).scanUID});
+matchingScanUIDs = ismember({structs.assocScanUID},{planC{indexSC.scan}(scanIndV).scanUID, scans.scanUID});
 if ~all(matchingScanUIDs)   
     structuresToUniformize = nStructs + find(~matchingScanUIDs);
     for iUniformize = 1:length(structuresToUniformize)
         planC = updateStructureMatrices(planC, structuresToUniformize(iUniformize));
     end
 end
-
-%Filter by scans to include
-scans = scans(scanIndV);
 
 %Add scans to planC, along with structure array data if the original scan
 %number was in assocScansV.  IE, if any merged structures require the structure
