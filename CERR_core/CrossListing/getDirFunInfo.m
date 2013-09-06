@@ -123,7 +123,7 @@ newFileNamesC = {};
 
 whatInfo = what(path);
 for i = 1:length(whatInfo.m)
-    newFileNamesC = {newFileNamesC{:}, [path '\' whatInfo.m{i}]};
+    newFileNamesC = {newFileNamesC{:}, fullfile(path, whatInfo.m{i})};
 end
 
 mfilesC = {mfilesCinput{:}, newFileNamesC{:}};
@@ -141,7 +141,7 @@ dirInfo(indexToRemove) = [];
 
 for i=1:length(dirInfo) % skip first 2 (they are '.' and '..')
     if dirInfo(i).isdir
-        subdirNamesC = {subdirNamesC{:}, [path '\' dirInfo(i).name]};
+        subdirNamesC = {subdirNamesC{:}, fullfile(path, dirInfo(i).name)};
     end
 end
 return
@@ -166,11 +166,11 @@ function printFunctionInfo(outputFileName, mfilesC, categoryStr)
 
 
 % get file path, whether passed into the function already or not:
-if strfind(outputFileName,'\')
+if ~isempty(strfind(outputFileName,'\')) || ~isempty(strfind(outputFileName,'/'))
     str = outputFileName;
 else
     s = what;
-    str = [s.path '\' outputFileName];
+    str = fullfile(s.path, outputFileName);
 end
 
 %add '.txt' if it's not already there:
