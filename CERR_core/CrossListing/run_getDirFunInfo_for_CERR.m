@@ -31,4 +31,4 @@ global callsM calledByM fileNameC
 pathStr = getCERRPath;
 pathStr = pathStr(1:end-1); %strip trailing back-slash
 str = datestr(now,'dd-mmyyyy');
-getDirFunInfo([pathStr '\CrossListing\CERR Cross listing, v' version ' ' str '.txt'], 'y', ['CERR Cross listing, v' version ' ' date], pathStr)
+getDirFunInfo(fullfile(pathStr, 'CrossListing',['CERR Cross listing, v', version, ' ', str, '.txt']), 'y', ['CERR Cross listing, v' version ' ' date], pathStr)
