@@ -14,7 +14,8 @@ isPointInside = @(xint,myline) ...
     (xint >= myline(2,1) && xint <= myline(1,1));
 
 % Initialize lesionS structure
-lesionS = struct('assocScanUID','','assocAnnotUID','','graphicNumsV','','xV',[],'yV',[], 'zV', []);
+lesionS = struct('assocScanUID','','assocAnnotUID','','graphicNumsV','','xV',[],'yV',[], 'zV', [],...
+    'rowV',[], 'colV',[], 'lengthV', [], 'imageNumV', [], 'xIntersect', [], 'yIntersect', []);
 lesionS(1) = [];
 
 % Build a list of slices that are annotated
@@ -61,7 +62,12 @@ for gspsNum = matchingGSPSIndV
                 lesionS(end).xV = [lesionS(end).xV; xV];
                 lesionS(end).yV = [lesionS(end).yV; yV];
                 lesionS(end).zV = [lesionS(end).zV; zValsV(matchingSliceIndV(count))*xV.^0];
-               
+                lesionS(end).rowV = [lesionS(end).rowV; rowV];
+                lesionS(end).colV = [lesionS(end).colV; colV];
+                len = sqrt(diff(xV)^2+diff(yV)^2);
+                lesionS(end).lengthV = [lesionS(end).lengthV; len];
+                lesionS(end).imageNumV = [lesionS(end).imageNumV; matchingSliceIndV(count)];
+                
                 % Get in-between points
 %                 x1 = xV(1);
 %                 x2 = xV(2);
@@ -108,8 +114,15 @@ for gspsNum = matchingGSPSIndV
                         remainingGraphicNumV([indRemGraphic indCurrentGraphic]) = [];
                         lesionS(end).graphicNumsV = [lesionS(end).graphicNumsV remainingGraphicNum];
                         lesionS(end).xV = [lesionS(end).xV; xRemV];
-                        lesionS(end).yV = [lesionS(end).yV; yRemV]; 
+                        lesionS(end).yV = [lesionS(end).yV; yRemV];
                         lesionS(end).zV = [lesionS(end).zV; zValsV(matchingSliceIndV(count))*xRemV.^0];
+                        lesionS(end).rowV = [lesionS(end).rowV; rowV];
+                        lesionS(end).colV = [lesionS(end).colV; colV];
+                        len = sqrt(diff(xRemV)^2+diff(yRemV)^2);
+                        lesionS(end).lengthV = [lesionS(end).lengthV; len];
+                        lesionS(end).imageNumV = [lesionS(end).imageNumV; matchingSliceIndV(count)];
+                        lesionS(end).xIntersect = xintersect;
+                        lesionS(end).yIntersect = yintersect;                        
                     end
                 end
             end
