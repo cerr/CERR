@@ -16,8 +16,8 @@ for i=1:length(lesionS)
     zLesion = lesionS(i).zV;
     
     try        
-        y = [y; y+0.01*y.*rand(length(y),1)];
-        x = [x; x+0.01*x.*rand(length(x),1)];
+        y = [y; y+0.001*y.*rand(length(y),1)];
+        x = [x; x+0.001*x.*rand(length(x),1)];
         % Fit Elipse
         [z, a, b, alpha] = fitellipse([x(:)'; y(:)']);
         % Generate points along ellipse
@@ -60,7 +60,7 @@ for i=1:length(lesionS)
     end
     
     newStructNum = length(planC{indexS.structures}) + 1;
-    newStructS.structureName = 'Annotation ROI';
+    newStructS.structureName = ['Annotation ROI ', num2str(i)];
     
     planC{indexS.structures} = dissimilarInsert(planC{indexS.structures}, newStructS, newStructNum);
     planC = getRasterSegs(planC, newStructNum);
