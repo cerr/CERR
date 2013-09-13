@@ -1,16 +1,22 @@
-function ellipoideM = createEllipsoidNHOOD(rowsV, colsV, slcsV)
-% function ellipoideM = createEllipsoidNHOOD(rowsV, colsV, slcsV)
+function ellipoideM = createEllipsoidNHOOD(rowsV, colsV, slcsV, ringFlag)
+% function ellipoideM = createEllipsoidNHOOD(rowsV, colsV, slcsV, ringFlag)
 %
 % This function creates an ellipsoid ring neighborhood from the passes rows,
 % cols, slcs. The size of ellipoideM will be
 % [2*length(rowsV)+1,2*length(colsV)+1,2*length(slcsV)+1]
 %
-% The ring has a width of 1 pixel 
+% If ringFlag if not passed or if it is 1, a ring is created with width of 1 pixel 
+%
+% If ringFlag of 0 is passed, ring is NOT created and the entire ellipsoid
+% neighborhood is created.
 %
 % APA, 04/26/2012
 
 % global globalEllipsoidM
 
+if ~exist('ringFlag','var')
+    ringFlag = 1;
+end
 rowCenter = 1+length(rowsV);
 numRows = 2*rowCenter-1;
 rowRadius = rowCenter-1;
@@ -43,7 +49,9 @@ ellipoideM = zeros(numRows,numCols,numSlcs);
 
 indKeepM = (rowsM-rowCenter).^2/rowRadius^2 + (colsM-colCenter).^2/colRadius^2 + (slcsM-slcCenter).^2/slcRadius^2 <= 1;
 
-indKeepM = indKeepM & (rowsM-rowCenter).^2/rowRadius^2 + (colsM-colCenter).^2/colRadius^2 + (slcsM-slcCenter).^2/slcRadius^2 > innerRingLevel;
+if ringFlag
+    indKeepM = indKeepM & ((rowsM-rowCenter).^2/rowRadius^2 + (colsM-colCenter).^2/colRadius^2 + (slcsM-slcCenter).^2/slcRadius^2) > innerRingLevel;
+end
 
 ellipoideM(indKeepM) = 1;
 
