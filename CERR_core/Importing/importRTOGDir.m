@@ -273,12 +273,14 @@ if length(planC{indexS.scan}) ~= 0  %in case we are just reading in structures
     end
         
 %-------Construct the scan structure----------%
-tmpS = [];
-
-tmpS.scanArray = scan3M;
-tmpS.scanType  = 'CT';
-tmpS.scanInfo  = planC{indexS.scan};
-planC{indexS.scan} = tmpS;
+scanFieldNamesC = fieldnames(initializeCERR('scan'));
+allFieldsC = fieldnames(planC{indexS.scan});
+nonScanFieldsC = allFieldsC(~ismember(allFieldsC,scanFieldNamesC));
+planC{indexS.scan}(1).scanArray = scan3M;
+planC{indexS.scan}(1).scanType  = planC{indexS.scan}(1).imageType;
+planC{indexS.scan}(1).scanInfo  = rmfield(planC{indexS.scan},scanFieldNamesC);
+planC{indexS.scan}(2:end) = [];
+planC{indexS.scan} = rmfield(planC{indexS.scan},nonScanFieldsC);
 
 
 else %no scan exists, create empty dummy scan for now.
