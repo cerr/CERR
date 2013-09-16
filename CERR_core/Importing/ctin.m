@@ -49,9 +49,9 @@ fid=fopen(fname,'r',flag);
 
 OS = computer;
 
-if strcmpi(OS,'PCWIN')|strcmpi(OS,'PCWIN64')|strcmpi(OS,'GLNX86')| strcmpi(OS,'GLNXA64') 
+if strcmpi(OS,'PCWIN') || strcmpi(OS,'PCWIN64') || strcmpi(OS,'GLNX86') || strcmpi(OS,'GLNXA64') || strcmpi(OS,'MACI64')
     c1=fread(fid,CTSizeV,'int16');
-elseif strcmpi(OS,'MAC') | strcmpi(OS,'MACI') | strcmpi(OS,'MACI64')
+elseif strcmpi(OS,'MAC') || strcmpi(OS,'MACI')
     c1=fread(fid,flipdim(CTSizeV,2),'int16');
 end
 
