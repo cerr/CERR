@@ -1,4 +1,4 @@
-function [cData3M, xLim, yLim] = CERRScanColorWash(hAxis, dose2M, doseXVals, doseYVals, offset, CT2M, CTXVals, CTYVals,dim)
+function [cData3M, xLim, yLim] = CERRScanColorWash(hAxis, dose2M, doseXVals, doseYVals, offset, CT2M, CTXVals, CTYVals,dim, baseCTOffset)
 % function CERRScanColorWash"
 % Create scan display as a colorwash in axis hAxis, using dose2M as
 % defined at doseXVals, doseYVals. CT2M is a B&W CT image defined at
@@ -62,6 +62,9 @@ c = CERRColorMap(contourOvrlyColormapName);
 
 [n, m] = size(dose2M);
 
+% Replace NaNs with 0
+dose2M(isnan(dose2M)) = 0;
+
 noCT = 0;
 
 %Get CT data
@@ -70,7 +73,18 @@ if ~exist('CT2M')
     CTXVals = doseXVals;
     CTYVals = doseYVals;
 else
-    dose2M = finterp2(doseXVals, doseYVals, dose2M, CTXVals, CTYVals, 1, 0);
+%     dose2M = finterp2(doseXVals, doseYVals, dose2M, CTXVals, CTYVals, 1, 0);
+    dxDose = doseXVals(2)-doseXVals(1);
+    dyDose = doseYVals(2)-doseYVals(1);
+    dxScan = CTXVals(2)-CTXVals(1);
+    dyScan = CTYVals(2)-CTYVals(1);     
+    if abs(dxScan*dyScan) <= abs(dxDose*dyDose)
+        dose2M = finterp2(doseXVals, doseYVals, dose2M, CTXVals, CTYVals, 1, 0);
+    else
+        CT2M = finterp2(CTXVals, CTYVals, CT2M, doseXVals, doseYVals, 1, 0);
+        CTXVals = doseXVals;
+        CTYVals = doseYVals;        
+    end
 end
 
 ctSize = [size(CT2M,1), size(CT2M,2)];
@@ -122,8 +136,8 @@ CTBackground3M = [];
 if stateS.CTToggle == 1 & ~noCT%Don't show very low doses
     colorCT = CERRColorMap(stateS.optS.CTColormap);
 
-    CTOffset    = 1024;
-    CTLevel     = stateS.optS.CTLevel + CTOffset;
+    %CTOffset    = 1024;
+    CTLevel     = stateS.optS.CTLevel + baseCTOffset;
     CTWidth     = stateS.optS.CTWidth;
     CTLow       = CTLevel - CTWidth/2;
     CTHigh      = CTLevel + CTWidth/2;

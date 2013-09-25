@@ -28,8 +28,9 @@ warpedMhaFileName = fullfile(getCERRPath,'ImageRegistration','tmpFiles',['warped
 system(['plastimatch warp --input ', escapeSlashes(movScanFileName), ' --output-img ', escapeSlashes(warpedMhaFileName), ' --xf ', escapeSlashes(bspFileName)])
 
 % Read the warped output .mha file within CERR
-infoS  = mha_read_header(warpedMhaFileName);
-data3M = mha_read_volume(infoS);
+% infoS  = mha_read_header(warpedMhaFileName);
+% data3M = mha_read_volume(infoS);
+[data3M,infoS] = readmha(warpedMhaFileName);
 planC  = mha2cerr(infoS,data3M, planC);
 
 % Cleanup

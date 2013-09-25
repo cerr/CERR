@@ -30,6 +30,8 @@ function planC = mha2cerr(infoS,data3M,planC)
 
 % Initialize planC
 
+global stateS
+
 CTOffset = 1000;
 save_flag = 0;
 if ~exist('planC','var')
@@ -64,7 +66,7 @@ scanInfo(1).sizeOfDimension1 = infoS.Dimensions(2);
 scanInfo(1).sizeOfDimension2 = infoS.Dimensions(1);
 scanInfo(1).xOffset = infoS.Offset(2)/10;
 scanInfo(1).yOffset = infoS.Offset(1)/10;
-
+scanInfo(1).imageType = 'CT Scan';
 scanInfo(1).CTOffset = CTOffset;
 
 %Calculate proper scan offset values based on x,y,z vals.
@@ -79,6 +81,11 @@ for i=1:length(zValsV)
     scanInfo(1).sliceThickness = sliceThickness;
     scanInfo(1).zValue = zValsV(i);
     planC{indexS.scan}(ind).scanInfo(i) = scanInfo(1);
+end
+
+if ~isempty(stateS) 
+    stateS.scanStats.minScanVal.(repSpaceHyp(planC{indexS.scan}(ind).scanUID)) = single(min(planC{indexS.scan}(ind).scanArray(:))) - planC{indexS.scan}(ind).scanInfo(1).CTOffset;
+    stateS.scanStats.maxScanVal.(repSpaceHyp(planC{indexS.scan}(ind).scanUID)) = single(max(planC{indexS.scan}(ind).scanArray(:))) - planC{indexS.scan}(ind).scanInfo(1).CTOffset;
 end
 
 % Populate CERR Options

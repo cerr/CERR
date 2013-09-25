@@ -40,6 +40,11 @@ else
     pos = 7;  %position of menu
 end
 
+BMfileFlag = exist('Benchmark','dir');
+if BMfileFlag
+    pos = pos + 1;
+end
+
 try
     ishandle(stateS.handle.CERRHelpMenu);
     hMenu = stateS.handle.CERRHelpMenu;

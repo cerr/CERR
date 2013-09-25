@@ -250,6 +250,10 @@ for i=1:length(axisInfo.scanObj)
         zM = repmat(0,size(xM))-2;
 
         hImage = surface(xM, yM, zM, 'faceColor', 'texturemap', 'cData', clippedCT, 'edgecolor', 'none', 'facealpha', alpha,'parent', hAxis, 'tag', 'CTImage', 'hittest', 'off');
+        %x = linspace(xLim(1),xLim(2),length(clippedCT(1,:)));
+        %y = linspace(yLim(1),yLim(2),length(clippedCT(:,1)));
+        %hImage = imagesc(clippedCT, 'hittest', 'off', 'AlphaData',alpha*double(~isnan(clippedCT)),...
+        %   'AlphaDataMapping','none','Xdata',x,'Ydata',y, 'parent', hAxis, 'tag', 'CTImage');
 
         
         if stateS.imageRegistration %wy
@@ -293,7 +297,8 @@ for i=1:length(axisInfo.scanObj)
                 imOverlay = clip(imOverlay, CTLow, CTHigh, 'limits');
 
                 offset = 0;
-                [cData3M, xLim, yLim] = CERRScanColorWash(hAxis, imOverlay, imageXValsOverlay, imageYValsOverlay, offset, im, imageXVals, imageYVals,dim);
+                baseCTOffset = planC{indexS.scan}(scanSet).scanInfo(1).CTOffset;
+                [cData3M, xLim, yLim] = CERRScanColorWash(hAxis, imOverlay, imageXValsOverlay, imageYValsOverlay, offset, im, imageXVals, imageYVals,dim, baseCTOffset);
 
                 [xM, yM] = meshgrid(xLim, yLim);
                 zM = repmat(0,size(xM))-2;

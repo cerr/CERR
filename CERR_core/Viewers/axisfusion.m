@@ -662,10 +662,12 @@ switch method
                     img2 = (img2 - cLim(1)) / (cLim(2)-cLim(1))*(size(cmap,1)-1);
 
                     clipImg = clip(round(img2(:)),1,size(cmap,1),'limits');
+                    nanIndV = isnan(clipImg);
+                    clipImg(nanIndV) = 1;
 
                     try
 
-                        img23D = reshape(cmap(clipImg, 1:3),size(img2,1),size(img2,2),3);
+                        img23D = reshape(cmap(clipImg, 1:3),size(img2,1),size(img2,2),3);                        
 
                     catch
                         return
@@ -683,10 +685,12 @@ switch method
                     c = interp1(1:N, a(:,2), pts);
                     d = interp1(1:N, a(:,3), pts);
                     cmap = [b' c' d'];
-                    img1 = (img1 - cLim(1)) / (cLim(2)-cLim(1))*(size(cmap,1)-1);
-                    clipImg = clip(round(img1(:)),1,size(cmap,1),'limits');
+                    img2 = (img2 - cLim(1)) / (cLim(2)-cLim(1))*(size(cmap,1)-1);
+                    clipImg = clip(round(img2(:)),1,size(cmap,1),'limits');
+                    nanIndV = isnan(clipImg);
+                    clipImg(nanIndV) = 1;
                     try
-                        img23D = reshape(cmap(clipImg, 1:3),size(img1,1),size(img1,2),3);
+                        img23D = reshape(cmap(clipImg, 1:3),size(img2,1),size(img2,2),3);
                     catch
                         return
                     end                    
@@ -697,6 +701,8 @@ switch method
                     img2 = (img2 - cLim(1)) / (cLim(2)-cLim(1))*(size(cmap,1)-1);
 
                     clipImg = clip(round(img2(:)),1,size(cmap,1),'limits');
+                    nanIndV = isnan(clipImg);
+                    clipImg(nanIndV) = 1;                    
 
                     try
 
@@ -741,10 +747,22 @@ switch method
 end
 
 set(surfaces(1:end), 'facealpha', 1);
+% For imageType image
+% for iSurf = 1:length(surfaces)
+%     alphaData = get(surfaces(iSurf),'AlphaData');
+%     set(surfaces(iSurf),'AlphaData',double(alphaData~=0))    
+% end
+% For imageType image ends
 if stateS.imageRegistration
     set(surfaces(end), 'facealpha', stateS.doseAlphaValue.trans);
+    % For imageType image
+    %alphaData = get(surfaces(end),'AlphaData');
+    %set(surfaces(end),'AlphaData',stateS.doseAlphaValue.trans*double(alphaData~=0))    
 else
     set(surfaces(end), 'facealpha', 0.5);
+    % For imageType image
+    %alphaData = get(surfaces(end),'AlphaData');
+    %set(surfaces(end),'AlphaData',0.5*double(alphaData~=0))        
 end
 
 return;

@@ -80,6 +80,7 @@ optS.promptForNewSize = 'no';     %If 'yes', prompts the user to input a voxel s
 
 optS.downsampledVoxelSize = [.2 .2 .3];%Size of a voxel in the downsampled dose distribution, [dx, dy, dz].
 
+optS.importDICOMsubDirs = 'no'; %If 'yes', imports DICOM data from within sub-directories, if 'no', imports DICOM data from the passed directory.
 
 
 
@@ -106,7 +107,7 @@ optS.uniformizedDataType  =  'uint16';  %'uint8' or 'uint16'.  Datatype for unif
 optS.structureArrayDataType = 'uint32';  %'uint32' or 'double'.  Datatype used to create uniformized structure array.  Effectively sets
 %max structures in a plan to 32 or 52 -- the number of bits in the respective datatypes.
 
-optS.lowerLimitUniformCTSliceSpacing =  0.05;     %Smallest allowed uniformized slice spacing. We take the largest block which is
+optS.lowerLimitUniformCTSliceSpacing =  0.005;     %Smallest allowed uniformized slice spacing. We take the largest block which is
 %within the smallest and largest slice spacing requirements, inclusive of the endpoints.
 
 optS.upperLimitUniformCTSliceSpacing =  10;      %Largest allowed uniformized slice spacing.
@@ -140,6 +141,8 @@ optS.structureDots = 1;         %Set to 0 to disable black dots on structure lin
 
 optS.displayDoseSet  = '';   %The dose distribution to be displayed.  Defaults to the
 %first dose distribution if this is not available.
+
+optS.doseInterpolationMethod = 'linear'; %How to interpolate dose on to CT grid. 'linear' or 'nearest'
 
 optS.tickInterval   = 1;         %Ruler tick interval in cm.
 

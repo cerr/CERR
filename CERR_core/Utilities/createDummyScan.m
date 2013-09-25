@@ -137,6 +137,7 @@ scanInfo(1).xOffset = xVals(1) + (scanInfo(1).sizeOfDimension2*scanInfo(1).grid2
 scanInfo(1).yOffset = yVals(end) + (scanInfo(1).sizeOfDimension1*scanInfo(1).grid1Units)/2;
 scanInfo(1).zValue = 0;
 
+zVals = zVals(:)';
 sliceThickness = [diff(zVals) zVals(end) - zVals(end-1)];
 
 %Populate scanInfo(1) array.

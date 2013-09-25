@@ -1,4 +1,4 @@
-function planC = dcmdir2planC(dcmdir)
+function planC = dcmdir2planC(dcmdir,mergeScansFlag)
 %"dcmdir2planC"
 %   Convert a dcmdir object representing a patient into a planC.
 %
@@ -6,7 +6,9 @@ function planC = dcmdir2planC(dcmdir)
 %YWU 03/01/08
 %
 %Usage:
-%   planC = dcmdir2planC(dcmdir);
+%   planC = dcmdir2planC(dcmdir,mergeScansFlag);
+%   dcmdir: directory containing DICOM files.
+%   mergeScansFlag: Optional argument to merge scans as a 4-D series. Acceptable values are 'Yes' or 'No'.
 %
 % Copyright 2010, Joseph O. Deasy, on behalf of the CERR development team.
 % 
@@ -51,7 +53,7 @@ for i = 1:length(cellNames)
 end
 
 planC = planInitC;
-planC = guessPlanUID(planC,1);
+planC = guessPlanUID(planC,1,1);
 %After initial import, run any functions to address issues where
 %subfunctions had insufficent data to make relationship determinations.
 
@@ -215,8 +217,12 @@ end
 
 scanNum = length(planC{indexS.scan});
 if (scanNum>1)
-    button = questdlg(['There are ' num2str(scanNum) 'scans, do you want to put them together?'],'Merge CT in 4D Series', ...
-            'Yes', 'No', 'default');
+    if exist('mergeScansFlag','var')
+        button = mergeScansFlag;
+    else
+        button = questdlg(['There are ' num2str(scanNum) 'scans, do you want to put them together?'],'Merge CT in 4D Series', ...
+            'Yes', 'No', 'No');
+    end
     switch lower(button)
         case 'yes'
             %sort the all scan series
@@ -259,6 +265,7 @@ end
 for i=1:length(planC{indexS.structures})
     structure = planC{indexS.structures}(i);   
     scanInd = getStructureAssociatedScan(i, planC);    
+    scanInd = scanInd(1);
     
     zmesh   = [planC{indexS.scan}(scanInd).scanInfo.zValue];
     slicethickness = diff(zmesh); 

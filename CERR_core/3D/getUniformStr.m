@@ -160,7 +160,7 @@ for i=1:length(structNumV)
         warning(['Structure ' planC{indexS.structures}(structNum).structureName ' does not appear to be uniformized.  Adding it to uniformized data.']);
         planC = updateStructureMatrices(planC, structNum);
         otherIndices = [];
-        [otherIndices(:,1), otherIndices(:,2), otherIndices(:,3), planC] = getUniformStr(structNumV, planC, optS, 0);
+        [otherIndicesM(:,1), otherIndicesM(:,2), otherIndicesM(:,3), planC] = getUniformStr(structNumV, planC, optS, 0);
         break;
     end
 
@@ -168,8 +168,12 @@ for i=1:length(structNumV)
       
       clear bitMaskV;
       
-      indPresentV = ismember(otherIndices,otherIndicesM,'rows');
-      otherIndicesM = [otherIndicesM; otherIndices(~indPresentV,:)];
+      if ~isempty(otherIndicesM)
+          indPresentV = ismember(otherIndices,otherIndicesM,'rows');
+          otherIndicesM = [otherIndicesM; otherIndices(~indPresentV,:)];
+      else
+          otherIndicesM = [otherIndicesM; otherIndices];
+      end
       
       clear otherIndices
 

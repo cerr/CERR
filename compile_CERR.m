@@ -54,7 +54,7 @@ mkdir(fullfile(destin,'Importing'));
 mkdir(fullfile(destin,'IMRTP'));
 mkdir(fullfile(destin,'mat_files'));
 mkdir(fullfile(destin,'MeshInterp'));
-copyfile(fullfile(CERR_path,'ML_Dicom','dcm4che-2.0.25'),fullfile(destin,'dcm4che-2.0.25'));
+copyfile(fullfile(CERR_path,'ML_Dicom','dcm4che-2.0.27'),fullfile(destin,'dcm4che-2.0.27'));
 copyfile(fullfile(CERR_path,'CERR_core','Mex'),fullfile(destin,'Mex'));
 
 destin_compression = fullfile(compiled_path,'bin','Compression');
@@ -133,10 +133,10 @@ function str = appendMfile(directory)
 allDirS = dir(directory);
 str = '';
 for dirNum = 1:length(allDirS)
-    if ~allDirS(dirNum).isdir & strcmp(allDirS(dirNum).name(end-1:end),'.m') & ~strcmpi(allDirS(dirNum).name,'CERR.m') & ~strcmpi(allDirS(dirNum).name,'CERROptions.m') & ~strcmpi(allDirS(dirNum).name,'compile_CERR.m')
+    if ~allDirS(dirNum).isdir && strcmp(allDirS(dirNum).name(end-1:end),'.m') && ~strcmpi(allDirS(dirNum).name,'CERR.m') && ~strcmpi(allDirS(dirNum).name,'CERROptions.m') && ~strcmpi(allDirS(dirNum).name,'compile_CERR.m')
         str = [str,' -a ',allDirS(dirNum).name];
-    elseif ~strcmp(allDirS(dirNum).name,'private') && ~strcmp(allDirS(dirNum).name,'.') && ~strcmp(allDirS(dirNum).name,'..')
-        str = [str appendMfile([directory,'\',allDirS(dirNum).name])];
+    elseif ~strcmp(allDirS(dirNum).name,'private') && ~strcmp(allDirS(dirNum).name,'.') && ~strcmp(allDirS(dirNum).name,'..') && isempty(strfind(allDirS(dirNum).name,'+'))
+        str = [str appendMfile(fullfile(directory,allDirS(dirNum).name))];
     end
 end
 

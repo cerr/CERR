@@ -52,18 +52,29 @@ end
 zLims = [min(zV) max(zV)];
 if isfield(planC{indexS.scan}(scanNum), 'transM') & ~isempty(planC{indexS.scan}(scanNum).transM);
     [rotation, xT, yT, zT] = isrotation(planC{indexS.scan}(scanNum).transM);
+else
+    rotation=0;
+    xT=[0 0];
+    yT=[0 0];
+    zT=[0 0];
 end
+
+xLims = [xV(1) xV(end)];
+yLims = [yV(1) yV(end)];
+zLims = [zV(1) zV(end)];
+
 if rotation
     %Get the corners of the original scan.
     [xCorn, yCorn, zCorn] = meshgrid(xLims, yLims, zLims);
     %Add ones to the corners so we can apply a transformation matrix.
     corners = [xCorn(:) yCorn(:) zCorn(:) ones(prod(size(xCorn)), 1)];
     %Apply transform to corners, so we know boundary of the slice.
+    newCorners = planC{indexS.scan}(scanNum).transM * corners';
     newZLims = [min(newCorners(3,:)) max(newCorners(3,:))];
 else
     newZLims = [zLims + zT];
 end
-zVals = linspace(min(newZLims),max(newZLims),100);
+zVals = linspace(min(newZLims),max(newZLims),10);
 
 [xV, yV, zV] = getScanXYZVals(planC{indexS.scan}(scanNum));
 dose3M = [];
@@ -77,12 +88,22 @@ for i=1:length(zVals)
         slcYv = sliceYVals;
     end
 end
+
+% Check for rotation
+rotation = 0;
+if isfield(planC{indexS.scan}(scanNum), 'transM') && ~isempty(planC{indexS.scan}(scanNum).transM);
+    rotation = isrotation(planC{indexS.scan}(scanNum).transM);
+end
+
 W = size(dose3M);
 setIndex = length(planC{indexS.dose}) + 1;
 % Initialize dose
 doseInitS = initializeCERR('dose');
-
-doseInitS(1).doseArray = dose3M;
+if rotation
+    doseInitS(1).doseArray = flipdim(dose3M,1);
+else
+    doseInitS(1).doseArray = dose3M;
+end
 doseInitS(1).imageType='DOSE';
 doseInitS(1).caseNumber=1;
 doseInitS(1).doseNumber= setIndex;
@@ -97,12 +118,12 @@ doseInitS(1).sizeOfDimension2=W(1);
 doseInitS(1).sizeOfDimension3=W(3);
 doseInitS(1).assocScanUID = planC{indexS.scan}(assocScanNum).scanUID;
 doseInitS(1).doseUID = createUID('DOSE');
-grid2Units = slcXv(2)-slcXv(1);
-grid1Units = slcYv(1)-slcYv(2);
+grid2Units = abs(slcXv(2)-slcXv(1));
+grid1Units = abs(slcYv(1)-slcYv(2));
 doseInitS(1).horizontalGridInterval = grid2Units;
 doseInitS(1).verticalGridInterval= - abs(grid1Units);
-doseInitS(1).coord1OFFirstPoint =  sliceXVals(1);
-doseInitS(1).coord2OFFirstPoint =  sliceYVals(1);
+doseInitS(1).coord1OFFirstPoint =  min(sliceXVals);
+doseInitS(1).coord2OFFirstPoint =  max(sliceYVals);
 doseInitS(1).zValues = zVals;
 planC{indexS.dose} = dissimilarInsert(planC{indexS.dose},doseInitS, setIndex,[]);
 stateS.doseToggle = 1;

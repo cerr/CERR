@@ -177,12 +177,13 @@ switch upper(instr)
         stateS.handle.CERRSliceViewerAxis  = [];
         stateS.handle.CERRSurf  = [];  %%CZ init Surf 02-11-03
         stateS.lastDoseArrayMaxValue = [];
-        stateS.lastColorMap = [];
-        stateS.doseToggle     =  1;
-        stateS.CTToggle       =  1;
-        stateS.structToggle   =  1;
-        stateS.contourState = 0;
-        stateS.scanWindowState = 0;
+        stateS.lastColorMap     = [];
+        stateS.doseToggle       =  1;
+        stateS.CTToggle         =  1;
+        stateS.structToggle     =  1;
+        stateS.contourState     = 0;
+        stateS.scanWindowState  = 0;
+        stateS.annotToggle      = -1;
         
         %Later used for zooming
         stateS.initial_xLims.trans = [];
@@ -236,9 +237,9 @@ switch upper(instr)
         stateS.handle.CERRMetricMenu        = putMetricsMenu(hCSV);
         stateS.handle.CERRScanMenu          = putScanMenu(hCSV);
         stateS.handle.CERRStructMenu        = putStructMenu(hCSV);
-        BMfileFlag = exist('putBMmenu.m','file');
+        BMfileFlag = exist('Benchmark','dir');
         if BMfileFlag
-            stateS.handle.CERRBMMenu        = putBMmenu(hCSV);
+            stateS.handle.CERRBMMenu        = putBMMenu(hCSV);
         end        
         stateS.handle.CERRHelpMenu          = putHelpMenu(hCSV);
 
@@ -465,7 +466,7 @@ switch upper(instr)
             stateS.handle.CERRStructMenu  = putStructMenu(hCSV);
             BMfileFlag = exist('putBMmenu.m','file');
             if BMfileFlag
-                stateS.handle.CERRBMMenu        = putBMmenu(hCSV);
+                stateS.handle.CERRBMMenu        = putBMMenu(hCSV);
             end            
             stateS.handle.CERRHelpMenu    = putHelpMenu(hCSV);
             

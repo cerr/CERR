@@ -122,7 +122,7 @@ switch fieldname
         %Convert to ML structure format.
         RSSML = dcm2ml_Object(RSS);
 
-        if ~isempty(RSSML)
+        if ~isempty(RSSML) && ~isempty(RSSML.ContourImageSequence)
             %# slices in this series.
             dataS = length(fields(RSSML.ContourImageSequence));
         else
@@ -279,6 +279,14 @@ switch fieldname
 
     case 'DICOMHeaders'
         %Currently not implemented
+        %Read all the dcm data into a MATLAB struct.
+        dataS = dcm2ml_Object(dcmobj);
+
+        %Remove contoursequence data to avoid storing huge amounts of redundant data.
+        try
+            dataS = rmfield(dataS, 'ROIContourSequence');
+        end
+        
 
     case 'visible'
         %Implementation not necessary
@@ -294,27 +302,30 @@ switch fieldname
         %SSRS = dcmobj.get(org.dcm4che2.data.Tag.StructureSetROISequence);
         %SSRS_1 = SSRS.getDicomObject(0);
         %dataS = char(SSRS_1.getString(org.dcm4che2.data.Tag.ReferencedFrameofReferenceUID));
-        dataS = dcm2ml_Element(dcmobj.get(hex2dec('00080018')));
-
-        %         commented by wy
-        %         %Referenced Frame of Reference Sequence
-        %         RFRS = dcmobj.get(hex2dec('30060010'));
-        %
-        %         %Frame of Reference UID
-        %         FORUID = dcm2ml_Element(ssObj.get(hex2dec('30060024')));
-        %
-        %         %Find the series referenced by these contours.  See bottom of file.
-        %         RSS = getReferencedSeriesSequence(RFRS, FORUID);
-        %
-        %         %Convert to ML structure format.
-        %         RSSML = dcm2ml_Object(RSS);
-        %
-        %         if ~isempty(RSSML)
-        %             %UID of series structures were contoured on.
-        %             dataS = RSSML.SeriesInstanceUID;
-        %         else
-        %             dataS = '';
-        %         end
+        
+        %dataS = dcm2ml_Element(SSRS.get(hex2dec('00200052')));
+        %dataS = ['CT.',dataS];
+        
+        %commented by wy
+        %Referenced Frame of Reference Sequence
+        RFRS = dcmobj.get(hex2dec('30060010'));
+        
+        %Frame of Reference UID
+        FORUID = dcm2ml_Element(ssObj.get(hex2dec('30060024')));
+        
+        %Find the series referenced by these contours.  See bottom of file.
+        RSS = getReferencedSeriesSequence(RFRS, FORUID);
+        
+        %Convert to ML structure format.
+        RSSML = dcm2ml_Object(RSS);
+        
+        if ~isempty(RSSML)
+            %UID of series structures were contoured on.
+            dataS = RSSML.SeriesInstanceUID;
+            dataS = ['CT.',dataS];
+        else
+            dataS = '';
+        end        
 
     otherwise
         %         warning(['DICOM Import has no methods defined for import into the planC{indexS.structures}.' fieldname ' field, leaving empty.']);

@@ -77,15 +77,15 @@ initFlag = 1;
 % end
 
 %% for compiled CERR
-path1 = [getCERRPath,'bin\dcm4che-2.0.25\lib\dcm4che-core-2.0.25.jar'];
-path2 = [getCERRPath,'bin\dcm4che-2.0.25\lib\log4j-1.2.16.jar'];
-path3 = [getCERRPath,'bin\dcm4che-2.0.25\lib\slf4j-api-1.6.1.jar'];
-path4 = [getCERRPath,'bin\dcm4che-2.0.25\lib\slf4j-log4j12-1.6.1.jar'];
-path5 = [getCERRPath,'bin\dcm4che-2.0.25\lib\dcm4che-image-2.0.25.jar'];
-path6 = [getCERRPath,'bin\dcm4che-2.0.25\lib\dcm4che-imageio-2.0.25.jar'];
-path7 = [getCERRPath,'bin\dcm4che-2.0.25\lib\dcm4che-imageio-rle-2.0.25.jar'];
-path8 = [getCERRPath,'bin\dcm4che-2.0.25\lib\dcm4che-iod-2.0.25.jar'];
-path9 = [getCERRPath,'bin\dcm4che-2.0.25\lib\dcm4che-net-2.0.25.jar'];
+path1 = [getCERRPath,'bin\dcm4che-2.0.27\lib\dcm4che-core-2.0.27.jar'];
+path2 = [getCERRPath,'bin\dcm4che-2.0.27\lib\log4j-1.2.16.jar'];
+path3 = [getCERRPath,'bin\dcm4che-2.0.27\lib\slf4j-api-1.6.1.jar'];
+path4 = [getCERRPath,'bin\dcm4che-2.0.27\lib\slf4j-log4j12-1.6.1.jar'];
+path5 = [getCERRPath,'bin\dcm4che-2.0.27\lib\dcm4che-image-2.0.27.jar'];
+path6 = [getCERRPath,'bin\dcm4che-2.0.27\lib\dcm4che-imageio-2.0.27.jar'];
+path7 = [getCERRPath,'bin\dcm4che-2.0.27\lib\dcm4che-imageio-rle-2.0.27.jar'];
+path8 = [getCERRPath,'bin\dcm4che-2.0.27\lib\dcm4che-iod-2.0.27.jar'];
+path9 = [getCERRPath,'bin\dcm4che-2.0.27\lib\dcm4che-net-2.0.27.jar'];
 %javarmpath(path1,path2,path3,path4,path5,path6,path7,path8,path9);
 javaaddpath({path1,path2,path3,path4,path5,path6,path7,path8,path9});
 

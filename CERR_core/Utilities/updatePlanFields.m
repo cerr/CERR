@@ -1,5 +1,5 @@
-function planC = updatePlanFields(planC)
-%function planC = updatePlanFields(planC)
+function [planC, isUIDCreated] = updatePlanFields(planC)
+%function [planC, isUIDCreated] = updatePlanFields(planC)
 %
 %This function updates planC elements according to initializeCERR and initializeScanInfo.
 %
@@ -33,15 +33,15 @@ dummyIndexS = dummyPlanC{end};
 oldFieldNames = fieldnames(indexS);
 fieldNamesC = fieldnames(dummyIndexS);
 
-% Get flag for UID fields
-isUIDCreated = 1;
-if ~isfield(planC{indexS.scan},'scanUID') || ~isfield(planC{indexS.structureArray},'structureSetUID') || ~isfield(planC{indexS.dose},'doseUID')
-    isUIDCreated = 0;
-end
-
 % Get number of elements in planC cellArray.
 numFields = length(oldFieldNames) - 1;
 indexS = rmfield(indexS,'indexS');
+
+% Get flag for UID fields
+isUIDCreated = 1;
+if ~isfield(planC{indexS.scan},'scanUID') || ~isfield(planC{indexS.structureArray},'structureSetUID') || ~isfield(planC{indexS.dose},'doseUID') || (isfield(indexS,'GSPS') && ~isfield(planC{indexS.GSPS}, 'annotUID'))
+    isUIDCreated = 0;
+end
 
 % Update planC elements according to initializeCERR.m
 for i = 1:length(fieldNamesC)
@@ -84,3 +84,6 @@ if ~isUIDCreated
     warning('This is an old CERR archive. Creating UID linkage ....')
     planC = guessPlanUID(planC,1);
 end
+
+% Return whether UID linkaged had to be created. hence the ~
+isUIDCreated = ~isUIDCreated;

@@ -38,7 +38,7 @@ for i=1:length(planC{indexS.structureArray})
     end
 end
 
-if exist('opt') && strcmpi(opt,'all')
+if exist('opt','var') && strcmpi(opt,'all')
     return;
 elseif ~isempty(saNum)
     saNum = saNum(1);    

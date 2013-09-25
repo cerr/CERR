@@ -1,5 +1,5 @@
-function planC = quality_assure_planC(fileName, planC)
-%function planC = quality_assure_planC(fileName, planC)
+function planC = quality_assure_planC(fileName, planC, forceSaveFlag)
+%function planC = quality_assure_planC(fileName, planC, forceSaveFlag)
 %
 % This function quality assures planC.
 %
@@ -8,6 +8,10 @@ function planC = quality_assure_planC(fileName, planC)
 if ~exist('planC','var')
     global planC
 end
+if ~exist('forceSaveFlag','var')
+    forceSaveFlag = 0;
+end
+
 global stateS
 indexS = planC{end};
 
@@ -44,7 +48,9 @@ for strNum = 1:length(planC{indexS.structures})
 end
 cd(currDir)
 
-stateS.optS = CERROptions;
+if ~isfield(stateS,'optS')
+    stateS.optS = CERROptions;
+end
 
 %Check color assignment for displaying structures
 [assocScanV,relStrNumV] = getStructureAssociatedScan(1:length(planC{indexS.structures}),planC);
@@ -57,6 +63,10 @@ for scanNum = 1:length(planC{indexS.scan})
             color = stateS.optS.colorOrder( mod(colorNum-1, size(stateS.optS.colorOrder,1))+1,:);
             planC{indexS.structures}(strNum).structureColor = color;
         end
+    end
+    % Check for scanType field and populate it with Series description
+    if isempty(planC{indexS.scan}(scanNum).scanType) && isfield(planC{indexS.scan}(scanNum).scanInfo(1).DICOMHeaders,'SeriesDescription')
+        planC{indexS.scan}(scanNum).scanType = planC{indexS.scan}(scanNum).scanInfo(1).DICOMHeaders.SeriesDescription;
     end
 end
 
@@ -112,7 +122,7 @@ if length(planC{indexS.GSPS}) == 1 && isempty(planC{indexS.GSPS}.SOPInstanceUID)
 end
 
 % Overwrite the existing CERR file if a bug is found and fixed
-if ~isempty(stateS) && isfield(stateS.optS,'overwrite_CERR_File') && stateS.optS.overwrite_CERR_File == 1 && bug_found    
+if forceSaveFlag == 1 || (~isempty(stateS) && isfield(stateS.optS,'overwrite_CERR_File') && stateS.optS.overwrite_CERR_File == 1 && bug_found)
     try 
         if exist('fileName','var') 
             % do nothing

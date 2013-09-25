@@ -108,6 +108,9 @@ switch fieldname
         end
         
         dataS = textAnnotationS;
-                
+        
+    case 'annotUID'
+        
+        dataS = createUID('annotation');
 
 end

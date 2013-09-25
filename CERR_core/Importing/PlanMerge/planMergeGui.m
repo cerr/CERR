@@ -355,4 +355,16 @@ switch upper(command)
             navigationMontage('refresh')
         end
         
+        %Refresh the Viewer
+        currentAxis = stateS.currentAxis;
+        for iAxis = 1:length(stateS.handle.CERRAxis)
+            axView = getAxisInfo(stateS.handle.CERRAxis(iAxis),'view');
+            if ismember(axView,{'transverse','sagittal','coronal'})
+                stateS.currentAxis = iAxis;
+                sliceCallBack('CHANGESLC','PREVSLICE')
+                sliceCallBack('CHANGESLC','NEXTSLICE')
+            end
+        end
+        stateS.currentAxis = currentAxis;        
+        
 end    

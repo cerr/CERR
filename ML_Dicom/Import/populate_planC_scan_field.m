@@ -109,18 +109,25 @@ switch fieldname
             if (strcmpi(type, 'PT')) || (strcmpi(type, 'PET')) %Compute SUV for PET scans
                 dcmobj = scanfile_mldcm(IMAGE.file);
                 dicomHeaderS = dcm2ml_Object(dcmobj);
+                dicomHeaderS.PatientWeight = dcm2ml_Element(imgobj.get(hex2dec('00101030')));
+                imageUnits = dcm2ml_Element(imgobj.get(hex2dec('00541001')));
                 
                 % Get calibration factor which is the Rescale slope Attribute Name in DICOM
                 calibration_factor=dicomHeaderS.RescaleSlope;
                 slice2D = single(slice2D)*calibration_factor;
                 
-                % Obtain SUV conversion flag from CERROptions.m
-                pathStr = getCERRPath;
-                optName = [pathStr 'CERROptions.m'];                
-                optS    = opts4Exe(optName);
-                if isfield(optS,'convert_PET_to_SUV') && optS.convert_PET_to_SUV
-                    slice2D = calc_suv(dicomHeaderS, slice2D);
+                if ~strcmpi(imageUnits,'GML')
+                    
+                    % Obtain SUV conversion flag from CERROptions.m
+                    pathStr = getCERRPath;
+                    optName = [pathStr 'CERROptions.m'];
+                    optS    = opts4Exe(optName);
+                    if isfield(optS,'convert_PET_to_SUV') && optS.convert_PET_to_SUV
+                        slice2D = calc_suv(dicomHeaderS, slice2D);
+                    end
                 end
+                
+                
             elseif ~strcmpi(type, 'CT')
                 %slice2D = single(slice2D);
             end
@@ -218,12 +225,15 @@ switch fieldname
         %Implementation is unnecessary.
     case 'scanUID'
         %Series Instance UID
-        %dataS = dcm2ml_Element(SERIES.info.get(hex2dec('0020000E')));
+        dataS = dcm2ml_Element(SERIES.info.get(hex2dec('0020000E')));
+        
         %wy, use the frame of reference UID to associate dose to scan.
-        IMAGE   = SERIES.Data(1); % wy {} --> ()
-        imgobj  = scanfile_mldcm(IMAGE.file);
+        %IMAGE   = SERIES.Data(1); % wy {} --> ()
+        %imgobj  = scanfile_mldcm(IMAGE.file);
         %dataS = char(imgobj.getString(org.dcm4che2.data.Tag.FrameofReferenceUID));
-        dataS = dcm2ml_Element(imgobj.get(hex2dec('00080018')));
+        %dataS = dcm2ml_Element(imgobj.get(hex2dec('00080018')));
+        %dataS = dcm2ml_Element(imgobj.get(hex2dec('0020000E')));        
+        dataS = ['CT.',dataS];
 
     otherwise
         %         warning(['DICOM Import has no methods defined for import into the planC{indexS.scan}.' fieldname ' field, leaving empty.']);

@@ -116,7 +116,7 @@ if rotation
             permuteM     = [3 1 2];
         case 3
             [xM, yM, zM] = meshgrid(imageXVals, imageYVals, coord);
-            imgSize      = [length(imageXVals) length(imageYVals) 1];
+            imgSize      = [length(imageYVals) length(imageXVals) 1];
             permuteM     = [1 2 3];
     end
 

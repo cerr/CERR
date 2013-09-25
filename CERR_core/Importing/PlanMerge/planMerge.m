@@ -52,10 +52,11 @@ planD = quality_assure_planC(mergefileName, planD);
 
 indexSD = planD{end};
 
-doses = planD{indexSD.dose};
-scans = planD{indexSD.scan};
+doses   = planD{indexSD.dose};
+scans   = planD{indexSD.scan};
 structs = planD{indexSD.structures};
-IM = planD{indexSD.IM};
+IM      = planD{indexSD.IM};
+gsps    = planD{indexSD.GSPS};
 
 %Handle case of 'all' or unpassed indVs.
 if (exist('scanIndV') & strcmpi(scanIndV, 'all')) | ~exist('scanIndV')
@@ -90,6 +91,20 @@ nDose       = length(planC{indexSC.dose});
 nScans      = length(planC{indexSC.scan});
 nStructs    = length(planC{indexSC.structures});
 nIM         = length(planC{indexSC.IM});
+nGSPS       = length(planC{indexSC.GSPS});
+
+% Record existing and added UIDs
+existingScanUIDc      = {planC{indexSC.scan}.scanUID};
+existingDoseUIDc      = {planC{indexSC.dose}.doseUID};
+existingStructureUIDc = {planC{indexSC.structures}.strUID};
+addedScanUIDc         = {planD{indexSD.scan}.scanUID};
+addedDoseUIDc         = {planD{indexSD.dose}.doseUID};
+addedStructureUIDc    = {planD{indexSD.structures}.strUID};
+
+% Find scans, doses, structs that already exist
+scansWithSameUID   = ismember(addedScanUIDc,existingScanUIDc);
+dosesWithSameUID   = ismember(addedDoseUIDc,existingDoseUIDc);
+structsWithSameUID = ismember(addedStructureUIDc,existingStructureUIDc);
 
 newScanNum  = nScans + 1;
 
@@ -240,12 +255,15 @@ if strcmp(ansBtnDS,'Yes')
 else
     whichScan = [];
     whichScanUID = [];
+    %Must include associated scans of any structures being merged.
+    scanIndV = sort(union(scanIndV, assocScansV));
 end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-%Must include associated scans of any structures being merged.
-scanIndV = sort(union(scanIndV, assocScansV));
+scanIndV   = setdiff(scanIndV,scansWithSameUID);
+doseIndV   = setdiff(doseIndV,dosesWithSameUID);
+structIndV = setdiff(structIndV,structsWithSameUID);
 
 %Remove structures from planD's uniformized data if they aren't being imported.
 toDelete = setdiff(1:length(structs), [structIndV]);
@@ -272,6 +290,15 @@ end
 
 %Filter by scans to include
 scans = scans(scanIndV);
+
+% reuniformize scan if new structures are added.
+matchingScanUIDs = ismember({structs.assocScanUID},{planC{indexSC.scan}(scanIndV).scanUID, scans.scanUID});
+if ~all(matchingScanUIDs)   
+    structuresToUniformize = nStructs + find(~matchingScanUIDs);
+    for iUniformize = 1:length(structuresToUniformize)
+        planC = updateStructureMatrices(planC, structuresToUniformize(iUniformize));
+    end
+end
 
 %Add scans to planC, along with structure array data if the original scan
 %number was in assocScansV.  IE, if any merged structures require the structure
@@ -307,6 +334,11 @@ for i=1:length(IM)
     planC{indexSC.IM} = dissimilarInsert(planC{indexSC.IM}, IM(i), nIM+i);
 end
 
+
+%Merge all GSPS objects
+for i=1:length(gsps)
+    planC{indexSC.GSPS} = dissimilarInsert(planC{indexSC.GSPS}, gsps(i), nGSPS+i);
+end
 
 %Uniformize the plan if necessary.
 if isempty(whichScan)

@@ -45,6 +45,8 @@ switch upper(modality)
         modality = 'CERR';
     case 'DEFORM'
         modality = 'DIR';
+    case 'ANNOTATION'
+        modality = 'PR';
 end
 % randNum = ceil(1000 + (9999-1000).*rand);
 randNum = 1000.*rand;

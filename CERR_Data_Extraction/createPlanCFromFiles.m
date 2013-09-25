@@ -129,7 +129,10 @@ for fileNum = 1:length(fileNamesC)
     if fileNum == 1
         planC = planD;
     elseif fileNum > 1
-        planC = planMerge(planC, planD);
+        scanIndV = 1;
+        doseIndV = 1;
+        structIndV = 1:length(planD{indexSD.structures});
+        planC = planMerge(planC, planD, scanIndV, doseIndV, structIndV, fileNamesC{fileNum});
     end
 end
 toc;

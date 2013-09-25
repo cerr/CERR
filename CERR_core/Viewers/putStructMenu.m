@@ -117,7 +117,7 @@ for i = 1:length(allScans)
 
     scanIndxV = find(assocScansV == allScans(i));
 
-    uimenu(hStrSetPannel(i), 'label', ['Assocated Scan Set: ' num2str(allScans(i))],'interruptible', 'off','Enable','off');
+    uimenu(hStrSetPannel(i), 'label', ['Associated Scan Set: ' num2str(allScans(i))],'interruptible', 'off','Enable','off');
     
     %Reassign color
     uimenu(hStrSetPannel(i), 'label', 'Reassign Color', 'callback',['structColorGUI(''init'',''' num2str(allScans(i)) ''')'], 'interruptible', 'on','Separator','on');

@@ -105,7 +105,7 @@ end
 
 planC{indexS.scan}(scanNum).scanInfo([1:KLow-1, KHigh+1:end]) = [];
 
-assocScanV = getStructureassociatedScan(1:length(planC{indexS.structures}));
+assocScanV = getStructureAssociatedScan(1:length(planC{indexS.structures}));
 
 indAssocV = find(assocScanV == scanNum);
 
@@ -130,5 +130,9 @@ end
 reRasterAndUniformize;
 
 stateS.scanSet = scanNum;
+
+% Update scan stats in stateS
+stateS.scanStats.minScanVal.(repSpaceHyp(planC{indexS.scan}(scanNum).scanUID)) = single(min(planC{indexS.scan}(scanNum).scanArray(:))) - planC{indexS.scan}(scanNum).scanInfo(1).CTOffset;
+stateS.scanStats.maxScanVal.(repSpaceHyp(planC{indexS.scan}(scanNum).scanUID)) = single(max(planC{indexS.scan}(scanNum).scanArray(:))) - planC{indexS.scan}(scanNum).scanInfo(1).CTOffset;
 
 sliceCallBack('refresh');

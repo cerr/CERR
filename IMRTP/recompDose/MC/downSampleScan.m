@@ -28,10 +28,11 @@ function downSampleScan(numRows,numCols)
 % You should have received a copy of the GNU General Public License
 % along with CERR.  If not, see <http://www.gnu.org/licenses/>.
 
+scanNum = 1;
+
 global planC
 indexS = planC{end};
-scanS = planC{indexS.scan};
-[xVals, yVals, zVals] = getScanXYZVals(scanS);
+[xVals, yVals, zVals] = getScanXYZVals(planC{indexS.scan}(scanNum));
 xValsDown = linspace(xVals(1),xVals(end),numCols);
 yValsDown = linspace(yVals(1),yVals(end),numRows);
 newGridInterval2 = xValsDown(2) - xValsDown(1);
@@ -39,22 +40,22 @@ newGridInterval1 = yValsDown(1) - yValsDown(2);
 
 %downsample scan
 h = waitbar(0,'Reinterpolating scan...');
-for j=1:length(planC{indexS.scan}(1).scanInfo)
+for j=1:length(planC{indexS.scan}(scanNum).scanInfo)
 
-    waitbar(j/length(planC{indexS.scan}(1).scanInfo),h);
+    waitbar(j/length(planC{indexS.scan}(scanNum).scanInfo),h);
 
-    sI = planC{indexS.scan}(1).scanInfo(j);
-    slc = planC{indexS.scan}(1).scanArray(:,:,j);
+    sI = planC{indexS.scan}(scanNum).scanInfo(j);
+    slc = planC{indexS.scan}(scanNum).scanArray(:,:,j);
 
     CTDatatype = class(slc);
 
-    [xV, yV, zV] = getScanXYZVals(planC{indexS.scan}(1), j);
+    [xV, yV, zV] = getScanXYZVals(planC{indexS.scan}(scanNum), j);
 
     sI.grid1Units = newGridInterval1;
     sI.grid2Units = newGridInterval2;
     sI.sizeOfDimension1 = numRows;
     sI.sizeOfDimension2 = numCols;
-    planC{indexS.scan}(1).scanInfo(j) = sI;
+    planC{indexS.scan}(scanNum).scanInfo(j) = sI;
 
     newSlc = finterp2(xV, yV, double(slc), xValsDown, yValsDown, 1,0);
     newSlc = reshape(newSlc, [length(yValsDown) length(xValsDown)]);
@@ -71,23 +72,10 @@ for j=1:length(planC{indexS.scan}(1).scanInfo)
     end
     newScanArray(:,:,j) = newSlc;
 end
-planC{indexS.scan}(1).scanArray = newScanArray;
+planC{indexS.scan}(scanNum).scanArray = newScanArray;
 close(h);
 
-%re-rasterize
-for i = 1:length(planC{indexS.structures})
-    planC{indexS.structures}(i).rasterSegments = [];
-end
-
-% re-uniformize
-planC{indexS.scan}.uniformScanInfo = [];
-planC{indexS.scan}.scanArraySuperior = [];
-planC{indexS.scan}.scanArrayInferior = [];
-planC{indexS.structureArray}.indicesArray = [];
-planC{indexS.structureArray}.bitsArray = [];
-planC{indexS.structureArrayMore}.indicesArray = [];
-planC{indexS.structureArrayMore}.bitsArray = [];
-planC = setUniformizedData(planC);
+planC = reRasterAndUniformize;
 
 %save this new planC
-sliceCallback('SAVEASPLANC')
+%sliceCallback('SAVEASPLANC')

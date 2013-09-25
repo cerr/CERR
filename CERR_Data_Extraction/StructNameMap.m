@@ -91,8 +91,16 @@ infoS(1) = [];
         end
         infoS(fileNum).structMap = structMap;        
  
-        if length(planC{indexS.dose}) > 0
+        if length(planC{indexS.dose}) == 1
             infoS(fileNum).doseMap = 1;
+        else
+            infoS(fileNum).doseMap = getMatchingIndex(dose_to_extract,{planC{indexS.dose}.fractionGroupID},'exact');
+            if isempty(infoS(fileNum).doseMap)
+                infoS(fileNum).doseMap = getMatchingIndex(dose_to_extract,{planC{indexS.dose}.fractionGroupID},'firstchars');
+                if isempty(infoS(fileNum).doseMap)
+                    infoS(fileNum).doseMap = getMatchingIndex(dose_to_extract,{planC{indexS.dose}.fractionGroupID},'regex');
+                end
+            end
         end
         % infoS(fileNum).doseMap = getMatchingIndex(dose_to_extract,{planC{indexS.dose}.fractionGroupID});
 

@@ -370,10 +370,10 @@ switch cellName
         dataS = initializeCERR('beamGeometry');
         
         for i = 1:length(rtPlans)
-            test = populate_planC_beamGeometry_field(rtPlans(i), dataS);
+            beamGeometryS = populate_planC_beamGeometry_field(rtPlans(i), dataS);
             
-            for j = 1:length(test)
-                dataS = dissimilarInsert(dataS, test(j), length(dataS)+1);
+            for j = 1:length(beamGeometryS)
+                dataS = dissimilarInsert(dataS, beamGeometryS(j), length(dataS)+1);
             end
         end
         
@@ -429,7 +429,7 @@ switch cellName
                     % ROI = strobj.getInt(org.dcm4che2.data.Tag.ROIContourSequence);
                     
                     nGsps = el.countItems;
-                    curGspsNum = 1; %wy modified for suppport multiple RS files
+                    curGspsNum = 1;
                     for j = 1:nGsps
                         
                         %Populate each field in the structure field set

@@ -173,6 +173,9 @@ for i=1:length(stateS.handle.CERRAxis)
             showStructures(hAxis);
             showScale(hAxis, i);
             showBeams(hAxis);
+            if stateS.annotToggle == 1
+                controlFrame('ANNOTATION','show')
+            end
     end
 
     % Cleanup eaxh axis to set correct axis limits
