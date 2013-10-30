@@ -226,6 +226,7 @@ switch stateS.ROIcreationMode
         planC = maskToCERRStructure(mask3M, uniflag, scanNum, structName, planC);
         
         % Refresh View
+        stateS.structsChanged = 1;
         CERRRefresh        
         
 end
