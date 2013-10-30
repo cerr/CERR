@@ -177,38 +177,8 @@ switch stateS.ROIcreationMode
         firstZval = zVals(1);
         firstXval = xVals(1);
         firstYval = yVals(1);
-        
-        if ~isempty(transXYpts)
-            [transRv,transCv,sV] = xyztom(transXYpts(:,1),transXYpts(:,2),firstZval*transXYpts(:,1).^0,scanNum,planC,uniflag);
-        end
-        
-        if ~isempty(SagYZpts)
-            [sagRv,cV,sagSv] = xyztom(firstXval*SagYZpts(:,1).^0,SagYZpts(:,1),SagYZpts(:,2),scanNum,planC,uniflag);
-        end
-        
-        if ~isempty(CorXZpts)
-            [rV,corCv,corSv] = xyztom(CorXZpts(:,1),CorXZpts(:,1).^0*firstYval,CorXZpts(:,2),scanNum,planC,uniflag);
-        end
-        
+
         uniformSiz = getUniformScanSize(planC{indexS.scan}(scanNum));
-        
-        transM = zeros(uniformSiz(1), uniformSiz(2), 'uint8');
-        [rowM, colM] = meshgrid(1:uniformSiz(1), 1:uniformSiz(2));
-        inM = inpolygon(rowM, colM, round(transRv),round(transCv));
-        transM(inM) = 1;
-        
-        sagM = zeros(uniformSiz(3), uniformSiz(1), 'uint8');
-        [rowM, slcM] = meshgrid(1:uniformSiz(1), 1:uniformSiz(3));
-        inM = inpolygon(rowM, slcM, round(sagRv),round(sagSv));
-        sagM(inM) = 1;
-        sagM = reshape(sagM,[uniformSiz(1) 1 uniformSiz(3)]);
-                
-        corM = zeros(uniformSiz(3), uniformSiz(2), 'uint8');
-        [colM, slcM] = meshgrid(1:uniformSiz(2), 1:uniformSiz(3));
-        inM = inpolygon(colM, slcM, round(corCv),round(corSv));
-        corM(inM) = 1;
-        corM = reshape(corM,[1 uniformSiz(2) uniformSiz(3)]);
-        
         mask3M = zeros(uniformSiz,'uint8');
         
         minSliceIndex = findnearest(zVals,zmin);
@@ -218,15 +188,40 @@ switch stateS.ROIcreationMode
         minColIndex = findnearest(xVals,xmin);
         maxColIndex = findnearest(xVals,xmax);
         
-        for slc = minSliceIndex:maxSliceIndex
-            mask3M(:,:,slc) = transM;
+        if ~isempty(transXYpts)
+            [transRv,transCv,sV] = xyztom(transXYpts(:,1),transXYpts(:,2),firstZval*transXYpts(:,1).^0,scanNum,planC,uniflag);
+            transM = zeros(uniformSiz(1), uniformSiz(2), 'uint8');
+            [rowM, colM] = meshgrid(1:uniformSiz(1), 1:uniformSiz(2));
+            inM = inpolygon(rowM, colM, round(transRv),round(transCv));
+            transM(inM) = 1;
+            for slc = minSliceIndex:maxSliceIndex
+                mask3M(:,:,slc) = transM';
+            end            
         end
-        for row = maxRowIndex:minRowIndex
-            mask3M(row,:,:) = mask3M(row,:,:) & corM;
+        
+        if ~isempty(SagYZpts)
+            [sagRv,cV,sagSv] = xyztom(firstXval*SagYZpts(:,1).^0,SagYZpts(:,1),SagYZpts(:,2),scanNum,planC,uniflag);
+            sagM = zeros(uniformSiz(3), uniformSiz(1), 'uint8');
+            [rowM, slcM] = meshgrid(1:uniformSiz(1), 1:uniformSiz(3));
+            inM = inpolygon(rowM, slcM, round(sagRv),round(sagSv));
+            sagM(inM) = 1;
+            sagM = reshape(sagM',[uniformSiz(1) 1 uniformSiz(3)]);
+            for col = minColIndex:maxColIndex
+                mask3M(:,col,:) = mask3M(:,col,:) & sagM;
+            end
         end
-        for col = minColIndex:maxColIndex
-            mask3M(:,col,:) = mask3M(:,col,:) & sagM;
-        end        
+        
+        if ~isempty(CorXZpts)
+            [rV,corCv,corSv] = xyztom(CorXZpts(:,1),CorXZpts(:,1).^0*firstYval,CorXZpts(:,2),scanNum,planC,uniflag);
+            corM = zeros(uniformSiz(3), uniformSiz(2), 'uint8');
+            [colM, slcM] = meshgrid(1:uniformSiz(2), 1:uniformSiz(3));
+            inM = inpolygon(colM, slcM, round(corCv),round(corSv));
+            corM(inM) = 1;
+            corM = reshape(corM',[1 uniformSiz(2) uniformSiz(3)]);
+            for row = maxRowIndex:minRowIndex
+                mask3M(row,:,:) = mask3M(row,:,:) & corM;
+            end            
+        end
 
         planC = maskToCERRStructure(mask3M, uniflag, scanNum, structName, planC);
         
