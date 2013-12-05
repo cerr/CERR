@@ -57,6 +57,7 @@ end
 
 if isfield(stateS, 'CERRFile')
     stateS.doseSetChanged = 1;
+    stateS.doseDisplayChanged = 1;
     stateS.doseSet = length(planC{indexS.dose});
     CERRRefresh
 end
