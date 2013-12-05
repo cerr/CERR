@@ -881,17 +881,17 @@ switch upper(instr)
             case 'normal'
                 sliceCallBack('focus', hAxis);
 
-                %wy
-                if stateS.clipState
-                    set(hFig, 'WindowButtonMotionFcn', 'sliceCallBack(''clipMotion'')', 'WindowButtonUpFcn', 'sliceCallBack(''clipMotionDone'')');
-                    sliceCallBack('clipStart');
-                    return;
-                end%wy
-
                 if stateS.zoomState %If zoom mode is on...
                     sliceCallBack('zoomIn',hAxis);
                     return;
                 end
+                
+                if stateS.clipState
+                    set(hFig, 'WindowButtonMotionFcn', 'sliceCallBack(''clipMotion'')', 'WindowButtonUpFcn', 'sliceCallBack(''clipMotionDone'')');
+                    sliceCallBack('clipStart');
+                    return;
+                end
+                
                 if stateS.gridState
                     set(hFig, 'WindowButtonMotionFcn', 'sliceCallBack(''rulerMotion'')', 'WindowButtonUpFcn', 'sliceCallBack(''rulerMotionDone'')');
                     sliceCallBack('rulerStart');
@@ -947,7 +947,7 @@ switch upper(instr)
 
                 
             case {'alt' 'extend'}
-                if ~stateS.gridState & ~stateS.doseQueryState & ~stateS.doseProfileState & ~stateS.zoomState & ~stateS.imageRegistration;
+                if ~stateS.gridState && ~stateS.doseQueryState && ~stateS.doseProfileState && ~stateS.zoomState && ~stateS.imageRegistration && ~stateS.clipState
                     %Re-enable right click menus;
                     for i=1:length(stateS.handle.CERRAxis)
                         CERRAxisMenu(stateS.handle.CERRAxis(i));
@@ -978,9 +978,7 @@ switch upper(instr)
                 end
                 %wy
                 if stateS.clipState
-                    ud = get(gca, 'userdata');
-                    delete(findobj('tag', 'clipBox', 'userdata', ud.view));
-
+                    sliceCallBack('SETCLIPSTATE');
                     return;
                 end%wy
         end
@@ -2525,66 +2523,108 @@ switch upper(instr)
     case 'CLIPSTART'
         hAxis = gcbo;
         ud = get(hAxis, 'userdata');
-        cP = get(hAxis, 'CurrentPoint');        
-        %Delete current clipbox to redraw
-        delete(findobj('tag', 'clipBox', 'userdata', ud.view));
-        %Delete clipboxes on other axes
-        hClip = findobj('tag', 'clipBox');
-        if ~isempty(hClip)
-            for i=1:length(hClip)
-                viewTypeC{i} = get(hClip(i),'userData');
-            end
-            viewTypeC = unique(viewTypeC);
-            if length(viewTypeC) > 1
-                indToDelete = ~ismember(viewTypeC,ud.view);
-                delete(hClip(indToDelete))
-            end
-        end
+        cP = get(hAxis, 'CurrentPoint');
         axesToDraw = hAxis;
-
-        switch ud.view
-            case 'transverse'
-                line([cP(1,1) cP(1,1),cP(1,1) cP(1,1) cP(1,1)], [cP(2,2) cP(2,2) cP(2,2) cP(2,2) cP(2,2)], ...
-                    'tag', 'clipBox', 'userdata', 'transverse', 'eraseMode', 'xor', ...
-                    'parent', axesToDraw, 'marker', 's', 'markerFaceColor', 'r', 'linestyle', '-', 'color', [.8 .8 .1], 'hittest', 'off');
-            case 'sagittal'
-                line([cP(1,1) cP(1,1),cP(1,1) cP(1,1) cP(1,1)], [cP(2,2) cP(2,2) cP(2,2) cP(2,2) cP(2,2)], ...
-                    'tag', 'clipBox', 'userdata', 'sagittal', 'eraseMode', 'xor', ...
-                    'parent', axesToDraw, 'marker', 's', 'markerFaceColor', 'r', 'linestyle', '-', 'color', [.8 .8 .1], 'hittest', 'off');
-            case 'coronal'
-                line([cP(1,1) cP(1,1),cP(1,1) cP(1,1) cP(1,1)], [cP(2,2) cP(2,2) cP(2,2) cP(2,2) cP(2,2)], ...
-                    'tag', 'clipBox', 'userdata', 'coronal', 'eraseMode', 'xor', ...
-                    'parent', axesToDraw, 'marker', 's', 'markerFaceColor', 'r', 'linestyle', '-', 'color', [.8 .8 .1], 'hittest', 'off');
+        
+        switch stateS.ROIcreationMode
+            
+            case 1 % Rectangulat
+                %Delete current clipbox to redraw
+                delete(findobj('tag', 'clipBox', 'userdata', ud.view));
+                %Delete clipboxes on other axes
+                hClip = findobj('tag', 'clipBox');
+                if ~isempty(hClip)
+                    for i=1:length(hClip)
+                        viewTypeC{i} = get(hClip(i),'userData');
+                    end
+                    viewTypeC = unique(viewTypeC);
+                    if length(viewTypeC) > 1
+                        indToDelete = ~ismember(viewTypeC,ud.view);
+                        delete(hClip(indToDelete))
+                    end
+                end                
+                
+                switch ud.view
+                    case 'transverse'
+                        line([cP(1,1) cP(1,1),cP(1,1) cP(1,1) cP(1,1)], [cP(2,2) cP(2,2) cP(2,2) cP(2,2) cP(2,2)], ...
+                            'tag', 'clipBox', 'userdata', 'transverse', 'eraseMode', 'xor', ...
+                            'parent', axesToDraw, 'marker', 's', 'markerFaceColor', 'r', 'linestyle', '-', 'color', [.8 .8 .1], 'hittest', 'off');
+                    case 'sagittal'
+                        line([cP(1,1) cP(1,1),cP(1,1) cP(1,1) cP(1,1)], [cP(2,2) cP(2,2) cP(2,2) cP(2,2) cP(2,2)], ...
+                            'tag', 'clipBox', 'userdata', 'sagittal', 'eraseMode', 'xor', ...
+                            'parent', axesToDraw, 'marker', 's', 'markerFaceColor', 'r', 'linestyle', '-', 'color', [.8 .8 .1], 'hittest', 'off');
+                    case 'coronal'
+                        line([cP(1,1) cP(1,1),cP(1,1) cP(1,1) cP(1,1)], [cP(2,2) cP(2,2) cP(2,2) cP(2,2) cP(2,2)], ...
+                            'tag', 'clipBox', 'userdata', 'coronal', 'eraseMode', 'xor', ...
+                            'parent', axesToDraw, 'marker', 's', 'markerFaceColor', 'r', 'linestyle', '-', 'color', [.8 .8 .1], 'hittest', 'off');
+                end
+                
+            case 2 % Free-hand
+                allLines = findobj(gcbo, 'tag', 'clipBox', 'userdata', ud.view);                
+                
+                if isempty(allLines)
+                    
+                    switch ud.view
+                        case 'transverse'
+                            line(cP(1,1), cP(2,2), ...
+                                'tag', 'clipBox', 'userdata', 'transverse', 'eraseMode', 'xor', ...
+                                'parent', axesToDraw, 'linestyle', '-', 'color', [.8 .8 .1], 'linewidth', 2, 'hittest', 'off');
+                        case 'sagittal'
+                            line(cP(1,1), cP(2,2), ...
+                                'tag', 'clipBox', 'userdata', 'sagittal', 'eraseMode', 'xor', ...
+                                'parent', axesToDraw, 'linestyle', '-', 'color', [.8 .8 .1], 'linewidth', 2, 'hittest', 'off');
+                        case 'coronal'
+                            line(cP(1,1), cP(2,2), ...
+                                'tag', 'clipBox', 'userdata', 'coronal', 'eraseMode', 'xor', ...
+                                'parent', axesToDraw, 'linestyle', '-', 'color', [.8 .8 .1], 'linewidth', 2, 'hittest', 'off');
+                    end
+                    
+                else
+                    p0 = allLines(1);
+                    xD = get(p0, 'XData');
+                    yD = get(p0, 'YData');
+                    xData = [xD, cP(1,1)];
+                    yData = [yD, cP(2,2)];
+                    set(p0, 'XData', xData, 'YData', yData);                    
+                    
+                end
+                
         end
+        
 
     case 'CLIPMOTION'
         hAxis = gca;
         ud = get(hAxis, 'userdata');
+        cP = get(hAxis, 'CurrentPoint');        
         allLines = findobj(gcbo, 'tag', 'clipBox', 'userdata', ud.view);
-        if isempty(allLines)
-            return;
-        end
-
         p0 = allLines(1);
-        cP = get(hAxis, 'CurrentPoint');
         xD = get(p0, 'XData');
         yD = get(p0, 'YData');
-
-        switch ud.view
-            case 'transverse'
-                set(allLines, 'XData', [xD(1), xD(1),   cP(1,1), cP(1,1), xD(1)]);
-                set(allLines, 'YData', [yD(1), cP(2,2), cP(2,2), yD(1),   yD(1)]);
-
-            case 'sagittal'
-                set(allLines, 'XData', [xD(1), cP(1,1), cP(1,1), xD(1), xD(1)]);
-                set(allLines, 'YData', [yD(1), yD(1),   cP(2,2), cP(2,2), yD(1)]);
-            case 'coronal'
-                set(allLines, 'XData', [xD(1), cP(1,1), cP(1,1), xD(1), xD(1)]);
-                set(allLines, 'YData', [yD(1), yD(1),   cP(2,2), cP(2,2), yD(1)]);
+        
+        switch stateS.ROIcreationMode
+            
+            case 1 % Rectangle
+                switch ud.view
+                    case 'transverse'
+                        set(allLines, 'XData', [xD(1), xD(1),   cP(1,1), cP(1,1), xD(1)]);
+                        set(allLines, 'YData', [yD(1), cP(2,2), cP(2,2), yD(1),   yD(1)]);
+                        
+                    case 'sagittal'
+                        set(allLines, 'XData', [xD(1), cP(1,1), cP(1,1), xD(1), xD(1)]);
+                        set(allLines, 'YData', [yD(1), yD(1),   cP(2,2), cP(2,2), yD(1)]);
+                    case 'coronal'
+                        set(allLines, 'XData', [xD(1), cP(1,1), cP(1,1), xD(1), xD(1)]);
+                        set(allLines, 'YData', [yD(1), yD(1),   cP(2,2), cP(2,2), yD(1)]);
+                end
+                %CERRStatusString(['(' num2str(xD(1)) ',' num2str(yD(1)) ') to (' num2str(cP(1,1)) ',' num2str(cP(2,2)) ') Dist: ' num2str(sqrt(sepsq([xD(1) yD(1)]', [cP(1,1) cP(2,2)]')), '%0.3g') ' cm'], 'gui');
+                return;
+                
+            case 2 % Free-hand                
+                xData = [xD, cP(1,1)];
+                yData = [yD, cP(2,2)];
+                set(p0, 'XData', xData, 'YData', yData);
         end
-        %CERRStatusString(['(' num2str(xD(1)) ',' num2str(yD(1)) ') to (' num2str(cP(1,1)) ',' num2str(cP(2,2)) ') Dist: ' num2str(sqrt(sepsq([xD(1) yD(1)]', [cP(1,1) cP(2,2)]')), '%0.3g') ' cm'], 'gui');
-        return;
-
+        
     case 'CLIPMOTIONDONE'
         hFig = gcbo;
         set(hFig, 'WindowButtonMotionFcn', '', 'WindowButtonUpFcn', '');
@@ -2594,12 +2634,37 @@ switch upper(instr)
         hBox = findobj(gca, 'tag', 'clipBox');
         setAxisInfo(gca, 'miscHandles', [oldMiscHandles reshape(hBox, 1, [])]);   
         
-        if isfield(stateS,'ROIcreationMode') && stateS.ROIcreationMode == 1            
-            createROI('clipBoxDrawn')
-        end
         return;
-        %     wy
 
+    case 'SETCLIPSTATE'
+        ud = get(gca, 'userdata');
+        clipHv = [];
+        for axisNum = 1:length(stateS.handle.CERRAxis)
+            clipHv = [clipHv findobj(stateS.handle.CERRAxis(axisNum),'tag','clipBox')];
+        end
+        if length(clipHv) >= 2
+            ButtonName = questdlg('Choose next step:', 'Next step?', 'Finalize this view', 'Redo this view', 'Create 3D ROI', 'Redo this view');
+        else
+            ButtonName = questdlg('Choose next step:', 'Next step?', 'Finalize this view', 'Redo this view', 'Exit', 'Redo this view');
+        end
+        
+        switch ButtonName
+            case 'Finalize this view'        
+                createROI('clipBoxDrawn')                
+        
+            case 'Redo this view'
+                delete(findobj('tag', 'clipBox', 'userdata', ud.view));
+                
+            case 'Create 3D ROI'
+                createROI('createROI')
+                
+            case 'Exit'
+                delete(findobj('tag', 'clipBox', 'userdata', ud.view));
+                stateS.clipState = 0;                
+        end        
+        return
+        
+        
     case 'BASECOLORMAP'
         % change display mode to different color maps for moving set
         hAxes = stateS.handle.CERRAxis;

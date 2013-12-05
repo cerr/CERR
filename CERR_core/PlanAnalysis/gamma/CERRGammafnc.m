@@ -210,6 +210,8 @@ switch upper(gamaCommand)
             
         createGammaDose(baseDose,refDose,doseDiffIN,DTA,threshold);
         
+        CERRGammafnc('DISPCERRGAMMA', length(planC{indexS.dose}));
+        
         
     case 'CALCGAMMA2D'
 
@@ -301,31 +303,52 @@ switch upper(gamaCommand)
         CERRGammafnc('DISPCERRGAMMA');
 
     case 'DISPCERRGAMMA'
+        gammaFig = findobj('Name','Gamma Stats');
+        if isempty(gammaFig)
+            doseNum = varargin{1};
+            structNum = 1;
+            gammaFig = figure('Name','Gamma Stats','NumberTitle','off','position',[10 , 10 , 300 , 400],...
+                'menubar','none','resize','off','tag','gamma2dfig');
+            uicontrol(gammaFig,'Style','text','position',[40, 350, 70, 30],'String',...
+                'Select Dose','fontsize',10)
+            uicontrol(gammaFig,'tag','DoseForGamma','Style','popup','position',[120, 350, 100, 30],'String',...
+                {planC{indexS.dose}.fractionGroupID},'fontsize',10,'callback','CERRGammafnc(''DISPCERRGAMMA'');','value',doseNum)
+            
+            uicontrol(gammaFig,'Style','text','position',[40, 300, 70, 30],'String',...
+                'Select Structure','fontsize',10)
+            uicontrol(gammaFig,'tag','StructForGamma','Style','popup','position',[120, 300, 100, 30],'String',...
+                {planC{indexS.structures}.structureName},'fontsize',10,'callback','CERRGammafnc(''DISPCERRGAMMA'');', 'value',structNum)
+            pieAxis = axes('parent',gammaFig,'tag','GammaPiChartAxis','units', 'pixels','position',[75 ,100 , 180 , 180],'color', [0.5 0.5 0.5], 'xTickLabel', [],...
+                'yTickLabel', [],'xTick', [],'yTick', [],'nextPlot','add');
+
+        elseif ~isempty(gcbo) && isequal(get(gcbo,'tag'),'StructForGamma')
+            structNum = get(gcbo,'value');
+            hDose = findobj('tag','DoseForGamma');
+            doseNum = get(hDose,'value');
+        elseif ~isempty(gcbo) && isequal(get(gcbo,'tag'),'DoseForGamma')
+            doseNum = get(gcbo,'value');
+            hStruct = findobj('tag','StructForGamma');
+            structNum = get(hStruct,'value');
+        end
+        
+        % Get dose at these structure voxels
+        scanNum = getStructureAssociatedScan(structNum, planC);
+        [rasterSegments, planC, isError] = getRasterSegments(structNum, planC);
+        [mask3M, uniqueSlices] = rasterToMask(rasterSegments,scanNum,planC);
+        [i,j,k] = find3d(mask3M);
+        [xValsScan, yValsScan, zValsScan] = getScanXYZVals(planC{indexS.scan}(scanNum));
+        structXvals = xValsScan(j);
+        structYvals = yValsScan(i);
+        structZvals = zValsScan(uniqueSlices(k));
+        % Getting Dose at structure x,y,z
+        dosesV = getDoseAt(doseNum, structXvals, structYvals, structZvals, planC);
+        
         % Display gamma result with Pie graph
-        passPer = length(find(stateS.gamma.gamma2D<1));
+        passPer = length(find(dosesV<=1.0001));
 
-        failPer = length(find(stateS.gamma.gamma2D>1));
+        failPer = numel(dosesV)-passPer;
 
-        gamaFig = figure('Name',[stateS.gamma.view 'Gamma 2D'],'NumberTitle','off','position',[10 , 10 , 1000 , 600],...
-            'menubar','none','resize','off','tag','gamma2dfig');
-
-        gammaAxis = axes('parent',gamaFig,'units', 'pixels','position',[10 ,10 , 580 , 580],'color', [0 0 0], 'xTickLabel', [],...
-            'yTickLabel', [],'xTick', [],'yTick', []);
-
-        clrBarAxis = axes('parent',gamaFig,'units', 'pixels','position',[595 ,10 , 15 , 550],'color', [0 0 0], 'xTickLabel', [],...
-            'yTickLabel', [],'xTick', [],'yTick', []);
-
-        imagesc(stateS.gamma.gamma2D,'parent',gammaAxis), colorbar(clrBarAxis,'peer',gammaAxis);
-
-        stateS.gamma.handle.gammaAxis = gammaAxis;
-        
-        stateS.gamma.handle.clrBarAxis = clrBarAxis;
-        
-        set(gammaAxis,'xTickLabel', [],'yTickLabel', [],'xTick', [],'yTick', []);
-
-        pieAxis =  axes('parent',gamaFig,'units', 'pixels','position',[760 ,350 , 180 , 180],'color', [0 0 0], 'xTickLabel', [],...
-            'yTickLabel', [],'xTick', [],'yTick', []);
-
+        pieAxis = findobj('tag','GammaPiChartAxis');
         x = [passPer failPer];
 
         explode = [0 1];
@@ -336,36 +359,12 @@ switch upper(gamaCommand)
 
         failPer = Roundoff((failPer/tot)*100,2);
 
-        pie(pieAxis,x,explode,{['Pass = ' num2str(passPer) '%'],['Fail = ' num2str(failPer) '%']}),colormap(jet);
+        hChild = get(pieAxis,'children');
+        delete(hChild)
+        hPie = pie(pieAxis,x,explode,{['Pass = ' num2str(passPer) '%'],['Fail = ' num2str(failPer) '%']});
+        set(hPie(2:2:end),'color','y','fontWeight','bold','fontSize',12)
+        colormap(jet);
 
-        % Check Box for Binary Gamma Vs Color Scaled
-        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-        h = uibuttongroup('parent',gamaFig,'units', 'pixels', 'visible','off','Position',[700, 200, 250, 40],'Tag','gammaViewRadio');
-        clrRdH = uicontrol('Style','Radio','String','Color Scale','pos',[5 5 100 30],'parent',h,'HandleVisibility','off');
-        uicontrol('Style','Radio','String','Binary','pos',[110 5 100 30],'parent',h,'HandleVisibility','off');
-
-        set(h,'SelectionChangeFcn',@chgCERRGammaClrMapRadio);
-        set(h,'SelectedObject',clrRdH);  % No selection
-        set(h,'Visible','on');
-
-        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-        uicontrol(gamaFig,'Style','text','position',[700, 160, 200, 20],'String',...
-            ['DTA =' num2str(stateS.gamma.DTA) ' mm'],'fontsize',10)
-
-        uicontrol(gamaFig,'Style','text','position',[700, 130, 200, 20],'String',...
-            ['Dose Diff = ' num2str(stateS.gamma.doseDiff) ' %'],'fontsize',10)
-
-        uicontrol(gamaFig,'Style','text','position',[700, 100, 200, 20],'String',...
-            ['Max Base Dose = ' num2str(stateS.gamma.refDoseScale) ' GY'],'fontsize',10)
-
-        uicontrol(gamaFig,'Style','text','position',[700, 70, 200, 20],'String',...
-            ['Pass = ' num2str(passPer) '%' '    '  'Fail = ' num2str(failPer) '%'],'fontsize',10)
-
-        uicontrol(gamaFig,'Style','text','position',[700, 30, 200, 20],'String','Pass < 1   Fail > 1','fontsize',10)
-
-        uicontrol(gamaFig,'Style','text','position',[780, 5, 150, 10],'String','Gamma above 2 is snapped to 2','fontsize',7,...
-            'fontweight','bold','ForegroundColor',[1 0 0])
 
     case 'GAMMACANCLE'
         delete(findobj('tag','CERRgammaInputGUI'));

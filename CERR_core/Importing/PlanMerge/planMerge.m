@@ -292,7 +292,7 @@ end
 scans = scans(scanIndV);
 
 % reuniformize scan if new structures are added.
-matchingScanUIDs = ismember({structs.assocScanUID},{planC{indexSC.scan}(scanIndV).scanUID, scans.scanUID});
+matchingScanUIDs = ismember({structs.assocScanUID},{planC{indexSC.scan}.scanUID, scans.scanUID});
 if ~all(matchingScanUIDs)   
     structuresToUniformize = nStructs + find(~matchingScanUIDs);
     for iUniformize = 1:length(structuresToUniformize)

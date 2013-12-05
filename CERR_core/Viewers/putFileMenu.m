@@ -45,11 +45,14 @@ else
     
     hMerge  = uimenu(hMenu, 'label', '&Merge Plans', 'callback',['sliceCallBack(''mergePlans'');'], 'interruptible','on', 'Separator', 'on', 'tag', 'Merge');       
 
-    hInsert = uimenu(hMenu, 'label', '&Insert...','interruptible','on', 'Separator', 'on', 'tag', 'insertPlan');
+    hInsert = uimenu(hMenu, 'label', '&Insert CERR...','interruptible','on', 'Separator', 'on', 'tag', 'insertPlan');
     uimenu(hInsert, 'label', '&plan(s) from another study', 'interruptible','on', 'callback', 'insertPlan');
     uimenu(hInsert, 'label', '&structure(s) from another study', 'interruptible','on', 'callback', 'insertStructs');
     uimenu(hInsert, 'label', '&scan set from another study', 'interruptible','on', 'callback', 'insertScanSet');
     
+    hDCMInsert = uimenu(hMenu, 'label', '&Insert DICOM...','interruptible','on', 'Separator', 'on', 'tag', 'insertDCMPlan');
+    uimenu(hDCMInsert, 'label', '&dose from another study', 'interruptible','on', 'callback', 'insertDCMDose');
+
     hImport = uimenu(hMenu, 'label', '&Import...','interruptible','on', 'Separator', 'on', 'tag', 'importPlan');
     hImportRTOG = uimenu(hImport, 'label', '&RTOG','interruptible','on');
     uimenu(hImportRTOG, 'label', '&Create new study', 'interruptible','on', 'callback', 'CERRImport');
@@ -68,7 +71,7 @@ if pos ~=0
   set(hMenu,'Position',pos)
 end
 
-toHide = [findobj(hMenu, 'tag', 'SaveOption'), findobj(hMenu, 'tag', 'SaveAsOption'), findobj(hMenu, 'tag', 'AnonymizeOption'),findobj(hMenu, 'tag', 'addPlan'), findobj(hMenu, 'tag', 'addRTOGPlan'), findobj(hMenu, 'tag', 'addScan'), findobj(hMenu, 'tag', 'insertPlan'), findobj(hMenu, 'tag', 'Merge')];
+toHide = [findobj(hMenu, 'tag', 'SaveOption'), findobj(hMenu, 'tag', 'SaveAsOption'), findobj(hMenu, 'tag', 'AnonymizeOption'),findobj(hMenu, 'tag', 'addPlan'), findobj(hMenu, 'tag', 'addRTOGPlan'), findobj(hMenu, 'tag', 'addScan'), findobj(hMenu, 'tag', 'insertPlan'), findobj(hMenu, 'tag', 'Merge'), findobj(hMenu, 'tag', 'insertDCMPlan')];
 if stateS.planLoaded
    set(toHide, 'enable', 'on') 
 else

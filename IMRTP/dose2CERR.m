@@ -124,19 +124,19 @@ if nargin > 5 & strcmpi(register,'CT')
 
     scanNum = getAssociatedScan(assocScanUID);
     
-    grid2Units = planC{indexS.scan}.scanInfo(scanNum).grid2Units;
-    grid1Units = planC{indexS.scan}.scanInfo(scanNum).grid1Units;
+    grid2Units = planC{indexS.scan}(scanNum).scanInfo(1).grid2Units;
+    grid1Units = planC{indexS.scan}(scanNum).scanInfo(1).grid1Units;
     doseInitS(1).horizontalGridInterval = grid2Units;
     doseInitS(1).verticalGridInterval= - abs(grid1Units);
 
     abGrid1Units = abs(grid1Units);
     abGrid2Units = abs(grid2Units);
 
-    xOffset = planC{indexS.scan}.scanInfo(scanNum).xOffset;
-    yOffset = planC{indexS.scan}.scanInfo(scanNum).yOffset;
+    xOffset = planC{indexS.scan}(scanNum).scanInfo(1).xOffset;
+    yOffset = planC{indexS.scan}(scanNum).scanInfo(1).yOffset;
 
-    CTWidth = planC{indexS.scan}.scanInfo(scanNum).sizeOfDimension2;
-    CTHeight = planC{indexS.scan}.scanInfo(scanNum).sizeOfDimension1;
+    CTWidth = planC{indexS.scan}(scanNum).scanInfo(1).sizeOfDimension2;
+    CTHeight = planC{indexS.scan}(scanNum).scanInfo(1).sizeOfDimension1;
 
     doseInitS(1).coord1OFFirstPoint=  xOffset - (CTWidth/2) * abGrid2Units + abGrid2Units/2;
     doseInitS(1).coord2OFFirstPoint=  yOffset + (CTHeight/2) * abGrid1Units - abGrid1Units/2;
