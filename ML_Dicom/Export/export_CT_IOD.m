@@ -44,6 +44,15 @@ indexS  = planC{end};
 nWritten = 0;
 
 for scanNum = 1:length(planC{indexS.scan})
+    
+    if length(planC{indexS.scan}) > 1
+        destDirPath = fullfile(filenameRoot,['Scan_',num2str(scanNum)]);
+        if ~exist(destDirPath,'dir')
+            mkdir(destDirPath)
+        end
+    else
+        destDirPath = filenameRoot;
+    end
 
     %Get the scan we are currently working with
     scanS   = planC{indexS.scan}(scanNum);
@@ -75,7 +84,7 @@ for scanNum = 1:length(planC{indexS.scan})
     end
 
     %For slice-specific modules iterate over scaninfo.
-    for i=1:length(planC{indexS.scan}.scanInfo)
+    for i=1:length(scanS.scanInfo)
 
         %Create a dcmobj to hold a single slice.
         dcmobj = org.dcm4che2.data.BasicDicomObject;
@@ -112,7 +121,7 @@ for scanNum = 1:length(planC{indexS.scan})
         clear imgobj imgplaneobj imgpixelobj ctimageobj SOPobj
 
         fileNum  = num2str(filenumber + nWritten);
-        filename = [filenameRoot '_IMG_' repmat('0', [1 5-length(fileNum)]) fileNum];
+        filename = fullfile(destDirPath,['IMG_', repmat('0', [1 5-length(fileNum)]), fileNum]);
 
         writefile_mldcm(dcmobj, filename);
 

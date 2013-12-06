@@ -113,7 +113,7 @@ for i = 1:length(planC{indexS.dose});
     clear ssobj;
 
     fileNum  = num2str(filenumber + nWritten);
-    filename = [filenameRoot '_RD_' repmat('0', [1 5-length(fileNum)]) fileNum];
+    filename = fullfile(filenameRoot,['RD_', repmat('0', [1 5-length(fileNum)]), fileNum]);
 
     writefile_mldcm(dcmobj, filename);
 
