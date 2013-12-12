@@ -31,9 +31,7 @@ function export_planC_to_DICOM(planC, destDir)
 
 tic;
 
-prefix = 'DCM';
-
-filenameRoot    = fullfile(destDir, prefix);
+filenameRoot    = destDir;
 nWritten        = 0;
 
 indexS = planC{end};
@@ -42,13 +40,12 @@ if length(planC{indexS.scan})> 1
     hButton = questdlg('Is this a Gamma Knife Plan','Export Option','YES','NO','YES');
     waitfor(hButton);
     
-    if strcmpi(hButton,'yes')
+    if strcmpi(hButton,'NO')
         export_gammaKnife(planC,destDir)
+        return
     else
-        warning('Export not implemented on multiple scan. Load planC with one scan and export');
-
-    end
-    return
+        %warning('Export not implemented on multiple scan. Load planC with one scan and export');
+    end    
 end
 
 %Generate UIDs for the planC.  These fields are temporary and will be

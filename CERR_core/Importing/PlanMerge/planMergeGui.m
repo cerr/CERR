@@ -75,7 +75,7 @@ switch upper(command)
         uicontrol(hFig, 'units',units,'Position',[dx+20 bartop+20+2*dy-15 90 15], 'style', 'text', 'String', 'Structures', 'fontweight', 'bold', 'backgroundcolor', frameColor);            
          
         ud.handles.dosesSlider   = uicontrol(hFig, 'units',units,'Position',[dx-15 bartop+10+5 20 dy-10], 'style', 'slider', 'enable', 'off');            
-        ud.handles.scansSlider   = uicontrol(hFig, 'units',units,'Position',[dx-15 bartop+20+5+dy 20 dy-10], 'style', 'slider', 'enable', 'off');  
+        ud.handles.scansSlider   = uicontrol(hFig, 'units',units,'Position',[dx-15 bartop+20+5+dy 20 dy-10], 'style', 'slider', 'enable', 'off', 'tag','scanSlider','callback','scanSlider_clk(''clicked'')');  
         ud.handles.structsSlider = uicontrol(hFig, 'units',units,'Position',[2*dx-5 bartop+10+5 20 2*dy], 'style', 'slider', 'enable', 'off','tag','structSlider','callback','structSlider_clk(''clicked'')');
 
         ud.handles.Browse       = uicontrol(hFig, 'units',units, 'Position',[20  loadbot+10 dx/2-15 25], 'style', 'pushbutton', 'string', 'Browse...', 'callback', 'planMergeGui(''BROWSE'')');
@@ -83,19 +83,21 @@ switch upper(command)
         ud.handles.pathText     = uicontrol(hFig, 'units',units, 'Position',[130 loadbot+30 375 25], 'fontsize', 8, 'style', 'text', 'string', {''}, 'backgroundcolor', frameColor);        
 
         %Create scan UIControls.
-        uicontrol(hFig, 'units',units,'Position',[15 bartop+10+2*dy-25 80 15], 'style', 'text', 'String', 'Modality', 'backgroundcolor', frameColor);   
-        uicontrol(hFig, 'units',units,'Position',[100 bartop+10+2*dy-25 60 15], 'style', 'text', 'String', 'Size', 'backgroundcolor', frameColor);   
-        uicontrol(hFig, 'units',units,'Position',[165 bartop+10+2*dy-25 60 15], 'style', 'text', 'String', 'Merge?', 'backgroundcolor', frameColor); 
+        uicontrol(hFig, 'units',units,'Position',[12 bartop+10+2*dy-25 12 15], 'style', 'text', 'String', '#', 'backgroundcolor', frameColor);   
+        uicontrol(hFig, 'units',units,'Position',[25 bartop+10+2*dy-25 80 15], 'style', 'text', 'String', 'Modality', 'backgroundcolor', frameColor);   
+        uicontrol(hFig, 'units',units,'Position',[120 bartop+10+2*dy-25 60 15], 'style', 'text', 'String', 'Size', 'backgroundcolor', frameColor);   
+        uicontrol(hFig, 'units',units,'Position',[180 bartop+10+2*dy-25 50 15], 'style', 'text', 'String', 'Merge?', 'backgroundcolor', frameColor); 
 
         uicontrol(hFig, 'units',units,'Position',[15 bartop+10+2*dy-45 80 15], 'style', 'text', 'String', 'ALL', 'backgroundcolor', frameColor, 'fontweight', 'bold');   
         uicontrol(hFig, 'units',units,'Position',[100 bartop+10+2*dy-45 60 15], 'style', 'text', 'String', '', 'backgroundcolor', frameColor);   
-        ud.handles.scanALLCheck = uicontrol(hFig, 'units',units,'Position',[185 bartop+10+2*dy-45 25 15], 'style', 'checkbox', 'backgroundcolor', frameColor, 'horizontalAlignment', 'center', 'callback', 'planMergeGui(''ALLCHECK'')', 'tag', 'scan', 'enable', 'off');                         
+        ud.handles.scanALLCheck = uicontrol(hFig, 'units',units,'Position',[200 bartop+10+2*dy-45 25 15], 'style', 'checkbox', 'backgroundcolor', frameColor, 'horizontalAlignment', 'center', 'callback', 'planMergeGui(''ALLCHECK'')', 'tag', 'scan', 'enable', 'off');                         
                 
         numRows = 6;
         for i=1:numRows
-            ud.handles.scanName(i)  = uicontrol(hFig, 'units',units,'Position',[15 bartop+10+2*dy-45-i*20 80 15], 'style', 'text', 'String', 'CT Scan', 'backgroundcolor', frameColor, 'visible', 'off');   
-            ud.handles.scanSize(i)  = uicontrol(hFig, 'units',units,'Position',[100 bartop+10+2*dy-45-i*20 60 15], 'style', 'text', 'String', '100', 'backgroundcolor', frameColor, 'visible', 'off');   
-            ud.handles.scanCheck(i) = uicontrol(hFig, 'units',units,'Position',[185 bartop+10+2*dy-45-i*20 25 15], 'style', 'checkbox', 'backgroundcolor', frameColor, 'horizontalAlignment', 'center', 'userdata', i, 'Tag', 'ScanCheck', 'callback', 'planMergeGui(''Check'')', 'visible', 'off');
+            ud.handles.scanNumber(i)  = uicontrol(hFig, 'units',units,'Position',[12 bartop+10+2*dy-45-i*20 20 15], 'style', 'text', 'String', '1', 'backgroundcolor', frameColor, 'visible', 'off');   
+            ud.handles.scanName(i)    = uicontrol(hFig, 'units',units,'Position',[30 bartop+10+2*dy-45-i*20 90 15], 'style', 'text', 'String', 'CT Scan', 'backgroundcolor', frameColor, 'visible', 'off');   
+            ud.handles.scanSize(i)    = uicontrol(hFig, 'units',units,'Position',[125 bartop+10+2*dy-45-i*20 60 15], 'style', 'text', 'String', '100', 'backgroundcolor', frameColor, 'visible', 'off');   
+            ud.handles.scanCheck(i)   = uicontrol(hFig, 'units',units,'Position',[200 bartop+10+2*dy-45-i*20 25 15], 'style', 'checkbox', 'backgroundcolor', frameColor, 'horizontalAlignment', 'center', 'userdata', i, 'Tag', 'ScanCheck', 'callback', 'planMergeGui(''Check'')', 'visible', 'off');
         end
         ud.numScanRows = numRows;        
         
@@ -163,7 +165,7 @@ switch upper(command)
             set(ud.handles.filenameText, 'string', fname, 'userdata', fullfile(pathname, fname));
         end
         
-        planMergeGui('STATUS', 'Loading selected plan and analyzing its contents. Please wait.');
+        planMergeGui('STATUS', 'Loading selected plan and analyzing its contents...');
         planMergeGui('LOADPLAN');
         
     case 'LOADPLAN'
@@ -254,16 +256,26 @@ switch upper(command)
         set(ud.handles.scanSize,  'visible', 'off');
         set(ud.handles.scanName,  'visible', 'off');        
         set(ud.handles.scanCheck, 'visible', 'off');                                
-        nScans = length(ud.checkedScans);                
-        for i=1:min(length(ud.handles.scanName), nScans)
-            scanNum  = firstVisStruct+i-1;
-            modality = planInfo.scans(scanNum).modality;
-            size     = planInfo.scans(scanNum).sizeInMB;
-            set(ud.handles.scanName(i), 'string', modality, 'visible', 'on');
-            set(ud.handles.scanSize(i), 'string', [num2str(round(size)) ' MB'], 'visible', 'on');            
-            set(ud.handles.scanCheck(i), 'visible', 'on', 'value', ud.checkedScans(scanNum));
+        nScans = length(ud.checkedScans);
+        firstVisScan = ud.firstVisScan;
+        
+        if nScans > 6
+            hSlider = findobj('tag','scanSlider');
+            set(hSlider,'enable', 'on','BackgroundColor',[0 0 0]);
+            set(hSlider,'min',1,'max',nScans,'value',nScans,'sliderstep',[1/(nScans-1) 1/(nScans-1)]);
+            scanSlider_clk('init', planInfo, planC);
+        else
+            for i=1:min(length(ud.handles.scanName), nScans)
+                scanNum  = firstVisScan+i-1;
+                modality = planInfo.scans(scanNum).modality;
+                size     = planInfo.scans(scanNum).sizeInMB;                
+                set(ud.handles.scanNumber(i), 'string', num2str(scanNum), 'visible', 'on');
+                set(ud.handles.scanName(i), 'string', modality, 'visible', 'on');
+                set(ud.handles.scanSize(i), 'string', [num2str(round(size)) ' MB'], 'visible', 'on');
+                set(ud.handles.scanCheck(i), 'visible', 'on', 'value', ud.checkedScans(scanNum));
+            end
         end
-
+        
         %Refresh dose struct UIelements.
         set(ud.handles.doseSize,  'visible', 'off');
         set(ud.handles.doseName,  'visible', 'off');        
