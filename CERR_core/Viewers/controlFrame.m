@@ -391,17 +391,6 @@ switch command
                         contourControl('drawMode');
                     case 2
                         %Edit Mode.
-                        %clear mesh associated with this structure
-                        try
-                            currDir = cd;
-                            meshDir = fileparts(which('libMeshContour.dll'));
-                            cd(meshDir)
-                            loadlibrary('libMeshContour','MeshContour.h')
-                            calllib('libMeshContour','clear',planC{indexS.structures}(structNum).strUID)
-                            cd(currDir)
-                            %planC{indexS.structures}(structNum).meshRep = 0;
-                        catch
-                        end
                         planC{indexS.structures}(structNum).strUID          = createUID('structure');
                         planC{indexS.structures}(structNum).assocScanUID    = planC{indexS.scan}(scanNum).scanUID;
                         
