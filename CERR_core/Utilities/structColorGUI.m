@@ -113,6 +113,28 @@ switch upper(command)
         
         ud.handles.currentColor = [];
         
+        structLen = length(ud.assocStructs);
+        if (structLen/28) < 2
+            max = 2;
+        elseif (structLen/28) > 2
+            max = 3;
+        elseif (structLen/28) > 3
+            max = 4;
+        end
+        
+        try
+            value = ud.sliderValue;
+        catch
+            value = max;
+            ud.slider.oldValue = value;
+        end
+        if max == 2
+            sliderstep = 1;
+        else
+            sliderstep = 1/max;
+        end
+        set(ud.handles.structsSlider,'min',1,'max',max,'value',max,'sliderstep',[sliderstep sliderstep]);
+        
         %Log
         ud.swapHistory = [];
 
@@ -137,22 +159,6 @@ switch upper(command)
         if structLen > 28
             set(ud.handles.structsSlider,'enable', 'on');
 
-            if (structLen/28) < 2
-                max = 2;
-            elseif (structLen/28) > 2
-                max = 3;
-            elseif (structLen/28) > 3
-                max = 4;
-            end
-
-            try
-                value = ud.sliderValue;
-            catch
-                value = max;
-                ud.slider.oldValue = value;
-            end
-
-            set(ud.handles.structsSlider,'min',1,'max',max,'value',value,'sliderstep',[1 1]);
             % initialize structure slider
             set(hFig,'Userdata',ud);
 
@@ -190,16 +196,17 @@ switch upper(command)
         set(ud.handles.structsSlider,'value',value)
         ud.slider.oldValue = value;
         set(findobj('Tag','structColorGUI'),'Userdata',ud);
+        assocStructs = ud.assocStructs;
 
-        numStruct = getStructDispLen(value);
+        numStruct = getStructDispLen(value,assocStructs);
 
         for i = 1:length(numStruct)
-            structNum  = numStruct(i);
-            structName = planC{indexS.structures}(ud.assocStructs(structNum)).structureName;
-            set(ud.handles.strName(i), 'string', structName, 'visible', 'on','foregroundcolor',ud.strColorOldM(structNum,:));
+            structNum  = assocStructs(numStruct(i));
+            structName = planC{indexS.structures}(structNum).structureName;
+            set(ud.handles.strName(i), 'string', structName, 'visible', 'on','foregroundcolor',ud.strColorOldM(numStruct(i),:));
             set(ud.handles.strSelectColor(i),'visible', 'on')
             set(ud.handles.strNum(i) , 'visible','on','String',structNum);            
-            set(ud.handles.newName(i) ,'visible','on','backgroundcolor',ud.strColorM(structNum,:));
+            set(ud.handles.newName(i) ,'visible','on','backgroundcolor',ud.strColorM(numStruct(i),:));
         end
 
         for j = length(numStruct)+1:28
@@ -384,7 +391,7 @@ switch upper(command)
             end
         else
             oldValue = ud.slider.oldValue;
-            oldStructNum = getStructDispLen(oldValue);
+            oldStructNum = getStructDispLen(oldValue,ud.assocStructs);
 
             for jj = 1: length(oldStructNum)
                 planC{indexS.structures}(ud.assocStructs(oldStructNum(jj))).structureColor = ud.strColorM(oldStructNum(jj),:);
@@ -402,7 +409,7 @@ switch upper(command)
         
 end
 
-function numStruct = getStructDispLen(value)
+function numStruct = getStructDispLen(value,structsV)
 global planC
 
 indexS = planC{end};
@@ -414,7 +421,7 @@ if max == 2
     if value == 2
         numStruct = 1:28;
     elseif value == 1
-        numStruct = 29:length(planC{indexS.structures});
+        numStruct = 29:length(structsV);
     end
 elseif max == 3
     if value == 3
@@ -422,6 +429,6 @@ elseif max == 3
     elseif value == 2
         numStruct = 29:56;
     elseif value == 1
-        numStruct = 56:length(planC{indexS.structures});
+        numStruct = 57:length(structsV);
     end
 end
