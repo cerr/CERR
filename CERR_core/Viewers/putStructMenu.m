@@ -57,7 +57,7 @@ else
 
     %First time for menu, add permenant ui submenus.
     %Call up Mesh-representation GUI
-    uimenu(hStructMenu, 'label', 'Mesh Representation', 'callback','selectStructsToMeshGUI(''init'')','interruptible','on');
+    %uimenu(hStructMenu, 'label', 'Mesh Representation', 'callback','selectStructsToMeshGUI(''init'')','interruptible','on');
     
     %Call up editStructures
     uimenu(hStructMenu, 'label', 'Contouring', 'callback',['sliceCallBack(''contourMode'')'],'interruptible','on', 'separator', 'on');
@@ -113,7 +113,7 @@ for i = 1:length(allScans)
         strSep = 'on';
     end
 
-    hStrSetPannel(i)= uimenu(hStructMenu, 'label', ['Structure Set ' num2str(i)], 'callback','','interruptible','on', 'Separator', strSep);
+    hStrSetPannel(i)= uimenu(hStructMenu, 'label', ['Structure Set ' num2str(allScans(i))], 'callback','','interruptible','on', 'Separator', strSep);
 
     scanIndxV = find(assocScansV == allScans(i));
 
@@ -123,9 +123,9 @@ for i = 1:length(allScans)
     uimenu(hStrSetPannel(i), 'label', 'Reassign Color', 'callback',['structColorGUI(''init'',''' num2str(allScans(i)) ''')'], 'interruptible', 'on','Separator','on');
     
     %Turn all structs on
-    uimenu(hStrSetPannel(i), 'label', ['Turn ON Set ' num2str(i)], 'callback',['sliceCallBack(''ViewAllStructures'',''' num2str(i) ''')'], 'interruptible', 'on','Separator','on');
+    uimenu(hStrSetPannel(i), 'label', ['Turn ON Set ' num2str(allScans(i))], 'callback',['sliceCallBack(''ViewAllStructures'',''' num2str(allScans(i)) ''')'], 'interruptible', 'on','Separator','on');
 
-    uimenu(hStrSetPannel(i), 'label', ['Turn OFF Set ' num2str(i)], 'callback',['sliceCallBack(''ViewNoStructures'',''' num2str(i) ''')'], 'interruptible', 'on');
+    uimenu(hStrSetPannel(i), 'label', ['Turn OFF Set ' num2str(allScans(i))], 'callback',['sliceCallBack(''ViewNoStructures'',''' num2str(allScans(i)) ''')'], 'interruptible', 'on');
 
     maxStructToShow = 25;
     numStructs = length(scanIndxV);
@@ -153,7 +153,7 @@ for i = 1:length(allScans)
     end
 
     if numStructs > maxStructToShow
-        uimenu(hStrSetPannel(i), 'label', 'More Structures...', 'callback',['sliceCallBack(''selectStructMore'',',num2str(i),')'],...
+        uimenu(hStrSetPannel(i), 'label', 'More Structures...', 'callback',['sliceCallBack(''selectStructMore'',',num2str(allScans(i)),')'],...
             'interruptible','on','tag','struct menu', 'Separator', sep, 'Checked', checked);
     end
     
