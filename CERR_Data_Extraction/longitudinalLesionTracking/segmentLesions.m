@@ -17,7 +17,7 @@ for i=1:length(lesionS)
     
     try        
         y = [y; y+0.001*y.*rand(length(y),1)];
-        x = [x; x+0.001*x.*rand(length(x),1)];
+        x = [x+0.001*x.*rand(length(x),1); x];
         % Fit Elipse
         [z, a, b, alpha] = fitellipse([x(:)'; y(:)']);
         % Generate points along ellipse
@@ -29,6 +29,27 @@ for i=1:length(lesionS)
         
         % Generate points along ellipse
         xyContourPoints = Q * [a * cos(t); b * sin(t)] + repmat(z, 1, npts);
+        
+        % Check dimensions of fitted ellipse
+        minX = min(xyContourPoints(:,1));
+        maxX = max(xyContourPoints(:,1));
+        minY = min(xyContourPoints(:,2));
+        maxY = max(xyContourPoints(:,2));
+        
+        minDataX = min(x);
+        maxDataX = max(x);
+        minDataY = min(y);
+        maxDataY = max(y);
+    
+        deltaX = maxDataX-minDataX;
+        deltaY = maxDataY-minDataY;
+        
+        ellDeltaX = maxX-minX;
+        ellDeltaY = maxY-minY;
+        
+        if ellDeltaX/deltaX > 4 || ellDeltaY/deltaY > 4
+            error('Cannot fit ellipse. Fitting Circle.')
+        end
         
     catch
         
