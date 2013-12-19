@@ -343,6 +343,9 @@ switch upper(gamaCommand)
         % Getting Dose at structure x,y,z
         dosesV = getDoseAt(doseNum, structXvals, structYvals, structZvals, planC);
         
+        % Filter points that do not have gamma calculated
+        dosesV = dosesV(~isnan(dosesV));
+        
         % Display gamma result with Pie graph
         passPer = length(find(dosesV<=1.0001));
 
