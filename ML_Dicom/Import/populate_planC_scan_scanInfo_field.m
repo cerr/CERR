@@ -152,6 +152,10 @@ switch fieldname
         %Image Position (Patient)
         imgpos = dcm2ml_Element(dcmobj.get(hex2dec('00200032')));
         
+        if isempty(imgpos)
+            return;
+        end
+        
         seriesDescription =  dcm2ml_Element(dcmobj.get(hex2dec('0008103E')));
 
         if strcmpi(seriesDescription,'CORONALS')
@@ -166,6 +170,12 @@ switch fieldname
     case 'xOffset'
         %Image Position (Patient)
         imgpos = dcm2ml_Element(dcmobj.get(hex2dec('00200032')));
+        
+        if isempty(imgpos)
+            dataS = 0;
+            xOffset = dataS;
+            return;
+        end
 
         %Pixel Spacing
         pixspac = dcm2ml_Element(dcmobj.get(hex2dec('00280030')));
@@ -202,6 +212,12 @@ switch fieldname
         %Image Position (Patient)
         imgpos = dcm2ml_Element(dcmobj.get(hex2dec('00200032')));
 
+        if isempty(imgpos)
+            dataS = 0;
+            yOffset = dataS;
+            return;
+        end
+        
         %Pixel Spacing
         pixspac = dcm2ml_Element(dcmobj.get(hex2dec('00280030')));
 
