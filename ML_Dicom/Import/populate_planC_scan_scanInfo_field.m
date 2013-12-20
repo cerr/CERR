@@ -152,6 +152,11 @@ switch fieldname
         %Image Position (Patient)
         imgpos = dcm2ml_Element(dcmobj.get(hex2dec('00200032')));
         
+        if isempty(imgpos)
+            % Multiframe NM image. Setting this is handled by populate_planC_scan_field.
+            return;
+        end
+        
         seriesDescription =  dcm2ml_Element(dcmobj.get(hex2dec('0008103E')));
 
         if strcmpi(seriesDescription,'CORONALS')
@@ -166,14 +171,22 @@ switch fieldname
     case 'xOffset'
         %Image Position (Patient)
         imgpos = dcm2ml_Element(dcmobj.get(hex2dec('00200032')));
+        
+        imgOri = dcm2ml_Element(dcmobj.get(hex2dec('00200037')));
+        
+        if isempty(imgpos)
+            % Multiframe NM image.
+            detectorInfoSequence = dcm2ml_Element(dcmobj.get(hex2dec('00540022')));
+            imgpos = detectorInfoSequence.Item_1.ImagePositionPatient;
+            imgOri = detectorInfoSequence.Item_1.ImageOrientationPatient;            
+        end
 
         %Pixel Spacing
         pixspac = dcm2ml_Element(dcmobj.get(hex2dec('00280030')));
 
         %Columns
         nCols  = dcm2ml_Element(dcmobj.get(hex2dec('00280011')));
-
-        imgOri = dcm2ml_Element(dcmobj.get(hex2dec('00200037')));
+        
         if (imgOri(1)==1)
             xOffset = imgpos(1) + (pixspac(2) * (nCols - 1) / 2);
 		elseif (imgOri(1)==-1)
@@ -201,15 +214,20 @@ switch fieldname
     case 'yOffset'
         %Image Position (Patient)
         imgpos = dcm2ml_Element(dcmobj.get(hex2dec('00200032')));
+        imgOri = dcm2ml_Element(dcmobj.get(hex2dec('00200037')));
 
+        if isempty(imgpos)
+            % Multiframe NM image.
+            detectorInfoSequence = dcm2ml_Element(dcmobj.get(hex2dec('00540022')));
+            imgpos = detectorInfoSequence.Item_1.ImagePositionPatient;
+            imgOri = detectorInfoSequence.Item_1.ImageOrientationPatient;            
+        end
+        
         %Pixel Spacing
         pixspac = dcm2ml_Element(dcmobj.get(hex2dec('00280030')));
 
         %Rows
         nRows  = dcm2ml_Element(dcmobj.get(hex2dec('00280010')));
-
-        imgOri = dcm2ml_Element(dcmobj.get(hex2dec('00200037')));
-		
 		
         if (imgOri(5)==1)
             yOffset = imgpos(2) + (pixspac(1) * (nRows - 1) / 2);
