@@ -1132,8 +1132,19 @@ switch command
                 if stateS.imageRegistration, return; end;
                 %initial moving CTLevel and Window
                 if ~isfield(stateS, 'Mov')
-                    stateS.Mov.CTLevel = 0;
-                    stateS.Mov.CTWidth = 300;
+                    scanNum = stateS.imageRegistrationMovDataset;
+                    dataType = stateS.imageRegistrationMovDatasetType;
+                    if strcmpi(dataType,'scan')
+                        CTLevel = planC{indexS.scan}(scanNum).scanInfo(1).DICOMHeaders.WindowCenter;
+                        CTWidth = planC{indexS.scan}(scanNum).scanInfo(1).DICOMHeaders.WindowWidth;
+                        if isnumeric(CTLevel) && isnumeric(CTWidth)
+                            stateS.Mov.CTLevel = CTLevel;
+                            stateS.Mov.CTWidth = CTWidth;
+                        else
+                            stateS.Mov.CTLevel = 0;
+                            stateS.Mov.CTWidth = 300;
+                        end
+                    end
                 end
                 
                 if stateS.CTToggle == -1

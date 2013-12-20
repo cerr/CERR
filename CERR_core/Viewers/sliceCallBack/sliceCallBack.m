@@ -614,6 +614,17 @@ switch upper(instr)
         catch
             warning('Unable to save plan history.  No history will be shown in file menu.');
         end
+        
+        % Set Window and Width from DICOM header, if available
+        CTLevel = planC{indexS.scan}(stateS.scanSet).scanInfo(1).DICOMHeaders.WindowCenter;
+        CTWidth = planC{indexS.scan}(stateS.scanSet).scanInfo(1).DICOMHeaders.WindowWidth;
+        if isnumeric(CTLevel) && isnumeric(CTWidth)
+            set(stateS.handle.CTLevel,'string',num2str(CTLevel(1)))
+            set(stateS.handle.CTWidth,'string',num2str(CTWidth(1)))
+            sliceCallBack('CTLevel')
+            sliceCallBack('CTWidth')
+        end
+        
         %Update status string
         [pathstr, name, ext] = fileparts(stateS.CERRFile);
         CERRStatusString(['Loaded ' name ext '. Ready.']);
@@ -2314,6 +2325,16 @@ switch upper(instr)
 
         showPlaneLocators;
 
+        % Set Window and Width from DICOM header, if available
+        CTLevel = planC{indexS.scan}(stateS.scanSet).scanInfo(1).DICOMHeaders.WindowCenter;
+        CTWidth = planC{indexS.scan}(stateS.scanSet).scanInfo(1).DICOMHeaders.WindowWidth;
+        if isnumeric(CTLevel) && isnumeric(CTWidth)
+            set(stateS.handle.CTLevel,'string',num2str(CTLevel(1)))
+            set(stateS.handle.CTWidth,'string',num2str(CTWidth(1)))
+            sliceCallBack('CTLevel')
+            sliceCallBack('CTWidth')
+        end
+        
         stateS.scanChkFlag = 1;
 
         CERRRefresh
