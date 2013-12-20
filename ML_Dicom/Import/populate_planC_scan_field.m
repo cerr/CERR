@@ -184,7 +184,7 @@ switch fieldname
                 [jnk, zOrder]       = sort(zValues);
                 dataS(:,:,1:end)    = dataS(:,:,zOrder);
                 
-            case 'Yes'
+            case 'Yes' % Assume Nuclear medicine image
                 
                     sliceV = dcm2ml_Element(imgobj.get(hex2dec('7FE00010')));
                     
@@ -194,8 +194,9 @@ switch fieldname
                     %Columns
                     nCols  = dcm2ml_Element(imgobj.get(hex2dec('00280011')));
                     
-                    %Image Position (Patient)
-                    imgpos = dcm2ml_Element(imgobj.get(hex2dec('00200032')));
+                    %Image Position (Patient)                   
+                    detectorInfoSequence = dcm2ml_Element(imgobj.get(hex2dec('00540022')));
+                    imgOri = detectorInfoSequence.Item_1.ImageOrientationPatient;
                     
                     %Pixel Representation commented by wy
                     pixRep = dcm2ml_Element(imgobj.get(hex2dec('00280103')));
@@ -232,16 +233,14 @@ switch fieldname
                     dataS = reshape(sliceV, [nCols nRows numMultiFrameImages]);
                     dataS = permute(dataS,[2 1 3]);
                     
-                    %Check the image orientation.
-                    imgOri = dcm2ml_Element(imgobj.get(hex2dec('00200037')));
                     %Check patient position
                     pPos = dcm2ml_Element(imgobj.get(hex2dec('00185100')));
                     
-                    if ~isempty(imgOri) && (imgOri(1)==-1)
-                        dataS(:,:,imageNum) = flipdim(dataS(:,:,imageNum), 2);
+                    if (imgOri(1)==-1)
+                        dataS = flipdim(dataS, 2);
                     end
-                    if ~isempty(imgOri) && (imgOri(5)==-1)
-                        dataS(:,:,imageNum) = flipdim(dataS(:,:,imageNum), 1);
+                    if (imgOri(5)==-1)
+                        dataS = flipdim(dataS, 1);
                     end
                     
                     if isequal(pPos,'HFP') || isequal(pPos,'FFP')
@@ -311,15 +310,18 @@ switch fieldname
                 [jnk, zOrder]   = sort(zValues);
                 dataS(1:end)    = dataS(zOrder);
                 
-            case 'Yes'
-                sliceThickness = dcm2ml_Element(imgobj.get(hex2dec('00180050')));
-                zValues = 0:sliceThickness:sliceThickness*double(numMultiFrameImages-1);
+            case 'Yes' % Assume Nuclear Medicine Image
+                sliceSpacing = dcm2ml_Element(imgobj.get(hex2dec('00180088')));
+                %zValues = 0:sliceThickness:sliceThickness*double(numMultiFrameImages-1);
+                detectorInfoSequence = dcm2ml_Element(imgobj.get(hex2dec('00540022')));                                
+                imgpos = detectorInfoSequence.Item_1.ImagePositionPatient;
+                zValuesV = imgpos(3):sliceSpacing:imgpos(3)+sliceSpacing*double(numMultiFrameImages-1);
                 for i = 1:length(names)
                     dataS(1).(names{i}) = populate_planC_scan_scanInfo_field(names{i}, IMAGE, imgobj);
                 end
                 for imageNum = 1:numMultiFrameImages
                    dataS(imageNum) = dataS(1);
-                   dataS(imageNum).zValue = zValues(imageNum)/10; 
+                   dataS(imageNum).zValue = -zValuesV(imageNum)/10; 
                 end
                 
         end
