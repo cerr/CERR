@@ -620,13 +620,15 @@ switch upper(instr)
         end
         
         % Set Window and Width from DICOM header, if available
-        CTLevel = planC{indexS.scan}(stateS.scanSet).scanInfo(1).DICOMHeaders.WindowCenter;
-        CTWidth = planC{indexS.scan}(stateS.scanSet).scanInfo(1).DICOMHeaders.WindowWidth;
-        if isnumeric(CTLevel) && isnumeric(CTWidth)
-            set(stateS.handle.CTLevel,'string',num2str(CTLevel(1)))
-            set(stateS.handle.CTWidth,'string',num2str(CTWidth(1)))
-            sliceCallBack('CTLevel')
-            sliceCallBack('CTWidth')
+        if isfield(planC{indexS.scan}(stateS.scanSet).scanInfo(1).DICOMHeaders,'WindowCenter') && isfield(planC{indexS.scan}(stateS.scanSet).scanInfo(1).DICOMHeaders,'WindowWidth')
+            CTLevel = planC{indexS.scan}(stateS.scanSet).scanInfo(1).DICOMHeaders.WindowCenter;
+            CTWidth = planC{indexS.scan}(stateS.scanSet).scanInfo(1).DICOMHeaders.WindowWidth;
+            if isnumeric(CTLevel) && isnumeric(CTWidth)
+                set(stateS.handle.CTLevel,'string',num2str(CTLevel(1)))
+                set(stateS.handle.CTWidth,'string',num2str(CTWidth(1)))
+                sliceCallBack('CTLevel')
+                sliceCallBack('CTWidth')
+            end
         end
         
         %Update status string
