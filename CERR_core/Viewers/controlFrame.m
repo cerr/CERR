@@ -1135,8 +1135,12 @@ switch command
                     scanNum = stateS.imageRegistrationMovDataset;
                     dataType = stateS.imageRegistrationMovDatasetType;
                     if strcmpi(dataType,'scan')
-                        CTLevel = planC{indexS.scan}(scanNum).scanInfo(1).DICOMHeaders.WindowCenter;
-                        CTWidth = planC{indexS.scan}(scanNum).scanInfo(1).DICOMHeaders.WindowWidth;
+                        CTLevel = 'temp';
+                        CTWidth = 'temp';
+                        if isfield(planC{indexS.scan}(scanNum).scanInfo(1).DICOMHeaders,'WindowCenter') && isfield(planC{indexS.scan}(scanNum).scanInfo(1).DICOMHeaders,'WindowWidth')
+                            CTLevel = planC{indexS.scan}(scanNum).scanInfo(1).DICOMHeaders.WindowCenter;
+                            CTWidth = planC{indexS.scan}(scanNum).scanInfo(1).DICOMHeaders.WindowWidth;
+                        end
                         if isnumeric(CTLevel) && isnumeric(CTWidth)
                             stateS.Mov.CTLevel = CTLevel;
                             stateS.Mov.CTWidth = CTWidth;
