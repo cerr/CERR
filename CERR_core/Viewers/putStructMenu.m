@@ -103,7 +103,7 @@ end
 %Find and remove old structure listings.
 kids = get(hStructMenu, 'children');
 numOldMenus = length(kids);
-delete(kids(1:numOldMenus-7));
+delete(kids(1:numOldMenus-6));
 
 [assocScansV, relStructNum] = getStructureAssociatedScan(1:numStructs, planC);
 allScans = unique(assocScansV);
