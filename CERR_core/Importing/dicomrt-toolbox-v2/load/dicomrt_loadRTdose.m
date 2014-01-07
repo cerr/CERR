@@ -91,7 +91,7 @@ while (feof(fid)~=1);
     dictFlg = checkDictUse;
     if dictFlg
         % info_image=dicominfo(file_location{1,nfiles}, 'dictionary', 'ES - IPT4.1CompatibleDictionary.mat'); % import dose information
-        info_image=dicominfo(file_location{1,nfiles}, 'dictionary', [getCERRPath,'bin\ES - IPT4.1CompatibleDictionary.mat']); % import dose information (for compiled CERR)
+        info_image=dicominfo(file_location{1,nfiles}, 'dictionary', fullfile(getCERRPath,'bin','ES - IPT4.1CompatibleDictionary.mat')); % import dose information (for compiled CERR)
     else
         info_image=dicominfo(file_location{1,nfiles});
     end

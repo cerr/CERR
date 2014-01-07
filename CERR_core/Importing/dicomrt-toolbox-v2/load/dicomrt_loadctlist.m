@@ -63,7 +63,7 @@ while (feof(fid)~=1);
     dictFlg = checkDictUse;
     if dictFlg
         % info_temp=dicominfo(ct_file_location{1,nct}, 'dictionary', 'ES - IPT4.1CompatibleDictionary.mat');
-        info_temp=dicominfo(ct_file_location{1,nct}, 'dictionary', [getCERRPath,'bin\ES - IPT4.1CompatibleDictionary.mat']); % for compiled CERR
+        info_temp=dicominfo(ct_file_location{1,nct}, 'dictionary', fullfile(getCERRPath,'bin','ES - IPT4.1CompatibleDictionary.mat')); % for compiled CERR
     else
         info_temp=dicominfo(ct_file_location{1,nct});
     end

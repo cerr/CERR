@@ -1569,7 +1569,6 @@ switch lower(in)
     case 'copper'
         copperColorMap = load(fullfile(getCERRPath,'bin','mat_files','copperColorMap.mat'));
         map = copperColorMap.copperColorMap;
-        
     
     case 'red'
         map = zeros(256,3);

@@ -23,11 +23,12 @@ function  bzip2Matlab
 tic
 oldDir = pwd;
 pathStr = getCERRPath;
-pathStr = [getCERRPath,'\bin\Compression']; % for compiled CERR
+pathStr = fullfile(getCERRPath,'bin','Compression'); % for compiled CERR
 cd(pathname);
 l = length(fname);
 fmat = ''; outstr = '';
 fmat = (strcat('"',oldDir, '\', fname,'"'));
+fmat = fullfile(['"',oldDir], [fname,'"']);
 if (~strcmpi(midstring(fname,l-2,l),'bz2')) % compress file
         cd(pathStr);
         outstr = ['bzip2-102-x86-win32.exe -vv9 ', fmat];

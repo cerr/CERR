@@ -67,7 +67,7 @@ switch upper(command)
         end
         %Set up the GUI window, loading its graphical background.
         file = ['structureFusionBackground.png'];
-        file = [getCERRPath,'pics\structureFusionBackground.png']; % for compiled CERR
+        file = fullfile(getCERRPath,'pics','structureFusionBackground.png'); % for compiled CERR
         background = imread(file,'png');
         StuctureFusionFigure = figure('doublebuffer', 'on', 'units', 'pixels', 'position',[(screenSize(3)-x)/2 (screenSize(4)-y)/2 x y], 'MenuBar', 'none', 'NumberTitle', 'off', 'resize', 'off', 'Tag', 'StuctureFusionFigure', 'Color', [.75 .75 .75]);
         stateS.handle.structureFusionFig = StuctureFusionFigure;
