@@ -53,7 +53,7 @@ indexS = planC{end};
 
 %Open file
 if nargin < 4   %default
-    outFile = 'c:\tmp\default.txt'
+    outFile = fullfile(tempdir,'default.txt')
 else
     outFile
 end

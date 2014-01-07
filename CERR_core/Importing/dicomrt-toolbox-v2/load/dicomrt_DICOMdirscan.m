@@ -75,7 +75,7 @@ for k=1:size(list,1)
             dictFlg = checkDictUse;
             if dictFlg
                 % temp=dicominfo(fullfile(path2scan,list(k).name), 'dictionary', 'ES - IPT4.1CompatibleDictionary.mat');
-                temp=dicominfo([path2scan,'/',list(k).name], 'dictionary', [getCERRPath,'bin\Importing\ES - IPT4.1CompatibleDictionary.mat']); % for compiled CERR
+                temp=dicominfo(fullfile(path2scan,list(k).name), 'dictionary', fullfile(getCERRPath,'bin','Importing','ES - IPT4.1CompatibleDictionary.mat')); % for compiled CERR
             else
                 temp=dicominfo(fullfile(path2scan,list(k).name));
             end

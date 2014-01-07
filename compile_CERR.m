@@ -107,12 +107,12 @@ function copyBinaries(directory,compileDir)
 allDirS = dir(directory);
 str = '';
 for dirNum = 1:length(allDirS)
-    if ~allDirS(dirNum).isdir & ~strcmp(allDirS(dirNum).name(end-1:end),'.m') & ~strcmp(allDirS(dirNum).name(end-1:end),'.asv')
-        success = copyfile(fullfile(directory,allDirS(dirNum).name),[compileDir,'\',allDirS(dirNum).name],'f');
+    if ~allDirS(dirNum).isdir && ~strcmp(allDirS(dirNum).name(end-1:end),'.m') && ~strcmp(allDirS(dirNum).name(end-1:end),'.asv')
+        success = copyfile(fullfile(directory,allDirS(dirNum).name),fullfile(compileDir,allDirS(dirNum).name),'f');
         if success
             continue
         end
-    elseif ~strcmp(allDirS(dirNum).name,'.') & ~strcmp(allDirS(dirNum).name,'..')
+    elseif ~strcmp(allDirS(dirNum).name,'.') && ~strcmp(allDirS(dirNum).name,'..')
         % copyBinaries([directory,'\',allDirS(dirNum).name],compileDir)
     end
 end
@@ -146,7 +146,7 @@ function pathStr = getCERR_CompilePath()
 %function pathStr = getCERR_CompilePath()
 %This function returns path to compile directory 
 
-pathStr = [fileparts(which('CERR.m')),'\'];
+pathStr = fullfile(fileparts(which('CERR.m')),'/');
 
 return;
 

@@ -70,8 +70,7 @@ for i = 1:length(matches)
 end
 
 
-%for indexBeam = 1 : planC{7}.FractionGroupSequence.Item_1.NumberOfBeams
-for indexBeam = 1 : 10
+for indexBeam = 1 : planC{7}.FractionGroupSequence.Item_1.NumberOfBeams
 
     bs = planC{7}.BeamSequence.(['Item_' num2str(indexBeam)]);
 
@@ -177,8 +176,8 @@ for indexBeam = 1 : 10
        
     filename = ['dose3D_',num2str(indexBeam)];
     currentDir = pwd;
-    mkdir([getCERRPath,'planCheck\MC\doseMC']);
-    cd([getCERRPath,'planCheck\MC\doseMC']);
+    mkdir(fullfile(getCERRPath,'planCheck','MC','doseMC'));
+    cd(fullfile(getCERRPath,'planCheck','MC','doseMC'));
     save(filename, 'dose3D');
     save dM dM;
     cd(currentDir);

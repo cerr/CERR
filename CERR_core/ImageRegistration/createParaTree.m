@@ -52,7 +52,7 @@ function expFcn = createParaTree(varargin)
     handles = varargin{2};
     position = varargin{3};
             
-    pth = [pwd, '\IconsReg\'];
+    pth = fullfile(pwd, 'IconsReg','/');
     iconpath =[pth, 'obj_icon.GIF'];
     name = 'Registration Profile';
     
@@ -150,7 +150,7 @@ function expFcn = createParaTree(varargin)
             end
             fnames = fieldnames(val);
 
-            pth = [pwd, '\iconsReg\'];
+            pth = fullfile(pwd,'iconsReg','/');
             
             count = 0;
             for i=1:length(fnames)           

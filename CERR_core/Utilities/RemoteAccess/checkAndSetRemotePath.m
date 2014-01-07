@@ -35,7 +35,7 @@ function flag = checkAndSetRemotePath()
 global planC stateS
 indexS = planC{end};
 [fpath,fname] = fileparts(stateS.CERRFile);
-storePath = [fpath,'\',fname,'_store'];
+storePath = fullfile(fpath,[fname,'_store']);
 flag = 0;
 
 % check if any doseArray is remote

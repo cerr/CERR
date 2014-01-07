@@ -70,7 +70,7 @@ nStructures = length(planC{indexS.structures});
 %Check for mesh representation and load meshes into memory
 currDir = cd;
 %meshDir = fileparts(which('libMeshContour.dll'));
-meshDir = [getCERRPath,'bin\MeshInterp'];
+meshDir = fullfile(getCERRPath,'bin','MeshInterp');
 cd(meshDir)
 for strNum = 1:nStructures
     if isfield(planC{indexS.structures}(strNum),'meshRep') && ~isempty(planC{indexS.structures}(strNum).meshRep) && planC{indexS.structures}(strNum).meshRep

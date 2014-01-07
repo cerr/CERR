@@ -38,7 +38,7 @@ function [cellVOI] = dicomrt_loadvoi(rtstruct_filename)
 dictFlg = checkDictUse;
 if dictFlg
     % rtstruct=dicominfo(rtstruct_filename,'dictionary', 'ES - IPT4.1CompatibleDictionary.mat');
-    rtstruct=dicominfo(rtstruct_filename,'dictionary', [getCERRPath,'bin\ES - IPT4.1CompatibleDictionary.mat']); % for compiled CERR
+    rtstruct=dicominfo(rtstruct_filename,'dictionary', fullfile(getCERRPath,'bin','ES - IPT4.1CompatibleDictionary.mat')); % for compiled CERR
 else
     rtstruct=dicominfo(rtstruct_filename);
 end

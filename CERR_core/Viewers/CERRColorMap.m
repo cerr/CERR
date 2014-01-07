@@ -1568,7 +1568,7 @@ switch lower(in)
 
     case 'copper'
         %copperColorMap = load('copperColorMap');
-        colormapFile = [getCERRPath,'pics\Icons\copperColorMap.mat']; 
+        colormapFile = fullfile(getCERRPath,'pics','Icons','copperColorMap.mat'); 
         copperColorMap = load(colormapFile);
         map = copperColorMap.copperColorMap;
         

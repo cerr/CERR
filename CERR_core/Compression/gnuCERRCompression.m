@@ -35,10 +35,10 @@ if strcmp(lower(userSelect), 'compress')
     elseif ~isempty(findstr(aFile,'.mat'))
         cd(pathStr);
         %cd('Compression');
-        cd('bin\Compression'); % for compiled CERR   
+        cd(fullfile(getCERRPath,'bin','Compression')); % for compiled CERR   
         if ispc
             dos(['bzip2-102-x86-win32.exe -vz1 -f ', fmat]);
-        elseif isunix
+        else
             unix(['bzip2 -z1 -f ', fmat])
         end
         cd(oldDir);
@@ -48,7 +48,7 @@ elseif strcmp(lower(userSelect), 'uncompress')
         % compressed file exists
         cd(pathStr);
         %cd('Compression');
-        cd('bin\Compression'); % for compiled CERR   
+        cd(fullfile(getCERRPath,'bin','Compression')); % for compiled CERR   
         [path_jnk,fnameDisk,ext_jnk] = fileparts(fmat);
         dirS = dir(tmpExtractDir);
         del_dir_flag = 0;
