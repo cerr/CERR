@@ -1137,9 +1137,9 @@ switch command
                     if strcmpi(dataType,'scan')
                         CTLevel = 'temp';
                         CTWidth = 'temp';
-                        if isfield(planC{indexS.scan}(scanNum).scanInfo(1).DICOMHeaders,'WindowCenter') && isfield(planC{indexS.scan}(scanNum).scanInfo(1).DICOMHeaders,'WindowWidth')
-                            CTLevel = planC{indexS.scan}(scanNum).scanInfo(1).DICOMHeaders.WindowCenter;
-                            CTWidth = planC{indexS.scan}(scanNum).scanInfo(1).DICOMHeaders.WindowWidth;
+                        if isfield(planC{indexS.scan}(scanNum).scanInfo(1),'DICOMHeaders') && isfield(planC{indexS.scan}(scanNum).scanInfo(1).DICOMHeaders,'WindowCenter') && isfield(planC{indexS.scan}(scanNum).scanInfo(1).DICOMHeaders,'WindowWidth')
+                            CTLevel = planC{indexS.scan}(scanNum).scanInfo(1).DICOMHeaders.WindowCenter(end);
+                            CTWidth = planC{indexS.scan}(scanNum).scanInfo(1).DICOMHeaders.WindowWidth(end);
                         end
                         if isnumeric(CTLevel) && isnumeric(CTWidth)
                             stateS.Mov.CTLevel = CTLevel;
