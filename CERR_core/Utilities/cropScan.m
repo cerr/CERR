@@ -63,7 +63,7 @@ assocScanV = getDoseAssociatedScan(1:length(planC{indexS.dose}),planC);
 assocDoseV = find(assocScanV == scanNum);
 
 %Get associated scan number
-assocScanNum = getStructureAssociatedScan(structureNum);
+assocScanNum = getStructureAssociatedScan(structureNum,planC);
 tmAssocScan = getTransM('scan',assocScanNum,planC);
 tmScan = getTransM('scan',scanNum,planC);
 if ~isequal(tmAssocScan,tmScan)
@@ -109,7 +109,7 @@ end
 
 planC{indexS.scan}(scanNum).scanInfo([1:KLow-1, KHigh+1:end]) = [];
 
-assocScanV = getStructureAssociatedScan(1:length(planC{indexS.structures}));
+assocScanV = getStructureAssociatedScan(1:length(planC{indexS.structures}), planC);
 
 indAssocV = find(assocScanV == scanNum);
 
