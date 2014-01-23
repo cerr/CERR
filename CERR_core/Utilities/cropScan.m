@@ -131,7 +131,7 @@ for i=1:length(assocDoseV);
     planC{indexS.dose}(assocDoseV(i)).assocScanUID = planC{indexS.scan}(scanNum).scanUID;
 end
 
-reRasterAndUniformize;
+planC = reRasterAndUniformize(planC);
 
 if isfield(stateS,'scanSet')
     stateS.scanSet = scanNum;
