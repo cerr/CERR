@@ -59,7 +59,7 @@ if ~exist('scanNum') || ~exist('structureNum') || ~exist('margin')
 end
 
 %Record associated Doses to reassign UIDs later
-assocScanV = getDoseAssociatedScan(1:length(planC{indexS.dose}));
+assocScanV = getDoseAssociatedScan(1:length(planC{indexS.dose}),planC);
 assocDoseV = find(assocScanV == scanNum);
 
 %Get associated scan number
