@@ -1130,27 +1130,7 @@ switch command
         switch varargin{1}
             case 'init'
                 if stateS.imageRegistration, return; end;
-                %initial moving CTLevel and Window
-                if ~isfield(stateS, 'Mov')
-                    scanNum = stateS.imageRegistrationMovDataset;
-                    dataType = stateS.imageRegistrationMovDatasetType;
-                    if strcmpi(dataType,'scan')
-                        CTLevel = 'temp';
-                        CTWidth = 'temp';
-                        if isfield(planC{indexS.scan}(scanNum).scanInfo(1),'DICOMHeaders') && isfield(planC{indexS.scan}(scanNum).scanInfo(1).DICOMHeaders,'WindowCenter') && isfield(planC{indexS.scan}(scanNum).scanInfo(1).DICOMHeaders,'WindowWidth')
-                            CTLevel = planC{indexS.scan}(scanNum).scanInfo(1).DICOMHeaders.WindowCenter(end);
-                            CTWidth = planC{indexS.scan}(scanNum).scanInfo(1).DICOMHeaders.WindowWidth(end);
-                        end
-                        if isnumeric(CTLevel) && isnumeric(CTWidth)
-                            stateS.Mov.CTLevel = CTLevel;
-                            stateS.Mov.CTWidth = CTWidth;
-                        else
-                            stateS.Mov.CTLevel = 0;
-                            stateS.Mov.CTWidth = 300;
-                        end
-                    end
-                end
-                
+
                 if stateS.CTToggle == -1
                     hWarn = warndlg('Please turn on the scan');
                     waitfor(hWarn);
@@ -1297,6 +1277,30 @@ switch command
                     stateS.imageRegistrationMovDatasetType = 'dose';
                     movData      = stateS.imageRegistrationMovDataset;
                     movDataType  = stateS.imageRegistrationMovDatasetType;
+                end
+                
+                %initial moving CTLevel and Window
+                if ~isfield(stateS, 'Mov')
+                    scanNum = stateS.imageRegistrationMovDataset;
+                    dataType = stateS.imageRegistrationMovDatasetType;
+                    if strcmpi(dataType,'scan')
+                        CTLevel = 'temp';
+                        CTWidth = 'temp';
+                        if isfield(planC{indexS.scan}(scanNum).scanInfo(1),'DICOMHeaders') && isfield(planC{indexS.scan}(scanNum).scanInfo(1).DICOMHeaders,'WindowCenter') && isfield(planC{indexS.scan}(scanNum).scanInfo(1).DICOMHeaders,'WindowWidth')
+                            CTLevel = planC{indexS.scan}(scanNum).scanInfo(1).DICOMHeaders.WindowCenter(end);
+                            CTWidth = planC{indexS.scan}(scanNum).scanInfo(1).DICOMHeaders.WindowWidth(end);
+                        end
+                        if isnumeric(CTLevel) && isnumeric(CTWidth)
+                            stateS.Mov.CTLevel = CTLevel;
+                            stateS.Mov.CTWidth = CTWidth;
+                        else
+                            stateS.Mov.CTLevel = 0;
+                            stateS.Mov.CTWidth = 300;
+                        end
+                    else
+                        stateS.Mov.CTLevel = mean(planC{indexS.dose}(scanNum).doseArray(:));
+                        stateS.Mov.CTWidth = stateS.Mov.CTLevel*2;
+                    end
                 end
                 
                 %Calculate which menu items are selected for registration.
