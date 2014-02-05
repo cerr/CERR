@@ -49,5 +49,6 @@ indexS = planC{end};
 sA = planC{indexS.scan}(scanNum).scanArray;
 
 %Interpolate to values in xV/yV/zV from the scanarray, 0 if out of bounds.
-scansV = finterp3(xV, yV, zV, sA, [xVS(1) xVS(2)-xVS(1) xVS(end)], [yVS(1) yVS(2)-yVS(1) yVS(end)], zVS, 0);
+tol = 1e6*eps;
+scansV = finterp3(xV, yV, zV, sA, [xVS(1)-tol xVS(2)-xVS(1) xVS(end)+tol], [yVS(1)+tol yVS(2)-yVS(1) yVS(end)-tol], zVS, 0);
 % scansV = interp3(xVS, yVS, zVS, sA , xV, yV, zV);
