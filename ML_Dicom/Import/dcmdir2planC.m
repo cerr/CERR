@@ -303,10 +303,10 @@ for i=1:length(planC{indexS.structures})
 
             [locate_point]=find(voiZ>zmesh(j)-slicethickness(j)./2 & voiZ<zmesh(j)+slicethickness(j)./2);
             
-            if isempty(locate_point)
-                voi_thickness = max(diff(voiZ));
-                [locate_point]=find(voiZ >= zmesh(j)-voi_thickness./2 & voiZ <= zmesh(j)+voi_thickness./2);
-            end
+%             if isempty(locate_point)
+%                 voi_thickness = max(diff(voiZ));
+%                 [locate_point]=find(voiZ >= zmesh(j)-voi_thickness./2 & voiZ <= zmesh(j)+voi_thickness./2);
+%             end
             
             if ~isempty(locate_point)
                 % if a match is found the VOI segment was defined of a
