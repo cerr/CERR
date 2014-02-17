@@ -1,4 +1,4 @@
-function planC = mha2cerr(infoS,data3M,planC)
+function planC = mha2cerr(infoS,data3M,movScanOffset,movScanName,planC)
 %"mha2cerr"
 %   Create an scan based mha header and 3D volume. 
 %
@@ -32,7 +32,7 @@ function planC = mha2cerr(infoS,data3M,planC)
 
 global stateS
 
-CTOffset = 1000;
+CTOffset = movScanOffset;
 save_flag = 0;
 if ~exist('planC','var')
     planC = initializeCERR;
@@ -51,7 +51,7 @@ ind = length(planC{indexS.scan}) + 1;
 
 %Create array of all zeros, size of y,x,z vals.
 planC{indexS.scan}(ind).scanArray = uint16(flipdim(permute(data3M,[2,1,3]),3) + CTOffset);
-planC{indexS.scan}(ind).scanType = 'CT';
+planC{indexS.scan}(ind).scanType = movScanName;
 planC{indexS.scan}(ind).scanUID = createUID('scan'); 
 %planC{indexS.scan}(ind).uniformScanInfo = [];
 %planC{indexS.scan}(ind).scanArrayInferior = [];
@@ -66,7 +66,7 @@ scanInfo(1).sizeOfDimension1 = infoS.Dimensions(2);
 scanInfo(1).sizeOfDimension2 = infoS.Dimensions(1);
 scanInfo(1).xOffset = infoS.Offset(2)/10;
 scanInfo(1).yOffset = infoS.Offset(1)/10;
-scanInfo(1).imageType = 'CT Scan';
+scanInfo(1).imageType = movScanName;
 scanInfo(1).CTOffset = CTOffset;
 
 %Calculate proper scan offset values based on x,y,z vals.
