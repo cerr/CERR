@@ -42,7 +42,7 @@ bzFile = 0;
 if ~isempty(findstr(file,'.bz2'))
     bzFile = 1;
     disp(['Uncompressing file ', fname]);
-    outstr = gnuCERRCompression(file, 'uncompress');
+    outstr = gnuCERRCompression(file, 'uncompress',tempdir);
     file = file(1:end-3);
 end
 
