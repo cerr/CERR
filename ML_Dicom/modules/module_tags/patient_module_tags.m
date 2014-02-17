@@ -52,6 +52,9 @@ template = tagS;
 
 %Add tags based on PS3.3 attribute lists.
 
+%Study Instance UID
+tagS(end+1) = struct('tag', ['0020000D'], 'type', ['1'], 'children', []);
+
 %Patient's Name
 tagS(end+1) = struct('tag', ['00100010'], 'type', ['2'], 'children', []);
 
@@ -67,16 +70,16 @@ tagS(end+1) = struct('tag', ['00100030'], 'type', ['2'], 'children', []);
 %Patient's Sex
 tagS(end+1) = struct('tag', ['00100040'], 'type', ['2'], 'children', []);
 
-%Referenced Patient Sequence
-tagS(end+1) = struct('tag', ['00081140'], 'type', ['3'], 'children', []);
-    child_1        = template;
-    
-    %Referenced SOP Class UID
-    child_1(end+1) = struct('tag', ['00081150'], 'type', ['1'], 'children', []);
-    
-    %Referenced SOP Instance UID
-    child_1(end+1) = struct('tag', ['00081155'], 'type', ['1'], 'children', []);
-    tagS(end).children = child_1;
+% %Referenced Patient Sequence
+% tagS(end+1) = struct('tag', ['00081140'], 'type', ['3'], 'children', []);
+%     child_1        = template;
+%     
+%     %Referenced SOP Class UID
+%     child_1(end+1) = struct('tag', ['00081150'], 'type', ['1'], 'children', []);
+%     
+%     %Referenced SOP Instance UID
+%     child_1(end+1) = struct('tag', ['00081155'], 'type', ['1'], 'children', []);
+%     tagS(end).children = child_1;
 
 %Patient's Birth Time
 tagS(end+1) = struct('tag', ['00100032'], 'type', ['3'], 'children', []);
