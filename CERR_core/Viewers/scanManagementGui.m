@@ -106,7 +106,20 @@ switch upper(command)
         %         set(ud.handles.maxscan, 'string', ud.maxDoses{scanNum});
         scanSize = getByteSize(planC{indexS.scan}(scanNum));
         set(ud.handles.scansize, 'string', [num2str(scanSize/(1024*1024), '%6.2f') 'MB']);
-
+        % ESpezi MAY 2013
+        % refresh scan date and time
+        try
+            scanDate = planC{indexS.scan}(scanNum).scanInfo(1).DICOMHeaders.AcquisitionDate;
+            set(ud.handles.scanDate, 'string', datestr(datenum(scanDate,'yyyymmdd'),2));
+            scanTime = planC{indexS.scan}(scanNum).scanInfo(1).DICOMHeaders.AcquisitionTime;
+            [~,aqTime] = strtok(datestr(datenum(strtok(num2str(scanTime),'.'),'HHMMSS')));
+            set(ud.handles.scanTime, 'string', aqTime);
+        catch
+            % RTOG scan
+            scanDate = planC{indexS.scan}(scanNum).scanInfo(1).scanDate;
+            set(ud.handles.scanDate, 'string', datestr(datenum(scanDate,'yyyymmdd'),2));            
+        end
+        
     case 'REFRESH'
         %Recreate and redraw the entire scanManagementGui.
         if isempty(h)
@@ -125,6 +138,9 @@ switch upper(command)
             delete(ud.handles.name);
             delete(ud.handles.scansize);
             delete(ud.handles.storageMethod);
+            % Espezi MAY 2013
+            delete(ud.handles.scanDate);
+            delete(ud.handles.scanTime);
             %delete(ud.handles.maxscan);
             %delete(ud.handles.units);
             delete(ud.handles.compbutton);
@@ -134,6 +150,9 @@ switch upper(command)
             ud.handles.name = [];
             ud.handles.scansize = [];
             ud.handles.storageMethod = [];
+            % Espezi MAY 2013
+            ud.handles.scanDate = [];
+            ud.handles.scanTime = [];
             %ud.handles.maxscan = [];
             %ud.handles.units = [];
             ud.handles.compbutton = [];
@@ -186,9 +205,12 @@ switch upper(command)
         fieldWidth = .13;
 
         %Make text to describe uicontrols.
-        uicontrol(h, 'units',units,'Position',[txtLeft 1-.15 textWidth rowHeight],'String', 'Dose name:', 'Style', 'text', 'horizontalAlignment', 'left', 'BackgroundColor', frameColor);
+        uicontrol(h, 'units',units,'Position',[txtLeft 1-.15 textWidth rowHeight],'String', 'Scan name:', 'Style', 'text', 'horizontalAlignment', 'left', 'BackgroundColor', frameColor);
         uicontrol(h, 'units',units,'Position',[txtLeft 1-.21 textWidth rowHeight],'String', 'RAM Used:', 'Style', 'text', 'horizontalAlignment', 'left', 'BackgroundColor', frameColor);
         uicontrol(h, 'units',units,'Position',[txtLeft 1-.27 textWidth rowHeight],'String', 'Storage Method:', 'Style', 'text', 'horizontalAlignment', 'left', 'BackgroundColor', frameColor);
+        % ESpezi MAY 2013
+        uicontrol(h, 'units',units,'Position',[txtLeft 1-.33 textWidth rowHeight],'String', 'Acquisition date:', 'Style', 'text', 'horizontalAlignment', 'left', 'BackgroundColor', frameColor);
+        uicontrol(h, 'units',units,'Position',[txtLeft 1-.39 textWidth rowHeight],'String', 'Acquisition time:', 'Style', 'text', 'horizontalAlignment', 'left', 'BackgroundColor', frameColor);
         % No max Scan needed like max Dose
         %         uicontrol(h, 'units',units,'Position',[txtLeft 1-.33 textWidth rowHeight],'String', 'Max Dose:', 'Style', 'text', 'horizontalAlignment', 'left', 'BackgroundColor', frameColor);
         %         uicontrol(h, 'units',units,'Position',[txtLeft 1-.39 textWidth rowHeight],'String', 'Units:', 'Style', 'text', 'horizontalAlignment', 'left', 'BackgroundColor', frameColor);
@@ -197,6 +219,8 @@ switch upper(command)
         ud.handles.name          = uicontrol(h, 'units',units,'Position',[fieldLeft-fieldWidth 1-.15+.02 fieldWidth*2 rowHeight-.01],'String','', 'Style', 'edit', 'callback', 'scanManagementGui(''NAMEFIELD'');', 'userdata', i, 'horizontalAlignment', 'right');
         ud.handles.scansize      = uicontrol(h, 'units',units,'Position',[fieldLeft 1-.21 fieldWidth rowHeight],'String', '',  'Style', 'text', 'horizontalAlignment', 'right', 'BackgroundColor', frameColor);
         ud.handles.storageMethod = uicontrol(h, 'units',units,'Position',[fieldLeft-.05 1-.27 fieldWidth+.05 rowHeight],'String', '',  'Style', 'text', 'horizontalAlignment', 'right', 'BackgroundColor', frameColor);
+        ud.handles.scanDate = uicontrol(h, 'units',units,'Position',[fieldLeft-.05 1-.33 fieldWidth+.05 rowHeight],'String', '',  'Style', 'text', 'horizontalAlignment', 'right', 'BackgroundColor', frameColor);
+        ud.handles.scanTime = uicontrol(h, 'units',units,'Position',[fieldLeft-.05 1-.39 fieldWidth+.05 rowHeight],'String', '',  'Style', 'text', 'horizontalAlignment', 'right', 'BackgroundColor', frameColor);
         % No max Scan needed like max Dose
         %         ud.handles.maxdose       = uicontrol(h, 'units',units,'Position',[fieldLeft 1-.33+.02 fieldWidth rowHeight-.01],'String', '', 'Style', 'edit', 'callback', 'scanManagementGui(''DOSESCALE'');', 'userdata', i, 'horizontalAlignment', 'right');
         %         ud.handles.units         = uicontrol(h, 'units',units,'Position',[fieldLeft 1-.39 fieldWidth rowHeight],'String', '',  'Style', 'text', 'horizontalAlignment', 'right', 'BackgroundColor', frameColor);
@@ -308,6 +332,20 @@ switch upper(command)
         %         set(ud.handles.maxscan, 'string', ud.maxDoses{doseNum});
         scanSize = getByteSize(planC{indexS.scan}(scanNum));
         set(ud.handles.scansize, 'string', [num2str(scanSize/(1024*1024), '%6.2f') 'MB']);
+        
+        % ESpezi MAY 2013
+        % refresh scan date and time 
+        try
+            scanDate = planC{indexS.scan}(scanNum).scanInfo(1).DICOMHeaders.AcquisitionDate;
+            set(ud.handles.scanDate, 'string', datestr(datenum(scanDate,'yyyymmdd'),2));
+            scanTime = planC{indexS.scan}(scanNum).scanInfo(1).DICOMHeaders.AcquisitionTime;
+            [~,aqTime] = strtok(datestr(datenum(strtok(num2str(scanTime),'.'),'HHMMSS')));
+            set(ud.handles.scanTime, 'string', aqTime);
+        catch
+            % RTOG scan
+            scanDate = planC{indexS.scan}(scanNum).scanInfo(1).scanDate;
+            set(ud.handles.scanDate, 'string', datestr(datenum(scanDate,'yyyymmdd'),2));            
+        end
 
     case 'CHANGESCAN'
         %New scan has been clicked on.
