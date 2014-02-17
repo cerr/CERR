@@ -36,4 +36,7 @@ if length(uid)==0
     indxV = [];
 else
     [jnk,indxV] = ismember(uid,scanUID);
+    if indxV == 0
+        indxV = [];
+    end
 end

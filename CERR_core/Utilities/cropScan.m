@@ -1,5 +1,5 @@
-function cropScan(scanNum,structureNum,margin)
-%function cropDose(scanNum,structureNum,margin)
+function planC = cropScan(scanNum,structureNum,margin,planC)
+%function planC = cropScan(scanNum,structureNum,margin,planC)
 %
 %This function crops the scan scanNum to lie within the structure
 %structureNum plus margin.
@@ -8,7 +8,7 @@ function cropScan(scanNum,structureNum,margin)
 % scanNum      = 1; % CT
 % structureNum = 8; % Skin
 % margin       = 2; % in cm
-% cropScan(scanNum,structureNum,margin)
+% planC = cropScan(scanNum,structureNum,margin,planC)
 %
 %APA, 07/03/2010
 %
@@ -34,7 +34,11 @@ function cropScan(scanNum,structureNum,margin)
 % You should have received a copy of the GNU General Public License
 % along with CERR.  If not, see <http://www.gnu.org/licenses/>.
 
-global stateS planC
+global stateS
+
+if ~exist('planC','var')
+    global planC
+end
 indexS = planC{end};
 
 % for command line help document
@@ -55,11 +59,11 @@ if ~exist('scanNum') || ~exist('structureNum') || ~exist('margin')
 end
 
 %Record associated Doses to reassign UIDs later
-assocScanV = getDoseAssociatedScan(1:length(planC{indexS.dose}));
+assocScanV = getDoseAssociatedScan(1:length(planC{indexS.dose}),planC);
 assocDoseV = find(assocScanV == scanNum);
 
 %Get associated scan number
-assocScanNum = getStructureAssociatedScan(structureNum);
+assocScanNum = getStructureAssociatedScan(structureNum,planC);
 tmAssocScan = getTransM('scan',assocScanNum,planC);
 tmScan = getTransM('scan',scanNum,planC);
 if ~isequal(tmAssocScan,tmScan)
@@ -105,7 +109,7 @@ end
 
 planC{indexS.scan}(scanNum).scanInfo([1:KLow-1, KHigh+1:end]) = [];
 
-assocScanV = getStructureAssociatedScan(1:length(planC{indexS.structures}));
+assocScanV = getStructureAssociatedScan(1:length(planC{indexS.structures}), planC);
 
 indAssocV = find(assocScanV == scanNum);
 
@@ -127,12 +131,14 @@ for i=1:length(assocDoseV);
     planC{indexS.dose}(assocDoseV(i)).assocScanUID = planC{indexS.scan}(scanNum).scanUID;
 end
 
-reRasterAndUniformize;
+planC = reRasterAndUniformize(planC);
 
-stateS.scanSet = scanNum;
-
-% Update scan stats in stateS
-stateS.scanStats.minScanVal.(repSpaceHyp(planC{indexS.scan}(scanNum).scanUID)) = single(min(planC{indexS.scan}(scanNum).scanArray(:))) - planC{indexS.scan}(scanNum).scanInfo(1).CTOffset;
-stateS.scanStats.maxScanVal.(repSpaceHyp(planC{indexS.scan}(scanNum).scanUID)) = single(max(planC{indexS.scan}(scanNum).scanArray(:))) - planC{indexS.scan}(scanNum).scanInfo(1).CTOffset;
-
-sliceCallBack('refresh');
+if isfield(stateS,'scanSet')
+    stateS.scanSet = scanNum;
+    
+    % Update scan stats in stateS
+    stateS.scanStats.minScanVal.(repSpaceHyp(planC{indexS.scan}(scanNum).scanUID)) = single(min(planC{indexS.scan}(scanNum).scanArray(:))) - planC{indexS.scan}(scanNum).scanInfo(1).CTOffset;
+    stateS.scanStats.maxScanVal.(repSpaceHyp(planC{indexS.scan}(scanNum).scanUID)) = single(max(planC{indexS.scan}(scanNum).scanArray(:))) - planC{indexS.scan}(scanNum).scanInfo(1).CTOffset;
+    
+    sliceCallBack('refresh');
+end

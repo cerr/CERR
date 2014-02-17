@@ -620,9 +620,9 @@ switch upper(instr)
         end
         
         % Set Window and Width from DICOM header, if available
-        if isfield(planC{indexS.scan}(stateS.scanSet).scanInfo(1).DICOMHeaders,'WindowCenter') && isfield(planC{indexS.scan}(stateS.scanSet).scanInfo(1).DICOMHeaders,'WindowWidth')
-            CTLevel = planC{indexS.scan}(stateS.scanSet).scanInfo(1).DICOMHeaders.WindowCenter;
-            CTWidth = planC{indexS.scan}(stateS.scanSet).scanInfo(1).DICOMHeaders.WindowWidth;
+        if isfield(planC{indexS.scan}(stateS.scanSet).scanInfo(1),'DICOMHeaders') && isfield(planC{indexS.scan}(stateS.scanSet).scanInfo(1).DICOMHeaders,'WindowCenter') && isfield(planC{indexS.scan}(stateS.scanSet).scanInfo(1).DICOMHeaders,'WindowWidth')
+            CTLevel = planC{indexS.scan}(stateS.scanSet).scanInfo(1).DICOMHeaders.WindowCenter(end);
+            CTWidth = planC{indexS.scan}(stateS.scanSet).scanInfo(1).DICOMHeaders.WindowWidth(end);
             if isnumeric(CTLevel) && isnumeric(CTWidth)
                 set(stateS.handle.CTLevel,'string',num2str(CTLevel(1)))
                 set(stateS.handle.CTWidth,'string',num2str(CTWidth(1)))
@@ -2334,8 +2334,12 @@ switch upper(instr)
         showPlaneLocators;
 
         % Set Window and Width from DICOM header, if available
-        CTLevel = planC{indexS.scan}(stateS.scanSet).scanInfo(1).DICOMHeaders.WindowCenter;
-        CTWidth = planC{indexS.scan}(stateS.scanSet).scanInfo(1).DICOMHeaders.WindowWidth;
+        CTLevel = 'temp';
+        CTWidth = 'temp';
+        if isfield(planC{indexS.scan}(stateS.scanSet).scanInfo(1).DICOMHeaders,'WindowCenter') && isfield(planC{indexS.scan}(stateS.scanSet).scanInfo(1).DICOMHeaders,'WindowWidth')
+            CTLevel = planC{indexS.scan}(stateS.scanSet).scanInfo(1).DICOMHeaders.WindowCenter;
+            CTWidth = planC{indexS.scan}(stateS.scanSet).scanInfo(1).DICOMHeaders.WindowWidth;
+        end
         if isnumeric(CTLevel) && isnumeric(CTWidth)
             set(stateS.handle.CTLevel,'string',num2str(CTLevel(1)))
             set(stateS.handle.CTWidth,'string',num2str(CTWidth(1)))

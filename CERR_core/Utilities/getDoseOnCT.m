@@ -54,7 +54,7 @@ indexS = planC{end};
 
 switch upper(scanType)
     case 'NORMAL'
-        [xV, yV, zV] = getScanXYZVals(planC{indexS.scan}(stateS.currentScan));
+        [xV, yV, zV] = getScanXYZVals(planC{indexS.scan}(stateS.scanSet),planC);
     case 'UNIFORM'
         [xV, yV, zV] = getUniformizedXYZVals(planC);
 end
@@ -68,5 +68,7 @@ doseM = zeros(length(xV), length(yV), length(zV));
 for i=1:length(zV)
     % doseSlice = calcDoseSlice(planC{indexS.dose}(doseNum), zV(i), 3, planC);
     doseSlice = calcDoseSlice(doseNum, zV(i), 3, planC);
-    doseM(:,:,i) = fitDoseToCT(doseSlice, planC{indexS.dose}(doseNum), planC{indexS.scan}(stateS.currentScan), 3);
+    if ~isempty(doseSlice)
+        doseM(:,:,i) = fitDoseToCT(doseSlice, planC{indexS.dose}(doseNum), planC{indexS.scan}(stateS.scanSet), 3);
+    end
 end 
