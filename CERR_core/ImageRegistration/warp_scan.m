@@ -12,6 +12,9 @@ success     = write_bspline_coeff_file(bspFileName,deformS.algorithmParamsS);
 % Convert moving scan to .mha
 indexMovS = movPlanC{end};
 movScanUID = movPlanC{indexMovS.scan}(movScanNum).scanUID;
+movScanOffset = movPlanC{indexMovS.scan}(movScanNum).scanInfo(1).CTOffset;
+movScanName = movPlanC{indexMovS.scan}(movScanNum).scanType;
+movScanName = [movScanName,'_deformed'];
 randPart = floor(rand*1000);
 movScanUniqName = [movScanUID,num2str(randPart)];
 movScanFileName = fullfile(getCERRPath,'ImageRegistration','tmpFiles',['movScan_',movScanUniqName,'.mha']);
@@ -31,7 +34,7 @@ system(['plastimatch warp --input ', escapeSlashes(movScanFileName), ' --output-
 % infoS  = mha_read_header(warpedMhaFileName);
 % data3M = mha_read_volume(infoS);
 [data3M,infoS] = readmha(warpedMhaFileName);
-planC  = mha2cerr(infoS,data3M, planC);
+planC  = mha2cerr(infoS,data3M,movScanOffset,movScanName, planC);
 
 % Cleanup
 try
