@@ -67,6 +67,7 @@ for i=1:length(dcmdirS.PATIENT)
     if matchFlag %patient.matches(dcmdirS.PATIENT(i).info, 1) || patient.equals(dcmdirS.PATIENT(i).info)
         dcmdirS.PATIENT(i) = searchAndAddStudy(filename, dcmobj, dcmdirS.PATIENT(i));
         match = 1;
+        break;
     end
 end
 
