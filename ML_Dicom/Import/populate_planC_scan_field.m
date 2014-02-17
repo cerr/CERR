@@ -163,6 +163,9 @@ switch fieldname
                     imgOri = dcm2ml_Element(imgobj.get(hex2dec('00200037')));
                     %Check patient position
                     pPos = dcm2ml_Element(imgobj.get(hex2dec('00185100')));
+                    if isempty(pPos)
+                        pPos = 'HFS';
+                    end
                     
                     if (imgOri(1)==-1)
                         dataS(:,:,imageNum) = flipdim(dataS(:,:,imageNum), 2);
@@ -247,6 +250,9 @@ switch fieldname
                         dataS = flipdim(dataS, 1); %Similar flip as doseArray
                     end
                     
+                    if isequal(pPos,'FFP') || isequal(pPos,'FFS')
+                        dataS = flipdim(dataS, 3); %Similar flip as doseArray
+                    end
                     clear imageobj;
                     
                 
@@ -316,12 +322,15 @@ switch fieldname
                 detectorInfoSequence = dcm2ml_Element(imgobj.get(hex2dec('00540022')));                                
                 imgpos = detectorInfoSequence.Item_1.ImagePositionPatient;
                 zValuesV = imgpos(3):sliceSpacing:imgpos(3)+sliceSpacing*double(numMultiFrameImages-1);
+                if isequal(pPos,'FFP') || isequal(pPos,'FFS')
+                    zValuesV = fliplr(zValuesV);
+                end
                 for i = 1:length(names)
                     dataS(1).(names{i}) = populate_planC_scan_scanInfo_field(names{i}, IMAGE, imgobj);
                 end
                 for imageNum = 1:numMultiFrameImages
-                   dataS(imageNum) = dataS(1);
-                   dataS(imageNum).zValue = -zValuesV(imageNum)/10; 
+                    dataS(imageNum) = dataS(1);
+                    dataS(imageNum).zValue = -zValuesV(imageNum)/10;
                 end
                 
         end

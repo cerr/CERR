@@ -187,9 +187,9 @@ switch fieldname
         %Columns
         nCols  = dcm2ml_Element(dcmobj.get(hex2dec('00280011')));
         
-        if (imgOri(1)==1)
+        if (imgOri(1)-1)^2 < 1e-5
             xOffset = imgpos(1) + (pixspac(2) * (nCols - 1) / 2);
-		elseif (imgOri(1)==-1)
+		elseif (imgOri(1)+1)^2 < 1e-5
             xOffset = imgpos(1) - (pixspac(2) * (nCols - 1) / 2);
 		else
 			% by Deshan Yang, 3/2/2010
@@ -229,9 +229,9 @@ switch fieldname
         %Rows
         nRows  = dcm2ml_Element(dcmobj.get(hex2dec('00280010')));
 		
-        if (imgOri(5)==1)
+        if (imgOri(5)-1)^2 < 1e-5
             yOffset = imgpos(2) + (pixspac(1) * (nRows - 1) / 2);
-		elseif imgOri(5)==-1
+		elseif (imgOri(5)+1)^2 < 1e-5
             yOffset = imgpos(2) - (pixspac(1) * (nRows - 1) / 2);
 		else
 			% by Deshan Yang, 3/2/2010
