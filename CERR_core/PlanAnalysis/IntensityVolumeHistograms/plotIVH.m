@@ -214,18 +214,18 @@ else
 end
 
 %Shift the DSH/IVH data by the offset, if it exists and plot.
-if isfield(planC{indexS.scan}(scanSet),'scanOffset')
-    offset = planC{indexS.scan}(scanSet).scanOffset;
+if isfield(planC{indexS.scan}(scanSet).scanInfo(1),'CTOffset')
+    offset = planC{indexS.scan}(scanSet).scanInfo(1).CTOffset;
 else
     offset = 0;
 end
 if strcmpi(cum_diff_string,'CUMU')
-    h = plot([0; scanSortV(:) - offset], [1; cumArea2V(:)/cumAreaV(end)], 'parent', hAxis);
-    addDVHtoFig(hFig, struct, scanSet, h, [0; scanSortV(:) - planC{indexS.scan}(scanSet).scanInfo(1).CTOffset], [1; cumArea2V(:)/cumAreaV(end)], 'DSH','NOABS',scanV, areaV, scanName);
+    h = plot([scanSortV(1) - offset; scanSortV(:) - offset], [1; cumArea2V(:)/cumAreaV(end)], 'parent', hAxis);
+    addDVHtoFig(hFig, struct, scanSet, h, [scanSortV(1)-offset; scanSortV(:) - offset], [1; cumArea2V(:)/cumAreaV(end)], 'DSH','NOABS',scanV, areaV, scanName);
 elseif strcmpi(cum_diff_string,'DIFF')
     indPlot = find(areaSortV);
-    h = plot(scanSortV(indPlot), areaSortV(indPlot)/cumAreaV(end));
-    addDVHtoFig(hFig, struct, scanSet, h, scanSortV(indPlot)-planC{indexS.scan}(scanSet).scanInfo(1).CTOffset, areaSortV(indPlot)/cumAreaV(end), 'DSH', 'NOABS', scanV, areaV, scanName);
+    h = plot(scanSortV(indPlot)-offset, areaSortV(indPlot)/cumAreaV(end));
+    addDVHtoFig(hFig, struct, scanSet, h, scanSortV(indPlot)-offset, areaSortV(indPlot)/cumAreaV(end), 'DSH', 'NOABS', scanV, areaV, scanName);
 end
 
 set(hAxis,'nextplot','add')
@@ -380,20 +380,20 @@ if ~isempty(planC{indexS.IVH}(IVHNum).IVHMatrix)
     cumVols2V  = cumVolsV(end) - cumVolsV;  %cumVolsV is the cumulative volume lt that corresponding scan
     %including that scan bin.
     
-    if isfield(planC{indexS.scan}(scanSet),'scanOffset')
-        offset = planC{indexS.scan}(scanSet).scanOffset;
+    if isfield(planC{indexS.scan}(scanSet).scanInfo(1),'CTOffset')
+        offset = planC{indexS.scan}(scanSet).scanInfo(1).CTOffset;
     else
         offset = 0;
     end
 
     %No need to shift DVH by doseOffset since it is already included in doseBinsV.
     if strcmpi(cum_diff_string,'CUMU')
-        h = plot([0, scanBinsV - offset], [1, cumVols2V/cumVolsV(end)]);
-        addDVHtoFig(hFig, struct, scanSet, h, [0, scanBinsV - offset], [1, cumVols2V/cumVolsV(end)], 'IVH', 'NOABS', scanBinsV, volsHistV, scanName);
+        h = plot([scanBinsV(1) - offset, scanBinsV - offset], [1, cumVols2V/cumVolsV(end)]);
+        addDVHtoFig(hFig, struct, scanSet, h, [scanBinsV(1) - offset, scanBinsV - offset], [1, cumVols2V/cumVolsV(end)], 'IVH', 'NOABS', scanBinsV, volsHistV, scanName);
     elseif strcmpi(cum_diff_string,'DIFF')
         indPlot = find(volsHistV);
-        h = plot(scanBinsV(indPlot), volsHistV(indPlot)/cumVolsV(end));
-        addDVHtoFig(hFig, struct, scanSet, h, scanBinsV(indPlot), volsHistV(indPlot)/cumVolsV(end), 'IVH', 'NOABS', scanBinsV, volsHistV, scanName);
+        h = plot(scanBinsV(indPlot)-offset, volsHistV(indPlot)/cumVolsV(end));
+        addDVHtoFig(hFig, struct, scanSet, h, scanBinsV(indPlot)-offset, volsHistV(indPlot)/cumVolsV(end), 'IVH', 'NOABS', scanBinsV, volsHistV, scanName);
     end    
     
     set(hAxis,'nextplot','add')
@@ -438,20 +438,20 @@ else   %compute yer own
     cumVols2V  = cumVolsV(end) - cumVolsV;  %cumVolsV is the cumulative volume lt that corresponding scan
     %including that scan bin.
     
-    if isfield(planC{indexS.scan}(scanSet),'scanOffset')
-        offset = planC{indexS.scan}(scanSet).scanOffset;
+    if isfield(planC{indexS.scan}(scanSet).scanInfo(1),'CTOffset')
+        offset = planC{indexS.scan}(scanSet).scanInfo(1).CTOffset;
     else
         offset = 0;
     end
 
     %No need to shift DVH by doseOffset since it is already included in doseBinsV.
     if strcmpi(cum_diff_string,'CUMU')
-        h = plot([0, scanBinsV - offset], [1, cumVols2V/cumVolsV(end)]);
-        addDVHtoFig(hFig, struct, scanSet, h, [0, scanBinsV - offset], [1, cumVols2V/cumVolsV(end)], 'IVH', 'NOABS', scanBinsV-offset, volsHistV, scanName);
+        h = plot([scanBinsV(1) - offset, scanBinsV - offset], [1, cumVols2V/cumVolsV(end)]);
+        addDVHtoFig(hFig, struct, scanSet, h, [scanBinsV(1) - offset, scanBinsV - offset], [1, cumVols2V/cumVolsV(end)], 'IVH', 'NOABS', scanBinsV-offset, volsHistV, scanName);
     elseif strcmpi(cum_diff_string,'DIFF')
         indPlot = find(volsHistV);
         h = plot(scanBinsV(indPlot)-offset, volsHistV(indPlot)/cumVolsV(end));
-        addDVHtoFig(hFig, struct, scanSet, h, scanBinsV(indPlot), volsHistV(indPlot)/cumVolsV(end), 'DVH', 'NOABS', scanBinsV(indPlot)-offset, volsHistV(indPlot), scanName);
+        addDVHtoFig(hFig, struct, scanSet, h, scanBinsV(indPlot)-offset, volsHistV(indPlot)/cumVolsV(end), 'DVH', 'NOABS', scanBinsV(indPlot)-offset, volsHistV(indPlot), scanName);
     end
 
     set(hAxis,'nextplot','add')
@@ -504,14 +504,13 @@ if absFlag == 1
         colorV = getColor(IVHNum, optS.colorOrder);
     end    
     
-    %No need to shift DVH by doseOffset since it is already included in doseBinsV.
     if strcmpi(cum_diff_string,'CUMU')
-        p = plot([0, scanBinsV - offset], [1, cumVols2V]);
-        addDVHtoFig(hFig, struct, scanSet, h, [0, scanBinsV - offset], [1, cumVols2V], 'IVH', 'NOABS', scanBinsV, volsHistV, scanName);
+        p = plot([scanBinsV(1) - offset, scanBinsV - offset], [1, cumVols2V]);
+        addDVHtoFig(hFig, struct, scanSet, h, [scanBinsV(1) - offset, scanBinsV - offset], [1, cumVols2V], 'IVH', 'NOABS', scanBinsV, volsHistV, scanName);
     elseif strcmpi(cum_diff_string,'DIFF')
         indPlot = find(volsHistV);
-        p = plot(scanBinsV(indPlot), volsHistV(indPlot));
-        addDVHtoFig(hFig, struct, scanSet, h, scanBinsV(indPlot), volsHistV(indPlot), 'DVH', 'NOABS', scanBinsV, volsHistV, scanName);
+        p = plot(scanBinsV(indPlot)-offset, volsHistV(indPlot));
+        addDVHtoFig(hFig, struct, scanSet, h, scanBinsV(indPlot)-offset, volsHistV(indPlot), 'DVH', 'NOABS', scanBinsV, volsHistV, scanName);
     end
     set(p,'color', colorV)
     %  IVHOptS(IVHNum).hAbsAxis = h;
