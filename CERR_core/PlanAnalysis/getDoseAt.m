@@ -50,8 +50,8 @@ dA = getDoseArray(doseNum, planC);
 %Interpolate to values in xV/yV/zV from the dosearray, 0 if out of bounds.
 %Correct numerical noise
 delta = 1e-8;
-zVD(1) = zVD(1)-1e-5;
-zVD(end) = zVD(end)+1e-5;
+zVD(1) = zVD(1)-1e-3;
+zVD(end) = zVD(end)+1e-3;
 dosesV = finterp3(xV, yV, zV, dA, [xVD(1)-delta xVD(2)-xVD(1) xVD(end)+delta], [yVD(1)+delta yVD(2)-yVD(1) yVD(end)-delta], zVD, 0);
 
 if isfield(planC{indexS.dose}(doseNum), 'doseOffset') & ~isempty(planC{indexS.dose}(doseNum).doseOffset)
