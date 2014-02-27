@@ -1264,7 +1264,7 @@ if ~isempty(in_str)
                 MATLABVERSION = version;
 
                 if strcmpi(MATLABVERSION(1),'7') | str2num(MATLABVERSION(1))>= 7
-                    html_file = which('CERRCommandLinehelp.html');
+                    html_file = fullfile(getCERRPath,'CommandLine','CERRCommandLinehelp.html');
                     showToolbar = 1;
                     showAddressBox = 1;
                     activeBrowser = com.mathworks.mde.webbrowser.WebBrowser.createBrowser(showToolbar, showAddressBox);
