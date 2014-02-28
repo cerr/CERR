@@ -37,4 +37,4 @@ function pathStr = getCERRPath
 %     pathStr = stateS.workingDirectory;
 % end
 
-pathStr = [cd,'\'];
+pathStr = [cd,filesep];
