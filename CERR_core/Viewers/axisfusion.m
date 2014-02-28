@@ -187,6 +187,8 @@ switch method
                     
                     xlen = length(xInd);
                     ylen = length(yInd);
+                    img1 = img1/max(img1(:))*1000;
+                    img2 = img2/max(img2(:))*1000;
                     im2 = img2(yInd(1):yInd(ylen), xInd(1):xInd(xlen))+3;
                     im1 = img1(yInd(1):yInd(ylen), xInd(1):xInd(xlen))+30;
 
