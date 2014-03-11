@@ -390,8 +390,9 @@ switch upper(command)
 
         % Save scan statistics for fast image rendering
         for scanNum = newScanNum
-            stateS.scanStats.minScanVal.(repSpaceHyp(planC{indexS.scan}(scanNum).scanUID)) = single(min(planC{indexS.scan}(scanNum).scanArray(:))) - planC{indexS.scan}(scanNum).scanInfo(1).CTOffset;
-            stateS.scanStats.maxScanVal.(repSpaceHyp(planC{indexS.scan}(scanNum).scanUID)) = single(max(planC{indexS.scan}(scanNum).scanArray(:))) - planC{indexS.scan}(scanNum).scanInfo(1).CTOffset;
+            scanUID = ['c',repSpaceHyp(planC{indexS.scan}(scanNum).scanUID(max(1,end-61):end))];
+            stateS.scanStats.minScanVal.(scanUID) = single(min(planC{indexS.scan}(scanNum).scanArray(:))) - planC{indexS.scan}(scanNum).scanInfo(1).CTOffset;
+            stateS.scanStats.maxScanVal.(scanUID) = single(max(planC{indexS.scan}(scanNum).scanArray(:))) - planC{indexS.scan}(scanNum).scanInfo(1).CTOffset;
         end
         
         %switch to new scan, with a short pause to let the dialogue clear.

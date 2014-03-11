@@ -588,8 +588,9 @@ switch upper(instr)
         
         % Save scan statistics for fast image rendering
         for scanNum = 1:length(planC{indexS.scan})
-            stateS.scanStats.minScanVal.(repSpaceHyp(planC{indexS.scan}(scanNum).scanUID)) = single(min(planC{indexS.scan}(scanNum).scanArray(:))) - planC{indexS.scan}(scanNum).scanInfo(1).CTOffset;
-            stateS.scanStats.maxScanVal.(repSpaceHyp(planC{indexS.scan}(scanNum).scanUID)) = single(max(planC{indexS.scan}(scanNum).scanArray(:))) - planC{indexS.scan}(scanNum).scanInfo(1).CTOffset;
+            scanUID = ['c',repSpaceHyp(planC{indexS.scan}(scanNum).scanUID(max(1,end-61):end))];
+            stateS.scanStats.minScanVal.(scanUID) = single(min(planC{indexS.scan}(scanNum).scanArray(:))) - planC{indexS.scan}(scanNum).scanInfo(1).CTOffset;
+            stateS.scanStats.maxScanVal.(scanUID) = single(max(planC{indexS.scan}(scanNum).scanArray(:))) - planC{indexS.scan}(scanNum).scanInfo(1).CTOffset;
         end
         
         %If any duplicates, remove them and make new entry first.
@@ -1933,6 +1934,10 @@ switch upper(instr)
         stateS.scanWindowCurrentPoint = cP(1,1:2);   
         maxScanVal = stateS.scanStats.maxScanVal.(repSpaceHyp(planC{indexS.scan}(getAxisInfo(gca,'scanSets')).scanUID));
         minScanVal = stateS.scanStats.minScanVal.(repSpaceHyp(planC{indexS.scan}(getAxisInfo(gca,'scanSets')).scanUID));
+        scanNum = getAxisInfo(gca,'scanSets');
+        scanUID = ['c',repSpaceHyp(planC{indexS.scan}(scanNum).scanUID(max(1,end-61):end))];
+        minScanVal = stateS.scanStats.minScanVal.(scanUID);
+        maxScanVal = stateS.scanStats.maxScanVal.(scanUID);
         dMov = maxScanVal - minScanVal;
         stateS.optS.CTLevel = stateS.optS.CTLevel + pointDiff(2)*dMov*0.125/100*percentMov(2);        
         stateS.optS.CTWidth = stateS.optS.CTWidth + pointDiff(1)*dMov*0.0625/100*percentMov(1); 
