@@ -353,7 +353,8 @@ end
 
 % Save scan statistics for fast image rendering
 for scanNum = 1:length(planD{indexSD.scan})
-    stateS.scanStats.minScanVal.(repSpaceHyp(planD{indexSD.scan}(scanNum).scanUID)) = single(min(planD{indexSD.scan}(scanNum).scanArray(:))) - planD{indexSD.scan}(scanNum).scanInfo(1).CTOffset;
-    stateS.scanStats.maxScanVal.(repSpaceHyp(planD{indexSD.scan}(scanNum).scanUID)) = single(max(planD{indexSD.scan}(scanNum).scanArray(:))) - planD{indexSD.scan}(scanNum).scanInfo(1).CTOffset;
+    scanUID = ['c',repSpaceHyp(planC{indexS.scan}(scanNum).scanUID(max(1,end-61):end))];
+    stateS.scanStats.minScanVal.(scanUID) = single(min(planC{indexS.scan}(scanNum).scanArray(:))) - planC{indexS.scan}(scanNum).scanInfo(1).CTOffset;
+    stateS.scanStats.maxScanVal.(scanUID) = single(max(planC{indexS.scan}(scanNum).scanArray(:))) - planC{indexS.scan}(scanNum).scanInfo(1).CTOffset;
 end
 
