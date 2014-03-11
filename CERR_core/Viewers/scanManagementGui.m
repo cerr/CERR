@@ -117,7 +117,7 @@ switch upper(command)
         catch
             % RTOG scan
             scanDate = planC{indexS.scan}(scanNum).scanInfo(1).scanDate;
-            set(ud.handles.scanDate, 'string', datestr(datenum(scanDate,'yyyymmdd'),2));            
+            set(ud.handles.scanDate, 'string', scanDate);            
         end
         
     case 'REFRESH'
@@ -344,7 +344,7 @@ switch upper(command)
         catch
             % RTOG scan
             scanDate = planC{indexS.scan}(scanNum).scanInfo(1).scanDate;
-            set(ud.handles.scanDate, 'string', datestr(datenum(scanDate,'yyyymmdd'),2));            
+            set(ud.handles.scanDate, 'string', scanDate);            
         end
 
     case 'CHANGESCAN'
