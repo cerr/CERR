@@ -219,8 +219,9 @@ for i=1:length(axisInfo.scanObj)
             CTWidth     = stateS.optS.CTWidth;
             CTLow       = CTLevel - CTWidth/2;
             CTHigh      = CTLevel + CTWidth/2;
-            scanMin = stateS.scanStats.minScanVal.(repSpaceHyp(planC{indexS.scan}(scanSet).scanUID));
-            scanMax = stateS.scanStats.maxScanVal.(repSpaceHyp(planC{indexS.scan}(scanSet).scanUID));
+            scanUID = ['c',repSpaceHyp(planC{indexS.scan}(scanSet).scanUID(max(1,end-61):end))];
+            scanMin = stateS.scanStats.minScanVal.(scanUID);
+            scanMax = stateS.scanStats.maxScanVal.(scanUID);
             CTLow = max(CTLow,scanMin);
             CTHigh = max(CTLow,min(CTHigh,scanMax));
 
