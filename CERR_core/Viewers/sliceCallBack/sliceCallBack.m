@@ -1932,8 +1932,6 @@ switch upper(instr)
         percentMov = percentMov/max(percentMov);
         pointDiff = sign(pointDiff);
         stateS.scanWindowCurrentPoint = cP(1,1:2);   
-        maxScanVal = stateS.scanStats.maxScanVal.(repSpaceHyp(planC{indexS.scan}(getAxisInfo(gca,'scanSets')).scanUID));
-        minScanVal = stateS.scanStats.minScanVal.(repSpaceHyp(planC{indexS.scan}(getAxisInfo(gca,'scanSets')).scanUID));
         scanNum = getAxisInfo(gca,'scanSets');
         scanUID = ['c',repSpaceHyp(planC{indexS.scan}(scanNum).scanUID(max(1,end-61):end))];
         minScanVal = stateS.scanStats.minScanVal.(scanUID);
