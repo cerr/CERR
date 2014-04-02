@@ -37,10 +37,10 @@ nWritten        = 0;
 indexS = planC{end};
 
 if length(planC{indexS.scan})> 1
-    hButton = questdlg('Is this a Gamma Knife Plan','Export Option','YES','NO','YES');
+    hButton = questdlg('Is this a Gamma Knife Plan','Export Option','YES','NO','NO');
     waitfor(hButton);
     
-    if strcmpi(hButton,'NO')
+    if strcmpi(hButton,'YES')
         export_gammaKnife(planC,destDir)
         return
     else

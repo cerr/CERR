@@ -108,18 +108,33 @@ switch upper(command)
         set(ud.handles.scansize, 'string', [num2str(scanSize/(1024*1024), '%6.2f') 'MB']);
         % ESpezi MAY 2013
         % refresh scan date and time
-        try
-            scanDate = planC{indexS.scan}(scanNum).scanInfo(1).DICOMHeaders.AcquisitionDate;
-            set(ud.handles.scanDate, 'string', datestr(datenum(scanDate,'yyyymmdd'),2));
-            scanTime = planC{indexS.scan}(scanNum).scanInfo(1).DICOMHeaders.AcquisitionTime;
-            [~,aqTime] = strtok(datestr(datenum(strtok(num2str(scanTime),'.'),'HHMMSS')));
-            set(ud.handles.scanTime, 'string', aqTime);
-        catch
+        if isfield(planC{indexS.scan}(scanNum).scanInfo(1),'DICOMHeaders')
+            scanDate = '';
+            if isfield(planC{indexS.scan}(scanNum).scanInfo(1).DICOMHeaders,'AcquisitionDate')
+                scanDate = planC{indexS.scan}(scanNum).scanInfo(1).DICOMHeaders.AcquisitionDate;
+            end
+            if ~isempty(scanDate)
+                set(ud.handles.scanDate, 'string', datestr(datenum(scanDate,'yyyymmdd'),2));
+            else
+                set(ud.handles.scanDate, 'string', scanDate);
+            end
+            scanTime = '';
+            if isfield(planC{indexS.scan}(scanNum).scanInfo(1).DICOMHeaders,'AcquisitionTime')
+                scanTime = planC{indexS.scan}(scanNum).scanInfo(1).DICOMHeaders.AcquisitionTime;
+            end
+            if ~isempty(scanTime)
+                [~,aqTime] = strtok(datestr(datenum(strtok(num2str(scanTime),'.'),'HHMMSS')));
+                set(ud.handles.scanTime, 'string', aqTime);
+            else
+                set(ud.handles.scanTime, 'string', scanTime);
+            end
+        else
             % RTOG scan
             scanDate = planC{indexS.scan}(scanNum).scanInfo(1).scanDate;
-            set(ud.handles.scanDate, 'string', datestr(datenum(scanDate,'yyyymmdd'),2));            
+            set(ud.handles.scanDate, 'string', scanDate);
         end
         
+            
     case 'REFRESH'
         %Recreate and redraw the entire scanManagementGui.
         if isempty(h)
@@ -335,16 +350,30 @@ switch upper(command)
         
         % ESpezi MAY 2013
         % refresh scan date and time 
-        try
-            scanDate = planC{indexS.scan}(scanNum).scanInfo(1).DICOMHeaders.AcquisitionDate;
-            set(ud.handles.scanDate, 'string', datestr(datenum(scanDate,'yyyymmdd'),2));
-            scanTime = planC{indexS.scan}(scanNum).scanInfo(1).DICOMHeaders.AcquisitionTime;
-            [~,aqTime] = strtok(datestr(datenum(strtok(num2str(scanTime),'.'),'HHMMSS')));
-            set(ud.handles.scanTime, 'string', aqTime);
-        catch
+        if isfield(planC{indexS.scan}(scanNum).scanInfo(1),'DICOMHeaders')
+            scanDate = '';
+            if isfield(planC{indexS.scan}(scanNum).scanInfo(1).DICOMHeaders,'AcquisitionDate')
+                scanDate = planC{indexS.scan}(scanNum).scanInfo(1).DICOMHeaders.AcquisitionDate;
+            end
+            if ~isempty(scanDate)
+                set(ud.handles.scanDate, 'string', datestr(datenum(scanDate,'yyyymmdd'),2));
+            else
+                set(ud.handles.scanDate, 'string', scanDate);
+            end
+            scanTime = '';
+            if isfield(planC{indexS.scan}(scanNum).scanInfo(1).DICOMHeaders,'AcquisitionTime')
+                scanTime = planC{indexS.scan}(scanNum).scanInfo(1).DICOMHeaders.AcquisitionTime;
+            end
+            if ~isempty(scanTime)
+                [~,aqTime] = strtok(datestr(datenum(strtok(num2str(scanTime),'.'),'HHMMSS')));
+                set(ud.handles.scanTime, 'string', aqTime);
+            else
+                set(ud.handles.scanTime, 'string', scanTime);
+            end
+        else
             % RTOG scan
             scanDate = planC{indexS.scan}(scanNum).scanInfo(1).scanDate;
-            set(ud.handles.scanDate, 'string', datestr(datenum(scanDate,'yyyymmdd'),2));            
+            set(ud.handles.scanDate, 'string', scanDate);
         end
 
     case 'CHANGESCAN'
