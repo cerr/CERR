@@ -112,6 +112,8 @@ if ~isempty(planC{indexS.structures})
     planC{indexS.structures} = dissimilarInsert(planC{indexS.structures}, newstr, numStructs+1, []);
 else
     planC{indexS.structures} = newstr;
+    planC{indexS.structureArrayMore}(scanNum).indicesArray = [];
+    planC{indexS.structureArrayMore}(scanNum).bitsArray = [];
 end
 
 %Update uniformized data.
