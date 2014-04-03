@@ -449,6 +449,48 @@ switch cellName
         close(hWaitbar);
         pause(0.1);
         
+    case 'registration'
+        [seriesC, typeC]    = extract_all_series(dcmdir_patient);
+        supportedTypes      = {'REG'};
+        registrationsAdded  = 0;
+        frameOfRefUIDC      = {};
+        %Place each REG into its own array element.
+        for seriesNum = 1:length(seriesC)
+            
+            %             if ismember(typeC{seriesNum}, supportedTypes)
+            if strcmpi(typeC{seriesNum}, 'REG')
+                
+                REG = seriesC{seriesNum}.Data; %wy RTDOSE{1} for import more than one dose files;
+                for regNum = 1:length(REG)
+                    regobj  = scanfile_mldcm(REG(regNum).file);
+                    
+                    % Frame of Reference UID
+                    frameOfRefUID = dcm2ml_Element(regobj.get(hex2dec('00200052')));
+                    
+                    
+                    %Populate each field in the dose structure.
+                    for i = 1:length(names)
+                        dataS(registrationsAdded+1).(names{i}) = populate_planC_registration_field(names{i}, REG(regNum), regobj);
+                    end
+                    
+                    if isempty(frameOfRefUIDC)
+                        frameOfRefUIDC{1} = frameOfRefUID;
+                    else
+                        frameOfRefUIDC{end+1} = frameOfRefUID;
+                    end
+                    
+                    % Check if frame of reference UID matches any
+                    % existing doses and add slices.
+                    
+                    % If frame of reference UID does not match, then
+                    % create a new dose
+                    registrationsAdded = registrationsAdded + 1;
+                end
+            end
+            
+        end
+        
+        
     case 'importLog'
         %Implementation is unnecessary.
         
