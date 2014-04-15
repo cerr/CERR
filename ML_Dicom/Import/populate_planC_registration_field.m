@@ -144,7 +144,7 @@ switch fieldname
 
             % Pre reg Matrix Registration Sequence
             preDefMatRegSeq = aRegSeq.get(hex2dec('0064000F'));
-            preRegTransM = [];
+            preRegTransM = eye(4);
             preRegTransType = '';
             if ~isempty(preDefMatRegSeq)            
                 preRegDefObj = preDefMatRegSeq.getDicomObject(0);
@@ -157,7 +157,7 @@ switch fieldname
             
             % Post reg Matrix Registration Sequence
             postDefMatRegSeq = aRegSeq.get(hex2dec('00640010'));
-            postRegTransM = [];
+            postRegTransM = eye(4);
             postRegTransType = '';
             if ~isempty(postDefMatRegSeq)            
                 postRegDefObj = postDefMatRegSeq.getDicomObject(0);
