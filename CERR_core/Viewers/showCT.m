@@ -254,12 +254,12 @@ for i=1:length(axisInfo.scanObj)
 
         if stateS.optS.sinc_filter_on_display
             sz = size(clippedCT);
-            if min(sz) < 256
+            if min(sz) <= 256
                 new_sz = sz*4;
             else
                 new_sz = sz*2;
             end
-            clippedCT = updownsample(clippedCT, new_sz(1),new_sz(2),0,2);
+            clippedCT = updownsample(clippedCT, new_sz(2),new_sz(1),0,2);
         end
         hImage = surface(xM, yM, zM, 'faceColor', 'texturemap', 'cData', clippedCT, 'edgecolor', 'none', 'facealpha', alpha,'parent', hAxis, 'tag', 'CTImage', 'hittest', 'off');
         %x = linspace(xLim(1),xLim(2),length(clippedCT(1,:)));
@@ -315,15 +315,15 @@ for i=1:length(axisInfo.scanObj)
                 [xM, yM] = meshgrid(xLim, yLim);
                 zM = repmat(0,size(xM))-2;
                 if stateS.optS.sinc_filter_on_display
-                    sz = size(cData3M(:,:));
-                    if min(sz) < 256
+                    sz = size(cData3M(:,:,1));
+                    if min(sz) <= 256
                         new_sz = sz*4;
                     else
                         new_sz = sz*2;
                     end
-                    cDataUpSampled3M(:,:,1) = updownsample(cData3M(:,:,1), new_sz(1),new_sz(2),0,2);
-                    cDataUpSampled3M(:,:,2) = updownsample(cData3M(:,:,2), new_sz(1),new_sz(2),0,2);
-                    cDataUpSampled3M(:,:,3) = updownsample(cData3M(:,:,3), new_sz(1),new_sz(2),0,2);
+                    cDataUpSampled3M(:,:,1) = updownsample(cData3M(:,:,1), new_sz(2),new_sz(1),0,2);
+                    cDataUpSampled3M(:,:,2) = updownsample(cData3M(:,:,2), new_sz(2),new_sz(1),0,2);
+                    cDataUpSampled3M(:,:,3) = updownsample(cData3M(:,:,3), new_sz(2),new_sz(1),0,2);
                 else
                     cDataUpSampled3M = cData3M;
                 end
