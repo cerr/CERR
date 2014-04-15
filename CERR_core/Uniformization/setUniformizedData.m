@@ -33,7 +33,7 @@ function planC = setUniformizedData(planC, cerr_optS)
 
 indexS = planC{end};
  
-if ~exist('cerr_optS')
+if ~exist('cerr_optS','var')
     cerr_optS = planC{indexS.CERROptions};
 end
 if ~isfield(cerr_optS,'lowerLimitUniformCTSliceSpacing')
