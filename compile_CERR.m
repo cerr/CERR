@@ -8,7 +8,7 @@ function compile_CERR(CERR_path, compiled_path)
 % compiled CERR.
 %
 % Usage:
-% compile_CERR('G:\Projects\CERR_compile\CERR_git\CERR')
+% compile_CERR('G:\Projects\CERR_compile\CERR_git\CERR','C:\Projects\compiled_cerr_win7_64bit_May_15_2014')
 %
 % APA, 03/22/2012
 
