@@ -47,6 +47,8 @@ switch upper(modality)
         modality = 'DIR';
     case 'ANNOTATION'
         modality = 'PR';
+    case 'REGISTRATION'
+        modality = 'REG';
 end
 % randNum = ceil(1000 + (9999-1000).*rand);
 randNum = 1000.*rand;

@@ -17,8 +17,8 @@ else
     return    
 end
 
-if ptweight==0
-    disp('Patient Weight is 0. SUV calculation ignored.');
+if isempty(ptweight) || ptweight==0
+    disp('Patient Weight is missing. SUV calculation ignored.');
     SUV=slice;
     return
 end

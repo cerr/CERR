@@ -364,5 +364,8 @@ optS.convert_PET_to_SUV = 1; % 0: Do not convert to SUV, 1: Convert to SUV
 %-- Option to overwrite CERR file if a bug is found during QA
 optS.overwrite_CERR_File = 1; % 0: Do not overwrite, 1: overwrite
 
+%-- Option to overwrite CERR file if a bug is found during QA
+optS.sinc_filter_on_display = 1; % 0: Do not apply sinc, 1: apply sinc
+
 
 %-------------------------------------------fini--------------------------%

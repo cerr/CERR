@@ -94,7 +94,7 @@ switch upper(vr)
         data =  el.getFloats(buf);
         
     case 'FD'
-        data = el.getDouble(buf);
+        data = el.getDoubles(buf);
     case 'IS'
         data = el.getInts(buf);
     case 'LT'
@@ -102,7 +102,7 @@ switch upper(vr)
     case 'OB'
         data = el.getBytes;
     case 'OF'
-        %Needs implementation
+        data = el.getFloats(buf);        
     case 'OW'
         %OW contains 16 bit words.  Conversion of this data into meaningful
         %values is the responsibility of the calling function.
@@ -139,15 +139,14 @@ switch upper(vr)
     case 'UI'
         data = char(el.getString(cs, buf));
     case 'UL'
-        data = el.getInt(buf);
+        data = el.getInts(buf);
     case 'UN'
         data = el.getBytes;
     case 'US'
         data = el.getInt(buf);
     case 'UT'
         %Needs implementation
-        data = '';
-            
+        data = '';                 
     otherwise
         error('Unrecognized VR type.'); %%Consider more gracious exit.
 end

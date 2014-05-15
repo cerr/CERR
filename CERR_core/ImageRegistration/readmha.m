@@ -103,6 +103,8 @@ if (strcmp(element_type,'MET_FLOAT'))
   [A,count] = fread(fp,sz(1)*sz(2)*sz(3)*nchannels,'float');
 elseif (strcmp(element_type,'MET_SHORT'))
     [A,count] = fread(fp,sz(1)*sz(2)*sz(3)*nchannels,'short');
+elseif (strcmp(element_type,'MET_USHORT'))
+    [A,count] = fread(fp,sz(1)*sz(2)*sz(3)*nchannels,'ushort');
 elseif (strcmp(element_type,'MET_UCHAR'))
   [A,count] = fread(fp,sz(1)*sz(2)*sz(3)*nchannels,'uchar');
 elseif (strcmp(element_type,'MET_UINT'))

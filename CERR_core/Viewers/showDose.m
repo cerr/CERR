@@ -373,21 +373,47 @@ for j=1:length(axisInfo.doseObj)
                             scanSet = axisInfo.scanObj(CTImages(i)).scanSet;
 
                             CT2M = get(hCTImage, 'cData');
-
+                            
                             CTXVals = axisInfo.scanObj(CTImages(i)).xV;
-
+                            
                             CTYVals = axisInfo.scanObj(CTImages(i)).yV;
-
+                            
+                            % Downsample CT2M to original resolution
+                            if stateS.optS.sinc_filter_on_display
+                                new_sz = [length(CTYVals), length(CTXVals)];
+                                CT2M = updownsample(CT2M, new_sz(2),new_sz(1),0,2);
+                            end
+                            
                             [cData3M, xLim, yLim] = CERRDoseColorWash(hAxis, dose2M, doseXVals, doseYVals, offset, CT2M, CTXVals, CTYVals, scanSet);
-
-                            hImage = image(cData3M, 'XData', xLim, 'YData', yLim, 'hittest', 'off', 'tag', 'DoseImage', 'parent', hAxis, 'visible', 'on');
-
+                            
+                            % Upsample based on sinc flag
+                            if stateS.optS.sinc_filter_on_display
+                                sz = size(cData3M(:,:,1));
+                                if min(sz) <= 256
+                                    new_sz = sz*4;
+                                else
+                                    new_sz = sz*2;
+                                end
+                                cDataUpSampled3M(:,:,1) = updownsample(cData3M(:,:,1), new_sz(2),new_sz(1),0,2);
+                                cDataUpSampled3M(:,:,2) = updownsample(cData3M(:,:,2), new_sz(2),new_sz(1),0,2);
+                                cDataUpSampled3M(:,:,3) = updownsample(cData3M(:,:,3), new_sz(2),new_sz(1),0,2);
+                            else
+                                cDataUpSampled3M = cData3M;
+                            end
+                            
+                            maxCdata = max(cDataUpSampled3M(:));
+                            if maxCdata > 1
+                                cDataUpSampled3M = cDataUpSampled3M/maxCdata;
+                            end
+                            
+                            hImage = image(cDataUpSampled3M, 'XData', xLim, 'YData', yLim, 'hittest', 'off', 'tag', 'DoseImage', 'parent', hAxis, 'visible', 'on');
+                            clear cDataUpSampled3M
                             axisInfo.doseObj(j).scanBase = scanSet;
                         end
                     else
-
+                        
                         [cData3M, xLim, yLim] = CERRDoseColorWash(hAxis, dose2M, doseXVals, doseYVals,  offset, [], [], [],dim);
-
+                        
                         %                         if stateS.imageRegistrationBaseDataset == doseSet & strcmpi(stateS.imageRegistrationBaseDatasetType, 'dose')
                         %                             alpha = 1;
                         %                         else

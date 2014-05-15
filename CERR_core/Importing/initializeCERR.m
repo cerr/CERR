@@ -387,6 +387,12 @@ deformS         = struct(...
  'deformUID'                    ,   '' ...
   );
 
+registrationS         = struct(...
+ 'rigidS'                       ,   '', ...
+ 'deformS'                      ,   '', ...
+ 'regUID'                    ,   '' ...
+  );
+
 RTTreatmentInitS = struct('');          %CERR addition
 
 importLogInitS = struct(...             %CERR addition
@@ -424,21 +430,22 @@ indexS.RTTreatment          = 15;
 indexS.IM                   = 16;
 indexS.GSPS                 = 17;
 indexS.deform               = 18;
-indexS.importLog            = 19;
-indexS.CERROptions          = 20;
+indexS.registration         = 19;
+indexS.importLog            = 20;
+indexS.CERROptions          = 21;
 
 % check if this is microRT and/or RPC film study and change the study
 % accordingly
 try
     if stateS.optS.chkMicroRT
-        indexS.microRTP = 21;
-        indexS.indexS   = 22;
+        indexS.microRTP = 22;
+        indexS.indexS   = 23;
         microRTPInitS = initializeMicroRTP(planInitC);
     else
-        indexS.indexS = 21;
+        indexS.indexS = 22;
     end
 catch
-    indexS.indexS = 21;
+    indexS.indexS = 22;
 end
 
 
@@ -471,6 +478,7 @@ planInitC{indexS.deform}            = deformS;
 planInitC{indexS.importLog}         = importLogInitS;
 planInitC{indexS.IM}                = IMInitS;
 planInitC{indexS.GSPS}              = GSPSInitS;
+planInitC{indexS.registration}      = registrationS;
 planInitC{indexS.CERROptions}       = struct([]); %Currently blank.  Set on planC creation.
 
 %Store the indexS so requesting functions can extract the prototype they
