@@ -28,6 +28,9 @@ thresholdAbsolute = thresholdPercentMax*max(planC{indexS.dose}(doseNum1).doseArr
 
 gammaM = gammaDose3d(doseArray1, doseArray2, [deltaX deltaY deltaZ], doseAgreement, distAgreement, [], thresholdAbsolute);
 
+% Assume doses within the filter threshold pass gamma
+gammaM(isnan(gammaM)) = 0;
+
 newDoseNum = length(planC{indexS.dose}) + 1;
 
 %Remove old caching info.
