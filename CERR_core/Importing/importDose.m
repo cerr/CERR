@@ -87,7 +87,7 @@ switch type
                 end
                 binaryFlag = 1;
             else
-                dos(['"',getCERRPath,'Importing\readASCIIDose" "',doseFileName,'"'])
+                dos(['"',getCERRPath,'bin\Importing\readASCIIDose" "',doseFileName,'"'])
 
                 [largeDose, doseArraySizeInMB] = isLargeDose(optS, sizeDoseV);
                 zValFile = [cd,'\zValueRuby.txt'];
