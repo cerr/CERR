@@ -212,7 +212,7 @@ switch cellName
                     if isempty(dvhsequence) || ~isempty(dose3M)
                         %Populate each field in the dose structure.
                         for i = 1:length(names)
-                            dataS(dosesAdded+1).(names{i}) = populate_planC_dose_field(names{i}, RTDOSE(doseNum), doseobj, rtPlans);
+                            dataSeriesS(doseNum).(names{i}) = populate_planC_dose_field(names{i}, RTDOSE(doseNum), doseobj, rtPlans);
                         end
                         
                         if isempty(frameOfRefUIDC)
@@ -226,9 +226,30 @@ switch cellName
                         
                         % If frame of reference UID does not match, then
                         % create a new dose                        
-                        dosesAdded = dosesAdded + 1;
+                        %dosesAdded = dosesAdded + 1;
                     end
                 end
+                if length(dataSeriesS) > 1
+                    doseArray = [];
+                    zValues = [];
+                    for slcNum = 1:length(dataSeriesS)
+                        doseArray(:,:,slcNum) = dataSeriesS(slcNum).doseArray;
+                        zValues(slcNum) = dataSeriesS(slcNum).zValues;
+                    end
+                    % Sort doseArray as per zValues
+                    [zValues,indSort] = sort(zValues);
+                    doseArray(:,:,indSort) = doseArray;
+                    dataSeriesS(1).doseArray = doseArray;
+                    dataSeriesS(1).zValues = zValues;
+                end
+                dosesAdded = dosesAdded + 1;
+
+                if isempty(dataS)
+                    dataS = dataSeriesS(1);
+                else
+                    dataS(dosesAdded) = dataSeriesS(1);
+                end
+                
             end
             
         end
