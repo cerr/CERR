@@ -1,4 +1,4 @@
-function [Eccentricity,EulerNumber,Solidity,Extent] = getShapeParams(structNum,planC)
+function [Eccentricity,EulerNumber,Solidity,Extent] = getShapeParams(structNum,planC,filterFlag)
 %function getHaralicParams(structNum)
 %
 %This function returns shape features.
@@ -10,9 +10,21 @@ if ~exist('planC')
 end
 indexS = planC{end};
 
+if ~exist('filterFlag','var')
+    filterFlag = 0;
+end
 scanNum                             = getStructureAssociatedScan(structNum,planC);
 [rasterSegments, planC, isError]    = getRasterSegments(structNum,planC);
 [mask3M, uniqueSlices]              = rasterToMask(rasterSegments, scanNum, planC);
+if filterFlag
+    NHOOD_outer = createEllipsoidNHOOD(1:3,1:3,1:3);
+    mask3M = imclose(mask3M,NHOOD_outer);
+    [minr, maxr, minc, maxc, mins, maxs]= compute_boundingbox(mask3M);
+    strElem = strel('square',3);
+    for slcNum = mins:maxs
+        mask3M(:,:,slcNum) = imopen(mask3M(:,:,slcNum),strElem);
+    end
+end
 scanArray3M                         = getScanArray(planC{indexS.scan}(scanNum));
 SUVvals3M                           = single(mask3M).*single(scanArray3M(:,:,uniqueSlices));
 [minr, maxr, minc, maxc, mins, maxs]= compute_boundingbox(mask3M);
