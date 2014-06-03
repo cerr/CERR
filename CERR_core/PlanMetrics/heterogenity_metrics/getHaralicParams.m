@@ -37,7 +37,8 @@ init_th  = 10;
 final_th = 80;
 n_th     = 10;
 Thresholds = linspace (init_th, final_th, n_th);
-Slope = calc_slope_grigsby(structNum,Thresholds,planC);
+% Slope = calc_slope_grigsby(structNum,Thresholds,planC);
+Slope = NaN;
 disp(['Energy     : ',num2str(energy)])
 disp(['Contrast   : ',num2str(constrast)])
 disp(['Entropy    : ',num2str(Entropy)])
