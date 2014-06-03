@@ -38,7 +38,8 @@ dx = abs(xValsScan(1) - xValsScan(2));
 dy = abs(yValsScan(1) - yValsScan(2));
 dz = abs(zValsScan(1) - zValsScan(2));
 res = max([dx dy dz])/2;
-indM = distM >= varCalcDist - res & distM <= varCalcDist + res;
+%indM = distM >= varCalcDist - res & distM <= varCalcDist + res;
+indM = distM <= varCalcDist + res;
 
 if ~any(indM(:))
     varAtDistX = NaN;

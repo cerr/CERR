@@ -1,4 +1,4 @@
-function planC = mha2cerr(infoS,data3M,movScanOffset,movScanName,planC)
+function planC = mha2cerr(infoS,data3M,movScanOffset,movScanName,planC,save_flag)
 %"mha2cerr"
 %   Create an scan based mha header and 3D volume. 
 %
@@ -33,10 +33,10 @@ function planC = mha2cerr(infoS,data3M,movScanOffset,movScanName,planC)
 global stateS
 
 CTOffset = movScanOffset;
-save_flag = 0;
-if ~exist('planC','var')
+%save_flag = 0;
+if ~exist('planC','var') || (exist('planC','var') && isempty(planC))
     planC = initializeCERR;
-    save_flag = 1;
+    %save_flag = 1;
 end
 
 indexS = planC{end};
@@ -90,9 +90,7 @@ if ~isempty(stateS)
 end
 
 % Populate CERR Options
-if save_flag
-    planC{indexS.CERROptions} = CERROptions;
-end
+planC{indexS.CERROptions} = CERROptions;
 
 planC = setUniformizedData(planC);
 

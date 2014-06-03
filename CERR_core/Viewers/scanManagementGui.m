@@ -123,7 +123,12 @@ switch upper(command)
                 scanTime = planC{indexS.scan}(scanNum).scanInfo(1).DICOMHeaders.AcquisitionTime;
             end
             if ~isempty(scanTime)
-                [~,aqTime] = strtok(datestr(datenum(strtok(num2str(scanTime),'.'),'HHMMSS')));
+                [token, remain] = strtok(num2str(scanTime),'.');
+                if ~isempty(strfind(token,':'))
+                    [~,aqTime] = strtok(datestr(datenum(token,'HH:MM:SS')));
+                else
+                    [~,aqTime] = strtok(datestr(datenum(token,'HHMMSS')));
+                end
                 set(ud.handles.scanTime, 'string', aqTime);
             else
                 set(ud.handles.scanTime, 'string', scanTime);
@@ -365,7 +370,12 @@ switch upper(command)
                 scanTime = planC{indexS.scan}(scanNum).scanInfo(1).DICOMHeaders.AcquisitionTime;
             end
             if ~isempty(scanTime)
-                [~,aqTime] = strtok(datestr(datenum(strtok(num2str(scanTime),'.'),'HHMMSS')));
+                [token, remain] = strtok(num2str(scanTime),'.');
+                if ~isempty(strfind(token,':'))
+                    [~,aqTime] = strtok(datestr(datenum(token,'HH:MM:SS')));
+                else
+                    [~,aqTime] = strtok(datestr(datenum(token,'HHMMSS')));
+                end
                 set(ud.handles.scanTime, 'string', aqTime);
             else
                 set(ud.handles.scanTime, 'string', scanTime);

@@ -11,9 +11,10 @@ for i = 1:length(sliceIndV)
     maskBoundingBox2M = maskBoundingBox3M(:,:,sliceNum);
     indV = indM(indM>0) + (sliceNum-1)*numel(maskBoundingBox2M);
     isROI = maskBoundingBox3M(indV);
+    isROI = isROI(~isnan(isROI));
     indV = indV(isROI);
     suvWithinmaskV = [suvWithinmaskV; suvBoundingBox3M(indV).*maskBoundingBox3M(indV)];
-    
+    suvWithinmaskV = suvWithinmaskV(~isnan(suvWithinmaskV));
 end
 
 if length(unique(suvWithinmaskV)) > 1

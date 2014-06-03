@@ -208,7 +208,7 @@ switch cellName
                     
                     %Check if doesArray is present
                     dose3M = populate_planC_dose_field('doseArray', RTDOSE(doseNum), doseobj, rtPlans);
-                    
+                                        
                     if isempty(dvhsequence) || ~isempty(dose3M)
                         %Populate each field in the dose structure.
                         for i = 1:length(names)
@@ -229,25 +229,56 @@ switch cellName
                         %dosesAdded = dosesAdded + 1;
                     end
                 end
-                if length(dataSeriesS) > 1
-                    doseArray = [];
-                    zValues = [];
-                    for slcNum = 1:length(dataSeriesS)
-                        doseArray(:,:,slcNum) = dataSeriesS(slcNum).doseArray;
-                        zValues(slcNum) = dataSeriesS(slcNum).zValues;
+                
+                multiFrameC = cellfun(@(x) x > 1,{dataSeriesS.numberMultiFrameImages},'UniformOutput',false);
+                multiFrameIndV = [];
+                for iM = 1:length(multiFrameC)
+                    if isempty(multiFrameC{iM}) || (~isempty(multiFrameC{iM}) && multiFrameC{iM}==0)
+                        multiFrameIndV(iM) = 0;
+                    else
+                        multiFrameIndV(iM) = 1;
                     end
-                    % Sort doseArray as per zValues
-                    [zValues,indSort] = sort(zValues);
-                    doseArray(:,:,indSort) = doseArray;
-                    dataSeriesS(1).doseArray = doseArray;
-                    dataSeriesS(1).zValues = zValues;
                 end
-                dosesAdded = dosesAdded + 1;
-
-                if isempty(dataS)
-                    dataS = dataSeriesS(1);
-                else
-                    dataS(dosesAdded) = dataSeriesS(1);
+                multiFrameDoseNumsV = find(multiFrameIndV);
+                for doseNum = multiFrameDoseNumsV
+                    dosesAdded = dosesAdded + 1;                    
+                    if isempty(dataS)
+                        dataS = dataSeriesS(doseNum);
+                    else
+                        dataS(dosesAdded) = dataSeriesS(doseNum);
+                    end
+                end
+                
+                singleFrameIndV = ~multiFrameIndV;
+                dataSeriesS = dataSeriesS(singleFrameIndV);
+                doseSummationTypes = unique({dataSeriesS.doseSummationType});
+                for doseTypeNum = 1:length(doseSummationTypes)
+                    doseSumType = doseSummationTypes{doseTypeNum};
+                    indV = strcmpi(doseSumType,{dataSeriesS.doseSummationType});
+                    doseSeries = dataSeriesS(indV);
+                    switch doseSumType
+                        case 'BEAM'
+                            beamNumberV = unique([doseSeries.refBeamNumber]);                            
+                            for iB = 1:length(beamNumberV)
+                                beamNum = beamNumberV(iB);
+                                indV = [doseSeries.refBeamNumber] == beamNum;
+                                doseS = doseSeries(indV);
+                                [dataS,dosesAdded] = addDoseToSeries(doseS,dataS,dosesAdded);
+                            end
+                        case 'FRACTION'
+                            fractionNumberV = unique(doseSeries.refFractionGroupNumber);
+                            for iF = 1:length(fractionNumberV)
+                                fractionNumber = fractionNumberV(iF);
+                                indV = [doseSeries.refFractionGroupNumber] == fractionNumber;
+                                doseS = doseSeries(indV);
+                                [dataS,dosesAdded] = addDoseToSeries(doseS,dataS,dosesAdded);
+                            end
+                        otherwise
+                            doseS = doseSeries;
+                            [dataS,dosesAdded] = addDoseToSeries(doseS,dataS,dosesAdded);
+                            
+                    end
+                    
                 end
                 
             end
@@ -527,3 +558,30 @@ switch cellName
     otherwise
         % disp(['DICOM Import has no methods defined for import into the planC{indexS.' cellName '} structure, leaving empty.']);
 end
+
+end
+
+function [dataS,dosesAdded] = addDoseToSeries(doseS,dataS,dosesAdded)
+if length(doseS) > 1
+    doseArray = [];
+    zValues = [];
+    for slcNum = 1:length(doseS)
+        doseArray(:,:,slcNum) = doseS(slcNum).doseArray;
+        zValues(slcNum) = doseS(slcNum).zValues;
+    end
+    % Sort doseArray as per zValues
+    [zValues,indSort] = sort(zValues);
+    doseArray(:,:,indSort) = doseArray;
+    doseS(1).doseArray = doseArray;
+    doseS(1).zValues = zValues;
+end
+dosesAdded = dosesAdded + 1;
+
+if isempty(dataS)
+    dataS = doseS(1);
+else
+    dataS(dosesAdded) = doseS(1);
+end
+
+end
+

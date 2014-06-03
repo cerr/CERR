@@ -86,6 +86,45 @@ switch fieldname
                 dataS = dT;
         end
         
+    case 'doseSummationType'
+        dataS = dcm2ml_Element(dcmobj.get(hex2dec('3004000A')));
+        
+    case 'refBeamNumber'
+        rtplanSeq = dcmobj.get(hex2dec('300C0002'));
+        if isempty(rtplanSeq)
+            return;
+        end
+        artpSeq = rtplanSeq.getDicomObject(0);
+        fractionGroupSeq = artpSeq.get(hex2dec('300C0020'));
+        numFractions = fractionGroupSeq.countItems;
+        if numFractions == 0
+            return;
+        end
+        aFractionGroupSeq = fractionGroupSeq.getDicomObject(0);
+        beamSeq = aFractionGroupSeq.get(hex2dec('300C0004'));
+        numBeams = beamSeq.countItems;
+        if numBeams > 0
+            aBeamSeq = beamSeq.getDicomObject(0);
+            dataS = dcm2ml_Element(aBeamSeq.get(hex2dec('300C0006')));
+        end
+        
+    case 'refFractionGroupNumber'
+        rtplanSeq = dcmobj.get(hex2dec('300C0002'));
+        if isempty(rtplanSeq)
+            return;
+        end        
+        artpSeq = rtplanSeq.getDicomObject(0);
+        fractionGroupSeq = artpSeq.get(hex2dec('300C0020'));
+        numFractions = fractionGroupSeq.countItems;
+        if numFractions == 0
+            return;
+        end
+        aFractionGroupSeq = fractionGroupSeq.getDicomObject(0);
+        dataS = dcm2ml_Element(aFractionGroupSeq.get(hex2dec('300C0022')));
+        
+    case 'numberMultiFrameImages'
+        dataS = dcm2ml_Element(dcmobj.get(hex2dec('00280008')));
+        
     case 'doseUnits'
         %Dose Units
         dU = dcm2ml_Element(dcmobj.get(hex2dec('30040002')));

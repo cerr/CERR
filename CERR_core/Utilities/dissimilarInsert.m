@@ -46,7 +46,7 @@ if nargin < 4
 end
 
 %Insert index defaults to appending.
-if ~exist('index') | isempty(index)
+if ~exist('index','var') || (exist('index','var') && isempty(index))
     index = length(dataStruct)+1;
 end
 
