@@ -95,7 +95,10 @@ switch fieldname
             return;
         end
         artpSeq = rtplanSeq.getDicomObject(0);
-        fractionGroupSeq = artpSeq.get(hex2dec('300C0020'));
+        fractionGroupSeq = artpSeq.get(hex2dec('300C0020'));        
+        if isempty(fractionGroupSeq)
+            return;
+        end
         numFractions = fractionGroupSeq.countItems;
         if numFractions == 0
             return;
@@ -115,6 +118,9 @@ switch fieldname
         end        
         artpSeq = rtplanSeq.getDicomObject(0);
         fractionGroupSeq = artpSeq.get(hex2dec('300C0020'));
+        if isempty(fractionGroupSeq)
+            return;
+        end
         numFractions = fractionGroupSeq.countItems;
         if numFractions == 0
             return;
