@@ -1,4 +1,4 @@
-function doseM = getDoseOnCT(doseNum, scanType, planC, slicesV)
+function doseM = getDoseOnCT(doseNum, scanNum, scanType, planC, slicesV)
 %"getDoseOnCT"
 %   Returns an array of the dose at all points on the CT.  The standard CT is
 %   the default, but if scanType = 'uniform', the uniformized CT is used.
@@ -49,14 +49,13 @@ end
 if ~exist('planC')
     global planC
 end
-global stateS
 indexS = planC{end};
 
 switch upper(scanType)
     case 'NORMAL'
-        [xV, yV, zV] = getScanXYZVals(planC{indexS.scan}(stateS.scanSet),planC);
+        [xV, yV, zV] = getScanXYZVals(planC{indexS.scan}(scanNum));
     case 'UNIFORM'
-        [xV, yV, zV] = getUniformizedXYZVals(planC);
+        [xV, yV, zV] = getUniformScanXYZVals(planC{indexS.scan}(scanNum));
 end
 
 if ~exist('slicesV')
@@ -69,6 +68,6 @@ for i=1:length(zV)
     % doseSlice = calcDoseSlice(planC{indexS.dose}(doseNum), zV(i), 3, planC);
     doseSlice = calcDoseSlice(doseNum, zV(i), 3, planC);
     if ~isempty(doseSlice)
-        doseM(:,:,i) = fitDoseToCT(doseSlice, planC{indexS.dose}(doseNum), planC{indexS.scan}(stateS.scanSet), 3);
+        doseM(:,:,i) = fitDoseToCT(doseSlice, planC{indexS.dose}(doseNum), planC{indexS.scan}(scanNum), 3);
     end
 end 

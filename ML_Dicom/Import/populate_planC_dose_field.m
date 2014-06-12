@@ -105,6 +105,9 @@ switch fieldname
         end
         aFractionGroupSeq = fractionGroupSeq.getDicomObject(0);
         beamSeq = aFractionGroupSeq.get(hex2dec('300C0004'));
+        if isempty(beamSeq)
+            return;
+        end
         numBeams = beamSeq.countItems;
         if numBeams > 0
             aBeamSeq = beamSeq.getDicomObject(0);
