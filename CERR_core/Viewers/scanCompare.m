@@ -39,11 +39,15 @@ switch lower(command)
         if stateS.layout == 7
             doseCompare('exit');
         end
+        if stateS.layout == 6
+            scanCompare('exit');
+            return;
+        end
         
         hCSV = stateS.handle.CERRSliceViewer;
         hCSVA = stateS.handle.CERRSliceViewerAxis;
-        stateS.layout = 6;
-        stateS.Oldlayout = 6;
+        stateS.Oldlayout = stateS.layout;
+        stateS.layout = 6;        
         if length( stateS.handle.CERRAxis)>4
             delete(stateS.handle.CERRAxis(5:end));
             stateS.handle.CERRAxisLabel1(5:end)=[];
@@ -82,22 +86,48 @@ switch lower(command)
         CERRAxisMenu(stateS.handle.CERRAxis(5));
         CERRRefresh
         sliceCallBack('resize');
+        hScanCompare = findobj('tag','scanCompareMenu');
+        set(hScanCompare,'checked','on')
+        
     case 'exit'
-        stateS.Oldlayout = [];
-        if length( stateS.handle.CERRAxis)>4
-            delete(stateS.handle.CERRAxis(5:end));
-            stateS.handle.CERRAxisLabel1(5:end)=[];
-            stateS.handle.CERRAxisLabel2(5:end)=[];
-            stateS.handle.CERRAxis(5:end)=[];
+        %sliceCallBack('layout',stateS.Oldlayout)     
+        delete([findobj('tag', 'spotlight_patch'); findobj('tag', 'spotlight_xcrosshair'); findobj('tag', 'spotlight_ycrosshair')]);
+        CERRStatusString('');
+        
+        % Find and delete the duplicate (linked) views        
+        for hAxis = stateS.handle.CERRAxis
+            ud = get(hAxis,'userdata');
+            if iscell(ud.view)
+                sliceCallBack('selectaxisview', hAxis, 'delete view');
+            end            
         end
+        
+        % Set Axes order
+        for i = 1:length(stateS.handle.CERRAxis)
+            viewC{i} = getAxisInfo(stateS.handle.CERRAxis(i),'view');
+        end
+        
+        transIndex = strmatch('transverse',viewC);
+        sagIndex = strmatch('sagittal',viewC);
+        corIndex = strmatch('coronal',viewC);
+        legIndex = strmatch('legend',viewC);
+        
+        orderV = [transIndex, sagIndex, corIndex, legIndex];
+        
+        stateS.handle.CERRAxis = stateS.handle.CERRAxis(orderV);
+        stateS.handle.CERRAxisLabel1 = stateS.handle.CERRAxisLabel1(orderV);
+        stateS.handle.CERRAxisLabel2 = stateS.handle.CERRAxisLabel2(orderV);
         
         for i = 1:length(stateS.handle.CERRAxis)
             setAxisInfo(stateS.handle.CERRAxis(i),'doseSets',stateS.doseSet,...
                 'structureSets',stateS.structSet,'scanSets',stateS.scanSet);
             setappdata(stateS.handle.CERRAxis(i),'compareMode',[]);
         end
-        
+        stateS.layout = stateS.Oldlayout;
+        stateS.Oldlayout = [];
         sliceCallBack('resize');
         CERRRefresh
-
+        hScanCompare = findobj('tag','scanCompareMenu');
+        set(hScanCompare,'checked','off')        
+        
 end
