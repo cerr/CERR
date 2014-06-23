@@ -91,7 +91,7 @@ switch lower(command)
         
     case 'exit'
         %sliceCallBack('layout',stateS.Oldlayout)     
-        delete([findobj('tag', 'spotlight_patch'); findobj('tag', 'spotlight_xcrosshair'); findobj('tag', 'spotlight_ycrosshair')]);
+        delete([findobj('tag', 'spotlight_patch'); findobj('tag', 'spotlight_xcrosshair'); findobj('tag', 'spotlight_ycrosshair'); findobj('tag', 'spotlight_trail')]);
         CERRStatusString('');
         
         % Find and delete the duplicate (linked) views        
@@ -112,7 +112,7 @@ switch lower(command)
         corIndex = strmatch('coronal',viewC);
         legIndex = strmatch('legend',viewC);
         
-        orderV = [transIndex, sagIndex, corIndex, legIndex];
+        orderV = [transIndex(:)', sagIndex(:)', corIndex(:)', legIndex(:)'];
         
         stateS.handle.CERRAxis = stateS.handle.CERRAxis(orderV);
         stateS.handle.CERRAxisLabel1 = stateS.handle.CERRAxisLabel1(orderV);

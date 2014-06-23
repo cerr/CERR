@@ -2202,19 +2202,29 @@ switch upper(instr)
         for i=1:length(axesToDraw);
             % patch([cP(1,1)-delta cP(1,1)+delta cP(1,1)+delta cP(1,1)-delta cP(1,1)-delta], [cP(2,2)-delta cP(2,2)-delta cP(2,2)+delta cP(2,2)+delta cP(2,2)-delta], [0 1 0], 'tag', 'spotlight', 'userdata', hAxis, 'eraseMode', 'xor', 'parent', axesToDraw(i), 'edgeColor', 'none', 'faceColor', [0 1 0], 'faceAlpha', 0.5, 'hittest', 'off');
             patch(xV, yV, [0 1 0], 'tag', 'spotlight_patch', 'userdata', hAxis, 'eraseMode', 'xor', 'parent', axesToDraw(i), 'edgeColor', 'none', 'faceColor', [1 1 0], 'faceAlpha', 0.9, 'hittest', 'off');
-            line([cP(1,1)-cross_hair_delta cP(1,1)+cross_hair_delta], [cP(2,2) cP(2,2)], 'tag', 'spotlight_xcrosshair', 'userdata', hAxis, 'eraseMode', 'xor', 'parent', axesToDraw(i),  'color', [1 1 0], 'hittest', 'off','linewidth',2);
-            line([cP(1,1) cP(1,1)], [cP(2,2)-cross_hair_delta cP(2,2)+cross_hair_delta], 'tag', 'spotlight_ycrosshair', 'userdata', hAxis, 'eraseMode', 'xor', 'parent', axesToDraw(i),  'color', [1 1 0], 'hittest', 'off','linewidth',2);
+            line([cP(1,1)-cross_hair_delta cP(1,1)+cross_hair_delta], [cP(2,2) cP(2,2)], 'tag', 'spotlight_xcrosshair', 'userdata', hAxis, 'eraseMode', 'xor', 'parent', axesToDraw(i),  'color', [1 1 0], 'hittest', 'off','linewidth',1);
+            line([cP(1,1) cP(1,1)], [cP(2,2)-cross_hair_delta cP(2,2)+cross_hair_delta], 'tag', 'spotlight_ycrosshair', 'userdata', hAxis, 'eraseMode', 'xor', 'parent', axesToDraw(i),  'color', [1 1 0], 'hittest', 'off','linewidth',1);
+            line(cP(1,1), cP(2,2), 'tag', 'spotlight_trail', 'userdata', hAxis, 'eraseMode', 'xor', 'parent', axesToDraw(i),  'color', [1 0.4 0.2], 'hittest', 'off','linewidth',2);
         end
         return;
         
         
     case'SPOTLIGHTMOTION'
-        spotlight = findobj(gcbo, 'tag', 'spotlight_patch');        
+        spotlight = findobj(gcbo,'tag', 'spotlight_patch');        
         if isempty(spotlight)
             return
         end
         hAxis = get(spotlight(1), 'userdata');
+        spotlight_trail = findobj(gcbo, 'tag', 'spotlight_trail');
         cP = get(hAxis, 'CurrentPoint');
+        xTrailV = [get(spotlight_trail(1), 'XData'), cP(1,1)];
+        yTrailV = [get(spotlight_trail(1), 'YData'), cP(2,2)];
+        numTrailPts = 20;
+        if length(yTrailV) > numTrailPts
+            xTrailV = xTrailV(end-numTrailPts+1:end);
+            yTrailV = yTrailV(end-numTrailPts+1:end);
+        end
+        set(spotlight_trail, 'XData', xTrailV, 'YData', yTrailV);
         delta = 0.2;
         cross_hair_delta = 2;
         thetaV = linspace(0,2*pi,30);
@@ -2234,7 +2244,7 @@ switch upper(instr)
     case 'SPOTLIGHTMOTIONDONE'
         hFig = gcbo;
         set(hFig, 'WindowButtonMotionFcn', '', 'WindowButtonUpFcn', '');
-        delete([findobj('tag', 'spotlight_patch'); findobj('tag', 'spotlight_xcrosshair'); findobj('tag', 'spotlight_ycrosshair')]);
+        delete([findobj('tag', 'spotlight_patch'); findobj('tag', 'spotlight_xcrosshair'); findobj('tag', 'spotlight_ycrosshair'); findobj('tag', 'spotlight_trail')]);
         return;
         
         
