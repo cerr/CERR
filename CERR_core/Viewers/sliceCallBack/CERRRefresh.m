@@ -37,6 +37,11 @@ if ~stateS.planLoaded
     return;
 end
 
+% Turn dose off for scan comparison mode
+if stateS.layout == 6;
+    stateS.doseToggle = -1;
+end
+
 %If doseSet changed, update labels and colorbar.
 if stateS.doseSetChanged & stateS.doseToggle == 1
     if stateS.layout == 7

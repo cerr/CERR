@@ -571,7 +571,7 @@ if length(doseS) > 1
     end
     % Sort doseArray as per zValues
     [zValues,indSort] = sort(zValues);
-    doseArray(:,:,indSort) = doseArray;
+    doseArray(:,:,1:end) = doseArray(:,:,indSort);
     doseS(1).doseArray = doseArray;
     doseS(1).zValues = zValues;
 end

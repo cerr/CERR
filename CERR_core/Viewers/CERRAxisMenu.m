@@ -84,6 +84,10 @@ switch upper(command)
             doseCompHandleC = get(hCompareM,'children');
             set(doseCompHandleC,'checked','off')
         end
+        if stateS.layout == 6
+            hCompareM    = uimenu(hMenu, 'Label', 'Comparison', 'separator', 'on');
+            uimenu(hCompareM, 'Label', 'Spotlight', 'Callback', 'CERRAxisMenu(''DRAW_SPOTLIGHT'')', 'separator', 'off');
+        end
         hQueryM     = uimenu(hMenu, 'Label', 'Query Dose', 'Callback', 'CERRAxisMenu(''QUERY_DOSE'')', 'separator', 'on');
         hRulerM     = uimenu(hMenu, 'Label', 'Draw Ruler', 'Callback', 'CERRAxisMenu(''DRAW_RULER'')', 'separator', 'off');
         hProfileM   = uimenu(hMenu, 'Label', 'Dose/CT Profile', 'Callback', 'CERRAxisMenu(''PROFILE_DOSE'')', 'separator', 'off');
@@ -160,17 +164,15 @@ switch upper(command)
         chkFlagV = {};
         chkFlagV{chkBoolFlagV} = 'on';
         [chkFlagV{~chkBoolFlagV}] = deal('off');
-        uimenu(hViewM, 'Label', 'Transverse', 'checked', chkFlag, 'Callback', 'CERRAxisMenu(''SET_VIEW'')', 'checked', chkFlagV{1}, 'userdata', hAxis);
-        uimenu(hViewM, 'Label', 'Sagittal', 'checked', chkFlag, 'Callback', 'CERRAxisMenu(''SET_VIEW'')', 'checked', chkFlagV{2}, 'userdata', hAxis);
-        uimenu(hViewM, 'Label', 'Coronal', 'checked', chkFlag, 'Callback', 'CERRAxisMenu(''SET_VIEW'')', 'checked', chkFlagV{3}, 'userdata', hAxis);
-        uimenu(hViewM, 'Label', 'Legend', 'checked', chkFlag, 'Callback', 'CERRAxisMenu(''SET_VIEW'')', 'checked', chkFlagV{4}, 'userdata', hAxis);
+        uimenu(hViewM, 'Label', 'Transverse', 'Callback', 'CERRAxisMenu(''SET_VIEW'')', 'checked', chkFlagV{1}, 'userdata', hAxis);
+        uimenu(hViewM, 'Label', 'Sagittal', 'Callback', 'CERRAxisMenu(''SET_VIEW'')', 'checked', chkFlagV{2}, 'userdata', hAxis);
+        uimenu(hViewM, 'Label', 'Coronal', 'Callback', 'CERRAxisMenu(''SET_VIEW'')', 'checked', chkFlagV{3}, 'userdata', hAxis);
+        uimenu(hViewM, 'Label', 'Legend', 'Callback', 'CERRAxisMenu(''SET_VIEW'')', 'checked', chkFlagV{4}, 'userdata', hAxis);
 
-        %       Display Delete View only for new axes that are created
-        h_indice = find(stateS.handle.CERRAxis == hAxis);
-        if (h_indice>4)& (stateS.layout ~= 6)
-            uimenu(hViewM, 'Label', 'Delete View', 'checked', chkFlag, 'Callback', 'CERRAxisMenu(''SET_VIEW'')', 'checked', chkFlagV{5}, 'userdata', hAxis);
-        elseif (h_indice > 7) & (stateS.layout == 6)
-            uimenu(hViewM, 'Label', 'Delete View', 'checked', chkFlag, 'Callback', 'CERRAxisMenu(''SET_VIEW'')', 'checked', chkFlagV{5}, 'userdata', hAxis);
+        % Display Delete View only for new axes that are created
+        ud = get(hAxis,'userdata');
+        if iscell(ud.view) % Assume linked axis if datatype is cell.
+            uimenu(hViewM, 'Label', 'Delete View', 'checked', chkFlag, 'Callback', 'CERRAxisMenu(''SET_VIEW'')', 'userdata', hAxis);
         end
 
     case 'SET_VIEW'
@@ -277,6 +279,9 @@ switch upper(command)
 
     case 'DRAW_RULER'
         sliceCallBack('TOGGLERULER');
+        
+    case 'DRAW_SPOTLIGHT'
+        sliceCallBack('TOGGLESPOTLIGHT');
 
     case 'PROFILE_DOSE'
         sliceCallBack('TOGGLEDOSEPROFILE');

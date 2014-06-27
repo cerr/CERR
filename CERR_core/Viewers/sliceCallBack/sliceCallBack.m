@@ -218,6 +218,7 @@ switch upper(instr)
 
         %Set state for different axis click possibilities.
         stateS.gridState = 0;
+        stateS.spotlightState = 0;
         stateS.doseQueryState = 0;
         stateS.scanQueryState = 0;
         stateS.imageRegistration = 0;
@@ -815,7 +816,10 @@ switch upper(instr)
         end
         return;
 
-    case 'LAYOUT'
+    case 'LAYOUT'        
+        if stateS.layout == 6 && varargin{1} ~= 6
+            scanCompare('exit')
+        end
         stateS.layout = varargin{1};
         sliceCallBack('resize');
         return;
@@ -911,6 +915,12 @@ switch upper(instr)
                     sliceCallBack('rulerStart');
                     return;
                 end
+                
+                if stateS.spotlightState
+                    set(hFig, 'WindowButtonMotionFcn', 'sliceCallBack(''spotlightMotion'')', 'WindowButtonUpFcn', 'sliceCallBack(''spotlightMotionDone'')');
+                    sliceCallBack('spotlightStart');
+                    return;                    
+                end
 
                 if stateS.scanQueryState
                     set(hFig, 'WindowButtonMotionFcn', 'scanQuery(''scanQueryMotion'')', 'WindowButtonUpFcn', 'scanQuery(''scanQueryMotionDone'')');
@@ -961,7 +971,7 @@ switch upper(instr)
 
                 
             case {'alt' 'extend'}
-                if ~stateS.gridState && ~stateS.doseQueryState && ~stateS.doseProfileState && ~stateS.zoomState && ~stateS.imageRegistration && ~stateS.clipState
+                if ~stateS.gridState && ~stateS.spotlightState && ~stateS.doseQueryState && ~stateS.doseProfileState && ~stateS.zoomState && ~stateS.imageRegistration && ~stateS.clipState
                     %Re-enable right click menus;
                     for i=1:length(stateS.handle.CERRAxis)
                         CERRAxisMenu(stateS.handle.CERRAxis(i));
@@ -976,6 +986,10 @@ switch upper(instr)
                 end
                 if stateS.gridState
                     sliceCallBack('TOGGLERULER');
+                    return;
+                end
+                if stateS.spotlightState
+                    sliceCallBack('TOGGLESPOTLIGHT');
                     return;
                 end
                 if stateS.doseQueryState
@@ -1734,12 +1748,31 @@ switch upper(instr)
 
     case 'ZOOMIN'
         hAxis = varargin{1};
-        hFig = get(hAxis, 'parent');
-        startPt  = get(hAxis, 'currentPoint');
+        % Get the parent axis in case of linked axis
+        ud = get(hAxis,'userdata');
+        if iscell(ud.view)
+            hAxisParent = ud.view{2};
+        else
+            hAxisParent = hAxis;
+        end        
+        % Find linked axes
+        hAxisV = [];
+        for hAx = stateS.handle.CERRAxis
+            ud = get(hAx,'userdata'); 
+            if iscell(ud.view)
+                hAxisV = [hAxisV, ud.view{2}];
+            else
+                hAxisV = [hAxisV, hAx];
+            end
+        end
+        indAxis = find(hAxisV==hAxisParent);
+        allhAxis = stateS.handle.CERRAxis(indAxis);
+        hFig = get(hAxis(1), 'parent');
+        startPt  = get(hAxis(1), 'currentPoint');
         rbbox([get(hFig,'currentpoint') 0 0],get(hFig,'currentpoint'),hFig);
-        endPt = get(hAxis, 'currentPoint');
-        xLim = get(hAxis, 'xLim');
-        yLim = get(hAxis, 'yLim');
+        endPt = get(hAxis(1), 'currentPoint');
+        xLim = get(hAxis(1), 'xLim');
+        yLim = get(hAxis(1), 'yLim');
         deltaX = xLim(2)-xLim(1);
         deltaY = yLim(2)-yLim(1);
         if isequal(startPt, endPt)
@@ -1758,16 +1791,40 @@ switch upper(instr)
             newXLim = [midPtX-ratio*deltaX/2 midPtX+ratio*deltaX/2];
             newYLim = [midPtY-ratio*deltaY/2 midPtY+ratio*deltaY/2];
         end
-        setAxisInfo(hAxis, 'xRange', newXLim, 'yRange', newYLim);
-        zoomToXYRange(hAxis);
+        for hAxis = allhAxis
+            setAxisInfo(hAxis, 'xRange', newXLim, 'yRange', newYLim);
+            zoomToXYRange(hAxis);
+        end
         %Redraw locators
         showPlaneLocators;
-        %Update scale
-        indAxis = find(hAxis == stateS.handle.CERRAxis);
-        showScale(hAxis, indAxis)
+        %Update scale        
+        for hAxis = allhAxis
+            indAxis = find(hAxis == stateS.handle.CERRAxis);
+            showScale(hAxis, indAxis)
+        end
         return
+        
     case 'ZOOMOUT'
         hAxis = varargin{1};
+        % Get the parent axis in case of linked axis
+        ud = get(hAxis,'userdata');
+        if iscell(ud.view)
+            hAxisParent = ud.view{2};
+        else
+            hAxisParent = hAxis;
+        end        
+        % Find linked axes
+        hAxisV = [];
+        for hAx = stateS.handle.CERRAxis
+            ud = get(hAx,'userdata');
+            if iscell(ud.view)
+                hAxisV = [hAxisV, ud.view{2}];
+            else
+                hAxisV = [hAxisV, hAx];
+            end
+        end
+        indAxis = find(hAxisV==hAxisParent);
+        allhAxis = stateS.handle.CERRAxis(indAxis);
         hFig        = get(hAxis, 'parent');
         startPt     = get(hAxis, 'currentPoint');
         xLim        = get(hAxis, 'xLim');
@@ -1776,21 +1833,45 @@ switch upper(instr)
         deltaY  = yLim(2)-yLim(1);
         newXLim = [startPt(1,1)-deltaX startPt(1,1)+deltaX];
         newYLim = [startPt(2,2)-deltaY startPt(2,2)+deltaY];
-        setAxisInfo(hAxis, 'xRange', newXLim, 'yRange', newYLim);
-        zoomToXYRange(hAxis);
+        for hAxis = allhAxis
+            setAxisInfo(hAxis, 'xRange', newXLim, 'yRange', newYLim);
+            zoomToXYRange(hAxis);
+        end        
         %Redraw locators
         showPlaneLocators;
-        %Update scale
-        indAxis = find(hAxis == stateS.handle.CERRAxis);
-        showScale(hAxis, indAxis)
+        %Update scale        
+        for hAxis = allhAxis
+            indAxis = find(hAxis == stateS.handle.CERRAxis);
+            showScale(hAxis, indAxis)
+        end
         %cleanupAxes(hAxis);
         return
         %CALLBACKS TO OPERATE doseProfile.
 
     case 'ZOOMRESET'
         axisNum=stateS.currentAxis;
-        updateAxisRange(stateS.handle.CERRAxis(axisNum),1,'zoom');
-        zoomToXYRange(stateS.handle.CERRAxis(axisNum));
+        hAxis = stateS.handle.CERRAxis(axisNum);
+        ud = get(hAxis,'userdata');
+        if iscell(ud.view)
+            hAxisParent = ud.view{2};
+        else
+            hAxisParent = hAxis;
+        end        
+        % Find linked axes
+        hAxisV = [];
+        for hAx = stateS.handle.CERRAxis
+            ud = get(hAx,'userdata');
+            if iscell(ud.view)
+                hAxisV = [hAxisV, ud.view{2}];
+            else
+                hAxisV = [hAxisV, hAx];
+            end
+        end
+        indAxis = find(hAxisV==hAxisParent);
+        for axisNum = indAxis
+            updateAxisRange(stateS.handle.CERRAxis(axisNum),1,'zoom');
+            zoomToXYRange(stateS.handle.CERRAxis(axisNum));
+        end
         %Redraw locators
         %showPlaneLocators;
         CERRRefresh
@@ -2088,7 +2169,91 @@ switch upper(instr)
         set(hFig, 'WindowButtonMotionFcn', '', 'WindowButtonUpFcn', '');
         return;
         %%%%%
-
+        
+    case 'TOGGLESPOTLIGHT' 
+        if stateS.spotlightState
+            stateS.spotlightState = 0;
+        else
+            stateS.spotlightState = 1;
+        end
+        if stateS.spotlightState
+            toggleOffDrawModes;
+            CERRStatusString('Click/drag in axis. Right click to end.');
+            %stateS.spotlightState = 1;
+            %Disable all right click menus;
+            set(stateS.handle.CERRAxis, 'uicontextmenu', []);
+        else
+            CERRStatusString('');
+            delete([findobj('tag', 'spotlight_patch'); findobj('tag', 'spotlight_xcrosshair'); findobj('tag', 'spotlight_ycrosshair')]);            
+        end        
+        
+        
+    case 'SPOTLIGHTSTART'
+        hAxis = gcbo;
+        cP = get(hAxis, 'CurrentPoint');
+        delete([findobj('tag', 'spotlight_patch'); findobj('tag', 'spotlight_xcrosshair'); findobj('tag', 'spotlight_ycrosshair')]);
+        [view, coord] = getAxisInfo(hAxis, 'view', 'coord');
+        axesToDraw = hAxis;
+        for i=1:length(stateS.handle.CERRAxis);
+            [otherView, otherCoord] = getAxisInfo(stateS.handle.CERRAxis(i), 'view', 'coord');
+            if isequal(view, otherView) & isequal(coord, otherCoord) & ~isequal(hAxis, stateS.handle.CERRAxis(i));
+                axesToDraw = [axesToDraw;stateS.handle.CERRAxis(i)];
+            end
+        end
+        delta = 0.2;
+        cross_hair_delta = 2;
+        thetaV = linspace(0,2*pi,30);
+        xV = cP(1,1) + delta*cos(thetaV);
+        yV = cP(2,2) + delta*sin(thetaV);
+        for i=1:length(axesToDraw);
+            % patch([cP(1,1)-delta cP(1,1)+delta cP(1,1)+delta cP(1,1)-delta cP(1,1)-delta], [cP(2,2)-delta cP(2,2)-delta cP(2,2)+delta cP(2,2)+delta cP(2,2)-delta], [0 1 0], 'tag', 'spotlight', 'userdata', hAxis, 'eraseMode', 'xor', 'parent', axesToDraw(i), 'edgeColor', 'none', 'faceColor', [0 1 0], 'faceAlpha', 0.5, 'hittest', 'off');
+            patch(xV, yV, [0 1 0], 'tag', 'spotlight_patch', 'userdata', hAxis, 'eraseMode', 'xor', 'parent', axesToDraw(i), 'edgeColor', 'none', 'faceColor', [1 1 0], 'faceAlpha', 0.9, 'hittest', 'off');
+            line([cP(1,1)-cross_hair_delta cP(1,1)+cross_hair_delta], [cP(2,2) cP(2,2)], 'tag', 'spotlight_xcrosshair', 'userdata', hAxis, 'eraseMode', 'xor', 'parent', axesToDraw(i),  'color', [1 1 0], 'hittest', 'off','linewidth',1);
+            line([cP(1,1) cP(1,1)], [cP(2,2)-cross_hair_delta cP(2,2)+cross_hair_delta], 'tag', 'spotlight_ycrosshair', 'userdata', hAxis, 'eraseMode', 'xor', 'parent', axesToDraw(i),  'color', [1 1 0], 'hittest', 'off','linewidth',1);
+            line(cP(1,1), cP(2,2), 'tag', 'spotlight_trail', 'userdata', hAxis, 'eraseMode', 'xor', 'parent', axesToDraw(i),  'color', [1 0.4 0.2], 'hittest', 'off','linewidth',2);
+        end
+        return;
+        
+        
+    case'SPOTLIGHTMOTION'
+        spotlight = findobj(gcbo,'tag', 'spotlight_patch');        
+        if isempty(spotlight)
+            return
+        end
+        hAxis = get(spotlight(1), 'userdata');
+        spotlight_trail = findobj(gcbo, 'tag', 'spotlight_trail');
+        cP = get(hAxis, 'CurrentPoint');
+        xTrailV = [get(spotlight_trail(1), 'XData'), cP(1,1)];
+        yTrailV = [get(spotlight_trail(1), 'YData'), cP(2,2)];
+        numTrailPts = 20;
+        if length(yTrailV) > numTrailPts
+            xTrailV = xTrailV(end-numTrailPts+1:end);
+            yTrailV = yTrailV(end-numTrailPts+1:end);
+        end
+        set(spotlight_trail, 'XData', xTrailV, 'YData', yTrailV);
+        delta = 0.2;
+        cross_hair_delta = 2;
+        thetaV = linspace(0,2*pi,30);
+        xV = cP(1,1) + delta*cos(thetaV);
+        yV = cP(2,2) + delta*sin(thetaV);        
+        %set(spotlight, 'XData', [cP(1,1)-delta cP(1,1)+delta cP(1,1)+delta cP(1,1)-delta cP(1,1)-delta]);
+        %set(spotlight, 'YData', [cP(2,2)-delta cP(2,2)-delta cP(2,2)+delta cP(2,2)+delta cP(2,2)-delta]);
+        set(spotlight, 'XData', xV);
+        set(spotlight, 'YData', yV);
+        spotlight_x_hair = findobj(gcbo, 'tag', 'spotlight_xcrosshair');
+        spotlight_y_hair = findobj(gcbo, 'tag', 'spotlight_ycrosshair');
+        set(spotlight_x_hair,'XData',[cP(1,1)-cross_hair_delta cP(1,1)+cross_hair_delta], 'YData',[cP(2,2) cP(2,2)])
+        set(spotlight_y_hair,'YData',[cP(2,2)-cross_hair_delta cP(2,2)+cross_hair_delta], 'XData',[cP(1,1) cP(1,1)])
+        
+        return;        
+        
+    case 'SPOTLIGHTMOTIONDONE'
+        hFig = gcbo;
+        set(hFig, 'WindowButtonMotionFcn', '', 'WindowButtonUpFcn', '');
+        delete([findobj('tag', 'spotlight_patch'); findobj('tag', 'spotlight_xcrosshair'); findobj('tag', 'spotlight_ycrosshair'); findobj('tag', 'spotlight_trail')]);
+        return;
+        
+        
     case 'CTPRESET'
         %figure(hCSV); %Remove uicontrol focus.
         if stateS.imageRegistration
