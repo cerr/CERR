@@ -16,8 +16,12 @@ end
 %Gantry angle, couch angle, collimator angle, isocenter, isodistance and beamEnergy :
 for beamNum = 1:numBeams
     refBeamStr = ['Item_',num2str(beamNum)];
-    refBeamNumber = planC{indexS.beams}(1).FractionGroupSequence.Item_1.ReferencedBeamSequence.(refBeamStr).ReferencedBeamNumber;
-    beamStr = ['Item_',num2str(refBeamNumber)];
+    bsBeamNumbersV(beamNum) = planC{indexS.beams}(1).BeamSequence.(refBeamStr).BeamNumber;
+    fractionBeamNumber(beamNum) = planC{indexS.beams}(1).FractionGroupSequence.Item_1.ReferencedBeamSequence.(refBeamStr).ReferencedBeamNumber;
+end
+for beamNum = 1:numBeams
+    refBeamNumber = find(bsBeamNumbersV == fractionBeamNumber(beamNum));
+    beamStr = ['Item_',num2str(refBeamNumber)];    
     bs = planC{indexS.beams}(1).BeamSequence.(beamStr);
     if ~isfield(planC{indexS.beams}(1).PatientSetupSequence,(beamStr))
         position = {planC{indexS.beams}(1).PatientSetupSequence.(beamStr).PatientPosition};
