@@ -324,9 +324,7 @@ for j=1:length(axisInfo.doseObj)
                 end
 
                 if stateS.imageRegistration
-                    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-                    %%%%%%%%%%%%%%%%%%%%%%%%%% Added for Dose fusion DK %%%%%%%%%%%%%%%%
-                    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+                   
                     
                     if (stateS.imageRegistrationBaseDataset == doseSet && strcmpi(stateS.imageRegistrationBaseDatasetType, 'dose')) || (stateS.imageRegistrationMovDataset == doseSet && strcmpi(stateS.imageRegistrationMovDatasetType, 'dose'))
                         alpha = dO.dispMode.alpha;
@@ -348,11 +346,8 @@ for j=1:length(axisInfo.doseObj)
 
                     axisInfo.doseObj(j).scanBase= [];
 
-                    set(hFig, 'renderer', 'openGL');
-                    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-                    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+                   
                 else
-                    set(hFig, 'renderer', 'zbuffer');
                     CTImages = [];
                     if ~isempty(axisInfo.scanObj)
                         CTImages = find(~isempty(axisInfo.scanObj.handles));
