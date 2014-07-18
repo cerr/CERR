@@ -209,7 +209,7 @@ for i=1:length(axisInfo.scanObj)
             clippedCT = clippedCT - double(CTLow);
             clippedCT = clippedCT / double( CTHigh - CTLow);
             
-            set(hFig, 'renderer', 'openGL');
+            %set(hFig, 'renderer', 'openGL');
             
             colormap(hAxis, 'gray');
 
@@ -228,7 +228,7 @@ for i=1:length(axisInfo.scanObj)
             %wy Apply window and level by clipping CT.
             clippedCT = clip(im, CTLow, CTHigh, 'limits');
 
-            set(hFig, 'renderer', 'zbuffer');
+            %set(hFig, 'renderer', 'zbuffer');
             
             colorMapC = get(stateS.handle.BaseCMap,'string');
             colorMapVal = get(stateS.handle.BaseCMap,'value');
@@ -254,11 +254,7 @@ for i=1:length(axisInfo.scanObj)
 
         if stateS.optS.sinc_filter_on_display
             sz = size(clippedCT);
-            if min(sz) <= 256
-                new_sz = sz*4;
-            else
-                new_sz = sz*2;
-            end
+            new_sz = sz*2;
             clippedCT = updownsample(clippedCT, new_sz(2),new_sz(1),0,2);
         end
         hImage = surface(xM, yM, zM, 'faceColor', 'texturemap', 'cData', clippedCT, 'edgecolor', 'none', 'facealpha', alpha,'parent', hAxis, 'tag', 'CTImage', 'hittest', 'off');
