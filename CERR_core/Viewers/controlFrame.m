@@ -2525,13 +2525,15 @@ switch command
                 delete(findobj('tag', 'MirrorScope'));
                 controlFrame('fusion', 'mirrorscope');
                 
-            case 'mirrorScopeClicked'
+            case 'mirrorScopeClicked'                
                 set(gcf, 'WindowButtonUpFcn', 'controlFrame(''fusion'', ''mirrorScopeUnClicked'')');
                 set(gcf, 'WindowButtonMotionFcn', 'controlFrame(''fusion'', ''mirrorScopeMoving'')');
                 setappdata(gcf, 'scopeMirrHandle', gcbo);
                 
                 cP = get(gca, 'currentpoint');
                 setappdata(gcf, 'clickPoint', cP);
+                
+                set(gcf,'Pointer','hand')
                 
                 stateS.optS.mirrorscope = 0;
                 CERRRefresh;
