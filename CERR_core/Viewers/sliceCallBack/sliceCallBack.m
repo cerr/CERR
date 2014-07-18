@@ -210,8 +210,8 @@ switch upper(instr)
         str1 = ['CERR'];
         position = [5 40 940 620];
         hCSV = figure('tag','CERRSliceViewer','name',str1,'numbertitle','off',...
-            'position',position, 'doublebuffer', 'on','CloseRequestFcn',...
-            'sliceCallBack(''closeRequest'')','backingstore','on','tag',...
+            'position',position, 'doublebuffer', 'off','CloseRequestFcn',...
+            'sliceCallBack(''closeRequest'')','backingstore','off','tag',...
             'CERRSliceViewer', 'renderer', 'zbuffer','ResizeFcn','sliceCallBack(''resize'')');
         figureColor = get(hCSV, 'Color');
         stateS.handle.CERRSliceViewer = hCSV;
@@ -2623,6 +2623,9 @@ switch upper(instr)
             stateS.scanSet = [stateS.scanSet movData];
             stateS.structSet = [stateS.structSet getStructureSetAssociatedScan(movData)];
         end
+        
+        % Change the renderer
+        set(stateS.handle.CERRSliceViewer,'renderer','opengl')
 
         CERRRefresh;
 
@@ -2662,6 +2665,8 @@ switch upper(instr)
         else
             stateS.doseSet = 1;
         end
+        
+        set(stateS.handle.CERRSliceViewer,'renderer','zbuffer')
         
         CERRRefresh
         return
