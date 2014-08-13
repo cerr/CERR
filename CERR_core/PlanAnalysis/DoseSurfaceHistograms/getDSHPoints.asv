@@ -146,19 +146,21 @@ for i = 1 : nStructs
     
     %Get rastersegments
     rasterSegsSup = getRasterSegments(structNum, planC, slcSup);
-    rasterSegsInf = getRasterSegments(structNum, planC, slcSup);
+    rasterSegsInf = getRasterSegments(structNum, planC, slcInf);
     rasterSegsM = [rasterSegsSup; rasterSegsInf];
     dy = planC{indexS.scan}(assocScan).grid1Units;
     deltaLim = ;
     for rsNum = 1:size(rasterSegsM,1)
         len = rasterSegsM(rsNum,4) - rasterSegsM(rsNum,3);
-        ints = ceil(len/deltaLim);  %There will aways be at least one interval/sample point.
-        delta = len/ints;  %This is the size of an interval around sample points.
-        lambdaV = (1/2 * delta: delta : len - 1/2 * delta) / len;
-        tmp_xV = (1-lambdaV) * x1 + lambdaV * x2;
-        tmp_yV = (1-lambdaV) * y1 + lambdaV * y2;
-        xV = [xV; tmp_xV(:)];
-        yV = [yV; tmp_yV(:)];        
+        if len ~= 0
+            ints = ceil(len/deltaLim);  %There will aways be at least one interval/sample point.
+            delta = len/ints;  %This is the size of an interval around sample points.
+            lambdaV = (1/2 * delta: delta : len - 1/2 * delta) / len;
+            tmp_xV = (1-lambdaV) * x1 + lambdaV * x2;
+            tmp_yV = (1-lambdaV) * y1 + lambdaV * y2;
+            xV = [xV; tmp_xV(:)];
+            yV = [yV; tmp_yV(:)];
+        end
     end
     
     planC{indexS.structures}(structNum).DSHPoints = surfacePointsM;
