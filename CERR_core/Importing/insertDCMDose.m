@@ -55,6 +55,15 @@ else
     planC{indexS.dose} = dataS;
 end
 
+%Check dose-grid
+doseNum = length(planC{indexS.dose});
+for doseNum = 1:length(planC{indexS.dose})
+    if planC{indexS.dose}(doseNum).zValues(2) - planC{indexS.dose}(doseNum).zValues(1) < 0
+        planC{indexS.dose}(doseNum).zValues = flipud(planC{indexS.dose}(doseNum).zValues);
+        planC{indexS.dose}(doseNum).doseArray = flipdim(planC{indexS.dose}(doseNum).doseArray,3);
+    end
+end
+
 if isfield(stateS, 'CERRFile')
     stateS.doseSetChanged = 1;
     stateS.doseDisplayChanged = 1;
