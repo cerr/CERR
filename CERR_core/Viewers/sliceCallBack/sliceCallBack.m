@@ -240,7 +240,7 @@ switch upper(instr)
         stateS.handle.CERRStructMenu        = putStructMenu(hCSV);
         BMfileFlag = exist('Benchmark','dir');
         if BMfileFlag
-            stateS.handle.CERRBMMenu        = putBMMenu(hCSV);
+            stateS.handle.CERRBMMenu        = putPETASsetMenu(hCSV);
         end        
         stateS.handle.CERRHelpMenu          = putHelpMenu(hCSV);
 
