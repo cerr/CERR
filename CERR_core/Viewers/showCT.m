@@ -209,7 +209,7 @@ for i=1:length(axisInfo.scanObj)
             clippedCT = clippedCT - double(CTLow);
             clippedCT = clippedCT / double( CTHigh - CTLow);
             
-            %set(hFig, 'renderer', 'openGL');
+            set(hFig, 'renderer', 'openGL');
             
             colormap(hAxis, 'gray');
 
