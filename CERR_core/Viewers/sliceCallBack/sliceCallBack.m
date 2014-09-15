@@ -238,10 +238,10 @@ switch upper(instr)
         stateS.handle.CERRMetricMenu        = putMetricsMenu(hCSV);
         stateS.handle.CERRScanMenu          = putScanMenu(hCSV);
         stateS.handle.CERRStructMenu        = putStructMenu(hCSV);
-        BMfileFlag = exist('Benchmark','dir');
+        BMfileFlag = exist('putPETASsetMenu.m','file'); % B.B. 15/09/2014 replaced putBMmenu.m with putPETASsetMenu.m
         if BMfileFlag
-            stateS.handle.CERRBMMenu        = putPETASsetMenu(hCSV);
-        end        
+            stateS.handle.CERRBMMenu        = putPETASsetMenu(hCSV);% B.B. 15/09/2014 replaced putBMmenu with putPETASsetMenu
+        end
         stateS.handle.CERRHelpMenu          = putHelpMenu(hCSV);
 
         %Make invisible frames to subdivide screenspace.  For resizing.
@@ -460,11 +460,11 @@ switch upper(instr)
             end
             stateS.handle.CERRMetricMenu  = putMetricsMenu(hCSV);
             stateS.handle.CERRScanMenu    = putScanMenu(hCSV);
-            stateS.handle.CERRStructMenu  = putStructMenu(hCSV);
-            BMfileFlag = exist('putBMmenu.m','file');
-            if BMfileFlag
-                stateS.handle.CERRBMMenu        = putBMMenu(hCSV);
-            end            
+            stateS.handle.CERRStructMenu  = putStructMenu(hCSV);          
+            BMfileFlag = exist('putPETASsetMenu.m','file'); % B.B. 15/09/2014 replaced putBMmenu.m with putPETASsetMenu.m
+            if BMfileFlag 
+                stateS.handle.CERRBMMenu        = putPETASsetMenu(hCSV);% B.B. 15/09/2014 replaced putBMmenu with putPETASsetMenu
+            end                
             stateS.handle.CERRHelpMenu    = putHelpMenu(hCSV);
             
             %Wipe out the contents of all axes.
