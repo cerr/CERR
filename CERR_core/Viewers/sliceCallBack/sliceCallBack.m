@@ -590,8 +590,8 @@ switch upper(instr)
         % Save scan statistics for fast image rendering
         for scanNum = 1:length(planC{indexS.scan})
             scanUID = ['c',repSpaceHyp(planC{indexS.scan}(scanNum).scanUID(max(1,end-61):end))];
-            stateS.scanStats.minScanVal.(scanUID) = single(min(planC{indexS.scan}(scanNum).scanArray(:))) - planC{indexS.scan}(scanNum).scanInfo(1).CTOffset;
-            stateS.scanStats.maxScanVal.(scanUID) = single(max(planC{indexS.scan}(scanNum).scanArray(:))) - planC{indexS.scan}(scanNum).scanInfo(1).CTOffset;
+            stateS.scanStats.minScanVal.(scanUID) = single(min(planC{indexS.scan}(scanNum).scanArray(:)));
+            stateS.scanStats.maxScanVal.(scanUID) = single(max(planC{indexS.scan}(scanNum).scanArray(:)));
         end
         
         %If any duplicates, remove them and make new entry first.

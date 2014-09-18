@@ -135,8 +135,8 @@ if match ~= 1  %Selected scan is not yet in current study.
     
     % Save scan statistics for fast image rendering
     scanUID = ['c',repSpaceHyp(planC{indexS.scan}(end).scanUID(max(1,end-61):end))];
-    stateS.scanStats.minScanVal.(scanUID) = single(min(planC{indexS.scan}(end).scanArray(:))) - planC{indexS.scan}(end).scanInfo(1).CTOffset;
-    stateS.scanStats.maxScanVal.(scanUID) = single(max(planC{indexS.scan}(end).scanArray(:))) - planC{indexS.scan}(end).scanInfo(1).CTOffset;
+    stateS.scanStats.minScanVal.(scanUID) = single(min(planC{indexS.scan}(end).scanArray(:)));
+    stateS.scanStats.maxScanVal.(scanUID) = single(max(planC{indexS.scan}(end).scanArray(:)));
     
     %Add new scan to scan menu.
     hCSV = stateS.handle.CERRSliceViewer;
