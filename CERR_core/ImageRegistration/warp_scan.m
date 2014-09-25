@@ -34,7 +34,8 @@ system(['plastimatch warp --input ', escapeSlashes(movScanFileName), ' --output-
 % infoS  = mha_read_header(warpedMhaFileName);
 % data3M = mha_read_volume(infoS);
 [data3M,infoS] = readmha(warpedMhaFileName);
-planC  = mha2cerr(infoS,data3M,movScanOffset,movScanName, planC);
+save_flag = 0;
+planC  = mha2cerr(infoS,data3M,movScanOffset,movScanName, planC, save_flag);
 
 % Cleanup
 try
