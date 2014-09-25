@@ -171,7 +171,7 @@ switch upper(command)
 
         % Display Delete View only for new axes that are created
         ud = get(hAxis,'userdata');
-        if iscell(ud.view) % Assume linked axis if datatype is cell.
+        if length(stateS.handle.CERRAxis)>4 || iscell(ud.view) % Assume linked axis if datatype is cell.
             uimenu(hViewM, 'Label', 'Delete View', 'checked', chkFlag, 'Callback', 'CERRAxisMenu(''SET_VIEW'')', 'userdata', hAxis);
         end
 
