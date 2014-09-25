@@ -367,5 +367,8 @@ optS.overwrite_CERR_File = 1; % 0: Do not overwrite, 1: overwrite
 %-- Option to overwrite CERR file if a bug is found during QA
 optS.sinc_filter_on_display = 1; % 0: Do not apply sinc, 1: apply sinc
 
+%-- Filename for plastimatch commands
+% this file must be stored under ...\CERR\CERR_core\ImageRegistration\plastimatch_command
+optS.plastimatch_command_file = 'bspline_register_cmd_dir.txt'; %'mr_ct_edge_based.txt';
 
 %-------------------------------------------fini--------------------------%
