@@ -28,8 +28,9 @@ warpedMhaFileName = fullfile(getCERRPath,'ImageRegistration','tmpFiles',['warped
 system(['plastimatch warp --input ', escapeSlashes(movDoseFileName), ' --output-img ', escapeSlashes(warpedMhaFileName), ' --xf ', escapeSlashes(bspFileName)])
 
 % Read the warped output .mha file within CERR
-infoS  = mha_read_header(warpedMhaFileName);
-data3M = mha_read_volume(infoS);
+%infoS  = mha_read_header(warpedMhaFileName);
+%data3M = mha_read_volume(infoS);
+[data3M,infoS] = readmha(warpedMhaFileName);
 doseName = movPlanC{indexMovS.dose}(movDoseNum).fractionGroupID;
 planC = dose2CERR(flipdim(permute(data3M,[2,1,3]),3),[],['Warped_',doseName],[],[],'UniformCT',[],'no',planC{indexS.scan}(doseCreationScanNum).scanUID,planC);
 
