@@ -1652,7 +1652,7 @@ switch upper(instr)
 
         %removeUnusedRemoteFiles
 
-        if ~(isempty(stateS) | ~isfield(stateS,'CERRFile') | ~isfield(stateS,'reqdRemoteFiles')            )
+        if ~isempty(stateS) && isfield(stateS,'CERRFile') && isfield(stateS,'reqdRemoteFiles')
             remoteFiles = listRemoteScanAndDose(planC);
             if ~isempty(remoteFiles)
                 try, rmdir(remoteFiles(1).remotePath,'s'), end
