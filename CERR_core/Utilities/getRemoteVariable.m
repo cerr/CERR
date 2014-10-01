@@ -48,7 +48,7 @@ if isstruct(variable) & isfield(variable, 'remotePath') & isfield(variable, 'isL
                 variable.data = data;
                 variable.isLoaded = 1;
             case 'LOCAL'
-                load([variable.remotePath,'\',variable.filename]);
+                load(fullfile(variable.remotePath,variable.filename));
                 data = CERRRemoteVariable;
                 variable.data = data;
                 variable.isLoaded = 1;       

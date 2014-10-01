@@ -39,11 +39,11 @@ end
 indexS = planC{end};
 % check for remote files in scan structure
 for i = 1:length(planC{indexS.scan})
-    if ~isLocal(planC{indexS.scan}(i).scanArray) & ~isempty(remoteFiles)
+    if ~isLocal(planC{indexS.scan}(i).scanArray) && ~isempty(remoteFiles)
         remoteFiles(end+1) = planC{indexS.scan}(i).scanArray; %fullfile(planC{indexS.scan}(i).scanArray.remothPath, planC{indexS.scan}(i).scanArray.fileName);
         remoteFiles(end+1) = planC{indexS.scan}(i).scanArraySuperior; 
         remoteFiles(end+1) = planC{indexS.scan}(i).scanArrayInferior;
-    elseif ~isLocal(planC{indexS.scan}(i).scanArray) & isempty(remoteFiles)
+    elseif ~isLocal(planC{indexS.scan}(i).scanArray) && isempty(remoteFiles)
         remoteFiles = planC{indexS.scan}(i).scanArray; %fullfile(planC{indexS.scan}(i).scanArray.remothPath, planC{indexS.scan}(i).scanArray.fileName);
         remoteFiles(end+1) = planC{indexS.scan}(i).scanArraySuperior; 
         remoteFiles(end+1) = planC{indexS.scan}(i).scanArrayInferior;        
@@ -52,9 +52,23 @@ end
 
 % check for remote files in dose structure
 for i = 1:length(planC{indexS.dose})
-    if ~isLocal(planC{indexS.dose}(i).doseArray) & ~isempty(remoteFiles)
+    if ~isLocal(planC{indexS.dose}(i).doseArray) && ~isempty(remoteFiles)
         remoteFiles(end+1) = planC{indexS.dose}(i).doseArray;
-    elseif ~isLocal(planC{indexS.dose}(i).doseArray) & isempty(remoteFiles)
+    elseif ~isLocal(planC{indexS.dose}(i).doseArray) && isempty(remoteFiles)
         remoteFiles = planC{indexS.dose}(i).doseArray;
     end
 end
+
+% check for remote files in IM structure
+for i = 1:length(planC{indexS.IM})
+    if ~isempty(planC{indexS.IM}(i).IMDosimetry.beams) && ~isLocal(planC{indexS.IM}(i).IMDosimetry.beams(1).beamlets)
+       for iBeam = 1:length(planC{indexS.IM}(i).IMDosimetry.beams)
+           if isempty(remoteFiles)
+               remoteFiles = planC{indexS.IM}(i).IMDosimetry.beams(iBeam).beamlets;
+           else
+               remoteFiles(end+1) = planC{indexS.IM}(i).IMDosimetry.beams(iBeam).beamlets;
+           end
+       end
+    end
+end
+

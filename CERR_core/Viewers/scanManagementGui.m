@@ -454,33 +454,37 @@ switch upper(command)
             statusString = ['Writing to disk scan number ' num2str(scanNum) ', ''' scanName ''' please wait...'];
             scanManagementGui('status', statusString);
             [fpath,fname] = fileparts(stateS.CERRFile);
-            planC{indexS.scan}(scanNum).scanArray = setRemoteVariable(getScanArray(scanNum, planC), 'LOCAL',[fpath,'\',fname,'_store'],['scanArray_',scanUID,'.mat']);
+            planC{indexS.scan}(scanNum).scanArray = setRemoteVariable(getScanArray(scanNum, planC), 'LOCAL',fullfile(fpath,[fname,'_store']),['scanArray_',scanUID,'.mat']);
             % Also make remote the scanArraySuperior and scanArrayInferior matrices
-            planC{indexS.scan}(scanNum).scanArraySuperior = setRemoteVariable(getScanArraySuperior(scanNum, planC), 'LOCAL',[fpath,'\',fname,'_store'],['scanArraySuperior_',scanUID,'.mat']);
-            planC{indexS.scan}(scanNum).scanArrayInferior = setRemoteVariable(getScanArrayInferior(scanNum, planC), 'LOCAL',[fpath,'\',fname,'_store'],['scanArrayInferior_',scanUID,'.mat']);
+            planC{indexS.scan}(scanNum).scanArraySuperior = setRemoteVariable(getScanArraySuperior(scanNum, planC), 'LOCAL',fullfile(fpath,[fname,'_store']),['scanArraySuperior_',scanUID,'.mat']);
+            planC{indexS.scan}(scanNum).scanArrayInferior = setRemoteVariable(getScanArrayInferior(scanNum, planC), 'LOCAL',fullfile(fpath,[fname,'_store']),['scanArrayInferior_',scanUID,'.mat']);
             drawThumb(ud.handles.thumbaxis(scanNum), planC, scanNum, h);
             statusString = ['Wrote to disk scan number ' num2str(scanNum)  ', ''' scanName '''.'];
             scanManagementGui('status', statusString);
             set(ud.handles.remotebutton, 'string', 'Use Memory');
-            uiwait(msgbox(['scanArray stored in folder ',fpath,'\',fname,'_store'],'Note the Location','modal'))
+            uiwait(msgbox(['scanArray stored in folder ',fullfile(fpath,[fname,'_store']),'. Note the Location'],'modal'));
         else
             statusString = ['Reading from disk scan number ' num2str(scanNum) ', ''' scanName ''', please wait...'];
             scanManagementGui('status', statusString);
 
             remotePath = planC{indexS.scan}(scanNum).scanArray.remotePath;
-            filename = planC{indexS.scan}(scanNum).scanArray.filename;
-
+            filenam = planC{indexS.scan}(scanNum).scanArray.filename;
+            stateS.reqdRemoteFiles(strcmp(fullfile(remotePath,filenam),stateS.reqdRemoteFiles)) = [];            
+            
             remotePathSup = planC{indexS.scan}(scanNum).scanArraySuperior.remotePath;
             filenameSup = planC{indexS.scan}(scanNum).scanArraySuperior.filename;
-
+            stateS.reqdRemoteFiles(strcmp(fullfile(remotePathSup,filenameSup),stateS.reqdRemoteFiles)) = [];
+            
             remotePathInf = planC{indexS.scan}(scanNum).scanArrayInferior.remotePath;
             filenameInf = planC{indexS.scan}(scanNum).scanArrayInferior.filename;
-
+            stateS.reqdRemoteFiles(strcmp(fullfile(remotePathInf,filenameInf),stateS.reqdRemoteFiles)) = [];
+            
             planC{indexS.scan}(scanNum).scanArray = getScanArray(scanNum,planC);
             planC{indexS.scan}(scanNum).scanArraySuperior = getScanArraySuperior(scanNum, planC);
             planC{indexS.scan}(scanNum).scanArrayInferior = getScanArrayInferior(scanNum, planC);
-            if ~ismember(fullfile(remotePath,filename),stateS.reqdRemoteFiles)
-                delete(fullfile(remotePath,filename))
+            
+            if ~ismember(fullfile(remotePath,filenam),stateS.reqdRemoteFiles)
+                delete(fullfile(remotePath,filenam))
             end
             if ~ismember(fullfile(remotePathSup,filenameSup),stateS.reqdRemoteFiles)
                 delete(fullfile(remotePathSup,filenameSup))
@@ -488,6 +492,13 @@ switch upper(command)
             if ~ismember(fullfile(remotePathInf,filenameInf),stateS.reqdRemoteFiles)
                 delete(fullfile(remotePathInf,filenameInf))
             end
+            
+            %remove remote storage directory if it is empty
+            dirRemoteS = dir(remotePath);
+            if ~any(~cellfun('isempty',strfind({dirRemoteS.name},'.mat')))
+                rmdir(remotePath)
+            end
+            
             maxScan = drawThumb(ud.handles.thumbaxis(scanNum), planC, scanNum, h);
             statusString = ['Read from disk scan number ' num2str(scanNum)  ', ''' scanName '''.'];
             scanManagementGui('status', statusString);
