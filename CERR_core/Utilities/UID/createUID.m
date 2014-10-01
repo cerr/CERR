@@ -49,6 +49,10 @@ switch upper(modality)
         modality = 'PR';
     case 'REGISTRATION'
         modality = 'REG';
+    case 'IM'
+        modality = 'IM';
+    case 'BEAM'
+        modality = 'BM';
 end
 % randNum = ceil(1000 + (9999-1000).*rand);
 randNum = 1000.*rand;
