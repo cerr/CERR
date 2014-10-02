@@ -173,6 +173,19 @@ for i = 1:nIM
         planC{indexS.IM}(i).IMDosimetry.isFresh = 1;
     end
     
+    
+    % check for empty IMUID field assign default IMUID
+    if isfield(planC{indexS.IM}(i),'IMUID') && isempty(planC{indexS.IM}(i).IMUID)
+        planC{indexS.IM}(i).IMUID = createUID('IM');
+    end
+    
+    % check for empty beamUID field assign default beamUID
+    if ~isempty(planC{indexS.IM}(i).IMDosimetry.beams) && isfield(planC{indexS.IM}(i).IMDosimetry.beams(1),'beamUID') && isempty(planC{indexS.IM}(i).IMDosimetry.beams(1).beamUID)
+        for iBeam = 1:length(planC{indexS.IM}(i).IMDosimetry.beams)
+            planC{indexS.IM}(i).IMDosimetry.beams(iBeam).beamUID = createUID('BEAM');
+        end
+    end    
+    
     % Link structure UID to goals
     if isfield(planC{indexS.IM}(i).IMDosimetry,'goals')
         for j = 1:length(planC{indexS.IM}(i).IMDosimetry.goals)
