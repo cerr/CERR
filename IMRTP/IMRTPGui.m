@@ -406,6 +406,12 @@ switch upper(command)
             end
 
         end
+        
+        % Check for remoteness of IM
+        if length(ud.IM.beams) > 1 && ~isLocal(ud.IM.beams(1).beamlets)
+            set(ud.ib.handles.remoteIM,'string','Memory')
+        end
+        
         set(h, 'userdata', ud);
         
         %reset status/wait bar
@@ -867,13 +873,15 @@ switch upper(command)
             beam = createDefaultBeam(ud.bl.currentBeam, [], ud.bp.isAuto, fieldNames);
 
         end
-        beam.gantryAngle = 0;
+        beam.gantryAngle = 0;        
 
         if isfield(ud, 'IM') & isfield(ud.IM, 'beams')
             ud.IM.beams = dissimilarInsert(ud.IM.beams, beam, nB+1);
         else
             ud.IM.beams(nB+1) = beam;
         end
+        ud.IM.beams(end).beamUID = createUID('BEAM');
+        
         %Set alider position
         beamGroup = 4-floor((ud.bl.currentBeam-0.1)/10);
         set(ud.bl.sliderH,'value',beamGroup)
@@ -935,6 +943,7 @@ switch upper(command)
             else
                 ud.IM.beams(nB) = beam;
             end
+            ud.IM.beams(end).beamUID = createUID('BEAM');
         end
         set(h, 'userdata', ud);
         IMRTPGui('REFRESHBEAMS');
@@ -1490,12 +1499,15 @@ switch upper(command)
                     rmdir(remotePath)
                 end                
             end
+            set(gcbo,'string','Remote')
+        
         else
             % Make remote
             for iBeam = 1:length(planC{indexS.IM}(ud.saveIndex).IMDosimetry.beams)
                 beamUID = planC{indexS.IM}(ud.saveIndex).IMDosimetry.beams(iBeam).beamUID;
                 planC{indexS.IM}(ud.saveIndex).IMDosimetry.beams(iBeam).beamlets = setRemoteVariable(planC{indexS.IM}(ud.saveIndex).IMDosimetry.beams(iBeam).beamlets, 'LOCAL',fullfile(fpath,[fname,'_store']),['im_',imUID,'_beam_',beamUID,'.mat']);
             end
+            set(gcbo,'string','Memory')
         end
         
     case 'SHOWDOSE'
