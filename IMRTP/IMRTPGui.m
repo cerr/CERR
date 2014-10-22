@@ -408,7 +408,7 @@ switch upper(command)
         end
         
         % Check for remoteness of IM
-        if length(ud.IM.beams) > 1 && ~isLocal(ud.IM.beams(1).beamlets)
+        if ~isempty(ud.IM.beams) && ~isLocal(ud.IM.beams(1).beamlets)
             set(ud.ib.handles.remoteIM,'string','Memory')
         end
         
