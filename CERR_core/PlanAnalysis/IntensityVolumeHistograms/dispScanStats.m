@@ -1,4 +1,4 @@
-function dispScanStats(scanBinsV, volHistV, name, planC, indexS, opt)
+function dispScanStats(scanBinsV, volHistV, name, nameVol, planC, indexS, opt)
 %Command line display of basic scan statistics
 %scanBinsV is a vector of the midpoint scanBin values.
 %volHistV is either a histogram of volumes or surface areas.
@@ -26,6 +26,8 @@ function dispScanStats(scanBinsV, volHistV, name, planC, indexS, opt)
 % You should have received a copy of the GNU General Public License
 % along with CERR.  If not, see <http://www.gnu.org/licenses/>.
 
+% ESPEZI OCT 2014 added nameVol, changed order of printed items and added dose name
+
 ud = get(findobj('Tag', 'IVHGui'),'userdata');
 scanNum = get(ud.af.handles.scan,'value');
 imageType = planC{indexS.scan}(scanNum).scanInfo(1).imageType;
@@ -41,16 +43,17 @@ end
 switch lower(opt)
 
   case 'standardscan'
-
     disp('-----------------------')
     disp('')
     disp(['Structure is:  ' name])
 
-    meanD = sum(scanBinsV.*volHistV)/sum(volHistV);
-    disp(['Mean ' imageType ' ' units ' is:  ' num2str(meanD)])
-
     totalVol = sum(volHistV);
     disp(['Total volume is:  ' num2str(totalVol) ' cubic cm.'])
+
+    disp(['Scan name is:  ' nameVol])
+
+    meanD = sum(scanBinsV.*volHistV)/sum(volHistV);
+    disp(['Mean ' imageType ' ' units ' is:  ' num2str(meanD)])
 
     ind = max(find([volHistV~=0]));
     maxD = scanBinsV(ind);
@@ -71,11 +74,13 @@ switch lower(opt)
     areaV = volHistV;  %actually areas, not volumes.
     scansV = scanBinsV;
 
-    meanD = sum(scansV.*areaV)/sum(areaV);
-    disp(['Mean surface ' imageType ' ' units ' is:  ' num2str(meanD)])
-
     totalArea = sum(areaV);
     disp(['Total surface area is:  ' num2str(totalArea) ' square cm.'])
+
+    disp(['Scan name is:  ' nameVol])
+
+    meanD = sum(scansV.*areaV)/sum(areaV);
+    disp(['Mean surface ' imageType ' ' units ' is:  ' num2str(meanD)])
 
     maxScan = max(scansV);
     disp(['Max ' imageType ' ' units ' is:  ' num2str(maxScan)])
