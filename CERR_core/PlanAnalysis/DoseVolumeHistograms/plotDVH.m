@@ -264,9 +264,10 @@ end
 
 %Get the DSH data.
 [doseV, areaV, zV, planC] = getDSH(structNum, doseSet, planC);
-[doseSortV indV] = sort(doseV);
-areaSortV = areaV(indV);
-cumAreaV = cumsum(areaSortV);
+%[doseSortV indV] = sort(doseV);
+%areaSortV = areaV(indV);
+[doseBinsV, volsHistV] = doseHist(doseV, areaV, optS.DVHBinWidth);
+cumAreaV = cumsum(volsHistV);
 cumArea2V  = cumAreaV(end) - cumAreaV;
 
 %Determine color of line.
@@ -277,14 +278,23 @@ else
     colorV = getColor(DVHNum, optS.colorOrder);
 end
 
-%No need to shift the DSH/DVH data by the offset, since getDSH returns the shifted dose.
+% %No need to shift the DSH/DVH data by the offset, since getDSH returns the shifted dose.
+% if strcmpi(cum_diff_string,'CUMU')
+%     h = plot([0; doseSortV(:)], [1; cumArea2V(:)/cumAreaV(end)], 'parent', hAxis);
+%     addDVHtoFig(hFig, struct, doseSet, h, [0; doseSortV(:)], [1; cumArea2V(:)/cumAreaV(end)], 'DSH', 'NOABS', doseV, areaV, doseName);
+% elseif strcmpi(cum_diff_string,'DIFF')
+%     indPlot = find(areaSortV);
+%     h = plot(doseSortV(indPlot), areaSortV(indPlot)/cumAreaV(end));
+%     addDVHtoFig(hFig, struct, doseSet, h, doseSortV(indPlot), areaSortV(indPlot)/cumAreaV(end), 'DSH', 'NOABS', doseV, areaV, doseName);
+% end
+
 if strcmpi(cum_diff_string,'CUMU')
-    h = plot([0; doseSortV(:)], [1; cumArea2V(:)/cumAreaV(end)], 'parent', hAxis);
-    addDVHtoFig(hFig, struct, doseSet, h, [0; doseSortV(:)], [1; cumArea2V(:)/cumAreaV(end)], 'DSH', 'NOABS', doseV, areaV, doseName);
+    h = plot([0, doseBinsV(:)'], [1, cumArea2V(:)'/cumAreaV(end)]);
+    addDVHtoFig(hFig, struct, doseSet, h, [0, doseBinsV(:)'], [1, cumArea2V(:)'/cumAreaV(end)], 'DVH', 'NOABS', doseBinsV, volsHistV, doseName);
 elseif strcmpi(cum_diff_string,'DIFF')
-    indPlot = find(areaSortV);
-    h = plot(doseSortV(indPlot), areaSortV(indPlot)/cumAreaV(end));
-    addDVHtoFig(hFig, struct, doseSet, h, doseSortV(indPlot), areaSortV(indPlot)/cumAreaV(end), 'DSH', 'NOABS', doseV, areaV, doseName);
+    indPlot = find(volsHistV);
+    h = plot(doseBinsV(indPlot), volsHistV(indPlot)/cumAreaV(end));
+    addDVHtoFig(hFig, struct, doseSet, h, doseBinsV(indPlot), volsHistV(indPlot)/cumAreaV(end), 'DVH', 'NOABS', doseBinsV, volsHistV, doseName);
 end
 
 set(hAxis,'nextplot','add')
@@ -307,19 +317,29 @@ opt = 'DSHDose';
 
 name = planC{indexS.DVH}(DVHNum).structureName;
 nameVol = planC{indexS.DVH}(DVHNum).fractionIDOfOrigin;
-doseStat = dispDoseStats(cumArea2V, areaSortV, name, nameVol, planC, indexS, opt);
+doseStat = dispDoseStats(doseBinsV, volsHistV, name, nameVol, planC, indexS, opt);
 
 if absFlag == 1
     hRel = get(hAxis, 'parent');
-    h = figure('tag', 'DVHPlot', 'doublebuffer', 'on');
-    uimenu(h, 'label', 'Expand Options', 'callback','plotDVHCallback(''EXPANDEDVIEW'')','interruptible','on');
-    absAxis = axes('parent', h);
-    set(h,'numbertitle','off')
-    pos = get(h,'position');
+    hFig = figure('tag', 'DVHPlot', 'doublebuffer', 'on');
+    uimenu(hFig, 'label', 'Expand Options', 'callback','plotDVHCallback(''EXPANDEDVIEW'')','interruptible','on');
+    absAxis = axes('parent', hFig);
+    set(hFig,'numbertitle','off')
+    pos = get(hFig,'position');
     nDVHFigs = length(findobj('tag', 'DVHPlot'));
-    set(h,'position',[pos(1)*(1 - 0.05*nDVHFigs),pos(2)*(1 - 0.05*nDVHFigs),pos(3),pos(4)])
-    p = plot(doseSortV, cumArea2V);
-    addDVHtoFig(h, struct, doseSet, p, doseSortV, cumArea2V, 'DSH', 'ABS', doseV, areaV, doseName);
+    set(hFig,'position',[pos(1)*(1 - 0.05*nDVHFigs),pos(2)*(1 - 0.05*nDVHFigs),pos(3),pos(4)])
+    %p = plot(doseSortV, cumArea2V);
+    if strcmpi(cum_diff_string,'CUMU')
+        h = plot([doseBinsV(:)'], [cumArea2V(:)]);
+        %addDVHtoFig(hFig, struct, doseSet, h, [doseBinsV(:)'], [cumArea2V(:)], 'DVH', 'NOABS', doseBinsV, volsHistV, doseName);
+        addDVHtoFig(hFig, struct, doseSet, h, doseBinsV(:)', cumArea2V(:)', 'DSH', 'ABS', doseBinsV, volsHistV, doseName);
+    elseif strcmpi(cum_diff_string,'DIFF')
+        indPlot = find(volsHistV);
+        h = plot(doseBinsV(indPlot), volsHistV(indPlot));
+        %addDVHtoFig(hFig, struct, doseSet, h, doseBinsV(indPlot), volsHistV(indPlot), 'DVH', 'NOABS', doseBinsV, volsHistV, doseName);
+        addDVHtoFig(hFig, struct, doseSet, h, doseBinsV(indPlot), volsHistV(indPlot), 'DSH', 'ABS', doseBinsV, volsHistV, doseName);
+    end
+    %addDVHtoFig(h, struct, doseSet, p, doseSortV, cumArea2V, 'DSH', 'ABS', doseV, areaV, doseName);
     set(absAxis,'xgrid',gridSetting)
     set(absAxis,'ygrid',gridSetting)
     set(h,'tag','CERRAbsDVHPlot')
@@ -329,20 +349,20 @@ if absFlag == 1
     else
         colorV = getColor(DVHNum, optS.colorOrder);
     end
-    set(p,'color', colorV)
+    set(h,'color', colorV)
 
     switch mod(flagLSS, 4)
         case 0
-            set(p,'linestyle','--')
+            set(h,'linestyle','--')
         case 1
-            set(p,'linestyle','-')
+            set(h,'linestyle','-')
         case 2
-            set(p,'linestyle',':');
+            set(h,'linestyle',':');
         case 3
-            set(p,'linestyle','-.');
+            set(h,'linestyle','-.');
     end
 
-    set(p,'linewidth',stateS.optS.DVHLineWidth)
+    set(h,'linewidth',stateS.optS.DVHLineWidth)
     ylabel('Absolute surface area (sq-cm)')
     structNum = getAssociatedStr(planC{indexS.DVH}(DVHNum).assocStrUID);    
     doseSet = getAssociatedDose(planC{indexS.DVH}(DVHNum).assocDoseUID);
@@ -364,6 +384,6 @@ if absFlag == 1
     end
     figure(hRel)
 
-    set(h,'name',['Abs DSH plot: ' stateS.CERRFile])
+    set(hFig,'name',['Abs DSH plot: ' stateS.CERRFile])
     stateS.handle.DSHAbsPlots = findobj('tag','CERRAbsDVHPlot');
 end

@@ -445,7 +445,7 @@ switch upper(command)
             return;
         end
         
-        M = [ud.plots(currentDVH).xVals; ud.plots(currentDVH).yVals];
+        M = [ud.plots(currentDVH).xVals(:)'; ud.plots(currentDVH).yVals(:)'];
         %Export only NumPts points
         NumPts = 65000;
         if size(M,2)>NumPts
