@@ -85,8 +85,8 @@ end
 
 if ~isempty(stateS) 
     scanUID = ['c',repSpaceHyp(planC{indexS.scan}(ind).scanUID(max(1,end-61):end))];
-    stateS.scanStats.minScanVal.(scanUID) = single(min(planC{indexS.scan}(ind).scanArray(:))) - planC{indexS.scan}(ind).scanInfo(1).CTOffset;
-    stateS.scanStats.maxScanVal.(scanUID) = single(max(planC{indexS.scan}(ind).scanArray(:))) - planC{indexS.scan}(ind).scanInfo(1).CTOffset;
+    stateS.scanStats.minScanVal.(scanUID) = single(min(planC{indexS.scan}(ind).scanArray(:)));
+    stateS.scanStats.maxScanVal.(scanUID) = single(max(planC{indexS.scan}(ind).scanArray(:)));
 end
 
 % Populate CERR Options
