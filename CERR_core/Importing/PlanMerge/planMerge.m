@@ -266,8 +266,10 @@ structIndV = setdiff(structIndV,structsWithSameUID);
 
 %Remove structures from planD's uniformized data if they aren't being imported.
 toDelete = setdiff(1:length(structs), [structIndV]);
-if ~isempty(uniData)
+if ~isempty(uniData) && ~isempty(toDelete)
     planD    = delUniformStr(toDelete, planD);
+    uniData = planD{indexSD.structureArray};
+    uniDataMore = planD{indexSD.structureArrayMore};    
 end
 
 %Filter the actual structArray by structs to include.
