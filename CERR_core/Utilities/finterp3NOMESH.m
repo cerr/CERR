@@ -50,8 +50,8 @@ zMesh = ones(size(xMesh));
 data3M = repmat(uint16(zeros),[length(yInterpV), length(xInterpV), length(zInterpV)]);
 
 %Convert x,y orig to [start delta end] format.
-xOrig = [xOrig(1) xOrig(2)-xOrig(1) xOrig(end)];
-yOrig = [yOrig(1) yOrig(2)-yOrig(1) yOrig(end)];
+xOrig = [xOrig(1)-1e-3 xOrig(2)-xOrig(1) xOrig(end)+1e-3];
+yOrig = [yOrig(1)+1e-3 yOrig(2)-yOrig(1) yOrig(end)-1e-3];
 
 %Leave zOrig alone, it needs to be in vector format for finterp3.
 
