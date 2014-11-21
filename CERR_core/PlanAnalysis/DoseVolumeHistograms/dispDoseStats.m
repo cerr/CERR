@@ -1,4 +1,4 @@
-function doseStat = dispDoseStats(doseBinsV, volHistV, name, planC, indexS, opt)
+function doseStat = dispDoseStats(doseBinsV, volHistV, name, nameVol, planC, indexS, opt)
 %Command line display of basic dose statistics
 %doseBinsV is a vector of the midpoint doseBin values.
 %volHistV is either a histogram of volumes or surface areas.
@@ -29,16 +29,17 @@ function doseStat = dispDoseStats(doseBinsV, volHistV, name, planC, indexS, opt)
 switch lower(opt)
 
   case 'standarddose'
-
     disp('-----------------------')
     disp('')
     disp(['Structure is:  ' name])
 
-    meanD = sum(doseBinsV(:).*volHistV(:))/sum(volHistV);
-    disp(['Mean dose is:  ' num2str(meanD)])
-
     totalVol = sum(volHistV);
     disp(['Total volume is:  ' num2str(totalVol) ' cubic cm.'])
+
+    disp(['Dose map name is:  ' nameVol])
+
+    meanD = sum(doseBinsV(:).*volHistV(:))/sum(volHistV);
+    disp(['Mean dose is:  ' num2str(meanD)])
 
     ind = max(find([volHistV~=0]));
     maxD = doseBinsV(ind);
@@ -62,11 +63,13 @@ switch lower(opt)
     areaV = volHistV;  %actually areas, not volumes.
     dosesV = doseBinsV;
 
-    meanD = sum(dosesV(:).*areaV(:))/sum(areaV);
-    disp(['Mean surface dose is:  ' num2str(meanD)])
-
     totalArea = sum(areaV);
     disp(['Total surface area is:  ' num2str(totalArea) ' square cm.'])
+    
+    disp(['Dose map name is:  ' nameVol])
+
+    meanD = sum(dosesV(:).*areaV(:))/sum(areaV);
+    disp(['Mean surface dose is:  ' num2str(meanD)])
 
     maxD = max(dosesV);
     disp(['Max dose is:  ' num2str(maxD)])

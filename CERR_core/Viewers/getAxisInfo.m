@@ -92,7 +92,7 @@ end
 %Iterate over arguments and set them.
 for i=1:nArgsToProcess
     field_name = varargin{i};
-    if ~ischar(field_name) || ~ismember(field_name, aIFields);
+    if ~ischar(field_name) || ~any(strcmp(field_name, aIFields))
         error('Input to getAxisInfo must be an axisInfo fieldname.');
     end
     

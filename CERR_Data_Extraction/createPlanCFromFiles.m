@@ -99,7 +99,7 @@ for fileNum = 1:length(fileNamesC)
     
     planD{indexSD.scan}(scanNum).scanInfo([1:KLow-1, KHigh+1:end]) = [];
     
-    assocScanV = getStructureassociatedScan(1:length(planD{indexSD.structures}), planD);
+    assocScanV = getStructureAssociatedScan(1:length(planD{indexSD.structures}), planD);
     
     indAssocV = find(assocScanV == scanNum);
     

@@ -517,27 +517,28 @@ switch upper(command)
             doseManagementGui('status', statusString);
             [fpath,fname] = fileparts(stateS.CERRFile);
             %planC{indexS.dose}(doseNum).doseArray = setRemoteVariable(getDoseArray(doseNum, planC), 'LOCAL',[fpath,'\',fname,'_store'],['doseArray_',doseName,'.mat']);
-            planC{indexS.dose}(doseNum).doseArray = setRemoteVariable(getDoseArray(doseNum, planC), 'LOCAL',[fpath,'\',fname,'_store'],['doseArray_',doseUID,'.mat']);
+            planC{indexS.dose}(doseNum).doseArray = setRemoteVariable(getDoseArray(doseNum, planC), 'LOCAL',fullfile(fpath,[fname,'_store']),['doseArray_',doseUID,'.mat']);
             drawThumb(ud.handles.thumbaxis(doseNum), planC, doseNum, h);
             statusString = ['Wrote to disk dose number ' num2str(doseNum)  ', ''' doseName '''.'];
             doseManagementGui('status', statusString);
             set(ud.handles.remotebutton, 'string', 'Use Memory');
-            uiwait(msgbox(['doseArray stored in folder ',fpath,'\',fname,'_store'],'Note the Location','modal'))
+            uiwait(msgbox(['doseArray stored in folder ',fullfile(fpath,[fname,'_store']),'Note the Location','modal']))
 
         else
             statusString = ['Reading from disk dose number ' num2str(doseNum) ', ''' doseName ''', please wait...'];
             doseManagementGui('status', statusString);
 
             remotePath = planC{indexS.dose}(doseNum).doseArray.remotePath;
-            filename = planC{indexS.dose}(doseNum).doseArray.filename;
+            filenam = planC{indexS.dose}(doseNum).doseArray.filename;
             %Use getDoseArray and not decompress to use the cached value.
             planC{indexS.dose}(doseNum).doseArray = getDoseArray(doseNum, planC);
-            ind = find(strcmpi(stateS.reqdRemoteFiles, fullfile(remotePath,filename)));
-            stateS.reqdRemoteFiles(ind) = [];            
-            delete(fullfile(remotePath,filename))
+            
+            stateS.reqdRemoteFiles(strcmp(fullfile(remotePath,filenam),stateS.reqdRemoteFiles)) = [];            
+            delete(fullfile(remotePath,filenam))
+            
             %remove remote storage directory if it is empty
             dirRemoteS = dir(remotePath);
-            if length(dirRemoteS) < 3
+            if ~any(~cellfun('isempty',strfind({dirRemoteS.name},'.mat')))
                 rmdir(remotePath)
             end
             maxDose = drawThumb(ud.handles.thumbaxis(doseNum), planC, doseNum, h);

@@ -133,7 +133,7 @@ uiwait;
         tree.expand(root);
         %     set(tree, 'Font', 10);
 
-        tmp = tree.FigureComponent;
+        tmp = tree.Parent;
         cell_Data = cell(2,1);
         cell_Data{1} = str;
         set(tmp, 'UserData', cell_Data);
@@ -144,7 +144,7 @@ uiwait;
 
         %         tree.getFigureComponent.setBorder(BorderFactory.createLineBorder(Color.red));
 
-        %         t = tree.FigureComponent;
+        %         t = tree.Parent;
         %         color = java.awt.Color(0.753,0.753,0.753);
         %         t.setBackground(color);
         %         t.setForeground(color);
@@ -162,7 +162,7 @@ uiwait;
 
     function cNode = nodeSelected_cb(tree,ev)
         cNode = ev.getCurrentNode;
-        tmp = tree.FigureComponent;
+        tmp = tree.Parent;
         cell_Data =get(tmp, 'UserData');
         cell_Data{2} = cNode;
         s = cell_Data{1};
@@ -261,7 +261,7 @@ uiwait;
 
     function cNode = nodeWillExpand_cb(tree,ev)
         cNode = ev.getCurrentNode;
-        tmp = tree.FigureComponent;
+        tmp = tree.Parent;
         cell_Data =get(tmp, 'UserData');
         cell_Data{2} = cNode;
         set(tmp, 'UserData', cell_Data);
@@ -269,7 +269,7 @@ uiwait;
 
     function nodes = myExpfcn(tree,value)
         %         try
-        tmp = tree.FigureComponent;
+        tmp = tree.Parent;
         S= get(tmp, 'UserData');
         s = S{1};
         cNode = S{2};

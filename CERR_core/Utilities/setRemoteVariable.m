@@ -64,6 +64,8 @@ switch upper(storageType)
         else
             save(fullTemp, 'CERRRemoteVariable');
         end       
+        
+        
     case 'LOCAL'
         outData.storageType  = 'Local';
         outData.remotePath = remotePath;
@@ -77,10 +79,12 @@ switch upper(storageType)
         %Save in ML6 style.
         saveOpt = getSaveInfo;
         if ~isempty(saveOpt);
-            save([remotePath,'\',filename], 'CERRRemoteVariable', saveOpt);
+            save(fullfile(remotePath,filename), 'CERRRemoteVariable', saveOpt);
         else
-            save([remotePath,'\',filename], 'CERRRemoteVariable');
+            save(fullfile(remotePath,filename), 'CERRRemoteVariable');
         end
+        stateS.reqdRemoteFiles{end+1} = fullfile(remotePath,filename);
+        
     
     case 'NETWORK'
         error('Local and Network storage not implemented yet.');

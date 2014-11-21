@@ -27,17 +27,15 @@ if ~exist('isEven', 'var'), isEven = 0; end;
 
     val = mirrPos;
     if (isEven == 1) %image size is even
-        I1 = I1(:, val+1:end)+3;
-        I2 = I2(:, end:-1:val+1)+30;
+        I1 = I1(:, val+1:end);
+        I2 = I2(:, end:-1:val+1);
     end
 
     if (isEven == 0)
-        I1 = I1(:, val:end)+3;
-        I2 = I2(:, end:-1:val+1)+30;
+        I1 = I1(:, val:end);
+        I2 = I2(:, end:-1:val+1);
     end
 
-    I1 = double(I1);
-    I2 = double(I2);
     im = [I2 I1];
        
 end

@@ -298,7 +298,7 @@ if length(filesLocal)>0 & ~exist(fullfile(pathstr,[name,'_store']))
     mkdir(fullfile(pathstr,[name,'_store']))
 elseif length(filesLocal) < 1
     try
-        rmdir(fullfile(pathstr,[name,'_store']))
+        rmdir(remotePathLocal)
     end
 end
 
@@ -311,7 +311,7 @@ end
 % delete unnecessary remote files in original plan that were created
 % temporarily
 for i = 1:length(remoteFullFile)
-    if isfield(stateS,'reqdRemoteFiles') & ~ismember(remoteFullFile{i},stateS.reqdRemoteFiles) & ~isequal(fileparts(remoteFullFile{i}),fullfile(pathstr,[name,'_store']))
+    if isfield(stateS,'reqdRemoteFiles') && ~ismember(remoteFullFile{i},stateS.reqdRemoteFiles) && ~isequal(fileparts(remoteFullFile{i}),fullfile(pathstr,[name,'_store']))
         delete(remoteFullFile{i})
     end
 end
@@ -387,3 +387,15 @@ for i = 1:length(planC{indexS.dose})
         stateS.reqdRemoteFiles{end+1} = fullfile(pathstr,[name,'_store'],planC{indexS.dose}(i).doseArray.filename);
     end
 end
+
+
+for i = 1:length(planC{indexS.IM})
+    if ~isempty(planC{indexS.IM}(i).IMDosimetry.beams) && ~isLocal(planC{indexS.IM}(i).IMDosimetry.beams(1).beamlets)
+        for iBeam = 1:length(planC{indexS.IM}(i).IMDosimetry.beams)            
+            planC{indexS.IM}(i).IMDosimetry.beams(iBeam).beamlets.remotePath = fullfile(pathstr,[name,'_store']);
+            stateS.reqdRemoteFiles{end+1} = fullfile(pathstr,[name,'_store'],planC{indexS.IM}(i).IMDosimetry.beams(iBeam).beamlets.filename);                        
+        end
+    end
+end
+
+

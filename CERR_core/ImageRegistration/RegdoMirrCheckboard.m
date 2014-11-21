@@ -33,19 +33,30 @@ function im = RegdoMirrCheckboard(Im1, Im2, numRows, numCols, orientation, metri
     black = zeros(m1, n1, classname);
     white = ones(m1, n1, classname);
     [ROW,COL] = ndgrid(1:m1,1:n1);
-    indKeepV = ((ROW-m1/2).^2)/(m1/2)^2 + ((COL-n1/2).^2)/(n1/2)^2 <= 1;
+    %indKeepV = ((ROW-m1/2).^2)/(m1/2)^2 + ((COL-n1/2).^2)/(n1/2)^2 <= 1; % circle
+    indKeepV = ((ROW-m1/2).^2)/(m1*0.58)^2 + ((COL-n1/2).^2)/(n1*0.58)^2 <= 1; % circle
     black(indKeepV) = 1;
     
 %     %tile = [black white; white black];
 %     tile = [black black; black black];
 %     I = repmat(tile, [ceil(m/(2*m1)) ceil(n/(2*n1)) p]);
      
-    I = logical(size(Im1));
+    %I = logical(size(Im1));
+    I = ones(size(Im1),'single');
     I(1:numRows*m1,1:numCols*n1) = repmat(black,numRows, numCols);
-    
-    CA_Image = min(Im1(:))*single(I);
-    
+        
+    % Scale Im1 and Im2 between 0 and 1
+    minIm1 = min(Im1(:));
+    maxIm1 = max(Im1(:));
+    Im1 = (Im1-minIm1)/(maxIm1-minIm1);
+    minIm2 = min(Im2(:));
+    maxIm2 = max(Im2(:));
+    Im2 = (Im2-minIm2)/(maxIm2-minIm2);
+
+    CA_Image = min(Im1(:))*I;
     Imov = I*0;
+    ctEdge = I*0;
+    
     
     for rowNum = 1:numRows
         
@@ -63,7 +74,8 @@ function im = RegdoMirrCheckboard(Im1, Im2, numRows, numCols, orientation, metri
             j2V = j2Start+indJv;
             iV = iStart:iEnd;
             
-            Iblock = CA_Image(iV,(j2Start+1):jEnd);
+            Iblock = CA_Image(iV,(j2Start+1):jEnd);            
+            %IedgeBlock = CA_Image(iV,(j2Start+1):jEnd);
             
             %IblockMov = Imov(iV,1:floor(n1/2)); % for painting half block
             IblockMov = Imov(iV,1:n1); % for painting full block
@@ -71,13 +83,22 @@ function im = RegdoMirrCheckboard(Im1, Im2, numRows, numCols, orientation, metri
             if strcmpi(orientation,'Left Mirror')
                 Iblock(1:m1,1:floor(n1/2)) = Im1(iV,j2V);
                 Iblock(1:m1,(n1-floor(n1/2)+1):n1) = flipdim(Im2(iV,j2V),2);
+                %Im_edge = edge(Im1(iV,j2V),'canny');
+                %IedgeBlock(1:m1,1:floor(n1/2)) = Im_edge;
+                %Im_edge = edge(flipdim(Im2(iV,j2V),2),'canny');
+                %IedgeBlock(1:m1,(n1-floor(n1/2)+1):n1) = Im_edge;
             else
                 Iblock(1:m1,(n1-floor(n1/2)+1):n1) = Im1(iV,j1V);
                 Iblock(1:m1,1:floor(n1/2)) = flipdim(Im2(iV,j1V),2);
+                %Im_edge = edge(Im1(iV,j1V),'canny');
+                %IedgeBlock(1:m1,(n1-floor(n1/2)+1):n1) = Im_edge;
+                %Im_edge = edge(flipdim(Im2(iV,j1V),2),'canny');
+                %IedgeBlock(1:m1,1:floor(n1/2)) = Im_edge;
             end
             
             
             CA_Image(iV,(j2Start+1):jEnd) = Iblock;
+            %ctEdge(iV,(j2Start+1):jEnd) = IedgeBlock;
             
             % Calculate registration accuracy within each block
             %IblockMov(1:m1,1:floor(n1/2)) = 1; % for painting half block
@@ -85,7 +106,7 @@ function im = RegdoMirrCheckboard(Im1, Im2, numRows, numCols, orientation, metri
             % MSE
             blockImage1M = Im1(iV,j1V);
             blockImage2M = Im2(iV,j1V);
-            if metric == 2 % MI
+            if metric == 2 % MSE
                 blockMetric = sum((blockImage1M(:) - blockImage2M(:)).^2);
             elseif metric == 1 % MI
                 minBlock1 = min(blockImage1M(:));
@@ -111,12 +132,26 @@ function im = RegdoMirrCheckboard(Im1, Im2, numRows, numCols, orientation, metri
     ctSize = size(CA_Image);
 
     colorCT = CERRColorMap('gray256');
-    CTLow = min(CA_Image(:));
-    CTHigh = max(CA_Image(:));
-    ctScaled = (CA_Image - CTLow) / ((CTHigh - CTLow) / size(colorCT,1)) + 1;
-    ctClip = uint32(ctScaled);
+    %CTLow = min(CA_Image(:));
+    %CTHigh = max(CA_Image(:));
+    %ctScaled = (CA_Image - CTLow) / ((CTHigh - CTLow) / size(colorCT,1)) + 1;
+    %ctClip = uint32(ctScaled);
+    ctScaled = uint32(CA_Image * (size(colorCT,1)-1)+1);
     colorCT(end+1,:) = colorCT(end,:);
-    CTBackground3M = reshape(colorCT(ctClip(1:ctSize(1),1:ctSize(2)),1:3),ctSize(1),ctSize(2),3);
+    %ctClip = CA_Image;
+    CTBackground3M = reshape(colorCT(ctScaled(1:ctSize(1),1:ctSize(2)),1:3),ctSize(1),ctSize(2),3);
+    
+    % Create Edge image
+    colorEdge = CERRColorMap('yellow');
+    %ctEdge = canny(CA_Image,[],[]);
+    ctEdge = edge(CA_Image,'canny');
+%     minEdge = min(ctEdge(:));
+%     maxEdge = max(ctEdge(:));
+%     ctEdgeScaled = (ctEdge - minEdge) / ((maxEdge - minEdge) / size(colorEdge,1)) + 1;
+%     ctEdge = uint32(ctEdgeScaled);
+    edgeScaled = uint32(ctEdge * (size(colorEdge,1)-1)+1);
+    colorEdge(end+1,:) = colorEdge(end,:);
+    CTEdge3M = reshape(colorEdge(edgeScaled(1:ctSize(1),1:ctSize(2)),1:3),ctSize(1),ctSize(2),3);
     
     colorMSE = CERRColorMap('starinterp');    
     minBlocks = min(Imov(:));
@@ -126,7 +161,8 @@ function im = RegdoMirrCheckboard(Im1, Im2, numRows, numCols, orientation, metri
     colorMSE(end+1,:) = colorMSE(end,:);
     mse3M = reshape(colorMSE(mseClip(1:ctSize(1),1:ctSize(2)),1:3),ctSize(1),ctSize(2),3);
         
-    CA_Image = CTBackground3M*0.8 + mse3M*0.2;
+    % CA_Image = CTBackground3M*0.95 + mse3M*0.05;
+    CA_Image = CTBackground3M*0.5 + 0.35*CTEdge3M + mse3M*0.15;
     
     I3M(:,:,1) = I;
     I3M(:,:,2) = I;

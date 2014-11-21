@@ -124,8 +124,8 @@ function mask = getmask(xinterval, yinterval, radius)
 	[X,Y] = meshgrid(-xRadius:xinterval:xRadius, -yRadius:yinterval:yRadius);
 	%R = sqrt(X.^2 + Y.^2) + eps;
 	%mask = R<radius;
-    mask = X.^2/xRadius^2 + Y.^2/yRadius^2 < 1;
-
+    %mask = X.^2/xRadius^2 + Y.^2/yRadius^2 < 1;
+    mask = X.^2/radiusX^2 + Y.^2/radiusY^2 <= 1;
     
 function E = edginess(A) 
 

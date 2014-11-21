@@ -210,8 +210,8 @@ switch upper(instr)
         str1 = ['CERR'];
         position = [5 40 940 620];
         hCSV = figure('tag','CERRSliceViewer','name',str1,'numbertitle','off',...
-            'position',position, 'doublebuffer', 'on','CloseRequestFcn',...
-            'sliceCallBack(''closeRequest'')','backingstore','on','tag',...
+            'position',position, 'doublebuffer', 'off','CloseRequestFcn',...
+            'sliceCallBack(''closeRequest'')','backingstore','off','tag',...
             'CERRSliceViewer', 'renderer', 'zbuffer','ResizeFcn','sliceCallBack(''resize'')');
         figureColor = get(hCSV, 'Color');
         stateS.handle.CERRSliceViewer = hCSV;
@@ -238,10 +238,10 @@ switch upper(instr)
         stateS.handle.CERRMetricMenu        = putMetricsMenu(hCSV);
         stateS.handle.CERRScanMenu          = putScanMenu(hCSV);
         stateS.handle.CERRStructMenu        = putStructMenu(hCSV);
-        BMfileFlag = exist('Benchmark','dir');
+        BMfileFlag = exist('putPETASsetMenu.m','file'); % B.B. 15/09/2014 replaced putBMmenu.m with putPETASsetMenu.m
         if BMfileFlag
-            stateS.handle.CERRBMMenu        = putBMMenu(hCSV);
-        end        
+            stateS.handle.CERRBMMenu        = putPETASsetMenu(hCSV);% B.B. 15/09/2014 replaced putBMmenu with putPETASsetMenu
+        end
         stateS.handle.CERRHelpMenu          = putHelpMenu(hCSV);
 
         %Make invisible frames to subdivide screenspace.  For resizing.
@@ -464,11 +464,11 @@ switch upper(instr)
             stateS.handle.CERRIMRTPMenu   = putIMRTPMenu(hCSV);
             stateS.handle.CERRMetricMenu  = putMetricsMenu(hCSV);
             stateS.handle.CERRScanMenu    = putScanMenu(hCSV);
-            stateS.handle.CERRStructMenu  = putStructMenu(hCSV);
-            BMfileFlag = exist('putBMmenu.m','file');
-            if BMfileFlag
-                stateS.handle.CERRBMMenu        = putBMMenu(hCSV);
-            end            
+            stateS.handle.CERRStructMenu  = putStructMenu(hCSV);          
+            BMfileFlag = exist('putPETASsetMenu.m','file'); % B.B. 15/09/2014 replaced putBMmenu.m with putPETASsetMenu.m
+            if BMfileFlag 
+                stateS.handle.CERRBMMenu        = putPETASsetMenu(hCSV);% B.B. 15/09/2014 replaced putBMmenu with putPETASsetMenu
+            end                
             stateS.handle.CERRHelpMenu    = putHelpMenu(hCSV);
             
             %Wipe out the contents of all axes.
@@ -594,8 +594,8 @@ switch upper(instr)
         % Save scan statistics for fast image rendering
         for scanNum = 1:length(planC{indexS.scan})
             scanUID = ['c',repSpaceHyp(planC{indexS.scan}(scanNum).scanUID(max(1,end-61):end))];
-            stateS.scanStats.minScanVal.(scanUID) = single(min(planC{indexS.scan}(scanNum).scanArray(:))) - planC{indexS.scan}(scanNum).scanInfo(1).CTOffset;
-            stateS.scanStats.maxScanVal.(scanUID) = single(max(planC{indexS.scan}(scanNum).scanArray(:))) - planC{indexS.scan}(scanNum).scanInfo(1).CTOffset;
+            stateS.scanStats.minScanVal.(scanUID) = single(min(planC{indexS.scan}(scanNum).scanArray(:)));
+            stateS.scanStats.maxScanVal.(scanUID) = single(max(planC{indexS.scan}(scanNum).scanArray(:)));
         end
         
         %If any duplicates, remove them and make new entry first.
@@ -1658,7 +1658,7 @@ switch upper(instr)
 
         %removeUnusedRemoteFiles
 
-        if ~(isempty(stateS) | ~isfield(stateS,'CERRFile') | ~isfield(stateS,'reqdRemoteFiles')            )
+        if ~isempty(stateS) && isfield(stateS,'CERRFile') && isfield(stateS,'reqdRemoteFiles')
             remoteFiles = listRemoteScanAndDose(planC);
             if ~isempty(remoteFiles)
                 try, rmdir(remoteFiles(1).remotePath,'s'), end
@@ -2629,6 +2629,9 @@ switch upper(instr)
             stateS.scanSet = [stateS.scanSet movData];
             stateS.structSet = [stateS.structSet getStructureSetAssociatedScan(movData)];
         end
+        
+        % Change the renderer
+        set(stateS.handle.CERRSliceViewer,'renderer','opengl')
 
         CERRRefresh;
 
@@ -2668,6 +2671,8 @@ switch upper(instr)
         else
             stateS.doseSet = 1;
         end
+        
+        set(stateS.handle.CERRSliceViewer,'renderer','zbuffer')
         
         CERRRefresh
         return

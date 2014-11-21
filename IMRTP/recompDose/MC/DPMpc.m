@@ -74,7 +74,7 @@ for indexBeam = 1 : planC{7}.FractionGroupSequence.Item_1.NumberOfBeams
 
     bs = planC{7}.BeamSequence.(['Item_' num2str(indexBeam)]);
 
-    LS = getDICOMLeafPositions(bs)
+    LS = getDICOMLeafPositions(bs);
 
 
     [inflMap, xV, yV, colDividerXCoord, rowDividerYCoord, rowLeafPositions] = getLSInfluenceMapFactor(LS,leak,bs.BeamNumber);

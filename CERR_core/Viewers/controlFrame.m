@@ -1212,10 +1212,10 @@ switch command
                 %
                 leftMarginWidth = 195; %obtained from from sliceCallback.m
                 uicontrol(hFig,'style','toggle','units','pixels','Position',[leftMarginWidth+10 490 25 20], 'tag','toggleBasMov','string','B/M','fontWeight','normal','callBack','sliceCallBack(''toggleBaseMoving'');');
-                % [I,map] = imread('unlock.GIF','gif');
-                [I,map] = imread(fullfile(getCERRPath,'pics','Icons','unlock.GIF'),'gif'); % for compiled CERR
+                % [I,map] = imread('lock.GIF','gif');
+                [I,map] = imread(fullfile(getCERRPath,'pics','Icons','lock.GIF'),'gif'); % for compiled CERR
                 lockImg = ind2rgb(I,map);
-                uicontrol(hFig,'style','toggle','units','pixels','cdata',lockImg,'Position',[leftMarginWidth+10 460 25 20], 'tag','toggleLockMoving','string','','fontWeight','normal','callBack','sliceCallBack(''toggleLockMoving'');');
+                uicontrol(hFig,'style','toggle','value',1,'units','pixels','cdata',lockImg,'Position',[leftMarginWidth+10 460 25 20], 'tag','toggleLockMoving','string','','fontWeight','normal','callBack','sliceCallBack(''toggleLockMoving'');');
                 
                 %Which data is being registered?
                 baseData     = stateS.imageRegistrationBaseDataset;
@@ -1235,7 +1235,7 @@ switch command
                 stateS.optS.mirrorscope = 0;
                 stateS.optS.mirrchecker = 0;
                 stateS.optS.mirrorCheckerBoard = 0;
-                stateS.imageFusion.lockMoving = 0;
+                stateS.imageFusion.lockMoving = 1;
                 %wy
                 
                 % change the label of the slider bar
@@ -2528,13 +2528,15 @@ switch command
                 delete(findobj('tag', 'MirrorScope'));
                 controlFrame('fusion', 'mirrorscope');
                 
-            case 'mirrorScopeClicked'
+            case 'mirrorScopeClicked'                
                 set(gcf, 'WindowButtonUpFcn', 'controlFrame(''fusion'', ''mirrorScopeUnClicked'')');
                 set(gcf, 'WindowButtonMotionFcn', 'controlFrame(''fusion'', ''mirrorScopeMoving'')');
                 setappdata(gcf, 'scopeMirrHandle', gcbo);
                 
                 cP = get(gca, 'currentpoint');
                 setappdata(gcf, 'clickPoint', cP);
+                
+                set(gcf,'Pointer','hand')
                 
                 stateS.optS.mirrorscope = 0;
                 CERRRefresh;

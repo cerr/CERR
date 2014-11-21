@@ -38,15 +38,29 @@ indexS = planC{end};
 storePath = fullfile(fpath,[fname,'_store']);
 flag = 0;
 
+% Check if any IM is remote
+for i = 1:length(planC{indexS.IM})
+    if ~isempty(planC{indexS.IM}(i).IMDosimetry.beams) && ~isLocal(planC{indexS.IM}(i).IMDosimetry.beams(1).beamlets) && exist(fullfile(storePath,planC{indexS.IM}(i).IMDosimetry.beams(1).beamlets.filename))==2
+        if ~isequal(fullfile(planC{indexS.IM}(i).IMDosimetry.beams(1).beamlets.remotePath,planC{indexS.IM}(i).IMDosimetry.beams(1).beamlets.filename),fullfile(storePath,planC{indexS.IM}(i).IMDosimetry.beams(1).beamlets.filename))
+            for iBeam = 1:length(planC{indexS.IM}(i).IMDosimetry.beams)
+                planC{indexS.IM}(i).IMDosimetry.beams(iBeam).beamlets.remotePath = storePath;
+            end
+        end
+    elseif ~isempty(planC{indexS.IM}(i).IMDosimetry.beams) && ~isLocal(planC{indexS.IM}(i).IMDosimetry.beams(1).beamlets) && exist(fullfile(storePath,planC{indexS.IM}(i).IMDosimetry.beams(1).beamlets.filename))~=2
+        flag = 1;
+        return
+    end
+end
+
 % check if any doseArray is remote
 for i = 1:length(planC{indexS.dose})
-    if ~isLocal(planC{indexS.dose}(i).doseArray) & exist(fullfile(storePath,planC{indexS.dose}(i).doseArray.filename))==2
+    if ~isLocal(planC{indexS.dose}(i).doseArray) && exist(fullfile(storePath,planC{indexS.dose}(i).doseArray.filename))==2
         % i.e. .mat file is under _store directory. Now check if absolute
         % path is correct, else reassign remote path
         if ~isequal(fullfile(planC{indexS.dose}(i).doseArray.remotePath,planC{indexS.dose}(i).doseArray.filename),fullfile(storePath,planC{indexS.dose}(i).doseArray.filename))
             planC{indexS.dose}(i).doseArray.remotePath = storePath;
         end
-    elseif ~isLocal(planC{indexS.dose}(i).doseArray) & exist(fullfile(storePath,planC{indexS.dose}(i).doseArray.filename))~=2
+    elseif ~isLocal(planC{indexS.dose}(i).doseArray) && exist(fullfile(storePath,planC{indexS.dose}(i).doseArray.filename))~=2
         flag = 1;
         return
     end
@@ -54,33 +68,33 @@ end
 
 % check if any scanArray, Sup, Inf are remote
 for i = 1:length(planC{indexS.scan})
-    if ~isLocal(planC{indexS.scan}(i).scanArray) & exist(fullfile(storePath,planC{indexS.scan}(i).scanArray.filename))==2
+    if ~isLocal(planC{indexS.scan}(i).scanArray) && exist(fullfile(storePath,planC{indexS.scan}(i).scanArray.filename))==2
         % i.e. .mat file is under _store directory. Now check if absolute
         % path is correct, else reassign remote path
         if ~isequal(fullfile(planC{indexS.scan}(i).scanArray.remotePath,planC{indexS.scan}(i).scanArray.filename),fullfile(storePath,planC{indexS.scan}(i).scanArray.filename))
             planC{indexS.scan}(i).scanArray.remotePath = storePath;
         end
-    elseif ~isLocal(planC{indexS.scan}(i).scanArray) & exist(fullfile(storePath,planC{indexS.scan}(i).scanArray.filename))~=2
+    elseif ~isLocal(planC{indexS.scan}(i).scanArray) && exist(fullfile(storePath,planC{indexS.scan}(i).scanArray.filename))~=2
         flag = 1;
         return
     end
-    if ~isLocal(planC{indexS.scan}(i).scanArraySuperior) & exist(fullfile(storePath,planC{indexS.scan}(i).scanArraySuperior.filename))==2
+    if ~isLocal(planC{indexS.scan}(i).scanArraySuperior) && exist(fullfile(storePath,planC{indexS.scan}(i).scanArraySuperior.filename))==2
         % i.e. .mat file is under _store directory. Now check if absolute
         % path is correct, else reassign remote path
         if ~isequal(fullfile(planC{indexS.scan}(i).scanArraySuperior.remotePath,planC{indexS.scan}(i).scanArraySuperior.filename),fullfile(storePath,planC{indexS.scan}(i).scanArraySuperior.filename))
             planC{indexS.scan}(i).scanArraySuperior.remotePath = storePath;
         end
-    elseif ~isLocal(planC{indexS.scan}(i).scanArraySuperior) & exist(fullfile(storePath,planC{indexS.scan}(i).scanArraySuperior.filename))~=2
+    elseif ~isLocal(planC{indexS.scan}(i).scanArraySuperior) && exist(fullfile(storePath,planC{indexS.scan}(i).scanArraySuperior.filename))~=2
         flag = 1;
         return
     end
-    if ~isLocal(planC{indexS.scan}(i).scanArrayInferior) & exist(fullfile(storePath,planC{indexS.scan}(i).scanArrayInferior.filename))==2
+    if ~isLocal(planC{indexS.scan}(i).scanArrayInferior) && exist(fullfile(storePath,planC{indexS.scan}(i).scanArrayInferior.filename))==2
         % i.e. .mat file is under _store directory. Now check if absolute
         % path is correct, else reassign remote path
         if ~isequal(fullfile(planC{indexS.scan}(i).scanArrayInferior.remotePath,planC{indexS.scan}(i).scanArrayInferior.filename),fullfile(storePath,planC{indexS.scan}(i).scanArrayInferior.filename))
             planC{indexS.scan}(i).scanArrayInferior.remotePath = storePath;
         end
-    elseif ~isLocal(planC{indexS.scan}(i).scanArrayInferior) & exist(fullfile(storePath,planC{indexS.scan}(i).scanArrayInferior.filename))~=2
+    elseif ~isLocal(planC{indexS.scan}(i).scanArrayInferior) && exist(fullfile(storePath,planC{indexS.scan}(i).scanArrayInferior.filename))~=2
         flag = 1;
         return
     end

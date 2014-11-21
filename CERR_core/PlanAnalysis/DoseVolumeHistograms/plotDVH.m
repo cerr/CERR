@@ -306,8 +306,8 @@ drawnow
 opt = 'DSHDose';
 
 name = planC{indexS.DVH}(DVHNum).structureName;
-doseStat = dispDoseStats(cumArea2V, areaSortV, name, planC, indexS, opt);
-
+nameVol = planC{indexS.DVH}(DVHNum).fractionIDOfOrigin;
+doseStat = dispDoseStats(cumArea2V, areaSortV, name, nameVol, planC, indexS, opt);
 
 if absFlag == 1
     hRel = get(hAxis, 'parent');

@@ -16,10 +16,10 @@ switch upper(algorithm)
         baseScanUniqName = [baseScanUID,num2str(randPart)];
         baseScanFileName = fullfile(getCERRPath,'ImageRegistration','tmpFiles',['baseScan_',baseScanUniqName,'.mha']);
         baseMaskFileName = fullfile(getCERRPath,'ImageRegistration','tmpFiles',['baseMask_',baseScanUniqName,'.mha']);
-        try
+        if exist(baseScanFileName,'file')
             delete(baseScanFileName);
         end
-        try
+        if exist(baseMaskFileName,'file')
             delete(baseMaskFileName);
         end
         success = createMhaScansFromCERR(baseScanNum, baseScanFileName, basePlanC);        
@@ -31,69 +31,82 @@ switch upper(algorithm)
         movScanUniqName = [movScanUID,num2str(randPart)];
         movScanFileName = fullfile(getCERRPath,'ImageRegistration','tmpFiles',['movScan_',movScanUniqName,'.mha']);
         movMaskFileName = fullfile(getCERRPath,'ImageRegistration','tmpFiles',['movMask_',movScanUniqName,'.mha']);
-        try
+        if exist(movScanFileName,'file')
             delete(movScanFileName);
         end
-        try
+        if exist(movMaskFileName,'file')
             delete(movMaskFileName);
         end        
         success = createMhaScansFromCERR(movScanNum, movScanFileName, movPlanC);
-        success = createMhaMask(movScanNum, movMaskFileName, movPlanC, movMask3M, threshold_bone);
+        %success = createMhaMask(movScanNum, movMaskFileName, movPlanC, movMask3M, threshold_bone);
+        success = createMhaMask(movScanNum, movMaskFileName, movPlanC, movMask3M, []);
         
         % Create a command file path for plastimatch
         cmdFileName_rigid = fullfile(getCERRPath,'ImageRegistration','plastimatch_command',[baseScanUID,'_',movScanUID,'_rigid.txt']);
-        cmdFileName_dir   = fullfile(getCERRPath,'ImageRegistration','plastimatch_command',[baseScanUID,'_',movScanUID,'_dir.txt']);        
-        try
+        cmdFileName_dir   = fullfile(getCERRPath,'ImageRegistration','plastimatch_command',[baseScanUID,'_',movScanUID,'_dir.txt']);
+        
+        if exist(cmdFileName_rigid,'file')
             delete(cmdFileName_rigid);
-            delete(cmdFileName_dir);
         end
+        if exist(cmdFileName_rigid,'file')
+            delete(cmdFileName_dir);
+        end        
         
         % Create a file name and path for storing bspline coefficients
         bspFileName_rigid = fullfile(getCERRPath,'ImageRegistration','tmpFiles',['bsp_coeffs_',baseScanUID,'_',movScanUID,'_rigid.txt']);
         bspFileName = fullfile(getCERRPath,'ImageRegistration','tmpFiles',['bsp_coeffs_',baseScanUID,'_',movScanUID,'.txt']);
-        try
+        if exist(bspFileName_rigid,'file')
             delete(bspFileName_rigid)
+        end
+        if exist(bspFileName,'file')
             delete(bspFileName)
         end
         
         % ----------- Call appropriate command file based on algorithm -------
         
-        % Rigid step
-        userCmdFile = fullfile(getCERRPath,'ImageRegistration','plastimatch_command','bspline_register_cmd_rigid.txt');
-        ursFileC = file2cell(userCmdFile);
-        cmdFileC{1,1} = '[GLOBAL]';
-        cmdFileC{end+1,1} = ['fixed=',escapeSlashes(baseScanFileName)];
-        cmdFileC{end+1,1} = ['moving=',escapeSlashes(movScanFileName)];
-        cmdFileC{end+1,1} = ['xform_out=',escapeSlashes(bspFileName_rigid)];
-        cmdFileC{end+1,1} = '';
-        cmdFileC(end+1:end+size(ursFileC,2),1) = ursFileC(:);
-        cell2file(cmdFileC,cmdFileName_rigid)
-        
-        % Run plastimatch Registration
-        system(['plastimatch register ', cmdFileName_rigid]);
+%         % Rigid step
+%         userCmdFile = fullfile(getCERRPath,'ImageRegistration','plastimatch_command','bspline_register_cmd_rigid.txt');
+%         ursFileC = file2cell(userCmdFile);
+%         cmdFileC{1,1} = '[GLOBAL]';
+%         cmdFileC{end+1,1} = ['fixed=',escapeSlashes(baseScanFileName)];
+%         cmdFileC{end+1,1} = ['moving=',escapeSlashes(movScanFileName)];
+%         cmdFileC{end+1,1} = ['xform_out=',escapeSlashes(bspFileName_rigid)];
+%         cmdFileC{end+1,1} = '';
+%         cmdFileC(end+1:end+size(ursFileC,2),1) = ursFileC(:);
+%         cell2file(cmdFileC,cmdFileName_rigid)
+%         
+%         % Run plastimatch Registration
+%         system(['plastimatch register ', cmdFileName_rigid]);
         
         
         % Deformable (DIR) step
         clear cmdFileC
-        userCmdFile = fullfile(getCERRPath,'ImageRegistration','plastimatch_command','bspline_register_cmd_dir.txt');
+        optS = CERROptions;
+        cmd_fileName = optS.plastimatch_command_file;
+        userCmdFile = fullfile(getCERRPath,'ImageRegistration','plastimatch_command',cmd_fileName);
         ursFileC = file2cell(userCmdFile);
         cmdFileC{1,1} = '[GLOBAL]';
         cmdFileC{end+1,1} = ['fixed=',escapeSlashes(baseScanFileName)];
         cmdFileC{end+1,1} = ['moving=',escapeSlashes(movScanFileName)];
         if ~isempty(baseMask3M) || ~isempty(threshold_bone)
-            cmdFileC{end+1,1} = ['fixed_mask=',escapeSlashes(baseMaskFileName)];
+            cmdFileC{end+1,1} = ['fixed_roi=',escapeSlashes(baseMaskFileName)];
         end
         if ~isempty(movMask3M) || ~isempty(threshold_bone)
-            cmdFileC{end+1,1} = ['moving_mask=',escapeSlashes(movMaskFileName)];
+            cmdFileC{end+1,1} = ['moving_roi=',escapeSlashes(movMaskFileName)];
         end
-        cmdFileC{end+1,1} = ['xform_in=',escapeSlashes(bspFileName_rigid)];
+        %cmdFileC{end+1,1} = ['xform_in=',escapeSlashes(bspFileName_rigid)];
         cmdFileC{end+1,1} = ['xform_out=',escapeSlashes(bspFileName)];
         cmdFileC{end+1,1} = '';
+        if ~isempty(threshold_bone)
+            cmdFileC{end+1,1} = ['background_max=',num2str(threshold_bone)];        
+            cmdFileC{end+1,1} = '';
+        end
         cmdFileC(end+1:end+size(ursFileC,2),1) = ursFileC(:);
         cell2file(cmdFileC,cmdFileName_dir)
         
         % Run plastimatch Registration
         system(['plastimatch register ', cmdFileName_dir]);
+
         
         % Read bspline coefficients file
         [bsp_img_origin,bsp_img_spacing,bsp_img_dim,bsp_roi_offset,bsp_roi_dim,bsp_vox_per_rgn,bsp_direction_cosines,bsp_coefficients] = read_bsplice_coeff_file(bspFileName);

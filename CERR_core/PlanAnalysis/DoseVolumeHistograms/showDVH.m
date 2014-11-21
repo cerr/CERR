@@ -267,5 +267,5 @@ if absFlag == 1
     stateS.handle.DVHAbsPlots = findobj('tag','CERRAbsDVHPlot');
 end
 
-
-doseStat = dispDoseStats(doseBinsV, volsHistV, name, planC, indexS, opt);
+nameVol = planC{indexS.DVH}(DVHNum).fractionIDOfOrigin;
+doseStat = dispDoseStats(doseBinsV, volsHistV, name, nameVol, planC, indexS, opt);

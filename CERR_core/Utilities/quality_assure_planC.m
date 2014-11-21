@@ -121,6 +121,11 @@ if length(planC{indexS.GSPS}) == 1 && isempty(planC{indexS.GSPS}.SOPInstanceUID)
     planC{indexS.GSPS}(1) = [];
 end
 
+% Check for IM UIDs
+if length(planC{indexS.IM})>0 && isfield(planC{indexS.IM}(1),'IMUID') && isempty(planC{indexS.IM}(1).IMUID)
+    planC = createIMuids(planC);
+end
+
 % Overwrite the existing CERR file if a bug is found and fixed
 if forceSaveFlag == 1 || (~isempty(stateS) && isfield(stateS.optS,'overwrite_CERR_File') && stateS.optS.overwrite_CERR_File == 1 && bug_found)
     try 

@@ -339,9 +339,10 @@ switch upper(command)
 
             %Create buttons for Browser.
             ud.ib.handles.browse = uicontrol(h, 'style', 'popupmenu', 'units', units, 'position', [ibX+10 ibY+12 100 18], 'string', {''}, 'value',1, 'horizontalAlignment', 'left', 'callback', 'IMRTPGui(''BROWSEIM'');');
-            ud.ib.handles.deleteIM = uicontrol(h, 'style', 'pushbutton', 'units', units, 'position', [ibX+115 ibY+11 40 20], 'string', 'Delete', 'horizontalAlignment', 'center', 'callback', 'IMRTPGui(''DELETEIM'');');
-            uicontrol(h, 'style', 'text', 'units', units, 'position', [ibX+160 ibY+25 100 18], 'string', 'Rename', 'horizontalAlignment', 'center');
-            ud.ib.handles.rename = uicontrol(h, 'style', 'edit', 'units', units, 'position', [ibX+160 ibY+11 100 18], 'string', '', 'horizontalAlignment', 'center', 'callback', 'IMRTPGui(''RENAMEIM'');');
+            ud.ib.handles.remoteIM = uicontrol(h, 'style', 'pushbutton', 'units', units, 'position', [ibX+115 ibY+25 60 15], 'string', 'Remote', 'horizontalAlignment', 'center', 'callback', 'IMRTPGui(''REMOTEIM'');');
+            ud.ib.handles.deleteIM = uicontrol(h, 'style', 'pushbutton', 'units', units, 'position', [ibX+115 ibY+2 40 20], 'string', 'Delete', 'horizontalAlignment', 'center', 'callback', 'IMRTPGui(''DELETEIM'');');
+            uicontrol(h, 'style', 'text', 'units', units, 'position', [ibX+180 ibY+25 60 18], 'string', 'Rename', 'horizontalAlignment', 'center');
+            ud.ib.handles.rename = uicontrol(h, 'style', 'edit', 'units', units, 'position', [ibX+160 ibY+2 100 25], 'string', '', 'horizontalAlignment', 'center', 'callback', 'IMRTPGui(''RENAMEIM'');');
 
             %             %Create buttons for Params.
             for i=1:8 %length(paramNames)
@@ -405,6 +406,12 @@ switch upper(command)
             end
 
         end
+        
+        % Check for remoteness of IM
+        if ~isempty(ud.IM.beams) && ~isLocal(ud.IM.beams(1).beamlets)
+            set(ud.ib.handles.remoteIM,'string','Memory')
+        end
+        
         set(h, 'userdata', ud);
         
         %reset status/wait bar
@@ -484,6 +491,7 @@ switch upper(command)
             %delete all beamlets
             for i=1:length(ud.IM.beams)
                 ud.IM.beams(i).beamlets = [];
+                ud.IM.beams(i).beamUID = createUID('BEAM');
             end            
             set(h, 'userdata', ud);
             IMRTPGui('REFRESHSTRUCTS');
@@ -865,13 +873,15 @@ switch upper(command)
             beam = createDefaultBeam(ud.bl.currentBeam, [], ud.bp.isAuto, fieldNames);
 
         end
-        beam.gantryAngle = 0;
+        beam.gantryAngle = 0;        
 
         if isfield(ud, 'IM') & isfield(ud.IM, 'beams')
             ud.IM.beams = dissimilarInsert(ud.IM.beams, beam, nB+1);
         else
             ud.IM.beams(nB+1) = beam;
         end
+        ud.IM.beams(end).beamUID = createUID('BEAM');
+        
         %Set alider position
         beamGroup = 4-floor((ud.bl.currentBeam-0.1)/10);
         set(ud.bl.sliderH,'value',beamGroup)
@@ -933,6 +943,7 @@ switch upper(command)
             else
                 ud.IM.beams(nB) = beam;
             end
+            ud.IM.beams(end).beamUID = createUID('BEAM');
         end
         set(h, 'userdata', ud);
         IMRTPGui('REFRESHBEAMS');
@@ -1104,6 +1115,7 @@ switch upper(command)
         %delete all beamlets since calculation params changed
         for i=1:length(ud.IM.beams)
             ud.IM.beams(i).beamlets = [];
+            ud.IM.beams(i).beamUID = createUID('BEAM');
         end
         
         set(h, 'name', 'IMRTP *(beamlets may be stale)')
@@ -1184,6 +1196,7 @@ switch upper(command)
         %delete all beamlets since calculation params changed
         for i=1:length(ud.IM.beams)
             ud.IM.beams(i).beamlets = [];
+            ud.IM.beams(i).beamUID = createUID('BEAM');
         end
 
         set(h, 'name', 'IMRTP *(beamlets may be stale)')
@@ -1332,6 +1345,9 @@ switch upper(command)
                     planC = addIM(IMDosimetry, planC, ud.saveIndex);
                 end
                 
+                %Create a new UID for this dosimetry
+                planC{indexS.IM}(ud.saveIndex).IMUID = createUID('IM');
+                
                 %Update viewer menu.
                 sliceCallBack('REFRESHIMRTPMENU');
 
@@ -1355,6 +1371,8 @@ switch upper(command)
                     newIndex = ud.saveIndex;
                 end
                 ud.saveIndex = newIndex;
+                %Create a new UID for this dosimetry
+                planC{indexS.IM}(ud.saveIndex).IMUID = createUID('IM');                
                 ud.isFresh = 1;
                 set(h,'userdata',ud)
                 IMRTPGui('statusbar', 'Saved this IM to plan.');
@@ -1366,7 +1384,8 @@ switch upper(command)
                     IMRTPGui('init', planC{indexS.IM}(ud.saveIndex).IMDosimetry, ud.saveIndex);
                 else
                     IMRTPGui('init')
-                end                
+                end                 
+                
         end
         set(h, 'name', 'IMRTP')
         
@@ -1462,6 +1481,35 @@ switch upper(command)
                 IMRTPGui('init')
             end
         end
+        
+    case 'REMOTEIM'
+        [fpath,fname] = fileparts(stateS.CERRFile);        
+        imUID = planC{indexS.IM}(ud.saveIndex).IMUID;
+        if ~isempty(planC{indexS.IM}(ud.saveIndex).IMDosimetry.beams) && isfield(planC{indexS.IM}(ud.saveIndex).IMDosimetry.beams(1).beamlets,'remotePath')
+           % Bring into memory 
+            for iBeam = 1:length(planC{indexS.IM}(ud.saveIndex).IMDosimetry.beams)
+                remotePath = planC{indexS.IM}(ud.saveIndex).IMDosimetry.beams(iBeam).beamlets.remotePath;
+                fileNam = planC{indexS.IM}(ud.saveIndex).IMDosimetry.beams(iBeam).beamlets.filename;
+                planC{indexS.IM}(ud.saveIndex).IMDosimetry.beams(iBeam).beamlets = getRemoteVariable(planC{indexS.IM}(ud.saveIndex).IMDosimetry.beams(iBeam).beamlets);
+                stateS.reqdRemoteFiles(strcmp(fullfile(remotePath,fileNam),stateS.reqdRemoteFiles)) = [];
+                delete(fullfile(remotePath,fileNam))                
+                %remove remote storage directory if it is empty
+                dirRemoteS = dir(remotePath);
+                if ~any(~cellfun('isempty',strfind({dirRemoteS.name},'.mat')))
+                    rmdir(remotePath)
+                end                
+            end
+            set(gcbo,'string','Remote')
+        
+        else
+            % Make remote
+            for iBeam = 1:length(planC{indexS.IM}(ud.saveIndex).IMDosimetry.beams)
+                beamUID = planC{indexS.IM}(ud.saveIndex).IMDosimetry.beams(iBeam).beamUID;
+                planC{indexS.IM}(ud.saveIndex).IMDosimetry.beams(iBeam).beamlets = setRemoteVariable(planC{indexS.IM}(ud.saveIndex).IMDosimetry.beams(iBeam).beamlets, 'LOCAL',fullfile(fpath,[fname,'_store']),['im_',imUID,'_beam_',beamUID,'.mat']);
+            end
+            set(gcbo,'string','Memory')
+        end
+        
     case 'SHOWDOSE'
 
         prompt = {'Enter PB weigth/s for Beams: (leave Empty if not sure)';...

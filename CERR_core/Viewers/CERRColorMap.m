@@ -1585,6 +1585,11 @@ switch lower(in)
         map = zeros(256,3);
         map(:,3) = linspace(0,1,256); 
         
+    case 'yellow'
+        map = zeros(256,3);
+        map(:,1) = linspace(0,1,256); 
+        map(:,2) = linspace(0,1,256); 
+    
     case 'fireice'
         
         m = 64;

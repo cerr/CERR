@@ -127,7 +127,7 @@ switch method
                     stateS.optS.mirror || stateS.optS.mirrorscope || stateS.optS.blockmatch || stateS.optS.mirrchecker || stateS.optS.mirrorCheckerBoard
                 
                     set(gcf,'Pointer','watch');
-                    drawnow;
+                    %drawnow;
                     coord = getAxisInfo(hAxis,'coord');
                     %scanSets = getAxisInfo(hAxis,'scanSets');
                     [slc1, sliceXVals1, sliceYVals1] = getCTOnSlice(stateS.imageRegistrationBaseDataset, coord, dim, planC);
@@ -153,7 +153,6 @@ switch method
                     img2 = clip(img2, CTLow, CTHigh, 'limits');
                     set(gcf,'Pointer','arrow');
                 end
-                %wy mirrPos =  ceil(get(ud.handles.mirrPos, 'value'));
                 lineInfo = get(findobj(hAxis, 'tag', 'mirrorLocator'), 'userdata');
                 if ~isempty(lineInfo)
                     mirrPos = lineInfo{3};
@@ -177,7 +176,6 @@ switch method
                     return;
                     
                 elseif stateS.optS.mirrorscope
-                    imSc = [];
                     hBox = findobj('Tag', 'MirrorScope', 'Parent', hAxis);
                     ud = get(hBox, 'userdata');
                     xyRange = ud{1}; %ud{1} = [x: min(ud{2}) max(ud{2}) y: max(ud{3}) min(ud{3})];
@@ -204,31 +202,35 @@ switch method
                         end
 
                         mirrPos = round(size(im1,2)/2);
+                        minIm1 = min(im1(:));
+                        maxIm1 = max(im1(:));
+                        im1 = (im1-minIm1)/(maxIm1-minIm1);
+                        minIm2 = min(im2(:));
+                        maxIm2 = max(im2(:));
+                        im2 = (im2-minIm2)/(maxIm2-minIm2);
                         imMirr = RegdoMirror(im1, im2, mirrPos, isEven);
                         
-    % % % % % % % %                     
                         xVals = ud{2};
                         yVals = ud{3};
                         r  = ( max(xVals) -  min(xVals) )/2;
                         cx = ( max(xVals) +  min(xVals) )/2;
                         cy = ( max(yVals) +  min(yVals) )/2;
 
+                        minIm1 = min(img1(:));
+                        maxIm1 = max(img1(:));
+                        img1 = (img1-minIm1)/(maxIm1-minIm1);
                         imSc = img1;
-                        imSc(yInd(1):yInd(ylen), xInd(1):xInd(xlen)) = imMirr(1:ylen, 1:xlen);
+                        pxV = sliceXVals1(xInd);
+                        pyV = sliceYVals1(yInd);
+                        [pxM,pyM] = meshgrid(pxV,pyV);
+                        indInsideMirror = (pxM-cx).^2 + (pyM-cy).^2 < r^2;
+                        imMirror = img1(yInd,xInd);
+                        imMirror(indInsideMirror) = imMirr(indInsideMirror);
+                        imSc(yInd(1):yInd(ylen), xInd(1):xInd(xlen)) = imMirror;
 
-                        for i = 1 : ylen
-                            for j = 1: xlen %mirrPos - 1
-                                px = sliceXVals1(xInd(j));
-                                py = sliceYVals1(yInd(i));
-
-                                if ( (px-cx)^2 + (py-cy)^2 ) >= (r^2)
-                                    imSc(yInd(i), xInd(j)) = img1(yInd(i), xInd(j)); 
-                                end
-
-                            end
-                        end
                         
-                        imSc = (imSc-min(imSc(:)))/(max(imSc(:))-min(imSc(:)));
+                        
+
                         set(surfaces(end-1), 'cData', imSc, 'xdata', [sliceXVals1(1) sliceXVals1(end)], 'ydata', [sliceYVals1(1) sliceYVals1(end)]);
                         set(surfaces(1:end), 'facealpha', 1);
                         set(surfaces(end), 'facealpha', 0);
@@ -236,229 +238,7 @@ switch method
                         return;
                     end
                     
-                    if (~isequal(lower(view),'sagittal') && xyRange(1)<min(sliceXVals1(:)))   %left shift
-                        
-                        xshift1 = floor((xyRange(1) - min(sliceXVals1(:)))/(sliceXVals1(1)-sliceXVals1(2)));
-                        xshift2 = floor((xyRange(1) - min(sliceXVals1(:)))/(sliceXVals1(1)-sliceXVals1(2)));
 
-                        imsh1 = zeros(size(img1,1),xshift1);
-                        imsh2 = zeros(size(img2,1),xshift2);
-                        imSc = [imsh1 img1];
-                        
-                        im1 = [imsh1(yInd(1):yInd(ylen), :) im1];
-                        im2 = [imsh2(yInd(1):yInd(ylen), :) im2];
-                        
-                        if mod(size(im1,2), 2) == 0
-                            isEven = 1;
-                        else
-                            isEven = 0;
-                        end
-
-                        mirrPos = round(size(im1,2)/2);
-                        imMirr = RegdoMirror(im1, im2, mirrPos, isEven);
-                        
-                        imSc(yInd(1):yInd(ylen), 1:size(imMirr,2)) = imMirr;
-                        sliceXmValue = linspace(xyRange(1), xyRange(2), size(imMirr, 2));
-                        
-                        % % % % % % % %                     
-                        xVals = ud{2};
-                        yVals = ud{3};
-                        r = ( max(xVals) -  min(xVals) )/2;
-                        cx = ( max(xVals) +  min(xVals) )/2;
-                        cy = ( max(yVals) +  min(yVals) )/2;
-
-                        for i = 1 : ylen
-                            for j = 1: size(imMirr,2) 
-                                px = sliceXmValue(j);
-                                py = sliceYVals1(yInd(i));
-
-                                if ( (px-cx)^2 + (py-cy)^2 ) >= (r^2)
-                                    try
-                                        imSc(yInd(i), j) = img1(yInd(i), j-xshift1); 
-                                    catch
-                                        imSc(yInd(i), j) = 0;
-                                    end
-                                end
-
-                            end
-                        end
-                        
-                        imSc = (imSc-min(imSc(:)))/(max(imSc(:))-min(imSc(:)));
-                        set(surfaces(end-1), 'cData', imSc, 'xdata', [xyRange(1) sliceXVals1(end)], 'ydata', [sliceYVals1(1) sliceYVals1(end)]);
-                        set(surfaces(1:end), 'facealpha', 1);
-                        set(surfaces(end), 'facealpha', 0);
-                        
-                        return;
-                    end
-                    
-                    if (isequal(lower(view),'sagittal') && (xyRange(2)>max(sliceXVals1(:)))) %left sagittal
-                        
-                        xshift1 = floor(abs((((xyRange(2) - max(sliceXVals1(:)))/(sliceXVals1(2)-sliceXVals1(1))))));
-                        xshift2 = floor(abs((((xyRange(2) - max(sliceXVals1(:)))/(sliceXVals1(2)-sliceXVals1(1))))));
-
-                        imsh1 = zeros(size(img1,1),xshift1);
-                        imsh2 = zeros(size(img2,1),xshift2);
-                        
-                        imSc = [imsh1 img1];
-                        
-                        im1 = [imsh1(yInd(1):yInd(ylen), :) im1 ];
-                        im2 = [imsh2(yInd(1):yInd(ylen), :) im2 ];
-                        
-                        if mod(size(im1,2), 2) == 0
-                            isEven = 1;
-                        else
-                            isEven = 0;
-                        end
-
-                        mirrPos = round(size(im1,2)/2);
-                        imMirr = RegdoMirror(im1, im2, mirrPos, isEven);
-                        
-                        imSc(yInd(1):yInd(ylen), 1:size(imMirr,2)) = imMirr;
-                        sliceXmValue = linspace(xyRange(2), xyRange(1), size(imMirr, 2));
-                        
-                        % % % % % % % %                     
-                        xVals = ud{2};
-                        yVals = ud{3};
-                        r = ( max(xVals) -  min(xVals) )/2;
-                        cx = ( max(xVals) +  min(xVals) )/2;
-                        cy = ( max(yVals) +  min(yVals) )/2;
-
-                        for i = 1 : ylen
-                            for j = 1: size(imMirr,2) 
-                                px = sliceXmValue(j);
-                                py = sliceYVals1(yInd(i));
-
-                                if ( (px-cx)^2 + (py-cy)^2 ) >= (r^2)
-                                    try
-                                        imSc(yInd(i), j) = img1(yInd(i), j-xshift1); 
-                                    catch
-                                        imSc(yInd(i), j) = 0;
-                                    end
-                                end
-
-                            end
-                        end
-                        
-                        %imSc = imSc(:, end:-1:1);
-                        imSc = (imSc-min(imSc(:)))/(max(imSc(:))-min(imSc(:)));
-                        set(surfaces(end-1), 'cData', imSc, 'xdata', [xyRange(2) sliceXVals1(end)], 'ydata', [sliceYVals1(1) sliceYVals1(end)]);
-                        set(surfaces(1:end), 'facealpha', 1);
-                        set(surfaces(end), 'facealpha', 0);
-                        
-                        return;
-                    end
-                    
-                    if (~isequal(lower(view),'sagittal') && (xyRange(2)>max(sliceXVals1(:))))   %right shift
-                        
-                        xshift1 = floor(abs((xyRange(2) - max(sliceXVals1(:)))/(sliceXVals1(1)-sliceXVals1(2))));
-                        xshift2 = floor(abs((xyRange(2) - max(sliceXVals1(:)))/(sliceXVals1(1)-sliceXVals1(2))));
-
-                        imsh1 = zeros(size(img1,1),xshift1);
-                        imsh2 = zeros(size(img2,1),xshift2);
-                        imSc = [img1 imsh1];
-                        
-                        im1 = [im1 imsh1(yInd(1):yInd(ylen), :)];
-                        im2 = [im2 imsh2(yInd(1):yInd(ylen), :)];
-                        
-                        if mod(size(im1,2), 2) == 0
-                            isEven = 1;
-                        else
-                            isEven = 0;
-                        end
-
-                        mirrPos = round(size(im1,2)/2);
-                        imMirr = RegdoMirror(im1, im2, mirrPos, isEven);
-                        
-                        imSc(yInd(1):yInd(ylen), end-size(imMirr,2)+1:end) = imMirr;
-                        sliceXmValue = linspace(xyRange(1), xyRange(2), size(imMirr, 2));
-                        
-                        % % % % % % % %                     
-                        xVals = ud{2};
-                        yVals = ud{3};
-                        r = ( max(xVals) -  min(xVals) )/2;
-                        cx = ( max(xVals) +  min(xVals) )/2;
-                        cy = ( max(yVals) +  min(yVals) )/2;
-
-                        for i = 1 : ylen
-                            for j = 1: size(imMirr,2) 
-                                px = sliceXmValue(j);
-                                py = sliceYVals1(yInd(i));
-
-                                if ( (px-cx)^2 + (py-cy)^2 ) >= (r^2)
-                                    try
-                                        imSc(yInd(i), end-size(imMirr,2)+j) = img1(yInd(i), size(imSc,2)-size(imMirr,2)+j); 
-                                    catch
-                                        imSc(yInd(i), end-size(imMirr,2)+j) = 0;
-                                    end
-                                end
-
-                            end
-                        end
-                        
-                        imSc = (imSc-min(imSc(:)))/(max(imSc(:))-min(imSc(:)));
-                        set(surfaces(end-1), 'cData', imSc, 'xdata', [sliceXVals1(1) xyRange(2)], 'ydata', [sliceYVals1(1) sliceYVals1(end)]);
-                        set(surfaces(1:end), 'facealpha', 1);
-                        set(surfaces(end), 'facealpha', 0);
-                        
-                        return;
-                    end
-                    
-                    if (isequal(lower(view),'sagittal') && (xyRange(1)<min(sliceXVals1(:)))) %right sagittal
-                        
-                        xshift1 = floor(abs((((xyRange(1) - min(sliceXVals1(:)))/(sliceXVals1(2)-sliceXVals1(1))))));
-                        xshift2 = floor(abs((((xyRange(1) - min(sliceXVals1(:)))/(sliceXVals1(2)-sliceXVals1(1))))));
-
-                        imsh1 = zeros(size(img1,1),xshift1);
-                        imsh2 = zeros(size(img2,1),xshift2);
-                        
-                        imSc = [img1 imsh1];
-                        
-                        im1 = [im1  imsh1(yInd(1):yInd(ylen), :)];
-                        im2 = [im2  imsh2(yInd(1):yInd(ylen), :)];
-                        
-                        if mod(size(im1,2), 2) == 0
-                            isEven = 1;
-                        else
-                            isEven = 0;
-                        end
-
-                        mirrPos = round(size(im1,2)/2);
-                        imMirr = RegdoMirror(im1, im2, mirrPos, isEven);
-                                                
-                        imSc(yInd1(1):yInd(ylen), end-size(imMirr,2)+1:end) = imMirr;
-                        sliceXmValue = linspace(xyRange(2), xyRange(1), size(imMirr, 2));
-                        
-                        % % % % % % % %                     
-                        xVals = ud{2};
-                        yVals = ud{3};
-                        r = ( max(xVals) -  min(xVals) )/2;
-                        cx = ( max(xVals) +  min(xVals) )/2;
-                        cy = ( max(yVals) +  min(yVals) )/2;
-
-                        for i = 1 : ylen
-                            for j = 1: size(imMirr,2) 
-                                px = sliceXmValue(j);
-                                py = sliceYVals1(yInd(i));
-
-                                if ( (px-cx)^2 + (py-cy)^2 ) >= (r^2)
-                                    try
-                                        imSc(yInd(i), end-size(imMirr, 2)+j) = img1(yInd(i), size(imSc,2)-size(imMirr,2)+j); 
-                                    catch
-                                        imSc(yInd(i), size(imSc,2)-size(imMirr,2)+j) = 0;
-                                    end
-                                end
-
-                            end
-                        end
-                        
-                        %imSc = imSc(:, end:-1:1);
-                        imSc = (imSc-min(imSc(:)))/(max(imSc(:))-min(imSc(:)));
-                        set(surfaces(end-1), 'cData', imSc, 'xdata', [sliceXVals1(1) xyRange(1)], 'ydata', [sliceYVals1(1) sliceYVals1(end)]);
-                        set(surfaces(1:end), 'facealpha', 1);
-                        set(surfaces(end), 'facealpha', 0);
-                        
-                        return;
-                    end
                     
                 elseif stateS.optS.mirror
                     

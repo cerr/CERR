@@ -245,7 +245,7 @@ set(h,'linewidth',stateS.optS.IVHLineWidth);
 drawnow
 
 opt = 'DSHScan';
-dispScanStats(scanV, areaV, struct, planC, indexS, opt);
+dispScanStats(scanV, areaV, struct, scanName, planC, indexS, opt);
 
 if absFlag == 1
     hRel = get(hAxis, 'parent');
@@ -338,8 +338,10 @@ if ~isempty(planC{indexS.IVH}(IVHNum).IVHMatrix)
     volumeType = planC{indexS.IVH}(IVHNum).volumeType;
 
     scanType   = planC{indexS.IVH}(IVHNum).scanType;
+    
+    scanUnits =  planC{indexS.IVH}(IVHNum).scanUnits;
 
-    switch lower(scanType)   %convert to Gy's
+    switch lower(scanUnits)   %convert to Gy's
 
         case 'relative'   %untested code
 
@@ -424,7 +426,8 @@ if ~isempty(planC{indexS.IVH}(IVHNum).IVHMatrix)
 
     opt = 'standardScan';
     name = planC{indexS.IVH}(IVHNum).structureName;
-    dispScanStats(scanBinsV, volsHistV, name, planC, indexS, opt)
+    nameVol = planC{indexS.IVH}(IVHNum).scanType;
+    dispScanStats(scanBinsV, volsHistV, name, nameVol, planC, indexS, opt)
 
 
 else   %compute yer own
@@ -477,13 +480,14 @@ else   %compute yer own
     end
     opt = 'standardScan';
     name = planC{indexS.IVH}(IVHNum).structureName;
-    dispScanStats(scanBinsV, volsHistV, name, planC, indexS, opt)
+    nameVol = planC{indexS.IVH}(IVHNum).scanType;
+    dispScanStats(scanBinsV, volsHistV, name, nameVol, planC, indexS, opt)
 
     binWidth = optS.IVHBinWidth;
 
     %Store computational results
-    planC{indexS.IVH}(IVHNum).volumeType = 'ABSOLUTE';
-    planC{indexS.IVH}(IVHNum).scanType   = 'ABSOLUTE';
+    planC{indexS.IVH}(IVHNum).volumeType = 'ABSOLUTE';    
+    planC{indexS.IVH}(IVHNum).scanUnits =  'ABSOLUTE';
     planC = saveIVHMatrix(IVHNum, scanBinsV, volsHistV, planC);
 
 end

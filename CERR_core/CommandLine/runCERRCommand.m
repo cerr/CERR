@@ -1486,7 +1486,11 @@ if ~isempty(in_str)
                     argsC = words2cells(in_str);
                     fname = argsC{1};
                     argsC = argsC(2:end);
-                    feval(fname, argsC)
+                    if ~isempty(argsC)
+                        feval(fname, argsC)
+                    else
+                        feval(fname)
+                    end
 
                 catch
 
