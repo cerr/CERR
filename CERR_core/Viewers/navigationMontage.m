@@ -14,7 +14,7 @@ function navigationMontage(arg, scanNum, varargin)
 %APA, 31 May 05, Added multiple scan support. Added a second input argument 'scanNum'
 %
 %Usage:
-%   navigationMontage('init');
+%   navigationMontage('init',scanNum);
 %
 % Copyright 2010, Joseph O. Deasy, on behalf of the CERR development team.
 % 
@@ -296,6 +296,10 @@ switch lower(arg)
         navigationMontage('init',scanNum)
         sliceCallBack('refresh')
         return;
+        
+    case 'quit'
+        stateS.showNavMontage = 0;
+        closereq;
 
     otherwise
 
@@ -366,7 +370,7 @@ switch lower(arg)
             delete(hNavFig)
         end
         f = figure;
-        set(f,'tag','navigationFigure','doublebuffer', 'on')
+        set(f,'tag','navigationFigure','doublebuffer', 'on', 'CloseRequestFcn','navigationMontage(''quit'')')
         posFig = get(f,'position');
         set(f,'position',[posFig(1),posFig(2),posFig(4),posFig(4)]);  %make it square.
 

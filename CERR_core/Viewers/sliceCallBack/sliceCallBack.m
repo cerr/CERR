@@ -447,6 +447,7 @@ switch upper(instr)
         stateS.imageRegistrationMovDataset = 2;
         stateS.imageRegistrationMovDatasetType = 'scan';
         stateS.showPlaneLocators = 1;
+        stateS.showNavMontage = 0;
         
         if ~(stateS.planLoaded && stateS.layout == 8)
             
@@ -580,8 +581,9 @@ switch upper(instr)
         stateS.supInfScansCreated = 0; %the superior and inferior portions of the CT scan for sag/cor viewing have not yet been created.
         %Fire up Navigation.  Marked for removal-> pane.
         try
-            if strcmpi(stateS.optS.navigationMontage,'yes')
+            if strcmpi(stateS.optS.navigationMontage,'yes')                
                 navigationMontage('init',1);
+                stateS.showNavMontage = 1;
             end
         catch
             delete(findobj('Tag', 'TMWWaitbar'));
@@ -1538,6 +1540,14 @@ switch upper(instr)
         stateS.showPlaneLocators = xor(stateS.showPlaneLocators, 1);
         CERRRefresh
         return;
+        
+    case 'NAVMONTAGETOGGLE'
+        stateS.showNavMontage = xor(stateS.showNavMontage, 1);
+        if stateS.showNavMontage
+            navigationMontage('init',stateS.scanSet)
+        else
+            delete(stateS.handle.navigationMontage)
+        end
 
     case 'ISODOSETOGGLE'
         controlFrame('default'); %Reset Side Control color bar
