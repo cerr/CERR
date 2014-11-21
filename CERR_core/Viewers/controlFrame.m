@@ -724,7 +724,7 @@ switch command
                 
                 stateS.doseDisplayChanged = 1;
                 CERRColorBar('refresh', stateS.handle.doseColorbar.trans);
-                CERRColorBarCompare('refresh', stateS.handle.doseColorbar.Compare); % also apply to comparison colorbar
+                CERRColorBar('refresh', stateS.handle.doseColorbar.Compare); % also apply to comparison colorbar
                 CERRRefresh;
                 
                 set(ud.handles.applyButton, 'FontWeight', 'Normal');
@@ -1550,7 +1550,7 @@ switch command
                 %----------------blockmatch------------------
                 ud.handles.blockMatchToggle= uicontrol(hFig, 'style',  'togglebutton','units', units, 'position', absPos([.05 .16+dy .9 .05], posFrame),...
                     'string', 'BlockMatch', 'tag', 'controlFrameItem', 'callback', 'controlFrame(''fusion'', ''blockmatch'')',...
-                    'tooltipstring','block match comparison', 'interrupt', 'off');
+                    'tooltipstring','block match comparison', 'interrupt', 'off', 'visible','off');
                 
                 %----------------mirrorcheckerboard------------------
                 %                 ud.handles.mirrcheckerToggle= uicontrol(hFig, 'style',  'togglebutton','units', units, 'position', absPos([.1 .111 .8 .05], posFrame),...

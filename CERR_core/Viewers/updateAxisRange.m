@@ -26,12 +26,16 @@ function updateAxisRange(hAxis,flag,utility)
 % You should have received a copy of the GNU General Public License
 % along with CERR.  If not, see <http://www.gnu.org/licenses/>.
 
-global planC
+global planC stateS
 indexS = planC{end};
 
 
 [view coord]    = getAxisInfo(hAxis, 'view','coord');
 scanSet = getAxisInfo(hAxis,'scanSets');
+
+if isempty(scanSet)
+    scanSet = stateS.scanSet;
+end
 
 [xV, yV, zV] = getScanXYZVals(planC{indexS.scan}(scanSet(1)));
 

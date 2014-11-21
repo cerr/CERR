@@ -28,9 +28,11 @@ function [mask3MU, xV, yV, zV] = getStructSurface(structNum,planC)
 
 indexS = planC{end};
 
-ROIImageSize   = [planC{indexS.scan}.scanInfo(1).sizeOfDimension1  planC{indexS.scan}.scanInfo(1).sizeOfDimension2];
+scanNum = getStructureAssociatedScan(structNum, planC);
 
-numSlices = length(planC{indexS.scan}.scanInfo);
+ROIImageSize   = [planC{indexS.scan}(scanNum).scanInfo(1).sizeOfDimension1  planC{indexS.scan}(scanNum).scanInfo(1).sizeOfDimension2];
+
+numSlices = length(planC{indexS.scan}(scanNum).scanInfo);
 
 mask3MU = uint8(zeros(ROIImageSize(1),ROIImageSize(2),numSlices));
 
@@ -43,7 +45,7 @@ zerosM = zeros(ROIImageSize(1),ROIImageSize(2));
 
 for sliceNum = 2 : numSlices - 1
 
-  z    = planC{indexS.scan}.scanInfo(sliceNum).zValue;
+  z    = planC{indexS.scan}(scanNum).scanInfo(sliceNum).zValue;
 
   indV = find(segmentsM(:,1) == z);  %mask values on this slice
 
@@ -100,7 +102,7 @@ for sliceNum = 2 : numSlices - 1
 end
 
 for sliceNum = [1, numSlices]  %Remember, all the points on the superior and inferior slices are 'surface points.'
-  z    = planC{indexS.scan}.scanInfo(sliceNum).zValue;
+  z    = planC{indexS.scan}(scanNum).scanInfo(sliceNum).zValue;
 
   indV = find(segmentsM(:,1) == z);  %mask values on this slice
 

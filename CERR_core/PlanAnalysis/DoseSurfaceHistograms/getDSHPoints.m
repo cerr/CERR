@@ -152,6 +152,7 @@ for i = 1 : nStructs
     deltaLim = optS.DSHMaxPointInterval;
     for rsNum = 1:size(rasterSegsM,1)
         len = rasterSegsM(rsNum,4) - rasterSegsM(rsNum,3);
+        len = max(len,1);
         ints = ceil(len/deltaLim);  %There will aways be at least one interval/sample point.
         delta = len/ints;  %This is the size of an interval around sample points.
         lambdaV = (1/2 * delta: delta : len - 1/2 * delta) / len;

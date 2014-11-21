@@ -37,6 +37,11 @@ switch upper(command)
             return
         end
         scanNum = getAxisInfo(hCSVA,'scanSets');
+        
+        if isempty(scanNum)
+            scanNum = stateS.scanSet;
+        end
+        
         % doseNum = length(planC{indexS.dose});%Get number of dose
         doseNum = getScanAssociatedDose(scanNum,'all');
 
@@ -133,7 +138,7 @@ switch upper(command)
 
         switch upper(varargin{1})
             case 'DEFAULT'
-                doseNum = getAssociatedDose(getAxisInfo(hAxis,'doseSetsLast'));
+                doseNum = getAssociatedDose(planC{indexS.dose}(getAxisInfo(hAxis,'doseSetsLast')).doseUID);
                 setappdata(hAxis,'compareMode',[]);
             otherwise
                 setappdata(hAxis,'compareMode',upper(varargin{1}));
