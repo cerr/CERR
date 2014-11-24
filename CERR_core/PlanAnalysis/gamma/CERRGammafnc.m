@@ -76,11 +76,11 @@ switch upper(gamaCommand)
         set(h,'SelectedObject',[]);  % No selection
 
         %Text Base Dose
-        uicontrol('parent',gammaGUIFig,'style','text','backgroundcolor',bgColor,'position',[10 120 80 20],'String', 'Base Dose');
+        uicontrol('parent',gammaGUIFig,'style','text','backgroundcolor',bgColor,'position',[10 120 80 20],'String', 'Reference Dose');
         uicontrol('Style', 'popup','String', doseFraction,'Position', [8 75 290 50],'tag','baseDoseGamma','backgroundcolor', [1 1 1]);
 
         % Text Ref Dose
-        uicontrol('parent',gammaGUIFig,'style','text','backgroundcolor',bgColor,'position',[10 70 80 20],'String', 'Ref Dose');
+        uicontrol('parent',gammaGUIFig,'style','text','backgroundcolor',bgColor,'position',[10 70 80 20],'String', 'Evaluation Dose');
         uicontrol('Style', 'popup','String', doseFraction','Position', [8 25 290 50], 'tag','refDoseGamma','backgroundcolor',[1 1 1]);
 
 
@@ -113,7 +113,7 @@ switch upper(gamaCommand)
         bgColor = get(gammaGUIFig,'color');
 
         % Text dose difference
-        uicontrol('parent',gammaGUIFig,'style','text','backgroundcolor',bgColor,'position',[10 260 140 30],'String', 'Dose Difference (% of max base dose)');
+        uicontrol('parent',gammaGUIFig,'style','text','backgroundcolor',bgColor,'position',[10 260 140 30],'String', 'Dose Difference (% of max ref dose)');
         % Input dose difference
         uicontrol('parent',gammaGUIFig,'style','Edit','backgroundcolor',[1 1 1],'position',[20 240 90 20],'String', '3','tag','InputDoseDiff' );
 
