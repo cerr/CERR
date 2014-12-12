@@ -98,6 +98,12 @@ switch tag
         
     case 1048608 %0010,0020 Patient ID
         el = template.get(tag);
+        try
+            patientID = dataS(1).DICOMHeaders.PatientID;
+        catch
+            patientID = dicomuid;
+        end
+        el = ml2dcm_Element(el, patientID);
         
     case 1048624 %0010,0030 Patient's Birth Date
         el = template.get(tag);
