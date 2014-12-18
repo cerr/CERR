@@ -51,6 +51,9 @@ for i = 1:length(planC{indexS.dose});
 
     %Export each module required for the RD IOD, copying the results into the
     %common dcmobj container and return.
+    if isfield(scanS.scanInfo(1).DICOMHeaders,'PatientID')
+        doseS(1).DICOMHeaders.PatientID = scanS.scanInfo(1).DICOMHeaders.PatientID;
+    end
     ssobj = export_module('patient', 'dose', doseS);
     ssobj.copyTo(dcmobj);
     clear ssobj;
