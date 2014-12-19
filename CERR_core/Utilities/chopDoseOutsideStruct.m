@@ -38,7 +38,13 @@ scanNum = getStructureAssociatedScan(structureNum);
 assocScanUID = planC{indexS.dose}(doseNum).assocScanUID;
 scanNumDose = getAssociatedScan(assocScanUID);
 tmDose = getTransM('dose',doseNum,planC);
+if isempty(tmDose)
+    tmDose = eye(4);
+end
 tmScan = getTransM('scan',scanNum,planC);
+if isempty(tmScan)
+    tmScan = eye(4);
+end
 if isempty(scanNumDose) && ~isequal(tmDose,tmScan)
     error('This function currently supports dose and structure with same transformation matrix')
 end
