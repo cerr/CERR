@@ -62,7 +62,7 @@ yDoseValsV = yDoseValsM(:);
 zDoseValsV = zDoseValsM(:);
 
 %Interpolate structure on to dose grid
-structureOnDoseV = interp3(xUnifVals, yUnifVals, zUnifVals, single(structureMask3M), xDoseValsV, yDoseValsV, zDoseValsV, 'nearest');
+structureOnDoseV = interp3(xUnifVals, yUnifVals, zUnifVals, single(structureMask3M), xDoseValsV, yDoseValsV, zDoseValsV, 'nearest',0);
 
 structureOnDoseM = reshape(structureOnDoseV,[length(yDoseVals), length(xDoseVals), length(zDoseVals)]);
 
