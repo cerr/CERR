@@ -80,11 +80,14 @@ for i=1:nbeams
     beamGeometryInitS(1,i).file{1,1}          = ['"Isocenter coordinate" ' string];
     
     %get Collimator Setting X
-    string = sprintf('%d, %d', eval(sprintf('beamsInitS.BeamSequence.%s.ControlPointSequence.Item_1.BeamLimitingDevicePositionSequence.Item_1.LeafJawPositions',beams{i})));
-    beamGeometryInitS(1,i).file{1,2}          = ['"Collimator Setting X" ' string];
-    %get collimator setting Y
-    string = sprintf('%d, %d', eval(sprintf('beamsInitS.BeamSequence.%s.ControlPointSequence.Item_1.BeamLimitingDevicePositionSequence.Item_2.LeafJawPositions',beams{i})));
-    beamGeometryInitS(1,i).file{1,3}          = ['"Collimator Setting Y" ' string];
+    if isfield(eval(sprintf('beamsInitS.BeamSequence.%s.ControlPointSequence.Item_1',beams{i})),'BeamLimitingDevicePositionSequence')
+        string = sprintf('%d, %d', eval(sprintf('beamsInitS.BeamSequence.%s.ControlPointSequence.Item_1.BeamLimitingDevicePositionSequence.Item_1.LeafJawPositions',beams{i})));
+        beamGeometryInitS(1,i).file{1,2}          = ['"Collimator Setting X" ' string];
+    
+        %get collimator setting Y
+        string = sprintf('%d, %d', eval(sprintf('beamsInitS.BeamSequence.%s.ControlPointSequence.Item_1.BeamLimitingDevicePositionSequence.Item_2.LeafJawPositions',beams{i})));
+        beamGeometryInitS(1,i).file{1,3}          = ['"Collimator Setting Y" ' string];
+    end
     
     beamGeometryInitS(1,i).collimatorAngle    = getfield(beamsInitS, 'BeamSequence',['Item_', num2str(i)],'ControlPointSequence','Item_1','BeamLimitingDeviceAngle');
     beamGeometryInitS(1,i).couchAngle         = getfield(beamsInitS, 'BeamSequence',['Item_', num2str(i)],'ControlPointSequence','Item_1','PatientSupportAngle');

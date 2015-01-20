@@ -38,7 +38,13 @@ scanNum = getStructureAssociatedScan(structureNum);
 assocScanUID = planC{indexS.dose}(doseNum).assocScanUID;
 scanNumDose = getAssociatedScan(assocScanUID);
 tmDose = getTransM('dose',doseNum,planC);
+if isempty(tmDose)
+    tmDose = eye(4);
+end
 tmScan = getTransM('scan',scanNum,planC);
+if isempty(tmScan)
+    tmScan = eye(4);
+end
 if isempty(scanNumDose) && ~isequal(tmDose,tmScan)
     error('This function currently supports dose and structure with same transformation matrix')
 end
@@ -56,7 +62,7 @@ yDoseValsV = yDoseValsM(:);
 zDoseValsV = zDoseValsM(:);
 
 %Interpolate structure on to dose grid
-structureOnDoseV = interp3(xUnifVals, yUnifVals, zUnifVals, single(structureMask3M), xDoseValsV, yDoseValsV, zDoseValsV, 'nearest');
+structureOnDoseV = interp3(xUnifVals, yUnifVals, zUnifVals, single(structureMask3M), xDoseValsV, yDoseValsV, zDoseValsV, 'nearest',0);
 
 structureOnDoseM = reshape(structureOnDoseV,[length(yDoseVals), length(xDoseVals), length(zDoseVals)]);
 

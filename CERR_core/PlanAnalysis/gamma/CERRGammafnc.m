@@ -76,11 +76,11 @@ switch upper(gamaCommand)
         set(h,'SelectedObject',[]);  % No selection
 
         %Text Base Dose
-        uicontrol('parent',gammaGUIFig,'style','text','backgroundcolor',bgColor,'position',[10 120 80 20],'String', 'Base Dose');
+        uicontrol('parent',gammaGUIFig,'style','text','backgroundcolor',bgColor,'position',[10 120 80 20],'String', 'Reference Dose');
         uicontrol('Style', 'popup','String', doseFraction,'Position', [8 75 290 50],'tag','baseDoseGamma','backgroundcolor', [1 1 1]);
 
         % Text Ref Dose
-        uicontrol('parent',gammaGUIFig,'style','text','backgroundcolor',bgColor,'position',[10 70 80 20],'String', 'Ref Dose');
+        uicontrol('parent',gammaGUIFig,'style','text','backgroundcolor',bgColor,'position',[10 70 80 20],'String', 'Evaluation Dose');
         uicontrol('Style', 'popup','String', doseFraction','Position', [8 25 290 50], 'tag','refDoseGamma','backgroundcolor',[1 1 1]);
 
 
@@ -113,7 +113,7 @@ switch upper(gamaCommand)
         bgColor = get(gammaGUIFig,'color');
 
         % Text dose difference
-        uicontrol('parent',gammaGUIFig,'style','text','backgroundcolor',bgColor,'position',[10 260 140 30],'String', 'Dose Difference (% of max base dose)');
+        uicontrol('parent',gammaGUIFig,'style','text','backgroundcolor',bgColor,'position',[10 260 140 30],'String', 'Dose Difference (% of max ref dose)');
         % Input dose difference
         uicontrol('parent',gammaGUIFig,'style','Edit','backgroundcolor',[1 1 1],'position',[20 240 90 20],'String', '3','tag','InputDoseDiff' );
 
@@ -123,15 +123,15 @@ switch upper(gamaCommand)
         uicontrol('parent',gammaGUIFig,'style','Edit','backgroundcolor',[1 1 1],'position',[170 240 90 20],'String', '3','tag','InputDTA');
 
         %Text Base Dose
-        uicontrol('parent',gammaGUIFig,'style','text','backgroundcolor',bgColor,'position',[10 200 80 20],'String', 'Base Dose');
+        uicontrol('parent',gammaGUIFig,'style','text','backgroundcolor',bgColor,'position',[10 200 80 20],'String', 'Reference Dose');
         uicontrol('Style', 'popup','String', doseFraction,'Position', [8 155 290 50],'tag','baseDoseGamma','backgroundcolor', [1 1 1]);
 
         % Text Ref Dose
-        uicontrol('parent',gammaGUIFig,'style','text','backgroundcolor',bgColor,'position',[10 155 80 20],'String', 'Ref Dose');
+        uicontrol('parent',gammaGUIFig,'style','text','backgroundcolor',bgColor,'position',[10 155 80 20],'String', 'Evaluation Dose');
         uicontrol('Style', 'popup','String', doseFraction','Position', [8 110 290 50], 'tag','refDoseGamma','backgroundcolor',[1 1 1]);
         
         % Text Threshold
-        uicontrol('parent',gammaGUIFig,'style','text','backgroundcolor',bgColor,'position',[10 90 140 30],'String', 'Threshold low dose (% max base dose)');
+        uicontrol('parent',gammaGUIFig,'style','text','backgroundcolor',bgColor,'position',[10 90 140 30],'String', 'Threshold low dose (% max ref dose)');
         % Input Threshold
         uicontrol('parent',gammaGUIFig,'style','Edit','backgroundcolor',[1 1 1],'position',[160 100 50 20],'String', '5','tag','InputThreshold');
 
@@ -162,7 +162,7 @@ switch upper(gamaCommand)
         refDose = get(findobj('tag','refDoseGamma'),'value');
 
         if baseDose == refDose
-            warndlg('Select different base and reference dose')
+            warndlg('Select different reference and evaluation dose')
             return
         end
 
@@ -187,7 +187,7 @@ switch upper(gamaCommand)
         
         threshold = str2num(get(findobj('tag','InputThreshold'),'string'));
         if isempty(DTA)
-            warndlg('Please Enter Threshold. Gamma is calculated for all voxels in base dose that are above this threshold.');
+            warndlg('Please Enter Threshold. Gamma is calculated for all voxels in reference dose that are above this threshold.');
         end
         
         
@@ -225,7 +225,7 @@ switch upper(gamaCommand)
         refDose = get(findobj('tag','refDoseGamma'),'value');
 
         if baseDose == refDose
-            warndlg('Select different base and reference dose')
+            warndlg('Select different reference and evaluation dose')
             return
         end
 
@@ -336,37 +336,41 @@ switch upper(gamaCommand)
         [rasterSegments, planC, isError] = getRasterSegments(structNum, planC);
         [mask3M, uniqueSlices] = rasterToMask(rasterSegments,scanNum,planC);
         [i,j,k] = find3d(mask3M);
-        [xValsScan, yValsScan, zValsScan] = getScanXYZVals(planC{indexS.scan}(scanNum));
-        structXvals = xValsScan(j);
-        structYvals = yValsScan(i);
-        structZvals = zValsScan(uniqueSlices(k));
-        % Getting Dose at structure x,y,z
-        dosesV = getDoseAt(doseNum, structXvals, structYvals, structZvals, planC);
+        if ~isempty(i) % i.e. structure is included within the dose distribution
+            [xValsScan, yValsScan, zValsScan] = getScanXYZVals(planC{indexS.scan}(scanNum));
+            structXvals = xValsScan(j);
+            structYvals = yValsScan(i);
+            structZvals = zValsScan(uniqueSlices(k));
+            % Getting Dose at structure x,y,z
+            dosesV = getDoseAt(doseNum, structXvals, structYvals, structZvals, planC);
+            
+            % Filter points that do not have gamma calculated
+            dosesV = dosesV(~isnan(dosesV));
+            
+            % Display gamma result with Pie graph
+            passPer = length(find(dosesV<=1.0001));
+            
+            failPer = numel(dosesV)-passPer;
+            
+            pieAxis = findobj('tag','GammaPiChartAxis');
+            x = [passPer failPer];
+            
+            explode = [0 1];
+            
+            tot = passPer + failPer;
+            
+            passPer = Roundoff((passPer/tot)*100,2);
+            
+            failPer = Roundoff((failPer/tot)*100,2);
+            
+            hChild = get(pieAxis,'children');
+            delete(hChild)
+            hPie = pie(pieAxis,x,explode,{['Pass = ' num2str(passPer) '%'],['Fail = ' num2str(failPer) '%']});
+            set(hPie(2:2:end),'color','y','fontWeight','bold','fontSize',12)
+            colormap(jet);
+            
+        end
         
-        % Filter points that do not have gamma calculated
-        dosesV = dosesV(~isnan(dosesV));
-        
-        % Display gamma result with Pie graph
-        passPer = length(find(dosesV<=1.0001));
-
-        failPer = numel(dosesV)-passPer;
-
-        pieAxis = findobj('tag','GammaPiChartAxis');
-        x = [passPer failPer];
-
-        explode = [0 1];
-
-        tot = passPer + failPer;
-
-        passPer = Roundoff((passPer/tot)*100,2);
-
-        failPer = Roundoff((failPer/tot)*100,2);
-
-        hChild = get(pieAxis,'children');
-        delete(hChild)
-        hPie = pie(pieAxis,x,explode,{['Pass = ' num2str(passPer) '%'],['Fail = ' num2str(failPer) '%']});
-        set(hPie(2:2:end),'color','y','fontWeight','bold','fontSize',12)
-        colormap(jet);
 
 
     case 'GAMMACANCLE'
