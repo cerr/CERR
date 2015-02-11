@@ -11,7 +11,7 @@ function [slcC, sliceXVals, sliceYVals] = getStructureSlice(scanSet, dim, coord,
 %JRA 12/17/04
 %
 %Usage:
-%   function [slc, sliceXVals, sliceYVals] = getStructureSlice(structNum, dim, coord);
+%   function [slc, sliceXVals, sliceYVals] = getStructureSlice(structNum, dim, coord, transM);
 %
 % Copyright 2010, Joseph O. Deasy, on behalf of the CERR development team.
 % 
@@ -285,16 +285,15 @@ else %Rotation is not required, use simple linear interpolation.
     end
     slice = round(slice);
 
-    includeV = indicesM(:,uniDim) == slice;
-    inSliceMatrix = find(includeV);
-
-    coord2D = double(indicesM(inSliceMatrix,otherDims));
+    includeV = indicesM(:,uniDim) == uint16(slice);
+    
+    coord2D = uint32(indicesM(includeV,otherDims));
 
     coord2D(:,2) = coord2D(:,2)-1;
 
-    indV = coord2D * [1 size(sliceMatrix,1)]';
+    indV = coord2D(:,1) + coord2D(:,2) * uint32(size(sliceMatrix,1));
 
-    sliceMatrix(indV) = bitsM(inSliceMatrix);
+    sliceMatrix(indV) = bitsM(includeV);
 
     slcC{1} = sliceMatrix';
     
@@ -338,16 +337,15 @@ else %Rotation is not required, use simple linear interpolation.
         end
         slice = round(slice);
 
-        includeV = indicesM(:,uniDim) == slice;
-        inSliceMatrix = find(includeV);
+        includeV = indicesM(:,uniDim) == uint16(slice);
 
-        coord2D = double(indicesM(inSliceMatrix,otherDims));
+        coord2D = uint32(indicesM(includeV,otherDims));
 
         coord2D(:,2) = coord2D(:,2)-1;
 
-        indV = coord2D * [1 size(sliceMatrix,1)]';
+        indV = coord2D(:,1) + coord2D(:,2) * uint32(size(sliceMatrix,1));
 
-        sliceMatrix(indV) = bitsM(inSliceMatrix);
+        sliceMatrix(indV) = bitsM(includeV);
 
         slc = sliceMatrix';
 
