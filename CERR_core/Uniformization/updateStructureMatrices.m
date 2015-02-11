@@ -95,7 +95,7 @@ end
 
 %Clear old data for this structure.  If sliceNumsV is specified clear
 %only those slices, otherwise clear all slices.
-if exist('sliceNumsV') && ((cellNum == 1) || (cellNum <= length(planC{indexS.structureArrayMore}(scanNum).indicesArray)))
+if exist('sliceNumsV') && ((cellNum == 1) || (cellNum-1 <= length(planC{indexS.structureArrayMore}(scanNum).indicesArray)))
     if isempty(planC{indexS.structureArray}(scanNum).indicesArray)
         optS = planC{indexS.CERROptions};
         [indicesM, structBitsM, indicesC, structBitsC] = createStructuresMatrices(planC, scanNum, 1/2, 1, optS);
@@ -114,7 +114,7 @@ if exist('sliceNumsV') && ((cellNum == 1) || (cellNum <= length(planC{indexS.str
         end
     else
         tf = ismember(planC{indexS.structureArrayMore}(scanNum).indicesArray{cellNum}(:,3), sliceNumsV);
-        planC{indexS.structureArrayMore}(scanNum).bitsArray{cellNum}(tf) = bitset(uint8(planC{indexS.structureArrayMore}(scanNum).bitsArray{cellNum}(tf)), relStructNum - 52 - 8*(cellNum-1), 0);
+        planC{indexS.structureArrayMore}(scanNum).bitsArray{cellNum-1}(tf) = bitset(uint8(planC{indexS.structureArrayMore}(scanNum).bitsArray{cellNum-1}(tf)), relStructNum - 52 - 8*(cellNum-2), 0);
     end
 elseif (cellNum == 1)
         if totalStructsInScan > 32
@@ -126,8 +126,8 @@ elseif (cellNum == 1)
         else
             planC{indexS.structureArray}(scanNum).bitsArray = bitset(uint8(planC{indexS.structureArray}(scanNum).bitsArray), relStructNum, 0);
         end    
-elseif (cellNum <= length(planC{indexS.structureArrayMore}(scanNum).indicesArray))
-    planC{indexS.structureArrayMore}(scanNum).bitsArray{cellNum} = bitset(uint8(planC{indexS.structureArrayMore}(scanNum).bitsArray{cellNum}), relStructNum - 52 - 8*(cellNum-1), 0);
+elseif (cellNum-1 <= length(planC{indexS.structureArrayMore}(scanNum).indicesArray))
+    planC{indexS.structureArrayMore}(scanNum).bitsArray{cellNum-1} = bitset(uint8(planC{indexS.structureArrayMore}(scanNum).bitsArray{cellNum-1}), relStructNum - 52 - 8*(cellNum-2), 0);
 end
 
 %Now we need to generate the indicesM entries for the modified structure
