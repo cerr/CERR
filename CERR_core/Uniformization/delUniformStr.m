@@ -51,6 +51,8 @@ uniqueScans = unique(scanNumsV);
 for i=1:length(uniqueScans)
 
     scanNum = uniqueScans(i);
+    
+    scanSiz = getUniformScanSize(planC{indexS.scan}(scanNum));
 
     [strInScanV, relStrInScan] = getStructureAssociatedScan(1:length(planC{indexS.structures}),planC);
     strInScan = find(strInScanV == scanNum);
@@ -67,8 +69,11 @@ for i=1:length(uniqueScans)
     if isempty(bitsC) || isempty(indC)
         continue;
     end
+    
+    % Find structures belonging to same cell and start deleting in reverse
+    % order to preserve structure numbering    
 
-    for cellNum = 1:length(indC)
+    for cellNum = length(indC):-1:1
 
         %Find structures in this cell
         if cellNum == 1
@@ -94,7 +99,7 @@ for i=1:length(uniqueScans)
         %Get the datatype of the bits array for casting later.
         datatype = class(bitsA);
         
-        clear bitsC
+        %clear bitsC
 
         %Create the number consisting of the bits to the left of the structNum bit,
         %with a shift towards least significant bit of 1. Repeat for each bit
@@ -119,7 +124,8 @@ for i=1:length(uniqueScans)
         end
         
         %Find bits where no structure exists.
-        noStructsV = find(bitsA == 0);
+        %noStructsV = find(bitsA == 0);
+        noStructsV = bitsA == 0;
 
         %Remove these bits from the bits/indices.
         bitsA(noStructsV) = [];
@@ -128,21 +134,26 @@ for i=1:length(uniqueScans)
         clear noStructsV
         
         %Move structures from other cells into cellNum
+        
+        % Check if there are any structures in other cells. If none, then
+        % clear indices and bits for other cells
         strOtherIndCell = find(relStrInScan > 52 + (cellNum-1)*8);
         if cellNum == 1 && isempty(strOtherIndCell)
-            planC{indexS.structureArray}(scanNum).bitsArray = bitsA;
+            planC{indexS.structureArray}(scanNum).bitsArray = bitsA;    
             planC{indexS.structureArray}(scanNum).indicesArray = indA;
             planC{indexS.structureArrayMore}(scanNum).bitsArray = {};
             planC{indexS.structureArrayMore}(scanNum).indicesArray = {};
             continue;
-        elseif cellNum > 1 && isempty(strOtherIndCell) && length(planC{indexS.structureArrayMore}(scanNum).bitsArray) > cellNum-1
+        elseif cellNum > 1 && isempty(strOtherIndCell) %&& length(planC{indexS.structureArrayMore}(scanNum).bitsArray) > cellNum-1
             planC{indexS.structureArrayMore}(scanNum).bitsArray{cellNum-1} = bitsA;
-            planC{indexS.structureArrayMore}(scanNum).indicesArray{cellNum-1} = indA;            
+            planC{indexS.structureArrayMore}(scanNum).indicesArray{cellNum-1} = indA;
             planC{indexS.structureArrayMore}(scanNum).bitsArray = planC{indexS.structureArrayMore}(scanNum).bitsArray(1:cellNum-1);
             planC{indexS.structureArrayMore}(scanNum).indicesArray = planC{indexS.structureArrayMore}(scanNum).indicesArray(1:cellNum-1);
             continue;
         end
 
+        % If there are structures in other cells, propogate them to the
+        % current cell
         strOtherCell = sort(strInScan(strOtherIndCell));
         if length(strOtherCell) < length(strIndCell)
             structsTomove = strOtherCell;
@@ -151,7 +162,7 @@ for i=1:length(uniqueScans)
             structsTomove = strOtherCell(1:length(strIndCell));
             relStructsTomove = strOtherIndCell(1:length(strIndCell));
         end
-        
+                
         %Add bits and indices to current cell
         bitCount = 1;
         for strToMov = structsTomove
@@ -160,7 +171,7 @@ for i=1:length(uniqueScans)
             else
                 otherCellNum = ceil((relStructsTomove(bitCount)-52)/8)+1;
             end
-            %otherCellNum = ceil(relStructsTomove(bitCount)/8);            
+%             %otherCellNum = ceil(relStructsTomove(bitCount)/8);            
             if otherCellNum == cellNum
                 if cellNum == 1
                     bitsA = bitset(bitsA,52-length(strIndCell)+bitCount,1);
@@ -170,17 +181,34 @@ for i=1:length(uniqueScans)
                 continue;
             end
             indOther = indC{otherCellNum};
-            %Find indices of other structure which are already in current cell
-            matchA = ismember(indA,indOther,'rows');
+            bitsOther = bitsC{otherCellNum};
             if cellNum == 1
-                bitsA(matchA) = bitset(bitsA(matchA),52-length(strIndCell)+bitCount, 1);
+                bitPos = 52-length(strIndCell)+bitCount;
             else
-                bitsA(matchA) = bitset(bitsA(matchA),8-length(strIndCell)+bitCount, 1);
+                bitPos = 8-length(strIndCell)+bitCount;
             end
-            mtchOther = ismember(indOther,indA,'rows');            
+            if otherCellNum == 1
+                otherBitPos = relStructsTomove(bitCount);
+            else
+                otherBitPos = relStructsTomove(bitCount) - 52 - 8*(otherCellNum-2);
+            end
+            otherStructV = bitget(bitsOther,otherBitPos) ~= 0;
+            indOther = indOther(otherStructV,:);
+            %Find indices of other structure which are already in current cell
+            %matchA = ismember(indA,indOther,'rows');
+            indAv = sub2ind(scanSiz,cast(indA(:,1),'uint32'), cast(indA(:,2),'uint32'),cast(indA(:,3),'uint32'));
+            indOtherV = sub2ind(scanSiz,cast(indOther(:,1),'uint32'),cast(indOther(:,2),'uint32'),cast(indOther(:,3),'uint32'));
+            matchA = ismember(indAv,indOtherV);
+            
+            bitsA(matchA) = bitset(bitsA(matchA),bitPos, 1);
+
+            %mtchOther = ismember(indOther,indA,'rows');          
+            mtchOther = ismember(indOtherV,indAv);
+            clear indAv indOtherV
             indA = [indA;indOther(~mtchOther,:)];
             %strBitOtherA = uint8(zeros(length(find(~mtchOther)),1));
-            strBitOtherA = zeros(length(find(~mtchOther)),1,datatype);
+            %strBitOtherA = zeros(length(find(~mtchOther)),1,datatype);
+            strBitOtherA = zeros(sum(~mtchOther),1,datatype);
             if cellNum == 1
                 strBitOtherA(1:end,:) = bitset(zeros(1,1,datatype), 52-length(strIndCell)+bitCount, 1);
             else                
@@ -200,11 +228,11 @@ for i=1:length(uniqueScans)
         else
             planC{indexS.structureArrayMore}(scanNum).bitsArray{cellNum-1} = bitsA;
             planC{indexS.structureArrayMore}(scanNum).indicesArray{cellNum-1} = indA;
-        end
-
-        planC = delUniformStr(structsTomove, planC);
+        end        
         
-        clear bitsA indA
+        clear bitsA indA bitsC
+        
+        planC = delUniformStr(structsTomove, planC);
         
         [indC, bitsC] = getUniformizedData(planC, scanNum, 'no');
 
