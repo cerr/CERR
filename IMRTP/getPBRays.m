@@ -148,6 +148,16 @@ indMaskV = sub2ind(size(PBMaskM),y_binIndexV,x_binIndexV);
 PBMaskM(indMaskV) = 1;  %A trick: works because we want a mask, not accumulated values.
 
 PBMask = flipud(PBMaskM);
+% Fill in holes, if any
+for rowNum = 1:size(PBMask,1)
+    rowV = PBMask(rowNum,:);
+    colStart = uint32(min(find(diff([0 rowV]) > 0)));
+    colEnd = uint32(max(find(diff([rowV 0]) < 0)));
+    if ~isempty(colStart)
+        PBMask(rowNum,colStart:colEnd) = 1;
+    end
+end
+
 % figure;
 % imagesc(PBMask)
 % xPosV = xscale(gca,beamlet_delta_x,-min_col); %needed as outputs
