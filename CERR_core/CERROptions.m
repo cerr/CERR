@@ -324,7 +324,7 @@ optS.colorWashCacheSize = 64; %Amount of memory to use per dose for caching colo
 
 
 %--Matlab 7 compatibility Options-----------------------------------------%
-optS.saveFormat = '-V6'; %Set to [] to use default, '-V6' to save all files in Matlab6 readable format.
+optS.saveFormat = '-V7.3'; %Set to [] to use default, '-V6' to save all files in Matlab6 readable format.
 %V6 is used to maintain Matlab 7 backwards compatibility with version 6+.
 
 optS.plotObjFormat = 'v6';  %Flags for plotObjects that changed, and introduced incompability between
@@ -365,7 +365,7 @@ optS.convert_PET_to_SUV = 1; % 0: Do not convert to SUV, 1: Convert to SUV
 optS.overwrite_CERR_File = 1; % 0: Do not overwrite, 1: overwrite
 
 %-- Option to overwrite CERR file if a bug is found during QA
-optS.sinc_filter_on_display = 1; % 0: Do not apply sinc, 1: apply sinc
+optS.sinc_filter_on_display = 0; % 0: Do not apply sinc, 1: apply sinc
 
 %-- Filename for plastimatch commands
 % this file must be stored under ...\CERR\CERR_core\ImageRegistration\plastimatch_command
