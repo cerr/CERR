@@ -84,13 +84,17 @@ else
 
     %Plane locator toggle
     uimenu(hMenu, 'label', 'Toggle plane locators', 'callback','sliceCallBack(''planeLocatorToggle'');','interruptible','on', 'checked', 'off', 'Separator', 'off', 'tag', 'planeLocatorToggle');
+
+    %Navigation montage toggle
+    uimenu(hMenu, 'label', 'Toggle navigation montage', 'callback','sliceCallBack(''navMontageToggle'');','interruptible','on', 'checked', 'off', 'Separator', 'off', 'tag', 'navMontageToggle');
+
 end
 
 if pos ~=0
     set(hMenu,'Position',pos)
 end
 
-toHide = [findobj(hMenu, 'tag', 'scanToggle'), findobj(hMenu, 'tag', 'doseToggle'), findobj(hMenu, 'tag', 'structToggle'), findobj(hMenu, 'tag', 'isodoseToggle'), findobj(hMenu, 'tag', 'planeLocatorToggle'), findobj('tag', 'colorbarOptions'), findobj('tag', 'isodoseOptions'), findobj('tag', 'planData'), findobj('tag', 'importLog')];
+toHide = [findobj(hMenu, 'tag', 'scanToggle'), findobj(hMenu, 'tag', 'doseToggle'), findobj(hMenu, 'tag', 'structToggle'), findobj(hMenu, 'tag', 'isodoseToggle'), findobj(hMenu, 'tag', 'planeLocatorToggle'), findobj(hMenu, 'tag', 'navMontageToggle'), findobj('tag', 'colorbarOptions'), findobj('tag', 'isodoseOptions'), findobj('tag', 'planData'), findobj('tag', 'importLog')];
 if stateS.planLoaded
    set(toHide, 'enable', 'on') 
 else
