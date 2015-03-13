@@ -203,6 +203,9 @@ for i=1:length(axisInfo.scanObj)
                 %wy Apply window and level by clipping CT.
                 clippedCT = clip(im, CTLow, CTHigh, 'limits');
                              
+            else
+                
+                return;
 
             end
 
