@@ -211,8 +211,8 @@ switch upper(command)
         ud.slideraxis = axes('units', 'pixels', 'position', [40 yStart+220 420 15], 'parent', hFig,'visible','off');
         %         udS.xL = patch([0.025 0 0], [0.5 0 1], 'w', 'edgecolor', 'k', 'buttondownfcn', 'doseProfileFigure(''RANGERCLICKED'', ''xL'')', 'userdata', ud.slideraxis, 'parent', ud.slideraxis, 'erasemode', 'xor');
         %         udS.xR = patch([0.975 1 1], [0.5 0 1], 'w', 'edgecolor', 'k', 'buttondownfcn', 'doseProfileFigure(''RANGERCLICKED'', ''xR'')', 'userdata', ud.slideraxis, 'parent', ud.slideraxis, 'erasemode', 'xor');
-        udS.xL = patch([0.025 0.025 0], [0 1 1], 'w', 'edgecolor', 'k', 'buttondownfcn', 'doseProfileFigure(''RANGERCLICKED'', ''xL'')', 'userdata', ud.slideraxis, 'parent', ud.slideraxis, 'erasemode', 'xor');
-        udS.xR = patch([0.975 0.975 1], [0 1 1], 'w', 'edgecolor', 'k', 'buttondownfcn', 'doseProfileFigure(''RANGERCLICKED'', ''xR'')', 'userdata', ud.slideraxis, 'parent', ud.slideraxis, 'erasemode', 'xor');
+        udS.xL = patch([0.025 0.025 0], [0 1 1], 'w', 'edgecolor', 'k', 'buttondownfcn', 'doseProfileFigure(''RANGERCLICKED'', ''xL'')', 'userdata', ud.slideraxis, 'parent', ud.slideraxis);
+        udS.xR = patch([0.975 0.975 1], [0 1 1], 'w', 'edgecolor', 'k', 'buttondownfcn', 'doseProfileFigure(''RANGERCLICKED'', ''xR'')', 'userdata', ud.slideraxis, 'parent', ud.slideraxis);
 
         % Display initial text on difference axis
         grid(ud.diffaxis,'off')
@@ -263,7 +263,7 @@ switch upper(command)
                 udS.motionbounds = [RangeMin(1) 0.975];
         end
         %Prepare object/figure for motion.
-        set(udS.handle.movingObject, 'erasemode', 'xor');
+        %set(udS.handle.movingObject, 'erasemode', 'xor');
         set(hFig, 'windowbuttonmotionfcn', 'doseProfileFigure(''INDICATORMOVING'')')
         set(hFig, 'windowbuttonupfcn', 'doseProfileFigure(''MOTIONDONE'');')
         set(ud.slideraxis, 'userdata', udS);
@@ -303,7 +303,7 @@ switch upper(command)
         %         delta = cP - xData(1);
         %         set(hObj, 'xData', xData+delta);
 
-        set(udS.handle.movingObject, 'erasemode', 'xor');
+        %set(udS.handle.movingObject, 'erasemode', 'xor');
         doseProfileFigure('refresh');
 
 
