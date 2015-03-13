@@ -44,7 +44,7 @@ end
 plotParam = [];
 if versionNum >= 7
     tmpOptS = CERROptions;
-	if isfield(tmpOptS, 'plotObjFormat') & ~isempty(tmpOptS.plotObjFormat)
+	if isfield(tmpOptS, 'plotObjFormat') && ~isempty(tmpOptS.plotObjFormat)
         plotParam = tmpOptS.plotObjFormat;
 	end
 end
