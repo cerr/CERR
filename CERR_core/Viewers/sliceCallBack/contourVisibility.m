@@ -28,7 +28,7 @@ global planC stateS
 indexS = planC{end};
 
 for i=1:length(planC{indexS.structures})
-    if ~isfield(planC{indexS.structures}, 'visible') | isempty(planC{indexS.structures}(i).visible)
+    if ~isfield(planC{indexS.structures}, 'visible') || isempty(planC{indexS.structures}(i).visible)
         planC{indexS.structures}(i).visible = 1;
     end
 end
