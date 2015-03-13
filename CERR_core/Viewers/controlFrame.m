@@ -1443,10 +1443,14 @@ switch command
                     'position', absPos([.05 .56+dy .9 .05], posFrame), 'string', 'Registration', 'tag', 'controlFrameItem',...
                     'horizontalAlignment', 'center', 'FontWeight', 'Bold');
                 
-                ud.handles.RegButton = uicontrol(hFig, 'style', 'pushbutton', 'units', units, 'position',...
-                    absPos([.05 .52+dy .90 .05], posFrame),'string', 'Auto Registration','tooltipstring','Auto Registration', ...
-                    'callback', 'CERRRegistrationRigidSetup(''init'', guihandles)','tag', 'controlFrameItem');
+%                 ud.handles.RegButton = uicontrol(hFig, 'style', 'pushbutton', 'units', units, 'position',...
+%                     absPos([.05 .52+dy .90 .05], posFrame),'string', 'Auto Registration','tooltipstring','Auto Registration', ...
+%                     'callback', 'CERRRegistrationRigidSetup(''init'', guihandles)','tag', 'controlFrameItem');
                 
+                ud.handles.RegButton = uicontrol(hFig, 'style', 'pushbutton', 'units', units, 'position',...
+                    absPos([.05 .52+dy .90 .05], posFrame),'string', 'Auto Rigid Register','tooltipstring','Auto Registration', ...
+                    'callback', 'controlFrame(''fusion'', ''rigid_registration'')','tag', 'controlFrameItem');
+
                 [I,map] = imread('tool_rotate_3d.gif','gif');
                 rotateImg = ind2rgb(I,map);
                 
@@ -1727,6 +1731,15 @@ switch command
                 
                 planC{indexS.(stateS.imageRegistrationMovDatasetType)}(scanSetM).transM = (newTransform * oldTransM);
                 
+                CERRRefresh;
+                
+            case 'rigid_registration'
+                scanSetBase = stateS.imageRegistrationBaseDataset;
+                scanSetMov = stateS.imageRegistrationMovDataset;
+                [~,planC] = register_scans(planC, planC, scanSetBase, scanSetMov, 'RIGID PLASTIMATCH', [], [], []);
+                %planC = register_scans(planC, planC, scanSetBase, scanSetMov, 'BSPLINE PLASTIMATCH', [], [], []);
+                indexS = planC{end};
+                planC = warp_scan(planC{indexS.deform}(scanSetBase),scanSetMov,planC,planC);
                 CERRRefresh;
                 
             case 'toggle_rotation'
@@ -2387,6 +2400,7 @@ switch command
                 end
                 ud{3} = ind(1);
                 set(hLine, 'userdata', ud);
+                
                 return;
                 
             case 'mirrorLocatorUnClicked'
@@ -2558,6 +2572,8 @@ switch command
                 dy = cP(1,2) - clickPoint(1,2);
                 
                 set(hScope, 'xData', xVals+dx, 'yData', yVals+dy);
+                                
+                return;
                 
             case 'mirrorScopeUnClicked'
                 set(gcf, 'WindowButtonUpFcn', '');
@@ -3005,7 +3021,7 @@ switch command
                 %gspsNum = varargin{2};
                 gspsNum = ud.annotation.matchingGSPSIndV(ud.annotation.currentMatchingSlc);
                 sliceNum = ud.annotation.slicesNumsC{gspsNum};
-                axes(stateS.handle.CERRAxis(1))
+                axes(stateS.handle.CERRAxis(1));
                 stateS.annotToggle = -1;
                 goto('SLICE',sliceNum)
                 stateS.annotToggle = 1;
