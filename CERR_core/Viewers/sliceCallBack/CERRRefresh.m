@@ -183,13 +183,13 @@ for i=1:length(stateS.handle.CERRAxis)
             end
     end
 
-    % Cleanup eaxh axis to set correct axis limits
+    % Cleanup each axis to set correct axis limits
     cleanupAxes(hAxis);
 
     %Check and set range variable if needed.
     xRange = getAxisInfo(hAxis, 'xRange');
     yRange = getAxisInfo(hAxis, 'yRange');
-    if isempty(xRange) | isempty(yRange)
+    if isempty(xRange) || isempty(yRange)
         setAxisInfo(hAxis, 'xRange', get(hAxis, 'xLim'));
         setAxisInfo(hAxis, 'yRange', get(hAxis, 'yLim'));
     end
