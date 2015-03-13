@@ -99,35 +99,36 @@ end
 udH = get(hAxis,'userdata');
 try % to take care of initial call
     %udS=get(udH.legendSlider,'userdata');
-    udS=get(stateS.legendSlider,'userdata');
+    udS=get(stateS.legendSlider,'userdata');    
 end
 
 %Repopulate text/line fields if position has changed, or if the old
 %lines/text are no longer valid handles
-if isempty(lastPos) | ~isequal(lastPos, currPos) | any(~ishandle(stateS.handle.legend.lines)) | any(~ishandle(stateS.handle.legend.text)) | (exist('udS') & ~isempty(udS) & udS{2}(2)<length(planC{indexS.structures})+1) | length(stateS.handle.legend.lines)<=length(planC{indexS.structures})
+if isempty(lastPos) || ~isequal(lastPos, currPos) || any(~ishandle(stateS.handle.legend.lines)) || any(~ishandle(stateS.handle.legend.text)) || (exist('udS') && ~isempty(udS) && udS{2}(2)<length(planC{indexS.structures})+1) || length(stateS.handle.legend.lines)<=length(planC{indexS.structures})
     
     numCols = 1;
     numRows = length(planC{indexS.structures}) + 7;   % APA: always draw one line, text extra for new structure and 6 for isodose lines
 
-    try
-        lines1 = findobj(hAxis,'tag', 'LegendLines');
-        text1 = findobj(hAxis,'tag', 'LegendText');
-        if ~isempty(lines1)
-            delete(lines1)
-        end
-        if ~isempty(text1)
-            delete(text1)
-        end
-        delete(stateS.handle.legend.lines)
-        delete(stateS.handle.legend.text)
-        stateS.handle.legend.lines = setdiff(stateS.handle.legend.lines,lines1);
-        stateS.handle.legend.text = setdiff(stateS.handle.legend.text,text1);
-
-    catch
-        stateS.handle.legend.lines = [];
-        stateS.handle.legend.text = [];
+    lines1 = findobj(hAxis,'tag', 'LegendLine');
+    text1 = findobj(hAxis,'tag', 'LegendText');
+    if ~isempty(lines1)
+        delete(lines1)
     end
-
+    if ~isempty(text1)
+        delete(text1)
+    end
+    stateS.handle.legend.lines = [];
+    stateS.handle.legend.text = [];
+%     if isfield(stateS.handle,'legend')
+%         %delete(stateS.handle.legend.lines)
+%         %delete(stateS.handle.legend.text)
+%         stateS.handle.legend.lines = setdiff(stateS.handle.legend.lines,lines1);
+%         stateS.handle.legend.text = setdiff(stateS.handle.legend.text,text1);
+%     else
+%         stateS.handle.legend.lines = [];
+%         stateS.handle.legend.text = [];
+%     end
+    
     if ispc
         fontsize = round(rowHeight/2);
     else
@@ -135,7 +136,7 @@ if isempty(lastPos) | ~isequal(lastPos, currPos) | any(~ishandle(stateS.handle.l
     end
     for i=1:numCols
         for j=1:numRows
-            lineH = rectangle('parent',hAxis,'Position', [1+(i-1)*6, j+0.65 0.7 0.7],'Curvature', [1 1]);
+            lineH = rectangle('parent',hAxis,'Position', [1+(i-1)*6, j+0.65 0.7 0.7],'Curvature', [1 1], 'tag', 'LegendLine','Clipping','on');
             stateS.handle.legend.lines = [stateS.handle.legend.lines lineH];
             stateS.handle.legend.text = [stateS.handle.legend.text text(2.2+(i-1)*6, j+1, '', 'HorizontalAlignment', 'left', 'fontsize', fontsize, 'parent', hAxis, 'tag', 'LegendText','Clipping','on')];
         end
