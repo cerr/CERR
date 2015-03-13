@@ -32,14 +32,14 @@ compareMode = getappdata(hAxis,'compareMode');
 pos = get(hAxis, 'position');
 wid = pos(3); hgt = pos(4);
 
-[scanSet, doseSet, type, coord] = getAxisInfo(hAxis, 'scanSets', 'doseSets', 'view', 'coord');
+[scanSet, doseSet, viewType, coord] = getAxisInfo(hAxis, 'scanSets', 'doseSets', 'view', 'coord');
 
 scanText = ['S: ' num2str(scanSet)];
 doseText = ['D: ' num2str(doseSet)];
 
 if isempty(coord);
-    set(stateS.handle.CERRAxisLabel1(i), 'string', '', 'visible', 'on', 'erasemode', 'none', 'color', [0 0 0], 'hittest', 'off');
-    set(stateS.handle.CERRAxisLabel2(i), 'string', '', 'visible', 'on', 'erasemode', 'none', 'color', [0 0 0], 'hittest', 'off');
+    set(stateS.handle.CERRAxisLabel1(i), 'string', '', 'visible', 'on', 'color', [0 0 0], 'hittest', 'off');
+    set(stateS.handle.CERRAxisLabel2(i), 'string', '', 'visible', 'on', 'color', [0 0 0], 'hittest', 'off');
     return;
 end
 
@@ -61,7 +61,7 @@ try
 catch
     transM = [];
 end
-if ~isempty(transM)| isequal(transM,eye(4))
+if ~isempty(transM) || isequal(transM,eye(4))
     [nCoordX nCoordY nCoordZ] = applyTransM(inv(transM),coord,coord,coord);
 
 else
@@ -71,9 +71,9 @@ else
 end
 
 
-switch type
+switch viewType
     case 'transverse'
-        view        = 'Tra: '; dim1 = 'z: '; dim2 = '\Deltax:'; dim3 = '\Deltay:';
+        viewTxt        = 'Tra: '; dim1 = 'z: '; dim2 = '\Deltax:'; dim3 = '\Deltay:';
         if isempty(zV)
             numSlices = []; zVal = [];
         else
@@ -94,30 +94,30 @@ switch type
             yStart = yLim(1) + dy * 0.05;
             yEnd = yStart + len;
             %Delete previous handles
-            hScale = findobj(hAxis,'tag','scale');
-            delete(hScale)
-            line([xStart xEnd], [yStart yStart], [2 2], 'parent', hAxis, 'color', 'y', 'tag', 'scale', 'hittest', 'off');
-            line([xStart xStart], [yStart yEnd], [2 2], 'parent', hAxis, 'color', 'y', 'tag', 'scale', 'hittest', 'off');
+%             hScale = findobj(hAxis,'tag','scale');
+%             delete(hScale)
+%             line([xStart xEnd], [yStart yStart], [2 2], 'parent', hAxis, 'color', 'y', 'tag', 'scale', 'hittest', 'off');
+%             line([xStart xStart], [yStart yEnd], [2 2], 'parent', hAxis, 'color', 'y', 'tag', 'scale', 'hittest', 'off');
             xAll = linspace(xStart,xEnd,6);
             yAll = linspace(yStart,yEnd,6);
-            if wid/dx < 6 || hgt/dy < 6
-                line([xAll(6) xAll(6)], [yStart-dy*0.005 yStart+dy*0.005], [2 2], 'parent', hAxis, 'color', 'y', 'tag', 'scale', 'hittest', 'off');
-                line([xStart-dx*0.005 xStart+dx*0.005], [yAll(6) yAll(6)], [2 2], 'parent', hAxis, 'color', 'y', 'tag', 'scale', 'hittest', 'off');
-                text('parent', hAxis, 'string', '5', 'position', [xAll(6) yStart-dy*0.02 0], 'color', 'y', 'units', 'data', 'visible', 'on','fontSize',8, 'tag', 'scale');
-                text('parent', hAxis, 'string', '5', 'position', [xStart-dx*0.02 yAll(6) 0], 'color', 'y', 'units', 'data', 'visible', 'on','fontSize',8, 'tag', 'scale');
-            else
-                for iS = 2:length(xAll)
-                    line([xAll(iS) xAll(iS)], [yStart-dy*0.005 yStart+dy*0.005], [2 2], 'parent', hAxis, 'color', 'y', 'tag', 'scale', 'hittest', 'off');
-                    line([xStart-dx*0.005 xStart+dx*0.005], [yAll(iS) yAll(iS)], [2 2], 'parent', hAxis, 'color', 'y', 'tag', 'scale', 'hittest', 'off');
-                    text('parent', hAxis, 'string', num2str(iS-1), 'position', [xAll(iS) yStart-dy*0.02 0], 'color', 'y', 'units', 'data', 'visible', 'on','fontSize',8, 'tag', 'scale');
-                    text('parent', hAxis, 'string', num2str(iS-1), 'position', [xStart-dx*0.02 yAll(iS) 0], 'color', 'y', 'units', 'data', 'visible', 'on','fontSize',8, 'tag', 'scale');
-                end
-            end
-            text('parent', hAxis, 'string', 'cm', 'position', [xStart-dx*0.02 yStart-dy*0.02 0], 'color', 'y', 'units', 'data', 'visible', 'on','fontSize',8, 'tag', 'scale','rotation',0);
+%             if wid/dx < 6 || hgt/dy < 6
+%                 line([xAll(6) xAll(6)], [yStart-dy*0.005 yStart+dy*0.005], [2 2], 'parent', hAxis, 'color', 'y', 'tag', 'scale', 'hittest', 'off');
+%                 line([xStart-dx*0.005 xStart+dx*0.005], [yAll(6) yAll(6)], [2 2], 'parent', hAxis, 'color', 'y', 'tag', 'scale', 'hittest', 'off');
+%                 text('parent', hAxis, 'string', '5', 'position', [xAll(6) yStart-dy*0.02 0], 'color', 'y', 'units', 'data', 'visible', 'on','fontSize',8, 'tag', 'scale');
+%                 text('parent', hAxis, 'string', '5', 'position', [xStart-dx*0.02 yAll(6) 0], 'color', 'y', 'units', 'data', 'visible', 'on','fontSize',8, 'tag', 'scale');
+%             else
+%                 for iS = 2:length(xAll)
+%                     line([xAll(iS) xAll(iS)], [yStart-dy*0.005 yStart+dy*0.005], [2 2], 'parent', hAxis, 'color', 'y', 'tag', 'scale', 'hittest', 'off');
+%                     line([xStart-dx*0.005 xStart+dx*0.005], [yAll(iS) yAll(iS)], [2 2], 'parent', hAxis, 'color', 'y', 'tag', 'scale', 'hittest', 'off');
+%                     text('parent', hAxis, 'string', num2str(iS-1), 'position', [xAll(iS) yStart-dy*0.02 0], 'color', 'y', 'units', 'data', 'visible', 'on','fontSize',8, 'tag', 'scale');
+%                     text('parent', hAxis, 'string', num2str(iS-1), 'position', [xStart-dx*0.02 yAll(iS) 0], 'color', 'y', 'units', 'data', 'visible', 'on','fontSize',8, 'tag', 'scale');
+%                 end
+%             end
+            %text('parent', hAxis, 'string', 'cm', 'position', [xStart-dx*0.02 yStart-dy*0.02 0], 'color', 'y', 'units', 'data', 'visible', 'on','fontSize',8, 'tag', 'scale','rotation',0);
         end
 
     case 'sagittal'
-        view        = 'Sag: ';  dim1 = 'x: '; dim2 = '\Deltay:'; dim3 = '\Deltaz:';
+        viewTxt        = 'Sag: ';  dim1 = 'x: '; dim2 = '\Deltay:'; dim3 = '\Deltaz:';
         if isempty(xV)
             numSlices = []; zVal = [];
         else
@@ -138,30 +138,30 @@ switch type
             yStart = yLim(2) - dy * 0.05;
             yEnd = yStart - len;
             %Delete previous handles
-            hScale = findobj(hAxis,'tag','scale');
-            delete(hScale)
-            line([xStart xEnd], [yStart yStart], [2 2], 'parent', hAxis, 'color', 'y', 'tag', 'scale', 'hittest', 'off');
-            line([xStart xStart], [yStart yEnd], [2 2], 'parent', hAxis, 'color', 'y', 'tag', 'scale', 'hittest', 'off');         
+%             hScale = findobj(hAxis,'tag','scale');
+%             delete(hScale)
+%             line([xStart xEnd], [yStart yStart], [2 2], 'parent', hAxis, 'color', 'y', 'tag', 'scale', 'hittest', 'off');
+%             line([xStart xStart], [yStart yEnd], [2 2], 'parent', hAxis, 'color', 'y', 'tag', 'scale', 'hittest', 'off');         
             xAll = linspace(xStart,xEnd,6);
             yAll = linspace(yStart,yEnd,6);
-            if wid/dx < 6 || hgt/dy < 6
-                line([xAll(6) xAll(6)], [yStart-dy*0.005 yStart+dy*0.005], [2 2], 'parent', hAxis, 'color', 'y', 'tag', 'scale', 'hittest', 'off');
-                line([xStart-dx*0.005 xStart+dx*0.005], [yAll(6) yAll(6)], [2 2], 'parent', hAxis, 'color', 'y', 'tag', 'scale', 'hittest', 'off');
-                text('parent', hAxis, 'string', '5', 'position', [xAll(6) yStart+dy*0.02 0], 'color', 'y', 'units', 'data', 'visible', 'on','fontSize',8, 'tag', 'scale');
-                text('parent', hAxis, 'string', '5', 'position', [xStart+dx*0.02 yAll(6) 0], 'color', 'y', 'units', 'data', 'visible', 'on','fontSize',8, 'tag', 'scale');
-            else
-                for iS = 2:length(xAll)
-                    line([xAll(iS) xAll(iS)], [yStart-dy*0.005 yStart+dy*0.005], [2 2], 'parent', hAxis, 'color', 'y', 'tag', 'scale', 'hittest', 'off');
-                    line([xStart-dx*0.005 xStart+dx*0.005], [yAll(iS) yAll(iS)], [2 2], 'parent', hAxis, 'color', 'y', 'tag', 'scale', 'hittest', 'off');
-                    text('parent', hAxis, 'string', num2str(iS-1), 'position', [xAll(iS) yStart+dy*0.02 0], 'color', 'y', 'units', 'data', 'visible', 'on','fontSize',8, 'tag', 'scale');
-                    text('parent', hAxis, 'string', num2str(iS-1), 'position', [xStart+dx*0.02 yAll(iS) 0], 'color', 'y', 'units', 'data', 'visible', 'on','fontSize',8, 'tag', 'scale');
-                end
-            end
-            text('parent', hAxis, 'string', 'cm', 'position', [xStart+dx*0.02 yStart+dy*0.02 0], 'color', 'y', 'units', 'data', 'visible', 'on','fontSize',8, 'tag', 'scale','rotation',0);            
+%             if wid/dx < 6 || hgt/dy < 6
+%                 line([xAll(6) xAll(6)], [yStart-dy*0.005 yStart+dy*0.005], [2 2], 'parent', hAxis, 'color', 'y', 'tag', 'scale', 'hittest', 'off');
+%                 line([xStart-dx*0.005 xStart+dx*0.005], [yAll(6) yAll(6)], [2 2], 'parent', hAxis, 'color', 'y', 'tag', 'scale', 'hittest', 'off');
+%                 text('parent', hAxis, 'string', '5', 'position', [xAll(6) yStart+dy*0.02 0], 'color', 'y', 'units', 'data', 'visible', 'on','fontSize',8, 'tag', 'scale');
+%                 text('parent', hAxis, 'string', '5', 'position', [xStart+dx*0.02 yAll(6) 0], 'color', 'y', 'units', 'data', 'visible', 'on','fontSize',8, 'tag', 'scale');
+%             else
+%                 for iS = 2:length(xAll)
+%                     line([xAll(iS) xAll(iS)], [yStart-dy*0.005 yStart+dy*0.005], [2 2], 'parent', hAxis, 'color', 'y', 'tag', 'scale', 'hittest', 'off');
+%                     line([xStart-dx*0.005 xStart+dx*0.005], [yAll(iS) yAll(iS)], [2 2], 'parent', hAxis, 'color', 'y', 'tag', 'scale', 'hittest', 'off');
+%                     text('parent', hAxis, 'string', num2str(iS-1), 'position', [xAll(iS) yStart+dy*0.02 0], 'color', 'y', 'units', 'data', 'visible', 'on','fontSize',8, 'tag', 'scale');
+%                     text('parent', hAxis, 'string', num2str(iS-1), 'position', [xStart+dx*0.02 yAll(iS) 0], 'color', 'y', 'units', 'data', 'visible', 'on','fontSize',8, 'tag', 'scale');
+%                 end
+%             end
+            %text('parent', hAxis, 'string', 'cm', 'position', [xStart+dx*0.02 yStart+dy*0.02 0], 'color', 'y', 'units', 'data', 'visible', 'on','fontSize',8, 'tag', 'scale','rotation',0);            
         end
 
     case 'coronal'
-        view        = 'Cor: ';  dim1 = 'y: '; dim2 = '\Deltax:'; dim3 = '\Deltaz:';
+        viewTxt        = 'Cor: ';  dim1 = 'y: '; dim2 = '\Deltax:'; dim3 = '\Deltaz:';
         if isempty(yV)
             numSlices = []; zVal = [];
         else
@@ -182,53 +182,89 @@ switch type
             yStart = yLim(2) - dy * 0.05;
             yEnd = yStart - len;
             %Delete previous handles
-            hScale = findobj(hAxis,'tag','scale');
-            delete(hScale)
-            line([xStart xEnd], [yStart yStart], [2 2], 'parent', hAxis, 'color', 'y', 'tag', 'scale', 'hittest', 'off');
-            line([xStart xStart], [yStart yEnd], [2 2], 'parent', hAxis, 'color', 'y', 'tag', 'scale', 'hittest', 'off');         
+%             hScale = findobj(hAxis,'tag','scale');
+%             delete(hScale)
+%             line([xStart xEnd], [yStart yStart], [2 2], 'parent', hAxis, 'color', 'y', 'tag', 'scale', 'hittest', 'off');
+%             line([xStart xStart], [yStart yEnd], [2 2], 'parent', hAxis, 'color', 'y', 'tag', 'scale', 'hittest', 'off');         
             xAll = linspace(xStart,xEnd,6);
             yAll = linspace(yStart,yEnd,6);
-            if wid/dx < 6 || hgt/dy < 6
-                line([xAll(6) xAll(6)], [yStart-dy*0.005 yStart+dy*0.005], [2 2], 'parent', hAxis, 'color', 'y', 'tag', 'scale', 'hittest', 'off');
-                line([xStart-dx*0.005 xStart+dx*0.005], [yAll(6) yAll(6)], [2 2], 'parent', hAxis, 'color', 'y', 'tag', 'scale', 'hittest', 'off');
-                text('parent', hAxis, 'string', '5', 'position', [xAll(6) yStart+dy*0.02 0], 'color', 'y', 'units', 'data', 'visible', 'on','fontSize',8, 'tag', 'scale');
-                text('parent', hAxis, 'string', '5', 'position', [xStart-dx*0.02 yAll(6) 0], 'color', 'y', 'units', 'data', 'visible', 'on','fontSize',8, 'tag', 'scale');
-            else
-                for iS = 2:length(xAll)
-                    line([xAll(iS) xAll(iS)], [yStart-dy*0.005 yStart+dy*0.005], [2 2], 'parent', hAxis, 'color', 'y', 'tag', 'scale', 'hittest', 'off');
-                    line([xStart-dx*0.005 xStart+dx*0.005], [yAll(iS) yAll(iS)], [2 2], 'parent', hAxis, 'color', 'y', 'tag', 'scale', 'hittest', 'off');
-                    text('parent', hAxis, 'string', num2str(iS-1), 'position', [xAll(iS) yStart+dy*0.02 0], 'color', 'y', 'units', 'data', 'visible', 'on','fontSize',8, 'tag', 'scale');
-                    text('parent', hAxis, 'string', num2str(iS-1), 'position', [xStart-dx*0.02 yAll(iS) 0], 'color', 'y', 'units', 'data', 'visible', 'on','fontSize',8, 'tag', 'scale');
-                end
-            end
-            text('parent', hAxis, 'string', 'cm', 'position', [xStart-dx*0.02 yStart+dy*0.02 0], 'color', 'y', 'units', 'data', 'visible', 'on','fontSize',8, 'tag', 'scale','rotation',0);            
+%             if wid/dx < 6 || hgt/dy < 6
+%                 line([xAll(6) xAll(6)], [yStart-dy*0.005 yStart+dy*0.005], [2 2], 'parent', hAxis, 'color', 'y', 'tag', 'scale', 'hittest', 'off');
+%                 line([xStart-dx*0.005 xStart+dx*0.005], [yAll(6) yAll(6)], [2 2], 'parent', hAxis, 'color', 'y', 'tag', 'scale', 'hittest', 'off');
+%                 text('parent', hAxis, 'string', '5', 'position', [xAll(6) yStart+dy*0.02 0], 'color', 'y', 'units', 'data', 'visible', 'on','fontSize',8, 'tag', 'scale');
+%                 text('parent', hAxis, 'string', '5', 'position', [xStart-dx*0.02 yAll(6) 0], 'color', 'y', 'units', 'data', 'visible', 'on','fontSize',8, 'tag', 'scale');
+%             else
+%                 for iS = 2:length(xAll)
+%                     line([xAll(iS) xAll(iS)], [yStart-dy*0.005 yStart+dy*0.005], [2 2], 'parent', hAxis, 'color', 'y', 'tag', 'scale', 'hittest', 'off');
+%                     line([xStart-dx*0.005 xStart+dx*0.005], [yAll(iS) yAll(iS)], [2 2], 'parent', hAxis, 'color', 'y', 'tag', 'scale', 'hittest', 'off');
+%                     text('parent', hAxis, 'string', num2str(iS-1), 'position', [xAll(iS) yStart+dy*0.02 0], 'color', 'y', 'units', 'data', 'visible', 'on','fontSize',8, 'tag', 'scale');
+%                     text('parent', hAxis, 'string', num2str(iS-1), 'position', [xStart-dx*0.02 yAll(iS) 0], 'color', 'y', 'units', 'data', 'visible', 'on','fontSize',8, 'tag', 'scale');
+%                 end
+%             end
+            %text('parent', hAxis, 'string', 'cm', 'position', [xStart-dx*0.02 yStart+dy*0.02 0], 'color', 'y', 'units', 'data', 'visible', 'on','fontSize',8, 'tag', 'scale','rotation',0);            
         end
 
     case 'legend'
-        set(stateS.handle.CERRAxisLabel1(i), 'string', 'Legend', 'visible', 'on', 'erasemode', 'none', 'color', color, 'hittest', 'off');
+        set(stateS.handle.CERRAxisLabel1(i), 'string', 'Legend', 'visible', 'on', 'color', color, 'hittest', 'off','position',[0.02 0.98 0]);
         return;
     otherwise
         return;
 end
 
 % APA commented for RIVIEW - begin
-if wid < 100 | hgt < 100
-    set(stateS.handle.CERRAxisLabel1(i), 'string', [view '        ' compareMode], 'visible', 'on', 'erasemode', 'none', 'color', color, 'hittest', 'off');
-    set(stateS.handle.CERRAxisLabel2(i),'string','');
-else
-    view = [view num2str(sliceNum) '/' numSlices '          ' compareMode];
-    %         set(stateS.handle.CERRAxisLabel(i), 'string', {[view num2str(sliceNum) '/' numSlices], [dim1 zVal 'cm'], [dim2 deltaX 'cm'], [dim3 deltaY 'cm']}, 'visible', 'on', 'erasemode', 'none', 'color', color, 'hittest', 'off');
-    set(stateS.handle.CERRAxisLabel1(i), 'string', {view, [dim1 zVal 'cm']}, 'visible', 'on', 'erasemode', 'none', 'color', color, 'hittest', 'off');
-    
-    set(stateS.handle.CERRAxisLabel2(i), 'string', {scanText, doseText}, 'visible', 'on', 'erasemode', 'none', 'color', color, 'hittest', 'off');
+
+set(stateS.handle.CERRAxisScale1(i),'xData',[xStart xEnd], 'yData', [yStart yStart],'visible','on')
+set(stateS.handle.CERRAxisScale2(i),'xData',[xStart xStart], 'yData', [yStart yEnd],'visible','on')
+
+% set(stateS.handle.CERRAxisLabel3(i),'position',[xEnd yStart+dy*0.02 0],'visible','on');
+% set(stateS.handle.CERRAxisLabel4(i),'position',[xStart-dx*0.02 yEnd 0],'visible','on');
+for j = 1:size(stateS.handle.CERRAxisTicks1,2)
+    set(stateS.handle.CERRAxisTicks1(i,j),'xData',[xAll(j) xAll(j)], 'yData', [yStart-dy*0.0025 yStart+dy*0.0025], 'zData', [2 2],'visible','on')
+    set(stateS.handle.CERRAxisTicks2(i,j),'xData',[xStart-dx*0.0025 xStart+dx*0.0025], 'yData', [yAll(j) yAll(j)], 'zData', [2 2],'visible','on')
 end
 
+if wid < 100 || hgt < 100
+    set(stateS.handle.CERRAxisLabel1(i), 'string', [viewTxt '        ' compareMode], 'visible', 'on', 'color', color, 'hittest', 'off','position',[0.02 0.98 0]);
+    set(stateS.handle.CERRAxisLabel2(i),'string','');
+else
+    viewTxt = [viewTxt num2str(sliceNum) '/' numSlices '          ' compareMode];
+    %         set(stateS.handle.CERRAxisLabel(i), 'string', {[viewTxt num2str(sliceNum) '/' numSlices], [dim1 zVal 'cm'], [dim2 deltaX 'cm'], [dim3 deltaY 'cm']}, 'visible', 'on', 'erasemode', 'none', 'color', color, 'hittest', 'off');
+    set(stateS.handle.CERRAxisLabel1(i), 'string', {viewTxt, [dim1 zVal 'cm']}, 'visible', 'on', 'color', color, 'hittest', 'off','position',[0.02 0.98 0]);
+    
+    set(stateS.handle.CERRAxisLabel2(i), 'string', {scanText, doseText}, 'visible', 'on', 'color', color, 'hittest', 'off');
+end
+
+% kids = get(hAxis, 'children');
+% index1 = find(kids == stateS.handle.CERRAxisLabel1(i));
+% kids(index1) = [];
+% index2 = find(kids == stateS.handle.CERRAxisLabel2(i));
+% kids(index2) = [];
+% index3 = ismember(kids, findobj(hAxis,'tag', 'scale'));
+% kids(index3) = [];
+% set(hAxis, 'children', [findobj(hAxis,'tag', 'scale');stateS.handle.CERRAxisLabel1(i);stateS.handle.CERRAxisLabel2(i);kids]);
+
+
 kids = get(hAxis, 'children');
-index1 = find(kids == stateS.handle.CERRAxisLabel1(i));
-kids(index1) = [];
-index2 = find(kids == stateS.handle.CERRAxisLabel2(i));
-kids(index2) = [];
-index3 = ismember(kids, findobj(hAxis,'tag', 'scale'));
-kids(index3) = [];
-set(hAxis, 'children', [findobj(hAxis,'tag', 'scale');stateS.handle.CERRAxisLabel1(i);stateS.handle.CERRAxisLabel2(i);kids]);
+index1 = kids == stateS.handle.CERRAxisLabel1(i);
+%kids(index1) = [];
+index2 = kids == stateS.handle.CERRAxisLabel2(i);
+%kids(index2) = [];
+%scaleKids = findobj(hAxis,'tag', 'scale');
+%index3 = ismember(kids, scaleKids);
+%kids(index3) = [];
+index3 = kids == stateS.handle.CERRAxisLabel3(i);
+index4 = kids == stateS.handle.CERRAxisLabel4(i);
+index5 = kids == stateS.handle.CERRAxisScale1(i);
+index6 = kids == stateS.handle.CERRAxisScale2(i);
+index7 = ismember(kids, stateS.handle.CERRAxisTicks1(i,:));
+index8 = ismember(kids, stateS.handle.CERRAxisTicks2(i,:));
+
+reOrderedKids = kids;
+index = index1 | index2 | index3 | index4 | index5 | index6 | index7 | index8;
+reOrderedKids(index) = [stateS.handle.CERRAxisLabel1(i) stateS.handle.CERRAxisLabel2(i) stateS.handle.CERRAxisLabel3(i) stateS.handle.CERRAxisLabel4(i) stateS.handle.CERRAxisScale1(i) stateS.handle.CERRAxisScale2(i) stateS.handle.CERRAxisTicks1(i,:) stateS.handle.CERRAxisTicks2(i,:)];
+numFilled = sum(index);
+reOrderedKids(numFilled+1:end) = kids(~index);
+%set(hAxis, 'children', reOrderedKids);
+
+
 % APA commented for RIVIEW - end
