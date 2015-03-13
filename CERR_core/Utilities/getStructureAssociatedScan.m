@@ -65,13 +65,18 @@ scanUID = cell(1,length(planC{indexS.scan}));
 assocScanUID = allAssocScanUID(structsV);
 
 % Match all the UID to check which scan the structure belongs too.
-[jnk,assocScansV] = ismember(assocScanUID,scanUID);
+%[jnk,assocScansV] = ismember(assocScanUID,scanUID);
+for strNum = 1:length(assocScanUID)
+    assocScansV(strNum) = find(strcmp(assocScanUID{strNum},scanUID));
+end
 
 %Calculate relativeStructNum for all structures.
 allRelStructNumV = ones(1,length(allAssocScanUID));
 for i=1:length(planC{indexS.scan})    
-    isAssocToScan = ismember(allAssocScanUID,scanUID{i});
-    allRelStructNumV(find(isAssocToScan)) = 1:length(find(isAssocToScan));
+    %isAssocToScan = ismember(allAssocScanUID,scanUID{i});
+    %allRelStructNumV(find(isAssocToScan)) = 1:length(find(isAssocToScan));
+    isAssocToScan = strcmp(allAssocScanUID,scanUID{i});
+    allRelStructNumV(isAssocToScan) = 1:sum(isAssocToScan);
 end
 
 %Only return relStructNum for the requested structs.
