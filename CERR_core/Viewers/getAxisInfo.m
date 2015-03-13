@@ -92,9 +92,9 @@ end
 %Iterate over arguments and set them.
 for i=1:nArgsToProcess
     field_name = varargin{i};
-    if ~ischar(field_name) || ~any(strcmp(field_name, aIFields))
-        error('Input to getAxisInfo must be an axisInfo fieldname.');
-    end
+%     if ~ischar(field_name) || ~any(strcmp(field_name, aIFields))
+%         error('Input to getAxisInfo must be an axisInfo fieldname.');
+%     end
     
     oldData = getfield(aI, field_name);
     
