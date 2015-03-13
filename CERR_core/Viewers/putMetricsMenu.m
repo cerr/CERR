@@ -77,6 +77,9 @@ uimenu(hMenu, 'label', 'NTCP Modeling', 'callback',['ntcpGUI(''init'')'],'interr
 
 uimenu(hMenu, 'label', 'Plan Robustness Analysis', 'callback',['DVHRobustnessGUI(''init'')'],'interruptible','on');
 
+uimenu(hMenu, 'label', 'gEUD Contribution Modeling', 'callback',['gEUDgUI(''init'')'],'interruptible','on');
+
+
 % for i=1:length(planC{indexS.structures})
 %     uimenu(hShadow, 'label', planC{indexS.structures}(i).structureName, 'callback',['sliceCallBack(''doseShadow'',' num2str(i) ')'],'interruptible','on');
 % end
