@@ -9,24 +9,24 @@ function showStructures(hAxis)
 %   function showStructures(hAxis);
 %
 % Copyright 2010, Joseph O. Deasy, on behalf of the CERR development team.
-% 
+%
 % This file is part of The Computational Environment for Radiotherapy Research (CERR).
-% 
+%
 % CERR development has been led by:  Aditya Apte, Divya Khullar, James Alaly, and Joseph O. Deasy.
-% 
+%
 % CERR has been financially supported by the US National Institutes of Health under multiple grants.
-% 
-% CERR is distributed under the terms of the Lesser GNU Public License. 
-% 
+%
+% CERR is distributed under the terms of the Lesser GNU Public License.
+%
 %     This version of CERR is free software: you can redistribute it and/or modify
 %     it under the terms of the GNU General Public License as published by
 %     the Free Software Foundation, either version 3 of the License, or
 %     (at your option) any later version.
-% 
+%
 % CERR is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
 % without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 % See the GNU General Public License for more details.
-% 
+%
 % You should have received a copy of the GNU General Public License
 % along with CERR.  If not, see <http://www.gnu.org/licenses/>.
 
@@ -62,10 +62,14 @@ toRemove = [];
 for i=1:length(axisInfo.structureGroup)
     sG = axisInfo.structureGroup(i);
     if ~ismember(sG.structureSet, structureSets) | ~isequal(coord, sG.coord) | ~isequal(getTransM('scan', sG.structureSet, planC), sG.transM) | ~isequal(view, sG.view)
-        for j=1:length(sG.handles), try, delete(sG.handles(i)); end, end
+        %for j=1:length(sG.handles), try, delete(sG.handles(i)); end, end
+        handlV = ishandle(sG.handles);
+        delete(sG.handles(handlV))
         toRemove = [toRemove;i];
     elseif ~isequal(sG.dispMode, 'contourLines') | stateS.structsChanged
-        for j=1:length(sG.handles), try, delete(sG.handles(i)); end, end
+        %for j=1:length(sG.handles), try, delete(sG.handles(i)); end, end
+        handlV = ishandle(sG.handles);
+        delete(sG.handles(handlV))
         axisInfo.structureGroup(i).handles = [];
         axisInfo.structureGroup(i).redraw = 1;
     end
@@ -94,7 +98,7 @@ end
 set(hAxis, 'userdata', axisInfo);
 
 for i=1:length(axisInfo.structureGroup)
-
+    
     if axisInfo.structureGroup(i).redraw
         structSet           = axisInfo.structureGroup(i).structureSet;
         scanSet             = getAssociatedScan(planC{indexS.structureArray}(structSet).assocScanUID);
@@ -106,12 +110,12 @@ for i=1:length(axisInfo.structureGroup)
             structsInThisScan = find(assocScansV == scanSet);
         end
         axisInfo.structureGroup(i).redraw = 0;
-
+        
         %If no structs to display, return;
         if isempty(structsInThisScan)
             continue;
         end
-
+        
         switch upper(view)
             case 'TRANSVERSE'
                 dim = 3;
@@ -122,7 +126,7 @@ for i=1:length(axisInfo.structureGroup)
             otherwise
                 return;
         end
-
+        
         %Check for transM, and if it has any rotation component.
         rotation = 0; xT = 0; yT = 0; zT = 0;
         if isfield(planC{indexS.scan}(scanSet), 'transM') & ~isempty(planC{indexS.scan}(scanSet).transM);
@@ -131,35 +135,35 @@ for i=1:length(axisInfo.structureGroup)
         else
             transM = eye(4);
         end
-
+        
         if ~rotation & dim == 3
             [xs, ys, zs] = getScanXYZVals(planC{indexS.scan}(scanSet));
             xs = xs+xT;
             ys = ys+yT;
             zs = zs+zT;
-
+            
             if coord<min(zs) | coord>max(zs)
                 continue
             else
                 sliceNum = findnearest(zs, coord);
             end
-
+            
             kLast = 0;
             %allStrOnSlc = [];
             for structNum = 1 : length(structsInThisScan)
-
+                
                 if ~isempty(planC{indexS.structures}(structsInThisScan(structNum)).contour)
-
+                    
                     if ~(isfield(planC{indexS.structures}(structsInThisScan(structNum)),'meshRep') && ~isempty(planC{indexS.structures}(structsInThisScan(structNum)).meshRep) && planC{indexS.structures}(structsInThisScan(structNum)).meshRep) || stateS.contourState %check for mesh-based display
-
+                        
                         numSegs = length(planC{indexS.structures}(structsInThisScan(structNum)).contour(sliceNum).segments);
-
+                        
                         for segNum = 1 : numSegs
-
+                            
                             pointsM = planC{planC{end}.structures}(structsInThisScan(structNum)).contour(sliceNum).segments(segNum).points;
-
+                            
                             if ~isempty(pointsM)
-
+                                
                                 if (size(pointsM,1) == 1) || (size(pointsM,1) == 2 && isequal(pointsM(1,:),pointsM(2,:)))
                                     % Draw a crosshair
                                     bs = 0.3;
@@ -169,22 +173,22 @@ for i=1:length(axisInfo.structureGroup)
                                     yCoords = [pointsM(:,2); pointsM(1,2)] + yT;
                                     xCoords = [pointsM(:,1); pointsM(1,1)] + xT;
                                 end
-
+                                
                                 %allStrOnSlc = [allStrOnSlc, structNum];
-
-                                hStructContour = line(xCoords, yCoords, 'parent', hAxis);
+                                
+                                hStructContour = line(xCoords, yCoords, 'parent', hAxis,'color',planC{indexS.structures}(structsInThisScan(structNum)).structureColor, 'tag', 'structContour', 'linewidth', stateS.optS.structureThickness, 'linestyle', '-', 'userdata', structsInThisScan(structNum), 'hittest', 'off');
                                 if stateS.optS.structureDots
                                     hStructContourDots = line(xCoords, yCoords, 'parent', hAxis, 'color', [0 0 0],'tag', 'structContourDots', 'linewidth', .5, 'linestyle', ':', 'userdata', structsInThisScan(structNum), 'hittest', 'off');
                                 end
-                                set(hStructContour,'color',planC{indexS.structures}(structsInThisScan(structNum)).structureColor, 'tag', 'structContour', 'linewidth', stateS.optS.structureThickness, 'linestyle', '-', 'userdata', structsInThisScan(structNum), 'hittest', 'off');
-
+                                %set(hStructContour,'color',planC{indexS.structures}(structsInThisScan(structNum)).structureColor, 'tag', 'structContour', 'linewidth', stateS.optS.structureThickness, 'linestyle', '-', 'userdata', structsInThisScan(structNum), 'hittest', 'off');
+                                
                                 %Set visible flag.
                                 if isfield(planC{indexS.structures}(structsInThisScan(structNum)), 'visible')
-                                    if ~isempty(planC{indexS.structures}(structsInThisScan(structNum)).visible) & ~planC{indexS.structures}(structsInThisScan(structNum)).visible
+                                    if ~isempty(planC{indexS.structures}(structsInThisScan(structNum)).visible) && ~planC{indexS.structures}(structsInThisScan(structNum)).visible
                                         set(hStructContour, 'visible', 'off');
                                     end
                                 end
-
+                                
                                 if kLast ~= structsInThisScan(structNum)
                                     label = planC{indexS.structures}(structsInThisScan(structNum)).structureName;
                                     iV = findstr(label,'_');
@@ -201,62 +205,62 @@ for i=1:length(axisInfo.structureGroup)
                                 else
                                     axisInfo.structureGroup(i).handles = [axisInfo.structureGroup(i).handles;hStructContour(:)];
                                 end
-
+                                
                                 kLast = structsInThisScan(structNum);
-
+                                
                             end
-
+                            
                         end
-
+                        
                     else % Mesh-based display
                         axisInfo = drawContoursFromMesh(axisInfo,i,hAxis,view,coord,transM,structsInThisScan(structNum));
-
+                        
                     end % Check for Mesh-based display ends
-
+                    
                 end
-
+                
             end
-
+            
             %stateS.webtrev.StrOnSlc.trans = unique(allStrOnSlc);
-
+            
         else
-
+            
             [slcC, xV, zV] = getStructureSlice(scanSet, dim, coord);
-
+            
             % slc = uint32(slc);
             %Find out which structs are on this slice.
             %structsOnSlice = cumbitor(slc(:));
-
-%             %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%             %%%%%%%  for webtrev
-%             %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% 
-%             allStrOnSlc = [];
-%             switch upper(view)
-%                 case 'TRANSVERSE'
-%                     stronslcDim = 'tra';
-%                 case 'SAGITTAL'
-%                     stronslcDim = 'sag';
-%                 case 'CORONAL'
-%                     stronslcDim = 'cor';
-%                 otherwise
-%                     return;
-%             end
-%             %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%             %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
+            
+            %             %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+            %             %%%%%%%  for webtrev
+            %             %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+            %
+            %             allStrOnSlc = [];
+            %             switch upper(view)
+            %                 case 'TRANSVERSE'
+            %                     stronslcDim = 'tra';
+            %                 case 'SAGITTAL'
+            %                     stronslcDim = 'sag';
+            %                 case 'CORONAL'
+            %                     stronslcDim = 'cor';
+            %                 otherwise
+            %                     return;
+            %             end
+            %             %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+            %             %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+            
             matlab_version = MLVersion;
-
+            
             structsOnSliceC = [];
             for cellNum = 1:length(slcC)
                 structsOnSliceC{cellNum} = cumbitor(slcC{cellNum}(:));
             end
-
+            
             % for each structure (bit), populate a separate matrix with 0's and 1's, then contour onto the image.
             for structNum = 1:length(structsInThisScan) %or 32
-
+                
                 if (~(isfield(planC{indexS.structures}(structsInThisScan(structNum)),'meshRep') && ~isempty(planC{indexS.structures}(structsInThisScan(structNum)).meshRep) && planC{indexS.structures}(structsInThisScan(structNum)).meshRep) || stateS.contourState) %check for mesh-based display
-
+                    
                     if isempty(structsOnSliceC)
                         includeCurrStruct = 0;
                     elseif structNum<=52
@@ -269,6 +273,13 @@ for i=1:length(axisInfo.structureGroup)
                         %includeCurrStruct = bitget(structsOnSlice, structNum-(cellNum-1)*52); %double
                         includeCurrStruct = bitget(structsOnSlice, structNum-52-(cellNum-2)*8); %uint8
                     end
+                    if includeCurrStruct && isfield(planC{indexS.structures}(structsInThisScan(structNum)), 'visible')
+                        if ~isempty(planC{indexS.structures}(structsInThisScan(structNum)).visible) && ~planC{indexS.structures}(structsInThisScan(structNum)).visible
+                            includeCurrStruct = 0;
+                        else
+                            includeCurrStruct = 1;
+                        end
+                    end
                     if includeCurrStruct
                         %allStrOnSlc = [allStrOnSlc, structNum];
                         if structNum<=52
@@ -276,31 +287,38 @@ for i=1:length(axisInfo.structureGroup)
                         else
                             oneStructM = bitget(slcC{cellNum}, structNum-52-(cellNum-2)*8); %uint8
                         end
-                        %display oneStructM using contour
-                        %For matlab 7 compatibility:
-                        if matlab_version >= 7 & matlab_version < 7.5
-                            [c, hStructContour] = contour('v6', xV(:), zV(:), oneStructM, [.5 .5], '-');
-                            set(hStructContour, 'parent', hAxis);
-                            if stateS.optS.structureDots
-                                [c, hStructContourDots] = contour('v6', xV(:), zV(:), oneStructM, [.5 .5], '-');
-                                set(hStructContourDots, 'parent', hAxis);
-                            end
-                        elseif matlab_version >= 7.5
-                            [c, hStructContour] = contour(xV(:), zV(:), oneStructM, [.5 .5], '-');
-                            set(hStructContour, 'parent', hAxis);
-                            if stateS.optS.structureDots
-                                [c, hStructContourDots] = contour(xV(:), zV(:), oneStructM, [.5 .5], '-');
-                                set(hStructContourDots, 'parent', hAxis);
-                            end
-                        else
-                            [c, hStructContour] = contour(xV(:), zV(:), oneStructM, [.5 .5], '-');
-                            set(hStructContour, 'parent', hAxis);
-                            if stateS.optS.structureDots
-                                for cNum=1:length(hStructContour);
-                                    hStructContourDots(cNum) = line(get(hStructContour(cNum), 'xData'), get(hStructContour(cNum), 'yData'), 'parent', hAxis, 'hittest', 'off');
-                                end
-                            end
+                        %                         %display oneStructM using contour
+                        %                         %For matlab 7 compatibility:
+                        %                         if matlab_version >= 7 & matlab_version < 7.5
+                        %                             [c, hStructContour] = contour('v6', xV(:), zV(:), oneStructM, [.5 .5], '-');
+                        %                             set(hStructContour, 'parent', hAxis);
+                        %                             if stateS.optS.structureDots
+                        %                                 [c, hStructContourDots] = contour('v6', xV(:), zV(:), oneStructM, [.5 .5], '-');
+                        %                                 set(hStructContourDots, 'parent', hAxis);
+                        %                             end
+                        %                         elseif matlab_version >= 7.5
+                        %                             [c, hStructContour] = contour(xV(:), zV(:), oneStructM, [.5 .5], '-');
+                        %                             set(hStructContour, 'parent', hAxis);
+                        %                             if stateS.optS.structureDots
+                        %                                 [c, hStructContourDots] = contour(xV(:), zV(:), oneStructM, [.5 .5], '-');
+                        %                                 set(hStructContourDots, 'parent', hAxis);
+                        %                             end
+                        %                         else
+                        %                             [c, hStructContour] = contour(xV(:), zV(:), oneStructM, [.5 .5], '-');
+                        %                             set(hStructContour, 'parent', hAxis);
+                        %                             if stateS.optS.structureDots
+                        %                                 for cNum=1:length(hStructContour);
+                        %                                     hStructContourDots(cNum) = line(get(hStructContour(cNum), 'xData'), get(hStructContour(cNum), 'yData'), 'parent', hAxis, 'hittest', 'off');
+                        %                                 end
+                        %                             end
+                        %                         end
+                        [c, hStructContour] = contour(xV(:), zV(:), oneStructM, [.5 .5], '-');
+                        set(hStructContour, 'parent', hAxis);
+                        if stateS.optS.structureDots
+                            [c, hStructContourDots] = contour(xV(:), zV(:), oneStructM, [.5 .5], '-');
+                            set(hStructContourDots, 'parent', hAxis);
                         end
+                        
                         if stateS.optS.structureDots
                             set(hStructContourDots, 'linewidth', .5, 'tag', 'structContourDots', 'linestyle', ':', 'color', [0 0 0], 'userdata', structsInThisScan(structNum), 'hittest', 'off')
                         end
@@ -308,7 +326,7 @@ for i=1:length(axisInfo.structureGroup)
                         %set(hStructContour,'color',getColor(structsInThisScan(structNum), stateS.optS.colorOrder), 'hittest', 'off','userdata', structsInThisScan(structNum));
                         set(hStructContour,'color',planC{indexS.structures}(structsInThisScan(structNum)).structureColor, 'hittest', 'off','userdata', structsInThisScan(structNum));
                         label = planC{indexS.structures}(structsInThisScan(structNum)).structureName;
-                        iV = findstr(label,'_');
+                        iV = strfind(label,'_');
                         for j =  1 : length(iV)
                             index = iV(j) + j - 2;
                             label = insert('\',label,index);   %to get correct printing of underlines
@@ -322,16 +340,16 @@ for i=1:length(axisInfo.structureGroup)
                         ud.structDesc = label;
                         set(hStructContour, 'userdata', ud);
                     end
-
+                    
                 else %Mesh-based display
                     axisInfo = drawContoursFromMesh(axisInfo,i,hAxis,view,coord,transM,structsInThisScan(structNum));
-
+                    
                 end
-
+                
             end
             %eval (['stateS.webtrev.StrOnSlc.' stronslcDim ' = unique(allStrOnSlc);']);
         end
-
+        
         xDataC = get(axisInfo.structureGroup(i).handles, 'XData');
         yDataC = get(axisInfo.structureGroup(i).handles, 'YData');
         if ~isempty(xDataC) && ~isempty(yDataC)
@@ -417,7 +435,7 @@ if isfield(contourS,'segments')
             hStructContourDots = line(xCoords, yCoords, 'parent', hAxis, 'color', [0 0 0],'tag', 'structContourDots', 'linewidth', .5, 'linestyle', ':', 'userdata', structNum, 'hittest', 'off');
         end
         set(hStructContour,'color',planC{indexS.structures}(structNum).structureColor, 'tag', 'structContour', 'linewidth', stateS.optS.structureThickness, 'linestyle', '-', 'userdata', structNum, 'hittest', 'off');
-
+        
         %if kLast ~= structsInThisScan(structNum)
         label = planC{indexS.structures}(structNum).structureName;
         iV = findstr(label,'_');
@@ -434,9 +452,9 @@ if isfield(contourS,'segments')
         else
             axisInfo.structureGroup(structureGroupNumber).handles = [axisInfo.structureGroup(structureGroupNumber).handles;hStructContour(:)];
         end
-
+        
         %kLast = structNum;
-
+        
     end
 end
 return;
