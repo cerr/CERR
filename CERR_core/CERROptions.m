@@ -157,6 +157,8 @@ optS.UIColor = [1 1 1]*0.9;%Color of ui buttons
 optS.colorOrder = reshape([1.0 0.7 0  0 1 0  1 0 0  0 0.9 0.9  0.75 0 0.75  0.75 0.75 0  0.6 0.75 1 0.8 0.25 0.25 1 0 1 0.75 0.5 0  0 1 0.50 1 0.5 1  0.5 1 0 0.3 0 0.9  0 0.7 0.3  0.7 0.3 0  0 0.8 0.9  0.7 0 0.8 0.9 0.6 0  0.33 0.66 1 1 0.33 0.33 1 0 0.9 0.9 0.5 0  0 1 0.40 0.9 0.6 0.9  0.6 0.9 0 0.7 0.4 0.8  0.6 0.9 0.2] * 0.9,3,28)';
 %set color of contours.  Each 3 number triple is r, g, b.  Note: do not put commas into the colorOrder
 
+optS.contourToSliceTolerance = 0.005; % Snap contour to slice located within this distance (cm).
+
 optS.inactiveSegStyle = '--';       %Style for inactive contouring segments
 
 optS.activeSegStyle = '-';        %Style for active contouring segments
