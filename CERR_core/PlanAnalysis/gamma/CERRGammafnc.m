@@ -348,7 +348,7 @@ switch upper(gamaCommand)
             dosesV = dosesV(~isnan(dosesV));
             
             % Display gamma result with Pie graph
-            passPer = length(find(dosesV<=1.0001));
+            passPer = sum(dosesV<=1.0001);
             
             failPer = numel(dosesV)-passPer;
             
