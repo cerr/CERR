@@ -20,7 +20,7 @@ volToEval                           = SUVvals3M(minr:maxr,minc:maxc,mins:maxs);
 volToEval(volToEval==0)             = NaN;
 %volToEval                           = volToEval - min(volToEval(:));
 volToEval                           = volToEval / max(volToEval(:));
-volToEval                           = sqrt(volToEval);
+%volToEval                           = sqrt(volToEval);
 [f,Ph]                              = haralick3D(volToEval,16);
 suv3M                               = scanArray3M(:,:,uniqueSlices);
 maskScaled3D = suv3M(find(mask3M));
