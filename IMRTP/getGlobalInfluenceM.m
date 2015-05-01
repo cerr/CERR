@@ -67,7 +67,7 @@ else
 
    %Find minimum number of nonzero elements that need to be put in influenceM.
    for structNum = structsV;
-       c = find(structNum==structIndV);
+        strBmletInd = find(structNum==structIndV);
         count = 0;
         for i=1:length(beamlets(strBmletInd,:))
             count = count + length(beamlets(strBmletInd,i).influence);
