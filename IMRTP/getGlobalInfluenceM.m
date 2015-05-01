@@ -49,6 +49,8 @@ if length(structsV) == 1
 else
 
    global planC;
+   
+   indexS = planC{end};
 
    beamlets = [IM.beams(:).beamlets];
    
@@ -65,17 +67,19 @@ else
 
    %Find minimum number of nonzero elements that need to be put in influenceM.
    for structNum = structsV;
-       strBmletInd = find(structNum==structIndV);
+       c = find(structNum==structIndV);
         count = 0;
-        for i=1:length(beamlets(structNum,:))
+        for i=1:length(beamlets(strBmletInd,:))
             count = count + length(beamlets(strBmletInd,i).influence);
         end
         nnzV(structNum) = count;
    end
     maxnnz = max(nnzV);
-
+    
+    numVoxels = prod(getUniformScanSize(planC{indexS.scan}(getStructureAssociatedScan(structsV(1)))));
+    
     %Pre-initalize influence matrix, greatly speeds things up.
-    influenceM = spalloc(getUniformScanSize(planC{indexS.scan}(getStructureAssociatedScan(structsV(1)))), numPBs, maxnnz);
+    influenceM = spalloc(numVoxels, numPBs, maxnnz);
 
     %Make sure structsV is a row vector, used in below for loop.
     if size(structsV, 1) ~= 1
