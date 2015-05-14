@@ -248,21 +248,37 @@ switch upper(command)
     case 'VOLMASTER'
         onOrOff = get(gcbo, 'value');
         ud = get(hFig, 'userdata');
-        ud.state.vol = ones(1,length(ud.state.vol))*onOrOff;
+        if ~(any(ud.state.surf) || any(ud.state.avg))
+            ud.state.vol = ones(1,length(ud.state.vol))*onOrOff;
+        else
+            set(gcbo, 'value', 0);
+            errordlg('Please De-select all Volume or Surf. DVHs', 'De-Select surf/avg', 'modal');
+        end                
         set(hFig, 'userdata', ud);
         showDVHGui('REFRESH');
 
     case 'SURFMASTER'
         onOrOff = get(gcbo, 'value');
         ud = get(hFig, 'userdata');
-        ud.state.surf = ones(1,length(ud.state.surf))*onOrOff;
+        if ~(any(ud.state.vol) || any(ud.state.avg))
+            ud.state.surf = ones(1,length(ud.state.surf))*onOrOff;
+        else
+            set(gcbo, 'value', 0);
+            errordlg('Please De-select all Volume or Avg. DVHs', 'De-Select surf/avg', 'modal');
+        end                
         set(hFig, 'userdata', ud);
         showDVHGui('REFRESH');
 
     case 'AVGMASTER'
         onOrOff = get(gcbo, 'value');
-        ud = get(hFig, 'userdata');
-        ud.state.avg = ones(1,length(ud.state.avg))* onOrOff;
+        ud = get(hFig, 'userdata');        
+        if ~(any(ud.state.vol) || any(ud.state.avg))
+            ud.state.avg = ones(1,length(ud.state.avg))* onOrOff;
+        else
+            set(gcbo, 'value', 0);
+            errordlg('Please De-select all Volume or Surf. DVHs', 'De-Select surf/avg', 'modal');
+        end                
+        
         set(hFig, 'userdata', ud);
         showDVHGui('REFRESH');
 
@@ -486,7 +502,12 @@ switch upper(command)
         ind = get(gcbo, 'userdata');
         indDVH = ud.df.range(ind);
         val = get(gcbo, 'value');
-        ud.state.avg(indDVH) = val;
+        if ~(any(ud.state.vol) || any(ud.state.surf))            
+            ud.state.avg(indDVH) = val;
+        else
+            set(gcbo, 'value', 0);
+            errordlg('Please De-select all Surface or Volume DVHs', 'De-Select surf/vol', 'modal');
+        end
         set(hFig, 'userdata', ud);
         showDVHGui('REFRESH');
 
@@ -496,7 +517,12 @@ switch upper(command)
         ind = get(gcbo, 'userdata');
         indDVH = ud.df.range(ind);
         val = get(gcbo, 'value');
-        ud.state.surf(indDVH) = val;
+        if ~(any(ud.state.vol) || any(ud.state.avg))            
+            ud.state.surf(indDVH) = val;
+        else
+            set(gcbo, 'value', 0);
+            errordlg('Please De-select all Volume or Avg. DVHs', 'De-Select vol/avg', 'modal');
+        end
         set(hFig, 'userdata', ud);
         showDVHGui('REFRESH');
 
@@ -506,7 +532,12 @@ switch upper(command)
         ind = get(gcbo, 'userdata');
         indDVH = ud.df.range(ind);
         val = get(gcbo, 'value');
-        ud.state.vol(indDVH) = val;
+        if ~(any(ud.state.surf) || any(ud.state.avg))
+            ud.state.vol(indDVH) = val;
+        else
+            set(gcbo, 'value', 0);
+            errordlg('Please De-select all Surface or Avg. DVHs', 'De-Select surf/avg', 'modal');
+        end
         set(hFig, 'userdata', ud);
         showDVHGui('REFRESH');
 
