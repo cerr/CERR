@@ -34,12 +34,12 @@ global stateS;
 indexS = planC{end};
 
 % DK
-if ~isempty(varargin)& ishandle(varargin{1})
+if ~isempty(varargin)&& ishandle(varargin{1})
     hAxis = varargin{1};
 else
     hAxis = gca;
 end
-if stateS.layout == 7 & (strcmpi(get(hAxis,'tag'),'doseCompareAxes') | strcmpi(get(hAxis,'tag'),'ColorbarCompare'))% doseCompare Mode
+if stateS.layout == 7 && (strcmpi(get(hAxis,'tag'),'doseCompareAxes') | strcmpi(get(hAxis,'tag'),'ColorbarCompare'))% doseCompare Mode
     colorbarFrameMax =  double(stateS.colorbarFrameMaxCompare);
     doseArrayMaxValue = double(stateS.doseArrayMaxValueCompare);
     doseDisplayRange = double(stateS.doseDisplayRangeCompare);
