@@ -1,5 +1,5 @@
 function batch_export_to_DICOM(varargin)
-%function batch_anonymize_CERR_plans(sourceCERRDir,destDICOMDir)
+%function batch_export_to_DICOM(sourceCERRDir,destDICOMDir)
 %
 %This function exports DICOM for CERR plans from sourceCERRDir to destDICOMDir
 %
