@@ -31,8 +31,11 @@ function showBeams(hAxis)
 % You should have received a copy of the GNU General Public License
 % along with CERR.  If not, see <http://www.gnu.org/licenses/>.
 
+global stateS
+
 % Check if IMRT GUI is visible
-hIMRTPGui = findobj('tag','IMRTPGui');
+%hIMRTPGui = findobj('tag','IMRTPGui');
+hIMRTPGui = stateS.handle.IMRTMenuFig;
 if isempty(hIMRTPGui)
     return;
 end
