@@ -247,7 +247,7 @@ if(isempty(stateS.gridState))  %Ruler was on, first toggle it off, then back on 
 end
 
 %update montage:
-try
+if stateS.showNavMontage
     navigationMontage('update');
 end
 
