@@ -2481,7 +2481,7 @@ switch command
                         xRange = [min(xVals(:)) max(xVals(:))];
                         yRange = [max(yVals(:)) min(yVals(:))];
                         
-                        hBox = patch([xVals median(xRange)], [yVals max(yRange)], -2*ones(size(xVals)+1), [.86 .10 .10]);
+                        hBox = patch([xVals median(xRange)], [yVals max(yRange)], -2*ones(size(xVals,2)+1,1), [.86 .10 .10]);
                         
                         ud{1} = [xRange yRange];
                         ud{2} = [xVals median(xRange)];
