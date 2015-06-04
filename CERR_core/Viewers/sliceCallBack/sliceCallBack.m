@@ -207,6 +207,9 @@ switch upper(instr)
         stateS.colorbarFrameMin = [];
         stateS.colorbarFrameMinCompare = [];
         %DK
+        
+        % Handle for IMRTP GUI
+        stateS.handle.IMRTMenuFig = [];
 
         str1 = ['CERR'];
         position = [5 40 940 620];
