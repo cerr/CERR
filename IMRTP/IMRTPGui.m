@@ -64,12 +64,13 @@ if QIBPresent
 end
 
 %If no command given, default to init.
-if ~exist('command') | isempty(command)
+if ~exist('command') || isempty(command)
     command = 'init';
 end
 
 %Find handle of the gui figure.
-h = findobj('tag', 'IMRTPGui');
+% h = findobj('tag', 'IMRTPGui');
+h = stateS.handle.IMRTMenuFig;
 
 %Fields and background info for beam parameters.
 fieldNames = {{'beamNum'}, {'beamModality'}, {'beamEnergy'}, {'isocenter', 'x'}, {'isocenter', 'y'}, {'isocenter', 'z'}, ...
