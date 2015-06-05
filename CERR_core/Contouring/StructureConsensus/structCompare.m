@@ -262,6 +262,8 @@ switch upper(command)
         hFig = findobj('name','Agreement Histogram');
         delete(hFig);
         %setAxisInfo(hAxis, 'coord', coord, 'view', view, 'xRange', [], 'yRange', []);
+        % Remove check-mark from the "Consensus" drop-down
+        set(findobj(stateS.handle.CERRStructMenu,'label', 'Consensus'),'Checked','off');
         CERRRefresh
 
 end
