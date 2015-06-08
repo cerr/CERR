@@ -37,7 +37,7 @@ structM = reusableZerosM;
 maxStructureZVal = max(allSegmentsM(:,1));
 minStructureZVal = min(allSegmentsM(:,1));
 CTSpacing = CTOriginalZValues(2) - CTOriginalZValues(1);
-if (zSliceUniformValue < (minStructureZVal-CTSpacing)) | (zSliceUniformValue > (maxStructureZVal+CTSpacing))    % APA Q: is CTSpacing correct for max check?
+if (zSliceUniformValue < (minStructureZVal-CTSpacing/2)) || (zSliceUniformValue > (maxStructureZVal+CTSpacing/2))    % APA Q: is CTSpacing correct for max check?
     return
 end
 %END
