@@ -36,7 +36,7 @@ function zi = finterp2(x,y,z,xi,yi,uniformFlag,outOfRangeVal);
 % You should have received a copy of the GNU General Public License
 % along with CERR.  If not, see <http://www.gnu.org/licenses/>.
 
-if ~exist('outOfRangeVal')
+if ~exist('outOfRangeVal','var')
     outOfRangeVal = NaN;
 end   
 
