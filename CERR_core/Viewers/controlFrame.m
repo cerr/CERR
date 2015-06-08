@@ -2295,7 +2295,7 @@ switch command
                                 
                                 line([xV(ind(1)) xV(ind(1))], yLimit, [2 2], 'parent', hAxis, 'color', [1 1 1], 'tag', 'mirrorLocator', ...
                                     'buttondownfcn', 'controlFrame(''fusion'', ''mirrorLocatorClicked'')', ...
-                                    'userdata', {'vert', 'transverse', ind(1)}, 'hittest', 'on', 'erasemode', 'xor');
+                                    'userdata', {'vert', 'transverse', ind(1)}, 'hittest', 'on');
                                 
                             case 'sagittal'
                                 [slc1, xV, yV] = getCTOnSlice(stateS.imageRegistrationBaseDataset, coord, 1, planC);
@@ -2307,7 +2307,7 @@ switch command
                                 
                                 line([xV(ind(1)) xV(ind(1))], yLimit, [2 2], 'parent', hAxis, 'color', [1 1 1], 'tag', 'mirrorLocator', ...
                                     'buttondownfcn', 'controlFrame(''fusion'', ''mirrorLocatorClicked'')', ...
-                                    'userdata', {'vert', 'sagittal', ind(1)}, 'hittest', 'on', 'erasemode', 'xor');
+                                    'userdata', {'vert', 'sagittal', ind(1)}, 'hittest', 'on');
                                 
                             case 'coronal'
                                 [slc1, xV, yV] = getCTOnSlice(stateS.imageRegistrationBaseDataset, coord, 2, planC);
@@ -2315,7 +2315,7 @@ switch command
                                 
                                 line([xV(ind(1)) xV(ind(1))], yLimit, [2 2], 'parent', hAxis, 'color', [1 1 1], 'tag', 'mirrorLocator', ...
                                     'buttondownfcn', 'controlFrame(''fusion'', ''mirrorLocatorClicked'')', ...
-                                    'userdata', {'vert', 'coronal', ind(1)}, 'hittest', 'on', 'erasemode', 'xor');
+                                    'userdata', {'vert', 'coronal', ind(1)}, 'hittest', 'on');
                             otherwise
                                 continue;
                         end
