@@ -37,7 +37,7 @@ end
 indexS = planC{end};
 
 %return if structNum is already associated to scanNum
-assocScanNum = getAssociatedScan(planC{indexS.structures}(structNum).assocScanUID);
+assocScanNum = getAssociatedScan(planC{indexS.structures}(structNum).assocScanUID, planC);
 if assocScanNum == scanNum
     warning(['Structure Number ',num2str(structNum),' is already assocoated with scan ',num2str(scanNum)])
     return;
@@ -49,7 +49,7 @@ newScanS = planC{indexS.scan}(scanNum);
 [rNewScanValsV, cNewScanValsV, sNewScanValsV] = xyztom(xNewScanValsV, yNewScanValsV, zNewScanValsV, scanNum, planC, 1);
 
 %obtain r,c,s coordinates of structure based on its associated (old) scan
-[rStructValsV, cStructValsV, sStructValsV] = getUniformStr(structNum);
+[rStructValsV, cStructValsV, sStructValsV] = getUniformStr(structNum, planC);
 
 %obtain x,y,z coordinates of voxels included within structure considering
 %transM for old and new scan
