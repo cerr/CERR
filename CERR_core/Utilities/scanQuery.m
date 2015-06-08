@@ -35,7 +35,8 @@ switch upper(command)
         cP = get(gcbo, 'CurrentPoint');
         hFig = get(gcbo, 'parent');
         delete([findobj('tag', 'scanQueryPoint')]);
-        line([cP(1,1) cP(1,1)], [cP(2,2) cP(2,2)], 'tag', 'scanQueryPoint', 'userdata', gcbo, 'eraseMode', 'xor', 'parent', gcbo, 'marker', '+', 'color', [1 1 1], 'hittest', 'off');      
+        %line([cP(1,1) cP(1,1)], [cP(2,2) cP(2,2)], 'tag', 'scanQueryPoint', 'userdata', gcbo, 'eraseMode', 'xor', 'parent', gcbo, 'marker', '+', 'color', [1 1 1], 'hittest', 'off');      
+        line([cP(1,1) cP(1,1)], [cP(2,2) cP(2,2)], 'tag', 'scanQueryPoint', 'userdata', gcbo, 'parent', gcbo, 'marker', '+', 'color', [1 1 1], 'hittest', 'off');
         return;
         
     case 'SCANQUERYMOTION'
