@@ -40,6 +40,7 @@ avgV    = logical(avgV);
 absV    = logical(absV);
 legend_str = '';
 legend_string = '';
+legend_string_abs = '';
 
 %Prepare a figure.
 if exist('newFlag') & newFlag == 1
@@ -145,9 +146,19 @@ for i = 1 : length(volV)
             if isempty(legend_str)
                 legend_str = str;
             else
-                legend_str = strvcat(legend_str,str);
+                legend_str = char(legend_str,str);
             end
-            legend('Location', 'NorthEastOutside', legend_str);%adds legend to DSH plot
+            
+            if absV(i) && isempty(legend_string_abs)
+                legend_string_abs = str;
+            elseif absV(i)
+                legend_string_abs = char(legend_string_abs,str);
+            end
+            legend(hAxis,'Location', 'NorthEastOutside', legend_str);%adds legend to DSH plot
+            absDVHAxis = findobj('tag', 'AbsDVHAxis');
+            if ~isempty(absDVHAxis)
+                legend(absDVHAxis,'Location', 'NorthEastOutside', legend_string_abs);%adds legend to DVH plot
+            end
         end
     end
 
@@ -203,9 +214,19 @@ for i = 1 : length(volV)
             if isempty(legend_string)
                 legend_string = name;
             else
-                legend_string = strvcat(legend_string,name);
+                legend_string = char(legend_string,name); %strvcat(legend_string,name);
             end
-            legend('Location', 'NorthEastOutside', legend_string);%adds legend to DVH plot
+            
+            if absV(i) && isempty(legend_string_abs)
+                legend_string_abs = name;
+            elseif absV(i)
+                legend_string_abs = char(legend_string_abs,name);
+            end
+            legend(hAxis,'Location', 'NorthEastOutside', legend_string);%adds legend to DVH plot
+            absDVHAxis = findobj('tag', 'AbsDVHAxis');
+            if ~isempty(absDVHAxis)
+                legend(absDVHAxis,'Location', 'NorthEastOutside', legend_string_abs);%adds legend to DVH plot
+            end
         end
     end
 
@@ -321,13 +342,22 @@ doseStat = dispDoseStats(doseBinsV, volsHistV, name, nameVol, planC, indexS, opt
 
 if absFlag == 1
     hRel = get(hAxis, 'parent');
-    hFig = figure('tag', 'DVHPlot', 'doublebuffer', 'on');
-    uimenu(hFig, 'label', 'Expand Options', 'callback','plotDVHCallback(''EXPANDEDVIEW'')','interruptible','on');
-    absAxis = axes('parent', hFig);
-    set(hFig,'numbertitle','off')
-    pos = get(hFig,'position');
-    nDVHFigs = length(findobj('tag', 'DVHPlot'));
-    set(hFig,'position',[pos(1)*(1 - 0.05*nDVHFigs),pos(2)*(1 - 0.05*nDVHFigs),pos(3),pos(4)])
+    hAbsDVH = findobj('tag', 'CERRAbsDVHPlot');
+    if isempty(hAbsDVH)
+        hFig = figure('tag', 'CERRAbsDVHPlot', 'doublebuffer', 'on');
+        uimenu(hFig, 'label', 'Expand Options', 'callback','plotDVHCallback(''EXPANDEDVIEW'')','interruptible','on');
+        %absAxis = axes('parent', hFig);
+        absAxis = axes('parent', hFig, 'tag', 'AbsDVHAxis', 'nextPlot','Add');
+        set(hFig,'numbertitle','off')
+        pos = get(hFig,'position');
+        nDVHFigs = length(findobj('tag', 'DVHPlot'));
+        set(hFig,'position',[pos(1)*(1 - 0.05*nDVHFigs),pos(2)*(1 - 0.05*nDVHFigs),pos(3),pos(4)])        
+    else
+        hFig = hAbsDVH;
+        figure(hFig);
+        absAxis = findobj(hFig,'tag', 'AbsDVHAxis');
+    end
+    
     %p = plot(doseSortV, cumArea2V);
     if strcmpi(cum_diff_string,'CUMU')
         h = plot([doseBinsV(:)'], [cumArea2V(:)]);
@@ -342,7 +372,7 @@ if absFlag == 1
     %addDVHtoFig(h, struct, doseSet, p, doseSortV, cumArea2V, 'DSH', 'ABS', doseV, areaV, doseName);
     set(absAxis,'xgrid',gridSetting)
     set(absAxis,'ygrid',gridSetting)
-    set(h,'tag','CERRAbsDVHPlot')
+    %set(h,'tag','CERRAbsDVHPlot')
     if structNum ~= 0
         %colorV = getColor(structNum, optS.colorOrder);
         colorV = planC{indexS.structures}(structNum).structureColor;
@@ -376,7 +406,8 @@ if absFlag == 1
     end    
     xlabel(['Dose ' units])
     
-    title(['Absolute surface area DSH plot for:  ' struct])
+    %title(['Absolute surface area DSH plot for:  ' struct])
+    title('Absolute surface area DSH plot')
     if gridFlag
         grid(absAxis, 'on');
     else

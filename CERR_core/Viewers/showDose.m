@@ -57,9 +57,9 @@ switch upper(view)
         return;
 end
 
-if length(planC{indexS.dose}) < 1
-    return;
-end
+% if length(planC{indexS.dose}) < 1
+%     return;
+% end
 
 %Save current CERR settings for dose display to compare in a moment.
 CERRDoseDisplayMode.type = stateS.optS.dosePlotType;
@@ -214,8 +214,7 @@ for j=1:length(axisInfo.doseObj)
                 else
                     [c, hDoseV] = contour(hAxis,imageXVals, imageYVals, doseM, double(contourLevels), '-');
                 end
-                set(hDoseV, 'tag', 'isodoseContour', 'parent', hAxis, 'hittest', 'off');
-
+                set(hDoseV, 'tag', 'isodoseContour', 'parent', hAxis, 'hittest', 'off');                
                 dO.handles = hDoseV;
 
                 lastLevel = -1;
@@ -236,7 +235,7 @@ for j=1:length(axisInfo.doseObj)
                         end
                         lowerBound = stateS.colorbarRange(1);
                         upperBound = stateS.colorbarRange(2);
-                        if ~(lowerBound == 0 & upperBound == 0)
+                        if ~(lowerBound == 0 && upperBound == 0)
                             percentBelow = (stateS.colorbarRange(1) - colorbarFrameMin) / (stateS.colorbarRange(2) - stateS.colorbarRange(1));
                             percentAbove = (colorbarFrameMax - stateS.colorbarRange(2)) / (stateS.colorbarRange(2) - stateS.colorbarRange(1));
                             nElements = size(c, 1);
@@ -247,10 +246,10 @@ for j=1:length(axisInfo.doseObj)
                         end
                         relativeLevel = ((level-(colorbarFrameMin))/(colorbarFrameMax - colorbarFrameMin)) * (size(c,1) + 0.5);
                         relativeLevel = clip(round(relativeLevel), 1, size(c,1), 'limits');
-                        set(h, 'color', c(relativeLevel,:));
+                        set(h, 'Color', c(relativeLevel,:));
 
                     else
-                        set(h,'color', getColor(loc, stateS.optS.colorOrder));
+                        set(h,'Color', getColor(loc, stateS.optS.colorOrder));
                     end
 
                     if level ~= lastLevel

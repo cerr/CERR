@@ -55,7 +55,7 @@ else
    %get indices of structures stored under beamlets
    structIndV = getAssociatedStr({beamlets(:,1).strUID});
    
-   if ~prod(ismember(structsV,structIndV))
+   if ~all(ismember(structsV,structIndV))
        influenceM = [];
        error('Dose not computed on some of the input structures. Please compute dose on and try again')
        return;
@@ -67,7 +67,7 @@ else
    for structNum = structsV;
        strBmletInd = find(structNum==structIndV);
         count = 0;
-        for i=1:length(beamlets(structNum,:))
+        for i=1:length(beamlets(strBmletInd,:))
             count = count + length(beamlets(strBmletInd,i).influence);
         end
         nnzV(structNum) = count;
@@ -75,7 +75,9 @@ else
     maxnnz = max(nnzV);
 
     %Pre-initalize influence matrix, greatly speeds things up.
-    influenceM = spalloc(getUniformScanSize(planC{indexS.scan}(getStructureAssociatedScan(structsV(1)))), numPBs, maxnnz);
+    indexS = planC{end};
+    numVoxels = prod(getUniformScanSize(planC{indexS.scan}(getStructureAssociatedScan(structsV(1)))));
+    influenceM = spalloc(numVoxels, numPBs, maxnnz);
 
     %Make sure structsV is a row vector, used in below for loop.
     if size(structsV, 1) ~= 1
@@ -106,7 +108,7 @@ else
                 else
                     doseScaledV = doseV * (maxVal / (2^8 -1));
                 end
-
+                
                 influenceM(indV,PBNum) = doseScaledV(:);
                 doseScaledV = [];
 

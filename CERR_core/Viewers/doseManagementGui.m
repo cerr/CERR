@@ -606,7 +606,11 @@ switch upper(command)
         else
         end
                
-
+        % Delete colorbar children if plan contains no dose 
+        if length(planC{indexS.dose}) == 0
+            delete(get(stateS.handle.doseColorbar.trans, 'children'));
+        end
+        
         %Refresh CERR axes in the case of changed dose sets.
         if refreshViewer
             sliceCallBack('refresh');

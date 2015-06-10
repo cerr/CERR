@@ -25,7 +25,7 @@ function CERRHotKeys()
 
 global planC stateS; %global is temporary, until stateS and planC are stored in figure userdata.
 
-if ~isempty(planC) & iscell(planC)
+if ~isempty(planC) && iscell(planC)
     indexS = planC{end};
 else
     return;
@@ -36,6 +36,9 @@ figureName = get(gcbf, 'Tag');
 keyPressed = get(gcbf, 'CurrentCharacter');
 keyValue = uint8(keyPressed);
 %
+if ~isempty(stateS.currentKeyPress)
+    stateS.currentKeyPress = keyValue;
+end
 
 %if key pressed has no ASCII analogue, quit. He's dead Jim.
 if(isempty(keyValue))
@@ -48,6 +51,15 @@ end
 switch(keyValue)
 
     case {30, 119} %up arrow
+        
+        if stateS.layout == 6 && isempty(stateS.currentKeyPress)
+            hAxis = gca;
+            if ~ismember(hAxis,stateS.handle.CERRAxis);
+                return;
+            end
+            translateScanOnAxis(hAxis, 'PREVSLICE')
+            return;
+        end
         switch(upper(figureName))
             case 'CERRSLICEVIEWER'
                 sliceCallBack('ChangeSlc','PREVSLICE');
@@ -57,6 +69,14 @@ switch(keyValue)
         end
 
     case {31, 115} %down arrow
+        if stateS.layout == 6 && isempty(stateS.currentKeyPress)
+            hAxis = gca;
+            if ~ismember(hAxis,stateS.handle.CERRAxis);
+                return;
+            end
+            translateScanOnAxis(hAxis, 'NEXTSLICE')
+            return;
+        end        
         switch(upper(figureName))
             case 'CERRSLICEVIEWER'
                 sliceCallBack('ChangeSlc','NEXTSLICE');

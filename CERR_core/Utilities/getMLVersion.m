@@ -34,20 +34,20 @@ function matVer = getMLVersion
 
 verOutput = ver('MATLAB');
 verString = verOutput.Version;
+matVer = str2num(verString);
 
-
-dotInd = strfind(verString, '.');
-startInd = [1 dotInd+1];
-endInd = [dotInd - 1 length(verString)];
-for i = 1:length(startInd)
-    versionCell{i} = str2num(verString(startInd(i):endInd(i)));
-end
-
-if length(versionCell) == 2
-    matVer = str2num([num2str(versionCell{1}),num2str(versionCell{2})]);
-elseif length(versionCell) == 3
-    matVer = str2num([num2str(versionCell{1}),num2str(versionCell{2}),'.',num2str(versionCell{3})]);
-end
+% dotInd = strfind(verString, '.');
+% startInd = [1 dotInd+1];
+% endInd = [dotInd - 1 length(verString)];
+% for i = 1:length(startInd)
+%     versionCell{i} = str2num(verString(startInd(i):endInd(i)));
+% end
+% 
+% if length(versionCell) == 2
+%     matVer = str2num([num2str(versionCell{1}),num2str(versionCell{2})]);
+% elseif length(versionCell) == 3
+%     matVer = str2num([num2str(versionCell{1}),num2str(versionCell{2}),'.',num2str(versionCell{3})]);
+% end
 
 
 % verOutput = ver('MATLAB');

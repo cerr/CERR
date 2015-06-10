@@ -197,12 +197,20 @@ end
 if absFlag == 1
 
     hRel = gcf;
-    h = figure('tag', 'DVHPlot', 'doublebuffer', 'on');
-    uimenu(h, 'label', 'Expand Options', 'callback','plotDVHCallback(''EXPANDEDVIEW'')','interruptible','on');
-    absAxis = axes('parent', h);
-    set(h,'numbertitle','off')
-    pos = get(h,'position');
-    set(h,'position',[pos(1)*(1 - 0.05),pos(2)*(1 - 0.05),pos(3),pos(4)])
+    hAbsDVH = findobj('tag', 'CERRAbsDVHPlot');
+    if isempty(hAbsDVH)
+        h = figure('tag', 'CERRAbsDVHPlot', 'doublebuffer', 'on');
+        uimenu(h, 'label', 'Expand Options', 'callback','plotDVHCallback(''EXPANDEDVIEW'')','interruptible','on');
+        set(h,'numbertitle','off')
+        pos = get(h,'position');
+        set(h,'position',[pos(1)*(1 - 0.05),pos(2)*(1 - 0.05),pos(3),pos(4)])
+        absAxis = axes('parent', h, 'tag', 'AbsDVHAxis', 'nextPlot','Add');
+    else
+        h = hAbsDVH;
+        figure(h);
+        absAxis = findobj(h,'tag', 'AbsDVHAxis');
+    end    
+    
     if strcmpi(cum_diff_string,'DIFF')
         indPlot = find(volsHistV);
         p = plot(doseBinsV(indPlot), volsHistV(indPlot));
@@ -260,7 +268,8 @@ if absFlag == 1
         name = [name, ' (', num2str(planC{indexS.DVH}(DVHNum).fractionIDOfOrigin), ')'];
     end
     name = regexprep(name,'_','-');    
-    title(['Absolute volume DVH plot for:  ' name])
+    % title(['Absolute volume DVH plot for:  ' name])
+    title(absAxis,'Absolute volume DVH')
     figure(hRel)
 
     set(h,'name',['Abs DVH plot: ' stateS.CERRFile])

@@ -61,11 +61,11 @@ end
 %Get the number of varargins.
 nArgsToProcess = length(varargin);
 
-if nargin == 2 & isstruct(varargin{1})
+if nargin == 2 && isstruct(varargin{1})
     structInput     = 1;
     followLink      = 1;
     newAxisInfo     = varargin{1};
-elseif nargin == 3 & isstruct(varargin{1}) & isnumeric(varargin{end})
+elseif nargin == 3 && isstruct(varargin{1}) && isnumeric(varargin{end})
     structInput     = 1;
     followLink      = varargin{end};
     newAxisInfo     = varargin{1};
@@ -95,9 +95,9 @@ for i=1:2:nArgsToProcess
         field_name = varargin{i};
         field_val  = varargin{i+1};
     end
-    if ~ischar(field_name) || ~ismember(field_name, aIFields);
-        error('Input to setAxisInfo must be an axisInfo fieldname.');
-    end
+%     if ~ischar(field_name) || ~ismember(field_name, aIFields);
+%         error('Input to setAxisInfo must be an axisInfo fieldname.');
+%     end
 
     oldData = getfield(aI, field_name);
 

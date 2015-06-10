@@ -157,6 +157,8 @@ optS.UIColor = [1 1 1]*0.9;%Color of ui buttons
 optS.colorOrder = reshape([1.0 0.7 0  0 1 0  1 0 0  0 0.9 0.9  0.75 0 0.75  0.75 0.75 0  0.6 0.75 1 0.8 0.25 0.25 1 0 1 0.75 0.5 0  0 1 0.50 1 0.5 1  0.5 1 0 0.3 0 0.9  0 0.7 0.3  0.7 0.3 0  0 0.8 0.9  0.7 0 0.8 0.9 0.6 0  0.33 0.66 1 1 0.33 0.33 1 0 0.9 0.9 0.5 0  0 1 0.40 0.9 0.6 0.9  0.6 0.9 0 0.7 0.4 0.8  0.6 0.9 0.2] * 0.9,3,28)';
 %set color of contours.  Each 3 number triple is r, g, b.  Note: do not put commas into the colorOrder
 
+optS.contourToSliceTolerance = 0.005; % Snap contour to slice located within this distance (cm).
+
 optS.inactiveSegStyle = '--';       %Style for inactive contouring segments
 
 optS.activeSegStyle = '-';        %Style for active contouring segments
@@ -324,7 +326,7 @@ optS.colorWashCacheSize = 64; %Amount of memory to use per dose for caching colo
 
 
 %--Matlab 7 compatibility Options-----------------------------------------%
-optS.saveFormat = '-V6'; %Set to [] to use default, '-V6' to save all files in Matlab6 readable format.
+optS.saveFormat = '-V7.3'; %Set to [] to use default, '-V6' to save all files in Matlab6 readable format.
 %V6 is used to maintain Matlab 7 backwards compatibility with version 6+.
 
 optS.plotObjFormat = 'v6';  %Flags for plotObjects that changed, and introduced incompability between
@@ -365,7 +367,7 @@ optS.convert_PET_to_SUV = 1; % 0: Do not convert to SUV, 1: Convert to SUV
 optS.overwrite_CERR_File = 1; % 0: Do not overwrite, 1: overwrite
 
 %-- Option to overwrite CERR file if a bug is found during QA
-optS.sinc_filter_on_display = 1; % 0: Do not apply sinc, 1: apply sinc
+optS.sinc_filter_on_display = 0; % 0: Do not apply sinc, 1: apply sinc
 
 %-- Filename for plastimatch commands
 % this file must be stored under ...\CERR\CERR_core\ImageRegistration\plastimatch_command

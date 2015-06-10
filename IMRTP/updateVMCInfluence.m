@@ -291,6 +291,8 @@ for beamIndex=1:numBeams
             switch IM.beams(beamIndex).beamEnergy
                 case 6
                     energyFile = fullfile(energyPath, 'var_6MV.spectrum');
+                case 15
+                    energyFile = fullfile(energyPath, 'mohan_15MV.spectrum');                    
                 case 18
                     energyFile = fullfile(energyPath, 'var_18MV.spectrum');
                 otherwise

@@ -43,21 +43,22 @@ for i=1:length(hAxisV)
         toRemove = setdiff(kids,allHandles);
         
         %wy
-        try
-            if (stateS.optS.blockmatch == 1)
+        %try
+            if isfield(stateS.optS,'blockmatch') && (stateS.optS.blockmatch == 1)
                 toRemove = setdiff(kids, [allHandles reshape(findobj('tag', 'blockmatchLine'), 1, [])]);
             end
-            if (stateS.optS.mirrscope == 1)
+            if isfield(stateS.optS,'mirrscope') && (stateS.optS.mirrscope == 1)
                 toRemove = setdiff(kids, [allHandles reshape(findobj('tag', 'MirrorScope'), 1, [])]);
             end
-        end;
+        %end;
         %wy
         
 
         for j=1:length(toRemove)
-            try
-                delete(toRemove);
-            end
+            %try
+            handlV = ishandle(toRemove);
+            delete(toRemove(handlV));
+            %end
         end
     end
 end

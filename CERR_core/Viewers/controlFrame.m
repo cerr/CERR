@@ -1444,12 +1444,16 @@ switch command
                     'position', absPos([.05 .56+dy .9 .05], posFrame), 'string', 'Registration', 'tag', 'controlFrameItem',...
                     'horizontalAlignment', 'center', 'FontWeight', 'Bold');
                 
-                ud.handles.RegButton = uicontrol(hFig, 'style', 'pushbutton', 'units', units, 'position',...
-                    absPos([.05 .52+dy .90 .05], posFrame),'string', 'Auto Registration','tooltipstring','Auto Registration', ...
-                    'callback', 'CERRRegistrationRigidSetup(''init'', guihandles)','tag', 'controlFrameItem');
+%                 ud.handles.RegButton = uicontrol(hFig, 'style', 'pushbutton', 'units', units, 'position',...
+%                     absPos([.05 .52+dy .90 .05], posFrame),'string', 'Auto Registration','tooltipstring','Auto Registration', ...
+%                     'callback', 'CERRRegistrationRigidSetup(''init'', guihandles)','tag', 'controlFrameItem');
                 
                 % [I,map] = imread('tool_rotate_3d.gif','gif');
                 [I,map] = imread(fullfile(getCERRPath,'pics','Icons','tool_rotate_3d.gif'),'gif'); % for compiled CERR
+                ud.handles.RegButton = uicontrol(hFig, 'style', 'pushbutton', 'units', units, 'position',...
+                    absPos([.05 .52+dy .90 .05], posFrame),'string', 'Auto Rigid Register','tooltipstring','Auto Registration', ...
+                    'callback', 'controlFrame(''fusion'', ''rigid_registration'')','tag', 'controlFrameItem');
+
                 rotateImg = ind2rgb(I,map);
                 
                 ud.handles.rotateButton = uicontrol(hFig, 'style', 'togglebutton', 'cdata', rotateImg, 'units', units, 'position',...
@@ -1729,6 +1733,15 @@ switch command
                 
                 planC{indexS.(stateS.imageRegistrationMovDatasetType)}(scanSetM).transM = (newTransform * oldTransM);
                 
+                CERRRefresh;
+                
+            case 'rigid_registration'
+                scanSetBase = stateS.imageRegistrationBaseDataset;
+                scanSetMov = stateS.imageRegistrationMovDataset;
+                [~,planC] = register_scans(planC, planC, scanSetBase, scanSetMov, 'RIGID PLASTIMATCH', [], [], []);
+                %planC = register_scans(planC, planC, scanSetBase, scanSetMov, 'BSPLINE PLASTIMATCH', [], [], []);
+                indexS = planC{end};
+                planC = warp_scan(planC{indexS.deform}(scanSetBase),scanSetMov,planC,planC);
                 CERRRefresh;
                 
             case 'toggle_rotation'
@@ -2285,7 +2298,7 @@ switch command
                                 
                                 line([xV(ind(1)) xV(ind(1))], yLimit, [2 2], 'parent', hAxis, 'color', [1 1 1], 'tag', 'mirrorLocator', ...
                                     'buttondownfcn', 'controlFrame(''fusion'', ''mirrorLocatorClicked'')', ...
-                                    'userdata', {'vert', 'transverse', ind(1)}, 'hittest', 'on', 'erasemode', 'xor');
+                                    'userdata', {'vert', 'transverse', ind(1)}, 'hittest', 'on');
                                 
                             case 'sagittal'
                                 [slc1, xV, yV] = getCTOnSlice(stateS.imageRegistrationBaseDataset, coord, 1, planC);
@@ -2297,7 +2310,7 @@ switch command
                                 
                                 line([xV(ind(1)) xV(ind(1))], yLimit, [2 2], 'parent', hAxis, 'color', [1 1 1], 'tag', 'mirrorLocator', ...
                                     'buttondownfcn', 'controlFrame(''fusion'', ''mirrorLocatorClicked'')', ...
-                                    'userdata', {'vert', 'sagittal', ind(1)}, 'hittest', 'on', 'erasemode', 'xor');
+                                    'userdata', {'vert', 'sagittal', ind(1)}, 'hittest', 'on');
                                 
                             case 'coronal'
                                 [slc1, xV, yV] = getCTOnSlice(stateS.imageRegistrationBaseDataset, coord, 2, planC);
@@ -2305,7 +2318,7 @@ switch command
                                 
                                 line([xV(ind(1)) xV(ind(1))], yLimit, [2 2], 'parent', hAxis, 'color', [1 1 1], 'tag', 'mirrorLocator', ...
                                     'buttondownfcn', 'controlFrame(''fusion'', ''mirrorLocatorClicked'')', ...
-                                    'userdata', {'vert', 'coronal', ind(1)}, 'hittest', 'on', 'erasemode', 'xor');
+                                    'userdata', {'vert', 'coronal', ind(1)}, 'hittest', 'on');
                             otherwise
                                 continue;
                         end
@@ -2390,6 +2403,7 @@ switch command
                 end
                 ud{3} = ind(1);
                 set(hLine, 'userdata', ud);
+                
                 return;
                 
             case 'mirrorLocatorUnClicked'
@@ -2470,7 +2484,7 @@ switch command
                         xRange = [min(xVals(:)) max(xVals(:))];
                         yRange = [max(yVals(:)) min(yVals(:))];
                         
-                        hBox = patch([xVals median(xRange)], [yVals max(yRange)], -2*ones(size(xVals)+1), [.86 .10 .10]);
+                        hBox = patch([xVals median(xRange)], [yVals max(yRange)], -2*ones(size(xVals,2)+1,1), [.86 .10 .10]);
                         
                         ud{1} = [xRange yRange];
                         ud{2} = [xVals median(xRange)];
@@ -2561,6 +2575,8 @@ switch command
                 dy = cP(1,2) - clickPoint(1,2);
                 
                 set(hScope, 'xData', xVals+dx, 'yData', yVals+dy);
+                                
+                return;
                 
             case 'mirrorScopeUnClicked'
                 set(gcf, 'WindowButtonUpFcn', '');
@@ -3008,7 +3024,7 @@ switch command
                 %gspsNum = varargin{2};
                 gspsNum = ud.annotation.matchingGSPSIndV(ud.annotation.currentMatchingSlc);
                 sliceNum = ud.annotation.slicesNumsC{gspsNum};
-                axes(stateS.handle.CERRAxis(1))
+                axes(stateS.handle.CERRAxis(1));
                 stateS.annotToggle = -1;
                 goto('SLICE',sliceNum)
                 stateS.annotToggle = 1;

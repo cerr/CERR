@@ -30,12 +30,25 @@ function im = RegdoMirrCheckboard(Im1, Im2, numRows, numCols, orientation, metri
 
     m1 = fix(m/numRows); 
     n1 = fix(n/numCols);
-    black = zeros(m1, n1, classname);
+    black = zeros(m1, n1, classname);    
     white = ones(m1, n1, classname);
     [ROW,COL] = ndgrid(1:m1,1:n1);
     %indKeepV = ((ROW-m1/2).^2)/(m1/2)^2 + ((COL-n1/2).^2)/(n1/2)^2 <= 1; % circle
-    indKeepV = ((ROW-m1/2).^2)/(m1*0.58)^2 + ((COL-n1/2).^2)/(n1*0.58)^2 <= 1; % circle
+    indKeepV = ((ROW-m1/2).^2)/(m1*0.58)^2 + ((COL-n1/2).^2)/(n1*0.58)^2 <= 1; % ellipse
     black(indKeepV) = 1;
+    
+    black_edge = ((ROW-m1/2).^2)/(m1*0.58)^2 + ((COL-n1/2).^2)/(n1*0.58)^2 > 0.97 & ((ROW-m1/2).^2)/(m1*0.58)^2 + ((COL-n1/2).^2)/(n1*0.58)^2 < 1.03;
+    indColStart = min(find(black_edge(1,:)));
+    indColStop = max(find(black_edge(1,:)));
+    indRowStart = min(find(black_edge(:,1)));
+    indRowStop = max(find(black_edge(:,1)));
+    black_edge(:,round(size(black_edge,2)/2)) = 1;
+    black_edge(1,indColStart:indColStop) = 1;
+    black_edge(end,indColStart:indColStop) = 1;
+    black_edge(indRowStart:indRowStop,1) = 1;
+    black_edge(indRowStart:indRowStop,end) = 1;    
+    highlightM = zeros(size(Im1),'single');
+    highlightM(1:numRows*m1,1:numCols*n1) = repmat(black_edge,numRows, numCols);
     
 %     %tile = [black white; white black];
 %     tile = [black black; black black];
@@ -153,6 +166,12 @@ function im = RegdoMirrCheckboard(Im1, Im2, numRows, numCols, orientation, metri
     colorEdge(end+1,:) = colorEdge(end,:);
     CTEdge3M = reshape(colorEdge(edgeScaled(1:ctSize(1),1:ctSize(2)),1:3),ctSize(1),ctSize(2),3);
     
+    % Create highlight edge
+    colorEdge = CERRColorMap('green');
+    highlightEdgeScaled = uint32(highlightM * (size(colorEdge,1)-1)+1);
+    colorEdge(end+1,:) = colorEdge(end,:);
+    highlightEdge3M = reshape(colorEdge(highlightEdgeScaled(1:ctSize(1),1:ctSize(2)),1:3),ctSize(1),ctSize(2),3);
+    
     colorMSE = CERRColorMap('starinterp');    
     minBlocks = min(Imov(:));
     maxBlocks = max(Imov(:));
@@ -162,7 +181,8 @@ function im = RegdoMirrCheckboard(Im1, Im2, numRows, numCols, orientation, metri
     mse3M = reshape(colorMSE(mseClip(1:ctSize(1),1:ctSize(2)),1:3),ctSize(1),ctSize(2),3);
         
     % CA_Image = CTBackground3M*0.95 + mse3M*0.05;
-    CA_Image = CTBackground3M*0.5 + 0.35*CTEdge3M + mse3M*0.15;
+    %CA_Image = CTBackground3M*0.5 + 0.35*CTEdge3M + mse3M*0.15;
+    CA_Image = CTBackground3M*0.6 + highlightEdge3M*0.4;
     
     I3M(:,:,1) = I;
     I3M(:,:,2) = I;

@@ -69,7 +69,7 @@ format compact
 try
     indexS = planC{end};
 catch
-    if ~isempty(varargin) & iscell(varargin{1})
+    if ~isempty(varargin) && iscell(varargin{1})
         planC = varargin{1};
         indexS = planC{end};
     end
@@ -126,12 +126,13 @@ switch upper(instr)
         stateS.workspacePlan = 0;
         stateS.toggle_rotation = 0;
         stateS.webtrev.isOn = 0;
+        stateS.currentKeyPress = 0;
         
         %Store Matlab version under stateS
         stateS.MLVersion = getMLVersion;
 
         %Set Keypressfunction call back for ALL subsequent figures.
-        set(0,'DefaultFigureCreateFcn','set(gcbo,''KeyPressFcn'',''CERRHotKeys'')')
+        set(0,'DefaultFigureCreateFcn','set(gcbo,''KeyPressFcn'',''CERRHotKeys'',''keyReleaseFcn'',''CERRHotKeyRelease'')')
 
         %Detect and store working directory, in case this is the compiled version.
         %This must go before any calls to getCERRPath
@@ -206,6 +207,9 @@ switch upper(instr)
         stateS.colorbarFrameMin = [];
         stateS.colorbarFrameMinCompare = [];
         %DK
+        
+        % Handle for IMRTP GUI
+        stateS.handle.IMRTMenuFig = [];
 
         str1 = ['CERR'];
         position = [5 40 940 620];
@@ -335,7 +339,12 @@ switch upper(instr)
         stateS.handle.CERRAxis(3) = axes('userdata', aI, 'parent', hCSV, 'units', 'pixels', 'position', [figureWidth-wid-10 bottomMarginHeight+20+hig wid hig], 'color', [0 0 0], 'xTickLabel', [], 'yTickLabel', [], 'xTick', [], 'yTick', [], 'buttondownfcn', 'sliceCallBack(''axisClicked'')', 'nextplot', 'add', 'yDir', 'reverse', 'linewidth', 2);
         aI.view    = 'legend';
         stateS.handle.CERRAxis(4) = axes('userdata', aI,'parent', hCSV, 'units', 'pixels', 'position', [figureWidth-wid-10 bottomMarginHeight+10 wid hig], 'color', [0 0 0], 'xTickLabel', [], 'yTickLabel', [], 'xTick', [], 'yTick', [], 'buttondownfcn', 'sliceCallBack(''axisClicked'')', 'nextplot', 'add', 'yDir', 'reverse', 'linewidth', 2);
-        stateS.layout = 5;stateS.Oldlayout = 5;
+        
+        if stateS.MLVersion >= 8.4
+            set(stateS.handle.CERRAxis,'ClippingStyle','rectangle')
+        end
+        stateS.layout = 5;
+        stateS.Oldlayout = 5;
                
         %The NUMBER of the currentAxis. NOT handle.
         stateS.currentAxis = 1;
@@ -494,11 +503,25 @@ switch upper(instr)
             set(stateS.handle.CERRAxis, 'XLimMode', 'auto', 'YLimMode', 'auto');
             
             %Create in-axis labels for each axis.
+            tickV = linspace(0.02,0.1,6);
             for i=1:length(stateS.handle.CERRAxis)
                 stateS.handle.CERRAxisLabel1(i) = text('parent', stateS.handle.CERRAxis(i), 'string', '', 'position', [.02 .98 0], 'color', [1 0 0], 'units', 'normalized', 'visible', 'off', 'horizontalAlignment', 'left', 'verticalAlignment', 'top');
                 stateS.handle.CERRAxisLabel2(i) = text('parent', stateS.handle.CERRAxis(i), 'string', '', 'position', [.90 .98 0], 'color', [1 0 0], 'units', 'normalized', 'visible', 'off', 'horizontalAlignment', 'left', 'verticalAlignment', 'top');
+                for j = 1:6
+                    ticks1V(j) = line([tickV(j) tickV(j)], [0.01 0.03], [2 2], 'parent', stateS.handle.CERRAxis(i), 'color', 'y', 'hittest', 'off', 'visible', 'off');
+                    ticks2V(j) = line([0.01 0.03], [tickV(j) tickV(j)], [2 2], 'parent', stateS.handle.CERRAxis(i), 'color', 'y', 'hittest', 'off', 'visible', 'off');
+                end
+                stateS.handle.CERRAxisTicks1(i,:) = ticks1V;
+                stateS.handle.CERRAxisTicks2(i,:) = ticks2V; 
+                stateS.handle.CERRAxisScale1(i) = line([0.02 0.1], [0.02 0.02], [2 2], 'parent', stateS.handle.CERRAxis(i), 'color', [0.7 0.7 0.7], 'hittest', 'off', 'visible', 'off');
+                stateS.handle.CERRAxisScale2(i) = line([0.02 0.02], [0.02 0.1], [2 2], 'parent', stateS.handle.CERRAxis(i), 'color', [0.7 0.7 0.7], 'hittest', 'off', 'visible', 'off');
+                stateS.handle.CERRAxisLabel3(i) = text('parent', stateS.handle.CERRAxis(i), 'string', '5', 'position', [0.02 0.1 0], 'color', 'y', 'units', 'data', 'visible', 'off', 'hittest', 'off','fontSize',8);
+                stateS.handle.CERRAxisLabel4(i) = text('parent', stateS.handle.CERRAxis(i), 'string', '5', 'position', [0.1 0.02 0], 'color', 'y', 'units', 'data', 'visible', 'off', 'hittest', 'off','fontSize',8);
+                %stateS.handle.CERRAxisPlaneLocator1(i)
+                %stateS.handle.CERRAxisPlaneLocator2(i)
+                
                 aI = get(stateS.handle.CERRAxis(i), 'userdata');
-                aI.miscHandles = [aI.miscHandles stateS.handle.CERRAxisLabel1(i) stateS.handle.CERRAxisLabel2(i)];
+                aI.miscHandles = [aI.miscHandles stateS.handle.CERRAxisLabel1(i) stateS.handle.CERRAxisLabel2(i) stateS.handle.CERRAxisLabel3(i) stateS.handle.CERRAxisLabel4(i) stateS.handle.CERRAxisScale1(i) stateS.handle.CERRAxisScale2(i) stateS.handle.CERRAxisTicks1(i,:) stateS.handle.CERRAxisTicks2(i,:)];
                 set(stateS.handle.CERRAxis(i), 'userdata', aI);
             end
             
@@ -652,10 +675,10 @@ switch upper(instr)
             pos = get(hCSV, 'position');
             figureWidth = pos(3); figureHeight = pos(4);
             nAxes = length(stateS.handle.CERRAxis);
-            if isequal(stateS.Oldlayout,7)& ~isequal(stateS.layout,7)
+            if isequal(stateS.Oldlayout,7) && ~isequal(stateS.layout,7)
                 doseCompare('exit');
                 return
-            elseif isequal(stateS.Oldlayout,6)& ~isequal(stateS.layout,6)
+            elseif isequal(stateS.Oldlayout,6) && ~isequal(stateS.layout,6)
                 scanCompare('exit');
                 return
             end
@@ -708,18 +731,8 @@ switch upper(instr)
                     set(stateS.handle.CERRAxisLabel2(1),'position', [(((figureWidth-leftMarginWidth-70-wid-10)-30)/(figureWidth-leftMarginWidth-70-wid-10)) .98 0]);
                     set(stateS.handle.CERRAxisLabel2(2),'position', [(wid-30)/wid .98 0]);
                     set(stateS.handle.CERRAxisLabel2(3),'position', [(wid-30)/wid .98 0]);
-
-
-                case 6 % Scan Comparison Mode
-                    wid = (figureWidth-leftMarginWidth-70-10)/2;
-                    hig = (figureHeight-bottomMarginHeight-20);
-                    set(stateS.handle.CERRAxis(1), 'position', [leftMarginWidth+60 bottomMarginHeight+10 wid hig]);
-                    set(stateS.handle.CERRAxis(5), 'position', [leftMarginWidth+wid+10+60 bottomMarginHeight+10 wid hig]);
-                    bottomAxes = setdiff(1:nAxes, [1 5]);
-                    set(stateS.handle.CERRAxisLabel2(1),'position', [(wid-30)/wid .98 0]);
-                    set(stateS.handle.CERRAxisLabel2(5),'position', [(wid-30)/wid .98 0]);
-
-                case 7 % Tomotherapy comparison mode
+                    
+                case {6,7} % Tomotherapy comparison mode
                     wid = (figureWidth-leftMarginWidth-70-10)/5;
                     hig = (figureHeight-bottomMarginHeight-20)/2;
                     if stateS.doseCompare.newAxis == 1
@@ -746,18 +759,15 @@ switch upper(instr)
                         set(stateS.handle.CERRAxis(6), 'position', [leftMarginWidth+60 bottomMarginHeight+10 2*wid-5 hig]);
                         set(stateS.handle.CERRAxis(7), 'position', [leftMarginWidth+60+2*wid+5 bottomMarginHeight+10 2*wid-5 hig]);
                         bottomAxes = setdiff(1:nAxes, [1 4 5 6 7]);
-                        xPosStr = (2*wid-5);
-                        set(stateS.handle.CERRAxisLabel2(1),'position', [(xPosStr-30)/xPosStr .98 0]);
-                        set(stateS.handle.CERRAxisLabel2(5),'position', [(xPosStr-30)/xPosStr .98 0]);
-                        set(stateS.handle.CERRAxisLabel2(6),'position', [(xPosStr-30)/xPosStr .98 0]);
-                        set(stateS.handle.CERRAxisLabel2(7),'position', [(xPosStr-30)/xPosStr .98 0]);
-
                     end
+                    
                     % Axis for legend bar
                     set(stateS.handle.CERRAxis(4), 'position', [leftMarginWidth+60+wid*4+10 bottomMarginHeight+10+10+hig wid-5 hig]);
                     % Axis for colorbar
-                    set(stateS.handle.doseColorbar.Compare, 'position', [leftMarginWidth+60+wid*4+20 bottomMarginHeight+30 50 hig-40]);
-                
+                    if isfield(stateS.handle.doseColorbar,'Compare')
+                        set(stateS.handle.doseColorbar.Compare, 'position', [leftMarginWidth+60+wid*4+20 bottomMarginHeight+30 50 hig-40]);
+                    end
+                    
                 case 8 % Cohort review
                     wid = (figureWidth-leftMarginWidth-70-4*10)/4;
                     hig = (figureHeight-bottomMarginHeight-20-2*10)/4;
@@ -791,7 +801,6 @@ switch upper(instr)
                     
                     
             end
-
 
             spacing = 55;
             for i=1:length(bottomAxes)
@@ -834,9 +843,22 @@ switch upper(instr)
         axisInfo.structureGroup(1:end) = [];
         axisInfo.miscHandles = [];
         stateS.handle.CERRAxis(end+1) = axes('userdata', axisInfo, 'parent', hCSV, 'units', 'pixels', 'position', [1 1 1 1], 'color', [0 0 0], 'xTickLabel', [], 'yTickLabel', [], 'xTick', [], 'yTick', [], 'buttondownfcn', 'sliceCallBack(''axisClicked'')', 'nextplot', 'add', 'yDir', 'reverse', 'linewidth', 2);
+        tickV = linspace(0.02,0.1,6);
+        for j = 1:6
+            ticks1V(j) = line([tickV(j) tickV(j)], [0.01 0.03], [2 2], 'parent', stateS.handle.CERRAxis(end), 'color', 'y', 'hittest', 'off');
+            ticks2V(j) = line([0.01 0.03], [tickV(j) tickV(j)], [2 2], 'parent', stateS.handle.CERRAxis(end), 'color', 'y', 'hittest', 'off');
+        end
         stateS.handle.CERRAxisLabel1(end+1) = text('parent', stateS.handle.CERRAxis(end), 'string', '', 'position', [.02 .98 0], 'color', [1 0 0], 'units', 'normalized', 'visible', 'off', 'horizontalAlignment', 'left', 'verticalAlignment', 'top');
         stateS.handle.CERRAxisLabel2(end+1) = text('parent', stateS.handle.CERRAxis(end), 'string', '', 'position', [.90 .98 0], 'color', [1 0 0], 'units', 'normalized', 'visible', 'off', 'horizontalAlignment', 'left', 'verticalAlignment', 'top');
-        axisInfo.miscHandles = [stateS.handle.CERRAxisLabel1(end) stateS.handle.CERRAxisLabel2(end)];
+        stateS.handle.CERRAxisTicks1(end+1,:) = ticks1V;
+        stateS.handle.CERRAxisTicks2(end+1,:) = ticks2V;
+        stateS.handle.CERRAxisScale1(end+1) = line([0.02 0.1], [0.02 0.02], [2 2], 'parent', stateS.handle.CERRAxis(end), 'color', [0.7 0.7 0.7], 'hittest', 'off');
+        stateS.handle.CERRAxisScale2(end+1) = line([0.02 0.02], [0.02 0.1], [2 2], 'parent', stateS.handle.CERRAxis(end), 'color', [0.7 0.7 0.7], 'hittest', 'off');
+        stateS.handle.CERRAxisLabel3(end+1) = text('parent', stateS.handle.CERRAxis(end), 'string', '5', 'position', [0.02 0.1 0], 'color', 'y', 'units', 'data', 'visible', 'off','fontSize',8);
+        stateS.handle.CERRAxisLabel4(end+1) = text('parent', stateS.handle.CERRAxis(end), 'string', '5', 'position', [0.1 0.02 0], 'color', 'y', 'units', 'data', 'visible', 'off','fontSize',8);
+        
+        axisInfo.miscHandles = [stateS.handle.CERRAxisLabel1(end) stateS.handle.CERRAxisLabel2(end) stateS.handle.CERRAxisLabel3(end) stateS.handle.CERRAxisLabel4(end) stateS.handle.CERRAxisScale1(end) stateS.handle.CERRAxisScale2(end) stateS.handle.CERRAxisTicks1(end,:) stateS.handle.CERRAxisTicks2(end,:)];
+        
         set(stateS.handle.CERRAxis(end), 'userdata', axisInfo);
         CERRAxisMenu(stateS.handle.CERRAxis(end));
         sliceCallBack('RESIZE');
@@ -851,9 +873,20 @@ switch upper(instr)
         axisInfo.structureGroup(1:end) = [];
         axisInfo.miscHandles = [];
         stateS.handle.CERRAxis(end+1) = axes('userdata', axisInfo, 'parent', hCSV, 'units', 'pixels', 'position', [1 1 1 1], 'color', [0 0 0], 'xTickLabel', [], 'yTickLabel', [], 'xTick', [], 'yTick', [], 'buttondownfcn', 'sliceCallBack(''axisClicked'')', 'nextplot', 'add', 'yDir', 'reverse', 'linewidth', 2);
+        tickV = linspace(0.02,0.1,6);
+        for j = 1:6
+            ticks1V(j) = line([tickV(j) tickV(j)], [0.01 0.03], [2 2], 'parent', stateS.handle.CERRAxis(end), 'color', 'y', 'hittest', 'off');
+            ticks2V(j) = line([0.01 0.03], [tickV(j) tickV(j)], [2 2], 'parent', stateS.handle.CERRAxis(end), 'color', 'y', 'hittest', 'off');
+        end
         stateS.handle.CERRAxisLabel1(end+1) = text('parent', stateS.handle.CERRAxis(end), 'string', '', 'position', [.02 .98 0], 'color', [1 0 0], 'units', 'normalized', 'visible', 'off', 'horizontalAlignment', 'left', 'verticalAlignment', 'top');
         stateS.handle.CERRAxisLabel2(end+1) = text('parent', stateS.handle.CERRAxis(end), 'string', '', 'position', [.90 .98 0], 'color', [1 0 0], 'units', 'normalized', 'visible', 'off', 'horizontalAlignment', 'left', 'verticalAlignment', 'top');
-        axisInfo.miscHandles = [stateS.handle.CERRAxisLabel1(end) stateS.handle.CERRAxisLabel2(end)];
+        stateS.handle.CERRAxisTicks1(end+1,:) = ticks1V;
+        stateS.handle.CERRAxisTicks2(end+1,:) = ticks2V;
+        stateS.handle.CERRAxisScale1(end+1) = line([0.02 0.1], [0.02 0.02], [2 2], 'parent', stateS.handle.CERRAxis(end), 'color', [0.7 0.7 0.7], 'hittest', 'off');
+        stateS.handle.CERRAxisScale2(end+1) = line([0.02 0.02], [0.02 0.1], [2 2], 'parent', stateS.handle.CERRAxis(end), 'color', [0.7 0.7 0.7], 'hittest', 'off');
+        stateS.handle.CERRAxisLabel3(end+1) = text('parent', stateS.handle.CERRAxis(end), 'string', '5', 'position', [0.02 0.1 0], 'color', 'y', 'units', 'data', 'visible', 'off','fontSize',8);
+        stateS.handle.CERRAxisLabel4(end+1) = text('parent', stateS.handle.CERRAxis(end), 'string', '5', 'position', [0.1 0.02 0], 'color', 'y', 'units', 'data', 'visible', 'off','fontSize',8);
+        axisInfo.miscHandles = [stateS.handle.CERRAxisLabel1(end) stateS.handle.CERRAxisLabel2(end) stateS.handle.CERRAxisLabel3(end) stateS.handle.CERRAxisLabel4(end) stateS.handle.CERRAxisScale1(end) stateS.handle.CERRAxisScale2(end) stateS.handle.CERRAxisTicks1(end,:) stateS.handle.CERRAxisTicks2(end,:)];
         axisInfo.coord       = {'Linked', hAxis};
         axisInfo.view        = {'Linked', hAxis};
         axisInfo.xRange      = {'Linked', hAxis};
@@ -882,22 +915,39 @@ switch upper(instr)
                 end
                 axisLabelTmp1 = stateS.handle.CERRAxisLabel1(pos);
                 axisLabelTmp2 = stateS.handle.CERRAxisLabel2(pos);
+                axisLabelTmp3 = stateS.handle.CERRAxisLabel3(pos);
+                axisLabelTmp4 = stateS.handle.CERRAxisLabel4(pos);
+                axisTickTmp1 = stateS.handle.CERRAxisTicks1(pos,:);
+                axisTickTmp2 = stateS.handle.CERRAxisTicks2(pos,:);
+                axisScaleTmp1 = stateS.handle.CERRAxisScale1(pos);
+                axisScaleTmp2 = stateS.handle.CERRAxisScale2(pos);
                 stateS.handle.CERRAxis(pos) = stateS.handle.CERRAxis(stateS.lastAxis);
                 stateS.handle.CERRAxisLabel1(pos) = stateS.handle.CERRAxisLabel1(stateS.lastAxis);
                 stateS.handle.CERRAxisLabel2(pos) = stateS.handle.CERRAxisLabel2(stateS.lastAxis);
+                stateS.handle.CERRAxisLabel3(pos) = stateS.handle.CERRAxisLabel3(stateS.lastAxis);
+                stateS.handle.CERRAxisLabel4(pos) = stateS.handle.CERRAxisLabel4(stateS.lastAxis);
+                stateS.handle.CERRAxisScale1(pos) = stateS.handle.CERRAxisScale1(stateS.lastAxis);
+                stateS.handle.CERRAxisScale2(pos) = stateS.handle.CERRAxisScale2(stateS.lastAxis);
+                stateS.handle.CERRAxisTicks1(pos,:) = stateS.handle.CERRAxisTicks1(stateS.lastAxis,:);
+                stateS.handle.CERRAxisTicks2(pos,:) = stateS.handle.CERRAxisTicks2(stateS.lastAxis,:);
                 stateS.handle.CERRAxis(stateS.lastAxis) = hAxis;
                 stateS.handle.CERRAxisLabel1(stateS.lastAxis) = axisLabelTmp1;
                 stateS.handle.CERRAxisLabel2(stateS.lastAxis) = axisLabelTmp2;
+                stateS.handle.CERRAxisLabel3(stateS.lastAxis) = axisLabelTmp3;
+                stateS.handle.CERRAxisLabel4(stateS.lastAxis) = axisLabelTmp4; 
+                stateS.handle.CERRAxisScale1(stateS.lastAxis) = axisScaleTmp1;
+                stateS.handle.CERRAxisScale2(stateS.lastAxis) = axisScaleTmp2;
+                stateS.handle.CERRAxisTicks1(stateS.lastAxis,:) = axisTickTmp1;
+                stateS.handle.CERRAxisTicks2(stateS.lastAxis,:) = axisTickTmp2;                
                 stateS.currentAxis = stateS.lastAxis;
                 set(stateS.handle.CERRAxisLabel1(stateS.lastAxis), 'color', 'white');
                 set(stateS.handle.CERRAxisLabel1(stateS.currentAxis), 'color', 'green');
 
                 set(stateS.handle.CERRAxisLabel2(stateS.lastAxis), 'color', 'white');
                 set(stateS.handle.CERRAxisLabel2(stateS.currentAxis), 'color', 'green');
-
+                
                 sliceCallBack('resize');
-
-
+                
             case 'normal'
                 sliceCallBack('focus', hAxis);
 
@@ -1026,9 +1076,9 @@ switch upper(instr)
         for i = 1:size(pLUD,1)
             parentAxis = pLUD{i}{3};
             if parentAxis == stateS.currentAxis;
-                set(planeLocators(i), 'color', [0 1 0]);
+                set(planeLocators(i), 'Color', [0 1 0]);
             else
-                set(planeLocators(i), 'color', [1 1 0]);
+                set(planeLocators(i), 'Color', [1 1 0]);
             end
         end
         try % case where the axes is deleted stateS.lastAxis exceeds matrix dimention
@@ -1255,7 +1305,7 @@ switch upper(instr)
             delta = -1;
         end
 
-        if ~isempty(transM) & ~isequal(transM,eye(4))
+        if ~isempty(transM) && ~isequal(transM,eye(4))
             [nCoordX nCoordY nCoordZ] = applyTransM(inv(transM),lastcoord,lastcoord,lastcoord);
         else
             nCoordX = lastcoord;
@@ -1272,34 +1322,37 @@ switch upper(instr)
                     newSlice = 1;
                 end
                 %if ~newSlice < 1 | ~newSlice > length(zs)                
-                if (newSlice > 0 & newSlice <= length(zs)) && (isempty(transM) | max(abs(transM(:) - I(:))) < 1e-8)
+                if (newSlice > 0 & newSlice <= length(zs)) && (isempty(transM) || max(abs(transM(:) - I(:))) < 1e-8)
                     newCoord = zs(newSlice);
                     setAxisInfo(hAxis, 'coord', newCoord);
                 else
-                    sliceSpacing = min(unique(diff(zs)));
+                    uniqZs = unique(diff(zs));                    
+                    sliceSpacing = min(uniqZs(uniqZs ~= 0));
                     setAxisInfo(hAxis, 'coord', lastcoord+sliceSpacing*delta);
                 end
             case 'SAGITTAL'
                 oldSlice = findnearest(xs, nCoordX);
                 newSlice = oldSlice + delta;
-                if (newSlice > 0 & newSlice <= length(xs)) && (isempty(transM) | max(abs(transM(:) - I(:))) < 1e-8)
+                if (newSlice > 0 & newSlice <= length(xs)) && (isempty(transM) || max(abs(transM(:) - I(:))) < 1e-8)
                     %if ~newSlice < 1 | ~newSlice > length(xs)
 
                     newCoord = xs(newSlice);
                     setAxisInfo(hAxis, 'coord', newCoord);
                 else
-                    sliceSpacing = min(unique(diff(xs)));
+                    uniqXs = unique(diff(xs));
+                    sliceSpacing = min(uniqXs(uniqXs ~= 0));
                     setAxisInfo(hAxis, 'coord', lastcoord+sliceSpacing*delta);
                 end
             case 'CORONAL'
                 oldSlice = findnearest(ys, nCoordY);
                 newSlice = oldSlice + delta;
                 %if ~newSlice < 1 | ~newSlice > length(ys)
-                if (newSlice > 0 & newSlice <= length(ys)) && (isempty(transM) | max(abs(transM(:) - I(:))) < 1e-8)
+                if (newSlice > 0 && newSlice <= length(ys)) && (isempty(transM) || max(abs(transM(:) - I(:))) < 1e-8)
                     newCoord = ys(newSlice);
                     setAxisInfo(hAxis, 'coord', newCoord);
                 else
-                    sliceSpacing = min(unique(diff(ys)));
+                    uniqYs = unique(diff(ys));
+                    sliceSpacing = min(uniqYs(uniqYs ~= 0));
                     setAxisInfo(hAxis, 'coord', lastcoord+sliceSpacing*delta);
                 end
         end
@@ -1573,12 +1626,14 @@ switch upper(instr)
         planC{indexS.structures}(structNum).visible = xor(planC{indexS.structures}(structNum).visible, 1);
         if planC{indexS.structures}(structNum).visible
             checked = 'on';
+            toggleStructSagCor(structNum)
         else
             checked = 'off';
         end
         try
             set(gcbo, 'Checked', checked);
         end
+        
         CERRRefresh
         
         
@@ -1685,8 +1740,9 @@ switch upper(instr)
 
     case 'LOCATORCLICKED'
         set(hCSV, 'WindowButtonUpFcn', 'sliceCallBack(''LOCATORUNCLICKED'')');
-        setappdata(hCSV, 'locPlaneHandle', gcbo);
-        set(gcbo, 'erasemode', 'xor');
+        hLine = gcbo;
+        setappdata(hCSV, 'locPlaneHandle', hLine);
+        %set(gcbo, 'erasemode', 'xor');
         set(hCSV, 'WindowButtonMotionFcn', 'sliceCallBack(''LOCATORMOVING'')');
         return;
 
@@ -1694,9 +1750,9 @@ switch upper(instr)
         hLine = getappdata(hCSV, 'locPlaneHandle');
         hAxis = get(hLine, 'parent');
         ud = get(hLine, 'userdata');
-        type = ud{1}; view = ud{2};
+        locType = ud{1}; %view = ud{2};
         cP = get(hAxis, 'currentpoint');
-        switch type
+        switch locType
             case 'vert'
                 set(hLine, 'xData', [cP(1,1) cP(1,1)]);
             case 'horz'
@@ -1710,8 +1766,9 @@ switch upper(instr)
         hLine = getappdata(hCSV, 'locPlaneHandle');
         setappdata(hCSV, 'locPlaneHandle', []);
         ud = get(hLine, 'userdata');
-        type = ud{1}; view = ud{2}; linkedAxis = ud{3};
-        transAxis = []; sagAxis = []; corAxis = [];
+        %type = ud{1}; view = ud{2}; 
+        linkedAxis = ud{3};
+        %transAxis = []; sagAxis = []; corAxis = [];
         hAxis = stateS.handle.CERRAxis(linkedAxis);
         xVals = get(hLine, 'xData');
         yVals = get(hLine, 'yData');
@@ -1741,7 +1798,13 @@ switch upper(instr)
         stateS.zoomState = val;
         %         val = get(stateS.handle.zoom, 'value');
         if val
-            set(hCSV,'pointer','crosshair');
+            cData = NaN*ones(16);
+            cData(8,1:2:16) = 1;
+            cData(8,2:2:16) = 2;
+            cData(1:1:16,8) = 1;
+            cData(1:2:16,8) = 2;
+            %set(hCSV,'pointer','crosshair');
+            set(hCSV,'pointerShapeCData',cData,'pointer','custom','PointerShapeHotSpot',[8,8]);
             set(stateS.handle.zoom,'background','red');
             set(stateS.handle.fractionGroupIDTrans,'String','Left Click: ZOOMIN');
 
@@ -1779,7 +1842,8 @@ switch upper(instr)
         allhAxis = stateS.handle.CERRAxis(indAxis);
         hFig = get(hAxis(1), 'parent');
         startPt  = get(hAxis(1), 'currentPoint');
-        rbbox([get(hFig,'currentpoint') 0 0],get(hFig,'currentpoint'),hFig);
+        %rbbox([get(hFig,'currentpoint') 0 0],get(hFig,'currentpoint'),hFig);
+        rbbox([get(hFig,'currentpoint') 0 0],get(hFig,'currentpoint'));
         endPt = get(hAxis(1), 'currentPoint');
         xLim = get(hAxis(1), 'xLim');
         yLim = get(hAxis(1), 'yLim');
@@ -1941,7 +2005,7 @@ switch upper(instr)
             end
         end
         for i=1:length(axesToDraw);
-            line([cP(1,1) cP(1,1)], [cP(2,2) cP(2,2)], 'tag', 'profileLine', 'userdata', hAxis, 'eraseMode', 'xor', 'parent', axesToDraw(i), 'marker', '+', 'color', [.8 .8 .8], 'hittest', 'off');
+            line([cP(1,1) cP(1,1)], [cP(2,2) cP(2,2)], 'tag', 'profileLine', 'userdata', hAxis, 'parent', axesToDraw(i), 'marker', '+', 'color', [.8 .8 .8], 'hittest', 'off');
         end
         switch upper(view)
             case 'TRANSVERSE'
@@ -2075,7 +2139,7 @@ switch upper(instr)
         cP = get(gcbo, 'CurrentPoint');
         hFig = get(gcbo, 'parent');
         delete([findobj('tag', 'doseQueryPoint')]);
-        line([cP(1,1) cP(1,1)], [cP(2,2) cP(2,2)], 'tag', 'doseQueryPoint', 'userdata', gcbo, 'eraseMode', 'xor', 'parent', gcbo, 'marker', '+', 'color', [1 1 1], 'hittest', 'off');
+        line([cP(1,1) cP(1,1)], [cP(2,2) cP(2,2)], 'tag', 'doseQueryPoint', 'userdata', gcbo, 'parent', gcbo, 'marker', '+', 'color', [1 1 1], 'hittest', 'off');
         sliceCallBack('doseQueryMotion');
         return;
 
@@ -2151,13 +2215,13 @@ switch upper(instr)
         axesToDraw = hAxis;
         for i=1:length(stateS.handle.CERRAxis);
             [otherView, otherCoord] = getAxisInfo(stateS.handle.CERRAxis(i), 'view', 'coord');
-            if isequal(view, otherView) & isequal(coord, otherCoord) & ~isequal(hAxis, stateS.handle.CERRAxis(i));
+            if isequal(view, otherView) && isequal(coord, otherCoord) && ~isequal(hAxis, stateS.handle.CERRAxis(i));
                 axesToDraw = [axesToDraw;stateS.handle.CERRAxis(i)];
             end
         end
         for i=1:length(axesToDraw);
-            line([cP(1,1) cP(1,1)], [cP(2,2) cP(2,2)], 'tag', 'rulerLine', 'userdata', hAxis, 'eraseMode', 'xor', 'parent', axesToDraw(i), 'marker', '+', 'color', [.8 .8 .8], 'hittest', 'off');
-            %             line([cP(1,1) cP(1,1)], [cP(2,2) cP(2,2)], 'tag', 'profileLine', 'userdata', hAxis, 'eraseMode', 'xor', 'parent', axesToDraw(i), 'marker', '+', 'color', [.8 .8 .8], 'hittest', 'off');
+            %line([cP(1,1) cP(1,1)], [cP(2,2) cP(2,2)], 'tag', 'rulerLine', 'userdata', hAxis, 'eraseMode', 'xor', 'parent', axesToDraw(i), 'marker', '+', 'color', [.8 .8 .8], 'hittest', 'off');
+            line([cP(1,1) cP(1,1)], [cP(2,2) cP(2,2)], 'tag', 'rulerLine', 'userdata', hAxis, 'parent', axesToDraw(i), 'marker', '+', 'color', [.8 .8 .8], 'hittest', 'off');
         end
         return;
     case 'RULERMOTION'
@@ -2217,10 +2281,10 @@ switch upper(instr)
         yV = cP(2,2) + delta*sin(thetaV);
         for i=1:length(axesToDraw);
             % patch([cP(1,1)-delta cP(1,1)+delta cP(1,1)+delta cP(1,1)-delta cP(1,1)-delta], [cP(2,2)-delta cP(2,2)-delta cP(2,2)+delta cP(2,2)+delta cP(2,2)-delta], [0 1 0], 'tag', 'spotlight', 'userdata', hAxis, 'eraseMode', 'xor', 'parent', axesToDraw(i), 'edgeColor', 'none', 'faceColor', [0 1 0], 'faceAlpha', 0.5, 'hittest', 'off');
-            patch(xV, yV, [0 1 0], 'tag', 'spotlight_patch', 'userdata', hAxis, 'eraseMode', 'xor', 'parent', axesToDraw(i), 'edgeColor', 'none', 'faceColor', [1 1 0], 'faceAlpha', 0.9, 'hittest', 'off');
+            patch(xV, yV, [0 1 0], 'tag', 'spotlight_patch', 'userdata', hAxis, 'parent', axesToDraw(i), 'edgeColor', 'none', 'faceColor', [1 1 0], 'faceAlpha', 0.9, 'hittest', 'off');
             line([cP(1,1)-cross_hair_delta cP(1,1)+cross_hair_delta], [cP(2,2) cP(2,2)], 'tag', 'spotlight_xcrosshair', 'userdata', hAxis, 'eraseMode', 'xor', 'parent', axesToDraw(i),  'color', [1 1 0], 'hittest', 'off','linewidth',1);
             line([cP(1,1) cP(1,1)], [cP(2,2)-cross_hair_delta cP(2,2)+cross_hair_delta], 'tag', 'spotlight_ycrosshair', 'userdata', hAxis, 'eraseMode', 'xor', 'parent', axesToDraw(i),  'color', [1 1 0], 'hittest', 'off','linewidth',1);
-            line(cP(1,1), cP(2,2), 'tag', 'spotlight_trail', 'userdata', hAxis, 'eraseMode', 'xor', 'parent', axesToDraw(i),  'color', [1 0.4 0.2], 'hittest', 'off','linewidth',2);
+            line(cP(1,1), cP(2,2), 'tag', 'spotlight_trail', 'userdata', hAxis, 'parent', axesToDraw(i),  'color', [1 0.4 0.2], 'hittest', 'off','linewidth',3);
         end
         return;
         
@@ -2587,12 +2651,20 @@ switch upper(instr)
             case 'coronal'
                 coord = median(yV);
             case 'legend'
-
+                %setAxisInfo(hAxis, 'view', view);
+                %showCERRLegend(hAxis);
+                return;
             case 'delete view'
                 h_indice = find(stateS.handle.CERRAxis == hAxis);
                 delete(stateS.handle.CERRAxis(h_indice));
                 stateS.handle.CERRAxisLabel1(h_indice)=[];
                 stateS.handle.CERRAxisLabel2(h_indice)=[];
+                stateS.handle.CERRAxisLabel3(h_indice)=[];
+                stateS.handle.CERRAxisLabel4(h_indice)=[];
+                stateS.handle.CERRAxisScale1(h_indice)=[];
+                stateS.handle.CERRAxisScale2(h_indice)=[];
+                stateS.handle.CERRAxisTicks1(h_indice,:)=[];
+                stateS.handle.CERRAxisTicks2(h_indice,:)=[];                
                 stateS.handle.CERRAxis(h_indice)=[];
                 stateS.currentAxis = 1;
                 return
@@ -2757,15 +2829,15 @@ switch upper(instr)
                 switch ud.view
                     case 'transverse'
                         line([cP(1,1) cP(1,1),cP(1,1) cP(1,1) cP(1,1)], [cP(2,2) cP(2,2) cP(2,2) cP(2,2) cP(2,2)], ...
-                            'tag', 'clipBox', 'userdata', 'transverse', 'eraseMode', 'xor', ...
+                            'tag', 'clipBox', 'userdata', 'transverse', ...
                             'parent', axesToDraw, 'marker', 's', 'markerFaceColor', 'r', 'linestyle', '-', 'color', [.8 .8 .1], 'hittest', 'off');
                     case 'sagittal'
                         line([cP(1,1) cP(1,1),cP(1,1) cP(1,1) cP(1,1)], [cP(2,2) cP(2,2) cP(2,2) cP(2,2) cP(2,2)], ...
-                            'tag', 'clipBox', 'userdata', 'sagittal', 'eraseMode', 'xor', ...
+                            'tag', 'clipBox', 'userdata', 'sagittal', ...
                             'parent', axesToDraw, 'marker', 's', 'markerFaceColor', 'r', 'linestyle', '-', 'color', [.8 .8 .1], 'hittest', 'off');
                     case 'coronal'
                         line([cP(1,1) cP(1,1),cP(1,1) cP(1,1) cP(1,1)], [cP(2,2) cP(2,2) cP(2,2) cP(2,2) cP(2,2)], ...
-                            'tag', 'clipBox', 'userdata', 'coronal', 'eraseMode', 'xor', ...
+                            'tag', 'clipBox', 'userdata', 'coronal', ...
                             'parent', axesToDraw, 'marker', 's', 'markerFaceColor', 'r', 'linestyle', '-', 'color', [.8 .8 .1], 'hittest', 'off');
                 end
                 
@@ -2777,15 +2849,15 @@ switch upper(instr)
                     switch ud.view
                         case 'transverse'
                             line(cP(1,1), cP(2,2), ...
-                                'tag', 'clipBox', 'userdata', 'transverse', 'eraseMode', 'xor', ...
+                                'tag', 'clipBox', 'userdata', 'transverse', ...
                                 'parent', axesToDraw, 'linestyle', '-', 'color', [.8 .8 .1], 'linewidth', 2, 'hittest', 'off');
                         case 'sagittal'
                             line(cP(1,1), cP(2,2), ...
-                                'tag', 'clipBox', 'userdata', 'sagittal', 'eraseMode', 'xor', ...
+                                'tag', 'clipBox', 'userdata', 'sagittal', ...
                                 'parent', axesToDraw, 'linestyle', '-', 'color', [.8 .8 .1], 'linewidth', 2, 'hittest', 'off');
                         case 'coronal'
                             line(cP(1,1), cP(2,2), ...
-                                'tag', 'clipBox', 'userdata', 'coronal', 'eraseMode', 'xor', ...
+                                'tag', 'clipBox', 'userdata', 'coronal', ...
                                 'parent', axesToDraw, 'linestyle', '-', 'color', [.8 .8 .1], 'linewidth', 2, 'hittest', 'off');
                     end
                     

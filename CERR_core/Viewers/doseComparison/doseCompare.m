@@ -122,6 +122,10 @@ switch upper(command)
             set(stateS.handle.CERRAxis(4+i),'visible','on');
         end
 
+        if stateS.MLVersion >= 8.4
+            set(stateS.handle.CERRAxis,'ClippingStyle','rectangle')
+        end
+        
         stateS.handle.doseColorbar.Compare = axes('units', 'pixels', 'position', [leftMarginWidth+60+wid*4+20 bottomMarginHeight+30 50 hig-40],...
             'xTickLabel', [], 'yTickLabel', [], 'xTick', [], 'yTick', [], 'Tag', 'ColorbarCompare', 'visible', 'off');
         stateS.doseSetChanged = 1;

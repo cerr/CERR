@@ -171,6 +171,9 @@ switch fieldname
         end
 
         nContours = cSeq.countItems;
+        
+        optS = CERROptions;
+        contourSliceTol = optS.contourToSliceTolerance;
 
         for i = 1:nContours
             aContour = cSeq.getDicomObject(i-1);
@@ -244,7 +247,7 @@ switch fieldname
 
                     a = abs(diff(unique(data(:,3))));
 
-                    if (max(a)>5e-3)
+                    if (max(a) > contourSliceTol)
                         %ROI Name
                         name = dcm2ml_Element(ssObj.get(hex2dec('30060026')));
 

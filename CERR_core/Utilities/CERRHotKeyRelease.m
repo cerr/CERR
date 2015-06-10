@@ -1,5 +1,5 @@
-function contourVisibility()
-%Make contours whose visible flag is off hidden.
+function CERRHotKeyRelease()
+%Routing function called by all CERR figures on keypress release
 %
 % Copyright 2010, Joseph O. Deasy, on behalf of the CERR development team.
 % 
@@ -23,36 +23,21 @@ function contourVisibility()
 % You should have received a copy of the GNU General Public License
 % along with CERR.  If not, see <http://www.gnu.org/licenses/>.
 
-global planC stateS
+global planC stateS;
 
-indexS = planC{end};
-
-for i=1:length(planC{indexS.structures})
-    if ~isfield(planC{indexS.structures}, 'visible') || isempty(planC{indexS.structures}(i).visible)
-        planC{indexS.structures}(i).visible = 1;
-    end
+if ~isempty(planC) && iscell(planC)
+    indexS = planC{end};
+else
+    return;
 end
-vis = [planC{indexS.structures}.visible];
 
-contours = findobj('tag', 'structContour');
-
-
-ud = get(contours, 'userdata');
-if iscell(ud)
-    ud = [ud{:}];
+%get Tag of figure making callback.
+figureName = get(gcbf, 'Tag');
+keyPressed = get(gcbf, 'CurrentCharacter');
+keyValue = uint8(keyPressed);
+%
+if isempty(stateS.currentKeyPress) && isempty(keyValue)
+    stateS.currentKeyPress = 0;
 end
-structNum = [ud.structNum];
-tf = ismember(structNum, find(vis));
-set(contours(~tf), 'visible', 'off');
-set(contours(tf), 'visible', 'on');
 
-if stateS.optS.structureDots
-    contourDots = findobj('tag', 'structContourDots');
-    udCD = get(contourDots, 'userdata');
-    udCD = [udCD{:}];
-    structNumCD = udCD;
-    tf = ismember(structNumCD, find(vis));
-    set(contourDots(~tf), 'visible', 'off');
-    set(contourDots(tf), 'visible', 'on');
-end
-return;
+

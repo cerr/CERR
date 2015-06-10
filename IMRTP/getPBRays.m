@@ -147,11 +147,21 @@ PBMaskM = zeros(n_edges_y,n_edges_x);
 indMaskV = sub2ind(size(PBMaskM),y_binIndexV,x_binIndexV);
 PBMaskM(indMaskV) = 1;  %A trick: works because we want a mask, not accumulated values.
 
-PBMask = flipud(PBMaskM);
+% PBMask = flipud(PBMaskM);
 % figure;
 % imagesc(PBMask)
 % xPosV = xscale(gca,beamlet_delta_x,-min_col); %needed as outputs
 % yPosV = yscale(gca,-beamlet_delta_y,size(PBMaskM,1)-min_row);
+
+% Fill in holes, if any
+for rowNum = 1:size(PBMaskM,1)
+    rowV = PBMaskM(rowNum,:);
+    colStart = uint32(min(find(diff([0 rowV]) > 0)));
+    colEnd = uint32(max(find(diff([rowV 0]) < 0)));
+    if ~isempty(colStart)
+        PBMaskM(rowNum,colStart:colEnd) = 1;
+    end
+end
 
 %Get the resulting i, j, k direction vectors of the needed PBs
 [rowPBV,colPBV] = find(PBMaskM);

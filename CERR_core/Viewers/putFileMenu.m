@@ -51,7 +51,8 @@ else
     uimenu(hInsert, 'label', '&scan set from another study', 'interruptible','on', 'callback', 'insertScanSet');
     
     hDCMInsert = uimenu(hMenu, 'label', '&Insert DICOM...','interruptible','on', 'Separator', 'on', 'tag', 'insertDCMPlan');
-    uimenu(hDCMInsert, 'label', '&dose from another study', 'interruptible','on', 'callback', 'insertDCMDose');
+    uimenu(hDCMInsert, 'label', '&Dose from another study', 'interruptible','on', 'callback', 'insertDCMDose');
+    uimenu(hDCMInsert, 'label', '&Structures from another study', 'interruptible','on', 'callback', 'insertDCMStruct');
 
     hImport = uimenu(hMenu, 'label', '&Import...','interruptible','on', 'Separator', 'on', 'tag', 'importPlan');
     hImportRTOG = uimenu(hImport, 'label', '&RTOG','interruptible','on');
