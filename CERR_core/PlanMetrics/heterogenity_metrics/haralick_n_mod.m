@@ -1,10 +1,12 @@
-function [f,Ph]=haralick_n(qs,nL,q)
+function [f,Ph]=haralick_n(qs,nL,q, nanFlag)
 % Haralick textures measurements
 
 Ph = coocurrance_alldir_mod(q);
-% last row an column corresponds to outside ROI!
-%Ph=Ph(1:end-1,1:end-1);
-%nL=nL-1;
+% last row and column corresponds to outside ROI!
+if nanFlag
+    Ph=Ph(1:end-1,1:end-1);
+    nL=nL-1;
+end
 
 %compute features
 R=sum(Ph(:));
