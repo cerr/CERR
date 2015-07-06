@@ -180,9 +180,9 @@ function im = RegdoMirrCheckboard(Im1, Im2, numRows, numCols, orientation, metri
     colorMSE(end+1,:) = colorMSE(end,:);
     mse3M = reshape(colorMSE(mseClip(1:ctSize(1),1:ctSize(2)),1:3),ctSize(1),ctSize(2),3);
         
-    % CA_Image = CTBackground3M*0.95 + mse3M*0.05;
+    CA_Image = CTBackground3M*0.8 + mse3M*0.2;
     %CA_Image = CTBackground3M*0.5 + 0.35*CTEdge3M + mse3M*0.15;
-    CA_Image = CTBackground3M*0.6 + highlightEdge3M*0.4;
+    %CA_Image = CTBackground3M*0.6 + highlightEdge3M*0.4;
     
     I3M(:,:,1) = I;
     I3M(:,:,2) = I;
