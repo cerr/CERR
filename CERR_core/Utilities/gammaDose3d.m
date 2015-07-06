@@ -10,13 +10,14 @@ incrementRadius = min([deltaX deltaY deltaZ]);
 
 % Initial gamma
 gammaM = ((doseArray1-doseArray2).^2).^0.5/doseAgreement;
-convergedM = false(size(gammaM));
+%convergedM = false(size(gammaM));
 
 % Find regions of zero dose and exclude from calculation
 if ~exist('thresholdAbsolute', 'var') 
-    doseThreshold = 0;
+    thresholdAbsolute = 0;
 end
 convergedM = doseArray1 <= thresholdAbsolute;
+%convergedM = doseArray1 >= thresholdAbsolute; % for MR scan
 gammaM(convergedM) = NaN;
 
 % Calculate until 4 times the permissible distance to agreement.
