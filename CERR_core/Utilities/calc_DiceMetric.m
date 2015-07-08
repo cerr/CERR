@@ -32,7 +32,7 @@ if ~exist('planC','var')
 end
 
 intersectVol = getIntersectionVolume(structNum1,structNum2,planC);
-vol1 = getStructureVol(structNum1);
-vol2 = getStructureVol(structNum2);
+vol1 = getStructureVol(structNum1, planC);
+vol2 = getStructureVol(structNum2, planC);
 
 dice = 2 * intersectVol / (vol1 + vol2);

@@ -77,7 +77,11 @@ for i=1:length(V),
     resize_factor = round(SZ(1)/stateS.optS.visual3DxyDownsampleIndex);
 
     mD = getDownsample3(mask, resize_factor, 1);
-
+    
+    %sz_mask = size(mD);
+    %sz_mask(3) = sz_mask(3)*2;
+    %mD = fft_upsample3d(mD,sz_mask);
+    
     D = smooth3(mD,'gaussian');
 
     S = size(D);
@@ -130,10 +134,13 @@ if DoseFlag ==1
         
     %Uniformizing the dose, same size as uniform scan.
     doseIndx = stateS.doseSet;
+    dose3M = zeros(sizeArray, 'single');
     for i = 1:sizeArray(3)
         zValue = planC{indexS.scan}(scanNum).uniformScanInfo.firstZValue + (i-1)*planC{indexS.scan}.uniformScanInfo.sliceThickness;
         doseM = calcDoseSlice(planC{indexS.dose}(doseIndx),zValue,3);
-        dose3M(:,:,i) = fitDoseToCT(doseM, planC{indexS.dose}(doseIndx), planC{indexS.scan}(stateS.scanSet), 3);
+        if ~isempty(doseM)
+            dose3M(:,:,i) = fitDoseToCT(doseM, planC{indexS.dose}(doseIndx), planC{indexS.scan}(stateS.scanSet), 3);
+        end
     end
 
 

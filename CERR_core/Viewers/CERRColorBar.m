@@ -34,7 +34,7 @@ global stateS;
 indexS = planC{end};
 
 % DK
-if ~isempty(varargin)&& ishandle(varargin{1})
+if ~isempty(varargin) && ~ischar(varargin{1}) && ishandle(varargin{1})
     hAxis = varargin{1};
 else
     hAxis = gca;

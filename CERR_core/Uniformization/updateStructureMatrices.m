@@ -82,7 +82,7 @@ if (length(planC{indexS.structureArray}) < scanNum) || (length(planC{indexS.stru
     planC{indexS.structureArrayMore}(scanNum).assocScanUID = planC{indexS.scan}(scanNum).scanUID;
     planC{indexS.structureArrayMore}(scanNum).structureSetUID = createUID('STRUCTURESET');
     
-    if isempty(stateS.structSet)
+    if isfield(stateS,'structSet') && isempty(stateS.structSet)
         stateS.structSet = scanNum;
     end    
 end
