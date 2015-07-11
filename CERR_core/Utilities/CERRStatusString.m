@@ -45,13 +45,13 @@ else
     optS = [];
 end
    
-if ~isempty(optS) & isfield(optS, 'CERRStatusStringEnabled') 
+if ~isempty(optS) && isfield(optS, 'CERRStatusStringEnabled') 
     if ~optS.CERRStatusStringEnabled
         dispFlag = 'gui';
     end
 end    
 
-if ~exist('dispFlag')
+if ~exist('dispFlag','var')
     dispFlag = 'both';   
 end
 
@@ -60,7 +60,7 @@ if ishandle(1)
 end
 
 %Also write non-empty strings to the matlab console:
-if strcmpi(dispFlag, 'both') | strcmpi(dispFlag, 'console')
+if strcmpi(dispFlag, 'both') || strcmpi(dispFlag, 'console')
     if ~strcmp(str,'')
         disp(['CERR>>  ' str])
     end
@@ -75,7 +75,7 @@ end
 if ishandle(h)
     set(0,'CurrentFigure',h);
     
-    if strcmpi(dispFlag, 'both') | strcmpi(dispFlag, 'gui')
+    if strcmpi(dispFlag, 'both') || strcmpi(dispFlag, 'gui')
         try
             set(stateS.handle.CERRStatus,'string',str)
             drawnow
