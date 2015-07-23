@@ -34,15 +34,12 @@ function nWritten = export_RS_IOD(planC, filenameRoot, filenumber)
 %Init number of files written to zero.
 nWritten = 0;
 
-%Create empty dcmobj.
-dcmobj = org.dcm4che2.data.BasicDicomObject;
-
 indexS = planC{end};
 
 assocScansV = getStructureAssociatedScan(1:length(planC{indexS.structures}), planC);
 
 for scanNum = 1:length(planC{indexS.scan})
-    
+        
     if length(planC{indexS.scan}) > 1
         destDirPath = fullfile(filenameRoot,['Scan_',num2str(scanNum)]);
     else
@@ -56,6 +53,9 @@ for scanNum = 1:length(planC{indexS.scan})
     if isempty(matchStructsV)
         continue;
     end
+    
+    %Create empty dcmobj.
+    dcmobj = org.dcm4che2.data.BasicDicomObject;    
     
     structureS = planC{indexS.structures}(matchStructsV);
         
