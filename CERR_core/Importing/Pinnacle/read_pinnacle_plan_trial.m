@@ -24,7 +24,7 @@ while 1
 	end
 
 	if length(tl) >= 10 && strcmp(tl(1:10),'  Name = "') == 1 && lastlineistrial == 1
-		outl = strsplit('=',tl);
+		outl = strsplit_cerr('=',tl);
 		tname = ddeblank(outl{2});
 		tname = tname(1:end-2);
 		tname = tname(2:end);

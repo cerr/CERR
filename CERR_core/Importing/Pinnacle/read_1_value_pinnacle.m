@@ -56,7 +56,7 @@ end
 outl{1} = tl(1:(k-1));
 outl{2} = tl((k+1):end);
 
-% outl = strsplit('=',tl);
+% outl = strsplit_cerr('=',tl);
 fieldname = ddeblank(outl{1});
 fieldname = strrep(fieldname,' ','_');
 fieldname = strrep(fieldname,'.','_');
@@ -66,7 +66,7 @@ end
 val = ddeblank(outl{2});
 
 if isempty(val)
-	;
+	%% Do nothing?
 elseif val(1) == '"'
 	if strcmp(val,'""') == 1
 		val = '';

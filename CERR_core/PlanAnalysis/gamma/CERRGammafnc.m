@@ -329,6 +329,9 @@ switch upper(gamaCommand)
             doseNum = get(gcbo,'value');
             hStruct = findobj('tag','StructForGamma');
             structNum = get(hStruct,'value');
+        else % stats GUI already open
+            doseNum = varargin{1};
+            structNum = 1;
         end
         
         % Get dose at these structure voxels
