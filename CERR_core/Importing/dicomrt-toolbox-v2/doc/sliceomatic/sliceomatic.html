@@ -1,0 +1,101 @@
+<TITLE>/</TITLE>
+<BODY>
+<A HREF = "index.html">[Index for ./dicomrt-toolbox/contributed/sliceomatic]</A>
+<A HREF = "../index.html">[Return to Master Index]</A>
+<H1>sliceomatic</H1>
+<H2>(./dicomrt-toolbox/contributed/sliceomatic/sliceomatic.m)</H2>
+<HR><H3>Function Synopsis</H3>
+<pre>showhelp(item)</pre>
+<HR><H3>Help text</H3>
+<pre>
+ SLICEOMATIC - Slice and isosurface volume exploration GUI
+
+ SLICEOMATIC(DATA) - Use 3D double matrix DATA as a volume data
+
+ Example:
+
+       [x,y,z] = meshgrid(-2:.2:2, -2:.25:2, -2:.16:2);
+       v = x .* exp(-x.^2 - y.^2 - z.^2);
+       sliceomatic(v)
+
+ Using SLICEOMATIC with no arguments is equivalent to the above
+ example.
+
+ Using the GUI:
+ -------------
+ The white bars on the top, left, and right allow insertion of
+ new slices on the X, Y, and Z planes.  Click in an empty area to
+ add a new slice or surface.  Click on a control arrow to add a
+ new slice or surface.
+
+ The colored bar at the bottom is used to place and position an
+ isosurface.  The color in the bar indicates a position (as seen
+ in the slice) where the isosurface will go.
+
+ When the rotate camera button is on, the popup menu will control
+ the camera.  Turn off camera rotation in order to get individual
+ control over properties of the slices and isosurfaces.
+
+ The defaults menu provides default features of newly created
+ slices and surfaces.  The AllSlices menu controls properties of
+ all the slices and surfaces in the scene.  Use popup menus on the
+ objects themselves, or the control arrows to change indivudual
+ properties.
+
+ If the data is very large, a reduced model of the data is created.
+ This reduced data set is used for interactivly positioning
+ isosurfaces.
+
+ The Colormap popdown controls the currenlty active colormap.
+ This map is used to color the slices.  The Alphamap popdown
+ controls the alphamap used on the slices.
+
+ Doing Cool Stuff:
+ ----------------
+
+ Exploration:
+ You can get a quick feel of the current data set by adding a
+ slice using the ColorTexture option.  Such a slice can be dragged
+ through the data very quickly.
+
+ Highlight an Area:
+ If certain values in your data are interesting (very large, very
+ small, or very median values) you can use transparency to make
+ parts of your slices disappear.  Choose AlphaTexture options from
+ the defaults, and sweep some slices across your data.  Use the
+ AlphaMap to pick out certain data sets.  The exaple given here
+ looks best with the `vdown' alphamap.
+
+ You can also add a contour onto a slice to further extract shapes
+ from the data you are exploring.
+
+ Hidden Shapes:
+ Use the isosurface control bar to create an isosurface.  Be
+ patient with this control.  It often takes a while for the
+ surface to be created.  Click and hold the mouse button down
+ until the first surface appears.  Drag the surface through the
+ values until you get something you like, then let go.  If your
+ data set is very large, you will need to wait while the new and
+ more accurate isosurface is created.
+
+ Volumes:
+ You can simulate a volume object by creating lots of stacked
+ slices.  Simply use the proper Alphamap and transparent textures
+ to highlight the correct data, and a large stack of slices will
+ let you simulate a volume object.
+
+ BUGS:
+ ----
+
+ 1) Sliceomatic does not use the `slice' command.  All slices are
+    created by explicitly extracting data from the volume.  As such,
+    only slices at integer values are allowed.
+ 
+
+ See Also: SLICE, ISOSURFACE, ISOCAPS, CONTOURC, COLORMAP, SURFACE
+</pre>
+<HR>
+Produced by <A HREF="http://www.mathworks.com/support/ftp/toolsv4.shtml">mat2html</A> on Mon Oct 20 15:21:43 2003
+<BR>
+Cross-Directory links are: OFF<BR>
+</BODY>

@@ -1,0 +1,40 @@
+D/Leksell_Gamma////
+D/Pinnacle////
+D/PlanMerge////
+D/dicomrt-toolbox-v2////
+D/importPLUNC////
+D/varianFDF////
+/CERR and the DICOM Toolbox.txt/1.1/Tue Oct 19 17:06:41 2004//
+/CERRImport.m/1.14/Thu Aug 13 18:47:45 2009//
+/CERRImportDCM4CHE.m/1.14/Wed Sep 08 20:24:41 2010//
+/CERRImportDICOM.m/1.19/Fri Feb 29 19:12:17 2008//
+/CERRImportDICOM_newScan.m/1.1/Thu Jan 31 22:18:02 2008//
+/CERRImportDICOM_newplan.m/1.1/Thu Jan 31 22:18:02 2008//
+/CERRImportGammaKnife.m/1.5/Thu Aug 13 18:47:45 2009//
+/CERRImport_newplan.m/1.1/Thu Jan 31 22:18:29 2008//
+/ES - IPT4.1CompatibleDictionary.mat/1.7/Tue Mar 27 22:59:05 2007/-kb/
+/checkDictUse.m/1.2/Mon Apr 14 15:36:54 2008//
+/checkUniformXYVoxelSize.m/1.8/Mon Oct 02 20:30:49 2006//
+/ctin.m/1.8/Mon Jul 09 22:00:02 2007//
+/dicom-dictR14-ES.txt/1.7/Mon Jun 19 15:03:59 2006//
+/findStructureMatrixForOneZSlice.m/1.14/Thu May 01 20:00:36 2008//
+/fixStructureZVals.m/1.9/Wed Jan 23 18:30:59 2008//
+/importDose.m/1.25/Wed Sep 08 20:24:41 2010//
+/importRTOGDir.m/1.39/Wed Sep 08 20:24:41 2010//
+/importRTOGDir_newplan.m/1.1/Mon Feb 04 17:44:10 2008//
+/initROIInterpretedType.m/1.1/Thu Sep 17 16:52:29 2009/-ko/
+/initTagMapS.m/1.6/Thu Jan 31 19:51:13 2008//
+/initializeCERR.m/1.40/Wed Sep 08 20:24:41 2010//
+/initializeMRInfo.m/1.2/Mon Oct 02 20:30:49 2006//
+/initializePETInfo.m/1.3/Tue Nov 28 15:42:06 2006//
+/initializeSPECTInfo.m/1.2/Mon Oct 02 20:30:49 2006//
+/initializeScanInfo.m/1.5/Wed Sep 08 20:24:41 2010//
+/insertPlan.m/1.2/Fri May 07 19:58:17 2010//
+/insertScanSet.m/1.1/Thu Jan 31 22:18:02 2008//
+/insertStructs.m/1.3/Thu Oct 01 16:00:10 2009//
+/loadPlanC_temp.m/1.1/Thu Jan 31 22:18:02 2008//
+/promptForVoxelSize.m/1.7/Wed Sep 08 20:24:41 2010//
+/readASCIIDose.exe/1.1/Mon Mar 24 22:17:03 2008/-kb/
+/readASCIIDose.rb/1.1/Fri Mar 06 21:52:13 2009//
+/removeItemsFromDICOM.m/1.4/Mon Oct 02 20:30:49 2006//
+/viewImportLog.m/1.1/Thu Jan 31 22:18:02 2008//

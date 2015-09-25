@@ -1,0 +1,1382 @@
+<HTML>
+<HEAD>
+  <!-- Created with AOLpress/2.0 -->
+  <TITLE>CERR User Information</TITLE>
+</HEAD>
+<BODY>
+<P ALIGN=Center>
+<BIG><BIG><BIG><BIG><BIG><BIG>CERR User's Guide for version
+2.5</BIG></BIG></BIG></BIG></BIG></BIG>
+<P ALIGN=Center>
+<BIG>Current for CERR version 2.5 Beta 2</BIG>
+<P ALIGN=Center>
+<BIG>The current version of this file is always available from
+http://deasylab.info.</BIG>
+<P ALIGN=Center>
+(This instruction manual was last modified on 02-Aug-04)
+<P ALIGN=Center>
+<P ALIGN=Left>
+<BIG><BIG><A HREF="cerr_user_information.html#whatsnew">Latest
+modifications</A></BIG></BIG>
+<P ALIGN=Left>
+<BIG><BIG><A HREF="cerr_user_information.html#bugs">CERR Bug and defect
+list</A></BIG></BIG>
+<P ALIGN=Left>
+<BIG><BIG><A HREF="cerr_user_information.html#license">About License and
+copyright issues</A></BIG></BIG>
+<P ALIGN=Left>
+<BIG><BIG><A HREF="cerr_user_information.html#requirements">System and software
+requirements</A></BIG></BIG>
+<P ALIGN=Left>
+<BIG><BIG><A HREF="cerr_user_information.html#installation">Installation
+and quick start instructions</A></BIG></BIG>
+<P ALIGN=Left>
+<BIG><BIG><A HREF="cerr_user_information.html#directory">The CERR directory
+structure</A></BIG></BIG>
+<P ALIGN=Left>
+<BIG><BIG><A HREF="cerr_user_information.html#importing">Importing RTOG
+archives</A></BIG></BIG>
+<P ALIGN=Left>
+<BIG><BIG><A HREF="cerr_user_information.html#compression">About compressed
+archives</A></BIG></BIG>
+<P ALIGN=Left>
+<BIG><BIG><A HREF="cerr_user_information.html#viewer">About the CERR Viewer
+</A></BIG></BIG>
+<P ALIGN=Left>
+<BIG><BIG><A HREF="cerr_user_information.html#doseDisplay">About dose
+display</A></BIG></BIG>
+<P ALIGN=Left>
+<BIG><BIG><A HREF="cerr_user_information.html#contouring">Contouring anatomical
+structures</A></BIG></BIG>
+<P ALIGN=Left>
+<BIG><BIG><A HREF="cerr_user_information.html#dvh">Dose volume
+histograms</A></BIG></BIG>
+<P ALIGN=Left>
+<BIG><BIG><A HREF="cerr_user_information.html#IMRT">IMRT Problem Creation</A></BIG></BIG>
+<P ALIGN=Left>
+<BIG><BIG><A HREF="#3d">3-D views</A></BIG></BIG>
+<P ALIGN=Left>
+<BIG><BIG><A HREF="#DoseShadow">Dose Shadow</A></BIG></BIG>
+<P ALIGN=Left>
+<BIG><BIG><A HREF="#DoseSubtraction">Dose Subtraction</A></BIG></BIG>
+<P ALIGN=Left>
+<BIG><BIG><A HREF="#Metrics">Metrics</A></BIG></BIG>
+<P ALIGN=Left>
+<BIG><BIG><A HREF="#StructureCombination">Structure Combination</A></BIG></BIG>
+<P ALIGN=Left>
+<BIG><BIG><A HREF="#options">User-controlled options
+settings</A></BIG></BIG>
+<P ALIGN=Left>
+<BIG><BIG><A HREF="cerr_user_information.html#command">The command
+line</A></BIG></BIG>
+<P ALIGN=Left>
+<BIG><BIG><A HREF="cerr_user_information.html#scripting">Manipulating CERR
+archives in Matlab scripts or functions</A></BIG></BIG>
+<P ALIGN=Left>
+<BIG><BIG><A HREF="cerr_user_information.html#investigating">Investigating
+CERR source code</A></BIG></BIG>
+<P ALIGN=Left>
+<BIG><BIG><A HREF="cerr_user_information.html#coding">Coding
+conventions</A></BIG></BIG>
+<P ALIGN=Left>
+<BIG><BIG><A HREF="cerr_user_information.html#leftovers">Leftovers</A></BIG></BIG>
+<P ALIGN=Left>
+<BIG><BIG><A HREF="cerr_user_information.html#updates">Updates and more
+information</A></BIG></BIG>
+<P ALIGN=Left>
+<BIG><BIG><A HREF="cerr_user_information.html#ongoing">Ongoing projects and
+future plans</A></BIG></BIG>
+<P ALIGN=Left>
+<A NAME="whatsnew"><!-- --></A><BIG><BIG>Latest modifications</BIG></BIG>
+<P ALIGN=Left>
+<OL>
+  <LI>
+    02 Aug 04.   2.5 b2 released.  Fixed a bug with the DICOM import dictionary and associated code.
+  <LI>
+    23 July 04.  2.5 released. IMRT problem creation module added.  CERR viewer GUI overhauled.
+    Many small bug fixes and changes.
+  <LI>
+    4 November 03.  2.1 released.  Additions: Dose shadow tool, structure combination 
+    tool, DICOM import in Matlab6.5 using DICOM-RT Toolbox by Emiliano Spezi 
+    (not incl in compiled version), Unified structure under CERR.m, labbook tool to store
+    and annotate CERR images. 
+    Improvements: increased slice change speed, increased 3D speed, slice image caching, 
+    generally lower memory usage, bug fixes for compatibility with Matlab 6.1. Also correct
+    inconsistent zValues in plans to be imported.
+  <LI>
+    14 October 03.  Replaced buggy deduceVoxelThickness file with corrected version.
+  <LI>
+    25 August 03.  Fixed bug with using Matlab 6.1 involving && operator.
+    Added doseCutoff by clicking colorbar or entering field.  
+  <LI>
+    30 June 03, 2.00 released.  Additions: dose subraction tools, DVHComparison to
+    highlight differences between DVHs, montage slice preview window, beta dose 
+    comparison metrics, CTwindow level preset.  Made necessary changes to 
+    compile standalone under x86.  Made recommended optimizations to increase 
+    slice redraw speed.  (Thanks to Nathan Childress).
+  <LI>
+    20 May 03, bug in findAndSetMinCTSpacing.m found &amp; fixed by Emiliano
+    Spezi. &nbsp;Fixed another bug fixed in findAndSetMinCTSpacing.m which was
+    giving the (potentially) wrong slice thickness to the uniformized CT slices.
+    &nbsp;Fixed a bug in the anonymize_script which was resulting in losing the
+    CERROptions from import stored in planC, later resulting in losing sagittal
+    and coronal images on display. &nbsp;Regenerated the head and neck and lung
+    example archives to correct this (prostate example was already anonymized).
+  <LI>
+    9 May 03, 2.00b6 released. &nbsp;fixed DVH bug when voxel sample rate is
+    not zero. &nbsp;Fixed bug that assumed that CT slice thicknesses were appropriate
+    for voxel widths. &nbsp;Now voxel widths are computed separately, and used
+    for DVH calculations. &nbsp;key-word 'dose scale' now used in importing dose
+    distribution if optS.useDoseScale = 'yes'. &nbsp;Fixed bug when uniformized
+    datasets are determined at runtime. &nbsp;Added CERR import version to header
+    file. &nbsp;The CERR version will hereafter be kept in CERRCurrentVersion.m.
+    &nbsp;New example CERR archives were generated due to inaccuracies in original
+    determinations of voxel volumes and positions.
+  <LI>
+    7 May 03, fixed bug in pad.m utility.
+  <LI>
+    1 May 03, versions 2.00b5 released. &nbsp;Bug fix to get DVHs correct on
+    when superior and inferior dose slices coincide with CT slices. &nbsp;Added
+    'dose' command line command. &nbsp;Fixed archive filename limitation.
+    &nbsp;Added user-defined command line capability (see command line options,
+    below).
+  <LI>
+    version b4. &nbsp;30 Apr 03. &nbsp;Tested import from Helax-TMS v. 6.
+    &nbsp;Successful with minor fixups. &nbsp;Also added support for doseScale
+    keyword. &nbsp;doseArray is scaled by doseScale upon import (default is 1).
+    &nbsp;Also added routine to deduce slice thicknesses if only z values are
+    given. &nbsp;Provably correct assuming that first slice thickness equals
+    the difference between the first two z values. &nbsp;Also added support for
+    widely varying archive names, such as RTOG_000.dat, so long as '000' is present.
+    &nbsp;Successful import from CMS Xeo.
+  <LI>
+    version b3. &nbsp;23 Apr 03. &nbsp;Fixed uniformized CT bug as previously
+    listed in bug fix list. &nbsp;Added uint16 support for scan uniformization
+    and also allow backwards compatibility with previously created CERR archives.
+    &nbsp;Also, directories with files which are not completely tested are listed
+    with a 'Beta' postfix.
+  <LI>
+    17 Apr 03. &nbsp;Version is now 2.00b2. &nbsp;Postfix number will now increment
+    for any code changes.
+  <LI>
+    8 April 03. &nbsp;This version has multiple changes, including: &nbsp;(a)
+    a 3-D volumetric viewer for anatomical structures and dose distributions.
+    &nbsp;Type '3D' at the command line to use it. (b) Bug fix wherein the z
+    slice spacing was erroneously assumed to be uniform for the purpose of DVH
+    calculations. (c) minor style fixes in some gui elements. &nbsp;(d) addition
+    of a new function ...\CERR\Extras\puttingNewDose\dose2CERR.m which can be
+    used to put a new dose distribution back into CERR for analysis. &nbsp;A
+    test function, ...CERR\Extras\puttingNewDose\test_dose2CERR.m shows how to
+    use this. (e) minor bugfix to sliceCallBack. (f) modification to CT
+    uniformization code so that the slice width is more controllable (see
+    CERROptions.m file or options table below for more information).
+</OL>
+<P ALIGN=Left>
+<P ALIGN=Left>
+<A NAME="bugs"><!-- --></A><BIG><BIG>CERR Bug and defect list</BIG></BIG>
+<P ALIGN=Left>
+Bugs and defects are rated according to severity: &nbsp;1 - program operates
+but gives the wrong answer; 2 - program fails; 3 - inconsistent or unexpected
+operation; 4 - Program functionality is missing or inappropriate; 5 -
+inconsistent or incorrect documentation; 6 - missing documentation (these
+defects are not always listed here).
+<OL>
+  <LI>
+    <P ALIGN=Left>
+    Severity 3. &nbsp;Some old plans without raster segments or uniformized data may
+    not function properly in functions that require this data.  Raster segments should
+    be dynamically generated but uniformized data will not.  Fix will be released soon.
+  <LI>
+    <P ALIGN=Left>
+    Severity 6. &nbsp;Many m-files have incomplete or inconsistent header
+    information.
+  <LI>
+    <P ALIGN=Left>
+    Severity 2. &nbsp;3-d doens't work if there is no 'skin' structure.
+  <LI>
+    <P ALIGN=Left>
+    Severity 3. &nbsp;Zoom control can cause unexpected results.
+  <LI>
+    <P ALIGN=Left>
+    Severity 4. &nbsp;IMRT only generates co-planar beams.
+  <LI>
+    <P ALIGN=Left>
+    Severity 3. &nbsp;DICOM import may crash intermittantly shortly after starting the import process.
+</OL>
+<P ALIGN=Left>
+<BIG><BIG>About License and copyright issues</BIG></BIG>
+<P ALIGN=Left>
+As stated in many of the main m-files and the 'about CERR' message, the license
+reads as follows:
+<P ALIGN=Left>
+"This software is copyright J. O. Deasy and Washington University in St Louis.
+&nbsp;A free license is granted to use or modify but only for uses which
+are non-commercial and non-clinical. &nbsp;In particular, clinical decisions
+should not be made based on the use of CERR. &nbsp;Use of CERR to design
+or test commercial products is not granted without an agreement with Washington
+University. &nbsp;Any user-modified software must retain the original copyright
+and notice of changes if redistributed. &nbsp;Any user-contributed software
+(not modifications of existing files) will retain the copyright terms of
+the contributor. &nbsp;No warranty or fitness is expressed or implied for
+any purpose whatsoever--use at your own risk." &nbsp;
+<P ALIGN=Left>
+In other words, research use is completely free from fees or restrictions
+on code use with the&nbsp;limitations stated above. Use for making clinical
+patient care decisions is explicitly forbidden.
+<P ALIGN=Left>
+Use to design or test commercial products is explicitly forbidden without
+an agreement with Washington University.
+<P ALIGN=Left>
+Although users are granted the right to modify any CERR routine in any way,
+this right does not include commercial or clinical use, as outlined above.
+<P ALIGN=Left>
+The philosophy here is that institutions should not feel that contributing
+'open source' code and tools to interoperate with CERR compromises potential
+commercial rights.
+<P ALIGN=Left>
+All the files supplied from Washington University have these same copyright
+terms, whether explicitly written in the file or not.
+<P ALIGN=Left>
+<A NAME="requirements"><!-- --></A><BIG><BIG>System and software
+requirements</BIG></BIG>
+<P ALIGN=Left>
+Q. &nbsp;What version of Matlab do I need?
+<P ALIGN=Left>
+A. CERR works with Matlab ver. 6.5 and has (nearly) bug-free operation with
+ver. 6.1. &nbsp;CERR does not require any 'Toolboxes'. (Except for DICOM import, which requires the Image Processing Toolbox.) &nbsp;CERR will not
+work with Matlab ver. 5 as it uses ver. 6 data structures.&nbsp;&nbsp;
+<P ALIGN=Left>
+Q. &nbsp;What systems does it run on? &nbsp;
+<P ALIGN=Left>
+A. &nbsp;This release only runs on Matlab and Windows NT, 2000, or XP  and LINUX.
+<P ALIGN=Left>
+Q. &nbsp;How much memory do I need? &nbsp;
+<P ALIGN=Left>
+A. &nbsp;To operate comfortably, we estimate that you will need memory equal
+to the archive size you want to view plus at least 100 MB.
+<P ALIGN=Left>
+Q. &nbsp;What systems has CERR successfully imported from?
+<P ALIGN=Left>
+A. &nbsp;(1) &nbsp;NOMOS Peacock (2) ADAC Pinnacle (3) MIR old 3D system
+(4) HELAX - TMS V. 6. &nbsp;(5) Computerized Medical Systems, Inc., XiO.
+&nbsp;We are trying to grow this list. &nbsp;Please contact us if you have
+another academic or commercial system which you would like to try.
+<P ALIGN=Left>
+<A NAME="installation"><!-- --></A><BIG><BIG>Installation and quick start
+instructions</BIG></BIG>
+<P ALIGN=Left>
+Q. How do I&nbsp;install CERR?
+<P ALIGN=Left>
+A. Unzip the CERR program archive. Then put it on your path using the usual
+setpath GUI (BE SURE TO ADD ALL SUBDIRECTORIES) or command line path tool in Matlab.
+<P ALIGN=Left>
+Q. How do I view stored CERR archives?
+<P ALIGN=Left>
+A. Type 'CERR', File->Open, Navigate to the archive and click Open.
+<P ALIGN=Left>
+Q. &nbsp;How do I close CERR?
+<P ALIGN=Left>
+A. Close the viewer window in the usual way for that operating
+system. &nbsp;All the other CERR windows should close automatically, except for
+the CERR main menu.
+<P ALIGN=Left>
+Up/Down arrow keys will change the slice for the currently selected view (transverse,
+sagittal or coronal).
+<P ALIGN=Left>
+Changing slices on the transverse view, with the colorwash option and the
+structures and scan on, takes about one second on a fast (2 GHz) PC for 
+512x512 plans and .25 seconds for 256x256.  Cached slices display much faster.
+<P ALIGN=Left>
+Many of the program options are described and set in the file CERROptions.m.
+&nbsp;The options and their selectable values are documented there. This
+file is automatically loaded&nbsp;when CERRSliceViewer is invoked. You can
+change any options and reload them by issuing the 'reload options' command
+at the transverse viewer command line, and then selecting the (possibly
+different) options file desired.
+<P ALIGN=Left>
+<A NAME="directory"><!-- --></A><BIG><BIG>The CERR directory
+structure</BIG></BIG>
+<P ALIGN=Left>
+Note: &nbsp;directories which are appended 'beta' are, well, beta.
+<P ALIGN=Left>
+<TABLE BORDER CELLPADDING="2">
+  <TR>
+    <TD><B>Directory</B></TD>
+    <TD><B>Holds</B></TD>
+  </TR>
+  <TR>
+    <TD>3D</TD>
+    <TD>Volumetric viewer including transparent structures/dose surfaces</TD>
+  </TR>
+  <TR>
+    <TD>CommandLine</TD>
+    <TD>CERR command line command definitions</TD>
+  </TR>
+  <TR>
+    <TD>Compiled</TD>
+    <TD>Build directory for compiled version.</TD>
+  </TR>
+  <TR>
+    <TD>Compression</TD>
+    <TD>Compression files based on the use of bzip2</TD>
+  </TR>
+  <TR>
+    <TD>Contouring</TD>
+    <TD>Structure contouring-related m-files</TD>
+  </TR>
+  <TR>
+    <TD>CrossListing</TD>
+    <TD>CERR code crosslisting and getDirFunInfo.m, which creates the crosslisting</TD>
+  </TR>
+  <TR>
+    <TD>Database Beta</TD>
+    <TD>BETA tools for compiling and mining plan databases.</TD>
+  </TR>
+  <TR>
+    <TD>Documentation</TD>
+    <TD>cerr_user_instructions.html, this file.</TD>
+  </TR>
+  <TR>
+    <TD>Extras</TD>
+    <TD>Miscellaneous directories, including some script examples.  Also the IMRT code.</TD>
+  </TR>
+  <TR>
+    <TD>ImageRegistration</TD>
+    <TD>BETA tools for registering images.  Very Incomplete.</TD>
+  </TR>
+  <TR>
+    <TD>Importing</TD>
+    <TD>Importing tools for RTOG archives</TD>
+  </TR>
+  <TR>
+    <TD>Labbook</TD>
+    <TD>Tool to capture annotate and build CERR images into html files.</TD>
+  </TR>
+  <TR>
+    <TD>Mex</TD>
+    <TD>Compiled mex files for Windows, Linux, Solaris etc.</TD>
+  </TR>
+  <TR>
+    <TD>PlanAnalysis</TD>
+    <TD>Dose volume histograms, dose surface histograms, and other analysis tools</TD>
+  </TR>
+  <TR>
+    <TD>PlanMetrics</TD>
+    <TD>Various metrics and a template to create new metrics.</TD>
+  </TR>
+  <TR>
+    <TD>RTOG Specification</TD>
+    <TD>An ASCII text file describing the RTOG specification used for CERR.</TD>
+  </TR>
+  <TR>
+    <TD>ScanConversion</TD>
+    <TD>m-files which convert polygonal contours into 0-1 masks and then into
+      the stored scan format</TD>
+  </TR>
+  <TR>
+    <TD>Uniformization</TD>
+    <TD>m-files related to creation of CT scan set with uniform z-spacing, and
+      registered voxel masks of structures</TD>
+  </TR>
+  <TR>
+    <TD>UserDefined</TD>
+    <TD>A directory for users to put commands</TD>
+  </TR>
+  <TR>
+    <TD>Utilities</TD>
+    <TD>Various utility routines, including several text parsing tools.</TD>
+  </TR>
+  <TR>
+    <TD>Viewers</TD>
+    <TD>GUI-related m-files</TD>
+  </TR>
+</TABLE>
+<P ALIGN=Left>
+<A NAME="importing"><!-- --></A><BIG><BIG>Importing RTOG/DICOM archives</BIG></BIG>
+<P ALIGN=Left>
+Q. How do I read in and convert an AAPM/RTOG or DICOM archive formatted directory
+into CERR format?
+<P ALIGN=Left>
+A. RTOG: First look at the file CERROptions.m. In the section labeled 'importing'
+are several self-explanatory options concerning what will be read in, etc.
+Then type 'CERR' and click File->Import...->RTOG.  Then select the aapm0000 (or other '000') file to get
+started. After conversion, you will be asked what to name the resulting file
+and whether to compress the archive.
+<P ALIGN=Left>
+DICOM: CERR can now import via the DICOM-RT mechanism (in Matlab 6.5) using Emiliano Spezi's DICOM-RT
+toolbox. Type 'CERR' and click File->Import...->DICOM.  Then select a directory to scan for DICOM files.
+Once the scan is complete a text prompt will ask what studies/scans/doses to import.
+See DICOM-RT-toolbox-v2/docs directory for more information.
+<P ALIGN=Left>
+<A NAME="compression"><!-- --></A><BIG><BIG>About compressed
+archives</BIG></BIG>
+<P ALIGN=Left>
+Why does CERR use compression with bzip2? &nbsp;Because it can save up to
+90% of disk space (for 256 x 256 CT scan images, somewhat less for plans
+with standard 512 x 512 CT scan sets). This is significantly more than what
+zip or gzip gives.
+<P ALIGN=Left>
+Q. &nbsp;I opened a compressed archive in CERR and it is now uncompressed.
+I would like a compressed version. How can I get it?
+<P ALIGN=Left>
+A. Select the 'Save' button on the transverse slice viewer. It will ask you
+if you want to compress the archive.
+<P ALIGN=Left>
+Q. &nbsp;I opened a .bz2 (bzipped) CERR archive, but now it has disappeared.
+What happened?
+<P ALIGN=Left>
+A. The current default behavior is to unzip and create the corresponding
+.mat file. The assumption is that the compressed file is primarily for transfer,
+and it will be more convenient to have the unzipped version for actual use.
+<P ALIGN=Left>
+Q. &nbsp;I tried to create a new compressed archive, but it failed. Why?
+&nbsp;
+<P ALIGN=Left>
+A. &nbsp;Compression will fail if a compressed archive with the same name
+already eixsts in the target directory. &nbsp;Look for a message to this
+effect on the console. We feel this is safer than automatically overwriting
+an existing directory (which is the only other option).
+<P ALIGN=Left>
+<A NAME="viewer"><!-- --></A><BIG><BIG>About the CERR Viewer</BIG></BIG>
+<P ALIGN=Left>
+The CERR viewer defaults to a 4 panel view: one large Transverse, and a small Sag, Cor, and Legend.  To change the number and size of the panels click View->Panel Layout, and select a preset layout.
+<P ALIGN=Left>
+To swap one panel with another, select a panel with the mouse (its label will turn red) and double click on another panel.
+<P ALIGN=Left>
+To change slices, use the Up/Down arrow keys (except in Linux), the S+ S- buttons in the left margin, or click and drag the plane locators in the Trans/Sag/Cor Views.  Plane locators may be toggled off from the View menu.
+<P ALIGN=Left>
+Zoom mode can be toggled by clicking the 'Zoom Mode' button in the left margin.  Left click zooms in, Right click zooms out, and dragging a box zooms into an area of interest.  Double click returns to full zoomed out.
+<P ALIGN=Left>
+Structure contours can be toggled on/off by clicking a structure name in the legend, or by selecting its name in the Structures Menu.
+<P ALIGN=Left>
+A ruler can be raised by clicking the Ruler checkbox in the left margin and dragging a line segment in any axis.  The origin, end point and distance are displayed in red in the CERR Status line at the bottom of the screen.
+<P ALIGN=Left>
+Dose transparency can be set by dragging the Dose----Scan slider.
+<P ALIGN=Left>
+Dose display cutoff can be set by clicking the colorbar at the desired level or by typing the dose in the textbox below the colorbar.
+<P ALIGN=Left>
+<A NAME="doseDisplay"><!-- --></A><BIG><BIG>About dose display</BIG></BIG>
+<P ALIGN=Left>
+There are three principle methods of dose display (see table of options):
+<OL>
+  <LI>
+    <P ALIGN=Left>
+    Isodose lines.
+  <LI>
+    <P ALIGN=Left>
+    Colorwash.
+  <LI>
+    <P ALIGN=Left>
+    Visual reference colorwash. &nbsp;This is a colorwash where the colormap
+    is rescaled for every new dose distribution: &nbsp;doses above a visual reference
+    dose are shown in inverted gray scale (black the highest dose, white the
+    reference dose), whereas doses below that level are shown in another colormap.
+    &nbsp;This orients the viewer as to what doses are above some 'prescription'
+    reference.
+</OL>
+<P ALIGN=Left>
+CERR is currently not very fast at slice paging to the next dose display:
+&nbsp;when colorwash is on on, it takes about 1 second to change slices on
+a 2 GHz Pentium IV machine. &nbsp;We have made efforts, though limited, to
+speed up slice paging. &nbsp;Faster computers will make this unirritating
+fast, even on laptops (well, in a few years). &nbsp;Alternatively, sophisticated
+methods could be used to speed things up, such as more compiled code, or
+'look ahead' computing in preparation for the next slice before the user
+requests it, etc.  UPDATE: we have made good progress in speeding up paging.
+<P ALIGN=Left>
+<A NAME="Contouring"><!-- --></A><BIG><BIG>Contouring anatomical
+structures</BIG></BIG>
+<P ALIGN=Left>
+Q. &nbsp;How do I contour a new or old structure?
+<P ALIGN=Left>
+A. CERR contains a relatively complete set of contouring tools under the
+assumption that new anatomical regions may need to be defined or previous
+geometrical definitions may need to be adjusted.
+<P ALIGN=Left>
+The typical contouring process is as follows:
+<OL>
+  <LI>
+    <P ALIGN=Left>
+    From the 'Structures' pull-down menu on the transverse slice viewer, choose
+    'Contouring'
+  <LI>
+    <P ALIGN=Left>
+    The left margin populates with contouring controls.  Select the contour to edit from the dropdown box, or click New Structure to start a new contour.
+  <LI>
+    <P ALIGN=Left>
+    NOTE: Contouring can only be performed in the transverse panel.
+  <LI>
+    <P ALIGN=Left>
+    Any existing contours appear blue on the transverse slice.  To select an existing contour, right click it. Selected contours appear red.
+  <LI>
+    <P ALIGN=Left>
+    Selected contours can be deleted by clicking 'Delete selected contour'.  To replace a portion of a selected contour, click and drag to draw a line from one point on the contour to another.  Right click to cycle through the various combinations of the old contour and new segment.  Left click when Finished to finalize the contour.
+  <LI>
+    <P ALIGN=Left>
+    Copy +Z/-Z copies all contours from the selected structure one slice above/below the current slice.
+  <LI>
+    <P ALIGN=Left>
+    To save all changes made since contouring started and exit contouring mode, click Save.  To revert all changes, click cancel.
+</OL>
+</UL>
+<P ALIGN=Left>
+<A NAME="dvh"><!-- --></A><BIG><BIG>Dose volume histograms</BIG></BIG>
+<P ALIGN=Left>
+Q. &nbsp;How are dose volume histograms computed?
+<P ALIGN=Left>
+A. &nbsp;Each CT voxel has associated with it a volume equal to it's cuboid
+volume. &nbsp;Voxel widths in the z direction are determined to leave no
+gaps between CT slices. &nbsp;Half the inter-slice space belongs to the voxel
+of the next slice and half belongs to the voxel of the last slice. &nbsp;We
+do this even on the 'end cap' slices which are the most superior and inferior
+of the defined volume of interest. &nbsp;Dose is linearly interpolated to
+the voxel center in the slice plane. &nbsp;Thus determined, the doses and
+volumes are histogrammed up. If the option ROISampleRate is not equal to
+1, voxels are re-weighted to higher volumes. &nbsp;Generally, the DVH calculator
+is fast enough to leave ROISampleRate = 1.
+<P ALIGN=Left>
+How do I plot a dose-volume histogram (DVH)?
+<P ALIGN=Left>
+Steps:
+<OL>
+  <LI>
+    <P ALIGN=Left>
+    Click Metrics->DVH from the CERR Menubar.
+  <LI>
+    <P ALIGN=Left>
+    On the DVH menu window, all the previously stored DVHs will be listed in
+    color.
+  <LI>
+    <P ALIGN=Left>
+    To make a new DVH (for example after a new dose distribution has been chosen),
+    set the current dose and select a structure from the pulldown menus.  The DVH will appear below.
+  <LI>
+    <P ALIGN=Left>
+    Select the type of plot (DVH or DSH (dose-surface histogram)) from the listed DVH.
+  <LI>
+    <P ALIGN=Left>
+    Select 'Abs' if you also want an additional plot showing absolute volume
+    or surface area.
+  <LI>
+    <P ALIGN=Left>
+    Click plot to view the DVH/DSH.  You can click Expand Options to get additional information about the DVHs plotted in a figure.
+</OL>
+<P ALIGN=Left>
+Notes:
+<UL>
+  <LI>
+    <P ALIGN=Left>
+    The Matlab console will print basic data about the DVH, such as the maximum,
+    minimum and mean dose, and the total volume.
+  <LI>
+    <P ALIGN=Left>
+    If you plot more than one DVH for the same contour, the linestyle will cycle
+    for the higher numbered DVHs.
+</UL>
+<P ALIGN=Left>
+<A NAME="IMRT"><!-- --></A><BIG><BIG>IMRT Problem Creation</BIG></BIG> 
+<P ALIGN=Left>
+View the IMRT Manual <A HREF="IMRTManual.htm">HERE</A>.
+<P ALIGN=Left>
+<A NAME="3d"><!-- --></A><BIG><BIG>3-D </BIG></BIG>
+<P ALIGN=Left>
+The 3-D viewer menu can be raised by entering '3D', or '3-D' or '3-d' in
+the command line. &nbsp;The menu has boxes for selecting structures to be
+included, as well as transparency factors (0 is completely transparent and
+1 is completely opaque). &nbsp;There is a line to select a dose level to
+be shown as well. &nbsp;An 'L'-shaped object defines directions: &nbsp;the
+red bar points up and the green bar points to the patients left (assuming
+a head-to-feet scan position). &nbsp;Currently, the 3-D viewer downsamples
+images to 128 x 128 in the transverse plane. &nbsp;To rotate the image, select
+the 'move camera' option from the figure's &nbsp;'tools' menu. &nbsp;Then
+grab the figure with mouse button 1 to rotate it.&nbsp;
+
+<P ALIGN=Left>
+<A NAME="DoseShadow"><!-- --></A><BIG><BIG>Dose Shadow </BIG></BIG>
+<P ALIGN=Left>
+A tool to view the projection of dose within a given structure can be accessed by clicking
+metrics, Dose Shadow and selecting a structure.  The max, min, and mean values along every column
+of pixels within the selected structure is calculated and displayed.  The user can then easily see
+hot or cold spots and can query the dose at a point selected with the mouse.
+
+<P ALIGN=Left>
+<A NAME="DoseSubtract"><!-- --></A><BIG><BIG>Dose Subtraction </BIG></BIG>
+<P ALIGN=Left>
+The difference between two doses may be calculated, in order to better visualize what
+regions one dose effects that another does not.  Select dose distributions in the 
+transverse viewer's menubar and choose Dose Subtraction.  Select the two doses to
+be subtracted.  The new dose is calculated and stored as (FirstDose - SecondDose),
+which is displayed in the current window.  Dose colors displayed with diagonal hatching 
+are negative, and represent dose included in SecondDose but not FirstDose.  Dose colors
+without hatching represent dose included in FirstDose but not SecondDose.  DVHs may be 
+calculated on the difference between two doses, though the max/min/mean values will not
+reflect reality.  The dose arrays must be the same size and have corresponding elements.
+
+<P ALIGN=Left>
+<A NAME="Metrics"><!-- --></A><BIG><BIG>Metrics </BIG></BIG>
+<P ALIGN=Left>
+A beta tool to compare metrics graphically is included in this version of CERR.
+Select metrics in the transverse viewer's menubar and choose Metric Comparison.
+The left hand box contains a list of available metrics.  Choose a metric by double 
+clicking it or clicking and using the add arrow.  Edit a metric's parameters 
+in the right hand listbox.  After the desired metrics have been chosen and their
+parameters defined, select the doses to be compared by the metrics and click Evaluate.
+After the metric's values are calculated, a graphical comparison of the doses is displayed.
+
+<P ALIGN=Left>
+<A NAME="StructureCombination"><!-- --></A><BIG><BIG>Structure Combination </BIG></BIG>
+<P ALIGN=Left>
+A tool to combine, expand or contract structures can be accessed by clicking structures
+on the toolbar and selecting "derive new structure".  Choose an operation on the left,
+either Union, intersect, subtraction, expansion by x cm or contraction by x cm.  Then 
+select the appropriate number of structures from the right.  An intermediate structure
+will appear which can then be used to create structures composed of nested expressions.
+When you have a function you are happy with and want to add it to the plan, click GO and
+then click that structure.
+
+
+<P ALIGN=Left>
+<A NAME="options"><!-- --></A><BIG><BIG>User-controlled options settings</BIG></BIG>
+<P ALIGN=Left>
+All user-controlled option settings are fixed in the CERROptions.m file,
+which is automatically read at the beginning of every CERRSliceViewer session.
+&nbsp;Table 1 contains a list of the options, example values, their
+purpose,&nbsp;and their valid settings. &nbsp;The options can be changed
+and reloaded at any time by typing 'reload options' at the command line.
+<P ALIGN=Left>
+<TABLE BORDER CELLPADDING="2">
+  <CAPTION>
+    <BIG><BIG>Table 1. &nbsp;CERR options read from CERROptions.m</BIG></BIG>.
+  </CAPTION>
+  <TR>
+    <TD><B>Option field name</B></TD>
+    <TD><B>Valid settings</B></TD>
+    <TD><B>Description</B></TD>
+  </TR>
+  <TR>
+    <TD>loadCT</TD>
+    <TD>'yes' or 'no'</TD>
+    <TD>Load CT scans into planC?</TD>
+  </TR>
+  <TR>
+    <TD>loadDoseSet</TD>
+    <TD>'any' or other string</TD>
+    <TD>Fraction Group ID (will match with any Fx Grp ID with the same initial
+      letters, independent of case); or to load all this should be 'any'.</TD>
+  </TR>
+  <TR>
+    <TD>loadStructures</TD>
+    <TD>{'any'} or cell array of structure name strings</TD>
+    <TD>To load all this should be {'any'}. &nbsp;E.g., {'lung','spinal','esophagus'}</TD>
+  </TR>
+  <TR>
+    <TD><P>
+      <P>
+      scanStructures
+      <P>
+    </TD>
+    <TD>{'any'} or {'none'} or a cell array of structure name strings</TD>
+    <TD>structure names to convert to raster/scan segment format for DVH calculations
+      and sagittal/coronal display. &nbsp;Typically, 'any'. &nbsp;Any structure
+      whose name matches this name, up to the number of letters given, will have
+      scan segments generated during import. That is, 'lun' will match structures
+      'lung' or 'lung_all'.</TD>
+  </TR>
+  <TR>
+    <TD>CTEndian</TD>
+    <TD>'big' or 'little'</TD>
+    <TD>Byte ordering of CT scans and digital films.</TD>
+  </TR>
+  <TR>
+    <TD>loadFilm</TD>
+    <TD>'any' or 'none'</TD>
+    <TD>Load digital films?</TD>
+  </TR>
+  <TR>
+    <TD>zipSave</TD>
+    <TD>'yes' or 'no'</TD>
+    <TD>Compress imported plans with bzip2?</TD>
+  </TR>
+  <TR>
+    <TD>createUniformizedDataset</TD>
+    <TD>'yes' or 'no'</TD>
+    <TD>Create uniformized &amp; registered CT and structures datasets during
+      import. The uniformized scan set has a uniform axial (z) spacing and the
+      same transverse resolution as the normal CT-scan (usually, but not always,
+      512 x 512). The axial spacing is at least as large as
+      optS.smallestUniformCTSliceSpacing. If some part of the original scan has
+      a slice spacing larger than this value, the section with the smallest such
+      slice spacing will be used as part of the 'uniformized' CT dataset.</TD>
+  </TR>
+  <TR>
+    <TD>uniformizedDataType</TD>
+    <TD>'uint8' or 'uint16'.</TD>
+    <TD>Datatype for uniformized dataset.</TD>
+  </TR>
+  <TR>
+    <TD>lowerLimitUniformCTSliceSpacing</TD>
+    <TD>number, e.g., 0.3</TD>
+    <TD>Smallest allowed uniformized slice spacing</TD>
+  </TR>
+  <TR>
+    <TD>upperLimitUniformCTSliceSpacing</TD>
+    <TD>number, e.g., 0.5</TD>
+    <TD>Largest allowed uniformized slice spacing</TD>
+  </TR>
+  <TR>
+    <TD>alternateLimitUniformCTSliceSpacing</TD>
+    <TD>number, e.g., 0.4</TD>
+    <TD>If there are no initial CT slices between the largest and smallest slice
+      width allowed, make a uniformized dataset with this width.</TD>
+  </TR>
+  <TR>
+    <TD>uniformizeExcludeStructs</TD>
+    <TD>a cell array of structures, e.g., {'skin','normaltissue'}</TD>
+    <TD>Do not create bit maps of these registered to the uniformized dataset.
+      &nbsp;Excluding large structures, such as 'normaltissue' can save significant
+      memory.</TD>
+  </TR>
+  <TR>
+    <TD>useDoseScale</TD>
+    <TD>'yes' or 'no' (normally 'yes').</TD>
+    <TD>Use the key word dose scale on import and multiply the stored dose values
+      times the dose scale to create the doseArray. Note: Some systems, such as
+      one version of the NOMOS planning system, include a 'dose scale' keyword
+      even though the true dose is the 'unscaled' raw doses.</TD>
+  </TR>
+  <TR>
+    <TD>isodoseLevels</TD>
+    <TD>[L1, L2,...], e.g., [10,20,60]</TD>
+    <TD>Isodose levels</TD>
+  </TR>
+  <TR>
+    <TD>isodoseThickness</TD>
+    <TD>number, e.g., 1.5</TD>
+    <TD>Thickness of isodose lines</TD>
+  </TR>
+  <TR>
+    <TD>structureThickness</TD>
+    <TD>number, e.g., 1.5</TD>
+    <TD>Thickness of structure lines</TD>
+  </TR>
+  <TR>
+    <TD>isodoseLevelType</TD>
+    <TD>'percent' or 'absolute'</TD>
+    <TD>Meaning of isodoseLevels</TD>
+  </TR>
+  <TR>
+    <TD>displayDoseSet</TD>
+    <TD>name string</TD>
+    <TD>The fractionGroupID of the dose distribution to be displayed initially.
+      Defaults to the first dose distribution if this is not available.</TD>
+  </TR>
+  <TR>
+    <TD>tickInterval</TD>
+    <TD>number, e.g., 1</TD>
+    <TD>Ruler tick interval in cm</TD>
+  </TR>
+  <TR>
+    <TD>CTLevel</TD>
+    <TD>number, e.g., 0</TD>
+    <TD>Midpoint of the initial CT window in Hounsfield units</TD>
+  </TR>
+  <TR>
+    <TD>CTWidth</TD>
+    <TD>number, e.g., 300</TD>
+    <TD>Width of the initial CT window in Hounsfield units</TD>
+  </TR>
+  <TR>
+    <TD>fontsize</TD>
+    <TD>integer, e.g., 8</TD>
+    <TD>Default user-interface fontsize</TD>
+  </TR>
+  <TR>
+    <TD>UIColor</TD>
+    <TD>[num,num,num]</TD>
+    <TD>[r,g,b] default user-interface color</TD>
+  </TR>
+  <TR>
+    <TD>colorOrder</TD>
+    <TD>see options file</TD>
+    <TD>Set color of contours and isodose lines. Each 3 number triple is r, g,
+      b. Note: do not put commas into the colorOrder.</TD>
+  </TR>
+  <TR>
+    <TD>inactiveSegStyle</TD>
+    <TD>valid Matlab linestyle, e.g., '--'</TD>
+    <TD>Style for inactive contouring segments</TD>
+  </TR>
+  <TR>
+    <TD>activeSegStyle</TD>
+    <TD>valid Matlab linestyle, e.g., '-'</TD>
+    <TD>Style for active contouring segments</TD>
+  </TR>
+  <TR>
+    <TD>displayPatientName</TD>
+    <TD>0 ('off') or 1 ('on')</TD>
+    <TD>Display patient name if available?</TD>
+  </TR>
+  <TR>
+    <TD>initialZoomTrans</TD>
+    <TD>number, e.g., 1.7</TD>
+    <TD>Initial transverse zoom factor</TD>
+  </TR>
+  <TR>
+    <TD>initialZoomSag</TD>
+    <TD>number, e.g., 1.7</TD>
+    <TD>Initial saggital zoom factor</TD>
+  </TR>
+  <TR>
+    <TD>initialZoomCor</TD>
+    <TD>number, e.g., 1.7</TD>
+    <TD>Initial coronal zoom factor</TD>
+  </TR>
+  <TR>
+    <TD>zoomFactor</TD>
+    <TD>number, e.g., 2.0</TD>
+    <TD>x-y scale factor when zooming</TD>
+  </TR>
+  <TR>
+    <TD>rulerColor</TD>
+    <TD>[num,num,num]</TD>
+    <TD>[r,g,b] ruler color</TD>
+  </TR>
+  <TR>
+    <TD>dosePlotType</TD>
+    <TD>'colorwash' or 'isodose'</TD>
+    <TD>Method of dose distribution display</TD>
+  </TR>
+  <TR>
+    <TD>boneShadow</TD>
+    <TD>'on' or 'off'</TD>
+    <TD>When colorwash dose is displayed a 'shadow' (actually a brightening)
+      shows bone</TD>
+  </TR>
+  <TR>
+    <TD>doseColormap</TD>
+    <TD>'jetmod' (modified jet); 'full' (full rainbow); 'star' 14 non-blending
+      colors); 'gray' or 'gray256' (64 or 256 level grayscale)</TD>
+    <TD>Colormap for dose colorwash. The map is read from CERRColormap.m.</TD>
+  </TR>
+  <TR>
+    <TD>CTColormap</TD>
+    <TD>same as above, but usually 'gray256'</TD>
+    <TD>CT colormap, usually grayscale.</TD>
+  </TR>
+  <TR>
+    <TD>colorbarMarks</TD>
+    <TD>[L1,L2,...], e.g., [45, 70]</TD>
+    <TD>Ticks on colorbar to indicate these doses, in Gy.</TD>
+  </TR>
+  <TR>
+    <TD>doseDisplayCutoff</TD>
+    <TD>[0-any pos number], e.g., 2</TD>
+    <TD>In colorwash display, do not display doses below this value in units
+      of Gy. &nbsp;Ignored if the value is 0.</TD>
+  </TR>
+  <TR>
+    <TD>visualRefColormapRows</TD>
+    <TD>integer, e.g., 256</TD>
+    <TD>Number of rows in visual reference colorwash colormap.</TD>
+  </TR>
+  <TR>
+    <TD>visualRefDoseMode</TD>
+    <TD>'on' or 'off'</TD>
+    <TD>Improved identification of regions above the reference dose. &nbsp;If
+      'on', the color in the dose colorwash at optS.visualReferenceDose will be
+      white (using 'full2' colormap). &nbsp;The colormap above this dose to the
+      maximum value will be the visualRefTopColormap.</TD>
+  </TR>
+  <TR>
+    <TD>visualRefDose</TD>
+    <TD>dose in Gy, e.g., 70 (prescription dose )</TD>
+    <TD>If optS.visualReferenceDoseMode is 'on', the color in the dose colorwash
+      at this dose will be that of the highest visualRefBottomColormap color.
+      &nbsp;The colormap above this dose to the maximum value will be the
+      visualRefTopColormap.</TD>
+  </TR>
+  <TR>
+    <TD>visualRefTopColormap</TD>
+    <TD>Usually 'grayud64'</TD>
+    <TD>Colormap between optS.visualRefDose and max dose.</TD>
+  </TR>
+  <TR>
+    <TD>visualRefBottomColormap</TD>
+    <TD>Usually 'full2', but can be any doseColormap</TD>
+    <TD>Colormap between zero dose and optS.visualRefDose.</TD>
+  </TR>
+  <TR>
+    <TD>optS.visual3DxyDownsampleIndex</TD>
+    <TD>2^n, for example, 128. &nbsp;128 seems to work well, and is the default</TD>
+    <TD>Downsample to this resolution in the transverse plane for 3D display.</TD>
+  </TR>
+  <TR>
+    <TD>ROISampleRate</TD>
+    <TD>integer &gt;= 1, e.g., 2.</TD>
+    <TD>Rate of ROI sampling compared to CT spacing, for DVH computations. &nbsp;</TD>
+  </TR>
+  <TR>
+    <TD>DSHMaxPointInterval</TD>
+    <TD>Maximum interval (in cm), e.g., 0.1</TD>
+    <TD>Maximum interval (in cm) between surface sampling points for dose-surface
+      histograms.</TD>
+  </TR>
+  <TR>
+    <TD>surfPtStructures</TD>
+    <TD>{'structure1', 'structure2',...}</TD>
+    <TD>Any structure whose name matches this name, up to the number of letters
+      given, will have surface points generated during import. That is, 'lun' will
+      match 'lung' or 'lung_all'.</TD>
+  </TR>
+  <TR>
+    <TD>DVHBinWidth</TD>
+    <TD>number, e.g., 0.1</TD>
+    <TD>Store and display DVHs with this width, in units of Gy.</TD>
+  </TR>
+  <TR>
+    <TD>DVHBlockSize</TD>
+    <TD>integer, e.g. 5000</TD>
+    <TD>Block processing parameter. 5000 is the initial suggested value. This
+      results in much less temporary storage for large structure &nbsp;DVH
+      computations. If there is disk-thrashing during the DVH calculation, try
+      reducing this number.</TD>
+  </TR>
+  <TR>
+    <TD>DVHLineWidth</TD>
+    <TD>number, e.g., 1.5</TD>
+    <TD>Line thickness of DVH and DSH lines.</TD>
+  </TR>
+  <TR>
+    <TD>nudgeDistance</TD>
+    <TD>number, e.g., 0.5</TD>
+    <TD>Number of voxel widths to nudge the active contour.</TD>
+  </TR>
+  <TR>
+    <TD>navigationMontageColormap</TD>
+    <TD>string, e.g., 'grayCenter0Width300'</TD>
+    <TD>Colormap to use for montage.</TD>
+  </TR>
+  <TR>
+    <TD>navigationMontageOnImport</TD>
+    <TD>string, e.g., 'yes'</TD>
+    <TD>Do or do not create thumbnails on import.</TD>
+  </TR>
+  <TR>
+    <TD>navigationMontage</TD>
+    <TD>string, e.g., 'yes'</TD>
+    <TD>Turn navigation montage on or off at startup.</TD>
+  </TR>
+  <TR>
+    <TD>wavletcompresthreshpersent</TD>
+    <TD>number, e.g., 1</TD>
+    <TD>Thresh percent</TD>
+  </TR>
+  <TR>
+    <TD>wavletcompressiondecomplevel</TD>
+    <TD>number, e.g., 5</TD>
+    <TD>Decompression level</TD>
+  </TR>
+  <TR>
+    <TD>planMetrics</TD>
+    <TD>cell array of strings, e.g., {'meanDose',...,'EUD'}</TD>
+    <TD>Names of metrics in PlanMetrics folder</TD>
+  </TR>
+  <TR>
+    <TD>windowPresets</TD>
+    <TD>Array of structs, e.g. [struct('name', 'Abd/Med', 'center', -10, 'width', 330)...]</TD>
+    <TD>Values for CT window presets</TD>
+  </TR>
+
+  <TR>
+    <TD>cachingEnabled</TD>
+    <TD>1 or 0. 1 is yes.</TD>
+    <TD>Turn on slice image caching.</TD>
+  </TR>
+  <TR>
+    <TD>colorWashCacheSize</TD>
+    <TD>32</TD>
+    <TD>Size in megabytes to dedicate towards slice caching.</TD>
+  </TR>
+</TABLE>
+<P ALIGN=Left>
+<A NAME="command"><!-- --></A><BIG><BIG>The command line</BIG></BIG>
+<P ALIGN=Left>
+The CERR command line, shown as a button in the slice review tool, is meant
+to be a powerful mechanism for adding sophisticated user options. The current
+valid CERR commands can always be determined by typing 'help' at the command
+line. &nbsp; Users can add commands to the command line. &nbsp;To do this,
+look at /CommandLine/runCERRCommand.m to for an example. In a later version
+we will add the ability to just put a new function on the path and call it
+from the command line.
+<P ALIGN=Left>
+<TABLE BORDER CELLPADDING="2">
+  <CAPTION>
+    <BIG><BIG>Table 2. Valid CERR commands (brackets indicate user-defined
+    variables)</BIG></BIG>
+  </CAPTION>
+  <TR>
+    <TD><B>Command syntax</B></TD>
+    <TD><B>Description</B></TD>
+  </TR>
+  <TR>
+    <TD>3D, 3d, or 3-D, or 3-d</TD>
+    <TD>Raise 3D viewer menu</TD>
+  </TR>
+  <TR>
+    <TD>list header</TD>
+    <TD>List header fields</TD>
+  </TR>
+  <TR>
+    <TD>list comment</TD>
+    <TD>List comment fields</TD>
+  </TR>
+  <TR>
+    <TD>list slice [num]</TD>
+    <TD>List CT scan data about slice [num]</TD>
+  </TR>
+  <TR>
+    <TD>list structure [num]</TD>
+    <TD>List data for structure [num] (the numbering is that of the structure
+      pull-down menu on the transverse image viewer)</TD>
+  </TR>
+  <TR>
+    <TD>list beam geometry [num]</TD>
+    <TD>List field data on beam geometry [num]</TD>
+  </TR>
+  <TR>
+    <TD>list dose [num]</TD>
+    <TD>List field data on dose distribution [num]</TD>
+  </TR>
+  <TR>
+    <TD>list dvh [num]</TD>
+    <TD>List field data on stored DVH [num]</TD>
+  </TR>
+  <TR>
+    <TD>list options</TD>
+    <TD>List the current options in optS</TD>
+  </TR>
+  <TR>
+    <TD>list structure [structnum] points [slicenum]</TD>
+    <TD>List points in a structure</TD>
+  </TR>
+  <TR>
+    <TD>show film [num]</TD>
+    <TD>Show a digital film</TD>
+  </TR>
+  <TR>
+    <TD>mask [num]</TD>
+    <TD>Show the points included in an ROI</TD>
+  </TR>
+  <TR>
+    <TD>set [optionName]</TD>
+    <TD>Reset and use a new option value (i.e., optS.optionName)</TD>
+  </TR>
+  <TR>
+    <TD>reload options</TD>
+    <TD>Reload all option settings in CERROptions.m</TD>
+  </TR>
+  <TR>
+    <TD>go to [slicenum]</TD>
+    <TD>To go to a slice number</TD>
+  </TR>
+  <TR>
+    <TD>go to z [z value]</TD>
+    <TD>Go to a z value (or nearest slice)</TD>
+  </TR>
+  <TR>
+    <TD>go to max</TD>
+    <TD>Go to the slice with the maximum dose</TD>
+  </TR>
+  <TR>
+    <TD>del structure [num]</TD>
+    <TD>delete an anatomical structure</TD>
+  </TR>
+  <TR>
+    <TD>dose</TD>
+    <TD>Get dose at point on transverse viewer chosen with the mouse</TD>
+  </TR>
+  <TR>
+    <TD>func arg1 arg2... (user defined)</TD>
+    <TD>This is a user-defined function. &nbsp;If the command entry is not built-in,
+      CERR attempts to run 'func.m' &nbsp;with the argument list. &nbsp;('func'
+      must be on the path.)</TD>
+  </TR>
+</TABLE>
+<P ALIGN=Left>
+<A NAME="scripting"><!-- --></A><BIG><BIG>Manipulating CERR archives in Matlab
+scripts or functions</BIG></BIG>
+<P ALIGN=Left>
+All treatment plan information is contained in the cell-array typically named
+'planC.' &nbsp;As an example of accessing of the CERR plan object, the command
+<P ALIGN=Left>
+planC{4}(1).contour(27).segments.points
+<P ALIGN=Left>
+returns, in this case, the points associated with the first (only) segment
+of the first contour on the 27th slice. See the CERRSliceViewer code for
+many more examples of how to properly access information stored in CERR format.
+&nbsp;
+<P ALIGN=Left>
+Q. &nbsp;How can I get access to the underlying plan archive data in Matlab?
+<P ALIGN=Left>
+A. You can either load the archive file or start CERRSliceViewer. &nbsp;To
+load it as a .mat file, just use the usual 'load *.mat' command. After loading
+(with or without the GUI) type 'global planC' at the Matlab prompt. planC{end}
+gives the index to where (and what) things are stored in the cell array.
+&nbsp;General 'state' information is stored in the global variable stateS.
+&nbsp;Type 'global stateS' for access.
+<P ALIGN=Left>
+Q. &nbsp;Where are things stored in the plan archive?
+<P ALIGN=Left>
+A. &nbsp;The different cells of the cell array contain data objects according
+to the value of the structure indexS which is loaded from initializeCERR.m.
+For example we have:
+<P ALIGN=Left>
+indexS.header = 1;
+<P ALIGN=Left>
+indexS.comment = 2;
+<P ALIGN=Left>
+indexS.scan = 3;
+<P ALIGN=Left>
+indexS.structures = 4;
+<P ALIGN=Left>
+indexS.structuresArray = 5;
+<P ALIGN=Left>
+indexS.beamGeometry = 6;
+<P ALIGN=Left>
+indexS.dose = 7;
+<P ALIGN=Left>
+indexS.DVH = 8;
+<P ALIGN=Left>
+indexS.digitalFilm = 9;
+<P ALIGN=Left>
+indexS.CERROptions = 10;
+<P ALIGN=Left>
+indexS.indexS = 11;
+<P ALIGN=Left>
+This means that the scan information is all contained in the 3rd element
+of the scan (planC{3}), the dose information is all contained in the 7th
+element, etc. The import options are all stored in cell 10 (however, the
+user may change them during execution), and cell 11 contains this list of
+cell contents. &nbsp;This index is always stored as the last element in planC.
+&nbsp;Hence, we always have
+<P ALIGN=Left>
+indexS = planC{end}
+<P ALIGN=Left>
+New elements can be added to any plan archive merely by redefining the field
+values of planC{end}, and moving the cell array elements around accordingly.
+<P ALIGN=Left>
+Q. &nbsp;Can I add arbitrary new fields to structures without breaking any
+code?
+<P ALIGN=Left>
+A. &nbsp;Yes, without exception.
+<P ALIGN=Left>
+<A NAME="investigating"><!-- --></A><BIG><BIG>Investigating CERR source
+code</BIG></BIG>
+<P ALIGN=Left>
+Q. &nbsp;How can I learn how CERR works?
+<P ALIGN=Left>
+A. &nbsp;Matlab has a fantastic debugger which can be used to great advantage.
+&nbsp;Following Matlab's instructions, set desired break points and watch
+changes to, say, the transverse slice viewer as each command is executed.
+&nbsp;The debugger has many features as described in the Matlab manual.
+&nbsp;Also, the global structure variable stateS contains a great deal of
+state information. &nbsp;Type 'global stateS' to make it available. &nbsp;All
+figure handles are stored under stateS.handle...&nbsp;&nbsp;
+<P ALIGN=Left>
+Q. &nbsp;How can I tell which functions call which other functions?
+<P ALIGN=Left>
+A. We wrote a Matlab function, coded by Vanessa Clark, to produce a detailed
+cross-listing of the code: /CrossListing/getDirFunInfo.m. See the current
+cross-lising under: /CrossListing/. &nbsp;The cross-listing is about 9,000
+lines long and lists which functions call which other functions along with
+all the variables of each m-file. &nbsp;Note that getDirFunInfo.m&nbsp;can
+be re-run at any time. &nbsp;Here is an example of its use:
+<P ALIGN=Left>
+getDirFunInfo('c:\tmp\cerr_30dec02_cross_listing.txt', 'y', 'CERR Cross Listing',
+'e:\cerr\cerr_current')
+<P ALIGN=Left>
+<A NAME="coding"><!-- --></A><BIG><BIG>Coding conventions</BIG></BIG>
+<P ALIGN=Left>
+Meaningful variable and function names are used wherever possible. The naming
+convention is 'small/large caps,' whereby the first letter of a variable
+name is not capitalized unless it is an abbreviation (e.g., CT). Hence, we
+use variables like sizeOfDimension1, etc.
+<P ALIGN=Left>
+Typically, though not always, the last letter is capitalized and used to
+distinguish data object types:
+<UL>
+  <LI>
+    <P ALIGN=Left>
+    varV (and sometimes var) means the data object is a 1-D vector.
+  <LI>
+    <P ALIGN=Left>
+    varM means the data object is a 2-D matrix
+  <LI>
+    <P ALIGN=Left>
+    var3M means the data object is a 3-D matrix
+  <LI>
+    <P ALIGN=Left>
+    varA means that the data object is a multidimensional array
+  <LI>
+    <P ALIGN=Left>
+    varS means the data object is a structure
+  <LI>
+    <P ALIGN=Left>
+    varC means the data object is a cell array
+</UL>
+<P ALIGN=Left>
+A few data objects are passed around as global variables. This facilitates
+interactive use with Matlab: typing global planC gives the Matlab user access
+to a plan being viewed using the CERRSliceViewer tool. However, it may have
+drawbacks in the future because any part of the program may modify any part
+of the treatment plan.
+<P ALIGN=Left>
+When selecting some cell of planC, please use indexS as the indexer, e.g.,
+'planC{indexS.scan}' instead of 'planC{3}.' The actual indices may change
+in the future to accommodate more cell elements. If the indexS structure
+is always used then more elements can be added, and others moved, with a
+trivial modification to the initial value of indexS.
+<P ALIGN=Left>
+Modifications to working source code are logged briefly near the top of the
+m-file.
+<P ALIGN=Left>
+<A NAME="leftovers"><!-- --></A><BIG><BIG>Leftovers</BIG></BIG>
+<P ALIGN=Left>
+Q. &nbsp;How can I 'anonymize' a treatment plan archive to remove protected
+health information?
+<P ALIGN=Left>
+A. See the function anonymize.m under /Extras/Anonymize/. Be sure to identify
+all the fieldnames that may contain protected health information. &nbsp;Of
+course, we make no guarantees about the results.&nbsp;
+<P ALIGN=Left>
+Q. &nbsp;How do I change dose distributions?
+<P ALIGN=Left>
+A. Just select the new dose distribution from the 'Dose distribution' pull
+down menu on the transverse viewer.
+<P ALIGN=Left>
+Q. &nbsp;What does 'scan uniformization' and the Uniformization
+subdirectory&nbsp;refer to?
+<P ALIGN=Left>
+A. This is the process of building a CT dataset with uniform axial (z) spacing.
+This is useful for sagittal and coronal viewing and will be useful for future
+projects such as dose computation. The uniformized scan set has a uniform
+axial (z) spacing and the same transverse resolution as the normal CT-scan
+(usually, but not always, 512 x 512). Superior and inferior 'bookends' will
+be created in addition, via 3-D linear interpolation, to complete the uniformized
+CT dataset. Encoded masks (0/1) of structure locations are stored registered
+to this uniformized dataset. &nbsp;Given a set of CT values, we choose the
+largest block which CT slice spacing which falls within the limits of
+optS.lowerLimitUniformCTSliceSpacing and optS.upperLimitUniformCTSliceSpacing.
+&nbsp;Otherwise we create a set with a spacing equal to
+optS.alternateUniformCTSliceSpacing. If the user desires a uniformized scan
+with a spacing of exactly optS.alternateUniformCTSliceSpacing, then set
+optS.lowerLimitUniformCTSliceSpacing to be larger than
+optS.upperLimitUniformCTSliceSpacing.
+<P ALIGN=Left>
+<A NAME="updates"><!-- --></A><BIG><BIG>Updates and more
+information</BIG></BIG>
+<P ALIGN=Left>
+Q. &nbsp;Where can I get updates and more information?
+<P ALIGN=Left>
+A. &nbsp;Our web-page: &nbsp;http://deasylab.info (this always redirects
+to the current home of CERR as hosted on Washington University computers).
+<P ALIGN=Left>
+Q. &nbsp;Is there an email mailing list for CERR? &nbsp;
+<P ALIGN=Left>
+A. &nbsp;Yes. &nbsp;We have created a yahoo groups mailing list and archive
+for users of CERR.&nbsp;&nbsp;Send me an email and I will put you on it.
+<P ALIGN=Left>
+Q. Will the documentation get better?
+<P ALIGN=Left>
+A. Yes, but the timetable is undocumented.
+<P ALIGN=Left>
+Q. Will CERR bugs get fixed?
+<P ALIGN=Left>
+A. Yes they will -- including those to make the import tool work for a wider
+variety of planning systems. &nbsp;It is often the case that vendors don't
+follow the RTOG specification exactly. &nbsp;We have always been able to
+correct (i.e. translate) or workaround variant implementations.
+<P ALIGN=Left>
+Q. &nbsp;What other documentation is available with the system?
+<OL>
+  <LI>
+    <P ALIGN=Left>
+    Many widgets have tips which appear if the mouse hovers over the widget.
+  <LI>
+    <P ALIGN=Left>
+    Deasy JO, Blanco AI, Clark VH. CERR: a computational environment for radiotherapy research, Med Phys. 2003 May;30(5):979-85. 
+    This article describes the general architecture and features of CERR.
+  <LI>
+    <P ALIGN=Left>
+    Look at the CERROptions.m file to see descriptions of the many options settings.
+  <LI>
+    <P ALIGN=Left>
+    Type 'help' at the command prompt on the transverse viewer to see a listing
+    of valid commands.
+  <LI>
+    <P ALIGN=Left>
+    This file, which will be updated on our webpage (deasylab.info)
+</OL>
+<P ALIGN=Left>
+Please email us with any questions or comments. We especially want to hear
+about bugs as we are committed to bug-free code.
+<P ALIGN=Left>
+<BIG>Credits:</BIG>
+<UL>
+  <LI>
+    <P ALIGN=Left>
+    James Alaly , Researcher II.  Dose subtraction, transparency, metric comparison tool, 
+    paging optimization, caching, CVS setup, compiled version, website maintenance, 
+    dose cutoff, Labbook tool, Structure fusion tool.  General bug fixing (and creating) and optimization.
+
+  <LI>
+    <P ALIGN=Left>
+    Vanessa Clark , student in the Dept of Computer Science and Engineering at
+    Washington University - Coding of the getDirInfo function and coding for
+    the sagittal and coronal viewers.
+  <LI>
+    <P ALIGN=Left>
+    Angel Blanco, MD, Resident in Dept of Radiation Oncology- Design and coding
+    of the compression utilities; extensive testing and use of the contouring
+    tools.
+  <LI>
+    <P ALIGN=Left>
+    Constantine Zakarian, PhD, post-doctoral fellow in the Dept of Radiation
+    Oncology - 3-D dose and structure viewer, general testing and debugging,
+    and coding on colorwash options.
+  <LI>
+    <P ALIGN=Left>
+    Joe Deasy, PhD - Originator, coder, and chief bottle-washer.
+</UL>
+<P ALIGN=Left>
+<A NAME="ongoing"><!-- --></A><BIG><BIG>Ongoing projects and future
+plans</BIG></BIG>
+<P ALIGN=Left>
+At Washington University, we have ongoing diverse projects which use CERR,
+including
+<UL>
+  <LI>
+    <P ALIGN=Left>
+    Comparing IMRT treatment plans, analyzing outcomes vs. DVHs,
+  <LI>
+    <P ALIGN=Left>
+    Biological evaluations of treatment plans (TCP, NTCP, etc.)
+  <LI>
+    <P ALIGN=Left>
+    Monte Carlo dose calculations using Iwan Kawrakow's VMC code,
+  <LI>
+    <P ALIGN=Left>
+    Testing Monte Carlo denoising,
+  <LI>
+    <P ALIGN=Left>
+    Building an IMRT inverse treatment planning engine with Eva Lee of Georgia
+    Tech &amp; Emory.
+</UL>
+<P ALIGN=Left>
+We are open to collaborating on projects that use CERR. &nbsp;We want CERR
+to fill a need for a convenient environment for developing, demonstrating,
+and sharing radiotherapy research.
+<P ALIGN=Left>
+<P ALIGN=Center>
+<P ALIGN=Center>
+</BODY></HTML>

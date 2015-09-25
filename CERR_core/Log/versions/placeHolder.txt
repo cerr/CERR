@@ -1,0 +1,1 @@
+Keep this file so that "Versions" directory is not pruned while downloading from CVS

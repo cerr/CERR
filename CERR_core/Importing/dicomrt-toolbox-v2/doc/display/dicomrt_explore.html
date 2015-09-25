@@ -1,0 +1,37 @@
+<TITLE>/</TITLE>
+<BODY>
+<A HREF = "index.html">[Index for ./dicomrt-toolbox/display]</A>
+<A HREF = "../index.html">[Return to Master Index]</A>
+<H1>dicomrt_explore</H1>
+<H2>(./dicomrt-toolbox/display/dicomrt_explore.m)</H2>
+<HR><H3>Function Synopsis</H3>
+<pre>dicomrt_explore(study,xmesh,ymesh,zmesh,VOI,voi2plot)</pre>
+<HR><H3>Help text</H3>
+<pre>
+ dicomrt_explore(study,xmesh,ymesh,zmesh,VOI,voi2plot)
+
+ Interactive exploring tool for 3D matrices.
+
+ study is the study to explore
+ xmesh, ymesh and zmesh are the voxel coordinates of the 3D matrix
+ VOI is an OPTIONAL cell array which contain the patients VOIs as read by dicomrt_loadVOI
+ voi2plot is an OPTIONAL vector pointing to the number of VOIs to be displayed
+
+ NOTE: This function uses a version of &quot;Sliceomatic&quot; specifically modified by 
+ Emiliano Spezi to render 3D matrices in real world space (e.g. Patient Coordinate System).
+ Sliceomatic was originally written by Eric Ludlam (The Mathworks) and can
+ be downloaded from the Matlab exchange file repository.
+
+ See also: dicomrt_loaddose, dicomrt_loadmcdose, dicomrt_loadvoi
+ 
+ Copyright (C) 2002 Emiliano Spezi (emiliano.spezi@physics.org) 
+</pre>
+<HR><H3>Cross-Reference Information</H3>This function calls
+<pre><UL>
+<LI><A HREF = "../display/dicomrt_rendervoi.html">dicomrt_rendervoi</A>./dicomrt-toolbox/display/dicomrt_rendervoi.m</LI>
+</UL></pre>
+<HR>
+Produced by <A HREF="http://www.mathworks.com/support/ftp/toolsv4.shtml">mat2html</A> on Mon Oct 20 15:21:43 2003
+<BR>
+Cross-Directory links are: OFF<BR>
+</BODY>

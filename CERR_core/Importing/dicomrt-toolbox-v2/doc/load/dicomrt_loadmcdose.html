@@ -1,0 +1,55 @@
+<TITLE>/</TITLE>
+<BODY>
+<A HREF = "index.html">[Index for ./dicomrt-toolbox/mctp/load]</A>
+<A HREF = "../index.html">[Return to Master Index]</A>
+<H1>dicomrt_loadmcdose</H1>
+<H2>(./dicomrt-toolbox/mctp/load/dicomrt_loadmcdose.m)</H2>
+<HR><H3>Function Synopsis</H3>
+<pre>[cellMCdose,cellMCerror] = dicomrt_loadmcdose(study,int)</pre>
+<HR><H3>Help text</H3>
+<pre>
+ dicomrt_loadmcdose(study,int)
+
+ Import Monte Carlo 3D dose distribution calculated for current study.
+ 
+ It is possible to keep segment's 3D dose answering 'Y' to a dialog question.
+ Answering 'Y' will return in MCdose and in MCerror two cell arrays with the following structure
+
+   beam name     3d matrix/segment
+  --------------------------------------
+  | [beam 1] | [1st segment 3dmatrix ] |
+  |          | [1st segment 3dmatrix ] |
+  |          |                         |
+  |          | [nth segment 3dmatrix ] |
+  --------------------------------------
+  |   ...               ...            |
+  --------------------------------------
+  | [beam 2] | [1st segment 3dmatrix ] |
+  |          | [1st segment 3dmatrix ] |
+  |          |                         |
+  |          | [nth segment 3dmatrix ] |
+  --------------------------------------
+
+ Int is interactive option. If int ~=1 or if int is not given session is not interactive
+ and default parameters (e.g. directories names) will be used. If int = 1 the user will 
+ be asked to set some parameters.
+ Parameters for this specific m file are:
+
+ DOSEDIR				directory where 3ddose files are located
+ CELLStore			    option to store individual segments or clear them after use 
+
+ Example:
+
+ [MCdose,MCerror]=dicomrt_loadmcdose(A)
+
+ load all the DOSXYZ 3ddose files and store dose in MCdose and relative error in MCerror
+
+ See also dicomrt_read3ddose, dicomrt_loaddose, <A HREF = "../load/dicomrt_backscatter.html">dicomrt_backscatter</A>
+
+ Copyright (C) 2002 Emiliano Spezi (emiliano.spezi@physics.org) 
+</pre>
+<HR>
+Produced by <A HREF="http://www.mathworks.com/support/ftp/toolsv4.shtml">mat2html</A> on Mon Oct 20 15:21:43 2003
+<BR>
+Cross-Directory links are: OFF<BR>
+</BODY>

@@ -1,0 +1,57 @@
+<TITLE>/</TITLE>
+<BODY>
+<A HREF = "index.html">[Index for ./dicomrt-toolbox/display]</A>
+<A HREF = "../index.html">[Return to Master Index]</A>
+<H1>dicomrt_gvhplot</H1>
+<H2>(./dicomrt-toolbox/display/dicomrt_gvhplot.m)</H2>
+<HR><H3>Function Synopsis</H3>
+<pre>[volumegrid,GAMMAgrid] = dicomrt_gvhplot(GVH,typegvh,int)</pre>
+<HR><H3>Help text</H3>
+<pre>
+ dicomrt_gvhplot(GVH,typegvh,int)
+
+ Display GAMMA Volume Histogram (GVH) for selected Volume Of Interest (VOI)
+
+ GVH is a GVH cell matrix generated with dicomrt_gvhcal
+ typegvh   is a parameter which switch between cumulative (=0 default)
+           and frequency (=1) histogram 
+ int       is an OPTIONAL parameter that allows the user to define colors for
+           gvh plot. If not passed as input default color, style and marker are used.
+
+ GVHs are stored in a cell array with the following structure:
+
+  --------------------------------
+  | [GVH-name] | [3D gamma mask] |
+  |            -------------------
+  |            | [gvh data]      |
+  |            -------------------
+  |            | VOI volume      | 
+  |            -------------------
+  |            | Voxel volume    | 
+  --------------------------------
+
+ [gvh data] is a 2 columns vector with following structure:
+
+ ----------------------
+ | gamma grid | count |
+ ----------------------
+ |            |       |
+ |            |       |
+ |            |       |
+ |            |       |
+ ----------------------
+
+
+ Example:
+
+ dicomrt_gvhplot(A,2,2) plot a cumulative GVH for VOI 2 contained in GVH cell array A.
+
+ See also dicomrt_loaddose, roifilt2, dicomrt_gvhcal
+
+ Copyright (C) 2002 Emiliano Spezi (emiliano.spezi@physics.org) 
+</pre>
+<HR>
+Produced by <A HREF="http://www.mathworks.com/support/ftp/toolsv4.shtml">mat2html</A> on Mon Oct 20 15:21:43 2003
+<BR>
+Cross-Directory links are: OFF<BR>
+</BODY>

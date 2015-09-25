@@ -1,0 +1,49 @@
+<TITLE>/</TITLE>
+<BODY>
+<A HREF = "index.html">[Index for ./dicomrt-toolbox/mctp/load]</A>
+<A HREF = "../index.html">[Return to Master Index]</A>
+<H1>dicomrt_doseconversion</H1>
+<H2>(./dicomrt-toolbox/mctp/load/dicomrt_doseconversion.m)</H2>
+<HR><H3>Function Synopsis</H3>
+<pre>[celldose] = dicomrt_doseconversion(study,filename,int)</pre>
+<HR><H3>Help text</H3>
+<pre>
+ dicomrt_doseconversion(study,filename,int)
+
+ Convert dose to medium in dose to water and vice versa (dose2medium &lt;-&gt; dose2water).
+ Based on original C code by Frank Verhaegen (ICR, October 2000) and on paper from 
+ Siebers et al 2000, Phys. Med. Biol.45 983-995.
+
+ Study contains the 3D dose matrix (TPS or MC form).
+ Filename is the name of the file which contain the egs4phantom (no ext.).
+
+ Int is interactive option. If int ~=1 or if int is not given session is not interactive
+ and default parameters (e.g. directories names) will be used. If int = 1 the user will 
+ be asked to set some parameters.
+ Parameters for this specific m file are:
+
+ convtype = 0           dose2medium  -&gt; dose2water
+ patient_position = 1   HFS
+ nomE = 6               Beam nominal energy (MV)
+
+ Convtype determines conversion type:
+    convtype = 0 dose2medium  -&gt; dose2water   (default)
+    convtype = 1 dose2water   -&gt; dose2medium
+ 
+ Example:
+
+ [A]=dicomrt_doseconversion(mcdose,'demo')
+
+ will store in A the original dose &quot;mcdose&quot; converted using material information from phantom &quot;demo.egs4phant&quot;;
+ The egs4phantom is required when converting dose2medium &lt;-&gt; dose2water conversion.
+ Since this is not an interactive session convtype = 0, patient_position = 1 and nomE = 6.
+
+ See also dicomrt_ctcreate, dicomrt_loadose, <A HREF = "../load/dicomrt_loadmcdose.html">dicomrt_loadmcdose</A>, <A HREF = "../load/dicomrt_addmcdose.html">dicomrt_addmcdose</A>
+
+ Copyright (C) 2002 Emiliano Spezi (emiliano.spezi@physics.org) 
+</pre>
+<HR>
+Produced by <A HREF="http://www.mathworks.com/support/ftp/toolsv4.shtml">mat2html</A> on Mon Oct 20 15:21:43 2003
+<BR>
+Cross-Directory links are: OFF<BR>
+</BODY>

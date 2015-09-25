@@ -1,0 +1,709 @@
+function axisfusion(hAxis, method, checkSize)
+%"axisFusion"
+%   Fuses two B&W (indexed) images in an axis, using the passed display
+%   method. A new image tagged 'fused_image' is created to handle overlapping
+%   areas.
+%
+%   Method can be 'blend' or 'check'.
+%
+%   In CERR this code is used for image fusion of scanSets.
+%
+%JRA 12/8/04
+%
+%Usage:
+%   function axisFusion(hAxis, method, param)
+%
+% Copyright 2010, Joseph O. Deasy, on behalf of the CERR development team.
+% 
+% This file is part of The Computational Environment for Radiotherapy Research (CERR).
+% 
+% CERR development has been led by:  Aditya Apte, Divya Khullar, James Alaly, and Joseph O. Deasy.
+% 
+% CERR has been financially supported by the US National Institutes of Health under multiple grants.
+% 
+% CERR is distributed under the terms of the Lesser GNU Public License. 
+% 
+%     This version of CERR is free software: you can redistribute it and/or modify
+%     it under the terms of the GNU General Public License as published by
+%     the Free Software Foundation, either version 3 of the License, or
+%     (at your option) any later version.
+% 
+% CERR is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+% without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+% See the GNU General Public License for more details.
+% 
+% You should have received a copy of the GNU General Public License
+% along with CERR.  If not, see <http://www.gnu.org/licenses/>.
+
+global planC
+global stateS
+
+indexS = planC{end};
+
+% if stateS.optS.useOpenGL
+axisInfo = get(hAxis, 'userdata');
+[view] = getAxisInfo(hAxis,'view');
+surfaces = [axisInfo.scanObj.handles];
+
+switch upper(view)
+    case 'CORONAL'
+        dim = 2;
+    case 'SAGITTAL'
+        dim = 1;
+    case 'TRANSVERSE'
+        dim = 3;
+    otherwise
+        return;
+end
+
+% new color limit
+cLim = get(hAxis, 'cLim');
+
+% wy Cdata = get(surfaces(stateS.imageRegistrationBaseDataset), 'Cdata');
+try 
+Cdata = get(surfaces(1), 'Cdata');
+catch
+   return; 
+end
+%wy
+
+
+minC = min(Cdata(:));
+if minC<cLim(1)
+    set(hAxis, 'CLim', [minC cLim(2)]);
+end
+
+try
+    hFrame = stateS.handle.controlFrame;
+    ud = get(hFrame,'userdata');
+    indV(1) = get(ud.handles.baseSet,'value');
+    indV(2) = get(ud.handles.movingSet,'value');
+    
+catch
+    if length(surfaces)>1
+        [jnk, indV] = sort(axisInfo.scanObj.scanSet);
+    else
+        return;
+    end
+end
+
+hFig = get(hAxis, 'parent');
+if length(surfaces) < 2
+    %set(hFig, 'renderer', 'zbuffer');
+    return;
+end
+
+set(hFig, 'renderer', 'opengl');
+
+switch method
+    case 'colorblend'
+        cLim = get(hAxis, 'cLim');
+        img1 = get(surfaces(1), 'cData');
+        img2 = get(surfaces(2), 'cData');
+        
+        if size(img2, 3) == 1 
+            imgOv = (img2 - cLim(1)) / (cLim(2)-cLim(1));
+            imgOv = clip(imgOv, 0, 1, 'limits');
+            
+            checkerSize = floor(str2double(get(ud.handles.ckSizeValue, 'string')));
+            blockSize = 12; %floor(str2num(get(ud.handles.bmSizeValue, 'string')));    
+                
+            if stateS.optS.checkerBoard
+                [m n]= size(imgOv);
+                m1 = fix(m/checkerSize); n1 = fix(n/checkerSize);
+                black = zeros(m1, n1, 'uint16');
+                white = ones(m1, n1, 'uint16');
+                tile = [black white; white black];
+                I = repmat(tile, [ceil(m/(2*m1)) ceil(n/(2*n1)) 1]);
+                I = double(I(1:m, 1:n, 1));
+            end
+            
+            
+            
+                
+            
+            try
+                if stateS.optS.difference || stateS.optS.newchecker || ... %stateS.optS.checkerBoard || ...
+                    stateS.optS.mirror || stateS.optS.mirrorscope || stateS.optS.blockmatch || stateS.optS.mirrchecker || stateS.optS.mirrorCheckerBoard
+                
+                    set(gcf,'Pointer','watch');
+                    drawnow;
+                    coord = getAxisInfo(hAxis,'coord');
+                    %scanSets = getAxisInfo(hAxis,'scanSets');
+                    [slc1, sliceXVals1, sliceYVals1] = getCTOnSlice(stateS.imageRegistrationBaseDataset, coord, dim, planC);
+                    [slc2, sliceXVals2, sliceYVals2] = getCTOnSlice(stateS.imageRegistrationMovDataset, coord, dim, planC);
+
+                    %Interpolate scan2 on scan1
+                    img2 = finterp2(sliceXVals2, sliceYVals2, slc2, sliceXVals1, sliceYVals1, 1, 0);
+                    img1 = slc1; 
+                    
+                    
+                    CTOffset    = planC{indexS.scan}(stateS.imageRegistrationBaseDataset).scanInfo(1).CTOffset;
+                    CTLevel     = stateS.optS.CTLevel + CTOffset;
+                    CTWidth     = stateS.optS.CTWidth;
+                    CTLow       = CTLevel - CTWidth/2;
+                    CTHigh      = CTLevel + CTWidth/2;
+                    img1 = clip(img1, CTLow, CTHigh, 'limits');
+                    
+                    CTOffset    = planC{indexS.scan}(stateS.imageRegistrationMovDataset).scanInfo(1).CTOffset;
+                    CTLevel     = stateS.Mov.CTLevel + CTOffset;
+                    CTWidth     = stateS.Mov.CTWidth;
+                    CTLow       = CTLevel - CTWidth/2;
+                    CTHigh      = CTLevel + CTWidth/2;
+                    img2 = clip(img2, CTLow, CTHigh, 'limits');
+                    set(gcf,'Pointer','arrow');
+                end
+                %wy mirrPos =  ceil(get(ud.handles.mirrPos, 'value'));
+                lineInfo = get(findobj(hAxis, 'tag', 'mirrorLocator'), 'userdata');
+                if ~isempty(lineInfo)
+                    mirrPos = lineInfo{3};
+                end
+                
+                if stateS.optS.blockmatch
+                    CERRStatusString('Computing Block translation, wait ...');
+                    set(gcf,'Pointer','watch');drawnow;
+                    [offset, Nx, Ny] = RegdoBlockMatch(img1, img2, blockSize, blockSize);
+                    CERRStatusString('Ready ...');
+                    set(surfaces(1:end), 'facealpha', 0);
+                    set(surfaces(end), 'facealpha', 1);
+                    
+                    color1 = [1 0 0];
+                    color2 = [1 1 0];
+                    
+                    scaleX = planC{indexS.scan}(stateS.imageRegistrationBaseDataset).scanInfo(1).grid2Units;
+                    scaleY = planC{indexS.scan}(stateS.imageRegistrationBaseDataset).scanInfo(1).grid1Units;
+                    RegDrawBlockMatch(hAxis, surfaces(end), Nx, Ny, offset, color1, color2, scaleX, scaleY);
+                    set(gcf,'Pointer','arrow');
+                    return;
+                    
+                elseif stateS.optS.mirrorscope
+                    imSc = [];
+                    hBox = findobj('Tag', 'MirrorScope', 'Parent', hAxis);
+                    ud = get(hBox, 'userdata');
+                    xyRange = ud{1}; %ud{1} = [x: min(ud{2}) max(ud{2}) y: max(ud{3}) min(ud{3})];
+                    
+                    xInd  = find(sliceXVals1 >= xyRange(1) & sliceXVals1 <= xyRange(2) );
+                    yInd  = find(sliceYVals1 >= xyRange(4) & sliceYVals1 <= xyRange(3) );
+                    
+                    xlen = length(xInd);
+                    ylen = length(yInd);
+                    im2 = img2(yInd(1):yInd(ylen), xInd(1):xInd(xlen))+3;
+                    im1 = img1(yInd(1):yInd(ylen), xInd(1):xInd(xlen))+30;
+
+                    
+%                     if img1 and img2 have different pixel size, it is necessary to do a resample work to make sure
+%                     they have same grid size before mirroring.
+                    if xyRange(1) >= min(sliceXVals1) && xyRange(2) <= max(sliceXVals1) 
+                                                 
+                        if mod(size(im1,2), 2) == 0
+                            isEven = 1;
+                        else
+                            isEven = 0;
+                        end
+
+                        mirrPos = round(size(im1,2)/2);
+                        imMirr = RegdoMirror(im1, im2, mirrPos, isEven);
+                        
+    % % % % % % % %                     
+                        xVals = ud{2};
+                        yVals = ud{3};
+                        r  = ( max(xVals) -  min(xVals) )/2;
+                        cx = ( max(xVals) +  min(xVals) )/2;
+                        cy = ( max(yVals) +  min(yVals) )/2;
+
+                        imSc = img1;
+                        imSc(yInd(1):yInd(ylen), xInd(1):xInd(xlen)) = imMirr(1:ylen, 1:xlen);
+
+                        for i = 1 : ylen
+                            for j = 1: xlen %mirrPos - 1
+                                px = sliceXVals1(xInd(j));
+                                py = sliceYVals1(yInd(i));
+
+                                if ( (px-cx)^2 + (py-cy)^2 ) >= (r^2)
+                                    imSc(yInd(i), xInd(j)) = img1(yInd(i), xInd(j)); 
+                                end
+
+                            end
+                        end
+                        
+                        imSc = (imSc-min(imSc(:)))/(max(imSc(:))-min(imSc(:)));
+                        set(surfaces(end-1), 'cData', imSc, 'xdata', [sliceXVals1(1) sliceXVals1(end)], 'ydata', [sliceYVals1(1) sliceYVals1(end)]);
+                        set(surfaces(1:end), 'facealpha', 1);
+                        set(surfaces(end), 'facealpha', 0);
+                        
+                        return;
+                    end
+                    
+                    if (~isequal(lower(view),'sagittal') && xyRange(1)<min(sliceXVals1(:)))   %left shift
+                        
+                        xshift1 = floor((xyRange(1) - min(sliceXVals1(:)))/(sliceXVals1(1)-sliceXVals1(2)));
+                        xshift2 = floor((xyRange(1) - min(sliceXVals1(:)))/(sliceXVals1(1)-sliceXVals1(2)));
+
+                        imsh1 = zeros(size(img1,1),xshift1);
+                        imsh2 = zeros(size(img2,1),xshift2);
+                        imSc = [imsh1 img1];
+                        
+                        im1 = [imsh1(yInd(1):yInd(ylen), :) im1];
+                        im2 = [imsh2(yInd(1):yInd(ylen), :) im2];
+                        
+                        if mod(size(im1,2), 2) == 0
+                            isEven = 1;
+                        else
+                            isEven = 0;
+                        end
+
+                        mirrPos = round(size(im1,2)/2);
+                        imMirr = RegdoMirror(im1, im2, mirrPos, isEven);
+                        
+                        imSc(yInd(1):yInd(ylen), 1:size(imMirr,2)) = imMirr;
+                        sliceXmValue = linspace(xyRange(1), xyRange(2), size(imMirr, 2));
+                        
+                        % % % % % % % %                     
+                        xVals = ud{2};
+                        yVals = ud{3};
+                        r = ( max(xVals) -  min(xVals) )/2;
+                        cx = ( max(xVals) +  min(xVals) )/2;
+                        cy = ( max(yVals) +  min(yVals) )/2;
+
+                        for i = 1 : ylen
+                            for j = 1: size(imMirr,2) 
+                                px = sliceXmValue(j);
+                                py = sliceYVals1(yInd(i));
+
+                                if ( (px-cx)^2 + (py-cy)^2 ) >= (r^2)
+                                    try
+                                        imSc(yInd(i), j) = img1(yInd(i), j-xshift1); 
+                                    catch
+                                        imSc(yInd(i), j) = 0;
+                                    end
+                                end
+
+                            end
+                        end
+                        
+                        imSc = (imSc-min(imSc(:)))/(max(imSc(:))-min(imSc(:)));
+                        set(surfaces(end-1), 'cData', imSc, 'xdata', [xyRange(1) sliceXVals1(end)], 'ydata', [sliceYVals1(1) sliceYVals1(end)]);
+                        set(surfaces(1:end), 'facealpha', 1);
+                        set(surfaces(end), 'facealpha', 0);
+                        
+                        return;
+                    end
+                    
+                    if (isequal(lower(view),'sagittal') && (xyRange(2)>max(sliceXVals1(:)))) %left sagittal
+                        
+                        xshift1 = floor(abs((((xyRange(2) - max(sliceXVals1(:)))/(sliceXVals1(2)-sliceXVals1(1))))));
+                        xshift2 = floor(abs((((xyRange(2) - max(sliceXVals1(:)))/(sliceXVals1(2)-sliceXVals1(1))))));
+
+                        imsh1 = zeros(size(img1,1),xshift1);
+                        imsh2 = zeros(size(img2,1),xshift2);
+                        
+                        imSc = [imsh1 img1];
+                        
+                        im1 = [imsh1(yInd(1):yInd(ylen), :) im1 ];
+                        im2 = [imsh2(yInd(1):yInd(ylen), :) im2 ];
+                        
+                        if mod(size(im1,2), 2) == 0
+                            isEven = 1;
+                        else
+                            isEven = 0;
+                        end
+
+                        mirrPos = round(size(im1,2)/2);
+                        imMirr = RegdoMirror(im1, im2, mirrPos, isEven);
+                        
+                        imSc(yInd(1):yInd(ylen), 1:size(imMirr,2)) = imMirr;
+                        sliceXmValue = linspace(xyRange(2), xyRange(1), size(imMirr, 2));
+                        
+                        % % % % % % % %                     
+                        xVals = ud{2};
+                        yVals = ud{3};
+                        r = ( max(xVals) -  min(xVals) )/2;
+                        cx = ( max(xVals) +  min(xVals) )/2;
+                        cy = ( max(yVals) +  min(yVals) )/2;
+
+                        for i = 1 : ylen
+                            for j = 1: size(imMirr,2) 
+                                px = sliceXmValue(j);
+                                py = sliceYVals1(yInd(i));
+
+                                if ( (px-cx)^2 + (py-cy)^2 ) >= (r^2)
+                                    try
+                                        imSc(yInd(i), j) = img1(yInd(i), j-xshift1); 
+                                    catch
+                                        imSc(yInd(i), j) = 0;
+                                    end
+                                end
+
+                            end
+                        end
+                        
+                        %imSc = imSc(:, end:-1:1);
+                        imSc = (imSc-min(imSc(:)))/(max(imSc(:))-min(imSc(:)));
+                        set(surfaces(end-1), 'cData', imSc, 'xdata', [xyRange(2) sliceXVals1(end)], 'ydata', [sliceYVals1(1) sliceYVals1(end)]);
+                        set(surfaces(1:end), 'facealpha', 1);
+                        set(surfaces(end), 'facealpha', 0);
+                        
+                        return;
+                    end
+                    
+                    if (~isequal(lower(view),'sagittal') && (xyRange(2)>max(sliceXVals1(:))))   %right shift
+                        
+                        xshift1 = floor(abs((xyRange(2) - max(sliceXVals1(:)))/(sliceXVals1(1)-sliceXVals1(2))));
+                        xshift2 = floor(abs((xyRange(2) - max(sliceXVals1(:)))/(sliceXVals1(1)-sliceXVals1(2))));
+
+                        imsh1 = zeros(size(img1,1),xshift1);
+                        imsh2 = zeros(size(img2,1),xshift2);
+                        imSc = [img1 imsh1];
+                        
+                        im1 = [im1 imsh1(yInd(1):yInd(ylen), :)];
+                        im2 = [im2 imsh2(yInd(1):yInd(ylen), :)];
+                        
+                        if mod(size(im1,2), 2) == 0
+                            isEven = 1;
+                        else
+                            isEven = 0;
+                        end
+
+                        mirrPos = round(size(im1,2)/2);
+                        imMirr = RegdoMirror(im1, im2, mirrPos, isEven);
+                        
+                        imSc(yInd(1):yInd(ylen), end-size(imMirr,2)+1:end) = imMirr;
+                        sliceXmValue = linspace(xyRange(1), xyRange(2), size(imMirr, 2));
+                        
+                        % % % % % % % %                     
+                        xVals = ud{2};
+                        yVals = ud{3};
+                        r = ( max(xVals) -  min(xVals) )/2;
+                        cx = ( max(xVals) +  min(xVals) )/2;
+                        cy = ( max(yVals) +  min(yVals) )/2;
+
+                        for i = 1 : ylen
+                            for j = 1: size(imMirr,2) 
+                                px = sliceXmValue(j);
+                                py = sliceYVals1(yInd(i));
+
+                                if ( (px-cx)^2 + (py-cy)^2 ) >= (r^2)
+                                    try
+                                        imSc(yInd(i), end-size(imMirr,2)+j) = img1(yInd(i), size(imSc,2)-size(imMirr,2)+j); 
+                                    catch
+                                        imSc(yInd(i), end-size(imMirr,2)+j) = 0;
+                                    end
+                                end
+
+                            end
+                        end
+                        
+                        imSc = (imSc-min(imSc(:)))/(max(imSc(:))-min(imSc(:)));
+                        set(surfaces(end-1), 'cData', imSc, 'xdata', [sliceXVals1(1) xyRange(2)], 'ydata', [sliceYVals1(1) sliceYVals1(end)]);
+                        set(surfaces(1:end), 'facealpha', 1);
+                        set(surfaces(end), 'facealpha', 0);
+                        
+                        return;
+                    end
+                    
+                    if (isequal(lower(view),'sagittal') && (xyRange(1)<min(sliceXVals1(:)))) %right sagittal
+                        
+                        xshift1 = floor(abs((((xyRange(1) - min(sliceXVals1(:)))/(sliceXVals1(2)-sliceXVals1(1))))));
+                        xshift2 = floor(abs((((xyRange(1) - min(sliceXVals1(:)))/(sliceXVals1(2)-sliceXVals1(1))))));
+
+                        imsh1 = zeros(size(img1,1),xshift1);
+                        imsh2 = zeros(size(img2,1),xshift2);
+                        
+                        imSc = [img1 imsh1];
+                        
+                        im1 = [im1  imsh1(yInd(1):yInd(ylen), :)];
+                        im2 = [im2  imsh2(yInd(1):yInd(ylen), :)];
+                        
+                        if mod(size(im1,2), 2) == 0
+                            isEven = 1;
+                        else
+                            isEven = 0;
+                        end
+
+                        mirrPos = round(size(im1,2)/2);
+                        imMirr = RegdoMirror(im1, im2, mirrPos, isEven);
+                                                
+                        imSc(yInd1(1):yInd(ylen), end-size(imMirr,2)+1:end) = imMirr;
+                        sliceXmValue = linspace(xyRange(2), xyRange(1), size(imMirr, 2));
+                        
+                        % % % % % % % %                     
+                        xVals = ud{2};
+                        yVals = ud{3};
+                        r = ( max(xVals) -  min(xVals) )/2;
+                        cx = ( max(xVals) +  min(xVals) )/2;
+                        cy = ( max(yVals) +  min(yVals) )/2;
+
+                        for i = 1 : ylen
+                            for j = 1: size(imMirr,2) 
+                                px = sliceXmValue(j);
+                                py = sliceYVals1(yInd(i));
+
+                                if ( (px-cx)^2 + (py-cy)^2 ) >= (r^2)
+                                    try
+                                        imSc(yInd(i), end-size(imMirr, 2)+j) = img1(yInd(i), size(imSc,2)-size(imMirr,2)+j); 
+                                    catch
+                                        imSc(yInd(i), size(imSc,2)-size(imMirr,2)+j) = 0;
+                                    end
+                                end
+
+                            end
+                        end
+                        
+                        %imSc = imSc(:, end:-1:1);
+                        imSc = (imSc-min(imSc(:)))/(max(imSc(:))-min(imSc(:)));
+                        set(surfaces(end-1), 'cData', imSc, 'xdata', [sliceXVals1(1) xyRange(1)], 'ydata', [sliceYVals1(1) sliceYVals1(end)]);
+                        set(surfaces(1:end), 'facealpha', 1);
+                        set(surfaces(end), 'facealpha', 0);
+                        
+                        return;
+                    end
+                    
+                elseif stateS.optS.mirror
+                    
+                    imgOv = RegdoMirror(img1, img2, mirrPos);
+                    
+                    xd1 = [sliceXVals1(1) sliceXVals1(end)];
+                                        
+                    [originF, spacingF, centerF] = getScanOriginSpacing(planC{indexS.scan}(stateS.imageRegistrationBaseDataset));
+                    [originM, spacingM, centerM] = getScanOriginSpacing(planC{indexS.scan}(stateS.imageRegistrationMovDataset));
+                    
+                    switch lower(view)
+                        case 'transverse'
+                            xd = [xd1(:,2) - spacingF(1)*(size(img1,2)-mirrPos) - spacingF(1)*(size(img2,2)-mirrPos+1) xd1(:,2)];
+                        
+                        case 'sagittal'
+                            if xd1(1)>xd1(2)
+                                xd = [xd1(:,2) + spacingF(2)*(size(img1,2)-mirrPos) + spacingF(2)*(size(img2,2)-mirrPos) xd1(:,2)];
+                            else
+                                xd = [xd1(:,2) - spacingF(2)*(size(img1,2)-mirrPos) - spacingF(2)*(size(img2,2)-mirrPos) xd1(:,2)];
+                            end
+                        case 'coronal'
+                            xd = [xd1(:,2) - spacingF(1)*(size(img1,2)-mirrPos) - spacingF(1)*(size(img2,2)-mirrPos+1) xd1(:,2)];
+                        
+                    end
+                    
+                    modeBase = planC{indexS.scan}(stateS.imageRegistrationBaseDataset).scanType;
+                    modeMove = planC{indexS.scan}(stateS.imageRegistrationMovDataset).scanType;
+                    if strcmpi(modeBase, modeMove)
+                        imgOv = (imgOv-min(imgOv(:)))/(max(imgOv(:))-min(imgOv(:)));
+                        set(surfaces(end-1), 'cData', imgOv, 'xdata', xd, 'ydata', [sliceYVals1(1) sliceYVals1(end)]);
+                    else
+                        set(hAxis, 'CLim', [min(imgOv(:)) max(imgOv(:))]);
+                        set(surfaces(end-1), 'cData', imgOv, 'xdata', xd, 'ydata', [sliceYVals1(1) sliceYVals1(end)]);
+                    end
+                    
+                    set(surfaces(1:end), 'facealpha', 1);
+                    set(surfaces(end), 'facealpha', 0);
+                    
+                    return;
+                    
+                elseif stateS.optS.mirrchecker
+                    imgOv = RegdoMirrCheckboard(img1, img2, checkerSize, checkerSize);
+                    set(surfaces(end-1), 'cData', double(imgOv));
+                    set(surfaces(1:end), 'facealpha', 0);
+                    set(surfaces(end-1), 'facealpha', 1);
+                    set(hAxis, 'cLim', [min(imgOv(:)) max(imgOv(:))]);
+                    return;
+                    
+                elseif stateS.optS.newchecker
+                    imgOv = RegdoCheckboard(img1, img2, checkerSize, checkerSize);
+                    set(surfaces(end-1), 'cData', double(imgOv), 'xdata', [sliceXVals1(1) sliceXVals1(end)], 'ydata', [sliceYVals1(1) sliceYVals1(end)]);
+                    set(surfaces(1:end), 'facealpha', 0);
+                    set(surfaces(end-1), 'facealpha', 1);
+                    set(hAxis, 'cLim', [min(imgOv(:)) max(imgOv(:))]);
+                    return;
+                    
+                elseif stateS.optS.mirrorCheckerBoard
+                    deltaX = abs(sliceXVals1(1)-sliceXVals1(2));
+                    deltaY = abs(sliceYVals1(1)-sliceYVals1(2));
+                    imgOv = RegdoMirrCheckboard(img1, img2, checkerSize, [deltaX deltaY]);
+                    set(surfaces(end-1), 'cData', double(imgOv));
+                    set(surfaces(1:end), 'facealpha', 0);
+                    set(surfaces(end-1), 'facealpha', 1);
+                    set(hAxis, 'cLim', [min(imgOv(:)) max(imgOv(:))]);
+                    return;
+                    
+                
+                elseif stateS.optS.difference
+%                     
+                    xdim = min(size(img1,1), size(img2,1));
+                    ydim = min(size(img1,2), size(img2,2));
+                    imgOv = imabsdiff(img1(1:xdim, 1:ydim), img2(1:xdim, 1:ydim));
+                    
+                    imgOv = (imgOv - min(imgOv(:))) / (max(imgOv(:)) - min(imgOv(:)));
+                    imgOv = adapthisteq(imgOv,'clipLimit',0.03,'Distribution','rayleigh');
+                    
+                    CA_Image = imgOv;
+                    CA_Image(:,:,2) = CA_Image(:,:,1);
+                    CA_Image(:,:,3) = CA_Image(:,:,1);
+                    CA_Image = single(CA_Image);
+
+                    c1 = 1;
+                    CA_Image(:,:,2) = CA_Image(:,:,2) + c1*0.126;
+                    CA_Image(:,:,3) = CA_Image(:,:,3) + c1*0.126;
+                    CA_Image = min(CA_Image,1);
+                                                            
+                    set(surfaces(end-1), 'cData', double(CA_Image), 'xdata', [sliceXVals1(1) sliceXVals1(end)], 'ydata', [sliceYVals1(1) sliceYVals1(end)]);
+                    set(surfaces(1:end), 'facealpha', 0);
+                    set(surfaces(end-1), 'facealpha', 1);
+                    set(hAxis, 'cLim', [min(CA_Image(:)) max(CA_Image(:))]);
+                    return;
+                                                      
+                end
+                
+            catch 
+                CERRStatusString('...eee...');
+                set(gcf,'Pointer','arrow');
+            end
+            
+            %wy enable base image display %
+            img23D = repmat(zeros(size(img1)), [1 1 3]);
+            ud = get(stateS.handle.controlFrame,'userdata');
+            clrVal = get(ud.handles.basedisplayModeColor,'value');
+            
+            switch num2str(clrVal)
+                case '1' % Gray
+                    img23D = img1;
+
+                case '2' %copper
+                    cmap = CERRColorMap('copper');
+
+                    img1 = (img1 - cLim(1)) / (cLim(2)-cLim(1))*(size(cmap,1)-1);
+
+                    clipImg = clip(round(img1(:)),1,size(cmap,1),'limits');
+
+                    try
+
+                        img23D = reshape(cmap(clipImg, 1:3),size(img1,1),size(img1,2),3);
+
+                    catch
+                        return
+                    end
+
+                case '6' %dose colormap
+                    a = CERRColorMap('star');
+                    N = length(a);
+                    pts = linspace(1,N, 255);
+                    b = interp1(1:N, a(:,1), pts);
+                    c = interp1(1:N, a(:,2), pts);
+                    d = interp1(1:N, a(:,3), pts);
+                    cmap = [b' c' d'];
+                    img1 = (img1 - cLim(1)) / (cLim(2)-cLim(1))*(size(cmap,1)-1);
+                    clipImg = clip(round(img1(:)),1,size(cmap,1),'limits');
+                    try
+                        img23D = reshape(cmap(clipImg, 1:3),size(img1,1),size(img1,2),3);
+                    catch
+                        return
+                    end
+                    
+
+                otherwise % case '3'(red) case '4'(green) case '5'(blue)
+                    img1 = (img1 - cLim(1)) / (cLim(2)-cLim(1));
+                    img1 = clip(img1, 0, 1, 'limits');
+
+                    if (clrVal==3)
+                        img23D(:,:,1) = img1;
+                        img23D(:,:,2) = img1*0.66;
+                        img23D(:,:,3) = img1*0.66;
+                    end
+                    if (clrVal==4)
+                        img23D(:,:,2) = img1;
+                        img23D(:,:,1) = img1*0.66;
+                        img23D(:,:,3) = img1*0.66;
+                    end
+                    if (clrVal==5)
+                        img23D(:,:,3) = img1;
+                        img23D(:,:,2) = img1*0.66;
+                        img23D(:,:,1) = img1*0.66;
+                    end
+            end
+            set(surfaces(end-1), 'cData', img23D);
+            %wy
+            
+            
+            img23D = repmat(zeros(size(img2)), [1 1 3]);
+            ud = get(stateS.handle.controlFrame,'userdata');
+            clrVal = get(ud.handles.displayModeColor,'value');
+            
+            switch num2str(clrVal)
+                case '1' % Gray
+                    if stateS.optS.checkerBoard
+                        img2 = img2.*I;
+                        set(surfaces(end), 'cData', img2);
+                    end
+                    return;
+
+                case '2' %copper
+                    cmap = CERRColorMap('copper');
+
+                    img2 = (img2 - cLim(1)) / (cLim(2)-cLim(1))*(size(cmap,1)-1);
+
+                    clipImg = clip(round(img2(:)),1,size(cmap,1),'limits');
+
+                    try
+
+                        img23D = reshape(cmap(clipImg, 1:3),size(img2,1),size(img2,2),3);
+
+                    catch
+                        return
+                    end
+
+                    if stateS.optS.checkerBoard
+                        img23D = img23D.*repmat(I, [1 1 3]);
+                    end
+                    
+                case '6' %dose colormap
+                    a = CERRColorMap('star');
+                    N = length(a);
+                    pts = linspace(1,N, 255);
+                    b = interp1(1:N, a(:,1), pts);
+                    c = interp1(1:N, a(:,2), pts);
+                    d = interp1(1:N, a(:,3), pts);
+                    cmap = [b' c' d'];
+                    img1 = (img1 - cLim(1)) / (cLim(2)-cLim(1))*(size(cmap,1)-1);
+                    clipImg = clip(round(img1(:)),1,size(cmap,1),'limits');
+                    try
+                        img23D = reshape(cmap(clipImg, 1:3),size(img1,1),size(img1,2),3);
+                    catch
+                        return
+                    end                    
+
+                otherwise % case '3'(red) case '4'(green) case '5'(blue)
+                    img2 = (img2 - cLim(1)) / (cLim(2)-cLim(1));
+                    img2 = clip(img2, 0, 1, 'limits');
+
+                    if stateS.optS.checkerBoard
+                        img2 = img2.*I;
+                    end
+
+                    if (clrVal==3)
+                        img23D(:,:,1) = img2;
+                        img23D(:,:,2) = img2*0.66;
+                        img23D(:,:,3) = img2*0.66;
+                    end
+                    if (clrVal==4)
+                        img23D(:,:,2) = img2;
+                        img23D(:,:,1) = img2*0.66;
+                        img23D(:,:,3) = img2*0.66;
+                    end
+                    if (clrVal==5)
+                        img23D(:,:,3) = img2;
+                        img23D(:,:,2) = img2*0.66;
+                        img23D(:,:,1) = img2*0.66;
+                    end
+            end
+            set(surfaces(end), 'cData', img23D);
+
+            
+        end
+end
+
+set(surfaces(1:end), 'facealpha', 1);
+if stateS.imageRegistration
+    set(surfaces(end), 'facealpha', stateS.doseAlphaValue.trans);
+else
+    set(surfaces(end), 'facealpha', 0.5);
+end
+
+return;
+

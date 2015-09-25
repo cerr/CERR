@@ -1,0 +1,20 @@
+function str=jp2write(im,filename,varargin)
+  tmp=[tempname '.pgx'];
+  im=pgxwrite(tmp);
+  opts=' ';
+  for arg=varargin,
+    arg=arg{1};
+    if ~ischar(arg), arg=str2num(arg); end
+    if opts(end)=='=',
+      opts=[opts arg ' '];
+    elseif sum(arg=='='),
+      opts=[opts '-O ' arg ' '];
+    else
+      opts=[opts '-O ' arg '='];
+    end    
+  end
+  str=opts;
+  return
+  
+  system(sprintf('jasper --input "%s" --output "%s" 2>/dev/null',filename,tmp));
+  delete(tmp);

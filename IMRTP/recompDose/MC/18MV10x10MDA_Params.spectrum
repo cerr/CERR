@@ -1,0 +1,11 @@
+Source Model Parameters for Varian 10x10 18 MV beam,  commissioned for MDA by wustl
+40   24    0.5  0; p(6) FF fluence weight; p(7) Horn; p(8) Electron contamination; p(9)*dx IC sigma(standandard deviation)
+   8.6936e-01
+  -3.2277e-02
+   5.1339e+00
+   6.3156e+02
+   1.8390e+00
+   1.9896e-01
+            0
+   1.0524e-02
+   1.2365e+00

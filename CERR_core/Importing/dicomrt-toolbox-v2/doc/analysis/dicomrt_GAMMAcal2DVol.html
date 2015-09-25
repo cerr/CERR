@@ -1,0 +1,71 @@
+<TITLE>/</TITLE>
+<BODY>
+<A HREF = "index.html">[Index for ./dicomrt-toolbox/analysis]</A>
+<A HREF = "../index.html">[Return to Master Index]</A>
+<H1>dicomrt_GAMMAcal2DVol</H1>
+<H2>(./dicomrt-toolbox/analysis/dicomrt_GAMMAcal2DVol.m)</H2>
+<HR><H3>Function Synopsis</H3>
+<pre>[gamma,phase,dta,alpha,gamma_xmesh,gamma_ymesh,gamma_zmesh]=dicomrt_GAMMAcal2DVol(evalm,refm,dose_xmesh,dose_ymesh,dose_zmesh,resf,range,dta_criteria,dd_criteria,voi,voiselect,voilookup)</pre>
+<HR><H3>Help text</H3>
+<pre>
+ dicomrt_GAMMAcal2DVol(evalm,refm,dose_xmesh,dose_ymesh,dose_zmesh,resf,range,dta_criteria,dd_criteria,voi,voiselect,voilookup)
+
+ Calculates 2D gamma distribution for a 3D dataset using a 2D algorithm.
+ Calculates 2D gamma maps on every slice of a user selected voi and stack 2D maps onto a 3D array.
+
+ evalm is the 2D matrix to evaluate.
+ refm is the reference 2D matrix.
+   Both eval and ref can be a TPS generated dataset or a MC generated dataset.
+   Doses are normalised to the prescribed target dose whenever is possible.
+   If no normalization dose is provided within the data it is assumed that matrices are already normalised.
+ dose_xmesh, dose_ymesh, are the coordinates of the center of the pixel for eval and ref.
+ slice is the number of the slice quantities should be calculated for.
+ resf is the &quot;resolution factor&quot;. Each voxel is divided resf times to allow dose to be interpolated
+   and quantities calculated. The higher resf the more accurate the calculation is, the slower the 
+   function will be.
+ range is the &quot;search range&quot;. Range is the number of pixel about (j,i) that is considered for calculation.
+   If a dta or a dd match is not found within the search range gamma and all the other quantities in that point
+   will be NaN (Not a Number).
+ dta_criteria is the Distance-to-agreement criteria in cm (e.g. 0.3).
+ dd_criteria:
+   1) IF matrices ARE NOT NORMALIZED before calling the function 
+      dta_criteria is the percentage dose difference (e.g. =0.03);
+   2) IF matrices ARE already NORMALIZED before calling the function
+      dd_criteria must be given accordingly to the normalization applyed 
+      (e.g. =0.03 for 3% over dose norm =1Gy, or =1.98 for 3% over dose norm=66Gy).
+ voi and voiselect are the vois' cell array and the # of the voi to be used for the gamma calculation respectively.
+   They have to be specified together. Both matrices will be masked and reduced in size accordingly with the selected
+   voi's dimensions. This reduce calculation time especially for the 3D algorithm.
+
+ NOTE: the use of tyhis function is equivalent to looping calls to dicomrt_GAMMAcal2D, storing 
+ results in a 3D matrix. Useful and not mandatory parameter that this function returns is zmesh, which 
+ is needed by <A HREF = "../analysis/dicomrt_gvhcal.html">dicomrt_gvhcal</A>.
+
+ Example: 
+
+ [gamma1_2,phase1_2,dta1_2,alpha1_2,xmesh,ymesh,zmesh]=dicomrt_GAMMAcal2DVol(image_eval,image_ref, ...
+                                                             xmesh_red,ymesh_red,40,2,4,0.3,0.03);
+
+ returns the calculated gamma function for image_eval vs image_ref at slice # 40 in gamma1_2. 
+ Gamma is calculated with 3%-3mm DD-DTA criteria.
+ The phase is returned in phase1_2, the dta matrix in dta1_2.
+ The function return also the direction cosines in alpha1_2. These are the 
+ direction cosines on the gamma vector in the two dimensional space xy. The direction
+ cosines may provide useful information in detecting systematic spatial displacements between eval and ref.
+ Coordinates of the xyz location where gamma is defined are returned in xmesh, ymesh, and zmesh.
+
+ The concept of gamma function was developed by Low et al Med. Phys. 25 656-661.
+
+ See also dicomrt_GAMMAcal3DP, dicomrt_loaddose, dicomrt_loadmcdose, <A HREF = "../analysis/dicomrt_gvhcal.html">dicomrt_gvhcal</A>
+
+ Copyright (C) 2002 Emiliano Spezi (emiliano.spezi@physics.org) 
+</pre>
+<HR><H3>Cross-Reference Information</H3>This function calls
+<pre><UL>
+<LI><A HREF = "../analysis/dicomrt_GAMMAcal2D.html">dicomrt_GAMMAcal2D</A>./dicomrt-toolbox/analysis/dicomrt_GAMMAcal2D.m</LI>
+</UL></pre>
+<HR>
+Produced by <A HREF="http://www.mathworks.com/support/ftp/toolsv4.shtml">mat2html</A> on Mon Oct 20 15:21:43 2003
+<BR>
+Cross-Directory links are: OFF<BR>
+</BODY>

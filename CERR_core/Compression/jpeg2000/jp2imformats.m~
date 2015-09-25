@@ -1,0 +1,6 @@
+function jp2imformats(opt)
+  switch opt,
+   case 'add'
+    stjp2=imformats('jp2'); 
+    stlst=imformats;
+    

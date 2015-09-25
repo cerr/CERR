@@ -1,0 +1,45 @@
+<TITLE>/</TITLE>
+<BODY>
+<A HREF = "index.html">[Index for ./dicomrt-toolbox/display]</A>
+<A HREF = "../index.html">[Return to Master Index]</A>
+<H1>dicomrt_contourslice</H1>
+<H2>(./dicomrt-toolbox/display/dicomrt_contourslice.m)</H2>
+<HR><H3>Function Synopsis</H3>
+<pre>dicomrt_contourslice(inputdose,dose_xmesh,dose_ymesh,dose_zmesh,axis,plane,type,VOI,voi2plot)</pre>
+<HR><H3>Help text</H3>
+<pre>
+ dicomrt_contourslice(inputdose,dose_xmesh,dose_ymesh,dose_zmesh,axis,plane,type,VOI,voi2plot)
+
+ Show 3D dose distributions.
+ 
+ inputdose contains the 3D dose distribution
+ inputdose can be an rtplan generated or a monte carlo generated 3D dose distribution or a dose difference.
+
+ dose_xmesh,dose_ymesh,dose_zmesh are x-y-z coordinates of the center of the dose-pixel 
+ axis is the plane to be used for slicing the 3D dose matrix (can be x,y or z. Key insensitive).
+ plane is a vector containing the slice number of the slices to be displayed
+ type OPTIONAL parameter which determines whether display the slices in the same 
+      plot (type==0) or in independent subplots (type~=0)
+ VOI is an OPTIONAL cell array which contain the patients VOIs as read by dicomrt_loadVOI
+ voi2plot is an OPTIONAL vector pointing to the number of VOIs to be displayed
+
+ Example:
+
+ dicomrt_contourslice(A,xmesh,ymesh,zmesh,'z',[10 15 25], A_voi,[1 2 3])
+
+ plot a figure that contains: 3 plots with inputdose sliced at voxel number 10 15 and 25
+ All plots show also VOIs # 1 2 and 3.
+
+ See also dicomrt_loadmcdose
+
+ Copyright (C) 2002 Emiliano Spezi (emiliano.spezi@physics.org) 
+</pre>
+<HR><H3>Cross-Reference Information</H3>This function calls
+<pre><UL>
+<LI><A HREF = "../display/dicomrt_rendervoi.html">dicomrt_rendervoi</A>./dicomrt-toolbox/display/dicomrt_rendervoi.m</LI>
+</UL></pre>
+<HR>
+Produced by <A HREF="http://www.mathworks.com/support/ftp/toolsv4.shtml">mat2html</A> on Mon Oct 20 15:21:43 2003
+<BR>
+Cross-Directory links are: OFF<BR>
+</BODY>

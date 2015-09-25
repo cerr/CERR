@@ -1,0 +1,136 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0
+Transitional//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+
+<head>
+<meta http-equiv="Content-Type" content="text/html;
+charset=UTF-8" />
+<title>CERR Command Line Help</title>
+<link rel="stylesheet" type="text/css"
+href="" />
+</head>
+<body>
+
+<h2 align=center><font color="darkblue"> CERR Command Line Help </font></h2>
+
+<p>
+Following are the commands that can be run from the command line on CERR. User can type these commands in the command line or click on the hyper line to execute them.
+</p>
+
+<h3>
+SLICE POSITIONING
+</h3>
+
+
+<ul>
+	<li>To go to a slice number: <a href = "matlab:goto('slice');">go to &#91; slicenum &#93;</a></li>
+	<br/>
+	<li>To go to the slice with the maximum dose in total plan: <a href = "matlab:goto('max');">go to max</a></li>
+	<br/>
+	<li>To go to a z value (or nearest slice): <a href = "matlab:goto('z');"> go to z &#91; z value &#93;</a></li>
+</ul>
+
+
+<h3>
+STRUCTURES
+</h3>
+
+<ul>
+	<li>To show points in a structure: <a href = ""> list structure &#91;structnum&#93; points &#91;slicenum&#93;</a></li>
+	<br/>
+	<li>To create an ROI: <a href = "matlab:runCERRCommand('create structure');">create structure;</a></li>
+	<br/>
+	<li>To delete an anatomical structure: <a href = "matlab:runCERRCommand('del structure');">del structure &#91;num&#93;</a></li>
+	<br/>
+	<li>To find volume for an anatomical structure, type <a href = "matlab:runCERRCommand('vol');">vol structure &#91;num&#93;</a> </li>
+	<br/>
+	<li>To find union/intersection volumes for anatomical structures, type <a href = "matlab:runCERRCommand('getunionintersectionvol');">getunionintersectionvol &#91;structIndicesV&#93;</a> </li>
+	<br/>
+	<li>To translate structure and store it as new structure<a href = "matlab:runCERRCommand('translate');"> translate</a></li>
+	<br/>
+	<li>Rename structure using GUI<a href = "matlab:structRenameGUI('init');"> rename </a></li>
+	<br/>
+	<li>To get center of mass for a structure<a href = "matlab:runCERRCommand('structcom');"> structcom &#91;num&#93;</a></li>
+	<br/>
+	<li>To associate structure/Structures of one scan to another <a href = "matlab:runCERRCommand('assocstr');"> assocstr &#91;structure num&#93; to &#91;scan num&#93;</a> Where structure num can be an a string of structure numbers with space between each number</li>
+
+</ul>
+
+
+<h3>
+DOSE
+</h3>
+
+<ul>
+	<li>To create a dose distance plot, type <a href = "matlab:runCERRCommand('ddp');"> ddp &#91;structNum&#93; &#91;maximum distance of plot&#93; &#91;resolution in cm&#93; &#91;''max'' or ''min'' dose&#93; </a>''</li>
+	<br/>
+	<li>To get the dose and position of a point, type <a href = "matlab:runCERRCommand('dose');"> dose </a>, then select the position on the axes with left mouse click.To exit use mouse right click.</li>
+	<br/>
+	<li> To export DVH type <a href = "matlab:exportDVH();"> exp &#91;opt&#93; &#91;structNum&#93; dose &#91;doseNum&#93; </a> where &#91;structNum&#93; stands for the structure number as given under Structures menu '&#91;opt&#93;has to be a string suggesting you want absolute(abs) or Normalized(nor) DVH, &#91;doseNum&#93; stands for dose number given under Dose menu example to export absolute DVH for structure number 1 and dose number 1 this is what you would type -> "exp abs 1 dose 1" (no quotes)'</li>
+	<br/>
+	<li>To delete a dose: <a href = "matlab:runCERRCommand('del dose');">del dose &#91;num&#93;</a></li>
+	<br/>
+	<li>To convert an iso-dose level to structure: <a href = "matlab:doseToStruct();"> doseToStruct &#91;doseNum&#93; &#91;doseLevel&#93; &#91;scanNum&#93; </a> where &#91;doseNum&#93; stands for the dose number, &#91;doseLevel&#93;stands for dose level, &#91;scanNum&#93; stands for scan number to associate structure with.</li>
+	<br/>
+	<li>To crop a dose around a structure: <a href = "matlab:cropDose();"> cropDose &#91;doseNum&#93; &#91;structureNum&#93; &#91;margin&#93; </a> where &#91;doseNum&#93; stands for the dose number, &#91;structureNum&#93;stands for structure number, &#91;margin&#93; stands for margin (cm) around the structure.</li>
+</ul>
+
+<h3>
+SCAN
+</h3>
+<ul>
+	<li>To get the scan intensity and position of a point, type <a href = "matlab:runCERRCommand('scan');"> scan </a>, then select the position on the axes with left mouse click.To exit use mouse right click.</li>
+	<br/>
+	<li> To export IVH type <a href = "matlab:exportIVH();"> exportIVH &#91;opt&#93; &#91;structNum&#93; scan &#91;scanNum&#93; </a> where &#91;structNum&#93; stands for the structure number as given under Structures menu '&#91;opt&#93;has to be a string suggesting you want absolute(abs) or Normalized(nor) DVH, &#91;scanNum&#93; stands for scan number given under Scan menu example to export absolute DVH for structure number 1 and scan number 1 this is what you would type -> "exportIVH abs 1 scan 1" (no quotes)'</li>
+	<br/>
+	<li>To crop a scan around a structure: <a href = "matlab:cropScan();"> cropScan &#91;scanNum&#93; &#91;structureNum&#93; &#91;margin&#93; </a> where &#91;scanNum&#93; stands for the scan number, &#91;structureNum&#93;stands for structure number, &#91;margin&#93; stands for margin (cm) around the structure.</li>
+</ul>
+<h3>
+ROI
+</h3>
+
+<ul>
+	<li>To show the points included in an ROI:<a href = "matlab:runCERRCommand('mask');"> mask &#91;num&#93;</a></li>
+	<br/>
+	<li>To paint low and high dose regions within an ROI:<a href = "matlab:runCERRCommand('mask');"> mask &#91;structNum&#93; &#91;doseNum&#93; &#91;prescriptionDose&#93;</a></li>
+	<br/>
+	<li>To Toggle the points on the surface of an ROI (on the contour):<a href = "matlab:runCERRCommand('dshpoints');"> dshpoints &#91;num&#93;</a></li>
+</ul>
+
+
+<h3>
+OTHERS
+</h3>
+
+<ul>
+	<li>To reset and use a new option value:<a href = "matlab:runCERRCommand('set');"> set &#91;optionName&#93; </a>  i.e. optS.name in CERROptions.m. Example optS.loadCT = &#39;yes&#39;</li>
+	<br/>
+	<li>To toggle on/off print friendly mode type ''printmode''.</li>
+	<br/>
+	<li>To raise the 3-D menu type <a href = "matlab:struct3Dvisualmenu('update');" > 3d </a></li>
+	<br/>
+	<li>To show a digital film, type: ''show film &#91;num&#93;'</li>
+	<br/>
+	<li>To launch RPC film GUI<a href = "matlab:runCERRCommand('rpcfilm');"> rpcfilm </a></li>
+</ul>
+
+<h3>
+LIST
+</h3>
+<p>
+List command displays in the command window the fields associated with the list command example header, comment, slice etc
+</p>
+
+<ul>
+	<li><a href = "matlab:runCERRCommand('list header');"> list header</a></li>
+	<li><a href = "matlab:runCERRCommand('list comment');"> list comment</a></li>
+	<li><a href = "matlab:runCERRCommand('list slice');"> list slice &#91; num &#93;</a></li>
+	<li><a href = "matlab:runCERRCommand('list structure');"> list structure &#91; num &#93;</a></li>
+	<li><a href = "matlab:runCERRCommand('list beam geome');"> list beam geome &#91; num &#93;</a></li>
+	<li><li><a href = "matlab:runCERRCommand('list dose');"> list dose &#91; num &#93;</a></li>
+	<li><a href = "matlab:runCERRCommand('list dvh');"> list dvh &#91; num &#93;</a></li>
+	<li><a href = "matlab:runCERRCommand('list options');"> list options </a></li>
+</ul>
+</body>
+</HTML>

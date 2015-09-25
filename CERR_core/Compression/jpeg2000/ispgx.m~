@@ -1,0 +1,12 @@
+function fmt=isjp2(filename)
+  fmt='';
+  if length(filename)<4,
+    return;
+  end
+  ext=lower(filename(end-3:end));
+  if strcmp(ext,'.jp2'),
+    fmt='jp2';
+  elseif strcmp(ext,'.jpc'),
+    fmt='jpc';
+  end
+  return;

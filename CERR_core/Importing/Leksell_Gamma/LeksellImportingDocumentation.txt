@@ -1,0 +1,273 @@
+LEKSELL GAMMA PLAN FILE AND IMPORTING DOCUMENTATION
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+Leksell directory and files description
+=======================================
+- All Leksell files come in a larger directory known as "Gamma Plans." Most
+    of these directories are titled with the patients name or some type of
+    identification.
+- Inside of the root plan folder there exists numerous other directories,
+    for the most part clearly labeled with what the directory contains.
+    Example: patientX/Studys contains the information about the studies 
+    (or scans) used in the treatment plan.
+- Inside of each of these subdirectories are Leksell files, all with the
+    file extension .1 (with the exception of the Snapshots, CT, MR, and Logs 
+    subdirectories which contain images, to be explained later)  and
+    labeled appropriately.  These files, for the most part, are encoded and
+    require decryption by the decodeLeksellFile function before they are 
+    readable.  However, these files contain no fieldnames, so most of the
+    values read from these files had to be verified by comparison to 
+    output from the Gamma Knife clinical machine (some have yet to be 
+    verified, but these are assumed negligible). See decodeLeksellData.m
+    for more information.
+- If a directory does not contain .1 files, then it is one of the several
+    Leksell image or logs directories.
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+Specific Leksell subdirectory and file information
+==================================================
+This is the usual layout of a complete Leksell Gamma Plan (alphabetically):
+Note: be aware that not all plans have all of these files, but in order
+      for the plan to properly import you must have at least these files
+      listed below named properly and in the correct directory (unless 
+      noted below).
+
+patientX/ (the root folder name is arbitrary)
+    |------CT/
+    |       |------CT_1__<........>.ima
+    |       |------CT_1__<........>.imh
+    |       |------CT_2__<........>.ima
+    |       |------CT_2__<........>.imh
+    |       |------           .
+    |       |------           .
+    |       |------           .
+    |       |------CT_n__<........>.ima (where n = # of CT images)
+    |       |------CT_n__<........>.imh
+    |
+    |------Fusions/
+    |       |------Fusion.1
+    |
+    |------* Logs/
+    |       |------Log.txt
+    |
+    |------MR/
+    |       |------MR_1__<........>.ima
+    |       |------MR_1__<........>.imh
+    |       |------MR_2__<........>.ima
+    |       |------MR_2__<........>.imh
+    |       |------           .
+    |       |------           .
+    |       |------           .
+    |       |------MR_n__<........>.ima (where n = # of MR images)
+    |       |------MR_n__<........>.imh
+    |
+    |------Orientations/
+    |       |------Orientation.1
+    |
+    |------Plugs/
+    |       |------Plug.1
+    |
+    |------Shots/
+    |       |------Shot.1
+    |
+    |------* Snapshots/
+    |       |------<timestamp>1.jpg
+    |       |------      .
+    |       |------      .
+    |       |------      .
+    |       |------<timestamp>n.jpg (where n = # of snapshots)
+    |
+    |------Sortings/
+    |       |------Sorting.1
+    |
+    |------SRData/
+    |       |------DoseGroup0.1
+    |       |------      .
+    |       |------      .
+    |       |------      .
+    |       |------DoseGroupn.1 (where n = # of dose matrices in the plan)
+    |       |------Skull.1
+    |       |------Super.1
+    |       |------TargetFrame.1
+    |
+    |------Studyregs/
+    |       |------Studyreg.1
+    |
+    |------Studys/
+    |       |------Study.1
+    |
+    |------Thresholds/
+    |       |------Threshold.1
+    |
+    |------Volumes/
+    |       |------Volume.1
+    |
+    |------* Workspaces/
+    |       |------Workspace.1
+    |       |------Workspace.1.BU
+    
+* The files in these folders are not used for importing a Gamma Plan into
+  CERR, so their existence is not mandatory and their names are arbitrary.
+  Because of this, specific information about these files will not be
+  included here.
+
+PatientX:
+    This is the root folder of the entire Gamma Plan.  It usually contains
+    the patient's name but it is not required to.
+
+CT:
+    This folder contains all CT images that were imported into the original
+    Plan on the clinical machine.  The Leksell software on the clinical
+    machine converts the CT images from their native format and stores them
+    as CT_n__<........>.ima and CT_n__<........>.imh files.  This is a 
+    proprietary format specific to Leksell CT and MR images.  The ima files
+    contain all pixel information for each image, and the imh files contain
+    information about picture dimensions, voxel sizes, slice numbers and 
+    thicknesses, etc.  The imh files can be viewed with a text editor for
+    more information on what is contained in these.
+
+Fusions:
+    Holds information for fusing MR and CT images.  This information is
+    only present if a fusion was done on the clinical machine during the
+    patient's treatment.
+
+MR:
+    The contents of this folder are of the same format as the CT folder,
+    but contain MR images used in the Gamma Plan.  The proprietary image
+    format (.ima/.imh) is still used; see CT folder description for more 
+    information.
+
+Orientations:
+    Contains transformation matrices dealing with the orientations of
+    the different coordinate systems.
+
+Plugs:
+    Contains information about the plugging used (if any) in a patient's
+    treatment.  The plugging refers to which holes in the collimator helmet
+    will be plugged in order to shape the radiation going to the patient.
+
+Shots:
+    Holds information about both the shots of radiation used in the
+    patient's treatment as well as information about the dose matrices
+    resulting from the radiation shots.
+
+Sortings:
+    Contains information about the sorting of MR and CT images.
+
+SRData:
+    This folder contains several different types of .1 files.  The 
+    DoseGroupn.1 files contain a 31x31x31 matrix of floating point values.
+    These values are normalized percentages of the global maximum dose.
+    Therefore, to find the dose matrix in terms of Gy (this conversion is
+    done while importing a plan into CERR), divide all values in the dose
+    matrix by the maximum in the matrix and multiply by the global maximum 
+    dose.  The Super.1 file contains information about the dose and isodose
+    (including the global max dose), and the Skull.1 file holds all
+    information about the geometry of the patient's skull.  The 
+    TargetFrame.1 file contains information used during the treatment of
+    the patient and has no known use in CERR as of now.
+
+Studyregs:
+    Contains information about how the transformation matrices should be
+    used (in converting one modality's coordinate system to another, ex:
+    MR to Leksell)
+
+Studys:
+    Contains the 4x4 transformation matrices that are to be used with the 
+    information from the Studyreg.1 file.
+
+Thresholds:
+    The files found here only contain one value, but it is 0 in all cases
+    currently viewed and the meaning has yet to be discovered.
+
+Volumes:
+    Contains all information about contouring done for a patient's
+    treatment.
+
+
+For specific information about the the variables contained in each file,
+see the associated .m file.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+Frequently Asked Questions
+==========================
+Q: Why does the importLeksellPlan.m function read in nearly every file
+    from a Gamma Plan using the readLeksell<...>File.m function, but only 
+    several structures are actually imported into CERR?
+A: Most of the readLeksell<...>File.m functions read in data that is used
+    by the Gamma Knife Radiation machine during treatment, and is not 
+    currently appropriate to use with CERR.  However, the option is still
+    available to output all information in a second variable when using
+    importLeksellPlan.m from the command line (see the file for more 
+    details).  This is incase anything was overlooked in the most recent
+    version of the Leksell Importing code so that it could be easily 
+    incorporated into CERR.
+
+
+Q: I keep seeing code in the readLeksell<...>File.m functions similar to:
+
+    data = decodeLeksellData(fid);
+    if length(data) < 2
+        ...
+        return;
+    end
+
+    and/or
+
+    for i = 1:(length(data) - 1)  
+        ...
+    end
+    
+    Why isn't the last cell in the cell array (data) being accounted for?
+A: This is because any true Leksell .1 file always has a pair of integers
+    in a in a cell at the end of a file (after it is decrypted).  This pair
+    of integers has no significance on the importing of a Gamma Plan and is
+    therefore disregarded in all of the readLeksell<...>File.m functions.
+
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+Known Bugs/Potential Problems
+=============================
+- zValues are negative (they are set in the readLeksellImageset.m
+    function; however, modifying these to be positive would require
+    changing the transformation matrix in importLeksellPlan.m).  I've
+    attempted to change the necessary parameters, but whenever the zValues
+    are positive, CERR will not display the images.
+
+- Structures do not show up in CERR unless you switch to CT scans, then go
+    back to MR.
+
+- Some contours have non-existent associated slice numbers (ex: there are
+    only 60 MR images and 40 CT images, but the slice number for a certain
+    contour is 133).  This is because these contours were done on either
+    the Leksell coordinate system or the fused MR and CT coordinate system
+    and not the usual MR or CT coordinate systems.  The problem is that the
+    contours read in from the binary files give x and y values and slice
+    numbers but no z value.  For the MR and CT this z value is calculated
+    easily because all of the images have associated z values with their 
+    slice numbers, but associating z values with coordinate systems other
+    than MR and CT seems to be more difficult.
+    The information for the contours are in the Volume.1 files, and the
+    image fusion information is in Fusion.1 (however, how to use this
+    information has not been solved).
+
+- Import log code needs to be written (edit the importLeksellPlan function).
+
+- MR pixel intensity problems.  Contact Divya Khullar for more information.
+
+- The DVH calculations are slightly off from what is produced from the 
+    Gamma Knife. 
+
+- There are still several unknown variables read in from the original
+    Leksell binary files.  These are called mystery_value_x and are found
+    in the various readLeksell<...>File.m functions.  The most important
+    values have been solved and are incorporated into CERR, but there may
+    be some that could be useful for added functionality with respect to
+    the Gamma Knife import to CERR.  However, most of the unknown's seem
+    to be not useful and unimportant for importing.
+
+- For more information, contact: Kevin Karsch (krkq35@mizzou.edu)

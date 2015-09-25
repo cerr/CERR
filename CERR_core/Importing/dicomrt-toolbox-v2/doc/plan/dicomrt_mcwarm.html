@@ -1,0 +1,67 @@
+<TITLE>/</TITLE>
+<BODY>
+<A HREF = "index.html">[Index for ./dicomrt-toolbox/mctp/plan]</A>
+<A HREF = "../index.html">[Return to Master Index]</A>
+<H1>dicomrt_mcwarm</H1>
+<H2>(./dicomrt-toolbox/mctp/plan/dicomrt_mcwarm.m)</H2>
+<HR><H3>Function Synopsis</H3>
+<pre>[rtplanformc] = dicomrt_mcwarm(cell_case_study)</pre>
+<HR><H3>Help text</H3>
+<pre>
+ dicomrt_mcwarm(cell_case_study)
+
+ Create a subset of rtplan parameters used for MC simulation through the
+ BEAM MC code system.
+
+ cell_case_study is the rtplan dataset
+
+ cell_case_study is a cell array with the following structure:
+
+  ------------------------
+  | [ rtplan structure ] |
+  | ----------------------
+  | [ 3D dose matrix   ] |
+  | ---------------------
+  | [ voxel dimensions ] |
+  ------------------------
+
+ rtplanformc = dicomrt_mcwarm(cell_case_study) create a cell array rtplanformc with MC containing 
+               information suitable to feed MC calculation of the clinical plan 
+
+ rtplanformc is a cell array with the following structure
+
+   beam name   common beam            primary collimator position         MLC and MU
+                  data
+  ---------------------------------------------------------------------------------------------------
+  | [beam 1] |gantry angle    | [jawsx 1st segment] [jawsy 1st segment]| [mlc 1st segment] [diff MU]|
+  |          |coll angle      |----------------------------------------------------------------------
+  |          |iso position (3)| [jawsx 2nd segment] [jawsy 2nd segment]| [mlc 2nd segment] [diff MU]|
+  |          |StBLD dist   (3)|----------------------------------------------------------------------
+  |          |voxel dim       |                   ...                  |             ...            |
+  |          |patient position|---------------------------------------------------------------------- 
+  |          |# fractions     | [jawsx nth segment] [jawsy nth segment]| [mlc nth segment] [diff MU]|
+  ---------------------------------------------------------------------------------------------------
+  |               ...                                    ...                                ...               
+  ---------------------------------------------------------------------------------------------------
+  | [beam n] |gantry angle    | [jawsx 1st segment] [jawsy 1st segment]| [mlc 1st segment] [diff MU]|
+  |          |coll angle      |----------------------------------------------------------------------
+  |          |iso position (3)| [jawsx 2nd segment] [jawsy 2nd segment]| [mlc 2nd segment] [diff MU]|
+  |          |StBLD dist   (3)|----------------------------------------------------------------------
+  |          |voxel dim       |                   ...                  |             ...            |
+  |          |patient position|---------------------------------------------------------------------- 
+  |          |# fractions     | [jawsx nth segment] [jawsy nth segment]| [mlc nth segment] [diff MU]|
+  ---------------------------------------------------------------------------------------------------
+
+ See also dicomrt_loaddose, dicomrt_loadct
+
+ Copyright (C) 2002 Emiliano Spezi (emiliano.spezi@physics.org) 
+</pre>
+<HR><H3>Cross-Reference Information</H3>This function is called by
+<pre><UL>
+<LI><A HREF = "../plan/dicomrt_createmcscripts.html">dicomrt_createmcscripts</A>./dicomrt-toolbox/mctp/plan/dicomrt_createmcscripts.m</LI>
+</UL></pre>
+<HR>
+Produced by <A HREF="http://www.mathworks.com/support/ftp/toolsv4.shtml">mat2html</A> on Mon Oct 20 15:21:43 2003
+<BR>
+Cross-Directory links are: OFF<BR>
+</BODY>

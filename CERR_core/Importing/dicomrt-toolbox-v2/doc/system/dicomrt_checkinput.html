@@ -1,0 +1,55 @@
+<TITLE>/</TITLE>
+<BODY>
+<A HREF = "index.html">[Index for ./dicomrt-toolbox/system]</A>
+<A HREF = "../index.html">[Return to Master Index]</A>
+<H1>dicomrt_checkinput</H1>
+<H2>(./dicomrt-toolbox/system/dicomrt_checkinput.m)</H2>
+<HR><H3>Function Synopsis</H3>
+<pre>[moutput,type,label,PatientPosition]=dicomrt_checkinput(minput,force)</pre>
+<HR><H3>Help text</H3>
+<pre>
+ dicomrt_checkinput(minput,force)
+
+ Check the validity of the input variable.
+ Returns the input variable, type, label and patient orientation.
+
+ minput is the input dataset
+ force is a parameter which force, if existing and different from 0, the function to check 
+    for PatientPosition.
+
+ See also: dicomrt_loaddose, dicomrt_loadct, dicomrt_loadmcdose
+
+ Copyright (C) 2002 Emiliano Spezi (emiliano.spezi@physics.org) 
+</pre>
+<HR><H3>Cross-Reference Information</H3>This function calls
+<pre><UL>
+<LI><A HREF = "../system/dicomrt_getPatientPosition.html">dicomrt_getPatientPosition</A>./dicomrt-toolbox/system/dicomrt_getPatientPosition.m</LI>
+</UL></pre>
+This function is called by
+<pre><UL>
+<LI><A HREF = "../system/dicomrt_build3dVOI.html">dicomrt_build3dVOI</A>./dicomrt-toolbox/system/dicomrt_build3dVOI.m</LI>
+<LI><A HREF = "../system/dicomrt_close3dvoi.html">dicomrt_close3dvoi</A>./dicomrt-toolbox/system/dicomrt_close3dvoi.m</LI>
+<LI><A HREF = "../system/dicomrt_closevoi.html">dicomrt_closevoi</A>./dicomrt-toolbox/system/dicomrt_closevoi.m</LI>
+<LI><A HREF = "../system/dicomrt_findslice.html">dicomrt_findslice</A>./dicomrt-toolbox/system/dicomrt_findslice.m</LI>
+<LI><A HREF = "../system/dicomrt_findvoi2slice.html">dicomrt_findvoi2slice</A>./dicomrt-toolbox/system/dicomrt_findvoi2slice.m</LI>
+<LI><A HREF = "../system/dicomrt_fitCT2dm.html">dicomrt_fitCT2dm</A>./dicomrt-toolbox/system/dicomrt_fitCT2dm.m</LI>
+<LI><A HREF = "../system/dicomrt_fitdm2CT.html">dicomrt_fitdm2CT</A>./dicomrt-toolbox/system/dicomrt_fitdm2CT.m</LI>
+<LI><A HREF = "../system/dicomrt_getslicethickness.html">dicomrt_getslicethickness</A>./dicomrt-toolbox/system/dicomrt_getslicethickness.m</LI>
+<LI><A HREF = "../system/dicomrt_getvoix.html">dicomrt_getvoix</A>./dicomrt-toolbox/system/dicomrt_getvoix.m</LI>
+<LI><A HREF = "../system/dicomrt_getvoiy.html">dicomrt_getvoiy</A>./dicomrt-toolbox/system/dicomrt_getvoiy.m</LI>
+<LI><A HREF = "../system/dicomrt_getvoiz.html">dicomrt_getvoiz</A>./dicomrt-toolbox/system/dicomrt_getvoiz.m</LI>
+<LI><A HREF = "../system/dicomrt_mask.html">dicomrt_mask</A>   ./dicomrt-toolbox/system/dicomrt_mask.m</LI>
+<LI><A HREF = "../system/dicomrt_trim.html">dicomrt_trim</A>   ./dicomrt-toolbox/system/dicomrt_trim.m</LI>
+<LI><A HREF = "../system/dicomrt_trimZ.html">dicomrt_trimZ</A>  ./dicomrt-toolbox/system/dicomrt_trimZ.m</LI>
+<LI><A HREF = "../system/dicomrt_validatevoi.html">dicomrt_validatevoi</A>./dicomrt-toolbox/system/dicomrt_validatevoi.m</LI>
+<LI><A HREF = "../system/dicomrt_voiboundaries.html">dicomrt_voiboundaries</A>./dicomrt-toolbox/system/dicomrt_voiboundaries.m</LI>
+<LI><A HREF = "../system/dicomrt_voiboundariesZ.html">dicomrt_voiboundariesZ</A>./dicomrt-toolbox/system/dicomrt_voiboundariesZ.m</LI>
+<LI><A HREF = "../system/dicomrt_voiboundaries_single.html">dicomrt_voiboundaries_single</A>./dicomrt-toolbox/system/dicomrt_voiboundaries_single.m</LI>
+<LI><A HREF = "../system/dicomrt_voilimits.html">dicomrt_voilimits</A>./dicomrt-toolbox/system/dicomrt_voilimits.m</LI>
+<LI><A HREF = "../system/dicomrt_voxelvolumecal.html">dicomrt_voxelvolumecal</A>./dicomrt-toolbox/system/dicomrt_voxelvolumecal.m</LI>
+</UL></pre>
+<HR>
+Produced by <A HREF="http://www.mathworks.com/support/ftp/toolsv4.shtml">mat2html</A> on Mon Oct 20 15:21:43 2003
+<BR>
+Cross-Directory links are: OFF<BR>
+</BODY>

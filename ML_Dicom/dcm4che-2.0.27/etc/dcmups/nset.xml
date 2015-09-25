@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<dicom>
+
+  <!-- UPS Performed Procedure Sequence -->
+  <attr tag="00741216" vr="SQ">
+    <item>
+      <!-- Actual Human Performers Sequence -->
+      <attr tag="00404035" vr="SQ">
+        <item>
+          <!-- Human Performer Code Sequence -->
+          <attr tag="00404009" vr="SQ">
+            <item>
+              <!-- Code Value -->
+              <attr tag="00080100" vr="SH">axady</attr>
+              <!-- Coding Scheme Designator -->
+              <attr tag="00080102" vr="SH">99AgfaHealthcare</attr>
+              <!-- Code Meaning -->
+              <attr tag="00080104" vr="LO">Gunter Zeilinger</attr>
+            </item>
+          </attr>
+          <!-- Human Performer’s Name -->
+          <attr tag="00404037" vr="PN">Zeilinger^Gunter</attr>
+          <!-- Human Performer’s Organization -->
+          <attr tag="00404036" vr="LO">Agfa Healthcare</attr>
+        </item>
+      </attr>
+      <!--  Performed Station Name Code Sequence Sequence -->
+      <attr tag="00404028" vr="SQ">
+        <item>
+          <!-- Code Value -->
+          <attr tag="00080100" vr="SH">WS-123</attr>
+          <!-- Coding Scheme Designator -->
+          <attr tag="00080102" vr="SH">99AgfaHealthcareVienna</attr>
+          <!-- Code Meaning -->
+          <attr tag="00080104" vr="LO">Workstation-123</attr>
+        </item>
+      </attr>
+      <!-- Performed Processing Applications Code Sequence Sequence -->
+      <attr tag="00404007" vr="SQ">
+        <item>
+          <!-- Code Value -->
+          <attr tag="00080100" vr="SH">APP-REPORTER</attr>
+          <!-- Coding Scheme Designator -->
+          <attr tag="00080102" vr="SH">99AgfaHealthcare</attr>
+          <!-- Code Meaning -->
+          <attr tag="00080104" vr="LO">Reporting Application-</attr>
+        </item>
+      </attr>
+      <!-- Performed Procedure Step Start Date -->
+      <attr tag="00400244" vr="DA">20100615</attr>
+      <!-- Performed Procedure Step Start Time -->
+      <attr tag="00400245" vr="TM">1310</attr>
+      <!--  Performed Workitem Code Sequence -->
+      <attr tag="00404019" vr="SQ">
+        <item>
+          <!-- Code Value -->
+          <attr tag="00080100" vr="SH">110005</attr>
+          <!-- Coding Scheme Designator -->
+          <attr tag="00080102" vr="SH">DCM</attr>
+          <!-- Code Meaning -->
+          <attr tag="00080104" vr="LO">Interpretation</attr>
+        </item>
+      </attr>
+      <!-- Performed Procedure Step End Date -->
+      <attr tag="00400250" vr="DA">20100615</attr>
+      <!-- Performed Procedure Step End Time -->
+      <attr tag="00400251" vr="TM">1320</attr>
+    </item>
+  </attr>
+
+</dicom>

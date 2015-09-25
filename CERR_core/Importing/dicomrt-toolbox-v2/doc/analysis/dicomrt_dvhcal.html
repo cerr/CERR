@@ -1,0 +1,73 @@
+<TITLE>/</TITLE>
+<BODY>
+<A HREF = "index.html">[Index for ./dicomrt-toolbox/analysis]</A>
+<A HREF = "../index.html">[Return to Master Index]</A>
+<H1>dicomrt_dvhcal</H1>
+<H2>(./dicomrt-toolbox/analysis/dicomrt_dvhcal.m)</H2>
+<HR><H3>Function Synopsis</H3>
+<pre>[DVH,volume_VOI_first,volume_VOI_check] = dicomrt_dvhcal(VOI,study,dose_xmesh,dose_ymesh,dose_zmesh,dvhselect)</pre>
+<HR><H3>Help text</H3>
+<pre>
+ dicomrt_dvhcal(VOI,study,dose_xmesh,dose_ymesh,dose_zmesh,dvhselect)
+
+ Calculate DOSE-VOLUME-HISTOGRAMS for VOIs and cell_case_study.
+ This function calculate DVHs for all the available VOIs or for a selected number of them.
+
+ study is the RTPLAN or the MC generated dataset containing the dose matrix
+ ct is the CT dataset
+ dose_xmesh,dose_ymesh,dose_zmesh are x-y-z coordinates of the center of the dose-voxels 
+ VOIs is a cell array and contains all the Volumes of Interest
+ dvhselect is an OPTIONAL vector which contains the number of VOI to calculate DVHs for.
+
+ NOTE: if dvhselect is omitted DVHs are calculated for all the VOIs
+
+ DVHs are stored in a cell array with the following structure:
+
+  -----------------------------
+  | [DVH 1] | [3D dose mask]  |
+  |         -------------------
+  |         | [dvh data]      |
+  |         -------------------
+  |         | VOI volume      | 
+  |         -------------------
+  |         | Voxel volume    | 
+  -----------------------------
+  |   ...   |     ...         |  
+  -----------------------------
+  | [DVH n] | [3D dose mask]  |
+  |         -------------------
+  |         | [dvh data]      |
+  |         -------------------
+  |         | VOI volume      | 
+  |         -------------------
+  |         | Voxel volume    | 
+  -----------------------------
+
+ [dvh data] is a 2 columns vector with following structure:
+
+ -----------------
+ | dose | volume |
+ | (Gy) |  (cc)  |
+ -----------------
+ |      |        |
+ |      |        |
+ |      |        |
+ |      |        |
+ -----------------
+
+
+ Example:
+
+ dvh=dicomrt_dvhcal(VOI,dose,dose_xmesh,dose_ymesh,dose_zmesh) returns 
+ the dvhs for the DVH for all the VOIs in VOI and the dose distribution in the 
+ 3D matrix 'dose'.
+
+ See also dicomrt_loaddose, roifilt2, roipoly, dicomrt_dvhplot
+
+ Copyright (C) 2002 Emiliano Spezi (emiliano.spezi@physics.org) 
+</pre>
+<HR>
+Produced by <A HREF="http://www.mathworks.com/support/ftp/toolsv4.shtml">mat2html</A> on Mon Oct 20 15:21:43 2003
+<BR>
+Cross-Directory links are: OFF<BR>
+</BODY>

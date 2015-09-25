@@ -1,0 +1,62 @@
+<TITLE>/</TITLE>
+<BODY>
+<A HREF = "index.html">[Index for ./dicomrt-toolbox/display]</A>
+<A HREF = "../index.html">[Return to Master Index]</A>
+<H1>dicomrt_dvhplot</H1>
+<H2>(./dicomrt-toolbox/display/dicomrt_dvhplot.m)</H2>
+<HR><H3>Function Synopsis</H3>
+<pre>dicomrt_plotdvh(DVH,dvhselect,typedvh,dnorm,vnorm)</pre>
+<HR><H3>Help text</H3>
+<pre>
+ dicomrt_plotdvh(DVH,dvhselect,typedvh,dnorm,vnorm)
+
+ Display Dose Volume Histogram (DVH) for selected Volume Of Interest (VOI)
+
+ DVH is a DVH cell matrix generated with dicomrt_dvhcal
+ dvhselect is a vector which contains the number of VOI to plot.
+           if dvhselect==0 DVH for all the available VOIs are plotted
+ typedvh   is a parameter which switch between cumulative (=0 default)
+           and frequency (=1) histogram 
+ dnorm     OPTIONAL parameter which switch between normalized (~=0)
+           and non normalized (=0 default) dose axis.
+           If dnorm~=0 the dose axis is normalised to dnorm.
+ vnorm     OPTIONAL parameter which switch between normalized (~=0)
+           and non normalized (=0 default) volume axis.
+           If vnorm~=0 the volume axis is normalised to the volume of the
+           selected VOI. If vnorm=0 volume is expressed in cubic centimeters.
+
+ DVHs are stored in a cell array with the following structure:
+
+  -----------------------------
+  | [DVH 1] | [3D dose mask]  |
+  |         -------------------
+  |         | [dvh data]      |
+  |         -------------------
+  |         | VOI volume      | 
+  |         -------------------
+  |         | Voxel volume    | 
+  -----------------------------
+  |   ...   |     ...         |  
+  -----------------------------
+  | [DVH n] | [3D dose mask]  |
+  |         -------------------
+  |         | [dvh data]      |
+  |         -------------------
+  |         | VOI volume      | 
+  |         -------------------
+  |         | Voxel volume    | 
+  -----------------------------
+
+ Example:
+
+ dicomrt_dvhplot(A,2,2) plot a cumulative DVH for VOI 2 contained in DVH cell array A using
+
+ See also dicomrt_loaddose, roifilt2, dicomrt_dvhcal
+
+ Copyright (C) 2002 Emiliano Spezi (emiliano.spezi@physics.org) 
+</pre>
+<HR>
+Produced by <A HREF="http://www.mathworks.com/support/ftp/toolsv4.shtml">mat2html</A> on Mon Oct 20 15:21:43 2003
+<BR>
+Cross-Directory links are: OFF<BR>
+</BODY>

@@ -1,0 +1,57 @@
+<TITLE>/</TITLE>
+<BODY>
+<A HREF = "index.html">[Index for ./dicomrt-toolbox/display]</A>
+<A HREF = "../index.html">[Return to Master Index]</A>
+<H1>dicomrt_playmcdose</H1>
+<H2>(./dicomrt-toolbox/display/dicomrt_playmcdose.m)</H2>
+<HR><H3>Function Synopsis</H3>
+<pre>[planmovie] = dicomrt_playmcdose(MCdose,axis,slice,export)</pre>
+<HR><H3>Help text</H3>
+<pre>
+ dicomrt_playmcdose(MCdose,axis,slice,export)
+
+ Create and shows a movie for Monte Carlo 3D dose distribution
+ Cumulative segment's contribution along axis 'axis' and for slice 'slice' is shown. 
+
+ Axis is a character and refers to the cartesian axis (X,Y,Z)
+ 
+ Slice refers to the slice where the dose will be shown.
+
+ If export is ~=0 the movie will be exported in avi format with name nameof(MCdose).avi
+ If export is omitted the movie will not be exported.
+
+ MCdose must be a cell array containing dose from segments.
+ MCdose is a cell arrays with the following structure
+
+   beam name     3d matrix/segment
+  --------------------------------------
+  | [beam 1] | [1st segment 3dmatrix ] |
+  |          | [1st segment 3dmatrix ] |
+  |          |                         |
+  |          | [nth segment 3dmatrix ] |
+  --------------------------------------
+  |   ...               ...            |
+  --------------------------------------
+  | [beam 2] | [1st segment 3dmatrix ] |
+  |          | [1st segment 3dmatrix ] |
+  |          |                         |
+  |          | [nth segment 3dmatrix ] |
+  --------------------------------------
+
+ Example:
+
+ [mymovie]=dicomrt_showmcdose(A,'z',5,1)
+
+ store in mymovie a multiframe image which display the sum of the dose
+ delivered by each beam segment on slice 5 along z axis and export movie
+ to file &quot;mymovie.avi&quot;.
+
+ See also dicomrt_loadmcdose
+
+ Copyright (C) 2002 Emiliano Spezi (emiliano.spezi@physics.org) 
+</pre>
+<HR>
+Produced by <A HREF="http://www.mathworks.com/support/ftp/toolsv4.shtml">mat2html</A> on Mon Oct 20 15:21:43 2003
+<BR>
+Cross-Directory links are: OFF<BR>
+</BODY>

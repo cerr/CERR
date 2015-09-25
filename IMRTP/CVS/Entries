@@ -1,0 +1,63 @@
+D/QIBData////
+D/fileInterface////
+D/optim example////
+D/recompDose////
+D/vmc++////
+/ApplyQIB.m/1.1.1.1/Wed Jun 14 16:14:09 2006//
+/GetPBConsts.m/1.1.1.1/Wed Jun 14 16:14:09 2006//
+/IMRTP.m/1.3/Wed Sep 06 21:40:09 2006//
+/IMRTPGui.m/1.15/Fri May 07 19:58:34 2010//
+/IMSetup.m/1.3/Wed Sep 06 21:40:32 2006//
+/Optimization.m/1.1.1.1/Wed Jun 14 16:14:09 2006//
+/QIBFilesHelp.m/1.2/Thu Jun 15 16:31:30 2006//
+/QIBPresent.m/1.2/Thu Jun 15 16:31:30 2006//
+/RTOGVectors2Gantry.m/1.1.1.1/Wed Jun 14 16:14:09 2006//
+/VMCFilesHelp.m/1.2/Thu Jun 15 16:31:30 2006//
+/VMCOptInit.m/1.1.1.1/Wed Jun 14 16:14:09 2006//
+/VMCPresent.m/1.2/Thu Jun 15 16:31:30 2006//
+/addIM.m/1.3/Mon Oct 16 22:45:00 2006//
+/addNewDose.m/1.1.1.1/Wed Jun 14 16:14:09 2006//
+/applyIMRTCompression.m/1.1.1.1/Wed Jun 14 16:14:09 2006//
+/boundingBox.m/1.1.1.1/Wed Jun 14 16:14:09 2006//
+/calculateBeamIntersect.m/1.1/Wed Jan 21 20:47:30 2009//
+/collimator2Scan.m/1.1.1.1/Wed Jun 14 16:14:09 2006//
+/createIMBeamlet.m/1.2/Mon Oct 16 22:46:05 2006//
+/dose2CERR.m/1.3/Mon Oct 16 22:46:44 2006//
+/gantry2RTOGVectors.m/1.3/Fri Feb 01 23:42:12 2008//
+/gantry2rtog.m/1.1.1.1/Wed Jun 14 16:14:09 2006//
+/generateCT_uniform.m/1.6/Fri Feb 01 23:21:26 2008//
+/generateMCInfluence.m/1.6/Tue Feb 26 14:54:48 2008//
+/generatePBCERR.m/1.2/Fri Feb 01 23:20:45 2008//
+/generateQIBInfluence.m/1.3/Wed Sep 06 21:38:13 2006//
+/generateVMCInfluence.m/1.10/Tue Feb 26 14:54:48 2008//
+/getBeamCrossSection.m/1.1/Wed Jan 21 20:47:51 2009//
+/getGlobalInfluenceM.m/1.5/Mon Oct 16 22:52:20 2006//
+/getIMDose.m/1.4/Mon Oct 16 22:52:47 2006//
+/getInfluence.m/1.1.1.1/Wed Jun 14 16:14:09 2006//
+/getInfluenceM.m/1.3/Fri Jan 11 17:02:54 2008//
+/getMCDose.m/1.1.1.1/Wed Jun 14 16:14:09 2006//
+/getPBRayData.m/1.3/Fri Dec 15 17:34:29 2006//
+/getPBRays.m/1.4/Tue Jan 08 23:28:41 2008//
+/getQIBDose.m/1.3/Mon Oct 16 22:53:37 2006//
+/getRayTraceSingleROI.m/1.1.1.1/Wed Jun 14 16:14:09 2006//
+/getSingleGlobalInfluenceM.m/1.4/Mon Oct 16 22:54:25 2006//
+/getUniformizedCTScan.m/1.4/Fri May 07 19:58:34 2010//
+/getVoxelV.m/1.1/Thu Jun 15 19:26:12 2006//
+/getdph3d.m/1.1.1.1/Wed Jun 14 16:14:09 2006//
+/getplanCDownSample.m/1.1.1.1/Wed Jun 14 16:14:09 2006//
+/initBeamlet.m/1.1/Mon Oct 16 23:01:23 2006//
+/initIMRTProblem.m/1.5/Mon Oct 16 22:57:13 2006//
+/linear2.m/1.1.1.1/Wed Jun 14 16:14:09 2006//
+/loadPBData.m/1.3/Wed Jul 05 22:13:09 2006//
+/makeVMCInput.m/1.2/Mon Jun 26 13:43:55 2006//
+/myCTwriteVMC.m/1.1.1.1/Wed Jun 14 16:14:09 2006//
+/notes on using downsampled ROIs.txt/1.1.1.1/Wed Jun 14 16:14:09 2006//
+/rayBoxIntersection.m/1.1.1.1/Wed Jun 14 16:14:09 2006//
+/readDoseFile.m/1.1.1.1/Wed Jun 14 16:14:09 2006//
+/scan2Collimator.m/1.1.1.1/Wed Jun 14 16:14:09 2006//
+/showIMDose.m/1.4/Thu Nov 02 16:03:47 2006//
+/sumPBDose.m/1.1.1.1/Wed Jun 14 16:14:09 2006//
+/updateIMRTP.m/1.9/Fri May 07 19:58:34 2010//
+/updateQIBInfluence.m/1.5/Fri May 07 19:58:34 2010//
+/updateVMCInfluence.m/1.6/Tue Feb 26 14:54:48 2008//
+/vmc2qib_param.m/1.1.1.1/Wed Jun 14 16:14:09 2006//

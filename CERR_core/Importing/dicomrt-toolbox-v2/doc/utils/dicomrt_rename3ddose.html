@@ -1,0 +1,53 @@
+<TITLE>/</TITLE>
+<BODY>
+<A HREF = "index.html">[Index for ./dicomrt-toolbox/mctp/utils]</A>
+<A HREF = "../index.html">[Return to Master Index]</A>
+<H1>dicomrt_rename3ddose</H1>
+<H2>(./dicomrt-toolbox/mctp/utils/dicomrt_rename3ddose.m)</H2>
+<HR><H3>Function Synopsis</H3>
+<pre>dicomrt_rename3ddose(oldstring,newstring,what2do,corm)</pre>
+<HR><H3>Help text</H3>
+<pre>
+ dicomrt_rename3ddose(oldstring,newstring,what2do,corm)
+
+ Change 3ddose filenames.
+
+ oldstring is the old string that needs to be replaced or that is used to match string (see below)
+ newstring is the new string that will be replaced or added 
+ what2do is a single character which determines whether or not oldtring will be replaced
+    'r' newstring replace oldstring
+    'a' oldstring is not replaced, newstring is added to the filename just before the extension (3ddose)
+        is this case oldstring is still used to match filename among the 3ddose files in current fir
+ corm is a single character which determines weather or not old files will be renamed or copied
+    'c' oldfile is copied into newfile
+    'm' oldfile is moved (renamed) into newfile
+
+ When MC dose is computed for a water phantom case study (e.g. for dose verification) 
+ 3ddose files contain the contribution from each segment.
+ This information could be used in a study where TPS segment contribution
+ needs to be evaluated.
+ However the filename of the 3ddose files more likely will need to be changed to 
+ suit the new case study filename convention.
+
+ Example:
+
+ dicomrt_rename3ddose('demo2','demo2_v2','r','c')
+
+ find in the current directory the 3ddose filenames which contains the string demo2 
+ and create new 3ddose files with the file name demo2_v2*.3ddose. If the dir contains
+ the following files: demo2_b1s1.3ddose, demo2_b1s2.3ddose when the command terminates
+ the following new files are created demo2_v2_b1s1.3ddose, demo2_v2_b1s2.3ddose.
+ If then the following command is given:
+
+ dicomrt_rename3ddose('demo2_v2','_mc_xyz_b1s1','a','m')
+
+ it will move demo2_v2_b1s1.3ddose into demo2_v2_b1s1_mc_xyz_b1s1.3ddose and 
+ demo2_v2_b1s2.3ddose into demo2_v2_b1s2_mc_xyz_b1s1.3ddose.
+
+ Emiliano Spezi 2002 (emiliano.spezi@physics.org)
+</pre>
+<HR>
+Produced by <A HREF="http://www.mathworks.com/support/ftp/toolsv4.shtml">mat2html</A> on Mon Oct 20 15:21:43 2003
+<BR>
+Cross-Directory links are: OFF<BR>
+</BODY>

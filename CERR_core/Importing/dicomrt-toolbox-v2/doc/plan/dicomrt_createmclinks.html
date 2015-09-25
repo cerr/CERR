@@ -1,0 +1,40 @@
+<TITLE>/</TITLE>
+<BODY>
+<A HREF = "index.html">[Index for ./dicomrt-toolbox/mctp/plan]</A>
+<A HREF = "../index.html">[Return to Master Index]</A>
+<H1>dicomrt_createmclinks</H1>
+<H2>(./dicomrt-toolbox/mctp/plan/dicomrt_createmclinks.m)</H2>
+<HR><H3>Function Synopsis</H3>
+<pre>dicomrt_createmclinks = dicomrt_createmclinks(study,beam_module,int)</pre>
+<HR><H3>Help text</H3>
+<pre>
+ dicomrt_createmclinks(study,beam_module,int)
+
+ Create links from original MC phase space file directory to a user specified directory
+ this is to avoid PHSPFILENAME being longer than 80 character supported by BEAM/DOSXYZ
+
+ rtplanform contains plan data coded (warmed) by <A HREF = "../plan/dicomrt_mcwarm.html">dicomrt_mcwarm</A>.
+ beam_module is the MC model to use
+ int is a parameter which determines an interactive session (int~=0). During interactive session 
+     it is possible to specify the name of directories where files will be linked. (OPTIONAL)
+
+ Example:
+
+ dicomrt_createmclinks(A,'BEAM_Clinac21CD')
+
+ will create:
+
+ A.createlinks     when executed links phsp files from original BEAM 'BEAM_Clinac21CD' dir 
+                   to user defined dir this may be useful when path to original BEAM dir  
+                   is too long to fit in the BEAM/DOSXYZ supported 80 characters
+
+
+ See also <A HREF = "../plan/dicomrt_mcwarm.html">dicomrt_mcwarm</A>, dicomrt_BEAMexport, dicomrt_DOSXYZexport, <A HREF = "../plan/dicomrt_createmcscripts.html">dicomrt_createmcscripts</A>
+
+ Copyright (C) 2002 Emiliano Spezi (emiliano.spezi@physics.org)
+</pre>
+<HR>
+Produced by <A HREF="http://www.mathworks.com/support/ftp/toolsv4.shtml">mat2html</A> on Mon Oct 20 15:21:43 2003
+<BR>
+Cross-Directory links are: OFF<BR>
+</BODY>

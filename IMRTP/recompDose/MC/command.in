@@ -1,0 +1,12 @@
+  0
+   
+ *** Codes:  
+ 0               -> Stop reading and get back to work
+ 1               -> Write report to progress.out
+ 2 <CR> <N>      -> Reset No of histories to N
+ 3 <CR> <T>      -> Reset simulation time to T
+ 4 <CR> <string> -> Write <string> (80 chars max) to stdout
+ 5 <CR> <n>      -> Next commands only for processor #n
+  
+ <CR> stands for carriage return
+  

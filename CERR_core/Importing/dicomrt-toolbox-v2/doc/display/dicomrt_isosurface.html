@@ -1,0 +1,46 @@
+<TITLE>/</TITLE>
+<BODY>
+<A HREF = "index.html">[Index for ./dicomrt-toolbox/display]</A>
+<A HREF = "../index.html">[Return to Master Index]</A>
+<H1>dicomrt_isosurface</H1>
+<H2>(./dicomrt-toolbox/display/dicomrt_isosurface.m)</H2>
+<HR><H3>Function Synopsis</H3>
+<pre>dicomrt_isosurface(inputdose,dose_xmesh,dose_ymesh,dose_zmesh,levels,norm,VOI,voi2plot)</pre>
+<HR><H3>Help text</H3>
+<pre>
+ dicomrt_isosurface(inputdose,dose_xmesh,dose_ymesh,dose_zmesh,levels,norm,VOI,voi2plot)
+
+ Show isosurface for 3D dose distributions.
+ 
+ inputdose contains the 3D dose distribution
+ inputdose can be an rtplan generated or a monte carlo generated 3D dose distribution or a dose difference.
+
+ dose_xmesh,dose_ymesh,dose_zmesh are x-y-z coordinates of the center of the dose-pixel 
+ levels is a vector containing the values of the % dose difference to be displayed in 3D
+ norm is the dose normalization level:
+   1.   norm =0  no normalization is carried out
+   2.       =-1 same as (1) but matrix is treated as dose difference (transparency display)
+   3.       &gt;0  doses are normalized to norm (100%)
+ VOI is an OPTIONAL cell array which contain the patients VOIs as read by dicomrt_loadVOI
+ voi2plot is an OPTIONAL vector pointing to the number of VOIs to be displayed
+
+ Example:
+
+ dicomrt_isosurface(A,xmesh,ymesh,zmesh,[100 90],60,A_voi,[1 2 3])
+
+ overlay 2 isosurfaces for matrix A at the 100% and 90% levels. Dose is normalised to 60Gy (100%).
+ The figure also shows VOIs # 1 2 and 3.
+
+ See also dicomrt_loaddose, dicomrt_loadmcdose, <A HREF = "../display/dicomrt_contourslice.html">dicomrt_contourslice</A>, dicomrt_dosediff
+
+ Copyright (C) 2002 Emiliano Spezi (emiliano.spezi@physics.org) 
+</pre>
+<HR><H3>Cross-Reference Information</H3>This function calls
+<pre><UL>
+<LI><A HREF = "../display/dicomrt_rendervoi.html">dicomrt_rendervoi</A>./dicomrt-toolbox/display/dicomrt_rendervoi.m</LI>
+</UL></pre>
+<HR>
+Produced by <A HREF="http://www.mathworks.com/support/ftp/toolsv4.shtml">mat2html</A> on Mon Oct 20 15:21:43 2003
+<BR>
+Cross-Directory links are: OFF<BR>
+</BODY>

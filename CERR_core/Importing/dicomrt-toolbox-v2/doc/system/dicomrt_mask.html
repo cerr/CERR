@@ -1,0 +1,58 @@
+<TITLE>/</TITLE>
+<BODY>
+<A HREF = "index.html">[Index for ./dicomrt-toolbox/system]</A>
+<A HREF = "../index.html">[Return to Master Index]</A>
+<H1>dicomrt_mask</H1>
+<H2>(./dicomrt-toolbox/system/dicomrt_mask.m)</H2>
+<HR><H3>Function Synopsis</H3>
+<pre>[matrix_mask,volume_VOI,mask,voxelvolume,area] = dicomrt_mask(voi,inpmatrix,ct_xmesh,ct_ymesh,ct_zmesh,selected_voi,filter,mask_open)</pre>
+<HR><H3>Help text</H3>
+<pre>
+ dicomrt_mask(voi,inpmatrix,ct_xmesh,ct_ymesh,ct_zmesh,selected_voi,filter,mask_open)
+
+ Mask 3D matrix using anatomical structures.
+
+ voi is a cell array and contains the Volumes of Interest
+ inpmatrix contains the matrix that will be masked
+ ct_xmesh, ct_ymesh, ct_zmesh are x-y-z coordinates of the center of the matrix voxels
+ selected_voi is the VOI used to mask the ct matrix
+ filter is an OPTIONAL parameter which specify the type of filter used for the mask. 
+    Filter defaults to 0, hence if not given every pixel outside selected_voi will be &quot;0&quot;. 
+    Valid filters are 'NaN' or 'Inf'.
+ mask_open is an OPTIONAL parameter which control if the masked matrix
+    will have the same dimensions of the original matrix (mask_open='y') or if it will have the 
+    same dimension of the contour (mask_open='n')
+
+ Example:
+
+ [A,vol,B]=dicomrt_maskct(VOI,C,ct_xmesh,ct_ymesh,ct_zmesh) returns in A
+ the matrix C masked using the first VOI outline in &quot;VOI&quot; (usually this
+ correspond to the patient outline). 
+ The volume of the masked volume is stored in vol.
+ The matrix used to perform the mask is stored in B.
+
+ See also dicomrt_ctcreate, dicomrt_loaddose, dicomrt_mask
+
+ Copyright (C) 2002 Emiliano Spezi (emiliano.spezi@physics.org) 
+</pre>
+<HR><H3>Cross-Reference Information</H3>This function calls
+<pre><UL>
+<LI><A HREF = "../system/dicomrt_3dto2dVOI.html">dicomrt_3dto2dVOI</A>./dicomrt-toolbox/system/dicomrt_3dto2dVOI.m</LI>
+<LI><A HREF = "../system/dicomrt_checkinput.html">dicomrt_checkinput</A>./dicomrt-toolbox/system/dicomrt_checkinput.m</LI>
+<LI><A HREF = "../system/dicomrt_checkvoitype.html">dicomrt_checkvoitype</A>./dicomrt-toolbox/system/dicomrt_checkvoitype.m</LI>
+<LI><A HREF = "../system/dicomrt_findsliceVECT.html">dicomrt_findsliceVECT</A>./dicomrt-toolbox/system/dicomrt_findsliceVECT.m</LI>
+<LI><A HREF = "../system/dicomrt_getvoiz.html">dicomrt_getvoiz</A>./dicomrt-toolbox/system/dicomrt_getvoiz.m</LI>
+<LI><A HREF = "../system/dicomrt_makevertical.html">dicomrt_makevertical</A>./dicomrt-toolbox/system/dicomrt_makevertical.m</LI>
+<LI><A HREF = "../system/dicomrt_restorevarformat.html">dicomrt_restorevarformat</A>./dicomrt-toolbox/system/dicomrt_restorevarformat.m</LI>
+<LI><A HREF = "../system/dicomrt_varfilter.html">dicomrt_varfilter</A>./dicomrt-toolbox/system/dicomrt_varfilter.m</LI>
+<LI><A HREF = "../system/dicomrt_voxelvolumecal.html">dicomrt_voxelvolumecal</A>./dicomrt-toolbox/system/dicomrt_voxelvolumecal.m</LI>
+</UL></pre>
+This function is called by
+<pre><UL>
+<LI><A HREF = "../system/dicomrt_fitdm2CT.html">dicomrt_fitdm2CT</A>./dicomrt-toolbox/system/dicomrt_fitdm2CT.m</LI>
+</UL></pre>
+<HR>
+Produced by <A HREF="http://www.mathworks.com/support/ftp/toolsv4.shtml">mat2html</A> on Mon Oct 20 15:21:43 2003
+<BR>
+Cross-Directory links are: OFF<BR>
+</BODY>

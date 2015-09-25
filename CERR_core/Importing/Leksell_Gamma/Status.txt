@@ -1,0 +1,12 @@
+The Leksell importing code is incomplete.  The core of the import process is the decodeLeksellData function, which reads a raw Leksell datafile and places all values found into a nested cell array.  The problem is that this cell array (and the Leksell datafiles themselves) have no fieldnames, so the programmer who takes over this project needs to spend some time discovering the meaning of these variables.  I have discovered the meaning of many of them but many also remain.  The functions readLeksell<filetype>.m are my attempts at placing the data extracted by decodeLeksellData.m into meaningful structures.
+
+importLeksellPlan.m is the master calling function that calls all the readLeksell<filetype>.m files and attempts to populate a planC structure in order to view gamma plans in CERR.
+
+Also, it is important that CT/MR scans from the original gamma plans be placed into the gamma directory, and also that they be renamed since the default CT/MR filenames are not DOS compliant and will not extract properly if their original filenames are used.
+
+Also, One known bug is lurking.  When a plan is currently imported to CERR, all units are 10x bigger than they should be.  This is a simple scaling problem that should be easy to correct.
+
+
+JRA 7/22/05
+james.alaly@gmail.com
+

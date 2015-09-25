@@ -1,0 +1,88 @@
+function computeImageAttributes(structNum)
+%function computeImageAttributes(structNum)
+%
+%APA, 02/11/2011
+
+global planC stateS
+indexS = planC{end};
+
+% for command line help document
+if ~exist('structNum')
+    prompt = {'Enter the structure number for ROI'};
+    dlg_title = 'Image Attributes';
+    num_lines = 1;
+    def = {''};
+    outPutQst = inputdlg(prompt,dlg_title,num_lines,def);
+    if isempty(outPutQst{1})
+        warning('Need to enter structure number');
+        return
+    else
+        structNum         = str2num(outPutQst{1});
+    end
+else
+    structNum = str2num(structNum{1});
+end
+
+scanNum                             = getStructureAssociatedScan(structNum);
+[rasterSegments, planC, isError]    = getRasterSegments(structNum,planC);
+if isempty(rasterSegments)
+    warning('Invalid structure.')
+    return
+end
+[mask3M, uniqueSlices]              = rasterToMask(rasterSegments, scanNum);
+scanArray3M                         = double(getScanArray(planC{indexS.scan}(scanNum)));
+scan3M                              = mask3M.*scanArray3M(:,:,uniqueSlices);
+indMaskV                            = find(scan3M);
+roiIntensityV                       = scan3M(indMaskV);
+
+
+imMdn  = median(roiIntensityV); % median of all the pixel value inside the ROI matrix
+imStd  = std(roiIntensityV);% standard deviation
+imMod  = mode(roiIntensityV); % mode
+imgHist= hist(roiIntensityV, [min(roiIntensityV):max(roiIntensityV)]); %histogram calculation
+imAmp  = max(imgHist); %histogram amplitude
+Ske    = skewness(imgHist,0); % bias corrected Skewness
+Kur    = kurtosis(imgHist,0); % bias corrected Kurtosis
+
+preTPrctile = prctile(imgHist,[90,75,50]); % set up the required up 10%, 25% and 50% percentile of the histogram
+preTP10     = find(imgHist>=preTPrctile(1)); % mean of top 10%
+preTP10M    = mean(imgHist(preTP10));
+preTP25     = find(imgHist>=preTPrctile(2)); % mean of top 25%
+preTP25M    = mean(imgHist(preTP25));
+preTP50     = find(imgHist>=preTPrctile(3)); % mean of top 50%
+preTP50M    = mean(imgHist(preTP50));
+structVol = getStructureVol(structNum,planC);
+
+patientName = planC{indexS.scan}.scanInfo(1).patientName;
+structureName = planC{indexS.structures}(structNum).structureName;
+try
+    studyDate   = planC{indexS.scan}.scanInfo(1).DICOMHeaders.StudyDate;
+catch
+    studyDate   = '';
+end
+dateV         = datevec(studyDate,'yyyymmdd');
+dateStrFormat = datestr(dateV,'dd-mmm-yyyy');
+
+[fName, pName] = uigetfile({'*.xls'},'Select file containing database of image attributes');
+
+fileName = fullfile(pName,fName);
+
+[numeric, txt, raw] = xlsread(fileName);
+
+if isempty(txt)
+    error('Excel file must contain columns for storing the attributes. Please create columns and try again.')
+    return;
+end
+
+attribsV = [imMdn imStd imMod imAmp Ske Kur preTP10M preTP25M preTP50M structVol];
+numRows = size(numeric,1);
+cellValsStr = ['D',num2str(numRows+2),':M',num2str(numRows+2)];
+success1 = xlswrite(fileName,attribsV,cellValsStr);    
+success2 = xlswrite(fileName,{patientName},['A',num2str(numRows+2),':A',num2str(numRows+2)]);    
+success3 = xlswrite(fileName,{structureName},['B',num2str(numRows+2),':B',num2str(numRows+2)]);    
+success4 = xlswrite(fileName,{dateStrFormat},['C',num2str(numRows+2),':C',num2str(numRows+2)]);    
+
+if ~success1 || ~success2 || ~success3 || ~success4
+   error('Could not write to Excel file.') 
+end
+

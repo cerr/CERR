@@ -1,0 +1,56 @@
+<TITLE>/</TITLE>
+<BODY>
+<A HREF = "index.html">[Index for ./dicomrt-toolbox/load]</A>
+<A HREF = "../index.html">[Return to Master Index]</A>
+<H1>dicomrt_DICOMdirscan</H1>
+<H2>(./dicomrt-toolbox/load/dicomrt_DICOMdirscan.m)</H2>
+<HR><H3>Function Synopsis</H3>
+<pre>studylist=dicomrt_DICOMdirscan(path2scan);</pre>
+<HR><H3>Help text</H3>
+<pre>
+ dicomrt_DICOMdirscan(path2scan)
+
+ Scan a directory for DICOM studies.
+
+ path2scan is the directory path that will be scanned. Scan is not recursive.
+
+ Returns a cell array &quot;studylist&quot; containing a list of the studies found in directory &quot;path2scan&quot;.
+
+ This is the structure of studylist
+
+    Patients         RTPLAN             RTDOSE            CT               RTSTRUCTURE
+      Name           series             series            series           series
+  ----------------------------------------------------------------------------------------|
+  | [Name 1] |[L 1] [D 1] [Flist 1] | [D 1] [Flist 1] | [D 1] [Flist 1] | [D 1] [Flist 1] |
+  |          |                      |                 |                 |                 |
+  |          |[L j] [D j] [Flist j] | [D k] [Flist k] | [D l] [Flist l] | [D m] [Flist m] |
+  |          |                      |                 |                 |                 |
+  ----------------------------------------------------------------------------------------|
+  |               ...                                    ...                              |               
+  ----------------------------------------------------------------------------------------|
+  | [Name p] |[L 1] [D 1] [Flist 1] | [D 1] [Flist 1] | [D 1] [Flist 1] | [D 1] [Flist 1] |
+  |          |                      |                 |                 |                 |
+  |          |[L q] [D q] [Flist q] | [D r] [Flist r] | [D s] [Flist s] | [D t] [Flist t] | 
+  |          |                      |                 |                 |                 |  
+  ----------------------------------------------------------------------------------------|
+
+ where L=Label, D=Date, Flist=Filename list, j-t are indices
+
+ See also: dicomrt_DICOMscan, dicomrt_DICOMimport
+
+
+ Copyright (C) 2002 Emiliano Spezi (emiliano.spezi@physics.org) 
+</pre>
+<HR><H3>Cross-Reference Information</H3>This function calls
+<pre><UL>
+<LI><A HREF = "../load/dicomrt_DICOMimport.html">dicomrt_DICOMimport</A>./dicomrt-toolbox/load/dicomrt_DICOMimport.m</LI>
+</UL></pre>
+This function is called by
+<pre><UL>
+<LI><A HREF = "../load/dicomrt_DICOMscan.html">dicomrt_DICOMscan</A>./dicomrt-toolbox/load/dicomrt_DICOMscan.m</LI>
+</UL></pre>
+<HR>
+Produced by <A HREF="http://www.mathworks.com/support/ftp/toolsv4.shtml">mat2html</A> on Mon Oct 20 15:21:43 2003
+<BR>
+Cross-Directory links are: OFF<BR>
+</BODY>

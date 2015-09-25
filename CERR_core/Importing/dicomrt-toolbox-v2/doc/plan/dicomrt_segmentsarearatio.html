@@ -1,0 +1,39 @@
+<TITLE>/</TITLE>
+<BODY>
+<A HREF = "index.html">[Index for ./dicomrt-toolbox/mctp/plan]</A>
+<A HREF = "../index.html">[Return to Master Index]</A>
+<H1>dicomrt_segmentsarearatio</H1>
+<H2>(./dicomrt-toolbox/mctp/plan/dicomrt_segmentsarearatio.m)</H2>
+<HR><H3>Function Synopsis</H3>
+<pre>[arearatio] = dicomrt_segmentsarearatio(areas)</pre>
+<HR><H3>Help text</H3>
+<pre>
+ dicomrt_segmentsarearatio(areas)
+
+ Calculate the ratio between the MLC segments area and beam area 
+ as defined by secondary collimators.
+
+ areas is a cell array as generated with <A HREF = "../plan/dicomrt_segmentsarea.html">dicomrt_segmentsarea</A> 
+ and has the following structure:
+
+   beam name    beam area        individual segment area
+                  
+  -----------------------------------------------------------
+  | [beam 1] |  beam area   | (area s1 area s2 ... area sm) | 
+  |          |              |                               |
+  -----------------------------------------------------------
+  |               ...                     ...               |                
+  -----------------------------------------------------------
+  | [beam n] |  beam area   | (area s1 area s2 ... area sp) | 
+  |          |              |                               |
+  -----------------------------------------------------------
+ 
+ See also <A HREF = "../plan/dicomrt_mcwarm.html">dicomrt_mcwarm</A>, <A HREF = "../plan/dicomrt_segmentsarea.html">dicomrt_segmentsarea</A>
+
+ Copyright (C) 2002 Emiliano Spezi (emiliano.spezi@physics.org) 
+</pre>
+<HR>
+Produced by <A HREF="http://www.mathworks.com/support/ftp/toolsv4.shtml">mat2html</A> on Mon Oct 20 15:21:43 2003
+<BR>
+Cross-Directory links are: OFF<BR>
+</BODY>

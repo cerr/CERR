@@ -1,0 +1,94 @@
+ This file is part of set:
+ pre4phot
+ HEADER section: Material data file for DPM.
+ [Emin_ph,Emin,Emax] (eV): energy interval in which data is to be generated:    
+                      
+  4.9000000E+04  1.9900000E+05  2.1000000E+07
+ Wcc & Wcb (eV), cutoffs energies for collision and bremsstrahlung respectively:
+                      
+  2.0000000E+05  5.0000000E+04
+ Step length parameters shigh(cm),slow(cm),ecross(eV):                          
+                      
+  1.000E+00  5.000E-01  5.000E+06
+ No of materials in this file:                                                  
+                      
+   4
+  
+ MATERIAL: DryAir
+ Reference density (g/cm^3):
+  1.2048000E-03
+ No elements in molecule:
+   4
+     6  1.5018700E-04
+     7  7.8443000E-01
+     8  2.1074800E-01
+    18  4.6711100E-03
+ Total atno(Z), Z^2 & Z(Z+1):
+  7.2619751E+00  5.3443788E+01  6.0705763E+01
+ Atomic mass (amu):
+  1.4547674E+01
+ AtNo AtNo^2 to mass ratios with respect to ref:
+  1.0000000E+00  1.0000000E+00
+  
+ MATERIAL: ICRPlung
+ Reference density (g/cm^3):
+  3.0000000E-01
+ No elements in molecule:
+  13
+     1  6.3314600E-01
+     6  5.3671600E-02
+     7  1.2888300E-02
+     8  2.9815300E-01
+    11  5.0430100E-04
+    12  1.8924900E-04
+    15  1.6274300E-04
+    16  4.4220600E-04
+    17  4.7275300E-04
+    19  3.1264400E-04
+    20  1.4148800E-05
+    26  4.1745400E-05
+    30  9.6374300E-07
+ Total atno(Z), Z^2 & Z(Z+1):
+  3.4633267E+00  2.2800973E+01  2.6264300E+01
+ Atomic mass (amu):
+  6.3008336E+00
+ AtNo AtNo^2 to mass ratios with respect to ref:
+  1.1011190E+00  9.8503507E-01
+  
+ MATERIAL: ICRUtissue
+ Reference density (g/cm^3):
+  1.0000000E+00
+ No elements in molecule:
+   4
+     1  5.4076100E+01
+     6  4.9785900E+00
+     7  1.0000000E+00
+     8  2.5651700E+01
+ Total atno(Z), Z^2 & Z(Z+1):
+  2.9616124E+02  1.9240141E+03  2.2201754E+03
+ Atomic mass (amu):
+  5.3870969E+02
+ AtNo AtNo^2 to mass ratios with respect to ref:
+  1.1013167E+00  9.7218694E-01
+  
+ MATERIAL: ICRPcortical_bone
+ Reference density (g/cm^3):
+  1.8500000E+00
+ No elements in molecule:
+   9
+     1  4.7540200E-01
+     6  1.2189900E-01
+     7  3.0411200E-02
+     8  2.8284500E-01
+    12  9.1822800E-04
+    15  3.4379100E-02
+    16  9.9671300E-04
+    20  5.3133700E-02
+    30  1.5516000E-05
+ Total atno(Z), Z^2 & Z(Z+1):
+  5.2882265E+00  5.3846120E+01  5.9134347E+01
+ Atomic mass (amu):
+  1.0144137E+01
+ AtNo AtNo^2 to mass ratios with respect to ref:
+  1.0443204E+00  1.4448928E+00
+  

@@ -1,0 +1,19 @@
+Notes on the problem of using downsampled volumes in the
+influence matrix.
+
+How to do it:
+-- Getting the downsampled structures can be done using built-in,
+already available functions.
+
+-- IMRT planning can proceed using the downsampled volumes without
+consideration of the downsampling proper (but the relative volume
+needs to be correct).
+
+-- Inflating the dose correctly need only occur at the point of
+re-construction into the fully 3-D dose distribution.  If
+downsampling is only x-y, this can be done using either
+2-D interpolation or a ring-filter (El Naqa).
+
+
+
+

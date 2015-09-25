@@ -1,0 +1,42 @@
+<TITLE>/</TITLE>
+<BODY>
+<A HREF = "index.html">[Index for ./dicomrt-toolbox/load]</A>
+<A HREF = "../index.html">[Return to Master Index]</A>
+<H1>dicomrt_loadRTdose</H1>
+<H2>(./dicomrt-toolbox/load/dicomrt_loadRTdose.m)</H2>
+<HR><H3>Function Synopsis</H3>
+<pre>[cell_case_study,xmesh,ymesh,zmesh] = dicomrt_loadRTdose(filename_list,force)</pre>
+<HR><H3>Help text</H3>
+<pre>
+ dicomrt_loadRTdose(filename_list,force)
+
+ Read dicom dose for a case study using MATLAB native function dicomread. 
+
+ filename contains a list of dose matrices to import.
+ filename does not contain link to an RTPLAN in the first line
+
+ Dose matrices are stored in a single 3D matrix: case_study
+ x-y-z coordinates of the center of the dose-pixel are stored in xmesh,ymesh,zmesh
+ cell_case_study is a simple cell array with the following structure:
+
+  ------------------------
+  | [ rtplan structure ] |
+  | ----------------------
+  | [ 3D dose matrix   ] |
+  | ---------------------
+  | [ voxel dimension  ] |
+  ------------------------
+
+ NOTE: this function and <A HREF = "../load/dicomrt_loaddose.html">dicomrt_loaddose</A> differs because in this case the
+ RTPLAN is not imported and left black
+
+
+ See also <A HREF = "../load/dicomrt_loadct.html">dicomrt_loadct</A>, dicomrt_getPatientPosition
+
+ Copyright (C) 2002 Emiliano Spezi (emiliano.spezi@physics.org) 
+</pre>
+<HR>
+Produced by <A HREF="http://www.mathworks.com/support/ftp/toolsv4.shtml">mat2html</A> on Mon Oct 20 15:21:43 2003
+<BR>
+Cross-Directory links are: OFF<BR>
+</BODY>

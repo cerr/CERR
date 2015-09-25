@@ -1,0 +1,23 @@
+d.reduce=d.reduce./norm.*100;
+d.reducesmooth=d.reducesmooth./norm.*100;
+d.smooth=d.smooth./norm.*100;
+d.data=d.data./norm.*100;
+
+       case 'datanorm'
+        dlg_title = 'Sliceomatic data normalization';
+        prompt = 'Enter normalization value:';
+        answer = inputdlg(prompt,dlg_title);
+        if isempty(answer)~=1 & isequal(answer{1},'')~=1
+            norm = str2num(answer{1});
+            if isempty(norm)==1
+                warndlg('Normalization value must be a number: data not normalized');
+            end
+        else
+            warndlg('Empty value: data not normalized');
+        end
+        % Normalize and reset data
+        d = sliceomaticdnorm(d,norm);
+        setappdata(gcf,'sliceomatic',d);
+        % Update isocontrols
+        isocontrols(gcf,0);
+        isocontrols(gcf,1);

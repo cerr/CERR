@@ -1,0 +1,34 @@
+<TITLE>/</TITLE>
+<BODY>
+<A HREF = "index.html">[Index for ./dicomrt-toolbox/mctp/utils]</A>
+<A HREF = "../index.html">[Return to Master Index]</A>
+<H1>dicomrt_read3ddose</H1>
+<H2>(./dicomrt-toolbox/mctp/utils/dicomrt_read3ddose.m)</H2>
+<HR><H3>Function Synopsis</H3>
+<pre>[dose,error,xbound,ybound,zbound] = dicomrt_read3ddose(patient_position,filename)</pre>
+<HR><H3>Help text</H3>
+<pre>
+ dicomrt_read3ddose(patient_position,filename)
+
+ Read a BEAM/DOSXYZ .3ddose file.
+
+ patient_position is a number which correspond to the supported Patient Position Coordinate System. 
+ The egs4phantom will be generated accordingly to the patient position coordinate 
+ system and Monte Carlo (DOSXYZ) coordinate system.
+
+ Example:
+
+ [A,B]=dicomrt_read3ddose(patient_position,'C');
+
+ returns in A the 3D dose distribution and in B 3D (relative) error matrix accordingly with Patient Position
+ coordinate system.
+
+ See also dicomrt_ctcreate, dicomrt_createwphantom, <A HREF = "../utils/dicomrt_writeegs4phant.html">dicomrt_writeegs4phant</A>, dicomrt_loadmcdose
+
+ Copyright (C) 2002 Emiliano Spezi (emiliano.spezi@physics.org) 
+</pre>
+<HR>
+Produced by <A HREF="http://www.mathworks.com/support/ftp/toolsv4.shtml">mat2html</A> on Mon Oct 20 15:21:43 2003
+<BR>
+Cross-Directory links are: OFF<BR>
+</BODY>

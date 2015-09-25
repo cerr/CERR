@@ -1,0 +1,9 @@
+The DICOM Toolbox included with CERR includes slight 
+modifications from the version created by Emiliano Spezi.
+
+The dictionary ES - IPT4.1CompatibleDictionary.mat is used
+in all calls to DICOMINFO and DICOMREAD.  GUI Prompts are
+used to select the study number etc.  Calls to get rasterSegs
+are modified slightly.
+
+Other than this, the toolbox is identical to version 2.2.

@@ -1,0 +1,39 @@
+<TITLE>/</TITLE>
+<BODY>
+<A HREF = "index.html">[Index for ./dicomrt-toolbox/system]</A>
+<A HREF = "../index.html">[Return to Master Index]</A>
+<H1>dicomrt_fitdm2CT</H1>
+<H2>(./dicomrt-toolbox/system/dicomrt_fitdm2CT.m)</H2>
+<HR><H3>Function Synopsis</H3>
+<pre>[dm2CT] = dicomrt_fitdm2CT(cell_case_study,ct_matrix,ct_xmesh,ct_ymesh,ct_zmesh,rtdose_xmesh,rtdose_ymesh,rtdose_zmesh,VOI,voi2use)</pre>
+<HR><H3>Help text</H3>
+<pre>
+ dicomrt_fitdm2CT(cell_case_study,ct_matrix,ct_xmesh,ct_ymesh,ct_zmesh,rtdose_xmesh,rtdose_ymesh,rtdose_zmesh,,voi2use)
+
+ Fit CT data to 3D dose matrix.
+
+ cell_case_study is the rtplan dataset
+ ct_matrix is the CT dataset
+ ct_xmesh,ct_ymesh,ct_zmesh are the coordinates of the center of the ct-pixel
+ rtdose_xmesh,rtdose_ymesh,rtdose_zmesh coordinates of the center of the dose-pixel
+ VOI is a cell array which contain the volumes of interest (OPTIONAL). 
+ voi2use is an OPTIONAL vector pointing to the number of VOIs to be displayed 
+         voi2use defaults to 1 if not given or if set to 0
+
+ See also dicomrt_loaddose, dicomrt_loadct, dicomrt_fitCT2dm
+
+ Copyright (C) 2002 Emiliano Spezi (emiliano.spezi@physics.org) 
+</pre>
+<HR><H3>Cross-Reference Information</H3>This function calls
+<pre><UL>
+<LI><A HREF = "../system/dicomrt_build2dgrid.html">dicomrt_build2dgrid</A>./dicomrt-toolbox/system/dicomrt_build2dgrid.m</LI>
+<LI><A HREF = "../system/dicomrt_checkinput.html">dicomrt_checkinput</A>./dicomrt-toolbox/system/dicomrt_checkinput.m</LI>
+<LI><A HREF = "../system/dicomrt_mask.html">dicomrt_mask</A>   ./dicomrt-toolbox/system/dicomrt_mask.m</LI>
+<LI><A HREF = "../system/dicomrt_restorevarformat.html">dicomrt_restorevarformat</A>./dicomrt-toolbox/system/dicomrt_restorevarformat.m</LI>
+<LI><A HREF = "../system/dicomrt_varfilter.html">dicomrt_varfilter</A>./dicomrt-toolbox/system/dicomrt_varfilter.m</LI>
+</UL></pre>
+<HR>
+Produced by <A HREF="http://www.mathworks.com/support/ftp/toolsv4.shtml">mat2html</A> on Mon Oct 20 15:21:43 2003
+<BR>
+Cross-Directory links are: OFF<BR>
+</BODY>

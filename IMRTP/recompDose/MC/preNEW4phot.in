@@ -1,0 +1,19 @@
+HEADER section:  Input file for PREDPM, 2001-04-23
+File prefix Title (12 characters max):
+pre4phot
+[Emin_ph,Emin,Emax] (eV): energy interval in which data is to be generated:
+ 49.e3 199.e3 21.e6
+Wcc & Wcb (eV), cutoffs energies for collision and bremsstrahlung respectively:
+ 200.e3 50.e3
+Step length parameters shigh(cm),slow(cm),ecross(eV):
+ 1.0  0.5   5.0e6
+No of materials in this file:
+ 4
+Names of materials:
+DryAir
+ICRPlung
+ICRUtissue
+ICRPcortical_bone
+
+*** End of file *****************************************************
+

@@ -1,0 +1,61 @@
+# User defined command_file for plastimatch registration
+
+# User defined command_file for plastimatch registration
+
+#  STEP 1: Align Center
+#[STAGE]
+# xform=align_center
+
+[STAGE]
+xform=translation
+impl=plastimatch
+gridsearch_min_overlap=0.8 0.8 0.8
+res=8 8 4
+num_substages=2
+ 
+# STEP 2: 6-dof (rigid) registration
+[STAGE]
+xform=rigid
+optim=versor
+max_its=100
+metric=mse
+res=4 4 2
+
+# STEP 3: Registration using masks for lesions and bones
+[STAGE]
+impl = plastimatch
+metric=mse
+#threading = cuda
+xform=bspline
+res=4 4 2
+max_its=100
+grid_spac=70 70 70
+regularization_lambda=0.1
+background_max= 10
+
+# STEP 4: Refinement
+[STAGE]
+impl = plastimatch
+metric=mse
+#threading = cuda
+xform=bspline
+res=2 2 1
+max_its=100
+grid_spac=40 40 40
+regularization_lambda=0.05
+background_max= 10
+
+
+# STEP 5: Refinement
+[STAGE]
+impl = plastimatch
+metric=mse
+#threading = cuda
+xform=bspline
+res=1 1 1
+max_its=20
+grid_spac=20 20 20
+regularization_lambda=0.05
+background_max= 10
+
+

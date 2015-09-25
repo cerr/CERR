@@ -1,0 +1,44 @@
+<TITLE>/</TITLE>
+<BODY>
+<A HREF = "index.html">[Index for ./dicomrt-toolbox/system]</A>
+<A HREF = "../index.html">[Return to Master Index]</A>
+<H1>dicomrt_findslice</H1>
+<H2>(./dicomrt-toolbox/system/dicomrt_findslice.m)</H2>
+<HR><H3>Function Synopsis</H3>
+<pre>[slice_number]=dicomrt_findslice(VOI,voilookup,slice,voi2use);</pre>
+<HR><H3>Help text</H3>
+<pre>
+ dicomrt_findslice(VOI,voilookup,slice,voi2use);
+
+ Find the location of a VOI contour among different VOIs.
+
+ VOI contains the volumes of interests
+ voilookup is the voi of reference
+ slice is the slice number (defined in voilookup)
+ voi2use is the voi where to search for slice
+
+ Example:
+
+ [num]=dicomrt_findslice(A,outline,5,target);
+
+ returns in num the slice number in target which correspond to slice &quot;5&quot; in outline.
+
+ See also dicomrt_findsliceVECT, dicomrt_loadvoi
+
+ Copyright (C) 2002 Emiliano Spezi (emiliano.spezi@physics.org) 
+</pre>
+<HR><H3>Cross-Reference Information</H3>This function calls
+<pre><UL>
+<LI><A HREF = "../system/dicomrt_checkinput.html">dicomrt_checkinput</A>./dicomrt-toolbox/system/dicomrt_checkinput.m</LI>
+<LI><A HREF = "../system/dicomrt_varfilter.html">dicomrt_varfilter</A>./dicomrt-toolbox/system/dicomrt_varfilter.m</LI>
+</UL></pre>
+This function is called by
+<pre><UL>
+<LI><A HREF = "../system/dicomrt_voiboundariesZ.html">dicomrt_voiboundariesZ</A>./dicomrt-toolbox/system/dicomrt_voiboundariesZ.m</LI>
+<LI><A HREF = "../system/dicomrt_voilimits.html">dicomrt_voilimits</A>./dicomrt-toolbox/system/dicomrt_voilimits.m</LI>
+</UL></pre>
+<HR>
+Produced by <A HREF="http://www.mathworks.com/support/ftp/toolsv4.shtml">mat2html</A> on Mon Oct 20 15:21:43 2003
+<BR>
+Cross-Directory links are: OFF<BR>
+</BODY>

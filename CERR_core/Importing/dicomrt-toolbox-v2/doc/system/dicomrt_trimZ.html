@@ -1,0 +1,52 @@
+<TITLE>/</TITLE>
+<BODY>
+<A HREF = "index.html">[Index for ./dicomrt-toolbox/system]</A>
+<A HREF = "../index.html">[Return to Master Index]</A>
+<H1>dicomrt_trimZ</H1>
+<H2>(./dicomrt-toolbox/system/dicomrt_trimZ.m)</H2>
+<HR><H3>Function Synopsis</H3>
+<pre>[mask,xmesh_new,ymesh_new] = dicomrt_trimZ(slice,voiref,inpmatrix,dose_xmesh,dose_ymesh,voi,voiselect)</pre>
+<HR><H3>Help text</H3>
+<pre>
+ dicomrt_trimZ(slice,voiref,inpmatrix,dose_xmesh,dose_ymesh,voi,voiselect)
+
+ Trim a matrix to min and max boundaries in the selected voi along X and Y.
+ 
+ slice is the number of the section (relative to voiref) to be trimmed.
+   Slice is used to locate the matrix along Z and to match matrix with the corresponding contour in voiselect.
+ inpmatrix is a 2D matrix.
+ dose_xmesh, dose_ymesh, are the coordinates of the center of the pixel for eval and ref.
+ voi and voiselect are the vois' cell array and the # of the voi to be used for the gamma calculation respectively.
+   They have to be specified together. Both matrices will be masked and reduced in size accordingly with the selected
+   voi's dimensions. 
+
+ NOTE: Use <A HREF = "../system/dicomrt_mask.html">dicomrt_mask</A> if you want to zeroes all the voxel data outside the voi of interest, without altering the 
+       dimensions of the dose matrix.
+       This function leave unchanged matrix values outside the voi of interest: no mask is performed.
+       This functions changes the X, and Y dimensions of the input matrix to fit as close as possible 
+       to the max and min contour position in x and y direction.
+
+ Example:
+ 
+ [trimdose,new_xmesh,new_ymesh]=dicomrt_trimZ(15,1,dose(:,:,15),dose_xmesh,dose_ymesh,VOI,4);
+
+ calculates the position of the maximum and minimum contour for VOI number 4 in x and y and cut from &quot;dose&quot; all
+ the voxels positioned outside these boundaries. Returns the new matrix in trimdose, and the new xmesh, ymesh
+ in new_xmesh and new_ymesh. Here slice number 15 is defined in voiref 1. 
+
+ See also dicomrt_loadmcdose, dicomrt_dosediff
+
+ Copyright (C) 2002 Emiliano Spezi (emiliano.spezi@physics.org) 
+</pre>
+<HR><H3>Cross-Reference Information</H3>This function calls
+<pre><UL>
+<LI><A HREF = "../system/dicomrt_checkinput.html">dicomrt_checkinput</A>./dicomrt-toolbox/system/dicomrt_checkinput.m</LI>
+<LI><A HREF = "../system/dicomrt_restorevarformat.html">dicomrt_restorevarformat</A>./dicomrt-toolbox/system/dicomrt_restorevarformat.m</LI>
+<LI><A HREF = "../system/dicomrt_varfilter.html">dicomrt_varfilter</A>./dicomrt-toolbox/system/dicomrt_varfilter.m</LI>
+<LI><A HREF = "../system/dicomrt_voiboundariesZ.html">dicomrt_voiboundariesZ</A>./dicomrt-toolbox/system/dicomrt_voiboundariesZ.m</LI>
+</UL></pre>
+<HR>
+Produced by <A HREF="http://www.mathworks.com/support/ftp/toolsv4.shtml">mat2html</A> on Mon Oct 20 15:21:43 2003
+<BR>
+Cross-Directory links are: OFF<BR>
+</BODY>

@@ -1,0 +1,44 @@
+<TITLE>/</TITLE>
+<BODY>
+<A HREF = "index.html">[Index for ./dicomrt-toolbox/mctp/plan]</A>
+<A HREF = "../index.html">[Return to Master Index]</A>
+<H1>dicomrt_createwphantom</H1>
+<H2>(./dicomrt-toolbox/mctp/plan/dicomrt_createwphantom.m)</H2>
+<HR><H3>Function Synopsis</H3>
+<pre>[ctmediumphantom,ctdensityphantom] = dicomrt_createwphantom(cell_case_study,rtdose_xmesh,rtdose_ymesh,rtdose_zmesh,int)</pre>
+<HR><H3>Help text</H3>
+<pre>
+ dicomrt_createwphantom(cell_case_study,rtdose_xmesh,rtdose_ymesh,rtdose_zmesh,int)
+
+ Create a water phantom for BEAM/DOSXYZ simulation
+
+ cell_case_study is the radiotherapy plan dataset in the DICOM-RT Toolbox format
+ dose_xmesh,dose_ymesh,dose_zmesh are obtained using dicomrt_loaddose
+ the water phantom is built using the same matrix of the dose matrix
+ user is prompted for filename input
+
+ cell_case_study is a simple cell array with the following structure:
+
+  ------------------------
+  | [ rtplan structure ] |
+  | ----------------------
+  | [ 3D dose matrix   ] |
+  | ---------------------
+  | [ voxel dimension  ] |
+  ------------------------
+
+ cell_case_study is needed to determine Patient Position to export ctphantom
+
+ Int is interactive option. If int ~=1 or if int is not given session is not interactive
+ and default parameters (e.g. directories names) will be used. If int = 1 the user will 
+ be asked to set some parameters.
+
+ See also dicomrt_loaddose, <A HREF = "../plan/dicomrt_ctcreate.html">dicomrt_ctcreate</A>
+
+ Copyright (C) 2002 Emiliano Spezi (emiliano.spezi@physics.org) 
+</pre>
+<HR>
+Produced by <A HREF="http://www.mathworks.com/support/ftp/toolsv4.shtml">mat2html</A> on Mon Oct 20 15:21:43 2003
+<BR>
+Cross-Directory links are: OFF<BR>
+</BODY>

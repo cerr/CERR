@@ -1,0 +1,36 @@
+<TITLE>/</TITLE>
+<BODY>
+<A HREF = "index.html">[Index for ./dicomrt-toolbox/display]</A>
+<A HREF = "../index.html">[Return to Master Index]</A>
+<H1>dicomrt_plotgammamap2dvol</H1>
+<H2>(./dicomrt-toolbox/display/dicomrt_plotgammamap2dvol.m)</H2>
+<HR><H3>Function Synopsis</H3>
+<pre>dicomrt_plotgammamap2dvol(gamma,gamma_xmesh,gamma_ymesh,gamma_zmesh,ct,ct_xmesh,ct_ymesh,ct_zmesh,VOI,voi2use)</pre>
+<HR><H3>Help text</H3>
+<pre>
+ dicomrt_plotgammamap2dvol(gamma,gamma_xmesh,gamma_ymesh,gamma_zmesh,ct,ct_xmesh,ct_ymesh,ct_zmesh,VOI,voi2use)
+
+ Plot gamma maps.
+ 
+ gamma is the ganmma matrix
+ gamma_xmesh,gamma_ymesh,gamma_zmesh are x-y-z coordinates of the center of the gamma-pixel 
+ ct is the 3D CT dataset (OPTIONAL)
+ ct_xmesh, ct_ymesh, ct_zmesh are the coordinates of the ct voxels (OPTIONAL)
+ VOI is an OPTIONAL cell array which contain the patients VOIs as read by dicomrt_loadVOI
+ voi2use is an OPTIONAL number pointing to the number of VOIs to be displayed
+
+ Example:
+
+ dicomrt_plotgammamap2dvol(gamma2dvol,xmesh,ymesh,zmesh,demo1_ct,ct_xmesh,ct_ymesh,ct_zmesh,demo1_voi,9);
+
+ plot the gamma map in gamma2dvol on top of a ct slice and with contour of VOI 9.
+
+ See also dicomrt_GAMMAcal2D, dicomrt_GAMMAcal2DVol, <A HREF = "../display/dicomrt_rendervoi.html">dicomrt_rendervoi</A>
+
+ Copyright (C) 2002 Emiliano Spezi (emiliano.spezi@physics.org) 
+</pre>
+<HR>
+Produced by <A HREF="http://www.mathworks.com/support/ftp/toolsv4.shtml">mat2html</A> on Mon Oct 20 15:21:43 2003
+<BR>
+Cross-Directory links are: OFF<BR>
+</BODY>

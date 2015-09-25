@@ -1,0 +1,38 @@
+<TITLE>/</TITLE>
+<BODY>
+<A HREF = "index.html">[Index for ./dicomrt-toolbox/display]</A>
+<A HREF = "../index.html">[Return to Master Index]</A>
+<H1>dicomrt_displaymatrix</H1>
+<H2>(./dicomrt-toolbox/display/dicomrt_displaymatrix.m)</H2>
+<HR><H3>Function Synopsis</H3>
+<pre>[displaymatrix] = dicomrt_displaymatrix(matrix,xmesh,ymesh,zmesh,axis,slice,VOI,voi2use)</pre>
+<HR><H3>Help text</H3>
+<pre>
+ dicomrt_displaymatrix(matrix,xmesh,ymesh,zmesh,axis,slice,VOI,voi2use)
+
+ Display a matrix slice on the X, Y or Z plane. VOIs can be overlayed.
+
+ matrix contains the 3D dose distribution
+ xmesh,ymesh,zmesh are x-y-z coordinates of the center of the matrix voxels
+ axis is a character (X Y or Z) and refers to the axis used for the slice display
+ Slice is the slice number to be displayed
+ VOI is an OPTIONAL cell array which contain the patients VOIs as read by dicomrt_loadVOI
+ voi2plot is an OPTIONAL vector pointing to the number of VOIs to be displayed
+
+ Example:
+
+ dicomrt_displaymatrix(demo2_ct,ct_xmesh,ct_ymesh,ct_zmesh,'z',26,demo2_voi,[1 11 10]);
+
+ display slice 26 of demo2_ct along the z axis and overlays VOIs 1 11 and 10.
+
+ Copyright (C) 2002 Emiliano Spezi (emiliano.spezi@physics.org) 
+</pre>
+<HR><H3>Cross-Reference Information</H3>This function calls
+<pre><UL>
+<LI><A HREF = "../display/dicomrt_overlayvoi.html">dicomrt_overlayvoi</A>./dicomrt-toolbox/display/dicomrt_overlayvoi.m</LI>
+</UL></pre>
+<HR>
+Produced by <A HREF="http://www.mathworks.com/support/ftp/toolsv4.shtml">mat2html</A> on Mon Oct 20 15:21:43 2003
+<BR>
+Cross-Directory links are: OFF<BR>
+</BODY>

@@ -1,0 +1,16 @@
+function lst=parse_image_args(lst)
+  if ~isstruct(lst),
+    %% Build jasper arguments from "varargin list"
+    lst={};
+    for arg=varargin,
+      if isnumeric(arg{1}), arg{1}=num2str(arg{1}); end
+      idx=find(arg{1}=='=');
+      if isempty(idx),
+	lst{end+1}=arg{1};
+      else
+	lst{end+1}=arg{1}(1:idx(1)-1);
+	lst{end+1}=arg{1}(idx(1)+1:end);
+      end
+    end
+    lst=struct(lst);
+  end

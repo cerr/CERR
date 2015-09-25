@@ -1,0 +1,9 @@
+function pgxread(filename)
+  f=fopen(filename,'r','b');
+  si=size(IM);
+  str=fgetl(f);
+  [args]=sscanf(str,'%s %s %s %d %d %d');
+  si=args(end-1:end);
+  fread(f,si,'uint16=>uint16');
+  fclose(f);
+  return;

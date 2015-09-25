@@ -1,0 +1,34 @@
+<TITLE>/</TITLE>
+<BODY>
+<A HREF = "index.html">[Index for ./dicomrt-toolbox/display]</A>
+<A HREF = "../index.html">[Return to Master Index]</A>
+<H1>dicomrt_plotVOI</H1>
+<H2>(./dicomrt-toolbox/display/dicomrt_plotVOI.m)</H2>
+<HR><H3>Function Synopsis</H3>
+<pre>[contour] = dicomrt_plotVOI(dir,slice,VOI,voi2use,xmesh,ymesh,zmesh,PatientPosition)</pre>
+<HR><H3>Help text</H3>
+<pre>
+ dicomrt_plorVOI(dir,slice,VOI,voi2use,xmesh,ymesh,zmesh,PatientPosition)
+
+ Plot VOIs in X and Y plane. 
+
+ dir is the direction (=1 -&gt; x, =2 -&gt; y, =3 -&gt; z)
+ slice is the slice number to plot the contour for
+ VOI is a cell array which contain the patients VOIs. 
+ voi2use is a vector pointing to the number of VOIs to be displayed
+
+ Differs from <A HREF = "../display/dicomrt_overlayvoi.html">dicomrt_overlayvoi</A> as voi section to plot is not searched.
+
+ See also dicomrt_findsliceVECT, <A HREF = "../display/dicomrt_displaycontour.html">dicomrt_displaycontour</A>, dicomrt_loadvoi, <A HREF = "../display/dicomrt_rendervoi.html">dicomrt_rendervoi</A>
+
+ Copyright (C) 2002 Emiliano Spezi (emiliano.spezi@physics.org) 
+</pre>
+<HR><H3>Cross-Reference Information</H3>This function is called by
+<pre><UL>
+<LI><A HREF = "../display/dicomrt_displaycontour.html">dicomrt_displaycontour</A>./dicomrt-toolbox/display/dicomrt_displaycontour.m</LI>
+</UL></pre>
+<HR>
+Produced by <A HREF="http://www.mathworks.com/support/ftp/toolsv4.shtml">mat2html</A> on Mon Oct 20 15:21:43 2003
+<BR>
+Cross-Directory links are: OFF<BR>
+</BODY>
