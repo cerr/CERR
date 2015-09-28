@@ -27,7 +27,7 @@ function doseNum = getScanAssociatedDose(scanNum,opt,planC)
 % along with CERR.  If not, see <http://www.gnu.org/licenses/>.
 
 
-if ~exist('planC')
+if ~exist('planC','var')
     global planC
 end
 indexS = planC{end};
@@ -41,7 +41,7 @@ for i=1:length(planC{indexS.dose})
     end
 end
 
-if exist('opt') && strcmpi(opt,'all')
+if exist('opt','var') && strcmpi(opt,'all')
     return;
 elseif ~isempty(doseNum)
     doseNum = doseNum(1);
