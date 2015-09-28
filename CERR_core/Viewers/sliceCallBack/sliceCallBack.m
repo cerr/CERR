@@ -95,7 +95,7 @@ end
 switch upper(instr)
     %Init sliceCallBack Gui.  MUST BE RUN FIRST.
     case 'INIT'
-        if ~isempty(planC) & exist('hCSV') & ishandle(hCSV)
+        if ~isempty(planC) && exist('hCSV','var') && ishandle(hCSV)
             figure(hCSV);
             return;
         end
@@ -2092,8 +2092,8 @@ switch upper(instr)
         minScanVal = stateS.scanStats.minScanVal.(scanUID);
         maxScanVal = stateS.scanStats.maxScanVal.(scanUID);
         dMov = maxScanVal - minScanVal;
-        stateS.optS.CTLevel = stateS.optS.CTLevel + pointDiff(2)*dMov*0.125/100*percentMov(2);        
-        stateS.optS.CTWidth = stateS.optS.CTWidth + pointDiff(1)*dMov*0.0625/100*percentMov(1); 
+        stateS.optS.CTLevel = stateS.optS.CTLevel + pointDiff(2)*dMov*1.0/100*percentMov(2);        
+        stateS.optS.CTWidth = stateS.optS.CTWidth + pointDiff(1)*dMov*0.5/100*percentMov(1); 
         stateS.optS.CTLevel = (stateS.optS.CTLevel);
         stateS.optS.CTWidth = max([1 (stateS.optS.CTWidth)]);
         set(stateS.handle.CTLevel,'String',stateS.optS.CTLevel)
@@ -2276,8 +2276,8 @@ switch upper(instr)
         for i=1:length(axesToDraw);
             % patch([cP(1,1)-delta cP(1,1)+delta cP(1,1)+delta cP(1,1)-delta cP(1,1)-delta], [cP(2,2)-delta cP(2,2)-delta cP(2,2)+delta cP(2,2)+delta cP(2,2)-delta], [0 1 0], 'tag', 'spotlight', 'userdata', hAxis, 'eraseMode', 'xor', 'parent', axesToDraw(i), 'edgeColor', 'none', 'faceColor', [0 1 0], 'faceAlpha', 0.5, 'hittest', 'off');
             patch(xV, yV, [0 1 0], 'tag', 'spotlight_patch', 'userdata', hAxis, 'parent', axesToDraw(i), 'edgeColor', 'none', 'faceColor', [1 1 0], 'faceAlpha', 0.9, 'hittest', 'off');
-            line([cP(1,1)-cross_hair_delta cP(1,1)+cross_hair_delta], [cP(2,2) cP(2,2)], 'tag', 'spotlight_xcrosshair', 'userdata', hAxis, 'eraseMode', 'xor', 'parent', axesToDraw(i),  'color', [1 1 0], 'hittest', 'off','linewidth',1);
-            line([cP(1,1) cP(1,1)], [cP(2,2)-cross_hair_delta cP(2,2)+cross_hair_delta], 'tag', 'spotlight_ycrosshair', 'userdata', hAxis, 'eraseMode', 'xor', 'parent', axesToDraw(i),  'color', [1 1 0], 'hittest', 'off','linewidth',1);
+            line([cP(1,1)-cross_hair_delta cP(1,1)+cross_hair_delta], [cP(2,2) cP(2,2)], 'tag', 'spotlight_xcrosshair', 'userdata', hAxis, 'eraseMode', 'xor', 'parent', axesToDraw(i),  'color', [1 1 0], 'hittest', 'off','linewidth',3);
+            line([cP(1,1) cP(1,1)], [cP(2,2)-cross_hair_delta cP(2,2)+cross_hair_delta], 'tag', 'spotlight_ycrosshair', 'userdata', hAxis, 'eraseMode', 'xor', 'parent', axesToDraw(i),  'color', [1 1 0], 'hittest', 'off','linewidth',3);
             line(cP(1,1), cP(2,2), 'tag', 'spotlight_trail', 'userdata', hAxis, 'parent', axesToDraw(i),  'color', [1 0.4 0.2], 'hittest', 'off','linewidth',3);
         end
         return;
