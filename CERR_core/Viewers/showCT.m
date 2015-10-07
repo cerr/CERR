@@ -344,5 +344,5 @@ end
 if nargout > 0
     varargout{1} = hImage;
 else
-    varargout = [];
+    varargout = {};
 end
