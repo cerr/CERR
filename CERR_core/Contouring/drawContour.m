@@ -713,7 +713,7 @@ if ~isempty(contourV)
     for i = 1:length(contourV)
         segment = contourV{i};
         if ~isempty(segment)
-            hContour = [hContour, line(segment(:,1), segment(:,2), 'color', 'blue', 'linewidth', 1.5, 'hittest', 'off', 'erasemode', 'normal', 'userdata', i, 'ButtonDownFcn', 'drawContour(''contourClicked'')', 'parent', hAxis)];
+            hContour = [hContour, line(segment(:,1), segment(:,2), 'color', 'blue', 'linewidth', 1.5, 'hittest', 'off', 'userdata', i, 'ButtonDownFcn', 'drawContour(''contourClicked'')', 'parent', hAxis)];
         end
     end
     setappdata(hAxis, 'hContour', hContour);
@@ -753,10 +753,10 @@ hSegment = [];
 
 segment = getappdata(hAxis, 'segment');
 if ~isempty(segment) & strcmpi(mode, 'drawing')
-    hSegment = line(segment(:,1), segment(:,2), 'color', 'red', 'hittest', 'off', 'erasemode', 'none', 'parent', hAxis, 'ButtonDownFcn', 'drawContour(''contourClicked'')');
+    hSegment = line(segment(:,1), segment(:,2), 'color', 'red', 'hittest', 'off', 'parent', hAxis, 'ButtonDownFcn', 'drawContour(''contourClicked'')');
     setappdata(hAxis, 'hSegment', hSegment);
 elseif ~isempty(segment)
-    hSegment = line(segment(:,1), segment(:,2), 'color', 'red', 'hittest', 'on', 'erasemode', 'normal', 'parent', hAxis, 'ButtonDownFcn', 'drawContour(''contourClicked'')');
+    hSegment = line(segment(:,1), segment(:,2), 'color', 'red', 'hittest', 'on', 'parent', hAxis, 'ButtonDownFcn', 'drawContour(''contourClicked'')');
     setappdata(hAxis, 'hSegment', hSegment);
 else
     setappdata(hAxis, 'hSegment', []);
@@ -772,11 +772,11 @@ end
 hClip = [];
 
 clip = getappdata(hAxis, 'clip');
-if ~isempty(clip) & strcmpi(mode, 'editing')
-    hClip = line(clip(:,1), clip(:,2), 'color', 'red', 'hittest', 'off', 'erasemode', 'none', 'parent', hAxis);
+if ~isempty(clip) && strcmpi(mode, 'editing')
+    hClip = line(clip(:,1), clip(:,2), 'color', 'red', 'hittest', 'off', 'parent', hAxis);
     setappdata(hAxis, 'hClip', hClip);
 elseif ~isempty(clip)
-    hClip = line(clip(:,1), clip(:,2), 'color', 'red', 'hittest', 'off', 'erasemode', 'normal', 'parent', hAxis);
+    hClip = line(clip(:,1), clip(:,2), 'color', 'red', 'hittest', 'off', 'parent', hAxis);
     setappdata(hAxis, 'hClip', hClip);
 else
     setappdata(hAxis, 'hClip', []);

@@ -1397,6 +1397,7 @@ switch upper(command)
             hBeamLine = findobj('tag','beamLine');
             delete(hBeamLine)            
             delete(h);
+            stateS.handle.IMRTMenuFig = [];
         end
 
     case 'LOADIM'

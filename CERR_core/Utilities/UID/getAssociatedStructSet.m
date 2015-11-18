@@ -9,7 +9,7 @@ function structSet = getAssociatedStructSet(uid,planC)
 % institutional review board-approved protocols.  Commercial users can 
 % request a license.  Contact Joe Deasy for more information 
 % (radonc.wustl.edu@jdeasy, reversed).
-if ~exist('planC')
+if ~exist('planC','var')
     global planC
 end
 indexS = planC{end};

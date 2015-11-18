@@ -52,7 +52,9 @@ switch command
         else
             scanSet = varargin{1};
         end
-        axisInfo = get(hAxis, 'userdata');
+        %axisInfo = get(hAxis, 'userdata');
+        axInd = hAxis == stateS.handle.CERRAxis;
+        axisInfo = stateS.handle.aI(axInd);
         setappdata(hAxis, 'prevScanset', axisInfo.scanSets);
         setappdata(hAxis, 'prevScanSelectMode', axisInfo.scanSelectMode);
         setappdata(hAxis, 'prevDoseset', axisInfo.doseSets);
@@ -85,7 +87,8 @@ switch command
         axisInfo.scanSelectMode = 'manual';
         axisInfo.doseSets      = [];
         axisInfo.doseSelectMode = 'manual';
-        set(hAxis, 'userdata', axisInfo);
+        %set(hAxis, 'userdata', axisInfo);
+        stateS.handle.aI(axInd) = axisInfo;
         numStructs = length(planC{indexS.structures});
         numSlices  = size(getScanArray(planC{indexS.scan}(scanSet)), 3);
         setappdata(hAxis, 'ccContours', cell(numStructs, numSlices));
@@ -312,7 +315,9 @@ switch command
         prevDoseSelectMode = getappdata(hAxis, 'prevDoseSelectMode');
         
         
-        axisInfo                = get(hAxis, 'userdata');
+        %axisInfo                = get(hAxis, 'userdata');
+        axInd = hAxis == stateS.handle.CERRAxis;
+        axisInfo = stateS.handle.aI(axInd);
         axisInfo.scanSets       = prevScanset;
         axisInfo.scanSelectMode = prevScanSelectMode;
         if isempty(prevDoseset)
@@ -324,7 +329,8 @@ switch command
         
         axisInfo.structureSets = getStructureSetAssociatedScan(prevScanset);
         
-        set(hAxis, 'userdata', axisInfo);
+        %set(hAxis, 'userdata', axisInfo);
+        stateS.handle.aI(axInd) = axisInfo;
         
         for i=1:length(stateS.handle.CERRAxis)
             updateAxisRange(stateS.handle.CERRAxis(i),1,'contour');
@@ -371,7 +377,10 @@ switch command
         prevDoseset = getappdata(hAxis, 'prevDoseset');
         prevDoseSelectMode = getappdata(hAxis, 'prevDoseSelectMode');
         
-        axisInfo                = get(hAxis, 'userdata');
+        %axisInfo                = get(hAxis, 'userdata');
+        axInd = hAxis == stateS.handle.CERRAxis;
+        axisInfo = stateS.handle.aI(axInd);
+
         axisInfo.scanSets       = prevScanset;
         axisInfo.scanSelectMode = prevScanSelectMode;
         
@@ -384,8 +393,9 @@ switch command
         
         axisInfo.structureSets = getStructureSetAssociatedScan(prevScanset);
         
-        set(hAxis, 'userdata', axisInfo);
-        
+        %set(hAxis, 'userdata', axisInfo);
+        stateS.handle.aI(axInd) = axisInfo;
+
         for i=1:length(stateS.handle.CERRAxis)
             updateAxisRange(stateS.handle.CERRAxis(i),1,'CONTOUR');
         end

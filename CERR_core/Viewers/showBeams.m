@@ -48,9 +48,15 @@ IMDosimetryS = ud.IM;
 %set(hAxis, 'nextplot', 'add');
 
 %Delete the already existing beamLines
-beamLineH = findobj(hAxis,'tag','beamLine');
-if ~isempty(beamLineH)
-    delete(beamLineH)
+%beamLineH = findobj(hAxis,'tag','beamLine');
+if ~isempty(stateS.handle.beamLine)
+    axV = get(stateS.handle.beamLine,'parent');
+    if iscell(axV)
+        axV = [axV{:}];
+    end
+    indDelV = axV == hAxis;
+    delete(stateS.handle.beamLine(indDelV))
+    stateS.handle.beamLine(indDelV) = [];
 end
 
 %Set dim or return if not a scan view.
@@ -77,7 +83,8 @@ for i = 1:length(ud.IM.beams)
             %Get the intersection of beam and orthogonal plane
             slicedBeam = calculateBeamIntersect([ud.IM.beams(i).x ud.IM.beams(i).y ud.IM.beams(i).z], rotatedPolygon, dim, coord);
             for j=1:length(slicedBeam)
-                plot(slicedBeam{j}(1,:),slicedBeam{j}(2,:),'color','y','parent',hAxis,'tag','beamLine')
+                stateS.handle.beamLine = [stateS.handle.beamLine; ...
+                    plot(slicedBeam{j}(1,:),slicedBeam{j}(2,:),'color','y','parent',hAxis,'tag','beamLine')];
             end
         end
     end

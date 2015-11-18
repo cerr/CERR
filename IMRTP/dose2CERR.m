@@ -65,8 +65,13 @@ end
 % [headerInitS, commentInitS, scanInitS, structureInitS, beamGeometryInitS, beamsInitS, digitalFilmInitS, doseInitS, ...
 %            DVHInitS, seedGeometryInitS, RTTreatmentInitS, importLogInitS, planInitC, garbage] = initializeCERR;
 doseInitS = initializeCERR('dose');
-
-doseInitS(1).doseArray = doseNew;
+minDose = min(doseNew(:));
+if minDose >= 0
+    doseInitS(1).doseArray = doseNew;
+else
+    doseInitS(1).doseArray = doseNew - minDose;
+    doseInitS(1).doseOffset = -minDose;
+end
 doseInitS(1).imageNumber=  '';
 doseInitS(1).imageType='DOSE';
 doseInitS(1).caseNumber=1;

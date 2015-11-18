@@ -160,7 +160,7 @@ for i=minSlice:maxSlice
             if (getappdata(hFig, 'CallbackRun') == 0)
                 return;
             end
-            hImage = image(imageM, 'erasemode', 'none', 'parent',hAxis, 'tag', 'dose_projection');
+            hImage = image(imageM, 'parent',hAxis, 'tag', 'dose_projection');
             axis(hAxis,'off')
             oldTime = clock;            
         end

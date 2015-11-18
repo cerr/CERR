@@ -1,4 +1,4 @@
-function res = PDD_Profile_res(params, doseV_obj, doseV_array,doseV_arrayFF, doseV_e, ...
+function res = PDD_Profile_res(params, doseV_obj, doseV_array,doseV_arrayFF, doseV_e)
 %
 % Copyright 2010, Joseph O. Deasy, on behalf of the CERR development team.
 % 

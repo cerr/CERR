@@ -1,4 +1,4 @@
-function varargout = getAxisInfo(hAxis, varargin);
+function varargout = getAxisInfo(hAxis, varargin)
 %"getAxisInfo"
 %   Function used to get parameters from the axisInfo userdata object for a
 %   CERR axis.  Specify a string list of the fields to extract.
@@ -43,6 +43,8 @@ function varargout = getAxisInfo(hAxis, varargin);
 % You should have received a copy of the GNU General Public License
 % along with CERR.  If not, see <http://www.gnu.org/licenses/>.
 
+global stateS
+
 %Create and init the numRecursions counter.
 persistent numRecursions;
 if isempty(numRecursions)
@@ -63,7 +65,7 @@ nArgsToProcess = length(varargin);
 if nargin == 1
     followLink      = 1;
     returnStruct    = 1;
-elseif nargin == 2 & isnumeric(varargin{end})
+elseif nargin == 2 && isnumeric(varargin{end})
     followLink      = varargin{end};
     returnStruct    = 1;
 elseif isnumeric(varargin{end})
@@ -76,7 +78,17 @@ else
 end
 
 %Get this axis' axisInfo and fieldnames.
-aI = get(hAxis, 'userdata');
+% if stateS.MLVersion < 8.4
+%     aI = get(hAxis, 'userdata');
+% else
+%     aI = hAxis.UserData;
+% end
+if ~isinteger(hAxis)
+    axInd = stateS.handle.CERRAxis == hAxis;
+else
+    axInd = hAxis;
+end
+aI = stateS.handle.aI(axInd); 
 aIFields = fieldnames(aI);
 % try
 %     aIFields = fieldnames(aI);
@@ -96,7 +108,8 @@ for i=1:nArgsToProcess
 %         error('Input to getAxisInfo must be an axisInfo fieldname.');
 %     end
     
-    oldData = getfield(aI, field_name);
+    %oldData = getfield(aI, field_name);
+    oldData = aI.(field_name);
     
     if iscell(oldData) && strcmpi(oldData{1}, 'Linked') && ishandle(oldData{2}) && followLink
         hLinkedAxis = oldData{2};

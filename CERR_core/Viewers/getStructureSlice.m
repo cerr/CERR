@@ -286,13 +286,12 @@ else %Rotation is not required, use simple linear interpolation.
     slice = round(slice);
 
     includeV = indicesM(:,uniDim) == uint16(slice);
+       
+    coord2D = uint32(indicesM(includeV,:));
     
-    coord2D = uint32(indicesM(includeV,otherDims));
-
-    coord2D(:,2) = coord2D(:,2)-1;
-
-    indV = coord2D(:,1) + coord2D(:,2) * uint32(size(sliceMatrix,1));
-
+    indV = coord2D(:,otherDims(1)) + (coord2D(:,otherDims(2))-1) * ...
+        uint32(size(sliceMatrix,1));
+    
     sliceMatrix(indV) = bitsM(includeV);
 
     slcC{1} = sliceMatrix';

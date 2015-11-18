@@ -41,9 +41,11 @@ global stateS
 indexS = planC{end};
 
 % if stateS.optS.useOpenGL
-axisInfo = get(hAxis, 'userdata');
 [view] = getAxisInfo(hAxis,'view');
-surfaces = [axisInfo.scanObj.handles];
+%axisInfo = get(hAxis, 'userdata');
+%surfaces = [axisInfo.scanObj.handles];
+axNum = stateS.handle.CERRAxis == hAxis;
+surfaces = [stateS.handle.aI(axNum).scanObj.handles];
 
 switch upper(view)
     case 'CORONAL'
@@ -93,7 +95,7 @@ if length(surfaces) < 2
     return;
 end
 
-set(hFig, 'renderer', 'opengl');
+%set(hFig, 'renderer', 'opengl');
 
 switch method
     case 'colorblend'
@@ -153,9 +155,11 @@ switch method
                     img2 = clip(img2, CTLow, CTHigh, 'limits');
                     set(gcf,'Pointer','arrow');
                 end
-                lineInfo = get(findobj(hAxis, 'tag', 'mirrorLocator'), 'userdata');
-                if ~isempty(lineInfo)
-                    mirrPos = lineInfo{3};
+                if stateS.optS.mirrorscope
+                    lineInfo = get(findobj(hAxis, 'tag', 'mirrorLocator'), 'userdata');
+                    if ~isempty(lineInfo)
+                        mirrPos = lineInfo{3};
+                    end
                 end
                 
                 if stateS.optS.blockmatch
@@ -228,9 +232,6 @@ switch method
                         imMirror(indInsideMirror) = imMirr(indInsideMirror);
                         imSc(yInd(1):yInd(ylen), xInd(1):xInd(xlen)) = imMirror;
 
-                        
-                        
-
                         set(surfaces(end-1), 'cData', imSc, 'xdata', [sliceXVals1(1) sliceXVals1(end)], 'ydata', [sliceYVals1(1) sliceYVals1(end)]);
                         set(surfaces(1:end), 'facealpha', 1);
                         set(surfaces(end), 'facealpha', 0);
@@ -242,6 +243,11 @@ switch method
                     
                 elseif stateS.optS.mirror
                     
+                    lineInfo = get(findobj(hAxis, 'tag', 'mirrorLocator'), 'userdata');
+                    if ~isempty(lineInfo)
+                        mirrPos = lineInfo{3};
+                    end
+
                     imgOv = RegdoMirror(img1, img2, mirrPos);
                     
                     xd1 = [sliceXVals1(1) sliceXVals1(end)];
@@ -343,7 +349,8 @@ switch method
             end
             
             %wy enable base image display %
-            img23D = repmat(zeros(size(img1)), [1 1 3]);
+            %img23D = repmat(zeros(size(img1)), [1 1 3]);
+            img23D = zeros([size(img1) 3]);
             ud = get(stateS.handle.controlFrame,'userdata');
             clrVal = get(ud.handles.basedisplayModeColor,'value');
             
@@ -352,74 +359,108 @@ switch method
                     img23D = img1;
 
                 case '2' %copper
-                    cmap = CERRColorMap('copper');
-
-                    img1 = (img1 - cLim(1)) / (cLim(2)-cLim(1))*(size(cmap,1)-1);
-
-                    clipImg = clip(round(img1(:)),1,size(cmap,1),'limits');
-
-                    try
-
-                        img23D = reshape(cmap(clipImg, 1:3),size(img1,1),size(img1,2),3);
-
-                    catch
-                        return
+                    if ndims(img1) > 2
+                        img23D = img1;
+                    else
+                        cmap = CERRColorMap('copper');
+                        
+                        img1 = (img1 - cLim(1)) / (cLim(2)-cLim(1))*(size(cmap,1)-1);
+                        
+                        %clipImg = clip(round(img1(:)),1,size(cmap,1),'limits');
+                        
+                        clipImg = clip(uint16(img1(:)),1,size(cmap,1),'limits');
+                        cmapV = cmap(clipImg, 1:3);
+                        
+                        
+                        imgSiz = size(img1);
+                        img23D(:,:,1) = reshape(cmapV(:,1),imgSiz);
+                        img23D(:,:,2) = reshape(cmapV(:,2),imgSiz);
+                        img23D(:,:,3) = reshape(cmapV(:,3),imgSiz);
                     end
+                    %try
+                    %    img23D = reshape(cmap(clipImg, 1:3),size(img1,1),size(img1,2),3);
+                    %catch
+                    %    return
+                    %end
 
                 case '6' %dose colormap
-                    a = CERRColorMap('star');
-                    N = length(a);
-                    pts = linspace(1,N, 255);
-                    b = interp1(1:N, a(:,1), pts);
-                    c = interp1(1:N, a(:,2), pts);
-                    d = interp1(1:N, a(:,3), pts);
-                    cmap = [b' c' d'];
-                    img1 = (img1 - cLim(1)) / (cLim(2)-cLim(1))*(size(cmap,1)-1);
-                    clipImg = clip(round(img1(:)),1,size(cmap,1),'limits');
-                    try
-                        img23D = reshape(cmap(clipImg, 1:3),size(img1,1),size(img1,2),3);
-                    catch
-                        return
+                    if ndims(img1) > 2
+                        img23D = img1;
+                    else                        
+                        a = CERRColorMap('star');
+                        N = length(a);
+                        pts = linspace(1,N, 255);
+                        b = interp1(1:N, a(:,1), pts);
+                        c = interp1(1:N, a(:,2), pts);
+                        d = interp1(1:N, a(:,3), pts);
+                        cmap = [b' c' d'];
+                        img1 = (img1 - cLim(1)) / (cLim(2)-cLim(1))*(size(cmap,1)-1);
+                        %clipImg = clip(round(img1(:)),1,size(cmap,1),'limits');
+                        clipImg = clip(uint16(img1(:)),1,size(cmap,1),'limits');
+                        cmapV = cmap(clipImg, 1:3);
+                        imgSiz = size(img1);
+                        img23D(:,:,1) = reshape(cmapV(:,1),imgSiz);
+                        img23D(:,:,2) = reshape(cmapV(:,2),imgSiz);
+                        img23D(:,:,3) = reshape(cmapV(:,3),imgSiz);
                     end
+                    %try
+                    %    img23D = reshape(cmap(clipImg, 1:3),size(img1,1),size(img1,2),3);
+                    %catch
+                    %    return
+                    %end
                     
                 case '7' %hotcold
-                    cmap = CERRColorMap('hotcold');
-
-                    img1 = (img1 - cLim(1)) / (cLim(2)-cLim(1))*(size(cmap,1)-1);
-
-                    clipImg = clip(round(img1(:)),1,size(cmap,1),'limits');
-
-                    try
-
-                        img23D = reshape(cmap(clipImg, 1:3),size(img1,1),size(img1,2),3);
-
-                    catch
-                        return
+                    if ndims(img1) > 2
+                        img23D = img1;
+                    else
+                        
+                        cmap = CERRColorMap('hotcold');
+                        
+                        img1 = (img1 - cLim(1)) / (cLim(2)-cLim(1))*(size(cmap,1)-1);
+                        
+                        %clipImg = clip(round(img1(:)),1,size(cmap,1),'limits');
+                        clipImg = clip(uint16(img1(:)),1,size(cmap,1),'limits');
+                        cmapV = cmap(clipImg, 1:3);
+                        imgSiz = size(img1);
+                        img23D(:,:,1) = reshape(cmapV(:,1),imgSiz);
+                        img23D(:,:,2) = reshape(cmapV(:,2),imgSiz);
+                        img23D(:,:,3) = reshape(cmapV(:,3),imgSiz);
+                        
+                        %try
+                        %    img23D = reshape(cmap(clipImg, 1:3),size(img1,1),size(img1,2),3);
+                        %catch
+                        %    return
+                        %end
                     end
-
+                    
                     if stateS.optS.checkerBoard
                         img23D = img23D.*repmat(I, [1 1 3]);
                     end                    
                     
 
                 otherwise % case '3'(red) case '4'(green) case '5'(blue)
-                    img1 = (img1 - cLim(1)) / (cLim(2)-cLim(1));
-                    img1 = clip(img1, 0, 1, 'limits');
-
-                    if (clrVal==3)
-                        img23D(:,:,1) = img1;
-                        img23D(:,:,2) = img1*0.66;
-                        img23D(:,:,3) = img1*0.66;
-                    end
-                    if (clrVal==4)
-                        img23D(:,:,2) = img1;
-                        img23D(:,:,1) = img1*0.66;
-                        img23D(:,:,3) = img1*0.66;
-                    end
-                    if (clrVal==5)
-                        img23D(:,:,3) = img1;
-                        img23D(:,:,2) = img1*0.66;
-                        img23D(:,:,1) = img1*0.66;
+                    if ndims(img1) > 2
+                        img23D = img1;
+                    else
+                        
+                        img1 = (img1 - cLim(1)) / (cLim(2)-cLim(1));
+                        %img1 = clip(img1, 0, 1, 'limits');
+                        
+                        if (clrVal==3)
+                            img23D(:,:,1) = img1;
+                            img23D(:,:,2) = img1*0.66;
+                            img23D(:,:,3) = img1*0.66;
+                        end
+                        if (clrVal==4)
+                            img23D(:,:,2) = img1;
+                            img23D(:,:,1) = img1*0.66;
+                            img23D(:,:,3) = img1*0.66;
+                        end
+                        if (clrVal==5)
+                            img23D(:,:,3) = img1;
+                            img23D(:,:,2) = img1*0.66;
+                            img23D(:,:,1) = img1*0.66;
+                        end
                     end
             end
             set(surfaces(end-1), 'cData', img23D);
@@ -443,13 +484,20 @@ switch method
 
                     img2 = (img2 - cLim(1)) / (cLim(2)-cLim(1))*(size(cmap,1)-1);
 
-                    clipImg = clip(round(img2(:)),1,size(cmap,1),'limits');
+                    %clipImg = clip(round(img2(:)),1,size(cmap,1),'limits');
+                    %clipImg = clip(uint16(img2(:)),1,size(cmap,1),'limits');
+                    clipImg = clip(uint16(img2(:)),1,size(cmap,1),'limits');
                     nanIndV = isnan(clipImg);
                     clipImg(nanIndV) = 1;
 
                     try
 
-                        img23D = reshape(cmap(clipImg, 1:3),size(img2,1),size(img2,2),3);                        
+                        %img23D = reshape(cmap(clipImg, 1:3),size(img2,1),size(img2,2),3);                        
+                        cmapV = cmap(clipImg, 1:3);
+                        imgSiz = size(img2);
+                        img23D(:,:,1) = reshape(cmapV(:,1),imgSiz);
+                        img23D(:,:,2) = reshape(cmapV(:,2),imgSiz);
+                        img23D(:,:,3) = reshape(cmapV(:,3),imgSiz);
 
                     catch
                         return
@@ -468,31 +516,42 @@ switch method
                     d = interp1(1:N, a(:,3), pts);
                     cmap = [b' c' d'];
                     img2 = (img2 - cLim(1)) / (cLim(2)-cLim(1))*(size(cmap,1)-1);
-                    clipImg = clip(round(img2(:)),1,size(cmap,1),'limits');
+                    %clipImg = clip(round(img2(:)),1,size(cmap,1),'limits');
+                    clipImg = clip(uint16(img2(:)),1,size(cmap,1),'limits');
                     nanIndV = isnan(clipImg);
                     clipImg(nanIndV) = 1;
-                    try
-                        img23D = reshape(cmap(clipImg, 1:3),size(img2,1),size(img2,2),3);
-                    catch
-                        return
-                    end                    
+                    cmapV = cmap(clipImg, 1:3);
+                    imgSiz = size(img2);
+                    img23D(:,:,1) = reshape(cmapV(:,1),imgSiz);
+                    img23D(:,:,2) = reshape(cmapV(:,2),imgSiz);
+                    img23D(:,:,3) = reshape(cmapV(:,3),imgSiz);
+                    
+                    %try
+                    %    img23D = reshape(cmap(clipImg, 1:3),size(img2,1),size(img2,2),3);
+                    %catch
+                    %    return
+                    %end                    
 
                 case '7' %hotcold
                     cmap = CERRColorMap('hotcold');
 
                     img2 = (img2 - cLim(1)) / (cLim(2)-cLim(1))*(size(cmap,1)-1);
 
-                    clipImg = clip(round(img2(:)),1,size(cmap,1),'limits');
+                    %clipImg = clip(round(img2(:)),1,size(cmap,1),'limits');
+                    clipImg = clip(uint16(img2(:)),1,size(cmap,1),'limits');
                     nanIndV = isnan(clipImg);
                     clipImg(nanIndV) = 1;                    
+                    cmapV = cmap(clipImg, 1:3);
+                    imgSiz = size(img2);
+                    img23D(:,:,1) = reshape(cmapV(:,1),imgSiz);
+                    img23D(:,:,2) = reshape(cmapV(:,2),imgSiz);
+                    img23D(:,:,3) = reshape(cmapV(:,3),imgSiz);
 
-                    try
-
-                        img23D = reshape(cmap(clipImg, 1:3),size(img2,1),size(img2,2),3);
-
-                    catch
-                        return
-                    end
+                    %try
+                    %    img23D = reshape(cmap(clipImg, 1:3),size(img2,1),size(img2,2),3);
+                    %catch
+                    %    return
+                    %end
 
                     if stateS.optS.checkerBoard
                         img23D = img23D.*repmat(I, [1 1 3]);

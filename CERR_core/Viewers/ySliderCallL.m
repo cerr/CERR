@@ -33,7 +33,8 @@ if isempty(ud)
 end
 ha = ud{1};
 posYall = ud{2};
-posOldY = axis(ha);
+%posOldY = axis(ha);
+posOldY = [get(ha,'xLim'), get(ha,'yLim')];
 val = get(hs,'value');
 % posYallO = posYall;
 % posYallO(1) = posYall(1) -(posOldY(4)-posOldY(3));

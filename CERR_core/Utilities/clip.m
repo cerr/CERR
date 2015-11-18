@@ -48,14 +48,14 @@ elseif valC=='delete'
   I=find([vec_inV<low_limitC]+[vec_inV>high_limitC]);
   vec_outV=vec_inV;
   vec_outV(I)=[];
-elseif valC=='limits'
+elseif strcmpi(valC,'limits')
   vec_outV = vec_inV;
-  vec_outV([vec_inV<low_limitC]) = low_limitC;
-  vec_outV([vec_inV>high_limitC]) = high_limitC;
+  vec_outV(vec_inV<low_limitC) = low_limitC;
+  vec_outV(vec_inV>high_limitC) = high_limitC;
 elseif isnumeric(valC);
   vec_outV = vec_inV;
-  vec_outV([vec_inV<low_limitC]) = valC;
-  vec_outV([vec_inV>high_limitC]) = valC;        
+  vec_outV(vec_inV<low_limitC) = valC;
+  vec_outV(vec_inV>high_limitC) = valC;        
 else
   error('valC is incorrectly set.')
 end

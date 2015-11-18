@@ -38,10 +38,13 @@ indexS = planC{end};
 
 %Extract information from axis.
 hFig            = get(hAxis, 'parent');
-axisInfo        = get(hAxis, 'userdata');
-coord        = getAxisInfo(hAxis,'coord');
-view         = getAxisInfo(hAxis,'view');
-doseSets     = getAxisInfo(hAxis,'doseSets');
+%axisInfo        = get(hAxis, 'userdata');
+axInd = stateS.handle.CERRAxis == hAxis;
+axisInfo = stateS.handle.aI(axInd);
+%coord        = axisInfo.coord;
+%view         = axisInfo.view;
+%doseSets     = axisInfo.doseSets;
+[view,coord,doseSets] = getAxisInfo(hAxis,'view','coord','doseSets');
 
 set(hAxis, 'nextplot', 'add');
 
@@ -197,32 +200,37 @@ for j=1:length(axisInfo.doseObj)
                 imageYVals = dO.yV;
 
                 dSet = dO.doseSet;
-                if isfield(planC{indexS.dose}(dSet), 'doseOffset') & ~isempty(planC{indexS.dose}(dSet).doseOffset)
+                if isfield(planC{indexS.dose}(dSet), 'doseOffset') && ~isempty(planC{indexS.dose}(dSet).doseOffset)
                     offset = planC{indexS.dose}(dSet).doseOffset;
                     doseM = doseM - offset;
                 end
 
-                %Contour command syntax requires one level to be duplicated: else it
-                %interprets this as a request for N levels to be autodetermined.
-                if length(contourLevels) == 1
-                    contourLevels = [contourLevels contourLevels];
-                end
+%                 %Contour command syntax requires one level to be duplicated: else it
+%                 %interprets this as a request for N levels to be autodetermined.
+%                 if length(contourLevels) == 1
+%                     contourLevels = [contourLevels contourLevels];
+%                 end
+% 
+%                 plotParam = getPlotInfo;
+%                 if ~isempty(plotParam)
+%                     [c, hDoseV] = contour(plotParam, hAxis, imageXVals, imageYVals, doseM, double(contourLevels), '-');
+%                 else
+%                     [c, hDoseV] = contour(hAxis,imageXVals, imageYVals, doseM, double(contourLevels), '-');
+%                 end
+%                 set(hDoseV, 'tag', 'isodoseContour', 'parent', hAxis, 'hittest', 'off');                
+%                 dO.handles = hDoseV;
 
-                plotParam = getPlotInfo;
-                if ~isempty(plotParam)
-                    [c, hDoseV] = contour(plotParam, hAxis, imageXVals, imageYVals, doseM, double(contourLevels), '-');
-                else
-                    [c, hDoseV] = contour(hAxis,imageXVals, imageYVals, doseM, double(contourLevels), '-');
-                end
-                set(hDoseV, 'tag', 'isodoseContour', 'parent', hAxis, 'hittest', 'off');                
-                dO.handles = hDoseV;
-
-                lastLevel = -1;
-                isodoseLevels = stateS.optS.isodoseLevels;
-                for i = 1 : length(hDoseV)
-                    h = hDoseV(i);
-                    level = get(h,'userdata');
-                    loc = find([level == contourLevels]);
+%                 lastLevel = -1;
+%                 isodoseLevels = stateS.optS.isodoseLevels;
+                for i = 1 : length(contourLevels)
+                    level = contourLevels(i);
+                    [c, h] = contour(hAxis,imageXVals, imageYVals, doseM, [contourLevels(i) contourLevels(i)], '-');
+                    %h = hDoseV(i);
+                    set(h, 'tag', 'isodoseContour', 'parent', hAxis, 'hittest', 'off', 'userdata',level);
+                    dO.handles(i) = h;                    
+                    %level = get(h,'userdata');
+                    %loc = find([level == contourLevels]);
+                    loc = i;
 
                     set(h,'linewidth',stateS.optS.isodoseThickness)
                     if stateS.optS.isodoseUseColormap
@@ -252,32 +260,33 @@ for j=1:length(axisInfo.doseObj)
                         set(h,'Color', getColor(loc, stateS.optS.colorOrder));
                     end
 
-                    if level ~= lastLevel
-                        if ~isfield(stateS.handle, 'isodoseLegendTrans')
-                            stateS.handle.isodoseLegendTrans = [];
-                            stateS.handle.isodoseLabelsTrans = {};
-                        end
-                        stateS.handle.isodoseLegendTrans = [stateS.handle.isodoseLegendTrans(:); h];
-                        str = num2str(level);
-
-                        if strcmpi(stateS.optS.isodoseLevelType,'percent')
-                            n = 5;
-                            percent = contourLevels(loc);
-                            if length(str) >= n
-                                str = str(1:n);
-                                str = [str ' Gy, (' num2str(percent) '%)'];
-                            else
-                                str = [str ' Gy, (' num2str(percent) '%)'];
-                            end
-                        else
-                            str = [str ' Gy'];
-                        end
-                        stateS.handle.isodoseLabelsTrans  = {stateS.handle.isodoseLabelsTrans{:}, str};
-                        lastLevel = level;
-                    end
+%                     if level ~= lastLevel
+%                         if ~isfield(stateS.handle, 'isodoseLegendTrans')
+%                             stateS.handle.isodoseLegendTrans = [];
+%                             stateS.handle.isodoseLabelsTrans = {};
+%                         end
+%                         stateS.handle.isodoseLegendTrans = [stateS.handle.isodoseLegendTrans(:); h];
+%                         str = num2str(level);
+% 
+%                         if strcmpi(stateS.optS.isodoseLevelType,'percent')
+%                             n = 5;
+%                             percent = contourLevels(loc);
+%                             if length(str) >= n
+%                                 str = str(1:n);
+%                                 str = [str ' Gy, (' num2str(percent) '%)'];
+%                             else
+%                                 str = [str ' Gy, (' num2str(percent) '%)'];
+%                             end
+%                         else
+%                             str = [str ' Gy'];
+%                         end
+%                         stateS.handle.isodoseLabelsTrans  = {stateS.handle.isodoseLabelsTrans{:}, str};
+%                         lastLevel = level;
+%                     end
                 end
                 axisInfo.doseObj(j) = dO;
-                set(hAxis, 'userdata', axisInfo);
+                %set(hAxis, 'userdata', axisInfo);
+                stateS.handle.aI(axInd) = axisInfo;
 
                 return;
 
@@ -317,7 +326,7 @@ for j=1:length(axisInfo.doseObj)
                 %Extract offset value early
                 offset = 0;
 
-                if isfield(planC{indexS.dose}, 'doseOffset') & ~isempty(planC{indexS.dose}(doseSet).doseOffset)
+                if isfield(planC{indexS.dose}, 'doseOffset') && ~isempty(planC{indexS.dose}(doseSet).doseOffset)
 
                     offset = planC{indexS.dose}(doseSet).doseOffset;
                 end
@@ -339,7 +348,7 @@ for j=1:length(axisInfo.doseObj)
 
                     [xM, yM] = meshgrid(xLim, yLim);
 
-                    zM = repmat(0,size(xM))-2;
+                    zM = zeros(size(xM))-2;
 
                     hImage = surface(xM, yM, zM, 'faceColor', 'texturemap', 'cData', cData3M, 'edgecolor', 'none', 'facealpha', alpha, 'parent', hAxis, 'tag', 'DoseImage', 'hittest', 'off');
 
@@ -373,21 +382,25 @@ for j=1:length(axisInfo.doseObj)
                             CTYVals = axisInfo.scanObj(CTImages(i)).yV;
                             
                             % Downsample CT2M to original resolution
-                            if stateS.optS.sinc_filter_on_display
-                                new_sz = [length(CTYVals), length(CTXVals)];
+                            sz = [length(CTYVals), length(CTXVals)];
+                            new_sz = size(CT2M);
+                            
+                            if stateS.optS.sinc_filter_on_display                                
                                 CT2M = updownsample(CT2M, new_sz(2),new_sz(1),0,2);
+                                CTXVals = linspace(CTXVals(1),CTXVals(end),new_sz(2));
+                                CTYVals = linspace(CTYVals(1),CTYVals(end),new_sz(1));
                             end
                             
                             [cData3M, xLim, yLim] = CERRDoseColorWash(hAxis, dose2M, doseXVals, doseYVals, offset, CT2M, CTXVals, CTYVals, scanSet);
                             
                             % Upsample based on sinc flag
-                            if stateS.optS.sinc_filter_on_display
-                                sz = size(cData3M(:,:,1));
-                                if min(sz) <= 256
-                                    new_sz = sz*4;
-                                else
-                                    new_sz = sz*2;
-                                end
+                            if stateS.optS.sinc_filter_on_display && ~all(new_sz==sz)
+                                %sz = size(cData3M(:,:,1));
+                                %if min(sz) <= 256
+                                %    new_sz = sz*4;
+                                %else
+                                %    new_sz = sz*2;
+                                %end
                                 cDataUpSampled3M(:,:,1) = updownsample(cData3M(:,:,1), new_sz(2),new_sz(1),0,2);
                                 cDataUpSampled3M(:,:,2) = updownsample(cData3M(:,:,2), new_sz(2),new_sz(1),0,2);
                                 cDataUpSampled3M(:,:,3) = updownsample(cData3M(:,:,3), new_sz(2),new_sz(1),0,2);
@@ -400,7 +413,16 @@ for j=1:length(axisInfo.doseObj)
                                 cDataUpSampled3M = cDataUpSampled3M/maxCdata;
                             end
                             
-                            hImage = image(cDataUpSampled3M, 'XData', xLim, 'YData', yLim, 'hittest', 'off', 'tag', 'DoseImage', 'parent', hAxis, 'visible', 'on');
+                            %hImage = image(cDataUpSampled3M, 'XData', xLim, 'YData', yLim, 'hittest', 'off', 'tag', 'DoseImage', 'parent', hAxis, 'visible', 'on');
+                            
+                            %%% Draw surface instead of image
+                            %[xM, yM] = meshgrid(xLim, yLim);
+                            xM = [xLim;xLim];
+                            yM = [yLim',yLim'];                            
+                            zM = [-2 -2; -2 -2];
+                            
+                            hImage = surface(xM, yM, zM, 'faceColor', 'texturemap', 'cData', cDataUpSampled3M, 'edgecolor', 'none', 'facealpha', 1,'parent', hAxis, 'tag', 'DoseImage', 'hittest', 'off');                            
+                            
                             clear cDataUpSampled3M
                             axisInfo.doseObj(j).scanBase = scanSet;
                         end
@@ -408,19 +430,20 @@ for j=1:length(axisInfo.doseObj)
                         
                         [cData3M, xLim, yLim] = CERRDoseColorWash(hAxis, dose2M, doseXVals, doseYVals,  offset, [], [], [],dim);
                         
-                        %                         if stateS.imageRegistrationBaseDataset == doseSet & strcmpi(stateS.imageRegistrationBaseDatasetType, 'dose')
-                        %                             alpha = 1;
-                        %                         else
-                        %                             alpha = stateS.doseAlphaValue.trans;
-                        %                         end
-                        %
-                        %                         [xM, yM] = meshgrid(xLim, yLim);
-                        %
-                        %                         zM = repmat(0,size(xM))-2;
+                        if stateS.imageRegistrationBaseDataset == doseSet && strcmpi(stateS.imageRegistrationBaseDatasetType, 'dose')
+                            alpha = 1;
+                        else
+                            alpha = stateS.doseAlphaValue.trans;
+                        end
+                        
+                        [xM, yM] = meshgrid(xLim, yLim);
+                        
+                        zM = repmat(0,size(xM))-2;
+                        
+                        hImage = surface(xM, yM, zM, 'faceColor', 'texturemap', 'cData', cData3M, 'edgecolor', 'none', 'facealpha', alpha, 'parent', hAxis, 'tag', 'DoseImage', 'hittest', 'off');
 
-                        hImage = image(cData3M, 'XData', xLim, 'YData', yLim, 'hittest', 'off', 'tag', 'DoseImage', 'parent', hAxis, 'visible', 'on');
+                        %hImage = image(cData3M, 'XData', xLim, 'YData', yLim, 'hittest', 'off', 'tag', 'DoseImage', 'parent', hAxis, 'visible', 'on');
 
-                        %                         hImage = surface(xM, yM, zM, 'faceColor', 'texturemap', 'cData', cData3M, 'edgecolor', 'none', 'facealpha', alpha, 'parent', hAxis, 'tag', 'DoseImage', 'hittest', 'off');
 
                         axisInfo.doseObj(j).scanBase= [];
                     end
@@ -430,4 +453,5 @@ for j=1:length(axisInfo.doseObj)
     end
 end
 
-set(hAxis, 'userdata', axisInfo);
+%set(hAxis, 'userdata', axisInfo);
+stateS.handle.aI(axInd) = axisInfo;

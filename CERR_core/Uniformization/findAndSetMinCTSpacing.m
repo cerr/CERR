@@ -1,4 +1,4 @@
-function planC = findAndSetMinCTSpacing(planC, minSpacing, maxSpacing, alternateSpacing)
+function planC = findAndSetMinCTSpacing(planC, minSpacing, maxSpacing, alternateSpacing, scanNumV)
 %"findAndSetMinCTSpacing"
 %   Finds the minimum spacing in a CT scan and records the superior and inferior slice numbers.
 %   minSpacing should be the same as optS.smallestUniformCTSliceSpacing.
@@ -49,7 +49,12 @@ accuracy = 0.001; %this value seems to work best for CT scans.  This is how much
 %get scan info
 indexS = planC{end};
 
-for scanNum = 1:length(planC{indexS.scan})
+% Get scan indices
+if ~exist('scanNumV','var')
+    scanNumV = 1:length(planC{indexS.scan});
+end
+
+for scanNum = scanNumV
     
 	thicknessV = deduceSliceWidths(planC,scanNum);
 	CERRStatusString('Using zValues to compute voxel thicknesses.')

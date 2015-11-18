@@ -126,6 +126,13 @@ if length(planC{indexS.IM})>0 && isfield(planC{indexS.IM}(1),'IMUID') && isempty
     planC = createIMuids(planC);
 end
 
+% Check visible flag for structures. Set it to 1 if it is an empty string
+for i = 1:length(planC{indexS.structures})
+    if isempty(planC{indexS.structures}(i).visible)
+        planC{indexS.structures}(i).visible = 1;
+    end
+end
+
 % Overwrite the existing CERR file if a bug is found and fixed
 if forceSaveFlag == 1 || (~isempty(stateS) && isfield(stateS.optS,'overwrite_CERR_File') && stateS.optS.overwrite_CERR_File == 1 && bug_found)
     try 

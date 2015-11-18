@@ -1,4 +1,4 @@
-function planC = setUniformizedData(planC, cerr_optS)
+function planC = setUniformizedData(planC, cerr_optS, scanNumV)
 %"setUniformizedData"
 %   Script function to create uniformized data and store it in the
 %   passed plan.  If cerr_optS is not specified, the stateS stored in the plan
@@ -36,6 +36,10 @@ indexS = planC{end};
 if ~exist('cerr_optS','var')
     cerr_optS = planC{indexS.CERROptions};
 end
+if ~exist('scanNumV','var')
+    scanNumV = 1:length(planC{indexS.scan});
+end
+
 if ~isfield(cerr_optS,'lowerLimitUniformCTSliceSpacing')
     % opt_S = CERROptions;    
     pathStr = getCERRPath;
@@ -66,11 +70,11 @@ end
 
 hBar = waitbar(0, 'Creation of uniformized CT scan and structures...');
 
-planC = findAndSetMinCTSpacing(planC, cerr_optS.lowerLimitUniformCTSliceSpacing, cerr_optS.upperLimitUniformCTSliceSpacing, cerr_optS.alternateLimitUniformCTSliceSpacing);
-planC = uniformizeScanSupInf(planC, 0, 1/2, cerr_optS, hBar);
+planC = findAndSetMinCTSpacing(planC, cerr_optS.lowerLimitUniformCTSliceSpacing, cerr_optS.upperLimitUniformCTSliceSpacing, cerr_optS.alternateLimitUniformCTSliceSpacing,scanNumV);
+planC = uniformizeScanSupInf(planC, 0, 1/2, cerr_optS, hBar, scanNumV);
 
 if length(planC{indexS.structures}) ~= 0
-    for scanNum = 1:length(planC{indexS.scan})
+    for scanNum = scanNumV
         [indicesM, structBitsM, indicesC, structBitsC] = createStructuresMatrices(planC, scanNum, 1/2, 1, cerr_optS, hBar);
         planC = storeStructuresMatrices(planC, indicesM, structBitsM, indicesC, structBitsC, scanNum);
     end

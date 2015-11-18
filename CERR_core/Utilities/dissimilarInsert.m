@@ -56,7 +56,7 @@ newNames = fieldnames(newElement);
 commonNames = intersect(structNames,newNames);
 
 %If same number of fields in both...
-if length(commonNames) == length(structNames) & length(commonNames) == length(newNames)
+if length(commonNames) == length(structNames) && length(commonNames) == length(newNames)
     differences = find(~strcmpi(structNames, newNames));
     %If no differences...
     if isempty(differences)
@@ -78,7 +78,7 @@ end
 if length(commonNames) < length(newNames)
     newFieldsForStruct = setdiff(newNames, commonNames);
     for i = 1:length(newFieldsForStruct)
-        dataStruct = setfield(dataStruct, {}, newFieldsForStruct{i}, []);
+        %dataStruct = setfield(dataStruct, {}, newFieldsForStruct{i}, []);
         for j=1:length(dataStruct)
             dataStruct = setfield(dataStruct, {j}, newFieldsForStruct{i}, nullData);
         end

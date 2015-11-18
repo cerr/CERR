@@ -20,7 +20,7 @@ indexS = planC{end};
 maskStruct3M = getUniformStr(structNum,planC);
 
 % Get uniformized scan mask in HU
-scanNum = 1;
+scanNum = getAssociatedScan(planC{indexS.structures}(structNum).assocScanUID, planC);
 maskScan3M = getUniformizedCTScan(1, scanNum, planC);
 % Convert to HU if image is of type CT
 if strcmpi(planC{indexS.scan}(scanNum).scanType, 'CT')    
