@@ -64,7 +64,7 @@ if ~exist('isUniform')
         error('maskM does not match dimension of uniform or nonuniform dataset.');
     end
 else
-    if (isUniform & ~isequal(siz, unisiz)) | (~isUniform & ~isequal(siz, normsiz))
+    if (isUniform && ~isequal(siz, unisiz)) || (~isUniform && ~isequal(siz, normsiz))
         error('maskM does not match dimension of uniform or nonuniform dataset.');
     end    
 end

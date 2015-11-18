@@ -1,12 +1,14 @@
 % gammaScanScript
+global planC
+indexS = planC{end};
 
 [newXgrid, newYgrid, newZgrid] = getScanXYZVals(planC{indexS.scan}(1));
 deltaX = abs(newXgrid(2) - newXgrid(1));
 deltaY = abs(newYgrid(2) - newYgrid(1));
 deltaZ = abs(newZgrid(2) - newZgrid(1));
-doseAgreement = 50;
-distAgreement = 0.4;
-thresholdAbsolute = 900;
+doseAgreement = 15;
+distAgreement = 0.3;
+thresholdAbsolute = 4000;
 doseArray1 = single(planC{indexS.scan}(1).scanArray);
 doseArray2 = single(planC{indexS.scan}(2).scanArray);
 gammaM = gammaDose3d(doseArray1, doseArray2, [deltaX deltaY deltaZ], doseAgreement, distAgreement, [], thresholdAbsolute);

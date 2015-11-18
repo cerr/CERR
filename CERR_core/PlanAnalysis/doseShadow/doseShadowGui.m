@@ -154,11 +154,11 @@ switch upper(varargin{1})
         ud.colorbarMinTxt = text(1.75,100,'0.00', 'fontsize', 8,'parent',ud.handles.colorbar);
 
         %Create text that indicates current dose on colormap.
-        ud.colorbarText = text(1.75,(1-(0/ud.dMax))*98+2,num2str(0,'%0.4g'), 'fontsize', 8, 'tag', 'colorbarText', 'erasemode', 'xor','parent',ud.handles.colorbar);
+        ud.colorbarText = text(1.75,(1-(0/ud.dMax))*98+2,num2str(0,'%0.4g'), 'fontsize', 8, 'tag', 'colorbarText', 'parent',ud.handles.colorbar);
         set(ud.handles.colorbar, 'NextPlot','add')
 
         %Create line that indicates current dose on colormap.
-        ud.colorbarLine = line([1 2],[double((1-(0/ud.dMax))*98+2) double((1-(0/ud.dMax))*98+2)], 'linewidth', 2, 'tag', 'colorbarLine', 'erasemode', 'xor','parent',ud.handles.colorbar);       
+        ud.colorbarLine = line([1 2],[double((1-(0/ud.dMax))*98+2) double((1-(0/ud.dMax))*98+2)], 'linewidth', 2, 'tag', 'colorbarLine','parent',ud.handles.colorbar);       
        
         set(h, 'userdata', ud);
         
@@ -355,10 +355,10 @@ switch upper(varargin{1})
                     set(hStructContourDots, 'parent', hTransverse,'visible','off');
                 end
             elseif matlab_version >= 7.5
-                [c, hStructContour] = contour(1:numCols, 1:numRows, single(structTM), [.5 .5], '-');
+                [c, hStructContour] = contour(hTransverse,1:numCols, 1:numRows, single(structTM), [.5 .5], '-');
                 set(hStructContour, 'parent', hTransverse,'visible','off');
                 if stateS.optS.structureDots
-                    [c, hStructContourDots] = contour(1:numCols, 1:numRows, single(structTM), [.5 .5], '-');
+                    [c, hStructContourDots] = contour(hTransverse,1:numCols, 1:numRows, single(structTM), [.5 .5], '-');
                     set(hStructContourDots, 'parent', hTransverse,'visible','off');
                 end
             else
@@ -393,7 +393,7 @@ switch upper(varargin{1})
             cMinJ{scanNum} = min(cMinJ{scanNum},min(jV));
             cMaxJ{scanNum} = max(cMaxJ{scanNum},max(jV));            
 
-            if matlab_version >= 7 & matlab_version < 7.5
+            if matlab_version >= 7 && matlab_version < 7.5
                 [c, hStructContour] = contour('v6', 1:numCols, 1:numSlcs, single(structCM), [.5 .5], '-');
                 set(hStructContour, 'parent', hCoronal,'visible','off');
                 if stateS.optS.structureDots
@@ -401,10 +401,10 @@ switch upper(varargin{1})
                     set(hStructContourDots, 'parent', hCoronal,'visible','off');
                 end
             elseif matlab_version >= 7.5
-                [c, hStructContour] = contour(1:numCols, 1:numSlcs, single(structCM), [.5 .5], '-');
+                [c, hStructContour] = contour(hCoronal,1:numCols, 1:numSlcs, single(structCM), [.5 .5], '-');
                 set(hStructContour, 'parent', hCoronal,'visible','off');
                 if stateS.optS.structureDots
-                    [c, hStructContourDots] = contour(1:numCols, 1:numSlcs, single(structCM), [.5 .5], '-');
+                    [c, hStructContourDots] = contour(hCoronal,1:numCols, 1:numSlcs, single(structCM), [.5 .5], '-');
                     set(hStructContourDots, 'parent', hCoronal,'visible','off');
                 end
             else
@@ -447,10 +447,10 @@ switch upper(varargin{1})
                     set(hStructContourDots, 'parent', hSagittal,'visible','off');
                 end
             elseif matlab_version >= 7.5
-                [c, hStructContour] = contour(1:numRows, 1:numSlcs, single(structSM), [.5 .5], '-');
+                [c, hStructContour] = contour(hSagittal,1:numRows, 1:numSlcs, single(structSM), [.5 .5], '-');
                 set(hStructContour, 'parent', hSagittal,'visible','off');
                 if stateS.optS.structureDots
-                    [c, hStructContourDots] = contour(1:numRows, 1:numSlcs, single(structSM), [.5 .5], '-');
+                    [c, hStructContourDots] = contour(hSagittal,1:numRows, 1:numSlcs, single(structSM), [.5 .5], '-');
                     set(hStructContourDots, 'parent', hSagittal,'visible','off');
                 end
             else
@@ -515,8 +515,9 @@ switch upper(varargin{1})
         else
             set(ud.handles.legendSlider,'max', 1, 'value',1, 'visible', 'on')
             set(ud.handles.legendSlider,'min', 1, 'max', ceil(numStructs/numStructsDisplayed), 'value',ceil(numStructs/numStructsDisplayed))
-            set(ud.handles.legendSlider,'SliderStep',[ceil(numStructs/numStructsDisplayed)-1 ceil(numStructs/numStructsDisplayed)-1])
+            set(ud.handles.legendSlider,'SliderStep',[min(1,numStructsDisplayed/numStructs) min(1,numStructsDisplayed/numStructs)])
         end
+                
         
     case 'SETAXISLIMITS'
         
@@ -679,12 +680,12 @@ switch upper(varargin{1})
     case 'SELECTSTRUCT'
         ud = get(stateS.handle.doseShadowFig, 'userdata');
         % Get structure contour handles
-        hTransSolid = cell2mat(ud.handles.hTransSolid(:));
-        hTransDots = cell2mat(ud.handles.hTransDots(:));
-        hCorSolid = cell2mat(ud.handles.hCorSolid(:));
-        hCorDots = cell2mat(ud.handles.hCorDots(:));
-        hSagSolid = cell2mat(ud.handles.hSagSolid(:));
-        hSagDots = cell2mat(ud.handles.hSagDots(:));
+        hTransSolid = [ud.handles.hTransSolid{:}]; %cell2mat(ud.handles.hTransSolid(:));
+        hTransDots = [ud.handles.hTransDots{:}]; %cell2mat(ud.handles.hTransDots(:));
+        hCorSolid = [ud.handles.hCorSolid{:}]; %cell2mat(ud.handles.hCorSolid(:));
+        hCorDots = [ud.handles.hCorDots{:}]; %cell2mat(ud.handles.hCorDots(:));
+        hSagSolid = [ud.handles.hSagSolid{:}]; %cell2mat(ud.handles.hSagSolid(:));
+        hSagDots = [ud.handles.hSagDots{:}]; %cell2mat(ud.handles.hSagDots(:));
         % Turn off all the structures
         set(hTransSolid,'visible','off')
         set(hTransDots,'visible','off')
@@ -723,7 +724,7 @@ switch upper(varargin{1})
         else
             set(ud.handles.legendSlider,'max', 1, 'value',1, 'visible', 'on')
             set(ud.handles.legendSlider,'max', ceil(numStructs/numStructsDisplayed), 'value',ceil(numStructs/numStructsDisplayed))
-            set(ud.handles.legendSlider,'SliderStep',[ceil(numStructs/numStructsDisplayed)-1 ceil(numStructs/numStructsDisplayed)-1])
+            set(ud.handles.legendSlider,'SliderStep',[min(1,numStructsDisplayed/numStructs) min(1,numStructsDisplayed/numStructs)])
         end                
         doseShadowGui('REFRESHLEGEND')
         
@@ -784,7 +785,7 @@ switch upper(varargin{1})
     case 'MOTION'
         try
             ud = get(stateS.handle.doseShadowFig, 'userdata');
-            if ud.buttondown & getappdata(stateS.handle.doseShadowFig, 'CallbackRun') ~= 1
+            if ud.buttondown && getappdata(stateS.handle.doseShadowFig, 'CallbackRun') ~= 1
                 hAxis = get(stateS.handle.doseShadowFig, 'currentaxes');
                 mousePos = get(stateS.handle.doseShadowFig, 'currentpoint');
                 [x,y] = figToAxis(hAxis, stateS.handle.doseShadowFig, mousePos);
@@ -885,7 +886,7 @@ switch upper(varargin{1})
 
         oldAxes = get(stateS.handle.doseShadowFig, 'currentaxes');
         set(stateS.handle.doseShadowFig, 'currentaxes', ud.handles.colorbar);
-        if dose ~= inf & dose ~= -inf & ~isnan(dose)
+        if dose ~= inf && dose ~= -inf && ~isnan(dose)
             set(ud.colorbarText, 'visible', 'on');
             set(ud.colorbarText, 'position', [1.75 (1-((dose+doseOffset)/doseRange))*98+2 0]);
             set(ud.colorbarText, 'String', num2str(dose,'%0.4g'));
@@ -928,14 +929,14 @@ switch upper(varargin{1})
             delete(h_dose_proj)
         end
         
-        hTransSolid = cell2mat(ud.handles.hTransSolid(:));
-        hTransDots  = cell2mat(ud.handles.hTransDots(:));
+        hTransSolid = [ud.handles.hTransSolid{:}]; %cell2mat(ud.handles.hTransSolid(:));
+        hTransDots  = [ud.handles.hTransDots{:}]; %cell2mat(ud.handles.hTransDots(:));
 
-        hCorSolid = cell2mat(ud.handles.hCorSolid(:));
-        hCorDots  = cell2mat(ud.handles.hCorDots(:));
+        hCorSolid = [ud.handles.hCorSolid{:}]; %cell2mat(ud.handles.hCorSolid(:));
+        hCorDots  = [ud.handles.hCorDots{:}]; %cell2mat(ud.handles.hCorDots(:));
 
-        hSagSolid = cell2mat(ud.handles.hSagSolid(:));
-        hSagDots  = cell2mat(ud.handles.hSagDots(:));
+        hSagSolid = [ud.handles.hSagSolid{:}]; %cell2mat(ud.handles.hSagSolid(:));
+        hSagDots  = [ud.handles.hSagDots{:}]; %cell2mat(ud.handles.hSagDots(:));
         
         mode = varargin{3};
         dose = varargin{4};
@@ -954,7 +955,7 @@ switch upper(varargin{1})
             kids = get(ud.handles.axis.upperleft,'children');
             index_struct = find(ismember(kids,[hTransSolid; hTransDots]));
             kids(index_struct) = [];
-            set(ud.handles.axis.upperleft, 'children', [hTransDots; hTransSolid;  kids]);            
+            set(ud.handles.axis.upperleft, 'children', [hTransDots(:); hTransSolid(:);  kids(:)]);            
             axis(ud.handles.axis.upperleft, 'off');
             set(ud.handles.axis.upperleft, 'tag','upperleft');
             %setLimits(ud.handles.axis.upperleft,ud.shadow.upperleft, dim1Units/dim2Units);
@@ -970,7 +971,7 @@ switch upper(varargin{1})
             kids = get(ud.handles.axis.lowerright,'children');
             index_struct = find(ismember(kids,[hSagSolid; hSagDots]));
             kids(index_struct) = [];
-            set(ud.handles.axis.lowerright, 'children', [hSagDots; hSagSolid;  kids]);            
+            set(ud.handles.axis.lowerright, 'children', [hSagDots(:); hSagSolid(:);  kids(:)]);            
             axis(ud.handles.axis.lowerright, 'off');
             set(ud.handles.axis.lowerright, 'tag','lowerright');
             %setLimits(ud.handles.axis.lowerright,ud.shadow.lowerright, dim3Units/dim2Units);
@@ -986,20 +987,20 @@ switch upper(varargin{1})
             kids = get(ud.handles.axis.lowerleft,'children');
             index_struct = find(ismember(kids,[hCorSolid; hCorDots]));
             kids(index_struct) = [];
-            set(ud.handles.axis.lowerleft, 'children', [hCorDots; hCorSolid; kids]);            
+            set(ud.handles.axis.lowerleft, 'children', [hCorDots(:); hCorSolid(:); kids(:)]);            
             axis(ud.handles.axis.lowerleft, 'off');
             set(ud.handles.axis.lowerleft, 'tag','lowerleft');
             %setLimits(ud.handles.axis.lowerleft,ud.shadow.lowerleft, dim3Units/dim1Units);
             ud.handles.text.lowerleft = text(0,1, 'Coronal', 'color', [1 1 1], 'units', 'normalized', 'verticalalignment', 'top', 'parent', ud.handles.axis.lowerleft);
 
             %Prepare crosshairs
-            if ~isfield(ud,'line1') || (isfield(ud,'line1') & isempty(ud.line1))
-                ud.line1 = line([0 0], [0 0],'ButtonDownFcn', 'doseShadowGui(''UPDATESTATS'')', 'erasemode', 'xor', 'visible', 'on', 'parent', ud.handles.axis.upperleft);
-                ud.line2 = line([0 0], [0 0],'ButtonDownFcn', 'doseShadowGui(''UPDATESTATS'')', 'erasemode', 'xor', 'visible', 'on', 'parent', ud.handles.axis.upperleft);
-                ud.line3 = line([0 0], [0 0],'ButtonDownFcn', 'doseShadowGui(''UPDATESTATS'')', 'erasemode', 'xor', 'visible', 'on', 'parent', ud.handles.axis.lowerleft);
-                ud.line4 = line([0 0], [0 0],'ButtonDownFcn', 'doseShadowGui(''UPDATESTATS'')', 'erasemode', 'xor', 'visible', 'on', 'parent', ud.handles.axis.lowerleft);
-                ud.line5 = line([0 0], [0 0],'ButtonDownFcn', 'doseShadowGui(''UPDATESTATS'')', 'erasemode', 'xor', 'visible', 'on', 'parent', ud.handles.axis.lowerright);
-                ud.line6 = line([0 0], [0 0],'ButtonDownFcn', 'doseShadowGui(''UPDATESTATS'')', 'erasemode', 'xor', 'visible', 'on', 'parent', ud.handles.axis.lowerright);
+            if ~isfield(ud,'line1') || (isfield(ud,'line1') && isempty(ud.line1))
+                ud.line1 = line([0 0], [0 0],'ButtonDownFcn', 'doseShadowGui(''UPDATESTATS'')', 'visible', 'on', 'parent', ud.handles.axis.upperleft);
+                ud.line2 = line([0 0], [0 0],'ButtonDownFcn', 'doseShadowGui(''UPDATESTATS'')', 'visible', 'on', 'parent', ud.handles.axis.upperleft);
+                ud.line3 = line([0 0], [0 0],'ButtonDownFcn', 'doseShadowGui(''UPDATESTATS'')', 'visible', 'on', 'parent', ud.handles.axis.lowerleft);
+                ud.line4 = line([0 0], [0 0],'ButtonDownFcn', 'doseShadowGui(''UPDATESTATS'')', 'visible', 'on', 'parent', ud.handles.axis.lowerleft);
+                ud.line5 = line([0 0], [0 0],'ButtonDownFcn', 'doseShadowGui(''UPDATESTATS'')', 'visible', 'on', 'parent', ud.handles.axis.lowerright);
+                ud.line6 = line([0 0], [0 0],'ButtonDownFcn', 'doseShadowGui(''UPDATESTATS'')', 'visible', 'on', 'parent', ud.handles.axis.lowerright);
             else
                 set([ud.line1 ud.line2 ud.line3 ud.line4 ud.line5 ud.line6],'visible','off')
                 set(ud.handles.crossBox,'value',0)
@@ -1046,10 +1047,10 @@ global stateS
 minVal = range(1);
 maxVal = range(2);
 if minVal == 0
-    maskM = (dataM ~= NaN & dataM ~= inf & dataM ~= -inf & dataM > 0);
+    maskM = (~isnan(dataM) & dataM ~= inf & dataM ~= -inf & dataM > 0);
 else
     % maskM = (dataM ~= NaN & dataM ~= inf & dataM ~= -inf & dataM >= max+min & dataM <= max-min);
-    maskM = (dataM ~= NaN & dataM ~= inf & dataM ~= -inf & dataM >= minVal & dataM <= maxVal);
+    maskM = (~isnan(dataM) & dataM ~= inf & dataM ~= -inf & dataM >= minVal & dataM <= maxVal);
 end
 
 partialDataM = dataM(maskM);
@@ -1118,10 +1119,10 @@ function [hLine1, hLine2] = crosshairs(hAxis, x, y, hLine1, hLine2)
 global stateS
 oldAxis = get(stateS.handle.doseShadowFig, 'currentaxes');
 set(stateS.handle.doseShadowFig, 'currentaxes', hAxis);
-if y ~= NaN & y~= inf & y~= -inf
+if ~isnan(y) && y~= inf && y~= -inf
     set(hLine1, 'xdata', get(hAxis, 'xLim'), 'ydata', [y y]);
 end
-if x~= NaN & x~= inf & x~= -inf
+if ~isnan(x) && x~= inf && x~= -inf
     set(hLine2, 'xdata', [x x], 'ydata', get(hAxis, 'yLim'));
 end
 set(stateS.handle.doseShadowFig, 'currentaxes', oldAxis);
@@ -1130,7 +1131,7 @@ set(stateS.handle.doseShadowFig, 'currentaxes', oldAxis);
 
 function setLimits(hAxis, dataM, aspect)
 %Scales and sets limits for the best fit of data.
-maskM = (dataM ~= NaN & dataM ~= inf & dataM >= 0);
+maskM = (~isnan(dataM) & dataM ~= inf & dataM >= 0);
 [row,col] = find(maskM);
 
 maxX = max(col);
@@ -1162,17 +1163,17 @@ refreshFlag = 0;
 for i = 1:length(stateS.handle.CERRAxis)
     hAxis = stateS.handle.CERRAxis(i);
     view = getAxisInfo(hAxis,'view');
-    if strcmpi(view,'transverse') & ~strcmpi(get(ud.handles.zVal,'string'),'NaN') & ~isempty(get(ud.handles.zVal,'string'))
+    if strcmpi(view,'transverse') && ~strcmpi(get(ud.handles.zVal,'string'),'NaN') && ~isempty(get(ud.handles.zVal,'string'))
         sliceNum     = findnearest(str2num(get(ud.handles.zVal,'string')),zV);
         setAxisInfo(hAxis,'coord',zV(sliceNum))
         refreshFlag = 1;
     end
-    if strcmpi(view,'sagittal') & ~strcmpi(get(ud.handles.xVal,'string'),'NaN') & ~isempty(get(ud.handles.xVal,'string'))
+    if strcmpi(view,'sagittal') && ~strcmpi(get(ud.handles.xVal,'string'),'NaN') && ~isempty(get(ud.handles.xVal,'string'))
         sliceNumSag  = findnearest(str2num(get(ud.handles.xVal,'string')),xV);
         setAxisInfo(hAxis,'coord',xV(sliceNumSag))
         refreshFlag = 1;
     end
-    if strcmpi(view,'coronal') & ~strcmpi(get(ud.handles.yVal,'string'),'NaN') & ~isempty(get(ud.handles.yVal,'string'))
+    if strcmpi(view,'coronal') && ~strcmpi(get(ud.handles.yVal,'string'),'NaN') && ~isempty(get(ud.handles.yVal,'string'))
         sliceNumCor  = findnearest(str2num(get(ud.handles.yVal,'string')),yV);
         setAxisInfo(hAxis,'coord',yV(sliceNumCor))
         refreshFlag = 1;

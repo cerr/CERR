@@ -46,16 +46,19 @@ else
     pos = 5;  %position of menu
 end
 
-if isfield(stateS, 'handle') & isfield(stateS.handle, 'CERRScanMenu') & ishandle(stateS.handle.CERRScanMenu);
+if isfield(stateS, 'handle') && isfield(stateS.handle, 'CERRScanMenu') && ishandle(stateS.handle.CERRScanMenu);
     hScanMenu = stateS.handle.CERRScanMenu;
 else
     hScanMenu = uimenu(stateS.handle.CERRSliceViewer, 'label', '&Scan', 'callback', 'putScanMenu;', 'Interruptible', 'off');
     stateS.handle.CERRScanMenu = hScanMenu;
-    uimenu(hScanMenu, 'label', 'Scan Management', 'callback',['scanManagementGui'],'interruptible','on');
+    uimenu(hScanMenu, 'label', 'Scan Management', 'callback','scanManagementGui','interruptible','on');
+    
+    % Haralick Texture Calculation
+    uimenu(hScanMenu, 'label', 'Texture Browser (beta)', 'callback','textureGui','interruptible','on');
 
     %Starts image fusion controls.
     uimenu(hScanMenu, 'label', 'Image Fusion', 'callback','controlFrame(''fusion'', ''init'');','interruptible','on');
-    uimenu(hScanMenu, 'label', 'Append scan', 'callback',['scanSummationMenu'],'interruptible','on', 'tag', 'scanSummation');
+    uimenu(hScanMenu, 'label', 'Append scan', 'callback','scanSummationMenu','interruptible','on', 'tag', 'scanSummation');
     
     %Annotation selection
     uimenu(hScanMenu, 'label', 'Significant Images', 'callback','controlFrame(''ANNOTATION'', ''init'');','interruptible','on');

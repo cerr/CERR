@@ -1,4 +1,4 @@
-function cleanupAxes(hAxisV)
+function cleanupAxes(hAxisV, axIndV)
 %"cleanupAxes"
 %   Examine userinfo handles and remove children that do not exist.
 %
@@ -27,38 +27,52 @@ function cleanupAxes(hAxisV)
 global stateS
 
 for i=1:length(hAxisV)
-    aI = get(hAxisV(i), 'userdata');
-    view = getAxisInfo(hAxisV(i), 'view');
+    %aI = get(hAxisV(i), 'userdata');
+    if exist('axIndV','var')
+        axInd = axIndV(i);
+    else
+        axInd = stateS.handle.CERRAxis == hAxisV(i);
+    end
+    aI = stateS.handle.aI(axInd);
+    view = aI.view;
+    %view = getAxisInfo(hAxisV(i), 'view');
     if ~strcmpi(view, 'Legend')
-        scanHandles = [aI.scanObj.handles];
-        doseHandles = [aI.doseObj.handles];
-        structHandles = vertcat(aI.structureGroup.handles);
-        miscHandles = aI.miscHandles;
+        scanHandles     = [aI.scanObj.handles];
+        doseHandles     = [aI.doseObj.handles];
+        %structHandles   = vertcat(aI.structureGroup.handles);
+        structHandles = [];
+        miscHandles     = aI.miscHandles;
+        planeLocHandles = [stateS.handle.CERRAxisPlnLoc{:}, stateS.handle.CERRAxisPlnLocSdw{:}];
+        linePoolHandlesV = [aI.lineHandlePool.lineV aI.lineHandlePool.dotsV];
 
-        allHandles = [reshape(scanHandles, 1, []) reshape(doseHandles, 1, []) reshape(structHandles, 1, []) reshape(miscHandles, 1, [])];
+        allHandles = [reshape(scanHandles, 1, []) reshape(doseHandles, 1, [])...
+            reshape(structHandles, 1, []) reshape(miscHandles, 1, []), planeLocHandles, linePoolHandlesV];
         kids = get(hAxisV(i), 'children');
 
-        % Do not clean-up ruler, doseQueryPt, scanQueryPt, doseCTProfileLine
-        allHandles = [allHandles findobj('tag', 'rulerLine','-or','tag','doseQueryPoint','-or','tag','scanQueryPoint','-or','tag', 'profileLine','-or','tag', 'scale','-or','tag','beamLine')'];        
-        toRemove = setdiff(kids,allHandles);
+        % Do not clean-up ruler, doseQueryPt, scanQueryPt,
+        % doseCTProfileLine, beamLine
+        %allHandles = [allHandles findobj('tag', 'rulerLine','-or','tag','doseQueryPoint','-or','tag','scanQueryPoint','-or','tag', 'profileLine','-or','tag', 'scale','-or','tag','beamLine')'];        
+        allHandles = [allHandles stateS.handle.rulerLine',stateS.handle.doseQueryPoint', stateS.handle.scanQueryPoint', stateS.handle.profileLine',stateS.handle.beamLine'];
+        toRemove = [];
+        if length(kids) > length(allHandles)
+            toRemove = setdiff(kids,allHandles);
+        end
         
         %wy
         %try
-            if isfield(stateS.optS,'blockmatch') && (stateS.optS.blockmatch == 1)
-                toRemove = setdiff(kids, [allHandles reshape(findobj('tag', 'blockmatchLine'), 1, [])]);
-            end
-            if isfield(stateS.optS,'mirrscope') && (stateS.optS.mirrscope == 1)
-                toRemove = setdiff(kids, [allHandles reshape(findobj('tag', 'MirrorScope'), 1, [])]);
-            end
+        if isfield(stateS.optS,'blockmatch') && (stateS.optS.blockmatch == 1)
+            toRemove = setdiff(kids, [allHandles reshape(findobj('tag', 'blockmatchLine'), 1, [])]);
+        end
+        if isfield(stateS.optS,'mirrscope') && (stateS.optS.mirrscope == 1)
+            toRemove = setdiff(kids, [allHandles reshape(findobj('tag', 'MirrorScope'), 1, [])]);
+        end
         %end;
         %wy
         
-
-        for j=1:length(toRemove)
-            %try
-            handlV = ishandle(toRemove);
-            delete(toRemove(handlV));
-            %end
-        end
+        
+        %try
+        handlV = ishandle(toRemove);
+        delete(toRemove(handlV));
+        %end
     end
 end

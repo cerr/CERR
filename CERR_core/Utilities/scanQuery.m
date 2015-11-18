@@ -28,20 +28,21 @@ function scanQuery(command,varargin)
 % along with CERR.  If not, see <http://www.gnu.org/licenses/>.
 
 
-global planC
+global planC stateS
 
 switch upper(command)
     case 'SCANQUERYSTART'
         cP = get(gcbo, 'CurrentPoint');
-        hFig = get(gcbo, 'parent');
-        delete([findobj('tag', 'scanQueryPoint')]);
+        %delete([findobj('tag', 'scanQueryPoint')]);
+        delete(stateS.handle.scanQueryPoint)
+        stateS.handle.scanQueryPoint = [];
         %line([cP(1,1) cP(1,1)], [cP(2,2) cP(2,2)], 'tag', 'scanQueryPoint', 'userdata', gcbo, 'eraseMode', 'xor', 'parent', gcbo, 'marker', '+', 'color', [1 1 1], 'hittest', 'off');      
-        line([cP(1,1) cP(1,1)], [cP(2,2) cP(2,2)], 'tag', 'scanQueryPoint', 'userdata', gcbo, 'parent', gcbo, 'marker', '+', 'color', [1 1 1], 'hittest', 'off');
+        stateS.handle.scanQueryPoint = line([cP(1,1) cP(1,1)], [cP(2,2) cP(2,2)], 'tag', 'scanQueryPoint', 'userdata', gcbo, 'parent', gcbo, 'marker', '+', 'color', [1 1 1], 'hittest', 'off');
         return;
         
     case 'SCANQUERYMOTION'
-        dQP = findobj('tag', 'scanQueryPoint');
-        hAxis = get(dQP, 'userdata');
+        %dQP = findobj('tag', 'scanQueryPoint');
+        hAxis = get(stateS.handle.scanQueryPoint, 'userdata');
         [view, coord, scanSets] = getAxisInfo(hAxis, 'view', 'coord', 'scanSets');
         
         if isempty(scanSets)
@@ -52,11 +53,11 @@ switch upper(command)
         scanSet = scanSets(1);
         if isempty(varargin)
             cP = get(hAxis, 'CurrentPoint');
-            set(dQP, 'XData', [cP(1,1) cP(1,1)]);
-            set(dQP, 'YData', [cP(2,2) cP(2,2)]);
+            set(stateS.handle.scanQueryPoint, 'XData', [cP(1,1) cP(1,1)]);
+            set(stateS.handle.scanQueryPoint, 'YData', [cP(2,2) cP(2,2)]);
         else
-            xd = get(dQP, 'XData');
-            yd = get(dQP, 'YData');
+            xd = get(stateS.handle.scanQueryPoint, 'XData');
+            yd = get(stateS.handle.scanQueryPoint, 'YData');
             cP = [xd(:) yd(:)];
         end
         
@@ -78,11 +79,14 @@ switch upper(command)
         %Get the actual scan value using the converted point.
         scan = getScanAt(scanSet,xD,yD,zD,planC);
         indexS = planC{end};
-        imageType = planC{indexS.scan}(scanSet).scanInfo(1).imageType;
-        if strfind(upper(imageType), 'CT')
-            CTOffset = planC{indexS.scan}(scanSet).scanInfo(1).CTOffset;
-            scan = scan - CTOffset;
+        %imageType = planC{indexS.scan}(scanSet).scanInfo(1).imageType;
+        if ~isempty(planC{indexS.scan}(scanSet).scanInfo(1).CTOffset)
+            scan = scan - planC{indexS.scan}(scanSet).scanInfo(1).CTOffset;
         end
+%         if strfind(upper(imageType), 'CT')
+%             CTOffset = planC{indexS.scan}(scanSet).scanInfo(1).CTOffset;
+%             scan = scan - CTOffset;
+%         end
 
         CERRStatusString(['x = ' num2str(x) ', y = ' num2str(y) ', z = ' num2str(z) ' scan: ' num2str(scan)], 'gui');
         return;

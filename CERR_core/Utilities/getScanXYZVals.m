@@ -41,9 +41,9 @@ function [xVals, yVals, zVals] = getScanXYZVals(scanStruct, slice)
 % You should have received a copy of the GNU General Public License
 % along with CERR.  If not, see <http://www.gnu.org/licenses/>.
 
-try
+if exist('slice','var')
     scanInfo = scanStruct.scanInfo(slice);
-catch
+else
     scanInfo = scanStruct.scanInfo(1);
 end
 
@@ -58,4 +58,5 @@ end
 
 xVals = scanInfo.xOffset - (sizeDim2*scanInfo.grid2Units)/2 : scanInfo.grid2Units : scanInfo.xOffset + (sizeDim2*scanInfo.grid2Units)/2;
 yVals = fliplr(scanInfo.yOffset - (sizeDim1*scanInfo.grid1Units)/2 : scanInfo.grid1Units : scanInfo.yOffset + (sizeDim1*scanInfo.grid1Units)/2);
-zVals = [scanStruct.scanInfo.zValue];
+sI = scanStruct.scanInfo;
+zVals = [sI.zValue];

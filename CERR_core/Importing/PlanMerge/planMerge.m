@@ -106,6 +106,13 @@ scansWithSameUID   = ismember(addedScanUIDc,existingScanUIDc);
 dosesWithSameUID   = ismember(addedDoseUIDc,existingDoseUIDc);
 structsWithSameUID = ismember(addedStructureUIDc,existingStructureUIDc);
 
+if isempty(addedStructureUIDc)
+    addedScanUIDc = createUID('scan');
+    planD{indexSD.scan}.scanUID = addedScanUIDc;
+    scansWithSameUID = 0;
+    scans.scanUID = addedScanUIDc;
+end
+
 newScanNum  = nScans + 1;
 
 if ~isempty(structs)
@@ -358,5 +365,22 @@ for scanNum = 1:length(planD{indexSD.scan})
     scanUID = ['c',repSpaceHyp(planD{indexSD.scan}(scanNum).scanUID(max(1,end-61):end))];
     stateS.scanStats.minScanVal.(scanUID) = single(min(planD{indexSD.scan}(scanNum).scanArray(:)));
     stateS.scanStats.maxScanVal.(scanUID) = single(max(planD{indexSD.scan}(scanNum).scanArray(:)));
+    % Set Window and Width from DICOM header, if available
+    CTLevel = '';
+    CTWidth = '';
+    if isfield(planD{indexSD.scan}(scanNum).scanInfo(1),'DICOMHeaders') && isfield(planD{indexSD.scan}(scanNum).scanInfo(1).DICOMHeaders,'WindowCenter') && isfield(planD{indexSD.scan}(scanNum).scanInfo(1).DICOMHeaders,'WindowWidth')
+        CTLevel = planD{indexSD.scan}(scanNum).scanInfo(1).DICOMHeaders.WindowCenter(end);
+        CTWidth = planD{indexSD.scan}(scanNum).scanInfo(1).DICOMHeaders.WindowWidth(end);
+    end
+    if ~isnumeric(CTLevel) || ~isnumeric(CTWidth)
+        CTLevel = str2double(get(stateS.handle.CTLevel,'String'));
+        CTWidth = str2double(get(stateS.handle.CTWidth,'String'));
+    end
+    scanUID = ['c',repSpaceHyp(planD{indexSD.scan}(scanNum).scanUID(max(1,end-61):end))];
+    stateS.scanStats.CTLevel.(scanUID) = CTLevel;
+    stateS.scanStats.CTWidth.(scanUID) = CTWidth;
+    stateS.scanStats.windowPresets.(scanUID) = 1;
+    % Set colormap
+    stateS.scanStats.Colormap.(scanUID) = 'gray256';
 end
 

@@ -50,7 +50,8 @@ zValsV = fliplr(zValsV);
 ind = length(planC{indexS.scan}) + 1; 
 
 %Create array of all zeros, size of y,x,z vals.
-planC{indexS.scan}(ind).scanArray = uint16(flipdim(permute(data3M,[2,1,3]),3) + CTOffset);
+%planC{indexS.scan}(ind).scanArray = uint16(flipdim(permute(data3M,[2,1,3]),3) + CTOffset);
+planC{indexS.scan}(ind).scanArray = flipdim(permute(data3M,[2,1,3]),3) + CTOffset;
 planC{indexS.scan}(ind).scanType = movScanName;
 planC{indexS.scan}(ind).scanUID = createUID('scan'); 
 %planC{indexS.scan}(ind).uniformScanInfo = [];

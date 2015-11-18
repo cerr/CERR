@@ -45,7 +45,7 @@ units = 'normalized';
 rowHeight = .06;
 
 %If no command given, default to init.
-if ~exist('command') | isempty(command)
+if ~exist('command','var') || (exist('command','var') && isempty(command))
     command = 'init';
 end
 
@@ -558,8 +558,9 @@ switch upper(command)
             structToDelete = find(assocScanV == scanNum);
             planC{indexS.structures}(structToDelete) = [];
             %Delete structureArray
-            indAssoc = find(strcmpi({planC{indexS.structureArray}.assocScanUID},planC{indexS.scan}(scanNum).scanUID));
-            planC{indexS.structureArray}(indAssoc) = [];
+            %indAssoc = find(strcmpi({planC{indexS.structureArray}.assocScanUID},planC{indexS.scan}(scanNum).scanUID));
+            %planC{indexS.structureArray}(indAssoc) = [];
+            planC{indexS.structureArray}(scanNum) = [];
             stateS.structsChanged = 1;
             %Update doses associated with this scan            
             while ~isempty(find(strcmpi({planC{indexS.dose}.assocScanUID},planC{indexS.scan}(scanNum).scanUID)))

@@ -53,6 +53,8 @@ switch upper(modality)
         modality = 'IM';
     case 'BEAM'
         modality = 'BM';
+    case 'TEXTURE'
+        modality = 'TXTR';
 end
 % randNum = ceil(1000 + (9999-1000).*rand);
 randNum = 1000.*rand;

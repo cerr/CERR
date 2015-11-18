@@ -54,9 +54,9 @@ persistent radius
 persistent prevDownAngle
 
 % These parameters used for Image type
-% persistent xres;
-% persistent yres;
-% persistent corners;
+persistent xres;
+persistent yres;
+persistent corners;
 
 global stateS planC
 
@@ -88,17 +88,22 @@ switch lower(varargin{1})
             isNewchecker = 0;
         end
 
-        axisInfo = get(hAxis, 'userdata');
+        %axisInfo = get(hAxis, 'userdata');
+        axNum = stateS.handle.CERRAxis == hAxis;
 
         movData      = stateS.imageRegistrationMovDataset;
         movDataType  = stateS.imageRegistrationMovDatasetType;
         switch movDataType
             case 'scan'
-                indV = find([axisInfo.scanObj.scanSet] == movData);
-                hImage = axisInfo.scanObj(indV).handles;
+                %indV = find([axisInfo.scanObj.scanSet] == movData);
+                %hImage = axisInfo.scanObj(indV).handles;
+                indV = [stateS.handle.aI(axNum).scanObj.scanSet] == movData;
+                hImage = stateS.handle.aI(axNum).scanObj(indV).handles;
             case 'dose'
-                indV = find([axisInfo.doseObj.doseSet] == movData);
-                hImage = axisInfo.doseObj(indV).handles(1);
+                %indV = find([axisInfo.doseObj.doseSet] == movData);
+                %hImage = axisInfo.doseObj(indV).handles(1);
+                indV = [stateS.handle.aI(axNum).doseObj.doseSet] == movData;
+                hImage = stateS.handle.aI(axNum).doseObj(indV).handles;                
         end
 
         hFig    = get(hAxis, 'parent');
@@ -109,7 +114,7 @@ switch lower(varargin{1})
         end
         imageType = get(hImage, 'type');
 
-        UISUSPENDDATA = uisuspend(hFig);
+        %UISUSPENDDATA = uisuspend(hFig);
 
         xLimOrig = get(hImage, 'xData');
         yLimOrig = get(hImage, 'yData');
@@ -120,8 +125,8 @@ switch lower(varargin{1})
                 %Disable xor erase modes to eliminate flashing.
                 hCERRAxes = stateS.handle.CERRAxis;
                 for i = 1:length(hCERRAxes)
-                    axisKids = get(hCERRAxes(i), 'children');
-                    set(axisKids, 'erasemode', 'normal');
+                    %axisKids = get(hCERRAxes(i), 'children');
+                    %set(axisKids, 'erasemode', 'normal');
 
                     %Store original image points.
                     pointsM = [xLimOrig(:) yLimOrig(:) ones(size(yLimOrig(:)))];
@@ -130,8 +135,7 @@ switch lower(varargin{1})
 
             case 'image'
                 image  = get(hImage, 'cData');
-                [xM, yM] = meshgrid(xLimOrig, yLimOrig);
-
+                %[xM, yM] = meshgrid(xLimOrig, yLimOrig);
 
                 xV = linspace(xLimOrig(1), xLimOrig(2), size(image, 2));
                 yV = linspace(yLimOrig(1), yLimOrig(2), size(image, 1));
@@ -140,9 +144,9 @@ switch lower(varargin{1})
                 yres = yV(2) - yV(1);
 
                 corners(1,1:3) = [xLimOrig(1) yLimOrig(1) 1];
-                corners(2,1:3) = [xLimOrig(1) yLimOrig(2) 1];
-                corners(3,1:3) = [xLimOrig(2) yLimOrig(1) 1];
-                corners(4,1:3) = [xLimOrig(2) yLimOrig(2) 1];
+                corners(2,1:3) = [xLimOrig(1) yLimOrig(end) 1];
+                corners(3,1:3) = [xLimOrig(end) yLimOrig(1) 1];
+                corners(4,1:3) = [xLimOrig(end) yLimOrig(end) 1];
         end
 
         %Prepare motion callback and axis parameters.
@@ -207,7 +211,7 @@ switch lower(varargin{1})
             plot([centerOfRotation(1) centerOfRotation(1)+0.98*radius*cosTheta(1)], [centerOfRotation(2) centerOfRotation(2)],'parent',hAxis, 'lineWidth', 1, 'color','y', 'tag','rotHandle','hittest','off')
             plot(centerOfRotation(1)+0.98*radius*cosTheta(1), centerOfRotation(2)+0.98*radius*sinTheta(1),'parent',hAxis, 'marker', 'o', 'MarkerSize', 2, 'lineWidth',3, 'color','y' , 'markerSize',10,'tag','handleCenter','hittest','off')
             strRotate = 'Grab & Rotate handle';
-            text('parent',hAxis, 'string',strRotate, 'position', [.25 .04 0], 'color', [1 0 0], 'units', 'normalized','fontSize',12,'fontWeight','bold')
+            text('parent',hAxis, 'string',strRotate, 'position', [.25 .04 0], 'color', [1 0 0], 'units', 'normalized','fontSize',12,'fontWeight','bold','tag','rotMsgString')
             stateS.rotation_first_click = 1;
             stateS.rotation_down = 1;
 
@@ -290,6 +294,22 @@ switch lower(varargin{1})
                     fused = 1;
                     axisfusion(hAxis, stateS.optS.fusionDisplayMode, stateS.optS.fusionCheckSize);
                 end
+                
+            case 'image'
+                corners = (inv(tmptransM) * corners')';
+                newXLim = corners(:,1);
+                newYLim = corners(:,2);
+                image  = get(hImage, 'cData');
+                xV = linspace(newXLim(1), newXLim(3), size(image, 2));
+                yV = linspace(newYLim(1), newYLim(2), size(image, 1));                
+                set(hImage, 'xData', xV, 'yData', yV);
+                
+                if ~fused
+                    fused = 1;
+                    axisfusion(hAxis, stateS.optS.fusionDisplayMode, stateS.optS.fusionCheckSize);
+                end
+                
+                
         end
 
     case 'up'
@@ -312,13 +332,27 @@ switch lower(varargin{1})
                 %Disable xor erase modes to eliminate flashing.
                 hCERRAxes = stateS.handle.CERRAxis;
                 for i = 1:length(hCERRAxes)
-                    axisKids = get(hCERRAxes(i), 'children');
-                    set(axisKids, 'erasemode', 'normal');
+                    %axisKids = get(hCERRAxes(i), 'children');
+                    %set(axisKids, 'erasemode', 'normal');
 
                     %Store original image points.
                     pointsM = [xLimOrig(:) yLimOrig(:) ones(size(yLimOrig(:)))];
                 end
                 limSize = size(xLimOrig);
+            case 'image'
+                image  = get(hImage, 'cData');
+                
+                xV = linspace(xLimOrig(1), xLimOrig(2), size(image, 2));
+                yV = linspace(yLimOrig(1), yLimOrig(2), size(image, 1));
+
+                xres = xV(2) - xV(1);
+                yres = yV(2) - yV(1);
+
+                corners(1,1:3) = [xLimOrig(1) yLimOrig(1) 1];
+                corners(2,1:3) = [xLimOrig(1) yLimOrig(2) 1];
+                corners(3,1:3) = [xLimOrig(2) yLimOrig(1) 1];
+                corners(4,1:3) = [xLimOrig(2) yLimOrig(2) 1];
+
         end
         prevDownAngle = prevAngle + prevDownAngle - 2*pi;
 
@@ -326,7 +360,17 @@ switch lower(varargin{1})
             transM = tmptransM;            
             controlFrame('fusion', 'apply', hAxis);
             set(hAxis,'buttondownfcn', 'sliceCallBack(''axisClicked'')')
-            uirestore(UISUSPENDDATA);
+            % Delete rotation handles
+            %uirestore(UISUSPENDDATA);
+            hRotCenter = findobj('tag','rotCenter');
+            hRotCircle1 = findobj('tag','rotCircle1');
+            hRotHandleRef = findobj(hAxis, 'tag','rotHandleRef');
+            hRotHandle = findobj(hAxis, 'tag','rotHandle');
+            handleCenter = findobj(hAxis, 'tag','handleCenter');
+            hRotMsgString = findobj(hAxis, 'tag','rotMsgString');
+            delete([hRotCenter, hRotCircle1, hRotHandleRef, hRotHandle, ...
+                handleCenter, hRotMsgString])
+            
         end
 
         %         %hAxis = gca;

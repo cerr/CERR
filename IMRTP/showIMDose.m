@@ -52,4 +52,13 @@ stateS.doseSetChanged = 1;
 
 stateS.doseSet = length(planC{indexS.dose});
 % stateS.doseUID = planC{indexS.dose}(end).doseUID;
+
+% Reset Colorbar
+stateS.colorbarFrameMax = [];
+stateS.doseArrayMaxValue = [];
+stateS.doseDisplayRange = [];
+stateS.colorbarRange = [];
+stateS.colorbarFrameMin = [];
+
+    
 sliceCallBack('refresh');

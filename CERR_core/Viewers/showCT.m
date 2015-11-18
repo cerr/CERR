@@ -40,10 +40,13 @@ indexS = planC{end};
 
 %Get info about the axis view.
 hFig         = get(hAxis, 'parent');
-axisInfo     = get(hAxis, 'userdata');
-coord        = getAxisInfo(hAxis,'coord');
-view         = getAxisInfo(hAxis,'view');
-scanSets     = getAxisInfo(hAxis,'scanSets');
+%axisInfo     = get(hAxis, 'userdata');
+axInd = stateS.handle.CERRAxis == hAxis;
+axisInfo = stateS.handle.aI(axInd);
+%coord        = axisInfo.coord;
+%view         = axisInfo.view;
+%scanSets     = axisInfo.scanSets;
+[view,coord,scanSets] = getAxisInfo(hAxis,'view','coord','scanSets');
 
 %Set to 1 if images may need to be refused.
 imagesChanged = 0;
@@ -69,8 +72,11 @@ end
 toRemove = [];
 for i=1:length(axisInfo.scanObj)
     sO = axisInfo.scanObj(i);
+    scanSet = axisInfo.scanObj(i).scanSet;
+    scanUID = ['c',repSpaceHyp(planC{indexS.scan}(scanSet).scanUID(max(1,end-61):end))];
+
     %wy if imageRegistration, refresh scans for diff computation
-    if stateS.imageRegistration || ~ismember(sO.scanSet, scanSets)| ~isequal(coord, sO.coord) | ~isequal(getTransM('scan', sO.scanSet, planC), sO.transM) | ~isequal(view, sO.view)
+    if ~ismember(sO.scanSet, scanSets) || ~isequal(coord, sO.coord) || ~isequal(getTransM('scan', sO.scanSet, planC), sO.transM) || ~isequal(view, sO.view)
         imagesChanged = 1;
         try, delete(sO.handles); end
         toRemove = [toRemove;i];
@@ -80,7 +86,7 @@ for i=1:length(axisInfo.scanObj)
                 axisInfo.doseObj(j).redraw = 1;
             end
         end
-    elseif ~isequal(sO.dispMode, [stateS.optS.CTLevel stateS.optS.CTWidth]) | stateS.imageRegistration  | stateS.CTDisplayChanged
+    elseif ~isequal(sO.dispMode, [stateS.scanStats.CTLevel.(scanUID) stateS.scanStats.CTWidth.(scanUID)]) || stateS.imageRegistration  || stateS.CTDisplayChanged
         axisInfo.scanObj(i).redraw = 1;
         imagesChanged = 1;
         try, delete(sO.handles); end
@@ -129,7 +135,8 @@ for i=1:length(axisInfo.scanObj)
         if isempty(im)
             axisInfo.scanObj(i).handles = [];
             axisInfo.scanObj(i).dispMode = [];
-            set(hAxis, 'userdata', axisInfo);
+            %set(hAxis, 'userdata', axisInfo);
+            stateS.handle.aI(axInd) = axisInfo;
             continue;
         end
 
@@ -143,11 +150,15 @@ for i=1:length(axisInfo.scanObj)
             if axisInfo.scanObj(i).scanSet == stateS.imageRegistrationBaseDataset
 
                 CTOffset    = planC{indexS.scan}(scanSet).scanInfo(1).CTOffset;
-                CTLevel     = stateS.optS.CTLevel + CTOffset;
-                CTWidth     = stateS.optS.CTWidth;
-                CTLow       = CTLevel - CTWidth/2;
-                CTHigh      = CTLevel + CTWidth/2;
+                %CTLevel     = stateS.optS.CTLevel + CTOffset;
+                %CTWidth     = stateS.optS.CTWidth;
+                %CTLow       = CTLevel - CTWidth/2;
+                %CTHigh      = CTLevel + CTWidth/2;
                 scanUID = ['c',repSpaceHyp(planC{indexS.scan}(scanSet).scanUID(max(1,end-61):end))];
+                CTLevel     = stateS.scanStats.CTLevel.(scanUID) + CTOffset;
+                CTWidth     = stateS.scanStats.CTWidth.(scanUID);
+                CTLow       = CTLevel - CTWidth/2;
+                CTHigh      = CTLevel + CTWidth/2;                
                 scanMin = stateS.scanStats.minScanVal.(scanUID);
                 scanMax = stateS.scanStats.maxScanVal.(scanUID);
                 CTLow = max(CTLow,scanMin);
@@ -191,11 +202,15 @@ for i=1:length(axisInfo.scanObj)
             elseif axisInfo.scanObj(i).scanSet == stateS.imageRegistrationMovDataset
 
                 CTOffset    = planC{indexS.scan}(scanSet).scanInfo(1).CTOffset;
-                CTLevel     = stateS.Mov.CTLevel + CTOffset;
-                CTWidth     = stateS.Mov.CTWidth;
-                CTLow       = CTLevel - CTWidth/2;
-                CTHigh      = CTLevel + CTWidth/2;
+                %CTLevel     = stateS.Mov.CTLevel + CTOffset;
+                %CTWidth     = stateS.Mov.CTWidth;
+                %CTLow       = CTLevel - CTWidth/2;
+                %CTHigh      = CTLevel + CTWidth/2;
                 scanUID = ['c',repSpaceHyp(planC{indexS.scan}(scanSet).scanUID(max(1,end-61):end))];
+                CTLevel     = stateS.scanStats.CTLevel.(scanUID) + CTOffset;
+                CTWidth     = stateS.scanStats.CTWidth.(scanUID);
+                CTLow       = CTLevel - CTWidth/2;
+                CTHigh      = CTLevel + CTWidth/2;                                
                 scanMin = stateS.scanStats.minScanVal.(scanUID);
                 scanMax = stateS.scanStats.maxScanVal.(scanUID);                
                 CTLow = max(CTLow,scanMin);
@@ -212,17 +227,19 @@ for i=1:length(axisInfo.scanObj)
             clippedCT = clippedCT - double(CTLow);
             clippedCT = clippedCT / double( CTHigh - CTLow);
             
-            set(hFig, 'renderer', 'openGL');
+            %set(hFig, 'renderer', 'openGL');
             
-            colormap(hAxis, 'gray');
+            %colormap(hAxis, 'gray');
+            %map = CERRColorMap(stateS.scanStats.Colormap.(scanUID));
+            %colormap(hAxis, map);
 
         else
             CTOffset    = planC{indexS.scan}(scanSet).scanInfo(1).CTOffset;
-            CTLevel     = stateS.optS.CTLevel + CTOffset;
-            CTWidth     = stateS.optS.CTWidth;
+            scanUID = ['c',repSpaceHyp(planC{indexS.scan}(scanSet).scanUID(max(1,end-61):end))];
+            CTLevel     = stateS.scanStats.CTLevel.(scanUID) + CTOffset;
+            CTWidth     = stateS.scanStats.CTWidth.(scanUID);
             CTLow       = CTLevel - CTWidth/2;
             CTHigh      = CTLevel + CTWidth/2;
-            scanUID = ['c',repSpaceHyp(planC{indexS.scan}(scanSet).scanUID(max(1,end-61):end))];
             scanMin = stateS.scanStats.minScanVal.(scanUID);
             scanMax = stateS.scanStats.maxScanVal.(scanUID);
             CTLow = max(CTLow,scanMin);
@@ -233,9 +250,12 @@ for i=1:length(axisInfo.scanObj)
 
             %set(hFig, 'renderer', 'zbuffer');
             
-            colorMapC = get(stateS.handle.BaseCMap,'string');
-            colorMapVal = get(stateS.handle.BaseCMap,'value');
-            map = CERRColorMap(colorMapC{colorMapVal});
+            % same colormap for all scans
+            %colorMapC = get(stateS.handle.BaseCMap,'string');
+            %colorMapVal = get(stateS.handle.BaseCMap,'value');
+            %map = CERRColorMap(colorMapC{colorMapVal});
+            
+            map = CERRColorMap(stateS.scanStats.Colormap.(scanUID));
             colormap(hAxis, map);
 
         end       
@@ -245,7 +265,7 @@ for i=1:length(axisInfo.scanObj)
         %colormap(hAxis, 'gray');
         
 
-        if stateS.imageRegistrationBaseDataset == scanSet & strcmpi(stateS.imageRegistrationBaseDatasetType, 'scan')
+        if stateS.imageRegistrationBaseDataset == scanSet && strcmpi(stateS.imageRegistrationBaseDatasetType, 'scan')
             alpha = 1;
         else
             alpha = stateS.doseAlphaValue.trans;
@@ -253,10 +273,10 @@ for i=1:length(axisInfo.scanObj)
 
         [xM, yM] = meshgrid(xLim, yLim);
 
-        zM = repmat(0,size(xM))-2;
-
-        if stateS.optS.sinc_filter_on_display
-            sz = size(clippedCT);
+        zM = zeros(size(xM))-2;
+        
+        sz = size(clippedCT);
+        if stateS.optS.sinc_filter_on_display && min(sz) < 512            
             new_sz = sz*2;
             clippedCT = updownsample(clippedCT, new_sz(2),new_sz(1),0,2);
         end
@@ -275,7 +295,7 @@ for i=1:length(axisInfo.scanObj)
 
         axisInfo.scanObj(i).handles = hImage;
 
-        axisInfo.scanObj(i).dispMode = [stateS.optS.CTLevel stateS.optS.CTWidth];
+        axisInfo.scanObj(i).dispMode =  [stateS.scanStats.CTLevel.(scanUID) stateS.scanStats.CTWidth.(scanUID)];
 
         imagesChanged = 1;
 
@@ -333,7 +353,8 @@ for i=1:length(axisInfo.scanObj)
         end
     end
 end
-set(hAxis, 'userdata', axisInfo);
+%set(hAxis, 'userdata', axisInfo);
+stateS.handle.aI(axInd) = axisInfo; 
 
 if imagesChanged && stateS.imageRegistration && length(axisInfo.scanObj)>1 %wy
     %In case of 2 scans in one axis, fuse them.

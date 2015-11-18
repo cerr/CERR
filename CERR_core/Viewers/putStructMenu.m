@@ -49,7 +49,7 @@ else
 end
 
 %Create new menu if necessary.
-if isfield(stateS, 'handle') & isfield(stateS.handle, 'CERRStructMenu') & ishandle(stateS.handle.CERRStructMenu);
+if isfield(stateS, 'handle') && isfield(stateS.handle, 'CERRStructMenu') && ishandle(stateS.handle.CERRStructMenu)
     hStructMenu = stateS.handle.CERRStructMenu;
 else
     hStructMenu = uimenu(stateS.handle.CERRSliceViewer, 'label', '&Structures', 'callback', 'putStructMenu;', 'Interruptible', 'off');
