@@ -87,7 +87,7 @@ axisInfo.doseObj.redraw     = [];       % If 1, redraw but don't recalculate dos
 axisInfo.structureGroup.view            = [];       % This structureGroup's view, 'transverse', 'sagittal', 'coronal'
 axisInfo.structureGroup.coord           = [];       % This structureGroup's coordinate.
 axisInfo.structureGroup.structureSet    = [];       % Scan associated with this structureGroup.
-axisInfo.structureGroup.structNumsV     = [];       % Structures matching the structuresSet field.
+axisInfo.structureGroup.structNumsV     = [];       % Structures displayed on this view.
 axisInfo.structureGroup.transM          = [];       % TransM used to get this structureGroup.
 axisInfo.structureGroup.dispMode        = '';       % Type of display used for this structure representation.
 axisInfo.structureGroup.xV              = {};       % xCoordinates of contours in this set.
@@ -97,6 +97,11 @@ axisInfo.structureGroup.yMinMax         = [];       % [min max] of y coordinates
 axisInfo.structureGroup.handles         = {};       % Handles of objects used to display this set.
 axisInfo.structureGroup.redraw          = [];       % If 1, redraw but don't recalculate struct data.
 
+%Pool of line handles to draw structure
+axisInfo.lineHandlePool.lineV           = [];
+axisInfo.lineHandlePool.dotsV           = [];
+axisInfo.lineHandlePool.currentHandle   = [];
+
 %Any other handles
 axisInfo.miscHandles                    = [];       %Used to store any remaining handles that should be kept at redraw.
 
@@ -105,3 +110,4 @@ axisInfo.miscHandles                    = [];       %Used to store any remaining
 axisInfo.scanObj(:) = [];
 axisInfo.doseObj(:) = [];
 axisInfo.structureGroup(:) = [];
+axisInfo.lineHandlePool(:) = [];

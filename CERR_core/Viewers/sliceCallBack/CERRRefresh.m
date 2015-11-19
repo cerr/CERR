@@ -90,7 +90,7 @@ if stateS.doseSetChanged & stateS.doseToggle == 1
             
         end
         
-        if ~isfield(stateS, 'colorbarRange') | ~stateS.optS.staticColorbar
+        if ~isfield(stateS, 'colorbarRange') || ~stateS.optS.staticColorbar
             if offset > 0
                 stateS.doseDisplayRange    = [min([-offset, -(stateS.doseArrayMaxValue - offset)]), max([offset, stateS.doseArrayMaxValue - offset])];
                 stateS.colorbarRange       = stateS.doseDisplayRange;
@@ -117,17 +117,17 @@ end
 
 %Check flags to determine what actions need to be taken for each axis.
 %For each axis, check type and display proper image(s).
-for i=1:length(stateS.handle.CERRAxis)
+for i=uint8(1:length(stateS.handle.CERRAxis))
     hAxis       = stateS.handle.CERRAxis(i);
-    [view] = getAxisInfo(hAxis, 'view');
+    [view] = getAxisInfo(i, 'view');
 
-    if stateS.imageRegistration
-        if ispc
-            opengl software;
-        end
-        delete(findobj('parent', hAxis, 'type', 'surface'));
-        delete(findobj('parent', hAxis, 'type', 'hggroup'));
-    end
+%     if stateS.imageRegistration
+%         if ispc
+%             opengl software;
+%         end
+%         delete(findobj('parent', hAxis, 'type', 'surface'));
+%         delete(findobj('parent', hAxis, 'type', 'hggroup'));
+%     end
     %Set the orientation of each axis.
     switch view
         case 'transverse'
@@ -141,31 +141,31 @@ for i=1:length(stateS.handle.CERRAxis)
             set(hAxis, 'xdir', 'normal');
     end
 
-    [scanSelectMode, doseSelectMode, structSelectMode] = getAxisInfo(hAxis, 'scanSelectMode', 'doseSelectMode', 'structSelectMode');
+    [scanSelectMode, doseSelectMode, structSelectMode] = getAxisInfo(i, 'scanSelectMode', 'doseSelectMode', 'structSelectMode');
     %If axis is displaying default, get scanSet from stateS.
     if strcmpi(scanSelectMode, 'auto');
-        setAxisInfo(hAxis, 'scanSets', stateS.scanSet);
+        setAxisInfo(i, 'scanSets', stateS.scanSet);
     end
     if strcmpi(doseSelectMode, 'auto');
-        setAxisInfo(hAxis, 'doseSets', stateS.doseSet);
+        setAxisInfo(i, 'doseSets', stateS.doseSet);
     end
     if strcmpi(structSelectMode, 'auto');
-        setAxisInfo(hAxis, 'structureSets', stateS.structSet);
+        setAxisInfo(i, 'structureSets', stateS.structSet);
     end
 
     if stateS.doseToggle == -1
-        setAxisInfo(hAxis, 'doseSets', []);
+        setAxisInfo(i, 'doseSets', []);
     end
     if stateS.CTToggle == -1
-        setAxisInfo(hAxis, 'scanSets', []);
+        setAxisInfo(i, 'scanSets', []);
     end
     if stateS.structToggle == -1
-        setAxisInfo(hAxis, 'structureSets', []);
+        setAxisInfo(i, 'structureSets', []);
     end
     %If the x/y range is not defined, use auto axis.
 
-    xRange = getAxisInfo(hAxis, 'xRange');
-    yRange = getAxisInfo(hAxis, 'yRange');
+    xRange = getAxisInfo(i, 'xRange');
+    yRange = getAxisInfo(i, 'yRange');
     if isempty(xRange) || isempty(yRange)
         updateAxisRange(hAxis,0);
         %         axis(hAxis, 'equal', 'auto');
@@ -184,21 +184,22 @@ for i=1:length(stateS.handle.CERRAxis)
     end
 
     % Cleanup each axis to set correct axis limits
-    cleanupAxes(hAxis);
+    cleanupAxes(hAxis,i);
 
     %Check and set range variable if needed.
-    xRange = getAxisInfo(hAxis, 'xRange');
-    yRange = getAxisInfo(hAxis, 'yRange');
+    xRange = getAxisInfo(i, 'xRange');
+    yRange = getAxisInfo(i, 'yRange');
     if isempty(xRange) || isempty(yRange)
-        setAxisInfo(hAxis, 'xRange', get(hAxis, 'xLim'));
-        setAxisInfo(hAxis, 'yRange', get(hAxis, 'yLim'));
+        setAxisInfo(i, 'xRange', get(hAxis, 'xLim'));
+        setAxisInfo(i, 'yRange', get(hAxis, 'yLim'));
+        zoomToXYRange(hAxis);
     end
 
-    %     Reset the Axis to new xRange and yRange
-    zoomToXYRange(hAxis);
+%     %     Reset the Axis to new xRange and yRange
+%     zoomToXYRange(hAxis);
 
     %Make sure everything is drawn in the right order.
-    setChildDrawOrder(hAxis);
+    %setChildDrawOrder(hAxis);
 end
 removeCERRHandle('mask');
 
@@ -222,24 +223,24 @@ if stateS.doseProfileState
 end
 
 %Set visibility of contours, try since visible may not be defined.
-try
-    contourVisibility;
-end
+%try
+%    contourVisibility;
+%end
 
 %Draw Legend.
-if ~isfield(stateS,'webtrev') || ~stateS.webtrev.isOn
-    for i=1:length(stateS.handle.CERRAxis)
-        hAxis = stateS.handle.CERRAxis(i);
-        view = getAxisInfo(hAxis, 'view');
-        if strcmpi(view, 'legend')
-            showCERRLegend(hAxis);
-        else
-            try % This is added for the Film QA Tool DK %% 03-18-08 %%
-                showFilmPoints(hAxis);
-            end
-        end
+for i=uint8(1:length(stateS.handle.CERRAxis))
+    hAxis = stateS.handle.CERRAxis(i);
+    view = getAxisInfo(i, 'view');
+    if strcmpi(view, 'legend')
+        showCERRLegend(hAxis);
     end
+    %try % This is added for the Film QA Tool DK %% 03-18-08 %%
+    %    showFilmPoints(hAxis);
+    %end
 end
+    
+% if ~isfield(stateS,'webtrev') || ~stateS.webtrev.isOn
+% end
 
 if(isempty(stateS.gridState))  %Ruler was on, first toggle it off, then back on to recalculate values and redraw.
     stateS = callGrid('revert', stateS.gridState);

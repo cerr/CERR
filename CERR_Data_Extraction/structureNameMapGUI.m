@@ -247,7 +247,7 @@ switch upper(command)
         extractMetricsH.additonal_metrics_help_txt   = uicontrol(hFig,'style','text','string','myMetric1, myMetric2','units',units,'position',[0.04 0.58 0.25 0.1],'fontWeight','normal','fontSize',8,'BackgroundColor', figureColor,'HorizontalAlignment','left');
         extractMetricsH.additonal_metrics_edit  = uicontrol(hFig,'style','edit','string','','units',units,'position',[0.28 0.68 0.7 0.05],'fontWeight','normal','fontSize',10,'BackgroundColor', figureColor,'HorizontalAlignment','left');
         extractMetricsH.export_format_txt    = uicontrol(hFig,'style','text','string','Export Format','units',units,'position',[0.02 0.5 0.25 0.1],'fontWeight','bold','fontSize',10,'BackgroundColor', figureColor,'HorizontalAlignment','left');
-        extractMetricsH.export_format_popup  = uicontrol(hFig,'style','popup','string',{'DREES (.mat)','OQA (mySql database)', 'SPSS (MS-Excel)', 'BIRN (database)'},'units',units,'position',[0.28 0.57 0.3 0.05],'fontWeight','normal','fontSize',10,'BackgroundColor', figureColor,'HorizontalAlignment','left');
+        extractMetricsH.export_format_popup  = uicontrol(hFig,'style','popup','string',{'DREES (.mat)','OQA (mySql database)', 'SPSS (MS-Excel)', 'RADRESEARCH (database)', 'BIRN (database)'},'units',units,'position',[0.28 0.57 0.3 0.05],'fontWeight','normal','fontSize',10,'BackgroundColor', figureColor,'HorizontalAlignment','left');
         extractMetricsH.excel_data_txt    = uicontrol(hFig,'style','text','string','Excel Data','units',units,'position',[0.02 0.41 0.25 0.1],'fontWeight','bold','fontSize',10,'BackgroundColor', figureColor,'HorizontalAlignment','left');
         extractMetricsH.excel_data_push  = uicontrol(hFig,'style','push','string','Select','units',units,'position',[0.28 0.46 0.25 0.05],'fontWeight','normal','fontSize',10,'BackgroundColor', figureColor,'HorizontalAlignment','left','callback','structureNameMapGUI(''GET_EXCEL_DATA'')');
         extractMetricsH.drees_fileName_str    = uicontrol(hFig,'style','text','string','Saved FileName','units',units,'position',[0.02 0.32 0.25 0.1],'fontWeight','bold','fontSize',10,'BackgroundColor', figureColor,'HorizontalAlignment','left');
@@ -1599,7 +1599,11 @@ switch upper(command)
         
     case 'SAVE_EXTRACTED_METRICS'
         
-        if ~isfield(ud,'drees_fileName')
+        %get export format (drees, oqa ...)
+        exportFormatVal = get(ud.handles.extractMetricsH.export_format_popup,'value');
+
+        
+        if ~isfield(ud,'drees_fileName') && exportFormatVal < 4
             errordlg('Please select DREES fileName to store data','FileName Required','modal')
             return
         end
@@ -1622,10 +1626,7 @@ switch upper(command)
             end
             
         end
-        
-        %get export format (drees, oqa ...)
-        exportFormatVal = get(ud.handles.extractMetricsH.export_format_popup,'value');
-        
+                
         %Get waitbar handles
         waitbarH = ud.handles.extractMetricsH.waitbar_status_frame2;
         statusStrH = ud.handles.extractMetricsH.percent_text;
@@ -2078,11 +2079,101 @@ switch upper(command)
             end
             xlswrite(fName,unsuccssfulPlans)
             winopen(fName);
-                      
             
-        elseif exportFormatVal == 4 %BIRN Database
+        elseif exportFormatVal == 4 %RADRESEARCH Database
             
-            %Connect to OQA database
+            feature jit off
+            
+            %Connect to RADRESEARCH database
+            driver = 'com.mysql.jdbc.Driver';
+            databaseurl = 'jdbc:mysql://MMPH0005:3306/';
+            username = 'root';
+            password = '';
+            instance = 'radresearch';
+            setdbprefs({'NullStringRead';'NullNumberRead';'DataReturnFormat';'errorhandling'},{'';'NaN';'structure';'report'})
+            
+            %javaaddpath('G:\Projects\mysql_connector\mysql-connector-java-5.1.36-bin.jar')
+            conn = database(instance,username,password,driver,databaseurl);
+            
+            for planNum=1:length(ud.newNameMapS)
+                
+                %Update Waitbar
+                drawnow
+                set(waitbarH,'position',[0.05 0.18 0.9*planNum/length(ud.newNameMapS) 0.04])
+                set(statusStrH,'string',['Exporting ',int2str(planNum),' out of ',int2str(length(ud.newNameMapS))])
+                
+                %Load CERR plan
+                try
+                    planC = loadPlanC(ud.newNameMapS(planNum).fullFileName, tempdir);
+                    planC = updatePlanFields(planC);
+                    planC = quality_assure_planC('', planC);
+                catch
+                    continue;
+                end
+                
+                [~,fnam] = fileparts(ud.newNameMapS(planNum).fullFileName);
+                mrn = strtok(fnam,'-');
+                
+                %Find the matching patient in the database
+                sqlq_find_patient = ['Select id from patient where MRN = ''', mrn,''''];
+                pat_raw = exec(conn, sqlq_find_patient);
+                pat = fetch(pat_raw);
+                pat = pat.Data;
+                if isstruct(pat)
+                    patient_id = pat.id;
+                    continue; % duplicate upload!
+                else
+                    patient_id = [];
+                end
+                
+                %Insert New patient to database
+                if isempty(patient_id)
+                    institution = 'MSKCC';
+                    insert(conn,'patient',{'MRN','institution','cerr_file_location'},{mrn,institution,ud.newNameMapS(planNum).fullFileName});
+                    sqlq_find_patient = ['Select id from patient where MRN = ''', mrn,''''];
+                    pat_raw = exec(conn, sqlq_find_patient);
+                    pat = fetch(pat_raw);
+                    pat = pat.Data;
+                    if isstruct(pat)
+                        patient_id = pat.id;
+                    end
+                end
+
+                strNum = ud.newNameMapS(planNum).structMap{1};
+
+                %Write "cooccurance features" to database
+                [energy,contrast,Entropy,Homogeneity,standard_dev,Ph,Slope] = getHaralicParams(strNum, planC);
+                insert(conn,'coOccur',{'patient_id','energy','entropy','homogenity','contrast'},{patient_id,energy,Entropy,Homogeneity,contrast});
+                
+                %Write "shape features" database
+                [Eccentricity,EulerNumber,Solidity,Extent] = getShapeParams(strNum,planC);
+                insert(conn,'shape',{'patient_id','eccentricity','eulerNumber','solidity','extent'},{patient_id,Eccentricity,EulerNumber,Solidity,Extent});
+                                
+                %Write "zone size features" database
+                numLevels = 16;
+                [SRE,LRE,IV,RLV,RP,LIRE,HIRE,LISRE,HISRE,LILRE,HILRE] = ...
+                getSizeParams(strNum,numLevels,planC);
+                insert(conn,'zoneSize',{'patient_id','SRE','LRE','IV','RLV',...
+                    'RP','LIRE','HIRE','LISRE','HISRE','LILRE','HILRE'},...
+                    {patient_id,SRE,LRE,IV,RLV,RP,LIRE,HIRE,LISRE,HISRE,LILRE,HILRE});
+
+                %Write "statistics features" database
+                [RadiomicsFirstOrder] = radiomics_first_order_stats(planC,strNum);             
+                insert(conn,'statistics',{'patient_id','min', 'max', 'mean',...
+                    'scanRange', 'std', 'var', 'median', 'skewness', 'kurtosis',...
+                    'RMS', 'totalEnergy', 'MD'},{patient_id,RadiomicsFirstOrder.min RadiomicsFirstOrder.max RadiomicsFirstOrder.mean RadiomicsFirstOrder.range ...
+                    RadiomicsFirstOrder.std RadiomicsFirstOrder.var RadiomicsFirstOrder.median RadiomicsFirstOrder.skewness ...
+                    RadiomicsFirstOrder.kurtosis RadiomicsFirstOrder.rms RadiomicsFirstOrder.totalEnergy RadiomicsFirstOrder.MD});
+                
+
+            end
+            
+            close(conn)
+            
+            
+        elseif exportFormatVal == 5 %BIRN Database
+            
+            %Connect to BIRN database
             feature jit off
             
             %Load database driver
@@ -2109,68 +2200,7 @@ switch upper(command)
                     planC = updatePlanFields(planC);
                     indexS = planC{end};
                     % Quality Assurance
-                    %Check for mesh representation and load meshes into memory
-                    currDir = cd;
-                    meshDir = fileparts(which('libMeshContour.dll'));
-                    cd(meshDir)
-                    for strNum = 1:length(planC{indexS.structures})
-                        if isfield(planC{indexS.structures}(strNum),'meshRep') && ~isempty(planC{indexS.structures}(strNum).meshRep) && planC{indexS.structures}(strNum).meshRep
-                            try
-                                calllib('libMeshContour','loadSurface',planC{indexS.structures}(strNum).strUID,planC{indexS.structures}(strNum).meshS)
-                            catch
-                                planC{indexS.structures}(strNum).meshRep    = 0;
-                                planC{indexS.structures}(strNum).meshS      = [];
-                            end
-                        end
-                    end
-                    cd(currDir)
-                    
-                    stateS.optS = CERROptions;
-                    
-                    %Check color assignment for displaying structures
-                    [assocScanV,relStrNumV] = getStructureAssociatedScan(1:length(planC{indexS.structures}),planC);
-                    for scanNum = 1:length(planC{indexS.scan})
-                        scanIndV = find(assocScanV==scanNum);
-                        for i = 1:length(scanIndV)
-                            strNum = scanIndV(i);
-                            colorNum = relStrNumV(strNum);
-                            if isempty(planC{indexS.structures}(strNum).structureColor)
-                                color = stateS.optS.colorOrder( mod(colorNum-1, size(stateS.optS.colorOrder,1))+1,:);
-                                planC{indexS.structures}(strNum).structureColor = color;
-                            end
-                        end
-                    end
-                    
-                    %Check dose-grid
-                    for doseNum = 1:length(planC{indexS.dose})
-                        if planC{indexS.dose}(doseNum).zValues(2) - planC{indexS.dose}(doseNum).zValues(1) < 0
-                            planC{indexS.dose}(doseNum).zValues = flipud(planC{indexS.dose}(doseNum).zValues);
-                            planC{indexS.dose}(doseNum).doseArray = flipdim(planC{indexS.dose}(doseNum).doseArray,3);
-                        end
-                    end
-                    
-                    %Check whether uniformized data is in cellArray format.
-                    if ~isempty(planC{indexS.structureArray}) && iscell(planC{indexS.structureArray}(1).indicesArray)
-                        planC = setUniformizedData(planC,planC{indexS.CERROptions});
-                        indexS = planC{end};
-                    end
-                    
-                    if length(planC{indexS.structureArrayMore}) ~= length(planC{indexS.structureArray})
-                        for saNum = 1:length(planC{indexS.structureArray})
-                            if saNum == 1
-                                planC{indexS.structureArrayMore} = struct('indicesArray', {[]},...
-                                    'bitsArray', {[]},...
-                                    'assocScanUID',{planC{indexS.structureArray}(saNum).assocScanUID},...
-                                    'structureSetUID', {planC{indexS.structureArray}(saNum).structureSetUID});
-                                
-                            else
-                                planC{indexS.structureArrayMore}(saNum) = struct('indicesArray', {[]},...
-                                    'bitsArray', {[]},...
-                                    'assocScanUID',{planC{indexS.structureArray}(saNum).assocScanUID},...
-                                    'structureSetUID', {planC{indexS.structureArray}(saNum).structureSetUID});
-                            end
-                        end
-                    end
+                    planC = quality_assure_planC('', planC);
                     
                     %Sum doses if required
                     dosesToSumV = ud.sumDose.doseMapS(planNum).DosesToSum;

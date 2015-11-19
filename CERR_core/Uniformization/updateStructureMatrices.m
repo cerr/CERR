@@ -113,7 +113,7 @@ if exist('sliceNumsV') && ((cellNum == 1) || (cellNum-1 <= length(planC{indexS.s
             planC{indexS.structureArray}(scanNum).bitsArray(tf) = bitset(uint8(planC{indexS.structureArray}(scanNum).bitsArray(tf)), relStructNum, 0);
         end
     else
-        tf = ismember(planC{indexS.structureArrayMore}(scanNum).indicesArray{cellNum}(:,3), sliceNumsV);
+        tf = ismember(planC{indexS.structureArrayMore}(scanNum).indicesArray{cellNum-1}(:,3), sliceNumsV);
         planC{indexS.structureArrayMore}(scanNum).bitsArray{cellNum-1}(tf) = bitset(uint8(planC{indexS.structureArrayMore}(scanNum).bitsArray{cellNum-1}(tf)), relStructNum - 52 - 8*(cellNum-2), 0);
     end
 elseif (cellNum == 1)

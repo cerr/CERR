@@ -34,8 +34,13 @@ for i=1:length(planC{indexS.structures})
 end
 vis = [planC{indexS.structures}.visible];
 
-contours = findobj('tag', 'structContour');
+sGv = [];
+for i = uint8(1:length(stateS.handle.CERRAxis))
+    sG = getAxisInfo(i,'structureGroup');
+    sGv = [sGv; sG.handles];
+end
 
+contours = findobj(sGv,'tag', 'structContour');
 
 ud = get(contours, 'userdata');
 if iscell(ud)
@@ -47,7 +52,7 @@ set(contours(~tf), 'visible', 'off');
 set(contours(tf), 'visible', 'on');
 
 if stateS.optS.structureDots
-    contourDots = findobj('tag', 'structContourDots');
+    contourDots = findobj(sGv,'tag', 'structContourDots');
     udCD = get(contourDots, 'userdata');
     udCD = [udCD{:}];
     structNumCD = udCD;

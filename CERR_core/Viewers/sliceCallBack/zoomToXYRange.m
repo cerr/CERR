@@ -25,8 +25,9 @@ function zoomToXYRange(hAxis)
 % You should have received a copy of the GNU General Public License
 % along with CERR.  If not, see <http://www.gnu.org/licenses/>.
 
+global stateS
 
-[xRange, yRange] = getAxisInfo(hAxis, 'xRange', 'yRange');
+[xRange, yRange, viewAx] = getAxisInfo(hAxis, 'xRange', 'yRange', 'view');
 
 %Cannot zoom axes that have no x, y range values.  Set them to auto and
 %return.
@@ -59,5 +60,48 @@ else
     newDeltaX = newDeltaY * xyRatio;
 end
 
-set(hAxis, 'xLim', [midpoint_x - newDeltaX/2 midpoint_x + newDeltaX/2]);
-set(hAxis, 'yLim', [midpoint_y - newDeltaY/2 midpoint_y + newDeltaY/2]);
+xLim        = [midpoint_x - newDeltaX/2 midpoint_x + newDeltaX/2];
+%deltaX      = num2str(xLim(2) - xLim(1), '%0.4g');
+yLim        = [midpoint_y - newDeltaY/2 midpoint_y + newDeltaY/2];
+
+set(hAxis, 'xLim', xLim);
+set(hAxis, 'yLim', yLim);
+
+%Show 5cm bar to display zoom-level
+len = 5; %cm
+switch upper(viewAx)
+    case 'TRANSVERSE'
+        dx = xLim(2)-xLim(1);
+        xStart = xLim(1) + dx * 0.05;
+        xEnd = xStart + len;
+        dy = yLim(2)-yLim(1);
+        yStart = yLim(1) + dy * 0.05;
+        yEnd = yStart + len;
+    case 'SAGITTAL'
+        dx = xLim(2)-xLim(1);
+        xStart = xLim(2) - dx * 0.05;
+        xEnd = xStart - len;
+        dy = yLim(2)-yLim(1);
+        yStart = yLim(2) - dy * 0.05;
+        yEnd = yStart - len;        
+    case 'CORONAL'
+            dx = xLim(2)-xLim(1);
+            xStart = xLim(1) + dx * 0.05;
+            xEnd = xStart + len;
+            dy = yLim(2)-yLim(1);
+            yStart = yLim(2) - dy * 0.05;
+            yEnd = yStart - len;
+    case 'LEGEND'
+        return;
+end
+xAll = linspace(xStart,xEnd,6);
+yAll = linspace(yStart,yEnd,6);
+
+i = find(stateS.handle.CERRAxis == hAxis);
+for j = 1:size(stateS.handle.CERRAxisTicks1,2)
+    set(stateS.handle.CERRAxisTicks1(i,j),'xData',[xAll(j) xAll(j)], 'yData', [yStart-dy*0.0025 yStart+dy*0.0025],'visible','on')
+    set(stateS.handle.CERRAxisTicks2(i,j),'xData',[xStart-dx*0.0025 xStart+dx*0.0025], 'yData', [yAll(j) yAll(j)],'visible','on')
+end
+
+set(stateS.handle.CERRAxisScale1(i),'xData',[xStart xEnd], 'yData', [yStart yStart],'visible','on')
+set(stateS.handle.CERRAxisScale2(i),'xData',[xStart xStart], 'yData', [yStart yEnd],'visible','on')

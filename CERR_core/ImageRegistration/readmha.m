@@ -91,29 +91,31 @@ for i=1:20
   
   [a,cnt] = sscanf(t,'ElementDataFile = %s',1);
   if (cnt > 0)
-    data_loc = a;
+    data_loc = fullfile(fileparts(fn),a);
+    fp_data = fopen(data_loc,'rb');
     if double(t(end)) ~= 10
-        fseek(fp, -1, 0)
+        fp_data = fopen(data_loc,'rb');
+        %fseek(fp, -1, 0)
     end
     break;
   end
 end
 
 if (strcmp(element_type,'MET_FLOAT'))
-  [A,count] = fread(fp,sz(1)*sz(2)*sz(3)*nchannels,'float');
+  [A,count] = fread(fp_data,sz(1)*sz(2)*sz(3)*nchannels,'float');
 elseif (strcmp(element_type,'MET_SHORT'))
-    [A,count] = fread(fp,sz(1)*sz(2)*sz(3)*nchannels,'short');
+    [A,count] = fread(fp_data,sz(1)*sz(2)*sz(3)*nchannels,'short');
 elseif (strcmp(element_type,'MET_USHORT'))
-    [A,count] = fread(fp,sz(1)*sz(2)*sz(3)*nchannels,'ushort');
+    [A,count] = fread(fp_data,sz(1)*sz(2)*sz(3)*nchannels,'ushort');
 elseif (strcmp(element_type,'MET_UCHAR'))
-  [A,count] = fread(fp,sz(1)*sz(2)*sz(3)*nchannels,'uchar');
+  [A,count] = fread(fp_data,sz(1)*sz(2)*sz(3)*nchannels,'uchar');
 elseif (strcmp(element_type,'MET_UINT'))
-  [A,count] = fread(fp,sz(1)*sz(2)*sz(3)*nchannels,'uint32');
+  [A,count] = fread(fp_data,sz(1)*sz(2)*sz(3)*nchannels,'uint32');
 elseif (strcmp(element_type,'MET_DOUBLE'))
-  [A,count] = fread(fp,sz(1)*sz(2)*sz(3)*nchannels,'real*8');
+  [A,count] = fread(fp_data,sz(1)*sz(2)*sz(3)*nchannels,'real*8');
 else
   %[A,count] = fread(fp,sz(1)*sz(2)*sz(3)*nchannels,'int16');
-  [A,count] = fread(fp,sz(1)*sz(2)*sz(3)*nchannels,'int32');
+  [A,count] = fread(fp_data,sz(1)*sz(2)*sz(3)*nchannels,'int32');
 end
 %% A = reshape(A,sz(1),sz(2),sz(3),nchannels);
 A = reshape(A,nchannels,sz(1),sz(2),sz(3));

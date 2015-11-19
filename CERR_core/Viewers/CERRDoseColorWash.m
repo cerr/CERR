@@ -172,8 +172,13 @@ else
 end
 
 if stateS.optS.transparentZeroDose
-    if offset == 0  %cuts-off dose=0
-        maskM(dose2M <= offset) = 0;
+    %     if offset == 0  %cuts-off dose=0
+    %         maskM(dose2M <= offset) = 0;
+    %     end
+    if offset
+        maskM(dose2M == offset) = 0;
+    else
+        maskM(dose2M == 0) = 0;
     end
 end
 
@@ -189,7 +194,7 @@ end
 %Fit dose to colormap, but first replace full dose with only dose values that will be displayed.
 lowerBound = colorbarRange(1);
 upperBound = colorbarRange(2);
-if ~(lowerBound == 0 & upperBound == 0) & ~(lowerBound == upperBound)
+if ~(lowerBound == 0 && upperBound == 0) && ~(lowerBound == upperBound)
     percentBelow = (colorbarRange(1) - colorbarFrameMin) / (colorbarRange(2) - colorbarRange(1));
     percentAbove = (colorbarFrameMax - colorbarRange(2)) / (colorbarRange(2) - colorbarRange(1));
     nElements = size(c, 1);
@@ -210,7 +215,7 @@ partialDoseClip = clip(roundPartialDose,1,size(c,1),'limits');
 cData3M = c(partialDoseClip, 1:3);
 
 %Temporarily out of commission: doesnt matter since we no longer use texture heavily.
-if(offset) & stateS.optS.negativeTexture
+if(offset) && stateS.optS.negativeTexture
     textureMap = [];
     if isempty(textureMap)
         thin = 1; %intensity values for thin and thick bars
@@ -235,14 +240,22 @@ end
 CTBackground3M = [];
 
 if stateS.CTToggle == 1 && ~noCT %Don't show very low doses
-    colorCT = CERRColorMap(stateS.optS.CTColormap);    
     
     CTOffset = planC{indexS.scan}(scanSet(1)).scanInfo(1).CTOffset;
     
-    CTLevel     = stateS.optS.CTLevel + CTOffset;
-    CTWidth     = stateS.optS.CTWidth;
+    scanUID = ['c',repSpaceHyp(planC{indexS.scan}(scanSet).scanUID(max(1,end-61):end))];
+    colorCT = CERRColorMap(stateS.scanStats.Colormap.(scanUID));
+    %colorCT = CERRColorMap(stateS.optS.CTColormap);
+    CTLevel     = stateS.scanStats.CTLevel.(scanUID) + CTOffset;
+    CTWidth     = stateS.scanStats.CTWidth.(scanUID);
     CTLow       = CTLevel - CTWidth/2;
     CTHigh      = CTLevel + CTWidth/2;
+    
+    
+    %CTLevel     = stateS.optS.CTLevel + CTOffset;
+    %CTWidth     = stateS.optS.CTWidth;
+    %CTLow       = CTLevel - CTWidth/2;
+    %CTHigh      = CTLevel + CTWidth/2;
 
     CT2M = clip(CT2M, CTLow, CTHigh, 'limits');
 
@@ -254,14 +267,18 @@ if stateS.CTToggle == 1 && ~noCT %Don't show very low doses
     %the colorCT last element to display the maxValue correctly.
     if CTLow ~= CTHigh
         ctScaled = (CT2M - CTLow) / ((CTHigh - CTLow) / size(colorCT,1)) + 1;
-        ctClip = uint32(ctScaled);
+        ctClip = uint16(ctScaled);
         colorCT(end+1,:) = colorCT(end,:);
     else
         ctClip = ones(size(CT2M));
     end
+    %ctClip = ctClip(1:ctSize(1),1:ctSize(2));
 
+    colorCT = (1-stateS.doseAlphaValue.trans)*colorCT;
+    
     %build CT background by indexing into CTcolormap. Optimal mtd for speed.
-    CTBackground3M = reshape(colorCT(ctClip(1:ctSize(1),1:ctSize(2)),1:3),ctSize(1),ctSize(2),3);
+    %CTBackground3M = reshape((1-stateS.doseAlphaValue.trans)*colorCT(ctClip,1:3),ctSize(1),ctSize(2),3);
+    CTBackground3M = colorCT(ctClip(:),1:3);
 
     %Check status of transparency value.
     if ~isfield(stateS, 'doseAlphaValue')
@@ -269,7 +286,8 @@ if stateS.CTToggle == 1 && ~noCT %Don't show very low doses
     end
 
     %Build 3 layer mask of dose pixel locations.
-    mask3M = repmat(maskM, [1 1 3]);
+    %mask3M = repmat(maskM, [1 1 3]);
+    mask3M = repmat(maskM(:), [1 3]);
 
     %Add dose to the CT, merging it with CT values @mask3M based on alpha.
     if ~isempty(cData3M(:))
@@ -277,9 +295,11 @@ if stateS.CTToggle == 1 && ~noCT %Don't show very low doses
         if stateS.imageRegistration
             CTBackground3M(mask3M) = [cData3M(:) CTBackground3M(mask3M)] * [stateS.doseFusionAlpha 1-stateS.doseFusionAlpha]';
         else
-            CTBackground3M(mask3M) = [cData3M(:) CTBackground3M(mask3M)] * [stateS.doseAlphaValue.trans 1-stateS.doseAlphaValue.trans]';
+            %CTBackground3M(mask3M) = [cData3M(:) CTBackground3M(mask3M)] * [stateS.doseAlphaValue.trans 1-stateS.doseAlphaValue.trans]';
+            CTBackground3M(mask3M) = CTBackground3M(mask3M) + cData3M(:)*stateS.doseAlphaValue.trans;
         end
     end
+    CTBackground3M = reshape(CTBackground3M,ctSize(1),ctSize(2),3);
     cData3M = CTBackground3M;
 end
 

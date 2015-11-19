@@ -585,13 +585,13 @@ if ~isempty(in_str)
                 end
 
             case 'mask'  %show a spy mask of values included in an ROI
-
+                
                 structNum   = str2num(word(in_str,2));
                 doseNum = str2num(word(in_str,3));
                 rxDose = str2num(word(in_str,4));
                 lowCutoff = 0.95;
                 highCutoff = 1.1;
-
+                
                 % This is for command line help funciton
                 if isempty(structNum)
                     prompt = {'Enter the Structure Number'};
@@ -605,61 +605,57 @@ if ~isempty(in_str)
                         structNum = str2num(structNum{1});
                     end
                 end
-
+                
                 scanSet     = getStructureAssociatedScan(structNum);
-
-                [xUnifV, yUnifV, jnk] = getUniformScanXYZVals(planC{indexS.scan}(scanSet));
-
+                [xUnifV, yUnifV, jnk] = getUniformScanXYZVals(planC{indexS.scan}(scanSet));                
                 [jnk1, jnk2, zCTV] = getScanXYZVals(planC{indexS.scan}(scanSet));
-
-                %structColor = getColor(structNum, stateS.optS.colorOrder, 'loop');
                 structColor = planC{indexS.structures}(structNum).structureColor;
-
+                [scanNum, relStructNum] = getStructureAssociatedScan(structNum, planC);
+                
                 for indAxis = 1:length(stateS.handle.CERRAxis)
-
+                    
                     hAxis = stateS.handle.CERRAxis(indAxis);
-
+                    
                     view = getAxisInfo(hAxis, 'view');
-
+                    
                     set(hAxis, 'nextplot', 'add');
-
+                    
                     switch lower(view)
-
+                        
                         case 'transverse'
-
-                            zValue=getAxisInfo(hAxis,'coord');
-                            [scanNum, relStructNum] = getStructureAssociatedScan(structNum, planC);
-
+                            
+                            zValue = getAxisInfo(hAxis,'coord');                            
+                            
                             if isfield(planC{indexS.scan}(scanNum),'transM') && isempty(planC{indexS.scan}(scanNum).transM)
-
+                                
                                 sliceT=findnearest(zCTV,zValue);
                                 zslice = zCTV(sliceT);
-
+                                
                                 [segmentsM, planC, isError] = getRasterSegments(structNum, planC);
                                 indV = find(abs(segmentsM(:,1) - zslice) < 1e-3);  %mask values on this slice
-
+                                
                                 segmentsM = segmentsM(indV(:),7:9);     %segments
-
+                                
                                 %reconstruct the mask:
                                 ROIImageSize   = [planC{indexS.scan}(scanSet).scanInfo(1).sizeOfDimension1  planC{indexS.scan}(scanSet).scanInfo(1).sizeOfDimension2];
-
+                                
                                 maskM = zeros(ROIImageSize);
-
+                                
                                 for i = 1 : size(segmentsM,1)
                                     maskM(segmentsM(i,1),segmentsM(i,2):segmentsM(i,3)) = 1;
                                 end
-
+                                
                                 %For Trans:
                                 [i,j] = find(maskM);
-
+                                
                                 [xV, yV, zV] = mtoxyz(i,j,repmat(sliceT, [length(i) 1]),scanSet,planC);
                                 if isempty(zV) || isempty(xV) || isempty(yV)
                                     continue
                                 end
-
-
+                                
+                                
                             else
-
+                                
                                 dim = 3;
                                 coord = zValue;
                                 [slcC, xV, yV] = getStructureSlice(scanNum, dim, coord);
@@ -670,104 +666,45 @@ if ~isempty(in_str)
                                     cellNum = 1;
                                 else
                                     cellNum = ceil((relStructNum-52)/8)+1; %uint8
-                                end
-                                if relStructNum<=52
-                                    cellNum = 1;
-                                else
-                                    cellNum = ceil((relStructNum-52)/8)+1; %uint8
+                                    relStructNum = relStructNum-(cellNum-2)*8-52;
                                 end
                                 structsOnSlice = cumbitor(slcC{cellNum}(:));
-                                includeCurrStruct = bitget(structsOnSlice, relStructNum-(cellNum-1)*8);
+                                includeCurrStruct = bitget(structsOnSlice, relStructNum);
                                 if includeCurrStruct
-                                    oneStructM = bitget(slcC{cellNum}, relStructNum-(cellNum-1)*8);
+                                    oneStructM = bitget(slcC{cellNum}, relStructNum);
                                 else
                                     continue;
                                 end
-
+                                
                                 [i,j] = find(oneStructM');
                                 xV = xV(j);
                                 yV = yV(i);
                                 zV = zValue*ones(size(xV));
-
-                            end
-
-                            if ~isempty(doseNum)
-                                %paint low, prescription and high dose regions
-                                doseV = getdoseAt(doseNum,xV, yV, zV, planC);
-                                lowDoseIndV = find(doseV<rxDose*lowCutoff);
-                                highDoseIndV = find(doseV>rxDose*highCutoff);
-                                prescrIndV = 1:length(doseV);
-                                prescrIndV([lowDoseIndV(:);highDoseIndV(:)]) = [];
-                                h1 = plot(xV(lowDoseIndV),yV(lowDoseIndV),'marker','.','markersize', 5, 'linestyle','none','color','r', 'parent', hAxis, 'tag', 'ROIMask', 'hittest', 'off');
-                                h2 = plot(xV(prescrIndV),yV(prescrIndV),'marker','.','markersize', 5, 'linestyle','none','color','g', 'parent', hAxis, 'tag', 'ROIMask', 'hittest', 'off');
-                                h3 = plot(xV(highDoseIndV),yV(highDoseIndV),'marker','.','markersize', 5, 'linestyle','none','color','b', 'parent', hAxis, 'tag', 'ROIMask', 'hittest', 'off');
-                                stateS.handle.mask = [stateS.handle.mask, h1, h2, h3];
-
-                                %Draw Mask on linked axes
-                                for i=1:length(stateS.handle.CERRAxis)
-
-                                    UD=get(stateS.handle.CERRAxis(i),'userdata');
-
-                                    if iscell(UD.view) & UD.view{2}==hAxis
-                                        h1 = plot(xV(lowDoseIndV),yV(lowDoseIndV),'marker','.','markersize', 5, 'linestyle','none','color','r', 'parent', stateS.handle.CERRAxis(i), 'tag', 'ROIMask', 'hittest', 'off');
-                                        h2 = plot(xV(prescrIndV),yV(prescrIndV),'marker','.','markersize', 5, 'linestyle','none','color','g', 'parent', stateS.handle.CERRAxis(i), 'tag', 'ROIMask', 'hittest', 'off');
-                                        h3 = plot(xV(highDoseIndV),yV(highDoseIndV),'marker','.','markersize', 5, 'linestyle','none','color','b', 'parent', stateS.handle.CERRAxis(i), 'tag', 'ROIMask', 'hittest', 'off');
-                                        stateS.handle.mask = [stateS.handle.mask, h1, h2, h3];
-                                    end
-                                end
-
-                                %Draw Mask on axis from where link is created
-                                UD=get(hAxis,'userdata');
-
-                                if iscell(UD.view)
-                                    h1 = plot(xV(lowDoseIndV),yV(lowDoseIndV),'marker','.','markersize', 5, 'linestyle','none','color','r', 'parent', UD.view{2}, 'tag', 'ROIMask', 'hittest', 'off');
-                                    h2 = plot(xV(prescrIndV),yV(prescrIndV),'marker','.','markersize', 5, 'linestyle','none','color','g', 'parent', UD.view{2}, 'tag', 'ROIMask', 'hittest', 'off');
-                                    h3 = plot(xV(highDoseIndV),yV(highDoseIndV),'marker','.','markersize', 5, 'linestyle','none','color','b', 'parent', UD.view{2}, 'tag', 'ROIMask', 'hittest', 'off');
-                                    stateS.handle.mask = [stateS.handle.mask, h1, h2, h3];
-                                end
-
-                            else
-                                h = plot(xV,yV,'marker','.','markersize', 5, 'linestyle','none','color',structColor, 'parent', hAxis, 'tag', 'ROIMask', 'hittest', 'off');
-
-                                stateS.handle.mask = [stateS.handle.mask, h];
-
-                                %Draw Mask on linked axes
-                                for i=1:length(stateS.handle.CERRAxis)
-
-                                    UD=get(stateS.handle.CERRAxis(i),'userdata');
-
-                                    if iscell(UD.view) & UD.view{2}==hAxis
-                                        h = plot(xV,yV,'marker','.','markersize', 5, 'linestyle','none','color',structColor, 'parent', stateS.handle.CERRAxis(i), 'tag', 'ROIMask', 'hittest', 'off');
-                                        stateS.handle.mask = [stateS.handle.mask, h];
-                                    end
-                                end
-
-                                %Draw Mask on axis from where link is created
-                                UD=get(hAxis,'userdata');
-
-                                if iscell(UD.view)
-                                    h = plot(xV,yV,'marker','.','markersize', 5, 'linestyle','none','color',structColor, 'parent', UD.view{2}, 'tag', 'ROIMask', 'hittest', 'off');
-                                    stateS.handle.mask = [stateS.handle.mask, h];
-                                end
-
-                            end
-
+                                
+                            end  
+                            % Store x,y,z coords for dose
+                            xDoseV = xV;
+                            yDoseV = yV;
+                            zDoseV = zV;                            
+                            
+                            
                         case 'coronal'
+                            
                             yValue=getAxisInfo(hAxis,'coord');
                             [scanNum, relStructNum] = getStructureAssociatedScan(structNum, planC);
                             if isfield(planC{indexS.scan}(scanNum),'transM') && isempty(planC{indexS.scan}(scanNum).transM)
-
+                                
                                 sliceC=findnearest(yUnifV,yValue);
-
+                                
                                 %For Cor:
                                 maskM = getStructureMask(structNum, sliceC, 2, planC);
                                 [i,j] = find(maskM);
-
+                                
                                 [xV, yV, zV] = mtoxyz(repmat(sliceC, [length(i) 1]), j, i, scanSet, planC, 'uniform', getUniformScanSize(planC{indexS.scan}(scanSet)));
                                 if isempty(zV) || isempty(xV) || isempty(yV)
                                     continue
                                 end
-
+                                
                             else
                                 dim = 2;
                                 coord = yValue;
@@ -779,104 +716,53 @@ if ~isempty(in_str)
                                     cellNum = 1;
                                 else
                                     cellNum = ceil((relStructNum-52)/8)+1; %uint8
-                                end                                
+                                    relStructNum = relStructNum-(cellNum-2)*8-52;
+                                end
                                 structsOnSlice = cumbitor(slcC{cellNum}(:));
-                                includeCurrStruct = bitget(structsOnSlice, relStructNum-(cellNum-1)*8);
+                                includeCurrStruct = bitget(structsOnSlice, relStructNum);
                                 if includeCurrStruct
-                                    oneStructM = bitget(slcC{cellNum}, relStructNum-(cellNum-1)*8);
+                                    oneStructM = bitget(slcC{cellNum}, relStructNum);
                                 else
                                     continue;
                                 end
-
+                                
                                 [i,j] = find(oneStructM);
                                 xV = xV(j);
                                 zV = zV(i);
                                 yV = yValue*ones(size(xV));
                             end
-
-                            if ~isempty(doseNum)
-                                %paint low, prescription and high dose regions
-                                doseV = getdoseAt(doseNum,xV, yV, zV, planC);
-                                lowDoseIndV = find(doseV<rxDose*lowCutoff);
-                                highDoseIndV = find(doseV>rxDose*highCutoff);
-                                prescrIndV = 1:length(doseV);
-                                prescrIndV([lowDoseIndV(:);highDoseIndV(:)]) = [];
-                                h1 = plot(xV(lowDoseIndV),zV(lowDoseIndV),'marker','.','markersize', 5, 'linestyle','none','color','r', 'parent', hAxis, 'tag', 'ROIMask', 'hittest', 'off');
-                                h2 = plot(xV(prescrIndV),zV(prescrIndV),'marker','.','markersize', 5, 'linestyle','none','color','g', 'parent', hAxis, 'tag', 'ROIMask', 'hittest', 'off');
-                                h3 = plot(xV(highDoseIndV),zV(highDoseIndV),'marker','.','markersize', 5, 'linestyle','none','color','b', 'parent', hAxis, 'tag', 'ROIMask', 'hittest', 'off');
-                                stateS.handle.mask = [stateS.handle.mask, h1, h2, h3];
-
-                                %Draw Mask on linked axes
-                                for i=1:length(stateS.handle.CERRAxis)
-
-                                    UD=get(stateS.handle.CERRAxis(i),'userdata');
-
-                                    if iscell(UD.view) & UD.view{2}==hAxis
-                                        h1 = plot(xV(lowDoseIndV),zV(lowDoseIndV),'marker','.','markersize', 5, 'linestyle','none','color','r', 'parent', stateS.handle.CERRAxis(i), 'tag', 'ROIMask', 'hittest', 'off');
-                                        h2 = plot(xV(prescrIndV),zV(prescrIndV),'marker','.','markersize', 5, 'linestyle','none','color','g', 'parent', stateS.handle.CERRAxis(i), 'tag', 'ROIMask', 'hittest', 'off');
-                                        h3 = plot(xV(highDoseIndV),zV(highDoseIndV),'marker','.','markersize', 5, 'linestyle','none','color','b', 'parent', stateS.handle.CERRAxis(i), 'tag', 'ROIMask', 'hittest', 'off');
-                                        stateS.handle.mask = [stateS.handle.mask, h1, h2, h3];
-                                    end
-                                end
-
-                                %Draw Mask on axis from where link is created
-                                UD=get(hAxis,'userdata');
-
-                                if iscell(UD.view)
-                                    h1 = plot(xV(lowDoseIndV),zV(lowDoseIndV),'marker','.','markersize', 5, 'linestyle','none','color','r', 'parent', UD.view{2}, 'tag', 'ROIMask', 'hittest', 'off');
-                                    h2 = plot(xV(prescrIndV),zV(prescrIndV),'marker','.','markersize', 5, 'linestyle','none','color','g', 'parent', UD.view{2}, 'tag', 'ROIMask', 'hittest', 'off');
-                                    h3 = plot(xV(highDoseIndV),zV(highDoseIndV),'marker','.','markersize', 5, 'linestyle','none','color','b', 'parent', UD.view{2}, 'tag', 'ROIMask', 'hittest', 'off');
-                                    stateS.handle.mask = [stateS.handle.mask, h1, h2, h3];
-                                end
-
-                            else
-
-                                h = plot(xV,zV,'marker','.','markersize', 5, 'linestyle','none','color',structColor, 'parent', hAxis, 'tag', 'ROIMask', 'hittest', 'off');
-                                stateS.handle.mask = [stateS.handle.mask, h];
-
-                                %Draw Mask on linked axes
-                                for i=1:length(stateS.handle.CERRAxis)
-
-                                    UD=get(stateS.handle.CERRAxis(i),'userdata');
-
-                                    if iscell(UD.view) & UD.view{2}==hAxis
-                                        h = plot(xV,zV,'marker','.','markersize', 5, 'linestyle','none','color',structColor, 'parent', stateS.handle.CERRAxis(i), 'tag', 'ROIMask', 'hittest', 'off');
-                                        stateS.handle.mask = [stateS.handle.mask, h];
-                                    end
-                                end
-
-                                %Draw Mask on axis from where link is created
-                                UD=get(hAxis,'userdata');
-
-                                if iscell(UD.view)
-                                    h = plot(xV,zV,'marker','.','markersize', 5, 'linestyle','none','color',structColor, 'parent', UD.view{2}, 'tag', 'ROIMask', 'hittest', 'off');
-                                    stateS.handle.mask = [stateS.handle.mask, h];
-
-                                end
-
-                            end
-
+                            
+                            % Store x,y,z coords for dose
+                            xDoseV = xV;
+                            yDoseV = yV;
+                            zDoseV = zV;
+                            
+                            % Change names so that we only need to plot
+                            % xV,yV for all the views
+                            yV = zV;
+                            
+                           
+                            
                         case 'sagittal'
-
                             xValue=getAxisInfo(hAxis,'coord');
                             [scanNum, relStructNum] = getStructureAssociatedScan(structNum, planC);
-
+                            
                             if isfield(planC{indexS.scan}(scanNum),'transM') && isempty(planC{indexS.scan}(scanNum).transM)
-
+                                
                                 sliceS=findnearest(xUnifV,xValue);
-
+                                
                                 %For Sag:
                                 maskM = getStructureMask(structNum, sliceS,1, planC);
-
+                                
                                 [i,j] = find(maskM);
                                 [xV, yV, zV] = mtoxyz(j, repmat(sliceS, [length(i) 1]), i, scanSet, planC, 'uniform', getUniformScanSize(planC{indexS.scan}(scanSet)));
-
+                                
                                 if isempty(zV) || isempty(xV) || isempty(yV)
                                     continue
                                 end
-
+                                
                             else
-
+                                
                                 dim = 1;
                                 coord = xValue;
                                 [slcC, yV, zV] = getStructureSlice(scanNum, dim, coord);
@@ -887,89 +773,76 @@ if ~isempty(in_str)
                                     cellNum = 1;
                                 else
                                     cellNum = ceil((relStructNum-52)/8)+1; %uint8
+                                    relStructNum = relStructNum-(cellNum-2)*8-52;
                                 end
                                 structsOnSlice = cumbitor(slcC{cellNum}(:));
-                                includeCurrStruct = bitget(structsOnSlice, relStructNum-(cellNum-1)*8);
+                                includeCurrStruct = bitget(structsOnSlice, relStructNum);
                                 if includeCurrStruct
-                                    oneStructM = bitget(slcC{cellNum}, relStructNum-(cellNum-1)*8);
+                                    oneStructM = bitget(slcC{cellNum}, relStructNum);
                                 else
                                     continue;
                                 end
-
+                                
                                 [i,j] = find(oneStructM);
                                 yV = yV(j);
                                 zV = zV(i);
                                 xV = xValue*ones(size(yV));
-
+                                
                             end
-
-
-                            if ~isempty(doseNum)
-                                %paint low, prescription and high dose regions
-                                doseV = getdoseAt(doseNum,xV, yV, zV, planC);
-                                lowDoseIndV = find(doseV<rxDose*lowCutoff);
-                                highDoseIndV = find(doseV>rxDose*highCutoff);
-                                prescrIndV = 1:length(doseV);
-                                prescrIndV([lowDoseIndV(:);highDoseIndV(:)]) = [];
-                                h1 = plot(yV(lowDoseIndV),zV(lowDoseIndV),'marker','.','markersize', 5, 'linestyle','none','color','r', 'parent', hAxis, 'tag', 'ROIMask', 'hittest', 'off');
-                                h2 = plot(yV(prescrIndV),zV(prescrIndV),'marker','.','markersize', 5, 'linestyle','none','color','g', 'parent', hAxis, 'tag', 'ROIMask', 'hittest', 'off');
-                                h3 = plot(yV(highDoseIndV),zV(highDoseIndV),'marker','.','markersize', 5, 'linestyle','none','color','b', 'parent', hAxis, 'tag', 'ROIMask', 'hittest', 'off');
-                                stateS.handle.mask = [stateS.handle.mask, h1, h2, h3];
-
-                                %Draw Mask on linked axes
-                                for i=1:length(stateS.handle.CERRAxis)
-
-                                    UD=get(stateS.handle.CERRAxis(i),'userdata');
-
-                                    if iscell(UD.view) & UD.view{2}==hAxis
-                                        h1 = plot(yV(lowDoseIndV),zV(lowDoseIndV),'marker','.','markersize', 5, 'linestyle','none','color','r', 'parent', stateS.handle.CERRAxis(i), 'tag', 'ROIMask', 'hittest', 'off');
-                                        h2 = plot(yV(prescrIndV),zV(prescrIndV),'marker','.','markersize', 5, 'linestyle','none','color','g', 'parent', stateS.handle.CERRAxis(i), 'tag', 'ROIMask', 'hittest', 'off');
-                                        h3 = plot(yV(highDoseIndV),zV(highDoseIndV),'marker','.','markersize', 5, 'linestyle','none','color','b', 'parent', stateS.handle.CERRAxis(i), 'tag', 'ROIMask', 'hittest', 'off');
-                                        stateS.handle.mask = [stateS.handle.mask, h1, h2, h3];
-                                    end
-                                end
-
-                                %Draw Mask on axis from where link is created
-                                UD=get(hAxis,'userdata');
-
-                                if iscell(UD.view)
-                                    h1 = plot(yV(lowDoseIndV),zV(lowDoseIndV),'marker','.','markersize', 5, 'linestyle','none','color','r', 'parent', UD.view{2}, 'tag', 'ROIMask', 'hittest', 'off');
-                                    h2 = plot(yV(prescrIndV),zV(prescrIndV),'marker','.','markersize', 5, 'linestyle','none','color','g', 'parent', UD.view{2}, 'tag', 'ROIMask', 'hittest', 'off');
-                                    h3 = plot(yV(highDoseIndV),zV(highDoseIndV),'marker','.','markersize', 5, 'linestyle','none','color','b', 'parent', UD.view{2}, 'tag', 'ROIMask', 'hittest', 'off');
-                                    stateS.handle.mask = [stateS.handle.mask, h1, h2, h3];
-                                end
-
-                            else
-
-                                h = plot(yV,zV,'marker','.','markersize', 5, 'linestyle','none','color',structColor, 'parent', hAxis, 'tag', 'ROIMask', 'hittest', 'off');
-                                stateS.handle.mask = [stateS.handle.mask, h];
-
-                                %Draw Mask on linked axes
-                                for i=1:length(stateS.handle.CERRAxis)
-
-                                    UD=get(stateS.handle.CERRAxis(i),'userdata');
-
-                                    if iscell(UD.view) & UD.view{2}==hAxis
-                                        h = plot(yV,zV,'marker','.','markersize', 5, 'linestyle','none','color',structColor, 'parent', stateS.handle.CERRAxis(i), 'tag', 'ROIMask', 'hittest', 'off');
-                                        stateS.handle.mask = [stateS.handle.mask, h];
-                                    end
-                                end
-
-                                %Draw Mask on axis from where link is created
-                                UD=get(hAxis,'userdata');
-
-                                if iscell(UD.view)
-                                    h = plot(yV,zV,'marker','.','markersize', 5, 'linestyle','none','color',structColor, 'parent', UD.view{2}, 'tag', 'ROIMask', 'hittest', 'off');
-                                    stateS.handle.mask = [stateS.handle.mask, h];
-
-                                end
-
-                            end
-
+                            
+                            % Store x,y,z coords for dose
+                            xDoseV = xV;
+                            yDoseV = yV;
+                            zDoseV = zV;                            
+                            
+                            % Change names so that we only need to plot
+                            % xV,yV for all the views
+                            xV = yV;
+                            yV = zV;
+                            
                     end
+                    
+                    % Display mask on axis
+                    if ~isempty(doseNum)
+                        %paint low, prescription and high dose regions
+                        doseV = getDoseAt(doseNum,xDoseV, yDoseV, zDoseV, planC);
+                        lowDoseIndV = doseV < rxDose*lowCutoff;
+                        highDoseIndV = doseV > rxDose*highCutoff;
+                        prescrIndV = doseV >= rxDose*lowCutoff & doseV <= rxDose*highCutoff;
+                        %prescrIndV = 1:length(doseV);
+                        %prescrIndV([lowDoseIndV(:);highDoseIndV(:)]) = [];
+                        h1 = plot(xV(lowDoseIndV),yV(lowDoseIndV),'marker','.','markersize', 5, 'linestyle','none','color','r', 'parent', hAxis, 'tag', 'ROIMask', 'hittest', 'off');
+                        h2 = plot(xV(prescrIndV),yV(prescrIndV),'marker','.','markersize', 5, 'linestyle','none','color','g', 'parent', hAxis, 'tag', 'ROIMask', 'hittest', 'off');
+                        h3 = plot(xV(highDoseIndV),yV(highDoseIndV),'marker','.','markersize', 5, 'linestyle','none','color','b', 'parent', hAxis, 'tag', 'ROIMask', 'hittest', 'off');
+                        stateS.handle.mask = [stateS.handle.mask, h1, h2, h3];
+                        
+                        %Draw Mask on linked axes
+                        for i=1:length(stateS.handle.CERRAxis)
+                            linkedView = getAxisInfo(stateS.handle.CERRAxis(i),'view');
+                            if ~strcmpi(linkedView,view)
+                                continue;
+                            end
+                            
+                            UD = stateS.handle.aI(i); %get(stateS.handle.CERRAxis(i),'userdata');
+                            
+                            if iscell(UD.view) && UD.view{2}==hAxis
+                                h1 = plot(xV(lowDoseIndV),yV(lowDoseIndV),'marker','.','markersize', 5, 'linestyle','none','color','r', 'parent', stateS.handle.CERRAxis(i), 'tag', 'ROIMask', 'hittest', 'off');
+                                h2 = plot(xV(prescrIndV),yV(prescrIndV),'marker','.','markersize', 5, 'linestyle','none','color','g', 'parent', stateS.handle.CERRAxis(i), 'tag', 'ROIMask', 'hittest', 'off');
+                                h3 = plot(xV(highDoseIndV),yV(highDoseIndV),'marker','.','markersize', 5, 'linestyle','none','color','b', 'parent', stateS.handle.CERRAxis(i), 'tag', 'ROIMask', 'hittest', 'off');
+                                stateS.handle.mask = [stateS.handle.mask, h1, h2, h3];
+                            end
+                        end
+                        
+                    else
+                        
+                        h = plot(xV,yV,'marker','.','markersize', 5, 'linestyle','none','color',structColor, 'parent', hAxis, 'tag', 'ROIMask', 'hittest', 'off');
+                        stateS.handle.mask = [stateS.handle.mask, h];
+                        
+                    end     
+
+                    
                 end
 
-                return
 
             case 'dshpoints'  %show points on the surface of the ROI
 
@@ -1114,9 +987,10 @@ if ~isempty(in_str)
                             CERRStatusString('Requested structure number is not in plan.');
                             return;
                         end
-                        planC = delUniformStr(n, planC); %Update the uniform data.
+                        planC = delUniformStr(n, planC); %Update the uniform data.                        
                         planC{indexS.structures}(n:len-1) = planC{indexS.structures}(n+1:len);
                         planC{indexS.structures} = planC{indexS.structures}(1:len-1);
+                        stateS.structsOnViews = setdiff(stateS.structsOnViews,n);
                         stateS.lastSliceNumTrans = -1;
                         stateS.lastSliceNumCor   = -1;
                         stateS.lastSliceNumSag   = -1;

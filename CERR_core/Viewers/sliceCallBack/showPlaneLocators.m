@@ -36,100 +36,104 @@ else
 end
 
 
-global stateS
-global planC
+global stateS planC
 indexS = planC{end};
 
-xVals = {}; yVals = {}; zVals = {};
-for i=1:length(stateS.handle.CERRAxis)
+set([stateS.handle.CERRAxisPlnLoc{:}],'visible','off')
+set([stateS.handle.CERRAxisPlnLocSdw{:}],'visible','off')
+if ~stateS.showPlaneLocators
+    return;
+end
+
+xAxVals = {}; yAxVals = {}; zAxVals = {};
+for i=uint8(1:length(stateS.handle.CERRAxis))
     hAxis       = stateS.handle.CERRAxis(i);
-    [view, coord] = getAxisInfo(hAxis, 'view', 'coord');
+    [view, coord] = getAxisInfo(i, 'view', 'coord');
 
     switch lower(view)
         case 'transverse'
-            zVals{i} = coord;
+            zAxVals{i} = coord;
         case 'sagittal'
-            xVals{i} = coord;
+            xAxVals{i} = coord;
         case 'coronal'
-            yVals{i} = coord;
+            yAxVals{i} = coord;
     end
 end
 
-for i=1:length(stateS.handle.CERRAxis)
+if stateS.MLVersion < 8.4
+    inActiveCol = [0.9 0.9 0.5];
+    activeCol = [0.5 1 0.5];
+else
+    inActiveCol = [0.9 0.9 0.5 0.5];
+    activeCol = [0.5 1 0.5 0.5];
+end
+
+for i=uint8(1:length(stateS.handle.CERRAxis))
+    
+    % Plane Locator count
+    count = 0;
+    
     hAxis = stateS.handle.CERRAxis(i);
-    [view, coord] = getAxisInfo(hAxis, 'view', 'coord');
+    [view, coord] = getAxisInfo(i, 'view', 'coord');
 
     horizLimit = get(hAxis, 'xLim');
     vertiLimit = get(hAxis, 'yLim');
-
-    hOld = findobj(hAxis, 'tag', 'planeLocator');
-    delete(hOld);
-
-    hOldShadow = findobj(hAxis, 'tag', 'planeLocatorShadow');
-    delete(hOldShadow);
-
-    %Remove old plane locator handles from axis miscHandles.
-    oldMiscHandles = getAxisInfo(hAxis, 'miscHandles');
-    setAxisInfo(hAxis, 'miscHandles', setdiff(oldMiscHandles, [hOld;hOldShadow]));
-
-    %Draw plane locators.  For each locator draw 2 lines: first a thick
-    %black line and then a thinner white line on top of it.  This is so
-    %that the locator is visible regardless of the background color it
-    %is being displayed on.
-
-    if stateS.showPlaneLocators
-
-        switch lower(view)
-            case 'transverse'
-                for j=1:length(xVals)
-                    if ~isempty(xVals{j}) && isequal(planeLocatorLastCall, thisCallTime)
-                        line([xVals{j} xVals{j}], vertiLimit, [2 2], 'parent', hAxis, 'Color', [0 0 0], 'tag', 'planeLocatorShadow', 'userdata', {'vert', 'trans', j}, 'hittest', 'off', 'linewidth', 1);
-                        line([xVals{j} xVals{j}], vertiLimit, [2 2], 'parent', hAxis, 'Color', [1 1 0], 'tag', 'planeLocator', 'buttondownfcn', 'sliceCallBack(''locatorClicked'')', 'userdata', {'vert', 'trans', j}, 'hittest', 'on', 'linewidth', 1);                        
-                    end
-                end
-                for j=1:length(yVals)
-                    if ~isempty(yVals{j}) && isequal(planeLocatorLastCall, thisCallTime)
-                        line(horizLimit, [yVals{j} yVals{j}], [2 2], 'parent', hAxis, 'Color', [0 0 0], 'tag', 'planeLocatorShadow', 'userdata', {'horz', 'trans', j}, 'hittest', 'off', 'linewidth', 1);
-                        line(horizLimit, [yVals{j} yVals{j}], [2 2], 'parent', hAxis, 'Color', [1 1 0], 'tag', 'planeLocator', 'buttondownfcn', 'sliceCallBack(''locatorClicked'')', 'userdata', {'horz', 'trans', j}, 'hittest', 'on', 'linewidth', 1);
-                    end
-                end
-
-            case 'sagittal'
-                for j=1:length(yVals)
-                    if ~isempty(yVals{j}) && isequal(planeLocatorLastCall, thisCallTime)
-                        line([yVals{j} yVals{j}], vertiLimit, [2 2], 'parent', hAxis, 'Color', [0 0 0], 'tag', 'planeLocatorShadow', 'userdata', {'vert', 'sag', j}, 'hittest', 'off', 'linewidth', 1);
-                        line([yVals{j} yVals{j}], vertiLimit, [2 2], 'parent', hAxis, 'Color', [1 1 0], 'tag', 'planeLocator', 'buttondownfcn', 'sliceCallBack(''locatorClicked'')', 'userdata', {'vert', 'sag', j}, 'hittest', 'on', 'linewidth', 1);
-                    end
-                end
-                for j=1:length(zVals)
-                    if ~isempty(zVals{j}) && isequal(planeLocatorLastCall, thisCallTime)
-                        line(horizLimit, [zVals{j} zVals{j}], [2 2], 'parent', hAxis, 'Color', [0 0 0], 'tag', 'planeLocatorShadow', 'userdata', {'horz', 'sag', j}, 'hittest', 'off', 'linewidth', 1);
-                        line(horizLimit, [zVals{j} zVals{j}], [2 2], 'parent', hAxis, 'Color', [1 1 0], 'tag', 'planeLocator', 'buttondownfcn', 'sliceCallBack(''locatorClicked'')', 'userdata', {'horz', 'sag', j}, 'hittest', 'on', 'linewidth', 1);
-                    end
-                end
-
-            case 'coronal'
-                for j=1:length(xVals)
-                    if ~isempty(xVals{j}) && isequal(planeLocatorLastCall, thisCallTime)
-                        line([xVals{j} xVals{j}], vertiLimit, [2 2],'parent', hAxis, 'Color', [0 0 0], 'tag', 'planeLocatorShadow', 'userdata', {'vert', 'cor', j}, 'hittest', 'off', 'linewidth', 1);
-                        line([xVals{j} xVals{j}], vertiLimit, [2 2],'parent', hAxis, 'Color', [1 1 0], 'tag', 'planeLocator', 'buttondownfcn', 'sliceCallBack(''locatorClicked'')', 'userdata', {'vert', 'cor', j}, 'hittest', 'on', 'linewidth', 1);
-                    end
-                end
-                for j=1:length(zVals)
-                    if ~isempty(zVals{j}) && isequal(planeLocatorLastCall, thisCallTime)
-                        line(horizLimit, [zVals{j} zVals{j}], [2 2], 'parent', hAxis, 'Color', [0 0 0], 'tag', 'planeLocatorShadow', 'userdata', {'horz', 'cor', j}, 'hittest', 'on', 'linewidth', 1);
-                        line(horizLimit, [zVals{j} zVals{j}], [2 2], 'parent', hAxis, 'Color', [1 1 0], 'tag', 'planeLocator', 'buttondownfcn', 'sliceCallBack(''locatorClicked'')', 'userdata', {'horz', 'cor', j}, 'hittest', 'on', 'linewidth', 1);
-                    end
-                end
+    
+    switch lower(view)
+        case 'transverse'
+            xVals = xAxVals;
+            yVals = yAxVals;
+            viewTxt = 'trans';
+            
+        case 'sagittal'
+            xVals = yAxVals;
+            yVals = zAxVals;
+            viewTxt = 'sag';
+            
+        case 'coronal'
+            xVals = xAxVals;
+            yVals = zAxVals;
+            viewTxt = 'cor';
+            
+        case 'legend'
+            continue;
+    end
+    
+    
+    for j=1:length(xVals)
+        if ~isempty(xVals{j}) && isequal(planeLocatorLastCall, thisCallTime)
+            count = count + 1;
+            set(stateS.handle.CERRAxisPlnLocSdw{i}(count),'XData',[xVals{j} xVals{j}], 'YData', vertiLimit,'visible','on');            
+            if stateS.currentAxis == j
+                set(stateS.handle.CERRAxisPlnLoc{i}(count),'XData',[xVals{j} xVals{j}], 'YData', vertiLimit, 'Color', activeCol, 'userdata', {'vert', viewTxt, j},'visible','on');
+            else
+                set(stateS.handle.CERRAxisPlnLoc{i}(count),'XData',[xVals{j} xVals{j}], 'YData', vertiLimit, 'Color', inActiveCol, 'userdata', {'vert', viewTxt, j},'visible','on');
+            end
         end
     end
-
-    hLines = findobj(hAxis, 'tag', 'planeLocator');
-    hShadows = findobj(hAxis, 'tag', 'planeLocatorShadow');
+    for j=1:length(yVals)
+        if ~isempty(yVals{j}) && isequal(planeLocatorLastCall, thisCallTime)
+            count = count + 1;
+            set(stateS.handle.CERRAxisPlnLocSdw{i}(count),'XData',horizLimit, 'YData', [yVals{j} yVals{j}],'visible','on');            
+            if stateS.currentAxis == j
+                set(stateS.handle.CERRAxisPlnLoc{i}(count),'XData',horizLimit, 'YData', [yVals{j} yVals{j}], 'Color', activeCol, 'userdata', {'horz', viewTxt, j},'visible','on');
+            else
+                set(stateS.handle.CERRAxisPlnLoc{i}(count),'XData',horizLimit, 'YData', [yVals{j} yVals{j}], 'Color', inActiveCol, 'userdata', {'horz', viewTxt, j},'visible','on');
+            end
+        end
+    end
+    
+    numPlanLocs = length(stateS.handle.CERRAxisPlnLoc{i});
+    set(stateS.handle.CERRAxisPlnLocSdw{i}(count+1:numPlanLocs),'visible','off')
+    set(stateS.handle.CERRAxisPlnLoc{i}(count+1:numPlanLocs),'visible','off')    
+    %setAxisInfo(hAxis, 'planeLocHandles', planeLocHandlesV)
+    
+    %hLines = findobj(hAxis, 'tag', 'planeLocator');
+    %hShadows = findobj(hAxis, 'tag', 'planeLocatorShadow');
 
     %Add new lines to the miscHandles axis field.
-    setAxisInfo(hAxis, 'miscHandles', [oldMiscHandles reshape(hLines, 1, []) reshape(hShadows, 1, [])]);
+    %setAxisInfo(hAxis, 'miscHandles', [oldMiscHandles reshape(hLines, 1, []) reshape(hShadows, 1, [])]);
 
 end
 
-sliceCallBack('focus', stateS.handle.CERRAxis(stateS.currentAxis));
+%sliceCallBack('focus', stateS.handle.CERRAxis(stateS.currentAxis));

@@ -1,4 +1,4 @@
-function planC = uniformizeScanSupInf(planC, tMin, tMax, optS, hBar)
+function planC = uniformizeScanSupInf(planC, tMin, tMax, optS, hBar, scanNumV)
 %"uniformizeScanSupInf"
 %    Creates the superior and inferior scan arrays so that they 
 %   are uniform, consistent with the rest of the scan array.
@@ -35,7 +35,13 @@ function planC = uniformizeScanSupInf(planC, tMin, tMax, optS, hBar)
 
 indexS = planC{end};
 
-for scanNum=1:length(planC{indexS.scan})
+% Get scan indices
+if ~exist('scanNumV','var')
+    scanNumV = 1:length(planC{indexS.scan});
+end
+
+for scanNum = scanNumV
+    
     scanStruct = planC{indexS.scan}(scanNum);
     
 	uniformScanInfo = planC{indexS.scan}(scanNum).uniformScanInfo;

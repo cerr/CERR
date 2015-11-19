@@ -182,7 +182,7 @@ optS.doseColormap = 'starinterp';  %Colormap for dose colorwash.  It is read fro
 optS.CTColormap = 'gray256'; %CT colormap, usually grayscale.  Also read from CERRColormap.m.
 %Same choices as optS.doseColormap.
 
-optS.colorbarChoices = {'jetmod', 'ppt', 'full', 'full2', 'star', 'starinterp', 'gray', 'gray256', 'grayud64', 'doublecolorinvert', 'thedrewspecial', 'graycenter0width300', 'hotcold', 'copper'};
+optS.colorbarChoices = {'coolwarm','jetmod', 'ppt', 'full', 'full2', 'star', 'starinterp', 'gray', 'gray256', 'grayud64', 'doublecolorinvert', 'thedrewspecial', 'graycenter0width300', 'hotcold', 'copper'};
 
 optS.staticColorbar = 0;         %Set to 1 to have the same colors represent the same dose values when switching between does distributions.
 
@@ -367,10 +367,14 @@ optS.convert_PET_to_SUV = 1; % 0: Do not convert to SUV, 1: Convert to SUV
 optS.overwrite_CERR_File = 1; % 0: Do not overwrite, 1: overwrite
 
 %-- Option to overwrite CERR file if a bug is found during QA
-optS.sinc_filter_on_display = 0; % 0: Do not apply sinc, 1: apply sinc
+optS.sinc_filter_on_display = 1; % 0: Do not apply sinc, 1: apply sinc
 
 %-- Filename for plastimatch commands
 % this file must be stored under ...\CERR\CERR_core\ImageRegistration\plastimatch_command
 optS.plastimatch_command_file = 'bspline_register_cmd_dir.txt'; %'mr_ct_edge_based.txt';
+
+%-- Size of pool of line handles. 
+% Set this value based on anticipated structure segments per view
+optS.linePoolSize = 300;
 
 %-------------------------------------------fini--------------------------%

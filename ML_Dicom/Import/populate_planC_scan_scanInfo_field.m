@@ -201,7 +201,7 @@ switch fieldname
         switch upper(pPos)
             case 'HFS'
                 dataS = xOffset / 10;
-            case 'HFP'
+            case {'HFP', 'HFDR'}
                 dataS = -xOffset / 10;
             case 'FFS'
                 dataS = xOffset / 10;
@@ -243,7 +243,7 @@ switch fieldname
         switch upper(pPos)
             case 'HFS'
                 dataS = - yOffset / 10;
-            case 'HFP'
+            case {'HFP', 'HFDR'}
                 dataS = yOffset / 10;
             case 'FFS'
                 dataS = - yOffset / 10;

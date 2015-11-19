@@ -110,7 +110,7 @@ switch tag
         end       
         
     %Class 1C Tags -- presence is required under special circumstances
-    
+
     %Class 2C Tags.
 
     otherwise

@@ -39,39 +39,71 @@ indexS = planC{end};
 set(hAxis, 'xDir', 'normal','yDir', 'reverse')
 
 %Get userdata for structure contours, contains name and structNum.
-hStructs = findobj('tag', 'structContour');
-ud = get(hStructs, 'userdata');
-if isempty(ud)
-    hStructs   = [];
-    hLabels    = {};
-elseif length(ud) == 1
-    hLabels    = {ud.structDesc};
-else
-    ud         = [ud{:}];
-    [jnk, ind] = unique([ud.structNum]);
-    ud         = ud(ind);
-    hStructs   = hStructs(ind);
-    hLabels    = {ud.structDesc};
+% hStructs = findobj(sGv,'tag', 'structContour');
+% ud = get(hStructs, 'userdata');
+% if isempty(ud)
+%     hStructs   = [];
+%     hLabels    = {};
+% elseif length(ud) == 1
+%     hLabels    = {ud.structDesc};
+% else
+%     ud         = [ud{:}];
+%     [jnk, ind] = unique([ud.structNum]);
+%     ud         = ud(ind);
+%     hStructs   = hStructs(ind);
+%     hLabels    = {ud.structDesc};
+% end
+
+% Get list of structures visible on all the views
+numStructs =  length(planC{indexS.structures});
+structIndV = false(1,numStructs);
+for i = uint8(1:length(stateS.handle.CERRAxis))
+    sG = getAxisInfo(i,'structureGroup');
+    for j = 1:length(sG)
+        structIndV(sG(j).structNumsV) = true;
+    end
 end
+structNumsV = 1:numStructs;
+structNumsV = structNumsV(structIndV);
+bool = [planC{indexS.structures}(structIndV).visible];
+colors = {planC{indexS.structures}(structIndV).structureColor};
+hLabels = {planC{indexS.structures}(structIndV).structureName};
 
 %Get userdata for dose contours, contains doselevel.
-hIso = findobj('tag', 'isodoseContour');
-if ~isempty(hIso)
-    isoValues  = get(hIso, 'userdata');
-    [jnk, ind] = unique([isoValues{:}]);
-    hStructs   = [hStructs;hIso(ind)];
-    uniqueValues = isoValues(ind);
-    type = stateS.optS.isodoseLevelType;
-    if strcmp(type,'percent')
-        for i=1:length(uniqueValues)
-            hLabels= {hLabels{:},[num2str(uniqueValues{i}*100/(stateS.optS.isodoseNormalizVal)) ' %']};
+colorsDoseC = {};
+labelsDoseC = {};
+if strcmpi(stateS.optS.dosePlotType,'isodose')
+    dGv = [];
+    for i = uint8(1:length(stateS.handle.CERRAxis))
+        %sG = getAxisInfo(i,'structureGroup');
+        dG = getAxisInfo(i,'doseObj');
+        for j = 1:length(dG)
+            dGv = [dGv; dG(j).handles];
         end
-    elseif strcmp(type,'absolute')
-        for i=1:length(uniqueValues)
-            if strcmpi(getDoseUnitsStr(stateS.doseSet,planC), 'cgy')
-                hLabels= {hLabels{:},[num2str(uniqueValues{i}) ' cGy']};
-            else
-                hLabels= {hLabels{:},[num2str(uniqueValues{i}) ' Gy']};
+    end    
+    hIso = findobj(dGv,'tag', 'isodoseContour');
+    if ~isempty(hIso)
+        isoValues  = get(hIso, 'userdata');
+        [jnk, ind] = unique([isoValues{:}]);
+        %hStructs   = [hStructs;hIso(ind)];
+        uniqueValues = isoValues(ind);
+        type = stateS.optS.isodoseLevelType;
+        if strcmp(type,'percent')
+            for i=1:length(uniqueValues)
+                %hLabels = {hLabels{:},[num2str(uniqueValues{i}*100/(stateS.optS.isodoseNormalizVal)) ' %']};
+                labelsDoseC = [labelsDoseC,{[sprintf('%.2f',uniqueValues{i}*100/(stateS.optS.isodoseNormalizVal)) ' %']}];
+            end
+        elseif strcmp(type,'absolute')
+            for i=1:length(uniqueValues)
+                if strcmpi(getDoseUnitsStr(stateS.doseSet,planC), 'cgy')
+                    %hLabels= {hLabels{:},[num2str(uniqueValues{i}) ' cGy']};
+                    labelsDoseC = [labelsDoseC,{[num2str(uniqueValues{i}) ' cGy']}];
+                else
+                    labelsDoseC = [labelsDoseC,{[num2str(uniqueValues{i}) ' cGy']}];
+                    %hLabels = {hLabels{:},[num2str(uniqueValues{i}) ' Gy']};
+                end
+                colorsDoseC = [colorsDoseC,{get(hIso(ind(i)), 'color')}];
+                %colors    = {colors{:},get(hIso(i), 'color')};
             end
         end
     end
@@ -96,10 +128,10 @@ else
     rowHeight = 20;
 end
 
-udH = get(hAxis,'userdata');
+%udH = get(hAxis,'userdata');
 try % to take care of initial call
     %udS=get(udH.legendSlider,'userdata');
-    udS=get(stateS.legendSlider,'userdata');    
+    udS = get(stateS.legendSlider,'userdata');    
 end
 
 %Repopulate text/line fields if position has changed, or if the old
@@ -107,7 +139,7 @@ end
 if isempty(lastPos) || ~isequal(lastPos, currPos) || any(~ishandle(stateS.handle.legend.lines)) || any(~ishandle(stateS.handle.legend.text)) || (exist('udS') && ~isempty(udS) && udS{2}(2)<length(planC{indexS.structures})+1) || length(stateS.handle.legend.lines)<=length(planC{indexS.structures})
     
     numCols = 1;
-    numRows = length(planC{indexS.structures}) + 7;   % APA: always draw one line, text extra for new structure and 6 for isodose lines
+    numRows = length(planC{indexS.structures}) + 9;   % APA: always draw one line, text extra for new structure and 8 for isodose lines
 
     lines1 = findobj(hAxis,'tag', 'LegendLine');
     text1 = findobj(hAxis,'tag', 'LegendText');
@@ -138,7 +170,7 @@ if isempty(lastPos) || ~isequal(lastPos, currPos) || any(~ishandle(stateS.handle
         for j=1:numRows
             lineH = rectangle('parent',hAxis,'Position', [1+(i-1)*6, j+0.65 0.7 0.7],'Curvature', [1 1], 'tag', 'LegendLine','Clipping','on');
             stateS.handle.legend.lines = [stateS.handle.legend.lines lineH];
-            stateS.handle.legend.text = [stateS.handle.legend.text text(2.2+(i-1)*6, j+1, '', 'HorizontalAlignment', 'left', 'fontsize', fontsize, 'parent', hAxis, 'tag', 'LegendText','Clipping','on')];
+            stateS.handle.legend.text = [stateS.handle.legend.text text(2.2+(i-1)*6, j+1, '', 'HorizontalAlignment', 'left', 'fontsize', fontsize, 'parent', hAxis, 'tag', 'LegendText','Clipping','on', 'interpreter','none')];
         end
     end
 
@@ -175,36 +207,55 @@ end
 %Store new position.
 setappdata(hAxis, 'legendAxisLastPos', currPos);
 
-%Prepare field values for each contour line.
-visV      = get(hStructs, 'visible');
-colors    = get(hStructs, 'color');
-linestyle = get(hStructs, 'linestyle');
-linewidth = get(hStructs, 'linewidth');
-if length(linewidth) == 1
-    colors    = {colors};
-    linestyle = {linestyle};
-    linewidth = {linewidth};
-end
+% %Prepare field values for each contour line.
+% visV      = get(hStructs, 'visible');
+% bool = strcmpi(visV, 'off');
+% colors    = get(hStructs, 'color');
+% %linestyle = get(hStructs, 'linestyle');
+% %linewidth = get(hStructs, 'linewidth');
+% if length(hStructs) == 1
+%     colors    = {colors};
+%     %linestyle = {linestyle};
+%     %linewidth = {linewidth};
+% end
 
 %For each unique contour make a text/line object visible and label it.
-for i=1:min(length(linewidth), length(stateS.handle.legend.text))
-    bool = strcmpi(visV, 'off');
-    if bool(i) == 1;
-        set(stateS.handle.legend.text(i), 'Color', [.5 .5 .5]);
+numStructsAvailable = length(bool);
+for i=1:numStructsAvailable %1:min(length(hStructs), length(stateS.handle.legend.text))    
+    if bool(i) == 1
+        col = [0.9 0.9 0.5];
     else
-        set(stateS.handle.legend.text(i), 'Color', [1 1 1]);
+        col = [.5 .5 .5];
     end
-    if strcmpi(get(hStructs(i), 'tag'), 'structContour')
-        set(stateS.handle.legend.text(i), 'string', hLabels{i}, 'buttondownfcn', ['sliceCallBack(''toggleSingleStruct'',''', num2str(ud(i).structNum) ,''')']);
-        set(stateS.handle.legend.lines(i), 'facecolor', colors{i,:}, 'edgecolor', colors{i,:}, 'visible', 'on', 'buttondownfcn', ['sliceCallBack(''toggleSingleStruct'',''', num2str(ud(i).structNum) ,''')']);
-    else
-        set(stateS.handle.legend.text(i), 'string', hLabels{i}, 'buttondownfcn', '');
-        set(stateS.handle.legend.lines(i), 'facecolor', colors{i,:}, 'edgecolor', colors{i,:}, 'visible', 'on', 'buttondownfcn', '');
-    end    
+    
+    structStr = sprintf('%d',structNumsV(i));
+    set(stateS.handle.legend.text(i), 'string', hLabels{i}, 'buttondownfcn',...
+        ['sliceCallBack(''toggleSingleStruct'',''', structStr ,''')'], 'color', col);
+    set(stateS.handle.legend.lines(i), 'facecolor', colors{i}, 'edgecolor', colors{i},...
+        'visible', 'on', 'buttondownfcn', ['sliceCallBack(''toggleSingleStruct'',''', structStr ,''')']);
+
+    %     if strcmpi(get(hStructs(i), 'tag'), 'structContour')
+%         structStr = sprintf('%d',ud(i).structNum);
+%         set(stateS.handle.legend.text(i), 'string', hLabels{i}, 'buttondownfcn', ['sliceCallBack(''toggleSingleStruct'',''', structStr ,''')']);
+%         set(stateS.handle.legend.lines(i), 'facecolor', colors{i}, 'edgecolor', colors{i}, 'visible', 'on', 'buttondownfcn', ['sliceCallBack(''toggleSingleStruct'',''', structStr ,''')']);
+%     else
+%         set(stateS.handle.legend.text(i), 'string', hLabels{i}, 'buttondownfcn', '');
+%         set(stateS.handle.legend.lines(i), 'facecolor', colors{i}, 'edgecolor', colors{i}, 'visible', 'on', 'buttondownfcn', '');
+%     end    
 end
-for i=min(length(linewidth), length(stateS.handle.legend.text))+1:length(stateS.handle.legend.lines)
-    set(stateS.handle.legend.text(i), 'string', '');
-    set(stateS.handle.legend.lines(i), 'visible', 'off');
+for i = 1:length(colorsDoseC)
+    j = numStructsAvailable + i;
+    set(stateS.handle.legend.text(j), 'string', labelsDoseC{i}, 'buttondownfcn', '', 'Color', [0.9 0.9 0.5]);
+    set(stateS.handle.legend.lines(j), 'facecolor', colorsDoseC{i}, 'edgecolor', colorsDoseC{i}, 'visible', 'on', 'buttondownfcn', '');
 end
+
+%indOff = min(length(hStructs), length(stateS.handle.legend.text))+1:length(stateS.handle.legend.lines);
+indOff = min(numStructsAvailable+length(colorsDoseC), length(stateS.handle.legend.text))+1:length(stateS.handle.legend.lines);
+
+%for i=min(length(hStructs), length(stateS.handle.legend.text))+1:length(stateS.handle.legend.lines)
+set(stateS.handle.legend.text(indOff), 'string', '');
+set(stateS.handle.legend.lines(indOff), 'visible', 'off');
+%end
+
 
 ySliderCallL

@@ -1,4 +1,4 @@
-function setAxisInfo(hAxis, varargin);
+function setAxisInfo(hAxis, varargin)
 %"setAxisInfo"
 %   Function used to set parameters in the axisInfo userdata object for a
 %   CERR axis.  Specify a string list of the fields to set and pair them
@@ -47,7 +47,7 @@ function setAxisInfo(hAxis, varargin);
 % You should have received a copy of the GNU General Public License
 % along with CERR.  If not, see <http://www.gnu.org/licenses/>.
 
-
+global stateS
 persistent numRecursions;
 
 %The current maximum number of recursive calls to setAxisInfo.
@@ -79,7 +79,13 @@ else
 end
 
 %Get this axis' axisInfo and fieldnames.
-aI = get(hAxis, 'userdata');
+if ~isinteger(hAxis)
+    axInd = stateS.handle.CERRAxis == hAxis;
+else
+    axInd = hAxis;
+end
+aI = stateS.handle.aI(axInd); 
+%aI = get(hAxis, 'userdata');
 aIFields = fieldnames(aI);
 
 if structInput
@@ -115,4 +121,5 @@ for i=1:2:nArgsToProcess
 
 end
 
-set(hAxis, 'userdata', aI);
+%set(hAxis, 'userdata', aI);
+stateS.handle.aI(axInd) = aI;

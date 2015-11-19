@@ -30,8 +30,7 @@ global planC stateS
 indexS = planC{end};
 
 
-[view coord]    = getAxisInfo(hAxis, 'view','coord');
-scanSet = getAxisInfo(hAxis,'scanSets');
+[view coord,scanSet]    = getAxisInfo(hAxis, 'view','coord','scanSets');
 
 if isempty(scanSet)
     scanSet = stateS.scanSet;
@@ -39,7 +38,7 @@ end
 
 [xV, yV, zV] = getScanXYZVals(planC{indexS.scan}(scanSet(1)));
 
-if strcmpi(view,'TRANSVERSE') | strcmpi(view,'SAGITTAL') |strcmpi(view,'CORONAL')
+if strcmpi(view,'TRANSVERSE') || strcmpi(view,'SAGITTAL') || strcmpi(view,'CORONAL')
     try
         %Get the transM for this scan.
         transM = getTransM(planC{indexS.scan}(scanSet(1)), planC);

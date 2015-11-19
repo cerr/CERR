@@ -3,7 +3,7 @@ function toggleStructSagCor(structNum)
 global planC stateS
 indexS = planC{end};
 
-matlab_version = MLVersion;
+%matlab_version = stateS.MLVersion;
 
 for i = 1:length(stateS.handle.CERRAxis)
     
