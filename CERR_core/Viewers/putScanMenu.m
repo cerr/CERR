@@ -76,7 +76,7 @@ indexS = planC{end};
 %Find and remove old dose listings.
 kids = get(hScanMenu, 'children');
 numOldMenus = length(kids);
-delete(kids(1:numOldMenus-4));
+delete(kids(1:numOldMenus-5));
 
 %Get list of dose distributions
 numScans = length(planC{indexS.scan});
