@@ -2969,8 +2969,9 @@ switch command
                     herror=errordlg({'No annotations exist for this scan'},'Annotations NOT available','modal');
                     return;
                 end
-                udAxis = get(stateS.handle.CERRAxis(1),'userdata');
-                if ~strcmpi(udAxis.view,'transverse')
+                %udAxis = get(stateS.handle.CERRAxis(1),'userdata');
+                axView = getAxisInfo(stateS.handle.CERRAxis(1),'view');
+                if ~strcmpi(axView,'transverse')
                     herror=errordlg({'Annotations can be shown only on Transverse Views','Please Select 1st view to be transverse for contouring'},'Not a transverse view','modal');
                     return
                 end
@@ -3057,7 +3058,7 @@ switch command
                 for iGraphic = 1:length(planC{indexS.GSPS}(gspsNum).graphicAnnotationS)
                     graphicAnnotationType = planC{indexS.GSPS}(gspsNum).graphicAnnotationS(iGraphic).graphicAnnotationType;
                     graphicAnnotationNumPts = planC{indexS.GSPS}(gspsNum).graphicAnnotationS(iGraphic).graphicAnnotationNumPts;
-                    graphicAnnotationData = planC{indexS.GSPS}(gspsNum).graphicAnnotationS(iGraphic).graphicAnnotationData;rowV = graphicAnnotationData(1:2:end);
+                    graphicAnnotationData = planC{indexS.GSPS}(gspsNum).graphicAnnotationS(iGraphic).graphicAnnotationData;
                     rowV = graphicAnnotationData(1:2:end);
                     colV = graphicAnnotationData(2:2:end);
                     [xV, yV] = mtoaapm(colV, rowV, Dims, gridUnits, offset);
