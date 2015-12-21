@@ -80,3 +80,13 @@ for i=1:length(filesV)
     waitbar(i/length(filesV),hWaitbar, ['Scanning Directory ' num2str(dirNum) ' Please wait...']);
     %['file: ' name ext]});
 end
+
+% Remove the MRI field, since it stores temporary information for matching
+% / separating images into different series
+for patNum = 1:length(dcmdirS.PATIENT)
+    dcmdirS.PATIENT(patNum).STUDY = rmfield(dcmdirS.PATIENT(patNum).STUDY, 'MRI');
+end
+
+
+
+
