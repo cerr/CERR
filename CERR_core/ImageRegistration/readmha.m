@@ -91,13 +91,18 @@ for i=1:20
   
   [a,cnt] = sscanf(t,'ElementDataFile = %s',1);
   if (cnt > 0)
-    data_loc = fullfile(fileparts(fn),a);
-    fp_data = fopen(data_loc,'rb');
-    if double(t(end)) ~= 10
-        fp_data = fopen(data_loc,'rb');
-        %fseek(fp, -1, 0)
-    end
-    break;
+      data_loc = fullfile(fileparts(fn),a);
+      if exist(data_loc,'file')
+          %fp_data = fopen(data_loc,'rb');
+          if double(t(end)) ~= 10
+              fp_data = fopen(data_loc,'rb');
+              %fseek(fp, -1, 0)
+          end
+      else
+          %status = fseek(fp, -1, 0);
+          fp_data = fp;
+      end
+      break;
   end
 end
 
