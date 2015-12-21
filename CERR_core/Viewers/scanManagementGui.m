@@ -560,7 +560,9 @@ switch upper(command)
             %Delete structureArray
             %indAssoc = find(strcmpi({planC{indexS.structureArray}.assocScanUID},planC{indexS.scan}(scanNum).scanUID));
             %planC{indexS.structureArray}(indAssoc) = [];
-            planC{indexS.structureArray}(scanNum) = [];
+            if ~isempty(structToDelete)
+                planC{indexS.structureArray}(scanNum) = [];
+            end
             stateS.structsChanged = 1;
             %Update doses associated with this scan            
             while ~isempty(find(strcmpi({planC{indexS.dose}.assocScanUID},planC{indexS.scan}(scanNum).scanUID)))
@@ -686,7 +688,8 @@ nAxesV = [];
 %Iterate over axes.
 for i=1:length(stateS.handle.CERRAxis)
     %Get axis info for this axis.
-    aI = get(stateS.handle.CERRAxis(i), 'userdata');
+    %aI = get(stateS.handle.CERRAxis(i), 'userdata');
+    aI = stateS.handle.aI(i);
     if ismember(scanNum, aI.scanSets)
         nAxesV = union(nAxesV, i);
     end
@@ -720,11 +723,12 @@ global stateS
 for i=1:length(stateS.handle.CERRAxis)
     
     %Get axis info for this axis.
-    aI = get(stateS.handle.CERRAxis(i), 'userdata');
+    %aI = get(stateS.handle.CERRAxis(i), 'userdata');
+    aI = stateS.handle.aI(i);
     if ~isempty(aI.scanObj)
         scanSets = aI.scanObj.scanSet;
         aI.scanObj.scanSet = 1; %max(1,scanSets(scanSets >= delIndex)- 1);
-        set(stateS.handle.CERRAxis(i), 'userdata', aI);
-    end
-    
+        %set(stateS.handle.CERRAxis(i), 'userdata', aI);
+        stateS.handle.aI(i) = aI;
+    end    
 end
