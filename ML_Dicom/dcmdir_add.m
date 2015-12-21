@@ -74,11 +74,10 @@ end
 %If no matching patient is found, add this patient.
 if ~match
     ind = length(dcmdirS.PATIENT) + 1;
-    dcmdirS.PATIENT(ind).STUDY      = [];
-    dcmdirS.PATIENT(ind).info         = [];
+    dcmdirS.PATIENT(ind).STUDY  = [];
+    dcmdirS.PATIENT(ind).info   = [];
     dcmdirS.PATIENT(ind)        = searchAndAddStudy(filename, dcmobj, dcmdirS.PATIENT(ind));
     dcmdirS.PATIENT(ind).info   = patient;
-
 end
 
 
@@ -88,7 +87,7 @@ function patientS = searchAndAddStudy(filename, dcmobj, patientS)
 
 %Create the variable if not passed in.
 if ~isfield(patientS.STUDY, 'SERIES')
-    patientS.STUDY = struct('SERIES', {}, 'info', {});
+    patientS.STUDY = struct('SERIES', {}, 'info', {}, 'MRI', {});
 end
       
 %Extract the data from the dcmobj.
@@ -112,6 +111,7 @@ if ~match
     ind = length(patientS.STUDY) + 1;
     patientS.STUDY(ind).SERIES = [];
     patientS.STUDY(ind).info = [];
+    patientS.STUDY(ind).MRI = [];
     tmp  = searchAndAddSeries(filename, dcmobj, patientS.STUDY(ind));
     patientS.STUDY(ind) = tmp;
     patientS.STUDY(ind).info = study;    
@@ -134,14 +134,44 @@ seriestemplate = build_module_template('general_series');
 dcmobj.subSet(seriestemplate).copyTo(series);        
 
 seriesUIDTag = '0020000E';
+modalityTag = '00080060';
+currentModality = series.getString(hex2dec(modalityTag));
+
+mri = [];
+if strcmpi(currentModality,'MR')
+    mri = org.dcm4che2.data.BasicDicomObject;
+    mriTemplate = build_module_template('mr_image');
+    dcmobj.subSet(mriTemplate).copyTo(mri);
+        
+    mriBvalueTag1 = '00431039';
+    mriBvalueTag2 = '00189087';
+    mriBvalueTag3 = '0019100C';
+end
 
 %Search the list for this item.
 match = 0;
+bValueMatch = 1;
 for i=1:length(studyS.SERIES)
     thisUID = studyS.SERIES(i).info.subSet(hex2dec(seriesUIDTag));
+    seriesModality = studyS.SERIES(i).info.getString(hex2dec(modalityTag));
+    if strcmpi(currentModality,'MR') && strcmpi(seriesModality,'MR')
+        bvalue1 = studyS.MRI(i).info.getString(hex2dec(mriBvalueTag1));
+        bvalue2 = studyS.MRI(i).info.getString(hex2dec(mriBvalueTag2));
+        bvalue3 = studyS.MRI(i).info.getString(hex2dec(mriBvalueTag3));
+        bvalue1Series = mri.getString(hex2dec(mriBvalueTag1));
+        bvalue2Series = mri.getString(hex2dec(mriBvalueTag2));
+        bvalue3Series = mri.getString(hex2dec(mriBvalueTag3));
+        if strcmpi(bvalue1Series,bvalue1) || ...
+           strcmpi(bvalue2Series,bvalue2) || ...
+           strcmpi(bvalue3Series,bvalue3)
+            bValueMatch = 1;
+        else
+            bValueMatch = 0;
+        end
+    end
     %to avoid different modality data in one series, it must compare whole
     %series structure, but not just UID.
-    if series.matches(thisUID, 1) % series.matches(studyS.SERIES(i).info, 1)
+    if series.matches(thisUID, 1) && bValueMatch % series.matches(studyS.SERIES(i).info, 1)
         studyS.SERIES(i) = searchAndAddSeriesMember(filename, dcmobj, studyS.SERIES(i));
         match = 1;
     end
@@ -154,6 +184,7 @@ if ~match
     studyS.SERIES(ind).info = [];
     studyS.SERIES(ind) = searchAndAddSeriesMember(filename, dcmobj, studyS.SERIES(ind));
     studyS.SERIES(ind).info     = series;    
+    studyS.MRI(ind).info     = mri;    
 end
 
 function seriesS = searchAndAddSeriesMember(filename, dcmobj, seriesS)
@@ -166,6 +197,21 @@ modality = dcm2ml_Element(dcmobj.get(hex2dec(modalityTag)));
 if ~isfield(seriesS, 'Modality')
     seriesS.Modality = [];
 end
+
+% bValue = '';
+% if strcmpi(modality,'MR')
+%     if dcmobj.contains(hex2dec('00431039')) % GE
+%         
+%         bValue  = dcm2ml_Element(dcmobj.get(hex2dec('00431039')));
+%         bValue  = [', b = ', num2str(str2double(strtok(char(bValue(3:end)),'\')))];
+%     elseif dcmobj.contains(hex2dec('00189087')) % Philips
+%         
+%         bValue  = [', b = ', dcm2ml_Element(dcmobj.get(hex2dec('00189087')))];
+%     elseif dcmobj.contains(hex2dec('0019100C')) % SIEMENS
+%         
+%         bValue  = [', b = ', dcm2ml_Element(dcmobj.get(hex2dec('0019100C')))];
+%     end
+% end
 
 seriesS.Modality = modality;
 ind = length(seriesS.Data) + 1;
