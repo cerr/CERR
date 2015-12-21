@@ -793,7 +793,8 @@ nAxesV = [];
 %Iterate over axes.
 for i=1:length(stateS.handle.CERRAxis)
     %Get axis info for this axis.
-    aI = get(stateS.handle.CERRAxis(i), 'userdata');
+    %aI = get(stateS.handle.CERRAxis(i), 'userdata');
+    aI = stateS.handle.aI(i);
     if ismember(doseNum, aI.doseSets)
         nAxesV = union(nAxesV, i);
     end
@@ -810,10 +811,11 @@ global planC stateS
 %Iterate over axes.
 for i=1:length(nAxesV)
     %Get axis info for this axis.
-    aI = get(stateS.handle.CERRAxis(nAxesV(i)), 'userdata');
+    %aI = get(stateS.handle.CERRAxis(nAxesV(i)), 'userdata');
+    aI = stateS.handle.aI(nAxesV(i));
     if strcmpi(aI.doseSelectMode, 'manual');
         aI.doseSets = [];
-        set(stateS.handle.CERRAxis(nAxesV(i)), 'userdata', aI);
+        stateS.handle.aI(nAxesV(i)) = aI;
     end
 end
 return;
@@ -831,7 +833,8 @@ nAxesV = [];
 %Iterate over axes.
 for i=1:length(stateS.handle.CERRAxis)
     %Get axis info for this axis.
-    aI = get(stateS.handle.CERRAxis(i), 'userdata');
+    %aI = get(stateS.handle.CERRAxis(i), 'userdata');
+    aI = stateS.handle.aI(i);
 
     % DK
     aI.doseSets = aI.doseSets(aI.doseSets > delIndex) - 1;
@@ -844,6 +847,6 @@ for i=1:length(stateS.handle.CERRAxis)
 %     end
     % DK
 
-    set(stateS.handle.CERRAxis(i), 'userdata', aI);
+    stateS.handle.aI(i) = aI;
 end
 return;
