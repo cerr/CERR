@@ -1,0 +1,137 @@
+function perfDiffusion(command,varargin)
+% perfDiffusion
+% changes the display on CERR to a perfusion / diffusion viewing mode if there 
+% are more than two scans present. The scans are unlinked, so if
+% you move one scan other does not move.
+%
+% 12/16/2015
+%
+% Copyright 2010, Joseph O. Deasy, on behalf of the CERR development team.
+% 
+% This file is part of The Computational Environment for Radiotherapy Research (CERR).
+% 
+% CERR development has been led by:  Aditya Apte, Divya Khullar, James Alaly, and Joseph O. Deasy.
+% 
+% CERR has been financially supported by the US National Institutes of Health under multiple grants.
+% 
+% CERR is distributed under the terms of the Lesser GNU Public License. 
+% 
+%     This version of CERR is free software: you can redistribute it and/or modify
+%     it under the terms of the GNU General Public License as published by
+%     the Free Software Foundation, either version 3 of the License, or
+%     (at your option) any later version.
+% 
+% CERR is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+% without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+% See the GNU General Public License for more details.
+% 
+% You should have received a copy of the GNU General Public License
+% along with CERR.  If not, see <http://www.gnu.org/licenses/>.
+
+global planC stateS
+indexS = planC{end};
+
+if length(planC{indexS.scan})<2
+    warndlg('Need to have more than one scan to use this mode')
+    return
+end
+
+switch lower(command)
+    case 'init'
+        if stateS.layout == 7
+            doseCompare('exit');
+        end
+        if stateS.layout == 6
+            scanCompare('exit');            
+        end
+        if stateS.layout == 9
+            perfDiffusion('exit');            
+        end
+        hCSV = stateS.handle.CERRSliceViewer;
+        %hCSVA = stateS.handle.CERRSliceViewerAxis;
+        hCSVA = stateS.handle.CERRAxis(1);
+
+        numScans = length(planC{indexS.scan});
+        if numScans < 2
+            warndlg('Scan Comparison tool requires 2 or more scans');
+            return          
+        end
+        
+        stateS.Oldlayout = stateS.layout;
+        stateS.layout = 9;        
+        
+        if length( stateS.handle.CERRAxis)>4
+            delete(stateS.handle.CERRAxis(5:end));
+            stateS.handle.CERRAxisLabel1(5:end) = [];
+            stateS.handle.CERRAxisLabel2(5:end) = [];
+            stateS.handle.CERRAxis(5:end) = [];
+            stateS.handle.aI(5:end) = [];
+        end
+        
+        sliceCallBack('RESIZE',stateS.layout) % 1 large, 2 small
+        
+        % Set scans, doses, views
+        setAxisInfo(stateS.handle.CERRAxis(1),'scanSets',1,'scanSelectMode', 'manual');
+        setAxisInfo(stateS.handle.CERRAxis(2),'scanSets',3,...
+            'scanSelectMode', 'manual','doseSelectMode', 'manual','doseSets',[]);
+        setAxisInfo(stateS.handle.CERRAxis(2),'scanSets',4,...
+            'scanSelectMode', 'manual','doseSelectMode', 'manual','doseSets',[]);
+        
+        
+        
+    case 'exit'
+        %sliceCallBack('layout',stateS.Oldlayout)     
+        delete([findobj('tag', 'spotlight_patch'); findobj('tag', 'spotlight_xcrosshair'); findobj('tag', 'spotlight_ycrosshair'); findobj('tag', 'spotlight_trail')]);
+        CERRStatusString('');
+        
+        % Find and delete the duplicate (linked) views        
+        for i = length(stateS.handle.CERRAxis):-1:1
+            hAxis = stateS.handle.CERRAxis(i);
+            view = stateS.handle.aI(i).view;            
+            if iscell(view)
+                sliceCallBack('selectaxisview', hAxis, 'delete view');
+            else
+                viewC{i} = view;
+            end            
+        end
+        
+%         % Set Axes order
+%         for i = 1:length(stateS.handle.CERRAxis)
+%             viewC{i} = getAxisInfo(stateS.handle.CERRAxis(i),'view');
+%         end
+        
+        transIndex = strmatch('transverse',viewC);
+        sagIndex = strmatch('sagittal',viewC);
+        corIndex = strmatch('coronal',viewC);
+        legIndex = strmatch('legend',viewC);
+        
+        orderV = [transIndex(:)', sagIndex(:)', corIndex(:)', legIndex(:)'];
+        
+        stateS.handle.CERRAxis = stateS.handle.CERRAxis(orderV);
+        stateS.handle.CERRAxisLabel1 = stateS.handle.CERRAxisLabel1(orderV);
+        stateS.handle.CERRAxisLabel2 = stateS.handle.CERRAxisLabel2(orderV);
+        stateS.handle.CERRAxisLabel3 = stateS.handle.CERRAxisLabel3(orderV);
+        stateS.handle.CERRAxisLabel4 = stateS.handle.CERRAxisLabel4(orderV);
+        stateS.handle.CERRAxisScale1 = stateS.handle.CERRAxisScale1(orderV);
+        stateS.handle.CERRAxisScale2 = stateS.handle.CERRAxisScale2(orderV);
+        stateS.handle.CERRAxisTicks1 = stateS.handle.CERRAxisTicks1(orderV,:);
+        stateS.handle.CERRAxisTicks2 = stateS.handle.CERRAxisTicks2(orderV,:);
+        stateS.handle.CERRAxisPlnLocSdw = stateS.handle.CERRAxisPlnLocSdw(orderV);
+        stateS.handle.CERRAxisPlnLoc = stateS.handle.CERRAxisPlnLoc(orderV);
+        stateS.handle.aI = stateS.handle.aI(orderV);
+        %stateS.handle.CERRAxisPlaneLocator1 = stateS.handle.CERRAxisPlaneLocator1(orderV);
+        %stateS.handle.CERRAxisPlaneLocator2 = stateS.handle.CERRAxisPlaneLocator2(orderV);
+        
+        for i = 1:length(stateS.handle.CERRAxis)
+            setAxisInfo(stateS.handle.CERRAxis(i),'doseSets',stateS.doseSet,...
+                'structureSets',stateS.structSet,'scanSets',stateS.scanSet);
+            setappdata(stateS.handle.CERRAxis(i),'compareMode',[]);
+        end
+        stateS.layout = stateS.Oldlayout;
+        stateS.Oldlayout = [];
+        sliceCallBack('resize');
+        CERRRefresh
+        hScanCompare = findobj('tag','scanCompareMenu');
+        set(hScanCompare,'checked','off')        
+        
+end
