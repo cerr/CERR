@@ -204,6 +204,19 @@ catch
 end
 % end of changes by Deshan Yang
 
+% Check uniqueness of scanUIDs
+assocScanUIDc = {planC{indexS.structures}.assocScanUID};
+[uidC,iA,iC] = unique({planC{indexS.scan}.scanUID});
+if length(iA) < length(planC{indexS.scan})
+    for scanNum = 1:length(planC{indexS.scan})
+        assocStrV = strcmpi(assocScanUIDc,planC{indexS.scan}(scanNum).scanUID);
+        planC{indexS.scan}(scanNum).scanUID = ...
+            [planC{indexS.scan}(scanNum).scanUID, '.', num2str(scanNum)];
+        [planC{indexS.structures}(assocStrV).assocScanUID] = ...
+            deal(planC{indexS.scan}(scanNum).scanUID);
+    end
+end
+
 
 % Create a Dummy Scan if no scan is available
 if isempty(planC{indexS.scan})

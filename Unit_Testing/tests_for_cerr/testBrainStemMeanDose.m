@@ -6,13 +6,15 @@ function testBrainStemMeanDose
 % --------- Expected Mean Dose to BrainStem ----------
 expected_mean_dose = 14.0871;
 
-% ---------  Calculate Mean Dose to BrainStem ----------
+% ---------  Calculated Mean Dose to BrainStem ----------
 
 % Get H&N FileName and Path
 CERRPath = getCERRPath;
 CERRPathSlashes = strfind(getCERRPath,filesep);
 topLevelCERRDir = CERRPath(1:CERRPathSlashes(end-1));
-HNfileName = fullfile(topLevelCERRDir,'Unit_Testing','data_for_cerr_tests','CERR_plans','head_neck_ex1_20may03.mat.bz2');
+HNfileName = fullfile(topLevelCERRDir,...
+    'Unit_Testing','data_for_cerr_tests',...
+    'CERR_plans','head_neck_ex1_20may03.mat.bz2');
 
 % Load H&N File
 planC = loadPlanC(HNfileName, tempdir);

@@ -947,6 +947,16 @@ switch upper(instr)
                         set(stateS.handle.CERRAxisLabel2(indAxis),'position', [(wid-30)/wid .98 0]);
                     end
                     
+                case 9 % 1 Large, 2 Medium panels
+                    wid = (figureWidth-leftMarginWidth-70-10)/2;
+                    hig = (figureHeight-bottomMarginHeight-20-20)/2;
+                    set(stateS.handle.CERRAxis(1), 'position', [leftMarginWidth+60 bottomMarginHeight+10 figureWidth-leftMarginWidth-70-wid-10 figureHeight-bottomMarginHeight-20], 'color', [0 0 0], 'xTickLabel', [], 'yTickLabel', [], 'xTick', [], 'yTick', [], 'color', [0 0 0]);
+                    set(stateS.handle.CERRAxis(2), 'position', [figureWidth-wid-10 bottomMarginHeight+30+hig wid hig], 'color', [0 0 0], 'xTickLabel', [], 'yTickLabel', [], 'xTick', [], 'yTick', [], 'color', [0 0 0]);
+                    set(stateS.handle.CERRAxis(3), 'position', [figureWidth-wid-10 bottomMarginHeight+10 wid hig], 'color', [0 0 0], 'xTickLabel', [], 'yTickLabel', [], 'xTick', [], 'yTick', [], 'color', [0 0 0]);
+                    bottomAxes = setdiff(1:nAxes, [1 2 3]);
+                    set(stateS.handle.CERRAxisLabel2(1),'position', [(((figureWidth-leftMarginWidth-70-wid-10)-30)/(figureWidth-leftMarginWidth-70-wid-10)) .98 0]);
+                    set(stateS.handle.CERRAxisLabel2(2),'position', [(wid-30)/wid .98 0]);
+                    set(stateS.handle.CERRAxisLabel2(3),'position', [(wid-30)/wid .98 0]);                    
                     
             end
 
