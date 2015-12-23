@@ -86,8 +86,10 @@ end
 try
 	if strcmpi(planC{indexS.scan}.scanInfo(1).imageType, 'MR')
 		% First, set the scan to a fake coordinate system
-		info1 = planC{indexS.scan}.scanInfo(1);
-		info2 = planC{indexS.scan}.scanInfo(2);
+        %CHANGED 12/09/15 -ADITI
+        [~,sortIdxV] = sort([planC{indexS.scan}.scanInfo.imageNumber]);
+		info1 = planC{indexS.scan}.scanInfo(sortIdxV(1));
+		info2 = planC{indexS.scan}.scanInfo(sortIdxV(2));
 		pos1 = [info1.xOffset info1.yOffset info1.zValue];
 		pos2 = [info2.xOffset info2.yOffset info2.zValue];
 		deltaPos = pos2-pos1;
