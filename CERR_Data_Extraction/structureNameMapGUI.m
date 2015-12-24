@@ -678,9 +678,10 @@ switch upper(command)
         if sum_doses_val == 1
             set(tabH.sum_doses,'foregroundColor',[0 0 0])
             set(handleVals, 'visible','on')
-            set([sumDosesH.dosePerFraction_str, sumDosesH.dosePerFraction_edit, ...
+            set([sumDosesH.dose_adjustment_str, sumDosesH.radbioCorrect_dose_popup, ...
+                sumDosesH.dosePerFraction_str, sumDosesH.dosePerFraction_edit, ...
                 sumDosesH.abRatio_str, sumDosesH.abRatio_edit, sumDosesH.applyAll_check],...
-                'visible','off')
+                'visible','on')            
         else
             set(tabH.sum_doses,'foregroundColor',[0.5 0.5 0.5])
             set(handleVals, 'visible','off')
@@ -1058,7 +1059,6 @@ switch upper(command)
             set(ud.handles.sumDosesH.dosePerFraction_edit,'string',d);
             set(ud.handles.sumDosesH.abRatio_edit,'string',abRatio);
         else
-            set(ud.handles.sumDosesH.radbioCorrect_dose_popup,'visible','off');
             set(ud.handles.sumDosesH.dosePerFraction_edit,'visible','off');
             set(ud.handles.sumDosesH.abRatio_edit,'visible','off');
             set(ud.handles.sumDosesH.dosePerFraction_str,'visible','off');
