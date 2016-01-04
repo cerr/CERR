@@ -1786,7 +1786,7 @@ switch upper(command)
                                 else
                                     [planC, d, v] = getDVHMatrix(planC, ud.newNameMapS(planNum).structMap{j}, ud.newNameMapS(planNum).doseMap, numBins);
                                 end   
-                                d = d*(perFractionDose+abRatio)/(2+abRatio);
+                                %d = d*(perFractionDose+abRatio)/(2+abRatio);
                                 ddbs(ddbsIndex).(['dvh_',repSpaceHyp(ud.scanDir.strNamC{j})]) = [d(:)';v(:)'];
                               
                             catch
