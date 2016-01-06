@@ -207,6 +207,8 @@ switch fieldname
                 dataS = xOffset / 10;
             case 'FFP'
                 dataS = -xOffset / 10;
+            otherwise
+                dataS = xOffset / 10;
         end
 
         xOffset = dataS; %done for setting global, used in Structure coord
@@ -249,6 +251,8 @@ switch fieldname
                 dataS = - yOffset / 10;
             case 'FFP'
                 dataS = yOffset / 10;
+            otherwise
+                dataS = xOffset / 10;
         end
 
         yOffset = dataS; %done for setting global, used in Structure coord
