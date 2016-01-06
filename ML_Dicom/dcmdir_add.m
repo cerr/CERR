@@ -146,6 +146,8 @@ if strcmpi(currentModality,'MR')
     mriBvalueTag1 = '00431039';
     mriBvalueTag2 = '00189087';
     mriBvalueTag3 = '0019100C';
+    
+    acqTimeTag = '00080032';
 end
 
 %Search the list for this item.
@@ -168,10 +170,17 @@ for i=1:length(studyS.SERIES)
         else
             bValueMatch = 0;
         end
+        acqTime = studyS.MRI(i).info.getString(hex2dec(acqTimeTag));
+        acqTimeSeries = mri.getString(hex2dec(acqTimeTag));
+        if strcmpi(acqTimeSeries,acqTime)
+            acqMatch = 1;
+        else
+            acqMatch = 0;
+        end
     end
     %to avoid different modality data in one series, it must compare whole
     %series structure, but not just UID.
-    if series.matches(thisUID, 1) && bValueMatch % series.matches(studyS.SERIES(i).info, 1)
+    if series.matches(thisUID, 1) && bValueMatch && acqMatch % series.matches(studyS.SERIES(i).info, 1)
         studyS.SERIES(i) = searchAndAddSeriesMember(filename, dcmobj, studyS.SERIES(i));
         match = 1;
     end
