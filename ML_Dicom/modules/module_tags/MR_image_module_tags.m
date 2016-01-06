@@ -70,6 +70,9 @@ tagS(end+1) = struct('tag', ['00080021'], 'type', ['3'], 'children', []);
 %Series Time
 tagS(end+1) = struct('tag', ['00080031'], 'type', ['3'], 'children', []);
 
+% Acquisition Time
+tagS(end+1) = struct('tag', ['00080032'], 'type', ['3'], 'children', []);
+
 % b-value for MR scans
 tagS(end+1) = struct('tag', ['00431039'], 'type', ['4'], 'children', []); % GE    
 tagS(end+1) = struct('tag', ['00189087'], 'type', ['4'], 'children', []); % Philips    
