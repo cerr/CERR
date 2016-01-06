@@ -54,7 +54,8 @@ infoS(1) = [];
     end
     fileC = [fileC filesTmp];
     
-    doseMapInitS = struct('DosesToSum',1,'NewDoseName','','AdjustmentType',1, 'maxDose',{[]},'save_to_disk',0);
+    doseMapInitS = struct('DosesToSum',[],'NewDoseName','','AdjustmentType',1,...
+        'maxDose',{[]},'save_to_disk',0, 'd',[], 'abRatio',[]);
 
     %Load CERR plan
     for iFile=1:length(fileC)
