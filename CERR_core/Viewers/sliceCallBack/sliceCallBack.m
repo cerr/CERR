@@ -1536,6 +1536,11 @@ switch upper(instr)
             msgbox('Please get out of rotation mode before moving to next slice','Rotation Active','modal');
             return;
         end
+        
+        if stateS.annotToggle == 1
+            return;
+        end
+        
         %     case {'NEXTSLICE', 'PREVSLICE'}
         %figure(hCSV); %Remove uicontrol focus.
         %hAxis = stateS.handle.CERRAxis(stateS.currentAxis);
