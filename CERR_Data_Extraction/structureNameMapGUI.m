@@ -197,12 +197,14 @@ switch upper(command)
         sumDosesH.dose_list     = uicontrol(hFig,'style','list','tag','dose_list','string','','units',units,'Min',1,'Max',1000,'Value',1,'position',[0.05 0.08 0.55 0.59],'fontWeight','normal','fontSize',10,'BackgroundColor', figureColor,'HorizontalAlignment','left','callback','structureNameMapGUI(''doses_to_sum_selected'')');
         
         % RadBio Correction
-        sumDosesH.dose_adjustment_str = uicontrol(hFig,'style','text','string','Adjust Dose','units',units,'position',[0.65 0.72 0.25 0.04],'fontWeight','bold','fontSize',10,'BackgroundColor', figureColor,'HorizontalAlignment','left');
-        sumDosesH.radbioCorrect_dose_popup = uicontrol(hFig,'style','popup','tag','dose_popup','string',{'None','BED''s','Nf (Fraction Equivalent Dose)'},'units',units,'position',[0.65 0.67 0.25 0.04],'fontWeight','normal','fontSize',10,'BackgroundColor', figureColor,'HorizontalAlignment','left','callback','structureNameMapGUI(''fractionation_correction_selected'')');
-        sumDosesH.dosePerFraction_str = uicontrol(hFig,'style','text','tag','dosePerFrac_txt','string','D/Fr.','units',units,'position',[0.65 0.58 0.1 0.04],'fontWeight','normal','fontSize',10,'BackgroundColor', figureColor,'HorizontalAlignment','left','visible','off');
-        sumDosesH.dosePerFraction_edit = uicontrol(hFig,'style','edit','tag','dosePerFrac_edit','string','1.8','units',units,'position',[0.70 0.58 0.05 0.04],'fontWeight','normal','fontSize',10,'BackgroundColor', figureColor,'HorizontalAlignment','left','callback','structureNameMapGUI(''APPLY_FRACT_CORRECT_VALS'')','visible','off');
+        sumDosesH.dose_adjustment_str = uicontrol(hFig,'style','text','string','Adjust Dose','units',units,'position',[0.65 0.72 0.15 0.04],'fontWeight','bold','fontSize',10,'BackgroundColor', figureColor,'HorizontalAlignment','left');
+        sumDosesH.radbioCorrect_dose_popup = uicontrol(hFig,'style','popup','tag','dose_popup','string',{'None','BED''s','EQD'},'units',units,'position',[0.78 0.73 0.15 0.04],'fontWeight','normal','fontSize',10,'BackgroundColor', figureColor,'HorizontalAlignment','left','callback','structureNameMapGUI(''fractionation_correction_selected'')');
+        sumDosesH.stdFraction_str = uicontrol(hFig,'style','text','tag','stdPerFrac_txt','string','d as in EQD(d)','units',units,'position',[0.65 0.65 0.15 0.04],'fontWeight','normal','fontSize',10,'BackgroundColor', figureColor,'HorizontalAlignment','left','visible','off');
+        sumDosesH.stdFraction_edit = uicontrol(hFig,'style','edit','tag','stdPerFrac_edit','string','2','units',units,'position',[0.8 0.65 0.05 0.04],'fontWeight','normal','fontSize',10,'BackgroundColor', figureColor,'HorizontalAlignment','left','callback','structureNameMapGUI(''APPLY_FRACT_CORRECT_VALS'')','visible','off');
+        sumDosesH.numFraction_str = uicontrol(hFig,'style','text','tag','numPerFrac_txt','string','#Fr.','units',units,'position',[0.65 0.58 0.1 0.04],'fontWeight','normal','fontSize',10,'BackgroundColor', figureColor,'HorizontalAlignment','left','visible','off');
+        sumDosesH.numFraction_edit = uicontrol(hFig,'style','edit','tag','numPerFrac_edit','string','35','units',units,'position',[0.70 0.58 0.05 0.04],'fontWeight','normal','fontSize',10,'BackgroundColor', figureColor,'HorizontalAlignment','left','callback','structureNameMapGUI(''APPLY_FRACT_CORRECT_VALS'')','visible','off');
         sumDosesH.abRatio_str = uicontrol(hFig,'style','text','tag','abratio_txt','string','a/b','units',units,'position',[0.78 0.58 0.1 0.04],'fontWeight','normal','fontSize',10,'BackgroundColor', figureColor,'HorizontalAlignment','left','visible','off');
-        sumDosesH.abRatio_edit = uicontrol(hFig,'style','edit','tag','abratio_edit','string','0.8','units',units,'position',[0.82 0.58 0.05 0.04],'fontWeight','normal','fontSize',10,'BackgroundColor', figureColor,'HorizontalAlignment','left','callback','structureNameMapGUI(''APPLY_FRACT_CORRECT_VALS'')','visible','off');
+        sumDosesH.abRatio_edit = uicontrol(hFig,'style','edit','tag','abratio_edit','string','3','units',units,'position',[0.82 0.58 0.05 0.04],'fontWeight','normal','fontSize',10,'BackgroundColor', figureColor,'HorizontalAlignment','left','callback','structureNameMapGUI(''APPLY_FRACT_CORRECT_VALS'')','visible','off');
         sumDosesH.applyAll_check = uicontrol(hFig,'style','check','tag','all_check','string','All','units',units,'position',[0.892 0.58 0.05 0.04],'fontWeight','normal','fontSize',10,'BackgroundColor', figureColor,'HorizontalAlignment','left','callback','structureNameMapGUI(''apply_fract_correct_to_all'')','visible','off');        
         %New Dose Name
         sumDosesH.new_dose_str  = uicontrol(hFig,'style','text','tag','new_dose_name_str','string','Name New Dose','units',units,'position',[0.65 0.50 0.25 0.05],'fontWeight','bold','fontSize',10,'BackgroundColor', figureColor,'HorizontalAlignment','left');
@@ -679,7 +681,8 @@ switch upper(command)
             set(tabH.sum_doses,'foregroundColor',[0 0 0])
             set(handleVals, 'visible','on')
             set([sumDosesH.dose_adjustment_str, sumDosesH.radbioCorrect_dose_popup, ...
-                sumDosesH.dosePerFraction_str, sumDosesH.dosePerFraction_edit, ...
+                sumDosesH.numFraction_str, sumDosesH.numFraction_edit, ...
+                sumDosesH.stdFraction_str, sumDosesH.stdFraction_edit, ...
                 sumDosesH.abRatio_str, sumDosesH.abRatio_edit, sumDosesH.applyAll_check],...
                 'visible','on')            
         else
@@ -1049,19 +1052,25 @@ switch upper(command)
         set(ud.handles.sumDosesH.radbioCorrect_dose_popup,'value',fractType)
         if fractType == 3
             set(ud.handles.sumDosesH.radbioCorrect_dose_popup,'visible','on');
-            set(ud.handles.sumDosesH.dosePerFraction_edit,'visible','on');
+            set(ud.handles.sumDosesH.numFraction_edit,'visible','on');
+            set(ud.handles.sumDosesH.stdFraction_edit,'visible','on');
             set(ud.handles.sumDosesH.abRatio_edit,'visible','on');
-            set(ud.handles.sumDosesH.dosePerFraction_str,'visible','on');
+            set(ud.handles.sumDosesH.numFraction_str,'visible','on');
+            set(ud.handles.sumDosesH.stdFraction_str,'visible','on');
             set(ud.handles.sumDosesH.abRatio_str,'visible','on');
             set(ud.handles.sumDosesH.applyAll_check,'visible','on');            
-            d = ud.sumDose.doseMapS(planNum).d;
             abRatio = ud.sumDose.doseMapS(planNum).abRatio;
-            set(ud.handles.sumDosesH.dosePerFraction_edit,'string',d);
+            numFractions = ud.sumDose.doseMapS(planNum).numFractions;
+            stdFracSiz = ud.sumDose.doseMapS(planNum).stdFractionSize;
+            set(ud.handles.sumDosesH.numFraction_edit,'string',numFractions);
+            set(ud.handles.sumDosesH.stdFraction_edit,'string',stdFracSiz);
             set(ud.handles.sumDosesH.abRatio_edit,'string',abRatio);
         else
-            set(ud.handles.sumDosesH.dosePerFraction_edit,'visible','off');
+            set(ud.handles.sumDosesH.numFraction_edit,'visible','off');
+            set(ud.handles.sumDosesH.stdFraction_edit,'visible','off');
             set(ud.handles.sumDosesH.abRatio_edit,'visible','off');
-            set(ud.handles.sumDosesH.dosePerFraction_str,'visible','off');
+            set(ud.handles.sumDosesH.numFraction_str,'visible','off');
+            set(ud.handles.sumDosesH.stdFraction_str,'visible','off');            
             set(ud.handles.sumDosesH.abRatio_str,'visible','off');
             set(ud.handles.sumDosesH.applyAll_check,'visible','off');
         end
@@ -1635,11 +1644,13 @@ switch upper(command)
         
         fractionType = get(ud.handles.sumDosesH.radbioCorrect_dose_popup,'value');
         if fractionType == 3
-            set([ud.handles.sumDosesH.dosePerFraction_str, ud.handles.sumDosesH.dosePerFraction_edit, ...
+            set([ud.handles.sumDosesH.numFraction_str, ud.handles.sumDosesH.numFraction_edit, ...
+                ud.handles.sumDosesH.stdFraction_str, ud.handles.sumDosesH.stdFraction_edit, ...
                 ud.handles.sumDosesH.abRatio_str, ud.handles.sumDosesH.abRatio_edit, ud.handles.sumDosesH.applyAll_check],...
                 'visible','on')
         else
-            set([ud.handles.sumDosesH.dosePerFraction_str, ud.handles.sumDosesH.dosePerFraction_edit, ...
+            set([ud.handles.sumDosesH.numFraction_str, ud.handles.sumDosesH.numFraction_edit, ...
+                ud.handles.sumDosesH.stdFraction_str, ud.handles.sumDosesH.stdFraction_edit, ...
                 ud.handles.sumDosesH.abRatio_str, ud.handles.sumDosesH.abRatio_edit, ud.handles.sumDosesH.applyAll_check],...
                 'visible','off')
 
@@ -1648,26 +1659,33 @@ switch upper(command)
         
     case 'APPLY_FRACT_CORRECT_TO_ALL'
         
-        d = get(ud.handles.sumDosesH.dosePerFraction_edit,'string');
-        abRatio = get(ud.handles.sumDosesH.abRatio_edit,'string');
-        d = str2double(d);
-        abRatio = str2double(abRatio);
+        abRatio = get(ud.handles.sumDosesH.abRatio_edit,'string');  
+        numFractions = get(ud.handles.sumDosesH.numFraction_edit,'string');
+        stdFracSiz = get(ud.handles.sumDosesH.stdFraction_edit,'string'); 
+        abRatio = str2double(abRatio);        
+        numFractions = str2double(numFractions);
+        stdFracSiz = str2double(stdFracSiz);        
         for planNum=1:length(ud.newNameMapS)
             ud.sumDose.doseMapS(planNum).AdjustmentType = 3;
-            ud.sumDose.doseMapS(planNum).d = d;
             ud.sumDose.doseMapS(planNum).abRatio = abRatio;
+            ud.sumDose.doseMapS(planNum).numFractions = numFractions;
+            ud.sumDose.doseMapS(planNum).stdFractionSize = stdFracSiz;
         end
         set(hFig,'userdata',ud)
         
     case 'APPLY_FRACT_CORRECT_VALS'
         planNum = ud.sumDose.planNum;        
-        d = get(ud.handles.sumDosesH.dosePerFraction_edit,'string');
         abRatio = get(ud.handles.sumDosesH.abRatio_edit,'string');  
-        d = str2double(d);
+        numFractions = get(ud.handles.sumDosesH.numFraction_edit,'string');
+        stdFracSiz = get(ud.handles.sumDosesH.stdFraction_edit,'string');        
         abRatio = str2double(abRatio);        
+        numFractions = str2double(numFractions);
+        stdFracSiz = str2double(stdFracSiz);
         ud.sumDose.doseMapS(planNum).AdjustmentType = 3;
-        ud.sumDose.doseMapS(planNum).d = d;
         ud.sumDose.doseMapS(planNum).abRatio = abRatio;
+        ud.sumDose.doseMapS(planNum).numFractions = numFractions;        
+        ud.sumDose.doseMapS(planNum).stdFractionSize = stdFracSiz;
+        
         set(hFig,'userdata',ud)
         
         
@@ -1751,11 +1769,18 @@ switch upper(command)
                     % Fractionation correction
                     adjustType = ud.sumDose.doseMapS(planNum).AdjustmentType;
                     if adjustType == 3 % Nf
-                        perFractionDose = ud.sumDose.doseMapS(planNum).d;
-                        abRatio = ud.sumDose.doseMapS(planNum).abRatio;
+                        numFractions = ud.sumDose.doseMapS(planNum).numFractions;
+                        abRatio      = ud.sumDose.doseMapS(planNum).abRatio;
+                        fractionSize = ud.sumDose.doseMapS(planNum).stdFractionSize;
+                        correctedDoseM = planC{indexS.dose}(ud.newNameMapS(planNum).doseMap).doseArray;
+                        % BED
+                        correctedDoseM = correctedDoseM .* ...
+                            (1+correctedDoseM/numFractions/abRatio);
+                        % EQD2
+                        correctedDoseM = correctedDoseM / (1+fractionSize/abRatio);
+                        
                         planC{indexS.dose}(ud.newNameMapS(planNum).doseMap).doseArray = ...
-                            planC{indexS.dose}(ud.newNameMapS(planNum).doseMap).doseArray * ...
-                            (1+abRatio*perFractionDose)/(1+abRatio*2);                        
+                            correctedDoseM;                        
                     end
 
                     
