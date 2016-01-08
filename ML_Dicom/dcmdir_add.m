@@ -165,14 +165,17 @@ for i=1:length(studyS.SERIES)
         bvalue3Series = mri.getString(hex2dec(mriBvalueTag3));
         if strcmpi(bvalue1Series,bvalue1) || ...
            strcmpi(bvalue2Series,bvalue2) || ...
-           strcmpi(bvalue3Series,bvalue3)
+           strcmpi(bvalue3Series,bvalue3) || ...
+           (isempty([bvalue1, bvalue2, bvalue3]) && ...
+              isempty([bvalue1Series, bvalue2Series, bvalue3Series]))
             bValueMatch = 1;
         else
             bValueMatch = 0;
         end
         acqTime = studyS.MRI(i).info.getString(hex2dec(acqTimeTag));
         acqTimeSeries = mri.getString(hex2dec(acqTimeTag));
-        if strcmpi(acqTimeSeries,acqTime)
+        if strcmpi(acqTimeSeries,acqTime) || ...
+                (isempty(acqTimeSeries) && isempty(acqTime))
             acqMatch = 1;
         else
             acqMatch = 0;
