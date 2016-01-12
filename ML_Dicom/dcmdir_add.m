@@ -153,6 +153,7 @@ end
 %Search the list for this item.
 match = 0;
 bValueMatch = 1;
+acqMatch = 1;
 for i=1:length(studyS.SERIES)
     thisUID = studyS.SERIES(i).info.subSet(hex2dec(seriesUIDTag));
     seriesModality = studyS.SERIES(i).info.getString(hex2dec(modalityTag));
