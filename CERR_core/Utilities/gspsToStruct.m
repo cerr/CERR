@@ -27,7 +27,6 @@ for slcNum=1:length(planC{indexS.scan}(scanNum).scanInfo)
 end
 
 if isempty(gspsNumV)
-    %numSignificantSlcs = length(planC{indexS.GSPS});
     gspsNumV = 1:length(planC{indexS.GSPS});
 end
 
@@ -39,11 +38,13 @@ gridUnits = [planC{indexS.scan}(scanNum).scanInfo(1).grid1Units planC{indexS.sca
 offset = [planC{indexS.scan}(scanNum).scanInfo(1).yOffset planC{indexS.scan}(scanNum).scanInfo(1).xOffset];
 
 % Loop through slices and create assign points to a new structure
+createStructureFlag = 0;
 for i=gspsNumV
     sliceNum = strmatch(planC{indexS.GSPS}(i).SOPInstanceUID, SOPInstanceUIDc, 'exact');
     if isempty(sliceNum)
         continue
     end
+    createStructureFlag = 1;
     emptySicesV(sliceNum) = [];
     numGraphic = length(planC{indexS.GSPS}(i).graphicAnnotationS);
     for iGraphic = 1:numGraphic
@@ -53,16 +54,8 @@ for i=gspsNumV
         rowV = graphicAnnotationData(1:2:end);
         colV = graphicAnnotationData(2:2:end);
         [xV, yV] = mtoaapm(colV, rowV, Dims, gridUnits, offset);
-        if strcmpi(graphicAnnotationType,'POLYLINE')
-            plot(xV,yV,'r')
-        elseif strcmpi(graphicAnnotationType,'ELLIPSE')
-            plot(xV(1:2),yV(1:2),'r','linewidth',2)
-            plot(xV(3:4),yV(3:4),'r','linewidth',2)
-        end
-        
         points = [xV(:) yV(:) zVals(sliceNum)*ones(length(xV),1)];
-        newStructS.contour(sliceNum).segments(iGraphic).points = points;
-        
+        newStructS.contour(sliceNum).segments(iGraphic).points = points;        
     end
 
 end
@@ -71,11 +64,13 @@ for empt = emptySicesV
     newStructS.contour(empt).segments.points = [];
 end
 
-newStructS.structureName    = 'ROI';
-newStructNum = length(planC{indexS.structures}) + 1;
-planC{indexS.structures} = dissimilarInsert(planC{indexS.structures}, newStructS, newStructNum);
-planC = getRasterSegs(planC, newStructNum);
-planC = updateStructureMatrices(planC, newStructNum);
+if createStructureFlag
+    newStructS.structureName    = 'ROI';
+    newStructNum = length(planC{indexS.structures}) + 1;
+    planC{indexS.structures} = dissimilarInsert(planC{indexS.structures}, newStructS, newStructNum);
+    planC = getRasterSegs(planC, newStructNum);
+    planC = updateStructureMatrices(planC, newStructNum);
+end
 
 if ~isempty(stateS) && isfield(stateS,'handle') && isfield(stateS.handle,'CERRSliceViewer') && ishandle(stateS.handle.CERRSliceViewer)
     stateS.structsChanged = 1;
