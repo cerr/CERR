@@ -1,14 +1,18 @@
-function planC = gspsToStruct(scanNum)
-% function planC = gspsToStruct(scanNum)
+function planC = gspsToStruct(scanNum, gspsNumV)
+% function planC = gspsToStruct(scanNum, gspsNumV)
 %
 % this function creates a Structure out of GSPS objects associated with
-% the inpit scanNum.
+% the input scanNum. gspsNumV is an optional parameter which specifies a 
+% vector of gsps indices to convert to structure.
 %
 % APA, 12/01/2015
 
 global stateS planC
 indexS = planC{end};
 
+if ~exist('gspsNumV','var')
+    gspsNumV = [];
+end
 %scanNum = 1;
 newStructS = newCERRStructure(scanNum, planC);
 
@@ -22,11 +26,24 @@ for slcNum=1:length(planC{indexS.scan}(scanNum).scanInfo)
     SOPInstanceUIDc{slcNum} = planC{indexS.scan}(scanNum).scanInfo(slcNum).DICOMHeaders.SOPInstanceUID;
 end
 
-numSignificantSlcs = length(planC{indexS.GSPS});
+if isempty(gspsNumV)
+    %numSignificantSlcs = length(planC{indexS.GSPS});
+    gspsNumV = 1:length(planC{indexS.GSPS});
+end
+
+Dims = size(planC{indexS.scan}(scanNum).scanArray);
+if numel(Dims) > 2
+    Dims(3:end) = [];
+end
+gridUnits = [planC{indexS.scan}(scanNum).scanInfo(1).grid1Units planC{indexS.scan}(scanNum).scanInfo(1).grid2Units];
+offset = [planC{indexS.scan}(scanNum).scanInfo(1).yOffset planC{indexS.scan}(scanNum).scanInfo(1).xOffset];
 
 % Loop through slices and create assign points to a new structure
-for i=1:numSignificantSlcs
+for i=gspsNumV
     sliceNum = strmatch(planC{indexS.GSPS}(i).SOPInstanceUID, SOPInstanceUIDc, 'exact');
+    if isempty(sliceNum)
+        continue
+    end
     emptySicesV(sliceNum) = [];
     numGraphic = length(planC{indexS.GSPS}(i).graphicAnnotationS);
     for iGraphic = 1:numGraphic
