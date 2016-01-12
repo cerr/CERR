@@ -2992,7 +2992,7 @@ switch command
                         if isempty(sliceNumsC{i})
                             sliceNumsC{i} = sliceNum;
                         end
-                        if isempty(scanNumsC{i})
+                        if ~isempty(sliceNum)
                             scanNumsC{i} = scanNum;
                         end
                         if ~isempty(sliceNum)
@@ -3070,7 +3070,7 @@ switch command
                 % Toggle scan to match anotation
                 setAxisInfo(stateS.handle.CERRAxis(1), 'scanSelectMode', 'manual', 'scanSets', scanNum);
                 updateAxisRange(stateS.handle.CERRAxis(1),1,'scan');
-                %sliceCallBack('refresh');                
+                %sliceCallBack('refresh');      
                 stateS.annotToggle = -1;
                 % Toggle slice to match anotation
                 goto('SLICE',sliceNum)
@@ -3161,7 +3161,9 @@ switch command
 
                 delete(ud.handles.hV)
                 controlFrame('default')   
+                setAxisInfo(stateS.handle.CERRAxis(1), 'scanSelectMode', 'auto');
                 stateS.annotToggle = -1;
+                stateS.CTDisplayChanged = 1;
                 CERRRefresh
         
         end
