@@ -2975,22 +2975,30 @@ switch command
                     herror=errordlg({'Annotations can be shown only on Transverse Views','Please Select 1st view to be transverse for contouring'},'Not a transverse view','modal');
                     return
                 end
-                
-                scanNum = getAxisInfo(stateS.handle.CERRAxis(1),'scanSets');
-                
-                % Build a list of slices that are annotated
-                for slcNum=1:length(planC{indexS.scan}(scanNum).scanInfo)
-                    SOPInstanceUIDc{slcNum} = planC{indexS.scan}(scanNum).scanInfo(slcNum).DICOMHeaders.SOPInstanceUID;
-                end
+                                
+                % Build a list of scans and slices that are annotated                
                 numSignificantSlcs = length(planC{indexS.GSPS});
                 matchingSliceIndV = [];
                 matchingGSPSIndV = [];
-                for i=1:numSignificantSlcs
-                    sliceNum = strmatch(planC{indexS.GSPS}(i).SOPInstanceUID, SOPInstanceUIDc, 'exact');
-                    sliceNumsC{i} = sliceNum;
-                    if ~isempty(sliceNum)
-                        matchingSliceIndV = [matchingSliceIndV sliceNum];
-                        matchingGSPSIndV = [matchingGSPSIndV i];
+                sliceNumsC = cell(1,numSignificantSlcs);
+                scanNumsC = sliceNumsC;
+                
+                for scanNum = 1:length(planC{indexS.scan})
+                    for slcNum=1:length(planC{indexS.scan}(scanNum).scanInfo)
+                        SOPInstanceUIDc{slcNum} = planC{indexS.scan}(scanNum).scanInfo(slcNum).DICOMHeaders.SOPInstanceUID;
+                    end
+                    for i=1:numSignificantSlcs
+                        sliceNum = strmatch(planC{indexS.GSPS}(i).SOPInstanceUID, SOPInstanceUIDc, 'exact');
+                        if isempty(sliceNumsC{i})
+                            sliceNumsC{i} = sliceNum;
+                        end
+                        if isempty(scanNumsC{i})
+                            scanNumsC{i} = scanNum;
+                        end
+                        if ~isempty(sliceNum)
+                            matchingSliceIndV = [matchingSliceIndV sliceNum];
+                            matchingGSPSIndV = [matchingGSPSIndV i];
+                        end
                     end
                 end
                 
@@ -3007,6 +3015,10 @@ switch command
                 ud.annotation.slicesNumsC = sliceNumsC;
                 ud.annotation.matchingSliceIndV = matchingSliceIndV;
                 ud.annotation.matchingGSPSIndV = matchingGSPSIndV;
+                ud.annotation.scanNumsC = scanNumsC;
+                
+                ud.handles.hV = [];
+                
                 set(hFrame, 'userdata', ud);
                 stateS.annotToggle = 1;
                 controlFrame('ANNOTATION','updateAnnotationList')
@@ -3042,19 +3054,30 @@ switch command
                 
                 scanNum = getAxisInfo(stateS.handle.CERRAxis(1),'scanSets');                
                 Dims = size(planC{indexS.scan}(scanNum).scanArray);
-                Dims(3) = [];
+                if numel(Dims) > 2
+                    Dims(3:end) = [];
+                end
                 gridUnits = [planC{indexS.scan}(scanNum).scanInfo(1).grid1Units planC{indexS.scan}(scanNum).scanInfo(1).grid2Units];
                 offset = [planC{indexS.scan}(scanNum).scanInfo(1).yOffset planC{indexS.scan}(scanNum).scanInfo(1).xOffset];
                 
                 %gspsNum = varargin{2};
                 gspsNum = ud.annotation.matchingGSPSIndV(ud.annotation.currentMatchingSlc);
                 sliceNum = ud.annotation.slicesNumsC{gspsNum};
+                scanNum = ud.annotation.scanNumsC{gspsNum};
                 axes(stateS.handle.CERRAxis(1));
+                % Delete old plots
+                delete(ud.handles.hV)
+                % Toggle scan to match anotation
+                setAxisInfo(stateS.handle.CERRAxis(1), 'scanSelectMode', 'manual', 'scanSets', scanNum);
+                updateAxisRange(stateS.handle.CERRAxis(1),1,'scan');
+                %sliceCallBack('refresh');                
                 stateS.annotToggle = -1;
+                % Toggle slice to match anotation
                 goto('SLICE',sliceNum)
                 stateS.annotToggle = 1;
                 set(ud.handles.sliceText, 'String', ['Image ',num2str(ud.annotation.currentMatchingSlc),'/',num2str(length(ud.annotation.matchingSliceIndV))])
-                
+                % Vector of handles for annotations
+                hV = [];                
                 for iGraphic = 1:length(planC{indexS.GSPS}(gspsNum).graphicAnnotationS)
                     graphicAnnotationType = planC{indexS.GSPS}(gspsNum).graphicAnnotationS(iGraphic).graphicAnnotationType;
                     graphicAnnotationNumPts = planC{indexS.GSPS}(gspsNum).graphicAnnotationS(iGraphic).graphicAnnotationNumPts;
@@ -3063,10 +3086,10 @@ switch command
                     colV = graphicAnnotationData(2:2:end);
                     [xV, yV] = mtoaapm(colV, rowV, Dims, gridUnits, offset);
                     if strcmpi(graphicAnnotationType,'POLYLINE')
-                        plot(xV,yV,'r')
+                        hV = [hV, plot(xV,yV,'r','parent',stateS.handle.CERRAxis(1))];
                     elseif strcmpi(graphicAnnotationType,'ELLIPSE')
-                        plot(xV(1:2),yV(1:2),'r','linewidth',2)
-                        plot(xV(3:4),yV(3:4),'r','linewidth',2)                        
+                        hV = [hV, plot(xV(1:2),yV(1:2),'r','linewidth',2,'parent',stateS.handle.CERRAxis(1))];
+                        hV = [hV, plot(xV(3:4),yV(3:4),'r','linewidth',2,'parent',stateS.handle.CERRAxis(1))];                      
                     end
                     
                 end
@@ -3085,15 +3108,15 @@ switch command
                     if strcmpi(graphicAnnotationType,'POLYLINE') && graphicAnnotationNumPts == 2
                         lineLen = sqrt((xV(1)-xV(2))^2 + (yV(1)-yV(2))^2);
                         set(ud.handles.AnnotStat1,'string',['Length = ',num2str(lineLen),' cm'])
-                        plot(xV,yV,'r','linewidth',2)
+                        hV = [hV, plot(xV,yV,'r','linewidth',2,'parent',stateS.handle.CERRAxis(1))];
                         
                     elseif strcmpi(graphicAnnotationType,'ELLIPSE')
                         lineLenAx1 = sqrt((xV(1)-xV(2))^2 + (yV(1)-yV(2))^2);
                         lineLenAx2 = sqrt((xV(3)-xV(4))^2 + (yV(3)-yV(4))^2);
                         EllipseArea = pi*lineLenAx1*lineLenAx2;
                         set(ud.handles.AnnotStat1,'string',['Area = ',num2str(EllipseArea), ' sq. cm'])
-                        plot(xV(1:2),yV(1:2),'r','linewidth',2)
-                        plot(xV(3:4),yV(3:4),'r','linewidth',2)
+                        hV = [hV, plot(xV(1:2),yV(1:2),'r','linewidth',2,'parent',stateS.handle.CERRAxis(1))]
+                        hV = [hV, plot(xV(3:4),yV(3:4),'r','linewidth',2,'parent',stateS.handle.CERRAxis(1))];
                     end
                     
                 end
@@ -3114,22 +3137,29 @@ switch command
                     [xAnchor, yAnchor] = mtoaapm(col, row, Dims, gridUnits, offset);
                     if ~isempty(planC{indexS.GSPS}(gspsNum).textAnnotationS(iText).unformattedTextValue)
                         % Plot Box
-                        plot([xTopLeft xRightBottom xRightBottom xTopLeft xTopLeft],[yTopLeft yTopLeft yRightBottom yRightBottom yTopLeft],'m','linewidth',2)
+                        hV = [hV, plot([xTopLeft xRightBottom xRightBottom xTopLeft xTopLeft],...
+                            [yTopLeft yTopLeft yRightBottom yRightBottom yTopLeft],...
+                            'm','linewidth',2),'parent',stateS.handle.CERRAxis(1)];
                         % Plot Anchor Point
-                        plot(xAnchor, yAnchor, 'mo', 'markerSize', 4)
+                        hV = [hV, plot(xAnchor, yAnchor, 'mo', 'markerSize', 4,'parent',stateS.handle.CERRAxis(1))];
                         % Find distance between anchor point and the bounding box points
                         xV = [xTopLeft xRightBottom xRightBottom xTopLeft];
                         yV = [yTopLeft yTopLeft yRightBottom yRightBottom];
                         distV = (xV-xAnchor).^2 + (yV-yAnchor).^2;
                         [jnk,minInd] = min(distV);
-                        plot([xAnchor xV(minInd)], [yAnchor yV(minInd)], 'm', 'linewidth',2)
-                        text('parent',stateS.handle.CERRAxis(1),'position',[mean(xV),mean(yV)],'string',planC{indexS.GSPS}(gspsNum).textAnnotationS(iText).unformattedTextValue,'fontSize',8, 'units', 'data')
+                        hV = [hV, plot([xAnchor xV(minInd)], [yAnchor yV(minInd)], 'm', 'linewidth',2)];
+                        hV = [hV, text('parent',stateS.handle.CERRAxis(1),'position',[mean(xV),mean(yV)],...
+                            'string',planC{indexS.GSPS}(gspsNum).textAnnotationS(iText).unformattedTextValue,...
+                            'fontSize',8, 'units', 'data')];
                     end
                 end
                 
+                ud.handles.hV = hV;
+                set(hFrame, 'userdata', ud);
                 
               case 'quit'
 
+                delete(ud.handles.hV)
                 controlFrame('default')   
                 stateS.annotToggle = -1;
                 CERRRefresh
