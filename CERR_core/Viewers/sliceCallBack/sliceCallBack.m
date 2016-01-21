@@ -2935,10 +2935,6 @@ switch upper(instr)
             stateS.structSet = structureSet(1);
         end
 
-        delete(findobj('tag', 'structContour'));
-
-        delete(findobj('tag', 'structContourDots'));
-
         doseNum = getScanAssociatedDose(stateS.scanSet);
 
         if isempty(doseNum)
