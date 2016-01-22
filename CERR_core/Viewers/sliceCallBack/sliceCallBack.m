@@ -888,8 +888,7 @@ switch upper(instr)
                         set(stateS.handle.CERRAxis(5), 'position', [leftMarginWidth+60+2*wid+5 bottomMarginHeight+10+10+hig 2*wid-5 hig]);
                         bottomAxes = setdiff(1:nAxes, [1 4 5]);
                         xPosStr = (2*wid-5);
-                        set(stateS.handle.CERRAxisLabel2(1),'position', [(xPosStr-30)/xPosStr .98 0]);
-                        set(stateS.handle.CERRAxisLabel2(2),'position', [(xPosStr-30)/xPosStr .98 0]);
+                        set(stateS.handle.CERRAxisLabel2([1,2]),'position', [(xPosStr-30)/xPosStr .98 0]);
 
                     elseif stateS.doseCompare.newAxis == 2
                         set(stateS.handle.CERRAxis(1), 'position', [leftMarginWidth+60 bottomMarginHeight+10+10+hig 2*wid-5 hig]);
@@ -897,9 +896,7 @@ switch upper(instr)
                         set(stateS.handle.CERRAxis(6), 'position', [leftMarginWidth+60 bottomMarginHeight+10 2*wid-5 hig]);
                         bottomAxes = setdiff(1:nAxes, [1 4 5 6]);
                         xPosStr = (2*wid-5);
-                        set(stateS.handle.CERRAxisLabel2(1),'position', [(xPosStr-30)/xPosStr .98 0]);
-                        set(stateS.handle.CERRAxisLabel2(5),'position', [(xPosStr-30)/xPosStr .98 0]);
-                        set(stateS.handle.CERRAxisLabel2(6),'position', [(xPosStr-30)/xPosStr .98 0]);
+                        set(stateS.handle.CERRAxisLabel2([1,5,6]),'position', [(xPosStr-30)/xPosStr .98 0]);
 
                     elseif stateS.doseCompare.newAxis == 3
                         set(stateS.handle.CERRAxis(1), 'position', [leftMarginWidth+60 bottomMarginHeight+10+10+hig 2*wid-5 hig]);
@@ -907,6 +904,8 @@ switch upper(instr)
                         set(stateS.handle.CERRAxis(6), 'position', [leftMarginWidth+60 bottomMarginHeight+10 2*wid-5 hig]);
                         set(stateS.handle.CERRAxis(7), 'position', [leftMarginWidth+60+2*wid+5 bottomMarginHeight+10 2*wid-5 hig]);
                         bottomAxes = setdiff(1:nAxes, [1 4 5 6 7]);
+                        xPosStr = (2*wid-5);
+                        set(stateS.handle.CERRAxisLabel2([1,5,6,7]),'position', [(xPosStr-30)/xPosStr .98 0]);                        
                     end
                     
                     % Axis for legend bar
