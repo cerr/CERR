@@ -368,20 +368,30 @@ switch fieldname
         end
 
     case 'bValue'
-        % b-value for MR scans (GE specific private tag
+        % b-value for MR scans (vendor specific private tag)
         if dcmobj.contains(hex2dec('00431039')) % GE
-            
-            dataS  = dcm2ml_Element(dcmobj.get(hex2dec('00431039'))); 
-            dataS  = str2double(strtok(char(dataS(3:end)),'\'));
+            el = dcmobj.get(hex2dec('00431039'));
         elseif dcmobj.contains(hex2dec('00189087')) % Philips
-            
-            dataS  = dcm2ml_Element(dcmobj.get(hex2dec('00189087')));
+            el = dcmobj.get(hex2dec('00189087'));
         elseif dcmobj.contains(hex2dec('0019100C')) % SIEMENS 
-            
-            dataS  = dcm2ml_Element(dcmobj.get(hex2dec('0019100C')));
+            el = dcmobj.get(hex2dec('0019100C'));
+        else
+            dataS = '';
+            return
+        end
+        vr = char(el.vr.toString);
+        dataS  = dcm2ml_Element(el);
+        if strcmp(vr,'UN')
+            dataS = str2double(strtok(char(dataS),'\'));
+            if dataS>1e9
+                dataS = dataS-1e9;
+            end
+        elseif strcmp(vr,'IS')
+            dataS = dataS(1);
         else
             dataS = '';
         end
+
         
     otherwise
         %         warning(['DICOM Import has no methods defined for import into the planC{indexS.scan}.scanInfo' fieldname ' field, leaving empty.']);
