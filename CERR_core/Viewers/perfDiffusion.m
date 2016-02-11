@@ -73,10 +73,25 @@ switch lower(command)
         % Set scans, doses, views
         setAxisInfo(stateS.handle.CERRAxis(1),'scanSets',1,'scanSelectMode', 'manual');
         setAxisInfo(stateS.handle.CERRAxis(2),'scanSets',3,...
-            'scanSelectMode', 'manual','doseSelectMode', 'manual','doseSets',[]);
-        setAxisInfo(stateS.handle.CERRAxis(2),'scanSets',4,...
-            'scanSelectMode', 'manual','doseSelectMode', 'manual','doseSets',[]);
+            'scanSelectMode', 'manual','doseSelectMode', 'manual','doseSets',[],...
+            'structureSets',[],'xRange',[],'yRange',[]);
+        setAxisInfo(stateS.handle.CERRAxis(3),'scanSets',4,...
+            'scanSelectMode', 'manual','doseSelectMode',...
+            'manual','doseSets',[],'structureSets',[],'xRange',[],'yRange',[]);
         
+        % Do not show plane locators
+        stateS.showPlaneLocators = 0;
+        
+        % Got to the slice with structure
+        for slc = 1:length(planC{indexS.structures}.contour)
+            if ~isempty(planC{indexS.structures}.contour(slc).segments.points)
+                setAxisInfo(stateS.handle.CERRAxis(1),'coord',...
+                    planC{indexS.structures}.contour(slc).segments.points(1,3));
+                break;
+            end
+        end
+        
+        CERRRefresh
         
         
     case 'exit'
