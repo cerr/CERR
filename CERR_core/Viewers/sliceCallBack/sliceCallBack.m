@@ -217,10 +217,7 @@ switch upper(instr)
             'position',position, 'doublebuffer', 'off','CloseRequestFcn',...
             'sliceCallBack(''closeRequest'')','backingstore','off','tag',...
             'CERRSliceViewer', 'renderer', 'zbuffer','ResizeFcn','sliceCallBack(''resize'')');
-        
-        % Waitbar to show Viewer loading progress
-        hWait = waitbar(0.02,'Starting Viewer...', 'WindowStyle', 'modal');
-        
+                
         figureColor = get(hCSV, 'Color');
         stateS.handle.CERRSliceViewer = hCSV;
 
@@ -358,6 +355,9 @@ switch upper(instr)
         stateS.handle.CERRAxis(4) = axes('parent', hCSV, 'units', 'pixels', 'position', [figureWidth-wid-10 bottomMarginHeight+10 wid hig], 'color', [0 0 0], 'xTickLabel', [], 'yTickLabel', [], 'xTick', [], 'yTick', [], 'buttondownfcn', 'sliceCallBack(''axisClicked'')', 'nextplot', 'add', 'yDir', 'reverse', 'linewidth', 2);
         stateS.handle.aI(4) = aI;
                 
+        % Waitbar to show Viewer loading progress
+        hWait = waitbar(0.02,'Starting Viewer...', 'WindowStyle', 'modal');
+        
         %Create in-axis labels for each axis.
         tickV = linspace(0.02,0.1,6);
         for i=1:length(stateS.handle.CERRAxis)
@@ -414,7 +414,10 @@ switch upper(instr)
             end
             aI.lineHandlePool(1).currentHandle = 0;
             stateS.handle.aI(axNum) = aI;
-        end        
+        end   
+        
+        %Close the waitbar
+        close(hWait)        
         
         if stateS.MLVersion >= 8.4
             set(stateS.handle.CERRAxis,'ClippingStyle','rectangle')
@@ -458,13 +461,11 @@ switch upper(instr)
         stateS.handle.beamLine = [];
         
         % Initialize list of structures available on current views
-        stateS.structsOnViews = [];        
+        stateS.structsOnViews = [];                
         
         %Change Panel-Layout according to CERROptions
         sliceCallBack('layout',stateS.optS.layout)
         
-        %Close the waitbar
-        close(hWait)
         
         return
 
