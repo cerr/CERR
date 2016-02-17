@@ -168,6 +168,7 @@ for i=uint8(1:length(stateS.handle.CERRAxis))
     yRange = getAxisInfo(i, 'yRange');
     if isempty(xRange) || isempty(yRange)
         updateAxisRange(hAxis,0);
+        zoomToXYRange(hAxis);
         %         axis(hAxis, 'equal', 'auto');
     end
     switch view

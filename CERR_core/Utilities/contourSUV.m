@@ -74,7 +74,7 @@ planC{indexS.structures} = dissimilarInsert(planC{indexS.structures}, newStructS
 planC = getRasterSegs(planC, newStructNum);
 planC = updateStructureMatrices(planC, newStructNum, uniqueSlices);
 
-if ~isempty(stateS) && isfield(stateS,'handle') && isfield(stateS.handle,'CERRSliceViewer') && isnumeric(stateS.handle.CERRSliceViewer)
+if ~isempty(stateS) && isfield(stateS,'handle') && isfield(stateS.handle,'CERRSliceViewer') && ishandle(stateS.handle.CERRSliceViewer)
     stateS.structsChanged = 1;    
     % Refresh View
     CERRRefresh

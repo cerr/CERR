@@ -29,7 +29,7 @@ function scanCompare(command,varargin)
 global planC stateS
 indexS = planC{end};
 
-if length(planC{3})<2
+if length(planC{indexS.scan})<2
     warndlg('Need to have more than one scan to use this mode')
     return
 end
@@ -246,10 +246,11 @@ switch lower(command)
         % Find and delete the duplicate (linked) views        
         for i = length(stateS.handle.CERRAxis):-1:1
             hAxis = stateS.handle.CERRAxis(i);
-            view = stateS.handle.aI(i).view;
-            viewC{i} = view;
+            view = stateS.handle.aI(i).view;            
             if iscell(view)
                 sliceCallBack('selectaxisview', hAxis, 'delete view');
+            else
+                viewC{i} = view;
             end            
         end
         
@@ -276,6 +277,7 @@ switch lower(command)
         stateS.handle.CERRAxisTicks2 = stateS.handle.CERRAxisTicks2(orderV,:);
         stateS.handle.CERRAxisPlnLocSdw = stateS.handle.CERRAxisPlnLocSdw(orderV);
         stateS.handle.CERRAxisPlnLoc = stateS.handle.CERRAxisPlnLoc(orderV);
+        stateS.handle.aI = stateS.handle.aI(orderV);
         %stateS.handle.CERRAxisPlaneLocator1 = stateS.handle.CERRAxisPlaneLocator1(orderV);
         %stateS.handle.CERRAxisPlaneLocator2 = stateS.handle.CERRAxisPlaneLocator2(orderV);
         

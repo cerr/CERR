@@ -103,10 +103,7 @@ switch upper(instr)
         %This is a linux issue where the GUI option of uigetfile doesnot work.
         %Setting the UseNativeSystemDialogs to False lets the user select the files
         %uising the GUI
-        
-        % Waitbar to show Viewer loading progress
-        hWait = waitbar(0.02,'Starting Viewer...', 'WindowStyle', 'modal');
-        
+                
         if isempty(planC)
             clear global planC;
         end
@@ -220,6 +217,7 @@ switch upper(instr)
             'position',position, 'doublebuffer', 'off','CloseRequestFcn',...
             'sliceCallBack(''closeRequest'')','backingstore','off','tag',...
             'CERRSliceViewer', 'renderer', 'zbuffer','ResizeFcn','sliceCallBack(''resize'')');
+                
         figureColor = get(hCSV, 'Color');
         stateS.handle.CERRSliceViewer = hCSV;
 
@@ -360,6 +358,9 @@ switch upper(instr)
         stateS.handle.CERRAxis(4) = axes('parent', hCSV, 'units', 'pixels', 'position', [figureWidth-wid-10 bottomMarginHeight+10 wid hig], 'color', [0 0 0], 'xTickLabel', [], 'yTickLabel', [], 'xTick', [], 'yTick', [], 'buttondownfcn', 'sliceCallBack(''axisClicked'')', 'nextplot', 'add', 'yDir', 'reverse', 'linewidth', 2);
         stateS.handle.aI(4) = aI;
                 
+        % Waitbar to show Viewer loading progress
+        hWait = waitbar(0.02,'Starting Viewer...', 'WindowStyle', 'modal');
+        
         %Create in-axis labels for each axis.
         tickV = linspace(0.02,0.1,6);
         for i=1:length(stateS.handle.CERRAxis)
@@ -416,7 +417,10 @@ switch upper(instr)
             end
             aI.lineHandlePool(1).currentHandle = 0;
             stateS.handle.aI(axNum) = aI;
-        end        
+        end   
+        
+        %Close the waitbar
+        close(hWait)        
         
         if stateS.MLVersion >= 8.4
             set(stateS.handle.CERRAxis,'ClippingStyle','rectangle')
@@ -434,8 +438,8 @@ switch upper(instr)
         hCmd = uicontrol(hCSV,'units',units,'Position',[110 25 30 20]/512,'Style','text', 'enable', 'inactive'  ,'String','Command:', 'horizontalAlignment', 'left', 'Backgroundcolor', figureColor);
         set([stateS.handle.commandLine, hCmd], 'units', 'pixels');
 
-        stateS.handle.fractionGroupIDTrans = uicontrol('tag','FractionGroupID','units','pixels','Position', [leftMarginWidth 1 220 20],'Style','edit','String',[''], 'value', 1, 'enable', 'inactive', 'horizontalAlignment', 'left');
-        stateS.handle.doseDescriptionTrans = uicontrol('tag','DoseDescription','units','pixels','Position', [leftMarginWidth+220 1 220 20],'Style','edit','String',[''], 'value', 1, 'enable', 'inactive', 'horizontalAlignment', 'left');
+        stateS.handle.fractionGroupIDTrans = uicontrol('tag','FractionGroupID','units','pixels','Position', [leftMarginWidth 1 220 20],'Style','edit','String','', 'value', 1, 'enable', 'inactive', 'horizontalAlignment', 'left');
+        stateS.handle.doseDescriptionTrans = uicontrol('tag','DoseDescription','units','pixels','Position', [leftMarginWidth+220 1 220 20],'Style','edit','String','', 'value', 1, 'enable', 'inactive', 'horizontalAlignment', 'left');
         stateS.handle.CERRStatus = uicontrol('tag','DoseDescription','units','pixels','Position', [leftMarginWidth+440 1 1600 20],'Style','edit','String','Welcome to CERR.  Select Open or Import from the file menu.', 'ForegroundColor',[1 0 0], 'value', 1, 'enable', 'inactive', 'horizontalAlignment', 'left');
         tooltipMsg = 'Use "hide name" or "show name" in command-line to toggle';
         stateS.handle.patientName = uicontrol(hCSV,'tag','PatientName','units',units,'Position',[370 25 140 15]/512,'Style','text','String','', 'enable', 'inactive','TooltipString',tooltipMsg,'BackgroundColor',figureColor);
@@ -460,13 +464,11 @@ switch upper(instr)
         stateS.handle.beamLine = [];
         
         % Initialize list of structures available on current views
-        stateS.structsOnViews = [];        
+        stateS.structsOnViews = [];                
         
         %Change Panel-Layout according to CERROptions
         sliceCallBack('layout',stateS.optS.layout)
         
-        %Close the waitbar
-        close(hWait)
         
         return
 
@@ -892,8 +894,7 @@ switch upper(instr)
                         set(stateS.handle.CERRAxis(5), 'position', [leftMarginWidth+60+2*wid+5 bottomMarginHeight+10+10+hig 2*wid-5 hig]);
                         bottomAxes = setdiff(1:nAxes, [1 4 5]);
                         xPosStr = (2*wid-5);
-                        set(stateS.handle.CERRAxisLabel2(1),'position', [(xPosStr-30)/xPosStr .98 0]);
-                        set(stateS.handle.CERRAxisLabel2(2),'position', [(xPosStr-30)/xPosStr .98 0]);
+                        set(stateS.handle.CERRAxisLabel2([1,2]),'position', [(xPosStr-30)/xPosStr .98 0]);
 
                     elseif stateS.doseCompare.newAxis == 2
                         set(stateS.handle.CERRAxis(1), 'position', [leftMarginWidth+60 bottomMarginHeight+10+10+hig 2*wid-5 hig]);
@@ -901,9 +902,7 @@ switch upper(instr)
                         set(stateS.handle.CERRAxis(6), 'position', [leftMarginWidth+60 bottomMarginHeight+10 2*wid-5 hig]);
                         bottomAxes = setdiff(1:nAxes, [1 4 5 6]);
                         xPosStr = (2*wid-5);
-                        set(stateS.handle.CERRAxisLabel2(1),'position', [(xPosStr-30)/xPosStr .98 0]);
-                        set(stateS.handle.CERRAxisLabel2(5),'position', [(xPosStr-30)/xPosStr .98 0]);
-                        set(stateS.handle.CERRAxisLabel2(6),'position', [(xPosStr-30)/xPosStr .98 0]);
+                        set(stateS.handle.CERRAxisLabel2([1,5,6]),'position', [(xPosStr-30)/xPosStr .98 0]);
 
                     elseif stateS.doseCompare.newAxis == 3
                         set(stateS.handle.CERRAxis(1), 'position', [leftMarginWidth+60 bottomMarginHeight+10+10+hig 2*wid-5 hig]);
@@ -911,6 +910,8 @@ switch upper(instr)
                         set(stateS.handle.CERRAxis(6), 'position', [leftMarginWidth+60 bottomMarginHeight+10 2*wid-5 hig]);
                         set(stateS.handle.CERRAxis(7), 'position', [leftMarginWidth+60+2*wid+5 bottomMarginHeight+10 2*wid-5 hig]);
                         bottomAxes = setdiff(1:nAxes, [1 4 5 6 7]);
+                        xPosStr = (2*wid-5);
+                        set(stateS.handle.CERRAxisLabel2([1,5,6,7]),'position', [(xPosStr-30)/xPosStr .98 0]);                        
                     end
                     
                     % Axis for legend bar
@@ -951,6 +952,17 @@ switch upper(instr)
                         set(stateS.handle.CERRAxisLabel2(indAxis),'position', [(wid-30)/wid .98 0]);
                     end
                     
+                case 9 % 1 Large, 2 Medium panels
+                    wid = (figureWidth-leftMarginWidth-70-10)/2;
+                    hig = (figureHeight-bottomMarginHeight-20-20)/2;
+                    set(stateS.handle.CERRAxis(1), 'position', [leftMarginWidth+60 bottomMarginHeight+10 figureWidth-leftMarginWidth-70-wid-10 figureHeight-bottomMarginHeight-20], 'color', [0 0 0], 'xTickLabel', [], 'yTickLabel', [], 'xTick', [], 'yTick', [], 'color', [0 0 0]);
+                    set(stateS.handle.CERRAxis(2), 'position', [figureWidth-wid-10 bottomMarginHeight+30+hig wid hig], 'color', [0 0 0], 'xTickLabel', [], 'yTickLabel', [], 'xTick', [], 'yTick', [], 'color', [0 0 0]);
+                    set(stateS.handle.CERRAxis(3), 'position', [figureWidth-wid-10 bottomMarginHeight+10 wid hig], 'color', [0 0 0], 'xTickLabel', [], 'yTickLabel', [], 'xTick', [], 'yTick', [], 'color', [0 0 0]);
+                    bottomAxes = setdiff(1:nAxes, [1 2 3]);
+                    set(stateS.handle.CERRAxisLabel2(1),'position', [(((figureWidth-leftMarginWidth-70-wid-10)-30)/(figureWidth-leftMarginWidth-70-wid-10)) .98 0]);
+                    set(stateS.handle.CERRAxisLabel2(2),'position', [(wid-30)/wid .98 0]);
+                    set(stateS.handle.CERRAxisLabel2(3),'position', [(wid-30)/wid .98 0]);       
+                      perfDiffusion('init')
                     
             end
 
@@ -982,6 +994,10 @@ switch upper(instr)
     case 'LAYOUT'        
         if stateS.layout == 6 && varargin{1} ~= 6
             scanCompare('exit')
+        end
+        if stateS.layout == 9
+            perfDiffusion('init')
+            return;
         end
         stateS.layout = varargin{1};
         sliceCallBack('resize');
@@ -1530,6 +1546,11 @@ switch upper(instr)
             msgbox('Please get out of rotation mode before moving to next slice','Rotation Active','modal');
             return;
         end
+        
+        if stateS.annotToggle == 1
+            return;
+        end
+        
         %     case {'NEXTSLICE', 'PREVSLICE'}
         %figure(hCSV); %Remove uicontrol focus.
         %hAxis = stateS.handle.CERRAxis(stateS.currentAxis);
@@ -2925,10 +2946,6 @@ switch upper(instr)
         else
             stateS.structSet = structureSet(1);
         end
-
-        delete(findobj('tag', 'structContour'));
-
-        delete(findobj('tag', 'structContourDots'));
 
         doseNum = getScanAssociatedDose(stateS.scanSet);
 
