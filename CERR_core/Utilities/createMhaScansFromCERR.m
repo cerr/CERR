@@ -23,7 +23,9 @@ try
     uniformCT = flipdim(uniformCT,3);
     
     % Change data type to int16 to allow (-)ve values
-    uniformCT = int16(uniformCT) - int16(planC{indexS.scan}(scanNum).scanInfo(1).CTOffset);
+    if ~strcmpi(class(uniformCT),'single')
+        uniformCT = int16(uniformCT) - int16(planC{indexS.scan}(scanNum).scanInfo(1).CTOffset);
+    end
     
     % [dx, dy, dz]
     resolution = [uniformScanInfoS.grid2Units, uniformScanInfoS.grid1Units, uniformScanInfoS.sliceThickness] * 10;
