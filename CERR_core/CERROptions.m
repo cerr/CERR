@@ -186,6 +186,10 @@ optS.colorbarChoices = {'coolwarm','jetmod', 'ppt', 'full', 'full2', 'star', 'st
 
 optS.staticColorbar = 0;         %Set to 1 to have the same colors represent the same dose values when switching between does distributions.
 
+optS.colorbarMin = '';             % Colorbar minimum value. Set to '' to default to minimum dose value.
+
+optS.colorbarMax = '';             % Colorbar maximum value. Set to '' to default to maximum dose value.
+
 optS.transparentZeroDose = 1;         %If 1, dose that is zero is always transparent even if the colorbar suggests it should have color.
 
 optS.doubleSidedColorbar = 0;         %If 1, the colorbar is inverted onto itself to create a double headed colorbar that is useful for viewing negative values.
@@ -348,7 +352,7 @@ optS.CompressType = 'bz2'; %set to 'zip' or 'bz2'
 optS.format = 'DICOM';
 
 %--Initial Panel Layout--------------------------------------------------------------%
-optS.layout = 5; %1:1-Large, 2:1-Large+Bar, 3:2-Medium, 4:4-Medium, 5:1-Large+3-Small
+optS.layout = 5; %1:1-Large, 2:1-Large+Bar, 3:2-Medium, 4:4-Medium, 5:1-Large+3-Small, 9: Perfusion/Diffusion
 
 %--Generate Log on Start-up--------------------------------------------------------------%
 optS.logOnStartup = 0; %1:yes - generate log, 0:No - don't generate log
@@ -371,7 +375,7 @@ optS.sinc_filter_on_display = 1; % 0: Do not apply sinc, 1: apply sinc
 
 %-- Filename for plastimatch commands
 % this file must be stored under ...\CERR\CERR_core\ImageRegistration\plastimatch_command
-optS.plastimatch_command_file = 'bspline_register_cmd_dir.txt'; %'mr_ct_edge_based.txt';
+optS.plastimatch_command_file = 'bspline_register_cmd_dir.txt'; %'malcolm_pike_mr_breast_data.txt'; %'mr_ct_edge_based.txt';
 
 %-- Size of pool of line handles. 
 % Set this value based on anticipated structure segments per view
