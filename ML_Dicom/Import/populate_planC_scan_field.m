@@ -116,6 +116,8 @@ switch fieldname
                                     sliceV = typecast(sliceV,'int16');
                                 end
                             end
+                        otherwise
+                            sliceV = typecast(sliceV,'int16');
                             
                     end
                     %Shape the slice.
