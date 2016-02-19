@@ -99,6 +99,10 @@ if stateS.doseSetChanged & stateS.doseToggle == 1
                 stateS.colorbarRange       = stateS.doseDisplayRange;
             end
         end
+        
+        if ~isempty(isempty(stateS.optS.colorbarMin)) && ~isempty(stateS.optS.colorbarMax)
+            stateS.colorbarRange = [stateS.optS.colorbarMin stateS.optS.colorbarMax];
+        end
 
         CERRColorBar('init', stateS.handle.doseColorbar.trans);
 
