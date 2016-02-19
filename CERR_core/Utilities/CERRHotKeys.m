@@ -153,5 +153,14 @@ switch(keyValue)
     case 114 %'r' key;
         contourControl('reassignMode');
         controlFrame('contour', 'refresh');
+        
+    case {76,108} % l or L key
+        val = get(stateS.handle.CTLevelWidthInteractive,'value');
+        if val == 0
+            set(stateS.handle.CTLevelWidthInteractive,'value',1);
+        else
+            set(stateS.handle.CTLevelWidthInteractive,'value',0);
+        end
+        sliceCallBack('TOGGLESCANWINDOWING');
 
 end
