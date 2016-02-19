@@ -120,6 +120,7 @@ for structNum = indAssocV
 end
 
 %Create new UID since this scan has changed
+oldScanUID = ['c',repSpaceHyp(planC{indexS.scan}(scanNum).scanUID(max(1,end-61):end))];
 planC{indexS.scan}(scanNum).scanUID = createUID('scan');
 for structNum = indAssocV
     planC{indexS.structures}(structNum).assocScanUID = planC{indexS.scan}(scanNum).scanUID;
@@ -134,12 +135,14 @@ end
 planC = reRasterAndUniformize(planC);
 
 if isfield(stateS,'scanSet')
-    stateS.scanSet = scanNum;
-    
+    stateS.scanSet = scanNum;    
     % Update scan stats in stateS
     scanUID = ['c',repSpaceHyp(planC{indexS.scan}(scanNum).scanUID(max(1,end-61):end))];
     stateS.scanStats.minScanVal.(scanUID) = single(min(planC{indexS.scan}(scanNum).scanArray(:)));
     stateS.scanStats.maxScanVal.(scanUID) = single(max(planC{indexS.scan}(scanNum).scanArray(:)));
-    
+    stateS.scanStats.CTLevel.(scanUID) = stateS.scanStats.CTLevel.(oldScanUID);
+    stateS.scanStats.CTWidth.(scanUID) = stateS.scanStats.CTWidth.(oldScanUID);
+    stateS.scanStats.windowPresets.(scanUID) = stateS.scanStats.windowPresets.(oldScanUID);
+    stateS.scanStats.Colormap.(scanUID) = stateS.scanStats.Colormap.(oldScanUID);    
     sliceCallBack('refresh');
 end
