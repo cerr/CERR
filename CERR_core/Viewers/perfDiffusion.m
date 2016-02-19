@@ -45,7 +45,8 @@ switch lower(command)
             scanCompare('exit');            
         end
         if stateS.layout == 9
-            perfDiffusion('exit');            
+            %return;
+            %perfDiffusion('exit');            
         end
         hCSV = stateS.handle.CERRSliceViewer;
         %hCSVA = stateS.handle.CERRSliceViewerAxis;
@@ -57,8 +58,10 @@ switch lower(command)
             return          
         end
         
-        stateS.Oldlayout = stateS.layout;
-        stateS.layout = 9;        
+        if stateS.layout ~= 9
+            stateS.Oldlayout = stateS.layout;
+            stateS.layout = 9;
+        end        
         
         if length( stateS.handle.CERRAxis)>4
             delete(stateS.handle.CERRAxis(5:end));
@@ -68,7 +71,14 @@ switch lower(command)
             stateS.handle.aI(5:end) = [];
         end
         
-        sliceCallBack('RESIZE',stateS.layout) % 1 large, 2 small
+        % Go to slice with structure
+        axes(stateS.handle.CERRAxis(1))
+        for i = 1:length(planC{indexS.structures}(1).contour)
+            if ~isempty(planC{indexS.structures}(1).contour(i).segments)
+                goto('SLICE',i)
+                break;
+            end
+        end
         
         % Set scans, doses, views
         setAxisInfo(stateS.handle.CERRAxis(1),'scanSets',1,'scanSelectMode', 'manual');
@@ -145,7 +155,7 @@ switch lower(command)
         stateS.layout = stateS.Oldlayout;
         stateS.Oldlayout = [];
         sliceCallBack('resize');
-        CERRRefresh
+        %CERRRefresh
         hScanCompare = findobj('tag','scanCompareMenu');
         set(hScanCompare,'checked','off')        
         
