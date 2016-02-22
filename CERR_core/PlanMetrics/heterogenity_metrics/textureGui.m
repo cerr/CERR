@@ -118,7 +118,7 @@ switch upper(command)
         scanNum = 1;
         structNum = 1;
         descript = '';
-        patchSize = [5,5,3];
+        patchSize = [0.5,0.5,0.3];
         ud.cmFlag = 1;
         
         % Haralick default parameters

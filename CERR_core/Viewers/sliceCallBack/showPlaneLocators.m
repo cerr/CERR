@@ -64,8 +64,8 @@ if stateS.MLVersion < 8.4
     inActiveCol = [0.9 0.9 0.5];
     activeCol = [0.5 1 0.5];
 else
-    inActiveCol = [0.9 0.9 0.5 0.5];
-    activeCol = [0.5 1 0.5 0.5];
+    inActiveCol = [0.9 0.9 0.5];
+    activeCol = [0.5 1 0.5];
 end
 
 for i=uint8(1:length(stateS.handle.CERRAxis))

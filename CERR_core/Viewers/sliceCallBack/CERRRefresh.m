@@ -99,6 +99,10 @@ if stateS.doseSetChanged & stateS.doseToggle == 1
                 stateS.colorbarRange       = stateS.doseDisplayRange;
             end
         end
+        
+        if ~isempty(isempty(stateS.optS.colorbarMin)) && ~isempty(stateS.optS.colorbarMax)
+            stateS.colorbarRange = [stateS.optS.colorbarMin stateS.optS.colorbarMax];
+        end
 
         CERRColorBar('init', stateS.handle.doseColorbar.trans);
 
@@ -168,6 +172,7 @@ for i=uint8(1:length(stateS.handle.CERRAxis))
     yRange = getAxisInfo(i, 'yRange');
     if isempty(xRange) || isempty(yRange)
         updateAxisRange(hAxis,0);
+        zoomToXYRange(hAxis);
         %         axis(hAxis, 'equal', 'auto');
     end
     switch view

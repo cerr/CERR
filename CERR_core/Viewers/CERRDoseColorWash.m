@@ -259,14 +259,17 @@ if stateS.CTToggle == 1 && ~noCT %Don't show very low doses
 
     CT2M = clip(CT2M, CTLow, CTHigh, 'limits');
 
-    %         minCT = min(CT2M(:));
-    %         maxCT = max(CT2M(:));
+    % Get Min/max of CT2M scan to scale accordingly.
+    minCT = min(CT2M(:));
+    maxCT = max(CT2M(:));
 
     %This is a trick for speed.  Map the CT data from 1...N+1 bins, which
     %results (only) the maxValue exceeding N after floored.  Replicate
     %the colorCT last element to display the maxValue correctly.
     if CTLow ~= CTHigh
-        ctScaled = (CT2M - CTLow) / ((CTHigh - CTLow) / size(colorCT,1)) + 1;
+        %ctScaled = (CT2M - CTLow) / ((CTHigh - CTLow) / size(colorCT,1)) +
+        %1; % buggy scaling. use actual min/max instead
+        ctScaled = (CT2M - minCT) / ((maxCT - minCT) / size(colorCT,1)) + 1;
         ctClip = uint16(ctScaled);
         colorCT(end+1,:) = colorCT(end,:);
     else
@@ -274,7 +277,7 @@ if stateS.CTToggle == 1 && ~noCT %Don't show very low doses
     end
     %ctClip = ctClip(1:ctSize(1),1:ctSize(2));
 
-    colorCT = (1-stateS.doseAlphaValue.trans)*colorCT;
+    %colorCT = (1-stateS.doseAlphaValue.trans)*colorCT; % APA comment
     
     %build CT background by indexing into CTcolormap. Optimal mtd for speed.
     %CTBackground3M = reshape((1-stateS.doseAlphaValue.trans)*colorCT(ctClip,1:3),ctSize(1),ctSize(2),3);
@@ -296,7 +299,7 @@ if stateS.CTToggle == 1 && ~noCT %Don't show very low doses
             CTBackground3M(mask3M) = [cData3M(:) CTBackground3M(mask3M)] * [stateS.doseFusionAlpha 1-stateS.doseFusionAlpha]';
         else
             %CTBackground3M(mask3M) = [cData3M(:) CTBackground3M(mask3M)] * [stateS.doseAlphaValue.trans 1-stateS.doseAlphaValue.trans]';
-            CTBackground3M(mask3M) = CTBackground3M(mask3M) + cData3M(:)*stateS.doseAlphaValue.trans;
+            CTBackground3M(mask3M) = (1-stateS.doseAlphaValue.trans)*CTBackground3M(mask3M) + cData3M(:)*stateS.doseAlphaValue.trans;
         end
     end
     CTBackground3M = reshape(CTBackground3M,ctSize(1),ctSize(2),3);

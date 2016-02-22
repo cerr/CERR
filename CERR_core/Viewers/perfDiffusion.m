@@ -45,7 +45,8 @@ switch lower(command)
             scanCompare('exit');            
         end
         if stateS.layout == 9
-            perfDiffusion('exit');            
+            %return;
+            %perfDiffusion('exit');            
         end
         hCSV = stateS.handle.CERRSliceViewer;
         %hCSVA = stateS.handle.CERRSliceViewerAxis;
@@ -57,8 +58,10 @@ switch lower(command)
             return          
         end
         
-        stateS.Oldlayout = stateS.layout;
-        stateS.layout = 9;        
+        if stateS.layout ~= 9
+            stateS.Oldlayout = stateS.layout;
+            stateS.layout = 9;
+        end        
         
         if length( stateS.handle.CERRAxis)>4
             delete(stateS.handle.CERRAxis(5:end));
@@ -68,15 +71,37 @@ switch lower(command)
             stateS.handle.aI(5:end) = [];
         end
         
-        sliceCallBack('RESIZE',stateS.layout) % 1 large, 2 small
+        % Go to slice with structure
+        axes(stateS.handle.CERRAxis(1))
+        for i = 1:length(planC{indexS.structures}(1).contour)
+            if ~isempty(planC{indexS.structures}(1).contour(i).segments)
+                goto('SLICE',i)
+                break;
+            end
+        end
         
         % Set scans, doses, views
         setAxisInfo(stateS.handle.CERRAxis(1),'scanSets',1,'scanSelectMode', 'manual');
         setAxisInfo(stateS.handle.CERRAxis(2),'scanSets',3,...
-            'scanSelectMode', 'manual','doseSelectMode', 'manual','doseSets',[]);
-        setAxisInfo(stateS.handle.CERRAxis(2),'scanSets',4,...
-            'scanSelectMode', 'manual','doseSelectMode', 'manual','doseSets',[]);
+            'scanSelectMode', 'manual','doseSelectMode', 'manual','doseSets',[],...
+            'structureSets',[],'xRange',[],'yRange',[]);
+        setAxisInfo(stateS.handle.CERRAxis(3),'scanSets',4,...
+            'scanSelectMode', 'manual','doseSelectMode',...
+            'manual','doseSets',[],'structureSets',[],'xRange',[],'yRange',[]);
         
+        % Do not show plane locators
+        stateS.showPlaneLocators = 0;
+        
+        % Got to the slice with structure
+        for slc = 1:length(planC{indexS.structures}.contour)
+            if ~isempty(planC{indexS.structures}.contour(slc).segments.points)
+                setAxisInfo(stateS.handle.CERRAxis(1),'coord',...
+                    planC{indexS.structures}.contour(slc).segments.points(1,3));
+                break;
+            end
+        end
+        
+        CERRRefresh
         
         
     case 'exit'
@@ -130,7 +155,7 @@ switch lower(command)
         stateS.layout = stateS.Oldlayout;
         stateS.Oldlayout = [];
         sliceCallBack('resize');
-        CERRRefresh
+        %CERRRefresh
         hScanCompare = findobj('tag','scanCompareMenu');
         set(hScanCompare,'checked','off')        
         

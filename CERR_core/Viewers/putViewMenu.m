@@ -67,7 +67,7 @@ else
     uimenu(hPanel, 'label', 'Dose Comparison', 'callback', 'doseCompare(''init'')','tag','doseCompareMenu');
 
     % Create comparison layout for dose comparison
-    uimenu(hPanel, 'label', 'Perfusion / Diffusion', 'callback', 'perfDiffusion(''init'')','tag','perfDiffusionMenu');
+    uimenu(hPanel, 'label', 'Perfusion / Diffusion', 'callback', 'sliceCallBack(''layout'', 9)','tag','perfDiffusionMenu');
 
     %Create plan data menu item.
     hPlan = uimenu(hMenu, 'label', 'Plan Data','interruptible','on', 'Separator', 'on', 'tag', 'planData');

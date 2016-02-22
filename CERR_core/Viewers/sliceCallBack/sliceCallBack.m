@@ -103,10 +103,7 @@ switch upper(instr)
         %This is a linux issue where the GUI option of uigetfile doesnot work.
         %Setting the UseNativeSystemDialogs to False lets the user select the files
         %uising the GUI
-        
-        % Waitbar to show Viewer loading progress
-        hWait = waitbar(0.02,'Starting Viewer...', 'WindowStyle', 'modal');
-        
+                
         if isempty(planC)
             clear global planC;
         end
@@ -220,6 +217,7 @@ switch upper(instr)
             'position',position, 'doublebuffer', 'off','CloseRequestFcn',...
             'sliceCallBack(''closeRequest'')','backingstore','off','tag',...
             'CERRSliceViewer', 'renderer', 'zbuffer','ResizeFcn','sliceCallBack(''resize'')');
+                
         figureColor = get(hCSV, 'Color');
         stateS.handle.CERRSliceViewer = hCSV;
 
@@ -293,7 +291,7 @@ switch upper(instr)
         %CT Width edit box.
         stateS.handle.CTWidth = uicontrol(hCSV,'units','pixels','BackgroundColor',uicolor, 'Position',[(frameWidth-50)/2+10+15 500 (frameWidth-50)/2 20], 'String',num2str(stateS.optS.CTWidth),'Style','edit','Tag','CTWidth', 'callback','sliceCallBack(''CTWidth'');','tooltipstring','Change CT window width');
         %CT Level/Width pushbutton
-        stateS.handle.CTLevelWidthInteractive = uicontrol(hCSV,'units','pixels','BackgroundColor',uicolor, 'Position',[(frameWidth-50)+35 500 20 20], 'String','W','Style','toggle','Tag','CTInteractiveWindowing', 'callback','sliceCallBack(''TOGGLESCANWINDOWING'');','tooltipstring','Drag mouse on view to change display window');
+        stateS.handle.CTLevelWidthInteractive = uicontrol(hCSV,'units','pixels','BackgroundColor',uicolor, 'Position',[(frameWidth-50)+35 500 20 20], 'String','L','Style','toggle','Tag','CTInteractiveWindowing', 'callback','sliceCallBack(''TOGGLESCANWINDOWING'');','tooltipstring','Drag mouse on view to change display window');
         %CT Colorbar
         stateS.handle.scanColorbar = axes('parent', hCSV, 'units', 'pixels', 'position', [20, 470 dx*3, 14], 'xTickLabel', [], 'yTickLabel', [], 'xTick', [], 'yTick', [], 'Tag', 'scanColorbar', 'visible', 'off','fontsize',10);
 
@@ -357,6 +355,9 @@ switch upper(instr)
         stateS.handle.CERRAxis(4) = axes('parent', hCSV, 'units', 'pixels', 'position', [figureWidth-wid-10 bottomMarginHeight+10 wid hig], 'color', [0 0 0], 'xTickLabel', [], 'yTickLabel', [], 'xTick', [], 'yTick', [], 'buttondownfcn', 'sliceCallBack(''axisClicked'')', 'nextplot', 'add', 'yDir', 'reverse', 'linewidth', 2);
         stateS.handle.aI(4) = aI;
                 
+        % Waitbar to show Viewer loading progress
+        hWait = waitbar(0.02,'Starting Viewer...', 'WindowStyle', 'modal');
+        
         %Create in-axis labels for each axis.
         tickV = linspace(0.02,0.1,6);
         for i=1:length(stateS.handle.CERRAxis)
@@ -413,7 +414,10 @@ switch upper(instr)
             end
             aI.lineHandlePool(1).currentHandle = 0;
             stateS.handle.aI(axNum) = aI;
-        end        
+        end   
+        
+        %Close the waitbar
+        close(hWait)        
         
         if stateS.MLVersion >= 8.4
             set(stateS.handle.CERRAxis,'ClippingStyle','rectangle')
@@ -431,8 +435,8 @@ switch upper(instr)
         hCmd = uicontrol(hCSV,'units',units,'Position',[110 25 30 20]/512,'Style','text', 'enable', 'inactive'  ,'String','Command:', 'horizontalAlignment', 'left', 'Backgroundcolor', figureColor);
         set([stateS.handle.commandLine, hCmd], 'units', 'pixels');
 
-        stateS.handle.fractionGroupIDTrans = uicontrol('tag','FractionGroupID','units','pixels','Position', [leftMarginWidth 1 220 20],'Style','edit','String',[''], 'value', 1, 'enable', 'inactive', 'horizontalAlignment', 'left');
-        stateS.handle.doseDescriptionTrans = uicontrol('tag','DoseDescription','units','pixels','Position', [leftMarginWidth+220 1 220 20],'Style','edit','String',[''], 'value', 1, 'enable', 'inactive', 'horizontalAlignment', 'left');
+        stateS.handle.fractionGroupIDTrans = uicontrol('tag','FractionGroupID','units','pixels','Position', [leftMarginWidth 1 220 20],'Style','edit','String','', 'value', 1, 'enable', 'inactive', 'horizontalAlignment', 'left');
+        stateS.handle.doseDescriptionTrans = uicontrol('tag','DoseDescription','units','pixels','Position', [leftMarginWidth+220 1 220 20],'Style','edit','String','', 'value', 1, 'enable', 'inactive', 'horizontalAlignment', 'left');
         stateS.handle.CERRStatus = uicontrol('tag','DoseDescription','units','pixels','Position', [leftMarginWidth+440 1 1600 20],'Style','edit','String','Welcome to CERR.  Select Open or Import from the file menu.', 'ForegroundColor',[1 0 0], 'value', 1, 'enable', 'inactive', 'horizontalAlignment', 'left');
         tooltipMsg = 'Use "hide name" or "show name" in command-line to toggle';
         stateS.handle.patientName = uicontrol(hCSV,'tag','PatientName','units',units,'Position',[370 25 140 15]/512,'Style','text','String','', 'enable', 'inactive','TooltipString',tooltipMsg,'BackgroundColor',figureColor);
@@ -457,13 +461,11 @@ switch upper(instr)
         stateS.handle.beamLine = [];
         
         % Initialize list of structures available on current views
-        stateS.structsOnViews = [];        
+        stateS.structsOnViews = [];                
         
         %Change Panel-Layout according to CERROptions
         sliceCallBack('layout',stateS.optS.layout)
         
-        %Close the waitbar
-        close(hWait)
         
         return
 
@@ -811,7 +813,7 @@ switch upper(instr)
         CERRStatusString(['Loaded ' name ext '. Ready.']);
         %Place filename in window title.
         set(hCSV, 'name', ['CERR:  ' stateS.CERRFile]);
-        stateS.planLoaded = 1;
+        stateS.planLoaded = 1;        
         %Refresh.
         CERRRefresh
         sliceCallBack('resize');
@@ -888,8 +890,7 @@ switch upper(instr)
                         set(stateS.handle.CERRAxis(5), 'position', [leftMarginWidth+60+2*wid+5 bottomMarginHeight+10+10+hig 2*wid-5 hig]);
                         bottomAxes = setdiff(1:nAxes, [1 4 5]);
                         xPosStr = (2*wid-5);
-                        set(stateS.handle.CERRAxisLabel2(1),'position', [(xPosStr-30)/xPosStr .98 0]);
-                        set(stateS.handle.CERRAxisLabel2(2),'position', [(xPosStr-30)/xPosStr .98 0]);
+                        set(stateS.handle.CERRAxisLabel2([1,2]),'position', [(xPosStr-30)/xPosStr .98 0]);
 
                     elseif stateS.doseCompare.newAxis == 2
                         set(stateS.handle.CERRAxis(1), 'position', [leftMarginWidth+60 bottomMarginHeight+10+10+hig 2*wid-5 hig]);
@@ -897,9 +898,7 @@ switch upper(instr)
                         set(stateS.handle.CERRAxis(6), 'position', [leftMarginWidth+60 bottomMarginHeight+10 2*wid-5 hig]);
                         bottomAxes = setdiff(1:nAxes, [1 4 5 6]);
                         xPosStr = (2*wid-5);
-                        set(stateS.handle.CERRAxisLabel2(1),'position', [(xPosStr-30)/xPosStr .98 0]);
-                        set(stateS.handle.CERRAxisLabel2(5),'position', [(xPosStr-30)/xPosStr .98 0]);
-                        set(stateS.handle.CERRAxisLabel2(6),'position', [(xPosStr-30)/xPosStr .98 0]);
+                        set(stateS.handle.CERRAxisLabel2([1,5,6]),'position', [(xPosStr-30)/xPosStr .98 0]);
 
                     elseif stateS.doseCompare.newAxis == 3
                         set(stateS.handle.CERRAxis(1), 'position', [leftMarginWidth+60 bottomMarginHeight+10+10+hig 2*wid-5 hig]);
@@ -907,6 +906,8 @@ switch upper(instr)
                         set(stateS.handle.CERRAxis(6), 'position', [leftMarginWidth+60 bottomMarginHeight+10 2*wid-5 hig]);
                         set(stateS.handle.CERRAxis(7), 'position', [leftMarginWidth+60+2*wid+5 bottomMarginHeight+10 2*wid-5 hig]);
                         bottomAxes = setdiff(1:nAxes, [1 4 5 6 7]);
+                        xPosStr = (2*wid-5);
+                        set(stateS.handle.CERRAxisLabel2([1,5,6,7]),'position', [(xPosStr-30)/xPosStr .98 0]);                        
                     end
                     
                     % Axis for legend bar
@@ -956,7 +957,8 @@ switch upper(instr)
                     bottomAxes = setdiff(1:nAxes, [1 2 3]);
                     set(stateS.handle.CERRAxisLabel2(1),'position', [(((figureWidth-leftMarginWidth-70-wid-10)-30)/(figureWidth-leftMarginWidth-70-wid-10)) .98 0]);
                     set(stateS.handle.CERRAxisLabel2(2),'position', [(wid-30)/wid .98 0]);
-                    set(stateS.handle.CERRAxisLabel2(3),'position', [(wid-30)/wid .98 0]);                    
+                    set(stateS.handle.CERRAxisLabel2(3),'position', [(wid-30)/wid .98 0]);       
+                    perfDiffusion('init')
                     
             end
 
@@ -989,6 +991,10 @@ switch upper(instr)
         if stateS.layout == 6 && varargin{1} ~= 6
             scanCompare('exit')
         end
+%         if stateS.layout == 9
+%             perfDiffusion('init')
+%             return;
+%         end
         stateS.layout = varargin{1};
         sliceCallBack('resize');
         return;
@@ -1304,13 +1310,13 @@ switch upper(instr)
                 if stateS.MLVersion < 8.4
                     set(planeLocators(i), 'Color', [0.5 1 0.5]);
                 else
-                    set(planeLocators(i), 'Color', [0.5 1 0.5 0.5]);
+                    set(planeLocators(i), 'Color', [0.5 1 0.5]);
                 end
             else
                 if stateS.MLVersion < 8.4
                     set(planeLocators(i), 'Color', [0.9 0.9 0.5]);
                 else
-                    set(planeLocators(i), 'Color', [0.9 0.9 0.5 0.5]);
+                    set(planeLocators(i), 'Color', [0.9 0.9 0.5]);
                 end
             end
         end
@@ -1495,7 +1501,7 @@ switch upper(instr)
         return;
 
     case 'DOSETOGGLE'
-        if stateS.doseToggle == 1 & stateS.layout == 7
+        if stateS.doseToggle == 1 && stateS.layout == 7
             hWarn = warndlg('Dose cannot be turned off in doseCompareMode');
             waitfor(hWarn);
             return
@@ -1536,6 +1542,11 @@ switch upper(instr)
             msgbox('Please get out of rotation mode before moving to next slice','Rotation Active','modal');
             return;
         end
+        
+        if stateS.annotToggle == 1
+            return;
+        end
+        
         %     case {'NEXTSLICE', 'PREVSLICE'}
         %figure(hCSV); %Remove uicontrol focus.
         %hAxis = stateS.handle.CERRAxis(stateS.currentAxis);
@@ -2338,7 +2349,7 @@ switch upper(instr)
         
         %CALLBACKS TO SCAN WINDOW            
     case 'TOGGLESCANWINDOWING'
-        toggleState = get(gcbo,'value');
+        toggleState = get(stateS.handle.CTLevelWidthInteractive,'value');
         if toggleState == 1
             CERRStatusString('Click and drag mouse on a view')
             stateS.scanWindowState = 1;
@@ -2929,10 +2940,6 @@ switch upper(instr)
         else
             stateS.structSet = structureSet(1);
         end
-
-        delete(findobj('tag', 'structContour'));
-
-        delete(findobj('tag', 'structContourDots'));
 
         doseNum = getScanAssociatedDose(stateS.scanSet);
 

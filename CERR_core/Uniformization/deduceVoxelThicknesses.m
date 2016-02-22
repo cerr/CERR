@@ -83,7 +83,7 @@ if length(zValuesV) > 1
     voxelThicknessV(end) = abs(zValuesV(end) - zValuesV(end - 1)); %JOD, 5 Sept 03
 else
     %voxelThicknessV = optS.alternateLimitUniformCTSliceSpacing;
-    voxelThicknessV = [];
+    voxelThicknessV = 1; % dummy value for single slice
 end
 
 %Check
