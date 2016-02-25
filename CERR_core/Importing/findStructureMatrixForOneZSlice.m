@@ -36,7 +36,11 @@ structM = reusableZerosM;
 %so return the all zero matrix, as the structure is not present.
 maxStructureZVal = max(allSegmentsM(:,1));
 minStructureZVal = min(allSegmentsM(:,1));
-CTSpacing = CTOriginalZValues(2) - CTOriginalZValues(1);
+if numel(CTOriginalZValues) == 1 % for single slice scans
+    CTSpacing = 1;
+else
+    CTSpacing = CTOriginalZValues(2) - CTOriginalZValues(1);
+end
 if (zSliceUniformValue < (minStructureZVal-CTSpacing/2)) || (zSliceUniformValue > (maxStructureZVal+CTSpacing/2))    % APA Q: is CTSpacing correct for max check?
     return
 end

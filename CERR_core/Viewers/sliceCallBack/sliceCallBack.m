@@ -291,7 +291,7 @@ switch upper(instr)
         %CT Width edit box.
         stateS.handle.CTWidth = uicontrol(hCSV,'units','pixels','BackgroundColor',uicolor, 'Position',[(frameWidth-50)/2+10+15 500 (frameWidth-50)/2 20], 'String',num2str(stateS.optS.CTWidth),'Style','edit','Tag','CTWidth', 'callback','sliceCallBack(''CTWidth'');','tooltipstring','Change CT window width');
         %CT Level/Width pushbutton
-        stateS.handle.CTLevelWidthInteractive = uicontrol(hCSV,'units','pixels','BackgroundColor',uicolor, 'Position',[(frameWidth-50)+35 500 20 20], 'String','W','Style','toggle','Tag','CTInteractiveWindowing', 'callback','sliceCallBack(''TOGGLESCANWINDOWING'');','tooltipstring','Drag mouse on view to change display window');
+        stateS.handle.CTLevelWidthInteractive = uicontrol(hCSV,'units','pixels','BackgroundColor',uicolor, 'Position',[(frameWidth-50)+35 500 20 20], 'String','L','Style','toggle','Tag','CTInteractiveWindowing', 'callback','sliceCallBack(''TOGGLESCANWINDOWING'');','tooltipstring','Drag mouse on view to change display window');
         %CT Colorbar
         stateS.handle.scanColorbar = axes('parent', hCSV, 'units', 'pixels', 'position', [20, 470 dx*3, 14], 'xTickLabel', [], 'yTickLabel', [], 'xTick', [], 'yTick', [], 'Tag', 'scanColorbar', 'visible', 'off','fontsize',10);
 
@@ -817,7 +817,7 @@ switch upper(instr)
         CERRStatusString(['Loaded ' name ext '. Ready.']);
         %Place filename in window title.
         set(hCSV, 'name', ['CERR:  ' stateS.CERRFile]);
-        stateS.planLoaded = 1;
+        stateS.planLoaded = 1;        
         %Refresh.
         CERRRefresh
         sliceCallBack('resize');
@@ -962,7 +962,7 @@ switch upper(instr)
                     set(stateS.handle.CERRAxisLabel2(1),'position', [(((figureWidth-leftMarginWidth-70-wid-10)-30)/(figureWidth-leftMarginWidth-70-wid-10)) .98 0]);
                     set(stateS.handle.CERRAxisLabel2(2),'position', [(wid-30)/wid .98 0]);
                     set(stateS.handle.CERRAxisLabel2(3),'position', [(wid-30)/wid .98 0]);       
-                      perfDiffusion('init')
+                    perfDiffusion('init')
                     
             end
 
@@ -995,10 +995,10 @@ switch upper(instr)
         if stateS.layout == 6 && varargin{1} ~= 6
             scanCompare('exit')
         end
-        if stateS.layout == 9
-            perfDiffusion('init')
-            return;
-        end
+%         if stateS.layout == 9
+%             perfDiffusion('init')
+%             return;
+%         end
         stateS.layout = varargin{1};
         sliceCallBack('resize');
         return;
@@ -1314,13 +1314,13 @@ switch upper(instr)
                 if stateS.MLVersion < 8.4
                     set(planeLocators(i), 'Color', [0.5 1 0.5]);
                 else
-                    set(planeLocators(i), 'Color', [0.5 1 0.5 0.5]);
+                    set(planeLocators(i), 'Color', [0.5 1 0.5]);
                 end
             else
                 if stateS.MLVersion < 8.4
                     set(planeLocators(i), 'Color', [0.9 0.9 0.5]);
                 else
-                    set(planeLocators(i), 'Color', [0.9 0.9 0.5 0.5]);
+                    set(planeLocators(i), 'Color', [0.9 0.9 0.5]);
                 end
             end
         end
@@ -1505,7 +1505,7 @@ switch upper(instr)
         return;
 
     case 'DOSETOGGLE'
-        if stateS.doseToggle == 1 & stateS.layout == 7
+        if stateS.doseToggle == 1 && stateS.layout == 7
             hWarn = warndlg('Dose cannot be turned off in doseCompareMode');
             waitfor(hWarn);
             return
@@ -2355,7 +2355,7 @@ switch upper(instr)
         
         %CALLBACKS TO SCAN WINDOW            
     case 'TOGGLESCANWINDOWING'
-        toggleState = get(gcbo,'value');
+        toggleState = get(stateS.handle.CTLevelWidthInteractive,'value');
         if toggleState == 1
             CERRStatusString('Click and drag mouse on a view')
             stateS.scanWindowState = 1;

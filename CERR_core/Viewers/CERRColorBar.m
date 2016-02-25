@@ -72,11 +72,19 @@ switch upper(command)
         end
 
         %Set bounds for the colorbar frame
-        colorbarFrameMax = max([offset, doseArrayMaxValue - offset, doseDisplayRange(2), colorbarRange(2)]);
-        if offset > 0
-            colorbarFrameMin = min([-offset, -(doseArrayMaxValue - offset), doseDisplayRange(1), colorbarRange(1)]);
+        if isempty(stateS.optS.colorbarMax)
+            colorbarFrameMax = max([offset, doseArrayMaxValue - offset, doseDisplayRange(2), colorbarRange(2)]);
         else
-            colorbarFrameMin = min([0, doseDisplayRange(1), colorbarRange(1)]);
+            colorbarFrameMax = stateS.optS.colorbarMax;
+        end
+        if isempty(stateS.optS.colorbarMin)
+            if offset > 0
+                colorbarFrameMin = min([-offset, -(doseArrayMaxValue - offset), doseDisplayRange(1), colorbarRange(1)]);
+            else
+                colorbarFrameMin = min([0, doseDisplayRange(1), colorbarRange(1)]);
+            end
+        else
+            colorbarFrameMin = stateS.optS.colorbarMin;
         end
 
         if colorbarFrameMax == colorbarFrameMin

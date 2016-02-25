@@ -53,9 +53,9 @@ scanInfo            = planC{indexS.scan}(scanNum).scanInfo;
 sizeArray           = getUniformScanSize(planC{indexS.scan}(scanNum));
 [xV, yV, zV]        = getUniformScanXYZVals(planC{indexS.scan}(scanNum));
 [xVs, yVs, zVs]     = getScanXYZVals(planC{indexS.scan}(scanNum));
-if length(zVs) == 1
-    return;
-end
+% if length(zVs) == 1
+%     return;
+% end
 CTOriginalZValues   = [scanInfo(:).zValue];
 CTSliceThickness    = [scanInfo(:).sliceThickness];
 CTdeltaX            = abs(xV(2) - xV(1));
