@@ -216,7 +216,9 @@ switch upper(instr)
         hCSV = figure('tag','CERRSliceViewer','name',str1,'numbertitle','off',...
             'position',position, 'doublebuffer', 'off','CloseRequestFcn',...
             'sliceCallBack(''closeRequest'')','backingstore','off','tag',...
-            'CERRSliceViewer', 'renderer', 'zbuffer','ResizeFcn','sliceCallBack(''resize'')');
+            'CERRSliceViewer', 'renderer', 'zbuffer',...
+            'WindowScrollWheelFcn', @scrollWheel,...
+            'ResizeFcn','sliceCallBack(''resize'')');
                 
         figureColor = get(hCSV, 'Color');
         stateS.handle.CERRSliceViewer = hCSV;
@@ -230,6 +232,11 @@ switch upper(instr)
         stateS.doseProfileState = 0;
         stateS.zoomState = 0;
         stateS.clipState = 0; %wy
+        
+        % Set states for the controlFrame
+        stateS.contouringDisplay = 0;
+        stateS.rotateView = 0;
+        stateS.anotationDisplay = 0;
 
         %Turn off default menubar, configure manually.
         set(hCSV,'menubar','none');
@@ -267,10 +274,10 @@ switch upper(instr)
 
         %CT window and level ui:
         frameWidth = leftMarginWidth - 20;
-        stateS.handle.CTSettingsFrame = uicontrol(hCSV,'units','pixels', 'string', 'ctsettingsFrame', 'BackgroundColor',uicolor, 'Position', [10 490 frameWidth 120],'Style','frame', 'Tag','CTSettingsFrame');
+        stateS.handle.CTSettingsFrame = uicontrol(hCSV,'units','pixels', 'string', 'ctsettingsFrame', 'BackgroundColor',uicolor, 'Position', [10 490 frameWidth 125],'Style','frame', 'Tag','CTSettingsFrame');
         
         % Scan name text
-        stateS.handle.ScanTxtWindow = uicontrol(hCSV,'units','pixels','BackgroundColor',uicolor, 'Position',[20 585 (frameWidth-30) 20],'String','', 'Style','text', 'enable', 'inactive','ForegroundColor',[0.1 0.5 0.1]);
+        stateS.handle.ScanTxtWindow = uicontrol(hCSV,'units','pixels','BackgroundColor',uicolor, 'Position',[20 585 (frameWidth-30) 27],'String','', 'Style','text', 'enable', 'inactive','ForegroundColor',[0.1 0.5 0.1]);
         
         %CT Window text
         stateS.handle.CTWindow = uicontrol(hCSV,'units','pixels','BackgroundColor',uicolor, 'Position',[20 555 (frameWidth-30)/2 25],'String','Window', 'Style','text', 'enable', 'inactive', 'Tag','CTWindow' ,'ForegroundColor',[0.1 0.4 0.1]);
@@ -339,20 +346,25 @@ switch upper(instr)
         aI.coord   = 0;
         aI.view    = 'transverse';
         %stateS.handle.CERRSliceViewerAxis = axes('userdata', aI, 'parent', hCSV, 'units', 'pixels', 'position', [leftMarginWidth+60 bottomMarginHeight+10 figureWidth-leftMarginWidth-70-wid-10 figureHeight-bottomMarginHeight-20], 'color', [0 0 0], 'xTickLabel', [], 'yTickLabel', [], 'xTick', [], 'yTick', [], 'buttondownfcn', 'sliceCallBack(''axisClicked'')', 'nextplot', 'add', 'linewidth', 2, 'Interruptible','on');
-        stateS.handle.CERRSliceViewerAxis = axes('parent', hCSV, 'units', 'pixels', 'position', [leftMarginWidth+60 bottomMarginHeight+10 figureWidth-leftMarginWidth-70-wid-10 figureHeight-bottomMarginHeight-20], 'color', [0 0 0], 'xTickLabel', [], 'yTickLabel', [], 'xTick', [], 'yTick', [], 'buttondownfcn', 'sliceCallBack(''axisClicked'')', 'nextplot', 'add', 'linewidth', 2, 'Interruptible','on');
+        stateS.handle.CERRSliceViewerAxis = axes('parent', hCSV, 'units', 'pixels',...
+            'position', [leftMarginWidth+60 bottomMarginHeight+10 figureWidth-leftMarginWidth-70-wid-10 figureHeight-bottomMarginHeight-20],...
+            'color', [0 0 0], 'xTickLabel', [], 'yTickLabel', [], 'xTick', [],...
+            'yTick', [], 'buttondownfcn', 'sliceCallBack(''axisClicked'')',...
+            'nextplot', 'add', 'linewidth', 2, 'Interruptible','on', 'ZLim',[-2 2]);
+        
         stateS.handle.CERRAxis(1) = stateS.handle.CERRSliceViewerAxis;
         stateS.handle.aI(1) = aI;
         aI.view    = 'sagittal';
         %stateS.handle.CERRAxis(2) = axes('userdata', aI, 'parent', hCSV, 'units', 'pixels', 'position', [figureWidth-wid-10 bottomMarginHeight+30+2*hig wid hig], 'color', [0 0 0], 'xTickLabel', [], 'yTickLabel', [], 'xTick', [], 'yTick', [], 'buttondownfcn', 'sliceCallBack(''axisClicked'')', 'nextplot', 'add', 'yDir', 'reverse', 'xDir', 'reverse', 'linewidth', 2);
-        stateS.handle.CERRAxis(2) = axes('parent', hCSV, 'units', 'pixels', 'position', [figureWidth-wid-10 bottomMarginHeight+30+2*hig wid hig], 'color', [0 0 0], 'xTickLabel', [], 'yTickLabel', [], 'xTick', [], 'yTick', [], 'buttondownfcn', 'sliceCallBack(''axisClicked'')', 'nextplot', 'add', 'yDir', 'reverse', 'xDir', 'reverse', 'linewidth', 2);
+        stateS.handle.CERRAxis(2) = axes('parent', hCSV, 'units', 'pixels', 'position', [figureWidth-wid-10 bottomMarginHeight+30+2*hig wid hig], 'color', [0 0 0], 'xTickLabel', [], 'yTickLabel', [], 'xTick', [], 'yTick', [], 'buttondownfcn', 'sliceCallBack(''axisClicked'')', 'nextplot', 'add', 'yDir', 'reverse', 'xDir', 'reverse', 'linewidth', 2, 'ZLim',[-2 2]);
         stateS.handle.aI(2) = aI;
         aI.view    = 'coronal';
         %stateS.handle.CERRAxis(3) = axes('userdata', aI, 'parent', hCSV, 'units', 'pixels', 'position', [figureWidth-wid-10 bottomMarginHeight+20+hig wid hig], 'color', [0 0 0], 'xTickLabel', [], 'yTickLabel', [], 'xTick', [], 'yTick', [], 'buttondownfcn', 'sliceCallBack(''axisClicked'')', 'nextplot', 'add', 'yDir', 'reverse', 'linewidth', 2);
-        stateS.handle.CERRAxis(3) = axes('parent', hCSV, 'units', 'pixels', 'position', [figureWidth-wid-10 bottomMarginHeight+20+hig wid hig], 'color', [0 0 0], 'xTickLabel', [], 'yTickLabel', [], 'xTick', [], 'yTick', [], 'buttondownfcn', 'sliceCallBack(''axisClicked'')', 'nextplot', 'add', 'yDir', 'reverse', 'linewidth', 2);
+        stateS.handle.CERRAxis(3) = axes('parent', hCSV, 'units', 'pixels', 'position', [figureWidth-wid-10 bottomMarginHeight+20+hig wid hig], 'color', [0 0 0], 'xTickLabel', [], 'yTickLabel', [], 'xTick', [], 'yTick', [], 'buttondownfcn', 'sliceCallBack(''axisClicked'')', 'nextplot', 'add', 'yDir', 'reverse', 'linewidth', 2, 'ZLim',[-2 2]);
         stateS.handle.aI(3) = aI;
         aI.view    = 'legend';
         %stateS.handle.CERRAxis(4) = axes('userdata', aI,'parent', hCSV, 'units', 'pixels', 'position', [figureWidth-wid-10 bottomMarginHeight+10 wid hig], 'color', [0 0 0], 'xTickLabel', [], 'yTickLabel', [], 'xTick', [], 'yTick', [], 'buttondownfcn', 'sliceCallBack(''axisClicked'')', 'nextplot', 'add', 'yDir', 'reverse', 'linewidth', 2);
-        stateS.handle.CERRAxis(4) = axes('parent', hCSV, 'units', 'pixels', 'position', [figureWidth-wid-10 bottomMarginHeight+10 wid hig], 'color', [0 0 0], 'xTickLabel', [], 'yTickLabel', [], 'xTick', [], 'yTick', [], 'buttondownfcn', 'sliceCallBack(''axisClicked'')', 'nextplot', 'add', 'yDir', 'reverse', 'linewidth', 2);
+        stateS.handle.CERRAxis(4) = axes('parent', hCSV, 'units', 'pixels', 'position', [figureWidth-wid-10 bottomMarginHeight+10 wid hig], 'color', [0 0 0], 'xTickLabel', [], 'yTickLabel', [], 'xTick', [], 'yTick', [], 'buttondownfcn', 'sliceCallBack(''axisClicked'')', 'nextplot', 'add', 'yDir', 'reverse', 'linewidth', 2, 'ZLim',[-2 2]);
         stateS.handle.aI(4) = aI;
                 
         % Waitbar to show Viewer loading progress
@@ -789,23 +801,16 @@ switch upper(instr)
         end
                
         % Set Window and Width from DICOM header, if available
-        if isfield(planC{indexS.scan}(stateS.scanSet).scanInfo(1),'DICOMHeaders') && isfield(planC{indexS.scan}(stateS.scanSet).scanInfo(1).DICOMHeaders,'WindowCenter') && isfield(planC{indexS.scan}(stateS.scanSet).scanInfo(1).DICOMHeaders,'WindowWidth')
-            CTLevel = planC{indexS.scan}(stateS.scanSet).scanInfo(1).DICOMHeaders.WindowCenter(end);
-            CTWidth = planC{indexS.scan}(stateS.scanSet).scanInfo(1).DICOMHeaders.WindowWidth(end);
-            scanSet = getAxisInfo(stateS.handle.CERRAxis(stateS.currentAxis),'scanSets');
-            if isempty(scanSet)
-                setAxisInfo(stateS.handle.CERRAxis(stateS.currentAxis),'scanSets',stateS.scanSet);
+        for scanNum = 1:length(planC{indexS.scan})
+            if isfield(planC{indexS.scan}(scanNum).scanInfo(1),'DICOMHeaders')...
+                    && isfield(planC{indexS.scan}(scanNum).scanInfo(1).DICOMHeaders,'WindowCenter')...
+                    && isfield(planC{indexS.scan}(scanNum).scanInfo(1).DICOMHeaders,'WindowWidth')
+                CTLevel = planC{indexS.scan}(scanNum).scanInfo(1).DICOMHeaders.WindowCenter(end);
+                CTWidth = planC{indexS.scan}(scanNum).scanInfo(1).DICOMHeaders.WindowWidth(end);
+                scanUID = ['c',repSpaceHyp(planC{indexS.scan}(scanNum).scanUID(max(1,end-61):end))];
+                stateS.scanStats.CTLevel.(scanUID) = CTLevel;
+                stateS.scanStats.CTWidth.(scanUID) = CTWidth;
             end
-            if isnumeric(CTLevel) && isnumeric(CTWidth)
-                set(stateS.handle.CTLevel,'string',num2str(CTLevel(1)))
-                set(stateS.handle.CTWidth,'string',num2str(CTWidth(1)))
-                sliceCallBack('CTLevel')
-                sliceCallBack('CTWidth')
-            end
-            scanUID = ['c',repSpaceHyp(planC{indexS.scan}(stateS.scanSet).scanUID(max(1,end-61):end))];
-            stateS.scanStats.CTLevel.(scanUID) = str2double(get(stateS.handle.CTLevel,'String'));
-            stateS.scanStats.CTWidth.(scanUID) = str2double(get(stateS.handle.CTWidth,'String'));
-            
         end
         
         %Update status string
@@ -821,7 +826,10 @@ switch upper(instr)
 
     case 'RESIZE'
         %CERR Window has been resized.  Adjust according to current layout.
-        try
+        %try
+        if isempty(hCSV)
+            return;
+        end
             pos = get(hCSV, 'position');
             figureWidth = pos(3); figureHeight = pos(4);
             nAxes = length(stateS.handle.CERRAxis);
@@ -949,16 +957,33 @@ switch upper(instr)
                     end
                     
                 case 9 % 1 Large, 2 Medium panels
-                    wid = (figureWidth-leftMarginWidth-70-10)/2;
+                    wid = (figureWidth-leftMarginWidth-70-10)/3;
                     hig = (figureHeight-bottomMarginHeight-20-20)/2;
-                    set(stateS.handle.CERRAxis(1), 'position', [leftMarginWidth+60 bottomMarginHeight+10 figureWidth-leftMarginWidth-70-wid-10 figureHeight-bottomMarginHeight-20], 'color', [0 0 0], 'xTickLabel', [], 'yTickLabel', [], 'xTick', [], 'yTick', [], 'color', [0 0 0]);
-                    set(stateS.handle.CERRAxis(2), 'position', [figureWidth-wid-10 bottomMarginHeight+30+hig wid hig], 'color', [0 0 0], 'xTickLabel', [], 'yTickLabel', [], 'xTick', [], 'yTick', [], 'color', [0 0 0]);
-                    set(stateS.handle.CERRAxis(3), 'position', [figureWidth-wid-10 bottomMarginHeight+10 wid hig], 'color', [0 0 0], 'xTickLabel', [], 'yTickLabel', [], 'xTick', [], 'yTick', [], 'color', [0 0 0]);
-                    bottomAxes = setdiff(1:nAxes, [1 2 3]);
+                    %set(stateS.handle.CERRAxis(1), 'position', [leftMarginWidth+60 bottomMarginHeight+10 figureWidth-leftMarginWidth-70-wid-10 figureHeight-bottomMarginHeight-20], 'color', [0 0 0], 'xTickLabel', [], 'yTickLabel', [], 'xTick', [], 'yTick', [], 'color', [0 0 0]);
+                    set(stateS.handle.CERRAxis(1), 'position', [leftMarginWidth+60 bottomMarginHeight+10 wid-10 figureHeight-bottomMarginHeight-20],...
+                        'color', [0 0 0], 'xTickLabel', [], 'yTickLabel', [],...
+                        'xTick', [], 'yTick', [], 'color', [0 0 0]);
+                    set(stateS.handle.CERRAxis(2), 'position', [figureWidth-wid*2-20 bottomMarginHeight+25+hig wid hig],...
+                        'color', [0 0 0], 'xTickLabel', [], 'yTickLabel', [],...
+                        'xTick', [], 'yTick', [], 'color', [0 0 0]);
+                    set(stateS.handle.CERRAxis(3), 'position', [figureWidth-wid*2-20 bottomMarginHeight+10 wid hig+5],...
+                        'color', [0 0 0], 'xTickLabel', [], 'yTickLabel', [],...
+                        'xTick', [], 'yTick', [], 'color', [0 0 0]);
+                    set(stateS.handle.CERRAxis(5), 'position', [figureWidth-wid-10 bottomMarginHeight+25+hig wid hig],...
+                        'color', [0 0 0], 'xTickLabel', [], 'yTickLabel', [],...
+                        'xTick', [], 'yTick', [], 'color', [0 0 0]);
+                    set(stateS.handle.CERRAxis(6), 'position', [figureWidth-wid-10 bottomMarginHeight+10 wid hig+5],...
+                        'color', [0 0 0], 'xTickLabel', [], 'yTickLabel', [],...
+                        'xTick', [], 'yTick', [], 'color', [0 0 0]);
+                    bottomAxes = setdiff(1:nAxes, [1 2 3 5 6]);
                     set(stateS.handle.CERRAxisLabel2(1),'position', [(((figureWidth-leftMarginWidth-70-wid-10)-30)/(figureWidth-leftMarginWidth-70-wid-10)) .98 0]);
                     set(stateS.handle.CERRAxisLabel2(2),'position', [(wid-30)/wid .98 0]);
-                    set(stateS.handle.CERRAxisLabel2(3),'position', [(wid-30)/wid .98 0]);       
-                    perfDiffusion('init')
+                    set(stateS.handle.CERRAxisLabel2(3),'position', [(wid-30)/wid .98 0]);  
+                    set(stateS.handle.CERRAxisLabel2(5),'position', [(wid-30)/wid .98 0]);                    
+                    set(stateS.handle.CERRAxisLabel2(6),'position', [(wid-30)/wid .98 0]);    
+                    if stateS.planLoaded
+                        perfDiffusion('init')
+                    end
                     
             end
 
@@ -981,22 +1006,39 @@ switch upper(instr)
                     showCERRLegend(hAxis);
                 end
             end
-        end
-        try
+        %end
+        %try
             showPlaneLocators;
-        end
+        %end
         return;
 
     case 'LAYOUT'        
         if stateS.layout == 6 && varargin{1} ~= 6
             scanCompare('exit')
         end
-%         if stateS.layout == 9
-%             perfDiffusion('init')
-%             return;
-%         end
+        if stateS.layout ~= 9 && varargin{1} == 9
+            %perfDiffusion('init')
+            %return;
+            numAxes = length(stateS.handle.CERRAxis);
+            if numAxes > 6
+                delete(stateS.handle.CERRAxis(7:end));
+                stateS.handle.CERRAxisLabel1(7:end) = [];
+                stateS.handle.CERRAxisLabel2(7:end) = [];
+                stateS.handle.CERRAxis(7:end) = [];
+                stateS.handle.aI(7:end) = [];
+            elseif numAxes <= 6
+                
+                % Create two new axes
+                numNewAxes = 6-numAxes;
+                createNewCERRAxes(numNewAxes);                
+
+            end
+            
+        end
         stateS.layout = varargin{1};
-        sliceCallBack('resize');
+        if isfield(stateS,'planLoaded') && stateS.planLoaded
+            sliceCallBack('resize');
+        end
         return;
 
     case 'DUPLICATEAXIS'
@@ -1052,6 +1094,7 @@ switch upper(instr)
         
         %set(stateS.handle.CERRAxis(end), 'userdata', axisInfo);
         %stateS.handle.aI(axisNum) = axisInfo;
+        stateS.handle.aI = dissimilarInsert(stateS.handle.aI,axisInfo);
         CERRAxisMenu(stateS.handle.CERRAxis(axisNum));
         sliceCallBack('RESIZE');
         CERRRefresh
@@ -2354,14 +2397,16 @@ switch upper(instr)
             CERRStatusString('Click and drag mouse on a view')
             stateS.scanWindowState = 1;
             stateS.turnDoseOnInteractiveWindowing = 0;
-            if stateS.doseToggle == 1
-                stateS.turnDoseOnInteractiveWindowing = 1;
-                sliceCallBack('doseToggle')
-            end
             stateS.turnStructOnInteractiveWindowing = 0;
-            if stateS.structToggle == 1
-                stateS.turnStructOnInteractiveWindowing = 1;
-                sliceCallBack('structToggle')
+            if ~stateS.layout
+                if stateS.doseToggle == 1
+                    stateS.turnDoseOnInteractiveWindowing = 1;
+                    sliceCallBack('doseToggle')
+                end
+                if stateS.structToggle == 1
+                    stateS.turnStructOnInteractiveWindowing = 1;
+                    sliceCallBack('structToggle')
+                end
             end
         else
             CERRStatusString('')
@@ -2408,7 +2453,8 @@ switch upper(instr)
         stateS.CTDisplayChanged = 1;
         for hAxis = stateS.handle.CERRAxis
             showCT(hAxis)
-            %showDose(hAxis)
+            showDose(hAxis)
+            showStructures(hAxis)
         end
         updateScanColorbar(scanNum);
         return;
