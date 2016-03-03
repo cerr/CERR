@@ -37,11 +37,10 @@ end
 
 
 global stateS planC
-indexS = planC{end};
 
 set([stateS.handle.CERRAxisPlnLoc{:}],'visible','off')
 set([stateS.handle.CERRAxisPlnLocSdw{:}],'visible','off')
-if ~stateS.showPlaneLocators
+if ~isfield(stateS,'showPlaneLocators') || ~stateS.showPlaneLocators
     return;
 end
 
