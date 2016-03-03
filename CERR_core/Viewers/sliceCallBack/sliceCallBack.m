@@ -1051,7 +1051,7 @@ switch upper(instr)
         end        
         
         %set(stateS.handle.CERRAxis(end), 'userdata', axisInfo);
-        stateS.handle.aI(axisNum) = axisInfo;
+        %stateS.handle.aI(axisNum) = axisInfo;
         CERRAxisMenu(stateS.handle.CERRAxis(axisNum));
         sliceCallBack('RESIZE');
         CERRRefresh
