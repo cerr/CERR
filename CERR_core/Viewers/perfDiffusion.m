@@ -62,15 +62,7 @@ switch lower(command)
             stateS.Oldlayout = stateS.layout;
             stateS.layout = 9;
         end        
-        
-        if length( stateS.handle.CERRAxis)>4
-            delete(stateS.handle.CERRAxis(5:end));
-            stateS.handle.CERRAxisLabel1(5:end) = [];
-            stateS.handle.CERRAxisLabel2(5:end) = [];
-            stateS.handle.CERRAxis(5:end) = [];
-            stateS.handle.aI(5:end) = [];
-        end
-        
+                
         % Go to slice with structure
         axes(stateS.handle.CERRAxis(1))
         for i = 1:length(planC{indexS.structures}(1).contour)
@@ -84,10 +76,22 @@ switch lower(command)
         setAxisInfo(stateS.handle.CERRAxis(1),'scanSets',1,'scanSelectMode', 'manual');
         setAxisInfo(stateS.handle.CERRAxis(2),'scanSets',3,...
             'scanSelectMode', 'manual','doseSelectMode', 'manual','doseSets',[],...
-            'structureSets',[],'xRange',[],'yRange',[]);
+            'structureSets',[],'xRange',[],'yRange',[],...
+            'view','transverse');
+        linkC = {'Linked', stateS.handle.CERRAxis(2)};
         setAxisInfo(stateS.handle.CERRAxis(3),'scanSets',4,...
             'scanSelectMode', 'manual','doseSelectMode',...
-            'manual','doseSets',[],'structureSets',[],'xRange',[],'yRange',[]);
+            'manual','doseSets',[],'structureSets',[],'xRange',linkC,...
+            'yRange',linkC,'view',linkC,'coord',linkC);
+        setAxisInfo(stateS.handle.CERRAxis(5),'scanSets',3,...
+            'scanSelectMode', 'manual','doseSelectMode',...
+            'manual','doseSets',[],'structureSets',[],'xRange',[],'yRange',[],...
+            'view','transverse');
+        linkC = {'Linked', stateS.handle.CERRAxis(5)};
+        setAxisInfo(stateS.handle.CERRAxis(6),'scanSets',4,...
+            'scanSelectMode', 'manual','doseSelectMode',...
+            'manual','doseSets',[],'structureSets',[],'xRange',linkC,...
+            'yRange',linkC,'view',linkC,'coord',linkC);
         
         % Do not show plane locators
         stateS.showPlaneLocators = 0;
