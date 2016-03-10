@@ -244,32 +244,32 @@ if stateS.CTToggle == 1 && ~noCT %Don't show very low doses
     CTOffset = planC{indexS.scan}(scanSet(1)).scanInfo(1).CTOffset;
     
     scanUID = ['c',repSpaceHyp(planC{indexS.scan}(scanSet).scanUID(max(1,end-61):end))];
+    
     colorCT = CERRColorMap(stateS.scanStats.Colormap.(scanUID));
-    %colorCT = CERRColorMap(stateS.optS.CTColormap);
     CTLevel     = stateS.scanStats.CTLevel.(scanUID) + CTOffset;
     CTWidth     = stateS.scanStats.CTWidth.(scanUID);
     CTLow       = CTLevel - CTWidth/2;
-    CTHigh      = CTLevel + CTWidth/2;
+    CTHigh      = CTLevel + CTWidth/2;    
     
-    
-    %CTLevel     = stateS.optS.CTLevel + CTOffset;
-    %CTWidth     = stateS.optS.CTWidth;
-    %CTLow       = CTLevel - CTWidth/2;
-    %CTHigh      = CTLevel + CTWidth/2;
-
-    CT2M = clip(CT2M, CTLow, CTHigh, 'limits');
+    %CT2M = clip(CT2M, CTLow, CTHigh, 'limits');
 
     % Get Min/max of CT2M scan to scale accordingly.
-    minCT = min(CT2M(:));
-    maxCT = max(CT2M(:));
-
+    %minCT = min(CT2M(:));
+    %maxCT = max(CT2M(:));
+    scanMin = stateS.scanStats.minScanVal.(scanUID);
+    scanMax = stateS.scanStats.maxScanVal.(scanUID);
+    
+    CTLow = max(CTLow,scanMin);
+    CTHigh = max(CTLow,min(CTHigh,scanMax));
+    
+    CT2M = clip(CT2M, CTLow, CTHigh, 'limits');
+    
     %This is a trick for speed.  Map the CT data from 1...N+1 bins, which
     %results (only) the maxValue exceeding N after floored.  Replicate
     %the colorCT last element to display the maxValue correctly.
     if CTLow ~= CTHigh
-        %ctScaled = (CT2M - CTLow) / ((CTHigh - CTLow) / size(colorCT,1)) +
-        %1; % buggy scaling. use actual min/max instead
-        ctScaled = (CT2M - minCT) / ((maxCT - minCT) / size(colorCT,1)) + 1;
+        ctScaled = (CT2M - CTLow) / ((CTHigh - CTLow) / size(colorCT,1)) + 1;
+        %ctScaled = (CT2M - minCT) / ((maxCT - minCT) / size(colorCT,1)) + 1; % bug
         ctClip = uint16(ctScaled);
         colorCT(end+1,:) = colorCT(end,:);
     else

@@ -90,7 +90,8 @@ infoS(1) = [];
                 end
             end
         end
-        infoS(fileNum).structMap = {structMap{1}(1)};        
+        %infoS(fileNum).structMap = {structMap{1}(1)};        
+        infoS(fileNum).structMap = structMap;
  
         if length(planC{indexS.dose}) == 1
             infoS(fileNum).doseMap = 1;

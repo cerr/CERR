@@ -33,6 +33,11 @@ function showCERRLegend(hAxis)
 
 global planC
 global stateS
+
+if ~stateS.planLoaded
+    return;
+end
+
 indexS = planC{end};
 
 % Set properties correctly

@@ -24,7 +24,6 @@ function showScale(hAxis, i)
 
 global stateS
 global planC
-indexS = planC{end};
 
 % check for comparemode if selected
 compareMode = getappdata(hAxis,'compareMode');
@@ -44,6 +43,7 @@ if isempty(coord);
 end
 
 if ~isempty(scanSet)
+    indexS = planC{end};
     [xV, yV, zV] = getScanXYZVals(planC{indexS.scan}(scanSet(1)));
 else
     %warning('No Scan Selected')

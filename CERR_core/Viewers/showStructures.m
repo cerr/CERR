@@ -419,6 +419,9 @@ for i=1:length(axisInfo.structureGroup)
                         %                             end
                         %                         end
                         
+                        if min(size(oneStructM)) < 2
+                            return
+                        end
                         %[c, hStructContour] = contour(xV(:), zV(:), oneStructM, [.5 .5], '-');
                         c = contourc(xV(:), zV(:), double(oneStructM), [.5 .5]);
                         %set(hStructContour, 'parent', hAxis);
