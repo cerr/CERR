@@ -11,29 +11,29 @@ function planC = dcmdir2planC(dcmdir,mergeScansFlag)
 %   mergeScansFlag: Optional argument to merge scans as a 4-D series. Acceptable values are 'Yes' or 'No'.
 %
 % Copyright 2010, Joseph O. Deasy, on behalf of the CERR development team.
-% 
+%
 % This file is part of The Computational Environment for Radiotherapy Research (CERR).
-% 
+%
 % CERR development has been led by:  Aditya Apte, Divya Khullar, James Alaly, and Joseph O. Deasy.
-% 
+%
 % CERR has been financially supported by the US National Institutes of Health under multiple grants.
-% 
-% CERR is distributed under the terms of the Lesser GNU Public License. 
-% 
+%
+% CERR is distributed under the terms of the Lesser GNU Public License.
+%
 %     This version of CERR is free software: you can redistribute it and/or modify
 %     it under the terms of the GNU General Public License as published by
 %     the Free Software Foundation, either version 3 of the License, or
 %     (at your option) any later version.
-% 
+%
 % CERR is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
 % without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 % See the GNU General Public License for more details.
-% 
+%
 % You should have received a copy of the GNU General Public License
 % along with CERR.  If not, see <http://www.gnu.org/licenses/>.
 
 planInitC = initializeCERR;
-       
+
 indexS = planInitC{end};
 
 %Assume a single patient for the moment
@@ -43,13 +43,13 @@ dcmdir_PATIENT = dcmdir; %wy .PATIENT{1};
 cellNames = fields(indexS);
 
 for i = 1:length(cellNames)
-   %Populate each field in the planC.
-   disp([' Reading ' cellNames{i}  ' ... ']);
-   cellData = populate_planC_field(cellNames{i}, dcmdir_PATIENT);
-   
-   if ~isempty(cellData)
-       planInitC{indexS.(cellNames{i})} = cellData;
-   end
+    %Populate each field in the planC.
+    disp([' Reading ' cellNames{i}  ' ... ']);
+    cellData = populate_planC_field(cellNames{i}, dcmdir_PATIENT);
+    
+    if ~isempty(cellData)
+        planInitC{indexS.(cellNames{i})} = cellData;
+    end
 end
 
 planC = planInitC;
@@ -74,7 +74,7 @@ try
             if ~isempty(planC{8})
                 zValues = planC{8}.zValues;
                 for i=1:length(planC{indexS.scan}.scanInfo)
-                   planC{indexS.scan}.scanInfo(i).zValue = zValues(i); 
+                    planC{indexS.scan}.scanInfo(i).zValue = zValues(i);
                 end
             end
         end
@@ -86,17 +86,29 @@ end
 try
     for scanNum = 1:length(planC{indexS.scan})
         if strcmpi(planC{indexS.scan}(scanNum).scanInfo(1).imageType, 'MR')
+            %%%%% CHANGED - AI 3/3/16 %%%%%%%
+            imgNumverV = [planC{indexS.scan}(scanNum).scanInfo.imageNumber];
+            if ~isempty(imgNumverV)
+                [~,sortIdxV] = sort(imgNumverV);
+            else
+                sortIdxV = 1:length(planC{indexS.scan}(scanNum).scanInfo);
+            end
             % First, set the scan to a fake coordinate system
-            info1 = planC{indexS.scan}(scanNum).scanInfo(1);
-            info2 = planC{indexS.scan}(scanNum).scanInfo(2);
+            info1 = planC{indexS.scan}(scanNum).scanInfo(sortIdxV(1));
+            info2 = planC{indexS.scan}(scanNum).scanInfo(sortIdxV(2));
             pos1 = [info1.xOffset info1.yOffset info1.zValue];
             pos2 = [info2.xOffset info2.yOffset info2.zValue];
             deltaPos = pos2-pos1;
+            direction = sign(deltaPos(3));
             slice_distance = sqrt(sum(deltaPos.^2));
             for i=1:length(planC{indexS.scan}(scanNum).scanInfo)
-                planC{indexS.scan}(scanNum).scanInfo(i).zValue = pos1(3)+(i-1)*slice_distance;
+                planC{indexS.scan}(scanNum).scanInfo(sortIdxV(i)).zValue = pos1(3)+ direction*(i-1)*slice_distance;
             end
             
+            %Reorder by z-value (ascending)
+            [~,zOrderV] = sort([planC{indexS.scan}(scanNum).scanInfo.zValue]);
+            planC{indexS.scan}(scanNum).scanInfo = planC{indexS.scan}(scanNum).scanInfo(zOrderV);
+            %%%%%%%%%%%%%%%%
             info1b = info1.DICOMHeaders;
             info2b = info2.DICOMHeaders;
             pos1b = info1b.ImagePositionPatient;
@@ -263,7 +275,7 @@ if (scanNum>1)
             end
             
             %delete all other scans
-            planC{indexS.scan} = planC{indexS.scan}(1); 
+            planC{indexS.scan} = planC{indexS.scan}(1);
             planC{indexS.scan}.scanArray = scanArray;
             planC{indexS.scan}.scanInfo = scanInfo;
             
@@ -272,20 +284,20 @@ if (scanNum>1)
             for i=1:strNum
                 planC{indexS.structures}(i).assocScanUID = planC{indexS.scan}(1).scanUID;
             end
-                        
+            
         case 'no'
-                    
+            
     end
 end
 
 %Sort contours for each structure to match the associated scan.
-for i=1:length(planC{indexS.structures})    
-    planC{indexS.structures}(i) = sortStructures(planC{indexS.structures}(i), planC);        
+for i=1:length(planC{indexS.structures})
+    planC{indexS.structures}(i) = sortStructures(planC{indexS.structures}(i), planC);
 end
 
 %TEMPORARY.
 % for i=1:length(planC{indexS.dose})
-%    planC{indexS.dose}(i).assocScanUID = planC{indexS.scan}(1).scanUID; 
+%    planC{indexS.dose}(i).assocScanUID = planC{indexS.scan}(1).scanUID;
 % end
 
 planC = getRasterSegs(planC);
