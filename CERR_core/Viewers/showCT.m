@@ -265,10 +265,14 @@ for i=1:length(axisInfo.scanObj)
         %colormap(hAxis, 'gray');
         
 
-        if stateS.imageRegistrationBaseDataset == scanSet && strcmpi(stateS.imageRegistrationBaseDatasetType, 'scan')
+        if stateS.imageRegistration && stateS.imageRegistrationBaseDataset == scanSet && strcmpi(stateS.imageRegistrationBaseDatasetType, 'scan')
             alpha = 1;
         else
-            alpha = stateS.doseAlphaValue.trans;
+            if ~isempty(axisInfo.doseSets)
+                alpha = 1-stateS.doseAlphaValue.trans;
+            else
+                alpha = 1;
+            end
         end
 
         [xM, yM] = meshgrid(xLim, yLim);
