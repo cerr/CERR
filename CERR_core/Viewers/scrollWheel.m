@@ -6,7 +6,7 @@ function scrollWheel(fig,stats)
 % APA, 2/29/2016
 
 if stats.VerticalScrollCount > 0
-    sliceCallBack('ChangeSlc','nextslice')
+    sliceCallBack('ChangeSlc','prevslice')
 else
-    sliceCallBack('ChangeSlc','prevslice')    
+    sliceCallBack('ChangeSlc','nextslice')        
 end
