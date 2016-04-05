@@ -78,9 +78,9 @@ switch viewType
         else
             sliceNum    = findnearest(zV, nCoordZ);
             numSlices   = sprintf('%d',size(getScanArray(planC{indexS.scan}(scanSet(1))), 3));
-            xLim        = get(hAxis, 'xLim');
+            %xLim        = get(hAxis, 'xLim');
             %deltaX      = num2str(xLim(2) - xLim(1), '%0.4g');
-            yLim        = get(hAxis, 'yLim');
+            %yLim        = get(hAxis, 'yLim');
             %deltaY      = num2str(yLim(2) - yLim(1), '%0.4g');
             zVal        = sprintf('%.2f',coord);
             stateS.transverse.ZCoord = str2double(zVal);
@@ -122,9 +122,9 @@ switch viewType
         else
             sliceNum    = findnearest(xV, nCoordX);
             numSlices   = sprintf('%d',size(getScanArray(planC{indexS.scan}(scanSet(1))), 1));
-            xLim        = get(hAxis, 'xLim');
+            %xLim        = get(hAxis, 'xLim');
             %deltaX      = num2str(xLim(2) - xLim(1), '%0.4g');
-            yLim        = get(hAxis, 'yLim');
+            %yLim        = get(hAxis, 'yLim');
             %deltaY      = num2str(yLim(2) - yLim(1), '%0.4g');
             zVal        = sprintf('%.2f',coord);
             stateS.sagittal.ZCoord = str2double(zVal);
@@ -166,9 +166,9 @@ switch viewType
         else
             sliceNum    = findnearest(yV, nCoordY);
             numSlices   = sprintf('%d',size(getScanArray(planC{indexS.scan}(scanSet(1))), 2));
-            xLim        = get(hAxis, 'xLim');
+            %xLim        = get(hAxis, 'xLim');
             %deltaX      = num2str(xLim(2) - xLim(1), '%0.4g');
-            yLim        = get(hAxis, 'yLim');
+            %yLim        = get(hAxis, 'yLim');
             %deltaY      = num2str(yLim(2) - yLim(1), '%0.4g');
             zVal        = sprintf('%.2f',coord);
             stateS.coronal.ZCoord = str2double(zVal);
