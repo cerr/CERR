@@ -93,6 +93,8 @@ switch command
         numSlices  = size(getScanArray(planC{indexS.scan}(scanSet)), 3);
         setappdata(hAxis, 'ccContours', cell(numStructs, numSlices));
         setappdata(hAxis, 'ccSlice', sliceNum);
+        setappdata(hAxis, 'numRows',planC{indexS.scan}(scanSet).scanInfo(sliceNum).sizeOfDimension1);
+        setappdata(hAxis, 'numCols',planC{indexS.scan}(scanSet).scanInfo(sliceNum).sizeOfDimension2);
         setappdata(hAxis, 'ccStruct', 1);
         setappdata(hAxis, 'ccStruct2', []);
         setappdata(hAxis, 'ccScanSet', scanSet);
@@ -142,6 +144,24 @@ switch command
         setappdata(hAxis, 'ccMode', 'editGE');
         drawContour('editModeGE', hAxis);
         
+    case {'drawBall','eraserBall'}
+        % initialize the ball        
+        angleV = linspace(0,2*pi,50);
+        xV = cos(angleV);
+        yV = sin(angleV);
+        ballHandle = fill(xV,yV,[1 0.5 0.5],'parent',hAxis,'visible','off',...
+            'hittest','off', 'facealpha',0.2,'EdgeColor', [1 0 0]);
+        setappdata(hAxis, 'hBall', ballHandle);
+        setappdata(hAxis, 'angles', [xV(:) yV(:)]);
+        controlFrame('contour','setBrushSize',hAxis)
+        setappdata(hAxis, 'ccMode', 'drawBall');
+        setappdata(hAxis, 'mode', 'drawBall');
+        drawContour('drawBallMode', hAxis);        
+        setappdata(hAxis, 'eraseFlag',0);
+        if strcmpi(command,'eraserBall')
+            setappdata(hAxis, 'eraseFlag',1);
+        end
+        
     case 'threshMode'
         versionInfo = ver;
         if any(strcmpi({versionInfo.Name},'Image Processing Toolbox'));
@@ -177,6 +197,12 @@ switch command
             setappdata(hAxis, 'ccSlice', sliceNum);
             loadDrawSlice(hAxis);
             drawContour('drawMode', hAxis);
+        elseif strcmpi(ccMode, 'drawBall')
+            saveDrawSlice(hAxis);
+            setappdata(hAxis, 'ccSlice', sliceNum);
+            loadDrawSlice(hAxis);
+            %drawContour('drawBallMode', hAxis);            
+            contourControl('drawBall')
         elseif strcmpi(ccMode, 'edit')
             saveDrawSlice(hAxis);
             setappdata(hAxis, 'ccSlice', sliceNum);
@@ -210,7 +236,17 @@ switch command
         ccMode = getappdata(hAxis, 'ccMode');
         
         ccScanSet = getappdata(hAxis, 'ccScanSet');
-        if strcmpi(ccMode, 'draw') | strcmpi(ccMode, 'edit') | strcmpi(ccMode, 'thresh') | strcmpi(ccMode, 'reassign')
+        % APA 12-19-05 (in order to assign ccContours correctly)
+        numStructs = length(planC{indexS.structures});
+        assocScansV = getStructureAssociatedScan(1:numStructs);
+        numStructs = sum(assocScansV == ccScanSet);
+        numSlices  = size(getScanArray(planC{indexS.scan}(ccScanSet)), 3);
+        setappdata(hAxis, 'ccContours', cell(numStructs, numSlices));   
+        
+        %if strcmpi(ccMode, 'draw') || strcmpi(ccMode, 'edit') || ...
+        %        strcmpi(ccMode, 'thresh') || strcmpi(ccMode, 'reassign') || ...
+        %        strcmpi(ccMode, 'drawBall') 
+
             %If drawing, save old contours and disp new contours.
             saveDrawSlice(hAxis);
             newStrNum = varargin{1};
@@ -224,10 +260,10 @@ switch command
             sliceNum = findnearest(coord, zV);
             setAxisInfo(hAxis, 'coord', zV(sliceNum));
             
-            % APA 12-19-05 (in order to assign ccContours correctly)
-            numStructs = length(planC{indexS.structures});
-            numSlices  = size(getScanArray(planC{indexS.scan}(scanSet)), 3);
-            setappdata(hAxis, 'ccContours', cell(numStructs, numSlices));
+%             % APA 12-19-05 (in order to assign ccContours correctly)
+%             numStructs = length(planC{indexS.structures});
+%             numSlices  = size(getScanArray(planC{indexS.scan}(scanSet)), 3);
+%             setappdata(hAxis, 'ccContours', cell(numStructs, numSlices));
             
             sliceCallBack('refresh');
             
@@ -235,9 +271,14 @@ switch command
             setappdata(hAxis, 'ccScanSet', scanSet);
             setappdata(hAxis, 'ccStruct', varargin{1});
             loadDrawSlice(hAxis);
+            drawContour('noneMode', hAxis);
+            return;
+            
             switch lower(ccMode)
                 case 'draw'
                     drawContour('drawMode', hAxis);
+                case 'drawball'
+                    drawContour('drawBallMode', hAxis);                    
                 case 'edit'
                     drawContour('editMode', hAxis);
                 case 'thresh'
@@ -246,7 +287,7 @@ switch command
                     drawContour('reassignMode', hAxis);
                     
             end
-        end
+        %end
         
     case 'changeStruct2'
         %A new struct2 has been selected.
@@ -259,6 +300,8 @@ switch command
             switch lower(ccMode)
                 case 'draw'
                     drawContour('drawMode', hAxis);
+                case 'drawball'
+                    drawContour('drawBallMode', hAxis);                                        
                 case 'edit'
                     drawContour('editMode', hAxis);
                 case 'thresh'
@@ -282,17 +325,19 @@ switch command
         end
         
         ccMode = getappdata(hAxis, 'ccMode');
-        if strcmpi(ccMode, 'draw') | strcmpi(ccMode, 'edit') | strcmpi(ccMode, 'thresh') |strcmpi(ccMode, 'reassign');
+        if strcmpi(ccMode, 'draw') || strcmpi(ccMode, 'edit') || ...
+                strcmpi(ccMode, 'thresh') || ...
+                strcmpi(ccMode, 'reassign') || strcmpi(ccMode, 'drawBall')
             saveDrawSlice(hAxis);
             drawContour('quit', hAxis);
         end
         
-        stateS.contourState = 0;
-        
         %Rasterize and uniformize contours.
         storeAllContours(hAxis);
         setappdata(hAxis, 'ccMode', []);
+        % get out of contouring mode
         controlFrame('default');
+        stateS.contourState = 0;
         stateS.structsChanged = 1;
         stateS.CTDisplayChanged = 1;
         set(hAxis, 'buttondownfcn', 'sliceCallBack(''axisClicked'')');
@@ -348,7 +393,8 @@ switch command
         
         
     case 'revert'
-        delete(findobj('tag', 'controlFrameItem'));
+        hControlFrameItemV = findobj('tag', 'controlFrameItem');
+        delete(hControlFrameItemV);
         %Finished contouring and wish to discard changes.
         drawContour('quit', hAxis);
         
@@ -409,14 +455,14 @@ switch command
             ud = get(hFrame, 'userdata');
             delete(ud.handle.ovrlayFig)
         end
-        
+                
     case 'undo'
         %Undo last action in drawing, points etc.  Not implemented.
         
     case 'deleteSegment'
         %Request to delete current segment.
         ccMode = getappdata(hAxis, 'ccMode');
-        if strcmpi(ccMode, 'draw') | strcmpi(ccMode, 'edit') | strcmpi(ccMode, 'thresh')
+        if strcmpi(ccMode, 'draw') || strcmpi(ccMode, 'edit') || strcmpi(ccMode, 'thresh')
             drawContour('deleteSegment', hAxis);
         end
         
