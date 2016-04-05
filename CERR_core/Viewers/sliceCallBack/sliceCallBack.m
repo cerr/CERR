@@ -1856,7 +1856,8 @@ switch upper(instr)
             % DK end
         end
         contourControl('init', scanSet);
-        contourControl('drawMode');
+        %contourControl('drawMode');
+        contourControl('noneMode');
         ud=get(stateS.handle.controlFrame,'userdata');
         set(ud.handles.structPopup,'enable','on')
         return;
@@ -2598,7 +2599,7 @@ switch upper(instr)
             toggleOffDrawModes;
             CERRStatusString('Click/drag in axis. Right click to end.');
             stateS.gridState = 1;
-            set(stateS.handle.rulerTrans, 'value', 1)
+            %set(stateS.handle.rulerTrans, 'value', 1)
             %Disable all right click menus;
             set(stateS.handle.CERRAxis, 'uicontextmenu', []);
         else
@@ -2607,7 +2608,7 @@ switch upper(instr)
             delete(stateS.handle.rulerLine)
             stateS.handle.rulerLine = [];
             stateS.gridState = 0;
-            set(stateS.handle.rulerTrans, 'value', 0)
+            %set(stateS.handle.rulerTrans, 'value', 0)
             %Right click menus are re-enabled in AxisClicked callback.
         end
         return;
