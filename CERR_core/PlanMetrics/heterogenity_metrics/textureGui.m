@@ -95,7 +95,7 @@ switch upper(command)
             ud.cmFlag = 1;
             
             % Delta y,x,z for scan grid
-            ud.dXYZ = [1 1 1];
+            ud.dXYZ = [];
             
             % Get the default texture
             if isempty(planC{indexS.texture});
@@ -158,11 +158,11 @@ switch upper(command)
             else
                 ud.cmFlag = 0;
             end
-            [xV,yV,zV] = getScanXYZVals(planC{indexS.scan}(scanNum));
-            dx = abs(mean(diff(xV)));
-            dy = abs(mean(diff(yV)));
-            dz = abs(mean(diff(zV)));
-            ud.dXYZ = [dy dx dz];
+%             [xV,yV,zV] = getScanXYZVals(planC{indexS.scan}(scanNum));
+%             dx = abs(mean(diff(xV)));
+%             dy = abs(mean(diff(yV)));
+%             dz = abs(mean(diff(zV)));
+%             ud.dXYZ = [dy dx dz];
             if category == 1 %strcmpi(category,'haralick')
                 numGrLevels   = planC{indexS.texture}(textureNum).paramS.numGrLevels;
                 directionHar  = planC{indexS.texture}(textureNum).paramS.direction;
@@ -228,14 +228,14 @@ switch upper(command)
         %Focus on textureGui for the moment.
         set(0, 'CurrentFigure', h);
         ud = get(h, 'userdata');
-        try            
+        if isfield(ud,'handles')            
             fieldNamC = fieldnames(ud.handles);
             for i = 1:length(fieldNamC)
                 delete(stateS.handle.(fieldNamC{i}))
                 stateS.handle.(fieldNamC{i}) = [];
             end            
-        catch
-            disp('Cannot delete handles')
+        else
+            % disp('No handles to delete')
         end
         
         % List of scans
@@ -302,23 +302,27 @@ switch upper(command)
         uicontrol(h, 'units',units,'Position',[txtLeft 1-.25 textWidth rowHeight],'String', 'Scan:', 'Style', 'text', 'horizontalAlignment', 'left', 'BackgroundColor', frameColor);
         uicontrol(h, 'units',units,'Position',[txtLeft 1-.32 textWidth rowHeight],'String', 'Structure:', 'Style', 'text', 'horizontalAlignment', 'left', 'BackgroundColor', frameColor);
         uicontrol(h, 'units',units,'Position',[txtLeft 1-.39 textWidth rowHeight],'String', 'Description:', 'Style', 'text', 'horizontalAlignment', 'left', 'BackgroundColor', frameColor);
-        uicontrol(h, 'units',units,'Position',[txtLeft 1-.46 textWidth rowHeight],'String', 'Patch Size:', 'Style', 'text', 'horizontalAlignment', 'left', 'BackgroundColor', frameColor);
+        uicontrol(h, 'units',units,'Position',[txtLeft 1-.46 textWidth rowHeight],'String', 'Patch Radius:', 'Style', 'text', 'horizontalAlignment', 'left', 'BackgroundColor', frameColor);
         uicontrol(h, 'units',units,'Position',[txtLeft 1-.53 textWidth rowHeight],'String', 'Category:', 'Style', 'text', 'horizontalAlignment', 'left', 'BackgroundColor', frameColor);
         uicontrol(h, 'units',units,'Position',[txtLeft 1-.60 textWidth rowHeight],'String', 'Directionality:', 'Style', 'text', 'horizontalAlignment', 'left', 'BackgroundColor', frameColor, 'tag','haralick');
         uicontrol(h, 'units',units,'Position',[txtLeft 1-.67 textWidth+0.1 rowHeight],'String', 'Number of Grey Levels:', 'Style', 'text', 'horizontalAlignment', 'left', 'BackgroundColor', frameColor, 'tag','haralick');
 
         %Make uicontrols for managing the scans, and displaying info.
+        structNum = 1;
         ud.handles.texture       = uicontrol(h, 'units',units,'Position',[fieldLeft-0.14 1-.15 fieldWidth+0.08 rowHeight-.01],'String',{''}, 'Style', 'popup', 'callback', 'textureGui(''TEXTURE_SELECTED'');', 'enable', 'inactive', 'horizontalAlignment', 'right');
         ud.handles.textureAdd    = uicontrol(h, 'units',units,'Position',[2*fieldLeft-0.12 1-.15 0.03 rowHeight-.01],'String','+', 'Style', 'push', 'callback', 'textureGui(''CREATE_NEW_TEXTURE'');', 'horizontalAlignment', 'right');
         ud.handles.textureDel    = uicontrol(h, 'units',units,'Position',[2*fieldLeft-0.08 1-.15 0.03 rowHeight-.01],'String','-', 'Style', 'push', 'callback', 'textureGui(''DELETE_TEXTURE'');', 'horizontalAlignment', 'right');
         ud.handles.scan          = uicontrol(h, 'units',units,'Position',[fieldLeft-.05 1-.25 fieldWidth+0.05 rowHeight],'String', scansC, 'value', 1,  'Style', 'popup', 'horizontalAlignment', 'right', 'BackgroundColor', frameColor);
-        ud.handles.structure     = uicontrol(h, 'units',units,'Position',[fieldLeft-.05 1-.32 fieldWidth+.05 rowHeight],'String', structsC, 'value', 1, 'Style', 'popup', 'horizontalAlignment', 'right', 'BackgroundColor', frameColor);
+        ud.handles.structure     = uicontrol(h, 'units',units,'Position',...
+            [fieldLeft-.05 1-.32 fieldWidth+.05 rowHeight],'String', structsC,...
+            'value', 1, 'Style', 'popup', 'horizontalAlignment', 'right',...
+            'BackgroundColor', frameColor,'callback', 'textureGui(''STRUCT_SELECTED'');');
         ud.handles.description   = uicontrol(h, 'units',units,'Position',[fieldLeft-.05 1-.37 fieldWidth+.05 rowHeight-0.01],'String', '',  'Style', 'edit', 'horizontalAlignment', 'left', 'BackgroundColor', frameColor);
         ud.handles.patchSize     = uicontrol(h, 'units',units,'Position',[fieldLeft-.05 1-.44 fieldWidth/2+0.05 rowHeight-0.01],'String', '0.5 0.5 0.5',  'Style', 'edit', 'horizontalAlignment', 'left', 'BackgroundColor', frameColor);
         ud.handles.patchCm       = uicontrol(h, 'units',units,'Position',[fieldLeft+0.11 1-.42 0.11 rowHeight-0.01],'String', 'cm (y,x,z)',  'Style', 'radio', 'horizontalAlignment', 'left', 'BackgroundColor', frameColor, 'callback', 'textureGui(''PATCH_CM_SELECTED'');');
         ud.handles.patchVx       = uicontrol(h, 'units',units,'Position',[fieldLeft+0.11 1-.46 0.11 rowHeight-0.01],'String', 'vox (r,c,s)',  'Style', 'radio', 'horizontalAlignment', 'left', 'BackgroundColor', frameColor, 'callback', 'textureGui(''PATCH_VOX_SELECTED'');');
         ud.handles.featureType   = uicontrol(h, 'units',units,'Position',[fieldLeft-.05 1-.52 fieldWidth+.05 rowHeight],'String', featureTypeC, 'value', 1, 'Style', 'popup', 'callback', 'textureGui(''FEATURE_TYPE_SELECTED'');', 'horizontalAlignment', 'right', 'BackgroundColor', frameColor);
-        
+        ud.dXYZ                  = getVoxelSize(structNum);
         
         % Haralick handles
         ud.handles.direction     = uicontrol(h, 'units',units,'Position',[fieldLeft-.05 1-.59 fieldWidth+.05 rowHeight],'String', dirsC, 'value', 1, 'Style', 'popup', 'horizontalAlignment', 'right', 'BackgroundColor', frameColor, 'tag', 'haralick');
@@ -355,6 +359,12 @@ switch upper(command)
             textureGui('REFRESHFIELDS');
             textureGui('REFRESH_THUMBS');
         end        
+        
+    case 'STRUCT_SELECTED'
+        ud = get(h, 'userdata');
+        structNum = get(ud.handles.structure,'value');
+        ud.dXYZ   = getVoxelSize(structNum);
+        set(h, 'userdata', ud);
        
     case 'PATCH_CM_SELECTED'
         ud = get(h, 'userdata');
@@ -386,7 +396,7 @@ switch upper(command)
         if ud.cmFlag && voxFlag
             patchSizeStr = '';
             patchSizeCm = str2num(get(ud.handles.patchSize, 'String'));
-            patchSizeVx = patchSizeCm ./ ud.dXYZ;
+            patchSizeVx = floor(patchSizeCm ./ ud.dXYZ);
             for i = 1:length(patchSizeVx)
                 patchSizeStr = [patchSizeStr, sprintf('%.2f',patchSizeVx(i)), ','];
             end
@@ -556,17 +566,28 @@ switch upper(command)
         
         
     case 'CREATE_MAPS'
-        ud = get(h, 'userdata');
-        scanNum = get(ud.handles.scan, 'value');
-        structNum = get(ud.handles.structure, 'value');
-        descript = get(ud.handles.description, 'String');
-        patchSizeV = str2num(get(ud.handles.patchSize, 'String'));
-        category = get(ud.handles.featureType, 'value');
+        ud          = get(h, 'userdata');
+        scanNum     = get(ud.handles.scan, 'value');
+        structNum   = get(ud.handles.structure, 'value');
+        descript    = get(ud.handles.description, 'String');
+        patchSizeV  = str2num(get(ud.handles.patchSize, 'String'));
+        category    = get(ud.handles.featureType, 'value');
+        dirctn      = get(ud.handles.direction,'value');
         if get(ud.handles.patchCm, 'value') == 1            
             patchUnit = 'cm';
+            [xVals, yVals, zVals] = getUniformScanXYZVals(planC{indexS.scan}(scanNum));      
+            deltaX = abs(xVals(1)-xVals(2));
+            deltaY = abs(yVals(1)-yVals(2));
+            deltaZ = abs(zVals(1)-zVals(2));
+            slcWindow = floor(patchSizeV(3)/deltaZ);
+            rowWindow = floor(patchSizeV(1)/deltaY);
+            colWindow = floor(patchSizeV(2)/deltaX);
+            patchSizeV = [rowWindow, colWindow, slcWindow];
         else
             patchUnit = 'vox';
         end
+        
+        offsetsM = getOffsets(dirctn);
         
         % Create new Texture if ud.currentTexture = 0
         if ud.currentTexture == 0
@@ -608,13 +629,10 @@ switch upper(command)
             volToEval                           = volToEval / max(volToEval(:));
             %volToEval                           = sqrt(volToEval);
             
-            [xVals, yVals, zVals] = getUniformScanXYZVals(planC{indexS.scan}(scanNum));
-            
-            deltaXYZv = [abs(xVals(1)-xVals(2)), abs(yVals(1)-yVals(2)), abs(zVals(1)-zVals(2)) ];
 
             [energy3M,entropy3M,sumAvg3M,corr3M,invDiffMom3M,contrast3M, ...
                 clustShade3M,clustPromin3M] = textureByPatchCombineCooccur(volToEval,...
-                deltaXYZv,patchSizeV,flagsV,ud.wb.handles.patch);
+                patchSizeV,offsetsM,flagsV,ud.wb.handles.patch);
             
             planC{indexS.texture}(ud.currentTexture).paramS.direction = direction;
             planC{indexS.texture}(ud.currentTexture).paramS.numGrLevels = numGrLevels;
@@ -641,6 +659,7 @@ switch upper(command)
         
         % Create Texture Scans  
         [xVals, yVals, zVals] = getScanXYZVals(planC{indexS.scan}(scanNum));
+        deltaXYZv = ud.dXYZ;
         zV = zVals(uniqueSlices);
         regParamsS.horizontalGridInterval = deltaXYZv(1);
         regParamsS.verticalGridInterval   = deltaXYZv(2); %(-)ve for dose
@@ -695,7 +714,7 @@ switch upper(command)
     case 'FIGUREBUTTONUP'
         %Mouse up, if in preview window disable motion fcn.
         ud = get(h, 'userdata');
-        if ~isfield(ud, 'previewDown') | ud.previewDown == 1;
+        if ~isfield(ud, 'previewDown') || ud.previewDown == 1;
             ud.previewDown = 0;
             set(h, 'WindowButtonMotionFcn', '');
             set(h, 'userdata', ud);
@@ -1149,3 +1168,19 @@ for i=1:length(stateS.handle.CERRAxis)
     end
     
 end
+
+
+function dXYZ = getVoxelSize(structNum)
+global planC
+indexS = planC{end};
+scanNum = getStructureAssociatedScan(structNum);
+[xV,yV,zV] = getScanXYZVals(planC{indexS.scan}(scanNum));
+dx = abs(mean(diff(xV)));
+dy = abs(mean(diff(yV)));
+dz = abs(mean(diff(zV)));
+dXYZ = [dy dx dz];
+
+
+
+
+
