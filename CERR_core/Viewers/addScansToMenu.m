@@ -29,7 +29,7 @@ if numScans > maxScansPerGroup
     currentScan = indSortV(currInd);
     scanType = planC{indexS.scan}(currentScan).scanType;
         
-    while currentScan < numScans
+    while currInd <= numScans
         
         currentScan = indSortV(currInd);
         if mod(currInd-changeInd,maxScansPerGroup) == 0 || ~strcmpi(scanType,planC{indexS.scan}(currentScan).scanType)            
