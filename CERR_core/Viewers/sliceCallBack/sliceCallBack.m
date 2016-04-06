@@ -115,7 +115,6 @@ switch upper(instr)
         
         stateS.initDicomFlag = dcm_init_flag;
         stateS.fusion = 0;
-        stateS.initComplete = 0;
         stateS.planLoaded   = 0;
         stateS.workspacePlan = 0;
         stateS.toggle_rotation = 0;
@@ -210,9 +209,7 @@ switch upper(instr)
         hCSV = figure('tag','CERRSliceViewer','name',str1,'numbertitle','off',...
             'position',position, 'doublebuffer', 'off','CloseRequestFcn',...
             'sliceCallBack(''closeRequest'')','backingstore','off','tag',...
-            'CERRSliceViewer', 'renderer', 'zbuffer',...
-            'WindowScrollWheelFcn', @scrollWheel,...
-            'ResizeFcn','sliceCallBack(''resize'')');
+            'CERRSliceViewer', 'renderer', 'zbuffer');
                 
         figureColor = get(hCSV, 'Color');
         stateS.handle.CERRSliceViewer = hCSV;
@@ -231,9 +228,6 @@ switch upper(instr)
         stateS.rotateView = 0;
         stateS.anotationDisplay = 0;
         
-        % Mark initialization as complete
-        stateS.initComplete = 1;
-
         %Turn off default menubar, configure manually.
         set(hCSV,'menubar','none');
         stateS.handle.CERRFileMenu          = putFileMenu(hCSV);
@@ -474,6 +468,9 @@ switch upper(instr)
         %Change Panel-Layout according to CERROptions
         sliceCallBack('layout',stateS.optS.layout)
         
+        % Set resize and scrollWheel callbacks
+        set(hCSV,'WindowScrollWheelFcn', @scrollWheel,...
+            'ResizeFcn','sliceCallBack(''resize'')');
         
         return
 
@@ -826,7 +823,7 @@ switch upper(instr)
     case 'RESIZE'
         %CERR Window has been resized.  Adjust according to current layout.
         %try
-        if isempty(hCSV) || ~stateS.initComplete
+        if isempty(hCSV)
             return;
         end
             pos = get(hCSV, 'position');
