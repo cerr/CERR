@@ -765,11 +765,10 @@ hContour = getappdata(hAxis, 'hContour');
 set(hContour, 'hittest', 'on');
 clearUndoInfo(hAxis);
 hBall = getappdata(hAxis, 'hBall');
-if ~isempty(hBall)
+if ishandle(hBall)
     delete(hBall)
     setappdata(hAxis, 'hBall',[]);
 end
-
 
 function threshMode(hAxis)
 %Set threshMode

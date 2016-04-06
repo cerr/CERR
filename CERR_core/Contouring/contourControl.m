@@ -99,7 +99,7 @@ switch command
         setappdata(hAxis, 'ccStruct2', []);
         setappdata(hAxis, 'ccScanSet', scanSet);
         set(findobj(hAxis, 'tag', 'planeLocator'), 'hittest', 'off');
-        CERRRefresh
+        %CERRRefresh
         sliceCallBack('FOCUS', hAxis);
         drawContour('axis', hAxis);
         loadDrawSlice(hAxis);
@@ -271,7 +271,8 @@ switch command
 %             numSlices  = size(getScanArray(planC{indexS.scan}(scanSet)), 3);
 %             setappdata(hAxis, 'ccContours', cell(numStructs, numSlices));
             
-            sliceCallBack('refresh');
+            %sliceCallBack('refresh');
+            showStructures(hAxis)
             
             setappdata(hAxis, 'ccSlice', sliceNum);
             setappdata(hAxis, 'ccScanSet', scanSet);
