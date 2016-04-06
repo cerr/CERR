@@ -191,6 +191,7 @@ switch command
         sliceNum = findnearest(coord, zV);
         
         ccMode = getappdata(hAxis, 'ccMode');
+        
         if strcmpi(ccMode, 'draw')
             %If drawing, save contours on current slice and re-init.
             saveDrawSlice(hAxis);
@@ -207,7 +208,8 @@ switch command
             saveDrawSlice(hAxis);
             setappdata(hAxis, 'ccSlice', sliceNum);
             loadDrawSlice(hAxis);
-            drawContour('editMode', hAxis);
+            %drawContour('editMode', hAxis);
+            drawContour('drawMode', hAxis); % initialize new slice in the draw mode.
         elseif strcmpi(ccMode, 'thresh')
             saveDrawSlice(hAxis);
             setappdata(hAxis, 'ccSlice', sliceNum);
@@ -218,6 +220,10 @@ switch command
             setappdata(hAxis, 'ccSlice', sliceNum);
             loadDrawSlice(hAxis);
             drawContour('reassignMode', hAxis);
+        elseif isempty(ccMode)
+            saveDrawSlice(hAxis);
+            setappdata(hAxis, 'ccSlice', sliceNum);
+            loadDrawSlice(hAxis);
         end
         
         if ~isempty(ccMode)
@@ -329,11 +335,33 @@ switch command
                 strcmpi(ccMode, 'thresh') || ...
                 strcmpi(ccMode, 'reassign') || strcmpi(ccMode, 'drawBall')
             saveDrawSlice(hAxis);
-            drawContour('quit', hAxis);
+            %drawContour('quit', hAxis); % APA commented
         end
-        
+                
         %Rasterize and uniformize contours.
         storeAllContours(hAxis);
+
+        % APA: try to stay in contouring mode until the user quits
+        ccContours = getappdata(hAxis, 'ccContours');
+        contourV = getappdata(hAxis,'contourV');
+        ccStruct = getappdata(hAxis,'ccStruct');
+        ccSlice = getappdata(hAxis,'ccSlice');
+        ccContours{ccStruct, ccSlice} = contourV;
+        setappdata(hAxis, 'ccContours', ccContours);
+        stateS.structsChanged = 1;
+        showStructures(hAxis)
+        % Set pencil/brush/eraser button colors and states
+        set([ud.handles.pencil, ud.handles.brush, ud.handles.eraser],...
+            'BackgroundColor',[0.8 0.8 0.8], 'value', 0)
+        % Delete the ball for brush/eraser
+        ballH = getappdata(hAxis, 'hBall');
+        if ishandle(ballH)
+            delete(ballH);
+        end
+        drawContour('noneMode',stateS.handle.CERRAxis(stateS.currentAxis))
+        return;
+        % APA: end
+        
         setappdata(hAxis, 'ccMode', []);
         % get out of contouring mode
         controlFrame('default');
@@ -577,15 +605,17 @@ ccScanSet = getappdata(hAxis, 'ccScanSet');
 ccContours = getappdata(hAxis, 'ccContours');
 toUpdate = zeros(size(ccContours));
 
-%set Matlab path to directory containing the Mesh-library
-currDir = cd;
-try
-    meshDir = fileparts(which('libMeshContour.dll'));
-    cd(meshDir)
-    loadlibrary('libMeshContour','MeshContour.h')
-catch
-    warning('Mesh library could not be loaded.')
-end
+% for mesh library, out of commission
+% %set Matlab path to directory containing the Mesh-library
+% currDir = cd;
+% try
+%     meshDir = fileparts(which('libMeshContour.dll'));
+%     cd(meshDir)
+%     loadlibrary('libMeshContour','MeshContour.h')
+% catch
+%     warning('Mesh library could not be loaded.')
+% end
+
 waitbarH = waitbar(0,'Saving contours for anatomical structures...');
 
 for j = 1:size(ccContours,1)
@@ -651,27 +681,28 @@ for j = 1:size(ccContours,1)
             planC = updateStructureMatrices(planC, j, changedSlices);
         end
         
-        %Re-generate mesh for mesh-representation
-        if isfield(planC{indexS.structures}(j),'meshRep') && ~isempty(planC{indexS.structures}(j).meshRep) && planC{indexS.structures}(j).meshRep
-            try
-                structUID   = planC{indexS.structures}(j).strUID;
-                [rasterSegments, planC, isError]    = getRasterSegments(j);
-                [mask3M, uniqueSlices] = rasterToMask(rasterSegments, scanNum);
-                mask3M = permute(mask3M,[2 1 3]);
-                calllib('libMeshContour','loadVolumeAndGenerateSurface',structUID,scanX, scanY, scanZ(uniqueSlices), double(mask3M),0.5, uint16(10))
-                %Store mesh under planC
-                planC{indexS.structures}(i).meshS = calllib('libMeshContour','getSurface',structUID);
-            catch
-                planC{indexS.structures}(j).meshRep = 0;
-                warning('Could not generate structure mesh.')
-            end
-        end
+%         % for mesh library, out of commission
+%         %Re-generate mesh for mesh-representation
+%         if isfield(planC{indexS.structures}(j),'meshRep') && ~isempty(planC{indexS.structures}(j).meshRep) && planC{indexS.structures}(j).meshRep
+%             try
+%                 structUID   = planC{indexS.structures}(j).strUID;
+%                 [rasterSegments, planC, isError]    = getRasterSegments(j);
+%                 [mask3M, uniqueSlices] = rasterToMask(rasterSegments, scanNum);
+%                 mask3M = permute(mask3M,[2 1 3]);
+%                 calllib('libMeshContour','loadVolumeAndGenerateSurface',structUID,scanX, scanY, scanZ(uniqueSlices), double(mask3M),0.5, uint16(10))
+%                 %Store mesh under planC
+%                 planC{indexS.structures}(i).meshS = calllib('libMeshContour','getSurface',structUID);
+%             catch
+%                 planC{indexS.structures}(j).meshRep = 0;
+%                 warning('Could not generate structure mesh.')
+%             end
+%         end
         
     end
     waitbar(j/size(ccContours,1),waitbarH)
 end
 close(waitbarH)
-cd(currDir)
+%cd(currDir) % for mesh library, out of commission
 return;
 
 function copyToSlice(hAxis, sliceNum);
