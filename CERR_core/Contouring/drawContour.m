@@ -649,6 +649,7 @@ if ~isempty(segment)
     setappdata(hAxis, 'contourV', contourV);
 end
 setappdata(hAxis, 'mode', 'draw'); % APA: mode is set in contourControl.m
+setappdata(hAxis, 'ccMode', 'draw'); 
 editNum = length(contourV) + 1;
 setappdata(hAxis, 'editNum', editNum);
 hContour = getappdata(hAxis, 'hContour');
@@ -980,9 +981,8 @@ setappdata(hAxis, 'segment', clip);
 function drawContourV(hAxis) %%Maybe set line hittest here?? based on mode??
 %Redraw the contour associated with hAxis.
 hContour = getappdata(hAxis, 'hContour');
-try
-    delete(hContour);
-end
+toDelete = ishandle(hContour);
+delete(hContour(toDelete));
 hContour = [];
 
 contourV = getappdata(hAxis, 'contourV');
@@ -1006,9 +1006,8 @@ end
 function drawContourV2(hAxis) %%Maybe set line hittest here?? based on mode??
 %Redraw the contour associated with hAxis.
 hContour2 = getappdata(hAxis, 'hContour2');
-try
-    delete(hContour2);
-end
+toDelete = ishandle(hContour2);
+delete(hContour2(toDelete));
 hContour2 = [];
 
 contourV2 = getappdata(hAxis, 'contourV2');
@@ -1053,7 +1052,7 @@ function drawClip(hAxis)
 %Redraw the current clipout segment associated with hAxis.
 hClip = getappdata(hAxis, 'hClip');
 mode = getappdata(hAxis, 'mode');
-try
+if ishandle(hClip)
     delete(hClip);
 end
 hClip = [];
