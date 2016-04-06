@@ -230,6 +230,10 @@ switch upper(instr)
         % Set states for the controlFrame
         stateS.rotateView = 0;
         stateS.anotationDisplay = 0;
+        
+        % Initialize the layout fields
+        stateS.Oldlayout = [];
+        stateS.layout = [];        
 
         %Turn off default menubar, configure manually.
         set(hCSV,'menubar','none');
