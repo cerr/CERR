@@ -66,19 +66,14 @@ function sliceCallBack(instr, varargin)
 
 global planC stateS
 format compact
-try
+
+if exist('planC','var') && ~isempty(planC)
     indexS = planC{end};
-catch
+else
     if ~isempty(varargin) && iscell(varargin{1})
         planC = varargin{1};
         indexS = planC{end};
-    end
-end
-
-try
-    stateS.doseSetTag    = stateS.optS.displayDoseSet;
-    fontsize             = stateS.optS.fontsize;
-    uicolor              = stateS.optS.UIColor;
+    end    
 end
 
 %For GUI units:
@@ -87,8 +82,7 @@ stateS.regOverlay = 0;
 %Frame margin constants.
 leftMarginWidth = 195; bottomMarginHeight = 70;
 
-%Temporary.
-try
+if isfield(stateS,'handle')
     hCSV = stateS.handle.CERRSliceViewer;
     hCSVA = stateS.handle.CERRSliceViewerAxis;
 end
