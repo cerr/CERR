@@ -231,9 +231,8 @@ switch upper(instr)
         stateS.rotateView = 0;
         stateS.anotationDisplay = 0;
         
-        % Initialize the layout fields
-        stateS.Oldlayout = 5;
-        stateS.layout = 5;        
+        % Mark initialization as complete
+        stateS.initComplete = 1;
 
         %Turn off default menubar, configure manually.
         set(hCSV,'menubar','none');
@@ -827,7 +826,7 @@ switch upper(instr)
     case 'RESIZE'
         %CERR Window has been resized.  Adjust according to current layout.
         %try
-        if isempty(hCSV)
+        if isempty(hCSV) || ~stateS.initComplete
             return;
         end
             pos = get(hCSV, 'position');
