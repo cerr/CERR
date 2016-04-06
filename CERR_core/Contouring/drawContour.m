@@ -59,6 +59,7 @@ switch command
 
         set(hAxis, 'buttonDownFcn', 'drawContour(''btnDownInAxis'')');
         set(hFig, 'WindowButtonUpFcn', 'drawContour(''btnUp'')');
+        set(hFig, 'WindowButtonMotionFcn', 'drawContour(''motionInFigure'')');
         set(hFig, 'doublebuffer', 'on');
 
     case 'quit'
@@ -221,7 +222,7 @@ switch command
         mode = getappdata(hAxis, 'mode');
 
         %Setup axis for motion.
-        set(hFig, 'WindowButtonMotionFcn', 'drawContour(''motionInFigure'')');
+        %set(hFig, 'WindowButtonMotionFcn', 'drawContour(''motionInFigure'')');
         setappdata(hAxis, 'isButtonDwn', 1);
 
         %SWITCH OVER MODES.
@@ -632,7 +633,7 @@ switch command
             delSegment(hAxis);
             threshMode(hAxis);
         end
-
+        
 end
 
 
