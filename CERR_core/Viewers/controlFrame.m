@@ -175,7 +175,7 @@ switch command
                 ud.handles.overlayOptions = uicontrol(hFig, 'style', 'push', 'units', units, 'position', absPos([.72 .12 .26 .05], posFrame), 'string', 'Options', 'tag', 'controlFrameItem', 'callback', 'controlFrame(''contour'', ''selectOverlayOptions'',''init'')', 'TooltipString', 'Select display options for overlaid scan.');
                 
                 ud.handles.saveButton = uicontrol(hFig, 'style', 'pushbutton', 'units', units, 'position', absPos([.1 .04 .35 .05], posFrame), 'string', 'Save', 'tag', 'controlFrameItem', 'callback', 'contourControl(''save'')');
-                ud.handles.abortButton = uicontrol(hFig, 'style', 'pushbutton', 'units', units, 'position', absPos([.55 .04 .35 .05], posFrame), 'string', 'Cancel', 'tag', 'controlFrameItem', 'callback', 'contourControl(''revert'')');
+                ud.handles.abortButton = uicontrol(hFig, 'style', 'pushbutton', 'units', units, 'position', absPos([.55 .04 .35 .05], posFrame), 'string', 'Quit', 'tag', 'controlFrameItem', 'callback', 'contourControl(''revert'')');
                 
                 %Set the overlaid scan scme as that displayed at the start
                 scanSet = getAxisInfo(stateS.handle.CERRAxis(1),'scanSets');
@@ -331,7 +331,8 @@ switch command
                 %Get numbered structure list.
                 structs = {planC{indexS.structures}.structureName};
                 assocScanV = getStructureAssociatedScan(1:length(planC{indexS.structures}));
-                scanSet = getappdata(stateS.handle.CERRAxis(1),'ccScanSet');
+                scanSet = getAxisInfo(stateS.handle.CERRAxis(1),'scanSets');
+                scanSet = scanSet(1);
                 structNumsV = find(assocScanV == scanSet);
                 structs = structs(structNumsV);
                 strUd.strNumsV = structNumsV;
@@ -469,7 +470,12 @@ switch command
                 modeState = get(gcbo, 'value');
                 
                 set([ud.handles.pencil, ud.handles.brush, ud.handles.eraser],...
-                    'BackgroundColor',[0.8 0.8 0.8])                
+                    'BackgroundColor',[0.8 0.8 0.8])   
+                hAxis = stateS.handle.CERRAxis(1);
+                ballH = getappdata(hAxis, 'hBall');
+                if ishandle(ballH)
+                    delete(ballH);
+                end                
                 
                 modeType = varargin{2};
                 
