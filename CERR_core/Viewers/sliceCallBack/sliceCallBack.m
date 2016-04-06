@@ -232,8 +232,8 @@ switch upper(instr)
         stateS.anotationDisplay = 0;
         
         % Initialize the layout fields
-        stateS.Oldlayout = [];
-        stateS.layout = [];        
+        stateS.Oldlayout = 5;
+        stateS.layout = 5;        
 
         %Turn off default menubar, configure manually.
         set(hCSV,'menubar','none');
