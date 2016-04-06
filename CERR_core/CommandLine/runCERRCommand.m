@@ -564,6 +564,8 @@ if ~isempty(in_str)
             case 'go'  %Go to a given slice
 
                 w3 = word(in_str,3);
+                
+                numWords = words(in_str);
 
                 if strcmpi(w3,'z')
                     % Get the z value passed
@@ -575,8 +577,15 @@ if ~isempty(in_str)
                 elseif strcmpi(w3,'max')  %Go to slice of maximum dose
                     % Pass variable to "goto" command
                     goto('max')
+                    
+                elseif numWords == 4
+                    
+                    w4 = word(in_str,4);
+                    w4 = str2num(w4); % only numeric data type supported
+                    goto(w3,w4)
 
                 else
+                    
                     % Get the slice number passed
                     num = str2num(word(in_str,3));
 

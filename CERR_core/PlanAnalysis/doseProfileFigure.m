@@ -81,6 +81,8 @@ switch upper(command)
 
         nDoses = length(planC{indexS.dose});
         nScans = length(planC{indexS.scan});
+        
+        nScans = min(nScans,20); % 20 scans max allowed. Add pagination in future.
 
         %Calculate how many rows are required for checkboxes.
         nRows = max(ceil(nDoses/2), ceil(nScans/2));

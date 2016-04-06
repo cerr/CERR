@@ -100,6 +100,9 @@ try
             pos2 = [info2.xOffset info2.yOffset info2.zValue];
             deltaPos = pos2-pos1;
             direction = sign(deltaPos(3));
+            if ~direction
+                direction = 1;
+            end
             slice_distance = sqrt(sum(deltaPos.^2));
             for i=1:length(planC{indexS.scan}(scanNum).scanInfo)
                 planC{indexS.scan}(scanNum).scanInfo(sortIdxV(i)).zValue = pos1(3)+ direction*(i-1)*slice_distance;
@@ -108,6 +111,8 @@ try
             %Reorder by z-value (ascending)
             [~,zOrderV] = sort([planC{indexS.scan}(scanNum).scanInfo.zValue]);
             planC{indexS.scan}(scanNum).scanInfo = planC{indexS.scan}(scanNum).scanInfo(zOrderV);
+            planC{indexS.scan}.scanArray = planC{indexS.scan}.scanArray(:,:,zOrderV);
+            
             %%%%%%%%%%%%%%%%
             info1b = info1.DICOMHeaders;
             info2b = info2.DICOMHeaders;
@@ -302,4 +307,3 @@ end
 
 planC = getRasterSegs(planC);
 planC = setUniformizedData(planC);
-

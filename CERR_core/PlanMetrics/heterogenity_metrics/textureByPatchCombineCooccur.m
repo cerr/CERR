@@ -1,7 +1,9 @@
-function [energy3M,entropy3M,sumAvg3M,corr3M,invDiffMom3M,contrast3M,clustShade3M,...
-    clustPromin3M] = textureByPatchCombineCooccur(scanArray3M, deltaXYZv, patchSizeV, flagv, hWait)
-% function [energy3M,entropy3M,sumAvg3M,invDiffMom3M,contrast3M,clustShade3M,...
-%   clustPromin3M] = textureByPatchCombineCooccur(scanArray3M, deltaXYZv, patchSizeV, offsetV)
+function [energy3M,entropy3M,sumAvg3M,corr3M,invDiffMom3M,contrast3M,...
+    clustShade3M, clustPromin3M] = textureByPatchCombineCooccur(...
+    scanArray3M, patchSizeV, offsetsM, flagv, hWait)
+% function [energy3M,entropy3M,sumAvg3M,corr3M,invDiffMom3M,contrast3M,...
+%     clustShade3M, clustPromin3M] = textureByPatchCombineCooccur(...
+%     scanArray3M, patchSizeV, offsetsM, flagv, hWait)
 %
 % Patch-wise texture calculation.
 %
@@ -23,26 +25,31 @@ end
 % Get indices of non-NaN voxels
 calcIndM = ~isnan(scanArray3M);
 
-% Grid resolution
-deltaX = deltaXYZv(1);
-deltaY = deltaXYZv(2);
-deltaZ = deltaXYZv(3);
+% % Grid resolution
+% deltaX = deltaXYZv(1);
+% deltaY = deltaXYZv(2);
+% deltaZ = deltaXYZv(3);
 
-% Get Block size to process
-slcWindow = floor(2*patchSizeV(3)/deltaZ);
-rowWindow = floor(2*patchSizeV(1)/deltaY);
-colWindow = floor(2*patchSizeV(2)/deltaX);
+% % Get Block size to process
+% slcWindow = 2 * floor(patchSizeV(3)/deltaZ) + 1;
+% rowWindow = 2 * floor(patchSizeV(1)/deltaY) + 1;
+% colWindow = 2 * floor(patchSizeV(2)/deltaX) + 1;
 
-% Make sure that the window is of odd size
-if mod(slcWindow,2) == 0
-    slcWindow = slcWindow + 1;
-end
-if mod(rowWindow,2) == 0
-    rowWindow = rowWindow + 1;
-end
-if mod(colWindow,2) == 0
-    colWindow = colWindow + 1;
-end
+% % Make sure that the window is of odd size
+% if mod(slcWindow,2) == 0
+%     slcWindow = slcWindow + 1;
+% end
+% if mod(rowWindow,2) == 0
+%     rowWindow = rowWindow + 1;
+% end
+% if mod(colWindow,2) == 0
+%     colWindow = colWindow + 1;
+% end
+
+slcWindow = 2 * patchSizeV(3) + 1;
+rowWindow = 2 * patchSizeV(1) + 1;
+colWindow = 2 * patchSizeV(2) + 1;
+
 
 % Build distance matrices
 numColsPad = floor(colWindow/2);
@@ -99,20 +106,21 @@ lin_row = permute(bsxfun(@plus,start_ind,[0:rowWindow-1])',[1 3 2]);
 % Get linear indices based on row and col indices and get desired output
 indM = reshape(bsxfun(@plus,lin_row,(0:colWindow-1)*m),rowWindow*colWindow,[]);
 
-% Directional offsets
-offsetsM = [ 1  0  0;
-             0  1  0;
-             1  1  0;
-             1 -1  0;
-             1  0  1;
-             0  1  1;
-             1  1  1;
-             1 -1  1;
-             0  0  1;
-            -1  0  1;
-            -1 -1  1;
-             0 -1  1;
-             1 -1  1];
+% % Directional offsets
+% offsetsM = [ 1  0  0;
+%              0  1  0;
+%              1  1  0;
+%              1 -1  0;
+%              1  0  1;
+%              0  1  1;
+%              1  1  1;
+%              1 -1  1;
+%              0  0  1;
+%             -1  0  1;
+%             -1 -1  1;
+%              0 -1  1;
+%              1 -1  1];
+
 numOffsets = size(offsetsM,1);
 
 % Indices of last level to filter out if there are NaNs in the image
@@ -170,7 +178,6 @@ end
 if flagv(5)
     invDiffMom3M = zeros([numRows, numCols, numSlices],'single');
 end
-
 if flagv(6)
     contrast3M = zeros([numRows, numCols, numSlices],'single');
 end

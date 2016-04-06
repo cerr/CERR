@@ -386,7 +386,7 @@ switch fieldname
             if dataS>1e9
                 dataS = dataS-1e9;
             end
-        elseif strcmp(vr,'IS')
+        elseif any(strcmp(vr,{'IS','FD', 'FL'}))
             dataS = dataS(1);
         else
             dataS = '';

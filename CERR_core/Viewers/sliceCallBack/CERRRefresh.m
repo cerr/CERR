@@ -123,7 +123,7 @@ end
 %For each axis, check type and display proper image(s).
 for i=uint8(1:length(stateS.handle.CERRAxis))
     hAxis       = stateS.handle.CERRAxis(i);
-    [view] = getAxisInfo(i, 'view');
+    [axisView] = getAxisInfo(i, 'view');
 
 %     if stateS.imageRegistration
 %         if ispc
@@ -133,7 +133,7 @@ for i=uint8(1:length(stateS.handle.CERRAxis))
 %         delete(findobj('parent', hAxis, 'type', 'hggroup'));
 %     end
     %Set the orientation of each axis.
-    switch view
+    switch axisView
         case 'transverse'
             set(hAxis, 'ydir', 'normal');
             set(hAxis, 'xdir', 'normal');
@@ -175,7 +175,7 @@ for i=uint8(1:length(stateS.handle.CERRAxis))
         zoomToXYRange(hAxis);
         %         axis(hAxis, 'equal', 'auto');
     end
-    switch view
+    switch axisView
         case {'transverse','sagittal','coronal'}
 
             showCT(hAxis);

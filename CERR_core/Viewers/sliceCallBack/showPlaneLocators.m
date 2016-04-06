@@ -102,22 +102,32 @@ for i=uint8(1:length(stateS.handle.CERRAxis))
     for j=1:length(xVals)
         if ~isempty(xVals{j}) && isequal(planeLocatorLastCall, thisCallTime)
             count = count + 1;
-            set(stateS.handle.CERRAxisPlnLocSdw{i}(count),'XData',[xVals{j} xVals{j}], 'YData', vertiLimit,'visible','on');            
+            set(stateS.handle.CERRAxisPlnLocSdw{i}(count),'XData',[xVals{j} xVals{j}],...
+                'YData', vertiLimit,'visible','on', 'LineWidth', 1);
             if stateS.currentAxis == j
-                set(stateS.handle.CERRAxisPlnLoc{i}(count),'XData',[xVals{j} xVals{j}], 'YData', vertiLimit, 'Color', activeCol, 'userdata', {'vert', viewTxt, j},'visible','on');
+                set(stateS.handle.CERRAxisPlnLoc{i}(count),'XData',[xVals{j} xVals{j}],...
+                    'YData', vertiLimit, 'Color', activeCol, 'userdata',...
+                    {'vert', viewTxt, j},'visible','on', 'LineWidth', 1);
             else
-                set(stateS.handle.CERRAxisPlnLoc{i}(count),'XData',[xVals{j} xVals{j}], 'YData', vertiLimit, 'Color', inActiveCol, 'userdata', {'vert', viewTxt, j},'visible','on');
+                set(stateS.handle.CERRAxisPlnLoc{i}(count),'XData',[xVals{j} xVals{j}],...
+                    'YData', vertiLimit, 'Color', inActiveCol, 'userdata',...
+                    {'vert', viewTxt, j},'visible','on', 'LineWidth', 1);
             end
         end
     end
     for j=1:length(yVals)
         if ~isempty(yVals{j}) && isequal(planeLocatorLastCall, thisCallTime)
             count = count + 1;
-            set(stateS.handle.CERRAxisPlnLocSdw{i}(count),'XData',horizLimit, 'YData', [yVals{j} yVals{j}],'visible','on');            
+            set(stateS.handle.CERRAxisPlnLocSdw{i}(count),'XData',horizLimit,...
+                'YData', [yVals{j} yVals{j}],'visible','on', 'LineWidth', 1);            
             if stateS.currentAxis == j
-                set(stateS.handle.CERRAxisPlnLoc{i}(count),'XData',horizLimit, 'YData', [yVals{j} yVals{j}], 'Color', activeCol, 'userdata', {'horz', viewTxt, j},'visible','on');
+                set(stateS.handle.CERRAxisPlnLoc{i}(count),'XData',horizLimit,...
+                    'YData', [yVals{j} yVals{j}], 'Color', activeCol, 'userdata',...
+                    {'horz', viewTxt, j},'visible','on', 'LineWidth', 1);
             else
-                set(stateS.handle.CERRAxisPlnLoc{i}(count),'XData',horizLimit, 'YData', [yVals{j} yVals{j}], 'Color', inActiveCol, 'userdata', {'horz', viewTxt, j},'visible','on');
+                set(stateS.handle.CERRAxisPlnLoc{i}(count),'XData',horizLimit,...
+                    'YData', [yVals{j} yVals{j}], 'Color', inActiveCol, 'userdata',...
+                    {'horz', viewTxt, j},'visible','on', 'LineWidth', 1);
             end
         end
     end

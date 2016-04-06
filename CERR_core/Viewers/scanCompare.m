@@ -157,8 +157,8 @@ switch lower(command)
             end
             stateS.handle.CERRAxisTicks1(i,:) = ticks1V;
             stateS.handle.CERRAxisTicks2(i,:) = ticks2V;
-            stateS.handle.CERRAxisScale1(i) = line([0.02 0.1], [0.02 0.02], [2 2], 'parent', stateS.handle.CERRAxis(i), 'color', [0.7 0.7 0.7], 'hittest', 'off', 'visible', 'off');
-            stateS.handle.CERRAxisScale2(i) = line([0.02 0.02], [0.02 0.1], [2 2], 'parent', stateS.handle.CERRAxis(i), 'color', [0.7 0.7 0.7], 'hittest', 'off', 'visible', 'off');
+            stateS.handle.CERRAxisScale1(i) = line([0.02 0.1], [0.02 0.02], [2 2], 'parent', stateS.handle.CERRAxis(i), 'color', [1 0.5 0.5], 'hittest', 'off', 'visible', 'off');
+            stateS.handle.CERRAxisScale2(i) = line([0.02 0.02], [0.02 0.1], [2 2], 'parent', stateS.handle.CERRAxis(i), 'color', [1 0.5 0.5], 'hittest', 'off', 'visible', 'off');
             stateS.handle.CERRAxisLabel3(i) = text('parent', stateS.handle.CERRAxis(i), 'string', '5', 'position', [0.02 0.1 0], 'color', 'y', 'units', 'data', 'visible', 'off', 'hittest', 'off','fontSize',8);
             stateS.handle.CERRAxisLabel4(i) = text('parent', stateS.handle.CERRAxis(i), 'string', '5', 'position', [0.1 0.02 0], 'color', 'y', 'units', 'data', 'visible', 'off', 'hittest', 'off','fontSize',8);
             

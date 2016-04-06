@@ -76,21 +76,35 @@ switch lower(command)
         setAxisInfo(stateS.handle.CERRAxis(1),'scanSets',1,'scanSelectMode', 'manual');
         setAxisInfo(stateS.handle.CERRAxis(2),'scanSets',3,...
             'scanSelectMode', 'manual','doseSelectMode', 'manual','doseSets',[],...
-            'structureSets',[],'xRange',[],'yRange',[],...
+            'structureSets',2,'xRange',[],'yRange',[],...
             'view','transverse');
         linkC = {'Linked', stateS.handle.CERRAxis(2)};
-        setAxisInfo(stateS.handle.CERRAxis(3),'scanSets',4,...
-            'scanSelectMode', 'manual','doseSelectMode',...
-            'manual','doseSets',[],'structureSets',[],'xRange',linkC,...
-            'yRange',linkC,'view',linkC,'coord',linkC);
+        % Use stateS.handle.aI directly inistead of setAxisInfo since it
+        % follows the linked axis.
+        stateS.handle.aI(3).scanSets = 4;
+        stateS.handle.aI(3).doseSets = [];
+        stateS.handle.aI(3).structureSets = 2;
+        stateS.handle.aI(3).scanSelectMode = 'manual';
+        stateS.handle.aI(3).doseSelectMode = 'manual';
+        stateS.handle.aI(3).xRange = linkC;
+        stateS.handle.aI(3).yRange = linkC;
+        stateS.handle.aI(3).view = linkC;
+        stateS.handle.aI(3).coord = linkC;        
         setAxisInfo(stateS.handle.CERRAxis(5),'scanSets',6,...
             'scanSelectMode', 'manual','doseSelectMode',...
-            'manual','doseSets',[],'structureSets',[],'xRange',[],'yRange',[],...
+            'manual','doseSets',[],'structureSets',2,'xRange',[],'yRange',[],...
             'view','transverse');
-        linkC = {'Linked', stateS.handle.CERRAxis(5)};
+%         linkC = {'Linked', stateS.handle.CERRAxis(5)};
+%         stateS.handle.aI(6).scanSets = 5;
+%         stateS.handle.aI(6).scanSelectMode = 'manual';
+%         stateS.handle.aI(6).doseSelectMode = 'manual';
+%         stateS.handle.aI(6).xRange = linkC;
+%         stateS.handle.aI(6).yRange = linkC;
+%         stateS.handle.aI(6).view = linkC;
+%         stateS.handle.aI(6).coord = linkC;                
         setAxisInfo(stateS.handle.CERRAxis(6),'scanSets',5,...
             'scanSelectMode', 'manual','doseSelectMode',...
-            'manual','doseSets',[],'structureSets',[],'xRange',[],...
+            'manual','doseSets',[],'structureSets',2,'xRange',[],...
             'yRange',[],'view','transverse');
         
         % Do not show plane locators
@@ -160,7 +174,7 @@ switch lower(command)
         stateS.Oldlayout = [];
         sliceCallBack('resize');
         %CERRRefresh
-        hScanCompare = findobj('tag','scanCompareMenu');
-        set(hScanCompare,'checked','off')        
+        %hScanCompare = findobj('tag','scanCompareMenu');
+        %set(hScanCompare,'checked','off')        
         
 end

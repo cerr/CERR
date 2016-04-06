@@ -124,6 +124,27 @@ switch upper(command)
         else
             error('Not a valid sliceNum.');
         end
+        
+    otherwise
+        
+        val = varargin{1};
+        hAxis = gca;
+        % Loop through scans and slices to find the matching tag
+        numScans = length(planC{indexS.scan});
+        for scanNum = 1:numScans
+            for slc = 1:length(planC{indexS.scan}(scanNum).scanInfo)
+                if planC{indexS.scan}(scanNum).scanInfo(slc).(command) == val
+                    % show the scan scanNum                    
+                    setAxisInfo(hAxis,'scanSets',scanNum,'scanSelectMode','manual')
+                    % go to slice
+                    goto('slice',slc)
+                    return;
+                end
+            end
+        end
+        
+        return; % no match found
+        
 end
 
 % Set the slice coordinate on the axes

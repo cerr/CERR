@@ -78,24 +78,28 @@ kids = get(hScanMenu, 'children');
 numOldMenus = length(kids);
 delete(kids(1:numOldMenus-5));
 
-%Get list of dose distributions
-numScans = length(planC{indexS.scan});
+% Add scan items to menu
+topMenuFlag = 1;
+addScansToMenu(hScanMenu,topMenuFlag)
 
-%Add current dose elements to menu.
-for i = 1 : numScans
-    str = [num2str(i) '.  ' planC{indexS.scan}(i).scanType];
-    str2 = num2str(i);
-    checked = 'off';
-    try
-        if i==stateS.scanSet
-            checked = 'on';
-        else
-            checked = 'off';
-        end
-    end
-    if (i==1)
-        uimenu(hScanMenu, 'label', str, 'callback',['sliceCallBack(''selectScan'',''', str2 ,''')'],'interruptible','on','separator','on', 'Checked', checked);
-    else
-        uimenu(hScanMenu, 'label', str, 'callback',['sliceCallBack(''selectScan'',''', str2 ,''')'],'interruptible','on', 'Checked', checked);
-    end
-end
+%Get list of dose distributions
+%numScans = length(planC{indexS.scan});
+
+%Add current scan elements to menu.
+% for i = 1 : numScans
+%     str = [num2str(i) '.  ' planC{indexS.scan}(i).scanType];
+%     str2 = num2str(i);
+%     checked = 'off';
+%     try
+%         if i==stateS.scanSet
+%             checked = 'on';
+%         else
+%             checked = 'off';
+%         end
+%     end
+%     if (i==1)
+%         uimenu(hScanMenu, 'label', str, 'callback',['sliceCallBack(''selectScan'',''', str2 ,''')'],'interruptible','on','separator','on', 'Checked', checked);
+%     else
+%         uimenu(hScanMenu, 'label', str, 'callback',['sliceCallBack(''selectScan'',''', str2 ,''')'],'interruptible','on', 'Checked', checked);
+%     end
+% end

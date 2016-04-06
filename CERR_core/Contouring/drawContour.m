@@ -33,7 +33,7 @@ function varargout = drawContour(command, varargin)
 % along with CERR.  If not, see <http://www.gnu.org/licenses/>.
 
 
-global stateS
+global stateS planC
 
 switch command
     
@@ -44,9 +44,12 @@ switch command
         setappdata(hFig, 'contourAxisHandle', hAxis);
         setappdata(hAxis, 'contourV', {});
         setappdata(hAxis, 'contourV2', {});
+        hSegment = line(0, 0, 'color', 'red', 'hittest', 'on', ...
+            'parent', hAxis, 'ButtonDownFcn', 'drawContour(''contourClicked'')');
+        setappdata(hAxis, 'hSegment', hSegment);
         noneMode(hAxis);
-        oldAxisProperties = get(hAxis); %Store these to return to original state. Think about this.
-        oldFigureProperties = get(hFig);
+        %oldAxisProperties = get(hAxis); %Store these to return to original state. Think about this.
+        %oldFigureProperties = get(hFig);
 
         oldBtnDown = getappdata(hAxis, 'oldBtnDown');
         if isempty(oldBtnDown)
@@ -56,19 +59,27 @@ switch command
 
         set(hAxis, 'buttonDownFcn', 'drawContour(''btnDownInAxis'')');
         set(hFig, 'WindowButtonUpFcn', 'drawContour(''btnUp'')');
+        set(hFig, 'WindowButtonMotionFcn', 'drawContour(''motionInFigure'')');
         set(hFig, 'doublebuffer', 'on');
 
     case 'quit'
         %Removed passed axis from drawContour mode.
         hAxis = varargin{1};
         hFig  = get(hAxis, 'parent');
+        hSgment = getappdata(hAxis, 'hSgment');        
+        ballH = getappdata(hAxis, 'hBall');
         noneMode(hAxis);
         setappdata(hAxis, 'contourV', []);
         setappdata(hAxis, 'contourV2', []);
-        setappdata(hAxis, 'segment', []);
+        setappdata(hAxis, 'segment', []);        
+        setappdata(hAxis, 'hSgment', []);
+        setappdata(hAxis, 'hBall', []);
         setappdata(hAxis, 'clip', []);
+        setappdata(hAxis, 'contourMask', []);
+        setappdata(hAxis, 'clipToggles', []);
         drawAll(hAxis);
-
+        delete(hSgment)
+        delete(ballH)
         set(hAxis, 'buttonDownFcn', getappdata(hAxis, 'oldBtnDown'));
         setappdata(hAxis, 'oldBtnDown', []);
         set(hFig, 'WindowButtonUpFcn', '');
@@ -99,6 +110,11 @@ switch command
         %Force edit mode.
         hAxis = varargin{1};
         editMode(hAxis);
+        
+    case 'noneMode'
+        % Force none mode
+        hAxis = varargin{1};
+        noneMode(hAxis);
 
     case 'editModeGE'
         %Force edit mode.
@@ -109,6 +125,11 @@ switch command
         %Force draw mode.
         hAxis = varargin{1};
         drawMode(hAxis);
+
+    case 'drawBallMode'
+        %Force draw mode.
+        hAxis = varargin{1};
+        drawBallMode(hAxis);
 
     case 'threshMode'
         %Force threshold mode.
@@ -138,7 +159,30 @@ switch command
         hAxis = varargin{1};
         contourV = varargin{2};
         setappdata(hAxis, 'contourV', contourV);
+        drawContour('setContourMask', hAxis, contourV);
         noneMode(hAxis);
+        
+    case 'setContourMask'
+        hAxis = varargin{1};
+        contourV = varargin{2};
+        sliceNum = getappdata(hAxis, 'ccSlice');
+        numRows = getappdata(hAxis, 'numRows');
+        numCols = getappdata(hAxis, 'numCols');
+        scanNum = getappdata(hAxis, 'ccScanSet');
+        segM = false(numRows, numCols);
+        for i = 1:length(contourV)
+            segment = contourV{i};
+            if isempty(segment)
+                continue;
+            end
+            [segRowV, segColV] = xytom(segment(:,1), segment(:,2), sliceNum, planC,scanNum);
+            segRowV(segRowV<1) = 1;
+            segColV(segColV<1) = 1;
+            segRowV(segRowV>numRows) = numRows;
+            segColV(segColV>numCols) = numCols;            
+            segM = xor(segM, polyFill(numRows, numCols, segRowV, segColV));
+        end
+        setappdata(hAxis, 'contourMask',segM);
 
     case 'setContours2'
         %Wipe out all stored contours2 for this axis, and replace with
@@ -161,13 +205,15 @@ switch command
         end        
 
         %Arg, temporary tie to slice viewer! Remove later.
-        try
-            global stateS;
-            if ~isequal(stateS.handle.CERRAxis(stateS.handle.currentAxis), hAxis)
-                sliceCallBack('Focus', hAxis);
-                return;
-            end
-        end
+        % APA: use 1st axis to draw contour
+%         try
+%             global stateS;
+%             if ~isequal(stateS.handle.CERRAxis(stateS.handle.currentAxis), hAxis)
+%                 sliceCallBack('Focus', hAxis);
+%                 return;
+%             end
+%         end
+        sliceCallBack('Focus', stateS.handle.CERRAxis(1));
 
         hFig = get(gcbo, 'parent');
         clickType = get(hFig, 'SelectionType');
@@ -176,19 +222,60 @@ switch command
         mode = getappdata(hAxis, 'mode');
 
         %Setup axis for motion.
-        set(hFig, 'WindowButtonMotionFcn', 'drawContour(''motionInFigure'')');
+        %set(hFig, 'WindowButtonMotionFcn', 'drawContour(''motionInFigure'')');
+        setappdata(hAxis, 'isButtonDwn', 1);
 
         %SWITCH OVER MODES.
         if strcmpi(mode,        'DRAW')
             if strcmpi(clickType, 'normal')
+                %Left click: check if a segment has been selected and
+                %switch to Edit mode.
+                if getappdata(hAxis, 'segmentSelected')
+                    
+                    ud = get(stateS.handle.controlFrame,'userdata');
+                    
+                    %set(ud.handles.modePopup,'value',2)
+                    controlFrame('contour','selectMode',2) % Edit mode
+                    
+                    segNum = getappdata(hAxis,'editNum');
+                    editingMode(hAxis,segNum);
+                    cP = get(hAxis, 'currentPoint');
+                    addClipPoint(hAxis, cP(1,1), cP(1,2));
+                    drawClip(hAxis);
+                    setappdata(hAxis, 'segmentSelected',0)
+                    
+                    drawSegment(hAxis);
+                                        
+                    %setappdata(hAxis, 'mode','Edit');
+                    return;
+                end
                 %Left click: enter drawing mode and begin new contour.
                 drawingMode(hAxis);
                 cP = get(hAxis, 'currentPoint');
                 addPoint(hAxis, cP(1,1), cP(1,2));
                 drawSegment(hAxis);
-            elseif strcmpi(clickType, 'extend') | (strcmpi(clickType, 'open') & strcmpi(lastClickType, 'extend'))
+            elseif strcmpi(clickType, 'extend') || (strcmpi(clickType, 'open') && strcmpi(lastClickType, 'extend'))
             elseif strcmpi(clickType, 'alt')
             end
+            
+        elseif strcmpi(mode,        'DRAWBALL')
+            if strcmpi(clickType, 'normal')
+                %Left click+motion: add ball and begin new contour.
+                drawingBallMode(hAxis);
+                cP = get(hAxis, 'currentPoint');
+                ballH = getappdata(hAxis, 'hBall');
+                angM = getappdata(hAxis, 'angles');
+                ballRadius = getappdata(hAxis, 'ballRadius');
+                xV = cP(1,1) + ballRadius*angM(:,1);
+                yV = cP(1,2) + ballRadius*angM(:,2);  
+                set(ballH,'xData',xV,'ydata',yV,'visible','on')
+                addBallPoints(hAxis, xV, yV);
+                drawSegment(hAxis);                
+                
+            elseif strcmpi(clickType, 'extend') || (strcmpi(clickType, 'open') && strcmpi(lastClickType, 'extend'))
+            elseif strcmpi(clickType, 'alt')
+            end
+            
 
         elseif strcmpi(mode,    'DRAWING')
             if strcmpi(clickType, 'normal')
@@ -196,19 +283,25 @@ switch command
                 cP = get(hAxis, 'currentPoint');
                 addPoint(hAxis, cP(1,1), cP(1,2));
                 drawSegment(hAxis);
-            elseif strcmpi(clickType, 'extend') | (strcmpi(clickType, 'open') & strcmpi(lastClickType, 'extend'))            
+            elseif strcmpi(clickType, 'extend') || (strcmpi(clickType, 'open') && strcmpi(lastClickType, 'extend'))            
             elseif strcmpi(clickType, 'alt')
                 %Right click: close new contour and return to drawMode.
                 set(hAxis,'UIContextMenu',[])
-                segmentNum = length(getappdata(hAxis, 'contourV')) + 1;
+                contourV = getappdata(hAxis, 'contourV');
+                segmentNum = length(contourV) + 1;
                 closeSegment(hAxis);
-                saveSegment(hAxis, segmentNum);
-                drawMode(hAxis);
+                saveSegment(hAxis, segmentNum);                
+                drawMode(hAxis);            
+                contourV = getappdata(hAxis, 'contourV');
+                drawContour('setContourMask', hAxis, contourV);
             end
 
         elseif strcmpi(mode,    'EDIT')
-            if strcmpi(clickType, 'normal')
-            elseif strcmpi(clickType, 'extend') | (strcmpi(clickType, 'open') & strcmpi(lastClickType, 'extend'))                                
+            if strcmpi(clickType, 'normal')                                
+                drawMode(hAxis); % Set to draw mode on left-click
+                contourV = getappdata(hAxis, 'contourV');
+                drawContour('setContourMask', hAxis, contourV);
+            elseif strcmpi(clickType, 'extend') || (strcmpi(clickType, 'open') && strcmpi(lastClickType, 'extend'))                                
             elseif strcmpi(clickType, 'alt')
                 %Right click: cycle through clips if they exist.
                 toggleClips(hAxis);
@@ -217,7 +310,7 @@ switch command
 
         elseif strcmpi(mode,    'EDITING')
             if strcmpi(clickType, 'normal')
-            elseif strcmpi(clickType, 'extend') | (strcmpi(clickType, 'open') & strcmpi(lastClickType, 'extend'))
+            elseif strcmpi(clickType, 'extend') || (strcmpi(clickType, 'open') && strcmpi(lastClickType, 'extend'))
             elseif strcmpi(clickType, 'alt')
                 % elseif strcmpi(clickType, 'open')
             end
@@ -228,7 +321,7 @@ switch command
                 cP = get(hAxis, 'currentPoint');
                 getThresh(hAxis, cP(1,1), cP(1,2));
 
-            elseif strcmpi(clickType, 'extend') | (strcmpi(clickType, 'open') & strcmpi(lastClickType, 'extend'))
+            elseif strcmpi(clickType, 'extend') || (strcmpi(clickType, 'open') && strcmpi(lastClickType, 'extend'))
 %                 do nothing
             elseif strcmpi(clickType, 'alt')
 %                 do nothing
@@ -238,7 +331,7 @@ switch command
         elseif strcmpi(mode,    'NONE')
             
         end
-
+        
     case 'motionInFigure'
         %The action taken depends on current state.
         hFig        = gcbo;
@@ -247,22 +340,84 @@ switch command
         if isempty(hAxis)
             return
         end
-        mode        = getappdata(hAxis, 'mode');
-
-        if strcmpi(mode,        'DRAWING')
+        mode         = getappdata(hAxis, 'mode');
+        isButtonDwn  = getappdata(hAxis, 'isButtonDwn');
+        if strcmpi(mode,        'DRAWING') && isButtonDwn
             if strcmpi(clickType, 'normal')
                 %Left click+motion: add point and redraw.
                 cP = get(hAxis, 'currentPoint');
                 addPoint(hAxis, cP(1,1), cP(1,2));
                 drawSegment(hAxis);
             end
-
-        elseif strcmpi(mode,    'EDITING')
+            
+        elseif strcmpi(mode,        'DRAW')
+            cP = get(hAxis, 'currentPoint');
+            x = cP(1,1);
+            y = cP(1,2);
+            %contoursC = getappdata(hAxis, 'contourV');
+            hContourV = getappdata(hAxis, 'hContour');
+            ballRadius = getappdata(hAxis, 'ballRadius');
+            set(hContourV,'lineWidth',1.5)
+            setappdata(hAxis, 'segmentSelected', 0)
+            for i = 1:length(hContourV)
+                xData = get(hContourV(i),'XData');
+                yData = get(hContourV(i),'YData');
+                if any((xData - x).^2 + (yData - y).^2 < 0.125)
+                    set(hContourV(i),'lineWidth',3)
+                    % If in the pencil mode and mouse-up, then toggle to "edit" mode if
+                    % user selects a segment
+                    %%% getappdata(hAxis, 'mode');
+                    setappdata(hAxis, 'segmentSelected', 1)
+                    seg = [xData(:) yData(:)];
+                    setappdata(hAxis,'segment',seg)
+                    setappdata(hAxis,'editNum',i)
+                    %setappdata(hAxis,'clipToggles',{seg,seg,seg})
+                    %setappdata(hAxis,'clipnum',1)                    
+                    %drawSegment(hAxis)
+                    return;
+                end
+            end            
+            
+        elseif strcmpi(mode,        'DRAWINGBALL')
+            cP = get(hAxis, 'currentPoint');
+            ballH = getappdata(hAxis, 'hBall');
+            angM = getappdata(hAxis, 'angles');
+            ballRadius = getappdata(hAxis, 'ballRadius');
+            xV = cP(1,1) + ballRadius*angM(:,1);
+            yV = cP(1,2) + ballRadius*angM(:,2);
+            set(ballH,'xData',xV,'ydata',yV,'visible','on')
+            
+            if strcmpi(clickType, 'normal') && isButtonDwn
+                %Left click+motion: add point and redraw.
+                addBallPoints(hAxis, xV, yV);
+                %drawSegment(hAxis);     
+                drawContourV(hAxis);
+            end
+            
+        elseif strcmpi(mode,        'DRAWBALL')            
+                %Left click+motion: add point and redraw.
+                cP = get(hAxis, 'currentPoint');
+                ballH = getappdata(hAxis, 'hBall');
+                angM = getappdata(hAxis, 'angles');
+                ballRadius = getappdata(hAxis, 'ballRadius');
+                xV = cP(1,1) + ballRadius*angM(:,1);
+                yV = cP(1,2) + ballRadius*angM(:,2);                
+                set(ballH,'xData',xV,'ydata',yV,'visible','on')
+            
+        
+        elseif strcmpi(mode,    'EDITING') && isButtonDwn
             if strcmpi(clickType, 'normal')
                 %Left click+motion: add point to clip and redraw.
                 cP = get(hAxis, 'currentPoint');
                 addClipPoint(hAxis, cP(1,1), cP(1,2));
                 drawClip(hAxis);
+
+                % APA 03/02/2016
+                %connectClip(hAxis);
+                %toggleClips(hAxis);
+                %drawSegment(hAxis);
+                % APA 03/02/2016 ends
+                
             end
             
         elseif strcmpi(mode,    'EDITINGGE')
@@ -331,13 +486,22 @@ switch command
             connectClip(hAxis);       
             editMode(hAxis);
             toggleClips(hAxis);
-            drawSegment(hAxis);
+            drawSegment(hAxis);  
+        elseif strcmpi(mode, 'DRAWING')
+            hFig  = get(hAxis, 'parent');
+            hMenu = uicontextmenu('Callback', 'CERRAxisMenu(''update_menu'')', 'userdata', hAxis, 'Tag', 'CERRAxisMenu', 'parent', hFig);
+            set(hAxis, 'UIContextMenu', hMenu);   
+        elseif strcmpi(mode, 'DRAWINGBALL')
+            ballH = getappdata(hAxis, 'hBall');
+            %set(ballH,'visible','off')
         end              
-        set(hFig, 'WindowButtonMotionFcn', '');
+        %set(hFig, 'WindowButtonMotionFcn', '');
+        setappdata(hAxis, 'isButtonDwn', 0);
 
     case 'contourClicked'
         hLine = gcbo;
-        hAxis = get(gcbo, 'parent');
+        % hAxis = get(gcbo, 'parent');
+        hAxis = stateS.handle.CERRAxis(1);
         hFig = get(hAxis, 'parent');
         clickType = get(hFig, 'SelectionType');
         lastClickType = getappdata(hFig, 'lastClickType');
@@ -469,7 +633,7 @@ switch command
             delSegment(hAxis);
             threshMode(hAxis);
         end
-
+        
 end
 
 
@@ -484,7 +648,26 @@ if ~isempty(segment)
     contourV{editNum} = segment;
     setappdata(hAxis, 'contourV', contourV);
 end
-setappdata(hAxis, 'mode', 'draw');
+setappdata(hAxis, 'mode', 'draw'); % APA: mode is set in contourControl.m
+setappdata(hAxis, 'ccMode', 'draw'); 
+editNum = length(contourV) + 1;
+setappdata(hAxis, 'editNum', editNum);
+hContour = getappdata(hAxis, 'hContour');
+set(hContour, 'hittest', 'off');
+drawSegment(hAxis);
+drawContourV(hAxis);
+
+function drawBallMode(hAxis)
+%Next mouse click starts a new contour and goes to drawing mode.
+contourV = getappdata(hAxis, 'contourV');
+segment = getappdata(hAxis, 'segment');
+setappdata(hAxis, 'segment', []);
+if ~isempty(segment)
+    editNum = getappdata(hAxis, 'editNum');
+    contourV{editNum} = segment;
+    setappdata(hAxis, 'contourV', contourV);
+end
+setappdata(hAxis, 'mode', 'drawBall'); % APA: mode is set in contourControl.m
 editNum = length(contourV) + 1;
 setappdata(hAxis, 'editNum', editNum);
 hContour = getappdata(hAxis, 'hContour');
@@ -496,6 +679,14 @@ function drawingMode(hAxis)
 %While the button is down or for each click, points are added
 %to the contour being drawn.  Right click exists drawing mode.
 setappdata(hAxis, 'mode', 'drawing');
+setappdata(hAxis, 'segment', []);
+
+function drawingBallMode(hAxis)
+%While the button is down or for each click, points are added
+%to the contour being drawn.  Right click exists drawing mode.
+setappdata(hAxis, 'mode', 'drawingBall');
+ballH = getappdata(hAxis, 'hBall');
+set(ballH,'visible','on')
 setappdata(hAxis, 'segment', []);
 
 function reassignMode(hAxis)
@@ -532,6 +723,7 @@ setappdata(hAxis, 'clip', []);
 drawClip(hAxis);
 hContour = getappdata(hAxis, 'hContour');
 set(hContour, 'hittest', 'on');
+
 
 function editingMode(hAxis, segmentNum)
 %While the button is down, points are added to the clip being drawn.
@@ -572,6 +764,11 @@ drawSegment(hAxis);
 hContour = getappdata(hAxis, 'hContour');
 set(hContour, 'hittest', 'on');
 clearUndoInfo(hAxis);
+hBall = getappdata(hAxis, 'hBall');
+if ~isempty(hBall)
+    delete(hBall)
+    setappdata(hAxis, 'hBall',[]);
+end
 
 
 function threshMode(hAxis)
@@ -602,11 +799,92 @@ drawContourV(hAxis);
 
 
 %CONTOURING FUNCTIONS
-function addPoint(hAxis, x, y);
+function addPoint(hAxis, x, y)
 %Add a point to the existing segment, in axis coordinates.
 segment = getappdata(hAxis, 'segment');
 segment = [segment;[x y]];
 setappdata(hAxis, 'segment', segment);
+
+function addBallPoints(hAxis,xV,yV)
+
+global planC
+%indexS = planC{end};
+
+%Add a ball points to the existing segment, in axis coordinates.
+%segment = getappdata(hAxis, 'segment');
+contoursC = getappdata(hAxis, 'contourV');
+eraseFlag = getappdata(hAxis, 'eraseFlag');
+if ~isempty(contoursC)
+    %     numRows = planC{indexS.scan}(scanNum).scanInfo(sliceNum).sizeOfDimension1;
+    %     numCols = planC{indexS.scan}(scanNum).scanInfo(sliceNum).sizeOfDimension2;
+    %     segM = false(numRows, numCols);
+    %     for i = 1:length(contoursC)
+    %         segment = contoursC{i};
+    %         if isempty(segment)
+    %             continue;
+    %         end
+    %         [segRowV, segColV] = xytom(segment(:,1), segment(:,2), sliceNum, planC,scanNum);
+    %         [rowV, colV] = xytom(xV, yV, sliceNum, planC,scanNum);
+    %         rowV(rowV<1) = 1;
+    %         colV(colV<1) = 1;
+    %         rowV(rowV>numRows) = numRows;
+    %         colV(colV>numCols) = numCols;
+    %         segRowV(segRowV<1) = 1;
+    %         segColV(segColV<1) = 1;
+    %         segRowV(segRowV>numRows) = numRows;
+    %         segColV(segColV>numCols) = numCols;
+    %
+    %         segM = xor(segM, polyFill(numRows, numCols, segRowV, segColV));
+    %     end
+    
+    sliceNum = getappdata(hAxis, 'ccSlice');
+    scanNum = getappdata(hAxis, 'ccScanSet');
+    segM = getappdata(hAxis,'contourMask');
+    numRows = getappdata(hAxis, 'numRows');
+    numCols = getappdata(hAxis, 'numCols');    
+    [rowV, colV] = xytom(xV, yV, sliceNum, planC,scanNum);
+    rowV(rowV<1) = 1;
+    colV(colV<1) = 1;
+    rowV(rowV>numRows) = numRows;
+    colV(colV>numCols) = numCols;    
+    ballM = polyFill(numRows, numCols, rowV, colV);
+    if ~eraseFlag
+        maskM = segM | ballM; % paint
+    else
+        maskM = double(~ballM & segM); % erase
+    end
+    setappdata(hAxis, 'contourMask',maskM);
+    % maskM = double(xor(segM & ballM, segM)); % erase        
+    contourData = contourc(double(maskM), [.5 .5]);
+    len = size(contourData,2);
+    currPt = 1;
+    newContoursC = {};
+    while currPt < len
+        numPoints = contourData(2,currPt);
+        xyData = contourData(:,currPt+1:numPoints+currPt)';
+        cV = xyData(:,1);
+        rV = xyData(:,2);
+        uniflag = 0;
+        [xSegV,ySegV,~] = mtoxyz(rV,cV,sliceNum,scanNum,planC,uniflag);
+        
+        %setappdata(hAxis, 'segment', [xSegV(:) ySegV(:)])
+        
+        newContoursC{end+1} = [xSegV(:) ySegV(:)];
+        currPt = numPoints + currPt + 1;
+    end
+    setappdata(hAxis, 'contourV', newContoursC)
+    
+else
+    if ~eraseFlag
+        %setappdata(hAxis, 'segment', [xV(:) yV(:)]);
+        setappdata(hAxis, 'contourV', {[xV(:) yV(:)]});
+    else
+        setappdata(hAxis, 'contourV', {});
+    end
+end
+%segment = [segment;[x y]];
+%setappdata(hAxis, 'segment', segment);
+
 
 function closeSegment(hAxis)
 %Close the current segment by linking the first and last points.
@@ -703,9 +981,8 @@ setappdata(hAxis, 'segment', clip);
 function drawContourV(hAxis) %%Maybe set line hittest here?? based on mode??
 %Redraw the contour associated with hAxis.
 hContour = getappdata(hAxis, 'hContour');
-try
-    delete(hContour);
-end
+toDelete = ishandle(hContour);
+delete(hContour(toDelete));
 hContour = [];
 
 contourV = getappdata(hAxis, 'contourV');
@@ -713,7 +990,12 @@ if ~isempty(contourV)
     for i = 1:length(contourV)
         segment = contourV{i};
         if ~isempty(segment)
-            hContour = [hContour, line(segment(:,1), segment(:,2), 'color', 'blue', 'linewidth', 1.5, 'hittest', 'off', 'userdata', i, 'ButtonDownFcn', 'drawContour(''contourClicked'')', 'parent', hAxis)];
+            % hContour = [hContour, line(segment(:,1), segment(:,2), 'color', 'blue', 'linewidth', 1.5, 'hittest', 'off', 'userdata', i, 'ButtonDownFcn', 'drawContour(''contourClicked'')', 'parent', hAxis)];
+            hContour = [hContour, ...
+                fill(segment(:,1), segment(:,2), 'blue', 'linewidth', 1.5,...
+                'facealpha',0.2, 'hittest', 'off', 'userdata', i, ...
+                'ButtonDownFcn', 'drawContour(''contourClicked'')', ...
+                'EdgeColor', 'blue', 'LineWidth', 1.5, 'parent', hAxis)];
         end
     end
     setappdata(hAxis, 'hContour', hContour);
@@ -724,9 +1006,8 @@ end
 function drawContourV2(hAxis) %%Maybe set line hittest here?? based on mode??
 %Redraw the contour associated with hAxis.
 hContour2 = getappdata(hAxis, 'hContour2');
-try
-    delete(hContour2);
-end
+toDelete = ishandle(hContour2);
+delete(hContour2(toDelete));
 hContour2 = [];
 
 contourV2 = getappdata(hAxis, 'contourV2');
@@ -746,27 +1027,32 @@ function drawSegment(hAxis)
 %Redraw the current segment associated with hAxis
 hSegment = getappdata(hAxis, 'hSegment');
 mode = getappdata(hAxis, 'mode');
-try
-    delete(hSegment);
-end
-hSegment = [];
+%try
+%    delete(hSegment);
+%end
+%hSegment = [];
 
 segment = getappdata(hAxis, 'segment');
-if ~isempty(segment) & strcmpi(mode, 'drawing')
-    hSegment = line(segment(:,1), segment(:,2), 'color', 'red', 'hittest', 'off', 'parent', hAxis, 'ButtonDownFcn', 'drawContour(''contourClicked'')');
-    setappdata(hAxis, 'hSegment', hSegment);
+if ~isempty(segment) && (strcmpi(mode, 'drawing') || strcmpi(mode, 'draw'))
+    %hSegment = line(segment(:,1), segment(:,2), 'color', 'red', 'hittest', 'off', 'parent', hAxis, 'ButtonDownFcn', 'drawContour(''contourClicked'')');
+    %setappdata(hAxis, 'hSegment', hSegment);
+    set(hSegment,'XData',segment(:,1),'YData',segment(:,2), 'hittest', 'off')    
 elseif ~isempty(segment)
-    hSegment = line(segment(:,1), segment(:,2), 'color', 'red', 'hittest', 'on', 'parent', hAxis, 'ButtonDownFcn', 'drawContour(''contourClicked'')');
-    setappdata(hAxis, 'hSegment', hSegment);
+    %hSegment = line(segment(:,1), segment(:,2), 'color', 'red', 'hittest', 'on', 'parent', hAxis, 'ButtonDownFcn', 'drawContour(''contourClicked'')');
+    %setappdata(hAxis, 'hSegment', hSegment);
+    set(hSegment,'XData',segment(:,1),'YData',segment(:,2), 'hittest', 'on')    
 else
-    setappdata(hAxis, 'hSegment', []);
+    %setappdata(hAxis, 'hSegment', []);
+    if ishandle(hSegment)
+        set(hSegment,'XData',0,'YData',0, 'hittest', 'off')
+    end
 end
 
 function drawClip(hAxis)
 %Redraw the current clipout segment associated with hAxis.
 hClip = getappdata(hAxis, 'hClip');
 mode = getappdata(hAxis, 'mode');
-try
+if ishandle(hClip)
     delete(hClip);
 end
 hClip = [];
@@ -791,7 +1077,7 @@ drawClip(hAxis);
 
 %THRESHOLDING FUNCTIONS
 
-function getThresh(hAxis, x, y);
+function getThresh(hAxis, x, y)
 %Sets the current segment to the contour of connected region x,y
 global planC
 global stateS
@@ -804,7 +1090,7 @@ indexS = planC{end};
 [r, c, jnk] = xyztom(x,y,zeros(size(x)), scanSet, planC);
 r = round(r);
 c = round(c);
-if r < 1 | r > length(yV) | c < 1 | c > length(xV)
+if r < 1 || r > length(yV) || c < 1 || c > length(xV)
     return;
 end
 hImg =  findobj(hAxis, 'tag', 'CTImage');

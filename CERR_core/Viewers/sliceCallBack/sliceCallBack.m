@@ -66,19 +66,14 @@ function sliceCallBack(instr, varargin)
 
 global planC stateS
 format compact
-try
+
+if exist('planC','var') && ~isempty(planC)
     indexS = planC{end};
-catch
+else
     if ~isempty(varargin) && iscell(varargin{1})
         planC = varargin{1};
         indexS = planC{end};
-    end
-end
-
-try
-    stateS.doseSetTag    = stateS.optS.displayDoseSet;
-    fontsize             = stateS.optS.fontsize;
-    uicolor              = stateS.optS.UIColor;
+    end    
 end
 
 %For GUI units:
@@ -87,8 +82,7 @@ stateS.regOverlay = 0;
 %Frame margin constants.
 leftMarginWidth = 195; bottomMarginHeight = 70;
 
-%Temporary.
-try
+if isfield(stateS,'handle')
     hCSV = stateS.handle.CERRSliceViewer;
     hCSVA = stateS.handle.CERRSliceViewerAxis;
 end
@@ -234,7 +228,6 @@ switch upper(instr)
         stateS.clipState = 0; %wy
         
         % Set states for the controlFrame
-        stateS.contouringDisplay = 0;
         stateS.rotateView = 0;
         stateS.anotationDisplay = 0;
 
@@ -382,8 +375,8 @@ switch upper(instr)
             end
             stateS.handle.CERRAxisTicks1(i,:) = ticks1V;
             stateS.handle.CERRAxisTicks2(i,:) = ticks2V;
-            stateS.handle.CERRAxisScale1(i) = line([0.02 0.1], [0.02 0.02], [2 2], 'parent', stateS.handle.CERRAxis(i), 'color', [0.7 0.7 0.7], 'hittest', 'off', 'visible', 'off');
-            stateS.handle.CERRAxisScale2(i) = line([0.02 0.02], [0.02 0.1], [2 2], 'parent', stateS.handle.CERRAxis(i), 'color', [0.7 0.7 0.7], 'hittest', 'off', 'visible', 'off');
+            stateS.handle.CERRAxisScale1(i) = line([0.02 0.1], [0.02 0.02], [2 2], 'parent', stateS.handle.CERRAxis(i), 'color', [1 0.5 0.5], 'hittest', 'off', 'visible', 'off');
+            stateS.handle.CERRAxisScale2(i) = line([0.02 0.02], [0.02 0.1], [2 2], 'parent', stateS.handle.CERRAxis(i), 'color', [1 0.5 0.5], 'hittest', 'off', 'visible', 'off');
             stateS.handle.CERRAxisLabel3(i) = text('parent', stateS.handle.CERRAxis(i), 'string', '5', 'position', [0.02 0.1 0], 'color', 'y', 'units', 'data', 'visible', 'off', 'hittest', 'off','fontSize',8);
             stateS.handle.CERRAxisLabel4(i) = text('parent', stateS.handle.CERRAxis(i), 'string', '5', 'position', [0.1 0.02 0], 'color', 'y', 'units', 'data', 'visible', 'off', 'hittest', 'off','fontSize',8);
             
@@ -434,8 +427,8 @@ switch upper(instr)
         if stateS.MLVersion >= 8.4
             set(stateS.handle.CERRAxis,'ClippingStyle','rectangle')
         end
-        stateS.layout = 5;
-        stateS.Oldlayout = 5;
+        stateS.layout = stateS.optS.layout;
+        stateS.Oldlayout = stateS.optS.layout;
                
         %The NUMBER of the currentAxis. NOT handle.
         stateS.currentAxis = 1;
@@ -821,7 +814,10 @@ switch upper(instr)
         stateS.planLoaded = 1;        
         %Refresh.
         CERRRefresh
-        sliceCallBack('resize');
+        %sliceCallBack('resize');
+        layout = stateS.layout;
+        stateS.layout = NaN;
+        sliceCallBack('layout',layout);
         figure(hCSV); % Bring CERR upfor
 
     case 'RESIZE'
@@ -839,6 +835,9 @@ switch upper(instr)
             elseif isequal(stateS.Oldlayout,6) && ~isequal(stateS.layout,6)
                 scanCompare('exit');
                 return
+            elseif isequal(stateS.Oldlayout,9) && ~isequal(stateS.layout,9)
+                perfDiffusion('exit');
+                return                
             end
 
             switch stateS.layout
@@ -956,7 +955,7 @@ switch upper(instr)
                         set(stateS.handle.CERRAxisLabel2(indAxis),'position', [(wid-30)/wid .98 0]);
                     end
                     
-                case 9 % 1 Large, 2 Medium panels
+                case 9 % 1 Large, 4 Medium panels
                     wid = (figureWidth-leftMarginWidth-70-10)/3;
                     hig = (figureHeight-bottomMarginHeight-20-20)/2;
                     %set(stateS.handle.CERRAxis(1), 'position', [leftMarginWidth+60 bottomMarginHeight+10 figureWidth-leftMarginWidth-70-wid-10 figureHeight-bottomMarginHeight-20], 'color', [0 0 0], 'xTickLabel', [], 'yTickLabel', [], 'xTick', [], 'yTick', [], 'color', [0 0 0]);
@@ -981,15 +980,19 @@ switch upper(instr)
                     set(stateS.handle.CERRAxisLabel2(3),'position', [(wid-30)/wid .98 0]);  
                     set(stateS.handle.CERRAxisLabel2(5),'position', [(wid-30)/wid .98 0]);                    
                     set(stateS.handle.CERRAxisLabel2(6),'position', [(wid-30)/wid .98 0]);    
-                    if stateS.planLoaded
-                        perfDiffusion('init')
-                    end
+                    %if stateS.planLoaded
+                    %    perfDiffusion('init')
+                    %end
                     
             end
 
             spacing = 55;
             for i=1:length(bottomAxes)
                 set(stateS.handle.CERRAxis(bottomAxes(i)), 'position', [leftMarginWidth+205+55*i bottomMarginHeight-45 50 50]);
+            end
+            
+            if ~stateS.planLoaded
+                return;
             end
 
             %Refresh scaling.
@@ -1016,29 +1019,35 @@ switch upper(instr)
         if stateS.layout == 6 && varargin{1} ~= 6
             scanCompare('exit')
         end
-        if stateS.layout ~= 9 && varargin{1} == 9
-            %perfDiffusion('init')
-            %return;
-            numAxes = length(stateS.handle.CERRAxis);
-            if numAxes > 6
-                delete(stateS.handle.CERRAxis(7:end));
-                stateS.handle.CERRAxisLabel1(7:end) = [];
-                stateS.handle.CERRAxisLabel2(7:end) = [];
-                stateS.handle.CERRAxis(7:end) = [];
-                stateS.handle.aI(7:end) = [];
-            elseif numAxes <= 6
+        
+        if isfield(stateS,'planLoaded') && stateS.planLoaded
+            if stateS.layout ~= 9 && varargin{1} == 9
                 
-                % Create two new axes
-                numNewAxes = 6-numAxes;
-                createNewCERRAxes(numNewAxes);                
-
+                numAxes = length(stateS.handle.CERRAxis);
+                if numAxes > 6
+                    delete(stateS.handle.CERRAxis(7:end));
+                    stateS.handle.CERRAxisLabel1(7:end) = [];
+                    stateS.handle.CERRAxisLabel2(7:end) = [];
+                    stateS.handle.CERRAxis(7:end) = [];
+                    stateS.handle.aI(7:end) = [];
+                elseif numAxes <= 6
+                    
+                    % Create two new axes
+                    numNewAxes = 6-numAxes;
+                    createNewCERRAxes(numNewAxes);
+                    
+                end
+                
+                perfDiffusion('init')
+                
             end
             
-        end
-        stateS.layout = varargin{1};
-        if isfield(stateS,'planLoaded') && stateS.planLoaded
+            stateS.layout = varargin{1};
+            
             sliceCallBack('resize');
+            
         end
+        
         return;
 
     case 'DUPLICATEAXIS'
@@ -1341,7 +1350,7 @@ switch upper(instr)
     case 'FOCUS'
         %Sets current cerr focus to a new axis, varargin.
         hAxis = varargin{1};
-        hFig = get(hAxis, 'parent');
+        hFig = get(hAxis, 'parent');        
         stateS.lastAxis = stateS.currentAxis;
         stateS.currentAxis = find(stateS.handle.CERRAxis == hAxis);
         planeLocators = findobj(hFig, 'tag', 'planeLocator');
@@ -1363,10 +1372,10 @@ switch upper(instr)
                 end
             end
         end
-        try % case where the axes is deleted stateS.lastAxis exceeds matrix dimention
+        %try % case where the axes is deleted stateS.lastAxis exceeds matrix dimention
             set(stateS.handle.CERRAxisLabel1(stateS.lastAxis), 'color', [0.9 0.9 0.5]);
             set(stateS.handle.CERRAxisLabel2(stateS.lastAxis), 'color', [0.9 0.9 0.5]);
-        end
+        %end
         set(stateS.handle.CERRAxisLabel1(stateS.currentAxis), 'color', [0.5 1 0.5]);
         set(stateS.handle.CERRAxisLabel2(stateS.currentAxis), 'color', [0.5 1 0.5]);
         
@@ -1721,24 +1730,27 @@ switch upper(instr)
         %figure(hCSV); %Remove uicontrol focus.
         stateS.doseAlphaValue.trans = get(stateS.handle.sliderTransAlpha, 'Value');
         stateS.doseDisplayChanged = 1;
-        if stateS.contourState
+        %if stateS.contourState
             stateS.CTDisplayChanged = 1;
-        end
+        %end
         if stateS.planLoaded
             CERRRefresh
         end
-        hToggleBasMov = findobj(stateS.handle.CERRSliceViewer,'tag','toggleBasMov');
-        %change color of Base-Moving toggle-button if it exists
-        udFrame = get(stateS.handle.controlFrame,'userdata');        
-        clrM = [0 0 0; 1 0.8 0.5; 1 0 0; 0 1 0; 0 0 1; 1 0.5 0.5; 1 0.5 0.5];        
-        if ~isempty(hToggleBasMov) && stateS.doseAlphaValue.trans > 0 && stateS.doseAlphaValue.trans < 1
-            set(hToggleBasMov,'string','B/M','fontWeight','normal','foregroundColor',[0 0 0],'value',0)
-        elseif ~isempty(hToggleBasMov) && stateS.doseAlphaValue.trans == 1
-            clrVal = get(udFrame.handles.displayModeColor,'value');
-            set(hToggleBasMov,'string','M','fontWeight','bold','foregroundColor',clrM(clrVal,:))
-        elseif ~isempty(hToggleBasMov) && stateS.doseAlphaValue.trans == 0
-            set(hToggleBasMov,'string','B','fontWeight','bold','foregroundColor',[0 0 0])
+        if stateS.imageRegistration
+            hToggleBasMov = findobj(stateS.handle.CERRSliceViewer,'tag','toggleBasMov');
+            %change color of Base-Moving toggle-button if it exists
+            udFrame = get(stateS.handle.controlFrame,'userdata');
+            clrM = [0 0 0; 1 0.8 0.5; 1 0 0; 0 1 0; 0 0 1; 1 0.5 0.5; 1 0.5 0.5];
+            if ~isempty(hToggleBasMov) && stateS.doseAlphaValue.trans > 0 && stateS.doseAlphaValue.trans < 1
+                set(hToggleBasMov,'string','B/M','fontWeight','normal','foregroundColor',[0 0 0],'value',0)
+            elseif ~isempty(hToggleBasMov) && stateS.doseAlphaValue.trans == 1
+                clrVal = get(udFrame.handles.displayModeColor,'value');
+                set(hToggleBasMov,'string','M','fontWeight','bold','foregroundColor',clrM(clrVal,:))
+            elseif ~isempty(hToggleBasMov) && stateS.doseAlphaValue.trans == 0
+                set(hToggleBasMov,'string','B','fontWeight','bold','foregroundColor',[0 0 0])
+            end        
         end
+                
         return
         
     case 'TOGGLEBASEMOVING'
@@ -1838,7 +1850,8 @@ switch upper(instr)
             % DK end
         end
         contourControl('init', scanSet);
-        contourControl('drawMode');
+        %contourControl('drawMode');
+        contourControl('noneMode');
         ud=get(stateS.handle.controlFrame,'userdata');
         set(ud.handles.structPopup,'enable','on')
         return;
@@ -2057,7 +2070,8 @@ switch upper(instr)
         setappdata(hCSV, 'locPlaneHandle', hLine);
         %set(gcbo, 'erasemode', 'xor');
         set(hCSV, 'WindowButtonMotionFcn', 'sliceCallBack(''LOCATORMOVING'')');
-        set(gcbo,'Color', [1 0.5 0.5])
+        %set(gcbo,'Color', [1 0.5 0.5])
+        set(gcbo,'LineWidth', 2)
         return;
 
     case 'LOCATORMOVING'
@@ -2579,7 +2593,7 @@ switch upper(instr)
             toggleOffDrawModes;
             CERRStatusString('Click/drag in axis. Right click to end.');
             stateS.gridState = 1;
-            set(stateS.handle.rulerTrans, 'value', 1)
+            %set(stateS.handle.rulerTrans, 'value', 1)
             %Disable all right click menus;
             set(stateS.handle.CERRAxis, 'uicontextmenu', []);
         else
@@ -2588,7 +2602,7 @@ switch upper(instr)
             delete(stateS.handle.rulerLine)
             stateS.handle.rulerLine = [];
             stateS.gridState = 0;
-            set(stateS.handle.rulerTrans, 'value', 0)
+            %set(stateS.handle.rulerTrans, 'value', 0)
             %Right click menus are re-enabled in AxisClicked callback.
         end
         return;
@@ -3120,7 +3134,7 @@ switch upper(instr)
                 stateS.handle.aI(ind) = [];
                 
                 stateS.currentAxis = 1;
-                sliceCallBack('resize')
+                %sliceCallBack('resize')
                 return;
         end
         setAxisInfo(hAxis, 'coord', coord, 'view', view, 'xRange', [], 'yRange', []);

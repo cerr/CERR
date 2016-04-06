@@ -57,26 +57,28 @@ switch command
     
     case 'default'
         %Nothing, clear the box.  Also clear stateS.mode items for any controlFrame modules.
-        if ~isempty(findobj('string', 'Contouring', 'tag', 'controlFrameItem'))
+        if stateS.contourState %~isempty(findobj('string', 'Contouring', 'tag', 'controlFrameItem'))            
+            
             contourControl('revert');
             
-        elseif~isempty(findobj('string', 'Colorbar Options', 'tag', 'controlFrameItem'))
+        %elseif ~isempty(findobj('string', 'Colorbar Options', 'tag', 'controlFrameItem'))
             
-        elseif~isempty(findobj('string', 'Isodose Line Options', 'tag','controlFrameItem'))
+        %elseif ~isempty(findobj('string', 'Isodose Line Options', 'tag','controlFrameItem'))
             
-        elseif~isempty(findobj('string', 'Image Fusion', 'tag', 'controlFrameItem'))
+        elseif stateS.imageRegistration % ~isempty(findobj('string', 'Image Fusion', 'tag', 'controlFrameItem'))
             controlFrame('fusion','exit');
             stateS.imageRegistration = 0;
-        elseif~isempty(findobj('string', 'Rotate View Planes', 'tag', 'controlFrameItem'))
+        elseif stateS.rotateView % ~isempty(findobj('string', 'Rotate View Planes', 'tag', 'controlFrameItem'))
             controlFrame('rotate_axis','quit');
             stateS.rotateView = 0;
-        elseif~isempty(findobj('string', 'Significant Images', 'tag', 'controlFrameItem'))
+        elseif stateS.anotationDisplay %  ~isempty(findobj('string', 'Significant Images', 'tag', 'controlFrameItem'))
             controlFrame('ANNOTATION','quit');
             stateS.anotationDisplay = 0;
         end
-        try
-            delete(findobj('tag', 'controlFrameItem'));
-        end
+        
+        %try
+        %    delete(findobj('tag', 'controlFrameItem'));
+        %end
         
         set(hFrame, 'userdata', []);
         
@@ -84,7 +86,7 @@ switch command
         switch (varargin{1})
             case 'init'
                 %Clear old controlFrame.
-                delete(findobj('tag', 'controlFrameItem'));
+                %delete(findobj('tag', 'controlFrameItem'));
                 
                 %Create subframes to separate controls into 3 sets.
                 ud.handles.subframe1 = uicontrol(hFig, 'style', 'frame', 'enable', 'inactive' , 'units', units, 'position', absPos([.05 .66 .9 .005], posFrame), 'string', 'Contouring', 'tag', 'controlFrameItem', 'horizontalAlignment', 'center', 'FontWeight', 'Bold');
@@ -130,19 +132,39 @@ switch command
                 ud.handles.structNewButton  = uicontrol(hFig, 'style', 'pushbutton', 'units', units, 'position', absPos([.6 .49 .35 .05], posFrame), 'string', 'Create', 'tag', 'controlFrameItem', 'callback', 'controlFrame(''contour'', ''newStruct'')');
                 
                 %Controls to select contouring mode.
-                ud.handles.modeText = uicontrol(hFig, 'style', 'text', 'enable', 'inactive' , 'units', units, 'position', absPos([.05 .40 .35 .05], posFrame), 'string', 'Mode:', 'tag', 'controlFrameItem', 'horizontalAlignment', 'left');
-                ud.handles.modePopup = uicontrol(hFig, 'style', 'popupmenu', 'units', units, 'position', absPos([.40 .40 .55 .05], posFrame), 'string', {'Draw', 'Edit', 'Threshold', 'Reassign', 'EditGE'}, 'tag', 'controlFrameItem', 'callback', 'controlFrame(''contour'', ''selectMode'')', 'TooltipString', 'Select Mode. Shortcut Keys: ''D'', ''E'', ''T'', ''R''');
+                %ud.handles.modeText = uicontrol(hFig, 'style', 'text', 'enable', 'inactive' , 'units', units, 'position', absPos([.05 .40 .35 .05], posFrame), 'string', 'Mode:', 'tag', 'controlFrameItem', 'horizontalAlignment', 'left');
+                %ud.handles.modePopup = uicontrol(hFig, 'style', 'popupmenu', 'units', units, 'position', absPos([.40 .40 .55 .05], posFrame), 'string', {'Draw', 'Edit', 'Threshold', 'Reassign', 'EditGE','DrawBall'}, 'tag', 'controlFrameItem', 'callback', 'controlFrame(''contour'', ''selectMode'')', 'TooltipString', 'Select Mode. Shortcut Keys: ''D'', ''E'', ''T'', ''R''');
                 
                 %Controls to copy all contours sup/inf.
-                ud.handles.copyInfButton = uicontrol(hFig, 'style', 'pushbutton', 'units', units, 'position', absPos([.1 .33 .35 .05], posFrame), 'string', 'Copy +Z', 'tag', 'controlFrameItem', 'callback', 'contourControl(''copyInf'')', 'TooltipString', 'Copy all segments towards +Z');
-                ud.handles.copySupButton = uicontrol(hFig, 'style', 'pushbutton', 'units', units, 'position', absPos([.55 .33 .35 .05], posFrame), 'string', 'Copy -Z', 'tag', 'controlFrameItem', 'callback', 'contourControl(''copySup'')', 'TooltipString', 'Copy all segments towards -Z');
+                %ud.handles.copyInfButton = uicontrol(hFig, 'style', 'pushbutton', 'units', units, 'position', absPos([.1 .33 .35 .05], posFrame), 'string', 'Copy +Z', 'tag', 'controlFrameItem', 'callback', 'contourControl(''copyInf'')', 'TooltipString', 'Copy all segments towards +Z');
+                %ud.handles.copySupButton = uicontrol(hFig, 'style', 'pushbutton', 'units', units, 'position', absPos([.55 .33 .35 .05], posFrame), 'string', 'Copy -Z', 'tag', 'controlFrameItem', 'callback', 'contourControl(''copySup'')', 'TooltipString', 'Copy all segments towards -Z');
                 
                 %Control to delete selected segment.
-                ud.handles.delButton = uicontrol(hFig, 'style', 'pushbutton', 'units', units, 'position', absPos([.1 .27 .8 .05], posFrame), 'string', 'Delete Selected Segment', 'tag', 'controlFrameItem', 'callback', 'controlFrame(''contour'', ''deleteStruct'')');
+                %ud.handles.delButton = uicontrol(hFig, 'style', 'pushbutton', 'units', units, 'position', absPos([.1 .27 .8 .05], posFrame), 'string', 'Delete Selected Segment', 'tag', 'controlFrameItem', 'callback', 'controlFrame(''contour'', ''deleteStruct'')');
                 
                 %Controls to select reassignment structure.
-                ud.handles.reassignChoicesText = uicontrol(hFig, 'style', 'text', 'enable', 'inactive' , 'units', units, 'position', absPos([.05 .20 .35 .05], posFrame), 'string', 'Move to:', 'tag', 'controlFrameItem', 'horizontalAlignment', 'left');
-                ud.handles.reassignChoices = uicontrol(hFig, 'style', 'popupmenu', 'BackgroundColor', [0 1 0], 'units', units, 'position', absPos([.42 .20 .55 .05], posFrame), 'string', 'NULL', 'value', 1, 'tag', 'controlFrameItem', 'callback', 'controlFrame(''contour'', ''selectStruct2'')', 'TooltipString', 'Structure to move contours to/from in reassign mode.');
+                %ud.handles.reassignChoicesText = uicontrol(hFig, 'style', 'text', 'enable', 'inactive' , 'units', units, 'position', absPos([.05 .20 .35 .05], posFrame), 'string', 'Move to:', 'tag', 'controlFrameItem', 'horizontalAlignment', 'left');
+                %ud.handles.reassignChoices = uicontrol(hFig, 'style', 'popupmenu', 'BackgroundColor', [0 1 0], 'units', units, 'position', absPos([.42 .20 .55 .05], posFrame), 'string', 'NULL', 'value', 1, 'tag', 'controlFrameItem', 'callback', 'controlFrame(''contour'', ''selectStruct2'')', 'TooltipString', 'Structure to move contours to/from in reassign mode.');
+                
+                % Controls for Pencil, Brush and Eraser
+                ud.handles.pencil = uicontrol(hFig, 'style', 'togglebutton', 'units', units, 'position', absPos([.05 .35 .28 .1], posFrame), 'string', 'Pencil', 'tag', 'controlFrameItem', 'callback', 'controlFrame(''contour'',''toggleMode'',''pencil'')', 'TooltipString', 'Pencil');
+                ud.handles.brush = uicontrol(hFig, 'style', 'togglebutton', 'units', units, 'position', absPos([.35 .35 .28 .1], posFrame), 'string', 'Brush', 'tag', 'controlFrameItem', 'callback', 'controlFrame(''contour'',''toggleMode'',''brush'')', 'TooltipString', 'Brush');
+                ud.handles.eraser = uicontrol(hFig, 'style', 'togglebutton', 'units', units, 'position', absPos([.65 .35 .28 .1], posFrame), 'string', 'Eraser', 'tag', 'controlFrameItem', 'callback', 'controlFrame(''contour'',''toggleMode'',''eraser'')', 'TooltipString', 'Eraser');
+
+                % Slider to select brush or eraser size
+                ud.handles.brushSizeSlider = uicontrol(hFig, 'style', 'slider', ...
+                    'units', units, 'position', absPos([.1 .28 .8 .04], posFrame),...
+                    'tag', 'controlFrameItem', 'min', 0.2, 'max', 2, ...
+                    'value', 0.5, 'SliderStep', [0.1 0.2],...
+                    'callback', 'controlFrame(''contour'',''setBrushSize'')');
+                ud.handles.brushSizeTxt = uicontrol(hFig, 'style', 'text',...
+                    'units', units, 'position', absPos([.05 .22 .3 .05], posFrame),...
+                    'string', 'Size (cm):', 'tag', 'controlFrameItem',...
+                    'horizontalAlignment','right');             
+                ud.handles.brushSizeEdit = uicontrol(hFig, 'style', 'edit',...
+                    'units', units, 'position', absPos([.39 .22 .3 .05], posFrame),...
+                    'string', '', 'tag', 'controlFrameItem',...
+                    'callback', 'controlFrame(''contour'',''setBrushSize'')');             
                 
                 %Controls to select overlaid scan.
                 for i=1:length(planC{indexS.scan})
@@ -153,7 +175,7 @@ switch command
                 ud.handles.overlayOptions = uicontrol(hFig, 'style', 'push', 'units', units, 'position', absPos([.72 .12 .26 .05], posFrame), 'string', 'Options', 'tag', 'controlFrameItem', 'callback', 'controlFrame(''contour'', ''selectOverlayOptions'',''init'')', 'TooltipString', 'Select display options for overlaid scan.');
                 
                 ud.handles.saveButton = uicontrol(hFig, 'style', 'pushbutton', 'units', units, 'position', absPos([.1 .04 .35 .05], posFrame), 'string', 'Save', 'tag', 'controlFrameItem', 'callback', 'contourControl(''save'')');
-                ud.handles.abortButton = uicontrol(hFig, 'style', 'pushbutton', 'units', units, 'position', absPos([.55 .04 .35 .05], posFrame), 'string', 'Cancel', 'tag', 'controlFrameItem', 'callback', 'contourControl(''revert'')');
+                ud.handles.abortButton = uicontrol(hFig, 'style', 'pushbutton', 'units', units, 'position', absPos([.55 .04 .35 .05], posFrame), 'string', 'Quit', 'tag', 'controlFrameItem', 'callback', 'contourControl(''revert'')');
                 
                 %Set the overlaid scan scme as that displayed at the start
                 scanSet = getAxisInfo(stateS.handle.CERRAxis(1),'scanSets');
@@ -164,7 +186,7 @@ switch command
                     setappdata(stateS.handle.CERRAxis(i),'oldCoord',getAxisInfo(stateS.handle.CERRAxis(i),'coord'))
                 end
                 controlFrame('contour', 'refresh');
-                
+                                
                 
             case 'scanSelect'
                 % Commented By Divya As it is not implemented
@@ -203,8 +225,9 @@ switch command
                     TMoverlay = appData.transMList{overlayScanNum};
                 end
                 planC{indexS.scan}(overlayScanNum).transM = inv(TMbase)*TMoverlay;
-                stateS.contourOvrlyOptS.center = 0;
-                stateS.contourOvrlyOptS.width  = 300;
+                scanUID = ['c',repSpaceHyp(planC{indexS.scan}(overlayScanNum).scanUID(max(1,end-61):end))];                
+                stateS.contourOvrlyOptS.center = stateS.scanStats.CTLevel.(scanUID);
+                stateS.contourOvrlyOptS.width  = stateS.scanStats.CTWidth.(scanUID);
                 stateS.contourOvrlyOptS.colormap = 'Gray256';
                 stateS.CTDisplayChanged = 1;
                 CERRRefresh;
@@ -300,7 +323,7 @@ switch command
                 set(ud.handles.scanSelect, 'string', imageSets);
                 
                 %By default disable reassign selection.
-                set(ud.handles.reassignChoices, 'enable', 'off');
+                %set(ud.handles.reassignChoices, 'enable', 'off');
                 
                 %By default color basic struct box gray.
                 set(ud.handles.structPopup, 'BackgroundColor', get(ud.handles.structRenameEdit, 'backgroundcolor'));
@@ -308,7 +331,9 @@ switch command
                 %Get numbered structure list.
                 structs = {planC{indexS.structures}.structureName};
                 assocScanV = getStructureAssociatedScan(1:length(planC{indexS.structures}));
-                structNumsV = find(assocScanV == stateS.scanSet(1));
+                scanSet = getAxisInfo(stateS.handle.CERRAxis(1),'scanSets');
+                scanSet = scanSet(1);
+                structNumsV = find(assocScanV == scanSet);
                 structs = structs(structNumsV);
                 strUd.strNumsV = structNumsV;
                 
@@ -317,9 +342,9 @@ switch command
                 end
                 
                 %Populate reassign selection in case structures changed.
-                try
-                    set(ud.handles.reassignChoices, 'String', numberedStructs);
-                end
+                %try
+                %    set(ud.handles.reassignChoices, 'String', numberedStructs);
+                %end
                 
                 %Get and set scan list.
                 if ~isempty(structs) %Test if there are any real structures.
@@ -337,11 +362,15 @@ switch command
                     set(ud.handles.structRenameEdit, 'string', '', 'enable', 'off');
                 end
                 
+                return;
+                
                 mode = contourControl('getMode');
                 if ~isempty(mode)
                     switch mode
                         case 'draw'
                             set(ud.handles.modePopup, 'Value', 1);
+                        case 'drawBall'
+                            set(ud.handles.modePopup, 'Value', 6);                            
                         case 'edit'
                             set(ud.handles.modePopup, 'Value', 2);
                         case 'thresh'
@@ -384,7 +413,11 @@ switch command
                 
                 scanNum = get(ud.handles.scanSelect, 'value');
                 
-                mode = get(gcbo, 'value');
+                if length(varargin) < 2
+                    mode = get(gcbo, 'value');
+                else
+                    mode = varargin{2};
+                end
                 switch mode
                     case 1
                         %Draw Mode.
@@ -404,9 +437,98 @@ switch command
                     case 5
                         %GE system styled Edit Mode
                         contourControl('editModeGE');
+                    case 6
+                        %Varian styled Ball/Draw Mode
+                        contourControl('drawBall');
+                        
                 end
                 
                 controlFrame('contour', 'refresh');
+                
+                
+                
+            case 'toggleMode'
+                
+                ud = get(hFrame, 'userdata');
+                
+                structNum   = get(ud.handles.structPopup, 'value');
+                
+                strUd = get(ud.handles.structPopup, 'userdata');
+                
+                if isempty(strUd)
+                    return;
+                end
+                
+                structNum = strUd.strNumsV(structNum);
+                
+                scanNum = get(ud.handles.scanSelect, 'value');
+                
+                % Set min/max brush size
+                %set(ud.handles.brushSizeSlider,'min', 0.2, 'max', 2, ...
+                %    'value', 0.2, 'SliderStep', [0.1 0.2])
+                
+                modeState = get(gcbo, 'value');
+                
+                set([ud.handles.pencil, ud.handles.brush, ud.handles.eraser],...
+                    'BackgroundColor',[0.8 0.8 0.8])   
+                hAxis = stateS.handle.CERRAxis(1);
+                ballH = getappdata(hAxis, 'hBall');
+                if ishandle(ballH)
+                    delete(ballH);
+                end                
+                
+                modeType = varargin{2};
+                
+                if modeState == 0
+                   drawContour('noneMode',stateS.handle.CERRAxis(stateS.currentAxis)) 
+                   return
+                end                
+                
+                switch upper(modeType)
+                    case 'PENCIL'                        
+                        set([ud.handles.brush, ud.handles.eraser],...
+                            'Value',0)
+                        set(ud.handles.pencil,'BackgroundColor',[0.5 1 1])
+                        %Draw Mode.
+                        contourControl('drawMode');
+                        
+                    case 'BRUSH'                        
+                        set([ud.handles.pencil, ud.handles.eraser],...
+                            'Value',0)
+                        set(ud.handles.brush,'BackgroundColor',[0.5 1 1])
+                        %Varian styled Ball/Draw Mode
+                        contourControl('drawBall');                        
+                        
+                    case 'ERASER'                        
+                        set([ud.handles.pencil, ud.handles.brush],...
+                            'Value',0)                        
+                        set(ud.handles.eraser,'BackgroundColor',[0.5 1 1])
+                        %Varian styled Ball/Draw Mode
+                        contourControl('eraserBall');    
+                        
+                    case 2 % switch to edit mode when contour is cliced in "draw" state
+                        %Edit Mode.
+                        planC{indexS.structures}(structNum).strUID          = createUID('structure');
+                        planC{indexS.structures}(structNum).assocScanUID    = planC{indexS.scan}(scanNum).scanUID;
+                        
+                        contourControl('editMode');
+                        
+                end
+                
+                controlFrame('contour', 'refresh');
+
+                
+            case 'setBrushSize'    
+                ud = get(hFrame, 'userdata');
+                if length(varargin) < 3
+                    hAxis = stateS.handle.CERRAxis(stateS.currentAxis);
+                else
+                    hAxis = varargin{2};
+                end
+                radius = get(ud.handles.brushSizeSlider,'value');
+                setappdata(hAxis,...
+                    'ballRadius', radius);
+                
                 
             case 'selectStruct'
                 %A new structure has been selected.
@@ -416,8 +538,14 @@ switch command
                 end
                 strVal = get(gcbo, 'value');
                 strUd = get(gcbo, 'userdata');
+                if isempty(strUd)
+                    return;
+                end
                 strNumsV = strUd.strNumsV;
                 controlFrame('contour', 'refresh')
+                % Set pencil/eraser/brush to OFF
+                set([ud.handles.brush, ud.handles.eraser, ud.handles.pencil],...
+                    'Value',0,'BackgroundColor',[0.8 0.8 0.8])
                 contourControl('changeStruct', strNumsV(strVal));
                 
             case 'selectStruct2'

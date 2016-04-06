@@ -125,19 +125,22 @@ switch upper(command)
         else
             chkFlag = 'off';
         end
-        nScans = length(planC{indexS.scan});
-        scanNames = {planC{indexS.scan}.scanType};
         uimenu(hScanM, 'Label', 'Auto', 'checked', chkFlag, 'Callback', 'CERRAxisMenu(''SET_SCAN'')', 'userdata', {hAxis, []});
-        sepFlag = 'on';
-        chkFlag = 'off';
-        for i=1:nScans
-            if ismember(i, scanSets)
-                chkFlag = 'on';
-            end
-            uimenu(hScanM, 'Label', [num2str(i) '. ' scanNames{i}], 'separator', sepFlag, 'checked', chkFlag, 'Callback', 'CERRAxisMenu(''SET_SCAN'')', 'userdata', {hAxis, i});
-            sepFlag = 'off';
-            chkFlag = 'off';
-        end
+%         nScans = length(planC{indexS.scan});
+%         scanNames = {planC{indexS.scan}.scanType};
+%         sepFlag = 'on';
+%         chkFlag = 'off';
+%         for i=1:nScans
+%             if ismember(i, scanSets)
+%                 chkFlag = 'on';
+%             end
+%             uimenu(hScanM, 'Label', [num2str(i) '. ' scanNames{i}], 'separator', sepFlag, 'checked', chkFlag, 'Callback', 'CERRAxisMenu(''SET_SCAN'')', 'userdata', {hAxis, i});
+%             sepFlag = 'off';
+%             chkFlag = 'off';
+%         end
+        topMenuFlag = 0;
+        addScansToMenu(hScanM,topMenuFlag)
+
 
         %Add structM children.
         if strcmpi(axisInfo.structSelectMode, 'auto')
