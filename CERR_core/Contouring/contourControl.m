@@ -653,7 +653,15 @@ for j = 1:size(ccContours,1)
                 changedV(k) = 0;
             end
             
-            [planC{indexS.structures}(j).contour(k).segments(1:length(contourV)).points] = deal(points{:});
+            % [planC{indexS.structures}(j).contour(k).segments(1:length(contourV)).points]
+            % = deal(points{:}); % bug
+            
+            % flush out old segments
+            planC{indexS.structures}(j).contour(k).segments(:) = [];
+            % add new segments
+            for seg = 1:length(points)
+                planC{indexS.structures}(j).contour(k).segments(seg).points = points{seg};
+            end
         end
     end
     if any(changedV)
