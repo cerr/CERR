@@ -260,7 +260,7 @@ end
 %Inform contouring code that slice changed if contourState is 1.  This
 %must be done after cleanupAxes, since cleanupAxes clears lines drawn
 %by the contour code.
-if stateS.contourState
+if stateS.contourState && (stateS.currentAxis == stateS.contourAxis)
     contourControl('changeSlice');
 end
 
