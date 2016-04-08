@@ -638,6 +638,10 @@ switch command
             threshMode(hAxis);
         end
         
+    case 'deleteAllSegments'
+        hAxis = varargin{1};
+        delAllSegments(hAxis)        
+        
 end
 
 
@@ -912,6 +916,20 @@ end
 function delSegment(hAxis)
 %Delete the segment being edited.
 setappdata(hAxis, 'segment', []);
+drawAll(hAxis);
+
+function delAllSegments(hAxis)
+setappdata(hAxis, 'contourV', {});
+setappdata(hAxis, 'segment', []);
+maskM = getappdata(hAxis, 'contourMask');
+setappdata(hAxis, 'contourMask',0*maskM);
+hSegment = getappdata(hAxis,'hSegment');
+if ishandle(hSegment)
+    delete(hSegment)
+end
+hContour = getappdata(hAxis,'hContour');
+toDelV = ishandle(hContour);
+delete(hContour(toDelV))
 drawAll(hAxis);
 
 

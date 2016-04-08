@@ -129,7 +129,12 @@ switch(keyValue)
     case 96 % ` key, next to the 1.  Always calls LabBook.
         LabBookGui('CAPTURE');
 
-    case 127 % delete key.  If in contour mode, deletes contour? think about it.
+    case 127 % delete key.  If in contour mode, deletes contour? think about it.        
+        if stateS.contourState
+            % delete all segments on the slice
+            hAxis = stateS.handle.CERRAxis(stateS.contourAxis);
+            drawContour('deleteAllSegments', hAxis)
+        end
 
     case 122 % 'z' key, toggles zoom.
         %         val = get(stateS.handle.zoom, 'value');
