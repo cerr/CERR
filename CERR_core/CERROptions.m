@@ -330,7 +330,7 @@ optS.colorWashCacheSize = 64; %Amount of memory to use per dose for caching colo
 
 
 %--Matlab 7 compatibility Options-----------------------------------------%
-optS.saveFormat = '-V7.3'; %Set to [] to use default, '-V6' to save all files in Matlab6 readable format.
+optS.saveFormat = '-v6'; %'-V7.3'; %Set to [] to use default, '-V6' to save all files in Matlab6 readable format.
 %V6 is used to maintain Matlab 7 backwards compatibility with version 6+.
 
 optS.plotObjFormat = 'v6';  %Flags for plotObjects that changed, and introduced incompability between
