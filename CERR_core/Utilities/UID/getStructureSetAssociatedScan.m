@@ -1,4 +1,4 @@
-function structureSet = getStructureSetAssociatedScan(scanSet)
+function structureSet = getStructureSetAssociatedScan(scanSet, planC)
 % DK
 % LM: APA, 10/22/08: Fixed to output correct associated structure index
 %
@@ -12,7 +12,9 @@ function structureSet = getStructureSetAssociatedScan(scanSet)
 % request a license.  Contact Joe Deasy for more information 
 % (radonc.wustl.edu@jdeasy, reversed).
 
-global planC
+if ~exist('planC','var')
+    global planC
+end
 indexS = planC{end};
 
 structureSet = [];
