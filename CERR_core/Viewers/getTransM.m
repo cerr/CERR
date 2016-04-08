@@ -45,7 +45,7 @@ planField   = [];
 transM      = eye(4);
 
 %Parse input arguments.
-if isstruct(type) & iscell(number)
+if isstruct(type) && iscell(number)
     planC = number;
     indexS = planC{end};
     planField = type;
@@ -58,7 +58,7 @@ if isstruct(type) & iscell(number)
     else
         error('Invalid planField passed to getTransM.');
     end
-elseif isstr(type) & isnumeric(number) & iscell(planC)
+elseif isstr(type) && isnumeric(number) && iscell(planC)
 
     %If request scan/struct/dose zero, return [];
     if isempty (number)
@@ -83,15 +83,15 @@ end
 switch lower(type)
     case 'scan'
         %If the scan has a transM, return it.
-        if isfield(planField, 'transM') & ~isempty(planField.transM)
+        if isfield(planField, 'transM') && ~isempty(planField.transM)
             transM = planField.transM;
         end
     case 'dose'
         %If the dose has a transM, return it, if it is associated with a
         %scan, return that scan's transM if it exists.
-        if isfield(planField, 'transM') & ~isempty(planField.transM)
+        if isfield(planField, 'transM') && ~isempty(planField.transM)
             transM = planField.transM;
-        elseif isfield(planField, 'assocScanUID') & ~isempty(planField.assocScanUID)
+        elseif isfield(planField, 'assocScanUID') && ~isempty(planField.assocScanUID)
             aS = getAssociatedScan(planField.assocScanUID,planC);
             if aS == 0
                 transM = eye(4);
@@ -102,7 +102,7 @@ switch lower(type)
     case {'struct', 'structure'}
         %If the structure is associated with a scan, return that scan's
         %transM if it exists.
-        if isfield(planField, 'assocScanUID') & ~isempty(planField.assocScanUID)
+        if isfield(planField, 'assocScanUID') && ~isempty(planField.assocScanUID)
             aS = getAssociatedScan(planField.assocScanUID, planC);
             transM = getTransM('scan', aS, planC);
         end
