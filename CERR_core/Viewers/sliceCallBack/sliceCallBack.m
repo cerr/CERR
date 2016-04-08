@@ -430,6 +430,7 @@ switch upper(instr)
         %The NUMBER of the currentAxis. NOT handle.
         stateS.currentAxis = 1;
         stateS.lastAxis    = 1;
+        stateS.contourAxis = 0;
 
         %Populate bottom margin Gui Objects.
         %Command line editbox.
@@ -1379,6 +1380,11 @@ switch upper(instr)
         set(stateS.handle.CERRAxisLabel1(stateS.currentAxis), 'color', [0.5 1 0.5]);
         set(stateS.handle.CERRAxisLabel2(stateS.currentAxis), 'color', [0.5 1 0.5]);
         
+        if stateS.contourAxis > 0
+            set(stateS.handle.CERRAxisLabel1(stateS.contourAxis), 'color', [1 0 0]);
+            set(stateS.handle.CERRAxisLabel2(stateS.contourAxis), 'color', [1 0 0]);
+        end
+
         % Set Window Text
         scanNum = getAxisInfo(uint8(stateS.currentAxis),'scanSets');
         if ~isempty(scanNum)
@@ -1399,7 +1405,7 @@ switch upper(instr)
             % Update scan colormap
             updateScanColorbar(scanNum);
         end
-
+        
         return;
 
     case 'OPENWORKSPACEPLANC'
@@ -1813,23 +1819,44 @@ switch upper(instr)
             hWarn = warndlg('Please turn on the scan');
             waitfor(hWarn);
             return;
+        end        
+        
+        msgString = ['You will contour on the active window # ',num2str(stateS.currentAxis),'?'];
+        ButtonName = questdlg(msgString, ...
+            'Confirm Axis Selection', ...
+            'Yes', 'No','Yes');
+        if strcmpi(ButtonName,'No')
+            return;
         end
-        controlFrame('default');
-        %Disable all right click menus;
-        set(stateS.handle.CERRAxis, 'uicontextmenu', []);
+        
+        stateS.contourAxis = stateS.currentAxis;
+        
         %     Check if its transverse view, else display errr.
         %ud = get(stateS.handle.CERRAxis(1),'userdata');
-        ud = stateS.handle.aI(1);
+        ud = stateS.handle.aI(stateS.contourAxis);
         if ~strcmpi(ud.view,'transverse')
-            herror=errordlg({'Contouring can be done only on Transverse Views','Please Select 1st view to be transverse for contouring'},'Not a transverse view','on');
+            stateS.contourAxis = [];
+            herror = errordlg({'Contouring can be done only on Transverse Views',...
+                'Please Select 1st view to be transverse for contouring'},...
+                'Not a transverse view','on');            
             return
         end
+        
+        % Get out of other modes, if any
+        controlFrame('default');
+        
+        %Disable all right click menus;
+        set(stateS.handle.CERRAxis, 'uicontextmenu', []);        
+        
         stateS.contourState = 1;
         controlFrame('contour', 'init');
 
-        scanSet = getAxisInfo(hCSVA,'scanSets');
+        % scanSet = getAxisInfo(hCSVA,'scanSets');
+        scanSet = getAxisInfo(stateS.handle.CERRAxis(stateS.contourAxis),'scanSets');
         %Scan set number that is already loaded
-        if isfield(planC{indexS.scan}(scanSet),'transM') & ~isempty(planC{indexS.scan}(scanSet).transM) & ~isequal(planC{indexS.scan}(scanSet).transM, eye(4))
+        if isfield(planC{indexS.scan}(scanSet),'transM') && ...
+                ~isempty(planC{indexS.scan}(scanSet).transM) && ...
+                ~isequal(planC{indexS.scan}(scanSet).transM, eye(4))
             transM = getTransM('scan', scanSet,planC);
             % DK fix to keep the scan with the range
             [xV, yV, zV] = getScanXYZVals(planC{indexS.scan}(scanSet));
