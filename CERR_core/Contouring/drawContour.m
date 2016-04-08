@@ -76,7 +76,7 @@ switch command
         setappdata(hAxis, 'hBall', []);
         setappdata(hAxis, 'clip', []);
         setappdata(hAxis, 'contourMask', []);
-        setappdata(hAxis, 'clipToggles', []);
+        setappdata(hAxis, 'clipToggles', []);        
         drawAll(hAxis);
         delete(hSgment)
         delete(ballH)
@@ -208,13 +208,17 @@ switch command
         % APA: use 1st axis to draw contour
 %         try
 %             global stateS;
-%             if ~isequal(stateS.handle.CERRAxis(stateS.handle.currentAxis), hAxis)
+%             if ~isequal(stateS.handle.CERRAxis(stateS.handle.contourAxis), hAxis)
 %                 sliceCallBack('Focus', hAxis);
 %                 return;
 %             end
 %         end
-        sliceCallBack('Focus', stateS.handle.CERRAxis(1));
-
+        if stateS.handle.CERRAxis(stateS.contourAxis) ~= hAxis
+            %sliceCallBack('Focus', stateS.handle.CERRAxis(stateS.contourAxis));
+            %sliceCallBack('Focus', hAxis);
+            return
+        end
+        
         hFig = get(gcbo, 'parent');
         clickType = get(hFig, 'SelectionType');
         lastClickType = getappdata(hFig, 'lastClickType');
@@ -501,7 +505,7 @@ switch command
     case 'contourClicked'
         hLine = gcbo;
         % hAxis = get(gcbo, 'parent');
-        hAxis = stateS.handle.CERRAxis(1);
+        hAxis = stateS.handle.CERRAxis(stateS.contourAxis);
         hFig = get(hAxis, 'parent');
         clickType = get(hFig, 'SelectionType');
         lastClickType = getappdata(hFig, 'lastClickType');
@@ -758,6 +762,7 @@ setappdata(hAxis, 'editNum', segmentNum);
 function noneMode(hAxis)
 % 	%Set noneMode
 setappdata(hAxis, 'mode', 'none');
+setappdata(hAxis,'ccMode',[])
 drawContourV(hAxis);
 drawContourV2(hAxis);
 drawSegment(hAxis);
@@ -1082,7 +1087,7 @@ global planC
 global stateS
 indexS = planC{end};
 % [xV, yV, zV] = getScanXYZVals(planC{indexS.scan}(stateS.currentScan));
-[scanSet,coord] = getAxisInfo(stateS.handle.CERRAxis(1),'scanSets','coord');
+[scanSet,coord] = getAxisInfo(stateS.handle.CERRAxis(stateS.contourAxis),'scanSets','coord');
 
 [xV, yV, zV] = getScanXYZVals(planC{indexS.scan}(scanSet));
 % [r, c, jnk] = xyztom(x,y,zeros(size(x)), planC);
