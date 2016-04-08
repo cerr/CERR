@@ -55,11 +55,14 @@ if stateS.currentAxis == i;
 else
     color = [0.9 0.9 0.5];
 end
-try
-    transM = getTransM('scan', scanSet(1), planC);
-catch
-    transM = [];
+if stateS.contourAxis == i
+    color = [1 0 0];
 end
+%try
+    transM = getTransM('scan', scanSet(1), planC);
+%catch
+    %transM = [];
+%end
 if ~isempty(transM) || isequal(transM,eye(4))
     [nCoordX nCoordY nCoordZ] = applyTransM(inv(transM),coord,coord,coord);
 
