@@ -41,7 +41,10 @@ global stateS
 indexS = planC{end};
 
 %For the moment, axis defaults to main.
-hAxis = stateS.handle.CERRSliceViewerAxis;
+%hAxis = stateS.handle.CERRSliceViewerAxis;
+
+% Default axis to the current axis
+hAxis = stateS.handle.CERRAxis(stateS.contourAxis);
 
 switch command
     
@@ -78,9 +81,7 @@ switch command
         setappdata(hAxis, 'transMList', transMList);
         
         [xV, yV, zV] = getScanXYZVals(planC{indexS.scan}(axisInfo.scanSets));
-        
-        % axisInfo = getAxisInfo(hAxis);
-        
+                
         sliceNum = findnearest(axisInfo.coord, zV);
         axisInfo.coord         = zV(sliceNum);
         axisInfo.scanSets       = scanSet;
@@ -88,19 +89,29 @@ switch command
         axisInfo.doseSets      = [];
         axisInfo.doseSelectMode = 'manual';
         %set(hAxis, 'userdata', axisInfo);
-        stateS.handle.aI(axInd) = axisInfo;
+        stateS.handle.aI(axInd) = axisInfo;        
         numStructs = length(planC{indexS.structures});
+        assocSacnV = getStructureAssociatedScan(1:numStructs);
+        structsV = assocSacnV == scanSet;
+        structNumV = find(structsV);    
+        if isempty(structNumV)
+            initStructNum = [];
+        else
+            initStructNum = structNumV(1);
+        end
         numSlices  = size(getScanArray(planC{indexS.scan}(scanSet)), 3);
         setappdata(hAxis, 'ccContours', cell(numStructs, numSlices));
         setappdata(hAxis, 'ccSlice', sliceNum);
         setappdata(hAxis, 'numRows',planC{indexS.scan}(scanSet).scanInfo(sliceNum).sizeOfDimension1);
         setappdata(hAxis, 'numCols',planC{indexS.scan}(scanSet).scanInfo(sliceNum).sizeOfDimension2);
-        setappdata(hAxis, 'ccStruct', 1);
+        setappdata(hAxis, 'ccStruct', initStructNum);
         setappdata(hAxis, 'ccStruct2', []);
+        setappdata(hAxis,'ccContours',[])
         setappdata(hAxis, 'ccScanSet', scanSet);
         set(findobj(hAxis, 'tag', 'planeLocator'), 'hittest', 'off');
         %CERRRefresh
-        sliceCallBack('FOCUS', hAxis);
+        %sliceCallBack('FOCUS', hAxis);
+        showScale(hAxis,stateS.contourAxis)
         drawContour('axis', hAxis);
         loadDrawSlice(hAxis);
         
@@ -240,12 +251,12 @@ switch command
     case 'changeStruct'
         %A new struct has been selected.
         ccMode = getappdata(hAxis, 'ccMode');
-        
-        ccScanSet = getappdata(hAxis, 'ccScanSet');
+        ccScanSet = getappdata(hAxis, 'ccScanSet');    
+        structNum = getappdata(hAxis, 'ccStruct');    
         % APA 12-19-05 (in order to assign ccContours correctly)
         numStructs = length(planC{indexS.structures});
-        assocScansV = getStructureAssociatedScan(1:numStructs);
-        numStructs = sum(assocScansV == ccScanSet);
+        %assocScansV = getStructureAssociatedScan(1:numStructs);
+        %numStructs = sum(assocScansV == ccScanSet);
         numSlices  = size(getScanArray(planC{indexS.scan}(ccScanSet)), 3);
         setappdata(hAxis, 'ccContours', cell(numStructs, numSlices));   
         
@@ -254,7 +265,9 @@ switch command
         %        strcmpi(ccMode, 'drawBall') 
 
             %If drawing, save old contours and disp new contours.
-            saveDrawSlice(hAxis);
+            if ~isempty(structNum)
+                saveDrawSlice(hAxis);
+            end
             newStrNum = varargin{1};
             scanSet = getStructureAssociatedScan(newStrNum);
             
@@ -350,7 +363,9 @@ switch command
         ccContours{ccStruct, ccSlice} = contourV;
         setappdata(hAxis, 'ccContours', ccContours);
         stateS.structsChanged = 1;
-        showStructures(hAxis)
+        for i=1:length(stateS.handle.CERRAxis) 
+            showStructures(stateS.handle.CERRAxis(i))
+        end
         % Set pencil/brush/eraser button colors and states
         set([ud.handles.pencil, ud.handles.brush, ud.handles.eraser],...
             'BackgroundColor',[0.8 0.8 0.8], 'value', 0)
@@ -474,9 +489,9 @@ switch command
         for i=1:length(stateS.handle.CERRAxis)
             updateAxisRange(stateS.handle.CERRAxis(i),1,'CONTOUR');
         end
-        sliceCallBack('refresh');
-        sliceCallBack('FOCUS', hAxis);
-        set(findobj(hAxis, 'tag', 'planeLocator'), 'hittest', 'on');
+        
+        % Set contouring axis to 0
+        stateS.contourAxis = 0;
         
         %close overlay options figure if it exists
         try
@@ -484,6 +499,11 @@ switch command
             ud = get(hFrame, 'userdata');
             delete(ud.handle.ovrlayFig)
         end
+
+        sliceCallBack('refresh');
+        sliceCallBack('FOCUS', hAxis);
+        set(findobj(hAxis, 'tag', 'planeLocator'), 'hittest', 'on');
+        
                 
     case 'undo'
         %Undo last action in drawing, points etc.  Not implemented.
@@ -515,7 +535,7 @@ if ~isempty(ccStruct2)
     contourV2 = drawContour('getContours2', hAxis);
     ccContours{ccStruct2, ccSlice} = contourV2;
 end
-if isempty(ccContours)
+if isempty(ccStruct)
     warning('contour name not initialized');
     return
 end
@@ -620,12 +640,14 @@ toUpdate = zeros(size(ccContours));
 waitbarH = waitbar(0,'Saving contours for anatomical structures...');
 
 for j = 1:size(ccContours,1)
+    if getStructureAssociatedScan(j) ~= ccScanSet
+        continue;
+    end
     scanNum = getStructureAssociatedScan(j);
     changedV = zeros(size(ccContours, 2),1);
     for k = 1:size(ccContours, 2)
-        changed = 0;
         points = [];
-        contourV = ccContours{j,k};
+        contourV = ccContours{j,k};        
         if ~isempty(contourV)
             for i=1:length(contourV)
                 tmp = contourV{i};
@@ -641,19 +663,32 @@ for j = 1:size(ccContours,1)
                 end
             end
             
-            %If contours have changed, take note of which
-            %structs/slices we need to update uniform/rasterSegs for.
-            try
-                if ~isequal(points, {planC{indexS.structures}(j).contour(k).segments(1:end).points});
-                    %                     changed = 1;
-                    changedV(k) = 1;
-                    %toUpdate(j,k) = 1;
+%             %If contours have changed, take note of which
+%             %structs/slices we need to update uniform/rasterSegs for.
+%             try
+%                 if ~isequal(points, {planC{indexS.structures}(j).contour(k).segments(1:end).points})
+%                     %                     changed = 1;
+%                     changedV(k) = 1;
+%                     %toUpdate(j,k) = 1;
+%                 end
+%             catch
+%                 changedV(k) = 0;
+%             end
+
+            changedV(k) = ~isequal(points, {planC{indexS.structures}(j).contour(k).segments(1:end).points});
+            
+            % [planC{indexS.structures}(j).contour(k).segments(1:length(contourV)).points]
+            % = deal(points{:}); % bug
+            
+            if changedV(k)
+                % flush out old segments
+                planC{indexS.structures}(j).contour(k).segments(:) = [];
+                % add new segments
+                for seg = 1:length(points)
+                    planC{indexS.structures}(j).contour(k).segments(seg).points = points{seg};
                 end
-            catch
-                changedV(k) = 0;
             end
             
-            [planC{indexS.structures}(j).contour(k).segments(1:length(contourV)).points] = deal(points{:});
         end
     end
     if any(changedV)
@@ -714,7 +749,7 @@ indexS = planC{end};
 
 scanSet = getappdata(hAxis, 'ccScanSet');
 nSlices = size(getScanArray(planC{indexS.scan}(scanSet)),3);
-if sliceNum < 1 | sliceNum > nSlices
+if sliceNum < 1 || sliceNum > nSlices
     return;
 end
 ccStruct = getappdata(hAxis, 'ccStruct');

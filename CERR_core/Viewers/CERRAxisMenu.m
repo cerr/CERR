@@ -53,6 +53,12 @@ switch upper(command)
     case 'UPDATE_MENU'
         hMenu = gcbo;
         hAxis = get(hMenu, 'userdata');
+        
+        % Check if it is a legend axis and return
+        axView = getAxisInfo(hAxis,'view');
+        if strcmpi(axView,'legend')
+            return;
+        end
 
         %Wipe out old submenus.
         kids = get(hMenu, 'children');
@@ -195,6 +201,24 @@ switch upper(command)
             setAxisInfo(hAxis, 'scanSelectMode', 'auto', 'structSelectMode', 'auto', 'doseSelectMode', 'auto','xRange',[],'yRange',[]);
         else
             setAxisInfo(hAxis, 'scanSelectMode', 'manual', 'scanSets', newScanNum);
+            numStructSets = length(planC{indexS.structures});
+            assocScansV = getStructureSetAssociatedScan(1:numStructSets, planC);
+            structSetNum = [];
+            if any(assocScansV)                
+                structSetNum = find(assocScansV);
+                structSetNum = structSetNum(1);
+            end
+            numDoses = length(planC{indexS.dose});
+            assocDosesV = getDoseAssociatedScan(1:numDoses, planC);
+            doseNum = [];
+            if any(assocDosesV)
+                doseNum = find(assocDosesV);
+                doseNum = doseNum(1);
+            end            
+            setAxisInfo(hAxis, 'structSelectMode', 'manual',...
+                'doseSelectMode', 'manual',...
+                'structureSets', structSetNum,...
+                'doseSets', doseNum);
         end
         updateAxisRange(hAxis,1,'scan');
         sliceCallBack('refresh');

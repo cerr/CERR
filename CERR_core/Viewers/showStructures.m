@@ -81,20 +81,13 @@ for i=1:length(axisInfo.structureGroup)
         axisInfo.structureGroup(i).structNumsV = [];
         toRemove = [toRemove;i];
     elseif ~isequal(sG.dispMode, 'contourLines') || stateS.structsChanged
-        %for j=1:length(sG.handles), try, delete(sG.handles(i)); end, end
-        %handlV = ishandle(sG.handles);
-        %delete(sG.handles(handlV))
         set([axisInfo.lineHandlePool.lineV(sG.handles), axisInfo.lineHandlePool.dotsV(sG.handles)],...
             'visible','off')
-        hIndV = [hIndV; uint16(sG.handles)];
-%         indV = ismember(uint16(1:length(axisInfo.lineHandlePool.lineV)), hIndV);
-%         axisInfo.lineHandlePool.lineV = [axisInfo.lineHandlePool.lineV(~indV) axisInfo.lineHandlePool.lineV(indV)];
-%         axisInfo.lineHandlePool.dotsV = [axisInfo.lineHandlePool.dotsV(~indV) axisInfo.lineHandlePool.dotsV(indV)];
-%         axisInfo.lineHandlePool.currentHandle = axisInfo.lineHandlePool.currentHandle - length(hIndV);        
+        %hIndV = [hIndV; uint16(sG.handles)];
         axisInfo.structureGroup(i).handles = [];
         axisInfo.structureGroup(i).structNumsV = [];
         axisInfo.structureGroup(i).redraw = 1;
-        toRemove = [toRemove;i];
+        %toRemove = [toRemove;i];
     end
 end
 
@@ -131,7 +124,7 @@ axisInfo.structureGroup(toRemove) = [];
 %Add a new structure data element for any structureSets that don't have one,
 %and cache the calculated contour data.  Get a list of structures in this
 %set.
-for i=1:length(structureSets);
+for i=1:length(structureSets)
     if ~ismember(structureSets(i), [axisInfo.structureGroup.structureSet])
         numObjs = length(axisInfo.structureGroup);
         axisInfo.structureGroup(numObjs+1).view         = view;
@@ -144,7 +137,7 @@ for i=1:length(structureSets);
         axisInfo.structureGroup(numObjs+1).yV           = [];
         axisInfo.structureGroup(numObjs+1).dispMode     = 'contourLines';
         axisInfo.structureGroup(numObjs+1).redraw       = 1;
-        axisInfo.structureGroup(i).handles              = [];
+        axisInfo.structureGroup(numObjs+1).handles      = [];
     end
 end
 
@@ -163,7 +156,7 @@ for i=1:length(axisInfo.structureGroup)
         scanSet             = getAssociatedScan(planC{indexS.structureArray}(structSet).assocScanUID);
         transM              = axisInfo.structureGroup(i).transM;
         [assocScansV] = getStructureAssociatedScan(1:length(planC{indexS.structures}), planC);
-        if isempty(assocScansV) %handle case of no structures
+        if isempty(assocScansV) || isempty(scanSet) %handle case of no structures
             structsInThisScan = [];
         else
             structsInThisScan = find(assocScansV == scanSet);

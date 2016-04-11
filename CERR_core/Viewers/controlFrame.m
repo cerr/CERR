@@ -124,10 +124,12 @@ switch command
                 %Controls for creation of new structures.
                 ud.handles.asCopyOfCurrent  = uicontrol(hFig, 'style', 'radiobutton', 'value', 0, 'units', units, 'position', absPos([.04 .60 .65 .05], posFrame), 'string', 'As copy of current', 'tag', 'controlFrameItem', 'horizontalAlignment', 'left', 'callback', 'controlFrame(''contour'', ''asCopyOfCurrent'')');
                 ud.handles.asBlank          = uicontrol(hFig, 'style', 'radiobutton', 'value', 1, 'units', units, 'position', absPos([.04 .555 .57 .05], posFrame), 'string', 'As new on scan', 'tag', 'controlFrameItem', 'horizontalAlignment', 'left', 'callback', 'controlFrame(''contour'', ''asBlank'')');
-                ud.handles.scanSelect       = uicontrol(hFig, 'style', 'popupmenu', 'enable', 'on' , 'units', units, 'position', absPos([.60 .555 .38 .05], posFrame), 'string', 'No Scans', 'tag', 'controlFrameItem', 'horizontalAlignment', 'left', 'callback', 'controlFrame(''contour'', ''scanSelect'')','Enable','Off');
-                scanSets = getAxisInfo(stateS.handle.CERRAxis(1),'scanSets');
-                set(ud.handles.scanSelect, 'value',scanSets);
-                
+                for i=1:length(planC{indexS.scan})
+                    scanStringC{i} = [num2str(i), ' ', planC{indexS.scan}(i).scanType];
+                end                
+                ud.handles.scanSelect       = uicontrol(hFig, 'style', 'popupmenu', 'enable', 'on' , 'units', units, 'position', absPos([.60 .555 .38 .05], posFrame), 'string', scanStringC, 'tag', 'controlFrameItem', 'horizontalAlignment', 'left', 'callback', 'controlFrame(''contour'', ''scanSelect'')','Enable','Off');
+                scanSet = getAxisInfo(stateS.handle.CERRAxis(stateS.currentAxis),'scanSets');
+                set(ud.handles.scanSelect, 'value',scanSet);                
                 ud.handles.createNewText    = uicontrol(hFig, 'style', 'text', 'enable', 'inactive' , 'units', units, 'position', absPos([.05 .48 .55 .05], posFrame), 'string', 'New Structure:', 'tag', 'controlFrameItem', 'horizontalAlignment', 'left');
                 ud.handles.structNewButton  = uicontrol(hFig, 'style', 'pushbutton', 'units', units, 'position', absPos([.6 .49 .35 .05], posFrame), 'string', 'Create', 'tag', 'controlFrameItem', 'callback', 'controlFrame(''contour'', ''newStruct'')');
                 
@@ -170,18 +172,14 @@ switch command
                     'callback', 'controlFrame(''contour'',''setBrushSize'')');             
                 
                 %Controls to select overlaid scan.
-                for i=1:length(planC{indexS.scan})
-                    poputStrC{i} = [num2str(i), ' ', planC{indexS.scan}(i).scanType];
-                end
                 ud.handles.overlayText = uicontrol(hFig, 'style', 'text', 'enable', 'inactive' , 'units', units, 'position', absPos([.05 .07 .25 .10], posFrame), 'string', 'Overlay Scan:', 'tag', 'controlFrameItem', 'horizontalAlignment', 'left');
-                ud.handles.overlayChoices = uicontrol(hFig, 'style', 'popupmenu', 'units', units, 'position', absPos([.30 .12 .41 .05], posFrame), 'string', poputStrC, 'value', 1, 'tag', 'controlFrameItem', 'callback', 'controlFrame(''contour'', ''selectOverlayScan'')', 'TooltipString', 'Select Scan to overlay on the base scan.');
+                ud.handles.overlayChoices = uicontrol(hFig, 'style', 'popupmenu', 'units', units, 'position', absPos([.30 .12 .41 .05], posFrame), 'string', scanStringC, 'value', scanSet, 'tag', 'controlFrameItem', 'callback', 'controlFrame(''contour'', ''selectOverlayScan'')', 'TooltipString', 'Select Scan to overlay on the base scan.');
                 ud.handles.overlayOptions = uicontrol(hFig, 'style', 'push', 'units', units, 'position', absPos([.72 .12 .26 .05], posFrame), 'string', 'Options', 'tag', 'controlFrameItem', 'callback', 'controlFrame(''contour'', ''selectOverlayOptions'',''init'')', 'TooltipString', 'Select display options for overlaid scan.');
                 
                 ud.handles.saveButton = uicontrol(hFig, 'style', 'pushbutton', 'units', units, 'position', absPos([.1 .04 .35 .05], posFrame), 'string', 'Save', 'tag', 'controlFrameItem', 'callback', 'contourControl(''save'')');
                 ud.handles.abortButton = uicontrol(hFig, 'style', 'pushbutton', 'units', units, 'position', absPos([.55 .04 .35 .05], posFrame), 'string', 'Quit', 'tag', 'controlFrameItem', 'callback', 'contourControl(''revert'')');
                 
                 %Set the overlaid scan scme as that displayed at the start
-                scanSet = getAxisInfo(stateS.handle.CERRAxis(1),'scanSets');
                 set(ud.handles.overlayChoices,'value',scanSet)
                 
                 set(hFrame, 'userdata', ud);
@@ -334,7 +332,7 @@ switch command
                 %Get numbered structure list.
                 structs = {planC{indexS.structures}.structureName};
                 assocScanV = getStructureAssociatedScan(1:length(planC{indexS.structures}));
-                scanSet = getAxisInfo(stateS.handle.CERRAxis(1),'scanSets');
+                scanSet = getAxisInfo(stateS.handle.CERRAxis(stateS.contourAxis),'scanSets');
                 scanSet = scanSet(1);
                 structNumsV = find(assocScanV == scanSet);
                 structs = structs(structNumsV);
@@ -570,7 +568,9 @@ switch command
                     structNum = strUd.strNumsV(structNum);
                     planC       = copyCERRStructure(structNum, planC);
                 else %Create a new structure with selected associated scan.
-                    scanNum = get(ud.handles.scanSelect, 'value');
+                    %scanNum = get(ud.handles.scanSelect, 'value');
+                    scanNum = getappdata(stateS.handle.CERRAxis(...
+                        stateS.contourAxis),'ccScanSet');
                     if isempty(ud)
                         return;
                     end

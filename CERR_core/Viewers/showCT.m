@@ -309,7 +309,7 @@ for i=1:length(axisInfo.scanObj)
             hFrame = stateS.handle.controlFrame;
             ud = get(hFrame, 'userdata');
             overlayScanNum = get(ud.handles.overlayChoices,'value');
-            contourScan = getAxisInfo(stateS.handle.CERRAxis(1),'scanSets');
+            contourScan = getAxisInfo(stateS.handle.CERRAxis(stateS.contourAxis),'scanSets');
             if overlayScanNum ~= contourScan
                 overLayFlag = 1;
             end
