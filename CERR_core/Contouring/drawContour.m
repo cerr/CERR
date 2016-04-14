@@ -640,7 +640,7 @@ switch command
         
     case 'deleteAllSegments'
         hAxis = varargin{1};
-        delAllSegments(hAxis)        
+        delAllSegments(hAxis)            
         
 end
 
@@ -923,18 +923,15 @@ setappdata(hAxis, 'contourV', {});
 setappdata(hAxis, 'segment', []);
 maskM = getappdata(hAxis, 'contourMask');
 setappdata(hAxis, 'contourMask',0*maskM);
-hSegment = getappdata(hAxis,'hSegment');
-if ishandle(hSegment)
-    delete(hSegment)
-end
 hContour = getappdata(hAxis,'hContour');
 toDelV = ishandle(hContour);
 delete(hContour(toDelV))
+setappdata(hAxis, 'editNum', 1);
 drawAll(hAxis);
 
 
 %CLIPOUT FUNCTIONS
-function addClipPoint(hAxis, x, y);
+function addClipPoint(hAxis, x, y)
 %Add a point to the existing clipout line, in axis coordinates.
 clip = getappdata(hAxis, 'clip');
 clip = [clip;[x y]];
