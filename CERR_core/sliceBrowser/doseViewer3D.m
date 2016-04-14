@@ -72,7 +72,7 @@ switch upper(command)
         structures = {'Select...' planC{indexS.structures}.structureName};
         nStructs = length(structures);
         uicontrol('style', 'text', 'units', 'normalized', 'position', [.71 .90 .1 .05], 'string', 'Structure:');
-        uicontrol('style', 'popupmenu', 'units', 'normalized', 'position', [.82 .90 .15 .05], 'string', structures, 'value', 1, 'clipping', 'off', 'callback', 'doseViewer3D(''struct_dropdown'')');
+        uicontrol('style', 'popupmenu', 'units', 'normalized', 'position', [.82 .90 .15 .05], 'string', structures, 'value', 1, 'callback', 'doseViewer3D(''struct_dropdown'')');
 
         ud.surfaceHandles = cell(nStructs,1);
         ud.surfaceVisible = zeros(nStructs,1);
