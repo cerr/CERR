@@ -2449,6 +2449,20 @@ switch upper(instr)
                     sliceCallBack('structToggle')
                 end
             end
+            
+            if stateS.contourState
+                % In contouring mode, switch to nonemode
+                hAxis = stateS.handle.CERRAxis(stateS.contourAxis);
+                ud = get(stateS.handle.controlFrame,'userdata');
+                set([ud.handles.pencil, ud.handles.brush, ud.handles.eraser],...
+                    'BackgroundColor',[0.8 0.8 0.8], 'Value', 0)
+                drawContour('noneMode', hAxis);
+                % Set button down/motion/up callbacks
+                set(stateS.handle.CERRSliceViewer, 'WindowButtonMotionFcn','')
+                set(stateS.handle.CERRSliceViewer, 'WindowButtonUpFcn','')
+                set(hAxis, 'ButtonDownFcn', 'sliceCallBack(''axisClicked'')')
+            end
+            
         else
             CERRStatusString('')
             stateS.scanWindowState = 0;
@@ -2459,7 +2473,16 @@ switch upper(instr)
             if stateS.turnStructOnInteractiveWindowing
                 stateS = rmfield(stateS,'turnStructOnInteractiveWindowing');
                 sliceCallBack('structToggle')
-            end                        
+            end    
+            % In contouring mode, set windowMotion and buttonUp fcns
+            if stateS.contourState
+                set(stateS.handle.CERRSliceViewer, 'WindowButtonMotionFcn',...
+                    'drawContour(''motionInFigure'')')
+                set(stateS.handle.CERRSliceViewer, 'WindowButtonUpFcn',...
+                    'drawContour(''btnUp'')')
+                set(stateS.handle.CERRAxis(stateS.contourAxis),...
+                    'ButtonDownFcn', 'drawContour(''btnDownInAxis'')')
+            end
         end
         
     case 'SCANWINDOWSTART'
