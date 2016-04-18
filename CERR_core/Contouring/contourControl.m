@@ -108,12 +108,16 @@ switch command
         setappdata(hAxis, 'ccStruct2', []);
         setappdata(hAxis,'ccContours',[])
         setappdata(hAxis, 'ccScanSet', scanSet);
+        setappdata(hAxis, 'slicesLoadedV', []);
         set(findobj(hAxis, 'tag', 'planeLocator'), 'hittest', 'off');
         %CERRRefresh
         %sliceCallBack('FOCUS', hAxis);
         showScale(hAxis,stateS.contourAxis)
         drawContour('axis', hAxis);
         loadDrawSlice(hAxis);
+        
+    case 'Save_Slice'
+        saveDrawSlice(hAxis);
         
     case 'Axis_Focus_Changed'
         %sliceCallBack has detected an axis click.  If it is the contouring
@@ -213,8 +217,13 @@ switch command
             saveDrawSlice(hAxis);
             setappdata(hAxis, 'ccSlice', sliceNum);
             loadDrawSlice(hAxis);
-            %drawContour('drawBallMode', hAxis);            
-            contourControl('drawBall')
+            %drawContour('drawBallMode', hAxis); 
+            eraseFlag = getappdata(hAxis, 'eraseFlag');
+            if eraseFlag
+                contourControl('eraserBall')
+            else
+                contourControl('drawBall')
+            end
         elseif strcmpi(ccMode, 'edit')
             saveDrawSlice(hAxis);
             setappdata(hAxis, 'ccSlice', sliceNum);
@@ -515,6 +524,10 @@ switch command
             drawContour('deleteSegment', hAxis);
         end
         
+    case 'deleteAllSegments'
+        drawContour('deleteAllSegments',hAxis)
+        saveDrawSlice(hAxis)
+        
     case 'scale'
         %Increase/decrease current contour by scale.  Not implemented.
         
@@ -557,6 +570,14 @@ ccSlice = getappdata(hAxis, 'ccSlice');
 ccStruct = getappdata(hAxis, 'ccStruct');
 ccMode = getappdata(hAxis, 'ccMode');
 ccStruct2 = getappdata(hAxis, 'ccStruct2');
+slicesLoadedV = getappdata(hAxis, 'slicesLoadedV');
+loadFromPlanC = 1;
+if ismember(ccSlice,slicesLoadedV)
+    loadFromPlanC = 0;
+else
+    slicesLoadedV = [slicesLoadedV,ccSlice];
+    setappdata(hAxis, 'slicesLoadedV',slicesLoadedV);
+end
 
 %Consider changing this to be more modular. Repeated code.
 if ~isempty(ccStruct2)
@@ -567,7 +588,7 @@ if ~isempty(ccStruct2)
     end
     %If no previously stored contour2, load from planC.
     try
-        if isempty(contourV2)
+        if loadFromPlanC % isempty(contourV2)
             points = {planC{indexS.structures}(ccStruct2).contour(ccSlice).segments.points};
             for i=1:length(points)
                 tmp = points{i};
@@ -592,7 +613,7 @@ end
 
 %If no previously stored contours, load from planC.
 try
-    if isempty(contourV)
+    if loadFromPlanC  % isempty(contourV)
         points = {planC{indexS.structures}(ccStruct).contour(ccSlice).segments.points};
         for i=1:length(points)
             tmp = points{i};
@@ -624,6 +645,7 @@ indexS = planC{end};
 
 ccScanSet = getappdata(hAxis, 'ccScanSet');
 ccContours = getappdata(hAxis, 'ccContours');
+slicesLoadedV = getappdata(gca,'slicesLoadedV');
 toUpdate = zeros(size(ccContours));
 
 % for mesh library, out of commission
@@ -648,7 +670,7 @@ for j = 1:size(ccContours,1)
     for k = 1:size(ccContours, 2)
         points = [];
         contourV = ccContours{j,k};        
-        if ~isempty(contourV)
+        if ismember(k,slicesLoadedV) %~isempty(contourV)
             for i=1:length(contourV)
                 tmp = contourV{i};
                 if ~isempty(tmp)
