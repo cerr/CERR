@@ -133,7 +133,7 @@ switch(keyValue)
         if stateS.contourState
             % delete all segments on the slice
             hAxis = stateS.handle.CERRAxis(stateS.contourAxis);
-            drawContour('deleteAllSegments', hAxis)
+            contourControl('deleteAllSegments', hAxis)
         end
 
     case 122 % 'z' key, toggles zoom.

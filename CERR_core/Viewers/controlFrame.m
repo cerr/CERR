@@ -450,6 +450,9 @@ switch command
                 
             case 'toggleMode'
                 
+                % Save current slice
+                contourControl('Save_Slice')
+                
                 ud = get(hFrame, 'userdata');
                 
                 structNum   = get(ud.handles.structPopup, 'value');

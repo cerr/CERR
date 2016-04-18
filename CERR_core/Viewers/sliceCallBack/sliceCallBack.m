@@ -1819,13 +1819,19 @@ switch upper(instr)
             hWarn = warndlg('Please turn on the scan');
             waitfor(hWarn);
             return;
-        end        
+        end      
         
-        msgString = ['You will contour on the active window # ',num2str(stateS.currentAxis),'?'];
+        scanSet = getAxisInfo(stateS.handle.CERRAxis(stateS.currentAxis),'scanSets');
+        if isempty(scanSet)
+            return;
+        end
+        
+        msgString{1} = 'Contouring enabled on the active window.';
+        msgString{2} = ['Scan: ',planC{indexS.scan}(scanSet).scanType];
         ButtonName = questdlg(msgString, ...
-            'Confirm Axis Selection', ...
+            'Confirm Window Selection', ...
             'Yes', 'No','Yes');
-        if strcmpi(ButtonName,'No')
+        if ~strcmpi(ButtonName,'Yes')
             return;
         end
         
@@ -1852,7 +1858,6 @@ switch upper(instr)
         controlFrame('contour', 'init');
 
         % scanSet = getAxisInfo(hCSVA,'scanSets');
-        scanSet = getAxisInfo(stateS.handle.CERRAxis(stateS.contourAxis),'scanSets');
         %Scan set number that is already loaded
         if isfield(planC{indexS.scan}(scanSet),'transM') && ...
                 ~isempty(planC{indexS.scan}(scanSet).transM) && ...
@@ -2449,6 +2454,20 @@ switch upper(instr)
                     sliceCallBack('structToggle')
                 end
             end
+            
+            if stateS.contourState
+                % In contouring mode, switch to nonemode
+                hAxis = stateS.handle.CERRAxis(stateS.contourAxis);
+                ud = get(stateS.handle.controlFrame,'userdata');
+                set([ud.handles.pencil, ud.handles.brush, ud.handles.eraser],...
+                    'BackgroundColor',[0.8 0.8 0.8], 'Value', 0)
+                drawContour('noneMode', hAxis);
+                % Set button down/motion/up callbacks
+                set(stateS.handle.CERRSliceViewer, 'WindowButtonMotionFcn','')
+                set(stateS.handle.CERRSliceViewer, 'WindowButtonUpFcn','')
+                set(hAxis, 'ButtonDownFcn', 'sliceCallBack(''axisClicked'')')
+            end
+            
         else
             CERRStatusString('')
             stateS.scanWindowState = 0;
@@ -2459,7 +2478,16 @@ switch upper(instr)
             if stateS.turnStructOnInteractiveWindowing
                 stateS = rmfield(stateS,'turnStructOnInteractiveWindowing');
                 sliceCallBack('structToggle')
-            end                        
+            end    
+            % In contouring mode, set windowMotion and buttonUp fcns
+            if stateS.contourState
+                set(stateS.handle.CERRSliceViewer, 'WindowButtonMotionFcn',...
+                    'drawContour(''motionInFigure'')')
+                set(stateS.handle.CERRSliceViewer, 'WindowButtonUpFcn',...
+                    'drawContour(''btnUp'')')
+                set(stateS.handle.CERRAxis(stateS.contourAxis),...
+                    'ButtonDownFcn', 'drawContour(''btnDownInAxis'')')
+            end
         end
         
     case 'SCANWINDOWSTART'
