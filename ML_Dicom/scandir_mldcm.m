@@ -83,8 +83,11 @@ end
 
 % Remove the MRI field, since it stores temporary information for matching
 % / separating images into different series
-for patNum = 1:length(dcmdirS.PATIENT)
+%%%%% 4/18/16 ADDED : skipping non-DICOM files %%%%%%%%%%%
+if ~isempty(dcmdirS)
+    for patNum = 1:length(dcmdirS.PATIENT)
     dcmdirS.PATIENT(patNum).STUDY = rmfield(dcmdirS.PATIENT(patNum).STUDY, 'MRI');
+    end
 end
 
 
