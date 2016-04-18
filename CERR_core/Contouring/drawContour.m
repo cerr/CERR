@@ -194,7 +194,7 @@ switch command
 
     case 'btnDownInAxis'
         %The action taken depends on current state.
-        hAxis = gcbo;
+       hAxis = gcbo;
 %         check if zoom is enabled
 %         val = get(stateS.handle.zoom, 'value');
         isZoomON = stateS.zoomState;
@@ -296,15 +296,13 @@ switch command
                 closeSegment(hAxis);
                 saveSegment(hAxis, segmentNum);                
                 drawMode(hAxis);            
-                contourV = getappdata(hAxis, 'contourV');
-                drawContour('setContourMask', hAxis, contourV);
             end
 
         elseif strcmpi(mode,    'EDIT')
-            if strcmpi(clickType, 'normal')                                
+            if strcmpi(clickType, 'normal')  
+                editNum = getappdata(hAxis, 'editNum');
+                saveSegment(hAxis, editNum); % Save current segment
                 drawMode(hAxis); % Set to draw mode on left-click
-                contourV = getappdata(hAxis, 'contourV');
-                drawContour('setContourMask', hAxis, contourV);
             elseif strcmpi(clickType, 'extend') || (strcmpi(clickType, 'open') && strcmpi(lastClickType, 'extend'))                                
             elseif strcmpi(clickType, 'alt')
                 %Right click: cycle through clips if they exist.
@@ -910,6 +908,7 @@ if ~isempty(segment)
     contourV = getappdata(hAxis, 'contourV');
     contourV{segmentNum} = segment;
     setappdata(hAxis, 'contourV', contourV);
+    drawContour('setContourMask', hAxis, contourV);
     setappdata(hAxis, 'segment', []);    
 end
 
