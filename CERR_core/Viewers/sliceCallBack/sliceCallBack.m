@@ -1819,13 +1819,19 @@ switch upper(instr)
             hWarn = warndlg('Please turn on the scan');
             waitfor(hWarn);
             return;
-        end        
+        end      
         
-        msgString = ['You will contour on the active window # ',num2str(stateS.currentAxis),'?'];
+        scanSet = getAxisInfo(stateS.handle.CERRAxis(stateS.currentAxis),'scanSets');
+        if isempty(scanSet)
+            return;
+        end
+        
+        msgString{1} = 'Contouring enabled on the active window.';
+        msgString{2} = ['Scan: ',planC{indexS.scan}(scanSet).scanType];
         ButtonName = questdlg(msgString, ...
-            'Confirm Axis Selection', ...
+            'Confirm Window Selection', ...
             'Yes', 'No','Yes');
-        if strcmpi(ButtonName,'No')
+        if ~strcmpi(ButtonName,'Yes')
             return;
         end
         
@@ -1852,7 +1858,6 @@ switch upper(instr)
         controlFrame('contour', 'init');
 
         % scanSet = getAxisInfo(hCSVA,'scanSets');
-        scanSet = getAxisInfo(stateS.handle.CERRAxis(stateS.contourAxis),'scanSets');
         %Scan set number that is already loaded
         if isfield(planC{indexS.scan}(scanSet),'transM') && ...
                 ~isempty(planC{indexS.scan}(scanSet).transM) && ...
