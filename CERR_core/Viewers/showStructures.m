@@ -371,6 +371,10 @@ for i=1:length(axisInfo.structureGroup)
                         %includeCurrStruct = bitget(structsOnSlice, structNum-(cellNum-1)*52); %double
                         includeCurrStruct = bitget(structsOnSlice, structNum-52-(cellNum-2)*8); %uint8
                     end
+                    if includeCurrStruct
+                        axisInfo.structureGroup(i).structNumsV = [axisInfo.structureGroup(i).structNumsV ...
+                            structsInThisScan(structNum)];
+                    end
                     if includeCurrStruct && isfield(planC{indexS.structures}(structsInThisScan(structNum)), 'visible')
                         stateS.structsOnViews = [stateS.structsOnViews structsInThisScan(structNum)];
                         if ~isempty(planC{indexS.structures}(structsInThisScan(structNum)).visible) && ~planC{indexS.structures}(structsInThisScan(structNum)).visible
@@ -465,6 +469,7 @@ for i=1:length(axisInfo.structureGroup)
                             % Increse the contour point index
                             firstInd = lastInd + 2;
                         end
+                        
                         
 %                         if stateS.optS.structureDots
 %                             if sum(planC{indexS.structures}(structsInThisScan(structNum)).structureColor) < 1.5
