@@ -645,7 +645,7 @@ indexS = planC{end};
 
 ccScanSet = getappdata(hAxis, 'ccScanSet');
 ccContours = getappdata(hAxis, 'ccContours');
-slicesLoadedV = getappdata(gca,'slicesLoadedV');
+slicesLoadedV = getappdata(hAxis,'slicesLoadedV');
 toUpdate = zeros(size(ccContours));
 
 % for mesh library, out of commission
