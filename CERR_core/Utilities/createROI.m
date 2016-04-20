@@ -20,7 +20,7 @@ if nargin == 0
         stateS.clipState = 1;
         figure(stateS.handle.CERRSliceViewer)
     end
-    %return;
+    return;
 elseif nargin == 1 && strcmpi(clipBoxMsg,'clipBoxDrawn')
     clipHv = [];
     for axisNum = 1:length(stateS.handle.CERRAxis)
@@ -82,7 +82,7 @@ switch stateS.ROIcreationMode
         end
         
         % delete clipbox
-        %delete(clipHv)
+        delete(clipHv)
         
         scanNum = getAxisInfo(gca,'scanSets');
         scanNum = scanNum(1);

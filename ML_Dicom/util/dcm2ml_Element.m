@@ -62,16 +62,6 @@ end
 %Get the VR, cast to ML char array.
 vr = char(el.vr.toString);
 
-%% Added-Aditi
-
-if strcmp(tag,'(0043,1039)')
-    vr = 'IS';
-elseif strcmp(tag,'(0019,10BB)')|| strcmp(tag,'(0019,10BC)') || strcmp(tag,'(0019,10BB)')
-    vr = 'DS';
-end
-
-%% end addition
-
 switch upper(vr)
     case 'AE'
         %Needs implementation
