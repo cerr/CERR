@@ -324,6 +324,9 @@ switch fieldname
                 detectorInfoSequence = dcm2ml_Element(imgobj.get(hex2dec('00540022')));                                
                 imgpos = detectorInfoSequence.Item_1.ImagePositionPatient;
                 zValuesV = imgpos(3):sliceSpacing:imgpos(3)+sliceSpacing*double(numMultiFrameImages-1);
+                if sliceSpacing < 0 % http://dicom.nema.org/medical/dicom/current/output/chtml/part03/sect_C.8.4.15.html
+                    zValuesV = fliplr(zValuesV);
+                end
                 if isequal(pPos,'FFP') || isequal(pPos,'FFS')
                     zValuesV = fliplr(zValuesV);
                 end

@@ -69,17 +69,28 @@ end
 
 % process scan zValues for US
 try
-    if isempty(planC{indexS.scan}.scanInfo(1).zValue)
-        if strcmpi(planC{indexS.scan}.scanInfo(1).imageType, 'US')
-            if ~isempty(planC{8})
-                zValues = planC{8}.zValues;
-                for i=1:length(planC{indexS.scan}.scanInfo)
-                    planC{indexS.scan}.scanInfo(i).zValue = zValues(i);
+    for scanNum = 1:length(planC{indexS.scan})
+        if isempty(planC{indexS.scan}(scanNum).scanInfo(1).zValue)
+            if strcmpi(planC{indexS.scan}(scanNum).scanInfo(1).imageType, 'US')
+                if ~isempty(planC{8})
+                    zValues = planC{8}.zValues;
+                    for i=1:length(planC{indexS.scan}.scanInfo)
+                        planC{indexS.scan}(scanNum).scanInfo(i).zValue = zValues(i);
+                    end
                 end
             end
         end
     end
 catch
+end
+
+% process NM scans
+for scanNum = 1:length(planC{indexS.scan})
+    if strcmpi(planC{indexS.scan}(scanNum).scanInfo(1).imageType, 'NM')
+        if planC{indexS.scan}(scanNum).scanInfo(1).DICOMHeaders.SpacingBetweenSlices < 0
+            planC{indexS.scan}(scanNum).scanArray = flipdim(planC{indexS.scan}(scanNum).scanArray,3);
+        end
+    end
 end
 
 % process scan zValues for MR, by Deshan Yang, 3/2/2010
@@ -160,7 +171,7 @@ try
                         end
                     end
                 end
-            end
+            end            
             
             % Just update doses saaociated with scanNum (to do)
             N = length(planC{indexS.dose});
