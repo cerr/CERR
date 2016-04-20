@@ -307,4 +307,3 @@ end
 
 planC = getRasterSegs(planC);
 planC = setUniformizedData(planC);
-

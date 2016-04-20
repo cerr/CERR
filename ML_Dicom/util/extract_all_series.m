@@ -1,4 +1,4 @@
-function [seriesC, typeC] = extract_all_series(dcmdir_PATIENT);
+function [seriesC, typeC] = extract_all_series(dcmdir_PATIENT)
 %"extract_all_series"
 %   Returns a cell array of all series contained within a dcmdir.PATIENT
 %   datastructure, regardless of parent study.  Also returns an optional

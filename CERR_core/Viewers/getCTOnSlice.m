@@ -237,7 +237,7 @@ slc = double(slc);
 
 
 
-function [bool, xT, yT, zT] = isrotation(transM);
+function [bool, xT, yT, zT] = isrotation(transM)
 %"isrotation"
 %   Returns true if transM includes rotation.  If it doesn't include
 %   rotation, bool=0. xT,yT,zT are the translations in x,y,z
