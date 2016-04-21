@@ -171,7 +171,7 @@ try
                         end
                     end
                 end
-            end            
+            end
             
             % Just update doses saaociated with scanNum (to do)
             N = length(planC{indexS.dose});
@@ -271,10 +271,15 @@ if (scanNum>1)
     switch lower(button)
         case 'yes'
             %sort the all scan series
-            if (planC{indexS.scan}(1).scanInfo(2).zValue > planC{indexS.scan}(1).scanInfo(1).zValue)
+            % 4/21/16 Updated to handle single-slice scan sets
+            if numel(planC{indexS.scan}(1).scanInfo) > 1
+                if (planC{indexS.scan}(1).scanInfo(2).zValue > planC{indexS.scan}(1).scanInfo(1).zValue)
+                    sortingMode = 'ascend';
+                else
+                    sortingMode = 'descend';
+                end
+            else  %Sort single-slice scan sets by ascending order of z-value by default
                 sortingMode = 'ascend';
-            else
-                sortingMode = 'descend';
             end
             
             zV = zeros(1, scanNum);
