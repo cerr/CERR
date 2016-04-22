@@ -76,9 +76,9 @@ switch command
             stateS.anotationDisplay = 0;
         end
         
-        %try
-        %    delete(findobj('tag', 'controlFrameItem'));
-        %end
+        try
+            delete(findobj('tag', 'controlFrameItem'));
+        end
         
         set(hFrame, 'userdata', []);
         
@@ -584,6 +584,12 @@ switch command
                     newStr.assocScanUID = planC{indexS.scan}(scanNum).scanUID;
                     newStr.structureName = 'New Structure';
                     planC{indexS.structures} = dissimilarInsert(planC{indexS.structures}, newStr, toAdd);
+                    % Update the contourSlcLoadedM
+                    contourSlcLoadedM = getappdata(stateS.handle.CERRAxis(...
+                        stateS.contourAxis), 'contourSlcLoadedM');
+                    contourSlcLoadedM(end+1,:) = false;
+                    setappdata(stateS.handle.CERRAxis(...
+                        stateS.contourAxis), 'contourSlcLoadedM',contourSlcLoadedM);
                 end
                 [jnk, relStructNumV] = getStructureAssociatedScan(toAdd);
                 set(ud.handles.structPopup, 'value', relStructNumV);

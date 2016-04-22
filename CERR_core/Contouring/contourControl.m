@@ -108,7 +108,7 @@ switch command
         setappdata(hAxis, 'ccStruct2', []);
         setappdata(hAxis,'ccContours',[])
         setappdata(hAxis, 'ccScanSet', scanSet);
-        setappdata(hAxis, 'slicesLoadedV', []);
+        setappdata(hAxis, 'contourSlcLoadedM', false(numStructs, numSlices));
         set(findobj(hAxis, 'tag', 'planeLocator'), 'hittest', 'off');
         %CERRRefresh
         %sliceCallBack('FOCUS', hAxis);
@@ -262,12 +262,6 @@ switch command
         ccMode = getappdata(hAxis, 'ccMode');
         ccScanSet = getappdata(hAxis, 'ccScanSet');    
         structNum = getappdata(hAxis, 'ccStruct');    
-        % APA 12-19-05 (in order to assign ccContours correctly)
-        numStructs = length(planC{indexS.structures});
-        %assocScansV = getStructureAssociatedScan(1:numStructs);
-        %numStructs = sum(assocScansV == ccScanSet);
-        numSlices  = size(getScanArray(planC{indexS.scan}(ccScanSet)), 3);
-        setappdata(hAxis, 'ccContours', cell(numStructs, numSlices));   
         
         %if strcmpi(ccMode, 'draw') || strcmpi(ccMode, 'edit') || ...
         %        strcmpi(ccMode, 'thresh') || strcmpi(ccMode, 'reassign') || ...
@@ -570,13 +564,13 @@ ccSlice = getappdata(hAxis, 'ccSlice');
 ccStruct = getappdata(hAxis, 'ccStruct');
 ccMode = getappdata(hAxis, 'ccMode');
 ccStruct2 = getappdata(hAxis, 'ccStruct2');
-slicesLoadedV = getappdata(hAxis, 'slicesLoadedV');
+contourSlcLoadedM = getappdata(hAxis, 'contourSlcLoadedM');
 loadFromPlanC = 1;
-if ismember(ccSlice,slicesLoadedV)
+if contourSlcLoadedM(ccStruct, ccSlice)
     loadFromPlanC = 0;
 else
-    slicesLoadedV = [slicesLoadedV,ccSlice];
-    setappdata(hAxis, 'slicesLoadedV',slicesLoadedV);
+    contourSlcLoadedM(ccStruct, ccSlice) = true;
+    setappdata(hAxis, 'contourSlcLoadedM',contourSlcLoadedM);
 end
 
 %Consider changing this to be more modular. Repeated code.
@@ -645,7 +639,7 @@ indexS = planC{end};
 
 ccScanSet = getappdata(hAxis, 'ccScanSet');
 ccContours = getappdata(hAxis, 'ccContours');
-slicesLoadedV = getappdata(hAxis,'slicesLoadedV');
+contourSlcLoadedM = getappdata(hAxis,'contourSlcLoadedM');
 toUpdate = zeros(size(ccContours));
 
 % for mesh library, out of commission
@@ -670,7 +664,7 @@ for j = 1:size(ccContours,1)
     for k = 1:size(ccContours, 2)
         points = [];
         contourV = ccContours{j,k};        
-        if ismember(k,slicesLoadedV) %~isempty(contourV)
+        if contourSlcLoadedM(j,k) %~isempty(contourV)
             for i=1:length(contourV)
                 tmp = contourV{i};
                 if ~isempty(tmp)
