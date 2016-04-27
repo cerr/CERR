@@ -357,7 +357,7 @@ switch command
                 
         %Rasterize and uniformize contours.
         storeAllContours(hAxis);
-
+        
         % APA: try to stay in contouring mode until the user quits
         ccContours = getappdata(hAxis, 'ccContours');
         contourV = getappdata(hAxis,'contourV');
@@ -662,7 +662,7 @@ for j = 1:size(ccContours,1)
     scanNum = getStructureAssociatedScan(j);
     changedV = zeros(size(ccContours, 2),1);
     for k = 1:size(ccContours, 2)
-        points = [];
+        points = {[]};
         contourV = ccContours{j,k};        
         if contourSlcLoadedM(j,k) %~isempty(contourV)
             for i=1:length(contourV)
@@ -691,7 +691,8 @@ for j = 1:size(ccContours,1)
 %                 changedV(k) = 0;
 %             end
 
-            changedV(k) = ~isequal(points, {planC{indexS.structures}(j).contour(k).segments(1:end).points});
+            structPointsC = {planC{indexS.structures}(j).contour(k).segments(1:end).points};
+            changedV(k) = ~isequal(points, structPointsC);
             
             % [planC{indexS.structures}(j).contour(k).segments(1:length(contourV)).points]
             % = deal(points{:}); % bug
@@ -755,6 +756,73 @@ for j = 1:size(ccContours,1)
 end
 close(waitbarH)
 %cd(currDir) % for mesh library, out of commission
+
+return; % activecontour: out of commission for gitHub
+
+ButtonName = questdlg('Apply Activecontour?', ...
+    'Refine using activecontour algorithm?', ...
+    'Yes', 'No', 'No');
+
+if ~strcmpi(ButtonName,'Yes')
+    return
+end
+
+% Apply the activecontour method to the current structure
+structNum = getappdata(hAxis, 'ccStruct');
+[r,c,s] = getUniformStr(structNum);
+scanNum = getStructureAssociatedScan(structNum);
+scan3M = getUniformizedCTScan(1, scanNum);
+minSlc = min(s);
+maxSlc = max(s);
+mask3M = getUniformStr(structNum);
+maxIterations = 50;
+siz = size(mask3M);
+%updatedMaskM = zeros(siz);
+currentSlice = getappdata(hAxis,'ccSlice');
+for slc = currentSlice %minSlc:maxSlc
+    scanM = scan3M(:,:,slc);
+    structM = single(mask3M(:,:,slc));
+    mask3M(:,:,slc) = activecontour(scanM, structM, maxIterations, 'Chan-Vese');
+    %updatedMaskM(:,:,slc) = levelSetLi(scanM, structM) > 0;
+end
+
+%If registered to uniformized data, use nearest slice neighbor
+%interpolation.
+[~, ~, zUni] = getUniformScanXYZVals(planC{indexS.scan}(scanNum));
+[~, ~, zSca] = getScanXYZVals(planC{indexS.scan}(scanNum));
+
+normsiz = size(planC{indexS.scan}(scanNum).scanArray);
+tmpM = false(normsiz);
+
+for i=1:normsiz(3)
+    zVal = zSca(i);
+    uB = find(zUni > zVal, 1 );
+    lB = find(zUni <= zVal, 1, 'last' );
+    if isempty(uB) || isempty(lB)
+        continue
+    end
+    if abs(zUni(uB) - zVal) < abs(zUni(lB) - zVal)
+        tmpM(:,:,i) = logical(mask3M(:,:,uB));
+    else
+        tmpM(:,:,i) = logical(mask3M(:,:,lB));
+    end
+end
+%Get updated contour from mask
+[contr, sliceValues] = maskToPoly(tmpM, 1:normsiz(3), scanNum, planC);
+planC{indexS.structures}(structNum).contour = contr;
+planC{indexS.structures}(structNum).rasterSegments = [];
+planC{indexS.structures}(structNum).rasterized = 0;
+planC = updateStructureMatrices(planC,structNum);
+
+slcNum = getappdata(hAxis, 'ccSlice');
+for seg = 1:length(contr(slcNum).segments)
+    if ~isempty(contr(slcNum).segments(seg).points)
+        contourV{seg} = contr(slcNum).segments(seg).points;
+    end
+end
+setappdata(hAxis, 'contourV', contourV);
+setappdata(hAxis, 'contourMask',tmpM(:,:,slcNum));
+
 return;
 
 function copyToSlice(hAxis, sliceNum);
