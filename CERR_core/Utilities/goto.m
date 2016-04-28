@@ -136,6 +136,25 @@ switch upper(command)
                 if planC{indexS.scan}(scanNum).scanInfo(slc).(command) == val
                     % show the scan scanNum                    
                     setAxisInfo(hAxis,'scanSets',scanNum,'scanSelectMode','manual')
+                    % Set structure and dose
+                    numStructSets = length(planC{indexS.structures});
+                    assocScansV = getStructureSetAssociatedScan(1:numStructSets, planC);
+                    structSetNum = [];
+                    assocStructSet = find(assocScansV == scanNum);
+                    if ~isempty(assocStructSet)
+                        structSetNum = assocStructSet(1);
+                    end
+                    numDoses = length(planC{indexS.dose});
+                    assocDosesV = getDoseAssociatedScan(1:numDoses, planC);
+                    doseNum = [];
+                    if any(assocDosesV)
+                        doseNum = find(assocDosesV);
+                        doseNum = doseNum(1);
+                    end
+                    setAxisInfo(hAxis, 'structSelectMode', 'manual',...
+                        'doseSelectMode', 'manual',...
+                        'structureSets', structSetNum,...
+                        'doseSets', doseNum);                    
                     % go to slice
                     goto('slice',slc)
                     return;

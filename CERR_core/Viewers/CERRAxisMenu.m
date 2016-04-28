@@ -204,9 +204,9 @@ switch upper(command)
             numStructSets = length(planC{indexS.structures});
             assocScansV = getStructureSetAssociatedScan(1:numStructSets, planC);
             structSetNum = [];
-            if any(assocScansV)                
-                structSetNum = find(assocScansV);
-                structSetNum = structSetNum(1);
+            assocStructSet = find(assocScansV == newScanNum);
+            if ~isempty(assocStructSet)      
+                structSetNum = assocStructSet(1);
             end
             numDoses = length(planC{indexS.dose});
             assocDosesV = getDoseAssociatedScan(1:numDoses, planC);
