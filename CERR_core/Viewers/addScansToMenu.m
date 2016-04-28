@@ -43,10 +43,17 @@ if numScans > maxScansPerGroup
                 'interruptible','on','separator','on', 'Checked', 'off');  
             scanType = planC{indexS.scan}(currentScan).scanType;
         end
-
+        
+        scanDate = planC{indexS.scan}(currentScan).scanInfo(1).scanDate;
+        dateString = '';
+        if ~isempty(scanDate)
+            dateString = datestr(datenum(planC{indexS.scan}(currentScan)...
+                .scanInfo(1).scanDate,'yyyymmdd'));
+        end
+        
         str2 = num2str(currentScan);    
         if topMenuFlag
-            hScan = uimenu(hSubScanMenu, 'label', [str2,'. ',scanType],...
+            hScan = uimenu(hSubScanMenu, 'label', [str2,'. ',scanType, ' (',dateString,')'],...
                 'callback',['sliceCallBack(''selectScan'',''', str2 ,''')'],...
                 'interruptible','on','separator','off', 'Checked', 'off');
             if stateS.scanSet == currentScan
@@ -54,7 +61,7 @@ if numScans > maxScansPerGroup
             end
             
         else
-            hScan = uimenu(hSubScanMenu, 'label', [str2,'. ',scanType],...
+            hScan = uimenu(hSubScanMenu, 'label', [str2,'. ',scanType, ' (',dateString,')'],...
                 'callback','CERRAxisMenu(''SET_SCAN'')','userdata', {hAxis, currentScan},...
                 'interruptible','on','separator','off', 'Checked', 'off');
             if ismember(currentScan,scanSets)
