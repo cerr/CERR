@@ -191,12 +191,16 @@ switch command
         contourV2 = varargin{2};
         setappdata(hAxis, 'contourV2', contourV2);
         noneMode(hAxis);
-
+        
     case 'btnDownInAxis'
+        
+        % Set the current axis to be the contouring axis.
+        stateS.currentAxis = stateS.contourAxis;
+        
         %The action taken depends on current state.
-       hAxis = gcbo;
-%         check if zoom is enabled
-%         val = get(stateS.handle.zoom, 'value');
+        hAxis = gcbo;
+        %         check if zoom is enabled
+        %         val = get(stateS.handle.zoom, 'value');
         isZoomON = stateS.zoomState;
         isWindowingON = stateS.scanWindowState;
         if isZoomON || isWindowingON 
@@ -926,6 +930,16 @@ hContour = getappdata(hAxis,'hContour');
 toDelV = ishandle(hContour);
 delete(hContour(toDelV))
 setappdata(hAxis, 'editNum', 1);
+% Update the ccContours
+ccContours = getappdata(hAxis, 'ccContours');
+ccSlice = getappdata(hAxis, 'ccSlice');
+ccStruct = getappdata(hAxis, 'ccStruct');
+if isempty(ccStruct)
+    warning('contour name not initialized');
+    return
+end
+ccContours{ccStruct, ccSlice} = {};
+setappdata(hAxis, 'ccContours', ccContours);
 drawAll(hAxis);
 
 
