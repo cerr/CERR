@@ -1293,10 +1293,10 @@ switch upper(instr)
                     return;
                 end
                 
-                if stateS.contourState
-                    contourControl('Axis_Focus_Changed');
-                    return;
-                end
+                %if stateS.contourState
+                %    contourControl('Axis_Focus_Changed');
+                %    return;
+                %end
                 
                 if isfield(stateS.optS,'mirrorscope') && stateS.optS.mirrorscope
                     return;
@@ -1309,12 +1309,14 @@ switch upper(instr)
             case {'alt' 'extend'}
                 if ~stateS.gridState && ~stateS.spotlightState && ~stateS.doseQueryState && ~stateS.doseProfileState && ~stateS.zoomState && ~stateS.imageRegistration && ~stateS.clipState
                     %Re-enable right click menus;
-                    for i=1:length(stateS.handle.CERRAxis)
-                        CERRAxisMenu(stateS.handle.CERRAxis(i));
-                    end
+                    %for i=1:length(stateS.handle.CERRAxis)
+                    %    CERRAxisMenu(stateS.handle.CERRAxis(i));
+                    %end
+                    CERRAxisMenu(hAxis)
                 else
                     %Disable all right click menus;
-                    set(stateS.handle.CERRAxis, 'uicontextmenu', []);
+                    %set(stateS.handle.CERRAxis, 'uicontextmenu', []);
+                    set(hAxis, 'uicontextmenu', []);
                 end
                 if stateS.zoomState %If zoom mode is on...
                     sliceCallBack('zoomOut',hAxis);
