@@ -520,7 +520,7 @@ switch command
         
     case 'deleteAllSegments'
         drawContour('deleteAllSegments',hAxis)
-        saveDrawSlice(hAxis)
+        %saveDrawSlice(hAxis)
         
     case 'scale'
         %Increase/decrease current contour by scale.  Not implemented.
