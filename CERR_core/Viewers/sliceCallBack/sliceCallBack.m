@@ -2481,12 +2481,12 @@ switch upper(instr)
             end    
             % In contouring mode, set windowMotion and buttonUp fcns
             if stateS.contourState
+                hAxis = stateS.handle.CERRAxis(stateS.contourAxis);
                 set(stateS.handle.CERRSliceViewer, 'WindowButtonMotionFcn',...
                     'drawContour(''motionInFigure'')')
                 set(stateS.handle.CERRSliceViewer, 'WindowButtonUpFcn',...
                     'drawContour(''btnUp'')')
-                set(stateS.handle.CERRAxis(stateS.contourAxis),...
-                    'ButtonDownFcn', 'drawContour(''btnDownInAxis'')')
+                set(hAxis,'ButtonDownFcn', 'drawContour(''btnDownInAxis'')')
             end
         end
         
