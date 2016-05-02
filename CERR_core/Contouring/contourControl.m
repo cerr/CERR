@@ -123,12 +123,21 @@ switch command
         %sliceCallBack has detected an axis click.  If it is the contouring
         %axis, set it's callback to drawContour.  If it isnt, set the
         %contouring axis to send future callbacks through sliceCallBack.
-        %if isequal(hAxis, stateS.handle.CERRAxis(stateS.currentAxis))
-        %    set(hAxis, 'buttondownfcn', 'drawContour(''btnDownInAxis'')');
-        %else
-        %    set(hAxis, 'buttondownfcn', 'sliceCallBack(''axisClicked'')');
-        %end
         
+        hFig = stateS.handle.CERRSliceViewer;
+        if isequal(hAxis, stateS.handle.CERRAxis(stateS.currentAxis))
+            set(hAxis, 'buttonDownFcn', 'drawContour(''btnDownInAxis'')');
+            set(hFig, 'WindowButtonUpFcn', 'drawContour(''btnUp'')');
+            set(hFig, 'WindowButtonMotionFcn', 'drawContour(''motionInFigure'')');
+            set(hAxis, 'UIContextMenu','')
+        else
+            set(hAxis, 'buttondownfcn', 'sliceCallBack(''axisClicked'')');
+            set(hFig, 'WindowButtonUpFcn', '');
+            set(hFig, 'WindowButtonMotionFcn', '');
+            CERRAxisMenu(hAxis);
+        end
+
+
     case 'copySup'
         % Copy current structs' contours on current slice superior.
         saveDrawSlice(hAxis);

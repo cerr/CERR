@@ -1293,10 +1293,10 @@ switch upper(instr)
                     return;
                 end
                 
-                %if stateS.contourState
-                %    contourControl('Axis_Focus_Changed');
-                %    return;
-                %end
+                if stateS.contourState
+                    contourControl('Axis_Focus_Changed');
+                    return;
+                end
                 
                 if isfield(stateS.optS,'mirrorscope') && stateS.optS.mirrorscope
                     return;
