@@ -1182,8 +1182,11 @@ switch upper(instr)
             case 'open'
                 pos = find(stateS.handle.CERRAxis == hAxis);
                 %Do not allow switching of 1st, 2nd and 3rd axis in
-                %structure comparison mode
+                %structure comparison mode or contouring mode
                 if isfield(stateS,'structCompare') && (ismember(pos,[1 2 3]) || ismember(stateS.lastAxis,[1 2 3]))
+                    return;
+                end
+                if stateS.contourState
                     return;
                 end
                 axisLabelTmp1 = stateS.handle.CERRAxisLabel1(pos);
@@ -1307,7 +1310,10 @@ switch upper(instr)
 
                 
             case {'alt' 'extend'}
-                if ~stateS.gridState && ~stateS.spotlightState && ~stateS.doseQueryState && ~stateS.doseProfileState && ~stateS.zoomState && ~stateS.imageRegistration && ~stateS.clipState
+                if ~stateS.contourState && ~stateS.gridState && ~stateS.spotlightState ...
+                        && ~stateS.doseQueryState && ~stateS.doseProfileState ...
+                        && ~stateS.zoomState && ~stateS.imageRegistration ...
+                        && ~stateS.clipState
                     %Re-enable right click menus;
                     %for i=1:length(stateS.handle.CERRAxis)
                     %    CERRAxisMenu(stateS.handle.CERRAxis(i));
