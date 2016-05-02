@@ -1,7 +1,8 @@
 function planC = createTextureMaps(scanNum,structNum,descript,...
     patchUnit,patchSizeV,category,dirctn,numGrLevels,flagsV,planC)
 %
-% function planC = createTextureMaps(scanNum,planC)
+% function planC = createTextureMaps(scanNum,structNum,descript,...
+%    patchUnit,patchSizeV,category,dirctn,numGrLevels,flagsV,planC)
 %
 % % EXAMPLE:
 % scanNum     = 1;
