@@ -570,6 +570,7 @@ switch upper(command)
         scanNum     = get(ud.handles.scan, 'value');
         structNum   = get(ud.handles.structure, 'value');
         descript    = get(ud.handles.description, 'String');
+        numLevels   = str2num(get(ud.handles.numLevels,'string'));
         patchSizeV  = str2num(get(ud.handles.patchSize, 'String'));
         category    = get(ud.handles.featureType, 'value');
         dirctn      = get(ud.handles.direction,'value');
@@ -632,7 +633,7 @@ switch upper(command)
 
             [energy3M,entropy3M,sumAvg3M,corr3M,invDiffMom3M,contrast3M, ...
                 clustShade3M,clustPromin3M] = textureByPatchCombineCooccur(volToEval,...
-                patchSizeV,offsetsM,flagsV,ud.wb.handles.patch);
+                numLevels,patchSizeV,offsetsM,flagsV,ud.wb.handles.patch);
             
             planC{indexS.texture}(ud.currentTexture).paramS.direction = direction;
             planC{indexS.texture}(ud.currentTexture).paramS.numGrLevels = numGrLevels;

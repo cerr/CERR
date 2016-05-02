@@ -1,6 +1,6 @@
 function [energy3M,entropy3M,sumAvg3M,corr3M,invDiffMom3M,contrast3M,...
     clustShade3M, clustPromin3M] = textureByPatchCombineCooccur(...
-    scanArray3M, patchSizeV, offsetsM, flagv, hWait)
+    scanArray3M, nL, patchSizeV, offsetsM, flagv, hWait)
 % function [energy3M,entropy3M,sumAvg3M,corr3M,invDiffMom3M,contrast3M,...
 %     clustShade3M, clustPromin3M] = textureByPatchCombineCooccur(...
 %     scanArray3M, patchSizeV, offsetsM, flagv, hWait)
@@ -64,7 +64,7 @@ numVoxels = numRows*numCols;
 scanArrayTmp3M = padarray(scanArray3M,[numRowsPad numColsPad numSlcsPad],NaN,'both');
 
 % Quantize the image
-nL = 16;
+%nL = 16;
 nanFlag = 0;
 nanFlag = 1;
 if any(isnan(scanArrayTmp3M))
