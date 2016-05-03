@@ -111,7 +111,7 @@ if any(scansWithSameUID)
         planD{indexSD.scan}(scanNum).scanUID = createUID('scan');
     end
     scansWithSameUID = 0;
-    scans.scanUID = {planD{indexSD.scan}.scanUID};
+    scans.scanUID = planD{indexSD.scan}.scanUID;  
 end
 
 newScanNum  = nScans + 1;
