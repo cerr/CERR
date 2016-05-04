@@ -86,8 +86,8 @@ switch command
         axisInfo.coord         = zV(sliceNum);
         axisInfo.scanSets       = scanSet;
         axisInfo.scanSelectMode = 'manual';
-        axisInfo.doseSets      = [];
-        axisInfo.doseSelectMode = 'manual';
+        %axisInfo.doseSets      = [];
+        %axisInfo.doseSelectMode = 'manual';
         %set(hAxis, 'userdata', axisInfo);
         stateS.handle.aI(axInd) = axisInfo;        
         numStructs = length(planC{indexS.structures});
