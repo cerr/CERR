@@ -368,6 +368,7 @@ switch command
         storeAllContours(hAxis);
         
         % APA: try to stay in contouring mode until the user quits
+        scanSet = getappdata(hAxis,'ccScanSet');
         ccContours = getappdata(hAxis, 'ccContours');
         contourV = getappdata(hAxis,'contourV');
         ccStruct = getappdata(hAxis,'ccStruct');
@@ -376,6 +377,15 @@ switch command
         setappdata(hAxis, 'ccContours', ccContours);
         stateS.structsChanged = 1;
         for i=1:length(stateS.handle.CERRAxis) 
+            scanSetonAxis = getAxisInfo(uint8(i),'scanSets');     
+            structSets = getAxisInfo(uint8(i),'structureSets');
+            if scanSet == scanSetonAxis && ~ismember(scanSet,structSets)
+                % force structure set to "manual" for displaying the
+                % currently drawn structure
+                structSets = [structSets,scanSet];
+                setAxisInfo(uint8(i),'structureSets',structSets,...
+                    'structSelectMode','manual');
+            end
             showStructures(stateS.handle.CERRAxis(i))
         end
         % Set pencil/brush/eraser button colors and states
