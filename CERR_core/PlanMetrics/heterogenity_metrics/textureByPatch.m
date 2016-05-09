@@ -1,7 +1,9 @@
 function [energy3M,entropy3M,sumAvg3M,corr3M,invDiffMom3M,contrast3M,...
     clustShade3M,clustPromin3M] = textureByPatch(scanArray3M, nL, ...
     patchSizeV, offsetsM, flagv, hWait)
-% function [energy3M,entropy3M,invDiffMom3M,contrast3M,clustShade3M,clustPromin3M] = textureByPatch(scanArray3M, deltaXYZv, patchSizeV, offsetV)
+% function [energy3M,entropy3M,sumAvg3M,corr3M,invDiffMom3M,contrast3M,...
+%     clustShade3M,clustPromin3M] = textureByPatch(scanArray3M, nL, ...
+%     patchSizeV, offsetsM, flagv, hWait)
 %
 % Patch-wise texture calculation.
 %
@@ -117,19 +119,19 @@ lin_row = permute(bsxfun(@plus,start_ind,[0:rowWindow-1])',[1 3 2]);  %//'
 indM = reshape(bsxfun(@plus,lin_row,(0:colWindow-1)*m),rowWindow*colWindow,[]);
 
 % % Directional offsets
-% offsetsM = [ 1  0  0;
-%              0  1  0;
-%              1  1  0;
-%              1 -1  0;
-%              1  0  1;
-%              0  1  1;
-%              1  1  1;
-%              1 -1  1;
-%              0  0  1;
-%             -1  0  1;
-%             -1 -1  1;
-%              0 -1  1;
-%              1 -1  1];
+% offsetsM = [1 0 0;
+%     0 1 0;
+%     1 1 0;
+%     1 -1 0;     
+%     0 0 1;      
+%     1 0 1;
+%     1 1 1;
+%     1 -1 1;    
+%     0 1 1;
+%     0 -1 1;    
+%     -1 -1 1;
+%     -1 0 1;
+%     -1 1 1];
 
 numOffsets = size(offsetsM,1);
 
@@ -240,7 +242,7 @@ for slcNum = 1:numSlices
         indSlcM(indNoNeighborV,:) = [];
         
         for slc = slcNum:slcNum+slcWindow-1 % slices within the patch
-            if slc+offset(3) > numSlcsWithPadding
+            if slc-slcNum+offset(3) >= slcWindow
                 continue;
             end
             slc1M = uint16(q(numRowsPad+(1:numRows),numColsPad+(1:numCols),slc));
