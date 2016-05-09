@@ -7,19 +7,20 @@ function offsetsM = getOffsets(dirctn)
 
 
 % All 13 directional offsets
-offsetsM = [ 1  0  0;
-             0  1  0;
-             1  1  0;
-             1 -1  0;
-             1  0  1;
-             0  1  1;
-             1  1  1;
-             1 -1  1;
-             0  0  1;
-            -1  0  1;
-            -1 -1  1;
-             0 -1  1;
-             1 -1  1];
+offsetsM = [1 0 0;
+    0 1 0;
+    1 1 0;
+    1 -1 0;     
+    0 0 1;      
+    1 0 1;
+    1 1 1;
+    1 -1 1;    
+    0 1 1;
+    0 -1 1;    
+    -1 -1 1;
+    -1 0 1;
+    -1 1 1];
+
 
 switch dirctn
     
