@@ -94,8 +94,8 @@ for k = 1:length(qs)
 	q(q==qs(k)) = k;
 end
 
-q = uint8(q); % q is the quantized image
-numSlcsWithPadding = size(q,3);
+q = uint16(q); % q is the quantized image
+%numSlcsWithPadding = size(q,3);
 
 % Create indices for 2D blocks
 [m,n,~] = size(q);
@@ -235,9 +235,9 @@ for slcNum = 1:numSlices
             indNoNeighborV = [indNoNeighborV rowWindow:rowWindow:rowWindow*colWindow];
         end
         if offset(2) == 1
-            indNoNeighborV = [indNoNeighborV 1:rowWindow];
+            indNoNeighborV = [indNoNeighborV 1:colWindow];
         elseif offset(2) == -1
-            indNoNeighborV = [indNoNeighborV rowWindow*colWindow:-1:(rowWindow*colWindow-rowWindow)+1];
+            indNoNeighborV = [indNoNeighborV rowWindow*colWindow:-1:(rowWindow*colWindow-colWindow)+1];
         end        
         indSlcM(indNoNeighborV,:) = [];
         
