@@ -9,6 +9,9 @@ indexS = planC{end};
 
 % Group Scans by scanType in case there are more than 20 scans.
 scanTypeC = {planC{indexS.scan}.scanType};
+for scanNum = 1:length(planC{indexS.scan})
+    scanDatesC{scanNum} = planC{indexS.scan}(scanNum).scanInfo(1).scanDate;
+end
 numScans = length(scanTypeC);
 
 maxScansPerGroup = 15;
@@ -23,7 +26,7 @@ if numScans > maxScansPerGroup
     
     hSubScanMenu = [];
     
-    [~,indSortV] = sort(scanTypeC);
+    [~,indSortV] = sortrows([scanDatesC' scanTypeC']);
     currInd = 1;
     changeInd = currInd;
     currentScan = indSortV(currInd);
