@@ -340,9 +340,9 @@ switch command
         
     case 'motionInFigure'
         %The action taken depends on current state.
-        hFig        = gcbo;
+        hFig        = stateS.handle.CERRSliceViewer;
         hAxis       = getappdata(hFig, 'contourAxisHandle');
-        clickType   = get(hFig, 'SelectionType');
+        clickType   = get(hFig, 'SelectionType');        
         if isempty(hAxis)
             return
         end
@@ -351,13 +351,31 @@ switch command
         if strcmpi(mode,        'DRAWING') && isButtonDwn
             if strcmpi(clickType, 'normal')
                 %Left click+motion: add point and redraw.
-                cP = get(hAxis, 'currentPoint');
+                pointerLoc = get(0,'PointerLocation');
+                cerrPos = get(stateS.handle.CERRSliceViewer,'position');
+                axPos = get(hAxis,'position');
+                xLim = get(hAxis,'xLim');
+                yLim = get(hAxis,'yLim');                
+                dx = (xLim(2) - xLim(1)) / (axPos(3));
+                dy = (yLim(2) - yLim(1)) / (axPos(4));
+                relativePos = pointerLoc - (cerrPos(1:2)+axPos(1:2));
+                cP = [xLim(1)+relativePos(1)*dx yLim(1)+relativePos(2)*dy];
+                %cP = get(hAxis, 'currentPoint')
                 addPoint(hAxis, cP(1,1), cP(1,2));
                 drawSegment(hAxis);
             end
             
         elseif strcmpi(mode,        'DRAW')
-            cP = get(hAxis, 'currentPoint');
+            pointerLoc = get(0,'PointerLocation');
+            cerrPos = get(stateS.handle.CERRSliceViewer,'position');
+            axPos = get(hAxis,'position');
+            xLim = get(hAxis,'xLim');
+            yLim = get(hAxis,'yLim');
+            dx = (xLim(2) - xLim(1)) / (axPos(3));
+            dy = (yLim(2) - yLim(1)) / (axPos(4));
+            relativePos = pointerLoc - (cerrPos(1:2)+axPos(1:2));
+            cP = [xLim(1)+relativePos(1)*dx yLim(1)+relativePos(2)*dy];            
+            %cP = get(hAxis, 'currentPoint');
             x = cP(1,1);
             y = cP(1,2);
             %contoursC = getappdata(hAxis, 'contourV');
