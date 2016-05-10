@@ -200,7 +200,8 @@ switch upper(command)
         if isempty(newScanNum)
             setAxisInfo(hAxis, 'scanSelectMode', 'auto', 'structSelectMode', 'auto', 'doseSelectMode', 'auto','xRange',[],'yRange',[]);
         else
-            setAxisInfo(hAxis, 'scanSelectMode', 'manual', 'scanSets', newScanNum);
+            setAxisInfo(hAxis, 'scanSelectMode', 'manual', 'scanSets', newScanNum,...
+                'xRange',[],'yRange',[]);            
             numScans = length(planC{indexS.scan});
             assocScansV = getStructureSetAssociatedScan(1:numScans, planC);
             structSetNum = [];
@@ -220,7 +221,7 @@ switch upper(command)
                 'structureSets', structSetNum,...
                 'doseSets', doseNum);
         end
-        updateAxisRange(hAxis,0,'scan');
+        %updateAxisRange(hAxis,0,'scan');
         sliceCallBack('refresh');
 
     case 'SET_STRUCTS'
