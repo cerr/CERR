@@ -129,9 +129,14 @@ switch upper(command)
         
         val = varargin{1};
         hAxis = gca;
+        % Find the scan displayed on the current axis
+        scanSet = getAxisInfo(hAxis,'scanSets');
+        scanTypesC = {planC{indexS.scan}(:).scanType};
+        scanType = planC{indexS.scan}(scanSet).scanType;
+        scanNumsV = find(strcmpi(scanType,scanTypesC));
         % Loop through scans and slices to find the matching tag
-        numScans = length(planC{indexS.scan});
-        for scanNum = 1:numScans
+        %numScans = length(planC{indexS.scan});
+        for scanNum = scanNumsV
             for slc = 1:length(planC{indexS.scan}(scanNum).scanInfo)
                 if planC{indexS.scan}(scanNum).scanInfo(slc).(command) == val
                     % show the scan scanNum                    
