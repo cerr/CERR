@@ -66,9 +66,10 @@ scanArrayTmp3M = padarray(scanArray3M,[numRowsPad numColsPad numSlcsPad],NaN,'bo
 % Quantize the image
 %nL = 16;
 nanFlag = 0;
-nanFlag = 1;
+%nanFlag = 1;
 if any(isnan(scanArrayTmp3M))
-    nL = nL-1;
+    %nL = nL-1;
+    nanFlag = 1;
 end
 q = imquantize_cerr(scanArrayTmp3M,nL);
 clear scanArrayTmp3M;
@@ -83,8 +84,8 @@ for k = 1:length(qs)
 	q(q==qs(k)) = k;
 end
 
-q = uint8(q); % q is the quantized image
-numSlcsWithPadding = size(q,3);
+q = uint16(q); % q is the quantized image
+%numSlcsWithPadding = size(q,3);
 
 % Create indices for 2D blocks
 [m,n,~] = size(q);
@@ -203,7 +204,7 @@ for slcNum = 1:numSlices
     calcSlcIndV = calcIndM(:,:,slcNum);
     calcSlcIndV = calcSlcIndV(:);
     numCalcVoxs = sum(calcSlcIndV);
-    indSlcM = indM(:,calcSlcIndV);
+    %indSlcM = indM(:,calcSlcIndV);
     % List of Voxel numbers
     voxelNumsV = uint32(0:lq*lq:lq*lq*(numCalcVoxs-1));    
     totalIndices = lq*lq*numCalcVoxs;
@@ -212,8 +213,24 @@ for slcNum = 1:numSlices
     cooccurPatchM = sparse([],[],[],totalIndices,1);
     for off = 1:numOffsets
         offset = offsetsM(off,:);
-        for slc = slcNum:slcNum+slcWindow-1 % slices within the patch
-            if slc+offset(3) > numSlcsWithPadding
+        indSlcM = indM(:,calcSlcIndV);
+        % Choose correct neighbors for the selected offset. i.e. the
+        % correct rows from indSlcM
+        indNoNeighborV = [];
+        if offset(1) == 1
+            indNoNeighborV = [indNoNeighborV 1:rowWindow:rowWindow*colWindow];
+        elseif offset(1) == -1
+            indNoNeighborV = [indNoNeighborV rowWindow:rowWindow:rowWindow*colWindow];
+        end
+        if offset(2) == 1
+            indNoNeighborV = [indNoNeighborV 1:colWindow];
+        elseif offset(2) == -1
+            indNoNeighborV = [indNoNeighborV rowWindow*colWindow:-1:(rowWindow*colWindow-colWindow)+1];
+        end        
+        indSlcM(indNoNeighborV,:) = [];
+        
+        for slc = slcNum:slcNum+slcWindow-2 % slices within the patch
+            if slc-slcNum+offset(3) >= slcWindow
                 continue;
             end
             slc1M = uint16(q(numRowsPad+(1:numRows),numColsPad+(1:numCols),slc));

@@ -188,8 +188,11 @@ for i=uint8(1:length(stateS.handle.CERRAxis))
             end
     end
 
-    % Cleanup each axis to set correct axis limits
-    cleanupAxes(hAxis,i);
+    % Cleanup each axis to delete unwanted graphics.
+    % this has been taken out of commission since the scan,struct, profile
+    % etc. handles are now tightly controlled by storing them to stateS.
+    % Consider re-enabling if we run into any unexpected graphics display errors.
+    % cleanupAxes(hAxis,i);
 
     %Check and set range variable if needed.
     xRange = getAxisInfo(i, 'xRange');

@@ -1310,7 +1310,7 @@ switch upper(instr)
 
                 
             case {'alt' 'extend'}
-                if ~stateS.contourState && ~stateS.gridState && ~stateS.spotlightState ...
+                if ~stateS.gridState && ~stateS.spotlightState ...
                         && ~stateS.doseQueryState && ~stateS.doseProfileState ...
                         && ~stateS.zoomState && ~stateS.imageRegistration ...
                         && ~stateS.clipState
@@ -1318,7 +1318,11 @@ switch upper(instr)
                     %for i=1:length(stateS.handle.CERRAxis)
                     %    CERRAxisMenu(stateS.handle.CERRAxis(i));
                     %end
-                    CERRAxisMenu(hAxis)
+                    if stateS.contourState && stateS.currentAxis == stateS.contourAxis
+                        set(hAxis, 'uicontextmenu', []);
+                    else
+                        CERRAxisMenu(hAxis)
+                    end
                 else
                     %Disable all right click menus;
                     %set(stateS.handle.CERRAxis, 'uicontextmenu', []);

@@ -65,7 +65,7 @@ CERRStatusString('')  %clear command window.
 %    'To create a dose distance plot, type ''ddp [structNum] [maximum distance of plot] [resolution in cm] [''max'' or ''min'' dose]''.',...
 %    'To get the position of a point, type ''pos'', then select the position with the mouse.',...
 
-commandh = findobj('tag','command');
+%commandh = findobj('tag','command');
 %Make the slice viewer the active figure
 
 %figure(stateS.handle.CERRSliceViewer)
