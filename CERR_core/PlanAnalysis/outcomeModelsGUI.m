@@ -4,64 +4,68 @@ function outcomeModelsGUI(command,varargin)
 % APA, 05/10/2016
 %
 % Copyright 2010, Joseph O. Deasy, on behalf of the CERR development team.
-% 
+%
 % This file is part of The Computational Environment for Radiotherapy Research (CERR).
-% 
+%
 % CERR development has been led by:  Aditya Apte, Divya Khullar, James Alaly, and Joseph O. Deasy.
-% 
+%
 % CERR has been financially supported by the US National Institutes of Health under multiple grants.
-% 
-% CERR is distributed under the terms of the Lesser GNU Public License. 
-% 
+%
+% CERR is distributed under the terms of the Lesser GNU Public License.
+%
 %     This version of CERR is free software: you can redistribute it and/or modify
 %     it under the terms of the GNU General Public License as published by
 %     the Free Software Foundation, either version 3 of the License, or
 %     (at your option) any later version.
-% 
+%
 % CERR is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
 % without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 % See the GNU General Public License for more details.
-% 
+%
 % You should have received a copy of the GNU General Public License
 % along with CERR.  If not, see <http://www.gnu.org/licenses/>.
 
+% Globals
 global planC stateS
 indexS = planC{end};
+
+% Get GUI fig handle
+hFig = findobj('Tag','outcomeModelsFig');
 
 if nargin==0
     command = 'INIT';
 end
 
 switch upper(command)
-
+    
     case 'INIT'
-
-        % define margin constraints
+        
+        % Define margin constraints
         leftMarginWidth = 300;
         topMarginHeight = 50;
         stateS.leftMarginWidth = leftMarginWidth;
         stateS.topMarginHeight = topMarginHeight;
-
-        str1 = ['Outcomes Models Explorer'];
+        
+        str1 = 'Outcomes Models Explorer';
         position = [5 40 800 600];
-
+        
         defaultColor = [0.8 0.9 0.9];
-
+        
         if isempty(findobj('tag','outcomeModelsFig'))
             
             % initialize main GUI figure
             hFig = figure('tag','outcomeModelsFig','name',str1,...
-                'numbertitle','off','position',position,...
-                'CloseRequestFcn', 'outcomeModelsGUI(''closeRequest'')',...
-                'menubar','none','resize','off','color',defaultColor);
+                          'numbertitle','off','position',position,...
+                          'CloseRequestFcn', 'outcomeModelsGUI(''closeRequest'')',...
+                          'menubar','none','resize','off','color',defaultColor);
         else
             figure(findobj('tag','outcomeModelsFig'))
             return
         end
-
+        
         figureWidth = position(3); figureHeight = position(4);
         posTop = figureHeight-topMarginHeight;
-
+        
         % create title handles
         handle(1) = uicontrol(hFig,'tag','titleFrame','units','pixels',...
             'Position',[150 figureHeight-topMarginHeight+5 500 40 ],'Style',...
@@ -74,7 +78,7 @@ switch upper(command)
         handle(3) = uicontrol(hFig,'tag','titleFrame','units','pixels',...
             'Position',[leftMarginWidth+8 250 1 figureHeight-topMarginHeight-260 ],...
             'Style','frame','backgroundColor',defaultColor);
-
+        
         % create Dose and structure handles
         inputH(1) = uicontrol(hFig,'tag','doseStructTitle','units','pixels',...
             'Position',[20 posTop-40 150 20], 'String','DOSE & STRUCTURE',...
@@ -100,7 +104,7 @@ switch upper(command)
             'Position',[150 posTop-100 120 20], 'String',structList,'Style',...
             'popup', 'fontSize',9,'FontWeight','normal','BackgroundColor',[1 1 1],...
             'HorizontalAlignment','left');
-
+        
         inputH(end+1) = uicontrol(hFig,'tag','modelTitle','units','pixels',...
             'Position',[20 posTop-140 180 20], 'String','MODELS','Style','text',...
             'fontSize',9.5,'FontWeight','Bold','BackgroundColor',defaultColor,...
@@ -125,12 +129,12 @@ switch upper(command)
             'fontSize',9,'FontWeight','normal','BackgroundColor',[1 1 1],...
             'HorizontalAlignment','left','callback',...
             'outcomeModelsGUI(''SHOW_MODEL_STAT'')');
-               
+        
         %Define Models-plot Axis
         plotH(1) = axes('parent',hFig,'tag','modelsAxis','tickdir', 'out',...
             'nextplot', 'add','units','pixels','Position',...
             [leftMarginWidth+70 posTop*2/4-00 figureWidth-leftMarginWidth-100 posTop*0.9/2],...
-            'color',defaultColor,'YAxisLocation','left','fontSize',8,'visible','off');        
+            'color',defaultColor,'YAxisLocation','left','fontSize',8,'visible','on');        %Changed visible on AI 5/11
         
         % Store handles
         ud.handle.inputH = inputH;
@@ -139,28 +143,47 @@ switch upper(command)
         
         set(hFig,'userdata',ud);
         
-       
+        
     case 'LOAD_MODELS'
         
-        % read .jsopn file containing models
+        ud = get(hFig,'userdata');
+        if ~isfield(ud,'modelCurve')
+            ud.modelCurve = [];
+        end
         
+        % Read .json file containing models
+        [fileName,pathName,filterIndex]  = uigetfile('*.json','Select model file');
+        if ~filterIndex 
+            return
+        else
+            modelC = loadjson(fullfile(pathName,fileName),'ShowProgress',1); %Requires JSONlab toolbox
+        end
+        
+        % Plot model curves
+        numModels = length(modelC);
         EUDv = linspace(0,100,100);
         
         for i = 1:numModels
             
             % read m,D50 from .json file
+            D50 = modelC{i}.params.D50;
+            m = modelC{i}.params.m;
+            %a = modelC{i}.params.a;
+            
+            %Compute NTCP
             tmpv = (EUDv - D50)/(m*D50);
             ntcpV = 1/2 * (1 + erf(tmpv/2^0.5));
             
             % plot models
             ud.modelCurve = [ud.modelCurve plot(EUDv,ntcpV,'k','linewidth',2,...
-                'parent',ud.handles.modelsAxis)];
+                            'parent',ud.handles.modelsAxis)];
             
         end
-
+        
     case 'CLOSEREQUEST'
-
+        
         closereq
-
+        
+end
 
 end
