@@ -109,9 +109,9 @@ structsWithSameUID = ismember(addedStructureUIDc,existingStructureUIDc);
 if any(scansWithSameUID)
     for scanNum = 1:length(planD{indexSD.scan})
         planD{indexSD.scan}(scanNum).scanUID = createUID('scan');
+        scans(scanNum).scanUID = planD{indexSD.scan}(scanNum).scanUID;
     end
     scansWithSameUID = 0;
-    scans.scanUID = planD{indexSD.scan}.scanUID;  
 end
 
 newScanNum  = nScans + 1;
