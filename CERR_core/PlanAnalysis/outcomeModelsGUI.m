@@ -118,28 +118,29 @@ switch upper(command)
             'outcomeModelsGUI(''LOAD_MODELS'')');
         
         %Create Model-Stats handles
-        uicontrol(hFig,'tag','titleFrame','units','pixels','Position',...
-            [20 figureHeight-topMarginHeight-525 760 200 ],'Style','frame',...
-            'backgroundColor',defaultColor);
-        dvhStatH(1) = uicontrol(hFig,'tag','modelStatsTitle','units','pixels',...
+        dvhStatH(1) = axes('Parent',hFig,'units','Pixels','Position',[20 figureHeight-topMarginHeight-525 760 200 ],...
+            'Color',defaultColor,'ytick',[],'xtick',[], 'box', 'on');
+        dvhStatH(end+1) = uicontrol(hFig,'tag','modelStatsTitle','units','pixels',...
             'Position',[25 posTop-350 150 20], 'String','Model Stats','Style',...
             'text', 'fontSize',9.5,'FontWeight','Bold','BackgroundColor',...
             defaultColor,'HorizontalAlignment','left');
-        dvhStatH(end+1) = uicontrol(hFig,'tag','modelSelect','units','pixels',...
-            'Position',[25 posTop-375 140 20], 'String',{'None'},'Style','popup',...
+        statsC = {'None','stat1','stat2'}; %%?Stats --add!
+        dvhStatH(end+1) = uicontrol(hFig,'tag','statSelect','units','pixels',...
+            'Position',[25 posTop-375 140 20], 'String',statsC,'Style','popup',...
             'fontSize',9,'FontWeight','normal','BackgroundColor',[1 1 1],...
             'HorizontalAlignment','left','callback',...
             'outcomeModelsGUI(''SHOW_MODEL_STAT'')');
+        dvhStatH(end+1) = annotation('textbox','Tag','outBoxStat','Position',[0.3,0.12,0.3,0.2],...
+            'Visible','Off','EdgeColor',[0.6 0.6 0.6]);
         
         %Define Models-plot Axis
         plotH(1) = axes('parent',hFig,'units','pixels','Position',...
-                       [leftMarginWidth+30 250 figureWidth-leftMarginWidth-50 figureHeight-topMarginHeight-260 ],...
-                       'color',defaultColor,'ytick',[],'xtick',[]);
-                        box on;
+            [leftMarginWidth+30 250 figureWidth-leftMarginWidth-50 figureHeight-topMarginHeight-260 ],...
+            'color',defaultColor,'ytick',[],'xtick',[],'box','on');
         plotH(2) = axes('parent',hFig,'tag','modelsAxis','tickdir', 'out',...
-                            'nextplot', 'add','units','pixels','Position',...
-                            [leftMarginWidth+60 posTop*2/4-00 figureWidth-leftMarginWidth-100 posTop*0.9/2],...
-                            'color','w','YAxisLocation','left','fontSize',8,'box','on','visible','on' );
+            'nextplot', 'add','units','pixels','Position',...
+            [leftMarginWidth+60 posTop*2/4-00 figureWidth-leftMarginWidth-100 posTop*0.9/2],...
+            'color','w','YAxisLocation','left','fontSize',8,'box','on','visible','on' );
         
         % Store handles
         ud.handle.inputH = inputH;
@@ -188,14 +189,57 @@ switch upper(command)
             %plot models
             ud.modelCurve = [ud.modelCurve plot(EUDv,ntcpV,'k','linewidth',2,...
                 'Color',colorOrder(row,:),'parent',ud.handles.modelsAxis(2))];
+            ud.modelCurve(i).DisplayName = modelC{i}.name;
             
         end
         
+        set(hFig,'userdata',ud);
+        
+        
+    case 'SHOW_MODEL_STAT'
+        ud = get(hFig,'userdata');
+        if ~isfield(ud,'modelCurve') || isempty(ud.modelCurve)
+            return
+        end
+        
+        %Display output
+        outStatBox = findall(gcf,'Tag','outBoxStat');
+        %Get selected statistic
+        selection = get(findobj('tag','statSelect'),'Value');
+        if selection==1  %'None'
+            outStatBox.String = [];
+            outStatBox.Visible = 'Off';
+        else
+            statC = getStat({ud.modelCurve.YData},selection);
+            statC = cellfun(@num2str,statC,'un',0);
+            outStatBox.Visible = 'On';
+            dispTextC = strcat({ud.modelCurve.DisplayName},{': '},statC).';
+            outStatBox.String = dispTextC;
+        end
+        
+        set(hFig,'userdata',ud);
         
     case 'CLOSEREQUEST'
         
         closereq
         
 end
+
+
+%%
+
+    function statC = getStat(dataC,userSel)
+        nModels = length(dataC);
+        statC = cell(1,nModels);
+        switch userSel
+            case 2
+                %fn1
+            case 3
+                %fn2
+        end
+        
+    end
+
+
 
 end
