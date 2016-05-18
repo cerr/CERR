@@ -1054,120 +1054,175 @@ switch upper(instr)
     case 'DUPLICATEAXIS'
         hAxis = varargin{1};
         %axisInfo = getAxisInfo(hAxis);        
-        axisInfo = getAxisInfo(hAxis);
-        if strcmpi(axisInfo.view, 'Legend')
-            return
-        end
-        % Create new axis
-        stateS.handle.CERRAxis(end+1) = axes('parent', hCSV, 'units', 'pixels', 'position', [1 1 1 1], 'color', [0 0 0], 'xTickLabel', [], 'yTickLabel', [], 'xTick', [], 'yTick', [], 'buttondownfcn', 'sliceCallBack(''axisClicked'')', 'nextplot', 'add', 'yDir', 'reverse', 'linewidth', 2);
-        axisNum = length(stateS.handle.CERRAxis);
-        tickV = linspace(0.02,0.1,6);
-        for j = 1:6
-            ticks1V(j) = line([tickV(j) tickV(j)], [0.01 0.03], [-2 -2], 'parent', stateS.handle.CERRAxis(axisNum), 'color', 'y', 'hittest', 'off');
-            ticks2V(j) = line([0.01 0.03], [tickV(j) tickV(j)], [-2 -2], 'parent', stateS.handle.CERRAxis(axisNum), 'color', 'y', 'hittest', 'off');
-        end
+        axisInfo = getAxisInfo(hAxis);  
         % clear axisInfo
         axisInfo.scanObj(1:end) = [];
         axisInfo.doseObj(1:end) = [];
         axisInfo.structureGroup(1:end) = [];
-        axisInfo.miscHandles = [];
-        axisInfo.xRange = [];
-        axisInfo.yRange = [];
-        % Create a pool of line objects
-        for i = 1:stateS.optS.linePoolSize
-            axisInfo.lineHandlePool(1).lineV(i) = line(NaN, NaN, 'parent', stateS.handle.CERRAxis(axisNum), 'linestyle', '-', 'hittest', 'off', 'visible', 'off');
-            axisInfo.lineHandlePool(1).dotsV(i) = line(NaN, NaN, 'parent', stateS.handle.CERRAxis(axisNum), 'linestyle', ':', 'hittest', 'off', 'visible', 'off');
+        axisInfo.miscHandles = [];        
+        if strcmpi(axisInfo.view, 'Legend')
+            return
         end
-        axisInfo.lineHandlePool(1).currentHandle = 0;
-        % Create axis labels
-        stateS.handle.CERRAxisLabel1(axisNum) = text('parent', stateS.handle.CERRAxis(axisNum), 'string', '', 'position', [.02 .98 0], 'color', [1 0 0], 'units', 'normalized', 'visible', 'off', 'horizontalAlignment', 'left', 'verticalAlignment', 'top');
+        
+        stateS.handle.CERRAxis(end+1) = axes('parent', hCSV, 'units', 'pixels',...
+            'position', [1 1 1 1], ...
+            'color', [0 0 0], 'xTickLabel', [], 'yTickLabel', [], 'xTick', [],...
+            'yTick', [], 'buttondownfcn', 'sliceCallBack(''axisClicked'')', ...
+            'nextplot', 'add', 'yDir', 'reverse', 'linewidth', 2, 'ZLim',[-2 2]);
+                       
+        axisNum = length(stateS.handle.CERRAxis);
+        
+        %Create in-axis labels for each axis.
+        tickV = linspace(0.02,0.1,6);
+        
+        stateS.handle.CERRAxisLabel1(axisNum) = text('parent', ...
+            stateS.handle.CERRAxis(axisNum), 'string', '', 'position', ...
+            [.02 .98 0], 'color', [1 0 0], 'units', 'normalized', ...
+            'visible', 'off', 'horizontalAlignment', 'left', ...
+            'verticalAlignment', 'top');
         stateS.handle.CERRAxisLabel2(axisNum) = text('parent', stateS.handle.CERRAxis(axisNum), 'string', '', 'position', [.90 .98 0], 'color', [1 0 0], 'units', 'normalized', 'visible', 'off', 'horizontalAlignment', 'left', 'verticalAlignment', 'top');
+        for j = 1:6
+            ticks1V(j) = line([tickV(j) tickV(j)], [0.01 0.03], [2 2],...
+                'parent', stateS.handle.CERRAxis(axisNum), 'color', 'y', 'hittest', 'off', 'visible', 'off');
+            ticks2V(j) = line([0.01 0.03], [tickV(j) tickV(j)], [2 2],...
+                'parent', stateS.handle.CERRAxis(axisNum), 'color', 'y', 'hittest', 'off', 'visible', 'off');
+        end
         stateS.handle.CERRAxisTicks1(axisNum,:) = ticks1V;
         stateS.handle.CERRAxisTicks2(axisNum,:) = ticks2V;
-        stateS.handle.CERRAxisScale1(axisNum) = line([0.02 0.1], [0.02 0.02], [-2 -2], 'parent', stateS.handle.CERRAxis(axisNum), 'color', [0.7 0.7 0.7], 'hittest', 'off');
-        stateS.handle.CERRAxisScale2(axisNum) = line([0.02 0.02], [0.02 0.1], [-2 -2], 'parent', stateS.handle.CERRAxis(axisNum), 'color', [0.7 0.7 0.7], 'hittest', 'off');
-        stateS.handle.CERRAxisLabel3(axisNum) = text('parent', stateS.handle.CERRAxis(axisNum), 'string', '5', 'position', [0.02 0.1 0], 'color', 'y', 'units', 'data', 'visible', 'off','fontSize',8);
-        stateS.handle.CERRAxisLabel4(axisNum) = text('parent', stateS.handle.CERRAxis(axisNum), 'string', '5', 'position', [0.1 0.02 0], 'color', 'y', 'units', 'data', 'visible', 'off','fontSize',8);
-        % Store labels as miscelaneous handles
-        axisInfo.miscHandles = [stateS.handle.CERRAxisLabel1(axisNum) stateS.handle.CERRAxisLabel2(axisNum) stateS.handle.CERRAxisLabel3(axisNum) stateS.handle.CERRAxisLabel4(axisNum) stateS.handle.CERRAxisScale1(axisNum) stateS.handle.CERRAxisScale2(end) stateS.handle.CERRAxisTicks1(axisNum,:) stateS.handle.CERRAxisTicks2(axisNum,:)];
-                
-        % Create plane locator handles
+        stateS.handle.CERRAxisScale1(axisNum) = line([0.02 0.1], [0.02 0.02], [2 2], 'parent', stateS.handle.CERRAxis(axisNum), 'color', [1 0.5 0.5], 'hittest', 'off', 'visible', 'off');
+        stateS.handle.CERRAxisScale2(axisNum) = line([0.02 0.02], [0.02 0.1], [2 2], 'parent', stateS.handle.CERRAxis(axisNum), 'color', [1 0.5 0.5], 'hittest', 'off', 'visible', 'off');
+        stateS.handle.CERRAxisLabel3(axisNum) = text('parent', stateS.handle.CERRAxis(axisNum), 'string', '5', 'position', [0.02 0.1 0], 'color', 'y', 'units', 'data', 'visible', 'off', 'hittest', 'off','fontSize',8);
+        stateS.handle.CERRAxisLabel4(axisNum) = text('parent', stateS.handle.CERRAxis(axisNum), 'string', '5', 'position', [0.1 0.02 0], 'color', 'y', 'units', 'data', 'visible', 'off', 'hittest', 'off','fontSize',8);
+        
+        stateS.handle.CERRAxisPlnLoc{axisNum} = [];
+        stateS.handle.CERRAxisPlnLocSdw{axisNum} = [];
+        
         for count = 1:10
             if stateS.MLVersion < 8.4
                 stateS.handle.CERRAxisPlnLocSdw{axisNum}(count) = line([0.02 0.1], [0.02 0.02], [2 2], 'parent', stateS.handle.CERRAxis(axisNum), 'Color', [0 0 0], 'tag', 'planeLocatorShadow', 'userdata', {'horz', 'trans', axisNum}, 'hittest', 'off', 'linewidth', 1, 'erasemode','xor');
-                stateS.handle.CERRAxisPlnLoc{axisNum}(count) = line([0.02 0.1], [0.02 0.02], [2 2], 'parent', stateS.handle.CERRAxis(axisNum), 'Color', [0 0 0], 'tag', 'planeLocator', 'userdata', {'vert', 'trans', axisNum}, 'linewidth', 1, 'erasemode','xor');
+                stateS.handle.CERRAxisPlnLoc{axisNum}(count) = line([0.02 0.1], [0.02 0.02], [2 2], 'parent', stateS.handle.CERRAxis(axisNum), 'Color', [0 0 0], 'tag', 'planeLocator',  'buttondownfcn', 'sliceCallBack(''locatorClicked'')', 'userdata', {'vert', 'trans', axisNum}, 'linewidth', 1, 'erasemode','xor');
             else
                 stateS.handle.CERRAxisPlnLocSdw{axisNum}(count) = line([0.02 0.1], [0.02 0.02], [2 2], 'parent', stateS.handle.CERRAxis(axisNum), 'Color', [0 0 0], 'tag', 'planeLocatorShadow', 'userdata', {'horz', 'trans', axisNum}, 'hittest', 'off', 'linewidth', 1);
-                stateS.handle.CERRAxisPlnLoc{axisNum}(count) = line([0.02 0.1], [0.02 0.02], [2 2], 'parent', stateS.handle.CERRAxis(axisNum), 'Color', [0 0 0], 'tag', 'planeLocator', 'userdata', {'vert', 'trans', axisNum}, 'linewidth', 1);
+                stateS.handle.CERRAxisPlnLoc{axisNum}(count) = line([0.02 0.1], [0.02 0.02], [2 2], 'parent', stateS.handle.CERRAxis(axisNum), 'Color', [0 0 0], 'tag', 'planeLocator',  'buttondownfcn', 'sliceCallBack(''locatorClicked'')', 'userdata', {'vert', 'trans', axisNum}, 'linewidth', 1);
             end
-        end        
+        end
         
-        %set(stateS.handle.CERRAxis(end), 'userdata', axisInfo);
-        %stateS.handle.aI(axisNum) = axisInfo;
+        
+        axisInfo.miscHandles = [axisInfo.miscHandles stateS.handle.CERRAxisLabel1(axisNum) ...
+            stateS.handle.CERRAxisLabel2(axisNum) stateS.handle.CERRAxisLabel3(axisNum) ...
+            stateS.handle.CERRAxisLabel4(axisNum) stateS.handle.CERRAxisScale1(axisNum) ...
+            stateS.handle.CERRAxisScale2(axisNum) stateS.handle.CERRAxisTicks1(axisNum,:) ...
+            stateS.handle.CERRAxisTicks2(axisNum,:) stateS.handle.CERRAxisPlnLoc{axisNum} ...
+            stateS.handle.CERRAxisPlnLocSdw{axisNum}];
+
+            
+        % Create a pool of line objects to display contours
+        for i = 1:stateS.optS.linePoolSize
+            axisInfo.lineHandlePool(1).lineV(i) = line(NaN, NaN, 'parent', ...
+                stateS.handle.CERRAxis(axisNum), 'linestyle', '-', ...
+                'hittest', 'off', 'visible', 'off');
+            axisInfo.lineHandlePool(1).dotsV(i) = line(NaN, NaN, 'parent', ...
+                stateS.handle.CERRAxis(axisNum), 'linestyle', ':', ...
+                'hittest', 'off', 'visible', 'off');
+        end
+        axisInfo.lineHandlePool(1).currentHandle = 0;
         stateS.handle.aI = dissimilarInsert(stateS.handle.aI,axisInfo);
+        
+        % Create right click menus on this axis
         CERRAxisMenu(stateS.handle.CERRAxis(axisNum));
         sliceCallBack('RESIZE');
+        stateS.CTDisplayChanged = 1;
         CERRRefresh
         return;
 
     case 'DUPLICATELINKAXIS'
+        
         hAxis = varargin{1};
-        %axisInfo = get(hAxis, 'userdata');
-        axisInfo = getAxisInfo(hAxis);
-        if strcmpi(axisInfo.view, 'Legend')
-            return
-        end        
-        % Create new axis
-        stateS.handle.CERRAxis(end+1) = axes('parent', hCSV, 'units', 'pixels', 'position', [1 1 1 1], 'color', [0 0 0], 'xTickLabel', [], 'yTickLabel', [], 'xTick', [], 'yTick', [], 'buttondownfcn', 'sliceCallBack(''axisClicked'')', 'nextplot', 'add', 'yDir', 'reverse', 'linewidth', 2);
-        axisNum = length(stateS.handle.CERRAxis);
-        tickV = linspace(0.02,0.1,6);
-        for j = 1:6
-            ticks1V(j) = line([tickV(j) tickV(j)], [0.01 0.03], [-2 -2], 'parent', stateS.handle.CERRAxis(axisNum), 'color', 'y', 'hittest', 'off');
-            ticks2V(j) = line([0.01 0.03], [tickV(j) tickV(j)], [-2 -2], 'parent', stateS.handle.CERRAxis(axisNum), 'color', 'y', 'hittest', 'off');
-        end
+        %axisInfo = getAxisInfo(hAxis);        
+        axisInfo = getAxisInfo(hAxis);  
         % clear axisInfo
         axisInfo.scanObj(1:end) = [];
         axisInfo.doseObj(1:end) = [];
         axisInfo.structureGroup(1:end) = [];
-        axisInfo.miscHandles = [];
-        % Create a pool of line objects
-        for i = 1:stateS.optS.linePoolSize
-            axisInfo.lineHandlePool(1).lineV(i) = line(NaN, NaN, 'parent', stateS.handle.CERRAxis(axisNum), 'linestyle', '-', 'hittest', 'off', 'visible', 'off');
-            axisInfo.lineHandlePool(1).dotsV(i) = line(NaN, NaN, 'parent', stateS.handle.CERRAxis(axisNum), 'linestyle', ':', 'hittest', 'off', 'visible', 'off');
+        axisInfo.miscHandles = [];        
+        if strcmpi(axisInfo.view, 'Legend')
+            return
         end
-        axisInfo.lineHandlePool(1).currentHandle = 0;
-        % Create axis labels
-        stateS.handle.CERRAxisLabel1(end+1) = text('parent', stateS.handle.CERRAxis(axisNum), 'string', '', 'position', [.02 .98 0], 'color', [1 0 0], 'units', 'normalized', 'visible', 'off', 'horizontalAlignment', 'left', 'verticalAlignment', 'top');
-        stateS.handle.CERRAxisLabel2(end+1) = text('parent', stateS.handle.CERRAxis(axisNum), 'string', '', 'position', [.90 .98 0], 'color', [1 0 0], 'units', 'normalized', 'visible', 'off', 'horizontalAlignment', 'left', 'verticalAlignment', 'top');
-        stateS.handle.CERRAxisTicks1(end+1,:) = ticks1V;
-        stateS.handle.CERRAxisTicks2(end+1,:) = ticks2V;
-        stateS.handle.CERRAxisScale1(end+1) = line([0.02 0.1], [0.02 0.02], [-2 -2], 'parent', stateS.handle.CERRAxis(axisNum), 'color', [0.7 0.7 0.7], 'hittest', 'off');
-        stateS.handle.CERRAxisScale2(end+1) = line([0.02 0.02], [0.02 0.1], [-2 -2], 'parent', stateS.handle.CERRAxis(axisNum), 'color', [0.7 0.7 0.7], 'hittest', 'off');
-        stateS.handle.CERRAxisLabel3(end+1) = text('parent', stateS.handle.CERRAxis(axisNum), 'string', '5', 'position', [0.02 0.1 0], 'color', 'y', 'units', 'data', 'visible', 'off','fontSize',8);
-        stateS.handle.CERRAxisLabel4(end+1) = text('parent', stateS.handle.CERRAxis(axisNum), 'string', '5', 'position', [0.1 0.02 0], 'color', 'y', 'units', 'data', 'visible', 'off','fontSize',8);
-        % Store labels as miscelaneous handles
-        axisInfo.miscHandles = [stateS.handle.CERRAxisLabel1(axisNum) stateS.handle.CERRAxisLabel2(axisNum) stateS.handle.CERRAxisLabel3(axisNum) stateS.handle.CERRAxisLabel4(axisNum) stateS.handle.CERRAxisScale1(axisNum) stateS.handle.CERRAxisScale2(axisNum) stateS.handle.CERRAxisTicks1(axisNum,:) stateS.handle.CERRAxisTicks2(axisNum,:)];
-        axisInfo.coord       = {'Linked', hAxis};
-        axisInfo.view        = {'Linked', hAxis};
-        axisInfo.xRange      = {'Linked', hAxis};
-        axisInfo.yRange      = {'Linked', hAxis};
-        % Create plane locator handles
+        
+        stateS.handle.CERRAxis(end+1) = axes('parent', hCSV, 'units', 'pixels',...
+            'position', [1 1 1 1], ...
+            'color', [0 0 0], 'xTickLabel', [], 'yTickLabel', [], 'xTick', [],...
+            'yTick', [], 'buttondownfcn', 'sliceCallBack(''axisClicked'')', ...
+            'nextplot', 'add', 'yDir', 'reverse', 'linewidth', 2, 'ZLim',[-2 2]);
+                       
+        axisNum = length(stateS.handle.CERRAxis);
+        
+        %Create in-axis labels for each axis.
+        tickV = linspace(0.02,0.1,6);
+        
+        stateS.handle.CERRAxisLabel1(axisNum) = text('parent', ...
+            stateS.handle.CERRAxis(axisNum), 'string', '', 'position', ...
+            [.02 .98 0], 'color', [1 0 0], 'units', 'normalized', ...
+            'visible', 'off', 'horizontalAlignment', 'left', ...
+            'verticalAlignment', 'top');
+        stateS.handle.CERRAxisLabel2(axisNum) = text('parent', stateS.handle.CERRAxis(axisNum), 'string', '', 'position', [.90 .98 0], 'color', [1 0 0], 'units', 'normalized', 'visible', 'off', 'horizontalAlignment', 'left', 'verticalAlignment', 'top');
+        for j = 1:6
+            ticks1V(j) = line([tickV(j) tickV(j)], [0.01 0.03], [2 2],...
+                'parent', stateS.handle.CERRAxis(axisNum), 'color', 'y', 'hittest', 'off', 'visible', 'off');
+            ticks2V(j) = line([0.01 0.03], [tickV(j) tickV(j)], [2 2],...
+                'parent', stateS.handle.CERRAxis(axisNum), 'color', 'y', 'hittest', 'off', 'visible', 'off');
+        end
+        stateS.handle.CERRAxisTicks1(axisNum,:) = ticks1V;
+        stateS.handle.CERRAxisTicks2(axisNum,:) = ticks2V;
+        stateS.handle.CERRAxisScale1(axisNum) = line([0.02 0.1], [0.02 0.02], [2 2], 'parent', stateS.handle.CERRAxis(axisNum), 'color', [1 0.5 0.5], 'hittest', 'off', 'visible', 'off');
+        stateS.handle.CERRAxisScale2(axisNum) = line([0.02 0.02], [0.02 0.1], [2 2], 'parent', stateS.handle.CERRAxis(axisNum), 'color', [1 0.5 0.5], 'hittest', 'off', 'visible', 'off');
+        stateS.handle.CERRAxisLabel3(axisNum) = text('parent', stateS.handle.CERRAxis(axisNum), 'string', '5', 'position', [0.02 0.1 0], 'color', 'y', 'units', 'data', 'visible', 'off', 'hittest', 'off','fontSize',8);
+        stateS.handle.CERRAxisLabel4(axisNum) = text('parent', stateS.handle.CERRAxis(axisNum), 'string', '5', 'position', [0.1 0.02 0], 'color', 'y', 'units', 'data', 'visible', 'off', 'hittest', 'off','fontSize',8);
+        
+        stateS.handle.CERRAxisPlnLoc{axisNum} = [];
+        stateS.handle.CERRAxisPlnLocSdw{axisNum} = [];
+        
         for count = 1:10
             if stateS.MLVersion < 8.4
                 stateS.handle.CERRAxisPlnLocSdw{axisNum}(count) = line([0.02 0.1], [0.02 0.02], [2 2], 'parent', stateS.handle.CERRAxis(axisNum), 'Color', [0 0 0], 'tag', 'planeLocatorShadow', 'userdata', {'horz', 'trans', axisNum}, 'hittest', 'off', 'linewidth', 1, 'erasemode','xor');
-                stateS.handle.CERRAxisPlnLoc{axisNum}(count) = line([0.02 0.1], [0.02 0.02], [2 2], 'parent', stateS.handle.CERRAxis(axisNum), 'Color', [0 0 0], 'tag', 'planeLocator', 'userdata', {'vert', 'trans', axisNum}, 'linewidth', 1, 'erasemode','xor');
+                stateS.handle.CERRAxisPlnLoc{axisNum}(count) = line([0.02 0.1], [0.02 0.02], [2 2], 'parent', stateS.handle.CERRAxis(axisNum), 'Color', [0 0 0], 'tag', 'planeLocator',  'buttondownfcn', 'sliceCallBack(''locatorClicked'')', 'userdata', {'vert', 'trans', axisNum}, 'linewidth', 1, 'erasemode','xor');
             else
                 stateS.handle.CERRAxisPlnLocSdw{axisNum}(count) = line([0.02 0.1], [0.02 0.02], [2 2], 'parent', stateS.handle.CERRAxis(axisNum), 'Color', [0 0 0], 'tag', 'planeLocatorShadow', 'userdata', {'horz', 'trans', axisNum}, 'hittest', 'off', 'linewidth', 1);
-                stateS.handle.CERRAxisPlnLoc{axisNum}(count) = line([0.02 0.1], [0.02 0.02], [2 2], 'parent', stateS.handle.CERRAxis(axisNum), 'Color', [0 0 0], 'tag', 'planeLocator', 'userdata', {'vert', 'trans', axisNum}, 'linewidth', 1);
+                stateS.handle.CERRAxisPlnLoc{axisNum}(count) = line([0.02 0.1], [0.02 0.02], [2 2], 'parent', stateS.handle.CERRAxis(axisNum), 'Color', [0 0 0], 'tag', 'planeLocator',  'buttondownfcn', 'sliceCallBack(''locatorClicked'')', 'userdata', {'vert', 'trans', axisNum}, 'linewidth', 1);
             end
-        end        
+        end
         
-        %set(stateS.handle.CERRAxis(end), 'userdata', axisInfo);
-        stateS.handle.aI(axisNum) = axisInfo;
-        %set(stateS.handle.CERRAxis(end), 'userdata', axisInfo);
-        CERRAxisMenu(stateS.handle.CERRAxis(end));
+        
+        axisInfo.miscHandles = [axisInfo.miscHandles stateS.handle.CERRAxisLabel1(axisNum) ...
+            stateS.handle.CERRAxisLabel2(axisNum) stateS.handle.CERRAxisLabel3(axisNum) ...
+            stateS.handle.CERRAxisLabel4(axisNum) stateS.handle.CERRAxisScale1(axisNum) ...
+            stateS.handle.CERRAxisScale2(axisNum) stateS.handle.CERRAxisTicks1(axisNum,:) ...
+            stateS.handle.CERRAxisTicks2(axisNum,:) stateS.handle.CERRAxisPlnLoc{axisNum} ...
+            stateS.handle.CERRAxisPlnLocSdw{axisNum}];
+
+            
+        % Create a pool of line objects to display contours
+        for i = 1:stateS.optS.linePoolSize
+            axisInfo.lineHandlePool(1).lineV(i) = line(NaN, NaN, 'parent', ...
+                stateS.handle.CERRAxis(axisNum), 'linestyle', '-', ...
+                'hittest', 'off', 'visible', 'off');
+            axisInfo.lineHandlePool(1).dotsV(i) = line(NaN, NaN, 'parent', ...
+                stateS.handle.CERRAxis(axisNum), 'linestyle', ':', ...
+                'hittest', 'off', 'visible', 'off');
+        end
+        axisInfo.lineHandlePool(1).currentHandle = 0;
+        axisInfo.coord       = {'Linked', hAxis};
+        axisInfo.view        = {'Linked', hAxis};
+        axisInfo.xRange      = {'Linked', hAxis};
+        axisInfo.yRange      = {'Linked', hAxis};        
+        stateS.handle.aI = dissimilarInsert(stateS.handle.aI,axisInfo);        
+     
+        % Create right click menus on this axis
+        CERRAxisMenu(stateS.handle.CERRAxis(axisNum));
         sliceCallBack('RESIZE');
+        stateS.CTDisplayChanged = 1;
         CERRRefresh
+        return;        
 
     case 'AXISCLICKED'
         hAxis = gca;
@@ -1318,7 +1373,7 @@ switch upper(instr)
                     %for i=1:length(stateS.handle.CERRAxis)
                     %    CERRAxisMenu(stateS.handle.CERRAxis(i));
                     %end
-                    if stateS.contourState && stateS.currentAxis == stateS.contourAxis
+                    if stateS.contourState && isequal(hAxis,stateS.handle.CERRAxis(stateS.contourAxis))
                         set(hAxis, 'uicontextmenu', []);
                     else
                         CERRAxisMenu(hAxis)
@@ -3201,7 +3256,7 @@ switch upper(instr)
                 stateS.handle.aI(ind) = [];
                 
                 stateS.currentAxis = 1;
-                %sliceCallBack('resize')
+                sliceCallBack('resize')
                 return;
         end
         setAxisInfo(hAxis, 'coord', coord, 'view', view, 'xRange', [], 'yRange', []);
