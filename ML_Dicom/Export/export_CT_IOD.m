@@ -76,13 +76,25 @@ for scanNum = 1:length(planC{indexS.scan})
     nBits = 16;
     
     %Determine the scaling factor if scanArray is other than uint16
-    maxScaled  = 2^nBits;
-    maxScan = max([max(scanS.scanArray(:)) maxScaled]);
-    scaleFactor = maxScaled/maxScan;
-    if scaleFactor >= 1
-        scaleFactor = 1;
+    modality = scanS.scanInfo(1).imageType;
+    if strcmpi(modality,'PT')
+        if max(scanS.scanArray(:)) < 500 % assume suv
+            dcmheader = scanS.scanInfo(1).DICOMHeaders;
+            scanS.scanArray = suvToCounts(scanS.scanArray,dcmheader);
+            scanS.scanArray = scanS.scanArray / dcmheader.RescaleSlope;
+        else
+            scanS.scanArray = scanS.scanArray / dcmheader.RescaleSlope;
+        end
+        scaleFactor = dcmheader.RescaleSlope;
+    else
+        maxScaled  = 2^nBits;
+        maxScan = max([max(scanS.scanArray(:)) maxScaled]);
+        scaleFactor = maxScaled/maxScan;
+        if scaleFactor >= 1
+            scaleFactor = 1;
+        end
     end
-
+    
     %For slice-specific modules iterate over scaninfo.
     for i=1:length(scanS.scanInfo)
 
