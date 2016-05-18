@@ -115,6 +115,7 @@ for i=1:length(scanSets);
         axisInfo.scanObj(numObjs+1).view    = view;
         axisInfo.scanObj(numObjs+1).transM  = getTransM('scan', scanSets(i), planC);
         axisInfo.scanObj(numObjs+1).redraw  = 1;
+        axisInfo.scanObj(numObjs+1).handles = [];
     end
 end
 
@@ -353,7 +354,7 @@ for i=1:length(axisInfo.scanObj)
                 end
                 hImage = surface(xM, yM, zM, 'faceColor', 'texturemap', 'cData', cDataUpSampled3M, 'edgecolor', 'none', 'facealpha', alpha, 'parent', hAxis, 'tag', 'DoseImage', 'hittest', 'off');
 
-                axisInfo.scanObj(1).handles = [axisInfo.scanObj(1).handles hImage];
+                axisInfo.scanObj(i).handles = [axisInfo.scanObj(i).handles hImage];
             end
         end
     end
