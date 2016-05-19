@@ -1,5 +1,5 @@
 function [energy3M,entropy3M,sumAvg3M,corr3M,invDiffMom3M,contrast3M,...
-    clustShade3M,clustPromin3M] = textureByPatch(scanArray3M, nL, ...
+    clustShade3M,clustPromin3M,haralCorr3M] = textureByPatch(scanArray3M, nL, ...
     patchSizeV, offsetsM, flagv, hWait)
 % function [energy3M,entropy3M,sumAvg3M,corr3M,invDiffMom3M,contrast3M,...
 %     clustShade3M,clustPromin3M] = textureByPatch(scanArray3M, nL, ...
@@ -26,26 +26,6 @@ end
 calcIndM = ~isnan(scanArray3M);
 
 % % Grid resolution
-% deltaX = deltaXYZv(1);
-% deltaY = deltaXYZv(2);
-% deltaZ = deltaXYZv(3);
-% 
-% % Get Block size to process
-% slcWindow = floor(2*patchSizeV(3)/deltaZ);
-% rowWindow = floor(2*patchSizeV(1)/deltaY);
-% colWindow = floor(2*patchSizeV(2)/deltaX);
-% 
-% % Make sure that the window is of odd size
-% if mod(slcWindow,2) == 0
-%     slcWindow = slcWindow + 1;
-% end
-% if mod(rowWindow,2) == 0
-%     rowWindow = rowWindow + 1;
-% end
-% if mod(colWindow,2) == 0
-%     colWindow = colWindow + 1;
-% end
-
 slcWindow = 2 * patchSizeV(3) + 1;
 rowWindow = 2 * patchSizeV(1) + 1;
 colWindow = 2 * patchSizeV(2) + 1;
@@ -119,28 +99,20 @@ lin_row = permute(bsxfun(@plus,start_ind,[0:rowWindow-1])',[1 3 2]);  %//'
 indM = reshape(bsxfun(@plus,lin_row,(0:colWindow-1)*m),rowWindow*colWindow,[]);
 
 % % Directional offsets
-% offsetsM = [1 0 0;
-%     0 1 0;
-%     1 1 0;
-%     1 -1 0;     
-%     0 0 1;      
-%     1 0 1;
-%     1 1 1;
-%     1 -1 1;    
-%     0 1 1;
-%     0 -1 1;    
-%     -1 -1 1;
-%     -1 0 1;
-%     -1 1 1];
-
 numOffsets = size(offsetsM,1);
 
 % Indices of last level to filter out
 nanIndV = false([lq*lq,1]);
 nanIndV([lq:lq:lq*lq-lq, lq*lq-lq:lq*lq]) = true;
 
-% Build list of indices for contrast calculation
+% Build levels vector for mu, sig
+levRowV = repmat(1:lq,[1 lq]);
+levColV = repmat(1:lq,[lq 1]);
+levColV = levColV(:)';
+
+% Build list of indices for px and contrast calculation
 for n=0:lq-1
+    % indices for p(x-y), contrast
     indCtrstV = false(lq*lq,1);
     indCtrst1V = 1:lq-n;
     indCtrst2V = 1+n:lq;
@@ -149,7 +121,22 @@ for n=0:lq-1
     indCtrstV(indCtrstTmpV) = 1;
     indCtrstV(nanIndV) = [];
     indCtrstC{n+1} = indCtrstV;
+       
+    % indices for px
+    indPxV = false(lq*lq,1);
+    indPxV(lq*n+1:lq*(n+1)) = true;
+    indPxV(nanIndV) = [];
+    indPxC{n+1} = indPxV;
+        
 end
+for n=1:2*lq
+    % indices for p(x+y)
+    indPxPlusYv = false(lq*lq,1);
+    indPxPlusYv(levRowV + levColV == n) = 1;
+    indPxPlusYv(nanIndV) = [];
+    indPxPlusYc{n+1} = indPxPlusYv;
+end
+
 
 % Build linear indices column/row-wise for Symmetry
 indRowV = zeros(1,lq*lq);
@@ -157,10 +144,7 @@ for i=1:lq
     indRowV((i-1)*lq+1:(i-1)*lq+lq) = i:lq:lq*lq;
 end
 
-% Build levels vector for mu, sig
-levRowV = repmat(1:lq,[1 lq]);
-levColV = repmat(1:lq,[lq 1]);
-levColV = levColV(:)';
+% Filter out NaN levels
 levRowV(nanIndV) = [];
 levColV(nanIndV) = [];
 
@@ -174,6 +158,7 @@ invDiffMom3M = [];
 contrast3M = [];
 clustShade3M = [];
 clustPromin3M = [];
+haralCorr3M = [];
 if flagv(1)
     energy3M = zeros([numRows, numCols, numSlices],'single');
 end
@@ -213,6 +198,7 @@ for slcNum = 1:numSlices
     if flagv(6), contrastV = zeros(1,numVoxels,'single'); end
     if flagv(7), clustShadeV = zeros(1,numVoxels,'single'); end
     if flagv(8), clustProminV = zeros(1,numVoxels,'single'); end    
+    if flagv(9), haralCorrV = zeros(1,numVoxels,'single'); end    
     
     calcSlcIndV = calcIndM(:,:,slcNum);
     calcSlcIndV = calcSlcIndV(:);
@@ -273,70 +259,83 @@ for slcNum = 1:numSlices
                 sum(cooccurPatchM.*log2(cooccurPatchM+1e-10));
         end
         % Contrast, inverse Difference Moment
-        for n=0:lq-1
+        for n=0:nL-1
+            % px
+            px(n+1,:) = sum(cooccurPatchM(indPxC{n+1},:),1);
+            % p(x-y)
+            pXminusY(n+1,:) = sum(cooccurPatchM(indCtrstC{n+1},:),1);
+            % muX
+            muX(n+1,:) = (1:nL)*cooccurPatchM(indPxC{n+1},:);
+            % sigX
+            sigTmp = bsxfun(@minus,n+1,muX(n+1,:));
+            sigTmp = bsxfun(@times,sigTmp.^2,px(n+1,:));
+            sigX(n+1,:) = sqrt(sum(sigTmp,1));
+            % Contrast
             if flagv(6)
                 contrastV(calcSlcIndV) = contrastV(calcSlcIndV) + ...
                     sum(n^2*cooccurPatchM(indCtrstC{n+1},:));
             end
+            % inv diff moment
             if flagv(5)
                 invDiffMomV(calcSlcIndV) = invDiffMomV(calcSlcIndV) + ...
-                    sum((1/1+n)^2*cooccurPatchM(indCtrstC{n+1},:));
+                    sum((1/(1+n^2))*cooccurPatchM(indCtrstC{n+1},:));
             end
         end 
-        % weighted pixel average (mu), weighted pixel variance (sig)
-        mu = levRowV*cooccurPatchM;
-        sig = zeros(1,numCalcVoxs);
-        clustShadeTmpV  = zeros(1,numCalcVoxs);
-        clustProminTmpV = zeros(1,numCalcVoxs);
-        sumAvgTmpV      = zeros(1,numCalcVoxs);
-        corrTmpV        = zeros(1,numCalcVoxs);
-        for colNum = 1:numCalcVoxs
-            sig(colNum) = (levRowV-mu(colNum)).^2*cooccurPatchM(:,colNum);
-            clstrV = (levRowV + levColV - 2*mu(colNum));
-            % Cluster Shade
-            if flagv(7)
-                clustShadeTmpV(colNum) = clstrV.*clstrV.*clstrV * cooccurPatchM(:,colNum);
-            end
-            % Cluster Prominence
-            %             clustProminTmpV(colNum) = (levRowV + levColV - 2*mu(colNum)).^4 ...
-            %                 * cooccurPatchM(:,colNum);
-            if flagv(8)
-                clustProminTmpV(colNum) = clstrV.*clstrV.*clstrV.*clstrV ...
-                    * cooccurPatchM(:,colNum);
-            end
-            % Sum Avg
+        
+        for n=1:2*nL
+            % p(x+y)
+            pXplusY(n,:) = sum(cooccurPatchM(indPxPlusYc{n+1},:),1);
+            % Sum Average
             if flagv(3)
-                sumAvgTmpV(colNum) = (levRowV + levColV + 2) * cooccurPatchM(:,colNum);
+                sumAvgV(calcSlcIndV) = sumAvgV(calcSlcIndV) + n*pXplusY(n,:);
             end
-            % Correlation
-            if flagv(4)
-                corrTmpV(colNum) = (levRowV .* levColV *cooccurPatchM(:,colNum) - ...
-                    mu(colNum)*mu(colNum)) / var(colNum);
-            end
-            
         end
+       
+        % weighted pixel average (mu), weighted pixel variance (sig)
+        mu = (1:nL) * px;
+        sig = bsxfun(@minus,(1:nL)',mu);
+        sig = sum(sig .*sig .* px, 1);
+        
+        % Correlation
+        if flagv(4)            
+            levIMinusMu = bsxfun(@minus,levRowV',mu);
+            levJMinusMu = bsxfun(@minus,levColV',mu);            
+            %sig = sum(levIMinusMu.^2 .* cooccurPatchM,1);            
+            corrV(calcSlcIndV) = corrV(calcSlcIndV) + ...
+                sum(levIMinusMu .* levJMinusMu  .* cooccurPatchM, 1) ...
+                ./ (sig + 1e-10); % sig.^2 to match ITK results (ITK bug)            
+        end
+
+        % Cluster Shade
         if flagv(7)
-            clustShadeV(calcSlcIndV) = clustShadeV(calcSlcIndV) + clustShadeTmpV;
+            levIMinusMu = bsxfun(@minus,levRowV',mu);
+            levJMinusMu = bsxfun(@minus,levColV',mu);            
+            clstrV = levIMinusMu + levJMinusMu;
+            clustShadeV(calcSlcIndV) = clustShadeV(calcSlcIndV) + ...
+                sum(clstrV.*clstrV.*clstrV .* cooccurPatchM, 1);
         end
+        % Cluster Prominence
         if flagv(8)
-            clustProminV(calcSlcIndV) = clustProminV(calcSlcIndV) + clustProminTmpV;
+            levIMinusMu = bsxfun(@minus,levRowV',mu);
+            levJMinusMu = bsxfun(@minus,levColV',mu);            
+            clstrV = levIMinusMu + levJMinusMu;            
+            clustProminV(calcSlcIndV) = clustProminV(calcSlcIndV) + ...
+                sum(clstrV.*clstrV.*clstrV.*clstrV .* cooccurPatchM, 1);
         end
-        if flagv(3)
-            sumAvgV(calcSlcIndV) = sumAvgV(calcSlcIndV) + sumAvgTmpV;
-        end
-        if flagv(4)
-            corrV(calcSlcIndV) = corrV(calcSlcIndV) + corrTmpV;
-        end        
+        
+        % Haralick Correlation
+         if flagv(9)             
+             muX = mean(px,1);
+             aa = std(px,0,1)+1e-6;
+             sigX = bsxfun(@minus,px,muX);
+             sigX = sum(sigX .*sigX, 1)/(nL-1);             
+             haralCorrV(calcSlcIndV) = haralCorrV(calcSlcIndV) + ...
+                 (levRowV .* levColV *cooccurPatchM - ...
+                 muX .* muX) ./ (sigX + 1e-6);
+         end        
     end
     
-%     % Average texture from all directions
-%     energyV = energyV / numOffsets;
-%     entropyV = entropyV / numOffsets;
-%     contrastV = contrastV / numOffsets;
-%     invDiffMomV = invDiffMomV / numOffsets;
-%     clustShadeV = clustShadeV / numOffsets;
-%     clustProminV = clustProminV / numOffsets;
-    
+    % Average texture from all directions
     if flagv(1)
         energyV = energyV / numOffsets;
         energy3M(:,:,slcNum) = reshape(energyV(:),[numRows, numCols]);
@@ -369,6 +368,11 @@ for slcNum = 1:numSlices
     if flagv(8)
         clustProminV = clustProminV / numOffsets;
         clustPromin3M(:,:,slcNum) = reshape(clustProminV(:),[numRows, numCols]);
+    end
+    
+    if flagv(9)
+        haralCorrV = haralCorrV / numOffsets;
+        haralCorr3M(:,:,slcNum) = reshape(haralCorrV(:),[numRows, numCols]);                
     end
     
     if waitbarFlag
