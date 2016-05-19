@@ -676,13 +676,13 @@ switch upper(instr)
                 planC = setUniformizedData(planC);
             end
             
-            %Uniformize the plan if necessary.
-            for i=1:length(planC{indexS.scan})
-                if ~isUniformized(i, planC)
-                    planC = setUniformizedData(planC);
-                    break;
-                end
-            end
+            %%Uniformize the plan if necessary.
+            %for i=1:length(planC{indexS.scan})
+            %    if ~isUniformized(i, planC)
+            %        planC = setUniformizedData(planC);
+            %        break;
+            %    end
+            %end
             % DK
             
             %Clear cache if it was saved in planC.
