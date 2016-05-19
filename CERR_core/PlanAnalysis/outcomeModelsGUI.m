@@ -79,10 +79,10 @@ switch upper(command)
         
         % create Dose and structure handles
         inputH(1) = uicontrol(hFig,'tag','titleFrame','units','pixels',...
-            'Position',[10 250 leftMarginWidth figureHeight-topMarginHeight-260 ],...
+            'Position',[10 220 leftMarginWidth figureHeight-topMarginHeight-230 ],...
             'Style','frame','backgroundColor',defaultColor);
         inputH(end+1) = uicontrol(hFig,'tag','doseStructTitle','units','pixels',...
-            'Position',[20 posTop-40 150 20], 'String','DOSE & STRUCTURE',...
+            'Position',[20 posTop-50 150 20], 'String','DOSE & STRUCTURE',...
             'Style','text', 'fontSize',9.5,'FontWeight','Bold','BackgroundColor',...
             defaultColor,'HorizontalAlignment','left');
         prefix = 'Select a dose.';
@@ -90,24 +90,23 @@ switch upper(command)
         prefix = 'Select a structure.';
         structList = {prefix, planC{indexS.structures}.structureName};
         inputH(end+1) = uicontrol(hFig,'tag','doseStatic','units','pixels',...
-            'Position',[20 posTop-70 120 20], 'String','Select Dose','Style',...
+            'Position',[20 posTop-80 120 20], 'String','Select Dose','Style',...
             'text', 'fontSize',8,'FontWeight','normal','BackgroundColor',...
             defaultColor,'HorizontalAlignment','left');
         inputH(end+1) = uicontrol(hFig,'tag','doseSelect','units','pixels',...
-            'Position',[120 posTop-70 120 20], 'String',doseList,'Style',...
+            'Position',[120 posTop-80 120 20], 'String',doseList,'Style',...
             'popup', 'fontSize',9,'FontWeight','normal','BackgroundColor',...
-            [1 1 1],'HorizontalAlignment','left');
+            [1 1 1],'HorizontalAlignment','left','Callback','outcomeModelsGUI(''GET_DOSE'')');
         inputH(end+1) = uicontrol(hFig,'tag','structStatic','units','pixels',...
-            'Position',[20 posTop-100 120 20], 'String','Select Structure',...
+            'Position',[20 posTop-110 120 20], 'String','Select Structure',...
             'Style','text', 'fontSize',8,'FontWeight','normal','BackgroundColor',...
             defaultColor,'HorizontalAlignment','left');
         inputH(end+1) = uicontrol(hFig,'tag','structSelect','units','pixels',...
-            'Position',[120 posTop-100 120 20], 'String',structList,'Style',...
+            'Position',[120 posTop-110 120 20], 'String',structList,'Style',...
             'popup', 'fontSize',9,'FontWeight','normal','BackgroundColor',[1 1 1],...
-            'HorizontalAlignment','left');
-        
+            'HorizontalAlignment','left','Callback','outcomeModelsGUI(''GET_STRUCT'')');
         inputH(end+1) = uicontrol(hFig,'tag','modelTitle','units','pixels',...
-            'Position',[20 posTop-140 180 20], 'String','MODELS','Style','text',...
+            'Position',[20 posTop-150 180 20], 'String','MODELS','Style','text',...
             'fontSize',9.5,'FontWeight','Bold','BackgroundColor',defaultColor,...
             'HorizontalAlignment','left');
         inputH(end+1) = uicontrol(hFig,'tag','modelFileSelect','units','pixels',...
@@ -116,17 +115,21 @@ switch upper(command)
             'FontWeight','normal','BackgroundColor',defaultColor,...
             'HorizontalAlignment','right','callback',...
             'outcomeModelsGUI(''LOAD_MODELS'')');
+        inputH(end+1) = annotation(hFig,'textbox','Tag','dispModel','Position',[0.05,0.4,0.3,0.2],...
+            'Visible','Off','EdgeColor',[0.6 0.6 0.6]);
+        inputH(end+1) = uicontrol(hFig,'units','pixels','Tag','plot','Position',[230 posTop-300 65 30],...
+            'String','Plot','Style','Push', 'fontSize',9,'FontWeight','normal','Enable','Off','Callback','outcomeModelsGUI(''PLOT_MODELS'')');
         
         %Create Model-Stats handles
-        dvhStatH(1) = axes('Parent',hFig,'units','Pixels','Position',[20 figureHeight-topMarginHeight-525 760 200 ],...
+        dvhStatH(1) = axes('Parent',hFig,'units','Pixels','Position',[10 figureHeight-topMarginHeight-530 770 190 ],...
             'Color',defaultColor,'ytick',[],'xtick',[], 'box', 'on');
         dvhStatH(end+1) = uicontrol(hFig,'tag','modelStatsTitle','units','pixels',...
-            'Position',[25 posTop-350 150 20], 'String','Model Stats','Style',...
+            'Position',[25 posTop-380 150 20], 'String','Model Stats','Style',...
             'text', 'fontSize',9.5,'FontWeight','Bold','BackgroundColor',...
             defaultColor,'HorizontalAlignment','left');
         statsC = {'None','stat1','stat2'}; %%?Stats --add!
         dvhStatH(end+1) = uicontrol(hFig,'tag','statSelect','units','pixels',...
-            'Position',[25 posTop-375 140 20], 'String',statsC,'Style','popup',...
+            'Position',[25 posTop-400 140 20], 'String',statsC,'Style','popup',...
             'fontSize',9,'FontWeight','normal','BackgroundColor',[1 1 1],...
             'HorizontalAlignment','left','callback',...
             'outcomeModelsGUI(''SHOW_MODEL_STAT'')');
@@ -135,28 +138,37 @@ switch upper(command)
         
         %Define Models-plot Axis
         plotH(1) = axes('parent',hFig,'units','pixels','Position',...
-            [leftMarginWidth+30 250 figureWidth-leftMarginWidth-50 figureHeight-topMarginHeight-260 ],...
+            [leftMarginWidth+20 220 figureWidth-leftMarginWidth-40 figureHeight-topMarginHeight-230 ],...
             'color',defaultColor,'ytick',[],'xtick',[],'box','on');
         plotH(2) = axes('parent',hFig,'tag','modelsAxis','tickdir', 'out',...
             'nextplot', 'add','units','pixels','Position',...
             [leftMarginWidth+60 posTop*2/4-00 figureWidth-leftMarginWidth-100 posTop*0.9/2],...
-            'color','w','YAxisLocation','left','fontSize',8,'box','on','visible','on' );
+            'color','w','ytick',[],'xtick',[],'fontSize',8,'box','on','visible','off' );
         
         % Store handles
         ud.handle.inputH = inputH;
         ud.handle.DVHStatH = dvhStatH;
-        ud.handles.modelsAxis = plotH;
-        
+        ud.handle.modelsAxis = plotH;
         set(hFig,'userdata',ud);
         
+        
+    case 'GET_DOSE'
+        
+        ud = get(hFig,'userdata');
+        dose = get(findobj('tag','doseSelect'),'Value');
+        ud.Dose = dose - 1;
+        set(hFig,'userdata',ud);
+        
+    case 'GET_STRUCT'
+        
+        ud = get(hFig,'userdata');
+        strNum = get(findobj('tag','structSelect'),'Value');
+        ud.StructNum = strNum - 1;
+        set(hFig,'userdata',ud);
         
     case 'LOAD_MODELS'
         
         ud = get(hFig,'userdata');
-        if ~isfield(ud,'modelCurve')
-            ud.modelCurve = [];
-        end
-        
         % Read .json file containing models
         [fileName,pathName,filterIndex]  = uigetfile('*.json','Select model file');
         if ~filterIndex
@@ -164,37 +176,54 @@ switch upper(command)
         else
             modelC = loadjson(fullfile(pathName,fileName),'ShowProgress',1); %Requires JSONlab toolbox
         end
+        ud.Models = modelC;
+        set(findobj('Tag','plot'),'Enable','On');
+        set(hFig,'userdata',ud);
+        
+    case 'PLOT_MODELS'
+        
+        ud = get(hFig,'userdata');
+        if ~isfield(ud,'modelCurve')
+            ud.modelCurve = [];
+        end
+        if ~isfield(ud,'Dose') || ud.Dose==0
+            msgbox('Please select dose','Plot model');
+            return
+        end
+        if ~isfield(ud,'StructNum')|| ud.StructNum==0
+            msgbox('Please select a structure','Plot model');
+            return
+        end
         
         % Plot model curves
+        modelC = ud.Models;
         numModels = length(modelC);
-        EUDv = linspace(0,100,100);
         
         %Define color order
         colorOrder = get(gca,'ColorOrder');
         
         for i = 1:numModels
-            
-            %read m,D50 from .json file
-            D50 = modelC{i}.params.D50;
-            m = modelC{i}.params.m;
-            %a = modelC{i}.params.a;
+            %Read parameters from .json file
+            paramsC = struct2cell(modelC{i}.params);
             
             %Compute NTCP
-            tmpv = (EUDv - D50)/(m*D50);
-            ntcpV = 1/2 * (1 + erf(tmpv/2^0.5));
+            %EUDv = linspace(0,100,100);
+            [EUDv,ntcpV,modelConfidence] = feval(modelC{i}.function,ud.Dose,ud.StructNum,paramsC);
             
             %Set plot color
-            row = mod(i,size(colorOrder,1))+1;
+            colorIdx = mod(i,size(colorOrder,1))+1;
             
             %plot models
             ud.modelCurve = [ud.modelCurve plot(EUDv,ntcpV,'k','linewidth',2,...
-                'Color',colorOrder(row,:),'parent',ud.handles.modelsAxis(2))];
+                'Color',colorOrder(colorIdx,:),'parent',ud.handle.modelsAxis(2))];
             ud.modelCurve(i).DisplayName = modelC{i}.name;
             
         end
         
+        modelAxis = findobj('Tag','modelsAxis');
+        modelAxis.Visible = 'On';
+        xlabel('Dose scaling'),ylabel('Complication Probability');
         set(hFig,'userdata',ud);
-        
         
     case 'SHOW_MODEL_STAT'
         ud = get(hFig,'userdata');
@@ -226,7 +255,7 @@ switch upper(command)
 end
 
 
-%%
+%% Compute statistics
 
     function statC = getStat(dataC,userSel)
         nModels = length(dataC);
@@ -239,7 +268,5 @@ end
         end
         
     end
-
-
 
 end
