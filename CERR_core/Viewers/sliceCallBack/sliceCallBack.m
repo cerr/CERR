@@ -847,14 +847,14 @@ switch upper(instr)
                     hig = (figureHeight-bottomMarginHeight-20);
                     set(stateS.handle.CERRAxis(1), 'position', [leftMarginWidth+60 bottomMarginHeight+10 wid hig]);
                     bottomAxes = setdiff(1:nAxes, [1]);
-                    set(stateS.handle.CERRAxisLabel2(1),'position', [(wid-30)/wid .98 0]);
+                    set(stateS.handle.CERRAxisLabel2(1),'position', [(wid-40)/wid .98 0]);
                 case 2 % 1 Large panel with bar
                     wid = (figureWidth-leftMarginWidth-70-10)/5;
                     hig = (figureHeight-bottomMarginHeight-20);
                     set(stateS.handle.CERRAxis(1), 'position', [leftMarginWidth+60 bottomMarginHeight+10 wid*4 hig]);
                     set(stateS.handle.CERRAxis(4), 'position', [leftMarginWidth+60+10+wid*4 bottomMarginHeight+10 wid hig]);
                     bottomAxes = setdiff(1:nAxes, [1 4]);
-                    set(stateS.handle.CERRAxisLabel2(1),'position', [(wid*4-30)/wid*4 .98 0]);
+                    set(stateS.handle.CERRAxisLabel2(1),'position', [(wid*4-40)/wid*4 .98 0]);
 
                 case 3 % 2 Medium panels
                     wid = (figureWidth-leftMarginWidth-70-10)/2;
@@ -862,8 +862,8 @@ switch upper(instr)
                     set(stateS.handle.CERRAxis(1), 'position', [leftMarginWidth+60 bottomMarginHeight+10 wid hig]);
                     set(stateS.handle.CERRAxis(2), 'position', [leftMarginWidth+wid+10+60 bottomMarginHeight+10 wid hig]);
                     bottomAxes = setdiff(1:nAxes, [1 2]);
-                    set(stateS.handle.CERRAxisLabel2(1),'position', [(wid-30)/wid .98 0]);
-                    set(stateS.handle.CERRAxisLabel2(2),'position', [(wid-30)/wid .98 0]);
+                    set(stateS.handle.CERRAxisLabel2(1),'position', [(wid-40)/wid .98 0]);
+                    set(stateS.handle.CERRAxisLabel2(2),'position', [(wid-40)/wid .98 0]);
 
                 case 4 %4 Medium panels
                     wid = (figureWidth-leftMarginWidth-70-10)/2;
@@ -873,9 +873,9 @@ switch upper(instr)
                     set(stateS.handle.CERRAxis(3), 'position', [leftMarginWidth+60 bottomMarginHeight+10 wid hig]);
                     set(stateS.handle.CERRAxis(4), 'position', [leftMarginWidth+60+10+wid bottomMarginHeight+10 wid hig]);
                     bottomAxes = setdiff(1:nAxes, [1 2 3 4]);
-                    set(stateS.handle.CERRAxisLabel2(1),'position', [(wid-30)/wid .98 0]);
-                    set(stateS.handle.CERRAxisLabel2(2),'position', [(wid-30)/wid .98 0]);
-                    set(stateS.handle.CERRAxisLabel2(3),'position', [(wid-30)/wid .98 0]);
+                    set(stateS.handle.CERRAxisLabel2(1),'position', [(wid-40)/wid .98 0]);
+                    set(stateS.handle.CERRAxisLabel2(2),'position', [(wid-40)/wid .98 0]);
+                    set(stateS.handle.CERRAxisLabel2(3),'position', [(wid-40)/wid .98 0]);
 
 
                 case 5 % 1 Large, 3 small panels.
@@ -886,9 +886,9 @@ switch upper(instr)
                     set(stateS.handle.CERRAxis(3), 'position', [figureWidth-wid-10 bottomMarginHeight+20+hig wid hig], 'color', [0 0 0], 'xTickLabel', [], 'yTickLabel', [], 'xTick', [], 'yTick', [], 'color', [0 0 0]);
                     set(stateS.handle.CERRAxis(4), 'position', [figureWidth-wid-10 bottomMarginHeight+10 wid hig], 'color', [0 0 0], 'xTickLabel', [], 'yTickLabel', [], 'xTick', [], 'yTick', [], 'color', [0 0 0]);
                     bottomAxes = setdiff(1:nAxes, [1 2 3 4]);
-                    set(stateS.handle.CERRAxisLabel2(1),'position', [(((figureWidth-leftMarginWidth-70-wid-10)-30)/(figureWidth-leftMarginWidth-70-wid-10)) .98 0]);
-                    set(stateS.handle.CERRAxisLabel2(2),'position', [(wid-30)/wid .98 0]);
-                    set(stateS.handle.CERRAxisLabel2(3),'position', [(wid-30)/wid .98 0]);
+                    set(stateS.handle.CERRAxisLabel2(1),'position', [(((figureWidth-leftMarginWidth-70-wid-10)-40)/(figureWidth-leftMarginWidth-70-wid-10)) .98 0]);
+                    set(stateS.handle.CERRAxisLabel2(2),'position', [(wid-40)/wid .98 0]);
+                    set(stateS.handle.CERRAxisLabel2(3),'position', [(wid-40)/wid .98 0]);
                     
                 case {6,7} % Tomotherapy comparison mode
                     wid = (figureWidth-leftMarginWidth-70-10)/5;
@@ -898,7 +898,7 @@ switch upper(instr)
                         set(stateS.handle.CERRAxis(5), 'position', [leftMarginWidth+60+2*wid+5 bottomMarginHeight+10+10+hig 2*wid-5 hig]);
                         bottomAxes = setdiff(1:nAxes, [1 4 5]);
                         xPosStr = (2*wid-5);
-                        set(stateS.handle.CERRAxisLabel2([1,2]),'position', [(xPosStr-30)/xPosStr .98 0]);
+                        set(stateS.handle.CERRAxisLabel2([1,2]),'position', [(xPosStr-40)/xPosStr .98 0]);
 
                     elseif stateS.doseCompare.newAxis == 2
                         set(stateS.handle.CERRAxis(1), 'position', [leftMarginWidth+60 bottomMarginHeight+10+10+hig 2*wid-5 hig]);
@@ -906,7 +906,7 @@ switch upper(instr)
                         set(stateS.handle.CERRAxis(6), 'position', [leftMarginWidth+60 bottomMarginHeight+10 2*wid-5 hig]);
                         bottomAxes = setdiff(1:nAxes, [1 4 5 6]);
                         xPosStr = (2*wid-5);
-                        set(stateS.handle.CERRAxisLabel2([1,5,6]),'position', [(xPosStr-30)/xPosStr .98 0]);
+                        set(stateS.handle.CERRAxisLabel2([1,5,6]),'position', [(xPosStr-40)/xPosStr .98 0]);
 
                     elseif stateS.doseCompare.newAxis == 3
                         set(stateS.handle.CERRAxis(1), 'position', [leftMarginWidth+60 bottomMarginHeight+10+10+hig 2*wid-5 hig]);
@@ -915,7 +915,7 @@ switch upper(instr)
                         set(stateS.handle.CERRAxis(7), 'position', [leftMarginWidth+60+2*wid+5 bottomMarginHeight+10 2*wid-5 hig]);
                         bottomAxes = setdiff(1:nAxes, [1 4 5 6 7]);
                         xPosStr = (2*wid-5);
-                        set(stateS.handle.CERRAxisLabel2([1,5,6,7]),'position', [(xPosStr-30)/xPosStr .98 0]);                        
+                        set(stateS.handle.CERRAxisLabel2([1,5,6,7]),'position', [(xPosStr-40)/xPosStr .98 0]);                        
                     end
                     
                     % Axis for legend bar
@@ -953,7 +953,7 @@ switch upper(instr)
                     
                     bottomAxes = setdiff(1:nAxes, 1:16);
                     for indAxis = 1:nAxes
-                        set(stateS.handle.CERRAxisLabel2(indAxis),'position', [(wid-30)/wid .98 0]);
+                        set(stateS.handle.CERRAxisLabel2(indAxis),'position', [(wid-40)/wid .98 0]);
                     end
                     
                 case 9 % 1 Large, 4 Medium panels
@@ -976,11 +976,11 @@ switch upper(instr)
                         'color', [0 0 0], 'xTickLabel', [], 'yTickLabel', [],...
                         'xTick', [], 'yTick', [], 'color', [0 0 0]);
                     bottomAxes = setdiff(1:nAxes, [1 2 3 5 6]);
-                    set(stateS.handle.CERRAxisLabel2(1),'position', [(((figureWidth-leftMarginWidth-70-wid-10)-30)/(figureWidth-leftMarginWidth-70-wid-10)) .98 0]);
-                    set(stateS.handle.CERRAxisLabel2(2),'position', [(wid-30)/wid .98 0]);
-                    set(stateS.handle.CERRAxisLabel2(3),'position', [(wid-30)/wid .98 0]);  
-                    set(stateS.handle.CERRAxisLabel2(5),'position', [(wid-30)/wid .98 0]);                    
-                    set(stateS.handle.CERRAxisLabel2(6),'position', [(wid-30)/wid .98 0]);    
+                    set(stateS.handle.CERRAxisLabel2(1),'position', [(((figureWidth-leftMarginWidth-70-wid-10)-40)/(figureWidth-leftMarginWidth-70-wid-10)) .98 0]);
+                    set(stateS.handle.CERRAxisLabel2(2),'position', [(wid-40)/wid .98 0]);
+                    set(stateS.handle.CERRAxisLabel2(3),'position', [(wid-40)/wid .98 0]);  
+                    set(stateS.handle.CERRAxisLabel2(5),'position', [(wid-40)/wid .98 0]);                    
+                    set(stateS.handle.CERRAxisLabel2(6),'position', [(wid-40)/wid .98 0]);    
                     %if stateS.planLoaded
                     %    perfDiffusion('init')
                     %end
