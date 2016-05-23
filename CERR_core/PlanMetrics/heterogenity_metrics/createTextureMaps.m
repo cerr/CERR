@@ -6,10 +6,10 @@ function planC = createTextureMaps(scanNum,structNum,descript,...
 %
 % % EXAMPLE:
 % scanNum     = 1;
-% structNum   = 1;
-% descript    = 'PTV texture';
+% structNum   = 3;
+% descript    = 'CTV texture';
 % patchUnit   = 'vox'; % or 'cm'
-% patchSizeV  = [2 2 2];
+% patchSizeV  = [1 1 1];
 % category    = 1;
 % dirctn      = 1; % 2: 2d neighbors
 % numGrLevels = 16; % 32, 64, 256 etc..
@@ -18,11 +18,12 @@ function planC = createTextureMaps(scanNum,structNum,descript,...
 % sumAvgFlg = 1; % or 0
 % homogFlg = 1; % or 0
 % contrastFlg = 1; % or 0
-% corrFlg = 0; % or 0
-% clustShadFlg = 0; % or 0
-% clustPromFlg = 0; % or 0
+% corrFlg = 1; % or 0
+% clustShadFlg = 1; % or 0
+% clustPromFlg = 1; % or 0
+% haralCorrFlg = 1; % or 0
 % flagsV = [energyFlg, entropyFlg, sumAvgFlg, corrFlg, homogFlg, ...
-%     contrastFlg, clustShadFlg, clustPromFlg];
+%     contrastFlg, clustShadFlg, clustPromFlg, haralCorrFlg];
 % planC = createTextureMaps(scanNum,structNum,descript,...
 %     patchUnit,patchSizeV,category,dirctn,numGrLevels,flagsV,planC)
 %
@@ -67,6 +68,7 @@ planC{indexS.texture}(currentTexture).category = category;
 [rasterSegments, planC, isError]    = getRasterSegments(structNum,planC);
 [mask3M, uniqueSlices]              = rasterToMask(rasterSegments, scanNum, planC);
 scanArray3M                         = getScanArray(planC{indexS.scan}(scanNum));
+
 SUVvals3M                           = mask3M.*double(scanArray3M(:,:,uniqueSlices));
 [minr, maxr, minc, maxc, mins, maxs]= compute_boundingbox(mask3M);
 maskBoundingBox3M                   = mask3M(minr:maxr,minc:maxc,mins:maxs);
@@ -74,6 +76,8 @@ volToEval                           = SUVvals3M(minr:maxr,minc:maxc,mins:maxs);
 volToEval(maskBoundingBox3M==0)     = NaN;
 volToEval                           = volToEval / max(volToEval(:));
 %volToEval                           = sqrt(volToEval);
+
+% volToEval = scanArray3M; % for ITK comparison
 
 position = [400 400 300 50];
 waitFig = figure('name','Creating Texture Maps','numbertitle','off',...
@@ -84,7 +88,7 @@ waitH = patch([0 0 0 0], [0 1 1 0], [0.1 0.9 0.1],...
     'parent', waitAx);
 
 [energy3M,entropy3M,sumAvg3M,corr3M,invDiffMom3M,contrast3M, ...
-    clustShade3M,clustPromin3M] = textureByPatchCombineCooccur(volToEval,...
+    clustShade3M,clustPromin3M,haralCorr3M] = textureByPatchCombineCooccur(volToEval,...
     numGrLevels,patchSizeV,offsetsM,flagsV,waitH);
 
 close(waitFig)
@@ -97,6 +101,7 @@ homogFlg = flagsV(5);
 contrastFlg = flagsV(6);
 clustShadFlg = flagsV(7);
 clustPromFlg = flagsV(8);
+haralCorrFlg = flagsV(9);
 
 planC{indexS.texture}(currentTexture).paramS.direction = dirctn;
 planC{indexS.texture}(currentTexture).paramS.numGrLevels = numGrLevels;
@@ -108,6 +113,7 @@ planC{indexS.texture}(currentTexture).paramS.homogFlag = homogFlg;
 planC{indexS.texture}(currentTexture).paramS.contrastFlag = contrastFlg;
 planC{indexS.texture}(currentTexture).paramS.clusterShadeFlag = clustShadFlg;
 planC{indexS.texture}(currentTexture).paramS.clusterPromFlag = clustPromFlg;
+planC{indexS.texture}(currentTexture).paramS.haralCorrFlg = haralCorrFlg;
 
 planC{indexS.texture}(currentTexture).description = descript;
 planC{indexS.texture}(currentTexture).patchSize = patchSizeV;
@@ -151,4 +157,7 @@ if ~isempty(clustShade3M)
 end
 if ~isempty(clustPromin3M)
     planC = scan2CERR(clustPromin3M,'Cluster Prominance','Passed',regParamsS,assocTextureUID,planC);
+end
+if ~isempty(haralCorr3M)
+    planC = scan2CERR(haralCorr3M,'Haralick Correlation','Passed',regParamsS,assocTextureUID,planC);
 end
