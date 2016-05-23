@@ -1,10 +1,9 @@
 function [energy3M,entropy3M,sumAvg3M,corr3M,invDiffMom3M,contrast3M,...
-    clustShade3M, clustPromin3M] = textureByPatchCombineCooccur(...
-    scanArray3M, nL, patchSizeV, offsetsM, flagv, hWait)
-% function [energy3M,entropy3M,sumAvg3M,corr3M,invDiffMom3M,contrast3M,...
-%     clustShade3M, clustPromin3M] = textureByPatchCombineCooccur(...
-%     scanArray3M, patchSizeV, offsetsM, flagv, hWait)
-%
+    clustShade3M,clustPromin3M,haralCorr3M] = textureByPatchCombineCooccur(scanArray3M, nL, ...
+    patchSizeV, offsetsM, flagv, hWait)
+% [energy3M,entropy3M,sumAvg3M,corr3M,invDiffMom3M,contrast3M,...
+%     clustShade3M,clustPromin3M,haralCorr3M] = textureByPatchCombineCooccur(scanArray3M, nL, ...
+%     patchSizeV, offsetsM, flagv, hWait)
 % Patch-wise texture calculation.
 %
 % APA, 09/09/2015
@@ -60,29 +59,34 @@ numSlcsPad = floor(slcWindow/2);
 [numRows, numCols, numSlices] = size(scanArray3M);
 numVoxels = numRows*numCols;
 
-% Pad doseArray2 so that sliding window works also for the edge voxels
-scanArrayTmp3M = padarray(scanArray3M,[numRowsPad numColsPad numSlcsPad],NaN,'both');
-
 % Quantize the image
-%nL = 16;
-nanFlag = 0;
-%nanFlag = 1;
-if any(isnan(scanArrayTmp3M))
-    %nL = nL-1;
-    nanFlag = 1;
-end
-q = imquantize_cerr(scanArrayTmp3M,nL);
-clear scanArrayTmp3M;
-qmax = max(q(:));
-if nanFlag    
-    q(isnan(q)) = qmax+1;
-end
-qs=sort(unique(q));
-lq=length(qs);
+q = imquantize_cerr(scanArray3M,nL);
 
-for k = 1:length(qs)
-	q(q==qs(k)) = k;
+% Pad q, so that sliding window works also for the edge voxels
+%scanArrayTmp3M = padarray(scanArray3M,[numRowsPad numColsPad
+%numSlcsPad],NaN,'both'); % aa commented
+q = padarray(q,[numRowsPad numColsPad numSlcsPad],NaN,'both');
+
+%nL = 16;
+% if any(isnan(q)) % aa commented
+%     nL = nL-1; % aa commented
+% end % aa commented
+%q = imquantize_cerr(scanArrayTmp3M,nL); % aa commented
+%clear scanArrayTmp3M; % aa commented
+%qmax = max(q(:));
+nanFlag = 0; % the quantized image is always padded with NaN. Hence, always,
+             % nanFlag = 1.
+if any(isnan(q(:)))
+    nanFlag = 1;
+    q(isnan(q)) = nL+1;
 end
+lq = nL + 1;
+
+% qs=sort(unique(q));
+% lq=length(qs);
+% for k = 1:length(qs)
+% 	q(q==qs(k)) = k;
+% end
 
 q = uint16(q); % q is the quantized image
 %numSlcsWithPadding = size(q,3);
@@ -107,31 +111,23 @@ lin_row = permute(bsxfun(@plus,start_ind,[0:rowWindow-1])',[1 3 2]);
 % Get linear indices based on row and col indices and get desired output
 indM = reshape(bsxfun(@plus,lin_row,(0:colWindow-1)*m),rowWindow*colWindow,[]);
 
-% % Directional offsets
-% offsetsM = [ 1  0  0;
-%              0  1  0;
-%              1  1  0;
-%              1 -1  0;
-%              1  0  1;
-%              0  1  1;
-%              1  1  1;
-%              1 -1  1;
-%              0  0  1;
-%             -1  0  1;
-%             -1 -1  1;
-%              0 -1  1;
-%              1 -1  1];
-
+% Directional offsets
 numOffsets = size(offsetsM,1);
 
-% Indices of last level to filter out if there are NaNs in the image
+% Indices of last level to filter out
 nanIndV = false([lq*lq,1]);
 if nanFlag
     nanIndV([lq:lq:lq*lq-lq, lq*lq-lq:lq*lq]) = true;
 end
 
-% Build list of indices for contrast, homogenity calculation
+% Build levels vector for mu, sig
+levRowV = repmat(1:lq,[1 lq]);
+levColV = repmat(1:lq,[lq 1]);
+levColV = levColV(:)';
+
+% Build list of indices for px and contrast calculation
 for n=0:lq-1
+    % indices for p(x-y), contrast
     indCtrstV = false(lq*lq,1);
     indCtrst1V = 1:lq-n;
     indCtrst2V = 1+n:lq;
@@ -140,6 +136,20 @@ for n=0:lq-1
     indCtrstV(indCtrstTmpV) = 1;
     indCtrstV(nanIndV) = [];
     indCtrstC{n+1} = indCtrstV;
+       
+    % indices for px
+    indPxV = false(lq*lq,1);
+    indPxV(lq*n+1:lq*(n+1)) = true;
+    indPxV(nanIndV) = [];
+    indPxC{n+1} = indPxV;
+        
+end
+for n=1:2*lq
+    % indices for p(x+y)
+    indPxPlusYv = false(lq*lq,1);
+    indPxPlusYv(levRowV + levColV == n) = 1;
+    indPxPlusYv(nanIndV) = [];
+    indPxPlusYc{n} = indPxPlusYv;
 end
 
 % Build linear indices column/row-wise for Symmetry
@@ -148,10 +158,7 @@ for i=1:lq
     indRowV((i-1)*lq+1:(i-1)*lq+lq) = i:lq:lq*lq;
 end
 
-% Build levels vector for mu, sig
-levRowV = repmat(1:lq,[1 lq])-1;
-levColV = repmat(1:lq,[lq 1])-1;
-levColV = levColV(:)';
+% Filter out NaN levels
 levRowV(nanIndV) = [];
 levColV(nanIndV) = [];
 
@@ -164,6 +171,7 @@ invDiffMom3M = [];
 contrast3M = [];
 clustShade3M = [];
 clustPromin3M = [];
+haralCorr3M = [];
 if flagv(1)
     energy3M = zeros([numRows, numCols, numSlices],'single');
 end
@@ -200,11 +208,14 @@ for slcNum = 1:numSlices
     if flagv(5), invDiffMomV = zeros(1,numVoxels,'single'); end
     if flagv(6), contrastV = zeros(1,numVoxels,'single'); end
     if flagv(7), clustShadeV = zeros(1,numVoxels,'single'); end
-    if flagv(8), clustProminV = zeros(1,numVoxels,'single'); end
+    if flagv(8), clustProminV = zeros(1,numVoxels,'single'); end    
+    if flagv(9), haralCorrV = zeros(1,numVoxels,'single'); end    
+
     calcSlcIndV = calcIndM(:,:,slcNum);
     calcSlcIndV = calcSlcIndV(:);
     numCalcVoxs = sum(calcSlcIndV);
     %indSlcM = indM(:,calcSlcIndV);
+    
     % List of Voxel numbers
     voxelNumsV = uint32(0:lq*lq:lq*lq*(numCalcVoxs-1));    
     totalIndices = lq*lq*numCalcVoxs;
@@ -229,16 +240,17 @@ for slcNum = 1:numSlices
         end        
         indSlcM(indNoNeighborV,:) = [];
         
-        for slc = slcNum:slcNum+slcWindow-2 % slices within the patch
+        for slc = slcNum:slcNum+slcWindow-1 % slices within the patch
             if slc-slcNum+offset(3) >= slcWindow
                 continue;
-            end
+            end            
             slc1M = uint16(q(numRowsPad+(1:numRows),numColsPad+(1:numCols),slc));
             slc2M = uint16(q(:,:,slc+offset(3)));
             slc2M = circshift(slc2M,offset(1:2));
             slc2M(numRowsPad+(1:numRows),numColsPad+(1:numCols)) = ...
                 slc2M(numRowsPad+(1:numRows),numColsPad+(1:numCols)) + (slc1M-1)*lq;            
-            slc2M = bsxfun(@plus,uint32(slc2M(indSlcM)),voxelNumsV);
+            slc2M = uint32(slc2M(indSlcM));
+            slc2M = bsxfun(@plus,slc2M,voxelNumsV);                      
             cooccurPatchM = cooccurPatchM + accumarray(slc2M(:),1, [lq*lq*numCalcVoxs,1]); % patch-wise cooccurance
         end
     end
@@ -257,58 +269,93 @@ for slcNum = 1:numSlices
         entropyV(calcSlcIndV) = entropyV(calcSlcIndV) - ...
             sum(cooccurPatchM.*log2(cooccurPatchM+1e-10));
     end
-    % Contrast, inverse Difference Moment    
-    for n=0:lq-1
-        if flagv(5)
-            invDiffMomV(calcSlcIndV) = invDiffMomV(calcSlcIndV) + ...
-                sum((1/(1+n*n))*cooccurPatchM(indCtrstC{n+1},:));
-        end
+    % Contrast, inverse Difference Moment
+    px = [];
+    pXminusY = [];
+    pXplusY = [];
+    for n=0:nL-1
+        % px
+        px(n+1,:) = sum(cooccurPatchM(indPxC{n+1},:),1);
+        % p(x-y)
+        pXminusY(n+1,:) = sum(cooccurPatchM(indCtrstC{n+1},:),1);
+        % Contrast
         if flagv(6)
             contrastV(calcSlcIndV) = contrastV(calcSlcIndV) + ...
                 sum(n^2*cooccurPatchM(indCtrstC{n+1},:));
         end
-    end        
-    % weighted pixel average (mu), weighted pixel variance (sig)
-    mu = (levRowV)*cooccurPatchM;
-    var = zeros(1,numCalcVoxs);
-    clustShadeTmpV  = zeros(1,numCalcVoxs);
-    clustProminTmpV = zeros(1,numCalcVoxs);
-    sumAvgTmpV      = zeros(1,numCalcVoxs);
-    corrTmpV        = zeros(1,numCalcVoxs);
-    for colNum = 1:numCalcVoxs
-        var(colNum) = (levRowV-mu(colNum)).^2*cooccurPatchM(:,colNum) + 0.0001;
-        clstrV = (levRowV + levColV - 2*mu(colNum));
-        % Cluster Shade
-        if flagv(7)
-            clustShadeTmpV(colNum) = clstrV.*clstrV.*clstrV * cooccurPatchM(:,colNum);
+        % inv diff moment
+        if flagv(5)
+            invDiffMomV(calcSlcIndV) = invDiffMomV(calcSlcIndV) + ...
+                sum((1/(1+n^2))*cooccurPatchM(indCtrstC{n+1},:));
         end
-        % Cluster Prominence
-        if flagv(8)
-            clustProminTmpV(colNum) = clstrV.*clstrV.*clstrV.*clstrV ...
-                * cooccurPatchM(:,colNum);
-        end
-        % Sum Avg
+    end
+    
+    % Sum Average
+    for n=1:2*nL
+        % p(x+y)
+        pXplusY(n,:) = sum(cooccurPatchM(indPxPlusYc{n},:),1);
+        % Sum Average
         if flagv(3)
-            sumAvgTmpV(colNum) = (levRowV + levColV + 2) * cooccurPatchM(:,colNum);
-        end
-        % Correlation
-        if flagv(4)
-            corrTmpV(colNum) = (levRowV .* levColV *cooccurPatchM(:,colNum) - ...
-                mu(colNum)*mu(colNum)) / var(colNum);
+            sumAvgV(calcSlcIndV) = sumAvgV(calcSlcIndV) + n*pXplusY(n,:);
         end
     end
-    if flagv(7)
-        clustShadeV(calcSlcIndV) = clustShadeV(calcSlcIndV) + clustShadeTmpV;
-    end
-    if flagv(8)
-        clustProminV(calcSlcIndV) = clustProminV(calcSlcIndV) + clustProminTmpV;
-    end
-    if flagv(3)
-        sumAvgV(calcSlcIndV) = sumAvgV(calcSlcIndV) + sumAvgTmpV;
-    end
+    
+    % weighted pixel average (mu), weighted pixel variance (sig)
+    mu = (1:nL) * px;
+    sig = bsxfun(@minus,(1:nL)',mu);
+    sig = sum(sig .*sig .* px, 1);
+    
+    % Correlation
     if flagv(4)
-        corrV(calcSlcIndV) = corrV(calcSlcIndV) + corrTmpV;
+        levIMinusMu = bsxfun(@minus,levRowV',mu);
+        levJMinusMu = bsxfun(@minus,levColV',mu);
+        corrV(calcSlcIndV) = corrV(calcSlcIndV) + ...
+            sum(levIMinusMu .* levJMinusMu  .* cooccurPatchM, 1) ...
+            ./ (sig + 1e-10); % sig.^2 to match ITK results (ITK bug)
     end
+    
+    % Cluster Shade
+    if flagv(7)
+        levIMinusMu = bsxfun(@minus,levRowV',mu);
+        levJMinusMu = bsxfun(@minus,levColV',mu);
+        clstrV = levIMinusMu + levJMinusMu;
+        clustShadeV(calcSlcIndV) = clustShadeV(calcSlcIndV) + ...
+            sum(clstrV.*clstrV.*clstrV .* cooccurPatchM, 1);
+    end
+    % Cluster Prominence
+    if flagv(8)
+        levIMinusMu = bsxfun(@minus,levRowV',mu);
+        levJMinusMu = bsxfun(@minus,levColV',mu);
+        clstrV = levIMinusMu + levJMinusMu;
+        clustProminV(calcSlcIndV) = clustProminV(calcSlcIndV) + ...
+            sum(clstrV.*clstrV.*clstrV.*clstrV .* cooccurPatchM, 1);
+    end
+    
+    % Haralick Correlation
+    if flagv(9)
+        % muX = mean(px,1);
+        muX = 1/nL;
+        % sigX = bsxfun(@minus,px,muX);
+        sigX = px - muX;
+        sigX = sum(sigX .*sigX, 1)/(nL);
+        
+        % % Knuth method for mean and standard deviation (like ITK)
+        %              muX = px(1,:);
+        %              muPrevX = muX;
+        %              sigX = muX*0;
+        %              for col = 2:size(px,1)
+        %                  muX = muPrevX + (px(col,:) - muPrevX)/col;
+        %                  sigX = sigX + (px(col,:)-muX).*(px(col,:)-muPrevX);
+        %                  muPrevX = muX;
+        %              end
+        %              sigX = sigX/nL;
+        
+        haralCorrV(calcSlcIndV) = haralCorrV(calcSlcIndV) + ...
+            (levRowV .* levColV * cooccurPatchM - ...
+            muX .* muX) ./ (sigX + eps);   % (levRowV-1) .* (levColV-1) to match ITK? Bug?
+        
+    end
+        
     if flagv(1)
         energy3M(:,:,slcNum) = reshape(energyV(:),[numRows, numCols]);
     end
@@ -332,6 +379,9 @@ for slcNum = 1:numSlices
     end
     if flagv(8)
         clustPromin3M(:,:,slcNum) = reshape(clustProminV(:),[numRows, numCols]);
+    end
+    if flagv(9)
+        haralCorr3M(:,:,slcNum) = reshape(haralCorrV(:),[numRows, numCols]);                
     end
     
     if waitbarFlag
