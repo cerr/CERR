@@ -1,5 +1,8 @@
 function outcomeModelsGUI(command,varargin)
-%function outcomeModelsGUI(command,varargin)
+%  GUI for outcomes modeling (NTCP)
+%  This tool uses JSONlab toolbox v1.2, an open-source JSON/UBJSON encoder and decoder
+%  for MATLAB and Octave.
+%  See : http://www.mathworks.com/matlabcentral/fileexchange/33381-jsonlab--a-toolbox-to-encode-decode-json-files
 %
 % APA, 05/10/2016
 %
@@ -24,6 +27,7 @@ function outcomeModelsGUI(command,varargin)
 %
 % You should have received a copy of the GNU General Public License
 % along with CERR.  If not, see <http://www.gnu.org/licenses/>.
+
 
 % Globals
 global planC stateS
@@ -67,10 +71,10 @@ switch upper(command)
         posTop = figureHeight-topMarginHeight;
         
         % create title handles
-        handle(1) = uicontrol(hFig,'tag','titleFrame','units','pixels',...
+        titleH(1) = uicontrol(hFig,'tag','titleFrame','units','pixels',...
             'Position',[150 figureHeight-topMarginHeight+5 500 40 ],'Style',...
             'frame','backgroundColor',defaultColor);
-        handle(2) = uicontrol(hFig,'tag','title','units','pixels',...
+        titleH(2) = uicontrol(hFig,'tag','title','units','pixels',...
             'Position',[151 figureHeight-topMarginHeight+10 498 30 ],...
             'String','Outcome Models Explorer','Style','text', 'fontSize',10,...
             'FontWeight','Bold','HorizontalAlignment','center',...
@@ -141,9 +145,15 @@ switch upper(command)
             [leftMarginWidth+20 220 figureWidth-leftMarginWidth-40 figureHeight-topMarginHeight-230 ],...
             'color',defaultColor,'ytick',[],'xtick',[],'box','on');
         plotH(2) = axes('parent',hFig,'tag','modelsAxis','tickdir', 'out',...
-            'nextplot', 'add','units','pixels','Position',...
-            [leftMarginWidth+60 posTop*2/4-00 figureWidth-leftMarginWidth-100 posTop*0.9/2],...
+            'nextplot','add','units','pixels','Position',...
+            [leftMarginWidth+60 posTop*2/4+10 figureWidth-leftMarginWidth-100 posTop*0.9/2],...
             'color','w','ytick',[],'xtick',[],'fontSize',8,'box','on','visible','off' );
+        plotH(3) = uicontrol('parent',hFig,'units','pixels','Position',...
+            [leftMarginWidth+60 posTop*2/4-35 figureWidth-leftMarginWidth-100 20],...
+            'Style','Slider','Visible','Off','Tag','Scale','Min',0,'Max',2);
+        addlistener(plotH(3),'ContinuousValueChange',@scaleDose);
+        plotH(4) = uicontrol('parent',hFig,'units','pixels','Style','Text','Visible','Off','Tag','sliderVal',...
+            'BackgroundColor',defaultColor);
         
         % Store handles
         ud.handle.inputH = inputH;
@@ -151,19 +161,18 @@ switch upper(command)
         ud.handle.modelsAxis = plotH;
         set(hFig,'userdata',ud);
         
-        
     case 'GET_DOSE'
         
         ud = get(hFig,'userdata');
         dose = get(findobj('tag','doseSelect'),'Value');
-        ud.Dose = dose - 1;
+        ud.doseNum = dose - 1;
         set(hFig,'userdata',ud);
         
     case 'GET_STRUCT'
         
         ud = get(hFig,'userdata');
         strNum = get(findobj('tag','structSelect'),'Value');
-        ud.StructNum = strNum - 1;
+        ud.structNum = strNum - 1;
         set(hFig,'userdata',ud);
         
     case 'LOAD_MODELS'
@@ -174,8 +183,15 @@ switch upper(command)
         if ~filterIndex
             return
         else
-            modelC = loadjson(fullfile(pathName,fileName),'ShowProgress',1); %Requires JSONlab toolbox
+            modelC = loadjson(fullfile(pathName,fileName),'ShowProgress',1);
         end
+        
+        %Clear data/plots from any previously loaded models
+        ud.EUD = [];
+        ud.modelCurve = [];
+        cla(ud.handle.modelsAxis(2));
+        
+        %Store data for current model
         ud.Models = modelC;
         set(findobj('Tag','plot'),'Enable','On');
         set(hFig,'userdata',ud);
@@ -183,47 +199,56 @@ switch upper(command)
     case 'PLOT_MODELS'
         
         ud = get(hFig,'userdata');
-        if ~isfield(ud,'modelCurve')
-            ud.modelCurve = [];
-        end
-        if ~isfield(ud,'Dose') || ud.Dose==0
-            msgbox('Please select dose','Plot model');
+        
+        % Check for dose/struct input
+        if ~isfield(ud,'doseNum') || ud.doseNum==0
+            msgbox('Please select a valid dose');
             return
         end
-        if ~isfield(ud,'StructNum')|| ud.StructNum==0
-            msgbox('Please select a structure','Plot model');
-            return
+        if ~isfield(ud,'structNum')|| ud.structNum==0
+            msgbox('Please select a valid structure');
+            return;
         end
         
         % Plot model curves
+        
         modelC = ud.Models;
         numModels = length(modelC);
+        EUDv = linspace(0,100,100);
         
         %Define color order
-        colorOrder = get(gca,'ColorOrder');
+        colorOrderM = get(gca,'ColorOrder');
         
         for i = 1:numModels
             %Read parameters from .json file
-            paramsC = struct2cell(modelC{i}.params);
+            paramS = modelC{i}.params;
             
-            %Compute NTCP
-            %EUDv = linspace(0,100,100);
-            [EUDv,ntcpV,modelConfidence] = feval(modelC{i}.function,ud.Dose,ud.StructNum,paramsC);
+            %Compute EUD,NTCP for selected struct/dose
+            [EUD,ntcp] = feval(modelC{i}.function,[],paramS,ud.structNum,ud.doseNum,1);
+            
+            %Compute NTCPv
+            [~,ntcpV,modelConfidence] = feval(modelC{i}.function,EUDv,paramS);
             
             %Set plot color
-            colorIdx = mod(i,size(colorOrder,1))+1;
+            colorIdx = mod(i,size(colorOrderM,1))+1;
             
-            %plot models
-            ud.modelCurve = [ud.modelCurve plot(EUDv,ntcpV,'k','linewidth',2,...
-                'Color',colorOrder(colorIdx,:),'parent',ud.handle.modelsAxis(2))];
+            %plot curves
+            ud.EUD = [ud.EUD, plot([EUD EUD],[0 ntcp],'linewidth',2,'Color',...
+                colorOrderM(colorIdx,:),'parent',ud.handle.modelsAxis(2))];
+            ud.modelCurve = [ud.modelCurve plot(EUDv,ntcpV,'linewidth',2,...
+                'Color',colorOrderM(colorIdx,:),'parent',ud.handle.modelsAxis(2))];
             ud.modelCurve(i).DisplayName = modelC{i}.name;
+            
+            %TO DO : model conf
             
         end
         
         modelAxis = findobj('Tag','modelsAxis');
         modelAxis.Visible = 'On';
         xlabel('Dose scaling'),ylabel('Complication Probability');
+        set(findobj('Tag','Scale'),'Visible','On');
         set(hFig,'userdata',ud);
+        
         
     case 'SHOW_MODEL_STAT'
         ud = get(hFig,'userdata');
@@ -266,6 +291,36 @@ end
             case 3
                 %fn2
         end
+        
+    end
+
+    function scaleDose(hObj,hEvent)%#ok
+        
+        %Get selected scale
+        scale = hObj.Value;
+        posV = hObj.Position;
+        left = posV(1)+(scale/hObj.Max)*posV(3)-5;
+        hSliderVal =  findobj('Tag','sliderVal');
+        hSliderVal.Position = [left,posV(2)-15,25,15];
+        hSliderVal.String = num2str(scale);
+        hSliderVal.Visible = 'On';
+        
+        %Clear any previous scaled-dose plots
+        ud = get(hFig,'userdata');
+        hScaled = findall(ud.handle.modelsAxis(2),'type','line','LineStyle','--');
+        delete(hScaled);
+        
+        %Plot EUD,ntcp for scaled dose
+        modelsC = ud.Models;
+        colorM = flipud(cat(1,ud.EUD(:).Color)); % Same line colors
+        for k = 1:length(modelsC)
+            paramsS = modelsC{k}.params;
+            [EUDnew,ntcpNew] = feval(modelsC{k}.function,[],paramsS,ud.structNum,ud.doseNum,scale);
+            idx = mod(k,size(colorM,1))+1;
+            plot([EUDnew EUDnew],[0 ntcpNew],'Color',colorM(idx,:),'LineStyle','--','linewidth',1,'parent',ud.handle.modelsAxis(2));
+        end
+        
+        set(hFig,'userdata',ud);
         
     end
 
