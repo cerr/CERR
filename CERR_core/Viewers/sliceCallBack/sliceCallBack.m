@@ -1228,7 +1228,7 @@ switch upper(instr)
         hAxis = gca;
         hFig = get(hAxis, 'parent');
         %If no plan is loaded, ignore click.
-        if ~stateS.planLoaded
+        if ~stateS.planLoaded || ~ismember(hAxis,stateS.handle.CERRAxis)
             return;
         end
         clicktype = get(hCSV, 'selectiontype');
