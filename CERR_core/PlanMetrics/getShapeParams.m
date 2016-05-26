@@ -27,7 +27,7 @@ if filterFlag
 end
 % scanArray3M                         = getScanArray(planC{indexS.scan}(scanNum));
 % SUVvals3M                           = single(mask3M).*single(scanArray3M(:,:,uniqueSlices));
-% [minr, maxr, minc, maxc, mins, maxs]= compute_boundingbox(mask3M);
+[minr, maxr, minc, maxc, mins, maxs]= compute_boundingbox(mask3M);
 % volToEval                           = SUVvals3M(minr:maxr,minc:maxc,mins:maxs);
 % volToEval(volToEval==0)             = NaN;
 % %volToEval                           = volToEval - min(volToEval(:));
