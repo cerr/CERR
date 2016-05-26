@@ -79,8 +79,7 @@ switch cellName
             % Test IOP here to find if it is "nominal" or "non-nominal"
             % % %             outIOP = getTest_Scan_IOP(seriesC{seriesNum}.Data(1).file);
             
-            if strcmpi(typeC{seriesNum}, 'CT') || strcmpi(typeC{seriesNum}, 'OT') || strcmpi(typeC{seriesNum}, 'NM') ||...
-                    strcmpi(typeC{seriesNum}, 'MR') || strcmpi(typeC{seriesNum}, 'PT') || strcmpi(typeC{seriesNum}, 'ST')
+            if ismember(typeC{seriesNum},{'CT','OT','NM','MR','PT','ST','MG'})
                 
                 %Populate each field in the scan structure.
                 for i = 1:length(names)
