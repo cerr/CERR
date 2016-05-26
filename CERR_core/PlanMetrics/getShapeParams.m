@@ -25,17 +25,17 @@ if filterFlag
         mask3M(:,:,slcNum) = imopen(mask3M(:,:,slcNum),strElem);
     end
 end
-scanArray3M                         = getScanArray(planC{indexS.scan}(scanNum));
-SUVvals3M                           = single(mask3M).*single(scanArray3M(:,:,uniqueSlices));
-[minr, maxr, minc, maxc, mins, maxs]= compute_boundingbox(mask3M);
-volToEval                           = SUVvals3M(minr:maxr,minc:maxc,mins:maxs);
-volToEval(volToEval==0)             = NaN;
-%volToEval                           = volToEval - min(volToEval(:));
-volToEval                           = volToEval / max(volToEval(:));
-volToEval                           = sqrt(volToEval);
-[f,Ph]                              = haralick3D(volToEval,16);
-suv3M                               = scanArray3M(:,:,uniqueSlices);
-L =double(mask3M(minr:maxr,minc:maxc,mins:maxs));
+% scanArray3M                         = getScanArray(planC{indexS.scan}(scanNum));
+% SUVvals3M                           = single(mask3M).*single(scanArray3M(:,:,uniqueSlices));
+% [minr, maxr, minc, maxc, mins, maxs]= compute_boundingbox(mask3M);
+% volToEval                           = SUVvals3M(minr:maxr,minc:maxc,mins:maxs);
+% volToEval(volToEval==0)             = NaN;
+% %volToEval                           = volToEval - min(volToEval(:));
+% volToEval                           = volToEval / max(volToEval(:));
+% volToEval                           = sqrt(volToEval);
+% [f,Ph]                              = haralick3D(volToEval,16);
+% suv3M                               = scanArray3M(:,:,uniqueSlices);
+L = double(mask3M(minr:maxr,minc:maxc,mins:maxs));
 % Lz=double(mean(L,3)>0);
 % Lx=permute(double(mean(L,1)>0),[2,3,1]);
 % shapefeaturesz=regionprops(Lz,'all');
