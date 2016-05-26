@@ -50,5 +50,9 @@ sA = planC{indexS.scan}(scanNum).scanArray;
 
 %Interpolate to values in xV/yV/zV from the scanarray, 0 if out of bounds.
 tol = 1e6*eps;
-scansV = finterp3(xV, yV, zV, sA, [xVS(1)-tol xVS(2)-xVS(1) xVS(end)+tol], [yVS(1)+tol yVS(2)-yVS(1) yVS(end)-tol], zVS, 0);
+if numel(size(sA)) > 2
+    scansV = finterp3(xV, yV, zV, sA, [xVS(1)-tol xVS(2)-xVS(1) xVS(end)+tol], [yVS(1)+tol yVS(2)-yVS(1) yVS(end)-tol], zVS, 0);
+else
+    scansV = finterp2(xVS,yVS,single(sA),xV,yV,0);
+end
 % scansV = interp3(xVS, yVS, zVS, sA , xV, yV, zV);
