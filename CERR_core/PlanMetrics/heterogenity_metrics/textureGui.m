@@ -615,9 +615,10 @@ switch upper(command)
             corrFlg = get(ud.handles.corr, 'value');
             clustShadFlg = get(ud.handles.clustShade, 'value');
             clustPromFlg = get(ud.handles.clustProm, 'value');
+            haralickCorrFlg = 0; % Add haralick correlation to GUI.
             
             flagsV = [energyFlg, entropyFlg, sumAvgFlg, corrFlg, homogFlg, ...
-                contrastFlg, clustShadFlg, clustPromFlg];
+                contrastFlg, clustShadFlg, clustPromFlg haralickCorrFlg];
             
             [rasterSegments, planC, isError]    = getRasterSegments(structNum,planC);
             [mask3M, uniqueSlices]              = rasterToMask(rasterSegments, scanNum, planC);
