@@ -93,24 +93,32 @@ switch fieldname
                     %Bits Allocated
                     bitsAllocated = dcm2ml_Element(imgobj.get(hex2dec('00280100')));
                     
-                    if bitsAllocated > 16
-                        error('Only 16 bits per scan pixel are supported')
+                    if bitsAllocated > 32
+                        error('Maximum 32 bits per scan pixel are supported')
                     end
                     
                     switch pixRep
                         case 0
-                            if bitsAllocated == 16
+                            if bitsAllocated == 16 || bitsAllocated == 32
                                 if strcmpi(class(sliceV),'int32')
-                                    sliceV = typecast(sliceV,'uint16');
+                                    if bitsAllocated == 16
+                                        sliceV = typecast(sliceV,'uint16');
+                                    else
+                                        sliceV = typecast(sliceV,'uint32');
+                                    end
                                     sliceV = sliceV(1:2:end);
                                 else
                                     sliceV = typecast(sliceV,'uint16');
                                 end
                             end
                         case 1
-                            if bitsAllocated == 16
+                            if bitsAllocated == 16 || bitsAllocated == 32
                                 if strcmpi(class(sliceV),'int32')
-                                    sliceV = typecast(sliceV,'int16');
+                                    if bitsAllocated == 16
+                                        sliceV = typecast(sliceV,'int16');
+                                    else
+                                        sliceV = typecast(sliceV,'int32');
+                                    end
                                     sliceV = sliceV(1:2:end);
                                 else
                                     sliceV = typecast(sliceV,'int16');
@@ -122,6 +130,11 @@ switch fieldname
                     end
                     %Shape the slice.
                     slice2D = reshape(sliceV, [nCols nRows]);
+                    
+                    %Check the image orientation.
+                    imgOri = dcm2ml_Element(imgobj.get(hex2dec('00200037')));
+                    %Check patient position
+                    pPos = dcm2ml_Element(imgobj.get(hex2dec('00185100')));                    
                     
                     if (strcmpi(type, 'PT')) || (strcmpi(type, 'PET')) %Compute SUV for PET scans
                         dcmobj = scanfile_mldcm(IMAGE.file);
@@ -142,11 +155,15 @@ switch fieldname
                             if isfield(optS,'convert_PET_to_SUV') && optS.convert_PET_to_SUV
                                 slice2D = calc_suv(dicomHeaderS, slice2D);
                             end
-                        end
+                        end                        
                         
-                        
+                    elseif strcmpi(type, 'MG')
+                        imgpos = [0 0 0];
+                        imgOri = zeros(6,1);
+
                     elseif ~strcmpi(type, 'CT')
                         %slice2D = single(slice2D);
+                    
                     end
                     
                     if ischar(dataS)
@@ -161,10 +178,6 @@ switch fieldname
                     %Store the slice in the 3D matrix.
                     dataS(:,:,imageNum) = slice2D';
                     
-                    %Check the image orientation.
-                    imgOri = dcm2ml_Element(imgobj.get(hex2dec('00200037')));
-                    %Check patient position
-                    pPos = dcm2ml_Element(imgobj.get(hex2dec('00185100')));
                     if isempty(pPos)
                         pPos = 'HFS';
                     end
@@ -300,6 +313,10 @@ switch fieldname
                     
                     %Image Position (Patient)
                     imgpos = dcm2ml_Element(imgobj.get(hex2dec('00200032')));
+                    
+                    if strcmpi(type,'MG')
+                        imgpos = [0 0 0];
+                    end
                     
                     %Store zValue for sorting, converting DICOM mm to CERR cm and
                     %inverting to match CERR's z direction.
