@@ -87,7 +87,8 @@ for i=1:length(axisInfo.structureGroup)
         axisInfo.structureGroup(i).handles = [];
         axisInfo.structureGroup(i).structNumsV = [];
         axisInfo.structureGroup(i).redraw = 1;
-        %toRemove = [toRemove;i];
+        hIndV = [hIndV; uint16(sG.handles)];
+        toRemove = [toRemove;i];
     end
 end
 
