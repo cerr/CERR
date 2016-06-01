@@ -347,7 +347,7 @@ switch fieldname
         try
             dataS = rmfield(dataS, 'PixelData');
         end
-
+        
     case 'headInOut'
         % read out Patient Orientation
         if dcmobj.contains(hex2dec('00200020'));
@@ -383,15 +383,15 @@ switch fieldname
         dataS  = dcm2ml_Element(el);
         if strcmp(vr,'UN')
             dataS = str2double(strtok(char(dataS),'\'));
-            if dataS>1e9
-                dataS = dataS-1e9;
-            end
         elseif any(strcmp(vr,{'IS','FD', 'FL'}))
             dataS = dataS(1);
         else
             dataS = '';
         end
-
+        
+        if dataS>1e9
+            dataS = dataS-1e9;
+        end
         
     otherwise
         %         warning(['DICOM Import has no methods defined for import into the planC{indexS.scan}.scanInfo' fieldname ' field, leaving empty.']);
