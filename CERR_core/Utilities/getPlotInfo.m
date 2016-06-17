@@ -1,4 +1,4 @@
-function plotParam = getPlotInfo();
+function plotParam = getPlotInfo()
 %"getPlotInfo"
 %   Returns a parameter to be appended to contour if this version of Matlab is
 %   7.0.  The parameter is specified in the optS file.  If this is not
@@ -61,3 +61,4 @@ if strcmpi(verInfo.Version(1), '7')
 end
 % For Compiled version
 %plotParam = 'v6';
+

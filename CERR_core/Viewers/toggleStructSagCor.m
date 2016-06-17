@@ -96,4 +96,3 @@ for i = 1:length(stateS.handle.CERRAxis)
     set(hAxis, 'userdata', axisInfo);
 
 end
-
