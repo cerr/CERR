@@ -143,7 +143,7 @@ switch upper(command)
                     setAxisInfo(hAxis,'scanSets',scanNum,'scanSelectMode','manual')
                     % Set structure and dose
                     numStructSets = length(planC{indexS.structures});
-                    assocScansV = getStructureSetAssociatedScan(1:numStructSets, planC);
+                    assocScansV = getStructureAssociatedScan(1:numStructSets, planC);
                     structSetNum = [];
                     assocStructSet = find(assocScansV == scanNum);
                     if ~isempty(assocStructSet)
