@@ -150,7 +150,7 @@ switch upper(command)
             'color','w','ytick',[],'xtick',[],'fontSize',8,'box','on','visible','off' );
         plotH(3) = uicontrol('parent',hFig,'units','pixels','Position',...
             [leftMarginWidth+60 posTop*2/4-35 figureWidth-leftMarginWidth-100 20],...
-            'Style','Slider','Visible','Off','Tag','Scale','Min',0,'Max',2);
+            'Style','Slider','Visible','Off','Tag','Scale','Min',0,'Max',2,'Value',1);
         addlistener(plotH(3),'ContinuousValueChange',@scaleDose);
         plotH(4) = uicontrol('parent',hFig,'units','pixels','Style','Text','Visible','Off','Tag','sliderVal',...
             'BackgroundColor',defaultColor);
@@ -162,21 +162,33 @@ switch upper(command)
         set(hFig,'userdata',ud);
         
     case 'GET_DOSE'
-        
+        %Clear plots for previously selected dose
+        %outcomeModelsGUI('CLEAR_PLOT',hFig);
+        %Get new dose
         ud = get(hFig,'userdata');
         dose = get(findobj('tag','doseSelect'),'Value');
         ud.doseNum = dose - 1;
         set(hFig,'userdata',ud);
+        if isfield(ud,'structNum') && ud.structNum~=0  %Update plot for new dose
+            outcomeModelsGUI('PLOT_MODELS',hFig)
+        end
         
     case 'GET_STRUCT'
-        
+        %Clear plots for previously selected sturctures
+        %outcomeModelsGUI('CLEAR_PLOT',hFig);
+        %Select new structure
         ud = get(hFig,'userdata');
         strNum = get(findobj('tag','structSelect'),'Value');
         ud.structNum = strNum - 1;
         set(hFig,'userdata',ud);
+        if isfield(ud,'doseNum') && ud.doseNum~=0 %Update plot for new structure
+            outcomeModelsGUI('PLOT_MODELS',hFig);
+        end
         
     case 'LOAD_MODELS'
-        
+        %Clear plots for previously selected models
+        outcomeModelsGUI('CLEAR_PLOT',hFig);
+        %Select new model
         ud = get(hFig,'userdata');
         % Read .json file containing models
         [fileName,pathName,filterIndex]  = uigetfile('*.json','Select model file');
@@ -185,12 +197,6 @@ switch upper(command)
         else
             modelC = loadjson(fullfile(pathName,fileName),'ShowProgress',1);
         end
-        
-        %Clear data/plots from any previously loaded models
-        ud.EUD = [];
-        ud.modelCurve = [];
-        cla(ud.handle.modelsAxis(2));
-        
         %Store data for current model
         ud.Models = modelC;
         set(findobj('Tag','plot'),'Enable','On');
@@ -198,7 +204,7 @@ switch upper(command)
         
         
     case 'PLOT_MODELS'
-        
+        outcomeModelsGUI('CLEAR_PLOT',hFig);
         ud = get(hFig,'userdata');
         if ~isfield(ud,'modelCurve')
             ud.modelCurve = [];
@@ -233,7 +239,9 @@ switch upper(command)
             colorIdx = mod(i,size(colorOrderM,1))+1;
             
             %plot curves
-            ud.EUD = [ud.EUD, plot([EUD EUD],[0 ntcp],'linewidth',2,'Color',...
+            ud.EUD = [ud.EUD, plot([EUD EUD],[0 ntcp],'linewidth',1,'Color',...
+                colorOrderM(colorIdx,:),'parent',ud.handle.modelsAxis(2))];
+            ud.ntcp = [ud.ntcp plot([0 EUD],[ntcp ntcp],'linewidth',1,'Color',...
                 colorOrderM(colorIdx,:),'parent',ud.handle.modelsAxis(2))];
             ud.modelCurve = [ud.modelCurve plot(EUDv,ntcpV,'linewidth',2,...
                 'Color',colorOrderM(colorIdx,:),'parent',ud.handle.modelsAxis(2))];
@@ -245,8 +253,25 @@ switch upper(command)
         modelAxis = findobj('Tag','modelsAxis');
         modelAxis.Visible = 'On';
         xlabel('Dose scaling'),ylabel('Complication Probability');
-        set(findobj('Tag','Scale'),'Visible','On');
         set(hFig,'userdata',ud);
+        set(findobj('Tag','Scale'),'Visible','On');
+        scaleDose(findobj('Tag','Scale'));
+        
+        
+    case 'CLEAR_PLOT'
+        ud = get(hFig,'userdata');
+        %Clear data/plots from any previously loaded models/dose/structures
+        ud.EUD = [];
+        ud.ntcp = [];
+        ud.modelCurve = [];
+        cla(ud.handle.modelsAxis(2));
+        hSlider =  findobj('Tag','Scale');
+        hSlider.Value = 1;
+        hSlider.Visible = 'Off';
+        set(findobj('Tag','sliderVal'),'String','1');
+        set(findobj('Tag','sliderVal'),'Visible','Off');
+        set(hFig,'userdata',ud);
+        
         
     case 'SHOW_MODEL_STAT'
         ud = get(hFig,'userdata');
@@ -315,11 +340,15 @@ end
             paramsS = modelsC{k}.params;
             [EUDnew,ntcpNew] = feval(modelsC{k}.function,[],paramsS,ud.structNum,ud.doseNum,scale);
             idx = mod(k,size(colorM,1))+1;
-            plot([EUDnew EUDnew],[0 ntcpNew],'Color',colorM(idx,:),'LineStyle','--','linewidth',1,'parent',ud.handle.modelsAxis(2));
+            plot([EUDnew EUDnew],[0 ntcpNew],'Color',colorM(idx,:),'LineStyle','--',...
+                'linewidth',1,'parent',ud.handle.modelsAxis(2));
+            plot([0 EUDnew],[ntcpNew ntcpNew],'Color',colorM(idx,:),'LineStyle','--',...
+                'linewidth',1,'parent',ud.handle.modelsAxis(2));
         end
         
         set(hFig,'userdata',ud);
         
     end
+
 
 end
