@@ -4,8 +4,8 @@ global planC stateS
 indexS = planC{end};
 
 %MySQL database (Development)
-% conn = database('webCERR_development','root','aa#9135','com.mysql.jdbc.Driver','jdbc:mysql://127.0.0.1/webCERR_development');
-conn = database('riview_dev','aptea','aptea654','com.mysql.jdbc.Driver','jdbc:mysql://plmpdb1.mskcc.org/riview_dev');
+% conn = database('webCERR_development','xxxx','xxxx','com.mysql.jdbc.Driver','jdbc:mysql://xxxx/xxxx');
+conn = database('xxxx','xxxx','xxxx','com.mysql.jdbc.Driver','jdbc:mysql://xxxx.xxx.xxx/xxxx');
 
 % Toggle plane locators
 stateS.showPlaneLocators = 0;
