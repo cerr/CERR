@@ -15,9 +15,8 @@ columnNames = {'scan_id', 'dose_number', 'dose_type', 'dose_units', 'dose_scale'
 
 
 %MySQL database (Development)
-% conn = database('webCERR_development','root','aa#9135','com.mysql.jdbc.Driver','jdbc:mysql://127.0.0.1/webCERR_development');
-conn = database('riview_dev','aptea','aptea654','com.mysql.jdbc.Driver','jdbc:mysql://plmpdb1.mskcc.org/riview_dev');
-
+% conn = database('webCERR_development','xxxx','xxxx','com.mysql.jdbc.Driver','jdbc:mysql://xxxx/xxxx');
+conn = database('xxxx','xxxx','xxxx','com.mysql.jdbc.Driver','jdbc:mysql://xxxx.xxx.xxx/xxxx');
 
 %Loop over all scans, find doses belonging to scan and add to DB.
 numDoses = length(planC{indexS.dose});
