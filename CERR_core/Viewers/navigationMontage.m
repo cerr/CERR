@@ -17,24 +17,24 @@ function navigationMontage(arg, scanNum, varargin)
 %   navigationMontage('init',scanNum);
 %
 % Copyright 2010, Joseph O. Deasy, on behalf of the CERR development team.
-% 
+%
 % This file is part of The Computational Environment for Radiotherapy Research (CERR).
-% 
+%
 % CERR development has been led by:  Aditya Apte, Divya Khullar, James Alaly, and Joseph O. Deasy.
-% 
+%
 % CERR has been financially supported by the US National Institutes of Health under multiple grants.
-% 
-% CERR is distributed under the terms of the Lesser GNU Public License. 
-% 
+%
+% CERR is distributed under the terms of the Lesser GNU Public License.
+%
 %     This version of CERR is free software: you can redistribute it and/or modify
 %     it under the terms of the GNU General Public License as published by
 %     the Free Software Foundation, either version 3 of the License, or
 %     (at your option) any later version.
-% 
+%
 % CERR is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
 % without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 % See the GNU General Public License for more details.
-% 
+%
 % You should have received a copy of the GNU General Public License
 % along with CERR.  If not, see <http://www.gnu.org/licenses/>.
 
@@ -48,7 +48,8 @@ indexS = planC{end};
 if ~exist('scanNum')
     hSwitchMenu = findobj('tag', 'switchScanMenu');
     for i=1: length(planC{indexS.scan})
-        hScanItem = findobj('tag', ['scanItem' num2str(i)]);
+        scanItemListC ={hSwitchMenu.Children.Tag};
+        hScanItem = hSwitchMenu.Children(strcmp(scanItemListC,['scanItem' num2str(i)]));
         if strcmpi(get(hScanItem, 'Checked'), 'on')
             scanNum = i;
         end
@@ -62,10 +63,10 @@ end
 numSlices = length(planC{indexS.scan}(scanNum).scanInfo);
 
 switch lower(arg)
-
+    
     case 'redrawstructuremenu'
         drawMenu(gcf, planC,scanNum)
-
+        
     case 'newslice'
         [slice, sliceRow, sliceCol] = getNewSlice(scanNum);
         isRefresh = 0;
@@ -84,29 +85,33 @@ switch lower(arg)
         else
             errordlg('The scan you are trying to navigate has no Transverse view displayed.','Cannot navigate','Modal')
         end
-
+        
         return
-
+        
     case 'structureselect'
         toDraw = [];
         structNum = varargin{1};
-        hFigure = findobj('tag', 'navigationFigure');
-        hStructItem = findobj('tag', ['structureItem', num2str(structNum)]);
+        hFigure = stateS.handle.navigationMontage;
+        figMenuC = arrayfun(@(x) x.Tag,hFigure.Children,'un',0);
+        hNavStructs = hFigure.Children(strcmp(figMenuC,'navigationstructs'));
+        currentStruct = strcmp({hNavStructs.Children.Tag},['structureItem', num2str(structNum)]); 
+        hStructItem = hNavStructs.Children(currentStruct);
         if strcmpi(get(hStructItem, 'Checked'), 'off')
             set(hStructItem, 'Checked', 'on')
         else
             set(hStructItem, 'Checked', 'off')
         end
-
+        
         for i=1:length(planC{indexS.structures})
-            hStructItem = findobj('tag', ['structureItem' num2str(i)]);
+        currentStruct = strcmp({hNavStructs.Children.Tag},['structureItem', num2str(i)]); 
+        hStructItem = hNavStructs.Children(currentStruct);
             if strcmpi(get(hStructItem, 'Checked'), 'on')
                 toDraw(i) = 1;
             end
         end
         drawDots(planC, scanNum, stateS, hFigure, toDraw);
         return
-
+        
     case {'right','left','up','down'}
         hAxis = stateS.handle.CERRAxis(stateS.currentAxis);
         [view, scanSets, lastcoord] = getAxisInfo(hAxis, 'view', 'scanSets', 'coord');
@@ -143,7 +148,7 @@ switch lower(arg)
             figure(stateS.handle.navigationMontage) % shift focus back to navigation figure
         end
         return
-
+        
     case 'update'  %slice has been changed elsewhere, wipe out current lines and redraw. Only redraw/calc high doses if dose changed.
         try
             if(stateS.lastDoseThumbnailed == stateS.doseSet)
@@ -157,7 +162,7 @@ switch lower(arg)
             delete(hV)
             navigationMontage('outlinehighdoses',scanNum);
         end
-
+        
         hV = findobj('tag', 'navigationLines');
         delete(hV)
         % find this scan displayed on an axis
@@ -172,7 +177,7 @@ switch lower(arg)
             end
         end
         return
-
+        
         %pass slicenum, color, and a tag. ie, navigationMontage('thumboutline', slice, [1 1 1], 'navigationLines')
         %and result is the outlining of the specificed slice with 4 lines of specificed color, by the given tag.
     case 'thumboutline'
@@ -193,38 +198,38 @@ switch lower(arg)
         h4 = line([(i-1) * width + width , (i-1) * width + width], [(j-1) * width + 1 , (j-1) * width + width], 'parent', stateS.navInfo.Axes);
         set([h1, h2, h3, h4], 'tag', tag,'color', color,'linewidth',0.5);
         return;
-
+        
     case 'outlinehighdoses'
         currentDose = stateS.doseSet;
         stateS.lastDoseThumbnailed = currentDose;
-
+        
         if isempty(currentDose)
             return;
         end
         if currentDose == 0
             return;
         end
-
+        
         indexS = planC{end};
         maxDosePerDoseSlice = double(max(max(getDoseArray(planC{indexS.dose}(currentDose)))));
         maxDose = double(max(maxDosePerDoseSlice));
-
+        
         %Find dose zValues inbetween which all slices have at least maxDose/2. Also find zValue with maxDose.
         firstZ = planC{indexS.dose}(currentDose).zValues(min(find([maxDosePerDoseSlice >= maxDose/2])));
         lastZ = planC{indexS.dose}(currentDose).zValues(max(find([maxDosePerDoseSlice >= maxDose/2])));
         maxZ = planC{indexS.dose}(currentDose).zValues(max(find([maxDosePerDoseSlice == maxDose])));
-
+        
         %Find CT slice numbers corresponding to dose Z values
         firstIndex = min(find([planC{indexS.scan}(scanNum).scanInfo.zValue] >= firstZ));
         lastIndex = max(find([planC{indexS.scan}(scanNum).scanInfo.zValue] <= lastZ));
         [junk, maxIndex] = min(abs([planC{indexS.scan}(scanNum).scanInfo.zValue] - maxZ));
-
+        
         %Draw thumboutlines for each slice.
         for i=firstIndex:lastIndex
             navigationMontage('thumboutline', scanNum, i, [0 0 .5], 'doseRangeThumbOutlines');
         end
         navigationMontage('thumboutline', scanNum,  maxIndex, [1 .5 0], 'doseRangeThumbOutlines');
-
+        
         %If an offset is involved, find and highlight the most negative
         %slice, in green.
         if(isfield(planC{indexS.dose}, 'doseOffset') & ~isempty(planC{indexS.dose}(currentDose)))
@@ -238,7 +243,7 @@ switch lower(arg)
             navigationMontage('thumboutline', scanNum, minIndex, [0 1 0], 'doseRangeThumbOutlines');
         end
         return;
-
+        
     case 'showbookmarks'
         try
             bmarks = [planC{indexS.scan}(scanNum).scanInfo.bookmarked];
@@ -248,7 +253,7 @@ switch lower(arg)
         end
         delete(findobj('tag', 'bookmarkText'));
         slice = find(bmarks);
-
+        
         across = planC{indexS.scan}(scanNum).thumbnails.numImagesAcross;
         down = planC{indexS.scan}(scanNum).thumbnails.numImagesDown;
         sliceRow = ceil(slice/across);
@@ -260,14 +265,14 @@ switch lower(arg)
         navigationMontage('outlinehighdoses',scanNum);
         navigationMontage('update',scanNum);
         return;
-
+        
     case 'clearbookmarks'
         try
             [planC{indexS.scan}(scanNum).scanInfo.bookmarked] = deal(0);
         end
         navigationMontage('showbookmarks',scanNum);
         return;
-
+        
     case 'togglebookmark'
         % check if current scan is transverse corresponds to one displayed on nav
         % Montage, otherwise pop-up an error message
@@ -289,9 +294,9 @@ switch lower(arg)
             %errordlg('Current slice must be transverse and correspond to the scan displayed on montage')
             errordlg('Only transverse slice can be bookmarked')
         end
-
+        
         return;
-
+        
     case 'switchscan'
         navigationMontage('init',scanNum)
         sliceCallBack('refresh')
@@ -300,24 +305,24 @@ switch lower(arg)
     case 'quit'
         stateS.showNavMontage = 0;
         closereq;
-
+        
     otherwise
-
+        
         %Have thumbnails been generated?
         try
             im = planC{indexS.scan}(scanNum).thumbnails.montage;
         catch   %create them
-
+            
             w = planC{indexS.scan}(scanNum).scanInfo(1).sizeOfDimension1;
-
+            
             scan3M = getScanArray(planC{indexS.scan}(scanNum));
-
+            
             bar = waitbar(0,'Generate thumbnails of CT images...');
             sizV = size(scan3M(:,:,1));
-
+            
             dim1 = planC{indexS.scan}(scanNum).scanInfo(1).sizeOfDimension1;
             dim2 = planC{indexS.scan}(scanNum).scanInfo(1).sizeOfDimension2;
-
+            
             upsampleImage = 0;
             if mod(sizV(1),thumbWidth)~=0
                 yi = linspace(1,sizV(1),sizV(1)-mod(sizV(1),thumbWidth)+thumbWidth);
@@ -334,7 +339,7 @@ switch lower(arg)
                 xi = 1:sizV(2);
             end
             sample = [dim1 dim2]/thumbWidth;
-
+            
             for i = 1 : numSlices
                 %get ct data:
                 ct = scan3M(:,:,i);
@@ -345,84 +350,83 @@ switch lower(arg)
                 smooth3M(:,:,i) = thumbImage(ct, sample);
                 waitbar(i/numSlices,bar)
             end
-
+            
             close(bar)
-
+            
             [im, down, across] = CERRMontage(smooth3M);
-
+            
             %put into the archive:
-
+            
             planC{indexS.scan}(scanNum).thumbnails.montage = im;
-
+            
             planC{indexS.scan}(scanNum).thumbnails.numImagesAcross = across;
-
+            
             planC{indexS.scan}(scanNum).thumbnails.numImagesDown = down;
-
+            
             if strcmpi(arg,'import')
                 return
             end
         end
-
+        
         %Set up montage window.
         across = ceil(numSlices^0.5);
-        hNavFig = findobj('tag','navigationFigure');
-        if ~isempty(hNavFig)
-            delete(hNavFig)
+        if isfield(stateS.handle,'navigationMontage') && ~isempty(stateS.handle.navigationMontage);
+            delete(stateS.handle.navigationMontage);
         end
-        f = figure;
-        set(f,'tag','navigationFigure','doublebuffer', 'on', 'CloseRequestFcn','navigationMontage(''quit'')')
-        posFig = get(f,'position');
-        set(f,'position',[posFig(1),posFig(2),posFig(4),posFig(4)]);  %make it square.
-
-        %pos = [0, 0, 1, 1];   %fill to boundary
-        dim1 = planC{indexS.scan}(scanNum).scanInfo(1).sizeOfDimension1;
-        dim2 = planC{indexS.scan}(scanNum).scanInfo(1).sizeOfDimension2;
-        %pos = [(1-dim2/max([dim1 dim2]))/2 (1-dim1/max([dim1 dim2]))/2 dim2/max([dim1 dim2]) dim1/max([dim1 dim2])];
-        [xV,yV,zV] = getScanXYZVals(planC{indexS.scan}(scanNum));
-        dimRatio = abs((max(yV)-min(yV))/(max(xV)-min(xV)));
-        if dimRatio < 1
-            axis_width  = 1;
-            axis_height = dimRatio;
-            x_start = 0;
-            y_start = 0.5-dimRatio/2;
-        elseif dimRatio > 1
-            axis_width  = dimRatio;
-            axis_height = 1;
-            x_start = 0.5-dimRatio/2;
-            y_start = 0;
-        else
-            axis_width  = 1;
-            axis_height = 1;
-            x_start = 0;
-            y_start = 0;
-        end
-        pos = [x_start y_start axis_width axis_height];
-        hAxis = axes('position', pos, 'parent', f);
-        %hAxis = axes('position', pos, 'parent', f,'nextPlot','add');        
-
-        handle = imagesc(im, 'parent', hAxis);
-        %axis(hAxis,'image','off');
-        axis(hAxis,'off')
-        set(handle,'tag','navigationImage')
-        set(hAxis,'nextPlot','add')
-
-        map = CERRColorMap(stateS.optS.navigationMontageColormap);
-
-        colormap(hAxis,map);
-
-        %str = ['Navigation:  ' stateS.CERRFile];
-        str = ['Navigation Montage for Scan:  ', num2str(scanNum)];
-
-        set(f,'name',str,'numbertitle','off','menubar','none')
-
-        drawMenu(f, planC,scanNum);
-        drawBookmarkMenu(f, planC,scanNum)
-        drawScanMenu(f,planC,scanNum);
-        stateS.navInfo.Axes = hAxis;
-        set(handle,'buttondownfcn',['navigationMontage(''newSlice'',',num2str(scanNum),')'])
-        stateS.handle.navigationMontage = f;
-        %    navigationMontage('update');
-        navigationMontage('showbookmarks',scanNum);
+            f = figure;
+            set(f,'tag','navigationFigure','doublebuffer', 'on', 'CloseRequestFcn','navigationMontage(''quit'')')
+            posFig = get(f,'position');
+            set(f,'position',[posFig(1),posFig(2),posFig(4),posFig(4)]);  %make it square.
+            
+            %pos = [0, 0, 1, 1];   %fill to boundary
+            dim1 = planC{indexS.scan}(scanNum).scanInfo(1).sizeOfDimension1;
+            dim2 = planC{indexS.scan}(scanNum).scanInfo(1).sizeOfDimension2;
+            %pos = [(1-dim2/max([dim1 dim2]))/2 (1-dim1/max([dim1 dim2]))/2 dim2/max([dim1 dim2]) dim1/max([dim1 dim2])];
+            [xV,yV,zV] = getScanXYZVals(planC{indexS.scan}(scanNum));
+            dimRatio = abs((max(yV)-min(yV))/(max(xV)-min(xV)));
+            if dimRatio < 1
+                axis_width  = 1;
+                axis_height = dimRatio;
+                x_start = 0;
+                y_start = 0.5-dimRatio/2;
+            elseif dimRatio > 1
+                axis_width  = dimRatio;
+                axis_height = 1;
+                x_start = 0.5-dimRatio/2;
+                y_start = 0;
+            else
+                axis_width  = 1;
+                axis_height = 1;
+                x_start = 0;
+                y_start = 0;
+            end
+            pos = [x_start y_start axis_width axis_height];
+            hAxis = axes('position', pos, 'parent', f);
+            %hAxis = axes('position', pos, 'parent', f,'nextPlot','add');
+            
+            handle = imagesc(im, 'parent', hAxis);
+            %axis(hAxis,'image','off');
+            axis(hAxis,'off')
+            set(handle,'tag','navigationImage')
+            set(hAxis,'nextPlot','add')
+            
+            map = CERRColorMap(stateS.optS.navigationMontageColormap);
+            
+            colormap(hAxis,map);
+            
+            %str = ['Navigation:  ' stateS.CERRFile];
+            str = ['Navigation Montage for Scan:  ', num2str(scanNum)];
+            
+            set(f,'name',str,'numbertitle','off','menubar','none')
+            
+            drawMenu(f, planC,scanNum);
+            drawBookmarkMenu(f, planC,scanNum)
+            drawScanMenu(f,planC,scanNum);
+            stateS.navInfo.Axes = hAxis;
+            set(handle,'buttondownfcn',['navigationMontage(''newSlice'',',num2str(scanNum),')'])
+            stateS.handle.navigationMontage = f;
+            %    navigationMontage('update');
+            navigationMontage('showbookmarks',scanNum);
 end
 
 
