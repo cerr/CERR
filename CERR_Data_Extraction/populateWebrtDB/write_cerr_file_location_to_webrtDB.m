@@ -5,8 +5,8 @@ function write_cerr_file_location_to_webrtDB(patient_id,study_id,scan_type,cerr_
 % APA, 04/07/2011
 
 %MySQL database (Development)
-%conn = database('webCERR_development','root','aa#9135','com.mysql.jdbc.Driver','jdbc:mysql://127.0.0.1/webCERR_development');
-conn = database('riview_dev','aptea','aptea654','com.mysql.jdbc.Driver','jdbc:mysql://plmpdb1.mskcc.org/riview_dev');  
+%conn = database('webCERR_development','root','xxxx','com.mysql.jdbc.Driver','jdbc:mysql://127.0.0.1/webCERR_development');
+conn = database('riview_dev','xxxx','xxxx','com.mysql.jdbc.Driver','jdbc:mysql://xxxx/xxx');  
 
 % Get CERR file/s corresponding to this patient
 cerr_file_locationC = {};
