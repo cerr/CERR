@@ -103,8 +103,8 @@ recC{3} = viewType(1);
 
 for slcNum = 1:length(coordsV)
     %MySQL database (Development)
-    % conn = database('webCERR_development','root','aa#9135','com.mysql.jdbc.Driver','jdbc:mysql://127.0.0.1/webCERR_development');
-    conn = database('riview_dev','aptea','aptea654','com.mysql.jdbc.Driver','jdbc:mysql://plmpdb1.mskcc.org/riview_dev');
+    % conn = database('webCERR_development','root','xxxx','com.mysql.jdbc.Driver','jdbc:mysql://xxx/xxx_development');
+    conn = database('riview_dev','xxxx','xxxx','com.mysql.jdbc.Driver','jdbc:mysql://xxxx/xxx');
     
     setAxisInfo(stateS.handle.CERRAxis(1), 'coord', coordsV(slcNum));
     CERRRefresh
@@ -137,7 +137,8 @@ recC = {};
 recC{2} = viewType(1);
 
 %MySQL database (Development)
-conn = database('riview_dev','aptea','aptea654','com.mysql.jdbc.Driver','jdbc:mysql://plmpdb1.mskcc.org/riview_dev');
+% conn = database('webCERR_development','root','xxxx','com.mysql.jdbc.Driver','jdbc:mysql://xxx/xxx_development');
+conn = database('riview_dev','xxxx','xxxx','com.mysql.jdbc.Driver','jdbc:mysql://xxxx/xxx');
 
 
 % Delete structures from structure_contours table
