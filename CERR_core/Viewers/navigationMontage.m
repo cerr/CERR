@@ -460,7 +460,9 @@ switch lower(arg)
         ud.handle.thumbnails = handle;
         ud.handle.navAxis = hAxis;
         ud.scanNum = scanNum;
+        if ~isfield(ud,'strNum')
         ud.strNum = [];
+        end
         
         set(f,'userdata',ud);
         
