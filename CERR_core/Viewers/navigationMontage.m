@@ -108,11 +108,10 @@ switch lower(arg)
         return
         
     case 'structureselect'
-        toDraw = [];
-        %structNum = varargin{1};
         ud = get(f,'userdata');
-        structNum = ud.strNum;
-        %hFigure = stateS.handle.navigationMontage;
+        toDraw = [];
+        structNum = varargin{1};
+        ud.strNum = structNum;
         hNavStructs = ud.handle.navStructs;
         currentStruct = strcmp(ud.structListC,['structureItem', num2str(structNum)]);
         hStructItem = hNavStructs.Children(currentStruct);
@@ -131,7 +130,14 @@ switch lower(arg)
         end
         ud.strNum = find(toDraw);
         set(f,'userdata',ud);
-        drawDots(planC, ud.scanNum, stateS, hFigure, toDraw);
+        
+        %Display scan associated with selected structure
+        userSel = questdlg('Display navigation montage for scan associated with selected structure?','Switch scan','No');
+        if strcmp(userSel,'Yes')
+            scanNum = hNavStructs.Children(ud.strNum).UserData;
+            navigationMontage('switchscan',scanNum);
+        end
+        drawDots(planC, ud.scanNum, stateS, f, toDraw);
         return
         
     case {'right','left','up','down'}
@@ -471,15 +477,14 @@ switch lower(arg)
         %Get structure list
         figMenuC = arrayfun(@(x) x.Tag,f.Children,'un',0);
         hNavStructs = f.Children(strcmp(figMenuC,'navigationstructs'));
-        %structListC = {hNavStructs.Children.Tag};
-        %ud.structListC = structListC; ?
+        structListC = {hNavStructs.Children.Tag};
+        ud.structListC = structListC;
         ud.handle.navStructs = hNavStructs;
         hSwitchMenu = f.Children(strcmp(figMenuC,'switchScanMenu'));
         scanItemListC = {hSwitchMenu.Children.Label};
         ud.scanListC = scanItemListC;
         ud.handle.switchScan = hSwitchMenu;
-        
-        
+        set(f,'userdata',ud);
 end
 
 
@@ -553,9 +558,8 @@ end
 %-----------fini---------------------%
 function drawMenu(hFigure, planC,scanNum)
 indexS = planC{end};
-
+ud = get(hFigure,'userdata');
 hStructMenu = findobj('tag', 'navigationstructs');
-
 %If structure list has changed or we arent initialized, redraw menu.
 if ~isempty(hStructMenu) & isempty(setxor(get(hStructMenu, 'userdata'), {planC{indexS.structures}.structureName}))
     return;
@@ -567,8 +571,11 @@ else
     set(hStructMenu, 'userdata', structures);
     delete(get(hStructMenu, 'children'));
     for i=1:length(planC{indexS.structures});
-        uimenu(hStructMenu, 'label', planC{indexS.structures}(i).structureName, 'callback', ['navigationMontage(''structureSelect'',' num2str(scanNum),',', num2str(i) ');'], 'tag', ['structureItem' num2str(i)]);
+        uimenu(hStructMenu, 'label', planC{indexS.structures}(i).structureName,'userdata', planC{indexS.structures}(i).associatedScan,...
+            'callback', ['navigationMontage(''structureSelect'',' num2str(scanNum),',', num2str(i) ');'], 'tag', ['structureItem' num2str(i)]);
     end
+    ud.handle.navStructs = hStructMenu;
+    set(hFigure,'userdata',ud);
 end
 
 function drawBookmarkMenu(hFigure, planC,scanNum)
@@ -577,7 +584,7 @@ hStructMenu = uimenu(hFigure, 'label', 'Bookmarks', 'tag', 'bookmarkMenu');
 uimenu(hStructMenu, 'label', 'Clear all', 'callback', ['navigationMontage(''clearbookmarks'',',num2str(scanNum),')']);
 uimenu(hStructMenu, 'label', 'Toggle on/off', 'callback', ['navigationMontage(''togglebookmark'',',num2str(scanNum),')']);
 
-function drawScanMenu(hFigure,scanNum) 
+function drawScanMenu(hFigure,scanNum)
 hScanMenu = uimenu(hFigure, 'label', 'Switch Scan', 'tag', 'switchScanMenu');
 addScansToMenu(hScanMenu,1);
 %Mark selected scan as 'checked'
