@@ -17,24 +17,24 @@ function navigationMontage(arg, scanNum, varargin)
 %   navigationMontage('init',scanNum);
 %
 % Copyright 2010, Joseph O. Deasy, on behalf of the CERR development team.
-% 
+%
 % This file is part of The Computational Environment for Radiotherapy Research (CERR).
-% 
+%
 % CERR development has been led by:  Aditya Apte, Divya Khullar, James Alaly, and Joseph O. Deasy.
-% 
+%
 % CERR has been financially supported by the US National Institutes of Health under multiple grants.
-% 
-% CERR is distributed under the terms of the Lesser GNU Public License. 
-% 
+%
+% CERR is distributed under the terms of the Lesser GNU Public License.
+%
 %     This version of CERR is free software: you can redistribute it and/or modify
 %     it under the terms of the GNU General Public License as published by
 %     the Free Software Foundation, either version 3 of the License, or
 %     (at your option) any later version.
-% 
+%
 % CERR is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
 % without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 % See the GNU General Public License for more details.
-% 
+%
 % You should have received a copy of the GNU General Public License
 % along with CERR.  If not, see <http://www.gnu.org/licenses/>.
 
@@ -44,15 +44,33 @@ global planC;
 thumbWidth = 64;  %width of thumbnail views
 indexS = planC{end};
 
+% Get GUI fig handle
+f = [];
+if isfield(stateS.handle,'navigationMontage')
+    f = stateS.handle.navigationMontage;
+end
+
 % Obtain the checked scanNum if no scanNum is passed
-if ~exist('scanNum')
+if ~exist('scanNum','var')
     hSwitchMenu = findobj('tag', 'switchScanMenu');
-    for i=1: length(planC{indexS.scan})
-        hScanItem = findobj('tag', ['scanItem' num2str(i)]);
-        if strcmpi(get(hScanItem, 'Checked'), 'on')
-            scanNum = i;
-        end
+    scanItemListC = {hSwitchMenu.Children.Label};
+    nSubMenu= 0;
+    selected = 0;
+    while nSubMenu < numel(hSwitchMenu.Children) && selected == 0
+        nSubMenu = nSubMenu + 1;
+        hSubMenu = hSwitchMenu.Children(nSubMenu).Children;
+        selectedScan = strcmp({hSubMenu.Checked},'on');
+        selected = any(selectedScan);
     end
+    scanTag = get(hSwitchMenu.Children(nSubMenu).Children(selectedScan),'Tag');
+    scanNum = str2num(scanTag(9:end));
+    if ~isempty(f)
+        ud = get(f,'userdata');
+        ud.scanNum = scanNum;
+        ud.scanListC = scanItemListC;
+        set(f,'userdata',ud);
+    end
+    
 end
 
 try
@@ -62,57 +80,75 @@ end
 numSlices = length(planC{indexS.scan}(scanNum).scanInfo);
 
 switch lower(arg)
-
+    
     case 'redrawstructuremenu'
-        drawMenu(gcf, planC,scanNum)
-
+        ud = get(f,'userdata');
+        drawMenu(f, planC,ud.scanNum)
+        
     case 'newslice'
-        [slice, sliceRow, sliceCol] = getNewSlice(scanNum);
+        ud = get(f,'userdata');
+        [slice, sliceRow, sliceCol] = getNewSlice(ud.scanNum);
         isRefresh = 0;
         % find this scan displayed on an axis
         for i=1:length(stateS.handle.CERRAxis)
             [view, scanSets]=getAxisInfo(stateS.handle.CERRAxis(i),'view', 'scanSets');
-            if strcmpi(view,'transverse') & scanSets==scanNum
-                [xs, ys, zs] = getScanXYZVals(planC{indexS.scan}(scanNum));
+            if strcmpi(view,'transverse') & scanSets==ud.scanNum
+                [xs, ys, zs] = getScanXYZVals(planC{indexS.scan}(ud.scanNum));
                 setAxisInfo(stateS.handle.CERRAxis(i), 'coord', zs(slice));
                 isRefresh = 1;
             end
         end
         if isRefresh
             sliceCallBack('refresh') %the montage actually gets updated when sliceCallBack calls this routine with the 'update' arg
-            figure(stateS.handle.navigationMontage) % shift focus back to navigation figure
+            figure(f) % shift focus back to navigation figure
         else
             errordlg('The scan you are trying to navigate has no Transverse view displayed.','Cannot navigate','Modal')
         end
-
+        
         return
-
+        
     case 'structureselect'
-        toDraw = [];
+        ud = get(f,'userdata');
+        toDraw = false(1,length(planC{indexS.structures}));
         structNum = varargin{1};
-        hFigure = findobj('tag', 'navigationFigure');
-        hStructItem = findobj('tag', ['structureItem', num2str(structNum)]);
+        hNavStructs = ud.handle.navStructs;
+        currentStruct = strcmp(ud.structListC,['structureItem', num2str(structNum)]);
+        hStructItem = hNavStructs.Children(currentStruct);
         if strcmpi(get(hStructItem, 'Checked'), 'off')
             set(hStructItem, 'Checked', 'on')
         else
             set(hStructItem, 'Checked', 'off')
         end
-
+        
         for i=1:length(planC{indexS.structures})
-            hStructItem = findobj('tag', ['structureItem' num2str(i)]);
-            if strcmpi(get(hStructItem, 'Checked'), 'on')
-                toDraw(i) = 1;
+            structItemIdx = strcmp(ud.structListC,['structureItem', num2str(i)]);
+            hStruct = hNavStructs.Children(structItemIdx);
+            if strcmpi(get(hStruct, 'Checked'), 'on')
+                toDraw(i)= 1;
             end
         end
-        drawDots(planC, scanNum, stateS, hFigure, toDraw);
+        ud.strNum = find(toDraw);
+        set(f,'userdata',ud);
+        
+        %Display scan associated with selected structure
+        scanNum = hNavStructs.Children(currentStruct).UserData;
+        userSel = questdlg('Display navigation montage for scan associated with selected structure?','Switch scan',...
+                           'Yes','No','No');
+        if strcmp(userSel,'Yes')
+                navigationMontage('switchscan',scanNum);
+                f = stateS.handle.navigationMontage;
+                ud = get(f,'userdata');
+        end
+        drawDots(planC, ud.scanNum, stateS, f, toDraw);
         return
-
+        
     case {'right','left','up','down'}
+        ud = get(f,'userdata');
         hAxis = stateS.handle.CERRAxis(stateS.currentAxis);
         [view, scanSets, lastcoord] = getAxisInfo(hAxis, 'view', 'scanSets', 'coord');
         if ~strcmp(upper(view),'TRANSVERSE')
             errordlg('Please Choose One of the Transverse Views to Navigate','CERR View-Plane Error')
-        elseif scanSets~=scanNum
+        elseif scanSets~=ud.scanNum
             errordlg('Scan displayed on focussed view in CERR is different from navigation montage. Please choose the same scan to navigate.','CERR Scan Mismatch Error')
         else
             [xs, ys, zs] = getScanXYZVals(planC{indexS.scan}(scanSets(1)));
@@ -140,11 +176,13 @@ switch lower(arg)
             end
             setAxisInfo(hAxis, 'coord', zs(newSlice));
             sliceCallBack('refresh')
-            figure(stateS.handle.navigationMontage) % shift focus back to navigation figure
+            figure(f) % shift focus back to navigation figure
         end
         return
-
+        
     case 'update'  %slice has been changed elsewhere, wipe out current lines and redraw. Only redraw/calc high doses if dose changed.
+        ud = get(f,'userdata');
+        scanNum = ud.scanNum;
         try
             if(stateS.lastDoseThumbnailed == stateS.doseSet)
             else
@@ -157,7 +195,7 @@ switch lower(arg)
             delete(hV)
             navigationMontage('outlinehighdoses',scanNum);
         end
-
+        
         hV = findobj('tag', 'navigationLines');
         delete(hV)
         % find this scan displayed on an axis
@@ -172,10 +210,12 @@ switch lower(arg)
             end
         end
         return
-
+        
         %pass slicenum, color, and a tag. ie, navigationMontage('thumboutline', slice, [1 1 1], 'navigationLines')
         %and result is the outlining of the specificed slice with 4 lines of specificed color, by the given tag.
     case 'thumboutline'
+        ud = get(f,'userdata');
+        scanNum = ud.scanNum;
         slice = varargin{1};
         color = varargin{2};
         tag = varargin{3};
@@ -193,38 +233,40 @@ switch lower(arg)
         h4 = line([(i-1) * width + width , (i-1) * width + width], [(j-1) * width + 1 , (j-1) * width + width], 'parent', stateS.navInfo.Axes);
         set([h1, h2, h3, h4], 'tag', tag,'color', color,'linewidth',0.5);
         return;
-
+        
     case 'outlinehighdoses'
+        ud = get(f,'userdata');
+        scanNum = ud.scanNum;
         currentDose = stateS.doseSet;
         stateS.lastDoseThumbnailed = currentDose;
-
+        
         if isempty(currentDose)
             return;
         end
         if currentDose == 0
             return;
         end
-
+        
         indexS = planC{end};
         maxDosePerDoseSlice = double(max(max(getDoseArray(planC{indexS.dose}(currentDose)))));
         maxDose = double(max(maxDosePerDoseSlice));
-
+        
         %Find dose zValues inbetween which all slices have at least maxDose/2. Also find zValue with maxDose.
         firstZ = planC{indexS.dose}(currentDose).zValues(min(find([maxDosePerDoseSlice >= maxDose/2])));
         lastZ = planC{indexS.dose}(currentDose).zValues(max(find([maxDosePerDoseSlice >= maxDose/2])));
         maxZ = planC{indexS.dose}(currentDose).zValues(max(find([maxDosePerDoseSlice == maxDose])));
-
+        
         %Find CT slice numbers corresponding to dose Z values
         firstIndex = min(find([planC{indexS.scan}(scanNum).scanInfo.zValue] >= firstZ));
         lastIndex = max(find([planC{indexS.scan}(scanNum).scanInfo.zValue] <= lastZ));
         [junk, maxIndex] = min(abs([planC{indexS.scan}(scanNum).scanInfo.zValue] - maxZ));
-
+        
         %Draw thumboutlines for each slice.
         for i=firstIndex:lastIndex
             navigationMontage('thumboutline', scanNum, i, [0 0 .5], 'doseRangeThumbOutlines');
         end
         navigationMontage('thumboutline', scanNum,  maxIndex, [1 .5 0], 'doseRangeThumbOutlines');
-
+        
         %If an offset is involved, find and highlight the most negative
         %slice, in green.
         if(isfield(planC{indexS.dose}, 'doseOffset') & ~isempty(planC{indexS.dose}(currentDose)))
@@ -238,8 +280,10 @@ switch lower(arg)
             navigationMontage('thumboutline', scanNum, minIndex, [0 1 0], 'doseRangeThumbOutlines');
         end
         return;
-
+        
     case 'showbookmarks'
+        ud = get(f,'userdata');
+        scanNum = ud.scanNum;
         try
             bmarks = [planC{indexS.scan}(scanNum).scanInfo.bookmarked];
         catch
@@ -248,7 +292,7 @@ switch lower(arg)
         end
         delete(findobj('tag', 'bookmarkText'));
         slice = find(bmarks);
-
+        
         across = planC{indexS.scan}(scanNum).thumbnails.numImagesAcross;
         down = planC{indexS.scan}(scanNum).thumbnails.numImagesDown;
         sliceRow = ceil(slice/across);
@@ -260,14 +304,15 @@ switch lower(arg)
         navigationMontage('outlinehighdoses',scanNum);
         navigationMontage('update',scanNum);
         return;
-
+        
     case 'clearbookmarks'
+        ud = get(f,'userdata');
         try
-            [planC{indexS.scan}(scanNum).scanInfo.bookmarked] = deal(0);
+            [planC{indexS.scan}(ud.scanNum).scanInfo.bookmarked] = deal(0);
         end
-        navigationMontage('showbookmarks',scanNum);
+        navigationMontage('showbookmarks',ud.scanNum);
         return;
-
+        
     case 'togglebookmark'
         % check if current scan is transverse corresponds to one displayed on nav
         % Montage, otherwise pop-up an error message
@@ -289,9 +334,9 @@ switch lower(arg)
             %errordlg('Current slice must be transverse and correspond to the scan displayed on montage')
             errordlg('Only transverse slice can be bookmarked')
         end
-
+        
         return;
-
+        
     case 'switchscan'
         navigationMontage('init',scanNum)
         sliceCallBack('refresh')
@@ -300,24 +345,24 @@ switch lower(arg)
     case 'quit'
         stateS.showNavMontage = 0;
         closereq;
-
+        
     otherwise
-
+        
         %Have thumbnails been generated?
         try
             im = planC{indexS.scan}(scanNum).thumbnails.montage;
         catch   %create them
-
+            
             w = planC{indexS.scan}(scanNum).scanInfo(1).sizeOfDimension1;
-
+            
             scan3M = getScanArray(planC{indexS.scan}(scanNum));
-
+            
             bar = waitbar(0,'Generate thumbnails of CT images...');
             sizV = size(scan3M(:,:,1));
-
+            
             dim1 = planC{indexS.scan}(scanNum).scanInfo(1).sizeOfDimension1;
             dim2 = planC{indexS.scan}(scanNum).scanInfo(1).sizeOfDimension2;
-
+            
             upsampleImage = 0;
             if mod(sizV(1),thumbWidth)~=0
                 yi = linspace(1,sizV(1),sizV(1)-mod(sizV(1),thumbWidth)+thumbWidth);
@@ -334,7 +379,7 @@ switch lower(arg)
                 xi = 1:sizV(2);
             end
             sample = [dim1 dim2]/thumbWidth;
-
+            
             for i = 1 : numSlices
                 %get ct data:
                 ct = scan3M(:,:,i);
@@ -345,35 +390,38 @@ switch lower(arg)
                 smooth3M(:,:,i) = thumbImage(ct, sample);
                 waitbar(i/numSlices,bar)
             end
-
+            
             close(bar)
-
+            
             [im, down, across] = CERRMontage(smooth3M);
-
+            
             %put into the archive:
-
+            
             planC{indexS.scan}(scanNum).thumbnails.montage = im;
-
+            
             planC{indexS.scan}(scanNum).thumbnails.numImagesAcross = across;
-
+            
             planC{indexS.scan}(scanNum).thumbnails.numImagesDown = down;
-
+            
             if strcmpi(arg,'import')
                 return
             end
         end
-
+        
         %Set up montage window.
         across = ceil(numSlices^0.5);
-        hNavFig = findobj('tag','navigationFigure');
-        if ~isempty(hNavFig)
-            delete(hNavFig)
+        strNum = [];
+        if isfield(stateS.handle,'navigationMontage') && isvalid(stateS.handle.navigationMontage);
+            if isfield(stateS.handle.navigationMontage.UserData,'strNum')
+                strNum = stateS.handle.navigationMontage.UserData.strNum;
+            end
+            delete(stateS.handle.navigationMontage);
         end
         f = figure;
         set(f,'tag','navigationFigure','doublebuffer', 'on', 'CloseRequestFcn','navigationMontage(''quit'')')
         posFig = get(f,'position');
         set(f,'position',[posFig(1),posFig(2),posFig(4),posFig(4)]);  %make it square.
-
+        
         %pos = [0, 0, 1, 1];   %fill to boundary
         dim1 = planC{indexS.scan}(scanNum).scanInfo(1).sizeOfDimension1;
         dim2 = planC{indexS.scan}(scanNum).scanInfo(1).sizeOfDimension2;
@@ -398,31 +446,53 @@ switch lower(arg)
         end
         pos = [x_start y_start axis_width axis_height];
         hAxis = axes('position', pos, 'parent', f);
-        %hAxis = axes('position', pos, 'parent', f,'nextPlot','add');        
-
+        %hAxis = axes('position', pos, 'parent', f,'nextPlot','add');
+        
         handle = imagesc(im, 'parent', hAxis);
         %axis(hAxis,'image','off');
         axis(hAxis,'off')
         set(handle,'tag','navigationImage')
         set(hAxis,'nextPlot','add')
-
+        
         map = CERRColorMap(stateS.optS.navigationMontageColormap);
-
+        
         colormap(hAxis,map);
-
+        
         %str = ['Navigation:  ' stateS.CERRFile];
         str = ['Navigation Montage for Scan:  ', num2str(scanNum)];
-
+        
         set(f,'name',str,'numbertitle','off','menubar','none')
-
+        
+        ud.handle.thumbnails = handle;
+        ud.handle.navAxis = hAxis;
+        ud.scanNum = scanNum;
+        ud.strNum = strNum;
+        
+        
+        set(f,'userdata',ud);
+        
         drawMenu(f, planC,scanNum);
         drawBookmarkMenu(f, planC,scanNum)
-        drawScanMenu(f,planC,scanNum);
+        drawScanMenu(f,scanNum); %CHANGED
         stateS.navInfo.Axes = hAxis;
         set(handle,'buttondownfcn',['navigationMontage(''newSlice'',',num2str(scanNum),')'])
         stateS.handle.navigationMontage = f;
-        %    navigationMontage('update');
+        % navigationMontage('update');
         navigationMontage('showbookmarks',scanNum);
+        
+        
+        %Get structure list
+        figMenuC = arrayfun(@(x) x.Tag,f.Children,'un',0);
+        hNavStructs = f.Children(strcmp(figMenuC,'navigationstructs'));
+        structListC = {hNavStructs.Children.Tag};
+        ud.structListC = structListC;
+        ud.handle.navStructs = hNavStructs;
+        hSwitchMenu = f.Children(strcmp(figMenuC,'switchScanMenu'));
+        scanItemListC = {hSwitchMenu.Children.Label};
+        ud.scanListC = scanItemListC;
+        ud.handle.switchScan = hSwitchMenu;
+        set(f,'userdata',ud);
+        stateS.handle.navigationMontage = f;
 end
 
 
@@ -496,6 +566,7 @@ end
 %-----------fini---------------------%
 function drawMenu(hFigure, planC,scanNum)
 indexS = planC{end};
+ud = get(hFigure,'userdata');
 hStructMenu = findobj('tag', 'navigationstructs');
 %If structure list has changed or we arent initialized, redraw menu.
 if ~isempty(hStructMenu) & isempty(setxor(get(hStructMenu, 'userdata'), {planC{indexS.structures}.structureName}))
@@ -508,8 +579,11 @@ else
     set(hStructMenu, 'userdata', structures);
     delete(get(hStructMenu, 'children'));
     for i=1:length(planC{indexS.structures});
-        uimenu(hStructMenu, 'label', planC{indexS.structures}(i).structureName, 'callback', ['navigationMontage(''structureSelect'',' num2str(scanNum),',', num2str(i) ');'], 'tag', ['structureItem' num2str(i)]);
+        uimenu(hStructMenu, 'label', planC{indexS.structures}(i).structureName,'userdata', planC{indexS.structures}(i).associatedScan,...
+            'callback', ['navigationMontage(''structureSelect'',' num2str(scanNum),',', num2str(i) ');'], 'tag', ['structureItem' num2str(i)]);
     end
+    ud.handle.navStructs = hStructMenu;
+    set(hFigure,'userdata',ud);
 end
 
 function drawBookmarkMenu(hFigure, planC,scanNum)
@@ -518,15 +592,20 @@ hStructMenu = uimenu(hFigure, 'label', 'Bookmarks', 'tag', 'bookmarkMenu');
 uimenu(hStructMenu, 'label', 'Clear all', 'callback', ['navigationMontage(''clearbookmarks'',',num2str(scanNum),')']);
 uimenu(hStructMenu, 'label', 'Toggle on/off', 'callback', ['navigationMontage(''togglebookmark'',',num2str(scanNum),')']);
 
-function drawScanMenu(hFigure,planC,scanNum)
-indexS = planC{end};
+function drawScanMenu(hFigure,scanNum)
 hScanMenu = uimenu(hFigure, 'label', 'Switch Scan', 'tag', 'switchScanMenu');
-for i=1:length(planC{indexS.scan})
-    hScanItem = uimenu(hScanMenu, 'label', ['Scan ',num2str(i)], 'callback', ['navigationMontage(''switchscan'',',num2str(i),');'],'tag', ['scanItem' num2str(i)]);
-    if i==scanNum
-        set(hScanItem,'checked','on')
-    end
+addScansToMenu(hScanMenu,1);
+%Mark selected scan as 'checked'
+subMenuNum = 0;
+selected = 0;
+while subMenuNum < numel(hScanMenu.Children) && selected == 0
+    subMenuNum = subMenuNum + 1;
+    hSubMenu = hScanMenu.Children(subMenuNum).Children;
+    selectedScan = strcmp({hSubMenu.Tag},['scanItem',num2str(scanNum)]);
+    selected = any(selectedScan);
 end
+set(hScanMenu.Children(subMenuNum).Children(selectedScan),'checked','on');
+
 
 %--------------------------------%
 function drawDots(planC, scanNum, stateS, hFigure, userData)
