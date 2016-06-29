@@ -109,9 +109,8 @@ switch lower(arg)
         
     case 'structureselect'
         ud = get(f,'userdata');
-        toDraw = [];
+        toDraw = false(1,length(planC{indexS.structures}));
         structNum = varargin{1};
-        ud.strNum = structNum;
         hNavStructs = ud.handle.navStructs;
         currentStruct = strcmp(ud.structListC,['structureItem', num2str(structNum)]);
         hStructItem = hNavStructs.Children(currentStruct);
@@ -122,20 +121,23 @@ switch lower(arg)
         end
         
         for i=1:length(planC{indexS.structures})
-            currentStruct = strcmp(ud.structListC,['structureItem', num2str(i)]);
-            hStructItem = hNavStructs.Children(currentStruct);
-            if strcmpi(get(hStructItem, 'Checked'), 'on')
-                toDraw(i) = 1;
+            structItemIdx = strcmp(ud.structListC,['structureItem', num2str(i)]);
+            hStruct = hNavStructs.Children(structItemIdx);
+            if strcmpi(get(hStruct, 'Checked'), 'on')
+                toDraw(i)= 1;
             end
         end
         ud.strNum = find(toDraw);
         set(f,'userdata',ud);
         
         %Display scan associated with selected structure
-        userSel = questdlg('Display navigation montage for scan associated with selected structure?','Switch scan','No');
+        scanNum = hNavStructs.Children(currentStruct).UserData;
+        userSel = questdlg('Display navigation montage for scan associated with selected structure?','Switch scan',...
+                           'Yes','No','No');
         if strcmp(userSel,'Yes')
-            scanNum = hNavStructs.Children(ud.strNum).UserData;
-            navigationMontage('switchscan',scanNum);
+                navigationMontage('switchscan',scanNum);
+                f = stateS.handle.navigationMontage;
+                ud = get(f,'userdata');
         end
         drawDots(planC, ud.scanNum, stateS, f, toDraw);
         return
@@ -408,7 +410,11 @@ switch lower(arg)
         
         %Set up montage window.
         across = ceil(numSlices^0.5);
-        if isfield(stateS.handle,'navigationMontage') && ~isempty(stateS.handle.navigationMontage);
+        strNum = [];
+        if isfield(stateS.handle,'navigationMontage') && isvalid(stateS.handle.navigationMontage);
+            if isfield(stateS.handle.navigationMontage.UserData,'strNum')
+                strNum = stateS.handle.navigationMontage.UserData.strNum;
+            end
             delete(stateS.handle.navigationMontage);
         end
         f = figure;
@@ -460,9 +466,8 @@ switch lower(arg)
         ud.handle.thumbnails = handle;
         ud.handle.navAxis = hAxis;
         ud.scanNum = scanNum;
-        if ~isfield(ud,'strNum')
-        ud.strNum = [];
-        end
+        ud.strNum = strNum;
+        
         
         set(f,'userdata',ud);
         
@@ -487,6 +492,7 @@ switch lower(arg)
         ud.scanListC = scanItemListC;
         ud.handle.switchScan = hSwitchMenu;
         set(f,'userdata',ud);
+        stateS.handle.navigationMontage = f;
 end
 
 
