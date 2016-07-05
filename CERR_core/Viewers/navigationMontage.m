@@ -58,11 +58,15 @@ if ~exist('scanNum','var')
     selected = 0;
     while nSubMenu < numel(hSwitchMenu.Children) && selected == 0
         nSubMenu = nSubMenu + 1;
-        hSubMenu = hSwitchMenu.Children(nSubMenu).Children;
+        if ~isempty(hSwitchMenu.Children(nSubMenu).Children)
+             hSubMenu = hSwitchMenu.Children(nSubMenu).Children;
+        else
+             hSubMenu = hSwitchMenu.Children(nSubMenu);
+        end
         selectedScan = strcmp({hSubMenu.Checked},'on');
         selected = any(selectedScan);
     end
-    scanTag = get(hSwitchMenu.Children(nSubMenu).Children(selectedScan),'Tag');
+    scanTag = get(hSubMenu(selectedScan),'Tag');
     scanNum = str2num(scanTag(9:end));
     if ~isempty(f)
         ud = get(f,'userdata');
@@ -132,12 +136,14 @@ switch lower(arg)
         
         %Display scan associated with selected structure
         scanNum = hNavStructs.Children(currentStruct).UserData;
+        if scanNum~=ud.scanNum
         userSel = questdlg('Display navigation montage for scan associated with selected structure?','Switch scan',...
                            'Yes','No','No');
         if strcmp(userSel,'Yes')
                 navigationMontage('switchscan',scanNum);
                 f = stateS.handle.navigationMontage;
                 ud = get(f,'userdata');
+        end
         end
         drawDots(planC, ud.scanNum, stateS, f, toDraw);
         return
@@ -600,11 +606,15 @@ subMenuNum = 0;
 selected = 0;
 while subMenuNum < numel(hScanMenu.Children) && selected == 0
     subMenuNum = subMenuNum + 1;
-    hSubMenu = hScanMenu.Children(subMenuNum).Children;
+    if ~isempty(hScanMenu.Children(subMenuNum).Children)
+        hSubMenu = hScanMenu.Children(subMenuNum).Children;
+    else
+        hSubMenu = hScanMenu.Children(subMenuNum);
+    end
     selectedScan = strcmp({hSubMenu.Tag},['scanItem',num2str(scanNum)]);
     selected = any(selectedScan);
 end
-set(hScanMenu.Children(subMenuNum).Children(selectedScan),'checked','on');
+set(hSubMenu(selectedScan),'checked','on');
 
 
 %--------------------------------%
