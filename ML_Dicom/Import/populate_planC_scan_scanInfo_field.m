@@ -112,16 +112,26 @@ switch fieldname
         end        
 
     case 'grid1Units'
+        modality = dcm2ml_Element(dcmobj.get(hex2dec('00080060')));
         %Pixel Spacing
-        pixspac = dcm2ml_Element(dcmobj.get(hex2dec('00280030')));
+        if strcmpi(modality,'MG')
+            pixspac = dcm2ml_Element(dcmobj.get(hex2dec('00181164')));
+        else
+            pixspac = dcm2ml_Element(dcmobj.get(hex2dec('00280030')));
+        end
 
         %Convert from DICOM mm to CERR cm.
         %dataS = pixspac(1) / 10; 	%By Deshan Yang, 3/19/2010
         dataS = pixspac(2) / 10;	%By Deshan Yang, 3/19/2010 
 
     case 'grid2Units'
+        modality = dcm2ml_Element(dcmobj.get(hex2dec('00080060')));
         %Pixel Spacing
-        pixspac = dcm2ml_Element(dcmobj.get(hex2dec('00280030')));
+        if strcmpi(modality,'MG')
+            pixspac = dcm2ml_Element(dcmobj.get(hex2dec('00181164')));
+        else
+            pixspac = dcm2ml_Element(dcmobj.get(hex2dec('00280030')));
+        end
 
         %Convert from DICOM mm to CERR cm.
         %dataS = pixspac(2) / 10; 	%By Deshan Yang, 3/19/2010
@@ -148,9 +158,14 @@ switch fieldname
         %Columns
         dataS  = dcm2ml_Element(dcmobj.get(hex2dec('00280011')));
 
-    case 'zValue'
+    case 'zValue'       
+        modality = dcm2ml_Element(dcmobj.get(hex2dec('00080060')));
         %Image Position (Patient)
-        imgpos = dcm2ml_Element(dcmobj.get(hex2dec('00200032')));
+        if strcmpi(modality,'MG')
+            imgpos = [0 0 0];
+        else
+            imgpos = dcm2ml_Element(dcmobj.get(hex2dec('00200032')));
+        end
         
         if isempty(imgpos)
             % Multiframe NM image. Setting this is handled by populate_planC_scan_field.
@@ -174,15 +189,23 @@ switch fieldname
         
         imgOri = dcm2ml_Element(dcmobj.get(hex2dec('00200037')));
         
-        if isempty(imgpos)
+        modality = dcm2ml_Element(dcmobj.get(hex2dec('00080060')));
+        
+        if isempty(imgpos) && strcmpi(modality,'NM')
             % Multiframe NM image.
             detectorInfoSequence = dcm2ml_Element(dcmobj.get(hex2dec('00540022')));
             imgpos = detectorInfoSequence.Item_1.ImagePositionPatient;
             imgOri = detectorInfoSequence.Item_1.ImageOrientationPatient;            
         end
-
+        
         %Pixel Spacing
-        pixspac = dcm2ml_Element(dcmobj.get(hex2dec('00280030')));
+        if strcmpi(modality,'MG')
+            pixspac = dcm2ml_Element(dcmobj.get(hex2dec('00181164')));
+            imgOri = zeros(6,1);
+            imgpos = [0 0 0];
+        else
+            pixspac = dcm2ml_Element(dcmobj.get(hex2dec('00280030')));
+        end
 
         %Columns
         nCols  = dcm2ml_Element(dcmobj.get(hex2dec('00280011')));
@@ -194,6 +217,7 @@ switch fieldname
 		else
 			% by Deshan Yang, 3/2/2010
 			xOffset = imgpos(1);
+            pPos = '';
         end
         %         xOffset = imgpos(1) + (pixspac(1) * (nCols - 1) / 2);
 
@@ -217,8 +241,9 @@ switch fieldname
         %Image Position (Patient)
         imgpos = dcm2ml_Element(dcmobj.get(hex2dec('00200032')));
         imgOri = dcm2ml_Element(dcmobj.get(hex2dec('00200037')));
-
-        if isempty(imgpos)
+        modality = dcm2ml_Element(dcmobj.get(hex2dec('00080060')));
+        
+        if isempty(imgpos) && strcmpi(modality,'NM')
             % Multiframe NM image.
             detectorInfoSequence = dcm2ml_Element(dcmobj.get(hex2dec('00540022')));
             imgpos = detectorInfoSequence.Item_1.ImagePositionPatient;
@@ -226,7 +251,13 @@ switch fieldname
         end
         
         %Pixel Spacing
-        pixspac = dcm2ml_Element(dcmobj.get(hex2dec('00280030')));
+        if strcmpi(modality,'MG')
+            pixspac = dcm2ml_Element(dcmobj.get(hex2dec('00181164')));
+            imgOri = zeros(6,1);
+            imgpos = [0 0 0];
+        else
+            pixspac = dcm2ml_Element(dcmobj.get(hex2dec('00280030')));
+        end
 
         %Rows
         nRows  = dcm2ml_Element(dcmobj.get(hex2dec('00280010')));
@@ -238,6 +269,7 @@ switch fieldname
 		else
 			% by Deshan Yang, 3/2/2010
 			yOffset = imgpos(2);
+            pPos = '';
         end
         %         yOffset = imgpos(2) + (pixspac(2) * (nRows - 1) / 2);
 
@@ -252,7 +284,7 @@ switch fieldname
             case 'FFP'
                 dataS = yOffset / 10;
             otherwise
-                dataS = xOffset / 10;
+                dataS = yOffset / 10;
         end
 
         yOffset = dataS; %done for setting global, used in Structure coord
