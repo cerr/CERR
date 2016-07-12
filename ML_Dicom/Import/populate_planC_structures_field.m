@@ -174,10 +174,16 @@ switch fieldname
         
         optS = CERROptions;
         contourSliceTol = optS.contourToSliceTolerance;
-
+        
         for i = 1:nContours
             aContour = cSeq.getDicomObject(i-1);
-
+            
+            % Referenced SOP instance UID
+            refSeq = aContour.get(hex2dec('30060016'));
+            sopInstanceUID = dcm2ml_Element(refSeq.getDicomObject(0).get(hex2dec('00081155')));
+            
+            dataS(i).sopInstanceUID = sopInstanceUID;
+            
             %Contour Geometric Type
             geoType = dcm2ml_Element(aContour.get(hex2dec('30060042')));
 
@@ -246,19 +252,19 @@ switch fieldname
             if ~isempty(data)
                 data(end+1,:) = data(1,:);
 
-                if length(unique(data(:,3))) > 1;
-
-                    a = abs(diff(unique(data(:,3))));
-
-                    if (max(a) > contourSliceTol)
-                        %ROI Name
-                        name = dcm2ml_Element(ssObj.get(hex2dec('30060026')));
-
-                        warning(['CERR does not support out-of-plane contours. Skipping contour ' num2str(i) ' in structure ' name '.']);
-                        continue;
-                    end
-                end
-
+%                 if length(unique(data(:,3))) > 1;
+% 
+%                     a = abs(diff(unique(data(:,3))));
+% 
+%                     if (max(a) > contourSliceTol)
+%                         %ROI Name
+%                         name = dcm2ml_Element(ssObj.get(hex2dec('30060026')));
+% 
+%                         warning(['CERR does not support out-of-plane contours. Skipping contour ' num2str(i) ' in structure ' name '.']);
+%                         continue;
+%                     end
+%                 end
+% 
             end
 
             dataS(i).segments = data;
