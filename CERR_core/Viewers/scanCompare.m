@@ -244,6 +244,9 @@ switch lower(command)
         delete([findobj('tag', 'spotlight_patch'); findobj('tag', 'spotlight_xcrosshair'); findobj('tag', 'spotlight_ycrosshair'); findobj('tag', 'spotlight_trail')]);
         CERRStatusString('');
         
+        stateS.layout = stateS.Oldlayout;
+        stateS.Oldlayout = [];
+        
         % Find and delete the duplicate (linked) views        
         for i = length(stateS.handle.CERRAxis):-1:1
             hAxis = stateS.handle.CERRAxis(i);
@@ -287,8 +290,6 @@ switch lower(command)
                 'structureSets',stateS.structSet,'scanSets',stateS.scanSet);
             setappdata(stateS.handle.CERRAxis(i),'compareMode',[]);
         end
-        stateS.layout = stateS.Oldlayout;
-        stateS.Oldlayout = [];
         sliceCallBack('resize');
         CERRRefresh
         hScanCompare = findobj('tag','scanCompareMenu');
