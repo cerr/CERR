@@ -144,34 +144,35 @@ try
             nx = length(xs);
             ny = length(ys);
             virPosMtx = [dx 0 0 xs(1);0 dy 0 ys(1); 0 0 slice_distance zs(1); 0 0 0 1];
-            planC{indexS.scan}.Image2VirtualPhysicalTransM = virPosMtx;
+            planC{indexS.scan}(scanNum).Image2VirtualPhysicalTransM = virPosMtx;            
             
-            % Just update structures saaociated with scanNum (to do)
-            N = length(planC{indexS.structures});
-            if N>0
-                % Now, translate the contour points to the same coordinate system
-                for nvoi = 1:N
-                    % for each structure
-                    M = length(planC{indexS.structures}(nvoi).contour);
-                    for sliceno = 1:M
-                        % for each contour
-                        points = planC{indexS.structures}(nvoi).contour(sliceno).segments;
-                        % y and z are inverted, now get the original data back
-                        points(:,2:3) = -points(:,2:3);
-                        
-                        if ~isempty(points)
-                            tempa = [points ones(size(points,1),1)];
-                            tempa = positionMatrixInv*tempa';
-                            tempa(3,:) = round(tempa(3,:)); % round the voi points onto the slice
-                            
-                            tempb = virPosMtx*tempa;
-                            tempb = tempb';
-                            
-                            planC{indexS.structures}(nvoi).contour(sliceno).segments = tempb(:,1:3);
-                        end
-                    end
-                end
-            end
+%             % Just update structures saaociated with scanNum (to do)            
+%             N = length(planC{indexS.structures});
+%             if N>0
+%                 % Now, translate the contour points to the same coordinate system
+%                 for nvoi = 1:N
+%                     % for each structure
+%                     M = length(planC{indexS.structures}(nvoi).contour);
+%                     for sliceno = 1:M
+%                         % for each contour
+%                         points = planC{indexS.structures}(nvoi).contour(sliceno).segments;
+%                         % y and z are inverted, now get the original data back
+%                         points(:,2:3) = -points(:,2:3);
+%                         
+%                         if ~isempty(points)
+%                             tempa = [points ones(size(points,1),1)];
+%                             tempa = positionMatrixInv*tempa';
+%                             tempa(3,:) = round(tempa(3,:)); % round the voi points onto the slice
+%                             
+%                             tempb = virPosMtx*tempa;
+%                             tempb = tempb';
+%                             
+%                             planC{indexS.structures}(nvoi).contour(sliceno).segments = tempb(:,1:3);
+%                         end
+%                                                 
+%                     end
+%                 end
+%             end
             
             % Just update doses saaociated with scanNum (to do)
             N = length(planC{indexS.dose});
