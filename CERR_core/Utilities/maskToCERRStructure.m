@@ -55,7 +55,13 @@ end
 siz = size(maskM);
 unisiz = getUniformScanSize(planC{indexS.scan}(scanNum));
 normsiz = size(getScanArray(planC{indexS.scan}(scanNum)));
-if ~exist('isUniform')    
+if numel(siz) < 3
+    siz(3) = 1;
+end
+if numel(normsiz) < 3
+    normsiz(3) = 1;
+end
+if ~exist('isUniform')
     if isequal(siz, unisiz)
         isUniform = 1;
     elseif isequal(siz, normsiz)
@@ -86,7 +92,7 @@ else
         zVal = zSca(i);
         uB = min(find(zUni > zVal));
         lB = max(find(zUni <= zVal));
-        if isempty(uB) | isempty(lB)
+        if normsiz(3) > 1 && (isempty(uB) || isempty(lB))
             continue
         end
         if abs(zUni(uB) - zVal) < abs(zUni(lB) - zVal)
