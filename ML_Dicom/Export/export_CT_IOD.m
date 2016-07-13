@@ -78,19 +78,19 @@ for scanNum = 1:length(planC{indexS.scan})
     %Determine the scaling factor if scanArray is other than uint16
     modality = scanS.scanInfo(1).imageType;
     if strcmpi(modality,'PT')
-        if max(scanS.scanArray(:)) < 500 % assume suv
-            dcmheader = scanS.scanInfo(1).DICOMHeaders;
+        dcmheader = scanS.scanInfo(1).DICOMHeaders;
+        if max(scanS.scanArray(:)) < 500 % assume suv            
             scanS.scanArray = suvToCounts(scanS.scanArray,dcmheader);
-            scanS.scanArray = scanS.scanArray / dcmheader.RescaleSlope;
+            %scanS.scanArray = scanS.scanArray / dcmheader.RescaleSlope;
         else
-            scanS.scanArray = scanS.scanArray / dcmheader.RescaleSlope;
+            %scanS.scanArray = scanS.scanArray / dcmheader.RescaleSlope;
         end
         scaleFactor = dcmheader.RescaleSlope;
     else
         maxScaled  = 2^nBits;
         maxScan = max([max(scanS.scanArray(:)) maxScaled]);
-        scaleFactor = maxScaled/maxScan;
-        if scaleFactor >= 1
+        scaleFactor = maxScan/maxScaled;
+        if scaleFactor < 1
             scaleFactor = 1;
         end
     end

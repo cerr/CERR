@@ -180,7 +180,7 @@ switch tag
                 
                 %Convert to unsigned 16-bit integer if scanArray is single
                 scaleFactor = args.data{4};
-                data = uint16(data*scaleFactor);
+                data = uint16(data/scaleFactor);
                 
                 data = data';
                 data = data(:);
