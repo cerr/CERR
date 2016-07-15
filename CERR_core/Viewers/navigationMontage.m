@@ -615,14 +615,17 @@ hStructMenu = findobj('tag', 'navigationstructs');
 if ~isempty(hStructMenu) & isempty(setxor(get(hStructMenu, 'userdata'), {planC{indexS.structures}.structureName}))
     return;
 else
-    structures = {planC{indexS.structures}.structureName};
+    structuresC = {planC{indexS.structures}.structureName};
+    associatedScanNumV = [planC{indexS.structures}.associatedScan];
+    associatedScanType = {planC{indexS.scan}(associatedScanNumV).scanType};
+    structureNameC =  strcat(structuresC,' (',associatedScanType,' )');
     if isempty(hStructMenu)
         hStructMenu = uimenu(hFigure, 'label', 'Structures', 'tag', 'navigationstructs', 'callback', 'navigationMontage(''redrawStructureMenu'')');
     end
-    set(hStructMenu, 'userdata', structures);
+    set(hStructMenu, 'userdata', structuresC);
     delete(get(hStructMenu, 'children'));
     for i=1:length(planC{indexS.structures});
-        uimenu(hStructMenu, 'label', planC{indexS.structures}(i).structureName,'userdata', planC{indexS.structures}(i).associatedScan,...
+        uimenu(hStructMenu, 'label', structureNameC{i},'userdata', planC{indexS.structures}(i).associatedScan,...
             'callback', ['navigationMontage(''structureSelect'',' num2str(scanNum),',', num2str(i) ');'], 'tag', ['structureItem' num2str(i)]);
     end
     ud.handle.navStructs = hStructMenu;
