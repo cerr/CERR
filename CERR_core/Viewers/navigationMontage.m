@@ -73,8 +73,8 @@ if ~exist('scanNum','var')
         ud.scanNum = scanNum;
         ud.scanListC = scanItemListC;
         set(f,'userdata',ud);
+        stateS.handle.navigationMontage = f;
     end
-    
 end
 
 try
@@ -91,24 +91,49 @@ switch lower(arg)
         
     case 'newslice'
         ud = get(f,'userdata');
-        [slice, sliceRow, sliceCol] = getNewSlice(ud.scanNum);
+        slice = getNewSlice(ud.scanNum);
+        %currentStruct = ud.strNum;
         isRefresh = 0;
         % find this scan displayed on an axis
         for i=1:length(stateS.handle.CERRAxis)
             [view, scanSets]=getAxisInfo(stateS.handle.CERRAxis(i),'view', 'scanSets');
-            if strcmpi(view,'transverse') & scanSets==ud.scanNum
-                [xs, ys, zs] = getScanXYZVals(planC{indexS.scan}(ud.scanNum));
+            if strcmpi(view,'transverse')
+                dispScan = scanSets;
+                [~, ~, zs] = getScanXYZVals(planC{indexS.scan}(ud.scanNum));
                 setAxisInfo(stateS.handle.CERRAxis(i), 'coord', zs(slice));
+                setAxisInfo(stateS.handle.CERRAxis(i),'scanSelectMode','auto');
+                setAxisInfo(stateS.handle.CERRAxis(i),'structSelectMode','auto');
+                axIdx = i;
                 isRefresh = 1;
             end
         end
+        
+        displayCoord = getAxisInfo(stateS.handle.CERRAxis(axIdx),'coord');
+        
         if isRefresh
-            sliceCallBack('refresh') %the montage actually gets updated when sliceCallBack calls this routine with the 'update' arg
-            figure(f) % shift focus back to navigation figure
+            if dispScan==ud.scanNum
+                sliceCallBack('refresh') %the montage actually gets updated when sliceCallBack calls this routine with the 'update' arg
+                figure(f) % shift focus back to navigation figure
+            else
+                selectedStructsC = {ud.handle.navStructs.Children.Checked};
+                changeScan = questdlg(['Switch display to scan ',num2str(ud.scanNum),'?'],'Scan display','Yes','No','Yes');
+                if strcmp(changeScan,'Yes')
+                    sliceCallBack('SELECTSCAN',num2str(ud.scanNum));
+                    setAxisInfo(stateS.handle.CERRAxis(axIdx), 'coord', displayCoord);
+                    sliceCallBack('refresh')
+                    f = stateS.handle.navigationMontage; 
+                    ud = get(f,'UserData');
+                    toDraw = false(1,length(planC{indexS.structures}));
+                    toDraw(ud.strNum) = 1;
+                    drawDots(planC, ud.scanNum, stateS, f, toDraw);
+                end
+                [ud.handle.navStructs.Children.Checked] = deal(selectedStructsC{:});
+            end
         else
             errordlg('The scan you are trying to navigate has no Transverse view displayed.','Cannot navigate','Modal')
         end
-        
+        set(f,'userdata',ud);
+        stateS.handle.navigationMontage = f;
         return
         
     case 'structureselect'
@@ -131,22 +156,31 @@ switch lower(arg)
                 toDraw(i)= 1;
             end
         end
+        structsSelected = strcmpi({ud.handle.navStructs.Children.Checked},{'on'});
         ud.strNum = find(toDraw);
         set(f,'userdata',ud);
         
         %Display scan associated with selected structure
-        scanNum = hNavStructs.Children(currentStruct).UserData;
-        if scanNum~=ud.scanNum
+        scanNum = hNavStructs.Children(currentStruct).UserData; 
+        if scanNum~=ud.scanNum && strcmpi(hStructItem.Checked,'on') 
         userSel = questdlg('Display navigation montage for scan associated with selected structure?','Switch scan',...
                            'Yes','No','No');
         if strcmp(userSel,'Yes')
+                %stateS.handle.navigationMontage = f;
+                stateS.showNavMontage = 0;
                 navigationMontage('switchscan',scanNum);
+                stateS.showNavMontage = 1;
                 f = stateS.handle.navigationMontage;
                 ud = get(f,'userdata');
         end
         end
+        if any(structsSelected)
+            [ud.handle.navStructs.Children(structsSelected).Checked] = deal('on');
+        end
+        set(f,'userdata',ud); 
         drawDots(planC, ud.scanNum, stateS, f, toDraw);
-        return
+        stateS.handle.navigationMontage = f;
+        return;
         
     case {'right','left','up','down'}
         ud = get(f,'userdata');
@@ -344,7 +378,13 @@ switch lower(arg)
         return;
         
     case 'switchscan'
+        previousScan = f.UserData.scanNum;
         navigationMontage('init',scanNum)
+        %Mark scan as checked
+        f = stateS.handle.navigationMontage;
+        hScanMenu = f.UserData.handle.switchScan; 
+        markSelectedScan(hScanMenu,previousScan,'Off')
+        markSelectedScan(hScanMenu,scanNum,'On') 
         sliceCallBack('refresh')
         return;
         
@@ -473,8 +513,6 @@ switch lower(arg)
         ud.handle.navAxis = hAxis;
         ud.scanNum = scanNum;
         ud.strNum = strNum;
-        
-        
         set(f,'userdata',ud);
         
         drawMenu(f, planC,scanNum);
@@ -485,7 +523,6 @@ switch lower(arg)
         stateS.handle.navigationMontage = f;
         % navigationMontage('update');
         navigationMontage('showbookmarks',scanNum);
-        
         
         %Get structure list
         figMenuC = arrayfun(@(x) x.Tag,f.Children,'un',0);
@@ -578,14 +615,17 @@ hStructMenu = findobj('tag', 'navigationstructs');
 if ~isempty(hStructMenu) & isempty(setxor(get(hStructMenu, 'userdata'), {planC{indexS.structures}.structureName}))
     return;
 else
-    structures = {planC{indexS.structures}.structureName};
+    structuresC = {planC{indexS.structures}.structureName};
+    associatedScanNumV = [planC{indexS.structures}.associatedScan];
+    associatedScanType = {planC{indexS.scan}(associatedScanNumV).scanType};
+    structureNameC =  strcat(structuresC,' (',associatedScanType,' )');
     if isempty(hStructMenu)
         hStructMenu = uimenu(hFigure, 'label', 'Structures', 'tag', 'navigationstructs', 'callback', 'navigationMontage(''redrawStructureMenu'')');
     end
-    set(hStructMenu, 'userdata', structures);
+    set(hStructMenu, 'userdata', structuresC);
     delete(get(hStructMenu, 'children'));
     for i=1:length(planC{indexS.structures});
-        uimenu(hStructMenu, 'label', planC{indexS.structures}(i).structureName,'userdata', planC{indexS.structures}(i).associatedScan,...
+        uimenu(hStructMenu, 'label', structureNameC{i},'userdata', planC{indexS.structures}(i).associatedScan,...
             'callback', ['navigationMontage(''structureSelect'',' num2str(scanNum),',', num2str(i) ');'], 'tag', ['structureItem' num2str(i)]);
     end
     ud.handle.navStructs = hStructMenu;
@@ -601,6 +641,10 @@ uimenu(hStructMenu, 'label', 'Toggle on/off', 'callback', ['navigationMontage(''
 function drawScanMenu(hFigure,scanNum)
 hScanMenu = uimenu(hFigure, 'label', 'Switch Scan', 'tag', 'switchScanMenu');
 addScansToMenu(hScanMenu,1);
+state = 'On';
+markSelectedScan(hScanMenu,scanNum,state);
+
+function markSelectedScan(hScanMenu,scanNum,state)
 %Mark selected scan as 'checked'
 subMenuNum = 0;
 selected = 0;
@@ -613,10 +657,9 @@ while subMenuNum < numel(hScanMenu.Children) && selected == 0
     end
     selectedScan = strcmp({hSubMenu.Tag},['scanItem',num2str(scanNum)]);
     selected = any(selectedScan);
-end
-set(hSubMenu(selectedScan),'checked','on');
-
-
+end    
+set(hSubMenu(selectedScan),'checked',state);
+    
 %--------------------------------%
 function drawDots(planC, scanNum, stateS, hFigure, userData)
 %Delete old structure dots and redraw all.
