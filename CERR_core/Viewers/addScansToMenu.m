@@ -1,4 +1,4 @@
-function addScansToMenu(hScanMenu,topMenuFlag)
+function addScansToMenu(hScanMenu,topMenuFlag,selectedScan)
 % function addScansToMenu(hScanMenu,topMenuFlag)
 %
 %
@@ -21,6 +21,11 @@ if ~topMenuFlag
     hAxis = get(hMenu, 'userdata');
     scanSets = getAxisInfo(hAxis,'scanSets');
 end
+
+if nargin==2
+    selectedScan = stateS.scanSet;   %%ADDED 
+end
+
 
 if numScans > maxScansPerGroup
     
@@ -61,7 +66,7 @@ if numScans > maxScansPerGroup
                 'tag', ['scanItem',str2],...                               %ADDED
                 'interruptible','on','separator','off', 'Checked', 'off');
             
-            if stateS.scanSet == currentScan
+            if selectedScan == currentScan
                 set(hScan,'Checked','on')
             end
             
@@ -96,7 +101,7 @@ for i = 1 : numScans
             'callback',['sliceCallBack(''selectScan'',''', str2 ,''')'],...
             'interruptible','on','separator','off', 'Checked', 'off',...
             'tag', ['scanItem',str2]);                        %ADDED
-        if isfield(stateS,'scanSet') && stateS.scanSet == i
+        if isfield(stateS,'scanSet') && selectedScan == i
             set(hScan,'Checked','on')
         end
         
