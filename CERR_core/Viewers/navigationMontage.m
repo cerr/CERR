@@ -475,6 +475,7 @@ switch lower(arg)
         across = ceil(numSlices^0.5);
         strNum = [];
         if isfield(stateS.handle,'navigationMontage') && isvalid(stateS.handle.navigationMontage);
+            posFig = get(stateS.handle.navigationMontage,'position');
             if isfield(stateS.handle.navigationMontage.UserData,'strNum')
                 strNum = stateS.handle.navigationMontage.UserData.strNum;
             end
@@ -482,7 +483,9 @@ switch lower(arg)
         end
         f = figure;
         set(f,'tag','navigationFigure','doublebuffer', 'on', 'CloseRequestFcn','navigationMontage(''quit'')')
+        if ~exist('posFig','var')
         posFig = get(f,'position');
+        end
         set(f,'position',[posFig(1),posFig(2),posFig(4),posFig(4)]);  %make it square.
         
         %pos = [0, 0, 1, 1];   %fill to boundary
