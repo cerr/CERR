@@ -92,50 +92,66 @@ switch lower(arg)
     case 'newslice'
         ud = get(f,'userdata');
         slice = getNewSlice(ud.scanNum);
-        %currentStruct = ud.strNum;
-        isRefresh = 0;
+        [~, ~, zs] = getScanXYZVals(planC{indexS.scan}(ud.scanNum)); %New slice location
+        
         % find this scan displayed on an axis
+        viewC = cell(1,length(stateS.handle.CERRAxis));
+        scanSetsV = zeros(1,length(stateS.handle.CERRAxis));
         for i=1:length(stateS.handle.CERRAxis)
-            [view, scanSets]=getAxisInfo(stateS.handle.CERRAxis(i),'view', 'scanSets');
-            if strcmpi(view,'transverse')
-                dispScan = scanSets;
-                [~, ~, zs] = getScanXYZVals(planC{indexS.scan}(ud.scanNum));
-                setAxisInfo(stateS.handle.CERRAxis(i), 'coord', zs(slice));
-                setAxisInfo(stateS.handle.CERRAxis(i),'scanSelectMode','auto');
-                setAxisInfo(stateS.handle.CERRAxis(i),'structSelectMode','auto');
-                axIdx = i;
-                isRefresh = 1;
+            if ~ strcmpi(getAxisInfo(stateS.handle.CERRAxis(i),'view'),'legend') %Skip Legend axis
+                [viewC{i}, scanSetsV(i)]=getAxisInfo(stateS.handle.CERRAxis(i),'view', 'scanSets');
             end
         end
+        displayedAxisV = find(scanSetsV==ud.scanNum);
         
+        if isempty(displayedAxisV)           % If the selected scan is not displayed on any axis
+            activeAxis = stateS.currentAxis; % Display selected scan on active axis with view set to 'transverse'
+            dispScan = scanSetsV(activeAxis);
+            setAxisInfo(stateS.handle.CERRAxis(activeAxis),'view','transverse')
+            setAxisInfo(stateS.handle.CERRAxis(activeAxis), 'coord', zs(slice));
+            setAxisInfo(stateS.handle.CERRAxis(activeAxis),'scanSelectMode','auto');
+            setAxisInfo(stateS.handle.CERRAxis(activeAxis),'structSelectMode','auto');
+            axIdx = activeAxis;
+        else                  
+           % Switch to transverse display of selected scan if available
+            dispIdx = strcmpi(viewC(displayedAxisV),'transverse');
+            switchAxis = displayedAxisV(dispIdx);
+            if ~any(dispIdx)               % If not, set axis showing selected scan to transverse view
+                switchAxis = displayedAxisV(1);
+                setAxisInfo(stateS.handle.CERRAxis(switchAxis),'view','transverse')
+            else
+                switchAxis = switchAxis(1);
+            end
+            dispScan = scanSetsV(switchAxis);
+            setAxisInfo(stateS.handle.CERRAxis(switchAxis), 'coord', zs(slice));
+            axIdx = switchAxis;
+        end
         displayCoord = getAxisInfo(stateS.handle.CERRAxis(axIdx),'coord');
         
-        if isRefresh
-            if dispScan==ud.scanNum
-                sliceCallBack('refresh') %the montage actually gets updated when sliceCallBack calls this routine with the 'update' arg
-                figure(f) % shift focus back to navigation figure
-            else
-                selectedStructsC = {ud.handle.navStructs.Children.Checked};
-                changeScan = questdlg(['Switch display to scan ',num2str(ud.scanNum),'?'],'Scan display','Yes','No','Yes');
-                if strcmp(changeScan,'Yes')
-                    sliceCallBack('SELECTSCAN',num2str(ud.scanNum));
-                    setAxisInfo(stateS.handle.CERRAxis(axIdx), 'coord', displayCoord);
-                    sliceCallBack('refresh')
-                    f = stateS.handle.navigationMontage; 
-                    ud = get(f,'UserData');
-                    toDraw = false(1,length(planC{indexS.structures}));
-                    toDraw(ud.strNum) = 1;
-                    drawDots(planC, ud.scanNum, stateS, f, toDraw);
-                end
-                [ud.handle.navStructs.Children.Checked] = deal(selectedStructsC{:});
-            end
+        %Update CERR Viewer display
+        if dispScan==ud.scanNum
+            sliceCallBack('refresh') %the montage actually gets updated when sliceCallBack calls this routine with the 'update' arg
+            figure(f) % shift focus back to navigation figure
         else
-            errordlg('The scan you are trying to navigate has no Transverse view displayed.','Cannot navigate','Modal')
+            selectedStructsC = {ud.handle.navStructs.Children.Checked};
+            changeScan = questdlg(['Switch display to scan ',num2str(ud.scanNum),'?'],'Scan display','Yes','No','Yes');
+            if strcmp(changeScan,'Yes')
+                sliceCallBack('SELECTSCAN',num2str(ud.scanNum));
+                setAxisInfo(stateS.handle.CERRAxis(axIdx), 'coord', displayCoord);
+                sliceCallBack('refresh')
+                f = stateS.handle.navigationMontage;
+                ud = get(f,'UserData');
+                toDraw = false(1,length(planC{indexS.structures}));
+                toDraw(ud.strNum) = 1;
+                drawDots(planC, ud.scanNum, stateS, f, toDraw);
+            end
+            [ud.handle.navStructs.Children.Checked] = deal(selectedStructsC{:});
         end
+        
         set(f,'userdata',ud);
         stateS.handle.navigationMontage = f;
         return
-        
+
     case 'structureselect'
         ud = get(f,'userdata');
         toDraw = false(1,length(planC{indexS.structures}));
@@ -382,10 +398,11 @@ switch lower(arg)
         navigationMontage('init',scanNum)
         %Mark scan as checked
         f = stateS.handle.navigationMontage;
-        hScanMenu = f.UserData.handle.switchScan; 
-        markSelectedScan(hScanMenu,previousScan,'Off')
-        markSelectedScan(hScanMenu,scanNum,'On') 
+%         hScanMenu = f.UserData.handle.switchScan; 
+%         markSelectedScan(hScanMenu,previousScan,'Off')
+%         markSelectedScan(hScanMenu,scanNum,'On') 
         sliceCallBack('refresh')
+        stateS.handle.navigationMontage = f;
         return;
         
     case 'quit'
@@ -458,6 +475,7 @@ switch lower(arg)
         across = ceil(numSlices^0.5);
         strNum = [];
         if isfield(stateS.handle,'navigationMontage') && isvalid(stateS.handle.navigationMontage);
+            posFig = get(stateS.handle.navigationMontage,'position');
             if isfield(stateS.handle.navigationMontage.UserData,'strNum')
                 strNum = stateS.handle.navigationMontage.UserData.strNum;
             end
@@ -465,7 +483,9 @@ switch lower(arg)
         end
         f = figure;
         set(f,'tag','navigationFigure','doublebuffer', 'on', 'CloseRequestFcn','navigationMontage(''quit'')')
+        if ~exist('posFig','var')
         posFig = get(f,'position');
+        end
         set(f,'position',[posFig(1),posFig(2),posFig(4),posFig(4)]);  %make it square.
         
         %pos = [0, 0, 1, 1];   %fill to boundary
@@ -640,7 +660,7 @@ uimenu(hStructMenu, 'label', 'Toggle on/off', 'callback', ['navigationMontage(''
 
 function drawScanMenu(hFigure,scanNum)
 hScanMenu = uimenu(hFigure, 'label', 'Switch Scan', 'tag', 'switchScanMenu');
-addScansToMenu(hScanMenu,1);
+addScansToMenu(hScanMenu,1,scanNum);
 state = 'On';
 markSelectedScan(hScanMenu,scanNum,state);
 
