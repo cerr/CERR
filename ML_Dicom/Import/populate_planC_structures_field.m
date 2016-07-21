@@ -181,7 +181,7 @@ switch fieldname
             % Referenced SOP instance UID
             refSeq = aContour.get(hex2dec('30060016'));
             sopInstanceUID = '';
-            if ~isempty(sopInstanceUID)
+            if ~isempty(refSeq)
                 sopInstanceUID = dcm2ml_Element(refSeq.getDicomObject(0).get(hex2dec('00081155')));
             end
             
