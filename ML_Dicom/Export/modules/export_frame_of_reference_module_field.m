@@ -17,6 +17,8 @@ function el = export_frame_of_reference_module_field(args)
 %   planC populated by generate_DICOM_UID_Relationships.
 %
 %JRA 06/19/06
+%NAV 07/19/16 updated to dcm4che3
+%   replaced ml2dcm_Element to data2dcmElement
 %
 % copyright (c) 2001-2008, Washington University in St. Louis.
 % Permission is granted to use or modify only for non-commercial, 
@@ -41,12 +43,15 @@ switch tag
     %Class 1 Tags -- Required, must have data.
     case 2097234    %0020,0052 Frame of Reference UID
         data = dataS.Frame_Of_Reference_UID;
-        el = template.get(tag);   
-        el = ml2dcm_Element(el, data);
+        el = data2dcmElement(template, data, tag);
 
     %Class 2 Tags -- Must be present, can be blank.
     case 2101312    %0020,1040 Position Reference Indicator
-        el = template.get(tag);   
+
+        el = org.dcm4che3.data.Attributes;
+        vr = org.dcm4che3.data.ElementDictionary.vrOf(tag, []);
+        el.setString(tag, vr, template.getString(tag));
+        
     otherwise
         warning(['No methods exist to populate DICOM frame of reference module field ' dec2hex(tag,8) '.']);
 end

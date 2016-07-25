@@ -6,6 +6,8 @@ function el = export_RT_referenced_study_sequence(args)
 %   This function takes a StudySOPClassUID, StudyInstanceUID, and scanS.
 %
 %JRA 06/23/06
+%NAV 07/19/16 updated to dcm4che3
+%   replaced ml2dcm_Element to data2dcmElement
 %
 % Copyright 2010, Joseph O. Deasy, on behalf of the CERR development team.
 % 
@@ -43,28 +45,27 @@ template    = args.template;
 switch tag
     case    528720  %0008,1150  Referenced SOP Class UID
         data = classUID;
-        el = template.get(tag);
-        el = ml2dcm_Element(el, data);
+        el = data2dcmElement(template, data, tag); %replace el with temp
         
     case    528725  %0008,1155  Referenced SOP Instance UID
         data = instanceUID;
-        el = template.get(tag);
-        el = ml2dcm_Element(el, data);
+        el = data2dcmElement(template, data, tag);
         
     case 805699604  %3006,0014  RT Referenced Series Sequence
-        templateEl = template.get(tag);
+
+        templateEl = template.getValue(tag);
         fHandle = @export_rt_referenced_series_sequence;
 
-        tmp = org.dcm4che2.data.BasicDicomObject;
-        el = tmp.putNull(tag, []);
+        tmp = org.dcm4che3.data.Attributes;
+        el = tmp.newSequence(tag, 0);
 
         %Iterate over each series.
         for i=1:length(scansS)
             SeriesInstanceUID = scansS(i).Series_Instance_UID;
             dcmobj = export_sequence(fHandle, templateEl, {SeriesInstanceUID, scansS(i)});
-            el.addDicomObject(i-1, dcmobj);
+            el.add(i-1, dcmobj);
         end           
-        
+        el = el.getParent();
         
     otherwise
         warning(['No methods exist to populate DICOM structure_set module''s RT_referenced_study_sequence field ' dec2hex(tag,8) '.']);

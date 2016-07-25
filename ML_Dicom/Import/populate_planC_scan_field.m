@@ -6,6 +6,8 @@ function dataS = populate_planC_scan_field(fieldname, dcmdir_PATIENT_STUDY_SERIE
 %
 %JRA 06/15/06
 %YWU Modified 03/01/08
+%NAV 07/19/16 updated to dcm4che3
+%       replaced dcm2ml_Element with getTagValue
 %
 %Usage:
 %   dataS = populate_planC_scan_field(fieldname, dcmdir_PATIENT_STUDY_SERIES);
@@ -54,8 +56,8 @@ switch fieldname
         
         if nImages == 1
             IMAGE   = SERIES.Data;
-            imgobj  = scanfile_mldcm(IMAGE.file);
-            numMultiFrameImages = dcm2ml_Element(imgobj.get(hex2dec('00280008')));
+            [imgobj, ~]  = scanfile_mldcm(IMAGE.file);
+            numMultiFrameImages = getTagValue(imgobj, '00280008');
             if numMultiFrameImages > 1
                 multiFrameFlag = 'Yes';
             end
@@ -71,27 +73,27 @@ switch fieldname
                 for imageNum = 1:nImages
                     
                     IMAGE   = SERIES.Data(imageNum); % wy {} --> ()
-                    imgobj  = scanfile_mldcm(IMAGE.file);
+                    [imgobj, ~]  = scanfile_mldcm(IMAGE.file);
                     
                     %Pixel Data
-                    %wy sliceV = dcm2ml_Element(imgobj.get(hex2dec('7FE00010')));
+                    %wy sliceV = getTagValue(imgobj.get(hex2dec('7FE00010')));
                     %sliceV = imgobj.getInts(org.dcm4che2.data.Tag.PixelData);
-                    sliceV = dcm2ml_Element(imgobj.get(hex2dec('7FE00010')));
+                    sliceV = getTagValue(imgobj, '7FE00010');
                     
                     %Rows
-                    nRows  = dcm2ml_Element(imgobj.get(hex2dec('00280010')));
+                    nRows  = getTagValue(imgobj, '00280010');
                     
                     %Columns
-                    nCols  = dcm2ml_Element(imgobj.get(hex2dec('00280011')));
+                    nCols  = getTagValue(imgobj ,'00280011');
                     
                     %Image Position (Patient)
-                    imgpos = dcm2ml_Element(imgobj.get(hex2dec('00200032')));
+                    imgpos = getTagValue(imgobj, '00200032');
                     
                     %Pixel Representation commented by wy
-                    pixRep = dcm2ml_Element(imgobj.get(hex2dec('00280103')));
+                    pixRep = getTagValue(imgobj, '00280103');
                     
                     %Bits Allocated
-                    bitsAllocated = dcm2ml_Element(imgobj.get(hex2dec('00280100')));
+                    bitsAllocated = getTagValue(imgobj, '00280100');
                     
                     if bitsAllocated > 32
                         error('Maximum 32 bits per scan pixel are supported')
@@ -132,15 +134,15 @@ switch fieldname
                     slice2D = reshape(sliceV, [nCols nRows]);
                     
                     %Check the image orientation.
-                    imgOri = dcm2ml_Element(imgobj.get(hex2dec('00200037')));
+                    imgOri = getTagValue(imgobj, '00200037');
                     %Check patient position
-                    pPos = dcm2ml_Element(imgobj.get(hex2dec('00185100')));                    
+                    pPos = getTagValue(imgobj, '00185100');                    
                     
                     if (strcmpi(type, 'PT')) || (strcmpi(type, 'PET')) %Compute SUV for PET scans
                         dcmobj = scanfile_mldcm(IMAGE.file);
-                        dicomHeaderS = dcm2ml_Object(dcmobj);
-                        dicomHeaderS.PatientWeight = dcm2ml_Element(imgobj.get(hex2dec('00101030')));
-                        imageUnits = dcm2ml_Element(imgobj.get(hex2dec('00541001')));
+                        dicomHeaderS = getTagStruct(dcmobj);
+                        dicomHeaderS.PatientWeight = getTagValue(imgobj, '00101030');
+                        imageUnits = getTagValue(imgobj, '00541001');
                         
                         % Get calibration factor which is the Rescale slope Attribute Name in DICOM
                         calibration_factor=dicomHeaderS.RescaleSlope;
@@ -204,23 +206,23 @@ switch fieldname
                 
             case 'Yes' % Assume Nuclear medicine image
                 
-                    sliceV = dcm2ml_Element(imgobj.get(hex2dec('7FE00010')));
+                    sliceV = getTagValue(imgobj, '7FE00010');
                     
                     %Rows
-                    nRows  = dcm2ml_Element(imgobj.get(hex2dec('00280010')));
+                    nRows  = getTagValue(imgobj, '00280010');
                     
                     %Columns
-                    nCols  = dcm2ml_Element(imgobj.get(hex2dec('00280011')));
+                    nCols  = getTagValue(imgobj, '00280011');
                     
                     %Image Position (Patient)                   
-                    detectorInfoSequence = dcm2ml_Element(imgobj.get(hex2dec('00540022')));
+                    detectorInfoSequence = getTagValue(imgobj, '00540022');
                     imgOri = detectorInfoSequence.Item_1.ImageOrientationPatient;
                     
                     %Pixel Representation commented by wy
-                    pixRep = dcm2ml_Element(imgobj.get(hex2dec('00280103')));
+                    pixRep = getTagValue(imgobj, '00280103');
                     
                     %Bits Allocated
-                    bitsAllocated = dcm2ml_Element(imgobj.get(hex2dec('00280100')));
+                    bitsAllocated = getTagValue(imgobj, '00280100');
                     
                     if bitsAllocated > 16
                         error('Only 16 bits per scan pixel are supported')
@@ -252,7 +254,7 @@ switch fieldname
                     dataS = permute(dataS,[2 1 3]);
                     
                     %Check patient position
-                    pPos = dcm2ml_Element(imgobj.get(hex2dec('00185100')));
+                    pPos = getTagValue(imgobj, '00185100');
                     
                     if (imgOri(1)==-1)
                         dataS = flipdim(dataS, 2);
@@ -287,7 +289,7 @@ switch fieldname
         if nImages == 1
             IMAGE   = SERIES.Data;
             imgobj  = scanfile_mldcm(IMAGE.file);
-            numMultiFrameImages = dcm2ml_Element(imgobj.get(hex2dec('00280008')));
+            numMultiFrameImages = getTagValue(imgobj, '00280008');
             if numMultiFrameImages > 1
                 multiFrameFlag = 'Yes';
             end
@@ -312,7 +314,7 @@ switch fieldname
                     imgobj  = scanfile_mldcm(IMAGE.file);
                     
                     %Image Position (Patient)
-                    imgpos = dcm2ml_Element(imgobj.get(hex2dec('00200032')));
+                    imgpos = getTagValue(imgobj, '00200032');
                     
                     if strcmpi(type,'MG')
                         imgpos = [0 0 0];
@@ -336,9 +338,9 @@ switch fieldname
                 dataS(1:end)    = dataS(zOrder);
                 
             case 'Yes' % Assume Nuclear Medicine Image
-                sliceSpacing = dcm2ml_Element(imgobj.get(hex2dec('00180088')));
+                sliceSpacing = getTagValue(imgobj, '00180088');
                 %zValues = 0:sliceThickness:sliceThickness*double(numMultiFrameImages-1);
-                detectorInfoSequence = dcm2ml_Element(imgobj.get(hex2dec('00540022')));                                
+                detectorInfoSequence = getTagValue(imgobj, '00540022');                                
                 imgpos = detectorInfoSequence.Item_1.ImagePositionPatient;
                 zValuesV = imgpos(3):sliceSpacing:imgpos(3)+sliceSpacing*double(numMultiFrameImages-1);
                 if sliceSpacing < 0 % http://dicom.nema.org/medical/dicom/current/output/chtml/part03/sect_C.8.4.15.html
@@ -372,14 +374,14 @@ switch fieldname
         %Implementation is unnecessary.
     case 'scanUID'
         %Series Instance UID
-        dataS = dcm2ml_Element(SERIES.info.get(hex2dec('0020000E')));
+        dataS = getTagValue(SERIES.info, '0020000E');
         
         %wy, use the frame of reference UID to associate dose to scan.
         %IMAGE   = SERIES.Data(1); % wy {} --> ()
         %imgobj  = scanfile_mldcm(IMAGE.file);
         %dataS = char(imgobj.getString(org.dcm4che2.data.Tag.FrameofReferenceUID));
-        %dataS = dcm2ml_Element(imgobj.get(hex2dec('00080018')));
-        %dataS = dcm2ml_Element(imgobj.get(hex2dec('0020000E')));
+        %dataS = getTagValue(imgobj.get(hex2dec('00080018')));
+        %dataS = getTagValue(imgobj.get(hex2dec('0020000E')));
         dataS = ['CT.',dataS];
         
     otherwise

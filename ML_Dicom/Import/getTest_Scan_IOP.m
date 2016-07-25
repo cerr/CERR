@@ -1,5 +1,10 @@
 function varargout = getTest_Scan_IOP(fileName)
 %
+%
+%NAV 07/19/16 updated to dcm4che3
+%       replaced dcm2ml_Element with getTagValue
+%
+%
 % Copyright 2010, Joseph O. Deasy, on behalf of the CERR development team.
 % 
 % This file is part of The Computational Environment for Radiotherapy Research (CERR).
@@ -37,7 +42,8 @@ FFP = [ 1, 0, 0,   0, -1, 0];
 
 dcmobj = scanfile_mldcm(fileName);
 
-IOP = dcm2ml_Element(dcmobj.get(hex2dec('00200037')))';
+%%change to updates function
+IOP = getTagValue(dcmobj, '00200037')';
 
 
 if IOP == HFS

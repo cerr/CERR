@@ -17,6 +17,8 @@ function el = export_general_image_module_field(args)
 %                          arg.data = {'dose', doseS}
 %
 %JRA 06/19/06
+%NAV 07/19/16 updated to dcm4che3
+%   replaced ml2dcm_Element to data2dcmElement
 %
 %Usage:
 %   dcmobj = export_general_image_module_field(args)
@@ -66,8 +68,7 @@ switch tag
                     data = 1;
                 end
         end
-        el = template.get(tag);
-        el = ml2dcm_Element(el, data);
+        el = data2dcmElement(template, data, tag);
 
         %Class 3 Tags -- presence is optional, currently undefined.
     case  524296    %0008,0008 Image Type

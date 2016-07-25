@@ -1,4 +1,4 @@
-function dcmobj = export_sequence(function_handle, el, data)
+function attr = export_sequence(function_handle, el, data)
 %"export_sequence"
 %   Given a fHandle to function of type export_<whatever>_sequence_field,
 %   and the data required to execute that function, performs the required
@@ -11,9 +11,10 @@ function dcmobj = export_sequence(function_handle, el, data)
 %   populate the fields.
 %
 %JRA 06/23/06
+%NAV 07/19/16 updated to dcm4che3
 %
 %Usage:
-%   dcmobj = export_sequence(@export_MYSEQUENCE_sequence, el, data)
+%   attr = export_sequence(@export_MYSEQUENCE_sequence, el, data)
 %
 % Copyright 2010, Joseph O. Deasy, on behalf of the CERR development team.
 % 
@@ -37,22 +38,32 @@ function dcmobj = export_sequence(function_handle, el, data)
 % You should have received a copy of the GNU General Public License
 % along with CERR.  If not, see <http://www.gnu.org/licenses/>.
 
-dcmobj = org.dcm4che2.data.BasicDicomObject;
+attr = org.dcm4che3.data.Attributes;
+obj = el.get(0);
+tagS = obj.tags();
+for i=1:length(tagS)    
 
-obj = el.getDicomObject;
-it = obj.datasetIterator;
-
-while it.hasNext
-    
-    child = it.next;   
-    child_args.tag      = child.tag;
+    tag = tagS(i);  
+    child_args.tag      = tag;
     child_args.data     = data;
     child_args.template = obj;
 %     child_args.planC    = planC;
-    
+
     el = feval(function_handle, child_args);
-    
+%% Uncomment to find which function a crash occurs
+   % disp(function_handle);
+   % disp(tag);
+%%
     if ~isempty(el)
-        dcmobj.add(el);
+        % User Error or dcm4che3 glitch. If number of items
+        % greater than 1, than an extra item is included which crashes
+        % matlab by filling up the Java memory heap. the remove function
+        % prevents a crash be removing extra item
+        if (el.size() > 1)
+          el.remove(el.size()-1);
+          attr.addAll(el.getParent());
+        else
+        attr.addAll(el);
+        end
     end
 end

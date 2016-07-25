@@ -43,19 +43,23 @@ switch tag
     %Class 1 Tags -- Required, must have data.
     case 2097234    %0020,0052  Frame of Reference UID
         data = UID;
-        el = template.get(tag);
-        el = ml2dcm_Element(el, data);
+
+        el = data2dcmElement(template, data, tag); %replaced el with template
 
     %Class 3 Tags -- presence is optional, currently undefined.        
     case 805699776  %3006,00C0  Frame of Reference Relationship Sequence       
         %Currently unsupported.
         
     case 805699602  %3006,0012  RT Referenced Study Sequence
-        templateEl = template.get(tag);
-        fHandle = @export_rt_referenced_study_sequence;
+    %UPDATED to dcm4che3
+        %used getValue over get
+        templateEl = template.getValue(tag);
 
-        tmp = org.dcm4che2.data.BasicDicomObject;
-        el = tmp.putNull(tag, []);
+        fHandle = @export_rt_referenced_study_sequence;
+    
+        %created new empty sequence
+        tmp = org.dcm4che3.data.Attributes;
+        el = tmp.newSequence(tag, 0);
 
         %Study Component Management SOP
         StudySOPClassUID = '1.2.840.10008.3.1.2.3.2'; 
@@ -67,9 +71,9 @@ switch tag
         for i=1:nUniqueStudies
             scansInStudy = scansS(j == i);
             dcmobj = export_sequence(fHandle, templateEl, {StudySOPClassUID, uniqueStudies(i), scansInStudy});
-            el.addDicomObject(i-1, dcmobj);
+            el.add(i-1, dcmobj);
         end           
-        
+        el = el.getParent();
         
     otherwise
         warning(['No methods exist to populate DICOM structure_set module''s referenced_frame_of_reference_sequence field ' dec2hex(tag,8) '.']);

@@ -8,6 +8,8 @@ function el = export_ROI_contour_sequence(args)
 %   element within the planC.structures array.
 %
 %JRA 06/23/06
+%NAV 07/19/16 updated to dcm4che3
+%   replaced ml2dcm_Element to data2dcmElement
 %
 %Usage:
 %   @export_ROI_contour_sequence(args)
@@ -47,22 +49,20 @@ switch tag
     case 805699716 %3006,0084   Referenced ROI Number
 
         data = index; %Simply using CERR structS index.
-        el = template.get(tag);
-        el = ml2dcm_Element(el, data);
+        el = data2dcmElement(template, data, tag);
 
     case 805699626 %3006,002A   ROI Display Color
-        el = template.get(tag);
-        
+
         structColor = structColorRescale(structS.structureColor);
         
-        el = ml2dcm_Element(el, structColor);
+        el = data2dcmElement(el, structColor, tag);
 
     case 805699648 %3006,0048   Contour Sequence
-        templateEl  = template.get(tag);
+        templateEl  = template.getValue(tag);
         fHandle = @export_contour_sequence;
 
-        tmp = org.dcm4che2.data.BasicDicomObject;
-        el = tmp.putNull(tag, []);
+        tmp = org.dcm4che3.data.Attributes;
+        el = tmp.newSequence(tag, 0);
 
         nContours = length(structS.contour);
 
@@ -88,13 +88,16 @@ switch tag
                     points = structS.contour(i).segments(j).points;
 
                     dcmobj = export_sequence(fHandle, templateEl, {points});
-                    el.addDicomObject(numAdded, dcmobj);
+                    el.add(numAdded, dcmobj);
                     numAdded = numAdded + 1;
                 end
 
             end
 
         end
+        
+        el = el.getParent();
+        
     otherwise
         warning(['No methods exist to populate DICOM ROI_contour module''s ROI_contour_sequence field: ' dec2hex(tag,8) '.']);
 end

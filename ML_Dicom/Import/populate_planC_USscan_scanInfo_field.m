@@ -1,11 +1,11 @@
-function dataS = populate_planC_USscan_scanInfo_field(fieldname, dcmdir_PATIENT_STUDY_SERIES_IMAGE, dcmobj, imageNum)
+function dataS = populate_planC_USscan_scanInfo_field(fieldname, dcmdir_PATIENT_STUDY_SERIES_IMAGE, attr, imageNum)
 %"populate_planC_scan_scanInfo_field"
 %   Given the name of a child field to planC{indexS.scan}.scanInfo,
 %   populates that field based on the data contained in the
 %   dcmdir.PATIENT.STUDY.SERIES.IMAGE structure passed in.  Type defines
 %   the type of series passed in.
 %
-%   An optional dcmobj can be passed in that represents the IMAGE, in order
+%   An optional attr can be passed in that represents the IMAGE, in order
 %   to avoid successive loads on the dcm image file.
 %
 %JRA 06/15/06
@@ -13,6 +13,8 @@ function dataS = populate_planC_USscan_scanInfo_field(fieldname, dcmdir_PATIENT_
 %   Modified Scan Info code to use for Ultrasound import
 %DK 04/12/09
 %   Fixed Coordinate System
+%NAV 07/19/16 updated to dcm4che3
+%       replaced dcm2ml_Element with getTagValue
 %
 %Usage:
 %   dataS = populate_planC_scan_scanInfo_field(fieldname, dcmdir_PATIENT_STUDY_SERIES_IMAGE);
@@ -45,19 +47,19 @@ IMAGE = dcmdir_PATIENT_STUDY_SERIES_IMAGE;
 %Default value for undefined fields.
 dataS = '';
 
-if ~exist('dcmobj', 'var')
+if ~exist('attr', 'var')
     %Grab the dicom object representing this image.
-    dcmobj = scanfile_mldcm(IMAGE.file);
+    attr = scanfile_mldcm(IMAGE.file);
 end
 
 switch fieldname
     case 'imageNumber'
         %Direct mapping from (0020,0013), "Instance Number"
-        dataS = dcm2ml_Element(dcmobj.get(hex2dec('00200013')));
+        dataS = getTagValue(attr, '00200013');
 
     case 'imageType'
         %Mostly direct mapping from (0008,0060), "Modality"
-        dataS = dcm2ml_Element(dcmobj.get(hex2dec('00080060')));
+        dataS = getTagValue(attr, '00080060');
 
     case 'caseNumber'
         %RTOG Specification says 1 or case number.
@@ -65,13 +67,13 @@ switch fieldname
 
     case 'patientName'
         %Largely direct mapping from (0010,0010), "Patient's Name"
-        nameS = dcm2ml_Element(dcmobj.get(hex2dec('00100010')));
+        nameS = getTagValue(attr, '00100010');
         dataS = [nameS.FamilyName '^' nameS.GivenName '^' nameS.MiddleName];
 
     case 'scanType'
         %In CERR, scan slices are always transverse.
-        if dcmobj.contains(hex2dec('00080008'));
-            imgType = dcm2ml_Element(dcmobj.get(hex2dec('00080008')));
+        if attr.contains(hex2dec('00080008'));
+            imgType = getTagValue(attr, '00080008');
             dataS = imgType{end};
         else
             dataS = 'TRANSVERSE';
@@ -79,20 +81,20 @@ switch fieldname
 
     case 'CTOffset'
         %In CERR, CT Offset is always 1000, as CT water is 1000.
-        wCenter = dcm2ml_Element(dcmobj.get(hex2dec('00281050')));
-        wWidth = dcm2ml_Element(dcmobj.get(hex2dec('00281051')));
+        wCenter = getTagValue(attr, '00281050');
+        wWidth = getTagValue(attr, '00281051');
         dataS = wCenter;
 
     case 'grid1Units'
         %Pixel Spacing for the Y grid
-        dataS = dcm2ml_Element(dcmobj.get(hex2dec('0018602E')));
+        dataS = getTagValue(attr, '0018602E');
         if isempty(dataS)
             dataS = 1;
         end
 
     case 'grid2Units'
         %Pixel Spacing for the X grid
-        dataS = dcm2ml_Element(dcmobj.get(hex2dec('0018602C')));
+        dataS = getTagValue(attr, '0018602C');
         if isempty(dataS)
             dataS = 1;
         end
@@ -112,17 +114,17 @@ switch fieldname
 
     case 'sizeOfDimension1'
         %Rows
-        dataS  = dcm2ml_Element(dcmobj.get(hex2dec('00280010')));
+        dataS  = getTagValue(attr, '00280010');
 
     case 'sizeOfDimension2'
         %Columns
-        dataS  = dcm2ml_Element(dcmobj.get(hex2dec('00280011')));
+        dataS  = getTagValue(attr, '00280011');
 
     case 'zValue'
         % This is a private tag done by Envisioneering Medical
         % Technologies to provide Z coordinates
         try %wy ImageTranslationVectorRET
-            transV = dcm2ml_Element(dcmobj.get(hex2dec('00185212')));
+            transV = getTagValue(attr ,'00185212');
             %Convert from DICOM mm to CERR cm, invert Z to match CERR Zdir.
             dataS  = -transV(3)/10;
         catch
@@ -130,23 +132,23 @@ switch fieldname
         end
 
     case 'xOffset' %wy
-        cols  = dcm2ml_Element(dcmobj.get(hex2dec('00280011')));
-        xSpacing = dcm2ml_Element(dcmobj.get(hex2dec('0018602C')));
+        cols  = getTagValue(attr, '00280011');
+        xSpacing = getTagValue(attr, '0018602C');
 
-        %referencePixelX0 = dcm2ml_Element(dcmobj.get(hex2dec('00186020')));
+        %referencePixelX0 = getTagValue(attr.get(hex2dec('00186020')));
         %dataS = xSpacing*(cols-1)/2 + referencePixelX0/10;
 
-        transV = dcm2ml_Element(dcmobj.get(hex2dec('00185212')));
+        transV = getTagValue(attr ,'00185212');
         dataS = transV(1)/10 + xSpacing*(cols-1)/2;
 
     case 'yOffset' %wy
-        rows  = dcm2ml_Element(dcmobj.get(hex2dec('00280010')));
-        ySpacing = dcm2ml_Element(dcmobj.get(hex2dec('0018602E')));
+        rows  = getTagValue(attr, '00280010');
+        ySpacing = getTagValue(attr, '0018602E');
 
-        %         referencePixelY0 = dcm2ml_Element(dcmobj.get(hex2dec('00186022')));
+        %         referencePixelY0 = getTagValue(attr.get(hex2dec('00186022')));
         %         dataS = -ySpacing*(rows-1)/2 - referencePixelY0/10;
 
-        transV = dcm2ml_Element(dcmobj.get(hex2dec('00185212')));
+        transV = getTagValue(attr, '00185212');
         dataS = -(transV(2)/10 + ySpacing*(rows-1)/2);
 
     case 'CTAir'
@@ -160,7 +162,7 @@ switch fieldname
     case 'sliceThickness'
         %Convert from DICOM mm to CERR cm.
         try %wy
-            transV = dcm2ml_Element(imgobj.get(hex2dec('00185212')));
+            transV = getTagValue(imgobj, '00185212');
             dataS = transV(3)/10;
         catch
             dataS = 1;
@@ -178,7 +180,7 @@ switch fieldname
 
     case 'scannerType'
         %Manufacturer
-        dataS  = dcm2ml_Element(dcmobj.get(hex2dec('00080070')));
+        dataS  = getTagValue(attr, '00080070');
 
     case 'scanFileName'
         %Store the current open .dcm file.
@@ -197,17 +199,17 @@ switch fieldname
 
     case 'scanID'
         %Study ID
-        dataS  = dcm2ml_Element(dcmobj.get(hex2dec('00200010')));
+        dataS  = getTagValue(attr, '00200010');
 
     case 'scanNumber'
         %Currently undefined.
 
     case 'scanDate'
         %Type 3 field, may not exist.
-        if dcmobj.contains(hex2dec('00080021'));
+        if attr.contains(hex2dec('00080021'));
 
             %Series Date
-            dataS  = dcm2ml_Element(dcmobj.get(hex2dec('00080021')));
+            dataS  = getTagValue(attr, '00080021');
         else
             dataS = '';
         end
@@ -227,7 +229,7 @@ switch fieldname
 
     case 'DICOMHeaders'
         %Read all the dcm data into a MATLAB struct.
-        dataS = dcm2ml_Object(dcmobj);
+        dataS = getTagStruct(attr);
 
         %Remove pixelData to avoid storing huge amounts of redundant data.
         try, dataS = rmfield(dataS, 'PixelData'); end

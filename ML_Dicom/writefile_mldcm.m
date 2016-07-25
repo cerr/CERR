@@ -1,4 +1,6 @@
-function writefile_mldcm(dcmobj, filename)
+function writefile_mldcm(attrData, filename)
+%%
+
 %"writefile_mldcm"
 %   Scans the passed file for DICOM information, reading its contents into
 %   a java DicomObject and setting isDcm to 1.  If the file is not a valid
@@ -6,9 +8,11 @@ function writefile_mldcm(dcmobj, filename)
 %   0 and dcmObj is [].
 %
 %JRA 6/1/06
+%NAV 07/19/16 updated to dcm4che3
 %
 %Usage:
-%   [dcmObj, isDcm] = writefile_mldcm(filename, hWaitbar)
+%   writefile_mldcm(attrData, filename);
+%   [attrData, isDcm] = writefile_mldcm(filename, hWaitbar);
 %
 % Copyright 2010, Joseph O. Deasy, on behalf of the CERR development team.
 % 
@@ -34,24 +38,26 @@ function writefile_mldcm(dcmobj, filename)
 
 %Create a java file object associated with this filename
 ofile       = java.io.File([filename,'.dcm']);
-fos         = java.io.FileOutputStream(ofile);
-bos         = java.io.BufferedOutputStream(fos);
 
 %Create a DicomOutputStream to read this input file.
-out          = org.dcm4che2.io.DicomOutputStream(bos);
+tsuid        = '1.2.840.10008.1.2';
+out          = org.dcm4che3.io.DicomOutputStream(ofile);
 
 %Set the transfer syntax.
-tsuid        = '1.2.840.10008.1.2';
+%tsuid        = '1.2.840.10008.1.2';
 
 % tsuid        = '1.2.840.10008.1.2.4.70';
 
-dcmobj.initFileMetaInformation(tsuid);
+%out.writeFileMetaInformation(tsuid);
 
 %Try to write the file
-out.writeDicomFile(dcmobj);
+%generate File Meta Information from tsuid
+attrFMI = attrData.createFileMetaInformation(tsuid);
+out.writeDataset(attrFMI, attrData);
     
 %Close input stream.
 out.close;
 
-%Do we need to explicitly delete the dcmobj?  Possibly.
-clear dcmobj;
+%Do we need to explicitly delete the attr?  Possibly.
+clear attrFMI;
+clear attrData;

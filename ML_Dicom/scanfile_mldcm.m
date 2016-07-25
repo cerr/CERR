@@ -1,14 +1,15 @@
-function [dcmObj, isDcm] = scanfile_mldcm(filename)
+function [attrData, isDcm] = scanfile_mldcm(filename)
 %"scanfile_mldcm"
 %   Scans the passed file for DICOM information, reading its contents into
 %   a java DicomObject and setting isDcm to 1.  If the file is not a valid
 %   DICOM file (determined by checking for existing metaInfo) isDcm returns 
-%   0 and dcmObj is [].
+%   0 and attrData is [].
 %
 %JRA 6/1/06
+%NAV 07/19/16 updated to dcm4che3
 %
 %Usage:
-%   [dcmObj, isDcm] = scanfile_mldcm(filename, hWaitbar)
+%   [attrData, isDcm] = scanfile_mldcm(filename, hWaitbar)
 %
 % Copyright 2010, Joseph O. Deasy, on behalf of the CERR development team.
 % 
@@ -44,12 +45,11 @@ function [dcmObj, isDcm] = scanfile_mldcm(filename)
 %Create a java file object associated with this filename
 ifile = java.io.File(filename);
 
-%Create a new BasicDicomObject to hold DICOM data.
-dcmObj = org.dcm4che2.data.BasicDicomObject;
+isDcm  = int8(1); % need to force as int
 
 %Create a DicomInputStream to read this input file.
 try
-    in = org.dcm4che2.io.DicomInputStream(ifile);
+    in = org.dcm4che3.io.DicomInputStream(ifile);
 catch
     isDcm = 0;
     return;
@@ -57,27 +57,29 @@ end
 
 %Assume the file is not DICOM to start, if any failures occur along the way
 %it will return with this value.
-isDcm  = 1;
 
 %Try to read the file
+%dataWithFMI = org.dcm4che3.data.DatasetWithFMI;
 try
-    in.readDicomObject(dcmObj, -1);
+    % get attributes data from file
+    attrData = in.readDataset(-1, -1); 
+    % get FMI
+    attrFMI = in.readFileMetaInformation();
+    attrData.addAll(attrFMI);
     
-%     %Extract the metainfo object from the suspected DCM file.
-%     metaInfo = dcmObj.fileMetaInfo;
-%     metaInfoString = char(metaInfo.toString);
-    
-    if dcmObj.isempty
+    if attrData.isempty
         isDcm = 0;
     end
 catch
-end
 
+end
 %Close input stream.
 in.close
 
-%Do we need to explicitly delete the invalid dcmObj?  Possibly.
+
+%Do we need to explicitly delete the invalid attribute?  Possibly.
 if ~isDcm
-    clear dcmObj;
-    dcmObj = [];
+    clear attrData;
+    attrData = [];
+    attrFMI = [];
 end

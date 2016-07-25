@@ -8,6 +8,8 @@ function el = export_structure_set_ROI_sequence(args)
 %   element within the planC.structures array.
 %
 %JRA 06/23/06
+%NAV 07/19/16 updated to dcm4che3
+%   replaced ml2dcm_Element to data2dcmElement
 %
 %Usage:
 %   @export_structure_set_ROI_sequence(args)
@@ -46,18 +48,16 @@ template    = args.template;
 switch tag
     case 805699618  %3006,0020  ROI Number
         data = index;
-        el = template.get(tag);
-        el = ml2dcm_Element(el, data);
+       % el = template.get(tag);
+        el = data2dcmElement(template, data, tag);
         
     case 805699620  %3006,0024  Referenced Frame of Reference UID
         UID = structS.Frame_Of_Reference_UID;
-        el = template.get(tag);
-        el = ml2dcm_Element(el, UID);      
+        el = data2dcmElement(template, UID, tag);      
         
     case 805699622  %3006,0026  ROI Name
         data = structS.structureName;
-        el = template.get(tag);
-        el = ml2dcm_Element(el, data);      
+        el = data2dcmElement(template, data, tag);      
         
     case 805699624  %3006,0028  ROI Description
         %Currently unsupported.        
@@ -66,7 +66,9 @@ switch tag
         %Currently unsupported.
         
     case 805699638  %3006,0036  ROI Generation Algorithm
-        el = template.get(tag);
+       % el = template.get(tag);
+        el = org.dcm4che3.data.Attributes;
+        el.setString(tag, template.getVR(tag), template.getString(tag));
         
     case 805699640  %3006,0038  ROI Generation Description
         %Currently unsupported.

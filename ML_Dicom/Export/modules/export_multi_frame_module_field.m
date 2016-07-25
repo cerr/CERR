@@ -16,6 +16,8 @@ function el = export_multi_frame_module_field(args)
 %   This function requires arg.data is a single doseS.
 %
 %JRA 06/19/06
+%NAV 07/19/16 updated to dcm4che3
+%   replaced ml2dcm_Element to data2dcmElement
 %
 %Usage:
 %   dcmobj = export_multi_frame_module_field(args)
@@ -57,16 +59,14 @@ switch tag
             case 'dose'
                 data = length(dataS.zValues);                
         end
-        el = template.get(tag);
-        el = ml2dcm_Element(el, data);
+        el = data2dcmElement(template, data, tag); 
         
     case 2621449    %0028,0009  Frame Increment Pointer                       
         switch type
             case 'dose'
                 data = '3004000C'; %CERR exports this data in "Grid Frame Offset Vector" (3004, 000C).
         end
-        el = template.get(tag);
-        el = ml2dcm_Element(el, data);
+        el = data2dcmElement(template, data, tag); 
         
     otherwise
         warning(['No methods exist to populate DICOM rt_dose module field ' dec2hex(tag,8) '.']);

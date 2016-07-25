@@ -11,6 +11,7 @@ function [dcmdirS] = scandir_mldcm(dirPath, hWaitbar, dirNum)
 %
 %JRA 6/1/06
 %YWU Modified 03/01/08
+%NAV 07/19/16 updated to dcm4che3
 %
 %Usage:
 %   infoS = scandir_mldcm(directoryName, hWaitbar)
@@ -65,22 +66,20 @@ filesV([filesV.isdir]) = [];
 
 %Scan each file, returning
 dcmdirS = [];
-
 for i=1:length(filesV)
 
     filename = fullfile(dirPath, filesV(i).name);
-    [dcmObj, isDcm] = scanfile_mldcm(filename);
+    [attrData, isDcm] = scanfile_mldcm(filename);
 
     if isDcm
-        dcmdirS = dcmdir_add(filename, dcmObj, dcmdirS);
-        %         [isValid, errMsg] = validate_patient_module(dcmObj);
-        dcmObj.clear;
+      dcmdirS = dcmdir_add(filename, attrData, dcmdirS);
+        % KEEP OUT --->[isValid, errMsg] = validate_patient_module(dcmObj);
+      attrData.clear;
     end
     [pathstr, name, ext] = fileparts(filename);
     waitbar(i/length(filesV),hWaitbar, ['Scanning Directory ' num2str(dirNum) ' Please wait...']);
     %['file: ' name ext]});
 end
-
 % Remove the MRI field, since it stores temporary information for matching
 % / separating images into different series
 %%%%% 4/18/16 ADDED : skipping non-DICOM files %%%%%%%%%%%

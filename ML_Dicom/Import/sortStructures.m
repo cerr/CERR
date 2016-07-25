@@ -52,7 +52,7 @@ end
 modality = planC{indexS.scan}(scanInd).scanInfo(1).imageType;
 
 for j=1:length(zmesh) % loop through the number of CT
-    
+        
     if strcmpi(modality,'mr')
         % APA: use sopInstanceUID to find the matching slice for MR scan
         sopInstanceUID = planC{indexS.scan}(scanInd).scanInfo(j).DICOMHeaders.SOPInstanceUID;

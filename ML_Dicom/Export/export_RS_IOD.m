@@ -1,10 +1,12 @@
 function nWritten = export_RS_IOD(planC, filenameRoot, filenumber)
 %"export_RS_IOD"
-%   Builds a RT Structure dcmobj from the modules specified in part A.19.3
+%   Builds a RT Structure attr from the modules specified in part A.19.3
 %   of PS 3.3 of the 2006 DICOM standard.  The planC MUST have first been
 %   run through the function generate_DICOM_UID_Relationships.m.
 %
 %JRA 07/05/06
+%NAV 07/19/16 updated to dcm4che3
+%    Used addAll over copyTo
 %
 %Usage:
 %   nWritten = export_RS_IOD(planC, filenameRoot, filenumber)
@@ -54,56 +56,57 @@ for scanNum = 1:length(planC{indexS.scan})
         continue;
     end
     
-    %Create empty dcmobj.
-    dcmobj = org.dcm4che2.data.BasicDicomObject;    
+    %Create empty attr.
+    attr = org.dcm4che3.data.Attributes;    
     
     structureS = planC{indexS.structures}(matchStructsV);
         
     %Export each module required for the RS IOD, copying the results into the
-    %common dcmobj container and return.
+    %common attr container and return.
     if isfield(scanS.scanInfo(1).DICOMHeaders,'PatientID')
         structureS(1).DICOMHeaders.PatientID = scanS.scanInfo(1).DICOMHeaders.PatientID;
     end
-    ssobj = export_module('patient', 'structures', structureS);
-    ssobj.copyTo(dcmobj);
-    clear ssobj;
+    ssattr = export_module('patient', 'structures', structureS);
+    %ssattr.copyTo(attr);
+    attr.addAll(ssattr);
+    clear ssattr;
     
-    ssobj = export_module('general_study', structureS);
-    ssobj.copyTo(dcmobj);
-    clear ssobj;
+    ssattr = export_module('general_study', structureS);
+    attr.addAll(ssattr);
+    clear ssattr;
     
-    ssobj = export_module('general_equipment', 'structures', structureS);
-    ssobj.copyTo(dcmobj);
-    clear ssobj;
+    ssattr = export_module('general_equipment', 'structures', structureS);
+    attr.addAll(ssattr);
+    clear ssattr;
     
-    ssobj = export_module('rt_series', 'structures', structureS);
-    ssobj.copyTo(dcmobj);
-    clear ssobj;
+    ssattr = export_module('rt_series', 'structures', structureS);
+    attr.addAll(ssattr);
+    clear ssattr;
     
-    ssobj = export_module('structure_set', structureS, scanS);
-    ssobj.copyTo(dcmobj);
-    clear ssobj;
+    ssattr = export_module('structure_set', structureS, scanS);
+    attr.addAll(ssattr);
+    clear ssattr;
     
-    ssobj = export_module('roi_contour', structureS);
-    ssobj.copyTo(dcmobj);
-    clear ssobj;
+    ssattr = export_module('roi_contour', structureS);
+    attr.addAll(ssattr);
+    clear ssattr;
     
-    ssobj = export_module('rt_roi_observations', structureS);
-    ssobj.copyTo(dcmobj);
-    clear ssobj;
+    ssattr = export_module('rt_roi_observations', structureS);
+    attr.addAll(ssattr);
+    clear ssattr;
     
-    ssobj = export_module('SOP_common', 'structures', structureS);
-    ssobj.copyTo(dcmobj);
-    clear ssobj;
+    ssattr = export_module('SOP_common', 'structures', structureS);
+    attr.addAll(ssattr);
+    clear ssattr;
     
     fileNum  = num2str(filenumber + nWritten);
     filename = fullfile(destDirPath,['RS_', repmat('0', [1 5-length(fileNum)]), fileNum]);
     
-    writefile_mldcm(dcmobj, filename);
+    writefile_mldcm(attr, filename);
     
     nWritten = nWritten + 1;
     
-    clear dcmobj;
+    clear attr;
     
 end
 

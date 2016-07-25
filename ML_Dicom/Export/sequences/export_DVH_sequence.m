@@ -7,6 +7,8 @@ function el = export_DVH_sequence(args)
 %   This function takes a CERR DVHs element.
 %
 %JRA 07/10/06
+%NAV 07/19/16 updated to dcm4che3
+%   replaced ml2dcm_Element to data2dcmElement
 %
 %Usage:
 %   @export_DVH_sequence(args)
@@ -47,8 +49,7 @@ switch tag
         
     case 805568513  %3004,0001  DVH Type
         data = 'DIFFERENTIAL';    
-        el = template.get(tag);
-        el = ml2dcm_Element(el, data);            
+        el = data2dcmElement(el, data, tag);            
         
     case 805568514  %3004,0002  Dose Units
         dUnits = DVHS.doseUnits;
@@ -67,8 +68,7 @@ switch tag
                 data = 'GY';
                 warning('Unable to determine if DVH dose units are ''GY'' or ''RELATIVE''.  Assuming ''GY''.');
         end
-        el = template.get(tag);
-        el = ml2dcm_Element(el, data);             
+        el = data2dcmElement(el, data, tag);             
         
     case 805568516  %3004,0004  Dose Type
         dtype = DVHS.doseType;
@@ -85,23 +85,19 @@ switch tag
                 data = 'PHYSICAL';
                 warning('Unable to determine if DVH dose type is ''PHYSICAL'', ''EFFECTIVE'', or ''ERROR''.  Assuming ''PHYSICAL''.');
         end
-        el = template.get(tag);
-        el = ml2dcm_Element(el, data);             
+        el = data2dcmElement(el, data, tag);             
         
     case 805568594  %3004,0052  DVH Dose Scaling
         data = 1; %CERR DVHs have no dose scaling factor.
-        el = template.get(tag);
-        el = ml2dcm_Element(el, data);         
+        el = data2dcmElement(el, data, tag);          
         
     case 805568596  %3004,0054  DVH Volume Units
         data = 'CM3'; %CERR DVH data is all in cubic cm.
-        el = template.get(tag);
-        el = ml2dcm_Element(el, data);                 
+        el = data2dcmElement(el, data, tag);               
         
     case 805568598  %3004,0056  DVH Number of Bins
         data = size(DVHS.DVHMatrix, 1);
-        el = template.get(tag);
-        el = ml2dcm_Element(el, data);                 
+        el = data2dcmElement(el, data, tag);                  
         
     case 805568600  %3004,0058  DVH Data
         nBins     = size(DVHS.DVHMatrix, 1);
@@ -116,8 +112,7 @@ switch tag
             data(2:2:2*nBins) = volumesV;    
         end
         
-        el = template.get(tag);
-        el = ml2dcm_Element(el, data);           
+        el = data2dcmElement(el, data, tag);           
                 
     case 805568624  %3004,0070  DVH Minimum Dose
         %Currently not implemented.        

@@ -16,9 +16,11 @@ function el = export_CT_image_module_field(args)
 %   This function requires arg.data = {scanInfoS, scanS};
 %
 %JRA 06/19/06
+%NAV 07/19/16 updated to dcm4che3
+%   replaced ml2dcm_Element to data2dcmElement
 %
 %Usage:
-%   dcmobj = export_CT_image_module_field(args)
+%   el = export_CT_image_module_field(args)
 %
 % Copyright 2010, Joseph O. Deasy, on behalf of the CERR development team.
 % 
@@ -55,33 +57,27 @@ switch tag
     %Class 1 Tags -- Required, must have data.
     case 524296     %0008,0008 Image Type
         data = {'ORIGINAL', 'PRIMARY', 'AXIAL'};
-        el = template.get(tag);
-        el = ml2dcm_Element(el, data);
+        el = data2dcmElement(template, data, tag);
 
     case 2621442    %0028,0002 Samples per Pixel
         data = 1;               %1 image plane in all CT/MR images.
-        el = template.get(tag);
-        el = ml2dcm_Element(el, data);
+        el = data2dcmElement(template, data, tag);
      
     case 2621444    %0028,0004 Photometric Interpretation
         data = 'MONOCHROME2';   %CT/MR have 0 black, maxVal white.
-        el = template.get(tag);
-        el = ml2dcm_Element(el, data);
+        el = data2dcmElement(template, data, tag);
         
     case 2621456    %0028,0010 Rows
         data = scanInfoS.sizeOfDimension1;
-        el = template.get(tag);
-        el = ml2dcm_Element(el, data);
+        el = data2dcmElement(template, data, tag);
 
     case 2621457    %0028,0011 Columns
         data = scanInfoS.sizeOfDimension2;                
-        el = template.get(tag);
-        el = ml2dcm_Element(el, data);
+        el = data2dcmElement(template, data, tag);
         
     case 2621696    %0028,0100 Bits Allocated
         data = 16;              %C.8.2.1.1.4 of PS 3.3 - 2006 
-        el = template.get(tag);
-        el = ml2dcm_Element(el, data);
+        el = data2dcmElement(template, data, tag);
         
     case 2621697    %0028,0101 Bits Stored
                                 %C.8.2.1.1.4 of PS 3.3 - 2006 
@@ -93,8 +89,7 @@ switch tag
         mostSignificantBit = floor(max(log2s)) + 1;
         data = max(mostSignificantBit, 12);
         data = min(data, 16);       
-        el = template.get(tag);
-        el = ml2dcm_Element(el, data);
+        el = data2dcmElement(template, data, tag);
 
     case 2621698    %0028,0102 High Bit
                                 %C.8.2.1.1.4 of PS 3.3 - 2006         
@@ -107,28 +102,29 @@ switch tag
         data = max(mostSignificantBit, 12);
         data = min(data, 16);   
         data = data - 1;
-        el = template.get(tag);
-        el = ml2dcm_Element(el, data);
+        el = data2dcmElement(template, data, tag);
         
     case 2625618    %0028,1052 Rescale Intercept
         ctO = scanInfoS.CTOffset;
         data = -ctO;           %CERR exports stored values as 1*HU + CTOffset.
-        el = template.get(tag);
-        el = ml2dcm_Element(el, data);
+        el = data2dcmElement(template, data, tag);
 
     case 2625619    %0028,1053 Rescale Slope
         %data = 1;
         %data = scanInfoS.rescaleSlope;
         data = args.data{3}; %APA: factor for conversion to uint16 for modalities other than CT
-        el = template.get(tag);
-        el = ml2dcm_Element(el, data);
+        el = data2dcmElement(template, data, tag);
         
     %Class 2 Tags -- Must be present, can be NULL.       
     case 1572960    %0018,0060 KVP
-        el = template.get(tag);
 
+        el = org.dcm4che3.data.Attributes;
+        el.setString(tag, template.getVR(tag), template.getString(tag));
+        
     case 2097170    %0020,0012 Acqusition Number
-        el = template.get(tag);
+
+        el = org.dcm4che3.data.Attributes;
+        el.setString(tag, template.getVR(tag), template.getString(tag));
         
     %Class 3 Tags -- presence is optional, currently undefined.
     case 1572898    %0018,0022 Scan Options

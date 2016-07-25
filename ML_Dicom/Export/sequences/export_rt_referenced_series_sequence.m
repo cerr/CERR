@@ -6,6 +6,8 @@ function el = export_rt_referenced_series_sequence(args)
 %   This function takes a SeriesInstanceUID, a scanS.
 %
 %JRA 06/23/06
+%NAV 07/19/16 updated to dcm4che3
+%   replaced ml2dcm_Element to data2dcmElement
 %
 % Copyright 2010, Joseph O. Deasy, on behalf of the CERR development team.
 % 
@@ -42,24 +44,28 @@ template            = args.template;
 switch tag
     case   2097166  %0020,000E  Series Instance UID
         data = SeriesInstanceUID;
-        el = template.get(tag);
-        el = ml2dcm_Element(el, data);        
+
+        el = data2dcmElement(template, data, tag);        
         
     case 805699606  %3006,0016  Contour Image Sequence
-        templateEl = template.get(tag);
+    %UPDATED to dcm4che3
+        %replaced get with getValue
+        templateEl = template.getValue(tag);
         fHandle = @export_contour_image_sequence;
 
-        tmp = org.dcm4che2.data.BasicDicomObject;
-        el = tmp.putNull(tag, []);
+        %New empty sequence
+        tmp = org.dcm4che3.data.Attributes;
+        el = tmp.newSequence(tag, 0);
 
         %Iterate over each slice.
         for i=1:length(scanS.scanInfo)
             scanInfo = scanS.scanInfo(i);
             
             dcmobj = export_sequence(fHandle, templateEl, {scanInfo});
-            el.addDicomObject(i-1, dcmobj);
+            el.add(i-1, dcmobj);
         end           
         
+        el = el.getParent();
         
     otherwise
         warning(['No methods exist to populate DICOM structure_set module''s rt_referenced_series_sequence field ' dec2hex(tag,8) '.']);

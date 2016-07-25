@@ -7,6 +7,8 @@ function el = export_structure_set_referenced_series_sequence(args)
 %   and as data to have UIDs created for them.
 %
 %APA 08/28/2015
+%NAV 07/19/16 updated to dcm4che3
+%   replaced ml2dcm_Element to data2dcmElement
 %
 % Copyright 2010, Joseph O. Deasy, on behalf of the CERR development team.
 % 
@@ -43,8 +45,7 @@ switch tag
     %Class 1 Tags -- Required, must have data.
     case 2097234    %0020,000E  Series Instance UID
         data = UID;
-        el = template.get(tag);
-        el = ml2dcm_Element(el, data);
+        el = data2dcmElement(el, data, tag); 
 
     otherwise
         warning(['No methods exist to populate DICOM structure_set module''s export_structure_set_referenced_series_sequence field ' dec2hex(tag,8) '.']);

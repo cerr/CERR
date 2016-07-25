@@ -6,6 +6,7 @@ function dcmobj = build_module_template(moduleName)
 %   Valid moduleNames are currently 'patient' 
 %
 %JRA 06/06/06
+%NAV 07/19/16 updated to dcm4che3
 %
 %Usage:
 %   dcmobj = general_equipment_module_template;
@@ -33,8 +34,9 @@ function dcmobj = build_module_template(moduleName)
 % along with CERR.  If not, see <http://www.gnu.org/licenses/>.
 
 %Create a dcmobj to hold the structure and data.
-dcmobj = org.dcm4che2.data.BasicDicomObject;
-
+%%dcmobj = org.dcm4che2.data.BasicDicomObject;
+  dcmobj = org.dcm4che3.data.Attributes;
+  
 Done = 0;
 
 switch lower(moduleName)

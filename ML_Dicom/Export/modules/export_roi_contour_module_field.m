@@ -17,6 +17,7 @@ function el = export_roi_contour_module_field(args)
 %   This function requires arg.data is a planC.structures.
 %
 %JRA 06/19/06
+%NAV 07/19/16 updated to dcm4che3
 %
 %Usage:
 %   dcmobj = export_roi_contour_module_field(args)
@@ -54,20 +55,23 @@ template    = args.template;
 switch tag
     %Class 1 Tags -- Required, must have data.    
     
-    case 805699641  %3006,0039 ROI Contour Sequence               
-        templateEl  = template.get(tag);
+    case 805699641  %3006,0039 ROI Contour Sequence     
+        %used getValue over get
+        templateEl  = template.getValue(tag);
         fHandle = @export_ROI_contour_sequence;
 
-        tmp = org.dcm4che2.data.BasicDicomObject;
-        el = tmp.putNull(tag, []);
+        %New null sequence
+        tmp = org.dcm4che3.data.Attributes;
+        el = tmp.newSequence(tag, 0);
 
         nStructures = length(structS);
         
         for i=1:nStructures
             dcmobj = export_sequence(fHandle, templateEl, {structS(i), i});
-            el.addDicomObject(i-1, dcmobj);
-        end                        
-        
+            el.add(i-1, dcmobj);
+        end                      
+        %get attribute to return
+        el = el.getParent();
     %Class 2 Tags -- Must be present, can be NULL.                
     %Class 3 Tags -- presence is optional, currently undefined.                   
     %Class 1C Tags -- presence is required under special circumstances

@@ -7,6 +7,8 @@ function el = export_referenced_structure_set_sequence(args)
 %   This function takes a CERR DVHs element.
 %
 %JRA 07/10/06
+%NAV 07/19/16 updated to dcm4che3
+%   replaced ml2dcm_Element to data2dcmElement
 %
 %Usage:
 %   @export_referenced_structure_set_sequence(args)
@@ -43,14 +45,12 @@ template    = args.template;
 
 switch tag
     case 528720     %0008,1150  Referneced SOP Class UID
-        data = DVHS.Referenced_Structure_Set_SOP_Class_UID;
-        el = template.get(tag);   
-        el = ml2dcm_Element(el, data);        
+        data = DVHS.Referenced_Structure_Set_SOP_Class_UID; 
+        el = data2dcmElement(el, data, tag);        
         
     case 528725     %0008,1155  Referenced SOP Instance UID
         data = DVHS.Referenced_Structure_Set_SOP_Instance_UID;
-        el = template.get(tag);   
-        el = ml2dcm_Element(el, data);        
+        el = data2dcmElement(el, data, tag);       
         
     otherwise
         warning(['No methods exist to populate DICOM ROI_contour module''s ROI_contour_sequence field: ' dec2hex(tag,8) '.']);

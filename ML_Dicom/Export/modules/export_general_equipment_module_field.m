@@ -16,6 +16,8 @@ function el = export_general_equipment_module_field(args)
 %   This function requires arg.data = {scanS}, {structuresS}, or {doseS}.
 %
 %JRA 06/19/06
+%NAV 07/19/16 updated to dcm4che3
+%   replaced ml2dcm_Element to data2dcmElement
 %
 %Usage:
 %   dcmobj = export_general_equipment_module_field(args)
@@ -78,25 +80,21 @@ switch tag
             case 'dose'
                 data = 'CERR';
         end
-        el = template.get(tag);   
-        el = ml2dcm_Element(el, data);
+        el = data2dcmElement(template, data, tag);
         
     %Class 3 Tags -- presence is optional, currently undefined.
     case  524416    %0008,0080 Institution Name
         data = 'CERR';
-        el = template.get(tag);   
-        el = ml2dcm_Element(el, data);
+        el = data2dcmElement(template, data, tag);
     case  524417    %0008,0081 Institution Address        
     case  528400    %0008,1010 Station Name
         data = 'CERR';
-        el = template.get(tag);   
-        el = ml2dcm_Element(el, data);
+        el = data2dcmElement(template, data, tag);
         
     case  528448    %0008,1040 Institutional Department Name
     case  528528    %0008,1090 Manufacturer's Model Name
         data = 'CERR';
-        el = template.get(tag);   
-        el = ml2dcm_Element(el, data);        
+        el = data2dcmElement(template, data, tag);       
     case 1576960    %0018,1000 Device Serial Number
     case 1576992    %0018,1020 Software Versions
     case 1577040    %0018,1050 Spatial Resolution

@@ -7,6 +7,9 @@ function dataS = populate_planC_field(cellName, dcmdir_patient)
 %
 %JRA 06/15/06
 %YWU Modified 03/01/08
+%NAV 07/19/16 updated to dcm4che3
+%   replaced dcm2ml_element with getTagValue
+%   and used getValue instead of get
 %
 %Usage:
 %   dataS = populate_planC_field(cellName, dcmdir);
@@ -35,12 +38,10 @@ function dataS = populate_planC_field(cellName, dcmdir_patient)
 
 %Get template for the requested cell.
 persistent rtPlans
-
 structS = initializeCERR(cellName);
 names   = fields(structS);
 
 dataS = [];
-
 switch cellName
     case 'header'
         rtPlans = []; % Clear persistent object
@@ -50,12 +51,10 @@ switch cellName
         
     case 'scan'
         % supportedModalities = {'CT'};
-        
         scansAdded = 0;
         
         %Extract all series contained in this patient.
         [seriesC, typeC] = extract_all_series(dcmdir_patient);
-        
         %ctSeries = length(find(seriesC(strcmpi(typeC, 'CT'))==1));
         
         %Place each series (CT, MR, etc.) into its own array element.
@@ -80,7 +79,6 @@ switch cellName
             % % %             outIOP = getTest_Scan_IOP(seriesC{seriesNum}.Data(1).file);
             
             if ismember(typeC{seriesNum},{'CT','OT','NM','MR','PT','ST','MG'})
-                
                 %Populate each field in the scan structure.
                 for i = 1:length(names)
                     dataS(scansAdded+1).(names{i}) = populate_planC_scan_field(names{i}, seriesC{seriesNum}, typeC{seriesNum}, seriesNum);
@@ -142,7 +140,6 @@ switch cellName
         
         %Place each structure into its own array element.
         for seriesNum = 1:length(seriesC)
-            
             %if ismember(typeC{seriesNum}, supportedTypes)
             if strcmpi(typeC{seriesNum}, 'RTSTRUCT')
                 
@@ -151,10 +148,19 @@ switch cellName
                     strobj  = scanfile_mldcm(RTSTRUCT(k).file);
                     
                     %ROI Contour Sequence.
-                    el = strobj.get(hex2dec('30060039'));
+                    %el = strobj.getStrings(hex2dec('30060039'));
+                    el = strobj.getValue(hex2dec('30060039'));
+                    %%%UPDATED dcm4che3
+                    %If non-empty sequence, get item count, else set to
+                    %zero
+                    if ~isempty(el)
+                        nStructures = el.size();
+                    else
+                         nStructures = 0;
+                    end
+
                     % ROI = strobj.getInt(org.dcm4che2.data.Tag.ROIContourSequence);
-                    
-                    nStructures = el.countItems;
+
                     curStructNum = 1; %wy modified for suppport multiple RS files
                     for j = 1:nStructures
                         
@@ -191,7 +197,6 @@ switch cellName
         frameOfRefUIDC       = {};
         %Place each RTDOSE into its own array element.
         for seriesNum = 1:length(seriesC)
-            
             %             if ismember(typeC{seriesNum}, supportedTypes)
             if strcmpi(typeC{seriesNum}, 'RTDOSE')                
                 
@@ -200,7 +205,7 @@ switch cellName
                     doseobj  = scanfile_mldcm(RTDOSE(doseNum).file);
                     
                     % Frame of Reference UID
-                    frameOfRefUID = dcm2ml_Element(doseobj.get(hex2dec('00200052')));
+                    frameOfRefUID = getTagValue(doseobj, '00200052');
                                             
                     %check if it is a DVH                    
                     dvhsequence = populate_planC_dose_field('dvhsequence', RTDOSE(doseNum), doseobj, rtPlans);
@@ -320,9 +325,13 @@ switch cellName
                                     strobj  = scanfile_mldcm(RTSTRUCT(k).file);
 
                                     %ROI Contour Sequence.
-                                    el = strobj.get(hex2dec('30060039'));
+                                    el = strobj.getValue(hex2dec('30060039'));
                                     % ROI = strobj.getInt(org.dcm4che2.data.Tag.ROIContourSequence);                                    
-                                    nStructures = el.countItems;                                    
+                                    if ~isempty(el)
+                                        nStructures = el.size();
+                                    else
+                                        nStructures = 0;
+                                    end                                 
                                     for js = 1:nStructures
                                         %get Structure name
                                         structureNameC{end+1} = populate_planC_structures_field('structureName', RTSTRUCT, js, strobj);
@@ -415,11 +424,11 @@ switch cellName
 
         end
         rtPlans= dataS;
-        
+
     case 'beamGeometry'
         
         dataS = initializeCERR('beamGeometry');
-        
+
         for i = 1:length(rtPlans)
             beamGeometryS = populate_planC_beamGeometry_field(rtPlans(i), dataS);
             
@@ -475,11 +484,15 @@ switch cellName
                     gspsobj  = scanfile_mldcm(GSPS(k).file);
                     
                     %Graphic Annotation Sequence.             
-                    el = gspsobj.get(hex2dec('00700001'));
+                    el = gspsobj.getValue(hex2dec('00700001'));
 
                     % ROI = strobj.getInt(org.dcm4che2.data.Tag.ROIContourSequence);
                     
-                    nGsps = el.countItems;
+                    if ~isempty(el)
+                        nGsps = el.size();
+                    else
+                         nGsps = 0;
+                    end
                     curGspsNum = 1;
                     for j = 1:nGsps
                         
@@ -516,7 +529,7 @@ switch cellName
                     regobj  = scanfile_mldcm(REG(regNum).file);
                     
                     % Frame of Reference UID
-                    frameOfRefUID = dcm2ml_Element(regobj.get(hex2dec('00200052')));
+                    frameOfRefUID = getTagValue(regobj, '00200052');
                     
                     
                     %Populate each field in the dose structure.

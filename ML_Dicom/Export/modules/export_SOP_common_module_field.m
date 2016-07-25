@@ -16,6 +16,8 @@ function el = export_SOP_commons_module_field(args)
 %   This function requires arg.data = {scanInfoS, scanS};
 %
 %JRA 06/19/06
+%NAV 07/19/16 updated to dcm4che3
+%   replaced ml2dcm_Element to data2dcmElement
 %
 %Usage:
 %   dcmobj = export_SOP_commons_module_field(args)
@@ -64,24 +66,20 @@ switch tag
     %Class 1 Tags -- Required, must have data.
     case 524310     %0008,0016 SOP Class UID
         data = structS(1).SOP_Class_UID;                
-        el = template.get(tag);
-        el = ml2dcm_Element(el, data);
+        el = data2dcmElement(template, data, tag);
     case 524312     %0008,0018 SOP Instance UID
         data = structS(1).SOP_Instance_UID;
-        el = template.get(tag);
-        el = ml2dcm_Element(el, data);        
+        el = data2dcmElement(template, data, tag);      
     %Class 2 Tags -- Must be present, can be blank.        
 
     %Class 3 Tags -- presence is optional, currently undefined.  
     case   524306   %0008,0012 Instance Creation Date
         data = datestr(now, 29);
-        el = template.get(tag);
-        el = ml2dcm_Element(el, data);
+        el = data2dcmElement(template, data, tag);
         
     case   524307   %0008,0013 Instance Creation Time
         data = datestr(now, 13);
-        el = template.get(tag);
-        el = ml2dcm_Element(el, data);        
+        el = data2dcmElement(template, data, tag);    
         
     case   524308   %0008,0014 Instance Creator UID
     case   524314   %0008,001A Related GEneral SOP Class UID

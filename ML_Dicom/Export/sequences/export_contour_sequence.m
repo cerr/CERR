@@ -7,6 +7,8 @@ function el = export_contour_sequence(args)
 %   This function takes a single CERR contour, Nx3, as args.data
 %
 %JRA 06/23/06
+%NAV 07/19/16 updated to dcm4che3
+%   replaced ml2dcm_Element to data2dcmElement
 %
 %Usage:
 %   @export_contour_sequence(args)
@@ -53,8 +55,7 @@ switch tag
         
     case 805699650  %3006,0042  Contour Geometric Type
         data = 'CLOSED_PLANAR'; %All CERR contours are currently closed planar
-        el = template.get(tag);
-        el = ml2dcm_Element(el, data);
+        el = data2dcmElement(el, data, tag);
                 
     case 805699652  %3006,0044  Contour Slab Thickness
         %Currently unsupported.
@@ -70,8 +71,8 @@ switch tag
         if contour(1,:) == contour(end,:) & size(contour, 1) > 1
            data = data - 1;
         end
-        el = template.get(tag);
-        el = ml2dcm_Element(el, data(:));        
+        
+        el = data2dcmElement(el, data(:), tag);        
 
     case 805699664  %3006,0050  Contour Data
         %Convert from CERR cm to DICOM mm.
@@ -89,8 +90,8 @@ switch tag
         end
         
         data = contour'; %Transpose and use (:) operator to get linear x,y,z,x,y,z,x,... pattern.
-        el = template.get(tag);
-        el = ml2dcm_Element(el, data(:));        
+
+        el = data2dcmElement(el, data(:), tag);        
     otherwise
         warning(['No methods exist to populate DICOM ROI_contour module''s contour_sequence field: ' dec2hex(tag,8) '.']);
 end

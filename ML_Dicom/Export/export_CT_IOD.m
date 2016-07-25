@@ -12,6 +12,8 @@ function nWritten = export_CT_IOD(planC, filenameRoot, filenumber)
 %   etc.
 %
 %JRA 07/05/06
+%NAV 07/19/16 updated to dcm4che3
+%    Used addAll over copyTo
 %
 %Usage:
 %   nWritten = export_CT_IOD(planC, filenameRoot, filenumber);
@@ -58,19 +60,19 @@ for scanNum = 1:length(planC{indexS.scan})
     scanS   = planC{indexS.scan}(scanNum);
 
     %Build patient module.
-    patientobj      = export_module('patient', 'scan', scanS);
+    patientattr      = export_module('patient', 'scan', scanS);
 
     %Build general study module.
-    studyobj        = export_module('general_study', scanS);
+    studyattr        = export_module('general_study', scanS);
 
     %Build general series module.
-    seriesobj       = export_module('general_series', scanS);
+    seriesattr       = export_module('general_series', scanS);
 
     %Build a frame of reference module.
-    frameobj        = export_module('frame_of_reference', scanS);
+    frameattr        = export_module('frame_of_reference', scanS);
 
     %Build a general equipment module.
-    equipobj        = export_module('general_equipment', 'scan', scanS);
+    equipattr        = export_module('general_equipment', 'scan', scanS);
     
     %Get rescale slope
     nBits = 16;
@@ -78,8 +80,8 @@ for scanNum = 1:length(planC{indexS.scan})
     %Determine the scaling factor if scanArray is other than uint16
     modality = scanS.scanInfo(1).imageType;
     if strcmpi(modality,'PT')
-        dcmheader = scanS.scanInfo(1).DICOMHeaders;
-        if max(scanS.scanArray(:)) < 500 % assume suv            
+        dcmheader = scanS.scanInfo(1).DICOMHeaders;  
+        if max(scanS.scanArray(:)) < 500 % assume suv
             scanS.scanArray = suvToCounts(scanS.scanArray,dcmheader);
             %scanS.scanArray = scanS.scanArray / dcmheader.RescaleSlope;
         else
@@ -98,50 +100,51 @@ for scanNum = 1:length(planC{indexS.scan})
     %For slice-specific modules iterate over scaninfo.
     for i=1:length(scanS.scanInfo)
 
-        %Create a dcmobj to hold a single slice.
-        dcmobj = org.dcm4che2.data.BasicDicomObject;
+        %Create a attr to hold a single slice.
+        %CHANGE to dcm4che 3attribute
+        attr = org.dcm4che3.data.Attributes;
 
         %Get info for the slice we are handling.
         scanInfoS = scanS.scanInfo(i);
 
         %Build an image module from this particular slice (scanInfoS)
-        imgobj          = export_module('general_image', 'scan', scanInfoS);
+        imgattr          = export_module('general_image', 'scan', scanInfoS);
 
         %Build an image plane module from this particular slice (scanInfoS)
-        imgplaneobj     = export_module('image_plane', 'scan', scanInfoS, scanS);
+        imgplaneattr     = export_module('image_plane', 'scan', scanInfoS, scanS);
 
         %Build an image pixel module from this particular slice (scanInfoS)    
-        imgpixelobj     = export_module('image_pixel', 'scan', scanInfoS, scanS, scaleFactor);
+        imgpixelattr     = export_module('image_pixel', 'scan', scanInfoS, scanS, scaleFactor);
 
         %Build an CT image module from this particular slice (scanInfoS)
-        ctimageobj      = export_module('CT_image', scanInfoS, scanS, scaleFactor);
+        ctimageattr      = export_module('CT_image', scanInfoS, scanS, scaleFactor);
 
-        SOPobj = export_module('SOP_common', 'scanInfo', scanInfoS);
+        SOPattr = export_module('SOP_common', 'scanInfo', scanInfoS);
 
-        %Combine all modules into a single dcmobj.
-        patientobj.copyTo(dcmobj);
-        studyobj.copyTo(dcmobj);
-        seriesobj.copyTo(dcmobj);
-        frameobj.copyTo(dcmobj);
-        equipobj.copyTo(dcmobj);
-        imgobj.copyTo(dcmobj);
-        imgplaneobj.copyTo(dcmobj);
-        imgpixelobj.copyTo(dcmobj);
-        ctimageobj.copyTo(dcmobj);
-        SOPobj.copyTo(dcmobj);
-        
-        clear imgobj imgplaneobj imgpixelobj ctimageobj SOPobj
+        %Combine all modules into a single attribute.
+        attr.addAll(patientattr);
+        attr.addAll(studyattr);
+        attr.addAll(seriesattr);
+        attr.addAll(frameattr);
+        attr.addAll(equipattr);
+        attr.addAll(imgattr);
+        attr.addAll(imgplaneattr);
+        attr.addAll(imgpixelattr);
+        attr.addAll(ctimageattr);
+        attr.addAll(SOPattr);
+
+        clear imgattr imgplaneattr imgpixelattr ctimageattr SOPattr
 
         fileNum  = num2str(filenumber + nWritten);
         filename = fullfile(destDirPath,['IMG_', repmat('0', [1 5-length(fileNum)]), fileNum]);
 
-        writefile_mldcm(dcmobj, filename);
+        writefile_mldcm(attr, filename);
 
         nWritten = nWritten + 1;
 
-        clear dcmobj;
+        clear attr;
     end
 
-    clear patientobj studyobj seriesobj frameobj equipobj
+    clear patientattr studyattr seriesattr frameattr equipattr
     
 end
