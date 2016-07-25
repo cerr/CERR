@@ -23,11 +23,12 @@ Major Function Differences:
     Sequences were used (dcm4che core data class). These Sequences used
     the size function rather than countItems function, and get function
     rather than getDicomObject. No size of zero, only null, so check exists
-    to turn null result into zero.
+    to turn null result into zero. getDicomObject is replaced with just get
+    to get attributes from an an extended arraylist.
 
     countItems() ---> size()
     getDicomObject(i) ---> get(i)
-    getDicomObject() ---> getParent()
+    getDicomObject() ---> getParent() == get(0)
 
     3) putNull replaced with setNull. If a new sequence was to be made, there
     was no need to use setNull, so it was avoided.
