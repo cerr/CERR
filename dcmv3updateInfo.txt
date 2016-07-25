@@ -1,0 +1,90 @@
+Between dcm4che2 and dcm4che3 there are some key differences.
+To supplement in-code documentation, this file explains in detail what changed
+and why.
+
+Major Function Differences:
+
+    1) Removed the "get" function which was used very frequently. Replaced 
+    with either "getValue", "getSequence", or "newSequence" depending on the 
+    circumstance. In general, getValue was used to replace almost every "get"
+    in the import folder. It was used to get a sequence of items for the most
+    part. "newSequence" was used in locations where a pre-existing sequence 
+    didn't exist, and "getValue" or "getSequence" would fail.
+    In Export "get" was often replaced with setString to return a single
+    element.
+
+    get() ---> getValue()
+    get() ---> getSequence()
+    get() ---> newSequence()
+    get() ---> setString()
+
+    2) Removal of Dicom Objects and Dicom Elements. Both were for the most
+    part, replaced by Attributes Objects. However, for Sequence Dicom Elements,
+    Sequences were used (dcm4che core data class). These Sequences used
+    the size function rather than countItems function, and get function
+    rather than getDicomObject. No size of zero, only null, so check exists
+    to turn null result into zero.
+
+    countItems() ---> size()
+    getDicomObject(i) ---> get(i)
+    getDicomObject() ---> getParent()
+
+    3) putNull replaced with setNull. If a new sequence was to be made, there
+    was no need to use setNull, so it was avoided.
+
+    putNull ---> setNull
+
+    4) copyTo replaced with addAll
+
+    copyTo ---> addAll
+
+    5) subSet was replaces with self made filter function in dcmdir_add
+
+    subSet() ---> filter()
+    
+    6) PersonName class was also changed greatly. Objects like "FamilyName"
+    no longer correlate to array positions but rather to an Enum. So a
+    workaround was used to access the variables in the Java Enum. This class
+    was used in a few export functions but is primarily used in getTagValue 
+    and data2dcmElement.
+
+    7) Use of ElementDictionary to get VR values associated with tags. Example
+    in getTagValue
+    
+
+    
+
+Important per-file Differences:
+
+dcm2ml_Element - REPLACED by getTagValue
+dcm2ml_Object - REPLACED by getTagStruct
+ml2dcm_Element - REPLACED by data2dcmElement
+
+scanfile_mldcm - Creates Attributes object rather than Dicom Object
+
+dcmdir_add - Created a filter nested function to replace subset. Is slightly slower
+             however. implemented getTagValue.
+
+createEmptyFields - Changed manner of setting Null elements. Used Sequence.
+
+Functions in Import Folder - Used getTagValue. Replaced the SequenceDicomElements
+                             attained by using get, to Sequences.
+
+Modules in Export - Replaced "get" uses with setString to generate single element.
+                    Also replaced ml2dcm_Element
+Sequences in Export - Replaced ml2dcm_Element, and generated new sequences rather
+                      than using "get", and "putNull"
+
+
+
+ISSUES
+
+1) Date issue still persists. Can't check if date function is done correctly. 
+Correct String value is stored, but unsure about date value. (In data2dcmElement)
+
+2) Remove issue still persists in export_sequence. 
+
+3) Center and width in viewer always seem to start at center:0 width:300
+Otherwise values are correct, but i am unsure how to remedy this.
+
+
