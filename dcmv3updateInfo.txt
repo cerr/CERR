@@ -33,7 +33,7 @@ Major Function Differences:
     3) putNull replaced with setNull. If a new sequence was to be made, there
     was no need to use setNull, so it was avoided.
 
-    putNull ---> setNull
+    putNull() ---> setNull()
 
     4) copyTo replaced with addAll
 
