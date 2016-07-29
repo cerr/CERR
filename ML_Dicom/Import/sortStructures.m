@@ -45,7 +45,9 @@ sopInstanceC = {};
 for slcNum = 1:length(structS.contour)
     sopInstanceC{slcNum} = structS.contour(slcNum).sopInstanceUID;
 end
-sopInstanceC = sopInstanceC(index);
+if ~isempty(sopInstanceC)
+    sopInstanceC = sopInstanceC(index);
+end
 
 modality = planC{indexS.scan}(scanInd).scanInfo(1).imageType;
 

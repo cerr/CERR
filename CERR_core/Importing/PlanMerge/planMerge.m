@@ -107,11 +107,31 @@ dosesWithSameUID   = ismember(addedDoseUIDc,existingDoseUIDc);
 structsWithSameUID = ismember(addedStructureUIDc,existingStructureUIDc);
 
 if any(scansWithSameUID)
+    oldScanUIc = {scans.scanUID};
     for scanNum = 1:length(planD{indexSD.scan})
-        planD{indexSD.scan}(scanNum).scanUID = createUID('scan');
-        scans(scanNum).scanUID = planD{indexSD.scan}(scanNum).scanUID;
+        scans(scanNum).scanUID = createUID('scan');
     end
+    newScanUIc = {scans.scanUID};
     scansWithSameUID = 0;
+    
+    % Change the associated scanUID fields for dose and structures
+    for iDose = 1:nDose
+        indMatch = find(strcmp(doses(iDose).assocScanUID,oldScanUIc));
+        if ~isempty(indMatch)
+            doses(iDose).assocScanUID = newScanUIc{indMatch};
+        end
+    end
+    for iStr = 1:nStructs
+        indMatch = find(strcmp(structs(iStr).assocScanUID,oldScanUIc));
+        if ~isempty(indMatch)
+            structs(iStr).assocScanUID = newScanUIc{indMatch};
+        end
+    end  
+    for iStr = 1:length(planD{indexSD.structureArray})
+        indMatch = find(strcmp(planD{indexSD.structureArray}(iStr).assocScanUID,oldScanUIc));
+        planD{indexSD.structureArray}(iStr).assocScanUID = newScanUIc{indMatch};
+        planD{indexSD.structureArrayMore}(iStr).assocScanUID = newScanUIc{indMatch};
+    end
 end
 
 newScanNum  = nScans + 1;
@@ -212,7 +232,7 @@ uniDataMore = planD{indexSD.structureArrayMore};
 
 %If structures are being imported and there is no scan, create a dummy
 %scan to associate the structures with.
-if isempty(scans) & ~isempty(structIndV)
+if isempty(scans) && ~isempty(structIndV)
     planD = createDummyScan(planD);
     planD = setUniformizedData(planD);
     uniData = planD{indexSD.structureArray};
@@ -364,22 +384,24 @@ end
 % Save scan statistics for fast image rendering
 if exist('stateS','var') && isfield(stateS,'handle')
 
-    for scanNum = 1:length(planD{indexSD.scan})
-        scanUID = ['c',repSpaceHyp(planD{indexSD.scan}(scanNum).scanUID(max(1,end-61):end))];
-        stateS.scanStats.minScanVal.(scanUID) = single(min(planD{indexSD.scan}(scanNum).scanArray(:)));
-        stateS.scanStats.maxScanVal.(scanUID) = single(max(planD{indexSD.scan}(scanNum).scanArray(:)));
+    for scanNum = 1:length(scans)
+        scanUID = ['c',repSpaceHyp(scans(scanNum).scanUID(max(1,end-61):end))];
+        stateS.scanStats.minScanVal.(scanUID) = single(min(scans.scanArray(:)));
+        stateS.scanStats.maxScanVal.(scanUID) = single(max(scans.scanArray(:)));
         % Set Window and Width from DICOM header, if available
         CTLevel = '';
         CTWidth = '';
-        if isfield(planD{indexSD.scan}(scanNum).scanInfo(1),'DICOMHeaders') && isfield(planD{indexSD.scan}(scanNum).scanInfo(1).DICOMHeaders,'WindowCenter') && isfield(planD{indexSD.scan}(scanNum).scanInfo(1).DICOMHeaders,'WindowWidth')
-            CTLevel = planD{indexSD.scan}(scanNum).scanInfo(1).DICOMHeaders.WindowCenter(end);
-            CTWidth = planD{indexSD.scan}(scanNum).scanInfo(1).DICOMHeaders.WindowWidth(end);
+        if isfield(scans(scanNum).scanInfo(1),'DICOMHeaders') && ...
+                isfield(scans(scanNum).scanInfo(1).DICOMHeaders,'WindowCenter')...
+                && isfield(scans(scanNum).scanInfo(1).DICOMHeaders,'WindowWidth')
+            CTLevel = scans(scanNum).scanInfo(1).DICOMHeaders.WindowCenter(end);
+            CTWidth = scans(scanNum).scanInfo(1).DICOMHeaders.WindowWidth(end);
         end
         if ~isnumeric(CTLevel) || ~isnumeric(CTWidth)
             CTLevel = str2double(get(stateS.handle.CTLevel,'String'));
             CTWidth = str2double(get(stateS.handle.CTWidth,'String'));
         end
-        scanUID = ['c',repSpaceHyp(planD{indexSD.scan}(scanNum).scanUID(max(1,end-61):end))];
+        scanUID = ['c',repSpaceHyp(scans(scanNum).scanUID(max(1,end-61):end))];
         stateS.scanStats.CTLevel.(scanUID) = CTLevel;
         stateS.scanStats.CTWidth.(scanUID) = CTWidth;
         stateS.scanStats.windowPresets.(scanUID) = 1;

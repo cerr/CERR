@@ -67,11 +67,16 @@ assocScanUID = allAssocScanUID(structsV);
 % Match all the UID to check which scan the structure belongs too.
 %[jnk,assocScansV] = ismember(assocScanUID,scanUID);
 for strNum = 1:length(assocScanUID)
-    assocScansV(strNum) = find(strcmp(assocScanUID{strNum},scanUID));
+    ind = find(strcmp(assocScanUID{strNum},scanUID));
+    if ~isempty(ind)
+        assocScansV(strNum) = ind;
+    else
+        assocScansV(strNum) = 0;
+    end
 end
 
 %Calculate relativeStructNum for all structures.
-allRelStructNumV = ones(1,length(allAssocScanUID));
+allRelStructNumV = zeros(1,length(allAssocScanUID));
 for i=1:length(planC{indexS.scan})    
     %isAssocToScan = ismember(allAssocScanUID,scanUID{i});
     %allRelStructNumV(find(isAssocToScan)) = 1:length(find(isAssocToScan));
