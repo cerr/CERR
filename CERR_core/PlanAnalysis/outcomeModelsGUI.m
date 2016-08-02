@@ -51,10 +51,12 @@ switch upper(command)
         topMarginHeight = 50;
         stateS.leftMarginWidth = leftMarginWidth;
         stateS.topMarginHeight = topMarginHeight;
+        screenSizeV = get( 0, 'Screensize' );
+        GUIWidth = 800;
+        GUIHeight = 600;
+        position = [(screenSizeV(3)-GUIWidth)/2,(screenSizeV(4)-GUIHeight)/2,GUIWidth,GUIHeight];
         
         str1 = 'Outcomes Models Explorer';
-        position = [5 40 800 600];
-        
         defaultColor = [0.8 0.9 0.9];
         figColor = [.6 .75 .75];
         if isempty(findobj('tag','outcomeModelsFig'))
@@ -150,10 +152,10 @@ switch upper(command)
             'color',defaultColor,'ytick',[],'xtick',[],'box','on');
         plotH(2) = axes('parent',hFig,'tag','modelsAxis','tickdir', 'out',...
             'nextplot','add','units','pixels','Position',...
-            [leftMarginWidth+60 posTop*2/4 figureWidth-leftMarginWidth-100 posTop*0.9/2],...
-            'color','w','ytick',[],'xtick',[],'fontSize',8,'box','on','visible','off' );
+            [leftMarginWidth+70 posTop*2/4 figureWidth-leftMarginWidth-100 posTop*0.9/2],...
+            'color','w','xtick',[],'fontSize',8,'box','on','visible','off' );
         plotH(3) = uicontrol('parent',hFig,'units','pixels','Position',...
-            [leftMarginWidth+60 posTop*2/4-45 figureWidth-leftMarginWidth-100 20],...
+            [leftMarginWidth+70 posTop*2/4-50 figureWidth-leftMarginWidth-100 20],...
             'Style','Slider','Visible','Off','Tag','Scale','Min',0,'Max',2,'Value',1);
         addlistener(plotH(3),'ContinuousValueChange',@scaleDose);
         plotH(4) = uicontrol('parent',hFig,'units','pixels','Style','Text','Visible','Off','Tag','sliderVal',...
@@ -271,7 +273,7 @@ switch upper(command)
         end
         
         xlabel('Dose scaling'),ylabel('Complication Probability');
-        legend([ud.modelCurve],flip(cellfun(@(x) x.name,ud.Models,'un',0)),'Location','best');
+        legend([ud.modelCurve],arrayfun(@(x)x.DisplayName,ud.modelCurve,'un',0),'Location','best');
         hSlider = ud.handle.modelsAxis(3);
         set(hSlider,'Visible','On');
         set(hFig,'userdata',ud);
@@ -300,22 +302,36 @@ switch upper(command)
         buttonHeight = 30;
         top = 365;
         defaultColor = [0.8 0.9 0.9];
-        
         modelC = varargin{1};
+        
+        
         if isfield(ud.handle,'editButtons')
             ud.handle = rmfield(ud.handle,'editButtons');
         end
-        
         for j = 1:length(modelC)
             
             fieldC = fieldnames(modelC{j});
+            fnIdx = strcmpi(fieldC,'function');
+            paramIdx = strcmpi(fieldC,'parameters');
             nameIdx = strcmpi(fieldC,'Name');
+            
+            %Check for 'function' and 'parameter' fields
+            if ~any(fnIdx) || isempty(modelC{j}.(fieldC{fnIdx}))
+            msgbox('Model file must include ''function'' attribute.','Model file error');    
+            return
+            end
+            if ~any(paramIdx) || isempty(modelC{j}.(fieldC{paramIdx}))
+            msgbox('Model file must include ''parameters'' attribute.','Model file error');    
+            return
+            end
+            %Set default name if missing
             if ~any(nameIdx)
                 modelName = ['model',num2str(j)];
             else
                 modelName= modelC{j}.(fieldC{nameIdx});
             end
             
+            %Create buttons to edit model attributes
             hEdit(j) = uicontrol(hFig,'units','pixels','style','push','string',['Edit model ',modelName],...
                 'position',[20,top-j*buttonHeight,buttonWidth,buttonHeight],'Tag',['model-',num2str(j)],'callBack',@editParams,'backgroundColor',defaultColor);
         end
@@ -327,6 +343,17 @@ switch upper(command)
         ud = get(hFig,'userData');
         modelC = ud.Models; 
         outFile = ud.modelFile;
+        
+        %Create UID
+        modelNamesC = cellfun(@(x) x.function,modelC,'un',0);
+        modelParamsC = cellfun(@(x) fieldnames(x.parameters),modelC,'un',0);
+        paramValsC = cellfun(@(x) struct2cell(x.parameters),modelC,'un',0);
+        paramValsC = cellfun(@num2str,[paramValsC{:}],'un',0);
+        paramInfoC = strcat([modelParamsC{:}],{'.'},paramValsC);
+        paramInfoC = arrayfun(@(i) cat(1,[paramInfoC{:,i}]),1:size(paramInfoC,2),'un',0);
+        UIDC = strcat({'outcomeModels.'},modelNamesC,{'.'},paramInfoC);
+        modelC = arrayfun(@(i) setfield(modelC{i},'UID',UIDC{i}),1:length(modelC),'un',0);
+        
         fprintf('\n Saving to %s ...',outFile);
         savejson('',modelC,outFile);
         fprintf('\n Save complete.\n');
