@@ -547,7 +547,10 @@ switch lower(arg)
         %Get structure list
         figMenuC = arrayfun(@(x) x.Tag,f.Children,'un',0);
         hNavStructs = f.Children(strcmp(figMenuC,'navigationstructs'));
+        structListC = {};
+        if ~isempty(hNavStructs.Children)
         structListC = {hNavStructs.Children.Tag};
+        end
         ud.structListC = structListC;
         ud.handle.navStructs = hNavStructs;
         hSwitchMenu = f.Children(strcmp(figMenuC,'switchScanMenu'));
