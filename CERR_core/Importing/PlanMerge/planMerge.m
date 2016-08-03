@@ -386,8 +386,8 @@ if exist('stateS','var') && isfield(stateS,'handle')
 
     for scanNum = 1:length(scans)
         scanUID = ['c',repSpaceHyp(scans(scanNum).scanUID(max(1,end-61):end))];
-        stateS.scanStats.minScanVal.(scanUID) = single(min(scans.scanArray(:)));
-        stateS.scanStats.maxScanVal.(scanUID) = single(max(scans.scanArray(:)));
+        stateS.scanStats.minScanVal.(scanUID) = single(min(scans(scanNum).scanArray(:)));
+        stateS.scanStats.maxScanVal.(scanUID) = single(max(scans(scanNum).scanArray(:)));
         % Set Window and Width from DICOM header, if available
         CTLevel = '';
         CTWidth = '';
