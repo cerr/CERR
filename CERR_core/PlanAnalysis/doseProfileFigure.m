@@ -7,7 +7,7 @@ function doseProfileFigure(command, varargin)
 %   defaults to the dose passed in initialDoseV and initialScanV.
 %
 %JRA 1/11/05
-%
+%AI  80/04/16  Added scrolling/pagination to handle large number of scans and dose distributions.
 %Usage:
 %   function doseProfileFigure('init', initialDoseV, initialScanV);
 %   function doseProfileFigure('new_points', startPt, endPt);
@@ -82,72 +82,77 @@ switch upper(command)
         nDoses = length(planC{indexS.dose});
         nScans = length(planC{indexS.scan});
         
-        nScans = min(nScans,20); % 20 scans max allowed. Add pagination in future.
+        %nScans = min(nScans,20); % 20 scans max allowed. Add pagination in future.
 
-        %Calculate how many rows are required for checkboxes.
-        nRows = max(ceil(nDoses/2), ceil(nScans/2));
-        yStart = (nRows+1)*20;
-        yFrameSize = 30+nRows*20;
-
-        rowSpacing = 20;
-        colSpacing = 110;
+        %Draw frames.
+        yFrameSize = 110;
+        yStart = 100;
         hDoseFrame = uicontrol(hFig, 'units', units, 'style', 'frame', 'position', [10 10 235 yFrameSize]);
         hScanFrame = uicontrol(hFig, 'units', units, 'style', 'frame', 'position', [255 10 235 yFrameSize]);
         uicontrol(hFig, 'style', 'text', 'units', units, 'position', [10 yFrameSize-10 50 20], 'string', 'Doses', 'fontweight', 'bold');
         uicontrol(hFig, 'style', 'text', 'units', units, 'position', [255 yFrameSize-10 50 20], 'string', 'Scans', 'fontweight', 'bold');
+        
+        %AI: Changed 
+        %Create dose & scan uicontrols.
+        doseUI = uitable(hFig,'RowName',[],'ColumnName',[],'Position',[20 20 215 80],'visible','off');
+        scanUI = uitable(hFig,'RowName',[],'ColumnName',[],'Position',[265 20 215 80],'visible','off');
 
-        %Create dose uicontrols.
-        for i=1:2*nRows
-            col = floor((i-1)/nRows);
-            doseUI(i) = uicontrol(hFig, 'units', units, 'position', [20+col*colSpacing yStart-(i-1-col*nRows)*rowSpacing 100 20], 'style', 'checkbox', 'string', '', 'visible', 'off', 'Callback', 'doseProfileFigure(''DOSE_CHECK'')', 'userdata', i);
-        end
-
-        %Create scan uicontrols.
-        for i=1:2*nRows
-            col = floor((i-1)/nRows);
-            scanUI(i) = uicontrol(hFig, 'units', units, 'position', [265+col*colSpacing yStart-(i-1-col*nRows)*rowSpacing 100 20], 'style', 'checkbox', 'string', '', 'visible', 'off', 'Callback', 'doseProfileFigure(''SCAN_CHECK'')', 'userdata', i);
-        end
-
-        %Populate both.
+        %Get dose list
         colors = stateS.optS.colorOrder;
-
         outString = cell(nDoses+1,1);
-
         outString{1} = 'Pick Reference Dose';
-
+        chkvaldoseC = cell(nDoses,1);
+        chkvaldoseC(:) = {false};
+        doseStringC = cell(nDoses,1);
+        colorDose3M = zeros(nDoses,3);
         for i=1:nDoses
             if ismember(i, initialDoseV);
-                chkval = 1;
+                chkvaldoseC{i} = true;
             else
-                chkval = 0;
+                chkvaldoseC{i} = false;
             end
-
             outString{i+1} = planC{indexS.dose}(i).fractionGroupID;
-            color = getColor(i, colors, 'loop');
+            colorDose3M(i,:) = getColor(i, colors, 'loop');
             if ~isLocal(planC{indexS.dose}(i).doseArray)
-                doseString = [num2str(i) '. ' planC{indexS.dose}(i).fractionGroupID,'(R)'];
+                doseStringC{i} = [num2str(i) '. ' planC{indexS.dose}(i).fractionGroupID,'(R)'];
             else
-                doseString = [num2str(i) '. ' planC{indexS.dose}(i).fractionGroupID];
+                doseStringC{i} = [num2str(i) '. ' planC{indexS.dose}(i).fractionGroupID];
             end
-            set(doseUI(i), 'string', doseString, 'BackgroundColor', color, 'visible', 'on', 'value', chkval);
         end
 
+        %Get scan list
+        chkvalscanC = cell(nScans,1);
+        chkvalscanC(:) = {false};
+        scanStringC = cell(nScans,1);
+        colorScan3M = zeros(nDoses,3);
         for i=1:nScans
             if ismember(i, initialScanV);
-                chkval = 1;
+                chkvalscanC{i} = true;
             else
-                chkval = 0;
+                chkvalscanC{i} = false;
             end
 
-            color = getColor(i+nDoses, colors, 'loop');
+            colorScan3M(i,:) = getColor(i+nDoses, colors, 'loop');
             if ~isLocal(planC{indexS.scan}(i).scanArray)
-                scanString = [num2str(i) '. ' planC{indexS.scan}(i).scanType,'(R)'];
+                scanStringC{i} = [num2str(i) '. ' planC{indexS.scan}(i).scanType,'(R)'];
             else
-                scanString = [num2str(i) '. ' planC{indexS.scan}(i).scanType];
+                scanStringC{i} = [num2str(i) '. ' planC{indexS.scan}(i).scanType];
             end
-            set(scanUI(i), 'string', scanString, 'BackgroundColor', color, 'visible', 'on', 'value', chkval);
         end
-
+        
+        %Display dose uicontrols.
+        doseDataC = cat(2,chkvaldoseC,doseStringC);
+        set(doseUI, 'data', doseDataC, 'visible', 'on','BackgroundColor',colorDose3M,'cellSelectionCallback',@doseCheck);
+        
+        
+        %Display scan uicontrols.
+        scanDataC = cat(2,chkvalscanC,scanStringC);
+        set(scanUI, 'data', scanDataC,'visible', 'on','BackgroundColor',colorScan3M,'cellSelectionCallback','doseProfileFigure(''SCAN_CHECK'')');
+        
+        
+        %AI: End changed
+        
+        
         %Store UI handles and other info for later use.
         ud.doseUI = doseUI;
         ud.baseDose = [];
@@ -234,13 +239,13 @@ switch upper(command)
 
         ud = get(hFig, 'userdata');
 
-        doseUI  = ud.doseUI;
+        %doseUI  = ud.doseUI;
 
         value = get(findobj('Tag','refDoseSelect'),'value')-1;
 
         if value ~=0
             ud.baseDose = value;
-            set(doseUI(ud.baseDose), 'FontWeight','bold');
+            %set(doseUI(ud.baseDose), 'FontWeight','bold');
         end
 
         set(hFig,'Userdata',ud);
@@ -312,37 +317,9 @@ switch upper(command)
     case 'SCAN_CHECK'
         %Scan has been checked/unchecked.
         doseProfileFigure('refresh');
-
-    case 'DOSE_CHECK'
-        %Dose has been checked/unchecked.
-        hFig = findobj('tag', 'CERR_DoseLineProfile');
-        if isempty(hFig)
-            return;
-        end
-        ud = get(hFig, 'userdata');
-        nDoses  = ud.nDoses;
-        doseUI  = ud.doseUI;
-        delete(ud.htext)
-        drawDoses = [];
-        for i=1:nDoses
-            drawDoses(i) = get(doseUI(i), 'value');
-        end
-
-        if isempty(ud.baseDose)
-            %wy warndlg('Select Base Dose');
-        end
-        drawDoses = find(drawDoses);
-
-        set(doseUI, 'FontWeight','normal');
-
-        if ~ismember(drawDoses,ud.baseDose)
-            set(doseUI(ud.baseDose), 'FontWeight','bold');
-        end
-        ud.htext = [];
-        set(doseUI(ud.baseDose), 'FontWeight','bold');
-        set(hFig, 'userdata',ud);
-        doseProfileFigure('refresh');
-
+ 
+    %AI : Removed 'DOSE_CHECK'
+   
     case 'NEW_POINTS'
         %New points specified for the profile line.
         hFig = findobj('tag', 'CERR_DoseLineProfile');
@@ -397,26 +374,20 @@ switch upper(command)
         nScans  = ud.nScans;
         startPt = ud.startPt;
         endPt   = ud.endPt;
-
+        
         if isempty(startPt) | isempty(endPt)
             return;
         end
-
+        
         colors = stateS.optS.colorOrder;
-
-        drawDoses = [];
-        for i=1:nDoses
-            drawDoses(i) = get(doseUI(i), 'value');
-        end
-
-        drawScans = [];
-        for i=1:nScans
-            drawScans(i) = get(scanUI(i), 'value');
-        end
-
+        %AI: Changed
+        drawDoses = [doseUI.Data{:,1}];
+        drawScans = [scanUI.Data{:,1}];
+        %AI: End changed
+        
         drawDoses = find(drawDoses);
         drawScans = find(drawScans);
-
+        
         %Get x,y,z coords of samples and distance from first pt.
         xV = linspace(startPt(1), endPt(1), nSamples);
         yV = linspace(startPt(2), endPt(2), nSamples);
@@ -521,3 +492,40 @@ switch upper(command)
             sliceCallBack('TOGGLEDOSEPROFILE');
         end
 end
+
+% AI: Added
+function doseCheck(hObj,hEvent)
+%Dose has been checked/unchecked
+hFig = get(hObj,'Parent');
+if isempty(hFig)
+    return
+end
+ud = get(hFig,'UserData');
+delete(ud.htext)
+
+doseUI  = ud.doseUI;
+selectedRowsV = hEvent.Indices(:,1);
+doseDataC = doseUI.Data;
+drawDosesV = [doseUI.Data{:,1}];
+drawDosesV(selectedRowsV) = ~drawDosesV(selectedRowsV);
+doseDataC(:,1) = num2cell(drawDosesV);
+doseUI.Data = doseDataC;
+
+ud.doseUI = doseUI;
+ud.htext = [];
+set(hFig, 'userdata',ud);
+doseProfileFigure('refresh');
+
+
+
+
+
+
+
+
+
+
+
+
+
+
