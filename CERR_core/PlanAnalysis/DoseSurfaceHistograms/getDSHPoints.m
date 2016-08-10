@@ -133,6 +133,11 @@ for i = 1 : nStructs
         
     end
     
+    % continue is case of empty structure
+    if isempty(surfacePointsM)
+        continue;
+    end
+    
     %Obtain the most Sup and Inf slices
     zVals = surfacePointsM(:,3);
     zSup = min(zVals);
