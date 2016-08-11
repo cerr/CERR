@@ -94,8 +94,8 @@ switch upper(command)
         
         %AI: Changed 
         %Create dose & scan uicontrols.
-        doseUI = uitable(hFig,'RowName',[],'ColumnName',[],'Position',[20 20 215 80],'visible','off');
-        scanUI = uitable(hFig,'RowName',[],'ColumnName',[],'Position',[265 20 215 80],'visible','off');
+        doseUI = uitable(hFig,'RowName',[],'ColumnName',[],'Position',[20 20 215 80],'visible','off','Tag','doseUI');
+        scanUI = uitable(hFig,'RowName',[],'ColumnName',[],'Position',[265 20 215 80],'visible','off','tag','scanUI');
 
         %Get dose list
         colors = stateS.optS.colorOrder;
@@ -142,12 +142,12 @@ switch upper(command)
         
         %Display dose uicontrols.
         doseDataC = cat(2,chkvaldoseC,doseStringC);
-        set(doseUI, 'data', doseDataC, 'visible', 'on','BackgroundColor',colorDose3M,'cellSelectionCallback',@doseCheck);
+        set(doseUI, 'data', doseDataC, 'visible', 'on','BackgroundColor',colorDose3M,'cellSelectionCallback',@objCheck);
         
         
         %Display scan uicontrols.
         scanDataC = cat(2,chkvalscanC,scanStringC);
-        set(scanUI, 'data', scanDataC,'visible', 'on','BackgroundColor',colorScan3M,'cellSelectionCallback','doseProfileFigure(''SCAN_CHECK'')');
+        set(scanUI, 'data', scanDataC,'visible', 'on','BackgroundColor',colorScan3M,'cellSelectionCallback',@objCheck);
         
         
         %AI: End changed
@@ -313,12 +313,7 @@ switch upper(command)
         %set(udS.handle.movingObject, 'erasemode', 'xor');
         doseProfileFigure('refresh');
 
-
-    case 'SCAN_CHECK'
-        %Scan has been checked/unchecked.
-        doseProfileFigure('refresh');
- 
-    %AI : Removed 'DOSE_CHECK'
+    %AI : Removed 'DOSE_CHECK','SCAN_CHECK'
    
     case 'NEW_POINTS'
         %New points specified for the profile line.
@@ -494,8 +489,9 @@ switch upper(command)
 end
 
 % AI: Added
-function doseCheck(hObj,hEvent)
-%Dose has been checked/unchecked
+function objCheck(hObj,hEvent)
+%Dose/scan has been checked/unchecked
+if ~isempty(hEvent.Indices)
 hFig = get(hObj,'Parent');
 if isempty(hFig)
     return
@@ -503,18 +499,28 @@ end
 ud = get(hFig,'UserData');
 delete(ud.htext)
 
-doseUI  = ud.doseUI;
-selectedRowsV = hEvent.Indices(:,1);
-doseDataC = doseUI.Data;
-drawDosesV = [doseUI.Data{:,1}];
-drawDosesV(selectedRowsV) = ~drawDosesV(selectedRowsV);
-doseDataC(:,1) = num2cell(drawDosesV);
-doseUI.Data = doseDataC;
+if strcmp(hObj.Tag, 'doseUI')
+objUI  = ud.doseUI;
+else
+objUI  = ud.scanUI;
+end
 
-ud.doseUI = doseUI;
+selectedRowsV = hEvent.Indices(:,1);
+objDataC = objUI.Data;
+drawObjV = [objUI.Data{:,1}];
+drawObjV(selectedRowsV) = ~drawObjV(selectedRowsV);
+objDataC(:,1) = num2cell(drawObjV);
+objUI.Data = objDataC;
+
+if strcmp(hObj.Tag, 'doseUI')
+ud.doseUI = objUI;
+else
+ud.scanUI = objUI;
+end
 ud.htext = [];
 set(hFig, 'userdata',ud);
 doseProfileFigure('refresh');
+end
 
 
 
