@@ -34,7 +34,7 @@ function dataS = populate_planC_scan_field(fieldname, dcmdir_PATIENT_STUDY_SERIE
 
 %For easier handling.
 
-global pPos;
+global pPos studyC;
 
 SERIES = dcmdir_PATIENT_STUDY_SERIES;
 
@@ -131,10 +131,23 @@ switch fieldname
                     %Shape the slice.
                     slice2D = reshape(sliceV, [nCols nRows]);
                     
+                    % Study instance UID
+                    studyUID = dcm2ml_Element(imgobj.get(hex2dec('0020000D')));
+
                     %Check the image orientation.
                     imgOri = dcm2ml_Element(imgobj.get(hex2dec('00200037')));
                     %Check patient position
                     pPos = dcm2ml_Element(imgobj.get(hex2dec('00185100')));                    
+                    
+                    % Store the patient position associated with this studyUID
+                    studyUIDc = {};
+                    for i = 1:size(studyC,1)
+                        studyUIDc{i} = studyC{i,1};
+                    end
+                    if ~any(strcmpi(studyUID,studyUIDc))
+                        studyC{end+1,1} = studyUID;
+                        studyC{end,2} = pPos;
+                    end
                     
                     if (strcmpi(type, 'PT')) || (strcmpi(type, 'PET')) %Compute SUV for PET scans
                         dcmobj = scanfile_mldcm(IMAGE.file);
@@ -251,9 +264,38 @@ switch fieldname
                     dataS = reshape(sliceV, [nCols nRows numMultiFrameImages]);
                     dataS = permute(dataS,[2 1 3]);
                     
-                    %Check patient position
-                    pPos = dcm2ml_Element(imgobj.get(hex2dec('00185100')));
+                    % Study instance UID
+                    studyUID = dcm2ml_Element(imgobj.get(hex2dec('0020000D')));
                     
+                    %Check patient position
+                    pPos = dcm2ml_Element(imgobj.get(hex2dec('00185100')));     
+                    
+                    % Get Patient Position from the associated CT/MR scan
+                    % in case of NM missing the patient position.
+                    modality = dcm2ml_Element(imgobj.get(hex2dec('00080060')));
+                    studyUIDc = {};
+                    for i = 1:size(studyC,1)
+                        studyUIDc{i} = studyC{i,1};
+                    end                    
+                    if strcmpi(modality,'NM') && isempty(pPos)
+                        studyIndex = strcmpi(studyUID,studyUIDc);
+                        pPos = studyC{studyIndex,2};
+                    end
+                    
+                    % Store the patient position associated with this studyUID
+                    if ~any(strcmpi(studyUID,studyUIDc))
+                        studyC{end+1,1} = studyUID;
+                        studyC{end,2} = pPos;
+                    end                    
+                    
+                    imgpos = dcm2ml_Element(imgobj.get(hex2dec('00200032')));
+                    if isempty(imgpos) && strcmpi(modality,'NM')
+                        % Multiframe NM image.
+                        detectorInfoSequence = dcm2ml_Element(imgobj.get(hex2dec('00540022')));
+                        imgpos = detectorInfoSequence.Item_1.ImagePositionPatient;
+                        imgOri = detectorInfoSequence.Item_1.ImageOrientationPatient;                        
+                    end
+                                        
                     if (imgOri(1)==-1)
                         dataS = flipdim(dataS, 2);
                     end
@@ -268,8 +310,7 @@ switch fieldname
                     if isequal(pPos,'FFP') || isequal(pPos,'FFS')
                         dataS = flipdim(dataS, 3); %Similar flip as doseArray
                     end
-                    clear imageobj;
-                    
+                    clear imageobj;                    
                 
         end
         
