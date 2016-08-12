@@ -56,6 +56,15 @@ switch cellName
         %Extract all series contained in this patient.
         [seriesC, typeC] = extract_all_series(dcmdir_patient);
         
+        % Extract CT, MR, PET, NM... in that order, since frame of
+        % reference is reused
+        ctIndV = strcmpi(typeC,'CT');
+        mrIndV = strcmpi(typeC,'MR');
+        newIndV = [];
+        newIndV = [newIndV, find(ctIndV), find(mrIndV), find(~(ctIndV | mrIndV))];
+        seriesC = seriesC(newIndV);
+        typeC = typeC(newIndV);
+        
         %ctSeries = length(find(seriesC(strcmpi(typeC, 'CT'))==1));
         
         %Place each series (CT, MR, etc.) into its own array element.
