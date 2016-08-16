@@ -90,6 +90,7 @@ for i=1:length(axisInfo.scanObj)
         axisInfo.scanObj(i).redraw = 1;
         imagesChanged = 1;
         try, delete(sO.handles); end
+        toRemove = [toRemove;i];
         for j=1:length(axisInfo.doseObj)
             if axisInfo.doseObj(j).scanBase == sO.scanSet;
                 axisInfo.doseObj(j).redraw = 1;
@@ -268,6 +269,8 @@ for i=1:length(axisInfo.scanObj)
 
         if stateS.imageRegistration && stateS.imageRegistrationBaseDataset == scanSet && strcmpi(stateS.imageRegistrationBaseDatasetType, 'scan')
             alpha = 1;
+        elseif stateS.imageRegistration && stateS.imageRegistrationMovDataset == scanSet && strcmpi(stateS.imageRegistrationBaseDatasetType, 'scan')
+            alpha = stateS.doseAlphaValue.trans;
         else
             if ~isempty(axisInfo.doseSets)
                 alpha = 1-stateS.doseAlphaValue.trans;
