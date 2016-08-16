@@ -1414,36 +1414,36 @@ switch command
                     allDataSets{end + 1} = ['Dose # ' num2str(i) ': ' planC{indexS.dose}(i).fractionGroupID];
                 end
                 
-                if nScans == 1 & nDose >= 1
+                if nScans == 1 && nDose >= 1
                     stateS.imageRegistrationMovDataset = 1;
                     stateS.imageRegistrationMovDatasetType = 'dose';
                     movData      = stateS.imageRegistrationMovDataset;
                     movDataType  = stateS.imageRegistrationMovDatasetType;
                 end
                 
-                %initial moving CTLevel and Window
-                if ~isfield(stateS, 'Mov')
-                    scanNum = stateS.imageRegistrationMovDataset;
-                    dataType = stateS.imageRegistrationMovDatasetType;
-                    if strcmpi(dataType,'scan')
-                        CTLevel = 'temp';
-                        CTWidth = 'temp';
-                        if isfield(planC{indexS.scan}(scanNum).scanInfo(1),'DICOMHeaders') && isfield(planC{indexS.scan}(scanNum).scanInfo(1).DICOMHeaders,'WindowCenter') && isfield(planC{indexS.scan}(scanNum).scanInfo(1).DICOMHeaders,'WindowWidth')
-                            CTLevel = planC{indexS.scan}(scanNum).scanInfo(1).DICOMHeaders.WindowCenter(end);
-                            CTWidth = planC{indexS.scan}(scanNum).scanInfo(1).DICOMHeaders.WindowWidth(end);
-                        end
-                        if isnumeric(CTLevel) && isnumeric(CTWidth)
-                            stateS.Mov.CTLevel = CTLevel;
-                            stateS.Mov.CTWidth = CTWidth;
-                        else
-                            stateS.Mov.CTLevel = 0;
-                            stateS.Mov.CTWidth = 300;
-                        end
-                    else
-                        stateS.Mov.CTLevel = mean(planC{indexS.dose}(scanNum).doseArray(:));
-                        stateS.Mov.CTWidth = stateS.Mov.CTLevel*2;
-                    end
-                end
+%                 %initial moving CTLevel and Window
+%                 if ~isfield(stateS, 'Mov')
+%                     scanNum = stateS.imageRegistrationMovDataset;
+%                     dataType = stateS.imageRegistrationMovDatasetType;
+%                     if strcmpi(dataType,'scan')
+%                         CTLevel = 'temp';
+%                         CTWidth = 'temp';
+%                         if isfield(planC{indexS.scan}(scanNum).scanInfo(1),'DICOMHeaders') && isfield(planC{indexS.scan}(scanNum).scanInfo(1).DICOMHeaders,'WindowCenter') && isfield(planC{indexS.scan}(scanNum).scanInfo(1).DICOMHeaders,'WindowWidth')
+%                             CTLevel = planC{indexS.scan}(scanNum).scanInfo(1).DICOMHeaders.WindowCenter(end);
+%                             CTWidth = planC{indexS.scan}(scanNum).scanInfo(1).DICOMHeaders.WindowWidth(end);
+%                         end
+%                         if isnumeric(CTLevel) && isnumeric(CTWidth)
+%                             stateS.Mov.CTLevel = CTLevel;
+%                             stateS.Mov.CTWidth = CTWidth;
+%                         else
+%                             stateS.Mov.CTLevel = 0;
+%                             stateS.Mov.CTWidth = 300;
+%                         end
+%                     else
+%                         stateS.Mov.CTLevel = mean(planC{indexS.dose}(scanNum).doseArray(:));
+%                         stateS.Mov.CTWidth = stateS.Mov.CTLevel*2;
+%                     end
+%                 end
                 
                 %Calculate which menu items are selected for registration.
                 if strcmpi(baseDataType,'dose')
@@ -1453,12 +1453,12 @@ switch command
                     movData = movData + nScans;
                 end
                 
-                switch lower(stateS.optS.fusionDisplayMode)
-                    case 'colorblend'
-                        dispMode = 1;
-                    case 'canny'
-                        dispMode = 2;
-                end
+%                 switch lower(stateS.optS.fusionDisplayMode)
+%                     case 'colorblend'
+%                         dispMode = 1;
+%                     case 'canny'
+%                         dispMode = 2;
+%                 end
                 
                 %---------data selection------------
                 ud.handles.seperator0 = uicontrol(gcf,'style','frame','units','pixel', ...
@@ -1488,7 +1488,7 @@ switch command
                 uicontrol(gcf,'units','pixels','BackgroundColor',uicolor, ...
                     'Position',[20 600-75-dy (frameWidth-30)/2 20],'String','bWindow', 'Style','text', ...
                     'enable', 'inactive'  ,'Tag','controlFrameItem');
-                %Scan ColorMap
+                %Scan ColorMap text
                 uicontrol(gcf,'units','pixels','BackgroundColor',uicolor, ...
                     'Position',[(frameWidth-30)/2+20+10 600-75-dy (frameWidth-30)/2 20],'String','bColormap', ...
                     'Style','text', 'enable', 'inactive'  ,'Tag','controlFrameItem');
@@ -1502,25 +1502,29 @@ switch command
                     'Style','text', 'enable', 'inactive' ,'Tag','controlFrameItem');
                 
                 %Presets dropdown.
-                stateS.handle.basePreset = uicontrol(gcf,'units','pixels', 'BackgroundColor',uicolor, ...
-                    'Position',[20 600-90-dy (frameWidth-30)/2 20], 'String',{stateS.optS.windowPresets.name}, ...
-                    'Style','popup','Tag','controlFrameItem', 'callback','sliceCallBack(''CTPreset'');', ...
+                stringPresetC = get(stateS.handle.CTPreset,'string');
+                presetValue = get(stateS.handle.CTPreset,'value');                
+                ud.handles.basePreset = uicontrol(gcf,'units','pixels', 'BackgroundColor',uicolor, ...
+                    'Position',[20 600-90-dy (frameWidth-30)/2 20], 'String',stringPresetC, ...
+                    'Style','popup','Tag','controlFrameItem', 'value', presetValue, ...
+                    'callback','controlFrame(''fusion'', ''basepreset'')', ...
                     'tooltipstring','Select Preset Window');
                 %Base Colormap Presets dropdown.
+                stringCmapC = get(stateS.handle.BaseCMap,'string');
+                cmapValue = get(stateS.handle.BaseCMap,'value');
                 ud.handles.basedisplayModeColor = uicontrol(gcf,'units','pixels', 'BackgroundColor',uicolor, ...
                     'Position',[(frameWidth-30)/2+20+10 600-90-dy (frameWidth-30)/2 20], ...
-                    'String',{stateS.optS.scanColorMap.name},'Style','popup','Tag','controlFrameItem', ...
-                    'callback','sliceCallBack(''BaseColorMap'');','tooltipstring','Select Scan Color Map','Enable','On');
+                    'String',stringCmapC,'value',cmapValue,'Style','popup','Tag','controlFrameItem', ...
+                    'callback','controlFrame(''fusion'', ''basecolormap'')','tooltipstring','Select Scan Color Map','Enable','On');
                 %CTLevel edit box
-                stateS.handle.baseCTLevel = uicontrol(gcf,'units','pixels', 'BackgroundColor',uicolor, ...
+                ud.handles.baseCTLevel = uicontrol(gcf,'units','pixels', 'BackgroundColor',uicolor, ...
                     'Position',[20 600-130-dy (frameWidth-30)/2 20], 'String',num2str(stateS.optS.CTLevel),'Style','edit', ...
-                    'Tag','controlFrameItem', 'callback','sliceCallBack(''CTLevel'');','tooltipstring','Change CT window center');
+                    'Tag','controlFrameItem', 'callback','controlFrame(''fusion'', ''basectlevel'')','tooltipstring','Change CT window center');
                 %CT Width edit box.
-                stateS.handle.baseCTWidth = uicontrol(gcf,'units','pixels','BackgroundColor',uicolor, ...
+                ud.handles.baseCTWidth = uicontrol(gcf,'units','pixels','BackgroundColor',uicolor, ...
                     'Position',[(frameWidth-30)/2+20+10 600-130-dy (frameWidth-30)/2 20], 'String',num2str(stateS.optS.CTWidth), ...
-                    'Style','edit','Tag','controlFrameItem', 'callback','sliceCallBack(''CTWidth'');', ...
-                    'tooltipstring', 'Change CT window width');
-                
+                    'Style','edit','Tag','controlFrameItem', 'callback','controlFrame(''fusion'', ''basectwidth'')', ...
+                    'tooltipstring', 'Change CT window width');                
                 
                 
                 %Select moving set.
@@ -1555,26 +1559,26 @@ switch command
                 
                 %Presets dropdown.
                 ud.handles.MovPresets = uicontrol(hFig,'units','pixels','Position',[20 600-205-dy (frameWidth-30)/2 20],...
-                    'String',{stateS.optS.windowPresets.name},'Style','popup','Tag','controlFrameItem', ...
+                    'String',stringPresetC,'value',presetValue,'Style','popup','Tag','controlFrameItem', ...
                     'callback','controlFrame(''fusion'', ''movpreset'')',...
                     'tooltipstring','Select Moving Data Preset Window');
                 
                 %Select display mode.
                 ud.handles.displayModeColor= uicontrol(hFig, 'style', 'popupmenu', 'units', units, ...
                     'position', [(frameWidth-30)/2+20+10 600-205-dy (frameWidth-30)/2 20],...
-                    'string', {'gray', 'copper','Red', 'Green', 'Blue','StarInterp', 'hotCold'}, 'value', dispMode, ...
+                    'string', stringCmapC, 'value', cmapValue, ...
                     'tag', 'controlFrameItem', 'horizontalAlignment', 'left',...
-                    'callback', 'controlFrame(''fusion'', ''display_mode'')');
+                    'callback', 'controlFrame(''fusion'', ''movcolormap'')');
                 
                 %CTLevel edit box
                 ud.handles.MovCTLevel = uicontrol(hFig,'units','pixels','Position',[20 600-245-dy (frameWidth-30)/2 20],...
-                    'String',num2str(stateS.Mov.CTLevel),'Style','edit','Tag','controlFrameItem', ...
+                    'String',num2str(stateS.optS.CTLevel),'Style','edit','Tag','controlFrameItem', ...
                     'callback','controlFrame(''fusion'', ''movctlevel'')',...
                     'tooltipstring','Change Moving Data window center');
                 
                 %CT Width edit box.
                 ud.handles.MovCTWidth = uicontrol(hFig,'units','pixels','Position',[(frameWidth-30)/2+20+10 600-245-dy (frameWidth-30)/2 20],...
-                    'String',num2str(stateS.Mov.CTWidth),'Style','edit','Tag','controlFrameItem', 'callback','controlFrame(''fusion'', ''movctwidth'')',...
+                    'String',num2str(stateS.optS.CTWidth),'Style','edit','Tag','controlFrameItem', 'callback','controlFrame(''fusion'', ''movctwidth'')',...
                     'tooltipstring','Change Moving Data window width');
                 
                 
@@ -1756,17 +1760,19 @@ switch command
                 
                 value = get(ud.handles.MovPresets, 'Value');
                 
-                scanSet = getAxisInfo(stateS.handle.CERRAxis(stateS.currentAxis),'scanSets');
-                scanSet = scanSet(2);
+                %scanSet = getAxisInfo(stateS.handle.CERRAxis(stateS.currentAxis),'scanSets');
+                %scanSet = scanSet(2);
+                
+                scanSet = stateS.imageRegistrationMovDataset;
                 
                 if value ~= 1
-                    stateS.Mov.CTLevel = stateS.optS.windowPresets(value).center;
-                    stateS.Mov.CTWidth = stateS.optS.windowPresets(value).width;
-                    set(ud.handles.MovCTLevel, 'String', stateS.Mov.CTLevel);
-                    set(ud.handles.MovCTWidth, 'String', stateS.Mov.CTWidth);
+                    %stateS.Mov.CTLevel = stateS.optS.windowPresets(value).center;
+                    %stateS.Mov.CTWidth = stateS.optS.windowPresets(value).width;
+                    set(ud.handles.MovCTLevel, 'String', stateS.optS.windowPresets(value).center);
+                    set(ud.handles.MovCTWidth, 'String', stateS.optS.windowPresets(value).width);
                     scanUID = ['c',repSpaceHyp(planC{indexS.scan}(scanSet).scanUID(max(1,end-61):end))];
-                    stateS.scanStats.CTLevel.(scanUID) = stateS.Mov.CTLevel;     
-                    stateS.scanStats.CTWidth.(scanUID) = stateS.Mov.CTWidth;                    
+                    stateS.scanStats.CTLevel.(scanUID) = stateS.optS.windowPresets(value).center;     
+                    stateS.scanStats.CTWidth.(scanUID) = stateS.optS.windowPresets(value).width;                    
                 end
                 
                 stateS.CTDisplayChanged = 1;
@@ -1778,6 +1784,36 @@ switch command
                 CERRRefresh;
                 return
                 
+            case 'basepreset'
+                hFrame = stateS.handle.controlFrame;
+                ud = get(hFrame, 'userdata');
+                
+                value = get(ud.handles.basePreset, 'Value');
+                
+                %scanSet = getAxisInfo(stateS.handle.CERRAxis(stateS.currentAxis),'scanSets');
+                %scanSet = scanSet(2);
+                
+                scanSet = stateS.imageRegistrationBaseDataset;
+                
+                if value ~= 1
+                    %stateS.Mov.CTLevel = stateS.optS.windowPresets(value).center;
+                    %stateS.Mov.CTWidth = stateS.optS.windowPresets(value).width;
+                    set(ud.handles.baseCTLevel, 'String', stateS.optS.windowPresets(value).center);
+                    set(ud.handles.baseCTWidth, 'String', stateS.optS.windowPresets(value).width);
+                    scanUID = ['c',repSpaceHyp(planC{indexS.scan}(scanSet).scanUID(max(1,end-61):end))];
+                    stateS.scanStats.CTLevel.(scanUID) = stateS.optS.windowPresets(value).center;     
+                    stateS.scanStats.CTWidth.(scanUID) = stateS.optS.windowPresets(value).width;                    
+                end
+                
+                stateS.CTDisplayChanged = 1;
+                
+                if isempty(planC)
+                    return
+                end
+                
+                CERRRefresh;
+                return                
+                
             case 'movctlevel'
                 
                 hFrame = stateS.handle.controlFrame;
@@ -1786,20 +1822,43 @@ switch command
                 
                 set(ud.handles.MovPresets, 'Value', 1);
                 
-                str = get(ud.handles.MovCTLevel,'String');
+                level = str2num(get(ud.handles.MovCTLevel,'String'));
                 
-                stateS.Mov.CTLevel = str2num(str);
+                %stateS.Mov.CTLevel = str2num(str);
                 
-                scanSet = getAxisInfo(stateS.handle.CERRAxis(stateS.currentAxis),'scanSets');
-                scanSet = scanSet(2);
+                %scanSet = getAxisInfo(stateS.handle.CERRAxis(stateS.currentAxis),'scanSets');
+                %scanSet = scanSet(2);
+                scanSet = stateS.imageRegistrationMovDataset;
                 scanUID = ['c',repSpaceHyp(planC{indexS.scan}(scanSet).scanUID(max(1,end-61):end))];
-                stateS.scanStats.CTLevel.(scanUID) = stateS.Mov.CTLevel;
+                stateS.scanStats.CTLevel.(scanUID) = level;
                 
                 stateS.CTDisplayChanged =1;
                 
                 CERRRefresh;
                 return;
                 
+            case 'basectlevel'
+                
+                hFrame = stateS.handle.controlFrame;
+                
+                ud = get(hFrame, 'userdata');
+                
+                set(ud.handles.basePreset, 'Value', 1);
+                
+                level = str2num(get(ud.handles.baseCTLevel,'String'));
+                
+                %stateS.Mov.CTLevel = str2num(str);
+                
+                %scanSet = getAxisInfo(stateS.handle.CERRAxis(stateS.currentAxis),'scanSets');
+                %scanSet = scanSet(2);
+                scanSet = stateS.imageRegistrationBaseDataset;
+                scanUID = ['c',repSpaceHyp(planC{indexS.scan}(scanSet).scanUID(max(1,end-61):end))];
+                stateS.scanStats.CTLevel.(scanUID) = level;
+                
+                stateS.CTDisplayChanged =1;
+                
+                CERRRefresh;
+                return;
                 
             case 'movctwidth'
                 
@@ -1809,19 +1868,74 @@ switch command
                 
                 set(ud.handles.MovPresets, 'Value', 1);
                 
-                str = get(ud.handles.MovCTWidth,'String');
+                width = str2num(get(ud.handles.MovCTWidth,'String'));
                 
-                stateS.Mov.CTWidth = str2num(str);
+                %stateS.Mov.CTWidth = str2num(str);
                 
-                scanSet = getAxisInfo(stateS.handle.CERRAxis(stateS.currentAxis),'scanSets');
-                scanSet = scanSet(2);
+                %scanSet = getAxisInfo(stateS.handle.CERRAxis(stateS.currentAxis),'scanSets');
+                %scanSet = scanSet(2);
+                scanSet = stateS.imageRegistrationMovDataset;
                 scanUID = ['c',repSpaceHyp(planC{indexS.scan}(scanSet).scanUID(max(1,end-61):end))];
-                stateS.scanStats.CTWidth.(scanUID) = stateS.Mov.CTWidth;                
+                stateS.scanStats.CTWidth.(scanUID) = width;                
 
                 stateS.CTDisplayChanged =1;
                 
                 CERRRefresh;
                 return
+                
+            case 'basectwidth'
+                
+                hFrame = stateS.handle.controlFrame;
+                
+                ud = get(hFrame, 'userdata');
+                
+                set(ud.handles.basePreset, 'Value', 1);
+                
+                width = str2num(get(ud.handles.baseCTWidth,'String'));
+                
+                %stateS.Mov.CTWidth = str2num(str);
+                
+                %scanSet = getAxisInfo(stateS.handle.CERRAxis(stateS.currentAxis),'scanSets');
+                %scanSet = scanSet(2);
+                scanSet = stateS.imageRegistrationBaseDataset;
+                scanUID = ['c',repSpaceHyp(planC{indexS.scan}(scanSet).scanUID(max(1,end-61):end))];
+                stateS.scanStats.CTWidth.(scanUID) = width;                
+
+                stateS.CTDisplayChanged =1;
+                
+                CERRRefresh;
+                return                
+                
+                
+            case 'movcolormap'
+                hFrame = stateS.handle.controlFrame;                
+                ud = get(hFrame, 'userdata');               
+                scanSet = stateS.imageRegistrationMovDataset;
+                scanUID = ['c',repSpaceHyp(planC{indexS.scan}(scanSet).scanUID(max(1,end-61):end))];
+                cmapStrC = get(ud.handles.displayModeColor,'String');
+                cmapVal = get(ud.handles.displayModeColor,'value');
+                stateS.scanStats.Colormap.(scanUID) = cmapStrC{cmapVal};                
+
+                stateS.CTDisplayChanged =1;
+                
+                CERRRefresh;
+                return                               
+                
+                
+            case 'basecolormap'
+                hFrame = stateS.handle.controlFrame;                
+                ud = get(hFrame, 'userdata');               
+                scanSet = stateS.imageRegistrationBaseDataset;
+                scanUID = ['c',repSpaceHyp(planC{indexS.scan}(scanSet).scanUID(max(1,end-61):end))];
+                cmapStrC = get(ud.handles.basedisplayModeColor,'String');
+                cmapVal = get(ud.handles.basedisplayModeColor,'value');
+                stateS.scanStats.Colormap.(scanUID) = cmapStrC{cmapVal};                
+
+                stateS.CTDisplayChanged =1;
+                
+                CERRRefresh;
+                return                               
+                
                 
             case 'select_base_set'
                 ud = get(hFrame, 'userdata');
@@ -1835,9 +1949,11 @@ switch command
                     stateS.imageRegistrationBaseDataset = baseSet-nScans;
                     stateS.imageRegistrationBaseDatasetType = 'dose';
                 end
+                updateBaseLevelWidthHandles()
                 if ~(length(varargin) == 2)
                     sliceCallBack('fusion_mode_on');
                 end
+                
                 
             case 'select_moving_set'
                 ud = get(hFrame, 'userdata');
@@ -1850,6 +1966,8 @@ switch command
                     stateS.imageRegistrationMovDataset = movingSet-nScans;
                     stateS.imageRegistrationMovDatasetType = 'dose';
                 end
+                
+                updateMovLevelWidthHandles()
                 
                 if ~(length(varargin) == 2)
                     sliceCallBack('fusion_mode_on');
@@ -1867,6 +1985,7 @@ switch command
                 catch
                     disp('error');
                 end
+                
                 
             case 'auto_registration'
                 scanSetB = stateS.imageRegistrationBaseDataset;
@@ -3356,3 +3475,43 @@ else
     [COM]= applyTransM(transM,[xV(round(length(xV)/2)),yV(round(length(yV)/2)),zV(round(length(zV)/2))]);
     COM = COM';
 end
+
+
+function updateBaseLevelWidthHandles()
+global stateS planC
+indexS = planC{end};
+baseSet = stateS.imageRegistrationBaseDataset;
+scanUID = ['c',repSpaceHyp(planC{indexS.scan}(baseSet).scanUID(max(1,end-61):end))];
+
+baseCTWidth = stateS.scanStats.CTWidth.(scanUID);
+baseCTLevel = stateS.scanStats.CTLevel.(scanUID);
+baseColormap = stateS.scanStats.Colormap.(scanUID);
+basePreset = stateS.scanStats.windowPresets.(scanUID);
+
+ud = get(stateS.handle.controlFrame, 'userdata');
+set(ud.handles.baseCTLevel,'string',baseCTLevel);
+set(ud.handles.baseCTWidth,'string', baseCTWidth);
+set(ud.handles.basePreset,'value',basePreset);
+stringC = get(ud.handles.basedisplayModeColor,'string');
+movCormpmapIndex = find(strcmpi(baseColormap,stringC));
+set(ud.handles.basedisplayModeColor,'value',movCormpmapIndex)
+
+function updateMovLevelWidthHandles()
+global stateS planC
+indexS = planC{end};
+movSet = stateS.imageRegistrationMovDataset;
+scanUID = ['c',repSpaceHyp(planC{indexS.scan}(movSet).scanUID(max(1,end-61):end))];
+
+movCTWidth = stateS.scanStats.CTWidth.(scanUID);
+movCTLevel = stateS.scanStats.CTLevel.(scanUID);
+movColormap = stateS.scanStats.Colormap.(scanUID);
+movPreset = stateS.scanStats.windowPresets.(scanUID);
+
+ud = get(stateS.handle.controlFrame, 'userdata');
+set(ud.handles.MovCTLevel,'string',movCTLevel);
+set(ud.handles.MovCTWidth,'string',movCTWidth);
+set(ud.handles.MovPresets,'value',movPreset);
+stringC = get(ud.handles.displayModeColor,'string');
+movCormpmapIndex = find(strcmpi(movColormap,stringC));
+set(ud.handles.displayModeColor,'value',movCormpmapIndex)
+
