@@ -472,12 +472,12 @@ switch method
             clrVal = get(ud.handles.displayModeColor,'value');
             
             switch num2str(clrVal)
-                case '1' % Gray
-                    if stateS.optS.checkerBoard
-                        img2 = img2.*I;
-                        set(surfaces(end), 'cData', img2);
-                    end
-                    return;
+                %case '1' % Gray
+                %    if stateS.optS.checkerBoard
+                %        img2 = img2.*I;
+                %        set(surfaces(end), 'cData', img2);
+                %    end
+                %    return;
 
                 case '2' %copper
                     cmap = CERRColorMap('copper');
@@ -563,6 +563,12 @@ switch method
 
                     if stateS.optS.checkerBoard
                         img2 = img2.*I;
+                    end
+                    
+                    if clrVal == 1
+                        img23D(:,:,3) = img2;
+                        img23D(:,:,1) = img2;
+                        img23D(:,:,2) = img2;
                     end
 
                     if (clrVal==3)
