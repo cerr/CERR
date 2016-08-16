@@ -2925,12 +2925,13 @@ switch upper(instr)
         if stateS.imageRegistration
             set(stateS.handle.basePreset, 'Value', 1);
             str = get(stateS.handle.baseCTLevel,'String');
+            scanSet = stateS.imageRegistrationBaseDataset;
         else
             set(stateS.handle.CTPreset, 'Value', 1);
             str = get(stateS.handle.CTLevel,'String');
+            scanSet = stateS.handle.aI(stateS.currentAxis).scanSets;
+            scanSet = scanSet(1);
         end
-        scanSet = stateS.handle.aI(stateS.currentAxis).scanSets;
-        scanSet = scanSet(1);        
         stateS.optS.CTLevel = str2num(str);        
         scanUID = ['c',repSpaceHyp(planC{indexS.scan}(scanSet).scanUID(max(1,end-61):end))];
         stateS.scanStats.CTLevel.(scanUID) = str2num(str);
@@ -2950,12 +2951,13 @@ switch upper(instr)
         if stateS.imageRegistration
             set(stateS.handle.basePreset, 'Value', 1);
             str = get(stateS.handle.baseCTWidth,'String');
+            scanSet = stateS.imageRegistrationBaseDataset;
         else
             set(stateS.handle.CTPreset, 'Value', 1);
             str = get(stateS.handle.CTWidth,'String');
+            scanSet = stateS.handle.aI(stateS.currentAxis).scanSets;
+            scanSet = scanSet(1);
         end
-        scanSet = stateS.handle.aI(stateS.currentAxis).scanSets;
-        scanSet = scanSet(1);
         
         stateS.optS.CTWidth = str2num(str);
         %         stateS.doseChanged = 1; %CT Level changed, so colorwash must be
@@ -3331,9 +3333,13 @@ switch upper(instr)
             %aI = get(stateS.handle.CERRAxis(i), 'userdata');
             aI = stateS.handle.aI(i);
             if ~isempty(aI.scanObj)
+                delete([aI.scanObj(2:end).handles]);
+                aI.scanObj(2:end) = []; 
                 [aI.scanObj.redraw] = deal(1);
             end
             if ~isempty(aI.doseObj)
+                delete([aI.doseObj(2:end).handles]);
+                aI.doseObj(2:end) = [];                 
                 [aI.doseObj.redraw] = deal(1);
             end
             %set(stateS.handle.CERRAxis(i), 'userdata', aI);
@@ -3341,7 +3347,7 @@ switch upper(instr)
         end
         stateS.imageRegistration = 0;
         stateS.scanSet = 1;
-        stateS.structSet = getStructureSetAssociatedScan(1);
+        stateS.structSet = getStructureSetAssociatedScan(stateS.scanSet);
 
         if length(planC{indexS.dose}) == 0
             stateS.doseSet = '';
