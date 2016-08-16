@@ -77,7 +77,9 @@ for i=1:length(filesV)
         dcmObj.clear;
     end
     [pathstr, name, ext] = fileparts(filename);
-    waitbar(i/length(filesV),hWaitbar, ['Scanning Directory ' num2str(dirNum) ' Please wait...']);
+    if ishandle(hWaitbar)
+        waitbar(i/length(filesV),hWaitbar, ['Scanning Directory ' num2str(dirNum) ' Please wait...']);
+    end
     %['file: ' name ext]});
 end
 
