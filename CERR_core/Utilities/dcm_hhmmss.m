@@ -32,9 +32,10 @@ mm = str2double(dateStr(1,3:4));
 
 ss = str2double(dateStr(1,5:6));
 
-fract_start = find(dateStr,'.');
+%fract_start = find(dateStr,'.');
 
-fract = str2double(dateStr(1,fract_start+1:end));
+%fract = str2double(dateStr(1,fract_start+1:end));
+fract = [];
 
 totSec = hh*60*60 + mm*60 + ss;
 
