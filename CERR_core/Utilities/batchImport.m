@@ -2,8 +2,8 @@
 pool = parpool(4);
 
 % folder to import
-source = 'path\to\source';
-destn = 'path\to\destin'; 
+source = 'path/to/source';
+destn = 'path/to/destn'; 
 zipFlag = 'No';
 
 % Define file and directory filter patterns
@@ -108,7 +108,7 @@ parfor dirNum = 1:4 %length(dirsToImportC)
         dirOut = dir(destn);
         allOutNames = {dirOut.name};
         if any(strcmpi([outFileName,'.mat'],allOutNames))
-            fullOutFileName = [sourceDir(rtStartIndex:rtEndIndex),'duplicate_',num2str(rand(1))];
+            fullOutFileName = [outFileName,'_duplicate_',num2str(rand(1))];
         end
         if strcmpi(zipFlag,'Yes')
             saved_fullFileName = fullfile(destn,[outFileName,'.mat.bz2']);
