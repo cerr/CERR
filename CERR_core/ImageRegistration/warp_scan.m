@@ -18,9 +18,6 @@ movScanName = [movScanName,'_deformed'];
 randPart = floor(rand*1000);
 movScanUniqName = [movScanUID,num2str(randPart)];
 movScanFileName = fullfile(getCERRPath,'ImageRegistration','tmpFiles',['movScan_',movScanUniqName,'.mha']);
-try
-    delete(movScanFileName);
-end
 success = createMhaScansFromCERR(movScanNum, movScanFileName, movPlanC);
 
 
@@ -28,15 +25,15 @@ success = createMhaScansFromCERR(movScanNum, movScanFileName, movPlanC);
 warpedMhaFileName = fullfile(getCERRPath,'ImageRegistration','tmpFiles',['warped_scan_',baseScanUID,'_',movScanUID,'.mha']);
 
 % Issue plastimatch warp command
-system(['plastimatch warp --input ', escapeSlashes(movScanFileName), ' --output-img ', escapeSlashes(warpedMhaFileName), ' --xf ', escapeSlashes(bspFileName)])
+%system(['plastimatch warp --input ', escapeSlashes(movScanFileName), ' --output-img ', escapeSlashes(warpedMhaFileName), ' --xf ', escapeSlashes(bspFileName)])
+system(['plastimatch warp --input ', movScanFileName, ' --output-img ', warpedMhaFileName, ' --xf ', bspFileName])
 
 % Read the warped output .mha file within CERR
-% infoS  = mha_read_header(warpedMhaFileName);
-% data3M = mha_read_volume(infoS);
-[data3M,infoS] = readmha(warpedMhaFileName);
+infoS  = mha_read_header(warpedMhaFileName);
+data3M = mha_read_volume(infoS);
+%[data3M,infoS] = readmha(warpedMhaFileName);
 save_flag = 0;
 planC  = mha2cerr(infoS,data3M,movScanOffset,movScanName, planC, save_flag);
-
 % Cleanup
 try
     delete(bspFileName)
