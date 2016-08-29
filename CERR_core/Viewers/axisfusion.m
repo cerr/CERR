@@ -138,18 +138,27 @@ switch method
                     %Interpolate scan2 on scan1
                     img2 = finterp2(sliceXVals2, sliceYVals2, slc2, sliceXVals1, sliceYVals1, 1, 0);
                     img1 = slc1; 
-                    
-                    
-                    CTOffset    = planC{indexS.scan}(stateS.imageRegistrationBaseDataset).scanInfo(1).CTOffset;
-                    CTLevel     = stateS.optS.CTLevel + CTOffset;
-                    CTWidth     = stateS.optS.CTWidth;
+
+                    CTOffset    = planC{indexS.scan}...
+                        (stateS.imageRegistrationBaseDataset)...
+                        .scanInfo(1).CTOffset;                    
+                    scanUID = ['c',repSpaceHyp(planC{indexS.scan}...
+                        (stateS.imageRegistrationBaseDataset)...
+                        .scanUID(max(1,end-61):end))];
+                    CTLevel = stateS.scanStats.CTLevel.(scanUID) + CTOffset;                        
+                    CTWidth = stateS.scanStats.CTWidth.(scanUID);                    
                     CTLow       = CTLevel - CTWidth/2;
                     CTHigh      = CTLevel + CTWidth/2;
                     img1 = clip(img1, CTLow, CTHigh, 'limits');
                     
-                    CTOffset    = planC{indexS.scan}(stateS.imageRegistrationMovDataset).scanInfo(1).CTOffset;
-                    CTLevel     = stateS.Mov.CTLevel + CTOffset;
-                    CTWidth     = stateS.Mov.CTWidth;
+                    CTOffset    = planC{indexS.scan}...
+                        (stateS.imageRegistrationMovDataset)...
+                        .scanInfo(1).CTOffset;
+                    scanUID = ['c',repSpaceHyp(planC{indexS.scan}...
+                        (stateS.imageRegistrationMovDataset)...
+                        .scanUID(max(1,end-61):end))];
+                    CTLevel = stateS.scanStats.CTLevel.(scanUID) + CTOffset;                        
+                    CTWidth = stateS.scanStats.CTWidth.(scanUID);
                     CTLow       = CTLevel - CTWidth/2;
                     CTHigh      = CTLevel + CTWidth/2;
                     img2 = clip(img2, CTLow, CTHigh, 'limits');
