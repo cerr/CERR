@@ -147,7 +147,6 @@ switch upper(algorithm)
         try
             delete(baseScanFileName);
             delete(movScanFileName);
-            delete(cmdFileName);
             delete(bspFileName);
             delete(baseMaskFileName);
             delete(movMaskFileName);
