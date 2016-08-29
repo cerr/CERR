@@ -76,7 +76,11 @@ switch(info.CompressedData(1))
 
 end
 fclose(fid);
-V = reshape(V,[str2num(info.ElementNumberOfChannels) info.Dimensions]);
+if isfield(info,'ElementNumberOfChannels')
+    V = reshape(V,[str2num(info.ElementNumberOfChannels) info.Dimensions]);
+else
+    V = reshape(V,[1 info.Dimensions]);
+end
 V = shiftdim(V,1);
 
 function M = zlib_decompress(Z,DataType)
