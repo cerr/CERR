@@ -141,7 +141,7 @@ switch lower(arg)
                 sliceCallBack('refresh')
                 f = stateS.handle.navigationMontage;
                 ud = get(f,'UserData');
-                toDraw = false(1,length(planC{indexS.structures}));
+                toDraw = false(1,length(selectedStructsC));
                 toDraw(ud.strNum) = 1;
                 drawDots(planC, ud.scanNum, stateS, f, toDraw);
             end
@@ -154,7 +154,11 @@ switch lower(arg)
 
     case 'structureselect'
         ud = get(f,'userdata');
-        toDraw = false(1,length(planC{indexS.structures}));
+        %%% CHANGED  AI 9/2/16 
+        %%Leave out empty structures from list - AI 9/2/16
+        emptyStructIdxC = arrayfun(@(x)isempty(x.rasterSegments),planC{indexS.structures},'un',0);
+        structS = planC{indexS.structures}(~[emptyStructIdxC{:}]);
+        toDraw = false(1,length(structS));
         structNum = varargin{1};
         hNavStructs = ud.handle.navStructs;
         currentStruct = strcmp(ud.structListC,['structureItem', num2str(structNum)]);
@@ -165,7 +169,7 @@ switch lower(arg)
             set(hStructItem, 'Checked', 'off')
         end
         
-        for i=1:length(planC{indexS.structures})
+        for i=1:length(structS)
             structItemIdx = strcmp(ud.structListC,['structureItem', num2str(i)]);
             hStruct = hNavStructs.Children(structItemIdx);
             if strcmpi(get(hStruct, 'Checked'), 'on')
@@ -634,12 +638,15 @@ function drawMenu(hFigure, planC,scanNum)
 indexS = planC{end};
 ud = get(hFigure,'userdata');
 hStructMenu = findobj('tag', 'navigationstructs');
+%%Leave out empty structures from list - AI 9/2/16
+emptyStructIdxC = arrayfun(@(x)isempty(x.rasterSegments),planC{indexS.structures},'un',0);
+structS = planC{indexS.structures}(~[emptyStructIdxC{:}]);
 %If structure list has changed or we arent initialized, redraw menu.
-if ~isempty(hStructMenu) & isempty(setxor(get(hStructMenu, 'userdata'), {planC{indexS.structures}.structureName}))
+if ~isempty(hStructMenu) & isempty(setxor(get(hStructMenu, 'userdata'), {structS.structureName}))
     return;
 else
-    structuresC = {planC{indexS.structures}.structureName};
-    associatedScanNumV = [planC{indexS.structures}.associatedScan];
+    structuresC = {structS.structureName};
+    associatedScanNumV = [structS.associatedScan];
     associatedScanType = {planC{indexS.scan}(associatedScanNumV).scanType};
     structureNameC =  strcat(structuresC,' (',associatedScanType,' )');
     if isempty(hStructMenu)
@@ -647,10 +654,11 @@ else
     end
     set(hStructMenu, 'userdata', structuresC);
     delete(get(hStructMenu, 'children'));
-    for i=1:length(planC{indexS.structures});
-        uimenu(hStructMenu, 'label', structureNameC{i},'userdata', planC{indexS.structures}(i).associatedScan,...
+    for i=1:length(structS);
+        uimenu(hStructMenu, 'label', structureNameC{i},'userdata', structS(i).associatedScan,...
             'callback', ['navigationMontage(''structureSelect'',' num2str(scanNum),',', num2str(i) ');'], 'tag', ['structureItem' num2str(i)]);
     end
+    %%% END
     ud.handle.navStructs = hStructMenu;
     set(hFigure,'userdata',ud);
 end
@@ -711,12 +719,14 @@ for i=1:z
     numDots = 0;
     for j=1:length(enabledStructs)
         try
-            if length(planC{indexS.structures}(enabledStructs(j)).contour(i).segments) > 1 | ~isempty(planC{indexS.structures}(enabledStructs(j)).contour(i).segments.points)
+            emptyStructIdxC = arrayfun(@(x)isempty(x.rasterSegments),planC{indexS.structures},'un',0);
+            structS = planC{indexS.structures}(~[emptyStructIdxC{:}]);
+            if length(structS(enabledStructs(j)).contour(i).segments) > 1 | ~isempty(structS(enabledStructs(j)).contour(i).segments.points)
                 %draw a dot
                 x = mod(i-1, across) * thumbX;
                 y = floor((i-1)/across) * thumbY;
                 %color = getColor(enabledStructs(j), planC{indexS.CERROptions}.colorOrder);
-                color = planC{indexS.structures}(enabledStructs(j)).structureColor;
+                color = structS(enabledStructs(j)).structureColor;
                 patch([2 2+dotSizeX 2+dotSizeX 2]+x+numDots*6, [2 2 2+dotSizeY 2+dotSizeY]+y, color, 'Tag', 'structureDot', 'parent', stateS.navInfo.Axes);
                 numDots = numDots + 1;
             end
