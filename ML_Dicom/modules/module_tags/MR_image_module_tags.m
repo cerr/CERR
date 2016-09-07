@@ -76,6 +76,10 @@ tagS(end+1) = struct('tag', ['00080032'], 'type', ['3'], 'children', []);
 % b-value for MR scans
 tagS(end+1) = struct('tag', ['00431039'], 'type', ['4'], 'children', []); % GE    
 tagS(end+1) = struct('tag', ['00189087'], 'type', ['4'], 'children', []); % Philips    
-tagS(end+1) = struct('tag', ['0019100C'], 'type', ['4'], 'children', []); % SIEMENS    
+tagS(end+1) = struct('tag', ['0019100C'], 'type', ['4'], 'children', []); % SIEMENS   
+
+%% Added : temporal position ID
+tagS(end+1) = struct('tag', ['00200100'], 'type', ['3'], 'children', []);  
+%% end added
 
     
