@@ -147,16 +147,15 @@ if strcmpi(currentModality,'MR')
     mriBvalueTag2 = '00189087';
     mriBvalueTag3 = '0019100C';
     
-    acqTimeTag = '00080032';
+    %acqTimeTag = '00080032';
     
     tempPosTag = '00200100'; %%AI 8/29/16 Added tempPosTag
-                             %Siemens?
+                             
 end
 
 %Search the list for this item.
 match = 0;
 bValueMatch = 1;
-acqMatch = 1;
 for i=1:length(studyS.SERIES)
     thisUID = studyS.SERIES(i).info.subSet(hex2dec(seriesUIDTag));
     seriesModality = studyS.SERIES(i).info.getString(hex2dec(modalityTag));
@@ -176,14 +175,7 @@ for i=1:length(studyS.SERIES)
         else
             bValueMatch = 0;
         end
-        acqTime = studyS.MRI(i).info.getString(hex2dec(acqTimeTag));
-        acqTimeSeries = mri.getString(hex2dec(acqTimeTag));
-        if strcmpi(acqTimeSeries,acqTime) || ...
-                (isempty(acqTimeSeries) && isempty(acqTime))
-            acqMatch = 1;
-        else
-            acqMatch = 0;
-        end
+
         %%% AI 8/29/16 Added : Check for temporal position ID match
         temporalPos = studyS.MRI(i).info.getString(hex2dec(tempPosTag));
         temporalPosSeries = mri.getString(hex2dec(tempPosTag));
@@ -193,11 +185,11 @@ for i=1:length(studyS.SERIES)
         else
             tempPosMatch = 0;
         end
-        %%%%%%%% End added
     end
     %to avoid different modality data in one series, it must compare whole
     %series structure, but not just UID.
-    if series.matches(thisUID, 1) && bValueMatch && acqMatch && tempPosMatch  %%AI 8/29/16 Added tempPosMatch
+    if series.matches(thisUID, 1) && bValueMatch && tempPosMatch  
+    %%%%%%%% End added
         % series.matches(studyS.SERIES(i).info, 1)
         studyS.SERIES(i) = searchAndAddSeriesMember(filename, dcmobj, studyS.SERIES(i));
         match = 1;
