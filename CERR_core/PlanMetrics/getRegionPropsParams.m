@@ -1,5 +1,5 @@
-function [Eccentricity,EulerNumber,Solidity,Extent] = getShapeParams(structNum,planC,filterFlag)
-%function getHaralicParams(structNum)
+function [Eccentricity,EulerNumber,Solidity,Extent] = getRegionPropsParams(structNum,planC,filterFlag)
+%[Eccentricity,EulerNumber,Solidity,Extent] = getRegionPropsParams(structNum,planC,filterFlag)
 %
 %This function returns shape features.
 %
