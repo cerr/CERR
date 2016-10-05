@@ -69,15 +69,18 @@ q = uint16(q); % q is the quantized image
 % Number of offsets
 numOffsets = size(offsetsM,1);
 
+% Max run length in units of voxels
+maxRunLen = 1000;
+
 % Initialize the run-length matrix
-rlmM = zeros(nL,100);
+rlmM = zeros(nL,maxRunLen);
 
 % Loop over directions
 for off = 1:numOffsets
     
     % re-initialize rlmM separately for each direction in case rlmType = 2.
     if rlmType == 2
-        rlmM = zeros(nL,100);
+        rlmM = zeros(nL,maxRunLen);
     end
     
     % Selected offset
@@ -182,7 +185,7 @@ for off = 1:numOffsets
         end
         
         % accumulate lengths into run length matrix
-        rlmM(level,:) = rlmM(level,:) + accumarray(lenV',1,[100 1])';
+        rlmM(level,:) = rlmM(level,:) + accumarray(lenV',1,[maxRunLen 1])';
         
     end
     
