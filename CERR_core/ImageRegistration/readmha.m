@@ -93,11 +93,11 @@ for i=1:20
   if (cnt > 0)
       data_loc = fullfile(fileparts(fn),a);
       if exist(data_loc,'file')
-          %fp_data = fopen(data_loc,'rb');
-          if double(t(end)) ~= 10
-              fp_data = fopen(data_loc,'rb');
-              %fseek(fp, -1, 0)
-          end
+          fp_data = fopen(data_loc,'rb');
+          %if double(t(end)) ~= 10
+          %    fp_data = fopen(data_loc,'rb');
+          %    %fseek(fp, -1, 0)
+          %end
       else
           %status = fseek(fp, -1, 0);
           fp_data = fp;
