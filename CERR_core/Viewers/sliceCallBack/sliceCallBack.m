@@ -1244,46 +1244,47 @@ switch upper(instr)
                 if stateS.contourState
                     return;
                 end
-                axisLabelTmp1 = stateS.handle.CERRAxisLabel1(pos);
-                axisLabelTmp2 = stateS.handle.CERRAxisLabel2(pos);
-                axisLabelTmp3 = stateS.handle.CERRAxisLabel3(pos);
-                axisLabelTmp4 = stateS.handle.CERRAxisLabel4(pos);
-                axisTickTmp1 = stateS.handle.CERRAxisTicks1(pos,:);
-                axisTickTmp2 = stateS.handle.CERRAxisTicks2(pos,:);
-                axisScaleTmp1 = stateS.handle.CERRAxisScale1(pos);
-                axisScaleTmp2 = stateS.handle.CERRAxisScale2(pos);
-                plnLocTmp = stateS.handle.CERRAxisPlnLoc{pos};
-                plnLocSdwTmp = stateS.handle.CERRAxisPlnLocSdw{pos};
-                aItmp = stateS.handle.aI(pos);
-                stateS.handle.CERRAxis(pos) = stateS.handle.CERRAxis(stateS.lastAxis);
-                stateS.handle.CERRAxisLabel1(pos) = stateS.handle.CERRAxisLabel1(stateS.lastAxis);
-                stateS.handle.CERRAxisLabel2(pos) = stateS.handle.CERRAxisLabel2(stateS.lastAxis);
-                stateS.handle.CERRAxisLabel3(pos) = stateS.handle.CERRAxisLabel3(stateS.lastAxis);
-                stateS.handle.CERRAxisLabel4(pos) = stateS.handle.CERRAxisLabel4(stateS.lastAxis);
-                stateS.handle.CERRAxisScale1(pos) = stateS.handle.CERRAxisScale1(stateS.lastAxis);
-                stateS.handle.CERRAxisScale2(pos) = stateS.handle.CERRAxisScale2(stateS.lastAxis);
-                stateS.handle.CERRAxisTicks1(pos,:) = stateS.handle.CERRAxisTicks1(stateS.lastAxis,:);
-                stateS.handle.CERRAxisTicks2(pos,:) = stateS.handle.CERRAxisTicks2(stateS.lastAxis,:);
-                stateS.handle.CERRAxisPlnLoc{pos} = stateS.handle.CERRAxisPlnLoc{stateS.lastAxis};
-                stateS.handle.CERRAxisPlnLocSdw{pos} = stateS.handle.CERRAxisPlnLocSdw{stateS.lastAxis};
-                stateS.handle.aI(pos) = stateS.handle.aI(stateS.lastAxis);
-                stateS.handle.CERRAxis(stateS.lastAxis) = hAxis;                
-                stateS.handle.CERRAxisLabel1(stateS.lastAxis) = axisLabelTmp1;
-                stateS.handle.CERRAxisLabel2(stateS.lastAxis) = axisLabelTmp2;
-                stateS.handle.CERRAxisLabel3(stateS.lastAxis) = axisLabelTmp3;
-                stateS.handle.CERRAxisLabel4(stateS.lastAxis) = axisLabelTmp4; 
-                stateS.handle.CERRAxisScale1(stateS.lastAxis) = axisScaleTmp1;
-                stateS.handle.CERRAxisScale2(stateS.lastAxis) = axisScaleTmp2;
-                stateS.handle.CERRAxisTicks1(stateS.lastAxis,:) = axisTickTmp1;
-                stateS.handle.CERRAxisTicks2(stateS.lastAxis,:) = axisTickTmp2;  
-                stateS.handle.CERRAxisPlnLoc{stateS.lastAxis} = plnLocTmp;
-                stateS.handle.CERRAxisPlnLocSdw{stateS.lastAxis} = plnLocSdwTmp;
-                stateS.handle.aI(stateS.lastAxis) = aItmp;
-                stateS.currentAxis = stateS.lastAxis;
-                set(stateS.handle.CERRAxisLabel1(stateS.lastAxis), 'color', 'white');
-                set(stateS.handle.CERRAxisLabel1(stateS.currentAxis), 'color', 'green');
-                                
-                sliceCallBack('resize');
+                if pos ~= stateS.lastAxis
+                    axisLabelTmp1 = stateS.handle.CERRAxisLabel1(pos);
+                    axisLabelTmp2 = stateS.handle.CERRAxisLabel2(pos);
+                    axisLabelTmp3 = stateS.handle.CERRAxisLabel3(pos);
+                    axisLabelTmp4 = stateS.handle.CERRAxisLabel4(pos);
+                    axisTickTmp1 = stateS.handle.CERRAxisTicks1(pos,:);
+                    axisTickTmp2 = stateS.handle.CERRAxisTicks2(pos,:);
+                    axisScaleTmp1 = stateS.handle.CERRAxisScale1(pos);
+                    axisScaleTmp2 = stateS.handle.CERRAxisScale2(pos);
+                    plnLocTmp = stateS.handle.CERRAxisPlnLoc{pos};
+                    plnLocSdwTmp = stateS.handle.CERRAxisPlnLocSdw{pos};
+                    aItmp = stateS.handle.aI(pos);
+                    stateS.handle.CERRAxis(pos) = stateS.handle.CERRAxis(stateS.lastAxis);
+                    stateS.handle.CERRAxisLabel1(pos) = stateS.handle.CERRAxisLabel1(stateS.lastAxis);
+                    stateS.handle.CERRAxisLabel2(pos) = stateS.handle.CERRAxisLabel2(stateS.lastAxis);
+                    stateS.handle.CERRAxisLabel3(pos) = stateS.handle.CERRAxisLabel3(stateS.lastAxis);
+                    stateS.handle.CERRAxisLabel4(pos) = stateS.handle.CERRAxisLabel4(stateS.lastAxis);
+                    stateS.handle.CERRAxisScale1(pos) = stateS.handle.CERRAxisScale1(stateS.lastAxis);
+                    stateS.handle.CERRAxisScale2(pos) = stateS.handle.CERRAxisScale2(stateS.lastAxis);
+                    stateS.handle.CERRAxisTicks1(pos,:) = stateS.handle.CERRAxisTicks1(stateS.lastAxis,:);
+                    stateS.handle.CERRAxisTicks2(pos,:) = stateS.handle.CERRAxisTicks2(stateS.lastAxis,:);
+                    stateS.handle.CERRAxisPlnLoc{pos} = stateS.handle.CERRAxisPlnLoc{stateS.lastAxis};
+                    stateS.handle.CERRAxisPlnLocSdw{pos} = stateS.handle.CERRAxisPlnLocSdw{stateS.lastAxis};
+                    stateS.handle.aI(pos) = stateS.handle.aI(stateS.lastAxis);
+                    stateS.handle.CERRAxis(stateS.lastAxis) = hAxis;
+                    stateS.handle.CERRAxisLabel1(stateS.lastAxis) = axisLabelTmp1;
+                    stateS.handle.CERRAxisLabel2(stateS.lastAxis) = axisLabelTmp2;
+                    stateS.handle.CERRAxisLabel3(stateS.lastAxis) = axisLabelTmp3;
+                    stateS.handle.CERRAxisLabel4(stateS.lastAxis) = axisLabelTmp4;
+                    stateS.handle.CERRAxisScale1(stateS.lastAxis) = axisScaleTmp1;
+                    stateS.handle.CERRAxisScale2(stateS.lastAxis) = axisScaleTmp2;
+                    stateS.handle.CERRAxisTicks1(stateS.lastAxis,:) = axisTickTmp1;
+                    stateS.handle.CERRAxisTicks2(stateS.lastAxis,:) = axisTickTmp2;
+                    stateS.handle.CERRAxisPlnLoc{stateS.lastAxis} = plnLocTmp;
+                    stateS.handle.CERRAxisPlnLocSdw{stateS.lastAxis} = plnLocSdwTmp;
+                    stateS.handle.aI(stateS.lastAxis) = aItmp;
+                    stateS.currentAxis = stateS.lastAxis;
+                    set(stateS.handle.CERRAxisLabel1(stateS.lastAxis), 'color', 'white');
+                    set(stateS.handle.CERRAxisLabel1(stateS.currentAxis), 'color', 'green');
+                    sliceCallBack('resize');
+                end
                 
             case 'normal'
                 sliceCallBack('focus', hAxis);
