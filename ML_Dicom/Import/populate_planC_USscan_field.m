@@ -58,7 +58,6 @@ switch fieldname
                 %Pixel Data
                 sliceV = dcm2ml_Element(imgobj.get(hex2dec('7FE00010')));
 
-
                 %Rows
                 nRows  = dcm2ml_Element(imgobj.get(hex2dec('00280010')));
 
@@ -67,14 +66,57 @@ switch fieldname
 
                 %Pixel Representation
                 pixRep = dcm2ml_Element(imgobj.get(hex2dec('00280103')));
-
+                
+                %Bits Allocated
+                bitsAllocated = dcm2ml_Element(imgobj.get(hex2dec('00280100')));
+                
+                %                 switch pixRep
+                %                     case 0
+                %                         sliceV = uint16(sliceV);
+                %                     case 1
+                %                         sliceV = int16(sliceV);
+                %                     otherwise
+                %                         warning('"Pixel Representation" field contains an invalid value, defaulting to unsigned integer.');
+                %                 end
                 switch pixRep
                     case 0
-                        sliceV = uint16(sliceV);
+                        if bitsAllocated == 16 || bitsAllocated == 32
+                            if strcmpi(class(sliceV),'int32')
+                                if bitsAllocated == 16
+                                    sliceV = typecast(sliceV,'uint16');
+                                else
+                                    sliceV = typecast(sliceV,'uint32');
+                                end
+                                sliceV = sliceV(1:2:end);
+                            else
+                                sliceV = typecast(sliceV,'uint16');                                
+                            end
+                        elseif bitsAllocated == 8
+                            if strcmpi(class(sliceV),'int8')
+                                if bitsAllocated == 8
+                                    sliceV = typecast(sliceV,'uint8');
+                                end
+                            end
+                            sliceV = sliceV(1:2:end);
+                        end
                     case 1
-                        sliceV = int16(sliceV);
+                        if bitsAllocated == 16 || bitsAllocated == 32
+                            if strcmpi(class(sliceV),'int32')
+                                if bitsAllocated == 16
+                                    sliceV = typecast(sliceV,'int16');
+                                else
+                                    sliceV = typecast(sliceV,'int32');
+                                end
+                                sliceV = sliceV(1:2:end);
+                            else
+                                sliceV = typecast(sliceV,'int16');
+                            end
+                        elseif bitsAllocated == 8
+                            sliceV = typecast(sliceV,'uint8');
+                        end
                     otherwise
-                        warning('"Pixel Representation" field contains an invalid value, defaulting to unsigned integer.');
+                        sliceV = typecast(sliceV,'int16');
+                        
                 end
 
                 if imgobj.contains(hex2dec('00280008'))
@@ -90,11 +132,15 @@ switch fieldname
                         % Samples Per Pixel (Check to see if it is a RGB image)
                         samples_Per_Pixel = dcm2ml_Element(imgobj.get(hex2dec('00280002')));
                     else
-                        samples_Per_Pixel = 1
+                        samples_Per_Pixel = 1;
                     end
 
                     %Shape the slice.
-                    slice2D = reshape(sliceV, [nRows nCols samples_Per_Pixel]);
+                    %slice2D = reshape(sliceV, [nRows nCols samples_Per_Pixel]);
+                    for iRGB = 1:samples_Per_Pixel
+                        slice2D(:,:,iRGB) = reshape(sliceV(iRGB:samples_Per_Pixel:end),...
+                            [nCols nRows])';
+                    end
                 end
             catch
                 slice2D = dicomread(IMAGE.file);
@@ -130,8 +176,10 @@ switch fieldname
         end
 
         %Reorder 3D matrix based on zValues.
-        [jnk, zOrder]       = sort(zValues);
-        dataS(:,:,1:end)    = dataS(:,:,zOrder);
+        if ~isempty(zValues)
+            [jnk, zOrder]       = sort(zValues);
+            dataS(:,:,1:end)    = dataS(:,:,zOrder);
+        end
 
     case 'scanType'
 
@@ -158,7 +206,11 @@ switch fieldname
                 %Convert from DICOM mm to CERR cm, invert Z to match CERR Zdir.
                 zValues(imageNum)  = -transV(3)/10;
             catch
-                error('error: scan Z-value error!');
+                if nImages == 1 % 2d ultrasound
+                    zValues(imageNum) = 0;
+                else
+                    error('error: scan Z-value error!');
+                end
             end
 
             for i = 1:length(names)

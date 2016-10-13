@@ -39,6 +39,8 @@ function dataS = populate_planC_USscan_scanInfo_field(fieldname, dcmdir_PATIENT_
 % You should have received a copy of the GNU General Public License
 % along with CERR.  If not, see <http://www.gnu.org/licenses/>.
 
+global pPos xOffset yOffset;
+
 %For easier handling
 IMAGE = dcmdir_PATIENT_STUDY_SERIES_IMAGE;
 
@@ -79,22 +81,29 @@ switch fieldname
 
     case 'CTOffset'
         %In CERR, CT Offset is always 1000, as CT water is 1000.
-        wCenter = dcm2ml_Element(dcmobj.get(hex2dec('00281050')));
-        wWidth = dcm2ml_Element(dcmobj.get(hex2dec('00281051')));
-        dataS = wCenter;
+        %wCenter = dcm2ml_Element(dcmobj.get(hex2dec('00281050')));
+        %wWidth = dcm2ml_Element(dcmobj.get(hex2dec('00281051')));
+        %dataS = wCenter;
+        dataS = 0;
 
     case 'grid1Units'
         %Pixel Spacing for the Y grid
-        dataS = dcm2ml_Element(dcmobj.get(hex2dec('0018602E')));
-        if isempty(dataS)
+        %dataS = dcm2ml_Element(dcmobj.get(hex2dec('0018602E')));
+        pixspac = dcm2ml_Element(dcmobj.get(hex2dec('00280030')));
+        if isempty(pixspac)
             dataS = 1;
+        else
+            dataS = pixspac(2)/10;
         end
 
     case 'grid2Units'
         %Pixel Spacing for the X grid
-        dataS = dcm2ml_Element(dcmobj.get(hex2dec('0018602C')));
-        if isempty(dataS)
+        %dataS = dcm2ml_Element(dcmobj.get(hex2dec('0018602C')));
+        pixspac = dcm2ml_Element(dcmobj.get(hex2dec('00280030')));
+        if isempty(pixspac)
             dataS = 1;
+        else
+            dataS = pixspac(1)/10;
         end
 
     case 'numberRepresentation'
@@ -119,35 +128,133 @@ switch fieldname
         dataS  = dcm2ml_Element(dcmobj.get(hex2dec('00280011')));
 
     case 'zValue'
-        % This is a private tag done by Envisioneering Medical
-        % Technologies to provide Z coordinates
-        try %wy ImageTranslationVectorRET
-            transV = dcm2ml_Element(dcmobj.get(hex2dec('00185212')));
-            %Convert from DICOM mm to CERR cm, invert Z to match CERR Zdir.
-            dataS  = -transV(3)/10;
-        catch
-            disp('warning: scan Z-value error!');
+%         % This is a private tag done by Envisioneering Medical
+%         % Technologies to provide Z coordinates
+%         try %wy ImageTranslationVectorRET
+%             transV = dcm2ml_Element(dcmobj.get(hex2dec('00185212')));
+%             %Convert from DICOM mm to CERR cm, invert Z to match CERR Zdir.
+%             dataS  = -transV(3)/10;
+%         catch
+%             error('error: scan Z-value error!');
+%         end
+        
+        imgpos = dcm2ml_Element(dcmobj.get(hex2dec('00200032')));
+        if isempty(imgpos)
+            dataS = 0;
+        else
+            dataS = imgpos(3)/10;
         end
+        
 
     case 'xOffset' %wy
-        cols  = dcm2ml_Element(dcmobj.get(hex2dec('00280011')));
-        xSpacing = dcm2ml_Element(dcmobj.get(hex2dec('0018602C')));
+%         cols  = dcm2ml_Element(dcmobj.get(hex2dec('00280011')));
+%         xSpacing = dcm2ml_Element(dcmobj.get(hex2dec('0018602C')));
+% 
+%         %referencePixelX0 = dcm2ml_Element(dcmobj.get(hex2dec('00186020')));
+%         %dataS = xSpacing*(cols-1)/2 + referencePixelX0/10;
+% 
+%         transV = dcm2ml_Element(dcmobj.get(hex2dec('00185212')));
+%         dataS = transV(1)/10 + xSpacing*(cols-1)/2;        
+        
+        %Image Position (Patient)
+        imgpos = dcm2ml_Element(dcmobj.get(hex2dec('00200032')));
+        
+        imgOri = dcm2ml_Element(dcmobj.get(hex2dec('00200037')));
+                       
+        %Pixel Spacing
+        pixspac = dcm2ml_Element(dcmobj.get(hex2dec('00280030')));
 
-        %referencePixelX0 = dcm2ml_Element(dcmobj.get(hex2dec('00186020')));
-        %dataS = xSpacing*(cols-1)/2 + referencePixelX0/10;
+        %Columns
+        nCols  = dcm2ml_Element(dcmobj.get(hex2dec('00280011')));
+        
+        if ~isempty(imgOri) && (imgOri(1)-1)^2 < 1e-5
+            xOffset = imgpos(1) + (pixspac(2) * (nCols - 1) / 2);
+		elseif ~isempty(imgOri) && (imgOri(1)+1)^2 < 1e-5
+            xOffset = imgpos(1) - (pixspac(2) * (nCols - 1) / 2);
+		else
+			% by Deshan Yang, 3/2/2010
+			xOffset = imgpos(1);
+            pPos = '';
+        end
+        %         xOffset = imgpos(1) + (pixspac(1) * (nCols - 1) / 2);
 
-        transV = dcm2ml_Element(dcmobj.get(hex2dec('00185212')));
-        dataS = transV(1)/10 + xSpacing*(cols-1)/2;
+        %Convert from DICOM mm to CERR cm.
+        switch upper(pPos)
+            case 'HFS'
+                dataS = xOffset / 10;
+            case {'HFP', 'HFDR'}
+                dataS = -xOffset / 10;
+            case 'FFS'
+                dataS = xOffset / 10;
+            case 'FFP'
+                dataS = -xOffset / 10;
+            otherwise
+                dataS = xOffset / 10;
+        end
+
+        xOffset = dataS; %done for setting global, used in Structure coord        
 
     case 'yOffset' %wy
-        rows  = dcm2ml_Element(dcmobj.get(hex2dec('00280010')));
-        ySpacing = dcm2ml_Element(dcmobj.get(hex2dec('0018602E')));
+%         rows  = dcm2ml_Element(dcmobj.get(hex2dec('00280010')));
+%         ySpacing = dcm2ml_Element(dcmobj.get(hex2dec('0018602E')));
+% 
+%         %         referencePixelY0 = dcm2ml_Element(dcmobj.get(hex2dec('00186022')));
+%         %         dataS = -ySpacing*(rows-1)/2 - referencePixelY0/10;
+% 
+%         transV = dcm2ml_Element(dcmobj.get(hex2dec('00185212')));
+%         dataS = -(transV(2)/10 + ySpacing*(rows-1)/2);
+        
+        %Image Position (Patient)
+        imgpos = dcm2ml_Element(dcmobj.get(hex2dec('00200032')));
+        imgOri = dcm2ml_Element(dcmobj.get(hex2dec('00200037')));
+        modality = dcm2ml_Element(dcmobj.get(hex2dec('00080060')));
+        
+        if isempty(imgpos) && strcmpi(modality,'NM')
+            % Multiframe NM image.
+            detectorInfoSequence = dcm2ml_Element(dcmobj.get(hex2dec('00540022')));
+            imgpos = detectorInfoSequence.Item_1.ImagePositionPatient;
+            imgOri = detectorInfoSequence.Item_1.ImageOrientationPatient;            
+        end
+        
+        %Pixel Spacing
+        if strcmpi(modality,'MG')
+            pixspac = dcm2ml_Element(dcmobj.get(hex2dec('00181164')));
+            imgOri = zeros(6,1);
+            imgpos = [0 0 0];
+        else
+            pixspac = dcm2ml_Element(dcmobj.get(hex2dec('00280030')));
+        end
 
-        %         referencePixelY0 = dcm2ml_Element(dcmobj.get(hex2dec('00186022')));
-        %         dataS = -ySpacing*(rows-1)/2 - referencePixelY0/10;
+        %Rows
+        nRows  = dcm2ml_Element(dcmobj.get(hex2dec('00280010')));
+		
+        if ~isempty(imgOri) && (imgOri(5)-1)^2 < 1e-5
+            yOffset = imgpos(2) + (pixspac(1) * (nRows - 1) / 2);
+		elseif ~isempty(imgOri) && (imgOri(5)+1)^2 < 1e-5
+            yOffset = imgpos(2) - (pixspac(1) * (nRows - 1) / 2);
+		else
+			% by Deshan Yang, 3/2/2010
+			yOffset = imgpos(2);
+            pPos = '';
+        end
+        %         yOffset = imgpos(2) + (pixspac(2) * (nRows - 1) / 2);
 
-        transV = dcm2ml_Element(dcmobj.get(hex2dec('00185212')));
-        dataS = -(transV(2)/10 + ySpacing*(rows-1)/2);
+        %Convert from DICOM mm to CERR cm, invert to match CERR y dir.
+        switch upper(pPos)
+            case 'HFS'
+                dataS = - yOffset / 10;
+            case {'HFP', 'HFDR'}
+                dataS = yOffset / 10;
+            case 'FFS'
+                dataS = - yOffset / 10;
+            case 'FFP'
+                dataS = yOffset / 10;
+            otherwise
+                dataS = yOffset / 10;
+        end
+
+        yOffset = dataS; %done for setting global, used in Structure coord
+        
 
     case 'CTAir'
         %In CERR, CT Air is always 0.
@@ -160,8 +267,10 @@ switch fieldname
     case 'sliceThickness'
         %Convert from DICOM mm to CERR cm.
         try %wy
-            transV = dcm2ml_Element(imgobj.get(hex2dec('00185212')));
-            dataS = transV(3)/10;
+            %transV = dcm2ml_Element(imgobj.get(hex2dec('00185212')));
+            %dataS = transV(3)/10;
+            slcthk  = dcm2ml_Element(dcmobj.get(hex2dec('00180050')));    
+            dataS  = slcthk / 10;
         catch
             dataS = 1;
         end
