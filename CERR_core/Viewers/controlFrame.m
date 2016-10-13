@@ -2016,7 +2016,8 @@ switch command
                 [~,planC] = register_scans(planC, planC, scanSetBase, scanSetMov, 'RIGID PLASTIMATCH', [], [], []);
                 %planC = register_scans(planC, planC, scanSetBase, scanSetMov, 'BSPLINE PLASTIMATCH', [], [], []);
                 indexS = planC{end};
-                planC = warp_scan(planC{indexS.deform}(scanSetBase),scanSetMov,planC,planC);
+                %planC = warp_scan(planC{indexS.deform}(scanSetBase),scanSetMov,planC,planC);
+                stateS.CTDisplayChanged = 1;
                 CERRRefresh;
                 
             case 'toggle_rotation'
