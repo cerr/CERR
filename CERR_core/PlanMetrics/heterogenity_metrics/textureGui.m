@@ -32,8 +32,18 @@ function textureGui(command, varargin)
 
 
 %The cursed globals. Need em.
-global planC stateS
+global planC stateS bridge sInfo
 indexS = planC{end};
+
+if isempty(bridge)
+    try
+        bridge = evalin('caller','bridge');
+        sInfo = evalin('caller','arr_info');
+    catch
+        bridge = NaN;
+        sInfo = NaN;
+    end
+end
 
 %Use a static window size, by pixels.  Do not allow resizing.
 screenSize = get(0,'ScreenSize');
@@ -118,8 +128,8 @@ switch upper(command)
         scanNum = 1;
         structNum = 1;
         descript = '';
-        patchSize = [0.5,0.5,0.3];
-        ud.cmFlag = 1;
+        patchSize = [2,2,2];
+        ud.cmFlag = 0;
         
         % Haralick default parameters
         directionHar  = 1;
@@ -214,6 +224,11 @@ switch upper(command)
         set(ud.handles.clustShade, 'value', clustShadFlg);
         set(ud.handles.clustProm, 'value', clustPromFlg);
         
+        
+        scanTypeC = [{'Select texture'}, planC{indexS.scan}.scanType];
+        set(ud.handles.selectTextureMapsForMIM,'string',scanTypeC,...
+            'value',1)        
+        
         set(h, 'userdata', ud);
             
     case 'REFRESH'
@@ -262,8 +277,12 @@ switch upper(command)
         
         % List of feature types
         featureTypeC = {'Haralick Cooccurance', ...
-            'Absolute Gradient', ...
-            'Edge'};
+            'Law''s Convolution',...
+            'NGTDM',...
+            'HoG',...
+            'CoLiAGe',...
+            'LoG',...
+            'Absolute Gradient' };
         
         %Downsample colormap, redraws much faster.
         % cM = CERRColorMap(stateS.optS.doseColormap);
@@ -318,7 +337,7 @@ switch upper(command)
             'value', 1, 'Style', 'popup', 'horizontalAlignment', 'right',...
             'BackgroundColor', frameColor,'callback', 'textureGui(''STRUCT_SELECTED'');');
         ud.handles.description   = uicontrol(h, 'units',units,'Position',[fieldLeft-.05 1-.37 fieldWidth+.05 rowHeight-0.01],'String', '',  'Style', 'edit', 'horizontalAlignment', 'left', 'BackgroundColor', frameColor);
-        ud.handles.patchSize     = uicontrol(h, 'units',units,'Position',[fieldLeft-.05 1-.44 fieldWidth/2+0.05 rowHeight-0.01],'String', '0.5 0.5 0.5',  'Style', 'edit', 'horizontalAlignment', 'left', 'BackgroundColor', frameColor);
+        ud.handles.patchSize     = uicontrol(h, 'units',units,'Position',[fieldLeft-.05 1-.44 fieldWidth/2+0.05 rowHeight-0.01],'String', '2,2,2',  'Style', 'edit', 'horizontalAlignment', 'left', 'BackgroundColor', frameColor);
         ud.handles.patchCm       = uicontrol(h, 'units',units,'Position',[fieldLeft+0.11 1-.42 0.11 rowHeight-0.01],'String', 'cm (y,x,z)',  'Style', 'radio', 'horizontalAlignment', 'left', 'BackgroundColor', frameColor, 'callback', 'textureGui(''PATCH_CM_SELECTED'');');
         ud.handles.patchVx       = uicontrol(h, 'units',units,'Position',[fieldLeft+0.11 1-.46 0.11 rowHeight-0.01],'String', 'vox (r,c,s)',  'Style', 'radio', 'horizontalAlignment', 'left', 'BackgroundColor', frameColor, 'callback', 'textureGui(''PATCH_VOX_SELECTED'');');
         ud.handles.featureType   = uicontrol(h, 'units',units,'Position',[fieldLeft-.05 1-.52 fieldWidth+.05 rowHeight],'String', featureTypeC, 'value', 1, 'Style', 'popup', 'callback', 'textureGui(''FEATURE_TYPE_SELECTED'');', 'horizontalAlignment', 'right', 'BackgroundColor', frameColor);
@@ -350,7 +369,16 @@ switch upper(command)
         
         
         % uicontrols to generate or delete texture maps
-        ud.handles.createTextureMaps  = uicontrol(h, 'units',units,'Position',[0.03 1-.95 0.12 rowHeight],'String', 'Create Maps', 'Style', 'pushbutton', 'callback', 'textureGui(''CREATE_MAPS'');', 'userdata', i);
+        ud.handles.createTextureMaps  = uicontrol(h, 'units',units,'Position',[0.03 1-.95 0.12 rowHeight],'String', 'Create Maps', 'Style', 'pushbutton', 'callback', 'textureGui(''CREATE_MAPS'');');
+        
+        % uicontrols to write texture maps to MIM
+        ud.handles.selectTextureMapsForMIM  = uicontrol(h, 'units',units,'Position',...
+            [.53 .06 .3 rowHeight-0.02],'String', {'Select Texture'}, 'Style',...
+            'popupmenu', 'value',1, 'callback', 'textureGui(''SELECT_MAPS_FOR_MIM'');');
+        
+        ud.handles.sendTextureMapsToMIM  = uicontrol(h, 'units',units,'Position',...
+            [.85 .06 .12 rowHeight-0.02],'String', 'Send to MIM', 'Style',...
+            'pushbutton', 'callback', 'textureGui(''SEND_MAPS_TO_MIM'');');
         
         set(h, 'userdata', ud);
         set(0, 'CurrentFigure', hFig);
@@ -533,9 +561,12 @@ switch upper(command)
 
         maxDose = [];
         for i=1:nScans
-            set(ud.handles.thumbaxis(i), 'ButtonDownFcn', ['textureGui(''CHANGEDOSE'', ' num2str(scanIndV(i)) ');']);
+            %set(ud.handles.thumbaxis(i), 'ButtonDownFcn', ['textureGui(''CHANGEDOSE'', ' num2str(scanIndV(i)) ');']);
+            set(ud.handles.thumbaxis(i), 'ButtonDownFcn', ['textureGui(''PREVIEWCLICKED'', ' num2str(scanIndV(i)) ');']);
             maxDose{scanIndV(i)} = num2str(drawThumb(ud.handles.thumbaxis(i), planC, scanIndV(i), h));
-            ud.previewSlice(scanIndV(i)) = 1; %%%%%%%%%%%%%%%%%
+            [xV, yV, zV] = getScanXYZVals(planC{indexS.scan}(scanIndV(i)));
+            s = ceil(median(1:length(zV)));
+            ud.previewSlice(scanIndV(i)) = s; %%%%%%%%%%%%%%%%%
         end
         
         ud.maxDoses = maxDose;
@@ -545,10 +576,46 @@ switch upper(command)
             set(ud.handles.thumbaxis,'nextPlot','add')
         end
         
-        set(h,'userdata',ud)        
+        set(h,'userdata',ud)   
         
+    case 'PREVIEWCLICKED'
+        ud = get(h, 'userdata');
+        ud.currentScan = varargin{1};
+        set(h, 'userdata', ud)
+        set(h, 'WindowButtonMotionFcn', 'textureGui(''PREVIEWMOTION'')');
+        
+    case 'SELECT_MAPS_FOR_MIM'
+        
+    case 'SEND_MAPS_TO_MIM'
+        ud = get(h,'userdata');        
+        scanIndex = get(ud.handles.selectTextureMapsForMIM,'value');
+        if scanIndex == 1
+            return
+        end
+        strC = get(ud.handles.selectTextureMapsForMIM,'string');
+        bridge = evalin('base','bridge');
+        vol3M = evalin('base','arr');
+        vol3M = vol3M * 0;
+        text3M = planC{indexS.scan}(scanIndex).scanArray;
+        txtMax = max(text3M(:));        
+        rescaleSlope = double(txtMax)/double(intmax('int16'));
+        rescaleIntercept = 0;
+        text3M = int16(double(text3M)/rescaleSlope);
+        structNum = get(ud.handles.structure,'value');
+        mask3M = getUniformStr(structNum);
+        [minr, maxr, minc, maxc, mins, maxs]= compute_boundingbox(mask3M);
+        vol3M(minr:maxr,minc:maxc,mins:maxs) = text3M;
+        assignin('base', 'textureVol', vol3M);
+        sInfo = evalin('base','arr_info');
+        newSinfo = sInfo.getMutableCopy();
+        newSinfo.setUnits('')
+        newSinfo.setCustomName(strC{scanIndex})
+        newSinfo.setRescaleSlope(rescaleSlope)
+        newSinfo.setRescaleIntercept(rescaleIntercept)
+        bridge.sendImageToMim('textureVol', newSinfo);
+        textureGui('QUIT')
 
-        
+            
     case 'CREATE_NEW_TEXTURE'
         ud = get(h, 'userdata');
         ud.currentTexture = 0;
@@ -584,6 +651,8 @@ switch upper(command)
             rowWindow = floor(patchSizeV(1)/deltaY);
             colWindow = floor(patchSizeV(2)/deltaX);
             patchSizeV = [rowWindow, colWindow, slcWindow];
+            patchUnit = 'vox';
+            patchSizeV = [2,2,2];
         else
             patchUnit = 'vox';
         end
@@ -710,17 +779,18 @@ switch upper(command)
         %Button clicked in the preview window.
         ud = get(h, 'userdata');
         ud.previewDown = 1;
-        set(h, 'WindowButtonMotionFcn', 'textureGui(''PREVIEWMOTION'')');
+        set(h, 'WindowButtonMotionFcn', 'textureGui(''PREVIEWMOTION'')',...
+            'WindowButtonUpFcn','textureGui(''FIGUREBUTTONUP'')');
         set(h, 'userdata', ud)
 
     case 'FIGUREBUTTONUP'
         %Mouse up, if in preview window disable motion fcn.
         ud = get(h, 'userdata');
-        if ~isfield(ud, 'previewDown') || ud.previewDown == 1;
-            ud.previewDown = 0;
+        %if ~isfield(ud, 'previewDown') || ud.previewDown == 1;
+        %    ud.previewDown = 0;
             set(h, 'WindowButtonMotionFcn', '');
             set(h, 'userdata', ud);
-        end
+        %end
 
     case 'PREVIEWMOTION'
         %Motion in the preview, with mouse down. Change preview slice.
@@ -728,14 +798,20 @@ switch upper(command)
         cp = get(h, 'currentpoint');
         if isfield(ud, 'previewY')
             if ud.previewY > cp(2)
-                ud.previewSlice(ud.currentTexture) = ud.previewSlice(ud.currentTexture)+1;%min(ud.previewSlice(ud.currentScan)+1, size(getDoseArray(ud.currentScan), 3));
+                %ud.previewSlice(ud.currentTexture) = ud.previewSlice(ud.currentTexture)+1;
+                ud.previewSlice(ud.currentScan) = ...
+                    min(ud.previewSlice(ud.currentScan)+1, size(getScanArray(ud.currentScan), 3));
                 set(h, 'userdata', ud);
-                textureGui('refreshpreviewandfields');
+                %textureGui('refreshpreviewandfields');
             elseif ud.previewY < cp(2)
-                ud.previewSlice(ud.currentTexture) = ud.previewSlice(ud.currentTexture)-1;%max(ud.previewSlice(ud.currentScan)-1,1);
+                %ud.previewSlice(ud.currentTexture) = ud.previewSlice(ud.currentTexture)-1;
+                ud.previewSlice(ud.currentScan) = ...
+                    max(ud.previewSlice(ud.currentScan)-1,1);
                 set(h, 'userdata', ud);
-                textureGui('refreshpreviewandfields');
+                %textureGui('refreshpreviewandfields');
             end
+            drawThumb(ud.handles.thumbaxis(ud.currentScan-1), planC,...
+                ud.currentScan, h, ud.previewSlice(ud.currentScan));            
             ud = get(h, 'userdata');
             ud.previewY = cp(2);
         else
@@ -1071,7 +1147,7 @@ function nBytes = getByteSize(data)
 infoStruct = whos('data');
 nBytes = infoStruct.bytes;
 
-function maxScan = drawThumb(hAxis, planC, index, hFigure)
+function maxScan = drawThumb(hAxis, planC, index, hFigure,slcNum)
 %"drawThumb"
 %In passed dose array, find slice with highest dose and draw in hAxis.
 %Also denote the index in the corner.  If compressed show compressed.
@@ -1092,7 +1168,12 @@ maxScan = planC{indexS.scan}(index).scanType;
 % set the scan to median of z-values
 indexS = planC{end};
 [xV, yV, zV] = getScanXYZVals(planC{indexS.scan}(index));
-s = ceil(median(1:length(zV)));
+if exist('slcNum','var')
+    s = slcNum;
+else
+    s = ceil(median(1:length(zV)));    
+end
+maxScan = [maxScan,' ',num2str(s),'/',num2str(length(zV))];
 thumbImage = dA(:,:,s(1));
 imagesc(thumbImage, 'hittest', 'off', 'parent', hAxis);
 set(hAxis, 'ytick',[],'xtick',[]);
@@ -1181,8 +1262,4 @@ dx = abs(mean(diff(xV)));
 dy = abs(mean(diff(yV)));
 dz = abs(mean(diff(zV)));
 dXYZ = [dy dx dz];
-
-
-
-
 
