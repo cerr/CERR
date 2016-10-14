@@ -62,7 +62,7 @@ dirsToImportC = dirsToImportC(indV1);
 tic
 hWaitbar = NaN;
 % Import all the dirs
-parfor dirNum = 1:4 %length(dirsToImportC)
+parfor dirNum = 1:length(dirsToImportC)
     try
         init_ML_DICOM
         %hWaitbar = waitbar(0,'Scanning Directory Please wait...');
