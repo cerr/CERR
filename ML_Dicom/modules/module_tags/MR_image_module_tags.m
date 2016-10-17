@@ -80,6 +80,8 @@ tagS(end+1) = struct('tag', ['0019100C'], 'type', ['4'], 'children', []); % SIEM
 
 %% Added : temporal position ID
 tagS(end+1) = struct('tag', ['00200100'], 'type', ['3'], 'children', []);  
-%% end added
+%Trigger time  %Added AI 10/14/16
+tagS(end+1) = struct('tag', ['00181060'], 'type', ['3'], 'children', []);  
+%%%
 
     
