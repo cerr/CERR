@@ -17,7 +17,12 @@ newStructNum = length(planC{indexS.structures}) + 1;
 
 newStructS = newCERRStructure(scanNum, planC, newStructNum);
 
-maskM = getSurfaceExpand(structNum, margin, 1, planC);
+if margin > 0
+    maskM = getSurfaceExpand(structNum, margin, 1, planC);
+else
+    maskM = getSurfaceContract(structNum, -margin, 1, planC);
+end
+
 %If registered to uniformized data, use nearest slice neighbor
 %interpolation.
 [xUni, yUni, zUni] = getUniformScanXYZVals(planC{indexS.scan}(scanNum));
