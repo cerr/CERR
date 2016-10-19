@@ -1,5 +1,5 @@
-function [maskDown3D] = getSurfaceContract(structNumV,marginV, xyDownsampleIndex)
-%function [iEdgeV,jEdgeV,kEdgeV] = getSurfaceContract(structNumV,marginV, xyDownsampleIndex)
+function [maskDown3D] = getSurfaceContract(structNumV,marginV, xyDownsampleIndex, planC)
+%function [iEdgeV,jEdgeV,kEdgeV] = getSurfaceContract(structNumV,marginV, xyDownsampleIndex, planC)
 %Get all the surface points of a a composite structure defined by the 
 %structures given in structNumV, with margins shrunk in 3D according to
 %marginV.  The iV, jV, kV index vectors give all the surface points with
@@ -29,8 +29,9 @@ function [maskDown3D] = getSurfaceContract(structNumV,marginV, xyDownsampleIndex
 % You should have received a copy of the GNU General Public License
 % along with CERR.  If not, see <http://www.gnu.org/licenses/>.
 
-
-global planC
+if ~exist('planC','var')
+    global planC
+end
 indexS = planC{end};
 
 %obtain associated scanNum for structures. It is assumed that all the
