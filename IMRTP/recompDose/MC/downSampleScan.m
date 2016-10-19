@@ -1,8 +1,10 @@
-function downSampleScan(numRows,numCols)
-%function planC = downSampleScan(planC)
+function planC = downSampleScan(scanNum,numRows,numCols,planC)
+%function planC = downSampleScan(scanNum,numRows,numCols,planC)
 %This function downsdamples scan within planC (planC must be global).
-%INPUT: numRows: Number of rows desired in scanArray
-%       numCols: Number of columns desired in scanArray
+%INPUT: 
+%       scanNum = 1; % scan index
+%       numRows = 512; % Number of rows desired in scanArray
+%       numCols = 512; % Number of columns desired in scanArray
 %
 %APA, 9/15/2006
 %
@@ -28,9 +30,9 @@ function downSampleScan(numRows,numCols)
 % You should have received a copy of the GNU General Public License
 % along with CERR.  If not, see <http://www.gnu.org/licenses/>.
 
-scanNum = 1;
-
-global planC
+if ~exist('planC','var')
+    global planC
+end
 indexS = planC{end};
 [xVals, yVals, zVals] = getScanXYZVals(planC{indexS.scan}(scanNum));
 xValsDown = linspace(xVals(1),xVals(end),numCols);
@@ -75,7 +77,7 @@ end
 planC{indexS.scan}(scanNum).scanArray = newScanArray;
 close(h);
 
-planC = reRasterAndUniformize;
+planC = reRasterAndUniformize(planC);
 
 %save this new planC
 %sliceCallback('SAVEASPLANC')
