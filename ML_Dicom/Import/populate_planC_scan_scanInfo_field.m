@@ -174,15 +174,17 @@ switch fieldname
         
         seriesDescription =  dcm2ml_Element(dcmobj.get(hex2dec('0008103E')));
 
-        if strcmpi(seriesDescription,'CORONALS')
+        %Modified AI 10/20/16
+        if strfind(upper(seriesDescription),'CORONAL') 
             dataS = - imgpos(2) / 10;
-        elseif strcmpi(seriesDescription,'SAGITTALS')
+        elseif strfind(upper(seriesDescription),'SAGITTAL')
             dataS = - imgpos(1) / 10;
         else
             %Convert from DICOM mm to CERR cm, invert to match CERR z dir
             dataS = - imgpos(3) / 10; %z is always negative
         end
-        
+        %End modified
+
     case 'xOffset'
         %Image Position (Patient)
         imgpos = dcm2ml_Element(dcmobj.get(hex2dec('00200032')));
