@@ -22,7 +22,7 @@ if ~topMenuFlag
     scanSets = getAxisInfo(hAxis,'scanSets');
 end
 
-if nargin==2
+if nargin==2 && isfield(stateS,'scanSet')
     selectedScan = stateS.scanSet;   %%ADDED 
 end
 
