@@ -64,9 +64,6 @@ xLim        = [midpoint_x - newDeltaX/2 midpoint_x + newDeltaX/2];
 %deltaX      = num2str(xLim(2) - xLim(1), '%0.4g');
 yLim        = [midpoint_y - newDeltaY/2 midpoint_y + newDeltaY/2];
 
-set(hAxis, 'xLim', xLim);
-set(hAxis, 'yLim', yLim);
-
 %Show 5cm bar to display zoom-level
 len = 5; %cm
 switch upper(viewAx)
@@ -94,6 +91,10 @@ switch upper(viewAx)
     case 'LEGEND'
         return;
 end
+
+set(hAxis, 'xLim', xLim);
+set(hAxis, 'yLim', yLim);
+
 xAll = linspace(xStart,xEnd,6);
 yAll = linspace(yStart,yEnd,6);
 
