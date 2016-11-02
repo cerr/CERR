@@ -137,14 +137,14 @@ for i=1:length(uniqueScans)
         
         % Check if there are any structures in other cells. If none, then
         % clear indices and bits for other cells
-        strOtherIndCell = find(relStrInScan > 52 + (cellNum-1)*8);
-        if cellNum == 1 && isempty(strOtherIndCell)
+        strOtherIndCell = find(relStrInScan > 52+(cellNum-1)*8);        
+        if cellNum == 1 && (isempty(strOtherIndCell) || all(ismember(strOtherIndCell,structNumsV)))
             planC{indexS.structureArray}(scanNum).bitsArray = bitsA;    
             planC{indexS.structureArray}(scanNum).indicesArray = indA;
             planC{indexS.structureArrayMore}(scanNum).bitsArray = {};
             planC{indexS.structureArrayMore}(scanNum).indicesArray = {};
             continue;
-        elseif cellNum > 1 && isempty(strOtherIndCell) %&& length(planC{indexS.structureArrayMore}(scanNum).bitsArray) > cellNum-1
+        elseif cellNum > 1 && (isempty(strOtherIndCell) || all(ismember(strOtherIndCell,structNumsV))) %&& length(planC{indexS.structureArrayMore}(scanNum).bitsArray) > cellNum-1
             planC{indexS.structureArrayMore}(scanNum).bitsArray{cellNum-1} = bitsA;
             planC{indexS.structureArrayMore}(scanNum).indicesArray{cellNum-1} = indA;
             planC{indexS.structureArrayMore}(scanNum).bitsArray = planC{indexS.structureArrayMore}(scanNum).bitsArray(1:cellNum-1);
