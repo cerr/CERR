@@ -208,6 +208,12 @@ yLim = get(hAxis,'yLim');
 if abs(yLim(2)-yLim(1) - currPos(4) / rowHeight) > 1e-5
     set(hAxis, 'xlim', [0 (colWidth/rowHeight)*currPos(3) / colWidth], 'ylim', [0 currPos(4) / rowHeight]);
 end
+xLim = get(hAxis,'xLim');
+if xLim(1) < 0
+    xLim(2) = xLim(2)-xLim(1);
+    xLim(1) = 0;
+    set(hAxis, 'xlim', xLim);
+end
 
 %Store new position.
 setappdata(hAxis, 'legendAxisLastPos', currPos);
