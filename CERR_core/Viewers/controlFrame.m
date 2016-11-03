@@ -584,13 +584,15 @@ switch command
                     newStr.assocScanUID = planC{indexS.scan}(scanNum).scanUID;
                     newStr.structureName = 'New Structure';
                     planC{indexS.structures} = dissimilarInsert(planC{indexS.structures}, newStr, toAdd);
-                    % Update the contourSlcLoadedM
-                    contourSlcLoadedM = getappdata(stateS.handle.CERRAxis(...
-                        stateS.contourAxis), 'contourSlcLoadedM');
-                    contourSlcLoadedM(end+1,:) = false;
-                    setappdata(stateS.handle.CERRAxis(...
-                        stateS.contourAxis), 'contourSlcLoadedM',contourSlcLoadedM);
                 end
+                
+                % Update the contourSlcLoadedM
+                contourSlcLoadedM = getappdata(stateS.handle.CERRAxis(...
+                    stateS.contourAxis), 'contourSlcLoadedM');
+                contourSlcLoadedM(end+1,:) = false;
+                setappdata(stateS.handle.CERRAxis(...
+                    stateS.contourAxis), 'contourSlcLoadedM',contourSlcLoadedM);
+                
                 [jnk, relStructNumV] = getStructureAssociatedScan(toAdd);
                 set(ud.handles.structPopup, 'value', relStructNumV);
                 controlFrame('contour', 'refresh')
