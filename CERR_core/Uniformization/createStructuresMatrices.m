@@ -110,8 +110,8 @@ entry = 1; %indicesUpto52M and structBitsUpto52M index counter
 lastEntry = 0;
 
 tDelta = (tMax - tMin)*.95; %saving the last 5% of time (rough estimate) for the work after the scan interpolations.
-if structInScan >=52
-    tDelta = (tMax - tMin)*.95*52/structInScan;
+if numberOfStructures >=52
+    tDelta = (tMax - tMin)*.95*52/numberOfStructures;
 end
 tMaxPrev = tMin;
 
