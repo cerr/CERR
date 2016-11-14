@@ -149,6 +149,10 @@ for i=1:length(uniqueScans)
             planC{indexS.structureArrayMore}(scanNum).indicesArray{cellNum-1} = indA;
             planC{indexS.structureArrayMore}(scanNum).bitsArray = planC{indexS.structureArrayMore}(scanNum).bitsArray(1:cellNum-1);
             planC{indexS.structureArrayMore}(scanNum).indicesArray = planC{indexS.structureArrayMore}(scanNum).indicesArray(1:cellNum-1);
+            % forget structures in this cell forever
+            toDel(strIndCell) = [];
+            strInScanV(strOtherIndCell) = [];
+            relStrInScan(strOtherIndCell) = [];
             continue;
         end
 
