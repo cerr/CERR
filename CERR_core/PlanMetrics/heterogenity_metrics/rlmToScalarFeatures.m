@@ -103,28 +103,28 @@ end
 
 % Short Run Low Gray Level Emphasis (SRLGLE) (Aerts et al, Nature suppl. eq. 52)
 if flagS.srlgle
-    levLenM = bsxfun(@times,levV',lenV);
+    levLenM = bsxfun(@times,(levV').^2,lenV.^2);
     srlgleM = bsxfun(@rdivide,rlmM,levLenM);
     featureS.srlgle = sum(srlgleM(:)) / sum(rlmM(:));
 end
 
 % Short Run High Gray Level Emphasis (SRHGLE) (Aerts et al, Nature suppl. eq. 53)
 if flagS.srhgle
-    levLenM = bsxfun(@times,levV',1./lenV);
+    levLenM = bsxfun(@times,(levV').^2,1./lenV.^2);
     srhgleM = bsxfun(@times,rlmM,levLenM);
     featureS.srhgle = sum(srhgleM(:)) / sum(rlmM(:));
 end
 
 % Long Run Low Gray Level Emphasis (LRLGLE) (Aerts et al, Nature suppl. eq. 54)
 if flagS.lrlgle
-    levLenM = bsxfun(@times,1./levV',lenV);
+    levLenM = bsxfun(@times,1./(levV').^2,lenV.^2);
     lrlgleM = bsxfun(@times,rlmM,levLenM);
     featureS.lrlgle = sum(lrlgleM(:)) / sum(rlmM(:));
 end
 
 % Long Run High Gray Level Emphasis (LRHGLE) (Aerts et al, Nature suppl. eq. 55)
 if flagS.lrhgle
-    levLenM = bsxfun(@times,levV',lenV);
+    levLenM = bsxfun(@times,(levV').^2,lenV.^2);
     lrhgleM = bsxfun(@times,rlmM,levLenM);
     featureS.lrhgle = sum(lrhgleM(:)) / sum(rlmM(:));
 end
