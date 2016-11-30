@@ -65,7 +65,14 @@ assocDoseV = find(assocScanV == scanNum);
 %Get associated scan number
 assocScanNum = getStructureAssociatedScan(structureNum,planC);
 tmAssocScan = getTransM('scan',assocScanNum,planC);
+if isempty(tmAssocScan)
+    tmAssocScan = eye(4);
+end
 tmScan = getTransM('scan',scanNum,planC);
+if isempty(tmScan)
+    tmScan = eye(4);
+end
+
 if ~isequal(tmAssocScan,tmScan)
     error('This function currently supports dose and structure with same transformation matrix')
 end
