@@ -842,7 +842,7 @@ if ~isempty(in_str)
                             end
                         end
                         
-                    else
+                    elseif ~strcmpi(view,'legend')
                         
                         h = plot(xV,yV,'marker','.','markersize', 5, 'linestyle','none','color',structColor, 'parent', hAxis, 'tag', 'ROIMask', 'hittest', 'off');
                         stateS.handle.mask = [stateS.handle.mask, h];
