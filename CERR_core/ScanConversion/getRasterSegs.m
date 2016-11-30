@@ -146,10 +146,10 @@ for i = 1:length(structsV)
                 [rowV, colV] = xytom(planC{indexS.structures}(structNum).contour(slice).segments(k).points(:,1), planC{indexS.structures}(structNum).contour(slice).segments(k).points(:,2), slice, planC,scanNum);
 
                 if any(rowV < 1) || any(rowV > segOptS.ROIImageSize(1))
-                    if any(rowV+5 < 1) || any(rowV-5  > segOptS.ROIImageSize(1))
-                        %warning('A row index is off the edge of image mask: these set of points will be discarded');
-                        continue
-                    end
+                    %if any(rowV+5 < 1) || any(rowV-5  > segOptS.ROIImageSize(1))
+                    %    %warning('A row index is off the edge of image mask: these set of points will be discarded');
+                    %    continue
+                    %end
                     %warning('A row index is off the edge of the image mask:  automatically shifting to the edge.')
                     rowV = rowV .* ([rowV >= 1] & [rowV <= segOptS.ROIImageSize(1)]) + ...
                         [rowV > segOptS.ROIImageSize(1)] .* segOptS.ROIImageSize(1) + ...
@@ -157,10 +157,10 @@ for i = 1:length(structsV)
                 end
 
                 if any(colV < 1) || any(colV > segOptS.ROIImageSize(2))
-                    if any(colV+5 < 1) || any(colV-5  > segOptS.ROIImageSize(2))
-                        %warning('A column index is off the edge of image mask: these set of points will be discarded');
-                        continue
-                    end
+                    %if any(colV+5 < 1) || any(colV-5  > segOptS.ROIImageSize(2))
+                    %    %warning('A column index is off the edge of image mask: these set of points will be discarded');
+                    %    continue
+                    %end
                     %warning('A column index is off the edge of the image mask:  automatically shifting to the edge.')
                     colV = colV .* ([colV >= 1] & [colV <= segOptS.ROIImageSize(2)]) + ...
                         [colV > segOptS.ROIImageSize(2)] .* segOptS.ROIImageSize(2) + ...
