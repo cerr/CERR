@@ -73,12 +73,12 @@ end
 
 % Gray Level Non-Uniformity (GLN) (Aerts et al, Nature suppl. eq. 47)
 if flagS.gln
-    featureS.gln = sum(sum(rlmM,1).^2) / sum(rlmM(:));
+    featureS.gln = sum(sum(rlmM,2).^2) / sum(rlmM(:));
 end
 
 % Run Length Non-Uniformity (RLN) (Aerts et al, Nature suppl. eq. 48)
 if flagS.rln
-    featureS.rln = sum(sum(rlmM,2).^2) / sum(rlmM(:));
+    featureS.rln = sum(sum(rlmM,1).^2) / sum(rlmM(:));
 end
 
 % Run Percentage (RP) (Aerts et al, Nature suppl. eq. 49)
