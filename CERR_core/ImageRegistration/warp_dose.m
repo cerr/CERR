@@ -19,13 +19,14 @@ movDoseUniqName = [movDoseUID,num2str(randPart)];
 movDoseFileName = fullfile(getCERRPath,'ImageRegistration','tmpFiles',['movDose_',movDoseUniqName,'.mha']);
 
 % Write .mha file for this dose
-success = createMhaDosesFromCERR(movDoseNum, movDoseFileName, planC);
+success = createMhaDosesFromCERR(movDoseNum, movDoseFileName, movPlanC);
 
 % Generate name for the output .mha file
 warpedMhaFileName = fullfile(getCERRPath,'ImageRegistration','tmpFiles',['warped_dose_',baseScanUID,'_',movScanUID,'.mha']);
 
 % Issue plastimatch warp command with nearest neighbor interpolation
-system(['plastimatch warp --input ', escapeSlashes(movDoseFileName), ' --output-img ', escapeSlashes(warpedMhaFileName), ' --xf ', escapeSlashes(bspFileName)])
+%system(['plastimatch warp --input ', escapeSlashes(movDoseFileName), ' --output-img ', escapeSlashes(warpedMhaFileName), ' --xf ', escapeSlashes(bspFileName)])
+system(['plastimatch warp --input ', movDoseFileName, ' --output-img ', warpedMhaFileName, ' --xf ', bspFileName])
 
 % Read the warped output .mha file within CERR
 %infoS  = mha_read_header(warpedMhaFileName);
@@ -40,5 +41,3 @@ try
     delete(warpedMhaFileName)
     delete(bspFileName)
 end
-
-
