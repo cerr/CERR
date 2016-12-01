@@ -1,8 +1,8 @@
 function [energy3M,entropy3M,sumAvg3M,corr3M,invDiffMom3M,contrast3M,...
-    clustShade3M,clustPromin3M,haralCorr3M] = textureByPatch(scanArray3M, nL, ...
+    clustShade3M,clustPromin3M,haralCorr3M] = textureByPatch(q, nL, ...
     patchSizeV, offsetsM, flagv, hWait)
 % function [energy3M,entropy3M,sumAvg3M,corr3M,invDiffMom3M,contrast3M,...
-%     clustShade3M,clustPromin3M] = textureByPatch(scanArray3M, nL, ...
+%     clustShade3M,clustPromin3M] = textureByPatch(q, nL, ...
 %     patchSizeV, offsetsM, flagv, hWait)
 %
 % Patch-wise texture calculation.
@@ -23,7 +23,8 @@ if exist('hWait','var') && ishandle(hWait)
 end
 
 % Get indices of non-NaN voxels
-calcIndM = ~isnan(scanArray3M);
+% calcIndM = ~isnan(scanArray3M);
+calcIndM = q > 0;
 
 % % Grid resolution
 slcWindow = 2 * patchSizeV(3) + 1;
@@ -36,7 +37,8 @@ numRowsPad = floor(rowWindow/2);
 numSlcsPad = floor(slcWindow/2);
 
 % Get number of voxels per slice
-[numRows, numCols, numSlices] = size(scanArray3M);
+% [numRows, numCols, numSlices] = size(scanArray3M);
+[numRows, numCols, numSlices] = size(q);
 numVoxels = numRows*numCols;
 
 % Quantize the image
@@ -50,7 +52,7 @@ numVoxels = numRows*numCols;
 %levels = multithresh(scanArray3M, nL);
 %q3 = imquantize(scanArray3M, levels);
 
-q = imquantize_cerr(scanArray3M,nL);
+% q = imquantize_cerr(scanArray3M,nL);
 
 % Pad q, so that sliding window works also for the edge voxels
 %scanArrayTmp3M = padarray(scanArray3M,[numRowsPad numColsPad
