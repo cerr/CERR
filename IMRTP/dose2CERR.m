@@ -154,7 +154,7 @@ if nargin > 5 & strcmpi(register,'CT')
 
 elseif nargin > 6 & strcmpi(register,'UniformCT')
     
-    scanNum = getAssociatedScan(assocScanUID);
+    scanNum = getAssociatedScan(assocScanUID,planC);
 
     uniformInfoS = planC{indexS.scan}(scanNum).uniformScanInfo;
     %[CTUniform3D, uniformInfoS] = getUniformizedCTScan;
