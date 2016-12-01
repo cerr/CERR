@@ -23,9 +23,9 @@ end
 % Open file
 switch(info.ByteOrder(1))
     case ('true')
-        fid=fopen(info.Filename','rb','ieee-be');
+        fid=fopen(info.Filename(:)','rb','ieee-be');
     otherwise
-        fid=fopen(info.Filename','rb','ieee-le');
+        fid=fopen(info.Filename(:)','rb','ieee-le');
 end
 
 switch(lower(info.DataFile))
