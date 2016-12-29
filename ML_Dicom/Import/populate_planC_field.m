@@ -111,16 +111,28 @@ switch cellName
                         end
                     end
                 elseif ~strcmpi(typeC{seriesNum}, 'PT')
-                    if abs(dataS(scansAdded+1).scanInfo(1).rescaleSlope - 1) > eps*1e5
-                        dataS(scansAdded+1).scanArray = single(int32(dataS(scansAdded+1).scanArray) * dataS(scansAdded+1).scanInfo(1).rescaleSlope + dataS(scansAdded+1).scanInfo(1).rescaleIntercept);
+                    rescaleSlope = dataS(scansAdded+1).scanInfo(1).rescaleSlope;
+                    if abs(rescaleSlope - 1) > eps*1e5
+                        dataS(scansAdded+1).scanArray = single(int32(dataS(scansAdded+1).scanArray) * rescaleSlope + dataS(scansAdded+1).scanInfo(1).rescaleIntercept);
                     else
                         if min(dataS(scansAdded+1).scanArray(:)) >= -32768 && max(dataS(scansAdded+1).scanArray(:)) <= 32767
-                            dataS(scansAdded+1).scanArray = uint16(int16(dataS(scansAdded+1).scanArray) * dataS(scansAdded+1).scanInfo(1).rescaleSlope + dataS(scansAdded+1).scanInfo(1).rescaleIntercept);
+                            dataS(scansAdded+1).scanArray = uint16(int16(dataS(scansAdded+1).scanArray) * rescaleSlope + dataS(scansAdded+1).scanInfo(1).rescaleIntercept);
                         else
-                            dataS(scansAdded+1).scanArray = uint16(int32(dataS(scansAdded+1).scanArray) * dataS(scansAdded+1).scanInfo(1).rescaleSlope + dataS(scansAdded+1).scanInfo(1).rescaleIntercept);
+                            dataS(scansAdded+1).scanArray = uint16(int32(dataS(scansAdded+1).scanArray) * rescaleSlope + dataS(scansAdded+1).scanInfo(1).rescaleIntercept);
+                        end
+                    end
+                    if strcmpi(typeC{seriesNum}, 'MR')  %% ADDED AI 12/28/16 %%
+                        % Ref: Chenevert, Thomas L., et al. "Errors in quantitative image analysis due to platform-dependent image scaling." 
+                        %Apply scale slope & intercept for Philips data
+                        manufacturer = dataS(scansAdded+1).scanInfo(1).DICOMHeaders.Manufacturer;
+                        if ~isempty(strfind(lower(manufacturer),'philips')) && ~isempty(dataS(scansAdded+1).scanInfo(1).scaleSlope)
+                            scaleSlope = dataS(scansAdded+1).scanInfo(1).scaleSlope;
+                            dataS(scansAdded+1).scanArray = dataS(scansAdded+1).scanArray./(rescaleSlope*scaleSlope);
                         end
                     end
                 end
+                
+                
 
                 scansAdded = scansAdded + 1;
                 
