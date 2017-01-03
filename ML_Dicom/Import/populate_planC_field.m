@@ -127,7 +127,7 @@ switch cellName
                         manufacturer = dataS(scansAdded+1).scanInfo(1).DICOMHeaders.Manufacturer;
                         if ~isempty(strfind(lower(manufacturer),'philips')) && ~isempty(dataS(scansAdded+1).scanInfo(1).scaleSlope)
                             scaleSlope = dataS(scansAdded+1).scanInfo(1).scaleSlope;
-                            dataS(scansAdded+1).scanArray = dataS(scansAdded+1).scanArray./(rescaleSlope*scaleSlope);
+                            dataS(scansAdded+1).scanArray = single(dataS(scansAdded+1).scanArray)./(rescaleSlope*scaleSlope);
                         end
                     end
                 end
