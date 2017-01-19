@@ -763,7 +763,7 @@ switch upper(instr)
             stateS.scanStats.minScanVal.(scanUID) = single(min(planC{indexS.scan}(scanNum).scanArray(:)));
             stateS.scanStats.maxScanVal.(scanUID) = single(max(planC{indexS.scan}(scanNum).scanArray(:)));
             stateS.scanStats.CTLevel.(scanUID) = str2double(get(stateS.handle.CTLevel,'String'));
-            stateS.scanStats.CTWidth.(scanUID) = str2double(get(stateS.handle.CTWidth,'String')); 
+            stateS.scanStats.CTWidth.(scanUID) = str2double(get(stateS.handle.CTWidth,'String'));
             stateS.scanStats.windowPresets.(scanUID) = 1;
             stateS.scanStats.Colormap.(scanUID) = stateS.optS.scanColorMap(colorMapIndex).name;
         end
@@ -804,8 +804,19 @@ switch upper(instr)
                 scanUID = ['c',repSpaceHyp(planC{indexS.scan}(scanNum).scanUID(max(1,end-61):end))];
                 stateS.scanStats.CTLevel.(scanUID) = CTLevel;
                 stateS.scanStats.CTWidth.(scanUID) = CTWidth;
+        %%%%%%%%% ADDED AI 1/10/16 : Scaling window center/width for Philips display %%%%%
+                if strfind(lower(planC{indexS.scan}(scanNum).uniformScanInfo.scannerType),'philips')...
+                   & ~isempty(planC{indexS.scan}(scanNum).scanInfo(1).rescaleSlope)...
+                   & ~isempty(planC{indexS.scan}(scanNum).scanInfo(1).scaleSlope)
+                    rescaleSlope = planC{indexS.scan}(scanNum).scanInfo(1).rescaleSlope;
+                    scaleSlope = planC{indexS.scan}(scanNum).scanInfo(1).scaleSlope;
+                    scanUID = ['c',repSpaceHyp(planC{indexS.scan}(scanNum).scanUID(max(1,end-61):end))];
+                    stateS.scanStats.CTLevel.(scanUID) = stateS.scanStats.CTLevel.(scanUID)/(rescaleSlope*scaleSlope);
+                    stateS.scanStats.CTWidth.(scanUID) = stateS.scanStats.CTWidth.(scanUID)/(rescaleSlope*scaleSlope);
+                end
             end
         end
+        %%%%%%%%%%%%%%%%%%%% End added %%%%%%%%%%%%%
         
         %Update status string
         [pathstr, name, ext] = fileparts(stateS.CERRFile);
