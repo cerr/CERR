@@ -1,6 +1,6 @@
 function [energy3M,entropy3M,sumAvg3M,corr3M,invDiffMom3M,contrast3M,...
     clustShade3M,clustPromin3M,haralCorr3M] = textureByPatchCombineCooccur(scanArray3M, nL, ...
-    patchSizeV, offsetsM, flagv, hWait)
+    patchSizeV, offsetsM, flagv, hWait, xmin, xmax)
 % [energy3M,entropy3M,sumAvg3M,corr3M,invDiffMom3M,contrast3M,...
 %     clustShade3M,clustPromin3M,haralCorr3M] = textureByPatchCombineCooccur(scanArray3M, nL, ...
 %     patchSizeV, offsetsM, flagv, hWait)
@@ -60,7 +60,11 @@ numSlcsPad = floor(slcWindow/2);
 numVoxels = numRows*numCols;
 
 % Quantize the image
-q = imquantize_cerr(scanArray3M,nL);
+if exist('xmin','var')
+    q = imquantize_cerr(scanArray3M,nL,xmin,xmax);
+else
+    q = imquantize_cerr(scanArray3M,nL);
+end
 
 % Pad q, so that sliding window works also for the edge voxels
 %scanArrayTmp3M = padarray(scanArray3M,[numRowsPad numColsPad
