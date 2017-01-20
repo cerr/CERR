@@ -561,8 +561,10 @@ switch upper(command)
             %indAssoc = find(strcmpi({planC{indexS.structureArray}.assocScanUID},planC{indexS.scan}(scanNum).scanUID));
             %planC{indexS.structureArray}(indAssoc) = [];
             %if ~isempty(structToDelete)
-            planC{indexS.structureArray}(scanNum) = [];
-            planC{indexS.structureArrayMore}(scanNum) = [];
+            if length(planC{indexS.structureArray}) >= scanNum
+                planC{indexS.structureArray}(scanNum) = [];
+                planC{indexS.structureArrayMore}(scanNum) = [];
+            end
             %end
             stateS.structsChanged = 1;
             %Update doses associated with this scan            
