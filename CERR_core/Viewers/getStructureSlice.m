@@ -280,7 +280,7 @@ else %Rotation is not required, use simple linear interpolation.
         case 3
             slice = interp1(zV, 1:length(zV), coord);
             uniDim = 3; otherDims = [1 2];
-            sliceMatrix = zeros(length(xV), length(yV));
+            sliceMatrix = zeros(length(yV), length(xV));
             sliceXVals = xV; sliceYVals = yV;
     end
     slice = round(slice);
