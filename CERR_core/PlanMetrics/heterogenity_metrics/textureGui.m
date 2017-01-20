@@ -702,7 +702,7 @@ switch upper(command)
             
 
             [energy3M,entropy3M,sumAvg3M,corr3M,invDiffMom3M,contrast3M, ...
-                clustShade3M,clustPromin3M] = textureByPatchCombineCooccur(volToEval,...
+                clustShade3M,clustPromin3M, haralickCorr3M] = textureByPatchCombineCooccur(volToEval,...
                 numLevels,patchSizeV,offsetsM,flagsV,ud.wb.handles.patch);
             
             planC{indexS.texture}(ud.currentTexture).paramS.direction = direction;
@@ -715,6 +715,7 @@ switch upper(command)
             planC{indexS.texture}(ud.currentTexture).paramS.contrastFlag = contrastFlg;
             planC{indexS.texture}(ud.currentTexture).paramS.clusterShadeFlag = clustShadFlg;
             planC{indexS.texture}(ud.currentTexture).paramS.clusterPromFlag = clustPromFlg;
+            planC{indexS.texture}(ud.currentTexture).paramS.haralickCorrFlg = haralickCorrFlg;
 
         elseif category == 2 % Absolute Gradient
             
@@ -765,6 +766,9 @@ switch upper(command)
         if ~isempty(clustPromin3M)
             planC = scan2CERR(clustPromin3M,'Cluster Prominance','Passed',regParamsS,assocTextureUID,planC);
         end
+        if ~isempty(haralickCorr3M)
+            planC = scan2CERR(haralickCorr3M,'Haralick Correlation','Passed',regParamsS,assocTextureUID,planC);
+        end        
         
         set(h, 'userdata', ud);
         
