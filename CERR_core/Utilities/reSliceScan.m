@@ -1,5 +1,5 @@
-function reSliceScan(scanNum,dSag,dCor,dTrans,planC)
-%function reSliceScan(scanNum,dSag,dCor,dTrans,planC)
+function planC = reSliceScan(scanNum,dSag,dCor,dTrans,planC)
+%function planC = reSliceScan(scanNum,dSag,dCor,dTrans,planC)
 %
 %This function re-slices the scan scanNum according to resolution dSag,dCor,dTrans
 %INPUT: scanNum: Scan Index (1 if only one scan is present)
@@ -60,8 +60,11 @@ CTDatatype = class(planC{indexS.scan}(scanNum).scanArray);
 %Store transformation to be applied later
 transM = planC{indexS.scan}(scanNum).transM;
 
+% New number of slices:
+newNumSlcs = length(newZVals);
+
 %Find nearest slices of the old scan to the new slices
-for i=1:length(newZVals)
+for i=1:newNumSlcs
     nearestSlicesV(i) = findnearest(zVals,newZVals(i));
 end
 
@@ -75,7 +78,7 @@ end
 
 try
 
-    for slcNum = 1:length(newZVals)
+    for slcNum = 1:newNumSlcs
         %Interpolate in z direction
         [slc, sliceXVals, sliceYVals] = getCTOnSlice(scanNum, newZVals(slcNum), 3, planC);
         slc = finterp2(sliceXVals, sliceYVals, double(slc), newXVals, newYVals, 1,0);
@@ -101,8 +104,13 @@ try
         newScanInfo(slcNum).sliceThickness = sliceThickness;
         
         %Interpolate structures on to this slice (Nearest Neighbor Interpolation)
+        newContourS = struct('segments',[]);
+        for i = 1:newNumSlcs
+            newContourS(i).segments(1).points = deal([]);
+        end
         for strNum = 1:length(structNumV)
             contourS = contourC{structNumV(strNum)}(nearestSlicesV(slcNum));
+            planC{indexS.structures}(structNumV(strNum)).contour = newContourS;
             for segNum = 1:length(contourS.segments)
                 if ~isempty(contourS.segments(segNum).points)
                     newPointsM = contourS.segments(segNum).points;
@@ -112,6 +120,7 @@ try
                     planC{indexS.structures}(structNumV(strNum)).contour(slcNum).segments(segNum).points = [];
                 end
             end
+            contourLen = length(planC{indexS.structures}(structNumV(strNum)).contour);
         end
         
     end
