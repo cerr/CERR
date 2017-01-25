@@ -11,7 +11,7 @@ scanNum = getStructureAssociatedScan(structNum,planC);
 % Get voxel size
 voxX = planC{indexS.scan}(scanNum).scanInfo(1).grid2Units;
 voxY = planC{indexS.scan}(scanNum).scanInfo(1).grid1Units;
-voxZ = planC{indexS.scan}.scanInfo(1).sliceThickness;
+voxZ = planC{indexS.scan}(scanNum).scanInfo(1).sliceThickness;
 voxVol = voxX*voxY*voxZ;
 
 % Get PET data
@@ -25,7 +25,9 @@ minRegionSize = 71*(size(PT,1)/128)^2;
 %subplot(14,14,iplot)
 
 % Get VOI mask from Structure and associate PET data
-uSlices = []; maskRTS = []; maskRTStmp = [];
+uSlices = []; 
+maskRTS = []; 
+maskRTStmp = [];
 scanNum                     = getStructureAssociatedScan(structNum,planC);
 [rasterSeg, planC, isError] = getRasterSegments(structNum,planC);
 if isempty(rasterSeg)
