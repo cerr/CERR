@@ -246,9 +246,9 @@ switch fieldname
             case {'HFP', 'HFDR'}
                 dataS = -xOffset / 10;
             case 'FFS'
-                dataS = xOffset / 10;
-            case 'FFP'
                 dataS = -xOffset / 10;
+            case 'FFP'
+                dataS = xOffset / 10;
             otherwise
                 dataS = xOffset / 10;
         end

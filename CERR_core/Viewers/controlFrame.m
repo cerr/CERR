@@ -3349,6 +3349,11 @@ switch command
                 goto('SLICE',sliceNum)
                 stateS.annotToggle = 1;
                 set(ud.handles.sliceText, 'String', ['Image ',num2str(ud.annotation.currentMatchingSlc),'/',num2str(length(ud.annotation.matchingSliceIndV))])
+                % Get the patient position
+                pPos = planC{indexS.scan}(scanNum).scanInfo(1).DICOMHeaders.PatientPosition;
+                xOffset = planC{indexS.scan}(scanNum).scanInfo(1).xOffset;
+                yOffset = planC{indexS.scan}(scanNum).scanInfo(1).yOffset;
+                
                 % Vector of handles for annotations
                 hV = [];                
                 for iGraphic = 1:length(planC{indexS.GSPS}(gspsNum).graphicAnnotationS)
@@ -3358,6 +3363,27 @@ switch command
                     rowV = graphicAnnotationData(1:2:end);
                     colV = graphicAnnotationData(2:2:end);
                     [xV, yV] = mtoaapm(colV, rowV, Dims, gridUnits, offset);
+                    %xV = 2*xOffset - xV;
+                    switch upper(pPos)
+                        case 'FFS'
+                            
+                            xV = 2*xOffset - xV;
+                            
+                        case 'FFP'
+
+                            yV = 2*yOffset - yV;
+                            
+                        case 'HFP'
+                            
+                            xV = 2*xOffset - xV;
+                            yV = 2*yOffset - yV;
+                                                        
+                        case 'HFS'
+                            % no flip needed
+                            
+                    end
+                    
+                    
                     if strcmpi(graphicAnnotationType,'POLYLINE')
                         hV = [hV, plot(xV,yV,'r','parent',stateS.handle.CERRAxis(1))];
                     elseif strcmpi(graphicAnnotationType,'ELLIPSE')
@@ -3377,6 +3403,24 @@ switch command
                     rowV = graphicAnnotationData(1:2:end);
                     colV = graphicAnnotationData(2:2:end);
                     [xV, yV] = mtoaapm(colV, rowV, Dims, gridUnits, offset);
+                    switch upper(pPos)
+                        case 'FFS'
+                            
+                            xV = 2*xOffset - xV;
+                            
+                        case 'FFP'
+
+                            yV = 2*yOffset - yV;
+                            
+                        case 'HFP'
+                            
+                            xV = 2*xOffset - xV;
+                            yV = 2*yOffset - yV;
+                                                        
+                        case 'HFS'
+                            % no flip needed
+                            
+                    end
                     
                     if strcmpi(graphicAnnotationType,'POLYLINE') && graphicAnnotationNumPts == 2
                         lineLen = sqrt((xV(1)-xV(2))^2 + (yV(1)-yV(2))^2);
@@ -3388,7 +3432,7 @@ switch command
                         lineLenAx2 = sqrt((xV(3)-xV(4))^2 + (yV(3)-yV(4))^2);
                         EllipseArea = pi*lineLenAx1*lineLenAx2;
                         set(ud.handles.AnnotStat1,'string',['Area = ',num2str(EllipseArea), ' sq. cm'])
-                        hV = [hV, plot(xV(1:2),yV(1:2),'r','linewidth',2,'parent',stateS.handle.CERRAxis(1))]
+                        hV = [hV, plot(xV(1:2),yV(1:2),'r','linewidth',2,'parent',stateS.handle.CERRAxis(1))];
                         hV = [hV, plot(xV(3:4),yV(3:4),'r','linewidth',2,'parent',stateS.handle.CERRAxis(1))];
                     end
                     

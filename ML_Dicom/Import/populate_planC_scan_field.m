@@ -202,8 +202,16 @@ switch fieldname
                         dataS(:,:,imageNum) = flipdim(dataS(:,:,imageNum), 1);
                     end
                     
-                    if isequal(pPos,'HFP') || isequal(pPos,'FFP')
-                        dataS(:,:,imageNum) = flipdim(dataS(:,:,imageNum), 1); %Similar flip as doseArray
+                    switch upper(pPos)
+                        case 'HFP'
+                            dataS(:,:,imageNum) = flipdim(dataS(:,:,imageNum), 1); %Similar flip as doseArray
+                            dataS(:,:,imageNum) = flipdim(dataS(:,:,imageNum), 2); % 1/3/2017
+                            
+                        case 'FFS'
+                            dataS(:,:,imageNum) = flipdim(dataS(:,:,imageNum), 2);  % 1/3/2017
+                            
+                        case 'FFP'
+                            dataS(:,:,imageNum) = flipdim(dataS(:,:,imageNum), 1); %Similar flip as doseArray                                            
                     end
                     
                     clear imageobj;

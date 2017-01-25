@@ -216,16 +216,21 @@ switch fieldname
                 case 'HFS'
                     dataS = dataS;
                 case 'HFP'
-                    %dataS = -dataS; %APA commented
-                    dataS = -dataS;
-                    dataS = 2*xOffset - dataS;
+                    %dataS = -dataS; %APA commented                    
+                    dataS = -dataS; % 1/3/2017
+                    xDoseSiz = (abs(pixspac(2)) * (nCols - 1))/10;
+                    dataS = dataS - xDoseSiz; % 1/3/2017
+                    
                 case 'FFS'
-                    %dataS = -dataS;
-                    dataS = dataS; %APA change
-                case 'FFP'
-                    %dataS = dataS;
                     dataS = -dataS;
-                    dataS = 2*xOffset - dataS;                    
+                    %dataS = dataS; %APA change
+                    xDoseSiz = (abs(pixspac(2)) * (nCols - 1))/10;
+                    dataS = dataS - xDoseSiz; % 1/3/2017
+                    
+                case 'FFP'
+                    dataS = dataS;
+                    %dataS = -dataS;
+                    %dataS = 2*xOffset - dataS;                    
             end
         else
             dataS = dataS; % default to HFS
@@ -480,6 +485,9 @@ switch fieldname
         if isequal(pPos,'HFP') || isequal(pPos,'FFP')
             %dataS = flipdim(dataS, 2);
             dataS = flipdim(dataS, 1); %APA change
+        end
+        if isequal(pPos,'HFP')
+            dataS = flipdim(dataS, 2); % 1/3/2017
         end
 
         maxDose = max(dataS(:));

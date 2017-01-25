@@ -67,10 +67,13 @@ for doseNum = 1:length(planC{indexS.dose})
     assocScanNum = getAssociatedScan(planC{indexS.dose}(doseNum).assocScanUID,planC);
     if scanNum == assocScanNum
         planC{indexS.dose}(doseNum).doseArray = flipdim(planC{indexS.dose}(doseNum).doseArray,2);
+        xV = getDoseXYZVals(planC{indexS.dose}(doseNum));
+        planC{indexS.dose}(doseNum).coord1OFFirstPoint = ...
+           2*planC{indexS.scan}(scanNum).scanInfo(1).xOffset - xV(end); 
     end    
 end
 
 %ReRaster and ReUniformize
-reRasterAndUniformize
+planC = reRasterAndUniformize(planC);
 
 CERRRefresh

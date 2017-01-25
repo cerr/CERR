@@ -100,20 +100,40 @@ if length(planC{indexS.structureArrayMore}) ~= length(planC{indexS.structureArra
     end
 end
 
-%Check DSH Points for old CERR versions
-if ~isfield(planC{indexS.header},'CERRImportVersion') || (isfield(planC{indexS.header},'CERRImportVersion') && isempty(planC{indexS.header}.CERRImportVersion))
-    CERRImportVersion = '0';
-else
+% Get CERR version of last save
+if isfield(planC{indexS.header},'lastSavedInVer') && ~isempty(planC{indexS.header}.lastSavedInVer)
+    CERRImportVersion = planC{indexS.header}.lastSavedInVer;
+elseif isfield(planC{indexS.header},'CERRImportVersion') && ~isempty(planC{indexS.header}.CERRImportVersion)
     CERRImportVersion = planC{indexS.header}.CERRImportVersion;
+else
+    CERRImportVersion = '0';
 end
-
+    
+%Check DSH Points for old CERR versions
 if str2num(CERRImportVersion(1)) < 4
+    bug_found = 1;
     for structNum = 1:length(planC{indexS.structures})
         if ~isempty(planC{indexS.structures}(structNum).DSHPoints)
             planC = getDSHPoints(planC, stateS.optS, structNum);
         end
     end
 end
+
+% Fix RTOG orientation for HFP scans
+if str2num(strtok(CERRImportVersion, ',')) < 5.2
+    for scanNum = 1:length(planC{indexS.scan})
+        if isfield(planC{indexS.scan}(scanNum).scanInfo(1),'DICOMHeaders')
+            pPos = planC{indexS.scan}(scanNum).scanInfo(1).DICOMHeaders.PatientPosition;
+        else
+            pPos = '';
+        end
+        if strcmpi(pPos,'HFP')
+            planC = flipAlongX(scanNum, planC);
+            bug_found = 1;
+        end
+    end
+end
+
 
 % Check for GSPS and make it empty if no objects are present
 if length(planC{indexS.GSPS}) == 1 && isempty(planC{indexS.GSPS}.SOPInstanceUID)
