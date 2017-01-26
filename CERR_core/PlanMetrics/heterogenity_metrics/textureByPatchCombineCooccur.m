@@ -1,9 +1,9 @@
 function [energy3M,entropy3M,sumAvg3M,corr3M,invDiffMom3M,contrast3M,...
     clustShade3M,clustPromin3M,haralCorr3M] = textureByPatchCombineCooccur(scanArray3M, nL, ...
-    patchSizeV, offsetsM, flagv, hWait, xmin, xmax)
+    patchSizeV, offsetsM, flagv, hWait, minIntensity, maxIntensity)
 % [energy3M,entropy3M,sumAvg3M,corr3M,invDiffMom3M,contrast3M,...
 %     clustShade3M,clustPromin3M,haralCorr3M] = textureByPatchCombineCooccur(scanArray3M, nL, ...
-%     patchSizeV, offsetsM, flagv, hWait)
+%     patchSizeV, offsetsM, flagv, hWait, minIntensity, maxIntensity)
 % Patch-wise texture calculation.
 %
 % APA, 09/09/2015
@@ -60,8 +60,8 @@ numSlcsPad = floor(slcWindow/2);
 numVoxels = numRows*numCols;
 
 % Quantize the image
-if exist('xmin','var')
-    q = imquantize_cerr(scanArray3M,nL,xmin,xmax);
+if exist('minIntensity','var') && exist('maxIntensity','var')
+    q = imquantize_cerr(scanArray3M,nL,minIntensity,maxIntensity);
 else
     q = imquantize_cerr(scanArray3M,nL);
 end
