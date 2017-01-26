@@ -20,6 +20,18 @@ xSurfV = xVals(surfPoints(:,2));
 ySurfV = yVals(surfPoints(:,1));
 zSurfV = zVals(surfPoints(:,3));
 
+% Check if coplanar structure
+if length(unique(zSurfV)) < 2
+    shapeS.surfArea = NaN;
+    shapeS.vol = NaN;
+    shapeS.Compactness1 = NaN;
+    shapeS.Compactness2 = NaN;
+    shapeS.spherDisprop = NaN;
+    shapeS.sphericity = NaN;
+    shapeS.surfToVolRatio = NaN;
+    return;
+end
+
 % Generate surfacemesh
 triMesh = delaunay(xSurfV,ySurfV,zSurfV);
 TR = triangulation(triMesh, xSurfV', ySurfV', zSurfV');
