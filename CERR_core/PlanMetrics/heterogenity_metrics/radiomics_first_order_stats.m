@@ -14,6 +14,7 @@ function [RadiomicsFirstOrder] = radiomics_first_order_stats(planC,structNum,dos
 
 Step = 1;
 
+if iscell(planC)
 indexS = planC{end};
 
 % Get uniformized structure Mask
@@ -24,12 +25,26 @@ scanNum = getAssociatedScan(planC{indexS.structures}(structNum).assocScanUID, pl
 maskScan3M = getUniformizedCTScan(1, scanNum, planC);
 % Convert to HU if image is of type CT
 if strcmpi(planC{indexS.scan}(scanNum).scanType, 'CT')    
-    maskScan3M = maskScan3M - planC{indexS.scan}(scanNum).scanInfo(1).CTOffset;
+    maskScan3M = double(maskScan3M) - planC{indexS.scan}(scanNum).scanInfo(1).CTOffset;
 end
+
+% Get Pixel-size
+[xUnifV, yUnifV, zUnifV] = getUniformScanXYZVals(planC{indexS.scan}(scanNum));
+PixelSpacingXi = abs(xUnifV(2)-xUnifV(1));
+PixelSpacingYi = abs(yUnifV(2)-yUnifV(1));
+PixelSpacingZi = abs(zUnifV(2)-zUnifV(1));
+VoxelVol = PixelSpacingXi*PixelSpacingYi*PixelSpacingZi;
 
 % Iarray = Data.Image(~isnan(Data.Image));     %    Array of Image values
 indStructV = maskStruct3M(:) == 1;
 Iarray = maskScan3M(indStructV);
+
+else
+    
+    Iarray = planC;
+    VoxelVol = structNum;
+end
+
 
 % Calculate standard PET parameters
 RadiomicsFirstOrder.min           = min(Iarray);
@@ -65,12 +80,6 @@ N = ceil( RadiomicsFirstOrder.range/Step);  %
 RadiomicsFirstOrder.rms           = sqrt(sum(Iarray.^2)/length(Iarray));
 
 %   Total Energy ( integraal(a^2) )
-% Get Pixel-size
-[xUnifV, yUnifV, zUnifV] = getUniformScanXYZVals(planC{indexS.scan}(scanNum));
-PixelSpacingXi = abs(xUnifV(2)-xUnifV(1));
-PixelSpacingYi = abs(yUnifV(2)-yUnifV(1));
-PixelSpacingZi = abs(zUnifV(2)-zUnifV(1));
-VoxelVol = PixelSpacingXi*PixelSpacingYi*PixelSpacingZi;
 RadiomicsFirstOrder.totalEnergy   = VoxelVol*sum(Iarray.^2);
 
 %   Mean deviation (also called mean absolute deviation)
