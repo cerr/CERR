@@ -14,7 +14,7 @@ scanNum = getStructureAssociatedScan(structNum,planC);
 
 % Get surface points
 [xVals, yVals, zVals] = getUniformScanXYZVals(planC{indexS.scan}(scanNum));
-mask3M = getUniformStr(structNum);
+mask3M = getUniformStr(structNum,planC);
 surfPoints = getSurfacePoints(mask3M);
 xSurfV = xVals(surfPoints(:,2));
 ySurfV = yVals(surfPoints(:,1));
