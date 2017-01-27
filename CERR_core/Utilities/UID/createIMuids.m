@@ -33,7 +33,8 @@ for i = 1:nIM
     end
     
     % check for empty beamUID field assign default beamUID
-    if ~isempty(planC{indexS.IM}(i).IMDosimetry.beams) && ((isfield(planC{indexS.IM}(i).IMDosimetry.beams(1),'beamUID') && isempty(planC{indexS.IM}(i).IMDosimetry.beams(1).beamUID)) || ~isfield(planC{indexS.IM}(i).IMDosimetry.beams(1),'beamUID'))
+    if (isfield(planC{indexS.IM}(i).IMDosimetry,'beams') && ~isempty(planC{indexS.IM}(i).IMDosimetry.beams)) ...
+            && ((isfield(planC{indexS.IM}(i).IMDosimetry.beams(1),'beamUID') && isempty(planC{indexS.IM}(i).IMDosimetry.beams(1).beamUID)) || ~isfield(planC{indexS.IM}(i).IMDosimetry.beams(1),'beamUID'))
         for iBeam = 1:length(planC{indexS.IM}(i).IMDosimetry.beams)
             planC{indexS.IM}(i).IMDosimetry.beams(iBeam).beamUID = createUID('BEAM');
         end

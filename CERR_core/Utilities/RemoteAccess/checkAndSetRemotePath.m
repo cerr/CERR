@@ -40,13 +40,15 @@ flag = 0;
 
 % Check if any IM is remote
 for i = 1:length(planC{indexS.IM})
-    if ~isempty(planC{indexS.IM}(i).IMDosimetry.beams) && ~isLocal(planC{indexS.IM}(i).IMDosimetry.beams(1).beamlets) && exist(fullfile(storePath,planC{indexS.IM}(i).IMDosimetry.beams(1).beamlets.filename))==2
+    if (isfield(planC{indexS.IM}(i).IMDosimetry,'beams') && ~isempty(planC{indexS.IM}(i).IMDosimetry.beams)) ...
+            && ~isLocal(planC{indexS.IM}(i).IMDosimetry.beams(1).beamlets) && exist(fullfile(storePath,planC{indexS.IM}(i).IMDosimetry.beams(1).beamlets.filename))==2
         if ~isequal(fullfile(planC{indexS.IM}(i).IMDosimetry.beams(1).beamlets.remotePath,planC{indexS.IM}(i).IMDosimetry.beams(1).beamlets.filename),fullfile(storePath,planC{indexS.IM}(i).IMDosimetry.beams(1).beamlets.filename))
             for iBeam = 1:length(planC{indexS.IM}(i).IMDosimetry.beams)
                 planC{indexS.IM}(i).IMDosimetry.beams(iBeam).beamlets.remotePath = storePath;
             end
         end
-    elseif ~isempty(planC{indexS.IM}(i).IMDosimetry.beams) && ~isLocal(planC{indexS.IM}(i).IMDosimetry.beams(1).beamlets) && exist(fullfile(storePath,planC{indexS.IM}(i).IMDosimetry.beams(1).beamlets.filename))~=2
+    elseif (isfield(planC{indexS.IM}(i).IMDosimetry,'beams') && ~isempty(planC{indexS.IM}(i).IMDosimetry.beams)) ...
+            && ~isLocal(planC{indexS.IM}(i).IMDosimetry.beams(1).beamlets) && exist(fullfile(storePath,planC{indexS.IM}(i).IMDosimetry.beams(1).beamlets.filename))~=2
         flag = 1;
         return
     end
