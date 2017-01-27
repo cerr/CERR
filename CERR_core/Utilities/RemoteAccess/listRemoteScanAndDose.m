@@ -61,7 +61,8 @@ end
 
 % check for remote files in IM structure
 for i = 1:length(planC{indexS.IM})
-    if ~isempty(planC{indexS.IM}(i).IMDosimetry.beams) && ~isLocal(planC{indexS.IM}(i).IMDosimetry.beams(1).beamlets)
+    if (isfield(planC{indexS.IM}(i).IMDosimetry,'beams') && ~isempty(planC{indexS.IM}(i).IMDosimetry.beams)) ...
+            && ~isLocal(planC{indexS.IM}(i).IMDosimetry.beams(1).beamlets)
        for iBeam = 1:length(planC{indexS.IM}(i).IMDosimetry.beams)
            if isempty(remoteFiles)
                remoteFiles = planC{indexS.IM}(i).IMDosimetry.beams(iBeam).beamlets;
