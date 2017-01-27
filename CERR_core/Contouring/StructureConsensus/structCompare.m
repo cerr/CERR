@@ -69,18 +69,12 @@ switch upper(command)
             setAxisInfo(Ax1,'scanSelectMode','manual','structSelectMode','manual','scanSets',scanNum,'structureSets',scanNum,'doseSets',[],'view','transverse','xRange',[],'yRange',[])
             setAxisInfo(Ax2,'scanSelectMode','manual','structSelectMode','manual','scanSets',scanNum,'structureSets',scanNum,'doseSets',[])
             setAxisInfo(Ax3,'scanSelectMode','manual','structSelectMode','manual','scanSets',scanNum,'structureSets',scanNum,'doseSets',[])
-            axisInfo = get(Ax2,'userdata');
-            axisInfo.coord       = {'Linked', Ax1};
-            axisInfo.view        = {'Linked', Ax1};
-            axisInfo.xRange      = {'Linked', Ax1};
-            axisInfo.yRange      = {'Linked', Ax1};
-            set(Ax2, 'userdata', axisInfo);
-            axisInfo = get(Ax3,'userdata');
-            axisInfo.coord       = {'Linked', Ax1};
-            axisInfo.view        = {'Linked', Ax1};
-            axisInfo.xRange      = {'Linked', Ax1};
-            axisInfo.yRange      = {'Linked', Ax1};
-            set(Ax3, 'userdata', axisInfo);
+            setAxisInfo(Ax2,'coord',{'Linked', Ax1},...
+                'view',{'Linked', Ax1},'xRange',{'Linked', Ax1},...
+                'yRange',{'Linked', Ax1});
+            setAxisInfo(Ax3,'coord',{'Linked', Ax1},...
+                'view',{'Linked', Ax1},'xRange',{'Linked', Ax1},...
+                'yRange',{'Linked', Ax1});
 
             %Set coord at the starting slice of strNum1
             [x,y,z] = size(getScanArray(planC{indexS.scan}(scanNum)));
@@ -216,6 +210,10 @@ switch upper(command)
 
             %6> Draw mask for structure 1,2 and the difference
             showComparisonMask(structAll,mean(obsAgree))
+            
+            stateS.CTDisplayChanged = 1;
+            stateS.structsChanged = 1;
+            CERRRefresh
 
         catch
 
@@ -231,32 +229,21 @@ switch upper(command)
         sliceCallBack('layout', stateS.structCompare.oldLayout)
         %unLink the axes
         Ax1 = stateS.handle.CERRAxis(1);
-        Ax2 = stateS.handle.CERRAxis(2);
-        Ax3 = stateS.handle.CERRAxis(3);
-        axisInfo1 = get(Ax1,'userdata');
-        axisInfo1.coord       = [];
-        axisInfo1.view        = 'transverse';
-        axisInfo1.xRange      = [];
-        axisInfo1.yRange      = [];
-        axisInfo1.scanSets = 1;
-        axisInfo1.structureSets = 1;
-        set(Ax1, 'userdata', axisInfo1);
-        axisInfo2 = get(Ax2,'userdata');
-        axisInfo3 = get(Ax3,'userdata');
-        axisInfo2.coord       = [];
-        axisInfo2.view        = 'sagittal';
-        axisInfo2.xRange      = [];
-        axisInfo2.yRange      = [];
-        axisInfo2.scanSets = 1;
-        axisInfo2.structureSets = 1;
-        set(Ax2, 'userdata', axisInfo2);
-        axisInfo3.coord       = [];
-        axisInfo3.view        = 'coronal';
-        axisInfo3.xRange      = [];
-        axisInfo3.yRange      = [];
-        axisInfo3.scanSets = 1;
-        axisInfo3.structureSets = 1;
-        set(Ax3, 'userdata', axisInfo3);
+        setAxisInfo(Ax1,'coord',[],'view','transverse','xRange',[],...
+            'yRange',[],'scanSets',1,'structureSets',1)
+        stateS.handle.aI(2).coord = [];
+        stateS.handle.aI(2).view = 'sagittal';
+        stateS.handle.aI(2).xRange = [];
+        stateS.handle.aI(2).yRange = [];
+        stateS.handle.aI(2).scanSets = 1;
+        stateS.handle.aI(2).structureSets = 1;
+        stateS.handle.aI(3).coord = [];
+        stateS.handle.aI(3).view = 'coronal';
+        stateS.handle.aI(3).xRange = [];
+        stateS.handle.aI(3).yRange = [];
+        stateS.handle.aI(3).scanSets = 1;
+        stateS.handle.aI(3).structureSets = 1;
+        
         stateS = rmfield(stateS,'structCompare');
         %close the active histogram figure
         hFig = findobj('name','Agreement Histogram');
@@ -264,6 +251,10 @@ switch upper(command)
         %setAxisInfo(hAxis, 'coord', coord, 'view', view, 'xRange', [], 'yRange', []);
         % Remove check-mark from the "Consensus" drop-down
         set(findobj(stateS.handle.CERRStructMenu,'label', 'Consensus'),'Checked','off');
+        if isfield(stateS.handle,'stapleText')
+            handleV = ishandle(stateS.handle.stapleText);
+            delete(stateS.handle.stapleText(handleV))
+        end
         CERRRefresh
 
 end

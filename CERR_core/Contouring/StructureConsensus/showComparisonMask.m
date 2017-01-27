@@ -83,15 +83,21 @@ apparentMask    = intersectMask/length(maskAll) >= percentAgrement;
 correctedMask   = correctedMaskM >= percentAgrement;
 stapleMask      = stapleMaskM >= percentAgrement;
 
+if isfield(stateS.handle,'stapleText')
+   handleV = ishandle(stateS.handle.stapleText);
+   delete(stateS.handle.stapleText(handleV))
+end
+
 hAxisAparent = stateS.handle.CERRAxis(1);
 cleanupAxes(hAxisAparent);
-text('parent', hAxisAparent, 'string', 'Apparent', 'position', [.5 .90 0], 'color', [1 0 0], 'units', 'normalized', 'visible', 'on', 'horizontalAlignment', 'center', 'verticalAlignment', 'top','fontSize',14);
+stateS.handle.stapleText(1) = text('parent', hAxisAparent, 'string', 'Apparent', 'position', [.5 .90 0], 'color', [1 0 0], 'units', 'normalized', 'visible', 'on', 'horizontalAlignment', 'center', 'verticalAlignment', 'top','fontSize',14);
 hAxisCorrected = stateS.handle.CERRAxis(2);
 cleanupAxes(hAxisCorrected);
-text('parent', hAxisCorrected, 'string', 'Corrected', 'position', [.5 .90 0], 'color', [1 0 0], 'units', 'normalized', 'visible', 'on', 'horizontalAlignment', 'center', 'verticalAlignment', 'top','fontSize',14);
+stateS.handle.stapleText(2) = text('parent', hAxisCorrected, 'string', 'Corrected', 'position', [.5 .90 0], 'color', [1 0 0], 'units', 'normalized', 'visible', 'on', 'horizontalAlignment', 'center', 'verticalAlignment', 'top','fontSize',14);
 hAxisStaple = stateS.handle.CERRAxis(3);
 cleanupAxes(hAxisStaple);
-text('parent', hAxisStaple, 'string', 'STAPLE', 'position', [.5 .90 0], 'color', [1 0 0], 'units', 'normalized', 'visible', 'on', 'horizontalAlignment', 'center', 'verticalAlignment', 'top','fontSize',14);
+stateS.handle.stapleText(3) = text('parent', hAxisStaple, 'string', 'STAPLE', 'position', [.5 .90 0], 'color', [1 0 0], 'units', 'normalized', 'visible', 'on', 'horizontalAlignment', 'center', 'verticalAlignment', 'top','fontSize',14);
+
 set([hAxisAparent hAxisCorrected hAxisStaple], 'nextplot', 'add');
 
 switch lower(view)

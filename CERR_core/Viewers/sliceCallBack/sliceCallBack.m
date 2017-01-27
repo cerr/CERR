@@ -2008,7 +2008,7 @@ switch upper(instr)
         CERRStatusString('Done copying structure/s')
         
     case 'STRUCTCONSENSUS'
-        prompt = {'Input structures to check consensus: e.g. [2 3 6 7]'};
+        prompt = {'Input structures to check consensus separated by spaces: e.g. 2 3 6 7'};
         name = 'Consensus';
         numlines = 1;
         defaultanswer = {''};
