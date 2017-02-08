@@ -6,6 +6,7 @@ function dataS = populate_planC_scan_field(fieldname, dcmdir_PATIENT_STUDY_SERIE
 %
 %JRA 06/15/06
 %YWU Modified 03/01/08
+%AI  added transferSyntaxUID for compressed images 02/02/17
 %
 %Usage:
 %   dataS = populate_planC_scan_field(fieldname, dcmdir_PATIENT_STUDY_SERIES);
@@ -76,7 +77,8 @@ switch fieldname
                     %Pixel Data
                     %wy sliceV = dcm2ml_Element(imgobj.get(hex2dec('7FE00010')));
                     %sliceV = imgobj.getInts(org.dcm4che2.data.Tag.PixelData);
-                    sliceV = dcm2ml_Element(imgobj.get(hex2dec('7FE00010')));
+                    transferSyntaxUID = dcm2ml_Element(imgobj.get(hex2dec('00020010')));
+                    sliceV = dcm2ml_Element(imgobj.get(hex2dec('7FE00010')),transferSyntaxUID);
                     
                     %Rows
                     nRows  = dcm2ml_Element(imgobj.get(hex2dec('00280010')));
