@@ -46,7 +46,8 @@ structName = planC{indexS.structures}(structNum).structureName;
 
 if nargin ~= 4 % load stored DVHs if numBins is not specified
     for DVHNum=1:length(planC{indexS.DVH})
-        if strcmp(upper(planC{indexS.DVH}(DVHNum).structureName), upper(structName)) & planC{indexS.DVH}(DVHNum).doseIndex == doseNum & ~isempty(planC{indexS.DVH}(DVHNum).DVHMatrix)
+        % AI 2/8/17
+        if strcmp(upper(planC{indexS.DVH}(DVHNum).structureName), upper(structName)) & isequal(planC{indexS.DVH}(DVHNum).doseIndex,doseNum) & ~isempty(planC{indexS.DVH}(DVHNum).DVHMatrix)
             [doseBinsV, volsHistV] = loadDVHMatrix(DVHNum, planC);
         end
     end
