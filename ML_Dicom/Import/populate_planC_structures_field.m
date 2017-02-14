@@ -239,11 +239,12 @@ switch fieldname
                         data(:,1) = -data(:,1);
                     case 'FFS' %+x,-y,-z
                         data(:,2) = -data(:,2);
-                        data(:,1) = 2*xOffset*10 - data(:,1);
+                        data(:,1) = -data(:,1);
+                        %data(:,1) = 2*xOffset*10 - data(:,1);
                         %data(:,2) = 2*yOffset*10 - data(:,2);
                     case 'FFP' %-x,+y,-z
                         data(:,1) = -data(:,1);
-                        data(:,1) = 2*xOffset*10 - data(:,1);
+                        %data(:,1) = 2*xOffset*10 - data(:,1);
                     otherwise
                         %data(:,2) = -data(:,2);
                         data(:,2) = -1*yOffset*10 + 2*data(:,2);
