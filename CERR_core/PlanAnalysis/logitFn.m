@@ -9,8 +9,12 @@ function ntcp = logitFn(paramS,doseBinsV,volHistV)
 % 'MULTIVARIATE'
 %
 % For D50_GAMMA50 type of fit, 
+% Specify the dose calculation function via paramS.doseCalcFunction
+% For example: paramS.doseCalcFunction = 'calc_meanDose';
 % If paramS.appeltMod = 'yes'; modification for
 % risk factors are computed based on Appelt et al.
+% if paramS.isHighRiskPatient = 'yes', the patient falls in the high risk
+% category.
 %
 % For MULTIVARIATE type of fit,
 % specify the variates using the following format:
@@ -32,19 +36,29 @@ switch upper(modelType)
         %Get parameters
         D50 = paramS.D50;
         gamma50 = paramS.gamma50;
+        doseCalcFunction = paramS.doseCalcFunction;
+        additionalInput = [];
+        if isfield(paramS,'additionalInput')
+            additionalInput = paramS.additionalInput;
+        end
         
         % Apply Appelt modification to D50, gamma50 for the risky group
         if isfield(paramS,'appeltMod') && strcmpi(paramS.appeltMod,'yes')
             s = paramS.s;
             OR = paramS.OR;
             [D50, gamma50] = appeltMod(s,OR,D50,gamma50);
+            if isfield(paramS,'isHighRiskPatient') && strcmpi(paramS.isHighRiskPatient,'yes')
+                D50 = D50 * (1 - 1/4/gamma50*log(OR));
+                gamma50 = gamma50  - 1/4*log(OR);
+            end
         end
         
-        %mean dose for selected struct/dose
-        meanDoseCalc = calc_meanDose(doseBinsV, volHistV);
+        %dose for selected struct/dose
+        %dose = calc_meanDose(doseBinsV, volHistV);
+        dose = eval([doseCalcFunction,'(doseBinsV, volHistV)',additionalInput]);
         
         %Compute NTCP
-        ntcp = 1./(1+exp(4*gamma50*(1-meanDoseCalc/D50)));        
+        ntcp = 1./(1+exp(4*gamma50*(1-dose/D50)));        
         
     case 'MULTIVARIATE'
         
@@ -55,9 +69,13 @@ switch upper(modelType)
         for iField = 1:length(fieldNamC)
             weight = paramS.(fieldNamC{iField}).weight;
             x = paramS.(fieldNamC{iField}).x;
+            additionalInput = [];
+            if isfield(paramS.(fieldNamC{iField}),'additionalInput')
+                additionalInput = paramS.(fieldNamC{iField}).additionalInput;
+            end
             if ~isnumeric(x)
                 % call the function x
-                x = eval([x,'(doseBinsV, volHistV)']);
+                x = eval([x,'(doseBinsV, volHistV)',additionalInput]);
             end
             gx = gx + weight * x;
         end
