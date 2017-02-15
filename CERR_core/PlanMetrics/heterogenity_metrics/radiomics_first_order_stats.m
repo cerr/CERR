@@ -24,7 +24,7 @@ maskStruct3M = getUniformStr(structNum,planC);
 scanNum = getAssociatedScan(planC{indexS.structures}(structNum).assocScanUID, planC);
 maskScan3M = getUniformizedCTScan(1, scanNum, planC);
 % Convert to HU if image is of type CT
-if strcmpi(planC{indexS.scan}(scanNum).scanType, 'CT')    
+if ~isempty(planC{indexS.scan}(scanNum).scanInfo(1).CTOffset)
     maskScan3M = double(maskScan3M) - planC{indexS.scan}(scanNum).scanInfo(1).CTOffset;
 end
 
