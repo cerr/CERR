@@ -106,7 +106,7 @@ scansWithSameUID   = ismember(addedScanUIDc,existingScanUIDc);
 dosesWithSameUID   = ismember(addedDoseUIDc,existingDoseUIDc);
 structsWithSameUID = ismember(addedStructureUIDc,existingStructureUIDc);
 
-if any(scansWithSameUID)
+if any(scansWithSameUID) && ~isempty(scanIndV)
     oldScanUIc = {scans.scanUID};
     for scanNum = 1:length(planD{indexSD.scan})
         scans(scanNum).scanUID = createUID('scan');
