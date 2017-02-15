@@ -23,10 +23,6 @@ function ntcp = logitFn(paramS,doseBinsV,volHistV)
 % 
 % APA, 02/15/2017
 
-% to do:
-% (1) apply Appelt et al correction factors for D50 and gamma50 (Appelt et al)
-% (2) generalize this function. X = sum(wi.xi). (Wijsman et al)
-
 modelType = paramS.modelType;
 
 switch upper(modelType)
