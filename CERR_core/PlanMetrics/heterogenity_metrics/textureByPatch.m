@@ -1,9 +1,9 @@
 function [energy3M,entropy3M,sumAvg3M,corr3M,invDiffMom3M,contrast3M,...
-    clustShade3M,clustPromin3M,haralCorr3M] = textureByPatch(q, nL, ...
-    patchSizeV, offsetsM, flagv, hWait)
+    clustShade3M,clustPromin3M,haralCorr3M] = textureByPatch(scanArray3M, nL, ...
+    patchSizeV, offsetsM, flagv, hWait, minIntensity,maxIntensity,separateDirnFlag)
 % function [energy3M,entropy3M,sumAvg3M,corr3M,invDiffMom3M,contrast3M,...
 %     clustShade3M,clustPromin3M] = textureByPatch(q, nL, ...
-%     patchSizeV, offsetsM, flagv, hWait)
+%     patchSizeV, offsetsM, flagv, hWait, minIntensity,maxIntensity,separateDirnFlag)
 %
 % Patch-wise texture calculation.
 %
@@ -23,8 +23,9 @@ if exist('hWait','var') && ishandle(hWait)
 end
 
 % Get indices of non-NaN voxels
-% calcIndM = ~isnan(scanArray3M);
-calcIndM = q > 0;
+calcIndM = ~isnan(scanArray3M);
+% calcIndM = q > 0;
+
 
 % % Grid resolution
 slcWindow = 2 * patchSizeV(3) + 1;
@@ -37,8 +38,8 @@ numRowsPad = floor(rowWindow/2);
 numSlcsPad = floor(slcWindow/2);
 
 % Get number of voxels per slice
-% [numRows, numCols, numSlices] = size(scanArray3M);
-[numRows, numCols, numSlices] = size(q);
+[numRows, numCols, numSlices] = size(scanArray3M);
+% [numRows, numCols, numSlices] = size(q);
 numVoxels = numRows*numCols;
 
 % Quantize the image
@@ -53,6 +54,20 @@ numVoxels = numRows*numCols;
 %q3 = imquantize(scanArray3M, levels);
 
 % q = imquantize_cerr(scanArray3M,nL);
+
+% Pad q, so that sliding window works also for the edge voxels
+%scanArrayTmp3M = padarray(scanArray3M,[numRowsPad numColsPad
+%numSlcsPad],NaN,'both'); % aa commented
+%q = padarray(q,[numRowsPad numColsPad numSlcsPad],NaN,'both');
+
+% Quantize the image
+if exist('minIntensity','var') && exist('maxIntensity','var')
+    q = imquantize_cerr(scanArray3M,nL,minIntensity,maxIntensity);
+else
+    q = imquantize_cerr(scanArray3M,nL);
+end
+
+clear scanArray3M
 
 % Pad q, so that sliding window works also for the edge voxels
 %scanArrayTmp3M = padarray(scanArray3M,[numRowsPad numColsPad
@@ -156,6 +171,11 @@ end
 levRowV(nanIndV) = [];
 levColV(nanIndV) = [];
 
+dim = 1;
+if separateDirnFlag   
+    dim = numOffsets;
+end
+
 % Initialize
 energy3M = [];
 entropy3M = [];
@@ -167,45 +187,44 @@ clustShade3M = [];
 clustPromin3M = [];
 haralCorr3M = [];
 if flagv(1)
-    energy3M = zeros([numRows, numCols, numSlices],'single');
+    energy3M = zeros([numRows, numCols, numSlices, dim],'single');
 end
 if flagv(2)
-    entropy3M = zeros([numRows, numCols, numSlices],'single');
+    entropy3M = zeros([numRows, numCols, numSlices, dim],'single');
 end
 if flagv(3)
-    sumAvg3M = zeros([numRows, numCols, numSlices],'single');
+    sumAvg3M = zeros([numRows, numCols, numSlices, dim],'single');
 end
 if flagv(4)
-    corr3M = zeros([numRows, numCols, numSlices],'single');
+    corr3M = zeros([numRows, numCols, numSlices, dim],'single');
 end
 if flagv(5)
-    invDiffMom3M = zeros([numRows, numCols, numSlices],'single');
+    invDiffMom3M = zeros([numRows, numCols, numSlices, dim],'single');
 end
 if flagv(6)
-    contrast3M = zeros([numRows, numCols, numSlices],'single');
+    contrast3M = zeros([numRows, numCols, numSlices, dim],'single');
 end
 if flagv(7)
-    clustShade3M = zeros([numRows, numCols, numSlices],'single');
+    clustShade3M = zeros([numRows, numCols, numSlices, dim],'single');
 end
 if flagv(8)
-    clustPromin3M = zeros([numRows, numCols, numSlices],'single');
+    clustPromin3M = zeros([numRows, numCols, numSlices, dim],'single');
 end
-
 
 tic
 % Iterate over slices. compute cooccurance for all patches per slice
 for slcNum = 1:numSlices
     
     disp(['--- Texture Calculation for Slice # ', num2str(slcNum), ' ----']) 
-    if flagv(1), energyV = zeros(1,numVoxels,'single'); end
-    if flagv(2), entropyV = zeros(1,numVoxels,'single'); end
-    if flagv(3), sumAvgV = zeros(1,numVoxels,'single'); end
-    if flagv(4), corrV = zeros(1,numVoxels,'single'); end
-    if flagv(5), invDiffMomV = zeros(1,numVoxels,'single'); end
-    if flagv(6), contrastV = zeros(1,numVoxels,'single'); end
-    if flagv(7), clustShadeV = zeros(1,numVoxels,'single'); end
-    if flagv(8), clustProminV = zeros(1,numVoxels,'single'); end    
-    if flagv(9), haralCorrV = zeros(1,numVoxels,'single'); end    
+    if flagv(1), energyV = zeros(dim,numVoxels,'single'); end
+    if flagv(2), entropyV = zeros(dim,numVoxels,'single'); end
+    if flagv(3), sumAvgV = zeros(dim,numVoxels,'single'); end
+    if flagv(4), corrV = zeros(dim,numVoxels,'single'); end
+    if flagv(5), invDiffMomV = zeros(dim,numVoxels,'single'); end
+    if flagv(6), contrastV = zeros(dim,numVoxels,'single'); end
+    if flagv(7), clustShadeV = zeros(dim,numVoxels,'single'); end
+    if flagv(8), clustProminV = zeros(dim,numVoxels,'single'); end    
+    if flagv(9), haralCorrV = zeros(dim,numVoxels,'single'); end    
     
     calcSlcIndV = calcIndM(:,:,slcNum);
     calcSlcIndV = calcSlcIndV(:);
@@ -234,6 +253,9 @@ for slcNum = 1:numSlices
         end        
         indSlcM(indNoNeighborV,:) = [];
         
+        % index for various scalar features
+        featDim = min(dim,off);
+        
         for slc = slcNum:slcNum+slcWindow-1 % slices within the patch
             if slc-slcNum+offset(3) >= slcWindow
                 continue;
@@ -258,11 +280,11 @@ for slcNum = 1:numSlices
         % Calculate scalar texture for this offset
         % Angular Second Moment (Energy)
         if flagv(1)
-            energyV(calcSlcIndV) = energyV(calcSlcIndV) + sum(cooccurPatchM.^2);
+            energyV(featDim,calcSlcIndV) = energyV(featDim,calcSlcIndV) + sum(cooccurPatchM.^2);
         end
         % Entropy
         if flagv(2)
-            entropyV(calcSlcIndV) = entropyV(calcSlcIndV) - ...
+            entropyV(featDim,calcSlcIndV) = entropyV(featDim,calcSlcIndV) - ...
                 sum(cooccurPatchM.*log2(cooccurPatchM+1e-10));
         end
         % Contrast, inverse Difference Moment
@@ -276,12 +298,12 @@ for slcNum = 1:numSlices
             pXminusY(n+1,:) = sum(cooccurPatchM(indCtrstC{n+1},:),1);
             % Contrast
             if flagv(6)
-                contrastV(calcSlcIndV) = contrastV(calcSlcIndV) + ...
+                contrastV(featDim,calcSlcIndV) = contrastV(featDim,calcSlcIndV) + ...
                     sum(n^2*cooccurPatchM(indCtrstC{n+1},:));
             end
             % inv diff moment
             if flagv(5)
-                invDiffMomV(calcSlcIndV) = invDiffMomV(calcSlcIndV) + ...
+                invDiffMomV(featDim,calcSlcIndV) = invDiffMomV(featDim,calcSlcIndV) + ...
                     sum((1/(1+n^2))*cooccurPatchM(indCtrstC{n+1},:));
             end
         end 
@@ -291,7 +313,8 @@ for slcNum = 1:numSlices
             pXplusY(n,:) = sum(cooccurPatchM(indPxPlusYc{n},:),1);
             % Sum Average
             if flagv(3)
-                sumAvgV(calcSlcIndV) = sumAvgV(calcSlcIndV) + n*pXplusY(n,:);
+                sumAvgV(featDim,calcSlcIndV) = sumAvgV(featDim,calcSlcIndV) ...
+                    + n*pXplusY(n,:);
             end
         end
        
@@ -304,7 +327,7 @@ for slcNum = 1:numSlices
         if flagv(4)            
             levIMinusMu = bsxfun(@minus,levRowV',mu);
             levJMinusMu = bsxfun(@minus,levColV',mu);            
-            corrV(calcSlcIndV) = corrV(calcSlcIndV) + ...
+            corrV(featDim,calcSlcIndV) = corrV(featDim,calcSlcIndV) + ...
                 sum(levIMinusMu .* levJMinusMu  .* cooccurPatchM, 1) ...
                 ./ (sig + 1e-10); % sig.^2 to match ITK results (ITK bug)            
         end
@@ -314,7 +337,7 @@ for slcNum = 1:numSlices
             levIMinusMu = bsxfun(@minus,levRowV',mu);
             levJMinusMu = bsxfun(@minus,levColV',mu);            
             clstrV = levIMinusMu + levJMinusMu;
-            clustShadeV(calcSlcIndV) = clustShadeV(calcSlcIndV) + ...
+            clustShadeV(featDim,calcSlcIndV) = clustShadeV(featDim,calcSlcIndV) + ...
                 sum(clstrV.*clstrV.*clstrV .* cooccurPatchM, 1);
         end
         % Cluster Prominence
@@ -322,7 +345,7 @@ for slcNum = 1:numSlices
             levIMinusMu = bsxfun(@minus,levRowV',mu);
             levJMinusMu = bsxfun(@minus,levColV',mu);            
             clstrV = levIMinusMu + levJMinusMu;            
-            clustProminV(calcSlcIndV) = clustProminV(calcSlcIndV) + ...
+            clustProminV(featDim,calcSlcIndV) = clustProminV(featDim,calcSlcIndV) + ...
                 sum(clstrV.*clstrV.*clstrV.*clstrV .* cooccurPatchM, 1);
         end
         
@@ -345,7 +368,7 @@ for slcNum = 1:numSlices
 %              end
 %              sigX = sigX/nL;
              
-             haralCorrV(calcSlcIndV) = haralCorrV(calcSlcIndV) + ...
+             haralCorrV(featDim,calcSlcIndV) = haralCorrV(featDim,calcSlcIndV) + ...
                  (levRowV .* levColV * cooccurPatchM - ...
                  muX .* muX) ./ (sigX + eps);   % (levRowV-1) .* (levColV-1) to match ITK? Bug?       
              
@@ -355,39 +378,39 @@ for slcNum = 1:numSlices
     % Average texture from all directions
     if flagv(1)
         energyV = energyV / numOffsets;
-        energy3M(:,:,slcNum) = reshape(energyV(:),[numRows, numCols]);
+        energy3M(:,:,slcNum,:) = reshape(energyV',[numRows, numCols, 1, dim]);
     end
     if flagv(2)
         entropyV = entropyV / numOffsets;
-        entropy3M(:,:,slcNum) = reshape(entropyV(:),[numRows, numCols]);
+        entropy3M(:,:,slcNum,:) = reshape(entropyV',[numRows, numCols, 1, dim]);
     end
     if flagv(3)
         sumAvgV = sumAvgV / numOffsets;
-        sumAvg3M(:,:,slcNum) = reshape(sumAvgV(:),[numRows, numCols]);
+        sumAvg3M(:,:,slcNum,:) = reshape(sumAvgV',[numRows, numCols, 1, dim]);
     end
     if flagv(4)
         corrV = corrV / numOffsets;
-        corr3M(:,:,slcNum) = reshape(corrV(:),[numRows, numCols]);
+        corr3M(:,:,slcNum,:) = reshape(corrV',[numRows, numCols, 1, dim]);
     end
     if flagv(5)
         invDiffMomV = invDiffMomV / numOffsets;
-        invDiffMom3M(:,:,slcNum) = reshape(invDiffMomV(:),[numRows, numCols]);
+        invDiffMom3M(:,:,slcNum,:) = reshape(invDiffMomV',[numRows, numCols, 1, dim]);
     end
     if flagv(6)
         contrastV = contrastV / numOffsets;
-        contrast3M(:,:,slcNum) = reshape(contrastV(:),[numRows, numCols]);
+        contrast3M(:,:,slcNum,:) = reshape(contrastV',[numRows, numCols, 1, dim]);
     end
     if flagv(7)
         clustShadeV = clustShadeV / numOffsets;
-        clustShade3M(:,:,slcNum) = reshape(clustShadeV(:),[numRows, numCols]);
+        clustShade3M(:,:,slcNum,:) = reshape(clustShadeV',[numRows, numCols, 1, dim]);
     end
     if flagv(8)
         clustProminV = clustProminV / numOffsets;
-        clustPromin3M(:,:,slcNum) = reshape(clustProminV(:),[numRows, numCols]);
-    end    
+        clustPromin3M(:,:,slcNum,:) = reshape(clustProminV',[numRows, numCols, 1, dim]);
+    end
     if flagv(9)
         haralCorrV = haralCorrV / numOffsets;
-        haralCorr3M(:,:,slcNum) = reshape(haralCorrV(:),[numRows, numCols]);                
+        haralCorr3M(:,:,slcNum,:) = reshape(haralCorrV',[numRows, numCols, 1, dim]);                
     end
     
     if waitbarFlag
