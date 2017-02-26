@@ -51,7 +51,7 @@ newGridInterval1 = abs(newYVals(1) - newYVals(2));
 sliceThickness = newZVals(2) - newZVals(1);
 
 %Find structures belonging to scanNum
-assocScanV = getStructureAssociatedScan(1:length(planC{indexS.structures}));
+assocScanV = getStructureAssociatedScan(1:length(planC{indexS.structures}),planC);
 structNumV = find(assocScanV==scanNum);
 
 oldScanInfo = planC{indexS.scan}(scanNum).scanInfo(1);
