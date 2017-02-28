@@ -1,4 +1,4 @@
-function [slice, sliceXVals, sliceYVals] = getCTSlice(scanSet, sliceNum, dim)
+function [slice, sliceXVals, sliceYVals] = getCTSlice(scanSet, sliceNum, dim, planC)
 %"getCTSlice"
 %   Returns the CTSlice at sliceNum in dimension dim, where dim = 1,2,3 for
 %   x,y,z respectively.  sliceXVals and sliceYVals are the coordinates of
@@ -36,15 +36,17 @@ function [slice, sliceXVals, sliceYVals] = getCTSlice(scanSet, sliceNum, dim)
 % You should have received a copy of the GNU General Public License
 % along with CERR.  If not, see <http://www.gnu.org/licenses/>.
 
-global planC
+if ~exist('planC','var')
+    global planC
+end
 global stateS
 indexS = planC{end};
 
 [xs, ys, zs] = getUniformScanXYZVals(scanSet);
 %Use scan access function in case of remote variables.
-scanArraySup    = getScanArraySuperior(scanSet);
-scanArrayInf    = getScanArrayInferior(scanSet);
-scanArray       = getScanArray(scanSet);
+scanArraySup    = getScanArraySuperior(scanSet, planC);
+scanArrayInf    = getScanArrayInferior(scanSet, planC);
+scanArray       = getScanArray(scanSet, planC);
 uniformScanInfo = scanSet.uniformScanInfo;
 sliceNumSup     = uniformScanInfo.sliceNumSup;
 sliceNumInf     = uniformScanInfo.sliceNumInf;
