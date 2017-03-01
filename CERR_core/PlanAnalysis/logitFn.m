@@ -5,12 +5,10 @@ function ntcp = logitFn(paramS,doseBinsV,volHistV)
 % This function returns the outcomes probabilities based on logistic fit.
 %
 % INPUT parameters:
-% paramS.modelType: The type of logistic fit, 'D50_GAMMA50' or
+% paramS.modelSubtype: The type of logistic fit, 'D50_GAMMA50' or
 % 'MULTIVARIATE'
 %
-% For D50_GAMMA50 type of fit, 
-% Specify the dose calculation function via paramS.doseCalcFunction
-% For example: paramS.doseCalcFunction = 'calc_meanDose';
+% For D50_GAMMA50 type of fit,
 % If paramS.appeltMod = 'yes'; modification for
 % risk factors are computed based on Appelt et al.
 % if paramS.isHighRiskPatient = 'yes', the patient falls in the high risk
@@ -20,69 +18,66 @@ function ntcp = logitFn(paramS,doseBinsV,volHistV)
 % specify the variates using the following format:
 % paramS.field1.x = 1;
 % paramS.field1.weight = 2;
-% 
+%
 % paramS.field1.x can also be a string, in which case it will act as a
 % function name. This function must have the signature x(doseBinsV,
 % volHistV).
-% 
+%
 % APA, 02/15/2017
+% AI, 02/21/17
 
-modelType = paramS.modelType;
+modelType = paramS.modelSubtype.val;
 
 switch upper(modelType)
     
     case 'D50_GAMMA50'
-        
-        %Get parameters
-        D50 = paramS.D50;
-        gamma50 = paramS.gamma50;
-        doseCalcFunction = paramS.doseCalcFunction;
-        additionalInput = [];
-        if isfield(paramS,'additionalInput')
-            additionalInput = paramS.additionalInput;
+        %Apply Appelt modification to D50, gamma50 for the risky group
+        if isfield(paramS,'appeltMod') && strcmpi(paramS.appeltMod.val,'yes')
+            % Get OR
+            [or,weight] = getParCoeff(paramS,'OR');
+            orMult = or(weight==1);
+            OR = prod(orMult);
+            %Get modified D50, gamma50
+            [D50, gamma50] = appeltMod(OR);
+        else
+            D50 = paramS.D50.val;
+            gamma50 = paramS.gamma50.val;
         end
-        
-        % Apply Appelt modification to D50, gamma50 for the risky group
-        if isfield(paramS,'appeltMod') && strcmpi(paramS.appeltMod,'yes')
-            s = paramS.s;
-            OR = paramS.OR;
-            [D50, gamma50] = appeltMod(s,OR,D50,gamma50);
-            if isfield(paramS,'isHighRiskPatient') && strcmpi(paramS.isHighRiskPatient,'yes')
-                D50 = D50 * (1 - 1/4/gamma50*log(OR));
-                gamma50 = gamma50  - 1/4*log(OR);
-            end
-        end
-        
-        %dose for selected struct/dose
-        %dose = calc_meanDose(doseBinsV, volHistV);
-        dose = eval([doseCalcFunction,'(doseBinsV, volHistV)',additionalInput]);
+        %mean dose for selected struct/dose
+        meanDose = calc_meanDose(doseBinsV, volHistV);
         
         %Compute NTCP
-        ntcp = 1./(1+exp(4*gamma50*(1-dose/D50)));        
+        ntcp = 1./(1+exp(4*gamma50*(1-meanDose/D50)));
         
     case 'MULTIVARIATE'
-        
-        fieldNamC = fieldnames(paramS);
-        
-        % Build the exponent term
-        gx = 0;
-        for iField = 1:length(fieldNamC)
-            weight = paramS.(fieldNamC{iField}).weight;
-            x = paramS.(fieldNamC{iField}).x;
-            additionalInput = [];
-            if isfield(paramS.(fieldNamC{iField}),'additionalInput')
-                additionalInput = paramS.(fieldNamC{iField}).additionalInput;
-            end
-            if ~isnumeric(x)
-                % call the function x
-                x = eval([x,'(doseBinsV, volHistV)',additionalInput]);
-            end
-            gx = gx + weight * x;
-        end
-        
+        [x,weight] = getParCoeff(paramS,'weight');
+        gx = sum(weight.*x);
         % Compute NTCP
         ntcp = 1 / (1 + exp(-gx));
 end
+
+%%
+    function [par,coeff] = getParCoeff(paramS,parName)
+        %Get categories
+        fieldC = fields(paramS);
+        ctg = 0;
+        for i = 1:numel(fieldC)
+            if isfield(paramS.(fieldC{i}),'cteg')
+            ctg = ctg+1;
+            ctegC{ctg} = fieldC{i};
+            end
+        end
+        coeff = zeros(1,numel(ctegC));
+        par = zeros(1,numel(ctegC));
+        for n = 1:numel(ctegC)
+            par(n) = paramS.(ctegC{n}).(parName);
+            if isnumeric(paramS.(ctegC{n}).val)
+               coeff(n) = paramS.(ctegC{n}).val;
+            else
+                coeff(n) = eval([paramS.(ctegC{n}).val,'(doseBinsV, volHistV)']);
+            end
+        end
+    end
 
 
 end
