@@ -7,20 +7,20 @@ function tcpWithBoost = seanWalshTCP(paramS,doseBinsV,volHistV)
 
 
 % Get parameters
-alpha = paramS.alpha;
-beta = paramS.beta;
+alpha = paramS.alpha.val;
+beta = paramS.beta.val;
 sigmaAlpha = alpha*11.3/100;
 sigmaBeta = beta*12.9/100;
-dilVolume = paramS.dilVolume;             % percent
-hypoxicFraction = paramS.hypoxicFraction; % percent
-OER = paramS.OER;                         % Oxygen Enhancement Ratio
-pCTV = paramS.pCTV;                       % Prostate density
-pDIL = paramS.pDIL;                       % DIL density
-ctvVolume = paramS.ctvVolume;             % 36 cm^3 for intermediate risk patients
+dilVolume = paramS.dilVolume.val;             % percent
+hypoxicFraction = paramS.hypoxicFraction.val; % percent
+OER = paramS.OER.val;                         % Oxygen Enhancement Ratio
+pCTV = paramS.pCTV.val;                       % Prostate density
+pDIL = paramS.pDIL.val;                       % DIL density
+ctvVolume = paramS.ctvVolume.val;             % 36 cm^3 for intermediate risk patients
                                           % ctvVolume = 72; % cm^3 for high risk patients
-dDIL = paramS.dDIL;                      % dose per fraction to the DIL
-n = paramS.numFractions;                  % number of fractions
-numSimulations = paramS.numSimulations;   % number of (alpha,beta) simulations
+dDIL = paramS.dDIL.val;                      % dose per fraction to the DIL
+n = paramS.numFractions.val;                  % number of fractions
+numSimulations = paramS.numSimulations.val;   % number of (alpha,beta) simulations
 
 %Compute mean dose to prostate
 prost = calc_meanDose(doseBinsV,volHistV,1);
