@@ -1,4 +1,4 @@
-function ans = calc_Dx(doseBinsV, volsHistV, percent)
+function ans = calc_Dx(doseBinsV, volsHistV, x, volType)
 % Returns the lowest dose in x% of structure'
 % given the DVH data and the parameter percent.
 %  
@@ -31,9 +31,18 @@ function ans = calc_Dx(doseBinsV, volsHistV, percent)
 % along with CERR.  If not, see <http://www.gnu.org/licenses/>.
 
 
+% % AI ADDED
+if ~exist('volType','var') 
+    %warning('Input volume assumed to be in percentage. Set volType=0 for absolute values.');
+else
+    if ~volType
+    x = x/sum(volsHistV)*100; 
+    end
+end
+
 cumVolsV = cumsum(volsHistV);
 	cumVols2V = cumVolsV(end) - cumVolsV;
-	ind = min(find([ cumVols2V/cumVolsV(end) < percent/100 ]));
+	ind = min(find([ cumVols2V/cumVolsV(end) < x/100 ])); %CHANGED
 	if isempty(ind)
         ans = 0;
 	else

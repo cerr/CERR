@@ -1,12 +1,12 @@
 function ntcp = LKBFn(paramS,doseBinsV,volHistV)
 
 %Get parameters
-D50 = paramS.D50;
-m = paramS.m;
-a = paramS.a;
+D50 = paramS.D50.val;
+m = paramS.m.val;
+n = paramS.n.val;
 
 %EUD for selected struct/dose
-EUD = calc_EUD(doseBinsV, volHistV, a);
+EUD = calc_EUD(doseBinsV, volHistV, n);
 
 %Compute NTCP
 tmpv = (EUD - D50)/(m*D50);

@@ -1,8 +1,8 @@
 function ntcp = linearFn(paramS,doseBinsV,volHistV)
 
 %Get parameters
-intercept = paramS.intercept;
-slope = paramS.slope;
+intercept = paramS.intercept.val;
+slope = paramS.slope.val;
 
 %mean dose for selected struct/dose
 meanDoseCalc = calc_meanDose(doseBinsV, volHistV);

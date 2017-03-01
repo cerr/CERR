@@ -1,9 +1,9 @@
-function [D50, gamma50] = appeltMod(s,OR,D50,gamma50)
+function [D50Risk, gamma50Risk] = appeltMod(OR)
 %
-% function [D50, gamma50] = appeltMod(s,OR,D50,gamma50)
+% Usage :  [D50, gamma50] = appeltMod(paramS)
 %
-% This function applies modification to D50 and gamma50 values by taking
-% into account the prevalence (s) and the odds ratio (OR).
+% This function applies modification to D50_0 and gamma50_0 values by taking
+% into account the odds ratio (OR).
 %
 % The modification is based on Appelt et al.
 %
@@ -13,9 +13,13 @@ function [D50, gamma50] = appeltMod(s,OR,D50,gamma50)
 % DOI: 10.3109/0284186X.2013.820341
 %
 % APA, 2/15/2017
+% AI 2/21/17
 
-P = 1/2 * (1 + s * (OR-1)/(OR+1));
+D50_0 = 34.4;
+gamma50_0 = 1.19;
 
-D50 = (1 + 1/4 * log(P/(1-P))/gamma50) * D50;
+%Return modified D50, gamma50
+D50Risk = (1 - log(OR)/(4*gamma50_0)) * D50_0;
 
-gamma50 = s*P*(1-P)/(s-(2*P-1)^2) * (log(P/(1-P)) + 4*gamma50);
+gamma50Risk = gamma50_0 - log(OR)/4;
+
