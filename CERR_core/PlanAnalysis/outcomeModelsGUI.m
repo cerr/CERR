@@ -9,7 +9,7 @@ function outcomeModelsGUI(command,varargin)
 % AI , 07/28/2016  Added ability to modify model parameters
 % AI , 09/13/2016  Added TCP axis
 % AI , 02/17/17    Added popup to edit structure inputs
-% AI , 02/20/17
+% AI , 02/20/17    Added model seection by protocols
 % Copyright 2010, Joseph O. Deasy, on behalf of the CERR development team.
 %
 % This file is part of The Computational Environment for Radiotherapy Research (CERR).
@@ -128,7 +128,7 @@ switch upper(command)
             'columnEditable',[false,true],'Data',{'structure','Select structure'},'ColumnWidth',{colWidth,colWidth});
         inputH(5) = uitable(hFig,'Tag','dosSel','Position',tablePosV -[0 tablePosV(4)/2+shift/2 0 tablePosV(4)/2],'Enable','Off',...
             'cellEditCallback',@editParams,'ColumnName',[],'RowName',[],'Visible','Off','backgroundColor',defaultColor,...
-            'columnEditable',[false,true],'Data',{'dose','Select dose'},'ColumnWidth',{colWidth,colWidth});
+            'columnEditable',[false,true],'Data',{'dose','Select dose plan'},'ColumnWidth',{colWidth,colWidth});
         % Create parameter display & editing
         inputH(6) = uicontrol(hFig,'units','pixels','Visible','Off',...
             'Position',tablePosV + [0 -.15*GUIHeight 0 0 ],'String','Model parameters','Style','text',...
@@ -172,6 +172,7 @@ switch upper(command)
         
     case 'LOAD_MODELS'
         outcomeModelsGUI('REFRESH');
+        ud = get(hFig,'userdata');
         
         %Get .json files
         %%%% TEMP (move to options file) %%%%%%%%%%
@@ -214,7 +215,6 @@ switch upper(command)
         
         
         %Store input model parameters
-        ud = get(hFig,'userdata');
         ud.Models = modelC;
         ud.modelFile = modelFPathsC ;
         set(hFig,'userdata',ud);
@@ -258,7 +258,7 @@ switch upper(command)
         isDose = cellfun(@(x)any(x.doseNum==0),modelC,'un',0);
         err = find([isDose{:}]);
         if ~isempty(err)
-            msgbox(sprintf('Please select dose: models %d',err),'Plot model');
+            msgbox(sprintf('Please select dose plan: models %d',err),'Plot model');
             return
         end
         
@@ -526,7 +526,7 @@ end
         
         %Get dose input
         doseList = {planC{indexS.dose}.fractionGroupID};
-        doseList = {'Select dose',doseList{:}};
+        doseList = {'Select dose plan',doseList{:}};
         [doseNameC,doseIdxV] = getMatchPar(modelsC{modelNum},'dose',doseList);
         
         %Get parameters
@@ -691,7 +691,7 @@ end
                 modelsC{modelNum}.strNum(idx) = matchIdx - 1;
                 modelsC{modelNum}.structure = strListC{matchIdx};
             case 'dosSel'
-                dosListC = {'Select dose',planC{indexS.dose}.fractionGroupID};
+                dosListC = {'Select dose plan',planC{indexS.dose}.fractionGroupID};
                 matchIdx = find(strcmp(dosListC,val));
                 modelsC{modelNum}.doseNum = matchIdx - 1;
                 modelsC{modelNum}.dose = dosListC{matchIdx};
