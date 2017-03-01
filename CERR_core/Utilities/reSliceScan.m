@@ -71,12 +71,18 @@ end
 %Store old contours
 contourC = {planC{indexS.structures}.contour};
 
+%Initialize empty contour
+newContourS = struct('segments',[]);
+for i = 1:newNumSlcs
+    newContourS(i).segments(1).points = [];
+end
 %Delete old contours
 for strNum = 1:length(structNumV)
-    planC{indexS.structures}(structNumV(strNum)).contour = [];
+    % planC{indexS.structures}(structNumV(strNum)).contour = [];
+    planC{indexS.structures}(structNumV(strNum)).contour = newContourS;
 end
 
-try
+%try
 
     for slcNum = 1:newNumSlcs
         %Interpolate in z direction
@@ -104,13 +110,13 @@ try
         newScanInfo(slcNum).sliceThickness = sliceThickness;
         
         %Interpolate structures on to this slice (Nearest Neighbor Interpolation)
-        newContourS = struct('segments',[]);
-        for i = 1:newNumSlcs
-            newContourS(i).segments(1).points = deal([]);
-        end
+%         newContourS = struct('segments',[]);
+%         for i = 1:newNumSlcs
+%             newContourS(i).segments(1).points = deal([]);
+%         end
         for strNum = 1:length(structNumV)
             contourS = contourC{structNumV(strNum)}(nearestSlicesV(slcNum));
-            planC{indexS.structures}(structNumV(strNum)).contour = newContourS;
+            % planC{indexS.structures}(structNumV(strNum)).contour = newContourS;
             for segNum = 1:length(contourS.segments)
                 if ~isempty(contourS.segments(segNum).points)
                     newPointsM = contourS.segments(segNum).points;
@@ -120,7 +126,7 @@ try
                     planC{indexS.structures}(structNumV(strNum)).contour(slcNum).segments(segNum).points = [];
                 end
             end
-            contourLen = length(planC{indexS.structures}(structNumV(strNum)).contour);
+            % contourLen = length(planC{indexS.structures}(structNumV(strNum)).contour);
         end
         
     end
@@ -151,15 +157,15 @@ try
     %uniformize
     planC = setUniformizedData(planC);
 
-catch
-
-    %Restore old transformation matrix    
-    planC{indexS.scan}(scanNum).transM = transM;
-    
-    %Restore old contours
-    for strNum = 1:length(structNumV)
-        planC{indexS.structures}(structNumV(strNum)).contour = contourC{structNumV(strNum)};
-    end
-    
-end
+% catch
+% 
+%     %Restore old transformation matrix    
+%     planC{indexS.scan}(scanNum).transM = transM;
+%     
+%     %Restore old contours
+%     for strNum = 1:length(structNumV)
+%         planC{indexS.structures}(structNumV(strNum)).contour = contourC{structNumV(strNum)};
+%     end
+%     
+% end
 
