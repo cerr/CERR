@@ -60,6 +60,8 @@ CTDatatype = class(planC{indexS.scan}(scanNum).scanArray);
 %Store transformation to be applied later
 transM = planC{indexS.scan}(scanNum).transM;
 
+planC{indexS.scan}(scanNum).transM = eye(4);
+
 % New number of slices:
 newNumSlcs = length(newZVals);
 
