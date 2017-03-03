@@ -135,7 +135,7 @@ for i=1:length(structNumV)
     if relStructNum(i)<=52
         cellNum = 1;
     else
-        cellNum = ceil((structNum-52)/8)+1;
+        cellNum = ceil((relStructNum(i)-52)/8)+1;
     end
     
     indicesM = indicesC{cellNum};
