@@ -59,7 +59,7 @@ switch upper(command)
         shift = 10;
         position = [(screenSizeV(3)-GUIWidth)/2,(screenSizeV(4)-GUIHeight)/2,GUIWidth,GUIHeight];
         
-        str1 = 'Outcomes Models Explorer';
+        str1 = 'Plan response evaluator';
         defaultColor = [0.8 0.9 0.9];
         figColor = [.6 .75 .75];
         if isempty(findobj('tag','outcomeModelsFig'))
@@ -81,7 +81,7 @@ switch upper(command)
             'frame','backgroundColor',defaultColor);
         titleH(2) = uicontrol(hFig,'tag','title','units','pixels',...
             'Position',[.3*GUIHeight+1 posTop+1 .6*GUIWidth 3*shift ],...
-            'String','OUTCOME MODELS EXPLORER','Style','text', 'fontSize',10,...
+            'String','PARE: Plan Response Evaluator','Style','text', 'fontSize',14,...
             'FontWeight','Bold','HorizontalAlignment','center',...
             'backgroundColor',defaultColor);
         
@@ -111,11 +111,11 @@ switch upper(command)
             'Position',[shift shift leftMarginWidth+.12*GUIWidth GUIHeight-topMarginHeight-2*shift ],...
             'Style','frame','backgroundColor',defaultColor);
         inputH(2) = uicontrol(hFig,'tag','modelTitle','units','pixels',...
-            'Position',[2*shift posTop-.07*GUIHeight .16*GUIWidth 2*shift], 'String','MODELS','Style','text',...
+            'Position',[2*shift posTop-.16*GUIHeight .16*GUIWidth 2*shift], 'String','','Style','text',...
             'fontSize',9.5,'FontWeight','Bold','BackgroundColor',defaultColor,...
             'HorizontalAlignment','left');
         inputH(3) = uicontrol(hFig,'tag','modelFileSelect','units','pixels',...
-            'Position',[2*shift posTop-.14*GUIHeight .16*GUIWidth 3*shift], 'String',...
+            'Position',[2*shift posTop-.1*GUIHeight .16*GUIWidth 3*shift], 'String',...
             'Select protocol','Style','push', 'fontSize',8.5,...
             'FontWeight','normal','BackgroundColor',defaultColor,...
             'HorizontalAlignment','right','callback',...
@@ -128,7 +128,7 @@ switch upper(command)
             'columnEditable',[false,true],'Data',{'structure','Select structure'},'ColumnWidth',{colWidth,colWidth});
         inputH(5) = uitable(hFig,'Tag','dosSel','Position',tablePosV -[0 tablePosV(4)/2+shift/2 0 tablePosV(4)/2],'Enable','Off',...
             'cellEditCallback',@editParams,'ColumnName',[],'RowName',[],'Visible','Off','backgroundColor',defaultColor,...
-            'columnEditable',[false,true],'Data',{'dose','Select dose plan'},'ColumnWidth',{colWidth,colWidth});
+            'columnEditable',[false,true],'Data',{'Plan','Select Plan'},'ColumnWidth',{colWidth,colWidth});
         % Create parameter display & editing
         inputH(6) = uicontrol(hFig,'units','pixels','Visible','Off',...
             'Position',tablePosV + [0 -.15*GUIHeight 0 0 ],'String','Model parameters','Style','text',...
@@ -176,7 +176,7 @@ switch upper(command)
         
         %Get .json files
         %%%% TEMP (move to options file) %%%%%%%%%%
-        fPath = 'M:/Aditi/OutcomesModels/Protocols';
+        fPath = 'L:/Aditi/OutcomesModels/Protocols';
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
         % Get model files
         dirS = dir(fPath);
@@ -218,6 +218,9 @@ switch upper(command)
         ud.Models = modelC;
         ud.modelFile = modelFPathsC ;
         set(hFig,'userdata',ud);
+        
+        % update name for MODEL to show the propocol
+        set(ud.handle.inputH(2),'string',['Models for: ',protocol])
         
         %Create push buttons for editing model parameters
         outcomeModelsGUI('LIST_MODELS',modelC);
@@ -340,66 +343,66 @@ switch upper(command)
                 hCurr = hTCPAxis;
             end
             
-            %%%%%%%%%%%%%%%%%%% TEMP ADDED %%%%%%%%%
-            if isfield(ud,'criteria')
-                strName = modelC{j}.structure;
-                if isfield(ud.criteria.Structures,strName)
-                    if isfield(ud.criteria.Structures.(strName),'criteria')
-                        criteriaS = ud.criteria.Structures.(strName);
-                        [limitV, valV, ntcpLim,tcpLim,cStrC] = getLimits(criteriaS,'criteria',structNumV,doseNum,1); %scale = 1;
-                        scV = limitV./valV;
-                        ltCheck = bsxfun(@ge,scaleV.',scV);
-                        [valid,scIdx] = max(ltCheck,[],1);
-                        markerxV = scaleV(scIdx);
-                        markeryV = scaledCPv(scIdx);
-                        
-                        if ~isempty(ntcpLim)
-                            cpLt = find(scaledCPv >= ntcpLim(1),1);
-                            if ~isempty(cpLt)
-                                ins = ntcpLim(2)-1;
-                                markerxV = [markerxV(1:ins),scaleV(cpLt),markerxV(ins+2:end)];
-                                markeryV = [markeryV(1:ins),scaledCPv(cpLt),markeryV(ins+2:end)];
-                                valid = [valid(1:ins),true,valid(ins+2:end)];
-                            end
-                        end
-                        markerxV = markerxV(valid);  %~valid=> out of scale range
-                        markeryV = markeryV(valid);
-                        cStrC = cStrC(valid);
-                        
-                        hcmenu = uicontextmenu('Parent',hFig);
-                        for i = 1:numel(cStrC)
-                        uimenu(hcmenu, 'Label', cStrC{i});
-                        end
-                        
-                        % PLOT
-                        ud.criteria.cMarkers =  [ud.criteria.cMarkers plot(hCurr,markerxV,markeryV,'ko',...
-                            'MarkerFaceColor','r','markerSize',8,'uicontextmenu',hcmenu)];
-                    end    
-                    
-                    if isfield(ud.criteria.Structures.(strName),'guidelines')
-                        guidesS = ud.criteria.Structures.(strName);
-                        [limitV, valV, ~,~,gStrC] = getLimits(guidesS,'guidelines',structNumV,doseNum,1); %scale = 1;
-                        scV = limitV./valV;
-                        ltCheck = bsxfun(@ge,scaleV.',scV);
-                        [valid,scIdx] = max(ltCheck,[],1);
-                        scMarkIdx = scIdx(valid);
-                        markerxV = scaleV(scMarkIdx);
-                        markeryV = scaledCPv(scMarkIdx);
-                        gStrC = gStrC(valid);
-                        
-                        hcmenu = uicontextmenu('Parent',hFig);
-                        for i = 1:numel(gStrC)
-                        uimenu(hcmenu, 'Label', gStrC{i});
-                        end
-                        
-                        hp = plot(hCurr,markerxV,markeryV,'ko',...
-                            'MarkerFaceColor','y','markerSize',8);
-                        set(hp,'uicontextmenu',hcmenu);
-                        ud.criteria.gMarkers = [ud.criteria.gMarkers hp];
-                    end
-                end
-            end
-            %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%             %%%%%%%%%%%%%%%%%%% TEMP ADDED %%%%%%%%%
+%             if isfield(ud,'criteria')
+%                 strName = modelC{j}.structure;
+%                 if isfield(ud.criteria.Structures,strName)
+%                     if isfield(ud.criteria.Structures.(strName),'criteria')
+%                         criteriaS = ud.criteria.Structures.(strName);
+%                         [limitV, valV, ntcpLim,tcpLim,cStrC] = getLimits(criteriaS,'criteria',structNumV,doseNum,1); %scale = 1;
+%                         scV = limitV./valV;
+%                         ltCheck = bsxfun(@ge,scaleV.',scV);
+%                         [valid,scIdx] = max(ltCheck,[],1);
+%                         markerxV = scaleV(scIdx);
+%                         markeryV = scaledCPv(scIdx);
+%                         
+%                         if ~isempty(ntcpLim)
+%                             cpLt = find(scaledCPv >= ntcpLim(1),1);
+%                             if ~isempty(cpLt)
+%                                 ins = ntcpLim(2)-1;
+%                                 markerxV = [markerxV(1:ins),scaleV(cpLt),markerxV(ins+2:end)];
+%                                 markeryV = [markeryV(1:ins),scaledCPv(cpLt),markeryV(ins+2:end)];
+%                                 valid = [valid(1:ins),true,valid(ins+2:end)];
+%                             end
+%                         end
+%                         markerxV = markerxV(valid);  %~valid=> out of scale range
+%                         markeryV = markeryV(valid);
+%                         cStrC = cStrC(valid);
+%                         
+%                         hcmenu = uicontextmenu('Parent',hFig);
+%                         for i = 1:numel(cStrC)
+%                         uimenu(hcmenu, 'Label', cStrC{i});
+%                         end
+%                         
+%                         % PLOT
+%                         ud.criteria.cMarkers =  [ud.criteria.cMarkers plot(hCurr,markerxV,markeryV,'ko',...
+%                             'MarkerFaceColor','r','markerSize',8,'uicontextmenu',hcmenu)];
+%                     end    
+%                     
+%                     if isfield(ud.criteria.Structures.(strName),'guidelines')
+%                         guidesS = ud.criteria.Structures.(strName);
+%                         [limitV, valV, ~,~,gStrC] = getLimits(guidesS,'guidelines',structNumV,doseNum,1); %scale = 1;
+%                         scV = limitV./valV;
+%                         ltCheck = bsxfun(@ge,scaleV.',scV);
+%                         [valid,scIdx] = max(ltCheck,[],1);
+%                         scMarkIdx = scIdx(valid);
+%                         markerxV = scaleV(scMarkIdx);
+%                         markeryV = scaledCPv(scMarkIdx);
+%                         gStrC = gStrC(valid);
+%                         
+%                         hcmenu = uicontextmenu('Parent',hFig);
+%                         for i = 1:numel(gStrC)
+%                         uimenu(hcmenu, 'Label', gStrC{i});
+%                         end
+%                         
+%                         hp = plot(hCurr,markerxV,markeryV,'ko',...
+%                             'MarkerFaceColor','y','markerSize',8);
+%                         set(hp,'uicontextmenu',hcmenu);
+%                         ud.criteria.gMarkers = [ud.criteria.gMarkers hp];
+%                     end
+%                 end
+%             end
+%             %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
             waitbar(j/numModels);
         end
         close(hWait);
@@ -526,8 +529,8 @@ end
         
         %Get dose input
         doseList = {planC{indexS.dose}.fractionGroupID};
-        doseList = {'Select dose plan',doseList{:}};
-        [doseNameC,doseIdxV] = getMatchPar(modelsC{modelNum},'dose',doseList);
+        doseList = {'Select Plan',doseList{:}};
+        [doseNameC,doseIdxV] = getMatchPar(modelsC{modelNum},'Plan',doseList);
         
         %Get parameters
         hPar = extractParams(modelsC{modelNum});
@@ -691,7 +694,7 @@ end
                 modelsC{modelNum}.strNum(idx) = matchIdx - 1;
                 modelsC{modelNum}.structure = strListC{matchIdx};
             case 'dosSel'
-                dosListC = {'Select dose plan',planC{indexS.dose}.fractionGroupID};
+                dosListC = {'Select Plan',planC{indexS.dose}.fractionGroupID};
                 matchIdx = find(strcmp(dosListC,val));
                 modelsC{modelNum}.doseNum = matchIdx - 1;
                 modelsC{modelNum}.dose = dosListC{matchIdx};
