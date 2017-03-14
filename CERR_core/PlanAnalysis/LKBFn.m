@@ -6,7 +6,7 @@ m = paramS.m.val;
 n = paramS.n.val;
 
 %EUD for selected struct/dose
-EUD = calc_EUD(doseBinsV, volHistV, n);
+EUD = calc_EUD(doseBinsV, volHistV, 1/n);
 
 %Compute NTCP
 tmpv = (EUD - D50)/(m*D50);
