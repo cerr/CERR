@@ -1,5 +1,5 @@
 function rlmOut = calcRLM(quantizedM, offsetsM, nL, rlmType)
-% function cooccurM = calcRLM(quantizedM, offsetsM, nL, cooccurType)
+% function cooccurM = calcRLM(quantizedM, offsetsM, nL, rlmType)
 %
 % This function calculates the Run-Length matrix for the passed quantized
 % image.
