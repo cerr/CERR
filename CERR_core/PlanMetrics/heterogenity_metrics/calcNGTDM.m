@@ -1,7 +1,7 @@
 function [s,p] = calcNGTDM(scanArray3M, patchSizeV, numGrLevels, hWait)
-% function [s,p] = calcNGTDM(scanArray3M, patchSizeV, hWait)
+% function [s,p] = calcNGTDM(scanArray3M, patchSizeV, numGrLevels, hWait)
 %
-% Dominant orientation calculation.
+% Neighborhood gray tone difference matrix.
 %
 % APA, 10/14/2016
 
@@ -91,15 +91,15 @@ for slcNum = (1+numSlcsPad):(numSlices+numSlcsPad)
     
     currentVoxelIndex = ceil(nbhoodSiz*length(slcV)/2);
     voxValV = qM(currentVoxelIndex,:);
-    dqM = bsxfun(@minus,qM,voxValV);
-    dqM(currentVoxelIndex,:) = [];    
-    numNeighborsV = sum(mM,1);
-    dqM = bsxfun(@rdivide,dqM,numNeighborsV);
-    dqM(isnan(dqM)) = 0;
+    qM(currentVoxelIndex,:) = [];    
+    numNeighborsV = sum(mM,1)-1;
+    qM(:,:) = bsxfun(@rdivide,qM,numNeighborsV);
+    qM(isnan(qM)) = 0;
+    qM = abs(voxValV - sum(qM));
     
     for lev = 1:numGrLevels
         indLevV = voxValV == lev;
-        s(lev) = s(lev) + sum(abs(bsxfun(@minus,sum(dqM(:,indLevV)),lev)));
+        s(lev) = s(lev) + sum(qM(indLevV));
     end
         
     if waitbarFlag
