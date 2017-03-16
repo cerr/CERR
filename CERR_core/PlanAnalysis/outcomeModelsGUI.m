@@ -59,7 +59,7 @@ switch upper(command)
         shift = 10;
         position = [(screenSizeV(3)-GUIWidth)/2,(screenSizeV(4)-GUIHeight)/2,GUIWidth,GUIHeight];
         
-        str1 = 'Plan response evaluator';
+        str1 = 'ROE';
         defaultColor = [0.8 0.9 0.9];
         figColor = [.6 .75 .75];
         if isempty(findobj('tag','outcomeModelsFig'))
@@ -81,7 +81,7 @@ switch upper(command)
             'frame','backgroundColor',defaultColor);
         titleH(2) = uicontrol(hFig,'tag','title','units','pixels',...
             'Position',[.3*GUIHeight+1 posTop+1 .6*GUIWidth 3*shift ],...
-            'String','PORE: Planning Outcomes Response Evaluator','Style','text', 'fontSize',14,...
+            'String','ROE: Radiotherapy Outcomes Estimator','Style','text', 'fontSize',14,...
             'FontWeight','Bold','HorizontalAlignment','center',...
             'backgroundColor',defaultColor);
         
