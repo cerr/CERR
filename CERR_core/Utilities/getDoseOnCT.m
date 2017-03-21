@@ -63,7 +63,7 @@ if ~exist('slicesV')
 end
 
 zV = zV(slicesV);
-doseM = zeros(length(xV), length(yV), length(zV));
+doseM = zeros(length(yV), length(xV), length(zV));
 for i=1:length(zV)
     % doseSlice = calcDoseSlice(planC{indexS.dose}(doseNum), zV(i), 3, planC);
     doseSlice = calcDoseSlice(doseNum, zV(i), 3, planC);
