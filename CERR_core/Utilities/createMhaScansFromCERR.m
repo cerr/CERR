@@ -25,6 +25,8 @@ try
     % Change data type to int16 to allow (-)ve values
     if ~strcmpi(class(uniformCT),'single')
         uniformCT = int16(uniformCT) - int16(planC{indexS.scan}(scanNum).scanInfo(1).CTOffset);
+    else
+        uniformCT = uniformCT - planC{indexS.scan}(scanNum).scanInfo(1).CTOffset;
     end
     
     % [dx, dy, dz]
