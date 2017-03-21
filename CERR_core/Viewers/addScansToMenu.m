@@ -101,7 +101,7 @@ for i = 1 : numScans
             'callback',['sliceCallBack(''selectScan'',''', str2 ,''')'],...
             'interruptible','on','separator','off', 'Checked', 'off',...
             'tag', ['scanItem',str2]);                        %ADDED
-        if isfield(stateS,'scanSet') && selectedScan == i
+        if isfield(stateS,'scanSet') && selectedScan(1) == i
             set(hScan,'Checked','on')
         end
         
