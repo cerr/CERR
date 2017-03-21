@@ -1,15 +1,24 @@
+function planC = calculateGRE(baseScanNum,movScanNum,planC)
+% function planC = calculateGRE(baseScanNum,movScanNum,planC)
+%
+% APA, 03/21/2017
+
+if ~exist('planC','var')
+    global planC
+end
+
 % Absolute Difference between two scans
-siz = size(planC{indexS.scan}(1).scanArray);
-baseMask3M = logical(maskByThresh3D(planC{indexS.scan}(1).scanArray));
-movMask3M = logical(maskByThresh3D(planC{indexS.scan}(2).scanArray));
+siz = size(planC{indexS.scan}(baseScanNum).scanArray);
+baseMask3M = logical(maskByThresh3D(planC{indexS.scan}(baseScanNum).scanArray));
+movMask3M = logical(maskByThresh3D(planC{indexS.scan}(movScanNum).scanArray));
 sA1 = zeros(siz,'single');
-meanSa1 = mean(single(planC{indexS.scan}(1).scanArray(baseMask3M)));
-sdSa1 = std(single(planC{indexS.scan}(1).scanArray(baseMask3M)));
-sA1(baseMask3M) = (single(planC{indexS.scan}(1).scanArray(baseMask3M)) - meanSa1)/sdSa1;
+meanSa1 = mean(single(planC{indexS.scan}(baseScanNum).scanArray(baseMask3M)));
+sdSa1 = std(single(planC{indexS.scan}(baseScanNum).scanArray(baseMask3M)));
+sA1(baseMask3M) = (single(planC{indexS.scan}(baseScanNum).scanArray(baseMask3M)) - meanSa1)/sdSa1;
 sA2 = zeros(siz,'single');
-meanSa2 = mean(single(planC{indexS.scan}(2).scanArray(movMask3M)));
-sdSa2 = std(single(planC{indexS.scan}(2).scanArray(movMask3M)));
-sA2(movMask3M) = (single(planC{indexS.scan}(2).scanArray(movMask3M)) - meanSa2)/sdSa2;
+meanSa2 = mean(single(planC{indexS.scan}(movScanNum).scanArray(movMask3M)));
+sdSa2 = std(single(planC{indexS.scan}(movScanNum).scanArray(movMask3M)));
+sA2(movMask3M) = (single(planC{indexS.scan}(movScanNum).scanArray(movMask3M)) - meanSa2)/sdSa2;
 diff3M = abs(sA1 - sA2);
 
 % Window size
@@ -62,11 +71,22 @@ gre3M = entropy3M/median(entropy3M(baseMask3M)) + mean3M/median(mean3M(baseMask3
 gre3M = gre3M / 3;
 
 % 
-showIMDose(diff3M,'Diff',1);
-showIMDose(entropy3M,'Entropy',1);
-showIMDose(mean3M,'Mean',1);
-showIMDose(var3M,'Variance',1);
-showIMDose(gre3M,'GRE',1);
+% showIMDose(diff3M,'Diff',1);
+% showIMDose(entropy3M,'Entropy',1);
+% showIMDose(mean3M,'Mean',1);
+% showIMDose(var3M,'Variance',1);
+% showIMDose(gre3M,'GRE',1);
 
+register = 'UniformCT';  %Currently only option supported.  Dose has the same shape as the uniformized CT scan.
+doseError = [];
+doseEdition = 'Generalized Registration Error';
+overWrite = 'no';  %Overwrite the last CERR dose?
+if ~exist('assocScanNum','var')
+    assocScanNum = 1;
+end
+fractionGroupID = 'GRE';
+assocScanUID = planC{indexS.scan}(assocScanNum).scanUID;
+description = '';
+planC = dose2CERR(dose3D,doseError,fractionGroupID,doseEdition,description,register,[],overWrite,assocScanUID,planC);
 
 
