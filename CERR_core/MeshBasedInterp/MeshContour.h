@@ -2,6 +2,7 @@
 #define MeshContour_h
 
 /* This is from shrhelp.h */
+#include "mex.h"
 #ifndef SHRHELP
 #define SHRHELP
 
