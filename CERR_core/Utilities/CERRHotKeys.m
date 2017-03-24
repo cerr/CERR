@@ -167,5 +167,31 @@ switch(keyValue)
             set(stateS.handle.CTLevelWidthInteractive,'value',0);
         end
         sliceCallBack('TOGGLESCANWINDOWING');
-
+        
+    case 3 %'Ctrl + c' Copy contour from slice
+        if ~stateS.contourAxis %Check for contouring mode
+            return
+        end
+        %Get source slice
+        srcCoord = getAxisInfo(uint8(stateS.currentAxis),'coord');
+        hAxis = stateS.handle.CERRAxis(stateS.contourAxis);
+        setappdata(hAxis,'copySliceNum',srcCoord);
+        
+    case 22 %'Ctrl + v' Copy contour to slice
+        if ~stateS.contourAxis %Check for contouring mode
+            return
+        end
+        %Check for source slice
+        hAxis = stateS.handle.CERRAxis(stateS.contourAxis);
+        srcCoord = getappdata(hAxis,'copySliceNum');
+        if isempty(srcCoord)
+            return
+        end
+        %Copy contours to current slice
+        [scanSet,destCoord] = getAxisInfo(uint8(stateS.currentAxis), 'scanSets','coord');
+        [~, ~, zs] = getScanXYZVals(planC{indexS.scan}(scanSet));
+        destSlice = find(zs==destCoord);
+        setAxisInfo(uint8(stateS.currentAxis), 'coord', srcCoord);
+        CERRRefresh
+        contourControl('copySl',destSlice);
 end

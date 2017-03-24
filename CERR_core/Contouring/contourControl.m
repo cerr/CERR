@@ -151,6 +151,17 @@ switch command
         sliceNum = getappdata(hAxis, 'ccSlice');
         copyToSlice(hAxis, sliceNum+1);
         sliceCallBack('CHANGESLC','nextslice');
+    
+    case 'copySl'  
+        %Copy current structs' contours to selected slice 
+        saveDrawSlice(hAxis);
+        destSlice = varargin{1};
+        copyToSlice(hAxis, destSlice);
+        scanSet = getAxisInfo(uint8(stateS.currentAxis), 'scanSets');
+        [~, ~, zs] = getScanXYZVals(planC{indexS.scan}(scanSet));
+        newCoord = zs(destSlice);
+        setAxisInfo(uint8(stateS.currentAxis), 'coord', newCoord);
+        CERRRefresh
         
     case 'getMode'
         varargout{1} = getappdata(hAxis, 'ccMode');
@@ -852,7 +863,7 @@ indexS = planC{end};
 
 scanSet = getappdata(hAxis, 'ccScanSet');
 nSlices = size(getScanArray(planC{indexS.scan}(scanSet)),3);
-if sliceNum < 1 || sliceNum > nSlices
+if sliceNum < 1 | sliceNum > nSlices
     return;
 end
 ccStruct = getappdata(hAxis, 'ccStruct');
