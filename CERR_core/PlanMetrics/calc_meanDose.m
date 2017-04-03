@@ -1,4 +1,4 @@
-function ans = calc_meanDose(doseBinsLowerPtsV, volsHistV, volumeType)
+function ans = calc_meanDose(doseBinsMidPtsV, volsHistV, volumeType)
 %Calculate the mean dose for a given DVH
 %  The last parameter 'volumeType' is a wash in this function again
 %  
@@ -7,8 +7,11 @@ function ans = calc_meanDose(doseBinsLowerPtsV, volsHistV, volumeType)
 %  LM: 6 Oct 06, JOD, corrected slight error in not taking middle of dose
 %  bin.  Added warning if relative volume not close to one (0.5%
 %  tolerance).
+%      4 Apr 17, APA, passed the dose as min-points of bins. Hence, no need
+%  to add half the binwidth to the passed dose. Call this function after 
+%  obtaining DVH from loadDVHMatrix.m, since it returns mid-points of dose bins.
 %
-% Usage: calc_meanDose(doseBinsLowerPtsV, volsHistV)
+% Usage: calc_meanDose(doseBinsMidPtsV, volsHistV)
 %
 % Copyright 2010, Joseph O. Deasy, on behalf of the CERR development team.
 % 
@@ -33,6 +36,9 @@ function ans = calc_meanDose(doseBinsLowerPtsV, volsHistV, volumeType)
 % along with CERR.  If not, see <http://www.gnu.org/licenses/>.
 
 
-    doseBinsMidPtsV = (doseBinsLowerPtsV(1:end-1)+doseBinsLowerPtsV(2:end))/2;
-    ans = (sum(doseBinsMidPtsV.*volsHistV(1:end-1))+doseBinsLowerPtsV(end)*volsHistV(end))/sum(volsHistV);
+% doseBinsMidPtsV = (doseBinsLowerPtsV(1:end-1)+doseBinsLowerPtsV(2:end))/2;
+% ans = (sum(doseBinsMidPtsV.*volsHistV(1:end-1))+doseBinsLowerPtsV(end)*volsHistV(end))/sum(volsHistV);
+
+ans = sum(doseBinsMidPtsV.*volsHistV)/sum(volsHistV);
+
 return;
