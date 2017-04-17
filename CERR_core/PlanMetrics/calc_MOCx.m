@@ -44,7 +44,7 @@ function ans = calc_MOCx(doseBinsV, volsHistV, percent)
 	if isempty(inds)
         ans = 0;
     else
-        ans = sum(doseBinsV(inds) .* volsHistV(inds)) / sum(volsHistV(inds));
+        ans = sum(doseBinsV(inds) .* volsHistV(inds)) / sum(volsHistV(inds)+eps);
     	%ans = doseBinsV(ind); %to get min dose
 	end
 return;
