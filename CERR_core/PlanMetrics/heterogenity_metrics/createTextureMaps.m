@@ -1,8 +1,8 @@
 function planC = createTextureMaps(scanNum,structNum,descript,...
-    patchUnit,patchSizeV,category,dirctn,numGrLevels,flagsV,planC)
+    patchUnit,patchSizeV,category,dirctn,numGrLevels,flagsV,planC,minIntensity,maxIntensity)
 %
 % function planC = createTextureMaps(scanNum,structNum,descript,...
-%    patchUnit,patchSizeV,category,dirctn,numGrLevels,flagsV,planC)
+%    patchUnit,patchSizeV,category,dirctn,numGrLevels,flagsV,planC,minIntensity,maxIntensity)
 %
 % % EXAMPLE:
 % scanNum     = 1;
@@ -87,9 +87,15 @@ waitAx = axes('parent',waitFig,'position',[0.1 0.3 0.8 0.4],...
 waitH = patch([0 0 0 0], [0 1 1 0], [0.1 0.9 0.1],...
     'parent', waitAx);
 
+if exist('minIntensity','var') && exist('maxIntensity','var')
+[energy3M,entropy3M,sumAvg3M,corr3M,invDiffMom3M,contrast3M, ...
+    clustShade3M,clustPromin3M,haralCorr3M] = textureByPatchCombineCooccur(volToEval,...
+    numGrLevels,patchSizeV,offsetsM,flagsV,waitH,minIntensity,maxIntensity);
+else
 [energy3M,entropy3M,sumAvg3M,corr3M,invDiffMom3M,contrast3M, ...
     clustShade3M,clustPromin3M,haralCorr3M] = textureByPatchCombineCooccur(volToEval,...
     numGrLevels,patchSizeV,offsetsM,flagsV,waitH);
+end
 
 close(waitFig)
 
