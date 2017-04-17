@@ -1,6 +1,8 @@
 function s = calcNGLDM(scanArray3M, patchSizeV, numGrLevels, a, hWait)
 % function s = calcNGLDM(scanArray3M, patchSizeV, numGrLevels, a, hWait)
 %
+% a: coarseness parameter
+%
 % Neighborhood gray level dependence matrix.
 %
 % APA, 03/16/2017
@@ -82,7 +84,7 @@ for slcNum = (1+numSlcsPad):(numSlices+numSlcsPad)
     mM = zeros(length(slcV)*nbhoodSiz,numCalcVoxs,'single');
     count = 1;
     for iSlc = slcV 
-        qSlc = q(:,:,slcNum);
+        qSlc = q(:,:,iSlc);
         maskSlcM = padarray(calcIndM(:,:,iSlc),[numRowsPad, numColsPad],0,'both');
         qM((count-1)*nbhoodSiz+1:count*nbhoodSiz,:) = qSlc(indSlcM);
         mM((count-1)*nbhoodSiz+1:count*nbhoodSiz,:) = maskSlcM(indSlcM);
