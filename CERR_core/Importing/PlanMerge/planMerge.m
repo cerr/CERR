@@ -115,13 +115,13 @@ if any(scansWithSameUID) && ~isempty(scanIndV)
     scansWithSameUID = 0;
     
     % Change the associated scanUID fields for dose and structures
-    for iDose = 1:nDose
+    for iDose = 1:length(doses)
         indMatch = find(strcmp(doses(iDose).assocScanUID,oldScanUIc));
         if ~isempty(indMatch)
             doses(iDose).assocScanUID = newScanUIc{indMatch};
         end
     end
-    for iStr = 1:nStructs
+    for iStr = 1:length(structs)
         indMatch = find(strcmp(structs(iStr).assocScanUID,oldScanUIc));
         if ~isempty(indMatch)
             structs(iStr).assocScanUID = newScanUIc{indMatch};
