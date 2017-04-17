@@ -39,19 +39,28 @@ if ~exist('volumeType')
     volumeType = 0;
 end
 
+% Add 0 to the beginning to account for the fact that the first bin must
+% correspond to the entire volume.
+volsHistV = [0 volsHistV];
 cumVolsV = cumsum(volsHistV);
 cumVols2V  = cumVolsV(end) - cumVolsV;
-ind = min(find([doseBinsV >= doseCutoff]));
+ind = find(doseBinsV >= doseCutoff, 1 );
 
-if(doseCutoff==0)
-    ans=cumVolsV(end);
-else 
-    if isempty(ind)
-        ans = 0;
-    else
-        ans = cumVols2V(ind);
-    end
-end  
+if isempty(ind)
+    ans = 0;
+else
+    ans = cumVols2V(ind);
+end
+
+% if(doseCutoff==0)
+%     ans=cumVolsV(end);
+% else 
+%     if isempty(ind)
+%         ans = 0;
+%     else
+%         ans = cumVols2V(ind);
+%     end
+% end  
 
 if(volumeType == 1)
     ans = ans/cumVolsV(end);
