@@ -12,7 +12,7 @@ function shapeS = getShapeParams(structNum,planC,rcsV)
 
 % APA, 07/06/2016
 
-if numel(structNum)
+if numel(structNum) == 1
     if ~exist('planC','var')
         global planC
     end
