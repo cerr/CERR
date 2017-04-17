@@ -6,6 +6,7 @@ function planC = calculateGRE(baseScanNum,movScanNum,planC)
 if ~exist('planC','var')
     global planC
 end
+indexS = planC{end};
 
 % Absolute Difference between two scans
 siz = size(planC{indexS.scan}(baseScanNum).scanArray);
@@ -87,6 +88,6 @@ end
 fractionGroupID = 'GRE';
 assocScanUID = planC{indexS.scan}(assocScanNum).scanUID;
 description = '';
-planC = dose2CERR(dose3D,doseError,fractionGroupID,doseEdition,description,register,[],overWrite,assocScanUID,planC);
+planC = dose2CERR(gre3M,doseError,fractionGroupID,doseEdition,description,register,[],overWrite,assocScanUID,planC);
 
 
