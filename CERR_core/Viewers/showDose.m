@@ -453,5 +453,10 @@ for j=1:length(axisInfo.doseObj)
     end
 end
 
+if isempty(axisInfo.doseObj) && ~stateS.imageRegistration
+    axisInfo.scanObj.handles.FaceAlpha = 1;
+end
+
+
 %set(hAxis, 'userdata', axisInfo);
 stateS.handle.aI(axInd) = axisInfo;
