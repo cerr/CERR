@@ -10,7 +10,7 @@ function featureS = cooccurToScalarFeatures(cooccurM, flagS)
 %         ** For patch-wise calculation for an image with 100 voxels,
 %         cooccurM will be of size (nL*nL) x 100
 %         ** flagS.energy = 1;
-%            flagS.entropy = 1;
+%            flagS.jointEntropy = 1;
 %            flagS.contrast = 0;
 % OUTPUT: featureS is a structure array with scalar texture features as its
 %         fields. Each field's value is a vector containing the feature values 
@@ -43,10 +43,10 @@ for n=0:nL-1
         
 end
 for n=1:2*nL
-    % indices for p(x+y)
+    % indices for p(x+y), sum entropy, etc
     indPxPlusYv = false(nL*nL,1);
     indPxPlusYv(levRowV + levColV == n) = 1;
-    indPxPlusYc{n} = indPxPlusYv;
+    indPxPlusYc{n} = indPxPlusYv;    
 end
 
 % Calculate scalar texture for this offset
@@ -54,38 +54,130 @@ end
 if flagS.energy
     featureS.energy = sum(cooccurM.^2);
 end
-% Entropy
-if flagS.entropy
-    featureS.entropy = -sum(cooccurM.*log2(cooccurM+1e-10));
+% Joint Entropy
+if flagS.jointEntropy
+    featureS.jointEntropy = -sum(cooccurM.*log2(cooccurM+1e-10));
 end
+if flagS.jointMax
+    featureS.jointMax = max(cooccurM,[],1);
+end
+if flagS.jointAvg
+    featureS.jointAvg = sum(bsxfun(@times,cooccurM',levRowV),2)';
+end
+if flagS.jointVar
+    xMinumMu = bsxfun(@minus,levRowV',featureS.jointAvg).^2;
+    featureS.jointVar = sum(xMinumMu .* cooccurM,1);
+end
+
+% Number of cooccur matrices
+numCooccurs = size(cooccurM,2);
+
 % Contrast, inverse Difference Moment
-featureS.contrast = 0;
-featureS.invDiffMom = 0;
+featureS.contrast = zeros(1,numCooccurs);
+featureS.invDiffMom = zeros(1,numCooccurs);
+featureS.invDiffMomNorm = zeros(1,numCooccurs);
+featureS.invDiff = zeros(1,numCooccurs);
+featureS.invDiffNorm = zeros(1,numCooccurs);
+featureS.invVar = zeros(1,numCooccurs);
+featureS.dissimilarity = zeros(1,numCooccurs);
+featureS.diffEntropy = zeros(1,numCooccurs);
+featureS.diffVar = zeros(1,numCooccurs);
+featureS.diffAvg = zeros(1,numCooccurs);
 % Contrast, inverse Difference Moment
 for n=0:nL-1
     % px
     px(n+1,:) = sum(cooccurM(indPxC{n+1},:),1);
     % p(x-y)
     pXminusY(n+1,:) = sum(cooccurM(indCtrstC{n+1},:),1);
+    % p(x-y) log2(p(x-y))
+    if any(indCtrstC{n+1})
+        pXminusYlogPXminusY(n+1,:) = ...
+            pXminusY(n+1,:) .* log2(1e-10 + pXminusY(n+1,:));
+    else
+        pXminusYlogPXminusY(n+1,:) = 0;
+    end
+    % Difference Average
+    if flagS.diffAvg
+        featureS.diffAvg = featureS.diffAvg + n*pXminusY(n+1,:);
+    end   
+    
     % Contrast
     if flagS.contrast
         featureS.contrast = featureS.contrast + ...
             sum(n^2*cooccurM(indCtrstC{n+1},:));
     end
+    % Dissimilarity (same as difference average)
+    if flagS.dissimilarity
+        featureS.dissimilarity = featureS.dissimilarity + ...
+            sum(n*cooccurM(indCtrstC{n+1},:));
+    end    
     % inv diff moment
     if flagS.invDiffMoment
         featureS.invDiffMom = featureS.invDiffMom + ...
             sum((1/(1+n^2))*cooccurM(indCtrstC{n+1},:));
     end
+    % inv diff moment normalized
+    if flagS.invDiffMomNorm
+        featureS.invDiffMomNorm = featureS.invDiffMomNorm + ...
+            sum((1/(1+(n/nL)^2))*cooccurM(indCtrstC{n+1},:));      
+    end
+    % inv diff
+    if flagS.invDiff
+        featureS.invDiff = featureS.invDiff + ...
+            sum((1/(1+n))*cooccurM(indCtrstC{n+1},:));      
+    end    
+    % inv diff normalized
+    if flagS.invDiffNorm
+        featureS.invDiffNorm = featureS.invDiffNorm + ...
+            sum((1/(1+n/nL))*cooccurM(indCtrstC{n+1},:));        
+    end    
+    % inv variance
+    if flagS.invVar && n > 0
+        featureS.invVar = featureS.invVar + ...
+            sum((1/n^2)*cooccurM(indCtrstC{n+1},:));
+    end    
+    % Difference Entropy
+    if flagS.diffEntropy
+        featureS.diffEntropy = featureS.diffEntropy - pXminusYlogPXminusY(n+1,:);
+    end
+    
 end
-featureS.sumAvg = 0;
+
+for n=0:nL-1
+    if flagS.diffVar
+        featureS.diffVar = featureS.diffVar + (n - featureS.diffAvg).^2 .* pXminusY(n+1,:) ;
+    end    
+end
+
+
+% Sum Entropy, Sum Average, etc.
+featureS.sumAvg = zeros(1,numCooccurs);
+featureS.sumVar = zeros(1,numCooccurs);
+featureS.sumEntropy = zeros(1,numCooccurs);
 for n=1:2*nL
     % p(x+y)
     pXplusY(n,:) = sum(cooccurM(indPxPlusYc{n},:),1);
+    % p(x+y) log2(p(x+y))
+    if any(indPxPlusYc{n})
+        pXplusYlogPXplusY(n,:) = ...
+            pXplusY(n,:) .* log2(1e-10+pXplusY(n,:));
+    else
+        pXplusYlogPXplusY(n,:) = zeros(1,numCooccurs);
+    end
     % Sum Average
     if flagS.sumAvg
         featureS.sumAvg = featureS.sumAvg + n*pXplusY(n,:);
     end
+    % Sum Average
+    if flagS.sumEntropy
+        featureS.sumEntropy = featureS.sumEntropy - pXplusYlogPXplusY(n,:);
+    end
+end
+for n=1:2*nL
+    % Sum Variance
+    if flagS.sumVar
+        featureS.sumVar = featureS.sumVar + (n-featureS.sumAvg).^2 .* pXplusY(n,:);
+    end    
 end
 
 % weighted pixel average (mu), weighted pixel variance (sig)
@@ -100,6 +192,16 @@ if flagS.corr
     %sig = sum(levIMinusMu.^2 .* cooccurPatchM,1);
     featureS.corr = sum(levIMinusMu .* levJMinusMu  .* cooccurM, 1) ...
         ./ (sig + 1e-10); % sig.^2 to match ITK results (ITK bug)
+end
+
+% Cluster Tendency
+if flagS.clustTendency
+    levIMinusMu = bsxfun(@minus,levRowV',mu);
+    levJMinusMu = bsxfun(@minus,levColV',mu);
+    clstrV = levIMinusMu + levJMinusMu;
+    featureS.clustTendency = sum(clstrV.*clstrV .* cooccurM, 1);
+else
+    featureS.clustTendency = NaN;
 end
 
 % Cluster Shade
@@ -139,6 +241,32 @@ if flagS.haralickCorr
     featureS.haralickCorr = (levRowV .* levColV * cooccurM - ...
         muX .* muX) ./ (sigX + eps);   % (levRowV-1) .* (levColV-1) to match ITK? Bug?
     
+end
+
+% Auto Correlation
+if flagS.autoCorr
+    featureS.autoCorr = sum(bsxfun(@times,cooccurM,levRowV' .* levColV'),1);    
+else
+    featureS.autoCorr = NaN;
+end
+
+
+% First measure of information correlation
+if flagS.firstInfCorr
+    HXY1 = -sum(cooccurM.*log2((px(levRowV,:)+1e-10)...
+        .*(px(levColV,:)+1e-10)));
+    HX = -sum(px.*log2(px+1e-10));
+    featureS.firstInfCorr = (featureS.jointEntropy - HXY1) ./ HX;
+end
+
+% Second measure of information correlation
+if flagS.secondInfCorr
+    HXY2 = -sum(px(levRowV,:).*px(levColV,:)...
+        .*log2((px(levRowV,:)+1e-10).*(px(levColV,:)+1e-10)));
+    featureS.secondInfCorr = 1 - exp(-2*(HXY2 - featureS.jointEntropy));
+    indZerosV = featureS.secondInfCorr <= 0;
+    featureS.secondInfCorr(indZerosV) = 0;
+    featureS.secondInfCorr = sqrt(featureS.secondInfCorr);
 end
 
 
