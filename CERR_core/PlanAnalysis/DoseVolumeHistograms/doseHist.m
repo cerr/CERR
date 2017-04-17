@@ -31,12 +31,13 @@ function [doseBinsV, volsHistV] = doseHist(doseV, volsV, binWidth)
 %Usage:
 %   [doseBinsV, volsHistV] = doseHist(doseV, volsV, binWidth)
 
+bufferNum = 1e-10;
 if (min(doseV)>=0)
     maxD = max(doseV);
     
-    indV = ceil(eps + (doseV/binWidth));
+    indV = ceil(bufferNum + (doseV/binWidth));
     
-    maxBin = ceil(eps + (maxD/binWidth));
+    maxBin = ceil(bufferNum + (maxD/binWidth));
     
     doseBinsV = ([1 : maxBin] - 1 ) * binWidth + binWidth/2;
 
@@ -56,7 +57,7 @@ else
     
     indV = indV - min(indV) + 1;
     
-    maxBin = ceil((maxD/binWidth));
+    maxBin = ceil((maxD/binWidth)+bufferNum);
     minBin = ceil((minD/binWidth));
 
     doseBinsV = ([minBin : maxBin]-1) * binWidth + binWidth/2;
@@ -67,8 +68,6 @@ else
     
 end    
     
-
-
 
 
 
