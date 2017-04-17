@@ -17,7 +17,7 @@ for lev = 1:numLevels
         sum(p .* circshift(p,lev) .* (indV-circshift(indV,lev)).^2);
     term2 = term2 + s(lev);
 end
-featuresS.contrast = 1/Ng/(Ng+1) * term1 * term2 / numVoxels;
+featuresS.contrast = 1/Ng/(Ng-1) * term1 * term2 / numVoxels;
 
 % Business
 denom = 0;
