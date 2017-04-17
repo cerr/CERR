@@ -1,4 +1,4 @@
-function ans = calc_maxDose(doseBinsV, volsHistV, volumeType)
+function ans = calc_maxDose(doseBinsMidPtsV, volsHistV, volumeType)
 % Calculates the maximum dose for a given DVH
 % The last argument 'volumeType' is ignored in this instance
 %
@@ -30,8 +30,6 @@ function ans = calc_maxDose(doseBinsV, volsHistV, volumeType)
 % You should have received a copy of the GNU General Public License
 % along with CERR.  If not, see <http://www.gnu.org/licenses/>.
 
-      cumVolsV = cumsum(volsHistV);
-      cumVols2V  = cumVolsV(end) - cumVolsV;
-      ind = max(find([volsHistV~=0]));
-      ans = doseBinsV(ind);
+ind = find(volsHistV~=0,1,'last');
+ans = doseBinsMidPtsV(ind);
 return;

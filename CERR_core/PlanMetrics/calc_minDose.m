@@ -1,4 +1,4 @@
-function ans = calc_minDose(doseBinsV, volsHistV, volumeType)
+function ans = calc_minDose(doseBinsMidPtsV, volsHistV, volumeType)
 % Calculates the minimum dose for a given DVH
 % The last argument 'volumeType' is ignored in this instance
 %
@@ -30,11 +30,7 @@ function ans = calc_minDose(doseBinsV, volsHistV, volumeType)
 % You should have received a copy of the GNU General Public License
 % along with CERR.  If not, see <http://www.gnu.org/licenses/>.
 
-
-cumVolsV = cumsum(volsHistV);
-cumVols2V  = cumVolsV(end) - cumVolsV;
-ind = min(find([volsHistV~=0]));
-
-ans = doseBinsV(ind);
+ind = find(volsHistV~=0,1,'first');
+ans = doseBinsMidPtsV(ind);
 
 return;
