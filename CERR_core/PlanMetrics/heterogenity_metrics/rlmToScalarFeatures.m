@@ -76,9 +76,17 @@ if flagS.gln
     featureS.gln = sum(sum(rlmM,2).^2) / sum(rlmM(:));
 end
 
+if flagS.glnNorm
+    featureS.glnNorm = sum(sum(rlmM,2).^2) / sum(rlmM(:))^2;
+end
+
 % Run Length Non-Uniformity (RLN) (Aerts et al, Nature suppl. eq. 48)
 if flagS.rln
     featureS.rln = sum(sum(rlmM,1).^2) / sum(rlmM(:));
+end
+
+if flagS.rlnNorm
+    featureS.rlnNorm = sum(sum(rlmM,1).^2) / sum(rlmM(:))^2;
 end
 
 % Run Percentage (RP) (Aerts et al, Nature suppl. eq. 49)
@@ -127,5 +135,21 @@ if flagS.lrhgle
     levLenM = bsxfun(@times,(levV').^2,lenV.^2);
     lrhgleM = bsxfun(@times,rlmM,levLenM);
     featureS.lrhgle = sum(lrhgleM(:)) / sum(rlmM(:));
+end
+
+% Grey Level Variance
+if flagS.glv
+    iPij = bsxfun(@times,rlmM'/sum(rlmM(:)),levV);
+    mu = sum(iPij(:));
+    iMinusMuPij = bsxfun(@times,rlmM'/sum(rlmM(:)),(levV-mu).^2);
+    featureS.glv = sum(iMinusMuPij(:));
+end
+
+% Run Length Variance
+if flagS.rlv
+    jPij = bsxfun(@times,rlmM/sum(rlmM(:)),lenV);
+    mu = sum(jPij(:));
+    jMinusMuPij = bsxfun(@times,rlmM/sum(rlmM(:)),(lenV-mu).^2);
+    featureS.rlv = sum(jMinusMuPij(:));
 end
 
