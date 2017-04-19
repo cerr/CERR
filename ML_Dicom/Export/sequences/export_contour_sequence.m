@@ -38,7 +38,8 @@ el = [];
 
 %Unpack input data.
 tag         = args.tag;
-contour     = args.data{1};
+% contour     = args.data{1};
+contour     = args.data{1}.segments(args.data{2}).points;
 template    = args.template;
 
 switch tag
@@ -50,6 +51,12 @@ switch tag
         
     case 805699606  %3006,0016  Contour Image Sequence
         %Currently unsupported.
+        templateEl  = template.get(tag);
+        fHandle = @export_contour_image_sequence;
+        tmp = org.dcm4che2.data.BasicDicomObject;
+        el = tmp.putNull(tag, []);
+        dcmobj = export_sequence(fHandle, templateEl, args.data(1));
+        el.addDicomObject(0, dcmobj);              
         
     case 805699650  %3006,0042  Contour Geometric Type
         data = 'CLOSED_PLANAR'; %All CERR contours are currently closed planar

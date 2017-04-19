@@ -87,7 +87,8 @@ switch tag
                     %Get points.
                     points = structS.contour(i).segments(j).points;
 
-                    dcmobj = export_sequence(fHandle, templateEl, {points});
+                    % dcmobj = export_sequence(fHandle, templateEl, {points});
+                    dcmobj = export_sequence(fHandle, templateEl, {structS.contour(i), j});
                     el.addDicomObject(numAdded, dcmobj);
                     numAdded = numAdded + 1;
                 end

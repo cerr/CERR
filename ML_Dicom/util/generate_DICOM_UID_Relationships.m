@@ -147,12 +147,20 @@ for i = 1:length(planC{indexS.structures});
     planC{indexS.structures}(i).Series_Instance_UID = Structure_Set_Series_UID;
     
     %Set the frame of reference UID to that of the associated scan.
-    aS = getStructureAssociatedScan(i, planC);
-    planC{indexS.structures}(i).Frame_Of_Reference_UID = planC{indexS.scan}(aS).Frame_Of_Reference_UID;
+    assocScanNum = getStructureAssociatedScan(i, planC);
+    planC{indexS.structures}(i).Frame_Of_Reference_UID = planC{indexS.scan}(assocScanNum).Frame_Of_Reference_UID;
     
     %Set the SOP UIDs.
     planC{indexS.structures}(i).SOP_Class_UID    = Structure_Set_SOP_Class_UID;
     planC{indexS.structures}(i).SOP_Instance_UID = Structure_Set_SOP_Instance_UID;
+    
+    % set the referenced SOP UID for each slice
+    for slc = 1:length(planC{indexS.structures}(i).contour)
+        planC{indexS.structures}(i).contour(slc).SOP_Class_UID = ...
+            planC{indexS.scan}(assocScanNum).scanInfo(slc).SOP_Class_UID;
+        planC{indexS.structures}(i).contour(slc).SOP_Instance_UID = ...
+            planC{indexS.scan}(assocScanNum).scanInfo(slc).SOP_Instance_UID;                
+    end
     
 end
 
