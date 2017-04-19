@@ -5,19 +5,22 @@ function [SRE,LRE,IV,RLV,RP,LIRE,HIRE,LISRE,HISRE,LILRE,HILRE] = getSizeParams(s
 %
 %APA, 03/09/2015
 
-if ~exist('planC')
-    global planC
+if numel(structNum) == 1
+    if ~exist('planC')
+        global planC
+    end
+    indexS = planC{end};
+    scanNum                             = getStructureAssociatedScan(structNum,planC);
+    [rasterSegments, planC, isError]    = getRasterSegments(structNum,planC);
+    [mask3M, uniqueSlices]              = rasterToMask(rasterSegments, scanNum, planC);
+    scanArray3M                         = getScanArray(planC{indexS.scan}(scanNum));
+    SUVvals3M                           = mask3M.*double(scanArray3M(:,:,uniqueSlices));
+    [minr, maxr, minc, maxc, mins, maxs]= compute_boundingbox(mask3M);
+    volToEval                           = SUVvals3M(minr:maxr,minc:maxc,mins:maxs);
+    volToEval(volToEval==0)             = NaN;
+else
+    volToEval = structNum;
 end
-indexS = planC{end};
-
-scanNum                             = getStructureAssociatedScan(structNum,planC);
-[rasterSegments, planC, isError]    = getRasterSegments(structNum,planC);
-[mask3M, uniqueSlices]              = rasterToMask(rasterSegments, scanNum, planC);
-scanArray3M                         = getScanArray(planC{indexS.scan}(scanNum));
-SUVvals3M                           = mask3M.*double(scanArray3M(:,:,uniqueSlices));
-[minr, maxr, minc, maxc, mins, maxs]= compute_boundingbox(mask3M);
-volToEval                           = SUVvals3M(minr:maxr,minc:maxc,mins:maxs);
-volToEval(volToEval==0)             = NaN;
 
 % Quantize using percentiles
 %numLevels = 16;
