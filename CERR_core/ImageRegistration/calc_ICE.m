@@ -1,4 +1,4 @@
-function dist3M = calc_ICE(scan1PlanC,scan2PlanC,strNum1,strNum2,varargin)
+function dist3M = calc_ICE(scan1PlanC,scan2PlanC,strNum1,scanNum2,varargin)
 % Returns inverse consistency error in registration
 % AI 4/25/17
 % ============================================================================================
@@ -35,7 +35,7 @@ optC = {algorithm, baseMask3M, movMask3M, boneThreshold};
 
 %Get scans associated with stuctures
 scanNum1 = getStructureAssociatedScan(strNum1,scan1PlanC);
-scanNum2 = getStructureAssociatedScan(strNum2,scan2PlanC);
+% scanNum2 = getStructureAssociatedScan(strNum2,scan2PlanC);
 
 %Get structure coordinates on scan1
 indexS = scan1PlanC{end};
@@ -53,8 +53,8 @@ end
 
 
 %Get deformation index for fwd transformation (scan2 to scan1)
-scan1UID = scan1PlanC{indexS.scan}.scanUID;
-scan2UID = scan2PlanC{indexS.scan}.scanUID;
+scan1UID = scan1PlanC{indexS.scan}(scanNum1).scanUID;
+scan2UID = scan2PlanC{indexS.scan}(scanNum2).scanUID;
 deformS = scan1PlanC{indexS.deform};
 deform1Idx  = getDeformIdx(scan1UID,scan2UID,deformS);
 deform1S = scan1PlanC{indexS.deform}(deform1Idx);
@@ -89,7 +89,7 @@ for slcNum = 1:length(uniqueSlices)
     numPts = start + sum(distMaskV);
     dist = distV(start+1:numPts);
     distMaskV(distMaskV~=0)= dist;
-    dist3M(:,:,uniqueSlices(slcNum)) = reshape(distMaskV,cols,rows); 
+    dist3M(:,:,uniqueSlices(slcNum)) = reshape(distMaskV,rows,cols); 
     start = numPts;
 end
 
