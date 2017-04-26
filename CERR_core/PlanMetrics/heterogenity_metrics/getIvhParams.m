@@ -50,6 +50,7 @@ ivhFeaturesS.meanHist = calc_meanDose(scanBinsV, volsHistV);
 ivhFeaturesS.maxHist =  calc_maxDose(scanBinsV, volsHistV);
 ivhFeaturesS.minHist =  calc_minDose(scanBinsV, volsHistV);
 ivhFeaturesS.I50 = calc_Dx(scanBinsV, volsHistV,50);
+ivhFeaturesS.IVHBinWidth = IVHBinWidth;
 % ivhFeaturesS.slopeAtD50 = calc_Slope(scanBinsV, volsHistV, ivhFeaturesS.I50, 0);
 
 ivhFeaturesS.rangeHist = ivhFeaturesS.maxHist - ivhFeaturesS.minHist;
