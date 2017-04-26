@@ -20,8 +20,8 @@ else
 end
 
 % Create b-spline coefficients file
-%bspFileName = fullfile(getCERRPath,'ImageRegistration','tmpFiles',['bsp_coeffs_',baseScanUID,'_',movScanUID,'.txt']);
-bspFileName = fullfile(tempdir,'tmpFiles',['bsp_coeffs_',baseScanUID,'_',movScanUID,'.txt']);
+bspFileName = fullfile(getCERRPath,'ImageRegistration','tmpFiles',['bsp_coeffs_',baseScanUID,'_',movScanUID,'.txt']);
+% bspFileName = fullfile(tempdir,'tmpFiles',['bsp_coeffs_',baseScanUID,'_',movScanUID,'.txt']);
 success     = write_bspline_coeff_file(bspFileName,deformS.algorithmParamsS);
 
 % Obtain Vf from b-splice coefficients
