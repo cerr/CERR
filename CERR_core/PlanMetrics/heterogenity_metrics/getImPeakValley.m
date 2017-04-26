@@ -88,4 +88,6 @@ avgM = sumM ./ numVoxM;
 % Get peak and valley
 featureS.peak = max(avgM(:));
 featureS.valley = min(avgM(:));
+featureS.radius = radius;
+featureS.radiusUnit = radiusUnit;
 
