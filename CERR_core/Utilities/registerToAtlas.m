@@ -1,4 +1,4 @@
-function registerToAtlas(baseScanFile,movScanFileC,destnDir)
+function registerToAtlas(baseScanFile,movScanFileC,destnDir,strNameToWarp)
 % function registerToAtlas(baseScanFile,movScanFileC,destnDir)
 %
 % INPUT:
@@ -13,17 +13,17 @@ function registerToAtlas(baseScanFile,movScanFileC,destnDir)
 %  baseScanFile = '/path/to/source/plan1.mat';
 %  movScanFileC = {'/path/to/source/plan2.mat','/path/to/source/plan3.mat','/path/to/source/plan4.mat'};
 %  destnDir     = '/path/to/destination/dir';
+%  strNameToWarp = 'Parotid_L';
 %  registerToAtlas(baseScanFile,movScanFileC,destnDir);
 %
 % APA, 08/23/2016
-
 
 % Load base planC
 planC = loadPlanC(baseScanFile,tempdir);
 planC = updatePlanFields(planC);
 planC = quality_assure_planC(baseScanFile,planC);
 
-parfor movNum = 1:length(movScanFileC)
+for movNum = 1:length(movScanFileC)
     
     % Load base planC
     planC = loadPlanC(baseScanFile,tempdir);
@@ -35,8 +35,17 @@ parfor movNum = 1:length(movScanFileC)
     planD = loadPlanC(movScanFileC{movNum},tempdir);
     planD = updatePlanFields(planD);
     planD = quality_assure_planC(movScanFileC{movNum},planD);    
-    %indexSD = planD{end};
+    indexSD = planD{end};
     %planD{indexSD.deform}(:) = [];
+    
+    % Find the passed structure to warp
+    if exist('strNameToWarp','var')
+        strCreationScanNum = 1;
+        strC = {planD{indexSD.structures}.structureName};
+        %numCharsToMatch = 9;
+        %movStructNumsV = find(strncmp(strNameToWarp,strC,numCharsToMatch));
+        movStructNumsV = getMatchingIndex(strNameToWarp,strC,'exact');
+    end
     
     % Register planD to planC
     baseScanNum = 1;
@@ -50,6 +59,11 @@ parfor movNum = 1:length(movScanFileC)
     % Warp scan
     deformS = planC{indexS.deform}(end);
     planC = warp_scan(deformS,movScanNum,planD,planC);
+    
+    % Warp the passed structure
+    if exist('strNameToWarp','var')
+        planC = warp_structures(deformS,strCreationScanNum,movStructNumsV,planD,planC);
+    end
     
     % Save base and moving scans
     [~,fName] = fileparts(movScanFileC{movNum});
