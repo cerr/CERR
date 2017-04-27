@@ -37,7 +37,6 @@ function controlFrame(command, varargin)
 % You should have received a copy of the GNU General Public License
 % along with CERR.  If not, see <http://www.gnu.org/licenses/>.
 
-
 global planC
 global stateS
 indexS = planC{end};
@@ -517,12 +516,16 @@ switch command
                 controlFrame('contour', 'refresh');
 
                 
-            case 'setBrushSize'    
+            case 'setBrushSize'
                 ud = get(hFrame, 'userdata');
                 if length(varargin) < 3
                     hAxis = stateS.handle.CERRAxis(stateS.currentAxis);
                 else
                     hAxis = varargin{2};
+                    dir = varargin{3};
+                    hSlider  = ud.handles.brushSizeSlider;
+                    radius = hSlider.Value + dir*hSlider.SliderStep(2);
+                    set(ud.handles.brushSizeSlider,'Value',radius);
                 end
                 radius = get(ud.handles.brushSizeSlider,'value');
                 set(ud.handles.brushSizeEdit,'String',radius)

@@ -194,4 +194,19 @@ switch(keyValue)
         setAxisInfo(uint8(stateS.currentAxis), 'coord', srcCoord);
         CERRRefresh
         contourControl('copySl',destSlice);
+        
+    case {43,61} %'+' key to increase brush size in contouring mode
+        if ~stateS.contourAxis %Check for contouring mode
+            return
+        end
+        hAx = stateS.handle.CERRAxis(stateS.currentAxis);
+        controlFrame('contour','setBrushSize',hAx,1);
+        
+    case 45 %'-' key to decrease brush size in contouring mode
+        if ~stateS.contourAxis %Check for contouring mode
+            return
+        end
+        hAx = stateS.handle.CERRAxis(stateS.currentAxis);
+        controlFrame('contour','setBrushSize',hAx,-1);
+        
 end
