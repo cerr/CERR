@@ -1,4 +1,4 @@
-function showPlaneLocators()
+function showPlaneLocators(varargin)
 %Show locators planes in all CERR axes.
 %
 % Copyright 2010, Joseph O. Deasy, on behalf of the CERR development team.
@@ -25,6 +25,8 @@ function showPlaneLocators()
 
 global planeLocatorLastCall
 
+persistent num units addToView %ADDED
+
 thisCallTime = now;
 
 if isempty(planeLocatorLastCall)
@@ -41,8 +43,17 @@ global stateS planC
 set([stateS.handle.CERRAxisPlnLoc{:}],'visible','off')
 set([stateS.handle.CERRAxisPlnLocSdw{:}],'visible','off')
 if ~isfield(stateS,'showPlaneLocators') || ~stateS.showPlaneLocators
+    num = [];
+    units = [];
+    addToView = '';
     return;
 end
+
+%Get inputs for margins 
+if nargin>0
+[num,units,addToView] = varargin{:};
+end
+
 
 xAxVals = {}; yAxVals = {}; zAxVals = {};
 for i=uint8(1:length(stateS.handle.CERRAxis))
@@ -74,7 +85,7 @@ for i=uint8(1:length(stateS.handle.CERRAxis))
     
     hAxis = stateS.handle.CERRAxis(i);
     [view, coord] = getAxisInfo(i, 'view', 'coord');
-
+    
     horizLimit = get(hAxis, 'xLim');
     vertiLimit = get(hAxis, 'yLim');
     
@@ -119,7 +130,7 @@ for i=uint8(1:length(stateS.handle.CERRAxis))
         if ~isempty(yVals{j}) && isequal(planeLocatorLastCall, thisCallTime)
             count = count + 1;
             set(stateS.handle.CERRAxisPlnLocSdw{i}(count),'XData',horizLimit,...
-                'YData', [yVals{j} yVals{j}],'visible','on', 'LineWidth', 1);            
+                'YData', [yVals{j} yVals{j}],'visible','on', 'LineWidth', 1);
             if stateS.currentAxis == j
                 set(stateS.handle.CERRAxisPlnLoc{i}(count),'XData',horizLimit,...
                     'YData', [yVals{j} yVals{j}], 'Color', activeCol, 'userdata',...
@@ -129,9 +140,40 @@ for i=uint8(1:length(stateS.handle.CERRAxis))
                     'YData', [yVals{j} yVals{j}], 'Color', inActiveCol, 'userdata',...
                     {'horz', viewTxt, j},'visible','on', 'LineWidth', 1);
             end
+            
+            if  strcmpi(view,addToView)
+                
+                hAx = stateS.handle.CERRAxis(stateS.currentAxis);
+                scanNum = getAxisInfo(hAx,'scanSets');
+                indexS = planC{end};
+                zStart = planC{indexS.scan}(scanNum).scanInfo(1).zValue;
+                deltaZ = planC{indexS.scan}(scanNum).scanInfo(2).zValue - zStart;
+                zEnd = planC{indexS.scan}(scanNum).scanInfo(end).zValue;
+                
+                if strcmpi(units,'cm')
+                    closeLowV = abs([planC{indexS.scan}(scanNum).scanInfo.zValue]-(yVals{j}-num));
+                    low = planC{indexS.scan}(scanNum).scanInfo(closeLowV==min(closeLowV)).zValue;
+                    closeHighV = abs([planC{indexS.scan}(scanNum).scanInfo.zValue]-(yVals{j}+num));
+                    high = planC{indexS.scan}(scanNum).scanInfo(closeHighV==min(closeHighV)).zValue;
+                else
+                low = max(yVals{j}-num*deltaZ,zStart);
+                high = min(yVals{j}+num*deltaZ,zEnd);
+                end
+                
+                count = count + 1;
+                set(stateS.handle.CERRAxisPlnLoc{i}(count),'XData',horizLimit,...
+                    'YData', [low low], 'Color', 'r', 'userdata',...
+                    {'vert', viewTxt, j},'visible','on', 'LineWidth', 1,'HitTest','Off');
+                count = count + 1;
+                set(stateS.handle.CERRAxisPlnLoc{i}(count),'XData',horizLimit,...
+                    'YData', [high high], 'Color', 'r', 'userdata',...
+                    {'vert', viewTxt, j},'visible','on', 'LineWidth', 1,'HitTest','Off');
+            end
         end
+        
     end
-    
+end
+
     numPlanLocs = length(stateS.handle.CERRAxisPlnLoc{i});
     set(stateS.handle.CERRAxisPlnLocSdw{i}(count+1:numPlanLocs),'visible','off')
     set(stateS.handle.CERRAxisPlnLoc{i}(count+1:numPlanLocs),'visible','off')    

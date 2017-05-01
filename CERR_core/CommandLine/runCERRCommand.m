@@ -1356,7 +1356,19 @@ if ~isempty(in_str)
                 disp(['gEUD = ',num2str(gEUD)])
                 disp('----------------------')
                 return
-
+                
+            case 'addguide'
+                num = str2double(word(in_str,2));
+                if isempty(word(in_str,4))
+                    units = [];
+                    view = word(in_str,3);
+                else
+                    units = word(in_str,3);
+                    view = word(in_str,4);
+                end
+                showPlaneLocators(num,units,view);
+                
+                
             otherwise
 
 
