@@ -51,8 +51,8 @@ RadiomicsFirstOrder.min           = min(Iarray);
 RadiomicsFirstOrder.max           = max(Iarray);
 RadiomicsFirstOrder.mean          = mean(Iarray);
 RadiomicsFirstOrder.range         = range(Iarray);
-RadiomicsFirstOrder.std           = std(Iarray);
-RadiomicsFirstOrder.var           = var(Iarray);
+RadiomicsFirstOrder.std           = std(Iarray,1);
+RadiomicsFirstOrder.var           = var(Iarray,1);
 RadiomicsFirstOrder.median        = median(Iarray);
 
 % Skewness is a measure of the asymmetry of the data around the sample mean.
@@ -66,7 +66,7 @@ RadiomicsFirstOrder.skewness      = skewness(Iarray);
 % of the normal distribution is 3. Distributions that are more outlier-prone
 % than the normal distribution have kurtosis greater than 3; distributions
 % that are less outlier-prone have kurtosis less than 3.
-RadiomicsFirstOrder.kurtosis      = kurtosis(Iarray);
+RadiomicsFirstOrder.kurtosis      = kurtosis(Iarray) - 3;
 
 % Entropy is a statistical measure of randomness that can be used to characterize
 % the texture of the input image
