@@ -19,11 +19,15 @@ for lev = 1:numLevels
 end
 featuresS.contrast = 1/Ng/(Ng-1) * term1 * term2 / numVoxels;
 
-% Business
+% Busyness
 denom = 0;
 for lev = 1:numLevels
+    pShiftV = circshift(p,lev);
+    indShiftV = circshift(indV,lev);    
+    usePv = p > 0;
+    usePshiftV = pShiftV > 0;
     denom = denom + ...
-        sum(abs(p .* indV - circshift(p,lev) .* circshift(indV,lev)));
+        sum(usePv .* usePshiftV .* abs(p .* indV - pShiftV .* indShiftV));
 end
 featuresS.busyness = sum(p .* s) / denom;
 
@@ -33,8 +37,11 @@ for lev = 1:numLevels
     pShiftV = circshift(p,lev);
     sShiftV = circshift(s,lev);
     indShiftV = circshift(indV,lev);
+    usePv = p > 0;
+    usePshiftV = pShiftV > 0;    
     term1 = abs(indV - indShiftV);
-    term2 = (p .* s + pShiftV .* sShiftV) ./ (p + pShiftV + eps);
+    term2 = usePv .* usePshiftV .* (p .* s + pShiftV .* sShiftV)...
+        ./ (p + pShiftV + eps);
     complxty = complxty + sum(term1 .* term2);
 end
 featuresS.complexity = complxty / numVoxels;
@@ -44,7 +51,9 @@ strength = 0;
 for lev = 1:numLevels
     pShiftV = circshift(p,lev);
     indShiftV = circshift(indV,lev);
-    term = sum((p + pShiftV) .* (indV - indShiftV).^2);
+    usePv = p > 0;
+    usePshiftV = pShiftV > 0;        
+    term = sum(usePv .* usePshiftV .* (p + pShiftV) .* (indV - indShiftV).^2);
     strength = strength + term;
 end
 featuresS.strength = strength / sum(s);
