@@ -43,7 +43,8 @@ x = 519;
 units = 'normalized';
 
 %Set Keypressfunction call back for ALL subsequent figures.
-set(0,'DefaultFigureCreateFcn','set(gcbo,''KeyPressFcn'',''CERRHotKeys'')')
+set(0,'DefaultFigureCreateFcn','set(gcbo,''WindowKeyPressFcn'',''CERRHotKeys'')')
+
 
 if(nargin == 0)
 

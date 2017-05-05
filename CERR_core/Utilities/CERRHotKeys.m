@@ -200,13 +200,17 @@ switch(keyValue)
             return
         end
         hAx = stateS.handle.CERRAxis(stateS.currentAxis);
-        controlFrame('contour','setBrushSize',hAx,1);
+        increment = min([planC{indexS.scan}(1).scanInfo(1).grid1Units,...
+                    planC{indexS.scan}(1).scanInfo(1).grid2Units]);
+        controlFrame('contour','setBrushSize',hAx,increment);
         
     case 45 %'-' key to decrease brush size in contouring mode
         if ~stateS.contourAxis %Check for contouring mode
             return
         end
         hAx = stateS.handle.CERRAxis(stateS.currentAxis);
-        controlFrame('contour','setBrushSize',hAx,-1);
+        decrement = -min([planC{indexS.scan}(1).scanInfo(1).grid1Units,...
+                    planC{indexS.scan}(1).scanInfo(1).grid2Units]);
+        controlFrame('contour','setBrushSize',hAx,decrement); 
         
 end
