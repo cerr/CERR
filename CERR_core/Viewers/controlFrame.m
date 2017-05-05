@@ -168,7 +168,7 @@ switch command
                 ud.handles.brushSizeEdit = uicontrol(hFig, 'style', 'text',...
                     'units', units, 'position', absPos([.39 .22 .3 .05], posFrame),...
                     'string', num2str(radius*5), 'tag', 'controlFrameItem',...
-                    'callback', 'controlFrame(''contour'',''setBrushSize'')');             
+                    'callback', 'controlFrame(''contour'',''setBrushSize'')');
                 
                 %Controls to select overlaid scan.
                 ud.handles.overlayText = uicontrol(hFig, 'style', 'text', 'enable', 'inactive' , 'units', units, 'position', absPos([.05 .07 .25 .10], posFrame), 'string', 'Overlay Scan:', 'tag', 'controlFrameItem', 'horizontalAlignment', 'left');
@@ -517,19 +517,34 @@ switch command
 
                 
             case 'setBrushSize'
+                %Get radius
                 ud = get(hFrame, 'userdata');
                 if length(varargin) < 3
                     hAxis = stateS.handle.CERRAxis(stateS.currentAxis);
                 else
                     hAxis = varargin{2};
-                    dir = varargin{3};
+                    increment = varargin{3};
                     hSlider  = ud.handles.brushSizeSlider;
-                    radius = hSlider.Value + dir*hSlider.SliderStep(2);
+                    radius = hSlider.Value + increment;
+                    if radius>hSlider.Max
+                        radius = hSlider.Max;
+                    elseif radius<hSlider.Min
+                        radius = hSlider.Min;
+                    end
                     set(ud.handles.brushSizeSlider,'Value',radius);
                 end
-                radius = get(ud.handles.brushSizeSlider,'value');
+                radius = get(ud.handles.brushSizeSlider,'Value');
+                %Set brush size
                 set(ud.handles.brushSizeEdit,'String',radius)
                 setappdata(hAxis, 'ballRadius', radius);
+                %Update display radius
+                ballH = getappdata(hAxis, 'hBall');
+                angM = getappdata(hAxis, 'angles');
+                cP = get(hAxis, 'currentPoint');
+                xV = cP(1,1) + radius*angM(:,1);
+                yV = cP(1,2) + radius*angM(:,2);                
+                set(ballH,'xData',xV,'ydata',yV,'visible','on')
+                
                 
                 
             case 'selectStruct'
