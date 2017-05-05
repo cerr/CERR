@@ -125,7 +125,7 @@ switch upper(instr)
         stateS.MLVersion = getMLVersion;
 
         %Set Keypressfunction call back for ALL subsequent figures.
-        set(0,'DefaultFigureCreateFcn','set(gcbo,''KeyPressFcn'',''CERRHotKeys'',''keyReleaseFcn'',''CERRHotKeyRelease'')')
+        set(0,'DefaultFigureCreateFcn','set(gcbo,''WindowKeyPressFcn'',''CERRHotKeys'',''keyReleaseFcn'',''CERRHotKeyRelease'')')
 
         %Detect and store working directory, in case this is the compiled version.
         %This must go before any calls to getCERRPath

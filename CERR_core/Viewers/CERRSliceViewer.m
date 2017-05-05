@@ -54,7 +54,7 @@ stateS = [];
 planC  = [];
 
 %Set Keypressfunction call back for ALL subsequent figures.
-set(0,'DefaultFigureCreateFcn','set(gcbo,''KeyPressFcn'',''CERRHotKeys'')')
+set(0,'DefaultFigureCreateFcn','set(gcbo,''WindowKeyPressFcn'',''CERRHotKeys'')')
 
 %Detect and store working directory, in case this is the compiled version.
 %This must go before any calls to getCERRPath
