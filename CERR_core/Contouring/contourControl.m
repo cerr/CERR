@@ -154,14 +154,11 @@ switch command
     
     case 'copySl'  
         %Copy current structs' contours to selected slice 
+        hAxis = varargin{1};
+        loadDrawSlice(hAxis);
         saveDrawSlice(hAxis);
-        destSlice = varargin{1};
+        destSlice = varargin{2};
         copyToSlice(hAxis, destSlice);
-        scanSet = getAxisInfo(uint8(stateS.currentAxis), 'scanSets');
-        [~, ~, zs] = getScanXYZVals(planC{indexS.scan}(scanSet));
-        newCoord = zs(destSlice);
-        setAxisInfo(uint8(stateS.currentAxis), 'coord', newCoord);
-        CERRRefresh
         
     case 'getMode'
         varargout{1} = getappdata(hAxis, 'ccMode');
@@ -191,7 +188,7 @@ switch command
         controlFrame('contour','setBrushSize',hAxis)
         setappdata(hAxis, 'ccMode', 'drawBall');
         setappdata(hAxis, 'mode', 'drawBall');
-        drawContour('drawBallMode', hAxis);        
+        drawContour('drawBallMode', hAxis);
         setappdata(hAxis, 'eraseFlag',0);
         if strcmpi(command,'eraserBall')
             setappdata(hAxis, 'eraseFlag',1);
@@ -328,7 +325,7 @@ switch command
                     drawContour('threshMode', hAxis);
                 case 'reassign'
                     drawContour('reassignMode', hAxis);
-                    
+                   
             end
         %end
         
@@ -855,7 +852,7 @@ setappdata(hAxis, 'contourMask',tmpM(:,:,slcNum));
 
 return;
 
-function copyToSlice(hAxis, sliceNum);
+function copyToSlice(hAxis, sliceNum)
 
 global planC
 
@@ -872,7 +869,19 @@ ccContours = getappdata(hAxis, 'ccContours');
 
 contourV = ccContours{ccStruct, ccSlice};
 if isempty(contourV)
-    return;
+    points = {planC{indexS.structures}(ccStruct).contour(ccSlice).segments.points};
+    if ~isempty(points)
+        for i=1:length(points)
+            tmp = points{i};
+            if ~isempty(tmp)
+                cV = tmp(:,1);
+                rV = tmp(:,2);
+                contourV{i} = [cV, rV];
+            end
+        end
+    else
+        return
+    end
 end
 newContourV = ccContours{ccStruct, sliceNum};
 if isempty(newContourV)
