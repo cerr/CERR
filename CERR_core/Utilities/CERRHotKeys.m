@@ -172,28 +172,45 @@ switch(keyValue)
         if ~stateS.contourAxis %Check for contouring mode
             return
         end
+        axIdx = stateS.contourAxis;
+        hAxis = stateS.handle.CERRAxis(axIdx);
         %Get source slice
-        srcCoord = getAxisInfo(uint8(stateS.currentAxis),'coord');
-        hAxis = stateS.handle.CERRAxis(stateS.contourAxis);
+        srcCoord = getAxisInfo(uint8(axIdx),'coord');
         setappdata(hAxis,'copySliceNum',srcCoord);
+        fprintf('\nCopied structure: %d\tslice: %d.\n',getappdata(hAxis, 'ccStruct'),getappdata(hAxis, 'ccSlice'));
         
     case 22 %'Ctrl + v' Copy contour to slice
         if ~stateS.contourAxis %Check for contouring mode
             return
         end
-        %Check for source slice
-        hAxis = stateS.handle.CERRAxis(stateS.contourAxis);
+        axIdx = stateS.contourAxis;
+        hAxis = stateS.handle.CERRAxis(axIdx);
+        %Get source slice
         srcCoord = getappdata(hAxis,'copySliceNum');
         if isempty(srcCoord)
             return
         end
-        %Copy contours to current slice
         [scanSet,destCoord] = getAxisInfo(uint8(stateS.currentAxis), 'scanSets','coord');
         [~, ~, zs] = getScanXYZVals(planC{indexS.scan}(scanSet));
+        ccSlice = findnearest(srcCoord, zs);
+        
+        %Get contours
+        ccStruct = getappdata(hAxis, 'ccStruct');
+        ccContours = getappdata(hAxis, 'ccContours');
+        contourV = ccContours{ccStruct,ccSlice};
+        if isempty(contourV)
+            return
+        end
+        
+        %Copy contours to dest slice
         destSlice = find(zs==destCoord);
-        setAxisInfo(uint8(stateS.currentAxis), 'coord', srcCoord);
-        CERRRefresh
-        contourControl('copySl',destSlice);
+        if size(ccContours,2)<destSlice
+        ccContours{ccStruct, destSlice} = []; %Dest slice
+        end
+        setappdata(hAxis, 'ccSlice', ccSlice);
+        setappdata(hAxis, 'ccContours', ccContours);
+        setappdata(hAxis, 'contourV', contourV);
+        contourControl('copySl',hAxis,destSlice);
         
     case {43,61} %'+' key to increase brush size in contouring mode
         if ~stateS.contourAxis %Check for contouring mode
