@@ -55,13 +55,25 @@ if numScans > maxScansPerGroup
         scanDate = planC{indexS.scan}(currentScan).scanInfo(1).scanDate;
         dateString = '';
         if ~isempty(scanDate)
-            dateString = datestr(datenum(planC{indexS.scan}(currentScan)...
-                .scanInfo(1).scanDate,'yyyymmdd'));
+            try
+                dateString = datestr(datenum(planC{indexS.scan}(currentScan)...
+                    .scanInfo(1).scanDate,'yyyymmdd'));
+            catch
+                dateString = planC{indexS.scan}(currentScan).scanInfo(1).scanDate;
+            end
         end
         
+        scanDescription = planC{indexS.scan}(currentScan).scanInfo(1).scanDescription; %AI 5/9/17 Display series description 
+        if isempty(scanDescription)
+            scanTitle = scanType;
+        else
+            scanTitle = [scanType,': ',scanDescription];
+        end
+
         str2 = num2str(currentScan);
         if topMenuFlag
-            hScan = uimenu(hSubScanMenu, 'label', [str2,'. ',scanType, ' (',dateString,')'],...
+           
+            hScan = uimenu(hSubScanMenu, 'label', [str2,'. ',scanTitle, ' (',dateString,')'],...
                 'callback',['sliceCallBack(''selectScan'',''', str2 ,''')'],...
                 'tag', ['scanItem',str2],...                               %ADDED
                 'interruptible','on','separator','off', 'Checked', 'off');
