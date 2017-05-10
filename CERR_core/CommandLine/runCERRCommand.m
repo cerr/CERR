@@ -578,19 +578,26 @@ if ~isempty(in_str)
                     % Pass variable to "goto" command
                     goto('max')
                     
-                elseif numWords == 4
-                    
+                elseif numWords > 3
+                    if numWords==4
                     w4 = word(in_str,4);
                     w4 = str2num(w4); % only numeric data type supported
                     goto(w3,w4)
-
-                else
                     
+                    elseif strcmpi(word(in_str,5),'all')
+                    w4 = word(in_str,4);
+                    w4 = str2num(w4); % only numeric data type supported
+                    w5 = word(in_str,5);
+                    goto(w3,w4,w5)
+
+                    else
                     % Get the slice number passed
                     num = str2num(word(in_str,3));
 
                     % Pass variable to "goto" command
                     goto('slice',num);
+                    end
+                    
                 end
 
             case 'mask'  %show a spy mask of values included in an ROI
