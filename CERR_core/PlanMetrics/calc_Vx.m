@@ -4,9 +4,7 @@ function ans = calc_Vx(doseBinsV, volsHistV, doseCutoff, volumeType)
 %  
 %  MODIFICATION ALERT:  THIS FUNCTION IS UTILIZED BY THE DREXLER CODEBASE
 %
-%  Last modified: AJH 11/05
-%
-%  Usage: calc_Vx(doseBinsV, volsHistV, percent)
+%  Usage: calc_Vx(doseBinsV, volsHistV, doseCutoff, volumeType)
 %
 % volumeType
 %  1 = fractional
@@ -65,7 +63,7 @@ end
 if(volumeType == 1)
     ans = ans/cumVolsV(end);
 else
-    warning('Vx is being calculated in absolute terms.');
+    %warning('Vx is being calculated in absolute terms.');
 end
 
 return;
