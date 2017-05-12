@@ -88,9 +88,10 @@ ySurfV = yValsV(surfPoints(:,1));
 zSurfV = zValsV(surfPoints(:,3));
 
 % Check if it's a coplanar structure
-if length(unique(zSurfV)) < 2
+if (length(unique(zSurfV)) < 2 || length(zSurfV)<4)
     shapeS.surfArea = NaN;
-    shapeS.vol = NaN;
+    shapeS.volume = NaN;
+    shapeS.filledVolume = NaN;
     shapeS.Compactness1 = NaN;
     shapeS.Compactness2 = NaN;
     shapeS.spherDisprop = NaN;
