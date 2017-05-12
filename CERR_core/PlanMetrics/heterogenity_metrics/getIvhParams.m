@@ -42,6 +42,38 @@ else
     scansV = scansV - offset;
 end
 
+% Return NaNs if empty
+if nnz(scansV)<2
+    ivhFeaturesS.meanHist = NaN;
+    ivhFeaturesS.maxHist = NaN;
+    ivhFeaturesS.minHist = NaN;
+    ivhFeaturesS.I50 = NaN;
+    ivhFeaturesS.rangeHist = NaN;
+    ivhFeaturesS.IVHBinWidth = NaN;
+    
+    for i = 1:length(xForIxV)
+        ivhFeaturesS.Ix(i) = NaN;
+        ivhFeaturesS.xIx(i) = NaN;
+        ivhFeaturesS.MOHx(i) = NaN;
+        ivhFeaturesS.xMOHx(i) = NaN;
+        ivhFeaturesS.MOCx(i) = NaN;
+        ivhFeaturesS.xMOCx(i) = NaN;
+    end
+    for i = 1:length(xAbsForIxV)
+        ivhFeaturesS.IabsX(i) = NaN;
+        ivhFeaturesS.xIabsX(i) = NaN;
+    end
+    for i = 1:length(xForVxV)
+        ivhFeaturesS.Vx(i) = NaN;
+        ivhFeaturesS.xVx(i) = NaN;
+    end
+    for i = 1:length(xAbsForVxV)
+        ivhFeaturesS.VabsX(i) = NaN;
+        ivhFeaturesS.xVabsX(i) = NaN;
+    end
+    return
+end
+
 % Compute histogram
 [scanBinsV, volsHistV] = doseHist(scansV, volsV, IVHBinWidth);
 
