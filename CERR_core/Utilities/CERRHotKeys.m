@@ -142,20 +142,32 @@ switch(keyValue)
         sliceCallBack('TOGGLEZOOM');
 
     case 101 % 'e' key
+        if ~stateS.contourState %Check for contouring mode
+            return
+        end
         contourControl('editMode');
         controlFrame('contour', 'refresh');
 
     case 100 % 'd' key
+        if ~stateS.contourState %Check for contouring mode
+            return
+        end
         contourControl('drawMode');
         controlFrame('contour', 'refresh');
 
     case 27 % 'esc' key
 
     case 116 %'t' key
+        if ~stateS.contourState %Check for contouring mode
+            return
+        end
         contourControl('threshMode');
         controlFrame('contour', 'refresh');
 
     case 114 %'r' key;
+        if ~stateS.contourState %Check for contouring mode
+            return
+        end
         contourControl('reassignMode');
         controlFrame('contour', 'refresh');
         
@@ -169,45 +181,48 @@ switch(keyValue)
         sliceCallBack('TOGGLESCANWINDOWING');
         
     case 3 %'Ctrl + c' Copy contour from slice
-        if ~stateS.contourAxis %Check for contouring mode
+        if ~stateS.contourState %Check for contouring mode
             return
         end
         axIdx = stateS.contourAxis;
         hAxis = stateS.handle.CERRAxis(axIdx);
         %Get source slice
         srcCoord = getAxisInfo(uint8(axIdx),'coord');
-        setappdata(hAxis,'copySliceNum',srcCoord);
-        fprintf('\nCopied structure: %d\tslice: %d.\n',getappdata(hAxis, 'ccStruct'),getappdata(hAxis, 'ccSlice'));
+        scanSet = getAxisInfo(uint8(stateS.currentAxis), 'scanSets');
+        [~, ~, zs] = getScanXYZVals(planC{indexS.scan}(scanSet));
+        srcSlice = findnearest(srcCoord, zs);
+        setappdata(hAxis,'copySliceNum',srcSlice);
+        contourMask = getappdata(hAxis,'contourMask');
+        setappdata(hAxis,'copyMask',contourMask);
+        fprintf('\nCopied structure: %d\tslice: %d.\n',getappdata(hAxis, 'ccStruct'),srcSlice);
         
     case 22 %'Ctrl + v' Copy contour to slice
-        if ~stateS.contourAxis %Check for contouring mode
+        if ~stateS.contourState %Check for contouring mode
             return
         end
         axIdx = stateS.contourAxis;
         hAxis = stateS.handle.CERRAxis(axIdx);
         %Get source slice
-        srcCoord = getappdata(hAxis,'copySliceNum');
-        if isempty(srcCoord)
+        srcSlice = getappdata(hAxis,'copySliceNum');
+        if isempty(srcSlice)
             return
         end
-        [scanSet,destCoord] = getAxisInfo(uint8(stateS.currentAxis), 'scanSets','coord');
-        [~, ~, zs] = getScanXYZVals(planC{indexS.scan}(scanSet));
-        ccSlice = findnearest(srcCoord, zs);
         
         %Get contours
         ccStruct = getappdata(hAxis, 'ccStruct');
         ccContours = getappdata(hAxis, 'ccContours');
-        contourV = ccContours{ccStruct,ccSlice};
+        contourV = ccContours{ccStruct,srcSlice};
         if isempty(contourV)
             return
         end
         
         %Copy contours to dest slice
+        [scanSet,destCoord] = getAxisInfo(uint8(stateS.currentAxis),'scanSets','coord');
+        [~, ~, zs] = getScanXYZVals(planC{indexS.scan}(scanSet));
         destSlice = find(zs==destCoord);
         if size(ccContours,2)<destSlice
         ccContours{ccStruct, destSlice} = []; %Dest slice
         end
-        setappdata(hAxis, 'ccSlice', ccSlice);
         setappdata(hAxis, 'ccContours', ccContours);
         setappdata(hAxis, 'contourV', contourV);
         contourControl('copySl',hAxis,destSlice);
@@ -227,7 +242,6 @@ switch(keyValue)
         end
         hAx = stateS.handle.CERRAxis(stateS.currentAxis);
         decrement = -min([planC{indexS.scan}(1).scanInfo(1).grid1Units,...
-                    planC{indexS.scan}(1).scanInfo(1).grid2Units]);
-        controlFrame('contour','setBrushSize',hAx,decrement); 
-        
+            planC{indexS.scan}(1).scanInfo(1).grid2Units]);
+        controlFrame('contour','setBrushSize',hAx,decrement);
 end
