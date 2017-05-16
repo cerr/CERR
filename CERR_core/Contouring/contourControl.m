@@ -155,7 +155,6 @@ switch command
     case 'copySl'  
         %Copy current structs' contours to selected slice 
         hAxis = varargin{1};
-        loadDrawSlice(hAxis);
         saveDrawSlice(hAxis);
         destSlice = varargin{2};
         copyToSlice(hAxis, destSlice);
@@ -325,7 +324,6 @@ switch command
                     drawContour('threshMode', hAxis);
                 case 'reassign'
                     drawContour('reassignMode', hAxis);
-                   
             end
         %end
         
@@ -348,6 +346,7 @@ switch command
                     drawContour('threshMode', hAxis);
                 case 'reassign'
                     drawContour('reassignMode', hAxis);
+                    
             end
         end
         
@@ -864,12 +863,13 @@ if sliceNum < 1 | sliceNum > nSlices
     return;
 end
 ccStruct = getappdata(hAxis, 'ccStruct');
-ccSlice = getappdata(hAxis, 'ccSlice');
+srcSlice = getappdata(hAxis, 'copySliceNum'); 
 ccContours = getappdata(hAxis, 'ccContours');
+maskM = getappdata(hAxis,'copyMask');
 
-contourV = ccContours{ccStruct, ccSlice};
+contourV = ccContours{ccStruct, srcSlice};
 if isempty(contourV)
-    points = {planC{indexS.structures}(ccStruct).contour(ccSlice).segments.points};
+    points = {planC{indexS.structures}(ccStruct).contour(srcSlice).segments.points};
     if ~isempty(points)
         for i=1:length(points)
             tmp = points{i};
@@ -899,4 +899,6 @@ if isempty(newContourV)
 end
 combinedContourV = {newContourV{:} contourV{:}};
 ccContours{ccStruct, sliceNum} = combinedContourV;
+setappdata(hAxis,'ccSlice',sliceNum);
 setappdata(hAxis, 'ccContours', ccContours);
+setappdata(hAxis, 'contourMask',maskM);
