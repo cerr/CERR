@@ -148,27 +148,31 @@ switch command
                 %ud.handles.reassignChoices = uicontrol(hFig, 'style', 'popupmenu', 'BackgroundColor', [0 1 0], 'units', units, 'position', absPos([.42 .20 .55 .05], posFrame), 'string', 'NULL', 'value', 1, 'tag', 'controlFrameItem', 'callback', 'controlFrame(''contour'', ''selectStruct2'')', 'TooltipString', 'Structure to move contours to/from in reassign mode.');
                 
                 % Controls for Pencil, Brush and Eraser
-                ud.handles.pencil = uicontrol(hFig, 'style', 'togglebutton', 'units', units, 'position', absPos([.05 .35 .28 .1], posFrame), 'string', 'Pencil', 'tag', 'controlFrameItem', 'callback', 'controlFrame(''contour'',''toggleMode'',''pencil'')', 'TooltipString', 'Pencil');
-                ud.handles.brush = uicontrol(hFig, 'style', 'togglebutton', 'units', units, 'position', absPos([.35 .35 .28 .1], posFrame), 'string', 'Brush', 'tag', 'controlFrameItem', 'callback', 'controlFrame(''contour'',''toggleMode'',''brush'')', 'TooltipString', 'Brush');
-                ud.handles.eraser = uicontrol(hFig, 'style', 'togglebutton', 'units', units, 'position', absPos([.65 .35 .28 .1], posFrame), 'string', 'Eraser', 'tag', 'controlFrameItem', 'callback', 'controlFrame(''contour'',''toggleMode'',''eraser'')', 'TooltipString', 'Eraser');
-
+                % AI 5/18/17 removed brush,eraser,slider
+                ud.handles.pencil = uicontrol(hFig, 'style', 'togglebutton', 'units', units, 'position', absPos([.05 .36 .4 .08], posFrame), 'string', 'Pencil', 'tag', 'controlFrameItem', 'callback', 'controlFrame(''contour'',''toggleMode'',''pencil'')', 'TooltipString', 'Pencil');
+                %ud.handles.brush = uicontrol(hFig, 'style', 'togglebutton', 'units', units, 'position', absPos([.35 .38 .28 .07], posFrame), 'string', 'Brush', 'tag', 'controlFrameItem', 'callback', 'controlFrame(''contour'',''toggleMode'',''brush'')', 'TooltipString', 'Brush');
+                %ud.handles.eraser = uicontrol(hFig, 'style', 'togglebutton', 'units', units, 'position', absPos([.65 .38 .28 .07], posFrame), 'string', 'Eraser', 'tag', 'controlFrameItem', 'callback', 'controlFrame(''contour'',''toggleMode'',''eraser'')', 'TooltipString', 'Eraser');
+                ud.handles.flex = uicontrol(hFig, 'style', 'togglebutton', 'units', units, 'position', absPos([.55 .36 .4 .08], posFrame), 'string', 'Brush/Eraser', 'tag', 'controlFrameItem', 'callback', 'controlFrame(''contour'',''toggleMode'',''flex'')', 'TooltipString', 'Toggle brush/eraser'); %Added
+                
                 % Get min/max brush size
                 radius = min([planC{indexS.scan}(1).scanInfo(1).grid1Units,...
                     planC{indexS.scan}(1).scanInfo(1).grid2Units]);
+                ud.minRadius = radius;
+                ud.maxRadius = radius*50;
                 % Slider to select brush or eraser size
-                ud.handles.brushSizeSlider = uicontrol(hFig, 'style', 'slider', ...
-                    'units', units, 'position', absPos([.1 .28 .8 .04], posFrame),...
-                    'tag', 'controlFrameItem', 'min', radius, 'max', radius*50, ...
-                    'value', radius*5, 'SliderStep', [radius radius*2],...
-                    'callback', 'controlFrame(''contour'',''setBrushSize'')');
-                ud.handles.brushSizeTxt = uicontrol(hFig, 'style', 'text',...
-                    'units', units, 'position', absPos([.05 .22 .3 .05], posFrame),...
-                    'string', 'Size (cm):', 'tag', 'controlFrameItem',...
-                    'horizontalAlignment','right');             
-                ud.handles.brushSizeEdit = uicontrol(hFig, 'style', 'text',...
-                    'units', units, 'position', absPos([.39 .22 .3 .05], posFrame),...
-                    'string', num2str(radius*5), 'tag', 'controlFrameItem',...
-                    'callback', 'controlFrame(''contour'',''setBrushSize'')');
+                %ud.handles.brushSizeSlider = uicontrol(hFig, 'style', 'slider', ...
+                %    'units', units, 'position', absPos([.1 .25 .8 .04], posFrame),...  %AI changed positions
+                %    'tag', 'controlFrameItem', 'min', radius, 'max', radius*50, ...
+                %    'value', radius*5, 'SliderStep', [radius radius*2],...
+                %    'callback', 'controlFrame(''contour'',''setBrushSize'')');
+                %ud.handles.brushSizeTxt = uicontrol(hFig, 'style', 'text',...
+                %    'units', units, 'position', absPos([.05 .2 .3 .05], posFrame),...  
+                %    'string', 'Size (cm):', 'tag', 'controlFrameItem',...
+                %    'horizontalAlignment','right');             
+                %ud.handles.brushSizeEdit = uicontrol(hFig, 'style', 'text',...
+                %    'units', units, 'position', absPos([.39 .2 .3 .05], posFrame),...  
+                %    'string', num2str(radius*5), 'tag', 'controlFrameItem',...
+                %    'callback', 'controlFrame(''contour'',''setBrushSize'')');           
                 
                 %Controls to select overlaid scan.
                 ud.handles.overlayText = uicontrol(hFig, 'style', 'text', 'enable', 'inactive' , 'units', units, 'position', absPos([.05 .07 .25 .10], posFrame), 'string', 'Overlay Scan:', 'tag', 'controlFrameItem', 'horizontalAlignment', 'left');
@@ -472,8 +476,11 @@ switch command
                 
                 modeState = get(gcbo, 'value');
                 
-                set([ud.handles.pencil, ud.handles.brush, ud.handles.eraser],...
-                    'BackgroundColor',[0.8 0.8 0.8])   
+                %AI 5/18/17 Removed brush,eraser tools
+                %set([ud.handles.pencil, ud.handles.brush, ud.handles.eraser],...
+                %    'BackgroundColor',[0.8 0.8 0.8]);  
+                set([ud.handles.pencil, ud.handles.flex],'BackgroundColor',[0.8 0.8 0.8]);  
+                
                 
                 modeType = varargin{2};
                 
@@ -484,25 +491,35 @@ switch command
                 
                 switch upper(modeType)
                     case 'PENCIL'                        
-                        set([ud.handles.brush, ud.handles.eraser],...
-                            'Value',0)
+                        %set([ud.handles.flex ud.handles.brush, ud.handles.eraser],...
+                        %    'Value',0)
+                        set(ud.handles.flex,'Value',0)
                         set(ud.handles.pencil,'BackgroundColor',[0.5 1 1])
                         %Draw Mode.
                         contourControl('drawMode');
                         
                     case 'BRUSH'                        
-                        set([ud.handles.pencil, ud.handles.eraser],...
+                        set([ud.handles.flex ud.handles.pencil, ud.handles.eraser],...
                             'Value',0)
                         set(ud.handles.brush,'BackgroundColor',[0.5 1 1])
                         %Varian styled Ball/Draw Mode
                         contourControl('drawBall');                        
                         
                     case 'ERASER'                        
-                        set([ud.handles.pencil, ud.handles.brush],...
+                        set([ud.handles.flex ud.handles.pencil, ud.handles.brush],...
                             'Value',0)                        
                         set(ud.handles.eraser,'BackgroundColor',[0.5 1 1])
                         %Varian styled Ball/Draw Mode
                         contourControl('eraserBall');    
+                        
+                    %Added 'flex' mode
+                    case 'FLEX'
+                        %set([ud.handles.pencil, ud.handles.brush ud.handles.eraser],...
+                        %    'Value',0)
+                        set(ud.handles.pencil,'Value',0);
+                        set(ud.handles.flex,'BackgroundColor',[0.5 1 1])
+                        %Flex mode
+                        contourControl('flexSelMode');
                         
                     case 2 % switch to edit mode when contour is cliced in "draw" state
                         %Edit Mode.
@@ -521,21 +538,26 @@ switch command
                 ud = get(hFrame, 'userdata');
                 if length(varargin) < 3
                     hAxis = stateS.handle.CERRAxis(stateS.currentAxis);
+                    radius = getappdata(hAxis, 'ballRadius');
+                    if isempty(radius)
+                       radius = radius*5;  %Initialize
+                    end
                 else
                     hAxis = varargin{2};
                     increment = varargin{3};
-                    hSlider  = ud.handles.brushSizeSlider;
-                    radius = hSlider.Value + increment;
-                    if radius>hSlider.Max
-                        radius = hSlider.Max;
-                    elseif radius<hSlider.Min
-                        radius = hSlider.Min;
+                    %hSlider  = ud.handles.brushSizeSlider;
+                    %radius = hSlider.Value + increment;
+                    radius = getappdata(hAxis, 'ballRadius') + increment;
+                    if radius>ud.maxRadius
+                        radius = ud.maxRadius;
+                    elseif radius<ud.minRadius
+                        radius = ud.maxRadius;
                     end
-                    set(ud.handles.brushSizeSlider,'Value',radius);
+                    %set(ud.handles.brushSizeSlider,'Value',radius);%AI 5/18/17
                 end
-                radius = get(ud.handles.brushSizeSlider,'Value');
+                %radius = get(ud.handles.brushSizeSlider,'Value'); %Removed AI 5/18/17
                 %Set brush size
-                set(ud.handles.brushSizeEdit,'String',radius)
+                %set(ud.handles.brushSizeEdit,'String',radius)
                 setappdata(hAxis, 'ballRadius', radius);
                 %Update display radius
                 ballH = getappdata(hAxis, 'hBall');
@@ -560,8 +582,11 @@ switch command
                 end
                 strNumsV = strUd.strNumsV;
                 controlFrame('contour', 'refresh')
+                %AI 5/18/17 Removed brush, eraser
                 % Set pencil/eraser/brush to OFF
-                set([ud.handles.brush, ud.handles.eraser, ud.handles.pencil],...
+                %set([ud.handles.brush, ud.handles.eraser, ud.handles.pencil],...
+                %    'Value',0,'BackgroundColor',[0.8 0.8 0.8])
+                set([ud.handles.flex, ud.handles.pencil],...
                     'Value',0,'BackgroundColor',[0.8 0.8 0.8])
                 contourControl('changeStruct', strNumsV(strVal));
                 

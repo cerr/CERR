@@ -233,7 +233,7 @@ switch(keyValue)
         end
         hAx = stateS.handle.CERRAxis(stateS.currentAxis);
         increment = min([planC{indexS.scan}(1).scanInfo(1).grid1Units,...
-                    planC{indexS.scan}(1).scanInfo(1).grid2Units]);
+            planC{indexS.scan}(1).scanInfo(1).grid2Units]);
         controlFrame('contour','setBrushSize',hAx,increment);
         
     case 45 %'-' key to decrease brush size in contouring mode
@@ -244,4 +244,23 @@ switch(keyValue)
         decrement = -min([planC{indexS.scan}(1).scanInfo(1).grid1Units,...
             planC{indexS.scan}(1).scanInfo(1).grid2Units]);
         controlFrame('contour','setBrushSize',hAx,decrement);
+    case 2 %Ctrl+b Force set 'flex' mode to brush
+        if ~stateS.contourAxis %Check for contouring mode
+            return
+        end
+        hAxis = stateS.handle.CERRAxis(stateS.contourAxis);
+        if strcmp(getappdata(hAxis,'mode'),'flexMode')
+            contourControl('Save_Slice');
+            contourControl('flexSelMode', 0);
+        end
+        
+    case 5 %Ctrl+e Force set 'flex' mode to eraser
+        if ~stateS.contourAxis %Check for contouring mode
+            return
+        end
+        hAxis = stateS.handle.CERRAxis(stateS.contourAxis);
+        if strcmp(getappdata(hAxis,'mode'),'flexMode')
+            contourControl('Save_Slice');
+            contourControl('flexSelMode', 1);
+        end
 end

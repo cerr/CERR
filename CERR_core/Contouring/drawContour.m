@@ -140,7 +140,22 @@ switch command
         %Force reassign mode.
         hAxis = varargin{1};
         reassignMode(hAxis);
-
+        
+        %AI 4/28/17
+    case 'flexSelMode'
+        %Force flex mode.
+        hAxis = varargin{1};
+        %Initialize
+        drawBallMode(hAxis);
+        %Reset mode to 'flex'
+        setappdata(hAxis,'mode','flexSelMode'); 
+        if nargin>2
+           setappdata(hAxis,'forceErase',varargin{2});  
+        else
+           setappdata(hAxis,'forceErase',[]);
+        end
+        
+        
     case 'getContours'
         %Return all contours drawn on this axis, in axis coordinates.
         hAxis = varargin{1};
@@ -233,6 +248,7 @@ switch command
         %set(hFig, 'WindowButtonMotionFcn', 'drawContour(''motionInFigure'')');
         setappdata(hAxis, 'isButtonDwn', 1);
 
+
         %SWITCH OVER MODES.
         if strcmpi(mode,        'DRAW')
             if strcmpi(clickType, 'normal')
@@ -278,7 +294,7 @@ switch command
                 yV = cP(1,2) + ballRadius*angM(:,2);  
                 set(ballH,'xData',xV,'ydata',yV,'visible','on')
                 addBallPoints(hAxis, xV, yV);
-                drawSegment(hAxis);                
+                drawSegment(hAxis);    
                 
             elseif strcmpi(clickType, 'extend') || (strcmpi(clickType, 'open') && strcmpi(lastClickType, 'extend'))
             elseif strcmpi(clickType, 'alt')
@@ -333,6 +349,35 @@ switch command
 %                 do nothing
                 threshMode(hAxis);
             end
+            
+            %ADDED AI 4/28/17
+        elseif strcmpi(mode,'FLEXSELMODE')
+            if strcmpi(clickType, 'normal')
+                %Initialize drawball
+                drawingBallMode(hAxis);  
+                ballH = getappdata(hAxis, 'hBall');
+                angM = getappdata(hAxis, 'angles');
+                ballRadius = getappdata(hAxis, 'ballRadius');
+                %Set flex mode (eraserFlag)
+                if ~isempty(getappdata(hAxis,'forceErase'))
+                    eraserFlag = getappdata(hAxis,'forceErase');
+                    cP = getFlexPos(hAxis,eraserFlag);
+                    setappdata(hAxis,'forceErase',[]);
+                else
+                    cP = getFlexPos(hAxis);
+                end
+                if isempty(cP)
+                    return 
+                end
+                xV = cP(1,1) + ballRadius*angM(:,1);
+                yV = cP(1,2) + ballRadius*angM(:,2);
+                set(ballH,'xData',xV,'ydata',yV,'visible','on')
+                addBallPoints(hAxis, xV, yV);
+                drawSegment(hAxis);
+                %Reset to flexMode
+                setappdata(hAxis, 'mode', 'flexMode');
+            end
+            
 
         elseif strcmpi(mode,    'NONE')
             
@@ -342,12 +387,19 @@ switch command
         %The action taken depends on current state.
         hFig        = stateS.handle.CERRSliceViewer;
         hAxis       = getappdata(hFig, 'contourAxisHandle');
-        clickType   = get(hFig, 'SelectionType');        
+        clickType   = get(hFig, 'SelectionType');
         if isempty(hAxis)
             return
         end
         mode         = getappdata(hAxis, 'mode');
         isButtonDwn  = getappdata(hAxis, 'isButtonDwn');
+        
+        % AI 5/1/17
+        if isempty(isButtonDwn)
+            isButtonDwn = 0;
+        end
+        
+
         if strcmpi(mode,        'DRAWING') && isButtonDwn
             if strcmpi(clickType, 'normal')
                 %Left click+motion: add point and redraw.
@@ -418,6 +470,7 @@ switch command
                 drawContourV(hAxis);
             end
             
+
         elseif strcmpi(mode,        'DRAWBALL')            
                 %Left click+motion: add point and redraw.
                 cP = get(hAxis, 'currentPoint');
@@ -427,7 +480,7 @@ switch command
                 xV = cP(1,1) + ballRadius*angM(:,1);
                 yV = cP(1,2) + ballRadius*angM(:,2);                
                 set(ballH,'xData',xV,'ydata',yV,'visible','on')
-            
+
         
         elseif strcmpi(mode,    'EDITING') && isButtonDwn
             if strcmpi(clickType, 'normal')
@@ -448,7 +501,7 @@ switch command
             if strcmpi(clickType, 'normal')
                 %Left click+motion: add point to clip and redraw.
                 cP = get(hAxis, 'currentPoint');
-                                                       
+                
                 % Find the closest point on the segment to the current mouse click
                 % Contour points for the selected segment
                 segment = getappdata(hAxis, 'segment');
@@ -494,11 +547,38 @@ switch command
                 setappdata(hAxis, 'segment', segmentNew);
                 
                 drawSegment(hAxis);
-                
-                
-            end            
-        end
+            end
+            
+            
+           elseif strcmpi(mode, 'FLEXSELMODE')       
+                cP = get(hAxis, 'currentPoint');
+                ballH = getappdata(hAxis, 'hBall');
+                angM = getappdata(hAxis, 'angles');
+                ballRadius = getappdata(hAxis, 'ballRadius');
+                xV = cP(1,1) + ballRadius*angM(:,1);
+                yV = cP(1,2) + ballRadius*angM(:,2);                
+                set(ballH,'xData',xV,'ydata',yV,'visible','on')
 
+                
+            elseif strcmpi(mode,    'FLEXMODE')
+                %cP = get(hAxis, 'currentPoint');
+                cP = getFlexPos(hAxis);
+                if isempty(cP)
+                    return
+                end
+                ballH = getappdata(hAxis, 'hBall');
+                angM = getappdata(hAxis, 'angles');
+                ballRadius = getappdata(hAxis, 'ballRadius');
+                xV = cP(1,1) + ballRadius*angM(:,1);
+                yV = cP(1,2) + ballRadius*angM(:,2);
+                set(ballH,'xData',xV,'ydata',yV,'visible','on')
+                if strcmpi(clickType, 'normal') && isButtonDwn
+                    %Left click+motion: add point and redraw.
+                    addBallPoints(hAxis, xV, yV);
+                    drawContourV(hAxis);
+                end
+        end
+        
     case 'btnUp'
         %The action taken depends on current state.        
         hFig = gcbo;      
@@ -518,9 +598,13 @@ switch command
         elseif strcmpi(mode, 'DRAWINGBALL')
             ballH = getappdata(hAxis, 'hBall');
             %set(ballH,'visible','off')
+        elseif strcmpi(mode, 'FLEXMODE') %%AI 5/1/17
+            %ballH = getappdata(hAxis, 'hBall');
+            %set(ballH,'visible','off')
         end              
         %set(hFig, 'WindowButtonMotionFcn', '');
         setappdata(hAxis, 'isButtonDwn', 0);
+   
 
     case 'contourClicked'
         hLine = gcbo;
@@ -816,6 +900,37 @@ hContour = getappdata(hAxis, 'hContour');
 set(hContour, 'hittest', 'off');
 drawSegment(hAxis);
 drawContourV(hAxis);
+
+%AI 5/1/17
+%Get current point
+function cP = getFlexPos(hAxis,eraserFlag)
+global planC
+global stateS
+%Get current mask
+maskM = getappdata(hAxis, 'contourMask');
+%Get current point
+cP = get(hAxis, 'currentPoint');
+scanSet = getAxisInfo(stateS.handle.CERRAxis(1),'scanSets');
+[imSizX,imSizY,~] = size(getScanArray(scanSet,planC));
+[r, c, ~] = xyztom(cP(1,1),cP(1,2),0, scanSet, planC);
+r = round(r);
+c = round(c);
+if r < 1 || r > imSizY || c < 1 || c > imSizX
+    cP = [];
+    return;
+end
+%Set brush/erase mode
+if ~exist('eraserFlag','var')
+if sum(maskM(:))==0 || maskM(r,c)==1
+    setappdata(hAxis, 'eraseFlag',0);
+else
+    setappdata(hAxis, 'eraseFlag',1);
+end
+else
+   setappdata(hAxis, 'eraseFlag',eraserFlag); %Force brush(ctrl+b)/eraser(ctrl+e)
+end
+
+
 
 
 %     function freezeMode(hAxis)
@@ -1137,7 +1252,6 @@ global stateS
 indexS = planC{end};
 % [xV, yV, zV] = getScanXYZVals(planC{indexS.scan}(stateS.currentScan));
 [scanSet,coord] = getAxisInfo(stateS.handle.CERRAxis(stateS.contourAxis),'scanSets','coord');
-
 [xV, yV, zV] = getScanXYZVals(planC{indexS.scan}(scanSet));
 % [r, c, jnk] = xyztom(x,y,zeros(size(x)), planC);
 [r, c, jnk] = xyztom(x,y,zeros(size(x)), scanSet, planC);
