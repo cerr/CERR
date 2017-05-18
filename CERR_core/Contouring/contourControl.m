@@ -193,6 +193,25 @@ switch command
             setappdata(hAxis, 'eraseFlag',1);
         end
         
+    case 'flexSelMode'
+        %Enter flex mode
+        angleV = linspace(0,2*pi,50);
+        xV = cos(angleV);
+        yV = sin(angleV);
+        ballHandle = fill(xV,yV,[1 0.5 0.5],'parent',hAxis,'visible','off',...
+            'hittest','off', 'facealpha',0.2,'EdgeColor', [1 0 0]);
+        setappdata(hAxis, 'hBall', ballHandle);
+        setappdata(hAxis, 'angles', [xV(:) yV(:)]);
+        controlFrame('contour','setBrushSize',hAxis)
+        setappdata(hAxis, 'ccMode', 'flexSelMode');
+        setappdata(hAxis, 'mode', 'flexSelMode');
+        if nargin>1
+            eraseFlag = varargin{1};
+            drawContour('flexSelMode',hAxis,eraseFlag);
+        else
+            drawContour('flexSelMode', hAxis);
+        end
+        
     case 'threshMode'
         versionInfo = ver;
         if any(strcmpi({versionInfo.Name},'Image Processing Toolbox'));
@@ -233,13 +252,20 @@ switch command
             saveDrawSlice(hAxis);
             setappdata(hAxis, 'ccSlice', sliceNum);
             loadDrawSlice(hAxis);
-            %drawContour('drawBallMode', hAxis); 
+            %drawContour('drawBallMode', hAxis);
             eraseFlag = getappdata(hAxis, 'eraseFlag');
             if eraseFlag
                 contourControl('eraserBall')
             else
                 contourControl('drawBall')
             end
+            % ADDED AI 5/8/17
+        elseif strcmpi(ccMode, 'flexSelMode')
+            saveDrawSlice(hAxis);
+            setappdata(hAxis, 'ccSlice', sliceNum);
+            loadDrawSlice(hAxis);
+            contourControl('flexSelMode')
+            % END ADDED
         elseif strcmpi(ccMode, 'edit')
             saveDrawSlice(hAxis);
             setappdata(hAxis, 'ccSlice', sliceNum);
@@ -324,6 +350,9 @@ switch command
                     drawContour('threshMode', hAxis);
                 case 'reassign'
                     drawContour('reassignMode', hAxis);
+                % AI 5/8/17
+                case 'flex'
+                    drawContour('flexMode', hAxis);
             end
         %end
         
@@ -346,6 +375,9 @@ switch command
                     drawContour('threshMode', hAxis);
                 case 'reassign'
                     drawContour('reassignMode', hAxis);
+                % AI 5/8/17
+                case 'flex'
+                    drawContour('flexMode', hAxis);
                     
             end
         end
@@ -365,8 +397,8 @@ switch command
         
         ccMode = getappdata(hAxis, 'ccMode');
         if strcmpi(ccMode, 'draw') || strcmpi(ccMode, 'edit') || ...
-                strcmpi(ccMode, 'thresh') || ...
-                strcmpi(ccMode, 'reassign') || strcmpi(ccMode, 'drawBall')
+                strcmpi(ccMode, 'thresh') || strcmpi(ccMode, 'reassign') ...
+                || strcmpi(ccMode, 'drawBall') || strcmpi(ccMode, 'flex') %AI 5/8/17
             saveDrawSlice(hAxis);
             %drawContour('quit', hAxis); % APA commented
         end
@@ -395,10 +427,11 @@ switch command
             end
             showStructures(stateS.handle.CERRAxis(i))
         end
-        % Set pencil/brush/eraser button colors and states
-        set([ud.handles.pencil, ud.handles.brush, ud.handles.eraser],...
-            'BackgroundColor',[0.8 0.8 0.8], 'value', 0)
-        % Delete the ball for brush/eraser
+        % Set pencil/brush/eraser/flex button colors and states
+        %set([ud.handles.flex ud.handles.pencil, ud.handles.brush, ud.handles.eraser],...
+        %    'BackgroundColor',[0.8 0.8 0.8], 'value', 0)
+        set([ud.handles.flex ud.handles.pencil],'BackgroundColor',[0.8 0.8 0.8], 'value', 0);
+        % Delete the ball for brush/eraser/flex mode
         ballH = getappdata(hAxis, 'hBall');
         if ishandle(ballH)
             delete(ballH);
