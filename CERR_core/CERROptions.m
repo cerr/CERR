@@ -365,7 +365,7 @@ optS.ROIInterpretedType = initROIInterpretedType;
 %--RPC film options-------------------------------------------------------%
 
 %-- Option to convert PET to SUV
-optS.convert_PET_to_SUV = 1; % 0: Do not convert to SUV, 1: Convert to SUV
+optS.convert_PET_to_SUV = 0; % 0: Do not convert to SUV, 1: Convert to SUV
 
 %-- Option to overwrite CERR file if a bug is found during QA
 optS.overwrite_CERR_File = 0; % 0: Do not overwrite, 1: overwrite
