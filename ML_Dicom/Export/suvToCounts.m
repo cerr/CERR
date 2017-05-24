@@ -12,13 +12,13 @@ elseif isfield(dicomhd,'PatientsWeight')
      ptweight = dicomhd.PatientsWeight*1000;  % in grams
 else
     disp('Patient Weight not found. SUV calculation ignored.')
-    SUV=slice;
+    counts3M = suv3M;
     return    
 end
 
 if isempty(ptweight) || ptweight==0
     disp('Patient Weight is missing. SUV calculation ignored.');
-    SUV=slice;
+    counts3M = suv3M;
     return
 end
 
