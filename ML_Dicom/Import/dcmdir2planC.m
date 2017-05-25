@@ -97,33 +97,33 @@ end
 try
     for scanNum = 1:length(planC{indexS.scan})
         if strcmpi(planC{indexS.scan}(scanNum).scanInfo(1).imageType, 'MR')
-            %%%%% CHANGED - AI 3/3/16 %%%%%%%
-            imgNumverV = [planC{indexS.scan}(scanNum).scanInfo.imageNumber];
-            if ~isempty(imgNumverV)
-                [~,sortIdxV] = sort(imgNumverV);
-            else
-                sortIdxV = 1:length(planC{indexS.scan}(scanNum).scanInfo);
-            end
-            % First, set the scan to a fake coordinate system
-            info1 = planC{indexS.scan}(scanNum).scanInfo(sortIdxV(1));
-            info2 = planC{indexS.scan}(scanNum).scanInfo(sortIdxV(2));
-            pos1 = [info1.xOffset info1.yOffset info1.zValue];
-            pos2 = [info2.xOffset info2.yOffset info2.zValue];
-            deltaPos = pos2-pos1;
-            direction = sign(deltaPos(3));
-            if ~direction
-                direction = 1;
-            end
-            slice_distance = sqrt(sum(deltaPos.^2));
-            for i=1:length(planC{indexS.scan}(scanNum).scanInfo)
-                planC{indexS.scan}(scanNum).scanInfo(sortIdxV(i)).zValue = pos1(3)+ direction*(i-1)*slice_distance;
+            
+            % Calculate the slice normal
+            ImageOrientationPatientV = planC{indexS.scan}(scanNum).scanInfo(1).DICOMHeaders.ImageOrientationPatient;
+            sliceNormV = ImageOrientationPatientV([2 3 1]) .* ImageOrientationPatientV([6 4 5]) ...
+                - ImageOrientationPatientV([3 1 2]) .* ImageOrientationPatientV([5 6 4]);
+            
+            % Calculate the distance of ‘ImagePositionPatient’ along the slice direction cosine
+            numSlcs = length(planC{indexS.scan}(scanNum).scanInfo);
+            distV = zeros(1,numSlcs);
+            for slcNum = 1:numSlcs
+                ipp = planC{indexS.scan}(scanNum).scanInfo(slcNum)...
+                    .DICOMHeaders.ImagePositionPatient;
+                distV(slcNum) = sum(sliceNormV .* ipp);
             end
             
-            %Reorder by z-value (ascending)
-            [~,zOrderV] = sort([planC{indexS.scan}(scanNum).scanInfo.zValue]);
+            % Order slices
+            [zV,zOrderV] = sort(distV);
             planC{indexS.scan}(scanNum).scanInfo = planC{indexS.scan}(scanNum).scanInfo(zOrderV);
             planC{indexS.scan}(scanNum).scanArray = planC{indexS.scan}(scanNum).scanArray(:,:,zOrderV);
             
+            slice_distance = zV(2) - zV(1);
+            for i=1:length(planC{indexS.scan}(scanNum).scanInfo)
+                planC{indexS.scan}(scanNum).scanInfo(i).zValue = zV(i);
+            end
+            info1 = planC{indexS.scan}(scanNum).scanInfo(1);
+            info2 = planC{indexS.scan}(scanNum).scanInfo(2);
+
             %%%%%%%%%%%%%%%%
             info1b = info1.DICOMHeaders;
             info2b = info2.DICOMHeaders;
@@ -146,35 +146,36 @@ try
             virPosMtx = [dx 0 0 xs(1);0 dy 0 ys(1); 0 0 slice_distance zs(1); 0 0 0 1];
             planC{indexS.scan}(scanNum).Image2VirtualPhysicalTransM = virPosMtx;
             
-            %             % Just update structures saaociated with scanNum (to do)
-            %             N = length(planC{indexS.structures});
-            %             if N>0
-            %                 % Now, translate the contour points to the same coordinate system
-            %                 for nvoi = 1:N
-            %                     % for each structure
-            %                     M = length(planC{indexS.structures}(nvoi).contour);
-            %                     for sliceno = 1:M
-            %                         % for each contour
-            %                         points = planC{indexS.structures}(nvoi).contour(sliceno).segments;
-            %                         % y and z are inverted, now get the original data back
-            %                         points(:,2:3) = -points(:,2:3);
-            %
-            %                         if ~isempty(points)
-            %                             tempa = [points ones(size(points,1),1)];
-            %                             tempa = positionMatrixInv*tempa';
-            %                             tempa(3,:) = round(tempa(3,:)); % round the voi points onto the slice
-            %
-            %                             tempb = virPosMtx*tempa;
-            %                             tempb = tempb';
-            %
-            %                             planC{indexS.structures}(nvoi).contour(sliceno).segments = tempb(:,1:3);
-            %                         end
-            %
-            %                     end
-            %                 end
-            %             end
+%             % Update the structures saaociated with scanNum (to do)
+%             N = length(planC{indexS.structures});
+%             if N>0
+%                 % Now, translate the contour points to the same coordinate system
+%                 for nvoi = 1:N
+%                     % for each structure
+%                     M = length(planC{indexS.structures}(nvoi).contour);
+%                     for sliceno = 1:M
+%                         
+%                         % for each contour
+%                         points = planC{indexS.structures}(nvoi).contour(sliceno).segments;
+%                         % y and z are inverted, now get the original data back
+%                         points(:,2:3) = -points(:,2:3);
+%                         
+%                         if ~isempty(points)
+%                             tempa = [points ones(size(points,1),1)];
+%                             tempa = positionMatrixInv*tempa';
+%                             tempa(3,:) = round(tempa(3,:)); % round the voi points onto the slice
+%                             
+%                             tempb = virPosMtx*tempa;
+%                             tempb = tempb';
+%                             
+%                             planC{indexS.structures}(nvoi).contour(sliceno).segments = tempb(:,1:3);
+%                         end
+%                         
+%                     end
+%                 end
+%             end
             
-            % Just update doses saaociated with scanNum (to do)
+            % Update the doses associated with scanNum (to do)
             N = length(planC{indexS.dose});
             if N > 0
                 % Now, translate the coordinates for dose
