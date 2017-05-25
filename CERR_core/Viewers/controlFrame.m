@@ -540,7 +540,7 @@ switch command
                     hAxis = stateS.handle.CERRAxis(stateS.currentAxis);
                     radius = getappdata(hAxis, 'ballRadius');
                     if isempty(radius)
-                       radius = radius*5;  %Initialize
+                       radius = 0.5;  %Initialize
                     end
                 else
                     hAxis = varargin{2};
