@@ -264,7 +264,7 @@ end
 
 scanNum = length(planC{indexS.scan});
 if (scanNum>1)
-    if exist('mergeScansFlag','var')
+    if exist('mergeScansFlag','var') && ~isempty(mergeScansFlag)
         button = mergeScansFlag;
     else
         button = questdlg(['There are ' num2str(scanNum) 'scans, do you want to put them together?'],'Merge CT in 4D Series', ...
