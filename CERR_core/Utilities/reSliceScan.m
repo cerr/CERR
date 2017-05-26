@@ -41,14 +41,20 @@ if ~exist('planC','var')
     global planC
 end
 indexS = planC{end};
-scanS = planC{indexS.scan}(scanNum);
-[xVals, yVals, zVals] = getScanXYZVals(scanS);
-newZVals = zVals(1):dTrans:zVals(end);
-newXVals = xVals(1):dCor:xVals(end);
-newYVals = yVals(1):-abs(dSag):yVals(end);
+[xVals, yVals, zVals] = getScanXYZVals(planC{indexS.scan}(scanNum));
+if numel(dSag) == 1 && numel(dCor) == 1 && numel(dTrans) == 1
+    newZVals = zVals(1):dTrans:zVals(end);
+    newXVals = xVals(1):dCor:xVals(end);
+    newYVals = yVals(1):-abs(dSag):yVals(end);
+else
+    newZVals = dTrans;
+    newXVals = dCor;
+    newYVals = dSag;
+end
 newGridInterval2 = newXVals(2) - newXVals(1);
 newGridInterval1 = abs(newYVals(1) - newYVals(2));
 sliceThickness = newZVals(2) - newZVals(1);
+
 
 %Find structures belonging to scanNum
 assocScanV = getStructureAssociatedScan(1:length(planC{indexS.structures}),planC);
