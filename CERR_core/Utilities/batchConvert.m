@@ -6,6 +6,7 @@ function batchConvert(varargin)
 %under sourceDir and subdirectories to CERR format and places them in destinationDir.
 %
 %APA, 01/22/2009
+% AI, 05/26/17 Added mergeScansFlag
 %
 % Copyright 2010, Joseph O. Deasy, on behalf of the CERR development team.
 % 
@@ -34,7 +35,8 @@ function batchConvert(varargin)
 % sourceDir = 'J:\bioruser\apte\batch code';
 % destinationDir = 'J:\bioruser\apte\batch code\OUT';
 % zipFlag = 'No';
-% batchConvert(sourceDir,destinationDir,zipFlag)
+% mergeScansFlag = 'No';
+% batchConvert(sourceDir,destinationDir,zipFlag,mergeScansFlag)
 
 feature accel off
 
@@ -52,12 +54,14 @@ if isempty(varargin)
         return;
     end
     zipFlag = questdlg('Do you want to bz2 zip output CERR files?', 'bz2 Zip files?', 'Yes','No','No');
+    mergeScansFlag = [];
 else    
     convertedC = {'Source Directory:'};
     planNameC = {'Converted Plan Name:'};    
     sourceDir = varargin{1};
     destinationDir = varargin{2};
     zipFlag = varargin{3};
+    mergeScansFlag = varargin{4};
 end
 
 if ispc
@@ -148,7 +152,7 @@ for dirNum = 1:length(allDirS)
                         end
                     end
                     % Pass the java dicom structures to function to create CERR plan
-                    planC = dcmdir2planC(combinedDcmdirS);
+                    planC = dcmdir2planC(combinedDcmdirS,mergeScansFlag); 
                 else
                     planC = dcmdir2planC(patient.PATIENT);
                 end                
@@ -220,7 +224,7 @@ for dirNum = 1:length(allDirS)
             end
         end
     elseif allDirS(dirNum).isdir && ~strcmp(allDirS(dirNum).name,'.') && ~strcmp(allDirS(dirNum).name,'..')
-        batchConvert(fullfile(sourceDir,allDirS(dirNum).name),destinationDir, zipFlag)
+        batchConvert(fullfile(sourceDir,allDirS(dirNum).name),destinationDir, zipFlag, mergeScansFlag)
     end
 end
 if isempty(varargin)    
