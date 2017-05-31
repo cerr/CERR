@@ -181,24 +181,27 @@ switch upper(command)
         ud = get(hFig,'userdata');
         
         %Get .json files
-        fPath = 'M:/Aditi/OutcomesModels/ROE/Protocols'; %Temp (move to options file)
-        [protocolListC,protocolIdx,ok] = listFiles(fPath,'Multiple');
+        optS = CERROptions;
+        protocolPath = optS.ROEProtocolPath;
+        modelPath = optS.ROEModelPath;
+        criteriaPath = optS.ROECriteriaPath;
+        [protocolListC,protocolIdx,ok] = listFiles(protocolPath,'Multiple');
         if ~ok
             return
         end
         
         % Get models by protocol
-        root = uitreenode('v0', 'Protocol', 'Protocol', [], false);  %Create root node
+        root = uitreenode('v0', 'Protocols', 'Protocols', [], false);  %Create root node
         for p = 1:numel(protocolIdx)
             [~,protocol] = fileparts(protocolListC{protocolIdx(p)});
-            protocolInfoS = loadjson(fullfile(fPath,protocolListC{protocolIdx(p)}),'ShowProgress',1);
+            protocolInfoS = loadjson(fullfile(protocolPath,protocolListC{protocolIdx(p)}),'ShowProgress',1);
             modelListC = fields(protocolInfoS.models);
             numModels = numel(modelListC);
             protocolS(p).modelFiles = [];
             uProt = uitreenode('v0',protocol,protocolInfoS.name,[],false);                    %Create nodes for protocols
             for m = 1:numModels
                 protocolS(p).protocol = protocolInfoS.name; 
-                modelFPath = protocolInfoS.models.(modelListC{m}).location;
+                modelFPath = fullfile(modelPath,protocolInfoS.models.(modelListC{m}).modelFile);
                 protocolS(p).model{m} = loadjson(modelFPath,'ShowProgress',1);
                 %strNum
                 protocolS(p).modelFiles = [protocolS(p).modelFiles,modelFPath];
@@ -346,6 +349,8 @@ switch upper(command)
                     %EQD2
                     fractionSizeV = doseBins0C{nStr}/numFractions;
                     correctedDoseC{nStr} = doseBins0C{nStr} .*(fractionSizeV+abRatio)./(stdFractionSize + abRatio);
+                else
+                    correctedDoseC{nStr} = doseBins0C{nStr};
                 end
                 end
                 modelC{j}.dv = {correctedDoseC,volsHist0C};
@@ -372,7 +377,7 @@ switch upper(command)
                     a = 1/0.09;
                     testEUD = calc_EUD(correctedDoseC{1},volsHistC,a);
                     testNTCP = feval(modelC{j}.function,paramS,correctedDoseC{1},volsHistC);
-                    fprintf('EUD = %f\n NTCP = %f\n',testEUD,testNTCP);
+                    fprintf('Protocol:%d, Model:%d\nEUD = %f\tNTCP = %f\n',p,j,testEUD,testNTCP);
                     end
                     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
                     
