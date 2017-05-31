@@ -340,18 +340,18 @@ switch upper(command)
                 volsHist0C = cell(1,numel(structNumV));
                 
                 for nStr = 1:numel(structNumV)
-                [~, doseBins0C{nStr}, volsHist0C{nStr}] = getDVHMatrix(planC,structNumV(nStr),plnNum);
-                % Apply fractionation correction if required
-                if strcmpi(ud.Protocols(p).fCorrect,'yes') % fractionation correction
-                    numFractions = ud.Protocols(p).numFractions;
-                    abRatio = 3;
-                    stdFractionSize = 2;
-                    %EQD2
-                    fractionSizeV = doseBins0C{nStr}/numFractions;
-                    correctedDoseC{nStr} = doseBins0C{nStr} .*(fractionSizeV+abRatio)./(stdFractionSize + abRatio);
-                else
-                    correctedDoseC{nStr} = doseBins0C{nStr};
-                end
+                    [~, doseBins0C{nStr}, volsHist0C{nStr}] = getDVHMatrix(planC,structNumV(nStr),plnNum);
+                    % Apply fractionation correction if required
+                    if strcmpi(ud.Protocols(p).fCorrect,'yes') % fractionation correction
+                        numFractions = ud.Protocols(p).numFractions;
+                        abRatio = 3;
+                        stdFractionSize = 2;
+                        %EQD2
+                        fractionSizeV = doseBins0C{nStr}/numFractions;
+                        correctedDoseC{nStr} = doseBins0C{nStr} .*(fractionSizeV+abRatio)./(stdFractionSize + abRatio);
+                    else
+                        correctedDoseC{nStr} = doseBins0C{nStr};
+                    end
                 end
                 modelC{j}.dv = {correctedDoseC,volsHist0C};
               
