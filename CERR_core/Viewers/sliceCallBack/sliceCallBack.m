@@ -2538,7 +2538,7 @@ switch upper(instr)
                 % In contouring mode, switch to nonemode
                 hAxis = stateS.handle.CERRAxis(stateS.contourAxis);
                 ud = get(stateS.handle.controlFrame,'userdata');
-                set([ud.handles.pencil, ud.handles.brush, ud.handles.eraser],...
+                set([ud.handles.pencil, ud.handles.flex],...
                     'BackgroundColor',[0.8 0.8 0.8], 'Value', 0)
                 drawContour('noneMode', hAxis);
                 % Set button down/motion/up callbacks
