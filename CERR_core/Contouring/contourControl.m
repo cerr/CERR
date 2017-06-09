@@ -351,7 +351,7 @@ switch command
                 case 'reassign'
                     drawContour('reassignMode', hAxis);
                 % AI 5/8/17
-                case 'flex'
+                case 'flexselmode' 
                     drawContour('flexMode', hAxis);
             end
         %end
@@ -376,7 +376,7 @@ switch command
                 case 'reassign'
                     drawContour('reassignMode', hAxis);
                 % AI 5/8/17
-                case 'flex'
+                case 'flexselmode'
                     drawContour('flexMode', hAxis);
                     
             end
@@ -398,7 +398,7 @@ switch command
         ccMode = getappdata(hAxis, 'ccMode');
         if strcmpi(ccMode, 'draw') || strcmpi(ccMode, 'edit') || ...
                 strcmpi(ccMode, 'thresh') || strcmpi(ccMode, 'reassign') ...
-                || strcmpi(ccMode, 'drawBall') || strcmpi(ccMode, 'flex') %AI 5/8/17
+                || strcmpi(ccMode, 'drawBall') || strcmpi(ccMode, 'flexSelMode') %AI 5/8/17
             saveDrawSlice(hAxis);
             %drawContour('quit', hAxis); % APA commented
         end
