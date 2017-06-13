@@ -74,7 +74,13 @@ end
             if isnumeric(paramS.(ctegC{n}).val)
                coeff(n) = paramS.(ctegC{n}).val;
             else
-                coeff(n) = eval([paramS.(ctegC{n}).val,'(doseBinsV, volHistV)']);
+                if ~isfiled(paramS.(ctegC{n}),'params')
+                    coeff(n) = eval([paramS.(ctegC{n}).val,...
+                        '(doseBinsV, volHistV)']);
+                else
+                    coeff(n) = eval([paramS.(ctegC{n}).val,...
+                        '(doseBinsV, volHistV,paramS.(ctegC{n}).params)']);
+                end
             end
         end
     end
