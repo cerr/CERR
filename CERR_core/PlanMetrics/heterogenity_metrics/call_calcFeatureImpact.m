@@ -4,6 +4,8 @@
 %
 % APA, 6/13/2017
 
+hPool = parpool(50);
+
 structNum = 26;
 scanNum = 3;
 
@@ -65,3 +67,6 @@ featureName = 'rlmFeat2DdirS.MaxS.lrhgle';
 patchRadiusV = [1 1 0];
 feature3M = calcFeatureImpact(scanNum, structNum, ...
     patchRadiusV, featureFun, featureName, planC, paramS);
+
+delete(hPool)
+

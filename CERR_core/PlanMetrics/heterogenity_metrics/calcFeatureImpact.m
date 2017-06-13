@@ -133,7 +133,7 @@ if ~isempty(featureName) && isstruct(featureEntireStruct)
 end
 
 % Iterate over slices. compute cooccurance for all patches per slice
-for slcNum = (1+numSlcsPad):(numSlices+numSlcsPad)
+parfor slcNum = (1+numSlcsPad):(numSlices+numSlcsPad)
     
     disp(['--- Feature Impact Calculation for Slice # ', num2str(slcNum), ' ----']) 
     
@@ -165,13 +165,19 @@ for slcNum = (1+numSlcsPad):(numSlices+numSlcsPad)
     end
     indScanTmp3M = zeros(size(calcIndM),'logical');
     indScanTmp3M(:,:,slcNum) = calcIndM(:,:,slcNum);
-    featureCropped3M(indScanTmp3M) = featureV;
+    featuresC{slcNum} = featureV;
+    calcIndC{slcNum} = indScanTmp3M;
+    % featureCropped3M(indScanTmp3M) = featureV;
     
-    if waitbarFlag
-        set(hWait, 'Vertices', [[0 0 slcNum/numSlices slcNum/numSlices]' [0 1 1 0]']);
-        drawnow;
-    end 
+    %if waitbarFlag
+    %    set(hWait, 'Vertices', [[0 0 slcNum/numSlices slcNum/numSlices]' [0 1 1 0]']);
+    %    drawnow;
+    %end 
     
+end
+
+for slcNum = (1+numSlcsPad):(numSlices+numSlcsPad)
+    featureCropped3M(calcIndC{slcNum}) = featuresC{slcNum};
 end
 
 featureCropped3M(calcIndM) = ...
