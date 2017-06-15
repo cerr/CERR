@@ -107,7 +107,7 @@ axisInfo.doseObj(toRemove) = [];
 
 %Add a new image/dose data element for any doseNums that don't have one,
 %and cache the calculated dose and its coordinates.
-for i=1:length(doseSets);
+for i=1:length(doseSets)
     if isempty(axisInfo.doseObj) || ~ismember(doseSets(i), [axisInfo.doseObj(:).doseSet])
         compareMode  =  getappdata(hAxis,'compareMode');
         numObjs = length(axisInfo.doseObj);
@@ -453,7 +453,7 @@ for j=1:length(axisInfo.doseObj)
     end
 end
 
-if isempty(axisInfo.doseObj) && ~stateS.imageRegistration
+if ~isempty(axisInfo.scanObj) && isempty(axisInfo.doseObj) && ~stateS.imageRegistration
     axisInfo.scanObj.handles.FaceAlpha = 1;
 end
 
