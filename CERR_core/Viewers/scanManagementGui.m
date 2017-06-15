@@ -542,13 +542,10 @@ switch upper(command)
                 return;
             else
                 %Set the axes scan value to null.
-                setAxisScanToNull(axesV);
+                %setAxisScanToNull(axesV);
             end
         end
 
-        if stateS.scanSet == scanNum
-            stateS.scanSet = 1;
-        end
         del = questdlg(['Are you sure you want to delete scan number' num2str(scanNum) ', ''' scanName ''' and the associated structures?'], 'Continue?', 'Continue', 'Abort', 'Continue');
         if strcmpi(del, 'Continue')
             statusString = ['Deleted scan number ' num2str(scanNum) ', ''' scanName '''.'];
@@ -577,12 +574,15 @@ switch upper(command)
             end
             %Delete the scan
             planC{indexS.scan}(scanNum) = [];      
-            stateS.structSet = [];
             
             %If scan below displayed scan deleted, its number has changed.
             if scanNum < stateS.scanSet
                 stateS.scanSet = stateS.scanSet - 1;
                 stateS.structSet = stateS.scanSet;
+            end
+            if stateS.scanSet == 0
+                stateS.scanSet = 1;
+                stateS.structSet = 1;
             end
             refreshViewer = 1;
             updateAxesForDeletedScan(scanNum);
@@ -592,6 +592,7 @@ switch upper(command)
 
         %Refresh CERR axes in the case of changed dose sets.
         if refreshViewer
+            stateS.CTDisplayChanged = 1;
             sliceCallBack('refresh');
         end
 
@@ -708,8 +709,9 @@ global stateS
 %Iterate over axes.
 for i=1:length(nAxesV)
     %Get axis info for this axis.
-    aI = get(stateS.handle.CERRAxis(nAxesV(i)), 'userdata');
-    if strcmpi(aI.scanSelectMode, 'manual');
+    % aI = get(stateS.handle.CERRAxis(nAxesV(i)), 'userdata');
+    aI = stateS.handle.aI(nAxesV(i));
+    if strcmpi(aI.scanSelectMode, 'manual')
         aI.scanSets = [];
         set(stateS.handle.CERRAxis(nAxesV(i)), 'userdata', aI);
     end
@@ -729,8 +731,14 @@ for i=1:length(stateS.handle.CERRAxis)
     %aI = get(stateS.handle.CERRAxis(i), 'userdata');
     aI = stateS.handle.aI(i);
     if ~isempty(aI.scanObj)
-        scanSets = aI.scanObj.scanSet;
-        aI.scanObj.scanSet = 1; %max(1,scanSets(scanSets >= delIndex)- 1);
+        %scanSets = aI.scanObj.scanSet;
+        if strcmpi(aI.scanSelectMode,'auto')
+            aI.scanObj.scanSet = stateS.scanSet; %max(1,scanSets(scanSets >= delIndex)- 1);
+        else
+            if delIndex <= aI.scanObj.scanSet
+                aI.scanObj.scanSet = stateS.scanSet;
+            end
+        end
         %set(stateS.handle.CERRAxis(i), 'userdata', aI);
         stateS.handle.aI(i) = aI;
     end    
