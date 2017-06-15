@@ -24,8 +24,6 @@ end
 
 if nargin==2 && isfield(stateS,'scanSet')
     selectedScan = stateS.scanSet;   %%ADDED 
-else
-    return;
 end
 
 
