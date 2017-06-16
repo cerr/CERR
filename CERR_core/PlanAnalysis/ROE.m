@@ -126,7 +126,7 @@ switch upper(command)
         
         tablePosV = [.22*GUIWidth-2*shift posTop-.1*GUIHeight .23*GUIWidth 4*shift];
         colWidth = tablePosV(3)/2-1;
-        inputH(4) = uitable(hFig,'Tag','strSel','Position',tablePosV -[0 tablePosV(4)/2+shift/2 0 tablePosV(4)/2],'Enable','Off',...
+        inputH(4) = uitable(hFig,'Tag','strSel','Position',tablePosV -[0 4*shift 0 0],'Enable','Off',...
             'cellEditCallback',@editParams,'ColumnName',[],'RowName',[],'Visible','Off','backgroundColor',defaultColor,...
             'columnEditable',[false,true],'Data',{'structure','Select structure'},'ColumnWidth',{colWidth,colWidth});
         inputH(5) = uitable(hFig,'Tag','dosSel','Position',tablePosV,'Enable','Off',...
@@ -251,7 +251,7 @@ switch upper(command)
         
         
     case 'PLOT_MODELS'
-        
+        %Clear previous plots          
         ROE('CLEAR_PLOT',hFig);
         ud = get(hFig,'userdata');
         
@@ -283,6 +283,7 @@ switch upper(command)
             ud.foreground = 1;
         end
         
+        %Plot models                                                             
         ntcp = 0;
         tcp = 0;
         %%% TEMP %%%%%
@@ -290,30 +291,33 @@ switch upper(command)
         gCount = 0;
         %%%%%%%%%%%%%
         hWait = waitbar(0,'Generating plots...');
-        for p = 1:numel(ud.Protocols)
+        protocolS = ud.Protocols; 
+        for p = 1:numel(protocolS)
             %Check for reqd fields
-            modelC = ud.Protocols(p).model;
-            if ~isfield(ud,'Protocols')|| isempty(modelC)
+            modelC = protocolS(p).model;
+            if isempty(modelC)
                 msgbox('Please select model files','Plot models');
+                close(hWait);
                 return
             end
             %Check for plan/struct input
-            isStr = cellfun(@(x)any(~isfield(x,'strNum') || isempty(x.strNum) || x.strNum==0),modelC,'un',0);
+            isStr = cellfun(@(x)any(~isfield(x,'strNum') | isempty(x.strNum) | x.strNum==0),modelC,'un',0);
             err = find([isStr{:}]);
             if ~isempty(err)
                 msgbox(sprintf('Please select structure:\n protocol: %d\tmodels: %d',p,err),'Plot model');
+                close(hWait);
                 return
             end
-            isPlan = cellfun(@(x)any(~isfield(x,'planNum') || isempty(x.planNum) || x.planNum==0),modelC,'un',0);
+            isPlan = cellfun(@(x)any(~isfield(x,'planNum') | isempty(x.planNum) | x.planNum==0),modelC,'un',0);
             err = find([isPlan{:}]);
             if ~isempty(err)
                 msgbox(sprintf('Please select dose plan:\n protocol: %d\tmodels: %d',p,err),'Plot model');
+                close(hWait);
                 return
             end
-            %Plot model curves
+            %Display model curves
             numModels = numel(modelC);
-            dvBinC = cell(1,numModels);
-            %Get selected protocol
+            % Set plot color, style  
             if p == ud.foreground
                 plotColorM = [colorOrderM,ones(size(colorOrderM,1),1)];
                 lineStyle = '-';
@@ -330,64 +334,67 @@ switch upper(command)
                 paramS = modelC{j}.parameters;
                 %Get struct
                 structNumV = modelC{j}.strNum;
-                %Get plan
-                plnNum = modelC{j}.planNum;
-                paramS.structNum = structNumV;
-                paramS.planNum = plnNum;
+                paramS.structNum = structNumV;  
+                %Get plan, no. fractions, alpha/beta
+                plnNumV = modelC{j}.planNum;
+                numFractions = protocolS(p).numFractions;
+                stdFractionSize = modelC{j}.fractionSize;
+                abRatio = modelC{j}.abRatio;
+                paramS.planNum = plnNumV;
+                paramS.numFractions = numFractions;
+                paramS.fractionSize = stdFractionSize;
+                paramS.abRatio = abRatio;
                 
-                % Get dose bins
-                doseBins0C = cell(1,numel(structNumV));
-                volsHist0C = cell(1,numel(structNumV));
-                
+                %Initialize dose bins
+                doseBinsC = cell(1,numel(structNumV));
+                volsC = cell(1,numel(structNumV));
+                %Apply fractionation correction if required
                 for nStr = 1:numel(structNumV)
-                    [~, doseBins0C{nStr}, volsHist0C{nStr}] = getDVHMatrix(planC,structNumV(nStr),plnNum);
-                    % Apply fractionation correction if required
-                    if strcmpi(ud.Protocols(p).fCorrect,'yes') % fractionation correction
-                        numFractions = ud.Protocols(p).numFractions;
-                        abRatio = 3;
-                        stdFractionSize = 2;
-                        %EQD2
-                        fractionSizeV = doseBins0C{nStr}/numFractions;
-                        correctedDoseC{nStr} = doseBins0C{nStr} .*(fractionSizeV+abRatio)./(stdFractionSize + abRatio);
+                    [doseBinsC{nStr}, volsC{nStr}] = getDVH(structNumV(nStr),plnNumV(nStr),planC);
+                    if strcmpi(protocolS(p).fCorrect,'yes') % fractionation correction
+                        %EQD in std fraction size
+                        fractionSizeV = doseBinsC{nStr}/numFractions;
+                        correctedDoseC{nStr} = doseBinsC{nStr} .*(fractionSizeV+abRatio)./(stdFractionSize + abRatio);
                     else
-                        correctedDoseC{nStr} = doseBins0C{nStr};
+                        correctedDoseC{nStr} = doseBinsC{nStr};
                     end
                 end
-                modelC{j}.dv = {correctedDoseC,volsHist0C};
+                modelC{j}.dv = {correctedDoseC,volsC};
               
                 %Caclulate probability
                 scaledCPv = scaleV * 0;
                 for n = 1 : numel(scaleV)
-                    
                     % Scale dose bins
                     scale = scaleV(n);
                     doseBinsC = cellfun(@(x) x*scale,correctedDoseC,'un',0);
-                    volsHistC = volsHist0C;
-                    % Pass as vector if no. structs == 1
-                    if numel(structNumV)==1
-                        doseBinsC = doseBinsC{1};
-                        volsHistC = volsHist0C{1};
+                    if numel(structNumV)==1 % Pass as vector if no. structs == 1
+                        inDoseBins = doseBinsC{1};
+                        inVolsHist = volsC{1};
+                    else
+                        inDoseBins = doseBinsC;
+                        inVolsHist = volsC;
                     end
                     
-                    % Compute CP
-                    scaledCPv(n) = feval(modelC{j}.function,paramS,doseBinsC,volsHistC);
+                    %Compute CP
+                    scaledCPv(n) = feval(modelC{j}.function,paramS,inDoseBins,inVolsHist);
                     
                     %%%%% TEMP (for testing) %%%%%%%%
                     if n==numel(scaleV)
                     a = 1/0.09;
-                    testEUD = calc_EUD(correctedDoseC{1},volsHistC,a);
-                    testNTCP = feval(modelC{j}.function,paramS,correctedDoseC{1},volsHistC);
-                    fprintf('Protocol:%d, Model:%d\nEUD = %f\tNTCP = %f\n',p,j,testEUD,testNTCP);
+                    testMeanDose = calc_meanDose(correctedDoseC{1},volsC{1});   
+                    testEUD = calc_EUD(correctedDoseC{1},volsC{1},a);
+                    testNTCP = feval(modelC{j}.function,paramS,correctedDoseC{1},volsC{1});
+                    fprintf(['\n---------------------------------------\n',...   
+                        'Protocol:%d, Model:%d\nMean Dose = %f\nEUD = %f\tNTCP = %f\n'],p,j,testMeanDose,testEUD,testNTCP);
                     end
                     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
                     
                 end
                 
-                
-                % Set plot color
+                %Set plot color
                 colorIdx = mod(j,size(plotColorM,1))+1;
                 
-                % Plot curves
+                %Display curves
                 if strcmp(modelC{j}.type,'NTCP')
                     ntcp = ntcp + 1;
                     ud.NTCPCurve = [ud.NTCPCurve plot(hNTCPAxis,scaleV,scaledCPv,'linewidth',2,...
@@ -464,13 +471,14 @@ switch upper(command)
                 %             %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
                 
             end
-            %Store dose/vol bins
-            ud.Protocols(p).model = modelC;
-            waitbar(p/numel(ud.Protocols));
+            %Store parameters
+            modelC{j}.parameters = paramS;
+            protocolS(p).model = modelC;
+            waitbar(p/numel(protocolS));
         end
         close(hWait);
         %Add plot labels, legend
-        xlabel(hNTCPAxis,'Dose scaling','Position',[1 -.15]),ylabel(hNTCPAxis,'NTCP');
+        xlabel(hNTCPAxis,'Dose scaling','Position',[.5 -.15]),ylabel(hNTCPAxis,'NTCP');
         ylabel(hTCPAxis,'TCP');
         NTCPLegendC = arrayfun(@(x)x.DisplayName,ud.NTCPCurve,'un',0);
         TCPLegendC = arrayfun(@(x)x.DisplayName,ud.TCPCurve,'un',0);
@@ -481,7 +489,10 @@ switch upper(command)
         %Plot switch on
         set(ud.handle.inputH(10),'Enable','On','string',{'Switch plot...',ud.Protocols.protocol});
         
+        %Store userdata
+        ud.Protocols = protocolS;
         set(hFig,'userdata',ud);
+        %Display current dose/probability
         scaleDose(hSlider);
         
     case 'CLEAR_PLOT'
@@ -608,7 +619,7 @@ end
             case 'dosSel'
                 dosListC = {'Select Plan',planC{indexS.dose}.fractionGroupID};
                 matchIdx = find(strcmp(dosListC,val));
-                modelsC{modelNum}.planNum = matchIdx - 1;
+                modelsC{modelNum}.planNum(idx) = matchIdx - 1;
                 modelsC{modelNum}.plan = dosListC{matchIdx};
             case 'fieldEdit'
                 modelsC{modelNum} = modelsC{modelNum};
@@ -665,10 +676,7 @@ end
             subfieldsC = fieldnames(inS.(parListC{k}));
             valIdxC = cellfun(@(x) ~any(strcmpi(x,reservedFieldsC)),subfieldsC,'un',0);
             valNameC = subfieldsC([valIdxC{:}]);
-            %subFieldC = valNameC;
-            %subFieldC(strcmpi('default', subFieldC))={'val'};
             nVal = numel(valNameC);
-            valTypes = cell(1,nVal);
             valTypes = inS.(parListC{k}).type;
             for l = 1:nVal
                 if strcmp(valNameC{l},'val');
@@ -741,25 +749,28 @@ end
             
             %Get structure input
             structList = {planC{indexS.structures}.structureName};
-            structList = {'Select structure',structList{:}};
+            structList = {'Select structure',structList{:}}.';
             [strNameC,strIdxV] = getMatchPar(modelsC{modelNum},'structure',structList);
             
             %Get plan input
             planList = {planC{indexS.dose}.fractionGroupID};
-            planList = {'Select Plan',planList{:}};
+            planList = {'Select Plan',planList{:}}.';
+            planNameC = cell(numel(strIdxV),1);
+            for s = 1:numel(strIdxV)
             if numel(planList)==2 %Default to 1st plan if only one is available
-                planNameC = 'plan 1';
-                planIdxV = 2;
+                planNameC{s} = ['plan ',num2str(s)];
+                planIdxV(s) = 2;
             else
                 x = strfind(lower(planList),'sum');%Default to plan named 'SUM' if available
                 if any([x{:}])
                     idx = find([x{:}],1);
-                    planIdxV = find(idx);
-                    planNameC = planList{idx};
+                    planIdxV(s) = find(idx);
+                    planNameC{s} = planList{idx};
                 else
                      %User selection
-                    [planNameC,planIdxV] = getMatchPar(modelsC{modelNum},'plan',planList);
+                    [planNameC{s},planIdxV(s)] = getMatchPar(modelsC{modelNum},['plan ',num2str(s)],planList);
                 end
+            end
             end
             
             %Get parameters
@@ -785,13 +796,13 @@ end
             %Storage/display
             %Table1
             hTab1 = ud.handle.inputH(4);
-            fmt = {[] structList};
-            strDatC = cat(2,strNameC,structList(strIdxV).');
+            fmt = {[] structList.'};
+            strDatC = [strNameC,structList(strIdxV)];
             set(hTab1,'ColumnFormat',fmt,'Data',strDatC,'Visible','On','Enable','On');
             %Table2
             hTab2 = ud.handle.inputH(5);
-            fmt = {[] planList};
-            dosDatC = cat(2,planNameC,planList(planIdxV).');
+            fmt = {[] planList.'};
+            dosDatC = [planNameC,planList(planIdxV)];
             set(hTab2,'ColumnFormat',fmt,'Data',dosDatC,'Visible','On','Enable','On');
             %Table3
             hTab3 = ud.handle.inputH(7);
@@ -826,7 +837,7 @@ end
 %Listdlg for folder selection
     function [dirListC,dirIdx,selected] = listFiles(fpath,mode)
         
-        dirS = dir(fpath);
+        dirS = dir([fpath,filesep,'*.json']);
         dirListC = {dirS(:).name};
         dirListC = dirListC(~ismember(dirListC,{'.','..'}));
         [dirIdx,selected] = listdlg('ListString',dirListC,...
@@ -864,8 +875,9 @@ end
                 pColorM = [colorM,ones(size(colorM,1),1)];
             else
                 wt = 0.4;
-                bg = repmat([.5 .5 .5],size(colorM,1),1);
-                pColorM = [bg,repmat(wt,size(colorM,1),1)];
+%                 bg = repmat([.5 .5 .5],size(colorM,1),1);
+%                 pColorM = [bg,repmat(wt,size(colorM,1),1)];
+                pColorM = [colorM,repmat(wt,size(colorM,1),1)];
             end
             for k = 1:nMod
                 % Get params
@@ -874,10 +886,12 @@ end
                 
                 % Get struct
                 strNum = modelsC{k}.strNum;
-                % Get plan
-                planNum = modelsC{k}.planNum;
                 paramsS.structNum = strNum;
-                paramsS.planNum = planNum;
+                
+                % Get plan
+                paramsS.planNum = modelsC{k}.planNum;
+                paramsS.numFractions = ud.Protocols(l).numFractions; 
+                paramsS.abRatio = modelsC{k}.abRatio;
                 
                 % Get dose bins
                 dose0C = modelsC{k}.dv{1};

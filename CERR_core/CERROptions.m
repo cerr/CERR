@@ -382,9 +382,9 @@ optS.plastimatch_command_file = 'bspline_register_cmd_dir.txt'; %'malcolm_pike_m
 optS.linePoolSize = 300;
 
 %-- Paths to protocol, model, and criteria files for ROE
-optS.ROEProtocolPath = 'M:/Aditi/OutcomesModels/ROE/Protocols'; 
-optS.ROEModelPath = 'M:/Aditi/OutcomesModels/ROE/Models'; 
-optS.ROECriteriaPath = 'M:/Aditi/OutcomesModels/ROE/Criteria'; 
+optS.ROEProtocolPath = '//vpensmph/deasylab1/Aditi/OutcomesModels/ROE/Protocols'; 
+optS.ROEModelPath = '//vpensmph/deasylab1/Aditi/OutcomesModels/ROE/Models'; 
+optS.ROECriteriaPath = '//vpensmph/deasylab1/Aditi/OutcomesModels/ROE/Criteria'; 
 
 
 %-------------------------------------------fini--------------------------%
