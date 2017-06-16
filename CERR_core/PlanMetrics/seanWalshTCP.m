@@ -17,8 +17,8 @@ OER = paramS.OER.val;                         % Oxygen Enhancement Ratio
 pCTV = paramS.pCTV.val;                       % Prostate density
 pDIL = paramS.pDIL.val;                       % DIL density
 ctvVolume = paramS.ctvVolume.val;             % 36 cm^3 for intermediate risk patients
-                                          % ctvVolume = 72; % cm^3 for high risk patients
-dDIL = paramS.dDIL.val;                      % dose per fraction to the DIL
+                                              % ctvVolume = 72; % cm^3 for high risk patients
+dDIL = paramS.dDIL.val;                       % dose per fraction to the DIL
 n = paramS.numFractions.val;                  % number of fractions
 numSimulations = paramS.numSimulations.val;   % number of (alpha,beta) simulations
 

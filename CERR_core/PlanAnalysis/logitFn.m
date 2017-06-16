@@ -1,6 +1,6 @@
-function ntcp = logitFn(paramS,doseBinsV,volHistV)
+function prob = logitFn(paramS,doseBinsV,volHistV)
 %
-% function ntcp = logitFn(paramS,doseBinsV,volHistV)
+% function prob = logitFn(paramS,doseBinsV,volHistV)
 %
 % This function returns the outcomes probabilities based on logistic fit.
 %
@@ -11,15 +11,15 @@ function ntcp = logitFn(paramS,doseBinsV,volHistV)
 % For D50_GAMMA50 type of fit,
 % If paramS.appeltMod = 'yes'; modification for
 % risk factors are computed based on Appelt et al.
-% if paramS.isHighRiskPatient = 'yes', the patient falls in the high risk
+% if paramS.isHighRiskPatient = 1, the patient falls in the high risk
 % category.
 %
 % For MULTIVARIATE type of fit,
 % specify the variates using the following format:
-% paramS.field1.x = 1;
+% paramS.field1.val = 1;
 % paramS.field1.weight = 2;
 %
-% paramS.field1.x can also be a string, in which case it will act as a
+% paramS.field1.val can also be a string, in which case it will act as a
 % function name. This function must have the signature x(doseBinsV,
 % volHistV).
 %
@@ -47,13 +47,13 @@ switch upper(modelType)
         meanDose = calc_meanDose(doseBinsV, volHistV);
         
         %Compute NTCP
-        ntcp = 1./(1+exp(4*gamma50*(1-meanDose/D50)));
+        prob = 1./(1+exp(4*gamma50*(1-meanDose/D50)));
         
     case 'MULTIVARIATE'
         [x,weight] = getParCoeff(paramS,'weight');
         gx = sum(weight.*x);
-        % Compute NTCP
-        ntcp = 1 / (1 + exp(-gx));
+        % Compute TCP/NTCP
+        prob = 1 / (1 + exp(-gx));
 end
 
 %%
@@ -74,7 +74,7 @@ end
             if isnumeric(paramS.(ctegC{n}).val)
                coeff(n) = paramS.(ctegC{n}).val;
             else
-                if ~isfiled(paramS.(ctegC{n}),'params')
+                if ~isfield(paramS.(ctegC{n}),'params')
                     coeff(n) = eval([paramS.(ctegC{n}).val,...
                         '(doseBinsV, volHistV)']);
                 else
