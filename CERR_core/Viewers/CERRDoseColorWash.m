@@ -203,7 +203,7 @@ end
 
 % Clip dose grid
 maskTmpM = maskM;
-maskM = zeros(size(maskM),'logical');
+maskM = false(size(maskM));
 maskM(minRow:maxRow,minCol:maxCol) = maskTmpM(minRow:maxRow,minCol:maxCol);
 
 %Fit dose to colormap, but first replace full dose with only dose values that will be displayed.
