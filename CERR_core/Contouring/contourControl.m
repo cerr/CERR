@@ -155,10 +155,10 @@ switch command
     case 'copySl'  
         %Copy current structs' contours to selected slice 
         hAxis = varargin{1};
-        saveDrawSlice(hAxis);
         destSlice = varargin{2};
         copyToSlice(hAxis, destSlice);
-        
+        saveDrawSlice(hAxis);
+
     case 'getMode'
         varargout{1} = getappdata(hAxis, 'ccMode');
         
@@ -928,7 +928,6 @@ if isempty(newContourV)
             newContourV{i} = [cV, rV];
         end
     end
-    combinedContourV = {contourV{:}};
 end
 combinedContourV = {newContourV{:} contourV{:}};
 ccContours{ccStruct, sliceNum} = combinedContourV;
