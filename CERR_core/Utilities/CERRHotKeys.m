@@ -194,7 +194,7 @@ switch(keyValue)
         setappdata(hAxis,'copySliceNum',srcSlice);
         contourMask = getappdata(hAxis,'contourMask');
         setappdata(hAxis,'copyMask',contourMask);
-        fprintf('\nCopied structure: %d\tslice: %d.\n',getappdata(hAxis, 'ccStruct'),srcSlice);
+        CERRStatusString(sprintf('Copied structure: %d slice: %d.',getappdata(hAxis, 'ccStruct'),srcSlice));
         
     case 22 %'Ctrl + v' Copy contour to slice
         if ~stateS.contourState %Check for contouring mode
