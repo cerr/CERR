@@ -409,6 +409,15 @@ textureInitS           = struct(...
  'textureUID'                 ,   '' ...
  );           
 
+featureSetInitS           = struct(...
+ 'featureS'                   ,   '', ...
+ 'paramS'                     ,   '', ...
+ 'assocScanUID'               ,   '', ...
+ 'assocDoseUID'               ,   '', ...
+ 'assocStructUID'             ,   '', ...
+ 'featureSetUID'              ,   '' ...
+    );
+
 RTTreatmentInitS = struct('');          %CERR addition
 
 importLogInitS = struct(...             %CERR addition
@@ -449,21 +458,22 @@ indexS.GSPS                 = 17;
 indexS.deform               = 18;
 indexS.registration         = 19;
 indexS.texture              = 20;
-indexS.importLog            = 21;
-indexS.CERROptions          = 22;
+indexS.featureSet           = 21;
+indexS.importLog            = 22;
+indexS.CERROptions          = 23;
 
 % check if this is microRT and/or RPC film study and change the study
 % accordingly
 try
     if stateS.optS.chkMicroRT
-        indexS.microRTP = 23;
-        indexS.indexS   = 24;
+        indexS.microRTP = 24;
+        indexS.indexS   = 25;
         microRTPInitS = initializeMicroRTP(planInitC);
     else
-        indexS.indexS = 23;
+        indexS.indexS = 24;
     end
 catch
-    indexS.indexS = 23;
+    indexS.indexS = 24;
 end
 
 
@@ -474,7 +484,7 @@ headerInitS(1) = []; commentInitS(1) = []; scanInitS(1) = []; doseInitS(1) = [];
 planInitC(1) = [];  DVHInitS(1) = []; IVHInitS(1) = [];
 digitalFilmInitS(1) = []; importLogInitS(1) = []; IMInitS(1) = [];structureInitS(1) = [];
 beamGeometryInitS(1) = []; structureArrayInitS(1) = []; seedGeometryInitS(1) = [];
-deformS(1) = []; GSPSInitS(1) = []; textureInitS(1) = [];
+deformS(1) = []; GSPSInitS(1) = []; textureInitS(1) = []; featureSetInitS(1) = [];
 % seedGeometryInitS(1) = []; This is never used commented by DK
 
 planInitC{indexS.header}            = headerInitS;
@@ -498,6 +508,7 @@ planInitC{indexS.IM}                = IMInitS;
 planInitC{indexS.GSPS}              = GSPSInitS;
 planInitC{indexS.registration}      = registrationS;
 planInitC{indexS.texture}           = textureInitS;
+planInitC{indexS.featureSet}        = featureSetInitS;
 planInitC{indexS.CERROptions}       = struct([]); %Currently blank.  Set on planC creation.
 
 %Store the indexS so requesting functions can extract the prototype they

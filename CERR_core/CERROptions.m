@@ -382,9 +382,29 @@ optS.plastimatch_command_file = 'bspline_register_cmd_dir.txt'; %'malcolm_pike_m
 optS.linePoolSize = 300;
 
 %-- Paths to protocol, model, and criteria files for ROE
-optS.ROEProtocolPath = '//vpensmph/deasylab1/Aditi/OutcomesModels/ROE/Protocols'; 
-optS.ROEModelPath = '//vpensmph/deasylab1/Aditi/OutcomesModels/ROE/Models'; 
-optS.ROECriteriaPath = '//vpensmph/deasylab1/Aditi/OutcomesModels/ROE/Criteria'; 
+optS.ROEProtocolPath = 'M:/Aditi/OutcomesModels/ROE/Protocols'; 
+optS.ROEModelPath = 'M:/Aditi/OutcomesModels/ROE/Models';
+optS.ROECriteriaPath = 'M:/Aditi/OutcomesModels/ROE/Criteria';
 
+%-- Radiomics features calculation parameters
+optS.shape_rcsV = [100, 100, 100]; % number of rows/cols/slcs ...
+                                         % to upsample the roi
 
+optS.higherOrder_minIntensity = -140;
+optS.higherOrder_maxIntensity = 100;
+optS.higherOrder_numGrLevels = 100;
+optS.higherOrder_patchRadius2dV = [1 1 0];
+optS.higherOrder_patchRadius3dV = [1 1 1];
+optS.higherOrder_imgDiffThresh = 0;
+
+optS.peakValley_peakRadius = [2 2 0]; % [2 2 2] for 3d, for example
+
+optS.ivh_xForIxV = 10:10:90; % percentage volume
+optS.ivh_xAbsForIxV = 10:20:200; % absolute volume [cc]
+optS.ivh_xForVxV = 10:10:90; % percent intensity cutoff
+optS.ivh_xAbsForVxV =  -140:10:100; % CT eg., absolute intensity cutoff (image units)
+                                    % 0:2:28; % PET
+
+                                    
 %-------------------------------------------fini--------------------------%
+                                    

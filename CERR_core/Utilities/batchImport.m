@@ -1,9 +1,11 @@
 % open a pool of parallel processors
-pool = parpool(4);
+%pool = parpool(4);
 
 % folder to import
 source = 'path/to/source';
 destn = 'path/to/destn'; 
+source = 'H:\Public\Aditya\mimExtensions\DICOM_export_from_MIM';
+destn = 'H:\Public\Aditya\mimExtensions\CERR_files';
 zipFlag = 'No';
 
 % Define file and directory filter patterns
@@ -62,7 +64,7 @@ dirsToImportC = dirsToImportC(indV1);
 tic
 hWaitbar = NaN;
 % Import all the dirs
-parfor dirNum = 1:length(dirsToImportC)
+for dirNum = 1:length(dirsToImportC)
     try
         init_ML_DICOM
         %hWaitbar = waitbar(0,'Scanning Directory Please wait...');
@@ -96,12 +98,12 @@ parfor dirNum = 1:length(dirsToImportC)
         
         % build the filename for storing planC
         mrn = planC{indexS.scan}(1).scanInfo(1).DICOMHeaders.PatientID;
-        studyDscr = planC{indexS.scan}(1).scanInfo(1).DICOMHeaders.StudyDescription;
-        seriesDscr = planC{indexS.scan}(1).scanInfo(1).DICOMHeaders.SeriesDescription;
-        modality = planC{indexS.scan}(1).scanInfo(1).DICOMHeaders.Modality;
+        %studyDscr = planC{indexS.scan}(1).scanInfo(1).DICOMHeaders.StudyDescription;
+        %seriesDscr = planC{indexS.scan}(1).scanInfo(1).DICOMHeaders.SeriesDescription;
+        %modality = planC{indexS.scan}(1).scanInfo(1).DICOMHeaders.Modality;
         
-        outFileName = [mrn,'~',studyDscr,'~',seriesDscr,'~',modality];
-        
+        %outFileName = [mrn,'~',studyDscr,'~',seriesDscr,'~',modality];
+        outFileName = mrn;
         %fullOutFileName = fullfile(destn,fileName);
         
         %Check for duplicate name of fullOutFileName

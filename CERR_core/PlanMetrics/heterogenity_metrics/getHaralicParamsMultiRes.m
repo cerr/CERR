@@ -40,10 +40,10 @@ for radiusIndex = 1:length(radiusV)
     switch upper(multiResMethod)
         
         case 'IMAGE SMOOTHING'
-            if rowOut && colOut && slcOut
+            if rowOut || colOut || slcOut
                 filterM = createEllipsoidNHOOD(1:rowOut,1:colOut,1:slcOut,0);
                 filterM = filterM/length(find(filterM));
-                suvWithoutMaskConv3M                = convn(suvWithoutMask3M,filterM,'same');
+                suvWithoutMaskConv3M                = convn(suvWithoutMask3M,filterM,'same');                
             else
                 filterM = [];
                 suvWithoutMaskConv3M                = suvWithoutMask3M;
@@ -51,7 +51,7 @@ for radiusIndex = 1:length(radiusV)
             SUVvals3M                           = mask3M.*suvWithoutMaskConv3M;
             [minr, maxr, minc, maxc, mins, maxs]= compute_boundingbox(mask3M);
             maskBoundingBox3M                   = mask3M(minr:maxr,minc:maxc,mins:maxs);
-            volToEval                           = SUVvals3M(minr:maxr,minc:maxc,mins:maxs);
+            volToEval                           = SUVvals3M(minr:maxr,minc:maxc,mins:maxs);            
             volToEval(maskBoundingBox3M==0)     = NaN;
             maskScaled3D                        = volToEval(maskBoundingBox3M);
             %volToEval                           = volToEval - min(volToEval(:));

@@ -2,9 +2,17 @@
 
 [STAGE]
 xform=align_center
- 
+
 [STAGE]
-xform=rigid
+xform=translation
+impl=plastimatch
+gridsearch_min_overlap=0.8 0.8 0.8
+res=8 8 4
+num_substages=2
+ 
+# 12-dof affine
+[STAGE]
+xform=affine
 optim=rsg
 max_its=200
 res=4 4 3

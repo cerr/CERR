@@ -11,12 +11,12 @@ cumVols2V  = cumVolsV(end) - cumVolsV;  %cumVolsV is the cumulative volume lt th
 mean_suv= calc_meanDose(scanBinsV, volsHistV);
 max_suv=  calc_maxDose(scanBinsV, volsHistV);
 min_suv=  calc_minDose(scanBinsV, volsHistV);
-D50= calc_Dx(scanBinsV, volsHistV,50)
+D50 = calc_Dx(scanBinsV, volsHistV,50)
 
 Slope=calc_Slope(scanBinsV, volsHistV, D50, 0);
 
-range=max_suv-min_suv;
-param=[10:10:90];
+range = max_suv-min_suv;
+param = [10:10:90];
 for i=1:length(param)
     per=param(i)*range/100+min_suv; % ith percentile
     Dx(i)= calc_Dx(scanBinsV, volsHistV,param(i));

@@ -42,7 +42,8 @@ u=vec*Ph(i,j)*vec';
 f(3)=(u-ux*uy)/(sigx*sigy);
 
 %Entropy (3)
-f(4)=-sum(sum(Ph.*log(Ph+realmin))); % log????
+res = 1e-10; % realmin
+f(4)=-sum(sum(Ph.*log2(Ph+res))); % log????
       
 % variance
 f(5)=0;
@@ -63,7 +64,7 @@ for k=2:2*nL
       end
    end
    Pxpy(k)=temp;
-   f(6)=f(6)-temp*log(temp+realmin);
+   f(6)=f(6)-temp*log2(temp+res);
 end
 
 % inverse different moment..

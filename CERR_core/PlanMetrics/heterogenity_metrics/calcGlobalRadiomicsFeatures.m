@@ -1,5 +1,5 @@
-function featureS = calcGlobalRadiomicsFeatures(scanNum, ...
-    structNum, quantizeFlag, paramS, planC)
+function featureS = ...
+    calcGlobalRadiomicsFeatures(scanNum, structNum, paramS, planC)
 %
 % Wrapper to extract global radiomics features
 %
@@ -7,7 +7,8 @@ function featureS = calcGlobalRadiomicsFeatures(scanNum, ...
 % MCO, 04/19/2017
 % Based on APA, 04/17/2017
 
-if ~ismatrix(scanNum)
+siz = size(scanNum);
+if prod(siz) == 1
     if ~exist('planC','var')
         global planC
     end
@@ -33,7 +34,7 @@ else
     maskBoundingBox3M = structNum;
 end
 
-if quantizeFlag
+if paramS.toQuantizeFlag == 1
     % Quantize the volume of interest
     numGrLevels = paramS.higherOrderParamS.numGrLevels;
     minIntensity = paramS.higherOrderParamS.minIntensity;
@@ -43,7 +44,7 @@ if quantizeFlag
 else
     quantizedM = volToEval;
 end
-clear volToEval
+%clear volToEval
 
 quantizedM(~maskBoundingBox3M) = NaN;
 numVoxels = sum(~isnan(quantizedM(:)));
@@ -53,7 +54,7 @@ whichFeatS = paramS.whichFeatS;
 % Feature calculation
 featureS = struct;
 if whichFeatS.shape
-    [featureS.shapeS] = runShape(structNum, ...
+    [featureS.shapeS] = getShapeParams(structNum, ...
         planC, paramS.shapeParamS.rcsV);
 end
 
@@ -160,9 +161,9 @@ if whichFeatS.ngldmFeatures2d
     patchRadius2dV = paramS.higherOrderParamS.patchRadius2dV;
     imgDiffThresh = paramS.higherOrderParamS.imgDiffThresh;
     % 2d
-    featureS = calcNGLDM(quantizedM, patchRadius2dV, ...
+    ngldmM = calcNGLDM(quantizedM, patchRadius2dV, ...
         numGrLevels, imgDiffThresh);
-    featureS.ngldmFeatures2dS = ngldmToScalarFeatures(featureS,numVoxels);
+    featureS.ngldmFeatures2dS = ngldmToScalarFeatures(ngldmM,numVoxels);
     
 end
 if whichFeatS.ngldmFeatures3d
@@ -170,9 +171,9 @@ if whichFeatS.ngldmFeatures3d
     patchRadius3dV = paramS.higherOrderParamS.patchRadius3dV;
     imgDiffThresh = paramS.higherOrderParamS.imgDiffThresh;    
     % 3d
-    featureS = calcNGLDM(quantizedM, patchRadius3dV, ...
+    ngldmM = calcNGLDM(quantizedM, patchRadius3dV, ...
         numGrLevels, imgDiffThresh);
-    featureS.ngldmFeatures3dS = ngldmToScalarFeatures(featureS,numVoxels);
+    featureS.ngldmFeatures3dS = ngldmToScalarFeatures(ngldmM,numVoxels);
 end
 if whichFeatS.szmFeature2d
     rlmFlagS = getRunLengthFlags(); 
@@ -220,13 +221,11 @@ if whichFeatS.peakValley
         volToEval, radiusV, 'vox');
 end
 if whichFeatS.ivh
-    featureS.ivhFeaturesS = runIVH(structNum, scanNum, ...
-        paramS.ivhParamS, planC);
     IVHBinWidth = 0.1;
-    xForIxV = ivhParamS.xForIxV; % percentage volume
-    xAbsForIxV = ivhParamS.xAbsForIxV; % absolute volume [cc]
-    xForVxV = ivhParamS.xForVxV; % percent intensity cutoff
-    xAbsForVxV = ivhParamS.xAbsForVxV; % absolute intensity cutoff [HU]
+    xForIxV = paramS.ivhParamS.xForIxV; % percentage volume
+    xAbsForIxV = paramS.ivhParamS.xAbsForIxV; % absolute volume [cc]
+    xForVxV = paramS.ivhParamS.xForVxV; % percent intensity cutoff
+    xAbsForVxV = paramS.ivhParamS.xAbsForVxV; % absolute intensity cutoff [HU]
     featureS.ivhFeaturesS = getIvhParams(structNum, scanNum, IVHBinWidth,...
         xForIxV, xAbsForIxV, xForVxV, xAbsForVxV,planC);
     

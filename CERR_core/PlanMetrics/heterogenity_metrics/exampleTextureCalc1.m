@@ -34,7 +34,7 @@ planC = createTextureMaps(scanNum,structNum,descript,...
 global planC
 indexS = planC{end};
 scanNum     = 1;
-structNum   = 3;
+structNum   = 4;
 numGrLevels = 16;
 dirctn      = 1; % 2: 2d neighbors
 cooccurType = 1; % 2: build separate cooccurrence for each direction
@@ -55,18 +55,35 @@ offsetsM = getOffsets(dirctn);
 cooccurM = calcCooccur(quantizedM, offsetsM, numGrLevels, cooccurType);
 
 % Reduce cooccurrence matrix to scalar features
-flagS.energy = 1;
-flagS.entropy = 1;
-flagS.contrast = 1;
-flagS.invDiffMoment = 1;
-flagS.sumAvg = 1;
-flagS.corr = 1;
-flagS.clustShade = 1;
-flagS.clustProm = 1;
-flagS.haralickCorr = 1;
-featureS = cooccurToScalarFeatures(cooccurM, flagS);
+glcmFlagS.energy = 1;
+glcmFlagS.jointEntropy = 1;
+glcmFlagS.jointMax = 1;
+glcmFlagS.jointAvg = 1;
+glcmFlagS.jointVar = 1;
+glcmFlagS.contrast = 1;
+glcmFlagS.invDiffMoment = 1;
+glcmFlagS.sumAvg = 1;
+glcmFlagS.corr = 1;
+glcmFlagS.clustShade = 1;
+glcmFlagS.clustProm = 1;
+glcmFlagS.haralickCorr = 1;
+glcmFlagS.invDiffMomNorm = 1;
+glcmFlagS.invDiff = 1;
+glcmFlagS.invDiffNorm = 1;
+glcmFlagS.invVar = 1;
+glcmFlagS.dissimilarity = 1;
+glcmFlagS.diffEntropy = 1;
+glcmFlagS.diffVar = 1;
+glcmFlagS.diffAvg = 1;
+glcmFlagS.sumVar = 1;
+glcmFlagS.sumEntropy = 1;
+glcmFlagS.clustTendency = 1;
+glcmFlagS.autoCorr = 1;
+glcmFlagS.invDiffMomNorm = 1;
+glcmFlagS.firstInfCorr = 1;
+glcmFlagS.secondInfCorr = 1;
 
-
+featureS = cooccurToScalarFeatures(cooccurM, glcmFlagS);
 
 
 %% Dominant orientation

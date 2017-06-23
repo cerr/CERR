@@ -155,21 +155,23 @@ for dirNum = 1:length(allDirS)
                     planC = dcmdir2planC(combinedDcmdirS,mergeScansFlag); 
                 else
                     planC = dcmdir2planC(patient.PATIENT);
-                end                
-                rtStartIndex = findstr(sourceDir,[slashType,'RT']);                
-                if isempty(rtStartIndex)
-                    rtStartIndex = slashIndex(end)+1;
-                    rtEndIndex = length(sourceDir);
-                else
-                    rtStartIndex = rtStartIndex(end);
-                    rtEndIndex = slashIndex(find(slashIndex>rtStartIndex));
-                    rtStartIndex = rtStartIndex+1;
-                    if isempty(rtEndIndex)
-                        rtEndIndex = length(sourceDir);
-                    else
-                        rtEndIndex = rtEndIndex - 1;
-                    end
-                end
+                end       
+%                 % For TopModule/Metropolis plans that are named as
+%                 RT000000...
+%                 rtStartIndex = findstr(sourceDir,[slashType,'RT']);                
+%                 if isempty(rtStartIndex)
+%                     rtStartIndex = slashIndex(end)+1;
+%                     rtEndIndex = length(sourceDir);
+%                 else
+%                     rtStartIndex = rtStartIndex(end);
+%                     rtEndIndex = slashIndex(find(slashIndex>rtStartIndex));
+%                     rtStartIndex = rtStartIndex+1;
+%                     if isempty(rtEndIndex)
+%                         rtEndIndex = length(sourceDir);
+%                     else
+%                         rtEndIndex = rtEndIndex - 1;
+%                     end
+%                 end
                 oneDirUp = sourceDir(slashIndex(end-1)+1:slashIndex(end)-1);
 %                 % For Metropolis with all plans per patient
 %                 sourceDirName = [oneDirUp,'_',sourceDir(rtStartIndex:rtEndIndex)];
@@ -191,7 +193,10 @@ for dirNum = 1:length(allDirS)
 %                 seriesName = sourceDir(slashIndex(end-0)+1:end);
 %                 sourceDirName = fullfile(modality, pre_post, [mrn,'~',seriesName]);
 %                 % General case
-                sourceDirName = sourceDir(rtStartIndex:rtEndIndex);
+                % sourceDirName = sourceDir(rtStartIndex:rtEndIndex);
+                [~,sourceDirName] = fileparts(sourceDir);
+                sourceDirName = strtok(sourceDirName,'_');
+                %sourceDirName = [oneDirUp,'_',sourceDirName];
                 
                 %Check for duplicate name of sourceDirName
                 dirOut = dir(destinationDir);
