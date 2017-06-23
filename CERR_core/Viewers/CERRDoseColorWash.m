@@ -100,6 +100,14 @@ else
     maxCol = findnearest(CTXVals,max(doseXVals));
     maxRow = findnearest(CTYVals,min(doseYVals));
     minRow = findnearest(CTYVals,max(doseYVals));
+    
+    % Swap min/max based on the order of x/v vectors for trans/sag/cor views
+    minColTmp = min(minCol,maxCol);
+    maxCol = max(minCol,maxCol);
+    minCol = minColTmp;
+    minRowTmp = min(minRow,maxRow);
+    maxRow = max(minRow,maxRow);
+    minRow = minRowTmp;
 
 %     %% for DDM : Use Kriging to fit dose
 %     [CTXValsM, CTYValsM] = meshgrid(CTXVals, CTYVals);
