@@ -57,8 +57,8 @@ switch upper(command)
         stateS.leftMarginWidth = leftMarginWidth;
         stateS.topMarginHeight = topMarginHeight;
         screenSizeV = get( 0, 'Screensize' );
-        GUIWidth = 950;
-        GUIHeight = 550;
+        GUIWidth = 1000;
+        GUIHeight = 600;
         shift = 10;
         position = [(screenSizeV(3)-GUIWidth)/2,(screenSizeV(4)-GUIHeight)/2,GUIWidth,GUIHeight];
         
@@ -109,13 +109,13 @@ switch upper(command)
         defaultColor = [0.8 0.9 0.9];
         posTop = GUIHeight-topMarginHeight;
         
-        % Create plan and structure i/p
+        % Create model, plan and structure selection inputs
         inputH(1) = uicontrol(hFig,'tag','titleFrame','units','pixels',...
             'Position',[shift shift leftMarginWidth+.12*GUIWidth GUIHeight-topMarginHeight-2*shift ],...
             'Style','frame','backgroundColor',defaultColor);
         inputH(2) = uicontrol(hFig,'tag','modelTitle','units','pixels',...
             'Position',[2*shift posTop-.16*GUIHeight .16*GUIWidth 2*shift], 'String','','Style','text',...
-            'fontSize',8, 'fontWeight', 'Bold', 'BackgroundColor',defaultColor,...
+            'fontSize',9, 'fontWeight', 'Bold', 'BackgroundColor',defaultColor,...
             'HorizontalAlignment','left');
         inputH(3) = uicontrol(hFig,'tag','modelFileSelect','units','pixels',...
             'Position',[2*shift posTop-.1*GUIHeight .16*GUIWidth 3*shift], 'String',...
@@ -124,7 +124,7 @@ switch upper(command)
             'HorizontalAlignment','right','callback',...
             'ROE(''LOAD_MODELS'')');
         
-        tablePosV = [.22*GUIWidth-2*shift posTop-.1*GUIHeight .23*GUIWidth 4*shift];
+        tablePosV = [.22*GUIWidth-2*shift posTop-.1*GUIHeight .22*GUIWidth 4*shift];
         colWidth = tablePosV(3)/2-1;
         inputH(4) = uitable(hFig,'Tag','strSel','Position',tablePosV -[0 4*shift 0 0],'Enable','Off',...
             'cellEditCallback',@editParams,'ColumnName',[],'RowName',[],'Visible','Off','backgroundColor',defaultColor,...
@@ -133,21 +133,26 @@ switch upper(command)
             'cellEditCallback',@editParams,'ColumnName',[],'RowName',[],'Visible','Off','backgroundColor',defaultColor,...
             'columnEditable',[false,true],'Data',{'Plan','Select Plan'},'ColumnWidth',{colWidth,colWidth});
         % Create parameter display & editing
-        inputH(6) = uicontrol(hFig,'units','pixels','Visible','Off',...
+        inputH(6) = uicontrol(hFig,'units','pixels','Visible','Off','fontSize',9,...
             'Position',tablePosV + [0 -.15*GUIHeight 0 0 ],'String','Model parameters','Style','text',...
             'FontWeight','Bold','HorizontalAlignment','Left','backgroundColor',defaultColor);
-        inputH(7) = uitable(hFig,'Tag','fieldEdit','Position',tablePosV + [0 -.7*GUIHeight 0 4*shift],'Enable','Off',...
+        inputH(7) = uicontrol(hFig,'units','pixels','Visible','Off','String','',...
+            'Position',tablePosV + [0 -.2*GUIHeight 0 0 ],'fontSize',9,'Style','text',...
+            'FontWeight','Bold','HorizontalAlignment','Left','backgroundColor',defaultColor,...
+            'foregroundColor',[.6 0 0]);
+        
+        inputH(8) = uitable(hFig,'Tag','fieldEdit','Position',tablePosV + [0 -.7*GUIHeight 0 4*shift],'Enable','Off',...
             'cellEditCallback',@editParams,'ColumnName',{'Fields','Values'},...
             'RowName',[],'Visible','Off','backgroundColor',defaultColor,...
             'ColumnWidth',{round(tablePosV(3)/2),round(tablePosV(3)/2)},...
             'columnEditable',[false,true],'backgroundcolor',[1 1 1]);
         
         % Save , plot buttons
-        inputH(8) = uicontrol(hFig,'units','pixels','Tag','saveJson','Position',[.38*GUIWidth 1.5*shift .06*GUIWidth 3*shift],'backgroundColor',defaultColor,...
+        inputH(9) = uicontrol(hFig,'units','pixels','Tag','saveJson','Position',[.36*GUIWidth 1.5*shift .06*GUIWidth 3*shift],'backgroundColor',defaultColor,...
             'String','Save','Style','Push', 'fontSize',9,'FontWeight','normal','Enable','Off','Callback','ROE(''SAVE_MODELS'' )');
-        inputH(9) = uicontrol(hFig,'units','pixels','Tag','plotButton','Position',[.3*GUIWidth 1.5*shift .06*GUIWidth 3*shift],'backgroundColor',defaultColor,...
+        inputH(10) = uicontrol(hFig,'units','pixels','Tag','plotButton','Position',[.29*GUIWidth 1.5*shift .06*GUIWidth 3*shift],'backgroundColor',defaultColor,...
             'String','Plot','Style','Push', 'fontSize',9,'FontWeight','normal','Enable','Off','Callback','ROE(''PLOT_MODELS'' )');
-        inputH(10) = uicontrol(hFig,'units','pixels','Tag','switchPlot','Position',[.2*GUIWidth .1*shift .09*GUIWidth 4*shift],'backgroundColor',defaultColor,...
+        inputH(11) = uicontrol(hFig,'units','pixels','Tag','switchPlot','Position',[.2*GUIWidth .1*shift .08*GUIWidth 4*shift],'backgroundColor',defaultColor,...
             'String','Switch plot','Style','popup', 'fontSize',9,'FontWeight','normal','Enable','Off','Callback',@switchFocus);
         
         
@@ -158,11 +163,11 @@ switch upper(command)
         plotH(2) = axes('parent',hFig,'tag','modelsAxis','tickdir', 'out',...
             'nextplot','add','units','pixels','Position',...
             [leftMarginWidth+.2*GUIWidth .16*GUIHeight .73*GUIWidth-leftMarginWidth GUIHeight-topMarginHeight-0.2*GUIHeight],...
-            'color','none','XAxisLocation','bottom','YAxisLocation','left','ylim',[0 1],...
+            'color','none','XAxisLocation','bottom','YAxisLocation','left','xlim',[.5 1.5],'ylim',[0 1],...
             'fontSize',8,'box','on','visible','off');
         plotH(3) = axes('parent',hFig,'tag','modelsAxis2','tickdir', 'out',...
             'nextplot','add','units','pixels','Position',get(plotH(2),'Position'),...
-            'color','none','XAxisLocation','bottom','YAxisLocation','right','ylim',[0 1],...
+            'color','none','XAxisLocation','bottom','YAxisLocation','right','xlim',[.5 1.5],'ylim',[0 1],...
             'xtick',[],'fontSize',8,'box','on','visible','off');
         plotH(4) = uicontrol('parent',hFig,'units','pixels','Position',...
             [leftMarginWidth+.18*GUIWidth 3*shift .75*GUIWidth-leftMarginWidth 2*shift],...
@@ -209,7 +214,6 @@ switch upper(command)
                 uProt.add(uitreenode('v0', modelName,modelName, [], true)); %Create nodes for models
             end
             protocolS(p).numFractions = protocolInfoS.numFractions;
-            protocolS(p).fCorrect = protocolInfoS.fractionCorrect;
             root.add(uProt);
             % Get clinical criteria files
             %         critPath = fullfile(fPath,protocol,'Clinical criteria','*.json');
@@ -337,12 +341,10 @@ switch upper(command)
                 paramS.structNum = structNumV;  
                 %Get plan, no. fractions, alpha/beta
                 plnNumV = modelC{j}.planNum;
-                numFractions = protocolS(p).numFractions;
-                stdFractionSize = modelC{j}.fractionSize;
+                numFractionsPlan = protocolS(p).numFractions;
                 abRatio = modelC{j}.abRatio;
                 paramS.planNum = plnNumV;
-                paramS.numFractions = numFractions;
-                paramS.fractionSize = stdFractionSize;
+                paramS.numFractions = numFractionsPlan;
                 paramS.abRatio = abRatio;
                 
                 %Initialize dose bins
@@ -351,17 +353,30 @@ switch upper(command)
                 %Apply fractionation correction if required
                 for nStr = 1:numel(structNumV)
                     [doseBinsC{nStr}, volsC{nStr}] = getDVH(structNumV(nStr),plnNumV(nStr),planC);
-                    if strcmpi(protocolS(p).fCorrect,'yes') % fractionation correction
-                        %EQD in std fraction size
-                        fractionSizeV = doseBinsC{nStr}/numFractions;
-                        correctedDoseC{nStr} = doseBinsC{nStr} .*(fractionSizeV+abRatio)./(stdFractionSize + abRatio);
+                    if strcmpi(modelC{j}.fractionCorrect,'yes') & isfield(modelC{j},'abCorrect')  
+                        if strcmpi(modelC{j}.abCorrect,'yes')
+                        %Convert to EQD in std fraction size
+                        stdFractionSize = modelC{j}.stdFractionSize;
+                        plannedFractSizeV = doseBinsC{nStr}/numFractionsPlan;
+                        correctedDoseC{nStr} = doseBinsC{nStr} .*(plannedFractSizeV+abRatio)./(stdFractionSize + abRatio);
+                        paramS.stdFractionSize = stdFractionSize;
+                        else %Different flag?
+                        Na = numFractionsPlan;
+                        Nb = modelC{j}.stdNumFractions;
+                        doseBinsV = doseBinsC{nStr};
+                        a = 1/Nb;
+                        b = abRatio;
+                        c = -doseBinsV.*(doseBinsV/Na + abRatio);
+                        correctedDoseC{nStr}= (-b + sqrt(b^2 - 4*a*c))/(2*a);
+                        paramS.stdNumFractions = Nb;
+                        end
                     else
                         correctedDoseC{nStr} = doseBinsC{nStr};
                     end
                 end
                 modelC{j}.dv = {correctedDoseC,volsC};
               
-                %Caclulate probability
+                %Caclulate probability2
                 scaledCPv = scaleV * 0;
                 for n = 1 : numel(scaleV)
                     % Scale dose bins
@@ -384,6 +399,7 @@ switch upper(command)
                     testMeanDose = calc_meanDose(correctedDoseC{1},volsC{1});   
                     testEUD = calc_EUD(correctedDoseC{1},volsC{1},a);
                     testNTCP = feval(modelC{j}.function,paramS,correctedDoseC{1},volsC{1});
+                   % testGTD = feval(modelC{j}.function,paramS,correctedDoseC{1},volsC{1});
                     fprintf(['\n---------------------------------------\n',...   
                         'Protocol:%d, Model:%d\nMean Dose = %f\nEUD = %f\tNTCP = %f\n'],p,j,testMeanDose,testEUD,testNTCP);
                     end
@@ -472,13 +488,14 @@ switch upper(command)
                 
             end
             %Store parameters
-            modelC{j}.parameters = paramS;
+            %modelC{j}.parameters = paramS;
             protocolS(p).model = modelC;
             waitbar(p/numel(protocolS));
         end
         close(hWait);
         %Add plot labels, legend
-        xlabel(hNTCPAxis,'Dose scaling','Position',[.5 -.15]),ylabel(hNTCPAxis,'NTCP');
+        %xlabel(hNTCPAxis,'Dose scaling','Position',[.5 -.15]),ylabel(hNTCPAxis,'NTCP');
+        xlabel(hNTCPAxis,'Dose scale factor'),ylabel(hNTCPAxis,'NTCP');
         ylabel(hTCPAxis,'TCP');
         NTCPLegendC = arrayfun(@(x)x.DisplayName,ud.NTCPCurve,'un',0);
         TCPLegendC = arrayfun(@(x)x.DisplayName,ud.TCPCurve,'un',0);
@@ -487,7 +504,7 @@ switch upper(command)
         set(hSlider,'Visible','On'); %Slider on
         ud.handle.modelsAxis(4) = hSlider;
         %Plot switch on
-        set(ud.handle.inputH(10),'Enable','On','string',{'Switch plot...',ud.Protocols.protocol});
+        set(ud.handle.inputH(11),'Enable','On','string',{'Switch plot...',ud.Protocols.protocol});
         
         %Store userdata
         ud.Protocols = protocolS;
@@ -546,7 +563,7 @@ switch upper(command)
         
         set(ud.modelTree,'Visible',true);
         
-        set(ud.handle.inputH(9),'Enable','On'); %Plot button on
+        set(ud.handle.inputH(10),'Enable','On'); %Plot button on
         
         
         set(hFig,'userdata',ud);
@@ -579,7 +596,7 @@ switch upper(command)
         end
         fprintf('\nSave complete.\n');
         
-        set(ud.handle.inputH(8),'Enable','Off');  %Disable save
+        set(ud.handle.inputH(9),'Enable','Off');  %Disable save
         set(hFig,'userdata',ud);
         
         
@@ -620,7 +637,7 @@ end
                 dosListC = {'Select Plan',planC{indexS.dose}.fractionGroupID};
                 matchIdx = find(strcmp(dosListC,val));
                 modelsC{modelNum}.planNum(idx) = matchIdx - 1;
-                modelsC{modelNum}.plan = dosListC{matchIdx};
+                modelsC{modelNum}.plan.(['plan',num2str(idx)]) = dosListC{matchIdx};
             case 'fieldEdit'
                 modelsC{modelNum} = modelsC{modelNum};
                 parName = hObj.Data{idx,1};
@@ -639,7 +656,7 @@ end
                     modelsC{modelNum}.parameters.(parName).val = val2num;
                 end
         end
-        set(ud.handle.inputH(8),'Enable','On');  %Enable save
+        set(ud.handle.inputH(9),'Enable','On');  %Enable save
         ud.Protocols(prtcNum).model = modelsC;
         set(hFig,'userdata',ud);
         
@@ -669,7 +686,7 @@ end
         fheight = hFig.Position(3);
         left = 10;
         columnWidth ={rowWidth-1,rowWidth-1};
-        posV = [.22*fwidth-2*left .4*fheight 2*rowWidth rowHt];
+        posV = [.22*fwidth-2*left .38*fheight 2*rowWidth rowHt];
         row = 1;
         hTab = gobjects(0);
         for k = 1:nPars
@@ -705,23 +722,23 @@ end
 
 
 % Get parameter value
-    function [parNameC,parIdxV] = getMatchPar(modelS,parName,parListC)
+    function [parNameC,parIdxV] = getMatchPar(modelS,parType,parName,parListC)
         
-        parIn = isfield(modelS,parName);
+        parIn = isfield(modelS,parType);
         if parIn
-            if isstruct(modelS.structure)
-                parNameC = fieldnames(modelS.(parName));
-                parValC = struct2cell(modelS.(parName));
+            if isstruct(modelS.(parType))
+                parNameC = fieldnames(modelS.(parType));
+                parValC = struct2cell(modelS.(parType));
             else
-                parNameC = [parName,' 1'];
-                parValC = {modelS.(parName)};
+                parNameC = parName;
+                parValC = {modelS.(parType)};
             end
             parIdxC = cellfun(@(x)find(strcmpi(x,parListC)),parValC,'un',0);
             notFoundC = cellfun(@isempty,parIdxC,'un',0);
             parIdxC([notFoundC{:}]) = {1}; %Set to default=1 (select par)
             parIdxV = [parIdxC{:}];
         else
-            parNameC = [parName,' 1'];
+            parNameC = parName;
             parIdxV = 1; %Default
         end
         
@@ -734,7 +751,6 @@ end
         ud = get(hFig,'userdata');
         tree = hObj.getTree;
         currNode = hEvt.getCurrentNode;
-        %modelNum = hObj.Value;
         
         if  currNode.getLevel<2
             tree.expandRow(tree.getSelectionRows);
@@ -750,15 +766,21 @@ end
             %Get structure input
             structList = {planC{indexS.structures}.structureName};
             structList = {'Select structure',structList{:}}.';
-            [strNameC,strIdxV] = getMatchPar(modelsC{modelNum},'structure',structList);
+            [strNameC,strIdxV] = getMatchPar(modelsC{modelNum},'structure','Structure',structList);
             
             %Get plan input
             planList = {planC{indexS.dose}.fractionGroupID};
             planList = {'Select Plan',planList{:}}.';
             planNameC = cell(numel(strIdxV),1);
+            dispPlanC = cell(numel(strIdxV),1);
             for s = 1:numel(strIdxV)
             if numel(planList)==2 %Default to 1st plan if only one is available
-                planNameC{s} = ['plan ',num2str(s)];
+                if numel(strIdxV)==1
+                dispPlanC{1} = 'Dose plan';
+                else
+                dispPlanC{s} = ['Dose plan ',num2str(s)];
+                end
+                planNameC{s} = ['plan',num2str(s)];
                 planIdxV(s) = 2;
             else
                 x = strfind(lower(planList),'sum');%Default to plan named 'SUM' if available
@@ -767,10 +789,16 @@ end
                     planIdxV(s) = find(idx);
                     planNameC{s} = planList{idx};
                 else
-                     %User selection
-                    [planNameC{s},planIdxV(s)] = getMatchPar(modelsC{modelNum},['plan ',num2str(s)],planList);
+                    %User selection
+                    [planNameC{s},planIdxV(s)] = getMatchPar(modelsC{modelNum},['plan.','plan',num2str(s)],['plan',num2str(s)],planList);
+                    if numel(strIdxV)==1
+                        dispPlanC{1} = 'Dose plan';
+                    else
+                        dispPlanC{s}= ['Dose plan',num2str(s)];
+                    end
                 end
             end
+            modelsC{modelNum}.plan.(planNameC{s}) = planList(planIdxV(s));
             end
             
             %Get parameters
@@ -788,9 +816,10 @@ end
                     valsC = [valsC(:);{''}];
                 end
             end
-            rmC = {'structure','plan','strNum','planNum','parameters','dv'};
-            valsC = valsC(~ismember(fieldsC,rmC));
-            fieldsC = fieldsC(~ismember(fieldsC,rmC));
+            tab3C = {'name','type','stdFractionSize','prescribedDose','abRatio','function','created_by',...
+                'created_at','modified_by','modified_at'};
+            valsC = valsC(ismember(fieldsC,tab3C));
+            fieldsC = fieldsC(ismember(fieldsC,tab3C));
             
             
             %Storage/display
@@ -802,26 +831,27 @@ end
             %Table2
             hTab2 = ud.handle.inputH(5);
             fmt = {[] planList.'};
-            dosDatC = [planNameC,planList(planIdxV)];
+            dosDatC = [dispPlanC,planList(planIdxV)];
             set(hTab2,'ColumnFormat',fmt,'Data',dosDatC,'Visible','On','Enable','On');
             %Table3
-            hTab3 = ud.handle.inputH(7);
-            set(hTab3,'Data',[fieldsC,valsC],'Visible','On','Enable','On');
+            hTab3 = ud.handle.inputH(8);
+            set(hTab3,'Data',[fieldsC,cellfun(@num2str,valsC,'un',0)],'Visible','On','Enable','On');
             %Parameters
             [hPar(:).Visible] = deal('On');
             
             
             ud.handle.inputH(4) = hTab1;
             ud.handle.inputH(5) = hTab2;
+            ud.handle.inputH(8) = hTab3;
             set(ud.handle.inputH(6),'Visible','On'); %Parameters header
-            ud.handle.inputH(7) = hTab3;
+            modName = modelsC{modelNum}.name;
+            set(ud.handle.inputH(7),'String',['MODEL:  ',modName],'Visible','On'); %Display currently selected model name
             ud.currentPar = hPar;
             
             %Store str, plan, params to modelsC
             modelsC{modelNum}.strNum = strIdxV-1;
             modelsC{modelNum}.structure = structList{strIdxV};
             modelsC{modelNum}.planNum = planIdxV-1;
-            modelsC{modelNum}.plan = planList{planIdxV};
             modS(prtcNum).model = modelsC;
             ud.Protocols = modS;
             %set current model,protocol nos
@@ -916,9 +946,9 @@ end
                     
                 else
                     plot([userScale userScale],[0 cpNew],'Color',pColorM(clrIdx,:),'LineStyle','-.',...
-                        'linewidth',1,'parent',ud.handle.modelsAxis(3));
+                        'linewidth',.5,'parent',ud.handle.modelsAxis(3));
                     plot([userScale hObj.Max],[cpNew cpNew],'Color',pColorM(clrIdx,:),'LineStyle','-.',...
-                        'linewidth',1,'parent',ud.handle.modelsAxis(3));
+                        'linewidth',.5,'parent',ud.handle.modelsAxis(3));
                 end
                 
             end
