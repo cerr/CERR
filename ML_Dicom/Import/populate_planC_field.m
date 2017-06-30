@@ -367,7 +367,9 @@ switch cellName
                             if isfield(dvhsequence.(['Item_',num2str(i)]),'DVHReferencedROISequence')
                                 structureNumber = dvhsequence.(['Item_',num2str(i)]).DVHReferencedROISequence.Item_1.ReferencedROINumber;
                                 indROINumber = find(structureNumberV==structureNumber);
-                                dataS(dvhsAdded+1).structureName = structureNameC{indROINumber};
+                                if ~isempty(indROINumber)
+                                    dataS(dvhsAdded+1).structureName = structureNameC{indROINumber};
+                                end
                             end
                             dataS(dvhsAdded+1).doseScale = dvhsequence.(['Item_',num2str(i)]).DVHDoseScaling;
                             binWidthsV = dvhsequence.(['Item_',num2str(i)]).DVHData(1:2:end);
