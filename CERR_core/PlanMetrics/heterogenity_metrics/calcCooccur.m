@@ -67,7 +67,7 @@ tic
 if cooccurType == 1
     cooccurM = zeros(lq*lq,1,'single');
 else
-    cooccurType = zeros(lq*lq,numOffsets,'single');
+    cooccurM = zeros(lq*lq,numOffsets,'single');
 end
 for off = 1:numOffsets
     
