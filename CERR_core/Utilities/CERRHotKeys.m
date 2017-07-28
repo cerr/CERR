@@ -231,19 +231,56 @@ switch(keyValue)
         if ~stateS.contourAxis %Check for contouring mode
             return
         end
-        hAx = stateS.handle.CERRAxis(stateS.currentAxis);
-        increment = min([planC{indexS.scan}(1).scanInfo(1).grid1Units,...
-            planC{indexS.scan}(1).scanInfo(1).grid2Units]);
-        controlFrame('contour','setBrushSize',hAx,increment);
+        hAxis = stateS.handle.CERRAxis(stateS.currentAxis);
+        mode = getappdata(hAxis, 'mode');
+        switch upper(mode)
+            case {'FLEXSELMODE','FLEXMODE','DRAWINGBALL'}
+                increment = min([planC{indexS.scan}(1).scanInfo(1).grid1Units,...
+                    planC{indexS.scan}(1).scanInfo(1).grid2Units]);
+                controlFrame('contour','setBrushSize',hAxis,increment);
+            case 'THRESHOLD'
+                %cP = get(hAxis, 'currentPoint');
+                CpOld = getappdata(hAxis, 'thresholdStartPoint');
+                %minLevel = getappdata(hAxis, 'minLevel');
+                maxLevel = getappdata(hAxis, 'maxLevel');
+                contractionBias = getappdata(hAxis, 'ContractionBias');
+                setappdata(hAxis, 'ContractionBias', max(-1,contractionBias - 0.05));
+                %if cP(1,2) < CpOld(1,2)
+                %    setappdata(hAxis, 'minLevel',minLevel-1);
+                %else
+                %    setappdata(hAxis, 'maxLevel',maxLevel+1);
+                %end
+                % getThresh(hAxis, CpOld(1,1), CpOld(1,2))
+                getThreshold(hAxis);
+        end
         
     case 45 %'-' key to decrease brush size in contouring mode
         if ~stateS.contourAxis %Check for contouring mode
             return
         end
-        hAx = stateS.handle.CERRAxis(stateS.currentAxis);
-        decrement = -min([planC{indexS.scan}(1).scanInfo(1).grid1Units,...
-            planC{indexS.scan}(1).scanInfo(1).grid2Units]);
-        controlFrame('contour','setBrushSize',hAx,decrement);
+        hAxis = stateS.handle.CERRAxis(stateS.currentAxis);
+        mode = getappdata(hAxis, 'mode');
+        switch upper(mode)
+            case {'FLEXSELMODE','FLEXMODE','DRAWINGBALL'}
+                decrement = -min([planC{indexS.scan}(1).scanInfo(1).grid1Units,...
+                    planC{indexS.scan}(1).scanInfo(1).grid2Units]);
+                controlFrame('contour','setBrushSize',hAxis,decrement);
+            case 'THRESHOLD'
+                %cP = get(hAxis, 'currentPoint');
+                CpOld = getappdata(hAxis, 'thresholdStartPoint');
+                %minLevel = getappdata(hAxis, 'minLevel');
+                maxLevel = getappdata(hAxis, 'maxLevel');
+                contractionBias = getappdata(hAxis, 'ContractionBias');
+                setappdata(hAxis, 'ContractionBias', min(1,contractionBias + 0.05));
+                %if cP(1,2) < CpOld(1,2)
+                %    setappdata(hAxis, 'minLevel',minLevel-1);
+                %else
+                %    setappdata(hAxis, 'maxLevel',maxLevel+1);
+                %end
+                % getThresh(hAxis, CpOld(1,1), CpOld(1,2))
+                getThreshold(hAxis);
+        end
+        
     case 2 %Ctrl+b Force set 'flex' mode to brush
         if ~stateS.contourAxis %Check for contouring mode
             return
@@ -263,4 +300,190 @@ switch(keyValue)
             contourControl('Save_Slice');
             contourControl('flexSelMode', 1);
         end
+end
+
+
+
+% temporary, to test. create a separate function file
+function getThresh(hAxis, x, y) % old function, replaced by getThreshold
+%Sets the current segment to the contour of connected region x,y
+global planC
+global stateS
+indexS = planC{end};
+% [xV, yV, zV] = getScanXYZVals(planC{indexS.scan}(stateS.currentScan));
+[scanSet,coord] = getAxisInfo(stateS.handle.CERRAxis(stateS.contourAxis),'scanSets','coord');
+[xV, yV, zV] = getScanXYZVals(planC{indexS.scan}(scanSet));
+% [r, c, jnk] = xyztom(x,y,zeros(size(x)), planC);
+[r, c, jnk] = xyztom(x,y,zeros(size(x)), scanSet, planC);
+r = round(r);
+c = round(c);
+if r < 1 || r > length(yV) || c < 1 || c > length(xV)
+    return;
+end
+
+% threshV = getappdata(hAxis, 'threshLevelV');
+% minLevel = getappdata(hAxis, 'minLevel');
+% maxLevel = getappdata(hAxis, 'maxLevel');
+% %hImg =  findobj(hAxis, 'tag', 'CTImage');
+% %imgM = get(hImg, 'cData');
+% imgM = getappdata(hAxis, 'smoothImg');
+% pixVal = imgM(r, c);
+% ind1 = find(threshV > pixVal, 1, 'first');
+% if isempty(ind1)
+%     ind1 = length(threshV);
+% end
+% if isempty(minLevel)
+%     minLevel = ind1 - 1;
+%     setappdata(hAxis, 'minLevel', minLevel-1);
+% end
+% minLevel = max(1,minLevel);
+% if isempty(maxLevel)
+%     maxLevel = ind1;
+%     setappdata(hAxis, 'maxLevel', maxLevel+1);
+% end
+% maxLevel = min(maxLevel,length(threshV));
+
+% indAbove = max(1,ind1 - 1);
+% indBelow = min(indAbove + currentLeveldiff,length(threshV));
+% threshM = imgM >= threshV(indAbove) & imgM < threshV(indBelow);
+
+% threshM = imgM >= threshV(minLevel) & imgM < threshV(maxLevel);
+
+imgM = getappdata(hAxis, 'smoothImg');
+ContractionBias = getappdata(hAxis, 'ContractionBias');
+% maskM = false(length(yV), length(xV));
+% delta = 2;
+% [rM,cM] = meshgrid(r-delta:r+delta,c-delta:c+delta);
+% maskM(rM(:),cM(:)) = 1;
+maskM = getappdata(hAxis, 'InitialMask');
+% delta = 50;
+% threshM = false(size(imgM));
+% threshM(r-delta:r+delta,c-delta:c+delta) = ...
+%     activecontour(imgM(r-delta:r+delta,c-delta:c+delta), maskM(r-delta:r+delta,c-delta:c+delta), 30, 'Chan-Vese','ContractionBias',ContractionBias);
+% threshM = activecontour(imgM, maskM, 30, 'Chan-Vese','ContractionBias',ContractionBias);
+threshM = activecontour(imgM, maskM, 30, 'edge','ContractionBias',ContractionBias);
+
+labelM = labelmatrix(bwconncomp(threshM,4));
+labelVal = labelM(r,c);
+ROI = labelM == labelVal;
+
+% BW = roicolor(img,pixVal);
+% L = bwlabel(BW, 4);
+% region = L(r,c);
+
+% ROI = L == region;
+% [contour, sliceValues] = maskToPoly(ROI, 1, planC);
+% get slceValues
+sliceValues = findnearest(zV,coord);
+[contr, sliceValues] = maskToPoly(ROI, sliceValues, scanSet, planC);
+% if(length(contour.segments) > 1)
+%     longestDist = 0;
+%     longestSeg =  [];
+%     for i = 1:length(contour.segments)
+%         segmentV = contour.segments(i).points(:,1:2);
+%         curveLength = 0;
+%         for j = 1:size(segmentV,1) - 1
+%             curveLength = curveLength + sepsq(segmentV(j,:)', segmentV(j+1,:)');
+%         end
+%         if curveLength > longestDist
+%             longestDist = curveLength;
+%             longestSeg = i;
+%         end
+%     end
+%     segment = contour.segments(longestSeg).points(:,1:2);
+% else
+%     segment = contour.segments.points(:,1:2);
+% end
+segment = contr.segments(1).points(:,1:2);
+contourV = {};
+for seg = 1:length(contr.segments)
+    if ~isempty(contr.segments(seg).points)
+        contourV{seg} = contr.segments(seg).points;
+    end
+end
+setappdata(hAxis, 'contourV', contourV);
+setappdata(hAxis, 'contourMask',ROI);
+setappdata(hAxis, 'segment', segment);
+drawSegment(hAxis);
+
+
+function getThreshold(hAxis)
+%Sets the current segment to the contour of connected region x,y
+global planC
+global stateS
+% indexS = planC{end};
+% [xV, yV, zV] = getScanXYZVals(planC{indexS.scan}(stateS.currentScan));
+%[scanSet,coord] = getAxisInfo(stateS.handle.CERRAxis(stateS.contourAxis),'scanSets','coord');
+% [xV, yV, zV] = getScanXYZVals(planC{indexS.scan}(scanSet));
+% [r, c, jnk] = xyztom(x,y,zeros(size(x)), planC);
+% [r, c, jnk] = xyztom(x,y,zeros(size(x)), scanSet, planC);
+% r = round(r);
+% c = round(c);
+% if r < 1 || r > length(yV) || c < 1 || c > length(xV)
+%     return;
+% end
+
+imgM = getappdata(hAxis, 'smoothImg');
+ContractionBias = getappdata(hAxis, 'ContractionBias');
+scanSet = getappdata(hAxis, 'ccScanSet');
+maskM = getappdata(hAxis, 'InitialMask');
+% maskM = false(length(yV), length(xV));
+% delta = 2;
+% [rM,cM] = meshgrid(r-delta:r+delta,c-delta:c+delta);
+% maskM(rM(:),cM(:)) = 1;
+% threshM = false(size(maskM));
+% threshM(r-100:r+100,c-100:c+100) = activecontour(imgM(r-100:r+100,c-100:c+100), maskM(r-100:r+100,c-100:c+100), 20, 'Chan-Vese','ContractionBias',ContractionBias);
+% threshM = activecontour(imgM, maskM, 30, 'Chan-Vese','ContractionBias',ContractionBias);
+threshM = activecontour(imgM, maskM, 30, 'edge','ContractionBias',ContractionBias);
+
+labelM = labelmatrix(bwconncomp(threshM,4));
+% labelVal = labelM(r,c);
+labelToKeepV = unique(labelM(maskM));
+labelToKeepV = labelToKeepV(labelToKeepV > 0);
+segM = false(size(maskM));
+for iLabel = 1:length(labelToKeepV)
+    segM = segM | labelM == labelToKeepV(iLabel);
+end
+
+% get slceValues
+%sliceValues = findnearest(zV,coord);
+sliceValues = 1; % dummy, since 2d
+contr = maskToPoly(segM, sliceValues, scanSet, planC);
+segment = contr.segments(1).points(:,1:2);
+contourV = {};
+for seg = 1:length(contr.segments)
+    if ~isempty(contr.segments(seg).points)
+        contourV{seg} = contr.segments(seg).points;
+    end
+end
+setappdata(hAxis, 'contourV', contourV);
+setappdata(hAxis, 'contourMask',segM);
+setappdata(hAxis, 'segment', segment);
+drawSegment(hAxis);
+
+
+
+function drawSegment(hAxis)
+%Redraw the current segment associated with hAxis
+hSegment = getappdata(hAxis, 'hSegment');
+mode = getappdata(hAxis, 'mode');
+%try
+%    delete(hSegment);
+%end
+%hSegment = [];
+
+segment = getappdata(hAxis, 'segment');
+if ~isempty(segment) && (strcmpi(mode, 'drawing') || strcmpi(mode, 'draw'))
+    %hSegment = line(segment(:,1), segment(:,2), 'color', 'red', 'hittest', 'off', 'parent', hAxis, 'ButtonDownFcn', 'drawContour(''contourClicked'')');
+    %setappdata(hAxis, 'hSegment', hSegment);
+    set(hSegment,'XData',segment(:,1),'YData',segment(:,2), 'hittest', 'off')    
+elseif ~isempty(segment)
+    %hSegment = line(segment(:,1), segment(:,2), 'color', 'red', 'hittest', 'on', 'parent', hAxis, 'ButtonDownFcn', 'drawContour(''contourClicked'')');
+    %setappdata(hAxis, 'hSegment', hSegment);
+    set(hSegment,'XData',segment(:,1),'YData',segment(:,2), 'hittest', 'on')    
+else
+    %setappdata(hAxis, 'hSegment', []);
+    if ishandle(hSegment)
+        set(hSegment,'XData',0,'YData',0, 'hittest', 'off')
+    end
 end

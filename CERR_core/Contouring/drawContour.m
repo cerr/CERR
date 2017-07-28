@@ -131,7 +131,12 @@ switch command
         hAxis = varargin{1};
         drawBallMode(hAxis);
 
-    case 'threshMode'
+    case 'thresholdMode'
+        %Force threshold mode.
+        hAxis = varargin{1};
+        thresholdMode(hAxis);
+        
+    case 'threshMode' % old callback, replaced by thresholdMode
         %Force threshold mode.
         hAxis = varargin{1};
         threshMode(hAxis);
@@ -248,6 +253,7 @@ switch command
         %set(hFig, 'WindowButtonMotionFcn', 'drawContour(''motionInFigure'')');
         setappdata(hAxis, 'isButtonDwn', 1);
 
+        ud = get(stateS.handle.controlFrame,'userdata');
 
         %SWITCH OVER MODES.
         if strcmpi(mode,        'DRAW')
@@ -255,8 +261,6 @@ switch command
                 %Left click: check if a segment has been selected and
                 %switch to Edit mode.
                 if getappdata(hAxis, 'segmentSelected')
-                    
-                    ud = get(stateS.handle.controlFrame,'userdata');
                     
                     %set(ud.handles.modePopup,'value',2)
                     controlFrame('contour','selectMode',2) % Edit mode
@@ -348,6 +352,20 @@ switch command
             elseif strcmpi(clickType, 'alt')
 %                 do nothing
                 threshMode(hAxis);
+            end
+            
+        elseif strcmpi(mode,    'THRESHOLD')
+            if strcmpi(clickType, 'normal')
+                %Left click: run threshold. run when button pushed
+                %cP = get(hAxis, 'currentPoint');
+                %setappdata(hAxis, 'thresholdStartPoint',cP);
+                %getThresh(hAxis, cP(1,1), cP(1,2));                              
+
+            elseif strcmpi(clickType, 'extend') || (strcmpi(clickType, 'open') && strcmpi(lastClickType, 'extend'))
+%                 do nothing
+            elseif strcmpi(clickType, 'alt')                                
+                set(ud.handles.threshold, 'BackgroundColor',[0.8 0.8 0.8], 'Value', 0);                
+                noneMode(hAxis);
             end
             
             %ADDED AI 4/28/17
@@ -577,6 +595,7 @@ switch command
                     addBallPoints(hAxis, xV, yV);
                     drawContourV(hAxis);
                 end
+                
         end
         
     case 'btnUp'
@@ -601,6 +620,12 @@ switch command
         elseif strcmpi(mode, 'FLEXMODE') %%AI 5/1/17
             %ballH = getappdata(hAxis, 'hBall');
             %set(ballH,'visible','off')
+        elseif strcmpi(mode, 'THRESH_todelete')
+            setappdata(hAxis, 'minLevel',[])
+            setappdata(hAxis, 'maxLevel',[])
+            hFig  = get(hAxis, 'parent');
+            hMenu = uicontextmenu('Callback', 'CERRAxisMenu(''update_menu'')', 'userdata', hAxis, 'Tag', 'CERRAxisMenu', 'parent', hFig);
+            set(hAxis, 'UIContextMenu', hMenu);               
         end              
         %set(hFig, 'WindowButtonMotionFcn', '');
         setappdata(hAxis, 'isButtonDwn', 0);
@@ -744,6 +769,12 @@ switch command
         
     case 'deleteAllSegments'
         hAxis = varargin{1};
+        mode = getappdata(hAxis,'mode');
+        if strcmpi(mode,'threshold')
+            hFrame = stateS.handle.controlFrame;
+            ud = get(hFrame, 'userdata');
+            set(ud.handles.threshold,'Value',0,'BackgroundColor',[0.8 0.8 0.8]);
+        end
         delAllSegments(hAxis)            
         
 end
@@ -883,7 +914,7 @@ if ishandle(hBall)
     setappdata(hAxis, 'hBall',[]);
 end
 
-function threshMode(hAxis)
+function threshMode(hAxis) % old function, replaced by thresholdMode
 %Set threshMode
 contourV = getappdata(hAxis, 'contourV');
 segment = getappdata(hAxis, 'segment');
@@ -900,6 +931,27 @@ hContour = getappdata(hAxis, 'hContour');
 set(hContour, 'hittest', 'off');
 drawSegment(hAxis);
 drawContourV(hAxis);
+
+function thresholdMode(hAxis)
+%Set thresholdMode
+contourV = getappdata(hAxis, 'contourV');
+segment = getappdata(hAxis, 'segment');
+setappdata(hAxis, 'segment', []);
+if ~isempty(segment)
+    editNum = getappdata(hAxis, 'editNum');
+    contourV{editNum} = segment;
+    setappdata(hAxis, 'contourV', contourV);
+end
+setappdata(hAxis, 'mode', 'threshold');
+editNum = 1;
+setappdata(hAxis, 'editNum', editNum);
+hContour = getappdata(hAxis, 'hContour');
+set(hContour, 'hittest', 'off');
+drawSegment(hAxis);
+drawContourV(hAxis);
+% Run the activecontour segmentation on clicking the Threshold button
+getThreshold(hAxis);
+
 
 %AI 5/1/17
 %Get current point
@@ -1244,8 +1296,63 @@ drawSegment(hAxis);
 drawClip(hAxis);
 
 %THRESHOLDING FUNCTIONS
+function getThreshold(hAxis)
+%Sets the current segment to the contour of connected region x,y
+global planC
+global stateS
+% indexS = planC{end};
+% [xV, yV, zV] = getScanXYZVals(planC{indexS.scan}(stateS.currentScan));
+%[scanSet,coord] = getAxisInfo(stateS.handle.CERRAxis(stateS.contourAxis),'scanSets','coord');
+% [xV, yV, zV] = getScanXYZVals(planC{indexS.scan}(scanSet));
+% [r, c, jnk] = xyztom(x,y,zeros(size(x)), planC);
+% [r, c, jnk] = xyztom(x,y,zeros(size(x)), scanSet, planC);
+% r = round(r);
+% c = round(c);
+% if r < 1 || r > length(yV) || c < 1 || c > length(xV)
+%     return;
+% end
 
-function getThresh(hAxis, x, y)
+imgM = getappdata(hAxis, 'smoothImg');
+ContractionBias = getappdata(hAxis, 'ContractionBias');
+scanSet = getappdata(hAxis, 'ccScanSet');
+maskM = getappdata(hAxis, 'InitialMask');
+maskM = logical(maskM);
+% maskM = false(length(yV), length(xV));
+% delta = 2;
+% [rM,cM] = meshgrid(r-delta:r+delta,c-delta:c+delta);
+% maskM(rM(:),cM(:)) = 1;
+% threshM = false(size(maskM));
+% threshM(r-100:r+100,c-100:c+100) = activecontour(imgM(r-100:r+100,c-100:c+100), maskM(r-100:r+100,c-100:c+100), 20, 'Chan-Vese','ContractionBias',ContractionBias);
+%threshM = activecontour(imgM, maskM, 30, 'Chan-Vese','ContractionBias',ContractionBias);
+threshM = activecontour(imgM, maskM, 30, 'edge','ContractionBias',ContractionBias);
+
+labelM = labelmatrix(bwconncomp(threshM,4));
+% labelVal = labelM(r,c);
+labelToKeepV = unique(labelM(maskM));
+labelToKeepV = labelToKeepV(labelToKeepV > 0);
+segM = false(size(maskM));
+for iLabel = 1:length(labelToKeepV)
+    segM = segM | labelM == labelToKeepV(iLabel);
+end
+
+% get slceValues
+%sliceValues = findnearest(zV,coord);
+sliceValues = 1; % dummy, since 2d
+contr = maskToPoly(segM, sliceValues, scanSet, planC);
+segment = contr.segments(1).points(:,1:2);
+contourV = {};
+for seg = 1:length(contr.segments)
+    if ~isempty(contr.segments(seg).points)
+        contourV{seg} = contr.segments(seg).points;
+    end
+end
+setappdata(hAxis, 'contourV', contourV);
+setappdata(hAxis, 'contourMask',segM);
+setappdata(hAxis, 'segment', segment);
+drawSegment(hAxis);
+
+
+function getThresh(hAxis, x, y) % old function, replaced by getThreshold
 %Sets the current segment to the contour of connected region x,y
 global planC
 global stateS
@@ -1260,38 +1367,120 @@ c = round(c);
 if r < 1 || r > length(yV) || c < 1 || c > length(xV)
     return;
 end
-hImg =  findobj(hAxis, 'tag', 'CTImage');
-img = get(hImg, 'cData');
-pixVal = img(r, c);
-BW = roicolor(img,pixVal);
-L = bwlabel(BW, 4);
-region = L(r,c);
-ROI = L == region;
+
+% threshV = getappdata(hAxis, 'threshLevelV');
+% minLevel = getappdata(hAxis, 'minLevel');
+% maxLevel = getappdata(hAxis, 'maxLevel');
+% %hImg =  findobj(hAxis, 'tag', 'CTImage');
+% %imgM = get(hImg, 'cData');
+% imgM = getappdata(hAxis, 'smoothImg');
+% pixVal = imgM(r, c);
+% ind1 = find(threshV > pixVal, 1, 'first');
+% if isempty(ind1)
+%     ind1 = length(threshV);
+% end
+% if isempty(minLevel)
+%     minLevel = ind1 - 1;
+%     setappdata(hAxis, 'minLevel', minLevel-1);
+% end
+% minLevel = max(1,minLevel);
+% if isempty(maxLevel)
+%     maxLevel = ind1;
+%     setappdata(hAxis, 'maxLevel', maxLevel+1);
+% end
+% maxLevel = min(maxLevel,length(threshV));
+
+% indAbove = max(1,ind1 - 1);
+% indBelow = min(indAbove + currentLeveldiff,length(threshV));
+% threshM = imgM >= threshV(indAbove) & imgM < threshV(indBelow);
+
+% threshM = imgM >= threshV(minLevel) & imgM < threshV(maxLevel);
+
+imgM = getappdata(hAxis, 'smoothImg');
+ContractionBias = getappdata(hAxis, 'ContractionBias');
+maskM = getappdata(hAxis, 'InitialMask');
+% maskM = false(length(yV), length(xV));
+% delta = 2;
+% [rM,cM] = meshgrid(r-delta:r+delta,c-delta:c+delta);
+% maskM(rM(:),cM(:)) = 1;
+% threshM = false(size(maskM));
+% threshM(r-100:r+100,c-100:c+100) = activecontour(imgM(r-100:r+100,c-100:c+100), maskM(r-100:r+100,c-100:c+100), 20, 'Chan-Vese','ContractionBias',ContractionBias);
+% threshM = activecontour(imgM, maskM, 30, 'Chan-Vese','ContractionBias',ContractionBias);
+threshM = activecontour(imgM, maskM, 30, 'edge','ContractionBias',ContractionBias);
+
+labelM = labelmatrix(bwconncomp(threshM,4));
+labelVal = labelM(r,c);
+ROI = labelM == labelVal;
+
+% BW = roicolor(img,pixVal);
+% L = bwlabel(BW, 4);
+% region = L(r,c);
+
+% ROI = L == region;
 % [contour, sliceValues] = maskToPoly(ROI, 1, planC);
 % get slceValues
 sliceValues = findnearest(zV,coord);
-[contour, sliceValues] = maskToPoly(ROI, sliceValues, scanSet, planC);
-if(length(contour.segments) > 1)
-    longestDist = 0;
-    longestSeg =  [];
-    for i = 1:length(contour.segments)
-        segmentV = contour.segments(i).points(:,1:2);
-        curveLength = 0;
-        for j = 1:size(segmentV,1) - 1
-            curveLength = curveLength + sepsq(segmentV(j,:)', segmentV(j+1,:)');
-        end
-        if curveLength > longestDist
-            longestDist = curveLength;
-            longestSeg = i;
-        end
+[contr, sliceValues] = maskToPoly(ROI, sliceValues, scanSet, planC);
+% if(length(contour.segments) > 1)
+%     longestDist = 0;
+%     longestSeg =  [];
+%     for i = 1:length(contour.segments)
+%         segmentV = contour.segments(i).points(:,1:2);
+%         curveLength = 0;
+%         for j = 1:size(segmentV,1) - 1
+%             curveLength = curveLength + sepsq(segmentV(j,:)', segmentV(j+1,:)');
+%         end
+%         if curveLength > longestDist
+%             longestDist = curveLength;
+%             longestSeg = i;
+%         end
+%     end
+%     segment = contour.segments(longestSeg).points(:,1:2);
+% else
+%     segment = contour.segments.points(:,1:2);
+% end
+segment = contr.segments(1).points(:,1:2);
+contourV = {};
+for seg = 1:length(contr.segments)
+    if ~isempty(contr.segments(seg).points)
+        contourV{seg} = contr.segments(seg).points;
     end
-    segment = contour.segments(longestSeg).points(:,1:2);
-else
-    segment = contour.segments.points(:,1:2);
 end
+setappdata(hAxis, 'contourV', contourV);
+setappdata(hAxis, 'contourMask',ROI);
 setappdata(hAxis, 'segment', segment);
 drawSegment(hAxis);
 
+% sliceNum = getappdata(hAxis, 'ccSlice');
+% scanNum = getappdata(hAxis, 'ccScanSet');
+% segM = getappdata(hAxis,'contourMask');
+% numRows = getappdata(hAxis, 'numRows');
+% numCols = getappdata(hAxis, 'numCols');
+% [rowV, colV] = xytom(xV, yV, sliceNum, planC,scanNum);
+% rowV(rowV<1) = 1;
+% colV(colV<1) = 1;
+% rowV(rowV>numRows) = numRows;
+% colV(colV>numCols) = numCols;
+% contourData = contourc(double(ROI), [.5 .5]);
+% len = size(contourData,2);
+% currPt = 1;
+% newContoursC = {};
+% while currPt < len
+%     numPoints = contourData(2,currPt);
+%     xyData = contourData(:,currPt+1:numPoints+currPt)';
+%     cV = xyData(:,1);
+%     rV = xyData(:,2);
+%     uniflag = 0;
+%     [xSegV,ySegV,~] = mtoxyz(rV,cV,sliceNum,scanNum,planC,uniflag);
+%     
+%     %setappdata(hAxis, 'segment', [xSegV(:) ySegV(:)])
+%     
+%     newContoursC{end+1} = [xSegV(:) ySegV(:)];
+%     currPt = numPoints + currPt + 1;
+% end
+% %setappdata(hAxis, 'contourV', newContoursC)
+% setappdata(hAxis, 'segment', segment);
+% drawSegment(hAxis);
 
 
 %SEGMENT UNDO FUNCTIONS

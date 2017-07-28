@@ -212,7 +212,24 @@ switch command
             drawContour('flexSelMode', hAxis);
         end
         
-    case 'threshMode'
+    case 'thresholdMode'
+        % Get threshold levels from the current screen
+        hImg =  findobj(hAxis, 'tag', 'CTImage');
+        img = get(hImg, 'cData');
+        %smoothImgM = imgaussfilt(img,2);
+        smoothImgM = img;
+        %numLevels = 20; % max allowed is 20 in Matlab
+        %threshV = multithresh(smoothImgM, numLevels); 
+        maskM = getappdata(hAxis, 'contourMask');
+
+        %Enter threshold mode
+        setappdata(hAxis, 'ccMode', 'threshold');
+        setappdata(hAxis, 'smoothImg', smoothImgM);        
+        setappdata(hAxis, 'InitialMask', maskM);
+        setappdata(hAxis, 'ContractionBias', 0);        
+        drawContour('thresholdMode', hAxis);        
+        
+    case 'threshMode' % OLD callback, replaced by thresholdMode
         versionInfo = ver;
         if any(strcmpi({versionInfo.Name},'Image Processing Toolbox'));
             setappdata(hAxis, 'ccMode', 'thresh');
@@ -277,6 +294,16 @@ switch command
             setappdata(hAxis, 'ccSlice', sliceNum);
             loadDrawSlice(hAxis);
             drawContour('threshMode', hAxis);
+        elseif strcmpi(ccMode, 'threshold')
+            %saveDrawSlice(hAxis);
+            hFrame = stateS.handle.controlFrame;
+            ud = get(hFrame, 'userdata');
+            set(ud.handles.threshold,'Value',0,'BackgroundColor',[0.8 0.8 0.8]);
+            drawContour('noneMode', hAxis);
+            setappdata(hAxis, 'ccSlice', sliceNum);
+            loadDrawSlice(hAxis);
+            %drawContour('thresholdMode', hAxis);
+            
         elseif strcmpi(ccMode, 'reassign')
             saveDrawSlice(hAxis);
             setappdata(hAxis, 'ccSlice', sliceNum);
@@ -430,7 +457,7 @@ switch command
         % Set pencil/brush/eraser/flex button colors and states
         %set([ud.handles.flex ud.handles.pencil, ud.handles.brush, ud.handles.eraser],...
         %    'BackgroundColor',[0.8 0.8 0.8], 'value', 0)
-        set([ud.handles.flex ud.handles.pencil],'BackgroundColor',[0.8 0.8 0.8], 'value', 0);
+        set([ud.handles.flex ud.handles.pencil ud.handles.threshold],'BackgroundColor',[0.8 0.8 0.8], 'value', 0);
         % Delete the ball for brush/eraser/flex mode
         ballH = getappdata(hAxis, 'hBall');
         if ishandle(ballH)
