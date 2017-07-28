@@ -153,6 +153,7 @@ switch command
                 %ud.handles.brush = uicontrol(hFig, 'style', 'togglebutton', 'units', units, 'position', absPos([.35 .38 .28 .07], posFrame), 'string', 'Brush', 'tag', 'controlFrameItem', 'callback', 'controlFrame(''contour'',''toggleMode'',''brush'')', 'TooltipString', 'Brush');
                 %ud.handles.eraser = uicontrol(hFig, 'style', 'togglebutton', 'units', units, 'position', absPos([.65 .38 .28 .07], posFrame), 'string', 'Eraser', 'tag', 'controlFrameItem', 'callback', 'controlFrame(''contour'',''toggleMode'',''eraser'')', 'TooltipString', 'Eraser');
                 ud.handles.flex = uicontrol(hFig, 'style', 'togglebutton', 'units', units, 'position', absPos([.55 .36 .4 .08], posFrame), 'string', 'Brush/Eraser', 'tag', 'controlFrameItem', 'callback', 'controlFrame(''contour'',''toggleMode'',''flex'')', 'TooltipString', 'Toggle brush/eraser'); %Added
+                ud.handles.threshold = uicontrol(hFig, 'style', 'togglebutton', 'units', units, 'position', absPos([.05 .26 .4 .08], posFrame), 'string', 'Threshold', 'tag', 'controlFrameItem', 'callback', 'controlFrame(''contour'',''toggleMode'',''threshold'')', 'TooltipString', 'Toggle threshold');
                 
                 % Get min/max brush size
                 radius = min([planC{indexS.scan}(1).scanInfo(1).grid1Units,...
@@ -454,7 +455,7 @@ switch command
             case 'toggleMode'
                 
                 % Save current slice
-                contourControl('Save_Slice')
+               contourControl('Save_Slice')
                 
                 ud = get(hFrame, 'userdata');
                 
@@ -479,7 +480,8 @@ switch command
                 %AI 5/18/17 Removed brush,eraser tools
                 %set([ud.handles.pencil, ud.handles.brush, ud.handles.eraser],...
                 %    'BackgroundColor',[0.8 0.8 0.8]);  
-                set([ud.handles.pencil, ud.handles.flex],'BackgroundColor',[0.8 0.8 0.8]);  
+                set([ud.handles.pencil, ud.handles.flex, ud.handles.threshold],...
+                    'BackgroundColor',[0.8 0.8 0.8]);  
                 
                 
                 modeType = varargin{2};
@@ -494,6 +496,7 @@ switch command
                         %set([ud.handles.flex ud.handles.brush, ud.handles.eraser],...
                         %    'Value',0)
                         set(ud.handles.flex,'Value',0)
+                        set(ud.handles.threshold,'Value',0);
                         set(ud.handles.pencil,'BackgroundColor',[0.5 1 1])
                         %Draw Mode.
                         contourControl('drawMode');
@@ -517,9 +520,25 @@ switch command
                         %set([ud.handles.pencil, ud.handles.brush ud.handles.eraser],...
                         %    'Value',0)
                         set(ud.handles.pencil,'Value',0);
+                        set(ud.handles.threshold,'Value',0);
                         set(ud.handles.flex,'BackgroundColor',[0.5 1 1])
                         %Flex mode
                         contourControl('flexSelMode');
+                        
+                    case 'THRESHOLD'
+                        % See if the mask for initial seeds exists
+                        hAxis = stateS.handle.CERRAxis(stateS.currentAxis);
+                        maskM = getappdata(hAxis, 'contourMask');
+                        if isempty(maskM) || (~isempty(maskM) && ~any(maskM(:)))
+                            msgbox('Thresholding requires the initial contour. Please create an initial segmentation using the Pencil or the Brush.','Missing initial contour','modal')
+                            set(ud.handles.threshold,'Value',0);
+                            return;
+                        end
+                        set(ud.handles.pencil,'Value',0);
+                        set(ud.handles.flex,'Value',0);
+                        set(ud.handles.threshold,'BackgroundColor',[0.5 1 1])
+                        %threshold mode
+                        contourControl('thresholdMode');
                         
                     case 2 % switch to edit mode when contour is cliced in "draw" state
                         %Edit Mode.
@@ -586,7 +605,7 @@ switch command
                 % Set pencil/eraser/brush to OFF
                 %set([ud.handles.brush, ud.handles.eraser, ud.handles.pencil],...
                 %    'Value',0,'BackgroundColor',[0.8 0.8 0.8])
-                set([ud.handles.flex, ud.handles.pencil],...
+                set([ud.handles.flex, ud.handles.pencil, ud.handles.threshold],...
                     'Value',0,'BackgroundColor',[0.8 0.8 0.8])
                 contourControl('changeStruct', strNumsV(strVal));
                 
@@ -1383,7 +1402,7 @@ switch command
                 % hide the scan colorbar in fusion mode
                 tempScanColorbar = get(stateS.handle.scanColorbar, 'pos');
                 ud.handle.scanColorbarPos = tempScanColorbar;
-                set(stateS.handle.scanColorbar, 'pos', [0 0 0 0]);
+                set(stateS.handle.scanColorbar, 'pos', [0 0 0.01 0.01]);
                 
                 
                 %tempcapture = get(stateS.handle.capture, 'pos');
@@ -3318,14 +3337,14 @@ switch command
                     end
                 end
                 
-                ud.handles.annotText = uicontrol(hFig, 'style', 'text', 'enable', 'inactive' , 'units', units, 'position', absPos([.05 .9 .9 .05], posFrame), 'string', 'Annotations', 'tag', 'controlFrameItem', 'horizontalAlignment', 'center','fontWeight','bold');
-                ud.handles.sliceText = uicontrol(hFig, 'style', 'text', 'enable', 'inactive' , 'units', units, 'position', absPos([.3 .82 .4 .05], posFrame), 'string', ['Image 1/',num2str(length(matchingSliceIndV))], 'tag', 'controlFrameItem', 'horizontalAlignment', 'center');
-                ud.handles.prevSlcPush = uicontrol(hFig, 'style', 'push', 'units', units, 'position', absPos([.05 .82 .2 .05], posFrame), 'string', '<<', 'tag', 'controlFrameItem', 'visible', 'on', 'callBack','controlFrame(''ANNOTATION'',''prevSlc'')', 'horizontalAlignment', 'center');
-                ud.handles.nextSlcPush = uicontrol(hFig, 'style', 'push', 'units', units, 'position', absPos([.8 .82 .15 .05], posFrame), 'string', '>>', 'tag', 'controlFrameItem', 'visible', 'on', 'callBack','controlFrame(''ANNOTATION'',''nextSlc'')', 'horizontalAlignment', 'center');
-                ud.handles.AnnotSelectTxt = uicontrol(hFig, 'style', 'text', 'enable', 'inactive', 'units', units, 'position', absPos([.05 .72 .35 .05], posFrame), 'string', 'Item #', 'tag', 'controlFrameItem', 'visible', 'on', 'horizontalAlignment', 'center');
-                ud.handles.AnnotSelect = uicontrol(hFig, 'style', 'popup', 'units', units, 'position', absPos([.4 .72 .55 .05], posFrame), 'string', '','value',1, 'tag', 'controlFrameItem', 'visible', 'on', 'callBack','controlFrame(''ANNOTATION'',''show'')', 'horizontalAlignment', 'center');
-                ud.handles.AnnotStat1 = uicontrol(hFig, 'style', 'text', 'enable', 'inactive', 'units', units, 'position', absPos([.1 .65 .65 .05], posFrame), 'string', '', 'tag', 'controlFrameItem', 'visible', 'on', 'horizontalAlignment', 'left');
-                ud.handles.quitPush = uicontrol(hFig, 'style', 'push', 'units', units, 'position', absPos([.4 .1 .2 .05], posFrame), 'string', 'Quit', 'tag', 'controlFrameItem', 'visible', 'on', 'callBack','controlFrame(''ANNOTATION'',''quit'')', 'horizontalAlignment', 'center');
+                ud.handles.annotText = uicontrol(hFig, 'style', 'text', 'enable', 'inactive' , 'units', units, 'position', absPos([.05 .9 .9 .05], posFrame), 'string', 'Annotations', 'tag', 'controlFrameItem', 'horizontalAlignment', 'center','fontWeight','bold','fontsize',14);
+                ud.handles.sliceText = uicontrol(hFig, 'style', 'text', 'enable', 'inactive' , 'units', units, 'position', absPos([.3 .70 .4 .15], posFrame), 'string', ['Image 1/',num2str(length(matchingSliceIndV))], 'tag', 'controlFrameItem', 'horizontalAlignment', 'center','fontsize',14);
+                ud.handles.prevSlcPush = uicontrol(hFig, 'style', 'push', 'units', units, 'position', absPos([.05 .75 .2 .05], posFrame), 'string', '<<', 'tag', 'controlFrameItem', 'visible', 'on', 'callBack','controlFrame(''ANNOTATION'',''prevSlc'')', 'horizontalAlignment', 'center','fontsize',14);
+                ud.handles.nextSlcPush = uicontrol(hFig, 'style', 'push', 'units', units, 'position', absPos([.8 .75 .15 .05], posFrame), 'string', '>>', 'tag', 'controlFrameItem', 'visible', 'on', 'callBack','controlFrame(''ANNOTATION'',''nextSlc'')', 'horizontalAlignment', 'center','fontsize',14);
+                ud.handles.AnnotSelectTxt = uicontrol(hFig, 'style', 'text', 'enable', 'inactive', 'units', units, 'position', absPos([.05 .65 .35 .05], posFrame), 'string', 'Item #', 'tag', 'controlFrameItem', 'visible', 'on', 'horizontalAlignment', 'center','fontsize',14);
+                ud.handles.AnnotSelect = uicontrol(hFig, 'style', 'popup', 'units', units, 'position', absPos([.4 .65 .55 .05], posFrame), 'string', '','value',1, 'tag', 'controlFrameItem', 'visible', 'on', 'callBack','controlFrame(''ANNOTATION'',''show'')', 'horizontalAlignment', 'center','fontsize',14);
+                ud.handles.AnnotStat1 = uicontrol(hFig, 'style', 'text', 'enable', 'inactive', 'units', units, 'position', absPos([.06 .50 .9 .08], posFrame), 'string', '', 'tag', 'controlFrameItem', 'visible', 'on', 'horizontalAlignment', 'left','fontsize',14);
+                ud.handles.quitPush = uicontrol(hFig, 'style', 'push', 'units', units, 'position', absPos([.35 .1 .3 .05], posFrame), 'string', 'Quit', 'tag', 'controlFrameItem', 'visible', 'on', 'callBack','controlFrame(''ANNOTATION'',''quit'')', 'horizontalAlignment', 'center','fontsize',14);
                 
                 ud.annotation.currentMatchingSlc = 1;
                 ud.annotation.slicesNumsC = sliceNumsC;
