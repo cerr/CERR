@@ -36,10 +36,13 @@ maskBoundingBox3M = testM .^0;
 % CERR texture
 flagsV = ones(1,9); % all 9 features
 patchSizeV = [1,1,1] * patchSiz;
-
+offsetsM = getOffsets(1);
+minIntensity = min(testM(:));
+maxIntensity = max(testM(:));
+separateDirnFlag = 0;
 [energy3M,entropy3M,sumAvg3M,corr3M,invDiffMom3M,contrast3M, ...
     clustShade3M,clustPromin3M, haralCorr3M] = textureByPatch(testM,...
-    nL,patchSizeV,offsetsM,flagsV);
+    nL,patchSizeV,offsetsM,flagsV,NaN,minIntensity,maxIntensity,separateDirnFlag);
 
 
 %% ITK texture
@@ -67,7 +70,7 @@ writemetaimagefile(scanFileName, (test1M), resolution, offset)
 % run ITK's textutre calculation
 cd(patchGlcmDir)
 tic
-system([fullfile(patchGlcmDir,'GlobalGlcmFeatures'), ' ', scanFileName, ' ', num2str(nL),' 1 ',...
+system([fullfile(patchGlcmDir,'PatchwiseGlcmFeatures'), ' ', scanFileName, ' ', num2str(nL),' 1 ',...
     num2str(nL),' ', num2str(patchSiz)])
 toc
 
