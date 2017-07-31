@@ -1,0 +1,83 @@
+{
+	"name": "Pneumonitis (Appelt)",
+	"type": "NTCP",
+        "structure": "Lung_GTV",
+	"stdNumFractions": 35,
+	"fractionCorrect": "Yes",
+	"abCorrect": "No",
+	"abRatio": 3,
+	"parameters": {
+			"modelSubtype": {
+					 "val": "D50_GAMMA50",
+					 "type": ["string"]
+					},
+			"appeltMod": {
+				       "val": "Yes",
+				       "type": ["string"]
+				     },
+			"formerSmoker": {
+
+					  "val": 0,
+					  "OR": 0.69
+,
+					  "type": ["bin","cont"],
+					  "cteg": [0, 1],
+					  "desc": ["No","Yes"]
+					},
+	
+			"currentSmoker": {
+ 					  "val": 0,	                  
+					  "OR": 0.62
+,		
+  					  "type": ["bin","cont"],
+					  "cteg": [0, 1],
+					  "desc": ["No","Yes"]			  	
+					 },
+				
+			"over63yrs": {
+					
+					"val": 0,			
+					"OR": 1.66
+,	
+  					"type": ["bin","cont"],
+					"cteg": [0, 1],
+					"desc": ["No","Yes"]				     	 
+				     },
+                       	
+			"pulmonaryComorbidity": {
+						   
+						  "val": 0,
+						  "OR": 2.27
+,
+  						  "type": ["bin","cont"],
+					          "cteg": [0, 1],
+					  	  "desc": ["No","Yes"]	
+						},
+
+			"sequentialChemo": {
+
+					    "val": 0,
+					    "OR": 1.60
+,
+					    "type": ["bin","cont"],
+					    "cteg": [0, 1],
+					    "desc": ["No","Yes"]	
+					   },
+ 
+			"lowerMidLobe": {
+
+					  "val": 0,
+
+					  "OR": 1.87,
+					  "type": ["bin","cont"],
+					  "cteg": [0, 1],
+					  "desc": ["No","Yes"]	
+					}
+			}
+,
+	"function": "logitFn",
+	"created_by": "Aditi",
+	"created_at": "4PM 2\/15\/17",
+	"modified_by": "",
+	"modified_at": ""
+}
