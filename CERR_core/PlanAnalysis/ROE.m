@@ -223,14 +223,11 @@ switch upper(command)
             end
             protocolS(p).numFractions = protocolInfoS.numFractions;
             root.add(uProt); %Add protocol to tree
-            % % Get clinical criteria files
-            %         critPath = fullfile(fPath,protocol,'Clinical criteria','*.json');
-            %         fileS = dir(critPath);
-            %         if ~isempty(fileS)
-            %         critFile = fileS.name;
-            %         critS = loadjson(fullfile(fPath,protocol,'Clinical criteria',critFile),'ShowProgress',0);
-            %         ud.criteria = critS;
-            %         end
+            %-- Get clinical criteria files (for AAPM) ----
+%             critFile = fullfile(criteriaPath,protocolInfoS.criteria);
+%             critS = loadjson(critFile,'ShowProgress',0);
+%             ud.criteria = critS;
+            %--------end----------------------
         end
         
         %Create tree to list models by protocol
@@ -335,7 +332,8 @@ switch upper(command)
                 alpha = 0.5;
                 %gray = repmat([.5 .5 .5],size(colorOrderM,1),1);
                 plotColorM = [colorOrderM,repmat(alpha,size(colorOrderM,1),1)];
-                lineStyle = '--';
+                lineStyleC = {'--',':','-.'};
+                lineStyle = lineStyleC{p};
             end
             %% Plot
             numModels = numModelsV(p);
@@ -351,9 +349,19 @@ switch upper(command)
                 abRatio = modelC{j}.abRatio;
                 paramS.planNum = plnNumV;
                 paramS.abRatio = abRatio;
-                %Add no. of fractions 
+                %Add no. of fractions
                 numFractionsPlan = protocolS(p).numFractions;
                 paramS.numFractions = numFractionsPlan;
+                
+                % For models with sub-parameters for generalized/equivalent dose calculations
+                % Add field for number of fractions (read from protocol file)
+                subfieldC = fields(paramS);
+                hasSubParams = cellfun(@(p) isfield(paramS.(p),'params'),subfieldC,'un',0);
+                if any([hasSubParams{:}])
+                numFractions.val = paramS.numFractions;
+                numFractions.type = 'Cont';
+                paramS.(subfieldC{[hasSubParams{:}]}).params = setfield(paramS.(subfieldC{[hasSubParams{:}]}).params,'numFractions',numFractions);
+                end
                 
                 %% Scale dose bins
                 doseBinsC = cell(1,numel(structNumV));
@@ -379,7 +387,7 @@ switch upper(command)
                         inDoseBins = correctedScaledDoseC;
                         inVolsHist = volsC;
                     end
-                    % --------------------------------------------------------------------
+                    
                     
                     %% Compute TCP/NTCP
                     scaledCPv(n) = feval(modelC{j}.function,paramS,inDoseBins,inVolsHist);
@@ -431,12 +439,29 @@ switch upper(command)
                     hCurr = hTCPAxis;
                 end
                 
-                %             %%%%%%%%%%%%%%%%%%% TEMP ADDED %%%%%%%%%
-                %             if isfield(ud,'criteria')
-                %                 strName = modelC{j}.structure;
-                %                 if isfield(ud.criteria.Structures,strName)
-                %                     if isfield(ud.criteria.Structures.(strName),'criteria')
-                %                         criteriaS = ud.criteria.Structures.(strName);
+                %%%%%%%%%%%%%%%%%%% TEMP ADDED (for AAPM) %%%%%%%%%
+%                 if isfield(ud,'criteria')
+%                     strName = modelC{j}.structure;
+%                     if isfield(ud.criteria.Structures,strName)
+%                         if isfield(ud.criteria.Structures.(strName),'criteria')
+%                             criteriaS = ud.criteria.Structures.(strName).criteria;
+%                             critC = fieldnames(criteriaS);
+%                             limit = criteriaS.(critC{1}).limit;
+%                             fn = criteriaS.(critC{1}).function;
+%                             if strcmpi(critC,'ntcp')
+%                                 cpLt = find(scaledCPv <= limit,1,'last');
+%                                 markerx = scaleV(cpLt);
+%                                 markery = scaledCPv(cpLt);
+%                                 % PLOT
+%                                 ud.criteria.cMarkers =  [ud.criteria.cMarkers plot(hCurr,markerx,markery,'ko',...
+%                                     'MarkerFaceColor','r','markerSize',8)];
+%                             else
+%                                 %%?
+%                             end
+%                         end
+%                     end
+%                 end
+%               ----- OLD ----
                 %                         [limitV, valV, ntcpLim,tcpLim,cStrC] = getLimits(criteriaS,'criteria',structNumV,planNum,1); %scale = 1;
                 %                         scV = limitV./valV;
                 %                         ltCheck = bsxfun(@ge,scaleV.',scV);
@@ -833,6 +858,7 @@ end
                     end
                 end
             end
+            planNameC{s} = ['plan',num2str(s)];
             modelsC{modelNum}.plan.(planNameC{s}) = planList(planIdxV(s));
             end
             
@@ -927,14 +953,13 @@ end
             ud.scaleDisp.String = '';
         end
         if isfield(ud,'outDisp')
-            [ud.outDisp.String] = deal('');
+            set(ud.outDisp,'String','');
         end
         hScaleDisp = text(userScale,-.06,'','Parent',ud.handle.modelsAxis(2),...
             'FontSize',8,'Color',[.3 .3 .3]);
         
         %Set color order
         colorM = get(gca,'ColorOrder');
-        
         
         %Scale plots as selected
         modNum = 0;
@@ -963,6 +988,16 @@ end
                 paramsS.planNum = modelsC{k}.planNum;
                 paramsS.numFractions = ud.Protocols(l).numFractions; 
                 paramsS.abRatio = modelsC{k}.abRatio;
+                
+                % For models with sub-parameters for generalized/equivalent dose calculations
+                % Add field for number of fractions (read from protocol file)
+                subfieldsC = fields(paramsS);
+                subParamsIdx = cellfun(@(p) isfield(paramsS.(p),'params'),subfieldsC,'un',0);
+                if any([subParamsIdx{:}])
+                numFractions.val = paramsS.numFractions;
+                numFractions.type = 'Cont';
+                paramsS.(subfieldsC{[subParamsIdx{:}]}).params = setfield(paramsS.(subfieldsC{[subParamsIdx{:}]}).params,'numFractions',numFractions);
+                end
                 
                 % Get dose bins
                 dose0C = modelsC{k}.dv{1};
@@ -1004,7 +1039,7 @@ end
                 
                 outcomeVal = sprintf('%.3f',cpNew);
                 hOutcomeDisp(modNum) = text(loc+tshift,cpNew,outcomeVal,'Parent',plotAxis,...
-                                  'FontSize',8,'Color',[.3 .3 .3]);
+                                 'FontSize',8,'Color',[.3 .3 .3]);
                 
             end
         end
