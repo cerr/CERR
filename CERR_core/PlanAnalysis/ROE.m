@@ -106,8 +106,9 @@ switch upper(command)
         % Get GUI size, margins
         leftMarginWidth = stateS.leftMarginWidth;
         topMarginHeight = stateS.topMarginHeight;
-        GUIWidth = hFig.Position(3);
-        GUIHeight = hFig.Position(4);
+        pos = get(hFig,'Position');
+        GUIWidth = pos(3);
+        GUIHeight = pos(4);
         shift = 10;
         defaultColor = [0.8 0.9 0.9];
         posTop = GUIHeight-topMarginHeight;
@@ -223,6 +224,10 @@ switch upper(command)
             end
             protocolS(p).numFractions = protocolInfoS.numFractions;
             root.add(uProt); %Add protocol to tree
+            %If any non-standard fields are present in the protocol file,
+            %copy to model parameters
+            
+            
             %-- Get clinical criteria files (for AAPM) ----
 %             critFile = fullfile(criteriaPath,protocolInfoS.criteria);
 %             critS = loadjson(critFile,'ShowProgress',0);
@@ -232,8 +237,9 @@ switch upper(command)
         
         %Create tree to list models by protocol
         shift = 10;
-        GUIWidth = hFig.Position(3);
-        GUIHeight = hFig.Position(4);
+        pos = get(hFig,'Position');
+        GUIWidth = pos(3);
+        GUIHeight = pos(4);
         mtree = uitree('v0', 'Root', root, 'SelectionChangeFcn',@getParams);
         set(mtree,'Position',[2*shift 5*shift .16*GUIWidth .68*GUIHeight],...
             'Visible',false);
@@ -645,6 +651,7 @@ end
     function editParams(hObj,hData)
         
         ud = get(hFig,'userdata');
+        tag = get(hObj,'Tag');
         
         %Get input data
         idx = hData.Indices(1);
@@ -659,7 +666,7 @@ end
         
         
         %Update parameter
-        switch(hObj.Tag)
+        switch(tag)
             case 'strSel'
                 strListC = {'Select structure',planC{indexS.structures}.structureName};
                 matchIdx = find(strcmp(strListC,val));
@@ -714,8 +721,9 @@ end
         rowHt = 20;
         rowSep = 10;
         rowWidth = 110;
-        fwidth = hFig.Position(3);
-        fheight = hFig.Position(3);
+        pos = get(hFig,'Position');
+        fwidth = pos(3);
+        fheight = pos(3);
         left = 10;
         columnWidth ={rowWidth-1,rowWidth-1};
         posV = [.22*fwidth-2*left .38*fheight 2*rowWidth rowHt];
@@ -858,7 +866,7 @@ end
                     end
                 end
             end
-            planNameC{s} = ['plan',num2str(s)];
+            planNameC{s} = ['plan',num2str(s)]; %Fix
             modelsC{modelNum}.plan.(planNameC{s}) = planList(planIdxV(s));
             end
             
@@ -898,8 +906,9 @@ end
             hTab3 = ud.handle.inputH(8);
             set(hTab3,'Data',[fieldsC,cellfun(@num2str,valsC,'un',0)],'Visible','On','Enable','On');
             %Parameters
-            [hPar(:).Visible] = deal('On');
-            
+            for k = 1:numel(hPar)
+            set(hPar(k),'Visible','On');
+            end
             
             ud.handle.inputH(4) = hTab1;
             ud.handle.inputH(5) = hTab2;
@@ -942,7 +951,7 @@ end
         ud = get(hFig,'userdata');
         
         %Get selected scale
-        userScale = hObj.Value;
+        userScale = get(hObj,'Value');
         
         %Clear any previous scaled-dose plots
         hScaledNTCP = findall(ud.handle.modelsAxis(2),'type','line','LineStyle','-.');
@@ -950,7 +959,7 @@ end
         delete(hScaledNTCP);
         delete(hScaledTCP);
         if isfield(ud,'scaleDisp')
-            ud.scaleDisp.String = '';
+            set(ud.scaleDisp,'String','');
         end
         if isfield(ud,'outDisp')
             set(ud.outDisp,'String','');
@@ -1044,7 +1053,7 @@ end
             end
         end
         scaleVal = sprintf('%.3f',userScale);
-        hScaleDisp.String = scaleVal;
+        set(hScaleDisp,'String',scaleVal);
         ud.scaleDisp = hScaleDisp;
         ud.outDisp = hOutcomeDisp;
         set(hFig,'userdata',ud);
@@ -1054,7 +1063,7 @@ end
 % Switch focus between plots for different protocols
     function switchFocus(hObj,~)
         ud = get(hFig,'userData');
-        sel = hObj.Value-1;
+        sel = get(hObj,'Value')-1;
         ud.foreground=sel;
         set(hFig,'userData',ud);
         ROE('PLOT_MODELS');
