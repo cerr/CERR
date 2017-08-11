@@ -97,9 +97,15 @@ end
 try
     for scanNum = 1:length(planC{indexS.scan})
         if strcmpi(planC{indexS.scan}(scanNum).scanInfo(1).imageType, 'MR')
-            
+                        
             % Calculate the slice normal
             ImageOrientationPatientV = planC{indexS.scan}(scanNum).scanInfo(1).DICOMHeaders.ImageOrientationPatient;
+            
+            % Check for obliqueness
+            if max(abs((abs(ImageOrientationPatientV) - [1 0 0 0 1 0]'))) < 1e-4
+                continue;
+            end
+            
             sliceNormV = ImageOrientationPatientV([2 3 1]) .* ImageOrientationPatientV([6 4 5]) ...
                 - ImageOrientationPatientV([3 1 2]) .* ImageOrientationPatientV([5 6 4]);
             
