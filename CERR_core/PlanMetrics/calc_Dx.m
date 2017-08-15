@@ -31,7 +31,10 @@ function ans = calc_Dx(doseBinsV, volsHistV, x, volType)
 % along with CERR.  If not, see <http://www.gnu.org/licenses/>.
 
 
-% % AI ADDED
+if isstruct(x)  %for use with ROE
+    x = x.x.val;
+end
+
 if ~exist('volType','var') 
     %warning('Input volume assumed to be in percentage. Set volType=0 for absolute values.');
 else

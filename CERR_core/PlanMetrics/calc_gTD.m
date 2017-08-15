@@ -19,9 +19,22 @@ beta = paramS.beta.val;
 abRatio = alpha/beta;  
 EQdose = paramS.refEQdose.val;
 numFractions = paramS.numFractions.val; 
-treatmentSchedule = 1 : numFractions+1;
 refVol = paramS.refVol.val;
 q = paramS.q.val;
+sched = paramS.treatmentSchedule.val;
+treatmentSchedule = str2num(sched{1});
+% wkBreak = paramS.weekendBreaks.val;
+% %Construct treatment schedule
+% if strcmpi(wkBreak,'Yes')
+% nWeeks = floor(numFractions/5);
+% nDays = mod(numFractions,5);
+% maxDays = 7 * nWeeks + nDays;
+% treatmentDays = 1 : maxDays;
+% treatmentSchedule = treatmentDays(~(mod(treatmentDays,7)==0 | mod(treatmentDays,7)==6));
+% else
+% treatmentSchedule = 1 : numFractions+1; %tbd
+% end
+
 
 %% Calculate DVH matrix, tumor volume
 DVHdoseInterval = 1;
