@@ -363,10 +363,13 @@ switch upper(command)
                 % Add field for number of fractions (read from protocol file)
                 subfieldC = fields(paramS);
                 hasSubParams = cellfun(@(p) isfield(paramS.(p),'params'),subfieldC,'un',0);
-                if any([hasSubParams{:}])
+                hasSubParams = find([hasSubParams{:}]);
+                if ~isempty(hasSubParams)
                 numFractions.val = paramS.numFractions;
                 numFractions.type = 'Cont';
-                paramS.(subfieldC{[hasSubParams{:}]}).params = setfield(paramS.(subfieldC{[hasSubParams{:}]}).params,'numFractions',numFractions);
+                end
+                for h = 1: numel(hasSubParams)
+                paramS.(subfieldC{hasSubParams(h)}).params = setfield(paramS.(subfieldC{hasSubParams(h)}).params,'numFractions',numFractions);
                 end
                 
                 %% Scale dose bins
@@ -961,9 +964,9 @@ end
         if isfield(ud,'scaleDisp')
             set(ud.scaleDisp,'String','');
         end
-        if isfield(ud,'outDisp')
-            set(ud.outDisp,'String','');
-        end
+%         if isfield(ud,'outDisp')
+%             set(ud.outDisp,'String','');
+%         end
         hScaleDisp = text(userScale,-.06,'','Parent',ud.handle.modelsAxis(2),...
             'FontSize',8,'Color',[.3 .3 .3]);
         
@@ -1002,10 +1005,13 @@ end
                 % Add field for number of fractions (read from protocol file)
                 subfieldsC = fields(paramsS);
                 subParamsIdx = cellfun(@(p) isfield(paramsS.(p),'params'),subfieldsC,'un',0);
-                if any([subParamsIdx{:}])
+                subParamsIdx = find([subParamsIdx{:}]);
+                if ~isempty(subParamsIdx)
                 numFractions.val = paramsS.numFractions;
                 numFractions.type = 'Cont';
-                paramsS.(subfieldsC{[subParamsIdx{:}]}).params = setfield(paramsS.(subfieldsC{[subParamsIdx{:}]}).params,'numFractions',numFractions);
+                end
+                for s = 1:numel(subParamsIdx)
+                paramsS.(subfieldsC{subParamsIdx(s)}).params = setfield(paramsS.(subfieldsC{subParamsIdx(s)}).params,'numFractions',numFractions);
                 end
                 
                 % Get dose bins
@@ -1055,7 +1061,7 @@ end
         scaleVal = sprintf('%.3f',userScale);
         set(hScaleDisp,'String',scaleVal);
         ud.scaleDisp = hScaleDisp;
-        ud.outDisp = hOutcomeDisp;
+        %ud.outDisp = hOutcomeDisp;
         set(hFig,'userdata',ud);
         
     end

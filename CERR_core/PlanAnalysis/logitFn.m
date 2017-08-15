@@ -31,7 +31,7 @@ modelType = paramS.modelSubtype.val;
 switch upper(modelType)
     
     case 'D50_GAMMA50'
-        %Apply Appelt modification to D50, gamma50 for the risky group
+    %Apply Appelt modification to D50, gamma50 for at-risk group
         if isfield(paramS,'appeltMod') && strcmpi(paramS.appeltMod.val,'yes')
             % Get OR
             [or,weight] = getParCoeff(paramS,'OR');
@@ -57,29 +57,34 @@ switch upper(modelType)
 end
 
 %%
-    function [par,coeff] = getParCoeff(paramS,parName)
+    function [coeff,par] = getParCoeff(paramS,parName)
         %Get categories
         fieldC = fields(paramS);
-        ctg = 0;
+        inpar = 0;
         for i = 1:numel(fieldC)
             if isfield(paramS.(fieldC{i}),'cteg')
-            ctg = ctg+1;
-            ctegC{ctg} = fieldC{i};
+            inpar = inpar+1;
+            inParC{inpar} = fieldC{i};
+            else
+                if isfield(paramS.(fieldC{i}),'weight')
+                inpar = inpar+1;
+                inParC{inpar} = fieldC{i};
+                end
             end
         end
-        coeff = zeros(1,numel(ctegC));
-        par = zeros(1,numel(ctegC));
-        for n = 1:numel(ctegC)
-            par(n) = paramS.(ctegC{n}).(parName);
-            if isnumeric(paramS.(ctegC{n}).val)
-               coeff(n) = paramS.(ctegC{n}).val;
+        par = zeros(1,numel(inParC));
+        coeff = zeros(1,numel(inParC));
+        for n = 1:numel(inParC)
+            coeff(n) = paramS.(inParC{n}).(parName);
+            if isnumeric(paramS.(inParC{n}).val)
+               par(n) = paramS.(inParC{n}).val;
             else
-                if ~isfield(paramS.(ctegC{n}),'params')
-                    coeff(n) = eval([paramS.(ctegC{n}).val,...
+                if ~isfield(paramS.(inParC{n}),'params')
+                    par(n) = eval([paramS.(inParC{n}).val,...
                         '(doseBinsV, volHistV)']);
                 else
-                    coeff(n) = eval([paramS.(ctegC{n}).val,...
-                        '(doseBinsV, volHistV,paramS.(ctegC{n}).params)']);
+                    par(n) = eval([paramS.(inParC{n}).val,...
+                        '(doseBinsV, volHistV,paramS.(inParC{n}).params)']);
                 end
             end
         end
