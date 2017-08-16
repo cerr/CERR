@@ -228,9 +228,15 @@ switch fieldname
         %Columns
         nCols  = dcm2ml_Element(dcmobj.get(hex2dec('00280011')));
         
-        if (imgOri(1)-1)^2 < 1e-5
+        % check for oblique scan
+        isOblique = 0;
+        if max(abs(abs(imgOri(:)) - [1 0 0 0 1 0]')) > 1e-3
+            isOblique = 1;
+        end
+        
+        if ~isOblique && (imgOri(1)-1)^2 < 1e-5
             xOffset = imgpos(1) + (pixspac(2) * (nCols - 1) / 2);
-        elseif (imgOri(1)+1)^2 < 1e-5
+        elseif ~isOblique && (imgOri(1)+1)^2 < 1e-5
             xOffset = imgpos(1) - (pixspac(2) * (nCols - 1) / 2);
         else
             % by Deshan Yang, 3/2/2010
@@ -240,17 +246,23 @@ switch fieldname
         %         xOffset = imgpos(1) + (pixspac(1) * (nCols - 1) / 2);
         
         %Convert from DICOM mm to CERR cm.
-        switch upper(pPos)
-            case 'HFS'
-                dataS = xOffset / 10;
-            case {'HFP', 'HFDR'}
-                dataS = -xOffset / 10;
-            case 'FFS'
-                dataS = -xOffset / 10;
-            case 'FFP'
-                dataS = xOffset / 10;
-            otherwise
-                dataS = xOffset / 10;
+        if ~isOblique
+            switch upper(pPos)
+                case 'HFS'
+                    dataS = xOffset / 10;
+                case {'HFP', 'HFDR'}
+                    dataS = -xOffset / 10;
+                case 'FFS'
+                    dataS = -xOffset / 10;
+                case 'FFP'
+                    dataS = xOffset / 10;
+                otherwise
+                    dataS = xOffset / 10;
+            end
+            
+        else
+            dataS = xOffset / 10;
+            
         end
         
         xOffset = dataS; %done for setting global, used in Structure coord
@@ -277,12 +289,18 @@ switch fieldname
             pixspac = dcm2ml_Element(dcmobj.get(hex2dec('00280030')));
         end
         
+        % check for oblique scan
+        isOblique = 0;
+        if max(abs(abs(imgOri(:)) - [1 0 0 0 1 0]')) > 1e-3
+            isOblique = 1;
+        end
+        
         %Rows
         nRows  = dcm2ml_Element(dcmobj.get(hex2dec('00280010')));
         
-        if (imgOri(5)-1)^2 < 1e-5
+        if ~isOblique && (imgOri(5)-1)^2 < 1e-5
             yOffset = imgpos(2) + (pixspac(1) * (nRows - 1) / 2);
-        elseif (imgOri(5)+1)^2 < 1e-5
+        elseif ~isOblique && (imgOri(5)+1)^2 < 1e-5
             yOffset = imgpos(2) - (pixspac(1) * (nRows - 1) / 2);
         else
             % by Deshan Yang, 3/2/2010
@@ -292,17 +310,22 @@ switch fieldname
         %         yOffset = imgpos(2) + (pixspac(2) * (nRows - 1) / 2);
         
         %Convert from DICOM mm to CERR cm, invert to match CERR y dir.
-        switch upper(pPos)
-            case 'HFS'
-                dataS = - yOffset / 10;
-            case {'HFP', 'HFDR'}
-                dataS = yOffset / 10;
-            case 'FFS'
-                dataS = - yOffset / 10;
-            case 'FFP'
-                dataS = yOffset / 10;
-            otherwise
-                dataS = yOffset / 10;
+        if ~isOblique
+            switch upper(pPos)
+                case 'HFS'
+                    dataS = - yOffset / 10;
+                case {'HFP', 'HFDR'}
+                    dataS = yOffset / 10;
+                case 'FFS'
+                    dataS = - yOffset / 10;
+                case 'FFP'
+                    dataS = yOffset / 10;
+                otherwise
+                    dataS = yOffset / 10;
+            end
+        else
+            dataS = xOffset / 10;
+            
         end
         
         yOffset = dataS; %done for setting global, used in Structure coord
