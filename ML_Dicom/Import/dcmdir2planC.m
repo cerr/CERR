@@ -125,7 +125,7 @@ try
             
             slice_distance = zV(2) - zV(1);
             for i=1:length(planC{indexS.scan}(scanNum).scanInfo)
-                planC{indexS.scan}(scanNum).scanInfo(i).zValue = zV(i);
+                planC{indexS.scan}(scanNum).scanInfo(i).zValue = zV(i) / 10;
             end
             info1 = planC{indexS.scan}(scanNum).scanInfo(1);
             info2 = planC{indexS.scan}(scanNum).scanInfo(2);
