@@ -69,7 +69,7 @@ q = uint16(q); % q is the quantized image
 numOffsets = size(offsetsM,1);
 
 % Max run length in units of voxels (consider parameterizing)
-maxRunLen = 500;
+maxRunLen = 1000;
 
 % Initialize the run-length matrix
 rlmM = zeros(nL,maxRunLen);
