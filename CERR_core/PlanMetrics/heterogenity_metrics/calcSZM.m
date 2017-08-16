@@ -44,10 +44,7 @@ end
 szmM = sparse(nL,numel(quantizedM));
 for level = 1:nL
     connM = bwlabeln(quantizedM==level, numNeighbors);
-    for siz = 1:max(connM(:))
-        regionM = connM == siz;
-        regionSiz = sum(regionM(:));
-        szmM(level,regionSiz) = szmM(level,regionSiz) + 1;
-    end
+    regiosSizV = accumarray(connM(connM > 0),1);
+    szmM(level,:) = accumarray(regiosSizV,1,[size(szmM,2) 1])';
 end
 
