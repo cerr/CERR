@@ -11,9 +11,9 @@ function [energy3M,entropy3M,sumAvg3M,corr3M,invDiffMom3M,contrast3M,...
 
 % Generate flags
 if ~exist('flagv','var')
-    flagv = ones(1,8);
+    flagv = ones(1,9);
 elseif exist('flagv','var') && isempty(flagv)
-    flagv = ones(1,8);
+    flagv = ones(1,9);
 end
 
 % Flag to draw waitbar
@@ -209,6 +209,9 @@ if flagv(7)
 end
 if flagv(8)
     clustPromin3M = zeros([numRows, numCols, numSlices, dim],'single');
+end
+if flagv(9)
+    haralCorr3M = zeros([numRows, numCols, numSlices, dim],'single');
 end
 
 tic
