@@ -186,34 +186,46 @@ switch fieldname
                         dataS = zeros(nRows, nCols, nImages,class(slice2D));
                     end
                     
+                    % Check for oblique scan
+                    isOblique = 0;
+                    if max(abs(abs(imgOri(:)) - [1 0 0 0 1 0]')) > 1e-3
+                        isOblique = 1;
+                    end
+                    
                     %Store zValue for sorting, converting DICOM mm to CERR cm and
                     %inverting to match CERR's z direction.
-                    zValues(imageNum) = - imgpos(3) / 10;
+                    if ~isOblique
+                        zValues(imageNum) = - imgpos(3) / 10;
+                    else
+                        zValues(imageNum) = imgpos(3) / 10;
+                    end
                     
                     %Store the slice in the 3D matrix.
                     dataS(:,:,imageNum) = slice2D';
                     
-                    if isempty(pPos)
-                        pPos = 'HFS';
-                    end
+                    %if isempty(pPos)
+                    %    pPos = 'HFS';
+                    %end
                     
-                    if (imgOri(1)==-1)
+                    if ~isOblique && (imgOri(1)==-1)
                         dataS(:,:,imageNum) = flipdim(dataS(:,:,imageNum), 2);
                     end
-                    if (imgOri(5)==-1)
+                    if ~isOblique && (imgOri(5)==-1)
                         dataS(:,:,imageNum) = flipdim(dataS(:,:,imageNum), 1);
                     end
                     
-                    switch upper(pPos)
-                        case 'HFP'
-                            dataS(:,:,imageNum) = flipdim(dataS(:,:,imageNum), 1); %Similar flip as doseArray
-                            dataS(:,:,imageNum) = flipdim(dataS(:,:,imageNum), 2); % 1/3/2017
-                            
-                        case 'FFS'
-                            dataS(:,:,imageNum) = flipdim(dataS(:,:,imageNum), 2);  % 1/3/2017
-                            
-                        case 'FFP'
-                            dataS(:,:,imageNum) = flipdim(dataS(:,:,imageNum), 1); %Similar flip as doseArray                                            
+                    if ~isOblique
+                        switch upper(pPos)
+                            case 'HFP'
+                                dataS(:,:,imageNum) = flipdim(dataS(:,:,imageNum), 1); %Similar flip as doseArray
+                                dataS(:,:,imageNum) = flipdim(dataS(:,:,imageNum), 2); % 1/3/2017
+                                
+                            case 'FFS'
+                                dataS(:,:,imageNum) = flipdim(dataS(:,:,imageNum), 2);  % 1/3/2017
+                                
+                            case 'FFP'
+                                dataS(:,:,imageNum) = flipdim(dataS(:,:,imageNum), 1); %Similar flip as doseArray
+                        end
                     end
                     
                     clear imageobj;
@@ -299,25 +311,32 @@ switch fieldname
                     end                    
                     
                     imgpos = dcm2ml_Element(imgobj.get(hex2dec('00200032')));
+                    imgOri = dcm2ml_Element(imgobj.get(hex2dec('00200037')));
                     if isempty(imgpos) && strcmpi(modality,'NM')
                         % Multiframe NM image.
                         detectorInfoSequence = dcm2ml_Element(imgobj.get(hex2dec('00540022')));
                         imgpos = detectorInfoSequence.Item_1.ImagePositionPatient;
                         imgOri = detectorInfoSequence.Item_1.ImageOrientationPatient;                        
                     end
-                                        
-                    if (imgOri(1)==-1)
+                          
+                    % Check for oblique scan
+                    isOblique = 0;
+                    if max(abs(abs(imgOri(:)) - [1 0 0 0 1 0]')) > 1e-3
+                        isOblique = 1;
+                    end
+                    
+                    if ~isOblique && (imgOri(1)==-1)
                         dataS = flipdim(dataS, 2);
                     end
-                    if (imgOri(5)==-1)
+                    if ~isOblique && (imgOri(5)==-1)
                         dataS = flipdim(dataS, 1);
                     end
                     
-                    if isequal(pPos,'HFP') || isequal(pPos,'FFP')
+                    if ~isOblique && (isequal(pPos,'HFP') || isequal(pPos,'FFP'))
                         dataS = flipdim(dataS, 1); %Similar flip as doseArray
                     end
                     
-                    if isequal(pPos,'FFP') || isequal(pPos,'FFS')
+                    if ~isOblique && (isequal(pPos,'FFP') || isequal(pPos,'FFS'))
                         dataS = flipdim(dataS, 3); %Similar flip as doseArray
                     end
                     clear imageobj;                    
@@ -365,13 +384,27 @@ switch fieldname
                     %Image Position (Patient)
                     imgpos = dcm2ml_Element(imgobj.get(hex2dec('00200032')));
                     
+                    % Image Orientation
+                    imgOri = dcm2ml_Element(imgobj.get(hex2dec('00200037')));
+                    
                     if strcmpi(type,'MG')
                         imgpos = [0 0 0];
+                        imgOri = zeros(6,1);
+                    end
+                    
+                    % Check for oblique scan
+                    isOblique = 0;
+                    if max(abs(abs(imgOri(:)) - [1 0 0 0 1 0]')) > 1e-3
+                        isOblique = 1;
                     end
                     
                     %Store zValue for sorting, converting DICOM mm to CERR cm and
                     %inverting to match CERR's z direction.
-                    zValues(imageNum) = - imgpos(3) / 10;
+                    if ~isOblique
+                        zValues(imageNum) = - imgpos(3) / 10;
+                    else
+                        zValues(imageNum) = imgpos(3) / 10;
+                    end
                     
                     for i = 1:length(names)
                         dataS(imageNum).(names{i}) = populate_planC_scan_scanInfo_field(names{i}, IMAGE, imgobj);
@@ -389,13 +422,29 @@ switch fieldname
             case 'Yes' % Assume Nuclear Medicine Image
                 sliceSpacing = dcm2ml_Element(imgobj.get(hex2dec('00180088')));
                 %zValues = 0:sliceThickness:sliceThickness*double(numMultiFrameImages-1);
-                detectorInfoSequence = dcm2ml_Element(imgobj.get(hex2dec('00540022')));                                
-                imgpos = detectorInfoSequence.Item_1.ImagePositionPatient;
+                modality = dcm2ml_Element(imgobj.get(hex2dec('00080060')));
+                %detectorInfoSequence = dcm2ml_Element(imgobj.get(hex2dec('00540022')));                                
+                %imgpos = detectorInfoSequence.Item_1.ImagePositionPatient;
+                imgpos = dcm2ml_Element(imgobj.get(hex2dec('00200032')));
+                imgOri = dcm2ml_Element(imgobj.get(hex2dec('00200037')));
+                if isempty(imgpos) && strcmpi(modality,'NM')
+                    % Multiframe NM image.
+                    detectorInfoSequence = dcm2ml_Element(imgobj.get(hex2dec('00540022')));
+                    imgpos = detectorInfoSequence.Item_1.ImagePositionPatient;
+                    imgOri = detectorInfoSequence.Item_1.ImageOrientationPatient;
+                end
+                
+                % Check for oblique scan
+                isOblique = 0;
+                if max(abs(abs(imgOri(:)) - [1 0 0 0 1 0]')) > 1e-3
+                    isOblique = 1;
+                end
+                
                 zValuesV = imgpos(3):sliceSpacing:imgpos(3)+sliceSpacing*double(numMultiFrameImages-1);
                 if sliceSpacing < 0 % http://dicom.nema.org/medical/dicom/current/output/chtml/part03/sect_C.8.4.15.html
                     zValuesV = fliplr(zValuesV);
                 end
-                if isequal(pPos,'FFP') || isequal(pPos,'FFS')
+                if ~isOblique && (isequal(pPos,'FFP') || isequal(pPos,'FFS'))
                     zValuesV = fliplr(zValuesV);
                 end
                 for i = 1:length(names)
@@ -403,7 +452,9 @@ switch fieldname
                 end
                 for imageNum = 1:numMultiFrameImages
                     dataS(imageNum) = dataS(1);
-                    dataS(imageNum).zValue = -zValuesV(imageNum)/10;
+                    if ~isOblique
+                        dataS(imageNum).zValue = -zValuesV(imageNum)/10;
+                    end
                 end
                 
         end
