@@ -4,8 +4,6 @@
 % folder to import
 source = 'path/to/source';
 destn = 'path/to/destn'; 
-source = 'H:\Public\Aditya\mimExtensions\DICOM_export_from_MIM';
-destn = 'H:\Public\Aditya\mimExtensions\CERR_files';
 zipFlag = 'No';
 
 % Define file and directory filter patterns
@@ -64,7 +62,7 @@ dirsToImportC = dirsToImportC(indV1);
 tic
 hWaitbar = NaN;
 % Import all the dirs
-for dirNum = 1:length(dirsToImportC)
+parfor dirNum = 1:length(dirsToImportC)
     try
         init_ML_DICOM
         %hWaitbar = waitbar(0,'Scanning Directory Please wait...');
@@ -81,7 +79,7 @@ for dirNum = 1:length(dirsToImportC)
         combinedDcmdirS = struct('STUDY',dcmdirS.(patNameC{1}).STUDY,'info',dcmdirS.(patNameC{1}).info);
         if strcmpi(selected,'all')
             combinedDcmdirS = struct('STUDY',dcmdirS.(patNameC{1}).STUDY,'info',dcmdirS.(patNameC{1}).info);
-            for i = 1:length(patNameC)
+            for i = 2:length(patNameC)
                 for j = 1:length(dcmdirS.(patNameC{i}).STUDY.SERIES)
                     combinedDcmdirS.STUDY.SERIES(end+1) = dcmdirS.(patNameC{i}).STUDY.SERIES(j);
                 end
@@ -103,7 +101,8 @@ for dirNum = 1:length(dirsToImportC)
         %modality = planC{indexS.scan}(1).scanInfo(1).DICOMHeaders.Modality;
         
         %outFileName = [mrn,'~',studyDscr,'~',seriesDscr,'~',modality];
-        outFileName = mrn;
+        %outFileName = mrn;   % store file names as MRNs
+        [~,outFileName] = fileparts(sourceDir);  % store file names as DICOM directory names
         %fullOutFileName = fullfile(destn,fileName);
         
         %Check for duplicate name of fullOutFileName
