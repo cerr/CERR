@@ -123,7 +123,8 @@ end
 if str2num(strtok(CERRImportVersion, ',')) < 5.2
     for scanNum = 1:length(planC{indexS.scan})
         if isfield(planC{indexS.scan}(scanNum).scanInfo(1),'DICOMHeaders') ...
-                && ~isempty(planC{indexS.scan}(scanNum).scanInfo(1).DICOMHeaders)
+                && ~isempty(planC{indexS.scan}(scanNum).scanInfo(1).DICOMHeaders) ...
+                && isfield(planC{indexS.scan}(scanNum).scanInfo(1).DICOMHeaders,'PatientPosition')
             pPos = planC{indexS.scan}(scanNum).scanInfo(1).DICOMHeaders.PatientPosition;
         else
             pPos = '';
