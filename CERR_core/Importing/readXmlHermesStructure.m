@@ -4,12 +4,15 @@
 
 fName = 'L:\Data\TCIA_Breast\Ivan\TCGA-AO-A03V\TCGAAOA03VTCGAAO_196070.xml';
 
+global planC
+indexS = planC{end};
+
 % Read matrix coordinates
 DOMnode = xmlread(fName);
 xCoords = DOMnode.getElementsByTagName('x');
 yCoords = DOMnode.getElementsByTagName('y');
 zCoords = DOMnode.getElementsByTagName('z');
-numPoints = coords.getLength();
+numPoints = xCoords.getLength();
 xV = zeros(numPoints,1);
 yV = zeros(numPoints,1);
 zV = zeros(numPoints,1);
