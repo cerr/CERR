@@ -45,7 +45,7 @@ for i=gspsNumV
         continue
     end
     createStructureFlag = 1;
-    emptySicesV(sliceNum) = [];
+    emptySicesV(sliceNum) = NaN;
     numGraphic = length(planC{indexS.GSPS}(i).graphicAnnotationS);
     for iGraphic = 1:numGraphic
         graphicAnnotationType = planC{indexS.GSPS}(i).graphicAnnotationS(iGraphic).graphicAnnotationType;
@@ -60,6 +60,7 @@ for i=gspsNumV
 
 end
 
+emptySicesV = find(~isnan(emptySicesV));
 for empt = emptySicesV
     newStructS.contour(empt).segments.points = [];
 end
