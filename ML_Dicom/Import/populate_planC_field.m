@@ -499,6 +499,10 @@ switch cellName
                     
                     %Graphic Annotation Sequence.             
                     el = gspsobj.get(hex2dec('00700001'));
+                    
+                    if isempty(el)
+                        continue;
+                    end
 
                     % ROI = strobj.getInt(org.dcm4che2.data.Tag.ROIContourSequence);
                     
