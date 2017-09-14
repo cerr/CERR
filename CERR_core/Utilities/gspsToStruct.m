@@ -1,4 +1,4 @@
-function planC = gspsToStruct(scanNum, gspsNumV)
+function planC = gspsToStruct(scanNum, gspsNumV, planC)
 % function planC = gspsToStruct(scanNum, gspsNumV)
 %
 % this function creates a Structure out of GSPS objects associated with
@@ -7,7 +7,10 @@ function planC = gspsToStruct(scanNum, gspsNumV)
 %
 % APA, 12/01/2015
 
-global stateS planC
+global stateS
+if ~exist('planC','var')
+    global planC
+end
 indexS = planC{end};
 
 if ~exist('gspsNumV','var')
