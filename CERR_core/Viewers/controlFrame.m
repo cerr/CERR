@@ -3428,8 +3428,8 @@ switch command
                     %xV = 2*xOffset - xV;
                     switch upper(pPos)
                         case 'FFS'
-                            
-                            xV = 2*xOffset - xV;
+                            % no flip needed
+                            % xV = 2*xOffset - xV;
                             
                         case 'FFP'
 
@@ -3467,8 +3467,8 @@ switch command
                     [xV, yV] = mtoaapm(colV, rowV, Dims, gridUnits, offset);
                     switch upper(pPos)
                         case 'FFS'
-                            
-                            xV = 2*xOffset - xV;
+                            % no flip needed
+                            % xV = 2*xOffset - xV;
                             
                         case 'FFP'
 
