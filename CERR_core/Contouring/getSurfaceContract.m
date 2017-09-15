@@ -36,7 +36,7 @@ indexS = planC{end};
 
 %obtain associated scanNum for structures. It is assumed that all the
 %structures are associated to same scan (which is checked in IMRTP.m)
-scanNumV = getStructureAssociatedScan(structNumV);
+scanNumV = getStructureAssociatedScan(structNumV,planC);
 scanNum = scanNumV(1);
 
 if any(marginV ~= marginV(1))
