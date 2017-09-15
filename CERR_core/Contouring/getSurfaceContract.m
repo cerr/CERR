@@ -54,9 +54,8 @@ sliceThickness = CTUniformInfoS.sliceThickness;
 delta_xy = CTUniformInfoS.grid1Units;
 
 %-----------build composite target volume---------------------%
-clear planC;
 
-maskSingle = getUniformStr(structNumV(1));
+maskSingle = getUniformStr(structNumV(1),planC);
 
 mask3D = double(maskSingle);
 
@@ -65,6 +64,8 @@ SZ=size(mask3D);
 SZ=size(maskSingle);
 
 maskDown3D = logical(getDownsample3(mask3D, xyDownsampleIndex, 1));
+
+clear planC;
 
 clear mask3D;
 
