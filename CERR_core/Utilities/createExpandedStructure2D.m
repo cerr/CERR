@@ -2,6 +2,7 @@ function planC = createExpandedStructure2D(structNum, margin, planC)
 % function createExpandedStructure2D(structNum, margin, planC)
 %
 % APA, 09/09/2014
+% AI, 09/19/17 Updated to allow margin<0
 
 if ~exist('planC','var')
     global planC
@@ -20,10 +21,13 @@ newStructNum = length(planC{indexS.structures}) + 1;
 rasterSegs = getRasterSegments(structNum, planC);
 
 % Get Rastersegments +/- margin, thus creating an halo
+if margin>0
 halo = structMargin(rasterSegs, margin, scanNum, planC);
-
-% Expand rastersegments by the margin
-rasterSegsExpanded = structUnion(halo, rasterSegs, scanNum, planC);
+rasterSegsExpanded = structUnion(halo, rasterSegs, scanNum, planC); % Expand rastersegments by margin
+else
+halo = structMargin(rasterSegs, -margin, scanNum, planC);
+rasterSegsExpanded = structDiff(rasterSegs, halo, scanNum, planC); % Shrink rastersegments by margin
+end
 
 % Get Contours from rasterSegs
 contourS = rasterToPoly(rasterSegsExpanded, scanNum, planC);
