@@ -9,39 +9,29 @@ function gTD = calc_gTD(doseBinsV,volV,paramS)
 % paramS.refVol.val;
 % paramS.numFractions
 % ----------------------------------------------------------------------------
-% AI 6/6/17
 % Based on Matlab code originally developed by Andrew Fontanella.
+% AI 6/6/17 
+% AI 9/18/17 Updated to account for 1st frx
+% AI 9/21/17 Updated gTD expression to account for weekend breaks
 % ============================================================================
 
 %% Get model parameters
 alpha = paramS.alpha.val;
-beta = paramS.beta.val;
-abRatio = alpha/beta;  
+abRatio = paramS.abRatio.val;  
 EQdose = paramS.refEQdose.val;
 numFractions = paramS.numFractions.val; 
 refVol = paramS.refVol.val;
 q = paramS.q.val;
 sched = paramS.treatmentSchedule.val;
-treatmentSchedule = str2num(sched{1});
-% wkBreak = paramS.weekendBreaks.val;
-% %Construct treatment schedule
-% if strcmpi(wkBreak,'Yes')
-% nWeeks = floor(numFractions/5);
-% nDays = mod(numFractions,5);
-% maxDays = 7 * nWeeks + nDays;
-% treatmentDays = 1 : maxDays;
-% treatmentSchedule = treatmentDays(~(mod(treatmentDays,7)==0 | mod(treatmentDays,7)==6));
-% else
-% treatmentSchedule = 1 : numFractions+1; %tbd
-% end
+treatmentSchedule = str2num(sched);
 
 
 %% Calculate DVH matrix, tumor volume
 DVHdoseInterval = 1;
 doseValues = 0:DVHdoseInterval:ceil(max(doseBinsV));
-fractionalVolV = volV;
+%fractionalVolV = volV;
 % ------------- FOR TESTING ---------------- %
-%fractionalVolV = 75;
+fractionalVolV = 75;
 % ------------------------------------------ %
 DVHmatrix = zeros(1,length(doseValues));
 for k = 1:length(doseBinsV)
@@ -80,19 +70,17 @@ weightedViableVolume = tumorVol*(nansum(dosePrt)).^(1/q);
 % Find last time point where reference viable vol > tumor viable vol
 testVec = (refViableVolumeV > weightedViableVolume);
 lastTimepointIdx = find(testVec,1,'last');
+
 if lastTimepointIdx == length(testVec)
     error('Minimum reference viable volume exceeds viable tumor subvolume')
 end
 if isempty(lastTimepointIdx)
     trtTime = 0;
 else
-    trtTime = t_vec(lastTimepointIdx);
+    trtTime = lastTimepointIdx;
 end
 
 %% Calc gTD
-% --- Modified expression -------%
-%breaks = floor((trtTime/24)/7)*2;
-%gTD = EQdose*(trtTime/24-breaks);
-gTD = EQdose*trtTime/24;
-% ------------------------------%
+breaks = floor((1 + trtTime/24)/7)*2;
+gTD = EQdose*(1 + trtTime/24-breaks);   %AI 9/21/17
 
