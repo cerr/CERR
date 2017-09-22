@@ -1,6 +1,9 @@
 function [SurvivingFraction,SurvivingFraction_t,t_vec,trt_points] = surviving_fraction_model(DosePerFx,...
     TreatmentSchedule,AlphaVal,AlphaBetaVal,EmptyDVHs,minSF)
-
+%
+% AF
+% AI 9/6/17  , Set GrowthFraction = 0.25 and CellLossFactor = 0.92 (Jeho’s values) 
+% AI 9/18/17 , Updated to include weekend breaks
 
 if ~exist('minSF','var')
     minSF = inf;
@@ -36,15 +39,17 @@ trt_points = zeros(size(t_vec));
 UsedDosePerFx = DosePerFx(~EmptyDVHs);
 SurvivingFraction_t = zeros(length(t_vec),length(DosePerFx));
 
+%  ------- AI 9/6/17 Set GrowthFraction = 0.25 and CellLossFactor = 0.92(Jeho’s values) ------
+% CellLossFactor = 0.92;
+% Td = 50*24;
+% GrowthFraction = CellCycleTime/((1-CellLossFactor)*Td);
+% if GrowthFraction > 0.25
+%     GrowthFraction = 0.25;
+%     CellLossFactor = 1-CellCycleTime/(GrowthFraction*Td);
+% end
+GrowthFraction = 0.25;
 CellLossFactor = 0.92; 
-
-Td = 50*24;
-GrowthFraction = CellCycleTime/((1-CellLossFactor)*Td);
-if GrowthFraction > 0.25
-    GrowthFraction = 0.25;
-    CellLossFactor = 1-CellCycleTime/(GrowthFraction*Td);
-end
-
+% ----------------------  END CHANGE -------------------------------------------
 
 %% Tumor Variables
 TumorVol = 10;
@@ -166,20 +171,20 @@ TotSurv = 1;
 while m <= length(t_vec) || minSF <= min(TotSurv(:))
     
     
-    
     TotSurv = zeros(1,length(DosePerFx));
     if m <= length(t_vec)
         t = t_vec(m);
     else
         t = t + t_interval;
     end
-    
+
 %% Change in f_p_pro (k_p) as blood supply improves
 %     ProliferativeFraction = 1 - ProliferativeFraction.*(P_Viable + P_Doomed)./P_CompSize; 
     ProliferativeFraction = 1 - (1 - ProliferativeFraction_0).*(P_Viable + P_Doomed)./P_CompSize;   
     trt_points(m) = 0;
-    if (m <= length(t_vec) && any(t == TreatmentSchedule)) || (m > length(t_vec) && mod(t,24) == 0)
-        
+    if (m <= length(t_vec) && any(t == TreatmentSchedule)) || (m > length(t_vec) && mod(t,24) == 0 ...
+        && ~mod(t-120,7*24) == 0 && ~mod(t-144,7*24) == 0)                                          %AI 9/21/17
+     
         trt_points(m) = 1;
         
         P_RemFraction = exp(-Alpha_pComp*UsedDosePerFx-Beta_pComp*UsedDosePerFx.^2);
@@ -425,7 +430,7 @@ while m <= length(t_vec) || minSF <= min(TotSurv(:))
 end
 
 if (m-1) > length(t_vec)
-    t_vec = 0:t_interval:t_interval*(m-1);
+    t_vec = 0:t_interval:t_interval*(m-2); %AI 9/18/17
     t_vec = t_vec';
 end
 
