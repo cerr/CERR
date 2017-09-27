@@ -3,9 +3,9 @@ function deviance = calc_deviance(trueStructNum,testStructNum,margin,planC)
 %
 % Calculates the deviance of testStructNum from trueStructNum.
 %
-% Deviance = volume of the true structure missed by the
+% Deviance = (volume of the true structure missed by the
 % test structure + excess volume of the test structure over the true
-% structure.
+% structure) / volume of the true structure.
 %
 % The true structure is 3-d contracted by the margin while computing the 
 % volume of the true structure missed by the test structure. 
