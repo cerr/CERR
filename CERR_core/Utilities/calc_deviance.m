@@ -1,12 +1,22 @@
 function deviance = calc_deviance(trueStructNum,testStructNum,margin,planC)
 % function deviance = calc_deviance(trueStructNum,testStructNum,margin,planC)
 %
-% Calculates the deviance in cc of testStructNum from trueStructNum
+% Calculates the deviance of testStructNum from trueStructNum.
+%
+% Deviance = volume of the true structure missed by the
+% test structure + excess volume of the test structure over the true
+% structure.
+%
+% The true structure is 3-d contracted by the margin while computing the 
+% volume of the true structure missed by the test structure. 
 % 
+% The true structure is 3-d expanded by the margin while computing the 
+% excess volume of the test structure over the true structure. 
+%
 % Example call:
-% trueStructNum = 1;
-% testStructNum = 2;
-% margin = 0.2; % 2mm
+% trueStructNum = 1; % structure index in planC
+% testStructNum = 2; % structure index in planC
+% margin = 0.2; % 2cm
 % deviance = calc_deviance(trueStructNum,testStructNum,margin,planC);
 %
 % APA, 9/18/2017
