@@ -5,6 +5,9 @@ function planC = createDifferenceStructure(structNum1,structNum2,planC)
 %
 % APA, 09/11/2012
 
+if ~exist('planC','var')
+    global planC
+end
 indexS = planC{end};
 
 % Get RasterSegments for structNum1 and structNum2
