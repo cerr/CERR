@@ -204,14 +204,20 @@ switch fieldname
         
         imgOri = dcm2ml_Element(dcmobj.get(hex2dec('00200037')));
         
-        if (imgOri(1)==-1)
+        % Check for oblique scan
+        isOblique = 0;
+        if max(abs(abs(imgOri(:)) - [1 0 0 0 1 0]')) > 1e-3
+            isOblique = 1;
+        end
+        
+        if (imgOri(1)==-1) && ~isOblique
             dataS = iPP(1) - (abs(pixspac(2)) * (nCols - 1));
             dataS = dataS / 10;
         else
             dataS = iPP(1) / 10;
         end
         
-        if isstr(pPos)
+        if isstr(pPos) && ~isOblique
             switch upper(pPos)
                 case 'HFS'
                     dataS = dataS;
@@ -281,10 +287,16 @@ switch fieldname
         
         imgOri = dcm2ml_Element(dcmobj.get(hex2dec('00200037')));
         
-        if (imgOri(2)==-1)
+        % Check for oblique scan
+        isOblique = 0;
+        if max(abs(abs(imgOri(:)) - [1 0 0 0 1 0]')) > 1e-3
+            isOblique = 1;
+        end        
+        
+        if (imgOri(2)==-1) && ~isOblique
             dataS = iPP(2) + (abs(pixspac(1)) * (nRows - 1));
             dataS = dataS / 10;
-        elseif (imgOri(2)==0) && (imgOri(5)==1) && (strcmpi(pPos,'FFP') || strcmpi(pPos,'HFP')) % flip is necessary to display couch at the bottom. How anout HFP?
+        elseif  ~isOblique && (imgOri(2)==0) && (imgOri(5)==1) && (strcmpi(pPos,'FFP') || strcmpi(pPos,'HFP')) % flip is necessary to display couch at the bottom. How anout HFP?
             % should be based on imgOri(5)?
             dataS = iPP(2) + (abs(pixspac(1)) * (nRows - 1));
             dataS = dataS / 10;            
@@ -292,7 +304,7 @@ switch fieldname
             dataS = iPP(2) / 10;            
         end        
         
-        if isstr(pPos)
+        if isstr(pPos) && ~isOblique
             switch upper(pPos)
                 case 'HFS'
                     dataS = -dataS;
