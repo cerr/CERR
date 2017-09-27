@@ -21,7 +21,7 @@ if ~exist('destDir','var')
     destDir = uigetdir('','Select Destination Directory');
 end
 if ~exist('protocolLabel','var')
-    protocolLabel = input('Enter Protocol Number: \n','s');
+    protocolLabel = inputdlg('Enter Protocol ID');
 end
 
 %% ------ Import DICOM with GSPS
@@ -65,6 +65,8 @@ end
 gspsNumsV = find(indMatchV);
 scanNum = 1;
 planC = gspsToStruct(scanNum,gspsNumsV,planC);
+indexS = planC{end};
+planC{indexS.structures}(end).structureName = 'GTV_DIL';
 
 
 %% ------ Export DICOM with RTSTRUCT
