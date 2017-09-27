@@ -93,16 +93,17 @@ for scanNum = 1:length(planC{indexS.scan})
     end
 end
 
-% process scan zValues for MR, by Deshan Yang, 3/2/2010
+% process scan coordinates for oblique MR. (based on code by Deshan Yang,
+% 3/2/2010)
 try
     for scanNum = 1:length(planC{indexS.scan})
         if strcmpi(planC{indexS.scan}(scanNum).scanInfo(1).imageType, 'MR')
-                        
+            
             % Calculate the slice normal
             ImageOrientationPatientV = planC{indexS.scan}(scanNum).scanInfo(1).DICOMHeaders.ImageOrientationPatient;
             
             % Check for obliqueness
-            if max(abs((abs(ImageOrientationPatientV) - [1 0 0 0 1 0]'))) < 1e-4
+            if max(abs((abs(ImageOrientationPatientV) - [1 0 0 0 1 0]'))) < 1e-2
                 continue;
             end
             
@@ -129,7 +130,7 @@ try
             end
             info1 = planC{indexS.scan}(scanNum).scanInfo(1);
             info2 = planC{indexS.scan}(scanNum).scanInfo(2);
-
+            
             %%%%%%%%%%%%%%%%
             info1b = info1.DICOMHeaders;
             info2b = info2.DICOMHeaders;
@@ -151,6 +152,8 @@ try
             ny = length(ys);
             virPosMtx = [dx 0 0 xs(1);0 dy 0 ys(1); 0 0 slice_distance zs(1); 0 0 0 1];
             planC{indexS.scan}(scanNum).Image2VirtualPhysicalTransM = virPosMtx;
+            
+            % Find structures associated with scanNum and update
             
             % Update the structures saaociated with scanNum (to do)
             N = length(planC{indexS.structures});
@@ -232,14 +235,17 @@ try
                     vecsout = inv(positionMatrix) * vecsout;  % to MR image index (not dose voxel index)
                     vecsout = virPosMtx * vecsout; % to the virtual coordinates
                     
-                    dose.zValues = vecsout(3,:)';
+                    %dose.zValues = vecsout(3,:)';
+                    [zdoseV,zDoseOrderV] = sort(dose.zValues);
+                    dose.zValues = zdoseV;
                     
                     planC{indexS.dose}(doseno) = dose;
                 end
             end
             
         end
-    end
+    end % end of scan loop
+    
 catch
 end
 % end of changes by Deshan Yang
