@@ -3336,7 +3336,7 @@ switch command
                         end
                     end
                 end
-                
+                 
                 ud.handles.annotText = uicontrol(hFig, 'style', 'text', 'enable', 'inactive' , 'units', units, 'position', absPos([.05 .9 .9 .05], posFrame), 'string', 'Annotations', 'tag', 'controlFrameItem', 'horizontalAlignment', 'center','fontWeight','bold','fontsize',14);
                 ud.handles.sliceText = uicontrol(hFig, 'style', 'text', 'enable', 'inactive' , 'units', units, 'position', absPos([.3 .70 .4 .15], posFrame), 'string', ['Image 1/',num2str(length(matchingSliceIndV))], 'tag', 'controlFrameItem', 'horizontalAlignment', 'center','fontsize',14);
                 ud.handles.prevSlcPush = uicontrol(hFig, 'style', 'push', 'units', units, 'position', absPos([.05 .75 .2 .05], posFrame), 'string', '<<', 'tag', 'controlFrameItem', 'visible', 'on', 'callBack','controlFrame(''ANNOTATION'',''prevSlc'')', 'horizontalAlignment', 'center','fontsize',14);
@@ -3424,7 +3424,16 @@ switch command
                     graphicAnnotationData = planC{indexS.GSPS}(gspsNum).graphicAnnotationS(iGraphic).graphicAnnotationData;
                     rowV = graphicAnnotationData(1:2:end);
                     colV = graphicAnnotationData(2:2:end);
-                    [xV, yV] = mtoaapm(colV, rowV, Dims, gridUnits, offset);
+                    %[xV, yV] = mtoaapm(colV, rowV, Dims, gridUnits, offset);
+                    yShiftedV = double(-double(colV)+Dims(1));
+                    xShiftedV = double(rowV);
+                    yOffset = Dims(1)/2;
+                    xOffset = Dims(2)/2;                    
+                    xV = xShiftedV-xOffset;
+                    yV = yShiftedV-yOffset;                    
+                    xV = xV*gridUnits(2)+offset(2);
+                    yV = yV*gridUnits(1)+offset(1);
+                    
                     %xV = 2*xOffset - xV;
                     switch upper(pPos)
                         case 'FFS'

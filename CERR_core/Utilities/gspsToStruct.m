@@ -56,7 +56,15 @@ for i=gspsNumV
         graphicAnnotationData = planC{indexS.GSPS}(i).graphicAnnotationS(iGraphic).graphicAnnotationData;
         rowV = graphicAnnotationData(1:2:end);
         colV = graphicAnnotationData(2:2:end);
-        [xV, yV] = mtoaapm(colV, rowV, Dims, gridUnits, offset);
+        % [xV, yV] = mtoaapm(colV, rowV, Dims, gridUnits, offset);
+        yShiftedV = double(-double(colV)+Dims(1));
+        xShiftedV = double(rowV);
+        yOffset = Dims(1)/2+0.5;
+        xOffset = Dims(2)/2-0.5;
+        xV = xShiftedV-xOffset;
+        yV = yShiftedV-yOffset;
+        xV = xV*gridUnits(2)+offset(2);
+        yV = yV*gridUnits(1)+offset(1);
         points = [xV(:) yV(:) zVals(sliceNum)*ones(length(xV),1)];
         newStructS.contour(sliceNum).segments(iGraphic).points = points;        
     end
