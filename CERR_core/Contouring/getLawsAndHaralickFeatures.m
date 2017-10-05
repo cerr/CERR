@@ -27,8 +27,13 @@ optC = {1,ones(1,9),32,[1,2]};
 [haralOnlyFlag,flagV,nLevel,patchRadius] = optC{:};
 
 % get the region of interest
-[volToEval,maskBoundingBox3M,mask3M,minr,maxr,minc,maxc,mins,maxs] = ...
-    getROI(structNum,rowMargin,colMargin,slcMargin,planC);
+if ~iscell(structNum)
+    [volToEval,maskBoundingBox3M] = ...
+        getROI(structNum,rowMargin,colMargin,slcMargin,planC);
+else
+    volToEval = structNum{1};
+    maskBoundingBox3M = structNum{2};
+end
 
 nanIntenityV = volToEval < -400;
 
