@@ -44,6 +44,12 @@ scanNum = scanNum1;
 rasterSegs1 = getRasterSegments(structNum1,planC);
 rasterSegs2 = getRasterSegments(structNum2,planC);
 
+% Return 0 if any of the rastersegments are empty
+if isempty(rasterSegs1) || isempty(rasterSegs2)
+    intersectVol = 0;
+    return
+end
+
 %Generate 3D rasterSegments of intersection volume
 rasterSegs = structIntersect(rasterSegs1, rasterSegs2, scanNum, planC);
 
