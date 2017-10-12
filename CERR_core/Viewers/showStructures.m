@@ -365,12 +365,20 @@ for i=1:length(axisInfo.structureGroup)
                     elseif structNum<=52
                         cellNum = 1;
                         structsOnSlice = structsOnSliceC{cellNum};
-                        includeCurrStruct = bitget(structsOnSlice, structNum);
+                        if isempty(structsOnSlice)
+                            includeCurrStruct = 0;
+                        else
+                            includeCurrStruct = bitget(structsOnSlice, structNum);
+                        end
                     else
                         cellNum = ceil((structNum-52)/8)+1; %uint8
                         structsOnSlice = structsOnSliceC{cellNum};
-                        %includeCurrStruct = bitget(structsOnSlice, structNum-(cellNum-1)*52); %double
-                        includeCurrStruct = bitget(structsOnSlice, structNum-52-(cellNum-2)*8); %uint8
+                        if isempty(structsOnSlice)
+                            includeCurrStruct = 0;
+                        else
+                            %includeCurrStruct = bitget(structsOnSlice, structNum-(cellNum-1)*52); %double
+                            includeCurrStruct = bitget(structsOnSlice, structNum-52-(cellNum-2)*8); %uint8
+                        end
                     end
                     if includeCurrStruct
                         axisInfo.structureGroup(i).structNumsV = [axisInfo.structureGroup(i).structNumsV ...
