@@ -228,6 +228,9 @@ switch upper(instr)
         stateS.rotateView = 0;
         stateS.anotationDisplay = 0;
         
+        %rkp Set state for Segment Labeler
+        stateS.segmentLabelerState = 0;
+        
         %Turn off default menubar, configure manually.
         set(hCSV,'menubar','none');
         stateS.handle.CERRFileMenu          = putFileMenu(hCSV);
@@ -1340,6 +1343,16 @@ switch upper(instr)
                     sliceCallBack('doseProfileStart');
                     return;
                 end
+                
+                %Setup axis for motion for Segment Labeler
+                if stateS.segmentLabelerState                    
+                    set(hFig, 'WindowButtonMotionFcn', 'segmentLabelerControl(''segmentLabeler'', ''motionInFigure'');');                 
+                    set(hFig, 'doublebuffer', 'on');    
+                                      
+                    
+                    return;
+                end
+                
                 % wy
                 %                 if stateS.imageRegistration & isequal(stateS.handle.CERRAxis(stateS.lastAxis),hAxis)
                 %                     CTImageRotation('init', hAxis, stateS.imageRegistrationMovDataset);
@@ -1380,7 +1393,7 @@ switch upper(instr)
                 if ~stateS.gridState && ~stateS.spotlightState ...
                         && ~stateS.doseQueryState && ~stateS.doseProfileState ...
                         && ~stateS.zoomState && ~stateS.imageRegistration ...
-                        && ~stateS.clipState
+                        && ~stateS.clipState && ~stateS.segmentLabelerState
                     %Re-enable right click menus;
                     %for i=1:length(stateS.handle.CERRAxis)
                     %    CERRAxisMenu(stateS.handle.CERRAxis(i));
@@ -1390,6 +1403,8 @@ switch upper(instr)
                     else
                         CERRAxisMenu(hAxis)
                     end
+                elseif stateS.segmentLabelerState
+                    % do nothing
                 else
                     %Disable all right click menus;
                     %set(stateS.handle.CERRAxis, 'uicontextmenu', []);
