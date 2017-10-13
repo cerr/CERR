@@ -481,14 +481,14 @@ indexS.CERROptions          = 24;
 % accordingly
 try
     if stateS.optS.chkMicroRT
-        indexS.microRTP = 24;
-        indexS.indexS   = 25;
+        indexS.microRTP = 25;
+        indexS.indexS   = 26;
         microRTPInitS = initializeMicroRTP(planInitC);
     else
-        indexS.indexS = 24;
+        indexS.indexS = 25;
     end
 catch
-    indexS.indexS = 24;
+    indexS.indexS = 25;
 end
 
 
