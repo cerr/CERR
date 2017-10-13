@@ -267,6 +267,11 @@ if stateS.contourState && (stateS.currentAxis == stateS.contourAxis)
     contourControl('changeSlice');
 end
 
+%Inform Segment Labeler code that slice changed if segmentLabelerState is 1.
+if stateS.segmentLabelerState == 1
+    segmentLabelerControl('segmentLabeler','slcChange')
+end
+
 %Draw structure comparison masks
 if isfield(stateS,'structCompare')
     hFig = findobj('name','Agreement Histogram');
