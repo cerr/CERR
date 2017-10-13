@@ -61,7 +61,11 @@ else
     
     %Call up editStructures
     uimenu(hStructMenu, 'label', 'Contouring', 'callback',['sliceCallBack(''contourMode'')'],'interruptible','on', 'separator', 'on');
-
+    
+%     %rkp
+%     %One element for Segment Labeler
+%     uimenu(hStructMenu, 'label', 'Segment Labeler', 'callback','segmentLabelerControl(''segmentLabeler'', ''init'');','interruptible','on');
+    
     %Call up editStructures
     %     uimenu(hStructMenu, 'label', 'Add/Edit structures', 'callback',['editStructFields'],'interruptible','on');
 
