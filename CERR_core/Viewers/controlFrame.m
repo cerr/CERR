@@ -73,6 +73,9 @@ switch command
         elseif stateS.anotationDisplay %  ~isempty(findobj('string', 'Significant Images', 'tag', 'controlFrameItem'))
             controlFrame('ANNOTATION','quit');
             stateS.anotationDisplay = 0;
+         elseif stateS.segmentLabelerState %  ~isempty(findobj('string', 'SegmentLabeler', 'tag', 'controlFrameItem'))
+            segmentLabelerControl('segmentLabeler','quit');
+            stateS.segmentLabelerState = 0;
         end
         
         try
