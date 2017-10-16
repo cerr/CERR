@@ -101,7 +101,7 @@ switch command
                 ud.handles.title = uicontrol(hFig, 'style', 'text', 'enable', 'inactive' , 'units', units, 'position', absPos([.05 .94 .9 .05], posFrame), 'string', 'Segment Labeler', 'tag', 'segmentLabelerControlItem', 'horizontalAlignment', 'center', 'FontWeight', 'Bold');
                 
                 ud.handles.saveButton = uicontrol(hFig, 'style', 'pushbutton', 'units', units, 'position', absPos([.1 .04 .35 .05], posFrame), 'string', 'Save', 'tag', 'segmentLabelerControlItem', 'callback', 'segmentLabelerControl(''segmentLabeler'', ''save'')');
-                ud.handles.abortButton = uicontrol(hFig, 'style', 'pushbutton', 'units', units, 'position', absPos([.55 .04 .35 .05], posFrame), 'string', 'Cancel', 'tag', 'segmentLabelerControlItem', 'callback', 'segmentLabelerControl(''segmentLabeler'', ''abort'')');
+                ud.handles.abortButton = uicontrol(hFig, 'style', 'pushbutton', 'units', units, 'position', absPos([.55 .04 .35 .05], posFrame), 'string', 'Cancel', 'tag', 'segmentLabelerControlItem', 'callback', 'segmentLabelerControl(''segmentLabeler'', ''cancel'')');
                 
                 %Context Menu
                 ud.handles.vMenu = uicontextmenu('Callback', 'segmentLabelerControl(''segmentLabeler'', ''update_menu'');', 'userdata', hAxis, 'Tag', 'SegmentLabelerMenu', 'parent', hFig, 'Visible', 'off', 'hittest', 'off');
@@ -110,7 +110,7 @@ switch command
                 
                 %Controls to select Label Object to edit.
                 ud.handles.objectText = uicontrol(hFig, 'style', 'text', 'enable', 'inactive' , 'units', units, 'position', absPos([.05 .84 .25 .05], posFrame), 'string', 'Object:', 'tag', 'segmentLabelerControlItem', 'horizontalAlignment', 'left');
-                ud.handles.objectPopup = uicontrol(hFig, 'style', 'popupmenu', 'units', units, 'position', absPos([.35 .84 .6 .05], posFrame), 'string', 'Select', 'tag', 'segmentLabelerControlItem', 'callback', 'segmentLabelerControl(''segmentLabeler'', ''selectLabelObject'')', 'enable', 'on');
+                ud.handles.objectPopup = uicontrol(hFig, 'style', 'popupmenu', 'units', units, 'position', absPos([.35 .84 .6 .05], posFrame), 'string', {'Select'}, 'tag', 'segmentLabelerControlItem', 'callback', 'segmentLabelerControl(''segmentLabeler'', ''selectLabelObject'')', 'enable', 'on');
                 
                 ud.handles.objectCreateButton  = uicontrol(hFig, 'style', 'pushbutton', 'units', units, 'position', absPos([.6 .76 .35 .05], posFrame), 'string', 'Create', 'tag', 'segmentLabelerControlItem', 'callback', 'segmentLabelerControl(''segmentLabeler'', ''newObject'')');
                 
@@ -152,8 +152,7 @@ switch command
                     
                     set(hV,'lineWidth',stateS.optS.structureThickness)
                     setappdata(hAxis, 'segmentSelected', 0)
-                    stateS.handle.isSegmentHighlighted = 0;
-                    
+                                       
                     
                     segToVoxIndexM = getappdata(hAxis, 'segToVoxIndexM');
                     currsegment = getCurrentSegment(segToVoxIndexM);
@@ -166,11 +165,8 @@ switch command
                             return;
                         end
                         set(stateS.handle.aI(1).lineHandlePool.lineV...
-                            (stateS.handle.aI(1).structureGroup.handles(currsegment)),'LineWidth',stateS.optS.structureThickness+0.5);
-                        stateS.handle.isSegmentHighlighted = 1;
-                        setappdata(hAxis, 'segmentSelected', 1);
-                    else
-                        stateS.handle.lesionhighlighted  = false;
+                            (stateS.handle.aI(1).structureGroup.handles(currsegment)),'LineWidth',stateS.optS.structureThickness+2);
+                       
                     end
                     
                 end
@@ -234,15 +230,15 @@ switch command
                 pointsM = planC{indexS.structures}(strNum).contour(slSlice).segments(currSegment).points;
                 LabelC = initLabelC;
                 ColorM = initColorM;
-                planC{indexS.segmentLabel}.valueS(slSlice).segments(currSegment).index =  find(strcmp(LabelC,labelSelected));
+                planC{indexS.segmentLabel}(1).valueS(slSlice).segments(currSegment).index =  find(strcmp(LabelC,labelSelected));
                 labelColor = ColorM{find(strcmp(LabelC,labelSelected))};
                 %                 ud.handles.hV(currsegment) = fill(pointsM(:,1), pointsM(:,2), labelColor);
                 
                 
                 
                 
-                %                 ud.handles.hV = plot([colV, colV(1)],[rowV, rowV(1)],'rs-');
-                set(ud.handles.hV(currSegment),'MarkerFaceColor',labelColor)
+%                  ud.handles.hV = plot([colV, colV(1)],[rowV, rowV(1)],'rs-');
+                 set(ud.handles.hV(currSegment),'Color',labelColor)
                 
                 %                 ud.handles.hV = stateS.handle.aI(1).lineHandlePool.lineV(stateS.handle.aI(1).structureGroup.handles(currsegment)).Color;
                 %                 set(stateS.handle.aI(1).lineHandlePool.lineV(stateS.handle.aI(1).structureGroup.handles(currsegment)),'color',labelColor);
@@ -288,7 +284,7 @@ switch command
                 labelC = initLabelC;
                 planC{indexS.segmentLabel}(end).labelC = labelC;
                 
-                strC = {get(ud.handles.objectPopup, 'string')};
+                strC = get(ud.handles.objectPopup, 'string');
                 strC(end+1) = [newLabelObject.name];
                 set(ud.handles.objectPopup, 'string', strC, 'enable', 'on');
                 set(ud.handles.assocstructEdit, 'string', structNum, 'enable', 'off');
@@ -317,37 +313,7 @@ switch command
                 segmentLabelerControl('segmentLabeler', 'refresh')
                 
             case 'selectLabelObject'
-                %                 %A new object has been selected.
-                %                 %Inditialize index
-                %
-                %                 hAxis = stateS.handle.CERRAxis(1);
-                %
-                %                 newObjNum = varargin{2};
-                %
-                %                 numSlices  = size(getScanArray(planC{indexS.scan}(scanSet)), 3);
-                %
-                %                 numSegs = length(planC{indexS.structures}(newStrNum).contour(numSlices).segments);
-                %
-                %                 %Get the view/coord in case of linked axes.
-                %                 coord = getAxisInfo(hAxis, 'coord');
-                %
-                %                 %Snap the axis coordinate to the zV grid.
-                %                 [xV, yV, zV] = getScanXYZVals(planC{indexS.scan}(scanSet));
-                %                 sliceNum = findnearest(coord, zV);
-                %                 setAxisInfo(hAxis, 'coord', zV(sliceNum));
-                %                 showStructures(hAxis)
-                %
-                %                 contourS = planC{indexS.structures}(newStrNum).contour;
-                %                 for i = 1:numSlices
-                %                     contourS(i).segments = rmfield(contourS(i).segments,'points');
-                %                 end
-                %                 for i = 1:numSlices
-                %                     numSegs = length(planC{indexS.structures}(newStrNum).contour(i).segments);
-                %                     for j = 1:numSegs
-                %                         contourS(i).segments(j) = setfield(contourS(i).segments(j),'index', []);
-                %                     end
-                %                 end
-                
+               
                 ud = get(hFrame, 'userdata');
                 if isempty(ud)
                     return;
@@ -365,13 +331,13 @@ switch command
                 
                 
                 
-            case 'abort'
+            case 'cancel'
                 ud = get(hFrame, 'userdata');
 %                 if (size(ud.handles.hV) ~= 0)
 %                     delete(ud.handles.hV)
 %                 end
                 controlFrame('default');
-                set(hFig, 'WindowButtonMotionFcn', 'segmentLabelerControl(''segmentLabeler'', ''motionInFigure'');');
+%                 set(hFig, 'WindowButtonMotionFcn', 'segmentLabelerControl(''segmentLabeler'', ''motionInFigure'');');
                 
             case 'slcChange'
                 hAxis = stateS.handle.CERRAxis(1);
@@ -398,10 +364,13 @@ switch command
                 if (size(ud.handles.hV) ~= 0)
                     delete(ud.handles.hV)
                 end
-                
-                labelObjS = {planC{indexS.segmentLabel}.name};
-                %*
-                strNum = 1;
+                currentObj = get(ud.handles.objectPopup, 'Value') - 1;
+                if currentObj == 0
+                    return;
+                end
+                labelObjS = planC{indexS.segmentLabel}(currentObj);
+               
+                strNum = getAssociatedStr(labelObjS.assocStructUID);
                 
                 
                 if ~isempty(labelObjS)
