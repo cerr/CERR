@@ -269,7 +269,7 @@ end
 
 %Inform Segment Labeler code that slice changed if segmentLabelerState is 1.
 if stateS.segmentLabelerState == 1
-    segmentLabelerControl('segmentLabeler','slcChange')
+    segmentLabelerControl('segmentLabeler','refresh')
 end
 
 %Draw structure comparison masks
