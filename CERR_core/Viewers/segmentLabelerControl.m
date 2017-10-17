@@ -238,7 +238,7 @@ switch command
                 labelColor = ColorM{find(strcmp(LabelC,labelSelected))};
                 %                 ud.handles.hV(currsegment) = fill(pointsM(:,1), pointsM(:,2), labelColor);                
 %                  ud.handles.hV = plot([colV, colV(1)],[rowV, rowV(1)],'rs-');
-                set(ud.handles.hV(currentSeg),'Color',labelColor)
+                set(ud.handles.hV(currentSeg),'Color',labelColor);
                 ud.handles.hV(currentSeg).MarkerEdgeColor = 'none';
                 ud.handles.hV(currentSeg).Visible = 'on';
                 %                 ud.handles.hV = stateS.handle.aI(1).lineHandlePool.lineV(stateS.handle.aI(1).structureGroup.handles(currsegment)).Color;
@@ -358,7 +358,13 @@ switch command
                 
             case 'save'
                 hAxis = stateS.handle.CERRAxis(1);
-                
+                labelObjS = getappdata(hAxis,'labelObjS');
+                %save this to planC
+                currentObj = get(ud.handles.objectPopup, 'Value') - 1;
+                if currentObj == 0
+                    return;
+                end
+                planC{indexS.segmentLabel}(currentObj) = labelObjS;
                 
                 
             case 'cancel'
@@ -480,12 +486,13 @@ switch command
                         labelColor = ColorM{currentIndex};
                         %hV(i) = fill(pointsM(:,1), pointsM(:,2), labelColor);
                         hV(i) = plot(pointsM(:,1), pointsM(:,2));
+%                         set(hV(i),'Color',labelColor)
                         hV(i).HitTest = 'off';
 %                         hV(i).MarkerFaceColor = labelColor;
-                        
+                        ud.handles.hV = hV;
                     end
                 end
-                
+               
                 labelC = initLabelC;
                 set(ud.handles.labelList,'string',labelC);
                 
