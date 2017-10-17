@@ -870,7 +870,7 @@ switch upper(instr)
                     bottomAxes = setdiff(1:nAxes, [1 4]);
                     set(stateS.handle.CERRAxisLabel2(1),'position', [(wid*4-40)/wid*4 .98 0]);
 
-                case 3 % 2 Medium panels
+                case {3, 10} % 2 Medium panels
                     wid = (figureWidth-leftMarginWidth-70-10)/2;
                     hig = (figureHeight-bottomMarginHeight-20);
                     set(stateS.handle.CERRAxis(1), 'position', [leftMarginWidth+60 bottomMarginHeight+10 wid hig]);
@@ -997,7 +997,7 @@ switch upper(instr)
                     set(stateS.handle.CERRAxisLabel2(6),'position', [(wid-40)/wid .98 0]);    
                     %if stateS.planLoaded
                     %    perfDiffusion('init')
-                    %end
+                    %end                    
                     
             end
 
@@ -1034,9 +1034,15 @@ switch upper(instr)
         if stateS.layout == 6 && varargin{1} ~= 6
             scanCompare('exit')
         end
+        if stateS.layout == 9 && varargin{1} ~= 9 % exit perf/diff mode
+            perfDiffusion('exit')
+        end
+        if stateS.layout == 10 && varargin{1} ~= 10 % exit segment labeler
+            dualEnergyCTLabelerLayout('exit')
+        end
         
         if isfield(stateS,'planLoaded') && stateS.planLoaded
-            if stateS.layout ~= 9 && varargin{1} == 9
+            if stateS.layout ~= 9 && varargin{1} == 9 % perfusion/diffusion layout
                 
                 numAxes = length(stateS.handle.CERRAxis);
                 if numAxes > 6
@@ -1054,6 +1060,25 @@ switch upper(instr)
                 end
                 
                 perfDiffusion('init')
+                
+            elseif stateS.layout ~= 10 && varargin{1} == 10 % dual energy Ct segment labeler layout
+                
+                numAxes = length(stateS.handle.CERRAxis);
+                if numAxes > 5
+                    delete(stateS.handle.CERRAxis(6:end));
+                    stateS.handle.CERRAxisLabel1(6:end) = [];
+                    stateS.handle.CERRAxisLabel2(6:end) = [];
+                    stateS.handle.CERRAxis(6:end) = [];
+                    stateS.handle.aI(6:end) = [];
+                elseif numAxes <= 5
+                    
+                    % Create two new axes
+                    numNewAxes = 5-numAxes;
+                    createNewCERRAxes(numNewAxes);
+                    
+                end        
+                
+                dualEnergyCTLabelerLayout('init')
                 
             end
             
@@ -1347,9 +1372,7 @@ switch upper(instr)
                 %Setup axis for motion for Segment Labeler
                 if stateS.segmentLabelerState                    
                     set(hFig, 'WindowButtonMotionFcn', 'segmentLabelerControl(''segmentLabeler'', ''motionInFigure'');');                 
-                    set(hFig, 'doublebuffer', 'on');    
-                                      
-                    
+                    set(hFig, 'doublebuffer', 'on');   
                     return;
                 end
                 

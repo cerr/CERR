@@ -66,8 +66,11 @@ else
     % Create comparison layout for dose comparison
     uimenu(hPanel, 'label', 'Dose Comparison', 'callback', 'doseCompare(''init'')','tag','doseCompareMenu');
 
-    % Create comparison layout for dose comparison
+    % Create layout to display perfusion and diffusion scans
     uimenu(hPanel, 'label', 'Perfusion / Diffusion', 'callback', 'sliceCallBack(''layout'', 9)','tag','perfDiffusionMenu');
+
+    % Create layout to label dual energy CT scan
+    uimenu(hPanel, 'label', 'Dual Energy CT', 'callback', 'sliceCallBack(''layout'', 10)','tag','dualEnergyCT');
 
     %Create plan data menu item.
     hPlan = uimenu(hMenu, 'label', 'Plan Data','interruptible','on', 'Separator', 'on', 'tag', 'planData');
