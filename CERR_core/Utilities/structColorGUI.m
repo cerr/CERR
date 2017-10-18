@@ -222,7 +222,8 @@ switch upper(command)
         end
 
     case 'BTDWN'
-        hFig = findobj('Tag','structColorGUI');
+        % hFig = findobj('Tag','structColorGUI');
+        hFig = gcf;
         ud = get(hFig,'Userdata');
         %Get the color object (static text) clicked
         currentPt = get(hFig,'currentPoint');
@@ -249,7 +250,7 @@ switch upper(command)
         %Set the structure name string font to boldface
         
     case 'BTMTN'
-        hFig = findobj('Tag','structColorGUI');
+        hFig = gcf;
         ud = get(hFig,'Userdata');
         set(ud.handles.strName,'fontWeight','normal')
         set(ud.handles.strName,'backgroundcolor', ud.frameColor)
@@ -257,13 +258,11 @@ switch upper(command)
         set(ud.handles.strName(movingColorInd),'fontWeight','bold')
         set(ud.handles.strName(movingColorInd),'backgroundcolor', 'y')
         %Get the structure object under cursor
-        hFig = findobj('Tag','structColorGUI');
-        ud = get(hFig,'Userdata');
+        %         hFig = findobj('Tag','structColorGUI');
         currentPt = get(hFig,'currentPoint');
         set(ud.handles.currentColor,'position',[currentPt 20 15])
         %Set the structure name string font to boldface        
         %Get the structure object under cursor
-        currentPt = get(hFig,'currentPoint');
         for i=1:length(ud.handles.newName)
             colorPos = ud.handles.newNamePos{i};
             if (currentPt(1) >= colorPos(1)) && (currentPt(1) <= colorPos(1)+colorPos(3)) && (currentPt(2) >= colorPos(2)) && (currentPt(2) <= colorPos(2)+colorPos(4))
@@ -277,7 +276,8 @@ switch upper(command)
 
         
     case 'BTUP'
-        hFig = findobj('Tag','structColorGUI');
+        % hFig = findobj('Tag','structColorGUI');
+        hFig = gcf;
         ud = get(hFig,'Userdata');
         set(ud.handles.strName,'fontWeight','normal')
         set(ud.handles.strName,'backgroundcolor', ud.frameColor)
@@ -324,10 +324,10 @@ switch upper(command)
         end
         
     case 'PICKCOLOR'
-        hFig = findobj('Tag','structColorGUI');
+        % hFig = findobj('Tag','structColorGUI');
+        hFig = gcf;
         ud = get(hFig,'Userdata');
         %Get structure index
-        currentPt = get(hFig,'currentPoint');
         if strcmpi(get(ud.handles.structsSlider ,'enable'),'off')
             sliderVal = 1;
             sliderMax = 1;
