@@ -442,27 +442,29 @@ switch command
                 setappdata(hAxis,'segToVoxIndexM',segToVoxIndexM)
                 %initialize all segments and assign color based on existing
                 %index
-                for i =1:numSegs                    
-                        pointsM = planC{indexS.structures}(strNum).contour(slcNum).segments(i).points;                                                
-                        [currSegment,xV,yV] = getCurrentSegment(segToVoxIndexM,mean(pointsM(:,1)), mean(pointsM(:,2)));
-                        %hV(i) = fill(pointsM(:,1), pointsM(:,2), labelColor);
-                        % hV(i) = plot(pointsM(:,1), pointsM(:,2));
-                        if isempty(xV)
-                            continue
-                        end
-                        hV(i) = plot(xV, yV, '.');
-                        hV(i).HitTest = 'off';
-                        hV(i).MarkerSize = 12;    
-                        hV(i).Visible = 'off';
-                        currentIndex = labelObjS.valueS(slcNum).segments(i).index;
-                        if ~isempty(currentIndex)
-                            labelColor = ColorM{currentIndex};
-                            hV(i).Visible = 'on';
-                            hV(i).MarkerFaceColor = labelColor;  
-                            hV(i).MarkerEdgeColor = labelColor;
-                        end
+                for i =1:numSegs
+                    %pointsM = planC{indexS.structures}(strNum).contour(slcNum).segments(i).points;
+                    ind = find(segToVoxIndexM(:,i),1,'first');
+                    [currSegment,xV,yV] = getCurrentSegment(segToVoxIndexM,ind);
+                    
+                    %hV(i) = fill(pointsM(:,1), pointsM(:,2), labelColor);
+                    % hV(i) = plot(pointsM(:,1), pointsM(:,2));
+                    if isempty(xV)
+                        continue
+                    end
+                    hV(i) = plot(xV, yV, '.');
+                    hV(i).HitTest = 'off';
+                    hV(i).MarkerSize = 12;
+                    hV(i).Visible = 'off';
+                    currentIndex = labelObjS.valueS(slcNum).segments(i).index;
+                    if ~isempty(currentIndex)
+                        labelColor = ColorM{currentIndex};
+                        hV(i).Visible = 'on';
+                        hV(i).MarkerFaceColor = labelColor;
+                        hV(i).MarkerEdgeColor = labelColor;
+                    end
                 end
-               
+                
                 ud.handles.hV = hV;
                 labelC = initLabelC;
                 set(ud.handles.labelList,'string',labelC);
@@ -478,17 +480,10 @@ end
 
 
 %% function to get segment number for the new x,y point
-function [currentSeg,xV,yV] = getCurrentSegment(segToVoxIndexM, x, y)
+function [currentSeg,xV,yV] = getCurrentSegment(segToVoxIndexM, ind)
 % Get the current point from mouse hover
 global stateS planC
 indexS = planC{end};
-hAxis = stateS.handle.CERRAxis(1);
-hFrame = stateS.handle.controlFrame;
-ud = get(hFrame, 'userdata');
-currentObj = get(ud.handles.objectPopup, 'Value') - 1;
-if currentObj == 0
-    return;
-end
 
 % Scan, structure and slice index
 hAxis = stateS.handle.CERRAxis(1);
@@ -509,32 +504,31 @@ numRows = planC{indexS.scan}(scanNum).scanInfo(strNum).sizeOfDimension1;
 numCols = planC{indexS.scan}(scanNum).scanInfo(strNum).sizeOfDimension2;
 
 % Get current mouse location
-if ~exist('x','var')
+if ~exist('ind','var')
     cP = get(hAxis, 'currentPoint');
     x = cP(1,1);
     y = cP(1,2);
+    
+    
+    % To test which segment the current point belongs to
+    [r, c] = xytom(x, y, sliceNum, planC, scanNum);
+    
+    r = round(r);
+    c = round(c);
+    
+    % get the linear index
+    r(r<1) = 1;
+    c(c<1) = 1;
+    r(r>numRows) = numRows;
+    c(c>numCols) = numCols;
+    ind = sub2ind([numRows,numCols],r,c);
+    
 end
-
-% To test which segment the current point belongs to
-[r, c] = xytom(x, y, sliceNum, planC, scanNum);
-
-r = round(r);
-c = round(c);
-
-% get the linear index
-r(r<1) = 1;
-c(c<1) = 1;
-r(r>numRows) = numRows;
-c(c>numCols) = numCols;
-ind = sub2ind([numRows,numCols],r,c);
-
-
 
 % Get values at this index
 currentSeg = find(segToVoxIndexM(ind,:));
 
-% 
-% segToVoxIndexM = getappdata(hAxis, 'segToVoxIndexM');
+% Handle overlapping segments
 count = 0;
 rcM = [];
 xV = [];
