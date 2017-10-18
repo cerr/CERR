@@ -121,16 +121,35 @@ switch command
                 
                 
                 %Controls to create new Label.
-                ud.handles.labelNewEdit = uicontrol(hFig, 'style', 'edit', 'units', units, 'position', absPos([.35 .55 .6 .05], posFrame), 'string', '', 'tag', 'segmentLabelerControlItem', 'callback', 'segmentLabelerControl(''segmentLabeler'', ''renameLabel'')', 'enable', 'off', 'horizontalAlignment', 'left');
-                ud.handles.labelNewText = uicontrol(hFig, 'style', 'text', 'enable', 'inactive' , 'units', units, 'position', absPos([.05 .55 .26 .05], posFrame), 'string', 'Label:', 'tag', 'segmentLabelerControlItem', 'horizontalAlignment', 'left');
+%                 ud.handles.labelNewEdit = uicontrol(hFig, 'style', 'edit', 'units', units, 'position', absPos([.35 .55 .6 .05], posFrame), 'string', '', 'tag', 'segmentLabelerControlItem', 'callback', 'segmentLabelerControl(''segmentLabeler'', ''renameLabel'')', 'enable', 'off', 'horizontalAlignment', 'left');
+                ud.handles.labelNewText = uicontrol(hFig, 'style', 'text', 'enable', 'inactive' , 'units', units, 'position', absPos([.05 .55 .26 .05], posFrame), 'string', 'Labels:', 'tag', 'segmentLabelerControlItem', 'horizontalAlignment', 'left');
+%                 
+%                 ud.handles.labelNewButton  = uicontrol(hFig, 'style', 'pushbutton', 'units', units, 'position', absPos([.6 .49 .35 .05], posFrame), 'string', 'New Label', 'tag', 'segmentLabelerControlItem','enable', 'off', 'callback', 'segmentLabelerControl(''segmentLabeler'', ''createLabel'')');
+%                 
+                ud.handles.labelList = uicontrol(hFig, 'style', 'listbox',...
+                    'units', units, 'position',absPos([.05 .30 .87 .25],...
+                    posFrame),'string','Label List' ,'tag',...
+                    'segmentLabelerControlItem',...
+                    'Callback','segmentLabelerControl(''segmentLabeler'', ''LabelItemClicked'')');
                 
-                ud.handles.labelNewButton  = uicontrol(hFig, 'style', 'pushbutton', 'units', units, 'position', absPos([.6 .49 .35 .05], posFrame), 'string', 'New Label', 'tag', 'segmentLabelerControlItem','enable', 'off', 'callback', 'segmentLabelerControl(''segmentLabeler'', ''createLabel'')');
+                LabelC = initLabelC;
+                ColorM = initColorM;
                 
-                ud.handles.labelList = uicontrol(hFig, 'style', 'listbox', 'units', units, 'position',absPos([.05 .20 .60 .25], posFrame),'string','Label List' ,'tag', 'segmentLabelerControlItem', 'Callback','segmentLabelerControl(''segmentLabeler'', ''populateList'')');
+                pre = '<HTML><FONT color="';
+                post = '</FONT></HTML>';
+                
+                listboxStr = cell(numel( LabelC ),1);
+                
+                for i = 1:numel(LabelC)
+                    str = [pre rgb2hex( ColorM(i,:) ) '">' LabelC{i} post];
+                    listboxStr{i} = str;
+                end
+                
+                set(ud.handles.labelList,'string',listboxStr,'enable','on',...
+                    'value',length(listboxStr))
                 
                 for i=1:length(stateS.handle.CERRAxis)
-                    setappdata(stateS.handle.CERRAxis(i),'oldCoord',getAxisInfo(stateS.handle.CERRAxis(i),'coord'))
-                    
+                    setappdata(stateS.handle.CERRAxis(i),'oldCoord',getAxisInfo(stateS.handle.CERRAxis(i),'coord'))                    
                 end
                 
                 ud.handles.hV = gobjects(0);
@@ -138,6 +157,10 @@ switch command
                 set(hFrame, 'userdata', ud);
                 %                 segmentLabelerControl('segmentLabeler', 'refresh');
                 
+                
+            case 'LabelItemClicked'
+                
+                disp('here')
                 
             case 'motionInFigure'
                 %                 if (stateS.segmentLabelerState ==1)
@@ -153,6 +176,9 @@ switch command
                     setappdata(hAxis, 'segmentSelected', 0)                                       
                     
                     segToVoxIndexM = getappdata(hAxis, 'segToVoxIndexM');
+                    if isempty(segToVoxIndexM)
+                        return;
+                    end
                     [currSegment,xV,yV] = getCurrentSegment(segToVoxIndexM);
                                         
                     if (currSegment)                        
@@ -235,7 +261,7 @@ switch command
                 LabelC = initLabelC;
                 ColorM = initColorM;
                 labelObjS.valueS(sliceNum).segments(currentSeg).index =  find(strcmp(LabelC,labelSelected));
-                labelColor = ColorM{find(strcmp(LabelC,labelSelected))};
+                labelColor = ColorM(find(strcmp(LabelC,labelSelected)),:);
                 %                 ud.handles.hV(currsegment) = fill(pointsM(:,1), pointsM(:,2), labelColor);                
 %                  ud.handles.hV = plot([colV, colV(1)],[rowV, rowV(1)],'rs-');
                 %set(ud.handles.hV(currentSeg),'Color',labelColor);
@@ -439,7 +465,11 @@ switch command
                 
                 % segToVoxIndexM = getappdata(hAxis,'segToVoxIndexM');
                 segToVoxIndexM = segmentToVoxel();
+                if isempty(segToVoxIndexM)
+                    return;
+                end
                 setappdata(hAxis,'segToVoxIndexM',segToVoxIndexM)
+                
                 %initialize all segments and assign color based on existing
                 %index
                 for i =1:numSegs
@@ -458,7 +488,7 @@ switch command
                     hV(i).Visible = 'off';
                     currentIndex = labelObjS.valueS(slcNum).segments(i).index;
                     if ~isempty(currentIndex)
-                        labelColor = ColorM{currentIndex};
+                        labelColor = ColorM(currentIndex,:);
                         hV(i).Visible = 'on';
                         hV(i).MarkerFaceColor = labelColor;
                         hV(i).MarkerEdgeColor = labelColor;
@@ -466,8 +496,8 @@ switch command
                 end
                 
                 ud.handles.hV = hV;
-                labelC = initLabelC;
-                set(ud.handles.labelList,'string',labelC);
+                %labelC = initLabelC;
+                %set(ud.handles.labelList,'string',labelC);
                 set(hFrame, 'userdata', ud);
                 
                 return;
@@ -576,6 +606,7 @@ sliceNum = findnearest(coord, zV);
 setappdata(hAxis, 'slSlice', sliceNum)
 currentObj = get(ud.handles.objectPopup, 'Value') - 1;
 if currentObj == 0
+    segToVoxIndexM = [];
     return;
 end
 labelObjS = planC{indexS.segmentLabel}(currentObj);
@@ -663,10 +694,11 @@ segmentLabelS(1).valueS = contourS;
 function LabelC = initLabelC
 
 LabelC = {
-    'REAL_METASTESES', 'NORMAL_TISSUE', 'UNDETERMINED', 'MIXED'};
+    'REAL_METASTESES', 'NORMAL_TISSUE', 'UNDETERMINED', 'MIXED',''};
 
 function ColorM = initColorM
 
-ColorM = {
-    'r'; 'g'; 'b'; 'm'};
+% ColorM = {'r'; 'g'; 'b'; 'm'; 'gold', };
+ColorM = [1 0 0; 0 1 0; 0 0 1; 1 0 1; 1 0.875 0; 0.5765 0.4392 0.8588;...
+    1 0.5 0.314; 0.42 0.56 0.14; 0.86 0.075 0.24];
 
