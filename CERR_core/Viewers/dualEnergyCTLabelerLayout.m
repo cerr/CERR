@@ -127,8 +127,6 @@ switch lower(command)
             view = stateS.handle.aI(i).view;            
             if iscell(view) % linked axes views are of type "cell"
                 sliceCallBack('selectaxisview', hAxis, 'delete view');
-            else
-                viewC{i} = view;
             end            
         end
         % Get views for axes
@@ -161,13 +159,16 @@ switch lower(command)
         
         for i = 1:length(stateS.handle.CERRAxis)
             setAxisInfo(stateS.handle.CERRAxis(i),'doseSets',stateS.doseSet,...
-                'structureSets',stateS.structSet,'scanSets',stateS.scanSet);
+                'structureSets',stateS.structSet,'scanSets',stateS.scanSet,...
+                'scanSelectMode', 'auto','doseSelectMode', 'auto',...
+                'structSelectMode','auto');
             setappdata(stateS.handle.CERRAxis(i),'compareMode',[]);
         end
         stateS.layout = stateS.Oldlayout;
         stateS.Oldlayout = [];
+        stateS.CTDisplayChanged = 1;
         sliceCallBack('resize');
-        %CERRRefresh
+        CERRRefresh
         %hScanCompare = findobj('tag','scanCompareMenu');
         %set(hScanCompare,'checked','off')        
         
