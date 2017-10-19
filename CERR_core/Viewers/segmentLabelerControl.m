@@ -166,9 +166,12 @@ switch command
                 %                 if (stateS.segmentLabelerState ==1)
                 hAxis = stateS.handle.CERRAxis(1);
                 labelObjS = getappdata(hAxis,'labelObjS');
+                if isempty(labelObjS)
+                    return;
+                end
                 strNum = getAssociatedStr(labelObjS.assocStructUID);
                 
-                if ~isempty(labelObjS) && planC{indexS.structures}(strNum).visible                    
+                if planC{indexS.structures}(strNum).visible                    
                     
                     hV = stateS.handle.aI(1).lineHandlePool.lineV(stateS.handle.aI(1).structureGroup.handles);
                     
@@ -460,6 +463,9 @@ switch command
                 
 %                 labelObjS = planC{indexS.segmentLabel}(currentObj);
                 labelObjS = getappdata(hAxis,'labelObjS');
+                if isempty(labelObjS)
+                    return;
+                end
                 strNum = getAssociatedStr(labelObjS.assocStructUID);
                 numSegs = length(planC{indexS.structures}(strNum).contour(slcNum).segments);
                 
@@ -572,7 +578,9 @@ end
 if length(rcM) > 1
     rcM = setxor(rcM{1},rcM{2}, 'rows');
 elseif length(rcM) == 1
+    overlapV = sum(segToVoxIndexM(allSegIndV,:),2) > 1;    
     rcM = rcM{1};
+    rcM(overlapV,:) = [];
 end
 if ~isempty(rcM)
     rV = rcM(:,1);
