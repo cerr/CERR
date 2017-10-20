@@ -168,7 +168,10 @@ switch command
                 hFig = stateS.handle.CERRSliceViewer;
                 vMenu = gcbo;
                 ud = get(hFrame, 'userdata');
-                
+                labelObjS = getappdata(hAxis,'labelObjS');
+                if isempty(labelObjS)
+                    return;
+                end
                 segToVoxIndexM = getappdata(hAxis, 'segToVoxIndexM');
                 [currSegment,xV,yV] = getCurrentSegment(segToVoxIndexM);                
                 setappdata(hAxis,'currentSeg',currSegment)
@@ -249,7 +252,7 @@ switch command
                 %Insert the new obj at the end of the list.
                 newLabelObjectS = newSegmentLabel(structNum, planC);
                 
-                newLabelObjectS.labelUID = createUID('seglabel');
+                newLabelObjectS.segLabelUID = createUID('seglabel');
                 newLabelObjectS.assocStructUID = planC{indexS.structures}(structNum).strUID;
                 newLabelObjectS.name = answer{1};
                                 
@@ -309,7 +312,8 @@ switch command
                 %planC{indexS.segmentLabel}(currentObj) = labelObjS;
                 planC{indexS.segmentLabel} = dissimilarInsert...
                     (planC{indexS.segmentLabel}, labelObjS, currentObj);
-                
+                planC{indexS.segmentLabel}(currentObj).labelC = initLabelC;
+                planC{indexS.segmentLabel}(currentObj).labelColorM = initColorM;
                 
             case 'cancel'
                 %Finished labeling and wish to discard changes.
@@ -383,7 +387,7 @@ switch command
                     if isempty(xV)
                         continue
                     end
-                    hV(i) = plot(xV, yV, '.');
+                    hV(i) = plot(hAxis, xV, yV, '.');
                     hV(i).HitTest = 'off';
                     hV(i).MarkerSize = 12;
                     hV(i).Visible = 'off';
