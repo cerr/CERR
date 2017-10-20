@@ -287,6 +287,10 @@ switch command
                 if currentObj == 0
                     return;
                 end
+                % Reassign strings if toggling from new unsaved object
+                strC = {'Select',planC{indexS.segmentLabel}.name};
+                set(ud.handles.objectPopup, 'string', strC, 'enable', 'on');                
+                
                 labelObjS = planC{indexS.segmentLabel}(currentObj);
                 setappdata(hAxis, 'labelObjS', labelObjS);
                 
