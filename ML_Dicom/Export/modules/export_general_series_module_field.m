@@ -80,6 +80,10 @@ switch tag
     case  528466    %0008,1052 Performing Physican Identification Number
     case 1577008    %0018,1030 Protocol Name
     case  528446    %0008,103E Series Description
+        data = scanInfo.scanDescription;
+        el = template.get(tag);   
+        el = ml2dcm_Element(el, data);
+        
     case  528496    %0008,1070 Operator's Name
     case  528498    %0008,1072 Operator Identification Sequence
     case  528657    %0008,1111 Referenced Performed Procedure Step Sequence
