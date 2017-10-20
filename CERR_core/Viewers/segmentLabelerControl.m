@@ -252,7 +252,7 @@ switch command
                 %Insert the new obj at the end of the list.
                 newLabelObjectS = newSegmentLabel(structNum, planC);
                 
-                newLabelObjectS.segLabelUID = createUID('seglabel');
+                %newLabelObjectS.segLabelUID = createUID('seglabel');
                 newLabelObjectS.assocStructUID = planC{indexS.structures}(structNum).strUID;
                 newLabelObjectS.name = answer{1};
                                 
@@ -599,7 +599,7 @@ segmentLabelName = '';
 
 %Assign these values to structure.
 segmentLabelS(1).assocStructUID = planC{indexS.structures}(1).strUID;
-segmentLabelS(1).labelUID       = createUID('label');
+segmentLabelS.segLabelUID       = createUID('seglabel');
 % segmentLabel(1).valueS         = valueS;
 segmentLabelS(1).name           = segmentLabelName;
 
