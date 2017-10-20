@@ -35,19 +35,10 @@ indexS = planC{end};
 
 % Default axis to the current axis
 hAxis = stateS.handle.CERRAxis(1);
-
 hFig = stateS.handle.CERRSliceViewer;
-
-posFig = get(hFig, 'position');
-posFig(1) = 0; posFig(2) = 0;
-
 hFrame = stateS.handle.controlFrame;
-
 posFrame = get(hFrame, 'position');
-
 units = 'pixels';
-
-
 
 switch command
     case 'segmentLabeler'
@@ -58,42 +49,15 @@ switch command
                 stateS.segmentLabelerState = 1;
                 
                 ud = get(hFrame, 'userdata');
-%                 hAxis = stateS.handle.CERRAxis(1);
-%                 hFig = stateS.handle.CERRSliceViewer;
-%                 axInd = hAxis == stateS.handle.CERRAxis;
-%                 axisInfo = stateS.handle.aI(axInd);
-                
-%                 scanSet = getStructureAssociatedScan(1);
-%                 [xV, yV, zV] = getScanXYZVals(planC{indexS.scan}(axisInfo.scanSets));
-%                 
-%                 sliceNum = findnearest(axisInfo.coord, zV);
-%                 axisInfo.coord         = zV(sliceNum);
-%                 axisInfo.scanSets       = scanSet;
-                
-%                 numStructs = length(planC{indexS.structures});
-%                 assocSacnV = getStructureAssociatedScan(1:numStructs);
-%                 structsV = assocSacnV == scanSet;
-%                 structNumV = find(structsV);
-%                 if isempty(structNumV)
-%                     initStructNum = [];
-%                 else
-%                     initStructNum = structNumV(1);
-%                 end
-%                 
-%                 setappdata(hAxis, 'numRows',planC{indexS.scan}(scanSet).scanInfo(sliceNum).sizeOfDimension1);
-%                 setappdata(hAxis, 'numCols',planC{indexS.scan}(scanSet).scanInfo(sliceNum).sizeOfDimension2);
-%                 setappdata(hAxis, 'slStruct', initStructNum);
                 
                 % Get scan associated with the current axis and find out if
                 % it has associated stuctures
                 scanSet = stateS.handle.aI(stateS.currentAxis).scanSets;
                 structIndx = getStructureSetAssociatedScan(scanSet);
-                if isempty(structIndx)
-                    
+                if isempty(structIndx)                    
                     msgString = 'This scan has no associated structures, please select a different scan';
                     msgbox(msgString,'Confirm Window Selection');
-                    return;
-                    
+                    return;                    
                 end
                 
                 
@@ -110,7 +74,13 @@ switch command
                 
                 %Controls to select Label Object to edit.
                 ud.handles.objectText = uicontrol(hFig, 'style', 'text', 'enable', 'inactive' , 'units', units, 'position', absPos([.05 .84 .25 .05], posFrame), 'string', 'Object:', 'tag', 'segmentLabelerControlItem', 'horizontalAlignment', 'left');
-                ud.handles.objectPopup = uicontrol(hFig, 'style', 'popupmenu', 'units', units, 'position', absPos([.35 .84 .6 .05], posFrame), 'string', {'Select'}, 'tag', 'segmentLabelerControlItem', 'callback', 'segmentLabelerControl(''segmentLabeler'', ''selectLabelObject'')', 'enable', 'on');
+                %ud.handles.objectPopup = uicontrol(hFig, 'style', 'popupmenu', 'units', units, 'position', absPos([.35 .84 .6 .05], posFrame), 'string', {'Select'}, 'tag', 'segmentLabelerControlItem', 'callback', 'segmentLabelerControl(''segmentLabeler'', ''selectLabelObject'')', 'enable', 'on');
+                strC = {'Select',planC{indexS.segmentLabel}.name};
+                ud.handles.objectPopup = uicontrol(hFig, 'style', 'popupmenu',...
+                    'units', units, 'position', absPos([.35 .84 .6 .05], posFrame),...
+                    'string', strC, 'tag', 'segmentLabelerControlItem',...
+                    'callback', 'segmentLabelerControl(''segmentLabeler'', ''LabelObjectSelected'')',...
+                    'enable', 'on');
                 
                 ud.handles.objectCreateButton  = uicontrol(hFig, 'style', 'pushbutton', 'units', units, 'position', absPos([.6 .76 .35 .05], posFrame), 'string', 'Create', 'tag', 'segmentLabelerControlItem', 'callback', 'segmentLabelerControl(''segmentLabeler'', ''newObject'')');
                 
@@ -123,9 +93,9 @@ switch command
                 %Controls to create new Label.
 %                 ud.handles.labelNewEdit = uicontrol(hFig, 'style', 'edit', 'units', units, 'position', absPos([.35 .55 .6 .05], posFrame), 'string', '', 'tag', 'segmentLabelerControlItem', 'callback', 'segmentLabelerControl(''segmentLabeler'', ''renameLabel'')', 'enable', 'off', 'horizontalAlignment', 'left');
                 ud.handles.labelNewText = uicontrol(hFig, 'style', 'text', 'enable', 'inactive' , 'units', units, 'position', absPos([.05 .55 .26 .05], posFrame), 'string', 'Labels:', 'tag', 'segmentLabelerControlItem', 'horizontalAlignment', 'left');
-%                 
+                 
 %                 ud.handles.labelNewButton  = uicontrol(hFig, 'style', 'pushbutton', 'units', units, 'position', absPos([.6 .49 .35 .05], posFrame), 'string', 'New Label', 'tag', 'segmentLabelerControlItem','enable', 'off', 'callback', 'segmentLabelerControl(''segmentLabeler'', ''createLabel'')');
-%                 
+                 
                 ud.handles.labelList = uicontrol(hFig, 'style', 'listbox',...
                     'units', units, 'position',absPos([.05 .30 .87 .25],...
                     posFrame),'string','Label List' ,'tag',...
@@ -147,20 +117,16 @@ switch command
                 
                 set(ud.handles.labelList,'string',listboxStr,'enable','on',...
                     'value',length(listboxStr))
-                
-                for i=1:length(stateS.handle.CERRAxis)
-                    setappdata(stateS.handle.CERRAxis(i),'oldCoord',getAxisInfo(stateS.handle.CERRAxis(i),'coord'))                    
-                end
-                
+                                
                 ud.handles.hV = gobjects(0);
                 
                 set(hFrame, 'userdata', ud);
-                %                 segmentLabelerControl('segmentLabeler', 'refresh');
                 
                 
             case 'LabelItemClicked'
                 
-                disp('here')
+                % code to create/update labels here
+                
                 
             case 'motionInFigure'
                 %                 if (stateS.segmentLabelerState ==1)
@@ -184,14 +150,14 @@ switch command
                     end
                     [currSegment,xV,yV] = getCurrentSegment(segToVoxIndexM);
                                         
-                    if (currSegment)                        
+                    if (currSegment)       
+                        hAxis.UIContextMenu.Visible = 'off';
                         if (length(currSegment)>1)
-                            %if(segmentMaskVal ==0)
                             return;
                         end
                         set(stateS.handle.aI(1).lineHandlePool.lineV...
-                            (stateS.handle.aI(1).structureGroup.handles(currSegment)),'LineWidth',stateS.optS.structureThickness+2);
-                       
+                            (stateS.handle.aI(1).structureGroup.handles(currSegment)),...
+                            'LineWidth',stateS.optS.structureThickness+2);                       
                     end
                     
                 end
@@ -208,26 +174,21 @@ switch command
                 setappdata(hAxis,'currentSeg',currSegment)
                 
                  %Wipe out old submenus.
-                kids = get(ud.handles.vMenu, 'children');
-                delete(kids);
-                labelC = initLabelC;% saved in ud in beginning, when new label obj created or selected.   also initi context menu here and store handle to ud
-                
-                if ~isempty(planC{indexS.segmentLabel})
-                    if (currSegment)   
-                        for i=1:length(labelC)
-                            m1 = uimenu(ud.handles.vMenu,'Label', [labelC{i}], 'Callback', 'segmentLabelerControl(''segmentLabeler'', ''labelAssigned'')', 'userdata', {hAxis, i}, 'Visible', 'on');
-                            %                         uimenu(vMenu, 'Label', [labelC{i}], 'Callback', 'segmentLabelerControl(''segmentLabeler'', ''labelAssigned'')', 'userdata', {hAxis, i});
-                            
-                        end
-                        
-                        hAxis.UIContextMenu.Visible = 'on';
-                        coord = get(hFig,'CurrentPoint');
-                        hAxis.UIContextMenu.Position = coord(1:2);
-                        
-                        
-                        
-                    end
-                end
+                 kids = get(ud.handles.vMenu, 'children');
+                 delete(kids);
+                 labelC = initLabelC;% saved in ud in beginning, when new label obj created or selected.   also initi context menu here and store handle to ud
+                 
+                 if (currSegment)
+                     for i=1:length(labelC)
+                         uimenu(ud.handles.vMenu,'Label', [labelC{i}], 'Callback',...
+                             'segmentLabelerControl(''segmentLabeler'', ''labelAssigned'')',...
+                             'userdata', {hAxis, i}, 'Visible', 'on');
+                         
+                     end                     
+                     hAxis.UIContextMenu.Visible = 'on';
+                     coord = get(hFig,'CurrentPoint');
+                     hAxis.UIContextMenu.Position = coord(1:2);                     
+                 end
                 
             case 'labelAssigned'
                 ud = get(hFrame, 'userdata');
@@ -251,43 +212,24 @@ switch command
                 sliceNum = findnearest(coord, zV);
      
                 currentSeg = getappdata(hAxis,'currentSeg');
-%                 currentObj = get(ud.handles.objectPopup, 'Value') - 1;
-%                 if currentObj == 0
-%                     return;
-%                 end                
-                
-%                 strNum = getAssociatedStr(labelObjS.assocStructUID);
-                %                 segToVoxIndexM = getappdata(hAxis, 'segToVoxIndexM');
-                %                 currSegment = getCurrentSegment(segToVoxIndexM);
-%                 segToVoxIndexM = getappdata(hAxis, 'segToVoxIndexM');
-                %                 pointsM = planC{indexS.structures}(strNum).contour(slSlice).segments(currSegment).points;
                 LabelC = initLabelC;
                 ColorM = initColorM;
                 labelObjS.valueS(sliceNum).segments(currentSeg).index =  find(strcmp(LabelC,labelSelected));
                 labelColor = ColorM(find(strcmp(LabelC,labelSelected)),:);
-                %                 ud.handles.hV(currsegment) = fill(pointsM(:,1), pointsM(:,2), labelColor);                
-%                  ud.handles.hV = plot([colV, colV(1)],[rowV, rowV(1)],'rs-');
-                %set(ud.handles.hV(currentSeg),'Color',labelColor);
                 set(ud.handles.hV(currentSeg),'MarkerFaceColor',labelColor);
                 set(ud.handles.hV(currentSeg),'MarkerEdgeColor',labelColor);
-                %ud.handles.hV(currentSeg).MarkerEdgeColor = 'none';
                 ud.handles.hV(currentSeg).Visible = 'on';
-                %                 ud.handles.hV = stateS.handle.aI(1).lineHandlePool.lineV(stateS.handle.aI(1).structureGroup.handles(currsegment)).Color;
-                %                 set(stateS.handle.aI(1).lineHandlePool.lineV(stateS.handle.aI(1).structureGroup.handles(currsegment)),'color',labelColor);
                 ud.handles.hV(currentSeg).HitTest = 'off'; %test if req
                 set(hFrame, 'userdata', ud);
                 setappdata(hAxis, 'labelObjS', labelObjS);
                 
             case 'newObject'
                 
-                % hAxis = stateS.handle.CERRAxis(stateS.currentAxis);
                 prompt={'Enter the name of the Segment Label Object', 'Associated stucture number:'};
                 name='New Segment Labeler Object';
                 numlines=1;
                 defaultanswer={'SegLabel 1','1'};
                 ud = get(hFrame, 'userdata');
-                %scanSet = getAxisInfo(stateS.handle.CERRAxis(stateS.currentAxis),'scanSets');
-                %numSlices = size(getScanArray(planC{indexS.scan}(scanSet)), 3);
                 
                 options.Resize='on';
                 options.WindowStyle='normal';
@@ -297,39 +239,30 @@ switch command
                 
                 % get number of existing label objects
                 nSegmentLabelObjects = length(planC{indexS.segmentLabel});
-                
-                % Add to existing label objects
-                toAdd = nSegmentLabelObjects + 1;
-                
+                                
                 %Create a new nSegmentLabelObjects with selected associated structure.
-                structNum = str2double(answer(2));
+                structNum = str2double(answer{2});
                 if isempty(structNum)
                     return;
                 end
-                %add check for duplicates - just give warning message but
-                %allow
                 
                 %Insert the new obj at the end of the list.
-                newLabelObject = newSegmentLabel(structNum, planC);
+                newLabelObjectS = newSegmentLabel(structNum, planC);
                 
-                newLabelObject.labelUID = createUID('seglabel');
-                newLabelObject.assocStructUID = planC{indexS.structures}(structNum).strUID;
-                newLabelObject.name = answer(1);
-                planC{indexS.segmentLabel} = dissimilarInsert(planC{indexS.segmentLabel}, newLabelObject, toAdd);
-                
-                labelC = initLabelC; % default label names (for now)
-                planC{indexS.segmentLabel}(end).labelC = labelC;
-                
-                strC = get(ud.handles.objectPopup, 'string');
-                strC(end+1) = [newLabelObject.name];
+                newLabelObjectS.labelUID = createUID('seglabel');
+                newLabelObjectS.assocStructUID = planC{indexS.structures}(structNum).strUID;
+                newLabelObjectS.name = answer{1};
+                                
+                strC = {'Select',planC{indexS.segmentLabel}.name};
+                strC{end+1} = newLabelObjectS.name;
                 set(ud.handles.objectPopup, 'string', strC, 'enable', 'on');
-                set(ud.handles.assocstructEdit, 'string', structNum, 'enable', 'off');
-                val = get(ud.handles.objectPopup, 'Value');
-                set(ud.handles.objectPopup, 'Value', val+1);
+                structureName = planC{indexS.structures}(structNum).structureName;
+                set(ud.handles.assocstructEdit, 'string', structureName, 'enable', 'off');
+                set(ud.handles.objectPopup, 'Value', nSegmentLabelObjects+2);
                 ud.assocScanSet = getStructureAssociatedScan(structNum);
                 set(hFrame, 'userdata', ud);
-                segmentLabelerControl('segmentLabeler', 'selectLabelObject')
-                
+                setappdata(hAxis, 'labelObjS', newLabelObjectS);
+                segmentLabelerControl('segmentLabeler', 'refresh')
                 
             case 'createLabel'
                 ud = get(hFrame, 'userdata');
@@ -337,59 +270,35 @@ switch command
                     return;
                 end
                 
-                name = get(ud.handles.labelCreateEdit, 'string');
-                
-                %get current labelObject
-                objNameC = get(ud.handles.objectPopup, 'string');
-                
+                name = get(ud.handles.labelCreateEdit, 'string');                
                 
                 planC{indexS.segmentLabel}(objUd.objNumsV(objNum)).objName = name;
                 segmentLabelerControl('segmentLabeler', 'refresh')
                 
-            case 'selectLabelObject'
-                
+            case 'LabelObjectSelected'
                 ud = get(hFrame, 'userdata');
                 if isempty(ud)
                     return;
                 end
-                %if (size(ud.handles.hV) ~= 0)
-                %    delete(ud.handles.hV)
-                %end
-                %segToVoxIndexM = segmentToVoxel();
-                
-                %create context menu                
-                %Wipe out old submenus.
-                kids = get(ud.handles.vMenu, 'children');
-                delete(kids);
-                labelC = initLabelC;% saved in ud in beginning, when new label obj created or selected.   also initi context menu here and store handle to ud
-                
-                if ~isempty(planC{indexS.segmentLabel})
-                    for i=1:length(labelC)
-                        m1 = uimenu(ud.handles.vMenu,'Label', [labelC{i}], 'Callback', 'segmentLabelerControl(''segmentLabeler'', ''labelAssigned'')', 'userdata', {hAxis, i}, 'Visible', 'off');
-                        %                         uimenu(vMenu, 'Label', [labelC{i}], 'Callback', 'segmentLabelerControl(''segmentLabeler'', ''labelAssigned'')', 'userdata', {hAxis, i});
-                        
-                    end
-                end
-                set(ud.handles.vMenu, 'Visible', 'off');
-                %Setup axis for motion.
-                set(hFig, 'WindowButtonMotionFcn', 'segmentLabelerControl(''segmentLabeler'', ''motionInFigure'');');
-                set(hFig, 'doublebuffer', 'on');
-                
                 currentObj = get(ud.handles.objectPopup, 'Value') - 1;
                 if currentObj == 0
                     return;
                 end
                 labelObjS = planC{indexS.segmentLabel}(currentObj);
                 setappdata(hAxis, 'labelObjS', labelObjS);
-                %segmentLabelerControl('segmentLabeler', 'slcChange')
-                segToVoxIndexM = segmentToVoxel();
-                setappdata(hAxis,'segToVoxIndexM',segToVoxIndexM)
-                segmentLabelerControl('segmentLabeler', 'refresh')
                 
-                return;
+                structNum = getAssociatedStr(labelObjS.assocStructUID);
+                structureName = planC{indexS.structures}(structNum).structureName;
+                set(ud.handles.assocstructEdit, 'string', structureName, 'enable', 'off');
+                ud.assocScanSet = getStructureAssociatedScan(structNum);
+                set(hFrame, 'userdata', ud);
+                
+                % delete old handles and create new ones
+                segmentLabelerControl('segmentLabeler', 'refresh')
                 
                 
             case 'save'
+                ud = get(hFrame, 'userdata');
                 hAxis = stateS.handle.CERRAxis(1);
                 labelObjS = getappdata(hAxis,'labelObjS');
                 %save this to planC
@@ -397,18 +306,20 @@ switch command
                 if currentObj == 0
                     return;
                 end
-                planC{indexS.segmentLabel}(currentObj) = labelObjS;
+                %planC{indexS.segmentLabel}(currentObj) = labelObjS;
+                planC{indexS.segmentLabel} = dissimilarInsert...
+                    (planC{indexS.segmentLabel}, labelObjS, currentObj);
                 
                 
             case 'cancel'
+                %Finished labeling and wish to discard changes.
+                
                 ud = get(hFrame, 'userdata');
                 hControlFrameItemV = findobj('tag', 'segmentLabelerControlItem');
                 delete(hControlFrameItemV);
                 if (size(ud.handles.hV) ~= 0)
                     delete(ud.handles.hV)
-                end
-                %Finished labeling and wish to discard changes.
-                hAxis = varargin{1};               
+                end                
                                 
                 set(hFig, 'WindowButtonMotionFcn', '');
                 stateS.segmentLabelerState = 0;             
@@ -418,23 +329,16 @@ switch command
                 %Re-enable right click menus;
                 for i=1:length(stateS.handle.CERRAxis)
                     CERRAxisMenu(stateS.handle.CERRAxis(i));
-                end                
-                              
-                try
-                    hFrame = stateS.handle.controlFrame;
-                    ud = get(hFrame, 'userdata');
-                    delete(ud.handle.hV)
-                end
+                end     
+                setappdata(hAxis,'labelObjS','')
+                setappdata(hAxis,'currentSeg','')
+                setappdata(hAxis,'segmentSelected','')
                 
                 sliceCallBack('refresh');
-                     
-                hControlFrameItemV = findobj('tag', 'controlFrameItem');
-                delete(hControlFrameItemV);
-                controlFrame('default');
-                
+                                     
                 
             case 'refresh'
-                %called when label object selected, and when slice changed.
+                %called when label object selected or slice changed.
                                 
                 hAxis = stateS.handle.CERRAxis(1);
                 axInd = hAxis == stateS.handle.CERRAxis;
@@ -443,14 +347,7 @@ switch command
                 if isempty(ud)
                     return;
                 end
-                ColorM = initColorM;
-%                 currentObj = get(ud.handles.objectPopup, 'Value') - 1;
-%                 if currentObj == 0
-%                     return;
-%                 end
-                hV = gobjects(0);
-                %LabelC = initLabelC;
-                %ColorM = initColorM;
+                ColorM = initColorM;               
                 
                 %undo previous slice graphic handles first
                 if (size(ud.handles.hV) ~= 0)
@@ -461,7 +358,6 @@ switch command
                 [xV, yV, zV] = getScanXYZVals(planC{indexS.scan}(axisInfo.scanSets));
                 slcNum = findnearest(axisInfo.coord, zV);
                 
-%                 labelObjS = planC{indexS.segmentLabel}(currentObj);
                 labelObjS = getappdata(hAxis,'labelObjS');
                 if isempty(labelObjS)
                     return;
@@ -478,13 +374,12 @@ switch command
                 
                 %initialize all segments and assign color based on existing
                 %index
+                hV = gobjects(0);
                 for i =1:numSegs
                     %pointsM = planC{indexS.structures}(strNum).contour(slcNum).segments(i).points;
                     ind = find(segToVoxIndexM(:,i),1,'first');
                     [currSegment,xV,yV] = getCurrentSegment(segToVoxIndexM,ind);
                     
-                    %hV(i) = fill(pointsM(:,1), pointsM(:,2), labelColor);
-                    % hV(i) = plot(pointsM(:,1), pointsM(:,2));
                     if isempty(xV)
                         continue
                     end
@@ -502,8 +397,25 @@ switch command
                 end
                 
                 ud.handles.hV = hV;
-                %labelC = initLabelC;
-                %set(ud.handles.labelList,'string',labelC);
+                
+                 %Wipe out old submenus.
+                kids = get(ud.handles.vMenu, 'children');
+                delete(kids);
+                labelC = initLabelC; 
+                
+                for i=1:length(labelC)
+                    uimenu(ud.handles.vMenu,'Label', [labelC{i}], 'Callback',...
+                        'segmentLabelerControl(''segmentLabeler'', ''labelAssigned'')',...
+                        'userdata', {hAxis, i}, 'Visible', 'on');
+                end
+                
+                
+                set(ud.handles.vMenu, 'Visible', 'off');
+                
+                %Setup axis for motion.
+                set(hFig, 'WindowButtonMotionFcn', 'segmentLabelerControl(''segmentLabeler'', ''motionInFigure'');');
+                set(hFig, 'doublebuffer', 'on');
+                
                 set(hFrame, 'userdata', ud);
                 
                 return;
@@ -617,8 +529,9 @@ if currentObj == 0
     segToVoxIndexM = [];
     return;
 end
-labelObjS = planC{indexS.segmentLabel}(currentObj);
-
+%labelObjS = planC{indexS.segmentLabel}(currentObj);
+hAxis = stateS.handle.CERRAxis(1);
+labelObjS = getappdata(hAxis,'labelObjS');
 strNum = getAssociatedStr(labelObjS.assocStructUID);
 
 % Initialize a sparse matrix to record segment to voxel index
