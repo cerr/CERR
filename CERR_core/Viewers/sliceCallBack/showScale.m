@@ -124,7 +124,7 @@ switch viewType
             numSlices = []; zVal = [];
         else
             sliceNum    = findnearest(xV, nCoordX);
-            numSlices   = sprintf('%d',size(getScanArray(planC{indexS.scan}(scanSet(1))), 1));
+            numSlices   = sprintf('%d',size(getScanArray(planC{indexS.scan}(scanSet(1))), 2));
             %xLim        = get(hAxis, 'xLim');
             %deltaX      = num2str(xLim(2) - xLim(1), '%0.4g');
             %yLim        = get(hAxis, 'yLim');
@@ -168,7 +168,7 @@ switch viewType
             numSlices = []; zVal = [];
         else
             sliceNum    = findnearest(yV, nCoordY);
-            numSlices   = sprintf('%d',size(getScanArray(planC{indexS.scan}(scanSet(1))), 2));
+            numSlices   = sprintf('%d',size(getScanArray(planC{indexS.scan}(scanSet(1))), 1));
             %xLim        = get(hAxis, 'xLim');
             %deltaX      = num2str(xLim(2) - xLim(1), '%0.4g');
             %yLim        = get(hAxis, 'yLim');
