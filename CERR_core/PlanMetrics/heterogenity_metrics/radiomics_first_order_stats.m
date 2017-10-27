@@ -1,4 +1,4 @@
-function [RadiomicsFirstOrder] = radiomics_first_order_stats(planC,structNum,doseNum)
+function [RadiomicsFirstOrderS] = radiomics_first_order_stats(planC,structNum,doseNum)
 %
 % function [RadiomicsFirstOrder] = radiomics_first_order_stats(Data,Step)
 %
@@ -10,6 +10,8 @@ function [RadiomicsFirstOrder] = radiomics_first_order_stats(planC,structNum,dos
 %--------------------------------------------------------------------------
 %   08/11/2010, Ralph Leijenaar
 %   - added Mean deviation
+%  10/13/2017 Modified to handle matrix input (planC)
+%  Eg: RadiomicsFirstOrderS = radiomics_first_order_stats(dataM);
 %--------------------------------------------------------------------------
 
 Step = 1;
@@ -47,75 +49,77 @@ end
 
 
 % Calculate standard PET parameters
-RadiomicsFirstOrder.min           = min(Iarray);
-RadiomicsFirstOrder.max           = max(Iarray);
-RadiomicsFirstOrder.mean          = mean(Iarray);
-RadiomicsFirstOrder.range         = range(Iarray);
-RadiomicsFirstOrder.std           = std(Iarray,1);
-RadiomicsFirstOrder.var           = var(Iarray,1);
-RadiomicsFirstOrder.median        = median(Iarray);
+RadiomicsFirstOrderS.min           = min(Iarray);
+RadiomicsFirstOrderS.max           = max(Iarray);
+RadiomicsFirstOrderS.mean          = mean(Iarray);
+RadiomicsFirstOrderS.range         = range(Iarray);
+RadiomicsFirstOrderS.std           = std(Iarray,1);
+RadiomicsFirstOrderS.var           = var(Iarray,1);
+RadiomicsFirstOrderS.median        = median(Iarray);
 
 % Skewness is a measure of the asymmetry of the data around the sample mean.
 % If skewness is negative, the data are spread out more to the left of the mean
 % than to the right. If skewness is positive, the data are spread out more to the
 % right. The skewness of the normal distribution (or any perfectly symmetric
 % distribution) is zero.
-RadiomicsFirstOrder.skewness      = skewness(Iarray);
+RadiomicsFirstOrderS.skewness      = skewness(Iarray);
 
 % Kurtosis is a measure of how outlier-prone a distribution is. The kurtosis
 % of the normal distribution is 3. Distributions that are more outlier-prone
 % than the normal distribution have kurtosis greater than 3; distributions
 % that are less outlier-prone have kurtosis less than 3.
-RadiomicsFirstOrder.kurtosis      = kurtosis(Iarray) - 3;
+RadiomicsFirstOrderS.kurtosis      = kurtosis(Iarray) - 3;
 
 % Entropy is a statistical measure of randomness that can be used to characterize
 % the texture of the input image
-N = ceil( RadiomicsFirstOrder.range/Step);  %   
+N = ceil( RadiomicsFirstOrderS.range/Step);  %   
 %RadiomicsFirstOrder.entropy       = entropy_radiomics(Iarray,N);
 
 % J = entropyfilt(varargin); % Misschien voor long, waar zit de hoogste
 % heterogeniteit?
 
 %   Root mean square (RMS)
-RadiomicsFirstOrder.rms           = sqrt(sum(Iarray.^2)/length(Iarray));
+RadiomicsFirstOrderS.rms           = sqrt(sum(Iarray.^2)/length(Iarray));
 
 %   Total Energy ( integraal(a^2) )
-RadiomicsFirstOrder.totalEnergy   = sum(Iarray.^2);
+RadiomicsFirstOrderS.totalEnergy   = sum(Iarray.^2);
 
 %   Mean deviation (also called mean absolute deviation)
-RadiomicsFirstOrder.meanAbsDev            = mad(Iarray);
+RadiomicsFirstOrderS.meanAbsDev            = mad(Iarray);
 
 % Median absolute deviation
-RadiomicsFirstOrder.medianAbsDev = sum(abs(Iarray-RadiomicsFirstOrder.median)) / numel(Iarray);
+RadiomicsFirstOrderS.medianAbsDev = sum(abs(Iarray-RadiomicsFirstOrderS.median)) / numel(Iarray);
 
 %   P10
 p10 = prctile(Iarray,10);
-RadiomicsFirstOrder.P10 = p10;
+RadiomicsFirstOrderS.P10 = p10;
 
 %   P90
 p90 = prctile(Iarray,90);
-RadiomicsFirstOrder.P90 = p90;
+RadiomicsFirstOrderS.P90 = p90;
 
-Iarray10_90 = Iarray(Iarray >= p10 & Iarray <= p90);
+Iarray10_90 = Iarray;
+idx10_90 = Iarray >= p10 & Iarray <= p90;
+Iarray10_90(~idx10_90) = NaN;
 
 %   Robust Mean Absolute Deviation
-RadiomicsFirstOrder.robustMeanAbsDev  = mad(Iarray10_90);
+RadiomicsFirstOrderS.robustMeanAbsDev  = mad(Iarray10_90);
 
 %   Robust Median Absolute Deviation
-RadiomicsFirstOrder.robustMedianAbsDev  = sum(abs(Iarray10_90-median(Iarray10_90)))...
-    / numel(Iarray10_90);
+RadiomicsFirstOrderS.robustMedianAbsDev  = nansum(abs(Iarray10_90-nanmedian(Iarray10_90)))...
+    ./ sum(idx10_90);
 
 % Inter-Quartile Range (IQR)
 % P75 - P25
 p75 = prctile(Iarray,75);
 p25 = prctile(Iarray,25);
-RadiomicsFirstOrder.interQuartileRange = p75 - p25;
+RadiomicsFirstOrderS.interQuartileRange = p75 - p25;
 
 % Quartile coefficient of Dispersion
-RadiomicsFirstOrder.coeffDispersion = (p75-p25)/(p75+p25);
+RadiomicsFirstOrderS.coeffDispersion = (p75-p25)./(p75+p25);
 
 % Coefficient of variation
-RadiomicsFirstOrder.coeffVariation = RadiomicsFirstOrder.std / RadiomicsFirstOrder.mean;
+RadiomicsFirstOrderS.coeffVariation = RadiomicsFirstOrderS.std ./ RadiomicsFirstOrderS.mean;
 
 
 end
