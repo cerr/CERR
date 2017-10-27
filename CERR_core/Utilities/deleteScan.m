@@ -7,6 +7,13 @@ function planC = deleteScan(planC, scanNum)
 
 indexS = planC{end};
 assocScanV = getStructureAssociatedScan(1:length(planC{indexS.structures}), planC);
+%Update associated scan numbers following input scanNum
+idxV = assocScanV > scanNum;
+currentScanNumV = [planC{indexS.structures}(idxV).associatedScan];
+newScanNumC = num2cell(currentScanNumV - 1);
+[planC{indexS.structures}(idxV).associatedScan] = newScanNumC{:};
+
+%Delete structures associated with scanNum
 structToDelete = find(assocScanV == scanNum);
 planC{indexS.structures}(structToDelete) = [];
 %Delete structureArray
