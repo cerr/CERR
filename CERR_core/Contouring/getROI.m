@@ -1,7 +1,7 @@
 function [volToEval,maskBoundingBox3M,mask3M,minr,maxr,minc,maxc,mins,maxs,...
-    uniqueSlices] = getROI(structNum,rowMargin,colMargin,slcMargin,planC)
+    uniqueSlices] = getROI(structNumV,rowMargin,colMargin,slcMargin,planC,randomShiftFlg)
 % function [volToEval,maskBoundingBox3M,mask3M,minr,maxr,minc,maxc,mins,maxs,...
-%     uniqueSlices] = getROI(structNum,rowMargin,colMargin,slcMargin,planC)
+%     uniqueSlices] = getROI(structNum,rowMargin,colMargin,slcMargin,planC,randomShiftFlg)
 %
 % returns the roi around the passed structure, expanded by the passed
 % margin parameters,
@@ -11,12 +11,20 @@ function [volToEval,maskBoundingBox3M,mask3M,minr,maxr,minc,maxc,mins,maxs,...
 if ~exist('planC','var')
     global planC
 end
+if ~exist('randomShiftFlg','var')
+    randomShiftFlg = 0;
+end
+
 indexS = planC{end};
 
 % Get the region of interest
-[rasterSegments, planC, isError]    = getRasterSegments(structNum,planC);
+rasterSegmentsM = [];
+for structNum = structNumV
+    rasterSegmentsM = [rasterSegmentsM; getRasterSegments(structNum,planC)];
+end
+
 scanNum = getStructureAssociatedScan(structNum,planC);
-[mask3M, uniqueSlices]              = rasterToMask(rasterSegments, scanNum, planC);
+[mask3M, uniqueSlices]              = rasterToMask(rasterSegmentsM, scanNum, planC);
 scanArray3M                         = getScanArray(planC{indexS.scan}(scanNum),planC);
 scanArray3M = double(scanArray3M);
 CTOffset = planC{indexS.scan}(scanNum).scanInfo(1).CTOffset;
@@ -33,10 +41,26 @@ minc = max(1,minc-colMargin);
 maxc = min(siz(2),maxc+colMargin);
 mins = max(1,mins-slcMargin);
 maxs = min(siz(3),maxs+slcMargin);
+
+% Randomly shift in A-P and S-I directions by 70% of the margin
+if randomShiftFlg
+    minRshift = randi(round(rowMargin*0.7));
+    maxRshift = randi(round(rowMargin*0.7));
+    minSshift = randi(round(slcMargin*0.7));
+    maxSshift = randi(round(slcMargin*0.7));
+    maxr = maxr - maxRshift;
+    minr = minr + minRshift;
+    maxs = maxs - maxSshift;
+    mins = mins + minSshift;
+end
+
 volToEval              = scanArray3M(minr:maxr,minc:maxc,mins:maxs);
 maskBoundingBox3M      = volToEval .^ 0;
 volToEval = double(volToEval);
-
+% Clip low intensities in L-R direction
+[~, ~, minc, maxc]= compute_boundingbox(volToEval > -600);
+volToEval = volToEval(:,minc:maxc,:);
+% Pad the mask in S-I direction
 mask3M = mask3M(minr:maxr,minc:maxc,:);
 maskSiz = size(mask3M);
 minSlc = min(uniqueSlices) - slcMargin;
