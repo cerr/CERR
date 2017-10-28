@@ -44,10 +44,10 @@ maxs = min(siz(3),maxs+slcMargin);
 
 % Randomly shift in A-P and S-I directions by 70% of the margin
 if randomShiftFlg
-    minRshift = randi(round(rowMargin*0.7));
-    maxRshift = randi(round(rowMargin*0.7));
-    minSshift = randi(round(slcMargin*0.7));
-    maxSshift = randi(round(slcMargin*0.7));
+    minRshift = randi(round(rowMargin*0.5));
+    maxRshift = randi(round(rowMargin*0.5));
+    minSshift = randi(round(slcMargin*0.5));
+    maxSshift = randi(round(slcMargin*0.5));
     maxr = maxr - maxRshift;
     minr = minr + minRshift;
     maxs = maxs - maxSshift;
@@ -55,11 +55,11 @@ if randomShiftFlg
 end
 
 volToEval              = scanArray3M(minr:maxr,minc:maxc,mins:maxs);
-maskBoundingBox3M      = volToEval .^ 0;
 volToEval = double(volToEval);
 % Clip low intensities in L-R direction
 [~, ~, minc, maxc]= compute_boundingbox(volToEval > -600);
 volToEval = volToEval(:,minc:maxc,:);
+maskBoundingBox3M      = volToEval .^ 0;
 % Pad the mask in S-I direction
 mask3M = mask3M(minr:maxr,minc:maxc,:);
 maskSiz = size(mask3M);
