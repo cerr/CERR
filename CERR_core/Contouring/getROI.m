@@ -57,7 +57,7 @@ end
 volToEval              = scanArray3M(minr:maxr,minc:maxc,mins:maxs);
 volToEval = double(volToEval);
 % Clip low intensities in L-R direction
-[~, ~, minc, maxc]= compute_boundingbox(volToEval > -600);
+[~, ~, minc, maxc]= compute_boundingbox(volToEval > -400);
 volToEval = volToEval(:,minc:maxc,:);
 maskBoundingBox3M      = volToEval .^ 0;
 % Pad the mask in S-I direction
