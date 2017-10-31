@@ -19,7 +19,8 @@ if exist(baseMaskFileName,'file')
     delete(baseMaskFileName);
 end
 success = createMhaScansFromCERR(baseScanNum, baseScanFileName, basePlanC);
-success = createMhaMask(baseScanNum, baseMaskFileName, basePlanC, baseMask3M, threshold_bone);
+% success = createMhaMask(baseScanNum, baseMaskFileName, basePlanC, baseMask3M, threshold_bone);
+success = createMhaMask(baseScanNum, baseMaskFileName, basePlanC, baseMask3M, []);
 
 % Create .mha file for moving scan
 movScanUID = movPlanC{indexMovS.scan}(movScanNum).scanUID;
@@ -129,11 +130,19 @@ switch upper(algorithm)
         %cmdFileC{end+1,1} = ['xform_in=',escapeSlashes(bspFileName_rigid)];
         cmdFileC{end+1,1} = ['xform_out=',escapeSlashes(bspFileName)];
         cmdFileC{end+1,1} = '';
-        if ~isempty(threshold_bone)
-            cmdFileC{end+1,1} = ['background_max=',num2str(threshold_bone)];
-            cmdFileC{end+1,1} = '';
-        end
+        % Append the user-defined stages
         cmdFileC(end+1:end+size(ursFileC,2),1) = ursFileC(:);
+        % Add background_max to all the stages if threshold_bone is not empty
+        if ~isempty(threshold_bone)            
+            backgrC = cell(1);
+            backgrC{1} = ['background_max=',num2str(threshold_bone)];
+            indStageV = find(strcmp(cmdFileC,'[STAGE]'));
+            for i = 1:length(indStageV)
+                ind = indStageV(i)+i-1;
+                cmdFileC(ind+2:end+1) = cmdFileC(ind+1:end);
+                cmdFileC(ind+1) = backgrC;
+            end
+        end
         cell2file(cmdFileC,cmdFileName_dir)
         
         % Run plastimatch Registration
