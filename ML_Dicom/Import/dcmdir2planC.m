@@ -95,6 +95,10 @@ end
 
 % process scan coordinates for oblique MR. (based on code by Deshan Yang,
 % 3/2/2010)
+numStructs = length(planC{indexS.structures});
+% assocScanV = getStructureAssociatedScan(1:numStructs, planC);
+assocScanV = 1;
+
 try
     for scanNum = 1:length(planC{indexS.scan})
         if strcmpi(planC{indexS.scan}(scanNum).scanInfo(1).imageType, 'MR')
@@ -156,10 +160,10 @@ try
             % Find structures associated with scanNum and update
             
             % Update the structures saaociated with scanNum (to do)
-            N = length(planC{indexS.structures});
-            if N>0
+            structsToUpdateV = find(assocScanV == scanNum);
+            %if N>0
                 % Now, translate the contour points to the same coordinate system
-                for nvoi = 1:N
+                for nvoi = structsToUpdateV
                     % for each structure
                     M = length(planC{indexS.structures}(nvoi).contour);
                     for sliceno = 1:M
@@ -182,7 +186,7 @@ try
                         
                     end
                 end
-            end
+            %end
             
             % Update the doses associated with scanNum (to do)
             N = length(planC{indexS.dose});

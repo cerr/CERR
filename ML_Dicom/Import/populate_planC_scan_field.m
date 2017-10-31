@@ -188,7 +188,7 @@ switch fieldname
                     
                     % Check for oblique scan
                     isOblique = 0;
-                    if max(abs(abs(imgOri(:)) - [1 0 0 0 1 0]')) > 1e-3
+                    if max(abs(abs(imgOri(:)) - [1 0 0 0 1 0]')) > 1e-2
                         isOblique = 1;
                     end
                     
@@ -321,7 +321,7 @@ switch fieldname
                           
                     % Check for oblique scan
                     isOblique = 0;
-                    if max(abs(abs(imgOri(:)) - [1 0 0 0 1 0]')) > 1e-3
+                    if max(abs(abs(imgOri(:)) - [1 0 0 0 1 0]')) > 1e-2
                         isOblique = 1;
                     end
                     
@@ -394,7 +394,7 @@ switch fieldname
                     
                     % Check for oblique scan
                     isOblique = 0;
-                    if max(abs(abs(imgOri(:)) - [1 0 0 0 1 0]')) > 1e-3
+                    if max(abs(abs(imgOri(:)) - [1 0 0 0 1 0]')) > 1e-2
                         isOblique = 1;
                     end
                     
@@ -436,7 +436,7 @@ switch fieldname
                 
                 % Check for oblique scan
                 isOblique = 0;
-                if max(abs(abs(imgOri(:)) - [1 0 0 0 1 0]')) > 1e-3
+                if max(abs(abs(imgOri(:)) - [1 0 0 0 1 0]')) > 1e-2
                     isOblique = 1;
                 end
                 
