@@ -19,8 +19,9 @@ if exist(baseMaskFileName,'file')
     delete(baseMaskFileName);
 end
 success = createMhaScansFromCERR(baseScanNum, baseScanFileName, basePlanC);
-% success = createMhaMask(baseScanNum, baseMaskFileName, basePlanC, baseMask3M, threshold_bone);
-success = createMhaMask(baseScanNum, baseMaskFileName, basePlanC, baseMask3M, []);
+if ~isempty(baseMask3M)
+    success = createMhaMask(baseScanNum, baseMaskFileName, basePlanC, baseMask3M, []);
+end
 
 % Create .mha file for moving scan
 movScanUID = movPlanC{indexMovS.scan}(movScanNum).scanUID;
@@ -35,9 +36,9 @@ if exist(movMaskFileName,'file')
     delete(movMaskFileName);
 end
 success = createMhaScansFromCERR(movScanNum, movScanFileName, movPlanC);
-%success = createMhaMask(movScanNum, movMaskFileName, movPlanC, movMask3M, threshold_bone);
-success = createMhaMask(movScanNum, movMaskFileName, movPlanC, movMask3M, []);
-
+if ~isempty(movMask3M)
+    success = createMhaMask(movScanNum, movMaskFileName, movPlanC, movMask3M, []);
+end
 
 switch upper(algorithm)
     
@@ -121,10 +122,10 @@ switch upper(algorithm)
         cmdFileC{1,1} = '[GLOBAL]';
         cmdFileC{end+1,1} = ['fixed=',escapeSlashes(baseScanFileName)];
         cmdFileC{end+1,1} = ['moving=',escapeSlashes(movScanFileName)];
-        if ~isempty(baseMask3M) || ~isempty(threshold_bone)
+        if ~isempty(baseMask3M)
             cmdFileC{end+1,1} = ['fixed_roi=',escapeSlashes(baseMaskFileName)];
         end
-        if ~isempty(movMask3M) || ~isempty(threshold_bone)
+        if ~isempty(movMask3M)
             cmdFileC{end+1,1} = ['moving_roi=',escapeSlashes(movMaskFileName)];
         end
         %cmdFileC{end+1,1} = ['xform_in=',escapeSlashes(bspFileName_rigid)];
