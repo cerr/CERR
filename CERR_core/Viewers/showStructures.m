@@ -372,7 +372,11 @@ for i=1:length(axisInfo.structureGroup)
                         end
                     else
                         cellNum = ceil((structNum-52)/8)+1; %uint8
-                        structsOnSlice = structsOnSliceC{cellNum};
+                        if length(structsOnSliceC) < cellNum
+                            structsOnSlice = [];
+                        else
+                            structsOnSlice = structsOnSliceC{cellNum};
+                        end
                         if isempty(structsOnSlice)
                             includeCurrStruct = 0;
                         else
