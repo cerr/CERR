@@ -122,16 +122,6 @@ for j=1:length(zmesh) % loop through the number of CT
             %                 slice=slice+1;
             segment = structS.contour(index(locate_point(k))).segments;
             segment(:,3) = zmesh(j);
-            % for oblique MR scans, flip along scan's yOffset and add
-            % the offset from the first slice
-            if strcmpi(modality,'mr') && numel(unique(planC{indexS.scan}(scanInd)...
-                    .scanInfo(1).DICOMHeaders.ImageOrientationPatient)) > 2
-                deltaY = planC{indexS.scan}(scanInd).scanInfo(j).yOffset - ...
-                    planC{indexS.scan}(scanInd).scanInfo(1).yOffset;
-                %segment(:,2) = deltaY +
-                %planC{indexS.scan}(scanInd).scanInfo(j).yOffset -
-                %segment(:,2); % APA, 8/16/2017
-            end
             contourTemplate(j).segments(end+1).points = segment;
         end
     end
