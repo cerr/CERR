@@ -42,6 +42,10 @@ SERIES = dcmdir_PATIENT_STUDY_SERIES;
 %Default value for undefined fields.
 dataS = '';
 
+% Tolerance to determine oblique scan (think about passing it as a
+% parameter in future)
+obliqTol = 1e-3;
+
 switch fieldname
     case 'scanArray'
         %dataS   = uint16([]);
@@ -188,17 +192,13 @@ switch fieldname
                     
                     % Check for oblique scan
                     isOblique = 0;
-                    if max(abs(abs(imgOri(:)) - [1 0 0 0 1 0]')) > 1e-2
+                    if max(abs(abs(imgOri(:)) - [1 0 0 0 1 0]')) > obliqTol
                         isOblique = 1;
                     end
                     
                     %Store zValue for sorting, converting DICOM mm to CERR cm and
                     %inverting to match CERR's z direction.
-                    if ~isOblique
-                        zValues(imageNum) = - imgpos(3) / 10;
-                    else
-                        zValues(imageNum) = imgpos(3) / 10;
-                    end
+                    zValues(imageNum) = - imgpos(3) / 10;
                     
                     %Store the slice in the 3D matrix.
                     dataS(:,:,imageNum) = slice2D';
@@ -321,7 +321,7 @@ switch fieldname
                           
                     % Check for oblique scan
                     isOblique = 0;
-                    if max(abs(abs(imgOri(:)) - [1 0 0 0 1 0]')) > 1e-2
+                    if max(abs(abs(imgOri(:)) - [1 0 0 0 1 0]')) > obliqTol
                         isOblique = 1;
                     end
                     
@@ -394,17 +394,13 @@ switch fieldname
                     
                     % Check for oblique scan
                     isOblique = 0;
-                    if max(abs(abs(imgOri(:)) - [1 0 0 0 1 0]')) > 1e-2
+                    if max(abs(abs(imgOri(:)) - [1 0 0 0 1 0]')) > obliqTol
                         isOblique = 1;
                     end
                     
                     %Store zValue for sorting, converting DICOM mm to CERR cm and
                     %inverting to match CERR's z direction.
-                    if ~isOblique
-                        zValues(imageNum) = - imgpos(3) / 10;
-                    else
-                        zValues(imageNum) = imgpos(3) / 10;
-                    end
+                    zValues(imageNum) = - imgpos(3) / 10;
                     
                     for i = 1:length(names)
                         dataS(imageNum).(names{i}) = populate_planC_scan_scanInfo_field(names{i}, IMAGE, imgobj);
