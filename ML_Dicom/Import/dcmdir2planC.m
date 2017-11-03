@@ -96,18 +96,24 @@ end
 % process scan coordinates for oblique MR. (based on code by Deshan Yang,
 % 3/2/2010)
 numStructs = length(planC{indexS.structures});
-% assocScanV = getStructureAssociatedScan(1:numStructs, planC);
-assocScanV = 1;
+assocScanV = getStructureAssociatedScan(1:numStructs, planC);
+% assocScanV = 1; % temporary, until the issue with DCE/DWI volume split is
+% resolved.
 
+% Tolerance to determine oblique scan (think about passing it as a
+% parameter in future)
+obliqTol = 1e-3;
+
+numScans = length(planC{indexS.scan});
 try
-    for scanNum = 1:length(planC{indexS.scan})
+    for scanNum = 1:numScans
         if strcmpi(planC{indexS.scan}(scanNum).scanInfo(1).imageType, 'MR')
             
             % Calculate the slice normal
             ImageOrientationPatientV = planC{indexS.scan}(scanNum).scanInfo(1).DICOMHeaders.ImageOrientationPatient;
             
             % Check for obliqueness
-            if max(abs((abs(ImageOrientationPatientV) - [1 0 0 0 1 0]'))) < 1e-2
+            if max(abs((abs(ImageOrientationPatientV) - [1 0 0 0 1 0]'))) < obliqTol
                 continue;
             end
             
@@ -123,8 +129,13 @@ try
                 distV(slcNum) = sum(sliceNormV .* ipp);
             end
             
-            % Order slices
-            [zV,zOrderV] = sort(distV);
+            % sort z-values in ascending order since z increases from head
+            % to feet in CERR
+            zV = sort(distV);
+            
+            % Flip scan since DICOM and CERR's z-convention is opposite.
+            % Hence sort according to descending z-values.
+            [~,zOrderV] = sort(distV,'descend'); % flip scan
             planC{indexS.scan}(scanNum).scanInfo = planC{indexS.scan}(scanNum).scanInfo(zOrderV);
             planC{indexS.scan}(scanNum).scanArray = planC{indexS.scan}(scanNum).scanArray(:,:,zOrderV);
             
@@ -140,7 +151,7 @@ try
             info2b = info2.DICOMHeaders;
             pos1b = info1b.ImagePositionPatient;
             pos2b = info2b.ImagePositionPatient;
-            deltaPosb = pos2b-pos1b;
+            deltaPosb = pos2b-pos1b;            
             
             positionMatrix = [reshape(info1b.ImageOrientationPatient,[3 2])*diag(info1b.PixelSpacing) [deltaPosb(1) pos1b(1); deltaPosb(2) pos1b(2); deltaPosb(3) pos1b(3)]];
             positionMatrix = positionMatrix / 10; % mm to cm
@@ -164,6 +175,8 @@ try
             %if N>0
                 % Now, translate the contour points to the same coordinate system
                 for nvoi = structsToUpdateV
+                    %planC{indexS.structures}(nvoi).contour = planC{indexS.structures}(nvoi).contour(zOrderV);
+                    
                     % for each structure
                     M = length(planC{indexS.structures}(nvoi).contour);
                     for sliceno = 1:M
@@ -245,7 +258,7 @@ try
                     
                     planC{indexS.dose}(doseno) = dose;
                 end
-            end
+            end            
             
         end
     end % end of scan loop
@@ -334,10 +347,6 @@ for i=1:length(planC{indexS.structures})
     planC{indexS.structures}(i) = sortStructures(planC{indexS.structures}(i), planC);
 end
 
-%TEMPORARY.
-% for i=1:length(planC{indexS.dose})
-%    planC{indexS.dose}(i).assocScanUID = planC{indexS.scan}(1).scanUID;
-% end
-
 planC = getRasterSegs(planC);
 planC = setUniformizedData(planC);
+
