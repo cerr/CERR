@@ -47,6 +47,10 @@ IMAGE = dcmdir_PATIENT_STUDY_SERIES_IMAGE;
 %Default value for undefined fields.
 dataS = '';
 
+% Tolerance to determine oblique scan (think about passing it as a
+% parameter in future)
+obliqTol = 1e-3;
+
 if ~exist('dcmobj', 'var')
     %Grab the dicom object representing this image.
     dcmobj = scanfile_mldcm(IMAGE.file);
@@ -230,7 +234,7 @@ switch fieldname
         
         % check for oblique scan
         isOblique = 0;
-        if max(abs(abs(imgOri(:)) - [1 0 0 0 1 0]')) > 1e-2
+        if max(abs(abs(imgOri(:)) - [1 0 0 0 1 0]')) > obliqTol
             isOblique = 1;
         end
         
@@ -291,7 +295,7 @@ switch fieldname
         
         % check for oblique scan
         isOblique = 0;
-        if max(abs(abs(imgOri(:)) - [1 0 0 0 1 0]')) > 1e-2
+        if max(abs(abs(imgOri(:)) - [1 0 0 0 1 0]')) > obliqTol
             isOblique = 1;
         end
         
@@ -324,7 +328,7 @@ switch fieldname
                     dataS = yOffset / 10;
             end
         else
-            dataS = xOffset / 10;
+            dataS = yOffset / 10;
             
         end
         
