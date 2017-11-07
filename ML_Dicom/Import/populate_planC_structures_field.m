@@ -192,13 +192,11 @@ switch fieldname
 
             switch upper(geoType)
                 case 'POINT'
-                    %warning('CERR does not support single point contours.');
                     warning('Single point contour.');
                 case 'OPEN_PLANAR'
-                    %warning('CERR does not support open planar contours.')
                     warning('Open planar contours.')
                 case 'OPEN_NONPLANAR'
-                    warning('CERR does not support open, non-planar contours.')
+                    warning('Open, non-planar contours.')
                 case 'CLOSED_PLANAR'
                     %Great, continue.
             end
