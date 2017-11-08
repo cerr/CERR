@@ -537,7 +537,8 @@ switch upper(command)
         ylabel(hTCPAxis,'TCP');
         NTCPLegendC = arrayfun(@(x)x.DisplayName,ud.NTCPCurve,'un',0);
         TCPLegendC = arrayfun(@(x)x.DisplayName,ud.TCPCurve,'un',0);
-        legend([ud.NTCPCurve,ud.TCPCurve],[NTCPLegendC,TCPLegendC],'Location','northeast','Color','none');
+        legend([ud.NTCPCurve,ud.TCPCurve],[NTCPLegendC,TCPLegendC],...
+            'Location','northeast','Color','none','AutoUpdate','off');
         %Display slider
         set(hSlider,'Visible','On'); %Slider on
         ud.handle.modelsAxis(4) = hSlider;
@@ -739,7 +740,7 @@ end
             nVal = numel(valNameC);
             valTypes = inS.(parListC{k}).type;
             for l = 1:nVal
-                if strcmp(valNameC{l},'val');
+                if strcmp(valNameC{l},'val')
                     dispVal = inS.(parListC{k}).(valNameC{l});
                     switch(lower(valTypes{l}))
                         case 'string'
@@ -749,7 +750,9 @@ end
                             columnFormat = {'numeric','numeric'};
                             Data = {parListC{k},dispVal} ;
                         case 'bin'
-                            columnFormat = {'char',inS.(parListC{k}).desc};
+                            descV = inS.(parListC{k}).desc;
+                            descC = cellstr(descV);
+                            columnFormat = {'char',descC};
                             Data = {parListC{k},inS.(parListC{k}).desc{dispVal+1}};
                     end
                     hTab(row) = uitable(hFig,'Tag','paramEdit','Position', posV + [0 -(row*(rowHt+1)) 0 0 ],...
