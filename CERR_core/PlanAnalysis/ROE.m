@@ -537,7 +537,8 @@ switch upper(command)
         ylabel(hTCPAxis,'TCP');
         NTCPLegendC = arrayfun(@(x)x.DisplayName,ud.NTCPCurve,'un',0);
         TCPLegendC = arrayfun(@(x)x.DisplayName,ud.TCPCurve,'un',0);
-        legend([ud.NTCPCurve,ud.TCPCurve],[NTCPLegendC,TCPLegendC],'Location','northeast','Color','none');
+        legend([ud.NTCPCurve,ud.TCPCurve],[NTCPLegendC,TCPLegendC],...
+            'Location','northeast','Color','none','AutoUpdate','off');
         %Display slider
         set(hSlider,'Visible','On'); %Slider on
         ud.handle.modelsAxis(4) = hSlider;
