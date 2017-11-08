@@ -739,7 +739,7 @@ end
             nVal = numel(valNameC);
             valTypes = inS.(parListC{k}).type;
             for l = 1:nVal
-                if strcmp(valNameC{l},'val');
+                if strcmp(valNameC{l},'val')
                     dispVal = inS.(parListC{k}).(valNameC{l});
                     switch(lower(valTypes{l}))
                         case 'string'
@@ -749,7 +749,9 @@ end
                             columnFormat = {'numeric','numeric'};
                             Data = {parListC{k},dispVal} ;
                         case 'bin'
-                            columnFormat = {'char',inS.(parListC{k}).desc};
+                            descV = inS.(parListC{k}).desc;
+                            descC = cellstr(descV);
+                            columnFormat = {'char',descC};
                             Data = {parListC{k},inS.(parListC{k}).desc{dispVal+1}};
                     end
                     hTab(row) = uitable(hFig,'Tag','paramEdit','Position', posV + [0 -(row*(rowHt+1)) 0 0 ],...
