@@ -36,13 +36,13 @@ end;
 %I = find(mask2D);
 mask = zeros(size(img));
 try
-    delete(gcp('nocreate'));
-    parpool(16);
+    %delete(gcp('nocreate'));
+    %parpool(16);
     parfor s = 1 : slices
         m = bwmorph(bwmorph(bwmorph(single(img(:,:,s)>thresh), 'thicken', 2), 'close'), 'open');
         mask(:,:,s) = m;
-    end;
-    delete(gcp('nocreate'));
+    end
+    %delete(gcp('nocreate'));
 catch
     for s = 1 : slices
         m = bwmorph(bwmorph(bwmorph(single(img(:,:,s)>thresh), 'thicken', 2), 'close'), 'open');
