@@ -41,8 +41,8 @@ end
 
 indexS = planC{end};
 
-xValsV = infoS.Offset(1)/10  : infoS.PixelDimensions(2)/10 : infoS.Offset(1)/10 + infoS.PixelDimensions(2)*(infoS.Dimensions(2)-1)/10;
-yValsV = -infoS.Offset(2)/10  :-infoS.PixelDimensions(2)/10 : -infoS.Offset(2)/10 - infoS.PixelDimensions(1)*(infoS.Dimensions(1)-1)/10;
+xValsV = infoS.Offset(1)/10  : infoS.PixelDimensions(2)/10 : infoS.Offset(1)/10 + infoS.PixelDimensions(2)*(infoS.Dimensions(1)-1)/10;
+yValsV = -infoS.Offset(2)/10  :-infoS.PixelDimensions(2)/10 : -infoS.Offset(2)/10 - infoS.PixelDimensions(1)*(infoS.Dimensions(2)-1)/10;
 
 zValsV = -infoS.Offset(3)/10: -infoS.PixelDimensions(3)/10 : -infoS.Offset(3)/10 - infoS.PixelDimensions(3)*(infoS.Dimensions(3)-1)/10;
 zValsV = fliplr(zValsV);
@@ -62,15 +62,13 @@ planC{indexS.scan}(ind).scanUID = createUID('scan');
 scanInfo = initializeScanInfo;
 
 scanInfo(1).grid2Units = infoS.PixelDimensions(2)/10;
-scanInfo(1).grid1Units = infoS.PixelDimensions(1)/10; %negative for y.
+scanInfo(1).grid1Units = infoS.PixelDimensions(1)/10;
 scanInfo(1).sizeOfDimension1 = infoS.Dimensions(2);
 scanInfo(1).sizeOfDimension2 = infoS.Dimensions(1);
-scanInfo(1).xOffset = infoS.Offset(2)/10;
-scanInfo(1).yOffset = infoS.Offset(1)/10;
 scanInfo(1).imageType = movScanName;
 scanInfo(1).CTOffset = CTOffset;
 
-%Calculate proper scan offset values based on x,y,z vals.
+%Calculate the correct scan offset values based on x,y,z vals.
 scanInfo(1).xOffset = xValsV(1) + (scanInfo(1).sizeOfDimension2-1)*scanInfo(1).grid2Units/2;
 scanInfo(1).yOffset = yValsV(end) + (scanInfo(1).sizeOfDimension1-1)*scanInfo(1).grid1Units/2;
 scanInfo(1).zValue = 0;
