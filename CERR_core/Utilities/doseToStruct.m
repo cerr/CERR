@@ -63,6 +63,7 @@ if isempty(scanTransM)
 end
 
 transM = inv(scanTransM)*doseTransM;
+doseOffset = planC{indexS.dose}(doseNum).doseOffset;
 
 [xVals, yVals, zVals] = getScanXYZVals(planC{indexS.scan}(assocScanNum));
 [xV, yV, zV] = getDoseXYZVals(planC{indexS.dose}(doseNum)); 
@@ -73,7 +74,7 @@ for i=1:length(zVals)
     if isempty(doseM)
         indC = [];
     else
-        C = contourc(imageXVals, imageYVals, doseM, [doseLevel doseLevel]);
+        C = contourc(imageXVals, imageYVals, doseM, [doseLevel+doseOffset doseLevel+doseOffset]);
         indC = getSegIndices(C);
     end
     if ~isempty(indC)
