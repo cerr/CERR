@@ -47,12 +47,19 @@ else
     hIMRTPMenu = uimenu(stateS.handle.CERRSliceViewer, 'label', '&IMRT', 'callback', 'putIMRTPMenu;', 'Interruptible', 'off');
     stateS.handle.CERRIMRTPMenu = hIMRTPMenu;
     uimenu(hIMRTPMenu, 'label', 'IMRTP Creation', 'callback',['sliceCallBack(''selectIMRTP'',''', '0' ,''')'],'interruptible','on');
+    if exist('IMRTOptimization','dir')
+        uimenu(hIMRTPMenu, 'label', '&Optimize', 'callback','optimizeGui(''init'');','interruptible','on');
+    end    
 end
 
 %Find and remove old IMRT listings.
 kids = get(hIMRTPMenu, 'children');
 numOldMenus = length(kids);
-delete(kids(1:numOldMenus-1));
+if exist('IMRTOptimization','dir')
+    delete(kids(1:numOldMenus-2));
+else
+    delete(kids(1:numOldMenus-1));
+end
 
 if pos ~=0
   set(hIMRTPMenu,'Position',pos)
