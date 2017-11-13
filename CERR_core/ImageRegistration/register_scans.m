@@ -160,6 +160,7 @@ switch upper(algorithm)
             delete(bspFileName);
             delete(baseMaskFileName);
             delete(movMaskFileName);
+            delete(cmdFileName_dir);
         end
         
         % Create a structure for storing algorithm parameters
