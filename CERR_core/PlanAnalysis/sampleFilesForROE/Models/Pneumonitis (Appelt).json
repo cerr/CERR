@@ -1,16 +1,15 @@
 {
 	"name": "Pneumonitis (Appelt)",
 	"type": "NTCP",
-        "structure": "Lung_GTV",
+
 	"stdNumFractions": 35,
 	"fractionCorrect": "Yes",
 	"abCorrect": "No",
 	"abRatio": 3,
 	"parameters": {
-			"modelSubtype": {
-					 "val": "D50_GAMMA50",
-					 "type": ["string"]
-					},
+
+   			"structures": "Lung_GTV",
+	
 			"appeltMod": {
 				       "val": "Yes",
 				       "type": ["string"]
@@ -75,9 +74,9 @@
 					}
 			}
 ,
-	"function": "logitFn",
+	"function": "appeltCorrectedLogitFn",
 	"created_by": "Aditi",
 	"created_at": "4PM 2\/15\/17",
-	"modified_by": "",
-	"modified_at": ""
+	"modified_by": "Aditi",
+	"modified_at": "3PM 11/14/17"
 }

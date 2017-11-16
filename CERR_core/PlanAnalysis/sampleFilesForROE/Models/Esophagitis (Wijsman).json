@@ -1,7 +1,6 @@
 {
 	"name": "Esophagitis (Wijsman)",
 	"type": "NTCP",
-        "structure": "esophagus",
 	"stdFractionSize": 2,
 	"fractionCorrect": "Yes",
 	"abCorrect": "Yes",
@@ -23,15 +22,16 @@
 				"cteg": [0,1],
 				"desc": ["cT1/2 ", "cT3/4 "]
 			      },
-		"modelSubtype": {
-				 "val": "MULTIVARIATE",
-				 "type": ["String"]
-				},
-                "meanDose": {
-				"val": "calc_meanDose",
- 				"weight": 0.117,
-				"type": ["string", "cont"],
-				"cteg": ["calc_meanDose","calc_meanDose"]
+	
+		"structures": { 
+			       "esophagus":{
+                				"meanDose": {
+								"val": "calc_meanDose",
+ 								"weight": 0.117,
+								"type": ["string", "cont"],
+								"cteg": ["calc_meanDose","calc_meanDose"]
+							    }
+		                           }
                              },
 
                 "constant": { 
