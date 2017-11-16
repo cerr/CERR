@@ -58,8 +58,8 @@ volToEval              = scanArray3M(minr:maxr,minc:maxc,mins:maxs);
 volToEval = double(volToEval);
 % Clip low intensities in L-R direction
 croppedImg3M = bwareaopen(volToEval > -400, 100);
-[minr, maxr, minc, maxc]= compute_boundingbox(croppedImg3M);
-volToEval = volToEval(minr:maxr,minc:maxc,:);
+[~, ~, minc, maxc]= compute_boundingbox(croppedImg3M);
+volToEval = volToEval(:,minc:maxc,:);
 maskBoundingBox3M      = volToEval .^ 0;
 % Pad the mask in S-I direction
 mask3M = mask3M(minr:maxr,minc:maxc,:);
