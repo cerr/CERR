@@ -1,90 +1,85 @@
-function prob = logitFn(paramS,doseBinsV,volHistV)
-%
-% function prob = logitFn(paramS,doseBinsV,volHistV)
-%
+function prob = logitFn(paramS,doseBinsC,volHistC)
+% function prob = logitFn(paramS,doseBinsC,volHistC);
 % This function returns the outcomes probabilities based on logistic fit.
-%
+%----------------------------------------------------------------------------
 % INPUT parameters:
-% paramS.modelSubtype: The type of logistic fit, 'D50_GAMMA50' or
-% 'MULTIVARIATE'
-%
-% For D50_GAMMA50 type of fit,
-% If paramS.appeltMod = 'yes'; modification for
-% risk factors are computed based on Appelt et al.
-% if paramS.isHighRiskPatient = 1, the patient falls in the high risk
-% category.
-%
-% For MULTIVARIATE type of fit,
-% specify the variates using the following format:
+% paramS:
+% Specify the variates using the following format:
 % paramS.field1.val = 1;
 % paramS.field1.weight = 2;
-%
 % paramS.field1.val can also be a string, in which case it will act as a
-% function name. This function must have the signature x(doseBinsV,
-% volHistV).
-%
+% function name. This function must have the signature
+% x(doseBinsV,volHistV).
+%---------------------------------------------------------------------------
 % APA, 02/15/2017
 % AI, 02/21/17
+% AI , 11/14/17  Created separate function for appelt model
+% AI, 11/16/17   Copy number of fractions, abRatio to any sub-parameter structures
 
-modelType = paramS.modelSubtype.val;
+%Extract parameters and corresponding weights 
+[x,weight] = getParCoeff(paramS,'weight',doseBinsC,volHistC);
+%Compute TCP/NTCP
+gx = sum(weight.*x);
+prob = 1 / (1 + exp(-gx));
 
-switch upper(modelType)
-    
-    case 'D50_GAMMA50'
-    %Apply Appelt modification to D50, gamma50 for at-risk group
-        if isfield(paramS,'appeltMod') && strcmpi(paramS.appeltMod.val,'yes')
-            % Get OR
-            [or,weight] = getParCoeff(paramS,'OR');
-            orMult = or(weight==1);
-            OR = prod(orMult);
-            %Get modified D50, gamma50
-            [D50, gamma50] = appeltMod(OR);
-        else
-            D50 = paramS.D50.val;
-            gamma50 = paramS.gamma50.val;
-        end
-        %mean dose for selected struct/dose
-        meanDose = calc_meanDose(doseBinsV, volHistV);
+
+%%--- Functions to extract model parameters and weights ----
+    function [coeff,par] = getParCoeff(paramS,fieldName,doseBinsC,volHistC)
         
-        %Compute NTCP
-        prob = 1./(1+exp(4*gamma50*(1-meanDose/D50)));
-        
-    case 'MULTIVARIATE'
-        [x,weight] = getParCoeff(paramS,'weight');
-        gx = sum(weight.*x);
-        % Compute TCP/NTCP
-        prob = 1 / (1 + exp(-gx));
-end
-
-%%
-    function [coeff,par] = getParCoeff(paramS,parName)
-        %Get categories
-        fieldC = fields(paramS);
-        inpar = 0;
-        for i = 1:numel(fieldC)
-            if isfield(paramS.(fieldC{i}),'cteg')
-            inpar = inpar+1;
-            inParC{inpar} = fieldC{i};
-            else
-                if isfield(paramS.(fieldC{i}),'weight')
-                inpar = inpar+1;
-                inParC{inpar} = fieldC{i};
+        %Extract relevant parameters
+        genFieldC = fields(paramS);
+        for i = 1:numel(genFieldC)
+            if strcmpi(genFieldC{i},'structures')
+                structS = paramS.(genFieldC{i});
+                structListC = fieldnames(structS);
+                for j = 1:length(structListC)
+                    strParamS = structS.(structListC{j});
+                    strParamListC = fieldnames(strParamS);
+                    for k = 1 : numel(strParamListC)
+                        if isfield(strParamS.(strParamListC{k}),'cteg') |  isfield(strParamS.(strParamListC{k}),'weight')
+                            parName = [structListC{j},strParamListC{k}];
+                            keepParS.(parName) = strParamS.(strParamListC{k});
+                        end
+                    end
                 end
+            else
+                 if isfield(paramS.(genFieldC{i}),'cteg') |  isfield(paramS.(genFieldC{i}),'weight')
+                     parName = genFieldC{i};
+                     keepParS.(parName) = paramS.(genFieldC{i});
+                 end
             end
         end
-        par = zeros(1,numel(inParC));
-        coeff = zeros(1,numel(inParC));
-        for n = 1:numel(inParC)
-            coeff(n) = paramS.(inParC{n}).(parName);
-            if isnumeric(paramS.(inParC{n}).val)
-               par(n) = paramS.(inParC{n}).val;
+      
+       
+       %Compute parameters, extract coefficients 
+        keepParC = fieldnames(keepParS);
+        numStr = 0;
+        par = zeros(1,length(keepParC));
+        coeff = zeros(1,length(keepParC));
+        for n = 1:length(keepParC)
+            coeff(n) = keepParS.(keepParC{n}).(fieldName);
+            if isnumeric(keepParS.(keepParC{n}).val)
+               par(n) = keepParS.(keepParC{n}).val;
             else
-                if ~isfield(paramS.(inParC{n}),'params')
-                    par(n) = eval([paramS.(inParC{n}).val,...
+                if ~iscell(doseBinsC)  %For single-structure models
+                    doseBinsV = doseBinsC;
+                    volHistV = volHistC;
+                else
+                numStr = numStr+1;
+                doseBinsV = doseBinsC{numStr};
+                volHistV = volHistC{numStr};
+                end
+                if ~isfield(keepParS.(keepParC{n}),'params')
+                    par(n) = eval([keepParS.(keepParC{n}).val,...
                         '(doseBinsV, volHistV)']);
                 else
-                    par(n) = eval([paramS.(inParC{n}).val,...
-                        '(doseBinsV, volHistV,paramS.(inParC{n}).params)']);
+                    %Copy number fo fractions, abRatio
+                    keepParS.(keepParC{n}).params.numFractions.val = paramS.numFractions;
+                    if isfield(paramS,'abRatio')
+                        keepParS.(keepParC{n}).params.abRatio.val = paramS.abRatio;
+                    end
+                    par(n) = eval([keepParS.(keepParC{n}).val,...
+                        '(doseBinsV, volHistV,keepParS.(keepParC{n}).params)']);
                 end
             end
         end
