@@ -44,12 +44,12 @@ maxs = min(siz(3),maxs+slcMargin);
 
 % Randomly shift in A-P and S-I directions by 70% of the margin
 if randomShiftFlg
-    minRshift = randi(round(rowMargin*0.5));
-    maxRshift = randi(round(rowMargin*0.5));
+    %minRshift = randi(round(rowMargin*0.5));
+    %maxRshift = randi(round(rowMargin*0.5));
     minSshift = randi(round(slcMargin*0.5));
     maxSshift = randi(round(slcMargin*0.5));
-    maxr = maxr - maxRshift;
-    minr = minr + minRshift;
+    %maxr = maxr - maxRshift;
+    %minr = minr + minRshift;
     maxs = maxs - maxSshift;
     mins = mins + minSshift;
 end
