@@ -51,7 +51,7 @@ if ~exist('q','var')
 end
 
 
-Tol=1e-2;
+Tol=1e-4;
 iter=0;
 gamma=sum(sum(D))/(R*N); % prior probability of true segmentation
 W=zeros(N,1,'single'); % belief of true segmentation is 1
