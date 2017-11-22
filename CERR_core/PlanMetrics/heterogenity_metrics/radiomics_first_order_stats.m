@@ -17,30 +17,30 @@ function [RadiomicsFirstOrderS] = radiomics_first_order_stats(planC,structNum,do
 Step = 1;
 
 if iscell(planC)
-indexS = planC{end};
-
-% Get uniformized structure Mask
-maskStruct3M = getUniformStr(structNum,planC);
-
-% Get uniformized scan mask in HU
-scanNum = getAssociatedScan(planC{indexS.structures}(structNum).assocScanUID, planC);
-maskScan3M = getUniformizedCTScan(1, scanNum, planC);
-% Convert to HU if image is of type CT
-if ~isempty(planC{indexS.scan}(scanNum).scanInfo(1).CTOffset)
-    maskScan3M = double(maskScan3M) - planC{indexS.scan}(scanNum).scanInfo(1).CTOffset;
-end
-
-% % Get Pixel-size
-% [xUnifV, yUnifV, zUnifV] = getUniformScanXYZVals(planC{indexS.scan}(scanNum));
-% PixelSpacingXi = abs(xUnifV(2)-xUnifV(1));
-% PixelSpacingYi = abs(yUnifV(2)-yUnifV(1));
-% PixelSpacingZi = abs(zUnifV(2)-zUnifV(1));
-% VoxelVol = PixelSpacingXi*PixelSpacingYi*PixelSpacingZi;
-
-% Iarray = Data.Image(~isnan(Data.Image));     %    Array of Image values
-indStructV = maskStruct3M(:) == 1;
-Iarray = maskScan3M(indStructV);
-
+    indexS = planC{end};
+    
+    % Get uniformized structure Mask
+    maskStruct3M = getUniformStr(structNum,planC);
+    
+    % Get uniformized scan mask in HU
+    scanNum = getAssociatedScan(planC{indexS.structures}(structNum).assocScanUID, planC);
+    maskScan3M = getUniformizedCTScan(1, scanNum, planC);
+    % Convert to HU if image is of type CT
+    if ~isempty(planC{indexS.scan}(scanNum).scanInfo(1).CTOffset)
+        maskScan3M = double(maskScan3M) - planC{indexS.scan}(scanNum).scanInfo(1).CTOffset;
+    end
+    
+    % % Get Pixel-size
+    % [xUnifV, yUnifV, zUnifV] = getUniformScanXYZVals(planC{indexS.scan}(scanNum));
+    % PixelSpacingXi = abs(xUnifV(2)-xUnifV(1));
+    % PixelSpacingYi = abs(yUnifV(2)-yUnifV(1));
+    % PixelSpacingZi = abs(zUnifV(2)-zUnifV(1));
+    % VoxelVol = PixelSpacingXi*PixelSpacingYi*PixelSpacingZi;
+    
+    % Iarray = Data.Image(~isnan(Data.Image));     %    Array of Image values
+    indStructV = maskStruct3M(:) == 1;
+    Iarray = maskScan3M(indStructV);
+    
 else
     
     Iarray = planC;
@@ -72,7 +72,7 @@ RadiomicsFirstOrderS.kurtosis      = kurtosis(Iarray) - 3;
 
 % Entropy is a statistical measure of randomness that can be used to characterize
 % the texture of the input image
-N = ceil( RadiomicsFirstOrderS.range/Step);  %   
+N = ceil( RadiomicsFirstOrderS.range/Step);  %
 %RadiomicsFirstOrder.entropy       = entropy_radiomics(Iarray,N);
 
 % J = entropyfilt(varargin); % Misschien voor long, waar zit de hoogste
