@@ -61,15 +61,15 @@ scanTypesC = {};
 for i = 1 : numScans
     scanTypesC{i} = [num2str(i) '.  ' planC{indexS.scan}(i).scanType];
     
-    if isfield(planC{indexS.scan}(scanNum).scanInfo(1),'DICOMHeaders') && ...
-            ~isempty(planC{indexS.scan}(scanNum).scanInfo(1).DICOMHeaders)
-        ImageOrientationPatientV = planC{indexS.scan}(scanNum).scanInfo(1).DICOMHeaders.ImageOrientationPatient;
+    if isfield(planC{indexS.scan}(i).scanInfo(1),'DICOMHeaders') && ...
+            ~isempty(planC{indexS.scan}(i).scanInfo(1).DICOMHeaders)
+        ImageOrientationPatientV = planC{indexS.scan}(i).scanInfo(1).DICOMHeaders.ImageOrientationPatient;
     else
         ImageOrientationPatientV = [];
     end
     % Check for obliqueness
     if ~isempty(ImageOrientationPatientV) && max(abs((abs(ImageOrientationPatientV) - [1 0 0 0 1 0]'))) <= obliqTol
-        isObliqScanV(scanNum) = 0;
+        isObliqScanV(i) = 0;
     end
     
 end
