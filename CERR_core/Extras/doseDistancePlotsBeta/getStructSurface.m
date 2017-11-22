@@ -47,8 +47,12 @@ for sliceNum = 2 : numSlices - 1
 
   z    = planC{indexS.scan}(scanNum).scanInfo(sliceNum).zValue;
 
-  indV = find(segmentsM(:,1) == z);  %mask values on this slice
-
+  if isempty(segmentsM)
+      indV = [];
+  else
+      indV = find(segmentsM(:,1) == z);  %mask values on this slice
+  end
+  
   if ~isempty(indV)
   
     segments2M = segmentsM(indV(:),:);     %segments
@@ -104,8 +108,12 @@ end
 for sliceNum = [1, numSlices]  %Remember, all the points on the superior and inferior slices are 'surface points.'
   z    = planC{indexS.scan}(scanNum).scanInfo(sliceNum).zValue;
 
-  indV = find(segmentsM(:,1) == z);  %mask values on this slice
-
+  if isempty(segmentsM)
+      indV = [];
+  else
+      indV = find(segmentsM(:,1) == z);  %mask values on this slice
+  end
+  
   if ~isempty(indV)
   
     segments2M = segmentsM(indV(:),:);     %segments
