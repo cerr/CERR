@@ -32,6 +32,7 @@ function ans = calc_Dx(doseBinsV, volsHistV, x, volType)
 
 
 if isstruct(x)  %for use with ROE
+    volType = x.volType.val;
     x = x.x.val;
 end
 

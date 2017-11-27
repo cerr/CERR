@@ -32,6 +32,11 @@ function ans = calc_Vx(doseBinsV, volsHistV, doseCutoff, volumeType)
 % You should have received a copy of the GNU General Public License
 % along with CERR.  If not, see <http://www.gnu.org/licenses/>.
 
+if isstruct(doseCutoff)  %for use with ROE
+    volumeType = doseCutoff.volumeType.val;
+    doseCutoff = doseCutoff.x.val;
+end
+
 
 if ~exist('volumeType')
     volumeType = 0;
