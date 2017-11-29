@@ -33,8 +33,9 @@ function ans = calc_Vx(doseBinsV, volsHistV, doseCutoff, volumeType)
 % along with CERR.  If not, see <http://www.gnu.org/licenses/>.
 
 if isstruct(doseCutoff)  %for use with ROE
-    volumeType = doseCutoff.volumeType.val;
-    doseCutoff = doseCutoff.x.val;
+    temp = doseCutoff;
+    volumeType = temp.volumeType.val;
+    doseCutoff = temp.x.val;
 end
 
 
