@@ -95,10 +95,13 @@ switch tag
     %Class 3 Tags -- presence is optional, currently undefined.        
 
     case  528446    %0008,103E Series Description
-        data = structS.structureDescription;
-        el = template.get(tag); 
-        el = ml2dcm_Element(el, data);
-        
+        switch type
+            case 'dose'
+            case 'structures'
+                data = structS.structureDescription;
+                el = template.get(tag);
+                el = ml2dcm_Element(el, data);
+        end
     case  528657    %0008,1111 Referenced Performed Procedure Step Sequence
     case 4194933    %0040,0275 Request Attributes Sequence
     case 4194899    %0040,0253 Performed Procedure Step ID
