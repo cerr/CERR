@@ -291,7 +291,12 @@ switch upper(command)
         if ~isfield(ud, 'guidelines')
             ud.guidelines = [];
         end
-        
+        if ~isfield(ud,'cMarker')
+           ud.cMarker = []; 
+        end
+        if ~isfield(ud,'gMarker')
+           ud.gMarker = [];
+        end
         
         % Define axis handles, slider, color order, foreground protocol
         hNTCPAxis = ud.handle.modelsAxis(2);
@@ -489,6 +494,9 @@ switch upper(command)
                                 exceedIdx = find(exceedIdx,1,'first');
                                 cVal = ntcpV(exceedIdx);
                                 cScale = scaleV(exceedIdx);
+                                ud.cMarker = [ud.cMarker,plot(hTCPAxis,cScale,...
+                                    cVal,'o','MarkerSize',8,'MarkerFaceColor',...
+                                    'r','MarkerEdgeColor','k')];
                             end
                         else
                             %Idenitfy dose/volume limits
@@ -538,6 +546,9 @@ switch upper(command)
                                     exceedIdx = find(exceedIdx,1,'first');
                                     gVal = ntcpV(exceedIdx);
                                     gScale = scaleV(exceedIdx);
+                                    ud.gMarker = [ud.gMarker,plot(hTCPAxis,...
+                                        gScale,gVal,'o','MarkerSize',8,...
+                                        'MarkerFaceColor',[239 197 57]/255,'MarkerEdgeColor','k')];
                                 end
                             else
                                 %Idenitfy dose/volume limits
@@ -607,6 +618,10 @@ switch upper(command)
         else
         hDatatip = cursorMode.createDatatip(hgFirst);
         end
+        hDatatip.Marker = '^';
+%         hDatatip.MarkerEdgeColor = 'k';
+%         hDatatip.MarkerFaceColor = 'none';
+        hDatatip.MarkerSize=7;
         set(hDatatip,'Visible','Off','OrientationMode','Manual',...
             'UpdateFcn',@expandDataTip,'Tag','guidelines');
       
@@ -836,6 +851,14 @@ end
             lscale = cLine.XData(1);
         end
         
+        %Get protocol fraction size
+        pNum = ud.PrtcNum;
+        numFrx = ud.Protocols(pNum).numFractions;
+        totDose = ud.Protocols(pNum).totalDose;
+        frxSize = totDose/numFrx;
+        
+        
+        
         %Check for all violations at same scale
         %---Criteria:---
         limitM = get(ud.criteria,'xData');
@@ -851,7 +874,7 @@ end
             start = (k-1)*5 + 1;
             txt(start : start+4) = {[num2str(k),'. Structure: ',lUd.structure],['Constraint: ', lUd.label],...
                 ['Clinical limit :', num2str(lUd.limit)],...
-                ['Current value :', num2str(lUd.val)],['Current scale factor: ',num2str(lscale)]};
+                ['Current value :', num2str(lUd.val)],['Current fraction size: ',num2str(lscale*frxSize)]};
         end
         end
         
@@ -870,13 +893,17 @@ end
             start = k0 + (k-1)*5 + 1;
             txt(start : start+4) = {[num2str(nCrit+k),'. Structure: ',lUd.structure],['Constraint: ', lUd.label],...
                 ['Clinical guideline :', num2str(lUd.limit)],...
-                ['Current value :', num2str(lUd.val)],['Current scale factor: ',num2str(lscale)]};
+                ['Current value :', num2str(lUd.val)],['Current fraction size: ',num2str(lscale*frxSize)]};
         end
         end
       
         
         
         %Display
+        hObj.Marker = '^';
+        hObj.MarkerSize = 7;
+%         hObj.MarkerEdgeColor = 'k';
+%         hObj.MarkerFaceColor = 'none';
         set(hObj,'Visible','On');
     end
 
