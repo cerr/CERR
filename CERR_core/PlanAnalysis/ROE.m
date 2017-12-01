@@ -41,6 +41,8 @@ function ROE(command,varargin)
 % Globals
 global planC stateS
 indexS = planC{end};
+binWidth = .05;
+
 
 % Get GUI fig handle
 hFig = findobj('Tag','ROEFig');
@@ -290,6 +292,7 @@ switch upper(command)
             ud.guidelines = [];
         end
         
+        
         % Define axis handles, slider, color order, foreground protocol
         hNTCPAxis = ud.handle.modelsAxis(2);
         hNTCPAxis.Visible = 'On';
@@ -352,7 +355,7 @@ switch upper(command)
             
             %Scale planned dose array
             plnNum = protocolS(p).planNum;
-            numFractionsPlan = protocolS(p).numFractions;
+            numFrxProtocol = protocolS(p).numFractions;
             protDose = protocolS(p).totalDose;
             prescribedDose = planC{indexS.dose}(plnNum).prescribedDose;
             dA = getDoseArray(plnNum,planC);
@@ -370,7 +373,7 @@ switch upper(command)
                 structNumV = modelC{j}.strNum;
                 %Copy relevant fields from protocol file
                 %-No. of fractions
-                paramS.numFractions.val = numFractionsPlan;
+                paramS.numFractions.val = numFrxProtocol;
                 %-alpha/beta
                 abRatio = modelC{j}.abRatio;
                 paramS.abratio.val = abRatio;
@@ -379,23 +382,23 @@ switch upper(command)
                 if isfield(modelC{j},'dv')
                     storedDVc = modelC{j}.dv;
                     doseBinsC = storedDVc{1} ;
-                    volHistC = storedDVc{1};
+                    volHistC = storedDVc{2};
                 else
-                doseBinsC = cell(1,numel(structNumV));
-                volHistC = cell(1,numel(structNumV));
+                    doseBinsC = cell(1,numel(structNumV));
+                    volHistC = cell(1,numel(structNumV));
+                    for nStr = 1:numel(structNumV)
+                        [dosesV,volsV] = getDVH(structNumV(nStr),plnNum,planC);
+                        [doseBinsC{nStr},volHistC{nStr}] = doseHist(dosesV,volsV,binWidth);
+                    end
+                    modelC{j}.dv = {doseBinsC,volHistC};
+                end
                 scaledCPv = scaleV * 0;
-                %Get (physical) dose bins
-                for nStr = 1:numel(structNumV)
-                    [doseBinsC{nStr}, volHistC{nStr}] = getDVH(structNumV(nStr),plnNum,planC);
-                end
-                modelC{j}.dv = {doseBinsC,volHistC};
-                end
                 for n = 1 : numel(scaleV)
                     %Scale dose bins
                     scale = scaleV(n);
                     scaledDoseBinsC = cellfun(@(x) x*scale,doseBinsC,'un',0);
                     %Apply fractionation correction as required
-                    correctedScaledDoseC = frxCorrect(modelC{j},structNumV,numFractionsPlan,scaledDoseBinsC);
+                    correctedScaledDoseC = frxCorrect(modelC{j},structNumV,numFrxProtocol,scaledDoseBinsC);
                     
                     %% Compute TCP/NTCP
                     if numel(structNumV)==1
@@ -407,7 +410,7 @@ switch upper(command)
                     %--------------TEMP (Addded to display dose metrics & TCP/NTCP at scale = 1 for testing)-----------%
                     if n==numel(scaleV)
                         %Get corrected dose at scale == 1
-                        testDoseC = frxCorrect(modelC{j},structNumV,numFractionsPlan,doseBinsC);
+                        testDoseC = frxCorrect(modelC{j},structNumV,numFrxProtocol,doseBinsC);
                         %Display mean dose, EUD, GTD(if applicable)
                         outType = modelC{j}.type;
                         temp_a = 1/0.09;
@@ -469,7 +472,8 @@ switch upper(command)
                     %Get alpha/beta ratio
                     abRatio = critS.structures.(structC{m}).abRatio;
                     %Get DVH
-                    [doseBinV, volHistV] = getDVH(cStr,plnNum,planC);
+                    [doseV,volsV] = getDVH(cStr,plnNum,planC);
+                    [doseBinV,volHistV] = doseHist(doseV, volsV, binWidth);
                     %------------ Loop over criteria ----------------------
                     for n = 1:length(criteriaC)
                         %Idenitfy NTCP limits
@@ -510,6 +514,7 @@ switch upper(command)
                         else
                             if cScale < currcMin
                                 firstcViolation = cCount;
+                                currcMin = cScale;
                             end
                         end
                     end
@@ -543,7 +548,7 @@ switch upper(command)
                             %Display line indicating clinical criteria/guidelines
                             x = [gScale gScale];
                             y = [0 1];
-                            guideLineH = line(hTCPAxis,x,y,'LineWidth',1,...
+                            guideLineH = line(hTCPAxis,x,y,'LineWidth',2,...
                                 'Color',[239 197 57]/255,'LineStyle','--','Tag','guidelines');
                             guideLineUdS.structure = structC{m};
                             guideLineUdS.label = guidelinesC{n};
@@ -824,11 +829,11 @@ end
         
         if isempty(hEvt)                 %Initialize (display 1st violation)
             posV = get(hObj,'Position');
-            cscale = posV(1);
+            lscale = posV(1);
         else
             %Update (display selected limit)
             cLine = hEvt.Target;         
-            cscale = cLine.XData(1);
+            lscale = cLine.XData(1);
         end
         
         %Check for all violations at same scale
@@ -837,16 +842,16 @@ end
         if iscell(limitM)
             limitM = cell2mat(limitM);
         end
-        nCrit =  sum(limitM(:,1) == cscale);
+        nCrit =  sum(limitM(:,1) == lscale);
         txt = {};
         if nCrit>0
-        limitIdx = find(limitM(:,1) == cscale);
+        limitIdx = find(limitM(:,1) == lscale);
         for k = 1:numel(limitIdx)
             lUd = ud.criteria(limitIdx(k)).UserData;
             start = (k-1)*5 + 1;
             txt(start : start+4) = {[num2str(k),'. Structure: ',lUd.structure],['Constraint: ', lUd.label],...
                 ['Clinical limit :', num2str(lUd.limit)],...
-                ['Current value :', num2str(lUd.val)],['Current scale factor: ',num2str(cscale)]};
+                ['Current value :', num2str(lUd.val)],['Current scale factor: ',num2str(lscale)]};
         end
         end
         
@@ -855,17 +860,17 @@ end
         if iscell(limitM)
             limitM = cell2mat(limitM);
         end
-        nGuide =  sum(limitM(:,1) == cscale);
+        nGuide =  sum(limitM(:,1) == lscale);
         k0 = length(txt);
         if nGuide>0
-        limitIdx = find(limitM(:,1) == cscale);
+        limitIdx = find(limitM(:,1) == lscale);
         %Get structures, limits
         for k = 1:numel(limitIdx)
             lUd = ud.guidelines(limitIdx(k)).UserData;
             start = k0 + (k-1)*5 + 1;
             txt(start : start+4) = {[num2str(nCrit+k),'. Structure: ',lUd.structure],['Constraint: ', lUd.label],...
                 ['Clinical guideline :', num2str(lUd.limit)],...
-                ['Current value :', num2str(lUd.val)],['Current scale factor: ',num2str(cscale)]};
+                ['Current value :', num2str(lUd.val)],['Current scale factor: ',num2str(lscale)]};
         end
         end
       
@@ -1210,6 +1215,8 @@ end
                 % Get dose bins
                 dose0C = modelsC{k}.dv{1};
                 vol0C = modelsC{k}.dv{2};
+                
+                
                 %Scale
                 scdoseC = cellfun(@(x) x*userScale,dose0C,'un',0);
                 %Apply fractionation correction where required
