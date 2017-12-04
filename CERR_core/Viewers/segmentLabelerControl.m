@@ -34,7 +34,8 @@ global stateS
 indexS = planC{end};
 
 % Default axis to the current axis
-hAxis = stateS.handle.CERRAxis(1);
+hAxis = stateS.handle.CERRAxis(stateS.currentAxis);
+%hAxis = stateS.handle.CERRAxis(1);
 hFig = stateS.handle.CERRSliceViewer;
 hFrame = stateS.handle.controlFrame;
 posFrame = get(hFrame, 'position');
@@ -130,7 +131,7 @@ switch command
                 
             case 'motionInFigure'
                 %                 if (stateS.segmentLabelerState ==1)
-                hAxis = stateS.handle.CERRAxis(1);
+                hAxis = stateS.handle.CERRAxis(stateS.currentAxis);
                 labelObjS = getappdata(hAxis,'labelObjS');
                 if isempty(labelObjS)
                     return;
@@ -139,7 +140,7 @@ switch command
                 
                 if planC{indexS.structures}(strNum).visible                    
                     
-                    hV = stateS.handle.aI(1).lineHandlePool.lineV(stateS.handle.aI(1).structureGroup.handles);
+                    hV = stateS.handle.aI(stateS.currentAxis).lineHandlePool.lineV(stateS.handle.aI(stateS.currentAxis).structureGroup.handles);
                     
                     set(hV,'lineWidth',stateS.optS.structureThickness)
                     setappdata(hAxis, 'segmentSelected', 0)                                       
@@ -155,8 +156,8 @@ switch command
                         if (length(currSegment)>1)
                             return;
                         end
-                        set(stateS.handle.aI(1).lineHandlePool.lineV...
-                            (stateS.handle.aI(1).structureGroup.handles(currSegment)),...
+                        set(stateS.handle.aI(stateS.currentAxis).lineHandlePool.lineV...
+                            (stateS.handle.aI(stateS.currentAxis).structureGroup.handles(currSegment)),...
                             'LineWidth',stateS.optS.structureThickness+2);                       
                     end
                     
@@ -164,7 +165,7 @@ switch command
                 
                 
             case 'update_menu'
-                hAxis = stateS.handle.CERRAxis(1);
+                hAxis = stateS.handle.CERRAxis(stateS.currentAxis);
                 hFig = stateS.handle.CERRSliceViewer;
                 vMenu = gcbo;
                 ud = get(hFrame, 'userdata');
@@ -200,7 +201,7 @@ switch command
                 end
                 labelSelected = get(gcbo, 'Label');
                 
-                hAxis = stateS.handle.CERRAxis(1);
+                hAxis = stateS.handle.CERRAxis(stateS.currentAxis);
                 labelObjS = getappdata(hAxis,'labelObjS');               
                 
                 strNum = getAssociatedStr(labelObjS.assocStructUID);
@@ -306,7 +307,7 @@ switch command
                 
             case 'save'
                 ud = get(hFrame, 'userdata');
-                hAxis = stateS.handle.CERRAxis(1);
+                hAxis = stateS.handle.CERRAxis(stateS.currentAxis);
                 labelObjS = getappdata(hAxis,'labelObjS');
                 %save this to planC
                 currentObj = get(ud.handles.objectPopup, 'Value') - 1;
@@ -348,7 +349,7 @@ switch command
             case 'refresh'
                 %called when label object selected or slice changed.
                                 
-                hAxis = stateS.handle.CERRAxis(1);
+                hAxis = stateS.handle.CERRAxis(stateS.currentAxis);
                 axInd = hAxis == stateS.handle.CERRAxis;
                 axisInfo = stateS.handle.aI(axInd);
                 ud = get(hFrame, 'userdata');
@@ -442,7 +443,7 @@ global stateS planC
 indexS = planC{end};
 
 % Scan, structure and slice index
-hAxis = stateS.handle.CERRAxis(1);
+hAxis = stateS.handle.CERRAxis(stateS.currentAxis);
 labelObjS = getappdata(hAxis,'labelObjS');
 
 strNum = getAssociatedStr(labelObjS.assocStructUID);
@@ -515,7 +516,7 @@ global stateS planC
 indexS = planC{end};
 hFrame = stateS.handle.controlFrame;
 ud = get(hFrame, 'userdata');
-hAxis = stateS.handle.CERRAxis(1);
+hAxis = stateS.handle.CERRAxis(stateS.currentAxis);
 
 % if(~isempty(planC{indexS.segmentLabel}))
 
@@ -538,7 +539,7 @@ if currentObj == 0
     return;
 end
 %labelObjS = planC{indexS.segmentLabel}(currentObj);
-hAxis = stateS.handle.CERRAxis(1);
+hAxis = stateS.handle.CERRAxis(stateS.currentAxis);
 labelObjS = getappdata(hAxis,'labelObjS');
 strNum = getAssociatedStr(labelObjS.assocStructUID);
 
