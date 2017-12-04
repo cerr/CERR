@@ -75,11 +75,14 @@ if(nargin == 0)
     set(CERRStartupFig, 'Name',' CERR control panel'); % ES 28 Aug 2003
     set(gca, 'Position', [0 0 1 1]);
     image(background, 'CDataMapping', 'direct')
-    axis off, axis image
-
-    [ver, date] = CERRCurrentVersion;
-    uicontrol('units',units,'Position',[0 .57 .47 .04],'String',['Version ' ver ' ' date],'Style','text', 'BackgroundColor', [1 1 1], 'FontSize', 10, 'FontName', 'FixedWidth', 'HorizontalAlignment', 'center');
+    axis off, axis image    
     
+    %get local and remote git info
+    [remoteGitHash, localGitInfo] = getGitInfo;
+    [ver, date] = CERRCurrentVersion;    
+    uicontrol('units',units,'Position',[0 .57 1 .04],'String',['Local GitHub Hash: ' localGitInfo.hash ],'Style','text', 'BackgroundColor', [1 1 1], 'FontSize', 10, 'FontName', 'FixedWidth', 'HorizontalAlignment', 'center');
+    uicontrol('units',units,'Position',[0 .53 1 .04],'String',['Date:' localGitInfo.date],'Style','text', 'BackgroundColor', [1 1 1], 'FontSize', 10, 'FontName', 'FixedWidth', 'HorizontalAlignment', 'center');
+   
     %Display link for Log file
     if ~isempty(logFlag) && logFlag == 1
         uicontrol('units',units,'Position',[0.55 .50 .25 .05],'String', 'View Change Log', 'callback','CERR(''VIEW LOG'')', 'Style','push', 'BackgroundColor', [1 1 1], 'FontSize', 10, 'FontName', 'FixedWidth', 'HorizontalAlignment', 'center');
@@ -95,16 +98,6 @@ if(nargin == 0)
     uicontrol('units',units,'Position',[.1 .16 .17 .07],'String','Import',...
         'callback','CERR(''IMPORT'')','FontSize',10,'Tag', 'CERRImportBtn');
 
-    % %     %     uicontrol('units',units,'Position',[.065 .3 .1 .05],'String','RTOG','Style','text','HorizontalAlignment','left');
-    % %     uicontrol('units',units,'Position',[.075 .3 .15 .05],'String','RTOG', 'callback','CERR(''RTOGIMPORT'')');
-    % %
-    % %     %     uicontrol('units',units,'Position',[.065 .21 .1 .05],'String','DICOM','Style','text','HorizontalAlignment','left');
-    % %     uicontrol('units',units,'Position',[.075 .21 .15 .05],'String','DICOM', 'callback','CERR(''DICOMIMPORT'')');
-    % %
-    % %     %     uicontrol('units',units,'Position',[.065 .11 .1 .05],'String','DICOM (J)','Style','text','HorizontalAlignment','left');
-    % %     uicontrol('units',units,'Position',[.075 .11 .15 .05],'String','DICOM (J)', 'callback','CERR(''IMPORTDCM4CHE'')');
-
-
     %     uicontrol('units',units,'Position',[.325 .3 .1 .05],'String','DICOM (J)','Style','text','HorizontalAlignment','left');
     uicontrol('units',units,'Position',[.445 .27 .17 .07],'String','DICOM', 'callback','CERR(''DICOMEXPORT'')','FontSize',10);
 
@@ -113,6 +106,22 @@ if(nargin == 0)
 
     %     uicontrol('units',units,'Position',[.835 .50 .1 .05],'String','Quit','callback','CERR(''QUIT'')');
     uicontrol('units',units,'Position',[.835 .50 .1 .05],'String','Help','callback','CERR(''HELP'')');
+    
+    %git hash comparison between local and remote to see if the version is updated    
+    tf = strcmp(localGitInfo.hash,remoteGitHash);
+    if ~(tf)   
+        labelStr = ['<html> New version available; View updates at: <a href="">' localGitInfo.url '</a></html>' 'blahblah'];
+        jLabel = javaObjectEDT('javax.swing.JLabel', labelStr);
+        jLabel.setBackground(java.awt.Color(1, 1, 1));
+        [hjLabel,hContainer] = javacomponent(jLabel, [15,1,600,20], gcf);
+        % Set the mouse-click callback
+        set(hjLabel, 'MouseClickedCallback', @(h,e)web([ localGitInfo.url], '-browser'));
+    else
+         uicontrol('units',units,'Position',[0 .01 1 .04],'String','You have the latest version of CERR','Style','text', 'BackgroundColor', [1 1 1], 'FontSize', 10, 'FontName', 'FixedWidth', 'HorizontalAlignment', 'center');
+    end
+    
+    
+    
 else
     %A callback has been encountered.
     switch upper(varargin{1})
