@@ -74,7 +74,7 @@ switch command
             controlFrame('ANNOTATION','quit');
             stateS.anotationDisplay = 0;
          elseif stateS.segmentLabelerState %  ~isempty(findobj('string', 'SegmentLabeler', 'tag', 'controlFrameItem'))
-            segmentLabelerControl('segmentLabeler','quit');
+            segmentLabelerControl('segmentLabeler','cancel');
             stateS.segmentLabelerState = 0;
         end
         
