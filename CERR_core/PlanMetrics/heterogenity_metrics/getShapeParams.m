@@ -27,6 +27,13 @@ if numel(structNum) == 1
     yValsV = fliplr(yValsV);
     mask3M = getUniformStr(structNum,planC);
     
+    % Crop mask around the structure
+    [minr, maxr, minc, maxc, mins, maxs] = compute_boundingbox(mask3M);
+    mask3M = mask3M(minr:maxr, minc:maxc, mins:maxs);
+    xValsV = xValsV(minc:maxc); 
+    yValsV = yValsV(minr:maxr);
+    zValsV = zValsV(mins:maxs);
+    
 else
     mask3M = structNum;
     xValsV = planC{1};
