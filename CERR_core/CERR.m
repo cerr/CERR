@@ -80,9 +80,11 @@ if(nargin == 0)
     %get local and remote git info
     [remoteGitHash, localGitInfo] = getGitInfo;
     [ver, date] = CERRCurrentVersion;    
-    uicontrol('units',units,'Position',[0 .57 1 .04],'String',['Local GitHub Hash: ' localGitInfo.hash ],'Style','text', 'BackgroundColor', [1 1 1], 'FontSize', 10, 'FontName', 'FixedWidth', 'HorizontalAlignment', 'center');
-    uicontrol('units',units,'Position',[0 .53 1 .04],'String',['Date:' localGitInfo.date],'Style','text', 'BackgroundColor', [1 1 1], 'FontSize', 10, 'FontName', 'FixedWidth', 'HorizontalAlignment', 'center');
-   
+    uicontrol('units',units,'Position',[0 .57 0.3 .04],'String','Local GitHub Hash:','Style','text', 'BackgroundColor', [1 1 1], 'FontSize', 10, 'FontName', 'FixedWidth', 'HorizontalAlignment', 'right');
+    uicontrol('units',units,'Position',[0.31 .57 0.67 .04],'String',localGitInfo.hash,'Style','edit', 'BackgroundColor', [1 1 1], 'FontSize', 10, 'FontName', 'FixedWidth', 'HorizontalAlignment', 'left');
+    uicontrol('units',units,'Position',[0 .52 0.3 .04],'String','Date:','Style','text', 'BackgroundColor', [1 1 1], 'FontSize', 10, 'FontName', 'FixedWidth', 'HorizontalAlignment', 'right');
+    uicontrol('units',units,'Position',[0.31 .52 0.4 .04],'String',localGitInfo.date,'Style','edit', 'BackgroundColor', [1 1 1], 'FontSize', 10, 'FontName', 'FixedWidth', 'HorizontalAlignment', 'left');
+
     %Display link for Log file
     if ~isempty(logFlag) && logFlag == 1
         uicontrol('units',units,'Position',[0.55 .50 .25 .05],'String', 'View Change Log', 'callback','CERR(''VIEW LOG'')', 'Style','push', 'BackgroundColor', [1 1 1], 'FontSize', 10, 'FontName', 'FixedWidth', 'HorizontalAlignment', 'center');
@@ -170,7 +172,7 @@ else
             closereq;
 
         case 'HELP'
-            web http://cerr.info/cerrwiki/index.php/CERR?w=CERRWiKi
+            web https://github.com/cerr/CERR/wiki
             
         case 'VIEW LOG'
             fileName = fullfile(tempdir,'publishLog.html');
