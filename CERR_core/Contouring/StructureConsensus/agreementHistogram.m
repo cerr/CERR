@@ -103,8 +103,8 @@ switch upper(command)
         
     case 'CREATESTRUCTURE'
         ud = get(hFig,'userdata');  
-        hAxis = findobj('parent',hFig,'tag','AgreementHistAx');
-        set(hAxis,'nextPlot','add')
+        %hAxis = findobj('parent',hFig,'tag','AgreementHistAx');
+        set(ud.hAxis,'nextPlot','add')
         XData = get(ud.hLine,'XData');
         confidenceLevel = max(1e-5,XData(1));
         createMethod = get(ud.hNewStructMethod,'value');
@@ -132,5 +132,5 @@ switch upper(command)
             reliability_mat = ud.reliability_mat >= confidenceLevel;
             maskToCERRStructure(reliability_mat, 1, scanNum, structureName);
         end        
-        set(hAxis,'nextPlot','replace')
+        set(ud.hAxis,'nextPlot','replace')
 end
