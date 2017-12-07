@@ -58,9 +58,16 @@ function [remoteGitHash, localGitInfo] = getGitInfo()
 % or implied, of <copyright holder>.
 
 localGitInfo=[];
- 
-if ~exist('.git','file') || ~exist('.git/HEAD','file')
+
+pth = getCERRPath;
+indEnd = strfind(pth,'CERR_core');
+basePath = pth(1:indEnd-1);
+gitHead = fullfile(basePath,'.git','HEAD');
+gitPath = fullfile(basePath,'.git');
+if ~exist(gitPath,'file') || ~exist(gitHead,'file')
     %Git is not present
+    remoteGitHash = [];
+    localGitInfo = [];
     return
 end
 
@@ -68,7 +75,7 @@ end
 
 %Read in the HEAD information, this will tell us the location of the file
 %containing the SHA1
-text=fileread('.git/HEAD');
+text=fileread(gitHead);
 parsed=textscan(text,'%s');
 
 if ~strcmp(parsed{1}{1},'ref:') || ~length(parsed{1})>1
@@ -86,13 +93,13 @@ localGitInfo.branch=branchName;
 
 
 %Read in SHA1
-SHA1text=fileread(fullfile(['.git/' pathstr],[name ext]));
+SHA1text=fileread(fullfile(gitPath,pathstr,[name ext]));
 SHA1=textscan(SHA1text,'%s');
 localGitInfo.hash=SHA1{1}{1};
 
 
 %Read in config file
-config=fileread('.git/config');
+config=fileread(fullfile(gitPath,'config'));
 %Find everything space delimited
 temp=textscan(config,'%s','delimiter','\n');
 lines=temp{1};
@@ -147,16 +154,18 @@ for k=1:length(lines)
         
     end
 end
-localGitInfo.url=url;
+%localGitInfo.url=url;
 
+[~,repName] = strtok(url,':');
+commitUrl = strrep(repName(2:end),'.git','/commits/');
 %get to the commits page to view the remote commit hash
-url = strrep(localGitInfo.url, '.git','/commits/');
+url = ['https://github.com/',commitUrl];
 url = strcat(url,localGitInfo.branch);
 localGitInfo.url=url;
 
 %obtain the date when the .git directory was last updated 
-cerrPath = getCERRPath;
-gitPath = strrep(cerrPath, 'CERR_core\', '.git');
+% cerrPath = getCERRPath;
+% gitPath = strrep(cerrPath, 'CERR_core\', '.git');
 
 try
     fileInfo = dir(gitPath);
@@ -180,10 +189,6 @@ try
 catch
     remoteGitHash = '';
 end
-
-
-
-
 
 
 
