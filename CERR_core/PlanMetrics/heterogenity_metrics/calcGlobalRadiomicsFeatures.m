@@ -29,6 +29,14 @@ if prod(siz) == 1
     volToEval = SUVvals3M(minr:maxr,minc:maxc,mins:maxs);
     volToEval(~maskBoundingBox3M) = NaN;
     
+    % Get x,y,z grid for the shape features (flip y to make it monotically
+    % increasing)
+    [xValsV, yValsV, zValsV] = getUniformScanXYZVals(planC{indexS.scan}(scanNum));
+    yValsV = fliplr(yValsV);
+    xValsV = xValsV(minc:maxc);
+    yValsV = yValsV(minr:maxr);
+    zValsV = zValsV(mins:maxs);
+    
 else
     volToEval = scanNum;
     maskBoundingBox3M = structNum;
@@ -54,8 +62,8 @@ whichFeatS = paramS.whichFeatS;
 % Feature calculation
 featureS = struct;
 if whichFeatS.shape
-    [featureS.shapeS] = getShapeParams(structNum, ...
-        planC, paramS.shapeParamS.rcsV);
+    [featureS.shapeS] = getShapeParams(maskBoundingBox3M, ...
+        {xValsV, yValsV, zValsV}, paramS.shapeParamS.rcsV);
 end
 
 if whichFeatS.harFeat2Ddir
