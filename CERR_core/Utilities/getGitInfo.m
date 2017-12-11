@@ -66,8 +66,8 @@ gitHead = fullfile(basePath,'.git','HEAD');
 gitPath = fullfile(basePath,'.git');
 if ~exist(gitPath,'file') || ~exist(gitHead,'file')
     %Git is not present
-    remoteGitHash = [];
-    localGitInfo = [];
+    remoteGitHash = '';
+    localGitInfo = '';
     return
 end
 
