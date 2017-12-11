@@ -40,6 +40,11 @@ function ROE(command,varargin)
 
 % Globals
 global planC stateS
+if isempty(planC)
+   msgbox('Please load valid plan to begin','Error!');
+   return
+end
+
 indexS = planC{end};
 binWidth = .05;
 
@@ -431,7 +436,7 @@ switch upper(command)
                                 'GTD  = %f'],testGTD);
                         end
                         %Display TCP/NTCP
-                        testOut = feval(modelC{j}.function,paramS,testDoseC,volHistC);
+                        testOut = feval(modelC{j}.function,paramS,testDoseC{1},volHistC{1});
                         fprintf(['\n---------------------------------------\n',...
                             'Protocol:%d, Model:%d\nMean Dose = %f\nEUD = %f\n%s = %f\n'],p,j,testMeanDose,testEUD,outType,testOut);
                     end
@@ -463,7 +468,7 @@ switch upper(command)
             
             %% Plot criteria & guidelines
             critS = protocolS(p).criteria;
-            fractionSize = prescribedDose/protocolS(p).numFractions;
+            nFrxProtocol = protocolS(p).numFractions;
             structC = fieldnames(critS.structures);
             cCount = 0;
             gCount = 0;
@@ -502,7 +507,7 @@ switch upper(command)
                             %Idenitfy dose/volume limits
                             nFrx = planC{indexS.dose}(plnNum).numFractions;
                             [cScale,cVal] = calc_Limit(doseBinV,volHistV,strCritS.(criteriaC{n}),...
-                                nFrx,fractionSize,abRatio);
+                                nFrx,nFrxProtocol,abRatio);
                         end
                         %Display line indicating clinical criteria/guidelines
                         x = [cScale cScale];
@@ -554,7 +559,7 @@ switch upper(command)
                                 %Idenitfy dose/volume limits
                                 nFrx = planC{indexS.dose}(plnNum).numFractions;
                                 [gScale,gVal] = calc_Limit(doseBinV,volHistV,strGuideS.(guidelinesC{n}),...
-                                    nFrx,fractionSize,abRatio);
+                                    nFrx,nFrxProtocol,abRatio);
                             end
                             %Display line indicating clinical criteria/guidelines
                             x = [gScale gScale];
@@ -658,35 +663,36 @@ switch upper(command)
         ud = get(hFig,'userdata');
         ud.handle.editModels = [];
         protocolS = ud.Protocols;
+        
         %Check models for required fields ('function' and 'parameter')
-        %%%%%FIX : ADD STRUCTURE
         numProtocols = length(protocolS);
         for j = 1:numProtocols
             modelC = protocolS(j).model;
             numModels = length(modelC);
+            
             for i = 1:numModels
                 modelNameC = cell(1,numModels);
                 fieldC = fieldnames(modelC{i});
                 fnIdx = strcmpi(fieldC,'function');
                 paramIdx = strcmpi(fieldC,'parameters');
-                nameIdx = strcmpi(fieldC,'Name');
+                
                 %Check for 'function' and 'parameter' fields
                 if ~any(fnIdx) || isempty(modelC{i}.(fieldC{fnIdx}))
                     msgbox('Model file must include ''function'' attribute.','Model file error');
                     return
                 end
-                %%%% FIX : Should check structure subfiedls?%%%% Or remove
-                %%%% check for now
-                %                 if ~any(paramIdx) || isempty(modelC{i}.(fieldC{paramIdx}))
-                %                     msgbox('Model file must include ''parameters'' attribute.','Model file error');
-                %                     return
-                %                 end
-                %Set default name if missing
-                if ~any(nameIdx)
-                    modelNameC{i} = ['Model: ',num2str(i)];
-                else
-                    modelNameC{i} = modelC{i}.(fieldC{nameIdx});
+                if ~any(paramIdx) || isempty(modelC{i}.(fieldC{paramIdx}))
+                    msgbox('Model file must include ''parameters'' attribute.','Model file error');
+                    return
                 end
+                
+                %Check for 'structures' field
+                strIdx = strcmpi(fieldnames(modelC{i}.parameters),'structures');
+                if ~any(strIdx) || isempty(modelC{i}.parameters.structures)
+                    msgbox('Model file must include ''parameters'' attribute.','Model file error');
+                    return
+                end
+                
             end
         end
         
@@ -738,7 +744,7 @@ end
 %% -----------------------------------------------------------------------------------------
 
 % Calculate scale factor at which criteria are first violated
-    function [cScale, critVal] = calc_Limit(doseBinV,volHistV,critS,planNumFrx,protocolFrxSize,abRatio)
+    function [cScale, critVal] = calc_Limit(doseBinV,volHistV,critS,planNumFrx,protocolNumFrx,abRatio)
         cFunc =  critS.function;
         cLim = critS.limit;
         scaleFactorV = linspace(0.5,1.5,100);
@@ -750,10 +756,15 @@ end
             %Scale dose bins
             s = scaleFactorV(count);
             scaledDoseBinsV = s*doseBinV;
-            %Fractionation correction
-            scaledFrxSizeV = scaledDoseBinsV/planNumFrx;
-            correctedScaledDoseV = scaledDoseBinsV .*(scaledFrxSizeV + abRatio)...
-                ./(protocolFrxSize + abRatio);
+
+            %Convert to standard no. fractions
+            Na = planNumFrx;
+            Nb = protocolNumFrx;
+            a = Na;
+            b = Na*Nb*abRatio;
+            c = -scaledDoseBinsV.*(b + scaledDoseBinsV*Nb);
+            correctedScaledDoseV = (-b + sqrt(b^2 - 4*a*c))/(2*a);
+
             if isfield(critS,'parameters')
                 cParamS = critS.parameters;
                 critVal = feval(cFunc,correctedScaledDoseV,volHistV,cParamS);
