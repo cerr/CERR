@@ -64,6 +64,9 @@ zValsV = [zValsV(1)-voxelSiz(3) zValsV zValsV(end)+voxelSiz(3)];
 
 % Resample the structure mask
 if exist('rcsV','var')
+    % use the larger dim of mask or the inpur rcsV
+    siz = size(mask3M);
+    rcsV(rcsV < siz) = siz(rcsV < siz);
     % min/max voxel coordinates for resampling
     minX = min(xValsV)+voxelSiz(2)/2;
     maxX = max(xValsV)-voxelSiz(2)/2;
