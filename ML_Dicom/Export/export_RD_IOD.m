@@ -47,12 +47,18 @@ for i = 1:length(planC{indexS.dose});
     doseS = planC{indexS.dose}(i);    
     
     %Create empty dcmobj.
-    dcmobj = org.dcm4che2.data.BasicDicomObject;    
+    dcmobj = org.dcm4che2.data.BasicDicomObject;  
+    
+    % Get associated scan
+    scanNum = getDoseAssociatedScan(i,planC);
+    if isempty(scanNum)
+        scanNum = 1;
+    end    
 
     %Export each module required for the RD IOD, copying the results into the
     %common dcmobj container and return.
-    if isfield(scanS.scanInfo(1).DICOMHeaders,'PatientID')
-        doseS(1).DICOMHeaders.PatientID = scanS.scanInfo(1).DICOMHeaders.PatientID;
+    if isfield(scanS(scanNum).scanInfo(1).DICOMHeaders,'PatientID')
+        doseS(1).DICOMHeaders.PatientID = scanS(scanNum).scanInfo(1).DICOMHeaders.PatientID;
     end
     ssobj = export_module('patient', 'dose', doseS);
     ssobj.copyTo(dcmobj);
