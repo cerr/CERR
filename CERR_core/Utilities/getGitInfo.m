@@ -154,18 +154,12 @@ for k=1:length(lines)
         
     end
 end
-%localGitInfo.url=url;
+localGitInfo.url = url;
 
-[~,repName] = strtok(url,':');
-commitUrl = strrep(repName(2:end),'.git','/commits/');
-%get to the commits page to view the remote commit hash
-url = ['https://github.com/',commitUrl];
-url = strcat(url,localGitInfo.branch);
-localGitInfo.url=url;
-
-%obtain the date when the .git directory was last updated 
-% cerrPath = getCERRPath;
-% gitPath = strrep(cerrPath, 'CERR_core\', '.git');
+%get to the commits page of the current branch to view the remote commit hash
+commitUrl = [url,'/commits/'];
+commitUrl = strcat(commitUrl,localGitInfo.branch);
+localGitInfo.commitUrl = commitUrl;
 
 try
     fileInfo = dir(gitPath);
@@ -182,10 +176,12 @@ end
 %     return;
 % else
 try
-    %read remote git information based on url
-    data = webread(url,'term','commit:');
-    commitIdIndex = strfind(data, 'commit:');
-    remoteGitHash = data(commitIdIndex(1)+7:commitIdIndex(1)+46);
+    if ~isempty(commitUrl)
+        %read remote git information based on url
+        data = webread(commitUrl,'term','commit:');
+        commitIdIndex = strfind(data, 'commit:');
+        remoteGitHash = data(commitIdIndex(1)+7:commitIdIndex(1)+46);
+    end
 catch
     remoteGitHash = '';
 end
