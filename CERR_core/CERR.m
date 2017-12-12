@@ -113,9 +113,13 @@ if(nargin == 0)
     %     uicontrol('units',units,'Position',[.835 .50 .1 .05],'String','Quit','callback','CERR(''QUIT'')');
     uicontrol('units',units,'Position',[.835 .50 .1 .05],'String','Help','callback','CERR(''HELP'')');
     
-    %git hash comparison between local and remote to see if the version is updated    
-    tf = strcmp(localGitInfo.hash,remoteGitHash);
-    if ~(tf)   
+    %git hash comparison between local and remote to see if the version is updated
+    tf = [];
+    if ~isempty(localGitInfo)
+        tf = strcmp(localGitInfo.hash,remoteGitHash);
+    end
+    if isempty(tf)
+    elseif ~tf
         labelStr = ['<html> New version available; View updates at: <a href="">' localGitInfo.url '</a></html>' 'blahblah'];
         jLabel = javaObjectEDT('javax.swing.JLabel', labelStr);
         jLabel.setBackground(java.awt.Color(1, 1, 1));
