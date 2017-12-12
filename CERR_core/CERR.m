@@ -115,17 +115,17 @@ if(nargin == 0)
     
     %git hash comparison between local and remote to see if the version is updated
     tf = [];
-    if ~isempty(localGitInfo)
-        tf = strcmp(localGitInfo.hash,remoteGitHash);
+    if ~isempty(localGitInfo) && ~isempty(remoteGitHash)
+        tf = strcmp(localGitInfo.hash,remoteGitHash);     
     end
     if isempty(tf)
     elseif ~tf
-        labelStr = ['<html> New version available; View updates at: <a href="">' localGitInfo.url '</a></html>' 'blahblah'];
+        labelStr = ['<html> New version available; View updates at: <a href="">' localGitInfo.commitUrl '</a></html>'];
         jLabel = javaObjectEDT('javax.swing.JLabel', labelStr);
         jLabel.setBackground(java.awt.Color(1, 1, 1));
         [hjLabel,hContainer] = javacomponent(jLabel, [15,1,600,20], gcf);
         % Set the mouse-click callback
-        set(hjLabel, 'MouseClickedCallback', @(h,e)web([ localGitInfo.url], '-browser'));
+        set(hjLabel, 'MouseClickedCallback', @(h,e)web([ localGitInfo.commitUrl], '-browser'));
     else
          uicontrol('units',units,'Position',[0 .01 1 .04],'String','You have the latest version of CERR','Style','text', 'BackgroundColor', [1 1 1], 'FontSize', 10, 'FontName', 'FixedWidth', 'HorizontalAlignment', 'center');
     end
