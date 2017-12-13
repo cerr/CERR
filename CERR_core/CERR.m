@@ -115,7 +115,7 @@ if(nargin == 0)
     
     %git hash comparison between local and remote to see if the version is updated
     tf = [];
-    if ~isempty(localGitInfo)
+    if ~isempty(localGitInfo) && ~isempty(remoteGitHash)
         tf = strcmp(localGitInfo.hash,remoteGitHash);
     end
     if isempty(tf)
