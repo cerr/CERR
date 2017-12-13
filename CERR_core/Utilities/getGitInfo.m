@@ -156,11 +156,18 @@ for k=1:length(lines)
 end
 %localGitInfo.url=url;
 
-[~,repName] = strtok(url,':');
-commitUrl = strrep(repName(2:end),'.git','/commits/');
+% [~,repName] = strtok(url,':');
+
 %get to the commits page to view the remote commit hash
-url = ['https://github.com/',commitUrl];
-url = strcat(url,localGitInfo.branch);
+if ~isempty(url) && strfind(url, '.git')
+    commitUrl = strrep(url,'.git','/commits/');
+    url = strcat(commitUrl,localGitInfo.branch); 
+elseif ~isempty(url)
+    commitUrl = strcat(url,'/commits/');
+    url = strcat(commitUrl,localGitInfo.branch); 
+end
+% url = ['https://github.com/',commitUrl];
+
 localGitInfo.url=url;
 
 %obtain the date when the .git directory was last updated 
