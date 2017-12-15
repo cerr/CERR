@@ -369,7 +369,7 @@ switch upper(command)
             protDose = protocolS(p).totalDose;
             prescribedDose = planC{indexS.dose}(plnNum).prescribedDose;
             dA = getDoseArray(plnNum,planC);
-            dAscale = protDose/prescribedDose;  %CHECK!!
+            dAscale = protDose/prescribedDose;  
             dAscaled = dA * dAscale;
             planC{indexS.dose}(plnNum).doseArray = dAscaled;
             
@@ -513,7 +513,8 @@ switch upper(command)
                         x = [cScale cScale];
                         y = [0 1];
                         critLineH = line(hTCPAxis,x,y,'LineWidth',1,...
-                            'Color','red','LineStyle','--','Tag','criteria');
+                            'Color','red','LineStyle','--','Tag','criteria',...
+                            'Visible','Off');
                         critLineUdS.structure = structC{m};
                         critLineUdS.label = criteriaC{n};
                         critLineUdS.limit = strCritS.(criteriaC{n}).limit;
@@ -553,7 +554,8 @@ switch upper(command)
                                     gScale = scaleV(exceedIdx);
                                     ud.gMarker = [ud.gMarker,plot(hTCPAxis,...
                                         gScale,gVal,'o','MarkerSize',8,...
-                                        'MarkerFaceColor',[239 197 57]/255,'MarkerEdgeColor','k')];
+                                        'MarkerFaceColor',[239 197 57]/255,...
+                                        'MarkerEdgeColor','k')];
                                 end
                             else
                                 %Idenitfy dose/volume limits
@@ -565,7 +567,8 @@ switch upper(command)
                             x = [gScale gScale];
                             y = [0 1];
                             guideLineH = line(hTCPAxis,x,y,'LineWidth',2,...
-                                'Color',[239 197 57]/255,'LineStyle','--','Tag','guidelines');
+                                'Color',[239 197 57]/255,'LineStyle','--',...
+                                'Tag','guidelines','Visible','Off');
                             guideLineUdS.structure = structC{m};
                             guideLineUdS.label = guidelinesC{n};
                             guideLineUdS.limit = strGuideS.(guidelinesC{n}).limit;
@@ -618,14 +621,15 @@ switch upper(command)
         %Display first clinical criterion/guideline that is violated
         hcFirst = ud.criteria(firstcViolation);
         hgFirst = ud.guidelines(firstgViolation);
-        if hcFirst.XData(1) <= hgFirst.XData(1)
+        if hcFirst.XData(1)<= hgFirst.XData(1)
+        makeVisibleLimit('criteria',firstcViolation);
         hDatatip = cursorMode.createDatatip(hcFirst);
         else
+        makeVisibleLimit('guidelines',firstgViolation);
         hDatatip = cursorMode.createDatatip(hgFirst);
         end
+        
         hDatatip.Marker = '^';
-%         hDatatip.MarkerEdgeColor = 'k';
-%         hDatatip.MarkerFaceColor = 'none';
         hDatatip.MarkerSize=7;
         set(hDatatip,'Visible','Off','OrientationMode','Manual',...
             'UpdateFcn',@expandDataTip,'Tag','guidelines');
@@ -853,6 +857,12 @@ end
         %Get userdata
         ud = get(hFig,'Userdata');
         
+        %Check if visible
+        if strcmp(get(hObj,'Visible'),'Off')
+            return
+        end
+        
+        %Get scale at limit
         if isempty(hEvt)                 %Initialize (display 1st violation)
             posV = get(hObj,'Position');
             lscale = posV(1);
@@ -867,7 +877,6 @@ end
         numFrx = ud.Protocols(pNum).numFractions;
         totDose = ud.Protocols(pNum).totalDose;
         frxSize = totDose/numFrx;
-        
         
         
         %Check for all violations at same scale
@@ -1197,6 +1206,36 @@ end
             'ListSize',[300 100],'Name','Select protocols','SelectionMode',mode);
         
     end
+
+%Display limits
+function makeVisibleLimit(type,idxV)
+    
+    ud = get(hFig,'userdata');
+    hCrit = ud.criteria;
+    hGuide = ud.guidelines;
+    
+    %Turn off currently displayed limits
+    for k = 1:numel(hCrit)
+        set(hCrit(k),'Visible','Off')
+    end
+    for k = 1:numel(hGuide)
+        set(hGuide(k),'Visible','Off')
+    end
+    
+    %Turn on selected limit
+    if strcmp(type,'criteria')
+        set(hCrit(idxV),'Visible','On');
+    else
+        set(hGuide(idxV),'Visible','On');
+    end
+        
+    ud.criteria = hCrit;
+    ud.guidelines = hGuide;
+    set(hFig,'userdata',ud);
+    
+    
+end
+
 
 % Compute TCP/NTCP at scaled dose
     function scaleDose(hObj,hEvent)
