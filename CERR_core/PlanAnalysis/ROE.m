@@ -40,9 +40,18 @@ function ROE(command,varargin)
 
 % Globals
 global planC stateS
+
+%Default command
+if nargin==0
+    command = 'INIT';
+end
+
+%Check for loaded plan
 if isempty(planC)
-   msgbox('Please load valid plan to begin','Error!');
-   return
+    if  ~strcmpi(command,'closerequest')
+        msgbox('Please load valid plan to begin','Error!');
+        return
+    end
 end
 
 indexS = planC{end};
@@ -51,10 +60,6 @@ binWidth = .05;
 
 % Get GUI fig handle
 hFig = findobj('Tag','ROEFig');
-
-if nargin==0
-    command = 'INIT';
-end
 
 switch upper(command)
     
@@ -189,9 +194,16 @@ switch upper(command)
             'xlim',[.5 1.5],'ylim',[0 1],'xtick',[],'fontSize',9,'fontWeight',...
             'bold','box','on','visible','off'); %TCP plot axis
         plotH(4) = uicontrol('parent',hFig,'units','pixels','Position',...
-            [leftMarginWidth+.2*GUIWidth 3*shift .75*GUIWidth-leftMarginWidth 1.8*shift],...
+            [leftMarginWidth+.2*GUIWidth 5*shift .75*GUIWidth-leftMarginWidth 1.8*shift],...
             'Style','Slider','Visible','Off','Tag','Scale','Min',0.5,'Max',1.5,'Value',1); %Slider (dose scale)
         addlistener(plotH(4),'ContinuousValueChange',@scaleDose);
+        %Push button for constraints panel
+        plotH(5) = uicontrol('parent',hFig,'units','pixels','Position',...
+            [GUIWidth-17*shift 1.5*shift 15*shift 3*shift],...
+            'Style','push','Enable','On','String','View constraints',...
+            'backgroundColor',[192 205 230]./255,'fontSize',10,...
+            'Callback',{@critPanel,'INIT'});
+        
         
         %Turn off datacursor mode
         cursorMode = datacursormode(hFig);
@@ -211,9 +223,9 @@ switch upper(command)
         
         %Get path to .json files
         optS = CERROptions; %NOTE: Define path to .json files for protocols, models & clinical criteria in CERROptions.m
-                            % optS.ROEProtocolPath = 'yourpathtoprotocols';
-                            % optS.ROEModelPath = 'yourpathtomodels';
-                            % optS.ROECriteriaPath = 'yourpathtocriteria'
+        % optS.ROEProtocolPath = 'yourpathtoprotocols';
+        % optS.ROEModelPath = 'yourpathtomodels';
+        % optS.ROECriteriaPath = 'yourpathtocriteria'
         protocolPath = optS.ROEProtocolPath;
         modelPath = optS.ROEModelPath;
         criteriaPath = optS.ROECriteriaPath;
@@ -297,10 +309,10 @@ switch upper(command)
             ud.guidelines = [];
         end
         if ~isfield(ud,'cMarker')
-           ud.cMarker = []; 
+            ud.cMarker = [];
         end
         if ~isfield(ud,'gMarker')
-           ud.gMarker = [];
+            ud.gMarker = [];
         end
         
         % Define axis handles, slider, color order, foreground protocol
@@ -369,7 +381,7 @@ switch upper(command)
             protDose = protocolS(p).totalDose;
             prescribedDose = planC{indexS.dose}(plnNum).prescribedDose;
             dA = getDoseArray(plnNum,planC);
-            dAscale = protDose/prescribedDose;  
+            dAscale = protDose/prescribedDose;
             dAscaled = dA * dAscale;
             planC{indexS.dose}(plnNum).doseArray = dAscaled;
             
@@ -601,7 +613,7 @@ switch upper(command)
         legend([ud.NTCPCurve,ud.TCPCurve,ud.criteria(end),ud.guidelines(end)],...
             [NTCPLegendC,TCPLegendC,'Clinical criteria','Clinical guidelines'],...
             'Location','northwest','Color','none','FontSize',10,'AutoUpdate','off');
-       
+        
         %Display slider
         set(hSlider,'Visible','On'); %Slider on
         ud.handle.modelsAxis(4) = hSlider;
@@ -615,29 +627,29 @@ switch upper(command)
         scaleDose(hSlider);
         
         
-        %Get datacursor mode 
+        %Get datacursor mode
         cursorMode = datacursormode(hFig);
         
         %Display first clinical criterion/guideline that is violated
         hcFirst = ud.criteria(firstcViolation);
         hgFirst = ud.guidelines(firstgViolation);
         if hcFirst.XData(1)<= hgFirst.XData(1)
-        makeVisibleLimit('criteria',firstcViolation);
-        hDatatip = cursorMode.createDatatip(hcFirst);
+            dispSelCriteria([],[],'criteria',firstcViolation);
+            hDatatip = cursorMode.createDatatip(hcFirst);
         else
-        makeVisibleLimit('guidelines',firstgViolation);
-        hDatatip = cursorMode.createDatatip(hgFirst);
+            dispSelCriteria([],[],'guidelines',firstgViolation);
+            hDatatip = cursorMode.createDatatip(hgFirst);
         end
         
         hDatatip.Marker = '^';
         hDatatip.MarkerSize=7;
         set(hDatatip,'Visible','Off','OrientationMode','Manual',...
             'UpdateFcn',@expandDataTip,'Tag','guidelines');
-      
+        
         %Set datacursor update function
         set(cursorMode, 'Enable','On','SnapToDataVertex','off',...
             'UpdateFcn',@expandDataTip);
-       
+        
     case 'CLEAR_PLOT'
         ud = get(hFig,'userdata');
         %Clear data/plots from any previously loaded models/plans/structures
@@ -760,7 +772,7 @@ end
             %Scale dose bins
             s = scaleFactorV(count);
             scaledDoseBinsV = s*doseBinV;
-
+            
             %Convert to standard no. fractions
             Na = planNumFrx;
             Nb = protocolNumFrx;
@@ -768,7 +780,7 @@ end
             b = Na*Nb*abRatio;
             c = -scaledDoseBinsV.*(b + scaledDoseBinsV*Nb);
             correctedScaledDoseV = (-b + sqrt(b^2 - 4*a*c))/(2*a);
-
+            
             if isfield(critS,'parameters')
                 cParamS = critS.parameters;
                 critVal = feval(cFunc,correctedScaledDoseV,volHistV,cParamS);
@@ -783,6 +795,295 @@ end
             cScale = s;
         end
     end
+
+%Panel to view constraints & select for display
+    function critPanel(hObj,hEvt,command)
+        
+        % Get GUI fig handle
+        hCritFig = findobj('Tag','critFig');
+        
+        
+        if nargin==0
+            command = 'INIT';
+        end
+        switch(upper(command))
+            
+            case 'INIT'
+                %Figure postion, colour
+                mainFigPosV = get(hFig,'Position');
+                shift = 10;
+                height = 350;
+                width = 450;
+                posV = [mainFigPosV(1)+mainFigPosV(3)+20, mainFigPosV(2),...
+                    width, height];
+                figColor = [.6 .75 .75];
+                defaultColor = [0.8 0.9 0.9];
+                
+                %Get list of available constraints for display
+                ud = get(hFig,'userdata');
+                %--criteria
+                critS = [ud.criteria.UserData];
+                strcC = {critS.structure};
+                limcC = {critS.label};
+                numCriteria = numel(ud.criteria);
+                %--guidelines
+                guideS = [ud.guidelines.UserData];
+                strgC = {guideS.structure};
+                limgC = {guideS.label};
+                numGuide = numel(ud.guidelines);
+                strC = [strcC,strgC].';
+                limC = [limcC,limgC].';
+                typeC(1:numCriteria) = {'criteria'};
+                typeC(numCriteria+1:numCriteria+numGuide) = {'guidelines'};
+                
+                if isempty(hCritFig)
+                    %Initialize figure
+                    hCritFig = figure('tag','critFig','name','Clinical constraints',...
+                        'numbertitle','off','position',posV,...
+                        'CloseRequestFcn', {@critPanel,'closeRequest'}',...
+                        'menubar','none','resize','off','color',figColor);
+                else
+                    figure(hCritFig)
+                    return
+                end
+                
+                %Frames
+                critPanelH(1) = uicontrol(hCritFig,'units','pixels',...
+                    'Position',[shift shift width-2*shift height-2*shift ],'Style',...
+                    'frame','backgroundColor',defaultColor);
+                critPanelH(2) = uicontrol(hCritFig,'units','pixels',...
+                    'Position',[shift shift width-2*shift height-9*shift ],'Style',...
+                    'frame','backgroundColor',defaultColor);
+                
+                %View prev/next
+                critPanelH(3) = uicontrol(hCritFig,'units','pixels',...
+                    'Position',[width/4 height-8*shift,...
+                    width/2 height/8],'Style', 'text','string','View previous / next',...
+                    'FontSize',10,'FontWeight','Bold',...
+                    'backgroundColor',defaultColor);
+                critPanelH(4) = uicontrol(hCritFig,'units','pixels',...
+                    'Position',[width/4 height-5.5*shift,...
+                    4*shift 2*shift],'Style','push','string','<<','FontSize',...
+                    10,'FontWeight','Bold','backgroundColor',defaultColor,...
+                    'callback',{@critPanel,'prev'}');
+                
+                critPanelH(6) = uicontrol(hCritFig,'units','pixels',...
+                    'Position',[width/2+7*shift height-5.5*shift,...
+                    4*shift 2*shift],'Style','push','string','>>','FontSize',...
+                    10,'FontWeight','Bold','backgroundColor',defaultColor,...
+                    'callback',{@critPanel,'next'}');
+                
+                %Select to display
+                critPanelH(7) = uicontrol(hCritFig,'units','pixels',...
+                    'Position',[1.2*shift 19*shift,width/2 height/6],...
+                    'Style', 'text','string','Select constraints to display',...
+                    'FontSize',10,'FontWeight','Bold','backgroundColor',defaultColor);
+                data(:,1) = num2cell(false(numCriteria+numGuide,1));
+                data(:,2) = strC(:);
+                data(:,3) = limC(:);
+                data = [{false},{'All'},{' '};{false},{'None'},{' '};data];
+                tableWidth = width-6*shift;
+                critPanelH(8) = uitable('columnFormat',{'logical','char','char'},...
+                    'Data',data,'RowName',[],'ColumnName',...
+                    {'Select','Structure','Constraint'},'ColumnEditable',[true,false,false],...
+                    'BackgroundColor',[1,1,1],'Position',[3*shift 3*shift,tableWidth,...
+                    height/2+shift],'ColumnWidth',{tableWidth/6,tableWidth/3,...
+                    tableWidth/2},'CellEditCallback',@dispSelCriteria);
+                set(critPanelH(8),'userdata',typeC);
+                
+                critUd.handles = critPanelH;
+                set(hCritFig,'userdata',critUd);
+                
+            case 'NEXT'
+                
+                 dispStateC = [{ud.criteria.Visible},{ud.guidelines.Visible}];
+                 dispIdxV = strcmp(dispStateC,'on');
+                 cNum = numel(ud.criteria);
+                 gNum = numel(ud.guidelines);
+                 cMode = datacursormode(hFig);
+                 if sum(dispIdxV)~=1 %More than one constraint or none displayed
+                     %Do nothing
+                     return
+                 else
+                     %Get available limits
+                     ud = get(hFig,'userdata');
+                     limitsV = [arrayfun(@(x) x.XData(1),ud.criteria),...
+                                arrayfun(@(x) x.XData(1),ud.guidelines)];
+                     currentLimit = limitsV(dispIdxV);
+                     [limitsV,limOrderV] = sort(limitsV);
+                     next = find(limitsV > currentLimit,1,'first');
+                     if isempty(next) || isinf(limitsV(next))
+                         %Last limit displayed
+                         %OR 
+                         %Next limit beyond max display scale
+                         return
+                     else
+                         nextIdxV = find(limitsV==limitsV(next));
+                         nextLimit = limOrderV(nextIdxV);
+                         for l = 1:numel(nextLimit)
+                         if nextLimit(l) <= cNum  %Criteria
+                             dispSelCriteria([],[],'criteria',nextLimit(l));
+                             hNext = ud.criteria(nextLimit(l));
+                             hData = cMode.createDatatip(hNext);
+                             set(hData,'Visible','On','OrientationMode','Manual',...
+                            'UpdateFcn',@expandDataTip,'Tag','criteria');
+                         else                 %Guidelines
+                             dispSelCriteria([],[],'guidelines',nextLimit(l)-cNum);
+                             hNext = ud.criteria(nextLimit(l)-cNum);
+                             hData = cMode.createDatatip(hNext);
+                             set(hData,'Visible','On','OrientationMode','Manual',...
+                            'UpdateFcn',@expandDataTip,'Tag','guidelines');
+                         end
+                         end
+
+                     end
+                 end
+                 
+                 case 'PREV'
+                 dispStateC = [{ud.criteria.Visible},{ud.guidelines.Visible}];
+                 dispIdxV = strcmp(dispStateC,'on');
+                 cNum = numel(ud.criteria);
+                 gNum = numel(ud.guidelines);
+                 cMode = datacursormode(hFig);
+                 if sum(dispIdxV)~=1 %More than one constraint or none displayed
+                     %Do nothing
+                     return
+                 else
+                     %Get available limits
+                     ud = get(hFig,'userdata');
+                     limitsV = [arrayfun(@(x) x.XData(1),ud.criteria),...
+                                arrayfun(@(x) x.XData(1),ud.guidelines)];
+                     currentLimit = limitsV(dispIdxV);
+                     [limitsV,limOrderV] = sort(limitsV,'descend');
+                     prev = find(limitsV < currentLimit,1,'first');
+                     if isempty(prev)
+                         %First limit displayed
+                         return
+                     else
+                         prevIdxV = find(limitsV==limitsV(prev));
+                         prevLimit = limOrderV(prevIdxV);
+                         for l = 1:numel(prevLimit)
+                         if prevLimit(l) <= cNum  %Criteria
+                             dispSelCriteria([],[],'criteria',prevLimit(l));
+                             hNext = ud.criteria(prevLimit(l));
+                             hData = cMode.createDatatip(hNext);
+                             set(hData,'Visible','On','OrientationMode','Manual',...
+                            'UpdateFcn',@expandDataTip,'Tag','criteria');
+                         else                 %Guidelines
+                             dispSelCriteria([],[],'guidelines',prevLimit(l)-cNum);
+                             hNext = ud.criteria(prevLimit(l)-cNum);
+                             hData = cMode.createDatatip(hNext);
+                             set(hData,'Visible','On','OrientationMode','Manual',...
+                            'UpdateFcn',@expandDataTip,'Tag','guidelines');
+                         end
+                         end
+
+                     end
+                 end
+                 
+                 
+                 
+            case 'CLOSEREQUEST'
+                closereq;
+                
+        end
+    end
+
+%Display selected limits
+
+    function [selectedIdv,selTypeC] = dispSelCriteria(hObj,hEvt,varargin)
+        
+        cMode = datacursormode(hFig);
+        cMode.removeAllDataCursors;
+        
+        if isempty(hEvt)  %Prog call
+            ud = get(hFig,'userdata');
+            hCrit = ud.criteria;
+            hGuide = ud.guidelines;
+            type = varargin{1};
+            idxV = varargin{2};
+            
+            %Turn off currently displayed limits
+            for k = 1:numel(hCrit)
+                set(hCrit(k),'Visible','Off')
+            end
+            for k = 1:numel(hGuide)
+                set(hGuide(k),'Visible','Off')
+            end
+            
+            %Turn on selected limit
+            if strcmp(type,'criteria')
+                set(hCrit(idxV),'Visible','On');
+            else
+                set(hGuide(idxV),'Visible','On');
+            end
+            selectedIdv = idxV;
+            selTypeC = type;
+            
+            ud.criteria = hCrit;
+            ud.guidelines = hGuide;
+            
+        else %Checkbox selection
+            selectedIdv = hEvt.Indices(:,1);
+            stateV = cell2mat(hObj.Data(selectedIdv,1));
+            stateC = {'Off','On'};
+            
+            if selectedIdv==1  %'All'
+                %Criteria
+                for k = 1:numel(ud.criteria)
+                    set(ud.criteria(k),'Visible',stateC{stateV+1});
+%                     if strcmp(stateC{stateV+1},'On')
+%                         hExp = cMode.createDatatip(ud.criteria(k));
+%                         evt.Target = ud.criteria(k);
+%                         evt.Position = [evt.Target.XData(1),evt.Target.YData(1)];
+%                         expandDataTip(hExp,evt);
+%                     end
+                end
+                %Guidelines
+                for k = 1:numel(ud.guidelines)
+                    set(ud.guidelines(k),'Visible',stateC{stateV+1});
+%                     if strcmp(stateC{stateV+1},'On')
+%                         hExp = cMode.createDatatip(ud.guidelines(k));
+%                         evt.Target = ud.guidelines(k);
+%                         evt.Position = [evt.Target.XData(1),evt.Target.YData(1)];
+%                         expandDataTip(hExp,evt);
+%                     end
+                end
+            elseif selectedIdv==2 %'None'
+                if stateV == 1
+                    %Criteria
+                    for k = 1:numel(ud.criteria)
+                        set(ud.criteria(k),'Visible','Off');
+                    end
+                    %Guidelines
+                    for k = 1:numel(ud.guidelines)
+                        set(ud.guidelines(k),'Visible','Off');
+                    end
+                end
+                hObj.Data(:,1) = {false};
+                
+            else
+                selectedIdv = selectedIdv-2;
+                
+                type =  get(hObj,'userdata');
+                selTypeC = type(selectedIdv);
+                for k = 1:numel(selectedIdv)
+                    set(ud.(selTypeC{k})(selectedIdv(k)),'Visible',stateC{stateV(k)+1});
+                    if strcmp(stateC{stateV+1},'On')
+                        hExp = cMode.createDatatip(ud.(selTypeC{k})(selectedIdv(k)));
+                        evt.Target = ud.(selTypeC{k})(selectedIdv(k));
+                        evt.Position = [evt.Target.XData(1),evt.Target.YData(1)];
+                        expandDataTip(hExp,evt);
+                    end
+                end
+            end
+        end
+        set(hFig,'userdata',ud);
+        
+    end
+
+
+
 
 % Edit model parameters
     function editParams(hObj,hData)
@@ -800,7 +1101,7 @@ end
         prtcNum = ud.PrtcNum;
         modelsC = ud.Protocols(prtcNum).model;
         if isfield(ud,'ModelNum')
-          modelNum = ud.ModelNum;
+            modelNum = ud.ModelNum;
         end
         
         %Update parameter
@@ -868,7 +1169,7 @@ end
             lscale = posV(1);
         else
             %Update (display selected limit)
-            cLine = hEvt.Target;         
+            cLine = hEvt.Target;
             lscale = cLine.XData(1);
         end
         
@@ -888,14 +1189,14 @@ end
         nCrit =  sum(limitM(:,1) == lscale);
         txt = {};
         if nCrit>0
-        limitIdx = find(limitM(:,1) == lscale);
-        for k = 1:numel(limitIdx)
-            lUd = ud.criteria(limitIdx(k)).UserData;
-            start = (k-1)*5 + 1;
-            txt(start : start+4) = {[num2str(k),'. Structure: ',lUd.structure],['Constraint: ', lUd.label],...
-                ['Clinical limit :', num2str(lUd.limit)],...
-                ['Current value :', num2str(lUd.val)],['Current fraction size: ',num2str(lscale*frxSize)]};
-        end
+            limitIdx = find(limitM(:,1) == lscale);
+            for k = 1:numel(limitIdx)
+                lUd = ud.criteria(limitIdx(k)).UserData;
+                start = (k-1)*5 + 1;
+                txt(start : start+4) = {[num2str(k),'. Structure: ',lUd.structure],['Constraint: ', lUd.label],...
+                    ['Clinical limit :', num2str(lUd.limit)],...
+                    ['Current value :', num2str(lUd.val)],['Current fraction size: ',num2str(lscale*frxSize)]};
+            end
         end
         
         %---Guidelines:---
@@ -906,24 +1207,20 @@ end
         nGuide =  sum(limitM(:,1) == lscale);
         k0 = length(txt);
         if nGuide>0
-        limitIdx = find(limitM(:,1) == lscale);
-        %Get structures, limits
-        for k = 1:numel(limitIdx)
-            lUd = ud.guidelines(limitIdx(k)).UserData;
-            start = k0 + (k-1)*5 + 1;
-            txt(start : start+4) = {[num2str(nCrit+k),'. Structure: ',lUd.structure],['Constraint: ', lUd.label],...
-                ['Clinical guideline :', num2str(lUd.limit)],...
-                ['Current value :', num2str(lUd.val)],['Current fraction size: ',num2str(lscale*frxSize)]};
+            limitIdx = find(limitM(:,1) == lscale);
+            %Get structures, limits
+            for k = 1:numel(limitIdx)
+                lUd = ud.guidelines(limitIdx(k)).UserData;
+                start = k0 + (k-1)*5 + 1;
+                txt(start : start+4) = {[num2str(nCrit+k),'. Structure: ',lUd.structure],['Constraint: ', lUd.label],...
+                    ['Clinical guideline :', num2str(lUd.limit)],...
+                    ['Current value :', num2str(lUd.val)],['Current fraction size: ',num2str(lscale*frxSize)]};
+            end
         end
-        end
-      
-        
         
         %Display
         hObj.Marker = '^';
         hObj.MarkerSize = 7;
-%         hObj.MarkerEdgeColor = 'k';
-%         hObj.MarkerFaceColor = 'none';
         set(hObj,'Visible','On');
     end
 
@@ -1054,13 +1351,13 @@ end
             
             %Get selected protocol no.
             protS = ud.Protocols;
-            if isfield(ud,'PrtcNum')
-                prtcNum = ud.PrtcNum;
-            else
+%             if isfield(ud,'PrtcNum')
+%                 prtcNum = ud.PrtcNum;
+%             else
                 protListC = {protS.protocol};
                 prtcNum = strcmp(currNode.getName,protListC);
                 ud.PrtcNum = find(prtcNum);
-            end
+%             end
             
             %Get dose plan input
             planListC = {'Select dose plan',planC{indexS.dose}.fractionGroupID};
@@ -1164,7 +1461,7 @@ end
             strDat = [structDispC{inputStrNum},structListC(strIdxV(inputStrNum))];
             set(hTab1,'ColumnFormat',fmtC,'Data',strDat,...
                 'Visible','On','Enable','On');
-       
+            
             %Table3 : Miscellaneous fields from .json file
             hTab3 = ud.handle.inputH(8);
             set(hTab3,'Data',[fieldsC,cellfun(@num2str,valsC,'un',0)],'Visible','On','Enable','On');
@@ -1207,35 +1504,6 @@ end
         
     end
 
-%Display limits
-function makeVisibleLimit(type,idxV)
-    
-    ud = get(hFig,'userdata');
-    hCrit = ud.criteria;
-    hGuide = ud.guidelines;
-    
-    %Turn off currently displayed limits
-    for k = 1:numel(hCrit)
-        set(hCrit(k),'Visible','Off')
-    end
-    for k = 1:numel(hGuide)
-        set(hGuide(k),'Visible','Off')
-    end
-    
-    %Turn on selected limit
-    if strcmp(type,'criteria')
-        set(hCrit(idxV),'Visible','On');
-    else
-        set(hGuide(idxV),'Visible','On');
-    end
-        
-    ud.criteria = hCrit;
-    ud.guidelines = hGuide;
-    set(hFig,'userdata',ud);
-    
-    
-end
-
 
 % Compute TCP/NTCP at scaled dose
     function scaleDose(hObj,hEvent)
@@ -1272,7 +1540,7 @@ end
             end
             %Get plan no.
             planNum = ud.Protocols(l).planNum;
-            %Loop over models 
+            %Loop over models
             for k = 1:nMod
                 modNum = modNum+1;
                 
