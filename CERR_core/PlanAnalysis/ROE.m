@@ -260,7 +260,7 @@ switch upper(command)
             %Load associated clinical criteria/guidelines
             critFile = fullfile(criteriaPath,protocolInfoS.criteriaFile);
             critS = loadjson(critFile,'ShowProgress',0);
-            protocolS(p).criteria = critS;
+            protocolS(p).constraints = critS;
         end
         
         %Create tree to list models by protocol
@@ -301,12 +301,6 @@ switch upper(command)
         end
         if ~isfield(ud,'TCPCurve')
             ud.TCPCurve = [];
-        end
-        if ~isfield(ud,'criteria')
-            ud.criteria = [];
-        end
-        if ~isfield(ud, 'guidelines')
-            ud.guidelines = [];
         end
         if ~isfield(ud,'cMarker')
             ud.cMarker = [];
@@ -361,6 +355,14 @@ switch upper(command)
                 msgbox(sprintf('Please select dose plan:\n protocol: %d',p),'Plot model');
                 close(hWait);
                 return
+            end
+            
+            %Check for existing handles to criteria
+            if ~isfield(protocolS(p),'criteria')
+                protocolS(p).criteria = [];
+            end
+            if ~isfield(protocolS(p),'guidelines')
+                protocolS(p).guidelines = [];
             end
             
             %Set plot transparency
@@ -479,7 +481,7 @@ switch upper(command)
             protocolS(p).model = modelC;
             
             %% Plot criteria & guidelines
-            critS = protocolS(p).criteria;
+            critS = protocolS(p).constraints;
             nFrxProtocol = protocolS(p).numFractions;
             structC = fieldnames(critS.structures);
             cCount = 0;
@@ -524,15 +526,23 @@ switch upper(command)
                         %Display line indicating clinical criteria/guidelines
                         x = [cScale cScale];
                         y = [0 1];
+                        %Set criteria line transparency
+                        if p==ud.foreground
                         critLineH = line(hTCPAxis,x,y,'LineWidth',1,...
-                            'Color','red','LineStyle','--','Tag','criteria',...
+                            'Color',[1 0 0],'LineStyle','--','Tag','criteria',...
                             'Visible','Off');
+                        else
+                            critLineH = line(hTCPAxis,x,y,'LineWidth',1,...
+                            'Color',[1 0 0 alpha],'LineStyle',':','Tag','criteria',...
+                            'Visible','Off');
+                        end
                         critLineUdS.structure = structC{m};
                         critLineUdS.label = criteriaC{n};
                         critLineUdS.limit = strCritS.(criteriaC{n}).limit;
                         critLineUdS.val = cVal;
                         set(critLineH,'userdata',critLineUdS);
-                        ud.criteria = [ud.criteria,critLineH];
+                        protocolS(p).criteria = [protocolS(p).criteria,critLineH];
+                        
                         cCount = cCount + 1;
                         if cCount == 1
                             firstcViolation = 1;
@@ -586,7 +596,7 @@ switch upper(command)
                             guideLineUdS.limit = strGuideS.(guidelinesC{n}).limit;
                             guideLineUdS.val = gVal;
                             set(guideLineH,'userdata',guideLineUdS);
-                            ud.guidelines = [ud.guidelines,guideLineH];
+                            protocolS(p).guidelines = [protocolS(p).guidelines,guideLineH];
                             gCount = gCount + 1;
                             if gCount == 1
                                 firstgViolation = 1;
@@ -610,7 +620,8 @@ switch upper(command)
         ylabel(hTCPAxis,'TCP');
         NTCPLegendC = arrayfun(@(x)x.DisplayName,ud.NTCPCurve,'un',0);
         TCPLegendC = arrayfun(@(x)x.DisplayName,ud.TCPCurve,'un',0);
-        legend([ud.NTCPCurve,ud.TCPCurve,ud.criteria(end),ud.guidelines(end)],...
+        constraintS = protocolS(ud.foreground);
+        legend([ud.NTCPCurve,ud.TCPCurve,constraintS.criteria(end),constraintS.guidelines(end)],...
             [NTCPLegendC,TCPLegendC,'Clinical criteria','Clinical guidelines'],...
             'Location','northwest','Color','none','FontSize',10,'AutoUpdate','off');
         
@@ -626,13 +637,14 @@ switch upper(command)
         %Display current dose/probability
         scaleDose(hSlider);
         
-        
         %Get datacursor mode
         cursorMode = datacursormode(hFig);
+        set(cursorMode,'Enable','On');
+        
         
         %Display first clinical criterion/guideline that is violated
-        hcFirst = ud.criteria(firstcViolation);
-        hgFirst = ud.guidelines(firstgViolation);
+        hcFirst = constraintS.criteria(firstcViolation);
+        hgFirst = constraintS.guidelines(firstgViolation);
         if hcFirst.XData(1)<= hgFirst.XData(1)
             dispSelCriteria([],[],'criteria',firstcViolation);
             hDatatip = cursorMode.createDatatip(hcFirst);
@@ -655,8 +667,12 @@ switch upper(command)
         %Clear data/plots from any previously loaded models/plans/structures
         ud.NTCPCurve = [];
         ud.TCPCurve = [];
-        ud.criteria = [];
-        ud.guidelines = [];
+        protocolS = ud.Protocols;
+        for p = 1:numel(protocolS)
+        protocolS(p).criteria = [];
+        protocolS(p).guidelines = [];
+        end
+        ud.Protocols = protocolS;
         cla(ud.handle.modelsAxis(2));
         legend(ud.handle.modelsAxis(2),'off')
         cla(ud.handle.modelsAxis(3));
@@ -822,19 +838,22 @@ end
                 %Get list of available constraints for display
                 ud = get(hFig,'userdata');
                 %--criteria
-                critS = [ud.criteria.UserData];
-                strcC = {critS.structure};
-                limcC = {critS.label};
-                numCriteria = numel(ud.criteria);
+                protS = ud.Protocols;
+                currProtocol = ud.foreground;
+                criteriaS = [protS(currProtocol).criteria.UserData];
+                strcC = {criteriaS.structure};
+                limcC = {criteriaS.label};
+                numCriteria = numel(protS(currProtocol).criteria);
                 %--guidelines
-                guideS = [ud.guidelines.UserData];
+                guideS = [protS(currProtocol).guidelines.UserData];
                 strgC = {guideS.structure};
                 limgC = {guideS.label};
-                numGuide = numel(ud.guidelines);
-                strC = [strcC,strgC].';
-                limC = [limcC,limgC].';
-                typeC(1:numCriteria) = {'criteria'};
-                typeC(numCriteria+1:numCriteria+numGuide) = {'guidelines'};
+                limgC = cellfun(@(x) strjoin({x,'(guideline)'}),limgC,'un',0);
+                numGuide = numel(protS(currProtocol).guidelines);
+                structsC = [strgC,strcC].';
+                limC = [limgC,limcC].';
+                typeC(1:numGuide) = {'guidelines'};
+                typeC(numGuide+1:numGuide+numCriteria) = {'criteria'};
                 
                 if isempty(hCritFig)
                     %Initialize figure
@@ -879,7 +898,7 @@ end
                     'Style', 'text','string','Select constraints to display',...
                     'FontSize',10,'FontWeight','Bold','backgroundColor',defaultColor);
                 data(:,1) = num2cell(false(numCriteria+numGuide,1));
-                data(:,2) = strC(:);
+                data(:,2) = structsC(:);
                 data(:,3) = limC(:);
                 data = [{false},{'All'},{' '};{false},{'None'},{' '};data];
                 tableWidth = width-6*shift;
@@ -896,10 +915,14 @@ end
                 
             case 'NEXT'
                 
-                 dispStateC = [{ud.criteria.Visible},{ud.guidelines.Visible}];
+                 ud = get(hFig,'userdata');
+                 protS = ud.Protocols;
+                 currProtocol = ud.foreground;
+                 hCrit = protS(currProtocol).criteria;
+                 hGuide = protS(currProtocol).guidelines;
+                 dispStateC = [{hGuide.Visible},{hCrit.Visible}];
                  dispIdxV = strcmp(dispStateC,'on');
-                 cNum = numel(ud.criteria);
-                 gNum = numel(ud.guidelines);
+                 gNum = numel(hGuide);
                  cMode = datacursormode(hFig);
                  if sum(dispIdxV)~=1 %More than one constraint or none displayed
                      %Do nothing
@@ -907,8 +930,8 @@ end
                  else
                      %Get available limits
                      ud = get(hFig,'userdata');
-                     limitsV = [arrayfun(@(x) x.XData(1),ud.criteria),...
-                                arrayfun(@(x) x.XData(1),ud.guidelines)];
+                     limitsV = [ arrayfun(@(x) x.XData(1),hGuide),...
+                                arrayfun(@(x) x.XData(1),hCrit)];
                      currentLimit = limitsV(dispIdxV);
                      [limitsV,limOrderV] = sort(limitsV);
                      next = find(limitsV > currentLimit,1,'first');
@@ -921,29 +944,34 @@ end
                          nextIdxV = find(limitsV==limitsV(next));
                          nextLimit = limOrderV(nextIdxV);
                          for l = 1:numel(nextLimit)
-                         if nextLimit(l) <= cNum  %Criteria
-                             dispSelCriteria([],[],'criteria',nextLimit(l));
-                             hNext = ud.criteria(nextLimit(l));
-                             hData = cMode.createDatatip(hNext);
-                             set(hData,'Visible','On','OrientationMode','Manual',...
-                            'UpdateFcn',@expandDataTip,'Tag','criteria');
-                         else                 %Guidelines
-                             dispSelCriteria([],[],'guidelines',nextLimit(l)-cNum);
-                             hNext = ud.criteria(nextLimit(l)-cNum);
+                         if nextLimit(l) <= gNum  %Guidelines
+                             dispSelCriteria([],[],'guidelines',nextLimit(l));
+                             hNext = hGuide(nextLimit(l));
                              hData = cMode.createDatatip(hNext);
                              set(hData,'Visible','On','OrientationMode','Manual',...
                             'UpdateFcn',@expandDataTip,'Tag','guidelines');
-                         end
+                         else                 %Criteria
+                             dispSelCriteria([],[],'criteria',nextLimit(l)-gNum);
+                             hNext = hCrit(nextLimit(l)-gNum);
+                             hData = cMode.createDatatip(hNext);
+                             set(hData,'Visible','On','OrientationMode','Manual',...
+                            'UpdateFcn',@expandDataTip,'Tag','criteria');
+                         end 
                          end
 
                      end
                  end
                  
                  case 'PREV'
-                 dispStateC = [{ud.criteria.Visible},{ud.guidelines.Visible}];
+                     
+                 ud = get(hFig,'userdata');
+                 protS = ud.Protocols;
+                 currProtocol = ud.foreground;
+                 hCrit = protS(currProtocol).criteria;
+                 hGuide = protS(currProtocol).guidelines;    
+                 dispStateC = [{hGuide.Visible},{hCrit.Visible}];
                  dispIdxV = strcmp(dispStateC,'on');
-                 cNum = numel(ud.criteria);
-                 gNum = numel(ud.guidelines);
+                 gNum = numel(hGuide);
                  cMode = datacursormode(hFig);
                  if sum(dispIdxV)~=1 %More than one constraint or none displayed
                      %Do nothing
@@ -951,8 +979,8 @@ end
                  else
                      %Get available limits
                      ud = get(hFig,'userdata');
-                     limitsV = [arrayfun(@(x) x.XData(1),ud.criteria),...
-                                arrayfun(@(x) x.XData(1),ud.guidelines)];
+                     limitsV = [ arrayfun(@(x) x.XData(1),hGuide),...
+                                arrayfun(@(x) x.XData(1),hCrit)];
                      currentLimit = limitsV(dispIdxV);
                      [limitsV,limOrderV] = sort(limitsV,'descend');
                      prev = find(limitsV < currentLimit,1,'first');
@@ -963,18 +991,18 @@ end
                          prevIdxV = find(limitsV==limitsV(prev));
                          prevLimit = limOrderV(prevIdxV);
                          for l = 1:numel(prevLimit)
-                         if prevLimit(l) <= cNum  %Criteria
-                             dispSelCriteria([],[],'criteria',prevLimit(l));
-                             hNext = ud.criteria(prevLimit(l));
-                             hData = cMode.createDatatip(hNext);
-                             set(hData,'Visible','On','OrientationMode','Manual',...
-                            'UpdateFcn',@expandDataTip,'Tag','criteria');
-                         else                 %Guidelines
-                             dispSelCriteria([],[],'guidelines',prevLimit(l)-cNum);
-                             hNext = ud.criteria(prevLimit(l)-cNum);
+                         if prevLimit(l) <= gNum  %Guidelines
+                             dispSelCriteria([],[],'guidelines',prevLimit(l));
+                             hNext = hGuide(prevLimit(l));
                              hData = cMode.createDatatip(hNext);
                              set(hData,'Visible','On','OrientationMode','Manual',...
                             'UpdateFcn',@expandDataTip,'Tag','guidelines');
+                         else                 %criteria
+                             dispSelCriteria([],[],'criteria',prevLimit(l)-gNum);
+                             hNext = hCrit(prevLimit(l)-gNum);
+                             hData = cMode.createDatatip(hNext);
+                             set(hData,'Visible','On','OrientationMode','Manual',...
+                            'UpdateFcn',@expandDataTip,'Tag','criteria');
                          end
                          end
 
@@ -990,94 +1018,128 @@ end
     end
 
 %Display selected limits
-
     function [selectedIdv,selTypeC] = dispSelCriteria(hObj,hEvt,varargin)
         
         cMode = datacursormode(hFig);
         cMode.removeAllDataCursors;
         
         if isempty(hEvt)  %Prog call
+            
+            %Get handles to constraints
             ud = get(hFig,'userdata');
-            hCrit = ud.criteria;
-            hGuide = ud.guidelines;
+            protS = ud.Protocols;
             type = varargin{1};
             idxV = varargin{2};
             
             %Turn off currently displayed limits
-            for k = 1:numel(hCrit)
-                set(hCrit(k),'Visible','Off')
-            end
-            for k = 1:numel(hGuide)
-                set(hGuide(k),'Visible','Off')
+            for pNum = 1:numel(protS)
+                hCrit = protS(pNum).criteria;
+                hGuide = protS(pNum).guidelines;
+                for k = 1:numel(hCrit)
+                    set(hCrit(k),'Visible','Off')
+                end
+                for k = 1:numel(hGuide)
+                    set(hGuide(k),'Visible','Off')
+                end
+                protS(pNum).criteria = hCrit;
+                protS(pNum).guidelines = hGuide;
             end
             
             %Turn on selected limit
-            if strcmp(type,'criteria')
-                set(hCrit(idxV),'Visible','On');
-            else
-                set(hGuide(idxV),'Visible','On');
+            for pNum = 1:numel(protS)
+                hCrit = protS(pNum).criteria;
+                hGuide = protS(pNum).guidelines;
+                if strcmp(type,'criteria')
+                    set(hCrit(idxV),'Visible','On');
+                else
+                    set(hGuide(idxV),'Visible','On');
+                end
+                protS(pNum).criteria = hCrit;
+                protS(pNum).guidelines = hGuide;
             end
             selectedIdv = idxV;
             selTypeC = type;
             
-            ud.criteria = hCrit;
-            ud.guidelines = hGuide;
+            ud.Protocols = protS;
+            set(hFig,'userdata',ud);
             
         else %Checkbox selection
+            
+            %Get handles to constraints
+            ud = get(hFig,'userdata');
+            protS = ud.Protocols;
+            
+            %Get slelected constraint
             selectedIdv = hEvt.Indices(:,1);
             stateV = cell2mat(hObj.Data(selectedIdv,1));
             stateC = {'Off','On'};
             
             if selectedIdv==1  %'All'
-                %Criteria
-                for k = 1:numel(ud.criteria)
-                    set(ud.criteria(k),'Visible',stateC{stateV+1});
-%                     if strcmp(stateC{stateV+1},'On')
-%                         hExp = cMode.createDatatip(ud.criteria(k));
-%                         evt.Target = ud.criteria(k);
-%                         evt.Position = [evt.Target.XData(1),evt.Target.YData(1)];
-%                         expandDataTip(hExp,evt);
-%                     end
+                for pNum = 1:numel(protS)
+                    hCrit = protS(pNum).criteria;
+                    hGuide = protS(pNum).guidelines;
+                    %Criteria
+                    for k = 1:numel(hCrit)
+                        set(hCrit(k),'Visible',stateC{stateV+1});
+                    end
+                    %Guidelines
+                    for k = 1:numel(hGuide)
+                        set(hGuide(k),'Visible',stateC{stateV+1});
+                    end
                 end
-                %Guidelines
-                for k = 1:numel(ud.guidelines)
-                    set(ud.guidelines(k),'Visible',stateC{stateV+1});
-%                     if strcmp(stateC{stateV+1},'On')
-%                         hExp = cMode.createDatatip(ud.guidelines(k));
-%                         evt.Target = ud.guidelines(k);
-%                         evt.Position = [evt.Target.XData(1),evt.Target.YData(1)];
-%                         expandDataTip(hExp,evt);
-%                     end
-                end
+                
             elseif selectedIdv==2 %'None'
                 if stateV == 1
                     %Criteria
-                    for k = 1:numel(ud.criteria)
-                        set(ud.criteria(k),'Visible','Off');
-                    end
-                    %Guidelines
-                    for k = 1:numel(ud.guidelines)
-                        set(ud.guidelines(k),'Visible','Off');
+                    for pNum = 1:numel(protS)
+                        hCrit = protS(pNum).criteria;
+                        hGuide = protS(pNum).guidelines;
+                        for k = 1:numel(hCrit)
+                            set(hCrit(k),'Visible','Off');
+                        end
+                        %Guidelines
+                        for k = 1:numel(hGuide)
+                            set(hGuide(k),'Visible','Off');
+                        end
                     end
                 end
                 hObj.Data(:,1) = {false};
                 
             else
-                selectedIdv = selectedIdv-2;
                 
+                ud = get(hFig,'userdata');
+                protS = ud.Protocols;
+                currProtocol = ud.foreground;
+                gNum = numel(protS(currProtocol).guidelines);
+                
+                selectedIdv = selectedIdv-2;
                 type =  get(hObj,'userdata');
                 selTypeC = type(selectedIdv);
-                for k = 1:numel(selectedIdv)
-                    set(ud.(selTypeC{k})(selectedIdv(k)),'Visible',stateC{stateV(k)+1});
-                    if strcmp(stateC{stateV+1},'On')
-                        hExp = cMode.createDatatip(ud.(selTypeC{k})(selectedIdv(k)));
-                        evt.Target = ud.(selTypeC{k})(selectedIdv(k));
-                        evt.Position = [evt.Target.XData(1),evt.Target.YData(1)];
-                        expandDataTip(hExp,evt);
+                
+                for pNum = 1:numel(protS)
+                    for k = 1:numel(selectedIdv)
+                        if strcmp(selTypeC(k),'guidelines') %guidelines
+                            selNum = selectedIdv(k);
+                        else                               %criteria
+                            selNum = selectedIdv(k)- gNum;
+                        end
+                        %Toggle display on/off
+                        set(protS(pNum).(selTypeC{k})(selNum),'Visible',stateC{stateV(k)+1});
+                        %Expand tooltip if on
+                        if strcmp(stateC{stateV+1},'On')
+                            hExp = cMode.createDatatip(protS(pNum).(selTypeC{k})(selNum));
+                            evt.Target = protS(pNum).(selTypeC{k})(selNum);
+                            evt.Position = [evt.Target.XData(1),evt.Target.YData(1)];
+                            expandDataTip(hExp,evt);
+                        end
                     end
                 end
+                
             end
+            
         end
+        
+        ud.Protocols = protS;
         set(hFig,'userdata',ud);
         
     end
@@ -1174,7 +1236,7 @@ end
         end
         
         %Get protocol fraction size
-        pNum = ud.PrtcNum;
+        pNum = ud.foreground;
         numFrx = ud.Protocols(pNum).numFractions;
         totDose = ud.Protocols(pNum).totalDose;
         frxSize = totDose/numFrx;
@@ -1182,7 +1244,8 @@ end
         
         %Check for all violations at same scale
         %---Criteria:---
-        limitM = get(ud.criteria,'xData');
+        hCrit = ud.Protocols(pNum).criteria;
+        limitM = get(hCrit,'xData');
         if iscell(limitM)
             limitM = cell2mat(limitM);
         end
@@ -1191,7 +1254,7 @@ end
         if nCrit>0
             limitIdx = find(limitM(:,1) == lscale);
             for k = 1:numel(limitIdx)
-                lUd = ud.criteria(limitIdx(k)).UserData;
+                lUd = hCrit(limitIdx(k)).UserData;
                 start = (k-1)*5 + 1;
                 txt(start : start+4) = {[num2str(k),'. Structure: ',lUd.structure],['Constraint: ', lUd.label],...
                     ['Clinical limit :', num2str(lUd.limit)],...
@@ -1200,7 +1263,8 @@ end
         end
         
         %---Guidelines:---
-        limitM = get(ud.guidelines,'xData');
+        hGuide = ud.Protocols(pNum).guidelines;
+        limitM = get(hGuide,'xData');
         if iscell(limitM)
             limitM = cell2mat(limitM);
         end
@@ -1210,7 +1274,7 @@ end
             limitIdx = find(limitM(:,1) == lscale);
             %Get structures, limits
             for k = 1:numel(limitIdx)
-                lUd = ud.guidelines(limitIdx(k)).UserData;
+                lUd = hGuide(limitIdx(k)).UserData;
                 start = k0 + (k-1)*5 + 1;
                 txt(start : start+4) = {[num2str(nCrit+k),'. Structure: ',lUd.structure],['Constraint: ', lUd.label],...
                     ['Clinical guideline :', num2str(lUd.limit)],...
@@ -1351,13 +1415,9 @@ end
             
             %Get selected protocol no.
             protS = ud.Protocols;
-%             if isfield(ud,'PrtcNum')
-%                 prtcNum = ud.PrtcNum;
-%             else
-                protListC = {protS.protocol};
-                prtcNum = strcmp(currNode.getName,protListC);
-                ud.PrtcNum = find(prtcNum);
-%             end
+            protListC = {protS.protocol};
+            prtcNum = strcmp(currNode.getName,protListC);
+            ud.PrtcNum = find(prtcNum);
             
             %Get dose plan input
             planListC = {'Select dose plan',planC{indexS.dose}.fractionGroupID};
