@@ -168,7 +168,7 @@ for n=1:2*nL
     if flagS.sumAvg
         featureS.sumAvg = featureS.sumAvg + n*pXplusY(n,:);
     end
-    % Sum Average
+    % Sum Entropy
     if flagS.sumEntropy
         featureS.sumEntropy = featureS.sumEntropy - pXplusYlogPXplusY(n,:);
     end
