@@ -328,7 +328,12 @@ end
 [planC, stateS] = updateRemotePaths(planC, stateS, saveFile, zipFile);
 
 %Save functions... modified to work with matlab 7
-saveOpt = getSaveInfo;
+varInfoS = whos('planC');
+if varInfoS.bytes > 2*10^9 %Use save version 7.3 for plans > 2GB
+    saveOpt = '-v7.3';
+else
+saveOpt = getSaveInfo;     %Default save version (defined in CERROptions.m)
+end
 if ~isempty(saveOpt);
     save(saveFile, 'planC', saveOpt);
 else
