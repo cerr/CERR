@@ -3,6 +3,7 @@ function addScansToMenu(hScanMenu,topMenuFlag,selectedScan)
 %
 %
 % APA, 03/28/2016
+% AI, 01/09/2018 : Additional grouping of scans by type
 
 global planC stateS
 indexS = planC{end};
@@ -33,24 +34,44 @@ if numScans > maxScansPerGroup
     
     [~,indSortV] = sortrows([scanDatesC' scanTypeC']);
     currInd = 1;
-    changeInd = currInd;
+    changeInd = currInd; 
     currentScan = indSortV(currInd);
-    scanType = planC{indexS.scan}(currentScan).scanType;
+    scanType = '';
+    %hScanGroupMenu = [];
     
     while currInd <= numScans
         
         currentScan = indSortV(currInd);
-        if mod(currInd-changeInd,maxScansPerGroup) == 0 || ~strcmpi(scanType,planC{indexS.scan}(currentScan).scanType)
-            if ishandle(hSubScanMenu)
-                rangeStr = [num2str(changeInd),'-',num2str(currInd-1)];
-                set(hSubScanMenu,'label',[scanType,' (',rangeStr,')'])
+        if ~strcmpi(scanType,planC{indexS.scan}(currentScan).scanType)
+            if sum(strcmp(planC{indexS.scan}(currentScan).scanType,...
+                    {planC{indexS.scan}.scanType}))>1
+                hScanGroupMenu = uimenu(hScanMenu, 'label', planC{indexS.scan}(currentScan).scanType,...
+                    'interruptible','on','separator','on', 'Checked', 'off');
+                changeInd = currInd;
+                dispIdx = 1;
+            else
+                hScanGroupMenu = [];
+                hSubScanMenu = uimenu(hScanMenu, 'label', planC{indexS.scan}(currentScan).scanType,...
+                    'interruptible','on','separator','on', 'Checked', 'off');
             end
-            changeInd = currInd;
-            % Create new sub-level
-            hSubScanMenu = uimenu(hScanMenu, 'label', planC{indexS.scan}(currentScan).scanType,...
-                'interruptible','on','separator','on', 'Checked', 'off');
-            scanType = planC{indexS.scan}(currentScan).scanType;
         end
+    
+        
+        scanType = planC{indexS.scan}(currentScan).scanType;
+        if mod(currInd-changeInd,maxScansPerGroup) == 0 %Changed
+            if ishandle(hScanGroupMenu)
+                %create new sub-level
+                hSubScanMenu = uimenu(hScanGroupMenu, 'label', planC{indexS.scan}(currentScan).scanType,...
+                    'interruptible','on','separator','on', 'Checked', 'off');
+                groupEndScan = min(currentScan+maxScansPerGroup-1,length(planC{indexS.scan}));
+                groupIdxV = strcmp(scanType,{planC{indexS.scan}(currentScan:groupEndScan).scanType});
+                endIdx = find(groupIdxV,1,'last');
+                rangeStr = [num2str(dispIdx),'-',num2str(dispIdx+endIdx-1)];
+                set(hSubScanMenu,'label',[scanType,' (',rangeStr,')']);
+                dispIdx = dispIdx + maxScansPerGroup;
+            end
+        end
+        
         
         scanDate = planC{indexS.scan}(currentScan).scanInfo(1).scanDate;
         dateString = '';
