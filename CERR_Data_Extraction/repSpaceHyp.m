@@ -41,7 +41,10 @@ indAnd = findstr(str,'&');
 indColon = findstr(str,':');
 indStar = findstr(str,'*');
 indHash = findstr(str,'#');
-indToReplace = [indSpace indOpenParan indCloseParan indPlus indMinus indPercent indComma indBackSlash indFwdSlash indEqualTo indQuestion indAnd indColon indStar indHash];
+indCaret = findstr(str,'^');
+indToReplace = [indSpace indOpenParan indCloseParan indPlus indMinus ...
+    indPercent indComma indBackSlash indFwdSlash indEqualTo indQuestion ...
+    indAnd indColon indStar indHash indCaret];
 str(indToReplace) = '_';
 indGreaterThan = findstr(str,'>');
 indLessThan = findstr(str,'<');
