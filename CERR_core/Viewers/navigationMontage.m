@@ -54,19 +54,25 @@ end
 if ~exist('scanNum','var')
     hSwitchMenu = findobj('tag', 'switchScanMenu');
     scanItemListC = {hSwitchMenu.Children.Label};
-    nSubMenu= 0;
+    nGroupMenu = 0;
     selected = 0;
-    while nSubMenu < numel(hSwitchMenu.Children) && selected == 0
+    while nGroupMenu < numel(hSwitchMenu.Children) && selected == 0
+        nGroupMenu = nGroupMenu + 1;
+        hGroupMenu = hSwitchMenu.Children(nGroupMenu);
+        nSubMenu = 0;
+        while nSubMenu < numel(hGroupMenu.Children) && selected == 0
         nSubMenu = nSubMenu + 1;
-        if ~isempty(hSwitchMenu.Children(nSubMenu).Children)
-             hSubMenu = hSwitchMenu.Children(nSubMenu).Children;
+        hSubMenu = hGroupMenu.Children(nSubMenu);
+        if ~isempty(hSubMenu.Children)
+             hScan = hSubMenu.Children;
         else
-             hSubMenu = hSwitchMenu.Children(nSubMenu);
+             hScan = hSubMenu;
         end
-        selectedScan = strcmp({hSubMenu.Checked},'on');
+        selectedScan = strcmp({hScan.Checked},'on');
         selected = any(selectedScan);
+        end
     end
-    scanTag = get(hSubMenu(selectedScan),'Tag');
+    scanTag = get(hScan(selectedScan),'Tag');
     scanNum = str2num(scanTag(9:end));
     if ~isempty(f)
         ud = get(f,'userdata');
