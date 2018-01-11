@@ -117,8 +117,6 @@ if numScans > maxScansPerGroup
         currInd = currInd + 1;
         
     end
-    rangeStr = [num2str(changeInd),'-',num2str(numScans)];
-    set(hSubScanMenu,'label',[scanType,' (',rangeStr,')'])
     
     return;
     
