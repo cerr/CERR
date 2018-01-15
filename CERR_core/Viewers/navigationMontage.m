@@ -56,24 +56,33 @@ if ~exist('scanNum','var')
     scanItemListC = {hSwitchMenu.Children.Label};
     nGroupMenu = 0;
     selected = 0;
+    
     while nGroupMenu < numel(hSwitchMenu.Children) && selected == 0
+        
         nGroupMenu = nGroupMenu + 1;
         hGroupMenu = hSwitchMenu.Children(nGroupMenu);
         nSubMenu = 0;
-        while nSubMenu < numel(hGroupMenu.Children) && selected == 0
-        nSubMenu = nSubMenu + 1;
-        hSubMenu = hGroupMenu.Children(nSubMenu);
-        if ~isempty(hSubMenu.Children)
-             hScan = hSubMenu.Children;
+        if(numel(hGroupMenu.Children)==0) %When no. scans < maxScansPerGroup
+            hScan = hGroupMenu;
+            selectedScan = strcmp({hScan.Checked},'on');
         else
-             hScan = hSubMenu;
-        end
-        selectedScan = strcmp({hScan.Checked},'on');
-        selected = any(selectedScan);
+            while nSubMenu < numel(hGroupMenu.Children) && selected == 0
+                nSubMenu = nSubMenu + 1;
+                hSubMenu = hGroupMenu.Children(nSubMenu);
+                if ~isempty(hSubMenu.Children)
+                    hScan = hSubMenu.Children;
+                else
+                    hScan = hSubMenu;
+                end
+                selectedScan = strcmp({hScan.Checked},'on');
+                selected = any(selectedScan);
+            end
         end
     end
+    
     scanTag = get(hScan(selectedScan),'Tag');
     scanNum = str2num(scanTag(9:end));
+    
     if ~isempty(f)
         ud = get(f,'userdata');
         ud.scanNum = scanNum;
@@ -81,6 +90,7 @@ if ~exist('scanNum','var')
         set(f,'userdata',ud);
         stateS.handle.navigationMontage = f;
     end
+    
 end
 
 try
