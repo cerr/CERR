@@ -255,6 +255,7 @@ switch upper(command)
             end
             protocolS(p).numFractions = protocolInfoS.numFractions;
             protocolS(p).totalDose = protocolInfoS.totalDose;
+            protocolS(p).numTreatmentDays = protocolInfoS.numTreatmentDays;
             root.add(uProt); %Add protocol to tree
             
             %Load associated clinical criteria/guidelines
@@ -329,9 +330,15 @@ switch upper(command)
         indexS = planC{end};
         numModelC = arrayfun(@(x)numel(x.model),protocolS,'un',0);
         numModelsV = [numModelC{:}];
+        cScaleV = [];
+        cValV = [];
+        gScaleV = [];
+        gValV = [];
         ntcp = 0;
         tcp = 0;
         jTot = 0;
+        cCount = 0;
+        gCount = 0;
         hWait = waitbar(0,'Generating plots...');
         for p = 1:numel(protocolS)
             %Check inputs
@@ -484,8 +491,6 @@ switch upper(command)
             critS = protocolS(p).constraints;
             nFrxProtocol = protocolS(p).numFractions;
             structC = fieldnames(critS.structures);
-            cCount = 0;
-            gCount = 0;
             %Loop over structures
             for m = 1:numel(structC)
                 cStr = find(strcmpi(structC{m}, availableStructsC));
@@ -502,57 +507,68 @@ switch upper(command)
                     for n = 1:length(criteriaC)
                         %Idenitfy NTCP limits
                         if strcmp(strCritS.(criteriaC{n}).function,'ntcp')
+                            
+                            %Get NTCP over entire scale
                             strC = cellfun(@(x) x.strNum,modelC,'un',0);
-                            cIdx = [strC{:}]==cStr;
-                            ntcpV = ud.NTCPCurve(cIdx).YData;
-                            exceedIdx = ntcpV >= strCritS.(criteriaC{n}).limit;
-                            if ~any(exceedIdx)
-                                cVal = inf;
-                                cScale = inf;
+                            cIdx = find([strC{:}]==cStr);
+                            if p ==1
+                                protocolStart = 0;
                             else
-                                exceedIdx = find(exceedIdx,1,'first');
-                                cVal = ntcpV(exceedIdx);
-                                cScale = scaleV(exceedIdx);
-                                ud.cMarker = [ud.cMarker,plot(hTCPAxis,cScale,...
-                                    cVal,'o','MarkerSize',8,'MarkerFaceColor',...
-                                    'r','MarkerEdgeColor','k')];
+                                protocolStart = length(ud.Protocols(p-1).model);
+                            end
+                            ntcpV = ud.NTCPCurve(protocolStart+cIdx).YData;
+                            
+                            %Identify where limit is exceeded
+                            cCount = cCount + 1;
+                            exceedIdxV = ntcpV >= strCritS.(criteriaC{n}).limit;
+                            if ~any(exceedIdxV)
+                                cValV(cCount) = inf;
+                                cScaleV(cCount) = inf;
+                            else
+                                exceedIdxV = find(exceedIdxV,1,'first');
+                                cValV(cCount) = ntcpV(exceedIdxV);
+                                cScaleV(cCount) = scaleV(exceedIdxV);
+                                if p==ud.foreground
+                                    ud.cMarker = [ud.cMarker,plot(hNTCPAxis,cScaleV(cCount),...
+                                        cValV(cCount),'o','MarkerSize',8,'MarkerFaceColor',...
+                                        'r','MarkerEdgeColor','k')];
+                                else
+                                    addMarker = scatter(hNTCPAxis,cScaleV(cCount),...
+                                        cValV(cCount),60,'MarkerFaceColor','r',...
+                                        'MarkerEdgeColor','k');
+                                    addMarker.MarkerFaceAlpha = .3;
+                                    addMarker.MarkerEdgeAlpha = .3;
+                                    ud.cMarker = [ud.cMarker,addMarker];
+                                end
                             end
                         else
                             %Idenitfy dose/volume limits
+                            cCount = cCount + 1;
                             nFrx = planC{indexS.dose}(plnNum).numFractions;
-                            [cScale,cVal] = calc_Limit(doseBinV,volHistV,strCritS.(criteriaC{n}),...
+                            [cScaleV(cCount),cValV(cCount)] = calc_Limit(doseBinV,volHistV,strCritS.(criteriaC{n}),...
                                 nFrx,nFrxProtocol,abRatio);
                         end
                         %Display line indicating clinical criteria/guidelines
-                        x = [cScale cScale];
+                        x = [cScaleV(cCount) cScaleV(cCount)];
                         y = [0 1];
                         %Set criteria line transparency
                         if p==ud.foreground
-                        critLineH = line(hTCPAxis,x,y,'LineWidth',1,...
-                            'Color',[1 0 0],'LineStyle','--','Tag','criteria',...
-                            'Visible','Off');
-                        else
                             critLineH = line(hTCPAxis,x,y,'LineWidth',1,...
-                            'Color',[1 0 0 alpha],'LineStyle',':','Tag','criteria',...
-                            'Visible','Off');
+                                'Color',[1 0 0],'LineStyle','--','Tag','criteria',...
+                                'Visible','Off');
+                        else
+                            critLineH = line(hTCPAxis,x,y,'LineWidth',2,...
+                                'Color',[1 0 0 alpha],'LineStyle',':','Tag','criteria',...
+                                'Visible','Off');
                         end
+                        critLineUdS.protocol = p;
                         critLineUdS.structure = structC{m};
                         critLineUdS.label = criteriaC{n};
                         critLineUdS.limit = strCritS.(criteriaC{n}).limit;
-                        critLineUdS.val = cVal;
+                        critLineUdS.val = cValV(cCount);
                         set(critLineH,'userdata',critLineUdS);
                         protocolS(p).criteria = [protocolS(p).criteria,critLineH];
                         
-                        cCount = cCount + 1;
-                        if cCount == 1
-                            firstcViolation = 1;
-                            currcMin = cScale;
-                        else
-                            if cScale < currcMin
-                                firstcViolation = cCount;
-                                currcMin = cScale;
-                            end
-                        end
                     end
                     
                     %------------ Loop over guidelines --------------------
@@ -566,46 +582,58 @@ switch upper(command)
                                 strC = cellfun(@(x) x.strNum,modelC,'un',0);
                                 gIdx = [strC{:}]==cStr;
                                 ntcpV = ud.NTCPCurve(gIdx).YData;
-                                exceedIdx = ntcpV >= strGuideS.(guidelinesC{n}).limit;
-                                if ~any(exceedIdx)
-                                    gVal = inf;
-                                    gScale = inf;
+                                
+                                %Identify where guideline is exceeded
+                                exceedIdxV = ntcpV >= strGuideS.(guidelinesC{n}).limit;
+                                gCount = gCount + 1;
+                                if ~any(exceedIdxV)
+                                    gValV(gCount) = inf;
+                                    gScaleV(gCount) = inf;
                                 else
-                                    exceedIdx = find(exceedIdx,1,'first');
-                                    gVal = ntcpV(exceedIdx);
-                                    gScale = scaleV(exceedIdx);
-                                    ud.gMarker = [ud.gMarker,plot(hTCPAxis,...
-                                        gScale,gVal,'o','MarkerSize',8,...
-                                        'MarkerFaceColor',[239 197 57]/255,...
-                                        'MarkerEdgeColor','k')];
+                                    exceedIdxV = find(exceedIdxV,1,'first');
+                                    gValV(gCount) = ntcpV(exceedIdxV);
+                                    gScaleV(gCount) = scaleV(exceedIdxV);
+                                    clr = [239 197 57]./255;
+                                    if p==ud.foreground
+                                        ud.gMarker = [ud.cMarker,plot(hNTCPAxis,gScaleV(gCount),...
+                                            gValV(gCount),'o','MarkerSize',8,'MarkerFaceColor',...
+                                            clr,'MarkerEdgeColor','k')];
+                                    else
+                                        addMarker = scatter(hNTCPAxis,gScaleV(gCount),...
+                                            gValV(gCount),60,'MarkerFaceColor',clr,...
+                                            'MarkerEdgeColor','k');
+                                        addMarker.MarkerFaceAlpha = .3;
+                                        addMarker.MarkerEdgeAlpha = .3;
+                                        ud.gMarker = [ud.cMarker,addMarker];
+                                    end
                                 end
                             else
                                 %Idenitfy dose/volume limits
+                                gCount = gCount + 1;
                                 nFrx = planC{indexS.dose}(plnNum).numFractions;
-                                [gScale,gVal] = calc_Limit(doseBinV,volHistV,strGuideS.(guidelinesC{n}),...
+                                [gScaleV(gCount),gValV(gCount)] = calc_Limit(doseBinV,volHistV,strGuideS.(guidelinesC{n}),...
                                     nFrx,nFrxProtocol,abRatio);
                             end
                             %Display line indicating clinical criteria/guidelines
-                            x = [gScale gScale];
+                            x = [gScaleV(gCount) gScaleV(gCount)];
                             y = [0 1];
+                            if p==ud.foreground
                             guideLineH = line(hTCPAxis,x,y,'LineWidth',2,...
                                 'Color',[239 197 57]/255,'LineStyle','--',...
                                 'Tag','guidelines','Visible','Off');
+                            else
+                                guideLineH = line(hTCPAxis,x,y,'LineWidth',2,...
+                                'Color',[239 197 57]/255,'LineStyle',':',...
+                                'Tag','guidelines','Visible','Off');
+                            end
+                            guideLineUdS.protocol = p;
                             guideLineUdS.structure = structC{m};
                             guideLineUdS.label = guidelinesC{n};
                             guideLineUdS.limit = strGuideS.(guidelinesC{n}).limit;
-                            guideLineUdS.val = gVal;
+                            guideLineUdS.val = gValV(gCount);
                             set(guideLineH,'userdata',guideLineUdS);
                             protocolS(p).guidelines = [protocolS(p).guidelines,guideLineH];
-                            gCount = gCount + 1;
-                            if gCount == 1
-                                firstgViolation = 1;
-                                currgMin = gScale;
-                            else
-                                if gScale < currgMin
-                                    firstgViolation = gCount;
-                                end
-                            end
+                            
                         end
                     end
                     
@@ -613,6 +641,9 @@ switch upper(command)
             end
             planC{indexS.dose}(plnNum).doseArray = dA;
         end
+        %Identify first violation
+        firstcViolation = cScaleV==min(cScaleV);
+        firstgViolation = gScaleV==min(gScaleV);
         close(hWait);
         
         %Add plot labels, legend
@@ -621,9 +652,15 @@ switch upper(command)
         NTCPLegendC = arrayfun(@(x)x.DisplayName,ud.NTCPCurve,'un',0);
         TCPLegendC = arrayfun(@(x)x.DisplayName,ud.TCPCurve,'un',0);
         constraintS = protocolS(ud.foreground);
-        legend([ud.NTCPCurve,ud.TCPCurve,constraintS.criteria(end),constraintS.guidelines(end)],...
-            [NTCPLegendC,TCPLegendC,'Clinical criteria','Clinical guidelines'],...
-            'Location','northwest','Color','none','FontSize',10,'AutoUpdate','off');
+        if isfield(constraintS,'guidelines') && ~isempty(constraintS.guidelines)
+            legend([ud.NTCPCurve,ud.TCPCurve,constraintS.criteria(end),constraintS.guidelines(end)],...
+                [NTCPLegendC,TCPLegendC,'Clinical criteria','Clinical guidelines'],...
+                'Location','northwest','Color','none','FontSize',10,'AutoUpdate','off');
+        else
+            legend([ud.NTCPCurve,ud.TCPCurve,constraintS.criteria(end)],...
+                [NTCPLegendC,TCPLegendC,'Clinical criteria'],...
+                'Location','northwest','Color','none','FontSize',10,'AutoUpdate','off');
+        end
         
         %Display slider
         set(hSlider,'Visible','On'); %Slider on
@@ -641,17 +678,20 @@ switch upper(command)
         cursorMode = datacursormode(hFig);
         set(cursorMode,'Enable','On');
         
-        
+        % --- temp hcFirst(1), hgFirst(1)-------
         %Display first clinical criterion/guideline that is violated
-        hcFirst = constraintS.criteria(firstcViolation);
-        hgFirst = constraintS.guidelines(firstgViolation);
-        if hcFirst.XData(1)<= hgFirst.XData(1)
+        critH = [protocolS.criteria];
+        hcFirst = critH(firstcViolation);
+        guidH = [protocolS.guidelines];
+        hgFirst = guidH(firstgViolation);
+        if hcFirst(1).XData(1)<= hgFirst(1).XData(1)
             dispSelCriteria([],[],'criteria',firstcViolation);
-            hDatatip = cursorMode.createDatatip(hcFirst);
+            hDatatip = cursorMode.createDatatip(hcFirst(1));
         else
             dispSelCriteria([],[],'guidelines',firstgViolation);
-            hDatatip = cursorMode.createDatatip(hgFirst);
+            hDatatip = cursorMode.createDatatip(hgFirst(1));
         end
+        %-----------------------------------fix! 
         
         hDatatip.Marker = '^';
         hDatatip.MarkerSize=7;
@@ -669,8 +709,8 @@ switch upper(command)
         ud.TCPCurve = [];
         protocolS = ud.Protocols;
         for p = 1:numel(protocolS)
-        protocolS(p).criteria = [];
-        protocolS(p).guidelines = [];
+            protocolS(p).criteria = [];
+            protocolS(p).guidelines = [];
         end
         ud.Protocols = protocolS;
         cla(ud.handle.modelsAxis(2));
@@ -1030,6 +1070,9 @@ end
             protS = ud.Protocols;
             type = varargin{1};
             idxV = varargin{2};
+            %---temp:fix
+            %idxV = idxV(1);
+            %---
             
             %Turn off currently displayed limits
             for pNum = 1:numel(protS)
@@ -1229,17 +1272,21 @@ end
         if isempty(hEvt)                 %Initialize (display 1st violation)
             posV = get(hObj,'Position');
             lscale = posV(1);
+            pNum = hObj.UserData.protocol;
         else
             %Update (display selected limit)
             cLine = hEvt.Target;
             lscale = cLine.XData(1);
+            pNum = cLine.UserData.protocol;
         end
         
-        %Get protocol fraction size
-        pNum = ud.foreground;
+        %Get protocol info
+        pName = ud.Protocols(pNum).protocol;
         numFrx = ud.Protocols(pNum).numFractions;
         totDose = ud.Protocols(pNum).totalDose;
         frxSize = totDose/numFrx;
+%         numTreatmentDays = ud.Protocols(pNum).numTreatmentDays;
+%         BED = 'Temp'; %FIX
         
         
         %Check for all violations at same scale
@@ -1255,10 +1302,14 @@ end
             limitIdx = find(limitM(:,1) == lscale);
             for k = 1:numel(limitIdx)
                 lUd = hCrit(limitIdx(k)).UserData;
-                start = (k-1)*5 + 1;
-                txt(start : start+4) = {[num2str(k),'. Structure: ',lUd.structure],['Constraint: ', lUd.label],...
-                    ['Clinical limit :', num2str(lUd.limit)],...
-                    ['Current value :', num2str(lUd.val)],['Current fraction size: ',num2str(lscale*frxSize)]};
+                start = (k-1)*7 + 1;
+                txt(start : start+6) = { [' '],[num2str(k),'. Structure: ',lUd.structure],...
+                    ['Protocol: ', pName],...
+                    ['Constraint: ', lUd.label],...
+                    ['Clinical limit: ', num2str(lUd.limit)],...
+                    ['Current value: ', num2str(lUd.val)],...
+                    ['Current fraction size: ',num2str(lscale*frxSize)]};
+  %                 ['Current BED: ',num2str(BED)]};
             end
         end
         
@@ -1275,10 +1326,14 @@ end
             %Get structures, limits
             for k = 1:numel(limitIdx)
                 lUd = hGuide(limitIdx(k)).UserData;
-                start = k0 + (k-1)*5 + 1;
-                txt(start : start+4) = {[num2str(nCrit+k),'. Structure: ',lUd.structure],['Constraint: ', lUd.label],...
-                    ['Clinical guideline :', num2str(lUd.limit)],...
-                    ['Current value :', num2str(lUd.val)],['Current fraction size: ',num2str(lscale*frxSize)]};
+                start = k0 + (k-1)*7 + 1;
+                txt(start : start+6) = {[' '],[num2str(nCrit+k),'. Structure: ',lUd.structure],...
+                    ['Protocol: ', pName],...
+                    ['Constraint: ', lUd.label],...
+                    ['Clinical guideline: ', num2str(lUd.limit)],...
+                    ['Current value: ', num2str(lUd.val)],...
+                    ['Current fraction size: ',num2str(lscale*frxSize)]};
+  %                 ['Current BED: ',num2str(BED)]};
             end
         end
         
