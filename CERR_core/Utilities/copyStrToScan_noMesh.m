@@ -32,14 +32,14 @@ function planC = copyStrToScan_noMesh(structNum,scanNum,planC)
 
 global stateS
 
-if ~exist('planC')
+if ~exist('planC','var')
     global planC
 end
 
 indexS = planC{end};
 
 %return if structNum is already associated to scanNum
-assocScanNum = getAssociatedScan(planC{indexS.structures}(structNum).assocScanUID);
+assocScanNum = getAssociatedScan(planC{indexS.structures}(structNum).assocScanUID,planC);
 if assocScanNum == scanNum
     warning(['Structure Number ',num2str(structNum),' is already assocoated with scan ',num2str(scanNum)])
     return;
@@ -67,7 +67,7 @@ for i = 1:length(scanZv)
     %structUID   = planC{indexS.structures}(structNum).strUID;
     %contourS    = calllib('libMeshContour','getContours',structUID,single(pointOnPlane),single(planeNormal),single([0 1 0]),single([1 0 0]));
     
-    [slcC, sliceXVals, sliceYVals] = getStructureSlice(assocScanNum, 3, coord, transM);
+    [slcC, sliceXVals, sliceYVals] = getStructureSlice(assocScanNum, 3, coord, transM, planC);
     oneStructM = [];
     if relStructNum <= 52
         cellNum = 1;
