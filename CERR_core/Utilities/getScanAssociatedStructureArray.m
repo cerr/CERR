@@ -1,8 +1,8 @@
-function saNum = getScanAssociatedStructureArray(scanNum,opt)
+function saNum = getScanAssociatedStructureArray(scanNum,opt,planC)
 % "getScanAssociatedStructureArray"
 % get the structure Array index corresponding to a scan number
 % APA, 09/09/09
-%
+% AI 1/25/18     Added planC input
 % Copyright 2010, Joseph O. Deasy, on behalf of the CERR development team.
 % 
 % This file is part of The Computational Environment for Radiotherapy Research (CERR).
@@ -25,9 +25,11 @@ function saNum = getScanAssociatedStructureArray(scanNum,opt)
 % You should have received a copy of the GNU General Public License
 % along with CERR.  If not, see <http://www.gnu.org/licenses/>.
 
-
+if ~exist('planC','var')
 global planC
+end
 indexS = planC{end};
+
 
 scanUID  = planC{indexS.scan}(scanNum).scanUID;
 

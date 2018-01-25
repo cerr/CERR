@@ -35,7 +35,7 @@ end
 
 indexS = planC{end};
 
-scanNum = getStructureAssociatedScan(structNumV(1));
+scanNum = getStructureAssociatedScan(structNumV(1),planC);
 structureC{1} = getUniformStr(structNumV(1));
 %Get z-coordinates of scan
 [scanXv,scanYv,scanZv] = getUniformScanXYZVals(planC{indexS.scan}(scanNum));
@@ -47,7 +47,7 @@ for strInd = 2:length(structNumV)
     structNum = structNumV(strInd);
 
     %return if structNum is already associated to scanNum
-    assocScanNum = getAssociatedScan(planC{indexS.structures}(structNum).assocScanUID);
+    assocScanNum = getAssociatedScan(planC{indexS.structures}(structNum).assocScanUID,planC);
 
     if scanNum ~= assocScanNum
         struct3M = [];
@@ -75,7 +75,7 @@ for strInd = 2:length(structNumV)
             %structUID   = planC{indexS.structures}(structNum).strUID;
             %contourS    = calllib('libMeshContour','getContours',structUID,single(pointOnPlane),single(planeNormal),single([0 1 0]),single([1 0 0]));
 
-            [slc, sliceXVals, sliceYVals] = getStructureSlice(assocScanNum, 3, coord, transM);
+            [slc, sliceXVals, sliceYVals] = getStructureSlice(assocScanNum, 3, coord, transM, planC);
             if (length(sliceXVals) ~= numCols) || (length(sliceYVals) ~= numRows)
                 error('Associated scans have different size')
             end
@@ -93,7 +93,7 @@ for strInd = 2:length(structNumV)
 
     else % structure associated to same base scan
         
-        structureC{strInd} = getUniformStr(structNum);
+        structureC{strInd} = getUniformStr(structNum, planC);
         
     end
 
