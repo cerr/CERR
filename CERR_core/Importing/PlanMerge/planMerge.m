@@ -257,11 +257,11 @@ end
 
 % Just to customize input
 ansBtnDS = '';
-if isempty(scanIndV) & ~isempty(doseIndV) & ~isempty(structIndV)
+if isempty(scanIndV) && ~isempty(doseIndV) && ~isempty(structIndV)
 
     ansBtnDS = questdlg('Do you want to Change scan association for Dose and Structures','Scan Association','Yes','No','Yes');
 
-elseif isempty(scanIndV) & isempty(doseIndV) & ~isempty(structIndV)
+elseif isempty(scanIndV) && isempty(doseIndV) && ~isempty(structIndV)
 
     ansBtnDS = questdlg('Do you want to Change scan association for Structures','Scan Association','Yes','No','Yes');
 end
@@ -276,9 +276,11 @@ if strcmp(ansBtnDS,'Yes')
         dlgTitle = 'Pick Associated Scan Number';
         lineNo=1;
         whichScan = inputdlg(prompt,dlgTitle,lineNo,def);
-        whichScan = str2num(whichScan{:});
+        whichScan = str2double(whichScan{:});
     end
     whichScanUID = planC{indexSC.scan}(whichScan).scanUID;
+    % z-values of the slices
+    newScanZvalV = [planC{indexSC.scan}(whichScan).scanInfo.zValue];    
 else
     whichScan = [];
     whichScanUID = [];
@@ -311,10 +313,22 @@ for i=1:length(structs)
     else
         newAssocScan                = whichScan;
         structs(i).assocScanUID     = whichScanUID;
+        oldScanZvalV = [planD{indexSD.scan}(assocScansV(i)).scanInfo.zValue];
+        slcIndV = zeros(size(oldScanZvalV));
+        for iSlc = 1:length(oldScanZvalV)
+            slcIndV(iSlc) = findnearest(newScanZvalV, oldScanZvalV(iSlc));
+        end
+        newContourS = struct('segments',[]);
+        newContourS(1:length(newScanZvalV)) = newContourS;
+        newContourS(slcIndV) = structs(i).contour;
+        structs(i).contour = newContourS;
     end
     structs(i).structureName    = [num2str(newAssocScan) ' - ' structs(i).structureName];
     structs(i).associatedScan   = newAssocScan;
     planC{indexSC.structures}    = dissimilarInsert(planC{indexSC.structures}, structs(i), nStructs+i);
+    %re-generate raster segments    
+    planC{indexSC.structures}(nStructs+i).rasterized = 0;
+    planC = getRasterSegs(planC,nStructs+i);    
 end
 
 %Filter by scans to include
