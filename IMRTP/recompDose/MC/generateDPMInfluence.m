@@ -335,8 +335,8 @@ for i = str2num(imin):str2num(imax)
     end
 
     %-----------Insert dose data into correct beamlet indices---------------------%
-    for i = 1 : length(structROIV)
-        beamlet = createIMBeamlet(doseM(scanIndV{i}), scanIndV{i}, beamIndex, 0);
+    for iStruct = 1 : length(structROIV)
+        beamlet = createIMBeamlet(doseM(scanIndV{iStruct}), scanIndV{iStruct}, beamIndex, 0);
         if isempty(IM.beams(beamIndex).beamlets)
             IM.beams(beamIndex).beamlets = beamlet;
         else
