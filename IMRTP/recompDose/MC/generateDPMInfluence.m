@@ -340,7 +340,7 @@ for i = str2num(imin):str2num(imax)
         if isempty(IM.beams(beamIndex).beamlets)
             IM.beams(beamIndex).beamlets = beamlet;
         else
-            IM.beams(beamIndex).beamlets(i,pbNum) = beamlet;
+            IM.beams(beamIndex).beamlets(i,beamletCount) = beamlet;
         end
         IM.beams(beamIndex).beamlets(i,beamletCount).structureName = planC{planC{end}.structures}(structROIV(i)).structureName;
         IM.beams(beamIndex).beamlets(i,beamletCount).sampleRate    = sampleRateV(i);
