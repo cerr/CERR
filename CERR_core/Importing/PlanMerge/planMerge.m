@@ -62,10 +62,10 @@ gsps    = planD{indexSD.GSPS};
 if (exist('scanIndV') & strcmpi(scanIndV, 'all')) | ~exist('scanIndV')
     scanIndV = 1:length(scans);
 end
-if (exist('doseIndV') & isequal(scanIndV,1:length(scans))) | ~exist('doseIndV')
+if (exist('doseIndV') & strcmpi(doseIndV, 'all')) | ~exist('doseIndV')
     doseIndV = 1:length(doses);
 end
-if (exist('structIndV') & isequal(scanIndV,1:length(scans))) | ~exist('structIndV')
+if (exist('structIndV') & strcmpi(structIndV, 'all')) | ~exist('structIndV')
     structIndV = 1:length(structs);
 end
 
