@@ -100,7 +100,7 @@ end
 
 strname = [planC{indexS.structures}(structNum).structureName,' asoc ',num2str(scanNum)];
 
-newstr = newCERRStructure(scanNum);
+newstr = newCERRStructure(scanNum,planC);
 newstr.contour = contourS;
 newstr.structureName = strname;
 newstr.associatedScan = scanNum;
