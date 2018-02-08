@@ -117,7 +117,10 @@ for i = 1:length(allScans)
     end
 
     scanType = planC{indexS.scan}(allScans(i)).scanType; 
-    hStrSetPannel(i)= uimenu(hStructMenu, 'label', scanType, 'callback','','interruptible','on', 'Separator', strSep);
+    if isempty(scanType)
+        scanType = ['Scan ', num2str(allScans(i))];
+    end
+    hStrSetPannel(i)= uimenu(hStructMenu, 'label', [num2str(allScans(i)), '. ', scanType], 'callback','','interruptible','on', 'Separator', strSep);
 
     scanIndxV = find(assocScansV == allScans(i));
 
