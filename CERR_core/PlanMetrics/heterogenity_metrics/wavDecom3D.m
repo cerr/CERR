@@ -17,6 +17,10 @@ if ~exist('wavType','var')
     wavType = 'coif1';
 end
 [loD,hiD] = wfilters(wavType);
+numPad = length(loD);
+siz = size(scan3M);
+scan3M = padarray(scan3M,[numPad, numPad, numPad],'circular','both');
+
 dirString = upper(dirString);
 if dirString(1) == 'L'
     scan3M = convn(scan3M,loD,'same');
@@ -33,4 +37,6 @@ if dirString(3) == 'L'
 else
     scan3M = convn(scan3M,reshape(hiD,1,1,length(hiD)),'same');
 end
+
+scan3M = scan3M(numPad+1:numPad+siz(1),numPad+1:numPad+siz(2),numPad+1:numPad+siz(3));
 
