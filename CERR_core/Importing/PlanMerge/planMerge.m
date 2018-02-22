@@ -327,21 +327,12 @@ for i=1:length(structs)
     structs(i).associatedScan   = newAssocScan;
     planC{indexSC.structures}    = dissimilarInsert(planC{indexSC.structures}, structs(i), nStructs+i);
     %re-generate raster segments    
-    planC{indexSC.structures}(nStructs+i).rasterized = 0;
-    planC = getRasterSegs(planC,nStructs+i);    
+    %planC{indexSC.structures}(nStructs+i).rasterized = 0;
+    %planC = getRasterSegs(planC,nStructs+i);    
 end
 
 %Filter by scans to include
 scans = scans(scanIndV);
-
-% reuniformize scan if new structures are added.
-matchingScanUIDs = ismember({structs.assocScanUID},{planC{indexSC.scan}.scanUID, scans.scanUID});
-if ~all(matchingScanUIDs)   
-    structuresToUniformize = nStructs + find(~matchingScanUIDs);
-    for iUniformize = 1:length(structuresToUniformize)
-        planC = updateStructureMatrices(planC, structuresToUniformize(iUniformize));
-    end
-end
 
 %Add scans to planC, along with structure array data if the original scan
 %number was in assocScansV.  IE, if any merged structures require the structure
@@ -358,6 +349,15 @@ for i=1:length(scans)
     if ismember(scanIndV(i), assocScansV) && length(uniData) >= i
         planC{indexSC.structureArray} = dissimilarInsert(planC{indexSC.structureArray}, uniData(i), nScans+i);
         planC{indexSC.structureArrayMore} = dissimilarInsert(planC{indexSC.structureArrayMore}, uniDataMore(i), nScans+i);
+    end
+end
+
+% reuniformize scan if new structures are added.
+matchingScanUIDs = ismember({structs.assocScanUID},{planC{indexSC.scan}.scanUID, scans.scanUID});
+if ~all(matchingScanUIDs)   
+    structuresToUniformize = nStructs + find(~matchingScanUIDs);
+    for iUniformize = 1:length(structuresToUniformize)
+        planC = updateStructureMatrices(planC, structuresToUniformize(iUniformize));
     end
 end
 
