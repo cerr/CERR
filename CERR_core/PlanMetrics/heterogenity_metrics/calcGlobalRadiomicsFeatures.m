@@ -21,6 +21,10 @@ if prod(siz) == 1
     scanArray3M = getScanArray(planC{indexS.scan}(scanNum));
     scanArray3M = double(scanArray3M) - ...
         planC{indexS.scan}(scanNum).scanInfo(1).CTOffset;
+    % Wavelet decomposition
+    %dirString = 'LLL';
+    %wavType = 'coif1';
+    % scanArray3M = wavDecom3D(scanArray3M,dirString,wavType);
     SUVvals3M = mask3M.*double(scanArray3M(:,:,uniqueSlices));
     [minr, maxr, minc, maxc, mins, maxs] = compute_boundingbox(mask3M);
     maskBoundingBox3M = mask3M(minr:maxr,minc:maxc,mins:maxs);
@@ -36,10 +40,13 @@ if prod(siz) == 1
     xValsV = xValsV(minc:maxc);
     yValsV = yValsV(minr:maxr);
     zValsV = zValsV(mins:maxs);
+    % Voxel volume for Total Energy calculation
+    VoxelVol = PixelSpacingX*PixelSpacingY*PixelSpacingZ*1000; % convert cm to mm
     
 else
     volToEval = scanNum;
     maskBoundingBox3M = structNum;
+    VoxelVol = planC;
 end
 
 if paramS.toQuantizeFlag == 1
@@ -47,6 +54,10 @@ if paramS.toQuantizeFlag == 1
     numGrLevels = paramS.higherOrderParamS.numGrLevels;
     minIntensity = paramS.higherOrderParamS.minIntensity;
     maxIntensity = paramS.higherOrderParamS.maxIntensity;
+    %minIntensity = min(volToEval(:));
+    %maxIntensity = max(volToEval(:));
+    %numGrLevels = ceil((maxIntensity - minIntensity)/25);
+    paramS.higherOrderParamS.numGrLevels = numGrLevels;
     quantizedM = imquantize_cerr(volToEval,numGrLevels,...
         minIntensity,maxIntensity);
 else
@@ -62,8 +73,10 @@ whichFeatS = paramS.whichFeatS;
 % Feature calculation
 featureS = struct;
 if whichFeatS.shape
+%     [featureS.shapeS] = getShapeParams(maskBoundingBox3M, ...
+%         {xValsV, yValsV, zValsV}, paramS.shapeParamS.rcsV);
     [featureS.shapeS] = getShapeParams(maskBoundingBox3M, ...
-        {xValsV, yValsV, zValsV}, paramS.shapeParamS.rcsV);
+        {xValsV, yValsV, zValsV});
 end
 
 if whichFeatS.harFeat2Ddir
@@ -221,7 +234,8 @@ end
 
 if whichFeatS.firstOrder
     featureS.firstOrderS = radiomics_first_order_stats...
-        (volToEval(logical(maskBoundingBox3M)));    
+        (volToEval(logical(maskBoundingBox3M)), VoxelVol,...
+        paramS.firstOrderParamS.offsetForEnergy);    
 end
 if whichFeatS.peakValley
     radiusV = paramS.peakValleyParamS.peakRadius;
