@@ -49,12 +49,73 @@ voxelSiz(2) = abs(xValsV(2) - xValsV(1));
 voxelSiz(3) = abs(zValsV(2) - zValsV(1));
 voxelVolume = prod(voxelSiz);
 
-
 volume = voxelVolume * sum(mask3M(:));
 
 % Fill holes
 mask3M = imfill(mask3M,'holes');
 filledVolume = voxelVolume * sum(mask3M(:));
+
+% Get x/y/z coordinates of all the voxels
+[iV,jV,kV] = find3d(mask3M);
+xV = xValsV(jV);
+yV = yValsV(iV);
+zV = zValsV(kV);
+xyzM = [xV' yV' zV']*10;
+meanV = mean(xyzM);
+xyzM = bsxfun(@minus,xyzM,meanV)/ sqrt(size(xyzM,1));
+eigValV = eig(xyzM' * xyzM);
+shapeS.majorAxis = 4*sqrt(eigValV(3));
+shapeS.minorAxis = 4*sqrt(eigValV(2));
+shapeS.leastAxis = 4*sqrt(eigValV(1));
+shapeS.flatness = sqrt(eigValV(1) / eigValV(3));
+shapeS.elongation = sqrt(eigValV(2) / eigValV(3));
+
+% Get the surface points for the structure mask
+surfPoints = getSurfacePoints(mask3M);
+xSurfV = xValsV(surfPoints(:,2));
+ySurfV = yValsV(surfPoints(:,1));
+zSurfV = zValsV(surfPoints(:,3));
+
+distM = sepsq([xSurfV;ySurfV;zSurfV], [xSurfV;ySurfV;zSurfV]);
+shapeS.max3dDiameter = sqrt(max(distM(:))) * 10;
+
+rowV = unique(surfPoints(:,1));
+colV = unique(surfPoints(:,2));
+slcV = unique(surfPoints(:,3));
+
+% Max diameter along slices
+dmax = 0;
+for i = 1:length(slcV)
+    slc = slcV(i);
+    xV = xValsV(surfPoints(surfPoints(:,3)==slc,2));
+    yV = yValsV(surfPoints(surfPoints(:,3)==slc,1));
+    distM = sepsq([xV;yV], [xV;yV]);
+    dmax = max(dmax,max(distM(:)));
+end
+shapeS.max2dDiameterAxialPlane = sqrt(dmax) * 10;
+
+% Max diameter along cols
+dmax = 0;
+for i = 1:length(colV)
+    col = colV(i);
+    zV = zValsV(surfPoints(surfPoints(:,2)==col,3));
+    yV = yValsV(surfPoints(surfPoints(:,2)==col,1));
+    distM = sepsq([zV;yV], [zV;yV]);
+    dmax = max(dmax,max(distM(:)));
+end
+shapeS.max2dDiameterSagittalPlane = sqrt(dmax) * 10;
+
+% Max diameter along rows
+dmax = 0;
+for i = 1:length(rowV)
+    row = rowV(i);
+    xV = xValsV(surfPoints(surfPoints(:,1)==row,2));
+    zV = zValsV(surfPoints(surfPoints(:,1)==row,3));
+    distM = sepsq([xV;zV], [xV;zV]);
+    dmax = max(dmax,max(distM(:)));
+end
+shapeS.max2dDiameterCoronalPlane = sqrt(dmax) * 10;
+
 
 % Add a row/col/slice to account for half a voxel
 mask3M = padarray(mask3M,[1 1 1],'replicate');
@@ -91,11 +152,12 @@ if exist('rcsV','var')
     zValsV = zValsNewV;
 end
 
-% Get the surface points for the structure mask
-surfPoints = getSurfacePoints(mask3M);
-xSurfV = xValsV(surfPoints(:,2));
-ySurfV = yValsV(surfPoints(:,1));
-zSurfV = zValsV(surfPoints(:,3));
+% % Get the surface points for the structure mask
+% surfPoints = getSurfacePoints(mask3M);
+% xSurfV = xValsV(surfPoints(:,2));
+% ySurfV = yValsV(surfPoints(:,1));
+% zSurfV = zValsV(surfPoints(:,3));
+
 
 % Check if it's a coplanar structure
 if (length(unique(zSurfV)) < 2 || length(zSurfV)<4)
@@ -110,10 +172,14 @@ if (length(unique(zSurfV)) < 2 || length(zSurfV)<4)
     return;
 end
 
-% Generate surface mesh
-triMesh = delaunay(xSurfV,ySurfV,zSurfV);
-TR = triangulation(triMesh, xSurfV', ySurfV', zSurfV');
-[tri, Xb] = freeBoundary(TR);
+% % Delaunay surface mesh
+% triMesh = delaunay(xSurfV,ySurfV,zSurfV);
+% TR = triangulation(triMesh, xSurfV', ySurfV', zSurfV');
+% [tri, Xb] = freeBoundary(TR);
+
+% MarchincCubes surface mesh
+[xValsM, yValsM, zValsM] = meshgrid(xValsV, yValsV, zValsV);
+[tri,Xb] = MarchingCubes(xValsM, yValsM, zValsM, mask3M, 0.5);
 
 % % plot surface
 % figure, trisurf(tri, Xb(:,1), Xb(:,2), Xb(:,3), 'EdgeColor', 'cyan',...
@@ -150,5 +216,7 @@ shapeS.sphericity = pi^(1/3) * (6*shapeS.volume)^(2/3) / shapeS.surfArea;
 
 % Surface to volume ratio , eq. (21) Aerts Nature suppl.
 shapeS.surfToVolRatio = shapeS.surfArea / shapeS.volume;
+
+
 
 
