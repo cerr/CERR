@@ -1,4 +1,4 @@
-function [RadiomicsFirstOrderS] = radiomics_first_order_stats(planC,structNum,doseNum)
+function [RadiomicsFirstOrderS] = radiomics_first_order_stats(planC,structNum,offsetForEnergy)
 %
 % function [RadiomicsFirstOrder] = radiomics_first_order_stats(Data,Step)
 %
@@ -29,13 +29,20 @@ if iscell(planC)
     if ~isempty(planC{indexS.scan}(scanNum).scanInfo(1).CTOffset)
         maskScan3M = double(maskScan3M) - planC{indexS.scan}(scanNum).scanInfo(1).CTOffset;
     end
-    
-    % % Get Pixel-size
-    % [xUnifV, yUnifV, zUnifV] = getUniformScanXYZVals(planC{indexS.scan}(scanNum));
-    % PixelSpacingXi = abs(xUnifV(2)-xUnifV(1));
-    % PixelSpacingYi = abs(yUnifV(2)-yUnifV(1));
-    % PixelSpacingZi = abs(zUnifV(2)-zUnifV(1));
-    % VoxelVol = PixelSpacingXi*PixelSpacingYi*PixelSpacingZi;
+    % Offset for energy calculation
+    if ~exist('offsetForEnergy','var')
+        if ~isempty(planC{indexS.scan}(scanNum).scanInfo(1).CTOffset)
+            offsetForEnergy = planC{indexS.scan}(scanNum).scanInfo(1).CTOffset;
+        else
+            offsetForEnergy = 0;
+        end
+    end
+    % Get Pixel-size
+    [xUnifV, yUnifV, zUnifV] = getUniformScanXYZVals(planC{indexS.scan}(scanNum));
+    PixelSpacingXi = abs(xUnifV(2)-xUnifV(1));
+    PixelSpacingYi = abs(yUnifV(2)-yUnifV(1));
+    PixelSpacingZi = abs(zUnifV(2)-zUnifV(1));
+    VoxelVol = PixelSpacingXi*PixelSpacingYi*PixelSpacingZi;
     
     % Iarray = Data.Image(~isnan(Data.Image));     %    Array of Image values
     indStructV = maskStruct3M(:) == 1;
@@ -44,7 +51,7 @@ if iscell(planC)
 else
     
     Iarray = planC;
-    % VoxelVol = structNum;
+    VoxelVol = structNum;
 end
 
 
@@ -79,10 +86,13 @@ N = ceil( RadiomicsFirstOrderS.range/Step);  %
 % heterogeniteit?
 
 %   Root mean square (RMS)
-RadiomicsFirstOrderS.rms           = sqrt(sum(Iarray.^2)/length(Iarray));
+RadiomicsFirstOrderS.rms           = sqrt(sum((Iarray+offsetForEnergy).^2)/length(Iarray));
 
-%   Total Energy ( integraal(a^2) )
-RadiomicsFirstOrderS.totalEnergy   = sum(Iarray.^2);
+%   Energy ( integraal(a^2) )
+RadiomicsFirstOrderS.energy   = sum((Iarray+offsetForEnergy).^2);
+
+%   Total Energy ( voxelVolume * integraal(a^2) )
+RadiomicsFirstOrderS.totalEnergy   = sum((Iarray+offsetForEnergy).^2) * VoxelVol;
 
 %   Mean deviation (also called mean absolute deviation)
 RadiomicsFirstOrderS.meanAbsDev            = mad(Iarray);
