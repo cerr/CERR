@@ -51,10 +51,17 @@ if fixedMinMaxGrLevFlag
     numGrLevels = paramS.higherOrderParamS.numGrLevels;
     minIntensity = paramS.higherOrderParamS.minIntensity;
     maxIntensity = paramS.higherOrderParamS.maxIntensity;
-else
-    minIntensity = min(volToEval(:));
-    maxIntensity = max(volToEval(:));
-    numGrLevels = ceil((maxIntensity - minIntensity)/binWidth);
+    % Quantize using the number of bins
+    quantizedM = imquantize_cerr(volToEval,numGrLevels,...
+        minIntensity,maxIntensity);
+
+else % Quantize using the binwidth
+    minIntensity = [];
+    maxIntensity = [];
+    numGrLevels = [];        
+    quantizedM = imquantize_cerr(volToEval,numGrLevels,...
+        minIntensity,maxIntensity,binwidth);    
+    numGrLevels = max(quantizedM(:));
     paramS.higherOrderParamS.numGrLevels = numGrLevels;
 end
 
@@ -62,9 +69,7 @@ paramS.higherOrderParamS.numGrLevels = numGrLevels;
 paramS.higherOrderParamS.patchRadius3dV = [1 1 1];
 paramS.higherOrderParamS.imgDiffThresh = 0; 
 
-quantizedM = imquantize_cerr(volToEval,numGrLevels,...
-    minIntensity,maxIntensity);
-
+% Number of voxels (used in run percentage calculation)
 numVoxels = sum(~isnan(quantizedM(:)));
 
 
@@ -154,11 +159,12 @@ glcmFlagS.firstInfCorr = 1;
 glcmFlagS.secondInfCorr = 1;
 
 dirctn      = 1;
-cooccurType = 1;
-featureS.harFeat3DcombS = get_haralick(dirctn, cooccurType, quantizedM, ...
+cooccurType = 2;
+featureS.harFeat3DdirS = get_haralick(dirctn, cooccurType, quantizedM, ...
 numGrLevels, glcmFlagS);
 
-harlCombS = featureS.harFeat3DcombS.CombS;
+% harlCombS = featureS.harFeat3DcombS.CombS;
+harlCombS = featureS.harFeat3DdirS.AvgS;
 cerrGlcmV = [harlCombS.autoCorr, harlCombS.jointAvg, harlCombS.clustPromin, harlCombS.clustShade, harlCombS.clustTendency, ...
 harlCombS.contrast, harlCombS.corr, harlCombS.diffAvg, harlCombS.diffEntropy, harlCombS.diffVar, harlCombS.dissimilarity, ...
 harlCombS.energy, harlCombS.jointEntropy, harlCombS.invDiff, harlCombS.invDiffMom, harlCombS.firstInfCorr, ...
@@ -205,11 +211,11 @@ numGrLevels = paramS.higherOrderParamS.numGrLevels;
 
 % 3D Run-Length features from combined run length matrix
 dirctn      = 1;
-rlmType     = 1;
-featureS.rlmFeat3DcombS = get_rlm(dirctn, rlmType, quantizedM, ...
+rlmType     = 2;
+featureS.rlmFeat3DdirS = get_rlm(dirctn, rlmType, quantizedM, ...
     numGrLevels, numVoxels, rlmFlagS);
 
-rlmCombS = featureS.rlmFeat3DcombS.CombS;
+rlmCombS = featureS.rlmFeat3DdirS.AvgS;
 cerrRlmV = [rlmCombS.gln, rlmCombS.glnNorm, rlmCombS.glv, rlmCombS.hglre, rlmCombS.lglre, rlmCombS.lre, rlmCombS.lrhgle, ...
     rlmCombS.lrlgle, rlmCombS.rln, rlmCombS.rlnNorm, rlmCombS.rlv, rlmCombS.rp, ...
     rlmCombS.sre, rlmCombS.srhgle, rlmCombS.srlgle];
