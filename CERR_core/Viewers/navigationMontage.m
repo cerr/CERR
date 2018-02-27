@@ -65,6 +65,7 @@ if ~exist('scanNum','var')
         if(numel(hGroupMenu.Children)==0) %When no. scans < maxScansPerGroup
             hScan = hGroupMenu;
             selectedScan = strcmp({hScan.Checked},'on');
+            selected = any(selectedScan);
         else
             while nSubMenu < numel(hGroupMenu.Children) && selected == 0
                 nSubMenu = nSubMenu + 1;
@@ -565,7 +566,7 @@ switch lower(arg)
         
         drawMenu(f, planC,scanNum);
         drawBookmarkMenu(f, planC,scanNum)
-        drawScanMenu(f,scanNum); %CHANGED
+        hSwitchMenu = drawScanMenu(f,scanNum); %CHANGED
         stateS.navInfo.Axes = hAxis;
         set(handle,'buttondownfcn',['navigationMontage(''newSlice'',',num2str(scanNum),')'])
         stateS.handle.navigationMontage = f;
@@ -586,10 +587,11 @@ switch lower(arg)
        
         ud.structListC = structListC;
         ud.handle.navStructs = hNavStructs;
-        hSwitchMenu = f.Children(strcmp(figMenuC,'switchScanMenu'));
+        f.Children(strcmp(figMenuC,'switchScanMenu')) = hSwitchMenu;
         scanItemListC = {hNavStructs.Children.Label};
         ud.scanListC = scanItemListC;
         ud.handle.switchScan = hSwitchMenu;
+        
         set(f,'userdata',ud);
         stateS.handle.navigationMontage = f;
 end
@@ -716,13 +718,14 @@ hStructMenu = uimenu(hFigure, 'label', 'Bookmarks', 'tag', 'bookmarkMenu');
 uimenu(hStructMenu, 'label', 'Clear all', 'callback', ['navigationMontage(''clearbookmarks'',',num2str(scanNum),')']);
 uimenu(hStructMenu, 'label', 'Toggle on/off', 'callback', ['navigationMontage(''togglebookmark'',',num2str(scanNum),')']);
 
-function drawScanMenu(hFigure,scanNum)
+function hScanMenu = drawScanMenu(hFigure,scanNum)
 hScanMenu = uimenu(hFigure, 'label', 'Switch Scan', 'tag', 'switchScanMenu');
 addScansToMenu(hScanMenu,1,scanNum);
 state = 'On';
-markSelectedScan(hScanMenu,scanNum,state);
+hScanMenu = markSelectedScan(hScanMenu,scanNum,state);
 
-function markSelectedScan(hScanMenu,scanNum,state)
+
+function hScanMenu = markSelectedScan(hScanMenu,scanNum,state)
 %Mark selected scan as 'checked'
 subMenuNum = 0;
 selected = 0;
@@ -730,13 +733,23 @@ while subMenuNum < numel(hScanMenu.Children) && selected == 0
     subMenuNum = subMenuNum + 1;
     if ~isempty(hScanMenu.Children(subMenuNum).Children)
         hSubMenu = hScanMenu.Children(subMenuNum).Children;
+        selectedScan = strcmp({hSubMenu.Tag},['scanItem',num2str(scanNum)]);
+        selected = any(selectedScan);
+        if any(selected)
+        set(hSubMenu(selectedScan),'checked',state);
+        hScanMenu.Children(subMenuNum).children = hSubMenu;
+        end
     else
         hSubMenu = hScanMenu.Children(subMenuNum);
+        selectedScan = strcmp({hSubMenu.Tag},['scanItem',num2str(scanNum)]);
+        selected = any(selectedScan);
+        if any(selected)
+        set(hSubMenu(selectedScan),'checked',state);
+        hScanMenu.Children(subMenuNum) = hSubMenu;
+        end
     end
-    selectedScan = strcmp({hSubMenu.Tag},['scanItem',num2str(scanNum)]);
-    selected = any(selectedScan);
 end    
-set(hSubMenu(selectedScan),'checked',state);
+
     
 %--------------------------------%
 function drawDots(planC, scanNum, stateS, hFigure, userData)
