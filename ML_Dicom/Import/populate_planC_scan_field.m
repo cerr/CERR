@@ -248,8 +248,8 @@ switch fieldname
                     nCols  = dcm2ml_Element(imgobj.get(hex2dec('00280011')));
                     
                     %Image Position (Patient)                   
-                    detectorInfoSequence = dcm2ml_Element(imgobj.get(hex2dec('00540022')));
-                    imgOri = detectorInfoSequence.Item_1.ImageOrientationPatient;
+                    %detectorInfoSequence = dcm2ml_Element(imgobj.get(hex2dec('00540022')));
+                    %imgOri = detectorInfoSequence.Item_1.ImageOrientationPatient;
                     
                     %Pixel Representation commented by wy
                     pixRep = dcm2ml_Element(imgobj.get(hex2dec('00280103')));
