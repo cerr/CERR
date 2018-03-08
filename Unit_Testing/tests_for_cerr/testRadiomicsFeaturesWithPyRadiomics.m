@@ -7,6 +7,9 @@
 global planC
 indexS = planC{end};
 
+% Wavelet decomposition flag
+wavDecompFlg = 1; % 0: original image, 1: wavelet pre-processing
+
 % Specify discretization
 fixedMinMaxGrLevFlag = 0; % 1: to input fixed min/max/grLevels, 0: min/max 
                           % calculated for the structure and bin width of binWidth.
@@ -24,9 +27,20 @@ scanArray3M = getScanArray(planC{indexS.scan}(scanNum));
 scanArray3M = double(scanArray3M) - ...
     planC{indexS.scan}(scanNum).scanInfo(1).CTOffset;
 % Wavelet decomposition
-%dirString = 'HHL';
-%wavType = 'coif1';
-%scanArray3M = wavDecom3D(scanArray3M,dirString,wavType);
+if wavDecompFlg == 1
+    dirString = 'HHL';
+    wavType = 'coif1';
+    scanArray3M = flip(scanArray3M,3);
+    if mod(size(scanArray3M,3),2) > 0
+        scanArray3M(:,:,end+1) = 0*scanArray3M(:,:,1);
+    end
+    scanArray3M = wavDecom3D(double(scanArray3M),dirString,wavType);
+    if mod(size(scanArray3M,3),2) > 0
+        scanArray3M = scanArray3M(:,:,1:end-1);
+    end
+    scanArray3M = flip(scanArray3M,3);
+end
+
 SUVvals3M = mask3M.*double(scanArray3M(:,:,uniqueSlices));
 [minr, maxr, minc, maxc, mins, maxs] = compute_boundingbox(mask3M);
 maskBoundingBox3M = mask3M(minr:maxr,minc:maxc,mins:maxs);
@@ -243,14 +257,33 @@ rlmDiffV = (cerrRlmV - pyRadRlmV) ./ cerrRlmV * 100
 
 %% Size Zone features in 3d
 
+flagS.sae = 1;
+flagS.lae = 1;
+flagS.gln = 1;
+flagS.glv = 1;
+flagS.szv = 1;
+flagS.glnNorm
+flagS.szn = 1;
+flagS.sznNorm
+flagS.zp = 1;
+flagS.lglze = 1;
+flagS.hglze = 1;
+flagS.salgle = 1;
+flagS.sahgle = 1;
+flagS.lalgle = 1;
+flagS.larhgle = 1;
+
 szmType = 1; % 1: 3d, 2: 2d
 szmM = calcSZM(quantizedM, numGrLevels, szmType);
 numVoxels = sum(~isnan(quantizedM(:)));
-featureS.szmFeature3dS = rlmToScalarFeatures(szmM,numVoxels, rlmFlagS);
+featureS.szmFeature3dS = szmToScalarFeatures(szmM,numVoxels, szmFlagS);
 szmS = featureS.szmFeature3dS;
-cerrSzmV = [szmS.gln, szmS.glnNorm, szmS.glv, szmS.hglre, szmS.lglre, szmS.lre, szmS.lrhgle, ...
-    szmS.lrlgle, szmS.rln, szmS.rlnNorm, szmS.rlv, szmS.rp, ...
-    szmS.sre, szmS.srhgle, szmS.srlgle];
+% cerrSzmV = [szmS.gln, szmS.glnNorm, szmS.glv, szmS.hglre, szmS.lglre, szmS.lre, szmS.lrhgle, ...
+%     szmS.lrlgle, szmS.rln, szmS.rlnNorm, szmS.rlv, szmS.rp, ...
+%     szmS.sre, szmS.srhgle, szmS.srlgle];
+cerrSzmV = [szmS.gln, szmS.glnNorm, szmS.glv, szmS.hglze, szmS.lglze, szmS.lae, szmS.lahgle, ...
+    szmS.lalgle, szmS.szn, szmS.sznNorm, szmS.szv, szmS.zp, ...
+    szmS.sae, szmS.sahgle, szmS.salgle];
 
 pyradSzmNamC = {'GrayLevelNonUniformity', 'GrayLevelNonUniformityNormalized',...
     'GrayLevelVariance', 'HighGrayLevelZoneEmphasis',  'LowGrayLevelZoneEmphasis', ...
