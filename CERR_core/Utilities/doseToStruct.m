@@ -64,6 +64,9 @@ end
 
 transM = inv(scanTransM)*doseTransM;
 doseOffset = planC{indexS.dose}(doseNum).doseOffset;
+if isempty(doseOffset)
+    doseOffset = 0;
+end
 
 [xVals, yVals, zVals] = getScanXYZVals(planC{indexS.scan}(assocScanNum));
 [xV, yV, zV] = getDoseXYZVals(planC{indexS.dose}(doseNum)); 
@@ -92,7 +95,7 @@ planC{indexS.structures} = dissimilarInsert(planC{indexS.structures}, newStructS
 planC = getRasterSegs(planC, newStructNum);
 planC = updateStructureMatrices(planC, newStructNum);
 % Refresh GUI if it exists
-if ~isempty(stateS) && isfield(stateS,'handle') && isfield(stateS.handle,'CERRSliceViewer') && isnumeric(stateS.handle.CERRSliceViewer)
+if ~isempty(stateS) && isfield(stateS,'handle') && isfield(stateS.handle,'CERRSliceViewer') && ishandle(stateS.handle.CERRSliceViewer)
     stateS.structsChanged = 1;
     CERRRefresh
 end
