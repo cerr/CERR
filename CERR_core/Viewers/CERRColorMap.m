@@ -1868,4 +1868,7 @@ switch lower(in)
             0.705673158	0.01555616	0.150232812
             ];
 
+        
+    case 'weather'
+        map = flipud(weatherMap);
 end

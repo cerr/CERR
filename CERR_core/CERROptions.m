@@ -175,14 +175,14 @@ optS.zoomFactor = 2.0;       %x-y scale factor when zooming.
 
 optS.dosePlotType = 'colorwash';%Method of dose distribution display:  'isodose' or 'colorwash'.
 
-optS.doseColormap = 'starinterp';  %Colormap for dose colorwash.  It is read from CERRColormap.m.
+optS.doseColormap = 'weather';  %Colormap for dose colorwash.  It is read from CERRColormap.m.
 %Options:  'jetmod' (modified jet), 'full' (full rainbow), 'ppt'
 %(powerpoint based) 'star (14 non-blending colors)', 'starinterp', 'gray' or 'gray256'.
 
 optS.CTColormap = 'gray256'; %CT colormap, usually grayscale.  Also read from CERRColormap.m.
 %Same choices as optS.doseColormap.
 
-optS.colorbarChoices = {'coolwarm','jetmod', 'ppt', 'full', 'full2', 'star', 'starinterp', 'gray', 'gray256', 'grayud64', 'doublecolorinvert', 'thedrewspecial', 'graycenter0width300', 'hotcold', 'copper'};
+optS.colorbarChoices = {'coolwarm','jetmod', 'ppt', 'full', 'full2', 'star', 'starinterp', 'gray', 'gray256', 'grayud64', 'doublecolorinvert', 'thedrewspecial', 'graycenter0width300', 'hotcold', 'copper', 'weather'};
 
 optS.staticColorbar = 0;         %Set to 1 to have the same colors represent the same dose values when switching between does distributions.
 
@@ -322,7 +322,7 @@ optS.planMetrics = {'meanDose', 'maxDose', 'minDose', 'Vx', 'Dx', 'EUD', 'ERP', 
 optS.windowPresets = [struct('name', '--Manual--', 'center', 0, 'width', 0) struct('name', 'Abd/Med', 'center', -10, 'width', 330) struct('name', 'Head', 'center', 45, 'width', 125) struct('name', 'Liver', 'center', 80, 'width', 305) struct('name', 'Lung', 'center', -500, 'width', 1500) struct('name', 'Spine', 'center', 30, 'width', 300)    struct('name', 'Vrt/Bone', 'center', 400, 'width', 1500)   struct('name', 'PET', 'center', 4500, 'width', 11000) struct('name', 'MR', 'center', -500, 'width', 1350) struct('name', 'SPECT', 'center', 400, 'width', 1000) struct('name', 'Top 90', 'center', 400, 'width', 1000)];
 
 %--Color Map base scan----------------------------------------------------%
-optS.scanColorMap = [struct('name', 'gray256') struct('name', 'copper') struct('name', 'Red') struct('name', 'Green') struct('name', 'Blue') struct('name', 'StarInterp') struct('name', 'hotCold')];
+optS.scanColorMap = [struct('name', 'gray256') struct('name', 'copper') struct('name', 'Red') struct('name', 'Green') struct('name', 'Blue') struct('name', 'StarInterp') struct('name', 'hotCold') struct('name', 'weather')];
 
 %--Caching Options--------------------------------------------------------%
 optS.cachingEnabled = 0; % set to 1 to enable caching, 0 to disable.
