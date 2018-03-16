@@ -27,11 +27,11 @@ indexS = planC{end};
 
 % parameters
 % nL = 32; % number of gray levels. Determined from the deltaIntensity.
-deltaIntensity = 25; % Create a level for every 25 HUs
-offsetsM = getOffsets(1); % 3d directions. (input arg 2 for 2d)
-rlmType = 1; % combine contributions from all the offsets in the RLM.
-waveletDirString = 'HLH';
-waveletType = 'coif1';
+dirctn = 1; % all 13 directions
+binwidth = 25; % Create a level for every 25 HUs
+rlmType = 2; % average contributions from all the offsets in the RLM.
+waveletDirString = 'HLH'; % directionality for Wavelet filtering
+waveletType = 'coif1'; % Wavelet type
 
 if numel(structNum) == 1
     scanNum = getStructureAssociatedScan(structNum, planC);
@@ -41,6 +41,7 @@ if numel(structNum) == 1
 else
     scan3M = structNum;
     mask3M = ~isnan(structNum);
+    ctOffset = min(0,min(scan3M(mask3M)));
 end
 
 % Change datatype to 32-bit float
@@ -49,46 +50,66 @@ scan3M = double(scan3M);
 numVoxels = sum(mask3M(:));
 
 % Statistics Energy
-statsFeatureS = radiomics_first_order_stats(scan3M(mask3M));
+%statsFeatureS = radiomics_first_order_stats(scan3M(mask3M));
+statsFeatureS = radiomics_first_order_stats(planC,structNum,ctOffset);
 featureS.statsEnergy = statsFeatureS.totalEnergy;
 
 % Shape Compactnes
-rcsV = [50 50 50];
-shapeS = getShapeParams(structNum,planC,rcsV);
+shapeS = getShapeParams(structNum,planC);
 featureS.shapeCompactness = shapeS.Compactness2;
 
 % Grey Level Nonuniformity
-xmin = min(scan3M(mask3M));
-xmax = max(scan3M(mask3M));
-nL = ceil((xmax-xmin)/deltaIntensity);
+% xmin = min(scan3M(mask3M));
+% xmax = max(scan3M(mask3M));
+% nL = ceil((xmax-xmin)/deltaIntensity);
 [minr, maxr, minc, maxc, mins, maxs] = compute_boundingbox(mask3M);
 maskWithinStr3M = mask3M(minr:maxr, minc:maxc, mins:maxs);
 scanWithinStr3M = scan3M(minr:maxr, minc:maxc, mins:maxs);
-quantized3M = imquantize_cerr(scanWithinStr3M,nL,xmin,xmax);
-quantized3M(~maskWithinStr3M) = NaN;
-rlmM = calcRLM(quantized3M, offsetsM, nL, rlmType);
+% quantized3M = imquantize_cerr(scanWithinStr3M,nL,xmin,xmax);
+% quantized3M(~maskWithinStr3M) = NaN;
+
+minIntensity = [];
+maxIntensity = [];
+numGrLevels = [];
+quantizedM = imquantize_cerr(scanWithinStr3M,numGrLevels,...
+    minIntensity,maxIntensity,binwidth);
+quantizedM(~maskWithinStr3M) = NaN;
+numGrLevels = max(quantizedM(:));
+
+% Run-length features
 fieldsC = {'sre','lre','gln','glnNorm','rln','rlnNorm','rp','lglre',...
     'hglre','srlgle','srhgle','lrlgle','lrhgle','glv','rlv'};
 valsC = {0,0,1,0,0,0,0,0,0,0,0,0,0,0,0};
 rlmFlagS = cell2struct(valsC,fieldsC,2);
-rlmFeaturesS = rlmToScalarFeatures(rlmM, numVoxels, rlmFlagS);
-featureS.rlmGln = rlmFeaturesS.gln;
 
-% Grey Level Nonuniformity HLH
-%wname = 'db5';
-%[Lo_D,Hi_D,Lo_R,Hi_R] = wfilters(wname);
-%dwtOut = dwt3(X,'db1','mode','per'); % single level
-%wdec = wavedec3(scan3M,1,'db1','mode','per');
+% Original image
+rlmFeaturesS = get_rlm(dirctn, rlmType, quantizedM, ...
+    numGrLevels, numVoxels, rlmFlagS);
 
-scan3M = wavDecom3D(scan3M,waveletDirString,waveletType);
-xmin = min(scan3M(mask3M));
-xmax = max(scan3M(mask3M));
-nL = ceil((xmax-xmin)/deltaIntensity);
+featureS.rlmGln = rlmFeaturesS.AvgS.gln;
+
+% Wavelet filtered image
+scan3M = flip(scan3M,3);
+if mod(size(scan3M,3),2) > 0
+    scan3M(:,:,end+1) = 0*scan3M(:,:,1);
+end
+scan3M = wavDecom3D(double(scan3M),waveletDirString,waveletType);
+if mod(size(scan3M,3),2) > 0
+    scan3M = scan3M(:,:,1:end-1);
+end
+scan3M = flip(scan3M,3);
+
 scanWithinStr3M = scan3M(minr:maxr, minc:maxc, mins:maxs);
-quantized3M = imquantize_cerr(scanWithinStr3M,nL,xmin,xmax);
-quantized3M(~maskWithinStr3M) = NaN;
-rlmM = calcRLM(quantized3M, offsetsM, nL, rlmType);
-rlmFeaturesS = rlmToScalarFeatures(rlmM, numVoxels, rlmFlagS);
-featureS.wavFiltRlmGln = rlmFeaturesS.gln;
+minIntensity = [];
+maxIntensity = [];
+numGrLevels = [];
+quantizedM = imquantize_cerr(scanWithinStr3M,numGrLevels,...
+    minIntensity,maxIntensity,binwidth);
+numGrLevels = max(quantizedM(:));
+quantizedM(~maskWithinStr3M) = NaN;
+rlmFeaturesS = get_rlm(dirctn, rlmType, quantizedM, ...
+    numGrLevels, numVoxels, rlmFlagS);
+
+featureS.wavFiltRlmGln = rlmFeaturesS.AvgS.gln;
 
 
