@@ -379,7 +379,7 @@ optS.plastimatch_command_file = 'bspline_register_cmd_dir.txt'; %'malcolm_pike_m
 
 %-- Size of pool of line handles. 
 % Set this value based on anticipated structure segments per view
-optS.linePoolSize = 300;
+optS.linePoolSize = 600;
 
 %-- Paths to protocol, model, and criteria files for ROE
 optS.ROEProtocolPath = 'M:/Aditi/OutcomesModels/ROE/Protocols'; 

@@ -32,7 +32,7 @@ if numScans > maxScansPerGroup
     
     hSubScanMenu = [];
     
-    [~,indSortV] = sortrows([scanDatesC' scanTypeC']);
+    [~,indSortV] = sortrows([scanDatesC' scanTypeC'],2);
     currInd = 1;
     changeInd = currInd; 
     currentScan = indSortV(currInd);

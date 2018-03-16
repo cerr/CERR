@@ -2,8 +2,8 @@
 %pool = parpool(4);
 
 % folder to import
-source = 'path/to/source';
-destn = 'path/to/destn'; 
+%source = 'path/to/source';
+%destn = 'path/to/destn'; 
 zipFlag = 'No';
 
 % Define file and directory filter patterns

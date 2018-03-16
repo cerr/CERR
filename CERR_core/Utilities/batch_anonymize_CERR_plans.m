@@ -39,7 +39,7 @@ feature accel off
 
 anonymize_file_name_flag = 1; % 1:anonymize file name with research number, 0: retain file name.
 researchNumber = 1000; %naming will start with this number + 3.
-replacementName = 'FCCC';
+replacementName = 'LungDoseResponse';
 
 persistent convertedC planNameC
 if isempty(varargin)
@@ -73,7 +73,7 @@ if strcmpi(sourceDir(end),slashType)
 end
 slashIndex = strfind(sourceDir,slashType);
 allDirS = dir(sourceDir);
-for dirNum = 1:length(allDirS)
+for dirNum = 1:10 %length(allDirS)
     researchNumber = researchNumber + 1;
     [pathStr,nameStr,extStr] = fileparts(allDirS(dirNum).name);
     [pathStr,nameStr,extStr2] = fileparts(nameStr);
@@ -91,7 +91,7 @@ for dirNum = 1:length(allDirS)
             planC = loadPlanC(fileName, tempdir);
             
             %Anonymize
-            PHI = {'studyNumberOfOrigin','PatientName','caseNumber','archive','PatientID'};
+            PHI = {'studyNumberOfOrigin','PatientName','caseNumber','archive','PatientID','scanDate','DICOMHeaders'};
             
             if ~isempty(replacementName)
                 

@@ -66,8 +66,14 @@ gspsNumsV = find(indMatchV);
 scanNum = 1;
 planC = gspsToStruct(scanNum,gspsNumsV,planC);
 indexS = planC{end};
-planC{indexS.structures}(end).structureName = 'GTV_DIL';
 
+% Special values for 17-407
+seriesDescription = 'Axial T2 17_407';
+planC{indexS.structures}(end).structureName = 'GTV_DIL';
+for i =1:length(planC{indexS.scan}(1).scanInfo)
+    planC{indexS.scan}(1).scanInfo(i).scanDescription = seriesDescription; 
+end
+planC{indexS.structures}(1).structureDescription = seriesDescription;
 
 %% ------ Export DICOM with RTSTRUCT
 export_planC_to_DICOM(planC, destDir);

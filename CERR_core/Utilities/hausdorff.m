@@ -33,4 +33,5 @@ for k = 1:m
     D = sqrt(D * ones(dim,1)); 
     dist(k) = min(D); 
 end
-dist = max(dist);
+%dist = max(dist);
+dist = quantile(dist,0.90);
