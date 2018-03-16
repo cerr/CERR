@@ -56,7 +56,7 @@ if flagS.energy
 end
 % Joint Entropy
 if flagS.jointEntropy
-    featureS.jointEntropy = -sum(cooccurM.*log2(cooccurM+1e-10));
+    featureS.jointEntropy = -sum(cooccurM.*log2(cooccurM+eps));
 end
 if flagS.jointMax
     featureS.jointMax = max(cooccurM,[],1);
@@ -92,7 +92,7 @@ for n=0:nL-1
     % p(x-y) log2(p(x-y))
     if any(indCtrstC{n+1})
         pXminusYlogPXminusY(n+1,:) = ...
-            pXminusY(n+1,:) .* log2(1e-10 + pXminusY(n+1,:));
+            pXminusY(n+1,:) .* log2(eps + pXminusY(n+1,:));
     else
         pXminusYlogPXminusY(n+1,:) = 0;
     end
@@ -160,7 +160,7 @@ for n=1:2*nL
     % p(x+y) log2(p(x+y))
     if any(indPxPlusYc{n})
         pXplusYlogPXplusY(n,:) = ...
-            pXplusY(n,:) .* log2(1e-10+pXplusY(n,:));
+            pXplusY(n,:) .* log2(eps+pXplusY(n,:));
     else
         pXplusYlogPXplusY(n,:) = zeros(1,numCooccurs);
     end
@@ -191,7 +191,7 @@ if flagS.corr
     levJMinusMu = bsxfun(@minus,levColV',mu);
     %sig = sum(levIMinusMu.^2 .* cooccurPatchM,1);
     featureS.corr = sum(levIMinusMu .* levJMinusMu  .* cooccurM, 1) ...
-        ./ (sig + 1e-10); % sig.^2 to match ITK results (ITK bug)
+        ./ (sig + eps); % sig.^2 to match ITK results (ITK bug)
 end
 
 % Cluster Tendency
@@ -253,16 +253,16 @@ end
 
 % First measure of information correlation
 if flagS.firstInfCorr
-    HXY1 = -sum(cooccurM.*log2((px(levRowV,:)+1e-10)...
-        .*(px(levColV,:)+1e-10)));
-    HX = -sum(px.*log2(px+1e-10));
+    HXY1 = -sum(cooccurM.*log2((px(levRowV,:)+eps)...
+        .*(px(levColV,:)+eps)));
+    HX = -sum(px.*log2(px+eps));
     featureS.firstInfCorr = (featureS.jointEntropy - HXY1) ./ HX;
 end
 
 % Second measure of information correlation
 if flagS.secondInfCorr
     HXY2 = -sum(px(levRowV,:).*px(levColV,:)...
-        .*log2((px(levRowV,:)+1e-10).*(px(levColV,:)+1e-10)));
+        .*log2((px(levRowV,:)+eps).*(px(levColV,:)+eps)));
     featureS.secondInfCorr = 1 - exp(-2*(HXY2 - featureS.jointEntropy));
     indZerosV = featureS.secondInfCorr <= 0;
     featureS.secondInfCorr(indZerosV) = 0;
