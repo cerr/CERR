@@ -8,7 +8,7 @@ function szmM = calcSZM(quantizedM, nL, szmType)
 %       quantizedM: quantized 3d matrix obtained, for example, by
 %       imquantize_cerr.m
 %       nL: Number of gray levels.
-%       rlmType: flag, 1 or 2.
+%       szmType: flag, 1 or 2.
 %                   1: 3D zones
 %                   2: 2D zones
 % OUTPUT:
