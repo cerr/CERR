@@ -1,16 +1,13 @@
-function [RadiomicsFirstOrderS] = radiomics_first_order_stats(planC,structNum,offsetForEnergy)
+function RadiomicsFirstOrderS = radiomics_first_order_stats(planC,structNum,offsetForEnergy)
 %
-% function [RadiomicsFirstOrder] = radiomics_first_order_stats(Data,Step)
+% function RadiomicsFirstOrderS = radiomics_first_order_stats(planC,structNum,offsetForEnergy)
 %
-% User defined radiomics metric
+%   First Order statistics
 %
-%   First Order Gray level statistics
-%
-%   Step is size of the bins bins (CT step is 10 HU)
 %--------------------------------------------------------------------------
 %   08/11/2010, Ralph Leijenaar
 %   - added Mean deviation
-%  10/13/2017 Modified to handle matrix input (planC)
+%  10/13/2017 APA Modified to handle matrix input (planC)
 %  Eg: RadiomicsFirstOrderS = radiomics_first_order_stats(dataM);
 %--------------------------------------------------------------------------
 
