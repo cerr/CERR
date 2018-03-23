@@ -262,9 +262,9 @@ flagS.lae = 1;
 flagS.gln = 1;
 flagS.glv = 1;
 flagS.szv = 1;
-flagS.glnNorm
+flagS.glnNorm = 1;
 flagS.szn = 1;
-flagS.sznNorm
+flagS.sznNorm = 1;
 flagS.zp = 1;
 flagS.lglze = 1;
 flagS.hglze = 1;
