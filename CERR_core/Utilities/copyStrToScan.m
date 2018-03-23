@@ -73,11 +73,11 @@ transM = inv(transMold)*transMnew;
 %convert x,y,z vals of structure to r,c,s of scanNum (new)
 [rStructValsV, cStructValsV, sStructValsV] = xyztom(xStructValsV, yStructValsV, zStructValsV, scanNum, planC, 1);
 rStructValsV = round(rStructValsV);
-rStructValsV = clip(rStructValsV,min(rNewScanValsV),max(rNewScanValsV),'limits');
+rStructValsV = clip(rStructValsV,ceil(min(rNewScanValsV)),floor(max(rNewScanValsV)),'limits');
 cStructValsV = round(cStructValsV);
-cStructValsV = clip(cStructValsV,min(cNewScanValsV),max(cNewScanValsV),'limits');
+cStructValsV = clip(cStructValsV,ceil(min(cNewScanValsV)),floor(max(cNewScanValsV)),'limits');
 sStructValsV = round(sStructValsV);
-sStructValsV = clip(sStructValsV,min(sNewScanValsV),max(sNewScanValsV),'limits');
+sStructValsV = clip(sStructValsV,ceil(min(sNewScanValsV)),floor(max(sNewScanValsV)),'limits');
 
 %generate uniformized mask for this new structure
 newScanUnifSiz = getUniformScanSize(newScanS);
