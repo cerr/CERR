@@ -6,6 +6,7 @@
 
 function teststruct = PyradWrapper(scanM, maskM)
     pyradiomicsPath = 'C:\Users\pandyar1\pyradiomics\examples';
+    paramFilePath = strcat(fileparts(which('pyradParams.yaml')),'\pyradParams.yaml') ;
     pyModule = 'pyFeatureExtraction';
     P = py.sys.path;
 
@@ -19,15 +20,15 @@ function teststruct = PyradWrapper(scanM, maskM)
     maskM = uint16(maskM);
     %write NRRDs (flip along 3rd axis??)
     scanFilename = strcat(tempdir,'scan.nrrd');
-    scanRes = nrrdWriter(scanFilename, flip(scanM,3), [1,1,1], [0,0,0], 'raw');
+    scanRes = nrrdWriter(scanFilename, flip(scanM,3), [10,10,10], [0,0,0], 'raw');
    
     maskFilename = strcat(tempdir, 'mask.nrrd');
-    maskRes = nrrdWriter(maskFilename, maskM, [1,1,1], [0,0,0], 'raw');
+    maskRes = nrrdWriter(maskFilename, flip(maskM, 3), [10,10,10], [0,0,0], 'raw');
   
 
     %this python module will use the path of the newly generated nrrd files 
     %pass path of mask and scan here
-    pyradiomicsDict = py.pyFeatureExtraction.extract(scanFilename, maskFilename);
+    pyradiomicsDict = py.pyFeatureExtraction.extract(scanFilename, maskFilename, paramFilePath);
     teststruct = struct(pyradiomicsDict);
     
 
