@@ -158,3 +158,8 @@ if flagS.szv
     featureS.szv = sum(jMinusMuPij(:));
 end
 
+% Zone Entropy
+if flagS.ze
+    zoneSum = sum(szmM(:));
+    featureS.ze = -sum(szmM/zoneSum .* log2(szmM/zoneSum + eps));
+end
