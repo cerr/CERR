@@ -4,19 +4,23 @@
 %
 % RKP, 03/22/2018
 
-function teststruct = PyradWrapper(scanM, maskM)
+function teststruct = PyradWrapper(scanM, maskM, varargin)
+
     pyradiomicsPath = 'C:\Users\pandyar1\pyradiomics\examples';
     paramFilePath = strcat(fileparts(which('pyradParams.yaml')),'\pyradParams.yaml') ;
     pyModule = 'pyFeatureExtraction';
     P = py.sys.path;
 
     %import python module if not in system path
-    if count(P,pyradiomicsPath) == 0
-        insert(P,int32(0),pyradiomicsPath);
+    try
+        if count(P,pyradiomicsPath) == 0
+            insert(P,int32(0),pyradiomicsPath);
+        end
+        py.importlib.import_module(pyModule);
+    catch
+        disp('Python module could not be imported, check the pyradiomics path');
     end
-    py.importlib.import_module(pyModule);
-
-
+    
     maskM = uint16(maskM);
     %write NRRDs (flip along 3rd axis??)
     scanFilename = strcat(tempdir,'scan.nrrd');
@@ -28,8 +32,14 @@ function teststruct = PyradWrapper(scanM, maskM)
 
     %this python module will use the path of the newly generated nrrd files 
     %pass path of mask and scan here
-    pyradiomicsDict = py.pyFeatureExtraction.extract(scanFilename, maskFilename, paramFilePath);
-    teststruct = struct(pyradiomicsDict);
+    
+    try
+         testFilter = varargin;
+         pyradiomicsDict = py.pyFeatureExtraction.extract(scanFilename, maskFilename, paramFilePath, testFilter);
+         teststruct = struct(pyradiomicsDict);
+    catch
+        disp('error calculating features in pyradiomics')
+    end
     
 
 
