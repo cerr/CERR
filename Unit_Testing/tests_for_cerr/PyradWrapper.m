@@ -6,15 +6,16 @@
 
 function teststruct = PyradWrapper(scanM, maskM, varargin)
 
-    pyradiomicsPath = 'C:\Users\pandyar1\pyradiomics\examples';
-    paramFilePath = strcat(fileparts(which('pyradParams.yaml')),'\pyradParams.yaml') ;
+    pyradiomicsWrapperPath = fullfile(getCERRPath,'Unit_Testing','tests_for_cerr','pyFeatureExtraction.py');
+    paramFilePath = strcat(fileparts(which('pyradParams.yaml')),'\pyradParams.yaml') ; %fullfile, getcerrpath
+    %paramFilePath = fullfile(getCERRPath,'Unit_Testing','tests_for_cerr','pyradParams.yaml');
     pyModule = 'pyFeatureExtraction';
     P = py.sys.path;
 
     %import python module if not in system path
     try
-        if count(P,pyradiomicsPath) == 0
-            insert(P,int32(0),pyradiomicsPath);
+        if count(P,pyradiomicsWrapperPath) == 0
+            insert(P,int32(0),pyradiomicsWrapperPath);
         end
         py.importlib.import_module(pyModule);
     catch
@@ -34,11 +35,16 @@ function teststruct = PyradWrapper(scanM, maskM, varargin)
     %pass path of mask and scan here
     
     try
-         testFilter = varargin;
-         pyradiomicsDict = py.pyFeatureExtraction.extract(scanFilename, maskFilename, paramFilePath, testFilter);
+         if isempty(varargin)
+             pyradiomicsDict = py.pyFeatureExtraction.extract(scanFilename, maskFilename, paramFilePath);
+         else
+             testFilter = varargin;
+             pyradiomicsDict = py.pyFeatureExtraction.extract(scanFilename, maskFilename, paramFilePath, testFilter);
+         end
          teststruct = struct(pyradiomicsDict);
     catch
         disp('error calculating features in pyradiomics')
+        teststruct = [];
     end
     
 
