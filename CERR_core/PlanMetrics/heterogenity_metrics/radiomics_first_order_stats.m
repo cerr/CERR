@@ -1,6 +1,6 @@
-function RadiomicsFirstOrderS = radiomics_first_order_stats(planC,structNum,offsetForEnergy)
+function RadiomicsFirstOrderS = radiomics_first_order_stats(planC,structNum,offsetForEnergy,binWidth)
 %
-% function RadiomicsFirstOrderS = radiomics_first_order_stats(planC,structNum,offsetForEnergy)
+% function RadiomicsFirstOrderS = radiomics_first_order_stats(planC,structNum,offsetForEnergy,binWidth)
 %
 %   First Order statistics
 %
@@ -76,11 +76,25 @@ RadiomicsFirstOrderS.kurtosis      = kurtosis(Iarray) - 3;
 
 % Entropy is a statistical measure of randomness that can be used to characterize
 % the texture of the input image
-N = ceil( RadiomicsFirstOrderS.range/Step);  %
+% N = ceil( RadiomicsFirstOrderS.range/Step);  %
 %RadiomicsFirstOrder.entropy       = entropy_radiomics(Iarray,N);
 
 % J = entropyfilt(varargin); % Misschien voor long, waar zit de hoogste
 % heterogeniteit?
+
+% Entropy
+if ~exist('numBins','var')
+    binWidth = 25;
+end
+% xmin = min(Iarray) + offsetForEnergy;
+% edgeMin = xmin - rem(xmin,binwidth);
+edgeMin = 0; % to match pyradiomics definition
+xmax = max(Iarray) + offsetForEnergy;
+edgemax = xmax + rem(xmax,binwidth);
+edgeV = edgeMin:binwidth:edgemax;
+quantizedV = discretize(Iarray+offsetForEnergy,edgeV) + eps;
+quantizedV = quantizedV / sum(quantizedV);
+RadiomicsFirstOrderS.entropy = sum(quantizedV .* log2(quantizedV));
 
 %   Root mean square (RMS)
 RadiomicsFirstOrderS.rms           = sqrt(sum((Iarray+offsetForEnergy).^2)/length(Iarray));
