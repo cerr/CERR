@@ -19,6 +19,7 @@ scanNum = 1;
 pyradScanType = 'original';
 
 paramS.firstOrderParamS.offsetForEnergy = planC{indexS.scan}(scanNum).scanInfo(1).CTOffset;
+paramS.firstOrderParamS.binWidth = binWidth;
 
 % Get structure
 [rasterSegments, planC, isError] = getRasterSegments(structNum,planC);
@@ -89,19 +90,20 @@ numVoxels = sum(~isnan(quantizedM(:)));
 
 %% First order features
 featureS.firstOrderS = radiomics_first_order_stats...
-    (volToEval(logical(maskBoundingBox3M)), VoxelVol, paramS.firstOrderParamS.offsetForEnergy);
+    (volToEval(logical(maskBoundingBox3M)), VoxelVol, ...
+    paramS.firstOrderParamS.offsetForEnergy, paramS.firstOrderParamS.binWidth);
 firstOrderS = featureS.firstOrderS;
 cerrFirstOrderV = [firstOrderS.energy, firstOrderS.totalEnergy, firstOrderS.interQuartileRange, ...
     firstOrderS.kurtosis+3, firstOrderS.max, firstOrderS.mean, firstOrderS.meanAbsDev, ...
     firstOrderS.median, firstOrderS.medianAbsDev, firstOrderS.min, ...
     firstOrderS.P10, firstOrderS.P90, firstOrderS.interQuartileRange, ...
     firstOrderS.robustMeanAbsDev, firstOrderS.rms, firstOrderS.skewness, ...
-    firstOrderS.std, firstOrderS.var];
+    firstOrderS.std, firstOrderS.var, firstOrderS.entropy];
 pyradFirstorderNamC = {'Energy', 'TotalEnergy','InterquartileRange','Kurtosis',...
     'Maximum', 'Mean','MeanAbsoluteDeviation','Median','medianAbsDev',...
     'Minimum','10Percentile','90Percentile','InterquartileRange',...
     'RobustMeanAbsoluteDeviation','RootMeanSquared','Skewness',...
-    'StandardDeviation','Variance'};
+    'StandardDeviation','Variance','Entropy'};
 pyradFirstorderNamC = strcat([pyradScanType,'_firstorder_'],pyradFirstorderNamC);
 pyRadFirstOrderV = [];
 for i = 1:length(pyradFirstorderNamC)
@@ -273,6 +275,7 @@ flagS.salgle = 1;
 flagS.sahgle = 1;
 flagS.lalgle = 1;
 flagS.larhgle = 1;
+flagS.ze = 1;
 
 szmType = 1; % 1: 3d, 2: 2d
 szmM = calcSZM(quantizedM, numGrLevels, szmType);
