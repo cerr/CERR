@@ -11,8 +11,9 @@ testM = rand(n,n,5);
 testM = imquantize_cerr(testM,nL);
 maskBoundingBox3M = testM .^0;
 
+scanType = 'original';
 %generate results from pyradiomics
-teststruct = PyradWrapper(testM, maskBoundingBox3M);
+teststruct = PyradWrapper(testM, maskBoundingBox3M, scanType);
 
 
 % % Structure from planC
@@ -50,6 +51,7 @@ rlmFlagS.lrlgle = 1;
 rlmFlagS.lrhgle = 1;
 rlmFlagS.glv = 1;
 rlmFlagS.rlv = 1;
+rlmFlagS.re = 1;
 
 %numGrLevels = paramS.higherOrderParamS.numGrLevels;
 

@@ -31,8 +31,9 @@ testM = rand(n,n,5);
 testM = imquantize_cerr(testM,nL);
 maskBoundingBox3M = testM .^0;
 
+scanType = 'original';
 %generate results from pyradiomics
-teststruct = PyradWrapper(testM, maskBoundingBox3M);
+teststruct = PyradWrapper(testM, maskBoundingBox3M, scanType);
 
 %% CERR GLCM features
 

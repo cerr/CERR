@@ -44,10 +44,9 @@ zr = 10;
 
 mask3M = ((xM-xc)./xr).^2 + ((yM-yc)./yr).^2 + ((zM-zc)./zr).^2 <= 1;
 
-
+scanType = 'original';
 %generate results from pyradiomics
-teststruct = PyradWrapper(testM, mask3M);
-
+teststruct = PyradWrapper(testM, mask3M, scanType);
 
 %% CERR Shape features
 

@@ -33,8 +33,9 @@ maskBoundingBox3M = testM .^0;
 % Number of voxels
 numVoxels = numel(testM);
 
+scanType = 'original';
 %generate results from pyradiomics
-teststruct = PyradWrapper(testM, maskBoundingBox3M);
+teststruct = PyradWrapper(testM, maskBoundingBox3M, scanType);
 
 %% CERR NGTDM features
 
