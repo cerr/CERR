@@ -31,32 +31,34 @@ testM = rand(n,n,5);
 testM = imquantize_cerr(testM,nL);
 maskBoundingBox3M = testM .^0;
 
+scanType = 'original';
 %generate results from pyradiomics
-teststruct = PyradWrapper(testM, maskBoundingBox3M);
+teststruct = PyradWrapper(testM, maskBoundingBox3M, scanType);
 
 %% Size Zone features in 3d for CERR
 
-szmFlagS.sae = 1;
-szmFlagS.lae = 1;
-szmFlagS.gln = 1;
-szmFlagS.glv = 1;
-szmFlagS.szv = 1;
-szmFlagS.glnNorm = 1;
-szmFlagS.szn = 1;
-szmFlagS.sznNorm = 1;
-szmFlagS.zp = 1;
-szmFlagS.lglze = 1;
-szmFlagS.hglze = 1;
-szmFlagS.salgle = 1;
-szmFlagS.sahgle = 1;
-szmFlagS.larhgle = 1;
-szmFlagS.lahgle = 1;
-szmFlagS.lalgle = 1;
+flagS.sae = 1;
+flagS.lae = 1;
+flagS.gln = 1;
+flagS.glv = 1;
+flagS.szv = 1;
+flagS.glnNorm = 1;
+flagS.szn = 1;
+flagS.sznNorm = 1;
+flagS.zp = 1;
+flagS.lglze = 1;
+flagS.hglze = 1;
+flagS.salgle = 1;
+flagS.sahgle = 1;
+flagS.lalgle = 1;
+flagS.larhgle = 1;
+flagS.ze = 1;
+flagS.lahgle = 1;
 
 szmType = 1; % 1: 3d, 2: 2d
 szmM = calcSZM(testM, nL, szmType);
 numVoxels = sum(~isnan(testM(:)));
-szmS = szmToScalarFeatures(szmM,numVoxels, szmFlagS);
+szmS = szmToScalarFeatures(szmM,numVoxels, flagS);
 
 % cerrSzmV = [szmS.gln, szmS.glnNorm, szmS.glv, szmS.hglre, szmS.lglre, szmS.lre, szmS.lrhgle, ...
 %     szmS.lrlgle, szmS.rln, szmS.rlnNorm, szmS.rlv, szmS.rp, ...
