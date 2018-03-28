@@ -5,7 +5,7 @@ function filtScan3M = LoGFilt(scan3M,kernelSize,sigma)
 %AI 03/15/18
 
 
-linV = -floor((kernelSize-1)/2):floor(kernelSize/2);
+linV = -(kernelSize-1)/2:(kernelSize-1)/2;
 [xM,yM] = meshgrid(linV,linV);
 hg = exp(-(xM.^2 + yM.^2)/(2*(sigma^2)));
 h = hg.*(xM.^2 + yM.^2-2*sigma^2)/(sigma^4 *sum(hg(:))); 
