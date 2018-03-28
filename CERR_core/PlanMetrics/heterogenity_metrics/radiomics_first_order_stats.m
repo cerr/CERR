@@ -84,7 +84,7 @@ RadiomicsFirstOrderS.kurtosis      = kurtosis(Iarray) - 3;
 
 % Entropy
 if ~exist('numBins','var')
-    binWidth = 25;
+    binwidth = 25;
 end
 % xmin = min(Iarray) + offsetForEnergy;
 % edgeMin = xmin - rem(xmin,binwidth);
