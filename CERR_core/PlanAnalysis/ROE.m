@@ -273,9 +273,10 @@ switch upper(command)
         
         %Get path to .json files
         optS = CERROptions; %NOTE: Define path to .json files for protocols, models & clinical criteria in CERROptions.m
-        optS.ROEProtocolPath = 'yourpathtoprotocols';
-        optS.ROEModelPath = 'yourpathtomodels';
-        optS.ROECriteriaPath = 'yourpathtocriteria';
+%         optS.ROEProtocolPath = 'yourpathtoprotocols';
+%         optS.ROEModelPath = 'yourpathtomodels';
+%         optS.ROECriteriaPath = 'yourpathtocriteria';
+
  
         % List available protocols for user selection
         [protocolListC,protocolIdx,ok] = listFiles(protocolPath,'Multiple');
