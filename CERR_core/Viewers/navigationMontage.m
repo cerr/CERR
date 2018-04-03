@@ -191,12 +191,12 @@ switch lower(arg)
         hAssocScanV(selScan).Children(currentStruct) = hStructItem;
         
         %Identify ROI slices
+        strListC = {structS.structureName};
         for i=1:length(structS)
-            strListC = {hAssocScanV(selScan).Children.Tag};
-            structItemIdx = strcmp(strListC,['structureItem', num2str(i)]);
-            hStruct = hAssocScanV(selScan).Children(structItemIdx);
+            idx = strcmp(strListC,hAssocScanV(selScan).Children(i).Text);
+            hStruct = hAssocScanV(selScan).Children(i);
             if strcmpi(get(hStruct, 'Checked'), 'on')
-                toDraw(i)= 1;
+                toDraw(idx)= 1;
             end
         end
         %Get selected structures
