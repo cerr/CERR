@@ -38,18 +38,9 @@ function teststruct = PyradWrapper(scanM, maskM, preprocessingFilter)
     %this python module will use the path of the newly generated nrrd files 
     %pass path of mask and scan here
     
-    try              
+    try         
      pyradiomicsDict = py.pyFeatureExtraction.extract(scanFilename, maskFilename, paramFilePath, testFilter);              
-     teststruct = struct(pyradiomicsDict);     
-     if strcmp(preprocessingFilter,'wavelet')
-%          teststructC = struct2cell(teststruct);   
-%          fields = fieldnames(teststruct);
-%          for i = 1:length(fields)
-%             npa = teststructC{i};
-%             data = double(py.array.array('d',py.numpy.nditer(npa)));
-%             data = reshape(data,[20,20,5]);
-%          end
-     end
+     teststruct = struct(pyradiomicsDict);          
     catch
         disp('error calculating features in pyradiomics')
         teststruct = [];
