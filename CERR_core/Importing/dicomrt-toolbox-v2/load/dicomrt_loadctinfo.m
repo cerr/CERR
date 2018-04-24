@@ -19,12 +19,18 @@ nct=0;
 ctinfo=cell(num,1);
 
 %loop until the end-of-file is reached and build 3D CT matrix
-while (feof(fid)~=1);
+while (feof(fid)~=1)
     nct=nct+1;
     ct_file_location{1,nct}=fgetl(fid);
     dictFlg = checkDictUse;
     if dictFlg
-        temp_info=dicominfo(ct_file_location{1,nct}, 'dictionary', 'ES - IPT4.1CompatibleDictionary.mat');
+        if isdeployed
+            temp_info = dicominfo(ct_file_location{1,nct}, 'dictionary', ...
+                fullfile(getCERRPath,'bin','ES - IPT4.1CompatibleDictionary.mat'));
+        else
+            temp_info = dicominfo(ct_file_location{1,nct}, 'dictionary', ...
+                'ES - IPT4.1CompatibleDictionary.mat');
+        end
     else
         temp_info=dicominfo(ct_file_location{1,nct});
     end

@@ -99,7 +99,13 @@ while (feof(fid)~=1);
 
     dictFlg = checkDictUse;
     if dictFlg
-        info_temp=dicominfo(deblank(ct_file_location{1,nct}),'dictionary', 'ES - IPT4.1CompatibleDictionary.mat');
+        if isdeployed
+            info_temp = dicominfo(deblank(ct_file_location{1,nct}),...
+                'dictionary', fullfile(getCERRPath,'bin','ES - IPT4.1CompatibleDictionary.mat'));
+        else            
+            info_temp = dicominfo(deblank(ct_file_location{1,nct}),...
+                'dictionary', 'ES - IPT4.1CompatibleDictionary.mat');
+        end
     else
         info_temp=dicominfo(deblank(ct_file_location{1,nct}));
     end

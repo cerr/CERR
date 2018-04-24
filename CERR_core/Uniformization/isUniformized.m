@@ -33,7 +33,9 @@ function [valid, saveflg]= isUniformized(scanNum, planC)
 % along with CERR.  If not, see <http://www.gnu.org/licenses/>.
 
 indexS = planC{end};
-optS = CERROptions;
+pathStr = getCERRPath;
+optName = [pathStr 'CERROptions.m'];
+optS = opts4Exe(optName);
 saveflg = 0;
 %Assume valid to start.
 valid = 1;

@@ -7,15 +7,20 @@ function structSlider_clk(command,varargin)
 % institutional review board-approved protocols.  Commercial users can 
 % request a license.  Contact Joe Deasy for more information 
 % (radonc.wustl.edu@jdeasy, reversed).
+
+global stateS
+
 persistent planC
 if ~isempty(varargin)
     planC = varargin{1};
 end
 indexS = planC{end};
 
-ud = get(findobj('Tag', 'CERR_PlanMergeGui'),'userdata');
+% ud = get(findobj('Tag', 'CERR_PlanMergeGui'),'userdata');
+% hSlider = findobj('Tag','structSlider');
+ud = get(stateS.handle.planMergeGui,'userdata');
+hSlider = ud.handles.structsSlider;
 
-hSlider = findobj('Tag','structSlider');
 firstVisStruct = ud.firstVisStruct;
 switch lower(command)
     case 'init'
@@ -56,8 +61,11 @@ switch lower(command)
             set(ud.handles.strScan(i), 'string', num2str(assocScan), 'visible', 'on');            
             set(ud.handles.strCheck(i), 'visible', 'on', 'value', ud.checkedStructs(structNum));
             if val+1<16
-                set(findobj('tag','oldStr'),'visible','off');
-                set(findobj('Tag', 'StructCheck'),'visible','off');
+                handlesV = [ud.handles.strName, ud.handles.strScan];
+                set(findobj(handlesV,'tag','oldStr'),'visible','off');
+                %set(findobj('tag','oldStr'),'visible','off');
+                %set(findobj('Tag', 'StructCheck'),'visible','off');
+                set(ud.handles.strCheck,'visible','off');
             end
         end
         

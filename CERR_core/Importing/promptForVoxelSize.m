@@ -173,7 +173,9 @@ switch upper(command)
     case 'USE_DEFAULT'
         %Use the default value in optS, if it exists.
         ud = get(hFig, 'userdata');        
-        optS = CERROptions;
+        pathStr = getCERRPath;
+        optName = [pathStr 'CERROptions.m'];
+        optS = opts4Exe(optName);        
         try 
             voxSizeV = optS.downsampledVoxelSize;
         catch

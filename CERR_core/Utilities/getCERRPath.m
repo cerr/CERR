@@ -17,6 +17,11 @@ function pathStr = getCERRPath
 % (radonc.wustl.edu@jdeasy, reversed).
 global stateS
 
+if isdeployed
+    pathStr = [cd,filesep];
+    return;
+end
+
 %Get path to gzip.exe
 try
 	str = which('CERR.root');

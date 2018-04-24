@@ -303,11 +303,19 @@ switch upper(instr)
         %stateS.handle.rulerTrans = uicontrol(hCSV,'units',units,'pos',[0.11*512, 345 dx - 25, 20]/512,'string','Ruler','fontsize',fontsize, 'BackgroundColor',uicolor, 'callback','sliceCallBack(''toggleRuler'');','Style','checkbox','value',0,'max',1,'min',0,'tooltipstring','Draw ruler line.');
         
         %Zoom Controls.
-        [I,map] = imread('tool_zoom.gif','gif');
+        if isdeployed
+            [I,map] = imread(fullfile(getCERRPath,'pics','Icons','tool_zoom.gif'),'gif');
+        else
+            [I,map] = imread('tool_zoom.gif','gif');
+        end
         zoomImg = ind2rgb(I,map);
         stateS.handle.zoom = uicontrol(hCSV,'units',units,'style', 'togglebutton', 'position',[0.018*512+dx, 345, dx - 35, 20]/512,'cdata',zoomImg,'BackgroundColor',uicolor, 'callback','sliceCallBack(''togglezoom'')','interruptible','on','tooltipstring', 'Toggle ZoomIn(Left)/ZoomOut(Right)');
 
-        [I,map] = imread('reset_zoom.GIF','gif');
+        if isdeployed
+            [I,map] = imread(fullfile(getCERRPath,'pics','Icons','reset_zoom.GIF'),'gif');
+        else
+            [I,map] = imread('reset_zoom.GIF','gif');
+        end
         resetZoomImg = ind2rgb(I,map);
         stateS.handle.resetZoom = uicontrol(hCSV,'units',units,'style', 'PushButton', 'position',[0.018*512+dx*1.4, 345, dx - 35, 20]/512,'cdata',resetZoomImg,'BackgroundColor',uicolor, 'callback','sliceCallBack(''ZOOMRESET'')','interruptible','on','tooltipstring', 'Reset Zoom to Original');
 
@@ -1901,11 +1909,19 @@ switch upper(instr)
         stateS.imageFusion.lockMoving = get(gcbo,'value'); 
         
         if stateS.imageFusion.lockMoving == 1
-            [I,map] = imread('lock.gif','gif');
+            if isdeployed
+                [I,map] = imread(fullfile(getCERRPath,'pics','Icons','lock.gif'),'gif');
+            else
+                [I,map] = imread('lock.gif','gif');
+            end
             lockImg = ind2rgb(I,map);
             set(gcbo,'cdata',lockImg,'fontWeight','bold','foregroundColor', [1 0 0]);
         else 
-            [I,map] = imread('unlock.GIF','gif');
+            if isdeployed
+                [I,map] = imread(fullfile(getCERRPath,'pics','Icons','unlock.GIF'),'gif');
+            else
+                [I,map] = imread('unlock.GIF','gif');
+            end
             lockImg = ind2rgb(I,map);
             set(gcbo,'cdata',lockImg,'fontWeight','bold','foregroundColor',[0.5 0.5 0.5]);
         end

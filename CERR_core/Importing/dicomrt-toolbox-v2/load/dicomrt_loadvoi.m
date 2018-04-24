@@ -37,21 +37,25 @@ function [cellVOI] = dicomrt_loadvoi(rtstruct_filename)
 
 dictFlg = checkDictUse;
 if dictFlg
-    rtstruct=dicominfo(rtstruct_filename,'dictionary', 'ES - IPT4.1CompatibleDictionary.mat');
+    if isdeployed
+        rtstruct = dicominfo(rtstruct_filename,'dictionary', fullfile(getCERRPath,'bin,ES - IPT4.1CompatibleDictionary.mat'));
+    else
+        rtstruct = dicominfo(rtstruct_filename,'dictionary', 'ES - IPT4.1CompatibleDictionary.mat');
+    end
 else
-    rtstruct=dicominfo(rtstruct_filename);
+    rtstruct = dicominfo(rtstruct_filename);
 end
 
 
 %rtstruct=rtstruct_filename;
 % Get number of VOIs
-ROIContourSequence=fieldnames(rtstruct.ROIContourSequence);
+ROIContourSequence = fieldnames(rtstruct.ROIContourSequence);
 
 % Define cell array
 VOI=cell(size(ROIContourSequence,1),2);
 
 % Progress bar
-h = waitbar(0,['Loading progress:']);
+h = waitbar(0,'Loading progress:');
 set(h,'Name','dicomrt_loadvoi: loading RTSTRUCT objects');
 
 for i=1:size(ROIContourSequence,1) % for i=1:(number of VOIs) ...

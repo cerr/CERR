@@ -47,8 +47,6 @@ else
     rtplan=dicominfo(rtplan_location);
 end
 
-
-
 % retrieve number of beams and beam labels
 beams=fieldnames(rtplan.BeamSequence);
 nbeams=size(beams,1);
@@ -90,7 +88,14 @@ while (feof(fid)~=1);
 
     dictFlg = checkDictUse;
     if dictFlg
-        info_image=dicominfo(file_location{1,nfiles}, 'dictionary', 'ES - IPT4.1CompatibleDictionary.mat'); % import dose information
+        % import dose information
+        if isdeployed            
+            info_image = dicominfo(file_location{1,nfiles}, 'dictionary', ...
+                fullfile(getCERRPath,'bin','ES - IPT4.1CompatibleDictionary.mat'));
+        else
+            info_image = dicominfo(file_location{1,nfiles}, 'dictionary',...
+                'ES - IPT4.1CompatibleDictionary.mat');
+        end        
     else
         info_image=dicominfo(file_location{1,nfiles});
     end

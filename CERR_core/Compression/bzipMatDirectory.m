@@ -82,13 +82,21 @@ elseif nargin == 2  & strcmp(lower(userSelect),'compress')
         pathStr = getCERRPath;
         %tar and compress the subdirectory
         name = allStuff(i).name;
-        strDir = [pathStr '/Compression/tar.exe -vcf ' name '.tar ' name];
+        if isdeployed
+            strDir = [fullfile(pathStr, 'bin','Compression','tar.exe '), '-vcf ' name '.tar ' name]; % for compiled CERR
+        else
+            strDir = [pathStr '/Compression/tar.exe -vcf ' name '.tar ' name];
+        end
         system(strDir,'-echo')
         tarFile = dir([name '.tar']);
         %next compress it:
         str = [pathname '\' name '.tar'];
         
-        exec = [pathStr '/Compression/bzip2-102-x86-win32.exe -vz' compressionLevel ' ', str];
+        if isdeployed
+            exec = [fullfile(pathStr, 'bin','Compression','bzip2-102-x86-win32.exe '), '-vz ' compressionLevel];
+        else
+            exec = [pathStr '/Compression/bzip2-102-x86-win32.exe -vz' compressionLevel ' ', str];
+        end
         system(exec,'-echo')
         %check for success
         bzFile = dir([str '.bz2']);
@@ -129,17 +137,21 @@ elseif nargin == 2  & strcmp(lower(userSelect),'uncompress')
       if ~allStuff(i).isdir & length(name) > 4
        if strcmp(name(end-3:end),'.bz2')
         %uncompress and untar the file
-        str = [pathname '\' name];
+        str = [pathname filesep name];
         pathStr = getCERRPath;
         exec = [pathStr 'Compression/bzip2-102-x86-win32.exe -vd ', str];
         system(exec,'-echo')
-        tarStr = [pathStr 'Compression/tar.exe -vxf ' name(1:end-4)];
+        if isdeployed
+            tarStr = [fullfile(pathStr, 'bin','Compression','tar.exe') '-vxf ' name(1:end-4)];
+        else
+            tarStr = [pathStr 'Compression/tar.exe -vxf ' name(1:end-4)];
+        end
         system(tarStr,'-echo')
 
         %did tar work?
-        if isdir([pathname '\' name(1:end-8)])
+        if isdir([pathname filesep name(1:end-8)])
           %delete tar file
-          system(['del ' pathname '\' name(1:end-4)])
+          system(['del ' pathname filesep name(1:end-4)])
         end
 
         %if length(bzFile) == 0

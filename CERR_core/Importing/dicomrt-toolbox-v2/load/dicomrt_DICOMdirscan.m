@@ -74,7 +74,13 @@ for k=1:size(list,1)
         try
             dictFlg = checkDictUse;
             if dictFlg
-                temp=dicominfo(fullfile(path2scan,list(k).name), 'dictionary', 'ES - IPT4.1CompatibleDictionary.mat');
+                if isdeployed
+                    temp = dicominfo(fullfile(path2scan,list(k).name), 'dictionary',...
+                        fullfile(getCERRPath,'bin','ES - IPT4.1CompatibleDictionary.mat'));
+                else
+                    temp = dicominfo(fullfile(path2scan,list(k).name), 'dictionary',...
+                        'ES - IPT4.1CompatibleDictionary.mat');
+                end
             else
                 temp=dicominfo(fullfile(path2scan,list(k).name));
             end

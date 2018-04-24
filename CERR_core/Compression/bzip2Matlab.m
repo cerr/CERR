@@ -22,7 +22,11 @@ function  bzip2Matlab
     'Select a file you wish to compress or decompress');
 tic
 oldDir = pwd;
-pathStr = getCERRPath;
+if isdeployed
+    pathStr = fullfile(getCERRPath,'bin','Compression');
+else
+    pathStr = fullfile(getCERRPath,'Compression');
+end
 cd(pathname);
 l = length(fname);
 fmat = ''; outstr = '';

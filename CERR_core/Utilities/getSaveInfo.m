@@ -33,8 +33,10 @@ function saveParam = getSaveInfo();
 
 saveParam = [];
 verInfo = ver('MATLAB');
-if str2double(verInfo.Version(1)) >= 7
-    tmpOptS = CERROptions;
+if str2double(verInfo.Version(1)) >= 7    
+    pathStr = getCERRPath;
+    optName = [pathStr 'CERROptions.m'];
+    tmpOptS = opts4Exe(optName);    
 	if isfield(tmpOptS, 'saveFormat') && ~isempty(tmpOptS.saveFormat)
         saveParam = tmpOptS.saveFormat;
 	end

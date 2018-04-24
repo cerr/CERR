@@ -1,4 +1,4 @@
-function insertStructs()
+function planC = insertStructs(planC,cerrFileName)
 %
 %Insert structures from another study into the currently open study.
 %A check is made that the CT matches and the structures are not already in the current study.
@@ -29,7 +29,10 @@ function insertStructs()
 % along with CERR.  If not, see <http://www.gnu.org/licenses/>.
 
 
-global planC stateS
+global stateS
+if ~exist('planC','var')
+    global planC
+end
 
 %Start diary and timer for import log.
 startTime = now;
@@ -38,30 +41,35 @@ diary(tmpFileName);
 
 
 %Load study containing the structure(s) to be inserted.
-if isfield(stateS, 'CERRFile') && ~isempty(stateS.CERRFile)
-    if stateS.workspacePlan
-        %If workspace plan, ie no directory, use CERR root.
-        stateS.CERRFile = fullfile(getCERRPath, 'workspacePlan');                    
+if ~exist('cerrFileName','var')
+    if isfield(stateS, 'CERRFile') && ~isempty(stateS.CERRFile)
+        if stateS.workspacePlan
+            %If workspace plan, ie no directory, use CERR root.
+            stateS.CERRFile = fullfile(getCERRPath, 'workspacePlan');
+        end
+        dir = fileparts(stateS.CERRFile);
+        wd = cd;
+        cd(dir);
+        [fname, pathname] = uigetfile('*.mat;*.bz2', ...
+            'Select the study containing the structure(s) to insert.','Location',[100,100]);  %at position 100, 100 in pixels.
+        cd(wd);
+    else
+        [fname, pathname] = uigetfile('*.mat;*.bz2', ...
+            'Select the study containing the structure(s) to insert.','Location',[100,100]);  %at position 100, 100 in pixels.
     end
-    dir = fileparts(stateS.CERRFile);
-    wd = cd;
-    cd(dir);
-    [fname, pathname] = uigetfile('*.mat;*.bz2', ...
-    'Select the study containing the structure(s) to insert.','Location',[100,100]);  %at position 100, 100 in pixels.               
-    cd(wd);
-else
-    [fname, pathname] = uigetfile('*.mat;*.bz2', ...
-    'Select the study containing the structure(s) to insert.','Location',[100,100]);  %at position 100, 100 in pixels.               
+    
+    
+    if fname == 0
+        disp('No file selected.');
+        return
+    end
+    
+    cerrFileName = [pathname fname];
+    
 end
+[~,fname] = fileparts(cerrFileName);
 
-if fname == 0
-    disp('No file selected.');
-    return
-end
-
-file = [pathname fname];
-
-[temp_planC] = loadPlanC_temp(fname,file);
+[temp_planC] = loadPlanC_temp(fname,cerrFileName);
 temp_planC = updatePlanFields(temp_planC);
 temp_indexS = temp_planC{end};
 

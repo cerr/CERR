@@ -27,14 +27,17 @@ pathStr = getCERRPath;
 
 fmat = ''; outstr = '';
 fmat = (strcat('"', aFile,'"'));
-if strcmp(lower(userSelect), 'compress')
+if strcmpi(userSelect, 'compress')
     if ~isempty(findstr(aFile,'.mat.bz2'))
         % compressed file exists already!
         warndlg('Compressed output file verified. Will exit compression routine.', ...
             'CERR Compression');
     elseif ~isempty(findstr(aFile,'.mat'))
-        cd(pathStr);
-        cd('Compression');      
+        if isdeployed
+            cd(fullfile(pathStr,'bin','Compression'))
+        else
+            cd(fullfile(pathStr,'Compression'))
+        end
         if ispc
             dos(['bzip2-102-x86-win32.exe -vz1 -f ', fmat]);
         elseif isunix
@@ -42,11 +45,14 @@ if strcmp(lower(userSelect), 'compress')
         end
         cd(oldDir);
     end
-elseif strcmp(lower(userSelect), 'uncompress')
+elseif strcmpi(userSelect, 'uncompress')
     if ~isempty(findstr(aFile,'.mat.bz2'))
         % compressed file exists
-        cd(pathStr);
-        cd('Compression');
+        if isdeployed
+            cd(fullfile(pathStr,'bin','Compression'))
+        else
+            cd(fullfile(pathStr,'Compression'))
+        end
         [path_jnk,fnameDisk,ext_jnk] = fileparts(fmat);
         dirS = dir(tmpExtractDir);
         del_dir_flag = 0;

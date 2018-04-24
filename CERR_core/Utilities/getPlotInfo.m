@@ -33,6 +33,11 @@ function plotParam = getPlotInfo();
 
 global stateS;
 
+if isdeployed
+    plotParam = 'v6';
+    return
+end
+
 if isfield(stateS, 'MLVersion')
     versionNum = stateS.MLVersion;
 else

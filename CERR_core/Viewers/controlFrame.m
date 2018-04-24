@@ -1421,7 +1421,11 @@ switch command
                 %
                 leftMarginWidth = 195; %obtained from from sliceCallback.m
                 uicontrol(hFig,'style','toggle','units','pixels','Position',[leftMarginWidth+10 490 25 20], 'tag','toggleBasMov','string','B/M','fontWeight','normal','callBack','sliceCallBack(''toggleBaseMoving'');');
-                [I,map] = imread('lock.gif','gif');
+                if isdeployed
+                    [I,map] = imread(fullfile(getCERRPath,'pics','Icons','lock.gif'),'gif');
+                else
+                    [I,map] = imread('lock.gif','gif');
+                end
                 lockImg = ind2rgb(I,map);
                 uicontrol(hFig,'style','toggle','value',1,'units','pixels','cdata',lockImg,'Position',[leftMarginWidth+10 460 25 20], 'tag','toggleLockMoving','string','','fontWeight','normal','callBack','sliceCallBack(''toggleLockMoving'');');
                 
@@ -1664,7 +1668,11 @@ switch command
                     absPos([.05 .52+dy .90 .05], posFrame),'string', 'Auto Rigid Register','tooltipstring','Auto Registration', ...
                     'callback', 'controlFrame(''fusion'', ''rigid_registration'')','tag', 'controlFrameItem');
 
-                [I,map] = imread('tool_rotate_3d.gif','gif');
+                if isdeployed
+                    [I,map] = imread(fullfile(getCERRPath,'pics','Icons','tool_rotate_3d.gif'),'gif');
+                else
+                    [I,map] = imread('tool_rotate_3d.gif','gif');
+                end
                 rotateImg = ind2rgb(I,map);
                 
                 ud.handles.rotateButton = uicontrol(hFig, 'style', 'togglebutton', 'cdata', rotateImg, 'units', units, 'position',...

@@ -1,4 +1,4 @@
-function insertDCMStruct(planC,dcmFileName)
+function planC = insertDCMStruct(planC,dcmFileName)
 %
 %Insert structures from dcm file into the currently open planC.
 %
@@ -81,9 +81,13 @@ if isempty(dataS)
 end
 
 if ~ismember(dataS(1).assocScanUID,scanUIDc)
-    scanInd = listdlg('PromptString','Select Scan to associate structures',...
-        'SelectionMode','single',...
-        'ListString',scanTypesC);
+    if ~exist('dcmFileName','var')
+        scanInd = listdlg('PromptString','Select Scan to associate structures',...
+            'SelectionMode','single',...
+            'ListString',scanTypesC);
+    else
+        scanInd = 1;
+    end
     if ~isempty(scanInd)
         [dataS.assocScanUID] = deal(scanUIDc{scanInd});
     else

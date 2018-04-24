@@ -47,7 +47,10 @@ switch upper(command)
         dx = floor((x-30)/2);                               
         
         %Create figure and UI controls.
-        hFig = figure('Name','Plan Merge', 'units', 'pixels', 'position',[(screenSize(3)-x)/2 (screenSize(4)-y)/2 x y], 'MenuBar', 'none', 'NumberTitle', 'off', 'resize', 'off', 'Tag', 'CERR_PlanMergeGui');        
+        hFig = figure('Name','Plan Merge', 'units', 'pixels', ...
+            'position',[(screenSize(3)-x)/2 (screenSize(4)-y)/2 x y], ...
+            'MenuBar', 'none', 'NumberTitle', 'off', 'resize', 'off',...
+            'Tag', 'CERR_PlanMergeGui','CloseRequestFcn','planMergeGui(''QUIT'')');        
         
         %Status frame.
         bartop = 40;
@@ -144,6 +147,8 @@ switch upper(command)
 %         uicontrol(hFig, 'units',units, 'Position', [2*dx-100 20 dx/2-15 20], 'style', 'pushbutton', 'string', 'Cancel', 'callback', 'planMergeGui(''CANCEL'')');       
 %         
         set(hFig, 'userdata', ud);               
+        
+        stateS.handle.planMergeGui = hFig;
         
     case 'STATUS'
         ud = get(hFig, 'userdata');       
@@ -377,6 +382,10 @@ switch upper(command)
                 sliceCallBack('CHANGESLC','NEXTSLICE')
             end
         end
-        stateS.currentAxis = currentAxis;        
+        stateS.currentAxis = currentAxis;     
+        
+    case 'QUIT'
+        stateS.handle.planMergeGui = [];
+        closereq;
         
 end    

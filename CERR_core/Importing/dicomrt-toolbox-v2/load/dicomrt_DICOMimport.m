@@ -404,7 +404,13 @@ elseif whichrtplan~=0 & whichrtdose==0
     case_study_info=cell(1);
     dictFlg = checkDictUse;
     if dictFlg
-        tempinfo=dicominfo(studylist{whichstudy,2}{3}, 'dictionary', 'ES - IPT4.1CompatibleDictionary.mat');
+        if isdeployed
+            tempinfo = dicominfo(studylist{whichstudy,2}{3}, 'dictionary', ...
+                fullfile(getCERRPath,'bin','ES - IPT4.1CompatibleDictionary.mat'));
+        else
+            tempinfo = dicominfo(studylist{whichstudy,2}{3}, 'dictionary', ...
+                'ES - IPT4.1CompatibleDictionary.mat');
+        end
     else
         tempinfo=dicominfo(studylist{whichstudy,2}{3});
     end

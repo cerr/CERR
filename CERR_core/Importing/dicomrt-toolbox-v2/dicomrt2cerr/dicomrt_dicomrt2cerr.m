@@ -12,10 +12,6 @@ function [planC] = dicomrt_dicomrt2cerr(plan,xmesh,ymesh,zmesh,ct,ct_xmesh,ct_ym
 
 error(nargchk(9,13,nargin))
 
-if exist('optName')==0
-    optName='CERROptions.m';
-end
-
 %Create CERR data Container & templates for certain cells.
 planInitC       = initializeCERR;
 indexS          = planInitC{end};
@@ -28,9 +24,6 @@ doseInitS       = planInitC{indexS.dose};
 
 tagMapS = initTagMapS;
 tags = dicomrt_d2c_rtogtags;
-
-% Load options
-optS=opts4Exe(optName);
 
 % Initialize planC
 planC = planInitC;
@@ -231,6 +224,9 @@ if isempty(voi)==0
 end
 
 % Store options and indexS
+pathStr = getCERRPath;
+optName = [pathStr 'CERROptions.m'];
+optS = opts4Exe(optName);
 planC{indexS.CERROptions} = optS;
 planC{indexS.indexS} = indexS;
 

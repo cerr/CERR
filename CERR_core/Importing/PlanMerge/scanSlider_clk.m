@@ -7,6 +7,9 @@ function scanSlider_clk(command, varargin)
 % institutional review board-approved protocols.  Commercial users can 
 % request a license.  Contact Joe Deasy for more information 
 % (radonc.wustl.edu@jdeasy, reversed).
+
+global stateS
+
 persistent planC planInfo
 if ~isempty(varargin)
     planInfo = varargin{1};
@@ -14,9 +17,12 @@ if ~isempty(varargin)
 end
 indexS = planC{end};
 
-ud = get(findobj('Tag', 'CERR_PlanMergeGui'),'userdata');
+% ud = get(findobj('Tag', 'CERR_PlanMergeGui'),'userdata');
+% hSlider = findobj('Tag','scanSlider');
 
-hSlider = findobj('Tag','scanSlider');
+ud = get(stateS.handle.planMergeGui,'userdata');
+hSlider = ud.handles.scansSlider;
+
 firstVisScan = ud.firstVisScan;
 switch lower(command)
     case 'init'
@@ -60,8 +66,10 @@ switch lower(command)
             set(ud.handles.scanSize(i), 'string', [num2str(round(size)) ' MB'], 'visible', 'on');
             set(ud.handles.scanCheck(i), 'visible', 'on', 'value', ud.checkedScans(scanNum));
             if val+1<6
-                set(findobj('tag','oldScan'),'visible','off');
-                set(findobj('tag', 'ScanCheck'),'visible','off');
+                handlesV = [ud.handles.scanNumber, ud.handles.scanName, ud.handles.scanSize];
+                set(findobj(handlesV,'tag','oldScan'),'visible','off');
+                %set(findobj('tag', 'ScanCheck'),'visible','off');
+                set(ud.handles.scanCheck,'visible','off');
             end
         end
         

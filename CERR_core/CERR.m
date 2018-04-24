@@ -68,7 +68,11 @@ if(nargin == 0)
     end
 
     %Set up the GUI window, loading its graphical background.
-    file = 'CERR.png';
+    if isdeployed
+        file = fullfile(getCERRPath,'pics','CERR.png'); 
+    else
+        file = 'CERR.png';
+    end
     [background, map] = imread(file,'png');
     CERRStartupFig = figure('units', 'pixels', 'position',[(screenSize(3)-x)/2 (screenSize(4)-y)/2 x y], 'MenuBar', 'none', 'NumberTitle', 'off', 'resize', 'off', 'Tag', 'CERRStartupFig','CloseRequestFcn','CERR(''QUIT'')');
     colormap(map);

@@ -34,4 +34,4 @@ for k = 1:m
     dist(k) = min(D); 
 end
 %dist = max(dist);
-dist = quantile(dist,0.90);
+dist = quantile(dist,0.95);

@@ -572,8 +572,10 @@ switch cellName
     case 'importLog'
         %Implementation is unnecessary.
         
-    case 'CERROptions'
-        dataS = CERROptions;
+    case 'CERROptions'        
+        pathStr = getCERRPath;
+        optName = [pathStr 'CERROptions.m'];
+        dataS = opts4Exe(optName);        
         
     case 'indexS'
         %Implementation is unnecessary.

@@ -43,7 +43,12 @@ rtplan_location=fgetl(fid);
 
 dictFlg = checkDictUse;
 if dictFlg
-    rtplan=dicominfo(rtplan_location,'dictionary', 'ES - IPT4.1CompatibleDictionary.mat');
+    if isdeployed
+        rtplan = dicominfo(rtplan_location,'dictionary', ...
+            fullfile(getCERRPath,'bin','ES - IPT4.1CompatibleDictionary.mat'));
+    else
+        rtplan = dicominfo(rtplan_location,'dictionary', 'ES - IPT4.1CompatibleDictionary.mat');
+    end
 else
     rtplan=dicominfo(rtplan_location);
 end
@@ -176,7 +181,12 @@ for k=1:nfiles
             file_location{1,k}=fgetl(fid);
             dictFlg = checkDictUse;
             if dictFlg
-                info_image=dicominfo(file_location{1,k},'dictionary', 'ES - IPT4.1CompatibleDictionary.mat'); % import file information
+                if isdeployed
+                    info_image = dicominfo(file_location{1,k},'dictionary', ...
+                        fullfile(getCERRPath,'bin','ES - IPT4.1CompatibleDictionary.mat')); % import file information
+                else
+                    info_image = dicominfo(file_location{1,k},'dictionary', 'ES - IPT4.1CompatibleDictionary.mat'); % import file information
+                end
             else
                 info_image=dicominfo(file_location{1,k});
             end
@@ -320,7 +330,14 @@ for k=1:nfiles
             file_location{1,k}=fgetl(fid);
             dictFlg = checkDictUse;
             if dictFlg
-                info_image=dicominfo(file_location{1,k},'dictionary', 'ES - IPT4.1CompatibleDictionary.mat'); % import file information
+                % import file information
+                if isdeployed
+                    info_image = dicominfo(file_location{1,k},'dictionary', ...
+                        fullfile(getCERRPath,'bin','ES - IPT4.1CompatibleDictionary.mat')); 
+                else
+                    info_image = dicominfo(file_location{1,k},'dictionary', ...
+                        'ES - IPT4.1CompatibleDictionary.mat');
+                end
             else
                 info_image=dicominfo(file_location{1,k});
             end
