@@ -193,9 +193,9 @@ switch lower(arg)
         %Identify ROI slices
         scanNum = hStructItem.UserData; 
         assocStrNumV = find([structS.associatedScan]==scanNum);
-        strListC = {structS(assocStrNumV).structureName};
+        strListC = strcat('structureItem',cellfun(@num2str,num2cell(assocStrNumV),'un',0));
         for i=1:length(strListC)
-            idx = strcmp(strListC,hAssocScanV(selScan).Children(i).Text);
+            idx = strcmp(strListC,get(hAssocScanV(selScan).Children(i),'Tag'));
             hStruct = hAssocScanV(selScan).Children(i);
             if strcmpi(get(hStruct, 'Checked'), 'on')
                 toDraw(assocStrNumV(idx))= 1;
