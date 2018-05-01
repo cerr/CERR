@@ -174,7 +174,8 @@ switch lower(arg)
         %%% CHANGED  AI 9/2/16 
         %%Leave out empty structures from list - AI 9/2/16
         emptyStructIdxC = arrayfun(@(x)isempty(x.rasterSegments),planC{indexS.structures},'un',0);
-        structS = planC{indexS.structures}(~[emptyStructIdxC{:}]);
+        structsV = find(~[emptyStructIdxC{:}]);
+        structS = planC{indexS.structures}(structsV);
         toDraw = false(1,length(structS));
         structNum = varargin{1};
         hAssocScanV = ud.handle.navScans;
@@ -192,13 +193,14 @@ switch lower(arg)
         
         %Identify ROI slices
         scanNum = hStructItem.UserData; 
-        assocStrNumV = find([structS.associatedScan]==scanNum);
-        strListC = strcat('structureItem',cellfun(@num2str,num2cell(assocStrNumV),'un',0));
+        associatedScanNumV = getStructureAssociatedScan(structsV, planC);
+        matchIdxV = find(associatedScanNumV == scanNum);
+        strListC = strcat('structureItem',cellfun(@num2str,num2cell(structsV(matchIdxV)),'un',0));
         for i=1:length(strListC)
             idx = strcmp(strListC,get(hAssocScanV(selScan).Children(i),'Tag'));
             hStruct = hAssocScanV(selScan).Children(i);
             if strcmpi(get(hStruct, 'Checked'), 'on')
-                toDraw(assocStrNumV(idx))= 1;
+                toDraw(matchIdxV(idx))= 1;
             end
         end
         %Get selected structures
