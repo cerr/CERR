@@ -1479,23 +1479,16 @@ switch upper(instr)
         hFig = get(hAxis, 'parent');        
         stateS.lastAxis = stateS.currentAxis;
         stateS.currentAxis = find(stateS.handle.CERRAxis == hAxis);
-        planeLocators = findobj(hFig, 'tag', 'planeLocator');
+        % planeLocators = findobj(hFig, 'tag', 'planeLocator');
+        planeLocators = [stateS.handle.CERRAxisPlnLoc{:}];
         set(planeLocators, 'marker', 'none');
         pLUD = get(planeLocators, 'userdata');
         for i = 1:size(pLUD,1)
             parentAxis = pLUD{i}{3};
-            if parentAxis == stateS.currentAxis;            
-                if stateS.MLVersion < 8.4
-                    set(planeLocators(i), 'Color', [0.5 1 0.5]);
-                else
-                    set(planeLocators(i), 'Color', [0.5 1 0.5]);
-                end
+            if parentAxis == stateS.currentAxis                
+                set(planeLocators(i), 'Color', [0.5 1 0.5]);
             else
-                if stateS.MLVersion < 8.4
-                    set(planeLocators(i), 'Color', [0.9 0.9 0.5]);
-                else
-                    set(planeLocators(i), 'Color', [0.9 0.9 0.5]);
-                end
+                set(planeLocators(i), 'Color', [0.9 0.9 0.5]);
             end
         end
         %try % case where the axes is deleted stateS.lastAxis exceeds matrix dimention
@@ -3201,7 +3194,8 @@ switch upper(instr)
         end
 
 
-        hFigure = findobj('tag', 'navigationFigure');
+        %hFigure = findobj('tag', 'navigationFigure');
+        hFigure = stateS.handle.navigationMontage;
 
         if ~isempty(hFigure)
             navigationMontage('init',stateS.scanSet) % initialize montage
