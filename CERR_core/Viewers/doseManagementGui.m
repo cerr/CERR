@@ -48,7 +48,11 @@ if ~exist('command') | isempty(command)
 end
 
 %Find handle of the gui figure.
-h = findobj('tag', 'doseManagementGui');
+%h = findobj('tag', 'doseManagementGui');
+h = [];
+if isfield(stateS.handle,'doseManagementFig') && ishandle(stateS.handle.doseManagementFig)
+    h = stateS.handle.doseManagementFig;
+end
 
 %Set framecolor for uicontrols and pseudoframes.
 frameColor = [0.8314 0.8157 0.7843];
