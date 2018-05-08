@@ -2662,8 +2662,10 @@ switch upper(instr)
         
     case 'SLICEMOTIONSTART'
         hAxis = gca;
-        hFig  = get(hAxis, 'parent');
-        cP    = get(hAxis, 'CurrentPoint');
+        %hFig  = get(hAxis, 'parent');
+        hFig = hAxis.Parent;
+        %cP    = get(hAxis, 'CurrentPoint');
+        cP = hAxis.CurrentPoint;
         set(hFig, 'interruptible', 'on', 'busyaction', 'cancel');
         stateS.scanWindowCurrentPoint = cP(1,1:2);
         return;     
