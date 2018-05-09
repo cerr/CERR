@@ -44,10 +44,31 @@ switch filterType
             flagV(sel-1) = 1;
         end
         
-        [outS.Energy,outS.Entropy,outS.SumAvg,outS.Corr,...
-            outS.InvDiffMom,outS.Contrast,outS.ClustShade,...
-            outS.ClustProminence,outS.HaralCorr] = textureByPatchCombineCooccur(volToEval,...
+       
+        outS.Energy = zeros(size(scan3M));
+        outS.Entropy = zeros(size(scan3M));
+        outS.SumAvg = zeros(size(scan3M));
+        outS.Corr = zeros(size(scan3M));
+        outS.InvDiffMom = zeros(size(scan3M));
+        outS.Contrast = zeros(size(scan3M));
+        outS.ClustShade = zeros(size(scan3M));
+        outS.ClustProminence = zeros(size(scan3M));
+        outS.HaralCorr = zeros(size(scan3M));
+        
+        [energy,entropy,sumAvg,corr,...
+          invDiffMom,contrast,clustShade,...
+          clustProminence,haralCorr] = textureByPatchCombineCooccur(volToEval,...
             paramS.NumLevels.val, paramS.PatchSize.val, offsetsM, flagV); %,hWait
+        
+        outS.Energy(minr:maxr, minc:maxc, mins:maxs) = energy;
+        outS.Entropy(minr:maxr, minc:maxc, mins:maxs) = entropy;
+        outS.SumAvg(minr:maxr, minc:maxc, mins:maxs) = sumAvg;
+        outS.Corr(minr:maxr, minc:maxc, mins:maxs) = corr;
+        outS.InvDiffMom(minr:maxr, minc:maxc, mins:maxs) = invDiffMom;
+        outS.Contrast(minr:maxr, minc:maxc, mins:maxs) = contrast;
+        outS.ClustShade(minr:maxr, minc:maxc, mins:maxs) = clustShade;
+        outS.ClustProminence(minr:maxr, minc:maxc, mins:maxs) = clustProminence;
+        outS.HaralCorr(minr:maxr, minc:maxc, mins:maxs) = haralCorr;
         
         featC = fieldnames(outS);
         outS = rmfield(outS,featC(~flagV));
