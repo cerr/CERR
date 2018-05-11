@@ -1,14 +1,17 @@
+function planC = readXmlHermesStructure(maskFileName,structName,planC)
 % readXmlHermesStructure.m
 %
 % APA, 8/31/2017
 
-fName = 'L:\Data\TCIA_Breast\Ivan\TCGA-AO-A03V\TCGAAOA03VTCGAAO_196070.xml';
+% maskFileName = 'L:\Data\TCIA_Breast\Ivan\TCGA-AO-A03V\TCGAAOA03VTCGAAO_196070.xml';
 
-global planC
+if ~exist(planC','var')
+    global planC
+end
 indexS = planC{end};
 
 % Read matrix coordinates
-DOMnode = xmlread(fName);
+DOMnode = xmlread(maskFileName);
 xCoords = DOMnode.getElementsByTagName('x');
 yCoords = DOMnode.getElementsByTagName('y');
 zCoords = DOMnode.getElementsByTagName('z');
@@ -65,7 +68,7 @@ for slc = 1:length(structS.contour)
     
 end
 
-structS.structureName = 'tumor';
+structS.structureName = structName;
 planC{indexS.structures} = dissimilarInsert(planC{indexS.structures}, structS);
 planC = getRasterSegs(planC);
 
