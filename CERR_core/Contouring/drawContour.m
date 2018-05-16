@@ -41,20 +41,29 @@ switch command
         %Specify the handle of an axis for contouring, setup callbacks.
         hAxis = varargin{1};
         hFig  = get(hAxis, 'parent');
-        setappdata(hFig, 'contourAxisHandle', hAxis);
-        setappdata(hAxis, 'contourV', {});
-        setappdata(hAxis, 'contourV2', {});
+%         setappdata(hFig, 'contourAxisHandle', hAxis);
+%         setappdata(hAxis, 'contourV', {});
+%         setappdata(hAxis, 'contourV2', {});
+        stateS.contouringMetaDataS.contourAxisHandle = hAxis;
+        stateS.contouringMetaDataS.contourV = {};
+        stateS.contouringMetaDataS.contourV2 = {};
         hSegment = line(0, 0, 'color', 'red', 'hittest', 'on', ...
             'parent', hAxis, 'ButtonDownFcn', 'drawContour(''contourClicked'')');
-        setappdata(hAxis, 'hSegment', hSegment);
+        stateS.contouringMetaDataS.hSegment = hSegment;
+
         noneMode(hAxis);
         %oldAxisProperties = get(hAxis); %Store these to return to original state. Think about this.
         %oldFigureProperties = get(hFig);
 
-        oldBtnDown = getappdata(hAxis, 'oldBtnDown');
+
+        if isfield(stateS.contouringMetaDataS,'oldBtnDown')
+        oldBtnDown = stateS.contouringMetaDataS.oldBtnDown;
+        else
+        oldBtnDown = [];    
+        end
         if isempty(oldBtnDown)
             oldBtnDown = get(hAxis, 'buttonDownFcn');
-            setappdata(hAxis, 'oldBtnDown', oldBtnDown);
+           stateS.contouringMetaDataS.oldBtnDown = oldBtnDown;
         end
 
         set(hAxis, 'buttonDownFcn', 'drawContour(''btnDownInAxis'')');
@@ -66,35 +75,44 @@ switch command
         %Removed passed axis from drawContour mode.
         hAxis = varargin{1};
         hFig  = get(hAxis, 'parent');
-        hSgment = getappdata(hAxis, 'hSgment');        
-        ballH = getappdata(hAxis, 'hBall');
-        noneMode(hAxis);
-        setappdata(hAxis, 'contourV', []);
-        setappdata(hAxis, 'contourV2', []);
-        setappdata(hAxis, 'segment', []);        
-        setappdata(hAxis, 'hSgment', []);
-        setappdata(hAxis, 'hBall', []);
-        setappdata(hAxis, 'clip', []);
-        setappdata(hAxis, 'contourMask', []);
-        setappdata(hAxis, 'clipToggles', []);        
-        drawAll(hAxis);
+        if isfield(stateS.contouringMetaDataS,'hSgment')
+        hSgment = stateS.contouringMetaDataS.hSgment;
         delete(hSgment)
+        end
+        if isfield(stateS.contouringMetaDataS,'hBall')
+        ballH = stateS.contouringMetaDataS.hBall;
         delete(ballH)
-        set(hAxis, 'buttonDownFcn', getappdata(hAxis, 'oldBtnDown'));
-        setappdata(hAxis, 'oldBtnDown', []);
+        end
+        noneMode(hAxis);
+        stateS.contouringMetaDataS.contourV = [];
+        stateS.contouringMetaDataS.contourV2 = [];
+        stateS.contouringMetaDataS.segment = [];
+        stateS.contouringMetaDataS.hSgment = [];
+        stateS.contouringMetaDataS.hBall = [];
+        stateS.contouringMetaDataS.clip = [];
+        stateS.contouringMetaDataS.contourMask = [];
+        stateS.contouringMetaDataS.clipToggles = [];
+
+        drawAll(hAxis);
+       
+        if isfield(stateS.contouringMetaDataS,'oldBtnDown')
+        set(hAxis, 'buttonDownFcn', stateS.contouringMetaDataS.oldBtnDown);
+        else
+        set(hAxis, 'buttonDownFcn',[]);    
+        end
+        stateS.contouringMetaDataS.oldBtnDown = [];
         set(hFig, 'WindowButtonUpFcn', '');
         set(hFig, 'doublebuffer', 'on');
 
     case 'getState'
-        hAxis = varargin{1};
-        varargout{1} = getappdata(hAxis)
+        varargout{1} = stateS.contouringMetaDataS;
 
     case 'setState'
         hAxis = varargin{1};
         state = varargin{2};
         fNames = fieldnames(state)
         for i=1:length(fNames)
-            setappdata(hAxis, fNames{i}, getfield(state, fNames{i}));
+           stateS.contouringMetaDataS.(fNames{i}) = getfield(state, fNames{i});
         end
         drawAll(hAxis);
 
@@ -102,8 +120,10 @@ switch command
         %Safely finish all currently edited stuff and return to nonemode.
         hAxis = varargin{1};
         closeSegment(hAxis);
-        editNum = getappdata(hAxis, 'editNum');
+        if isfield(stateS.contouringMetaDataS,'editNum')
+        editNum = stateS.contouringMetaDataS.editNum;
         saveSegment(hAxis, editNum);
+        end
         noneMode(hAxis);
 
     case 'editMode'
@@ -153,24 +173,22 @@ switch command
         %Initialize
         drawBallMode(hAxis);
         %Reset mode to 'flex'
-        setappdata(hAxis,'mode','flexSelMode'); 
+        stateS.contouringMetaDataS.mode = 'flexSelMode';
         if nargin>2
-           setappdata(hAxis,'forceErase',varargin{2});  
+            stateS.contouringMetaDataS.forceErase = varargin{2};
         else
-           setappdata(hAxis,'forceErase',[]);
+            stateS.contouringMetaDataS.forceErase = [];
         end
         
         
     case 'getContours'
         %Return all contours drawn on this axis, in axis coordinates.
-        hAxis = varargin{1};
-        contourV = getappdata(hAxis, 'contourV');
+        contourV = stateS.contouringMetaDataS.contourV;
         varargout{1} = contourV;
 
     case 'getContours2'
         %Return all contours2 drawn on this axis, in axis coordinates.
-        hAxis = varargin{1};
-        contourV2 = getappdata(hAxis, 'contourV2');
+        contourV2 = stateS.contouringMetaDataS.contourV2;
         varargout{1} = contourV2;
 
     case 'setContours'
@@ -178,17 +196,16 @@ switch command
         %input contours.  Input is cell array of [Nx2] coordinates.
         hAxis = varargin{1};
         contourV = varargin{2};
-        setappdata(hAxis, 'contourV', contourV);
+        stateS.contouringMetaDataS.contourV = contourV;
         drawContour('setContourMask', hAxis, contourV);
         noneMode(hAxis);
         
     case 'setContourMask'
-        hAxis = varargin{1};
         contourV = varargin{2};
-        sliceNum = getappdata(hAxis, 'ccSlice');
-        numRows = getappdata(hAxis, 'numRows');
-        numCols = getappdata(hAxis, 'numCols');
-        scanNum = getappdata(hAxis, 'ccScanSet');
+        sliceNum = stateS.contouringMetaDataS.ccSlice;
+        numRows = stateS.contouringMetaDataS.numRows;
+        numCols = stateS.contouringMetaDataS.numCols;
+        scanNum = stateS.contouringMetaDataS.ccScanSet;
         segM = false(numRows, numCols);
         for i = 1:length(contourV)
             segment = contourV{i};
@@ -202,14 +219,14 @@ switch command
             segColV(segColV>numCols) = numCols;            
             segM = xor(segM, polyFill(numRows, numCols, segRowV, segColV));
         end
-        setappdata(hAxis, 'contourMask',segM);
+        stateS.contouringMetaDataS.contourMask = segM;
 
     case 'setContours2'
         %Wipe out all stored contours2 for this axis, and replace with
         %input contours.  Input is cell array of [Nx2] coordinates.
         hAxis = varargin{1};
         contourV2 = varargin{2};
-        setappdata(hAxis, 'contourV2', contourV2);
+        stateS.contouringMetaDataS.contourV2 = contourV2;
         noneMode(hAxis);
         
     case 'btnDownInAxis'
@@ -245,33 +262,37 @@ switch command
         
         hFig = get(gcbo, 'parent');
         clickType = get(hFig, 'SelectionType');
-        lastClickType = getappdata(hFig, 'lastClickType');
-        setappdata(hFig, 'lastClickType', clickType);
-        mode = getappdata(hAxis, 'mode');
-
+        if isfield(stateS.contouringMetaDataS,'lastClickType')
+        lastClickType = stateS.contouringMetaDataS.lastClickType;
+        else
+        lastClickType = '';    
+        end
+        stateS.contouringMetaDataS.lastClickType = clickType;
+        mode = stateS.contouringMetaDataS.mode;
+        
         %Setup axis for motion.
         %set(hFig, 'WindowButtonMotionFcn', 'drawContour(''motionInFigure'')');
-        setappdata(hAxis, 'isButtonDwn', 1);
+        stateS.contouringMetaDataS.isButtonDwn = 1;
 
-        ud = get(stateS.handle.controlFrame,'userdata');
-
+        %ud = get(stateS.handle.controlFrame,'userdata');
+        ud = stateS.handle.controlFrameUd ;
+        
         %SWITCH OVER MODES.
         if strcmpi(mode,        'DRAW')
             if strcmpi(clickType, 'normal')
                 %Left click: check if a segment has been selected and
                 %switch to Edit mode.
-                if getappdata(hAxis, 'segmentSelected')
-                    
+                if stateS.contouringMetaDataS.segmentSelected
+
                     %set(ud.handles.modePopup,'value',2)
                     controlFrame('contour','selectMode',2) % Edit mode
                     
-                    segNum = getappdata(hAxis,'editNum');
+                    segNum = stateS.contouringMetaDataS.editNum;
                     editingMode(hAxis,segNum);
                     cP = get(hAxis, 'currentPoint');
                     addClipPoint(hAxis, cP(1,1), cP(1,2));
                     drawClip(hAxis);
-                    setappdata(hAxis, 'segmentSelected',0)
-                    
+                    stateS.contouringMetaDataS.segmentSelected = 0;
                     drawSegment(hAxis);
                                         
                     %setappdata(hAxis, 'mode','Edit');
@@ -291,9 +312,9 @@ switch command
                 %Left click+motion: add ball and begin new contour.
                 drawingBallMode(hAxis);
                 cP = get(hAxis, 'currentPoint');
-                ballH = getappdata(hAxis, 'hBall');
-                angM = getappdata(hAxis, 'angles');
-                ballRadius = getappdata(hAxis, 'ballRadius');
+                ballH = stateS.contouringMetaDataS.hBall;
+                angM = stateS.contouringMetaDataS.angles;
+                ballRadius = stateS.contouringMetaDataS.ballRadius;
                 xV = cP(1,1) + ballRadius*angM(:,1);
                 yV = cP(1,2) + ballRadius*angM(:,2);  
                 set(ballH,'xData',xV,'ydata',yV,'visible','on')
@@ -315,7 +336,7 @@ switch command
             elseif strcmpi(clickType, 'alt')
                 %Right click: close new contour and return to drawMode.
                 set(hAxis,'UIContextMenu',[])
-                contourV = getappdata(hAxis, 'contourV');
+                contourV = stateS.contouringMetaDataS.contourV;
                 segmentNum = length(contourV) + 1;
                 closeSegment(hAxis);
                 saveSegment(hAxis, segmentNum);                
@@ -324,7 +345,7 @@ switch command
 
         elseif strcmpi(mode,    'EDIT')
             if strcmpi(clickType, 'normal')  
-                editNum = getappdata(hAxis, 'editNum');
+                editNum = stateS.contouringMetaDataS.editNum;
                 saveSegment(hAxis, editNum); % Save current segment
                 drawMode(hAxis); % Set to draw mode on left-click
             elseif strcmpi(clickType, 'extend') || (strcmpi(clickType, 'open') && strcmpi(lastClickType, 'extend'))                                
@@ -373,14 +394,16 @@ switch command
             if strcmpi(clickType, 'normal')
                 %Initialize drawball
                 drawingBallMode(hAxis);  
-                ballH = getappdata(hAxis, 'hBall');
-                angM = getappdata(hAxis, 'angles');
-                ballRadius = getappdata(hAxis, 'ballRadius');
+                ballH = stateS.contouringMetaDataS.hBall;
+                angM = stateS.contouringMetaDataS.angles;
+                ballRadius = stateS.contouringMetaDataS.ballRadius;
+                
                 %Set flex mode (eraserFlag)
-                if ~isempty(getappdata(hAxis,'forceErase'))
-                    eraserFlag = getappdata(hAxis,'forceErase');
+                if ~isempty(stateS.contouringMetaDataS.forceErase)
+                    eraserFlag = stateS.contouringMetaDataS.forceErase;
                     cP = getFlexPos(hAxis,eraserFlag);
-                    setappdata(hAxis,'forceErase',[]);
+                    stateS.contouringMetaDataS.forceErase = [];
+
                 else
                     cP = getFlexPos(hAxis);
                 end
@@ -393,7 +416,7 @@ switch command
                 addBallPoints(hAxis, xV, yV);
                 drawSegment(hAxis);
                 %Reset to flexMode
-                setappdata(hAxis, 'mode', 'flexMode');
+                stateS.contouringMetaDataS.mode = 'flexMode';
             end
             
 
@@ -404,13 +427,17 @@ switch command
     case 'motionInFigure'
         %The action taken depends on current state.
         hFig        = stateS.handle.CERRSliceViewer;
-        hAxis       = getappdata(hFig, 'contourAxisHandle');
+        hAxis  = stateS.contouringMetaDataS.contourAxisHandle;
         clickType   = get(hFig, 'SelectionType');
         if isempty(hAxis)
             return
         end
-        mode         = getappdata(hAxis, 'mode');
-        isButtonDwn  = getappdata(hAxis, 'isButtonDwn');
+        mode  = stateS.contouringMetaDataS.mode;
+        if isfield(stateS.contouringMetaDataS,'isButtonDwn')
+        isButtonDwn  = stateS.contouringMetaDataS.isButtonDwn;
+        else
+        isButtonDwn  = [];
+        end
         
         % AI 5/1/17
         if isempty(isButtonDwn)
@@ -448,11 +475,9 @@ switch command
             %cP = get(hAxis, 'currentPoint');
             x = cP(1,1);
             y = cP(1,2);
-            %contoursC = getappdata(hAxis, 'contourV');
-            hContourV = getappdata(hAxis, 'hContour');
-            ballRadius = getappdata(hAxis, 'ballRadius');
+            hContourV = stateS.contouringMetaDataS.hContour;
             set(hContourV,'lineWidth',1.5)
-            setappdata(hAxis, 'segmentSelected', 0)
+            stateS.contouringMetaDataS.segmentSelected = 0;
             for i = 1:length(hContourV)
                 xData = get(hContourV(i),'XData');
                 yData = get(hContourV(i),'YData');
@@ -461,10 +486,10 @@ switch command
                     % If in the pencil mode and mouse-up, then toggle to "edit" mode if
                     % user selects a segment
                     %%% getappdata(hAxis, 'mode');
-                    setappdata(hAxis, 'segmentSelected', 1)
+                    stateS.contouringMetaDataS.segmentSelected = 1;
                     seg = [xData(:) yData(:)];
-                    setappdata(hAxis,'segment',seg)
-                    setappdata(hAxis,'editNum',i)
+                    stateS.contouringMetaDataS.segment = seg;
+                    stateS.contouringMetaDataS.editNum = i;
                     %setappdata(hAxis,'clipToggles',{seg,seg,seg})
                     %setappdata(hAxis,'clipnum',1)                    
                     %drawSegment(hAxis)
@@ -474,9 +499,9 @@ switch command
             
         elseif strcmpi(mode,        'DRAWINGBALL')
             cP = get(hAxis, 'currentPoint');
-            ballH = getappdata(hAxis, 'hBall');
-            angM = getappdata(hAxis, 'angles');
-            ballRadius = getappdata(hAxis, 'ballRadius');
+            ballH = stateS.contouringMetaDataS.hBall;
+            angM = stateS.contouringMetaDataS.angles;
+            ballRadius = stateS.contouringMetaDataS.ballRadius;
             xV = cP(1,1) + ballRadius*angM(:,1);
             yV = cP(1,2) + ballRadius*angM(:,2);
             set(ballH,'xData',xV,'ydata',yV,'visible','on')
@@ -484,18 +509,18 @@ switch command
             if strcmpi(clickType, 'normal') && isButtonDwn
                 %Left click+motion: add point and redraw.
                 addBallPoints(hAxis, xV, yV);
-                %drawSegment(hAxis);     
+                %drawSegment(hAxis);
                 drawContourV(hAxis);
             end
             
-
-        elseif strcmpi(mode,        'DRAWBALL')            
-                %Left click+motion: add point and redraw.
-                cP = get(hAxis, 'currentPoint');
-                ballH = getappdata(hAxis, 'hBall');
-                angM = getappdata(hAxis, 'angles');
-                ballRadius = getappdata(hAxis, 'ballRadius');
-                xV = cP(1,1) + ballRadius*angM(:,1);
+            
+        elseif strcmpi(mode,        'DRAWBALL')
+            %Left click+motion: add point and redraw.
+            cP = get(hAxis, 'currentPoint');
+            ballH = stateS.contouringMetaDataS.hBall;
+            angM = stateS.contouringMetaDataS.angles;
+            ballRadius = stateS.contouringMetaDataS.ballRadius;
+            xV = cP(1,1) + ballRadius*angM(:,1);
                 yV = cP(1,2) + ballRadius*angM(:,2);                
                 set(ballH,'xData',xV,'ydata',yV,'visible','on')
 
@@ -522,7 +547,7 @@ switch command
                 
                 % Find the closest point on the segment to the current mouse click
                 % Contour points for the selected segment
-                segment = getappdata(hAxis, 'segment');
+                segment  = stateS.contouringMetaDataS.segment;
                 xV = segment(:,1);
                 yV = segment(:,2);
                 
@@ -562,31 +587,31 @@ switch command
                 %yV() =
                 %contourV{segmentNum} = contourV;
                 
-                setappdata(hAxis, 'segment', segmentNew);
-                
+                stateS.contouringMetaDataS.segment = segmentNew;
+
                 drawSegment(hAxis);
             end
             
             
-           elseif strcmpi(mode, 'FLEXSELMODE')       
-                cP = get(hAxis, 'currentPoint');
-                ballH = getappdata(hAxis, 'hBall');
-                angM = getappdata(hAxis, 'angles');
-                ballRadius = getappdata(hAxis, 'ballRadius');
-                xV = cP(1,1) + ballRadius*angM(:,1);
-                yV = cP(1,2) + ballRadius*angM(:,2);                
-                set(ballH,'xData',xV,'ydata',yV,'visible','on')
-
-                
+        elseif strcmpi(mode, 'FLEXSELMODE')
+            cP = get(hAxis, 'currentPoint');
+            ballH = stateS.contouringMetaDataS.hBall;
+            angM = stateS.contouringMetaDataS.angles;
+            ballRadius = stateS.contouringMetaDataS.ballRadius;
+            xV = cP(1,1) + ballRadius*angM(:,1);
+            yV = cP(1,2) + ballRadius*angM(:,2);
+            set(ballH,'xData',xV,'ydata',yV,'visible','on')
+            
+            
             elseif strcmpi(mode,    'FLEXMODE')
                 %cP = get(hAxis, 'currentPoint');
                 cP = getFlexPos(hAxis);
                 if isempty(cP)
                     return
                 end
-                ballH = getappdata(hAxis, 'hBall');
-                angM = getappdata(hAxis, 'angles');
-                ballRadius = getappdata(hAxis, 'ballRadius');
+                ballH = stateS.contouringMetaDataS.hBall;
+                angM = stateS.contouringMetaDataS.angles;
+                ballRadius = stateS.contouringMetaDataS.ballRadius;
                 xV = cP(1,1) + ballRadius*angM(:,1);
                 yV = cP(1,2) + ballRadius*angM(:,2);
                 set(ballH,'xData',xV,'ydata',yV,'visible','on')
@@ -601,9 +626,9 @@ switch command
     case 'btnUp'
         %The action taken depends on current state.        
         hFig = gcbo;      
-        hAxis = getappdata(hFig, 'contourAxisHandle');
+        hAxis = stateS.contouringMetaDataS.contourAxisHandle;
         clickType = get(hFig, 'SelectionType');
-        mode = getappdata(hAxis, 'mode');
+        mode = stateS.contouringMetaDataS.mode;
         
         if strcmpi(mode, 'EDITING')
             connectClip(hAxis);       
@@ -615,21 +640,21 @@ switch command
             hMenu = uicontextmenu('Callback', 'CERRAxisMenu(''update_menu'')', 'userdata', hAxis, 'Tag', 'CERRAxisMenu', 'parent', hFig);
             set(hAxis, 'UIContextMenu', hMenu);   
         elseif strcmpi(mode, 'DRAWINGBALL')
-            ballH = getappdata(hAxis, 'hBall');
+            %ballH = getappdata(hAxis, 'hBall');
+            ballH = stateS.contouringMetaDataS.hBall;
             %set(ballH,'visible','off')
-        elseif strcmpi(mode, 'FLEXMODE') %%AI 5/1/17
             %ballH = getappdata(hAxis, 'hBall');
             %set(ballH,'visible','off')
         elseif strcmpi(mode, 'THRESH_todelete')
-            setappdata(hAxis, 'minLevel',[])
-            setappdata(hAxis, 'maxLevel',[])
+            stateS.contouringMetaDataS.minLevel = [];
+            stateS.contouringMetaDataS.maxLevel = [];
             hFig  = get(hAxis, 'parent');
             hMenu = uicontextmenu('Callback', 'CERRAxisMenu(''update_menu'')', 'userdata', hAxis, 'Tag', 'CERRAxisMenu', 'parent', hFig);
             set(hAxis, 'UIContextMenu', hMenu);               
         end              
         %set(hFig, 'WindowButtonMotionFcn', '');
-        setappdata(hAxis, 'isButtonDwn', 0);
-   
+        stateS.contouringMetaDataS.isButtonDwn = 0;
+
 
     case 'contourClicked'
         hLine = gcbo;
@@ -637,9 +662,9 @@ switch command
         hAxis = stateS.handle.CERRAxis(stateS.contourAxis);
         hFig = get(hAxis, 'parent');
         clickType = get(hFig, 'SelectionType');
-        lastClickType = getappdata(hFig, 'lastClickType');
-        setappdata(hFig, 'lastClickType', clickType);
-        mode = getappdata(hAxis, 'mode');
+        lastClickType = stateS.contouringMetaDataS.lastClickType;
+        stateS.contouringMetaDataS.lastClickType = clickType;
+        mode = stateS.contouringMetaDataS.mode;
 
         %Setup axis for motion.
         set(hFig, 'WindowButtonMotionFcn', 'drawContour(''motionInFigure'')');
@@ -651,17 +676,17 @@ switch command
         elseif strcmpi(mode,    'EDIT')
             if strcmpi(clickType, 'normal')
                 %Left click: select this contour for editing and commence.
-                contourV = getappdata(hAxis, 'contourV');
-                segmentNum = getappdata(hAxis, 'editNum');
-                segment = getappdata(hAxis, 'segment');
+                contourV = stateS.contouringMetaDataS.contourV;
+                segmentNum = stateS.contouringMetaDataS.editNum;
+                segment = stateS.contouringMetaDataS.segment;
                 if ~isempty(segment)
                     contourV{segmentNum} = segment;
-                    setappdata(hAxis, 'contourV', contourV);
-                    setappdata(hAxis, 'segment', segment);
+                    stateS.contouringMetaDataS.contourV = contourV; 
+                    stateS.contouringMetaDataS.segment = segment;
                 end
 
-                if isequal(getappdata(hAxis, 'hSegment'), gcbo)
-                    segmentNum = getappdata(hAxis, 'editNum');
+                if isequal(stateS.contouringMetaDataS.segment,gcbo)
+                    segmentNum = stateS.contouringMetaDataS.editNum;
                 else
                     segmentNum = get(gcbo, 'userdata');
                 end
@@ -678,24 +703,25 @@ switch command
             %Edit mode GE
         elseif strcmpi(mode,    'EDITGE')
             %Left click: select this contour for editing and commence.
-            contourV = getappdata(hAxis, 'contourV');
-            segmentNum = getappdata(hAxis, 'editNum');
-            segment = getappdata(hAxis, 'segment');
+            contourV = stateS.contouringMetaDataS.contourV;
+            segmentNum = stateS.contouringMetaDataS.editNum;
+            segment = stateS.contouringMetaDataS.segment;
             if ~isempty(segment)
                 contourV{segmentNum} = segment;
-                setappdata(hAxis, 'contourV', contourV);
-                setappdata(hAxis, 'segment', segment);
+                stateS.contouringMetaDataS.contourV = contourV;
+                stateS.contouringMetaDataS.segment = segment;
+
             end
             
-            if isequal(getappdata(hAxis, 'hSegment'), gcbo)
-                segmentNum = getappdata(hAxis, 'editNum');
+            if isequal(stateS.contouringMetaDataS.hSegment,gcbo)
+                segmentNum = stateS.contouringMetaDataS.editNum;
             else
                 segmentNum = get(gcbo, 'userdata');
             end
             
             editingModeGE(hAxis, segmentNum);   
             
-            segment = getappdata(hAxis, 'segment');
+            segment = stateS.contouringMetaDataS.segment;
             distM = sepsq(segment',segment');
             
             % Make segment-resolution fine
@@ -726,7 +752,7 @@ switch command
                end                          
             end
             
-            setappdata(hAxis, 'segment', segmentNew);
+            stateS.contouringMetaDataS.segment = segmentNew;
             
             %cP = get(hAxis, 'currentPoint');
             
@@ -737,8 +763,8 @@ switch command
             
             
         elseif strcmpi(mode,    'REASSIGN')
-            contourV = getappdata(hAxis, 'contourV');
-            contourV2 = getappdata(hAxis, 'contourV2');
+            contourV = stateS.contouringMetaDataS.contourV;
+            contourV2 = stateS.contouringMetaDataS.contourV2;
             contourUD = get(gcbo, 'userdata');
             if iscell(contourUD)
                 contourV{end+1} = contourV2{contourUD{2}};
@@ -747,15 +773,15 @@ switch command
                 contourV2{end+1} = contourV{contourUD};
                 contourV{contourUD} = [];
             end
-            setappdata(hAxis, 'contourV', contourV);
-            setappdata(hAxis, 'contourV2', contourV2);
+            stateS.contouringMetaDataS.contourV = contourV;
+            stateS.contouringMetaDataS.contourV2 = contourV2;
             reassignMode(hAxis);
         end
 
     case 'deleteSegment'
         %Delete selected segment if relevant and if in edit mode.
         hAxis = varargin{1};
-        mode = getappdata(hAxis, 'mode');
+        mode = stateS.contouringMetaDataS.mode;
         if strcmpi(mode, 'drawing')
             delSegment(hAxis);
             drawMode(hAxis);
@@ -769,10 +795,9 @@ switch command
         
     case 'deleteAllSegments'
         hAxis = varargin{1};
-        mode = getappdata(hAxis,'mode');
+        mode = stateS.contouringMetaDataS.mode;
         if strcmpi(mode,'threshold')
-            hFrame = stateS.handle.controlFrame;
-            ud = get(hFrame, 'userdata');
+            ud = stateS.handle.controlFrameUd ;
             set(ud.handles.threshold,'Value',0,'BackgroundColor',[0.8 0.8 0.8]);
         end
         delAllSegments(hAxis)            
@@ -783,63 +808,75 @@ end
 %MODE MANAGEMENT
 function drawMode(hAxis)
 %Next mouse click starts a new contour and goes to drawing mode.
-contourV = getappdata(hAxis, 'contourV');
-segment = getappdata(hAxis, 'segment');
-setappdata(hAxis, 'segment', []);
+global stateS
+contourV = stateS.contouringMetaDataS.contourV;
+segment = stateS.contouringMetaDataS.segment;
+stateS.contouringMetaDataS.segment = [];
+
 if ~isempty(segment)
     editNum = getappdata(hAxis, 'editNum');
     contourV{editNum} = segment;
-    setappdata(hAxis, 'contourV', contourV);
+    stateS.contouringMetaDataS.contourV = contourV;
 end
-setappdata(hAxis, 'mode', 'draw'); % APA: mode is set in contourControl.m
-setappdata(hAxis, 'ccMode', 'draw'); 
+%APA: mode is set in contourControl.m
+stateS.contouringMetaDataS.mode =  'draw';
+stateS.contouringMetaDataS.ccMode =  'draw';
+
 editNum = length(contourV) + 1;
-setappdata(hAxis, 'editNum', editNum);
-hContour = getappdata(hAxis, 'hContour');
+stateS.contouringMetaDataS.editNum =  editNum;
+hContour = stateS.contouringMetaDataS.hContour;
 set(hContour, 'hittest', 'off');
 drawSegment(hAxis);
 drawContourV(hAxis);
 
 function drawBallMode(hAxis)
 %Next mouse click starts a new contour and goes to drawing mode.
-contourV = getappdata(hAxis, 'contourV');
-segment = getappdata(hAxis, 'segment');
-setappdata(hAxis, 'segment', []);
+global stateS
+contourV = stateS.contouringMetaDataS.contourV;
+segment = stateS.contouringMetaDataS.segment;
+stateS.contouringMetaDataS.segment =  [];
 if ~isempty(segment)
-    editNum = getappdata(hAxis, 'editNum');
+    editNum = stateS.contouringMetaDataS.editNum;
     contourV{editNum} = segment;
-    setappdata(hAxis, 'contourV', contourV);
+    stateS.contouringMetaDataS.contourV = contourV;
+
 end
-setappdata(hAxis, 'mode', 'drawBall'); % APA: mode is set in contourControl.m
+%APA: mode is set in contourControl.m
+stateS.contouringMetaDataS.mode = 'drawBall';
 editNum = length(contourV) + 1;
-setappdata(hAxis, 'editNum', editNum);
-hContour = getappdata(hAxis, 'hContour');
+stateS.contouringMetaDataS.editNum = editNum;
+hContour = stateS.contouringMetaDataS.hContour;
 set(hContour, 'hittest', 'off');
 drawSegment(hAxis);
 drawContourV(hAxis);
 
 function drawingMode(hAxis)
+global stateS
 %While the button is down or for each click, points are added
 %to the contour being drawn.  Right click exists drawing mode.
-setappdata(hAxis, 'mode', 'drawing');
-setappdata(hAxis, 'segment', []);
+stateS.contouringMetaDataS.mode = 'drawing';
+stateS.contouringMetaDataS.segment = [];
+
 
 function drawingBallMode(hAxis)
+global stateS
 %While the button is down or for each click, points are added
 %to the contour being drawn.  Right click exists drawing mode.
-setappdata(hAxis, 'mode', 'drawingBall');
-ballH = getappdata(hAxis, 'hBall');
+stateS.contouringMetaDataS.mode = 'drawingBall';
+ballH = stateS.contouringMetaDataS.hBall;
 set(ballH,'visible','on')
-setappdata(hAxis, 'segment', []);
+stateS.contouringMetaDataS.segment = [];
 
 function reassignMode(hAxis)
 %Draws all contours on the slice and makes them selectable.  When a
 %contour is clicked, it is moved to the other contour's list.
-setappdata(hAxis, 'mode', 'reassign');
+%setappdata(hAxis, 'mode', 'reassign');
+global stateS
+stateS.contouringMetaDataS.mode = 'reassign';
 drawContourV(hAxis);
 drawContourV2(hAxis);
-hContour = getappdata(hAxis, 'hContour');
-hContour2 = getappdata(hAxis, 'hContour2');
+hContour = stateS.contouringMetaDataS.hContour;
+hContour2 = stateS.contouringMetaDataS.hContour2;
 set(hContour, 'hittest', 'on');
 set(hContour2, 'hittest', 'on');
 
@@ -847,38 +884,43 @@ function editMode(hAxis)
 %Draws all contours on the slice and makes them selectable.  When a
 %contour is clicked, goes to editingMode and begins drawing a clip.
 %If a previous clip has been drawn, right clicking toggles clips.
-setappdata(hAxis, 'mode', 'edit');
+global stateS
+stateS.contouringMetaDataS.mode = 'edit';
 drawContourV(hAxis);
 drawSegment(hAxis);
-setappdata(hAxis, 'clip', []);
+stateS.contouringMetaDataS.clip = [];
 drawClip(hAxis);
-hContour = getappdata(hAxis, 'hContour');
+hContour = stateS.contouringMetaDataS.hContour;
 set(hContour, 'hittest', 'on');
 
 function editModeGE(hAxis)
 %Draws all contours on the slice and makes them selectable.  When a
 %contour is clicked, goes to editingMode and begins drawing a clip.
 %If a previous clip has been drawn, right clicking toggles clips.
-setappdata(hAxis, 'mode', 'editGE');
+global stateS
+%setappdata(hAxis, 'mode', 'editGE');
+stateS.contouringMetaDataS.mode = 'editGE';
 drawContourV(hAxis);
 drawSegment(hAxis);
-setappdata(hAxis, 'clip', []);
+stateS.contouringMetaDataS.clip = [];
 drawClip(hAxis);
-hContour = getappdata(hAxis, 'hContour');
+hContour = stateS.contouringMetaDataS.hContour;
 set(hContour, 'hittest', 'on');
 
 
 function editingMode(hAxis, segmentNum)
 %While the button is down, points are added to the clip being drawn.
 %Lifting the mouse button goes to Edit/SelectingClip mode.
-setappdata(hAxis, 'mode', 'editing');
-setappdata(hAxis, 'clipToggles', {});
-contourV = getappdata(hAxis, 'contourV');
+global stateS
+
+stateS.contouringMetaDataS.mode = 'editing';
+stateS.contouringMetaDataS.clipToggles = {};
+contourV = stateS.contouringMetaDataS.contourV;
 segment = contourV{segmentNum};
 contourV{segmentNum} = [];
-setappdata(hAxis, 'contourV', contourV);
-setappdata(hAxis, 'segment', segment);
-setappdata(hAxis, 'editNum', segmentNum);
+stateS.contouringMetaDataS.contourV = contourV;
+stateS.contouringMetaDataS.segment = segment;
+stateS.contouringMetaDataS.editNum = segmentNum;
 %         drawContourV(hAxis);
 %         drawSegment(hAxis);  %Considering brining these back, changes
 %         color dynamically.
@@ -886,66 +928,73 @@ setappdata(hAxis, 'editNum', segmentNum);
 function editingModeGE(hAxis, segmentNum)
 %While the button is down, points are added to the clip being drawn.
 %Lifting the mouse button goes to Edit/SelectingClip mode.
-setappdata(hAxis, 'mode', 'editingGE');
-setappdata(hAxis, 'clipToggles', {});
-contourV = getappdata(hAxis, 'contourV');
+global stateS
+stateS.contouringMetaDataS.mode = 'editingGE';
+stateS.contouringMetaDataS.clipToggles = {};
+contourV = stateS.contouringMetaDataS.contourV;
 segment = contourV{segmentNum};
 contourV{segmentNum} = [];
-setappdata(hAxis, 'contourV', contourV);
-setappdata(hAxis, 'segment', segment);
-setappdata(hAxis, 'editNum', segmentNum);
+stateS.contouringMetaDataS.contourV = contourV;
+stateS.contouringMetaDataS.segment = segment;
+stateS.contouringMetaDataS.editNum = segmentNum;
 %         drawContourV(hAxis);
 %         drawSegment(hAxis);  %Considering brining these back, changes
 %         color dynamically.
 
 function noneMode(hAxis)
 % 	%Set noneMode
-setappdata(hAxis, 'mode', 'none');
-setappdata(hAxis,'ccMode',[])
+global stateS
+stateS.contouringMetaDataS.mode = 'none';
+stateS.contouringMetaDataS.ccMode = [];
 drawContourV(hAxis);
 drawContourV2(hAxis);
 drawSegment(hAxis);
-hContour = getappdata(hAxis, 'hContour');
+hContour = stateS.contouringMetaDataS.hContour;
 set(hContour, 'hittest', 'on');
 clearUndoInfo(hAxis);
-hBall = getappdata(hAxis, 'hBall');
-if ishandle(hBall)
-    delete(hBall)
-    setappdata(hAxis, 'hBall',[]);
+if isfield(stateS.contouringMetaDataS,'hBall')
+    hBall = stateS.contouringMetaDataS.hBall;
+    if ishandle(hBall)
+        delete(hBall)
+        stateS.contouringMetaDataS.hBall = [];
+    end
 end
 
 function threshMode(hAxis) % old function, replaced by thresholdMode
 %Set threshMode
-contourV = getappdata(hAxis, 'contourV');
-segment = getappdata(hAxis, 'segment');
-setappdata(hAxis, 'segment', []);
+global stateS
+contourV = stateS.contouringMetaDataS.contourV;
+segment = stateS.contouringMetaDataS.segment;
+stateS.contouringMetaDataS.segment = [];
 if ~isempty(segment)
-    editNum = getappdata(hAxis, 'editNum');
+    editNum = stateS.contouringMetaDataS.editNum;
     contourV{editNum} = segment;
-    setappdata(hAxis, 'contourV', contourV);
+    stateS.contouringMetaDataS.contourV = contourV;
 end
-setappdata(hAxis, 'mode', 'thresh');
+stateS.contouringMetaDataS.mode = 'thresh';
 editNum = length(contourV) + 1;
-setappdata(hAxis, 'editNum', editNum);
+stateS.contouringMetaDataS.editNum = editNum;
 hContour = getappdata(hAxis, 'hContour');
+hContour = stateS.contouringMetaDataS.hContour;
 set(hContour, 'hittest', 'off');
 drawSegment(hAxis);
 drawContourV(hAxis);
 
 function thresholdMode(hAxis)
 %Set thresholdMode
-contourV = getappdata(hAxis, 'contourV');
-segment = getappdata(hAxis, 'segment');
-setappdata(hAxis, 'segment', []);
+global stateS
+contourV = stateS.contouringMetaDataS.contourV;
+segment = stateS.contouringMetaDataS.segment;
+stateS.contouringMetaDataS.segment = [];
 if ~isempty(segment)
-    editNum = getappdata(hAxis, 'editNum');
+    editNum = stateS.contouringMetaDataS.editNum;
     contourV{editNum} = segment;
-    setappdata(hAxis, 'contourV', contourV);
+    stateS.contouringMetaDataS.contourV = contourV;
 end
-setappdata(hAxis, 'mode', 'threshold');
+stateS.contouringMetaDataS.mode = 'threshold';
 editNum = 1;
-setappdata(hAxis, 'editNum', editNum);
-hContour = getappdata(hAxis, 'hContour');
+stateS.contouringMetaDataS.editNum = editNum;
+hContour = stateS.contouringMetaDataS.hContour;
 set(hContour, 'hittest', 'off');
 drawSegment(hAxis);
 drawContourV(hAxis);
@@ -959,7 +1008,7 @@ function cP = getFlexPos(hAxis,eraserFlag)
 global planC
 global stateS
 %Get current mask
-maskM = getappdata(hAxis, 'contourMask');
+maskM = stateS.contouringMetaDataS.contourMask;
 %Get current point
 cP = get(hAxis, 'currentPoint');
 scanSet = getAxisInfo(stateS.handle.CERRAxis(1),'scanSets');
@@ -974,12 +1023,12 @@ end
 %Set brush/erase mode
 if ~exist('eraserFlag','var')
 if sum(maskM(:))==0 || maskM(r,c)==1
-    setappdata(hAxis, 'eraseFlag',0);
+    stateS.contouringMetaDataS.eraseFlag = 0;
 else
-    setappdata(hAxis, 'eraseFlag',1);
+    stateS.contouringMetaDataS.eraseFlag = 1;
 end
 else
-   setappdata(hAxis, 'eraseFlag',eraserFlag); %Force brush(ctrl+b)/eraser(ctrl+e)
+   stateS.contouringMetaDataS.eraseFlag = eraserFlag;
 end
 
 
@@ -996,19 +1045,20 @@ end
 %CONTOURING FUNCTIONS
 function addPoint(hAxis, x, y)
 %Add a point to the existing segment, in axis coordinates.
-segment = getappdata(hAxis, 'segment');
+global stateS
+segment = stateS.contouringMetaDataS.segment;
 segment = [segment;[x y]];
-setappdata(hAxis, 'segment', segment);
+stateS.contouringMetaDataS.segment = segment;
+
 
 function addBallPoints(hAxis,xV,yV)
 
-global planC
+global planC stateS
 %indexS = planC{end};
 
 %Add a ball points to the existing segment, in axis coordinates.
-%segment = getappdata(hAxis, 'segment');
-contoursC = getappdata(hAxis, 'contourV');
-eraseFlag = getappdata(hAxis, 'eraseFlag');
+contoursC = stateS.contouringMetaDataS.contourV;
+eraseFlag = stateS.contouringMetaDataS.eraseFlag;
 if ~isempty(contoursC)
     %     numRows = planC{indexS.scan}(scanNum).scanInfo(sliceNum).sizeOfDimension1;
     %     numCols = planC{indexS.scan}(scanNum).scanInfo(sliceNum).sizeOfDimension2;
@@ -1031,12 +1081,12 @@ if ~isempty(contoursC)
     %
     %         segM = xor(segM, polyFill(numRows, numCols, segRowV, segColV));
     %     end
-    
-    sliceNum = getappdata(hAxis, 'ccSlice');
-    scanNum = getappdata(hAxis, 'ccScanSet');
-    segM = getappdata(hAxis,'contourMask');
-    numRows = getappdata(hAxis, 'numRows');
-    numCols = getappdata(hAxis, 'numCols');    
+    sliceNum = stateS.contouringMetaDataS.ccSlice;
+    scanNum = stateS.contouringMetaDataS.ccScanSet;
+    segM = stateS.contouringMetaDataS.contourMask;
+    numRows = stateS.contouringMetaDataS.numRows;
+    numCols = stateS.contouringMetaDataS.numCols;
+
     [rowV, colV] = xytom(xV, yV, sliceNum, planC,scanNum);
     rowV(rowV<1) = 1;
     colV(colV<1) = 1;
@@ -1048,7 +1098,7 @@ if ~isempty(contoursC)
     else
         maskM = double(~ballM & segM); % erase
     end
-    setappdata(hAxis, 'contourMask',maskM);
+    stateS.contouringMetaDataS.contourMask = maskM;
     % maskM = double(xor(segM & ballM, segM)); % erase        
     contourData = contourc(double(maskM), [.5 .5]);
     len = size(contourData,2);
@@ -1067,14 +1117,13 @@ if ~isempty(contoursC)
         newContoursC{end+1} = [xSegV(:) ySegV(:)];
         currPt = numPoints + currPt + 1;
     end
-    setappdata(hAxis, 'contourV', newContoursC)
-    
+    stateS.contouringMetaDataS.contourV = newContoursC;
+
 else
     if ~eraseFlag
-        %setappdata(hAxis, 'segment', [xV(:) yV(:)]);
-        setappdata(hAxis, 'contourV', {[xV(:) yV(:)]});
+        stateS.contouringMetaDataS.contourV = {[xV(:) yV(:)]};
     else
-        setappdata(hAxis, 'contourV', {});
+        stateS.contouringMetaDataS.contourV = {};
     end
 end
 %segment = [segment;[x y]];
@@ -1083,63 +1132,72 @@ end
 
 function closeSegment(hAxis)
 %Close the current segment by linking the first and last points.
-segment = getappdata(hAxis, 'segment');
+global stateS
+segment = stateS.contouringMetaDataS.segment;
 if ~isempty(segment)
     firstPt = segment(1,:);
     segment = [segment;[firstPt]];
-    setappdata(hAxis, 'segment', segment);
+    stateS.contouringMetaDataS.segment = segment;
 end
 
 function saveSegment(hAxis, segmentNum)
 %Save the current segment to the contourV, and exit drawmode.
-segment = getappdata(hAxis, 'segment');
+global stateS
+segment = stateS.contouringMetaDataS.segment;
 if ~isempty(segment)
-    contourV = getappdata(hAxis, 'contourV');
+    contourV = stateS.contouringMetaDataS.contourV;
     contourV{segmentNum} = segment;
-    setappdata(hAxis, 'contourV', contourV);
+    stateS.contouringMetaDataS.contourV = contourV;
     drawContour('setContourMask', hAxis, contourV);
-    setappdata(hAxis, 'segment', []);    
+    stateS.contouringMetaDataS.segment = [];
+
 end
 
 function delSegment(hAxis)
 %Delete the segment being edited.
-setappdata(hAxis, 'segment', []);
+global stateS
+stateS.contouringMetaDataS.segment = [];
 drawAll(hAxis);
 
 function delAllSegments(hAxis)
-setappdata(hAxis, 'contourV', {});
-setappdata(hAxis, 'segment', []);
-maskM = getappdata(hAxis, 'contourMask');
-setappdata(hAxis, 'contourMask',0*maskM);
-hContour = getappdata(hAxis,'hContour');
+global stateS
+stateS.contouringMetaDataS.contourV = {};
+stateS.contouringMetaDataS.segment = [];
+maskM = stateS.contouringMetaDataS.contourMask;
+stateS.contouringMetaDataS.contourMask = 0*maskM;
+hContour = stateS.contouringMetaDataS.hContour;
 toDelV = ishandle(hContour);
 delete(hContour(toDelV))
-setappdata(hAxis, 'editNum', 1);
+stateS.contouringMetaDataS.editNum = 1;
+
 % Update the ccContours
-ccContours = getappdata(hAxis, 'ccContours');
-ccSlice = getappdata(hAxis, 'ccSlice');
-ccStruct = getappdata(hAxis, 'ccStruct');
+ccContours = stateS.contouringMetaDataS.ccContours;
+ccSlice = stateS.contouringMetaDataS.ccSlice;
+ccStruct = stateS.contouringMetaDataS.ccStruct;
+
 if isempty(ccStruct)
     warning('contour name not initialized');
     return
 end
 ccContours{ccStruct, ccSlice} = {};
-setappdata(hAxis, 'ccContours', ccContours);
+stateS.contouringMetaDataS.ccContours = ccContours;
 drawAll(hAxis);
 
 
 %CLIPOUT FUNCTIONS
 function addClipPoint(hAxis, x, y)
 %Add a point to the existing clipout line, in axis coordinates.
-clip = getappdata(hAxis, 'clip');
+global stateS
+clip = stateS.contouringMetaDataS.clip;
 clip = [clip;[x y]];
-setappdata(hAxis, 'clip', clip);
+stateS.contouringMetaDataS.clip = clip;
 
 function connectClip(hAxis)
 %Connect the drawn clip to the existing segment, generating 3
 %combinations of clip and old segment.
-clip = getappdata(hAxis, 'clip');
-segment = getappdata(hAxis, 'segment');
+global stateS
+clip = stateS.contouringMetaDataS.clip;
+segment = stateS.contouringMetaDataS.segment;
 if ~isempty(segment)
     startCoord = clip(1,:);
     endCoord = clip(end,:);
@@ -1148,7 +1206,7 @@ if ~isempty(segment)
     %             if ~isequal(startPt, endPt)
     part1 = segment(min(startPt, endPt):max(startPt, endPt), :);
     part2 = [segment(max(startPt, endPt):end,:);segment(1:min(startPt, endPt),:)];
-    setappdata(hAxis, 'clipnum', 2); %mod...
+    stateS.contouringMetaDataS.clipnum = 2;
     if startPt > endPt
         clipToggles{1} = [clip;part1;clip(1,:)];
         clipToggles{2} = [clip;flipud(part2);clip(1,:)];
@@ -1179,30 +1237,38 @@ if ~isempty(segment)
         clipToggles{2} = tmp;
     end
 
+    
+    stateS.contouringMetaDataS.clipToggles = clipToggles;
 
-    setappdata(hAxis, 'clipToggles', clipToggles);
 else
     return;
 end
 
 function toggleClips(hAxis)
 %Toggle between outcome clips.
-clipNum = getappdata(hAxis, 'clipnum');
+global stateS
+clipNum = stateS.contouringMetaDataS.clipnum;
 clipNum = mod(clipNum + 1,3);
-setappdata(hAxis, 'clipnum', clipNum);
-clipToggles = getappdata(hAxis, 'clipToggles');
+stateS.contouringMetaDataS.clipnum = clipnum;
+clipToggles = stateS.contouringMetaDataS.clipToggles;
+segment = stateS.contouringMetaDataS.segment;
 clip = clipToggles{clipNum + 1};
-setappdata(hAxis, 'segment', clip);
+stateS.contouringMetaDataS.segment = clip;
+
 
 %DRAWING FUNCTIONS
 function drawContourV(hAxis) %%Maybe set line hittest here?? based on mode??
 %Redraw the contour associated with hAxis.
-hContour = getappdata(hAxis, 'hContour');
+global stateS
+if isfield(stateS.contouringMetaDataS,'hContour')
+hContour = stateS.contouringMetaDataS.hContour;
 toDelete = ishandle(hContour);
 delete(hContour(toDelete));
+end
 hContour = [];
 
-contourV = getappdata(hAxis, 'contourV');
+contourV = stateS.contouringMetaDataS.contourV;
+
 if ~isempty(contourV)
     for i = 1:length(contourV)
         segment = contourV{i};
@@ -1218,19 +1284,25 @@ if ~isempty(contourV)
 %                 'EdgeColor', 'blue', 'LineWidth', 1.5, 'parent', hAxis)];
         end
     end
-    setappdata(hAxis, 'hContour', hContour);
+    stateS.contouringMetaDataS.hContour = hContour;
+
 else
-    setappdata(hAxis, 'hContour', []);
+    stateS.contouringMetaDataS.hContour = [];
+
 end
 
 function drawContourV2(hAxis) %%Maybe set line hittest here?? based on mode??
 %Redraw the contour associated with hAxis.
-hContour2 = getappdata(hAxis, 'hContour2');
+global stateS
+
+if isfield(stateS.contouringMetaDataS,'hContour2')
+hContour2 = stateS.contouringMetaDataS.hContour2;
 toDelete = ishandle(hContour2);
 delete(hContour2(toDelete));
+end
 hContour2 = [];
 
-contourV2 = getappdata(hAxis, 'contourV2');
+contourV2 = stateS.contouringMetaDataS.contourV2;
 if ~isempty(contourV2)
     for i = 1:length(contourV2)
         segment = contourV2{i};
@@ -1238,21 +1310,29 @@ if ~isempty(contourV2)
             hContour2 = [hContour2, line(segment(:,1), segment(:,2), 'color', 'green', 'linewidth', 1.5, 'hittest', 'off', 'erasemode', 'normal', 'userdata', {2,i}, 'ButtonDownFcn', 'drawContour(''contourClicked'')', 'parent', hAxis)];
         end
     end
-    setappdata(hAxis, 'hContour2', hContour2);
+    stateS.contouringMetaDataS.hContour2 = hContour2;
+    
 else
-    setappdata(hAxis, 'hContour2', []);
+    stateS.contouringMetaDataS.hContour2 = [];
+
 end
 
 function drawSegment(hAxis)
 %Redraw the current segment associated with hAxis
-hSegment = getappdata(hAxis, 'hSegment');
-mode = getappdata(hAxis, 'mode');
+global stateS
+hSegment = stateS.contouringMetaDataS.hSegment;
+mode = stateS.contouringMetaDataS.mode;
 %try
 %    delete(hSegment);
 %end
 %hSegment = [];
 
-segment = getappdata(hAxis, 'segment');
+if isfield(stateS.contouringMetaDataS,'segment')
+    segment = stateS.contouringMetaDataS.segment;
+else
+    segment = [];
+end
+
 if ~isempty(segment) && (strcmpi(mode, 'drawing') || strcmpi(mode, 'draw'))
     %hSegment = line(segment(:,1), segment(:,2), 'color', 'red', 'hittest', 'off', 'parent', hAxis, 'ButtonDownFcn', 'drawContour(''contourClicked'')');
     %setappdata(hAxis, 'hSegment', hSegment);
@@ -1270,22 +1350,31 @@ end
 
 function drawClip(hAxis)
 %Redraw the current clipout segment associated with hAxis.
-hClip = getappdata(hAxis, 'hClip');
-mode = getappdata(hAxis, 'mode');
-if ishandle(hClip)
-    delete(hClip);
+
+global stateS
+
+mode = stateS.contouringMetaDataS.mode;
+if isfield(stateS.contouringMetaDataS,'hClip')
+    hClip = stateS.contouringMetaDataS.hClip;
+    if ishandle(hClip)
+        delete(hClip);
+    end
 end
 hClip = [];
 
-clip = getappdata(hAxis, 'clip');
+%clip = getappdata(hAxis, 'clip');
+clip = stateS.contouringMetaDataS.clip; 
 if ~isempty(clip) && strcmpi(mode, 'editing')
     hClip = line(clip(:,1), clip(:,2), 'color', 'red', 'hittest', 'off', 'parent', hAxis);
-    setappdata(hAxis, 'hClip', hClip);
+    stateS.contouringMetaDataS.hClip = hClip;
+    
 elseif ~isempty(clip)
     hClip = line(clip(:,1), clip(:,2), 'color', 'red', 'hittest', 'off', 'parent', hAxis);
-    setappdata(hAxis, 'hClip', hClip);
+    stateS.contouringMetaDataS.hClip = hClip;
+    
 else
-    setappdata(hAxis, 'hClip', []);
+    stateS.contouringMetaDataS.hClip = [];
+
 end
 
 function drawAll(hAxis)
@@ -1312,10 +1401,10 @@ global stateS
 %     return;
 % end
 
-imgM = getappdata(hAxis, 'smoothImg');
-ContractionBias = getappdata(hAxis, 'ContractionBias');
-scanSet = getappdata(hAxis, 'ccScanSet');
-maskM = getappdata(hAxis, 'InitialMask');
+imgM = stateS.contouringMetaDataS.smoothImg; 
+ContractionBias = stateS.contouringMetaDataS.ContractionBias; 
+scanSet = stateS.contouringMetaDataS.ccScanSet; 
+maskM = stateS.contouringMetaDataS.InitialMask; 
 maskM = logical(maskM);
 % maskM = false(length(yV), length(xV));
 % delta = 2;
@@ -1346,9 +1435,10 @@ for seg = 1:length(contr.segments)
         contourV{seg} = contr.segments(seg).points;
     end
 end
-setappdata(hAxis, 'contourV', contourV);
-setappdata(hAxis, 'contourMask',segM);
-setappdata(hAxis, 'segment', segment);
+stateS.contouringMetaDataS.contourV = contourV;
+stateS.contouringMetaDataS.contourMask = segM;
+stateS.contouringMetaDataS.segment = segment;
+
 drawSegment(hAxis);
 
 
@@ -1396,9 +1486,10 @@ end
 
 % threshM = imgM >= threshV(minLevel) & imgM < threshV(maxLevel);
 
-imgM = getappdata(hAxis, 'smoothImg');
-ContractionBias = getappdata(hAxis, 'ContractionBias');
-maskM = getappdata(hAxis, 'InitialMask');
+imgM = stateS.contouringMetaDataS.smoothImg; 
+ContractionBias = stateS.contouringMetaDataS.ContractionBias; 
+scanSet = stateS.contouringMetaDataS.ccScanSet; 
+maskM = stateS.contouringMetaDataS.InitialMask; 
 % maskM = false(length(yV), length(xV));
 % delta = 2;
 % [rM,cM] = meshgrid(r-delta:r+delta,c-delta:c+delta);
@@ -1446,9 +1537,10 @@ for seg = 1:length(contr.segments)
         contourV{seg} = contr.segments(seg).points;
     end
 end
-setappdata(hAxis, 'contourV', contourV);
-setappdata(hAxis, 'contourMask',ROI);
-setappdata(hAxis, 'segment', segment);
+stateS.contouringMetaDataS.contourV = contourV;
+stateS.contouringMetaDataS.contourMask = ROI;
+stateS.contouringMetaDataS.segment = segment;
+
 drawSegment(hAxis);
 
 % sliceNum = getappdata(hAxis, 'ccSlice');
@@ -1486,26 +1578,32 @@ drawSegment(hAxis);
 %SEGMENT UNDO FUNCTIONS
 function saveUndoInfo(hAxis)
 %Save the current segment to the undo info list.
-segment  = getappdata(hAxis, 'segment');
-undoList = getappdata(hAxis, 'undoList');
+
+glovbal stateS
+segment = stateS.contouringMetaDataS.segment; 
+undoList = stateS.contouringMetaDataS.undoList; 
 if isempty(undoList)
     undoList = {};
 end
 undoList = {undoList{:} segment};
-setappdata(hAxis, 'undoList', undoList);
+stateS.contouringMetaDataS.undoList = undoList;
+
 
 function undoLast(hAxis)
 %Revert segment to before the last action.
-undoList = getappdata(hAxis, 'undoList');
+global stateS
+undoList = stateS.contouringMetaDataS.undoList; 
 if isempty(undoList)
     return;
 end
 segment = undoList{end};
 undoList(end) = [];
-setappdata(hAxis, 'segment', segment);
-setappdata(hAxis, 'undoList', undoList);
+stateS.contouringMetaDataS.segment = segment;
+stateS.contouringMetaDataS.undoList = undoList;
+
 
 function clearUndoInfo(hAxis)
 %Clears undo info, useful if beginning new segment, or leaving draw mode.
-setappdata(hAxis, 'undoList', []);
+global stateS
+stateS.contouringMetaDataS.undoList = [];
 
