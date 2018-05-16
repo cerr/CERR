@@ -747,6 +747,7 @@ saveDrawSlice(hAxis);
 function storeAllContours(hAxis)
 
 global planC
+global stateS
 
 indexS = planC{end};
 
