@@ -310,8 +310,7 @@ for i=1:length(axisInfo.scanObj)
         %% Overlay another scan in contouring mode
         overLayFlag = 0;
         if stateS.contourState
-            hFrame = stateS.handle.controlFrame;
-            ud = get(hFrame, 'userdata');
+            ud = stateS.handle.controlFrameUd ;
             overlayScanNum = get(ud.handles.overlayChoices,'value');
             contourScan = getAxisInfo(stateS.handle.CERRAxis(stateS.contourAxis),'scanSets');
             if overlayScanNum ~= contourScan

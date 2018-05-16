@@ -314,8 +314,7 @@ switch lower(varargin{1})
 
     case 'up'
         
-        hFrame = stateS.handle.controlFrame;
-        ud = get(hFrame,'userdata');
+        ud = stateS.handle.controlFrameUd ;
         hObject = ud.handles.rotateButton;
         button_state = get(hObject,'Value');
         hFig    = get(hAxis, 'parent');
