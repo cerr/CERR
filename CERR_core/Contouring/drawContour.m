@@ -475,6 +475,7 @@ switch command
             %cP = get(hAxis, 'currentPoint');
             x = cP(1,1);
             y = cP(1,2);
+            hContourV = stateS.contouringMetaDataS.hContour;
             set(hContourV,'lineWidth',1.5)
             stateS.contouringMetaDataS.segmentSelected = 0;
             for i = 1:length(hContourV)
@@ -840,7 +841,7 @@ if ~isempty(segment)
     stateS.contouringMetaDataS.contourV = contourV;
 
 end
-APA: mode is set in contourControl.m
+%APA: mode is set in contourControl.m
 stateS.contouringMetaDataS.mode = 'drawBall';
 editNum = length(contourV) + 1;
 stateS.contouringMetaDataS.editNum = editNum;
