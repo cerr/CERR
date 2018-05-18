@@ -7,6 +7,8 @@ function dcmdirS = dcmdir_add(filename, dcmobj, dcmdirS)
 %
 %JRA 06/08/06
 %YWU 03/01/08 modified the dcmdir from cell based to structure base for tree view.
+% AI 05/18/18 Modified to test for both trigger time & acquistion time
+%             (where available) to distinguish temporal sequences.
 %
 %Usage:
 %   dcmdirS = dcmdir_add(filename, dcmobj)
@@ -147,8 +149,7 @@ if strcmpi(currentModality,'MR')
     mriBvalueTag2 = '00189087';
     mriBvalueTag3 = '0019100C';
     
-    %acqTimeTag = '00080032';
-    
+    acqTimeTag = '00080032';
     tempPosTag = '00200100'; %%AI 8/29/16 Added tempPosTag
     triggerTag = '00181060'; %%AI 10/14/16 Added trigger time tag
 end
@@ -187,8 +188,13 @@ for i=1:length(studyS.SERIES)
             %(For DCE MRI data. Trigger Time identifies individual, temporally resolved frames.)
             trigTime = studyS.MRI(i).info.getString(hex2dec(triggerTag));
             trigTimeSeries = mri.getString(hex2dec(triggerTag));
-            if strcmpi(trigTime,trigTimeSeries) || ...
-                    (isempty(trigTime) && isempty(trigTimeSeries))
+            acqTime = studyS.MRI(i).info.getString(hex2dec(acqTimeTag));
+            acqTimeSeries =  mri.getString(hex2dec(acqTimeTag));
+            temporalTest1 = strcmpi(trigTime,trigTimeSeries) || ...
+                (isempty(trigTime) && isempty(trigTimeSeries));
+            temporalTest2 = strcmpi(acqTime,acqTimeSeries) || ...
+                (isempty(acqTime) && isempty(acqTimeSeries));
+            if  temporalTest1 && temporalTest2
                 tempPosMatch = 1;
             else
                 tempPosMatch = 0;
