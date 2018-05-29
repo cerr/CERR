@@ -571,8 +571,14 @@ switch fieldname
     case 'assocScanUID'
         %wy, use the frame of reference UID to associate dose to scan.
         %dataS = char(dcmobj.getString(org.dcm4che2.data.Tag.FrameofReferenceUID));
-        dataS = dcm2ml_Element(dcmobj.get(hex2dec('00080018')));
-        
+%         dataS = dcm2ml_Element(dcmobj.get(hex2dec('00080018'))); % SOP instance UID
+        dataS = dcm2ml_Element(dcmobj.get(hex2dec('00200052'))); % Frame of Reference UID
+%         rtplanSeq = dcmobj.get(hex2dec('300C0002'));
+%         artpSeq = rtplanSeq.getDicomObject(0);
+%         rtplanML = dcm2ml_Object(artpSeq);
+%         refSOPClassUID = dcm2ml_Element(artpSeq.get(hex2dec('00081150')));
+%         refSOPInstanceUID = dcm2ml_Element(artpSeq.get(hex2dec('00081155')));
+
     case 'transM'
         %Implementation is unnecessary.
         
