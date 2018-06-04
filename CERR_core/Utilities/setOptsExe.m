@@ -52,7 +52,7 @@ if ~isempty(findstr(opt_str,'=')) && ~strcmp(opt_str(1),'%')
      opt_str = opt_str(1:ind1-1);
    end
    %parse the command
-   num = words(opt_str);
+   %num = words(opt_str);
    %Get the first wor
    firstW = word(opt_str,1);
    %Find the period:
