@@ -142,7 +142,7 @@ switch upper(instr)
         %Get options file
         if nargin == 1    %Default to the CERROptions.m file stored in the CERR directory
             pathStr = getCERRPath;
-            optName = [pathStr 'CERROptions.m'];
+            optName = [pathStr 'CERROptions.json'];
         elseif nargin == 2 & ischar(varargin{:})  %UI to get options file: 'CERRSliceViewer -f'
             if strcmp(lower(varargin{:}),'-f')
                 [fname, pathname] = uigetfile('*.m','Select options .m file');
