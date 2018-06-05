@@ -100,8 +100,8 @@ yAll = linspace(yStart,yEnd,6);
 
 i = find(stateS.handle.CERRAxis == hAxis);
 for j = 1:size(stateS.handle.CERRAxisTicks1,2)
-    set(stateS.handle.CERRAxisTicks1(i,j),'xData',[xAll(j) xAll(j)], 'yData', [yStart-dy*0.0025 yStart+dy*0.0025],'visible','on')
-    set(stateS.handle.CERRAxisTicks2(i,j),'xData',[xStart-dx*0.0025 xStart+dx*0.0025], 'yData', [yAll(j) yAll(j)],'visible','on')
+    set(stateS.handle.CERRAxisTicks1(i,j),'xData',[xAll(j) xAll(j)], 'yData', [yStart-dy*0.005 yStart+dy*0.005],'visible','on')
+    set(stateS.handle.CERRAxisTicks2(i,j),'xData',[xStart-dx*0.005 xStart+dx*0.005], 'yData', [yAll(j) yAll(j)],'visible','on')
 end
 
 set(stateS.handle.CERRAxisScale1(i),'xData',[xStart xEnd], 'yData', [yStart yStart],'visible','on')
