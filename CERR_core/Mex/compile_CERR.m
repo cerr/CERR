@@ -46,6 +46,7 @@ mkdir(fullfile(compiled_path,'bin'));
 mkdir(fullfile(compiled_path,'doc'));
 mkdir(fullfile(compiled_path,'pics'));
 copyfile(fullfile(CERR_path,'CERR_core','CERROptions.m'),compiled_path);
+copyfile(fullfile(CERR_path,'CERR_core','CERROptions.json'),compiled_path);
 
 % Fill-in the bin directory
 destin = fullfile(compiled_path,'bin');
