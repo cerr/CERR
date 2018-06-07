@@ -91,6 +91,8 @@ switch command
                 %Clear old controlFrame.
                 %delete(findobj('tag', 'controlFrameItem'));
                 
+                ud = stateS.handle.controlFrameUd; 
+
                 %Create subframes to separate controls into 3 sets.
                 ud.handles.subframe1 = uicontrol(hFig, 'style', 'frame', 'enable', 'inactive' , 'units', units, 'position', absPos([.05 .66 .9 .005], posFrame), 'string', 'Contouring', 'tag', 'controlFrameItem', 'horizontalAlignment', 'center', 'FontWeight', 'Bold');
                 ud.handles.subframe2 = uicontrol(hFig, 'style', 'frame', 'enable', 'inactive' , 'units', units, 'position', absPos([.05 .46 .9 .005], posFrame), 'string', 'Contouring', 'tag', 'controlFrameItem', 'horizontalAlignment', 'center', 'FontWeight', 'Bold');
@@ -803,7 +805,7 @@ switch command
                     'position', absPos([.55 .05 .35 .05], posFrame), 'string', 'Exit', 'tag', 'controlFrameItem',...
                     'callback', 'controlFrame(''colorbar'', ''cancel'')');
                 
-                ud = stateS.handle.controlFrameUd ;
+                stateS.handle.controlFrameUd = ud ;
                 
             case 'refresh'
                 ud = stateS.handle.controlFrameUd ;
