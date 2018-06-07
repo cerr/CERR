@@ -371,7 +371,7 @@ switch upper(instr)
         stateS.handle.aI(4) = aI;
                 
         % Waitbar to show Viewer loading progress
-        hWait = waitbar(0.02,'Starting Viewer...', 'WindowStyle', 'modal');
+        %hWait = waitbar(0.02,'Starting Viewer...', 'WindowStyle', 'modal');
         
         %Create in-axis labels for each axis.
         tickV = linspace(0.02,0.1,6);
@@ -421,7 +421,7 @@ switch upper(instr)
         % Create a pool of line objects to display contours
         numAxes = length(stateS.handle.CERRAxis);
         for axNum = 1:numAxes
-            waitbar(0.02+(axNum-1)/numAxes,hWait);
+            %waitbar(0.02+(axNum-1)/numAxes,hWait);
             aI = stateS.handle.aI(axNum);
             for i = 1:stateS.optS.linePoolSize
                 aI.lineHandlePool(1).lineV(i) = line(NaN, NaN, 'parent', stateS.handle.CERRAxis(axNum), 'linestyle', '-', 'hittest', 'off', 'visible', 'off');
@@ -432,7 +432,7 @@ switch upper(instr)
         end   
         
         %Close the waitbar
-        close(hWait)        
+        %close(hWait)        
         
         if stateS.MLVersion >= 8.4
             set(stateS.handle.CERRAxis,'ClippingStyle','rectangle')
