@@ -5,6 +5,12 @@ function scrollWheel(fig,stats)
 %
 % APA, 2/29/2016
 
+global stateS
+
+if ~stateS.planLoaded
+    return;
+end
+
 if stats.VerticalScrollCount > 0
     sliceCallBack('ChangeSlc','prevslice')
 else
