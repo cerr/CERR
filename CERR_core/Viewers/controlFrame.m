@@ -3356,7 +3356,7 @@ switch command
                 ud.annotation.scanNumsC = scanNumsC;
                 
                 ud.handles.hV = [];
-                ud = stateS.handle.controlFrameUd ;
+                stateS.handle.controlFrameUd = ud;
                 stateS.annotToggle = 1;
                 controlFrame('ANNOTATION','updateAnnotationList')
                 controlFrame('ANNOTATION','show',1)
@@ -3624,13 +3624,14 @@ baseCTLevel = stateS.scanStats.CTLevel.(scanUID);
 baseColormap = stateS.scanStats.Colormap.(scanUID);
 basePreset = stateS.scanStats.windowPresets.(scanUID);
 
-ud = get(stateS.handle.controlFrame, 'userdata');
+ud = stateS.handle.controlFrameUd;
 set(ud.handles.baseCTLevel,'string',baseCTLevel);
 set(ud.handles.baseCTWidth,'string', baseCTWidth);
 set(ud.handles.basePreset,'value',basePreset);
 stringC = get(ud.handles.basedisplayModeColor,'string');
 movCormpmapIndex = find(strcmpi(baseColormap,stringC));
 set(ud.handles.basedisplayModeColor,'value',movCormpmapIndex)
+stateS.handle.controlFrameUd = ud;
 
 function updateMovLevelWidthHandles()
 global stateS planC
@@ -3643,11 +3644,12 @@ movCTLevel = stateS.scanStats.CTLevel.(scanUID);
 movColormap = stateS.scanStats.Colormap.(scanUID);
 movPreset = stateS.scanStats.windowPresets.(scanUID);
 
-ud = get(stateS.handle.controlFrame, 'userdata');
+ud = stateS.handle.controlFrameUd;
 set(ud.handles.MovCTLevel,'string',movCTLevel);
 set(ud.handles.MovCTWidth,'string',movCTWidth);
 set(ud.handles.MovPresets,'value',movPreset);
 stringC = get(ud.handles.displayModeColor,'string');
 movCormpmapIndex = find(strcmpi(movColormap,stringC));
 set(ud.handles.displayModeColor,'value',movCormpmapIndex)
+stateS.handle.controlFrameUd = ud;
 
