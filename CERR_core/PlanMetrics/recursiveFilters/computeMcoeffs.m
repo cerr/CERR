@@ -1,5 +1,5 @@
-function coeffS = ComputeMCoefficients(coeffS,symmetric)
-% function coeffS = ComputeMCoefficients(coeffSsymmetric)
+function coeffS = computeMcoeffs(coeffS,symmetric)
+% function coeffS = computeMcoeffs(coeffS,symmetric)
 %
 % APA, 6/11/2018
 
