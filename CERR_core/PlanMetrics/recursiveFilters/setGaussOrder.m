@@ -43,21 +43,16 @@ switch derivativeOrder
         coeffS.N3 = coeffS.N3 * coeffS.across_scale_normalization / coeffS.alpha0;
         symmetric = true;
         coeffS = computeMcoeffs(coeffS,symmetric);
-        
-        % yFiltM = applyRecursGaussFilter(orig3M,coeffS,1);
-        % yFiltM = yFiltM + applyRecursGaussFilter(yFiltM,coeffS,2);
-        % %yFiltM = yFiltM + applyRecursGaussFilter(orig3M,coeffS,3);
-        % origFilt3M = yFiltM;
-        
+                
         
     case 'second'
         
-        
-        
-        
+       
         % Second order (Laplacian Of Gaussian)
-        m_Sigma = 1;
-        coeffS.across_scale_normalization = coeffS.sigma^2;
+        %coeffS.across_scale_normalization = coeffS.sigma^2;
+        coeffS.across_scale_normalization = 1.0;
+        
+        coeffS = computeDcoeffs(coeffS);
         
         coeffS.A1 = A1(1);
         coeffS.B1 = B1(1);
@@ -123,11 +118,7 @@ switch derivativeOrder
         
         symmetric = true;
         coeffS = computeMcoeffs(coeffS,symmetric);
-        
-        % yFiltM = applyRecursGaussFilter(origFilt3M,coeffS,1);
-        % yFiltM = yFiltM + applyRecursGaussFilter(origFilt3M,coeffS,2);
-        % %yFiltM = yFiltM + applyRecursGaussFilter(origFilt3M,coeffS,3);
-        
+                
 end
 
 
