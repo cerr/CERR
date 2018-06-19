@@ -13,19 +13,32 @@ log3M = double(log3M);
 % Recursive LOG filter
 sigma = 3;
 cerrLog3M = recursiveLOG(orig3M,sigma,infoS.PixelDimensions);
+
 figure, 
-subplot(1,3,1), imagesc(orig3M(:,:,13)), title('Original Image')
-subplot(1,3,2), imagesc(cerrLog3M(:,:,13)), title('CERR recursive LOG')
-subplot(1,3,3), imagesc(log3M(:,:,13)), title('ITK recursive LOG')
+slc = 13;
+subplot(1,3,1), imagesc(orig3M(:,:,slc)), title('Original Image')
+subplot(1,3,2), imagesc(cerrLog3M(:,:,slc)), title('CERR recursive LOG')
+subplot(1,3,3), imagesc(log3M(:,:,slc)), title('ITK recursive LOG')
 
 
 % Recursive Gaussian smoothing filter
-coeffS.sigmad = sigma / infoS.PixelDimensions(1);
 derivativeOrder = 'zero';
+sigma = 3;
+% y
+coeffS.sigmad = sigma / infoS.PixelDimensions(1);
 coeffS = setGaussOrder(coeffS,derivativeOrder);
 cerrGauss3M = applyRecursGaussFilter(orig3M,coeffS,1);
+% x
+coeffS.sigmad = sigma / infoS.PixelDimensions(2);
+coeffS = setGaussOrder(coeffS,derivativeOrder);
+cerrGauss3M = applyRecursGaussFilter(cerrGauss3M,coeffS,2);
+% z
+coeffS.sigmad = sigma / infoS.PixelDimensions(3);
+coeffS = setGaussOrder(coeffS,derivativeOrder);
+cerrGauss3M = applyRecursGaussFilter(cerrGauss3M,coeffS,3);
+
 figure, 
-subplot(1,3,1), imagesc(orig3M(:,:,13)), title('Original Image')
-subplot(1,3,2), imagesc(cerrGauss3M(:,:,13)), title('CERR recursive Gaussian')
-subplot(1,3,3), imagesc(gauss3M(:,:,13)), title('ITK recursive Gaussian')
+subplot(1,3,1), imagesc(orig3M(:,:,slc)), title('Original Image')
+subplot(1,3,2), imagesc(cerrGauss3M(:,:,slc)), title('CERR recursive Gaussian')
+subplot(1,3,3), imagesc(gauss3M(:,:,slc)), title('ITK recursive Gaussian')
 
