@@ -8,7 +8,7 @@ function log3M = recursiveLOG(img3M,sigma,PixelSizeV)
 % sizes along y, x and z dimensions. It must be in mm in order to match
 % DICOM/ITK.
 %
-% Example:
+% EXAMPLE:
 % sigma = 3; %mm
 % global planC
 % indexS = planC{end};
@@ -25,6 +25,11 @@ function log3M = recursiveLOG(img3M,sigma,PixelSizeV)
 % PixelSizeV = [dy, dx, dz]*10; % convert from cm to mm
 % log3M = recursiveLOG(scan3M,sigma,PixelSizeV);
 % 
+% REFERENCES:
+% 1. G Farnebäck, CF Westin, Improving Deriche-style recursive Gaussian filters,
+% Journal of Mathematical Imaging and Vision, 26(3):293-299, December 2006?
+% 2. https://itk.org/Doxygen/html/classitk_1_1LaplacianRecursiveGaussianImageFilter.html
+%
 % APA, 6/18/2018
 
 
