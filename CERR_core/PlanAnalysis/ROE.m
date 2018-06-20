@@ -16,6 +16,7 @@ function ROE(command,varargin)
 % AI , 11/24/17    Modified to display clinical criteria/limits
 % AI , 02/05/18    Added option to change no. fractions
 % AI , 03/27/18    Added option to switch between TCP/BED axes
+% AI,  06/14/18    Added TCP/BED readout, fixed bug with tooltip frxSiz display
 % -------------------------------------------------------------------------
 % Copyright 2010, Joseph O. Deasy, on behalf of the CERR development team.
 %
@@ -273,11 +274,15 @@ switch upper(command)
         
         %Get path to .json files
         optS = CERROptions; %NOTE: Define path to .json files for protocols, models & clinical criteria in CERROptions.m
-%         optS.ROEProtocolPath = 'yourpathtoprotocols';
-%         optS.ROEModelPath = 'yourpathtomodels';
-%         optS.ROECriteriaPath = 'yourpathtocriteria';
+%                  optS.ROEProtocolPath = 'yourpathtoprotocols';
+%                  optS.ROEModelPath = 'yourpathtomodels';
+%                  optS.ROECriteriaPath = 'yourpathtocriteria';
+        
+        protocolPath = optS.ROEProtocolPath;
+        modelPath = optS.ROEModelPath;
+        criteriaPath = optS.ROECriteriaPath;
 
- 
+
         % List available protocols for user selection
         [protocolListC,protocolIdx,ok] = listFiles(protocolPath,'Multiple');
         if ~ok
@@ -964,6 +969,7 @@ switch upper(command)
         hSlider.Visible = 'Off';
         ud.handle.modelsAxis(7)= hSlider;
         ud.scaleDisp = [];
+        ud.tcpDisp = [];
         set(hFig,'userdata',ud);
         
     case 'LIST_MODELS'
@@ -1586,12 +1592,19 @@ end
             for k = 1:numel(limitIdx)
                 lUd = hCrit(limitIdx(k)).UserData;
                 start = (k-1)*8 + 1;
+                
+                 if ud.scaleMode==1
+                    scDisp = ['Current fraction size: ',num2str(frxSize)];
+                    else
+                    scDisp = ['Current fraction no.: ',num2str(numFrx)];
+                 end
+                
                 txt(start : start+7) = { [' '],[num2str(k),'. Structure: ',lUd.structure],...
                     ['Protocol: ', pName],...
-                    ['Constraint: ', lUd.label],...
+                    ['Constraint type: ', lUd.label],...
                     ['Clinical limit: ', num2str(lUd.limit)],...
                     ['Current value: ', num2str(lUd.val)],...
-                    ['Current fraction size: ',num2str(lscale*frxSize)],...
+                    scDisp,...
                     ['Current ',yDisp,': ',num2str(yVal)]};
             end
         end
@@ -1610,12 +1623,17 @@ end
             for k = 1:numel(limitIdx)
                 lUd = hGuide(limitIdx(k)).UserData;
                 start = k0 + (k-1)*8 + 1;
+                if ud.scaleMode==1
+                    scDisp = ['Current fraction size: ',num2str(frxSize)];
+                else
+                    scDisp = ['Current fraction no.: ',num2str(numFrx)];
+                end
                 txt(start : start+7) = {[' '],[num2str(nCrit+k),'. Structure: ',lUd.structure],...
                     ['Protocol: ', pName],...
                     ['Constraint: ', lUd.label],...
                     ['Clinical guideline: ', num2str(lUd.limit)],...
                     ['Current value: ', num2str(lUd.val)],...
-                    ['Current fraction size: ',num2str(lscale*frxSize)],...
+                    scDisp,...
                     ['Current ',yDisp,': ',num2str(yVal)]};
             end
         end
@@ -1758,11 +1776,11 @@ end
         if isfield(ud,'yaxis') && ~isempty(ud.yaxis)
             yMode = ud.yaxis;
         else
-            yMode = 0; %Default: Plot vs. TCP
+            yMode = 0; %Default: Plot vs. TCP 
         end
         
         
-        if  currNode.getLevel==0 %Expand to list protocols
+        if  currNode.getLevel==0     %Expand to list protocols
             tree.expandRow(tree.getSelectionRows);
             
         elseif currNode.getLevel==1  %Expand protocol node to list models
@@ -1772,6 +1790,16 @@ end
             protListC = {protS.protocol};
             prtcNum = strcmp(currNode.getName,protListC);
             ud.PrtcNum = find(prtcNum);
+            
+            %Set yaxis mode(TCP/BED)
+            if ~isfield(ud,'yaxis') || ~isempty(ud.yaxis)
+                typeC = cellfun(@(x) x.type,protS.model,'un',0);
+                if any(strcmpi(typeC,'BED'))
+                ud.yaxis = 1; 
+                else
+                ud.yaxis = 0;
+                end
+            end
             
             %Get dose plan input
             planListC = {'Select dose plan',planC{indexS.dose}.fractionGroupID};
@@ -1798,6 +1826,9 @@ end
             
             %Expand protocol node to list models
             tree.expandRow(tree.getSelectionRows);
+            
+            %Get default parameters (from JSON files for models)
+            %getParams([],[]);
             
         else
             %Allow selection of structures & parameters for each model
@@ -1955,7 +1986,14 @@ end
         if isfield(ud,'scaleDisp')
             set(ud.scaleDisp,'String','');
         end
-        hScaleDisp = text(userScale,-.06,'','Parent',ud.handle.modelsAxis(2),...
+        if isfield(ud,'tcpDisp')
+            set(ud.tcpDisp,'String','');
+        end
+        hScaleDisp = text(userScale,-.06,'','Parent',ntcpPlotAxis,...
+            'FontSize',8,'Color',[.3 .3 .3]);
+        maxScale = get(ntcpPlotAxis,'xLim');
+        maxScale = maxScale(2);
+        hTCPdisp = text(maxScale,0,'','Parent',yPlotAxis,...
             'FontSize',8,'Color',[.3 .3 .3]);
         
         %Set color order
@@ -2044,7 +2082,9 @@ end
         end
         scaleVal = sprintf('%.3f',userScale);
         set(hScaleDisp,'String',scaleVal);
+        set(hTCPdisp,'Position',[maxScale,cpNew],'String',num2str(cpNew));
         ud.scaleDisp = hScaleDisp;
+        ud.tcpDisp = hTCPdisp;
         set(hFig,'userdata',ud);
         
     end
