@@ -139,24 +139,34 @@ switch upper(command)
             scanUID       = planC{indexS.texture}(textureNum).assocScanUID;
             scanNum       = getAssociatedScan(scanUID);
             structureUID  = planC{indexS.texture}(textureNum).assocStructUID;
-            structNum     = getAssociatedStr(structureUID);
+            if isempty(structureUID)
+                structNum = 0; %Entire scan
+            else
+                structNum     = getAssociatedStr(structureUID);
+            end
             category      = planC{indexS.texture}(textureNum).category;
             featC = get(ud.handles.featureType,'String');
             featureNum = find(strcmp(featC,category));
             set(ud.handles.texture, 'value',textureNum);
-            set(ud.handles.description,'string',texturesC{textureNum});
+            set(ud.handles.description,'string',texturesC{textureNum},'Enable','On');
         end
         
-        set(ud.handles.scan, 'value', scanNum);
-        set(ud.handles.structure, 'value', structNum + 1);
+        set(ud.handles.scan, 'value', scanNum,'Enable','On');
+        set(ud.handles.structure, 'value', structNum + 1,'Enable','On');
 
         
-        set(ud.handles.featureType,'value',featureNum);
+        set(ud.handles.featureType,'value',featureNum, 'Enable','On');
         scanTypeC = [{'Select texture'}, planC{indexS.scan}.scanType];
         set(ud.handles.selectTextureMapsForMIM,'string',scanTypeC,...
-            'value',1)        
+            'value',1)
         
         set(h, 'userdata', ud);
+        
+        if ~isempty(ud.currentTexture) && ud.currentTexture>0
+            textureGui('FEATURE_TYPE_SELECTED');
+        end
+        
+        
             
     case 'REFRESH'
         %Recreate and redraw the entire textureGui.
@@ -194,7 +204,8 @@ switch upper(command)
         % List of Structures
         nStructs  = length(planC{indexS.structures});
         structsC = cell(1,nStructs+1);
-        structsC{1} = 'None (entire scan)';
+        %structsC{1} = 'None (entire scan)'; 
+        structsC{1} = 'Entire scan';  %For radiomics paper
         for i = 1:nStructs
             structsC{i+1} = [num2str(i), '.', planC{indexS.structures}(i).structureName];
         end
@@ -432,9 +443,9 @@ switch upper(command)
                     'Discrete Meyer wavelet','Biorthogonal','Reverse Biorthogonal'},@getSubParameter};
                     dispC = {'On','On','On','Off'};
                 subTypeC = {{'Index','Wavelets'}};
-                    
+                
             case 'Gabor'
-                paramC ={'Radius','Sigma','AspectRatio','Orientation','Wavlength'};
+                paramC = {'Radius','Sigma','AspectRatio','Orientation','Wavlength'};
                 typeC = {'edit','edit','edit','edit','edit'};
                 valC = {3,.5,1,30,1};
                 dispC = {'On','On','On','On','On'};
@@ -477,7 +488,7 @@ switch upper(command)
                     val = num2str(val);
                 end
                 paramS = addParam(paramS,paramC{n},paramS.(paramC{n}).type,...
-                    val,paramS.(paramC{n}).disp,startPosV(2)-(n+1)*delPos,h);
+                val,paramS.(paramC{n}).disp,startPosV(2)-(n+1)*delPos,h);
             end
             end
         end
@@ -691,11 +702,12 @@ switch upper(command)
 
         mask3M = scan3M.^0;
         if ~(structNum==0)
-            mask3M = false(size(scan3M));
+            fullMask3M = false(size(scan3M));
             [rasterSegments, planC, isError] = getRasterSegments(structNum,planC);
-            [maskSl3M,uniqueSlicesV]  = rasterToMask(rasterSegments, scanNum, planC);
-            mask3M(:,:,uniqueSlicesV) = maskSl3M;
-            [~, maxr, minc, ~, ~, ~] = compute_boundingbox(mask3M);
+            [mask3M,uniqueSlicesV]  = rasterToMask(rasterSegments, scanNum, planC);
+            fullMask3M(:,:,uniqueSlicesV) = mask3M;
+            [minr, maxr, minc, maxc, ~, ~] = compute_boundingbox(fullMask3M);
+            scan3M =scan3M(:,:,uniqueSlicesV);
         else
             uniqueSlicesV = 1:size(scan3M,3);
             minc = 1;
@@ -741,9 +753,9 @@ switch upper(command)
         regParamsS.coord2OFFirstPoint   = planC{indexS.scan}(scanNum).scanInfo(1).yOffset;
         
         regParamsS.zValues  = zV;
-        regParamsS.sliceThickness = [planC{indexS.scan}(scanNum).scanInfo(uniqueSlicesV).sliceThickness];
+        regParamsS.sliceThickness =[planC{indexS.scan}(scanNum).scanInfo(uniqueSlicesV).sliceThickness];
+        
         assocTextureUID = planC{indexS.texture}(ud.currentTexture).textureUID;
-        %dose2CERR(entropy3M,[], 'entropy3voxls_Ins3_NI14','test','test','non CT',regParamsS,'no',assocScanUID)
        
         for n = 1:length(featuresC)
             planC = scan2CERR(outS.(featuresC{n}),featuresC{n},'Passed',regParamsS,assocTextureUID,planC);
@@ -1137,7 +1149,7 @@ function nBytes = getByteSize(data)
 infoStruct = whos('data');
 nBytes = infoStruct.bytes;
 
-function maxScan = drawThumb(hAxis, planC, index, hFigure,slcNum)
+function scanType = drawThumb(hAxis, planC, index, hFigure,slcNum)
 %"drawThumb"
 %In passed dose array, find slice with highest dose and draw in hAxis.
 %Also denote the index in the corner.  If compressed show compressed.
@@ -1145,18 +1157,17 @@ set(hFigure, 'CurrentAxes', hAxis);
 toDelete = get(hAxis, 'children');
 delete(toDelete);
 
-%Get the dose array and its compression state.
-[dA, isCompress, isRemote] = getScanArray(index, planC);
-
 bdf = get(hAxis, 'buttondownfcn');
 ud = get(hFigure,'userdata');
-%maxScan = arrayMax(dA);
+
+
+%Get the dose array and its compression state.
 indexS = planC{end};
-maxScan = planC{indexS.scan}(index).scanType;
-% 	maxLoc = find(dA == maxScan);
-% 	[r,c,s] = ind2sub(size(dA), maxLoc(1));
-% set the scan to median of z-values
-indexS = planC{end};
+[dA, isCompress, isRemote] = getScanArray(index, planC);
+offset = planC{indexS.scan}(index).scanInfo(1).CTOffset;
+dA = dA - offset;
+
+%Set the scan to median of z-values
 assocTex = planC{indexS.scan}(index).assocTextureUID;
 texIdx = strcmp(assocTex,{planC{indexS.texture}.textureUID});
 assocScanIdx = strcmp({planC{indexS.scan}.scanUID},planC{indexS.texture}(texIdx).assocScanUID);
@@ -1168,17 +1179,41 @@ else
     s = ceil(median(1:length(sV)));    
 end
 
-maxScan = strrep(maxScan,'_','\_'); %temp
-maxScan = [maxScan,' ',num2str(s),'/',num2str(length(sV))];
 
-
+%Create thumbnail
 strNum = ud.handles.structure.Value - 1;
+if strNum==0 %Entire scan
+firstROISlice = 1;    
+else
 rasterSegments = getRasterSegments(strNum, planC);
 firstROISlice = min(unique(rasterSegments(:,6)));
-thumbSlice = min(s(1),numel(sV))+ firstROISlice - 1;
+end
+thumbSlice = min(s,numel(sV));
+thumbSlice = thumbSlice + firstROISlice - 1;
 thumbSlice = max(1,thumbSlice);
+endSlice = numel(sV)+ firstROISlice - 1;
 thumbImage = dA(:,:,thumbSlice);
+thumbImage = imgaussfilt(thumbImage,2); %Display smoothed thumbnail
 imagesc(thumbImage, 'hittest', 'off', 'parent', hAxis);
+
+%Display scan name
+scanType = planC{indexS.scan}(index).scanType;
+scanType = strrep(scanType,'_','\_'); 
+scanType = [scanType,' ',num2str(thumbSlice),'/',num2str(endSlice)];
+
+%---for radiomics paper---
+% thumbSlice = 76;
+% thumbImage = dA(:,:,thumbSlice);
+% thumbImage = imgaussfilt(thumbImage,2); %smooth
+% thumbImage = thumbImage(120:410,80:410);
+% endSlice = numel(sV)+ firstROISlice - 1;
+% scanType = scanType(strfind(scanType,'_')+1:end);
+% % winCenterV = [ 0  -150 -25 -101.45  -106.132  -532.957 585.924 -325.482 31.0868];
+% % winWidthV =  [ 0 1350  3669  1446.92  1337.77  2643.11  1969.69 4531.86  1122.75];
+% %iMin = winCenterV(index) - winWidthV(index)/2;
+% %iMax = winCenterV(index) + winWidthV(index)/2;
+% imagesc(hAxis,thumbImage,'Parent',hAxis,'hittest', 'off');
+%-------------------------
 
 set(hAxis, 'ytick',[],'xtick',[]);
 
@@ -1195,7 +1230,12 @@ xLim = get(hAxis, 'xlim');
 yLim = get(hAxis, 'ylim');
 x = (xLim(2) - xLim(1)) * .05 + xLim(1);
 y = (yLim(2) - yLim(1)) * .15 + yLim(1);
-text(x, y, maxScan, 'fontsize', 8, 'color', 'k', 'hittest', 'off', 'parent', hAxis);
+text(x, y, scanType, 'fontsize', 9, 'color', 'k', 'hittest', 'off', 'parent', hAxis);
+
+%--- For radiomics paper---
+% text(x, y, scanType, 'fontsize', 11, 'fontweight', 'bold', 'color', 'k', 'hittest', 'off', 'parent', hAxis);
+%--------------------------
+
 set(hAxis, 'buttondownfcn', bdf);
 axis(hAxis,'ij');
 drawnow;
