@@ -1,9 +1,9 @@
 function log3M = recursiveLOG(img3M,sigma,PixelSizeV)
-% function logY3M = recursiveLOG(img3M,sigma,PixelSizeV)
+% function log3M = recursiveLOG(img3M,sigma,PixelSizeV)
 %
 % INPUTS:
 % img3M: 3d Image
-% sigma: Gaussian smoothing width.
+% sigma: Gaussian smoothing width in physical units (mm).
 % PixelSizeV: Physical size of the image pixel. 3-element vector containing
 % sizes along y, x and z dimensions. It must be in mm in order to match
 % DICOM/ITK.
