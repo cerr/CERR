@@ -1,0 +1,47 @@
+# This is a non-active comment on a separate line
+imageType:
+    Original: {}
+    LoG: {'sigma' : [1.0, 3.0]}  # This is a non active comment on a line with active code preceding it.
+    Wavelet:
+        binWidth: 10
+
+customImageType:
+    myFilter1: 
+	{
+	LOG:'{'sigma' : [1.0, 3.0]},
+        Wavelet: { binWidth: 10}
+	}
+
+
+
+structureName: ['GTV','Eso']
+
+featureClass:
+myFilter2: {
+    glrlm: []
+
+setting:
+    binWidth: 25
+    resampledPixelSpacing:
+    xAbsForVxV: [-140,-120,....]
+    haralick:{'cooccurType:['Comb'], 'Direction':['2d','3d']}
+    runLength:{'cooccurType:['Comb'], 'Direction':['2d','3d']}
+}
+
+orignial: {    
+    firstorder: 'Mean',
+    shape:
+        - Volume
+        - SurfaceArea
+    IVH: 
+
+    haralick:
+    runLength
+    SizeZone
+    NGLDM
+    NGTDM
+}
+
+
+
+}
