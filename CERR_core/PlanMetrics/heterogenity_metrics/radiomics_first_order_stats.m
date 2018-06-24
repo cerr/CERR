@@ -90,11 +90,15 @@ end
 % edgeMin = xmin - rem(xmin,binwidth);
 edgeMin = 0; % to match pyradiomics definition
 xmax = max(Iarray) + offsetForEnergy;
-edgemax = xmax + rem(xmax,binWidth);
+if abs(rem(xmax,binWidth)) > 0
+    edgemax = xmax + binWidth;
+else
+    edgemax = xmax;
+end
 edgeV = edgeMin:binWidth:edgemax;
-quantizedV = discretize(Iarray+offsetForEnergy,edgeV) + eps;
-quantizedV = quantizedV / sum(quantizedV);
-RadiomicsFirstOrderS.entropy = sum(quantizedV .* log2(quantizedV));
+quantizedV = histcounts(Iarray+offsetForEnergy,edgeV) + eps;
+quantizedV = quantizedV / numel(Iarray);
+RadiomicsFirstOrderS.entropy = - sum(quantizedV .* log2(quantizedV));
 
 %   Root mean square (RMS)
 RadiomicsFirstOrderS.rms           = sqrt(sum((Iarray+offsetForEnergy).^2)/length(Iarray));
