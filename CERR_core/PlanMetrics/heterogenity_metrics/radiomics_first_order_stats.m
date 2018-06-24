@@ -83,15 +83,15 @@ RadiomicsFirstOrderS.kurtosis      = kurtosis(Iarray) - 3;
 % heterogeniteit?
 
 % Entropy
-if ~exist('numBins','var')
-    binwidth = 25;
+if ~exist('binWidth','var')
+    binWidth = 25;
 end
 % xmin = min(Iarray) + offsetForEnergy;
 % edgeMin = xmin - rem(xmin,binwidth);
 edgeMin = 0; % to match pyradiomics definition
 xmax = max(Iarray) + offsetForEnergy;
-edgemax = xmax + rem(xmax,binwidth);
-edgeV = edgeMin:binwidth:edgemax;
+edgemax = xmax + rem(xmax,binWidth);
+edgeV = edgeMin:binWidth:edgemax;
 quantizedV = discretize(Iarray+offsetForEnergy,edgeV) + eps;
 quantizedV = quantizedV / sum(quantizedV);
 RadiomicsFirstOrderS.entropy = sum(quantizedV .* log2(quantizedV));
