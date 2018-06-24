@@ -156,6 +156,6 @@ end
 % Run Entropy
 if flagS.re
     runSum = sum(rlmM(:));
-    featureS.re = -sum(rlmM/runSum .* log2(rlmM/runSum + eps));
+    featureS.re = -sum(rlmM(:)/runSum .* log2(rlmM(:)/runSum + eps));
 end
 
