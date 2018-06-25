@@ -39,7 +39,7 @@ function teststruct = PyradWrapper(scanM, maskM, preprocessingFilter)
     %pass path of mask and scan here
     
     try         
-     pyradiomicsDict = py.pyFeatureExtraction.extract(scanFilename, maskFilename, paramFilePath, testFilter);              
+     pyradiomicsDict = py.pyFeatureExtraction.extract(scanFilename, maskFilename, paramFilePath, testFilter, tempdir);              
      teststruct = struct(pyradiomicsDict);          
     catch
         disp('error calculating features in pyradiomics')
