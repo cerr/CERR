@@ -290,9 +290,9 @@ end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-scanIndV   = setdiff(scanIndV,scansWithSameUID);
-doseIndV   = setdiff(doseIndV,dosesWithSameUID);
-structIndV = setdiff(structIndV,structsWithSameUID);
+scanIndV   = setdiff(scanIndV,find(scansWithSameUID));
+doseIndV   = setdiff(doseIndV,find(dosesWithSameUID));
+structIndV = setdiff(structIndV,find(structsWithSameUID));
 
 %Remove structures from planD's uniformized data if they aren't being imported.
 toDelete = setdiff(1:length(structs), [structIndV]);
