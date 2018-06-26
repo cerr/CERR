@@ -41,7 +41,7 @@ if numel(structNum) == 1
 else
     scan3M = structNum;
     mask3M = ~isnan(structNum);
-    ctOffset = min(0,min(scan3M(mask3M)));
+    ctOffset = 0; % assume that the input scan3M is already offset.
 end
 
 % Change datatype to 32-bit float
@@ -51,7 +51,7 @@ numVoxels = sum(mask3M(:));
 
 % Statistics Energy
 %statsFeatureS = radiomics_first_order_stats(scan3M(mask3M));
-statsFeatureS = radiomics_first_order_stats(planC,structNum,ctOffset);
+statsFeatureS = radiomics_first_order_stats(planC,structNum,ctOffset,binwidth);
 featureS.statsEnergy = statsFeatureS.totalEnergy;
 
 % Shape Compactnes
@@ -78,8 +78,8 @@ numGrLevels = max(quantizedM(:));
 
 % Run-length features
 fieldsC = {'sre','lre','gln','glnNorm','rln','rlnNorm','rp','lglre',...
-    'hglre','srlgle','srhgle','lrlgle','lrhgle','glv','rlv'};
-valsC = {0,0,1,0,0,0,0,0,0,0,0,0,0,0,0};
+    'hglre','srlgle','srhgle','lrlgle','lrhgle','glv','rlv','re'};
+valsC = {0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0};
 rlmFlagS = cell2struct(valsC,fieldsC,2);
 
 % Original image
