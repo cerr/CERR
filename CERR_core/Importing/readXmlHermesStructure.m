@@ -5,7 +5,7 @@ function planC = readXmlHermesStructure(maskFileName,structName,planC)
 
 % maskFileName = 'L:\Data\TCIA_Breast\Ivan\TCGA-AO-A03V\TCGAAOA03VTCGAAO_196070.xml';
 
-if ~exist(planC','var')
+if ~exist('planC','var')
     global planC
 end
 indexS = planC{end};
@@ -53,7 +53,10 @@ switch upper(patPos)
 end
 
 % Convert to physical coordinates
-[xAAPM, yAAPM] = mtoaapm(yV, xV, sizV(1:2), gridUnitsV, [0 0]);
+xOff = planC{indexS.scan}(scanNum).scanInfo(1).xOffset;
+yOff = planC{indexS.scan}(scanNum).scanInfo(1).yOffset;
+offV = [yOff xOff];
+[xAAPM, yAAPM] = mtoaapm(yV, xV, sizV(1:2), gridUnitsV, offV);
 
 % Create CERR structure
 [~,~,zScanV] = getScanXYZVals(planC{indexS.scan}(1));
