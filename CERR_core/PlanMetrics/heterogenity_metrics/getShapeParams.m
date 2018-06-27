@@ -43,6 +43,28 @@ else
     %volume = planC{4};
 end
 
+% Check if it's a coplanar structure
+if length(zValsV) < 2
+    shapeS.majorAxis = NaN;
+    shapeS.minorAxis = NaN;
+    shapeS.leastAxis = NaN;
+    shapeS.flatness = NaN;
+    shapeS.elongation = NaN;
+    shapeS.max3dDiameter = NaN;
+    shapeS.max2dDiameterAxialPlane = NaN;
+    shapeS.max2dDiameterSagittalPlane = NaN;
+    shapeS.max2dDiameterCoronalPlane = NaN;
+    shapeS.surfArea = NaN;
+    shapeS.volume = NaN;
+    shapeS.filledVolume = NaN;
+    shapeS.Compactness1 = NaN;
+    shapeS.Compactness2 = NaN;
+    shapeS.spherDisprop = NaN;
+    shapeS.sphericity = NaN;
+    shapeS.surfToVolRatio = NaN;    
+    return;
+end
+
 % Get voxel size
 voxelSiz(1) = abs(yValsV(2) - yValsV(1));
 voxelSiz(2) = abs(xValsV(2) - xValsV(1));
@@ -161,6 +183,15 @@ end
 
 % Check if it's a coplanar structure
 if (length(unique(zSurfV)) < 2 || length(zSurfV)<4)
+    shapeS.majorAxis = NaN;
+    shapeS.minorAxis = NaN;
+    shapeS.leastAxis = NaN;
+    shapeS.flatness = NaN;
+    shapeS.elongation = NaN;
+    shapeS.max3dDiameter = NaN;
+    shapeS.max2dDiameterAxialPlane = NaN;
+    shapeS.max2dDiameterSagittalPlane = NaN;
+    shapeS.max2dDiameterCoronalPlane = NaN;
     shapeS.surfArea = NaN;
     shapeS.volume = NaN;
     shapeS.filledVolume = NaN;
@@ -168,7 +199,7 @@ if (length(unique(zSurfV)) < 2 || length(zSurfV)<4)
     shapeS.Compactness2 = NaN;
     shapeS.spherDisprop = NaN;
     shapeS.sphericity = NaN;
-    shapeS.surfToVolRatio = NaN;
+    shapeS.surfToVolRatio = NaN;    
     return;
 end
 
