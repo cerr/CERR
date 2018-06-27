@@ -12,12 +12,16 @@ function q = imquantize_cerr(x,nL,xmin,xmax,binwidth)
 %
 % APA, 2/26/2018
 
-if ~exist('xmin','var') || exist('xmin','var') && isempty(xmin)
-    xmax=max(x(:));
-    xmin=min(x(:));
-else
+if exist('xmin','var') && ~isempty(xmin)
     x(x<xmin) = xmin;
+else
+    xmin = min(x(:));
+end
+
+if exist('xmax','var') && ~isempty(xmax)
     x(x>xmax) = xmax;
+else
+    xmax = max(x(:));
 end
 
 if ~isempty(nL)
