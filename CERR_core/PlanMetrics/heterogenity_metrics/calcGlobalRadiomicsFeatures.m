@@ -31,15 +31,30 @@ if prod(siz) == 1
     
     % Assign NaN to image outside mask
     volToEval = SUVvals3M(minr:maxr,minc:maxc,mins:maxs);
-    volToEval(~maskBoundingBox3M) = NaN;
+    volToEval(~maskBoundingBox3M) = NaN;    
+    
+    % Ignore voxels below and above cutoffs, if defined
+    minIntensityCutoff = paramS.higherOrderParamS.minIntensityCutoff;
+    maxIntensityCutoff = paramS.higherOrderParamS.maxIntensityCutoff;
+    if ~isempty(minIntensityCutoff)
+        maskBoundingBox3M(volToEval < minIntensityCutoff) = 0;
+    end
+    if ~isempty(maxIntensityCutoff)
+        maskBoundingBox3M(volToEval > maxIntensityCutoff) = 0;
+    end
     
     % Get x,y,z grid for the shape features (flip y to make it monotically
     % increasing)
     [xValsV, yValsV, zValsV] = getUniformScanXYZVals(planC{indexS.scan}(scanNum));
+    PixelSpacingX = abs(xValsV(1) - xValsV(2));
+    PixelSpacingY = abs(yValsV(1) - yValsV(2));
+    PixelSpacingZ = abs(zValsV(1) - zValsV(2));
+    
     yValsV = fliplr(yValsV);
     xValsV = xValsV(minc:maxc);
     yValsV = yValsV(minr:maxr);
     zValsV = zValsV(mins:maxs);
+        
     % Voxel volume for Total Energy calculation
     VoxelVol = PixelSpacingX*PixelSpacingY*PixelSpacingZ*1000; % convert cm to mm
     
@@ -54,12 +69,17 @@ if paramS.toQuantizeFlag == 1
     numGrLevels = paramS.higherOrderParamS.numGrLevels;
     minIntensity = paramS.higherOrderParamS.minIntensity;
     maxIntensity = paramS.higherOrderParamS.maxIntensity;
+    binwidth = paramS.higherOrderParamS.binwidth;
     %minIntensity = min(volToEval(:));
     %maxIntensity = max(volToEval(:));
     %numGrLevels = ceil((maxIntensity - minIntensity)/25);
     paramS.higherOrderParamS.numGrLevels = numGrLevels;
     quantizedM = imquantize_cerr(volToEval,numGrLevels,...
-        minIntensity,maxIntensity);
+        minIntensity,maxIntensity,binwidth);    
+    % Reassign the number of gray levels
+    numGrLevels = max(quantizedM(:));
+    paramS.higherOrderParamS.numGrLevels = numGrLevels;
+    
 else
     quantizedM = volToEval;
 end
@@ -235,7 +255,7 @@ end
 if whichFeatS.firstOrder
     featureS.firstOrderS = radiomics_first_order_stats...
         (volToEval(logical(maskBoundingBox3M)), VoxelVol,...
-        paramS.firstOrderParamS.offsetForEnergy);    
+        paramS.firstOrderParamS.offsetForEnergy,paramS.firstOrderParamS.binWidthEntropy);    
 end
 if whichFeatS.peakValley
     radiusV = paramS.peakValleyParamS.peakRadius;
@@ -472,4 +492,5 @@ rlmFlagS.lrlgle = 1;
 rlmFlagS.lrhgle = 1;
 rlmFlagS.glv = 1;
 rlmFlagS.rlv = 1;
+rlmFlagS.re = 1;
 end
