@@ -22,14 +22,23 @@
 % 
 % testM = imquantize_cerr(volToEval,nL);
 
-% Number of Gray levels
-nL = 16;
+% % Number of Gray levels
+% nL = 16;
+% 
+% % Random n x n x n matrix
+% n = 20;
+% testM = rand(n,n,5);
+% testM = imquantize_cerr(testM,nL);
+% maskBoundingBox3M = testM .^0;
 
-% Random n x n x n matrix
-n = 20;
-testM = rand(n,n,5);
-testM = imquantize_cerr(testM,nL);
-maskBoundingBox3M = testM .^0;
+scanNum = 1;
+strNum = 1;
+testM = single(planC{indexS.scan}(scanNum).scanArray) - planC{indexS.scan}(scanNum).scanInfo(1).CTOffset;
+maskBoundingBox3M = getUniformStr(strNum);
+testQuantM = testM;
+testQuantM(~maskBoundingBox3M) = NaN;
+testQuantM = imquantize_cerr(testQuantM,[],[],[],25);
+nL = max(testQuantM(:));
 
 scanType = 'original';
 %generate results from pyradiomics
