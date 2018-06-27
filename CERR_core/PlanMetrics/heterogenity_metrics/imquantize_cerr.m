@@ -37,11 +37,11 @@ elseif exist('binwidth','var') && ~isempty(binwidth)
         edgeMin = xmin - rem(xmin,binwidth);
     end
     if xmax < 0
-        edgemax = xmax - rem(xmax,binwidth);
+        edgeMax = xmax - rem(xmax,binwidth);
     else
-        edgemax = xmax - rem(xmax,binwidth) + binwidth;        
+        edgeMax = xmax - rem(xmax,binwidth) + binwidth;        
     end
-    edgeV = edgeMin:binwidth:edgemax;
+    edgeV = edgeMin:binwidth:edgeMax;
     q = discretize(x,edgeV);
 else
     error('Specify the number of bins or the binwidth.')
