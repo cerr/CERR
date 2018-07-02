@@ -146,7 +146,7 @@ yValsV = [yValsV(1)-voxelSiz(2) yValsV yValsV(end)+voxelSiz(2)];
 zValsV = [zValsV(1)-voxelSiz(3) zValsV zValsV(end)+voxelSiz(3)];
 
 % Resample the structure mask
-if exist('rcsV','var')
+if exist('rcsV','var') && ~isempty(rcsV)
     % use the larger dim of mask or the inpur rcsV
     siz = size(mask3M);
     rcsV(rcsV < siz) = siz(rcsV < siz);
