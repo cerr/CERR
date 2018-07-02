@@ -116,6 +116,7 @@ end
         newScanInfo(slcNum).sizeOfDimension2 = length(newXVals);
         newScanInfo(slcNum).zValue = newZVals(slcNum);
         newScanInfo(slcNum).sliceThickness = sliceThickness;
+        newScanInfo(slcNum).voxelThickness = sliceThickness;
         
         %Interpolate structures on to this slice (Nearest Neighbor Interpolation)
 %         newContourS = struct('segments',[]);
