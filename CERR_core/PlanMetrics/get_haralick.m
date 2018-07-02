@@ -1,6 +1,6 @@
-function [haralickFeatures] = get_haralick(dirctn, cooccurType, quantizedM, numGrLevels, glcmFlagS)
+function [haralickFeatures] = get_haralick(dirctn, voxelOffset, cooccurType, quantizedM, numGrLevels, glcmFlagS)
   % Get directional offsets
-  offsetsM = getOffsets(dirctn);
+  offsetsM = getOffsets(dirctn)*voxelOffset;
 
   % Calculate Cooccurrance
   cooccurM = calcCooccur(quantizedM, offsetsM, numGrLevels, cooccurType);
