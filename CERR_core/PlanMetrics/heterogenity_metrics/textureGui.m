@@ -135,7 +135,8 @@ switch upper(command)
         
         % Populate values from an existing texture
         if textureNum > 0
-            set(ud.handles.texture, 'String', texturesC{textureNum}); %fixed
+            set(ud.handles.texture, 'Value',textureNum);
+            %set(ud.handles.texture, 'String', texturesC{textureNum});
             scanUID       = planC{indexS.texture}(textureNum).assocScanUID;
             scanNum       = getAssociatedScan(scanUID);
             structureUID  = planC{indexS.texture}(textureNum).assocStructUID;
@@ -147,7 +148,6 @@ switch upper(command)
             category      = planC{indexS.texture}(textureNum).category;
             featC = get(ud.handles.featureType,'String');
             featureNum = find(strcmp(featC,category));
-            set(ud.handles.texture, 'value',textureNum);
             set(ud.handles.description,'string',texturesC{textureNum},'Enable','On');
         end
         
@@ -263,21 +263,34 @@ switch upper(command)
         else
            desc = ''; %Default
         end
-        ud.handles.texture       = uicontrol(h, 'units',units,'Position',[fieldLeft-0.14 1-.12 fieldWidth+0.08 rowHeight-.01],'String',{''}, 'Style', 'popup', 'callback', 'textureGui(''TEXTURE_SELECTED'');', 'enable', 'on', 'horizontalAlignment', 'right','fontSize',10);
+        
+        if length(planC{indexS.texture})>0
+        texListC = strcat('Texture',cellfun(@num2str,num2cell(1:length(planC{indexS.texture})),'un',0));
+        else
+        texListC = {'   Click ''+'' to create  '};
+        end
+        ud.handles.texture       = uicontrol(h, 'units',units,'Position',[fieldLeft-0.14 1-.12 fieldWidth+0.08 rowHeight-.01],'String',texListC, 'Style', 'popup', 'callback', 'textureGui(''TEXTURE_SELECTED'');', 'enable', 'on', 'horizontalAlignment', 'right','fontSize',10);
         ud.handles.textureAdd    = uicontrol(h, 'units',units,'Position',[2*fieldLeft-0.12 1-.12 0.03 rowHeight-.01],'String','+', 'Style', 'push', 'callback', 'textureGui(''CREATE_NEW_TEXTURE'');', 'horizontalAlignment', 'right','enable','on','fontSize',10);
         ud.handles.textureDel    = uicontrol(h, 'units',units,'Position',[2*fieldLeft-0.08 1-.12 0.03 rowHeight-.01],'String','-', 'Style', 'push', 'callback', 'textureGui(''DELETE_TEXTURE'');', 'horizontalAlignment', 'right','enable','on','fontSize',10);
         ud.handles.description   = uicontrol(h, 'units',units,'Position',...
             [fieldLeft-.05 1-.22 fieldWidth+0.05 rowHeight],'String', desc,...
             'Style', 'edit', 'horizontalAlignment', 'left', 'BackgroundColor',...
             'w','enable','off','callback',{@updateLabel,h},'fontSize',10);
-        ud.handles.scan          = uicontrol(h, 'units',units,'Position',[fieldLeft-.05 1-.29 fieldWidth+0.05 rowHeight],'String', scansC, 'value', 1,  'Style', 'popup', 'horizontalAlignment', 'right', 'BackgroundColor', 'w','enable','off','fontSize',10);
+        ud.handles.scan          = uicontrol(h, 'units',units,'Position',...
+            [fieldLeft-.05 1-.29 fieldWidth+0.05 rowHeight],'String', scansC,...
+            'value', 1,  'Style', 'popup', 'horizontalAlignment', 'right',...
+            'BackgroundColor', 'w','enable','off','fontSize',10);
         ud.handles.structure     = uicontrol(h, 'units',units,'Position',...
             [fieldLeft-.05 1-.36 fieldWidth+.05 rowHeight],'String', structsC,...
             'value', 1, 'Style', 'popup', 'horizontalAlignment', 'right',...
             'BackgroundColor', 'w','callback', 'textureGui(''STRUCT_SELECTED'');','enable','off','fontSize',10);
 
-        ud.handles.featureType   = uicontrol(h, 'units',units,'Position',[fieldLeft-.05 1-.43 fieldWidth+.05 rowHeight],'String', featureTypeC, 'value', 1, 'Style', 'popup', 'callback', 'textureGui(''FEATURE_TYPE_SELECTED'');', 'horizontalAlignment', 'right', 'BackgroundColor', 'w', 'enable','off','fontSize',10);
-        ud.dXYZ                  = getVoxelSize(structNum);
+        ud.handles.featureType   = uicontrol(h, 'units',units,'Position',...
+            [fieldLeft-.05 1-.43 fieldWidth+.05 rowHeight],'String', featureTypeC,...
+            'value', 1, 'Style', 'popup', 'callback',...
+            'textureGui(''FEATURE_TYPE_SELECTED'');', 'horizontalAlignment',...
+            'right', 'BackgroundColor', 'w', 'enable','off','fontSize',10);
+        ud.dXYZ                  = getVoxelSize(structNum,h);
         
         % uicontrols to generate or delete texture maps
         ud.handles.createTextureMaps  = uicontrol(h, 'units',units,'Position',[0.03 1-.95 0.12 rowHeight],'String', 'Create Maps', 'Style', 'pushbutton', 'callback', 'textureGui(''CREATE_MAPS'');');
@@ -294,7 +307,7 @@ switch upper(command)
         set(h, 'userdata', ud);
         set(0, 'CurrentFigure', hFig);
 
-        if ~isempty(ud.currentTexture)
+        if ~isempty(ud.currentTexture) && ud.currentTexture>0
             textureGui('REFRESHFIELDS');
             textureGui('REFRESH_THUMBS');
         end        
@@ -302,7 +315,7 @@ switch upper(command)
     case 'STRUCT_SELECTED'
         ud = get(h, 'userdata');
         structNum = get(ud.handles.structure,'value')-1;
-        ud.dXYZ   = getVoxelSize(structNum);
+        ud.dXYZ   = getVoxelSize(structNum,h);
         set(h, 'userdata', ud);
        
     case 'PATCH_CM_SELECTED'
@@ -367,10 +380,10 @@ switch upper(command)
          set(ud.handles.description,'string',texC);
         end
         set(h, 'userdata', ud);
-        textureGui('REFRESHFIELDS');
         paramS = planC{indexS.texture}(ud.currentTexture).parameters;
         fType = planC{indexS.texture}(ud.currentTexture).category;
         textureGui('FEATURE_TYPE_SELECTED',paramS,fType);
+        textureGui('REFRESHFIELDS');
         textureGui('REFRESH_THUMBS');
         %textureGui('REFRESH');
         
@@ -450,11 +463,26 @@ switch upper(command)
                 valC = {3,.5,1,30,1};
                 dispC = {'On','On','On','On','On'};
                 
+%             case 'LoG'
+%                 paramC = {'KernelSize','Sigma'};
+%                 typeC = {'edit','edit'};
+%                 valC = {3,.5};
+%                 dispC = {'On','On'};
+                
             case 'LoG'
-                paramC = {'KernelSize','Sigma'};
+                paramC = {'VoxelSize_mm','Sigma_mm'};
                 typeC = {'edit','edit'};
-                valC = {3,.5};
-                dispC = {'On','On'};
+                dy = planC{indexS.scan}(scanNum).scanInfo(1).grid1Units;
+                dx = planC{indexS.scan}(scanNum).scanInfo(1).grid2Units;
+                dz = planC{indexS.scan}(scanNum).scanInfo(2).zValue - ...
+                    planC{indexS.scan}(scanNum).scanInfo(1).zValue;
+                dx = abs(dx);
+                dy = abs(dy);
+                dz = abs(dz);
+                voxSizeV = [dy, dx, dz]*10; % convert cm to mm
+                valC = {voxSizeV,.5};
+                
+                dispC = {'off','On'};
 
             case 'Sobel'
                 paramC = {};
@@ -657,13 +685,23 @@ switch upper(command)
     case 'CREATE_NEW_TEXTURE'
         ud = get(h, 'userdata');
         set(ud.handles.texture,'enable', 'on');
+        texListC = get(ud.handles.texture,'String');
         set(ud.handles.description,'enable', 'on');
         set(ud.handles.scan,'enable','on');
-        set(ud.handles.structure,'enable','on'); 
+        set(ud.handles.structure,'enable','on');
         set(ud.handles.featureType,'enable','on');
-        label = ['Texture',num2str(ud.currentTexture+1)]; %Default label 
+        if length(texListC)==1 && strcmp(texListC,'   Click ''+'' to create  ')
+            tNum = 1;
+            label = 'Texture1';
+            texListC{1} = label;
+        else
+            tNum = length(texListC)+1;
+            label = ['Texture',num2str(tNum)]; %Default label
+            texListC{end+1} = label;
+        end
+        set(ud.handles.texture,'String',texListC);
+        set(ud.handles.texture,'Value',tNum);
         set(ud.handles.description,'String',label);
-        label = ['Texture',num2str(ud.currentTexture+1)]; %Default category 
         set(ud.handles.featureType,'Value',1);
         %Clear any previous parameter controls
         if isfield(ud.handles,'paramControls')
@@ -692,22 +730,18 @@ switch upper(command)
         paramS = ud.parameters;
         fType = ud.filtType;
         label =  get(ud.handles.description,'String');
-        texC = get(ud.handles.texture ,'String');
-        texC = {texC,label};
-        set(ud.handles.texture ,'String',texC(2:end));
         scan3M = getScanArray(scanNum,planC);
         CTOffset = planC{indexS.scan}(scanNum).scanInfo(1).CTOffset;
         scan3M = double(scan3M) - CTOffset;
         
 
-        mask3M = scan3M.^0;
+        fullMask3M = scan3M.^0;
         if ~(structNum==0)
             fullMask3M = false(size(scan3M));
             [rasterSegments, planC, isError] = getRasterSegments(structNum,planC);
             [mask3M,uniqueSlicesV]  = rasterToMask(rasterSegments, scanNum, planC);
             fullMask3M(:,:,uniqueSlicesV) = mask3M;
             [minr, maxr, minc, maxc, ~, ~] = compute_boundingbox(fullMask3M);
-            scan3M =scan3M(:,:,uniqueSlicesV);
         else
             uniqueSlicesV = 1:size(scan3M,3);
             minc = 1;
@@ -715,7 +749,7 @@ switch upper(command)
         end
         
         %Evaluate
-        outS = processImage(fType,scan3M,mask3M,paramS);
+        outS = processImage(fType,scan3M,fullMask3M,paramS);
         featuresC = fieldnames(outS);
         
         % Create new Texture if ud.currentTexture = 0
@@ -740,17 +774,19 @@ switch upper(command)
         planC{indexS.texture}(ud.currentTexture).description = label;
         planC{indexS.texture}(ud.currentTexture).textureUID = createUID('TEXTURE');
         
+        
+         
         % Create Texture Scans
         [xVals, yVals, zVals] = getScanXYZVals(planC{indexS.scan}(scanNum));
         deltaXYZv = ud.dXYZ;
         zV = zVals(uniqueSlicesV);
         regParamsS.horizontalGridInterval = deltaXYZv(1);
         regParamsS.verticalGridInterval   = deltaXYZv(2); %(-)ve for dose
-        %         regParamsS.coord1OFFirstPoint   = xVals(minc);
+        regParamsS.coord1OFFirstPoint   = xVals(minc);
         %         %regParamsS.coord2OFFirstPoint   = yVals(minr); % for dose
-        %         regParamsS.coord2OFFirstPoint   = yVals(maxr);
-        regParamsS.coord1OFFirstPoint   = planC{indexS.scan}(scanNum).scanInfo(1).xOffset;
-        regParamsS.coord2OFFirstPoint   = planC{indexS.scan}(scanNum).scanInfo(1).yOffset;
+        regParamsS.coord2OFFirstPoint   = yVals(maxr);
+%         regParamsS.coord1OFFirstPoint   = planC{indexS.scan}(scanNum).scanInfo(1).xOffset;
+%         regParamsS.coord2OFFirstPoint   = planC{indexS.scan}(scanNum).scanInfo(1).yOffset;
         
         regParamsS.zValues  = zV;
         regParamsS.sliceThickness =[planC{indexS.scan}(scanNum).scanInfo(uniqueSlicesV).sliceThickness];
@@ -760,8 +796,6 @@ switch upper(command)
         for n = 1:length(featuresC)
             planC = scan2CERR(outS.(featuresC{n}),featuresC{n},'Passed',regParamsS,assocTextureUID,planC);
         end 
-        
-        
         
         set(h, 'userdata', ud);
         
@@ -813,7 +847,7 @@ switch upper(command)
             prevIndV = ~texIdx;
             prevIndV = prevIndV(find(prevIndV)<currentTex);
             drawThumb(ud.handles.thumbaxis(currentTex-sum(prevIndV)), planC,...
-                ud.currentScan, h, ud.previewSlice(ud.currentScan));   %ERR          
+                ud.currentScan, h, ud.previewSlice(ud.currentScan));             
             ud = get(h, 'userdata');
             ud.previewY = cp(2);
         else
@@ -1189,9 +1223,10 @@ rasterSegments = getRasterSegments(strNum, planC);
 firstROISlice = min(unique(rasterSegments(:,6)));
 end
 thumbSlice = min(s,numel(sV));
-thumbSlice = thumbSlice + firstROISlice - 1;
+% thumbSlice = thumbSlice + firstROISlice - 1;
 thumbSlice = max(1,thumbSlice);
-endSlice = numel(sV)+ firstROISlice - 1;
+%endSlice = numel(sV)+ firstROISlice - 1;
+endSlice = numel(sV);
 thumbImage = dA(:,:,thumbSlice);
 thumbImage = imgaussfilt(thumbImage,2); %Display smoothed thumbnail
 imagesc(thumbImage, 'hittest', 'off', 'parent', hAxis);
@@ -1199,7 +1234,7 @@ imagesc(thumbImage, 'hittest', 'off', 'parent', hAxis);
 %Display scan name
 scanType = planC{indexS.scan}(index).scanType;
 scanType = strrep(scanType,'_','\_'); 
-scanType = [scanType,' ',num2str(thumbSlice),'/',num2str(endSlice)];
+scanType = [scanType,' ',num2str(thumbSlice+ firstROISlice - 1),'/',num2str(endSlice+ firstROISlice - 1)];
 
 %---for radiomics paper---
 % thumbSlice = 76;
@@ -1297,10 +1332,15 @@ for i=1:length(stateS.handle.CERRAxis)
 end
 
 
-function dXYZ = getVoxelSize(structNum)
+function dXYZ = getVoxelSize(structNum,hFig)
 global planC
 indexS = planC{end};
+if structNum==0
+    ud = get(hFig,'userdata');
+    scanNum = get(ud.handles.scan,'value');
+else
 scanNum = getStructureAssociatedScan(structNum);
+end
 [xV,yV,zV] = getScanXYZVals(planC{indexS.scan}(scanNum));
 dx = abs(mean(diff(xV)));
 dy = abs(mean(diff(yV)));
