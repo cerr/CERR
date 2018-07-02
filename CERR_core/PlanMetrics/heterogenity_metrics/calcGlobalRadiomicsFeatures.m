@@ -25,13 +25,21 @@ if prod(siz) == 1
     %dirString = 'LLL';
     %wavType = 'coif1';
     % scanArray3M = wavDecom3D(scanArray3M,dirString,wavType);
+    
+%     % Sub-sample from uniqueSlices ---- uncomment for sub-sampling
+%     if length(uniqueSlices) > 1
+%         numSlcs = length(uniqueSlices);
+%         indKeepV = randsample(numSlcs,floor(numSlcs*0.75));
+%         uniqueSlices = uniqueSlices(indKeepV);
+%         mask3M = mask3M(:,:,indKeepV);
+%     end
+    
     SUVvals3M = mask3M.*double(scanArray3M(:,:,uniqueSlices));
     [minr, maxr, minc, maxc, mins, maxs] = compute_boundingbox(mask3M);
     maskBoundingBox3M = mask3M(minr:maxr,minc:maxc,mins:maxs);
     
-    % Assign NaN to image outside mask
-    volToEval = SUVvals3M(minr:maxr,minc:maxc,mins:maxs);
-    volToEval(~maskBoundingBox3M) = NaN;    
+    % Get the cropped scan
+    volToEval = SUVvals3M(minr:maxr,minc:maxc,mins:maxs);        
     
     % Ignore voxels below and above cutoffs, if defined
     minIntensityCutoff = paramS.higherOrderParamS.minIntensityCutoff;
@@ -42,6 +50,8 @@ if prod(siz) == 1
     if ~isempty(maxIntensityCutoff)
         maskBoundingBox3M(volToEval > maxIntensityCutoff) = 0;
     end
+    
+    volToEval(~maskBoundingBox3M) = NaN;
     
     % Get x,y,z grid for the shape features (flip y to make it monotically
     % increasing)
@@ -101,44 +111,48 @@ end
 
 if whichFeatS.harFeat2Ddir
     numGrLevels = paramS.higherOrderParamS.numGrLevels;
+    voxelOfset = paramS.higherOrderParamS.neighborVoxelOffset;
     glcmFlagS = getHaralickFlags();
         
     % 2D Haralick features from separate cooccurrence matrix per direction, averaged
     dirctn      = 2;
     cooccurType = 2;
-    featureS.harFeat2DdirS = get_haralick(dirctn, cooccurType, quantizedM, ...
+    featureS.harFeat2DdirS = get_haralick(dirctn, voxelOfset, cooccurType, quantizedM, ...
         numGrLevels, glcmFlagS);
     
 end
 if whichFeatS.harFeat2Dcomb
     numGrLevels = paramS.higherOrderParamS.numGrLevels;
+    voxelOfset = paramS.higherOrderParamS.neighborVoxelOffset;
     glcmFlagS = getHaralickFlags();
     
     % 2D Haralick features with combined cooccurrence matrix
     dirctn      = 2;
     cooccurType = 1;
-    featureS.harFeat2DcombS = get_haralick(dirctn, cooccurType, quantizedM, ...
+    featureS.harFeat2DcombS = get_haralick(dirctn, voxelOfset, cooccurType, quantizedM, ...
     numGrLevels, glcmFlagS);
 end
 if whichFeatS.harFeat3Ddir
     numGrLevels = paramS.higherOrderParamS.numGrLevels;
+    voxelOfset = paramS.higherOrderParamS.neighborVoxelOffset;
     glcmFlagS = getHaralickFlags();
         
     % 3D Haralick features from separate cooccurrence matrix per direction, averaged
     dirctn      = 1;
     cooccurType = 2;
-    featureS.harFeat3DdirS = get_haralick(dirctn, cooccurType, quantizedM, ...
+    featureS.harFeat3DdirS = get_haralick(dirctn, voxelOfset, cooccurType, quantizedM, ...
         numGrLevels, glcmFlagS);
     
 end
 if whichFeatS.harFeat3Dcomb
     numGrLevels = paramS.higherOrderParamS.numGrLevels;
+    voxelOfset = paramS.higherOrderParamS.neighborVoxelOffset;
     glcmFlagS = getHaralickFlags();
     
     % 3D Haralick features with combined cooccurrence matrix
     dirctn      = 1;
     cooccurType = 1;
-    featureS.harFeat3DcombS = get_haralick(dirctn, cooccurType, quantizedM, ...
+    featureS.harFeat3DcombS = get_haralick(dirctn, voxelOfset, cooccurType, quantizedM, ...
     numGrLevels, glcmFlagS);
 end
 
