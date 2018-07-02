@@ -44,49 +44,42 @@ switch filterType
             flagV(sel-1) = 1;
         end
         
-       
-        outS.Energy = zeros(size(scan3M));
-        outS.Entropy = zeros(size(scan3M));
-        outS.SumAvg = zeros(size(scan3M));
-        outS.Corr = zeros(size(scan3M));
-        outS.InvDiffMom = zeros(size(scan3M));
-        outS.Contrast = zeros(size(scan3M));
-        outS.ClustShade = zeros(size(scan3M));
-        outS.ClustProminence = zeros(size(scan3M));
-        outS.HaralCorr = zeros(size(scan3M));
-        
         [energy,entropy,sumAvg,corr,...
           invDiffMom,contrast,clustShade,...
           clustProminence,haralCorr] = textureByPatchCombineCooccur(volToEval,...
             paramS.NumLevels.val, paramS.PatchSize.val, offsetsM, flagV); %,hWait
         
-        outS.Energy(minr:maxr, minc:maxc, mins:maxs) = energy;
-        outS.Entropy(minr:maxr, minc:maxc, mins:maxs) = entropy;
-        outS.SumAvg(minr:maxr, minc:maxc, mins:maxs) = sumAvg;
-        outS.Corr(minr:maxr, minc:maxc, mins:maxs) = corr;
-        outS.InvDiffMom(minr:maxr, minc:maxc, mins:maxs) = invDiffMom;
-        outS.Contrast(minr:maxr, minc:maxc, mins:maxs) = contrast;
-        outS.ClustShade(minr:maxr, minc:maxc, mins:maxs) = clustShade;
-        outS.ClustProminence(minr:maxr, minc:maxc, mins:maxs) = clustProminence;
-        outS.HaralCorr(minr:maxr, minc:maxc, mins:maxs) = haralCorr;
+        outS.Energy = energy;
+        outS.Entropy = entropy;
+        outS.SumAvg = sumAvg;
+        outS.Corr = corr;
+        outS.InvDiffMom = invDiffMom;
+        outS.Contrast = contrast;
+        outS.ClustShade = clustShade;
+        outS.ClustProminence = clustProminence;
+        outS.HaralCorr = haralCorr;
         
         featC = fieldnames(outS);
         outS = rmfield(outS,featC(~flagV));
         
     case 'Wavelets'
-    %Pad image if no. slices is odd  
-    scan3M = flip(scan3M,3);
-    if mod(size(scan3M,3),2) > 0
-        scan3M(:,:,end+1) = 0*scan3M(:,:,1);
-        mask3M(:,:,end+1) = 0*mask3M(:,:,1);
-    end
-    vol3M   = double(mask3M).*double(scan3M);
-    
-    dirListC = {'All','HHH','LHH','HLH','HHL','LLH','LHL','HLL','LLL'};
-    wavFamilyC = {'db','haar','coif', 'fk','sym','dmey','bior','rbio'};
-    typeC =  {{'1','2','3','4','5','6','7','8','9','10','11','12','13','14','15','16',...
-        '17','18','19','20','21','22','23','24','25','26','27','28','29','30',...
-        '31','32','33','34','35','36','37','38','39','40','41','42','43','44','45'},{},...
+        
+        [minr, maxr, minc, maxc, mins, maxs] = compute_boundingbox(mask3M);
+        mask3M                   = mask3M(minr:maxr,minc:maxc,mins:maxs);
+        scan3M                   = scan3M(minr:maxr,minc:maxc,mins:maxs);
+        %Pad image if no. slices is odd
+        scan3M = flip(scan3M,3);
+        if mod(size(scan3M,3),2) > 0
+            scan3M(:,:,end+1) = 0*scan3M(:,:,1);
+            mask3M(:,:,end+1) = 0*mask3M(:,:,1);
+        end
+        vol3M   = double(mask3M).*double(scan3M);
+        
+        dirListC = {'All','HHH','LHH','HLH','HHL','LLH','LHL','HLL','LLL'};
+        wavFamilyC = {'db','haar','coif', 'fk','sym','dmey','bior','rbio'};
+        typeC =  {{'1','2','3','4','5','6','7','8','9','10','11','12','13','14','15','16',...
+            '17','18','19','20','21','22','23','24','25','26','27','28','29','30',...
+            '31','32','33','34','35','36','37','38','39','40','41','42','43','44','45'},{},...
         {'1','2','3','4','5'},{'4','6','8','14','18','22'},{'2','3','4','5',...
         '6','7','8','9','10','11','12','13','14','15','16',...
         '17','18','19','20','21','22','23','24','25','26','27','28','29','30',...
@@ -120,16 +113,31 @@ switch filterType
         outS.(outname) = out3M;
         
     end
-        
+    
     case 'Sobel'
+        [minr, maxr, minc, maxc, mins, maxs] = compute_boundingbox(mask3M);
+        mask3M                   = mask3M(minr:maxr,minc:maxc,mins:maxs);
+        scan3M                   = scan3M(minr:maxr,minc:maxc,mins:maxs);
         vol3M   = double(mask3M).*double(scan3M);
         [outS.SobelMag,outS.SobelDir] = sobelFilt(vol3M);
         
+%     case 'LoG'
+%         tic
+%         vol3M   = double(mask3M).*double(scan3M);
+%         outS.LoG = LoGFilt(vol3M,paramS.KernelSize.val,paramS.Sigma.val);
+%         toc
+        
     case 'LoG'
+        [minr, maxr, minc, maxc, mins, maxs] = compute_boundingbox(mask3M);
+        mask3M                   = mask3M(minr:maxr,minc:maxc,mins:maxs);
+        scan3M                   = scan3M(minr:maxr,minc:maxc,mins:maxs);
         vol3M   = double(mask3M).*double(scan3M);
-        outS.LoG = LoGFilt(vol3M,paramS.KernelSize.val,paramS.Sigma.val);
+        outS.LoG_recursive = recursiveLOG(vol3M,paramS.Sigma_mm.val,paramS.VoxelSize_mm.val);
         
     case 'Gabor'
+        [minr, maxr, minc, maxc, mins, maxs] = compute_boundingbox(mask3M);
+        mask3M                   = mask3M(minr:maxr,minc:maxc,mins:maxs);
+        scan3M                   = scan3M(minr:maxr,minc:maxc,mins:maxs);
         vol3M   = double(mask3M).*double(scan3M);
         outS.Gabor = filtImgGabor(vol3M,paramS.Radius.val,paramS.Sigma.val,...
             paramS.AspectRatio.val,paramS.Orientation.val,paramS.Wavlength.val);
