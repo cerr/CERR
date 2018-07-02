@@ -88,15 +88,28 @@ if ~exist('binWidth','var')
 end
 % xmin = min(Iarray) + offsetForEnergy;
 % edgeMin = xmin - rem(xmin,binwidth);
-edgeMin = 0; % to match pyradiomics definition
-xmax = max(Iarray) + offsetForEnergy;
-if abs(rem(xmax,binWidth)) > 0
-    edgemax = xmax + binWidth;
-else
-    edgemax = xmax;
+% edgeMin = 0; % to match pyradiomics definition
+xmax = max(Iarray); % + offsetForEnergy;
+xmin = min(Iarray);
+offsetForEntropy = 0;
+if xmin < 0
+    offsetForEntropy = -xmin;
 end
-edgeV = edgeMin:binWidth:edgemax;
-quantizedV = histcounts(Iarray+offsetForEnergy,edgeV) + eps;
+xmax = xmax + offsetForEntropy;
+xmin = xmin + offsetForEntropy;
+if abs(rem(xmax,binWidth)) > 0
+    edgeMax = xmax + binWidth - rem(xmax,binWidth);
+else
+    edgeMax = xmax;
+end
+if abs(rem(xmin,binWidth)) > 0
+    edgeMin = xmin - rem(xmin,binWidth);    
+else
+    edgeMin = xmin;
+end
+
+edgeV = edgeMin:binWidth:edgeMax;
+quantizedV = histcounts(Iarray+offsetForEntropy,edgeV) + eps;
 quantizedV = quantizedV / numel(Iarray);
 RadiomicsFirstOrderS.entropy = - sum(quantizedV .* log2(quantizedV));
 
