@@ -16,7 +16,7 @@ function log3M = recursiveLOG(img3M,sigma,PixelSizeV)
 % scan3M = single(planC{indexS.scan}(scanNum).scanArray) - ...
 %     planC{indexS.scan}(scanNum).scanInfo(1).CTOffset;
 % dy = planC{indexS.scan}(scanNum).scanInfo(1).grid1Units;
-% dx = planC{indexS.scan}(scanNum).scanInfo(1).grid1Units;
+% dx = planC{indexS.scan}(scanNum).scanInfo(1).grid2Units;
 % dz = planC{indexS.scan}(scanNum).scanInfo(2).zValue - ...
 %     planC{indexS.scan}(scanNum).scanInfo(1).zValue;
 % dx = abs(dx);
