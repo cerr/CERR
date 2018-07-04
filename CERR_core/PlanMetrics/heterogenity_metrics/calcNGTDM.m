@@ -49,11 +49,13 @@ slcWindow = uint32(slcWindow);
 start_ind = reshape(bsxfun(@plus,[1:m-rowWindow+1]',[0:n-colWindow]*m),[],1); %//'
 
 %// Row indices
-lin_row = permute(bsxfun(@plus,start_ind,[0:rowWindow-1])',[1 3 2]);  %//'
+% lin_row = permute(bsxfun(@plus,start_ind,[0:rowWindow-1])',[1 3 2]);  %//'
+lin_row = permute(bsxfun(@plus,start_ind,[0 patchSizeV(1) rowWindow-1])',[1 3 2]);  %//'
 
 %// Get linear indices based on row and col indices and get desired output
 % imTmpM = A(reshape(bsxfun(@plus,lin_row,[0:ncols-1]*m),nrows*ncols,[]));
-indM = reshape(bsxfun(@plus,lin_row,(0:colWindow-1)*m),rowWindow*colWindow,[]);
+% indM = reshape(bsxfun(@plus,lin_row,(0:colWindow-1)*m),rowWindow*colWindow,[]);
+indM = reshape(bsxfun(@plus,lin_row,[0 patchSizeV(2) colWindow-1]*m),3*3,[]);
 
 % [Fx,Fy] = gradient(q);
 %Fx = abs(Fx);
@@ -92,13 +94,14 @@ for slcNum = (1+numSlcsPad):(numSlices+numSlcsPad)
     currentVoxelIndex = ceil(nbhoodSiz*length(slcV)/2);
     voxValV = qM(currentVoxelIndex,:);
     qM(currentVoxelIndex,:) = [];    
+    voxMaskV = mM(currentVoxelIndex,:);
     numNeighborsV = sum(mM,1)-1;
     qM(:,:) = bsxfun(@rdivide,qM,numNeighborsV);
     qM(isnan(qM)) = 0;
     qM = abs(voxValV - sum(qM));
     
     for lev = 1:numGrLevels
-        indLevV = voxValV == lev;
+        indLevV = voxValV == lev & voxMaskV;
         s(lev) = s(lev) + sum(qM(indLevV));
     end
         
