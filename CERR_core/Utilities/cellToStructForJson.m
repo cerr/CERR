@@ -22,10 +22,10 @@ for i = 1:length(dataC)
 end
 
 uniqFieldC = unique(fieldC);
-if size(uniqFieldC,1) == 1
+if size(uniqFieldC,2) == 1
     dataS = struct();
     for i = 1:length(fieldC)        
-        for j = 1:size(uniqFieldC,2)
+        for j = 1:size(uniqFieldC,1)
             dataS(i).(uniqFieldC{j}) = valC{i,j};
         end
     end    

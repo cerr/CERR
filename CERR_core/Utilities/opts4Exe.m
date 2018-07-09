@@ -36,8 +36,16 @@ function optS = opts4Exe(fileName)
 % You should have received a copy of the GNU General Public License
 % along with CERR.  If not, see <http://www.gnu.org/licenses/>.
 
-filetext = fileread(fileName);
-optS = jsondecode(filetext);
+% filetext = fileread(fileName);
+% optS = jsondecode(filetext);
+
+if MLVersion < 9.1
+    optS = loadjson(fileName);
+else
+    filetext = fileread(fileName);
+    optS = jsondecode(filetext);
+end
+
 
 % optS = [];
 % 

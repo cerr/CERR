@@ -16,6 +16,7 @@ function data = loadjson(fname,varargin)
 %         Joel Feenstra:
 %         http://www.mathworks.com/matlabcentral/fileexchange/20565
 %            created on 2008/07/03
+% AI 7/9/18 Modified to convert cell arrays of structures to structure arrays
 %
 % $Id$
 %
@@ -112,6 +113,17 @@ jsoncount=length(data);
 if(jsoncount==1 && iscell(data))
     data=data{1};
 end
+
+
+%Modified to match jsondecode
+fieldC = fieldnames(data);
+for i = 1:length(fieldC)
+    if iscell(data.(fieldC{i})) && ~isempty(data.(fieldC{i}))
+        data.(fieldC{i}) = cellToStructForJson(data.(fieldC{i}));
+    end
+end
+
+
 
 if(isfield(opt,'progressbar_'))
     close(opt.progressbar_);
