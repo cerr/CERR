@@ -41,8 +41,11 @@ indexS = planC{end};
 
 %Generate a master study UID for all parts of this planC.
 %Study_Instance_UID = dicomuid;
-Study_Instance_UID = planC{indexS.scan}(1).scanInfo(1).DICOMHeaders.StudyInstanceUID;
-
+if isfield(planC{indexS.scan}(1).scanInfo(1),'DICOMHeaders')
+    Study_Instance_UID = planC{indexS.scan}(1).scanInfo(1).DICOMHeaders.StudyInstanceUID;
+else
+    Study_Instance_UID = dicomuid;
+end
 
 %% SCAN UIDs
 %Iterate over CT scans
@@ -53,13 +56,21 @@ for i = 1:length(planC{indexS.scan})
     
     %Generate a series instance UID for each scan;
     %planC{indexS.scan}(i).Series_Instance_UID = dicomuid;
-    planC{indexS.scan}(i).Series_Instance_UID = ...
-        planC{indexS.scan}(i).scanInfo(1).DICOMHeaders.SeriesInstanceUID;
+    if isfield(planC{indexS.scan}(i).scanInfo(1), 'DICOMHeaders')
+        planC{indexS.scan}(i).Series_Instance_UID = ...
+            planC{indexS.scan}(i).scanInfo(1).DICOMHeaders.SeriesInstanceUID;
+    else
+        planC{indexS.scan}(i).Series_Instance_UID = dicomuid;
+    end
     
     %Generate a frame of reference UID for each scan.
     %planC{indexS.scan}(i).Frame_Of_Reference_UID = dicomuid;
-    planC{indexS.scan}(i).Frame_Of_Reference_UID = ...
-        planC{indexS.scan}(i).scanInfo(1).DICOMHeaders.FrameofReferenceUID;
+    if isfield(planC{indexS.scan}(i).scanInfo(1), 'DICOMHeaders')
+        planC{indexS.scan}(i).Frame_Of_Reference_UID = ...
+            planC{indexS.scan}(i).scanInfo(1).DICOMHeaders.FrameofReferenceUID;
+    else
+        planC{indexS.scan}(i).Frame_Of_Reference_UID = dicomuid;
+    end
     
     % %     %Generate a SOP ClassUID for each scan.
     % %     modality = planC{indexS.scan}(i).scanInfo(1).imageType;
