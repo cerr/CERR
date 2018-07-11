@@ -64,7 +64,9 @@ for scanNum = 1:length(planC{indexS.scan})
         end
     end
     % Check for scanType field and populate it with Series description
-    if isempty(planC{indexS.scan}(scanNum).scanType) && isfield(planC{indexS.scan}(scanNum).scanInfo(1).DICOMHeaders,'SeriesDescription')
+    if isempty(planC{indexS.scan}(scanNum).scanType) && ...
+            isfield(planC{indexS.scan}(scanNum).scanInfo(1),'DICOMHeaders') && ...
+            isfield(planC{indexS.scan}(scanNum).scanInfo(1).DICOMHeaders,'SeriesDescription')
         planC{indexS.scan}(scanNum).scanType = planC{indexS.scan}(scanNum).scanInfo(1).DICOMHeaders.SeriesDescription;
     end
 end
