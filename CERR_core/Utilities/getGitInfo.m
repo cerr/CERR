@@ -58,6 +58,7 @@ function [remoteGitHash, localGitInfo] = getGitInfo()
 % or implied, of <copyright holder>.
 
 localGitInfo=[];
+remoteGitHash = '';
 
 pth = getCERRPath;
 indEnd = strfind(pth,'CERR_core');
