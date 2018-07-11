@@ -2,7 +2,7 @@ function dataS = cellToStructForJson(dataC)
 % function dataS = cellToStructForJson(dataC)
 %
 %Loops through all elements of input cell array dataC and converts to dataS
-%if the elements are structus with same field names. This is necessary to 
+%if the elements are structus with same field names. This is necessary to
 % make json reading compatible between MATLAB and open source loadjson.m
 %
 % APA, 7/9/2018
@@ -18,15 +18,24 @@ for i = 1:length(dataC)
                 fieldC{i,j} = fieldNamC{j};
                 valC{i,j} = dataC{i}.(fieldNamC{j});
             end
+        otherwise
+            fieldC = {};
+            valC = {};
+            break;
     end
 end
 
-uniqFieldC = unique(fieldC);
-if size(uniqFieldC,2) == 1
-    dataS = struct();
-    for i = 1:length(fieldC)        
-        for j = 1:size(uniqFieldC,1)
-            dataS(i).(uniqFieldC{j}) = valC{i,j};
+if ~isempty(fieldC)
+    uniqFieldC = unique(fieldC);
+    if size(uniqFieldC,2) == 1
+        dataS = struct();
+        for i = 1:length(fieldC)
+            for j = 1:size(uniqFieldC,1)
+                dataS(i).(uniqFieldC{j}) = valC{i,j};
+            end
         end
-    end    
+    end
+else
+    dataS = dataC;
 end
+
