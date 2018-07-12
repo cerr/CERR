@@ -1,5 +1,9 @@
-function [basePlanC, movPlanC] = register_scans(basePlanC, movPlanC, baseScanNum, movScanNum, algorithm, baseMask3M, movMask3M, threshold_bone)
-% function [basePlanC, movPlanC] = register_scans(basePlanC, movPlanC, baseScanNum, movScannum, algorithm, baseMask3M, movMask3M, threshold_bone)
+function [basePlanC, movPlanC, bspFileName] = register_scans(basePlanC, movPlanC,...
+    baseScanNum, movScanNum, algorithm, baseMask3M, movMask3M,...
+    threshold_bone, inputCmdFile, inBspFile, outBspFile)
+% function [basePlanC, movPlanC, bspFileName] = register_scans(basePlanC, movPlanC,...
+%     baseScanNum, movScanNum, algorithm, baseMask3M, movMask3M,...
+%     threshold_bone, inputCmdFile, inBspFile, outBspFile)
 %
 % APA, 07/12/2012
 
@@ -88,7 +92,11 @@ switch upper(algorithm)
         
         % Create a file name and path for storing bspline coefficients
         bspFileName_rigid = fullfile(getCERRPath,'ImageRegistration','tmpFiles',['bsp_coeffs_',baseScanUID,'_',movScanUID,'_rigid.txt']);
-        bspFileName = fullfile(getCERRPath,'ImageRegistration','tmpFiles',['bsp_coeffs_',baseScanUID,'_',movScanUID,'.txt']);
+        if exist('outBspFile','var') && ~isempty(outBspFile)
+            bspFileName = outBspFile;
+        else
+            bspFileName = fullfile(getCERRPath,'ImageRegistration','tmpFiles',['bsp_coeffs_',baseScanUID,'_',movScanUID,'.txt']);
+        end
         if exist(bspFileName_rigid,'file')
             delete(bspFileName_rigid)
         end
@@ -115,8 +123,12 @@ switch upper(algorithm)
         
         % Deformable (DIR) step
         clear cmdFileC
-        optS = CERROptions;
-        cmd_fileName = optS.plastimatch_command_file;
+        if exist('inputCmdFile','var') && ~isempty(inputCmdFile)
+            cmd_fileName = inputCmdFile;
+        else
+            optS = CERROptions;
+            cmd_fileName = optS.plastimatch_command_file;
+        end
         userCmdFile = fullfile(getCERRPath,'ImageRegistration','plastimatch_command',cmd_fileName);
         ursFileC = file2cell(userCmdFile);
         cmdFileC{1,1} = '[GLOBAL]';
@@ -128,8 +140,11 @@ switch upper(algorithm)
         if ~isempty(movMask3M)
             cmdFileC{end+1,1} = ['moving_roi=',escapeSlashes(movMaskFileName)];
         end
+        if exist('inBspFile','var') && ~isempty(inBspFile)
+            cmdFileC{end+1,1} = ['xform_in=',escapeSlashes(movMaskFileName)];
+        end
         %cmdFileC{end+1,1} = ['xform_in=',escapeSlashes(bspFileName_rigid)];
-        cmdFileC{end+1,1} = ['xform_out=',escapeSlashes(bspFileName)];
+        cmdFileC{end+1,1} = ['xform_out=',escapeSlashes(inBspFile)];
         cmdFileC{end+1,1} = '';
         % Append the user-defined stages
         cmdFileC(end+1:end+size(ursFileC,2),1) = ursFileC(:);
