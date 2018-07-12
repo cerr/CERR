@@ -92,7 +92,9 @@ switch upper(algorithm)
         
         % Create a file name and path for storing bspline coefficients
         bspFileName_rigid = fullfile(getCERRPath,'ImageRegistration','tmpFiles',['bsp_coeffs_',baseScanUID,'_',movScanUID,'_rigid.txt']);
+        deleteBspFlg = 1;
         if exist('outBspFile','var') && ~isempty(outBspFile)
+            deleteBspFlg = 0;
             bspFileName = outBspFile;
         else
             bspFileName = fullfile(getCERRPath,'ImageRegistration','tmpFiles',['bsp_coeffs_',baseScanUID,'_',movScanUID,'.txt']);
@@ -124,12 +126,12 @@ switch upper(algorithm)
         % Deformable (DIR) step
         clear cmdFileC
         if exist('inputCmdFile','var') && ~isempty(inputCmdFile)
-            cmd_fileName = inputCmdFile;
+            userCmdFile = inputCmdFile;
         else
             optS = CERROptions;
             cmd_fileName = optS.plastimatch_command_file;
-        end
-        userCmdFile = fullfile(getCERRPath,'ImageRegistration','plastimatch_command',cmd_fileName);
+            userCmdFile = fullfile(getCERRPath,'ImageRegistration','plastimatch_command',cmd_fileName);
+        end        
         ursFileC = file2cell(userCmdFile);
         cmdFileC{1,1} = '[GLOBAL]';
         cmdFileC{end+1,1} = ['fixed=',escapeSlashes(baseScanFileName)];
@@ -141,10 +143,10 @@ switch upper(algorithm)
             cmdFileC{end+1,1} = ['moving_roi=',escapeSlashes(movMaskFileName)];
         end
         if exist('inBspFile','var') && ~isempty(inBspFile)
-            cmdFileC{end+1,1} = ['xform_in=',escapeSlashes(movMaskFileName)];
+            cmdFileC{end+1,1} = ['xform_in=',escapeSlashes(inBspFile)];
         end
         %cmdFileC{end+1,1} = ['xform_in=',escapeSlashes(bspFileName_rigid)];
-        cmdFileC{end+1,1} = ['xform_out=',escapeSlashes(inBspFile)];
+        cmdFileC{end+1,1} = ['xform_out=',escapeSlashes(bspFileName)];
         cmdFileC{end+1,1} = '';
         % Append the user-defined stages
         cmdFileC(end+1:end+size(ursFileC,2),1) = ursFileC(:);
@@ -172,7 +174,9 @@ switch upper(algorithm)
         try
             delete(baseScanFileName);
             delete(movScanFileName);
-            delete(bspFileName);
+            if deleteBspFlg
+                delete(bspFileName);
+            end
             delete(baseMaskFileName);
             delete(movMaskFileName);
             delete(cmdFileName_dir);
