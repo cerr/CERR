@@ -26,7 +26,7 @@ for i = 1:length(dataC)
 end
 
 if ~isempty(fieldC)
-    uniqFieldC = unique(fieldC);
+    uniqFieldC = unique(fieldC,'stable');
     if size(uniqFieldC,2) == 1
         dataS = struct();
         for i = 1:length(fieldC)
