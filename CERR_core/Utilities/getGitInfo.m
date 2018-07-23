@@ -60,6 +60,11 @@ function [remoteGitHash, localGitInfo] = getGitInfo()
 localGitInfo=[];
 remoteGitHash = '';
 
+if isdeployed
+    %store date and hash in file under bin
+return
+end
+
 pth = getCERRPath;
 indEnd = strfind(pth,'CERR_core');
 basePath = pth(1:indEnd-1);
@@ -158,9 +163,10 @@ end
 %localGitInfo.url=url;
 
 % [~,repName] = strtok(url,':');
-
+%url could also be 'git@github.com:cerr/CERR/commits/testing'
 %get to the commits page to view the remote commit hash
-if ~isempty(url) && strfind(url, '.git')
+%url = 'git@github.com:cerr/CERR';
+if ~isempty(url) && contains(url, '.git')
     commitUrl = strrep(url,'.git','/commits/');
     url = strcat(commitUrl,localGitInfo.branch); 
 elseif ~isempty(url)
@@ -191,7 +197,8 @@ end
 % else
 try
     %read remote git information based on url
-    data = webread(url,'term','commit:');
+    weburl = strcat('https://github.com/cerr/CERR/commits/',localGitInfo.branch);
+    data = webread(weburl,'term','commit:');
     commitIdIndex = strfind(data, 'commit:');
     remoteGitHash = data(commitIdIndex(1)+7:commitIdIndex(1)+46);
 catch
