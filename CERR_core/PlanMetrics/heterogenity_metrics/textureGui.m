@@ -655,6 +655,8 @@ switch upper(command)
                 ud.currentScan = varargin{1};
                 set(h, 'userdata', ud);
                 %Display selected texture map
+                scanUID = ['c',repSpaceHyp(planC{indexS.scan}(varargin{1}).scanUID(max(1,end-61):end))];
+                stateS.scanStats.Colormap.(scanUID) = 'weather';
                 strNum = get(ud.handles.structure,'value')-1; %Get current structure
                 rasterSegments = getRasterSegments(strNum, planC);
                 slicesV = unique(rasterSegments(:, 6)); 
@@ -663,8 +665,7 @@ switch upper(command)
                 newCoord = zs(midSlice);
                 sliceCallBack('selectScan',num2str(varargin{1}));
                 setAxisInfo(uint8(stateS.currentAxis), 'coord', newCoord);
-                scanUID = ['c',repSpaceHyp(planC{indexS.scan}(varargin{1}).scanUID(max(1,end-61):end))];
-                stateS.scanStats.Colormap.(scanUID) = 'weather';
+               
                 %Switch focus to CERR Viewer
                 f = stateS.handle.CERRSliceViewer;
                 figure(f);
