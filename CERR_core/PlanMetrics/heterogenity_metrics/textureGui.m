@@ -663,6 +663,8 @@ switch upper(command)
                 newCoord = zs(midSlice);
                 sliceCallBack('selectScan',num2str(varargin{1}));
                 setAxisInfo(uint8(stateS.currentAxis), 'coord', newCoord);
+                scanUID = ['c',repSpaceHyp(planC{indexS.scan}(varargin{1}).scanUID(max(1,end-61):end))];
+                stateS.scanStats.Colormap.(scanUID) = 'weather';
                 %Switch focus to CERR Viewer
                 f = stateS.handle.CERRSliceViewer;
                 figure(f);
@@ -1432,7 +1434,7 @@ dXYZ = [dy dx dz];
             tagC = get(hPar,'Tag');
             featType = get(hObj,'tag');
             idx = strcmp(tagC,paramS.(featType).subType);
-            val = getSubParameter(featType,paramS);
+            val = getSubParameter(featType,userIn);
             set(hPar(idx),'String',val);
             ud.handles.paramControls = hPar;
             set(hFig,'userdata',ud);
