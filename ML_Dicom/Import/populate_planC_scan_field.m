@@ -169,7 +169,7 @@ switch fieldname
                             
                             % Obtain SUV conversion flag from CERROptions.m
                             pathStr = getCERRPath;
-                            optName = [pathStr 'CERROptions.m'];
+                            optName = fullfile(pathStr,'CERROptions.json');
                             optS    = opts4Exe(optName);
                             if isfield(optS,'convert_PET_to_SUV') && optS.convert_PET_to_SUV
                                 slice2D = calc_suv(dicomHeaderS, slice2D);
