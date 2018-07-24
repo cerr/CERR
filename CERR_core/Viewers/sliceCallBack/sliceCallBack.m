@@ -1564,14 +1564,16 @@ switch upper(instr)
         if nargin > 1
             file = varargin{1};
         else
-            if isfield(stateS, 'CERRFile') & ~isempty(stateS.CERRFile)
+            if isfield(stateS, 'CERRFile') && ~isempty(stateS.CERRFile)
                 if stateS.workspacePlan
                     %If workspace plan, ie no directory, use CERR root.
                     stateS.CERRFile = fullfile(getCERRPath, 'workspacePlan');
                 end
-                dir = fileparts(stateS.CERRFile);
+                cerrFileDir = fileparts(stateS.CERRFile);
                 wd = cd;
-                cd(dir);
+                if exist(cerrFileDir,'dir')
+                    cd(cerrFileDir);
+                end
                 [fname, pathname] = uigetfile({'*.mat;*.mat.bz2;*.mat.zip;*.mat.tar;*.mat.bz2.tar;*.mat.zip.tar', 'CERR Plans (*.mat, *.mat.bz2, *.mat.tar, *.mat.bz2.tar)';'*.*', 'All Files (*.*)'}, 'Select a CERR archive for viewing');
                 cd(wd);
             else
