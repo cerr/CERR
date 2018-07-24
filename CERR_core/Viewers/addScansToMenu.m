@@ -4,6 +4,7 @@ function addScansToMenu(hScanMenu,topMenuFlag,selectedScan)
 %
 % APA, 03/28/2016
 % AI, 01/09/2018 : Additional grouping of scans by type
+% AI, 07/24/18 Bug fix for empty scan type
 
 global planC stateS
 indexS = planC{end};
@@ -36,7 +37,7 @@ if numScans > maxScansPerGroup
     currInd = 1;
     changeInd = currInd; 
     currentScan = indSortV(currInd);
-    scanType = '';
+    scanType = 'NoScans';
     %hScanGroupMenu = [];
     
     while currInd <= numScans
@@ -84,7 +85,7 @@ if numScans > maxScansPerGroup
             end
         end
         
-        scanDescription = planC{indexS.scan}(currentScan).scanInfo(1).scanDescription; %AI 5/9/17 Display series description 
+        scanDescription = planC{indexS.scan}(currentScan).scanInfo(1).scanDescription; %AI 5/9/17 Display series description    
         if isempty(scanDescription)
             scanTitle = scanType;
         else
