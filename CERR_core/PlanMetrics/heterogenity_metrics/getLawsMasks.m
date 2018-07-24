@@ -1,9 +1,10 @@
-function lawsMasksS = getLawsMasks(direction)
+function lawsMasksS = getLawsMasks(direction,size)
 % function lawsMasksS = getLawsMasks()
 %
 % direction: '2d', '3d' or 'All'
-%
+% size : '3', '5', 'all'
 % APA, 10/18/2016
+
 
 if ~exist('direction','var')
     direction = 'all';
@@ -236,6 +237,16 @@ if fieldNameLen > 0
     fieldNamC = fieldnames(lawsMasksS);
     indRemV = cellfun(@(x) length(x)~=fieldNameLen, fieldNamC, 'UniformOutput',true);
     lawsMasksS = rmfield(lawsMasksS,fieldNamC(indRemV));
+end
+
+fieldNamC = fieldnames(lawsMasksS);
+switch size
+    case '3'
+        indRemV = contains(fieldNamC,'5');
+        lawsMasksS = rmfield(lawsMasksS,fieldNamC(indRemV));
+    case '5'
+        indRemV = contains(fieldNamC,'3');
+        lawsMasksS = rmfield(lawsMasksS,fieldNamC(indRemV));
 end
 
 function conved3M = get3dLawsText(x,y,z)

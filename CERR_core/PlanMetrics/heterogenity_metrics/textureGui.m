@@ -97,8 +97,8 @@ switch upper(command)
                 'ylimmode', 'manual', 'parent', h);
             ud.wb.handles.patch = patch([0 0 0 0], [0 1 1 0], [0.1 0.9 0.1],...
                 'parent', ud.wb.handles.wbAxis);
-            %ud.wb.handles.percent = text(.5, .45, '', 'parent', ud.wb.handles.wbAxis, 'horizontalAlignment', 'center');
-            %ud.wb.handles.text = uicontrol(h, 'style', 'text', 'units', units, 'position', [wbX+50 wbY+wbH - 21 wbW-100 15], 'string', '');
+%             ud.wb.handles.percent = text(.5, .45, '', 'parent', ud.wb.handles.wbAxis, 'horizontalAlignment', 'center');
+%             ud.wb.handles.text = uicontrol(h, 'style', 'text', 'units', units, 'position', [wbX+50 wbY+wbH - 21 wbW-100 15], 'string', '');
 
             % Initialize current scan
             ud.currentScan = 0;
@@ -410,7 +410,7 @@ switch upper(command)
            startPosV = get(featH,'position');
         delPos = .07;
         paramS = [];
-        
+
         if nargin== 1 %List parameters for new texture map
         switch featureType
             case 'Haralick Cooccurance' 
@@ -418,7 +418,7 @@ switch upper(command)
                 paramC = {'Type','PatchSize','PatchType','Directionality','NumLevels'};
                 typeC = {'popup','edit' ,'popup','popup','edit'};
                 valC = {{'All','Entropy','Energy','Sum Avg','Homogeneity','Contrast',...
-                    'Correlation','Cluster Shade','Cluster Promincence'},...
+                    'Correlation','Cluster Shade','Cluster Promincence', 'Haralick Correlation'},...
                     {'2,2,2'},{'cm','voxels'},...
                     {'Co-occurance with 13 directions in 3D',...
                     'Left-Right, Ant-Post and Diagonals in 2D', ...
@@ -430,12 +430,11 @@ switch upper(command)
                 dispC = {'On','On','On','On','On'};
 
                 
-           hwait = ud.wb.handles.patch;
-            
-                
             case 'Law''s Convolution' % Laws 
-                %To be added
-            
+                paramC = {'Direction','KernelSize'};
+                typeC = {'popup','popup'};
+                valC = {{'2D','3D', 'All'},{'3','5','All'}};
+                dispC = {'On','On'};
             
             case 'First order statistics' %First-order statistics
                 paramC = {'PatchSize','VoxelVolume'};
@@ -454,7 +453,7 @@ switch upper(command)
                 valC = {{'All','HHH','LHH','HLH','HHL','LLH','LHL','HLL','LLL'},...
                     {'Daubechies','Haar','Coiflets','FejerKorovkin','Symlets',...
                     'Discrete Meyer wavelet','Biorthogonal','Reverse Biorthogonal'},@getSubParameter};
-                    dispC = {'On','On','On','Off'};
+                dispC = {'On','On','On','Off'};
                 subTypeC = {{'Index','Wavelets'}};
                 
             case 'Gabor'
@@ -495,7 +494,7 @@ switch upper(command)
             for n = 1:length(paramC)
                 if isa(valC{n},'function_handle')
                 fn = valC{n};
-                val = fn(featureType, paramS.(paramC{n-1}).val);
+                val = fn(featureType, paramS);
                 paramS = addParam(paramS,paramC{n},typeC{n},val,...
                     dispC{n},startPosV(2)-(n+1)*delPos,h);
                 else
@@ -646,10 +645,29 @@ switch upper(command)
         
     case 'PREVIEWCLICKED'
         ud = get(h, 'userdata');
-        ud.currentScan = varargin{1};
-        set(h, 'userdata', ud)
-        set(h, 'WindowButtonMotionFcn', 'textureGui(''PREVIEWMOTION'')');
-        
+        clickType = get(get(gcbo,'Parent'),'SelectionType');
+        switch clickType
+            case 'normal' %Left-click
+                ud.currentScan = varargin{1};
+                set(h, 'userdata', ud)
+                set(h, 'WindowButtonMotionFcn', 'textureGui(''PREVIEWMOTION'')');
+            case 'open'  %double-click
+                ud.currentScan = varargin{1};
+                set(h, 'userdata', ud);
+                %Display selected texture map
+                strNum = get(ud.handles.structure,'value')-1; %Get current structure
+                rasterSegments = getRasterSegments(strNum, planC);
+                slicesV = unique(rasterSegments(:, 6)); 
+                midSlice = floor((length(slicesV)+1)/2); %Get middle slice
+                [~, ~, zs] = getScanXYZVals(planC{indexS.scan}(varargin{1}));
+                newCoord = zs(midSlice);
+                sliceCallBack('selectScan',num2str(varargin{1}));
+                setAxisInfo(uint8(stateS.currentAxis), 'coord', newCoord);
+                %Switch focus to CERR Viewer
+                f = stateS.handle.CERRSliceViewer;
+                figure(f);
+        end
+       
     case 'SELECT_MAPS_FOR_MIM'
         
     case 'SEND_MAPS_TO_MIM'
@@ -723,8 +741,10 @@ switch upper(command)
         
     case 'CREATE_MAPS'
         ud          = get(h, 'userdata');
+        set(ud.handles.createTextureMaps,'enable','off'); %Disable while computing texture maps
         scanNum     = get(ud.handles.scan, 'value');
         structNum   = get(ud.handles.structure, 'value')-1;
+        hwait = ud.wb.handles.patch;
         indexS = planC{end};
         
         paramS = ud.parameters;
@@ -749,7 +769,7 @@ switch upper(command)
         end
         
         %Evaluate
-        outS = processImage(fType,scan3M,fullMask3M,paramS);
+        outS = processImage(fType,scan3M,fullMask3M,paramS,hwait);
         featuresC = fieldnames(outS);
         
         % Create new Texture if ud.currentTexture = 0
@@ -796,6 +816,8 @@ switch upper(command)
         for n = 1:length(featuresC)
             planC = scan2CERR(outS.(featuresC{n}),featuresC{n},'Passed',regParamsS,assocTextureUID,planC);
         end 
+        
+        set(ud.handles.createTextureMaps,'enable','on'); 
         
         set(h, 'userdata', ud);
         
@@ -1410,7 +1432,7 @@ dXYZ = [dy dx dz];
             tagC = get(hPar,'Tag');
             featType = get(hObj,'tag');
             idx = strcmp(tagC,paramS.(featType).subType);
-            val = getSubParameter(featType,userIn);
+            val = getSubParameter(featType,paramS);
             set(hPar(idx),'String',val);
             ud.handles.paramControls = hPar;
             set(hFig,'userdata',ud);
@@ -1442,4 +1464,7 @@ dXYZ = [dy dx dz];
                     '2.8','3.1','3.3','3.5','3.7','3.9','4.4','5.5','6.8'}};
            end
            out = subParC{idx};
+           
+
+           
                 
