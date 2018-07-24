@@ -1,11 +1,11 @@
-function outS = processImage(filterType,scan3M,mask3M,paramS)
+function outS = processImage(filterType,scan3M,mask3M,paramS,hWait)
 % Process scan using selected filter and parameters
 %-------------------------------------------------------------------------
 % INPUTS
 % filterType -  May be 'Haralick Cooccurance','Wavelets','Sobel',
 %               'LoG','Gabor' or 'First order statistics'.
 % scan3M     - 3-D scan array
-% mask3M     - 3-D mask 
+% mask3M     - 3-D mask
 % paramS     - Filter parameters
 %-------------------------------------------------------------------------
 %AI 03/16/18
@@ -44,10 +44,17 @@ switch filterType
             flagV(sel-1) = 1;
         end
         
-        [energy,entropy,sumAvg,corr,...
-          invDiffMom,contrast,clustShade,...
-          clustProminence,haralCorr] = textureByPatchCombineCooccur(volToEval,...
-            paramS.NumLevels.val, paramS.PatchSize.val, offsetsM, flagV); %,hWait
+        if exist('hWait','var') && ishandle(hWait)
+            [energy,entropy,sumAvg,corr,...
+                invDiffMom,contrast,clustShade,...
+                clustProminence,haralCorr] = textureByPatchCombineCooccur(volToEval,...
+                paramS.NumLevels.val, paramS.PatchSize.val, offsetsM, flagV, hWait);
+        else
+            [energy,entropy,sumAvg,corr,...
+                invDiffMom,contrast,clustShade,...
+                clustProminence,haralCorr] = textureByPatchCombineCooccur(volToEval,...
+                paramS.NumLevels.val, paramS.PatchSize.val, offsetsM, flagV);
+        end
         
         outS.Energy = energy;
         outS.Entropy = entropy;
@@ -80,52 +87,65 @@ switch filterType
         typeC =  {{'1','2','3','4','5','6','7','8','9','10','11','12','13','14','15','16',...
             '17','18','19','20','21','22','23','24','25','26','27','28','29','30',...
             '31','32','33','34','35','36','37','38','39','40','41','42','43','44','45'},{},...
-        {'1','2','3','4','5'},{'4','6','8','14','18','22'},{'2','3','4','5',...
-        '6','7','8','9','10','11','12','13','14','15','16',...
-        '17','18','19','20','21','22','23','24','25','26','27','28','29','30',...
-        '31','32','33','34','35','36','37','38','39','40','41','42','43','44','45'},...
-        {},{'1.1','1.3','1.5','2.2','2.4','2.6','2.8','3.1','3.3','3.5',...
-        '3.7','3.9','4.4','5.5','6.8'},{'1.1','1.3','1.5','2.2','2.4','2.6',...
-        '2.8','3.1','3.3','3.5','3.7','3.9','4.4','5.5','6.8'}};
-    wavType =  [wavFamilyC{paramS.Wavelets.val},typeC{paramS.Wavelets.val}{paramS.Index.val}];
-    dir = dirListC{paramS.Direction.val};
-
-    
-    if strcmp(dir,'All')
-        for n = 2:length(dirListC)
-            outname = [wavType,'_',dirListC{n}];
-            
-            out3M = wavDecom3D(vol3M,dirListC{n},wavType);
+            {'1','2','3','4','5'},{'4','6','8','14','18','22'},{'2','3','4','5',...
+            '6','7','8','9','10','11','12','13','14','15','16',...
+            '17','18','19','20','21','22','23','24','25','26','27','28','29','30',...
+            '31','32','33','34','35','36','37','38','39','40','41','42','43','44','45'},...
+            {},{'1.1','1.3','1.5','2.2','2.4','2.6','2.8','3.1','3.3','3.5',...
+            '3.7','3.9','4.4','5.5','6.8'},{'1.1','1.3','1.5','2.2','2.4','2.6',...
+            '2.8','3.1','3.3','3.5','3.7','3.9','4.4','5.5','6.8'}};
+        wavType =  [wavFamilyC{paramS.Wavelets.val},typeC{paramS.Wavelets.val}{paramS.Index.val}];
+        dir = dirListC{paramS.Direction.val};
+        
+        
+        if strcmp(dir,'All')
+            for n = 2:length(dirListC)
+                outname = [wavType,'_',dirListC{n}];
+                
+                out3M = wavDecom3D(vol3M,dirListC{n},wavType);
+                if mod(size(out3M,3),2) > 0
+                    out3M = out3M(:,:,1:end-1);
+                end
+                out3M = flip(out3M,3);
+                
+                outS.(outname) = out3M;
+                
+                if exist('hWait','var') && ishandle(hWait)
+                    set(hWait, 'Vertices', [[0 0 (n-1)/(length(dirListC)-1) (n-1)/(length(dirListC)-1)]' [0 1 1 0]']);
+                    drawnow;
+                end
+                
+            end
+        else
+            outname = [wavType,'_',dir];
+            out3M = wavDecom3D(vol3M,dir,wavType);
             if mod(size(out3M,3),2) > 0
                 out3M = out3M(:,:,1:end-1);
             end
             out3M = flip(out3M,3);
-            
+            if exist('hWait','var') && ishandle(hWait)
+                set(hWait, 'Vertices', [[0 0 1 1]' [0 1 1 0]']);
+                drawnow;
+            end
             outS.(outname) = out3M;
+            
         end
-    else
-        outname = [wavType,'_',dir];
-        out3M = wavDecom3D(vol3M,dir,wavType);
-        if mod(size(out3M,3),2) > 0
-            out3M = out3M(:,:,1:end-1);
-        end
-        out3M = flip(out3M,3);
-        outS.(outname) = out3M;
         
-    end
-    
     case 'Sobel'
         [minr, maxr, minc, maxc, mins, maxs] = compute_boundingbox(mask3M);
         mask3M                   = mask3M(minr:maxr,minc:maxc,mins:maxs);
         scan3M                   = scan3M(minr:maxr,minc:maxc,mins:maxs);
         vol3M   = double(mask3M).*double(scan3M);
         [outS.SobelMag,outS.SobelDir] = sobelFilt(vol3M);
-        
-%     case 'LoG'
-%         tic
-%         vol3M   = double(mask3M).*double(scan3M);
-%         outS.LoG = LoGFilt(vol3M,paramS.KernelSize.val,paramS.Sigma.val);
-%         toc
+        if exist('hWait','var') && ishandle(hWait)
+            set(hWait, 'Vertices', [[0 0 1 1]' [0 1 1 0]']);
+            drawnow;
+        end
+        %     case 'LoG'
+        %         tic
+        %         vol3M   = double(mask3M).*double(scan3M);
+        %         outS.LoG = LoGFilt(vol3M,paramS.KernelSize.val,paramS.Sigma.val);
+        %         toc
         
     case 'LoG'
         [minr, maxr, minc, maxc, mins, maxs] = compute_boundingbox(mask3M);
@@ -133,6 +153,10 @@ switch filterType
         scan3M                   = scan3M(minr:maxr,minc:maxc,mins:maxs);
         vol3M   = double(mask3M).*double(scan3M);
         outS.LoG_recursive = recursiveLOG(vol3M,paramS.Sigma_mm.val,paramS.VoxelSize_mm.val);
+        if exist('hWait','var') && ishandle(hWait)
+            set(hWait, 'Vertices', [[0 0 1 1]' [0 1 1 0]']);
+            drawnow;
+        end
         
     case 'Gabor'
         [minr, maxr, minc, maxc, mins, maxs] = compute_boundingbox(mask3M);
@@ -141,6 +165,10 @@ switch filterType
         vol3M   = double(mask3M).*double(scan3M);
         outS.Gabor = filtImgGabor(vol3M,paramS.Radius.val,paramS.Sigma.val,...
             paramS.AspectRatio.val,paramS.Orientation.val,paramS.Wavlength.val);
+        if exist('hWait','var') && ishandle(hWait)
+            set(hWait, 'Vertices', [[0 0 1 1]' [0 1 1 0]']);
+            drawnow;
+        end
         
     case 'First order statistics'
         
@@ -164,14 +192,50 @@ switch filterType
         
         [~,patchStatM] = firstOrderStatsByPatch(vol3M,bboxDimV,patchSizeV,voxelVol);
         
-        mask3M = zeros(size(mask3M));
         for n = 1:length(statC)
-        outV = patchStatM(:,n);
-        outBox3M = reshape(outV,maxr-minr+1,maxc-minc+1,maxs-mins+1);
-        outBox3M(~bbox3M) = 0;
-        out3M(minr:maxr,minc:maxc,mins:maxs) = outBox3M;
-        outS.(statC{n}) = out3M;
+            outV = patchStatM(:,n);
+            outBox3M = reshape(outV,maxr-minr+1,maxc-minc+1,maxs-mins+1);
+            outBox3M(~bbox3M) = 0;
+            out3M(minr:maxr,minc:maxc,mins:maxs) = outBox3M;
+            outS.(statC{n}) = out3M;
+            if exist('hWait','var') && ishandle(hWait)
+                set(hWait, 'Vertices', [[0 0 n/length(statC) n/length(statC)]' [0 1 1 0]']);
+                drawnow;
+            end
         end
+        
+        
+    case 'Law''s Convolution'
+        
+                [minr, maxr, minc, maxc, mins, maxs] = compute_boundingbox(mask3M);
+                mask3M                   = mask3M(minr:maxr,minc:maxc,mins:maxs);
+                scan3M                   = scan3M(minr:maxr,minc:maxc,mins:maxs);
+                vol3M = double(mask3M).*double(scan3M);
+                vol3M(mask3M==0) = NaN;
+        
+                %Pad with mean intensities
+                meanVol = nanmean(vol3M(:));
+                paddedVolM = padarray(vol3M,[5 5 5],meanVol,'both');
+                dirC = {'2d','3d','all'};
+                sizC = {'3','5','all'};
+                dir = dirC{paramS.Direction.val};
+                siz = sizC{paramS.KernelSize.val};
+                lawsMasksS = getLawsMasks(dir,siz);
+        
+                %Compute features
+                fieldNamesC = fieldnames(lawsMasksS);
+                numFeatures = length(fieldNamesC);
+                for i = 1:numFeatures
+                    text3M = convn(paddedVolM,lawsMasksS.(fieldNamesC{i}),'same');
+                    text3M = text3M(6:end-5,6:end-5,6:end-5);
+                    outS.(fieldNamesC{i}) = text3M; % for the entire cubic roi
+                    if exist('hWait','var') && ishandle(hWait)
+                        set(hWait, 'Vertices', [[0 0 i/numFeatures i/numFeatures]' [0 1 1 0]']);
+                        drawnow;
+                    end
+                end
+        
+        
         
 end
 
