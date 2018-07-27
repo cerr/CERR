@@ -25,8 +25,8 @@ bspFileName = fullfile(getCERRPath,'ImageRegistration','tmpFiles',['bsp_coeffs_'
 success     = write_bspline_coeff_file(bspFileName,deformS.algorithmParamsS);
 
 % Obtain Vf from b-splice coefficients
-%vfFileName = fullfile(getCERRPath,'ImageRegistration','tmpFiles',['vf_',baseScanUID,'_',movScanUID,'.mha']);
-vfFileName = fullfile(tempdir,'tmpFiles',['vf_',baseScanUID,'_',movScanUID,'.mha']);
+vfFileName = fullfile(getCERRPath,'ImageRegistration','tmpFiles',['vf_',baseScanUID,'_',movScanUID,'.mha']);
+%vfFileName = fullfile(tempdir,'tmpFiles',['vf_',baseScanUID,'_',movScanUID,'.mha']);
 system(['plastimatch xf-convert --input ',escapeSlashes(bspFileName), ' --output ', escapeSlashes(vfFileName), ' --output-type vf'])
 %system(['plastimatch convert --xf ',escapeSlashes(bspFileName), ' --output-vf=', escapeSlashes(vfFileName)])
 delete(bspFileName)
