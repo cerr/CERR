@@ -494,7 +494,7 @@ switch upper(command)
             for n = 1:length(paramC)
                 if isa(valC{n},'function_handle')
                 fn = valC{n};
-                val = fn(featureType, paramS);
+                val = fn(featureType, paramS.(paramC{n-1}).val);
                 paramS = addParam(paramS,paramC{n},typeC{n},val,...
                     dispC{n},startPosV(2)-(n+1)*delPos,h);
                 else
