@@ -772,7 +772,19 @@ switch upper(command)
         end
         
         %Evaluate
-        outS = processImage(fType,scan3M,fullMask3M,paramS,hwait);
+        if(strcmp(fType,'Wavelets') )           
+            mappedWavFamilyC = {'db','haar','coif', 'fk','sym','dmey','bior','rbio'};
+            wavFamilyC = {'Daubechies','Haar','Coiflets','FejerKorovkin','Symlets',...
+                    'Discrete Meyer wavelet','Biorthogonal','Reverse Biorthogonal'};
+            idx = paramS.Wavelets.val;
+            isWav = cellfun(@(x)isequal(x,idx),wavFamilyC);
+            [~,idx] = find(isWav);
+            out = mappedWavFamilyC{idx};
+            paramS.Wavelets.val = out;
+            outS = processImage(fType,scan3M,fullMask3M,paramS,hwait);        
+        else
+            outS = processImage(fType,scan3M,fullMask3M,paramS,hwait);
+        end
         featuresC = fieldnames(outS);
         
         % Create new Texture if ud.currentTexture = 0
@@ -1383,11 +1395,12 @@ dXYZ = [dy dx dz];
                 in = in{1};
             end
             if ~isnumeric(in)
-            in = str2num(in);   
+                in = str2num(in);   
             end
             outS.(fieldname).val = in;
         elseif strcmp(type,'popup')
-            outS.(fieldname).val = 1;
+            %outS.(fieldname).val = 1;
+            outS.(fieldname).val = in{1};
         end
         outS.(fieldname).disp = disp;
         
@@ -1425,7 +1438,8 @@ dXYZ = [dy dx dz];
                 userIn = str2num(userIn);
             end
         else %popup
-            userIn = get(hObj,'value');
+            %userIn = get(hObj,'value');
+            userIn = hObj.String{hObj.Value};
         end
         paramS = ud.parameters;
         paramS.(hObj.Tag).val = userIn;
@@ -1455,6 +1469,10 @@ dXYZ = [dy dx dz];
                 
            switch(featType)
            case 'Wavelets'
+                wavFamilyC = {'Daubechies','Haar','Coiflets','FejerKorovkin','Symlets',...
+                    'Discrete Meyer wavelet','Biorthogonal','Reverse Biorthogonal'};
+                isWav = cellfun(@(x)isequal(x,idx),wavFamilyC);
+                [~,idx] = find(isWav);
                 subParC =  {{'1','2','3','4','5','6','7','8','9','10','11','12','13','14','15','16',...
                     '17','18','19','20','21','22','23','24','25','26','27','28','29','30',...
                     '31','32','33','34','35','36','37','38','39','40','41','42','43','44','45'},{},...
