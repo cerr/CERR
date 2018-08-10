@@ -161,10 +161,10 @@ end
         planC{indexS.structures}(structNumV(strNum)).rasterized = 0;
         planC{indexS.structures}(structNumV(strNum)).rasterSegments = [];
     end
-    planC = getRasterSegs(planC);
+    planC = getRasterSegs(planC,structNumV);
 
     %uniformize
-    planC = setUniformizedData(planC);
+    planC = setUniformizedData(planC,planC{indexS.CERROptions},scanNum);
 
 % catch
 % 
