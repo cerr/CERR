@@ -1,4 +1,4 @@
-function surfPoints = getSurfacePoints(mask3M)
+function surfPoints = getSurfacePoints(mask3M,sampleTrans,sampleAxis)
 %"getSurfacePoints"
 %   Return the [row,col,slice] of surface points in mask3M, where a surface
 %   point is defined as any voxel in the structure that is adjacent to a
@@ -87,6 +87,13 @@ clear minusSlcShift
 %as those points that are ON in mask3M and don't have ALL their neighbors
 %on.
 kernal = mask3M(2:end-1, 2:end-1, 2:end-1) & ~allNeighborsOn;
+
+% Downsample kernel
+if exist('sampleTrans','var') && exist('sampleAxis','var')
+    if sampleTrans > 1 || sampleAxis > 1
+        kernal = kernal & getDown3Mask(kernal,sampleTrans, sampleAxis);
+    end
+end
 
 %Finally drop the kernal back into the middle of mask3M.  All points on the
 %first/last row, column and slice of mask3M are by definion surface points.
