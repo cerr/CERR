@@ -94,6 +94,11 @@ shapeS.elongation = sqrt(eigValV(2) / eigValV(3));
 
 % Get the surface points for the structure mask
 surfPoints = getSurfacePoints(mask3M);
+sampleRate = 1;
+while size(surfPoints,1) > 20000
+    sampleRate = sampleRate + 1;
+    surfPoints = getSurfacePoints(mask3M, sampleRate, 1);
+end
 xSurfV = xValsV(surfPoints(:,2));
 ySurfV = yValsV(surfPoints(:,1));
 zSurfV = zValsV(surfPoints(:,3));
