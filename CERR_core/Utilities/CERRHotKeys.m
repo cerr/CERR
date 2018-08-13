@@ -171,14 +171,14 @@ switch(keyValue)
         contourControl('reassignMode');
         controlFrame('contour', 'refresh');
         
-    case {76,108} % l or L key
-        val = get(stateS.handle.CTLevelWidthInteractive,'value');
-        if val == 0
-            set(stateS.handle.CTLevelWidthInteractive,'value',1);
-        else
-            set(stateS.handle.CTLevelWidthInteractive,'value',0);
-        end
-        sliceCallBack('TOGGLESCANWINDOWING');
+%     case {76,108} % l or L key
+%         val = get(stateS.handle.CTLevelWidthInteractive,'value');
+%         if val == 0
+%             set(stateS.handle.CTLevelWidthInteractive,'value',1);
+%         else
+%             set(stateS.handle.CTLevelWidthInteractive,'value',0);
+%         end
+%         sliceCallBack('TOGGLESCANWINDOWING');
         
     case 3 %'Ctrl + c' Copy contour from slice
         if ~stateS.contourState %Check for contouring mode
