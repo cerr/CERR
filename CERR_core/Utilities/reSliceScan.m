@@ -109,7 +109,11 @@ end
                 slc = single(slc);
         end
         newScanArray(:,:,slcNum) = slc;
-        newScanInfo(slcNum) = oldScanInfo;
+        if slcNum == 1
+            newScanInfo(slcNum) = oldScanInfo;
+        else
+            newScanInfo = dissimilarInsert(newScanInfo, oldScanInfo, slcNum);
+        end
         newScanInfo(slcNum).grid1Units = newGridInterval1;
         newScanInfo(slcNum).grid2Units = newGridInterval2;
         newScanInfo(slcNum).sizeOfDimension1 = length(newYVals);
