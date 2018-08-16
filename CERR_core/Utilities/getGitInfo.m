@@ -166,7 +166,10 @@ end
 %url could also be 'git@github.com:cerr/CERR/commits/testing'
 %get to the commits page to view the remote commit hash
 %url = 'git@github.com:cerr/CERR';
-if ~isempty(url) && contains(url, '.git')
+
+%if ~isempty(url) && contains(url, '.git')
+% use "strfind" instead of "contains" for older versions of matlab
+if ~isempty(url) && strfind(url, '.git')
     commitUrl = strrep(url,'.git','/commits/');
     url = strcat(commitUrl,localGitInfo.branch); 
 elseif ~isempty(url)
