@@ -47,8 +47,21 @@ dcmName(strfind(dcmName, '?'))  = [];
 dcmName(strfind(dcmName, '('))  = [];
 dcmName(strfind(dcmName, ')'))  = [];
 dcmName(strfind(dcmName, '^'))  = [];
+%dcmName(regexp(s,'/*-* *?*(*)*^*''*')) = [];
 
 %These characters are replaced by an alternative: "(),"  
 dcmName(strfind(dcmName, ','))  = '_';
+%dcmName(regexp(s,',*')) = '_';
+
+% java String replace
+% dcmName.replace('''','_');
+% dcmName.replace('/','_');
+% dcmName.replace('-','_');
+% dcmName.replace(' ','_');
+% dcmName.replace(' ','_');
+% dcmName.replace('?','_');
+% dcmName.replace('(','_');
+% dcmName.replace(')','_');
+% dcmName.replace('^','_');
 
 mlName = dcmName;

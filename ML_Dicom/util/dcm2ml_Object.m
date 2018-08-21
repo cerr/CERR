@@ -36,7 +36,9 @@ while it.hasNext
     tag = el.tag;
     
     %Get the element's name.
-    name = char(dcmObj.nameOf(tag));
+    %name = char(dcmObj.nameOf(tag));
+    name = cell(dcmObj.nameOf(tag));
+    name = name{1};
        
     %Convert to a valid ML fieldname.
     name = dcm2ml_Fieldname(name, tag); 
