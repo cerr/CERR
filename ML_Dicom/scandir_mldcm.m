@@ -66,12 +66,18 @@ filesV([filesV.isdir]) = [];
 %Scan each file, returning
 dcmdirS = [];
 
+patient = org.dcm4che2.data.BasicDicomObject;
+patienttemplate = build_module_template('patient');
+
 for i=1:length(filesV)
 
     filename = fullfile(dirPath, filesV(i).name);
     [dcmObj, isDcm] = scanfile_mldcm(filename);
 
     if isDcm
+        %Extract the data from the dcmobj.
+        dcmObj.subSet(patienttemplate).copyTo(patient);
+        
         dcmdirS = dcmdir_add(filename, dcmObj, dcmdirS);
         %         [isValid, errMsg] = validate_patient_module(dcmObj);
         dcmObj.clear;
