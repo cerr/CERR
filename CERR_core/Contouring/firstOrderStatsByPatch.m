@@ -17,7 +17,7 @@ function [patchIntM,patchStatM,listOfStatsC] = firstOrderStatsByPatch(scan3M,mas
 patchIntM = getImageNeighbours(scan3M,mask3M,patchSizeV(1),patchSizeV(2),patchSizeV(3));
 
 %Compute statistics 
-RadiomicsFirstOrderS = radiomics_first_order_stats(patchIntM.',voxelVol);
+RadiomicsFirstOrderS = radiomics_first_order_stats(patchIntM,voxelVol);
 listOfStatsC = fieldnames(RadiomicsFirstOrderS);
 statC = struct2cell(RadiomicsFirstOrderS);
 patchStatM = cell2mat(statC).';
