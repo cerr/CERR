@@ -772,19 +772,50 @@ switch upper(command)
         end
         
         %Evaluate
-        if(strcmp(fType,'Wavelets') )           
+        if(strcmp(fType,'Wavelets') )
             mappedWavFamilyC = {'db','haar','coif', 'fk','sym','dmey','bior','rbio'};
             wavFamilyC = {'Daubechies','Haar','Coiflets','FejerKorovkin','Symlets',...
-                    'Discrete Meyer wavelet','Biorthogonal','Reverse Biorthogonal'};
+                'Discrete Meyer wavelet','Biorthogonal','Reverse Biorthogonal'};
             idx = paramS.Wavelets.val;
             isWav = cellfun(@(x)isequal(x,idx),wavFamilyC);
             [~,idx] = find(isWav);
             out = mappedWavFamilyC{idx};
             paramS.Wavelets.val = out;
-            outS = processImage(fType,scan3M,fullMask3M,paramS,hwait);        
-        else
-            outS = processImage(fType,scan3M,fullMask3M,paramS,hwait);
+            
+        elseif (strcmp(fType,'Haralick Cooccurance') )
+            mappedDirectionalityC = {1,2,3,4,5,6};
+            directionalityC = {'Co-occurance with 13 directions in 3D',...
+                'Left-Right, Ant-Post and Diagonals in 2D', ...
+                'Left-Right and Ant-Post', ...
+                'Left-Right',...
+                'Anterior-Posterior',...
+                'Superior-Inferior'};
+            idx = paramS.Directionality.val;
+            isDir = cellfun(@(x)isequal(x,idx),directionalityC);
+            [~,idx] = find(isDir);
+            out = mappedDirectionalityC{idx};
+            paramS.Directionality.val = out;
+         
+        elseif (strcmp(fType,'Law''s Convolution') )
+            mappedDirC = {1,2,3};
+            mappedSizC = {1,2,3};
+            dirC = {'2D','3D', 'All'};
+            sizC = {'3','5','All'};
+            idx1 = paramS.Direction.val;
+            idx2 = paramS.KernelSize.val;
+            isDir = cellfun(@(x)isequal(x,idx1),dirC);
+            isSiz = cellfun(@(x)isequal(x,idx2),sizC);
+            [~,idx1] = find(isDir);
+            [~,idx2] = find(isSiz);
+            out1 = mappedDirC{idx1};
+            out2 = mappedSizC{idx2};
+            paramS.Direction.val = out1;
+            paramS.KernelSize.val = out2;
+            
+            
+            
         end
+        outS = processImage(fType,scan3M,fullMask3M,paramS,hwait);        
         featuresC = fieldnames(outS);
         
         % Create new Texture if ud.currentTexture = 0
