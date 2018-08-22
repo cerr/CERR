@@ -174,31 +174,24 @@ switch filterType
         
     case 'First order statistics'
         
-        % Get bounds of ROI
-        [minr, maxr, minc, maxc, mins, maxs] = compute_boundingbox(mask3M);
-        bboxDimV = [minr, maxr, minc, maxc, mins, maxs];
-        bbox3M = mask3M(minr:maxr,minc:maxc,mins:maxs);
-        
         vol3M = double(scan3M);
         patchSizeV = paramS.PatchSize.val;
         
         %Get voxel size
         voxelVol = paramS.VoxelVolume.val;
         
-        
-        % Compute patch-based statistics
+        %Compute patch-based statistics
         statC = {'min','max','mean','range','std','var','median','skewness',...
             'kurtosis','entropy','rms','energy','totalEnergy','meanAbsDev',...
             'medianAbsDev','P10','P90','robustMeanAbsDev','robustMedianAbsDev',...
             'interQuartileRange','coeffDispersion','coeffVariation'};
         
-        [~,patchStatM] = firstOrderStatsByPatch(vol3M,bboxDimV,patchSizeV,voxelVol);
+        [~,patchStatM] = firstOrderStatsByPatch(vol3M,mask3M,patchSizeV,voxelVol);
         
         for n = 1:length(statC)
+            out3M = zeros(size(vol3M));
             outV = patchStatM(:,n);
-            outBox3M = reshape(outV,maxr-minr+1,maxc-minc+1,maxs-mins+1);
-            outBox3M(~bbox3M) = 0;
-            out3M(minr:maxr,minc:maxc,mins:maxs) = outBox3M;
+            out3M(mask3M) = outV;
             outS.(statC{n}) = out3M;
             if exist('hWait','var') && ishandle(hWait)
                 set(hWait, 'Vertices', [[0 0 n/length(statC) n/length(statC)]' [0 1 1 0]']);
