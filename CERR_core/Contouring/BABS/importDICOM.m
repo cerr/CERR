@@ -70,7 +70,7 @@ for dirNum = 1:length(dirsToImportC)
         init_ML_DICOM
         %hWaitbar = waitbar(0,'Scanning Directory Please wait...');
         sourceDir = dirsToImportC{dirNum};
-        patient = scandir_mldcm(sourceDir, hWaitbar, 1);
+        patient = scandir_mldcm_babs(sourceDir, hWaitbar, 1);
         %close(hWaitbar);
         dcmdirS = struct(['patient_' num2str(1)],patient.PATIENT(1));
         for j = 2:length(patient.PATIENT)
