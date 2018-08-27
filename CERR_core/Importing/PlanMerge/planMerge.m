@@ -256,43 +256,44 @@ end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 % Just to customize input
-ansBtnDS = '';
-if isempty(scanIndV) && ~isempty(doseIndV) && ~isempty(structIndV)
-
-    ansBtnDS = questdlg('Do you want to Change scan association for Dose and Structures','Scan Association','Yes','No','Yes');
-
-elseif isempty(scanIndV) && isempty(doseIndV) && ~isempty(structIndV)
-
-    ansBtnDS = questdlg('Do you want to Change scan association for Structures','Scan Association','Yes','No','Yes');
-end
-
-% If answer is Yes
-if strcmp(ansBtnDS,'Yes')
-    if nScans == 1
-        whichScan = 1;
-    else
-        prompt={['Enter one of the Scan Number b/w ' num2str(1 : nScans) ' to associate this data with']};
-        def={'1'};
-        dlgTitle = 'Pick Associated Scan Number';
-        lineNo=1;
-        whichScan = inputdlg(prompt,dlgTitle,lineNo,def);
-        whichScan = str2double(whichScan{:});
-    end
+if nScans == 1
+    whichScan = 1;
     whichScanUID = planC{indexSC.scan}(whichScan).scanUID;
-    % z-values of the slices
-    newScanZvalV = [planC{indexSC.scan}(whichScan).scanInfo.zValue];    
 else
-    whichScan = [];
-    whichScanUID = [];
-    %Must include associated scans of any structures being merged.
-    scanIndV = sort(union(scanIndV, assocScansV));
+    ansBtnDS = '';
+    if isempty(scanIndV) & ~isempty(doseIndV) & ~isempty(structIndV)
+        
+        ansBtnDS = questdlg('Do you want to Change scan association for Dose and Structures','Scan Association','Yes','No','Yes');
+        
+    elseif isempty(scanIndV) & isempty(doseIndV) & ~isempty(structIndV)
+        
+        ansBtnDS = questdlg('Do you want to Change scan association for Structures','Scan Association','Yes','No','Yes');
+    end
+    
+    % If answer is Yes
+    if strcmp(ansBtnDS,'Yes')
+        if nScans == 1
+            whichScan = 1;
+        else
+            prompt={['Enter one of the Scan Number b/w ' num2str(1 : nScans) ' to associate this data with']};
+            def={'1'};
+            dlgTitle = 'Pick Associated Scan Number';
+            lineNo=1;
+            whichScan = inputdlg(prompt,dlgTitle,lineNo,def);
+            whichScan = str2num(whichScan{:});
+        end
+        whichScanUID = planC{indexSC.scan}(whichScan).scanUID;
+    else
+        whichScan = [];
+        whichScanUID = [];
+        %Must include associated scans of any structures being merged.
+        scanIndV = sort(union(scanIndV, assocScansV));
+    end
 end
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-scanIndV   = setdiff(scanIndV,find(scansWithSameUID));
-doseIndV   = setdiff(doseIndV,find(dosesWithSameUID));
-structIndV = setdiff(structIndV,find(structsWithSameUID));
+scanIndV   = setdiff(scanIndV,scansWithSameUID);
+doseIndV   = setdiff(doseIndV,dosesWithSameUID);
+structIndV = setdiff(structIndV,structsWithSameUID);
 
 %Remove structures from planD's uniformized data if they aren't being imported.
 toDelete = setdiff(1:length(structs), [structIndV]);
@@ -313,26 +314,23 @@ for i=1:length(structs)
     else
         newAssocScan                = whichScan;
         structs(i).assocScanUID     = whichScanUID;
-        oldScanZvalV = [planD{indexSD.scan}(assocScansV(i)).scanInfo.zValue];
-        slcIndV = zeros(size(oldScanZvalV));
-        for iSlc = 1:length(oldScanZvalV)
-            slcIndV(iSlc) = findnearest(newScanZvalV, oldScanZvalV(iSlc));
-        end
-        newContourS = struct('segments',[]);
-        newContourS(1:length(newScanZvalV)) = newContourS;
-        newContourS(slcIndV) = structs(i).contour;
-        structs(i).contour = newContourS;
     end
     structs(i).structureName    = [num2str(newAssocScan) ' - ' structs(i).structureName];
     structs(i).associatedScan   = newAssocScan;
     planC{indexSC.structures}    = dissimilarInsert(planC{indexSC.structures}, structs(i), nStructs+i);
-    %re-generate raster segments    
-    %planC{indexSC.structures}(nStructs+i).rasterized = 0;
-    %planC = getRasterSegs(planC,nStructs+i);    
 end
 
 %Filter by scans to include
 scans = scans(scanIndV);
+
+% reuniformize scan if new structures are added.
+matchingScanUIDs = ismember({structs.assocScanUID},{planC{indexSC.scan}.scanUID, scans.scanUID});
+if ~all(matchingScanUIDs)   
+    structuresToUniformize = nStructs + find(~matchingScanUIDs);
+    for iUniformize = 1:length(structuresToUniformize)
+        planC = updateStructureMatrices(planC, structuresToUniformize(iUniformize));
+    end
+end
 
 %Add scans to planC, along with structure array data if the original scan
 %number was in assocScansV.  IE, if any merged structures require the structure
@@ -349,15 +347,6 @@ for i=1:length(scans)
     if ismember(scanIndV(i), assocScansV) && length(uniData) >= i
         planC{indexSC.structureArray} = dissimilarInsert(planC{indexSC.structureArray}, uniData(i), nScans+i);
         planC{indexSC.structureArrayMore} = dissimilarInsert(planC{indexSC.structureArrayMore}, uniDataMore(i), nScans+i);
-    end
-end
-
-% reuniformize scan if new structures are added.
-matchingScanUIDs = ismember({structs.assocScanUID},{planC{indexSC.scan}.scanUID, scans.scanUID});
-if ~all(matchingScanUIDs)   
-    structuresToUniformize = nStructs + find(~matchingScanUIDs);
-    for iUniformize = 1:length(structuresToUniformize)
-        planC = updateStructureMatrices(planC, structuresToUniformize(iUniformize));
     end
 end
 
