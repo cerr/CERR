@@ -4,10 +4,17 @@ function planC = warp_scan(deformS,movScanNum,movPlanC,planC)
 % APA, 07/19/2012
 
 % Create b-spline coefficients file
-baseScanUID = deformS.baseScanUID;
-movScanUID  = deformS.movScanUID;
-bspFileName = fullfile(getCERRPath,'ImageRegistration','tmpFiles',['bsp_coeffs_',baseScanUID,'_',movScanUID,'.txt']);
-success     = write_bspline_coeff_file(bspFileName,deformS.algorithmParamsS);
+if isstruct(deformS)
+    baseScanUID = deformS.baseScanUID;
+    movScanUID  = deformS.movScanUID;
+    bspFileName = fullfile(getCERRPath,'ImageRegistration','tmpFiles',['bsp_coeffs_',baseScanUID,'_',movScanUID,'.txt']);
+    success     = write_bspline_coeff_file(bspFileName,deformS.algorithmParamsS);
+else
+    bspFileName = deformS;
+    indexS = planC{end};
+    %movScanUID = movPlanC{indexMovS.scan}(movScanNum).scanUID;
+    baseScanUID = planC{indexS.scan}(movScanNum).scanUID;
+end
 
 % Convert moving scan to .mha
 indexMovS = movPlanC{end};
@@ -36,7 +43,9 @@ save_flag = 0;
 planC  = mha2cerr(infoS,data3M,movScanOffset,movScanName, planC, save_flag);
 % Cleanup
 try
-    delete(bspFileName)
+    if isstruct(deformS)
+        delete(bspFileName)
+    end
     delete(movScanFileName)
     delete(warpedMhaFileName)
 end
