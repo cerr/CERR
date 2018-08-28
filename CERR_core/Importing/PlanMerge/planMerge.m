@@ -305,6 +305,7 @@ end
 
 %Filter the actual structArray by structs to include.
 structs = structs(structIndV);
+oldStructAssocScanUidC = {structs.assocScanUID};
 
 %Add structs to planC, modifying name and associatd scan.
 for i=1:length(structs)
@@ -324,7 +325,7 @@ end
 scans = scans(scanIndV);
 
 % reuniformize scan if new structures are added.
-matchingScanUIDs = ismember({structs.assocScanUID},{planC{indexSC.scan}.scanUID, scans.scanUID});
+matchingScanUIDs = ismember(oldStructAssocScanUidC,{planC{indexSC.scan}.scanUID, scans.scanUID});
 if ~all(matchingScanUIDs)   
     structuresToUniformize = nStructs + find(~matchingScanUIDs);
     for iUniformize = 1:length(structuresToUniformize)
