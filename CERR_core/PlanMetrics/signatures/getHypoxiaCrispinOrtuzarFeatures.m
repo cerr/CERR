@@ -111,8 +111,6 @@ for i = 1:length(ctStructNumV)
     rlmType = 2;
     rlmFeaturesS = get_rlm(dirctn, rlmType, quantizedM, ...
         numGrLevels, numVoxels, rlmFlagS);
-    
-    rlmFeaturesS = get_rlm(dirctn, rlmType, quantizedM, numGrLevels, numVoxels, rlmFlagS);
-    
+        
     featureS(i).lrhgle = rlmFeaturesS.MaxS.lrhgle;
 end
