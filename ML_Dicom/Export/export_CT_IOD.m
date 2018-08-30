@@ -85,14 +85,16 @@ for scanNum = 1:length(planC{indexS.scan})
         else
             %scanS.scanArray = scanS.scanArray / dcmheader.RescaleSlope;
         end
-        scaleFactor = dcmheader.RescaleSlope;
+        dcmHeadAllSlcS = [scanS.scanInfo(:).DICOMHeaders];        
+        scaleFactorV = [dcmHeadAllSlcS.RescaleSlope];
     else
         maxScaled  = 2^nBits;
         maxScan = max([max(scanS.scanArray(:)) maxScaled]);
-        scaleFactor = maxScan/maxScaled;
+        scaleFactor = maxScan/maxScaled;        
         if scaleFactor < 1
             scaleFactor = 1;
         end
+        scaleFactorV = repmat(scaleFactor,size(scanS.scanArray,3));
     end
     
     %For slice-specific modules iterate over scaninfo.
@@ -111,11 +113,15 @@ for scanNum = 1:length(planC{indexS.scan})
         imgplaneobj     = export_module('image_plane', 'scan', scanInfoS, scanS);
 
         %Build an image pixel module from this particular slice (scanInfoS)    
-        imgpixelobj     = export_module('image_pixel', 'scan', scanInfoS, scanS, scaleFactor);
+        imgpixelobj     = export_module('image_pixel', 'scan', scanInfoS, scanS, scaleFactorV);
 
         %Build an CT image module from this particular slice (scanInfoS)
-        ctimageobj      = export_module('CT_image', scanInfoS, scanS, scaleFactor);
-
+        if strcmpi(modality,'PT')
+            ctimageobj      = export_module('PT_image', scanInfoS, scanS, scaleFactorV);
+        else
+            ctimageobj      = export_module('CT_image', scanInfoS, scanS, scaleFactorV);
+        end
+        
         SOPobj = export_module('SOP_common', 'scanInfo', scanInfoS);
 
         %Combine all modules into a single dcmobj.
