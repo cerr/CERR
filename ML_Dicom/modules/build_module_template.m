@@ -57,6 +57,8 @@ switch lower(moduleName)
         tagS = image_pixel_module_tags;
     case 'ct_image'
         tagS = CT_image_module_tags;
+    case 'pt_image'
+        tagS = PT_image_module_tags;
     case 'mr_image'
         tagS = MR_image_module_tags;
     case 'sop_common'
