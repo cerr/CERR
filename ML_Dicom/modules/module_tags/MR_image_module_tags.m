@@ -81,7 +81,12 @@ tagS(end+1) = struct('tag', ['0019100C'], 'type', ['4'], 'children', []); % SIEM
 %% Added : temporal position ID
 tagS(end+1) = struct('tag', ['00200100'], 'type', ['3'], 'children', []);  
 %Trigger time  %Added AI 10/14/16
-tagS(end+1) = struct('tag', ['00181060'], 'type', ['3'], 'children', []);  
-%%%
+tagS(end+1) = struct('tag', ['00181060'], 'type', ['2C'], 'children', []);  
+
+%Number of slices (for GE data)
+tagS(end+1) = struct('tag', ['0021104F'], 'type', ['3'], 'children', []);  
+
+%Instance number
+tagS(end+1) = struct('tag', ['00200013'], 'type', ['1'], 'children', []);  
 
     
