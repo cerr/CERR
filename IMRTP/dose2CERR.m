@@ -51,6 +51,12 @@ if ~exist('planC','var')
 end
 indexS=planC{end};
 W = size(doseNew);
+if ismatrix(doseNew) %Single slice
+    temp = nan(W(1),W(2),3);
+    temp(:,:,2) = doseNew;
+    doseNew = temp;
+    W(3) = 3;
+end
 
 %How many old dose distributions?
 prevSets = length(planC{indexS.dose});
