@@ -159,21 +159,21 @@ for scanNum = 1:length(planD{indexSD.scan})
     end
 end
 
-%Check for mesh representation and load meshes into memory
-currDir = cd;
-meshDir = fileparts(which('libMeshContour.dll'));
-cd(meshDir)
-for strNum = 1:length(structs)
-    if isfield(structs(strNum),'meshRep') && ~isempty(structs(strNum).meshRep) && structs(strNum).meshRep
-        try
-            calllib('libMeshContour','loadSurface',structs(strNum).strUID,structs(strNum).meshS)
-        catch
-            structs(strNum).meshRep    = 0;
-            structs(strNum).meshS      = [];
-        end
-    end
-end
-cd(currDir)
+% %Check for mesh representation and load meshes into memory
+% currDir = cd;
+% meshDir = fileparts(which('libMeshContour.dll'));
+% cd(meshDir)
+% for strNum = 1:length(structs)
+%     if isfield(structs(strNum),'meshRep') && ~isempty(structs(strNum).meshRep) && structs(strNum).meshRep
+%         try
+%             calllib('libMeshContour','loadSurface',structs(strNum).strUID,structs(strNum).meshS)
+%         catch
+%             structs(strNum).meshRep    = 0;
+%             structs(strNum).meshS      = [];
+%         end
+%     end
+% end
+% cd(currDir)
 
 %Check dose-grid
 for doseNum = 1:length(doses)
@@ -256,7 +256,7 @@ end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 % Just to customize input
-if nScans == 1
+if isempty(scanIndV) && nScans == 1
     whichScan = 1;
     whichScanUID = planC{indexSC.scan}(whichScan).scanUID;
 else
