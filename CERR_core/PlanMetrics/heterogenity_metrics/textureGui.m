@@ -795,7 +795,20 @@ switch upper(command)
             [~,idx] = find(isDir);
             out = mappedDirectionalityC{idx};
             paramS.Directionality.val = out;
-         
+            
+            if strcmpi(paramS.PatchType.val,'cm')
+            [xVals, yVals, zVals] = getUniformScanXYZVals(planC{indexS.scan}(scanNum));
+            deltaX = abs(xVals(1)-xVals(2));
+            deltaY = abs(yVals(1)-yVals(2));
+            deltaZ = abs(zVals(1)-zVals(2));
+            patchSizeV = paramS.PatchSize.val;
+            slcWindow = floor(patchSizeV(3)/deltaZ);
+            rowWindow = floor(patchSizeV(1)/deltaY);
+            colWindow = floor(patchSizeV(2)/deltaX);
+            patchSizeV = [rowWindow, colWindow, slcWindow];
+            paramS.PatchSize.val = patchSizeV;
+            end
+                
         elseif (strcmp(fType,'Law''s Convolution') )
             mappedDirC = {1,2,3};
             mappedSizC = {1,2,3};
