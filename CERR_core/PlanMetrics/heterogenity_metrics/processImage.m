@@ -21,27 +21,16 @@ switch filterType
         volToEval(maskBoundingBox3M==0)     = NaN;
         volToEval                           = volToEval / max(volToEval(:));
         offsetsM = getOffsets(paramS.Directionality.val);
-        
-        if strcmpi(paramS.PatchType.val,'cm')
-            patchUnit = 'cm';
-            [xVals, yVals, zVals] = getUniformScanXYZVals(planC{indexS.scan}(scanNum));
-            deltaX = abs(xVals(1)-xVals(2));
-            deltaY = abs(yVals(1)-yVals(2));
-            deltaZ = abs(zVals(1)-zVals(2));
-            patchSizeV = paramS.PatchSize;
-            slcWindow = floor(patchSizeV(3)/deltaZ);
-            rowWindow = floor(patchSizeV(1)/deltaY);
-            colWindow = floor(patchSizeV(2)/deltaX);
-            patchSizeV = [rowWindow, colWindow, slcWindow];
-            paramS.PatchSize = patchSizeV;
-        end
+        typesC = {'All','Entropy','Energy','Sum Avg','Homogeneity','Contrast',...
+                    'Correlation','Cluster Shade','Cluster Promincence', 'Haralick Correlation'};
         
         sel = paramS.Type.val;
-        if sel == 1
+        if strcmpi(sel,'all')
             flagV = ones(1,9); % All 9 haralick features;
         else
+            idx = find(strcmp(typesC,sel));
             flagV = zeros(1,9);
-            flagV(sel-1) = 1;
+            flagV(idx-1) = 1;
         end
         
         if exist('hWait','var') && ishandle(hWait)
