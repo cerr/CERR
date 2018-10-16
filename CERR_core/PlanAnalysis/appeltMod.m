@@ -1,4 +1,4 @@
-function [D50Risk, gamma50Risk] = appeltMod(OR)
+function [D50Risk, gamma50Risk] = appeltMod(D50_0, gamma50_0,OR)
 %
 % Usage :  [D50, gamma50] = appeltMod(paramS)
 %
@@ -14,9 +14,7 @@ function [D50Risk, gamma50Risk] = appeltMod(OR)
 %
 % APA, 2/15/2017
 % AI 2/21/17
-
-D50_0 = 34.4;
-gamma50_0 = 1.19;
+% AI 10/8/18 : Added inputs: D50_0, gamma50_0.
 
 %Return modified D50, gamma50
 D50Risk = (1 - log(OR)/(4*gamma50_0)) * D50_0;
