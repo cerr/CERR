@@ -159,12 +159,12 @@ switch upper(command)
         scanTypeC = [{'Select texture'}, planC{indexS.scan}.scanType];
         set(ud.handles.selectTextureMapsForMIM,'string',scanTypeC,...
             'value',1)
-        
+
         set(h, 'userdata', ud);
         
-        if ~isempty(ud.currentTexture) && ud.currentTexture>0
-            textureGui('FEATURE_TYPE_SELECTED');
-        end
+%         if ~isempty(ud.currentTexture) && ud.currentTexture>0
+%             textureGui('FEATURE_TYPE_SELECTED');
+%         end
         
         
             
@@ -1444,7 +1444,11 @@ dXYZ = [dy dx dz];
             outS.(fieldname).val = in;
         elseif strcmp(type,'popup')
             %outS.(fieldname).val = 1;
+            if iscell(in)
             outS.(fieldname).val = in{1};
+            else
+            outS.(fieldname).val = in;
+            end
         end
         outS.(fieldname).disp = disp;
         

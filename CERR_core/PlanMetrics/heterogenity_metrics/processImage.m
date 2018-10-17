@@ -92,7 +92,7 @@ switch filterType
         if strcmp(dir,'All')
             for n = 2:length(dirListC)
                 outname = [wavType,'_',dirListC{n}];
-                
+                outname = strrep(outname,'.','_');
                 out3M = wavDecom3D(vol3M,dirListC{n},wavType);
                 if mod(size(out3M,3),2) > 0
                     out3M = out3M(:,:,1:end-1);
@@ -109,6 +109,7 @@ switch filterType
             end
         else
             outname = [wavType,'_',dir];
+            outname = strrep(outname,'.','_');
             out3M = wavDecom3D(vol3M,dir,wavType);
             if mod(size(out3M,3),2) > 0
                 out3M = out3M(:,:,1:end-1);
@@ -162,8 +163,10 @@ switch filterType
         end
         
     case 'First order statistics'
+        [minr, maxr, minc, maxc, mins, maxs] = compute_boundingbox(mask3M);
+        mask3M                   = mask3M(minr:maxr,minc:maxc,mins:maxs);
+        scan3M                   = scan3M(minr:maxr,minc:maxc,mins:maxs);
         
-        vol3M = double(scan3M);
         patchSizeV = paramS.PatchSize.val;
         
         %Get voxel size
@@ -175,10 +178,10 @@ switch filterType
             'medianAbsDev','P10','P90','robustMeanAbsDev','robustMedianAbsDev',...
             'interQuartileRange','coeffDispersion','coeffVariation'};
         
-        [~,patchStatM] = firstOrderStatsByPatch(vol3M,mask3M,patchSizeV,voxelVol);
+        [~,patchStatM] = firstOrderStatsByPatch(scan3M,mask3M,patchSizeV,voxelVol);
         
         for n = 1:length(statC)
-            out3M = zeros(size(vol3M));
+            out3M = zeros(size(scan3M));
             outV = patchStatM(:,n);
             out3M(mask3M) = outV;
             outS.(statC{n}) = out3M;
