@@ -127,7 +127,7 @@ switch upper(vr)
         %Needs implementation
     case 'TM'   
         %Use builtin dcm4che Time functions.
-        jDate = org.dcm4che2.util.DateUtils.parseTM(data, 1);
+        jDate = org.dcm4che2.util.DateUtils.parseTM(data, 0);
         dcmobj.putDate(tag, el.vr, jDate);
     case 'UI'
           dcmobj.putString(tag, el.vr, data);

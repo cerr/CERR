@@ -35,7 +35,7 @@ saveParam = [];
 verInfo = ver('MATLAB');
 if str2double(verInfo.Version(1)) >= 7    
     pathStr = getCERRPath;
-    optName = [pathStr 'CERROptions.m'];
+    optName = [pathStr 'CERROptions.json'];
     tmpOptS = opts4Exe(optName);    
 	if isfield(tmpOptS, 'saveFormat') && ~isempty(tmpOptS.saveFormat)
         saveParam = tmpOptS.saveFormat;

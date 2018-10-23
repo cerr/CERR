@@ -50,7 +50,11 @@ if ~exist('command','var') || (exist('command','var') && isempty(command))
 end
 
 %Find handle of the gui figure.
-h = findobj('tag', 'scanManagementGui');
+% h = findobj('tag', 'scanManagementGui');
+h = [];
+if isfield(stateS.handle,'scanManagementFig') && ishandle(stateS.handle.scanManagementFig)
+    h = stateS.handle.scanManagementFig;
+end
 
 %Set framecolor for uicontrols and pseudoframes.
 frameColor = [0.8314 0.8157 0.7843];
@@ -61,7 +65,7 @@ switch upper(command)
         if isempty(h)
             %Set up a new GUI window.
             h = figure('doublebuffer', 'on', 'units', 'pixels', 'position',[(screenSize(3)-x)/2 (screenSize(4)-y)/2 x y], 'MenuBar', 'none', 'NumberTitle', 'off', 'resize', 'off', 'Tag', 'scanManagementGui', 'Color', [.75 .75 .75], 'WindowButtonUpFcn', 'scanManagementGui(''FIGUREBUTTONUP'')');
-            stateS.handle.doseManagementFig = h;
+            stateS.handle.scanManagementFig = h;
             set(h, 'Name','Scan Management');
 
 

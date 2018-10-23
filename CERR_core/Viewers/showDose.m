@@ -295,7 +295,8 @@ for j=1:length(axisInfo.doseObj)
                 
                 doseSet = axisInfo.doseObj(j).doseSet;
                 hFrame = stateS.handle.controlFrame;
-                ud = get(hFrame,'userdata');
+                ud = stateS.handle.controlFrameUd ;
+
                 stateS.doseFusionColormap = '';
                 colormapIndex = [];
                 if stateS.imageRegistration && strcmpi(stateS.imageRegistrationBaseDatasetType,'dose') && stateS.imageRegistrationBaseDataset == doseSet

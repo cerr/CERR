@@ -1,10 +1,14 @@
-function lawsMasksS = getLawsMasks()
+function lawsMasksS = getLawsMasks(direction,size)
 % function lawsMasksS = getLawsMasks()
 %
-% textType: '2d' oR '3d'
-%
+% direction: '2d', '3d' or 'All'
+% size : '3', '5', 'all'
 % APA, 10/18/2016
 
+
+if ~exist('direction','var')
+    direction = 'all';
+end
 
 L3  =  [ 1,  2,   1];
 E3  =  [-1,  0,   1];
@@ -15,6 +19,7 @@ E5   =  [-1,  -2,   0,   2,   1]; % GRadient: ReSpondS to RoW oR coLumn Step edg
 S5   =  [-1,   0,   2,   0,  -1]; % LOG: detectS SpotS
 R5   =  [ 1,  -4,   6,  -4,   1]; % GaboR: detectS RippLeS
 W5  =   [-1,   2,   0,  -2,   1];
+
 
 % 2-d (Length 3)
 lawsMasksS.L3E3 = L3'*E3;
@@ -58,7 +63,6 @@ lawsMasksS.W5R5 = W5'*R5;
 lawsMasksS.W5S5 = W5'*S5;
 lawsMasksS.W5L5 = W5'*L5;
 lawsMasksS.W5e5 = W5'*E5;
-
 
 % 3-d (Length 3)
 lawsMasksS.E3E3E3 = get3dLawsText(E3,E3,E3);
@@ -217,7 +221,33 @@ lawsMasksS.W5W5S5 = get3dLawsText(W5,W5,S5);
 lawsMasksS.W5W5R5 = get3dLawsText(W5,W5,R5);
 lawsMasksS.W5W5W5 = get3dLawsText(W5,W5,W5);
 
+switch lower(direction)
+    
+    case '2d'
+        fieldNameLen = 4;
+        
+    case '3d'    
+        fieldNameLen = 6;
+        
+    otherwise
+        fieldNameLen = 0;
+    
+end
+if fieldNameLen > 0
+    fieldNamC = fieldnames(lawsMasksS);
+    indRemV = cellfun(@(x) length(x)~=fieldNameLen, fieldNamC, 'UniformOutput',true);
+    lawsMasksS = rmfield(lawsMasksS,fieldNamC(indRemV));
+end
 
+fieldNamC = fieldnames(lawsMasksS);
+switch size
+    case '3'
+        indRemV = contains(fieldNamC,'5');
+        lawsMasksS = rmfield(lawsMasksS,fieldNamC(indRemV));
+    case '5'
+        indRemV = contains(fieldNamC,'3');
+        lawsMasksS = rmfield(lawsMasksS,fieldNamC(indRemV));
+end
 
 function conved3M = get3dLawsText(x,y,z)
 conved2M = x'*y;

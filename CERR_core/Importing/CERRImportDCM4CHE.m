@@ -50,7 +50,7 @@ tic;
 
 % Read options file
 pathStr = getCERRPath;
-optName = [pathStr 'CERROptions.m'];
+optName = [pathStr 'CERROptions.json'];
 optS = opts4Exe(optName);
 
 hWaitbar = waitbar(0,'Scanning Directory Please wait...');

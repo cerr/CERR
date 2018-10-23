@@ -37,7 +37,9 @@ function featureS = rlmToScalarFeatures(rlmM, numVoxels, flagS)
 % flagS.sre = 1;
 % flagS.lre = 1;
 % flagS.gln = 1;
+% flagS.glnNorm = 1;
 % flagS.rln = 1;
+% flagS.rlnNorm = 1;
 % flagS.rp = 1;
 % flagS.lglre = 1;
 % flagS.hglre = 1;
@@ -45,6 +47,9 @@ function featureS = rlmToScalarFeatures(rlmM, numVoxels, flagS)
 % flagS.srhgle = 1;
 % flagS.lrlgle = 1;
 % flagS.lrhgle = 1;
+% flagS.glv = 1;
+% flagS.rlv = 1;
+% flagS.re = 1;
 %
 % % Number of voxels
 % numVoxels = numel(imgM);
@@ -156,6 +161,6 @@ end
 % Run Entropy
 if flagS.re
     runSum = sum(rlmM(:));
-    featureS.re = -sum(rlmM/runSum .* log2(rlmM/runSum + eps));
+    featureS.re = -sum(rlmM(:)/runSum .* log2(rlmM(:)/runSum + eps));
 end
 

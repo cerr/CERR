@@ -36,16 +36,27 @@ function optS = opts4Exe(fileName)
 % You should have received a copy of the GNU General Public License
 % along with CERR.  If not, see <http://www.gnu.org/licenses/>.
 
-optS = [];
+% filetext = fileread(fileName);
+% optS = jsondecode(filetext);
 
-%Put commands in cells:
-optC = file2cell(fileName);
-
-%Process each line:
-
-for i = 1 : length(optC)
-  opt_str = optC{i};
-  if ~isempty(opt_str)
-    optS = setOptsExe(opt_str,optS);
-  end
+if MLVersion < 9.1
+    optS = loadjson(fileName);
+else
+    filetext = fileread(fileName);
+    optS = jsondecode(filetext);
 end
+
+
+% optS = [];
+% 
+% %Put commands in cells:
+% optC = file2cell(fileName);
+% 
+% %Process each line:
+% 
+% for i = 1 : length(optC)
+%   opt_str = optC{i};
+%   if ~isempty(opt_str)
+%     optS = setOptsExe(opt_str,optS);
+%   end
+% end

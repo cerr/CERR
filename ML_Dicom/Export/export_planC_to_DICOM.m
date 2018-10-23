@@ -1,4 +1,4 @@
-function export_planC_to_DICOM(planC, destDir)
+function export_planC_to_DICOM(planC, destDir, isGammaKnifeFlag)
 %"export_planC_to_DICOM"
 %   Export a planC into the DICOM format.
 %
@@ -34,9 +34,13 @@ tic;
 filenameRoot    = destDir;
 nWritten        = 0;
 
+if ~exist('isGammaKnifeFlag','var')
+    isGammaKnifeFlag = 0;
+end
+
 indexS = planC{end};
 
-if length(planC{indexS.scan})> 1
+if length(planC{indexS.scan})> 1 && isGammaKnifeFlag
     hButton = questdlg('Is this a Gamma Knife Plan','Export Option','YES','NO','NO');
     waitfor(hButton);
     

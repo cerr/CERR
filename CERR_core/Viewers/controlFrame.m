@@ -82,7 +82,8 @@ switch command
             delete(findobj('tag', 'controlFrameItem'));
         end
         
-        set(hFrame, 'userdata', []);
+        %set(hFrame, 'userdata', []);
+        stateS.handle.controlFrameUd = [] ;
         
     case 'contour'
         switch (varargin{1})
@@ -90,6 +91,8 @@ switch command
                 %Clear old controlFrame.
                 %delete(findobj('tag', 'controlFrameItem'));
                 
+                ud = stateS.handle.controlFrameUd; 
+
                 %Create subframes to separate controls into 3 sets.
                 ud.handles.subframe1 = uicontrol(hFig, 'style', 'frame', 'enable', 'inactive' , 'units', units, 'position', absPos([.05 .66 .9 .005], posFrame), 'string', 'Contouring', 'tag', 'controlFrameItem', 'horizontalAlignment', 'center', 'FontWeight', 'Bold');
                 ud.handles.subframe2 = uicontrol(hFig, 'style', 'frame', 'enable', 'inactive' , 'units', units, 'position', absPos([.05 .46 .9 .005], posFrame), 'string', 'Contouring', 'tag', 'controlFrameItem', 'horizontalAlignment', 'center', 'FontWeight', 'Bold');
@@ -189,7 +192,7 @@ switch command
                 %Set the overlaid scan scme as that displayed at the start
                 set(ud.handles.overlayChoices,'value',scanSet)
                 
-                set(hFrame, 'userdata', ud);
+                stateS.handle.controlFrameUd = ud;
                 for i=1:length(stateS.handle.CERRAxis)
                     setappdata(stateS.handle.CERRAxis(i),'oldCoord',getAxisInfo(stateS.handle.CERRAxis(i),'coord'))
                 end
@@ -215,7 +218,7 @@ switch command
                 %                 struct(1).assocScanUID   = planC{indexS.scan}(scanSet).scanUID;
                 
             case 'selectOverlayScan'
-                ud = get(hFrame, 'userdata');
+                ud = stateS.handle.controlFrameUd ;
                 overlayScanNum = get(ud.handles.overlayChoices,'value');
                 appData = getappdata(stateS.handle.CERRAxis(1));
                 for i=1:length(planC{indexS.scan})
@@ -247,7 +250,7 @@ switch command
                         if ~isempty(hFig)
                             return;
                         end
-                        ud = get(hFrame, 'userdata');
+                        ud = stateS.handle.controlFrameUd ;
                         position = [5 40 200 200];
                         hFig = figure('name','Overlaid Scan Options','numbertitle','off','menuBar','none',...
                             'position',position, 'doublebuffer', 'on','WindowStyle','normal',...
@@ -271,10 +274,11 @@ switch command
                         ud.handle.ovrlayApply           = uicontrol(hFig,'style','push','string','Apply','units',units,'position',[0.25 0.05 0.20 0.1], 'callback', 'controlFrame(''contour'', ''selectOverlayOptions'',''apply'')');
                         ud.handle.ovrlayExit           = uicontrol(hFig,'style','push','string','Exit','units',units,'position',[0.55 0.05 0.20 0.1], 'callback', 'controlFrame(''contour'', ''selectOverlayOptions'',''exit'')');
                         
-                        set(hFrame,'userdata',ud)
-                        
+                        %set(hFrame,'userdata',ud)
+                        stateS.handle.controlFrameUd = ud ;
+
                     case 'windowpreset'
-                        ud = get(hFrame, 'userdata');
+                        ud = stateS.handle.controlFrameUd ;
                         windowPresetIndex = get(ud.handle.ovrlayWindowChoices,'value');
                         if windowPresetIndex > 1
                             set(ud.handle.ovrlayWindowCenterEdt,'String',num2str(stateS.optS.windowPresets(windowPresetIndex).center))
@@ -283,16 +287,17 @@ switch command
                         set(ud.handle.ovrlayApply,'fontWeight','bold')
                         
                     case 'fieldclicked'
-                        ud = get(hFrame, 'userdata');
+                        ud = stateS.handle.controlFrameUd ;
                         set(ud.handle.ovrlayApply,'fontWeight','bold')
                         
                     case 'setmanualwindow'
-                        ud = get(hFrame, 'userdata');
+                        ud = stateS.handle.controlFrameUd ;
                         set(ud.handle.ovrlayWindowChoices,'value',1)
                         set(ud.handle.ovrlayApply,'fontWeight','bold')
                         
                     case 'apply'
-                        ud = get(hFrame, 'userdata');
+                        ud = stateS.handle.controlFrameUd ;
+                        
                         windowPresetIndex = get(ud.handle.ovrlayWindowChoices,'value');
                         if windowPresetIndex > 1
                             stateS.contourOvrlyOptS.center = stateS.optS.windowPresets(windowPresetIndex).center;
@@ -308,13 +313,13 @@ switch command
                         set(ud.handle.ovrlayApply,'fontWeight','normal')
                         
                     case 'exit'
-                        ud = get(hFrame, 'userdata');
+                        ud = stateS.handle.controlFrameUd ;
                         delete(ud.handle.ovrlayFig)
                         
                 end
                 
             case 'refresh'
-                ud = get(hFrame, 'userdata');
+                ud = stateS.handle.controlFrameUd ;
                 if isempty(ud)
                     return;
                 end
@@ -391,7 +396,7 @@ switch command
                 end
                 
             case 'asBlank'
-                ud = get(hFrame, 'userdata');
+                ud = stateS.handle.controlFrameUd ;
                 set(ud.handles.asCopyOfCurrent, 'value', 0);
                 %%%%%%%%DK
                 scanSet = getAxisInfo(stateS.handle.CERRSliceViewerAxis,'scanSets');
@@ -400,14 +405,13 @@ switch command
                 set(ud.handles.scanSelect, 'enable', 'on','value',scanSet);
                 
             case 'asCopyOfCurrent'
-                ud = get(hFrame, 'userdata');
+                ud = stateS.handle.controlFrameUd ;
                 set(ud.handles.asCopyOfCurrent, 'value', 1);
                 set(ud.handles.asBlank, 'value', 0);
                 set(ud.handles.scanSelect, 'enable', 'off');
                 
             case 'selectMode'
-                
-                ud = get(hFrame, 'userdata');
+                ud = stateS.handle.controlFrameUd ;
                 
                 structNum   = get(ud.handles.structPopup, 'value');
                 
@@ -459,8 +463,8 @@ switch command
                 
                 % Save current slice
                contourControl('Save_Slice')
-                
-                ud = get(hFrame, 'userdata');
+               
+               ud = stateS.handle.controlFrameUd ;
                 
                 structNum   = get(ud.handles.structPopup, 'value');
                 
@@ -557,10 +561,14 @@ switch command
                 
             case 'setBrushSize'
                 %Get radius
-                ud = get(hFrame, 'userdata');
+                ud = stateS.handle.controlFrameUd ;
                 if length(varargin) < 3
                     hAxis = stateS.handle.CERRAxis(stateS.currentAxis);
-                    radius = getappdata(hAxis, 'ballRadius');
+                    if isfield(stateS.contouringMetaDataS,'ballRadius')
+                        radius = stateS.contouringMetaDataS.ballRadius;
+                    else
+                        radius = [];
+                    end
                     if isempty(radius)
                        radius = 0.5;  %Initialize
                     end
@@ -569,7 +577,7 @@ switch command
                     increment = varargin{3};
                     %hSlider  = ud.handles.brushSizeSlider;
                     %radius = hSlider.Value + increment;
-                    radius = getappdata(hAxis, 'ballRadius') + increment;
+                    radius = stateS.contouringMetaDataS.ballRadius + increment;
                     if radius>ud.maxRadius
                         radius = ud.maxRadius;
                     elseif radius<ud.minRadius
@@ -580,10 +588,11 @@ switch command
                 %radius = get(ud.handles.brushSizeSlider,'Value'); %Removed AI 5/18/17
                 %Set brush size
                 %set(ud.handles.brushSizeEdit,'String',radius)
-                setappdata(hAxis, 'ballRadius', radius);
+                stateS.contouringMetaDataS.ballRadius = radius;
+                
                 %Update display radius
-                ballH = getappdata(hAxis, 'hBall');
-                angM = getappdata(hAxis, 'angles');
+                ballH = stateS.contouringMetaDataS.hBall;
+                angM = stateS.contouringMetaDataS.angles;
                 cP = get(hAxis, 'currentPoint');
                 xV = cP(1,1) + radius*angM(:,1);
                 yV = cP(1,2) + radius*angM(:,2);                
@@ -593,7 +602,7 @@ switch command
                 
             case 'selectStruct'
                 %A new structure has been selected.
-                ud = get(hFrame, 'userdata');
+                ud = stateS.handle.controlFrameUd ;
                 if isempty(ud)
                     return;
                 end
@@ -614,7 +623,7 @@ switch command
                 
             case 'selectStruct2'
                 %A new structure2 has been selected.
-                ud = get(hFrame, 'userdata');
+                ud = stateS.handle.controlFrameUd ;
                 if isempty(ud)
                     return;
                 end
@@ -624,7 +633,7 @@ switch command
                 
             case 'newStruct'
                 %Create the new structure in plan and update GUI.
-                ud = get(hFrame, 'userdata');
+                ud = stateS.handle.controlFrameUd ;
                 iscopy = get(ud.handles.asCopyOfCurrent, 'value');
                 
                 nStructs = length(planC{indexS.structures});
@@ -637,8 +646,8 @@ switch command
                     planC       = copyCERRStructure(structNum, planC);
                 else %Create a new structure with selected associated scan.
                     %scanNum = get(ud.handles.scanSelect, 'value');
-                    scanNum = getappdata(stateS.handle.CERRAxis(...
-                        stateS.contourAxis),'ccScanSet');
+                    scanNum = stateS.contouringMetaDataS.ccScanSet; 
+
                     if isempty(ud)
                         return;
                     end
@@ -652,12 +661,12 @@ switch command
                 end
                 
                 % Update the contourSlcLoadedM
-                contourSlcLoadedM = getappdata(stateS.handle.CERRAxis(...
-                    stateS.contourAxis), 'contourSlcLoadedM');
+                contourSlcLoadedM =  stateS.contouringMetaDataS.contourSlcLoadedM;
                 contourSlcLoadedM(end+1,:) = false;
-                setappdata(stateS.handle.CERRAxis(...
-                    stateS.contourAxis), 'contourSlcLoadedM',contourSlcLoadedM);
-                
+%                 setappdata(stateS.handle.CERRAxis(...
+%                     stateS.contourAxis), 'contourSlcLoadedM',contourSlcLoadedM);
+                stateS.contouringMetaDataS.contourSlcLoadedM = contourSlcLoadedM;
+
                 [jnk, relStructNumV] = getStructureAssociatedScan(toAdd);
                 set(ud.handles.structPopup, 'value', relStructNumV);
                 controlFrame('contour', 'refresh')
@@ -665,7 +674,7 @@ switch command
                 
             case 'renameStruct'
                 %Structure has been renamed.
-                ud = get(hFrame, 'userdata');
+                ud = stateS.handle.controlFrameUd ;
                 if isempty(ud)
                     return;
                 end
@@ -688,7 +697,7 @@ switch command
                 
             case 'ROIIntrepretedType'
                 %Structure Category Set
-                ud = get(hFrame, 'userdata');
+                ud = stateS.handle.controlFrameUd ;
                 if isempty(ud)
                     return;
                 end
@@ -796,10 +805,10 @@ switch command
                     'position', absPos([.55 .05 .35 .05], posFrame), 'string', 'Exit', 'tag', 'controlFrameItem',...
                     'callback', 'controlFrame(''colorbar'', ''cancel'')');
                 
-                set(hFrame, 'userdata', ud);
+                stateS.handle.controlFrameUd = ud ;
                 
             case 'refresh'
-                ud = get(hFrame, 'userdata');
+                ud = stateS.handle.controlFrameUd ;
                 if isempty(ud)
                     return;
                 end
@@ -814,7 +823,7 @@ switch command
                     set(ud.handles.CBSPopup, 'string', colorbarChoices, 'value', value);
                 end
             case 'apply'
-                ud = get(hFrame, 'userdata');
+                ud = stateS.handle.controlFrameUd ;
                 if isempty(ud)
                     return;
                 end
@@ -837,7 +846,7 @@ switch command
                 set(ud.handles.applyButton, 'FontWeight', 'Normal');
                 
             case 'field_clicked'
-                ud = get(hFrame, 'userdata');
+                ud = stateS.handle.controlFrameUd ;
                 set(ud.handles.applyButton, 'FontWeight', 'Bold');
                 
             case 'cancel'
@@ -889,10 +898,9 @@ switch command
                 ud.handles.applyButton = uicontrol(hFig, 'style', 'pushbutton', 'units', units, 'position', absPos([.1 .05 .35 .05], posFrame), 'string', 'Apply', 'tag', 'controlFrameItem', 'callback', 'controlFrame(''colorbarcompare'', ''apply'')');
                 ud.handles.cancelButton = uicontrol(hFig, 'style', 'pushbutton', 'units', units, 'position', absPos([.55 .05 .35 .05], posFrame), 'string', 'Exit', 'tag', 'controlFrameItem', 'callback', 'controlFrame(''colorbarcompare'', ''cancel'')');
                 
-                set(hFrame, 'userdata', ud);
-                
+                stateS.handle.controlFrameUd = ud ;
             case 'refresh'
-                ud = get(hFrame, 'userdata');
+                ud = stateS.handle.controlFrameUd ;
                 if isempty(ud)
                     return;
                 end
@@ -908,7 +916,7 @@ switch command
                 end
                 
             case 'apply'
-                ud = get(hFrame, 'userdata');
+                ud = stateS.handle.controlFrameUd ;
                 if isempty(ud)
                     return;
                 end
@@ -932,7 +940,7 @@ switch command
                 set(ud.handles.applyButton, 'FontWeight', 'Normal');
                 
             case 'field_clicked'
-                ud = get(hFrame, 'userdata');
+                ud = stateS.handle.controlFrameUd ;
                 set(ud.handles.applyButton, 'FontWeight', 'Bold');
                 
             case 'cancel'
@@ -1066,11 +1074,11 @@ switch command
                         set(ud.handles.numAuto, 'enable', 'off');
                 end
                 
-                set(hFrame, 'userdata', ud);
+                ud = stateS.handle.controlFrameUd ;
                 controlFrame('isodose', 'refresh');
                 
             case 'refresh'
-                ud = get(hFrame, 'userdata');
+                ud = stateS.handle.controlFrameUd ;
                 if  get(ud.handles.levelType,'value') == 1 %Absolute
                     set(ud.handles.doseType,'enable','off')
                     set(ud.handles.structure,'enable','off')
@@ -1119,7 +1127,7 @@ switch command
                 controlFrame('isodose', 'refresh');
                 
             case 'apply'
-                ud = get(hFrame, 'userdata');
+                ud = stateS.handle.controlFrameUd ;
                 if isempty(ud)
                     return;
                 end
@@ -1167,7 +1175,7 @@ switch command
                 controlFrame('default');
                 
             case 'autoIsodoseLevels'
-                ud = get(hFrame, 'userdata');
+                ud = stateS.handle.controlFrameUd ;
                 nLevels = str2num(get(ud.handles.numAuto, 'string'));
                 if ~isempty(nLevels)
                     autoIsodoseLevels = clip(round(nLevels(1)), 1, Inf, 'limits');
@@ -1176,24 +1184,24 @@ switch command
                 controlFrame('isodose', 'refresh');
                 
             case 'usrDose'
-                ud = get(hFrame, 'userdata');
+                ud = stateS.handle.controlFrameUd ;
                 set(ud.handles.maxDose, 'value', 0);
                 controlFrame('isodose', 'refresh');
                 
             case 'maxDose'
-                ud = get(hFrame, 'userdata');
+                ud = stateS.handle.controlFrameUd ;
                 set(ud.handles.usrDose, 'value', 0);
                 controlFrame('isodose', 'refresh');
                 
             case 'isoValues'
-                ud = get(hFrame, 'userdata');
+                ud = stateS.handle.controlFrameUd ;
                 levels = str2num(get(ud.handles.isoValues, 'string'));
                 if isempty(levels)
                     set(ud.handles.isoValues, 'string', num2str(stateS.optS.isodoseLevels));
                 end
                 
             case 'lineThick'
-                ud = get(hFrame, 'userdata');
+                ud = stateS.handle.controlFrameUd ;
                 thickness = str2num(get(ud.handles.lineThick, 'string'));
                 if isempty(thickness)
                     set(ud.handles.lineThick, 'string', num2str(stateS.optS.isodoseThickness));
@@ -1221,8 +1229,7 @@ switch command
                 ud.handles.exitButton = uicontrol(hFig, 'style', 'pushbutton', 'units', units, 'position',...
                     absPos([.1 .70 .80 .06], posFrame),'string', 'Exit','tooltipstring','exit','callback',...
                     'controlFrame(''clip'', ''exit'')','tag', 'controlFrameItem');
-                set(hFrame, 'userdata',ud);
-                
+                stateS.handle.controlFrameUd = ud ;
                 
             case 'region'
                 button_state = get(gcbo,'Value');
@@ -1314,7 +1321,7 @@ switch command
         %wy
     case 'refresh'
         
-        ud = get(hFrame, 'userdata');
+        ud = stateS.handle.controlFrameUd ;
         
         nScans = length(planC{indexS.scan});
         imageSets = {};
@@ -1814,7 +1821,7 @@ switch command
                 
                 
                 ud.clBarPos = clBarPos;
-                set(hFrame, 'userdata', ud);
+                stateS.handle.controlFrameUd = ud;
                 controlFrame('fusion', 'select_base_set','init');
                 controlFrame('fusion', 'select_moving_set','init');
                 sliceCallBack('fusion_mode_on');
@@ -1830,8 +1837,7 @@ switch command
                 %                 end
                 
             case 'movpreset'
-                hFrame = stateS.handle.controlFrame;
-                ud = get(hFrame, 'userdata');
+                ud = stateS.handle.controlFrameUd ;
                 
                 value = get(ud.handles.MovPresets, 'Value');
                 
@@ -1862,8 +1868,7 @@ switch command
                 return
                 
             case 'basepreset'
-                hFrame = stateS.handle.controlFrame;
-                ud = get(hFrame, 'userdata');
+                ud = stateS.handle.controlFrameUd ;
                 
                 value = get(ud.handles.basePreset, 'Value');
                 
@@ -1896,9 +1901,7 @@ switch command
             case 'movctlevel'
                 
                 if strcmpi(stateS.imageRegistrationMovDatasetType,'scan')
-                    hFrame = stateS.handle.controlFrame;
-                    
-                    ud = get(hFrame, 'userdata');
+                    ud = stateS.handle.controlFrameUd ;
                     
                     set(ud.handles.MovPresets, 'Value', 1);
                     
@@ -1921,9 +1924,8 @@ switch command
             case 'basectlevel'
                 
                 if strcmpi(stateS.imageRegistrationBaseDatasetType,'scan')
-                    hFrame = stateS.handle.controlFrame;
-                    
-                    ud = get(hFrame, 'userdata');
+
+                    ud = stateS.handle.controlFrameUd ;
                     
                     set(ud.handles.basePreset, 'Value', 1);
                     
@@ -1946,9 +1948,7 @@ switch command
             case 'movctwidth'
                 
                 if strcmpi(stateS.imageRegistrationMovDatasetType,'scan')
-                    hFrame = stateS.handle.controlFrame;
-                    
-                    ud = get(hFrame, 'userdata');
+                    ud = stateS.handle.controlFrameUd ;
                     
                     set(ud.handles.MovPresets, 'Value', 1);
                     
@@ -1971,9 +1971,7 @@ switch command
             case 'basectwidth'
                 
                 if strcmpi(stateS.imageRegistrationBaseDatasetType,'scan')
-                    hFrame = stateS.handle.controlFrame;
-                    
-                    ud = get(hFrame, 'userdata');
+                    ud = stateS.handle.controlFrameUd ;
                     
                     set(ud.handles.basePreset, 'Value', 1);
                     
@@ -1996,8 +1994,7 @@ switch command
                 
             case 'movcolormap'
                 if strcmpi(stateS.imageRegistrationMovDatasetType,'scan')
-                    hFrame = stateS.handle.controlFrame;
-                    ud = get(hFrame, 'userdata');
+                    ud = stateS.handle.controlFrameUd ;
                     scanSet = stateS.imageRegistrationMovDataset;
                     scanUID = ['c',repSpaceHyp(planC{indexS.scan}(scanSet).scanUID(max(1,end-61):end))];
                     cmapStrC = get(ud.handles.displayModeColor,'String');
@@ -2013,8 +2010,7 @@ switch command
                 
             case 'basecolormap'
                 if strcmpi(stateS.imageRegistrationBaseDatasetType,'scan')
-                    hFrame = stateS.handle.controlFrame;
-                    ud = get(hFrame, 'userdata');
+                    ud = stateS.handle.controlFrameUd ;
                     scanSet = stateS.imageRegistrationBaseDataset;
                     scanUID = ['c',repSpaceHyp(planC{indexS.scan}(scanSet).scanUID(max(1,end-61):end))];
                     cmapStrC = get(ud.handles.basedisplayModeColor,'String');
@@ -2029,7 +2025,7 @@ switch command
                 
                 
             case 'select_base_set'
-                ud = get(hFrame, 'userdata');
+                ud = stateS.handle.controlFrameUd ;
                 baseSet = get(ud.handles.baseSet, 'value');
                 stateS.imageRegistrationBaseDataset = baseSet;
                 nScans = length(planC{indexS.scan});
@@ -2047,7 +2043,7 @@ switch command
                 
                 
             case 'select_moving_set'
-                ud = get(hFrame, 'userdata');
+                ud = stateS.handle.controlFrameUd ;
                 movingSet = get(ud.handles.movingSet, 'value');
                 nScans = length(planC{indexS.scan});
                 if movingSet <= nScans
@@ -2112,7 +2108,7 @@ switch command
                 CERRRefresh;
                 
             case 'toggle_rotation'
-                ud = get(hFrame,'userdata');
+                ud = stateS.handle.controlFrameUd ;
                 hObject = ud.handles.rotateButton;
                 
                 button_state = get(hObject,'Value');
@@ -2286,7 +2282,7 @@ switch command
                     msgbox('The current transM is empty, operation is cancelled.','system message','warn');
                     return;
                 end
-                ud = get(hFrame, 'userdata');
+                ud = stateS.handle.controlFrameUd ;
                 str = get(ud.handles.movingSet, 'string');
                 [selection,ok] = listdlg('PromptString','Select a scanSet:',...
                     'SelectionMode','single',...
@@ -2424,7 +2420,7 @@ switch command
                 %                     'tag', 'controlFrameItem', 'horizontalAlignment', 'left');
                 
             case 'checker_board'
-                ud = get(hFrame,'userdata');
+                ud = stateS.handle.controlFrameUd ;
                 hObject = ud.handles.checkerToggle;
                 button_state = get(hObject,'Value');
                 if button_state == get(hObject,'Max')
@@ -2487,7 +2483,7 @@ switch command
                 %wy
                 %wy
             case 'difference'
-                ud = get(hFrame,'userdata');
+                ud = stateS.handle.controlFrameUd ;
                 hObject = ud.handles.differToggle;
                 button_state = get(hObject,'Value');
                 
@@ -2514,7 +2510,7 @@ switch command
                 
                 
             case 'newchecker_board'
-                ud = get(hFrame,'userdata');
+                ud = stateS.handle.controlFrameUd ;
                 hObject = ud.handles.newcheckerToggle;
                 button_state = get(hObject,'Value');
                 
@@ -2570,7 +2566,7 @@ switch command
                 % %                 end
                 
             case 'mirror_checker_board'
-                ud = get(hFrame,'userdata');
+                ud = stateS.handle.controlFrameUd ;
                 hObject = ud.handles.mirror_checkerToggle;
                 button_state = get(hObject,'Value');
                 if button_state == get(hObject,'Max')
@@ -2615,12 +2611,12 @@ switch command
                 
                 
             case 'checkerSlider'
-                ud = get(hFrame,'userdata');
+                ud = stateS.handle.controlFrameUd ;
                 set(ud.handles.ckSizeValue, 'string', num2str(floor(get(gcbo, 'value'))));
                 CERRRefresh;
                 
             case 'imagemirror'
-                ud = get(hFrame,'userdata');
+                ud = stateS.handle.controlFrameUd ;
                 hObject = ud.handles.mirrorToggle;
                 button_state = get(hObject,'Value');
                 
@@ -2780,7 +2776,7 @@ switch command
                 CERRRefresh;
                 
             case 'mirrorscope'
-                udf = get(hFrame,'userdata');
+                udf = stateS.handle.controlFrameUd ;
                 hObject = udf.handles.mirrorScopeToggle;
                 button_state = get(hObject,'Value');
                 
@@ -2900,7 +2896,7 @@ switch command
                 %end
                 
             case 'mirrorSlider'
-                ud = get(hFrame,'userdata');
+                ud = stateS.handle.controlFrameUd ;
                 set(ud.handles.mirrScopeValue, 'string', num2str(floor(get(gcbo, 'value'))));
                 controlFrame('fusion', 'mirrorscopefresh');
                 %CERRRefresh;
@@ -2962,7 +2958,7 @@ switch command
                 CERRRefresh;
                 
             case 'blockmatch'
-                ud = get(hFrame,'userdata');
+                ud = stateS.handle.controlFrameUd ;
                 hObject = ud.handles.blockMatchToggle;
                 button_state = get(hObject,'Value');
                 
@@ -3072,7 +3068,7 @@ switch command
                 leftMarginWidth = 195;
                 set(stateS.handle.controlFrame, 'pos', [0 0 leftMarginWidth 400]);
                 
-                ud = get(hFrame,'userdata');
+                ud = stateS.handle.controlFrameUd ;
                 
                 %move back the zoom/slice buttons
                 %set(stateS.handle.loopTrans, 'pos', ud.handle.loopTransPos);
@@ -3157,7 +3153,7 @@ switch command
                 hDisp = figure('position',[50 50 200 200],'name','Rotate Coordinate syatem','numbertitle','off','menubar','none','renderer','openGL');
                 ud.handles.display_fig = hDisp;
                 ud.handles.display_axis = axes('parent',hDisp,'units', 'normalized', 'Position', [0.05 0.05 0.9 0.9], 'xTickLabel', [], 'yTickLabel', [], 'xTick', [], 'yTick', [], 'zTick', [], 'visible', 'off','tag', 'controlFrameItem','nextPlot','add');
-                set(hFrame, 'userdata', ud);
+                stateS.handle.controlFrameUd = ud;
                 controlFrame('rotate_axis','UPDATE_SPHERE')
                 
             case 'ROTATEVIEWPLANE'
@@ -3201,9 +3197,8 @@ switch command
                 set(stateS.handle.CERRSliceViewer,'WindowButtonDownFcn','','WindowButtonMotionFcn','')
                 stateS.contourState = 1;
                 drawContour('axis', hAxis)
-                setappdata(hAxis,'mode','DRAW');
-                setappdata(hAxis,'ccScanSet',1);
-                
+                stateS.contouringMetaDataS.mode = 'DRAW';
+                stateS.contouringMetaDataS.ccScanSet = 1;
             case 'EXPORTCONTOUR' %% NOT FULLY IMPLEMENTED
                 hAxis = stateS.handle.CERRAxis(stateS.currentAxis);
                 C = drawContour('getContours', hAxis);
@@ -3234,8 +3229,7 @@ switch command
                 save(saveFile,'Contours')
                 
             case 'UPDATE_SPHERE'
-                
-                ud = get(hFrame, 'userdata');
+                ud = stateS.handle.controlFrameUd ;
                 hAxis1 = ud.handles.display_axis;
                 hDisp = ud.handles.display_fig;
                 if ~ishandle(hDisp) || ~ishandle(hAxis1)
@@ -3285,7 +3279,7 @@ switch command
                 
                 
             case 'QUIT'
-                ud = get(hFrame, 'userdata');
+                ud = stateS.handle.controlFrameUd ;
                 buttonName = questdlg('Are you sure you want to quit?','Confirm Quit','Yes','No','No');
                 if strcmpi(buttonName,'No')
                     return;
@@ -3306,8 +3300,8 @@ switch command
                 
         end
         
-    case 'ANNOTATION'        
-        ud = get(hFrame, 'userdata');
+    case 'ANNOTATION'
+        ud = stateS.handle.controlFrameUd ;
         switch varargin{1}
             case 'init'
                 
@@ -3364,8 +3358,7 @@ switch command
                 ud.annotation.scanNumsC = scanNumsC;
                 
                 ud.handles.hV = [];
-                
-                set(hFrame, 'userdata', ud);
+                stateS.handle.controlFrameUd = ud;
                 stateS.annotToggle = 1;
                 controlFrame('ANNOTATION','updateAnnotationList')
                 controlFrame('ANNOTATION','show',1)
@@ -3375,7 +3368,7 @@ switch command
                     return;
                 end
                 ud.annotation.currentMatchingSlc = ud.annotation.currentMatchingSlc - 1;
-                set(hFrame, 'userdata', ud);
+                stateS.handle.controlFrameUd=ud;
                 controlFrame('ANNOTATION','updateAnnotationList')
                 controlFrame('ANNOTATION','show')
                 
@@ -3384,7 +3377,8 @@ switch command
                     return;
                 end
                 ud.annotation.currentMatchingSlc = ud.annotation.currentMatchingSlc + 1;
-                set(hFrame, 'userdata', ud);
+                %set(hFrame, 'userdata', ud);
+                stateS.handle.controlFrameUd = ud;
                 controlFrame('ANNOTATION','updateAnnotationList')
                 controlFrame('ANNOTATION','show')
                 
@@ -3554,9 +3548,8 @@ switch command
                 end
                 
                 ud.handles.hV = hV;
-                set(hFrame, 'userdata', ud);
-                
-              case 'quit'
+                stateS.handle.controlFrameUd = ud;
+            case 'quit'
 
                 delete(ud.handles.hV)
                 controlFrame('default')   
@@ -3633,13 +3626,14 @@ baseCTLevel = stateS.scanStats.CTLevel.(scanUID);
 baseColormap = stateS.scanStats.Colormap.(scanUID);
 basePreset = stateS.scanStats.windowPresets.(scanUID);
 
-ud = get(stateS.handle.controlFrame, 'userdata');
+ud = stateS.handle.controlFrameUd;
 set(ud.handles.baseCTLevel,'string',baseCTLevel);
 set(ud.handles.baseCTWidth,'string', baseCTWidth);
 set(ud.handles.basePreset,'value',basePreset);
 stringC = get(ud.handles.basedisplayModeColor,'string');
 movCormpmapIndex = find(strcmpi(baseColormap,stringC));
 set(ud.handles.basedisplayModeColor,'value',movCormpmapIndex)
+stateS.handle.controlFrameUd = ud;
 
 function updateMovLevelWidthHandles()
 global stateS planC
@@ -3652,11 +3646,12 @@ movCTLevel = stateS.scanStats.CTLevel.(scanUID);
 movColormap = stateS.scanStats.Colormap.(scanUID);
 movPreset = stateS.scanStats.windowPresets.(scanUID);
 
-ud = get(stateS.handle.controlFrame, 'userdata');
+ud = stateS.handle.controlFrameUd;
 set(ud.handles.MovCTLevel,'string',movCTLevel);
 set(ud.handles.MovCTWidth,'string',movCTWidth);
 set(ud.handles.MovPresets,'value',movPreset);
 stringC = get(ud.handles.displayModeColor,'string');
 movCormpmapIndex = find(strcmpi(movColormap,stringC));
 set(ud.handles.displayModeColor,'value',movCormpmapIndex)
+stateS.handle.controlFrameUd = ud;
 

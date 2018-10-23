@@ -25,21 +25,46 @@ if prod(siz) == 1
     %dirString = 'LLL';
     %wavType = 'coif1';
     % scanArray3M = wavDecom3D(scanArray3M,dirString,wavType);
+    
+%     % Sub-sample from uniqueSlices ---- uncomment for sub-sampling
+%     if length(uniqueSlices) > 1
+%         numSlcs = length(uniqueSlices);
+%         indKeepV = randsample(numSlcs,floor(numSlcs*0.75));
+%         uniqueSlices = uniqueSlices(indKeepV);
+%         mask3M = mask3M(:,:,indKeepV);
+%     end
+    
     SUVvals3M = mask3M.*double(scanArray3M(:,:,uniqueSlices));
     [minr, maxr, minc, maxc, mins, maxs] = compute_boundingbox(mask3M);
     maskBoundingBox3M = mask3M(minr:maxr,minc:maxc,mins:maxs);
     
-    % Assign NaN to image outside mask
-    volToEval = SUVvals3M(minr:maxr,minc:maxc,mins:maxs);
+    % Get the cropped scan
+    volToEval = SUVvals3M(minr:maxr,minc:maxc,mins:maxs);        
+    
+    % Ignore voxels below and above cutoffs, if defined
+    minIntensityCutoff = paramS.higherOrderParamS.minIntensityCutoff;
+    maxIntensityCutoff = paramS.higherOrderParamS.maxIntensityCutoff;
+    if ~isempty(minIntensityCutoff)
+        maskBoundingBox3M(volToEval < minIntensityCutoff) = 0;
+    end
+    if ~isempty(maxIntensityCutoff)
+        maskBoundingBox3M(volToEval > maxIntensityCutoff) = 0;
+    end
+    
     volToEval(~maskBoundingBox3M) = NaN;
     
     % Get x,y,z grid for the shape features (flip y to make it monotically
     % increasing)
     [xValsV, yValsV, zValsV] = getUniformScanXYZVals(planC{indexS.scan}(scanNum));
+    PixelSpacingX = abs(xValsV(1) - xValsV(2));
+    PixelSpacingY = abs(yValsV(1) - yValsV(2));
+    PixelSpacingZ = abs(zValsV(1) - zValsV(2));
+    
     yValsV = fliplr(yValsV);
     xValsV = xValsV(minc:maxc);
     yValsV = yValsV(minr:maxr);
     zValsV = zValsV(mins:maxs);
+        
     % Voxel volume for Total Energy calculation
     VoxelVol = PixelSpacingX*PixelSpacingY*PixelSpacingZ*1000; % convert cm to mm
     
@@ -54,12 +79,17 @@ if paramS.toQuantizeFlag == 1
     numGrLevels = paramS.higherOrderParamS.numGrLevels;
     minIntensity = paramS.higherOrderParamS.minIntensity;
     maxIntensity = paramS.higherOrderParamS.maxIntensity;
+    binwidth = paramS.higherOrderParamS.binwidth;
     %minIntensity = min(volToEval(:));
     %maxIntensity = max(volToEval(:));
     %numGrLevels = ceil((maxIntensity - minIntensity)/25);
     paramS.higherOrderParamS.numGrLevels = numGrLevels;
     quantizedM = imquantize_cerr(volToEval,numGrLevels,...
-        minIntensity,maxIntensity);
+        minIntensity,maxIntensity,binwidth);    
+    % Reassign the number of gray levels
+    numGrLevels = max(quantizedM(:));
+    paramS.higherOrderParamS.numGrLevels = numGrLevels;
+    
 else
     quantizedM = volToEval;
 end
@@ -81,44 +111,48 @@ end
 
 if whichFeatS.harFeat2Ddir
     numGrLevels = paramS.higherOrderParamS.numGrLevels;
+    voxelOfset = paramS.higherOrderParamS.neighborVoxelOffset;
     glcmFlagS = getHaralickFlags();
         
     % 2D Haralick features from separate cooccurrence matrix per direction, averaged
     dirctn      = 2;
     cooccurType = 2;
-    featureS.harFeat2DdirS = get_haralick(dirctn, cooccurType, quantizedM, ...
+    featureS.harFeat2DdirS = get_haralick(dirctn, voxelOfset, cooccurType, quantizedM, ...
         numGrLevels, glcmFlagS);
     
 end
 if whichFeatS.harFeat2Dcomb
     numGrLevels = paramS.higherOrderParamS.numGrLevels;
+    voxelOfset = paramS.higherOrderParamS.neighborVoxelOffset;
     glcmFlagS = getHaralickFlags();
     
     % 2D Haralick features with combined cooccurrence matrix
     dirctn      = 2;
     cooccurType = 1;
-    featureS.harFeat2DcombS = get_haralick(dirctn, cooccurType, quantizedM, ...
+    featureS.harFeat2DcombS = get_haralick(dirctn, voxelOfset, cooccurType, quantizedM, ...
     numGrLevels, glcmFlagS);
 end
 if whichFeatS.harFeat3Ddir
     numGrLevels = paramS.higherOrderParamS.numGrLevels;
+    voxelOfset = paramS.higherOrderParamS.neighborVoxelOffset;
     glcmFlagS = getHaralickFlags();
         
     % 3D Haralick features from separate cooccurrence matrix per direction, averaged
     dirctn      = 1;
     cooccurType = 2;
-    featureS.harFeat3DdirS = get_haralick(dirctn, cooccurType, quantizedM, ...
+    featureS.harFeat3DdirS = get_haralick(dirctn, voxelOfset, cooccurType, quantizedM, ...
         numGrLevels, glcmFlagS);
     
 end
 if whichFeatS.harFeat3Dcomb
     numGrLevels = paramS.higherOrderParamS.numGrLevels;
+    voxelOfset = paramS.higherOrderParamS.neighborVoxelOffset;
     glcmFlagS = getHaralickFlags();
     
     % 3D Haralick features with combined cooccurrence matrix
     dirctn      = 1;
     cooccurType = 1;
-    featureS.harFeat3DcombS = get_haralick(dirctn, cooccurType, quantizedM, ...
+    featureS.harFeat3DcombS = get_haralick(dirctn, voxelOfset, cooccurType, quantizedM, ...
     numGrLevels, glcmFlagS);
 end
 
@@ -235,7 +269,7 @@ end
 if whichFeatS.firstOrder
     featureS.firstOrderS = radiomics_first_order_stats...
         (volToEval(logical(maskBoundingBox3M)), VoxelVol,...
-        paramS.firstOrderParamS.offsetForEnergy);    
+        paramS.firstOrderParamS.offsetForEnergy,paramS.firstOrderParamS.binWidthEntropy);    
 end
 if whichFeatS.peakValley
     radiusV = paramS.peakValleyParamS.peakRadius;
@@ -472,4 +506,5 @@ rlmFlagS.lrlgle = 1;
 rlmFlagS.lrhgle = 1;
 rlmFlagS.glv = 1;
 rlmFlagS.rlv = 1;
+rlmFlagS.re = 1;
 end

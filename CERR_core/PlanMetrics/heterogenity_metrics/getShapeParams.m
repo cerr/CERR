@@ -43,6 +43,28 @@ else
     %volume = planC{4};
 end
 
+% Check if it's a coplanar structure
+if length(zValsV) < 2
+    shapeS.majorAxis = NaN;
+    shapeS.minorAxis = NaN;
+    shapeS.leastAxis = NaN;
+    shapeS.flatness = NaN;
+    shapeS.elongation = NaN;
+    shapeS.max3dDiameter = NaN;
+    shapeS.max2dDiameterAxialPlane = NaN;
+    shapeS.max2dDiameterSagittalPlane = NaN;
+    shapeS.max2dDiameterCoronalPlane = NaN;
+    shapeS.surfArea = NaN;
+    shapeS.volume = NaN;
+    shapeS.filledVolume = NaN;
+    shapeS.Compactness1 = NaN;
+    shapeS.Compactness2 = NaN;
+    shapeS.spherDisprop = NaN;
+    shapeS.sphericity = NaN;
+    shapeS.surfToVolRatio = NaN;    
+    return;
+end
+
 % Get voxel size
 voxelSiz(1) = abs(yValsV(2) - yValsV(1));
 voxelSiz(2) = abs(xValsV(2) - xValsV(1));
@@ -72,6 +94,11 @@ shapeS.elongation = sqrt(eigValV(2) / eigValV(3));
 
 % Get the surface points for the structure mask
 surfPoints = getSurfacePoints(mask3M);
+sampleRate = 1;
+while size(surfPoints,1) > 20000
+    sampleRate = sampleRate + 1;
+    surfPoints = getSurfacePoints(mask3M, sampleRate, 1);
+end
 xSurfV = xValsV(surfPoints(:,2));
 ySurfV = yValsV(surfPoints(:,1));
 zSurfV = zValsV(surfPoints(:,3));
@@ -124,7 +151,7 @@ yValsV = [yValsV(1)-voxelSiz(2) yValsV yValsV(end)+voxelSiz(2)];
 zValsV = [zValsV(1)-voxelSiz(3) zValsV zValsV(end)+voxelSiz(3)];
 
 % Resample the structure mask
-if exist('rcsV','var')
+if exist('rcsV','var') && ~isempty(rcsV)
     % use the larger dim of mask or the inpur rcsV
     siz = size(mask3M);
     rcsV(rcsV < siz) = siz(rcsV < siz);
@@ -161,6 +188,15 @@ end
 
 % Check if it's a coplanar structure
 if (length(unique(zSurfV)) < 2 || length(zSurfV)<4)
+    shapeS.majorAxis = NaN;
+    shapeS.minorAxis = NaN;
+    shapeS.leastAxis = NaN;
+    shapeS.flatness = NaN;
+    shapeS.elongation = NaN;
+    shapeS.max3dDiameter = NaN;
+    shapeS.max2dDiameterAxialPlane = NaN;
+    shapeS.max2dDiameterSagittalPlane = NaN;
+    shapeS.max2dDiameterCoronalPlane = NaN;
     shapeS.surfArea = NaN;
     shapeS.volume = NaN;
     shapeS.filledVolume = NaN;
@@ -168,7 +204,7 @@ if (length(unique(zSurfV)) < 2 || length(zSurfV)<4)
     shapeS.Compactness2 = NaN;
     shapeS.spherDisprop = NaN;
     shapeS.sphericity = NaN;
-    shapeS.surfToVolRatio = NaN;
+    shapeS.surfToVolRatio = NaN;    
     return;
 end
 

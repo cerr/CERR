@@ -46,6 +46,7 @@ mkdir(fullfile(compiled_path,'bin'));
 mkdir(fullfile(compiled_path,'doc'));
 mkdir(fullfile(compiled_path,'pics'));
 copyfile(fullfile(CERR_path,'CERR_core','CERROptions.m'),compiled_path);
+copyfile(fullfile(CERR_path,'CERR_core','CERROptions.json'),compiled_path);
 
 % Fill-in the bin directory
 destin = fullfile(compiled_path,'bin');
@@ -133,7 +134,11 @@ function str = appendMfile(directory)
 allDirS = dir(directory);
 str = '';
 for dirNum = 1:length(allDirS)
-    if ~allDirS(dirNum).isdir && strcmp(allDirS(dirNum).name(end-1:end),'.m') && ~strcmpi(allDirS(dirNum).name,'CERR.m') && ~strcmpi(allDirS(dirNum).name,'CERROptions.m') && ~strcmpi(allDirS(dirNum).name,'compile_CERR.m')
+    if ~allDirS(dirNum).isdir && strcmp(allDirS(dirNum).name(end-1:end),'.m') && ...
+            ~strcmpi(allDirS(dirNum).name,'CERR.m') && ...
+            ~strcmpi(allDirS(dirNum).name,'CERROptions.m') && ...
+            ~strcmpi(allDirS(dirNum).name,'compile_CERR.m') && ...
+            ~strcmpi(allDirS(dirNum).name,'CERRViewer.m')
         str = [str,' -a ',allDirS(dirNum).name];
     elseif ~strcmp(allDirS(dirNum).name,'private') && ~strcmp(allDirS(dirNum).name,'.') && ~strcmp(allDirS(dirNum).name,'..') && isempty(strfind(allDirS(dirNum).name,'+'))
         str = [str appendMfile(fullfile(directory,allDirS(dirNum).name))];

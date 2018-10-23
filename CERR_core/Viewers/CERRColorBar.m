@@ -375,7 +375,8 @@ end
 function updateColorBarStateS(hAxis,colorbarFrameMax,doseArrayMaxValue,doseDisplayRange,colorbarRange,colorbarFrameMin,colorbarImageH)
 % DK
 global stateS
-if stateS.layout == 7 & (strcmpi(get(hAxis,'tag'),'doseCompareAxes')|strcmpi(get(hAxis,'tag'),'colorBarCompare'))% doseCompare Mode
+if stateS.layout == 7 && (strcmpi(get(hAxis,'tag'),'doseCompareAxes') ||...
+        strcmpi(get(hAxis,'tag'),'colorBarCompare'))% doseCompare Mode
     stateS.colorbarFrameMaxCompare = colorbarFrameMax;
     stateS.doseArrayMaxValueCompare = doseArrayMaxValue;
     stateS.doseDisplayRangeCompare = doseDisplayRange;

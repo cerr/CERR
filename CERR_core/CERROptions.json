@@ -1,0 +1,243 @@
+{
+"loadCT" : "yes",
+
+"loadDoseSet" : "any" ,
+
+"loadStructures" : ["any"],
+
+"CTEndian" : "big",
+
+"loadFilm" : "none",
+
+"zipSave" : "yes",
+
+"scanStructures" : ["any"],
+
+"DSHMaxPointInterval" : 0.2,
+
+"surfPtStructures" : [""],
+
+"downsampleLargeDoses" : "yes",
+
+"doseSizeThreshold" : 100,
+
+"promptForNewSize" : "no",
+
+"downsampledVoxelSize" : [0.2, 0.2, 0.3],
+
+"importDICOMsubDirs" : "no",
+
+"createUniformizedDataset" : "yes",
+
+"uniformizeExcludeStructs"  : ["normaltissue", "CT_EXTERNAL"],
+
+"uniformizedDataType"  :  "uint16",
+
+"structureArrayDataType" : "uint32",
+
+"lowerLimitUniformCTSliceSpacing" :  0.005,
+
+"upperLimitUniformCTSliceSpacing" :  10,
+
+"alternateLimitUniformCTSliceSpacing" : 0.3,
+
+"useOpenGL" : 1,
+
+"isodoseLevelMode" : "auto",
+
+"isodoseLevels" : [70, 65, 60, 55, 50, 45, 40, 20, 10],
+
+"autoIsodoseLevels" : 6,
+
+"autoIsodoseRangeMode" : 1,
+
+"autoIsodoseRange" : [0, 100],
+
+"isodoseLevelType" : "absolute",
+
+"isodoseUseColormap" : 1,
+
+"isodoseThickness" : 1,
+
+"structureThickness" : 2,
+
+"structureDots" : 1,
+
+"displayDoseSet"  : "",
+
+"doseInterpolationMethod" : "linear",
+
+"tickInterval"   : 1,
+
+"CTLevel" : 0,
+
+"CTWidth" : 300,
+
+"fontsize" : 8,
+
+"UIColor" : [0.9,0.9,0.9],
+
+"colorOrder" : [[0.9, 0.63, 0], [0, 0.9,0], [0.9, 0, 0], [0,  0.81, 0.81], [0.675, 0, 0.6750], [0.675, 0.675, 0], [0.54, 0.675, 0.9], [0.72, 0.225, 0.225], [0.9, 0, 0.9], [0.675, 0.45, 0], [0, 0.9, 0.45], [0.9, 0.45, 0.9], [0.45, 0.9, 0], [0.27, 0, 0.81], [0, 0.63, 0.27], [0.63, 0.27, 0], [0, 0.72, 0.81], [0.63, 0, 0.72], [0.81, 0.54, 0], [0.297, 0.594, 0.9000], [0.9, 0.297, 0.297], [0.9, 0, 0.81], [0.81, 0.45, 0], [0, 0.9, 0.36], [0.81, 0.54, 0.81], [0.54, 0.81, 0], [0.63, 0.36, 0.72], [0.54, 0.81, 0.18]],
+
+"contourToSliceTolerance" : 0.005,
+
+"inactiveSegStyle" : "--",
+
+"activeSegStyle" : "-",
+
+"displayPatientName" : 0,
+
+"initialZoomTrans" : 1.7,
+
+"initialZoomSag" : 1.0,
+
+"initialZoomCor" : 1.0,
+
+"zoomFactor" : 2.0,
+
+"dosePlotType" : "colorwash",
+
+"doseColormap" : "weather",
+
+"CTColormap" : "gray256",
+
+"colorbarChoices" : ["coolwarm","jetmod", "ppt", "full", "full2", "star", "starinterp", "gray", "gray256", "grayud64", "doublecolorinvert", "thedrewspecial", "graycenter0width300", "hotcold", "copper", "weather"],
+
+"staticColorbar" : 0,
+
+"colorbarMin" : "",
+
+"colorbarMax" : "",
+
+"transparentZeroDose" : 1,
+
+"doubleSidedColorbar" : 0,
+
+"negativeTexture" : 1,
+
+"colorbarMarks" : [],
+
+"visualRefColormapRows" : 256,
+
+"visualRefTopColormap"  : "grayud64",
+
+"visualRefBottomColormap" : "full2",
+
+"visualRefDose" : 65,
+
+"visualRefDoseMode" : "off",
+
+"initialTransparency" : 0.5,
+
+"calcDoseInsideSkinOnly" : 0,
+
+"CERRStatusStringEnabled" : 1,
+
+"fusionDisplayMode" : "colorblend",
+
+"fusionCheckSize" : 2,
+
+"fusionAlgorithms" : ["Manual", "ControlPts - Affine", "ControlPts - Perspective", "Exhaustive Search - MI", "Stocastic - MI", "Contour Based"],
+
+"fusionTemplates" : ["Manual", "CTP_Affine", "CTP_Perspective", "Exhaustive", "Stocastic", "ContourBased"],
+
+"visual3DxyDownsampleIndex" : 128,
+
+"numDoseProfileSamples" : 200,
+
+"ROISampleRate" : 1,
+
+"DVHBinWidth" : 0.2,
+
+"DVHBlockSize" : 5000, 
+
+"DVHLineWidth"  : 1.5,
+
+"IVHBinWidth" : 0.02,
+
+"IVHBlockSize" : 5000,
+
+"IVHLineWidth"  : 1.5,
+
+"defaultVOINames" : ["GTV", "CTV", "PTV", "spinal cord", "heart", "total lung", "rt kidney", "lt kidney"],
+
+"nudgeDistance" : 0.5,
+
+"navigationMontageColormap" : "grayCenter0Width300",
+"navigationMontageOnImport" : "no",
+"navigationMontage" : "no",
+
+"wavletcompresthreshpersent" : 1,
+"wavletcompressiondecomplevel" : 5,
+
+"IMRTCheckResolution" : "on",
+
+"IMRTDoseCalculationAlgorithms" : ["QIB", "VMC++"],
+"IMRTDoseCalculationTemplates" : ["getQIBTemplate", "getVMCTemplate"],
+"IMRTDoseCalculationFunction"  : ["generateQIBInfluence", "generateVMCInfluence"],
+
+"IMRTScatterReductionAlgorithms" : ["Exponential", "Probabilistic", "Threshold", "None"],
+"IMRTScatterReductionTemplates" : ["ExponentialTemplate", "ProbabilisticTemplate", "ThresholdTemplate", "NoneTemplate"],
+
+"IMRTAutoIsocenterAlgorithms" : ["GeometricCOM","Manual"],
+"IMRTAutoIsocenterFunctions" : ["isocenterGeometricCOM", "isocenterManual"],
+
+
+"planMetrics" : ["meanDose", "maxDose", "minDose", "Vx", "Dx", "EUD", "ERP", "LKB", "stdDevDose","MOCx","MOHx"],
+
+"windowPresets" : [{"name": "--Manual--", "center": 0, "width": 0}, {"name": "Abd/Med", "center": -10, "width": 330}, {"name": "Head", "center": 45, "width": 125}, {"name": "Liver", "center": 80, "width": 305}, {"name": "Lung", "center": -500, "width": 1500}, {"name": "Spine", "center": 30, "width": 300},  {"name": "Vrt/Bone", "center": 400, "width": 1500}, {"name": "PET", "center": 4500, "width": 11000}, {"name": "MR", "center": -500, "width": 1350}, {"name": "SPECT", "center": 400, "width": 1000}, {"name": "Top 90", "center": 400, "width": 1000}],
+
+"scanColorMap" : [{"name": "gray256"}, {"name": "copper"}, {"name": "Red"}, {"name": "Green"}, {"name": "Blue"}, {"name": "StarInterp"}, {"name": "hotCold"}, {"name": "weather"}],
+
+"cachingEnabled" : 0,
+"colorWashCacheSize" : 64,
+
+"saveFormat" : "-v6",
+
+"plotObjFormat" : "v6",
+
+"chkMicroRT" : 0,
+
+"CompressType" : "bz2",
+
+"format" : "DICOM",
+
+"layout" : 5,
+
+"logOnStartup" : 0,
+
+"tmpDecompressDir" : "",
+
+"ROIInterpretedType" : "initROIInterpretedType",
+
+"convert_PET_to_SUV" : 0,
+
+"overwrite_CERR_File" : 0,
+
+"sinc_filter_on_display" : 0,
+
+"plastimatch_command_file" : "bspline_register_cmd_dir.txt",
+
+"linePoolSize" : 30,
+
+"ROEProtocolPath" : "M:/Aditi/OutcomesModels/ROE/Protocols", 
+"ROEModelPath" : "M:/Aditi/OutcomesModels/ROE/Models",
+"ROECriteriaPath" : "M:/Aditi/OutcomesModels/ROE/Criteria",
+
+"shape_rcsV" : [100, 100, 100], 
+
+"higherOrder_minIntensity" : -140,
+"higherOrder_maxIntensity" : 100,
+"higherOrder_numGrLevels" : 100,
+"higherOrder_patchRadius2dV" : [1, 1, 0],
+"higherOrder_patchRadius3dV" : [1, 1, 1],
+"higherOrder_imgDiffThresh" : 0,
+
+"peakValley_peakRadius" : [2, 2, 0],
+
+"ivh_xForIxV" : [10, 20, 30, 40, 50, 60, 70, 80, 90],
+"ivh_xAbsForIxV" : [10, 30, 50, 70, 90, 110, 130, 150, 170, 190],
+"ivh_xForVxV" : [10, 20, 30, 40, 50, 60, 70, 80, 90],
+"ivh_xAbsForVxV" :  [-140,  -130,  -120,  -110,  -100,   -90,   -80,   -70,   -60,   -50,   -40,   -30,   -20,   -10,     0,    10,    20,    30,    40,    50,    60,  70,    80,    90,   100]
+
+}

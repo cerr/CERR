@@ -34,14 +34,14 @@ function [valid, saveflg]= isUniformized(scanNum, planC)
 
 indexS = planC{end};
 pathStr = getCERRPath;
-optName = [pathStr 'CERROptions.m'];
+optName = [pathStr 'CERROptions.json'];
 optS = opts4Exe(optName);
 saveflg = 0;
 %Assume valid to start.
 valid = 1;
 
 %Check for required planC fields.
-if ~isfield(indexS, 'scan') | ~isfield(indexS, 'structureArray');
+if ~isfield(indexS, 'scan') || ~isfield(indexS, 'structureArray')
     valid = 0;
     return;
 end
@@ -63,16 +63,17 @@ end
 if isfield(uniStruct,'bitsArray') && isempty(uniStruct.bitsArray) && ismember(scanNum,getAssociatedScan({planC{indexS.structures}.assocScanUID},planC))
     valid = 0;
     return;
-elseif length(planC{indexS.structures})== 0
+elseif isempty(planC{indexS.structures})
     return;    
 end
 
-if ~isfield(scanStruct, 'uniformScanInfo') | ~isfield(scanStruct, 'scanArrayInferior') | ~isfield(scanStruct, 'scanArraySuperior')
+if ~isfield(scanStruct, 'uniformScanInfo') ||...
+        ~isfield(scanStruct, 'scanArrayInferior') || ~isfield(scanStruct, 'scanArraySuperior')
     valid = 0;
     return;
 end
 
-if isempty(uniStruct) | isempty(uniStruct.indicesArray) | isempty(uniStruct.bitsArray)
+if isempty(uniStruct) || isempty(uniStruct.indicesArray) || isempty(uniStruct.bitsArray)
     %The uniformized structs are empty.  This should only happen if no
     %structures associated with this scan have no rasterSegments or if the
     %structures are excluded from uniformization in the options file.
@@ -99,13 +100,12 @@ if isempty(uniStruct) | isempty(uniStruct.indicesArray) | isempty(uniStruct.bits
         end
     end    
 else
-    [xV, yV, zV] = getUniformScanXYZVals(planC{indexS.scan}(scanNum));
+    [~, ~, zV] = getUniformScanXYZVals(planC{indexS.scan}(scanNum));
     indicesM = planC{indexS.structureArray}(scanNum).indicesArray;
     askQuestion = 1;
 %     for cellNum = 1:length(indicesC)
 %         indicesM = indicesC{cellNum};
         if ~isempty(indicesM) && max(indicesM(:,3))>length(zV) && askQuestion
-            askQuestion = 0;
             valid = 0;
             querry = {'This is an old archived plan which was uniformized incorrectly'...
                 'CERR will uniformized the plan again'...

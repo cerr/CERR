@@ -111,7 +111,7 @@ switch upper(instr)
         
         %Need to redefine stateS as global since init_ML_Dicom clears all
         %globals
-        global stateS
+        %global stateS 
         
         stateS.initDicomFlag = dcm_init_flag;
         stateS.fusion = 0;
@@ -142,7 +142,7 @@ switch upper(instr)
         %Get options file
         if nargin == 1    %Default to the CERROptions.m file stored in the CERR directory
             pathStr = getCERRPath;
-            optName = [pathStr 'CERROptions.m'];
+            optName = [pathStr 'CERROptions.json'];
         elseif nargin == 2 & ischar(varargin{:})  %UI to get options file: 'CERRSliceViewer -f'
             if strcmp(lower(varargin{:}),'-f')
                 [fname, pathname] = uigetfile('*.m','Select options .m file');
@@ -264,7 +264,9 @@ switch upper(instr)
         stateS.handle.controlFrame = uicontrol(hCSV,'units', 'pixels', 'Position', [0 0 leftMarginWidth 400], 'Style', 'frame', 'Tag', 'controlFrame');
         %Warning message.
         %handle = uicontrol(hCSV, 'units', 'pixels', 'Position', [10 600 leftMarginWidth-20 20], 'Style', 'text', 'enable', 'inactive'  , 'String', 'Not for clinical use', 'foregroundcolor', [1 0 0], 'fontsize', 14);
-
+        stateS.handle.controlFrameUd = [];
+        stateS.contouringMetaDataS = [];
+        
         %CT window and level ui:
         frameWidth = leftMarginWidth - 20;
         stateS.handle.CTSettingsFrame = uicontrol(hCSV,'units','pixels', 'string', 'ctsettingsFrame', 'BackgroundColor',uicolor, 'Position', [10 490 frameWidth 125],'Style','frame', 'Tag','CTSettingsFrame');
@@ -369,7 +371,7 @@ switch upper(instr)
         stateS.handle.aI(4) = aI;
                 
         % Waitbar to show Viewer loading progress
-        hWait = waitbar(0.02,'Starting Viewer...', 'WindowStyle', 'modal');
+        %hWait = waitbar(0.02,'Starting Viewer...', 'WindowStyle', 'modal');
         
         %Create in-axis labels for each axis.
         tickV = linspace(0.02,0.1,6);
@@ -419,7 +421,7 @@ switch upper(instr)
         % Create a pool of line objects to display contours
         numAxes = length(stateS.handle.CERRAxis);
         for axNum = 1:numAxes
-            waitbar(0.02+(axNum-1)/numAxes,hWait);
+            %waitbar(0.02+(axNum-1)/numAxes,hWait);
             aI = stateS.handle.aI(axNum);
             for i = 1:stateS.optS.linePoolSize
                 aI.lineHandlePool(1).lineV(i) = line(NaN, NaN, 'parent', stateS.handle.CERRAxis(axNum), 'linestyle', '-', 'hittest', 'off', 'visible', 'off');
@@ -430,7 +432,7 @@ switch upper(instr)
         end   
         
         %Close the waitbar
-        close(hWait)        
+        %close(hWait)        
         
         if stateS.MLVersion >= 8.4
             set(stateS.handle.CERRAxis,'ClippingStyle','rectangle')
@@ -1479,23 +1481,16 @@ switch upper(instr)
         hFig = get(hAxis, 'parent');        
         stateS.lastAxis = stateS.currentAxis;
         stateS.currentAxis = find(stateS.handle.CERRAxis == hAxis);
-        planeLocators = findobj(hFig, 'tag', 'planeLocator');
+        % planeLocators = findobj(hFig, 'tag', 'planeLocator');
+        planeLocators = [stateS.handle.CERRAxisPlnLoc{:}];
         set(planeLocators, 'marker', 'none');
         pLUD = get(planeLocators, 'userdata');
         for i = 1:size(pLUD,1)
             parentAxis = pLUD{i}{3};
-            if parentAxis == stateS.currentAxis;            
-                if stateS.MLVersion < 8.4
-                    set(planeLocators(i), 'Color', [0.5 1 0.5]);
-                else
-                    set(planeLocators(i), 'Color', [0.5 1 0.5]);
-                end
+            if parentAxis == stateS.currentAxis                
+                set(planeLocators(i), 'Color', [0.5 1 0.5]);
             else
-                if stateS.MLVersion < 8.4
-                    set(planeLocators(i), 'Color', [0.9 0.9 0.5]);
-                else
-                    set(planeLocators(i), 'Color', [0.9 0.9 0.5]);
-                end
+                set(planeLocators(i), 'Color', [0.9 0.9 0.5]);
             end
         end
         %try % case where the axes is deleted stateS.lastAxis exceeds matrix dimention
@@ -1569,14 +1564,16 @@ switch upper(instr)
         if nargin > 1
             file = varargin{1};
         else
-            if isfield(stateS, 'CERRFile') & ~isempty(stateS.CERRFile)
+            if isfield(stateS, 'CERRFile') && ~isempty(stateS.CERRFile)
                 if stateS.workspacePlan
                     %If workspace plan, ie no directory, use CERR root.
                     stateS.CERRFile = fullfile(getCERRPath, 'workspacePlan');
                 end
-                dir = fileparts(stateS.CERRFile);
+                cerrFileDir = fileparts(stateS.CERRFile);
                 wd = cd;
-                cd(dir);
+                if exist(cerrFileDir,'dir')
+                    cd(cerrFileDir);
+                end
                 [fname, pathname] = uigetfile({'*.mat;*.mat.bz2;*.mat.zip;*.mat.tar;*.mat.bz2.tar;*.mat.zip.tar', 'CERR Plans (*.mat, *.mat.bz2, *.mat.tar, *.mat.bz2.tar)';'*.*', 'All Files (*.*)'}, 'Select a CERR archive for viewing');
                 cd(wd);
             else
@@ -1870,7 +1867,7 @@ switch upper(instr)
         if stateS.imageRegistration
             hToggleBasMov = findobj(stateS.handle.CERRSliceViewer,'tag','toggleBasMov');
             %change color of Base-Moving toggle-button if it exists
-            udFrame = get(stateS.handle.controlFrame,'userdata');
+            udFrame = stateS.handle.controlFrameUd ;
             clrM = [0 0 0; 1 0.8 0.5; 1 0 0; 0 1 0; 0 0 1; 1 0.5 0.5; 1 0.5 0.5];
             if ~isempty(hToggleBasMov) && stateS.doseAlphaValue.trans > 0 && stateS.doseAlphaValue.trans < 1
                 set(hToggleBasMov,'string','B/M','fontWeight','normal','foregroundColor',[0 0 0],'value',0)
@@ -1887,7 +1884,7 @@ switch upper(instr)
     case 'TOGGLEBASEMOVING'
         %figure(hCSV); %Remove uicontrol focus.
         stateS.doseAlphaValue.trans = get(gcbo,'value');        
-        udFrame = get(stateS.handle.controlFrame,'userdata');
+        udFrame = stateS.handle.controlFrameUd ;
         clrVal = get(udFrame.handles.displayModeColor,'value');        
         clrM = [0 0 0; 1 0.8 0.5; 1 0 0; 0 1 0; 0 0 1; 1 0.5 0.5; 1 0.5 0.5];
         if stateS.doseAlphaValue.trans == 1
@@ -2017,7 +2014,7 @@ switch upper(instr)
         contourControl('init', scanSet);
         %contourControl('drawMode');
         contourControl('noneMode');
-        ud=get(stateS.handle.controlFrame,'userdata');
+        ud = stateS.handle.controlFrameUd ;
         set(ud.handles.structPopup,'enable','on')
         return;
 
@@ -2591,7 +2588,7 @@ switch upper(instr)
             if stateS.contourState
                 % In contouring mode, switch to nonemode
                 hAxis = stateS.handle.CERRAxis(stateS.contourAxis);
-                ud = get(stateS.handle.controlFrame,'userdata');
+                ud = stateS.handle.controlFrameUd ;
                 set([ud.handles.pencil, ud.handles.flex],...
                     'BackgroundColor',[0.8 0.8 0.8], 'Value', 0)
                 drawContour('noneMode', hAxis);
@@ -2669,8 +2666,10 @@ switch upper(instr)
         
     case 'SLICEMOTIONSTART'
         hAxis = gca;
-        hFig  = get(hAxis, 'parent');
-        cP    = get(hAxis, 'CurrentPoint');
+        %hFig  = get(hAxis, 'parent');
+        hFig = hAxis.Parent;
+        %cP    = get(hAxis, 'CurrentPoint');
+        cP = hAxis.CurrentPoint;
         set(hFig, 'interruptible', 'on', 'busyaction', 'cancel');
         stateS.scanWindowCurrentPoint = cP(1,1:2);
         return;     
@@ -3201,7 +3200,12 @@ switch upper(instr)
         end
 
 
-        hFigure = findobj('tag', 'navigationFigure');
+        %hFigure = findobj('tag', 'navigationFigure');
+        if isfield('stateS.handle','navigationMontage')
+        hFigure = stateS.handle.navigationMontage;
+        else
+        hFigure = gobjects(0);
+        end
 
         if ~isempty(hFigure)
             navigationMontage('init',stateS.scanSet) % initialize montage

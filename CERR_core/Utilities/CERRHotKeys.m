@@ -171,14 +171,14 @@ switch(keyValue)
         contourControl('reassignMode');
         controlFrame('contour', 'refresh');
         
-    case {76,108} % l or L key
-        val = get(stateS.handle.CTLevelWidthInteractive,'value');
-        if val == 0
-            set(stateS.handle.CTLevelWidthInteractive,'value',1);
-        else
-            set(stateS.handle.CTLevelWidthInteractive,'value',0);
-        end
-        sliceCallBack('TOGGLESCANWINDOWING');
+%     case {76,108} % l or L key
+%         val = get(stateS.handle.CTLevelWidthInteractive,'value');
+%         if val == 0
+%             set(stateS.handle.CTLevelWidthInteractive,'value',1);
+%         else
+%             set(stateS.handle.CTLevelWidthInteractive,'value',0);
+%         end
+%         sliceCallBack('TOGGLESCANWINDOWING');
         
     case 3 %'Ctrl + c' Copy contour from slice
         if ~stateS.contourState %Check for contouring mode
@@ -191,10 +191,11 @@ switch(keyValue)
         scanSet = getAxisInfo(uint8(stateS.currentAxis), 'scanSets');
         [~, ~, zs] = getScanXYZVals(planC{indexS.scan}(scanSet));
         srcSlice = findnearest(srcCoord, zs);
-        setappdata(hAxis,'copySliceNum',srcSlice);
-        contourMask = getappdata(hAxis,'contourMask');
-        setappdata(hAxis,'copyMask',contourMask);
-        CERRStatusString(sprintf('Copied structure: %d slice: %d.',getappdata(hAxis, 'ccStruct'),srcSlice));
+        stateS.contouringMetaDataS.copySliceNum = srcSlice;
+        contourMask = stateS.contouringMetaDataS.contourMask;
+        stateS.contouringMetaDataS.copyMask = contourMask;
+        ccStruct = stateS.contouringMetaDataS.ccStruct;
+        CERRStatusString(sprintf('Copied structure: %d slice: %d.',ccStruct,srcSlice));
         
     case 22 %'Ctrl + v' Copy contour to slice
         if ~stateS.contourState %Check for contouring mode
@@ -203,14 +204,14 @@ switch(keyValue)
         axIdx = stateS.contourAxis;
         hAxis = stateS.handle.CERRAxis(axIdx);
         %Get source slice
-        srcSlice = getappdata(hAxis,'copySliceNum');
+        srcSlice = stateS.contouringMetaDataS.copySliceNum;
         if isempty(srcSlice)
             return
         end
         
         %Get contours
-        ccStruct = getappdata(hAxis, 'ccStruct');
-        ccContours = getappdata(hAxis, 'ccContours');
+        ccStruct = stateS.contouringMetaDataS.ccStruct;
+        ccContours = stateS.contouringMetaDataS.ccContours;
         contourV = ccContours{ccStruct,srcSlice};
         if isempty(contourV)
             return
@@ -223,8 +224,8 @@ switch(keyValue)
         if size(ccContours,2)<destSlice
         ccContours{ccStruct, destSlice} = []; %Dest slice
         end
-        setappdata(hAxis, 'ccContours', ccContours);
-        setappdata(hAxis, 'contourV', contourV);
+        stateS.contouringMetaDataS.ccContours = ccContours;
+        stateS.contouringMetaDataS.contourV = contourV;
         contourControl('copySl',hAxis,destSlice);
         
     case {43,61} %'+' key to increase brush size in contouring mode
@@ -232,7 +233,8 @@ switch(keyValue)
             return
         end
         hAxis = stateS.handle.CERRAxis(stateS.currentAxis);
-        mode = getappdata(hAxis, 'mode');
+        %mode = getappdata(hAxis, 'mode');
+        mode = stateS.contouringMetaDataS.mode;
         switch upper(mode)
             case {'FLEXSELMODE','FLEXMODE','DRAWINGBALL'}
                 increment = min([planC{indexS.scan}(1).scanInfo(1).grid1Units,...
@@ -240,11 +242,11 @@ switch(keyValue)
                 controlFrame('contour','setBrushSize',hAxis,increment);
             case 'THRESHOLD'
                 %cP = get(hAxis, 'currentPoint');
-                CpOld = getappdata(hAxis, 'thresholdStartPoint');
-                %minLevel = getappdata(hAxis, 'minLevel');
-                maxLevel = getappdata(hAxis, 'maxLevel');
-                contractionBias = getappdata(hAxis, 'ContractionBias');
-                setappdata(hAxis, 'ContractionBias', max(-1,contractionBias - 0.05));
+                CpOld = stateS.contouringMetaDataS.thresholdStartPoint;
+                maxLevel = stateS.contouringMetaDataS.maxLevel;
+                contractionBias = stateS.contouringMetaDataS.ContractionBias;
+                stateS.contouringMetaDataS.ContractionBias = max(-1,contractionBias - 0.05);
+
                 %if cP(1,2) < CpOld(1,2)
                 %    setappdata(hAxis, 'minLevel',minLevel-1);
                 %else
@@ -259,7 +261,7 @@ switch(keyValue)
             return
         end
         hAxis = stateS.handle.CERRAxis(stateS.currentAxis);
-        mode = getappdata(hAxis, 'mode');
+        mode = stateS.contouringMetaDataS.mode;
         switch upper(mode)
             case {'FLEXSELMODE','FLEXMODE','DRAWINGBALL'}
                 decrement = -min([planC{indexS.scan}(1).scanInfo(1).grid1Units,...
@@ -267,11 +269,14 @@ switch(keyValue)
                 controlFrame('contour','setBrushSize',hAxis,decrement);
             case 'THRESHOLD'
                 %cP = get(hAxis, 'currentPoint');
-                CpOld = getappdata(hAxis, 'thresholdStartPoint');
-                %minLevel = getappdata(hAxis, 'minLevel');
-                maxLevel = getappdata(hAxis, 'maxLevel');
-                contractionBias = getappdata(hAxis, 'ContractionBias');
-                setappdata(hAxis, 'ContractionBias', min(1,contractionBias + 0.05));
+                CpOld = stateS.contouringMetaDataS.thresholdStartPoint;
+                
+                maxLevel = stateS.contouringMetaDataS.maxLevel; 
+                
+                contractionBias = stateS.contouringMetaDataS.ContractionBias;
+                
+                stateS.contouringMetaDataS.ContractionBias = min(1,contractionBias + 0.05);
+
                 %if cP(1,2) < CpOld(1,2)
                 %    setappdata(hAxis, 'minLevel',minLevel-1);
                 %else
@@ -286,7 +291,8 @@ switch(keyValue)
             return
         end
         hAxis = stateS.handle.CERRAxis(stateS.contourAxis);
-        if strcmp(getappdata(hAxis,'mode'),'flexMode')
+        mode = stateS.contouringMetaDataS.mode;
+        if strcmp(mode,'flexMode')
             contourControl('Save_Slice');
             contourControl('flexSelMode', 0);
         end
@@ -296,7 +302,8 @@ switch(keyValue)
             return
         end
         hAxis = stateS.handle.CERRAxis(stateS.contourAxis);
-        if strcmp(getappdata(hAxis,'mode'),'flexMode')
+        mode = stateS.contouringMetaDataS.mode;
+        if strcmp(mode,'flexMode')
             contourControl('Save_Slice');
             contourControl('flexSelMode', 1);
         end
@@ -348,14 +355,15 @@ end
 % threshM = imgM >= threshV(indAbove) & imgM < threshV(indBelow);
 
 % threshM = imgM >= threshV(minLevel) & imgM < threshV(maxLevel);
+imgM = stateS.contouringMetaDataS.smoothImg;
+ContractionBias = stateS.contouringMetaDataS.ContractionBias;
 
-imgM = getappdata(hAxis, 'smoothImg');
-ContractionBias = getappdata(hAxis, 'ContractionBias');
 % maskM = false(length(yV), length(xV));
 % delta = 2;
 % [rM,cM] = meshgrid(r-delta:r+delta,c-delta:c+delta);
 % maskM(rM(:),cM(:)) = 1;
-maskM = getappdata(hAxis, 'InitialMask');
+maskM = stateS.contouringMetaDataS.InitialMask;
+
 % delta = 50;
 % threshM = false(size(imgM));
 % threshM(r-delta:r+delta,c-delta:c+delta) = ...
@@ -401,9 +409,10 @@ for seg = 1:length(contr.segments)
         contourV{seg} = contr.segments(seg).points;
     end
 end
-setappdata(hAxis, 'contourV', contourV);
-setappdata(hAxis, 'contourMask',ROI);
-setappdata(hAxis, 'segment', segment);
+stateS.contouringMetaDataS.contourV = contourV;
+stateS.contouringMetaDataS.contourMask = ROI;
+stateS.contouringMetaDataS.segment = segment;
+
 drawSegment(hAxis);
 
 
@@ -423,10 +432,11 @@ global stateS
 %     return;
 % end
 
-imgM = getappdata(hAxis, 'smoothImg');
-ContractionBias = getappdata(hAxis, 'ContractionBias');
-scanSet = getappdata(hAxis, 'ccScanSet');
-maskM = getappdata(hAxis, 'InitialMask');
+imgM = stateS.contouringMetaDataS.smoothImg;
+ContractionBias = stateS.contouringMetaDataS.ContractionBias;
+scanSet = stateS.contouringMetaDataS.ccScanSet;
+maskM = stateS.contouringMetaDataS.InitialMask;
+
 % maskM = false(length(yV), length(xV));
 % delta = 2;
 % [rM,cM] = meshgrid(r-delta:r+delta,c-delta:c+delta);
@@ -456,23 +466,25 @@ for seg = 1:length(contr.segments)
         contourV{seg} = contr.segments(seg).points;
     end
 end
-setappdata(hAxis, 'contourV', contourV);
-setappdata(hAxis, 'contourMask',segM);
-setappdata(hAxis, 'segment', segment);
+stateS.contouringMetaDataS.contourV = contourV;
+stateS.contouringMetaDataS.contourMask = segM;
+stateS.contouringMetaDataS.segment = segment;
+
+
 drawSegment(hAxis);
 
 
 
 function drawSegment(hAxis)
 %Redraw the current segment associated with hAxis
-hSegment = getappdata(hAxis, 'hSegment');
-mode = getappdata(hAxis, 'mode');
-%try
+hSegment = stateS.contouringMetaDataS.hSegment;
+mode = stateS.contouringMetaDataS.mode;
+
 %    delete(hSegment);
 %end
 %hSegment = [];
 
-segment = getappdata(hAxis, 'segment');
+segment = stateS.contouringMetaDataS.segment;
 if ~isempty(segment) && (strcmpi(mode, 'drawing') || strcmpi(mode, 'draw'))
     %hSegment = line(segment(:,1), segment(:,2), 'color', 'red', 'hittest', 'off', 'parent', hAxis, 'ButtonDownFcn', 'drawContour(''contourClicked'')');
     %setappdata(hAxis, 'hSegment', hSegment);

@@ -574,7 +574,7 @@ switch cellName
         
     case 'CERROptions'        
         pathStr = getCERRPath;
-        optName = [pathStr 'CERROptions.m'];
+        optName = [pathStr 'CERROptions.json'];
         dataS = opts4Exe(optName);        
         
     case 'indexS'

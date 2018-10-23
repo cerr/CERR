@@ -11,11 +11,11 @@ lenV = 1:Nn;
 levV = 1:Ng;
 
 % Low dependence emphasis
-sLdeM = bsxfun(@rdivide,s,(1:Nn).^2);
+sLdeM = bsxfun(@rdivide,s,lenV.^2);
 featuresS.lde = sum(sLdeM(:))/Ns;
 
 % High dependence emphasis
-sHdeM = bsxfun(@times,s,(1:Nn).^2);
+sHdeM = bsxfun(@times,s,lenV.^2);
 featuresS.hde = sum(sHdeM(:))/Ns;
 
 % Low grey level count emphasis
@@ -27,19 +27,19 @@ sHgceM = bsxfun(@times,s',(1:Ng).^2);
 featuresS.hgce = sum(sHgceM(:))/Ns;
 
 % Low dependence low grey level emphasis
-sLdlgeM = bsxfun(@rdivide,bsxfun(@rdivide,s,(1:Nn).^2)',(1:Ng).^2);
+sLdlgeM = bsxfun(@rdivide,bsxfun(@rdivide,s,lenV.^2)',(1:Ng).^2);
 featuresS.ldlge = sum(sLdlgeM(:))/Ns;
 
 % Low dependence high grey level emphasis
-sLdhgeM = bsxfun(@times,bsxfun(@rdivide,s,(1:Nn).^2)',(1:Ng).^2);
+sLdhgeM = bsxfun(@times,bsxfun(@rdivide,s,lenV.^2)',(1:Ng).^2);
 featuresS.ldhge = sum(sLdhgeM(:))/Ns;
 
 % High dependence low grey level emphasis
-sHdlgeM = bsxfun(@rdivide,bsxfun(@times,s,(1:Nn).^2)',(1:Ng).^2);
+sHdlgeM = bsxfun(@rdivide,bsxfun(@times,s,lenV.^2)',(1:Ng).^2);
 featuresS.hdlge = sum(sHdlgeM(:))/Ns;
 
 % High dependence high grey level emphasis
-sHdhgeM = bsxfun(@times,bsxfun(@times,s,(1:Nn).^2)',(1:Ng).^2);
+sHdhgeM = bsxfun(@times,bsxfun(@times,s,lenV.^2)',(1:Ng).^2);
 featuresS.hdhge = sum(sHdhgeM(:))/Ns;
 
 % Grey level non-uniformity
@@ -71,7 +71,7 @@ featuresS.dcv = sum(jMinusMuPij(:));
 
 % Dependence count entropy
 p = s(:)/sum(s(:));
-featuresS.entropy = -sum(p .* log2(p+1e-10));
+featuresS.entropy = -sum(p .* log2(p+eps));
 
 % Dependence count energy
 p = s(:)/sum(s(:));

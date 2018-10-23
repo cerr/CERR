@@ -217,10 +217,10 @@ else %Rotation is not required, use simple linear interpolation.
     upperSlcRatio = 1 - lowerSlcRatio;
     %     getCTSlice(planC{indexS.scan}(scanSet), lowerSlc, dim);
     if isequal(lowerSlc, upperSlc)
-        [slc, sliceXVals, sliceYVals] = getCTSlice(planC{indexS.scan}(scanSet), lowerSlc, dim, planC);
+        [slc, sliceXVals, sliceYVals] = getCTSlice(planC{indexS.scan}(scanSet), uint16(lowerSlc), dim, planC);
     else
-        [upslc, sliceXVals, sliceYVals] = getCTSlice(planC{indexS.scan}(scanSet), upperSlc, dim, planC);
-        [lowslc, sliceXVals, sliceYVals] = getCTSlice(planC{indexS.scan}(scanSet), lowerSlc, dim, planC);
+        [upslc, sliceXVals, sliceYVals] = getCTSlice(planC{indexS.scan}(scanSet), uint16(upperSlc), dim, planC);
+        [lowslc, sliceXVals, sliceYVals] = getCTSlice(planC{indexS.scan}(scanSet), uint16(lowerSlc), dim, planC);
         upperSlcRatio = slice - lowerSlc;
         slc = double(lowslc)*(lowerSlcRatio) + double(upslc)*(upperSlcRatio);
     end

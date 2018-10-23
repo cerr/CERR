@@ -1,42 +1,61 @@
-function neighbM = getImageNeighbours(scan3M,bboxDimV,rowWindow,colWindow)
-% Get indices of neighbours for voxels within a bounding box
+function neighbM = getImageNeighbours(scan3M,mask3M,rowWindow,colWindow,slcWindow)
+% Returns intensities of neighbours of all voxels within a mask.
+% Neighbourhood is defined by the rowWindow,colWindow,slcWindow inputs.
 %-------------------------------------------------------------------------
 % INPUTS
-%scan3M        : Scan array
-%bboxDimV      : bboxDimV = [minr,maxr,minc,maxc,mins,maxs];
-%rowWindow     : No. rows defining neighbourhood around each voxel
-%colWindow     : No. cols defining neighbourhood
+% scan3M        : Scan array
+% mask3M        : 3D mask
+% rowWindow     : No. rows defining neighbourhood around each voxel
+% colWindow     : No. cols defining neighbourhood
+% slcWindow     : No. slices defining neighbourhood (Optional. Default:1 for 2D neighbours)
 %-------------------------------------------------------------------------
-% AI 09/27/17 
+% AI 09/27/17
+% AI 08/13/18 Extended to return 3D neighbours
 
-%Pad the bounding box by [numRowsPad,numColsPad]
+%Pad the bounding box by [numRowsPad,numColsPad,numSlcPad]
 numColsPad = floor(colWindow/2);
 numRowsPad = floor(rowWindow/2);
-Iexp = scan3M(bboxDimV(1) - numRowsPad:bboxDimV(2) + numRowsPad,...
-    bboxDimV(3)- numColsPad:bboxDimV(4) + numColsPad,...
-    bboxDimV(5):bboxDimV(6));
+if exist('slcWindow','var')
+    numSlcPad = floor(slcWindow/2);
+else
+    slcWindow = 1;
+    numSlcPad = 0;
+end
 
-%Create indices for 2D blocks
+Iexp = padarray(scan3M,[numRowsPad numColsPad numSlcPad],NaN,'both');
+
+%Get indices of 2D neighbours
 [m,n,~] = size(Iexp);
 m = uint32(m);
 n = uint32(n);
 colWindow = uint32(colWindow);
 rowWindow = uint32(rowWindow);
-start_ind = reshape(bsxfun(@plus,[1:m-rowWindow+1]',[0:n-colWindow]*m),[],1); 
+start_ind = reshape(bsxfun(@plus,[1:m-rowWindow+1]',[0:n-colWindow]*m),[],1);
 %Row indices
-lin_row = permute(bsxfun(@plus,start_ind,[0:rowWindow-1])',[1 3 2]);  
-%Get linear indices based on row and col indices 
+lin_row = permute(bsxfun(@plus,start_ind,[0:rowWindow-1])',[1 3 2]);
+%Get linear indices based on row and col indices
 indM = reshape(bsxfun(@plus,lin_row,(0:colWindow-1)*m),rowWindow*colWindow,[]);
 
-%Get intensities of neighbouring voxels within expanded bounding box
-nSlc = bboxDimV(6)-bboxDimV(5)+1;
-nVox = size(indM,2);
-neighbM = nan(nVox*nSlc,size(indM,1));
-%loop over slices
-for slcNum = 1:nSlc
-    slice = Iexp(:,:,slcNum);
-    neighbM((slcNum-1)*nVox+1:slcNum*nVox,:) = slice(indM).';
+%Get intensities of neighbouring voxels 
+calcIndM = mask3M > 0;
+neighbM = [];
+nSlc = size(scan3M,3);
+for slcNum = 1:nSlc %Loop over slices
+    calcSlcIndV = calcIndM(:,:,slcNum);
+    indSlcM = indM(:,calcSlcIndV);
+    slcNumV = slcNum:slcNum+slcWindow-1; % Slices within the patch
+    slNeighbM = [];
+    for iSlc = 1:length(slcNumV)
+        slc = slcNumV(iSlc);
+        patch2M = Iexp(:,:,slc);
+        slNeighbM = [slNeighbM;patch2M(indSlcM)];
+    end
+    neighbM = [neighbM,slNeighbM];
 end
+
+
+
+
 
 end
 

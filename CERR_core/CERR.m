@@ -48,20 +48,21 @@ set(0,'DefaultFigureCreateFcn','set(gcbo,''WindowKeyPressFcn'',''CERRHotKeys'')'
 
 if(nargin == 0)
 
-    pathStr = getCERRPath;
-    optName = [pathStr 'CERROptions.m'];
-    optS = opts4Exe(optName);
-    if isfield(optS,'logOnStartup') && optS.logOnStartup==1 && isempty(logFlag)
-        publishOpts.outputDir = tempdir;
-        publishOpts.showCode = false;
-        publishOpts.useNewFigure = false;
-        file = publish('publishLog.m',publishOpts);
-        %web(file)
-        logFlag = 1;
-    end
+%     pathStr = getCERRPath;
+%     optName = [pathStr 'CERROptions.m'];
+%     optS = opts4Exe(optName);
+%     optS = '';
+%     if isfield(optS,'logOnStartup') && optS.logOnStartup==1 && isempty(logFlag)
+%         publishOpts.outputDir = tempdir;
+%         publishOpts.showCode = false;
+%         publishOpts.useNewFigure = false;
+%         file = publish('publishLog.m',publishOpts);
+%         %web(file)
+%         logFlag = 1;
+%     end
 
     oldFig = findobj('Tag', 'CERRStartupFig');
-    if ishandle(oldFig);
+    if ishandle(oldFig)
         figure(oldFig);
         set(oldFig, 'visible', 'on');
         return;
@@ -78,19 +79,24 @@ if(nargin == 0)
     colormap(map);
     set(CERRStartupFig, 'Name',' CERR control panel'); % ES 28 Aug 2003
     set(gca, 'Position', [0 0 1 1]);
-    image(background, 'CDataMapping', 'direct')
-    axis off, axis image    
+    image(background, 'CDataMapping', 'direct','parent',gca)
+    axis(gca,'off', 'image')
     
     %get local and remote git info
-    [remoteGitHash, localGitInfo] = getGitInfo;
-    [ver, date] = CERRCurrentVersion;    
-    uicontrol('units',units,'Position',[0 .57 0.3 .04],'String','Local GitHub Hash:','Style','text', 'BackgroundColor', [1 1 1], 'FontSize', 10, 'FontName', 'FixedWidth', 'HorizontalAlignment', 'right');
-    if ~isempty(localGitInfo)
-        uicontrol('units',units,'Position',[0.31 .57 0.67 .04],'String',localGitInfo.hash,'Style','edit', 'BackgroundColor', [1 1 1], 'FontSize', 10, 'FontName', 'FixedWidth', 'HorizontalAlignment', 'left');
+    if isdeployed
+        remoteGitHash = '';
+        localGitInfo = struct('hash','','date','');
+    else
+        [remoteGitHash, localGitInfo] = getGitInfo;
     end
-    uicontrol('units',units,'Position',[0 .52 0.3 .04],'String','Date:','Style','text', 'BackgroundColor', [1 1 1], 'FontSize', 10, 'FontName', 'FixedWidth', 'HorizontalAlignment', 'right');
+    [ver, date] = CERRCurrentVersion;    
+    uicontrol('units',units,'Position',[0 .6 0.3 .04],'String','Local GitHub Hash:','Style','text', 'BackgroundColor', [1 1 1], 'FontSize', 10, 'FontName', 'FixedWidth', 'HorizontalAlignment', 'right');
     if ~isempty(localGitInfo)
-        uicontrol('units',units,'Position',[0.31 .52 0.4 .04],'String',localGitInfo.date,'Style','edit', 'BackgroundColor', [1 1 1], 'FontSize', 10, 'FontName', 'FixedWidth', 'HorizontalAlignment', 'left');
+        uicontrol('units',units,'Position',[0.31 .6 0.67 .04],'String',localGitInfo.hash,'Style','edit', 'BackgroundColor', [1 1 1], 'FontSize', 10, 'FontName', 'FixedWidth', 'HorizontalAlignment', 'left');
+    end
+    uicontrol('units',units,'Position',[0 .55 0.3 .04],'String','Date:','Style','text', 'BackgroundColor', [1 1 1], 'FontSize', 10, 'FontName', 'FixedWidth', 'HorizontalAlignment', 'right');
+    if ~isempty(localGitInfo)
+        uicontrol('units',units,'Position',[0.31 .55 0.4 .04],'String',localGitInfo.date,'Style','edit', 'BackgroundColor', [1 1 1], 'FontSize', 10, 'FontName', 'FixedWidth', 'HorizontalAlignment', 'left');
     end
     
     %Display link for Log file

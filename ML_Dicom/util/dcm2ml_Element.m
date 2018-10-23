@@ -53,14 +53,17 @@ cs = [];
 
 %Get the tag value as a char array.
 try
-    tag = char(org.dcm4che2.util.TagUtils.toString(el.tag));
+    %tag = char(org.dcm4che2.util.TagUtils.toString(el.tag));
+    tag = org.dcm4che2.util.TagUtils.toString(el.tag);
 catch
     data = '';
     return;
 end
 
 %Get the VR, cast to ML char array.
-vr = char(el.vr.toString);
+%vr = char(el.vr.toString);
+vr = cell(el.vr.toString);
+vr = vr{1};
 
 switch upper(vr)
     case 'AE'

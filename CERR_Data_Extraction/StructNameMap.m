@@ -28,7 +28,7 @@ function [infoS, doseMapS] = StructNameMap(dirPath,structures_to_extract,dose_to
 
 global planC stateS
 if isempty(stateS) || ~isfield(stateS,'optS')
-    stateS.optS = opts4Exe(fullfile(getCERRPath,'CERROptions.m'));
+    stateS.optS = opts4Exe(fullfile(getCERRPath,'CERROptions.json'));
 end
 
 tic

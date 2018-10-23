@@ -120,6 +120,8 @@ switch tag
         %data = 1;
         %data = scanInfoS.rescaleSlope;
         data = args.data{3}; %APA: factor for conversion to uint16 for modalities other than CT
+        bools = [scanS.scanInfo.zValue] == scanInfoS.zValue;
+        data = data(bools);
         el = template.get(tag);
         el = ml2dcm_Element(el, data);
         

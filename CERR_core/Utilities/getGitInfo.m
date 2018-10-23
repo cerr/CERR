@@ -58,6 +58,12 @@ function [remoteGitHash, localGitInfo] = getGitInfo()
 % or implied, of <copyright holder>.
 
 localGitInfo=[];
+remoteGitHash = '';
+
+if isdeployed
+    %store date and hash in file under bin
+return
+end
 
 pth = getCERRPath;
 indEnd = strfind(pth,'CERR_core');
@@ -157,8 +163,12 @@ end
 %localGitInfo.url=url;
 
 % [~,repName] = strtok(url,':');
-
+%url could also be 'git@github.com:cerr/CERR/commits/testing'
 %get to the commits page to view the remote commit hash
+%url = 'git@github.com:cerr/CERR';
+
+%if ~isempty(url) && contains(url, '.git')
+% use "strfind" instead of "contains" for older versions of matlab
 if ~isempty(url) && strfind(url, '.git')
     commitUrl = strrep(url,'.git','/commits/');
     url = strcat(commitUrl,localGitInfo.branch); 
@@ -190,7 +200,8 @@ end
 % else
 try
     %read remote git information based on url
-    data = webread(url,'term','commit:');
+    weburl = strcat('https://github.com/cerr/CERR/commits/',localGitInfo.branch);
+    data = webread(weburl,'term','commit:');
     commitIdIndex = strfind(data, 'commit:');
     remoteGitHash = data(commitIdIndex(1)+7:commitIdIndex(1)+46);
 catch

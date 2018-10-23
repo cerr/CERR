@@ -37,7 +37,7 @@ indexS = planC{end};
 hAxis = stateS.handle.CERRAxis(stateS.currentAxis);
 %hAxis = stateS.handle.CERRAxis(1);
 hFig = stateS.handle.CERRSliceViewer;
-hFrame = stateS.handle.controlFrame;
+hFrame = stateS.handle.controlFrame; 
 posFrame = get(hFrame, 'position');
 units = 'pixels';
 
@@ -49,8 +49,8 @@ switch command
                 controlFrame('default');
                 stateS.segmentLabelerState = 1;
                 
-                ud = get(hFrame, 'userdata');
-                
+                ud = stateS.handle.controlFrameUd ;
+          
                 % Get scan associated with the current axis and find out if
                 % it has associated stuctures
                 scanSet = stateS.handle.aI(stateS.currentAxis).scanSets;

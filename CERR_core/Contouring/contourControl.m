@@ -58,10 +58,10 @@ switch command
         %axisInfo = get(hAxis, 'userdata');
         axInd = hAxis == stateS.handle.CERRAxis;
         axisInfo = stateS.handle.aI(axInd);
-        setappdata(hAxis, 'prevScanset', axisInfo.scanSets);
-        setappdata(hAxis, 'prevScanSelectMode', axisInfo.scanSelectMode);
-        setappdata(hAxis, 'prevDoseset', axisInfo.doseSets);
-        setappdata(hAxis, 'prevDoseSelectMode', axisInfo.doseSelectMode);
+        stateS.contouringMetaDataS.prevScanset = axisInfo.scanSets;
+        stateS.contouringMetaDataS.prevScanSelectMode = axisInfo.scanSelectMode;
+        stateS.contouringMetaDataS.prevDoseset = axisInfo.doseSets;
+        stateS.contouringMetaDataS.prevDoseSelectMode = axisInfo.doseSelectMode;
         
         transM0 = getTransM('scan', scanSet, planC);
         if isempty(transM0)
@@ -78,7 +78,8 @@ switch command
             planC{indexS.scan}(i).transM = transM;
         end
         
-        setappdata(hAxis, 'transMList', transMList);
+        stateS.contouringMetaDataS.transMList = transMList;
+
         
         [xV, yV, zV] = getScanXYZVals(planC{indexS.scan}(axisInfo.scanSets));
                 
@@ -100,15 +101,15 @@ switch command
             initStructNum = structNumV(1);
         end
         numSlices  = size(getScanArray(planC{indexS.scan}(scanSet)), 3);
-        setappdata(hAxis, 'ccContours', cell(numStructs, numSlices));
-        setappdata(hAxis, 'ccSlice', sliceNum);
-        setappdata(hAxis, 'numRows',planC{indexS.scan}(scanSet).scanInfo(sliceNum).sizeOfDimension1);
-        setappdata(hAxis, 'numCols',planC{indexS.scan}(scanSet).scanInfo(sliceNum).sizeOfDimension2);
-        setappdata(hAxis, 'ccStruct', initStructNum);
-        setappdata(hAxis, 'ccStruct2', []);
-        setappdata(hAxis,'ccContours',[])
-        setappdata(hAxis, 'ccScanSet', scanSet);
-        setappdata(hAxis, 'contourSlcLoadedM', false(numStructs, numSlices));
+        stateS.contouringMetaDataS.ccContours = cell(numStructs, numSlices);
+        stateS.contouringMetaDataS.ccSlice = sliceNum;
+        stateS.contouringMetaDataS.numRows = planC{indexS.scan}(scanSet).scanInfo(sliceNum).sizeOfDimension1;
+        stateS.contouringMetaDataS.numCols = planC{indexS.scan}(scanSet).scanInfo(sliceNum).sizeOfDimension2;
+        stateS.contouringMetaDataS.ccStruct = initStructNum;
+        stateS.contouringMetaDataS.ccStruct2 = [];
+        stateS.contouringMetaDataS.ccContours = [];
+        stateS.contouringMetaDataS.ccScanSet = scanSet;
+        stateS.contouringMetaDataS.contourSlcLoadedM = false(numStructs, numSlices);
         set(findobj(hAxis, 'tag', 'planeLocator'), 'hittest', 'off');
         %CERRRefresh
         %sliceCallBack('FOCUS', hAxis);
@@ -141,14 +142,16 @@ switch command
     case 'copySup'
         % Copy current structs' contours on current slice superior.
         saveDrawSlice(hAxis);
-        sliceNum = getappdata(hAxis, 'ccSlice');
+        %sliceNum = getappdata(hAxis, 'ccSlice'); %AICHANGED
+        sliceNum = stateS.contouringMetaDataS.ccSlice;
         copyToSlice(hAxis, sliceNum-1);
         sliceCallBack('CHANGESLC','prevslice');
         
     case 'copyInf'
         % Copy current structs' contours on current slice inferior.
         saveDrawSlice(hAxis);
-        sliceNum = getappdata(hAxis, 'ccSlice');
+        %sliceNum = getappdata(hAxis, 'ccSlice'); %AICHANGED
+        sliceNum = stateS.contouringMetaDataS.ccSlice;
         copyToSlice(hAxis, sliceNum+1);
         sliceCallBack('CHANGESLC','nextslice');
     
@@ -160,19 +163,20 @@ switch command
         saveDrawSlice(hAxis);
 
     case 'getMode'
-        varargout{1} = getappdata(hAxis, 'ccMode');
+        %varargout{1} = getappdata(hAxis, 'ccMode'); %AICHANGED
+        varargout{1} = stateS.contouringMetaDataS.ccModee;
         
     case 'drawMode'
         %Enter draw mode, using drawContour
-        setappdata(hAxis, 'ccMode', 'draw');
+        stateS.contouringMetaDataS.ccMode = 'draw';
         drawContour('drawMode', hAxis);
         
     case 'editMode'
-        setappdata(hAxis, 'ccMode', 'edit');
+        stateS.contouringMetaDataS.ccMode = 'edit';
         drawContour('editMode', hAxis);
         
     case 'editModeGE'
-        setappdata(hAxis, 'ccMode', 'editGE');
+        stateS.contouringMetaDataS.ccMode = 'editGE';
         drawContour('editModeGE', hAxis);
         
     case {'drawBall','eraserBall'}
@@ -182,15 +186,15 @@ switch command
         yV = sin(angleV);
         ballHandle = fill(xV,yV,[1 0.5 0.5],'parent',hAxis,'visible','off',...
             'hittest','off', 'facealpha',0.2,'EdgeColor', [1 0 0]);
-        setappdata(hAxis, 'hBall', ballHandle);
-        setappdata(hAxis, 'angles', [xV(:) yV(:)]);
+        stateS.contouringMetaDataS.hBall = ballHandle;
+        stateS.contouringMetaDataS.angles = [xV(:) yV(:)];
         controlFrame('contour','setBrushSize',hAxis)
-        setappdata(hAxis, 'ccMode', 'drawBall');
-        setappdata(hAxis, 'mode', 'drawBall');
+        stateS.contouringMetaDataS.ccMode = 'drawBall';
+        stateS.contouringMetaDataS.mode = 'drawBall';
         drawContour('drawBallMode', hAxis);
-        setappdata(hAxis, 'eraseFlag',0);
+        stateS.contouringMetaDataS.eraseFlag = 0;
         if strcmpi(command,'eraserBall')
-            setappdata(hAxis, 'eraseFlag',1);
+            stateS.contouringMetaDataS.eraseFlag = 1;
         end
         
     case 'flexSelMode'
@@ -200,11 +204,11 @@ switch command
         yV = sin(angleV);
         ballHandle = fill(xV,yV,[1 0.5 0.5],'parent',hAxis,'visible','off',...
             'hittest','off', 'facealpha',0.2,'EdgeColor', [1 0 0]);
-        setappdata(hAxis, 'hBall', ballHandle);
-        setappdata(hAxis, 'angles', [xV(:) yV(:)]);
+        stateS.contouringMetaDataS.hBall = ballHandle;
+        stateS.contouringMetaDataS.angles = [xV(:) yV(:)];
         controlFrame('contour','setBrushSize',hAxis)
-        setappdata(hAxis, 'ccMode', 'flexSelMode');
-        setappdata(hAxis, 'mode', 'flexSelMode');
+        stateS.contouringMetaDataS.ccMode = 'flexSelMode';
+        stateS.contouringMetaDataS.mode = 'flexSelMode';
         if nargin>1
             eraseFlag = varargin{1};
             drawContour('flexSelMode',hAxis,eraseFlag);
@@ -220,26 +224,31 @@ switch command
         smoothImgM = img;
         %numLevels = 20; % max allowed is 20 in Matlab
         %threshV = multithresh(smoothImgM, numLevels); 
-        maskM = getappdata(hAxis, 'contourMask');
+        %maskM = getappdata(hAxis, 'contourMask'); %AICHANGED
+        maskM = stateS.contouringMetaDataS.contourMask; 
 
         %Enter threshold mode
-        setappdata(hAxis, 'ccMode', 'threshold');
-        setappdata(hAxis, 'smoothImg', smoothImgM);        
-        setappdata(hAxis, 'InitialMask', maskM);
-        setappdata(hAxis, 'ContractionBias', 0);        
+%         setappdata(hAxis, 'ccMode', 'threshold');
+%         setappdata(hAxis, 'smoothImg', smoothImgM);
+%         setappdata(hAxis, 'InitialMask', maskM);
+%         setappdata(hAxis, 'ContractionBias', 0);
+        stateS.contouringMetaDataS.ccMode = 'threshold';
+        stateS.contouringMetaDataS.smoothImg = smoothImgM;
+        stateS.contouringMetaDataS.InitialMask = maskM;
+        stateS.contouringMetaDataS.ContractionBias = 0;
         drawContour('thresholdMode', hAxis);        
         
     case 'threshMode' % OLD callback, replaced by thresholdMode
         versionInfo = ver;
         if any(strcmpi({versionInfo.Name},'Image Processing Toolbox'));
-            setappdata(hAxis, 'ccMode', 'thresh');
+            stateS.contouringMetaDataS.ccMode = 'thresh';
             drawContour('threshMode', hAxis);
         else
             CERRStatusString('Thresholding currently only available with Image Processing Toolbox.');
         end
         
     case 'reassignMode'
-        setappdata(hAxis, 'ccMode', 'reassign');
+        stateS.contouringMetaDataS.ccMode = 'reassign';
         drawContour('reassignMode', hAxis);
         %MMMM Waiting for input here
         
@@ -248,7 +257,7 @@ switch command
         
     case 'changeSlice'
         %A new slice has been on some axis in the CERR Viewer.
-        scanSet = getappdata(hAxis, 'ccScanSet');
+        scanSet = stateS.contouringMetaDataS.ccScanSet; 
         
         [xV, yV, zV] = getScanXYZVals(planC{indexS.scan}(scanSet));
         
@@ -256,21 +265,23 @@ switch command
         [view, coord] = getAxisInfo(hAxis, 'view', 'coord');
         
         sliceNum = findnearest(coord, zV);
-        
-        ccMode = getappdata(hAxis, 'ccMode');
+         
+        %ccMode = getappdata(hAxis, 'ccMode'); %AICHANGED
+        ccMode =  stateS.contouringMetaDataS.ccMode; 
         
         if strcmpi(ccMode, 'draw')
             %If drawing, save contours on current slice and re-init.
             saveDrawSlice(hAxis);
-            setappdata(hAxis, 'ccSlice', sliceNum);
+            stateS.contouringMetaDataS.ccSlice = sliceNum;
             loadDrawSlice(hAxis);
             drawContour('drawMode', hAxis);
         elseif strcmpi(ccMode, 'drawBall')
             saveDrawSlice(hAxis);
-            setappdata(hAxis, 'ccSlice', sliceNum);
+            stateS.contouringMetaDataS.ccSlice = sliceNum;
             loadDrawSlice(hAxis);
             %drawContour('drawBallMode', hAxis);
-            eraseFlag = getappdata(hAxis, 'eraseFlag');
+            eraseFlag =  stateS.contouringMetaDataS.eraseFlag;
+            
             if eraseFlag
                 contourControl('eraserBall')
             else
@@ -279,39 +290,38 @@ switch command
             % ADDED AI 5/8/17
         elseif strcmpi(ccMode, 'flexSelMode')
             saveDrawSlice(hAxis);
-            setappdata(hAxis, 'ccSlice', sliceNum);
+            stateS.contouringMetaDataS.ccSlice = sliceNum;
             loadDrawSlice(hAxis);
             contourControl('flexSelMode')
             % END ADDED
         elseif strcmpi(ccMode, 'edit')
             saveDrawSlice(hAxis);
-            setappdata(hAxis, 'ccSlice', sliceNum);
+            stateS.contouringMetaDataS.ccSlice = sliceNum;
             loadDrawSlice(hAxis);
             %drawContour('editMode', hAxis);
             drawContour('drawMode', hAxis); % initialize new slice in the draw mode.
         elseif strcmpi(ccMode, 'thresh')
             saveDrawSlice(hAxis);
-            setappdata(hAxis, 'ccSlice', sliceNum);
+            stateS.contouringMetaDataS.ccSlice = sliceNum;
             loadDrawSlice(hAxis);
             drawContour('threshMode', hAxis);
         elseif strcmpi(ccMode, 'threshold')
             %saveDrawSlice(hAxis);
-            hFrame = stateS.handle.controlFrame;
-            ud = get(hFrame, 'userdata');
+            ud = stateS.handle.controlFrameUd ;
             set(ud.handles.threshold,'Value',0,'BackgroundColor',[0.8 0.8 0.8]);
             drawContour('noneMode', hAxis);
-            setappdata(hAxis, 'ccSlice', sliceNum);
+            stateS.contouringMetaDataS.ccSlice = sliceNum;
             loadDrawSlice(hAxis);
             %drawContour('thresholdMode', hAxis);
             
         elseif strcmpi(ccMode, 'reassign')
             saveDrawSlice(hAxis);
-            setappdata(hAxis, 'ccSlice', sliceNum);
+            stateS.contouringMetaDataS.ccSlice = sliceNum;
             loadDrawSlice(hAxis);
             drawContour('reassignMode', hAxis);
         elseif isempty(ccMode)
             saveDrawSlice(hAxis);
-            setappdata(hAxis, 'ccSlice', sliceNum);
+            stateS.contouringMetaDataS.ccSlice = sliceNum;
             loadDrawSlice(hAxis);
         end
         
@@ -328,9 +338,9 @@ switch command
         
     case 'changeStruct'
         %A new struct has been selected.
-        ccMode = getappdata(hAxis, 'ccMode');
-        ccScanSet = getappdata(hAxis, 'ccScanSet');    
-        structNum = getappdata(hAxis, 'ccStruct');    
+        ccMode =  stateS.contouringMetaDataS.ccMode;
+        ccScanSet =  stateS.contouringMetaDataS.ccScanSet;
+        structNum =  stateS.contouringMetaDataS.ccStruct;
         
         %if strcmpi(ccMode, 'draw') || strcmpi(ccMode, 'edit') || ...
         %        strcmpi(ccMode, 'thresh') || strcmpi(ccMode, 'reassign') || ...
@@ -358,10 +368,9 @@ switch command
             
             %sliceCallBack('refresh');
             showStructures(hAxis)
-            
-            setappdata(hAxis, 'ccSlice', sliceNum);
-            setappdata(hAxis, 'ccScanSet', scanSet);
-            setappdata(hAxis, 'ccStruct', varargin{1});
+            stateS.contouringMetaDataS.ccSlice = sliceNum;
+            stateS.contouringMetaDataS.ccScanSet = scanSet;
+            stateS.contouringMetaDataS.ccStruct = varargin{1};
             loadDrawSlice(hAxis);
             drawContour('noneMode', hAxis);
             return;
@@ -385,11 +394,13 @@ switch command
         
     case 'changeStruct2'
         %A new struct2 has been selected.
-        ccMode = getappdata(hAxis, 'ccMode');
+        %ccMode = getappdata(hAxis, 'ccMode'); %AICHANGED
+        ccMode =  stateS.contouringMetaDataS.ccMode;
+        
         if strcmpi(ccMode, 'draw') | strcmpi(ccMode, 'edit') | strcmpi(ccMode, 'thresh') | strcmpi(ccMode, 'reassign')
             %If drawing, save old contours and disp new contours.
             saveDrawSlice(hAxis);
-            setappdata(hAxis, 'ccStruct2', varargin{1});
+            stateS.contouringMetaDataS.ccStruct2 = varargin{1};
             loadDrawSlice(hAxis);
             switch lower(ccMode)
                 case 'draw'
@@ -411,9 +422,7 @@ switch command
         
     case 'save'
         %Finished contouring and wish to save changes.
-        
-        hFrame = stateS.handle.controlFrame;
-        ud = get(hFrame, 'userdata');
+        ud = stateS.handle.controlFrameUd ;
         
         ROIInterVal = get(ud.handles.ROIInterpretedType,'value');
         
@@ -422,7 +431,8 @@ switch command
             return
         end
         
-        ccMode = getappdata(hAxis, 'ccMode');
+        ccMode =  stateS.contouringMetaDataS.ccMode;
+         
         if strcmpi(ccMode, 'draw') || strcmpi(ccMode, 'edit') || ...
                 strcmpi(ccMode, 'thresh') || strcmpi(ccMode, 'reassign') ...
                 || strcmpi(ccMode, 'drawBall') || strcmpi(ccMode, 'flexSelMode') %AI 5/8/17
@@ -434,13 +444,21 @@ switch command
         storeAllContours(hAxis);
         
         % APA: try to stay in contouring mode until the user quits
-        scanSet = getappdata(hAxis,'ccScanSet');
-        ccContours = getappdata(hAxis, 'ccContours');
-        contourV = getappdata(hAxis,'contourV');
-        ccStruct = getappdata(hAxis,'ccStruct');
-        ccSlice = getappdata(hAxis,'ccSlice');
+%         scanSet = getappdata(hAxis,'ccScanSet');  %AICHANGED
+%         ccContours = getappdata(hAxis, 'ccContours');  %AICHANGED
+%         contourV = getappdata(hAxis,'contourV');  %AICHANGED
+%         ccStruct = getappdata(hAxis,'ccStruct');  %AICHANGED
+%         ccSlice = getappdata(hAxis,'ccSlice'); %AICHANGED
+        scanSet =  stateS.contouringMetaDataS.ccScanSet;
+        ccContours =  stateS.contouringMetaDataS.ccContours;
+        contourV =  stateS.contouringMetaDataS.contourV;
+        ccStruct =  stateS.contouringMetaDataS.ccStruct;
+        ccSlice =  stateS.contouringMetaDataS.ccSlice;
+        
+        
         ccContours{ccStruct, ccSlice} = contourV;
-        setappdata(hAxis, 'ccContours', ccContours);
+        %setappdata(hAxis, 'ccContours', ccContours);
+        stateS.contouringMetaDataS.ccContours = ccContours;
         stateS.structsChanged = 1;
         for i=1:length(stateS.handle.CERRAxis) 
             scanSetonAxis = getAxisInfo(uint8(i),'scanSets');     
@@ -459,15 +477,17 @@ switch command
         %    'BackgroundColor',[0.8 0.8 0.8], 'value', 0)
         set([ud.handles.flex ud.handles.pencil ud.handles.threshold],'BackgroundColor',[0.8 0.8 0.8], 'value', 0);
         % Delete the ball for brush/eraser/flex mode
-        ballH = getappdata(hAxis, 'hBall');
+        %ballH = getappdata(hAxis, 'hBall'); %AICHANGED
+        ballH =  stateS.contouringMetaDataS.hBall;
+        
         if ishandle(ballH)
             delete(ballH);
         end
         drawContour('noneMode',stateS.handle.CERRAxis(stateS.currentAxis))
         return;
         % APA: end
-        
-        setappdata(hAxis, 'ccMode', []);
+
+        stateS.contouringMetaDataS.ccMode = [];
         % get out of contouring mode
         controlFrame('default');
         stateS.contourState = 0;
@@ -482,15 +502,15 @@ switch command
         end
         
         %Restore transformation matrices.
-        transMList = getappdata(hAxis, 'transMList');
+        transMList =  stateS.contouringMetaDataS.transMList;
+        
         for i=1:length(planC{indexS.scan})
             planC{indexS.scan}(i).transM = transMList{i};
         end
-        
-        prevScanset = getappdata(hAxis, 'prevScanset');
-        prevScanSelectMode = getappdata(hAxis, 'prevScanSelectMode');
-        prevDoseset = getappdata(hAxis, 'prevDoseset');
-        prevDoseSelectMode = getappdata(hAxis, 'prevDoseSelectMode');
+        prevScanset =  stateS.contouringMetaDataS.prevScanset;
+        prevScanSelectMode =  stateS.contouringMetaDataS.prevScanSelectMode;
+        prevDoseset =  stateS.contouringMetaDataS.prevDoseset;
+        prevDoseSelectMode =  stateS.contouringMetaDataS.prevDoseSelectMode;
         
         
         %axisInfo                = get(hAxis, 'userdata');
@@ -519,8 +539,7 @@ switch command
         
         %close overlay options figure if it exists
         try
-            hFrame = stateS.handle.controlFrame;
-            ud = get(hFrame, 'userdata');
+            ud = stateS.handle.controlFrameUd ;
             delete(ud.handle.ovrlayFig)
         end
         
@@ -532,8 +551,7 @@ switch command
         drawContour('quit', hAxis);
         
         stateS.contourState = 0;
-        
-        setappdata(hAxis, 'ccMode', []);
+        stateS.contouringMetaDataS.ccMode = [];
         stateS.structsChanged = 1;
         stateS.CTDisplayChanged = 1;
         
@@ -546,15 +564,15 @@ switch command
         end
         
         %Restore transformation matrices.
-        transMList = getappdata(hAxis, 'transMList');
+        transMList =  stateS.contouringMetaDataS.transMList;
         for i=1:length(planC{indexS.scan})
             planC{indexS.scan}(i).transM = transMList{i};
         end
+        prevScanset =  stateS.contouringMetaDataS.prevScanset;
+        prevScanSelectMode =  stateS.contouringMetaDataS.prevScanSelectMode;
+        prevDoseset =  stateS.contouringMetaDataS.prevDoseset;
+        prevDoseSelectMode =  stateS.contouringMetaDataS.prevDoseSelectMode;
         
-        prevScanset = getappdata(hAxis, 'prevScanset');
-        prevScanSelectMode = getappdata(hAxis, 'prevScanSelectMode');
-        prevDoseset = getappdata(hAxis, 'prevDoseset');
-        prevDoseSelectMode = getappdata(hAxis, 'prevDoseSelectMode');
         
         %axisInfo                = get(hAxis, 'userdata');
         axInd = hAxis == stateS.handle.CERRAxis;
@@ -584,8 +602,7 @@ switch command
         
         %close overlay options figure if it exists
         try
-            hFrame = stateS.handle.controlFrame;
-            ud = get(hFrame, 'userdata');
+            ud = stateS.handle.controlFrameUd ;
             delete(ud.handle.ovrlayFig)
         end
 
@@ -599,7 +616,7 @@ switch command
         
     case 'deleteSegment'
         %Request to delete current segment.
-        ccMode = getappdata(hAxis, 'ccMode');
+        ccMode =  stateS.contouringMetaDataS.ccMode;
         if strcmpi(ccMode, 'draw') || strcmpi(ccMode, 'edit') || strcmpi(ccMode, 'thresh')
             drawContour('deleteSegment', hAxis);
         end
@@ -618,16 +635,23 @@ end
 
 function saveDrawSlice(hAxis)
 %Save the current slice's contours from drawContour
+global stateS
 drawContour('defaultMode', hAxis);
-ccContours = getappdata(hAxis, 'ccContours');
-ccSlice = getappdata(hAxis, 'ccSlice');
-ccStruct = getappdata(hAxis, 'ccStruct');
-ccStruct2 = getappdata(hAxis, 'ccStruct2');
+fieldC = {'ccContours','ccSlice','ccStruct','ccStruct2'};
+for i = 1:length(fieldC)
+if ~isfield(stateS.contouringMetaDataS,fieldC{i})
+stateS.contouringMetaDataS.(fieldC{i}) = [];
+end
+end
 
+ccStruct2 =  stateS.contouringMetaDataS.ccStruct2;
+ccContours =  stateS.contouringMetaDataS.ccContours;
+ccSlice =  stateS.contouringMetaDataS.ccSlice;
 if ~isempty(ccStruct2)
     contourV2 = drawContour('getContours2', hAxis);
     ccContours{ccStruct2, ccSlice} = contourV2;
 end
+ccStruct =  stateS.contouringMetaDataS.ccStruct;
 if isempty(ccStruct)
     warning('contour name not initialized');
     return
@@ -636,7 +660,9 @@ end
 %    defaultMode(hAxis);
 contourV = drawContour('getContours', hAxis);
 ccContours{ccStruct, ccSlice} = contourV;
-setappdata(hAxis, 'ccContours', ccContours);
+
+stateS.contouringMetaDataS.ccContours = ccContours;
+
 
 function loadDrawSlice(hAxis)
 %Load the current slice's contours into drawContour--from the local storage
@@ -645,18 +671,19 @@ global planC
 global stateS
 indexS = planC{end};
 
-ccContours = getappdata(hAxis, 'ccContours');
-ccSlice = getappdata(hAxis, 'ccSlice');
-ccStruct = getappdata(hAxis, 'ccStruct');
-ccMode = getappdata(hAxis, 'ccMode');
-ccStruct2 = getappdata(hAxis, 'ccStruct2');
-contourSlcLoadedM = getappdata(hAxis, 'contourSlcLoadedM');
+ccContours =  stateS.contouringMetaDataS.ccContours;
+ccSlice =  stateS.contouringMetaDataS.ccSlice;
+ccStruct =  stateS.contouringMetaDataS.ccStruct;
+ccStruct2 =  stateS.contouringMetaDataS.ccStruct2;
+ccMode =  stateS.contouringMetaDataS.ccMode;
+contourSlcLoadedM =  stateS.contouringMetaDataS.contourSlcLoadedM;
+
 loadFromPlanC = 1;
 if contourSlcLoadedM(ccStruct, ccSlice)
     loadFromPlanC = 0;
 else
     contourSlcLoadedM(ccStruct, ccSlice) = true;
-    setappdata(hAxis, 'contourSlcLoadedM',contourSlcLoadedM);
+    stateS.contouringMetaDataS.contourSlcLoadedM = contourSlcLoadedM;
 end
 
 %Consider changing this to be more modular. Repeated code.
@@ -720,12 +747,13 @@ saveDrawSlice(hAxis);
 function storeAllContours(hAxis)
 
 global planC
+global stateS
 
 indexS = planC{end};
 
-ccScanSet = getappdata(hAxis, 'ccScanSet');
-ccContours = getappdata(hAxis, 'ccContours');
-contourSlcLoadedM = getappdata(hAxis,'contourSlcLoadedM');
+ccScanSet =  stateS.contouringMetaDataS.ccScanSet;
+ccContours =  stateS.contouringMetaDataS.ccContours;
+contourSlcLoadedM =  stateS.contouringMetaDataS.contourSlcLoadedM;
 toUpdate = zeros(size(ccContours));
 
 % for mesh library, out of commission
@@ -854,7 +882,7 @@ if ~strcmpi(ButtonName,'Yes')
 end
 
 % Apply the activecontour method to the current structure
-structNum = getappdata(hAxis, 'ccStruct');
+structNum =  stateS.contouringMetaDataS.ccStruct;
 [r,c,s] = getUniformStr(structNum);
 scanNum = getStructureAssociatedScan(structNum);
 scan3M = getUniformizedCTScan(1, scanNum);
@@ -864,7 +892,7 @@ mask3M = getUniformStr(structNum);
 maxIterations = 50;
 siz = size(mask3M);
 %updatedMaskM = zeros(siz);
-currentSlice = getappdata(hAxis,'ccSlice');
+currentSlice =  stateS.contouringMetaDataS.ccSlice;
 for slc = currentSlice %minSlc:maxSlc
     scanM = scan3M(:,:,slc);
     structM = single(mask3M(:,:,slc));
@@ -900,32 +928,32 @@ planC{indexS.structures}(structNum).rasterSegments = [];
 planC{indexS.structures}(structNum).rasterized = 0;
 planC = updateStructureMatrices(planC,structNum);
 
-slcNum = getappdata(hAxis, 'ccSlice');
+slcNum = stateS.contouringMetaDataS.ccSlice;
 for seg = 1:length(contr(slcNum).segments)
     if ~isempty(contr(slcNum).segments(seg).points)
         contourV{seg} = contr(slcNum).segments(seg).points;
     end
 end
-setappdata(hAxis, 'contourV', contourV);
-setappdata(hAxis, 'contourMask',tmpM(:,:,slcNum));
-
+stateS.contouringMetaDataS.contourV = contourV;
+stateS.contouringMetaDataS.contourMask = tmpM(:,:,slcNum);
 return;
 
 function copyToSlice(hAxis, sliceNum)
 
-global planC
+global planC stateS
 
 indexS = planC{end};
 
-scanSet = getappdata(hAxis, 'ccScanSet');
+scanSet = stateS.contouringMetaDataS.ccScanSet;
 nSlices = size(getScanArray(planC{indexS.scan}(scanSet)),3);
 if sliceNum < 1 | sliceNum > nSlices
     return;
 end
-ccStruct = getappdata(hAxis, 'ccStruct');
-srcSlice = getappdata(hAxis, 'copySliceNum'); 
-ccContours = getappdata(hAxis, 'ccContours');
-maskM = getappdata(hAxis,'copyMask');
+ccStruct = stateS.contouringMetaDataS.ccStruct;
+srcSlice = stateS.contouringMetaDataS.copySliceNum;
+ccContours = stateS.contouringMetaDataS.ccContours;
+maskM = stateS.contouringMetaDataS.copyMask;
+
 
 contourV = ccContours{ccStruct, srcSlice};
 if isempty(contourV)
@@ -958,6 +986,6 @@ if isempty(newContourV)
 end
 combinedContourV = {newContourV{:} contourV{:}};
 ccContours{ccStruct, sliceNum} = combinedContourV;
-setappdata(hAxis,'ccSlice',sliceNum);
-setappdata(hAxis, 'ccContours', ccContours);
-setappdata(hAxis, 'contourMask',maskM);
+stateS.contouringMetaDataS.ccSlice = sliceNum;
+stateS.contouringMetaDataS.ccContours = ccContours;
+stateS.contouringMetaDataS.contourMask = maskM;

@@ -179,7 +179,8 @@ switch tag
                 data = scanS.scanArray(:,:,sliceNum);
                 
                 %Convert to unsigned 16-bit integer if scanArray is single
-                scaleFactor = args.data{4};
+                scaleFactorV = args.data{4};
+                scaleFactor = scaleFactorV(sliceNum);
                 data = uint16(data/scaleFactor);
                 
                 data = data';

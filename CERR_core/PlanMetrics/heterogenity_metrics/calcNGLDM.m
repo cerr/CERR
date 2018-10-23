@@ -52,10 +52,12 @@ start_ind = reshape(bsxfun(@plus,[1:m-rowWindow+1]',[0:n-colWindow]*m),[],1); %/
 
 %// Row indices
 lin_row = permute(bsxfun(@plus,start_ind,[0:rowWindow-1])',[1 3 2]);  %//'
+%lin_row = permute(bsxfun(@plus,start_ind,[0 patchSizeV(1) rowWindow-1])',[1 3 2]);  %//'
 
 %// Get linear indices based on row and col indices and get desired output
 % imTmpM = A(reshape(bsxfun(@plus,lin_row,[0:ncols-1]*m),nrows*ncols,[]));
 indM = reshape(bsxfun(@plus,lin_row,(0:colWindow-1)*m),rowWindow*colWindow,[]);
+%indM = reshape(bsxfun(@plus,lin_row,[0 patchSizeV(2) colWindow-1]*m),3*3,[]);
 
 % [Fx,Fy] = gradient(q);
 %Fx = abs(Fx);
@@ -66,6 +68,7 @@ indM = reshape(bsxfun(@plus,lin_row,(0:colWindow-1)*m),rowWindow*colWindow,[]);
 
 % Initialize the s (NGTDM) matrix
 maxNbhoodSz = prod(2*patchSizeV+1)-1;
+%maxNbhoodSz = 8;
 s = zeros(numGrLevels,maxNbhoodSz+1);
 
 tic
@@ -93,25 +96,27 @@ for slcNum = (1+numSlcsPad):(numSlices+numSlcsPad)
     
     currentVoxelIndex = ceil(nbhoodSiz*length(slcV)/2);
     voxValV = qM(currentVoxelIndex,:);
-    qM(currentVoxelIndex,:) = [];    
+    qM(currentVoxelIndex,:) = [];       
     % numNeighborsV = sum(mM,1)-1;
     % qM(:,:) = bsxfun(@rdivide,qM,numNeighborsV);
+    voxMaskV = mM(currentVoxelIndex,:);
+    mM(currentVoxelIndex,:) = []; 
     qM(isnan(qM)) = 0;
     qM = abs(bsxfun(@minus,qM,voxValV)) <= a;
+    qM(~mM) = 0;
     qM = sum(qM,1);
     
     for lev = 1:numGrLevels
-        indLevV = voxValV == lev;
+        indLevV = voxValV == lev & voxMaskV;
         valsV = qM(indLevV);
         s(lev,:) = s(lev,:) + accumarray(valsV(:)+1,1,[maxNbhoodSz+1 1])';
     end
-        
+            
     if waitbarFlag
         set(hWait, 'Vertices', [[0 0 slcNum/numSlices slcNum/numSlices]' [0 1 1 0]']);
         drawnow;
     end 
     
 end
-
 toc
 

@@ -28,7 +28,7 @@ global stateS
 if ~isfield(stateS,'initDicomFlag')
     initFlag = init_ML_DICOM;
     pathStr = getCERRPath;
-    optName = [pathStr 'CERROptions.m'];    
+    optName = [pathStr 'CERROptions.json'];    
     stateS.optS = opts4Exe(optName);
 else
     initFlag = 1;

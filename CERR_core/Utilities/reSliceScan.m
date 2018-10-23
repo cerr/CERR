@@ -109,13 +109,18 @@ end
                 slc = single(slc);
         end
         newScanArray(:,:,slcNum) = slc;
-        newScanInfo(slcNum) = oldScanInfo;
+        if slcNum == 1
+            newScanInfo(slcNum) = oldScanInfo;
+        else
+            newScanInfo = dissimilarInsert(newScanInfo, oldScanInfo, slcNum);
+        end
         newScanInfo(slcNum).grid1Units = newGridInterval1;
         newScanInfo(slcNum).grid2Units = newGridInterval2;
         newScanInfo(slcNum).sizeOfDimension1 = length(newYVals);
         newScanInfo(slcNum).sizeOfDimension2 = length(newXVals);
         newScanInfo(slcNum).zValue = newZVals(slcNum);
         newScanInfo(slcNum).sliceThickness = sliceThickness;
+        newScanInfo(slcNum).voxelThickness = sliceThickness;
         
         %Interpolate structures on to this slice (Nearest Neighbor Interpolation)
 %         newContourS = struct('segments',[]);
@@ -160,10 +165,10 @@ end
         planC{indexS.structures}(structNumV(strNum)).rasterized = 0;
         planC{indexS.structures}(structNumV(strNum)).rasterSegments = [];
     end
-    planC = getRasterSegs(planC);
+    planC = getRasterSegs(planC,structNumV);
 
     %uniformize
-    planC = setUniformizedData(planC);
+    planC = setUniformizedData(planC,planC{indexS.CERROptions},scanNum);
 
 % catch
 % 

@@ -3,17 +3,20 @@ function prob = appeltCorrectedLogitFn(paramS,doseBinsV,volHistV)
 % INPUTS
 % paramS : Dictionary of model parameters
 % Modifications for risk factors are computed based on Appelt et al.
-% if paramS.isHighRiskPatient = 1, the patient falls in the high-risk category.
 
+%AI 10/8/18 
 
 %Apply Appelt modification to D50, gamma50 for at-risk group
 if isfield(paramS,'appeltMod') && strcmpi(paramS.appeltMod.val,'yes')
-    % Get OR
+    %Get D50_0, gamma50_0
+    D50_0 = paramS.D50_0.val;
+    gamma50_0 = paramS.gamma50_0.val;
+    %Get ORs
     [or,weight] = getParCoeff(paramS,'OR',doseBinsV,volHistV);
     orMult = or(weight==1);
     OR = prod(orMult);
     %Get modified D50, gamma50
-    [D50, gamma50] = appeltMod(OR);
+    [D50, gamma50] = appeltMod(D50_0,gamma50_0,OR);
 else
     D50 = paramS.D50.val;
     gamma50 = paramS.gamma50.val;

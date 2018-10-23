@@ -79,7 +79,7 @@ q = padarray(q,[numRowsPad numColsPad numSlcsPad],NaN,'both');
 %clear scanArrayTmp3M; % aa commented
 %qmax = max(q(:));
 nanFlag = 0; % the quantized image is always padded with NaN. Hence, always,
-             % nanFlag = 1.
+% nanFlag = 1.
 if any(isnan(q(:)))
     nanFlag = 1;
     q(isnan(q)) = nL+1;
@@ -103,7 +103,7 @@ colWindow = uint32(colWindow);
 rowWindow = uint32(rowWindow);
 slcWindow = uint32(slcWindow);
 
-% Index calculation adapted from 
+% Index calculation adapted from
 % http://stackoverflow.com/questions/25449279/efficient-implementation-of-im2col-and-col2im
 
 % Start indices for each block
@@ -130,7 +130,11 @@ levColV = repmat(1:lq,[lq 1]);
 levColV = levColV(:)';
 
 % Build list of indices for px and contrast calculation
-for n=0:lq-1
+numElems = nL*nL; % APA 7/13
+indCtrstM = false(nL,numElems); % APA 7/13
+indPxM = false(nL,numElems); % APA 7/13
+indPxPlusYm = false(nL,numElems); % APA 7/13
+for n=0:nL-1
     % indices for p(x-y), contrast
     indCtrstV = false(lq*lq,1);
     indCtrst1V = 1:lq-n;
@@ -139,21 +143,24 @@ for n=0:lq-1
     indCtrstTmpV = [indCtrstTmpV indCtrst2V + (indCtrst1V-1)*lq];
     indCtrstV(indCtrstTmpV) = 1;
     indCtrstV(nanIndV) = [];
-    indCtrstC{n+1} = indCtrstV;
-       
+    % indCtrstC{n+1} = indCtrstV;
+    indCtrstM(n+1,:) = indCtrstV;
+    
     % indices for px
     indPxV = false(lq*lq,1);
     indPxV(lq*n+1:lq*(n+1)) = true;
     indPxV(nanIndV) = [];
-    indPxC{n+1} = indPxV;
-        
+    % indPxC{n+1} = indPxV;
+    indPxM(n+1,:) = indPxV;
+    
 end
-for n=1:2*lq
+for n=1:2*nL
     % indices for p(x+y)
     indPxPlusYv = false(lq*lq,1);
     indPxPlusYv(levRowV + levColV == n) = 1;
     indPxPlusYv(nanIndV) = [];
-    indPxPlusYc{n} = indPxPlusYv;
+    % indPxPlusYc{n} = indPxPlusYv;
+    indPxPlusYm(n,:) = indPxPlusYv;
 end
 
 % Build linear indices column/row-wise for Symmetry
@@ -200,11 +207,14 @@ end
 if flagv(8)
     clustPromin3M = zeros([numRows, numCols, numSlices],'single');
 end
+if flagv(9)
+    haralCorr3M = zeros([numRows, numCols, numSlices],'single');
+end
 
 tic
 % Iterate over slices. compute cooccurance for all patches per slice
 for slcNum = 1:numSlices
-    disp(['--- Texture Calculation for Slice # ', num2str(slcNum), ' ----']) 
+    disp(['--- Texture Calculation for Slice # ', num2str(slcNum), ' ----'])
     if flagv(1), energyV = zeros(1,numVoxels,'single'); end
     if flagv(2), entropyV = zeros(1,numVoxels,'single'); end
     if flagv(3), sumAvgV = zeros(1,numVoxels,'single'); end
@@ -212,20 +222,21 @@ for slcNum = 1:numSlices
     if flagv(5), invDiffMomV = zeros(1,numVoxels,'single'); end
     if flagv(6), contrastV = zeros(1,numVoxels,'single'); end
     if flagv(7), clustShadeV = zeros(1,numVoxels,'single'); end
-    if flagv(8), clustProminV = zeros(1,numVoxels,'single'); end    
-    if flagv(9), haralCorrV = zeros(1,numVoxels,'single'); end    
-
+    if flagv(8), clustProminV = zeros(1,numVoxels,'single'); end
+    if flagv(9), haralCorrV = zeros(1,numVoxels,'single'); end
+    
     calcSlcIndV = calcIndM(:,:,slcNum);
     calcSlcIndV = calcSlcIndV(:);
     numCalcVoxs = sum(calcSlcIndV);
     %indSlcM = indM(:,calcSlcIndV);
     
     % List of Voxel numbers
-    voxelNumsV = uint32(0:lq*lq:lq*lq*(numCalcVoxs-1));    
+    voxelNumsV = uint32(0:lq*lq:lq*lq*(numCalcVoxs-1));
     totalIndices = lq*lq*numCalcVoxs;
     %expectedFill = double(round(0.2*totalIndices));
     %cooccurPatchM = sparse([],[],[],totalIndices,1,expectedFill);
-    cooccurPatchM = sparse([],[],[],totalIndices,1);
+    %cooccurPatchM = sparse([],[],[],totalIndices,1);
+    C = {}; % initialize with correct number of elemets. to to.
     for off = 1:numOffsets
         offset = offsetsM(off,:);
         indSlcM = indM(:,calcSlcIndV);
@@ -241,28 +252,39 @@ for slcNum = 1:numSlices
             indNoNeighborV = [indNoNeighborV 1:colWindow];
         elseif offset(2) == -1
             indNoNeighborV = [indNoNeighborV rowWindow*colWindow:-1:(rowWindow*colWindow-colWindow)+1];
-        end        
+        end
         indSlcM(indNoNeighborV,:) = [];
         
-        for slc = slcNum:slcNum+slcWindow-1 % slices within the patch
+        slcNumV = slcNum:slcNum+slcWindow-1; % slices within the patch
+        
+        for iSlc = 1:length(slcNumV)
+            slc = slcNumV(iSlc);
             if slc-slcNum+offset(3) >= slcWindow
                 continue;
-            end            
+            end
             slc1M = uint16(q(numRowsPad+(1:numRows),numColsPad+(1:numCols),slc));
             slc2M = uint16(q(:,:,slc+offset(3)));
             slc2M = circshift(slc2M,offset(1:2));
             slc2M(numRowsPad+(1:numRows),numColsPad+(1:numCols)) = ...
-                slc2M(numRowsPad+(1:numRows),numColsPad+(1:numCols)) + (slc1M-1)*lq;            
+                slc2M(numRowsPad+(1:numRows),numColsPad+(1:numCols)) + (slc1M-1)*lq;
             slc2M = uint32(slc2M(indSlcM));
-            slc2M = bsxfun(@plus,slc2M,voxelNumsV);                      
-            cooccurPatchM = cooccurPatchM + accumarray(slc2M(:),1, [lq*lq*numCalcVoxs,1]); % patch-wise cooccurance
+            slc2M = bsxfun(@plus,slc2M,voxelNumsV);
+            %cooccurPatchM = cooccurPatchM + accumarray(slc2M(:),1, [lq*lq*numCalcVoxs,1]); % patch-wise cooccurance
+            cooccurSlcM = accumarray(slc2M(:) ...
+                ,1, [lq*lq*numCalcVoxs,1],[],...
+                [],true); % patch-wise cooccurance
+            indToAddV = find(cooccurSlcM > 0);
+            C{end+1} = [indToAddV,cooccurSlcM(indToAddV)]';
         end
     end
     % Average texture from all directions
+    IJV = cell2mat(C);
+    cooccurPatchM = sparse(IJV(1,:),IJV(1,:).^0,IJV(2,:),lq*lq*numCalcVoxs,1);
     cooccurPatchM = reshape(cooccurPatchM,lq*lq,numCalcVoxs);
     cooccurPatchM = cooccurPatchM + cooccurPatchM(indRowV,:); % for symmetry
     cooccurPatchM(nanIndV,:) = [];
     cooccurPatchM = bsxfun(@rdivide,cooccurPatchM,sum(cooccurPatchM)+1e-5);
+    cooccurPatchM = full(cooccurPatchM);
     % Calculate scalar texture for this offset
     % Angular Second Moment (Energy)
     if flagv(1)
@@ -273,46 +295,30 @@ for slcNum = 1:numSlices
         entropyV(calcSlcIndV) = entropyV(calcSlcIndV) - ...
             sum(cooccurPatchM.*log2(cooccurPatchM+1e-10));
     end
-    % Contrast, inverse Difference Moment
-    px = [];
-    pXminusY = [];
-    pXplusY = [];
-    for n=0:nL-1
-        % px
-        px(n+1,:) = sum(cooccurPatchM(indPxC{n+1},:),1);
-        % p(x-y)
-        pXminusY(n+1,:) = sum(cooccurPatchM(indCtrstC{n+1},:),1);
-        % Contrast
-        if flagv(6)
-            contrastV(calcSlcIndV) = contrastV(calcSlcIndV) + ...
-                sum(n^2*cooccurPatchM(indCtrstC{n+1},:));
-        end
-        % inv diff moment
-        if flagv(5)
-            invDiffMomV(calcSlcIndV) = invDiffMomV(calcSlcIndV) + ...
-                sum((1/(1+n^2))*cooccurPatchM(indCtrstC{n+1},:));
-        end
-    end
     
-    % Sum Average
-    for n=1:2*nL
-        % p(x+y)
-        pXplusY(n,:) = sum(cooccurPatchM(indPxPlusYc{n},:),1);
-        % Sum Average
-        if flagv(3)
-            sumAvgV(calcSlcIndV) = sumAvgV(calcSlcIndV) + n*pXplusY(n,:);
-        end
-    end
+    %     % Contrast, inverse Difference Moment
+    px = indPxM * cooccurPatchM;
+    %pXminusY = indCtrstM * cooccurPatchM;
+    %pXplusY = indPxPlusYm * cooccurPatchM;
+    contrastV(calcSlcIndV) = contrastV(calcSlcIndV) + ...
+        (0:nL-1).^2 * indCtrstM * cooccurPatchM;
+    invDiffMomV(calcSlcIndV) = invDiffMomV(calcSlcIndV) + ...
+        1./(1+(0:nL-1).^2) * indCtrstM * cooccurPatchM;
+    sumAvgV(calcSlcIndV) = sumAvgV(calcSlcIndV) + ...
+        (1:2*nL) * indPxPlusYm * cooccurPatchM;
     
     % weighted pixel average (mu), weighted pixel variance (sig)
     mu = (1:nL) * px;
     sig = bsxfun(@minus,(1:nL)',mu);
     sig = sum(sig .*sig .* px, 1);
     
-    % Correlation
-    if flagv(4)
+    if flagv(4) || flagv(7) || flagv(8)
         levIMinusMu = bsxfun(@minus,levRowV',mu);
         levJMinusMu = bsxfun(@minus,levColV',mu);
+    end
+    
+    % Correlation
+    if flagv(4)
         corrV(calcSlcIndV) = corrV(calcSlcIndV) + ...
             sum(levIMinusMu .* levJMinusMu  .* cooccurPatchM, 1) ...
             ./ (sig + 1e-10); % sig.^2 to match ITK results (ITK bug)
@@ -320,16 +326,12 @@ for slcNum = 1:numSlices
     
     % Cluster Shade
     if flagv(7)
-        levIMinusMu = bsxfun(@minus,levRowV',mu);
-        levJMinusMu = bsxfun(@minus,levColV',mu);
         clstrV = levIMinusMu + levJMinusMu;
         clustShadeV(calcSlcIndV) = clustShadeV(calcSlcIndV) + ...
             sum(clstrV.*clstrV.*clstrV .* cooccurPatchM, 1);
     end
     % Cluster Prominence
     if flagv(8)
-        levIMinusMu = bsxfun(@minus,levRowV',mu);
-        levJMinusMu = bsxfun(@minus,levColV',mu);
         clstrV = levIMinusMu + levJMinusMu;
         clustProminV(calcSlcIndV) = clustProminV(calcSlcIndV) + ...
             sum(clstrV.*clstrV.*clstrV.*clstrV .* cooccurPatchM, 1);
@@ -359,7 +361,7 @@ for slcNum = 1:numSlices
             muX .* muX) ./ (sigX + eps);   % (levRowV-1) .* (levColV-1) to match ITK? Bug?
         
     end
-        
+    
     if flagv(1)
         energy3M(:,:,slcNum) = reshape(energyV(:),[numRows, numCols]);
     end
@@ -385,13 +387,13 @@ for slcNum = 1:numSlices
         clustPromin3M(:,:,slcNum) = reshape(clustProminV(:),[numRows, numCols]);
     end
     if flagv(9)
-        haralCorr3M(:,:,slcNum) = reshape(haralCorrV(:),[numRows, numCols]);                
+        haralCorr3M(:,:,slcNum) = reshape(haralCorrV(:),[numRows, numCols]);
     end
     
     if waitbarFlag
         set(hWait, 'Vertices', [[0 0 slcNum/numSlices slcNum/numSlices]' [0 1 1 0]']);
         drawnow;
-    end       
+    end
 end
 toc
 

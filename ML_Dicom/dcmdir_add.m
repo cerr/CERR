@@ -7,6 +7,9 @@ function dcmdirS = dcmdir_add(filename, dcmobj, dcmdirS)
 %
 %JRA 06/08/06
 %YWU 03/01/08 modified the dcmdir from cell based to structure base for tree view.
+% AI 05/18/18 Modified to test for both trigger time & acquistion time
+%             (where available) to distinguish temporal sequences.
+% AI 08/8/18  Use instance no. where available to distinguish temporal sequences.
 %
 %Usage:
 %   dcmdirS = dcmdir_add(filename, dcmobj)
@@ -147,10 +150,10 @@ if strcmpi(currentModality,'MR')
     mriBvalueTag2 = '00189087';
     mriBvalueTag3 = '0019100C';
     
-    %acqTimeTag = '00080032';
-    
-    tempPosTag = '00200100'; %%AI 8/29/16 Added tempPosTag
+    tempPosTag = '00200100'; %%AI 8/29/16 Added tempPosTag (Philips)
     triggerTag = '00181060'; %%AI 10/14/16 Added trigger time tag
+    instNumTag = '00200013';    %Instance no.
+    numSlicesTag = '0021104F';  %No. locations in acquisition
 end
 
 %Search the list for this item.
@@ -177,35 +180,72 @@ for i=1:length(studyS.SERIES)
             bValueMatch = 0;
         end
         
-        %%% AI 8/29/16 Added : Check for temporal position ID match
-        temporalPos = studyS.MRI(i).info.getString(hex2dec(tempPosTag));
-        temporalPosSeries = mri.getString(hex2dec(tempPosTag));
-        if strcmpi(temporalPos,temporalPosSeries)
-            tempPosMatch = 1;
-        elseif isempty(temporalPos) && isempty(temporalPosSeries)
-            %%% AI 10/14/16 Added: Check for trigger time match
-            %(For DCE MRI data. Trigger Time identifies individual, temporally resolved frames.)
-            trigTime = studyS.MRI(i).info.getString(hex2dec(triggerTag));
-            trigTimeSeries = mri.getString(hex2dec(triggerTag));
-            if strcmpi(trigTime,trigTimeSeries) || ...
-                    (isempty(trigTime) && isempty(trigTimeSeries))
+        %Check instance number
+        nSlices = mri.getString(hex2dec(numSlicesTag));
+        if isempty(nSlices)
+            nSlices = dcm2ml_Element(dcmobj.get(hex2dec(numSlicesTag)));
+            if ~isempty(nSlices)
+                nSlices = nSlices(1);
+            end
+        else
+            nSlices = convertCharsToStrings(nSlices.toCharArray);
+        end
+        iNum = [];
+        sNum = [];
+        if ~isempty(nSlices)
+            nSlices = double(nSlices);
+            iNum = str2double(studyS.MRI(i).info.getString(hex2dec(instNumTag)));
+            iNum = ceil(iNum/nSlices);
+            sNum = str2double(mri.getString(hex2dec(instNumTag)));
+            sNum = ceil(sNum/nSlices);
+        end
+        
+        if ~(isempty(iNum)||isempty(sNum))
+            if isequal(iNum,sNum)
                 tempPosMatch = 1;
             else
                 tempPosMatch = 0;
             end
+            
         else
-            tempPosMatch = 0;
+            %AI 10/14/16 Added: Check for trigger time match
+            %(For DCE MRI data. Trigger Time identifies individual, temporally resolved frames.)
+            trigTime = studyS.MRI(i).info.getString(hex2dec(triggerTag));
+            trigTimeSeries = mri.getString(hex2dec(triggerTag));
+            
+            if ~(isempty(trigTime)||isempty(trigTimeSeries))
+                if strcmpi(trigTime,trigTimeSeries) || ...
+                        (isempty(trigTime) && isempty(trigTimeSeries))
+                    tempPosMatch = 1;
+                else
+                    tempPosMatch = 0;
+                end
+                
+            else
+                %AI 8/29/16 Added : Check for temporal position ID match
+                temporalPos = studyS.MRI(i).info.getString(hex2dec(tempPosTag));
+                temporalPosSeries = mri.getString(hex2dec(tempPosTag));
+                
+                if ~(isempty(temporalPos)||isempty(temporalPosSeries))
+                    if strcmpi(temporalPos,temporalPosSeries)
+                        tempPosMatch = 1;
+                    else
+                        tempPosMatch = 0;
+                    end
+                end
+            end
+            
         end
-        
     end
     
     %to avoid different modality data in one series, it must compare whole
     %series structure, but not just UID.
-    if series.matches(thisUID, 1) && bValueMatch && tempPosMatch 
+    if series.matches(thisUID, 1) && bValueMatch && tempPosMatch
         % series.matches(studyS.SERIES(i).info, 1)
         studyS.SERIES(i) = searchAndAddSeriesMember(filename, dcmobj, studyS.SERIES(i));
         match = 1;
     end
+    
 end
 
 if ~match

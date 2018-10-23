@@ -31,21 +31,21 @@ if ~isempty(str2double(lastSavedInVer)) && (isempty(lastSavedInVer) || str2doubl
 end
 
 
-%Check for mesh representation and load meshes into memory
-currDir = cd;
-meshDir = fileparts(which('libMeshContour.dll'));
-cd(meshDir)
-for strNum = 1:length(planC{indexS.structures})
-    if isfield(planC{indexS.structures}(strNum),'meshRep') && ~isempty(planC{indexS.structures}(strNum).meshRep) && planC{indexS.structures}(strNum).meshRep
-        try
-            calllib('libMeshContour','loadSurface',planC{indexS.structures}(strNum).strUID,planC{indexS.structures}(strNum).meshS)
-        catch
-            planC{indexS.structures}(strNum).meshRep    = 0;
-            planC{indexS.structures}(strNum).meshS      = [];
-        end
-    end
-end
-cd(currDir)
+% %Check for mesh representation and load meshes into memory
+% currDir = cd;
+% meshDir = fileparts(which('libMeshContour.dll'));
+% cd(meshDir)
+% for strNum = 1:length(planC{indexS.structures})
+%     if isfield(planC{indexS.structures}(strNum),'meshRep') && ~isempty(planC{indexS.structures}(strNum).meshRep) && planC{indexS.structures}(strNum).meshRep
+%         try
+%             calllib('libMeshContour','loadSurface',planC{indexS.structures}(strNum).strUID,planC{indexS.structures}(strNum).meshS)
+%         catch
+%             planC{indexS.structures}(strNum).meshRep    = 0;
+%             planC{indexS.structures}(strNum).meshS      = [];
+%         end
+%     end
+% end
+% cd(currDir)
 
 if ~isfield(stateS,'optS')
     stateS.optS = CERROptions;
@@ -64,7 +64,9 @@ for scanNum = 1:length(planC{indexS.scan})
         end
     end
     % Check for scanType field and populate it with Series description
-    if isempty(planC{indexS.scan}(scanNum).scanType) && isfield(planC{indexS.scan}(scanNum).scanInfo(1).DICOMHeaders,'SeriesDescription')
+    if isempty(planC{indexS.scan}(scanNum).scanType) && ...
+            isfield(planC{indexS.scan}(scanNum).scanInfo(1),'DICOMHeaders') && ...
+            isfield(planC{indexS.scan}(scanNum).scanInfo(1).DICOMHeaders,'SeriesDescription')
         planC{indexS.scan}(scanNum).scanType = planC{indexS.scan}(scanNum).scanInfo(1).DICOMHeaders.SeriesDescription;
     end
 end

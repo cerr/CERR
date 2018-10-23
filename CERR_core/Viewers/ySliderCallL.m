@@ -47,10 +47,10 @@ else
     posNewY = [posYall(2)-val posYall(2)-val+posYall(1)];
 end
 
-posNewXY = posOldY;
-posNewXY(3:4) = posNewY;
-axis(ha,posNewXY)
-
+% posNewXY = posOldY;
+% posNewXY(3:4) = posNewY;
+% axis(ha,posNewXY)
+ha.YLim = posNewY;
 
 % %%% Make lines/text outside axis not visible
 % Iall = posYallO(1)+1:posYallO(2)-1;

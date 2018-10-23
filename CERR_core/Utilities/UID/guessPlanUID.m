@@ -42,10 +42,11 @@ if exist('dcm', 'var') && (dcm)
     doseAssocList = ones(1, nDoses);
     for i = 1:nScans
         try
-            scanUID = planC{indexS.scan}(i).scanUID;
+            scanUID = planC{indexS.scan}(i).scanUID; % Series instance UID
+            forUID = planC{indexS.scan}(i).scanInfo(1).DICOMHeaders.FrameofReferenceUID; % Frame of Reference UID
         catch
             break;
-        end
+        end  
         for j = 1:nStructures
             assocScanUID = planC{indexS.structures}(j).assocScanUID;
             if strcmp(assocScanUID, scanUID)
@@ -55,7 +56,7 @@ if exist('dcm', 'var') && (dcm)
         end
         for j = 1:nDoses
             assocScanUID = planC{indexS.dose}(j).assocScanUID;
-            if strcmp(assocScanUID, scanUID)
+            if strcmp(assocScanUID, forUID)
                 doseAssocList(j) = i;
                 continue;
             end

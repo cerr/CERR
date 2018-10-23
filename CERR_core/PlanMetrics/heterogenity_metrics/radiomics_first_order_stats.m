@@ -9,6 +9,7 @@ function RadiomicsFirstOrderS = radiomics_first_order_stats(planC,structNum,offs
 %   - added Mean deviation
 %  10/13/2017 APA Modified to handle matrix input (planC)
 %  Eg: RadiomicsFirstOrderS = radiomics_first_order_stats(dataM);
+%  07/13/2018 AI Bug fix for entropy calculation
 %--------------------------------------------------------------------------
 
 Step = 1;
@@ -46,6 +47,9 @@ if iscell(planC)
     Iarray = maskScan3M(indStructV);
     
 else
+    if ~exist('offsetForEnergy','var')
+        offsetForEnergy = 0;
+    end
     
     Iarray = planC;
     VoxelVol = structNum;
@@ -53,13 +57,13 @@ end
 
 
 % Calculate standard PET parameters
-RadiomicsFirstOrderS.min           = min(Iarray);
-RadiomicsFirstOrderS.max           = max(Iarray);
-RadiomicsFirstOrderS.mean          = mean(Iarray);
+RadiomicsFirstOrderS.min           = nanmin(Iarray);
+RadiomicsFirstOrderS.max           = nanmax(Iarray);
+RadiomicsFirstOrderS.mean          = nanmean(Iarray);
 RadiomicsFirstOrderS.range         = range(Iarray);
-RadiomicsFirstOrderS.std           = std(Iarray,1);
-RadiomicsFirstOrderS.var           = var(Iarray,1);
-RadiomicsFirstOrderS.median        = median(Iarray);
+RadiomicsFirstOrderS.std           = std(Iarray,1,'omitnan');
+RadiomicsFirstOrderS.var           = var(Iarray,1,'omitnan');
+RadiomicsFirstOrderS.median        = nanmedian(Iarray);
 
 % Skewness is a measure of the asymmetry of the data around the sample mean.
 % If skewness is negative, the data are spread out more to the left of the mean
@@ -83,33 +87,57 @@ RadiomicsFirstOrderS.kurtosis      = kurtosis(Iarray) - 3;
 % heterogeniteit?
 
 % Entropy
-if ~exist('numBins','var')
-    binwidth = 25;
+if ~exist('binWidth','var')
+    binWidth = 25;
 end
 % xmin = min(Iarray) + offsetForEnergy;
 % edgeMin = xmin - rem(xmin,binwidth);
-edgeMin = 0; % to match pyradiomics definition
-xmax = max(Iarray) + offsetForEnergy;
-edgemax = xmax + rem(xmax,binwidth);
-edgeV = edgeMin:binwidth:edgemax;
-quantizedV = discretize(Iarray+offsetForEnergy,edgeV) + eps;
-quantizedV = quantizedV / sum(quantizedV);
-RadiomicsFirstOrderS.entropy = sum(quantizedV .* log2(quantizedV));
+% edgeMin = 0; % to match pyradiomics definition
+xmaxV = max(Iarray); % + offsetForEnergy;
+xminV = min(Iarray);
+offsetForEntropyV = zeros(1,size(xminV,2));
+offsetForEntropyV(xminV<0) = -xminV(xminV<0);
+
+xmaxV = xmaxV + offsetForEntropyV;
+xminV = xminV + offsetForEntropyV;
+edgeMaxV = xmaxV;
+edgeMinV = xminV;
+idxV =  abs(rem(edgeMaxV,binWidth)) > 0;
+edgeMaxV(idxV) = edgeMaxV(idxV) + binWidth - rem(edgeMaxV(idxV),binWidth);
+idxV = abs(rem(xminV,binWidth)) > 0;
+edgeMinV(idxV) = edgeMinV(idxV) - rem(edgeMinV(idxV),binWidth);  
+%---fix---
+edgeMaxV(edgeMaxV==edgeMinV) = binWidth;
+%--------
+
+entropyV = nan(1,size(Iarray,2));
+sizeV = sum(~isnan(Iarray));
+for k = 1:size(Iarray,2)
+edgeV = edgeMinV(k):binWidth:edgeMaxV(k); 
+countV = histcounts(Iarray(:,k)+offsetForEntropyV(k),edgeV) + eps; 
+%-------%
+%numGrLevels = 16; %For GRE calculation;
+%countV = histcounts(Iarray(:,k)+offsetForEntropyV(k),numGrLevels); %For GRE calculation;
+%--------%
+probV = countV/sizeV(k);
+entropyV(k) = - sum(probV .* log2(probV+eps));
+end
+RadiomicsFirstOrderS.entropy = entropyV;
 
 %   Root mean square (RMS)
-RadiomicsFirstOrderS.rms           = sqrt(sum((Iarray+offsetForEnergy).^2)/length(Iarray));
+RadiomicsFirstOrderS.rms           = sqrt(nansum((Iarray+offsetForEnergy).^2)./sizeV);
 
 %   Energy ( integraal(a^2) )
-RadiomicsFirstOrderS.energy   = sum((Iarray+offsetForEnergy).^2);
+RadiomicsFirstOrderS.energy   = nansum((Iarray+offsetForEnergy).^2);
 
 %   Total Energy ( voxelVolume * integraal(a^2) )
-RadiomicsFirstOrderS.totalEnergy   = sum((Iarray+offsetForEnergy).^2) * VoxelVol;
+RadiomicsFirstOrderS.totalEnergy   = nansum((Iarray+offsetForEnergy).^2) * VoxelVol;
 
 %   Mean deviation (also called mean absolute deviation)
 RadiomicsFirstOrderS.meanAbsDev            = mad(Iarray);
 
 % Median absolute deviation
-RadiomicsFirstOrderS.medianAbsDev = sum(abs(Iarray-RadiomicsFirstOrderS.median)) / numel(Iarray);
+RadiomicsFirstOrderS.medianAbsDev = nansum(abs(Iarray-RadiomicsFirstOrderS.median))./sizeV;
 
 %   P10
 p10 = prctile(Iarray,10);

@@ -82,6 +82,9 @@ switch lower(moduleName)
     case 'ct_image'
         tagS = CT_image_module_tags;
         export_function = @export_CT_image_module_field;  
+    case 'pt_image'
+        tagS = PT_image_module_tags;
+        export_function = @export_PT_image_module_field;
     case 'mr_image'
         tagS = MR_image_module_tags;
         export_function = @export_MR_image_module_field;  

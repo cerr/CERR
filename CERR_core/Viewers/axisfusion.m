@@ -76,8 +76,7 @@ if minC<cLim(1)
 end
 
 try
-    hFrame = stateS.handle.controlFrame;
-    ud = get(hFrame,'userdata');
+    ud = stateS.handle.controlFrameUd ;
     indV(1) = get(ud.handles.baseSet,'value');
     indV(2) = get(ud.handles.movingSet,'value');
     
@@ -360,7 +359,7 @@ switch method
             %wy enable base image display %
             %img23D = repmat(zeros(size(img1)), [1 1 3]);
             img23D = zeros([size(img1) 3]);
-            ud = get(stateS.handle.controlFrame,'userdata');
+            ud = stateS.handle.controlFrameUd ;
             clrVal = get(ud.handles.basedisplayModeColor,'value');
             
             switch num2str(clrVal)
@@ -477,7 +476,7 @@ switch method
             
             
             img23D = repmat(zeros(size(img2)), [1 1 3]);
-            ud = get(stateS.handle.controlFrame,'userdata');
+            ud = stateS.handle.controlFrameUd ;
             clrVal = get(ud.handles.displayModeColor,'value');
             
             switch num2str(clrVal)
