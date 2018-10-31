@@ -1,7 +1,8 @@
 {
 	
-	"name": "Protocol 15 x 4Gy",
+	"name": "4Gy x 15",
         "numFractions": 15,
+	"totalDose": 60,
 	"models":{
 
 		  "Esophagitis (Wijsman)": {
@@ -9,10 +10,13 @@
 					   },
 		  "Pneumonitis (Appelt)":  {
     					      "modelFile": "Pneumonitis (Appelt).json"
-			                   }
+			                   },
+		  "BED": {
+		  	    "modelFile": "Lung BED.json"
+			 }
 		},
         "created_by": "Aditi Iyer",
-	"created_at": "6PM 7\/17\/17",
+	"created_at": "6PM 10\/31\/18",
 	"modified_by": "",
 	"modified_at": ""
 }
