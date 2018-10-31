@@ -1,19 +1,22 @@
 {
 	
-	"name": "Protocol 24 x 2.75 Gy",
+	"name": "2.75Gy x 24",
         "numFractions": 24,
+	"totalDose": 66,
 	"models": {
 
 		"Esophagitis (Wijsman)": {
-				                 "modelFile": "Esophagitis (Wijsman).json"
-					                                               },
-		"Pneumonitis(Appelt)":    {
-				        
-   "modelFile": "Pneumonitis (Appelt).json"
-		                          }
-		},
+				         	"modelFile": "Esophagitis (Wijsman).json"
+					 },
+		"Pneumonitis(Appelt)":   {
+				       		"modelFile": "Pneumonitis (Appelt).json"
+		                         }, 
+	  	"BED":  {
+		  	    "modelFile": "Lung BED.json"
+			}
+		  },
         "created_by": "Aditi Iyer",
-	"created_at": "3PM 5\/23\/17",
+	"created_at": "3PM 10\/31\/18",
 	"modified_by": "",
 	"modified_at": ""
 }
