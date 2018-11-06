@@ -74,9 +74,12 @@ if rotation
 else
     newZLims = [zLims + zT];
 end
-zVals = linspace(min(newZLims),max(newZLims),10);
-
 [xV, yV, zV] = getScanXYZVals(planC{indexS.scan}(scanNum));
+if rotation
+    zVals = linspace(min(newZLims),max(newZLims),50);
+else
+    zVals = zV;
+end
 dose3M = [];
 for i=1:length(zVals)
     [slc, sliceXVals, sliceYVals] = getCTOnSlice(scanNum, zVals(i), 3, planC);
@@ -96,6 +99,14 @@ if isfield(planC{indexS.scan}(scanNum), 'transM') && ~isempty(planC{indexS.scan}
 end
 
 W = size(dose3M);
+if numel(W) < 3
+    dose3M(:,:,2) = dose3M;
+    dose3M(:,:,1) = dose3M(:,:,1)*0;
+    dose3M(:,:,3) = dose3M(:,:,1);
+    zVals = [zVals-eps zVals zVals+eps];
+    W = size(dose3M);
+end
+
 setIndex = length(planC{indexS.dose}) + 1;
 % Initialize dose
 doseInitS = initializeCERR('dose');
