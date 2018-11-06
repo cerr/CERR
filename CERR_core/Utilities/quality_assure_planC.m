@@ -73,9 +73,11 @@ end
 
 %Check dose-grid
 for doseNum = 1:length(planC{indexS.dose})
+    if length(planC{indexS.dose}(doseNum).zValues) > 1
     if planC{indexS.dose}(doseNum).zValues(2) - planC{indexS.dose}(doseNum).zValues(1) < 0
         planC{indexS.dose}(doseNum).zValues = flipud(planC{indexS.dose}(doseNum).zValues);
         planC{indexS.dose}(doseNum).doseArray = flipdim(planC{indexS.dose}(doseNum).doseArray,3);
+    end
     end
 end
 
