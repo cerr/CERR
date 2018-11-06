@@ -98,9 +98,12 @@ switch(keyValue)
                 navigationMontage('right');
             otherwise
         end
-
+        
     case 66 %'B' Toggles bookmark on current Slice
-        navigationMontage('togglebookmark');
+        if isfield(stateS.handle,'navigationMontage')            
+            navigationMontage('togglebookmark');
+        end
+        
 
     case 98 %'b' Cycles through bookmarked slices.
         try
