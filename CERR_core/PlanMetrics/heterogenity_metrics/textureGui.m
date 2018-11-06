@@ -218,7 +218,8 @@ switch upper(command)
             'Wavelets',...
             'Gabor',...
             'LoG',...
-            'Sobel'}; 
+            'Sobel', ...
+            'CoLlage'}; 
         
         %Downsample colormap, redraws much faster.
         % cM = CERRColorMap(stateS.optS.doseColormap);
@@ -485,6 +486,14 @@ switch upper(command)
 
             case 'Sobel'
                 paramC = {};
+                
+            case 'CoLlage'
+                paramC = {'Dimension','Dominant_Dir_Radius','Cooccur_Radius','Number_Gray_Levels'};
+                typeC = {'popup','edit','edit','edit'};
+                valC = {{'2d','3d'},'3 3 0','3 3 0',64};
+                dispC = {'On','On','On','On'};
+                
+                
         end
         
         %Display parameters
@@ -828,7 +837,7 @@ switch upper(command)
             
             
         end
-        outS = processImage(fType,scan3M,fullMask3M,paramS,hwait);        
+        outS = processImage(fType,scan3M,fullMask3M,paramS,hwait);
         featuresC = fieldnames(outS);
         
         % Create new Texture if ud.currentTexture = 0
@@ -843,8 +852,8 @@ switch upper(command)
         assocScanUID = planC{indexS.scan}(scanNum).scanUID;
         planC{indexS.texture}(ud.currentTexture).assocScanUID = assocScanUID;
         if structNum~=0
-        assocStrUID = planC{indexS.structures}(structNum).strUID;
-        planC{indexS.texture}(ud.currentTexture).assocStructUID = assocStrUID;
+            assocStrUID = planC{indexS.structures}(structNum).strUID;
+            planC{indexS.texture}(ud.currentTexture).assocStructUID = assocStrUID;
         end
         planC{indexS.texture}(ud.currentTexture).category = fType;
         
@@ -1298,10 +1307,10 @@ end
 %Create thumbnail
 strNum = ud.handles.structure.Value - 1;
 if strNum==0 %Entire scan
-firstROISlice = 1;    
+    firstROISlice = 1;
 else
-rasterSegments = getRasterSegments(strNum, planC);
-firstROISlice = min(unique(rasterSegments(:,6)));
+    rasterSegments = getRasterSegments(strNum, planC);
+    firstROISlice = min(unique(rasterSegments(:,6)));
 end
 thumbSlice = min(s,numel(sV));
 % thumbSlice = thumbSlice + firstROISlice - 1;
