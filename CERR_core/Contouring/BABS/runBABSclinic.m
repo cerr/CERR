@@ -27,24 +27,51 @@ function success = runBABSclinic(inputDicomPath,outputDicomPath,babsPath)
 % path to parameter files and to save intermediate files
 % babsPath = fullfile(getCERRPath,'..','babs');
 
+% Directory name for this session
+dateTimeV = clock;
+randNum = 1000.*rand;
+sessionDir = ['session',num2str(dateTimeV(4)), num2str(dateTimeV(5)),...
+    num2str(dateTimeV(6)), num2str(randNum)];
+
 % Save temporary files in babs directory
-cerrPath = fullfile(babsPath,'ctCERR');
-pcDirName = fullfile(babsPath,'pcaCERR');
+cerrPath = fullfile(babsPath,sessionDir,'ctCERR');
+pcDirName = fullfile(babsPath,sessionDir,'pcaCERR');
 %pcaParamsFile = '/lab/deasylab1/Aditya/AtlasSeg/clinicalEval/pcaParams';
 pcaParamsFile = fullfile(babsPath,'pca_haralick_only_64_levs_1_2_patchRad.mat');
 %atlasDirName = '/lab/deasylab1/Aditya/AtlasSeg/clinicalEval/pcaAtlasCERR';
 atlasDirName = fullfile(babsPath,'train_anonymized');
 atlasAreaFile = fullfile(babsPath,'anonAtlasMedianArea.mat');
-registeredDirLoc = fullfile(babsPath,'registeredCERR');
-outputCERRPath = fullfile(babsPath,'segmentedCERR');
+registeredDirLoc = fullfile(babsPath,sessionDir,'registeredCERR');
+outputCERRPath = fullfile(babsPath,sessionDir,'segmentedCERR');
 initPlmCmdFile = fullfile(babsPath,'BABS_init_reg.txt');
 refinePlmCmdFile = fullfile(babsPath,'BABS_refine_reg.txt');
+[diaryNam,diaryRem] = strtok(fliplr(inputDicomPath),filesep);
+if isempty(diaryNam)
+    diaryNam = strtok(diaryRem,filesep);
+end
+diaryNam = fliplr(diaryNam);
+diaryFile = fullfile(babsPath,'log',[diaryNam,'_log.out']);
+
+% Create directories for this session
+mkdir(fullfile(babsPath,sessionDir))
+mkdir(cerrPath)
+mkdir(pcDirName)
+mkdir(registeredDirLoc)
+mkdir(outputCERRPath)
+
+% Record diary
+diary(diaryFile)
 
 % Names of strutures to process
 structNameC = {'Parotid_Left_MIM','Parotid_Right_MIM'};
 
 t0 = tic;
    
+% Use BABS cluster profile
+clusterProfile = fullfile(babsPath,'BABScluster.settings');
+setmcruserdata('ParallelProfile', clusterProfile)
+%parallel.defaultClusterProfile('BABScluster')
+
 %try
     
 % Import DICOM to CERR
@@ -74,7 +101,9 @@ t2end = toc(t2)
 t3 = tic;
 fprintf(['\n-----------------------------------------------\n',...
     'FUSING ATLASES\n-----------------------------------------------\n']);
+feature accel off
 batch_fuse_atlas_seg(pcDirName,atlasDirName,registeredDirLoc)
+feature accel on
 fprintf('\nComplete.\n');
 t3end = toc(t3)
 
@@ -93,12 +122,17 @@ delete(hParpool)
 exportCERRtoDICOM(cerrPath,registeredDirLoc,outputCERRPath,outputDicomPath)
 
 totalTime = toc(t0)/60;
-
+disp(['BABS calculation finished in ', num2str(totalTime), ' minutes'])
 
 % Notify via email
-sendmail({'aptea@mskcc.org','iyera@mskcc.org'},['BABS calculation finished in ', num2str(totalTime), ' minutes'])
+%sendmail({'aptea@mskcc.org','iyera@mskcc.org'},['BABS calculation finished in ', num2str(totalTime), ' minutes'])
 
 success = 1;
+
+% Remove sesion directory
+rmdir(fullfile(babsPath,sessionDir), 's')
+
+diary off
 
 % catch e
 %     
