@@ -32,8 +32,8 @@ success = createMhaScansFromCERR(movScanNum, movScanFileName, movPlanC);
 warpedMhaFileName = fullfile(getCERRPath,'ImageRegistration','tmpFiles',['warped_scan_',baseScanUID,'_',movScanUID,'.mha']);
 
 % Issue plastimatch warp command
-%system(['plastimatch warp --input ', escapeSlashes(movScanFileName), ' --output-img ', escapeSlashes(warpedMhaFileName), ' --xf ', escapeSlashes(bspFileName)])
-system(['plastimatch warp --input ', movScanFileName, ' --output-img ', warpedMhaFileName, ' --xf ', bspFileName])
+system(['plastimatch warp --input ', escapeSlashes(movScanFileName), ' --output-img ', escapeSlashes(warpedMhaFileName), ' --xf ', escapeSlashes(bspFileName)])
+%system(['plastimatch warp --input ', movScanFileName, ' --output-img ', warpedMhaFileName, ' --xf ', bspFileName])
 
 % Read the warped output .mha file within CERR
 infoS  = mha_read_header(warpedMhaFileName);

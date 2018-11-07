@@ -41,8 +41,8 @@ for structNum = movStructNumsV
     warpedMhaFileName = fullfile(getCERRPath,'ImageRegistration','tmpFiles',['warped_struct_',baseScanUID,'_',movScanUID,'.mha']);
 
     % Issue plastimatch warp command with nearest neighbor interpolation
-    %system(['plastimatch warp --input ', escapeSlashes(movStrFileName), ' --output-img ', escapeSlashes(warpedMhaFileName), ' --xf ', escapeSlashes(bspFileName), ' --interpolation nn'])
-    system(['plastimatch warp --input ', movStrFileName, ' --output-img ', warpedMhaFileName, ' --xf ', bspFileName, ' --interpolation nn'])
+    system(['plastimatch warp --input ', escapeSlashes(movStrFileName), ' --output-img ', escapeSlashes(warpedMhaFileName), ' --xf ', escapeSlashes(bspFileName), ' --interpolation nn'])
+    %system(['plastimatch warp --input ', movStrFileName, ' --output-img ', warpedMhaFileName, ' --xf ', bspFileName, ' --interpolation nn'])
 
     % Read the warped output .mha file within CERR
     %infoS  = mha_read_header(warpedMhaFileName);
