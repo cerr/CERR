@@ -103,7 +103,8 @@ for dirNum = 1:length(dirsToImportC)
         seriesDscr = planC{indexS.scan}(1).scanInfo(1).DICOMHeaders.SeriesDescription;
         modality = planC{indexS.scan}(1).scanInfo(1).DICOMHeaders.Modality;
         
-        outFileName = [mrn,'~',studyDscr,'~',seriesDscr,'~',modality];
+        % outFileName = [mrn,'~',studyDscr,'~',seriesDscr,'~',modality];
+        outFileName = mrn;
         
         %outFileName = mrn;   % store file names as MRNs
         
