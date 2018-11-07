@@ -42,9 +42,9 @@ for indBase = 1:length(dirS)
     export_RS_IOD(planC,outputDicomPath,fname);
     
     % delete the registered_ directory
-    rmdir(registeredDir,'s')
+    %rmdir(registeredDir,'s')
     
     % delete the ct file
-    delete(origFileName)
+    %delete(origFileName)
 
 end
