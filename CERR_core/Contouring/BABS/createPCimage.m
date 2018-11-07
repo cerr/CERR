@@ -4,26 +4,26 @@ function planC = createPCimage(scanNum,structNumV,pcaParamsFile,planC)
 % APA, 2/4/2017
 
 if ~iscell(scanNum)
-
-rowMargin = 512; % extend rows by this amount
-colMargin = 512; % extend cols by this amount
-slcMargin = 7; % extend slcss by this amount  %Changed from 15
-
-if ~exist('planC','var')
-    global planC
-end
-
-indexS = planC{end};
-
-% get ROI
-randomFlg = 1;
-[volToEval,maskBoundingBox3M,mask3M,minr,maxr,minc,maxc,mins,maxs,uniqueSlices] = ...
-    getROI(structNumV,rowMargin,colMargin,slcMargin,planC,randomFlg);
-
-sliceThickNessV = ...
-[planC{indexS.scan}(scanNum).scanInfo(mins:maxs).sliceThickness];
+    
+    rowMargin = 100; % extend rows by this amount
+    colMargin = 512; % extend cols by this amount
+    slcMargin = 7; % extend slcss by this amount  %Changed from 15
+    
+    if ~exist('planC','var')
+        global planC
+    end
+    
+    indexS = planC{end};
+    
+    % get ROI
+    randomFlg = 1;
+    [volToEval,maskBoundingBox3M,mask3M,minr,maxr,minc,maxc,mins,maxs,uniqueSlices] = ...
+        getROI(structNumV,rowMargin,colMargin,slcMargin,planC,randomFlg);
+    
+    sliceThickNessV = ...
+        [planC{indexS.scan}(scanNum).scanInfo(mins:maxs).sliceThickness];
     [xVals, yVals, zVals] = getScanXYZVals(planC{indexS.scan}(scanNum));
-
+    
 else
     
     volToEval = scanNum{1};
@@ -40,7 +40,9 @@ else
     xVals = scanNum{12};
     yVals = scanNum{13};
     zVals = scanNum{14};
-
+    rowMargin = [];
+    colMargin = [];
+    slcMargin = [];
 end
 
 minIntensity = -200;   % Clipping min
@@ -61,14 +63,14 @@ nanIntenityV = volToEval < -400;
 %%% AA commented for writing cropped CT scans
 
 % Get Law's and Haralick features for this structure
-% newFeaturesM = getLawsAndHaralickFeatures({volToEval,maskBoundingBox3M},...
-%     rowMargin,colMargin,slcMargin,minIntensity,maxIntensity,planC);
-rowMargin = [];
-colMargin = [];
-slcMargin = [];
-newFeaturesM = gpuGetLawsAndHaralickFeatures({volToEval,maskBoundingBox3M},...
-        rowMargin,colMargin,slcMargin,minIntensity,maxIntensity,planC,...
-        harOnlyFlg,featFlagsV,numLevsV,patchRadiusV);  
+newFeaturesM = getLawsAndHaralickFeatures({volToEval,maskBoundingBox3M},...
+    rowMargin,colMargin,slcMargin,minIntensity,maxIntensity,planC);
+% rowMargin = [];
+% colMargin = [];
+% slcMargin = [];
+% newFeaturesM = gpuGetLawsAndHaralickFeatures({volToEval,maskBoundingBox3M},...
+%         rowMargin,colMargin,slcMargin,minIntensity,maxIntensity,planC,...
+%         harOnlyFlg,featFlagsV,numLevsV,patchRadiusV);
 newFeaturesM = bsxfun(@minus,newFeaturesM, featureMeanV);
 newFeaturesM = bsxfun(@rdivide,newFeaturesM, featureStdV);
 %newFeaturesM = newFeaturesM(:,indSignifV);
@@ -104,11 +106,11 @@ for compNum = compNumV
     % figure, imagesc(volToEval(:,:,30))
     
     
-    %%% AA commented for writing cropped CT scans ends    
+    %%% AA commented for writing cropped CT scans ends
     
     %%
     % Save comp3M to planC
-    %dose2CERR(entropy3M,[], 'entropy3voxls_Ins3_NI14','test','test','non CT',regParamsS,'no',assocScanUID)    
+    %dose2CERR(entropy3M,[], 'entropy3voxls_Ins3_NI14','test','test','non CT',regParamsS,'no',assocScanUID)
     planC = scan2CERR(comp3M,['PC_',num2str(compNum)],'Passed',regParamsS,assocTextureUID,planC);
     % planC = scan2CERR(volToEval,'PC','Passed',regParamsS,assocTextureUID,planC);
     
