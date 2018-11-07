@@ -30,7 +30,7 @@ if exist('initPlmCmdFile','var') && ~isempty(initPlmCmdFile)
     initRegFlag = 1;
 end
 parfor movNum = 1:length(movScanFileC)
-    try
+    try % required to skip failed registrations
     % Load base planC
     planC = loadPlanC(baseScanFile,tempdir);
     planC = updatePlanFields(planC);
@@ -89,7 +89,7 @@ parfor movNum = 1:length(movScanFileC)
     allStrNumV = 1:length(planD{indexSD.structures})-1; % -1 to omit the "noise" structure
     assocScanV = getStructureAssociatedScan(allStrNumV,planD);
     
-    inputCmdFile = '';
+    %inputCmdFile = '';
     
     for scanNum = 1:numScans
         
@@ -117,6 +117,12 @@ parfor movNum = 1:length(movScanFileC)
         [planC, planD] = register_scans(planC, planD, baseScanNum, movScanNum,...
             algorithm, baseMask3M, movMask3M, threshold_bone, refinePlmCmdFile, ...
             inBspFile, outBspFile);
+        while 1
+            if exist(outBspFile,'file')
+                break
+            end
+        end
+        %pause(1) % avoid feature accel error
         
         % Warp scan
         if strcmpi(algorithm,'DEMONS PLASTIMATCH')
@@ -124,7 +130,6 @@ parfor movNum = 1:length(movScanFileC)
         else            
             deformS = planC{indexS.deform}(end);
         end
-        
         planC = warp_scan(deformS,movScanNum,planD,planC);
         
         % Warp the passed structure
