@@ -8,7 +8,7 @@ function planC = createCroppedimage(scanNum,structNumV,pcaParamsFile,planC)
 if ~iscell(scanNum)
     rowMargin = 100; % extend rows by this amount
     colMargin = 512; % extend cols by this amount
-    slcMargin = 15; % extend slcss by this amount   
+    slcMargin = 7; % extend slcss by this amount   
     
     if ~exist('planC','var')
         global planC
