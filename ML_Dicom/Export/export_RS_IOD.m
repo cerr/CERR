@@ -98,8 +98,12 @@ for scanNum = 1:length(planC{indexS.scan})
     ssobj.copyTo(dcmobj);
     clear ssobj;
     
-    fileNum  = num2str(filenumber + nWritten);
-    filename = fullfile(destDirPath,['RS_', repmat('0', [1 5-length(fileNum)]), fileNum]);
+    if ischar(filenumber)
+        filename = fullfile(filenameRoot,filenumber);
+    else
+        fileNum  = num2str(filenumber + nWritten);
+        filename = fullfile(destDirPath,['RS_', repmat('0', [1 5-length(fileNum)]), fileNum]);
+    end
     
     writefile_mldcm(dcmobj, filename);
     
