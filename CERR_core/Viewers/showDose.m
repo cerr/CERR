@@ -454,7 +454,9 @@ for j=1:length(axisInfo.doseObj)
     end
 end
 
-if ~isempty(axisInfo.scanObj) && isempty(axisInfo.doseObj) && ~stateS.imageRegistration
+if ~isempty(axisInfo.scanObj) && (isempty(axisInfo.doseObj) || ...
+        (~isempty(axisInfo.doseObj) && isempty(axisInfo.doseObj.data2M))) ...
+        && ~stateS.imageRegistration
     axisInfo.scanObj.handles.FaceAlpha = 1;
 end
 
