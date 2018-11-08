@@ -88,7 +88,7 @@ for slcNum = 1:numSlices %(1+numSlcsPad):(numSlices+numSlcsPad)
         end
     end
     domOrientSlc2M = domOrient2M;
-    domOrientSlc2M(calcSlcIndV) = atan(domOrientM(2,:)./domOrientM(1,:));
+    domOrientSlc2M(calcSlcIndV) = atan2(domOrientM(2,:),domOrientM(1,:));
     domOrient3M(:,:,slcNum) = domOrientSlc2M;
     
     if waitbarFlag
