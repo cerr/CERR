@@ -222,7 +222,16 @@ switch filterType
                     end
                 end
         
+    case 'CoLlage'
         
+        [minr, maxr, minc, maxc, mins, maxs] = compute_boundingbox(mask3M);
+        mask3M = mask3M(minr:maxr,minc:maxc,mins:maxs);
+        scan3M = scan3M(minr:maxr,minc:maxc,mins:maxs);
+        scan3M = single(scan3M);
+        dir = paramS.Dimension.val;
+        coLlAGe3M = getCollageFeature(scan3M, mask3M, paramS.Dominant_Dir_Radius.val,...
+            paramS.Cooccur_Radius.val, paramS.Number_Gray_Levels.val, dir, hWait);
+        outS.entropy = coLlAGe3M;
         
 end
 
