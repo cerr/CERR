@@ -13,7 +13,7 @@ function [energy3M,entropy3M,sumAvg3M,corr3M,invDiffMom3M,contrast3M,...
 % nL - Number of gray levels
 % patchSizeV - 3-element vector for the patch radius. For example, [3 3 0]
 % flagv - 9-element vector of booleans to toggle calculation of texture features.
-% hWait - waitbar handle. Use NaN to turn off waitbar.
+% hWait - (optional) waitbar handle. Use NaN to turn off waitbar.
 % minIntensity - (optional) minimum intensity for discretization.
 % maxIntensity - (optional) maximum intensity for discretization.
 %
