@@ -1,5 +1,5 @@
-function domOrient3M = calcDominantOrientation(scanArray3M, patchSizeV, hWait)
-% function domOrient3M = calcDominantOrientation(scanArray3M, patchSizeV, hWait)
+function domOrient3M = calcDominantOrientation(scanArray3M, mask3M, patchSizeV, dim2d3dFlag, hWait)
+% function domOrient3M = calcDominantOrientation(scanArray3M, mask3M, patchSizeV, dim2d3dFlag, hWait)
 %
 % Dominant orientation calculation.
 %
@@ -12,7 +12,7 @@ if exist('hWait','var') && ishandle(hWait)
 end
 
 % Get indices of non-NaN voxels
-calcIndM = ~isnan(scanArray3M);
+calcIndM = ~isnan(scanArray3M) & mask3M;
 
 % % Grid resolution
 slcWindow = 2 * patchSizeV(3) + 1;
@@ -88,7 +88,7 @@ for slcNum = 1:numSlices %(1+numSlcsPad):(numSlices+numSlcsPad)
         end
     end
     domOrientSlc2M = domOrient2M;
-    domOrientSlc2M(calcSlcIndV) = atan2(domOrientM(2,:),domOrientM(1,:));
+    domOrientSlc2M(calcSlcIndV) = atan(domOrientM(2,:)./domOrientM(1,:));
     domOrient3M(:,:,slcNum) = domOrientSlc2M;
     
     if waitbarFlag
