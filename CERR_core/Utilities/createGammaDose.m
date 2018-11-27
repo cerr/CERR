@@ -1,4 +1,4 @@
-function gammaM = createGammaDose(doseNum1,doseNum2,dosePercent,distAgreement,thresholdPercentMax, planC)
+function gammaM = createGammaDose(doseNum1,doseNum2,strNum,dosePercent,distAgreement,thresholdPercentMax, planC)
 % function gammaM = createGammaDose(doseNum1,doseNum2,dosePercent,distAgreement,thresholdPercentMax, planC)
 %
 % This function creates and adds a gamma dose to planC.
@@ -16,7 +16,10 @@ end
 indexS = planC{end};
 
 % Prepare inputs for gamma calculation
-[newXgrid, newYgrid, newZgrid, doseArray1, doseArray2] = prepareDosesForGamma(doseNum1,doseNum2,1, planC);
+%[newXgrid, newYgrid, newZgrid, doseArray1, doseArray2] = prepareDosesForGamma(doseNum1,doseNum2,1, planC);
+assocScan = 1;
+[newXgrid, newYgrid, newZgrid, doseArray1, doseArray2, interpMask3M] = ...
+    prepareDosesForGamma(doseNum1,doseNum2,strNum,assocScan,planC);
 
 deltaX = abs(newXgrid(2) - newXgrid(1));
 deltaY = abs(newYgrid(2) - newYgrid(1));
@@ -26,11 +29,11 @@ doseAgreement = dosePercent*max(planC{indexS.dose}(doseNum1).doseArray(:))/100;
 
 thresholdAbsolute = thresholdPercentMax*max(planC{indexS.dose}(doseNum1).doseArray(:))/100;
 
-gammaM = gammaDose3d(doseArray1, doseArray2, [deltaX deltaY deltaZ], doseAgreement, distAgreement, [], thresholdAbsolute);
+gammaM = gammaDose3d(doseArray1, doseArray2, interpMask3M, [deltaX deltaY deltaZ], doseAgreement, distAgreement, [], thresholdAbsolute);
 %gammaM = gammaDose3d_new(doseArray1, doseArray2, [deltaX deltaY deltaZ], doseAgreement, distAgreement, [], thresholdAbsolute);
 
 % Assume doses within the filter threshold pass gamma
-gammaM(isnan(gammaM)) = 0;
+%gammaM(isnan(gammaM)) = 0;
 
 newDoseNum = length(planC{indexS.dose}) + 1;
 
@@ -53,7 +56,9 @@ planC{indexS.dose}(newDoseNum).zValues = newZgrid;
 planC{indexS.dose}(newDoseNum).doseUnits = 'Gy';
 planC{indexS.dose}(newDoseNum).doseArray = gammaM;
 planC{indexS.dose}(newDoseNum).doseUID = createUID('dose');
-planC{indexS.dose}(newDoseNum).fractionGroupID = ['Gamma_',num2str(dosePercent),'%_',num2str(distAgreement*10),'mm'];
+strName = planC{indexS.structures}(strNum).structureName;
+planC{indexS.dose}(newDoseNum).fractionGroupID = ['Gamma_',...
+    num2str(dosePercent),'%_',num2str(distAgreement*10),'mm','_',strName];
 
 %Switch to new dose
 sliceCallBack('selectDose', num2str(newDoseNum));
