@@ -96,9 +96,13 @@ switch upper(gamaCommand)
             return;
         end
        
-        for i = 1:length(planC{indexS.dose})
-            doseFraction{i} = planC{indexS.dose}(i).fractionGroupID;
-        end
+        numDoses = length(planC{indexS.dose});
+        doseNumC = cellfun(@int2str,num2cell(1:numDoses),'UniformOutput',false);
+        doseFraction = strcat(doseNumC,{'. '},{planC{indexS.dose}(:).fractionGroupID});
+        
+        numStrs = length(planC{indexS.structures});
+        strNumC = cellfun(@int2str,num2cell(1:numStrs),'UniformOutput',false);
+        structNamC = strcat(strNumC,{'. '},{planC{indexS.structures}.structureName});       
         
         ScreenSize = get(0,'ScreenSize');
 
@@ -108,38 +112,42 @@ switch upper(gamaCommand)
 
         % Get User Input for 2D dose difference and DTA
         gammaGUIFig = figure('numbertitle','off','name','3-D Gamma Calculation','tag','CERRgammaInputGUI','position',...
-            [ScreenSize(3)/2 ScreenSize(4)/2 300 300],'MenuBar','none','Resize','off','CloseRequestFcn','CERRGammafnc(''GAMMACANCLE'')');
+            [ScreenSize(3)/2 ScreenSize(4)/2 300 350],'MenuBar','none','Resize','off','CloseRequestFcn','CERRGammafnc(''GAMMACANCLE'')');
 
         bgColor = get(gammaGUIFig,'color');
 
         % Text dose difference
-        uicontrol('parent',gammaGUIFig,'style','text','backgroundcolor',bgColor,'position',[10 260 140 30],'String', 'Dose Difference (% of max ref dose)');
+        uicontrol('parent',gammaGUIFig,'style','text','backgroundcolor',bgColor,'position',[10 310 140 30],'String', 'Dose Difference (% of max ref dose)');
         % Input dose difference
-        uicontrol('parent',gammaGUIFig,'style','Edit','backgroundcolor',[1 1 1],'position',[20 240 90 20],'String', '3','tag','InputDoseDiff' );
+        uicontrol('parent',gammaGUIFig,'style','Edit','backgroundcolor',[1 1 1],'position',[20 290 90 20],'String', '3','tag','InputDoseDiff' );
 
         % Text DTA
-        uicontrol('parent',gammaGUIFig,'style','text','backgroundcolor',bgColor,'position',[160 260 140 30],'String', 'DTA (mm)');
+        uicontrol('parent',gammaGUIFig,'style','text','backgroundcolor',bgColor,'position',[160 310 140 30],'String', 'DTA (mm)');
         % Input DTA
-        uicontrol('parent',gammaGUIFig,'style','Edit','backgroundcolor',[1 1 1],'position',[170 240 90 20],'String', '3','tag','InputDTA');
+        uicontrol('parent',gammaGUIFig,'style','Edit','backgroundcolor',[1 1 1],'position',[170 290 90 20],'String', '3','tag','InputDTA');
 
         %Text Base Dose
-        uicontrol('parent',gammaGUIFig,'style','text','backgroundcolor',bgColor,'position',[10 200 80 20],'String', 'Reference Dose');
-        uicontrol('Style', 'popup','String', doseFraction,'Position', [8 155 290 50],'tag','baseDoseGamma','backgroundcolor', [1 1 1]);
+        uicontrol('parent',gammaGUIFig,'style','text','backgroundcolor',bgColor,'position',[10 250 150 20],'HorizontalAlignment','Left','String', 'Reference Dose');
+        uicontrol('Style', 'popup','String', doseFraction,'Position', [8 205 290 50],'tag','baseDoseGamma','backgroundcolor', [1 1 1]);
 
         % Text Ref Dose
-        uicontrol('parent',gammaGUIFig,'style','text','backgroundcolor',bgColor,'position',[10 155 80 20],'String', 'Evaluation Dose');
-        uicontrol('Style', 'popup','String', doseFraction','Position', [8 110 290 50], 'tag','refDoseGamma','backgroundcolor',[1 1 1]);
+        uicontrol('parent',gammaGUIFig,'style','text','backgroundcolor',bgColor,'position',[10 205 150 20],'HorizontalAlignment','Left','String', 'Evaluation Dose');
+        uicontrol('Style', 'popup','String', doseFraction','Position', [8 160 290 50], 'tag','refDoseGamma','backgroundcolor',[1 1 1]);
         
         % Text Threshold
-        uicontrol('parent',gammaGUIFig,'style','text','backgroundcolor',bgColor,'position',[10 90 140 30],'String', 'Threshold low dose (% max ref dose)');
+        uicontrol('parent',gammaGUIFig,'style','text','backgroundcolor',bgColor,'position',[10 140 140 30],'String', 'Threshold low dose (% max ref dose)');
         % Input Threshold
-        uicontrol('parent',gammaGUIFig,'style','Edit','backgroundcolor',[1 1 1],'position',[160 100 50 20],'String', '5','tag','InputThreshold');
+        uicontrol('parent',gammaGUIFig,'style','Edit','backgroundcolor',[1 1 1],'position',[160 150 50 20],'String', '5','tag','InputThreshold');
+
+        %Text Structure
+        uicontrol('parent',gammaGUIFig,'style','text','backgroundcolor',bgColor,'position',[10 110 150 20],'HorizontalAlignment','Left','String', 'Structure');
+        uicontrol('Style', 'popup','String', structNamC,'Position', [8 65 290 50],'tag','structure','backgroundcolor', [1 1 1]);
 
         % Button GO
-        uicontrol('parent',gammaGUIFig,'style','pushbutton','position',[50 55 70 20],'String', 'Calculate','Callback', ['CERRGammafnc(''CALCGAMMA3D'')' ] );
+        uicontrol('parent',gammaGUIFig,'style','pushbutton','position',[50 50 70 20],'String', 'Calculate','Callback', ['CERRGammafnc(''CALCGAMMA3D'')' ] );
 
         % Button Cancel
-        uicontrol('parent',gammaGUIFig,'style','pushbutton','position',[180 55 70 20],'String', 'Cancel','Callback', 'CERRGammafnc(''GAMMACANCLE'')');
+        uicontrol('parent',gammaGUIFig,'style','pushbutton','position',[180 50 70 20],'String', 'Cancel','Callback', 'CERRGammafnc(''GAMMACANCLE'')');
 
         % Waitbar
         axes('units','pixels','Position', [8 15 280 15], 'ytick',[],'xtick',[], 'box', 'on', 'parent', gammaGUIFig, 'color', bgColor);
@@ -150,6 +158,7 @@ switch upper(gamaCommand)
         %ud.wb.handles.percent = text(.5, .45, '', 'parent', ud.wb.handles.wbAxis, 'horizontalAlignment', 'center');
         %ud.wb.handles.text = uicontrol(h, 'style', 'text', 'units', units, 'position', [wbX+50 wbY+wbH - 21 wbW-100 15], 'string', '');
 
+        
         set(gammaGUIFig,'userdata',ud)
         
         
@@ -160,6 +169,8 @@ switch upper(gamaCommand)
         baseDose = get(findobj('tag','baseDoseGamma'),'value');
 
         refDose = get(findobj('tag','refDoseGamma'),'value');
+        
+        structNum = get(findobj('tag','structure'),'value');
 
         if baseDose == refDose
             warndlg('Select different reference and evaluation dose')
@@ -207,10 +218,10 @@ switch upper(gamaCommand)
 %             warndlg('Base and Reference dose grids do not match');
 %             return;
 %         end
-            
-        createGammaDose(baseDose,refDose,doseDiffIN,DTA,threshold);
         
-        CERRGammafnc('DISPCERRGAMMA', length(planC{indexS.dose}));
+        createGammaDose(baseDose,refDose,structNum,doseDiffIN,DTA,threshold);
+        
+        CERRGammafnc('DISPCERRGAMMA', length(planC{indexS.dose}),structNum);
         
         
     case 'CALCGAMMA2D'
@@ -306,7 +317,7 @@ switch upper(gamaCommand)
         gammaFig = findobj('Name','Gamma Stats');
         if isempty(gammaFig)
             doseNum = varargin{1};
-            structNum = 1;
+            structNum = varargin{2};
             gammaFig = figure('Name','Gamma Stats','NumberTitle','off','position',[10 , 10 , 300 , 400],...
                 'menubar','none','resize','off','tag','gamma2dfig');
             uicontrol(gammaFig,'Style','text','position',[40, 350, 70, 30],'String',...
@@ -331,7 +342,7 @@ switch upper(gamaCommand)
             structNum = get(hStruct,'value');
         else % stats GUI already open
             doseNum = varargin{1};
-            structNum = 1;
+            structNum = varargin{2};
         end
         
         % Get dose at these structure voxels
@@ -340,18 +351,43 @@ switch upper(gamaCommand)
         [mask3M, uniqueSlices] = rasterToMask(rasterSegments,scanNum,planC);
         [i,j,k] = find3d(mask3M);
         if ~isempty(i) % i.e. structure is included within the dose distribution
-            [xValsScan, yValsScan, zValsScan] = getScanXYZVals(planC{indexS.scan}(scanNum));
-            structXvals = xValsScan(j);
-            structYvals = yValsScan(i);
-            structZvals = zValsScan(uniqueSlices(k));
+            
+            %[xValsScan, yValsScan, zValsScan] = getScanXYZVals(planC{indexS.scan}(scanNum));
+            %structXvals = xValsScan(j);
+            %structYvals = yValsScan(i);
+            %structZvals = zValsScan(uniqueSlices(k));
+            
+            % interpolate structure to the dose grid
+            [interpMask3M,newXgrid,newYgrid,newZgrid] = ...
+                interpStructMaskToDose(structNum,doseNum,planC);
+            [i,j,k] = find3d(interpMask3M);
+            structXvals = newXgrid(j);
+            structYvals = newYgrid(i);
+            structZvals = newZgrid(k);
+            
             % Getting Dose at structure x,y,z
             dosesV = getDoseAt(doseNum, structXvals, structYvals, structZvals, planC);
+            
+            % structure name
+            structName = planC{indexS.structures}(structNum).structureName;
+            
+            % calculate fraction of voxels without gamma
+            fractionNan = sum(isnan(dosesV))/numel(dosesV);
+            
+            if fractionNan == 0
+                error(['Gamma calculation not valid for ', structName])
+            end
+            
+            if fractionNan > 0.5
+                warning([num2str(fractionNan*100),'% of voxels within ',
+                    structName, ' don''t have gamma value.'])
+            end
             
             % Filter points that do not have gamma calculated
             dosesV = dosesV(~isnan(dosesV));
             
             % Display gamma result with Pie graph
-            passPer = sum(dosesV<=1.0001);
+            passPer = sum(dosesV<=1);
             
             failPer = numel(dosesV)-passPer;
             
@@ -369,7 +405,7 @@ switch upper(gamaCommand)
             hChild = get(pieAxis,'children');
             delete(hChild)
             hPie = pie(pieAxis,x,explode,{['Pass = ' num2str(passPer) '%'],['Fail = ' num2str(failPer) '%']});
-            set(hPie(2:2:end),'color','y','fontWeight','bold','fontSize',12)
+            set(hPie(2:2:end),'color','m','fontWeight','bold','fontSize',12)
             colormap(jet);
             
         end
