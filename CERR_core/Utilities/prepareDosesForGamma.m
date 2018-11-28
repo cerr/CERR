@@ -1,5 +1,5 @@
-function [newXgrid, newYgrid, newZgrid, doseArray1, doseArray2] = prepareDosesForGamma(doseNum1,doseNum2, assocScan, planC)
-% function [xDoseVals, yDoseVals, zDoseVals, doseArray1, doseArray2] = prepareDosesForGamma(doseNum1,doseNum2, assocScan, planC)
+function [newXgrid, newYgrid, newZgrid, doseArray1, doseArray2, interpMask3M] = prepareDosesForGamma(doseNum1,doseNum2,strNum,assocScan,planC)
+% function [xDoseVals, yDoseVals, zDoseVals, doseArray1, doseArray2, interpMask3M] = prepareDosesForGamma(doseNum1,doseNum2,strNum,assocScan,planC)
 %
 % APA, 06/15/2012
 
@@ -61,6 +61,9 @@ newZgrid = linspace(max(cellfun(@min,zGrid(~cellfun(@isempty,zGrid)))),min(cellf
 
 %Loop over doses and add over new grid
 hWait = waitbar(0,'Summing Dose distributions');
+numRows = length(newYgrid);
+numCols = length(newXgrid);
+numSlcs = length(newZgrid);
 % doseSumM = zeros([length(newYgrid),length(newXgrid),length(newZgrid)],'single');
 doseEmptyM = zeros([length(newYgrid),length(newXgrid)],'single');
 
@@ -94,22 +97,20 @@ for i = 1:length(doseNums)
             doseArray2 = getDoseArray(planC{indexS.dose}(doseNum));            
         end
             
-        waitbar((i-1)/length(doseNums),hWait,['Calculating contribution from Dose ', num2str(doseNum)])
+        waitbar((i-1)/(length(doseNums)+1),hWait,['Calculating contribution from Dose ', num2str(doseNum)])
         
     else %interpolation required
         
         %Transform this dose
-        doseTmpM = [];
+        doseTmpM = zeros(numRows,numCols,numSlcs);
         dA = getDoseArray(planC{indexS.dose}(doseNum));
-        for slcNum=1:length(newZgrid)
-            [xV, yV, zV] = getDoseXYZVals(planC{indexS.dose}(doseNum));
+        [xV, yV, zV] = getDoseXYZVals(planC{indexS.dose}(doseNum));
+        for slcNum=1:length(newZgrid)            
             doseTmp = slice3DVol(dA, xV, yV, zV, newZgrid(slcNum), 3, 'linear', inputTM, [], newXgrid, newYgrid);
-            if isempty(doseTmp)
-                doseTmpM(:,:,slcNum) = doseEmptyM;
-            else
+            if ~isempty(doseTmp)
                 doseTmpM(:,:,slcNum) = doseTmp;
             end
-            waitbar((i-1)/length(doseNums) + (slcNum-1)/length(newZgrid)/length(doseNums) ,hWait,['Calculating contribution from Dose ', num2str(doseNum)])
+            waitbar((i-1)/(length(doseNums)+1) + (slcNum-1)/length(newZgrid)/(length(doseNums)+1) ,hWait,['Calculating contribution from Dose ', num2str(doseNum)])
         end
         
         clear dA
@@ -120,9 +121,25 @@ for i = 1:length(doseNums)
             doseArray2 = doseTmpM;            
         end
         
-    end
+    end        
     
 end
 
+% Interpolate structure mask to dose grid
+mask3M = getUniformStr(strNum,planC);
+[~,~,kV] = find3d(mask3M);
+kV = unique(kV);
+interpMask3M = zeros(numRows,numCols,numSlcs,'logical');
+assocScanNum = getStructureAssociatedScan(strNum,planC);
+[xV,yV,zV] = getUniformScanXYZVals(planC{indexS.scan}(assocScanNum));
+kMin = max(find(newZgrid < zV(min(kV))));
+kMax = min(find(newZgrid > zV(max(kV))));
+for slcNum=kMin:kMax %1:length(newZgrid)
+    strTmpM = slice3DVol(mask3M, xV, yV, zV, newZgrid(slcNum), 3, 'linear', inputTM, [], newXgrid, newYgrid);
+    if ~isempty(strTmpM)
+        interpMask3M(:,:,slcNum) = strTmpM > 0.5;
+    end
+    waitbar((2)/(length(doseNums)+1) + (slcNum-1)/length(newZgrid)/(length(doseNums)+1) ,hWait,['Calculating contribution from Structure '])
+end
 close(hWait)
 
