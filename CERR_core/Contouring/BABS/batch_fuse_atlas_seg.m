@@ -215,8 +215,8 @@ for indBase = 1:length(dirS)
         
         indZerosV = sum(strAllM(:,noOutV),2) == 0;
         W = zeros(size(meanAgreeV));
-        % [W(~indZerosV,:),p,q] = gpuStaple(strAllM(~indZerosV,noOutV) > 0,numIter,p,q);
-        [W(~indZerosV,:),p,q] = staple(strAllM(~indZerosV,noOutV) > 0,numIter,p,q);
+        [W(~indZerosV,:),p,q] = gpuStaple(strAllM(~indZerosV,noOutV) > 0,numIter,p,q);
+        % [W(~indZerosV,:),p,q] = staple(strAllM(~indZerosV,noOutV) > 0,numIter,p,q);
         
         % Structure Name
         structName = planC{indexS.structures}(structNum).structureName;
