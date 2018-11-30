@@ -1,5 +1,5 @@
-function gammaM = gammaDose3d(doseArray1, doseArray2, deltaXYZv, doseAgreement, distAgreement, maxDistance, thresholdAbsolute)
-% function gammaM = gammaDose3d(doseArray1, doseArray2, deltaXYZv, doseAgreement, distAgreement, maxDistance, thresholdAbsolute)
+function gammaM = gammaDose3d(doseArray1, doseArray2, strMask3M, deltaXYZv, doseAgreement, distAgreement, maxDistance, thresholdAbsolute)
+% function gammaM = gammaDose3d(doseArray1, doseArray2, strMask3M, deltaXYZv, doseAgreement, distAgreement, maxDistance, thresholdAbsolute)
 %
 % Block-wise comparison for each voxel.
 %
@@ -63,9 +63,14 @@ lin_row = permute(bsxfun(@plus,start_ind,[0:rowWindow-1])',[1 3 2]);  %//'
 % imTmpM = A(reshape(bsxfun(@plus,lin_row,[0:ncols-1]*m),nrows*ncols,[]));
 indM = reshape(bsxfun(@plus,lin_row,(0:colWindow-1)*m),rowWindow*colWindow,[]);
 
+
+% Find regions not included in structure or having dose below threshold
+%gammaM(doseArray1 <= thresholdAbsolute) = 0;
+calcIndM = strMask3M & doseArray1 > thresholdAbsolute;
+
+% Initialize gammaM
 gammaM = Inf*zeros(size(doseArray1),'single');
-% Find regions of zero dose and exclude from calculation
-gammaM(doseArray1 <= thresholdAbsolute) = 0;
+gammaM(~calcIndM) = NaN;
 
 % Update waitbar on gamma GUI
 gammaGUIFig = findobj('tag','CERRgammaInputGUI');
@@ -79,15 +84,25 @@ siz = size(doseArray1(:,:,1));
 numSlices = size(doseArray1,3);
 for slcNum = 1:numSlices
     disp(['--- Gamma Calculation for Slice # ', num2str(slcNum), ' ----'])
+    calcSlcIndV = calcIndM(:,:,slcNum);
+    calcSlcIndV = calcSlcIndV(:);
+    
+    if sum(calcSlcIndV) == 0
+        continue
+    end
+    
+    % Get voxels for this slice
+    indSlcM = indM(:,calcSlcIndV);
+
     gammaV = gammaM(:,:,slcNum);
     gammaV = gammaV(:)';
     slc1M = doseArray1(:,:,slcNum);
     slcCount = 1;
     for slc = slcNum:slcWindow+slcNum-1
         slc2M = doseArray2(:,:,slc);
-        tmpGammaV = bsxfun(@minus,slc2M(indM),slc1M(:)');
+        tmpGammaV = bsxfun(@minus,slc2M(indSlcM),slc1M(calcSlcIndV)');
         tmpGammaV = bsxfun(@plus,tmpGammaV.^2/doseAgreement^2 , (xysq + zV(slcCount)^2) / distAgreement^2);
-        gammaV = min(gammaV,min(tmpGammaV));
+        gammaV(calcSlcIndV) = min(gammaV(calcSlcIndV),min(tmpGammaV));
         gammaM(:,:,slcNum) = reshape(gammaV,siz);
         slcCount = slcCount + 1;
     end
