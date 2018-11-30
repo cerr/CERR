@@ -117,9 +117,11 @@ parfor movNum = 1:length(movScanFileC)
         [planC, planD] = register_scans(planC, planD, baseScanNum, movScanNum,...
             algorithm, baseMask3M, movMask3M, threshold_bone, refinePlmCmdFile, ...
             inBspFile, outBspFile);
-        while 1
-            if exist(outBspFile,'file')
-                break
+        tic;
+        while ~exist(outBspFile,'file')
+            pause(1)
+            if toc > 10
+                break;
             end
         end
         %pause(1) % avoid feature accel error
