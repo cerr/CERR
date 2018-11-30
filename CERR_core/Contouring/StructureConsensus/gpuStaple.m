@@ -58,10 +58,12 @@ W=zeros(N,1,'single'); % belief of true segmentation is 1
 S0=sum(W);
 ind1 = D==1;
 ind0 = ~ind1;
-waitbar_handle=waitbar(0,'STAPLE progress...');
+% waitbar_handle=waitbar(0,'STAPLE progress...');
+iterlinStr = num2str(iterlim);
 while (1)
     iter=iter+1;
-    waitbar(iter/iterlim,waitbar_handle);
+    %waitbar(iter/iterlim,waitbar_handle);
+    disp(['STAPLE iteration ', num2str(iter), '/', iterlinStr])
     Sall(iter) = gather(S0);
     
     p = repmat(p,[size(D,1) 1]);    
@@ -117,7 +119,7 @@ while (1)
 end
 abs(S-S0)
         
-close(waitbar_handle);
+%close(waitbar_handle);
 
 W = gather(W);
 p = gather(p);
