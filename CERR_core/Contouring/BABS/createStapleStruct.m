@@ -25,7 +25,8 @@ rateMatM = rateMatM(indV,:);
 iterlim=100;
 senstart=0.9999*ones(1,numObs);
 specstart=0.9999*ones(1,numObs);
-[stapleV, sen, spec, Sall] = staple(rateMatM,iterlim, single(senstart), single(specstart));
+%[stapleV, sen, spec, Sall] = staple(rateMatM,iterlim, single(senstart), single(specstart));
+[stapleV, sen, spec, Sall] = gpuStaple(rateMatM,iterlim, single(senstart), single(specstart));
 
 staple3M = zeros(siz);
 staple3M(indV) = stapleV;
