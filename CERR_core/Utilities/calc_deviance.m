@@ -16,7 +16,7 @@ function deviance = calc_deviance(trueStructNum,testStructNum,margin,planC)
 % Example call:
 % trueStructNum = 1; % structure index in planC
 % testStructNum = 2; % structure index in planC
-% margin = 0.2; % 2cm
+% margin = 0.2; % cm
 % deviance = calc_deviance(trueStructNum,testStructNum,margin,planC);
 %
 % APA, 9/18/2017
