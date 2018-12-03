@@ -33,6 +33,10 @@ if prod(siz) == 1
 %         uniqueSlices = uniqueSlices(indKeepV);
 %         mask3M = mask3M(:,:,indKeepV);
 %     end
+
+%     % Perturb segmentation
+%     pctJitter = 5;
+%     mask3M = jitterMask(mask3M,pctJitter);
     
     SUVvals3M = mask3M.*double(scanArray3M(:,:,uniqueSlices));
     [minr, maxr, minc, maxc, mins, maxs] = compute_boundingbox(mask3M);
