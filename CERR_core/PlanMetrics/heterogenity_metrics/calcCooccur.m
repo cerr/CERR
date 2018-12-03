@@ -65,9 +65,11 @@ end
 tic
 % Initialize cooccurrence matrix (vectorized for speed)
 if cooccurType == 1
-    cooccurM = zeros(lq*lq,1,'single');
+    %cooccurM = zeros(lq*lq,1,'single');
+    cooccurM = sparse(lq*lq,1);
 else
-    cooccurM = zeros(lq*lq,numOffsets,'single');
+    %cooccurM = zeros(lq*lq,numOffsets,'single');
+    cooccurM = sparse(lq*lq,numOffsets);
 end
 for off = 1:numOffsets
     
