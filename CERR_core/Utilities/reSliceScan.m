@@ -96,9 +96,9 @@ if sincFlag
     numCols = length(newXVals);
     numRows = length(newYVals);
     numSlcs = length(newZVals);
-    scanArray3M = single(planC{indexS.scan}(scanNum).scanArray) - ...
-        planC{indexS.scan}(scanNum).scanInfo(1).CTOffset;
-    newScanArray = fft_upsample3d(scanArray3M,[numRows numCols numSlcs]);
+    scanArray3M = single(planC{indexS.scan}(scanNum).scanArray);
+    newScanArray = imresize3(scanArray3M,[numRows numCols numSlcs],'method','lanczos3');
+    %newScanArray = fft_upsample3d(scanArray3M,[numRows numCols numSlcs]);
 end
 %try
 
