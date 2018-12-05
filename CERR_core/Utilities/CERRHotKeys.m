@@ -36,7 +36,7 @@ figureName = get(gcbf, 'Tag');
 keyPressed = get(gcbf, 'CurrentCharacter');
 keyValue = uint8(keyPressed);
 %
-if ~isempty(stateS.currentKeyPress)
+if isfield(stateS, 'currentKeyPress') && ~isempty(stateS.currentKeyPress)
     stateS.currentKeyPress = keyValue;
 end
 
