@@ -10,7 +10,8 @@ function dcmdirS = dcmdir_add(filename, dcmobj, dcmdirS)
 % AI 05/18/18 Modified to test for both trigger time & acquistion time
 %             (where available) to distinguish temporal sequences.
 % AI 08/8/18  Use instance no. where available to distinguish temporal sequences.
-%
+% AI 10/8/18  For Philips data, use temporalpositionID to distinguish temporal sequences.
+% AI 12/7/18  Replaced convertCharsToStrings with getBytes
 %Usage:
 %   dcmdirS = dcmdir_add(filename, dcmobj)
 %   dcmdirS = dcmdir_add(filename, dcmobj, dcmdirS)
@@ -146,6 +147,8 @@ if strcmpi(currentModality,'MR')
     mriTemplate = build_module_template('mr_image');
     dcmobj.subSet(mriTemplate).copyTo(mri);
     
+    manufacturerTag = '00080070';
+    
     mriBvalueTag1 = '00431039';
     mriBvalueTag2 = '00189087';
     mriBvalueTag3 = '0019100C';
@@ -154,6 +157,7 @@ if strcmpi(currentModality,'MR')
     triggerTag = '00181060'; %%AI 10/14/16 Added trigger time tag
     instNumTag = '00200013';    %Instance no.
     numSlicesTag = '0021104F';  %No. locations in acquisition
+    
 end
 
 %Search the list for this item.
@@ -180,34 +184,56 @@ for i=1:length(studyS.SERIES)
             bValueMatch = 0;
         end
         
-        %Check instance number
-        nSlices = mri.getString(hex2dec(numSlicesTag));
-        if isempty(nSlices)
-            nSlices = dcm2ml_Element(dcmobj.get(hex2dec(numSlicesTag)));
-            if ~isempty(nSlices)
-                nSlices = nSlices(1);
-            end
-        else
-            nSlices = convertCharsToStrings(nSlices.toCharArray);
-        end
-        iNum = [];
-        sNum = [];
-        if ~isempty(nSlices)
-            nSlices = double(nSlices);
-            iNum = str2double(studyS.MRI(i).info.getString(hex2dec(instNumTag)));
-            iNum = ceil(iNum/nSlices);
-            sNum = str2double(mri.getString(hex2dec(instNumTag)));
-            sNum = ceil(sNum/nSlices);
-        end
+        proceed = 0;
         
-        if ~(isempty(iNum)||isempty(sNum))
-            if isequal(iNum,sNum)
-                tempPosMatch = 1;
+        %For Philips data, use temporal position ID tag by default
+        if contains(string(mri.getString(hex2dec(manufacturerTag))),'Philips')
+            temporalPos = studyS.MRI(i).info.getString(hex2dec(tempPosTag));
+            temporalPosSeries = mri.getString(hex2dec(tempPosTag));
+            if ~(isempty(temporalPos)||isempty(temporalPosSeries)) 
+                if strcmpi(temporalPos,temporalPosSeries)
+                    tempPosMatch = 1;
+                else
+                    tempPosMatch = 0;
+                end
             else
-                tempPosMatch = 0;
+                proceed = 1;
             end
             
         else
+            %Check instance number
+            nSlices = mri.getBytes(hex2dec(numSlicesTag)); 
+            if isempty(nSlices)
+                nSlices = dcm2ml_Element(dcmobj.get(hex2dec(numSlicesTag)));
+                if ~isempty(nSlices)
+                    nSlices = nSlices(1);
+                end
+            else
+                nSlices = nSlices(1);
+            end
+            iNum = [];
+            sNum = [];
+            if ~isempty(nSlices)
+                nSlices = double(nSlices);
+                iNum = str2double(studyS.MRI(i).info.getString(hex2dec(instNumTag)));
+                iNum = ceil(iNum/nSlices);
+                sNum = str2double(mri.getString(hex2dec(instNumTag)));
+                sNum = ceil(sNum/nSlices);
+            end
+            
+            if ~(isempty(iNum)||isempty(sNum))
+                if isequal(iNum,sNum)
+                    tempPosMatch = 1;
+                else
+                    tempPosMatch = 0;
+                end
+                
+            else
+                proceed=1;
+            end
+        end
+        
+        if proceed==1
             %AI 10/14/16 Added: Check for trigger time match
             %(For DCE MRI data. Trigger Time identifies individual, temporally resolved frames.)
             trigTime = studyS.MRI(i).info.getString(hex2dec(triggerTag));
@@ -223,16 +249,19 @@ for i=1:length(studyS.SERIES)
                 
             else
                 %AI 8/29/16 Added : Check for temporal position ID match
-                temporalPos = studyS.MRI(i).info.getString(hex2dec(tempPosTag));
-                temporalPosSeries = mri.getString(hex2dec(tempPosTag));
-                
-                if ~(isempty(temporalPos)||isempty(temporalPosSeries))
-                    if strcmpi(temporalPos,temporalPosSeries)
-                        tempPosMatch = 1;
-                    else
-                        tempPosMatch = 0;
+                if ~contains(string(mri.getString(hex2dec(manufacturerTag))),'Philips')
+                    temporalPos = studyS.MRI(i).info.getString(hex2dec(tempPosTag));
+                    temporalPosSeries = mri.getString(hex2dec(tempPosTag));
+                    
+                    if ~(isempty(temporalPos)||isempty(temporalPosSeries))
+                        if strcmpi(temporalPos,temporalPosSeries)
+                            tempPosMatch = 1;
+                        else
+                            tempPosMatch = 0;
+                        end
                     end
                 end
+                
             end
             
         end
