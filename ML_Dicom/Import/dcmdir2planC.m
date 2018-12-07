@@ -298,34 +298,34 @@ if (scanNum>1)
     if exist('mergeScansFlag','var') && ~isempty(mergeScansFlag)
         button = mergeScansFlag;
     else
-        button = questdlg(['There are ' num2str(scanNum) 'scans, do you want to put them together?'],'Merge CT in 4D Series', ...
+        button = questdlg(['There are ' num2str(scanNum) ' scan volumes. Do you want to append them?'],'Merge CT in 4D Series', ...
             'Yes', 'No', 'No');
     end
     switch lower(button)
         case 'yes'
-            %sort the all scan series
-            % 4/21/16 Updated to handle single-slice scan sets
-            if numel(planC{indexS.scan}(1).scanInfo) > 1
-                if (planC{indexS.scan}(1).scanInfo(2).zValue > planC{indexS.scan}(1).scanInfo(1).zValue)
-                    sortingMode = 'ascend';
-                else
-                    sortingMode = 'descend';
-                end
-            else  %Sort single-slice scan sets by ascending order of z-value by default
-                sortingMode = 'ascend';
-            end
-            
-            zV = zeros(1, scanNum);
+            % Merge accordniog to zValue
+            zV = [];
+            scanNumV = [];
+            slcNumV = [];
             for i=1:scanNum
-                zV(i) = planC{3}(i).scanInfo(1).zValue;
+                scanInfoS = planC{indexS.scan}(i).scanInfo;
+                for iSlc = 1:length(scanInfoS)
+                    zV(end+1) = scanInfoS(iSlc).zValue;
+                    scanNumV(end+1) = i;
+                    slcNumV(end+1) = iSlc;
+                end                
             end
-            [B,Ind] = sort(zV, 2, sortingMode);
+            [zSortV,indSortV] = sort(zV,'ascend');
+            scanNumSortV = scanNumV(indSortV);
+            slcNumSortV = slcNumV(indSortV);
             
             %add all scans to the first one.
-            scanArray = []; scanInfo = [];
-            for i=1:scanNum
-                scanArray = cat(3, scanArray, planC{3}(Ind(i)).scanArray);
-                scanInfo = cat(2, scanInfo, planC{3}(Ind(i)).scanInfo);
+            scanArray = []; scanInfo = struct();
+            for i=1:length(zSortV)
+                scanIndex = scanNumSortV(i);
+                slcIndex = slcNumSortV(i);
+                scanArray(:,:,i) = planC{indexS.scan}(scanIndex).scanArray(:,:,slcIndex);
+                scanInfo = dissimilarInsert(scanInfo, planC{indexS.scan}(scanIndex).scanInfo(slcIndex),i);
             end
             
             %delete all other scans
