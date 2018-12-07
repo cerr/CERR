@@ -131,11 +131,11 @@ for scanNum = 1:numScans
     
     % sort z-values in ascending order since z increases from head
     % to feet in CERR
-    zV = sort(distV);
+    [zV,zOrderV] = sort(distV);
     
     % Flip scan since DICOM and CERR's z-convention is opposite.
     % Hence sort according to descending z-values.
-    [~,zOrderV] = sort(distV,'descend'); % flip scan
+    %[~,zOrderV] = sort(distV,'descend'); % flip scan
     planC{indexS.scan}(scanNum).scanInfo = planC{indexS.scan}(scanNum).scanInfo(zOrderV);
     planC{indexS.scan}(scanNum).scanArray = planC{indexS.scan}(scanNum).scanArray(:,:,zOrderV);
     
@@ -327,7 +327,7 @@ if (scanNum>1)
                 scanArray(:,:,i) = planC{indexS.scan}(scanIndex).scanArray(:,:,slcIndex);
                 scanInfo = dissimilarInsert(scanInfo, planC{indexS.scan}(scanIndex).scanInfo(slcIndex),i);
             end
-            
+
             %add all scans to the first one. Delete the rest.
             planC{indexS.scan} = planC{indexS.scan}(1);
             planC{indexS.scan}.scanArray = scanArray;
