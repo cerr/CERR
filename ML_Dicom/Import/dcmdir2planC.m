@@ -303,7 +303,7 @@ if (scanNum>1)
     end
     switch lower(button)
         case 'yes'
-            % Merge accordniog to zValue
+            % Merge according to zValue
             zV = [];
             scanNumV = [];
             slcNumV = [];
@@ -319,7 +319,7 @@ if (scanNum>1)
             scanNumSortV = scanNumV(indSortV);
             slcNumSortV = slcNumV(indSortV);
             
-            %add all scans to the first one.
+            % build scanArray and scnInfo from sorted z values.
             scanArray = []; scanInfo = struct();
             for i=1:length(zSortV)
                 scanIndex = scanNumSortV(i);
@@ -328,7 +328,7 @@ if (scanNum>1)
                 scanInfo = dissimilarInsert(scanInfo, planC{indexS.scan}(scanIndex).scanInfo(slcIndex),i);
             end
             
-            %delete all other scans
+            %add all scans to the first one. Delete the rest.
             planC{indexS.scan} = planC{indexS.scan}(1);
             planC{indexS.scan}.scanArray = scanArray;
             planC{indexS.scan}.scanInfo = scanInfo;
