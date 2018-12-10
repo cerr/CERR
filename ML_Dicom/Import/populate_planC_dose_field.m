@@ -508,6 +508,12 @@ switch fieldname
         %Image Position (Patient)
         iPP = dcm2ml_Element(dcmobj.get(hex2dec('00200032')));
         imgOri = dcm2ml_Element(dcmobj.get(hex2dec('00200037')));
+        % Check if oblique
+        isOblique = 0;
+        if max(abs(abs(imgOri(:)) - [1 0 0 0 1 0]')) > 1e-3
+            isOblique = 1;
+        end
+        
         %APA commented begins
 %         if ~isequal(pPos,'HFP')
 %             if (imgOri(1)==-1) || (imgOri(5)==-1)
@@ -542,7 +548,11 @@ switch fieldname
         end
         
         %Convert from DICOM mm to CERR cm, invert Z to match CERR Zdir.
-        dataS = - dataS / 10;
+        if ~isOblique
+            dataS = - dataS / 10;
+        else
+            dataS = dataS / 10;
+        end
         
     case 'delivered'
         %Currently unimplemented.

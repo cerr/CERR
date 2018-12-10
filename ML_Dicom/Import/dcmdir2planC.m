@@ -253,13 +253,13 @@ for scanNum = 1:numScans
             vecsout = virPosMtx * vecsout; % to the virtual coordinates
             
             %dose.zValues = vecsout(3,:)';
-            zdoseV = sort(dose.zValues);
+            [zdoseV,zOrderV] = sort(dose.zValues);
             dose.zValues = zdoseV;
             
             % Flip doseArray similar to the scanArray
             % Flip scan since DICOM and CERR's z-convention is opposite.
             % Hence sort according to descending z-values.
-            [~,zOrderV] = sort(dose.zValues,'descend'); % flip dose
+            %[~,zOrderV] = sort(dose.zValues,'descend'); % flip dose
             dose.doseArray = dose.doseArray(:,:,zOrderV);
             
             planC{indexS.dose}(doseno) = dose;
