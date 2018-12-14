@@ -91,7 +91,8 @@ if ~exist('CT2M','var') || (isempty(CT2M) && isempty(CTXVals))
     minCol = 1;
     maxCol = m;
     maxRow = n;
-    minRow = 1;    
+    minRow = 1;  
+    noCT = 1;
 else
     dose2M = finterp2(doseXVals, doseYVals, dose2M, CTXVals, CTYVals, 1, 0);
     
