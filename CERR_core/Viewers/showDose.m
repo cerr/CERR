@@ -429,7 +429,8 @@ for j=1:length(axisInfo.doseObj)
                         end
                     else
                         
-                        [cData3M, xLim, yLim] = CERRDoseColorWash(hAxis, dose2M, doseXVals, doseYVals,  offset, [], [], [],dim);
+                        scanSet = [];
+                        [cData3M, xLim, yLim] = CERRDoseColorWash(hAxis, dose2M, doseXVals, doseYVals,  offset, [], [], [], scanSet);
                         
                         if stateS.imageRegistrationBaseDataset == doseSet && strcmpi(stateS.imageRegistrationBaseDatasetType, 'dose')
                             alpha = 1;
