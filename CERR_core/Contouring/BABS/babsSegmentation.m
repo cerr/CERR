@@ -9,15 +9,13 @@ pcaParamsFile = fullfile(babsPath,'pca_haralick_only_64_levs_1_2_patchRad.mat');
 %atlasDirName = '/lab/deasylab1/Aditya/AtlasSeg/clinicalEval/pcaAtlasCERR';
 atlasDirName = fullfile(babsPath,'train_anonymized');
 atlasAreaFile = fullfile(babsPath,'anonAtlasMedianArea.mat');
-registeredDirLoc = fullfile(sessionPath,sessionDir,'registeredCERR');
+registeredDirLoc = fullfile(fullSessionPath,'registeredCERR');
 initPlmCmdFile = fullfile(babsPath,'BABS_init_reg.txt');
 refinePlmCmdFile = fullfile(babsPath,'BABS_refine_reg.txt');
 
-[diaryNam,diaryRem] = strtok(fliplr(inputDicomPath),filesep);
-if isempty(diaryNam)
-    diaryNam = strtok(diaryRem,filesep);
-end
-diaryNam = fliplr(diaryNam);
+cerrDirS = dir(cerrPath);
+cerrIndV = find(~cellfun(@isempty,strfind({cerrDirS.name},'.mat')));
+diaryNam = strtok(cerrDirS(cerrIndV(1)).name,'.');
 diaryFile = fullfile(babsPath,'log',[diaryNam,'_log.out']);
 
 % Create directories for this session
