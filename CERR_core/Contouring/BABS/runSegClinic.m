@@ -10,6 +10,13 @@ function success = runSegClinic(inputDicomPath,outputDicomPath,sessionPath,algor
 % algorithm - string which specifies segmentation algorith
 % varargin - additional algorithm-specific inputs
 %
+% Following directories are created within the session directory:
+% --- ctCERR: contains CERR file/s of input DICOM.
+% --- segmentedOrigCERR: CERR file with resulting segmentation fused with 
+% original CERR file.
+% --- segResultCERR: CERR file with segmentation. Note that CERR file can
+% be cropped based on initial segmentation.
+%
 % EXAMPLE: to run BABS segmentation
 % inputDicomPath = '';
 % outputDicomPath = ''; 
