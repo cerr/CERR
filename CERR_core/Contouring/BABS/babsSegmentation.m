@@ -31,9 +31,13 @@ structNameC = {'Parotid_Left_MIM','Parotid_Right_MIM'};
 t0 = tic;
 
 % Use BABS cluster profile
-clusterProfile = fullfile(babsPath,'BABScluster.settings');
-setmcruserdata('ParallelProfile', clusterProfile)
-%parallel.defaultClusterProfile('BABScluster')
+try
+    clusterProfile = fullfile(babsPath,'BABScluster.settings');
+    setmcruserdata('ParallelProfile', clusterProfile)
+    %parallel.defaultClusterProfile('BABScluster')
+catch
+    disp('Using the default cluster profile')
+end
 
 %try
 
