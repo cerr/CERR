@@ -7,6 +7,8 @@ function [basePlanC, movPlanC, bspFileName] = register_scans(basePlanC, movPlanC
 %
 % APA, 07/12/2012
 
+global stateS
+
 indexBaseS = basePlanC{end};
 indexMovS  = movPlanC{end};
 
@@ -116,7 +118,13 @@ if exist('inBspFile','var') && ~isempty(inBspFile)
     cmdFileC{end+1,1} = ['xform_in=',escapeSlashes(inBspFile)];
 end
 
-
+% Switch to plastimatch directory if it exists
+prevDir = pwd;
+plmCommand = 'plastimatch register ';
+if exist(stateS.optS.plastimatch_build_dir,'dir') && isunix
+    cd(stateS.optS.plastimatch_build_dir)
+    plmCommand = ['./',plmCommand];
+end
 
 switch upper(algorithm)
     
@@ -154,7 +162,7 @@ switch upper(algorithm)
         cell2file(cmdFileC,cmdFileName_dir)
         
         % Run plastimatch Registration
-        system(['plastimatch register ', cmdFileName_dir]);
+        system([plmCommand, cmdFileName_dir]);
         
         
         % Read bspline coefficients file
@@ -229,7 +237,7 @@ switch upper(algorithm)
         cell2file(cmdFileC,cmdFileName_rigid)
         
         % Run plastimatch Registration
-        system(['plastimatch register ', cmdFileName_rigid]);
+        system([plmCommand, cmdFileName_rigid]);
         
         % Cleanup
         try
@@ -308,7 +316,7 @@ switch upper(algorithm)
         cell2file(cmdFileC,cmdFileName_dir)
         
         % Run plastimatch Registration
-        system(['plastimatch register ', cmdFileName_dir]);
+        system([plmCommand, cmdFileName_dir]);
         
         % Cleanup
         try
@@ -325,4 +333,7 @@ switch upper(algorithm)
     case 'DEMONS ITK'
         
 end
+
+% Switch back to the previous directory
+cd(prevDir)
 

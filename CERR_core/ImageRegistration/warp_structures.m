@@ -24,8 +24,10 @@ end
 
 % Switch to plastimatch directory if it exists
 prevDir = pwd;
-if exist(stateS.optS.plastimatch_build_dir,'dir')    
+plmCommand = 'plastimatch warp ';
+if exist(stateS.optS.plastimatch_build_dir,'dir') && isunix  
     cd(stateS.optS.plastimatch_build_dir)
+    plmCommand = ['./',plmCommand];
 end
 
 for structNum = movStructNumsV
@@ -49,9 +51,9 @@ for structNum = movStructNumsV
     warpedMhaFileName = fullfile(getCERRPath,'ImageRegistration','tmpFiles',['warped_struct_',baseScanUID,'_',movScanUID,'.mha']);
 
     % Issue plastimatch warp command with nearest neighbor interpolation
-    fail = system(['plastimatch warp --input ', movStrFileName, ' --output-img ', warpedMhaFileName, ' --xf ', bspFileName, ' --interpolation nn']);
+    fail = system([plmCommand, '--input ', movStrFileName, ' --output-img ', warpedMhaFileName, ' --xf ', bspFileName, ' --interpolation nn']);
     if fail % try escaping slashes
-        system(['plastimatch warp --input ', escapeSlashes(movStrFileName), ' --output-img ', escapeSlashes(warpedMhaFileName), ' --xf ', escapeSlashes(bspFileName), ' --interpolation nn'])
+        system([plmCommand, '--input ', escapeSlashes(movStrFileName), ' --output-img ', escapeSlashes(warpedMhaFileName), ' --xf ', escapeSlashes(bspFileName), ' --interpolation nn'])
     end
 
     % Read the warped output .mha file within CERR

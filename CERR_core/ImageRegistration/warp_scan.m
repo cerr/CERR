@@ -35,14 +35,16 @@ warpedMhaFileName = fullfile(getCERRPath,'ImageRegistration','tmpFiles',['warped
 
 % Switch to plastimatch directory if it exists
 prevDir = pwd;
-if exist(stateS.optS.plastimatch_build_dir,'dir')    
+plmCommand = 'plastimatch warp ';
+if exist(stateS.optS.plastimatch_build_dir,'dir') && isunix
     cd(stateS.optS.plastimatch_build_dir)
+    plmCommand = ['./',plmCommand];
 end
 
 % Issue plastimatch warp command
-fail = system(['plastimatch warp --input ', movScanFileName, ' --output-img ', warpedMhaFileName, ' --xf ', bspFileName]);
+fail = system([plmCommand, '--input ', movScanFileName, ' --output-img ', warpedMhaFileName, ' --xf ', bspFileName]);
 if fail % try escaping slashes
-    system(['plastimatch warp --input ', escapeSlashes(movScanFileName), ' --output-img ', escapeSlashes(warpedMhaFileName), ' --xf ', escapeSlashes(bspFileName)])
+    system([plmCommand, '--input ', escapeSlashes(movScanFileName), ' --output-img ', escapeSlashes(warpedMhaFileName), ' --xf ', escapeSlashes(bspFileName)])
 end
 
 % Read the warped output .mha file within CERR
