@@ -29,8 +29,8 @@ initRegFlag = 0;
 if exist('initPlmCmdFile','var') && ~isempty(initPlmCmdFile)
     initRegFlag = 1;
 end
-parfor movNum = 1:length(movScanFileC)
-    try % required to skip failed registrations
+for movNum = 1:length(movScanFileC)
+    %try % required to skip failed registrations
     % Load base planC
     planC = loadPlanC(baseScanFile,tempdir);
     planC = updatePlanFields(planC);
@@ -156,8 +156,8 @@ parfor movNum = 1:length(movScanFileC)
     [~,fName] = fileparts(movScanFileC{movNum});
     newFileName = fullfile(destnDir,fName);
     save_planC(planC,[],'passed',newFileName);
-    catch
-    end
+    %catch
+    %end
 end
 
 
