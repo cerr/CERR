@@ -35,8 +35,17 @@ try
     clusterProfile = fullfile(babsPath,'BABScluster.settings');
     setmcruserdata('ParallelProfile', clusterProfile)
     %parallel.defaultClusterProfile('BABScluster')
+    pc = parcluster('BABScluster');
+    % open parallel pool
+    hParpool = parpool(17);
 catch
     disp('Using the default cluster profile')
+    pc = parcluster('local');
+    %N = myCluster.NumWorkers;
+    %prp = parpool(myCluster,N);
+    %prp.IdleTimeout=10;
+    pc.JobStorageLocation = strcat(getenv('SCRATCH'),'/', getenv('SLURM_JOB_ID'));
+    hParpool = parpool(pc, str2num(getenv('SLURM_CPUS_ON_NODE')));
 end
 
 %try
@@ -44,8 +53,8 @@ end
 % % Import DICOM to CERR
 % importDICOM(inputDicomPath,cerrPath);
 
-% open parallel pool
-hParpool = parpool(17);
+% % open parallel pool
+% hParpool = parpool(17);
 
 % Create PC scans
 t1 = tic;
