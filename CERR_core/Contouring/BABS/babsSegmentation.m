@@ -44,8 +44,9 @@ catch
     %N = myCluster.NumWorkers;
     %prp = parpool(myCluster,N);
     %prp.IdleTimeout=10;
-    pc.JobStorageLocation = strcat(getenv('SCRATCH'),'/', getenv('SLURM_JOB_ID'));
-    hParpool = parpool(pc, str2num(getenv('SLURM_CPUS_ON_NODE')));
+    %pc.JobStorageLocation = strcat(getenv('SCRATCH'),'/', getenv('SLURM_JOB_ID'));
+    % hParpool = parpool(pc, str2num(getenv('SLURM_CPUS_ON_NODE')));
+    hParpool = parpool(pc,18);
 end
 
 %try
