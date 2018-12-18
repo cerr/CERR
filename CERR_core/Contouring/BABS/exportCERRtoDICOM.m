@@ -35,11 +35,11 @@ for indBase = 1:length(dirS)
     scanIndV = 1;
     doseIndV = [];
     numSegStr = length(planD{indexSD.structures});
+    numOrigStr = length(planC{indexS.structures});
     % structIndV = [numStr-1 numStr];
     structIndV = 1:numSegStr;
     planC = planMerge(planC, planD, scanIndV, doseIndV, structIndV, '');
-    indexS = planC{end};
-    numOrigStr = length(planC{indexS.structures});
+    indexS = planC{end};    
     for iStr = 1:numSegStr
         planC = copyStrToScan(numOrigStr+iStr,1,planC);
     end
