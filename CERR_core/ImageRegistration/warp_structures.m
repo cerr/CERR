@@ -3,6 +3,8 @@ function planC = warp_structures(deformS,strCreationScanNum,movStructNumsV,movPl
 %
 % APA, 07/20/2012
 
+global stateS
+
 indexMovS = movPlanC{end};
 
 % Create b-spline coefficients file
@@ -18,6 +20,12 @@ else
     movScanNum = getStructureAssociatedScan(movStructNumsV(1),movPlanC);
     movScanUID = movPlanC{indexMovS.scan}(movScanNum).scanUID;
     baseScanUID = planC{indexS.scan}(strCreationScanNum).scanUID;    
+end
+
+% Switch to plastimatch directory if it exists
+prevDir = pwd;
+if exist(stateS.optS.plastimatch_build_dir,'dir')    
+    cd(stateS.optS.plastimatch_build_dir)
 end
 
 for structNum = movStructNumsV
@@ -68,3 +76,6 @@ try
         delete(bspFileName)
     end
 end
+
+% Switch back to the previous directory
+cd(prevDir)

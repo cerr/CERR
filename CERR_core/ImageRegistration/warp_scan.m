@@ -3,6 +3,8 @@ function planC = warp_scan(deformS,movScanNum,movPlanC,planC)
 %
 % APA, 07/19/2012
 
+global stateS
+
 % Create b-spline coefficients file
 if isstruct(deformS)
     baseScanUID = deformS.baseScanUID;
@@ -31,6 +33,12 @@ success = createMhaScansFromCERR(movScanNum, movScanFileName, movPlanC);
 % Generate name for the output .mha file
 warpedMhaFileName = fullfile(getCERRPath,'ImageRegistration','tmpFiles',['warped_scan_',baseScanUID,'_',movScanUID,'.mha']);
 
+% Switch to plastimatch directory if it exists
+prevDir = pwd;
+if exist(stateS.optS.plastimatch_build_dir,'dir')    
+    cd(stateS.optS.plastimatch_build_dir)
+end
+
 % Issue plastimatch warp command
 fail = system(['plastimatch warp --input ', movScanFileName, ' --output-img ', warpedMhaFileName, ' --xf ', bspFileName]);
 if fail % try escaping slashes
@@ -51,3 +59,6 @@ try
     delete(movScanFileName)
     delete(warpedMhaFileName)
 end
+
+% Switch back to the previous directory
+cd(prevDir)

@@ -147,7 +147,7 @@
 
 "ROISampleRate" : 1,
 
-"DVHBinWidth" : 0.2,
+"DVHBinWidth" : 0.1,
 
 "DVHBlockSize" : 5000, 
 
@@ -217,6 +217,7 @@
 "sinc_filter_on_display" : 0,
 
 "plastimatch_command_file" : "bspline_register_cmd_dir.txt",
+"plastimatch_build_dir" : "~/software/plastimatch-build",
 
 "linePoolSize" : 30,
 

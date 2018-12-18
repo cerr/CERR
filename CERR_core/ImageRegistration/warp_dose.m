@@ -3,6 +3,8 @@ function planC = warp_dose(deformS,doseCreationScanNum,movDoseNum,movPlanC,planC
 %
 % APA, 07/19/2012
 
+global stateS
+
 indexMovS = movPlanC{end};
 indexS = planC{end};
 
@@ -24,6 +26,12 @@ success = createMhaDosesFromCERR(movDoseNum, movDoseFileName, movPlanC);
 % Generate name for the output .mha file
 warpedMhaFileName = fullfile(getCERRPath,'ImageRegistration','tmpFiles',['warped_dose_',baseScanUID,'_',movScanUID,'.mha']);
 
+% Switch to plastimatch directory if it exists
+prevDir = pwd;
+if exist(stateS.optS.plastimatch_build_dir,'dir')    
+    cd(stateS.optS.plastimatch_build_dir)
+end
+
 % Issue plastimatch warp command with nearest neighbor interpolation
 %system(['plastimatch warp --input ', escapeSlashes(movDoseFileName), ' --output-img ', escapeSlashes(warpedMhaFileName), ' --xf ', escapeSlashes(bspFileName)])
 system(['plastimatch warp --input ', movDoseFileName, ' --output-img ', warpedMhaFileName, ' --xf ', bspFileName])
@@ -41,3 +49,6 @@ try
     delete(warpedMhaFileName)
     delete(bspFileName)
 end
+
+% Switch back to the previous directory
+cd(prevDir)
