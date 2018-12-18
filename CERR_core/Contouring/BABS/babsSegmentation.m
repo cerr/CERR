@@ -1,5 +1,5 @@
-function success = babsSegmentation(cerrPath,fullSessionPath,babsPath)
-% function success = babsSegmentation(inputDicomPath,fullSessionPath,babsPath)
+function success = babsSegmentation(cerrPath,fullSessionPath,babsPath,segResultCERRRPath)
+% function success = babsSegmentation(inputDicomPath,fullSessionPath,babsPath,segResultCERRRPath)
 %
 % APA, 12/14/2018
 

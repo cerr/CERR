@@ -54,7 +54,7 @@ switch algorithm
     case 'BABS'        
         
         babsPath = varargin{1};
-        success = babsSegmentation(cerrPath,fullSessionPath,babsPath);
+        success = babsSegmentation(cerrPath,fullSessionPath,babsPath,segResultCERRRPath);
         
         
     case 'MRIprostDeepLabV3'
