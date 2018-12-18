@@ -3,8 +3,6 @@ function planC = warp_structures(deformS,strCreationScanNum,movStructNumsV,movPl
 %
 % APA, 07/20/2012
 
-global stateS
-
 indexMovS = movPlanC{end};
 
 % Create b-spline coefficients file
@@ -25,8 +23,10 @@ end
 % Switch to plastimatch directory if it exists
 prevDir = pwd;
 plmCommand = 'plastimatch warp ';
-if exist(stateS.optS.plastimatch_build_dir,'dir') && isunix  
-    cd(stateS.optS.plastimatch_build_dir)
+optName = fullfile(getCERRPath,'CERROptions.json');
+optS = opts4Exe(optName);
+if exist(optS.plastimatch_build_dir,'dir') && isunix
+    cd(optS.plastimatch_build_dir)
     plmCommand = ['./',plmCommand];
 end
 

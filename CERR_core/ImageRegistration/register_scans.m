@@ -7,8 +7,6 @@ function [basePlanC, movPlanC, bspFileName] = register_scans(basePlanC, movPlanC
 %
 % APA, 07/12/2012
 
-global stateS
-
 indexBaseS = basePlanC{end};
 indexMovS  = movPlanC{end};
 
@@ -100,7 +98,8 @@ clear cmdFileC
 if exist('inputCmdFile','var') && ~isempty(inputCmdFile)
     userCmdFile = inputCmdFile;
 else
-    optS = CERROptions;
+    optName = fullfile(getCERRPath,'CERROptions.json');
+    optS = opts4Exe(optName);
     cmd_fileName = optS.plastimatch_command_file;
     userCmdFile = fullfile(getCERRPath,'ImageRegistration','plastimatch_command',cmd_fileName);
 end
@@ -121,8 +120,10 @@ end
 % Switch to plastimatch directory if it exists
 prevDir = pwd;
 plmCommand = 'plastimatch register ';
-if exist(stateS.optS.plastimatch_build_dir,'dir') && isunix
-    cd(stateS.optS.plastimatch_build_dir)
+optName = fullfile(getCERRPath,'CERROptions.json');
+optS = opts4Exe(optName);
+if exist(optS.plastimatch_build_dir,'dir') && isunix
+    cd(optS.plastimatch_build_dir)
     plmCommand = ['./',plmCommand];
 end
 
