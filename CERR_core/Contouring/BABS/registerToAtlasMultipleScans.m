@@ -29,7 +29,7 @@ initRegFlag = 0;
 if exist('initPlmCmdFile','var') && ~isempty(initPlmCmdFile)
     initRegFlag = 1;
 end
-for movNum = 1:length(movScanFileC)
+parfor movNum = 1:length(movScanFileC)
     try % required to skip failed registrations
     % Load base planC
     planC = loadPlanC(baseScanFile,tempdir);
