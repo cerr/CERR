@@ -30,6 +30,20 @@ structNameC = {'Parotid_Left_MIM','Parotid_Right_MIM'};
 
 t0 = tic;
 
+% % Import DICOM to CERR
+% importDICOM(inputDicomPath,cerrPath);
+
+% % open parallel pool
+% hParpool = parpool(17);
+
+% Create PC scans
+t1 = tic;
+fprintf(['\n-----------------------------------------------\n',...
+    'CREATING PC SCANS...\n-----------------------------------------------\n']);
+batchCreatePCplans(cerrPath,pcDirName,pcaParamsFile,structNameC)
+fprintf('\nComplete.\n');
+t1end = toc(t1)
+
 % Use BABS cluster profile
 try
     clusterProfile = fullfile(babsPath,'BABScluster.settings');
@@ -49,21 +63,6 @@ catch
     hParpool = parpool(pc,18);
 end
 
-%try
-
-% % Import DICOM to CERR
-% importDICOM(inputDicomPath,cerrPath);
-
-% % open parallel pool
-% hParpool = parpool(17);
-
-% Create PC scans
-t1 = tic;
-fprintf(['\n-----------------------------------------------\n',...
-    'CREATING PC SCANS...\n-----------------------------------------------\n']);
-batchCreatePCplans(cerrPath,pcDirName,pcaParamsFile,structNameC)
-fprintf('\nComplete.\n');
-t1end = toc(t1)
 
 % perform registrations
 t2 = tic;
