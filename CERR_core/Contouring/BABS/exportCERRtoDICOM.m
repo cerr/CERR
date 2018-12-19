@@ -31,6 +31,7 @@ for indBase = 1:length(dirS)
     segFileName = fullfile(segResultCERRRPath,dirS(indBase).name);    
     planC = loadPlanC(origFileName);
     planD = loadPlanC(segFileName);
+    indexS = planC{end};
     indexSD = planD{end};
     scanIndV = 1;
     doseIndV = [];
@@ -38,8 +39,7 @@ for indBase = 1:length(dirS)
     numOrigStr = length(planC{indexS.structures});
     % structIndV = [numStr-1 numStr];
     structIndV = 1:numSegStr;
-    planC = planMerge(planC, planD, scanIndV, doseIndV, structIndV, '');
-    indexS = planC{end};    
+    planC = planMerge(planC, planD, scanIndV, doseIndV, structIndV, '');        
     for iStr = 1:numSegStr
         planC = copyStrToScan(numOrigStr+iStr,1,planC);
     end
