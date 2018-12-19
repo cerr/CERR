@@ -71,7 +71,7 @@ movScanC = fullfile(atlasDirName,{atlasDirS.name});
 dirS = dir(pcDirName);
 dirS(1:2) = [];
 
-for indBase = 1:length(dirS)
+parfor indBase = 1:length(dirS)
     
     %----AI edited---
     [~,fname,~] = fileparts(dirS(indBase).name);
