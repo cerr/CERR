@@ -44,6 +44,15 @@ batchCreatePCplans(cerrPath,pcDirName,pcaParamsFile,structNameC)
 fprintf('\nComplete.\n');
 t1end = toc(t1)
 
+% perform registrations
+t2 = tic;
+fprintf(['\n-----------------------------------------------\n',...
+    'BEGINNING REGISTRATION...\n-----------------------------------------------\n']);
+batch_test_atlas_seg(pcDirName,atlasDirName,registeredDirLoc,atlasAreaFile,...
+    initPlmCmdFile,refinePlmCmdFile)
+fprintf('\nComplete.\n');
+t2end = toc(t2)
+
 % Use BABS cluster profile
 try
     clusterProfile = fullfile(babsPath,'BABScluster.settings');
@@ -63,15 +72,6 @@ catch
     hParpool = parpool(pc,18);
 end
 
-
-% perform registrations
-t2 = tic;
-fprintf(['\n-----------------------------------------------\n',...
-    'BEGINNING REGISTRATION...\n-----------------------------------------------\n']);
-batch_test_atlas_seg(pcDirName,atlasDirName,registeredDirLoc,atlasAreaFile,...
-    initPlmCmdFile,refinePlmCmdFile)
-fprintf('\nComplete.\n');
-t2end = toc(t2)
 
 % Fuse Atlases
 t3 = tic;
