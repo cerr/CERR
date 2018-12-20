@@ -230,7 +230,7 @@ end
 
 tic
 % Iterate over slices. compute cooccurance for all patches per slice
-parfor (slcNum = 1:numSlices,16)
+parfor (slcNum = 1:numSlices,4)
     
     disp(['--- Texture Calculation for Slice # ', num2str(slcNum), ' ----']) 
     if flagv(1), energyV = zeros(dim,numVoxels,'single'); end
