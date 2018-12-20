@@ -36,14 +36,6 @@ t0 = tic;
 % % open parallel pool
 % hParpool = parpool(17);
 
-% Create PC scans
-t1 = tic;
-fprintf(['\n-----------------------------------------------\n',...
-    'CREATING PC SCANS...\n-----------------------------------------------\n']);
-batchCreatePCplans(cerrPath,pcDirName,pcaParamsFile,structNameC)
-fprintf('\nComplete.\n');
-t1end = toc(t1)
-
 % Use BABS cluster profile
 try
     clusterProfile = fullfile(babsPath,'BABScluster.settings');
@@ -62,6 +54,14 @@ catch
     % hParpool = parpool(pc, str2num(getenv('SLURM_CPUS_ON_NODE')));
     hParpool = parpool(pc,18);
 end
+
+% Create PC scans
+t1 = tic;
+fprintf(['\n-----------------------------------------------\n',...
+    'CREATING PC SCANS...\n-----------------------------------------------\n']);
+batchCreatePCplans(cerrPath,pcDirName,pcaParamsFile,structNameC)
+fprintf('\nComplete.\n');
+t1end = toc(t1)
 
 % perform registrations
 t2 = tic;
