@@ -30,10 +30,10 @@ for indBase = 1:length(dirS)
     indexS = planC{end};
     numStr = length(planC{indexS.structures});
 
-%     % delete all but the last two structures
-%     for structNum = numStr-2:-1:1
-%         planC = deleteStructure(planC, structNum);
-%     end
+    % delete all but the last two structures
+    for structNum = numStr-2:-1:1
+        planC = deleteStructure(planC, structNum);
+    end
 
     % Save this file to segResultCERRRPath directory
     segFileName = fullfile(segResultCERRRPath,dirS(indBase).name);
