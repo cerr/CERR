@@ -99,7 +99,7 @@ for planNum = 1:length(dirS)
     volumeC = {volToEval,maskBoundingBox3M,mask3M,minr,maxr,minc,maxc,...
         mins,maxs,uniqueSlices,sliceThickNessV,xVals, yVals, zVals};
     planC = createCroppedimage(volumeC,[],pcaParamsFile,planC);
-    planC = createPCimage(volumeC,[],pcaParamsFile,planC);
+    %planC = createPCimage(volumeC,[],pcaParamsFile,planC); % cropped CT only
     
     %planC = createCroppedimage(scanNum,structNumV,pcaParamsFile,planC);
     %planC = createPCimage(scanNum,structNumV,pcaParamsFile,planC);
