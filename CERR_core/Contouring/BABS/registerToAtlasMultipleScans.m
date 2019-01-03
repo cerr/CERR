@@ -55,8 +55,8 @@ parfor movNum = 1:length(movScanFileC)
     
     % Get masks for the dental artifacts
     baseMask3M = planC{indexS.scan}(1).scanArray < 3500;
-    %movMask3M = planD{indexSD.scan}(1).scanArray < 3500;
-    movMask3M = ~getUniformStr(7,planD); % hand delineated noise
+    movMask3M = planD{indexSD.scan}(1).scanArray < 3500;
+    %movMask3M = ~getUniformStr(7,planD); % hand delineated noise
 
     % Create a starting registration transformation based on CT that will 
     % be used by all the image representations
@@ -85,7 +85,7 @@ parfor movNum = 1:length(movScanFileC)
     % Register all image representations to each other starting from the
     % transformation generated previously
     numScans = length(planC{indexS.scan});
-    numScans = 3;
+    numScans = 1;
     allStrNumV = 1:length(planD{indexSD.structures})-1; % -1 to omit the "noise" structure
     assocScanV = getStructureAssociatedScan(allStrNumV,planD);
     
@@ -98,8 +98,8 @@ parfor movNum = 1:length(movScanFileC)
         movScanNum  = scanNum;
         movStructNumsV = find(assocScanV == scanNum);
         strCreationScanNum = scanNum;        
-        %algorithm = 'BSPLINE PLASTIMATCH';
-        algorithm = 'DEMONS PLASTIMATCH';
+        algorithm = 'BSPLINE PLASTIMATCH';
+        %algorithm = 'DEMONS PLASTIMATCH';
         %baseMask3M = [];
         %movMask3M = [];
         if scanNum == 1
@@ -118,7 +118,7 @@ parfor movNum = 1:length(movScanFileC)
             algorithm, baseMask3M, movMask3M, threshold_bone, refinePlmCmdFile, ...
             inBspFile, outBspFile);
         tic;
-        while ~exist(outBspFile,'file')
+        while strcmpi(algorithm,'DEMONS PLASTIMATCH') && ~exist(outBspFile,'file')
             pause(1)
             if toc > 10
                 break;
