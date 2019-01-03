@@ -97,7 +97,7 @@ for indBase = 1:length(dirS)
     load(atlasAreaFile)
     areaDiffV = (areaV - medSurfArea).^2;
     [~,iAreaSortV] = sort(areaDiffV);
-    movScanC = fullfile(atlasDirName,fNameC(iAreaSortV(1:17)));
+    movScanC = fullfile(atlasDirName,fNameC(iAreaSortV(1:34)));
     
     % registration callback
     strNameToWarp = 'Parotid_L_SvD';
