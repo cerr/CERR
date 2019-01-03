@@ -86,6 +86,7 @@ for indBase = 1:length(dirS)
     strNameToWarp = 'Parotid_L_SvD';
     % registerToAtlas(baseScan,movScanC,registeredDir,strNameToWarp)
     %registerToAtlasMultipleScans(baseScan,movScanC,registeredDir,strNameToWarp)
+    segStrNamC = {'Parotid_LT_BABS','Parotid_RT_BABS'};
     
     %%% ---------- Fuse results from multiple atlases
     numScans = 1;
@@ -140,6 +141,7 @@ for indBase = 1:length(dirS)
                 
         % Structure Name
         structName = planC{indexS.structures}(structNum).structureName;
+        newStrNam = segStrNamC{structNum};
         
         for iConf = 1:numConf
             confidence = confidenceV(iConf);
@@ -148,8 +150,9 @@ for indBase = 1:length(dirS)
                         
             % Majority Vote
             majVote3M = reshape(meanAgreeAfterOutRemV >= confidence, uniScanSiz);
+            %newStrNam = [structName,'_MjV_',num2str(confidence*100)]
             planC = maskToCERRStructure(majVote3M,isUniform,scanNum,...
-                [structName,'_MjV_',num2str(confidence*100)],planC);
+                newStrNam,planC);            
             planC = deleteStructureSegments(length(planC{indexS.structures}),...
                 0.05,planC);
             planC = smoothContour(length(planC{indexS.structures}),planC);
