@@ -77,18 +77,18 @@ t3 = tic;
 fprintf(['\n-----------------------------------------------\n',...
     'FUSING ATLASES\n-----------------------------------------------\n']);
 feature accel off
-batch_fuse_atlas_seg(pcDirName,atlasDirName,registeredDirLoc)
+batch_fuse_atlas_seg_new(pcDirName,atlasDirName,registeredDirLoc)
 feature accel on
 fprintf('\nComplete.\n');
 t3end = toc(t3)
 
-% Create BABS contour
-t4 = tic;
-fprintf(['\n-----------------------------------------------\n',...
-    'CREATING BABS CONTOUR\n-----------------------------------------------\n']);
-batch_fuse_BABS(cerrPath,registeredDirLoc)
-fprintf('\nComplete.\n');
-t4end = toc(t4)
+% % Create BABS contour
+% t4 = tic;
+% fprintf(['\n-----------------------------------------------\n',...
+%     'CREATING BABS CONTOUR\n-----------------------------------------------\n']);
+% batch_fuse_BABS(cerrPath,registeredDirLoc)
+% fprintf('\nComplete.\n');
+% t4end = toc(t4)
 
 % Close parallel pool
 delete(hParpool)
