@@ -1,5 +1,5 @@
 
-function batch_fuse_atlas_seg(pcDirName,atlasDirName,registeredDirLoc)
+function batch_fuse_atlas_seg_new(pcDirName,atlasDirName,registeredDirLoc)
 %
 % batch_fuse_atlas_seg.m
 %
@@ -88,7 +88,7 @@ for indBase = 1:length(dirS)
     %registerToAtlasMultipleScans(baseScan,movScanC,registeredDir,strNameToWarp)
     
     %%% ---------- Fuse results from multiple atlases
-    numScans = 3;
+    numScans = 1;
     numStructs = 2;
     structNumV = 1:numScans*numStructs; % structures on all comps
     % structNumV = 1:6; % comment for structures on all comps
@@ -105,102 +105,29 @@ for indBase = 1:length(dirS)
         numAtlases = length(regFilesC);
         uniScanSiz = getUniformScanSize(planC{indexS.scan}(scanNum));
         strAllM = zeros(prod(uniScanSiz),numAtlases,'single');
-        doseAllM = zeros(prod(uniScanSiz),numAtlases,'single');
-        
-        %------ AI: testing changes to GRE calc ---
-        %         parfor i = 1:numAtlases
-        %             regPlanC = loadPlanC(regFilesC{i},tempdir);
-        %             % Calculate the GRE metric
-        %             baseScanNum = ceil(structNum / numStructs); %1;
-        %             movScanNum = baseScanNum + numScans; %2;
-        %             regPlanC = calculateGRE(baseScanNum,movScanNum,regPlanC);
-        %             dose3M = getDoseOnCT(doseNum, scanNum, 'uniform', regPlanC);
-        %             str3M = getUniformStr(structNum+numScans*numStructs,regPlanC);
-        %             strAllM(:,i) = str3M(:);
-        %             doseAllM(:,i) = dose3M(:);
-        %             %doseAllM(:,i) = dose3M(:) .* str3M(:);
-        %         end
-        
-        
+                
+        structNumOffset = 3*numStructs; % CT + 2 PC scans
+        structNumOffset = numStructs; % Only CT
         parfor i = 1:numAtlases
             for scanNum = 1:numScans
                 regPlanC = loadPlanC(regFilesC{i},tempdir);
-                str3M = getUniformStr(structNum+numStructs*(scanNum-1)+numScans*numStructs,regPlanC);
+                str3M = getUniformStr(structNum+numStructs*(scanNum-1)+structNumOffset,regPlanC);
                 strAllM(:,i) = str3M(:);
             end
-        end
-        
-        allCandsV = sum(strAllM,2) > 0;
-        unionStr3M = reshape(allCandsV,uniScanSiz);
-        
-        
-        windowV = [5,5,5];
-        parfor i = 1:numAtlases
-            for baseScanNum = 1:numScans
-                regPlanC = loadPlanC(regFilesC{i},tempdir);
-                % Calculate the GRE metric
-                %baseScanNum = ceil(structNum / numStructs); %1;
-                movScanNum = baseScanNum + numScans; %2;
-                [gre3M,~] = calcGRE(baseScanNum,movScanNum,unionStr3M,windowV,regPlanC);
-                %dose3M = getDoseOnCT(doseNum, scanNum, 'uniform', regPlanC);  %old
-                doseAllM(:,i) = gre3M(:);
-                %doseAllM(:,i) = dose3M(:) .* str3M(:);
-            end
-        end
-        %--------------------------------------------------
-                
-        
-        %numObs = size(strAllM,2);
-        filterAtlasV = isnan(mean(doseAllM(allCandsV,:))) ...
-            | max(doseAllM(allCandsV,:)) > 500;
-        strAllM(:,filterAtlasV) = [];
-        doseAllM(:,filterAtlasV) = [];
-        % GRE + Structure voting
-        indZeroM = strAllM == 0;
-        indUnionV = sum(strAllM,2) > 0;
-        meanGreV = mean(doseAllM(indUnionV,:));
-        greFilterV = meanGreV > quantile(meanGreV,0);
-        strAllM(indZeroM(allCandsV,:)) = -1;
-        greWeightedStrAvgV = zeros(size(strAllM,1),1);
-        greWeightedStrAvgV(allCandsV) = sum(strAllM(allCandsV,greFilterV) ./ ...
-            (1 + doseAllM(allCandsV,greFilterV).^1),2);
-        greWeightedStrAvgV(~allCandsV) = min(greWeightedStrAvgV);
-        greDose3M = reshape(greWeightedStrAvgV,uniScanSiz);
-        
-        threshV = multithresh(greDose3M(:),3); % arbitrary 3 levels. optimize?
-
-%         % GRE-weighted average
-%         indKeepV = sum(strAllM,2) > 3;
-%         greWeightedAvgV = zeros(size(strAllM,1),1);
-%         greWeightedAvgV(indKeepV) = sum(1 ./ (1 + doseAllM(indKeepV)),2) / numAtlases;
-%         greWeightedAvgV = greWeightedAvgV / max(greWeightedAvgV);
-%         greDose3M = reshape(greWeightedAvgV,siz);
-        
-        % Add GRE to planC
-        register = 'UniformCT';  %Currently only option supported.  Dose has the same shape as the uniformized CT scan.
-        doseError = [];
-        doseEdition = 'CERR test';
-        description = 'GRE';
-        overWrite = 'no';  %Overwrite the last CERR dose?
-        assocScanNum = 1;
-        fractionGroupID = 'GRE';
-        assocScanUID = planC{indexS.scan}(assocScanNum).scanUID;
-        planC = dose2CERR(greDose3M,doseError,fractionGroupID,doseEdition,...
-            description,register,[],overWrite,assocScanUID,planC);
+        end        
 
         % APA Commented this out on 7/13/2018
-%         % Remove outliers
-%         numVoxelsV = sum(strAllM > 0,1);
-%         agreeV = sum(strAllM > 0,2);
-%         agree50V = agreeV > numAtlases/2;
-%         matchM = bsxfun(@xor,strAllM > 0,agree50V);
-%         numMatchV = sum(~matchM,1);
-%         p50 = quantile(numMatchV,0.5);
-%         noOutV = numMatchV > p50;
-%         %p15 = quantile(numVoxelsV,0.15);
-%         %p85 = quantile(numVoxelsV,0.85);
-%         %noOutV = numVoxelsV > p15 & numVoxelsV < p85;
-        noOutV = true(1,size(strAllM,2)); % APA added 7/13/2018
+        % Remove outliers
+        agreeV = sum(strAllM > 0,2);
+        agree50V = agreeV > numAtlases*numScans/2;
+        matchM = bsxfun(@xor,strAllM > 0,agree50V);
+        numMatchV = sum(~matchM,1);
+        p50 = quantile(numMatchV,0.1);
+        noOutV = numMatchV > p50;
+        %p15 = quantile(numVoxelsV,0.15);
+        %p85 = quantile(numVoxelsV,0.85);
+        %noOutV = numVoxelsV > p15 & numVoxelsV < p85;
+        %noOutV = true(1,size(strAllM,2)); % APA added 7/13/2018
         
         %confidenceV = linspace(0.3,0.6,4);
         confidenceV = 0.5;
@@ -208,21 +135,9 @@ for indBase = 1:length(dirS)
         
         % Average agreement with and without outliers
         meanAgreeV = mean(strAllM > 0, 2);
+        
         meanAgreeAfterOutRemV = mean(strAllM(:,noOutV) > 0, 2);
-        
-        % STAPLE
-        %planC = loadPlanC(baseScan,tempdir);
-        numIter = 100;
-        %confidence = 0.8;
-        numObservers = size(strAllM(:,noOutV),2);
-        p = ones(1,numObservers)*0.999;
-        q = p;
-        
-        indZerosV = sum(strAllM(:,noOutV),2) == 0;
-        W = zeros(size(meanAgreeV));
-        [W(~indZerosV,:),p,q] = gpuStaple(strAllM(~indZerosV,noOutV) > 0,numIter,p,q);
-        % [W(~indZerosV,:),p,q] = staple(strAllM(~indZerosV,noOutV) > 0,numIter,p,q);
-        
+                
         % Structure Name
         structName = planC{indexS.structures}(structNum).structureName;
         
@@ -230,33 +145,15 @@ for indBase = 1:length(dirS)
             confidence = confidenceV(iConf);
             isUniform = 1;
             scanNum = 1;
-            
-            % STAPLE
-            stapleStr3M = reshape(W > 0.8,uniScanSiz);
-            %planC = maskToCERRStructure(stapleStr3M,isUniform,scanNum,...
-            %    [structName,'_STAPLE_',num2str(0.9*100),'_pct_conf'],planC);
-            planC = maskToCERRStructure(stapleStr3M,isUniform,scanNum,...
-                [structName,'_STAPLE_',num2str(0.8*100),'_pct_conf'],planC);
-            %--------------------------------%
-            planC = deleteStructureSegments(length(planC{indexS.structures}),...
-                0.05,planC);
-            planC = smoothContour(length(planC{indexS.structures}),planC);
-            
+                        
             % Majority Vote
-            majVote3M = reshape(meanAgreeV >= confidence, uniScanSiz);
+            majVote3M = reshape(meanAgreeAfterOutRemV >= confidence, uniScanSiz);
             planC = maskToCERRStructure(majVote3M,isUniform,scanNum,...
                 [structName,'_MjV_',num2str(confidence*100)],planC);
             planC = deleteStructureSegments(length(planC{indexS.structures}),...
                 0.05,planC);
             planC = smoothContour(length(planC{indexS.structures}),planC);
             
-            % Majority Vote forGRE
-            majVote3M = reshape(greWeightedStrAvgV >= threshV(2), uniScanSiz);
-            planC = maskToCERRStructure(majVote3M,isUniform,scanNum,...
-                [structName,'_GRE_',num2str(threshV(2))],planC);
-            planC = deleteStructureSegments(length(planC{indexS.structures}),...
-                0.05,planC);
-            planC = smoothContour(length(planC{indexS.structures}),planC);
             
         end % end of staple-confidence loop
         
@@ -265,10 +162,7 @@ for indBase = 1:length(dirS)
     % Save planC
     outputFileNam = fullfile(registeredDir,dirS(indBase).name);
     save_planC(planC,[],'passed',outputFileNam);
-    
-    % Delete the pca file
-    %delete(baseScan)
-    
+        
 end
 
 
