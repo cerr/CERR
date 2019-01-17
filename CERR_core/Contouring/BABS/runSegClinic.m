@@ -58,8 +58,10 @@ switch algorithm
         
         
     case 'MRIprostDeepLabV3'
-        
-        
+
+        deepLabContainerPath = varargin{1};       
+        success = MRIprostDeepLabV3(cerrPath,segResultCERRRPath,fullSessionPath,deepLabContainerPath,outputDicomPath);
+
 end
 
 % Export the RTSTRUCT file
