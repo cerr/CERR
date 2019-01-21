@@ -10,47 +10,39 @@ xform=align_center
 xform=translation
 impl=plastimatch
 gridsearch_min_overlap=0.8 0.8 0.8
-res=5 5 5
+res=3 3 1
 num_substages=2
 metric=mse
-background_max = -10
+background_max = -200
 mi_histogram_bins = 10
-
-# STEP 2: 6-dof (rigid) registration
-[STAGE]
-xform=rigid
-impl = itk
-optim=versor
-max_its=40
-metric=mse
-res=5 5 5
-background_max = -10
-mi_histogram_bins = 10
+max_its=1000
 
 # 12-dof affine
 [STAGE]
 xform=affine
 impl = itk
+#threading = cuda
 optim=rsg
-max_its=60
-res=5 5 5
+min_step = 0.1
+max_step = 50
+max_its=1000
+res=7 7 3
 metric=mse
-background_max = -10
-mi_histogram_bins = 10
+translation_scale_factor = 100
 
 # STEP 3: Registration using masks for lesions and bones
 [STAGE]
-num_substages=1
 impl = plastimatch
 metric=mse
-#threading = cuda
 xform=bspline
-res=8 8 8
-max_its=20
-grid_spac=15 15 15
-regularization_lambda=0.05
-background_max = -10
-mi_histogram_bins = 20
+#xform=vf
+#optim=demons
+res=9 9 5
+#threading = cuda
+max_its=30
+grid_spac=25 25 20
+regularization = analytic
+regularization_lambda=0.1
 
 # STEP 4: Refinement
 [STAGE]
@@ -58,37 +50,39 @@ impl = plastimatch
 metric=mse
 #threading = cuda
 xform=bspline
-res=4 4 4
-max_its=20
-grid_spac=10 10 10
-regularization_lambda=0.0001
-background_max= -10
-mi_histogram_bins = 25
+##optim=demons
+res=5 5 3
+max_its=30
+grid_spac=10 10 5
+regularization = analytic
+regularization_lambda=0.01
+#mi_histogram_bins = 25
 
+# STEP 4: Refinement
+[STAGE]
+impl = plastimatch
+metric=mse
+#threading = cuda
+xform=bspline
+##optim=demons
+res=3 3 2
+max_its=30
+grid_spac=8 8 4
+regularization = analytic
+regularization_lambda=0.05
+#mi_histogram_bins = 25
 
-## STEP 5: Refinement
-#[STAGE]
-#impl = plastimatch
-#metric=mse
-##threading = cuda
-#xform=bspline
-#res=1 1 1
-#max_its=100
-#grid_spac=5 5 5
-#regularization_lambda=0.00005
-#background_max = -10
-#mi_histogram_bins = 30
-
-
-## STEP 5: Refinement
-#[STAGE]
-#impl = plastimatch
-#metric=mi
-##threading = cuda
-#xform=bspline
-#res=2 2 1
-#max_its=30
-#grid_spac=8 8 8
-#regularization_lambda=0.01
-#background_max= 0
+# STEP 7: Refinement
+[STAGE]
+impl = plastimatch
+metric=mse
+#threading = cuda
+xform=bspline
+##optim=demons
+res=2 2 1
+max_its=30
+grid_spac=7 7 3
+regularization = analytic
+regularization_lambda=0.1
+#mi_histogram_bins = 25
 
