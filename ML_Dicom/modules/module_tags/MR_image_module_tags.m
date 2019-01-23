@@ -89,4 +89,5 @@ tagS(end+1) = struct('tag', ['0021104F'], 'type', ['3'], 'children', []);
 %Instance number
 tagS(end+1) = struct('tag', ['00200013'], 'type', ['1'], 'children', []);  
 
-    
+%Manufacturer
+tagS(end+1) = struct('tag', ['00080070'], 'type', ['2'], 'children', []);  
