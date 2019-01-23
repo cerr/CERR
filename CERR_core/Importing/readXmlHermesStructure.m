@@ -1,4 +1,4 @@
-function planC = readXmlHermesStructure(maskFileName,structName,planC)
+function planC = readXmlHermesStructure(maskFileName,scanNum,structName,planC)
 % readXmlHermesStructure.m
 %
 % APA, 8/31/2017
@@ -29,7 +29,7 @@ for i = 0:numPoints-1
 end
 
 % parameters to convert from matrix to physical
-scanNum = 1;
+%scanNum = 1;
 sizV = size(planC{indexS.scan}(scanNum).scanArray);
 gridUnitsV = [planC{indexS.scan}(scanNum).scanInfo(1).grid1Units, ...
     planC{indexS.scan}(scanNum).scanInfo(1).grid2Units];
@@ -38,20 +38,21 @@ offsetV = [planC{indexS.scan}(scanNum).scanInfo(1).yOffset, ...
 
 patPos = planC{indexS.scan}(scanNum).scanInfo(1).DICOMHeaders.PatientPosition;
 
-switch upper(patPos)
-    case 'HFS' %+x,-y,-z
-        error('unknown position')
-    case 'HFP' %-x,+y,-z
-        error('unknown position')
-    case 'FFS' %+x,-y,-z
-        error('unknown position')
-    case 'FFP' %-x,+y,-z
-        yV = sizV(1)-yV;
-        xV = sizV(2)-xV;
-    otherwise
-        error('unknown position')
-end
-
+% switch upper(patPos)
+%     case 'HFS' %+x,-y,-z
+%         error('unknown position')
+%     case 'HFP' %-x,+y,-z
+%         error('unknown position')
+%     case 'FFS' %+x,-y,-z
+%         error('unknown position')
+%     case 'FFP' %-x,+y,-z
+%         yV = sizV(1)-yV;
+%         %xV = sizV(2)-xV;
+%     otherwise
+%         error('unknown position')
+% end
+yV = sizV(1)-yV;
+  
 % Convert to physical coordinates
 xOff = planC{indexS.scan}(scanNum).scanInfo(1).xOffset;
 yOff = planC{indexS.scan}(scanNum).scanInfo(1).yOffset;
@@ -59,7 +60,7 @@ offV = [yOff xOff];
 [xAAPM, yAAPM] = mtoaapm(yV, xV, sizV(1:2), gridUnitsV, offV);
 
 % Create CERR structure
-[~,~,zScanV] = getScanXYZVals(planC{indexS.scan}(1));
+[~,~,zScanV] = getScanXYZVals(planC{indexS.scan}(scanNum));
 structS = newCERRStructure(scanNum,planC);
 
 for slc = 1:length(structS.contour)
