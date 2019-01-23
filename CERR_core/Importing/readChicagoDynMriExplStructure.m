@@ -1,27 +1,28 @@
-function planC = readChicagoDynMriExplStructure(maskFileName,structName,planC)
+function planC = readChicagoDynMriExplStructure(maskFileName,scanNum,structName,planC)
 % readChicagoDynMriExplStructure.m
 
 % Read segmentation mask exported from Chicago Dynamic MRI Explorer
 %
 % APA, 5/10/2018
+%  AI, 8/15/18 Added input 'scanNum'
 
-if ~exist(planC','var')
+if ~exist('planC','var')
     global planC
 end
 indexS = planC{end};
 
 fid = fopen(maskFileName, 'rb');
 limsV = fread(fid, 6, 'uint16=>uint16');
-rowStart = limsV(1);
-rowEnd = limsV(4);
-colStart = limsV(2);
-colEnd = limsV(5);
-slcStart = limsV(3);
-slcEnd = limsV(6);
+rowStart = double(limsV(1));
+rowEnd = double(limsV(4));
+colStart = double(limsV(2));
+colEnd = double(limsV(5));
+slcStart = double(limsV(3));
+slcEnd = double(limsV(6));
+numVox = (rowEnd-rowStart+1)*(colEnd-colStart+1)*(slcEnd-slcStart+1);
 maskV = fread(fid, numVox, 'uint8=>uint8');
 croppedMask3M = reshape(maskV,(rowEnd-rowStart+1),(colEnd-colStart+1),(slcEnd-slcStart+1));
-scanNum = 1;
-sizV = size(planC{indexS.scan}(1).scanArray);
+sizV = size(planC{indexS.scan}(scanNum).scanArray);
 mask3M = zeros(sizV);
 mask3M(rowStart:rowEnd,colStart:colEnd,slcStart:slcEnd) = croppedMask3M;
 
