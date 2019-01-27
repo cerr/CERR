@@ -3024,6 +3024,7 @@ switch command
                 
                 stateS.doseToggle = 1;
                 stateS.doseSetChanged = 1;
+                stateS.CTDisplayChanged = 1;
                 delete(findobj('tag','sliderFusion'));
                 set(findobj('tag','sliderInit'),'visible','on');
                 sliceCallBack('fusion_mode_off');
