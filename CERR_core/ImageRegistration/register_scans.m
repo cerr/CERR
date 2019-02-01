@@ -129,6 +129,63 @@ end
 
 switch upper(algorithm)
     
+    
+    case 'ALIGN CENTER'
+        
+        %         alignC{1,1} = '#Insight Transform File V1.0';
+        %         alignC{end+1,1} = '';
+        %         alignC{end+1,1} = '#Transform 0';
+        %         alignC{end+1,1} = '';
+        %         alignC{end+1,1} = 'Transform: TranslationTransform_double_3_3';
+        %         alignC{end+1,1} = '';
+        
+        %         indexS = basePlanC{end};
+        %         [xBaseV, yBaseV, zBaseV] = getScanXYZVals(basePlanC{indexS.scan}(baseScanNum));
+        %         indexS = movPlanC{end};
+        %         [xMoveV, yMoveV, zMoveV] = getScanXYZVals(movPlanC{indexS.scan}(movScanNum));
+        %
+        %         deltaX = -(median(xMoveV) - median(xBaseV)) * 10;
+        %         deltaY = -(median(yBaseV) - median(yMoveV)) * 10;
+        %         deltaZ = -(median(zBaseV) - median(zMoveV)) * 10;
+        
+        %         alignC{end+1,1} = ['Parameters:',' ',num2str(deltaX),' ',num2str(deltaY),' ',num2str(deltaZ)];
+        %         alignC{end+1,1} = '';
+        %         alignC{end+1,1} = ['FixedParameters:'];
+        %         cell2file(alignC,outBspFile);
+        
+        %         vf = nan([size(getScanArray(baseScanNum,basePlanC)),3]);
+        %         vf(:,:,:,1) = deltaX;
+        %         vf(:,:,:,2) = deltaY;
+        %         vf(:,:,:,3) = deltaZ;
+        %
+        %         [~, uniformScanInfoS] = getUniformizedCTScan(0,baseScanNum,basePlanC);
+        %         resolution = [uniformScanInfoS.grid2Units, uniformScanInfoS.grid1Units, uniformScanInfoS.sliceThickness] * 10;
+        %         [xVals, yVals, zVals] = getUniformScanXYZVals(basePlanC{indexS.scan}(baseScanNum));
+        %         offset = [xVals(1) -yVals(1) -zVals(end)] * 10;
+        %
+        %         writemetaimagefile(outBspFile, single(vf), resolution, offset);
+        
+        
+        % Rigid step
+        if exist('outBspFile','var') & ~isempty(outBspFile)
+            vfFileName = outBspFile;
+        else
+            vfFileName = fullfile(getCERRPath,'ImageRegistration','tmpFiles',['align_center_vf_',baseScanUID,'_',movScanUID,'.mha']);
+        end
+        
+        cmdFileC{end+1,1} = ['vf_out=',escapeSlashes(vfFileName)];
+        cmdFileC{end+1,1} = '';
+        cmdFileC{end+1,1} ='[STAGE]';
+        cmdFileC{end+1,1} ='xform=align_center';
+        cmdFileC{end+1,1} = '';
+        cell2file(cmdFileC,cmdFileName_rigid)
+        
+        % Run plastimatch Registration
+        system([plmCommand, cmdFileName_rigid]);
+        
+        % Cleanup
+        bspFileName = vfFileName;
+        
     case 'BSPLINE PLASTIMATCH'
         
         deleteBspFlg = 1;
@@ -234,7 +291,7 @@ switch upper(algorithm)
         cell2file(cmdFileC,cmdFileName_rigid)
         
         % Run plastimatch Registration
-        system([plmCommand, cmdFileName_rigid]);
+       system([plmCommand, cmdFileName_rigid]);
         
         % Cleanup
         try
