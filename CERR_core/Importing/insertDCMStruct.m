@@ -103,6 +103,22 @@ for i=1:length(dataS)
         dataS(i).structureColor = color;
     end
 end
+%Find any structures in dataS not already in planC.
+toDeleteV = [];
+for i=length(dataS):-1:1
+%     newStructName = temp_planC{temp_planC{end}.structures}(i).structureName;
+    newStructData = dataS(i).contour;
+    for j=1:length(planC{planC{end}.structures})
+        oldStructName = planC{planC{end}.structures}(j).structureName;
+        oldStructData = planC{planC{end}.structures}(j).contour;
+        if isequal(newStructData, oldStructData)
+            disp(['Structure "',oldStructName,'" already exists. Duplicate structure will not be inserted.']);
+            toDeleteV = [toDeleteV, i];
+            break;
+        end
+    end
+end
+dataS(toDeleteV) = [];
 if ~isempty(planC{indexS.structures})
     for strNum = 1:length(dataS)
         planC{indexS.structures} = dissimilarInsert(planC{indexS.structures},dataS(strNum),length(planC{indexS.structures})+1);
