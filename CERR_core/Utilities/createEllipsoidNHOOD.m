@@ -34,9 +34,9 @@ end
 slcCenter = 1+length(slcsV);
 numSlcs = 2*slcCenter-1;
 slcRadius = slcCenter-1;
-if slcRadius == 0
-    slcRadius = 1;
-end
+% if slcRadius == 0
+%     slcRadius = 1;
+% end
 
 innerRowRingLevel = (rowRadius-1).^2/rowRadius^2;
 innerColRingLevel = (colRadius-1).^2/colRadius^2;
@@ -47,7 +47,7 @@ ellipoideM = zeros(numRows,numCols,numSlcs);
 
 [rowsM, colsM, slcsM] = meshgrid(1:numRows,1:numCols,1:numSlcs); 
 
-indKeepM = (rowsM-rowCenter).^2/rowRadius^2 + (colsM-colCenter).^2/colRadius^2 + (slcsM-slcCenter).^2/slcRadius^2 <= 1;
+indKeepM = (rowsM-rowCenter).^2/rowRadius^2 + (colsM-colCenter).^2/colRadius^2 + (slcsM-slcCenter).^2/(slcRadius+eps)^2 <= 1;
 
 if ringFlag
     indKeepM = indKeepM & ((rowsM-rowCenter).^2/rowRadius^2 + (colsM-colCenter).^2/colRadius^2 + (slcsM-slcCenter).^2/slcRadius^2) > innerRingLevel;
