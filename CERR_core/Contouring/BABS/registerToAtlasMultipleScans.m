@@ -57,8 +57,43 @@ parfor movNum = 1:length(movScanFileC)
     baseMask3M = planC{indexS.scan}(1).scanArray < 3500;
     movMask3M = planD{indexSD.scan}(1).scanArray < 3500;
     %movMask3M = ~getUniformStr(7,planD); % hand delineated noise
-
-    % Create a starting registration transformation based on CT that will 
+    
+    % Register all image representations to each other starting from the
+    % transformation generated previously
+    numScans = length(planC{indexS.scan});
+    numScans = 1;
+    allStrNumV = 1:length(planD{indexSD.structures})-1; % -1 to omit the "noise" structure
+    assocScanV = getStructureAssociatedScan(allStrNumV,planD);
+    
+    
+    % Align_center the moving scan and structures
+    baseScanNum = 1;
+    movScanNum = 1;
+    algorithm = 'ALIGN CENTER';
+    baseMask3M = [];
+    movMask3M = [];
+    threshold_bone = [];
+    plmCmdFile = 'file_with_align_center';
+    inBspFile = '';
+    vfAlignCtrFile = fullfile(getCERRPath,'ImageRegistration','tmpFiles',...
+        strcat(planC{indexS.scan}(1).scanUID,...
+        planD{indexSD.scan}(1).scanUID,'_align_ctr.nrrd'));
+    [planC, planD] = register_scans(planC, planD, baseScanNum, movScanNum,...
+        algorithm, baseMask3M, movMask3M, threshold_bone, plmCmdFile, ...
+        inBspFile, vfAlignCtrFile);
+    numStructs = length(planC{indexS.structures});
+    for scanNum = 1:numScans
+        planD = warp_scan(vfOutFile,scanNum,planD,planD);
+        strV = find(getStructureAssociatedScan(1:numStructs,planD) == scanNum);
+        strCreationScanNum = length(planD{indexSD.scan});
+        planD = warp_structures(vfOutFile,strCreationScanNum,strV,planD,planD);
+    end
+    for scanNum = numScans:-1:1
+        planD = deleteScan(planD,scanNum);
+    end
+    
+    
+    % Create a starting registration transformation based on CT that will
     % be used by all the image representations
     inBspFile = '';
     outBspFile = '';
@@ -82,12 +117,12 @@ parfor movNum = 1:length(movScanFileC)
         
     end
     
-    % Register all image representations to each other starting from the
-    % transformation generated previously
-    numScans = length(planC{indexS.scan});
-    numScans = 1;
-    allStrNumV = 1:length(planD{indexSD.structures})-1; % -1 to omit the "noise" structure
-    assocScanV = getStructureAssociatedScan(allStrNumV,planD);
+%     % Register all image representations to each other starting from the
+%     % transformation generated previously
+%     numScans = length(planC{indexS.scan});
+%     numScans = 1;
+%     allStrNumV = 1:length(planD{indexSD.structures})-1; % -1 to omit the "noise" structure
+%     assocScanV = getStructureAssociatedScan(allStrNumV,planD);
     
     %inputCmdFile = '';
     
