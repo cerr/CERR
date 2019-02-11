@@ -83,16 +83,19 @@ parfor movNum = 1:length(movScanFileC)
         inBspFile, vfAlignCtrFile);
     numStructs = length(planC{indexS.structures});
     
+    numScansMov = length(planD{indexSD.scan});
     % Deform scans and structures based on align_center
-    for scanNum = 1:numScans
+    for scanNum = 1:numScansMov
         planD = warp_scan(vfAlignCtrFile,scanNum,planD,planD);
         strV = find(getStructureAssociatedScan(1:numStructs,planD) == scanNum);
-        strCreationScanNum = length(planD{indexSD.scan});
-        planD = warp_structures(vfAlignCtrFile,strCreationScanNum,strV,planD,planD);        
+        if ~isempty(strV)
+            strCreationScanNum = length(planD{indexSD.scan});
+            planD = warp_structures(vfAlignCtrFile,strCreationScanNum,strV,planD,planD);
+        end
     end
     
     % Delete original scans
-    for scanNum = numScans:-1:1
+    for scanNum = numScansMov:-1:1
         planD = deleteScan(planD,scanNum);
     end
     
