@@ -85,10 +85,10 @@ parfor movNum = 1:length(movScanFileC)
     
     % Deform scans and structures based on align_center
     for scanNum = 1:numScans
-        planD = warp_scan(vfOutFile,scanNum,planD,planD);
+        planD = warp_scan(vfAlignCtrFile,scanNum,planD,planD);
         strV = find(getStructureAssociatedScan(1:numStructs,planD) == scanNum);
         strCreationScanNum = length(planD{indexSD.scan});
-        planD = warp_structures(vfOutFile,strCreationScanNum,strV,planD,planD);        
+        planD = warp_structures(vfAlignCtrFile,strCreationScanNum,strV,planD,planD);        
     end
     
     % Delete original scans
