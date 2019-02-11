@@ -73,7 +73,7 @@ parfor movNum = 1:length(movScanFileC)
     baseMask3M = [];
     movMask3M = [];
     threshold_bone = [];
-    plmCmdFile = 'file_with_align_center';
+    plmCmdFile = '';
     inBspFile = '';
     vfAlignCtrFile = fullfile(getCERRPath,'ImageRegistration','tmpFiles',...
         strcat(planC{indexS.scan}(1).scanUID,...
