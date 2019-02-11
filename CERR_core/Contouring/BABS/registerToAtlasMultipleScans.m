@@ -82,15 +82,31 @@ parfor movNum = 1:length(movScanFileC)
         algorithm, baseMask3M, movMask3M, threshold_bone, plmCmdFile, ...
         inBspFile, vfAlignCtrFile);
     numStructs = length(planC{indexS.structures});
+    
+    % Deform scans and structures based on align_center
     for scanNum = 1:numScans
         planD = warp_scan(vfOutFile,scanNum,planD,planD);
         strV = find(getStructureAssociatedScan(1:numStructs,planD) == scanNum);
         strCreationScanNum = length(planD{indexSD.scan});
-        planD = warp_structures(vfOutFile,strCreationScanNum,strV,planD,planD);
+        planD = warp_structures(vfOutFile,strCreationScanNum,strV,planD,planD);        
     end
+    
+    % Delete original scans
     for scanNum = numScans:-1:1
         planD = deleteScan(planD,scanNum);
     end
+    
+    % Delete the Vf file for align_center
+    delete(vfAlignCtrFile)
+    
+    % Remove Warped_ from structure names
+    for strNum = 1:length(planD{indexSD.structures})
+        indWarp = strfind(planD{indexSD.structures}(strNum).structureName,'Warped_');
+        if ~isempty(indWarp)
+            planD{indexSD.structures}(strNum).structureName = ...
+                planD{indexSD.structures}(strNum).structureName(8:end);
+        end
+    end    
     
     
     % Create a starting registration transformation based on CT that will
