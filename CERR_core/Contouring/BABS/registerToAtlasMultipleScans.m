@@ -70,8 +70,8 @@ parfor movNum = 1:length(movScanFileC)
     baseScanNum = 1;
     movScanNum = 1;
     algorithm = 'ALIGN CENTER';
-    baseMask3M = [];
-    movMask3M = [];
+    baseMaskAlgCtr3M = [];
+    movMaskAlgCtr3M = [];
     threshold_bone = [];
     plmCmdFile = '';
     inBspFile = '';
@@ -79,7 +79,7 @@ parfor movNum = 1:length(movScanFileC)
         strcat(planC{indexS.scan}(1).scanUID,...
         planD{indexSD.scan}(1).scanUID,'_align_ctr.nrrd'));
     [planC, planD] = register_scans(planC, planD, baseScanNum, movScanNum,...
-        algorithm, baseMask3M, movMask3M, threshold_bone, plmCmdFile, ...
+        algorithm, baseMaskAlgCtr3M, movMaskAlgCtr3M, threshold_bone, plmCmdFile, ...
         inBspFile, vfAlignCtrFile);
     numStructs = length(planC{indexS.structures});
     
