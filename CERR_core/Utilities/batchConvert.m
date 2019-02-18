@@ -1,5 +1,5 @@
 function batchConvert(varargin)
-%function batchConvert(sourceDir,destinationDir,zipFlag)
+%function batchConvert(sourceDir,destinationDir,zipFlag,mergeScansFlag)
 %
 %Type "init_ML_DICOM; batchConvert" (without quotes) in Command window to run batch conversion. User will be
 %prompted to select source and destination directories. This function converts DICOM and RTOG files 
@@ -196,7 +196,7 @@ for dirNum = 1:length(allDirS)
 %                 % General case
                 % sourceDirName = sourceDir(rtStartIndex:rtEndIndex);
                 [~,sourceDirName] = fileparts(sourceDir);
-                sourceDirName = strtok(sourceDirName,'_');
+                %sourceDirName = strtok(sourceDirName,'_');
                 %sourceDirName = [oneDirUp,'_',sourceDirName];
                 
                 %Check for duplicate name of sourceDirName
