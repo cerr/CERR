@@ -142,8 +142,13 @@ switch fieldname
 
                     %Check the image orientation.
                     imgOri = dcm2ml_Element(imgobj.get(hex2dec('00200037')));
-                    %Check patient position
-                    pPos = dcm2ml_Element(imgobj.get(hex2dec('00185100')));                    
+                    
+                    if max(abs((imgOri(:) - [1 0 0 0 1 0]'))) < 1e-3
+                        pPos = 'HFS';
+                    else
+                        %Check patient position
+                        pPos = dcm2ml_Element(imgobj.get(hex2dec('00185100')));
+                    end
                     
                     % Store the patient position associated with this studyUID
                     studyUIDc = {};
