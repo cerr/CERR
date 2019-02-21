@@ -158,12 +158,15 @@ if strcmpi(currentModality,'MR')
     instNumTag = '00200013';    %Instance no.
     numSlicesTag = '0021104F';  %No. locations in acquisition
     
+elseif strcmpi(currentModality,'CT')
+    acqNumTag = '00200012';    
 end
 
 %Search the list for this item.
 match = 0;
 bValueMatch = 1;
 tempPosMatch = 1;
+acqNumMatch = 1;
 for i=1:length(studyS.SERIES)
     thisUID = studyS.SERIES(i).info.subSet(hex2dec(seriesUIDTag));
     seriesModality = studyS.SERIES(i).info.getString(hex2dec(modalityTag));
@@ -265,11 +268,21 @@ for i=1:length(studyS.SERIES)
             end
             
         end
+    elseif strcmpi(currentModality,'CT') && strcmpi(seriesModality,'CT')
+        acqNum1 = studyS.SERIES(i).info.getString(hex2dec(acqNumTag));
+        acqNum1Series = series.getString(hex2dec(acqNumTag));
+        if strcmpi(acqNum1Series,acqNum1) || ...
+                (isempty(acqNum1) && ...
+                isempty(acqNum1Series))
+            acqNumMatch = 1;
+        else
+            acqNumMatch = 0;
+        end
     end
     
     %to avoid different modality data in one series, it must compare whole
     %series structure, but not just UID.
-    if series.matches(thisUID, 1) && bValueMatch && tempPosMatch
+    if series.matches(thisUID, 1) && bValueMatch && tempPosMatch && acqNumMatch
         % series.matches(studyS.SERIES(i).info, 1)
         studyS.SERIES(i) = searchAndAddSeriesMember(filename, dcmobj, studyS.SERIES(i));
         match = 1;
