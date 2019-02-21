@@ -70,6 +70,9 @@ tagS(end+1) = struct('tag', ['00080021'], 'type', ['3'], 'children', []);
 %Series Time
 tagS(end+1) = struct('tag', ['00080031'], 'type', ['3'], 'children', []);
 
+%Acquisition Number
+tagS(end+1) = struct('tag', ['00200012'], 'type', ['3'], 'children', []);
+
 %Performing Physician's Name
 tagS(end+1) = struct('tag', ['00081050'], 'type', ['3'], 'children', []);
 
