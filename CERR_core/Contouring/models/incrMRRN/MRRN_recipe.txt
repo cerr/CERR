@@ -1,0 +1,77 @@
+BootStrap:docker
+From:tensorflow/tensorflow:latest-gpu-py3
+
+%environment
+
+	#Environment variables
+
+	#Use bash as default shell
+	SHELL=/bin/bash
+
+	
+%setup
+	#Runs on host
+	#The path to the image is $SINGULARITY_ROOTFS
+	 # Copy and rename
+    	cp -R /vagrant/incremental_MRRN ${SINGULARITY_ROOTFS}
+	
+
+%files
+	
+
+%post
+	#Post setup script
+
+	
+
+  #Updating and getting required packages
+  apt-get clean
+  apt-get dist-upgrade && apt-get install -y --no-install-recommends --ignore-missing \
+  python-dicom\
+  python-numpy\
+  python-scipy\
+  python-matplotlib\
+  ipython\
+  ipython-notebook\
+  python-pandas\
+  python-sympy\
+  python-nose\
+  libpython2.7-stdlib\
+  git 
+
+  apt-get clean
+
+  
+  pip install dicom==0.9.9.post1
+  pip install scikit-image
+  pip install opencv-python
+  #pip install keras
+  pip install keras==2.0.8
+  
+  apt update && apt install -y libsm6 libxext6
+  apt-get install -y libxrender-dev
+  
+  mkdir /software
+  cd /software
+  git clone https://github.com/cerr/CERR.git
+  
+  #cp -r /incremental_MRRN /software
+  
+%runscript
+	
+	python /software/incremental_MRRN/val_program_MRRN.py arg1=$1 arg2=$2 arg3=$3	
+
+%labels
+AUTHOR pandyar1@mskcc.org
+
+%apprun pyModule
+    
+
+%test
+	#Test that script is a success
+
+	#Load environment variables
+	#. /environment
+
+	#Test tensorflow install
+	#python -c "import tensorflow"
