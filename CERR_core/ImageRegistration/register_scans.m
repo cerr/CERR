@@ -267,32 +267,28 @@ switch upper(algorithm)
             delete(cmdFileName_rigid);
         end
         
-        % Create a file name and path for storing bspline coefficients
-        bspFileName_rigid = fullfile(getCERRPath,'ImageRegistration','tmpFiles',['bsp_coeffs_',baseScanUID,'_',movScanUID,'_rigid.txt']);
-        bspFileName = fullfile(getCERRPath,'ImageRegistration','tmpFiles',['bsp_coeffs_',baseScanUID,'_',movScanUID,'.txt']);
-        if exist(bspFileName_rigid,'file')
-            delete(bspFileName_rigid)
+        % Create a file name and path for storing VF
+        if exist('outBspFile','var') & ~isempty(outBspFile)
+            vfFileName = outBspFile;
+        else
+            vfFileName = fullfile(getCERRPath,'ImageRegistration','tmpFiles',['rigid_vf_',baseScanUID,'_',movScanUID,'.mha']);
         end
-        if exist(bspFileName,'file')
-            delete(bspFileName)
-        end
-        
-        % Create a file name and path for storing bspline coefficients
-        bspFileName_rigid = fullfile(getCERRPath,'ImageRegistration','tmpFiles',['bsp_coeffs_',baseScanUID,'_',movScanUID,'_rigid.txt']);
-        if exist(bspFileName_rigid,'file')
-            delete(bspFileName_rigid)
+        if exist(vfFileName,'file')
+            delete(vfFileName)
         end
         
         % Rigid step
         ursFileC = file2cell(userCmdFile);
-        cmdFileC{end+1,1} = ['xform_out=',escapeSlashes(bspFileName_rigid)];
+        cmdFileC{end+1,1} = ['vf_out=',escapeSlashes(vfFileName)];
         cmdFileC{end+1,1} = '';
         cmdFileC(end+1:end+size(ursFileC,2),1) = ursFileC(:);
         cell2file(cmdFileC,cmdFileName_rigid)
         
         % Run plastimatch Registration
-       system([plmCommand, cmdFileName_rigid]);
+        system([plmCommand, cmdFileName_rigid]);
         
+        bspFileName = vfFileName;
+
         % Cleanup
         try
             delete(baseScanFileName);
@@ -334,7 +330,6 @@ switch upper(algorithm)
         %         %         transM = bakTransM*Rx*Ry*Rz*fwTransM*translationM;
         %         movPlanC{indexMovS.scan}(movScanNum).transM = transM;
         
-        bspFileName = bspFileName_rigid;
         
     case 'BSPLINE ITK'
         
