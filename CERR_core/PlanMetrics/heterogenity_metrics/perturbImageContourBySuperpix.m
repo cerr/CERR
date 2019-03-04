@@ -16,10 +16,12 @@ function newMask3M = perturbImageContourBySuperpix(mask3M,img3M,superPixVol,vara
 % Determine the voxel volume
 if iscell(varargin{1}) 
     planC = varargin{1};
+    indexS = planC{end};
+    scanNum = varargin{2};
     expansionRadius = 0.25; %cm (user input?)
-    dy = planC{indexS.scan}.scanInfo(1).grid1Units;
-    dx = planC{indexS.scan}.scanInfo(1).grid2Units;
-    dz = planC{indexS.scan}.scanInfo(2).zValue - planC{indexS.scan}.scanInfo(1).zValue;
+    dy = planC{indexS.scan}(scanNum).scanInfo(1).grid1Units;
+    dx = planC{indexS.scan}(scanNum).scanInfo(1).grid2Units;
+    dz = planC{indexS.scan}(scanNum).scanInfo(2).zValue - planC{indexS.scan}.scanInfo(1).zValue;
     voxelVol = dy * dx * dz;
 else
     dx = planC(1);
@@ -46,6 +48,13 @@ kMax = min(sizV(3),max(kV)+kExpand);
 % Crop image and mask
 maskM = mask3M(iMin:iMax,jMin:jMax,kMin:kMax);
 imgM = img3M(iMin:iMax,jMin:jMax,kMin:kMax);
+
+% Clip image intensities to focus on intensities within the contour mask
+imgV = imgM(maskM);
+minIntensity = min(imgV);
+maxIntensity = max(imgV);
+imgM(imgM < minIntensity) = minIntensity;
+imgM(imgM > minIntensity) = maxIntensity;
 
 % Create superpixels
 numVox = numel(maskM);
