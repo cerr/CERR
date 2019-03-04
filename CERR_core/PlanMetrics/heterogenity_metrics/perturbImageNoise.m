@@ -12,6 +12,7 @@ paramS.Index.val = '1';
 outS = processImage('Wavelets',imgM,imgM.^0,paramS,NaN);
 noiseStdDev = median(abs(outS.coif1_HH(:)))/0.6754;
 
+imgClass = class(imgM);
 sizV = size(imgM);
-imgM = imgM + normrnd(0,noiseStdDev,sizV);
+imgM = cast(double(imgM) + normrnd(0,noiseStdDev,sizV), imgClass);
 
