@@ -15,12 +15,37 @@ if prod(siz) == 1
     
     indexS = planC{end};
     
-    % Get structure
+    % Get structure mask
     [rasterSegments, planC, isError] = getRasterSegments(structNum,planC);
     [mask3M, uniqueSlices] = rasterToMask(rasterSegments, scanNum, planC);
+    
+    % Get scan
     scanArray3M = getScanArray(planC{indexS.scan}(scanNum));
     scanArray3M = double(scanArray3M) - ...
         planC{indexS.scan}(scanNum).scanInfo(1).CTOffset;
+    
+    scanSiz = size(scanArray3M);
+
+    % Pad scanArray and mask3M to interpolate
+    minSlc = min(uniqueSlices);
+    maxSlc = max(uniqueSlices);
+    if minSlc > 1
+        mask3M = padarray(mask3M,[0 0 1],'pre');
+        uniqueSlices = [minSlc-1; uniqueSlices];
+    end
+    if maxSlc < scanSiz(3)
+        mask3M = padarray(mask3M,[0 0 1],'post');
+        uniqueSlices = [uniqueSlices; maxSlc+1];
+    end
+    
+    scanArray3M = scanArray3M(:,:,uniqueSlices);
+    
+    % Get x,y,z grid for reslicing and calculating the shape features
+    [xValsV, yValsV, zValsV] = getUniformScanXYZVals(planC{indexS.scan}(scanNum));
+    if yValsV(1) > yValsV(2)
+        yValsV = fliplr(yValsV);
+    end
+    zValsV = zValsV(uniqueSlices);
     % Wavelet decomposition
     %dirString = 'LLL';
     %wavType = 'coif1';
@@ -36,47 +61,101 @@ if prod(siz) == 1
 
 %     % Perturb segmentation
 %     pctJitter = 5;
-%     mask3M = jitterMask(mask3M,pctJitter);
-    
-    SUVvals3M = mask3M.*double(scanArray3M(:,:,uniqueSlices));
-    [minr, maxr, minc, maxc, mins, maxs] = compute_boundingbox(mask3M);
-    maskBoundingBox3M = mask3M(minr:maxr,minc:maxc,mins:maxs);
-    
-    % Get the cropped scan
-    volToEval = SUVvals3M(minr:maxr,minc:maxc,mins:maxs);        
-    
-    % Ignore voxels below and above cutoffs, if defined
-    minIntensityCutoff = paramS.higherOrderParamS.minIntensityCutoff;
-    maxIntensityCutoff = paramS.higherOrderParamS.maxIntensityCutoff;
-    if ~isempty(minIntensityCutoff)
-        maskBoundingBox3M(volToEval < minIntensityCutoff) = 0;
-    end
-    if ~isempty(maxIntensityCutoff)
-        maskBoundingBox3M(volToEval > maxIntensityCutoff) = 0;
-    end
-    
-    volToEval(~maskBoundingBox3M) = NaN;
-    
-    % Get x,y,z grid for the shape features (flip y to make it monotically
-    % increasing)
-    [xValsV, yValsV, zValsV] = getUniformScanXYZVals(planC{indexS.scan}(scanNum));
-    PixelSpacingX = abs(xValsV(1) - xValsV(2));
-    PixelSpacingY = abs(yValsV(1) - yValsV(2));
-    PixelSpacingZ = abs(zValsV(1) - zValsV(2));
-    
-    yValsV = fliplr(yValsV);
-    xValsV = xValsV(minc:maxc);
-    yValsV = yValsV(minr:maxr);
-    zValsV = zValsV(mins:maxs);
+%     mask3M = jitterMask(mask3M,pctJitter);    
         
-    % Voxel volume for Total Energy calculation
-    VoxelVol = PixelSpacingX*PixelSpacingY*PixelSpacingZ*1000; % convert cm to mm
-    
 else
-    volToEval = scanNum;
-    maskBoundingBox3M = structNum;
-    VoxelVol = planC;
+    %volToEval = scanNum;
+    %maskBoundingBox3M = structNum;
+    %VoxelVol = planC;
+    scanArray3M = scanNum;
+    mask3M = structNum;
+    % Assume xValsV,yValsV,zValsV increase monotonically.
+    xValsV = planC{1};
+    yValsV = planC{2};
+    zValsV = planC{3};
 end
+
+% Pixelspacing (dx,dy,dz)
+PixelSpacingX = abs(xValsV(1) - xValsV(2));
+PixelSpacingY = abs(yValsV(1) - yValsV(2));
+PixelSpacingZ = abs(zValsV(1) - zValsV(2));
+
+% Perturb scan and mask
+perturbX = 0;
+perturbY = 0;
+perturbZ = 0;
+if paramS.perturbScanAndMask
+    [scanArray3M,mask3M] = perturbImageAndSeg(scanArray3M,mask3M,planC,scanNum,paramS.perturbString);
+    
+    % Get grid perturbation deltas
+    if ismember('T',paramS.perturbString)
+        perturbFractionV = [-0.75,-0.25,0.25,0.75];
+        perturbFractionV(randsample(4,1));
+        perturbX = PixelSpacingX*perturbFractionV(randsample(4,1));
+        perturbY = PixelSpacingY*perturbFractionV(randsample(4,1));
+        perturbZ = PixelSpacingZ*perturbFractionV(randsample(4,1));
+    end
+    
+    if isfield(paramS,'resampVoxSizX') && ~isempty(paramS.resampVoxSizX)
+        PixelSpacingX = paramS.resampVoxSizX;
+    end
+    if isfield(paramS,'resampVoxSizY') && ~isempty(paramS.resampVoxSizY)
+        PixelSpacingY = paramS.resampVoxSizY;
+    end
+    if isfield(paramS,'resampVoxSizZ') && ~isempty(paramS.resampVoxSizZ)
+        PixelSpacingZ = paramS.resampVoxSizZ;
+    end
+    
+end
+
+% Get the new x,y,z grid for isotropic voxels
+xValsV = (xValsV(1)+perturbX):PixelSpacingX:(xValsV(end)+10000*eps+perturbX);
+yValsV = (yValsV(1)+perturbY):PixelSpacingY:(yValsV(end)+10000*eps+perturbY);
+zValsV = (zValsV(1)+perturbZ):PixelSpacingZ:(zValsV(end)+10000*eps+perturbZ);
+
+% Interpolate using sinc sampling
+numCols = length(xValsV);
+numRows = length(yValsV);
+numSlcs = length(zValsV);
+scanArray3M = imresize3(scanArray3M,[numRows numCols numSlcs],'method','lanczos3');
+mask3M = imresize3(single(mask3M),[numRows numCols numSlcs],'method','lanczos3') > 0.5;
+
+% Crop scan around mask
+%SUVvals3M = mask3M.*double(scanArray3M(:,:,uniqueSlices));
+[minr, maxr, minc, maxc, mins, maxs] = compute_boundingbox(mask3M);
+maskBoundingBox3M = mask3M(minr:maxr,minc:maxc,mins:maxs);
+
+% Get the cropped scan
+%volToEval = SUVvals3M(minr:maxr,minc:maxc,mins:maxs);
+volToEval = double(scanArray3M(minr:maxr,minc:maxc,mins:maxs));
+
+% Crop grid
+xValsV = xValsV(minc:maxc);
+yValsV = yValsV(minr:maxr);
+zValsV = zValsV(mins:maxs);
+
+
+% Pixelspacing (dx,dy,dz)
+PixelSpacingX = abs(xValsV(1) - xValsV(2));
+PixelSpacingY = abs(yValsV(1) - yValsV(2));
+PixelSpacingZ = abs(zValsV(1) - zValsV(2));
+
+% Voxel volume for Total Energy calculation
+VoxelVol = PixelSpacingX*PixelSpacingY*PixelSpacingZ*1000; % convert cm to mm
+
+
+% Ignore voxels below and above cutoffs, if defined
+minIntensityCutoff = paramS.higherOrderParamS.minIntensityCutoff;
+maxIntensityCutoff = paramS.higherOrderParamS.maxIntensityCutoff;
+if ~isempty(minIntensityCutoff)
+    maskBoundingBox3M(volToEval < minIntensityCutoff) = 0;
+end
+if ~isempty(maxIntensityCutoff)
+    maskBoundingBox3M(volToEval > maxIntensityCutoff) = 0;
+end
+
+volToEval(~maskBoundingBox3M) = NaN;
+
 
 if paramS.toQuantizeFlag == 1
     % Quantize the volume of interest
