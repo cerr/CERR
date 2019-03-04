@@ -32,10 +32,14 @@ if dirString(2) == 'L'
 else
     scan3M = convn(scan3M,hiD','same');
 end
-if dirString(3) == 'L'
-    scan3M = convn(scan3M,loD,'same');
-else
-    scan3M = convn(scan3M,hiD,'same');
+
+% If dirString is of length 2, then filter only in x,y.
+if length(dirString) > 2
+    if dirString(3) == 'L'
+        scan3M = convn(scan3M,loD,'same');
+    else
+        scan3M = convn(scan3M,hiD,'same');
+    end
 end
 
 scan3M = scan3M(numPad+1:numPad+siz(1),numPad+1:numPad+siz(2),numPad+1:numPad+siz(3));
