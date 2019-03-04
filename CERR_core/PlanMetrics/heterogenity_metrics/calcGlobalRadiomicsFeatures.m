@@ -84,7 +84,7 @@ PixelSpacingZ = abs(zValsV(1) - zValsV(2));
 perturbX = 0;
 perturbY = 0;
 perturbZ = 0;
-if paramS.perturbScanAndMask
+if paramS.toPerturbScanAndMaskFlag
     [scanArray3M,mask3M] = perturbImageAndSeg(scanArray3M,mask3M,planC,scanNum,paramS.perturbString);
     
     % Get grid perturbation deltas
