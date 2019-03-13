@@ -21,7 +21,8 @@ if iscell(varargin{1})
     expansionRadius = 0.25; %cm (user input?)
     dy = planC{indexS.scan}(scanNum).scanInfo(1).grid1Units;
     dx = planC{indexS.scan}(scanNum).scanInfo(1).grid2Units;
-    dz = planC{indexS.scan}(scanNum).scanInfo(2).zValue - planC{indexS.scan}.scanInfo(1).zValue;
+    zV = [planC{indexS.scan}(scanNum).scanInfo(:).zValue];
+    dz = mode(diff(zV));    
     voxelVol = dy * dx * dz;
 else
     dx = planC(1);
