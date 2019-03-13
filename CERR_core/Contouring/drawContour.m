@@ -1249,9 +1249,9 @@ function toggleClips(hAxis)
 global stateS
 clipNum = stateS.contouringMetaDataS.clipnum;
 clipNum = mod(clipNum + 1,3);
-stateS.contouringMetaDataS.clipnum = clipnum;
+stateS.contouringMetaDataS.clipnum = clipNum;
 clipToggles = stateS.contouringMetaDataS.clipToggles;
-segment = stateS.contouringMetaDataS.segment;
+%segment = stateS.contouringMetaDataS.segment;
 clip = clipToggles{clipNum + 1};
 stateS.contouringMetaDataS.segment = clip;
 
