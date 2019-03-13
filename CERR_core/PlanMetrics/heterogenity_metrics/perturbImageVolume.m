@@ -42,20 +42,24 @@ for slc = 1:size(mask3M,3)
     if iMin < 0
         iStart = 1-iMin;
         iMin = 1;
+    else
+        iMin = iMin + 1;
     end
-    iMax = iCtr + floor(newSiz(1)/2) - 1;
+    iMax = iCtr + floor(newSiz(1)/2);
     if iMax > sizV(1)
-        iEnd = sizV(1) - iMax;
+        iEnd = iMax - sizV(1);
         iMax = sizV(1);
     end
     jMin = jCtr - ceil(newSiz(2)/2);
     if jMin < 0
         jStart = 1-jMin;
         jMin = 1;
+    else
+        jMin = jMin + 1;
     end
-    jMax = jCtr + floor(newSiz(2)/2) - 1;
+    jMax = jCtr + floor(newSiz(2)/2);
     if jMax > sizV(2)
-        jEnd = sizV(2) - jMax;
+        jEnd = jMax - sizV(2);
         jMax = sizV(2);
     end
     %mask3M(:,:,slc) = 0;
