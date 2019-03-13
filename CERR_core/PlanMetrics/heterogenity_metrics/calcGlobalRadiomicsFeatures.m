@@ -129,20 +129,23 @@ maskBoundingBox3M = mask3M(minr:maxr,minc:maxc,mins:maxs);
 %volToEval = SUVvals3M(minr:maxr,minc:maxc,mins:maxs);
 volToEval = double(scanArray3M(minr:maxr,minc:maxc,mins:maxs));
 
-% Crop grid
+% Crop grid and Pixelspacing (dx,dy,dz)
 xValsV = xValsV(minc:maxc);
-yValsV = yValsV(minr:maxr);
-zValsV = zValsV(mins:maxs);
-
-
-% Pixelspacing (dx,dy,dz)
 PixelSpacingX = abs(xValsV(1) - xValsV(2));
+
+yValsV = yValsV(minr:maxr);
 PixelSpacingY = abs(yValsV(1) - yValsV(2));
-PixelSpacingZ = abs(zValsV(1) - zValsV(2));
+
+if maxs > mins
+    zValsV = zValsV(mins:maxs);
+    PixelSpacingZ = abs(zValsV(1) - zValsV(2));
+else
+    PixelSpacingZ = abs(zValsV(1) - zValsV(1));
+    zValsV = zValsV(mins:maxs);
+end
 
 % Voxel volume for Total Energy calculation
 VoxelVol = PixelSpacingX*PixelSpacingY*PixelSpacingZ*1000; % convert cm to mm
-
 
 % Ignore voxels below and above cutoffs, if defined
 minIntensityCutoff = paramS.higherOrderParamS.minIntensityCutoff;
