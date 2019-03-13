@@ -1,0 +1,77 @@
+BootStrap:docker
+From:tensorflow/tensorflow:1.12.0-gpu-py3
+
+%environment
+
+	#Environment variables
+
+	#Use bash as default shell
+	SHELL=/bin/bash
+
+	
+%setup
+	#Runs on host
+	#The path to the image is $SINGULARITY_ROOTFS
+	 # Copy and rename
+    	cp -R /vagrant/pyModule ${SINGULARITY_ROOTFS}
+	
+
+%files
+	#cp -r /home/vagrant/testing\ pipeline /opt
+
+%post
+	#Post setup script
+
+	
+
+  #Updating and getting required packages
+  apt-get clean
+  apt-get dist-upgrade && apt-get install -y --no-install-recommends --ignore-missing \
+  python-dicom\
+  python-numpy\
+  python-scipy\
+  python-matplotlib\
+  ipython\
+  ipython-notebook\
+  python-pandas\
+  python-sympy\
+  python-nose\
+  git
+
+  apt-get clean
+
+  #apt-get update
+  #apt-get install -y wget git vim
+  #apt-get install python-dicom
+  #apt-get install python-numpy python-scipy python-matplotlib ipython ipython-notebook python-pandas python-sympy python-nose
+
+  pip install dicom==0.9.9.post1
+  pip install scikit-image
+  pip install opencv-python
+  
+  apt update && apt install -y libsm6 libxext6
+  apt-get install -y libxrender-dev
+  
+  mkdir /software
+  cd /software
+  cp -r /pyModule /software
+  
+
+
+%runscript
+	#Executes with the singularity run command
+	#cd /software/pipeline/pyModule
+	python /software/pyModule/run_inference_clinical_3D.py arg1=$1 arg2=$2	
+
+%labels
+AUTHOR pandyar1@mskcc.org
+
+
+%test
+	#Test that script is a success
+
+	#Load environment variables
+	#. /environment
+
+	#Test tensorflow install
+	#python -c "import tensorflow"
