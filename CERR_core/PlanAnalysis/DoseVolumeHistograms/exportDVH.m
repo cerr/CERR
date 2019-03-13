@@ -1,8 +1,22 @@
-function exportDVH(structNum,doseSet,Opt)
-% exportDVH
-% This function exports DVH in an EXCEL format. Opt give the option to
-% choose if you want Normalised or Absolute DVH
-% written DK
+function exportDVH(structNum,doseSet,Opt,cumuDiff,exportPath)
+% exportDVH(structNum,doseSet,Opt,cumuDiff,exportPath)
+%
+% This function exports DVH to EXCEL. 
+%
+% INPUTS:
+% structNum: Structure index
+% doseSet: Dose index
+% Opt: Normalised or Absolute DVH ('ABS' or 'NOR')
+% cumuDiff: Cumulative or Differential ('DIFF' or 'CUMU')
+% expotPath: Path of the directory to write Excel file. The Excel file will be named as structure name.xlsx.
+%
+% % EXAMPLE:
+% doseSet = 4;
+% Opt = 'abs';
+% cumuDiff = 'diff';
+% exportPath = '\\vpensmph\deasylab1\Aditya\Ellen10-11-2018\CERR_files\35372944_DVHs_ab10';
+%
+% APA 10/12/2018
 %
 % Copyright 2010, Joseph O. Deasy, on behalf of the CERR development team.
 % 
@@ -31,10 +45,12 @@ function exportDVH(structNum,doseSet,Opt)
 
 % for command line help document
 if ~exist('structNum')& ~exist('doseSet')& ~exist('Opt')
-    prompt = {'Enter the structure Number';'Enter the dose number'; 'Enter "abs" for absolute OR "nor" for normalized DVH'};
+    prompt = {'Enter the structure Number';'Enter the dose number';...
+        'Enter "abs" for absolute OR "nor" for normalized DVH',...
+        'Enter "diff" for differential OR "cumu" for cumulative DVH'};
     dlg_title = 'Export DVH';
     num_lines = 1;
-    def = {'';'';''};
+    def = {'';'';'';''};
     outPutQst = inputdlg(prompt,dlg_title,num_lines,def);
 
     if isempty(outPutQst)
@@ -48,36 +64,46 @@ if ~exist('structNum')& ~exist('doseSet')& ~exist('Opt')
         structNum = str2num(outPutQst{1});
         doseSet = str2num(outPutQst{2});
         Opt = outPutQst{3};
+        cumuDiff = outPutQst{4};
+        exportPath = uigetdir( 'C:\','Select destination Directory for DVH export');
     end
 end
 
-path = uigetdir( 'C:\','Select destination Directory for DVH export');
+% exportPath = uigetdir( 'C:\','Select destination Directory for DVH export');
 global planC
 indexS = planC{end};
 structureCell = planC{indexS.structures};
-optS = CERROptions;
+% optS = CERROptions;
+pathStr = getCERRPath;
+optName = [pathStr 'CERROptions.json'];
+optS = opts4Exe(optName);
 %loop over all the structures that need to be exported
 for i = 1:length(structNum)
     name = structureCell(structNum(i)).structureName;
     [dosesV, volsV] = getDVH(structNum(i), doseSet(i), planC);
     [doseBinsV, volsHistV] = doseHist(dosesV, volsV, optS.DVHBinWidth);
-    cumVolsV = cumsum(volsHistV);
-    cumVols2V  = cumVolsV(end) - cumVolsV;  %cumVolsV is the cumulative volume lt that corresponding dose
-    switch upper(Opt)
-        case 'ABS'
-            %             if abs flag is set just export the values as it is
-            fVol = cumVols2V;
-        case 'NOR'
-            %Normalizing the volume
-            fVol = cumVols2V/cumVolsV(end);
-    end
+    doseBinsV = doseBinsV * 100; % Gy to cGy
+    if strcmpi(cumuDiff,'diff')
+        fVol = volsHistV;
+    else
+        cumVolsV = cumsum(volsHistV);
+        cumVols2V  = cumVolsV(end) - cumVolsV;  %cumVolsV is the cumulative volume lt that corresponding dose
+        switch upper(Opt)
+            case 'ABS'
+                %             if abs flag is set just export the values as it is
+                fVol = cumVols2V;
+            case 'NOR'
+                %Normalizing the volume
+                fVol = cumVols2V/cumVolsV(end);
+        end
+    end    
     M = [doseBinsV; fVol];
-    %Export only NumPts points
-    NumPts = 65000;
-    if size(M,2)>NumPts
-        indAll = round(linspace(1,size(M,2),NumPts));
-        M = M(:,indAll);
-    end
-    xlswrite(fullfile(path,name), M');
+%     %Export only NumPts points
+%     NumPts = 65000;
+%     if size(M,2)>NumPts
+%         indAll = round(linspace(1,size(M,2),NumPts));
+%         M = M(:,indAll);
+%     end
+    xlswrite(fullfile(exportPath,name), M');
 end
 clear fVol dosesV volsV cumVolsV cumVols2V doseBinsV volsHistV optS
