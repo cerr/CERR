@@ -143,7 +143,7 @@ switch fieldname
                     %Check the image orientation.
                     imgOri = dcm2ml_Element(imgobj.get(hex2dec('00200037')));
                     
-                    if max(abs((imgOri(:) - [1 0 0 0 1 0]'))) < 1e-3
+                    if ~isempty(imgOri) && max(abs((imgOri(:) - [1 0 0 0 1 0]'))) < 1e-3
                         pPos = 'HFS';
                     else
                         %Check patient position
@@ -244,7 +244,8 @@ switch fieldname
                 
             case 'Yes' % Assume Nuclear medicine image
                 
-                    sliceV = dcm2ml_Element(imgobj.get(hex2dec('7FE00010')));
+                    transferSyntaxUID = dcm2ml_Element(imgobj.get(hex2dec('00020010')));
+                    sliceV = dcm2ml_Element(imgobj.get(hex2dec('7FE00010')),transferSyntaxUID);
                     
                     %Rows
                     nRows  = dcm2ml_Element(imgobj.get(hex2dec('00280010')));
