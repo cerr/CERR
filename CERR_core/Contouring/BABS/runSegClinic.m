@@ -61,6 +61,16 @@ switch algorithm
 
         deepLabContainerPath = varargin{1};       
         success = MRIprostDeepLabV3(cerrPath,segResultCERRRPath,fullSessionPath,deepLabContainerPath,outputDicomPath);
+        
+    case 'Lung_MRRN'    
+        
+        deepLabContainerPath = varargin{1};     
+        success = Lung_MRRN(cerrPath,segResultCERRRPath,fullSessionPath,deepLabContainerPath,outputDicomPath);
+
+    case 'Unet_ct_seg_headneck'
+        
+        deepLabContainerPath = varargin{1};   
+        success = Unet_ct_seg_headneck(cerrPath,segResultCERRRPath,fullSessionPath,deepLabContainerPath,outputDicomPath);
 
 end
 
