@@ -34,7 +34,7 @@ flags.DEFINE_string('H5_Name', 'SCAN',
 # flags.DEFINE_string('save_dir', '/lila/home/elguinds/DeepLab/deeplab/datasets/MRVAL/H5Output',
 #                     'absolute path to save output MASKs, typically same folder')
 
-flags.DEFINE_string('model_path', '/software/pyModule/models/MR_T2_PROSTATE/PROSTATE_DEEPLABV3_1.0.pb',
+flags.DEFINE_string('model_path', '/software/aimodels/PROSTATE_DEEPLABV3_1.0.pb',
                     'absolute path to saved model DeepLab Model')
 
 def normalize_array_8bit(arr):
