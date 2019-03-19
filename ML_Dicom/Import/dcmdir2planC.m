@@ -109,7 +109,11 @@ isObliqScanV = ones(1,numScans);
 for scanNum = 1:numScans
     
     % Calculate the slice normal
-    ImageOrientationPatientV = planC{indexS.scan}(scanNum).scanInfo(1).DICOMHeaders.ImageOrientationPatient;
+    if isfield(planC{indexS.scan}(scanNum).scanInfo(1).DICOMHeaders,'ImageOrientationPatient')
+        ImageOrientationPatientV = planC{indexS.scan}(scanNum).scanInfo(1).DICOMHeaders.ImageOrientationPatient;
+    else
+        ImageOrientationPatientV = [1 0 0 0 1 0]';
+    end
     
     % Check for obliqueness
     if max(abs((abs(ImageOrientationPatientV) - [1 0 0 0 1 0]'))) <= obliqTol
