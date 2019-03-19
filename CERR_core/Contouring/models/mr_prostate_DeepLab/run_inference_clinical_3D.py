@@ -161,6 +161,8 @@ def main(argv):
     class_num = np.arange(1,FLAGS.num_classes,1)
     clahe = cv2.createCLAHE(clipLimit=10, tileGridSize=(8, 8))
     model = DeepLabModel(FLAGS.model_path)
+    print(FLAGS.model_path)
+
 
     for filename in files:
         print(filename)
