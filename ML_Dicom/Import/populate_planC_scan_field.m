@@ -327,7 +327,7 @@ switch fieldname
                           
                     % Check for oblique scan
                     isOblique = 0;
-                    if max(abs(abs(imgOri(:)) - [1 0 0 0 1 0]')) > obliqTol
+                    if isempty(imgOri) || max(abs(abs(imgOri(:)) - [1 0 0 0 1 0]')) > obliqTol
                         isOblique = 1;
                     end
                     
@@ -438,9 +438,16 @@ switch fieldname
                 
                 % Check for oblique scan
                 isOblique = 0;
-                if max(abs(abs(imgOri(:)) - [1 0 0 0 1 0]')) > 1e-2
+                if isempty(imgOri) || max(abs(abs(imgOri(:)) - [1 0 0 0 1 0]')) > 1e-2
                     isOblique = 1;
                 end
+                
+                if strcmpi(modality,'MG')
+                    imgpos = [0 0 0];
+                    xray3dAcqSeq = dcm2ml_Element(imgobj.get(hex2dec('00189507')));
+                    bodyPartThickness = xray3dAcqSeq.Item_1.BodyPartThickness;
+                    sliceSpacing = bodyPartThickness/double(numMultiFrameImages);
+                end                
                 
                 zValuesV = imgpos(3):sliceSpacing:imgpos(3)+sliceSpacing*double(numMultiFrameImages-1);
                 if sliceSpacing < 0 % http://dicom.nema.org/medical/dicom/current/output/chtml/part03/sect_C.8.4.15.html
@@ -456,6 +463,8 @@ switch fieldname
                     dataS(imageNum) = dataS(1);
                     if ~isOblique
                         dataS(imageNum).zValue = -zValuesV(imageNum)/10;
+                    else
+                        dataS(imageNum).zValue = zValuesV(imageNum)/10;
                     end
                 end
                 

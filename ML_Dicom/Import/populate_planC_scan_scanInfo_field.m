@@ -135,7 +135,12 @@ switch fieldname
         modality = dcm2ml_Element(dcmobj.get(hex2dec('00080060')));
         %Pixel Spacing
         if strcmpi(modality,'MG')
-            pixspac = dcm2ml_Element(dcmobj.get(hex2dec('00181164')));
+            perFrameFuncGrpSeq = dcm2ml_Element(dcmobj.get(hex2dec('52009230')));
+            if isstruct(perFrameFuncGrpSeq)
+                pixspac = perFrameFuncGrpSeq.Item_1.PixelMeasuresSequence.Item_1.PixelSpacing;
+            else
+                pixspac = [1 1];
+            end
         else
             pixspac = dcm2ml_Element(dcmobj.get(hex2dec('00280030')));
         end
@@ -148,7 +153,12 @@ switch fieldname
         modality = dcm2ml_Element(dcmobj.get(hex2dec('00080060')));
         %Pixel Spacing
         if strcmpi(modality,'MG')
-            pixspac = dcm2ml_Element(dcmobj.get(hex2dec('00181164')));
+            perFrameFuncGrpSeq = dcm2ml_Element(dcmobj.get(hex2dec('52009230')));
+            if isstruct(perFrameFuncGrpSeq)
+                pixspac = perFrameFuncGrpSeq.Item_1.PixelMeasuresSequence.Item_1.PixelSpacing;
+            else
+                pixspac = [1 1];
+            end
         else
             pixspac = dcm2ml_Element(dcmobj.get(hex2dec('00280030')));
         end
