@@ -88,7 +88,7 @@ switch cellName
             % Test IOP here to find if it is "nominal" or "non-nominal"
             % % %             outIOP = getTest_Scan_IOP(seriesC{seriesNum}.Data(1).file);
             
-            if ismember(typeC{seriesNum},{'CT','OT','NM','MR','PT','ST','MG'})
+            if ismember(typeC{seriesNum},{'CT','OT','NM','MR','PT','ST','MG','SM'})
                 
                 %Populate each field in the scan structure.
                 for i = 1:length(names)

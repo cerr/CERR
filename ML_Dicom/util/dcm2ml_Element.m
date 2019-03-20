@@ -130,7 +130,12 @@ switch upper(vr)
                     fwrite(fid,fragment,'uint8');
                     fclose(fid);
                     %tmp = onCleanup(@() delete(fileName));
-                    dataTmpV = imread(fileName).';
+                    %dataTmpV = imread(fileName).';
+                    dataTmpV = imread(fileName);
+                    if ndims(dataTmpV) == 3
+                        dataTmpV = rgb2gray(dataTmpV); % temp for SM modality
+                    end
+                    dataTmpV = permute(dataTmpV,[2,1,3]);
                     data = [data;dataTmpV(:)];
                     end
                     end
