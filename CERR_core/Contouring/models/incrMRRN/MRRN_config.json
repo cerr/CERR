@@ -1,0 +1,4 @@
+{
+"algorithm" : "Lung_MRRN",
+"loadStructures" : ["lung"]
+}
