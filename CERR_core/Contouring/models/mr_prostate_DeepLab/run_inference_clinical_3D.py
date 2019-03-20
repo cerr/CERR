@@ -110,6 +110,8 @@ class DeepLabModel(object):
         graph_def = None
         # Extract frozen graph from tar archive.
         file_handle = open(tarball_path, 'rb')
+        print("tarball path")
+        print(tarball_path)
         graph_def = tf.GraphDef.FromString(file_handle.read())
 
         if graph_def is None:
