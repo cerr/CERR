@@ -181,7 +181,7 @@ switch fieldname
                             end
                         end                        
                         
-                    elseif strcmpi(type, 'MG')
+                    elseif ismember(type, {'MG','SM'}) % mammogram or pathology
                         imgpos = [0 0 0];
                         imgOri = zeros(6,1);
 
@@ -393,7 +393,7 @@ switch fieldname
                     % Image Orientation
                     imgOri = dcm2ml_Element(imgobj.get(hex2dec('00200037')));
                     
-                    if strcmpi(type,'MG')
+                    if ismember(type,{'MG','SM'}) % mammogram or pathology
                         imgpos = [0 0 0];
                         imgOri = zeros(6,1);
                     end
@@ -448,6 +448,12 @@ switch fieldname
                     bodyPartThickness = xray3dAcqSeq.Item_1.BodyPartThickness;
                     sliceSpacing = bodyPartThickness/double(numMultiFrameImages);
                 end                
+                
+                if strcmpi(modality,'SM')
+                    imgpos = [0 0 0];
+                    sharedFrameFuncGrpSeq = dcm2ml_Element(imgobj.get(hex2dec('52009229')));
+                    sliceSpacing = sharedFrameFuncGrpSeq.Item_1.PixelMeasuresSequence.Item_1.SliceThickness;                    
+                end
                 
                 zValuesV = imgpos(3):sliceSpacing:imgpos(3)+sliceSpacing*double(numMultiFrameImages-1);
                 if sliceSpacing < 0 % http://dicom.nema.org/medical/dicom/current/output/chtml/part03/sect_C.8.4.15.html
