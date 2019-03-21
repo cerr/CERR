@@ -27,8 +27,10 @@ segResultCERRPath
 command
 status = system(command)
 
+config_file_path = fullfile(getCERRPath,'Contouring','models','mr_prostate_DeepLab','MR_Prostate_config.json');
+
 %return after execution completed
-joinH5CERR(segResultCERRPath,cerrPath,outputH5Path,outputDicomPath);
+joinH5CERR(segResultCERRPath,cerrPath,outputH5Path,outputDicomPath, configFilePath);
 
 
 
