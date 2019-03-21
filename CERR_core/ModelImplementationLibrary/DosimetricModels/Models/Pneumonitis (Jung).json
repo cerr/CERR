@@ -1,0 +1,69 @@
+{
+	"name": "Pneumonitis (Jung)",
+	"type": "NTCP",
+	"stdNumFractions": 35,
+	"fractionCorrect": "Yes",
+	"correctionType": "nfrx",
+	"abRatio": 3,
+	"parameters": {
+
+		"structures": {
+				"Lung_GTV": {
+
+					"D65": {
+
+					  	"val": "calc_Dx",
+					  	"weight": 0.2515
+,
+					  	"type": ["string", "cont"],
+					  	"cteg": ["calc_Dx","calc_Dx"],
+					  	"params": {
+					   		"x": {
+					             		 "val": 65,
+					              		"type": ["Cont"]
+					        	     },
+							"volType": {
+							             "val": 1,
+								     "type": ["Cont"]
+					        		   }
+					  	          }
+						}
+					    },
+
+
+				"Heart":{
+	
+					"maxDoseHeart": {
+ 					  		"val": "calc_maxDose",
+							"weight": 0.0149
+,	                  
+					 		 "type": ["string", "cont"],
+					  		"cteg": ["calc_maxDose","calc_maxDose"]
+					  		}			  	
+					 }
+			      },
+				
+		"treatmentDays": {
+					
+					"val": 5,			
+					"weight": 0.0237
+,	
+  					"type": ["cont","cont"]
+				 },
+                       	
+		
+ 		"constant": { 
+
+				"val": 1,
+				"weight": -3.8167,
+				"type": ["cont", "cont"]
+		            }
+			
+			}
+,
+	"function": "logitFn",
+	"created_by": "Aditi",
+	"created_at": "4PM 3\/21\/18",
+	"modified_by": "",
+	"modified_at": ""
+}

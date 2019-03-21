@@ -1,0 +1,69 @@
+{
+	"name": "Esophagitis (Jung)",
+	"type": "NTCP",
+	"stdFractionSize": 2,
+	"fractionCorrect": "Yes",
+	"correctionType": "nfrx",
+	"abRatio": 10,
+	"parameters": {
+
+			"structures": {
+					"esophagus":{
+						     "D25": {    
+								"val": "calc_Dx",
+								"weight": 0.0119,
+								"type": ["string", "cont"],
+								"cteg": ["calc_Dx","calc_Dx"],
+								"params": {
+					   				"x": {
+					              				"val": 25,
+					              				"type": ["Cont"]
+					        		   	      },
+									"volType": {
+									    	     "val": 1,
+									     	     "type": ["Cont"]
+					        		          	   }
+
+					  		                    }
+                          		                     },
+
+						     "D40": {    
+								"val": "calc_Dx",
+								"weight": 0.0363,
+								"type": ["string", "cont"],
+								"cteg": ["calc_Dx","calc_Dx"],
+								"params": {
+					   				"x": {
+					              				"val": 40,
+					              				"type": ["Cont"]
+					        		   	      },
+									 "volType": {
+									    	     "val": 1,
+									     	     "type": ["Cont"]
+					        		          	   }
+
+					  		                    }
+                          		                     }
+
+
+			                             }
+				      },
+
+               		 "Treatmentdays": {
+				"val": %Replace with function to calc. no. treatment days,
+ 				"weight": 0.0478,
+				"type": ["cont", "cont"]
+                                },
+
+                	"constant": { 
+				"val": 1,
+				"weight": -3.86321,
+				"type": ["cont", "cont"]
+		            }
+	               },
+	"function": "logitFn",
+	"created_by": "Aditi",
+	"created_at": "10AM 3\/21\/18",
+	"modified_by": "",
+	"modified_at": ""
+}

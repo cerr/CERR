@@ -1,0 +1,61 @@
+{
+	"name": "Prostate TCP (Walsh et al)",
+	"type": "TCP",
+	"stdFractionSize": 2,
+	"prescribedDose": 40,
+	"fractionCorrect": "No",
+	"abRatio": 2.4802,
+	"parameters": {
+
+		"structures" : "PTV_1",
+
+
+		"alpha": {
+		      	  "val": 0.25,
+		          "type": ["cont"]
+		         },
+		"beta": {
+		      	  "val": 0.1008,
+		          "type": ["cont"]
+		         },
+		"dilVolume": {
+		      	  	"val": 10,
+		          	"type": ["cont"]
+		             },
+		"hypoxicFraction":  {
+		      	  		"val": 0.15,
+		          		"type": ["cont"]
+		         	    },
+		"OER": {
+		      	 "val": 1.75,
+		          "type": ["cont"]
+		        },
+		"pCTV": {
+		      	 "val": 100000,
+		          "type": ["cont"]
+		        },
+		"pDIL": {
+		      	 "val": 1000000,
+		          "type": ["cont"]
+		        },
+		"ctvVolume": {
+		      	      "val": 36,
+		              "type": ["cont"]
+		             },
+		"dDIL": {
+		      	 "val": 8,
+		          "type": ["cont"]
+		        },
+
+		"numSimulations": {
+		      	 	 "val": 100000,
+		           	 "type": ["cont"]
+		        	}
+	},
+	"function": "seanWalshTCP",
+	"structure": "PTV_1",
+	"created_by": "Aditi",
+	"created_at": "2PM 9\/15\/16",
+	"modified_by": "",
+	"modified_at": ""
+}

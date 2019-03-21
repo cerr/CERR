@@ -1,0 +1,31 @@
+{
+	"name": "Logistic (dyspahgia)",
+	"type": "NTCP",
+	"stdFractionSize": 2,
+	"fractionCorrect": "Yes",
+	"correctionType": "fsize",
+	"abRatio": 3,
+	"parameters": {
+
+		"structures": "Supraglottic larynx",
+   
+		"appeltMod": {
+				  "val": "No",
+				  "type": ["string"]
+			     },
+		"D50": {
+				  "val": 57.5,
+				  "type": ["cont"]
+		       },
+
+		"gamma50": {
+				  "val": 6.57,
+				  "type": ["cont"]
+		           }
+	},
+	"function": "appeltCorrectedLogitFn",
+	"created_by": "Aditi",
+	"created_at": "3PM 2\/08\/17",
+	"modified_by": "",
+	"modified_at": ""
+}

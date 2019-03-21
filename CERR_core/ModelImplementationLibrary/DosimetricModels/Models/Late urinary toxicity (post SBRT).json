@@ -1,0 +1,32 @@
+{
+
+	"name": "Urinary toxicity (Post-SBRT)",
+	"type": "NTCP",
+	"stdNumFractions": 5,
+	"fractionCorrect": "Yes",
+	"correctionType": "nfrx",
+	"abRatio": 3,
+	"parameters": {
+
+		"structures": "BLADDO_S",
+
+
+		"D50": {
+			"val": 38.7,
+			"type": ["Cont"]
+		       },
+		"m": {
+			"val": 0.19,
+			"type": ["Cont"]
+		     },
+		"n":{
+			"val": 0.13,
+			"type": ["Cont"]
+		       }
+	},
+	"function": "LKBFn",
+	"created_by": "Aditi",
+	"created_at": "4PM 2\/15\/17",
+	"modified_by": "",
+	"modified_at": ""
+}

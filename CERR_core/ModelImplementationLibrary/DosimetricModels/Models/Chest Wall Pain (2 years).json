@@ -1,0 +1,57 @@
+{
+	"name": "Chest Wall pain (2 years)",
+	"type": "NTCP",
+	"stdFractionSize": 2,
+	"fractionCorrect": "Yes",
+	"correctionType": "fsize",
+	"abRatio": 2.1,
+	"parameters": {
+
+		"structures": {
+				"chest-wall": {
+
+					"V99": {
+
+					  	"val": "calc_Vx",
+					  	"weight": 0.0178
+,
+					  	"type": ["string", "cont"],
+					  	"cteg": ["calc_Vx","calc_Vx"],
+					  	"params": {
+					   		"x": {
+					             		 "val": 99,
+					              		"type": ["Cont"]
+					        	     },
+							"volumeType": {
+							             "val": 0,
+								     "type": ["Cont"]
+					        		   }
+					  	          }
+						}
+					    }
+			      },
+				
+		"BMI": {
+					
+					"val": 22,			
+					"weight": 0.0411
+,	
+  					"type": ["cont","cont"]
+				 },
+                       	
+		
+ 		"constant": { 
+
+				"val": -0.0417,
+				"weight": 1,
+				"type": ["cont", "cont"]
+		            }
+			
+			}
+,
+	"function": "cwp2Fn",
+	"created_by": "Aditi",
+	"created_at": "11AM 1\/31\/19",
+	"modified_by": "",
+	"modified_at": ""
+}
