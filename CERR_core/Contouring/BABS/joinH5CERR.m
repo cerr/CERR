@@ -1,11 +1,11 @@
-function res = new_joinH5CERR(segResultCERRPath, cerrPath, outputH5Path, outputDicomPath)
+function res = new_joinH5CERR(segResultCERRPath, cerrPath, outputH5Path, outputDicomPath, configFilePath)
 % segResultCERRPath = 'E:\testing pipeline\results';
 % cerrPath =   'E:\testing pipeline\testing_purpose\session134717.186335.3568\ctCERR';
 % outputH5Path = 'E:\testing pipeline\testing_purpose\session134717.186335.3568\outputH5';
 % outputDicomPath = 'E:\testing pipeline\results';
 %config_file_path = '/lila/home/pandyar1/MR_Prostate_config.json';
 
-config_file_path = fullfile(getCERRPath,'Contouring','models','mr_prostate_DeepLab','MR_Prostate_config.json');
+
 
 
 
