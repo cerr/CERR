@@ -60,17 +60,17 @@ switch algorithm
     case 'MRIprostDeepLabV3'
 
         deepLabContainerPath = varargin{1};       
-        success = MRIprostDeepLabV3(cerrPath,segResultCERRRPath,fullSessionPath,deepLabContainerPath,outputDicomPath);
+        success = MRIprostDeepLabV3(cerrPath,segResultCERRRPath,fullSessionPath,deepLabContainerPath);
         
     case 'Lung_MRRN'    
         
         deepLabContainerPath = varargin{1};     
-        success = Lung_MRRN(cerrPath,segResultCERRRPath,fullSessionPath,deepLabContainerPath,outputDicomPath);
+        success = Lung_MRRN(cerrPath,segResultCERRRPath,fullSessionPath,deepLabContainerPath);
 
     case 'Unet_ct_seg_headneck'
         
         deepLabContainerPath = varargin{1};   
-        success = Unet_ct_seg_headneck(cerrPath,segResultCERRRPath,fullSessionPath,deepLabContainerPath,outputDicomPath);
+        success = Unet_ct_seg_headneck(cerrPath,segResultCERRRPath,fullSessionPath,deepLabContainerPath);
 
 end
 

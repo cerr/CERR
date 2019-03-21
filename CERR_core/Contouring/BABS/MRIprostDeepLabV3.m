@@ -1,15 +1,18 @@
-function success = MRIprostDeepLabV3(cerrPath,segResultCERRPath,fullSessionPath,deepLabContainerPath,outputDicomPath)
-%function success = MRIprostDeepLabV3(cerrPath,segResult,fullSessionPath,deepLabModelPath)
+function success = MRIprostDeepLabV3(cerrPath,segResultCERRPath,fullSessionPath,deepLabContainerPath)
+% function success =MRIprostDeepLabV3(cerrPath,segResultCERRPath,fullSessionPath,deepLabContainerPath)
+%
+% This function serves as a wrapper for the MR Prostate DeepLab V3+ based Segmentation.
+%
 % INPUT: 
-% inputDicomPath - path to input DICOM directory which needs to be segmented.
-% outputDicomPath - path to write DICOM RTSTRUCT for resulting segmentation.
-% sessionPath - path to write temporary segmentation metadata.
-    %here generate h5 files and save them to session directory
-    %make system call to the container, location of which is in the
-    %deepLabModelPath arg
-    %masks are saved to segResultCERRPath
-    %function to join masks with planC
-    %call existing function exportCERRtoDICOM.m to export DICOM
+% cerrPath - path to the original CERR file to be segmented
+% segResultCERRPath - path to write CERR RTSTRUCT for resulting segmentation.
+% fullSessionPath - path to write temporary segmentation metadata.
+% deepLabContainerPath - path to the MR Prostate DeepLab V3+ container on the
+% system
+% 
+%
+%
+% RKP, 3/21/2019
 
 deepLabContainerPath
 cerrToH5(cerrPath, fullSessionPath);
@@ -27,10 +30,10 @@ segResultCERRPath
 command
 status = system(command)
 
-config_file_path = fullfile(getCERRPath,'Contouring','models','mr_prostate_DeepLab','MR_Prostate_config.json');
+configFilePath = fullfile(getCERRPath,'Contouring','models','mr_prostate_DeepLab','MR_Prostate_config.json');
 
 %return after execution completed
-joinH5CERR(segResultCERRPath,cerrPath,outputH5Path,outputDicomPath, configFilePath);
+joinH5CERR(segResultCERRPath,cerrPath,outputH5Path,configFilePath);
 
 
 
