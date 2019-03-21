@@ -1,0 +1,25 @@
+{
+	
+	"name": "Chao model",
+	"type": "NTCP",
+	"fractionSize": 2,
+	"prescribedDose": 66,
+	"fractionCorrect": "Yes",
+	"correctionType": "fsize",
+	"abRatio": 10,
+        "structure": {
+                "structure1": "rt x",
+                "structure2": "lt x"
+		     },
+	"parameters": {
+		"A": {
+		      "val": 0.0543,
+		      "type": ["Cont"]
+		     }
+	},
+	"function": "biexpFn",
+	"created_by": "Aditi",
+	"created_at": "3PM 2\/16\/17",
+	"modified_by": "",
+	"modified_at": ""
+}

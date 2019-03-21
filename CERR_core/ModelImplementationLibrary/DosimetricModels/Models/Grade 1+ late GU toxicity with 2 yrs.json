@@ -1,0 +1,32 @@
+{
+	"name": "LKB (late GU toxicity)",
+	"type": "NTCP",
+	"stdFractionSize": 2,
+	"fractionCorrect": "Yes",
+	"correctionType": "fsize",
+	"abRatio": 3,
+	"parameters": {
+
+ 		"structures": "BLADDER_I",
+
+
+		"D50": {
+ 			"val": 77.6,
+			"type": ["Cont"]
+		       },
+		"m": {
+ 			"val": 0.022,
+			"type": ["Cont"]
+		     },
+
+		"n": {
+ 			"val": 0.00995,
+			"type": ["Cont"]
+		     }
+	           },
+	"function": "LKBFn",
+	"created_by": "Aditi",
+	"created_at": "4PM 2\/15\/17",
+	"modified_by": "",
+	"modified_at": ""
+}

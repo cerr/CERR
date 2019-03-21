@@ -1,0 +1,32 @@
+{
+	"name": "LKB liver disease (primary)",
+	"type": "NTCP",
+	"stdFractionSize": 2,
+	"fractionCorrect": "Yes",
+	"correctionType": "fsize",
+	"abRatio": 3,
+	"parameters": {
+
+		"structures": "Liver primary",
+
+
+		"D50": {
+			"val": 38.8,
+			"type": ["Cont"]
+		       },
+		"m": {
+			"val": 0.12,
+			"type": ["Cont"]
+		      },
+
+		"n": {
+			"val": 0.97,
+			"type": ["Cont"]
+		      }
+	},
+	"function": "LKBFn",
+	"created_by": "Aditi",
+	"created_at": "4PM 2\/15\/17",
+	"modified_by": "",
+	"modified_at": ""
+}

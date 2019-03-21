@@ -1,0 +1,27 @@
+{
+	
+	"name": "Linear (erectile dysfunction)",
+	"type": "NTCP",        
+	"stdFractionSize": 2,
+	"fractionCorrect": "Yes",
+	"correctionType": "fsize",	
+	"abRatio": 3,
+	"parameters": {
+
+		"structures": "Penile bulb",
+
+		"intercept": {
+				"val": 0.0667,
+				"type": ["Cont"]
+			     },
+		"slope": {
+			  "val": 0.0067,
+			  "type": ["Cont"]
+			 }
+	},
+	"function": "linearFn",
+	"created_by": "Aditi",
+	"created_at": "3PM 2\/08\/17",
+	"modified_by": "",
+	"modified_at": ""
+}

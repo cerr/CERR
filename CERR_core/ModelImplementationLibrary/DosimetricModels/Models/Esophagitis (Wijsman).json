@@ -1,0 +1,59 @@
+{
+	"name": "Esophagitis (Wijsman)",
+	"type": "NTCP",
+	"stdFractionSize": 2,
+	"fractionCorrect": "Yes",
+	"correctionType": "fsize",
+	"abRatio": 10,
+	"parameters": {
+		
+		"gender": {    
+				"val": 0,
+				"weight": 1.204,
+				"type": ["bin", "cont"],
+				"cteg": [0,1],
+				"desc": ["Male", "Female"]
+                          },
+
+		"concurrentChemo": {    
+					"val": 0,
+					"weight": 2.645,
+					"type": ["bin", "cont"],
+					"cteg": [0,1],
+					"desc": ["No", "Yes"]
+                          },
+
+
+                "tumorStage": {
+				"val": 0,
+				"weight": 0.994,
+				"type": ["bin", "cont"],
+				"cteg": [0,1],
+				"desc": ["cT1/2 ", "cT3/4 "]
+			      },
+	
+		"structures": { 
+			       "Eso_MT":{
+                				"meanDose": {
+								"val": "calc_meanDose",
+ 								"weight": 0.117,
+								"type": ["string", "cont"],
+								"cteg": ["calc_meanDose","calc_meanDose"]
+							    }
+		                           }
+                             },
+
+                "constant": { 
+				"val": 1,
+				"weight": -6.418,
+				"type": ["cont", "cont"],
+				"cteg": [0, 1]
+		            }
+
+	               },
+	"function": "logitFn",
+	"created_by": "Aditi",
+	"created_at": "4PM 2\/15\/17",
+	"modified_by": "",
+	"modified_at": ""
+}

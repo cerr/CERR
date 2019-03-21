@@ -1,0 +1,65 @@
+{
+	"name": "Lung TCP",
+	"type": "TCP",
+	"stdFractionSize": 2,
+	"fractionCorrect": "Yes",
+	"correctionType": "fsize",
+	"abRatio": 2.8,
+	"parameters": {
+		"structures":{
+
+                    	"GTV":{
+
+				"gTD": {
+					"val": "calc_gTD",
+					"weight": 0.052886,
+					"type": ["string","cont"],
+					"cteg": ["calc_gTD","calc_gTD"],
+					"params": {
+						"alpha": {
+					   		"val": 0.305,
+					   		"type": ["Cont"]
+					 		},
+						"beta": {
+					  		"val": 0.1089,
+					  		"type": ["Cont"]
+				       	 		},
+						"abRatio": {
+					  	  	  "val": 2.8,
+					 	    	  "type": ["Cont"]
+				        		   },
+						"q": {
+							"val": -1,
+							"type": ["Cont"]
+				     	     	     },
+						"refEQdose": {
+					      			 "val": 2,
+					       			"type": ["Cont"]
+				                     	     },
+						"refVol": {
+					   	   		"val": 75,
+				 	    	   		"type": ["Cont"]
+				         	  	   },
+						"treatmentSchedule": {
+					    			"val": "1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15",
+				 	    			"type": ["Cont"]
+				          		             }
+					        }
+                                          }
+			      }
+		       },
+
+
+		"constant": {
+			      "val": 1,
+			      "weight": -4.0915,
+			      "type": ["cont","cont"]
+		            }
+	},
+	"function": "logitFn",
+	"created_by": "Aditi",
+	"created_at": "4PM 7\/13\/17",
+	"modified_by": "Aditi",
+	"modified_at": "1PM 9\/6\/17",
+	"UID": "outcomeModels.logitFn.762017.94913.609.751.2671"
+}

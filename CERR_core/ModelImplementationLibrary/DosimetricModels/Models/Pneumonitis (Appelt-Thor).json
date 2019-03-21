@@ -1,0 +1,52 @@
+{
+	"name": "Pneumonitis (Appelt-Thor)",
+	"type": "NTCP",
+	"stdNumFractions": 35,
+	"fractionCorrect": "Yes",
+	"correctionType": "nfrx",
+	"abRatio": 3,
+	"parameters": {
+
+   			"structures": "Lung_GTV",
+	
+			"appeltMod": {
+				       "val": "Yes",
+				       "type": ["string"]
+				     },
+			"D50_0": {
+				       "val": 38.8,
+				       "type": ["cont"]
+                                 },
+
+                        "gamma50_0": {
+				       "val": 1.01,
+				       "type": ["cont"]
+                                     },
+
+			"over63yrs": {
+					
+					"val": 0,			
+					"OR": 1.66
+,	
+  					"type": ["bin","cont"],
+					"cteg": [0, 1],
+					"desc": ["No","Yes"]				     	 
+				     },
+                       	
+			"pulmonaryComorbidity": {
+						   
+						  "val": 0,
+						  "OR": 2.27
+,
+  						  "type": ["bin","cont"],
+					          "cteg": [0, 1],
+					  	  "desc": ["No","Yes"]	
+						}
+			}
+,
+	"function": "appeltCorrectedLogitFn",
+	"created_by": "Aditi",
+	"created_at": "4PM 9\/13\/18",
+	"modified_by": "",
+	"modified_at": ""
+}
