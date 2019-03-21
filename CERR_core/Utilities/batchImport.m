@@ -77,7 +77,7 @@ end
 tic
 hWaitbar = NaN;
 % Import all the dirs
-for dirNum = 1:length(dirsToImportC)
+parfor dirNum = 1:length(dirsToImportC)
     try
         init_ML_DICOM
         %hWaitbar = waitbar(0,'Scanning Directory Please wait...');
@@ -104,17 +104,20 @@ for dirNum = 1:length(dirsToImportC)
         
         % build the filename for storing planC
         mrn = planC{indexS.scan}(1).scanInfo(1).DICOMHeaders.PatientID;
-        %studyDscr = planC{indexS.scan}(1).scanInfo(1).DICOMHeaders.StudyDescription;
-        %seriesDscr = planC{indexS.scan}(1).scanInfo(1).DICOMHeaders.SeriesDescription;
-        %modality = planC{indexS.scan}(1).scanInfo(1).DICOMHeaders.Modality;
+        studyDscr = planC{indexS.scan}(1).scanInfo(1).DICOMHeaders.StudyDescription;
+        seriesDscr = planC{indexS.scan}(1).scanInfo(1).DICOMHeaders.SeriesDescription;
+        modality = planC{indexS.scan}(1).scanInfo(1).DICOMHeaders.Modality;
         
-        %outFileName = [mrn,'~',studyDscr,'~',seriesDscr,'~',modality];
+%         outFileName = [mrn,'~',studyDscr,'~','_FSPost_',seriesDscr,'~',modality];
+%         outFileName = strrep(outFileName,'\','-');
+%         outFileName = strrep(outFileName,'/','-');
+%         outFileName = strrep(outFileName,':','-');
         %outFileName = mrn;   % store file names as MRNs
         %------------TMEP FIX FOR FILES WITH dots in name-------------
         [~,outFileName,endbit] = fileparts(sourceDir);  % store file names as DICOM directory names
         outFileName = [outFileName,endbit];
         %-----------------------------------------------------
-        %fullOutFileName = fullfile(destn,fileName);
+        fullOutFileName = fullfile(destn,outFileName);
         
         %Check for duplicate name of fullOutFileName
         dirOut = dir(destn);

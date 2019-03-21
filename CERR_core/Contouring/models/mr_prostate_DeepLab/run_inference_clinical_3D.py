@@ -162,6 +162,8 @@ def main(argv):
     infer_size = FLAGS.inference_size
     class_num = np.arange(1,FLAGS.num_classes,1)
     clahe = cv2.createCLAHE(clipLimit=10, tileGridSize=(8, 8))
+    print("verifying model path")
+    print(FLAGS.model_path)
     model = DeepLabModel(FLAGS.model_path)
     print(FLAGS.model_path)
 

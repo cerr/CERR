@@ -97,6 +97,7 @@ xmaxV = max(Iarray); % + offsetForEnergy;
 xminV = min(Iarray);
 offsetForEntropyV = zeros(1,size(xminV,2));
 offsetForEntropyV(xminV<0) = -xminV(xminV<0);
+offsetForEntropyV = cast(offsetForEntropyV,'like',Iarray);
 
 xmaxV = xmaxV + offsetForEntropyV;
 xminV = xminV + offsetForEntropyV;
@@ -111,9 +112,11 @@ edgeMaxV(edgeMaxV==edgeMinV) = binWidth;
 %--------
 
 entropyV = nan(1,size(Iarray,2));
+entropyV = cast(entropyV,'like',Iarray);
 sizeV = sum(~isnan(Iarray));
 for k = 1:size(Iarray,2)
 edgeV = edgeMinV(k):binWidth:edgeMaxV(k); 
+if any(~isnan(Iarray(:,k)))
 countV = histcounts(Iarray(:,k)+offsetForEntropyV(k),edgeV) + eps; 
 %-------%
 %numGrLevels = 16; %For GRE calculation;
@@ -121,6 +124,9 @@ countV = histcounts(Iarray(:,k)+offsetForEntropyV(k),edgeV) + eps;
 %--------%
 probV = countV/sizeV(k);
 entropyV(k) = - sum(probV .* log2(probV+eps));
+else
+entropyV(k) = NaN;
+end
 end
 RadiomicsFirstOrderS.entropy = entropyV;
 

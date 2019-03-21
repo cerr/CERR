@@ -74,9 +74,9 @@ prob = 1 / (1 + exp(-gx));
                         '(doseBinsV, volHistV)']);
                 else
                     %Copy number fo fractions, abRatio
-                    keepParS.(keepParC{n}).params.numFractions.val = paramS.numFractions;
+                    keepParS.(keepParC{n}).params.numFractions.val = paramS.numFractions.val;
                     if isfield(paramS,'abRatio')
-                        keepParS.(keepParC{n}).params.abRatio.val = paramS.abRatio;
+                        keepParS.(keepParC{n}).params.abRatio.val = paramS.abRatio.val;
                     end
                     par(n) = eval([keepParS.(keepParC{n}).val,...
                         '(doseBinsV, volHistV,keepParS.(keepParC{n}).params)']);
