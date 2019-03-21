@@ -1,3 +1,4 @@
+
 function dcmdirS = dcmdir_add(filename, dcmobj, dcmdirS)
 %"dcmdir_add"
 %   Add a DCM file to a structure representing all DICOM files in a
@@ -212,6 +213,9 @@ for i=1:length(studyS.SERIES)
                     nSlices = nSlices(1);
                 end
             else
+                if nSlices(1)<0
+                    nSlices = mri.getInt(hex2dec(numSlicesTag));
+                end
                 nSlices = nSlices(1);
             end
             iNum = [];

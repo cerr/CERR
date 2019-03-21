@@ -2,6 +2,7 @@ function planC = readXmlHermesStructure(maskFileName,scanNum,structName,planC)
 % readXmlHermesStructure.m
 %
 % APA, 8/31/2017
+% AI Addded input scanNum
 
 % maskFileName = 'L:\Data\TCIA_Breast\Ivan\TCGA-AO-A03V\TCGAAOA03VTCGAAO_196070.xml';
 
@@ -29,7 +30,6 @@ for i = 0:numPoints-1
 end
 
 % parameters to convert from matrix to physical
-%scanNum = 1;
 sizV = size(planC{indexS.scan}(scanNum).scanArray);
 gridUnitsV = [planC{indexS.scan}(scanNum).scanInfo(1).grid1Units, ...
     planC{indexS.scan}(scanNum).scanInfo(1).grid2Units];
@@ -47,7 +47,6 @@ patPos = planC{indexS.scan}(scanNum).scanInfo(1).DICOMHeaders.PatientPosition;
 %         error('unknown position')
 %     case 'FFP' %-x,+y,-z
 %         yV = sizV(1)-yV;
-%         %xV = sizV(2)-xV;
 %     otherwise
 %         error('unknown position')
 % end

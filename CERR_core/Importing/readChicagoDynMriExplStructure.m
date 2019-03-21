@@ -40,6 +40,16 @@ switch upper(patPos)
         error('unknown position')
 end
 
+%--- AI added: ---
+%For axial scans, flip L-R
+indexS = planC{end};
+absAxV = [1 0 0 0 1 0].';
+patOrtV = planC{indexS.scan}(1).scanInfo(1).DICOMHeaders.ImageOrientationPatient;
+if isequal(absAxV,abs(patOrtV))
+    mask3M = flip(mask3M,2);
+end
+%-- end added---
+
 isUniform = 1;
 planC = maskToCERRStructure(mask3M,isUniform,scanNum,structName,planC);
 

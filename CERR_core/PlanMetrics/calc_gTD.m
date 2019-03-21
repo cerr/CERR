@@ -29,10 +29,11 @@ treatmentSchedule = str2num(sched);
 %% Calculate DVH matrix, tumor volume
 DVHdoseInterval = 1;
 doseValues = 0:DVHdoseInterval:ceil(max(doseBinsV));
-%fractionalVolV = volV;
+fractionalVolV = volV;
 % ------------- FOR TESTING ---------------- %
-fractionalVolV = 75;
+%fractionalVolV = 75;
 % ------------------------------------------ %
+
 DVHmatrix = zeros(1,length(doseValues));
 for k = 1:length(doseBinsV)
         dose = doseBinsV(k);

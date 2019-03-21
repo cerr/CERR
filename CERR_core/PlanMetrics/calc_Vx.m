@@ -72,5 +72,13 @@ else
     %warning('Vx is being calculated in absolute terms.');
 end
 
+%% ------ TESTING----
+%1. for testing when BMI=22 and for NTCP=0.5, V99 = 107.1067cc ----
+%ans = ans * 107.1067/cumVolsV(end);
+
+%2. for testing when BMI=22 and for NTCP=0.1, V99 = 1.2753cc ----
+%ans = ans * 1.2753/cumVolsV(end);
+%-------------------------------------------------------------------
+
 return;
 

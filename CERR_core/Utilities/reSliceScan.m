@@ -1,4 +1,5 @@
 function planC = reSliceScan(scanNum,dSag,dCor,dTrans,sincFlag,planC)
+%%AI note: to resample : planC = reSliceScan(scanNum,deltax,deltay,deltaz,1,planC)
 %function planC = reSliceScan(scanNum,dSag,dCor,dTrans,sincFlag,planC)
 %
 %This function re-slices the scan scanNum according to resolution dSag,dCor,dTrans
