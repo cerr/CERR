@@ -1,0 +1,4 @@
+{
+"algorithm" : "MRIprostDeepLabV3",
+"loadStructures" : ["Bladder_O_DLV3", "CTV_PROST_DLV3", "Penile_Bulb_DLV3", "Rectum_O_DLV3", "Urethra_Foley_DLV3", "Rectal_Spacer_DLV3", "Bowel_Lg_DLV3"]
+}
