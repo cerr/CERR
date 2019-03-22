@@ -99,20 +99,3 @@ radiomicsParamS.whichFeatS = whichFeatS;
 
 %% Flag to quantize input data
 radiomicsParamS.toQuantizeFlag = 1;
-
-% %% Perturbation
-% idx = strcmpi(settingsC,'perturbation');
-% if ~isempty(idx)
-%     perturbString = userInS.settings.(settingsC{idx}).sequence;
-%     radiomicsParamS.toPerturbScanAndMaskFlag = 1; % Flag to perturb scan and mask
-%     radiomicsParamS.perturbString = perturbString; % any combination of TRVCV
-% end
-% 
-% %% Resampling 
-% idx = strcmpi(settingsC,'resample');
-% if ~isempty(idx)
-%     resV = userInS.settings.(settingsC{idx}).resolution;
-%     radiomicsParamS.resampVoxSizX = resV(1); % Resolution to resample data along the X dimension in cm
-%     radiomicsParamS.resampVoxSizY = resV(2); % Resolution to resample data along the Y dimension in cm
-%     radiomicsParamS.resampVoxSizZ = resV(3); % Resolution to resample data along the Z dimension in cm
-% end
