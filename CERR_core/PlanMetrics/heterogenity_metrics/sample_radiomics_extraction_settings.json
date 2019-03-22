@@ -5,53 +5,68 @@
 
 	    },
 
-"settings": {
-		   
-		   "firstorder" :{ 
-				"binwidth": 25,
-                                 ...
+"settings": {		   
+
+		   "resample": {
+				 "resolutionXCm": 0.1,
+				 "resolutionYCm": 0.1,
+				 "resolutionZCm": 0.1,
+				 "interpMethod": "sinc"
+			       },
+
+		   "perturbation": {
+				      "sequence": "RV",
+				      "angle2DStdDeg": 7,
+				      "volScaleStdFraction": 0.1,
+				      "superPixVol": 0.005
+			           },
+
+		   "firstOrder" :{ 
+				   "binWidthEntropy": 25,
+				   "offsetForEnergy": 0
                                  },
 
 		   "texture" :{ 
 				"binwidth": 25,
+				"minIntensity": 0,
+				"maxIntensity": 500,
                                 "directionality": "2D",
-				"avgType": ["feature", "textureMatrix"],
-				
-                                 },
+				"avgType": "feature",
+				"voxelOffset": 1,
+				"patchRadiusVox": [3, 3, 3],
+				"imgDiffThresh": 10
+                              },
 
 		   "shape" :{ 
-				"rcs": [100, 100, 100],
-                                 ...
-                                 },
+			       "rcs": [100, 100, 100]
+                            },
 
-		  "peakvalley" :{ 
-				"peakradius": [2 2 0],
-                                 ...
-                                 },
+		  "peakValley" :{ 
+				   "peakRadius": [2, 2, 0],
+				   "units": "vox"	
+                                },
 
 		  "ivh" :{ 
-				"peakradius": [100, 100, 100],
-                                 ...
-                                 },
-
-
-				   	
+			    "binwidth": 0.1,
+			    "xForIxPct": [20, 30, 40],
+			    "xForIxCc": [200,300,400],
+			    "xForVxPct": [10, 30, 30],
+			    "xForVxAbs": [0, 10, 30]		
+                         }		   	
 
 	    },
 
-"structures": {
-
-"GTV_p_n_MT": {
+"structures": ["GTV_p_n_MT"],
 
 
-        "featureClass":{
+ "featureClass":{
 			
 
                  	"shape": {
 			    	   "featureList": ["compactness","sphericity"]
 			    	  },
 
-			"firstorder": {
+			"firstOrder": {
 			    	  "featureList": ["totalEnergy"]
 			          },
 
@@ -65,12 +80,12 @@
 		        },
 
 		"glszm": {
-			          },
+			          
+			 },
 
 		"gldm": {
 			    
-                                  
-			          },
+			},
 
 		"gtdm": {
 			    	
@@ -78,10 +93,6 @@
 		         }
 
 
-                        }
-          }
-
-}
-
+            }
 
 }
