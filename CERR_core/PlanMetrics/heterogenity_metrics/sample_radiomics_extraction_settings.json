@@ -1,0 +1,87 @@
+{
+
+"imageType": {
+  		  "Original": {}
+
+	    },
+
+"settings": {
+		   
+		   "firstorder" :{ 
+				"binwidth": 25,
+                                 ...
+                                 },
+
+		   "texture" :{ 
+				"binwidth": 25,
+                                "directionality": "2D",
+				"avgType": ["feature", "textureMatrix"],
+				
+                                 },
+
+		   "shape" :{ 
+				"rcs": [100, 100, 100],
+                                 ...
+                                 },
+
+		  "peakvalley" :{ 
+				"peakradius": [2 2 0],
+                                 ...
+                                 },
+
+		  "ivh" :{ 
+				"peakradius": [100, 100, 100],
+                                 ...
+                                 },
+
+
+				   	
+
+	    },
+
+"structures": {
+
+"GTV_p_n_MT": {
+
+
+        "featureClass":{
+			
+
+                 	"shape": {
+			    	   "featureList": ["compactness","sphericity"]
+			    	  },
+
+			"firstorder": {
+			    	  "featureList": ["totalEnergy"]
+			          },
+
+		"glcm": {
+			    	  "featureList": ["all"]
+			},
+
+		"glrlm": {
+			    	  "featureList": ["RLN"]
+                                 
+		        },
+
+		"glszm": {
+			          },
+
+		"gldm": {
+			    
+                                  
+			          },
+
+		"gtdm": {
+			    	
+                                  
+		         }
+
+
+                        }
+          }
+
+}
+
+
+}
