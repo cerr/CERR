@@ -1,5 +1,7 @@
 {
 
+"structures": ["GTV_p_n_MT"],
+
 "imageType": {
   		  "Original": {}
 
@@ -30,7 +32,7 @@
 				"binwidth": 25,
 				"minIntensity": 0,
 				"maxIntensity": 500,
-                                "directionality": "2D",
+                "directionality": "2D",
 				"avgType": "feature",
 				"voxelOffset": 1,
 				"patchRadiusVox": [3, 3, 3],
@@ -56,39 +58,36 @@
 
 	    },
 
-"structures": ["GTV_p_n_MT"],
-
 
  "featureClass":{
 			
 
-                 	"shape": {
+        "shape": {
 			    	   "featureList": ["compactness","sphericity"]
-			    	  },
+                 },
 
-			"firstOrder": {
+        "firstOrder": {
 			    	  "featureList": ["totalEnergy"]
 			          },
 
 		"glcm": {
 			    	  "featureList": ["all"]
-			},
+                },
 
 		"glrlm": {
 			    	  "featureList": ["RLN"]
                                  
-		        },
+		         },
 
 		"glszm": {
 			          
-			 },
+                },
 
 		"gldm": {
 			    
-			},
+                },
 
-		"gtdm": {
-			    	
+		"gtdm": {			    	
                                   
 		         }
 
