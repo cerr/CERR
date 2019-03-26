@@ -1,5 +1,5 @@
 function featureS = ...
-    calcGlobalRadiomicsFeatures(scanNum, structNum, paramFilename, planC)
+    calcGlobalRadiomicsFeatures(scanNum, structNum, paramS, planC)
 %
 % Wrapper to extract global radiomics features
 %
@@ -8,8 +8,8 @@ function featureS = ...
 % Based on APA, 04/17/2017
 % AI, 3/22/19 Updated for compatibility with JSON input for batch extraction
 
-%Read JSON parameter file
-paramS = getRadiomicsParamTemplate(paramFilename);
+% %Read JSON parameter file
+% paramS = getRadiomicsParamTemplate(paramFilename);
 
 
 siz = size(scanNum);
@@ -46,7 +46,7 @@ if prod(siz) == 1
     scanArray3M = scanArray3M(:,:,uniqueSlices);
     
     % Get x,y,z grid for reslicing and calculating the shape features
-    [xValsV, yValsV, zValsV] = getUniformScanXYZVals(planC{indexS.scan}(scanNum));
+    [xValsV, yValsV, zValsV] = getScanXYZVals(planC{indexS.scan}(scanNum));
     if yValsV(1) > yValsV(2)
         yValsV = fliplr(yValsV);
     end
@@ -106,20 +106,21 @@ if whichFeatS.perturbation.flag
         perturbY = PixelSpacingY*perturbFractionV(randsample(4,1));
         perturbZ = PixelSpacingZ*perturbFractionV(randsample(4,1));
     end
-    
-    if whichFeatS.resample.flag && ~isempty(whichFeatS.resample.resolutionXCm)
-        PixelSpacingX = whichFeatS.resample.resolutionXCm;
-    end
-    if whichFeatS.resample.flag && ~isempty(whichFeatS.resample.resolutionYCm)
-        PixelSpacingY = whichFeatS.resample.resolutionYCm;
-    end
-    if whichFeatS.resample.flag && ~isempty(whichFeatS.resample.resolutionZCm)
-        PixelSpacingZ = whichFeatS.resample.resolutionZCm;
-    end
-    
+
 end
 
-% Get the new x,y,z grid for isotropic voxels
+% Pixelspacing (dx,dy,dz) after resampling 
+if whichFeatS.resample.flag && ~isempty(whichFeatS.resample.resolutionXCm)
+    PixelSpacingX = whichFeatS.resample.resolutionXCm;
+end
+if whichFeatS.resample.flag && ~isempty(whichFeatS.resample.resolutionYCm)
+    PixelSpacingY = whichFeatS.resample.resolutionYCm;
+end
+if whichFeatS.resample.flag && ~isempty(whichFeatS.resample.resolutionZCm)
+    PixelSpacingZ = whichFeatS.resample.resolutionZCm;
+end
+
+% Get the new x,y,z grid
 xValsV = (xValsV(1)+perturbX):PixelSpacingX:(xValsV(end)+10000*eps+perturbX);
 yValsV = (yValsV(1)+perturbY):PixelSpacingY:(yValsV(end)+10000*eps+perturbY);
 zValsV = (zValsV(1)+perturbZ):PixelSpacingZ:(zValsV(end)+10000*eps+perturbZ);
@@ -151,18 +152,8 @@ volToEval = double(scanArray3M(minr:maxr,minc:maxc,mins:maxs));
 
 % Crop grid and Pixelspacing (dx,dy,dz)
 xValsV = xValsV(minc:maxc);
-PixelSpacingX = abs(xValsV(1) - xValsV(2));
-
 yValsV = yValsV(minr:maxr);
-PixelSpacingY = abs(yValsV(1) - yValsV(2));
-
-if maxs > mins
-    zValsV = zValsV(mins:maxs);
-    PixelSpacingZ = abs(zValsV(1) - zValsV(2));
-else
-    PixelSpacingZ = abs(zValsV(1) - zValsV(1));
-    zValsV = zValsV(mins:maxs);
-end
+zValsV = zValsV(mins:maxs);
 
 % Voxel volume for Total Energy calculation
 VoxelVol = PixelSpacingX*PixelSpacingY*PixelSpacingZ*1000; % convert cm to mm
@@ -199,13 +190,10 @@ if paramS.toQuantizeFlag == 1
     minIntensity = minIntensityCutoff;
     maxIntensity = maxIntensityCutoff;
     
-    %minIntensity = min(volToEval(:));
-    %maxIntensity = max(volToEval(:));
-    %numGrLevels = ceil((maxIntensity - minIntensity)/25);
-    paramS.textureParamS.numGrLevels = numGrLevels;
     quantizedM = imquantize_cerr(volToEval,numGrLevels,...
         minIntensity,maxIntensity,binwidth);
-    % Reassign the number of gray levels
+    % Reassign the number of gray levels in case they were computed for the
+    % passed binwidth
     numGrLevels = max(quantizedM(:));
     paramS.textureParamS.numGrLevels = numGrLevels;
     
@@ -341,174 +329,6 @@ end
 
 end
 
-
-% function [harFeat2DdirS, harFeat3DdirS] = ...
-%     runHaralick(numGrLevels, quantizedM)
-% %-------------------------------------------------------------------------------------------
-% % dirctn:       1: 3d neighbors, 2: 2d neighbors
-% % cooccurType:  1: combine cooccurrence matrix from all directions
-% %               2: build separate cooccurrence for each direction
-% % glcmFlagS = glcm_opts(1); % Initialize GLCM flags
-% % Haralick features calculation flags
-% % numGrLevels = 6; % Number of grey levels
-%
-% glcmFlagS = getHaralickFlags();
-%
-% % 2D Haralick features with combined cooccurrence matrix
-% %dirctn      = 2;
-% %cooccurType = 1;
-% %[harFeat2DcombiS] = get_haralick(dirctn, cooccurType, quantizedM, numGrLevels, glcmFlagS);
-%
-% % 2D Haralick features from separate cooccurrence matrix per direction, averaged
-% dirctn      = 2;
-% cooccurType = 2;
-% [harFeat2DdirS] = get_haralick(dirctn, cooccurType, quantizedM, ...
-%     numGrLevels, glcmFlagS);
-%
-% % 3D Haralick features with combined cooccurrence matrix
-% %dirctn      = 1;
-% %cooccurType = 1;
-% %[harFeat3DcombiS] = get_haralick(dirctn, cooccurType, quantizedM, numGrLevels, glcmFlagS);
-%
-% % 3D Haralick features from separate cooccurrence matrix per direction, averaged
-% dirctn      = 1;
-% cooccurType = 2;
-% [harFeat3DdirS] = get_haralick(dirctn, cooccurType, quantizedM, ...
-%     numGrLevels, glcmFlagS);
-% end
-%
-%
-% function [rlmFeat2DdirS, rlmFeat3DdirS] = runRLM(numGrLevels, ...
-%     quantizedM, numVoxels)
-% %-------------------------------------------------------------------------------------------
-% % rlmFlagS = rlm_opts(1); % Initialize RLM flags
-% % Initialize RLM flags
-%
-% rlmFlagS = getRunLengthFlags();
-% % dirctn:       1: 3d neighbors, 2: 2d neighbors
-% % rlmType:      1: combine run-length matrix from all directions
-% %               2: build separate run length matrix for each direction
-%
-% % 2D Run Length features with combined run length matrix
-% %dirctn      = 2;
-% %rlmType     = 1;
-% %[rlmFeat2DcombiS] = get_rlm(dirctn, rlmType, quantizedM, numGrLevels, numVoxels, rlmFlagS);
-%
-% % 2D Run-Length features from separate cooccurrence matrix per direction, averaged
-% dirctn  = 2;
-% rlmType = 2;
-% [rlmFeat2DdirS] = get_rlm(dirctn, rlmType, quantizedM, ...
-%     numGrLevels, numVoxels, rlmFlagS);
-%
-% % 3D Run Length features with combined run length matrix
-% %dirctn  = 1;
-% %rlmType = 1;
-% %[rlmFeat3DcombiS] = get_rlm(dirctn, rlmType, quantizedM, numGrLevels, numVoxels, rlmFlagS);
-%
-% % 3D Run-Length features from separate cooccurrence matrix per direction,
-% dirctn  = 1;
-% rlmType = 2;
-% [rlmFeat3DdirS] = get_rlm(dirctn, rlmType, quantizedM, ...
-%     numGrLevels, numVoxels, rlmFlagS);
-% end
-%
-%
-% function [ngtdmFeatures2dS, ngtdmFeatures3dS] = runNGTDM(numGrLevels, ...
-%     quantizedM, numVoxels, patchRadius2dV, patchRadius3dV)
-% %-------------------------------------------------------------------------------------------
-% % 2d
-% [featureS,p] = calcNGTDM(quantizedM, patchRadius2dV, numGrLevels);
-% ngtdmFeatures2dS = ngtdmToScalarFeatures(featureS,p,numVoxels);
-%
-% % 3d
-% [featureS,p] = calcNGTDM(quantizedM, patchRadius3dV, numGrLevels);
-% ngtdmFeatures3dS = ngtdmToScalarFeatures(featureS,p,numVoxels);
-% end
-%
-%
-% function [ngldmFeatures2dS, ngldmFeatures3dS] = runNGLDM(numGrLevels, ...
-%     quantizedM, numVoxels, patchRadius2dV, patchRadius3dV, imgDiffThresh)
-% %-------------------------------------------------------------------------------------------
-% % 2d
-% featureS = calcNGLDM(quantizedM, patchRadius2dV, ...
-%     numGrLevels, imgDiffThresh);
-% ngldmFeatures2dS = ngldmToScalarFeatures(featureS,numVoxels);
-%
-% % 3d
-% featureS = calcNGLDM(quantizedM, patchRadius3dV, ...
-%     numGrLevels, imgDiffThresh);
-% ngldmFeatures3dS = ngldmToScalarFeatures(featureS,numVoxels);
-% end
-%
-%
-% function [shapeS] = runShape(structNum, planC, rcsV)
-% %-------------------------------------------------------------------------------------------
-% shapeS = getShapeParams(structNum, planC, rcsV);
-% end
-%
-%
-% function [RadiomicsFirstOrderS] = runFirstOrder(roiObj, imgObj)
-% %-------------------------------------------------------------------------------------------
-% RadiomicsFirstOrderS = radiomics_first_order_stats...
-%     (imgObj(logical(roiObj)));
-% end
-%
-%
-% function [szmFeature2dS,szmFeature3dS] = ...
-%     runSizeZone(numGrLevels, quantizedM, numVoxels)
-% %-------------------------------------------------------------------------------------------
-% % rlmFlagS = rlm_opts(1); % Initialize RLM flags
-% % Initialize RLM flags
-% rlmFlagS.sre = 1;
-% rlmFlagS.lre = 1;
-% rlmFlagS.gln = 1;
-% rlmFlagS.glnNorm = 1;
-% rlmFlagS.rln = 1;
-% rlmFlagS.rlnNorm = 1;
-% rlmFlagS.rp = 1;
-% rlmFlagS.lglre = 1;
-% rlmFlagS.hglre = 1;
-% rlmFlagS.srlgle = 1;
-% rlmFlagS.srhgle = 1;
-% rlmFlagS.lrlgle = 1;
-% rlmFlagS.lrhgle = 1;
-% rlmFlagS.glv = 1;
-% rlmFlagS.rlv = 1;
-%
-% % 2d
-% szmType = 2; % 1: 3d, 2: 2d
-% szmM = calcSZM(quantizedM, numGrLevels, szmType);
-% numVoxels = sum(~isnan(quantizedM(:)));
-% szmFeature2dS = rlmToScalarFeatures(szmM,numVoxels, rlmFlagS);
-%
-% % 3d
-% szmType = 1; % 1: 3d, 2: 2d
-% szmM = calcSZM(quantizedM, numGrLevels, szmType);
-% numVoxels = sum(~isnan(quantizedM(:)));
-% szmFeature3dS = rlmToScalarFeatures(szmM,numVoxels, rlmFlagS);
-% end
-%
-% function [ivhFeaturesS] = runIVH(structNum, scanNum, ivhParamS, planC)
-% %-------------------------------------------------------------------------------------------
-% IVHBinWidth = 0.1;
-% % xForIxV = 10:10:90; % percentage volume
-% % xAbsForIxV = 10:20:200; % absolute volume [cc]
-% % xForVxV = 10:10:90; % percent intensity cutoff
-% % xAbsForVxV = -100:10:150; % absolute intensity cutoff [HU]
-% xForIxV = ivhParamS.xForIxV;
-% xAbsForIxV = ivhParamS.xAbsForIxV;
-% xForVxV = ivhParamS.xForVxV;
-% xAbsForVxV = ivhParamS.xAbsForVxV;
-% ivhFeaturesS = getIvhParams(structNum, scanNum, IVHBinWidth,...
-%     xForIxV, xAbsForIxV, xForVxV, xAbsForVxV,planC);
-% end
-%
-% function [peakValleyFeatureS] = runPeak(roiObj, imgObj, radiusV)
-% %-------------------------------------------------------------------------------------------
-% % Intensity Peak (mean of voxels within x cm of a voxel)
-% % radiusV = [1 1 1];
-% peakValleyFeatureS = getImPeakValley(roiObj, imgObj, radiusV, 'vox');
-% end
 
 
 function glcmFlagS = getHaralickFlags(varargin)
