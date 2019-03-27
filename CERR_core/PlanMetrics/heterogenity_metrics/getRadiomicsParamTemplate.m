@@ -24,6 +24,9 @@ shapeParamS = struct;
 peakValleyParamS = struct;
 ivhParamS = struct;
 
+% Structure names
+radiomicsParamS.structuresC = userInS.structures;
+
 % ---1. First-order features ---
 idx = strcmpi(settingsC,'firstOrder');
 if ~isempty(idx)
@@ -82,8 +85,10 @@ whichFeatS = struct('resample',struct('flag',0),'perturbation',struct('flag',0),
     'glrlm',struct('flag',0),'gtdm',struct('flag',0),'gldm',struct('flag',0),...
     'glszm',struct('flag',0));
 for k = 1:length(settingsC)
-    whichFeatS.(settingsC{k}) = userInS.settings.(settingsC{k});
-    whichFeatS.(settingsC{k}).flag = 1;
+    if ~isempty(fieldnames(userInS.settings.(settingsC{k})))
+        whichFeatS.(settingsC{k}) = userInS.settings.(settingsC{k});
+        whichFeatS.(settingsC{k}).flag = 1;
+    end
 end
 
 inputClassesC = fieldnames(userInS.featureClass);
