@@ -79,7 +79,8 @@ dirctn      = 1;
 cooccurType = 2;
 % harFeat3DdirS = get_haralick(dirctn, cooccurType, testM, ...
 % nL, glcmFlagS);
-harFeat3DdirS = get_haralick(dirctn, cooccurType, testQuantM, ...
+voxelOffset = 0;
+harFeat3DdirS = get_haralick(dirctn, voxelOffset, cooccurType, testQuantM, ...
 nL, glcmFlagS);
 
 % harlCombS = featureS.harFeat3DcombS.CombS;
