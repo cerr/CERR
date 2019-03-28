@@ -17,14 +17,14 @@ function teststruct = PyradWrapper(scanM, maskM, preprocessingFilter, dirString)
     
     P = py.sys.path;     
     currentPath = pwd;
-    cd(fileparts(which('pyFeatureExtraction.py')));
+    cd(fullfile(topLevelCERRDir,'Unit_Testing','tests_for_cerr'));
     %import python module if not in system path
     try
         
         if count(P,pyradiomicsWrapperPath) == 0
             insert(P,int32(0),pyradiomicsWrapperPath);
         end
-        py.importlib.import_module(pyModule)
+        py.importlib.import_module(pyModule);
         
     catch
         disp('Python module could not be imported, check the pyradiomics path');
