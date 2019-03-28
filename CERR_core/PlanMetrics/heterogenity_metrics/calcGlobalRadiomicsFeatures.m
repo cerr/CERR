@@ -282,8 +282,8 @@ if any([whichFeatS.glcm.flag,whichFeatS.glrlm.flag,whichFeatS.gtdm.flag,...
         patchRadiusV = paramS.textureParamS.patchRadiusVox;
         [s,p] = calcNGTDM(quantizedM, patchRadiusV, ...
             numGrLevels);
-    end
-    featureS.ngtdmFeatS = ngtdmToScalarFeatures(s,p,numVoxels);
+        featureS.ngtdmFeatS = ngtdmToScalarFeatures(s,p,numVoxels);
+    end    
     
     
     %d. GLDM
@@ -291,8 +291,8 @@ if any([whichFeatS.glcm.flag,whichFeatS.glrlm.flag,whichFeatS.gtdm.flag,...
         patchRadiusV = paramS.textureParamS.patchRadiusVox;
         imgDiffThresh = paramS.textureParamS.imgDiffThresh;
         ngldM = calcNGLDM(quantizedM, patchRadiusV,numGrLevels,imgDiffThresh);
-    end
-    featureS.ngldmFeatS = ngldmToScalarFeatures(ngldM,numVoxels);
+        featureS.ngldmFeatS = ngldmToScalarFeatures(ngldM,numVoxels);
+    end    
 
     
     %e. GLSZM
