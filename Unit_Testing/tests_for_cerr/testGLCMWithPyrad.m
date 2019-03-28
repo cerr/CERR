@@ -3,102 +3,39 @@
 % RKP, 03/22/2018
 
 
+glcmParamFileName = fullfile(fileparts(fileparts(getCERRPath)),...
+    'Unit_Testing','tests_for_cerr','test_glcm_radiomics_extraction_settings.json');
+cerrFileName = fullfile(fileparts(fileparts(getCERRPath)),...
+    'Unit_Testing','data_for_cerr_tests','CERR_plans','head_neck_ex1_20may03.mat.bz2');
 
-% % Structure from planC
-% global planC
-% indexS = planC{end};
-% scanNum     = 1;
-% structNum   = 16;
-% 
-% [rasterSegments, planC, isError]    = getRasterSegments(structNum,planC);
-% [mask3M, uniqueSlices]              = rasterToMask(rasterSegments, scanNum, planC);
-% scanArray3M                         = getScanArray(planC{indexS.scan}(scanNum));
-% 
-% SUVvals3M                           = mask3M.*double(scanArray3M(:,:,uniqueSlices));
-% [minr, maxr, minc, maxc, mins, maxs]= compute_boundingbox(mask3M);
-% maskBoundingBox3M                   = mask3M(minr:maxr,minc:maxc,mins:maxs);
-% volToEval                           = SUVvals3M(minr:maxr,minc:maxc,mins:maxs);
-% volToEval(maskBoundingBox3M==0)     = NaN;
-% 
-% testM = imquantize_cerr(volToEval,nL);
+planC = loadPlanC(cerrFileName,tempdir);
+indexS = planC{end};
 
-% % Number of Gray levels
-% nL = 16;
-% 
-% % Random n x n x n matrix
-% n = 20;
-% testM = rand(n,n,5);
-% testM = imquantize_cerr(testM,nL);
-% maskBoundingBox3M = testM .^0;
+paramS = getRadiomicsParamTemplate(glcmParamFileName);
+strNum = getMatchingIndex(paramS.structuresC{1},{planC{indexS.structures}.structureName});
+scanNum = getStructureAssociatedScan(strNum,planC);
 
-scanNum = 1;
-strNum = 1;
-testM = single(planC{indexS.scan}(scanNum).scanArray) - planC{indexS.scan}(scanNum).scanInfo(1).CTOffset;
-maskBoundingBox3M = getUniformStr(strNum);
-testQuantM = testM;
-testQuantM(~maskBoundingBox3M) = NaN;
-testQuantM = imquantize_cerr(testQuantM,[],[],[],25);
-nL = max(testQuantM(:));
-
-scanType = 'original';
-%generate results from pyradiomics
-teststruct = PyradWrapper(testM, maskBoundingBox3M, scanType);
-
-%% CERR GLCM features
-
-% Define flags
-glcmFlagS.energy = 1;
-glcmFlagS.jointEntropy = 1;
-glcmFlagS.jointMax = 1;
-glcmFlagS.jointAvg = 1;
-glcmFlagS.jointVar = 1;
-glcmFlagS.contrast = 1;
-glcmFlagS.invDiffMoment = 1;
-glcmFlagS.sumAvg = 1;
-glcmFlagS.corr = 1;
-glcmFlagS.clustShade = 1;
-glcmFlagS.clustProm = 1;
-glcmFlagS.haralickCorr = 1;
-glcmFlagS.invDiffMomNorm = 1;
-glcmFlagS.invDiff = 1;
-glcmFlagS.invDiffNorm = 1;
-glcmFlagS.invVar = 1;
-glcmFlagS.dissimilarity = 1;
-glcmFlagS.diffEntropy = 1;
-glcmFlagS.diffVar = 1;
-glcmFlagS.diffAvg = 1;
-glcmFlagS.sumVar = 1;
-glcmFlagS.sumEntropy = 1;
-glcmFlagS.clustTendency = 1;
-glcmFlagS.autoCorr = 1;
-glcmFlagS.invDiffMomNorm = 1;
-glcmFlagS.firstInfCorr = 1;
-glcmFlagS.secondInfCorr = 1;
-
-dirctn      = 1;
-cooccurType = 2;
-% harFeat3DdirS = get_haralick(dirctn, cooccurType, testM, ...
-% nL, glcmFlagS);
-voxelOffset = 0;
-harFeat3DdirS = get_haralick(dirctn, voxelOffset, cooccurType, testQuantM, ...
-nL, glcmFlagS);
-
-% harlCombS = featureS.harFeat3DcombS.CombS;
-harlCombS = harFeat3DdirS.AvgS;
+% Calculate features using CERR
+harFeat3DdirS = calcGlobalRadiomicsFeatures...
+            (scanNum, strNum, paramS, planC);
+harlCombS = harFeat3DdirS.glcmFeatS.AvgS;
 cerrGlcmV = [harlCombS.autoCorr, harlCombS.jointAvg, harlCombS.clustPromin, harlCombS.clustShade, harlCombS.clustTendency, ...
 harlCombS.contrast, harlCombS.corr, harlCombS.diffAvg, harlCombS.diffEntropy, harlCombS.diffVar, harlCombS.dissimilarity, ...
 harlCombS.energy, harlCombS.jointEntropy, harlCombS.invDiff, harlCombS.invDiffMom, harlCombS.firstInfCorr, ...
 harlCombS.secondInfCorr, harlCombS.invDiffMomNorm, harlCombS.invDiffNorm, harlCombS.invVar, ...
 harlCombS.sumAvg, harlCombS.sumEntropy, harlCombS.sumVar];
 
+% Calculate features using pyradiomics
+testM = single(planC{indexS.scan}(scanNum).scanArray) - planC{indexS.scan}(scanNum).scanInfo(1).CTOffset;
+maskBoundingBox3M = getUniformStr(strNum);
+scanType = 'original';
+teststruct = PyradWrapper(testM, maskBoundingBox3M, scanType);
 pyradGlcmNamC = {'Autocorrelation', 'JointAverage', 'ClusterProminence', 'ClusterShade',  'ClusterTendency', ...
     'Contrast', 'Correlation', 'DifferenceAverage', 'DifferenceEntropy', 'DifferenceVariance', 'Dissimilarity', ...
     'JointEnergy', 'JointEntropy','Id','Idm', 'Imc1' , ...
     'Imc2', 'Idmn','Idn','InverseVariance', 'sumAverage', 'SumEntropy', 'sumVariance'};
 
-    pyradGlcmNamC = strcat(['original','_glcm_'],pyradGlcmNamC);
-
-
+pyradGlcmNamC = strcat(['original','_glcm_'],pyradGlcmNamC);
 pyRadGlcmV = [];
 for i = 1:length(pyradGlcmNamC)
     if isfield(teststruct,pyradGlcmNamC{i})
@@ -108,4 +45,4 @@ for i = 1:length(pyradGlcmNamC)
     end
 end
 
-glcmDiffV = (cerrGlcmV - pyRadGlcmV) ./ cerrGlcmV * 100
+glcmDiffV = (cerrGlcmV - pyRadGlcmV) ./ cerrGlcmV * 100;
