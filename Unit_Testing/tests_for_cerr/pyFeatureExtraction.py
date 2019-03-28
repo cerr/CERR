@@ -8,11 +8,11 @@ import scipy
 import matlab
 #import matlab.engine
 import six
-from radiomics import getTestCase, imageoperations, featureextractor, getTestCase
+from radiomics import getTestCase, featureextractor, imageoperations, firstorder
 from radiomics.featureextractor import RadiomicsFeaturesExtractor
 
 
-def extract(imagePath, maskPath, paramfilepath, preprocessingFilter, tempDir):
+def extract(imagePath, maskPath, paramfilepath, preprocessingFilter, tempDir, dirStr):
   r"""
   RKP - 3/20/2018
   Wrapper class for calculation of a radiomics features using pyradiomics.
@@ -42,7 +42,7 @@ def extract(imagePath, maskPath, paramfilepath, preprocessingFilter, tempDir):
     extractor = featureextractor.RadiomicsFeaturesExtractor(params)
     result = extractor.execute(imagePath, maskPath)
     sigmaValues = [3.0]
-    for logImage, imageTypeName, inputKwargs in imageoperations.getLoGImage(image, sigma=sigmaValues):
+    for logImage, imageTypeName, inputKwargs in imageoperations.getLoGImage(image, mask, sigma=sigmaValues):
       resultArray = sitk.GetArrayFromImage(logImage)
       resultArray = matlab.double(resultArray.tolist())
       imgName = tempDir + imageTypeName + '.nrrd'
@@ -56,22 +56,35 @@ def extract(imagePath, maskPath, paramfilepath, preprocessingFilter, tempDir):
 
   elif preprocessingFilter == 'wavelet':
     resultdict = {}
-    for decompositionImage in imageoperations.getWaveletImage(image):
-      resultArray=sitk.GetArrayFromImage(decompositionImage)
-      # imgName = decompositionName+'.nrrd'
-      # sitk.WriteImage(decompositionImage,imgName)
-      resultArray = matlab.double(resultArray.tolist())
-      resultdict[decompositionName] = resultArray
-    for key, val in six.iteritems(resultdict):
-      strval = str(key)
-      if strval.find("-") == -1:
-        continue
-      else:
-        strval = strval.replace("-", "_")
-        strval = strval.replace("-", "_")
-        resultdict[strval] = resultdict.pop(key)
 
-    return resultdict
+    for decompositionImage, decompositionName, inputKwargs in imageoperations.getWaveletImage(image, mask):
+      waveletName = 'wavelet-' + dirStr
+      if decompositionName == waveletName:
+
+        resultArray = sitk.GetArrayFromImage(decompositionImage)
+        resultArray = matlab.double(resultArray.tolist())
+        imgName = tempDir + decompositionName + '.nrrd'
+        try:
+          sitk.WriteImage(decompositionImage, imgName)
+        except Exception as e:
+          print("Couldn't write image to file (%s)." % e)
+
+    #   resultArray=sitk.GetArrayFromImage(decompositionImage[0][0])
+    #   #imgName = inputImageName+'.nrrd'
+    #   #sitk.WriteImage(decompositionImage,imgName)
+    #   resultArray = matlab.double(resultArray.tolist())
+    #   #resultdict[inputImageName] = resultArray
+    # for key, val in six.iteritems(resultArray):
+    #   strval = str(key)
+    #   if strval.find("-") == -1:
+    #     continue
+    #   else:
+    #     strval = strval.replace("-", "_")
+    #     strval = strval.replace("-", "_")
+    #     resultdict[strval] = resultdict.pop(key)
+
+    #return resultdict
+    return resultArray
 #perform feature extraction on original images and return the result
   else:    
     extractor = featureextractor.RadiomicsFeaturesExtractor(params)
@@ -93,7 +106,7 @@ def main():
   imagePath = 'C:\\Users\\pandyar1\\AppData\\Local\\Temp\\scan.nrrd'
   maskPath = 'C:\\Users\\pandyar1\\AppData\\Local\\Temp\\mask.nrrd'
   paramFilePath = 'W:\\Rutu\\CERR-testing\\Unit_Testing\\tests_for_cerr\pyradParams.yaml'
-  result = extract(imagePath, maskPath, paramFilePath, 'LoG', 'C:\\Users\\pandyar1\\AppData\\Local\\Temp\\')
+  result = extract(imagePath, maskPath, paramFilePath, 'wavelet', 'C:\\Users\\pandyar1\\AppData\\Local\\Temp\\', 'HHH')
 
 
 main()

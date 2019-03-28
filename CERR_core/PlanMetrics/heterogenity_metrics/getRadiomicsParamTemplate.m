@@ -85,9 +85,12 @@ whichFeatS = struct('resample',struct('flag',0),'perturbation',struct('flag',0),
     'glrlm',struct('flag',0),'gtdm',struct('flag',0),'gldm',struct('flag',0),...
     'glszm',struct('flag',0));
 for k = 1:length(settingsC)
-    if ~isempty(fieldnames(userInS.settings.(settingsC{k})))
-        whichFeatS.(settingsC{k}) = userInS.settings.(settingsC{k});
-        whichFeatS.(settingsC{k}).flag = 1;
+    fieldNamC = fieldnames(userInS.settings.(settingsC{k}));
+    if ~isempty(fieldNamC)
+        for iField = 1:length(fieldNamC)
+            whichFeatS.(settingsC{k}).(fieldNamC{iField}) = userInS.settings...
+                .(settingsC{k}).(fieldNamC{iField});
+        end        
     end
 end
 
@@ -95,9 +98,10 @@ inputClassesC = fieldnames(userInS.featureClass);
 for k =1:length(inputClassesC)
     whichFeatS.(inputClassesC{k}).flag = 1;
     if isfield(userInS.featureClass.(inputClassesC{k}),'featureList')
-    whichFeatS.(inputClassesC{k}).featureList = userInS.featureClass.(inputClassesC{k}).featureList;
+        whichFeatS.(inputClassesC{k}).featureList = ...
+            userInS.featureClass.(inputClassesC{k}).featureList;
     else
-    whichFeatS.(inputClassesC{k}).featureList = {'all'};
+        whichFeatS.(inputClassesC{k}).featureList = {'all'};
     end
 end
 radiomicsParamS.whichFeatS = whichFeatS;

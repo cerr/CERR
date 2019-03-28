@@ -14,16 +14,22 @@ pyradLoGImgName = 'log-sigma-3-0-mm-3D.nrrd';
 
 %% PyRadiomics LoG (FYI, Kernel Size = 3)
 teststruct = PyradWrapper(testM, maskBoundingBox3M, scanType);
-fullfile(tmpDir, pyradLoGImgName);
-log3M = double(log3M);
+%pyradiomics log image 
+pyrad_log_filename = fullfile(tmpDir, pyradLoGImgName);
+[log3M, infoS] = nrrd_read(pyrad_log_filename);
+%log3M = flipdim(data3M,3);
 
-% Recursive LOG filter
+log3M = double(log3M);
+log3M = permute(log3M, [2 1 3]);
+
+
+%% CERR Recursive LOG filter
 sigma = 3;
 cerrLog3M = recursiveLOG(padarray(testM,[4,4,4],0,'both'),sigma,infoS.PixelDimensions);
 %cerrLog3M = recursiveLOG(testM,sigma,infoS.PixelDimensions);
 cerrLog3M = cerrLog3M(5:end-4,5:end-4,5:end-4);
 
-log3M = permute(log3M, [2 1 3]);
+
 
 diff3M = (cerrLog3M - log3M)./(log3M+1e-5);
 quantile99Diff = quantile(abs(diff3M(abs(log3M)>0.1)),0.99);
