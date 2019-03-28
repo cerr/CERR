@@ -26,10 +26,16 @@ harlCombS.secondInfCorr, harlCombS.invDiffMomNorm, harlCombS.invDiffNorm, harlCo
 harlCombS.sumAvg, harlCombS.sumEntropy, harlCombS.sumVar];
 
 % Calculate features using pyradiomics
-testM = single(planC{indexS.scan}(scanNum).scanArray) - planC{indexS.scan}(scanNum).scanInfo(1).CTOffset;
-maskBoundingBox3M = getUniformStr(strNum);
+% image and mask for a structure
+testM = single(planC{indexS.scan}(scanNum).scanArray) - ...
+    single(planC{indexS.scan}(scanNum).scanInfo(1).CTOffset);
+mask3M = zeros(size(testM),'logical');
+[rasterSegments, planC, isError] = getRasterSegments(strNum,planC);
+[maskBoundBox3M, uniqueSlices] = rasterToMask(rasterSegments, scanNum, planC);
+mask3M(:,:,uniqueSlices) = maskBoundBox3M;
+
 scanType = 'original';
-teststruct = PyradWrapper(testM, maskBoundingBox3M, scanType);
+teststruct = PyradWrapper(testM, mask3M, scanType);
 pyradGlcmNamC = {'Autocorrelation', 'JointAverage', 'ClusterProminence', 'ClusterShade',  'ClusterTendency', ...
     'Contrast', 'Correlation', 'DifferenceAverage', 'DifferenceEntropy', 'DifferenceVariance', 'Dissimilarity', ...
     'JointEnergy', 'JointEntropy','Id','Idm', 'Imc1' , ...
