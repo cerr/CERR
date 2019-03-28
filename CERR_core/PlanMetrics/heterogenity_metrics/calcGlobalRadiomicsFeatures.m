@@ -177,6 +177,12 @@ end
 volToEval(~maskBoundingBox3M) = NaN;
 
 
+% ============================================================
+% separate everything beyond this into a separate function. Add filterType
+% as an input arg and call processImage to filter original image before
+% feature extraction (outS = processImage(filterType,scan3M,mask3M,paramS);)
+
+
 if paramS.toQuantizeFlag == 1
     % Quantize the volume of interest
     numGrLevels = [];
