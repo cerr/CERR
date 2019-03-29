@@ -110,6 +110,7 @@ switch filterType
         else
             outname = [wavType,'_',dir];
             outname = strrep(outname,'.','_');
+            outname = strrep(outname,' ','_');
             out3M = wavDecom3D(vol3M,dir,wavType);
             if mod(size(out3M,3),2) > 0
                 out3M = out3M(:,:,1:end-1);
