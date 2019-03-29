@@ -1,0 +1,15 @@
+{
+	
+	"name": "Test protocol",
+    "numFractions": 5,
+	"models": {
+		       
+		"Rectal bleeding":    {
+				        "modelFile": "Rectal bleeding (grade 2+).json"
+		                      }
+		      },
+    "created_by": "Aditi Iyer",
+	"created_at": "12PM 8\/21\/17",
+	"modified_by": "",
+	"modified_at": ""
+}

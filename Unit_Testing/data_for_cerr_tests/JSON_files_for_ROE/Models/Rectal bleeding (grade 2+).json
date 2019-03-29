@@ -1,0 +1,34 @@
+{
+
+	"name": "Rectal bleeding (grade 2+)",
+	"type": "NTCP",
+	"stdFractionSize": 2,
+	"fractionCorrect": "Yes",
+	"correctionType": "fsize",
+	"abRatio": 3,
+	"parameters": {
+
+		"structures": "testStr1",
+
+
+		"D50": {
+			"val": 76.9,
+			"type": ["Cont"]
+		       },
+		"m": {
+			"val": 0.13,
+			"type": ["Cont"]
+		       },
+
+		"n": {
+			"val": 0.09,
+			"type": ["Cont"]
+		      }
+
+	},
+	"function": "LKBFn",
+	"created_by": "Aditi",
+	"created_at": "3PM 2\/08\/17",
+	"modified_by": "",
+	"modified_at": ""
+}
