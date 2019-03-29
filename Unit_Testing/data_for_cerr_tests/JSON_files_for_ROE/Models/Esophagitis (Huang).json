@@ -1,0 +1,43 @@
+{
+	"name": "Esophagitis (Huang)",
+	"type": "NTCP",
+	"stdNumFractions": 35,
+	"fractionCorrect": "Yes",
+	"correctionType": "nfrx",
+	"abRatio": 10,
+	"parameters": {
+
+		"structures": {
+			       "testStr1":{
+                			  "meanDose": {
+							"val": "calc_meanDose",
+ 							"weight": 0.0688,
+							"type": ["string", "cont"],
+							"cteg": ["calc_meanDose","calc_meanDose"]
+                                    	               }
+				          }
+			     },
+
+		
+		"concurrentChemo": {    
+				     "val": 1,
+				     "weight": 1.5,
+				     "type": ["bin", "cont"],
+				     "cteg": [0,1],
+				     "desc": ["No", "Yes"]
+                                   },
+
+
+                "constant": { 
+				"val": 1,
+				"weight": -3.13,
+				"type": ["cont", "cont"],
+				"cteg": [0, 1]
+		            }
+	               },
+	"function": "logitFn",
+	"created_by": "Aditi",
+	"created_at": "2PM 11\/08\/17",
+	"modified_by": "",
+	"modified_at": ""
+}

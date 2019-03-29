@@ -16,6 +16,18 @@ function radiomicsParamS = getRadiomicsParamTemplate(paramFilename)
 %% Read JSON file
 userInS = jsondecode(fileread(paramFilename));
 
+%% Get image type
+filterTypeC = fieldnames(userInS.imageType);
+radiomicsParamS.imageType = struct();
+for m = 1:length(filterTypeC)
+    paramListC = fieldnames(userInS.imageType.(filterTypeC{m}));
+    radiomicsParamS.imageType.(filterTypeC{m}) = struct();
+    for n = 1:length(paramListC)
+    radiomicsParamS.imageType.(filterTypeC{m}).(paramListC{n}).val = userInS.imageType.(filterTypeC{m}).(paramListC{n});
+    end
+end
+
+
 %% Calculation Parameters
 settingsC = fieldnames(userInS.settings);
 firstOrderParamS = struct;
