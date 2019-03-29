@@ -3,7 +3,12 @@
 "structures": ["GTV_p_n_MT"],
 
 "imageType": {
-  		  "Original": {}
+  		  "Original": {},
+		  "Wavelets": {
+				"Wavelets": "Haar",
+				"Index": "",
+				"Direction": "HLH"
+			      }
 
 	    },
 
