@@ -1,0 +1,26 @@
+{
+	
+	"name": "Test protocol",
+    	"numFractions": 35,
+	"models": {
+		       
+		"Pneumonitis(Appelt)":    {
+				        "modelFile": "Pneumonitis (Appelt).json"
+		                          },
+                "Esophagitis (Wijsman)": {
+				        "modelFile": "Esophagitis (Wijsman).json"
+					},
+
+	        "Esophagitis (Huang)": {
+				        "modelFile": "Esophagitis (Huang).json"
+				       },
+		"TCP":    {
+				        "modelFile": "Lung TCP.json"
+		          }
+ 
+		      },
+    "created_by": "Aditi Iyer",
+	"created_at": "12PM 8\/21\/17",
+	"modified_by": "",
+	"modified_at": ""
+}
