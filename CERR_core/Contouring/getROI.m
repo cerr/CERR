@@ -61,6 +61,8 @@ croppedImg3M = bwareaopen(volToEval > -400, 100);
 %Changed AI 12/14/18
 [~, ~, minc2, maxc2]= compute_boundingbox(croppedImg3M);
 volToEval = volToEval(:,minc2:maxc2,:);
+minc = minc + minc2 - 1;
+maxc = minc + maxc2 - 1;
 maskBoundingBox3M      = volToEval .^ 0;
 
 % Pad the mask in S-I direction
