@@ -1,19 +1,9 @@
-function featureS = calcRadiomicsForImgType(volToEval,maskBoundingBox3M,paramS,gridS)
+function featureS = calcRadiomicsForImgType(volOrig3M,maskBoundingBox3M,paramS,gridS)
 %calcRadiomicsForImgType.m
 %Derive user-defined image type and extract radiomics features.
 %
 %AI 3/28/19
 
-
-%% Get user-input parameters
-minIntensityCutoff = [];
-maxIntensityCutoff = [];
-if isfield(paramS.textureParamS,'minIntensityCutoff')
-    minIntensityCutoff = paramS.textureParamS.minIntensityCutoff;
-end
-if isfield(paramS.textureParamS,'maxIntensityCutoff')
-    maxIntensityCutoff = paramS.textureParamS.maxIntensityCutoff;
-end
 
 % Voxel volume for Total Energy calculation
 xValsV = gridS.xValsV;
@@ -24,28 +14,52 @@ PixelSpacingY = gridS.PixelSpacingV(2);
 PixelSpacingZ = gridS.PixelSpacingV(3);
 VoxelVol = PixelSpacingX*PixelSpacingY*PixelSpacingZ*1000; % convert cm to mm
 
-
-%% Loop over image types
-
-imageTypeC = fieldnames(paramS.imageType);
-volOrig3M = volToEval;
+% Clip original image for computing derived image
+minIntensityCutoff = [];
+maxIntensityCutoff = [];
+if isfield(paramS.textureParamS,'minIntensityCutoff')
+    minIntensityCutoff = paramS.textureParamS.minIntensityCutoff;
+end
+if isfield(paramS.textureParamS,'maxIntensityCutoff')
+    maxIntensityCutoff = paramS.textureParamS.maxIntensityCutoff;
+end
+if ~isempty(minIntensityCutoff)
+    volOrig3M(volOrig3M < minIntensityCutoff) = minIntensityCutoff;
+end
+if ~isempty(maxIntensityCutoff)
+    volOrig3M(volOrig3M > maxIntensityCutoff) = maxIntensityCutoff;
+end
 whichFeatS = paramS.whichFeatS;
 featureS = struct;
 
+imageTypeC = fieldnames(paramS.imageType);
+%% Loop over image types
 for k = 1:length(imageTypeC)
     
-    %Compute derived images
+    %Generate volume based on original/derived imageType
     if strcmpi(imageTypeC{k},'original')
+        minIntensityCutoff = [];
+        maxIntensityCutoff = [];
+        if isfield(paramS.textureParamS,'minIntensityCutoff')
+            minIntensityCutoff = paramS.textureParamS.minIntensityCutoff;
+        end
+        if isfield(paramS.textureParamS,'maxIntensityCutoff')
+            maxIntensityCutoff = paramS.textureParamS.maxIntensityCutoff;
+        end        
         volToEval = volOrig3M;
+        quantizeFlag = paramS.toQuantizeFlag;
     else
-        outS = processImage(imageTypeC{k},volToEval,maskBoundingBox3M,...
+        outS = processImage(imageTypeC{k},volOrig3M,maskBoundingBox3M,...
             paramS.imageType.(imageTypeC{k}));
         derivedImgName = fieldnames(outS);
         volToEval = outS.(derivedImgName{1});
+        quantizeFlag = true; % always quantize the derived image
+        minIntensityCutoff = []; % no clipping imposed for derived images
+        maxIntensityCutoff = []; % no clipping imposed for derived images
     end
     
-    if paramS.toQuantizeFlag == 1
-        % Quantize the volume of interest
+    % Quantize the volume of interest
+    if quantizeFlag        
         numGrLevels = [];
         binwidth = [];
         if isfield(paramS.textureParamS,'numGrLevels')
