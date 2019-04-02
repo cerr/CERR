@@ -1,0 +1,69 @@
+{
+
+"structures": ["Target 2"],
+
+"imageType": {
+  		  "Original": {},
+          "Wavelets": {
+				"Wavelets": "Haar",
+				"Index": "",
+				"Direction": "HLH"
+			      }
+
+
+	    },
+
+"settings": {		   
+
+		   "resample": {
+			       },
+
+		   "perturbation": {
+			           },
+
+		   "firstOrder" :{ 
+				   "binWidthEntropy": 25,
+				   "offsetForEnergy": 0
+                                 },
+
+		   "texture" :{ 
+				"binwidth": [],
+                "numGrLevels": 64,
+				"minIntensity": [],
+				"maxIntensity": [],
+                "directionality": "3D",
+				"avgType": "feature",
+				"voxelOffset": 1,
+				"patchRadiusVox": [1,1,1],
+				"imgDiffThresh": 10
+                              },
+
+		   "shape" :{ 
+			       "rcs": []
+                            },
+
+		  "peakValley" :{ 
+				   "peakRadius": [2, 2, 0],
+				   "units": "vox"	
+                                },
+
+		  "ivh" :{ 
+                "binwidth": 0.1,
+			    "xForIxPct": [],
+			    "xForIxCc": [],
+			    "xForVxPct": [0, 10, 20, 50, 80, 90, 95],
+                "xForVxAbs": []       
+                }
+	    },
+
+
+ "featureClass":{
+			
+
+		"glszm": {
+			    	  "featureList": ["all"]
+                }
+
+            }
+
+}
