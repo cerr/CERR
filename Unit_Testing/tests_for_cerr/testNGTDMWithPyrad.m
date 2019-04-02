@@ -3,8 +3,8 @@
 % RKP, 03/22/2018
 
 % % Structure from planC
-% global planC
-% indexS = planC{end};
+global planC
+indexS = planC{end};
 % scanNum     = 1;
 % structNum   = 16;
 % 
@@ -29,7 +29,7 @@
 % testM = rand(n,n,5);
 % testM = imquantize_cerr(testM,nL);
 % maskBoundingBox3M = testM .^0;
-
+%indexS = planC;
 scanNum = 1;
 strNum = 1;
 testM = single(planC{indexS.scan}(scanNum).scanArray) - planC{indexS.scan}(scanNum).scanInfo(1).CTOffset;
@@ -46,9 +46,32 @@ scanType = 'original';
 %generate results from pyradiomics
 teststruct = PyradWrapper(testM, maskBoundingBox3M, scanType);
 
+pyradNgtdmNamC = {'SmallDependenceEmphasis', 'LargeDependenceEmphasis',...
+    'LowGrayLevelCountEmphasis', 'HighGrayLevelCountEmphasis',  'SmallDependenceLowGrayLevelEmphasis', ...
+    'SmallDependenceHighGrayLevelEmphasis', 'LargeDependenceLowGrayLevelEmphasis', ...
+    'LargeDependenceHighGrayLevelEmphasis', 'GrayLevelNonUniformity', 'GrayLevelNonUniformityNorm', ...
+    'DependenceNonUniformity', 'DependenceNonUniformityNormalized', ...
+    'DependencePercentage', 'GrayLevelVariance', 'DependenceVariance', ...
+    'DependenceEntropy', 'DependenceEnergy'};
+
+
+pyradNgtdmNamC = strcat(['original', '_gldm_'],pyradNgtdmNamC);
+
+pyRadNgldmV = [];
+for i = 1:length(pyradNgtdmNamC)
+    if isfield(teststruct,pyradNgtdmNamC{i})
+        pyRadNgtdmV(i) = teststruct.(pyradNgtdmNamC{i});
+    else
+        pyRadNgtdmV(i) = NaN;
+    end
+end
+
 %% CERR NGTDM features
 
 [s,p] = calcNGTDM(testM, [1, 1, 1], nL);
 ngtdmS = ngtdmToScalarFeatures(s,p,numVoxels);
 
 cerrNgtdmV = [ngtdmS.busyness ngtdmS.coarseness ngtdmS.complexity ngtdmS.contrast ngtdmS.strength];
+%the two don't match, CERR has 5 vs pyradiomics has 17 features. confirm
+%names
+ngtdmDiffV = (cerrNgtdmV - pyRadNgtdmV) ./ cerrNgldmV * 100

@@ -106,7 +106,7 @@ def main():
   imagePath = 'C:\\Users\\pandyar1\\AppData\\Local\\Temp\\scan.nrrd'
   maskPath = 'C:\\Users\\pandyar1\\AppData\\Local\\Temp\\mask.nrrd'
   paramFilePath = 'W:\\Rutu\\CERR-testing\\Unit_Testing\\tests_for_cerr\pyradParams.yaml'
-  result = extract(imagePath, maskPath, paramFilePath, 'wavelet', 'C:\\Users\\pandyar1\\AppData\\Local\\Temp\\', 'HHH')
+  result = extract(imagePath, maskPath, paramFilePath, '', 'C:\\Users\\pandyar1\\AppData\\Local\\Temp\\', 'HHH')
 
 
 main()
