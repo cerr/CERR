@@ -18,17 +18,17 @@ scanNum = getStructureAssociatedScan(strNum,planC);
 
 %% Calculate features using CERR
 
-szmM = calcGlobalRadiomicsFeatures...
+szmS = calcGlobalRadiomicsFeatures...
             (scanNum, strNum, paramS, planC);
 
 
 
-szmS = szmM.Original.szmFeatS;
+szmS = szmS.Original.szmFeatS;
 
 
 cerrSzmV = [szmS.gln, szmS.glnNorm, szmS.glv, szmS.hglze, szmS.lglze, szmS.lae, szmS.lahgle, ...
     szmS.lalgle, szmS.szn, szmS.sznNorm, szmS.szv, szmS.zp, ...
-    szmS.sae, szmS.sahgle, szmS.salgle];
+    szmS.sae, szmS.sahgle, szmS.salgle, szmS.ze];
 
 
 %% Calculate features using pyradiomics
@@ -48,7 +48,7 @@ pyradSzmNamC = {'GrayLevelNonUniformity', 'GrayLevelNonUniformityNormalized',...
     'LargeAreaEmphasis', 'LargeAreaHighGrayLevelEmphasis', 'LargeAreaLowGrayLevelEmphasis',...
     'SizeZoneNonUniformity', 'SizeZoneNonUniformityNormalized', 'ZoneVariance', ...
     'ZonePercentage', 'SmallAreaEmphasis','SmallAreaHighGrayLevelEmphasis', ...
-    'SmallAreaLowGrayLevelEmphasis'};
+    'SmallAreaLowGrayLevelEmphasis', 'ZoneEntropy'};
 
 pyradSzmNamC = strcat(['original', '_glszm_'],pyradSzmNamC);
 
