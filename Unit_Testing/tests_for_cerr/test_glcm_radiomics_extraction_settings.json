@@ -3,7 +3,13 @@
 "structures": ["Target 2"],
 
 "imageType": {
-  		  "Original": {}
+  		  "Original": {},
+          "Wavelets": {
+				"Wavelets": "Haar",
+				"Index": "",
+				"Direction": "HLH"
+			      }
+
 
 	    },
 

@@ -296,6 +296,7 @@ function szmFlagS = getSizeZoneFlags(varargin)
         szmFlagS.sae = 1;    
         szmFlagS.salgle = 1;
         szmFlagS.sahgle = 1;
+        szmFlagS.ze = 1;
         
         
         if nargin==1 && ~strcmpi(varargin{1},'all')
