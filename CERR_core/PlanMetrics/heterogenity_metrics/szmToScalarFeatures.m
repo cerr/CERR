@@ -159,7 +159,7 @@ if flagS.szv
 end
 
 % Zone Entropy
-if flagS.ze
-    zoneSum = sum(szmM(:));
-    featureS.ze = -sum(szmM(:)/zoneSum .* log2(szmM(:)/zoneSum + eps));
-end
+% if flagS.ze
+%     zoneSum = sum(szmM(:));
+%     featureS.ze = -sum(szmM(:)/zoneSum .* log2(szmM(:)/zoneSum + eps));
+% end
