@@ -23,7 +23,7 @@ szmM = calcGlobalRadiomicsFeatures...
 
 
 
-szmS = szmM.szmFeatS;
+szmS = szmM.Original.szmFeatS;
 
 
 cerrSzmV = [szmS.gln, szmS.glnNorm, szmS.glv, szmS.hglze, szmS.lglze, szmS.lae, szmS.lahgle, ...
