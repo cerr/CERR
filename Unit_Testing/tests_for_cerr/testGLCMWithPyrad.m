@@ -15,17 +15,17 @@ paramS = getRadiomicsParamTemplate(glcmParamFileName);
 strNum = getMatchingIndex(paramS.structuresC{1},{planC{indexS.structures}.structureName});
 scanNum = getStructureAssociatedScan(strNum,planC);
 
-% Calculate features using CERR
+%% Calculate features using CERR
 harFeat3DdirS = calcGlobalRadiomicsFeatures...
             (scanNum, strNum, paramS, planC);
-harlCombS = harFeat3DdirS.glcmFeatS.AvgS;
+harlCombS = harFeat3DdirS.Original.glcmFeatS.AvgS;
 cerrGlcmV = [harlCombS.autoCorr, harlCombS.jointAvg, harlCombS.clustPromin, harlCombS.clustShade, harlCombS.clustTendency, ...
 harlCombS.contrast, harlCombS.corr, harlCombS.diffAvg, harlCombS.diffEntropy, harlCombS.diffVar, harlCombS.dissimilarity, ...
 harlCombS.energy, harlCombS.jointEntropy, harlCombS.invDiff, harlCombS.invDiffMom, harlCombS.firstInfCorr, ...
 harlCombS.secondInfCorr, harlCombS.invDiffMomNorm, harlCombS.invDiffNorm, harlCombS.invVar, ...
 harlCombS.sumAvg, harlCombS.sumEntropy, harlCombS.sumVar];
 
-% Calculate features using pyradiomics
+%% Calculate features using pyradiomics
 % image and mask for a structure
 testM = single(planC{indexS.scan}(scanNum).scanArray) - ...
     single(planC{indexS.scan}(scanNum).scanInfo(1).CTOffset);
@@ -51,4 +51,5 @@ for i = 1:length(pyradGlcmNamC)
     end
 end
 
-glcmDiffV = (cerrGlcmV - pyRadGlcmV) ./ cerrGlcmV * 100;
+%% Compare
+glcmDiffV = (cerrGlcmV - pyRadGlcmV) ./ cerrGlcmV * 100

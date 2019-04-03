@@ -3,7 +3,7 @@
 "structures": ["Target 2"],
 
 "imageType": {
-  		  "Original": {},
+  		"Original": {},
           "Wavelets": {
 				"Wavelets": "Haar",
 				"Index": "",
@@ -60,7 +60,7 @@
  "featureClass":{
 			
 
-		"glcm": {
+		"shape": {
 			    	  "featureList": ["all"]
                 }
 

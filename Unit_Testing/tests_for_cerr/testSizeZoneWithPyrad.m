@@ -4,84 +4,51 @@
 
 
 
-% % Structure from planC
-% global planC
-% indexS = planC{end};
-% scanNum     = 1;
-% structNum   = 16;
-% 
-% [rasterSegments, planC, isError]    = getRasterSegments(structNum,planC);
-% [mask3M, uniqueSlices]              = rasterToMask(rasterSegments, scanNum, planC);
-% scanArray3M                         = getScanArray(planC{indexS.scan}(scanNum));
-% 
-% SUVvals3M                           = mask3M.*double(scanArray3M(:,:,uniqueSlices));
-% [minr, maxr, minc, maxc, mins, maxs]= compute_boundingbox(mask3M);
-% maskBoundingBox3M                   = mask3M(minr:maxr,minc:maxc,mins:maxs);
-% volToEval                           = SUVvals3M(minr:maxr,minc:maxc,mins:maxs);
-% volToEval(maskBoundingBox3M==0)     = NaN;
-% 
-% testM = imquantize_cerr(volToEval,nL);
+sizeZoneParamFileName = fullfile(fileparts(fileparts(getCERRPath)),...
+    'Unit_Testing','tests_for_cerr','test_size_zone_radiomics_extraction_settings.json');
+cerrFileName = fullfile(fileparts(fileparts(getCERRPath)),...
+    'Unit_Testing','data_for_cerr_tests','CERR_plans','head_neck_ex1_20may03.mat.bz2');
 
-% Number of Gray levels
-% nL = 16;
+planC = loadPlanC(cerrFileName,tempdir);
+indexS = planC{end};
 
-% Random n x n x n matrix
-% n = 20;
-% testM = rand(n,n,5);
-% testM = imquantize_cerr(testM,nL);
-% maskBoundingBox3M = testM .^0;
+paramS = getRadiomicsParamTemplate(sizeZoneParamFileName);
+strNum = getMatchingIndex(paramS.structuresC{1},{planC{indexS.structures}.structureName});
+scanNum = getStructureAssociatedScan(strNum,planC);
 
-scanNum = 1;
-strNum = 1;
-testM = single(planC{indexS.scan}(scanNum).scanArray) - planC{indexS.scan}(scanNum).scanInfo(1).CTOffset;
-maskBoundingBox3M = getUniformStr(strNum);
-testQuantM = testM;
-testQuantM(~maskBoundingBox3M) = NaN;
-testQuantM = imquantize_cerr(testQuantM,[],[],[],25);
-nL = max(testQuantM(:));
+%% Calculate features using CERR
 
-scanType = 'original';
-%generate results from pyradiomics
-teststruct = PyradWrapper(testM, maskBoundingBox3M, scanType);
+szmS = calcGlobalRadiomicsFeatures...
+            (scanNum, strNum, paramS, planC);
 
-%% Size Zone features in 3d for CERR
 
-flagS.sae = 1;
-flagS.lae = 1;
-flagS.gln = 1;
-flagS.glv = 1;
-flagS.szv = 1;
-flagS.glnNorm = 1;
-flagS.szn = 1;
-flagS.sznNorm = 1;
-flagS.zp = 1;
-flagS.lglze = 1;
-flagS.hglze = 1;
-flagS.salgle = 1;
-flagS.sahgle = 1;
-flagS.lalgle = 1;
-flagS.larhgle = 1;
-flagS.ze = 1;
-flagS.lahgle = 1;
 
-szmType = 1; % 1: 3d, 2: 2d
-szmM = calcSZM(testM, nL, szmType);
-numVoxels = sum(~isnan(testM(:)));
-szmS = szmToScalarFeatures(szmM,numVoxels, flagS);
+szmS = szmS.Original.szmFeatS;
 
-% cerrSzmV = [szmS.gln, szmS.glnNorm, szmS.glv, szmS.hglre, szmS.lglre, szmS.lre, szmS.lrhgle, ...
-%     szmS.lrlgle, szmS.rln, szmS.rlnNorm, szmS.rlv, szmS.rp, ...
-%     szmS.sre, szmS.srhgle, szmS.srlgle];
+
 cerrSzmV = [szmS.gln, szmS.glnNorm, szmS.glv, szmS.hglze, szmS.lglze, szmS.lae, szmS.lahgle, ...
     szmS.lalgle, szmS.szn, szmS.sznNorm, szmS.szv, szmS.zp, ...
-    szmS.sae, szmS.sahgle, szmS.salgle];
+    szmS.sae, szmS.sahgle, szmS.salgle, szmS.ze];
+
+
+%% Calculate features using pyradiomics
+
+testM = single(planC{indexS.scan}(scanNum).scanArray) - ...
+    single(planC{indexS.scan}(scanNum).scanInfo(1).CTOffset);
+mask3M = zeros(size(testM),'logical');
+[rasterSegments, planC, isError] = getRasterSegments(strNum,planC);
+[maskBoundBox3M, uniqueSlices] = rasterToMask(rasterSegments, scanNum, planC);
+mask3M(:,:,uniqueSlices) = maskBoundBox3M;
+
+scanType = 'original';
+teststruct = PyradWrapper(testM, mask3M, scanType);
 
 pyradSzmNamC = {'GrayLevelNonUniformity', 'GrayLevelNonUniformityNormalized',...
     'GrayLevelVariance', 'HighGrayLevelZoneEmphasis',  'LowGrayLevelZoneEmphasis', ...
     'LargeAreaEmphasis', 'LargeAreaHighGrayLevelEmphasis', 'LargeAreaLowGrayLevelEmphasis',...
     'SizeZoneNonUniformity', 'SizeZoneNonUniformityNormalized', 'ZoneVariance', ...
     'ZonePercentage', 'SmallAreaEmphasis','SmallAreaHighGrayLevelEmphasis', ...
-    'SmallAreaLowGrayLevelEmphasis'};
+    'SmallAreaLowGrayLevelEmphasis', 'ZoneEntropy'};
 
 pyradSzmNamC = strcat(['original', '_glszm_'],pyradSzmNamC);
 

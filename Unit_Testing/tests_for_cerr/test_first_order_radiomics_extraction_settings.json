@@ -10,7 +10,6 @@
 				"Direction": "HLH"
 			      }
 
-
 	    },
 
 "settings": {		   
@@ -60,7 +59,7 @@
  "featureClass":{
 			
 
-		"glcm": {
+		"firstOrder": {
 			    	  "featureList": ["all"]
                 }
 

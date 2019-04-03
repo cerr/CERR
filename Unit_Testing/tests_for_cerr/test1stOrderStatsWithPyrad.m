@@ -4,52 +4,43 @@
 
 
 
-% % Structure from planC
-% global planC
-% indexS = planC{end};
-% scanNum     = 1;
-% structNum   = 16;
-% 
-% [rasterSegments, planC, isError]    = getRasterSegments(structNum,planC);
-% [mask3M, uniqueSlices]              = rasterToMask(rasterSegments, scanNum, planC);
-% scanArray3M                         = getScanArray(planC{indexS.scan}(scanNum));
-% 
-% SUVvals3M                           = mask3M.*double(scanArray3M(:,:,uniqueSlices));
-% [minr, maxr, minc, maxc, mins, maxs]= compute_boundingbox(mask3M);
-% maskBoundingBox3M                   = mask3M(minr:maxr,minc:maxc,mins:maxs);
-% volToEval                           = SUVvals3M(minr:maxr,minc:maxc,mins:maxs);
-% volToEval(maskBoundingBox3M==0)     = NaN;
-% 
-% testM = imquantize_cerr(volToEval,nL);
+firstOrderParamFileName = fullfile(fileparts(fileparts(getCERRPath)),...
+    'Unit_Testing','tests_for_cerr','test_first_order_radiomics_extraction_settings.json');
+cerrFileName = fullfile(fileparts(fileparts(getCERRPath)),...
+    'Unit_Testing','data_for_cerr_tests','CERR_plans','head_neck_ex1_20may03.mat.bz2');
 
-% Number of Gray levels
-nL = 16;
+planC = loadPlanC(cerrFileName,tempdir);
+indexS = planC{end};
 
-% Random n x n x n matrix
-n = 20;
-testM = rand(n,n,5);
-testM = imquantize_cerr(testM,nL);
-maskBoundingBox3M = testM .^0;
+paramS = getRadiomicsParamTemplate(firstOrderParamFileName);
+strNum = getMatchingIndex(paramS.structuresC{1},{planC{indexS.structures}.structureName});
+scanNum = getStructureAssociatedScan(strNum,planC);
 
-VoxelVol = 1; 
-offsetForEnergy = 0;
-binwidth = 25;
+%% Calculate features using CERR
 
-scanType = 'original';
-%generate results from pyradiomics
-teststruct = PyradWrapper(testM, maskBoundingBox3M, scanType);
-
-%% CERR First order features
-% firstOrderS = radiomics_first_order_stats...
-%     (maskBoundingBox3M, VoxelVol, offsetForEnergy);
-firstOrderS = radiomics_first_order_stats(testM(logical(maskBoundingBox3M)), VoxelVol, offsetForEnergy, binwidth);
-
+firstOrderM = calcGlobalRadiomicsFeatures...
+            (scanNum, strNum, paramS, planC);
+firstOrderS = firstOrderM.firstOrderS;
 cerrFirstOrderV = [firstOrderS.energy, firstOrderS.totalEnergy, firstOrderS.interQuartileRange, ...
     firstOrderS.kurtosis+3, firstOrderS.max, firstOrderS.mean, firstOrderS.meanAbsDev, ...
     firstOrderS.median, firstOrderS.medianAbsDev, firstOrderS.min, ...
     firstOrderS.P10, firstOrderS.P90, firstOrderS.interQuartileRange, ...
     firstOrderS.robustMeanAbsDev, firstOrderS.rms, firstOrderS.skewness, ...
     firstOrderS.std, firstOrderS.var, firstOrderS.entropy];
+
+%% Calculate features using pyradiomics
+
+testM = single(planC{indexS.scan}(scanNum).scanArray) - ...
+    single(planC{indexS.scan}(scanNum).scanInfo(1).CTOffset);
+mask3M = zeros(size(testM),'logical');
+[rasterSegments, planC, isError] = getRasterSegments(strNum,planC);
+[maskBoundBox3M, uniqueSlices] = rasterToMask(rasterSegments, scanNum, planC);
+mask3M(:,:,uniqueSlices) = maskBoundBox3M;
+
+scanType = 'original';
+
+teststruct = PyradWrapper(testM, mask3M, scanType);
+
 pyradFirstorderNamC = {'Energy', 'TotalEnergy','InterquartileRange','Kurtosis',...
     'Maximum', 'Mean','MeanAbsoluteDeviation','Median','medianAbsDev',...
     'Minimum','10Percentile','90Percentile','InterquartileRange',...

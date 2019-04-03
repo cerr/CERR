@@ -60,7 +60,7 @@
  "featureClass":{
 			
 
-		"glcm": {
+		"gldm": {
 			    	  "featureList": ["all"]
                 }
 

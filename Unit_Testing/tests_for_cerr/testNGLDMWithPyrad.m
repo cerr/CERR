@@ -3,60 +3,40 @@
 % RKP, 03/22/2018
 
 
+gldmParamFileName = fullfile(fileparts(fileparts(getCERRPath)),...
+    'Unit_Testing','tests_for_cerr','test_ngldm_radiomics_extraction_settings.json');
+cerrFileName = fullfile(fileparts(fileparts(getCERRPath)),...
+    'Unit_Testing','data_for_cerr_tests','CERR_plans','head_neck_ex1_20may03.mat.bz2');
 
-% % Structure from planC
-% global planC
-% indexS = planC{end};
-% scanNum     = 1;
-% structNum   = 16;
-% 
-% [rasterSegments, planC, isError]    = getRasterSegments(structNum,planC);
-% [mask3M, uniqueSlices]              = rasterToMask(rasterSegments, scanNum, planC);
-% scanArray3M                         = getScanArray(planC{indexS.scan}(scanNum));
-% 
-% SUVvals3M                           = mask3M.*double(scanArray3M(:,:,uniqueSlices));
-% [minr, maxr, minc, maxc, mins, maxs]= compute_boundingbox(mask3M);
-% maskBoundingBox3M                   = mask3M(minr:maxr,minc:maxc,mins:maxs);
-% volToEval                           = SUVvals3M(minr:maxr,minc:maxc,mins:maxs);
-% volToEval(maskBoundingBox3M==0)     = NaN;
-% 
-% testM = imquantize_cerr(volToEval,nL);
+planC = loadPlanC(cerrFileName,tempdir);
+indexS = planC{end};
 
-% % Number of Gray levels
-% nL = 16;
-% 
-% % Random n x n x n matrix
-% n = 20;
-% testM = rand(n,n,5);
-% testM = imquantize_cerr(testM,nL);
-% maskBoundingBox3M = testM .^0;
-
-scanNum = 1;
-strNum = 1;
-testM = single(planC{indexS.scan}(scanNum).scanArray) - planC{indexS.scan}(scanNum).scanInfo(1).CTOffset;
-maskBoundingBox3M = getUniformStr(strNum);
-testQuantM = testM;
-testQuantM(~maskBoundingBox3M) = NaN;
-testQuantM = imquantize_cerr(testQuantM,[],[],[],25);
-nL = max(testQuantM(:));
-
-scanType = 'original';
-%generate results from pyradiomics
-teststruct = PyradWrapper(testM, maskBoundingBox3M, scanType);
+paramS = getRadiomicsParamTemplate(gldmParamFileName);
+strNum = getMatchingIndex(paramS.structuresC{1},{planC{indexS.structures}.structureName});
+scanNum = getStructureAssociatedScan(strNum,planC);
 
 %% NGLDM features CERR
 
-patchRadius3dV = [1, 1, 1];
-imgDiffThresh = 0;
-% 3d
-ngldmM = calcNGLDM(testM, patchRadius3dV, ...
-    nL, imgDiffThresh);
-ngldmS = ngldmToScalarFeatures(ngldmM,numVoxels);
+ngldmS = calcGlobalRadiomicsFeatures...
+            (scanNum, strNum, paramS, planC);
+ngldmS = ngldmS.Original.ngldmFeatS;
 
 cerrNgldmV = [ngldmS.lde, ngldmS.hde, ngldmS.lgce, ngldmS.hgce, ...
     ngldmS.ldlge, ngldmS.ldhge, ngldmS.hdlge, ngldmS.hdhge, ...
     ngldmS.gln, ngldmS.glnNorm, ngldmS.dcn, ngldmS.dcnNorm,...
     ngldmS.dcp, ngldmS.glv, ngldmS.dcv, ngldmS.entropy, ngldmS.energy];
+
+%% Calculate features using pyradiomics
+
+testM = single(planC{indexS.scan}(scanNum).scanArray) - ...
+    single(planC{indexS.scan}(scanNum).scanInfo(1).CTOffset);
+mask3M = zeros(size(testM),'logical');
+[rasterSegments, planC, isError] = getRasterSegments(strNum,planC);
+[maskBoundBox3M, uniqueSlices] = rasterToMask(rasterSegments, scanNum, planC);
+mask3M(:,:,uniqueSlices) = maskBoundBox3M;
+
+scanType = 'original';
+teststruct = PyradWrapper(testM, mask3M, scanType);
 
 pyradNgldmNamC = {'SmallDependenceEmphasis', 'LargeDependenceEmphasis',...
     'LowGrayLevelCountEmphasis', 'HighGrayLevelCountEmphasis',  'SmallDependenceLowGrayLevelEmphasis', ...
@@ -77,5 +57,7 @@ for i = 1:length(pyradNgldmNamC)
         pyRadNgldmV(i) = NaN;
     end
 end
+
+%% Compare
 
 ngldmDiffV = (cerrNgldmV - pyRadNgldmV) ./ cerrNgldmV * 100
