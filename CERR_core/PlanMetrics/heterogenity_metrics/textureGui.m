@@ -213,8 +213,8 @@ switch upper(command)
         % List of feature types
         featureTypeC = {'Select',...
             'Haralick Cooccurance',...
-            'Law''s Convolution',...
-            'First order statistics',...
+            'Laws Convolution',...
+            'First Order Statistics',...
             'Wavelets',...
             'Gabor',...
             'LoG',...
@@ -408,7 +408,8 @@ switch upper(command)
         featureIdx = get(featH, 'value');
         featListC = get(featH,'string');
         featureType = featListC{featureIdx};
-           startPosV = get(featH,'position');
+        featureType = strrep(featureType,' ','');
+        startPosV = get(featH,'position');
         delPos = .07;
         paramS = [];
 
@@ -431,13 +432,13 @@ switch upper(command)
                 dispC = {'On','On','On','On','On'};
 
                 
-            case 'Law''s Convolution' % Laws 
+            case 'LawsConvolution' % Laws 
                 paramC = {'Direction','KernelSize'};
                 typeC = {'popup','popup'};
                 valC = {{'2D','3D', 'All'},{'3','5','All'}};
                 dispC = {'On','On'};
             
-            case 'First order statistics' %First-order statistics
+            case 'FirstOrderStatistics' %First-order statistics
                 paramC = {'PatchSize','VoxelVolume'};
                 typeC = {'edit','edit'};
                 [xUnifV, yUnifV, zUnifV] = getUniformScanXYZVals(planC{indexS.scan}(scanNum));
@@ -517,6 +518,7 @@ switch upper(command)
             paramS = varargin{1};
             if ~isempty(paramS)
             featureType = varargin{2};
+            featureType = strrep(featureType,' ','');
             paramC = fieldnames(paramS);
             for n = 1:length(paramC)
                 val = paramS.(paramC{n}).val;
@@ -818,7 +820,7 @@ switch upper(command)
             paramS.PatchSize.val = patchSizeV;
             end
                 
-        elseif (strcmp(fType,'Law''s Convolution') )
+        elseif (strcmp(fType,'LawsConvolution') )
             mappedDirC = {1,2,3};
             mappedSizC = {1,2,3};
             dirC = {'2D','3D', 'All'};
