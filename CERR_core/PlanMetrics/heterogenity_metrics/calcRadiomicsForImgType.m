@@ -85,10 +85,11 @@ for k = 1:length(imageTypeC)
     
     
     %Feature calculation
-    
+    outFieldName = createFieldNameFromParameters(paramS,imageTypeC{k});
+
     % --- 1. First-order features ---
     if whichFeatS.firstOrder.flag
-        featureS.(imageTypeC{k}).firstOrderS = radiomics_first_order_stats...
+        featureS.(outFieldName).firstOrderS = radiomics_first_order_stats...
             (volToEval(logical(maskBoundingBox3M)), VoxelVol,...
             paramS.firstOrderParamS.offsetForEnergy,paramS.firstOrderParamS.binWidthEntropy);
     end
@@ -99,7 +100,7 @@ for k = 1:length(imageTypeC)
         if isfield(paramS.shapeParamS,'rcs')
             rcsV = paramS.shapeParamS.rcs.';
         end
-        featureS.(imageTypeC{k}).shapeS = getShapeParams(maskBoundingBox3M, ...
+        featureS.(outFieldName).shapeS = getShapeParams(maskBoundingBox3M, ...
             {xValsV, yValsV, zValsV},rcsV);
     end
     
@@ -139,7 +140,7 @@ for k = 1:length(imageTypeC)
             
             featC = whichFeatS.glcm.featureList;
             glcmFlagS = getHaralickFlags(featC);
-            featureS.(imageTypeC{k}).glcmFeatS = get_haralick(dirctn, voxelOffset, cooccurType, quantizedM, ...
+            featureS.(outFieldName).glcmFeatS = get_haralick(dirctn, voxelOffset, cooccurType, quantizedM, ...
                 numGrLevels, glcmFlagS);
             
         end
@@ -149,7 +150,7 @@ for k = 1:length(imageTypeC)
             featC = whichFeatS.glrlm.featureList;
             rlmFlagS = getRunLengthFlags(featC);
             rlmType = cooccurType;
-            featureS.(imageTypeC{k}).rlmFeatS = get_rlm(dirctn, rlmType, quantizedM, ...
+            featureS.(outFieldName).rlmFeatS = get_rlm(dirctn, rlmType, quantizedM, ...
                 numGrLevels, numVoxels, rlmFlagS);
         end
         
@@ -158,7 +159,7 @@ for k = 1:length(imageTypeC)
             patchRadiusV = paramS.textureParamS.patchRadiusVox;
             [s,p] = calcNGTDM(quantizedM, patchRadiusV, ...
                 numGrLevels);
-            featureS.(imageTypeC{k}).ngtdmFeatS = ngtdmToScalarFeatures(s,p,numVoxels);
+            featureS.(outFieldName).ngtdmFeatS = ngtdmToScalarFeatures(s,p,numVoxels);
         end
         
         
@@ -167,7 +168,7 @@ for k = 1:length(imageTypeC)
             patchRadiusV = paramS.textureParamS.patchRadiusVox;
             imgDiffThresh = paramS.textureParamS.imgDiffThresh;
             ngldM = calcNGLDM(quantizedM, patchRadiusV,numGrLevels,imgDiffThresh);
-            featureS.(imageTypeC{k}).ngldmFeatS = ngldmToScalarFeatures(ngldM,numVoxels);
+            featureS.(outFieldName).ngldmFeatS = ngldmToScalarFeatures(ngldM,numVoxels);
         end
         
         
@@ -178,7 +179,7 @@ for k = 1:length(imageTypeC)
             szmType = dirctn; % 1: 3d, 2: 2d
             szmM = calcSZM(quantizedM, numGrLevels, szmType);
             numVoxels = sum(~isnan(quantizedM(:)));
-            featureS.(imageTypeC{k}).szmFeatS = szmToScalarFeatures(szmM,numVoxels, szmFlagS);
+            featureS.(outFieldName).szmFeatS = szmToScalarFeatures(szmM,numVoxels, szmFlagS);
         end
         
         
@@ -187,7 +188,7 @@ for k = 1:length(imageTypeC)
         if whichFeatS.peakValley.flag
             radiusV = paramS.peakValleyParamS.peakRadius;
             units = paramS.peakValleyParamS.units; %'cm' or 'vox'
-            featureS.(imageTypeC{k}).peakValleyFeatureS = getImPeakValley(maskBoundingBox3M,...
+            featureS.(outFieldName).peakValleyFeatureS = getImPeakValley(maskBoundingBox3M,...
                 volToEval, radiusV, units);
         end
         
@@ -198,7 +199,7 @@ for k = 1:length(imageTypeC)
             xAbsForIxV = paramS.ivhParamS.xForIxCc; % absolute volume [cc]
             xForVxV = paramS.ivhParamS.xForVxPct; % percent intensity cutoff
             xAbsForVxV = paramS.ivhParamS.xForVxAbs; % absolute intensity cutoff [HU]
-            featureS.(imageTypeC{k}).ivhFeaturesS = getIvhParams(structNum, scanNum, IVHBinWidth,...
+            featureS.(outFieldName).ivhFeaturesS = getIvhParams(structNum, scanNum, IVHBinWidth,...
                 xForIxV, xAbsForIxV, xForVxV, xAbsForVxV,planC);
             
         end
