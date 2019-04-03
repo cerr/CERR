@@ -10,6 +10,7 @@ function outS = processImage(filterType,scan3M,mask3M,paramS,hWait)
 %-------------------------------------------------------------------------
 %AI 03/16/18
 
+filterType = strrep(filterType,' ','');
 
 switch filterType
     
@@ -163,7 +164,7 @@ switch filterType
             drawnow;
         end
         
-    case 'First order statistics'
+    case 'FirstOrderStatistics'
         [minr, maxr, minc, maxc, mins, maxs] = compute_boundingbox(mask3M);
         mask3M                   = mask3M(minr:maxr,minc:maxc,mins:maxs);
         scan3M                   = scan3M(minr:maxr,minc:maxc,mins:maxs);
@@ -193,7 +194,7 @@ switch filterType
         end
         
         
-    case 'Law''s Convolution'
+    case 'LawsConvolution'
         
                 [minr, maxr, minc, maxc, mins, maxs] = compute_boundingbox(mask3M);
                 mask3M                   = mask3M(minr:maxr,minc:maxc,mins:maxs);
