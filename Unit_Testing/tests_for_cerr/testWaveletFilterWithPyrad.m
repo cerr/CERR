@@ -38,7 +38,7 @@ dirString = 'HHH';
 %%pyradiomics generated wavelet filtered images saved to tempDir     
 teststruct = PyradWrapper(testM, maskBoundingBox3M, scanType, dirString);
 
-pyrad_wavelet_filename = fullfile(tmpDir, strcat('wavelet-', dirString, '.nrrd'));
+pyrad_wavelet_filename = fullfile(tempdir, strcat('wavelet-', dirString, '.nrrd'));
 [pyWav3M, infoS] = nrrd_read(pyrad_wavelet_filename);
 %log3M = flipdim(data3M,3);
 
@@ -53,7 +53,7 @@ scanArray3M = flip(testM,3);
 if mod(size(scanArray3M,3),2) > 0
     scanArray3M(:,:,end+1) = 0*scanArray3M(:,:,1);
 end
-scanArray3M = wavDecom3D(double(scanArray3M),dirString,wavType);
+scanArray3M = wavDecom3D(double(scanArray3M)+1000,dirString,wavType);
 if mod(size(scanArray3M,3),2) > 0
     scanArray3M = scanArray3M(:,:,1:end-1);
 end

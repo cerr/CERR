@@ -33,7 +33,7 @@ cerrLog3M = cerrLog3M(5:end-4,5:end-4,5:end-4);
 
 diff3M = (cerrLog3M - log3M)./(log3M+1e-5);
 quantile99Diff = quantile(abs(diff3M(abs(log3M)>0.1)),0.99);
-disp(['Percentage difference between CERR and ITK: ', num2str(quantile99Diff), '%'])
+disp(['Percentage difference between CERR and Pyradiomics: ', num2str(quantile99Diff), '%'])
 
 figure, 
 slc = 3;
