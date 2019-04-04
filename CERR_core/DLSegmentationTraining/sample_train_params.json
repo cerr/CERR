@@ -1,0 +1,19 @@
+{
+
+"dcmDir" : "Path/to/DICOM_data",
+
+"tempDir" : "path/to/converted/data",
+
+"structList" : ["structName1","structName2","structName3"],
+
+"dataSplit" : [80, 10, 10],
+
+"lossFile" : "Path/to/logfile/recording/training/loss",
+
+"preproc" : [{"method": "crop_to_str", "params" : "structName4"}],
+
+"architecture": "arch"
+
+}
+
+
