@@ -5,10 +5,11 @@
 "imageType": {
   		  "Original": {},
           "Wavelets": {
-				"Wavelets": "Haar",
+				"Wavelets": "Coif1",
 				"Index": "",
-				"Direction": "HLH"
+				"Direction": "HHH"
 			      }
+          
 
 	    },
 
@@ -22,7 +23,7 @@
 
 		   "firstOrder" :{ 
 				   "binWidthEntropy": 25,
-				   "offsetForEnergy": 0
+				   "offsetForEnergy": 1000
                                  },
 
 		   "texture" :{ 
