@@ -1,9 +1,9 @@
 function [energy3M,entropy3M,sumAvg3M,corr3M,invDiffMom3M,contrast3M,...
     clustShade3M,clustPromin3M,haralCorr3M] = textureByPatchCombineCooccur(scanArray3M, nL, ...
-    patchSizeV, offsetsM, flagv, hWait, minIntensity, maxIntensity)
+    patchSizeV, offsetsM, flagv, hWait, minIntensity, maxIntensity, binWidth)
 % [energy3M,entropy3M,sumAvg3M,corr3M,invDiffMom3M,contrast3M,...
 %     clustShade3M,clustPromin3M,haralCorr3M] = textureByPatchCombineCooccur(scanArray3M, nL, ...
-%     patchSizeV, offsetsM, flagv, hWait, minIntensity, maxIntensity)
+%     patchSizeV, offsetsM, flagv, hWait, minIntensity, maxIntensity, binWidth)
 % Patch-wise texture calculation.
 %
 % APA, 09/09/2015
@@ -60,11 +60,21 @@ numSlcsPad = floor(slcWindow/2);
 numVoxels = numRows*numCols;
 
 % Quantize the image
-if exist('minIntensity','var') && exist('maxIntensity','var')
+if ~exist('minIntensity','var')
+    minIntensity = [];
+end
+if ~exist('maxIntensity','var')
+    maxIntensity = [];
+end
+
+if exist('binWidth','var') && ~isempty(binWidth)
+    q = imquantize_cerr(scanArray3M,nL,minIntensity,maxIntensity,binWidth);
+elseif exist('nL','var') && ~isempty(nL)
     q = imquantize_cerr(scanArray3M,nL,minIntensity,maxIntensity);
 else
-    q = imquantize_cerr(scanArray3M,nL);
+    error('Number of quantization levels or binWidth required')
 end
+nL = max(q(:));
 
 % Pad q, so that sliding window works also for the edge voxels
 %scanArrayTmp3M = padarray(scanArray3M,[numRowsPad numColsPad
