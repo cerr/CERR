@@ -3606,12 +3606,11 @@ switch upper(type)
         transM = getTransM('dose', scanSet, planC);
 end
 
-if isempty(transM) || isequal(transM,eye(4))
-    COM(1,1) = mean(xV);
-    COM(2,1) = mean(yV);
-    COM(3,1) = mean(zV);
-else
-    [COM]= applyTransM(transM,[xV(round(length(xV)/2)),yV(round(length(yV)/2)),zV(round(length(zV)/2))]);
+COM(1,1) = mean(xV);
+COM(2,1) = mean(yV);
+COM(3,1) = mean(zV);
+if ~isempty(transM) && ~isequal(transM,eye(4))
+    [COM]= applyTransM(transM,COM');
     COM = COM';
 end
 
