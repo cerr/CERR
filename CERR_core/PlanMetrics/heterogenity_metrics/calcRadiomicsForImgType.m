@@ -32,12 +32,23 @@ end
 whichFeatS = paramS.whichFeatS;
 featureS = struct;
 
-imageTypeC = fieldnames(paramS.imageType);
+% Get image types with various parameters
+fieldNamC = fieldnames(paramS.imageType);
+imageTypeC = {};
+for iImg = 1:length(fieldNamC)
+    for iFilt = 1:length(paramS.imageType.(fieldNamC{iImg}))
+        filtParamS = struct();
+        filtParamS.imageType = fieldNamC{iImg};
+        filtParamS.paramS = paramS.imageType.(fieldNamC{iImg})(iFilt);
+        imageTypeC{end+1} = filtParamS;
+    end
+end
+
 %% Loop over image types
 for k = 1:length(imageTypeC)
     
     %Generate volume based on original/derived imageType
-    if strcmpi(imageTypeC{k},'original')
+    if strcmpi(imageTypeC{k}.imageType,'original')
         minIntensityCutoff = [];
         maxIntensityCutoff = [];
         if isfield(paramS.textureParamS,'minIntensityCutoff')
@@ -49,8 +60,8 @@ for k = 1:length(imageTypeC)
         volToEval = volOrig3M;
         quantizeFlag = paramS.toQuantizeFlag;
     else
-        outS = processImage(imageTypeC{k},volOrig3M,maskBoundingBox3M,...
-            paramS.imageType.(imageTypeC{k}));
+        outS = processImage(imageTypeC{k}.imageType,volOrig3M,maskBoundingBox3M,...
+            imageTypeC{k}.paramS);
         derivedImgName = fieldnames(outS);
         volToEval = outS.(derivedImgName{1});
         quantizeFlag = true; % always quantize the derived image
@@ -85,7 +96,10 @@ for k = 1:length(imageTypeC)
     
     
     %Feature calculation
-    outFieldName = createFieldNameFromParameters(paramS,imageTypeC{k});
+    % outFieldName = createFieldNameFromParameters(paramS,imageTypeC{k});
+    % outFieldName = createFieldNameFromParameters(imageType,filtParamS);
+    outFieldName = createFieldNameFromParameters...
+        (imageTypeC{k}.imageType,imageTypeC{k}.paramS);
 
     % --- 1. First-order features ---
     if whichFeatS.firstOrder.flag

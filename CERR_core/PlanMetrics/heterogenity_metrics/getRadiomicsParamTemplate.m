@@ -23,7 +23,10 @@ for m = 1:length(filterTypeC)
     paramListC = fieldnames(userInS.imageType.(filterTypeC{m}));
     radiomicsParamS.imageType.(filterTypeC{m}) = struct();
     for n = 1:length(paramListC)
-    radiomicsParamS.imageType.(filterTypeC{m}).(paramListC{n}).val = userInS.imageType.(filterTypeC{m}).(paramListC{n});
+        for iFilt = 1:length(userInS.imageType.(filterTypeC{m}))
+            radiomicsParamS.imageType.(filterTypeC{m})(iFilt).(paramListC{n}).val = ...
+                userInS.imageType.(filterTypeC{m})(iFilt).(paramListC{n});
+        end
     end
 end
 
