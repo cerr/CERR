@@ -1,9 +1,21 @@
 function featureS = getInterTumorHeteroFeature(structNumV,planC)
 % function featureS = getInterTumorHeteroFeature(structNumV,planC)
 %
+% This function computes inter-tumor heterogeneity features based on
+% Veeraraghavan et al.
+%
+% Reference:
+% Computed Tomography Measures of Inter-site tumor Heterogeneity for 
+% Classifying Outcomes in High-Grade Serous Ovarian Carcinoma: 
+% a Retrospective Study, Harini Veeraraghavan, Hebert Alberto Vargas, 
+% Alejandro Jimenez Sanchez, Maura Micco, Eralda Mema, Marinela Capanu, 
+% Junting Zheng, Yulia Lakhman, Mireia Crispin-Ortuzar, Erich Huang, 
+% Douglas A Levine, Joseph O Deasy, Alexandra Snyder, Martin L Miller, 
+% James D Brenton, Evis Sala, bioRxiv 531046; doi: https://doi.org/10.1101/531046
+%
 % APA, 5/20/2017
 %
-% based on H. veeraraghavan et al.
+% based on H. Veeraraghavan.
 
 if ~exist('planC','var')
     global planC
