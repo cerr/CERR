@@ -88,7 +88,7 @@ switch filterType
         %Pad image if no. slices is odd
         scan3M = flip(scan3M,3);
         if mod(size(scan3M,3),2) > 0
-            scan3M(:,:,end+1) = 0*scan3M(:,:,1);
+            scan3M(:,:,end+1) = min(scan3M(:))*scan3M(:,:,1).^0;
             mask3M(:,:,end+1) = 0*mask3M(:,:,1);
         end
         % vol3M   = double(mask3M).*double(scan3M);
