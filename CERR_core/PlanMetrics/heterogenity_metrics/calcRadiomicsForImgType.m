@@ -47,9 +47,6 @@ end
 %% Loop over image types
 for k = 1:length(imageTypeC)
     
-    fprintf('\n---------- PRINT K: -------------\n, %d',k);
-    
-    
     %Generate volume based on original/derived imageType
     if strcmpi(imageTypeC{k}.imageType,'original')
         minIntensityCutoff = [];
