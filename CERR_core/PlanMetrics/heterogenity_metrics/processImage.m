@@ -86,10 +86,12 @@ switch filterType
         mask3M                   = mask3M(minr:maxr,minc:maxc,mins:maxs);
         scan3M                   = scan3M(minr:maxr,minc:maxc,mins:maxs);
         %Pad image if no. slices is odd
+        padFlag = 0;
         scan3M = flip(scan3M,3);
         if mod(size(scan3M,3),2) > 0
             scan3M(:,:,end+1) = min(scan3M(:))*scan3M(:,:,1).^0;
             mask3M(:,:,end+1) = 0*mask3M(:,:,1);
+            padFlag = 1;
         end
         % vol3M   = double(mask3M).*double(scan3M);
         vol3M   = double(scan3M);
@@ -117,7 +119,7 @@ switch filterType
                 outname = [wavType,'_',dirListC{n}];
                 outname = strrep(outname,'.','_');
                 out3M = wavDecom3D(vol3M,dirListC{n},wavType);
-                if mod(size(out3M,3),2) > 0
+                if padFlag
                     out3M = out3M(:,:,1:end-1);
                 end
                 out3M = flip(out3M,3);
@@ -135,7 +137,7 @@ switch filterType
             outname = strrep(outname,'.','_');
             outname = strrep(outname,' ','_');
             out3M = wavDecom3D(vol3M,dir,wavType);
-            if mod(size(out3M,3),2) > 0
+            if padFlag
                 out3M = out3M(:,:,1:end-1);
             end
             out3M = flip(out3M,3);
@@ -146,6 +148,15 @@ switch filterType
             outS.(outname) = out3M;
             
         end
+        
+        % make input/output dimensions same
+        fieldNamC = fieldnames(outS);
+        for i = 1:length(fieldNamC)
+            tempImg3M = NaN*ones(origSiz,'single');
+            tempImg3M(minr:maxr,minc:maxc,mins:maxs) = outS.(fieldNamC{i});
+            outS.(fieldNamC{i}) = tempImg3M;
+        end
+        
         
     case 'Sobel'
         [minr, maxr, minc, maxc, mins, maxs] = compute_boundingbox(mask3M);
