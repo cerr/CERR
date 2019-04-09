@@ -47,6 +47,9 @@ end
 %% Loop over image types
 for k = 1:length(imageTypeC)
     
+    fprintf('\n---------- PRINT K: -------------\n, %d',k);
+    
+    
     %Generate volume based on original/derived imageType
     if strcmpi(imageTypeC{k}.imageType,'original')
         minIntensityCutoff = [];
@@ -85,7 +88,7 @@ for k = 1:length(imageTypeC)
         % Reassign the number of gray levels in case they were computed for the
         % passed binwidth
         numGrLevels = max(quantizedM(:));
-        paramS.textureParamS.numGrLevels = numGrLevels;
+        %paramS.textureParamS.numGrLevels = numGrLevels;
         
     else
         quantizedM = volToEval;
@@ -108,6 +111,7 @@ for k = 1:length(imageTypeC)
             paramS.firstOrderParamS.offsetForEnergy,paramS.firstOrderParamS.binWidthEntropy);
     end
     
+    tic
     %---2. Shape features ----
     if whichFeatS.shape.flag
         rcsV = [];
@@ -117,6 +121,7 @@ for k = 1:length(imageTypeC)
         featureS.(outFieldName).shapeS = getShapeParams(maskBoundingBox3M, ...
             {xValsV, yValsV, zValsV},rcsV);
     end
+    toc
     
     %---3. Higher-order (texture) features ----
     
@@ -146,7 +151,7 @@ for k = 1:length(imageTypeC)
                 error('Invalid input. Directionality must be "2D" or "3D"');
         end
         
-        numGrLevels = paramS.textureParamS.numGrLevels;
+        %numGrLevels = paramS.textureParamS.numGrLevels;
         voxelOffset = paramS.textureParamS.voxelOffset;
         
         % a. GLCM
@@ -213,8 +218,10 @@ for k = 1:length(imageTypeC)
             xAbsForIxV = paramS.ivhParamS.xForIxCc; % absolute volume [cc]
             xForVxV = paramS.ivhParamS.xForVxPct; % percent intensity cutoff
             xAbsForVxV = paramS.ivhParamS.xForVxAbs; % absolute intensity cutoff [HU]
-            featureS.(outFieldName).ivhFeaturesS = getIvhParams(structNum, scanNum, IVHBinWidth,...
-                xForIxV, xAbsForIxV, xForVxV, xAbsForVxV,planC);
+            scanV = volToEval(maskBoundingBox3M);
+            volV = repmat(VoxelVol,numel(scanV),1);
+            featureS.(outFieldName).ivhFeaturesS = getIvhParams(scanV, volV, IVHBinWidth,...
+                xForIxV, xAbsForIxV, xForVxV, xAbsForVxV);
             
         end
     end

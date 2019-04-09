@@ -128,7 +128,15 @@ end
 
 
 % Crop scan around mask
+margin = 10;
+origSiz = size(mask3M);
 [minr, maxr, minc, maxc, mins, maxs] = compute_boundingbox(mask3M);
+minr = max(1,minr-margin);
+maxr = min(origSiz(1),maxr+margin);
+minc = max(1,minc-margin);
+maxc = min(origSiz(2),maxc+margin);
+mins = max(1,mins-margin);
+maxs = min(origSiz(3),maxs+margin);
 maskBoundingBox3M = mask3M(minr:maxr,minc:maxc,mins:maxs);
 
 % Get the cropped scan
@@ -138,7 +146,6 @@ volToEval = double(scanArray3M(minr:maxr,minc:maxc,mins:maxs));
 xValsV = xValsV(minc:maxc);
 yValsV = yValsV(minr:maxr);
 zValsV = zValsV(mins:maxs);
-
 
 % Ignore voxels below and above cutoffs, if defined
 minIntensityCutoff = [];
