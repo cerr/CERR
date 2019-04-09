@@ -4,7 +4,7 @@
 %
 % RKP, 03/22/2018
 
-function teststruct = PyradWrapper(scanM, maskM, preprocessingFilter, dirString)
+function teststruct = PyradWrapper(scanM, maskM, pixelSize, preprocessingFilter, waveletDirString)
 
     CERRPath = getCERRPath;
     CERRPathSlashes = strfind(getCERRPath,filesep);
@@ -34,21 +34,21 @@ function teststruct = PyradWrapper(scanM, maskM, preprocessingFilter, dirString)
     maskM = uint16(maskM);
     %write NRRDs (flip along 3rd axis??)
     scanFilename = strcat(tempdir,'scan.nrrd');
-    scanRes = nrrdWriter(scanFilename, flip(scanM,3), [10,10,10], [0,0,0], 'raw');
+    scanRes = nrrdWriter(scanFilename, flip(flip(scanM,3),1), pixelSize, [0,0,0], 'raw');
    
     maskFilename = strcat(tempdir, 'mask.nrrd');
-    maskRes = nrrdWriter(maskFilename, flip(maskM, 3), [10,10,10], [0,0,0], 'raw');
+    maskRes = nrrdWriter(maskFilename, flip(flip(maskM, 3),1), pixelSize, [0,0,0], 'raw');
   
     testFilter = preprocessingFilter;
-    if ~exist('dirString','var')
-        dirString = '';
+    if ~exist('waveletDirString','var')
+        waveletDirString = '';
     end
        
     %this python module will use the path of the newly generated nrrd files 
 
     
     try         
-     pyradiomicsDict = py.pyFeatureExtraction.extract(scanFilename, maskFilename, paramFilePath, testFilter, tempdir, dirString);              
+     pyradiomicsDict = py.pyFeatureExtraction.extract(scanFilename, maskFilename, paramFilePath, testFilter, tempdir, waveletDirString);              
      teststruct = struct(pyradiomicsDict);          
     catch
         disp('error calculating features in pyradiomics')
