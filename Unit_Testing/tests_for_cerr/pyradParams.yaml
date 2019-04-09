@@ -27,7 +27,10 @@ setting:
 imageType:
   Original: {} # for dictionaries / mappings, None values are not allowed, '{}' is interpreted as an empty dictionary
   
-  Wavelet: {}
+  
+  Wavelet:
+        binWidth: 25
+
 
  #LoG: {'sigma' : [1.0, 3.0]}
 
