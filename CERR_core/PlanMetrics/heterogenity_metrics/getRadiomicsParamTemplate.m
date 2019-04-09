@@ -12,6 +12,7 @@ function radiomicsParamS = getRadiomicsParamTemplate(paramFilename)
 % APA, 2/27/2019
 % AI, 3/22/19     Modified for compatibility with JSON input
 
+feature accel off
 
 %% Read JSON file
 userInS = jsondecode(fileread(paramFilename));
@@ -124,3 +125,5 @@ radiomicsParamS.whichFeatS = whichFeatS;
 
 %% Flag to quantize input data
 radiomicsParamS.toQuantizeFlag = 1;
+
+feature accel on
