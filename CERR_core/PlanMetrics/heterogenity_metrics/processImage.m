@@ -108,7 +108,7 @@ switch filterType
 %             '3.7','3.9','4.4','5.5','6.8'},{'1.1','1.3','1.5','2.2','2.4','2.6',...
 %             '2.8','3.1','3.3','3.5','3.7','3.9','4.4','5.5','6.8'}};
 %         wavType =  [wavFamilyC{paramS.Wavelets.val},typeC{paramS.Wavelets.val}{paramS.Index.val}];
-        wavType =  [paramS.Wavelets.val,paramS.Index.val];
+        wavType =  [paramS.Wavelets.val,num2str(paramS.Index.val)];
         dir = paramS.Direction.val;
         
         
