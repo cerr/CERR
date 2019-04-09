@@ -20,7 +20,7 @@ switch(lower(imageType))
         fieldName = imageType;
         
     case 'wavelets'
-        settingsStr = [settingS.Wavelets.val,'_',settingS.Index.val,'_',settingS.Direction.val];
+        settingsStr = [settingS.Wavelets.val,'_',num2str(settingS.Index.val),'_',settingS.Direction.val];
         fieldName = [imageType,'_',settingsStr];
         
     case 'log'
