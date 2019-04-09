@@ -39,8 +39,14 @@ mask3M = zeros(size(testM),'logical');
 [rasterSegments, planC, isError] = getRasterSegments(strNum,planC);
 [maskBoundBox3M, uniqueSlices] = rasterToMask(rasterSegments, scanNum, planC);
 mask3M(:,:,uniqueSlices) = maskBoundBox3M;
+dx = planC{indexS.scan}(scanNum).scanInfo(1).grid1Units;
+dy = planC{indexS.scan}(scanNum).scanInfo(1).grid1Units;
+dz = mode(diff([planC{indexS.scan}(scanNum).scanInfo(:).zValue]));
+pixelSize = [dx dy dz]*10;
 
-teststruct = PyradWrapper(testM, mask3M, scanType, dirString);
+teststruct = PyradWrapper(testM, mask3M, pixelSize, scanType, dirString);
+
+%teststruct = PyradWrapper(testM, mask3M, scanType, dirString);
 
 pyradRlmNamC = {'GrayLevelNonUniformity', 'GrayLevelNonUniformityNormalized',...
     'GrayLevelVariance', 'HighGrayLevelRunEmphasis',  'LowGrayLevelRunEmphasis', ...

@@ -41,7 +41,13 @@ mask3M = zeros(size(testM),'logical');
 mask3M(:,:,uniqueSlices) = maskBoundBox3M;
 
 scanType = 'original';
-teststruct = PyradWrapper(testM, mask3M, scanType);
+dx = planC{indexS.scan}(scanNum).scanInfo(1).grid1Units;
+dy = planC{indexS.scan}(scanNum).scanInfo(1).grid1Units;
+dz = mode(diff([planC{indexS.scan}(scanNum).scanInfo(:).zValue]));
+pixelSize = [dx dy dz]*10;
+
+teststruct = PyradWrapper(testM, mask3M, pixelSize, scanType, dirString);
+%teststruct = PyradWrapper(testM, mask3M, scanType);
 
 pyradSzmNamC = {'GrayLevelNonUniformity', 'GrayLevelNonUniformityNormalized',...
     'GrayLevelVariance', 'HighGrayLevelZoneEmphasis',  'LowGrayLevelZoneEmphasis', ...

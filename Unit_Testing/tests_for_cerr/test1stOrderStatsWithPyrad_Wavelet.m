@@ -17,14 +17,15 @@ strNum = getMatchingIndex(paramS.structuresC{1},{planC{indexS.structures}.struct
 scanNum = getStructureAssociatedScan(strNum,planC);
 
 %wavType = 'coif1';
-scanType = 'wavelet';
-dirString = 'HHH';
+%scanType = 'Original';
+scanType = 'Wavelet';
+dirString = 'HLH';
 
 %% Calculate features using CERR
 
 firstOrderS = calcGlobalRadiomicsFeatures...
             (scanNum, strNum, paramS, planC);
-firstOrderS = firstOrderS.Wavelets_Coif1__HHH.firstOrderS;
+firstOrderS = firstOrderS.(['Wavelets_coif_1_',dirString]).firstOrderS;
 cerrFirstOrderV = [firstOrderS.energy, firstOrderS.totalEnergy, firstOrderS.interQuartileRange, ...
     firstOrderS.kurtosis+3, firstOrderS.max, firstOrderS.mean, firstOrderS.meanAbsDev, ...
     firstOrderS.median, firstOrderS.medianAbsDev, firstOrderS.min, ...
@@ -40,10 +41,11 @@ mask3M = zeros(size(testM),'logical');
 [rasterSegments, planC, isError] = getRasterSegments(strNum,planC);
 [maskBoundBox3M, uniqueSlices] = rasterToMask(rasterSegments, scanNum, planC);
 mask3M(:,:,uniqueSlices) = maskBoundBox3M;
-
-
-
-teststruct = PyradWrapper(testM, mask3M, scanType, dirString);
+dx = planC{indexS.scan}(scanNum).scanInfo(1).grid1Units;
+dy = planC{indexS.scan}(scanNum).scanInfo(1).grid1Units;
+dz = mode(diff([planC{indexS.scan}(scanNum).scanInfo(:).zValue]));
+pixelSize = [dx dy dz]*10;
+teststruct = PyradWrapper(testM, mask3M, pixelSize, scanType, dirString);
 
 pyradFirstorderNamC = {'Energy', 'TotalEnergy','InterquartileRange','Kurtosis',...
     'Maximum', 'Mean','MeanAbsoluteDeviation','Median','medianAbsDev',...
@@ -52,6 +54,7 @@ pyradFirstorderNamC = {'Energy', 'TotalEnergy','InterquartileRange','Kurtosis',.
     'StandardDeviation','Variance','Entropy'};
 
 pyradFirstorderNamC = strcat(['wavelet', '_', dirString, '_firstorder_'],pyradFirstorderNamC);
+%pyradFirstorderNamC = strcat(['original', '_firstorder_'],pyradFirstorderNamC);
 
 pyRadFirstOrderV = [];
 for i = 1:length(pyradFirstorderNamC)
