@@ -163,7 +163,7 @@ if ~isempty(maxIntensityCutoff)
     maskBoundingBox3M(volToEval > maxIntensityCutoff) = 0;
 end
 
-volToEval(~maskBoundingBox3M) = NaN;
+%volToEval(~maskBoundingBox3M) = NaN;
 
 % Return grid and pixel-spacing
 gridS.xValsV = xValsV;
