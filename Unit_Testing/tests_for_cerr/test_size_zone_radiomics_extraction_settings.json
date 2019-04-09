@@ -28,8 +28,8 @@
                                  },
 
 		   "texture" :{ 
-				"binwidth": [],
-                "numGrLevels": 64,
+				"binwidth": 25,
+                "numGrLevels": [],
 				"minIntensity": [],
 				"maxIntensity": [],
                 "directionality": "3D",

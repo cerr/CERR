@@ -3,11 +3,10 @@
 "structures": ["Target 2"],
 
 "imageType": {
-  		  "Original": {},
           "Wavelets": {
-				"Wavelets": "Coif1",
-				"Index": "",
-				"Direction": "HHH"
+				"Wavelets": "coif",
+				"Index": 1,
+				"Direction": "HLH"
 			      }
           
 
@@ -23,12 +22,12 @@
 
 		   "firstOrder" :{ 
 				   "binWidthEntropy": 25,
-				   "offsetForEnergy": 1000
+				   "offsetForEnergy": 0
                                  },
 
 		   "texture" :{ 
-				"binwidth": [],
-                "numGrLevels": 64,
+				"binwidth": 25,
+                "numGrLevels": [],
 				"minIntensity": [],
 				"maxIntensity": [],
                 "directionality": "3D",

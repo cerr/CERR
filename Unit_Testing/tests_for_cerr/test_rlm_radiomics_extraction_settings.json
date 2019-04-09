@@ -24,12 +24,12 @@
 
 		   "firstOrder" :{ 
 				   "binWidthEntropy": 25,
-				   "offsetForEnergy": 1000
+				   "offsetForEnergy": 0
                                  },
 
 		   "texture" :{ 
-				"binwidth": [],
-                "numGrLevels": 64,
+				"binwidth": 25,
+                "numGrLevels": [],
 				"minIntensity": [],
 				"maxIntensity": [],
                 "directionality": "3D",
