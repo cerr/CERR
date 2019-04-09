@@ -102,6 +102,7 @@ whichFeatS = struct('resample',struct('flag',0),'perturbation',struct('flag',0),
 for k = 1:length(settingsC)
     fieldNamC = fieldnames(userInS.settings.(settingsC{k}));
     if ~isempty(fieldNamC)
+        whichFeatS.(settingsC{k}).flag = 1;
         for iField = 1:length(fieldNamC)
             whichFeatS.(settingsC{k}).(fieldNamC{iField}) = userInS.settings...
                 .(settingsC{k}).(fieldNamC{iField});
