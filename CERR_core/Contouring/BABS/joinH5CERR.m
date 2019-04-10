@@ -23,11 +23,6 @@ function res = joinH5CERR(segResultCERRPath, cerrPath, outputH5Path, configFileP
 % outputDicomPath = 'E:\testing pipeline\results';
 % config_file_path = '/lila/home/pandyar1/MR_Prostate_config.json';
 
-configFilePath = 'W:\Rutu\CERR-testing\CERR_core\Contouring\models\incrMRRN\MRRN_config.json';
-segResultCERRPath = 'C:\Users\pandyar1\Desktop';
-cerrPath =   'C:\Users\pandyar1\Desktop\.mat';
-outputH5Path = 'C:\Users\pandyar1\Desktop';
-
 
 H5Files = dir(fullfile(outputH5Path,'*.h5'));
 

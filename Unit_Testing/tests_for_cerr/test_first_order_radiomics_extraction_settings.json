@@ -3,11 +3,10 @@
 "structures": ["Target 2"],
 
 "imageType": {
-          "Original":{},
           "Wavelets": {
 				"Wavelets": "coif",
 				"Index": 1,
-				"Direction": "LLH"
+				"Direction": "HLH"
 			      }
           
 

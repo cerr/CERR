@@ -19,7 +19,8 @@ scanNum = getStructureAssociatedScan(strNum,planC);
 %wavType = 'coif1';
 %scanType = 'Original';
 scanType = 'Wavelet';
-dirString = paramS.imageType.Wavelets.Direction.val;
+dirString = 'HLH';
+
 %% Calculate features using CERR
 
 firstOrderS = calcGlobalRadiomicsFeatures...
