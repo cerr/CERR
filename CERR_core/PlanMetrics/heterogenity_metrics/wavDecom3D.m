@@ -22,23 +22,25 @@ siz = size(scan3M);
 scan3M = padarray(scan3M,[numPad, numPad, numPad],'circular','both');
 
 dirString = upper(dirString);
+
 if dirString(1) == 'L'
-    scan3M = convn(scan3M,reshape(loD,1,1,length(loD)),'same');
-else
-    scan3M = convn(scan3M,reshape(hiD,1,1,length(hiD)),'same');
-end
-if dirString(2) == 'L'
     scan3M = convn(scan3M,loD','same');
 else
     scan3M = convn(scan3M,hiD','same');
 end
 
+if dirString(2) == 'L'
+    scan3M = convn(scan3M,loD,'same');
+else
+    scan3M = convn(scan3M,hiD,'same');
+end
+
 % If dirString is of length 2, then filter only in x,y.
 if length(dirString) > 2
     if dirString(3) == 'L'
-        scan3M = convn(scan3M,loD,'same');
+        scan3M = convn(scan3M,reshape(loD,1,1,length(loD)),'same');
     else
-        scan3M = convn(scan3M,hiD,'same');
+        scan3M = convn(scan3M,reshape(hiD,1,1,length(hiD)),'same');
     end
 end
 

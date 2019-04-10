@@ -19,7 +19,8 @@ scanNum = getStructureAssociatedScan(strNum,planC);
 %wavType = 'coif1';
 %scanType = 'Original';
 scanType = 'Wavelet';
-dirString = 'HLH';
+%dirString = 'HLH';
+dirString = paramS.imageType.Wavelets.Direction.val;
 
 %% Calculate features using CERR
 
