@@ -223,7 +223,7 @@ switch upper(command)
         
         %Downsample colormap, redraws much faster.
         % cM = CERRColorMap(stateS.optS.doseColormap);
-        cM = CERRColorMap('gray');
+        cM = CERRColorMap('weather');
         ud.cM = cM;
         
         %Setup thumbnail pane, with NxN axes.
@@ -415,7 +415,7 @@ switch upper(command)
 
         if nargin== 1 %List parameters for new texture map
         switch featureType
-            case 'Haralick Cooccurance' 
+            case 'HaralickCooccurance' 
                 
                 paramC = {'Type','PatchSize','PatchType','Directionality','NumLevels'};
                 typeC = {'popup','edit' ,'popup','popup','edit'};
@@ -793,7 +793,7 @@ switch upper(command)
             out = mappedWavFamilyC{idx};
             paramS.Wavelets.val = out;
             
-        elseif (strcmp(fType,'Haralick Cooccurance') )
+        elseif (strcmp(fType,'HaralickCooccurance') )
             mappedDirectionalityC = {1,2,3,4,5,6};
             directionalityC = {'Co-occurance with 13 directions in 3D',...
                 'Left-Right, Ant-Post and Diagonals in 2D', ...
@@ -1322,6 +1322,7 @@ endSlice = numel(sV);
 thumbImage = dA(:,:,thumbSlice);
 thumbImage = imgaussfilt(thumbImage,2); %Display smoothed thumbnail
 imagesc(thumbImage, 'hittest', 'off', 'parent', hAxis);
+colormap(hAxis, ud.cM);
 
 %Display scan name
 scanType = planC{indexS.scan}(index).scanType;
@@ -1511,6 +1512,7 @@ dXYZ = [dy dx dz];
             val = getSubParameter(featType,userIn);
             set(hPar(idx),'String',val);
             ud.handles.paramControls = hPar;
+            paramS.(paramS.(hObj.Tag).subType).val = val;
             set(hFig,'userdata',ud);
         end
         
