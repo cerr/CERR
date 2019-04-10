@@ -6,6 +6,7 @@ function textureGui(command, varargin)
 %   AI  20/03/18   Display parameters by feature type
 %   AI  27/03/18   Added wavelets,sobel,loG,first order statistic features
 %   AI  04/02/18   Modified to handle parameter sub-types
+%   AI  04/02/18   Updated for compatibility with processImage.m
 %Usage:
 %   textureGui()
 %  based on textureGui.m
@@ -223,7 +224,7 @@ switch upper(command)
         
         %Downsample colormap, redraws much faster.
         % cM = CERRColorMap(stateS.optS.doseColormap);
-        cM = CERRColorMap('gray');
+        cM = CERRColorMap('weather');
         ud.cM = cM;
         
         %Setup thumbnail pane, with NxN axes.
@@ -415,7 +416,7 @@ switch upper(command)
 
         if nargin== 1 %List parameters for new texture map
         switch featureType
-            case 'Haralick Cooccurance' 
+            case 'HaralickCooccurance' 
                 
                 paramC = {'Type','PatchSize','PatchType','Directionality','NumLevels'};
                 typeC = {'popup','edit' ,'popup','popup','edit'};
@@ -793,7 +794,7 @@ switch upper(command)
             out = mappedWavFamilyC{idx};
             paramS.Wavelets.val = out;
             
-        elseif (strcmp(fType,'Haralick Cooccurance') )
+        elseif (strcmp(fType,'HaralickCooccurance') )
             mappedDirectionalityC = {1,2,3,4,5,6};
             directionalityC = {'Co-occurance with 13 directions in 3D',...
                 'Left-Right, Ant-Post and Diagonals in 2D', ...
@@ -841,6 +842,14 @@ switch upper(command)
         end
         outS = processImage(fType,scan3M,fullMask3M,paramS,hwait);
         featuresC = fieldnames(outS);
+        %Extract filtered image within bounding box (for thumbnails)
+        [minr, maxr, minc, maxc, mins, maxs] = compute_boundingbox(fullMask3M);
+        fieldNamC = fieldnames(outS);
+        for i = 1:length(fieldNamC)
+            tempImg3M = outS.(fieldNamC{i});
+            tempImg3M = tempImg3M(minr:maxr,minc:maxc,mins:maxs);
+            outS.(fieldNamC{i}) = tempImg3M;
+        end
         
         % Create new Texture if ud.currentTexture = 0
         if ud.currentTexture == 0
@@ -1322,6 +1331,7 @@ endSlice = numel(sV);
 thumbImage = dA(:,:,thumbSlice);
 thumbImage = imgaussfilt(thumbImage,2); %Display smoothed thumbnail
 imagesc(thumbImage, 'hittest', 'off', 'parent', hAxis);
+colormap(hAxis, ud.cM);
 
 %Display scan name
 scanType = planC{indexS.scan}(index).scanType;
@@ -1511,6 +1521,7 @@ dXYZ = [dy dx dz];
             val = getSubParameter(featType,userIn);
             set(hPar(idx),'String',val);
             ud.handles.paramControls = hPar;
+            paramS.(paramS.(hObj.Tag).subType).val = val;
             set(hFig,'userdata',ud);
         end
         
