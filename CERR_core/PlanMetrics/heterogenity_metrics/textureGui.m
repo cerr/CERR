@@ -6,6 +6,7 @@ function textureGui(command, varargin)
 %   AI  20/03/18   Display parameters by feature type
 %   AI  27/03/18   Added wavelets,sobel,loG,first order statistic features
 %   AI  04/02/18   Modified to handle parameter sub-types
+%   AI  04/02/18   Updated for compatibility with processImage.m
 %Usage:
 %   textureGui()
 %  based on textureGui.m
@@ -841,6 +842,14 @@ switch upper(command)
         end
         outS = processImage(fType,scan3M,fullMask3M,paramS,hwait);
         featuresC = fieldnames(outS);
+        %Extract filtered image within bounding box (for thumbnails)
+        [minr, maxr, minc, maxc, mins, maxs] = compute_boundingbox(fullMask3M);
+        fieldNamC = fieldnames(outS);
+        for i = 1:length(fieldNamC)
+            tempImg3M = outS.(fieldNamC{i});
+            tempImg3M = tempImg3M(minr:maxr,minc:maxc,mins:maxs);
+            outS.(fieldNamC{i}) = tempImg3M;
+        end
         
         % Create new Texture if ud.currentTexture = 0
         if ud.currentTexture == 0
