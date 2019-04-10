@@ -14,11 +14,11 @@ filterType = strrep(filterType,' ','');
 
 % record the original image size
 origSiz = size(scan3M);
-[minr, maxr, minc, maxc, mins, maxs] = compute_boundingbox(mask3M);
 
 switch filterType
     
     case 'HaralickCooccurance'
+        [minr, maxr, minc, maxc, mins, maxs]= compute_boundingbox(mask3M);
         maskBoundingBox3M                   = mask3M(minr:maxr,minc:maxc,mins:maxs);
         SUVvals3M                           = mask3M.*double(scan3M);
         volToEval                           = SUVvals3M(minr:maxr,minc:maxc,mins:maxs);
@@ -51,28 +51,39 @@ switch filterType
                 paramS.minIntensity.val, paramS.maxIntensity.val, paramS.binWidth.val);
         end
         
-        outS.Energy = energy;
-        outS.Entropy = entropy;
-        outS.SumAvg = sumAvg;
-        outS.Corr = corr;
-        outS.InvDiffMom = invDiffMom;
-        outS.Contrast = contrast;
-        outS.ClustShade = clustShade;
-        outS.ClustProminence = clustProminence;
-        outS.HaralCorr = haralCorr;
+        outS.Energy = NaN*ones(origSiz,'single');
+        outS.Energy(minr:maxr,minc:maxc,mins:maxs) = energy;
+        outS.Entropy = NaN*ones(origSiz,'single');
+        outS.Entropy(minr:maxr,minc:maxc,mins:maxs) = entropy;
+        outS.SumAvg = NaN*ones(origSiz,'single');
+        outS.SumAvg(minr:maxr,minc:maxc,mins:maxs) = sumAvg;
+        outS.Corr = NaN*ones(origSiz,'single');
+        outS.Corr(minr:maxr,minc:maxc,mins:maxs) = corr;
+        outS.InvDiffMom = NaN*ones(origSiz,'single');
+        outS.InvDiffMom(minr:maxr,minc:maxc,mins:maxs) = invDiffMom;
+        outS.Contrast = NaN*ones(origSiz,'single');
+        outS.Contrast(minr:maxr,minc:maxc,mins:maxs) = contrast;
+        outS.ClustShade = NaN*ones(origSiz,'single');
+        outS.ClustShade(minr:maxr,minc:maxc,mins:maxs) = clustShade;
+        outS.ClustProminence = NaN*ones(origSiz,'single');
+        outS.ClustProminence(minr:maxr,minc:maxc,mins:maxs) = clustProminence;
+        outS.HaralCorr = NaN*ones(origSiz,'single');
+        outS.HaralCorr(minr:maxr,minc:maxc,mins:maxs) = haralCorr;
         
         featC = fieldnames(outS);
         outS = rmfield(outS,featC(~flagV));
         
     case 'Wavelets'
         
+        [minr, maxr, minc, maxc, mins, maxs] = compute_boundingbox(mask3M);
+        margin = 7;
         % Use a margin of +/- 7 row/col/slcs
-        minr = max(1,minr-7);
-        maxr = min(origSiz(1),maxr+7);
-        minc = max(1,minc-7);
-        maxc = min(origSiz(2),maxc+7);
-        mins = max(1,mins-7);
-        maxs = min(origSiz(3),maxs+7);
+        minr = max(1,minr-margin);
+        maxr = min(origSiz(1),maxr+margin);
+        minc = max(1,minc-margin);
+        maxc = min(origSiz(2),maxc+margin);
+        mins = max(1,mins-margin);
+        maxs = min(origSiz(3),maxs+margin);
         mask3M                   = mask3M(minr:maxr,minc:maxc,mins:maxs);
         scan3M                   = scan3M(minr:maxr,minc:maxc,mins:maxs);
         %Pad image if no. slices is odd
@@ -139,8 +150,17 @@ switch filterType
             
         end
         
+        % make input/output dimensions same
+        fieldNamC = fieldnames(outS);
+        for i = 1:length(fieldNamC)
+            tempImg3M = NaN*ones(origSiz,'single');
+            tempImg3M(minr:maxr,minc:maxc,mins:maxs) = outS.(fieldNamC{i});
+            outS.(fieldNamC{i}) = tempImg3M;
+        end
+        
         
     case 'Sobel'
+        [minr, maxr, minc, maxc, mins, maxs] = compute_boundingbox(mask3M);
         mask3M                   = mask3M(minr:maxr,minc:maxc,mins:maxs);
         scan3M                   = scan3M(minr:maxr,minc:maxc,mins:maxs);
         vol3M   = double(mask3M).*double(scan3M);
@@ -156,6 +176,7 @@ switch filterType
         %         toc
         
     case 'LoG'
+        [minr, maxr, minc, maxc, mins, maxs] = compute_boundingbox(mask3M);
         mask3M                   = mask3M(minr:maxr,minc:maxc,mins:maxs);
         scan3M                   = scan3M(minr:maxr,minc:maxc,mins:maxs);
         vol3M   = double(mask3M).*double(scan3M);
@@ -166,6 +187,7 @@ switch filterType
         end
         
     case 'Gabor'
+        [minr, maxr, minc, maxc, mins, maxs] = compute_boundingbox(mask3M);
         mask3M                   = mask3M(minr:maxr,minc:maxc,mins:maxs);
         scan3M                   = scan3M(minr:maxr,minc:maxc,mins:maxs);
         vol3M   = double(mask3M).*double(scan3M);
@@ -177,6 +199,7 @@ switch filterType
         end
         
     case 'FirstOrderStatistics'
+        [minr, maxr, minc, maxc, mins, maxs] = compute_boundingbox(mask3M);
         mask3M                   = mask3M(minr:maxr,minc:maxc,mins:maxs);
         scan3M                   = scan3M(minr:maxr,minc:maxc,mins:maxs);
         
@@ -207,6 +230,7 @@ switch filterType
         
     case 'LawsConvolution'
         
+                [minr, maxr, minc, maxc, mins, maxs] = compute_boundingbox(mask3M);
                 mask3M                   = mask3M(minr:maxr,minc:maxc,mins:maxs);
                 scan3M                   = scan3M(minr:maxr,minc:maxc,mins:maxs);
                 vol3M = double(mask3M).*double(scan3M);
@@ -236,6 +260,7 @@ switch filterType
         
     case 'CoLlage'
         
+        [minr, maxr, minc, maxc, mins, maxs] = compute_boundingbox(mask3M);
         mask3M = mask3M(minr:maxr,minc:maxc,mins:maxs);
         scan3M = scan3M(minr:maxr,minc:maxc,mins:maxs);
         scan3M = single(scan3M);
@@ -246,12 +271,5 @@ switch filterType
         
 end
 
-% make input/output dimensions same
-fieldNamC = fieldnames(outS);
-for i = 1:length(fieldNamC)
-    tempImg3M = NaN*ones(origSiz,'single');
-    tempImg3M(minr:maxr,minc:maxc,mins:maxs) = outS.(fieldNamC{i});
-    outS.(fieldNamC{i}) = tempImg3M;
-end
 
 end

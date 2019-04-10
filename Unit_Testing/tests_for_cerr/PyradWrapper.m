@@ -32,12 +32,18 @@ function teststruct = PyradWrapper(scanM, maskM, pixelSize, preprocessingFilter,
     
     cd(currentPath);
     maskM = uint16(maskM);
+    
+    maskM = permute(maskM, [2 1 3]);
+    maskM = flipdim(maskM,3);
+    scanM = permute(scanM, [2 1 3]);
+    scanM = flipdim(scanM,3);
+    
     %write NRRDs (flip along 3rd axis??)
     scanFilename = strcat(tempdir,'scan.nrrd');
-    scanRes = nrrdWriter(scanFilename, flip(flip(scanM,3),1), pixelSize, [0,0,0], 'raw');
+    scanRes = nrrdWriter(scanFilename, scanM, pixelSize, [0,0,0], 'raw');
    
     maskFilename = strcat(tempdir, 'mask.nrrd');
-    maskRes = nrrdWriter(maskFilename, flip(flip(maskM, 3),1), pixelSize, [0,0,0], 'raw');
+    maskRes = nrrdWriter(maskFilename, maskM, pixelSize, [0,0,0], 'raw');
   
     testFilter = preprocessingFilter;
     if ~exist('waveletDirString','var')

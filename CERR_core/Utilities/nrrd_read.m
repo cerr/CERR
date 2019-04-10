@@ -55,5 +55,5 @@ infoS.Offset = [xOrigin, yOrigin, zOrigin];
 
 infoS.PixelDimensions = [dx, dy, dz];
 
-data3M = permute(data3M,[2,1,3]);
+%data3M = permute(data3M,[2,1,3]);
 
