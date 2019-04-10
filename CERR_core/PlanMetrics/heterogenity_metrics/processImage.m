@@ -37,6 +37,17 @@ switch filterType
             flagV(idx-1) = 1;
         end
         
+        %Optional parametets
+        if ~isfield(paramS,'minIntensity')
+            paramS.minIntensity.val = [];
+        end
+        if ~isfield(paramS,'maxIntensity')
+            paramS.maxIntensity.val = [];
+        end
+        if ~isfield(paramS,'binWidth')
+            paramS.binWidth.val = [];
+        end
+        
         if exist('hWait','var') && ishandle(hWait)
             [energy,entropy,sumAvg,corr,...
                 invDiffMom,contrast,clustShade,...
