@@ -43,7 +43,7 @@ for patNum = 1:length(featureS) % patients loop
                         rmfield(featureForImgTypeS(patNum).(fieldC{iField}),'radius');
                     featureForImgTypeS(patNum).(fieldC{iField}) = ...
                         rmfield(featureForImgTypeS(patNum).(fieldC{iField}),'radiusUnit');
-                    featV = full(struct2array(featureS(patNum).(fieldC{iField})));
+                    featV = full(struct2array(featureForImgTypeS(patNum).(fieldC{iField})));
                     allFieldC = [allFieldC; strcat(imgType,'_',...
                         fieldC{iField},'_',fieldnames(featureForImgTypeS(patNum).(fieldC{iField})))];
                 else
