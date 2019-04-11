@@ -149,7 +149,7 @@ def main(argv):
             save_name = os.path.join("/lila/home/pandyar1/")+ str(id) + '.png'
             print(save_name)
 
-            result_color_img.save(save_name)
+            #result_color_img.save(save_name)
 
             print(save_name)
 
