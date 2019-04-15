@@ -60,6 +60,8 @@ switch tag
             data = 'CT';
         elseif strcmpi(upper(data),'MRI')
             data = 'MR';
+        elseif strcmpi(upper(data),'PT')
+            data = 'PT';
         end
         el = template.get(tag);
         el = ml2dcm_Element(el, data);

@@ -101,7 +101,8 @@ for i = 1:length(planC{indexS.scan})
         
     elseif any(findstr(upper(modality), 'MR'))
         SOP_Class_UID = '1.2.840.10008.5.1.4.1.1.4';
-        
+    elseif any(findstr(upper(modality), 'PT'))
+        SOP_Class_UID = '1.2.840.10008.5.1.4.1.1.128';
     else
         SOP_Class_UID = '1.2.840.10008.5.1.4.1.1.2';
     end

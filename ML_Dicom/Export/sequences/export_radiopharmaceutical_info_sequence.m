@@ -44,23 +44,40 @@ template    = args.template;
 
 switch tag
     case 1577074 %0018,1072   Radiopharmaceutical Start Time
-
-        data = scanS.DICOMHeaders.RadiopharmaceuticalInformationSequence...
-            .Item_1.RadiopharmaceuticalStartTime;
         el = template.get(tag);
-        el = ml2dcm_Element(el, data);
+        
+        try
+            data = scanS.DICOMHeaders.RadiopharmaceuticalInformationSequence.Item_1.RadiopharmaceuticalStartTime;
+            el = ml2dcm_Element(el, data);
+        catch
+            tmp = org.dcm4che2.data.BasicDicomObject;
+            el = tmp.putNull(tag, []);
+        end
+        
 
     case 1577076 %0018,1074   Radionuclide Total Dose
-        data = scanS.DICOMHeaders.RadiopharmaceuticalInformationSequence...
-            .Item_1.RadionuclideTotalDose;
+        
         el = template.get(tag);
-        el = ml2dcm_Element(el, data);
+        
+        try
+            data = scanS.DICOMHeaders.RadiopharmaceuticalInformationSequence.Item_1.RadionuclideTotalDose;
+            el = ml2dcm_Element(el, data);
+        catch
+            tmp = org.dcm4che2.data.BasicDicomObject;
+            el = tmp.putNull(tag, []);
+        end
 
     case 1577077 %0018,1075   Radionuclide Half Life
-        data = scanS.DICOMHeaders.RadiopharmaceuticalInformationSequence...
-            .Item_1.RadionuclideHalfLife;
+        
         el = template.get(tag);
-        el = ml2dcm_Element(el, data);
+        
+        try
+            data = scanS.DICOMHeaders.RadiopharmaceuticalInformationSequence.Item_1.RadionuclideHalfLife;
+            el = ml2dcm_Element(el, data);
+        catch
+            tmp = org.dcm4che2.data.BasicDicomObject;
+            el = tmp.putNull(tag, []);
+        end
 
     otherwise
         warning(['No methods exist to populate DICOM PET module''s RadiopharmaceuticalInformationSequence field: ' dec2hex(tag,8) '.']);

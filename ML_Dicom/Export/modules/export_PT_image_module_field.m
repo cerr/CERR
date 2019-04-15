@@ -52,117 +52,323 @@ scanS       = args.data{2};
 template    = args.template;
 
 switch tag
-    %Class 1 Tags -- Required, must have data.
-    case 524296     %0008,0008 Image Type
-        data = {'ORIGINAL', 'PRIMARY', 'AXIAL'};
+    
+    case 524321 %Series Date
+        data = scanInfoS.DICOMHeaders.SeriesDate;
+        el = template.get(tag);
+        el = ml2dcm_Element(el,data);
+    
+    case 524337 %Series Time
+        data = scanInfoS.DICOMHeaders.SeriesTime;
+        el = template.get(tag);
+        el = ml2dcm_Element(el,data);
+    
+    case 5509121 %Units
+        data = scanInfoS.DICOMHeaders.Units;
+        el = template.get(tag);
+        el = ml2dcm_Element(el,data);
+        
+    case 5509126 %SUV Type
+        el = template.get(tag);
+        try
+            data = scanInfoS.suvType;
+            el = ml2dcm_Element(el,data);
+        catch
+            tmp = org.dcm4che2.data.BasicDicomObject;
+            el = tmp.putNull(tag, []);
+        end
+    case 5509122 %Counts Source 
+        data = scanInfoS.DICOMHeaders.CountsSource;
+        el = template.get(tag);
+        el = ml2dcm_Element(el,data);
+        
+    case 5509120 %Series Type
+        data = scanInfoS.DICOMHeaders.SeriesType;
         el = template.get(tag);
         el = ml2dcm_Element(el, data);
         
-    case 2621442    %0028,0002 Samples per Pixel
-        data = 1;               %1 image plane in all CT/MR images.
+    case 5509124 %Reprojection Method
         el = template.get(tag);
-        el = ml2dcm_Element(el, data);
+        try
+            data = scanInfoS.reprojectionMethod;
+            el = ml2dcm_Element(el,data);
+        catch
+            tmp = org.dcm4che2.data.BasicDicomObject;
+            el = tmp.putNull(tag, []);
+        end
         
-    case 2621444    %0028,0004 Photometric Interpretation
-        data = 'MONOCHROME2';   %CT/MR have 0 black, maxVal white.
+    case 5505121 %R-R Intervals
         el = template.get(tag);
-        el = ml2dcm_Element(el, data);
+        try
+            data = scanInfoS.rrIntervals;
+            el = ml2dcm_Element(el,data);
+        catch
+            tmp = org.dcm4che2.data.BasicDicomObject;
+            el = tmp.putNull(tag, []);
+        end
         
-    case 2621456    %0028,0010 Rows
-        data = scanInfoS.sizeOfDimension1;
+    case 5505137 %Number of Time Slots
         el = template.get(tag);
-        el = ml2dcm_Element(el, data);
+        try
+            data = scanInfoS.numberOfTimeSlots;
+            el = ml2dcm_Element(el,data);
+        catch
+            tmp = org.dcm4che2.data.BasicDicomObject;
+            el = tmp.putNull(tag, []);
+        end
         
-    case 2621457    %0028,0011 Columns
-        data = scanInfoS.sizeOfDimension2;
+    case 5505281 %Number of Time Slices
         el = template.get(tag);
-        el = ml2dcm_Element(el, data);
+        try
+            data = scanInfoS.numberOfTimeSlices;
+            el = ml2dcm_Element(el,data);
+        catch
+            tmp = org.dcm4che2.data.BasicDicomObject;
+            el = tmp.putNull(tag, []);
+        end
         
-    case 2621696    %0028,0100 Bits Allocated
-        data = 16;              %C.8.2.1.1.4 of PS 3.3 - 2006
+    case 5505153 %Number of Slices
+        
         el = template.get(tag);
-        el = ml2dcm_Element(el, data);
+        data = scanInfoS.DICOMHeaders.NumberofSlices;
+        el = ml2dcm_Element(el,data);
         
-    case 2621697    %0028,0101 Bits Stored
-        %C.8.2.1.1.4 of PS 3.3 - 2006
-        %Sloppy, consider revising.
-        %         bools = [scanS.scanInfo.zValue] == scanInfoS.zValue;
-        %         vals = scanS.scanArray(:,:,bools);
-        %         maxV = max(vals(:));
-        %         log2s = log2(double(maxV));
-        %         mostSignificantBit = floor(max(log2s)) + 1;
-        %         data = max(mostSignificantBit, 12);
-        %         data = min(data, 16);
-        %         el = template.get(tag);
-        %         el = ml2dcm_Element(el, data);
-        bools = [scanS.scanInfo.zValue] == scanInfoS.zValue;
-        vals = scanS.scanArray(:,:,bools);
-        maxV = max(vals(:));
-        % apply scale factor
-        scaleFactorV = args.data{3};
-        scaleFactor = scaleFactorV(bools);
-        maxV = uint16(maxV/scaleFactor);
-        log2s = log2(double(maxV));
-        mostSignificantBit = floor(max(log2s)) + 1;
-        data = max(mostSignificantBit, 12);
-        data = min(data, 16);
+   case 2621521 %Corrected Image
+        
         el = template.get(tag);
-        el = ml2dcm_Element(el, data);
+        try
+            data = scanInfoS.correctedImage;
+            el = ml2dcm_Element(el,data);
+        catch
+            tmp = org.dcm4che2.data.BasicDicomObject;
+            el = tmp.putNull(tag, []);
+        end
+    case 00541100 %Randoms Correction Method
         
-    case 2621698    %0028,0102 High Bit
-        %C.8.2.1.1.4 of PS 3.3 - 2006
-        %Sloppy, consider revising.
-        %         bools = [scanS.scanInfo.zValue] == scanInfoS.zValue;
-        %         vals = scanS.scanArray(:,:,bools);
-        %         maxV = max(vals(:));
-        %         log2s = log2(double(maxV));
-        %         mostSignificantBit = floor(max(log2s)) + 1;
-        %         data = max(mostSignificantBit, 12);
-        %         data = min(data, 16);
-        %         data = data - 1;
-        %         el = template.get(tag);
-        %         el = ml2dcm_Element(el, data);
-        bools = [scanS.scanInfo.zValue] == scanInfoS.zValue;
-        vals = scanS.scanArray(:,:,bools);
-        maxV = max(vals(:));
-        % apply scale factor
-        scaleFactorV = args.data{3};
-        scaleFactor = scaleFactorV(bools);
-        maxV = uint16(maxV/scaleFactor);
-        log2s = log2(double(maxV));
-        mostSignificantBit = floor(max(log2s)) + 1;
-        data = max(mostSignificantBit, 12);
-        data = min(data, 16);
-        data = data - 1;
         el = template.get(tag);
-        el = ml2dcm_Element(el, data);
+        try
+            data = scanInfoS.RandomsCorrectionMethod;
+            el = ml2dcm_Element(el,data);
+        catch
+            tmp = org.dcm4che2.data.BasicDicomObject;
+            el = tmp.putNull(tag, []);
+        end
+    case 00541105 %Scatter Correction Method
         
-        
-    case 2625618    %0028,1052 Rescale Intercept
-        ctO = scanInfoS.CTOffset;
-        data = -ctO;           %CERR exports stored values as 1*HU + CTOffset.
         el = template.get(tag);
-        el = ml2dcm_Element(el, data);
+        try
+            data = scanInfoS.scatterCorrectionMethod;
+            el = ml2dcm_Element(el,data);
+        catch
+            tmp = org.dcm4che2.data.BasicDicomObject;
+            el = tmp.putNull(tag, []);
+        end    
+    case 5509378 %Decay Correction
         
-    case 2625619    %0028,1053 Rescale Slope
-        %data = 1;
-        %data = scanInfoS.rescaleSlope;
-        data = args.data{3}; %APA: factor for conversion to uint16 for modalities other than CT
-        bools = [scanS.scanInfo.zValue] == scanInfoS.zValue;
-        data = data(bools);
         el = template.get(tag);
-        el = ml2dcm_Element(el, data);
+        data = scanInfoS.DICOMHeaders.DecayCorrection;
+        el = ml2dcm_Element(el,data);
         
-    case 1052720    %0010,1030 Patient Weight
-        data = scanInfoS.DICOMHeaders.PatientWeight;
+    case 1577216 %Reconstruction Diameter
+        
         el = template.get(tag);
-        el = ml2dcm_Element(el, data);
+        try
+            data = scanInfoS.reconstructionDiameter;
+            el = ml2dcm_Element(el,data);
+        catch
+            tmp = org.dcm4che2.data.BasicDicomObject;
+            el = tmp.putNull(tag, []);
+        end
+    case 1577488 %Convolution Kernel
         
-    case 524338     %0008,0032 Acquisition Time
-        data = scanInfoS.DICOMHeaders.AcquisitionTime;
         el = template.get(tag);
-        el = ml2dcm_Element(el, data);
+        try
+            data = scanInfoS.convolutionKernel;
+            el = ml2dcm_Element(el,data);
+        catch
+            tmp = org.dcm4che2.data.BasicDicomObject;
+            el = tmp.putNull(tag, []);
+        end
+    case 5509379 %reconstructionMethod
         
+        el = template.get(tag);
+        try
+            data = scanInfoS.reconstructionMethod;
+            el = ml2dcm_Element(el,data);
+        catch
+            tmp = org.dcm4che2.data.BasicDicomObject;
+            el = tmp.putNull(tag, []);
+        end
+     case 5509380 %Detector Lines of Response Used
+        
+        el = template.get(tag);
+        try
+            data = scanInfoS.detectorLinesOfResponseUsed;
+            el = ml2dcm_Element(el,data);
+        catch
+            tmp = org.dcm4che2.data.BasicDicomObject;
+            el = tmp.putNull(tag, []);
+        end
+    case 1572979 %Acquisition Start Condition
+        
+        el = template.get(tag);
+        try
+            data = scanInfoS.acquisitionStartCondition;
+            el = ml2dcm_Element(el,data);
+        catch
+            tmp = org.dcm4che2.data.BasicDicomObject;
+            el = tmp.putNull(tag, []);
+        end
+    case 1572980 %Acquisition Start Condition Data
+        
+        el = template.get(tag);
+        try
+            data = scanInfoS.acquisitionStartConditionData;
+            el = ml2dcm_Element(el,data);
+        catch
+            tmp = org.dcm4che2.data.BasicDicomObject;
+            el = tmp.putNull(tag, []);
+        end
+     case 1572977 %Acquisition Termination Condition
+        
+        el = template.get(tag);
+        try
+            data = scanInfoS.acquisitionTerminationCondition;
+            el = ml2dcm_Element(el,data);
+        catch
+            tmp = org.dcm4che2.data.BasicDicomObject;
+            el = tmp.putNull(tag, []);
+        end
+    case 1572981 %Acquisition Termination Condition Data
+        
+        el = template.get(tag);
+        try
+            data = scanInfoS.acquisitionTerminationConditionData;
+            el = ml2dcm_Element(el,data);
+        catch
+            tmp = org.dcm4che2.data.BasicDicomObject;
+            el = tmp.putNull(tag, []);
+        end
+    case 1577287 %Field of View Shape
+        
+        el = template.get(tag);
+        try
+            data = scanInfoS.fieldOfViewShape;
+            el = ml2dcm_Element(el,data);
+        catch
+            tmp = org.dcm4che2.data.BasicDicomObject;
+            el = tmp.putNull(tag, []);
+        end    
+    case 1577289 %Field of View Dimensions
+        
+        el = template.get(tag);
+        try
+            data = scanInfoS.fieldOfViewDimensions;
+            el = ml2dcm_Element(el,data);
+        catch
+            tmp = org.dcm4che2.data.BasicDicomObject;
+            el = tmp.putNull(tag, []);
+        end
+    case 1577248 %Gantry / Detector Tilt
+        
+        el = template.get(tag);
+        try
+            data = scanInfoS.gantryDetectorTilt;
+            el = ml2dcm_Element(el,data);
+        catch
+            tmp = org.dcm4che2.data.BasicDicomObject;
+            el = tmp.putNull(tag, []);
+        end    
+    case 1577249 %Gantry / Detector Slew
+        
+        el = template.get(tag);
+        try
+            data = scanInfoS.gantryDetectorSlew;
+            el = ml2dcm_Element(el,data);
+        catch
+            tmp = org.dcm4che2.data.BasicDicomObject;
+            el = tmp.putNull(tag, []);
+        end   
+    case 5505538 %Type of Detector Motion
+        
+        el = template.get(tag);
+        try
+            data = scanInfoS.typeOfDetectorMotion;
+            el = ml2dcm_Element(el,data);
+        catch
+            tmp = org.dcm4che2.data.BasicDicomObject;
+            el = tmp.putNull(tag, []);
+        end
+    case 1577345 %Collimator Type
+        
+        el = template.get(tag);
+        try
+            data = scanInfoS.collimatorType;
+            el = ml2dcm_Element(el,data);
+        catch
+            tmp = org.dcm4che2.data.BasicDicomObject;
+            el = tmp.putNull(tag, []);
+        end    
+    case 1577344 %Collimator Grid Name
+        
+        el = template.get(tag);
+        try
+            data = scanInfoS.collimatorGridName;
+            el = ml2dcm_Element(el,data);
+        catch
+            tmp = org.dcm4che2.data.BasicDicomObject;
+            el = tmp.putNull(tag, []);
+        end    
+    case 5509632 %Axial Acceptance
+        
+        el = template.get(tag);
+        try
+            data = scanInfoS.axialAcceptance;
+            el = ml2dcm_Element(el,data);
+        catch
+            tmp = org.dcm4che2.data.BasicDicomObject;
+            el = tmp.putNull(tag, []);
+        end
+    case 5509633 %Axial Mash
+        
+        el = template.get(tag);
+        try
+            data = scanInfoS.axialMash;
+            el = ml2dcm_Element(el,data);
+        catch
+            tmp = org.dcm4che2.data.BasicDicomObject;
+            el = tmp.putNull(tag, []);
+        end
+    case 5509634 %Transverse Mash
+        
+        el = template.get(tag);
+        try
+            data = scanInfoS.transverseMash;
+            el = ml2dcm_Element(el,data);
+        catch
+            tmp = org.dcm4che2.data.BasicDicomObject;
+            el = tmp.putNull(tag, []);
+        end
+    case 5509635 %Detector Element Size
+        
+        el = template.get(tag);
+        try
+            data = scanInfoS.detectorElementSize;
+            el = ml2dcm_Element(el,data);
+        catch
+            tmp = org.dcm4che2.data.BasicDicomObject;
+            el = tmp.putNull(tag, []);
+        end
+    case 5509648 %Coincidence Window Width
+        
+        el = template.get(tag);
+        try
+            data = scanInfoS.detectorElementSize;
+            el = ml2dcm_Element(el,data);
+        catch
+            tmp = org.dcm4che2.data.BasicDicomObject;
+            el = tmp.putNull(tag, []);
+        end
     case 5505046    %0054,0016 Radiopharmaceutical Information Sequence
         templateEl  = template.get(tag);
         fHandle = @export_radiopharmaceutical_info_sequence;
@@ -176,46 +382,78 @@ switch tag
             dcmobj = export_sequence(fHandle, templateEl, {scanInfoS});
             el.addDicomObject(i-1, dcmobj);
         end
-        
-        
-        %Class 2 Tags -- Must be present, can be NULL.
-    case 1572960    %0018,0060 KVP
+    case 524296    %Image Type
         el = template.get(tag);
-        
-    case 2097170    %0020,0012 Acqusition Number
+        try
+            data = scanInfoS.imageType;
+            el = ml2dcm_Element(el,data);
+        catch
+            tmp = org.dcm4che2.data.BasicDicomObject;
+            el = tmp.putNull(tag, []);
+        end
+    case 2621442    %Samples Per Pixel
         el = template.get(tag);
-        
-        %Class 3 Tags -- presence is optional, currently undefined.
-    case 1572898    %0018,0022 Scan Options
-    case 1573008    %0018,0090 Data Collection Diameter
-    case 1577216    %0018,1100 Reconstruction Diameter
-    case 1577232    %0018,1110 Distance Source to Detector
-    case 1577233    %0018,1111 Distance Source to Patient
-    case 1577248    %0018,1120 Gantry/Detector Tilt
-    case 1577264    %0018,1130 Table Height
-    case 1577280    %0018,1140 Rotation Direction
-    case 1577296    %0018,1150 Exposure Time
-    case 1577297    %0018,1151 X-ray Tube Current
-    case 1577298    %0018,1152 Exposure
-    case 1577299    %0018,1153 Exposure in microAs
-    case 1577312    %0018,1160 Filter Type
-    case 1577328    %0018,1170 Generator Power
-    case 1577360    %0018,1190 Focal Spot
-    case 1577488    %0018,1210 Convolution Kernal
-    case 1610501    %0018,9305 Revolution Time
-    case 1610502    %0018,9306 Single Collimation Width
-    case 1610503    %0018,9307 Total Collimation Width
-    case 1610505    %0018,9309 Table Speed
-    case 1610512    %0018,9310 Table Feed per Rotation
-    case 1610513    %0018,9311 CT Pitch Factor
-    case 1610531    %0018,9323 Exposure Modulation Type
-    case 1610532    %0018,9324 Estimated Dose Saving
-    case 1610565    %0018,9345 CTDIvol
-        
-        %Class 1C Tags
-        
-        %Class 2C Tags
-        
+        try
+            data = scanInfoS.samplesPerPixel;
+            el = ml2dcm_Element(el,data);
+        catch
+            tmp = org.dcm4che2.data.BasicDicomObject;
+            el = tmp.putNull(tag, []);
+        end
+    case 2621444    %Photometric Interpretation
+        el = template.get(tag);
+        try
+            data = scanInfoS.photometricIntpretation;
+            el = ml2dcm_Element(el,data);
+        catch
+            tmp = org.dcm4che2.data.BasicDicomObject;
+            el = tmp.putNull(tag, []);
+        end
+    case 2621696    %Bits Allocated
+        el = template.get(tag);
+        try
+            data = scanInfoS.bitsAllocated;
+            el = ml2dcm_Element(el,data);
+        catch
+            tmp = org.dcm4che2.data.BasicDicomObject;
+            el = tmp.putNull(tag, []);
+        end
+    case 2621697    %Bits Stored
+        el = template.get(tag);
+        try
+            data = scanInfoS.bitsStored;
+            el = ml2dcm_Element(el,data);
+        catch
+            tmp = org.dcm4che2.data.BasicDicomObject;
+            el = tmp.putNull(tag, []);
+        end
+    case 2625618    %Rescale Intercept
+        el = template.get(tag);
+        try
+            data = scanInfoS.rescaleIntercept;
+            el = ml2dcm_Element(el,data);
+        catch
+            tmp = org.dcm4che2.data.BasicDicomObject;
+            el = tmp.putNull(tag, []);
+        end
+    case 2625619    %Rescale Slope
+        el = template.get(tag);
+        try
+            data = scanInfoS.rescaleSlope;
+            el = ml2dcm_Element(el,data);
+        catch
+            tmp = org.dcm4che2.data.BasicDicomObject;
+            el = tmp.putNull(tag, []);
+        end
+    case 5509888    %Frame Reference Time
+        el = template.get(tag);
+        try
+            data = scanInfoS.frameReferenceTime;
+            el = ml2dcm_Element(el,data);
+        catch
+            tmp = org.dcm4che2.data.BasicDicomObject;
+            el = tmp.putNull(tag, []);
+        end
     otherwise
         warning(['No methods exist to populate DICOM image_pixel module field ' dec2hex(tag,8) '.']);
         return;

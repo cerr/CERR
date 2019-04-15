@@ -1,6 +1,6 @@
-function tagS = CT_image_module_tags
-%"CT_image_module_tags"
-%   Return the tags used to represent a CT image as specified by C.8.2.1 in
+function tagS = PT_image_module_tags
+%"PT_image_module_tags"
+%   Return the tags used to represent a PT image as specified by C.8.9.1 in
 %   PS3.3 of 2006 DICOM specification.
 %
 %   Tags are returned in a struct array with 3 fields:
@@ -17,32 +17,8 @@ function tagS = CT_image_module_tags
 %             valid data or be NULL.
 %Children: For sequences, a tagS with the same format as this struct array.
 %
-%JRA 06/06/06
+%Craig Parkinson 
 %
-%Usage:
-%   tagS = CT_image_module_tags
-%
-% Copyright 2010, Joseph O. Deasy, on behalf of the CERR development team.
-% 
-% This file is part of The Computational Environment for Radiotherapy Research (CERR).
-% 
-% CERR development has been led by:  Aditya Apte, Divya Khullar, James Alaly, and Joseph O. Deasy.
-% 
-% CERR has been financially supported by the US National Institutes of Health under multiple grants.
-% 
-% CERR is distributed under the terms of the Lesser GNU Public License. 
-% 
-%     This version of CERR is free software: you can redistribute it and/or modify
-%     it under the terms of the GNU General Public License as published by
-%     the Free Software Foundation, either version 3 of the License, or
-%     (at your option) any later version.
-% 
-% CERR is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
-% without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-% See the GNU General Public License for more details.
-% 
-% You should have received a copy of the GNU General Public License
-% along with CERR.  If not, see <http://www.gnu.org/licenses/>.
 
 %Initialize the tagS structure.
 tagS = struct('tag', {}, 'type', {}, 'children', {});
@@ -52,8 +28,200 @@ template = tagS;
 
 %Add tags based on PS3.3 attribute lists.
 
+%Series Date
+tagS(end+1) = struct('tag', ['00080021'], 'type', ['1'], 'children', []);
+
+%Series Time
+tagS(end+1) = struct('tag', ['00080031'], 'type', ['1'], 'children', []);
+
+%Units
+tagS(end+1) = struct('tag', ['00541001'], 'type', ['1'], 'children', []);
+
+%SUV Type
+tagS(end+1) = struct('tag', ['00541006'], 'type', ['3'], 'children', []);
+
+%Counts Source
+tagS(end+1) = struct('tag', ['00541002'], 'type', ['1'], 'children', []);
+
+%Series Type
+tagS(end+1) = struct('tag', ['00541000'], 'type', ['1'], 'children', []);
+
+%Reprojection Method
+tagS(end+1) = struct('tag', ['00541004'], 'type', ['2C'], 'children', []);
+
+%Number of R-R Intervals
+tagS(end+1) = struct('tag', ['00540061'], 'type', ['1C'], 'children', []);
+
+%Number of Time Slots
+tagS(end+1) = struct('tag', ['00540071'], 'type', ['1C'], 'children', []);
+
+%Number of Time Slices
+tagS(end+1) = struct('tag', ['00540101'], 'type', ['1C'], 'children', []);
+
+%Number of Slices
+tagS(end+1) = struct('tag', ['00540081'], 'type', ['1'], 'children', []);
+
+%Corrected Image
+tagS(end+1) = struct('tag', ['00280051'], 'type', ['2'], 'children', []);
+
+%Randoms Correction Method
+tagS(end+1) = struct('tag', ['00541100'], 'type', ['3'], 'children', []);
+
+%Attenuation Correction Method
+tagS(end+1) = struct('tag', ['00541101'], 'type', ['3'], 'children', []);
+
+%Scatter Correction Method
+tagS(end+1) = struct('tag', ['00541105'], 'type', ['3'], 'children', []);
+
+%Decay Correction
+tagS(end+1) = struct('tag', ['00541102'], 'type', ['1'], 'children', []);
+
+%Reconstruction Diameter
+tagS(end+1) = struct('tag', ['00181100'], 'type', ['3'], 'children', []);
+
+%Convolution Kernel
+tagS(end+1) = struct('tag', ['00181210'], 'type', ['3'], 'children', []);
+
+%Reconstruction Method
+tagS(end+1) = struct('tag', ['00541103'], 'type', ['3'], 'children', []);
+
+%Detector Lines of Response Used
+tagS(end+1) = struct('tag', ['00541104'], 'type', ['3'], 'children', []);
+
+%Acquisition Start Condition
+tagS(end+1) = struct('tag', ['00180073'], 'type', ['3'], 'children', []);
+
+%Acquisition Start Condition Data
+tagS(end+1) = struct('tag', ['00180074'], 'type', ['3'], 'children', []);
+
+%Acquisition Termination Condition
+tagS(end+1) = struct('tag', ['00180071'], 'type', ['3'], 'children', []);
+
+%Acquisition Termination Condition Data
+tagS(end+1) = struct('tag', ['00180075'], 'type', ['3'], 'children', []);
+
+%Field of View Shape
+tagS(end+1) = struct('tag', ['00181147'], 'type', ['3'], 'children', []);
+
+%Field of View Dimensions
+tagS(end+1) = struct('tag', ['00181149'], 'type', ['3'], 'children', []);
+
+%Gantry/Detector Tilt
+tagS(end+1) = struct('tag', ['00181120'], 'type', ['3'], 'children', []);
+
+%Gantry/Detector Slew
+tagS(end+1) = struct('tag', ['00181121'], 'type', ['3'], 'children', []);
+
+%Type of Detector Motion
+tagS(end+1) = struct('tag', ['00540202'], 'type', ['3'], 'children', []);
+
+%Collimator Type
+tagS(end+1) = struct('tag', ['00181181'], 'type', ['2'], 'children', []);
+
+%Collimator/Grid Name
+tagS(end+1) = struct('tag', ['00181180'], 'type', ['3'], 'children', []);
+
+%Axial Acceptance
+tagS(end+1) = struct('tag', ['00541200'], 'type', ['3'], 'children', []);
+
+%Axial Mash
+tagS(end+1) = struct('tag', ['00541200'], 'type', ['3'], 'children', []);
+
+%Transverse Mash
+tagS(end+1) = struct('tag', ['00541202'], 'type', ['3'], 'children', []);
+
+%Detector Element Size
+tagS(end+1) = struct('tag', ['00541203'], 'type', ['3'], 'children', []);
+
+%Concidence Window Width
+tagS(end+1) = struct('tag', ['00541210'], 'type', ['3'], 'children', []);
+
+%Energy Window Range Sequence
+tagS(end+1) = struct('tag', ['00540013'], 'type', ['3'], 'children', []);
+
+%Energy Window Lower Limit
+tagS(end+1) = struct('tag', ['00540014'], 'type', ['3'], 'children', []);
+
+%Energy Window Upper Limit
+tagS(end+1) = struct('tag', ['00540015'], 'type', ['3'], 'children', []);
+
+%Secondary Counts Type
+tagS(end+1) = struct('tag', ['00541220'], 'type', ['3'], 'children', []);
+
+%Scan Progression Direction
+tagS(end+1) = struct('tag', ['00540501'], 'type', ['3'], 'children', []);
+
+%0054,0016 Radiopharmaceutical Information Sequence
+tagS(end+1) = struct('tag', ['00540016'], 'type', ['2'], 'children', []);
+child_1     = template;
+
+    %Radionuclide Code Sequence
+    child_1(end+1) = struct('tag', ['00540300'], 'type', ['2'], 'children', []);
+    
+    %Radiopharmaceutical Route
+    child_1(end+1) = struct('tag', ['00181070'], 'type', ['3'], 'children', []);
+    
+    %Administration Route Code Sequence
+    child_1(end+1) = struct('tag', ['00540302'], 'type', ['3'], 'children', []);
+    
+    %Radiopharmaceutical Volume
+    child_1(end+1) = struct('tag', ['00181071'], 'type', ['3'], 'children', []);  
+    
+    %Radiopharmaceutical Start Time
+    child_1(end+1) = struct('tag', ['00181072'], 'type', ['3'], 'children', []);
+    
+    %Radiopharmaceutical Start DateTime
+    child_1(end+1) = struct('tag', ['00181078'], 'type', ['3'], 'children', []);
+    
+    %Radiopharmaceutical Stop Time
+    child_1(end+1) = struct('tag', ['00181073'], 'type', ['3'], 'children', []);
+    
+    %Radiopharmaceutical Stop DateTime
+    child_1(end+1) = struct('tag', ['00181079'], 'type', ['3'], 'children', []);
+
+    %Radionuclide Total Dose
+    child_1(end+1) = struct('tag', ['00181074'], 'type', ['3'], 'children', []);
+    
+    %Radiopharmaceutical Administration Event UID
+    child_1(end+1) = struct('tag', ['00083012'], 'type', ['3'], 'children', []);
+    
+    %Radionuclide Half Life
+    child_1(end+1) = struct('tag', ['00181075'], 'type', ['3'], 'children', []);
+    
+    %Radionuclide Positrion Fraction
+    child_1(end+1) = struct('tag', ['00181076'], 'type', ['3'], 'children', []);
+    
+    %Radiopharmaceutical Specific Activity
+    child_1(end+1) = struct('tag', ['00181077'], 'type', ['3'], 'children', []);
+    
+    %Radiopharmaceutical
+    child_1(end+1) = struct('tag', ['00180031'], 'type', ['3'], 'children', []);
+
+    %Radiopharmaceutical Code Sequence
+    child_1(end+1) = struct('tag', ['00540304'], 'type', ['3'], 'children', []);
+    
+    %Intervention Drug Information Sequence
+    child_1(end+1) = struct('tag', ['00180026'], 'type', ['3'], 'children', []);
+    
+    %Intervention Drug Name
+    child_1(end+1) = struct('tag', ['00180034'], 'type', ['3'], 'children', []);
+    
+    %Intervention Drug Code Sequence
+    child_1(end+1) = struct('tag', ['00180029'], 'type', ['3'], 'children', []);
+    
+    %Intervention Drug Start Time
+    child_1(end+1) = struct('tag', ['00180035'], 'type', ['3'], 'children', []);
+    
+    %Intervention Drug Stop Time
+    child_1(end+1) = struct('tag', ['00180027'], 'type', ['3'], 'children', []);
+    
+    %Intervention Drug Dose
+    child_1(end+1) = struct('tag', ['00180028'], 'type', ['3'], 'children', []);
+
+tagS(end).children = child_1;
+ 
 %Image Type
-tagS(end+1) = struct('tag', ['00080008'], 'type', ['1'], 'children', []);
+tagS(end+1) = struct('tag', ['524296524296'], 'type', ['1'], 'children', []);
 
 %Samples per Pixel
 tagS(end+1) = struct('tag', ['00280002'], 'type', ['1'], 'children', []);
@@ -76,107 +244,65 @@ tagS(end+1) = struct('tag', ['00281052'], 'type', ['1'], 'children', []);
 %Rescale Slope
 tagS(end+1) = struct('tag', ['00281053'], 'type', ['1'], 'children', []);
 
-%KVP
-tagS(end+1) = struct('tag', ['00180060'], 'type', ['2'], 'children', []);
+%Frame Reference Time
+tagS(end+1) = struct('tag', ['00541300'], 'type', ['1'], 'children', []);
 
-%Acquisition Number
-tagS(end+1) = struct('tag', ['00200012'], 'type', ['2'], 'children', []);
+%Trigger Time
+tagS(end+1) = struct('tag', ['00181060'], 'type', ['1C'], 'children', []);
 
-%Scan Options
-tagS(end+1) = struct('tag', ['00180022'], 'type', ['3'], 'children', []);
+%Frame Time
+tagS(end+1) = struct('tag', ['00181063'], 'type', ['1C'], 'children', []);
 
-%Data Collection Diameter
-tagS(end+1) = struct('tag', ['00180090'], 'type', ['3'], 'children', []);
+%Low R-R Value
+tagS(end+1) = struct('tag', ['00181081'], 'type', ['1C'], 'children', []);
 
-%Reconstruction Diameter
-tagS(end+1) = struct('tag', ['00181100'], 'type', ['3'], 'children', []);
+%High R-R Value
+tagS(end+1) = struct('tag', ['00181082'], 'type', ['1C'], 'children', []);
 
-%Distance Source to Detector
-tagS(end+1) = struct('tag', ['00181110'], 'type', ['3'], 'children', []);
+%Lossy Image Compression
+tagS(end+1) = struct('tag', ['00282110'], 'type', ['1C'], 'children', []);
 
-%Distance Source to Patient
-tagS(end+1) = struct('tag', ['00181111'], 'type', ['3'], 'children', []);
+%Image Index
+tagS(end+1) = struct('tag', ['00541330'], 'type', ['1'], 'children', []);
 
-%Gantry/Detector Tilt
-tagS(end+1) = struct('tag', ['00181120'], 'type', ['3'], 'children', []);
+%Acquisition Date
+tagS(end+1) = struct('tag', ['00080022'], 'type', ['2'], 'children', []);
 
-%Table Height
-tagS(end+1) = struct('tag', ['00181130'], 'type', ['3'], 'children', []);
+%Acquisition Time
+tagS(end+1) = struct('tag', ['00080032'], 'type', ['2'], 'children', []);
 
-%Rotation Direction
-tagS(end+1) = struct('tag', ['00181140'], 'type', ['3'], 'children', []);
+%Actual Frame Duration
+tagS(end+1) = struct('tag', ['00181242'], 'type', ['2'], 'children', []);
 
-%Exposure Time
-tagS(end+1) = struct('tag', ['00181150'], 'type', ['3'], 'children', []);
+%Nominal Interval
+tagS(end+1) = struct('tag', ['00181062'], 'type', ['3'], 'children', []);
 
-%X-ray Tube Current
-tagS(end+1) = struct('tag', ['00181151'], 'type', ['3'], 'children', []);
+%Intervals Acquired
+tagS(end+1) = struct('tag', ['00181083'], 'type', ['3'], 'children', []);
 
-%Exposure
-tagS(end+1) = struct('tag', ['00181152'], 'type', ['3'], 'children', []);
+%Intervals Rejected
+tagS(end+1) = struct('tag', ['00181084'], 'type', ['3'], 'children', []);
 
-%Exposure in uAs
-tagS(end+1) = struct('tag', ['00181153'], 'type', ['3'], 'children', []);
+%Primary Counts Accumulated
+tagS(end+1) = struct('tag', ['00541310'], 'type', ['3'], 'children', []);
 
-%Filter Type
-tagS(end+1) = struct('tag', ['00181160'], 'type', ['3'], 'children', []);
+%Secondary Counts Accumulated
+tagS(end+1) = struct('tag', ['00541311'], 'type', ['3'], 'children', []);
 
-%Generator Power
-tagS(end+1) = struct('tag', ['00181170'], 'type', ['3'], 'children', []);
+%Slice Sensitivity Factor
+tagS(end+1) = struct('tag', ['00541320'], 'type', ['3'], 'children', []);
 
-%Focal Spot
-tagS(end+1) = struct('tag', ['00181190'], 'type', ['3'], 'children', []);
+%Decay Factor
+tagS(end+1) = struct('tag', ['00541321'], 'type', ['1C'], 'children', []);
 
-%Convolution Kernal
-tagS(end+1) = struct('tag', ['00181210'], 'type', ['3'], 'children', []);
+%Dose Calibration Factor
+tagS(end+1) = struct('tag', ['00541322'], 'type', ['3'], 'children', []);
 
-%Revolution Time
-tagS(end+1) = struct('tag', ['00189305'], 'type', ['3'], 'children', []);
+%Scatter Fraction Factor
+tagS(end+1) = struct('tag', ['00541323'], 'type', ['3'], 'children', []);
 
-%Single Collimation Width
-tagS(end+1) = struct('tag', ['00189306'], 'type', ['3'], 'children', []);
+%Dead Time Factor
+tagS(end+1) = struct('tag', ['00541324'], 'type', ['3'], 'children', []);
 
-%Total Collimation Width
-tagS(end+1) = struct('tag', ['00189307'], 'type', ['3'], 'children', []);
-
-%Table Speed
-tagS(end+1) = struct('tag', ['00189309'], 'type', ['3'], 'children', []);
-
-%Table Feed per Rotation
-tagS(end+1) = struct('tag', ['00189310'], 'type', ['3'], 'children', []);
-
-%CT Pitch Factor
-tagS(end+1) = struct('tag', ['00189311'], 'type', ['3'], 'children', []);
-
-%Exposure Modulation Type
-tagS(end+1) = struct('tag', ['00189323'], 'type', ['3'], 'children', []);
-
-%Estimated Dose Saving
-tagS(end+1) = struct('tag', ['00189324'], 'type', ['3'], 'children', []);
-
-%CTDIvol
-tagS(end+1) = struct('tag', ['00189345'], 'type', ['3'], 'children', []);
-
-% PatientWeight
-tagS(end+1) = struct('tag', ['00101030'], 'type', ['3'], 'children', []);
-
-% Acquisition Time 
-tagS(end+1) = struct('tag', ['00080032'], 'type', ['3'], 'children', []);
-
-%5505046    %0054,0016 Radiopharmaceutical Information Sequence
-tagS(end+1) = struct('tag', ['00540016'], 'type', ['2'], 'children', []);
-child_1     = template;
-  
-    %Radiopharmaceutical Start Time
-    child_1(end+1) = struct('tag', ['00181072'], 'type', ['3'], 'children', []);  
-    
-    %Radionuclide Total Dose
-    child_1(end+1) = struct('tag', ['00181074'], 'type', ['3'], 'children', []);
-    
-    %Radionuclide Half Life 
-    child_1(end+1) = struct('tag', ['00181075'], 'type', ['3'], 'children', []);
-
-%Optinally add the "General Anatomy Optional Macro"
-% tagS = [tagS general_anatomy_optional_macro_tags];  %Currently unimplemented.
-
-tagS(end).children = child_1;
+%Isocenter Position
+tagS(end+1) = struct('tag', ['300A012C'], 'type', ['3'], 'children', []);
