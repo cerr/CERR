@@ -145,7 +145,8 @@ shapeS.max2dDiameterCoronalPlane = sqrt(dmax) * 10;
 
 
 % Add a row/col/slice to account for half a voxel
-mask3M = padarray(mask3M,[1 1 1],'replicate');
+%mask3M = padarray(mask3M,[1 1 1],'replicate');
+mask3M = padarray(mask3M,[1 1 1],0);
 xValsV = [xValsV(1)-voxelSiz(1) xValsV xValsV(end)+voxelSiz(1)];
 yValsV = [yValsV(1)-voxelSiz(2) yValsV yValsV(end)+voxelSiz(2)];
 zValsV = [zValsV(1)-voxelSiz(3) zValsV zValsV(end)+voxelSiz(3)];
@@ -234,7 +235,7 @@ shapeS.volume = volume;
 shapeS.filledVolume = filledVolume;
 
 % Compactness 1 (V/(pi*A^(3/2)), eq. (15) Aerts Nature suppl.
-shapeS.Compactness1 = shapeS.volume / (pi*shapeS.surfArea^1.5);
+shapeS.Compactness1 = shapeS.volume / (pi^0.5*shapeS.surfArea^1.5);
 
 % Compactness 2 (36*pi*V^2/A^3), eq. (16) Aerts Nature suppl.
 shapeS.Compactness2 = 36*pi*shapeS.volume^2/shapeS.surfArea^3;
