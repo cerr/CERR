@@ -1,4 +1,9 @@
 {
 "algorithm" : "Lung_MRRN",
-"loadStructures" : ["lung"]
+"loadStructures" : [
+{"structureName": "lung",
+  "value": 1}
+],
+"fullContainerPath" : "/lila/home/pandyar1/lungIncMRRN.sif",
+"reference" : "https://ieeexplore.ieee.org/document/8417454"
 }

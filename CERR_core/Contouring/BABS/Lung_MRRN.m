@@ -16,6 +16,7 @@ function success = Lung_MRRN(cerrPath,segResultCERRPath,fullSessionPath,deepLabC
     
 
 deepLabContainerPath
+
 cerrToH5(cerrPath, fullSessionPath);
 
 %container_file = fullfile(deepLabContainerPath, '1.sif');
