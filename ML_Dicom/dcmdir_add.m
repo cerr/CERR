@@ -272,7 +272,7 @@ for i=1:length(studyS.SERIES)
             end
             
         end
-    elseif strcmpi(currentModality,'CT') && strcmpi(seriesModality,'CT')
+    elseif false && strcmpi(currentModality,'CT') && strcmpi(seriesModality,'CT')
         acqNum1 = studyS.SERIES(i).info.getString(hex2dec(acqNumTag));
         acqNum1Series = series.getString(hex2dec(acqNumTag));
         if strcmpi(acqNum1Series,acqNum1) || ...
