@@ -19,16 +19,10 @@ cerrToH5(cerrPath, fullSessionPath);
 
 %container_file = fullfile(deepLabContainerPath, '1.sif');
 inputH5Path = fullfile(fullSessionPath,'inputH5');
-if isunix
-    system(['chmod -R 777 ',inputH5Path])
-end
 
 %create subdir within fullSessionPath for h5 files
 outputH5Path = fullfile(fullSessionPath,'outputH5');
 mkdir(outputH5Path);
-if isunix
-    system(['chmod -R 777 ',outputH5Path])
-end
 
 command = sprintf('singularity run --nv %s %s %s', deepLabContainerPath, inputH5Path, outputH5Path);
 cerrPath
@@ -40,13 +34,6 @@ configFilePath = fullfile(getCERRPath,'Contouring','models','mr_prostate_DeepLab
 
 %return after execution completed
 joinH5CERR(segResultCERRPath,cerrPath,outputH5Path,configFilePath);
-
-
-
-
-
-
-
 
 
 
