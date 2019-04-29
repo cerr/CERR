@@ -144,12 +144,9 @@ class DeepLabModel(object):
 
 def main(argv):
 
-    print("argv1")
-    print(sys.argv[1])
-    print("arg2")
-    print(sys.argv[2])
-    data_path = sys.argv[1][5:]  # FLAGS.data_dir
-    save_dir = sys.argv[2][5:]  # FLAGS.save_dir
+    data_path = '/scratch/inputH5/'
+    save_dir = '/scratch/outputH5/'
+
     print("assignment of paths successful")
     print(data_path)
     print(save_dir)
