@@ -23,7 +23,7 @@
 				  "type": ["cont"]
 		           }
 	},
-	"function": "appeltCorrectedLogitFn",
+	"function": "logitFn",
 	"created_by": "Aditi",
 	"created_at": "3PM 2\/08\/17",
 	"modified_by": "",
