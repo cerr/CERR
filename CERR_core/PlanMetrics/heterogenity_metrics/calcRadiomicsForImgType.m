@@ -3,7 +3,7 @@ function featureS = calcRadiomicsForImgType(volOrig3M,maskBoundingBox3M,paramS,g
 %Derive user-defined image type and extract radiomics features.
 %
 %AI 3/28/19
-
+%AI 5/1/19    Turned off flag for diffAvg since this is equivalent to dissimilarity. 
 
 % Voxel volume for Total Energy calculation
 xValsV = gridS.xValsV;
@@ -248,7 +248,7 @@ end
         glcmFlagS.dissimilarity = 1;
         glcmFlagS.diffEntropy = 1;
         glcmFlagS.diffVar = 1;
-        glcmFlagS.diffAvg = 1;
+        glcmFlagS.diffAvg = 0;  %Equivalent to dissimilarity
         glcmFlagS.sumVar = 1;
         glcmFlagS.sumEntropy = 1;
         glcmFlagS.clustTendency = 1;
