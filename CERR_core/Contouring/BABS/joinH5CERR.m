@@ -54,7 +54,7 @@ end
     
     for i = 1 : length(res.loadStructures)          
             maskM = flippedMask == i;
-            planC = maskToCERRStructure(maskM, isUniform, scanNum, res.structToIndxMap(i).structureName, planC);
+            planC = maskToCERRStructure(maskM, isUniform, scanNum, res.loadStructures(i).structureName, planC);
     end
         
     finalPlanCfilename = fullfile(segResultCERRPath, strrep(strrep(file.name, 'MASK_', ''),'h5', 'mat'))
