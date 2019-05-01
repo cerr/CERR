@@ -39,9 +39,6 @@ fullSessionPath = fullfile(sessionPath,sessionDir);
 
 % Create directories to write CERR files
 mkdir(fullSessionPath)
-if isunix
-    system(['chmod -R 777 ',fullSessionPath])
-end
 cerrPath = fullfile(fullSessionPath,'ctCERR');
 mkdir(cerrPath)
 outputCERRPath = fullfile(fullSessionPath,'segmentedOrigCERR');
