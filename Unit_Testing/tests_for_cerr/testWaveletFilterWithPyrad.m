@@ -4,24 +4,6 @@
 % RKP, 03/22/2018
 
 
-% % Structure from planC
-% global planC
-% indexS = planC{end};
-% scanNum     = 1;
-% structNum   = 16;
-% 
-% [rasterSegments, planC, isError]    = getRasterSegments(structNum,planC);
-% [mask3M, uniqueSlices]              = rasterToMask(rasterSegments, scanNum, planC);
-% scanArray3M                         = getScanArray(planC{indexS.scan}(scanNum));
-% 
-% SUVvals3M                           = mask3M.*double(scanArray3M(:,:,uniqueSlices));
-% [minr, maxr, minc, maxc, mins, maxs]= compute_boundingbox(mask3M);
-% maskBoundingBox3M                   = mask3M(minr:maxr,minc:maxc,mins:maxs);
-% volToEval                           = SUVvals3M(minr:maxr,minc:maxc,mins:maxs);
-% volToEval(maskBoundingBox3M==0)     = NaN;
-% 
-% testM = imquantize_cerr(volToEval,nL);
-
 % Number of Gray levels
 nL = 16;
 
@@ -35,8 +17,12 @@ wavType = 'coif1';
 scanType = 'wavelet';
 dirString = 'HHH';
 
-%%pyradiomics generated wavelet filtered images saved to tempDir     
+
+%% pyradiomics generated wavelet filtered images saved to tempDir     
 teststruct = PyradWrapper(testM, maskBoundingBox3M, [1,1,1], scanType, dirString);
+
+%Saving the values returned from Pyradiomics to use for comparison:
+savedTeststruct = teststruct;
 
 pyrad_wavelet_filename = fullfile(tempdir, strcat('wavelet-', dirString, '.nrrd'));
 [pyWav3M, infoS] = nrrd_read(pyrad_wavelet_filename);
