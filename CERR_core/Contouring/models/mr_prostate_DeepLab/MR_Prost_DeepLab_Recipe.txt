@@ -66,25 +66,18 @@ From: nvidia/cuda:9.0-cudnn7-devel-ubuntu16.04
 
   	# Install expect to automate responses for interactive build questions
   	apt-get -y install expect
-
-  	apt-get clean
-  	apt-get dist-upgrade && apt-get install -y --no-install-recommends --ignore-missing \
-  	python-dicom
-
-  
+  	 
   	apt update
   	apt-get clean
 
 	apt update && apt install -y libsm6 libxext6
   	apt-get install -y libxrender-dev
-
-  	pip3 install pydicom
+  	
   	pip3 install numpy
   	pip3 install scikit-image
   	pip3 install opencv-python
   	pip3 install protobuf
-  	pip3 install matplotlib
-
+  	
 	apt-get update 
 	apt-get install -y libgtk2.0-dev
 
@@ -106,7 +99,8 @@ From: nvidia/cuda:9.0-cudnn7-devel-ubuntu16.04
 	
 	. /env/bin/activate	
 	
-	python /software/CERR/CERR_core/Contouring/models/mr_prostate_DeepLab/run_inference_clinical_3D.py arg1=$1 arg2=$2	
+	python /software/CERR/CERR_core/Contouring/models/mr_prostate_DeepLab/run_inference_clinical_3D.py arg1=$1 arg2=$2
+	pkill -f /software/CERR/CERR_core/Contouring/models/mr_prostate_DeepLab/run_inference_clinical_3D.py	
 
 %test
 	#Test that script is a success
