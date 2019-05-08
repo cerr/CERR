@@ -39,7 +39,7 @@ count = 0;
 try
     %Loop over CERR files
     for planNum = 1:length(dirS)
-                
+        
         %Load file
         fprintf('\nProcessing pt %d of %d...\n',planNum,length(dirS));
         [~,ptName,~] = fileparts(dirS(planNum).name);
@@ -102,16 +102,13 @@ try
                 
             end
             
+            %Pre-processing
+            [scan3M,mask3M] = cropScanAndMask(planC,scan3M,mask3M,preProcMethod,varargin);
             maskC{scanIdx} = mask3M;
             
         end
         
-        %Pre-processing
-        [scan3M,mask3M] = preProcessData(planC,scan3M,mask3M,preProcMethod,varargin);
-        
-        
         %Save to HDF5
-        
         if ismember(planNum,trainIdxV)
             outDir = [HDF5dir,filesep,'Train'];
         elseif ismember(planNum,valIdxV)
