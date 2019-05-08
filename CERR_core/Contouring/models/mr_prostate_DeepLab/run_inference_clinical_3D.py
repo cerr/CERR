@@ -259,6 +259,6 @@ def main(argv):
         with h5py.File(os.path.join(save_dir, maskfilename), 'w') as hf:
             hf.create_dataset("mask", data=mask)
         # os.remove(filename)
-
+        sys.exit()
 if __name__ == '__main__':
   tf.app.run()

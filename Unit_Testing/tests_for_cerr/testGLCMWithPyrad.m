@@ -2,7 +2,7 @@
 %
 % RKP, 03/22/2018
 
-
+%% Load image
 glcmParamFileName = fullfile(fileparts(fileparts(getCERRPath)),...
     'Unit_Testing','tests_for_cerr','test_glcm_radiomics_extraction_settings.json');
 cerrFileName = fullfile(fileparts(fileparts(getCERRPath)),...
@@ -61,3 +61,7 @@ end
 
 %% Compare
 glcmDiffV = (cerrGlcmV - pyRadGlcmV) ./ cerrGlcmV * 100
+
+%% Compare using previously calculated values of pyradiomics glcm
+saved_pyRadGlcmV = [1751.49603382875,40.8299981390930,1699291.05899833,-11302.3472463506,399.183404315141,61.6492931961095,0.731298422981024,3.58225481213654,3.08032041137040,48.5207221130057,NaN,0.0325243174278277,6.85603719995355,0.522724816541355,0.480259668311807,-0.208253976228619,0.884543363584260,0.995164157047163,0.971313972188856,0.373754218660873,NaN,4.82370970733959,NaN];
+glcmDiffV = (cerrGlcmV - saved_pyRadGlcmV) ./ cerrGlcmV * 100

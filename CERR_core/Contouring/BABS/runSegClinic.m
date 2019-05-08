@@ -30,9 +30,16 @@ function success = runSegClinic(inputDicomPath,outputDicomPath,sessionPath,algor
 
 
 % Create session directory to write segmentation metadata
+
+if inputDicomPath(end) == filesep
+    [~,folderNam] = fileparts(inputDicomPath(1:end-1));
+else
+    [~,folderNam] = fileparts(inputDicomPath);
+end
+
 dateTimeV = clock;
 randNum = 1000.*rand;
-sessionDir = ['session',num2str(dateTimeV(4)), num2str(dateTimeV(5)),...
+sessionDir = ['session',folderNam,num2str(dateTimeV(4)), num2str(dateTimeV(5)),...
     num2str(dateTimeV(6)), num2str(randNum)];
 
 fullSessionPath = fullfile(sessionPath,sessionDir);
