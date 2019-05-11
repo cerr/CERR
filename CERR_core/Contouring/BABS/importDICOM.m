@@ -98,13 +98,18 @@ for dirNum = 1:length(dirsToImportC)
         indexS = planC{end};
         
         % build the filename for storing planC
+        if sourceDir(end) == filesep
+            [~,folderNam] = fileparts(sourceDir(1:end-1));
+        else
+            [~,folderNam] = fileparts(sourceDir);
+        end
         mrn = planC{indexS.scan}(1).scanInfo(1).DICOMHeaders.PatientID;
         studyDscr = planC{indexS.scan}(1).scanInfo(1).DICOMHeaders.StudyDescription;
         seriesDscr = planC{indexS.scan}(1).scanInfo(1).DICOMHeaders.SeriesDescription;
         modality = planC{indexS.scan}(1).scanInfo(1).DICOMHeaders.Modality;
         
         % outFileName = [mrn,'~',studyDscr,'~',seriesDscr,'~',modality];
-        outFileName = mrn;
+        outFileName = folderNam;
         
         %outFileName = mrn;   % store file names as MRNs
         
