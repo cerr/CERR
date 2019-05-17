@@ -113,8 +113,9 @@ for slcNum = 1:numSlices
 end
 gammaM = gammaM.^0.5;
 toc
-set(ud.wb.patch,'xData',[0 0 1 1])
-
+if ~isempty(gammaGUIFig)
+    set(ud.wb.patch,'xData',[0 0 1 1])
+end
 
 
 
