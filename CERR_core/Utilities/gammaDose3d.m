@@ -1,7 +1,39 @@
-function gammaM = gammaDose3d(doseArray1, doseArray2, strMask3M, deltaXYZv, doseAgreement, distAgreement, maxDistance, thresholdAbsolute)
-% function gammaM = gammaDose3d(doseArray1, doseArray2, strMask3M, deltaXYZv, doseAgreement, distAgreement, maxDistance, thresholdAbsolute)
+function gammaM = gammaDose3d(doseArray1, doseArray2, strMask3M, deltaXYZv,...
+    doseAgreement, distAgreement, maxSearchDistance, thresholdAbsolute, doseDiffMethod)
+% function gammaM = gammaDose3d(doseArray1, doseArray2, strMask3M, deltaXYZv,...
+% doseAgreement, distAgreement, maxSearchDistance, thresholdAbsolute, doseDiffMethod)
 %
-% Block-wise comparison for each voxel.
+% This function returns the Gamma calculation for input dose distributions.
+% 
+% Computation uses the following algorithm for speedup:
+% "A fast algorithm for gamma evaluation in 3D”,
+%  Wendling et al, Medical physics,  34 (5), pp. 1647, 2007.
+%
+% which achieves speed and computer memory efficiency by searching around 
+% each reference point with increasing distance in a sphere, 
+% which has a radius of a chosen maximum search distance.
+%
+% doseArray1: reference dose
+%
+% doseArray2: evaluation dose
+%
+% strMask3M: binary mask. Gamma value is computed only for voxels that 
+%            have a strMask3M value of 1 
+%
+% deltaXYZv: Voxel size (dx,dy,dz) in cm
+%
+% doseDiffMethod: method to account for dose difference. 
+% 1: single dose value, usually percentage of max reference dose.
+% 2: percentage of dose at each voxel.
+%
+% doseAgreement: when doseDiffMethod = 1, this is specified in Gy.
+%                when doseDiffMethod = 2, this is specified as a percentage.
+%
+% distAgreement: distance agreement in cm.
+%
+% maxSearchDistance: maximum radius of sphere as described in Wendling et al.
+%
+% thresholdAbsolute: Dose in Gy. for which gamma calculation is ignored.
 %
 % APA, 08/28/2015
 
@@ -10,13 +42,14 @@ deltaY = deltaXYZv(2);
 deltaZ = deltaXYZv(3);
 
 % Get Block size to process
-if ~exist('maxDistance', 'var') || (exist('maxDistance', 'var') && isempty(maxDistance))
-    maxDistance = distAgreement*2;
+if ~exist('maxSearchDistance', 'var') || ...
+        (exist('maxSearchDistance', 'var') && isempty(maxSearchDistance))
+    maxSearchDistance = distAgreement*2;
 end
-%maxDistance = 1; % cm
-slcWindow = floor(2*maxDistance/deltaZ);
-rowWindow = floor(2*maxDistance/deltaY);
-colWindow = floor(2*maxDistance/deltaX);
+%maxSearchDistance = 1; % cm
+slcWindow = floor(2*maxSearchDistance/deltaZ);
+rowWindow = floor(2*maxSearchDistance/deltaY);
+colWindow = floor(2*maxSearchDistance/deltaX);
 
 % Make sure that the window is of odd size
 if mod(slcWindow,2) == 0
@@ -101,7 +134,12 @@ for slcNum = 1:numSlices
     for slc = slcNum:slcWindow+slcNum-1
         slc2M = doseArray2(:,:,slc);
         tmpGammaV = bsxfun(@minus,slc2M(indSlcM),slc1M(calcSlcIndV)');
-        tmpGammaV = bsxfun(@plus,tmpGammaV.^2/doseAgreement^2 , (xysq + zV(slcCount)^2) / distAgreement^2);
+        if doseDiffMethod == 1
+            tmpGammaV = bsxfun(@plus,tmpGammaV.^2/doseAgreement^2 , (xysq + zV(slcCount)^2) / distAgreement^2);
+        elseif doseDiffMethod == 2
+            tmpGammaV = bsxfun(@rdivide,tmpGammaV.^2,(doseAgreement/100*slc1M(calcSlcIndV)').^2);
+            tmpGammaV = bsxfun(@plus, tmpGammaV, (xysq + zV(slcCount)^2) / distAgreement^2);
+        end
         gammaV(calcSlcIndV) = min(gammaV(calcSlcIndV),min(tmpGammaV));
         gammaM(:,:,slcNum) = reshape(gammaV,siz);
         slcCount = slcCount + 1;
@@ -117,104 +155,4 @@ if ~isempty(gammaGUIFig)
     set(ud.wb.patch,'xData',[0 0 1 1])
 end
 
-
-
-
-% % APA, 04/27/2012
-% 
-% deltaX = deltaXYZv(1);
-% deltaY = deltaXYZv(2);
-% deltaZ = deltaXYZv(3);
-% incrementRadius = min([deltaX deltaY deltaZ]);
-% 
-% % Initial gamma
-% gammaM = ((doseArray1-doseArray2).^2).^0.5/doseAgreement;
-% %convergedM = false(size(gammaM));
-% 
-% % Find regions of zero dose and exclude from calculation
-% if ~exist('thresholdAbsolute', 'var') 
-%     thresholdAbsolute = 0;
-% end
-% convergedM = doseArray1 <= thresholdAbsolute;
-% %convergedM = doseArray1 >= thresholdAbsolute; % for MR scan
-% gammaM(convergedM) = NaN;
-% 
-% % Calculate until 4 times the permissible distance to agreement.
-% if ~exist('maxDistance', 'var') || (exist('maxDistance', 'var') && isempty(maxDistance))
-%     maxDistance = distAgreement*4;
-% end
-% outerRadiusV = incrementRadius:incrementRadius:maxDistance;
-% numIters = length(outerRadiusV);
-% 
-% siz = size(gammaM);
-% minDoseDiffM = zeros(siz,'single');
-% maxDoseDiffM = minDoseDiffM;
-% 
-% % convergenceCountM = zeros(siz,'uint8');
-% 
-% % Update waitbar on gamma GUI
-% gammaGUIFig = findobj('tag','CERRgammaInputGUI');
-% if ~isempty(gammaGUIFig)
-%     ud = get(gammaGUIFig,'userdata');
-%     set(ud.wb.patch,'xData',[0 0 0 0])
-% end
-% 
-% for radNum = 1:numIters
-%     
-%     disp(['--- Gamma Calculation Iteraion ', num2str(radNum), ' ----'])    
-%     
-%     % Create an ellipsoid ring neighborhood
-%     outerRadius = outerRadiusV(radNum);    
-%     
-%     rowOutV = floor(outerRadius/deltaY);
-%     colOutV = floor(outerRadius/deltaX);
-%     slcOutV = floor(outerRadius/deltaZ);
-%         
-%     NHOOD_outer = createEllipsoidNHOOD(1:rowOutV,1:colOutV,1:slcOutV);
-%     
-%     % Compute Min and Max for the ellipsoid neighborhood
-%     [minLocalM, maxLocalM] = getMinMaxIM(doseArray2,NHOOD_outer);
-%     
-%     % Compute difference between dose1 and (min,max) for dose2
-%     minDoseDiffM(~convergedM) = doseArray1(~convergedM) - minLocalM(~convergedM);
-%     maxDoseDiffM(~convergedM) = maxLocalM(~convergedM) - doseArray1(~convergedM);
-%     
-%     % If dose1 is contained within (min,max) for dose2, then it converged!
-%     newConvergedM = ~convergedM & minDoseDiffM >= 0 & maxDoseDiffM >= 0;
-%     
-%     % Compute gamma for voxels that converged
-%     gammaM(newConvergedM) =  min(gammaM(newConvergedM), outerRadius/distAgreement);
-%     
-%     % Add newly converged voxels to the list
-%     convergedM = convergedM | newConvergedM;    
-%     
-%     % Compute gamma for voxels that have not yet converged
-%     gammaForNotConvergedM =  (min((minDoseDiffM(~convergedM)-doseAgreement).^2, (maxDoseDiffM(~convergedM)-doseAgreement).^2)./doseAgreement^2 + (outerRadius/distAgreement)^2).^0.5;
-%     gammaM(~convergedM) = min(gammaM(~convergedM), gammaForNotConvergedM);
-%        
-%     % If gamma is less or equal to outerRadius/distAgreement, then the voxel conveged!
-%     convergedM(~convergedM) = gammaM(~convergedM) <= outerRadius/distAgreement;
-%     
-% %     % Count number of consecutive gamma increments for each uncoverged voxel
-% %     indConvergeM = false(size(gammaM));
-% %     indConvergeM(~convergedM) = gammaM(~convergedM) <= gammaForNotConvergedM;
-% %     convergenceCountM(indConvergeM) = convergenceCountM(indConvergeM) + 1;
-% %     
-% %     % If gamma increases 4 consecutive times for a voxel, then assume it has converged
-% %     convergedM(convergenceCountM > 3) = 1;
-%     
-%     if ~isempty(gammaGUIFig)
-%         set(ud.wb.patch,'xData',[0 0 radNum/numIters radNum/numIters])
-%         drawnow
-%     end
-%         
-%     if all(convergedM(:))
-%         disp('All converged!!!')
-%         if ~isempty(gammaGUIFig)
-%             set(ud.wb.patch,'xData',[0 0 1 1])
-%         end
-%         break
-%     end
-%     
-% end
 

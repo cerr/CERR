@@ -41,7 +41,7 @@ kMin = max(find(newZgrid < zV(min(kV))));
 kMax = min(find(newZgrid > zV(max(kV))));
 inputTM = eye(4);
 for slcNum=kMin:kMax %1:length(newZgrid)
-    disp(['Interpolating slice ', num2str(kMin), '/', num2str(kMin)])
+    disp(['Interpolating slice ', num2str(slcNum), '/', num2str(kMax)])
     strTmpM = slice3DVol(mask3M, xV, yV, zV, newZgrid(slcNum), 3, 'linear', inputTM, [], newXgrid, newYgrid);
     if ~isempty(strTmpM)
         interpMask3M(:,:,slcNum) = strTmpM > 0.5;

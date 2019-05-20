@@ -112,46 +112,79 @@ switch upper(gamaCommand)
 
         % Get User Input for 2D dose difference and DTA
         gammaGUIFig = figure('numbertitle','off','name','3-D Gamma Calculation','tag','CERRgammaInputGUI','position',...
-            [ScreenSize(3)/2 ScreenSize(4)/2 300 350],'MenuBar','none','Resize','off','CloseRequestFcn','CERRGammafnc(''GAMMACANCLE'')');
+            [ScreenSize(3)/2 ScreenSize(4)/2 320 350],'MenuBar','none','Resize','off','CloseRequestFcn','CERRGammafnc(''GAMMACANCLE'')');
 
         bgColor = get(gammaGUIFig,'color');
 
         % Text dose difference
-        uicontrol('parent',gammaGUIFig,'style','text','backgroundcolor',bgColor,'position',[10 310 140 30],'String', 'Dose Difference (% of max ref dose)');
+        uicontrol('parent',gammaGUIFig,'style','text','backgroundcolor',...
+            bgColor,'position',[5 310 70 30],'String', 'Dose Difference');
         % Input dose difference
-        uicontrol('parent',gammaGUIFig,'style','Edit','backgroundcolor',[1 1 1],'position',[20 290 90 20],'String', '3','tag','InputDoseDiff' );
+        uicontrol('parent',gammaGUIFig,'style','Edit','backgroundcolor',...
+            [1 1 1],'position',[15 290 50 20],'String', '3','tag','InputDoseDiff' );
 
+        % Text dose difference method
+        uicontrol('parent',gammaGUIFig,'style','text','backgroundcolor',...
+            bgColor,'position',[80 310 140 30],'String', 'Method');
+        % Input dose difference method
+        uicontrol('parent',gammaGUIFig,'style','popup','backgroundcolor',...
+            [1 1 1],'position',[80 290 140 20],'String',...
+            {'% of max ref dose','% ref dose at each voxel'},'value',1,...
+            'tag','InputDoseDiffMethod' );
+        
         % Text DTA
-        uicontrol('parent',gammaGUIFig,'style','text','backgroundcolor',bgColor,'position',[160 310 140 30],'String', 'DTA (mm)');
+        uicontrol('parent',gammaGUIFig,'style','text','backgroundcolor',...
+            bgColor,'position',[200 310 120 30],'String', 'DTA (mm)');
         % Input DTA
-        uicontrol('parent',gammaGUIFig,'style','Edit','backgroundcolor',[1 1 1],'position',[170 290 90 20],'String', '3','tag','InputDTA');
+        uicontrol('parent',gammaGUIFig,'style','Edit','backgroundcolor',...
+            [1 1 1],'position',[240 290 50 20],'String', '3','tag','InputDTA');
 
         %Text Base Dose
-        uicontrol('parent',gammaGUIFig,'style','text','backgroundcolor',bgColor,'position',[10 250 150 20],'HorizontalAlignment','Left','String', 'Reference Dose');
-        uicontrol('Style', 'popup','String', doseFraction,'Position', [8 205 290 50],'tag','baseDoseGamma','backgroundcolor', [1 1 1]);
+        uicontrol('parent',gammaGUIFig,'style','text','backgroundcolor',bgColor,...
+            'position',[10 250 150 20],'HorizontalAlignment','Left','String', 'Reference Dose');
+        uicontrol('Style', 'popup','String', doseFraction,'Position', ...
+            [8 205 290 50],'tag','baseDoseGamma','backgroundcolor', [1 1 1]);
 
         % Text Ref Dose
-        uicontrol('parent',gammaGUIFig,'style','text','backgroundcolor',bgColor,'position',[10 205 150 20],'HorizontalAlignment','Left','String', 'Evaluation Dose');
-        uicontrol('Style', 'popup','String', doseFraction','Position', [8 160 290 50], 'tag','refDoseGamma','backgroundcolor',[1 1 1]);
+        uicontrol('parent',gammaGUIFig,'style','text','backgroundcolor',bgColor,...
+            'position',[10 205 150 20],'HorizontalAlignment','Left','String', 'Evaluation Dose');
+        uicontrol('Style', 'popup','String', doseFraction','Position', ...
+            [8 160 290 50], 'tag','refDoseGamma','backgroundcolor',[1 1 1]);
         
         % Text Threshold
-        uicontrol('parent',gammaGUIFig,'style','text','backgroundcolor',bgColor,'position',[10 140 140 30],'String', 'Threshold low dose (% max ref dose)');
+        uicontrol('parent',gammaGUIFig,'style','text','backgroundcolor',...
+            bgColor,'position',[10 140 100 30],'String', 'Threshold low dose (% max ref dose)');
         % Input Threshold
-        uicontrol('parent',gammaGUIFig,'style','Edit','backgroundcolor',[1 1 1],'position',[160 150 50 20],'String', '5','tag','InputThreshold');
+        uicontrol('parent',gammaGUIFig,'style','Edit','backgroundcolor',...
+            [1 1 1],'position',[110 140 40 30],'String', '0.001','tag','InputThreshold');
 
+        % Text MaxDistance
+        uicontrol('parent',gammaGUIFig,'style','text','backgroundcolor',...
+            bgColor,'position',[170 140 110 30],'String', 'Max search distance factor (times DTA)');
+        % Input MaxDistance
+        uicontrol('parent',gammaGUIFig,'style','Edit','backgroundcolor',...
+            [1 1 1],'position',[280 140 30 30],'String', '3','tag','MaxDistanceFactor');
+        
         %Text Structure
-        uicontrol('parent',gammaGUIFig,'style','text','backgroundcolor',bgColor,'position',[10 110 150 20],'HorizontalAlignment','Left','String', 'Structure');
-        uicontrol('Style', 'popup','String', structNamC,'Position', [8 65 290 50],'tag','structure','backgroundcolor', [1 1 1]);
+        uicontrol('parent',gammaGUIFig,'style','text','backgroundcolor',...
+            bgColor,'position',[10 110 150 20],'HorizontalAlignment','Left','String', 'Structure');
+        uicontrol('Style', 'popup','String', structNamC,'Position', ...
+            [8 65 290 50],'tag','structure','backgroundcolor', [1 1 1]);
 
         % Button GO
-        uicontrol('parent',gammaGUIFig,'style','pushbutton','position',[50 50 70 20],'String', 'Calculate','Callback', ['CERRGammafnc(''CALCGAMMA3D'')' ] );
+        uicontrol('parent',gammaGUIFig,'style','pushbutton','position',...
+            [50 50 70 20],'String', 'Calculate','Callback', 'CERRGammafnc(''CALCGAMMA3D'')');
 
         % Button Cancel
-        uicontrol('parent',gammaGUIFig,'style','pushbutton','position',[180 50 70 20],'String', 'Cancel','Callback', 'CERRGammafnc(''GAMMACANCLE'')');
+        uicontrol('parent',gammaGUIFig,'style','pushbutton','position',...
+            [180 50 70 20],'String', 'Cancel','Callback', 'CERRGammafnc(''GAMMACANCLE'')');
 
         % Waitbar
-        axes('units','pixels','Position', [8 15 280 15], 'ytick',[],'xtick',[], 'box', 'on', 'parent', gammaGUIFig, 'color', bgColor);
-        uicontrol(gammaGUIFig, 'style', 'text', 'units', 'pixels', 'position', [8 35 40 12], 'string', 'Status', 'fontweight', 'bold');
+        axes('units','pixels','Position', [8 15 280 15], 'ytick',[],...
+            'xtick',[], 'box', 'on', 'parent', gammaGUIFig, 'color', bgColor);
+        uicontrol(gammaGUIFig, 'style', 'text', 'units', 'pixels', ...
+            'position', [8 35 40 12], 'string', 'Status', 'fontweight', 'bold');
+        
         %Waitbar axis, part of wb.
         ud.wb.wbAxis = axes('units', 'pixels', 'Position', [8 15 280 15], 'color', [.9 .9 .9], 'ytick',[],'xtick',[], 'box', 'on', 'xlimmode', 'manual', 'ylimmode', 'manual', 'parent', gammaGUIFig);
         ud.wb.patch = patch([0 0 0 0], [0 1 1 0], 'red', 'parent', ud.wb.wbAxis);
@@ -178,7 +211,6 @@ switch upper(gamaCommand)
         end
 
         doseDiffIN = str2num(get(findobj('tag','InputDoseDiff'),'string'));
-
         if isempty(doseDiffIN)
             warndlg('Please Enter Dose Difference');
             return;
@@ -189,10 +221,18 @@ switch upper(gamaCommand)
                 return;
             end
         end
+        
+        doseDiffMethod = get(findobj('tag','InputDoseDiffMethod'),'value');
+        
 
         DTA = str2num(get(findobj('tag','InputDTA'),'string'))/10;
         if isempty(DTA)
             warndlg('Please Enter Distance to Agreement (DTA)');
+        end
+             
+        maxDistanceFactor = str2num(get(findobj('tag','MaxDistanceFactor'),'string'));
+        if isempty(DTA)
+            warndlg('Please Enter MaxDistance factor.');
         end
         
         
@@ -219,7 +259,8 @@ switch upper(gamaCommand)
 %             return;
 %         end
         
-        createGammaDose(baseDose,refDose,structNum,doseDiffIN,DTA,threshold);
+        createGammaDose(baseDose,refDose,structNum,doseDiffIN,DTA,...
+            threshold,maxDistanceFactor,doseDiffMethod);
         
         CERRGammafnc('DISPCERRGAMMA', length(planC{indexS.dose}),structNum);
         
