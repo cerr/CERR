@@ -1,4 +1,4 @@
-function cerrToH5(cerrPath, fullSessionPath)
+function [scan3M,mask3M] = cerrToH5(cerrPath, fullSessionPath)
 % Usage: cerrToH5(cerrPath, fullSessionPath)
 %
 % This function converts a 3d scan from planC to H5 file format 
@@ -11,21 +11,38 @@ function cerrToH5(cerrPath, fullSessionPath)
 
 
 planCfiles = dir(fullfile(cerrPath,'*.mat'));
-%create subdir within fullSessionPath for h5 files
+
+%create subdir within fullSessionPath for input h5 files
 inputH5Path = fullfile(fullSessionPath,'inputH5');
 mkdir(inputH5Path);
 
+% Load scan, pre-process data if required and save as h5
 for p=1:length(planCfiles)
     
+    % Load scan 
     planCfiles(p).name
-    planC = load(fullfile(planCfiles(p).folder,planCfiles(p).name));
-    planC = planC.planC;
+    fileNam = fullfile(planCfiles(p).folder,planCfiles(p).name);
+    planC = loadPlanC(fileNam, tempdir);
+    planC = quality_assure_planC(fileNam,planC);
     indexS = planC{end};
+       
     scanNum = 1;
     scan3M = getScanArray(planC{indexS.scan}(scanNum));
-    scan3M = double(scan3M); 
+    scan3M = double(scan3M);     
+    
+    % check if any pre-processing is required  
+    % read json file 
+    configFilePath = fullfile(getCERRPath,'Contouring','models','heart','heart.json');
+    userInS = jsondecode(fileread(configFilePath));    
+    preProcMethod = userInS.preproc.method;
+    preProcOptC = userInS.preproc.params;      
+    mask3M = [];
+    [scan3M,mask3M] = cropScanAndMask(planC,scan3M,mask3M,preProcMethod,preProcOptC);
+    
+    
+    
+    % write to h5
     scanFile = fullfile(inputH5Path,strcat('SCAN_',strrep(planCfiles(p).name,'.mat','.h5')));
-            
     try
         h5create(scanFile,'/scan',size(scan3M));
         h5write(scanFile, '/scan', uint16(scan3M));
