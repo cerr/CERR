@@ -33,13 +33,19 @@ for p=1:length(planCfiles)
     % check if any pre-processing is required  
     % read json file 
     configFilePath = fullfile(getCERRPath,'Contouring','models','heart','heart.json');
-    userInS = jsondecode(fileread(configFilePath));    
-    preProcMethod = userInS.preproc.method;
-    preProcOptC = userInS.preproc.params;      
-    mask3M = [];
-    [scan3M,mask3M] = cropScanAndMask(planC,scan3M,mask3M,preProcMethod,preProcOptC);
-    
-    
+    userInS = jsondecode(fileread(configFilePath)); 
+    %check if pre-processing required
+    try
+        preProcMethod = userInS.preproc.method;
+        preProcOptC = userInS.preproc.params;      
+        mask3M = [];
+        [scan3M,mask3M] = cropScanAndMask(planC,scan3M,mask3M,preProcMethod,preProcOptC);
+    catch ME
+        if (strcmp(ME.identifier,':Reference:non-existent:preproc:'))
+            warning('missing pre processing tag in configuration file')
+        end
+    end
+        
     
     % write to h5
     scanFile = fullfile(inputH5Path,strcat('SCAN_',strrep(planCfiles(p).name,'.mat','.h5')));
