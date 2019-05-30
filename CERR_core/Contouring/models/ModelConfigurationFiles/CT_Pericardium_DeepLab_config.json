@@ -1,0 +1,20 @@
+{
+"segMethod" : "heart",
+
+"loadStructures":[
+
+  {
+    "structureName": "PERICARDIUM",
+    "value": 1
+  }
+  
+  ],
+
+"preproc" : [{"method": "crop_to_str", "params" : "LUNG_GTV"}],
+
+
+"fullContainerPath" : "",
+
+"reference" : "https://ieeexplore.ieee.org/document/8417454"
+
+}

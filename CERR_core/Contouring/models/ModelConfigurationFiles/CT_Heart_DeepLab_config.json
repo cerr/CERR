@@ -1,0 +1,23 @@
+{
+"segMethod" : "heart",
+
+"loadStructures":[
+
+  {"structureName" : "AORTA", "value" : 2},
+  {"structureName" : "LA", "value" : 3},
+  {"structureName" : "LV", "value" : 4},
+  {"structureName" : "RA", "value" : 5},
+  {"structureName" : "RV", "value" : 6},
+  {"structureName" : "IVC", "value" : 7},
+  {"structureName" : "SVC", "value" : 8},
+  {"structureName" : "PA", "value" : 9}
+  ],
+
+"preproc" : [{"method": "crop_to_str", "params" : "LUNG_GTV"}],
+
+
+"fullContainerPath" : "",
+
+"reference" : "https://ieeexplore.ieee.org/document/8417454"
+
+}
