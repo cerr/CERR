@@ -36,7 +36,7 @@ def main(argv):
 
 
     inputH5Path = '/scratch/inputH5/'
-    outputH5Path = '/scratch/inputH5/'
+    outputH5Path = '/scratch/outputH5/'
 
     trainer = Trainer(argv)
     trainer.validation(inputH5Path, outputH5Path)
@@ -61,7 +61,7 @@ class Trainer(object):
                         sync_bn=False,
                         freeze_bn=False)
 
-        model3 = torch.load('/software/heart_checkpoint.pth.tar') #requires nclass = 10
+        model3 = torch.load('/software/heart_peri_model.pth.tar') #requires nclass = 10
         if self.cuda:
             self.model = torch.nn.DataParallel(self.model, device_ids=self.gpu_ids)
             patch_replication_callback(self.model)
