@@ -34,8 +34,7 @@ switch(lower(method))
         mask3M(minr:maxr,minc:maxc,mins:maxs) = label3M;
         
     case 'crop_around_center'
-        %To be added
-        %sizeV = varargin{1};
+         
         
         
     case 'none'

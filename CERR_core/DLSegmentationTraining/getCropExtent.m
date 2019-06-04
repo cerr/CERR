@@ -20,7 +20,7 @@ switch(lower(method))
         strName = varargin{1};
         indexS = planC{end};
         strC = {planC{indexS.structures}.structureName};
-        strIdx = getMatchingIndex(strName,strC,'EXACT');
+        strIdx = getMatchingIndex(strName{1},strC,'EXACT');
         strMask3M = getUniformStr(strIdx,planC);
         [minr,maxr,minc,maxc,mins,maxs] = compute_boundingbox(strMask3M);
         
