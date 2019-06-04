@@ -1,4 +1,4 @@
-function [scan3M,mask3M] = cerrToH5(cerrPath, fullSessionPath)
+function errC = cerrToH5(cerrPath, fullSessionPath, preProcMethod,varargin)
 % Usage: cerrToH5(cerrPath, fullSessionPath)
 %
 % This function converts a 3d scan from planC to H5 file format 
@@ -16,6 +16,11 @@ planCfiles = dir(fullfile(cerrPath,'*.mat'));
 inputH5Path = fullfile(fullSessionPath,'inputH5');
 mkdir(inputH5Path);
 
+errC = {};
+count = 0;
+
+try 
+
 % Load scan, pre-process data if required and save as h5
 for p=1:length(planCfiles)
     
@@ -30,22 +35,11 @@ for p=1:length(planCfiles)
     scan3M = getScanArray(planC{indexS.scan}(scanNum));
     scan3M = double(scan3M);     
     
-    % check if any pre-processing is required  
-    % read json file 
-    configFilePath = fullfile(getCERRPath,'Contouring','models','heart','heart.json');
-    userInS = jsondecode(fileread(configFilePath)); 
-    %check if pre-processing required
-    try
-        preProcMethod = userInS.preproc.method;
-        preProcOptC = userInS.preproc.params;      
-        mask3M = [];
-        [scan3M,mask3M] = cropScanAndMask(planC,scan3M,mask3M,preProcMethod,preProcOptC);
-    catch ME
-        if (strcmp(ME.identifier,':Reference:non-existent:preproc:'))
-            warning('missing pre processing tag in configuration file')
-        end
-    end
-        
+    mask3M = [];
+    [scan3M,mask3M] = cropScanAndMask(planC,scan3M,mask3M,preProcMethod,varargin); 
+     
+
+    %%
     
     % write to h5
     scanFile = fullfile(inputH5Path,strcat('SCAN_',strrep(planCfiles(p).name,'.mat','.h5')));
@@ -60,5 +54,8 @@ for p=1:length(planCfiles)
 
 end
 
+catch e
+    count = count+1;
+    errC{count} =  ['Error processing plan %s. Failed with message: %s', planCfiles(p).name,e.message];
 end
 
