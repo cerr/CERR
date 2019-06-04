@@ -16,5 +16,7 @@
 {"structureName": "Bowel_Lg_DLV3",
   "value": 7}
 ],
+"preproc" : [{"method": "", "params" : ""}],
+
 "fullContainerPath" : "/lila/home/pandyar1/lungIncMRRN.sif"
 }

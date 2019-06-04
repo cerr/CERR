@@ -1,0 +1,16 @@
+{ 
+
+"algorithm" : "Lung_Tumor_Aware", 
+
+"loadStructures" : [ 
+ {"structureName": "lung", 
+   "value": 1} 
+ ], 
+
+"preproc" : [{"method": "crop_to_str", "params" : "structName4"}],
+
+"fullContainerPath" : "/lila/home/pandyar1/lungIncMRRN.sif", 
+
+"reference" : "https://link.springer.com/chapter/10.1007/978-3-030-00934-2_86" 
+
+ } 
