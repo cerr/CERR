@@ -64,18 +64,18 @@ function [planC,maskM] = getRasterSegs(planC, structsV, slicesV)
 
 indexS = planC{end};
 
-if exist('structsV') & isnumeric(structsV)
+if exist('structsV','var') && isnumeric(structsV)
     %Use structsV.
 else
     %Rasterize all structures.
     structsV = 1:length(planC{indexS.structures});
 end
 
-if exist('slicesV') & isnumeric(slicesV)
+if exist('slicesV','var') && isnumeric(slicesV)
     %Use slicesV, but check to be sure that all structsV have the same
     %associatedScan.
     sliceMode = 'User';
-    scanNum = unique(getStructureAssociatedScan(structsV));
+    scanNum = unique(getStructureAssociatedScan(structsV,planC));
     if length(scanNum) > 1
         error('Cannot use slicesV argument to getRasterSegs if passed structsV do not all have the same associatedScan.');
     end
