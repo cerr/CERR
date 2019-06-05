@@ -1,0 +1,16 @@
+{
+"segMethod" : "Lung_MRRN",
+
+"loadStructures" : [
+
+{"structureName" : "lung",
+ "value" : 1}
+],
+
+"preproc" : [{"method": "", "params" : ""}],
+
+"fullContainerPath" : "/lila/home/pandyar1/lungIncMRRN.sif",
+
+"reference" : "https://ieeexplore.ieee.org/document/8417454"
+
+}
