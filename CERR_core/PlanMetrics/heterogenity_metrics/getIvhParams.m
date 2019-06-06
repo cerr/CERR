@@ -89,7 +89,7 @@ for i = 1:length(xForIxV)
     ivhFeaturesS.(['MOCx',xString]) = calc_MOCx(scanBinsV, volsHistV, xForIxV(i));
 end
 for i = 1:length(xAbsForIxV)
-    ivhFeaturesS.(['IabsX',num2str(xAbsForIxV(i))]) = calc_Dx(scanBinsV, volsHistV, xAbsForIxV(i), absFlag);
+    ivhFeaturesS.(['IabsX',strrep(num2str(xAbsForIxV(i)),'-','Minus')]) = calc_Dx(scanBinsV, volsHistV, xAbsForIxV(i), absFlag);
 end
 for i = 1:length(xForVxV)
     absImgVal = xForVxV(i)*ivhFeaturesS.rangeHist/100 + ivhFeaturesS.minHist;
