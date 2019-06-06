@@ -1404,7 +1404,7 @@ global stateS
 imgM = stateS.contouringMetaDataS.smoothImg; 
 ContractionBias = stateS.contouringMetaDataS.ContractionBias; 
 scanSet = stateS.contouringMetaDataS.ccScanSet; 
-maskM = stateS.contouringMetaDataS.InitialMask; 
+maskM = stateS.contouringMetaDataS.contourMask; %stateS.contouringMetaDataS.InitialMask; 
 maskM = logical(maskM);
 % maskM = false(length(yV), length(xV));
 % delta = 2;
@@ -1413,7 +1413,8 @@ maskM = logical(maskM);
 % threshM = false(size(maskM));
 % threshM(r-100:r+100,c-100:c+100) = activecontour(imgM(r-100:r+100,c-100:c+100), maskM(r-100:r+100,c-100:c+100), 20, 'Chan-Vese','ContractionBias',ContractionBias);
 %threshM = activecontour(imgM, maskM, 30, 'Chan-Vese','ContractionBias',ContractionBias);
-threshM = activecontour(imgM, maskM, 30, 'edge','ContractionBias',ContractionBias);
+imgM = histeq(imgM);
+threshM = activecontour(imgM, maskM, 50, 'Chan-Vese'); %,'ContractionBias',ContractionBias);
 
 labelM = labelmatrix(bwconncomp(threshM,4));
 % labelVal = labelM(r,c);
