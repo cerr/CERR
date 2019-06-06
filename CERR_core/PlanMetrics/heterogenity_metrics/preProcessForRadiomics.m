@@ -61,6 +61,13 @@ else
     
 end
 
+if isempty(scanArray3M)
+    volToEval = [];
+    maskBoundingBox3M = [];
+    gridS = [];
+    return;
+end
+
 % Pixelspacing (dx,dy,dz)
 PixelSpacingX = abs(xValsV(1) - xValsV(2));
 PixelSpacingY = abs(yValsV(1) - yValsV(2));
