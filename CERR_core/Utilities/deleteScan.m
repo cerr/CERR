@@ -17,8 +17,10 @@ newScanNumC = num2cell(currentScanNumV - 1);
 structToDelete = find(assocScanV == scanNum);
 planC{indexS.structures}(structToDelete) = [];
 %Delete structureArray
-planC{indexS.structureArray}(scanNum) = [];
-planC{indexS.structureArrayMore}(scanNum) = [];
+if length(planC{indexS.structureArray}) >= scanNum
+    planC{indexS.structureArray}(scanNum) = [];
+    planC{indexS.structureArrayMore}(scanNum) = [];
+end
 
 %Update doses associated with this scan
 while ~isempty(find(strcmpi({planC{indexS.dose}.assocScanUID},planC{indexS.scan}(scanNum).scanUID)))
