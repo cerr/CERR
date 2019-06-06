@@ -28,25 +28,28 @@ levColV = levColV(:)';
 % Build list of indices for px and contrast calculation
 for n=0:nL-1
     % indices for p(x-y), contrast
-    indCtrstV = false(nL*nL,1);
+    %indCtrstV = false(nL*nL,1); %apa
     indCtrst1V = 1:nL-n;
     indCtrst2V = 1+n:nL;
     indCtrstTmpV = indCtrst1V + (indCtrst2V-1)*nL;
     indCtrstTmpV = [indCtrstTmpV indCtrst2V + (indCtrst1V-1)*nL];
-    indCtrstV(indCtrstTmpV) = 1;
-    indCtrstC{n+1} = indCtrstV;
+    %indCtrstV(indCtrstTmpV) = 1; %apa
+    %indCtrstC{n+1} = indCtrstV; %apa
+    indCtrstC{n+1} = unique(indCtrstTmpV); %apa new
        
     % indices for px
-    indPxV = false(nL*nL,1);
-    indPxV(nL*n+1:nL*(n+1)) = true;
-    indPxC{n+1} = indPxV;
+    %indPxV = false(nL*nL,1); %apa
+    %indPxV(nL*n+1:nL*(n+1)) = true; %apa
+    %indPxC{n+1} = indPxV; %apa
+    indPxC{n+1} = nL*n+1:nL*(n+1); %apa new
         
 end
 for n=1:2*nL
     % indices for p(x+y), sum entropy, etc
-    indPxPlusYv = false(nL*nL,1);
-    indPxPlusYv(levRowV + levColV == n) = 1;
-    indPxPlusYc{n} = indPxPlusYv;    
+    %indPxPlusYv = false(nL*nL,1); %apa
+    %indPxPlusYv(levRowV + levColV == n) = 1; %apa
+    %indPxPlusYc{n} = indPxPlusYv; %apa
+    indPxPlusYc{n} = find(levRowV + levColV == n); %apa new
 end
 
 % Calculate scalar texture for this offset
