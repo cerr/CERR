@@ -15,5 +15,10 @@ calcGlobalRadiomicsFeatures(scanNum, structNum, paramS, planC)
 [volToEval,maskBoundingBox3M,gridS] =  preProcessForRadiomics(scanNum,...
                                        structNum, paramS, planC);
 
+if ~any(maskBoundingBox3M(:))
+    featureS = struct();
+    featureS(:) = [];
+    return;
+end
 %% Feature extraction
 featureS = calcRadiomicsForImgType(volToEval,maskBoundingBox3M,paramS,gridS);
