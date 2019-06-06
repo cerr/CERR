@@ -534,8 +534,9 @@ switch command
                         
                     case 'THRESHOLD'
                         % See if the mask for initial seeds exists
-                        hAxis = stateS.handle.CERRAxis(stateS.currentAxis);
-                        maskM = getappdata(hAxis, 'contourMask');
+                        %hAxis = stateS.handle.CERRAxis(stateS.currentAxis);
+                        %maskM = getappdata(hAxis, 'contourMask');
+                        maskM = stateS.contouringMetaDataS.contourMask;
                         if isempty(maskM) || (~isempty(maskM) && ~any(maskM(:)))
                             msgbox('Thresholding requires the initial contour. Please create an initial segmentation using the Pencil or the Brush.','Missing initial contour','modal')
                             set(ud.handles.threshold,'Value',0);
