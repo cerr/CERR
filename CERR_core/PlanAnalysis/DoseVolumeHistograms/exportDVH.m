@@ -104,6 +104,6 @@ for i = 1:length(structNum)
 %         indAll = round(linspace(1,size(M,2),NumPts));
 %         M = M(:,indAll);
 %     end
-    xlswrite(fullfile(exportPath,name), M');
+    xlswrite(fullfile(exportPath,[repSpaceHyp(name),'.xlsx']), M');
 end
 clear fVol dosesV volsV cumVolsV cumVols2V doseBinsV volsHistV optS
