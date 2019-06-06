@@ -103,12 +103,13 @@ for dirNum = 1:length(dirsToImportC)
         else
             [~,folderNam] = fileparts(sourceDir);
         end
-        mrn = planC{indexS.scan}(1).scanInfo(1).DICOMHeaders.PatientID;
-        studyDscr = planC{indexS.scan}(1).scanInfo(1).DICOMHeaders.StudyDescription;
-        seriesDscr = planC{indexS.scan}(1).scanInfo(1).DICOMHeaders.SeriesDescription;
-        modality = planC{indexS.scan}(1).scanInfo(1).DICOMHeaders.Modality;
         
+        %mrn = planC{indexS.scan}(1).scanInfo(1).DICOMHeaders.PatientID;
+        %studyDscr = planC{indexS.scan}(1).scanInfo(1).DICOMHeaders.StudyDescription;
+        %seriesDscr = planC{indexS.scan}(1).scanInfo(1).DICOMHeaders.SeriesDescription;
+        %modality = planC{indexS.scan}(1).scanInfo(1).DICOMHeaders.Modality;        
         % outFileName = [mrn,'~',studyDscr,'~',seriesDscr,'~',modality];
+        
         outFileName = folderNam;
         
         %outFileName = mrn;   % store file names as MRNs
