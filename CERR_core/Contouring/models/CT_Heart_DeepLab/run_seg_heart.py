@@ -61,7 +61,7 @@ class Trainer(object):
                         sync_bn=False,
                         freeze_bn=False)
 
-        model3 = torch.load('/software/heart_checkpoint.pth.tar') #requires nclass = 10
+        model3 = torch.load('/software/heartModels/heart_checkpoint.pth.tar') #requires nclass = 10
         if self.cuda:
             self.model = torch.nn.DataParallel(self.model, device_ids=self.gpu_ids)
             patch_replication_callback(self.model)
