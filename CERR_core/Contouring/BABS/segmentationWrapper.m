@@ -30,18 +30,23 @@ preProcOptC = userInS.preproc.params;
 % convert scan to H5 format
 cerrToH5(cerrPath, fullSessionPath, preProcMethod, preProcOptC);
 
-% create subdir within fullSessionPath for output h5 files
+% % create subdir within fullSessionPath for output h5 files
 outputH5Path = fullfile(fullSessionPath,'outputH5');
 mkdir(outputH5Path);
 
-% Execute the container
-
 bindingDir = ':/scratch'
 bindPath = strcat(fullSessionPath,bindingDir)
-command = sprintf('singularity run --app %s --nv --bind  %s %s %s', algorithm, bindPath, containerPath, fullSessionPath)
-status = system(command)
+    
+% Execute the container
+if(flag)
+    command = sprintf('singularity run --app %s --nv --bind  %s %s %s', algorithm, bindPath, containerPath, fullSessionPath)
+    status = system(command)
 
+else
+    %call .bat file with correct inputs
+    command = ['call "' batFilePath];
+    status = system(command);
+end
 
 % join segmented mask with planC
-joinH5CERR(segResultCERRPath,cerrPath,outputH5Path,configFilePath,preProcMethod,preProcOptC);
-success = 1;
+success = joinH5CERR(segResultCERRPath,cerrPath,outputH5Path,algorithm);

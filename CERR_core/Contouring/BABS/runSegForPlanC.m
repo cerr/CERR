@@ -1,5 +1,5 @@
-function planC = runSegForPlanC(planC,sessionPath,algorithm,varargin)
-% function planC = runSegForPlanC(planC,sessionPath,algorithm,varargin)
+function planC = runSegForPlanC(planC,clientSessionPath,algorithm,sshConfigFile,varargin)
+% function planC = runSegForPlanC(planC,clientSessionPath,algorithm,SSHkeyPath,serverSessionPath,varargin)
 %
 % This function serves as a wrapper for different types of segmentations.
 %
@@ -43,16 +43,29 @@ randNum = 1000.*rand;
 sessionDir = ['session',folderNam,num2str(dateTimeV(4)), num2str(dateTimeV(5)),...
     num2str(dateTimeV(6)), num2str(randNum)];
 
-fullSessionPath = fullfile(sessionPath,sessionDir);
+fullClientSessionPath = fullfile(clientSessionPath,sessionDir);
+sshConfigS = [];
+if ~isempty(sshConfigFile)
+    sshConfigS = jsondecode(fileread(sshConfigFile));
+    fullServerSessionPath = fullfile(clientSessionPath,sessionDir);
+    sshConfigS.fullServerSessionPath = fullServerSessionPath;
+end
 
 % Create directories to write CERR files
-mkdir(fullSessionPath)
-cerrPath = fullfile(fullSessionPath,'ctCERR');
+mkdir(fullClientSessionPath)
+cerrPath = fullfile(fullClientSessionPath,'ctCERR');
 mkdir(cerrPath)
-outputCERRPath = fullfile(fullSessionPath,'segmentedOrigCERR');
+outputCERRPath = fullfile(fullClientSessionPath,'segmentedOrigCERR');
 mkdir(outputCERRPath)
-segResultCERRRPath = fullfile(fullSessionPath,'segResultCERR');
+segResultCERRRPath = fullfile(fullClientSessionPath,'segResultCERR');
 mkdir(segResultCERRRPath)
+% create subdir within fullSessionPath for output h5 files
+outputH5Path = fullfile(fullClientSessionPath,'outputH5');
+mkdir(outputH5Path);
+% create subdir within fullSessionPath for input h5 files
+inputH5Path = fullfile(fullClientSessionPath,'inputH5');
+mkdir(inputH5Path);
+
 
 % Write planC to CERR .mat file
 cerrFileName = fullfile(cerrPath,'cerrFile.mat');
@@ -63,13 +76,26 @@ switch algorithm
     case 'BABS'        
         
         babsPath = varargin{1};
-        success = babsSegmentation(cerrPath,fullSessionPath,babsPath,segResultCERRRPath);
+        success = babsSegmentation(cerrPath,fullClientSessionPath,babsPath,segResultCERRRPath);
         
         
  
     otherwise 
-        containerPath = varargin{1};                        
-        success = segmentationWrapper(cerrPath,segResultCERRRPath,fullSessionPath,containerPath,algorithm);
+        containerPath = varargin{1};
+        
+        %%% =========== common for client and server
+        scan3M = getScanForDeepLearnSeg(cerrPath,algorithm); % common for client or server
+        
+        %%% =========== common for client and server
+        success = writeH5ForDeepLearnSeg(scan3M,fullClientSessionPath, cerrFileName); % common for client and server
+        
+        %%% =========== have a flag to tell whether the container runs on the client or a remote server
+        success = callDeepLearnSegContainer(algorithm, containerPath, fullClientSessionPath, sshConfigS); % different workflow for client or session
+        
+        %%% =========== common for client and server
+        success = joinH5CERR(segResultCERRRPath, cerrPath, outputH5Path, algorithm);
+        
+        %success = segmentationWrapper(cerrPath,segResultCERRRPath,fullClientSessionPath,containerPath,algorithm);
         
 end
 
@@ -90,15 +116,15 @@ for iStr = 1:numSegStr
     planC = copyStrToScan(numOrigStr+iStr,1,planC);
 end
 planC = deleteScan(planC, 2);
-for structNum = numOrigStr:-1:1
-    planC = deleteStructure(planC, structNum);
-end
+% for structNum = numOrigStr:-1:1
+%     planC = deleteStructure(planC, structNum);
+% end
 
 % Remove session directory
-rmdir(fullSessionPath, 's')
+rmdir(fullClientSessionPath, 's')
 
 % refresh the viewer
-if ~isempty(stateS) && stateS.handle.CERRSliceViewer
+if ~isempty(stateS) && ishandle(stateS.handle.CERRSliceViewer)
     stateS.structsChanged = 1;
     CERRRefresh
 end

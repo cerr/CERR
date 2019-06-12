@@ -1,4 +1,4 @@
-function res = joinH5CERR(segResultCERRPath, cerrPath, outputH5Path, configFilePath, preProcMethod, varargin)
+function success  = joinH5CERR(segResultCERRPath, cerrPath, outputH5Path, algorithm)
 % Usage: res = joinH5CERR(segResultCERRPath, cerrPath, outputH5Path, configFilePath)
 %
 % This function merges the segmentations from the respective algorithm back
@@ -12,6 +12,14 @@ function res = joinH5CERR(segResultCERRPath, cerrPath, outputH5Path, configFileP
 %   outputH5Path      : Path to the segmented structures saved in h5 file format
 %   configFilePath    : Path to the config file of the specific algorithm being
 %                       used for segmentation
+
+configFilePath = fullfile(getCERRPath,'Contouring','models', 'ModelConfigurationFiles', [algorithm, '_config','.json']);
+
+% check if any pre-processing is required
+%configFilePath = fullfile(getCERRPath,'Contouring','models','heart','heart.json');
+userInS = jsondecode(fileread(configFilePath));
+preProcMethod = userInS.preproc.method;
+preProcOptC = userInS.preproc.params;
 
 %Get H5 files
 H5Files = dir(fullfile(outputH5Path,'*.h5'));
@@ -57,7 +65,7 @@ end
         count = res.loadStructures(1).value;
         for i = 1 : length(res.loadStructures)             
             tmpM1 = flippedMask == count;
-            mask3M = padMask(planC,scanNum,tmpM1,preProcMethod,varargin);
+            mask3M = padMask(planC,scanNum,tmpM1,preProcMethod,preProcOptC);
             tmpM2 = mask3M == 1;
             planC = maskToCERRStructure(tmpM2, isUniform, scanNum, res.loadStructures(i).structureName, planC);
             count = count+1;
@@ -74,7 +82,8 @@ end
     optS = [];
     saveflag = 'passed';
     save_planC(planC,optS,saveflag,finalPlanCfilename);
-     
+  
+success = 1;    
 end  
 
     
