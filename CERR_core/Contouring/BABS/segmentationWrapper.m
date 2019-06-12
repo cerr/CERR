@@ -38,15 +38,9 @@ bindingDir = ':/scratch'
 bindPath = strcat(fullSessionPath,bindingDir)
     
 % Execute the container
-if(flag)
-    command = sprintf('singularity run --app %s --nv --bind  %s %s %s', algorithm, bindPath, containerPath, fullSessionPath)
-    status = system(command)
+command = sprintf('singularity run --app %s --nv --bind  %s %s %s', algorithm, bindPath, containerPath, fullSessionPath)
+status = system(command)
 
-else
-    %call .bat file with correct inputs
-    command = ['call "' batFilePath];
-    status = system(command);
-end
 
 % join segmented mask with planC
 success = joinH5CERR(segResultCERRPath,cerrPath,outputH5Path,algorithm);
