@@ -77,3 +77,4 @@ exportCERRtoDICOM(cerrPath,segResultCERRRPath,outputCERRPath,outputDicomPath)
 % Remove session directory
 rmdir(fullSessionPath, 's')
 
+success = 1 
