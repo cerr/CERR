@@ -1,5 +1,5 @@
 {
-"algorithm" : "MRIprostDeepLabV3",
+"algorithm" : "MR_Prostate_DeepLab",
 "loadStructures" : [
 {"structureName": "Bladder_O_DLV3",
   "value": 1},
