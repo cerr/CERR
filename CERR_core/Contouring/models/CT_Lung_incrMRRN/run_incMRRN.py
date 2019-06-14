@@ -65,8 +65,10 @@ def main(argv):
     print(sys.argv[1])
     print("arg2")
     print(sys.argv[2])
-    inputH5Path = sys.argv[1][5:]  # FLAGS.data_dir
-    outputH5Path = sys.argv[2][5:]  # FLAGS.save_dir
+    # inputH5Path = sys.argv[1][5:]  # FLAGS.data_dir
+    # outputH5Path = sys.argv[2][5:]  # FLAGS.save_dir
+    inputH5Path = '/scratch/inputH5/'
+    outputH5Path = '/scratch/outputH5/'
     print("assignment of paths successful")
     print(inputH5Path)
     print(outputH5Path)
