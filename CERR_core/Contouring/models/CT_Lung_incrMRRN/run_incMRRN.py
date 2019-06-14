@@ -80,12 +80,12 @@ def main(argv):
     model3 = get_incr_FRRN()
 
     with open(
-            '/software/model_5l_lung-frrn_incremental_up_res_all_tf_drop_weight_residual_512.json') as model_file:
+            '/software/lungModels/model_5l_lung-frrn_incremental_up_res_all_tf_drop_weight_residual_512.json') as model_file:
         model3 = models.model_from_json(model_file.read())
     print('weight test:OK')
 
 
-    model3.load_weights('/software/weights.15--0.71.hdf5')
+    model3.load_weights('/software/lungModels/weights.15--0.71.hdf5')
     print('finish tesing loading weight')
 
 
