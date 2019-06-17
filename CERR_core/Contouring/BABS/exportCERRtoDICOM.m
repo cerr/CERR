@@ -1,5 +1,5 @@
-function exportCERRtoDICOM(cerrPath,segResultCERRRPath,outputCERRPath,outputDicomPath)
-% function exportCERRtoDICOM(cerrPath,segResultCERRRPath,outputCERRPath,outputDicomPath)
+function exportCERRtoDICOM(cerrPath,segResultCERRRPath,outputCERRPath,outputDicomPath,algorithm)
+% function exportCERRtoDICOM(cerrPath,segResultCERRRPath,outputCERRPath,outputDicomPath,algorithm)
 %
 % This function exports structures from CERR format to DICMO RTSTRUCT.
 %
@@ -22,6 +22,8 @@ init_ML_DICOM
 for indBase = 1:length(dirS)
     
     [~,fname,~] = fileparts(dirS(indBase).name);
+    
+    fname = [fname,'_',algorithm];
     
     %registeredDir = fullfile(registeredDirLoc,['registered_to_',fname]); 
     

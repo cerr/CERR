@@ -72,9 +72,9 @@ switch algorithm
 end
 
 % Export the RTSTRUCT file
-exportCERRtoDICOM(cerrPath,segResultCERRRPath,outputCERRPath,outputDicomPath)
+exportCERRtoDICOM(cerrPath,segResultCERRRPath,outputCERRPath,outputDicomPath,algorithm)
 
 % Remove session directory
 rmdir(fullSessionPath, 's')
 
-success = 1 
+success = 1;
