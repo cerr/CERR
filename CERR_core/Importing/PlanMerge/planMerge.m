@@ -243,14 +243,15 @@ end
 %Display warning for non-square voxels
 nonSquareVoxelWarn(planD)
 
-%correct IM Structure names to include prefix '2 - ' etc.
-for i = 1:length(IM)
-    if isfield(IM(i).IMDosimetry,'goals')
-        for iG = 1:length(IM(i).IMDosimetry.goals)
-            IM(i).IMDosimetry.goals(iG).structName = [num2str(nScans+1) ' - ' IM(i).IMDosimetry.goals(iG).structName];
-        end
-    end
-end
+% %correct IM Structure names to include prefix '2 - ' etc.
+% for i = 1:length(IM)
+%     if isfield(IM(i).IMDosimetry,'goals')
+%         for iG = 1:length(IM(i).IMDosimetry.goals)
+%             IM(i).IMDosimetry.goals(iG).structName = [num2str(nScans+1) ' - ' IM(i).IMDosimetry.goals(iG).structName];
+%         end
+%     end
+% end
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% DK added to change the Associated scan if no scan is selected.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -261,11 +262,11 @@ if isempty(scanIndV) && nScans == 1
     whichScanUID = planC{indexSC.scan}(whichScan).scanUID;
 else
     ansBtnDS = '';
-    if isempty(scanIndV) & ~isempty(doseIndV) & ~isempty(structIndV)
+    if isempty(scanIndV) && ~isempty(doseIndV) && ~isempty(structIndV)
         
         ansBtnDS = questdlg('Do you want to Change scan association for Dose and Structures','Scan Association','Yes','No','Yes');
         
-    elseif isempty(scanIndV) & isempty(doseIndV) & ~isempty(structIndV)
+    elseif isempty(scanIndV) && isempty(doseIndV) && ~isempty(structIndV)
         
         ansBtnDS = questdlg('Do you want to Change scan association for Structures','Scan Association','Yes','No','Yes');
     end
@@ -316,7 +317,7 @@ for i=1:length(structs)
         newAssocScan                = whichScan;
         structs(i).assocScanUID     = whichScanUID;
     end
-    structs(i).structureName    = [num2str(newAssocScan) ' - ' structs(i).structureName];
+    % structs(i).structureName    = [num2str(newAssocScan) ' - ' structs(i).structureName];
     structs(i).associatedScan   = newAssocScan;
     planC{indexSC.structures}    = dissimilarInsert(planC{indexSC.structures}, structs(i), nStructs+i);
 end

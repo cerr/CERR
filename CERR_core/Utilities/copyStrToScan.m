@@ -43,6 +43,12 @@ if assocScanNum == scanNum
     return;
 end
 
+% Structure names of all the structures in existing plan
+strNamC = {planC{indexS.structures}.structureName};
+
+% Structure name of the one to be copied.
+strName = planC{indexS.structures}(structNum).structureName;
+
 %obtain r,c,s coordinates of scanNum's (new) x,y,z vals
 newScanS = planC{indexS.scan}(scanNum);
 [xNewScanValsV, yNewScanValsV, zNewScanValsV] = getScanXYZVals(newScanS);
@@ -57,12 +63,12 @@ newScanS = planC{indexS.scan}(scanNum);
 xStructValsV = xOldScanValsV(cStructValsV);
 yStructValsV = yOldScanValsV(rStructValsV);
 zStructValsV = zOldScanValsV(sStructValsV);
-if ~isfield(planC{indexS.scan}(scanNum),'transM') | isempty(planC{indexS.scan}(scanNum).transM) 
+if ~isfield(planC{indexS.scan}(scanNum),'transM') || isempty(planC{indexS.scan}(scanNum).transM) 
     transMold = eye(4);
 else    
     transMold = planC{indexS.scan}(scanNum).transM;
 end
-if ~isfield(planC{indexS.scan}(assocScanNum),'transM') | isempty(planC{indexS.scan}(assocScanNum).transM) 
+if ~isfield(planC{indexS.scan}(assocScanNum),'transM') || isempty(planC{indexS.scan}(assocScanNum).transM) 
     transMnew = eye(4);
 else    
     transMnew = planC{indexS.scan}(assocScanNum).transM;
@@ -86,5 +92,8 @@ indicesWithinSkinV = sub2ind(newScanUnifSiz,rStructValsV,cStructValsV,sStructVal
 maskM(indicesWithinSkinV) = 1;
 
 %generate contours on slices out of uniform mask and add to planC
-strname = [planC{indexS.structures}(structNum).structureName,' asoc ',num2str(scanNum)];
-planC = maskToCERRStructure(maskM, 1, scanNum, strname, planC);
+if any(strncmp(strName,strNamC,inf))
+    % strname = [planC{indexS.structures}(structNum).structureName,' asoc ',num2str(scanNum)];
+    strName = [strName,' asoc ',num2str(scanNum)];
+end
+planC = maskToCERRStructure(maskM, 1, scanNum, strName, planC);
