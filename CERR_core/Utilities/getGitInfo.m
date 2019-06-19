@@ -91,18 +91,20 @@ if ~strcmp(parsed{1}{1},'ref:') || ~length(parsed{1})>1
 end
 
 path=parsed{1}{2};
-[pathstr, name, ext]=fileparts(path);
-branchName=name;
+[pathstr, branchName, ext]=fileparts(path);
+
+%Read in SHA1
+branchInfoFile = fullfile(gitPath,pathstr,[branchName, ext]);
+if exist(branchInfoFile,'file')
+    SHA1text = fileread(branchInfoFile);
+else
+    return;
+end
+SHA1 = textscan(SHA1text,'%s');
+localGitInfo.hash = SHA1{1}{1};
 
 %save branchname
 localGitInfo.branch=branchName;
-
-
-%Read in SHA1
-SHA1text=fileread(fullfile(gitPath,pathstr,[name ext]));
-SHA1=textscan(SHA1text,'%s');
-localGitInfo.hash=SHA1{1}{1};
-
 
 %Read in config file
 config=fileread(fullfile(gitPath,'config'));
