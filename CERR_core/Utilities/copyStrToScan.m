@@ -45,6 +45,7 @@ end
 
 % Structure names of all the structures in existing plan
 strNamC = {planC{indexS.structures}.structureName};
+strNamC(structNum) = [];
 
 % Structure name of the one to be copied.
 strName = planC{indexS.structures}(structNum).structureName;
