@@ -42,10 +42,11 @@ for indBase = 1:length(dirS)
     % structIndV = [numStr-1 numStr];
     structIndV = 1:numSegStr;
     planC = planMerge(planC, planD, scanIndV, doseIndV, structIndV, '');        
+    numSegStr = numSegStr - numOrigStr;
     for iStr = 1:numSegStr
         planC = copyStrToScan(numOrigStr+iStr,1,planC);
     end
-    %planC = copyStrToScan(numStr,1,planC);
+%     %planC = copyStrToScan(numStr,1,planC);
     planC = deleteScan(planC, 2);
     for structNum = numOrigStr:-1:1
         planC = deleteStructure(planC, structNum);

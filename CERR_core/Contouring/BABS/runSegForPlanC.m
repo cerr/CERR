@@ -3,7 +3,7 @@ function planC = runSegForPlanC(planC,clientSessionPath,algorithm,sshConfigFile,
 %
 % This function serves as a wrapper for different types of segmentations.
 %
-% INPUT: 
+% INPUT:
 % planC - CERR's planC object.
 % sessionPath - path to write temporary segmentation metadata.
 % algorithm - string which specifies segmentation algorith
@@ -11,7 +11,7 @@ function planC = runSegForPlanC(planC,clientSessionPath,algorithm,sshConfigFile,
 %
 % Following directories are created within the session directory:
 % --- ctCERR: contains CERR file from planC.
-% --- segmentedOrigCERR: CERR file with resulting segmentation fused with 
+% --- segmentedOrigCERR: CERR file with resulting segmentation fused with
 % original CERR file.
 % --- segResultCERR: CERR file with segmentation. Note that CERR file can
 % be cropped based on initial segmentation.
@@ -71,57 +71,87 @@ mkdir(inputH5Path);
 cerrFileName = fullfile(cerrPath,'cerrFile.mat');
 save_planC(planC,[],'passed',cerrFileName);
 
-switch algorithm
+% algorithm
+algorithmC = {};
+%algorithm = 'CT_Heart_DeepLab^CT_Atria_DeepLab^CT_Pericardium_DeepLab^CT_HeartStructure_DeepLab^CT_Ventricles_DeepLab';
+%algorithm = 'CT_Heart_DeepLab';
+
+[algorithmC{end+1},remStr] = strtok(algorithm,'^');
+while ~isempty(remStr)
+    [algorithmC{end+1},remStr] = strtok(remStr,'^');
+end
+
+if iscell(algorithmC) || ~iscell(algiorithmC) && ~strcmpi(algorithmC,'BABS')
     
-    case 'BABS'        
-        
-        babsPath = varargin{1};
-        success = babsSegmentation(cerrPath,fullClientSessionPath,babsPath,segResultCERRRPath);
-        
-        
- 
-    otherwise 
-        containerPath = varargin{1};
+    containerPath = varargin{1};
+    for k=1:length(algorithmC)
         
         %%% =========== common for client and server
-        scan3M = getScanForDeepLearnSeg(cerrPath,algorithm); % common for client or server
+        scan3M = getScanForDeepLearnSeg(cerrPath,algorithmC{k}); % common for client or server
         
         %%% =========== common for client and server
         success = writeH5ForDeepLearnSeg(scan3M,fullClientSessionPath, cerrFileName); % common for client and server
         
         %%% =========== have a flag to tell whether the container runs on the client or a remote server
-        success = callDeepLearnSegContainer(algorithm, containerPath, fullClientSessionPath, sshConfigS); % different workflow for client or session
+        success = callDeepLearnSegContainer(algorithmC{k}, containerPath, fullClientSessionPath, sshConfigS); % different workflow for client or session
         
         %%% =========== common for client and server
-        success = joinH5CERR(segResultCERRRPath, cerrPath, outputH5Path, algorithm);
+        success = joinH5CERR(segResultCERRRPath, cerrPath, outputH5Path, algorithmC{k});
         
         %success = segmentationWrapper(cerrPath,segResultCERRRPath,fullClientSessionPath,containerPath,algorithm);
+        % Read segmentation from segResultCERRRPath to display in viewer
+        segFileName = fullfile(segResultCERRRPath,'cerrFile.mat');
+        planD = loadPlanC(segFileName);
+        indexSD = planD{end};
+        scanIndV = 1;
+        doseIndV = [];
+        numSegStr = length(planD{indexSD.structures});
+        numOrigStr = length(planC{indexS.structures});
+        structIndV = 1:numSegStr;
+        planC = planMerge(planC, planD, scanIndV, doseIndV, structIndV, '');
+        numSegStr = numSegStr - numOrigStr;
+        for iStr = 1:numSegStr
+            planC = copyStrToScan(numOrigStr+iStr,1,planC);
+        end
+        planC = deleteScan(planC, 2);
         
+        save_planC(planC,[],'passed',cerrFileName);
+        
+        
+    end
+    
+else %'BABS'
+    
+    babsPath = varargin{1};
+    success = babsSegmentation(cerrPath,fullClientSessionPath,babsPath,segResultCERRRPath);
+    
+    % Read segmentation from segResultCERRRPath to display in viewer
+    segFileName = fullfile(segResultCERRRPath,'cerrFile.mat');
+    planD = loadPlanC(segFileName);
+    indexSD = planD{end};
+    scanIndV = 1;
+    doseIndV = [];
+    numSegStr = length(planD{indexSD.structures});
+    numOrigStr = length(planC{indexS.structures});
+    structIndV = 1:numSegStr;
+    planC = planMerge(planC, planD, scanIndV, doseIndV, structIndV, '');
+    for iStr = 1:numSegStr
+        planC = copyStrToScan(numOrigStr+iStr,1,planC);
+    end
+    planC = deleteScan(planC, 2);
+    % for structNum = numOrigStr:-1:1
+    %     planC = deleteStructure(planC, structNum);
+    % end
+    
+    
 end
 
 % Export the RTSTRUCT file
 %exportCERRtoDICOM(cerrPath,segResultCERRRPath,outputCERRPath,outputDicomPath)
 
-% Read segmentation from segResultCERRRPath to display in viewer
-segFileName = fullfile(segResultCERRRPath,'cerrFile.mat');
-planD = loadPlanC(segFileName);
-indexSD = planD{end};
-scanIndV = 1;
-doseIndV = [];
-numSegStr = length(planD{indexSD.structures});
-numOrigStr = length(planC{indexS.structures});
-structIndV = 1:numSegStr;
-planC = planMerge(planC, planD, scanIndV, doseIndV, structIndV, '');
-for iStr = 1:numSegStr
-    planC = copyStrToScan(numOrigStr+iStr,1,planC);
-end
-planC = deleteScan(planC, 2);
-% for structNum = numOrigStr:-1:1
-%     planC = deleteStructure(planC, structNum);
-% end
 
 % Remove session directory
-rmdir(fullClientSessionPath, 's')
+%rmdir(fullClientSessionPath, 's')
 
 % refresh the viewer
 if ~isempty(stateS) && ishandle(stateS.handle.CERRSliceViewer)

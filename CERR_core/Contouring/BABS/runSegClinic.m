@@ -56,19 +56,30 @@ mkdir(segResultCERRRPath)
 % Import DICOM to CERR
 importDICOM(inputDicomPath,cerrPath);
 
-switch algorithm
+% algorithm
+algorithmC = {};
+%algorithm = 'CT_Heart_DeepLab^CT_Atria_DeepLab^CT_Pericardium_DeepLab^CT_HeartStructure_DeepLab^CT_Ventricles_DeepLab';
+%algorithm = 'CT_Heart_DeepLab^CT_Atria_DeepLab';
+
+[algorithmC{end+1},remStr] = strtok(algorithm,'^');
+while ~isempty(remStr)
+    [algorithmC{end+1},remStr] = strtok(remStr,'^');
+end
+
+if iscell(algorithmC) || ~iscell(algiorithmC) && ~strcmpi(algorithmC,'BABS')
     
-    case 'BABS'        
+        containerPath = varargin{1};      
         
+        for k=1:length(algorithmC)
+            success = segmentationWrapper(cerrPath,segResultCERRRPath,fullSessionPath,containerPath,algorithmC{k});   
+            cerrPath = segResultCERRPath;
+        end
+    
+else
+    
         babsPath = varargin{1};
         success = babsSegmentation(cerrPath,fullSessionPath,babsPath,segResultCERRRPath);
-        
-        
- 
-    otherwise 
-        containerPath = varargin{1};                        
-        success = segmentationWrapper(cerrPath,segResultCERRRPath,fullSessionPath,containerPath,algorithm);
-        
+   
 end
 
 % Export the RTSTRUCT file
