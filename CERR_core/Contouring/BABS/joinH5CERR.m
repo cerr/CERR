@@ -78,7 +78,7 @@ end
     end
     
     %save final plan
-    finalPlanCfilename = fullfile(segResultCERRPath, strrep(strrep(file.name, 'MASK_', ''),'h5', 'mat'))
+    finalPlanCfilename = fullfile(segResultCERRPath, strrep(strrep(file.name, 'MASK_', ''),'.h5', '.mat'))
     optS = [];
     saveflag = 'passed';
     save_planC(planC,optS,saveflag,finalPlanCfilename);

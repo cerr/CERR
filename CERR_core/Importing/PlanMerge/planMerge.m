@@ -102,9 +102,9 @@ addedDoseUIDc         = {planD{indexSD.dose}.doseUID};
 addedStructureUIDc    = {planD{indexSD.structures}.strUID};
 
 % Find scans, doses, structs that already exist
-scansWithSameUID   = ismember(addedScanUIDc,existingScanUIDc);
-dosesWithSameUID   = ismember(addedDoseUIDc,existingDoseUIDc);
-structsWithSameUID = ismember(addedStructureUIDc,existingStructureUIDc);
+scansWithSameUID   = find(ismember(addedScanUIDc,existingScanUIDc));
+dosesWithSameUID   = find(ismember(addedDoseUIDc,existingDoseUIDc));
+structsWithSameUID = find(ismember(addedStructureUIDc,existingStructureUIDc));
 
 if any(scansWithSameUID) && ~isempty(scanIndV)
     oldScanUIc = {scans.scanUID};
