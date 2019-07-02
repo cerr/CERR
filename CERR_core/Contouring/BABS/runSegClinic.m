@@ -50,8 +50,8 @@ cerrPath = fullfile(fullSessionPath,'ctCERR');
 mkdir(cerrPath)
 outputCERRPath = fullfile(fullSessionPath,'segmentedOrigCERR');
 mkdir(outputCERRPath)
-segResultCERRRPath = fullfile(fullSessionPath,'segResultCERR');
-mkdir(segResultCERRRPath)
+segResultCERRPath = fullfile(fullSessionPath,'segResultCERR');
+mkdir(segResultCERRPath)
 
 % Import DICOM to CERR
 importDICOM(inputDicomPath,cerrPath);
@@ -71,19 +71,19 @@ if iscell(algorithmC) || ~iscell(algiorithmC) && ~strcmpi(algorithmC,'BABS')
         containerPath = varargin{1};      
         
         for k=1:length(algorithmC)
-            success = segmentationWrapper(cerrPath,segResultCERRRPath,fullSessionPath,containerPath,algorithmC{k});   
+            success = segmentationWrapper(cerrPath,segResultCERRPath,fullSessionPath,containerPath,algorithmC{k});   
             cerrPath = segResultCERRPath;
         end
     
 else
     
         babsPath = varargin{1};
-        success = babsSegmentation(cerrPath,fullSessionPath,babsPath,segResultCERRRPath);
+        success = babsSegmentation(cerrPath,fullSessionPath,babsPath,segResultCERRPath);
    
 end
 
 % Export the RTSTRUCT file
-exportCERRtoDICOM(cerrPath,segResultCERRRPath,outputCERRPath,outputDicomPath,algorithm)
+exportCERRtoDICOM(cerrPath,segResultCERRPath,outputCERRPath,outputDicomPath,algorithm)
 
 % Remove session directory
 rmdir(fullSessionPath, 's')
