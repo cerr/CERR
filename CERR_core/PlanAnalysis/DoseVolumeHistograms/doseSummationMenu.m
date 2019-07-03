@@ -338,6 +338,13 @@ switch upper(command)
                 end
             end
 
+            SOPInstanceUIDv = {planC{indexS.beams}.SOPInstanceUID};
+            paramS.Tk.val = inf;         %Kick-off time of repopulation (days)
+            paramS.Tp.val = NaN;        %Potential tumor doubling time (days)
+            paramS.alpha.val = NaN;
+            paramS.abRatio.val = 10;  %alpha/beta
+            stdFractionSize = 2;
+            
             %Get the summation for this grid
             doseCombinedM = [];
             for iDoseAll = 1:length(doseIndC{doseNum})
@@ -354,10 +361,21 @@ switch upper(command)
                 if isempty(doseOffset)
                     doseOffset = 0;
                 end
+                doseArray = single(getDoseArray(planC{indexS.dose}(iDose)) - doseOffset);
+                % Apply BED/EQD2 correction
+                ReferencedSOPInstanceUID = planC{indexS.dose}(iDose)...
+                    .DICOMHeaders.ReferencedRTPlanSequence.Item_1.ReferencedSOPInstanceUID;
+                planNum = find(strcmpi(ReferencedSOPInstanceUID,SOPInstanceUIDv));
+                paramS.numFractions.val = planC{indexS.beams}(planNum).FractionGroupSequence...
+                    .Item_1.NumberofFractionsPlanned;
+                paramS.numFractions.val = double(paramS.numFractions.val);                
+                paramS.frxSize.val = doseArray / paramS.numFractions.val;
+                doseArray = calc_BED(paramS) / (1+stdFractionSize/paramS.abRatio.val);                
+                
                 if ~isempty(doseCombinedM)
-                    doseCombinedM = doseCombinedM + multFact * wtfactor(iDose) * single(getDoseArray(planC{indexS.dose}(iDose)) - doseOffset);
+                    doseCombinedM = doseCombinedM + multFact * wtfactor(iDose) * doseArray;
                 else
-                    doseCombinedM = multFact * wtfactor(iDose) * single(getDoseArray(planC{indexS.dose}(iDose)) - doseOffset);
+                    doseCombinedM = multFact * wtfactor(iDose) * doseArray;
                 end
             end
 
