@@ -16,48 +16,44 @@ switch(lower(method))
     
     case 'crop_fixed_amt'
         cropDimV = varargin{1};
-        scan3M = scan3M(cropDimV(1):cropDimV(2),cropDimV(3):cropDimV(4),cropDimV(5):cropDimV(6));        
-        if isempty(mask3M)
-			mask3M = [];
-        else
+        scan3M = scan3M(cropDimV(1):cropDimV(2),cropDimV(3):cropDimV(4),cropDimV(5):cropDimV(6));
+        if ~isempty(mask3M)
             mask3M = mask3M(cropDimV(1):cropDimV(2),cropDimV(3):cropDimV(4),cropDimV(5):cropDimV(6));
         end
-            
+        
     case 'crop_to_bounding_box'
         %Use to crop around one of the structures to be segmented
         %Pass varargin{1} = structLabelNum
-        [minr, maxr, minc, maxc, mins, maxs] = getCropExtent(planC,mask3M,method,varargin);
-        scan3M = scan3M(minr:maxr,minc:maxc,mins:maxs);
-        if isempty(mask3M)
-			mask3M = [];
-        else
+        if ~isempty(mask3M)
+            [minr, maxr, minc, maxc, mins, maxs] = getCropExtent(planC,mask3M,method,varargin);
+            scan3M = scan3M(minr:maxr,minc:maxc,mins:maxs);
             mask3M = mask3M(minr:maxr,minc:maxc,mins:maxs);
         end
-
+        
     case 'crop_to_str'
         %Use to crop around different structure
         %Pass varargin{1} = structName
         %mask3M = []
         [minr, maxr, minc, maxc, mins, maxs] = getCropExtent(planC,mask3M,method,varargin);
         scan3M = scan3M(minr:maxr,minc:maxc,mins:maxs);
-        if isempty(mask3M)
-			mask3M = [];
-        else
+        if ~isempty(mask3M)
             mask3M = mask3M(minr:maxr,minc:maxc,mins:maxs);
         end
         
     case 'crop_around_center'
-         % Use to crop around center
-         cropDimV = varargin{1};         
-         siz = getUniformizedSize(planC);   
-         cx = ceil(size(scan3M,1)/2);
-         cy = ceil(size(scan3M,2)/2);      
-         x = cropDimV(1)/2;
-         y = cropDimV(2)/2;
-         scan3M = scan3M((cx - y):(cx + (y-1)),(cy - x):(cy + (x-1)), 1:siz(3));
-         
+        % Use to crop around center
+        cropDimV = varargin{1};
+        siz = getUniformizedSize(planC);
+        cx = ceil(size(scan3M,1)/2);
+        cy = ceil(size(scan3M,2)/2);
+        x = cropDimV(1)/2;
+        y = cropDimV(2)/2;
+        scan3M = scan3M((cx - y):(cx + (y-1)),(cy - x):(cy + (x-1)), 1:siz(3));
+        if ~isempty(mask3M)
+            mask3M = mask3M((cx - y):(cx + (y-1)),(cy - x):(cy + (x-1)), 1:siz(3));
+        end
         
-         
+        
     case 'none'
         %Skip
         

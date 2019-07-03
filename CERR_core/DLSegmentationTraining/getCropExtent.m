@@ -21,7 +21,13 @@ switch(lower(method))
         indexS = planC{end};
         strC = {planC{indexS.structures}.structureName};
         strIdx = getMatchingIndex(strName{1},strC,'EXACT');
-        strMask3M = getUniformStr(strIdx,planC);
+        scanIdx = getStructureAssociatedScan(strIdx,planC);
+        
+        strMask3M = false(size(getScanArray(scanIdx,planC)));
+        rasterM = getRasterSegments(strIdx,planC);
+        [slMask3M,slicesV] = rasterToMask(rasterM,scanIdx,planC);
+        strMask3M(:,:,slicesV) = slMask3M;
+        
         [minr,maxr,minc,maxc,mins,maxs] = compute_boundingbox(strMask3M);
         
         
