@@ -10,7 +10,11 @@
 
 "lossFile" : "Path/to/logfile/recording/training/loss",
 
-"preproc" : [{"method": "crop_to_str", "params" : "structName4"}],
+"imageSizeForModel" : [512, 512],
+
+"crop" : [{"method": "crop_to_str", "params" : "structName4"}],
+
+"resize" : {"method": "sinc"},
 
 "architecture": "arch"
 
