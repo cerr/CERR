@@ -26,24 +26,28 @@ userInS = jsondecode(fileread(paramFilename));
 dcmDir = userInS.dcmDir;
 tempDir = userInS.tempDir;
 strListC = userInS.structList;
-preProcMethod = userInS.preproc.method;
-preProcOptC = userInS.preproc.params;
+cropMethod = userInS.crop.method;
+cropOptC = userInS.crop.params;
+outSizeV = userInS.imageSizeForModel;
+resizeMethod = userInS.resize.method;
 dataSplitV = userInS.dataSplit;
 
 %% Create directories to write CERR, HDF5 files
 fprintf('\nCreating directories for CERR, HDF5 files...\n');
 mkdir(tempDir)
+
 cerrPath = fullfile(tempDir,'dataCERR');
 mkdir(cerrPath)
-%temp
-%cerrPath = '/lab/deasylab1/Maria/HNC_NormalTissue_pCT/Swallowing_Chewing_pCT/CERR';
-%
+
 HDF5path = fullfile(tempDir,'dataHDF5');
 mkdir(HDF5path)
+
 mkdir([HDF5path,filesep,'Train']);
 mkdir([HDF5path,filesep,'Train',filesep,'Masks']);
+
 mkdir([HDF5path,filesep,'Val']);
 mkdir([HDF5path,filesep,'Val',filesep,'Masks']);
+
 mkdir([HDF5path,filesep,'Test']);
 mkdir([HDF5path,filesep,'Test',filesep,'Masks']);
 
@@ -55,7 +59,7 @@ mergeScansFlag = 'No';
 batchConvert(dcmDir,cerrPath,zipFlag,mergeScansFlag);
 
 %% Convert to HDF5 with preprocessing and split into train, val, test datasets
-CERRtoHDF5(cerrPath,HDF5path,dataSplitV,strListC,preProcMethod,preProcOptC);
+CERRtoHDF5(cerrPath, HDF5path, dataSplitV, strListC, outSizeV, resizeMethod, cropMethod, cropOptC);
 
 
 end
