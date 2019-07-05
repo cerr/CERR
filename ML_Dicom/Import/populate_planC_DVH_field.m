@@ -1,4 +1,4 @@
-function dataS = populate_planC_DVH_field(fieldname, dcmdir_PATIENT_STUDY_SERIES_RTDOSE, dcmobj, rtPlans)
+function dataS = populate_planC_DVH_field(fieldname, dcmdir_PATIENT_STUDY_SERIES_RTDOSE, attr, rtPlans)
 %"populate_planC_dose_field"
 %   Given the name of a child field to planC{indexS.scan}, populates that
 %   field based on the data contained in dcmdir.PATIENT.STUDY.SERIES.RTDOSE
@@ -8,6 +8,9 @@ function dataS = populate_planC_DVH_field(fieldname, dcmdir_PATIENT_STUDY_SERIES
 %YWU Modified 03/01/08
 %DK 04/12/09
 %   Fixed Coordinate System
+%NAV 07/19/16 updated to dcm4che3
+%   replaced dcm2ml_element with getTagValue
+%
 %Usage:
 %   dataS = populate_planC_dose_field(fieldname,dcmdir_PATIENT_STUDY_SERIES_RTDOSE);
 
@@ -30,9 +33,9 @@ DOSE = dcmdir_PATIENT_STUDY_SERIES_RTDOSE;
 %Default value for undefined fields.
 dataS = '';
 
-if ~exist('dcmobj', 'var')
+if ~exist('attr', 'var')
     %Grab the dicom object representing this image.
-    dcmobj = scanfile_mldcm(DOSE.file);
+    attr = scanfile_mldcm(DOSE.file);
 end
 
 switch fieldname
@@ -51,14 +54,14 @@ switch fieldname
         
     case 'patientName'
         %Patient's Name
-        dataS = dcm2ml_Element(dcmobj.get(hex2dec('00100010')));
+        dataS = getTagValue(attr, '00100010');
         
     case 'structureName'
         %Structure Name        
                
     case 'doseType'
         %Dose Type
-        dT = dcm2ml_Element(dcmobj.get(hex2dec('30040004')));
+        dT = getTagValue(attr, '30040004');
         
         switch upper(dT)
             case 'PHYSICAL'
@@ -74,7 +77,7 @@ switch fieldname
         
     case 'doseUnits'
         %Dose Units
-        dU = dcm2ml_Element(dcmobj.get(hex2dec('30040002')));
+        dU = getTagValue(attr, '30040002');
         
         switch upper(dU)
             case {'GY', 'GYS', 'GRAYS', 'GRAY'}
@@ -84,21 +87,21 @@ switch fieldname
         end
         
     case 'volumeType'
-        dataS = dcm2ml_Element(dcmobj.get(hex2dec('30040001')));
+        dataS = getTagValue(attr, '30040001');
         
         
     case 'doseScale'
         %Dose Grid Scaling. Imported, not indicative of CERR's representation.
-        dataS = dcm2ml_Element(dcmobj.get(hex2dec('3004000E')));
+        dataS = getTagValue(attr, '3004000E');
         
     case 'fractionIDOfOrigin' %Needs implementation, paired with RTPLAN
         if ~isempty(rtPlans)
-            [RTPlanLabel RTPlanUID]= getRelatedRTPlanLabel(rtPlans,dcmobj);
+            [RTPlanLabel RTPlanUID]= getRelatedRTPlanLabel(rtPlans,attr);
             
             dataS = RTPlanLabel;
         else
-            DoseSummationType = dcm2ml_Element(dcmobj.get(hex2dec('3004000A')));
-            dU = dcm2ml_Element(dcmobj.get(hex2dec('30040002')));
+            DoseSummationType = getTagValue(attr, '3004000A');
+            dU = getTagValue(attr, '30040002');
             maxDose = num2str(maxDose);
             dataS = [DoseSummationType '_' maxDose '_' dU];
         end
@@ -130,12 +133,12 @@ switch fieldname
         %         warning(['DICOM Import has no methods defined for import into the planC{indexS.dose}.' fieldname ' field, leaving empty.']);
 end
 
-function [RTPlanLabel RTPlanUID]= getRelatedRTPlanLabel(rtPlans,dcmobj)
+function [RTPlanLabel RTPlanUID]= getRelatedRTPlanLabel(rtPlans,attr)
 
 RTPlanLabel = ''; RTPlanUID = '';
 
 try
-    ReferencedRTPlanSequence = dcm2ml_Element(dcmobj.get(hex2dec('300C0002')));
+    ReferencedRTPlanSequence = getTagValue(attr, '300C0002');
 
     for i = 1:length(rtPlans)
         if strmatch(rtPlans(i).SOPInstanceUID, ReferencedRTPlanSequence.Item_1.ReferencedSOPInstanceUID)

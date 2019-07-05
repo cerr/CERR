@@ -30,58 +30,70 @@ function tagS = content_item_macro_tags
 % You should have received a copy of the GNU General Public License
 % along with CERR.  If not, see <http://www.gnu.org/licenses/>.
 
-%Initialize the tagS structure.
-tagS = struct('tag', {}, 'type', {}, 'children', {});
 
-%Create an empty tagS template for sequence creation.
-template = tagS;
+tagC = {'0040A040','0040A043','0040100A','0040A120','0040A121','0040A122',...
+'0040A123','0040A124','0040A160','0040A168','0040A30A','004008EA'};
 
-%Add tags based on PS3.3 attribute lists.
+tagTypeC = {'1','1','3','1C','1C','1C','1C','1C','1C','1C','1C','1C'};
 
-%Value Type
-tagS(end+1) = struct('tag', ['0040A040'], 'type', ['1'], 'children', []);
+childC = {[],[],code_sequence_macro_tags,[],[],[],[],[],[],...
+code_sequence_macro_tags,[],code_sequence_macro_tags};
 
-%Concept Name Code Sequence
-tagS(end+1) = struct('tag', ['0040A043'], 'type', ['1'], 'children', []);
+tagS = struct('tag', tagC, 'type', tagTypeC, 'children', childC);
 
-%Reason for Requested Procedure Code Sequence
-tagS(end+1) = struct('tag', ['0040100A'], 'type', ['3'], 'children', []);
 
-    %Include Code Sequence Macro
-    child_1 = code_sequence_macro_tags;
-    tagS(end).children = child_1;
-    
-%DateTime
-tagS(end+1) = struct('tag', ['0040A120'], 'type', ['1C'], 'children', []);
-
-%Date
-tagS(end+1) = struct('tag', ['0040A121'], 'type', ['1C'], 'children', []);
-
-%Time
-tagS(end+1) = struct('tag', ['0040A122'], 'type', ['1C'], 'children', []);    
-
-%Person Name
-tagS(end+1) = struct('tag', ['0040A123'], 'type', ['1C'], 'children', []);
-
-%UID
-tagS(end+1) = struct('tag', ['0040A124'], 'type', ['1C'], 'children', []);
-
-%Text Value
-tagS(end+1) = struct('tag', ['0040A160'], 'type', ['1C'], 'children', []);
-
-%Concept Code Sequence
-tagS(end+1) = struct('tag', ['0040A168'], 'type', ['1C'], 'children', []);
-
-    %Include Code Sequence Macro
-    child_1 = code_sequence_macro_tags;
-    tagS(end).children = child_1;
-    
-%Numeric Value
-tagS(end+1) = struct('tag', ['0040A30A'], 'type', ['1C'], 'children', []);    
-
-%Measurement Units Code Sequence
-tagS(end+1) = struct('tag', ['004008EA'], 'type', ['1C'], 'children', []);   
-
-    %Include Code Sequence Macro
-    child_1 = code_sequence_macro_tags;
-    tagS(end).children = child_1;
+% %Initialize the tagS structure.
+% tagS = struct('tag', {}, 'type', {}, 'children', {});
+% 
+% %Create an empty tagS template for sequence creation.
+% template = tagS;
+% 
+% %Add tags based on PS3.3 attribute lists.
+% 
+% %Value Type
+% tagS(end+1) = struct('tag', ['0040A040'], 'type', ['1'], 'children', []);
+% 
+% %Concept Name Code Sequence
+% tagS(end+1) = struct('tag', ['0040A043'], 'type', ['1'], 'children', []);
+% 
+% %Reason for Requested Procedure Code Sequence
+% tagS(end+1) = struct('tag', ['0040100A'], 'type', ['3'], 'children', []);
+% 
+%     %Include Code Sequence Macro
+%     child_1 = code_sequence_macro_tags;
+%     tagS(end).children = child_1;
+%     
+% %DateTime
+% tagS(end+1) = struct('tag', ['0040A120'], 'type', ['1C'], 'children', []);
+% 
+% %Date
+% tagS(end+1) = struct('tag', ['0040A121'], 'type', ['1C'], 'children', []);
+% 
+% %Time
+% tagS(end+1) = struct('tag', ['0040A122'], 'type', ['1C'], 'children', []);    
+% 
+% %Person Name
+% tagS(end+1) = struct('tag', ['0040A123'], 'type', ['1C'], 'children', []);
+% 
+% %UID
+% tagS(end+1) = struct('tag', ['0040A124'], 'type', ['1C'], 'children', []);
+% 
+% %Text Value
+% tagS(end+1) = struct('tag', ['0040A160'], 'type', ['1C'], 'children', []);
+% 
+% %Concept Code Sequence
+% tagS(end+1) = struct('tag', ['0040A168'], 'type', ['1C'], 'children', []);
+% 
+%     %Include Code Sequence Macro
+%     child_1 = code_sequence_macro_tags;
+%     tagS(end).children = child_1;
+%     
+% %Numeric Value
+% tagS(end+1) = struct('tag', ['0040A30A'], 'type', ['1C'], 'children', []);    
+% 
+% %Measurement Units Code Sequence
+% tagS(end+1) = struct('tag', ['004008EA'], 'type', ['1C'], 'children', []);   
+% 
+%     %Include Code Sequence Macro
+%     child_1 = code_sequence_macro_tags;
+%     tagS(end).children = child_1;

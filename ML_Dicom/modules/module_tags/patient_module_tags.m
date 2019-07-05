@@ -44,67 +44,80 @@ function tagS = patient_module_tags
 % You should have received a copy of the GNU General Public License
 % along with CERR.  If not, see <http://www.gnu.org/licenses/>.
 
-%Initialize the tagS structure.
-tagS = struct('tag', {}, 'type', {}, 'children', {});
 
-%Create an empty tagS template for sequence creation.
-template = tagS;
+tagC = {'0020000D','00100010','00100020','00100021','00100030',...
+'00100040','00100032','00101000','00101001','00102160','00104000'};
 
-%Add tags based on PS3.3 attribute lists.
+tagTypeC = {'1','2','2','3','2','2','3','3','3','3','3'};
 
-%Study Instance UID
-tagS(end+1) = struct('tag', ['0020000D'], 'type', ['1'], 'children', []);
+childC = {[],[],[],[],[],[],[],[],[],[],[]};
 
-%Patient's Name
-tagS(end+1) = struct('tag', ['00100010'], 'type', ['2'], 'children', []);
+tagS = struct('tag', tagC, 'type', tagTypeC, 'children', childC);
 
-%Patient ID
-tagS(end+1) = struct('tag', ['00100020'], 'type', ['2'], 'children', []);
 
-%Issuer of Patient ID
-tagS(end+1) = struct('tag', ['00100021'], 'type', ['3'], 'children', []);
 
-%Patient's Birth Date
-tagS(end+1) = struct('tag', ['00100030'], 'type', ['2'], 'children', []);
-
-%Patient's Sex
-tagS(end+1) = struct('tag', ['00100040'], 'type', ['2'], 'children', []);
-
-% %Referenced Patient Sequence
-% tagS(end+1) = struct('tag', ['00081140'], 'type', ['3'], 'children', []);
-%     child_1        = template;
-%     
-%     %Referenced SOP Class UID
-%     child_1(end+1) = struct('tag', ['00081150'], 'type', ['1'], 'children', []);
-%     
-%     %Referenced SOP Instance UID
-%     child_1(end+1) = struct('tag', ['00081155'], 'type', ['1'], 'children', []);
-%     tagS(end).children = child_1;
-
-%Patient's Birth Time
-tagS(end+1) = struct('tag', ['00100032'], 'type', ['3'], 'children', []);
-
-%Other Patient IDs
-tagS(end+1) = struct('tag', ['00101000'], 'type', ['3'], 'children', []);
-
-%Other Patient Names
-tagS(end+1) = struct('tag', ['00101001'], 'type', ['3'], 'children', []);
-
-%Ethnic Group
-tagS(end+1) = struct('tag', ['00102160'], 'type', ['3'], 'children', []);
-
-%Patient Comments
-tagS(end+1) = struct('tag', ['00104000'], 'type', ['3'], 'children', []);
-
-%wy %Patient Identity Removed
-% tagS(end+1) = struct('tag', ['00120062'], 'type', ['3'], 'children', []);
 % 
-% %De-identification Method
-% tagS(end+1) = struct('tag', ['00120063'], 'type', ['1C'], 'children', []);
+% %Initialize the tagS structure.
+% tagS = struct('tag', {}, 'type', {}, 'children', {});
 % 
-% %De-identification Method Code Sequence
-% tagS(end+1) = struct('tag', ['00120064'], 'type', ['1C'], 'children', []);
+% %Create an empty tagS template for sequence creation.
+% template = tagS;
 % 
-% %Include "Code Sequence Macro"
-% tagS(end).children = code_sequence_macro_tags;
+% %Add tags based on PS3.3 attribute lists.
+% 
+% %Study Instance UID
+% tagS(end+1) = struct('tag', ['0020000D'], 'type', ['1'], 'children', []);
+% 
+% %Patient's Name
+% tagS(end+1) = struct('tag', ['00100010'], 'type', ['2'], 'children', []);
+% 
+% %Patient ID
+% tagS(end+1) = struct('tag', ['00100020'], 'type', ['2'], 'children', []);
+% 
+% %Issuer of Patient ID
+% tagS(end+1) = struct('tag', ['00100021'], 'type', ['3'], 'children', []);
+% 
+% %Patient's Birth Date
+% tagS(end+1) = struct('tag', ['00100030'], 'type', ['2'], 'children', []);
+% 
+% %Patient's Sex
+% tagS(end+1) = struct('tag', ['00100040'], 'type', ['2'], 'children', []);
+% 
+% % %Referenced Patient Sequence
+% % tagS(end+1) = struct('tag', ['00081140'], 'type', ['3'], 'children', []);
+% %     child_1        = template;
+% %     
+% %     %Referenced SOP Class UID
+% %     child_1(end+1) = struct('tag', ['00081150'], 'type', ['1'], 'children', []);
+% %     
+% %     %Referenced SOP Instance UID
+% %     child_1(end+1) = struct('tag', ['00081155'], 'type', ['1'], 'children', []);
+% %     tagS(end).children = child_1;
+% 
+% %Patient's Birth Time
+% tagS(end+1) = struct('tag', ['00100032'], 'type', ['3'], 'children', []);
+% 
+% %Other Patient IDs
+% tagS(end+1) = struct('tag', ['00101000'], 'type', ['3'], 'children', []);
+% 
+% %Other Patient Names
+% tagS(end+1) = struct('tag', ['00101001'], 'type', ['3'], 'children', []);
+% 
+% %Ethnic Group
+% tagS(end+1) = struct('tag', ['00102160'], 'type', ['3'], 'children', []);
+% 
+% %Patient Comments
+% tagS(end+1) = struct('tag', ['00104000'], 'type', ['3'], 'children', []);
+% 
+% %wy %Patient Identity Removed
+% % tagS(end+1) = struct('tag', ['00120062'], 'type', ['3'], 'children', []);
+% % 
+% % %De-identification Method
+% % tagS(end+1) = struct('tag', ['00120063'], 'type', ['1C'], 'children', []);
+% % 
+% % %De-identification Method Code Sequence
+% % tagS(end+1) = struct('tag', ['00120064'], 'type', ['1C'], 'children', []);
+% % 
+% % %Include "Code Sequence Macro"
+% % tagS(end).children = code_sequence_macro_tags;
 

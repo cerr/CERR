@@ -1,4 +1,4 @@
-function [dcmdirS] = scandir_mldcm(dirPath, hWaitbar, dirNum)
+function [dcmdirS] = scandir_mldcm(dirPath, hWaitbar, dirNum, excludePixelDataFlag)
 %"scandir_mldcm"
 %   Scans a passed directory for DICOM files, checking each file in the
 %   directory for properly formatted DICOM regardless of file extension.
@@ -11,6 +11,7 @@ function [dcmdirS] = scandir_mldcm(dirPath, hWaitbar, dirNum)
 %
 %JRA 6/1/06
 %YWU Modified 03/01/08
+%NAV 07/19/16 updated to dcm4che3
 %
 %Usage:
 %   infoS = scandir_mldcm(directoryName, hWaitbar)
@@ -39,6 +40,12 @@ function [dcmdirS] = scandir_mldcm(dirPath, hWaitbar, dirNum)
 
 %Check that dirPath is a string
 
+
+if ~exist('excludePixelDataFlag','var')
+    excludePixelDataFlag = false;
+end
+
+
 switch lower(class(dirPath))
     case 'char'
     otherwise
@@ -66,21 +73,22 @@ filesV([filesV.isdir]) = [];
 %Scan each file, returning
 dcmdirS = [];
 
-patient = org.dcm4che2.data.BasicDicomObject;
-patienttemplate = build_module_template('patient');
+%patient = org.dcm4che2.data.BasicDicomObject;
+%patienttemplate = build_module_template('patient');
 
 for i=1:length(filesV)
 
     filename = fullfile(dirPath, filesV(i).name);
-    [dcmObj, isDcm] = scanfile_mldcm(filename);
+    [attrData, isDcm] = scanfile_mldcm(filename,excludePixelDataFlag);
 
     if isDcm
-        %Extract the data from the dcmobj.
-        dcmObj.subSet(patienttemplate).copyTo(patient);
-        
-        dcmdirS = dcmdir_add(filename, dcmObj, dcmdirS);
-        %         [isValid, errMsg] = validate_patient_module(dcmObj);
-        dcmObj.clear;
+        %%Extract the data from the dcmobj.
+        %dcmObj.subSet(patienttemplate).copyTo(patient);        
+        %dcmdirS = dcmdir_add(filename, dcmObj, dcmdirS);
+        %dcmObj.clear;
+      dcmdirS = dcmdir_add(filename, attrData, dcmdirS);
+        % KEEP OUT --->[isValid, errMsg] = validate_patient_module(dcmObj);
+      attrData.clear;
     end
     [pathstr, name, ext] = fileparts(filename);
     if ishandle(hWaitbar)
@@ -88,7 +96,6 @@ for i=1:length(filesV)
     end
     %['file: ' name ext]});
 end
-
 % Remove the MRI field, since it stores temporary information for matching
 % / separating images into different series
 %%%%% 4/18/16 ADDED : skipping non-DICOM files %%%%%%%%%%%

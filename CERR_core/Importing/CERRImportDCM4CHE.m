@@ -82,8 +82,9 @@ else
     dirs(2) = [];
     dirs(1).name = '';
     
+    excludePixelDataFlag = true;
     for i = 1:length(dirs)
-        patient = scandir_mldcm(fullfile(path, dirs(i).name), hWaitbar, i);
+        patient = scandir_mldcm(fullfile(path, dirs(i).name), hWaitbar, i, excludePixelDataFlag);
         if ~isempty(patient)
             for j = 1:length(patient.PATIENT)
                 dcmdirS.(['patient_' num2str(patientNum)]) = patient.PATIENT(j);

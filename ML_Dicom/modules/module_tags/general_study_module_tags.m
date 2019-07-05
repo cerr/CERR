@@ -44,88 +44,95 @@ function tagS = general_study_module_tags
 % You should have received a copy of the GNU General Public License
 % along with CERR.  If not, see <http://www.gnu.org/licenses/>.
 
-%Initialize the tagS structure.
-tagS = struct('tag', {}, 'type', {}, 'children', {});
 
-%Create an empty tagS template for sequence creation.
-template = tagS;
+tagC = {'0020000D','00080020','00080030','00080090','00080096','00200010',...
+'00080050','00081030','00081048','00081049','00081060','00081062','00081110','00081032'};
+tagTypeC = {'1','2','2','2','3','2','2','3','3','3','3','3','3','3'};
+child1S = struct('tag',{'00081150','00081155'},'type',{'1C','1C'},'children',{[],[]});
+childC = {[],[],[],[],person_identification_macro_tags,[],[],[],...
+[],person_identification_macro_tags,[],person_identification_macro_tags,...
+child1S,code_sequence_macro_tags};
 
-%Add tags based on PS3.3 attribute lists.
-
-%Study Instance UID
-tagS(end+1) = struct('tag', ['0020000D'], 'type', ['1'], 'children', []);
-
-%Study Date
-tagS(end+1) = struct('tag', ['00080020'], 'type', ['2'], 'children', []);
-
-%Study Time
-tagS(end+1) = struct('tag', ['00080030'], 'type', ['2'], 'children', []);
-
-%Referring Physician's Name
-tagS(end+1) = struct('tag', ['00080090'], 'type', ['2'], 'children', []);
-
-%Referring Physician Identification Sequence
-tagS(end+1) = struct('tag', ['00080096'], 'type', ['3'], 'children', []);
-
-    %Include "Person Identification Macro"
-    child_1 = person_identification_macro_tags;
-    
-    tagS(end).children = child_1;
-    
-%Study ID
-tagS(end+1) = struct('tag', ['00200010'], 'type', ['2'], 'children', []);
-
-%Accession Number
-tagS(end+1) = struct('tag', ['00080050'], 'type', ['2'], 'children', []);
-
-%Study Description
-tagS(end+1) = struct('tag', ['00081030'], 'type', ['3'], 'children', []);
-
-%Physician(s) of Record
-tagS(end+1) = struct('tag', ['00081048'], 'type', ['3'], 'children', []);
-
-%Physician(s) of Record Identification Sequence
-tagS(end+1) = struct('tag', ['00081049'], 'type', ['3'], 'children', []);
-
-    %Include "Person Identification Macro"
-    child_1 = person_identification_macro_tags;
-    
-    tagS(end).children = child_1;
-    
-%Name of Physician(s) Reading Study
-tagS(end+1) = struct('tag', ['00081060'], 'type', ['3'], 'children', []);    
-
-%Physician(s) Reading Study Identification Sequence
-tagS(end+1) = struct('tag', ['00081062'], 'type', ['3'], 'children', []);    
-
-    %Include "Person Identification Macro"
-    child_1 = person_identification_macro_tags;
-    
-    tagS(end).children = child_1;
-
-%Referenced Study Sequence
-tagS(end+1) = struct('tag', ['00081110'], 'type', ['3'], 'children', []);    
-child_1 = template;
-
-    %Referenced SOP Class UID
-    child_1(end+1) = struct('tag', ['00081150'], 'type', ['1C'], 'children', []);    
-
-    %Referenced SOP Instance UID
-    child_1(end+1) = struct('tag', ['00081155'], 'type', ['1C'], 'children', []);    
-
-    tagS(end).children = child_1;
-    
-%Procedure Code Sequence
-tagS(end+1) = struct('tag', ['00081032'], 'type', ['3'], 'children', []);    
-
-    %Include "Code Sequence Macro"
-    child_1 = code_sequence_macro_tags;
-    
-    tagS(end).children = child_1;
+tagS = struct('tag',tagC,'type',tagTypeC,'children',childC);
 
 
-
-
-
-
+% 
+% %Initialize the tagS structure.
+% tagS = struct('tag', {}, 'type', {}, 'children', {});
+% 
+% %Create an empty tagS template for sequence creation.
+% template = tagS;
+% 
+% %Add tags based on PS3.3 attribute lists.
+% 
+% %Study Instance UID
+% tagS(end+1) = struct('tag', ['0020000D'], 'type', ['1'], 'children', []);
+% 
+% %Study Date
+% tagS(end+1) = struct('tag', ['00080020'], 'type', ['2'], 'children', []);
+% 
+% %Study Time
+% tagS(end+1) = struct('tag', ['00080030'], 'type', ['2'], 'children', []);
+% 
+% %Referring Physician's Name
+% tagS(end+1) = struct('tag', ['00080090'], 'type', ['2'], 'children', []);
+% 
+% %Referring Physician Identification Sequence
+% tagS(end+1) = struct('tag', ['00080096'], 'type', ['3'], 'children', []);
+% 
+%     %Include "Person Identification Macro"
+%     child_1 = person_identification_macro_tags;
+%     
+%     tagS(end).children = child_1;
+%     
+% %Study ID
+% tagS(end+1) = struct('tag', ['00200010'], 'type', ['2'], 'children', []);
+% 
+% %Accession Number
+% tagS(end+1) = struct('tag', ['00080050'], 'type', ['2'], 'children', []);
+% 
+% %Study Description
+% tagS(end+1) = struct('tag', ['00081030'], 'type', ['3'], 'children', []);
+% 
+% %Physician(s) of Record
+% tagS(end+1) = struct('tag', ['00081048'], 'type', ['3'], 'children', []);
+% 
+% %Physician(s) of Record Identification Sequence
+% tagS(end+1) = struct('tag', ['00081049'], 'type', ['3'], 'children', []);
+% 
+%     %Include "Person Identification Macro"
+%     child_1 = person_identification_macro_tags;
+%     
+%     tagS(end).children = child_1;
+%     
+% %Name of Physician(s) Reading Study
+% tagS(end+1) = struct('tag', ['00081060'], 'type', ['3'], 'children', []);    
+% 
+% %Physician(s) Reading Study Identification Sequence
+% tagS(end+1) = struct('tag', ['00081062'], 'type', ['3'], 'children', []);    
+% 
+%     %Include "Person Identification Macro"
+%     child_1 = person_identification_macro_tags;
+%     
+%     tagS(end).children = child_1;
+% 
+% %Referenced Study Sequence
+% tagS(end+1) = struct('tag', ['00081110'], 'type', ['3'], 'children', []);    
+% child_1 = template;
+% 
+%     %Referenced SOP Class UID
+%     child_1(end+1) = struct('tag', ['00081150'], 'type', ['1C'], 'children', []);    
+% 
+%     %Referenced SOP Instance UID
+%     child_1(end+1) = struct('tag', ['00081155'], 'type', ['1C'], 'children', []);    
+% 
+%     tagS(end).children = child_1;
+%     
+% %Procedure Code Sequence
+% tagS(end+1) = struct('tag', ['00081032'], 'type', ['3'], 'children', []);    
+% 
+%     %Include "Code Sequence Macro"
+%     child_1 = code_sequence_macro_tags;
+%     
+%     tagS(end).children = child_1;
 

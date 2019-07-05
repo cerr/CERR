@@ -1,6 +1,6 @@
-function dcmobj = export_module(moduleName, varargin)
+function attr = export_module(moduleName, varargin)
 %"export_module"
-%   Returns a populated Java dcmobj representing a requested module,
+%   Returns a populated Java attr representing a requested module,
 %   given its moduleName string and the data required to populate the
 %   fields.
 %
@@ -25,9 +25,11 @@ function dcmobj = export_module(moduleName, varargin)
 %       'rt_dvh'                
 %
 %JRA 06/19/06
+%NAV 07/19/16 updated to dcm4che3
+%    Used addAll over copyTo
 %
 %Usage:
-%   dcmobj = export_module(moduleName, varargin)
+%   attr = export_module(moduleName, varargin)
 %
 % Copyright 2010, Joseph O. Deasy, on behalf of the CERR development team.
 % 
@@ -51,7 +53,8 @@ function dcmobj = export_module(moduleName, varargin)
 % You should have received a copy of the GNU General Public License
 % along with CERR.  If not, see <http://www.gnu.org/licenses/>.
 
-dcmobj = org.dcm4che2.data.BasicDicomObject;
+%convert to dcm4che3 attribute
+attr = org.dcm4che3.data.Attributes;
 
 switch lower(moduleName)
     %Get the top level tags used in this module.
@@ -116,7 +119,7 @@ switch lower(moduleName)
         error('Unrecognized or unsupported module export requested.')
 end
 
-%Prepare a dcmobj template to be used by the export function for blank
+%Prepare a attr template to be used by the export function for blank
 %elements.
 template = build_module_template(moduleName);
 
@@ -131,14 +134,15 @@ for i=1:length(allTags)
    args.tag         = allTags(i);
    args.data        = varargin;
    args.template    = template;
-   
-   %Get the SimpleDicomElement Java object with data properly filled.
+
+   %Get the Attributes object with data properly filled.
    %In this line "export_function" is a function HANDLE not an actual
    %function.  Need to check backwards compatibility with previous ML vers.
+ 
    el = export_function(args);
-   
-   if ~isempty(el)
-       dcmobj.add(el);
+  
+   if (~isempty(el))
+       attr.addAll(el);
    else       
        %Data in planC was insufficent to construct this element.
    end

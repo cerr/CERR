@@ -30,34 +30,45 @@ function tagS = person_identification_macro_tags
 % You should have received a copy of the GNU General Public License
 % along with CERR.  If not, see <http://www.gnu.org/licenses/>.
 
-%Initialize the tagS structure.
-tagS = struct('tag', {}, 'type', {}, 'children', {});
+tagC = {'00401101','00401102','00401103','00080080','00080081','00080082'};
 
-%Create an empty tagS template for sequence creation.
-template = tagS;
+typeC = {'1','3','3','1C','3','1C'};
 
-%Add tags based on PS3.3 attribute lists.
+childC = {code_sequence_macro_tags,[],[],[],[],code_sequence_macro_tags};
 
-%Person Identification Code Sequence
-tagS(end+1) = struct('tag', ['00401101'], 'type', ['1'], 'children', []);
+tagS = struct('tag', tagC, 'type', typeC, 'children', childC);
 
-    %Include "code sequence macro"
-    tagS(end).children = code_sequence_macro_tags;
-    
-%Person's Address
-tagS(end+1) = struct('tag', ['00401102'], 'type', ['3'], 'children', []);
 
-%Person's Telephone Numbers
-tagS(end+1) = struct('tag', ['00401103'], 'type', ['3'], 'children', []);
-
-%Institution Name
-tagS(end+1) = struct('tag', ['00080080'], 'type', ['1C'], 'children', []);
-
-%Institution Address
-tagS(end+1) = struct('tag', ['00080081'], 'type', ['3'], 'children', []);
-
-%Institution Code Sequence
-tagS(end+1) = struct('tag', ['00080082'], 'type', ['1C'], 'children', []);
-
-    %Include "code sequence macro"
-    tagS(end).children = code_sequence_macro_tags;
+% 
+% %Initialize the tagS structure.
+% tagS = struct('tag', {}, 'type', {}, 'children', {});
+% 
+% %Create an empty tagS template for sequence creation.
+% template = tagS;
+% 
+% %Add tags based on PS3.3 attribute lists.
+% 
+% %Person Identification Code Sequence
+% tagS(end+1) = struct('tag', ['00401101'], 'type', ['1'], 'children', []);
+% 
+%     %Include "code sequence macro"
+%     tagS(end).children = code_sequence_macro_tags;
+%     
+% %Person's Address
+% tagS(end+1) = struct('tag', ['00401102'], 'type', ['3'], 'children', []);
+% 
+% %Person's Telephone Numbers
+% tagS(end+1) = struct('tag', ['00401103'], 'type', ['3'], 'children', []);
+% 
+% %Institution Name
+% tagS(end+1) = struct('tag', ['00080080'], 'type', ['1C'], 'children', []);
+% 
+% %Institution Address
+% tagS(end+1) = struct('tag', ['00080081'], 'type', ['3'], 'children', []);
+% 
+% %Institution Code Sequence
+% tagS(end+1) = struct('tag', ['00080082'], 'type', ['1C'], 'children', []);
+% 
+%     %Include "code sequence macro"
+%     tagS(end).children = code_sequence_macro_tags;
+% 

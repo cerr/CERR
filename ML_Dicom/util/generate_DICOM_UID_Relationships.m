@@ -41,11 +41,20 @@ indexS = planC{end};
 
 %Generate a master study UID for all parts of this planC.
 %Study_Instance_UID = dicomuid;
-if isfield(planC{indexS.scan}(1).scanInfo(1),'DICOMHeaders') && ...
-            ~isempty(planC{indexS.scan}(1).scanInfo(1).DICOMHeaders)
-    Study_Instance_UID = planC{indexS.scan}(1).scanInfo(1).DICOMHeaders.StudyInstanceUID;
+%if isfield(planC{indexS.scan}(1).scanInfo(1),'DICOMHeaders') && ...
+%            ~isempty(planC{indexS.scan}(1).scanInfo(1).DICOMHeaders)
+if isfield(planC{indexS.scan}(1).scanInfo(1),'studyInstanceUID') && ...
+        ~isempty(planC{indexS.scan}(1).scanInfo(1).studyInstanceUID)
+    Study_Instance_UID = planC{indexS.scan}(1).scanInfo(1).studyInstanceUID;
 else
     Study_Instance_UID = dicomuid;
+end
+
+if isfield(planC{indexS.scan}(1).scanInfo(1),'patientID') && ...
+        ~isempty(planC{indexS.scan}(1).scanInfo(1).patientID)
+    Patient_ID = planC{indexS.scan}(1).scanInfo(1).patientID;
+else
+    Patient_ID = dicomuid;
 end
 
 %% SCAN UIDs
@@ -53,24 +62,31 @@ end
 for i = 1:length(planC{indexS.scan})
     
     %Set the study instance UID.
+    planC{indexS.scan}(i).Patient_ID = Patient_ID;
+
+    %Set the study instance UID.
     planC{indexS.scan}(i).Study_Instance_UID = Study_Instance_UID;
     
     %Generate a series instance UID for each scan;
     %planC{indexS.scan}(i).Series_Instance_UID = dicomuid;
-    if isfield(planC{indexS.scan}(i).scanInfo(1), 'DICOMHeaders') && ...
-            ~isempty(planC{indexS.scan}(i).scanInfo(1).DICOMHeaders)
+    %if isfield(planC{indexS.scan}(i).scanInfo(1), 'DICOMHeaders') && ...
+    %        ~isempty(planC{indexS.scan}(i).scanInfo(1).DICOMHeaders)
+    if isfield(planC{indexS.scan}(i).scanInfo(1),'seriesInstanceUID') && ...
+        ~isempty(planC{indexS.scan}(i).scanInfo(1).seriesInstanceUID)
         planC{indexS.scan}(i).Series_Instance_UID = ...
-            planC{indexS.scan}(i).scanInfo(1).DICOMHeaders.SeriesInstanceUID;
+            planC{indexS.scan}(i).scanInfo(1).seriesInstanceUID;
     else
         planC{indexS.scan}(i).Series_Instance_UID = dicomuid;
     end
     
     %Generate a frame of reference UID for each scan.
     %planC{indexS.scan}(i).Frame_Of_Reference_UID = dicomuid;
-    if isfield(planC{indexS.scan}(i).scanInfo(1), 'DICOMHeaders') && ...
-            ~isempty(planC{indexS.scan}(i).scanInfo(1).DICOMHeaders)
+    %if isfield(planC{indexS.scan}(i).scanInfo(1), 'DICOMHeaders') && ...
+    %        ~isempty(planC{indexS.scan}(i).scanInfo(1).DICOMHeaders)
+    if isfield(planC{indexS.scan}(i).scanInfo(1),'frameOfReferenceUID') && ...
+        ~isempty(planC{indexS.scan}(i).scanInfo(1).frameOfReferenceUID)
         planC{indexS.scan}(i).Frame_Of_Reference_UID = ...
-            planC{indexS.scan}(i).scanInfo(1).DICOMHeaders.FrameofReferenceUID;
+            planC{indexS.scan}(i).scanInfo(1).frameOfReferenceUID;
     else
         planC{indexS.scan}(i).Frame_Of_Reference_UID = dicomuid;
     end
@@ -119,6 +135,9 @@ end
 %Iterate over doses
 for i = 1:length(planC{indexS.dose})
     
+    %Set the patient id.
+    planC{indexS.dose}(i).Patient_ID = Patient_ID;
+
     %Set the study instance UID.
     planC{indexS.dose}(i).Study_Instance_UID = Study_Instance_UID;
     
@@ -157,8 +176,11 @@ Structure_Set_Series_UID = dicomuid;
 Structure_Set_SOP_Class_UID = '1.2.840.10008.5.1.4.1.1.481.3';
 Structure_Set_SOP_Instance_UID = dicomuid;
 %Iterate over structures
-for i = 1:length(planC{indexS.structures});
+for i = 1:length(planC{indexS.structures})
     
+    %Set the patient id.
+    planC{indexS.structures}(i).Patient_ID = Patient_ID;
+
     %Set the study instance UID.
     planC{indexS.structures}(i).Study_Instance_UID = Study_Instance_UID;
     

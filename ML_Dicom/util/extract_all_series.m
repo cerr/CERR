@@ -39,16 +39,16 @@ typeC       = {};
 for studyNum = 1:length(dcmdir_PATIENT.STUDY)
     
     study = dcmdir_PATIENT.STUDY(studyNum); %wy {} --> ()
-        
+    
     for seriesNum = 1:length(study.SERIES)
         
         seriesC{end+1} = study.SERIES(seriesNum); %wy {} --> ()
         
         %Remove the info field, leaving only the field describing what type
         %of series this is.
+       % disp(study.SERIES(seriesNum));
         tmp = rmfield(study.SERIES(seriesNum), 'info'); %wy {} --> ()
         tmpFields = fields(tmp);
-        
         if length(tmpFields) == 2; %wy 1-->2
             imgModality = tmp.Modality;
             imgModality = parseModality(imgModality);
@@ -80,7 +80,6 @@ indPlan = strfind(imgModality,'PLAN');
 if ~isempty([indStruct indDose indPlan])
     return;
 end
-
 indCT = strfind(imgModality,'CT');
 indPT = strfind(imgModality,'PT');
 indPET = strfind(imgModality,'PET');

@@ -1,4 +1,4 @@
-function dataS = populate_planC_header_field(fieldname, dcmdir_PATIENT);
+function dataS = populate_planC_header_field(fieldname, dcmdir_PATIENT)
 %"populate_planC_header_field"
 %   Given the name of a child field to planC{indexS.header}, populates that
 %   field based on the data contained in the dcmdir.PATIENT structured

@@ -7,6 +7,8 @@ function el = export_DVH_referenced_ROI_sequence(args)
 %   This function takes a CERR DVHs element.
 %
 %JRA 07/10/06
+%NAV 07/19/16 updated to dcm4che3
+%   replaced ml2dcm_Element to data2dcmElement
 %
 %Usage:
 %   @export_DVH_referenced_ROI_sequence(args)
@@ -49,8 +51,7 @@ switch tag
         
     case 805568610  %3004,0062  DVH ROI Contribution Type
         data = 'INCLUDED';
-        el = template.get(tag);
-        el = ml2dcm_Element(el, data);  
+        el = data2dcmElement(template, data, tag);  
         
     otherwise
         warning(['No methods exist to populate DICOM RT Dose module''s DVH_referenced_ROI sequence field: ' dec2hex(tag,8) '.']);

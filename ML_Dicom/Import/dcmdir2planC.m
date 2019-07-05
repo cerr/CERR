@@ -42,10 +42,15 @@ dcmdir_PATIENT = dcmdir; %wy .PATIENT{1};
 %Get the names of all cells in planC.
 cellNames = fields(indexS);
 
+%Read CERROptions.json to get import flags
+pathStr = getCERRPath;
+optName = fullfile(pathStr,'CERROptions.json');
+optS    = opts4Exe(optName);
+
 for i = 1:length(cellNames)
     %Populate each field in the planC.
     disp([' Reading ' cellNames{i}  ' ... ']);
-    cellData = populate_planC_field(cellNames{i}, dcmdir_PATIENT);
+    cellData = populate_planC_field(cellNames{i}, dcmdir_PATIENT, optS);
     
     if ~isempty(cellData)
         planInitC{indexS.(cellNames{i})} = cellData;
@@ -84,8 +89,30 @@ try
 catch
 end
 
+% Convert to PET SUV
+for scanNum = 1:length(planC{indexS.scan})
+    modality = planC{indexS.scan}(scanNum).scanInfo(1).imageType;
+    if strcmpi(modality,'PT') || strcmpi(modality,'PET')
+        imageUnits = planC{indexS.scan}(scanNum).scanInfo(1).petImageUnits;
+        if ~strcmpi(imageUnits,'GML') % TO DO: handle various image types
+            % Obtain SUV conversion flag from CERROptions.m
+%             pathStr = getCERRPath;
+%             optName = fullfile(pathStr,'CERROptions.json');
+%             optS    = opts4Exe(optName);
+            if isfield(optS,'convert_PET_to_SUV') && optS.convert_PET_to_SUV
+                for slcNum = 1:size(planC{indexS.scan}(scanNum).scanArray,3)
+                    dicomHeaderS = planC{indexS.scan}(scanNum).scanInfo(slcNum);
+                    planC{indexS.scan}(scanNum).scanArray(:,:,slcNum) = ...
+                        calc_suv(dicomHeaderS, planC{indexS.scan}(scanNum).scanArray(:,:,slcNum));
+                end
+            end
+        end        
+    end
+end
+
 % process NM scans
 for scanNum = 1:length(planC{indexS.scan})
+    disp('dcmdir2planc SCANNUM');
     if strcmpi(planC{indexS.scan}(scanNum).scanInfo(1).imageType, 'NM')
         if planC{indexS.scan}(scanNum).scanInfo(1).DICOMHeaders.SpacingBetweenSlices < 0
             planC{indexS.scan}(scanNum).scanArray = flipdim(planC{indexS.scan}(scanNum).scanArray,3);
@@ -108,12 +135,13 @@ isObliqScanV = ones(1,numScans);
 
 for scanNum = 1:numScans
     
-    % Calculate the slice normal
-    if isfield(planC{indexS.scan}(scanNum).scanInfo(1).DICOMHeaders,'ImageOrientationPatient')
-        ImageOrientationPatientV = planC{indexS.scan}(scanNum).scanInfo(1).DICOMHeaders.ImageOrientationPatient;
-    else
-        ImageOrientationPatientV = [1 0 0 0 1 0]';
-    end
+%     % Calculate the slice normal
+%     if isfield(planC{indexS.scan}(scanNum).scanInfo(1).DICOMHeaders,'ImageOrientationPatient')
+%         ImageOrientationPatientV = planC{indexS.scan}(scanNum).scanInfo(1).DICOMHeaders.ImageOrientationPatient;
+%     else
+%         ImageOrientationPatientV = [1 0 0 0 1 0]';
+%     end
+    ImageOrientationPatientV = planC{indexS.scan}(scanNum).scanInfo(1).imageOrientationPatient;
     
     % Check for obliqueness
     if max(abs((abs(ImageOrientationPatientV) - [1 0 0 0 1 0]'))) <= obliqTol
@@ -128,8 +156,9 @@ for scanNum = 1:numScans
     numSlcs = length(planC{indexS.scan}(scanNum).scanInfo);
     distV = zeros(1,numSlcs);
     for slcNum = 1:numSlcs
-        ipp = planC{indexS.scan}(scanNum).scanInfo(slcNum)...
-            .DICOMHeaders.ImagePositionPatient;
+%         ipp = planC{indexS.scan}(scanNum).scanInfo(slcNum)...
+%             .DICOMHeaders.ImagePositionPatient;
+        ipp = planC{indexS.scan}(scanNum).scanInfo(slcNum).imagePositionPatient;            
         distV(slcNum) = sum(sliceNormV .* ipp);
     end
     
@@ -147,18 +176,22 @@ for scanNum = 1:numScans
     for i=1:length(planC{indexS.scan}(scanNum).scanInfo)
         planC{indexS.scan}(scanNum).scanInfo(i).zValue = zV(i) / 10;
     end
-    info1 = planC{indexS.scan}(scanNum).scanInfo(1);
-    info2 = planC{indexS.scan}(scanNum).scanInfo(2);
+    info1S = planC{indexS.scan}(scanNum).scanInfo(1);
+    info2S = planC{indexS.scan}(scanNum).scanInfo(2);
     
     %%%%%%%%%%%%%%%%
-    info1b = info1.DICOMHeaders;
-    info2b = info2.DICOMHeaders;
-    pos1b = info1b.ImagePositionPatient;
-    pos2b = info2b.ImagePositionPatient;
-    deltaPosb = pos2b-pos1b;
+    %info1b = info1S.DICOMHeaders;
+    %info2b = info2S.DICOMHeaders;
+    %pos1b = info1b.ImagePositionPatient;
+    %pos2b = info2b.ImagePositionPatient;
+    %deltaPosV = pos2b-pos1b;
+    pos1V = info1S.imagePositionPatient/10; %cm
+    pos2V = info2S.imagePositionPatient/10; %cm
+    deltaPosV = pos2V-pos1V;
+    pixelSpacing = [info1S.grid2Units, info1S.grid1Units];
     
-    positionMatrix = [reshape(info1b.ImageOrientationPatient,[3 2])*diag(info1b.PixelSpacing) [deltaPosb(1) pos1b(1); deltaPosb(2) pos1b(2); deltaPosb(3) pos1b(3)]];
-    positionMatrix = positionMatrix / 10; % mm to cm
+    positionMatrix = [reshape(ImageOrientationPatientV,[3 2])*diag(pixelSpacing) [deltaPosV(1) pos1V(1); deltaPosV(2) pos1V(2); deltaPosV(3) pos1V(3)]];
+    %positionMatrix = positionMatrix / 10; % mm to cm
     positionMatrix = [positionMatrix; 0 0 0 1];
     
     positionMatrixInv = inv(positionMatrix);
@@ -215,6 +248,7 @@ for scanNum = 1:numScans
                 continue;
             end
             
+            % ======== TO DO: update for use without DICOMHeaders
             info = dose.DICOMHeaders;
             
             vec1 = info.ImageOrientationPatient(1:3);
@@ -256,15 +290,17 @@ for scanNum = 1:numScans
             vecsout = inv(positionMatrix) * vecsout;  % to MR image index (not dose voxel index)
             vecsout = virPosMtx * vecsout; % to the virtual coordinates
             
-            %dose.zValues = vecsout(3,:)';
-            [zdoseV,zOrderV] = sort(dose.zValues);
+            zValuesV = vecsout(3,:)'/10;
+            [zdoseV,zOrderV] = sort(zValuesV);
             dose.zValues = zdoseV;
+            %[zdoseV,zOrderV] = sort(dose.zValues);
+            %dose.zValues = zdoseV;
             
             % Flip doseArray similar to the scanArray
             % Flip scan since DICOM and CERR's z-convention is opposite.
             % Hence sort according to descending z-values.
             %[~,zOrderV] = sort(dose.zValues,'descend'); % flip dose
-            dose.doseArray = dose.doseArray(:,:,zOrderV);
+            dose.doseArray = dose.doseArray(:,:,flip(zOrderV));
             
             planC{indexS.dose}(doseno) = dose;
         end

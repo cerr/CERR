@@ -27,7 +27,6 @@ function beamGeometryInitS = populate_planC_beamGeometry_field(beamsInitS, beamG
 type='BEAM GEOMETRY';
 
 % beamsInitS = temp_study_header;
-
 % Get parameters
 try
     beams=fieldnames(beamsInitS.BeamSequence);
@@ -67,11 +66,11 @@ for i=1:nbeams
             beamGeometryInitS(1,i).fractionGroupID = num2str(length(planC{indexS.dose}))+1;
         end
     end
-    
+
     beamGeometryInitS(1,i).beamNumber         = getfield(beamsInitS, 'BeamSequence',['Item_', num2str(i)],'BeamNumber');
     beamGeometryInitS(1,i).beamDescription    = getfield(beamsInitS, 'BeamSequence',['Item_', num2str(i)],'BeamName');
     beamGeometryInitS(1,i).beamModality       = getfield(beamsInitS, 'BeamSequence',['Item_', num2str(i)],'RadiationType');
-    beamGeometryInitS(1,i).beamEnergyMeV      = getfield(beamsInitS, 'BeamSequence',['Item_',num2str(i)], 'ControlPointSequence','Item_1','NominalBeamEnergy');
+    beamGeometryInitS(1,i).beamEnergyMeV      = getfield(beamsInitS, 'BeamSequence',['Item_', num2str(i)], 'ControlPointSequence','Item_1','NominalBeamEnergy');
     beamGeometryInitS(1,i).beamType           = getfield(beamsInitS, 'BeamSequence',['Item_', num2str(i)],'BeamType');
     beamGeometryInitS(1,i).nominalIsocenterDistance = getfield(beamsInitS, 'BeamSequence',['Item_', num2str(i)],'SourceAxisDistance');
     

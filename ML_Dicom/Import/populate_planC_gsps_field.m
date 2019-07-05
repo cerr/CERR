@@ -1,13 +1,17 @@
-function dataS = populate_planC_gsps_field(fieldname, dcmdir_PATIENT_STUDY_SERIES_GSPS, gspsNum, dcmobj)
+function dataS = populate_planC_gsps_field(fieldname, dcmdir_PATIENT_STUDY_SERIES_GSPS, gspsNum, attr)
 %"populate_planC_gsps_field"
 %   Given the name of a child field to planC{indexS.GSPS}, populates that
 %   field based on the data contained in dcmdir.PATIENT.STUDY.SERIES.PR
 %   gsps object passed in, for GSPS object number gspsNum.
 %
 %APA, 01/25/2013
+%NAV 07/19/16 updated to dcm4che3
+%       replaced dcm2ml_Element with getTagValue
+%       replaced "get" with "getValue", and 
+%       "countItems" with "size()"
 %
 %Usage:
-%   dataS = populate_planC_gsps_field(fieldname, dcmdir_PATIENT_STUDY_SERIES_GSPS, gspsNum, dcmobj)
+%   dataS = populate_planC_gsps_field(fieldname, dcmdir_PATIENT_STUDY_SERIES_GSPS, gspsNum, attr)
 %
 % Copyright 2010, Joseph O. Deasy, on behalf of the CERR development team.
 % 
@@ -36,75 +40,87 @@ GSPS = dcmdir_PATIENT_STUDY_SERIES_GSPS;
 %Default value for undefined fields.
 dataS = '';
 
-if ~exist('dcmobj', 'var')
+if ~exist('attr', 'var')
     %Grab the dicom object representing the structures.
-    dcmobj = scanfile_mldcm(GSPS.file);
+    attr = scanfile_mldcm(GSPS.file);
 end
 
 % Graphical Annotation Sequence
-GSPSseq = dcmobj.get(hex2dec('00700001'));
+GSPSseq = attr.getValue(hex2dec('00700001'));
 
-%Count em up.
-nGsps = GSPSseq.countItems;
+%Count them up.
+if ~isempty(GSPSseq)
+    nGsps = GSPSseq.size();
+else
+    nGsps = 0;
+end
 
 %Structure Set item for this structure.
-annotObj = GSPSseq.getDicomObject(gspsNum - 1);
+annotObj = GSPSseq.get(gspsNum - 1);
 
 switch fieldname
 
     case 'SOPInstanceUID'
         %Referenced Image Sequence
-        refImageSeq = annotObj.get(hex2dec('00081140'));
-        refImageObj = refImageSeq.getDicomObject(0); % Assuming only one image reference.
-        dataS = dcm2ml_Element(refImageObj.get(hex2dec('00081155')));
+        refImageSeq = annotObj.getValue(hex2dec('00081140'));
+        refImageObj = refImageSeq.get(0); % Assuming only one image reference.
+        dataS = getTagValue(refImageObj, '00081155');
         
         
     case 'graphicAnnotationS'
         %Graphic Object Sequence
-        graphicObjSeq = annotObj.get(hex2dec('00700009'));
-        
+        graphicObjSeq = annotObj.getValue(hex2dec('00700009'));
+
         if isempty(graphicObjSeq)
             return;
         end
-
-        numGraphicAnnot = graphicObjSeq.countItems;
+        
+        if ~isempty(graphicObjSeq)
+            numGraphicAnnot = graphicObjSeq.size();
+        else
+            numGraphicAnnot = 0;
+        end
         
         graphicAnnotationS(1:numGraphicAnnot) = struct();
         for i = 1:numGraphicAnnot
-            aGraphicAnnot = graphicObjSeq.getDicomObject(i-1);
-            graphicAnnotationS(i).graphicAnnotationUnits   = dcm2ml_Element(aGraphicAnnot.get(hex2dec('00700005')));
-            graphicAnnotationS(i).graphicAnnotationDims    = dcm2ml_Element(aGraphicAnnot.get(hex2dec('00700020')));
-            graphicAnnotationS(i).graphicAnnotationNumPts  = dcm2ml_Element(aGraphicAnnot.get(hex2dec('00700021')));
-            graphicAnnotationS(i).graphicAnnotationData    = dcm2ml_Element(aGraphicAnnot.get(hex2dec('00700022')));
-            graphicAnnotationS(i).graphicAnnotationType    = dcm2ml_Element(aGraphicAnnot.get(hex2dec('00700023')));
-            graphicAnnotationS(i).graphicAnnotationFilled  = dcm2ml_Element(aGraphicAnnot.get(hex2dec('00700024')));            
-        end        
+            aGraphicAnnot = graphicObjSeq.get(i-1);
+            graphicAnnotationS(i).graphicAnnotationUnits   = getTagValue(aGraphicAnnot, '00700005');
+            graphicAnnotationS(i).graphicAnnotationDims    = getTagValue(aGraphicAnnot, '00700020');
+            graphicAnnotationS(i).graphicAnnotationNumPts  = getTagValue(aGraphicAnnot, '00700021');
+            graphicAnnotationS(i).graphicAnnotationData    = getTagValue(aGraphicAnnot, '00700022');
+            graphicAnnotationS(i).graphicAnnotationType    = getTagValue(aGraphicAnnot, '00700023');
+            graphicAnnotationS(i).graphicAnnotationFilled  = getTagValue(aGraphicAnnot, '00700024');            
+        end
         
         dataS = graphicAnnotationS;
         
 
     case 'textAnnotationS'
         %Text Object Sequence
-        textObjSeq = annotObj.get(hex2dec('00700008'));
+        textObjSeq = annotObj.getValue(hex2dec('00700008'));
 
         if isempty(textObjSeq)
             return;
         end
 
-        numTextAnnot = textObjSeq.countItems;
+        if ~isempty(textObjSeq)
+            numTextAnnot = textObjSeq.size();
+        else
+            numTextAnnot = 0;
+        end
         
         textAnnotationS(1:numTextAnnot) = struct();
         
         for i = 1:numTextAnnot
-            aTextAnnot = textObjSeq.getDicomObject(i-1);
-            textAnnotationS(i).boundingBoxAnnotationUnits                = dcm2ml_Element(aTextAnnot.get(hex2dec('00700003')));
-            textAnnotationS(i).anchorPtAnnotationUnits                   = dcm2ml_Element(aTextAnnot.get(hex2dec('00700004')));
-            textAnnotationS(i).unformattedTextValue                      = dcm2ml_Element(aTextAnnot.get(hex2dec('00700006')));            
-            textAnnotationS(i).boundingBoxTopLeftHandCornerPt            = dcm2ml_Element(aTextAnnot.get(hex2dec('00700010')));            
-            textAnnotationS(i).boundingBoxBottomRightHandCornerPt        = dcm2ml_Element(aTextAnnot.get(hex2dec('00700011')));            
-            textAnnotationS(i).boundingBoxTextHorizontalJustification    = dcm2ml_Element(aTextAnnot.get(hex2dec('00700012')));            
-            textAnnotationS(i).anchorPoint                               = dcm2ml_Element(aTextAnnot.get(hex2dec('00700014')));            
-            textAnnotationS(i).anchorPointVisibility                     = dcm2ml_Element(aTextAnnot.get(hex2dec('00700015')));                        
+            aTextAnnot = textObjSeq.get(i-1);
+            textAnnotationS(i).boundingBoxAnnotationUnits                = getTagValue(aTextAnnot, '00700003');
+            textAnnotationS(i).anchorPtAnnotationUnits                   = getTagValue(aTextAnnot, '00700004');
+            textAnnotationS(i).unformattedTextValue                      = getTagValue(aTextAnnot, '00700006');            
+            textAnnotationS(i).boundingBoxTopLeftHandCornerPt            = getTagValue(aTextAnnot, '00700010');            
+            textAnnotationS(i).boundingBoxBottomRightHandCornerPt        = getTagValue(aTextAnnot, '00700011');            
+            textAnnotationS(i).boundingBoxTextHorizontalJustification    = getTagValue(aTextAnnot, '00700012');            
+            textAnnotationS(i).anchorPoint                               = getTagValue(aTextAnnot, '00700014');            
+            textAnnotationS(i).anchorPointVisibility                     = getTagValue(aTextAnnot, '00700015');                        
         end
         
         dataS = textAnnotationS;

@@ -1,4 +1,4 @@
-function dataS = populate_planC_dose_field(fieldname, dcmdir_PATIENT_STUDY_SERIES_RTDOSE, dcmobj, rtPlans)
+function dataS = populate_planC_dose_field(fieldname, dcmdir_PATIENT_STUDY_SERIES_RTDOSE, attr, rtPlans, optS)
 %"populate_planC_dose_field"
 %   Given the name of a child field to planC{indexS.scan}, populates that
 %   field based on the data contained in dcmdir.PATIENT.STUDY.SERIES.RTDOSE
@@ -8,6 +8,10 @@ function dataS = populate_planC_dose_field(fieldname, dcmdir_PATIENT_STUDY_SERIE
 %YWU Modified 03/01/08
 %DK 04/12/09
 %   Fixed Coordinate System
+%NAV 07/19/16 updated to dcm4che3
+%   replaced dcm2ml_element with getTagValue
+%   and used getValue instead of get
+%
 %Usage:
 %   dataS = populate_planC_dose_field(fieldname,dcmdir_PATIENT_STUDY_SERIES_RTDOSE);
 %
@@ -44,9 +48,9 @@ DOSE = dcmdir_PATIENT_STUDY_SERIES_RTDOSE;
 %Default value for undefined fields.
 dataS = '';
 
-if ~exist('dcmobj', 'var')
+if ~exist('attr', 'var')
     %Grab the dicom object representing this image.
-    dcmobj = scanfile_mldcm(DOSE.file);
+    attr = scanfile_mldcm(DOSE.file);
 end
 
 switch fieldname
@@ -65,14 +69,14 @@ switch fieldname
         
     case 'patientName'
         %Patient's Name
-        dataS = dcm2ml_Element(dcmobj.get(hex2dec('00100010')));
+        dataS = getTagValue(attr, '00100010');
         
     case 'doseNumber'
         %Currently undefined.
         
     case 'doseType'
         %Dose Type
-        dT = dcm2ml_Element(dcmobj.get(hex2dec('30040004')));
+        dT = getTagValue(attr, '30040004');
         
         switch upper(dT)
             case 'PHYSICAL'
@@ -87,56 +91,57 @@ switch fieldname
         end
         
     case 'doseSummationType'
-        dataS = dcm2ml_Element(dcmobj.get(hex2dec('3004000A')));
-        
+        dataS = getTagValue(attr, '3004000A');
+    
     case 'refBeamNumber'
-        rtplanSeq = dcmobj.get(hex2dec('300C0002'));
+        %Use getValue instead of get
+        rtplanSeq = attr.getValue(hex2dec('300C0002'));
         if isempty(rtplanSeq)
             return;
         end
-        artpSeq = rtplanSeq.getDicomObject(0);
-        fractionGroupSeq = artpSeq.get(hex2dec('300C0020'));        
+        %Find attribute in first position of sequence
+        artpSeq = rtplanSeq.get(0);
+        fractionGroupSeq = artpSeq.getValue(hex2dec('300C0020'));      
         if isempty(fractionGroupSeq)
-            return;
+            return; 
         end
-        numFractions = fractionGroupSeq.countItems;
-        if numFractions == 0
-            return;
-        end
-        aFractionGroupSeq = fractionGroupSeq.getDicomObject(0);
-        beamSeq = aFractionGroupSeq.get(hex2dec('300C0004'));
+        %If sequence is empty, then size is zero, so if not
+        %empty, it is assumed that size is gretaer than zero
+       
+        %replace with the following for dcm4che3
+        aFractionGroupSeq = fractionGroupSeq.get(0);
+        beamSeq = aFractionGroupSeq.getValue(hex2dec('300C0004'));
         if isempty(beamSeq)
             return;
         end
-        numBeams = beamSeq.countItems;
-        if numBeams > 0
-            aBeamSeq = beamSeq.getDicomObject(0);
-            dataS = dcm2ml_Element(aBeamSeq.get(hex2dec('300C0006')));
-        end
         
+        if numBeams > 0
+            aBeamSeq = beamSeq.get(0);
+            dataS = getTagValue(aBeamSeq, '300C0006');
+        end
+                    
     case 'refFractionGroupNumber'
-        rtplanSeq = dcmobj.get(hex2dec('300C0002'));
+        rtplanSeq = attr.getValue(hex2dec('300C0002'));
         if isempty(rtplanSeq)
             return;
         end        
-        artpSeq = rtplanSeq.getDicomObject(0);
-        fractionGroupSeq = artpSeq.get(hex2dec('300C0020'));
+        artpSeq = rtplanSeq.get(0);
+        fractionGroupSeq = artpSeq.getValue(hex2dec('300C0020'));
         if isempty(fractionGroupSeq)
             return;
         end
-        numFractions = fractionGroupSeq.countItems;
-        if numFractions == 0
-            return;
-        end
-        aFractionGroupSeq = fractionGroupSeq.getDicomObject(0);
-        dataS = dcm2ml_Element(aFractionGroupSeq.get(hex2dec('300C0022')));
+        %If sequence is empty, then size is zero, so if not
+        %empty, it is assumed that size is gretaer than zero
+        
+        aFractionGroupSeq = fractionGroupSeq.get(0);
+        dataS = getTagValue(aFractionGroupSeq, '300C0022');
         
     case 'numberMultiFrameImages'
-        dataS = dcm2ml_Element(dcmobj.get(hex2dec('00280008')));
+        dataS = getTagValue(attr, '00280008');
         
     case 'doseUnits'
         %Dose Units
-        dU = dcm2ml_Element(dcmobj.get(hex2dec('30040002')));
+        dU = getTagValue(attr, '30040002');
         
         switch upper(dU)
             case {'GY', 'GYS', 'GRAYS', 'GRAY'}
@@ -147,16 +152,16 @@ switch fieldname
         
     case 'doseScale'
         %Dose Grid Scaling. Imported, not indicative of CERR's representation.
-        dataS = dcm2ml_Element(dcmobj.get(hex2dec('3004000E')));
+        dataS = getTagValue(attr, '3004000E');
         
     case 'fractionGroupID' %Needs implementation, paired with RTPLAN
         if ~isempty(rtPlans)
-            [RTPlanLabel RTPlanUID]= getRelatedRTPlanLabel(rtPlans,dcmobj);
+            [RTPlanLabel RTPlanUID]= getRelatedRTPlanLabel(rtPlans,attr);
             
             dataS = RTPlanLabel;
         else
-            DoseSummationType = dcm2ml_Element(dcmobj.get(hex2dec('3004000A')));
-            dU = dcm2ml_Element(dcmobj.get(hex2dec('30040002')));
+            DoseSummationType = getTagValue(attr, '3004000A');
+            dU = getTagValue(attr, '30040002');
             maxDose = num2str(maxDose);
             dataS = [DoseSummationType '_' maxDose '_' dU];
         end
@@ -182,27 +187,27 @@ switch fieldname
         
     case 'sizeOfDimension1'
         %Columns
-        dataS = dcm2ml_Element(dcmobj.get(hex2dec('00280011')));
+        dataS = getTagValue(attr, '00280011');
         
     case 'sizeOfDimension2'
         %Rows
-        dataS = dcm2ml_Element(dcmobj.get(hex2dec('00280010')));
+        dataS = getTagValue(attr, '00280010');
         
     case 'sizeOfDimension3'
         %Number of Frames
-        dataS = dcm2ml_Element(dcmobj.get(hex2dec('00280008')));
+        dataS = getTagValue(attr, '00280008');
         
     case 'coord1OFFirstPoint'
         %Image Position (Patient)
-        iPP = dcm2ml_Element(dcmobj.get(hex2dec('00200032')));
+        iPP = getTagValue(attr, '00200032');
         
         %Pixel Spacing
-        pixspac = dcm2ml_Element(dcmobj.get(hex2dec('00280030')));
+        pixspac = getTagValue(attr, '00280030');
         
         %Columns
-        nCols  = dcm2ml_Element(dcmobj.get(hex2dec('00280011')));
+        nCols  = getTagValue(attr, '00280011');
         
-        imgOri = dcm2ml_Element(dcmobj.get(hex2dec('00200037')));
+        imgOri = getTagValue(attr, '00200037');
         
         % Check for oblique scan
         isOblique = 0;
@@ -277,15 +282,15 @@ switch fieldname
         
     case 'coord2OFFirstPoint'
         %Image Position (Patient)
-        iPP = dcm2ml_Element(dcmobj.get(hex2dec('00200032')));
+        iPP = getTagValue(attr, '00200032');
         
         %Pixel Spacing
-        pixspac = dcm2ml_Element(dcmobj.get(hex2dec('00280030')));
+        pixspac = getTagValue(attr, '00280030');
         
         %Rows
-        nRows = dcm2ml_Element(dcmobj.get(hex2dec('00280010')));
+        nRows = getTagValue(attr, '00280010');
         
-        imgOri = dcm2ml_Element(dcmobj.get(hex2dec('00200037')));
+        imgOri = getTagValue(attr, '00200037');
         
         % Check for oblique scan
         isOblique = 0;
@@ -347,11 +352,11 @@ switch fieldname
         
     case 'horizontalGridInterval'
         %Pixel Spacing
-        pixspac = dcm2ml_Element(dcmobj.get(hex2dec('00280030')));
+        pixspac = getTagValue(attr, '00280030');
         dataS = abs(pixspac(2)) / 10;
         
 %         %Convert from DICOM mm to CERR cm.
-%         imgOri = dcm2ml_Element(dcmobj.get(hex2dec('00200037')));
+%         imgOri = getTagValue(attr.get(hex2dec('00200037')));
 %         if isequal(pPos,'HFP')
 %             dataS = pixspac(2) / 10;
 %         else
@@ -364,11 +369,11 @@ switch fieldname
         
     case 'verticalGridInterval'
         %Pixel Spacing
-        pixspac = dcm2ml_Element(dcmobj.get(hex2dec('00280030')));
+        pixspac = getTagValue(attr, '00280030');
         dataS = -abs(pixspac(1)) / 10;
         
 %         %Convert from DICOM mm to CERR cm, negate to match CERR Y dir.
-%         imgOri = dcm2ml_Element(dcmobj.get(hex2dec('00200037')));
+%         imgOri = getTagValue(attr.get(hex2dec('00200037')));
 %         if isequal(pPos,'HFP')
 %             dataS = - pixspac(1) / 10;
 %         else
@@ -391,10 +396,10 @@ switch fieldname
     case 'versionNumberOfProgram'
     case 'xcoordOfNormaliznPoint'
         %Type 3 field, may not exist.
-        if dcmobj.contains(hex2dec('30040008'));
+        if attr.contains(hex2dec('30040008'));
             
             %Normalization Point
-            nP  = dcm2ml_Element(dcmobj.get(hex2dec('30040008')));
+            nP  = getTagValue(attr, '30040008');
             
             %Convert from DICOM mm to CERR cm.
             dataS = nP(1) / 10;
@@ -402,10 +407,10 @@ switch fieldname
         
     case 'ycoordOfNormaliznPoint'
         %Type 3 field, may not exist.
-        if dcmobj.contains(hex2dec('30040008'));
+        if attr.contains(hex2dec('30040008'));
             
             %Normalization Point
-            nP  = dcm2ml_Element(dcmobj.get(hex2dec('30040008')));
+            nP  = getTagValue(attr, '30040008');
             
             %Convert from DICOM mm to CERR cm.
             dataS = nP(2) / 10;
@@ -413,10 +418,10 @@ switch fieldname
         
     case 'zcoordOfNormaliznPoint'
         %Type 3 field, may not exist.
-        if dcmobj.contains(hex2dec('30040008'));
+        if attr.contains(hex2dec('30040008'));
             
             %Normalization Point
-            nP  = dcm2ml_Element(dcmobj.get(hex2dec('30040008')));
+            nP  = getTagValue(attr, '30040008');
             
             %Convert from DICOM mm to CERR cm.
             dataS = nP(3) / 10;
@@ -429,12 +434,12 @@ switch fieldname
     case 'planIDOfOrigin'
     case 'doseArray'
         %Bits Allocated
-        bA = dcm2ml_Element(dcmobj.get(hex2dec('00280100')));
+        bA = getTagValue(attr, '00280100');
         
         mread = 0;
         %wy Pixel Data
         try
-            doseV = uint16(dcm2ml_Element(dcmobj.get(hex2dec('7FE00010'))));
+            doseV = uint16(getTagValue(attr, '7FE00010'));
             if isempty(doseV)
                 doseV = dicomread(DOSE.file);
                 mread = 1;
@@ -457,16 +462,16 @@ switch fieldname
         end
         
         %Dose Grid Scaling
-        dGS = dcm2ml_Element(dcmobj.get(hex2dec('3004000E')));
+        dGS = getTagValue(attr, '3004000E');
         
         %Columns
-        nCols = dcm2ml_Element(dcmobj.get(hex2dec('00280011')));
+        nCols = getTagValue(attr, '00280011');
         
         %Rows
-        nRows = dcm2ml_Element(dcmobj.get(hex2dec('00280010')));
+        nRows = getTagValue(attr, '00280010');
         
         %Number of Frames
-        nSlcs = dcm2ml_Element(dcmobj.get(hex2dec('00280008')));
+        nSlcs = getTagValue(attr ,'00280008');
         
         %Rescale dose to get real dose values.
         doseV = single(doseV) * dGS;
@@ -485,7 +490,7 @@ switch fieldname
         end
         dataS = dose3;
         
-        imgOri = dcm2ml_Element(dcmobj.get(hex2dec('00200037')));
+        imgOri = getTagValue(attr, '00200037');
         if (imgOri(1)==-1)            
             dataS = flipdim(dataS, 2);
         end
@@ -506,8 +511,9 @@ switch fieldname
         
     case 'zValues'
         %Image Position (Patient)
-        iPP = dcm2ml_Element(dcmobj.get(hex2dec('00200032')));
-        imgOri = dcm2ml_Element(dcmobj.get(hex2dec('00200037')));
+        iPP = getTagValue(attr, '00200032');
+        imgOri = getTagValue(attr, '00200037');
+
         % Check if oblique
         isOblique = 0;
         if max(abs(abs(imgOri(:)) - [1 0 0 0 1 0]')) > 1e-3
@@ -522,7 +528,7 @@ switch fieldname
 %         end
         %APA commented ends
         %Frame Increment Pointer
-        fIP = dcm2ml_Element(dcmobj.get(hex2dec('00280009')));
+        fIP = getTagValue(attr, '00280009');
         
         if size(fIP,1) == 2
             fIP = [fIP(1,:) fIP(2,:)]; %added DK to make fIP a size of 1.
@@ -531,7 +537,7 @@ switch fieldname
         %Follow pointer to attribute containing zValues, usually Grid Frame Offset Vector
 
         try
-            gFOV = dcm2ml_Element(dcmobj.get(hex2dec(fIP)));
+            gFOV = getTagValue(attr, fIP);
             if ((imgOri(1)==-1) || (imgOri(5)==-1)) && ~isequal(pPos,'HFP')
                 gFOV = - gFOV;
             end            
@@ -568,11 +574,9 @@ switch fieldname
         
     case 'DICOMHeaders'
         %Read all the dcm data into a MATLAB struct.
-        dataS = dcm2ml_Object(dcmobj);
-        
-        %Remove pixelData to avoid storing huge amounts of redundant data.
-        if isfield(dataS, 'PixelData')
-            dataS = rmfield(dataS, 'PixelData');
+        if strcmpi(optS.saveDICOMheaderInPlanC,'yes')
+            %dataS = dcm2ml_Object(attr);
+            dataS = getTagStruct(attr);
         end
         
     case 'associatedScan'
@@ -582,7 +586,8 @@ switch fieldname
         %wy, use the frame of reference UID to associate dose to scan.
         %dataS = char(dcmobj.getString(org.dcm4che2.data.Tag.FrameofReferenceUID));
 %         dataS = dcm2ml_Element(dcmobj.get(hex2dec('00080018'))); % SOP instance UID
-        dataS = dcm2ml_Element(dcmobj.get(hex2dec('00200052'))); % Frame of Reference UID
+%         dataS = dcm2ml_Element(dcmobj.get(hex2dec('00200052'))); % Frame of Reference UID
+        dataS = getTagValue(attr, '00200052'); % Frame of Reference UID
 %         rtplanSeq = dcmobj.get(hex2dec('300C0002'));
 %         artpSeq = rtplanSeq.getDicomObject(0);
 %         rtplanML = dcm2ml_Object(artpSeq);
@@ -594,18 +599,18 @@ switch fieldname
         
     case 'dvhsequence'
         %Get DVH Sequence.
-        dataS = dcm2ml_Element(dcmobj.get(hex2dec('30040050')));
+        dataS = getTagValue(attr, '30040050');
         
     otherwise
         %         warning(['DICOM Import has no methods defined for import into the planC{indexS.dose}.' fieldname ' field, leaving empty.']);
 end
 
-function [RTPlanLabel RTPlanUID]= getRelatedRTPlanLabel(rtPlans,dcmobj)
+function [RTPlanLabel RTPlanUID]= getRelatedRTPlanLabel(rtPlans,attr)
 
 RTPlanLabel = ''; RTPlanUID = '';
 
 try
-    ReferencedRTPlanSequence = dcm2ml_Element(dcmobj.get(hex2dec('300C0002')));
+    ReferencedRTPlanSequence = getTagValue(attr, '300C0002');
 
     for i = 1:length(rtPlans)
         if strmatch(rtPlans(i).SOPInstanceUID, ReferencedRTPlanSequence.Item_1.ReferencedSOPInstanceUID)

@@ -27,6 +27,12 @@
 
 "importDICOMsubDirs" : "no",
 
+"saveDICOMheaderInPlanC" : "yes",
+
+"structuresToImport" : "",
+
+"structuresImportMatchCriteria" : "regex",
+
 "createUniformizedDataset" : "yes",
 
 "uniformizeExcludeStructs"  : ["normaltissue", "CT_EXTERNAL"],

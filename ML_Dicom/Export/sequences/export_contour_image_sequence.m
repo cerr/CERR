@@ -6,6 +6,8 @@ function el = export_contour_image_sequence(args)
 %   This function takes a scanInfo object.
 %
 %JRA 06/23/06
+%NAV 07/19/16 updated to dcm4che3
+%   replaced ml2dcm_Element to data2dcmElement
 %
 % Copyright 2010, Joseph O. Deasy, on behalf of the CERR development team.
 % 
@@ -41,13 +43,11 @@ template            = args.template;
 switch tag
     case 528720     %0008,1150  Referenced SOP Class UID
         data = scanInfo.SOP_Class_UID;     
-        el = template.get(tag);
-        el = ml2dcm_Element(el, data);
+        el = data2dcmElement(template, data, tag);
         
     case 528725     %0008,1155  Referenced SOP Instance UID
         data = scanInfo.SOP_Instance_UID;        
-        el = template.get(tag);
-        el = ml2dcm_Element(el, data);
+        el = data2dcmElement(template, data, tag);
         
     case 528736     %0008,1160  Referenced Frame Number
         %Currently not implemented.

@@ -18,6 +18,8 @@ function el = export_patient_module_field(args)
 %                                     {'structures', structureS} OR
 %
 %JRA 06/19/06
+%NAV 07/19/16 updated to dcm4che3
+%   replaced ml2dcm_Element to data2dcmElement
 %
 %Usage:
 %   dcmobj = export_patient_module_field(args)
@@ -56,6 +58,7 @@ switch type
         %Use first scanInfo for patient information.
         scanS = args.data{2};
         dataS = scanS.scanInfo(1);
+        dataS.Patient_ID = scanS.Patient_ID;
     case {'dose', 'structures'}
         dataS = args.data{2};
     otherwise
@@ -69,7 +72,7 @@ switch tag
     %Class 2 Tags -- Must be present, can be blank.
     case 1048592 %0010,0010 Patient's Name
         try
-            pn = org.dcm4che2.data.PersonName(dataS(1).patientName);
+            pn = org.dcm4che3.data.PersonName(dataS(1).patientName);
         catch
             if iscell(dataS.patientName.FamilyName)
                 if isequal(dataS.patientName.FamilyName{1},dataS.patientName.GivenName{1}) % for anonymized data
@@ -84,33 +87,45 @@ switch tag
                     patientName = [dataS.patientName.FamilyName '^' dataS.patientName.GivenName '^'];
                 end
             end
-            pn = org.dcm4che2.data.PersonName(patientName);
+            pn = org.dcm4che3.data.PersonName(patientName);
         end
+        %Changed to match PersonName Component enum in dcm4che3
         
-        name.FamilyName = pn.get(0);
-        name.GivenName  = pn.get(1);
-        name.MiddleName = pn.get(2);
-        name.NamePrefix = pn.get(3);
-        name.NameSuffix = pn.get(4);
+        compFamilyName = javaMethod('valueOf','org.dcm4che3.data.PersonName$Component','FamilyName');
+        compGivenName = javaMethod('valueOf','org.dcm4che3.data.PersonName$Component','GivenName');
+        compMiddleName = javaMethod('valueOf','org.dcm4che3.data.PersonName$Component','MiddleName');
+        compNamePrefix = javaMethod('valueOf','org.dcm4che3.data.PersonName$Component','NamePrefix');
+        compNameSuffix = javaMethod('valueOf','org.dcm4che3.data.PersonName$Component','NameSuffix');
         
-        el = template.get(tag);
-        el = ml2dcm_Element(el, name);
+        name.FamilyName = char(pn.get(compFamilyName));
+        name.GivenName  = char(pn.get(compGivenName));
+        name.MiddleName = char(pn.get(compMiddleName));
+        name.NamePrefix = char(pn.get(compNamePrefix));
+        name.NameSuffix = char(pn.get(compNameSuffix));
+        
+        el = data2dcmElement(template, name, tag);
         
     case 1048608 %0010,0020 Patient ID
-        el = template.get(tag);
-        try
-            patientID = dataS(1).DICOMHeaders.PatientID;
-        catch
-            patientID = dicomuid;
-        end
-        el = ml2dcm_Element(el, patientID);
-        
+
+        %try
+        %    patientID = dataS(1).DICOMHeaders.PatientID;
+        %catch
+        %    patientID = dicomuid;
+        %end
+        patientID = dataS.Patient_ID;
+        el = data2dcmElement(template, patientID, tag);
+
     case 1048624 %0010,0030 Patient's Birth Date
-        el = template.get(tag);
-        
+ 
+        el = org.dcm4che3.data.Attributes;
+        %el.setString(tag, template.getVR(tag), template.getString(tag));
+        %vr = org.dcm4che3.data.ElementDictionary.vrOf(tag, []); %apa 6/28/19
+        %vrString = char(vr); %apa 6/28/19
+
     case 1048640 %0010,0040 Patient's Sex
-        el = template.get(tag);
-        
+
+        el = data2dcmElement(template, [], tag);
+
         %Class 3 Tags -- presence is optional, currently undefined.
     case 1048609 %0010,0021 Issuer of Patient ID
     case 528672  %0008,1120 Referenced Patient Sequence
