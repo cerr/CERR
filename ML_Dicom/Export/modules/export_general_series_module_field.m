@@ -16,6 +16,8 @@ function el = export_general_series_module_field(args)
 %   This function requires arg.data = {scanS};
 %
 %JRA 06/19/06
+%NAV 07/19/16 updated to dcm4che3
+%   replaced ml2dcm_Element to data2dcmElement
 %
 %Usage:
 %   dcmobj = export_general_series_module_field(args)
@@ -61,17 +63,19 @@ switch tag
         elseif strcmpi(upper(data),'MRI')
             data = 'MR';
         end
-        el = template.get(tag);
-        el = ml2dcm_Element(el, data);
+        el = data2dcmElement(template, data, tag);
         
     case 2097166    %0020,000E Series Instance UID
         data = scanS.Series_Instance_UID;
-        el = template.get(tag);   
-        el = ml2dcm_Element(el, data);
+        el = data2dcmElement(template, data, tag);
 
     %Class 2 Tags -- Must be present, can be blank.
     case 2097169    %0020,0011 Series Number
-        el = template.get(tag);
+
+        el = org.dcm4che3.data.Attributes;
+        %el.setString(tag, template.getVR(tag), template.getString(tag));
+        data = [];
+        el = data2dcmElement(template, data, tag);
      
     %Class 3 Tags -- presence is optional, currently undefined.        
     case  524321    %0008,0021 Series Date
@@ -81,8 +85,9 @@ switch tag
     case 1577008    %0018,1030 Protocol Name
     case  528446    %0008,103E Series Description
         data = scanInfo.scanDescription;
-        el = template.get(tag);   
-        el = ml2dcm_Element(el, data);
+        %el = template.get(tag);   
+        %el = ml2dcm_Element(el, data);
+        el = data2dcmElement(template, data, tag);
         
     case  528496    %0008,1070 Operator's Name
     case  528498    %0008,1072 Operator Identification Sequence
@@ -129,13 +134,11 @@ switch tag
                 warning('scanInfo.headInOut or scanInfo.positionInScan contain invalid values.  Assuming HFS.');
                 data = 'HFS';   %Head First Supine
             end
-            el = template.get(tag);
-            el = ml2dcm_Element(el, data);
+            el = data2dcmElement(template, data, tag);
         catch
             warning('scanInfo does not contain Patient Position information. Defaul to HFS');
             data = 'HFS';
-            el = template.get(tag);
-            el = ml2dcm_Element(el,data);            
+            el = data2dcmElement(template, data, tag);           
         end
                    
     otherwise

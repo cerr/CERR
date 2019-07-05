@@ -56,8 +56,8 @@ switch tag
         templateEl = template.get(tag);
         fHandle = @export_referenced_structure_set_sequence;
 
-        tmp = org.dcm4che2.data.BasicDicomObject;
-        el = tmp.putNull(tag, []);
+        tmp = org.dcm4che3.data.Attributes;
+        el = tmp.setNull(tag, []);
        
         for i=1:1 %Only a single element is allowed in this sequence.
             dcmobj = export_sequence(fHandle, templateEl, {DVHs(1)});
@@ -71,11 +71,12 @@ switch tag
         %Currently not implemented.        
         
     case 805568592  %30040050   DVH Sequence
-        templateEl = template.get(tag);
+        templateEl = template.getValue(tag);
         fHandle = @export_DVH_sequence;
 
-        tmp = org.dcm4che2.data.BasicDicomObject;
-        el = tmp.putNull(tag, []);
+        %Create new null Sequence
+        tmp = org.dcm4che3.data.Attributes;
+        el = tmp.newSequence(tag, 0);
         
         dInd = find([DVHs.doseIndex] == doseNum);
        
@@ -88,8 +89,10 @@ switch tag
             dcmobj = export_sequence(fHandle, templateEl, {myDVH});
             
             %Add to sequence element.
-            el.addDicomObject(i-1, dcmobj);
+            el.add(i-1, dcmobj);
         end           
+        %return an attribute
+        el = el.getParent();
         
     otherwise
         warning(['No methods exist to populate DICOM RT_DVH module field ' dec2hex(tag,8) '.']);

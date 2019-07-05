@@ -1,4 +1,4 @@
-function dcmobj = createEmptyFields(dcmobj, tagS)
+function attr = createEmptyFields(attr, tagS)
 %"createEmptyFields"
 %   Fill a Java dicom object with the empty fields indicated by the passed
 %   tagS structure.  See any file ending in "_module_tags" for details on
@@ -8,9 +8,10 @@ function dcmobj = createEmptyFields(dcmobj, tagS)
 %   fields.
 %
 %JRA 06/23/06
+%NAV 07/19/16 updated to dcm4che3
 %
 %Usage:
-%   dcmobj = createEmptyFields(dcmobj, tagS)
+%   attr = createEmptyFields(attr, tagS)
 %
 % Copyright 2010, Joseph O. Deasy, on behalf of the CERR development team.
 % 
@@ -36,29 +37,46 @@ function dcmobj = createEmptyFields(dcmobj, tagS)
 
 %Get the decimal tags.
 tags = hex2dec({tagS.tag});
+%%
+%TOOK OFF HEX2DEC
+%%
 
 %Create and set passed tag fields to null.
 for i=1:length(tags)
-    
+    % vr = org.dcm4che3.data.ElementDictionary.vrOf(tags(i), attr.getPrivateCreator(tags(i)));
+    vr = org.dcm4che3.data.ElementDictionary.vrOf(tags(i), []);
     %Handle the case of a tag with no children.
     if isempty(tagS(i).children)
-       dcmobj.putNull(tags(i), []);
+
+       if (isempty(vr))
+           %If VR not found, set as unknown
+           vr = org.dcm4che3.data.VR.UN;
+           error(['Cant find VR, so exiting....If VR not needed here,' ...
+           'remove error in file createEmptyFields.m']);
+       end
+       attr.setNull(tags(i), vr);
        
     %Handle the case of a tag with children, a sequence.
-    elseif strcmpi(toString(dcmobj.vrOf(tags(i))), 'SQ')
-       child_obj = org.dcm4che2.data.BasicDicomObject;
-       
-       el = dcmobj.putNull(tags(i), []);
-       
+    %CHANGED to ELEMENT DICTIONARY
+    elseif  strcmpi(toString(vr), 'SQ')
+       child_obj = org.dcm4che3.data.Attributes;
+       % convert to setNull from putNull
+       attr.setNull(tags(i), vr);
+       el = attr.getSequence(tags(i));
        kids = tagS(i).children;
        child_obj = createEmptyFields(child_obj, kids); 
-       el.addDicomObject(child_obj);
-       
+       %Convert to dcm4che3 by removing
+        % el.addDicomObject(child_obj);
+       % After setting null, get the sequence and add to it.
+  
+       el.add(child_obj);
+
     %Handle the case of a tag that appears to have children but is not 
     %recognized as a sequence by the data dictionary.    
     else    
         CERRStatusString('Warning !!! A field with child elements is not of type SQ in the DICOM dictionary.\n\t\t Dictionary is out-of-date or module''s tag is incorrect.', 1);
-        dcmobj.putNull(tags(i), []);        
+        disp('bad -- AT createEmptyFields');
+        attr.setNull(tags(i), vr);    
     end
     
 end

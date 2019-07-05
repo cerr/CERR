@@ -8,6 +8,8 @@ function el = export_rt_roi_observations_sequence(args)
 %   element within the planC.structures array.
 %
 %JRA 06/23/06
+%NAV 07/19/16 updated to dcm4che3
+%   replaced ml2dcm_Element to data2dcmElement
 %
 %Usage:
 %   @export_rt_roi_observations_sequence(args)
@@ -46,18 +48,15 @@ template    = args.template;
 switch tag
     case 805699714  %3006,0082  Observation Number
         data = index;
-        el = template.get(tag);
-        el = ml2dcm_Element(el, data);
+        el = data2dcmElement(el, data, tag);
         
     case 805699716  %3006,0084  Referenced ROI Number
         data = index;
-        el = template.get(tag);
-        el = ml2dcm_Element(el, data);
+        el = data2dcmElement(el, data, tag);
         
     case 805699717  %3006,0085  ROI Observation Label
         data = structS.structureName;
-        el = template.get(tag);
-        el = ml2dcm_Element(el, data);        
+        el = data2dcmElement(el, data, tag);       
         
     case 805699720  %3006,0088  ROI Observation Description
         %Currently Unsupported.
@@ -72,10 +71,12 @@ switch tag
         %Currently Unsupported.                
         
     case 805699748  %3006,00A4  RT ROI Interpreted Type
-        el = template.get(tag);
+        el = org.dcm4che3.data.Attributes;
+        el.setString(tag, template.getVR(tag), template.getString(tag));
         
     case 805699750  %3006,00A6  ROI Interpreter
-        el = template.get(tag);        
+        el = org.dcm4che3.data.Attributes;
+        el.setString(tag, template.getVR(tag), template.getString(tag));      
         
     case 805961953  %300A,00E1  Material ID
         %Currently Unsupported.        

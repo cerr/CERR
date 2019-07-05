@@ -7,15 +7,16 @@ function SUV=calc_suv(dicomhd,slice)
 %Written IEN
 
 % Get Patient weight in grams
-if isfield(dicomhd,'PatientWeight')
-    ptweight = dicomhd.PatientWeight*1000;  % in grams
-elseif isfield(dicomhd,'PatientsWeight')
-     ptweight = dicomhd.PatientsWeight*1000;  % in grams
-else
-    disp('Patient Weight not found. SUV calculation ignored.')
-    SUV=slice;
-    return    
-end
+ptweight = dicomhd.patientWeight*1000;
+% if isfield(dicomhd,'PatientWeight')
+%     ptweight = dicomhd.PatientWeight*1000;  % in grams
+% elseif isfield(dicomhd,'PatientsWeight')
+%      ptweight = dicomhd.PatientsWeight*1000;  % in grams
+% else
+%     disp('Patient Weight not found. SUV calculation ignored.')
+%     SUV=slice;
+%     return    
+% end
 
 if isempty(ptweight) || ptweight==0
     disp('Patient Weight is missing. SUV calculation ignored.');
@@ -24,18 +25,22 @@ if isempty(ptweight) || ptweight==0
 end
 
 % Get Scan time
-scantime=dcm_hhmmss(dicomhd.AcquisitionTime);
+%scantime=dcm_hhmmss(dicomhd.AcquisitionTime);
+scantime=dcm_hhmmss(dicomhd.acquisitionTime);
 % Get calibration factor which is the Rescale slope Attribute Name in DICOM
-calibration_factor=dicomhd.RescaleSlope;
+%calibration_factor=dicomhd.RescaleSlope;
 
 % intercept=dicomhd.RescaleIntercept; Not Used
 
 % Start Time for the Radiopharmaceutical Injection
-injection_time=dcm_hhmmss(dicomhd.RadiopharmaceuticalInformationSequence.Item_1.RadiopharmaceuticalStartTime);
+% injection_time=dcm_hhmmss(dicomhd.RadiopharmaceuticalInformationSequence.Item_1.RadiopharmaceuticalStartTime);
+injection_time = dcm_hhmmss(dicomhd.injectionTime);
 % Half Life for Radionuclide
-half_life=dicomhd.RadiopharmaceuticalInformationSequence.Item_1.RadionuclideHalfLife;
+% half_life=dicomhd.RadiopharmaceuticalInformationSequence.Item_1.RadionuclideHalfLife;
+half_life=dicomhd.halfLife;
 % Total dose injected for Radionuclide
-injected_dose=dicomhd.RadiopharmaceuticalInformationSequence.Item_1.RadionuclideTotalDose;
+% injected_dose=dicomhd.RadiopharmaceuticalInformationSequence.Item_1.RadionuclideTotalDose;
+injected_dose=dicomhd.injectedDose;
 
 % Calculate the decay
 %   decayFactor = e^(t1-t2/halflife);

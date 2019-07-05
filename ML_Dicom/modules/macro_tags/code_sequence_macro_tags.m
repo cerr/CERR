@@ -36,40 +36,49 @@ function tagS = code_sequence_macro_tags
 % You should have received a copy of the GNU General Public License
 % along with CERR.  If not, see <http://www.gnu.org/licenses/>.
 
-%Initialize the tagS structure.
-tagS = struct('tag', {}, 'type', {}, 'children', {});
+% Define tags
+tagsC = {'00080100','00080102','00080103','00080104','0008010F','00080105',...
+    '00080106','0008010B','00080107','0008010D'};
 
-%Create an empty tagS template for sequence creation.
-template = tagS;
+% Define tag type
+tagTypeC = {'1','1','1C','1','3','1C','1C','3','1C','1C'};
 
-%Add tags based on PS3.3 attribute lists.
+% Define children
+childC = {[],[],[],[],[],[],[],[],[],[]};
 
-%Code Value
-tagS(end+1) = struct('tag', ['00080100'], 'type', ['1'], 'children', []);
+tagS = struct('tag', tagsC, 'type', tagTypeC, 'children', childC);
 
-%Coding Scheme Designator
-tagS(end+1) = struct('tag', ['00080102'], 'type', ['1'], 'children', []);
-
-%Coding Scheme Version
-tagS(end+1) = struct('tag', ['00080103'], 'type', ['1C'], 'children', []);
-
-%Code Meaning
-tagS(end+1) = struct('tag', ['00080104'], 'type', ['1'], 'children', []);
-
-%Context Identifer
-tagS(end+1) = struct('tag', ['0008010F'], 'type', ['3'], 'children', []);
-
-%Mapping Resource
-tagS(end+1) = struct('tag', ['00080105'], 'type', ['1C'], 'children', []);
-
-%Context Group Version
-tagS(end+1) = struct('tag', ['00080106'], 'type', ['1C'], 'children', []);
-
-%Context Group Extension Flag
-tagS(end+1) = struct('tag', ['0008010B'], 'type', ['3'], 'children', []);
-
-%Context Group Local Version
-tagS(end+1) = struct('tag', ['00080107'], 'type', ['1C'], 'children', []);
-
-%Context Group Extension Creator UID
-tagS(end+1) = struct('tag', ['0008010D'], 'type', ['1C'], 'children', []);
+% %Initialize the tagS structure.
+% tagS = struct('tag', {}, 'type', {}, 'children', {]);
+% 
+% %Add tags based on PS3.3 attribute lists.
+% 
+% %Code Value
+% tagS(end+1) = struct('tag', ['00080100'], 'type', ['1'], 'children', []);
+% 
+% %Coding Scheme Designator
+% tagS(end+1) = struct('tag', ['00080102'], 'type', ['1'], 'children', []);
+% 
+% %Coding Scheme Version
+% tagS(end+1) = struct('tag', ['00080103'], 'type', ['1C'], 'children', []);
+% 
+% %Code Meaning
+% tagS(end+1) = struct('tag', ['00080104'], 'type', ['1'], 'children', []);
+% 
+% %Context Identifer
+% tagS(end+1) = struct('tag', ['0008010F'], 'type', ['3'], 'children', []);
+% 
+% %Mapping Resource
+% tagS(end+1) = struct('tag', ['00080105'], 'type', ['1C'], 'children', []);
+% 
+% %Context Group Version
+% tagS(end+1) = struct('tag', ['00080106'], 'type', ['1C'], 'children', []);
+% 
+% %Context Group Extension Flag
+% tagS(end+1) = struct('tag', ['0008010B'], 'type', ['3'], 'children', []);
+% 
+% %Context Group Local Version
+% tagS(end+1) = struct('tag', ['00080107'], 'type', ['1C'], 'children', []);
+% 
+% %Context Group Extension Creator UID
+% tagS(end+1) = struct('tag', ['0008010D'], 'type', ['1C'], 'children', []);

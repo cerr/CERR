@@ -1,4 +1,5 @@
 function dcmobj = build_module_template(moduleName)
+% function tags = build_module_template(moduleName)
 %"build_module_template"
 %   Create a Java DICOM object containing fields used to represent the
 %   specified module.
@@ -6,6 +7,7 @@ function dcmobj = build_module_template(moduleName)
 %   Valid moduleNames are currently 'patient' 
 %
 %JRA 06/06/06
+%NAV 07/19/16 updated to dcm4che3
 %
 %Usage:
 %   dcmobj = general_equipment_module_template;
@@ -33,8 +35,9 @@ function dcmobj = build_module_template(moduleName)
 % along with CERR.  If not, see <http://www.gnu.org/licenses/>.
 
 %Create a dcmobj to hold the structure and data.
-dcmobj = org.dcm4che2.data.BasicDicomObject;
-
+%%dcmobj = org.dcm4che2.data.BasicDicomObject;
+  %dcmobj = org.dcm4che3.data.Attributes;
+  
 Done = 0;
 
 switch lower(moduleName)
@@ -81,6 +84,8 @@ switch lower(moduleName)
         error('Unrecognized or unsupported module template requested.')
 end
 
+%tags = hex2dec({tagS.tag});
 
 %Create all top level tags in this object.
+dcmobj = org.dcm4che3.data.Attributes(length(tagS));
 dcmobj = createEmptyFields(dcmobj, tagS);

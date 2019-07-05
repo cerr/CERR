@@ -7,6 +7,8 @@ function el = export_referenced_rt_plan_sequence(args)
 %   generate_DICOM_UID_Relationships run on it.
 %
 %JRA 06/23/06
+%NAV 07/19/16 updated to dcm4che3
+%   replaced ml2dcm_Element to data2dcmElement
 %
 % Copyright 2010, Joseph O. Deasy, on behalf of the CERR development team.
 % 
@@ -42,13 +44,11 @@ template    = args.template;
 switch tag
     case    528720  %0008,1150  Referenced SOP Class UID
         data = doseS.Referenced_RT_Plan_Sequence_SOP_Class_UID;
-        el = template.get(tag);
-        el = ml2dcm_Element(el, data);         
+        el = data2dcmElement(el, data, tag);         
         
     case    528725  %0008,1155  Referenced SOP Instance UID
         data = doseS.Referenced_RT_Plan_Sequence_SOP_Instance_UID;
-        el = template.get(tag);
-        el = ml2dcm_Element(el, data);                 
+        el = data2dcmElement(el, data, tag);                 
         
     case 806092832  %300C,0020  Referenced Fraction Group Sequence
         %Currently unsupported, as Dose Summation Type is always PLAN.

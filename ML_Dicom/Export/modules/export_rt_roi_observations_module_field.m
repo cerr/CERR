@@ -17,6 +17,8 @@ function el = export_rt_roi_observations_module_field(args)
 %   This function requires arg.data = {structureS};
 %
 %JRA 06/19/06
+%NAV 07/19/16 updated to dcm4che3
+%   replaced ml2dcm_Element to data2dcmElement
 %
 %Usage:
 %   dcmobj = export_rt_roi_observations_module_field(args)
@@ -53,18 +55,21 @@ template    = args.template;
 
 switch tag
     case 805699712  %3006,0080 RT ROI Observations Sequence
-        templateEl = template.get(tag);
+        templateEl = template.getValue(tag);
         fHandle = @export_rt_roi_observations_sequence;
         
-        tmp = org.dcm4che2.data.BasicDicomObject;
-        el = tmp.putNull(tag, []);
-
+        %New empty sequence
+        tmp = org.dcm4che3.data.Attributes;
+        el = tmp.newSequence(tag, 0);
         nStructures = length(structuresS);
         
         for i=1:nStructures
             dcmobj = export_sequence(fHandle, templateEl, {structuresS(i), i});
-            el.addDicomObject(i-1, dcmobj);
+            %dcmobj = export_sequence(fHandle, tag, {structuresS(i), i});
+            el.add(i-1, dcmobj);
         end                    
+        
+        el = el.getParent();
         
     otherwise
         warning(['No methods exist to populate DICOM rt_roi_observations module field ' dec2hex(tag,8) '.']);

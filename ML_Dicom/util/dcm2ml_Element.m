@@ -1,4 +1,4 @@
-function data = dcm2ml_Element(el,varargin)
+function data = dcm2ml_Element(el, tag, varargin)
 %"dcm2ml_element"
 %   Convert a Java SimpleDicomElement object into a Matlab datatype.
 %
@@ -46,6 +46,7 @@ function data = dcm2ml_Element(el,varargin)
 % along with CERR.  If not, see <http://www.gnu.org/licenses/>.
 
 %Set cache buffer to true.
+%{
 buf = 1;
 
 %Set character set to [], default.
@@ -53,17 +54,23 @@ cs = [];
 
 %Get the tag value as a char array.
 try
-    %tag = char(org.dcm4che2.util.TagUtils.toString(el.tag));
-    tag = org.dcm4che2.util.TagUtils.toString(el.tag);
+    tag = char(org.dcm4che2.util.TagUtils.toString(el.tag)); %removed el.tag
 catch
     data = '';
     return;
 end
 
 %Get the VR, cast to ML char array.
-%vr = char(el.vr.toString);
-vr = cell(el.vr.toString);
-vr = vr{1};
+vr = char(el.vr.toString);
+%}
+%modalityTag = '00080060';
+
+vr = char (el.getVR(hex2dec(tag)));
+% vr = cell(el.getVR(hex2dec(tag)));
+% vr = vr{1}; % speedup
+
+buf = 1;
+cs = [];
 
 switch upper(vr)
     case 'AE'
@@ -171,7 +178,7 @@ switch upper(vr)
         %data = uint16(el.getInts(buf));
         data = el.getInts(buf);
     case 'PN'
-        nameObj = org.dcm4che2.data.PersonName(el.getString(cs, buf));
+        nameObj = org.dcm4che3.data.PersonName(el.getString(cs, buf));
 
         %The # in get(#) as defined by dcm4che2, PersonName class.
         data.FamilyName = char(nameObj.get(0));
@@ -223,6 +230,7 @@ else
     end
 end
 
+end % end of function
 
 
 %% Function to generate temp filename
@@ -238,6 +246,8 @@ if (isempty(tempfiles))
 end
 counter = rem(counter, nFiles) + 1;
 tempfile = tempfiles{counter};
+
+end % end of function
 
 
 

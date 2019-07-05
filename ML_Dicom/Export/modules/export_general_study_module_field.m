@@ -16,6 +16,9 @@ function el = export_general_study_module_field(args)
 %   This function requires arg.data = scanS, structuresS, or doseS;
 %
 %JRA 06/19/06
+%NAV 07/19/16 updated to dcm4che3
+%   replaced ml2dcm_Element to data2dcmElement
+%   Used setString over get
 %
 % copyright (c) 2001-2008, Washington University in St. Louis.
 % Permission is granted to use or modify only for non-commercial, 
@@ -40,21 +43,37 @@ template    = args.template;
 switch tag
     %Class 1 Tags -- Required, must have data.
     case 2097165    %0020,000D Study Instance UID
-        data = structS(1).Study_Instance_UID;
-        el = template.get(tag);   
-        el = ml2dcm_Element(el, data);
+        data = structS(1).Study_Instance_UID;   
+        el = data2dcmElement(template, data, tag);
         
     %Class 2 Tags -- Must be present, can be blank.
     case 524320     %0008,0020 Study Date
-        el = template.get(tag);           
+   
+        el = org.dcm4che3.data.Attributes;
+        %el.setString(tag, template.getVR(tag), template.getString(tag));
+        data = datestr(now,'yyyymmdd');
+        el = data2dcmElement(template, data, tag);
+        
     case 524336     %0008,0030 Study Time
-        el = template.get(tag);           
+
+        el = org.dcm4che3.data.Attributes;
+        %el.setString(tag, template.getVR(tag), template.getString(tag));
+        
     case 524432     %0008,0090 Referring Physician's Name
-        el = template.get(tag);           
+
+        el = org.dcm4che3.data.Attributes;
+        %el.setString(tag, template.getVR(tag), template.getString(tag));
+        
     case 2097168    %0020,0010 Study ID
-        el = template.get(tag);           
+
+        el = org.dcm4che3.data.Attributes;
+        %el.setString(tag, template.getVR(tag), template.getString(tag));
+        
     case 524368     %0008,0050 Accession Number
-        el = template.get(tag);           
+  
+        el = org.dcm4che3.data.Attributes;
+        %el.setString(tag, template.getVR(tag), template.getString(tag));
+        
         
     %Class 3 Tags -- presence is optional, currently undefined.        
     case 524438     %0008,0096 Referring Physician Identification Sequence

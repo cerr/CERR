@@ -185,7 +185,7 @@ uiwait;
             set(txt2, 'string', class(val));
             set(txt3, 'string', val);
         catch
-            if strcmp(class(val), 'org.dcm4che2.data.BasicDicomObject')
+            if strcmp(class(val), 'org.dcm4che3.data.Attributes')
                 set(txt3, 'string', char(val));
             else
                 set(txt3, 'string', '');
@@ -343,7 +343,7 @@ uiwait;
                 if strcmp(fnames{i}, 'Data')
                     iconpath = which('dataFolder.gif');
                 end;
-                if strcmp(fnames{i}, 'Modality'), string = x; end;
+                if strcmp(fnames{i}, 'Modality'), disp('WOWHEREINSHOWDCMINFO'); string = x; end;
                 
                 if getMLVersion > 7.10
                     nodes(count) = uitreenode('v0', value, string, iconpath, ~isstruct(x));

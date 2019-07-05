@@ -1,17 +1,20 @@
-function dataS = populate_planC_scan_scanInfo_field(fieldname, dcmdir_PATIENT_STUDY_SERIES_IMAGE, dcmobj)
+function dataS = populate_planC_scan_scanInfo_field(fieldname, dcmdir_PATIENT_STUDY_SERIES_IMAGE, attr, optS)
 %"populate_planC_scan_scanInfo_field"
 %   Given the name of a child field to planC{indexS.scan}.scanInfo,
 %   populates that field based on the data contained in the
 %   dcmdir.PATIENT.STUDY.SERIES.IMAGE structure passed in.  Type defines
 %   the type of series passed in.
 %
-%   An optional dcmobj can be passed in that represents the IMAGE, in order
+%   An optional attr can be passed in that represents the IMAGE, in order
 %   to avoid successive loads on the dcm image file.
 %
 %JRA 06/15/06
 %YWU 03/01/08
 %%DK 04/12/09
 %   Fixed Coordinate System
+%NAV 07/19/16 updated to dcm4che3
+%       replaced dcm2ml_Element with getTagValue
+%
 %Usage:
 %   dataS = populate_planC_scan_scanInfo_field(fieldname,dcmdir_PATIENT_STUDY_SERIES_IMAGE);
 %
@@ -51,19 +54,19 @@ dataS = '';
 % parameter in future)
 obliqTol = 1e-3;
 
-if ~exist('dcmobj', 'var')
+if ~exist('attr', 'var')
     %Grab the dicom object representing this image.
-    dcmobj = scanfile_mldcm(IMAGE.file);
+    attr = scanfile_mldcm(IMAGE.file);
 end
 
 switch fieldname
     case 'imageNumber'
         %Direct mapping from (0020,0013), "Instance Number"
-        dataS = dcm2ml_Element(dcmobj.get(hex2dec('00200013')));
+        dataS = getTagValue(attr, '00200013');
         
     case 'imageType'
         %Mostly direct mapping from (0008,0060), "Modality"
-        modality = dcm2ml_Element(dcmobj.get(hex2dec('00080060')));
+        modality = getTagValue(attr, '00080060');
         
         switch modality
             case {'CT', 'CT SCAN'}
@@ -80,8 +83,12 @@ switch fieldname
         
     case 'patientName'
         %Largely direct mapping from (0010,0010), "Patient's Name"
-        nameS = dcm2ml_Element(dcmobj.get(hex2dec('00100010')));
+        nameS = getTagValue(attr, '00100010');
         dataS = [nameS.FamilyName '^' nameS.GivenName '^' nameS.MiddleName];
+        
+    case 'patientID'
+        % to do
+        dataS = getTagValue(attr, '00100020');
         
     case 'scanType'
         %In CERR, scan slices are always transverse.
@@ -89,7 +96,7 @@ switch fieldname
         
     case 'CTOffset'
         %In CERR, CT Offset is always 1000, as CT water is 1000. (???)
-        modality = dcm2ml_Element(dcmobj.get(hex2dec('00080060')));
+        modality = getTagValue(attr, '00080060');
         if strcmpi(modality,'CT')
             dataS = 1000;
         else
@@ -97,59 +104,62 @@ switch fieldname
         end
         
     case 'rescaleIntercept'
-        modality = dcm2ml_Element(dcmobj.get(hex2dec('00080060')));
+        modality = getTagValue(attr, '00080060');
         if strcmpi(modality,'PT') || strcmpi(modality,'PET')
             dataS = 0;
         else
-            dataS = dcm2ml_Element(dcmobj.get(hex2dec('00281052')));
+            dataS = getTagValue(attr, '00281052');
         end
         
     case 'rescaleSlope'
-        modality = dcm2ml_Element(dcmobj.get(hex2dec('00080060')));
+        modality = getTagValue(attr, '00080060');
         if strcmpi(modality,'PT') || strcmpi(modality,'PET')
             dataS = 1;
         else
-            dataS = dcm2ml_Element(dcmobj.get(hex2dec('00281053')));
+            dataS = getTagValue(attr, '00281053');
             if isempty(dataS)
                 dataS = 1;
             end
         end
         
-    %%%%%%%  AI 12/28/16 Added Scale slope/intercept for Philips scanners %%%%   
+        %%%%%%%  AI 12/28/16 Added Scale slope/intercept for Philips scanners %%%%
     case 'scaleSlope'
-      if dcmobj.contains(hex2dec('2005100E')) % Philips
+        if attr.contains(hex2dec('2005100E')) % Philips
             dataS = dcm2ml_Element(dcmobj.get(hex2dec('2005100E')));
-      else
+        else
             dataS = '';
-      end
+        end
         
     case 'scaleIntercept'
-      if dcmobj.contains(hex2dec('2005100D')) % Philips
-          dataS =  dcm2ml_Element(dcmobj.get(hex2dec('2005100D')));
-      else  
-          dataS = '';
-      end
-   %%%%%%%%%%%%   End added %%%%%%%%%%%%%%%         
-            
+        if attr.contains(hex2dec('2005100D')) % Philips
+            dataS =  dcm2ml_Element(dcmobj.get(hex2dec('2005100D')));
+        else
+            dataS = '';
+        end
+        %%%%%%%%%%%%   End added %%%%%%%%%%%%%%%
+        
     case 'grid1Units'
-        modality = dcm2ml_Element(dcmobj.get(hex2dec('00080060')));
+        modality = getTagValue(attr, '00080060');
         %Pixel Spacing
         if strcmpi(modality,'MG')
-            perFrameFuncGrpSeq = dcm2ml_Element(dcmobj.get(hex2dec('52009230')));
+            % pixspac = getTagValue(attr, '00181164');
+            % perFrameFuncGrpSeq = dcm2ml_Element(dcmobj.get(hex2dec('52009230')));
+            perFrameFuncGrpSeq = getTagValue(attr,'52009230');
             if isstruct(perFrameFuncGrpSeq)
                 pixspac = perFrameFuncGrpSeq.Item_1.PixelMeasuresSequence.Item_1.PixelSpacing;
             else
                 pixspac = [1 1];
             end
         elseif strcmpi(modality,'SM')
-            sharedFrameFuncGrpSeq = dcm2ml_Element(dcmobj.get(hex2dec('52009229')));
+            %sharedFrameFuncGrpSeq = dcm2ml_Element(dcmobj.get(hex2dec('52009229')));
+            sharedFrameFuncGrpSeq = getTagValue(attr,'52009229');
             if isstruct(sharedFrameFuncGrpSeq)
                 pixspac = sharedFrameFuncGrpSeq.Item_1.PixelMeasuresSequence.Item_1.PixelSpacing;
             else
                 pixspac = [1 1];
             end
         else
-            pixspac = dcm2ml_Element(dcmobj.get(hex2dec('00280030')));
+            pixspac = getTagValue(attr, '00280030');
         end
         
         %Convert from DICOM mm to CERR cm.
@@ -157,24 +167,26 @@ switch fieldname
         dataS = pixspac(2) / 10;	%By Deshan Yang, 3/19/2010
         
     case 'grid2Units'
-        modality = dcm2ml_Element(dcmobj.get(hex2dec('00080060')));
+        modality = getTagValue(attr, '00080060');
         %Pixel Spacing
         if strcmpi(modality,'MG')
-            perFrameFuncGrpSeq = dcm2ml_Element(dcmobj.get(hex2dec('52009230')));
+            % perFrameFuncGrpSeq = dcm2ml_Element(dcmobj.get(hex2dec('52009230')));
+            perFrameFuncGrpSeq = getTagValue(attr,'52009230');
             if isstruct(perFrameFuncGrpSeq)
                 pixspac = perFrameFuncGrpSeq.Item_1.PixelMeasuresSequence.Item_1.PixelSpacing;
             else
                 pixspac = [1 1];
             end
         elseif strcmpi(modality,'SM')
-            sharedFrameFuncGrpSeq = dcm2ml_Element(dcmobj.get(hex2dec('52009229')));
+            %sharedFrameFuncGrpSeq = dcm2ml_Element(dcmobj.get(hex2dec('52009229')));
+            sharedFrameFuncGrpSeq = getTagValue(attr,'52009229');
             if isstruct(sharedFrameFuncGrpSeq)
                 pixspac = sharedFrameFuncGrpSeq.Item_1.PixelMeasuresSequence.Item_1.PixelSpacing;
             else
                 pixspac = [1 1];
             end
         else
-            pixspac = dcm2ml_Element(dcmobj.get(hex2dec('00280030')));
+            pixspac = getTagValue(attr, '00280030');
         end
         
         %Convert from DICOM mm to CERR cm.
@@ -196,19 +208,19 @@ switch fieldname
         
     case 'sizeOfDimension1'
         %Rows
-        dataS  = dcm2ml_Element(dcmobj.get(hex2dec('00280010')));
+        dataS  = getTagValue(attr, '00280010');
         
     case 'sizeOfDimension2'
         %Columns
-        dataS  = dcm2ml_Element(dcmobj.get(hex2dec('00280011')));
+        dataS  = getTagValue(attr, '00280011');
         
     case 'zValue'
-        modality = dcm2ml_Element(dcmobj.get(hex2dec('00080060')));
+        modality = getTagValue(attr, '00080060');
         %Image Position (Patient)
         if strcmpi(modality,'MG')
             imgpos = [0 0 0];
         else
-            imgpos = dcm2ml_Element(dcmobj.get(hex2dec('00200032')));
+            imgpos = getTagValue(attr, '00200032');
         end
         
         if isempty(imgpos)
@@ -217,7 +229,7 @@ switch fieldname
             return;
         end
         
-        seriesDescription =  dcm2ml_Element(dcmobj.get(hex2dec('0008103E')));
+        seriesDescription =  getTagValue(attr, '0008103E');
         
         %Modified AI 10/20/16
         if strfind(upper(seriesDescription),'CORONAL')
@@ -232,30 +244,30 @@ switch fieldname
         
     case 'xOffset'
         %Image Position (Patient)
-        imgpos = dcm2ml_Element(dcmobj.get(hex2dec('00200032')));
+        imgpos = getTagValue(attr, '00200032');
         
-        imgOri = dcm2ml_Element(dcmobj.get(hex2dec('00200037')));
+        imgOri = getTagValue(attr, '00200037');
         
-        modality = dcm2ml_Element(dcmobj.get(hex2dec('00080060')));
+        modality = getTagValue(attr, '00080060');
         
         if isempty(imgpos) && strcmpi(modality,'NM')
             % Multiframe NM image.
-            detectorInfoSequence = dcm2ml_Element(dcmobj.get(hex2dec('00540022')));
+            detectorInfoSequence = getTagValue(attr, '00540022');
             imgpos = detectorInfoSequence.Item_1.ImagePositionPatient;
             imgOri = detectorInfoSequence.Item_1.ImageOrientationPatient;
         end
         
         %Pixel Spacing
-        if ismember(modality,{'MG','SM'})
-            pixspac = dcm2ml_Element(dcmobj.get(hex2dec('00181164')));
+        if strcmpi(modality,{'MG','SM'})
+            pixspac = getTagValue(attr, '00181164');
             imgOri = zeros(6,1);
             imgpos = [0 0 0];
         else
-            pixspac = dcm2ml_Element(dcmobj.get(hex2dec('00280030')));
+            pixspac = getTagValue(attr, '00280030');
         end
         
         %Columns
-        nCols  = dcm2ml_Element(dcmobj.get(hex2dec('00280011')));
+        nCols  = getTagValue(attr, '00280011');
         
         % check for oblique scan
         isOblique = 0;
@@ -298,24 +310,23 @@ switch fieldname
         
     case 'yOffset'
         %Image Position (Patient)
-        imgpos = dcm2ml_Element(dcmobj.get(hex2dec('00200032')));
-        imgOri = dcm2ml_Element(dcmobj.get(hex2dec('00200037')));
-        modality = dcm2ml_Element(dcmobj.get(hex2dec('00080060')));
-        
+        imgpos = getTagValue(attr, '00200032');
+        imgOri = getTagValue(attr, '00200037');
+        modality = getTagValue(attr, '00080060');
         if isempty(imgpos) && strcmpi(modality,'NM')
             % Multiframe NM image.
-            detectorInfoSequence = dcm2ml_Element(dcmobj.get(hex2dec('00540022')));
+            detectorInfoSequence = getTagValue(attr, '00540022');
             imgpos = detectorInfoSequence.Item_1.ImagePositionPatient;
             imgOri = detectorInfoSequence.Item_1.ImageOrientationPatient;
         end
         
         %Pixel Spacing
         if ismember(modality,{'MG','SM'})
-            pixspac = dcm2ml_Element(dcmobj.get(hex2dec('00181164')));
+            pixspac = getTagValue(attr, '00181164');
             imgOri = zeros(6,1);
             imgpos = [0 0 0];
         else
-            pixspac = dcm2ml_Element(dcmobj.get(hex2dec('00280030')));
+            pixspac = getTagValue(attr, '00280030');
         end
         
         % check for oblique scan
@@ -325,7 +336,7 @@ switch fieldname
         end
         
         %Rows
-        nRows  = dcm2ml_Element(dcmobj.get(hex2dec('00280010')));
+        nRows  = getTagValue(attr, '00280010');
         
         if ~isOblique && (imgOri(5)-1)^2 < 1e-5
             yOffset = imgpos(2) + (pixspac(1) * (nRows - 1) / 2);
@@ -370,7 +381,7 @@ switch fieldname
         
     case 'sliceThickness'
         %Slice Thickness
-        slcthk  = dcm2ml_Element(dcmobj.get(hex2dec('00180050')));
+        slcthk  = getTagValue(attr, '00180050');
         
         %Convert from DICOM mm to CERR cm.
         dataS  = slcthk / 10;
@@ -380,10 +391,9 @@ switch fieldname
         
     case 'unitNumber'
         %Type 3 field, may not exist.
-        if dcmobj.contains(hex2dec('00081090'));
-            
+        if attr.contains(hex2dec('00081090'))
             %Manufacturer's Model Name
-            dataS  = dcm2ml_Element(dcmobj.get(hex2dec('00081090')));
+            dataS  = getTagValue(attr, '00081090');
         else
             dataS = 'Unknown';
         end
@@ -393,14 +403,11 @@ switch fieldname
         
     case 'scannerType'
         %Manufacturer
-        dataS  = dcm2ml_Element(dcmobj.get(hex2dec('00080070')));
+        dataS  = getTagValue(attr, '00080070');
         
     case 'scanFileName'
         %Store the current open .dcm file.
         dataS = IMAGE.file;
-        
-    case 'positionInScan'
-        %Currently undefined.
         
     case 'patientAttitude'
         %Currently undefined.
@@ -412,17 +419,16 @@ switch fieldname
         
     case 'scanID'
         %Study ID
-        dataS  = dcm2ml_Element(dcmobj.get(hex2dec('00200010')));
+        dataS  = getTagValue(attr, '00200010');
         
     case 'scanNumber'
         %Currently undefined.
         
     case 'scanDate'
         %Type 3 field, may not exist.
-        if dcmobj.contains(hex2dec('00080021'));
-            
+        if attr.contains(hex2dec('00080021'))
             %Series Date
-            dataS  = dcm2ml_Element(dcmobj.get(hex2dec('00080021')));
+            dataS  = getTagValue(attr, '00080021');
         else
             dataS = '';
         end
@@ -440,49 +446,79 @@ switch fieldname
         %Constant variable.  Consider adding additional detail.
         dataS = 'DICOM';
         
+    case 'studyInstanceUID'
+        dataS  = getTagValue(attr, '0020000D');
+        
+    case 'seriesInstanceUID'
+        dataS  = getTagValue(attr, '0020000E');
+        
+    case 'sopInstanceUID'
+        dataS = getTagValue(attr, '00080018');
+        
+    case 'frameOfReferenceUID'
+        dataS  = getTagValue(attr, '00200052');
+        
     case 'DICOMHeaders'
         %Read all the dcm data into a MATLAB struct.
-        dataS = dcm2ml_Object(dcmobj);
-        dataS.PatientWeight = dcm2ml_Element(dcmobj.get(hex2dec('00101030')));
-        
-        %Remove pixelData to avoid storing huge amounts of redundant data.
-        try
-            dataS = rmfield(dataS, 'PixelData');
+        if strcmpi(optS.saveDICOMheaderInPlanC,'yes')
+            dataS = getTagStruct(attr);
         end
+        
+        %         dataS.PatientWeight = getTagValue(attr, '00101030');        
+        %         %Remove pixelData to avoid storing huge amounts of redundant data.
+        %         %try
+        %         %    dataS = rmfield(dataS, 'PixelData');
+        %         %end
+        
+        %dataS = '';
         
     case 'headInOut'
         % read out Patient Orientation
-        if dcmobj.contains(hex2dec('00200020'));
+        if attr.contains(hex2dec('00200020'))
             %AP,LR,HF
-            dataS  = dcm2ml_Element(dcmobj.get(hex2dec('00200020')));
+            dataS  = getTagValue(attr, '00200020');
         else
             dataS = '';
         end
         
     case 'positionInScan'
         % read out ImageOrientationPatient
-        if dcmobj.contains(hex2dec('00200037'));
-            
+        if attr.contains(hex2dec('00200037'))
             %Series Date
-            dataS  = dcm2ml_Element(dcmobj.get(hex2dec('00200037')));
+            dataS  = getTagValue(attr, '00200037');
         else
             dataS = '';
         end
         
-    case 'bValue'
+    case 'patientPosition'
+        if attr.contains(hex2dec('00185100'))
+            dataS  = getTagValue(attr, '00185100');
+        end
+        
+    case 'imageOrientationPatient'
+        dataS  = getTagValue(attr, '00200037');
+        
+    case 'imagePositionPatient'
+        dataS  = getTagValue(attr, '00200032');
+        
+    case 'bValue' %REPLACED EL WITH TAG
         % b-value for MR scans (vendor specific private tag)
-        if dcmobj.contains(hex2dec('00431039')) % GE
-            el = dcmobj.get(hex2dec('00431039'));
-        elseif dcmobj.contains(hex2dec('00189087')) % Philips
-            el = dcmobj.get(hex2dec('00189087'));
-        elseif dcmobj.contains(hex2dec('0019100C')) % SIEMENS
-            el = dcmobj.get(hex2dec('0019100C'));
+        if attr.contains(hex2dec('00431039')) % GE
+            %el = attr.get(hex2dec('00431039'));
+            tag = '00431039';
+        elseif attr.contains(hex2dec('00189087')) % Philips
+            %el = attr.get(hex2dec('00189087'));
+            tag = '00189087';
+        elseif attr.contains(hex2dec('0019100C')) % SIEMENS
+            %el = attr.get(hex2dec('0019100C'));
+            tag = '0019100C';
         else
             dataS = '';
             return
         end
-        vr = char(el.vr.toString);
-        dataS  = dcm2ml_Element(el);
+        %vr = char(el.vr.toString);
+        vr = char(attr.getVR(hex2dec(tag)));
+        dataS  = getTagValue(attr, tag);
         if strcmp(vr,'UN')
             dataS = str2double(strtok(char(dataS),'\'));
         elseif any(strcmp(vr,{'IS','FD', 'FL'}))
@@ -495,6 +531,70 @@ switch fieldname
             dataS = dataS-1e9;
         end
         
+    case 'acquisitionDate'
+        dataS  = getTagValue(attr, '00080022');
+    case 'acquisitionTime'
+        dataS  = getTagValue(attr, '00080030');
+    case 'patientWeight'
+        dataS  = getTagValue(attr, '00101030');
+    case 'RadiopharmaInfoS'
+        dataS  = getTagValue(attr, '00540016');
+        if isfield(dataS,'Item_1')
+            dataS = dataS.Item_1;
+        end
+        %radiopharmaInfoSeq = attr.getValue(hex2dec('00540016'));
+        %dataS = radiopharmaInfoSeq.get(0);
+        
+    case 'injectionTime'
+        radiopharmaInfoSeq = attr.getValue(hex2dec('00540016'));
+        if ~isempty(radiopharmaInfoSeq)
+            radiopharmaInfoObj = radiopharmaInfoSeq.get(0);
+            dataS = getTagValue(radiopharmaInfoObj, '00181072');
+        end
+        
+    case 'injectedDose'
+        radiopharmaInfoSeq = attr.getValue(hex2dec('00540016'));
+        if ~isempty(radiopharmaInfoSeq)
+            radiopharmaInfoObj = radiopharmaInfoSeq.get(0);
+            dataS = getTagValue(radiopharmaInfoObj, '00181074');
+        end
+    case 'halfLife'
+        radiopharmaInfoSeq = attr.getValue(hex2dec('00540016'));
+        if ~isempty(radiopharmaInfoSeq)
+            radiopharmaInfoObj = radiopharmaInfoSeq.get(0);
+            dataS = getTagValue(radiopharmaInfoObj, '00181075');
+        end
+        
+    case 'petSeriesType'
+        if attr.contains(hex2dec('00541000'))
+            dataS = getTagValue(attr, '00541000');
+        end
+        
+    case 'petImageUnits'
+        if attr.contains(hex2dec('00541001'))
+            dataS = getTagValue(attr, '00541001');
+        end
+        
+    case 'petCountSource'
+        if attr.contains(hex2dec('00541002'))
+            dataS = getTagValue(attr, '00541002');
+        end
+        
+    case 'petNumSlices'
+        if attr.contains(hex2dec('00540081'))
+            dataS = getTagValue(attr, '00540081');
+        end
+        
+    case 'petDecayCorrection'
+        if attr.contains(hex2dec('00541102'))
+            dataS = getTagValue(attr, '00541102');
+        end
+        
+    case 'petCorrectedImage' % type 2
+        if attr.contains(hex2dec('00280051'))
+            dataS = getTagValue(attr, '00280051');
+        end
+                
     otherwise
-        %         warning(['DICOM Import has no methods defined for import into the planC{indexS.scan}.scanInfo' fieldname ' field, leaving empty.']);
+        % warning(['DICOM Import has no methods defined for import into the planC{indexS.scan}.scanInfo' fieldname ' field, leaving empty.']);
 end
