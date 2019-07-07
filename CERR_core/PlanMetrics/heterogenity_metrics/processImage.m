@@ -25,16 +25,21 @@ switch filterType
         volToEval(maskBoundingBox3M==0)     = NaN;
         volToEval                           = volToEval / max(volToEval(:));
         offsetsM = getOffsets(paramS.Directionality.val);
-        typesC = {'All','Entropy','Energy','Sum Avg','Homogeneity','Contrast',...
-                    'Correlation','Cluster Shade','Cluster Promincence', 'Haralick Correlation'};
+        typesC = {'All','Entropy','Energy','Sum Avg','Correlation',...
+            'Homogeneity','Contrast','Cluster Shade',...
+            'Cluster Promincence', 'Haralick Correlation'};
         
         sel = paramS.Type.val;
         if strcmpi(sel,'all')
             flagV = ones(1,9); % All 9 haralick features;
-        else
-            idx = find(strcmp(typesC,sel));
+        else            
             flagV = zeros(1,9);
-            flagV(idx-1) = 1;
+            if iscell(sel)
+                for iFeat = 1:length(sel)
+                    idx = find(strcmpi(typesC,sel{iFeat}));
+                    flagV(idx-1) = 1;
+                end
+            end
         end
         
         %Optional parametets
