@@ -308,16 +308,22 @@ for slcNum = 1:numSlices
     
     %     % Contrast, inverse Difference Moment, sum avg
     px = indPxM * cooccurPatchM;
-    if flagv(3) || flagv(5) || flagv(6)
+    %if flagv(3) || flagv(5) || flagv(6)
     %pXminusY = indCtrstM * cooccurPatchM;
     %pXplusY = indPxPlusYm * cooccurPatchM;
+    if flagv(6) 
     contrastV(calcSlcIndV) = contrastV(calcSlcIndV) + ...
         (0:nL-1).^2 * indCtrstM * cooccurPatchM;
+    end
+    if flagv(5) 
     invDiffMomV(calcSlcIndV) = invDiffMomV(calcSlcIndV) + ...
         1./(1+(0:nL-1).^2) * indCtrstM * cooccurPatchM;
+    end
+    if flagv(3) 
     sumAvgV(calcSlcIndV) = sumAvgV(calcSlcIndV) + ...
         (1:2*nL) * indPxPlusYm * cooccurPatchM;
     end
+    %end
     
     % weighted pixel average (mu), weighted pixel variance (sig)
     mu = (1:nL) * px;
