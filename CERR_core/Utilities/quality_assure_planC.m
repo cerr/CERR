@@ -140,6 +140,40 @@ if str2num(strtok(CERRImportVersion, ',')) < 5.2
     end
 end
 
+% Add radiopharma params to scanInfo
+for scanNum = 1:length(planC{indexS.scan})
+    if isfield(planC{indexS.scan}(scanNum).scanInfo(1),'DICOMHeaders') ...
+            && ~isempty(planC{indexS.scan}(scanNum).scanInfo(1).DICOMHeaders) ...
+            && any(strcmpi(planC{indexS.scan}(scanNum).scanInfo(1).imageType,{'PT','PET'})) ...
+            && isempty(planC{indexS.scan}(scanNum).scanInfo(1).halfLife)
+        dicomhd = planC{indexS.scan}(scanNum).scanInfo(1).DICOMHeaders;
+        ptweight = [];
+        if isfield(dicomhd,'PatientWeight')
+            ptweight = dicomhd.PatientWeight;
+        elseif isfield(dicomhd,'PatientsWeight')
+            ptweight = dicomhd.PatientsWeight;
+        end                
+        injectionTime = ...
+            dicomhd.RadiopharmaceuticalInformationSequence.Item_1.RadiopharmaceuticalStartTime;
+        halfLife = ...
+            dicomhd.RadiopharmaceuticalInformationSequence.Item_1.RadionuclideHalfLife;
+        injectedDose = ...
+            dicomhd.RadiopharmaceuticalInformationSequence.Item_1.RadionuclideTotalDose;
+        for slcNum = 1:size(planC{indexS.scan}(scanNum).scanArray,3)
+            planC{indexS.scan}(scanNum).scanInfo(slcNum).patientWeight = ...
+                ptweight;
+            planC{indexS.scan}(scanNum).scanInfo(slcNum).acquisitionTime = ...
+                dicomhd.AcquisitionTime;
+            planC{indexS.scan}(scanNum).scanInfo(slcNum).injectionTime = ...
+                injectionTime;
+            planC{indexS.scan}(scanNum).scanInfo(slcNum).halfLife = ...
+                halfLife;
+            planC{indexS.scan}(scanNum).scanInfo(slcNum).injectedDose = ...
+                injectedDose;
+        end
+    end
+end
+
 
 % Check for GSPS and make it empty if no objects are present
 if length(planC{indexS.GSPS}) == 1 && isempty(planC{indexS.GSPS}.SOPInstanceUID)
