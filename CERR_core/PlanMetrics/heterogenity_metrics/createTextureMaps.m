@@ -1,4 +1,4 @@
-function planC = createTextureMaps(scanNum,structNum,fType,paramS,label,planC)
+function planC = createTextureMaps(scanNum,structNum,fType,paramS,label,planC,deleteFlag)
 %createTextureMaps.m
 %
 %Compute texture maps and store to planC as scan array.
@@ -8,13 +8,21 @@ function planC = createTextureMaps(scanNum,structNum,fType,paramS,label,planC)
 % INPUTS
 % scanNum   :  Scan no.
 % structNum :  Structure no.
-% fType     :  Feature class. 
+% fType     :  Feature class.
 %              Supported options: 'HaralickCooccurance','Wavelets','Sobel',
 %              'LoG', 'Gabor', 'FirstOrderStatistics',
 %              'LawsConvolution', and 'CoLlage'.
-% paramS    :  Parameter dictionary 
+% paramS    :  Parameter dictionary
 % label     :  Description of texture map
+%--- Optional---
+% deleteFlag:  Set to 0 to retain copy of structure 'structNum' associated 
+%              with 'scanNum'. Default: 1 (delete unless structNum was  
+%              already associated with scanNum).
 %---------------------------------------------------------------------
+
+if ~exist('deleteFlag','var')
+    deleteFlag = 1;
+end
 
 indexS = planC{end};
 
@@ -22,6 +30,15 @@ indexS = planC{end};
 scan3M = getScanArray(scanNum,planC);
 CTOffset = planC{indexS.scan}(scanNum).scanInfo(1).CTOffset;
 scan3M = double(scan3M) - CTOffset;
+
+%Copy structure if not associated with scan 'scanNum'
+assocScanNum = getStructureAssociatedScan(structNum,planC);
+if ~isequal(assocScanNum,scanNum)
+    planC = copyStrToScan(structNum,scanNum,planC);
+    structNum = length(planC{indexS.structures});
+else
+    deleteFlag = 0;
+end
 
 % Get mask
 fullMask3M = scan3M.^0;
@@ -40,7 +57,7 @@ end
 % Compute features
 outS = processImage(fType,scan3M,fullMask3M,paramS,NaN);
 
-%Extract filtered image within bounding box 
+%Extract filtered image within bounding box
 featuresC = fieldnames(outS);
 fieldNamC = fieldnames(outS);
 for i = 1:length(fieldNamC)
@@ -91,6 +108,10 @@ assocTextureUID = planC{indexS.texture}(currentTexture).textureUID;
 
 for n = 1:length(featuresC)
     planC = scan2CERR(outS.(featuresC{n}),featuresC{n},'Passed',regParamsS,assocTextureUID,planC);
+end
+
+if deleteFlag
+    planC = deleteStructure(planC, structNum);
 end
 
 end
