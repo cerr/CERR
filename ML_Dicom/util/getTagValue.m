@@ -142,12 +142,18 @@ switch upper(vr)
     case 'TM'
         %Time string format: HHMMSS.ss where "ss" is fraction of a second.
         % data = char(attr.getString(hex2dec(tag)));
-        data = cell(attr.getString(hex2dec(tag)));
-        data = data{1};
+        data = attr.getString(hex2dec(tag));
+        if ~isempty(data)
+            data = cell(data);
+            data = data{1};
+        end
     case 'UI'
         % data = char(attr.getString(hex2dec(tag)));
-        data = cell(attr.getString(hex2dec(tag)));
-        data = data{1};
+        data = attr.getString(hex2dec(tag));
+        if ~isempty(data)
+            data = cell(data);
+            data = data{1};
+        end
     case 'UL'
         data = attr.getInts(hex2dec(tag));
     case 'UN'
