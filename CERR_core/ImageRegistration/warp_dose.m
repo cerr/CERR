@@ -7,10 +7,19 @@ indexMovS = movPlanC{end};
 indexS = planC{end};
 
 % Create b-spline coefficients file
-baseScanUID = deformS.baseScanUID;
-movScanUID  = deformS.movScanUID;
-bspFileName = fullfile(getCERRPath,'ImageRegistration','tmpFiles',['bsp_coeffs_',baseScanUID,'_',movScanUID,'.txt']);
-success = write_bspline_coeff_file(bspFileName,deformS.algorithmParamsS);
+if isstruct(deformS)
+    baseScanUID = deformS.baseScanUID;
+    movScanUID  = deformS.movScanUID;
+    bspFileName = fullfile(getCERRPath,'ImageRegistration','tmpFiles',['bsp_coeffs_',baseScanUID,'_',movScanUID,'.txt']);
+    success = write_bspline_coeff_file(bspFileName,deformS.algorithmParamsS);
+else
+    bspFileName = deformS;
+    indexS = planC{end};
+    indexMovS = movPlanC{end};
+    movScanNum = getDoseAssociatedScan(movDoseNum,movPlanC);
+    movScanUID = movPlanC{indexMovS.scan}(movScanNum).scanUID;
+    baseScanUID = planC{indexS.scan}(doseCreationScanNum).scanUID;    
+end
 
 % Convert structure mask to .mha
 movDoseUID = movPlanC{indexMovS.dose}(movDoseNum).doseUID;
@@ -51,7 +60,12 @@ planC = dose2CERR(flipdim(permute(data3M,[2,1,3]),3),[],['Warped_',doseName],[],
 try
     delete(movDoseFileName)
     delete(warpedMhaFileName)
-    delete(bspFileName)
+    %delete(bspFileName)
+end
+try
+    if isstruct(deformS)
+        delete(bspFileName)
+    end
 end
 
 % Switch back to the previous directory
