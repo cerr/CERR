@@ -32,8 +32,9 @@ global stateS
 indexS = planC{end};
 
 % Use series uid in temporary folder name
-if isfield(planC{indexS.scan}.scanInfo(1),'DICOMHeaders')
-    folderNam = planC{indexS.scan}.scanInfo(1).DICOMHeaders.SeriesInstanceUID;
+if isfield(planC{indexS.scan}.scanInfo(1),'seriesInstanceUID') && ...
+        ~isempty(planC{indexS.scan}.scanInfo(1).seriesInstanceUID)
+    folderNam = planC{indexS.scan}.scanInfo(1).seriesInstanceUID;
 else
     folderNam = dicomuid;
 end
