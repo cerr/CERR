@@ -192,7 +192,6 @@ if nScans == 1 && exist('force','var') && force
     % although the fields are empty
     if length(planC{indexS.structureArray}) == 1 & isempty(planC{indexS.structureArray}.bitsArray)
         planC{indexS.structureArray} = initializeCERR('structureArray');
-        planC{indexS.scan}(1).uniformScanInfo = [];
     end
 
 
