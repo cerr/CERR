@@ -157,7 +157,7 @@ switch upper(vr)
     case 'UL'
         data = attr.getInts(hex2dec(tag));
     case 'UN'
-        data = attr.getBytes;
+        data = attr.getBytes(hex2dec(tag));
     case 'US'
         data = attr.getInt(hex2dec(tag), 0);
     case 'UT'
