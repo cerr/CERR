@@ -455,6 +455,9 @@ switch fieldname
     case 'sopInstanceUID'
         dataS = getTagValue(attr, '00080018');
         
+    case 'sopClassUID'
+        dataS = getTagValue(attr, '00080016');
+        
     case 'frameOfReferenceUID'
         dataS  = getTagValue(attr, '00200052');
         
