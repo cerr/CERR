@@ -189,7 +189,7 @@ if strcmpi(currentModality,'MR')
     trigTimeSeries = attr.getString(hex2dec(triggerTag));
     instNumTag = '00200013';    %Instance no.
     numSlicesTag = '0021104F';  %No. locations in acquisition
-    nSlices = attr.getBytes(hex2dec(numSlicesTag));
+    nSlices = attr.getString(hex2dec(numSlicesTag));
     sNum = [];
     if isempty(nSlices)
         sNum = str2double(attr.getString(hex2dec(instNumTag)));
@@ -269,7 +269,7 @@ for i=1:length(studyS.SERIES)
             iNum = [];
             %sNum = [];
             if ~isempty(nSlices)
-                nSlices = double(nSlices);
+                nSlices = str2double(nSlices);
                 iNum = str2double(studyS.MRI(i).info.getString(hex2dec(instNumTag)));
                 iNum = ceil(iNum/nSlices);
                 %sNum = str2double(mri.getString(hex2dec(instNumTag)));
