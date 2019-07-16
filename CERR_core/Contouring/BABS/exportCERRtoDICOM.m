@@ -26,13 +26,17 @@ for indBase = 1:length(dirS)
     fname = [fname,'_',algorithm];
     
     %registeredDir = fullfile(registeredDirLoc,['registered_to_',fname]); 
+
+    % Save planC to outputDicomPath (TO DO: a separate directory?)
+    planD = save_planC(planD,[],'passed',...
+        fullfile(outputDicomPath,[fname,'.mat']));
     
     % Copy segmentation from segResultCERRRPath to planC
     origFileName = fullfile(cerrPath,dirS(indBase).name);
     % segFileName = fullfile(registeredDir,dirS(indBase).name);
     segFileName = fullfile(segResultCERRRPath,dirS(indBase).name);    
     planC = loadPlanC(origFileName);
-    planD = loadPlanC(segFileName);
+    planD = loadPlanC(segFileName);    
     indexS = planC{end};
     indexSD = planD{end};
     scanIndV = 1;
@@ -48,9 +52,10 @@ for indBase = 1:length(dirS)
     end
 %     %planC = copyStrToScan(numStr,1,planC);
     planC = deleteScan(planC, 2);
-    for structNum = numOrigStr:-1:1
-        planC = deleteStructure(planC, structNum);
-    end
+%     for structNum = numOrigStr:-1:1
+%         planC = deleteStructure(planC, structNum);
+%     end
+    planC = deleteStructure(planC, numOrigStr:-1:1);
     mergedFileName = fullfile(outputCERRPath,dirS(indBase).name);
     planC = save_planC(planC,[],'passed',mergedFileName);
 
