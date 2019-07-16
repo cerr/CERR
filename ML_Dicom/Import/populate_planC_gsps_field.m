@@ -127,18 +127,15 @@ switch fieldname
         
     case 'presentLabel'
         % Label
-        dataS = dcm2ml_Element(dcmobj.get(hex2dec('00700080')));
-        
+        dataS = annotObj.getValue(hex2dec('00700080'));
         
     case 'presentDescription'
         % Description
-        dataS = dcm2ml_Element(dcmobj.get(hex2dec('00700081')));
-        
+        dataS = annotObj.getValue(hex2dec('00700081'));
         
     case 'presentCreationDate'
         % Date
-        dataS = dcm2ml_Element(dcmobj.get(hex2dec('00700082')));
-        
+        dataS = annotObj.getValue(hex2dec('00700082'));
         
     case 'annotUID'
         
