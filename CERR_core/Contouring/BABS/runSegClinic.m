@@ -62,8 +62,13 @@ algorithmC = {};
 %algorithm = 'CT_Heart_DeepLab^CT_Atria_DeepLab';
 
 [algorithmC{end+1},remStr] = strtok(algorithm,'^');
-while ~isempty(remStr)
+algorithmC{end} = char(algorithmC{end});
+remStr = char(remStr);
+
+while ~isempty(remStr) && ~isequal(remStr,"")
     [algorithmC{end+1},remStr] = strtok(remStr,'^');
+    algorithmC{end} = char(algorithmC{end});
+    remStr = char(remStr);
 end
 
 if iscell(algorithmC) || ~iscell(algiorithmC) && ~strcmpi(algorithmC,'BABS')
