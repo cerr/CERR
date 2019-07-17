@@ -27,10 +27,7 @@ for indBase = 1:length(dirS)
     
     %registeredDir = fullfile(registeredDirLoc,['registered_to_',fname]); 
 
-    % Save planC to outputDicomPath (TO DO: a separate directory?)
-    planD = save_planC(planD,[],'passed',...
-        fullfile(outputDicomPath,[fname,'.mat']));
-    
+        
     % Copy segmentation from segResultCERRRPath to planC
     origFileName = fullfile(cerrPath,dirS(indBase).name);
     % segFileName = fullfile(registeredDir,dirS(indBase).name);
@@ -39,6 +36,12 @@ for indBase = 1:length(dirS)
     planD = loadPlanC(segFileName);    
     indexS = planC{end};
     indexSD = planD{end};
+    
+    % Save planC to outputDicomPath (TO DO: a separate directory?)
+    planD = save_planC(planD,[],'passed',...
+        fullfile(outputDicomPath,[fname,'.mat']));
+    
+    
     scanIndV = 1;
     doseIndV = [];
     numSegStr = length(planD{indexSD.structures});
