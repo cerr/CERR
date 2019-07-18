@@ -74,7 +74,7 @@ end
 if iscell(algorithmC) || ~iscell(algiorithmC) && ~strcmpi(algorithmC,'BABS')
     
         containerPath = varargin{1};      
-        
+        origCerrPath = cerrPath;
         for k=1:length(algorithmC)
             success = segmentationWrapper(cerrPath,segResultCERRPath,fullSessionPath,containerPath,algorithmC{k});   
             cerrPath = segResultCERRPath;
@@ -88,7 +88,7 @@ else
 end
 
 % Export the RTSTRUCT file
-exportCERRtoDICOM(cerrPath,segResultCERRPath,outputCERRPath,outputDicomPath,algorithm)
+exportCERRtoDICOM(origCerrPath,segResultCERRPath,outputCERRPath,outputDicomPath,algorithm)
 
 % Remove session directory
 rmdir(fullSessionPath, 's')
