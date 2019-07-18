@@ -57,6 +57,13 @@ else
     Patient_ID = dicomuid;
 end
 
+if isfield(planC{indexS.scan}(1).scanInfo(1),'patientName') && ...
+        ~isempty(planC{indexS.scan}(1).scanInfo(1).patientName)
+    patientName = planC{indexS.scan}(1).scanInfo(1).patientName;
+else
+    patientName = '';
+end
+
 %% SCAN UIDs
 %Iterate over CT scans
 for i = 1:length(planC{indexS.scan})
@@ -137,6 +144,9 @@ for i = 1:length(planC{indexS.dose})
     
     %Set the patient id.
     planC{indexS.dose}(i).Patient_ID = Patient_ID;
+    
+    % Set the patient name
+    planC{indexS.dose}(i).patientName = patientName;
 
     %Set the study instance UID.
     planC{indexS.dose}(i).Study_Instance_UID = Study_Instance_UID;
@@ -180,6 +190,9 @@ for i = 1:length(planC{indexS.structures})
     
     %Set the patient id.
     planC{indexS.structures}(i).Patient_ID = Patient_ID;
+
+    % Set the patient name
+    planC{indexS.structures}(i).patientName = patientName;
 
     %Set the study instance UID.
     planC{indexS.structures}(i).Study_Instance_UID = Study_Instance_UID;

@@ -63,11 +63,6 @@ for scanNum = 1:length(planC{indexS.scan})
         
     %Export each module required for the RS IOD, copying the results into the
     %common ssattr container and return.
-    if isfield(scanS.scanInfo(1),'DICOMHeaders') ...
-            && isfield(scanS.scanInfo(1).DICOMHeaders,'PatientID')
-        structureS(1).DICOMHeaders.PatientID = scanS.scanInfo(1).DICOMHeaders.PatientID;        
-    end
-    structureS(1).patientName = scanS.scanInfo(1).patientName;
     ssattr = export_module('patient', 'structures', structureS);
     attr.addAll(ssattr);
     clear ssattr;
