@@ -1,4 +1,4 @@
-function errC = CERRtoHDF5(CERRdir,HDF5dir,dataSplitV,strListC,outSizeV,resizeMethod,cropMethod,varargin)
+function errC = CERRtoHDF5(CERRdir,HDF5dir,dataSplitV,strListC,outSizeV,resizeMethod,cropS)
 % CERRtoHDF5.m
 %
 % Script to export scan and mask files in HDF5 format, split into training,
@@ -14,9 +14,10 @@ function errC = CERRtoHDF5(CERRdir,HDF5dir,dataSplitV,strListC,outSizeV,resizeMe
 % HDF5dir       : Path to generated HDF5 files
 % strListC      : List of structures to export
 % outSizeV      : Image size required by model [height, width]
-% resizeMethod  : 'none', 'pad', 'bilinear', 'sinc'
-% cropMethod    : 'none','crop_fixed_amt','crop_to_bounding_box'
-% varargin      : Parameters for pre-processing
+% resizeMethod  : Supported methods: 'pad', 'bilinear', 'sinc', 'none'.
+% cropS         : Dictionary of parameters for cropping
+%                 Supported methods: 'crop_fixed_amt','crop_to_bounding_box',
+%                 'crop_to_str', 'crop_around_center', 'none'
 %--------------------------------------------------------------------------
 
 
@@ -114,7 +115,7 @@ for planNum = 1:length(dirS)
                 
                 %Pre-processing
                 %1. Cropping
-                [scan3M,mask3M] = cropScanAndMask(planC,scan3M,mask3M,cropMethod,varargin);
+                [scan3M,mask3M] = cropScanAndMask(planC,scan3M,mask3M,cropS);
                 %2. Resizing
                 [scan3M,mask3M] = resizeScanAndMask(scan3M,mask3M,outSizeV,resizeMethod);
                 
@@ -157,14 +158,13 @@ for planNum = 1:length(dirS)
         errC{planNum} =  ['Error processing pt %s. Failed with message: %s',fileNam,e.message];
     end
     
-    
-    idxC = cellfun(@isempty, errC, 'un', 0);
-    idxV = ~[idxC{:}];
-    errC = errC(idxV);
-    
     save([HDF5dir,filesep,'labelKeyS'],'labelKeyS','-v7.3');
     save([HDF5dir,filesep,'resolutionC'],'resC','-v7.3');
     
+    %Return error messages if any
+    idxC = cellfun(@isempty, errC, 'un', 0);
+    idxV = ~[idxC{:}];
+    errC = errC(idxV);
     
     fprintf('\nComplete.\n');
     

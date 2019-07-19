@@ -11,13 +11,17 @@ function prepareSegDataset(paramFilename)
 %
 % --- JSON fields ---:
 %
-% dcmDir          : Path to DICOM data
-% tempDir         : Path for writing intermediate files(CERR, HDF5)
-% structList      : Names of structures to be segmented
-% dataSplit       : Train/Val/Test split passed as vector: [%train %val]  (%test = 100-%train-%val).
-% preproc         : Preprocessing method and parameters.
-%                   See preProcessData.m for valid inputs.
-%
+% dcmDir           : Path to DICOM data
+% tempDir          : Path for writing intermediate files(CERR, HDF5)
+% structList       : Names of structures to be segmented
+% dataSplit        : Train/Val/Test split passed as vector: [%train %val]  (%test = 100-%train-%val).
+% imageSizeForModel: Dimensions of output image required for model
+% resize           : Resize image as required by model
+%                    Supported methods: 'pad', 'bilinear', 'sinc', 'none'.
+% crop             : Dictionary of options for cropping with fields
+%                    'methods', 'params', 'operator'
+%                    Supported methods include 'crop_fixed_amt','crop_to_bounding_box',
+%                    'crop_to_str', 'crop_around_center', 'none'.                             : 
 % Example: See sample_train_params.json
 %---------------------------------------------------------------------------
 
@@ -26,8 +30,7 @@ userInS = jsondecode(fileread(paramFilename));
 dcmDir = userInS.dcmDir;
 tempDir = userInS.tempDir;
 strListC = userInS.structList;
-cropMethod = userInS.crop.method;
-cropOptC = userInS.crop.params;
+cropS = userInS.crop;
 outSizeV = userInS.imageSizeForModel;
 resizeMethod = userInS.resize.method;
 dataSplitV = userInS.dataSplit;
@@ -59,7 +62,7 @@ mergeScansFlag = 'No';
 batchConvert(dcmDir,cerrPath,zipFlag,mergeScansFlag);
 
 %% Convert to HDF5 with preprocessing and split into train, val, test datasets
-CERRtoHDF5(cerrPath, HDF5path, dataSplitV, strListC, outSizeV, resizeMethod, cropMethod, cropOptC);
+CERRtoHDF5(cerrPath, HDF5path, dataSplitV, strListC, outSizeV, resizeMethod, cropS);
 
 
 end
