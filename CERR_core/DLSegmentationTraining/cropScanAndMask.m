@@ -12,6 +12,7 @@ function [scan3M,mask3M] = cropScanAndMask(planC,scan3M,mask3M,method,varargin)
 % varargin     : Parameters for pre-processing
 %--------------------------------------------------------------------------
 
+
 switch(lower(method))
     
     case 'crop_fixed_amt'
@@ -42,15 +43,12 @@ switch(lower(method))
         
     case 'crop_around_center'
         % Use to crop around center
-        cropDimV = varargin{1};
-        siz = getUniformizedSize(planC);
-        cx = ceil(size(scan3M,1)/2);
-        cy = ceil(size(scan3M,2)/2);
-        x = cropDimV(1)/2;
-        y = cropDimV(2)/2;
-        scan3M = scan3M((cx - y):(cx + (y-1)),(cy - x):(cy + (x-1)), 1:siz(3));
+        [minr, maxr, minc, maxc] = getCropExtent(planC,mask3M,method,varargin);
+        mins = 1;
+        maxs = size(scan3M,3);
+        scan3M = scan3M(minr:maxr,minc:maxc,mins:maxs);
         if ~isempty(mask3M)
-            mask3M = mask3M((cx - y):(cx + (y-1)),(cy - x):(cy + (x-1)), 1:siz(3));
+            mask3M = mask3M(minr:maxr,minc:maxc,mins:maxs);
         end
         
         
