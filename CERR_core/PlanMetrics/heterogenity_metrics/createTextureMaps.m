@@ -34,7 +34,7 @@ scan3M = double(scan3M) - CTOffset;
 %Copy structure if not associated with scan 'scanNum'
 assocScanNum = getStructureAssociatedScan(structNum,planC);
 if ~isequal(assocScanNum,scanNum)
-    planC = copyStrToScan(structNum,scanNum,planC);
+    planC = copyStrToScan_noMesh(structNum,scanNum,planC);
     structNum = length(planC{indexS.structures});
 else
     deleteFlag = 0;
