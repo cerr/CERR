@@ -12,7 +12,8 @@
 
 "imageSizeForModel" : [512, 512],
 
-"crop" : [{"method": "crop_to_str", "params" : "structName4"}],
+"crop" : [{"method": "crop_to_str", "params" : {"structureName": "structName4"}, "operator" : ""}, 
+          {"method": "crop_to_str", "params" : {"structureName": "structName5"}, "operator" : "union"} ],
 
 "resize" : {"method": "sinc"},
 
