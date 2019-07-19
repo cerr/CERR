@@ -1,4 +1,4 @@
-function prepareSegDataset(paramFilename)
+function errC = prepareSegDataset(paramFilename)
 % prepareSegDataset.m
 %
 % Script to preprocess and convert data to HDF5 format, split into training,
@@ -62,7 +62,7 @@ mergeScansFlag = 'No';
 batchConvert(dcmDir,cerrPath,zipFlag,mergeScansFlag);
 
 %% Convert to HDF5 with preprocessing and split into train, val, test datasets
-CERRtoHDF5(cerrPath, HDF5path, dataSplitV, strListC, outSizeV, resizeMethod, cropS);
+errC = CERRtoHDF5(cerrPath, HDF5path, dataSplitV, strListC, outSizeV, resizeMethod, cropS);
 
 
 end
