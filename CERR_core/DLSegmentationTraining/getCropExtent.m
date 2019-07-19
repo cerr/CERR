@@ -32,8 +32,17 @@ switch(lower(method))
         
         
     case 'crop_around_center'
-        %To be added
-        
+        cropDimV = varargin{1};
+        cx = ceil(size(scan3M,1)/2);
+        cy = ceil(size(scan3M,2)/2);
+        x = cropDimV(1)/2;
+        y = cropDimV(2)/2;
+        minr = cx - y;
+        maxr = cx + y-1;
+        minc = cy - x;
+        maxc = cy + x-1;
+        mins = [];
+        maxs = [];
         
     case 'none'
         %Skip
