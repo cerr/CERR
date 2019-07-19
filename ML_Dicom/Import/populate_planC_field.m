@@ -192,11 +192,11 @@ switch cellName
                     
                     structuresImportMatchCriteria = optS.structuresImportMatchCriteria;
 
-                    curStructNum = 1; %wy modified for suppport multiple RS files
-                    for j = 1:nStructures
+                    %curStructNum = 1; %wy modified for suppport multiple RS files
+                    for structNum = 1:nStructures
                         
                         % Get Structure name
-                        ssObj = SSRS.get(j - 1);
+                        ssObj = SSRS.get(structNum - 1);
                         structureName = getTagValue(ssObj, '30060026');
                         
                         if ~isempty(structuresToImportC)
@@ -215,9 +215,9 @@ switch cellName
                         for i = 1:length(names)
                             dataS(structsAdded+1).(names{i}) = ...
                                 populate_planC_structures_field(names{i}, ...
-                                RTSTRUCT, curStructNum, strobj, optS);
+                                RTSTRUCT, structNum, strobj, optS);
                         end
-                        curStructNum = curStructNum + 1;
+                        %curStructNum = curStructNum + 1;
                         structsAdded = structsAdded + 1;
                         
                         waitbar(structsAdded/(nStructures*length(RTSTRUCT)*strSeries), hWaitbar, 'Loading structures, Please wait...');
