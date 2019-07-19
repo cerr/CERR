@@ -20,7 +20,7 @@ switch(lower(method))
         strName = varargin{1};
         indexS = planC{end};
         strC = {planC{indexS.structures}.structureName};
-        strIdx = getMatchingIndex(strName{1},strC,'EXACT');
+        strIdx = getMatchingIndex(strName,strC,'EXACT');
         scanIdx = getStructureAssociatedScan(strIdx,planC);
         
         strMask3M = false(size(getScanArray(scanIdx,planC)));
@@ -32,17 +32,18 @@ switch(lower(method))
         
         
     case 'crop_around_center'
-        cropDimV = varargin{1};
-        cx = ceil(size(scan3M,1)/2);
-        cy = ceil(size(scan3M,2)/2);
+        scanSizV = varargin{1};
+        cropDimV = varargin{2};
+        cx = ceil(scanSizV(1)/2);
+        cy = ceil(scanSizV(2)/2);
         x = cropDimV(1)/2;
         y = cropDimV(2)/2;
         minr = cx - y;
         maxr = cx + y-1;
         minc = cy - x;
         maxc = cy + x-1;
-        mins = [];
-        maxs = [];
+        mins = 1;
+        maxs = scanSizV(3);
         
     case 'none'
         %Skip
