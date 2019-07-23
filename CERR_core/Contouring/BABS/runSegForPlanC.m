@@ -89,6 +89,10 @@ if iscell(algorithmC) || ~iscell(algiorithmC) && ~strcmpi(algorithmC,'BABS')
         
         %%% =========== common for client and server
         scan3M = getScanForDeepLearnSeg(cerrPath,algorithmC{k}); % common for client or server
+        if isempty(scan3M)
+            %no matching struct
+            return;
+        end
         
         %%% =========== common for client and server
         success = writeH5ForDeepLearnSeg(scan3M,fullClientSessionPath, cerrFileName); % common for client and server

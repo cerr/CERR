@@ -27,6 +27,20 @@ try
         scan3M = getScanArray(planC{indexS.scan}(scanNum));
         scan3M = double(scan3M);
         
+        %If cropping around structure, check if structure is present, else skip
+        %this case
+        if strcmp(cropS.method,'crop_to_str')
+            strC = {planC{indexS.structures}.structureName};
+            strName = cropS.params.structureName;            
+            strIdx = getMatchingIndex(strName,strC,'EXACT');
+            if isempty(strIdx)
+                disp("No matching structure found for cropping");
+            end
+            scan3M = [];
+            return;
+        end
+        
+    
         mask3M = [];
         [scan3M,mask3M] = cropScanAndMask(planC,scan3M,mask3M,cropS);
         

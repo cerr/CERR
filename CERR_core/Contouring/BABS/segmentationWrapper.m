@@ -27,7 +27,11 @@ userInS = jsondecode(fileread(configFilePath));
 cropS = userInS.crop;
 
 % convert scan to H5 format
-cerrToH5(cerrPath, fullSessionPath, cropS);
+errC = cerrToH5(cerrPath, fullSessionPath, cropS);
+if ~empty(errC)
+    success = 0;
+    return;
+end
 
 % % create subdir within fullSessionPath for output h5 files
 outputH5Path = fullfile(fullSessionPath,'outputH5');
