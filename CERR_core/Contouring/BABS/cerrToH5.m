@@ -1,4 +1,4 @@
-function errC = cerrToH5(cerrPath, fullSessionPath, preProcMethod,varargin)
+function errC = cerrToH5(cerrPath, fullSessionPath)
 % Usage: cerrToH5(cerrPath, fullSessionPath)
 %
 % This function converts a 3d scan from planC to H5 file format 
@@ -36,9 +36,9 @@ for p=1:length(planCfiles)
     scan3M = double(scan3M);     
     
     mask3M = [];
-    [scan3M,mask3M] = cropScanAndMask(planC,scan3M,mask3M,preProcMethod,varargin); 
+    [scan3M,mask3M] = cropScanAndMask(planC,scan3M,mask3M, cropS); 
      
-
+    
     %%
     
     % write to h5

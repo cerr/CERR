@@ -18,8 +18,7 @@ configFilePath = fullfile(getCERRPath,'Contouring','models', 'ModelConfiguration
 % check if any pre-processing is required
 %configFilePath = fullfile(getCERRPath,'Contouring','models','heart','heart.json');
 userInS = jsondecode(fileread(configFilePath));
-preProcMethod = userInS.preproc.method;
-preProcOptC = userInS.preproc.params;
+cropS = userInS.crop;
 
 %Get H5 files
 H5Files = dir(fullfile(outputH5Path,'*.h5'));
@@ -61,11 +60,11 @@ end
     res = jsondecode(filetext);          
         
     %if any pre-processing was done, pad mask to get original size    
-    if ~isempty(preProcMethod)         
+    if ~isempty(cropS.method)         
         count = res.loadStructures(1).value;
         for i = 1 : length(res.loadStructures)             
             tmpM1 = flippedMask == count;
-            mask3M = padMask(planC,scanNum,tmpM1,preProcMethod,preProcOptC);
+            mask3M = padMask(planC,scanNum,tmpM1,cropS.method, cropS.params.structureName);
             tmpM2 = mask3M == 1;
             planC = maskToCERRStructure(tmpM2, isUniform, scanNum, res.loadStructures(i).structureName, planC);
             count = count+1;

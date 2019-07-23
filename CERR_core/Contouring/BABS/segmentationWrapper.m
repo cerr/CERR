@@ -19,16 +19,15 @@ containerPath
 algorithm
 
 %build config file path from algorithm
-configFilePath = fullfile(getCERRPath,'Contouring','models', 'ModelConfigurationFiles', [algorithm, '_config','.json']);
+configFilePath = fullfile(getCERRPath,'Contouring','models', 'ModelConfigurationFiles', [algorithm, '_config.json']);
         
 % check if any pre-processing is required  
 %configFilePath = fullfile(getCERRPath,'Contouring','models','heart','heart.json');
 userInS = jsondecode(fileread(configFilePath)); 
-preProcMethod = userInS.preproc.method;
-preProcOptC = userInS.preproc.params;      
-        
+cropS = userInS.crop;
+
 % convert scan to H5 format
-cerrToH5(cerrPath, fullSessionPath, preProcMethod, preProcOptC);
+cerrToH5(cerrPath, fullSessionPath, cropS);
 
 % % create subdir within fullSessionPath for output h5 files
 outputH5Path = fullfile(fullSessionPath,'outputH5');

@@ -6,8 +6,8 @@ configFilePath = fullfile(getCERRPath,'Contouring','models', 'ModelConfiguration
 % check if any pre-processing is required
 %configFilePath = fullfile(getCERRPath,'Contouring','models','heart','heart.json');
 userInS = jsondecode(fileread(configFilePath));
-preProcMethod = userInS.preproc.method;
-preProcOptC = userInS.preproc.params;
+cropS = userInS.crop;
+
 
 planCfiles = dir(fullfile(cerrPath,'*.mat'));
 
@@ -28,7 +28,7 @@ try
         scan3M = double(scan3M);
         
         mask3M = [];
-        [scan3M,mask3M] = cropScanAndMask(planC,scan3M,mask3M,preProcMethod,preProcOptC);
+        [scan3M,mask3M] = cropScanAndMask(planC,scan3M,mask3M,cropS);
         
     end
     
