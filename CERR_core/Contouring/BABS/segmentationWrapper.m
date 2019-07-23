@@ -28,7 +28,7 @@ cropS = userInS.crop;
 
 % convert scan to H5 format
 errC = cerrToH5(cerrPath, fullSessionPath, cropS);
-if ~empty(errC)
+if ~isempty(errC)
     success = 0;
     return;
 end

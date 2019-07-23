@@ -42,11 +42,12 @@ for p=1:length(planCfiles)
         strName = cropS.params.structureName;
         strIdx = getMatchingIndex(strName,strC,'EXACT');
         if isempty(strIdx)
-            disp("No matching structure found for cropping");    
+            disp("No matching structure found for cropping"); 
+            count = count+1;
+            errC{count} =  ['No matching structure found for cropping'];
+            return; 
         end  
-        count = count+1;
-        errC{count} =  ['No matching structure found for cropping'];
-        return; 
+        
     end
     
     mask3M = [];
