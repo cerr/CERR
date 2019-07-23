@@ -13,7 +13,12 @@
   {"structureName" : "PA", "value" : 9}
   ],
 
-"preproc" : [{"method": "crop_to_str", "params" : "LUNG_GTV"}],
+  "crop": [
+    {
+      "method": "crop_to_str",
+      "params": { "structureName": "totallung" },
+      "operator": ""
+    } ],
 
 
 "fullContainerPath" : "",

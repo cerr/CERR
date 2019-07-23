@@ -10,8 +10,13 @@
   
   ],
 
-"preproc" : [{"method": "crop_to_str", "params" : "LUNG_GTV"}],
-
+  "crop": [
+    {
+      "method": "crop_to_str",
+      "params": { "structureName": "totallung" },
+      "operator": ""
+    }
+  ],
 
 "fullContainerPath" : "",
 
