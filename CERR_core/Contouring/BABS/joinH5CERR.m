@@ -59,12 +59,13 @@ end
     filetext = fileread(configFilePath);    
     res = jsondecode(filetext);          
         
-    %if any pre-processing was done, pad mask to get original size    
-    if ~isempty(cropS.method)         
+    %if any pre-processing was done, pad mask to get original size 
+    methodC = {cropS.method};
+    if (length(methodC)>=1)         
         count = res.loadStructures(1).value;
         for i = 1 : length(res.loadStructures)             
             tmpM1 = flippedMask == count;
-            mask3M = padMask(planC,scanNum,tmpM1,cropS.method, cropS.params.structureName);
+            mask3M = padMask(planC,scanNum,tmpM1,cropS);
             tmpM2 = mask3M == 1;
             planC = maskToCERRStructure(tmpM2, isUniform, scanNum, res.loadStructures(i).structureName, planC);
             count = count+1;

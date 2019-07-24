@@ -22,7 +22,11 @@ modelMask3M = getMaskForModelConfig(planC,mask3M,cropS);
 [minr, maxr, minc, maxc, mins, maxs] = compute_boundingbox(modelMask3M);
 
 %Crop scan and mask
-scan3M = scan3M(minr:maxr,minc:maxc,mins:maxs);
-mask3M = mask3M(minr:maxr,minc:maxc,mins:maxs);
+if ~isempty(scan3M)
+    scan3M = scan3M(minr:maxr,minc:maxc,mins:maxs);
+end
+if ~isempty(mask3M)
+    mask3M = mask3M(minr:maxr,minc:maxc,mins:maxs);
+end    
 
 end

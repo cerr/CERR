@@ -29,15 +29,21 @@ try
         
         %If cropping around structure, check if structure is present, else skip
         %this case
-        if strcmp(cropS.method,'crop_to_str')
-            strC = {planC{indexS.structures}.structureName};
-            strName = cropS.params.structureName;            
-            strIdx = getMatchingIndex(strName,strC,'EXACT');
-            if isempty(strIdx)
-                disp("No matching structure found for cropping");
+        methodC = {cropS.method};
+        for m = 1:length(methodC)
+            method = methodC{m};
+            paramS = cropS(m).params;
+            if strcmp(method,'crop_to_str')
+                strC = {planC{indexS.structures}.structureName};
+                strName = paramS.structureName;            
+                strIdx = getMatchingIndex(strName,strC,'EXACT');
+                if isempty(strIdx)
+                    disp("No matching structure found for cropping");
+                    scan3M = [];
+                    return;
+                end
+            
             end
-            scan3M = [];
-            return;
         end
         
     
