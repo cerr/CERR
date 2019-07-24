@@ -38,6 +38,9 @@ def main(argv):
     inputH5Path = '/scratch/inputH5/'
     outputH5Path = '/scratch/outputH5/'
 
+    # print contents of inputH5 for debug
+    print(os.listdir(inputH5path))
+
     trainer = Trainer(argv)
     trainer.validation(inputH5Path, outputH5Path)
 
@@ -77,6 +80,9 @@ class Trainer(object):
         #this looks for all the h5 files that contain "SCAN" in the provided input H5 directory
         keyword = 'SCAN'
         files = find(keyword + '*.h5', inputH5Path)
+
+        # print h5 file name again before loading
+        print(files)
 
         #loop over the h5 files in the directory specified, run the prediction, and save the final 3d mask here
         for filename in files:
@@ -135,6 +141,7 @@ class Trainer(object):
             path, file = os.path.split(filename)
             maskfilename = file.replace(keyword, 'MASK')
 
+            print('writing output h5 file to disk')
             #write result to h5 file
             with h5py.File(os.path.join(outputH5Path, maskfilename), 'w') as hf:
                 hf.create_dataset("mask", data=final_mask)
