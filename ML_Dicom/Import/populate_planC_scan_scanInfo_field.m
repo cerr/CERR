@@ -98,7 +98,8 @@ switch fieldname
         %In CERR, CT Offset is always 1000, as CT water is 1000. (???)
         modality = getTagValue(attr, '00080060');
         if strcmpi(modality,'CT')
-            dataS = 1000;
+            % dataS = 1000;
+            dataS = getTagValue(attr, '00281052');
         else
             dataS = 0;
         end
@@ -376,8 +377,9 @@ switch fieldname
         
     case 'CTWater'
         %In CERR, CT Water is always 1000.
-        dataS = 1000;
-        %Change to match ReScale Intercept
+        % dataS = 1000;        
+        %Changed to match ReScale Intercept
+        dataS = getTagValue(attr, '00281052');
         
     case 'sliceThickness'
         %Slice Thickness

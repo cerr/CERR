@@ -103,12 +103,15 @@ switch cellName
                 %Apply ReScale Intercept and Slope
                 if strcmpi(typeC{seriesNum}, 'CT')
                     if abs(dataS(scansAdded+1).scanInfo(1).rescaleSlope - 1) > eps*1e5
-                        dataS(scansAdded+1).scanArray = single(int32(dataS(scansAdded+1).scanArray) * dataS(scansAdded+1).scanInfo(1).rescaleSlope + dataS(scansAdded+1).scanInfo(1).rescaleIntercept + 1000);
+                        dataS(scansAdded+1).scanArray = single(int32(dataS(scansAdded+1).scanArray) * dataS(scansAdded+1).scanInfo(1).rescaleSlope + ...
+                            dataS(scansAdded+1).scanInfo(1).rescaleIntercept + dataS(scansAdded+1).scanInfo(1).CTOffset);
                     else
                         if min(dataS(scansAdded+1).scanArray(:)) >= -32768 && max(dataS(scansAdded+1).scanArray(:)) <= 32767
-                            dataS(scansAdded+1).scanArray = uint16(int16(dataS(scansAdded+1).scanArray) * dataS(scansAdded+1).scanInfo(1).rescaleSlope + dataS(scansAdded+1).scanInfo(1).rescaleIntercept + 1000);
+                            dataS(scansAdded+1).scanArray = uint16(int16(dataS(scansAdded+1).scanArray) * dataS(scansAdded+1).scanInfo(1).rescaleSlope + ...
+                                dataS(scansAdded+1).scanInfo(1).rescaleIntercept + dataS(scansAdded+1).scanInfo(1).CTOffset);
                         else
-                            dataS(scansAdded+1).scanArray = uint16(int32(dataS(scansAdded+1).scanArray) * dataS(scansAdded+1).scanInfo(1).rescaleSlope + dataS(scansAdded+1).scanInfo(1).rescaleIntercept + 1000);
+                            dataS(scansAdded+1).scanArray = uint16(int32(dataS(scansAdded+1).scanArray) * dataS(scansAdded+1).scanInfo(1).rescaleSlope + ...
+                                dataS(scansAdded+1).scanInfo(1).rescaleIntercept + dataS(scansAdded+1).scanInfo(1).CTOffset);
                         end
                     end
                 elseif ~strcmpi(typeC{seriesNum}, 'PT')
