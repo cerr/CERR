@@ -39,7 +39,7 @@ def main(argv):
     outputH5Path = '/scratch/outputH5/'
 
     # print contents of inputH5 for debug
-    print(os.listdir(inputH5path))
+    print(os.listdir(inputH5Path))
 
     trainer = Trainer(argv)
     trainer.validation(inputH5Path, outputH5Path)
@@ -140,7 +140,7 @@ class Trainer(object):
             #save the final 3d mask at the provided location
             path, file = os.path.split(filename)
             maskfilename = file.replace(keyword, 'MASK')
-            
+
             print('writing output h5 file to disk')
             #write result to h5 file
             with h5py.File(os.path.join(outputH5Path, maskfilename), 'w') as hf:

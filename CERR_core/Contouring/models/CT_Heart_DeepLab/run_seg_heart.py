@@ -39,7 +39,7 @@ def main(argv):
     outputH5Path = '/scratch/outputH5/'
 
     # print contents of inputH5 for debug
-    print(os.listdir(inputH5path))
+    print(os.listdir(inputH5Path))
 
     trainer = Trainer(argv)
     trainer.validation(inputH5Path, outputH5Path)
