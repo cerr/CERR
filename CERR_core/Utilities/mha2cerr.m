@@ -6,6 +6,26 @@ function planC = mha2cerr(infoS,data3M,movScanOffset,movScanName,planC,save_flag
 %
 %   Usage: planC = mha2cerr(infoS,data3M)
 %
+%   Example:
+%         mhdFilePath = 'D:\path\to\ctScan.mhd'
+%         
+%         [data3M,infoS] = readmha(mhdFilePath);
+%         datamin = min(data3M(:));
+%         movScanOffset = 0;
+%         if datamin < 0
+%             movScanOffset = -datamin;
+%         end
+%         movScanName = 'CT';
+% 
+%         if ~exist('planC','var')
+%             planC = initializeCERR;
+%         end
+% 
+%         indexS = planC{end};
+%         save_flag = 1;
+%         planC  = mha2cerr(infoS,data3M,movScanOffset,movScanName, planC, save_flag);
+%         
+%
 % Copyright 2010, Joseph O. Deasy, on behalf of the CERR development team.
 % 
 % This file is part of The Computational Environment for Radiotherapy Research (CERR).
