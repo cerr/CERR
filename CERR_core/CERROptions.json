@@ -222,6 +222,8 @@
 
 "sinc_filter_on_display" : 0,
 
+"retainOriginalUIDonExport" : "yes",
+
 "plastimatch_command_file" : "bspline_register_cmd_dir.txt",
 "plastimatch_build_dir" : "~/software/plastimatch-build",
 
