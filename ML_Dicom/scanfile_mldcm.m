@@ -69,8 +69,9 @@ end
 try
     % get attributes data from file
     if excludePixelDataFlag
-        attrData = in.readDataset(-1, hex2dec('7FE00010'));
+        attrData = in.readDataset(-1, hex2dec('7FE00010')); % org.dcm4che3.data.Tag.PixelData
     else
+        %in.setIncludeBulkData(in.getIncludeBulkData.NO);
         attrData = in.readDataset(-1, -1);
     end
     
