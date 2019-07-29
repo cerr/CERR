@@ -53,16 +53,19 @@ template    = args.template;
 
 switch tag
     case 806092896  %300C0060   Referenced Structure Set Sequence
-        templateEl = template.get(tag);
+        templateEl = template.getValue(tag);
         fHandle = @export_referenced_structure_set_sequence;
 
+        %Create new null Sequence
         tmp = org.dcm4che3.data.Attributes;
-        el = tmp.setNull(tag, []);
+        el = tmp.newSequence(tag, 0);        
        
         for i=1:1 %Only a single element is allowed in this sequence.
             dcmobj = export_sequence(fHandle, templateEl, {DVHs(1)});
-            el.addDicomObject(i-1, dcmobj);
+            el.add(i-1, dcmobj);
         end   
+        %return an attribute
+        el = el.getParent();
         
     case 805568576  %30040040   DVH Normalization Point
         %Currently not implemented.
