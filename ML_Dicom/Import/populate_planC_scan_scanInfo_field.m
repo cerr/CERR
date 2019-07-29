@@ -99,7 +99,7 @@ switch fieldname
         modality = getTagValue(attr, '00080060');
         if strcmpi(modality,'CT')
             % dataS = 1000;
-            dataS = getTagValue(attr, '00281052');
+            dataS = -getTagValue(attr, '00281052');
         else
             dataS = 0;
         end
