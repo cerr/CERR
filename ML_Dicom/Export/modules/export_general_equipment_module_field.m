@@ -59,6 +59,7 @@ switch type
         scanInfo = structS.scanInfo(1);
     case 'structures'
     case 'dose'
+    case 'gsps'
     otherwise
         error('Unsupported modality passed to export_general_equipment_module_field.');                        
 end
@@ -78,6 +79,8 @@ switch tag
             case 'structures'
                 data = 'CERR';
             case 'dose'
+                data = 'CERR';
+            case 'gsps'
                 data = 'CERR';
         end
         el = data2dcmElement(template, data, tag);

@@ -68,4 +68,7 @@ nWritten = nWritten + nNew;
 nNew     = export_RD_IOD(planC, filenameRoot, nWritten);
 nWritten = nWritten + nNew;
 
+%Export the GSPS IOD. (uncomment after further testing)
+%nNew     = export_GSPS_IOD(planC, filenameRoot, nWritten);
+
 toc;

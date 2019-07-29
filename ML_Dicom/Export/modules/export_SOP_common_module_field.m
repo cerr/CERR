@@ -1,5 +1,5 @@
-function el = export_SOP_commons_module_field(args)
-%"export_SOP_commons_module_field"
+function el = export_SOP_common_module_field(args)
+%"export_SOP_common_module_field"
 %   Given a CERR single scan, return a properly populated SOP_Common module tag
 %   for use with any Composite Image IOD.  See SOP_common_module_tags.m.
 %
@@ -58,6 +58,7 @@ switch type
     case 'scanInfo'
     case 'dose'
     case 'structures'
+    case 'gsps'
     otherwise
         error('Unsupported cell type passed to export_SOP_commons_module_field.');                        
 end

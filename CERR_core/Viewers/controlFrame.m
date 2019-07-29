@@ -3327,7 +3327,8 @@ switch command
                 
                 for scanNum = 1:length(planC{indexS.scan})
                     for slcNum=1:length(planC{indexS.scan}(scanNum).scanInfo)
-                        SOPInstanceUIDc{slcNum} = planC{indexS.scan}(scanNum).scanInfo(slcNum).DICOMHeaders.SOPInstanceUID;
+                        % SOPInstanceUIDc{slcNum} = planC{indexS.scan}(scanNum).scanInfo(slcNum).DICOMHeaders.SOPInstanceUID;
+                        SOPInstanceUIDc{slcNum} = planC{indexS.scan}(scanNum).scanInfo(slcNum).sopInstanceUID;
                     end
                     for i=1:numSignificantSlcs
                         sliceNum = strmatch(planC{indexS.GSPS}(i).SOPInstanceUID, SOPInstanceUIDc, 'exact');
@@ -3429,17 +3430,17 @@ switch command
                     graphicAnnotationType = planC{indexS.GSPS}(gspsNum).graphicAnnotationS(iGraphic).graphicAnnotationType;
                     graphicAnnotationNumPts = planC{indexS.GSPS}(gspsNum).graphicAnnotationS(iGraphic).graphicAnnotationNumPts;
                     graphicAnnotationData = planC{indexS.GSPS}(gspsNum).graphicAnnotationS(iGraphic).graphicAnnotationData;
-                    rowV = graphicAnnotationData(1:2:end);
-                    colV = graphicAnnotationData(2:2:end);
-                    %[xV, yV] = mtoaapm(colV, rowV, Dims, gridUnits, offset);
-                    yShiftedV = double(-double(colV)+Dims(1));
-                    xShiftedV = double(rowV);
-                    yOffset = Dims(1)/2;
-                    xOffset = Dims(2)/2;                    
-                    xV = xShiftedV-xOffset;
-                    yV = yShiftedV-yOffset;                    
-                    xV = xV*gridUnits(2)+offset(2);
-                    yV = yV*gridUnits(1)+offset(1);
+                    rowV = graphicAnnotationData(1:2:end)+1; % 0-index to 1-inxed
+                    colV = graphicAnnotationData(2:2:end)+1;
+                    [xV, yV] = mtoaapm(colV, rowV, Dims, gridUnits, offset);
+                    %yShiftedV = double(-double(colV)+Dims(1));
+                    %xShiftedV = double(rowV);
+                    %yOffset = Dims(1)/2;
+                    %xOffset = Dims(2)/2;                    
+                    %xV = xShiftedV-xOffset;
+                    %yV = yShiftedV-yOffset;                    
+                    %xV = xV*gridUnits(2)+offset(2);
+                    %yV = yV*gridUnits(1)+offset(1);
                     
                     %xV = 2*xOffset - xV;
                     switch upper(pPos)
@@ -3478,8 +3479,8 @@ switch command
                     graphicAnnotationType = planC{indexS.GSPS}(gspsNum).graphicAnnotationS(iGraphic).graphicAnnotationType;
                     graphicAnnotationData = planC{indexS.GSPS}(gspsNum).graphicAnnotationS(iGraphic).graphicAnnotationData;
                     graphicAnnotationNumPts = planC{indexS.GSPS}(gspsNum).graphicAnnotationS(iGraphic).graphicAnnotationNumPts;
-                    rowV = graphicAnnotationData(1:2:end);
-                    colV = graphicAnnotationData(2:2:end);
+                    rowV = graphicAnnotationData(1:2:end) + 1; % 0-index  to 1-index
+                    colV = graphicAnnotationData(2:2:end) + 1;
                     [xV, yV] = mtoaapm(colV, rowV, Dims, gridUnits, offset);
                     switch upper(pPos)
                         case 'FFS'
@@ -3519,22 +3520,22 @@ switch command
                 % Display Text
                 for iText = 1:length(planC{indexS.GSPS}(gspsNum).textAnnotationS)
                     leftTop = planC{indexS.GSPS}(gspsNum).textAnnotationS(iText).boundingBoxTopLeftHandCornerPt;
-                    row = leftTop(1);
-                    col = leftTop(2);
-                    [xTopLeft, yTopLeft] = mtoaapm(col, row, Dims, gridUnits, offset);
+                    col = leftTop(1) + 1;
+                    row = leftTop(2) + 1;
+                    [xTopLeft, yTopLeft] = mtoaapm(row, col, Dims, gridUnits, offset);
                     rightBottom = planC{indexS.GSPS}(gspsNum).textAnnotationS(iText).boundingBoxBottomRightHandCornerPt;
-                    row = rightBottom(1);
-                    col = rightBottom(2);
-                    [xRightBottom, yRightBottom] = mtoaapm(col, row, Dims, gridUnits, offset);
+                    col = rightBottom(1) + 1;
+                    row = rightBottom(2) + 1;
+                    [xRightBottom, yRightBottom] = mtoaapm(row, col, Dims, gridUnits, offset);
                     anchorPoint = planC{indexS.GSPS}(gspsNum).textAnnotationS(iText).anchorPoint;
-                    row = anchorPoint(1);
-                    col = anchorPoint(2);
-                    [xAnchor, yAnchor] = mtoaapm(col, row, Dims, gridUnits, offset);
+                    col = anchorPoint(1) + 1;
+                    row = anchorPoint(2) + 1;
+                    [xAnchor, yAnchor] = mtoaapm(row, col, Dims, gridUnits, offset);
                     if ~isempty(planC{indexS.GSPS}(gspsNum).textAnnotationS(iText).unformattedTextValue)
                         % Plot Box
                         hV = [hV, plot([xTopLeft xRightBottom xRightBottom xTopLeft xTopLeft],...
                             [yTopLeft yTopLeft yRightBottom yRightBottom yTopLeft],...
-                            'm','linewidth',2),'parent',stateS.handle.CERRAxis(1)];
+                            'm','linewidth',2,'parent',stateS.handle.CERRAxis(1))];
                         % Plot Anchor Point
                         hV = [hV, plot(xAnchor, yAnchor, 'mo', 'markerSize', 4,'parent',stateS.handle.CERRAxis(1))];
                         % Find distance between anchor point and the bounding box points
@@ -3543,9 +3544,9 @@ switch command
                         distV = (xV-xAnchor).^2 + (yV-yAnchor).^2;
                         [jnk,minInd] = min(distV);
                         hV = [hV, plot([xAnchor xV(minInd)], [yAnchor yV(minInd)], 'm', 'linewidth',2)];
-                        hV = [hV, text('parent',stateS.handle.CERRAxis(1),'position',[mean(xV),mean(yV)],...
+                        hV = [hV, text('parent',stateS.handle.CERRAxis(1),'position',[min(xV),mean(yV)],...
                             'string',planC{indexS.GSPS}(gspsNum).textAnnotationS(iText).unformattedTextValue,...
-                            'fontSize',8, 'units', 'data')];
+                            'fontSize',8, 'units', 'data', 'color','y')];
                     end
                 end
                 

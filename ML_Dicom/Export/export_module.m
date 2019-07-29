@@ -115,6 +115,12 @@ switch lower(moduleName)
     case 'multi_frame'
         tagS = multi_frame_module_tags;
         export_function = @export_multi_frame_module_field;
+    case 'gsps'
+        tagS = gsps_module_tags;
+        export_function = @export_gsps_module_field;  
+%     case 'graphic_layer'
+%         tagS = graphic_layer_module_tags;
+%         export_function = @export_graphic_layer_module_field;  
     otherwise
         error('Unrecognized or unsupported module export requested.')
 end

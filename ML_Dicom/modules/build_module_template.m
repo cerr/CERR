@@ -80,6 +80,8 @@ switch lower(moduleName)
         tagS = RT_DVH_module_tags;        
     case 'multi_frame'
         tagS = multi_frame_module_tags;
+    case 'gsps'
+        tagS = gsps_module_tags;
     otherwise
         error('Unrecognized or unsupported module template requested.')
 end

@@ -61,6 +61,7 @@ template    = args.template;
 switch type
     case 'dose'
     case 'structures'
+    case 'gsps'
     otherwise
         error('Unsupported modality passed to export_rt_series_module.');                        
 end
@@ -74,6 +75,8 @@ switch tag
                 data = 'RTDOSE';
             case 'structures'
                 data = 'RTSTRUCT';
+            case 'gsps'
+                data = 'PR';
         end
         el = data2dcmElement(template, data, tag);      
         
@@ -83,6 +86,8 @@ switch tag
                 UID = structS(1).Series_Instance_UID;
             case 'structures'
                 %All structures have the same Series_Instance_UID, simply use first.                
+                UID = structS(1).Series_Instance_UID;
+            case 'gsps'
                 UID = structS(1).Series_Instance_UID;
         end
         el = data2dcmElement(template, UID, tag);        
@@ -108,6 +113,7 @@ switch tag
                 %seriesDescription = structS(1).SeriesDescription;
                 seriesDescription = [];
                 el = data2dcmElement(template, seriesDescription, tag);
+            case 'gsps'                
         end
     case  528657    %0008,1111 Referenced Performed Procedure Step Sequence
     case 4194933    %0040,0275 Request Attributes Sequence

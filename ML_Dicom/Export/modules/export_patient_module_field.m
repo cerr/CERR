@@ -59,7 +59,7 @@ switch type
         scanS = args.data{2};
         dataS = scanS.scanInfo(1);
         dataS.Patient_ID = scanS.Patient_ID;
-    case {'dose', 'structures'}
+    case {'dose', 'structures','gsps'}
         dataS = args.data{2};
     otherwise
         error('Unsupported data passed to export_patient_module_field.');

@@ -58,10 +58,12 @@ switch tag
     %Class 1 Tags -- Required, must have data.
     case  524384    %0008,0060 Modality
         data = scanInfo.imageType;
-        if strcmpi(upper(data),'CT SCAN')
+        if strcmpi(data,'CT SCAN')
             data = 'CT';
-        elseif strcmpi(upper(data),'MRI')
+        elseif strcmpi(data,'MRI')
             data = 'MR';
+        elseif strcmpi(data,'GSPS')
+            data = 'PR';
         end
         el = data2dcmElement(template, data, tag);
         

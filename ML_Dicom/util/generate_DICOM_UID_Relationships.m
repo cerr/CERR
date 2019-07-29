@@ -35,7 +35,10 @@ function planC = generate_DICOM_UID_Relationships(planC)
 % You should have received a copy of the GNU General Public License
 % along with CERR.  If not, see <http://www.gnu.org/licenses/>.
 
-
+% Read CERROptions.json
+pathStr = getCERRPath;
+optName = [pathStr 'CERROptions.json'];
+optS = opts4Exe(optName);
 
 indexS = planC{end};
 
@@ -78,8 +81,9 @@ for i = 1:length(planC{indexS.scan})
     %planC{indexS.scan}(i).Series_Instance_UID = dicomuid;
     %if isfield(planC{indexS.scan}(i).scanInfo(1), 'DICOMHeaders') && ...
     %        ~isempty(planC{indexS.scan}(i).scanInfo(1).DICOMHeaders)
-    if isfield(planC{indexS.scan}(i).scanInfo(1),'seriesInstanceUID') && ...
-        ~isempty(planC{indexS.scan}(i).scanInfo(1).seriesInstanceUID)
+    if strcmpi(optS.retainOriginalUIDonExport,'yes') && ...
+            isfield(planC{indexS.scan}(i).scanInfo(1),'seriesInstanceUID') && ...
+            ~isempty(planC{indexS.scan}(i).scanInfo(1).seriesInstanceUID)
         planC{indexS.scan}(i).Series_Instance_UID = ...
             planC{indexS.scan}(i).scanInfo(1).seriesInstanceUID;
     else
@@ -90,8 +94,9 @@ for i = 1:length(planC{indexS.scan})
     %planC{indexS.scan}(i).Frame_Of_Reference_UID = dicomuid;
     %if isfield(planC{indexS.scan}(i).scanInfo(1), 'DICOMHeaders') && ...
     %        ~isempty(planC{indexS.scan}(i).scanInfo(1).DICOMHeaders)
-    if isfield(planC{indexS.scan}(i).scanInfo(1),'frameOfReferenceUID') && ...
-        ~isempty(planC{indexS.scan}(i).scanInfo(1).frameOfReferenceUID)
+    if strcmpi(optS.retainOriginalUIDonExport,'yes') && ...
+            isfield(planC{indexS.scan}(i).scanInfo(1),'frameOfReferenceUID') && ...
+            ~isempty(planC{indexS.scan}(i).scanInfo(1).frameOfReferenceUID)
         planC{indexS.scan}(i).Frame_Of_Reference_UID = ...
             planC{indexS.scan}(i).scanInfo(1).frameOfReferenceUID;
     else
@@ -130,9 +135,20 @@ for i = 1:length(planC{indexS.scan})
     end
     
     %Iterate over slices
-    for j=1:length(planC{indexS.scan}(i).scanInfo)
-        planC{indexS.scan}(i).scanInfo(j).SOP_Class_UID      = SOP_Class_UID;
-        planC{indexS.scan}(i).scanInfo(j).SOP_Instance_UID   = dicomuid;
+    if strcmpi(optS.retainOriginalUIDonExport,'yes') && ...
+            isfield(planC{indexS.scan}(i).scanInfo(1),'sopInstanceUID') && ...
+            ~isempty(planC{indexS.scan}(i).scanInfo(1).sopInstanceUID)
+        for j=1:length(planC{indexS.scan}(i).scanInfo)
+            sopInstanceUID = planC{indexS.scan}(i).scanInfo(j).sopInstanceUID;
+            sopClassUID = planC{indexS.scan}(i).scanInfo(j).sopClassUID;
+            planC{indexS.scan}(i).scanInfo(j).SOP_Class_UID      = sopClassUID;
+            planC{indexS.scan}(i).scanInfo(j).SOP_Instance_UID   = sopInstanceUID;
+        end
+    else
+        for j=1:length(planC{indexS.scan}(i).scanInfo)
+            planC{indexS.scan}(i).scanInfo(j).SOP_Class_UID      = SOP_Class_UID;
+            planC{indexS.scan}(i).scanInfo(j).SOP_Instance_UID   = dicomuid;
+        end
     end
     
 end
@@ -228,5 +244,60 @@ Referenced_Structure_Set_SOP_Instance_UID = Structure_Set_SOP_Instance_UID;
 for i = 1:length(planC{indexS.DVH})
     planC{indexS.DVH}(i).Referenced_Structure_Set_SOP_Class_UID     = Referenced_Structure_Set_SOP_Class_UID;
     planC{indexS.DVH}(i).Referenced_Structure_Set_SOP_Instance_UID  = Referenced_Structure_Set_SOP_Instance_UID;
+end
+
+
+
+%% GSPS UIDs
+%Iterate over GSPS
+originalSliceSOPInstanceUIDc = {planC{indexS.scan}.scanInfo.sopInstanceUID};
+for i = 1:length(planC{indexS.GSPS})
+    
+    % scanNum associated with this GSPS (expand to handle multiple scans)
+    scanNum = 1;
+    
+    %Set the patient id.
+    planC{indexS.GSPS}(i).Patient_ID = Patient_ID;
+    
+    % Set the patient name
+    planC{indexS.GSPS}(i).patientName = patientName;
+
+    %Set the study instance UID.
+    planC{indexS.GSPS}(i).Study_Instance_UID = Study_Instance_UID;
+    
+    %Generate a series instance UID for each dose;
+    planC{indexS.GSPS}(i).Series_Instance_UID = dicomuid;
+    
+    %Set the frame of reference UID to that of the associated scan, if it
+    %exists.
+    planC{indexS.GSPS}(i).Frame_Of_Reference_UID = planC{indexS.scan}(1).Frame_Of_Reference_UID;
+    
+    %Generate a SOP ClassUID for each GSPS.
+    SOP_Class_UID = '1.2.840.10008.5.1.4.1.1.11.1';
+    
+    planC{indexS.GSPS}(i).SOP_Class_UID = SOP_Class_UID;    
+    planC{indexS.GSPS}(i).SOP_Instance_UID = dicomuid;
+    
+    if strcmpi(optS.retainOriginalUIDonExport,'no')
+        sopInstanceUID = planC{indexS.GSPS}(i).SOPInstanceUID;
+        sliceNum = strncmp(sopInstanceUID,originalSliceSOPInstanceUIDc,length(sopInstanceUID));
+        referenced_SOP_instance_uid = ...
+            planC{indexS.scan}(scanNum).scanInfo(sliceNum).SOP_Instance_UID;
+        referenced_SOP_class_uid = ...
+            planC{indexS.scan}(scanNum).scanInfo(sliceNum).SOP_Class_UID;
+    else
+        referenced_SOP_instance_uid = planC{indexS.GSPS}(i).SOPInstanceUID;
+        referenced_SOP_class_uid = ...
+            planC{indexS.scan}(scanNum).scanInfo(1).SOP_Class_UID;
+    end
+    planC{indexS.GSPS}(i).referenced_SOP_instance_uid = referenced_SOP_instance_uid;
+    planC{indexS.GSPS}(i).referenced_SOP_class_uid = referenced_SOP_class_uid;
+    
+    %Generate a Referenced Study Sequence SOP Class UID for each dose.
+    %planC{indexS.GSPS}(i).Referenced_Study_Sequence_SOP_Class_UID = '1.2.840.10008.5.1.4.1.1.481.5';
+    %planC{indexS.GSPS}(i).Referenced_Study_Sequence_SOP_Instance_UID = dicomuid;
+    
+    %Generate a Referenced Series Sequence SOP Class UID for each dose.
+    
 end
 
