@@ -70,8 +70,8 @@ switch upper(vrString)
         attr.setFloat(tag, vr, data);        
     case 'DT'
         %Needs implementation        
-    case 'FL'
-        %Needs implementation        
+    case 'FL'        
+        attr.setFloat(tag, vr, data);        
     case 'FD'
         %Needs implementation        
     case 'IS'
