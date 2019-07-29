@@ -7,7 +7,20 @@ function [data3M, infoS] = nrrd_read(fileName)
 % Examlpe usage:
 % fileName = 'P:\to\file\brain_image.nrrd';
 % [data3M, infoS] = nrrd_read(fileName);
-% planC = mha2cerr(infoS,data3M,0,'CT',[],1);
+% datamin = min(data3M(:));
+% movScanOffset = 0;
+% if datamin < 0
+%     movScanOffset = -datamin;
+% end
+% movScanName = 'CT';
+% 
+% if ~exist('planC','var')
+%     planC = initializeCERR;
+% end
+% 
+% indexS = planC{end};
+% save_flag = 1;
+% planC  = mha2cerr(infoS,data3M,movScanOffset,movScanName, planC, save_flag);
 
 % read nrrd file
 [data3M,infoS] = nrrdread(fileName);
