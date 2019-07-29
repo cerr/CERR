@@ -69,6 +69,17 @@ for scanNum = 1:length(planC{indexS.scan})
             isfield(planC{indexS.scan}(scanNum).scanInfo(1).DICOMHeaders,'SeriesDescription')
         planC{indexS.scan}(scanNum).scanType = planC{indexS.scan}(scanNum).scanInfo(1).DICOMHeaders.SeriesDescription;
     end
+    % Save SOPInstanceUID and SOPClassUID within scanInfo
+    if isempty(planC{indexS.scan}(scanNum).scanInfo(1).sopInstanceUID)
+        if isfield(planC{indexS.scan}(scanNum).scanInfo(1),'DICOMHeaders')
+            for slcNum = 1:length(planC{indexS.scan}(scanNum).scanInfo)
+                planC{indexS.scan}(scanNum).scanInfo(slcNum).sopInstanceUID = ...
+                    planC{indexS.scan}(scanNum).scanInfo(slcNum).DICOMHeaders.SOPInstanceUID;
+                planC{indexS.scan}(scanNum).scanInfo(slcNum).sopClassUID = ...
+                    planC{indexS.scan}(scanNum).scanInfo(slcNum).DICOMHeaders.SOPClassUID;
+            end
+        end
+    end
 end
 
 %Check dose-grid
@@ -173,7 +184,6 @@ for scanNum = 1:length(planC{indexS.scan})
         end
     end
 end
-
 
 % Check for GSPS and make it empty if no objects are present
 if length(planC{indexS.GSPS}) == 1 && isempty(planC{indexS.GSPS}.SOPInstanceUID)
