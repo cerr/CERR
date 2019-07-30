@@ -1,5 +1,5 @@
-function featureS = batchExtractRadiomics(dirName,paramFileName)
-% function featureS = batchExtractRadiomics(dirName,paramFileName)
+function featureS = batchExtractRadiomics(dirName,paramFileName,outXlsFile)
+% function featureS = batchExtractRadiomics(dirName,paramFileName,outXlsFile)
 % 
 % Extract radiomics features for a cohort of CERR files. Features for multiple 
 % structures can be extracted simultaneously by specifying their names in
@@ -8,6 +8,8 @@ function featureS = batchExtractRadiomics(dirName,paramFileName)
 % INPUT: 
 %   dirName - directory containing CERR files.
 %   paramFileName - .json file containing parameters for radiomics calculation.
+%   outXlsFile - full path to the save features to Excel file (optional
+%   input).
 %
 % OUTPUT:
 %   featureS - data structure for radiomics features. 
@@ -55,3 +57,25 @@ for iFile = 1:length(all_filenames)
     
 end
 
+% Write output to Excel file if outXlsFile exists
+if exist('outXlsFile','var')    
+    structC = fieldnames(featureS);
+    fileNamC = {featureS.fileName};
+    indKeepV = ~strncmpi('fileName',structC,length('filename'));
+    structC = structC(indKeepV);
+    for iStruct = 1:length(structC)
+        combinedFieldNamC = {};
+        combinedFeatureM = [];
+        featureForStructS = [featureS.(structC{iStruct})];
+        imgC = fieldnames(featureForStructS);
+        for iImg = 1:length(imgC)
+             [featureM,allFieldC] = featureStructToMat([featureForStructS.(imgC{iImg})]);
+             combinedFieldNamC = [combinedFieldNamC; strcat(allFieldC,'_',imgC{iImg})];
+             combinedFeatureM = [combinedFeatureM, featureM];
+        end
+        xlswrite(outXlsFile, ['File Name';combinedFieldNamC]', structC{iStruct}, 'A1');
+        xlswrite(outXlsFile, fileNamC(:), structC{iStruct}, 'A2');
+        xlswrite(outXlsFile, combinedFeatureM, structC{iStruct}, 'B2');
+    end
+end
+   
