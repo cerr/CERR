@@ -1,7 +1,7 @@
 function tagS = gsps_module_tags
 %"gsps_module_tags"
 %   Return the tags used to represent a ROI contour specified by 
-%   C.8.8.6 in PS3.3 of 2006 DICOM specification. Tags are returned in a 
+%   A.33 in PS3.3 of 2006 DICOM specification. Tags are returned in a 
 %   struct array with 3 fields:
 %   
 %   Tag: String containing hex DICOM tag of a field.
@@ -50,7 +50,50 @@ tagS = struct('tag', {}, 'type', {}, 'children', {});
 %Create an empty tagS template for sequence creation.
 template = tagS;
 
-%Add tags based on PS3.3 attribute lists.
+%Add tags based on PS3.3 attribute lists
+
+% Presentation Creation Date
+tagS(end+1) = struct('tag', ['00700082'], 'type', ['1'], 'children', []);
+
+% Presentation Creation Time
+tagS(end+1) = struct('tag', ['00700083'], 'type', ['1'], 'children', []);
+
+% Presentation LUT Shape
+tagS(end+1) = struct('tag', ['20500020'], 'type', ['1C'], 'children', []);
+
+% Displayed Area Selection Sequence
+tagS(end+1) = struct('tag', ['0070005A'], 'type', ['1'], 'children', []);
+
+    child_0 = template;
+    %Referenced Image Sequence
+    child_0(end+1) = struct('tag', ['00081140'], 'type', ['1C'], 'children', image_SOP_instance_reference_macro_tags);
+    % Displayed Area Top Left Hand Corner
+    child_0(end+1) = struct('tag', ['00700052'], 'type', ['1'], 'children', []);
+    % Displayed Area Bottom Right Hand Corner
+    child_0(end+1) = struct('tag', ['00700053'], 'type', ['1'], 'children', []);
+    % Presentation Size Mode
+    child_0(end+1) = struct('tag', ['00700100'], 'type', ['1'], 'children', []);
+    % Presentation Pixel Spacing
+    child_0(end+1) = struct('tag', ['00700101'], 'type', ['1C'], 'children', []);
+    % Presentation Pixel Aspect Ratio
+    child_0(end+1) = struct('tag', ['00700102'], 'type', ['1C'], 'children', []);
+    % Presentation Pixel Magnification Ratio
+    child_0(end+1) = struct('tag', ['00700103'], 'type', ['1C'], 'children', []);
+
+tagS(end).children = child_0;
+
+% Referenced Series Sequence
+tagS(end+1) = struct('tag', ['00081115'], 'type', ['1'], 'children', []);
+    child_0 = template;
+    % Series Instance UID
+    child_0(end+1) = struct('tag', ['0020000E'], 'type', ['1'], 'children', []);
+    % Referenced Image Sequence
+    child_0(end+1) = struct('tag', ['00081140'], 'type', ['1'], 'children', image_SOP_instance_reference_macro_tags);
+
+tagS(end).children = child_0;
+
+% Referenced Study Sequence
+
 
 %Graphic Annotation Sequence
 tagS(end+1) = struct('tag', ['00700001'], 'type', ['1'], 'children', []);

@@ -67,6 +67,48 @@ switch tag
         data = 'IDENTITY'; % or 'INVERSE'
         el = data2dcmElement(template, data, tag);
         
+    case 7340122  % 0070,005A  Displayed Area Selection Sequence
+        templateEl  = template.getValue(tag);
+        fHandle = @export_displayed_area_selection_sequence;
+
+        %New null sequence
+        tmp = org.dcm4che3.data.Attributes;
+        el = tmp.newSequence(tag, 0);
+        
+        scanSopInstanceUIDc = {scanS.scanInfo.sopInstanceUID};
+        
+        for i=1:length(gspsS)
+            slcNum = strncmp(gspsS(i).referenced_SOP_instance_uid,...
+                scanSopInstanceUIDc,length(gspsS(i).referenced_SOP_instance_uid));
+            dcmobj = export_sequence(fHandle, templateEl, {gspsS(i),scanS.scanInfo(slcNum)});
+            %dcmobj = export_sequence(fHandle, tag, {structS(i), i});
+            el.add(i-1, dcmobj);
+        end
+        %get attribute to return
+        el = el.getParent();
+        
+        
+    case 528661   % 0008,1115  Referenced Series Sequence
+        templateEl  = template.getValue(tag);
+        fHandle = @export_referenced_series_sequence;
+
+        %New null sequence
+        tmp = org.dcm4che3.data.Attributes;
+        el = tmp.newSequence(tag, 0);
+        
+        scanSopInstanceUIDc = {scanS.scanInfo.sopInstanceUID};
+        
+        for i=1:length(gspsS)
+            slcNum = strncmp(gspsS(i).referenced_SOP_instance_uid,...
+                scanSopInstanceUIDc,length(gspsS(i).referenced_SOP_instance_uid));
+            dcmobj = export_sequence(fHandle, templateEl, {gspsS(i),scanS.scanInfo(slcNum)});
+            %dcmobj = export_sequence(fHandle, tag, {structS(i), i});
+            el.add(i-1, dcmobj);
+        end
+        %get attribute to return
+        el = el.getParent();
+
+        
     case 7340033  %0070,0001 Graphic Annotation Sequence     
 
         templateEl  = template.getValue(tag);
