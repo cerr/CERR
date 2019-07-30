@@ -33,6 +33,8 @@ for iFile = 1:length(all_filenames)
     
     planC = loadPlanC(fullFname, tempdir);
     
+    planC = updatePlanFields(planC);
+    
     planC = quality_assure_planC(fullFname, planC);
     
     indexS = planC{end};
