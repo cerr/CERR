@@ -70,7 +70,7 @@ for scanNum = 1:length(planC{indexS.scan})
         planC{indexS.scan}(scanNum).scanType = planC{indexS.scan}(scanNum).scanInfo(1).DICOMHeaders.SeriesDescription;
     end
     % Save SOPInstanceUID and SOPClassUID within scanInfo
-    if isempty(planC{indexS.scan}(scanNum).scanInfo(1).sopInstanceUID)
+    if ~isfield(planC{indexS.scan}(scanNum).scanInfo(1),'sopInstanceUID')
         if isfield(planC{indexS.scan}(scanNum).scanInfo(1),'DICOMHeaders')
             for slcNum = 1:length(planC{indexS.scan}(scanNum).scanInfo)
                 planC{indexS.scan}(scanNum).scanInfo(slcNum).sopInstanceUID = ...
