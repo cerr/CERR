@@ -67,10 +67,10 @@ CTdeltaY            = abs(yV(2) - yV(1));
 reusableZerosM = repmat(logical(0),[sizeArray(1), sizeArray(2)]);
 
 % %Initialize structureArray and bits array if they dont exist.
-% if (length(planC{indexS.structureArray}) < scanNum) || ...
-%         (length(planC{indexS.structureArray}) >= scanNum && ...
-%         isempty(planC{indexS.structureArray}(scanNum).assocScanUID)) %
-%         apa 5/23/2019
+if (length(planC{indexS.structureArray}) < scanNum) || ...
+        (length(planC{indexS.structureArray}) >= scanNum && ...
+        isempty(planC{indexS.structureArray}(scanNum).assocScanUID)) %
+    %         apa 5/23/2019
     tmp = uint16([0 0 0]);
     tmp(1,:) = [];
     planC{indexS.structureArray}(scanNum).indicesArray = tmp;
@@ -87,8 +87,8 @@ reusableZerosM = repmat(logical(0),[sizeArray(1), sizeArray(2)]);
     
     if isfield(stateS,'structSet') && isempty(stateS.structSet)
         stateS.structSet = scanNum;
-    end    
-% end
+    end
+end
 
 if relStructNum <= 52
     cellNum = 1;
