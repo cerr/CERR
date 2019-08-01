@@ -71,7 +71,8 @@ for scanNum = 1:length(planC{indexS.scan})
     end
     % Save SOPInstanceUID and SOPClassUID within scanInfo
     if isempty(planC{indexS.scan}(scanNum).scanInfo(1).sopInstanceUID)
-        if isfield(planC{indexS.scan}(scanNum).scanInfo(1),'DICOMHeaders')
+        if isfield(planC{indexS.scan}(scanNum).scanInfo(1),'DICOMHeaders') ...
+                && ~isempty(planC{indexS.scan}(scanNum).scanInfo(1).DICOMHeaders)
             for slcNum = 1:length(planC{indexS.scan}(scanNum).scanInfo)
                 planC{indexS.scan}(scanNum).scanInfo(slcNum).sopInstanceUID = ...
                     planC{indexS.scan}(scanNum).scanInfo(slcNum).DICOMHeaders.SOPInstanceUID;
