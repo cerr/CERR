@@ -40,11 +40,11 @@ template            = args.template;
 
 switch tag
     case 528720     %0008,1150  Referenced SOP Class UID
-        data = scanInfoS.referenced_SOP_class_uid;     
+        data = scanInfoS.SOP_Class_UID;     
         el = data2dcmElement(template, data, tag);
         
     case 528725     %0008,1155  Referenced SOP Instance UID
-        data = scanInfoS.referenced_SOP_instance_uid;        
+        data = scanInfoS.SOP_Instance_UID;        
         el = data2dcmElement(template, data, tag);
         
 %     case 528736     %0008,1160  Referenced Frame Number

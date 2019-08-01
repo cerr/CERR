@@ -74,19 +74,18 @@ switch tag
         %New null sequence
         tmp = org.dcm4che3.data.Attributes;
         el = tmp.newSequence(tag, 0);
+                
+        % Only one item since all images use the displayed area selection 
+        % Might need to add additional items when generating annotations
+        % belonging to different series.
         
-        scanSopInstanceUIDc = {scanS.scanInfo.sopInstanceUID};
-        
-        for i=1:length(gspsS)
-            slcNum = strncmp(gspsS(i).referenced_SOP_instance_uid,...
-                scanSopInstanceUIDc,length(gspsS(i).referenced_SOP_instance_uid));
-            dcmobj = export_sequence(fHandle, templateEl, {gspsS(i),scanS.scanInfo(slcNum)});
-            %dcmobj = export_sequence(fHandle, tag, {structS(i), i});
-            el.add(i-1, dcmobj);
-        end
+        % for i=1:length(gspsS)
+        i = 1; % only one item
+        dcmobj = export_sequence(fHandle, templateEl, {gspsS,scanS});
+        el.add(i-1, dcmobj);
+        % end
         %get attribute to return
-        el = el.getParent();
-        
+        el = el.getParent();        
         
     case 528661   % 0008,1115  Referenced Series Sequence
         templateEl  = template.getValue(tag);
@@ -95,19 +94,18 @@ switch tag
         %New null sequence
         tmp = org.dcm4che3.data.Attributes;
         el = tmp.newSequence(tag, 0);
+                
+        % Only one item since all images use the displayed area selection 
+        % Might need to add additional items when generating annotations
+        % belonging to different series.
         
-        scanSopInstanceUIDc = {scanS.scanInfo.sopInstanceUID};
-        
-        for i=1:length(gspsS)
-            slcNum = strncmp(gspsS(i).referenced_SOP_instance_uid,...
-                scanSopInstanceUIDc,length(gspsS(i).referenced_SOP_instance_uid));
-            dcmobj = export_sequence(fHandle, templateEl, {gspsS(i),scanS.scanInfo(slcNum)});
-            %dcmobj = export_sequence(fHandle, tag, {structS(i), i});
-            el.add(i-1, dcmobj);
-        end
+        % for i=1:length(gspsS)
+        i = 1; % only one item
+        dcmobj = export_sequence(fHandle, templateEl, {gspsS,scanS});
+        el.add(i-1, dcmobj);
+        % end
         %get attribute to return
         el = el.getParent();
-
         
     case 7340033  %0070,0001 Graphic Annotation Sequence     
 
