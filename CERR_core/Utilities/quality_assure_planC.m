@@ -78,6 +78,8 @@ for scanNum = 1:length(planC{indexS.scan})
                     planC{indexS.scan}(scanNum).scanInfo(slcNum).DICOMHeaders.SOPInstanceUID;
                 planC{indexS.scan}(scanNum).scanInfo(slcNum).sopClassUID = ...
                     planC{indexS.scan}(scanNum).scanInfo(slcNum).DICOMHeaders.SOPClassUID;
+                planC{indexS.scan}(scanNum).scanInfo(slcNum).seriesInstanceUID = ...
+                    planC{indexS.scan}(scanNum).scanInfo(slcNum).DICOMHeaders.SeriesInstanceUID;
             end
         end
     end
