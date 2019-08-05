@@ -55,8 +55,7 @@ switch tag
         el = tmp.newSequence(tag, 0);
         
         i = 1; % only one layer
-        dcmobj = export_sequence(fHandle, templateEl, {gspsS});
-        %dcmobj = export_sequence(fHandle, tag, {structS(i), i});
+        dcmobj = export_sequence(fHandle, templateEl, {scanInfoS});
         el.add(i-1, dcmobj);
         
         %get attribute to return
