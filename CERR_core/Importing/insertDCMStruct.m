@@ -47,7 +47,12 @@ else
     error('Invalid DICOM data')
 end
 
-dataS = populate_planC_field('structures', dcmdirS.PATIENT);
+% Read CERROptions.json
+pathStr = getCERRPath;
+optName = [pathStr 'CERROptions.json'];
+optS = opts4Exe(optName);
+
+dataS = populate_planC_field('structures', dcmdirS.PATIENT, optS);
 
 % Tolerance to determine oblique scan (think about passing it as a
 % parameter in future)
