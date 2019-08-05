@@ -132,7 +132,8 @@ switch upper(vrString)
         end                  
         attr.setString(tag, vr, data);
     case 'SL'
-        %Needs implementation        
+        %Needs implementation       
+        attr.setInt(tag, vr, data);
     case 'SQ'
         %Implementation currently unnecessary.
     case 'SS'
@@ -161,7 +162,7 @@ end
 
 %DEBUGGING CODE: remove this once all VRs are implemented.
 if attr.isEmpty
-    warning(['DEBUGGING: ' vrString ' is not defined.  Implement it in ml2dcm_Element.m']);
+    warning(['DEBUGGING: ' vrString ' is not defined.  Implement it in data2dcmElement.m']);
     el = [];
 
 else

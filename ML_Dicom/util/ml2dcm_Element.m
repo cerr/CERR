@@ -120,6 +120,7 @@ switch upper(vr)
         end                  
         dcmobj.putStrings(tag, el.vr, data);
     case 'SL'
+        dcmobj.putInts(tag, el.vr, data);
         %Needs implementation        
     case 'SQ'
         %Implementation currently unnecessary.
