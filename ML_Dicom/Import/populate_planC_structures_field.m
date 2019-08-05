@@ -328,7 +328,7 @@ switch fieldname
         
 
     case 'visible'
-        %Implementation not necessary
+        dataS = true; % default to visible        
 
     case 'associatedScan'
         %Currently not implemented
