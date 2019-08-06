@@ -1,4 +1,4 @@
-function errC = cerrToH5(cerrPath, fullSessionPath, cropS, outSizeV, resizeMethod)
+function errC = cerrToH5(cerrPath, fullSessionPath, cropS, outSizeV, resizeS)
 % Usage: cerrToH5(cerrPath, fullSessionPath)
 %
 % This function converts a 3d scan from planC to H5 file format
@@ -40,31 +40,35 @@ try
         mask3M = [];
         %If cropping around structure, check if structure is present, else skip
         %this case
-        methodC = {cropS.method};
-        for m = 1:length(methodC)
-            method = methodC{m};
-            paramS = cropS(m).params;
-            if strcmp(method,'crop_to_str')
-                strC = {planC{indexS.structures}.structureName};
-                strName = paramS.structureName;
-                strIdx = getMatchingIndex(strName,strC,'EXACT');
-                if isempty(strIdx)
-                    disp("No matching structure found for cropping");
-                    scan3M = [];
-                    return;
-                else                    
-                    % Crop around struct
+        if ~isempty(cropS)            
+            methodC = {cropS.method};
+            for m = 1:length(methodC)
+                method = methodC{m};
+                paramS = cropS(m).params;
+                if strcmp(method,'crop_to_str')
+                    strC = {planC{indexS.structures}.structureName};
+                    strName = paramS.structureName;
+                    strIdx = getMatchingIndex(strName,strC,'EXACT');
+                    if isempty(strIdx)
+                        disp("No matching structure found for cropping");
+                        scan3M = [];
+                        return;
+                    else
+                        % Crop around struct
+                        [scan3M,mask3M] = cropScanAndMask(planC,scan3M,mask3M, cropS);
+                    end
+                else
+                    % Cropping
                     [scan3M,mask3M] = cropScanAndMask(planC,scan3M,mask3M, cropS);
                 end
-            else
-                % Cropping
-                [scan3M,mask3M] = cropScanAndMask(planC,scan3M,mask3M, cropS);
             end
         end
         
         % Resizing
-        if ~isempty(resizeMethod) && ~isempty(outSizeV)
-            [scan3M,mask3M] = resizeScanAndMask(scan3M,mask3M,outSizeV,resizeMethod);        end
+        if ~isempty(resizeS) && ~isempty(outSizeV)
+            resizeMethod = userInS.resize.method;
+            [scan3M,mask3M] = resizeScanAndMask(scan3M,mask3M,outSizeV,resizeMethod);        
+        end
         
         
         % write to h5

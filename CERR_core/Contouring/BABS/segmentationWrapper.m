@@ -26,11 +26,10 @@ configFilePath = fullfile(getCERRPath,'Contouring','models', 'ModelConfiguration
 userInS = jsondecode(fileread(configFilePath)); 
 cropS = userInS.crop;
 outSizeV = userInS.imageSizeForModel;
-resizeMethod = userInS.resize.method;
-
+resizeS = userInS.resize;
 
 % convert scan to H5 format
-errC = cerrToH5(cerrPath, fullSessionPath, cropS, outSizeV, resizeMethod );
+errC = cerrToH5(cerrPath, fullSessionPath, cropS, outSizeV, resizeS);
 
 if ~isempty(errC)
     success = 0;
