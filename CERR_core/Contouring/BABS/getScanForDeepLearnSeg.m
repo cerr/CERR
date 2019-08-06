@@ -7,6 +7,8 @@ configFilePath = fullfile(getCERRPath,'Contouring','models', 'ModelConfiguration
 %configFilePath = fullfile(getCERRPath,'Contouring','models','heart','heart.json');
 userInS = jsondecode(fileread(configFilePath));
 cropS = userInS.crop;
+outSizeV = userInS.imageSizeForModel;
+resizeMethod = userInS.resize.method;
 
 
 planCfiles = dir(fullfile(cerrPath,'*.mat'));
@@ -20,12 +22,14 @@ try
         planCfiles(p).name
         fileNam = fullfile(planCfiles(p).folder,planCfiles(p).name);
         planC = loadPlanC(fileNam, tempdir);
+        planC = updatePlanFields(planC);
         planC = quality_assure_planC(fileNam,planC);
         indexS = planC{end};
         
         scanNum = 1;
         scan3M = getScanArray(planC{indexS.scan}(scanNum));
         scan3M = double(scan3M);
+        mask3M = [];
         
         %If cropping around structure, check if structure is present, else skip
         %this case
@@ -41,14 +45,20 @@ try
                     disp("No matching structure found for cropping");
                     scan3M = [];
                     return;
+                else                   
+                    % Crop around struct
+                    [scan3M,mask3M] = cropScanAndMask(planC,scan3M,mask3M, cropS);
                 end
-            
+            else
+                % Cropping
+                [scan3M,mask3M] = cropScanAndMask(planC,scan3M,mask3M, cropS);
             end
         end
         
-    
-        mask3M = [];
-        [scan3M,mask3M] = cropScanAndMask(planC,scan3M,mask3M,cropS);
+        % Resizing
+        if ~isempty(resizeMethod) && ~isempty(outSizeV)
+            [scan3M,mask3M] = resizeScanAndMask(scan3M,mask3M,outSizeV,resizeMethod);
+        end
         
     end
     
