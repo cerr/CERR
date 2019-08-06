@@ -19,15 +19,9 @@
 
 "imageSizeForModel" : [],
 
-  "crop": [
-    {
-      "method": "",
-      "params": "",
-      "operator": ""
-    }
-  ],
+"crop": [],
 
-  "resize" : {"method": ""},
+"resize" : {},
 
 "fullContainerPath" : "/lila/home/pandyar1/lungIncMRRN.sif"
 }
