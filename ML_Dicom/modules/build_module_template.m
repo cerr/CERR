@@ -52,6 +52,8 @@ switch lower(moduleName)
         tagS = frame_of_reference_module_tags;
     case 'general_equipment'
         tagS = general_equipment_module_tags;
+    case 'content_identification'
+        tagS = content_identification_module_tags;
     case 'general_image'
         tagS = general_image_module_tags;
     case 'image_plane'
