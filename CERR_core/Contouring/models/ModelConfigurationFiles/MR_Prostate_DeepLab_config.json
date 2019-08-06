@@ -16,7 +16,18 @@
 {"structureName": "Bowel_Lg_DLV3",
   "value": 7}
 ],
-"preproc" : [{"method": "", "params" : ""}],
+
+"imageSizeForModel" : [,],
+
+  "crop": [
+    {
+      "method": "",
+      "params": "",
+      "operator": ""
+    }
+  ],
+
+  "resize" : {"method": ""},
 
 "fullContainerPath" : "/lila/home/pandyar1/lungIncMRRN.sif"
 }
