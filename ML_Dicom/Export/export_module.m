@@ -72,7 +72,10 @@ switch lower(moduleName)
         export_function = @export_frame_of_reference_module_field;        
     case 'general_equipment'
         tagS = general_equipment_module_tags;
-        export_function = @export_general_equipment_module_field;        
+        export_function = @export_general_equipment_module_field;   
+    case 'content_identification'
+        tagS = content_identification_module_tags;
+        export_function = @export_content_identification_module_field;
     case 'general_image'
         tagS = general_image_module_tags;
         export_function = @export_general_image_module_field;        
