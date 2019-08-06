@@ -117,7 +117,9 @@ switch tag
 
     case 1048624 %0010,0030 Patient's Birth Date
  
-        el = org.dcm4che3.data.Attributes;
+        PatientBirthDate = dataS.Patient_Birth_Date;
+        el = data2dcmElement(template, PatientBirthDate, tag);
+        %el = org.dcm4che3.data.Attributes;
         %el.setString(tag, template.getVR(tag), template.getString(tag));
         %vr = org.dcm4che3.data.ElementDictionary.vrOf(tag, []); %apa 6/28/19
         %vrString = char(vr); %apa 6/28/19

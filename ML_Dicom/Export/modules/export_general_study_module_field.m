@@ -49,30 +49,42 @@ switch tag
     %Class 2 Tags -- Must be present, can be blank.
     case 524320     %0008,0020 Study Date
    
-        el = org.dcm4che3.data.Attributes;
+        %el = org.dcm4che3.data.Attributes;
         %el.setString(tag, template.getVR(tag), template.getString(tag));
         data = datestr(now,'yyyymmdd');
         el = data2dcmElement(template, data, tag);
         
     case 524336     %0008,0030 Study Time
 
-        el = org.dcm4che3.data.Attributes;
+        %el = org.dcm4che3.data.Attributes;
         %el.setString(tag, template.getVR(tag), template.getString(tag));
+        data = datestr(now,'hhmmss');
+        el = data2dcmElement(template, data, tag);
         
     case 524432     %0008,0090 Referring Physician's Name
 
-        el = org.dcm4che3.data.Attributes;
+        %el = org.dcm4che3.data.Attributes;
         %el.setString(tag, template.getVR(tag), template.getString(tag));
+        data.FamilyName = '';
+        data.GivenName = '';
+        data.MiddleName = '';
+        data.NamePrefix = '';
+        data.NameSuffix = '';
+        el = data2dcmElement(template, data, tag);
         
     case 2097168    %0020,0010 Study ID
 
-        el = org.dcm4che3.data.Attributes;
+        %el = org.dcm4che3.data.Attributes;
         %el.setString(tag, template.getVR(tag), template.getString(tag));
+        data = '';
+        el = data2dcmElement(template, data, tag);
         
     case 524368     %0008,0050 Accession Number
   
-        el = org.dcm4che3.data.Attributes;
+        %el = org.dcm4che3.data.Attributes;
         %el.setString(tag, template.getVR(tag), template.getString(tag));
+        data = '';
+        el = data2dcmElement(template, data, tag);
         
         
     %Class 3 Tags -- presence is optional, currently undefined.        
