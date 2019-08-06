@@ -59,7 +59,7 @@ end
     filetext = fileread(configFilePath);    
     res = jsondecode(filetext);          
         
-    %if any pre-processing was done, pad mask to get original size 
+    %if any pre-processing was done, pad mask to get original size
     if ~isempty(cropS)
         methodC = {cropS.method};
         if (length(methodC)>=1)
@@ -71,11 +71,11 @@ end
                 planC = maskToCERRStructure(tmpM2, isUniform, scanNum, res.loadStructures(i).structureName, planC);
                 count = count+1;
             end
-        else
-            for i = 1 : length(res.loadStructures)
-                mask3M = flippedMask == i;
-                planC = maskToCERRStructure(mask3M, isUniform, scanNum, res.loadStructures(i).structureName, planC);
-            end
+        end
+    else
+        for i = 1 : length(res.loadStructures)
+            mask3M = flippedMask == i;
+            planC = maskToCERRStructure(mask3M, isUniform, scanNum, res.loadStructures(i).structureName, planC);
         end
     end
     
