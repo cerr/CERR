@@ -67,6 +67,13 @@ else
     patientName = '';
 end
 
+if isfield(planC{indexS.scan}(1).scanInfo(1),'patientBirthDate') && ...
+        ~isempty(planC{indexS.scan}(1).scanInfo(1).patientBirthDate)
+    Patient_Birth_Date = planC{indexS.scan}(1).scanInfo(1).patientBirthDate;
+else
+    Patient_Birth_Date = '18000101';
+end
+
 %% SCAN UIDs
 %Iterate over CT scans
 for i = 1:length(planC{indexS.scan})
@@ -256,8 +263,11 @@ for i = 1:length(planC{indexS.GSPS})
     % scanNum associated with this GSPS (expand to handle multiple scans)
     scanNum = 1;
     
-    %Set the patient id.
+    %Set the patient id
     planC{indexS.GSPS}(i).Patient_ID = Patient_ID;
+    
+    %Set the patient birth date
+    planC{indexS.GSPS}(i).Patient_Birth_Date = Patient_Birth_Date;
     
     % Set the patient name
     planC{indexS.GSPS}(i).patientName = patientName;
