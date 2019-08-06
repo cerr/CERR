@@ -86,9 +86,11 @@ switch fieldname
         nameS = getTagValue(attr, '00100010');
         dataS = [nameS.FamilyName '^' nameS.GivenName '^' nameS.MiddleName];
         
-    case 'patientID'
-        % to do
+    case 'patientID'        
         dataS = getTagValue(attr, '00100020');
+        
+    case 'patientBirthDate'
+        dataS = getTagValue(attr, '00100030');
         
     case 'scanType'
         %In CERR, scan slices are always transverse.
