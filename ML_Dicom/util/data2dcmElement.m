@@ -54,7 +54,12 @@ switch upper(vrString)
             data = hex2dec(data);
         end
         attr.setInt(tag, vr, data);
-    case {'CS', 'LO', 'ST'}
+    case 'CS'
+        if ~isempty(data)
+            data = upper(strtrim(data));
+        end
+        attr.setString(tag, vr, data);
+    case {'LO', 'ST'}
         attr.setString(tag, vr, data);
     case 'DA' 
         %Use builtin dcm4che Date functions.
