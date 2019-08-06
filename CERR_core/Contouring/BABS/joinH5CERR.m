@@ -60,20 +60,22 @@ end
     res = jsondecode(filetext);          
         
     %if any pre-processing was done, pad mask to get original size 
-    methodC = {cropS.method};
-    if (length(methodC)>=1)         
-        count = res.loadStructures(1).value;
-        for i = 1 : length(res.loadStructures)             
-            tmpM1 = flippedMask == count;
-            mask3M = padMask(planC,scanNum,tmpM1,cropS);
-            tmpM2 = mask3M == 1;
-            planC = maskToCERRStructure(tmpM2, isUniform, scanNum, res.loadStructures(i).structureName, planC);
-            count = count+1;
-        end
-    else
-        for i = 1 : length(res.loadStructures)         
-            mask3M = flippedMask == i;
-            planC = maskToCERRStructure(mask3M, isUniform, scanNum, res.loadStructures(i).structureName, planC);
+    if ~isempty(cropS)
+        methodC = {cropS.method};
+        if (length(methodC)>=1)
+            count = res.loadStructures(1).value;
+            for i = 1 : length(res.loadStructures)
+                tmpM1 = flippedMask == count;
+                mask3M = padMask(planC,scanNum,tmpM1,cropS);
+                tmpM2 = mask3M == 1;
+                planC = maskToCERRStructure(tmpM2, isUniform, scanNum, res.loadStructures(i).structureName, planC);
+                count = count+1;
+            end
+        else
+            for i = 1 : length(res.loadStructures)
+                mask3M = flippedMask == i;
+                planC = maskToCERRStructure(mask3M, isUniform, scanNum, res.loadStructures(i).structureName, planC);
+            end
         end
     end
     
