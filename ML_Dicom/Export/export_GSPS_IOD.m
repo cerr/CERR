@@ -77,10 +77,13 @@ nWritten = 0;
 
     %Build a frame of reference module.
     frameattr        = export_module('frame_of_reference', gspsObjS);
-
+    
     %Build a general equipment module.
     equipattr        = export_module('general_equipment', 'gsps', gspsObjS);
     
+    %Build a content module
+    contentattr        = export_module('content_identification', gspsObjS);
+
     %Build Graphic Layer module
     %graphicLayerAttr        = export_module('graphic_layer');
    
@@ -110,6 +113,7 @@ nWritten = 0;
         attr.addAll(seriesattr);
         attr.addAll(frameattr);
         attr.addAll(equipattr);
+        attr.addAll(contentattr);
         attr.addAll(gspsattr);
         attr.addAll(SOPattr);
 
