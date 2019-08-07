@@ -80,8 +80,8 @@ for scanNum = 1:length(planC{indexS.scan})
                     planC{indexS.scan}(scanNum).scanInfo(slcNum).DICOMHeaders.SOPClassUID;
                 planC{indexS.scan}(scanNum).scanInfo(slcNum).seriesInstanceUID = ...
                     planC{indexS.scan}(scanNum).scanInfo(slcNum).DICOMHeaders.SeriesInstanceUID;
-                planC{indexS.scan}(scanNum).scanInfo(slcNum).patientBirthDate = ...
-                    planC{indexS.scan}(scanNum).scanInfo(slcNum).DICOMHeaders.PatientBirthDate;
+%                 planC{indexS.scan}(scanNum).scanInfo(slcNum).patientBirthDate = ...
+%                     planC{indexS.scan}(scanNum).scanInfo(slcNum).DICOMHeaders.PatientBirthDate;
             end
         end
     end
