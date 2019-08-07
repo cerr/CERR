@@ -3,14 +3,23 @@ function scan3M = getScanForDeepLearnSeg(cerrPath,algorithm)
 %build config file path from algorithm
 configFilePath = fullfile(getCERRPath,'Contouring','models', 'ModelConfigurationFiles', [algorithm, '_config','.json']);
 
-% check if any pre-processing is required
-%configFilePath = fullfile(getCERRPath,'Contouring','models','heart','heart.json');
-userInS = jsondecode(fileread(configFilePath));
-cropS = userInS.crop;
-outSizeV = userInS.imageSizeForModel;
-resizeS = userInS.resize;
-
-
+% check if any pre-processing is required  
+userInS = jsondecode(fileread(configFilePath)); 
+if exists(userInS.crop)
+    cropS = userInS.crop;
+else 
+    cropS = '';
+end
+if exists(userInS.imageSizeForModel)
+    outSizeV = userInS.imageSizeForModel;
+else
+    outSizeV = '';
+end
+if exists(userInS.resizeS)   
+    resizeS = userInS.resize;
+else
+    resizeS = '';
+end
 
 planCfiles = dir(fullfile(cerrPath,'*.mat'));
 

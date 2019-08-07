@@ -22,11 +22,22 @@ algorithm
 configFilePath = fullfile(getCERRPath,'Contouring','models', 'ModelConfigurationFiles', [algorithm, '_config.json']);
         
 % check if any pre-processing is required  
-%configFilePath = fullfile(getCERRPath,'Contouring','models','heart','heart.json');
 userInS = jsondecode(fileread(configFilePath)); 
-cropS = userInS.crop;
-outSizeV = userInS.imageSizeForModel;
-resizeS = userInS.resize;
+if exists(userInS.crop)
+    cropS = userInS.crop;
+else 
+    cropS = '';
+end
+if exists(userInS.imageSizeForModel)
+    outSizeV = userInS.imageSizeForModel;
+else
+    outSizeV = '';
+end
+if exists(userInS.resizeS)   
+    resizeS = userInS.resize;
+else
+    resizeS = '';
+end
 
 % convert scan to H5 format
 errC = cerrToH5(cerrPath, fullSessionPath, cropS, outSizeV, resizeS);
