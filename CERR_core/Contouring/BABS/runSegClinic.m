@@ -58,8 +58,6 @@ importDICOM(inputDicomPath,cerrPath);
 
 % algorithm
 algorithmC = {};
-%algorithm = 'CT_Heart_DeepLab^CT_Atria_DeepLab^CT_Pericardium_DeepLab^CT_HeartStructure_DeepLab^CT_Ventricles_DeepLab';
-%algorithm = 'CT_Heart_DeepLab^CT_Atria_DeepLab';
 
 [algorithmC{end+1},remStr] = strtok(algorithm,'^');
 algorithmC{end} = char(algorithmC{end});
@@ -71,7 +69,7 @@ while ~isempty(remStr) && ~isequal(remStr,"")
     remStr = char(remStr);
 end
 
-if iscell(algorithmC) || ~iscell(algiorithmC) && ~strcmpi(algorithmC,'BABS')
+if iscell(algorithmC) || ~iscell(algorithmC) && ~strcmpi(algorithmC,'BABS')
     
         containerPath = varargin{1};      
         origCerrPath = cerrPath;
