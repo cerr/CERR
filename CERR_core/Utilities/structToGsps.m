@@ -93,6 +93,7 @@ for slc=1:length(planC{indexS.structures}(structNum).contour) %gspsNumV
     newGspsS(1).graphicAnnotationS = graphicAnnotationS;
     newGspsS(1).textAnnotationS = textAnnotationS;
     newGspsS(1).presentLabel = planC{indexS.structures}(structNum).structureName;
+    newGspsS(1).presentRGBColor = planC{indexS.structures}(structNum).structureColor;    
     newGspsS(1).presentDescription = 'RTSTRUCT converted to GSPS using CERR';
     newGspsS(1).presentCreationDate = datestr(now,'yyyymmdd');
     newGspsS(1).SOPInstanceUID = planC{indexS.scan}(scanNum).scanInfo(slc).sopInstanceUID; % 00081140, 00081155
