@@ -63,11 +63,13 @@ switch upper(vrString)
         attr.setString(tag, vr, data);
     case 'DA' 
         %Use builtin dcm4che Date functions.
-        jDate = org.dcm4che3.util.DateUtils;
-        tz = attr.getTimeZone();
-        date = jDate.parseDA(tz, data, 1);
         attr.setDate(tag, vr, []);
-        attr.setString(tag, vr, jDate.formatDA(tz, date));
+        if ~isempty(data)
+            jDate = org.dcm4che3.util.DateUtils;
+            tz = attr.getTimeZone();
+            date = jDate.parseDA(tz, data, 1);
+            attr.setString(tag, vr, jDate.formatDA(tz, date));
+        end
         %setDate(privateCreator, tmTag, VR.TM, org.dcm4che3.data.DatePrecision;, date);
         %attr.setDate(tag, date);
 
