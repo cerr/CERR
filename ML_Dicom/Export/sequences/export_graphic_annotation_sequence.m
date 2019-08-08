@@ -63,7 +63,7 @@ switch tag
         
     case 7340034  %0070,0002  Graphic layer
         
-        graphicLayer = 'CERR_LAYER'; % must be the same name used inthe graphic layer sequence
+        graphicLayer = gspsS.presentLabel; % must be the same name used inthe graphic layer sequence
         el = data2dcmElement(el, graphicLayer, tag);        
         
     case 7340040  %0070,0008  Text object sequence
