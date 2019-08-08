@@ -59,6 +59,7 @@ switch type
         scanS = args.data{2};
         dataS = scanS.scanInfo(1);
         dataS.Patient_ID = scanS.Patient_ID;
+        dataS.Patient_Birth_Date = scanS.Patient_Birth_Date;
     case {'dose', 'structures','gsps'}
         dataS = args.data{2};
     otherwise
