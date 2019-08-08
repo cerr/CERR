@@ -112,7 +112,7 @@ child_0(end+1) = struct('tag', ['00700008'], 'type', ['1C'], 'children', []);
         child_1 = template;
 
         %Bounding Box Annotation Units
-        child_1(end+1) = struct('tag', ['00700003'], 'type', ['1C'], 'children', []);    
+        %child_1(end+1) = struct('tag', ['00700003'], 'type', ['1C'], 'children', []);    
 
         %Anchor Point Annotation Units
         child_1(end+1) = struct('tag', ['00700004'], 'type', ['1C'], 'children', []);        
@@ -121,13 +121,13 @@ child_0(end+1) = struct('tag', ['00700008'], 'type', ['1C'], 'children', []);
         child_1(end+1) = struct('tag', ['00700006'], 'type', ['1'], 'children', []);    
         
         %Bounding Box Top Left Hand Corner
-        child_1(end+1) = struct('tag', ['00700010'], 'type', ['1C'], 'children', []);    
+        %child_1(end+1) = struct('tag', ['00700010'], 'type', ['1C'], 'children', []);    
 
         %Bounding Box Bottom Right Hand Corner
-        child_1(end+1) = struct('tag', ['00700011'], 'type', ['1C'], 'children', []);        
+        %child_1(end+1) = struct('tag', ['00700011'], 'type', ['1C'], 'children', []);        
 
         %Bounding Box Text Horizontal Justification
-        child_1(end+1) = struct('tag', ['00700012'], 'type', ['1C'], 'children', []);        
+        %child_1(end+1) = struct('tag', ['00700012'], 'type', ['1C'], 'children', []);        
 
         %Anchor Point
         child_1(end+1) = struct('tag', ['00700014'], 'type', ['1C'], 'children', []);        
