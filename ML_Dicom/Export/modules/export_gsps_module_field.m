@@ -136,9 +136,14 @@ switch tag
         tmp = org.dcm4che3.data.Attributes;
         el = tmp.newSequence(tag, 0);
         
-        i = 1; % only 1 graphic layer
-        dcmobj = export_sequence(fHandle, templateEl, []);
-        el.add(i-1, dcmobj);
+        [uniqLabelC,indUniqV] = unique({gspsS.presentLabel});
+        numLabels = length(uniqLabelC);        
+        
+        for i = 1:numLabels
+            presentColor = gspsS(indUniqV(i)).presentRGBColor;
+            dcmobj = export_sequence(fHandle, templateEl, {uniqLabelC{i},i,presentColor});
+            el.add(i-1, dcmobj);
+        end
         
         %get attribute to return
         el = el.getParent();
