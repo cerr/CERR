@@ -3519,32 +3519,43 @@ switch command
                 
                 % Display Text
                 for iText = 1:length(planC{indexS.GSPS}(gspsNum).textAnnotationS)
-                    leftTop = planC{indexS.GSPS}(gspsNum).textAnnotationS(iText).boundingBoxTopLeftHandCornerPt;
-                    col = leftTop(1) + 1;
-                    row = leftTop(2) + 1;
-                    [xTopLeft, yTopLeft] = mtoaapm(row, col, Dims, gridUnits, offset);
-                    rightBottom = planC{indexS.GSPS}(gspsNum).textAnnotationS(iText).boundingBoxBottomRightHandCornerPt;
-                    col = rightBottom(1) + 1;
-                    row = rightBottom(2) + 1;
-                    [xRightBottom, yRightBottom] = mtoaapm(row, col, Dims, gridUnits, offset);
+                    showBoundingBoxFlag = false;
+                    if isfield(planC{indexS.GSPS}(gspsNum).textAnnotationS(iText),'boundingBoxTopLeftHandCornerPt') ...
+                            && ~isempty(planC{indexS.GSPS}(gspsNum).textAnnotationS(iText).boundingBoxTopLeftHandCornerPt)
+                        showBoundingBoxFlag = true;
+                    end
+                    if showBoundingBoxFlag
+                        leftTop = planC{indexS.GSPS}(gspsNum).textAnnotationS(iText).boundingBoxTopLeftHandCornerPt;
+                        col = leftTop(1) + 1;
+                        row = leftTop(2) + 1;
+                        [xTopLeft, yTopLeft] = mtoaapm(row, col, Dims, gridUnits, offset);
+                        rightBottom = planC{indexS.GSPS}(gspsNum).textAnnotationS(iText).boundingBoxBottomRightHandCornerPt;
+                        col = rightBottom(1) + 1;
+                        row = rightBottom(2) + 1;
+                        [xRightBottom, yRightBottom] = mtoaapm(row, col, Dims, gridUnits, offset);
+                    end
                     anchorPoint = planC{indexS.GSPS}(gspsNum).textAnnotationS(iText).anchorPoint;
                     col = anchorPoint(1) + 1;
                     row = anchorPoint(2) + 1;
                     [xAnchor, yAnchor] = mtoaapm(row, col, Dims, gridUnits, offset);
                     if ~isempty(planC{indexS.GSPS}(gspsNum).textAnnotationS(iText).unformattedTextValue)
-                        % Plot Box
-                        hV = [hV, plot([xTopLeft xRightBottom xRightBottom xTopLeft xTopLeft],...
-                            [yTopLeft yTopLeft yRightBottom yRightBottom yTopLeft],...
-                            'm','linewidth',2,'parent',stateS.handle.CERRAxis(1))];
-                        % Plot Anchor Point
-                        hV = [hV, plot(xAnchor, yAnchor, 'mo', 'markerSize', 4,'parent',stateS.handle.CERRAxis(1))];
-                        % Find distance between anchor point and the bounding box points
-                        xV = [xTopLeft xRightBottom xRightBottom xTopLeft];
-                        yV = [yTopLeft yTopLeft yRightBottom yRightBottom];
-                        distV = (xV-xAnchor).^2 + (yV-yAnchor).^2;
-                        [jnk,minInd] = min(distV);
-                        hV = [hV, plot([xAnchor xV(minInd)], [yAnchor yV(minInd)], 'm', 'linewidth',2)];
-                        hV = [hV, text('parent',stateS.handle.CERRAxis(1),'position',[min(xV),mean(yV)],...
+                        if showBoundingBoxFlag
+                            % Plot Box
+                            hV = [hV, plot([xTopLeft xRightBottom xRightBottom xTopLeft xTopLeft],...
+                                [yTopLeft yTopLeft yRightBottom yRightBottom yTopLeft],...
+                                'm','linewidth',2,'parent',stateS.handle.CERRAxis(1))];
+                            % Plot Anchor Point
+                            hV = [hV, plot(xAnchor, yAnchor, 'mo', 'markerSize', 4,'parent',stateS.handle.CERRAxis(1))];
+                            % Find distance between anchor point and the bounding box points
+                            xV = [xTopLeft xRightBottom xRightBottom xTopLeft];
+                            yV = [yTopLeft yTopLeft yRightBottom yRightBottom];
+                            distV = (xV-xAnchor).^2 + (yV-yAnchor).^2;
+                            [jnk,minInd] = min(distV);
+                            hV = [hV, plot([xAnchor xV(minInd)], [yAnchor yV(minInd)], 'm', 'linewidth',2)];
+                        end
+                        posV = [xAnchor, yAnchor];
+                        % posV = [min(xV),mean(yV)]; % when anchor point is not defined
+                        hV = [hV, text('parent',stateS.handle.CERRAxis(1),'position',posV,...
                             'string',planC{indexS.GSPS}(gspsNum).textAnnotationS(iText).unformattedTextValue,...
                             'fontSize',8, 'units', 'data', 'color','y')];
                     end
