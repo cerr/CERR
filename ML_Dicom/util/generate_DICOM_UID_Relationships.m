@@ -71,7 +71,7 @@ if isfield(planC{indexS.scan}(1).scanInfo(1),'patientBirthDate') && ...
         ~isempty(planC{indexS.scan}(1).scanInfo(1).patientBirthDate)
     Patient_Birth_Date = planC{indexS.scan}(1).scanInfo(1).patientBirthDate;
 else
-    Patient_Birth_Date = '18000101';
+    Patient_Birth_Date = '';
 end
 
 %% SCAN UIDs
@@ -80,6 +80,9 @@ for i = 1:length(planC{indexS.scan})
     
     %Set the study instance UID.
     planC{indexS.scan}(i).Patient_ID = Patient_ID;
+
+    %Set patient birth date.
+    planC{indexS.scan}(i).Patient_Birth_Date = Patient_Birth_Date;
 
     %Set the study instance UID.
     planC{indexS.scan}(i).Study_Instance_UID = Study_Instance_UID;
@@ -168,6 +171,9 @@ for i = 1:length(planC{indexS.dose})
     %Set the patient id.
     planC{indexS.dose}(i).Patient_ID = Patient_ID;
     
+    %Set patient birth date.
+    planC{indexS.dose}(i).Patient_Birth_Date = Patient_Birth_Date;
+
     % Set the patient name
     planC{indexS.dose}(i).patientName = patientName;
 
@@ -213,6 +219,9 @@ for i = 1:length(planC{indexS.structures})
     
     %Set the patient id.
     planC{indexS.structures}(i).Patient_ID = Patient_ID;
+
+    %Set patient birth date.
+    planC{indexS.structures}(i).Patient_Birth_Date = Patient_Birth_Date;
 
     % Set the patient name
     planC{indexS.structures}(i).patientName = patientName;
