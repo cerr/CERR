@@ -5,21 +5,24 @@ configFilePath = fullfile(getCERRPath,'Contouring','models', 'ModelConfiguration
 
 % check if any pre-processing is required  
 userInS = jsondecode(fileread(configFilePath)); 
-if exists(userInS.crop)
+if sum(strcmp(fieldnames(userInS), 'cropS')) == 1
     cropS = userInS.crop;
 else 
     cropS = '';
 end
-if exists(userInS.imageSizeForModel)
+if sum(strcmp(fieldnames(userInS), 'imageSizeForModel')) == 1
     outSizeV = userInS.imageSizeForModel;
 else
     outSizeV = '';
 end
-if exists(userInS.resizeS)   
+
+if sum(strcmp(fieldnames(userInS), 'resize')) == 1
     resizeS = userInS.resize;
 else
     resizeS = '';
 end
+
+
 
 planCfiles = dir(fullfile(cerrPath,'*.mat'));
 
