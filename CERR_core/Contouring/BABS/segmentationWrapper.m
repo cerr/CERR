@@ -33,7 +33,7 @@ if exists(userInS.imageSizeForModel)
 else
     outSizeV = '';
 end
-if exists(userInS.resizeS)   
+if exist(userInS.resizeS)   
     resizeS = userInS.resize;
 else
     resizeS = '';
