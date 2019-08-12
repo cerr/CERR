@@ -5,7 +5,7 @@ configFilePath = fullfile(getCERRPath,'Contouring','models', 'ModelConfiguration
 
 % check if any pre-processing is required  
 userInS = jsondecode(fileread(configFilePath)); 
-if sum(strcmp(fieldnames(userInS), 'cropS')) == 1
+if sum(strcmp(fieldnames(userInS), 'crop')) == 1
     cropS = userInS.crop;
 else 
     cropS = '';
