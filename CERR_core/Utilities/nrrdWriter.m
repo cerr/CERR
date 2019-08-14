@@ -22,7 +22,7 @@ format=ext(2:end); % We remove the . from .ext
 % so we extract the output format from the argument filename, instead of
 % put two different arguments
 
-matrix = permute(matrix, [2 1 3]); % so we undo permute of index in nrrdreader
+%matrix = permute(matrix, [2 1 3]); % so we undo permute of index in nrrdreader
 
 dims=(size(matrix));    % matrix dimensions (size NxMxP)
 ndims=length(dims);     % number of dimensions (dim n)
@@ -64,12 +64,12 @@ if (encodingCond && formatCond)
     
     if isequal(ndims, 2)
         fprintf(fid,'space: left-posterior\n');
-    elseif isequal (ndims, 3)
+    elseif ndims > 2
         fprintf(fid,'space: left-posterior-superior\n');
     end
 
     fprintf(fid,['sizes: ', num2str(dims), '\n']);
-    
+        
     if isequal(ndims, 2)
         fprintf(fid,['space directions: (', num2str(pixelspacing(1)), ...
             ',0) (0,', num2str(pixelspacing(2)), ')\n']);
@@ -79,6 +79,11 @@ if (encodingCond && formatCond)
             ',0,0) (0,', num2str(pixelspacing(2)), ',0) (0,0,', ...
             num2str(pixelspacing(3)), ')\n']);
         fprintf(fid,'kinds: domain domain domain\n');
+    elseif isequal(ndims,4)
+        fprintf(fid,['space directions: none (', num2str(pixelspacing(1)), ...
+            ',0,0) (0,', num2str(pixelspacing(2)), ',0) (0,0,', ...
+            num2str(pixelspacing(3)), ')\n']);
+        fprintf(fid,'kinds: vector domain domain domain\n');        
     end
     
     fprintf(fid,['encoding: ', encoding, '\n']);
@@ -93,8 +98,8 @@ if (encodingCond && formatCond)
     
     if isequal(ndims, 2)
         fprintf(fid,['space origin: (', num2str(origin(1)),',', num2str(origin(2)),')\n']);
-    elseif isequal (ndims, 3)
-        fprintf(fid,['space origin: (', num2str(origin(1)), ...
+    elseif ndims > 2
+        fprintf(fid,['spaceorigin: (', num2str(origin(1)), ...
             ',',num2str(origin(2)),',', num2str(origin(3)),')\n']);
     end    
     
