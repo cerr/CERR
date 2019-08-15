@@ -56,7 +56,7 @@ delta_xy = CTUniformInfoS.grid1Units;
 %-----------build composite target volume---------------------%
 
 maskSingle = getUniformStr(structNumV(1),planC);
-clear planC;
+%clear planC;
 
 mask3D = double(maskSingle);
 
@@ -70,7 +70,7 @@ clear mask3D;
 
 clear maskSingle;
 
-global planC;
+%global planC;
 
 S = size(maskDown3D);
 
