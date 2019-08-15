@@ -65,13 +65,13 @@ SZ=size(maskSingle);
 
 maskDown3D = logical(getDownsample3(mask3D, xyDownsampleIndex, 1));
 
-clear planC;
+%clear planC;
 
 clear mask3D;
 
 clear maskSingle;
 
-global planC;
+%global planC;
 
 S = size(maskDown3D);
 
