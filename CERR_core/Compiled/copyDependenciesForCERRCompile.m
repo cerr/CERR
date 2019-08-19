@@ -66,4 +66,9 @@ destin = fullfile(compiled_path,'doc');
 mkdir(fullfile(destin,'html'));
 copyfile(fullfile(topLevelCERRDir,'CERR_core','CommandLine','CERRCommandLinehelp.html'),fullfile(destin,'html'));
 
+%  Fill-in the ModelConfiguration directory
+destin_modelConfig = fullfile(compiled_path,'ModelImplementationLibrary','SegmentationModels', 'ModelConfigurationFiles');
+mkdir destin_modelConfig;
+copyfile(fullfile(topLevelCERRDir,'CERR_core','ModelImplementationLibrary','SegmentationModels', 'ModelConfigurationFiles'),destin_modelConfig);
+
 return;

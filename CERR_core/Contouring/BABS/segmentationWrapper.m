@@ -19,7 +19,7 @@ containerPath
 algorithm
 
 %build config file path from algorithm
-configFilePath = fullfile(getCERRPath,'Contouring','models', 'ModelConfigurationFiles', [algorithm, '_config.json']);
+configFilePath = fullfile(getCERRPath,'ModelImplementationLibary','SegmentationModels', 'ModelConfigurationFiles', [algorithm, '_config.json']);
         
 % check if any pre-processing is required  
 userInS = jsondecode(fileread(configFilePath)); 
