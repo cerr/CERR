@@ -1,9 +1,0 @@
-{
-"algorithm" : "CT_Lung_incrMRRN",
-"loadStructures" : [
-{"structureName": "Lung",
-  "value": 1}
-],
-"crop" : [{"method": "", "params" : ""}]
-
-}
