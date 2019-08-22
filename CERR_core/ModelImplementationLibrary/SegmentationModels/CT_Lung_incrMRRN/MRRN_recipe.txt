@@ -1,0 +1,148 @@
+Bootstrap: docker
+From: nvidia/cuda:9.0-cudnn7-devel-ubuntu16.04
+
+%environment
+#Environment variables
+
+	#Use bash as default shell
+	SHELL=/bin/bash
+
+	#Add nvidia driver paths
+	PATH="/nvbin:$PATH"
+	LD_LIBRARY_PATH="/nvlib;$LD_LIBRARY_PATH"
+
+	#Add CUDA paths
+	CPATH="/usr/local/cuda/include:$CPATH"
+	PATH="/usr/local/cuda/bin:$PATH"
+	LD_LIBRARY_PATH="/usr/local/cuda/lib64:$LD_LIBRARY_PATH"
+	CUDA_HOME="/usr/local/cuda"
+
+	#Add Anaconda path
+	PATH="/usr/local/anaconda3-4.2.0/bin:$PATH"
+
+	export PATH LD_LIBRARY_PATH CPATH CUDA_HOME
+
+	
+%setup
+	#Runs on host
+	#The path to the image is $SINGULARITY_ROOTFS
+	
+
+
+%post
+	#Post setup script
+  
+	#Post setup script
+
+	#Load environment variables
+	. /environment
+
+	#Default mount paths
+	mkdir /scratch /data /shared /fastdata
+
+	#Nvidia Library mount paths
+	mkdir /nvlib /nvbin
+
+  	#Updating and getting required packages
+  	apt-get update
+ 	apt-get install -y python3
+  	apt-get install -y wget git vim
+
+  	apt update
+  	apt install -y virtualenv
+  	virtualenv -p python3 env
+  	ls env/lib
+  	ls -l `which sh`
+  	. env/bin/activate
+
+  	#Creates a build directory
+  	mkdir build
+  	cd build
+
+  	apt install -y python3-pip
+  	python --version
+  	pip3 --version
+
+	pip3 install Pillow 
+
+	#Install Tensorflow  	
+  	pip3 install --no-cache-dir tensorflow-gpu==1.12.0
+
+	# Upgrade all packages to their latest versions
+  	apt-get -y update && apt-get -y upgrade
+
+  	# Install expect to automate responses for interactive build questions
+  	apt-get -y install expect
+
+	
+
+  	#Updating and getting required packages
+  	apt-get clean
+  	apt-get dist-upgrade && apt-get install -y --no-install-recommends --ignore-missing \
+  	python-dicom\
+  	python-numpy\
+  	python-scipy\
+  	python-matplotlib\
+  	ipython\
+  	ipython-notebook\
+  	python-pandas\
+  	python-sympy\
+  	python-nose\
+  	libpython2.7-stdlib\
+  	git 
+
+  	apt-get clean
+	
+	pip3 install pydicom
+  	pip3 install numpy
+  	pip3 install scikit-image
+  	pip3 install opencv-python
+  	pip3 install protobuf
+  	pip3 install matplotlib
+
+	pip3 install keras==2.0.8
+
+  	pip install --upgrade pip
+  
+  #pip install dicom==0.9.9.post1
+  #pip install scikit-image
+  #pip install opencv-python
+  #pip install keras
+  	
+	apt-get install -y python-imaging
+  
+  	apt update && apt install -y libsm6 libxext6
+  	apt-get install -y libxrender-dev
+
+	apt update
+  
+  	mkdir /software
+  	cd /software  
+	git clone https://github.com/cerr/CERR.git
+	wget https://raw.githubusercontent.com/cerr/aimodels/master/model_5l_lung-frrn_incremental_up_res_all_tf_drop_weight_residual_512.json
+	wget https://github.com/cerr/aimodels/raw/master/weights.15--0.71.hdf5
+
+  
+%runscript
+
+	which python
+	python --version
+	pwd
+	. /env/bin/activate
+	
+	#python /software/incremental_MRRN/run_incMRRN.py arg1=$1 arg2=$2 
+	python /software/CERR/CERR_core/Contouring/models/incrMRRN/run_incMRRN.py arg1=$1 arg2=$2
+
+%labels
+AUTHOR pandyar1@mskcc.org
+
+   
+
+%test
+	#Test that script is a success
+
+	#Load environment variables
+	#. /environment
+
+	#Test tensorflow install
+	#python -c "import tensorflow"
