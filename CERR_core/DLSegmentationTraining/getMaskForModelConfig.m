@@ -55,8 +55,7 @@ for m = 1:length(methodC)
                 outMask3M(:,:,slicesV) = slMask3M;
                 maskC{m} = outMask3M;
             end
-            
-            
+                       
             
         case 'crop_around_center'
             % Use to crop around center
@@ -80,6 +79,85 @@ for m = 1:length(methodC)
                 maskC{m} = outMask3M;
             end
             
+        case 'crop_pt_outline'
+            % Use to crop the patient outline
+            scanNum = 1;
+            indexS = planC{end};
+            scan3M = getScanArray(scanNum,planC);
+            CToffset = planC{indexS.scan}(scanNum).scanInfo(1).CTOffset;
+            scan3M = scan3M - CToffset;
+            outMask3M = getPatientOutline(scan3M);
+            maskC{m} = outMask3M;
+            
+        case 'crop_shoulders'
+            % Use to crop above shoulders
+            pt_outline_mask3M = maskC{m}; 
+            sliceNum = getShoulderStartSlice(pt_outline_mask3M,planC);
+            outMask3M = pt_outline_mask3M(:,:,1:sliceNum-1);
+            
+            scanNum = 1;
+            indexS = planC{end};
+            scan3M = getScanArray(scanNum,planC);
+            CToffset = planC{indexS.scan}(scanNum).scanInfo(1).CTOffset;
+            scan3M = scan3M - CToffset;
+            
+            %Compute bounding box
+            [minr, maxr, minc, maxc, mins, maxs] = compute_boundingbox(outMask3M);            
+            scan3M = scan3M(minr:maxr,minc:maxc,mins:maxs);  
+                        
+            % Update pt outline
+            outMask3M = getPatientOutline(scan3M);           
+            maskC{m} = outMask3M;
+            
+        case 'special_self_attention'
+            % Use to crop the patient outline
+            scanNum = 1;
+            indexS = planC{end};
+            scan3M = getScanArray(scanNum,planC);
+            CToffset = planC{indexS.scan}(scanNum).scanInfo(1).CTOffset;
+            scan3M = scan3M - CToffset;
+            outMask3M = getPatientOutline(scan3M);
+            maskC{m} = outMask3M;
+            
+            % Use to crop above shoulders
+            pt_outline_mask3M = maskC{m}; 
+            sliceNum = getShoulderStartSlice(pt_outline_mask3M,planC);
+            outMask3M = pt_outline_mask3M(:,:,1:sliceNum-1);
+                        
+            %Compute bounding box
+            [minr, maxr, minc, maxc, mins, maxs] = compute_boundingbox(outMask3M);            
+            scan3M = scan3M(minr:maxr,minc:maxc,mins:maxs);  
+                        
+            % Update pt outline
+            outMask3M = getPatientOutline(scan3M);           
+            
+            
+            % Adjust size before padding 
+            maskSize = size(outMask3M);
+            % adjust x-direction, must be <=256 and must be even
+            if maskSize(1)>255 
+                diff = maskSize(1) - 255;
+                [minr, maxr, minc, maxc, mins, maxs] = compute_boundingbox(outMask3M);
+                outMask3M = outMask3M(minr:maxr-diff,minc:maxc,mins:maxs);
+                updatedMaskSize = size(outMask3M);
+                if mod(updatedMaskSize(1),2)==1
+                    outMask3M = outMask3M(minr:maxr-diff-1,minc:maxc,mins:maxs);
+                end
+            end
+                
+            % adjust y-direction, must be <=256 and must be even
+            if maskSize(2)>255 
+                diff = maskSize(2) - 255;
+                [minr, maxr, minc, maxc, mins, maxs] = compute_boundingbox(outMask3M);
+                outMask3M = outMask3M(minr:maxr,minc:maxc-diff,mins:maxs);
+                updatedMaskSize = size(outMask3M);
+                if mod(updatedMaskSize(2),2)==1
+                    outMask3M = outMask3M(minr:maxr,minc:maxc-diff-1,mins:maxs);
+                end
+            end
+            
+            maskC{m} = outMask3M;
+                        
         case 'none'
             %Skip
             
