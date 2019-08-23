@@ -13,7 +13,7 @@ function success  = joinH5CERR(segResultCERRPath, cerrPath, outputH5Path, algori
 %   configFilePath    : Path to the config file of the specific algorithm being
 %                       used for segmentation
 
-configFilePath = fullfile(getCERRPath,'Contouring','models', 'ModelConfigurationFiles', [algorithm, '_config','.json']);
+configFilePath = fullfile(getCERRPath,'ModelImplementationLibrary','SegmentationModels', 'ModelConfigurationFile', [algorithm, '_config.json']);
 
 % check if any pre-processing is required
 %configFilePath = fullfile(getCERRPath,'Contouring','models','heart','heart.json');

@@ -19,10 +19,9 @@ containerPath
 algorithm
 
 %build config file path from algorithm
-configFilePath = fullfile(getCERRPath,'ModelImplementationLibary','SegmentationModels', 'ModelConfigurationFiles', [algorithm, '_config.json']);
+configFilePath = fullfile(getCERRPath,'ModelImplementationLibrary','SegmentationModels', 'ModelConfigurationFile', [algorithm, '_config.json']);
         
 % check if any pre-processing is required  
-userInS = jsondecode(fileread(configFilePath)); 
 userInS = jsondecode(fileread(configFilePath)); 
 if sum(strcmp(fieldnames(userInS), 'crop')) == 1
     cropS = userInS.crop;
