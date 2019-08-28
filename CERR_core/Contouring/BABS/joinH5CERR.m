@@ -18,7 +18,22 @@ configFilePath = fullfile(getCERRPath,'ModelImplementationLibrary','Segmentation
 % check if any pre-processing is required
 %configFilePath = fullfile(getCERRPath,'Contouring','models','heart','heart.json');
 userInS = jsondecode(fileread(configFilePath));
-cropS = userInS.crop;
+if sum(strcmp(fieldnames(userInS), 'crop')) == 1
+    cropS = userInS.crop;
+else 
+    cropS = '';
+end
+if sum(strcmp(fieldnames(userInS), 'imageSizeForModel')) == 1
+    outSizeV = userInS.imageSizeForModel;
+else
+    outSizeV = '';
+end
+
+if sum(strcmp(fieldnames(userInS), 'resize')) == 1
+    resizeS = userInS.resize;
+else
+    resizeS = '';
+end
 
 %Get H5 files
 H5Files = dir(fullfile(outputH5Path,'*.h5'));
@@ -66,7 +81,7 @@ end
             count = res.loadStructures(1).value;
             for i = 1 : length(res.loadStructures)
                 tmpM1 = flippedMask == count;
-                mask3M = padMask(planC,scanNum,tmpM1,cropS);
+                mask3M = padMask(planC,scanNum,tmpM1,cropS,outSizeV,resizeS);
                 tmpM2 = mask3M == 1;
                 planC = maskToCERRStructure(tmpM2, isUniform, scanNum, res.loadStructures(i).structureName, planC);
                 count = count+1;
