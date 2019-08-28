@@ -103,7 +103,7 @@ switch(lower(method))
      
 %                 % x-direction, must be <256 and must be even
                 if maskSize(1)>255
-                    diff = bas(maskSize(1) - 255);
+                    diff = abs(maskSize(1) - 255);
                     maskOut3M = padarray(maskOut3M,diff,0,'post');
                 end
                 updatedMaskSize = size(maskOut3M)
@@ -121,7 +121,8 @@ switch(lower(method))
                 if mod(updatedMaskSize(1),2)==1
                     maskOut3M = padarray(maskOut3M,1,0,'pre');
                 end
-                %maskOut3M = mask3M
+                
+                maskOut3M(x,y,z) = mask3M
             end
                
         
