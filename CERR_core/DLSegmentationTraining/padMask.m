@@ -44,15 +44,32 @@ for m = 1:length(methodC)
         case 'crop_around_center'
             %Use to crop around center
             modelMask3M = getMaskForModelConfig(planC,mask3M,cropS);
-            [minr, maxr, minc, maxc, mins, maxs] = compute_boundingbox(modelMask3M);            
+            [minr, maxr, minc, maxc, mins, maxs] = compute_boundingbox(modelMask3M);
             mask3M(minr:maxr,minc:maxc,mins:maxs) = label3M;
             
+        case 'crop_pt_outline'
+            modelMask3M = getMaskForModelConfig(planC,mask3M,cropS);
+            [minr, maxr, minc, maxc, mins, maxs] = compute_boundingbox(modelMask3M);
+            mask3M(minr:maxr,minc:maxc,mins:maxs) = label3M;
             
+        case 'crop_shoulders'
+            modelMask3M = getMaskForModelConfig(planC,mask3M,cropS);
+            [minr, maxr, minc, maxc, mins, maxs] = compute_boundingbox(modelMask3M);
+            mask3M(minr:maxr,minc:maxc,mins:maxs) = label3M;
+            
+        case 'special_self_attention'
+            tempMask3M = false(sizeV);
+            modelMask3M = getMaskForModelConfig(planC,tempMask3M,cropS);
+            [minr, maxr, minc, maxc, mins, maxs] = compute_boundingbox(modelMask3M);
+            mask3M(minr:maxr,minc:maxc,mins:maxs) = label3M;
+                        
         case 'none'
             mask3M = label3M;
             
             
     end
+    
+    
 end
 
 end

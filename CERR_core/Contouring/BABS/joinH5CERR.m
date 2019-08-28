@@ -81,7 +81,15 @@ end
             count = res.loadStructures(1).value;
             for i = 1 : length(res.loadStructures)
                 tmpM1 = flippedMask == count;
-                mask3M = padMask(planC,scanNum,tmpM1,cropS,outSizeV,resizeS);
+                if ~isempty(resizeS)
+                    resizeMethod = resizeS.method;                    
+                    [scan3M,resizedMask3M] = resizeScanAndMask([],tmpM1,outSizeV,resizeMethod,cropS,planC);
+                    %[minr, maxr, minc, maxc, mins, maxs] = compute_boundingbox(paddedMask3M);
+                    %mask3M(minr:maxr,minc:maxc,mins:maxs) = label3M;
+                    mask3M = padMask(planC,scanNum,resizedMask3M);
+                else
+                    mask3M = padMask(planC,scanNum,tmpM1,cropS,outSizeV,resizeS);                    
+                end
                 tmpM2 = mask3M == 1;
                 planC = maskToCERRStructure(tmpM2, isUniform, scanNum, res.loadStructures(i).structureName, planC);
                 count = count+1;
