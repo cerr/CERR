@@ -27,18 +27,20 @@
     }
   ],
 
+
 "imageSizeForModel": [ 256, 256 ],
 
-  "resize" : {"method": "pad"},
-
+"resize" : {"method": "special_self_attention_pad"},
 
 "crop": [
-    {
-      "method": "special_self_attention",
-      "params": {},
-      "operator": ""
-    }],
+  {
+    "method": "special_self_attention",
+    "params": { },
+    "operator": ""
+  }
 
+
+],
   
 
 
