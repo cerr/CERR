@@ -105,20 +105,26 @@ if(nargin == 0)
     end
            
     %Layer buttons and text labels over the background
-    importOptions = {'DICOM';'RTOG';'Gamma Knife';'PLUNC';'DICOM (Deprecated)';'FDF'};
+    importOptions = {'Select format...';'DICOM';'RTOG';'Gamma Knife';'PLUNC';'DICOM (Deprecated)';'FDF'};
 
-    uicontrol('units',units,'Position',[.055 .27 .3 .05],'String',importOptions,'Style','popup',...
+    uicontrol('units',units,'Position',[.055 .29 .22 .05],'String',importOptions,'Style','popup',...
         'BackgroundColor',[1 1 1] ,'tooltipstring','Select Import Option',...
         'HorizontalAlignment','center','FontSize',10,'Tag', 'CERRImportPopUp');
 
-    uicontrol('units',units,'Position',[.1 .16 .17 .07],'String','Import',...
+    uicontrol('units',units,'Position',[.29 .27 .08 .07],'String','Go',...
         'callback','CERR(''IMPORT'')','FontSize',10,'Tag', 'CERRImportBtn');
+    
+     uicontrol('units',units,'Position',[.055 .15 .3 .07],'String','Batch import',...
+        'callback','CERR(''BATCHIMPORT'')','FontSize',10,'Tag', 'CERRBatchImportBtn');
+    
 
     %     uicontrol('units',units,'Position',[.325 .3 .1 .05],'String','DICOM (J)','Style','text','HorizontalAlignment','left');
     uicontrol('units',units,'Position',[.445 .27 .17 .07],'String','DICOM', 'callback','CERR(''DICOMEXPORT'')','FontSize',10);
 
     %     uicontrol('units',units,'Position',[.585 .3 .1 .05],'String','Viewer','Style','text','HorizontalAlignment','left');
-    uicontrol('units',units,'Position',[.725 .27 .17 .07],'String','Viewer', 'callback','CERR(''CERRSLICEVIEWER'')','FontSize',10);
+    %uicontrol('units',units,'Position',[.725 .27 .17 .07],'String','Viewer', 'callback','CERR(''CERRSLICEVIEWER'')','FontSize',10);
+    uicontrol('units',units,'Position',[.71 .27 .22 .07],'Style','popup', 'tooltipstring','Select mode', ...
+        'String',{'Select mode..','Study','Cohort'},'FontSize',10, 'callback', 'CERR(''CERRSLICEVIEWER'')','Tag','ReviewMode');
 
     %     uicontrol('units',units,'Position',[.835 .50 .1 .05],'String','Quit','callback','CERR(''QUIT'')');
     uicontrol('units',units,'Position',[.835 .50 .1 .05],'String','Help','callback','CERR(''HELP'')');
@@ -151,12 +157,19 @@ else
             end
             CERRExportDICOM;
             CERR;
+            
         case 'CERRSLICEVIEWER'
             set(findobj('Tag', 'CERRStartupFig'), 'visible', 'off');
-            sliceCallBack('init');
+            modeC = get(findobj('Tag','ReviewMode'),'String');
+            sel = get(findobj('Tag','ReviewMode'),'Value');
+            if strcmp(modeC{sel} ,'Study')
+                sliceCallBack('init');
+            elseif strcmp(modeC{sel} ,'Cohort')
+                structureNameMapGUI('INIT');
+            end
 
         case 'IMPORT'
-            importOptions = {'DICOM';'RTOG';'GAMMAKNIFE';'PLUNC';'DICOMDEPRI';'FDF'};
+            importOptions = {'Select format...';'DICOM';'RTOG';'GAMMAKNIFE';'PLUNC';'DICOMDEPRI';'FDF'};
             importIndx = get(findobj('Tag', 'CERRImportPopUp'),'value');
 
             if ~isunix
@@ -184,6 +197,23 @@ else
             end
 
             CERR;
+            
+        case 'BATCHIMPORT'
+            
+            zipFlag = 0;
+            mergeScansFlag = 0;
+            source = uigetdir(pwd,'Select source directory...');
+            destn = uigetdir(pwd,'Select output directory...');
+            
+            p = gcp('nocreate');
+            if isempty(p)
+                sel = inputdlg('Enter no. processors to use: ');
+                n = str2num(sel{1});
+                parpool(n);
+            end
+            
+            batchImport(source,destn,zipFlag,mergeScansFlag);
+            
 
         case 'QUIT'
             clear CERR.m
