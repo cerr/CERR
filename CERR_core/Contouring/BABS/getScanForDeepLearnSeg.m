@@ -1,7 +1,7 @@
 function scan3M = getScanForDeepLearnSeg(cerrPath,algorithm)
 
 %build config file path from algorithm
-configFilePath = fullfile(getCERRPath,'ModelImplementationLibary','SegmentationModels', 'ModelConfigurationFiles', [algorithm, '_config.json']);
+configFilePath = fullfile(getCERRPath,'ModelImplementationLibrary','SegmentationModels', 'ModelConfigurationFile', [algorithm, '_config.json']);
 
 % check if any pre-processing is required  
 userInS = jsondecode(fileread(configFilePath)); 
@@ -42,6 +42,8 @@ try
         scanNum = 1;
         scan3M = getScanArray(planC{indexS.scan}(scanNum));
         scan3M = double(scan3M);
+        CToffset = planC{indexS.scan}(scanNum).scanInfo(1).CTOffset;
+        scan3M = scan3M - CToffset;
         mask3M = [];
         
         %If cropping around structure, check if structure is present, else skip
@@ -62,7 +64,7 @@ try
                     else
                         % Crop around struct
                         [scan3M,mask3M] = cropScanAndMask(planC,scan3M,mask3M, cropS);
-                    end
+                     end
                 else
                     % Cropping
                     [scan3M,mask3M] = cropScanAndMask(planC,scan3M,mask3M, cropS);

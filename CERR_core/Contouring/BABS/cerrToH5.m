@@ -37,6 +37,9 @@ try
         scanNum = 1;
         scan3M = getScanArray(planC{indexS.scan}(scanNum));
         scan3M = double(scan3M);
+        CToffset = planC{indexS.scan}(scanNum).scanInfo(1).CTOffset;
+        scan3M = scan3M - CToffset;
+        
         mask3M = [];
         %If cropping around structure, check if structure is present, else skip
         %this case
