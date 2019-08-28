@@ -90,8 +90,7 @@ switch(lower(method))
             if isempty(mask3M)
                 maskOut3M = [];
             else
-                tempMask3M = false(size(mask3M));
-                
+                tempMask3M = false(size(mask3M));                
                 modelMask3M = getMaskForModelConfig(planC,tempMask3M,cropS);
                 [minr, maxr, minc, maxc, mins, maxs] = compute_boundingbox(modelMask3M);
                 modelMask3M = modelMask3M(minr:maxr,minc:maxc,mins:maxs);
@@ -101,28 +100,27 @@ switch(lower(method))
                 
 %                 % Adjust size before padding
      
-%                 % x-direction, must be <256 and must be even
+%               % x-direction, must be <256 and must be even
                 if maskSize(1)>255
                     diff = abs(maskSize(1) - 255);
-                    maskOut3M = padarray(maskOut3M,diff,0,'post');
+                    mask3M = padarray(mask3M,[diff,0],0,'post');
                 end
-                updatedMaskSize = size(maskOut3M)
-                if mod(updatedMaskSize(1),2)==1 
-                    maskOut3M = padarray(maskOut3M,1,0,'post');
+                updatedMaskSize_x = size(mask3M(1))
+                if mod(updatedMaskSize_x(1),2)==1 
+                    mask3M = padarray(mask3M,[1,0],0,'post');
                 end
                 
                 % y-direction, must be <256 and must be even
                 if maskSize(2)>255
                     diff = abs(maskSize(1) - 255);
-                    maskOut3M = padarray(maskOut3M,[0,diff],0,'post');
-
+                    mask3M = padarray(mask3M,[0,diff],0,'post');
                 end
-                updatedMaskSize = size(maskOut3M)
-                if mod(updatedMaskSize(1),2)==1
-                    maskOut3M = padarray(maskOut3M,1,0,'pre');
+                updatedMaskSize_y = size(maskOut3M)
+                if mod(updatedMaskSize_y(1),2)==1
+                    mask3M = padarray(mask3M,[0,1],0,'post');
                 end
                 
-                maskOut3M(x,y,z) = mask3M
+                maskOut3M[] = mask3M;
             end
                
         
