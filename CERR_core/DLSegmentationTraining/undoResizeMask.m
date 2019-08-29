@@ -41,11 +41,11 @@ switch(lower(method))
             else
                 origSiz = size(scan3M,1);
             end
-            xPad = floor((origSiz - size(label3M,1))/2);
+            xPad = abs(floor((origSiz - size(label3M,1))/2));
             maskOut3M = label3M(xPad+1:xPad+size(scan3M,1),:,:);
-            if mod(size(scan3M,1),2)==1
-               maskOut3M = padarray(maskOut3M,[1,0],0,'post');   
-            end
+%             if mod(size(scan3M,1),2)==1
+%                maskOut3M = padarray(maskOut3M,[1,0],0,'post');   
+%             end
         end
         
         % y-direction must be <256 and must be even
