@@ -72,7 +72,7 @@ try
         
         % Resizing
         if ~isempty(resizeS) && ~isempty(outSizeV)
-            resizeMethod = userInS.resize.method;
+            resizeMethod = resizeS.method;
             [scan3M,mask3M] = resizeScanAndMask(scan3M,mask3M,outSizeV,resizeMethod);        
         end
         
