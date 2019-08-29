@@ -1,4 +1,4 @@
-function errC = cerrToH5(cerrPath, fullSessionPath, cropS, outSizeV, resizeS)
+function [errC,croppedScan3M] = cerrToH5(cerrPath, fullSessionPath, cropS, outSizeV, resizeS)
 % Usage: cerrToH5(cerrPath, fullSessionPath)
 %
 % This function converts a 3d scan from planC to H5 file format
@@ -59,10 +59,13 @@ try
                     else
                         % Crop around struct
                         [scan3M,mask3M] = cropScanAndMask(planC,scan3M,mask3M, cropS);
+                        croppedScan3M = scan3M;
                     end
                 else
                     % Cropping
                     [scan3M,mask3M] = cropScanAndMask(planC,scan3M,mask3M, cropS);
+                    croppedScan3M = scan3M;
+
                 end
             end
         end

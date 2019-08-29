@@ -1,4 +1,4 @@
-function scan3M = getScanForDeepLearnSeg(cerrPath,algorithm)
+function [scan3M,croppedScan3M] = getScanForDeepLearnSeg(cerrPath,algorithm)
 
 %build config file path from algorithm
 configFilePath = fullfile(getCERRPath,'ModelImplementationLibrary','SegmentationModels', 'ModelConfigurationFile', [algorithm, '_config.json']);
@@ -64,10 +64,13 @@ try
                     else
                         % Crop around struct
                         [scan3M,mask3M] = cropScanAndMask(planC,scan3M,mask3M, cropS);
+                        croppedScan3M = scan3M;
                      end
                 else
                     % Cropping
                     [scan3M,mask3M] = cropScanAndMask(planC,scan3M,mask3M, cropS);
+                     croppedScan3M = scan3M;
+
                 end
             end
         end

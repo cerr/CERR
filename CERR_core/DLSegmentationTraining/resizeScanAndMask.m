@@ -15,8 +15,8 @@ function [scanOut3M, maskOut3M] = resizeScanAndMask(scan3M,mask3M,inputImgSizeV,
 switch(lower(method))
     
     case 'pad'
-        xPad = floor(inputImgSizeV(1) - size(scan3M,1));
-        yPad = floor(inputImgSizeV(2) - size(scan3M,2));
+        xPad = floor(inputImgSizeV(1) - size(scan3M,1)/2);
+        yPad = floor(inputImgSizeV(2) - size(scan3M,2)/2);
         
         scanOut3M = zeros(inputImgSizeV(1), inputImgSizeV(2), size(scan3M,3));
         scanOut3M(xPad+1:xPad+size(scan3M,1), yPad+1:yPad+size(scan3M,2), 1:size(scan3M,3)) = scan3M;
@@ -49,31 +49,34 @@ switch(lower(method))
         
     case 'special_self_attention_pad'
         
+        % SCAN
         if isempty(scan3M)
             scanOut3M = [];
         else
             % Adjust size before padding
             scanSize = size(scan3M);
             
-            % x-direction, must be <256 and must be even
+            % x-direction, must be <= 256 
             if scanSize(1)>256
-                diff = scanSize(1) - 255;
+                diff = scanSize(1) - 256;
                 [minr, maxr, minc, maxc, mins, maxs] = compute_boundingbox(scan3M);
                 scan3M = scan3M(minr:maxr-diff,minc:maxc,mins:maxs);
             end
             updatedScanSize = size(scan3M);
+            % must be even
             if mod(updatedScanSize(1),2)==1
                 [minr, maxr, minc, maxc, mins, maxs] = compute_boundingbox(scan3M);
                 scan3M = scan3M(minr:maxr-1,minc:maxc,mins:maxs);
             end
             
-            % y-direction, must be <256 and must be even
+            % y-direction, must be <256 
             if scanSize(2)>255
-                diff = scanSize(2) - 255;
+                diff = scanSize(2) - 256;
                 [minr, maxr, minc, maxc, mins, maxs] = compute_boundingbox(scan3M);
                 scan3M = scan3M(minr:maxr,minc:maxc-diff,mins:maxs);
             end
             updatedScanSize = size(scan3M);
+            % must be even
             if mod(updatedScanSize(2),2)==1
                 [minr, maxr, minc, maxc, mins, maxs] = compute_boundingbox(scan3M);
                 scan3M = scan3M(minr:maxr,minc:maxc-1,mins:maxs);
@@ -87,6 +90,7 @@ switch(lower(method))
             scanOut3M(xPad+1:xPad+size(scan3M,1), yPad+1:yPad+size(scan3M,2), 1:size(scan3M,3)) = scan3M;
         end
             
+        % MASK
             if isempty(mask3M)
                 maskOut3M = [];
             else
@@ -101,8 +105,8 @@ switch(lower(method))
 %                 % Adjust size before padding
      
 %               % x-direction, must be <256 and must be even
-                if maskSize(1)>255
-                    diff = abs(maskSize(1) - 255);
+                if maskSize(1)>256
+                    diff = abs(maskSize(1) - 256);
                     mask3M = padarray(mask3M,[diff,0],0,'post');
                 end
                 updatedMaskSize_x = size(mask3M(1))
@@ -111,8 +115,8 @@ switch(lower(method))
                 end
                 
                 % y-direction, must be <256 and must be even
-                if maskSize(2)>255
-                    diff = abs(maskSize(1) - 255);
+                if maskSize(2)>256
+                    diff = abs(maskSize(1) - 256);
                     mask3M = padarray(mask3M,[0,diff],0,'post');
                 end
                 updatedMaskSize_y = size(maskOut3M)
@@ -120,7 +124,6 @@ switch(lower(method))
                     mask3M = padarray(mask3M,[0,1],0,'post');
                 end
                 
-                maskOut3M[] = mask3M;
             end
                
         

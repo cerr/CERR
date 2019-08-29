@@ -41,7 +41,7 @@ else
 end
 
 % convert scan to H5 format
-errC = cerrToH5(cerrPath, fullSessionPath, cropS, outSizeV, resizeS);
+[errC,croppedScan3M] = cerrToH5(cerrPath, fullSessionPath, cropS, outSizeV, resizeS);
 
 if ~isempty(errC)
     success = 0;
@@ -61,4 +61,4 @@ status = system(command)
 
 
 % join segmented mask with planC
-success = joinH5CERR(segResultCERRPath,cerrPath,outputH5Path,algorithm);
+success = joinH5CERR(segResultCERRPath,cerrPath,outputH5Path,algorithm,croppedScan3M);

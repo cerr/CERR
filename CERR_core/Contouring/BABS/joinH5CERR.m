@@ -1,4 +1,4 @@
-function success  = joinH5CERR(segResultCERRPath, cerrPath, outputH5Path, algorithm)
+function success  = joinH5CERR(segResultCERRPath, cerrPath, outputH5Path, algorithm,scan3M)
 % Usage: res = joinH5CERR(segResultCERRPath, cerrPath, outputH5Path, configFilePath)
 %
 % This function merges the segmentations from the respective algorithm back
@@ -83,10 +83,8 @@ end
                 tmpM1 = flippedMask == count;
                 if ~isempty(resizeS)
                     resizeMethod = resizeS.method;                    
-                    [scan3M,resizedMask3M] = resizeScanAndMask([],tmpM1,outSizeV,resizeMethod,cropS,planC);
-                    %[minr, maxr, minc, maxc, mins, maxs] = compute_boundingbox(paddedMask3M);
-                    %mask3M(minr:maxr,minc:maxc,mins:maxs) = label3M;
-                    mask3M = padMask(planC,scanNum,resizedMask3M);
+                    resizedMask3M = undoResizeMask(scan3M,tmpM1,resizeMethod);
+                    mask3M = padMask(planC,scanNum,resizedMask3M,cropS);
                 else
                     mask3M = padMask(planC,scanNum,tmpM1,cropS,outSizeV,resizeS);                    
                 end
