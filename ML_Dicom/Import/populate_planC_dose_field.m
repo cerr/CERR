@@ -114,10 +114,10 @@ switch fieldname
         if isempty(beamSeq)
             return;
         end
-        
+        numBeams = beamSeq.size;
         if numBeams > 0
             aBeamSeq = beamSeq.get(0);
-            dataS = getTagValue(aBeamSeq, '300C0006');
+            dataS = getTagValue(aBeamSeq,'300C0006');
         end
                     
     case 'refFractionGroupNumber'
