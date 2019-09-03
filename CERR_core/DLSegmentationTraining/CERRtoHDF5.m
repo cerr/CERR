@@ -1,4 +1,4 @@
-function errC = CERRtoHDF5(CERRdir,HDF5dir,dataSplitV,strListC,outSizeV,resizeMethod,cropS)
+function errC = CERRtoHDF5(CERRdir,HDF5dir,dataSplitV,strListC,userOptS)
 % CERRtoHDF5.m
 %
 % Script to export scan and mask files in HDF5 format, split into training,
@@ -12,18 +12,21 @@ function errC = CERRtoHDF5(CERRdir,HDF5dir,dataSplitV,strListC,outSizeV,resizeMe
 %INPUTS:
 % CERRdir       : Path to generated CERR files
 % HDF5dir       : Path to generated HDF5 files
+% dataSplitV    : Train/Val/Test split fraction
 % strListC      : List of structures to export
-% outSizeV      : Image size required by model [height, width]
-% resizeMethod  : Supported methods: 'pad', 'bilinear', 'sinc', 'none'.
-% cropS         : Dictionary of parameters for cropping
-%                 Supported methods: 'crop_fixed_amt','crop_to_bounding_box',
-%                 'crop_to_str', 'crop_around_center', 'none'
+% userOptS      : Options for resampling, cropping, resizing etc.
+%                 See sample file: CERR_core/DLSegmentationTraining/sample_train_params.json                
 %--------------------------------------------------------------------------
+%AI 9/3/19 Added resampling option
 
+%% Get user inputs
+outSizeV = userOptS.outSize;
+resizeMethod = userOptS.resizeMethod;
+cropS = userOptS.crop;
+resampleS = userOptS.resample;
 
 %% Get data split
 [trainIdxV,valIdxV,testIdxV] = randSplitData(CERRdir,dataSplitV);
-
 
 %% Batch convert CERR to HDF5
 fprintf('\nConverting data to HDF5...\n');
@@ -75,15 +78,17 @@ for planNum = 1:length(dirS)
             end
             
             %Extract scan arrays
-            if ismember(planNum,testIdxV)
+            if isempty(exportStrC) && ismember(planNum,testIdxV)
                 scanNumV = 1; %Assume scan 1
             else
                 scanNumV = unique(getStructureAssociatedScan(strIdxV,planC));
             end
+            
             UIDc = {planC{indexS.structures}.assocScanUID};
             resM = nan(length(scanNumV),3);
             
             for scanIdx = 1:length(scanNumV)
+                
                 scan3M = double(getScanArray(scanNumV(scanIdx),planC));
                 CTOffset = planC{indexS.scan}(scanNumV(scanIdx)).scanInfo(1).CTOffset;
                 scan3M = scan3M - CTOffset;
@@ -91,33 +96,62 @@ for planNum = 1:length(dirS)
                 %Extract masks
                 if isempty(exportStrC) && ismember(planNum,testIdxV)
                     mask3M = [];
+                    validStrIdxV = [];
                 else
                     mask3M = zeros(size(scan3M));
                     assocStrIdxV = strcmpi(planC{indexS.scan}(scanNumV(scanIdx)).scanUID,UIDc);
                     validStrIdxV = ismember(strIdxV,find(assocStrIdxV));
                     validExportLabelV = exportLabelV(validStrIdxV);
                     validStrIdxV = strIdxV(validStrIdxV);
+                end
+                for strNum = 1:length(validStrIdxV)
                     
-                    for strNum = 1:length(validStrIdxV)
-                        
-                        strIdx = validStrIdxV(strNum);
-                        
-                        %Update labels
-                        tempMask3M = false(size(mask3M));
-                        [rasterSegM, planC] = getRasterSegments(strIdx,planC);
-                        [maskSlicesM, uniqueSlices] = rasterToMask(rasterSegM, scanNumV(scanIdx), planC);
-                        tempMask3M(:,:,uniqueSlices) = maskSlicesM;
-                        
-                        mask3M(tempMask3M) = validExportLabelV(strNum);
-                        
+                    strIdx = validStrIdxV(strNum);
+                    
+                    %Update labels
+                    tempMask3M = false(size(mask3M));
+                    [rasterSegM, planC] = getRasterSegments(strIdx,planC);
+                    [maskSlicesM, uniqueSlices] = rasterToMask(rasterSegM, scanNumV(scanIdx), planC);
+                    tempMask3M(:,:,uniqueSlices) = maskSlicesM;
+                    
+                    mask3M(tempMask3M) = validExportLabelV(strNum);
+                    
+                end
+                
+                %Resample
+                if isfield(userOptS,'resample')
+                    
+                    % Get the new x,y,z grid
+                    [xValsV, yValsV, zValsV] = getScanXYZVals(planC{indexS.scan}(scanNumV(scanIdx)));
+                    if yValsV(1) > yValsV(2)
+                        yValsV = fliplr(yValsV);
                     end
+                    
+                    xValsV = xValsV(1):resampleS.resolutionXCm:(xValsV(end)+10000*eps);
+                    yValsV = yValsV(1):resampleS.resolutionYCm:(yValsV(end)+10000*eps);
+                    zValsV = zValsV(1):resampleS.resolutionZCm:(zValsV(end)+10000*eps);
+                    
+                    % Interpolate using sinc sampling
+                    numCols = length(xValsV);
+                    numRows = length(yValsV);
+                    numSlcs = length(zValsV);
+                    %Get resampling method
+                    
+                    if strcmpi(resampleS.interpMethod,'sinc')
+                        method = 'lanczos3';
+                    end
+                    scan3M = imresize3(scan3M,[numRows numCols numSlcs],'method',method);
+                    mask3M = imresize3(single(mask3M),[numRows numCols numSlcs],'method',method) > 0.5;
+                    
                 end
                 
                 %Pre-processing
-                %1. Cropping
+                %1. Crop
                 [scan3M,mask3M] = cropScanAndMask(planC,scan3M,mask3M,cropS);
-                %2. Resizing
+                %2. Resize
                 [scan3M,mask3M] = resizeScanAndMask(scan3M,mask3M,outSizeV,resizeMethod);
+                
+                
                 
                 %Save to HDF5
                 if ismember(planNum,trainIdxV)
@@ -133,7 +167,7 @@ for planNum = 1:length(dirS)
                 
                 for slIdx = 1:size(scan3M,3)
                     %Save data
-                    maskM = mask3M(:,:,slIdx);
+                    maskM = uint8(mask3M(:,:,slIdx));
                     if ~isempty(maskM)
                         maskFilename = fullfile(outDir,'Masks',[ptName,'_slice',...
                             num2str(slIdx),'.h5']);
