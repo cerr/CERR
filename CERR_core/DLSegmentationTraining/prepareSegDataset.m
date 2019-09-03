@@ -10,9 +10,9 @@ function errC = prepareSegDataset(paramFilename)
 % paramFilename : Path to JSON file with parameters.
 %
 % --- JSON fields ---:
-%
-% dcmDir           : Path to DICOM data
-% tempDir          : Path for writing intermediate files(CERR, HDF5)
+% inputFileType    : May be 'DICOM' or 'CERR'
+% inputDir         : Path to input data
+% outDir           : Path for writing intermediate files(CERR, HDF5)
 % structList       : Names of structures to be segmented
 % dataSplit        : Train/Val/Test split passed as vector: [%train %val]  (%test = 100-%train-%val).
 % imageSizeForModel: Dimensions of output image required for model
@@ -21,28 +21,30 @@ function errC = prepareSegDataset(paramFilename)
 % crop             : Dictionary of options for cropping with fields
 %                    'methods', 'params', 'operator'
 %                    Supported methods include 'crop_fixed_amt','crop_to_bounding_box',
-%                    'crop_to_str', 'crop_around_center', 'none'.                             : 
+%                    'crop_to_str', 'crop_around_center', 'none'.                             :
 % Example: See sample_train_params.json
 %---------------------------------------------------------------------------
+% AI 9/3/19 Added inputFileType, resampling
 
 %% Get user inputs from JSON
 userInS = jsondecode(fileread(paramFilename));
-dcmDir = userInS.dcmDir;
-tempDir = userInS.tempDir;
+inputFileType = userInS.inputFileType;
+inputDir = userInS.inputDir;
+outDir = userInS.outDir;
 strListC = userInS.structList;
-cropS = userInS.crop;
-outSizeV = userInS.imageSizeForModel;
-resizeMethod = userInS.resize.method;
 dataSplitV = userInS.dataSplit;
 
+userOptS = struct();
+userOptS.crop = userInS.crop;
+userOptS.outSize = userInS.imageSizeForModel;
+userOptS.resizeMethod = userInS.resize.method;
+userOptS.resample = userInS.resample;
+
 %% Create directories to write CERR, HDF5 files
-fprintf('\nCreating directories for CERR, HDF5 files...\n');
-mkdir(tempDir)
+fprintf('\nCreating directories for HDF5 files...\n');
+mkdir(outDir)
 
-cerrPath = fullfile(tempDir,'dataCERR');
-mkdir(cerrPath)
-
-HDF5path = fullfile(tempDir,'dataHDF5');
+HDF5path = fullfile(outDir,'dataHDF5');
 mkdir(HDF5path)
 
 mkdir([HDF5path,filesep,'Train']);
@@ -57,12 +59,23 @@ mkdir([HDF5path,filesep,'Test',filesep,'Masks']);
 fprintf('\nComplete\n');
 
 %% Import data to CERR
-zipFlag = 'No';
-mergeScansFlag = 'No';
-batchConvert(dcmDir,cerrPath,zipFlag,mergeScansFlag);
+if strcmpi(inputFileType,'DICOM')
+    
+    CERRpath = fullfile(outDir,'dataCERR');
+    mkdir(CERRpath)
+    
+    zipFlag = 'No';
+    mergeScansFlag = 'No';
+    batchConvert(inputDir,CERRpath,zipFlag,mergeScansFlag);
+    
+else
+    %input CERR format
+    CERRpath = inputDir;
+    
+end
 
 %% Convert to HDF5 with preprocessing and split into train, val, test datasets
-errC = CERRtoHDF5(cerrPath, HDF5path, dataSplitV, strListC, outSizeV, resizeMethod, cropS);
+errC = CERRtoHDF5(CERRpath, HDF5path, dataSplitV, strListC, userOptS);
 
 
 end
