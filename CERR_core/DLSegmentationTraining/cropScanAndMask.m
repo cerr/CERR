@@ -5,7 +5,7 @@ function [scan3M,mask3M] = cropScanAndMask(planC,scan3M,mask3M,cropS)
 % AI 5/2/19
 %--------------------------------------------------------------------------
 %INPUTS:
-% planC         
+% planC
 % scan3M       : Scan array
 % mask3M       : Mask
 % cropS        : Dictionary of parameters for cropping
@@ -19,7 +19,16 @@ function [scan3M,mask3M] = cropScanAndMask(planC,scan3M,mask3M,cropS)
 modelMask3M = getMaskForModelConfig(planC,mask3M,cropS);
 
 %Compute bounding box
-[minr, maxr, minc, maxc, mins, maxs] = compute_boundingbox(modelMask3M);
+if strcmpi(cropS.method,'none')
+    minr = 1;
+    maxr = size(modelMask3M,1);
+    minc = 1;
+    maxc = size(modelMask3M,2);
+    mins = 1;
+    maxs = size(modelMask3M,3);
+else
+    [minr, maxr, minc, maxc, mins, maxs] = compute_boundingbox(modelMask3M);
+end
 
 %Crop scan and mask
 if ~isempty(scan3M)
@@ -27,6 +36,6 @@ if ~isempty(scan3M)
 end
 if ~isempty(mask3M)
     mask3M = mask3M(minr:maxr,minc:maxc,mins:maxs);
-end    
+end
 
 end
