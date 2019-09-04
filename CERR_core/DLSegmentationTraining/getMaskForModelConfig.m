@@ -20,7 +20,9 @@ maskC = cell(length(methodC),1);
 for m = 1:length(methodC)
     
     method = methodC{m};
-    paramS = cropS(m).params;
+    if isfield(cropS(m),'params')
+        paramS = cropS(m).params;
+    end
     
     switch(lower(method))
         
@@ -127,32 +129,32 @@ for m = 1:length(methodC)
             sliceNum = getShoulderStartSlice(outMask3M,planC);
             outMask3M = outMask3M(:,:,1:sliceNum-1);
             
-%             %Compute bounding box
-%             [minr, maxr, minc, maxc, mins, maxs] = compute_boundingbox(outMask3M);
-%             scan3M = scan3M(minr:maxr,minc:maxc,mins:maxs);
-%             figure, imagesc(scan3M(:,:,5))
+            %             %Compute bounding box
+            %             [minr, maxr, minc, maxc, mins, maxs] = compute_boundingbox(outMask3M);
+            %             scan3M = scan3M(minr:maxr,minc:maxc,mins:maxs);
+            %             figure, imagesc(scan3M(:,:,5))
             
             % Update pt outline
-%             outMask3M = getPatientOutline(scan3M);
+            %             outMask3M = getPatientOutline(scan3M);
             
             
             
-           
             
-%             [minr, maxr, minc, maxc, mins, maxs] = compute_boundingbox(outMask3M);
-%             scan3M = scan3M(minr:maxr,minc:maxc,mins:maxs);
-%             figure, imagesc(scan3M(:,:,5))
-%             
-%             outMask3M = outMask3M + CToffset;
-%             scan3M = scan3M + CToffset;
-%             [minr, maxr, minc, maxc, mins, maxs] = compute_boundingbox(outMask3M);
-%             scan3M = scan3M(minr:maxr,minc:maxc,mins:maxs);
-%             figure, imagesc(scan3M(:,:,5))
             
-             maskC{m} = outMask3M;
+            %             [minr, maxr, minc, maxc, mins, maxs] = compute_boundingbox(outMask3M);
+            %             scan3M = scan3M(minr:maxr,minc:maxc,mins:maxs);
+            %             figure, imagesc(scan3M(:,:,5))
+            %
+            %             outMask3M = outMask3M + CToffset;
+            %             scan3M = scan3M + CToffset;
+            %             [minr, maxr, minc, maxc, mins, maxs] = compute_boundingbox(outMask3M);
+            %             scan3M = scan3M(minr:maxr,minc:maxc,mins:maxs);
+            %             figure, imagesc(scan3M(:,:,5))
+            
+            maskC{m} = outMask3M;
             
         case 'none'
-             maskC{m} = origMask3M;
+            maskC{m} = origMask3M;
             
     end
     

@@ -129,7 +129,9 @@ switch(lower(method))
         
         
     case 'none'
-        %Skip
+        scanOut3M = scan3M;
+        maskOut3M = mask3M;
+        
         
 end
 
