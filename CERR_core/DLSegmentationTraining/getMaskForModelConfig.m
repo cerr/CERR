@@ -152,7 +152,7 @@ for m = 1:length(methodC)
              maskC{m} = outMask3M;
             
         case 'none'
-            %Skip
+             maskC{m} = origMask3M;
             
     end
     
