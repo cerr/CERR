@@ -12,17 +12,17 @@ imgType = channelS.imageType;
 switch imgType
     
     case 'coronal'
-        for c = 1:C
-            scan3M = scanC{c};
+        for n = 1:length(scanC)
+            scan3M = scanC{n};
             scan3M = permute(scan3M,[3,2,1]);
-            scanC{c} = scan3M;
+            scanC{n} = scan3M;
         end
         
     case 'sagittal'
-        for c = 1:C
-            scan3M = scanC{c};
+        for n = 1:length(scanC)
+            scan3M = scanC{n};
             scan3M = permute(scan3M,[3,1,2]);
-            scanC{c} = scan3M;
+            scanC{n} = scan3M;
         end
         
     case 'original'
@@ -44,13 +44,19 @@ switch method
     case '2.5D'
         
         scan3M = scanC{1};
-        prevSlice3M = circshift(scan3M,1,3);
-        prevSlice3M(:,:,1) = scan3M(:,:,1);
-        nextSlice3M = circshift(scan3M,-1,3);
-        nextSlice3M(:,:,end) = scan3M(:,:,end);
-        scanC{1} = prevSlice3M;
-        scanC{2} = scan3M;
-        scanC{3} = nextSlice3M;
+        
+        nPad = floor(C/2);
+        shiftV = nPad:-1:-nPad;
+        
+        for c = 1:C
+            shiftSlice3M = circshift(scan3M,shiftV(c),3);
+            if shiftV(c)>0
+                shiftSlice3M(:,:,1:shiftV(c)) = repmat(scan3M(:,:,1),[1,1,shiftV(c)]);
+            elseif shiftV(c)<0
+                shiftSlice3M(:,:,end+shiftV(c)+1:end) = repmat(scan3M(:,:,end),[1,1,-shiftV(c)]);
+            end
+            scanC{c} = shiftSlice3M;
+        end
         
         
     case 'multiscan'
