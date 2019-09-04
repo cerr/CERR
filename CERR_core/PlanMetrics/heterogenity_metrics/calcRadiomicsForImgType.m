@@ -79,7 +79,8 @@ for k = 1:length(imageTypeC)
         if isfield(paramS.textureParamS,'binwidth')
             binwidth = paramS.textureParamS.binwidth;
         end
-        
+        % Don't use intensities outside the ROI in discretization
+        volToEval(~maskBoundingBox3M) = NaN;
         quantizedM = imquantize_cerr(volToEval,numGrLevels,...
             minIntensityCutoff,maxIntensityCutoff,binwidth);
         % Reassign the number of gray levels in case they were computed for the
