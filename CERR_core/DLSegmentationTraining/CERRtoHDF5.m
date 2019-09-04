@@ -15,18 +15,23 @@ function errC = CERRtoHDF5(CERRdir,HDF5dir,dataSplitV,strListC,userOptS)
 % dataSplitV    : Train/Val/Test split fraction
 % strListC      : List of structures to export
 % userOptS      : Options for resampling, cropping, resizing etc.
-%                 See sample file: CERR_core/DLSegmentationTraining/sample_train_params.json                
+%                 See sample file: CERR_core/DLSegmentationTraining/sample_train_params.json
 %--------------------------------------------------------------------------
 %AI 9/3/19 Added resampling option
+%AI 9/4/19 Options to populate channels
 
 %% Get user inputs
-outSizeV = userOptS.outSize;
-resizeMethod = userOptS.resizeMethod;
+outSizeV = userOptS.imageSizeForModel;
+resizeMethod = userOptS.resize.method;
 cropS = userOptS.crop;
 resampleS = userOptS.resample;
+channelS = userOptS.channels;
+maskChannelS = channelS;
+maskChannelS.method = 'none';
 
 %% Get data split
 [trainIdxV,valIdxV,testIdxV] = randSplitData(CERRdir,dataSplitV);
+
 
 %% Batch convert CERR to HDF5
 fprintf('\nConverting data to HDF5...\n');
@@ -37,12 +42,12 @@ for n = 1:length(strListC)
     labelKeyS.(strListC{n}) = n;
 end
 
+%Loop over CERR files
 dirS = dir(fullfile(CERRdir,filesep,'*.mat'));
 labelV = 1:length(strListC);
-
 resC = cell(1,length(dirS));
 errC = {};
-%Loop over CERR files
+
 for planNum = 1:length(dirS)
     
     try
@@ -78,10 +83,16 @@ for planNum = 1:length(dirS)
             end
             
             %Extract scan arrays
+            scanC = {};
+            maskC = {};
             if isempty(exportStrC) && ismember(planNum,testIdxV)
                 scanNumV = 1; %Assume scan 1
             else
-                scanNumV = unique(getStructureAssociatedScan(strIdxV,planC));
+                if strcmpi(channelS.append.method,'multiscan')
+                    scanNumV = channelS.append.parameters;
+                else
+                    scanNumV = unique(getStructureAssociatedScan(strIdxV,planC));
+                end
             end
             
             UIDc = {planC{indexS.structures}.assocScanUID};
@@ -118,8 +129,9 @@ for planNum = 1:length(dirS)
                     
                 end
                 
-                %Resample
-                if isfield(userOptS,'resample')
+                %Pre-processing
+                %1. Resample
+                if ~strcmpi(resampleS.method,'none')
                     
                     % Get the new x,y,z grid
                     [xValsV, yValsV, zValsV] = getScanXYZVals(planC{indexS.scan}(scanNumV(scanIdx)));
@@ -135,9 +147,9 @@ for planNum = 1:length(dirS)
                     numCols = length(xValsV);
                     numRows = length(yValsV);
                     numSlcs = length(zValsV);
-                    %Get resampling method
                     
-                    if strcmpi(resampleS.interpMethod,'sinc')
+                    %Get resampling method
+                    if strcmpi(resampleS.method,'sinc')
                         method = 'lanczos3';
                     end
                     scan3M = imresize3(scan3M,[numRows numCols numSlcs],'method',method);
@@ -145,43 +157,57 @@ for planNum = 1:length(dirS)
                     
                 end
                 
-                %Pre-processing
-                %1. Crop
+                %2. Crop
                 [scan3M,mask3M] = cropScanAndMask(planC,scan3M,mask3M,cropS);
-                %2. Resize
+                
+                %3. Resize
                 [scan3M,mask3M] = resizeScanAndMask(scan3M,mask3M,outSizeV,resizeMethod);
                 
+                scanC{scanIdx} = scan3M;
+                maskC{scanIdx} = mask3M;
                 
+            end
+            
+            %Populate channels
+            scanC = populateChannels(scanC,channelS);
+            maskC = populateChannels(maskC,maskChannelS);
+            mask3M = maskC{1};
+            
+            %Get output directory
+            if ismember(planNum,trainIdxV)
+                outDir = [HDF5dir,filesep,'Train'];
+            elseif ismember(planNum,valIdxV)
+                outDir = [HDF5dir,filesep,'Val'];
+            else
+                outDir = [HDF5dir,filesep,'Test'];
+            end
+            
+            uniformScanInfoS = planC{indexS.scan}(scanNumV(scanIdx)).uniformScanInfo;
+            resM(scanIdx,:) = [uniformScanInfoS.grid2Units, uniformScanInfoS.grid1Units, uniformScanInfoS.sliceThickness];
+            
+            %Export to HDF5
+            for slIdx = 1:size(scanC{1},3)
                 
-                %Save to HDF5
-                if ismember(planNum,trainIdxV)
-                    outDir = [HDF5dir,filesep,'Train'];
-                elseif ismember(planNum,valIdxV)
-                    outDir = [HDF5dir,filesep,'Val'];
-                else
-                    outDir = [HDF5dir,filesep,'Test'];
-                end
-                
-                uniformScanInfoS = planC{indexS.scan}(scanNumV(scanIdx)).uniformScanInfo;
-                resM(scanIdx,:) = [uniformScanInfoS.grid2Units, uniformScanInfoS.grid1Units, uniformScanInfoS.sliceThickness];
-                
-                for slIdx = 1:size(scan3M,3)
-                    %Save data
+                if ~isempty(mask3M)
                     maskM = uint8(mask3M(:,:,slIdx));
-                    if ~isempty(maskM)
-                        maskFilename = fullfile(outDir,'Masks',[ptName,'_slice',...
-                            num2str(slIdx),'.h5']);
-                        h5create(maskFilename,'/mask',size(maskM));
-                        h5write(maskFilename,'/mask',maskM);
-                    end
-                    
-                    scanM = scan3M(:,:,slIdx);
-                    scanFilename = fullfile(outDir,[ptName,'_scan_',...
-                        num2str(scanIdx),'_slice',num2str(slIdx),'.h5']);
-                    h5create(scanFilename,'/scan1',size(scanM));
-                    h5write(scanFilename,'/scan1',scanM);
+                    maskFilename = fullfile(outDir,'Masks',[ptName,'_slice',...
+                        num2str(slIdx),'.h5']);
+                    h5create(maskFilename,'/mask',size(maskM));
+                    h5write(maskFilename,'/mask',maskM);
                 end
                 
+                exportScan3M = [];
+                exportScan3M = scanC{1}(:,:,slIdx);
+                if length(scanC)>1
+                    for c = 2:length(scanC)
+                        exportScan3M = cat(3,exportScan3M,scanC{c}(:,:,slIdx));
+                    end
+                end
+                
+                scanFilename = fullfile(outDir,[ptName,'_scan_slice_',...
+                    num2str(slIdx),'.h5']);
+                h5create(scanFilename,'/scan1',size(exportScan3M));
+                h5write(scanFilename,'/scan1',exportScan3M);
             end
             
             resC{planNum} = resM;
@@ -192,16 +218,18 @@ for planNum = 1:length(dirS)
         errC{planNum} =  ['Error processing pt %s. Failed with message: %s',fileNam,e.message];
     end
     
-    save([HDF5dir,filesep,'labelKeyS'],'labelKeyS','-v7.3');
-    save([HDF5dir,filesep,'resolutionC'],'resC','-v7.3');
-    
-    %Return error messages if any
-    idxC = cellfun(@isempty, errC, 'un', 0);
-    idxV = ~[idxC{:}];
-    errC = errC(idxV);
-    
-    fprintf('\nComplete.\n');
-    
-    
+end
+
+save([HDF5dir,filesep,'labelKeyS'],'labelKeyS','-v7.3');
+save([HDF5dir,filesep,'resolutionC'],'resC','-v7.3');
+
+%Return error messages if any
+idxC = cellfun(@isempty, errC, 'un', 0);
+idxV = ~[idxC{:}];
+errC = errC(idxV);
+
+fprintf('\nComplete.\n');
+
+
 end
 
