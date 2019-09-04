@@ -4,21 +4,20 @@
 
 "inputDir" : "Path/to/DICOM_data",
 
-"outDir" : "path/to/converted/data",
+"outputDir" : "path/to/converted/data",
 
 "structList" : ["structName1","structName2","structName3"],
 
 "dataSplit" : [80, 10, 10],
 
-"resample": [{ "resolutionXCm": 0.1, "resolutionYCm": 0.1, "resolutionZCm": 0.1, "interpMethod": "sinc"}],
+"resample": [{ "resolutionXCm": 0.1, "resolutionYCm": 0.1, "resolutionZCm": 0.1, "method": "sinc"}],
 
 "crop" : [{"method": "crop_to_str", "params" : {"structureName": "structName4"}, "operator" : ""}, 
           {"method": "crop_to_str", "params" : {"structureName": "structName5"}, "operator" : "union"} ],
 
 "imageSizeForModel" : [512, 512],
 
-"resize" : {"method": "sinc"}
+"resize" : {"method": "sinc"},
 
+"channels" : {"number" : 3, "imageType" : "original", "append" : {"method" : "multiscan", "parameters" : [1,2,3]} }
 }
-
-
