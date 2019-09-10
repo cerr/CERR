@@ -86,7 +86,7 @@ end
                     resizedMask3M = undoResizeMask(scan3M,tmpM1,resizeMethod);
                     mask3M = padMask(planC,scanNum,resizedMask3M,cropS);
                 else
-                    mask3M = padMask(planC,scanNum,tmpM1,cropS,outSizeV,resizeS);                    
+                    mask3M = padMask(planC,scanNum,tmpM1,cropS);                    
                 end
                 tmpM2 = mask3M == 1;
                 planC = maskToCERRStructure(tmpM2, isUniform, scanNum, res.loadStructures(i).structureName, planC);
