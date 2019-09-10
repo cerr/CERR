@@ -48,19 +48,6 @@ set(0,'DefaultFigureCreateFcn','set(gcbo,''WindowKeyPressFcn'',''CERRHotKeys'')'
 
 if(nargin == 0)
 
-%     pathStr = getCERRPath;
-%     optName = [pathStr 'CERROptions.m'];
-%     optS = opts4Exe(optName);
-%     optS = '';
-%     if isfield(optS,'logOnStartup') && optS.logOnStartup==1 && isempty(logFlag)
-%         publishOpts.outputDir = tempdir;
-%         publishOpts.showCode = false;
-%         publishOpts.useNewFigure = false;
-%         file = publish('publishLog.m',publishOpts);
-%         %web(file)
-%         logFlag = 1;
-%     end
-
     oldFig = findobj('Tag', 'CERRStartupFig');
     if ishandle(oldFig)
         figure(oldFig);
@@ -81,23 +68,6 @@ if(nargin == 0)
     set(gca, 'Position', [0 0 1 1]);
     image(background, 'CDataMapping', 'direct','parent',gca)
     axis(gca,'off', 'image')
-    
-    %get local and remote git info
-    if isdeployed
-        remoteGitHash = '';
-        localGitInfo = struct('hash','','date','');
-    else
-        [remoteGitHash, localGitInfo] = getGitInfo;
-    end
-    [ver, date] = CERRCurrentVersion;    
-    uicontrol('units',units,'Position',[0 .6 0.3 .04],'String','Local GitHub Hash:','Style','text', 'BackgroundColor', [1 1 1], 'FontSize', 10, 'FontName', 'FixedWidth', 'HorizontalAlignment', 'right');
-    if ~isempty(localGitInfo)
-        uicontrol('units',units,'Position',[0.31 .6 0.67 .04],'String',localGitInfo.hash,'Style','edit', 'BackgroundColor', [1 1 1], 'FontSize', 10, 'FontName', 'FixedWidth', 'HorizontalAlignment', 'left');
-    end
-    uicontrol('units',units,'Position',[0 .55 0.3 .04],'String','Date:','Style','text', 'BackgroundColor', [1 1 1], 'FontSize', 10, 'FontName', 'FixedWidth', 'HorizontalAlignment', 'right');
-    if ~isempty(localGitInfo)
-        uicontrol('units',units,'Position',[0.31 .55 0.4 .04],'String',localGitInfo.date,'Style','edit', 'BackgroundColor', [1 1 1], 'FontSize', 10, 'FontName', 'FixedWidth', 'HorizontalAlignment', 'left');
-    end
     
     %Display link for Log file
     if ~isempty(logFlag) && logFlag == 1
@@ -127,26 +97,8 @@ if(nargin == 0)
         'String',{'Select mode..','Study','Cohort'},'FontSize',10, 'callback', 'CERR(''CERRSLICEVIEWER'')','Tag','ReviewMode');
 
     %     uicontrol('units',units,'Position',[.835 .50 .1 .05],'String','Quit','callback','CERR(''QUIT'')');
-    uicontrol('units',units,'Position',[.835 .50 .1 .05],'String','Help','callback','CERR(''HELP'')');
-    
-    %git hash comparison between local and remote to see if the version is updated
-    tf = [];
-    if ~isempty(localGitInfo) && ~isempty(remoteGitHash)
-        tf = strcmp(localGitInfo.hash,remoteGitHash);
-    end
-    if isempty(tf)
-    elseif ~tf
-        labelStr = ['<html> New version available; View updates at: <a href="">' localGitInfo.url '</a></html>' 'blahblah'];
-        jLabel = javaObjectEDT('javax.swing.JLabel', labelStr);
-        jLabel.setBackground(java.awt.Color(1, 1, 1));
-        [hjLabel,hContainer] = javacomponent(jLabel, [15,1,600,20], gcf);
-        % Set the mouse-click callback
-        set(hjLabel, 'MouseClickedCallback', @(h,e)web([ localGitInfo.url], '-browser'));
-    else
-         uicontrol('units',units,'Position',[0 .01 1 .04],'String','You have the latest version of CERR','Style','text', 'BackgroundColor', [1 1 1], 'FontSize', 10, 'FontName', 'FixedWidth', 'HorizontalAlignment', 'center');
-    end
-    
-    
+    uicontrol('units',units,'Position',[.785 .50 .15 .05],'String','Wiki Doc','callback','CERR(''HELP'')');
+        
     
 else
     %A callback has been encountered.
