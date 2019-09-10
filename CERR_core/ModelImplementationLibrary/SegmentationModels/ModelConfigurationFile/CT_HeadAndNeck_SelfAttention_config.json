@@ -30,18 +30,21 @@
 
 "imageSizeForModel": [ 256, 256 ],
 
-"resize" : {"method": "special_self_attention_pad"},
+"resize" : {"method": "pad2D"},
 
 "crop": [
-  {
-    "method": "special_self_attention",
-    "params": { },
-    "operator": ""
-  }
+    {
+      "method": "crop_pt_outline",
+      "params": { "structureName": "generated_pt_outline", "saveStrToPlanCFlag": "true"},
+      "operator": ""
+    },
 
-
-],
-  
+    {      
+      "method": "crop_shoulders",
+      "params": { "structureName": "generated_pt_outline" },
+      "operator": "intersection"
+    } ],
+ 
 
 
 "reference" : "https://ieeexplore.ieee.org/document/8417454"
