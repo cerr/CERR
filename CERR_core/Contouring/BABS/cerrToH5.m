@@ -41,9 +41,10 @@ try
         scan3M = scan3M - CToffset;
         croppedScan3M = scan3M;
         mask3M = [];
+        
         %If cropping around structure, check if structure is present, else skip
         %this case
-        if ~isempty(cropS)            
+        if ~isempty(cropS)
             methodC = {cropS.method};
             for m = 1:length(methodC)
                 method = methodC{m};
@@ -56,24 +57,20 @@ try
                         disp("No matching structure found for cropping");
                         scan3M = [];
                         return;
-                    else
-                        % Crop around struct
-                        [scan3M,mask3M] = cropScanAndMask(planC,scan3M,mask3M, cropS);
-                        croppedScan3M = scan3M;
                     end
-                else
-                    % Cropping
-                    [scan3M,mask3M] = cropScanAndMask(planC,scan3M,mask3M, cropS);
-                    croppedScan3M = scan3M;
-
                 end
             end
+            
+            
+            % Cropping
+            [scan3M,mask3M] = cropScanAndMask(planC,scan3M,mask3M, cropS);
+            
         end
         
         % Resizing
         if ~isempty(resizeS) && ~isempty(outSizeV)
             resizeMethod = resizeS.method;
-            [scan3M,mask3M] = resizeScanAndMask(scan3M,mask3M,outSizeV,resizeMethod);        
+            [scan3M,mask3M] = resizeScanAndMask(scan3M,mask3M,outSizeV,resizeMethod);
         end
         
         
