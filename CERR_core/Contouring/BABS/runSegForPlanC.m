@@ -88,7 +88,7 @@ if iscell(algorithmC) || ~iscell(algiorithmC) && ~strcmpi(algorithmC,'BABS')
     for k=1:length(algorithmC)
         
         %%% =========== common for client and server
-        [scan3M,croppedScan3M] = getScanForDeepLearnSeg(cerrPath,algorithmC{k}); % common for client or server
+        scan3M = getScanForDeepLearnSeg(cerrPath,algorithmC{k}); % common for client or server
         if isempty(scan3M)
             %no matching struct
             return;
@@ -101,7 +101,7 @@ if iscell(algorithmC) || ~iscell(algiorithmC) && ~strcmpi(algorithmC,'BABS')
         success = callDeepLearnSegContainer(algorithmC{k}, containerPath, fullClientSessionPath, sshConfigS); % different workflow for client or session
         
         %%% =========== common for client and server
-        success = joinH5CERR(segResultCERRRPath, cerrPath, outputH5Path, algorithmC{k},croppedScan3M);
+        success = joinH5CERR(segResultCERRRPath, cerrPath, outputH5Path, algorithmC{k},scan3M);
         
         %success = segmentationWrapper(cerrPath,segResultCERRRPath,fullClientSessionPath,containerPath,algorithm);
         % Read segmentation from segResultCERRRPath to display in viewer
