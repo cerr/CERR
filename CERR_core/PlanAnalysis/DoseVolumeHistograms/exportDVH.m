@@ -1,5 +1,5 @@
-function exportDVH(structNum,doseSet,Opt,cumuDiff,exportPath)
-% exportDVH(structNum,doseSet,Opt,cumuDiff,exportPath)
+function exportDVH(structNum,doseSet,Opt,cumuDiff,exportPath,planC)
+% exportDVH(structNum,doseSet,Opt,cumuDiff,exportPath,planC)
 %
 % This function exports DVH to EXCEL. 
 %
@@ -70,7 +70,9 @@ if ~exist('structNum')& ~exist('doseSet')& ~exist('Opt')
 end
 
 % exportPath = uigetdir( 'C:\','Select destination Directory for DVH export');
-global planC
+if ~exist('planC','var')
+    global planC
+end
 indexS = planC{end};
 structureCell = planC{indexS.structures};
 % optS = CERROptions;
