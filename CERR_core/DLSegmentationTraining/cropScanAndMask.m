@@ -19,7 +19,9 @@ function [scan3M,mask3M] = cropScanAndMask(planC,scan3M,mask3M,cropS)
 modelMask3M = getMaskForModelConfig(planC,mask3M,cropS);
 
 %Compute bounding box
-if strcmpi(cropS.method,'none')
+methodC = {cropS.method};
+if length(methodC) == 1 && any(strcmp(methodC,'none'))
+%if strcmpi(cropS.method,'none') 
     minr = 1;
     maxr = size(modelMask3M,1);
     minc = 1;
