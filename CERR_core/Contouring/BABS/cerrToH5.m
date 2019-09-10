@@ -1,17 +1,17 @@
-function [errC,croppedScan3M] = cerrToH5(cerrPath, fullSessionPath, cropS, outSizeV, resizeS)
+function [errC,scan3M] = cerrToH5(cerrPath, fullSessionPath, cropS, outSizeV, resizeS)
 % Usage: cerrToH5(cerrPath, fullSessionPath)
 %
 % This function converts a 3d scan from planC to H5 file format
 %
 % RKP, 3/21/2019
-%
+%--------------------------------------------------------------------------
 %INPUTS:
 %   cerrPath          : Path to the original CERR file to be converted
 %   fullSessionPath   : Path to write the H5 file
 %   cropS             : Cropping method and params (Optional)
 %   outSizeV          : Input Size for segmentation model (Optional)
+%--------------------------------------------------------------------------
 %
-
 
 planCfiles = dir(fullfile(cerrPath,'*.mat'));
 
@@ -33,17 +33,12 @@ try
         planC = loadPlanC(fileNam, tempdir);
         planC = quality_assure_planC(fileNam,planC);
         indexS = planC{end};
-        
         scanNum = 1;
         scan3M = getScanArray(planC{indexS.scan}(scanNum));
         scan3M = double(scan3M);
-        CToffset = planC{indexS.scan}(scanNum).scanInfo(1).CTOffset;
-        scan3M = scan3M - CToffset;
-        croppedScan3M = scan3M;
         mask3M = [];
         
-        %If cropping around structure, check if structure is present, else skip
-        %this case
+        %If cropping around structure, check if structure is present
         if ~isempty(cropS)
             methodC = {cropS.method};
             for m = 1:length(methodC)
@@ -58,22 +53,18 @@ try
                         scan3M = [];
                         return;
                     end
-                end
+                end                
             end
-            
-            
-            % Cropping
-            [scan3M,mask3M] = cropScanAndMask(planC,scan3M,mask3M, cropS);
-            
+            % Crop
+            [scan3M,mask3M] = cropScanAndMask(planC,scan3M,mask3M, cropS);    
         end
         
-        % Resizing
+        % Resize
         if ~isempty(resizeS) && ~isempty(outSizeV)
             resizeMethod = resizeS.method;
             [scan3M,mask3M] = resizeScanAndMask(scan3M,mask3M,outSizeV,resizeMethod);
         end
-        
-        
+                
         % write to h5
         scanFile = fullfile(inputH5Path,strcat('SCAN_',strrep(planCfiles(p).name,'.mat','.h5')));
         try
@@ -83,8 +74,7 @@ try
             if (strcmp(ME.identifier, 'MATLAB:imagesci:h5create:datasetAlreadyExists'))
                 disp('dataset already exists in destination folder')
             end
-        end
-        
+        end        
     end
     
 catch e
