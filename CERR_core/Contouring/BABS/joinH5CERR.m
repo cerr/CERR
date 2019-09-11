@@ -78,8 +78,8 @@ end
     if ~isempty(cropS)
         methodC = {cropS.method};
         if (length(methodC)>=1)
-            count = res.loadStructures(1).value;
-            for i = 1 : length(res.loadStructures)
+            count = res.strNameToLabelMap(1).value;
+            for i = 1 : length(res.strNameToLabelMap)
                 tmpM1 = flippedMask == count;
                 if ~isempty(resizeS)
                     resizeMethod = resizeS.method;                    
@@ -89,14 +89,14 @@ end
                     mask3M = padMask(planC,scanNum,tmpM1,cropS);                    
                 end
                 tmpM2 = mask3M == 1;
-                planC = maskToCERRStructure(tmpM2, isUniform, scanNum, res.loadStructures(i).structureName, planC);
+                planC = maskToCERRStructure(tmpM2, isUniform, scanNum, res.strNameToLabelMap(i).structureName, planC);
                 count = count+1;
             end
         end
     else
-        for i = 1 : length(res.loadStructures)
+        for i = 1 : length(res.strNameToLabelMap)
             mask3M = flippedMask == i;
-            planC = maskToCERRStructure(mask3M, isUniform, scanNum, res.loadStructures(i).structureName, planC);
+            planC = maskToCERRStructure(mask3M, isUniform, scanNum, res.strNameToLabelMap(i).structureName, planC);
         end
     end
     

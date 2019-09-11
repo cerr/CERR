@@ -1,6 +1,6 @@
 {
-"algorithm" : "MR_Prostate_DeepLab",
-"loadStructures" : [
+
+"strNameToLabelMap" : [
 {"structureName": "Bladder_O_DLV3",
   "value": 1},
  {"structureName": "CTV_PROST_DLV3",
@@ -17,11 +17,5 @@
   "value": 7}
 ],
 
-"imageSizeForModel" : [],
-
-"crop": [],
-
-"resize" : {},
-
-"fullContainerPath" : "/lila/home/pandyar1/lungIncMRRN.sif"
+"reference" : ""
 }

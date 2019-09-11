@@ -1,7 +1,5 @@
 {
-"segMethod" : "heart",
-
-"loadStructures":[
+"strNameToLabelMap":[
 
   {
     "structureName": "PERICARDIUM",
@@ -18,7 +16,6 @@
     }
   ],
 
-"fullContainerPath" : "",
 
 "reference" : "https://w3.aapm.org/meetings/2019AM/programInfo/programAbs.php?sid=8013&aid=45641"
 

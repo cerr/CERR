@@ -1,7 +1,5 @@
 {
-"segMethod" : "heart",
-
-"loadStructures":[
+"strNameToLabelMap":[
 
   {"structureName" : "AORTA", "value" : 2},
   {"structureName" : "LA", "value" : 3},
@@ -20,8 +18,6 @@
       "operator": ""
     } ],
 
-
-"fullContainerPath" : "",
 
 "reference" : "https://ieeexplore.ieee.org/document/8417454"
 

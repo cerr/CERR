@@ -1,5 +1,5 @@
 {
-  "loadStructures": [
+  "strNameToLabelMap": [
 
     {
       "structureName": "Left Parotid",
@@ -28,9 +28,8 @@
   ],
 
 
-"imageSizeForModel": [ 256, 256 ],
-
-"resize" : {"method": "pad2D"},
+"resize" : {"method": "pad2D",
+            "size" : [256,256]},
 
 "crop": [
     {
