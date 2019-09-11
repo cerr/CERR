@@ -1,0 +1,50 @@
+{
+  "strNameToLabelMap": [
+
+    {
+      "structureName": "Left Parotid",
+      "value": 1
+    },
+    {
+      "structureName": "Right Parotid",
+      "value": 2
+    },
+    {
+      "structureName": "Left Submandiblar",
+      "value": 3
+    },
+    {
+      "structureName": "Right Submandiblar",
+      "value": 4
+    },
+    {
+      "structureName": "Mandible",
+      "value": 5
+    },
+    {
+      "structureName": "Brain stem",
+      "value": 6
+    }
+  ],
+
+
+"resize" : {"method": "pad2D",
+            "size" : [256,256]},
+
+"crop": [
+    {
+      "method": "crop_pt_outline",
+      "params": { "structureName": "generated_pt_outline", "saveStrToPlanCFlag": "true"},
+      "operator": ""
+    },
+
+    {      
+      "method": "crop_shoulders",
+      "params": { "structureName": "generated_pt_outline" },
+      "operator": "intersection"
+    } ],
+ 
+
+
+"reference" : "https://ieeexplore.ieee.org/document/8417454"
+}

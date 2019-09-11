@@ -1,0 +1,16 @@
+{
+"strNameToLabelMap" : [
+{
+    "structureName": "Lung",
+
+    "value": 1
+}
+],
+
+"crop" : [
+{
+    "method": "", "params" : ""}
+],
+
+"reference" : ""
+}
