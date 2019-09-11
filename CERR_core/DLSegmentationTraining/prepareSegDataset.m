@@ -1,4 +1,4 @@
-function errC = prepareSegDataset(paramFilename)
+function errC = prepareSegDataset(paramFilename,outputDir)
 % prepareSegDataset.m
 %
 % Script to preprocess and convert data to HDF5 format, split into training,
@@ -8,14 +8,14 @@ function errC = prepareSegDataset(paramFilename)
 %---------------------------------------------------------------------------
 % INPUT:
 % paramFilename : Path to JSON file with parameters.
-%
+% outputDir     : Path for writing intermediate files(CERR, HDF5)
 % --- JSON fields ---:
 % inputFileType    : May be 'DICOM' or 'CERR'
 % inputDir         : Path to input data
-% outputDir        : Path for writing intermediate files(CERR, HDF5)
 % structList       : Names of structures to be segmented
 % dataSplit        : %Train/%Val/%Test split passed as vector [%train %val]
 %                    (%test = 100-%train-%val).
+%                    NOTE- Assumes 100% testing if unspecified.
 % imageSizeForModel: Dimensions of output image required by model
 % resample         : Dictionary of resampling parameters-- resolutionXCm,
 %                    resolutionYcm, resolutionZCm and method.
@@ -34,14 +34,18 @@ function errC = prepareSegDataset(paramFilename)
 %---------------------------------------------------------------------------
 % AI 9/3/19 Added inputFileType, resampling
 % AI 9/4/19 Added options to populate channels
+% AI 9/11/19 Updated for compatibility with testing pipeline
 
 %% Get user inputs from JSON
 userInS = jsondecode(fileread(paramFilename));
 inputFileType = userInS.inputFileType;
 inputDir = userInS.inputDir;
-outputDir = userInS.outputDir;
 strListC = userInS.structList;
-dataSplitV = userInS.dataSplit;
+if isfield(userInS,'dataSplit')
+    dataSplitV = userInS.dataSplit;
+else
+    datasplitV = [0,0,100]; %Assumes testing if not speciifed otherwise.
+end
 
 %Set defaults for optional inputs
 defaultS = struct();
@@ -64,20 +68,24 @@ end
 
 %% Create directories to write CERR, HDF5 files
 fprintf('\nCreating directories for HDF5 files...\n');
-mkdir(outputDir)
+if ~exist(outputDir,'dir')
+    mkdir(outputDir)
+end
 
-HDF5path = fullfile(outputDir,'dataHDF5');
+HDF5path = fullfile(outputDir,'inputH5');  %TEMP! To be changed back to dataHDF5
 mkdir(HDF5path)
 
-mkdir([HDF5path,filesep,'Train']);
-mkdir([HDF5path,filesep,'Train',filesep,'Masks']);
-
-mkdir([HDF5path,filesep,'Val']);
-mkdir([HDF5path,filesep,'Val',filesep,'Masks']);
-
-mkdir([HDF5path,filesep,'Test']);
-mkdir([HDF5path,filesep,'Test',filesep,'Masks']);
-
+if datasplitV(3) ~= 100
+    
+    mkdir(fullfile(HDF5path,'Train'));
+    mkdir(fullfile(HDF5path,'Train','Masks'));
+    
+    mkdir(fullfile(HDF5path,'Val'));
+    mkdir(fullfile(HDF5path,'Val','Masks'));
+    
+    mkdir(fullfile(HDF5path,'Test'));
+    mkdir(fullfile(HDF5path,'Test','Masks'));
+end
 fprintf('\nComplete\n');
 
 %% Import data to CERR

@@ -19,6 +19,7 @@ function errC = CERRtoHDF5(CERRdir,HDF5dir,dataSplitV,strListC,userOptS)
 %--------------------------------------------------------------------------
 %AI 9/3/19 Added resampling option
 %AI 9/4/19 Options to populate channels
+%AI 9/11/19 Updated for compatibility with testing pipeline
 
 %% Get user inputs
 outSizeV = userOptS.imageSizeForModel;
@@ -175,11 +176,16 @@ for planNum = 1:length(dirS)
             
             %Get output directory
             if ismember(planNum,trainIdxV)
-                outDir = [HDF5dir,filesep,'Train'];
+                outDir = fullfile(HDF5dir,'Train');
             elseif ismember(planNum,valIdxV)
-                outDir = [HDF5dir,filesep,'Val'];
+                outDir = fullfile(HDF5dir,'Val');
             else
-                outDir = [HDF5dir,filesep,'Test'];
+                if dataSplitV(3)==100
+                    %Testing only
+                    outDir = HDF5dir;
+                else
+                    outDir = fullfile(HDF5dir,'Test');
+                end
             end
             
             uniformScanInfoS = planC{indexS.scan}(scanNumV(scanIdx)).uniformScanInfo;
