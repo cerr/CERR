@@ -1,4 +1,4 @@
-function errC = prepareSegDataset(paramFilename,outputDir)
+function errC = prepareSegDataset(paramFilename,inputDir,outputDir)
 % prepareSegDataset.m
 %
 % Script to preprocess and convert data to HDF5 format, split into training,
@@ -8,10 +8,10 @@ function errC = prepareSegDataset(paramFilename,outputDir)
 %---------------------------------------------------------------------------
 % INPUT:
 % paramFilename : Path to JSON file with parameters.
+% inputDir      : Path to input data (DICOM or CERR format)
 % outputDir     : Path for writing intermediate files(CERR, HDF5)
 % --- JSON fields ---:
 % inputFileType    : May be 'DICOM' or 'CERR'
-% inputDir         : Path to input data
 % structList       : Names of structures to be segmented
 % dataSplit        : %Train/%Val/%Test split passed as vector [%train %val]
 %                    (%test = 100-%train-%val).
@@ -39,7 +39,6 @@ function errC = prepareSegDataset(paramFilename,outputDir)
 %% Get user inputs from JSON
 userInS = jsondecode(fileread(paramFilename));
 inputFileType = userInS.inputFileType;
-inputDir = userInS.inputDir;
 strListC = userInS.structList;
 if isfield(userInS,'dataSplit')
     dataSplitV = userInS.dataSplit;
