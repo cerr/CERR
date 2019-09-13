@@ -1,4 +1,4 @@
-function outMask3M = getMaskForModelConfig(planC,mask3M,cropS)
+function outMask3M = getMaskForModelConfig(planC,mask3M,scanNum,cropS)
 % cropScanAndMask.m
 % Create mask for deep learning based on input configuration file.
 %
@@ -9,9 +9,10 @@ function outMask3M = getMaskForModelConfig(planC,mask3M,cropS)
 % mask3M       : Mask
 % cropS        : Dictionary of parameters for cropping
 %                Supported methods: 'crop_fixed_amt','crop_to_bounding_box',
-%                'crop_to_str', 'crop_around_center', 'none'.
+%                'crop_to_str', 'crop_around_center','crop_pt_outline','crop_shoulders','none'.
 %--------------------------------------------------------------------------
 % AI 7/23/19
+% RKP 9/13/19 
 
 origMask3M = mask3M;
 methodC = {cropS.method};
@@ -56,8 +57,7 @@ for m = 1:length(methodC)
                 [slMask3M,slicesV] = rasterToMask(rasterM,scanIdx,planC);
                 outMask3M(:,:,slicesV) = slMask3M;
                 maskC{m} = outMask3M;
-            end
-            
+            end            
             
         case 'crop_around_center'
             % Use to crop around center
@@ -83,7 +83,6 @@ for m = 1:length(methodC)
             
         case 'crop_pt_outline'
             % Use to crop the patient outline
-            scanNum = 1;
             indexS = planC{end};
             scan3M = getScanArray(scanNum,planC);
             CToffset = planC{indexS.scan}(scanNum).scanInfo(1).CTOffset;
@@ -91,70 +90,34 @@ for m = 1:length(methodC)
             scan3M = scan3M - CToffset;
             outMask3M = getPatientOutline(scan3M);
             maskC{m} = outMask3M;
+            structureName = paramS.structureName;     
+            numStructs = length(planC{indexS.structures}); 
+            if paramS.saveStrToPlanCFlag
+                if numStructs > 0
+                    if ~isequal(planC{indexS.structures}.structureName, structureName)
+                        planC = maskToCERRStructure(outMask3M, 1, scanNum, structureName);
+                    end
+                end
+                planC = maskToCERRStructure(outMask3M, 1, scanNum, structureName);
+            end
             
         case 'crop_shoulders'
-            % Use to crop above shoulders
-            pt_outline_mask3M = maskC{m};
-            sliceNum = getShoulderStartSlice(pt_outline_mask3M,planC);
-            outMask3M = pt_outline_mask3M(:,:,1:sliceNum-1);
-            
-            scanNum = 1;
+            % Use to crop above shoulders  
+            % Use pt_outline structure generated in "crop_pt_outline" case           
             indexS = planC{end};
             scan3M = getScanArray(scanNum,planC);
-            CToffset = planC{indexS.scan}(scanNum).scanInfo(1).CTOffset;
-            scan3M = double(scan3M);
-            scan3M = scan3M - CToffset;
-            
-            %Compute bounding box
-            [minr, maxr, minc, maxc, mins, maxs] = compute_boundingbox(outMask3M);
-            scan3M = scan3M(minr:maxr,minc:maxc,mins:maxs);
-            
-            % Update pt outline
-            outMask3M = getPatientOutline(scan3M);
-            maskC{m} = outMask3M;
-            
-        case 'special_self_attention'
-            % Use to crop the patient outline
-            scanNum = 1;
-            indexS = planC{end};
-            scan3M = getScanArray(scanNum,planC);
-            CToffset = planC{indexS.scan}(scanNum).scanInfo(1).CTOffset;
-            
-            scan3M = double(scan3M);
-            scan3M = scan3M - CToffset;
-            
-            outMask3M = getPatientOutline(scan3M);
-            
-            % Use to crop above shoulders
-            sliceNum = getShoulderStartSlice(outMask3M,planC);
-            outMask3M = outMask3M(:,:,1:sliceNum-1);
-            
-            %             %Compute bounding box
-            %             [minr, maxr, minc, maxc, mins, maxs] = compute_boundingbox(outMask3M);
-            %             scan3M = scan3M(minr:maxr,minc:maxc,mins:maxs);
-            %             figure, imagesc(scan3M(:,:,5))
-            
-            % Update pt outline
-            %             outMask3M = getPatientOutline(scan3M);
-            
-            
-            
-            
-            
-            %             [minr, maxr, minc, maxc, mins, maxs] = compute_boundingbox(outMask3M);
-            %             scan3M = scan3M(minr:maxr,minc:maxc,mins:maxs);
-            %             figure, imagesc(scan3M(:,:,5))
-            %
-            %             outMask3M = outMask3M + CToffset;
-            %             scan3M = scan3M + CToffset;
-            %             [minr, maxr, minc, maxc, mins, maxs] = compute_boundingbox(outMask3M);
-            %             scan3M = scan3M(minr:maxr,minc:maxc,mins:maxs);
-            %             figure, imagesc(scan3M(:,:,5))
-            
-            maskC{m} = outMask3M;
-            
+            pt_outline_mask3M = zeros(size(scan3M),'logical');
+            strName = paramS.structureName;
+            strNum = getStructNum(strName,planC,indexS);
+            rasterM = getRasterSegments(strNum,planC);
+            [maskSlices3M , uniqueSlices] = rasterToMask(rasterM,scanNum,planC);      
+            pt_outline_mask3M(:,:,uniqueSlices) = maskSlices3M;
+            % generate mask after cropping shoulder slices       
+            outMask3M = cropShoulder(pt_outline_mask3M,planC);
+            maskC{m} = outMask3M;                                                  
+        
         case 'none'
-            maskC{m} = origMask3M;
+            %Skip
             
     end
     
