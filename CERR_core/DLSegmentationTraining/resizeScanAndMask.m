@@ -1,4 +1,4 @@
-function [scanOut3M, maskOut3M] = resizeScanAndMask(scan3M,mask3M,inputImgSizeV,method,cropS,planC)
+function [scanOut3M, rcsM] = resizeScanAndMask(scan3M,mask3M,inputImgSizeV,method)
 % resizeScanAndMask.m
 % Script to resize images and masks for deep learning.
 %
@@ -7,14 +7,17 @@ function [scanOut3M, maskOut3M] = resizeScanAndMask(scan3M,mask3M,inputImgSizeV,
 %INPUTS:
 % scan3M       : Scan array
 % mask3M       : Mask
-% method       : Supported methods: 'none','pad',
+% method       : Supported methods: 'none','pad2d', 'pad3d',
 %                'bilinear', 'sinc'
 % inputImgSizeV: Input size required by model [height, width]
 %--------------------------------------------------------------------------
+%RKP 9/13/19 - Added method 'pad2d'
+
+rcsM = [];
 
 switch(lower(method))
     
-    case 'pad'
+    case 'pad3d'
         xPad = floor(inputImgSizeV(1) - size(scan3M,1)/2);
         yPad = floor(inputImgSizeV(2) - size(scan3M,2)/2);
         
@@ -28,9 +31,52 @@ switch(lower(method))
             maskOut3M(xPad+1:xPad+size(scan3M,1), yPad+1:yPad+size(scan3M,2), 1:size(scan3M,3)) = mask3M;
         end
         
+    case 'pad2d'           
+        [~, ~, ~, ~, mins, maxs] = compute_boundingbox(mask3M);
+        scanOut3M = zeros(inputImgSizeV(1), inputImgSizeV(2), maxs-mins+1);                
+        iSlc = 0;
+        for slcNum = mins:maxs
+            iSlc  = iSlc + 1;            
+            [minr, maxr, minc, maxc] = compute_boundingbox(mask3M(:,:,slcNum));
+            rowCenter = round((minr+maxr)/2);
+            colCenter = round((minc+maxc)/2);
+            rMin = rowCenter - inputImgSizeV(1)/2;
+            cMin = colCenter - inputImgSizeV(2)/2;
+            if rMin < 1
+                rMin = 1;
+            end
+            if cMin < 1
+                cMin = 1;
+            end            
+            rMax = rMin + inputImgSizeV(1) - 1;
+            cMax = cMin + inputImgSizeV(2) - 1;
+            scanOut3M(:,:,iSlc) = scan3M(rMin:rMax,cMin:cMax,slcNum);  
+            rcsM(:,iSlc) = [rMin,rMax,cMin,cMax,slcNum];
+        end        
         
     case 'bilinear'
+        %Compute bounding box
+        methodC = {cropS.method};
+        if length(methodC) == 1 && any(strcmp(methodC,'none'))
+            %if strcmpi(cropS.method,'none')
+            minr = 1;
+            maxr = size(modelMask3M,1);
+            minc = 1;
+            maxc = size(modelMask3M,2);
+            mins = 1;
+            maxs = size(modelMask3M,3);
+        else
+            [minr, maxr, minc, maxc, mins, maxs] = compute_boundingbox(modelMask3M);
+        end
         
+        %Crop scan and mask
+        if ~isempty(scan3M)
+            scan3M = scan3M(minr:maxr,minc:maxc,mins:maxs);
+            
+        end
+        if ~isempty(mask3M)
+            mask3M = mask3M(minr:maxr,minc:maxc,mins:maxs);
+        end
         scanOut3M = imresize(scan3M, inputImgSizeV, 'bilinear');
         if isempty(mask3M)
             maskOut3M = [];
@@ -39,7 +85,28 @@ switch(lower(method))
         end
         
     case 'sinc'
+        %Compute bounding box
+        methodC = {cropS.method};
+        if length(methodC) == 1 && any(strcmp(methodC,'none'))
+            %if strcmpi(cropS.method,'none')
+            minr = 1;
+            maxr = size(modelMask3M,1);
+            minc = 1;
+            maxc = size(modelMask3M,2);
+            mins = 1;
+            maxs = size(modelMask3M,3);
+        else
+            [minr, maxr, minc, maxc, mins, maxs] = compute_boundingbox(modelMask3M);
+        end
         
+        %Crop scan and mask
+        if ~isempty(scan3M)
+            scan3M = scan3M(minr:maxr,minc:maxc,mins:maxs);
+            
+        end
+        if ~isempty(mask3M)
+            mask3M = mask3M(minr:maxr,minc:maxc,mins:maxs);
+        end
         scanOut3M = imresize(scan3M, inputImgSizeV, 'lanczos3');
         if isempty(mask3M)
             maskOut3M = [];
@@ -47,91 +114,11 @@ switch(lower(method))
             maskOut3M = imresize(mask3M, inputImgSizeV, 'nearest');
         end
         
-    case 'special_self_attention_pad'
-        
-        % SCAN
-        if isempty(scan3M)
-            scanOut3M = [];
-        else
-            % Adjust size before padding
-            scanSize = size(scan3M);
-            
-            % x-direction, must be <= 256 
-            if scanSize(1)>256
-                diff = scanSize(1) - 256;
-                [minr, maxr, minc, maxc, mins, maxs] = compute_boundingbox(scan3M);
-                scan3M = scan3M(minr:maxr-diff,minc:maxc,mins:maxs);
-            end
-            updatedScanSize = size(scan3M);
-            % must be even
-            if mod(updatedScanSize(1),2)==1
-                [minr, maxr, minc, maxc, mins, maxs] = compute_boundingbox(scan3M);
-                scan3M = scan3M(minr:maxr-1,minc:maxc,mins:maxs);
-            end
-            
-            % y-direction, must be <256 
-            if scanSize(2)>255
-                diff = scanSize(2) - 256;
-                [minr, maxr, minc, maxc, mins, maxs] = compute_boundingbox(scan3M);
-                scan3M = scan3M(minr:maxr,minc:maxc-diff,mins:maxs);
-            end
-            updatedScanSize = size(scan3M);
-            % must be even
-            if mod(updatedScanSize(2),2)==1
-                [minr, maxr, minc, maxc, mins, maxs] = compute_boundingbox(scan3M);
-                scan3M = scan3M(minr:maxr,minc:maxc-1,mins:maxs);
-            end
-            
-            % pad to final size required
-            xPad = floor(inputImgSizeV(1) - size(scan3M,1));
-            yPad = floor(inputImgSizeV(2) - size(scan3M,2));
-            
-            scanOut3M = zeros(inputImgSizeV(1), inputImgSizeV(2), size(scan3M,3));
-            scanOut3M(xPad+1:xPad+size(scan3M,1), yPad+1:yPad+size(scan3M,2), 1:size(scan3M,3)) = scan3M;
-        end
-            
-        % MASK
-            if isempty(mask3M)
-                maskOut3M = [];
-            else
-                tempMask3M = false(size(mask3M));                
-                modelMask3M = getMaskForModelConfig(planC,tempMask3M,cropS);
-                [minr, maxr, minc, maxc, mins, maxs] = compute_boundingbox(modelMask3M);
-                modelMask3M = modelMask3M(minr:maxr,minc:maxc,mins:maxs);
-
-                maskSize = size(modelMask3M)
-                maskOut3M = zeros(maskSize(1), maskSize(2), maskSize(3));
-                
-%                 % Adjust size before padding
-     
-%               % x-direction, must be <256 and must be even
-                if maskSize(1)>256
-                    diff = abs(maskSize(1) - 256);
-                    mask3M = padarray(mask3M,[diff,0],0,'post');
-                end
-                updatedMaskSize_x = size(mask3M(1))
-                if mod(updatedMaskSize_x(1),2)==1 
-                    mask3M = padarray(mask3M,[1,0],0,'post');
-                end
-                
-                % y-direction, must be <256 and must be even
-                if maskSize(2)>256
-                    diff = abs(maskSize(1) - 256);
-                    mask3M = padarray(mask3M,[0,diff],0,'post');
-                end
-                updatedMaskSize_y = size(maskOut3M)
-                if mod(updatedMaskSize_y(1),2)==1
-                    mask3M = padarray(mask3M,[0,1],0,'post');
-                end
-                
-            end
-               
-        
-        
     case 'none'
         scanOut3M = scan3M;
-        maskOut3M = mask3M;
-        
+        sizV = size(scanOut3M);
+        rcsM = repmat([1,sizV(1),1,sizV(2)],[sizV(3),1]);
+        rcsM = [rcsM (1:sizV(3))'];
         
 end
 

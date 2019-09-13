@@ -1,4 +1,5 @@
-function maskOut3M = undoResizeMask(scan3M,label3M,method)
+function maskOut3M = undoResizeMask(label3M,originImageSizV,rcsM,method)
+                                   
 % undoResizeMask.m
 % Script to resize images and masks for deep learning.
 %
@@ -7,17 +8,26 @@ function maskOut3M = undoResizeMask(scan3M,label3M,method)
 %INPUTS:
 % scan3M       : Cropped scan array
 % label3M      : Autosegmented mask
-% method       : Supported methods: 'none','pad',
+% method       : Supported methods: 'none','pad2d',
 %                'bilinear', 'sinc'
 %--------------------------------------------------------------------------
+% RKP 9/13/19
 
 switch(lower(method))
     
-    case 'pad'
-        xPad = floor((size(scan3M,1) - size(label3M,1))/2);
-        yPad = floor((size(scan3M,2) - size(label3M,2))/2);
-        
-        maskOut3M = label3M(xPad+1:xPad+size(scan3M,1), yPad+1:yPad+size(scan3M,2), : );
+    case 'pad2d'
+        maskOut3M = false(originImageSizV);
+        mins = min(rcsM(5));
+        maxs = max(rcsM(end));
+        iSlc = 0;
+        for slcNum = mins:maxs
+            iSlc = iSlc + 1;
+            rMin = rcsM(iSlc,1);
+            rMax = rcsM(iSlc,2);
+            cMin = rcsM(iSlc,3);
+            cMax = rcsM(iSlc,4);
+            maskOut3M(rMin:rMax,cMin:cMax,slcNum) = label3M(:,:,iSlc);            
+        end        
         
     case 'bilinear'
         
@@ -25,50 +35,10 @@ switch(lower(method))
         
     case 'sinc'
         
-        maskOut3M = imresize(label3M, size(scan3M), 'nearest');
-        
-    case 'special_self_attention_pad'
-        
-        
-        % x-direction must be <256
-        if size(scan3M,1)>256
-            diff = size(scan3M,1) - 256;
-            maskOut3M = padarray(label3M,[diff,0],0,'post');
-        else
-            %<256
-            if mod(size(scan3M,1),2)==1
-                origSiz = size(scan3M,1)-1;
-            else
-                origSiz = size(scan3M,1);
-            end
-            xPad = abs(floor((origSiz - size(label3M,1))/2));
-            maskOut3M = label3M(xPad+1:xPad+size(scan3M,1),:,:);
-%             if mod(size(scan3M,1),2)==1
-%                maskOut3M = padarray(maskOut3M,[1,0],0,'post');   
-%             end
-        end
-        
-        % y-direction must be <256 and must be even
-        if size(scan3M,2)>256
-            diff = size(scan3M,2) - 256;
-            maskOut3M = padarray(maskOut3M,[0,diff],0,'post');
-        else
-            %<255
-            if mod(size(scan3M,2),2)==1
-                origSiz = size(scan3M,2)-1;
-            else
-                origSiz = size(scan3M,2);
-            end
-            yPad = floor((origSiz - size(label3M,2))/2);
-            maskOut3M = maskOut3M(:,yPad+1:yPad+size(scan3M,2),:);
-            if mod(size(scan3M,2),2)==1
-               maskOut3M = padarray(maskOut3M,[0,1],0,'post');   
-            end
-        end
-        
+        maskOut3M = imresize(label3M, size(scan3M), 'nearest');   
         
     case 'none'
-        %Skip
+        maskOut3M = label3M;
         
 end
 
