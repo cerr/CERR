@@ -15,6 +15,7 @@ function success  = joinH5CERR(segResultCERRPath,cerrPath,outputH5Path,algorithm
 
 configFilePath = fullfile(getCERRPath,'ModelImplementationLibrary','SegmentationModels', 'ModelConfigurations', [algorithm, '_config.json']);
 originImageSizV = size(mask3M);
+userInS = jsondecode(fileread(configFilePath)); 
 
 % check if any pre-processing is required
 if sum(strcmp(fieldnames(userInS), 'resize')) == 1
