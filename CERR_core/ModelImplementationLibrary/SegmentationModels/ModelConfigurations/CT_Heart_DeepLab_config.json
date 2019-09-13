@@ -11,6 +11,8 @@
   {"structureName" : "PA", "value" : 9}
   ],
 
+  "intensityOffset" : 1024,
+
   "crop": [
     {
       "method": "crop_to_str",

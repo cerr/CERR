@@ -8,6 +8,8 @@
   
   ],
 
+"intensityOffset" : 1024,
+
 "crop": [
     {
       "method": "crop_to_str",

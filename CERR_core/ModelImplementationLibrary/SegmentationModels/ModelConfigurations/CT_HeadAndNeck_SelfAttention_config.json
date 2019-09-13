@@ -27,6 +27,7 @@
     }
   ],
 
+"intensityOffset" : 1024,
 
 "resize" : {"method": "pad2D",
             "size" : [256,256]},

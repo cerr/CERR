@@ -6,7 +6,7 @@
     "value": 1
 }
 ],
-
+"intensityOffset" : 1024,
 "crop" : [
 {
     "method": "", "params" : ""}
