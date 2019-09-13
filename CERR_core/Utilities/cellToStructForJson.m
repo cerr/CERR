@@ -34,6 +34,8 @@ if ~isempty(fieldC)
                 dataS(i).(uniqFieldC{j}) = valC{i,j};
             end
         end
+    else
+        dataS = dataC;
     end
 else
     dataS = dataC;
