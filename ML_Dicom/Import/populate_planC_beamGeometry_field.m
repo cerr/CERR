@@ -84,7 +84,11 @@ for i=1:nbeams
         beamGeometryInitS(1,i).file{1,2}          = ['"Collimator Setting X" ' string];
     
         %get collimator setting Y
-        string = sprintf('%d, %d', eval(sprintf('beamsInitS.BeamSequence.%s.ControlPointSequence.Item_1.BeamLimitingDevicePositionSequence.Item_2.LeafJawPositions',beams{i})));
+        try %% to check for missing Item_2
+            string = sprintf('%d, %d', eval(sprintf('beamsInitS.BeamSequence.%s.ControlPointSequence.Item_1.BeamLimitingDevicePositionSequence.Item_2.LeafJawPositions',beams{i})));
+        catch
+            string = 'NaN';
+        end
         beamGeometryInitS(1,i).file{1,3}          = ['"Collimator Setting Y" ' string];
     end
     
