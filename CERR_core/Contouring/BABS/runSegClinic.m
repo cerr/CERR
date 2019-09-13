@@ -27,6 +27,7 @@ function success = runSegClinic(inputDicomPath,outputDicomPath,sessionPath,algor
 %
 %
 % APA, 12/14/2018
+% RKP, 9/11/19 Updates for compatibility with training pipeline
 
 
 % Create session directory to write segmentation metadata
@@ -46,7 +47,7 @@ fullSessionPath = fullfile(sessionPath,sessionDir);
 
 % Create directories to write CERR files
 mkdir(fullSessionPath)
-cerrPath = fullfile(fullSessionPath,'ctCERR');
+cerrPath = fullfile(fullSessionPath,'dataCERR');
 mkdir(cerrPath)
 outputCERRPath = fullfile(fullSessionPath,'segmentedOrigCERR');
 mkdir(outputCERRPath)
@@ -74,7 +75,7 @@ if iscell(algorithmC) || ~iscell(algorithmC) && ~strcmpi(algorithmC,'BABS')
         containerPath = varargin{1};      
         origCerrPath = cerrPath;
         for k=1:length(algorithmC)
-            success = segmentationWrapper(cerrPath,segResultCERRPath,fullSessionPath,containerPath,algorithmC{k});   
+            success = segmentationWrapper(inputDicomPath,cerrPath,segResultCERRPath,fullSessionPath,containerPath,algorithmC{k});   
             cerrPath = segResultCERRPath;
         end
     

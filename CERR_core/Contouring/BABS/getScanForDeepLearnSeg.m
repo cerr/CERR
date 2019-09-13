@@ -1,4 +1,4 @@
-function scan3M = getScanForDeepLearnSeg(cerrPath,algorithm)
+function [scan3M,mask3M,rcsM] = getScanForDeepLearnSeg(cerrPath,algorithm)
 % getScanForDeepLearnSeg.m
 % Create scan for passing to the deep learning autosegmentation algorithm.
 %
@@ -12,26 +12,37 @@ function scan3M = getScanForDeepLearnSeg(cerrPath,algorithm)
 % 
 
 %build config file path from algorithm
-configFilePath = fullfile(getCERRPath,'ModelImplementationLibrary','SegmentationModels', 'ModelConfigurationFile', [algorithm, '_config.json']);
+configFilePath = fullfile(getCERRPath,'ModelImplementationLibrary','SegmentationModels', 'ModelConfigurations', [algorithm, '_config.json']);
 
 % check if any pre-processing is required  
 userInS = jsondecode(fileread(configFilePath)); 
 if sum(strcmp(fieldnames(userInS), 'crop')) == 1
     cropS = userInS.crop;
 else 
-    cropS = '';
+    cropS = 'None';
 end
-if sum(strcmp(fieldnames(userInS), 'imageSizeForModel')) == 1
-    outSizeV = userInS.imageSizeForModel;
-else
-    outSizeV = '';
+if sum(strcmp(fieldnames(userInS), 'intensityOffset')) == 1
+    intensityOffset = userInS.intensityOffset;
+else 
+    intensityOffset = '';
 end
-
 if sum(strcmp(fieldnames(userInS), 'resize')) == 1
     resizeS = userInS.resize;
+    outSizeV = userInS.resize.size;
 else
     resizeS = '';
+    outSizeV = '';
 end
+if sum(strcmp(fieldnames(userInS), 'resize')) == 1
+    resizeS = userInS.resize;
+    resizeMethod = resizeS.method;
+    outSizeV = userInS.resize.size;
+else
+    resizeS = '';
+    outSizeV = '';
+    resizeMethod = 'None';
+end
+
 
 planCfiles = dir(fullfile(cerrPath,'*.mat'));
 try
@@ -71,15 +82,21 @@ try
                     end
                 end                
             end
-            % Crop
-            [scan3M,mask3M] = cropScanAndMask(planC,scan3M,mask3M, cropS);    
+            % Crop            
+            mask3M = getMaskForModelConfig(planC,mask3M,scanNum,cropS);
         end
         
-        % Resize
-        if ~isempty(resizeS) && ~isempty(outSizeV)
-            resizeMethod = resizeS.method;
-            [scan3M,mask3M] = resizeScanAndMask(scan3M,mask3M,outSizeV,resizeMethod);
-        end        
+        % Resize        
+        indexS = planC{end};
+        scan3M = getScanArray(scanNum,planC);
+        CToffset = planC{indexS.scan}(scanNum).scanInfo(1).CTOffset;
+        scan3M = double(scan3M);
+        scan3M = scan3M - CToffset;
+        if ~isempty(intensityOffset)
+            scan3M = scan3M + intensityOffset;
+        end
+        [scan3M,rcsM] = resizeScanAndMask(scan3M,mask3M,outSizeV,resizeMethod);
+        
     end
     
 catch e

@@ -1,4 +1,4 @@
-function [errC,scan3M] = cerrToH5(cerrPath, fullSessionPath, cropS, outSizeV, resizeS)
+function [errC,mask3M,rcsM] = cerrToH5(cerrPath, fullSessionPath, cropS, outSizeV, resizeMethod, intensityOffset)
 % Usage: cerrToH5(cerrPath, fullSessionPath)
 %
 % This function converts a 3d scan from planC to H5 file format
@@ -56,14 +56,19 @@ try
                 end                
             end
             % Crop
-            [scan3M,mask3M] = cropScanAndMask(planC,scan3M,mask3M, cropS);    
+            mask3M = getMaskForModelConfig(planC,mask3M,scanNum,cropS);
         end
         
         % Resize
-        if ~isempty(resizeS) && ~isempty(outSizeV)
-            resizeMethod = resizeS.method;
-            [scan3M,mask3M] = resizeScanAndMask(scan3M,mask3M,outSizeV,resizeMethod);
+        indexS = planC{end};
+        scan3M = getScanArray(scanNum,planC);
+        CToffset = planC{indexS.scan}(scanNum).scanInfo(1).CTOffset;
+        scan3M = double(scan3M);
+        scan3M = scan3M - CToffset;
+        if ~isempty(intensityOffset)
+            scan3M = scan3M + intensityOffset;
         end
+        [scan3M,rcsM] = resizeScanAndMask(scan3M,mask3M,outSizeV,resizeMethod);
                 
         % write to h5
         scanFile = fullfile(inputH5Path,strcat('SCAN_',strrep(planCfiles(p).name,'.mat','.h5')));

@@ -1,4 +1,4 @@
-function success = segmentationWrapper(cerrPath,segResultCERRPath,fullSessionPath, containerPath, algorithm)
+function success = segmentationWrapper(inputDicomPath,cerrPath,segResultCERRPath,fullSessionPath, containerPath, algorithm)
 % function success =heart(cerrPath,segResultCERRPath,fullSessionPath,deepLabContainerPath)
 %
 % This function serves as a wrapper for the all segmentation models
@@ -14,43 +14,48 @@ function success = segmentationWrapper(cerrPath,segResultCERRPath,fullSessionPat
 %
 %
 % RKP, 5/21/2019
+% RKP, 9/11/19 Updates for compatibility with training pipeline
 
 containerPath
 algorithm
 
 %build config file path from algorithm
-configFilePath = fullfile(getCERRPath,'ModelImplementationLibrary','SegmentationModels', 'ModelConfigurationFile', [algorithm, '_config.json']);
+configFilePath = fullfile(getCERRPath,'ModelImplementationLibrary','SegmentationModels', 'ModelConfigurations', [algorithm, '_config.json']);
         
 % check if any pre-processing is required  
 userInS = jsondecode(fileread(configFilePath)); 
 if sum(strcmp(fieldnames(userInS), 'crop')) == 1
     cropS = userInS.crop;
 else 
-    cropS = '';
+    cropS = 'None';
 end
-if sum(strcmp(fieldnames(userInS), 'imageSizeForModel')) == 1
-    outSizeV = userInS.imageSizeForModel;
-else
-    outSizeV = '';
+if sum(strcmp(fieldnames(userInS), 'intensityOffset')) == 1
+    intensityOffset = userInS.intensityOffset;
+else 
+    intensityOffset = '';
 end
-
 if sum(strcmp(fieldnames(userInS), 'resize')) == 1
     resizeS = userInS.resize;
+    resizeMethod = resizeS.method;
+    outSizeV = userInS.resize.size;
 else
     resizeS = '';
-end
-
-% convert scan to H5 format
-[errC, scan3M] = cerrToH5(cerrPath, fullSessionPath, cropS, outSizeV, resizeS);
-
-if ~isempty(errC)
-    success = 0;
-    return;
+    outSizeV = '';
+    resizeMethod = 'None';
 end
 
 % % create subdir within fullSessionPath for output h5 files
 outputH5Path = fullfile(fullSessionPath,'outputH5');
 mkdir(outputH5Path);
+
+% convert scan to H5 format
+[errC,mask3M,rcsM] = cerrToH5(cerrPath, fullSessionPath, cropS, outSizeV, resizeMethod, intensityOffset);
+%errC = prepareSegDataset(configFilePath, inputDicomPath, fullSessionPath);                   
+
+if ~isempty(errC)
+    success = 0;
+    return;
+end
 
 bindingDir = ':/scratch'
 bindPath = strcat(fullSessionPath,bindingDir)
@@ -61,4 +66,5 @@ status = system(command)
 
 
 % join segmented mask with planC
-success = joinH5CERR(segResultCERRPath,cerrPath,outputH5Path,algorithm,scan3M);
+success = joinH5CERR(segResultCERRPath,cerrPath,outputH5Path,algorithm,mask3M,rcsM);
+          

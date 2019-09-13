@@ -54,12 +54,12 @@ end
 
 % Create directories to write CERR files
 mkdir(fullClientSessionPath)
-cerrPath = fullfile(fullClientSessionPath,'ctCERR');
+cerrPath = fullfile(fullClientSessionPath,'dataCERR');
 mkdir(cerrPath)
 outputCERRPath = fullfile(fullClientSessionPath,'segmentedOrigCERR');
 mkdir(outputCERRPath)
-segResultCERRRPath = fullfile(fullClientSessionPath,'segResultCERR');
-mkdir(segResultCERRRPath)
+segResultCERRPath = fullfile(fullClientSessionPath,'segResultCERR');
+mkdir(segResultCERRPath)
 % create subdir within fullSessionPath for output h5 files
 outputH5Path = fullfile(fullClientSessionPath,'outputH5');
 mkdir(outputH5Path);
@@ -74,8 +74,6 @@ save_planC(planC,[],'passed',cerrFileName);
 
 % algorithm
 algorithmC = {};
-%algorithm = 'CT_Heart_DeepLab^CT_Atria_DeepLab^CT_Pericardium_DeepLab^CT_HeartStructure_DeepLab^CT_Ventricles_DeepLab';
-%algorithm = 'CT_Heart_DeepLab';
 
 [algorithmC{end+1},remStr] = strtok(algorithm,'^');
 while ~isempty(remStr)
@@ -88,7 +86,12 @@ if iscell(algorithmC) || ~iscell(algiorithmC) && ~strcmpi(algorithmC,'BABS')
     for k=1:length(algorithmC)
         
         %%% =========== common for client and server
-        scan3M = getScanForDeepLearnSeg(cerrPath,algorithmC{k}); % common for client or server
+        %errC = prepareSegDataset(configFilePath, fullSessionPath);
+%         if ~isempty(errC)
+%             success = 0;
+%             return;
+%         end
+        [scan3M,mask3M,rcsM] = getScanForDeepLearnSeg(cerrPath,algorithmC{k}); % common for client or server
         if isempty(scan3M)
             %no matching struct
             return;
@@ -101,11 +104,11 @@ if iscell(algorithmC) || ~iscell(algiorithmC) && ~strcmpi(algorithmC,'BABS')
         success = callDeepLearnSegContainer(algorithmC{k}, containerPath, fullClientSessionPath, sshConfigS); % different workflow for client or session
         
         %%% =========== common for client and server
-        success = joinH5CERR(segResultCERRRPath, cerrPath, outputH5Path, algorithmC{k},scan3M);
+        success = joinH5CERR(segResultCERRPath, cerrPath, outputH5Path, algorithmC{k},mask3M,rcsM);
         
         %success = segmentationWrapper(cerrPath,segResultCERRRPath,fullClientSessionPath,containerPath,algorithm);
         % Read segmentation from segResultCERRRPath to display in viewer
-        segFileName = fullfile(segResultCERRRPath,'cerrFile.mat');
+        segFileName = fullfile(segResultCERRPath,'cerrFile.mat');
         planD = loadPlanC(segFileName);
         indexSD = planD{end};
         scanIndV = 1;
@@ -128,10 +131,10 @@ if iscell(algorithmC) || ~iscell(algiorithmC) && ~strcmpi(algorithmC,'BABS')
 else %'BABS'
     
     babsPath = varargin{1};
-    success = babsSegmentation(cerrPath,fullClientSessionPath,babsPath,segResultCERRRPath);
+    success = babsSegmentation(cerrPath,fullClientSessionPath,babsPath,segResultCERRPath);
     
     % Read segmentation from segResultCERRRPath to display in viewer
-    segFileName = fullfile(segResultCERRRPath,'cerrFile.mat');
+    segFileName = fullfile(segResultCERRPath,'cerrFile.mat');
     planD = loadPlanC(segFileName);
     indexSD = planD{end};
     scanIndV = 1;
@@ -152,11 +155,11 @@ else %'BABS'
 end
 
 % Export the RTSTRUCT file
-%exportCERRtoDICOM(cerrPath,segResultCERRRPath,outputCERRPath,outputDicomPath)
+%exportCERRtoDICOM(cerrPath,segResultCERRPath,outputCERRPath,outputDicomPath)
 
 
 % Remove session directory
-%rmdir(fullClientSessionPath, 's')
+rmdir(fullClientSessionPath, 's')
 
 % refresh the viewer
 if ~isempty(stateS) && ishandle(stateS.handle.CERRSliceViewer)
