@@ -43,7 +43,7 @@ strListC = userInS.structList;
 if isfield(userInS,'dataSplit')
     dataSplitV = userInS.dataSplit;
 else
-    datasplitV = [0,0,100]; %Assumes testing if not speciifed otherwise.
+    dataSplitV = [0,0,100]; %Assumes testing if not speciifed otherwise.
 end
 
 %Set defaults for optional inputs
@@ -55,6 +55,8 @@ defaultS.resize.method = 'none';
 defaultS.resample.method = 'none';
 defaultS.channels.imageType = 'original';
 defaultS.channels.append.method = 'none';
+defaultS.channels.number = 1;
+defaultS.intensityOffset = 1024;
 
 userOptS = struct();
 defC = fieldnames(defaultS);
@@ -75,7 +77,7 @@ end
 HDF5path = fullfile(outputDir,'dataHDF5');  
 mkdir(HDF5path)
 
-if datasplitV(3) ~= 100
+if dataSplitV(3) ~= 100
     
     mkdir(fullfile(HDF5path,'Train'));
     mkdir(fullfile(HDF5path,'Train','Masks'));
