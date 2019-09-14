@@ -2,10 +2,6 @@
 
 "inputFileType" : "DICOM",
 
-"inputDir" : "Path/to/DICOM_data",
-
-"outputDir" : "path/to/converted/data",
-
 "structList" : ["structName1","structName2","structName3"],
 
 "dataSplit" : [80, 10, 10],
@@ -19,5 +15,8 @@
 
 "resize" : {"method": "sinc"},
 
-"channels" : {"number" : 3, "imageType" : "original", "append" : {"method" : "multiscan", "parameters" : [1,2,3]} }
+"channels" : {"number" : 3, "imageType" : "original", "append" : {"method" : "multiscan", "parameters" : [1,2,3]} },
+
+"exportedFilePrefix" : "inputfilename"
+
 }
