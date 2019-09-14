@@ -20,6 +20,7 @@ function errC = CERRtoHDF5(CERRdir,HDF5dir,dataSplitV,strListC,userOptS)
 %AI 9/3/19 Added resampling option
 %AI 9/4/19 Options to populate channels
 %AI 9/11/19 Updated for compatibility with testing pipeline
+%RKP 9/14/19 Additional updates for compatibility with testing pipeline
 
 %% Get user inputs
 outSizeV = userOptS.imageSizeForModel;
@@ -27,6 +28,8 @@ resizeMethod = userOptS.resize.method;
 cropS = userOptS.crop;
 resampleS = userOptS.resample;
 channelS = userOptS.channels;
+intensityOffset = userOptS.intensityOffset;
+
 maskChannelS = channelS;
 maskChannelS.method = 'none';
 prefixType = userOptS.exportedFilePrefix;
@@ -59,6 +62,7 @@ for planNum = 1:length(dirS)
         [~,ptName,~] = fileparts(dirS(planNum).name);
         fileNam = fullfile(CERRdir,dirS(planNum).name);
         planC = loadPlanC(fileNam, tempdir);
+        planC = updatePlanFields(planC);
         planC = quality_assure_planC(fileNam,planC);
         indexS = planC{end};
         
@@ -160,11 +164,20 @@ for planNum = 1:length(dirS)
                 end
                 
                 %2. Crop
-                [scan3M,mask3M] = cropScanAndMask(planC,scan3M,mask3M,cropS);
+                scanNum = scanNumV(scanIdx);
+                mask3M = getMaskForModelConfig(planC,mask3M,scanNum,cropS);
                 
-                %3. Resize
-                [scan3M,mask3M] = resizeScanAndMask(scan3M,mask3M,outSizeV,resizeMethod);
-                
+                %3. Resize               
+             
+                indexS = planC{end};
+                scan3M = getScanArray(scanNum,planC);
+                CToffset = planC{indexS.scan}(scanNum).scanInfo(1).CTOffset;
+                scan3M = double(scan3M);
+                scan3M = scan3M - CToffset;
+                if ~isempty(intensityOffset)
+                    scan3M = scan3M + intensityOffset;
+                end
+                [scan3M,rcsM] = resizeScanAndMask(scan3M,mask3M,outSizeV,resizeMethod);
                 scanC{scanIdx} = scan3M;
                 maskC{scanIdx} = mask3M;
                 
@@ -204,7 +217,7 @@ for planNum = 1:length(dirS)
             
             for slIdx = 1:size(scanC{1},3)
                 
-                if ~isempty(mask3M)
+                if ~isempty(mask3M) && dataSplitV(3)<100
                     maskM = uint8(mask3M(:,:,slIdx));
                     maskFilename = fullfile(outDir,'Masks',[identifier,'_slice',...
                         num2str(slIdx),'.h5']);
