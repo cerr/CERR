@@ -29,6 +29,7 @@ resampleS = userOptS.resample;
 channelS = userOptS.channels;
 maskChannelS = channelS;
 maskChannelS.method = 'none';
+prefixType = userOptS.exportedFilePrefix;
 
 %% Get data split
 [trainIdxV,valIdxV,testIdxV] = randSplitData(CERRdir,dataSplitV);
@@ -192,11 +193,20 @@ for planNum = 1:length(dirS)
             resM(scanIdx,:) = [uniformScanInfoS.grid2Units, uniformScanInfoS.grid1Units, uniformScanInfoS.sliceThickness];
             
             %Export to HDF5
+            
+            %Get output file prefix
+            switch(prefixType)
+                case 'inputFileName'
+                    identifier = ptName;
+                    % Other options to be added
+            end
+            
+            
             for slIdx = 1:size(scanC{1},3)
                 
                 if ~isempty(mask3M)
                     maskM = uint8(mask3M(:,:,slIdx));
-                    maskFilename = fullfile(outDir,'Masks',[ptName,'_slice',...
+                    maskFilename = fullfile(outDir,'Masks',[identifier,'_slice',...
                         num2str(slIdx),'.h5']);
                     h5create(maskFilename,'/mask',size(maskM));
                     h5write(maskFilename,'/mask',maskM);
@@ -210,7 +220,7 @@ for planNum = 1:length(dirS)
                     end
                 end
                 
-                scanFilename = fullfile(outDir,[ptName,'_scan_slice_',...
+                scanFilename = fullfile(outDir,[identifier,'_scan_slice_',...
                     num2str(slIdx),'.h5']);
                 h5create(scanFilename,'/scan1',size(exportScan3M));
                 h5write(scanFilename,'/scan1',exportScan3M);

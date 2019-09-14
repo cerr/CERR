@@ -48,6 +48,7 @@ end
 
 %Set defaults for optional inputs
 defaultS = struct();
+defaultS.exportedFilePrefix = 'inputFileName';
 defaultS.crop.method = 'none';
 defaultS.imageSizeForModel = [];
 defaultS.resize.method = 'none';
@@ -71,7 +72,7 @@ if ~exist(outputDir,'dir')
     mkdir(outputDir)
 end
 
-HDF5path = fullfile(outputDir,'inputH5');  %TEMP! To be changed back to dataHDF5
+HDF5path = fullfile(outputDir,'dataHDF5');  
 mkdir(HDF5path)
 
 if datasplitV(3) ~= 100
