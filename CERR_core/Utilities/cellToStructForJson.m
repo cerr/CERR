@@ -29,7 +29,7 @@ if ~isempty(fieldC)
     uniqFieldC = unique(fieldC,'stable');
     if size(uniqFieldC,2) == 1
         dataS = struct();
-        for i = 1:length(fieldC)
+        for i = 1:size(fieldC,1)
             for j = 1:size(uniqFieldC,1)
                 dataS(i).(uniqFieldC{j}) = valC{i,j};
             end
