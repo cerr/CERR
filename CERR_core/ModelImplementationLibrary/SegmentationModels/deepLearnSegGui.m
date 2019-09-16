@@ -349,7 +349,7 @@ switch upper(command)
     case 'RUN_SEGMENTATION'
         clientSessionPath = ud.sessionDir;
         [~,fname] = fileparts(ud.modelConfigFile);
-        algorithm = fname;
+        algorithm = fname(1:end-7); % remove trailing _config
         sshConfigFile = [];
         containerPath = ud.containerPath;
         planC = runSegForPlanC(planC,clientSessionPath,algorithm,sshConfigFile,containerPath);
