@@ -60,8 +60,11 @@ else
     %uimenu(hStructMenu, 'label', 'Mesh Representation', 'callback','selectStructsToMeshGUI(''init'')','interruptible','on');
     
     %Call up editStructures
-    uimenu(hStructMenu, 'label', 'Contouring', 'callback',['sliceCallBack(''contourMode'')'],'interruptible','on', 'separator', 'on');
+    uimenu(hStructMenu, 'label', 'Manual contouring', 'callback',['sliceCallBack(''contourMode'')'],'interruptible','on', 'separator', 'on');
     
+    %Call up deepLearnSegGui
+    uimenu(hStructMenu, 'label', 'Deep-learning auto-contouring', 'callback',['deepLearnSegGui'],'interruptible','on');
+
     %One element for Segment Labeler
     uimenu(hStructMenu, 'label', 'Segment Labeler', 'callback','segmentLabelerControl(''segmentLabeler'', ''init'');','interruptible','on');
     
@@ -106,7 +109,7 @@ end
 %Find and remove old structure listings.
 kids = get(hStructMenu, 'children');
 numOldMenus = length(kids);
-delete(kids(1:numOldMenus-7));
+delete(kids(1:numOldMenus-8));
 
 [assocScansV, relStructNum] = getStructureAssociatedScan(1:numStructs, planC);
 allScans = unique(assocScansV);
