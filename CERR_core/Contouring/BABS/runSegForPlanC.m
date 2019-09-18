@@ -23,6 +23,7 @@ function planC = runSegForPlanC(planC,clientSessionPath,algorithm,sshConfigFile,
 % success = runSegClinic(inputDicomPath,outputDicomPath,sessionPath,algorithm);
 %
 % APA, 06/10/2019
+% RKP, 09/18/19 Updates for compatibility with training pipeline
 
 
 % Create session directory to write segmentation metadata
@@ -85,28 +86,23 @@ if iscell(algorithmC) || ~iscell(algiorithmC) && ~strcmpi(algorithmC,'BABS')
     containerPath = varargin{1};
     for k=1:length(algorithmC)
         
-        %%% =========== common for client and server
-        %errC = prepareSegDataset(configFilePath, fullSessionPath);
-%         if ~isempty(errC)
-%             success = 0;
-%             return;
-%         end
-        [scan3M,mask3M,rcsM] = getScanForDeepLearnSeg(cerrPath,algorithmC{k}); % common for client or server
-        if isempty(scan3M)
-            %no matching struct
-            return;
-        end
+        % Get the config file path
+        configFilePath = fullfile(getCERRPath,'ModelImplementationLibrary','SegmentationModels', 'ModelConfigurations', [algorithm, '_config.json']);
         
-        %%% =========== common for client and server
-        success = writeH5ForDeepLearnSeg(scan3M,fullClientSessionPath, cerrFileName); % common for client and server
+        % Prepare data, write scans to HDF5 file
+        [errC,rcsC,originImageSizC,userOptS] = prepareSegDataset(configFilePath, cerrPath, fullClientSessionPath);%%%================= TO DO
         
         %%% =========== have a flag to tell whether the container runs on the client or a remote server
-        success = callDeepLearnSegContainer(algorithmC{k}, containerPath, fullClientSessionPath, sshConfigS); % different workflow for client or session
+        % Call the container and execute model     
+        success = callDeepLearnSegContainer(algorithmC{k}, containerPath, fullClientSessionPath, sshConfigS, userOptS.batchSize); % different workflow for client or session
         
         %%% =========== common for client and server
-        success = joinH5CERR(segResultCERRPath, cerrPath, outputH5Path, algorithmC{k},mask3M,rcsM);
+        % Stack segmented masks returned from model
+        outC = stackHDF5Files(fullClientSessionPath); 
         
-        %success = segmentationWrapper(cerrPath,segResultCERRRPath,fullClientSessionPath,containerPath,algorithm);
+        % Join results back to planC
+        success = joinH5CERR(segResultCERRPath, cerrPath, outputH5Path, algorithmC{k},outC{1},rcsC{1},originImageSizC{1},userOptS);
+        
         % Read segmentation from segResultCERRRPath to display in viewer
         segFileName = fullfile(segResultCERRPath,'cerrFile.mat');
         planD = loadPlanC(segFileName);
@@ -123,8 +119,7 @@ if iscell(algorithmC) || ~iscell(algiorithmC) && ~strcmpi(algorithmC,'BABS')
         end
         planC = deleteScan(planC, 2);
         
-        save_planC(planC,[],'passed',cerrFileName);
-        
+        save_planC(planC,[],'passed',cerrFileName);        
         
     end
     

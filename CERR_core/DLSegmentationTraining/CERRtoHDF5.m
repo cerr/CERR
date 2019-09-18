@@ -1,4 +1,4 @@
-function errC = CERRtoHDF5(CERRdir,HDF5dir,dataSplitV,strListC,userOptS)
+function [errC,rcsC,originImageSizC, userOptS] = CERRtoHDF5(CERRdir,HDF5dir,dataSplitV,strListC,userOptS)
 % CERRtoHDF5.m
 %
 % Script to export scan and mask files in HDF5 format, split into training,
@@ -23,16 +23,14 @@ function errC = CERRtoHDF5(CERRdir,HDF5dir,dataSplitV,strListC,userOptS)
 %RKP 9/14/19 Additional updates for compatibility with testing pipeline
 
 %% Get user inputs
-outSizeV = userOptS.imageSizeForModel;
-resizeMethod = userOptS.resize.method;
+outSizeV = userOptS.resize.size;
 cropS = userOptS.crop;
 resampleS = userOptS.resample;
 channelS = userOptS.channels;
-intensityOffset = userOptS.intensityOffset;
-
 maskChannelS = channelS;
 maskChannelS.method = 'none';
 prefixType = userOptS.exportedFilePrefix;
+resizeMethod = userOptS.resize.method;
 
 %% Get data split
 [trainIdxV,valIdxV,testIdxV] = randSplitData(CERRdir,dataSplitV);
@@ -51,11 +49,12 @@ end
 dirS = dir(fullfile(CERRdir,filesep,'*.mat'));
 labelV = 1:length(strListC);
 resC = cell(1,length(dirS));
+originImageSizC = cell(1,length(dirS));
 errC = {};
 
 for planNum = 1:length(dirS)
     
-    try
+     try
         
         %Load file
         fprintf('\nProcessing pt %d of %d...\n',planNum,length(dirS));
@@ -171,17 +170,21 @@ for planNum = 1:length(dirS)
              
                 indexS = planC{end};
                 scan3M = getScanArray(scanNum,planC);
+                originImageSizV = size(scan3M);
                 CToffset = planC{indexS.scan}(scanNum).scanInfo(1).CTOffset;
                 scan3M = double(scan3M);
                 scan3M = scan3M - CToffset;
-                if ~isempty(intensityOffset)
-                    scan3M = scan3M + intensityOffset;
-                end
+%                 if ~isempty(intensityOffset)
+%                     scan3M = scan3M + intensityOffset;
+%                 end
                 [scan3M,rcsM] = resizeScanAndMask(scan3M,mask3M,outSizeV,resizeMethod);
                 scanC{scanIdx} = scan3M;
-                maskC{scanIdx} = mask3M;
+                maskC{scanIdx} = mask3M;                
                 
             end
+            
+            % store rcs for this file
+            rcsC{planNum} = rcsM;            
             
             %Populate channels
             scanC = populateChannels(scanC,channelS);
@@ -240,7 +243,7 @@ for planNum = 1:length(dirS)
             end
             
             resC{planNum} = resM;
-            
+            originImageSizC{planNum} = originImageSizV;
         end
         
     catch e

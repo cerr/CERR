@@ -115,10 +115,11 @@ switch(lower(method))
         end
         
     case 'none'
-        scanOut3M = scan3M;
-        sizV = size(scanOut3M);
-        rcsM = repmat([1,sizV(1),1,sizV(2)],[sizV(3),1]);
-        rcsM = [rcsM (1:sizV(3))'];
+        [~, ~, ~, ~, mins, maxs] = compute_boundingbox(mask3M);        
+        sizV = size(mask3M);
+        rcsM = repmat([1,sizV(1),1,sizV(2)],[maxs-mins+1,1]);
+        rcsM = [rcsM, (mins:maxs)'];
+        scanOut3M = scan3M(:,:,mins:maxs);
         
 end
 

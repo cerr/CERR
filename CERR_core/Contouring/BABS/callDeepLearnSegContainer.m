@@ -1,11 +1,23 @@
-function success = callDeepLearnSegContainer(algorithm, containerPath, fullSessionPath, sshConfigS)
-
+function success = callDeepLearnSegContainer(algorithm, containerPath, fullSessionPath, sshConfigS, batchSize)
+% This function merges the segmentations from the respective algorithm back
+% into the original CERR file
+%
+% RKP, 3/21/2019
+%
+% INPUTS:
+%   algorithm         : Name of algorithm being processed
+%   containerPath     : Path of the container to call
+%   fullSessionPath   : Temp session path
+%   sshConfigS        : Structure with information read from ssh
+%                       configuration for connecting to server if needed
+%   batchSize         : batch size to pass to the deep learning model
    
+
 % Execute the container
 if ~exist('sshConfigS','var') || (exist('sshConfigS','var') && isempty(sshConfigS))
     bindingDir = ':/scratch';
     bindPath = strcat(fullSessionPath,bindingDir);
-    command = sprintf('singularity run --app %s --nv --bind  %s %s %s', algorithm, bindPath, containerPath, fullSessionPath)
+    command = sprintf('singularity run --app %s --nv --bind  %s %s %s', algorithm, bindPath, containerPath, batchSize)
     status = system(command)
 
 else
