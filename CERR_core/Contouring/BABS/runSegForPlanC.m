@@ -94,14 +94,14 @@ if iscell(algorithmC) || ~iscell(algiorithmC) && ~strcmpi(algorithmC,'BABS')
         
         %%% =========== have a flag to tell whether the container runs on the client or a remote server
         % Call the container and execute model     
-        success = callDeepLearnSegContainer(algorithmC{k}, containerPath, fullClientSessionPath, sshConfigS, userOptS.batchSize); % different workflow for client or session
+        %success = callDeepLearnSegContainer(algorithmC{k}, containerPath, fullClientSessionPath, sshConfigS, userOptS.batchSize); % different workflow for client or session
         
         %%% =========== common for client and server
         % Stack segmented masks returned from model
         outC = stackHDF5Files(fullClientSessionPath); 
         
         % Join results back to planC
-        success = joinH5CERR(segResultCERRPath, cerrPath, outputH5Path, algorithmC{k},outC{1},rcsC{1},originImageSizC{1},userOptS);
+        success = joinH5CERR(segResultCERRPath, cerrPath, algorithmC{k},outC{1},rcsC{1},originImageSizC{1},userOptS);
         
         % Read segmentation from segResultCERRRPath to display in viewer
         segFileName = fullfile(segResultCERRPath,'cerrFile.mat');
