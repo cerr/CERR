@@ -39,49 +39,19 @@ function [errC,rcsC,originImageSizC,userOptS] = prepareSegDataset(paramFilename,
 % AI 9/4/19 Added options to populate channels
 % AI 9/11/19 Updated for compatibility with testing pipeline
 % RKP 9/18/19 Additional updates for compatibility with testing pipeline
+% AI 9/18/19 Added readDLConfigFile
 
 %% Get user inputs from JSON
-userInS = jsondecode(fileread(paramFilename));
-inputFileType = userInS.inputFileType;
-strListC = userInS.structList;
-if isfield(userInS,'dataSplit')
-    dataSplitV = userInS.dataSplit;
-else
-    dataSplitV = [0,0,100]; %Assumes testing if not speciifed otherwise.
-end
-    
-%Set defaults for optional inputs
-defaultS = struct();
-defaultS.exportedFilePrefix = 'inputFileName';
-defaultS.crop.method = 'none';
-defaultS.resize.size = [256,256];
-defaultS.resize.method = 'none';
-defaultS.resample.method = 'none';
-defaultS.channels.imageType = 'original';
-defaultS.channels.append.method = 'none';
-defaultS.channels.number = 1;
-defaultS.batchSize = 1;
-
-userOptS = struct();
-defC = fieldnames(defaultS);
-for n = 1:length(defC)
-    if isfield(userInS,defC{n})
-        userOptS.(defC{n}) = userInS.(defC{n});
-    else
-        userOptS.(defC{n}) = defaultS.(defC{n});
-    end
-end
-if isempty(userOptS.resize.method)
-    userOptS.resize.method = 'None';
-end
+userOptS = readDLConfigFile(paramFilename);
+dataSplitV = userOptS.dataSplit;                                                   
+ 
 %% Create directories to write CERR, HDF5 files
 fprintf('\nCreating directories for HDF5 files...\n');
 if ~exist(outputDir,'dir')
     mkdir(outputDir)
 end
 
-% HDF5path = fullfile(outputDir,'dataHDF5');  
-HDF5path = fullfile(outputDir,'inputH5');  
+HDF5path = fullfile(outputDir,'inputH5');   
 mkdir(HDF5path)
 
 if dataSplitV(3) ~= 100
@@ -98,9 +68,9 @@ end
 fprintf('\nComplete\n');
 
 %% Import data to CERR
-if strcmpi(inputFileType,'DICOM')
+if strcmpi(userOptS.inputFileType,'DICOM')
     
-    CERRpath = fullfile(outputDir,'dataCERR');
+    CERRpath = fullfile(outputDir,'inputCERR');
     mkdir(CERRpath)
     
     zipFlag = 'No';
@@ -114,7 +84,7 @@ else
 end
 
 %% Convert to HDF5 with preprocessing and split into train, val, test datasets
-[errC,rcsC,originImageSizC, userOptS] = CERRtoHDF5(CERRpath, HDF5path, dataSplitV, strListC, userOptS);
+[errC,rcsC,originImageSizC] = CERRtoHDF5(CERRpath, HDF5path, userOptS);
 
 
 end
