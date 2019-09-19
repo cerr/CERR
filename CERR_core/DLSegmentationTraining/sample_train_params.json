@@ -11,12 +11,12 @@
 "crop" : [{"method": "crop_to_str", "params" : {"structureName": "structName4"}, "operator" : ""}, 
           {"method": "crop_to_str", "params" : {"structureName": "structName5"}, "operator" : "union"} ],
 
-"imageSizeForModel" : [512, 512],
-
-"resize" : {"method": "sinc"},
+"resize" : {"method": "sinc", "size": [512,512]},
 
 "channels" : {"number" : 3, "imageType" : "original", "append" : {"method" : "multiscan", "parameters" : [1,2,3]} },
 
-"exportedFilePrefix" : "inputfilename"
+"exportedFilePrefix" : "inputfilename",
+
+"passedScanDim" : "2D"
 
 }
