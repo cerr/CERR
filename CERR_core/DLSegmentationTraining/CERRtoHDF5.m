@@ -23,8 +23,8 @@ function [errC,rcsC,originImageSizC] = CERRtoHDF5(CERRdir,HDF5dir,userOptS)
 
 %% Get user inputs
 dataSplitV = userOptS.dataSplit;
-outSizeV = userOptS.resize.size;
 prefixType = userOptS.exportedFilePrefix;
+passedScanDim = userOptS.passedScanDim;
 if isfield(userOptS,'structList')
     strListC = userOptS.structList;
 else
@@ -101,7 +101,7 @@ for planNum = 1:length(dirS)
                 % Other options to be added
         end
         %- Write to HDF5
-        writeHDF5ForDL(scanC,mask3M,outDir,identifier,testFlag)
+        writeHDF5ForDL(scanC,mask3M,passedScanDim,outDir,identifier,testFlag)
         
         %Record metadata 
         resC{planNum} = resM;
