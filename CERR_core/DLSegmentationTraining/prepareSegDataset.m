@@ -1,4 +1,4 @@
-function [errC,rcsC,originImageSizC,userOptS] = prepareSegDataset(paramFilename,inputDir,outputDir)
+function [origImgSizC,userOptS,errC] = prepareSegDataset(paramFilename,inputDir,outputDir)
 % prepareSegDataset.m
 %
 % Script to preprocess and convert data to HDF5 format, split into training,
@@ -84,7 +84,7 @@ else
 end
 
 %% Convert to HDF5 with preprocessing and split into train, val, test datasets
-[errC,rcsC,originImageSizC] = CERRtoHDF5(CERRpath, HDF5path, userOptS);
+[origImgSizC,errC] = CERRtoHDF5(CERRpath, HDF5path, userOptS);
 
 
 end

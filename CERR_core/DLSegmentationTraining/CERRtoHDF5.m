@@ -1,4 +1,4 @@
-function [errC,rcsC,originImageSizC] = CERRtoHDF5(CERRdir,HDF5dir,userOptS)
+function [originImageSizC,errC] = CERRtoHDF5(CERRdir,HDF5dir,userOptS)
 % CERRtoHDF5.m
 %
 % Script to export scan and mask files in HDF5 format, split into training,
@@ -51,11 +51,8 @@ end
 %Loop over CERR files
 dirS = dir(fullfile(CERRdir,filesep,'*.mat'));
 errC = {};
-
 resC = cell(1,length(dirS));
-rcsC = cell(1,length(dirS));
 originImageSizC = cell(1,length(dirS));
-
 for planNum = 1:length(dirS)
     
     try
@@ -78,7 +75,7 @@ for planNum = 1:length(dirS)
                 testFlag = false;
             end
         end
-        [scanC, mask3M, resM, rcsM, originImageSizV] = extractAndPreprocessDataForDL(userOptS,planC,testFlag);
+        [scanC, mask3M, resM, originImageSizV] = extractAndPreprocessDataForDL(userOptS,planC,testFlag);
         
         %Export to HDF5
         %- Get output directory
@@ -105,7 +102,6 @@ for planNum = 1:length(dirS)
         
         %Record metadata 
         resC{planNum} = resM;
-        rcsC{planNum} = rcsM;
         originImageSizC{planNum} = originImageSizV;
         
     catch e
@@ -120,8 +116,6 @@ if ~isempty(labelKeyS)
     save([HDF5dir,filesep,'labelKeyS'],'labelKeyS','-v7.3');
 end
 save([HDF5dir,filesep,'resolutionC'],'resC','-v7.3');
-save([HDF5dir,filesep,'rcsC'],'rcsC','-v7.3');
-save([HDF5dir,filesep,'originalImageSizC'],'originImageSizC','-v7.3');
 
 %Return error messages if any
 idxC = cellfun(@isempty, errC, 'un', 0);
