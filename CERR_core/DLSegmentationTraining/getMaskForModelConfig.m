@@ -1,12 +1,13 @@
 function outMask3M = getMaskForModelConfig(planC,mask3M,scanNum,cropS)
-% cropScanAndMask.m
+% getMaskForModelConfig.m
 % Create mask for deep learning based on input configuration file.
 %
 % AI 7/23/19
 %--------------------------------------------------------------------------
 %INPUTS:
 % planC
-% mask3M       : Mask
+% mask3M       
+% scanNum        
 % cropS        : Dictionary of parameters for cropping
 %                Supported methods: 'crop_fixed_amt','crop_to_bounding_box',
 %                'crop_to_str', 'crop_around_center','crop_pt_outline','crop_shoulders','none'.
@@ -35,15 +36,16 @@ for m = 1:length(methodC)
                 maskC{m} = outMask3M;
             end
             
-        case 'crop_to_bounding_box'
+        case {'crop_to_bounding_box','crop_to_bounding_box_2D'}
             %Use to crop around one of the structures to be segmented
+            %(bounding box computed for 3D mask)
             label = paramS.label;
             if ~isempty(origMask3M)
                 outMask3M = origMask3M == label;
                 maskC{m} = outMask3M;
             end
             
-        case 'crop_to_str'
+        case {'crop_to_str', 'crop_to_str_2D'}
             %Use to crop around different structure
             %mask3M = []
             strName = paramS.structureName;
@@ -57,7 +59,8 @@ for m = 1:length(methodC)
                 [slMask3M,slicesV] = rasterToMask(rasterM,scanIdx,planC);
                 outMask3M(:,:,slicesV) = slMask3M;
                 maskC{m} = outMask3M;
-            end            
+            end
+      
             
         case 'crop_around_center'
             % Use to crop around center
@@ -114,8 +117,14 @@ for m = 1:length(methodC)
             pt_outline_mask3M(:,:,uniqueSlices) = maskSlices3M;
             % generate mask after cropping shoulder slices       
             outMask3M = cropShoulder(pt_outline_mask3M,planC);
-            maskC{m} = outMask3M;                                                  
-        
+            maskC{m} = outMask3M;
+            
+        case 'crop_sup_inf'
+            [~, ~, ~, ~, mins, maxs] = compute_boundingbox(mask3M);
+            outMask3M = false(size(mask3M));
+            outMask3M(:,:,mins:maxs) = true;
+            maskC{m} = outMask3M;
+            
         case 'none'
             %Skip
             
