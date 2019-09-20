@@ -1,4 +1,4 @@
-function [originImageSizC,errC] = CERRtoHDF5(CERRdir,HDF5dir,userOptS)
+function errC = CERRtoHDF5(CERRdir,HDF5dir,userOptS)
 % CERRtoHDF5.m
 %
 % Script to export scan and mask files in HDF5 format, split into training,
