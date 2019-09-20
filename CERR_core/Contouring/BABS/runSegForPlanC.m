@@ -68,6 +68,7 @@ mkdir(outputH5Path);
 inputH5Path = fullfile(fullClientSessionPath,'inputH5');
 mkdir(inputH5Path);
 
+testFlag = true;
 
 % Write planC to CERR .mat file
 cerrFileName = fullfile(cerrPath,'cerrFile.mat');
@@ -90,12 +91,13 @@ if iscell(algorithmC) || ~iscell(algiorithmC) && ~strcmpi(algorithmC,'BABS')
         configFilePath = fullfile(getCERRPath,'ModelImplementationLibrary','SegmentationModels', 'ModelConfigurations', [algorithm, '_config.json']);
         
         % Prepare data, write scans to HDF5 file
-        [userOptS,errC] = prepareSegDataset(configFilePath, cerrPath, fullClientSessionPath);  %Updated
+        %[userOptS,errC] = prepareSegDataset(configFilePath, cerrPath, fullClientSessionPath);  %Updated
+        userOptS = readDLConfigFile(configFilePath);
+        [scanC, mask3M] = extractAndPreprocessDataForDL(userOptS,planC,testFlag);
+        %Note: mask3M is empty for testing
+        filePrefixForHDF5 = 'cerrFile';
+        writeHDF5ForDL(scanC,mask3M,userOptS.passedScanDim,inputH5Path,filePrefixForHDF5,testFlag);
         
-        if ~isempty(errC)
-            disp(errC);
-            return
-        end
         
         %%% =========== have a flag to tell whether the container runs on the client or a remote server
         % Call the container and execute model     
@@ -110,25 +112,25 @@ if iscell(algorithmC) || ~iscell(algiorithmC) && ~strcmpi(algorithmC,'BABS')
         outC = stackHDF5Files(fullClientSessionPath,userOptS.passedScanDim); %Updated
         
         % Join results back to planC
-        success = joinH5CERR(segResultCERRPath,cerrPath,outC{1},userOptS); %Updated
+        planC  = joinH5planC(outC{1},userOptS,planC); % only 1 file 
         
-        % Read segmentation from segResultCERRRPath to display in viewer
-        segFileName = fullfile(segResultCERRPath,'cerrFile.mat');
-        planD = loadPlanC(segFileName);
-        indexSD = planD{end};
-        scanIndV = 1;
-        doseIndV = [];
-        numSegStr = length(planD{indexSD.structures});
-        numOrigStr = length(planC{indexS.structures});
-        structIndV = 1:numSegStr;
-        planC = planMerge(planC, planD, scanIndV, doseIndV, structIndV, '');
-        numSegStr = numSegStr - numOrigStr;
-        for iStr = 1:numSegStr
-            planC = copyStrToScan(numOrigStr+iStr,1,planC);
-        end
-        planC = deleteScan(planC, 2);
+%         % Read segmentation from segResultCERRRPath to display in viewer
+%         segFileName = fullfile(segResultCERRPath,'cerrFile.mat');
+%         planD = loadPlanC(segFileName);
+%         indexSD = planD{end};
+%         scanIndV = 1;
+%         doseIndV = [];
+%         numSegStr = length(planD{indexSD.structures});
+%         numOrigStr = length(planC{indexS.structures});
+%         structIndV = 1:numSegStr;
+%         planC = planMerge(planC, planD, scanIndV, doseIndV, structIndV, '');
+%         numSegStr = numSegStr - numOrigStr;
+%         for iStr = 1:numSegStr
+%             planC = copyStrToScan(numOrigStr+iStr,1,planC);
+%         end
+%         planC = deleteScan(planC, 2);
         
-        save_planC(planC,[],'passed',cerrFileName);        
+        %save_planC(planC,[],'passed',cerrFileName);        
         
     end
     

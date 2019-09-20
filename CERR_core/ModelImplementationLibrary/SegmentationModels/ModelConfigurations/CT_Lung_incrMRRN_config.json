@@ -8,5 +8,7 @@
 ],
 "intensityOffset" : 1024,
 
+"passedScanDim" : "2D",
+
 "reference" : ""
 }
