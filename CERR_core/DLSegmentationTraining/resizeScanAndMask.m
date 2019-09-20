@@ -1,125 +1,158 @@
-function [scanOut3M, rcsM] = resizeScanAndMask(scan3M,mask3M,inputImgSizeV,method)
+function [scanOut3M, maskOut3M] = resizeScanAndMask(scan3M,mask3M,outputImgSizeV,method,varargin)
 % resizeScanAndMask.m
 % Script to resize images and masks for deep learning.
 %
 % AI 7/2/19
 %--------------------------------------------------------------------------
 %INPUTS:
-% scan3M       : Scan array
-% mask3M       : Mask
-% method       : Supported methods: 'none','pad2d', 'pad3d',
-%                'bilinear', 'sinc'
-% inputImgSizeV: Input size required by model [height, width]
+% scan3M         :  Scan array
+% mask3M         :  Mask
+% method         :  Supported methods: 'none','pad2d', 'pad3d',
+%                 'bilinear', 'sinc'
+% outputImgSizeV :  Required output size [height, width]
 %--------------------------------------------------------------------------
 %RKP 9/13/19 - Added method 'pad2d'
+%AI 9/19/19  - Updated to handle undo-resize options
 
-rcsM = [];
+%Get input image size
+if ~isempty(scan3M)
+    origSizV = [size(scan3M,1), size(scan3M,2), size(scan3M,3)];
+else
+    origSizV = [size(mask3M,1), size(mask3M,2), size(mask3M,3)];
+end
 
+%Resize image by method
 switch(lower(method))
     
     case 'pad3d'
-        xPad = floor(inputImgSizeV(1) - size(scan3M,1)/2);
-        yPad = floor(inputImgSizeV(2) - size(scan3M,2)/2);
         
-        scanOut3M = zeros(inputImgSizeV(1), inputImgSizeV(2), size(scan3M,3));
-        scanOut3M(xPad+1:xPad+size(scan3M,1), yPad+1:yPad+size(scan3M,2), 1:size(scan3M,3)) = scan3M;
+        xPad = floor((outputImgSizeV(1) - origSizV(1))/2);
+        yPad = floor((outputImgSizeV(2) - origSizV(2))/2);
         
-        if isempty(mask3M)
-            maskOut3M = [];
+        if xPad > 0
+            
+            %Pad scan
+            if isempty(scan3M)
+                scanOut3M = [];
+            else
+                scanOut3M = zeros(outputImgSizeV);
+                scanOut3M(xPad+1:xPad+origSizV(1), yPad+1:yPad+origSizV(2), 1:origSizV(3)) = scan3M;
+            end
+            
+            %Pad mask
+            if isempty(mask3M)
+                maskOut3M = [];
+            else
+                maskOut3M = zeros(outputImgSizeV);
+                maskOut3M(xPad+1:xPad+origSizV(1), yPad+1:yPad+origSizV(2), 1:origSizV(3)) = mask3M;
+            end
+            
         else
-            maskOut3M = zeros(inputImgSizeV(1), inputImgSizeV(2), size(mask3M,3));
-            maskOut3M(xPad+1:xPad+size(scan3M,1), yPad+1:yPad+size(scan3M,2), 1:size(scan3M,3)) = mask3M;
+            
+            %un-pad
+            xPad = -xPad;
+            yPad = -yPad;
+            
+            if isempty(scan3M)
+                scanOut3M = [];
+            else
+                scanOut3M = scan3M(xPad+1:xPad+origSizV(1), yPad+1:yPad+origSizV(2), :);
+            end
+            
+            if isempty(mask3M)
+                maskOut3M = [];
+            else
+                maskOut3M = mask3M(xPad+1:xPad+origSizV(1), yPad+1:yPad+origSizV(2), :);
+            end
+            
         end
         
-    case 'pad2d'           
-        [~, ~, ~, ~, mins, maxs] = compute_boundingbox(mask3M);
-        scanOut3M = zeros(inputImgSizeV(1), inputImgSizeV(2), maxs-mins+1);                
-        iSlc = 0;
-        for slcNum = mins:maxs
-            iSlc  = iSlc + 1;            
-            [minr, maxr, minc, maxc] = compute_boundingbox(mask3M(:,:,slcNum));
+    case 'pad2d'
+        
+        %varargin{1}: limitsM = [minrV,maxrV,mincV,maxcV]
+        
+        scanOut3M = zeros(outputImgSizeV);  
+        maskOut3M = false(outputImgSizeV);
+        
+        limitsM = varargin{1};
+        
+        if outputImgSizeV(1) > origSizV(1)
+            padFlag = 1;
+        else
+            padFlag = 0;  %un-pad
+        end
+            
+        
+        for slcNum = 1:outputImgSizeV(3)
+            
+            minr = limitsM(slcNum,1);
+            maxr = limitsM(slcNum,2);
+            minc = limitsM(slcNum,3);
+            maxc = limitsM(slcNum,4);
+            
             rowCenter = round((minr+maxr)/2);
             colCenter = round((minc+maxc)/2);
-            rMin = rowCenter - inputImgSizeV(1)/2;
-            cMin = colCenter - inputImgSizeV(2)/2;
+            rMin = rowCenter - outputImgSizeV(1)/2;
+            cMin = colCenter - outputImgSizeV(2)/2;
             if rMin < 1
                 rMin = 1;
             end
             if cMin < 1
                 cMin = 1;
-            end            
-            rMax = rMin + inputImgSizeV(1) - 1;
-            cMax = cMin + inputImgSizeV(2) - 1;
-            scanOut3M(:,:,iSlc) = scan3M(rMin:rMax,cMin:cMax,slcNum);  
-            rcsM(:,iSlc) = [rMin,rMax,cMin,cMax,slcNum];
-        end        
-        
-    case 'bilinear'
-        %Compute bounding box
-        methodC = {cropS.method};
-        if length(methodC) == 1 && any(strcmp(methodC,'none'))
-            %if strcmpi(cropS.method,'none')
-            minr = 1;
-            maxr = size(modelMask3M,1);
-            minc = 1;
-            maxc = size(modelMask3M,2);
-            mins = 1;
-            maxs = size(modelMask3M,3);
-        else
-            [minr, maxr, minc, maxc, mins, maxs] = compute_boundingbox(modelMask3M);
-        end
-        
-        %Crop scan and mask
-        if ~isempty(scan3M)
-            scan3M = scan3M(minr:maxr,minc:maxc,mins:maxs);
+            end
+            rMax = rMin + outputImgSizeV(1) - 1;
+            cMax = cMin + outputImgSizeV(2) - 1;
+            
+            if ~isempty(scan3M)
+                if padFlag
+                    scanOut3M(:,:,slcNum) = scan3M(rMin:rMax,cMin:cMax,slcNum);
+                else
+                    scanOut3M(rMin:rMax,cMin:cMax,slcNum)= scan3M(:,:,slcNum);
+                end
+            end
+            
+            if ~isempty(mask3M)
+                if padFlag
+                    maskOut3M(:,:,slcNum) = mask3M(rMin:rMax,cMin:cMax,slcNum);
+                else
+                    maskOut3M(rMin:rMax,cMin:cMax,slcNum)= mask3M(:,:,slcNum);
+                end
+            end
             
         end
-        if ~isempty(mask3M)
-            mask3M = mask3M(minr:maxr,minc:maxc,mins:maxs);
+        
+    case 'bilinear'
+        
+        if isempty(scan3M)
+            scanOut3M = [];
+        else
+            scanOut3M = imresize(scan3M, outputImgSizeV, 'bilinear');
         end
-        scanOut3M = imresize(scan3M, inputImgSizeV, 'bilinear');
+        
         if isempty(mask3M)
             maskOut3M = [];
         else
-            maskOut3M = imresize(mask3M, inputImgSizeV, 'nearest');
+            maskOut3M = imresize(mask3M, outputImgSizeV, 'nearest');
         end
         
     case 'sinc'
-        %Compute bounding box
-        methodC = {cropS.method};
-        if length(methodC) == 1 && any(strcmp(methodC,'none'))
-            %if strcmpi(cropS.method,'none')
-            minr = 1;
-            maxr = size(modelMask3M,1);
-            minc = 1;
-            maxc = size(modelMask3M,2);
-            mins = 1;
-            maxs = size(modelMask3M,3);
+        
+        if isempty(scan3M)
+            scanOut3M = [];
         else
-            [minr, maxr, minc, maxc, mins, maxs] = compute_boundingbox(modelMask3M);
+            scanOut3M = imresize(scan3M, outputImgSizeV, 'lanczos3');
         end
         
-        %Crop scan and mask
-        if ~isempty(scan3M)
-            scan3M = scan3M(minr:maxr,minc:maxc,mins:maxs);
-            
-        end
-        if ~isempty(mask3M)
-            mask3M = mask3M(minr:maxr,minc:maxc,mins:maxs);
-        end
-        scanOut3M = imresize(scan3M, inputImgSizeV, 'lanczos3');
         if isempty(mask3M)
             maskOut3M = [];
         else
-            maskOut3M = imresize(mask3M, inputImgSizeV, 'nearest');
+            maskOut3M = imresize(mask3M, outputImgSizeV, 'nearest');
         end
         
+        
     case 'none'
-        [~, ~, ~, ~, mins, maxs] = compute_boundingbox(mask3M);        
-        sizV = size(mask3M);
-        rcsM = repmat([1,sizV(1),1,sizV(2)],[maxs-mins+1,1]);
-        rcsM = [rcsM, (mins:maxs)'];
-        scanOut3M = scan3M(:,:,mins:maxs);
+        scanOut3M = scan3M;
+        maskOut3M = mask3M;
         
 end
 
