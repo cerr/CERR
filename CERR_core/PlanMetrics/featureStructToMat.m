@@ -70,6 +70,10 @@ for patNum = 1:length(featureS)
                 featV = full(struct2array(featureS(patNum).(fieldC{iField}).AvgS));
                 allFieldC = [allFieldC;...
                     strcat(fieldC{iField},'_',fieldnames(featureS(patNum).(fieldC{iField}).AvgS))];
+            elseif strcmpi(featFieldC{1},'CombS')
+                featV = full(struct2array(featureS(patNum).(fieldC{iField}).CombS));
+                allFieldC = [allFieldC;...
+                    strcat(fieldC{iField},'_',fieldnames(featureS(patNum).(fieldC{iField}).CombS))];
             elseif strcmpi(featFieldC{1},'peak')
                 featureS(patNum).(fieldC{iField}) = rmfield(featureS(patNum).(fieldC{iField}),'radius');
                 featureS(patNum).(fieldC{iField}) = rmfield(featureS(patNum).(fieldC{iField}),'radiusUnit');
