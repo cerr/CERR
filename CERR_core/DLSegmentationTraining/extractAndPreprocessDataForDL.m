@@ -1,4 +1,4 @@
-function [scanC, mask3M, resM, rcsM, originalImageSizV] = extractAndPreprocessDataForDL(optS,planC,testFlag)
+function [scanC, mask3M, resM, originalImageSizV] = extractAndPreprocessDataForDL(optS,planC,testFlag)
 %
 % Script to extract scan and mask and perform user-defined pre-processing.
 %
@@ -134,11 +134,20 @@ if ~isempty(exportStrC) || testFlag
         end
         
         %2. Crop
-        scanNum = scanNumV(scanIdx);
-        mask3M = getMaskForModelConfig(planC,mask3M,scanNum,cropS);
+        [minr, maxr, minc, maxc, mins, maxs] = getCropLimits(planC,mask3M,scanNumV(scanIdx),cropS);
+        %- Crop scan 
+        if ~isempty(scan3M) && numel(minr)==1
+            scan3M = scan3M(minr:maxr,minc:maxc,mins:maxs);
+        end
+        %- Crop mask
+        if ~isempty(mask3M) && numel(minr)==1
+            mask3M = mask3M(minr:maxr,minc:maxc,mins:maxs);
+        end
         
         %3. Resize
-        [scan3M, mask3M, rcsM] = resizeScanAndMask(scan3M,mask3M,outSizeV,resizeMethod);
+        limitsM = [minr, maxr, minc, maxc, mins, maxs];
+        [scan3M, mask3M] = resizeScanAndMask(scan3M,mask3M,outSizeV,resizeMethod,limitsM);
+        
         scanC{scanIdx} = scan3M;
         maskC{scanIdx} = mask3M;
         
