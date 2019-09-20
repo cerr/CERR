@@ -90,7 +90,7 @@ if iscell(algorithmC) || ~iscell(algiorithmC) && ~strcmpi(algorithmC,'BABS')
         configFilePath = fullfile(getCERRPath,'ModelImplementationLibrary','SegmentationModels', 'ModelConfigurations', [algorithm, '_config.json']);
         
         % Prepare data, write scans to HDF5 file
-        [origImgSizeC,userOptS,errC] = prepareSegDataset(configFilePath, cerrPath, fullClientSessionPath);  %Updated
+        [userOptS,errC] = prepareSegDataset(configFilePath, cerrPath, fullClientSessionPath);  %Updated
         
         if ~isempty(errC)
             disp(errC);
@@ -103,10 +103,14 @@ if iscell(algorithmC) || ~iscell(algiorithmC) && ~strcmpi(algorithmC,'BABS')
         
         %%% =========== common for client and server
         % Stack segmented masks returned from model
-        outC = stackHDF5Files(fullClientSessionPath,userOptS.passedScanDim);  %Updated
+        %---temp for testing:
+        %h5Dir = 'M:\Rutu\data\resultDir\out_gpu\'; %temp
+        %outC = stackHDF5Files(h5Dir,userOptS.passedScanDim);  
+        %-----
+        outC = stackHDF5Files(fullClientSessionPath,userOptS.passedScanDim); %Updated
         
         % Join results back to planC
-        success = joinH5CERR(segResultCERRPath, cerrPath, algorithmC{k},outC{1},userOptS); %Updated
+        success = joinH5CERR(segResultCERRPath,cerrPath,outC{1},userOptS); %Updated
         
         % Read segmentation from segResultCERRRPath to display in viewer
         segFileName = fullfile(segResultCERRPath,'cerrFile.mat');

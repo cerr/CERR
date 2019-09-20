@@ -1,4 +1,4 @@
-function success  = joinH5CERR(segResultCERRPath,cerrPath,algorithm,segMask3M,rcsM,originImageSizV,userOptS)
+function success  = joinH5CERR(segResultCERRPath,cerrPath,segMask3M,userOptS)
 %
 % This function merges the segmentations from the respective algorithm back
 % into the original CERR file
@@ -8,13 +8,11 @@ function success  = joinH5CERR(segResultCERRPath,cerrPath,algorithm,segMask3M,rc
 % INPUTS:
 %   segResultCERRPath : Path to write CERR RTSTRUCT for resulting segmentation.
 %   cerrPath          : Path to the original CERR file to be segmented
-%   algorithm         : Name of algorithm being processed
 %   segMask3M         : Mask returned after segmentation
-%   rcsM              : Matrix containing information about row,column,slice
-%   originImageSizV   : Original image size 
 %   userOptS          : User options read from configuration file
 
-configFilePath = fullfile(getCERRPath,'ModelImplementationLibrary','SegmentationModels', 'ModelConfigurations', [algorithm, '_config.json']);
+
+%configFilePath = fullfile(getCERRPath,'ModelImplementationLibrary','SegmentationModels', 'ModelConfigurations', [algorithm, '_config.json']);
 
 %load original planC
 planCfiles = dir(fullfile(cerrPath,'*.mat'));
@@ -23,8 +21,9 @@ planC = load(planCfilename);
 planC = planC.planC;
 
 %read json file
-filetext = fileread(configFilePath);
-res = jsondecode(filetext);
+%filetext = fileread(configFilePath);
+%res = jsondecode(filetext);
+
 % if sum(strcmp(fieldnames(res), 'resize')) == 1
 %     resizeS = res.resize;    
 %     resizeMethod = resizeS.method;
@@ -37,17 +36,36 @@ res = jsondecode(filetext);
 % end
 
 resizeMethod = userOptS.resize.method;
-
+cropS = userOptS.crop; %Added
 
 scanNum = 1;
-isUniform = 1;
+isUniform = 1; %0?check!
 %save structures segmented to planC
 
-mask3M = undoResizeMask(segMask3M,originImageSizV,rcsM,resizeMethod);
-for i = 1 : length(res.strNameToLabelMap)
-    count = res.strNameToLabelMap(i).value;
-    maskForStr3M = mask3M == count;
-    planC = maskToCERRStructure(maskForStr3M, isUniform, scanNum, res.strNameToLabelMap(i).structureName, planC);
+%Undo resize
+%mask3M = undoResizeMask(segMask3M,originImageSizV,rcsM,resizeMethod);
+[minr, maxr, minc, maxc, mins, maxs] = getCropLimits(planC,[],scanNum,cropS);
+limitsM = [minr, maxr, minc, maxc, mins, maxs];
+if numel(minr)==1
+    originImageSizV = [maxr-minr+1, maxc-minc+1, maxs-mins+1];
+else
+    originImageSizV = size(getScanArray(scanNum,planC));
+end
+[~, maskOut3M] = resizeScanAndMask([],segMask3M,originImageSizV,resizeMethod,limitsM);
+origSizMask3M = false(size(getScanArray(scanNum,planC)));
+
+
+for i = 1 : length(userOptS.strNameToLabelMap)
+    
+    temp = origSizMask3M;
+    count = userOptS.strNameToLabelMap(i).value;
+    maskForStr3M = maskOut3M == count;
+    
+    %Undo crop 
+    temp(minr:maxr, minc:maxc, mins:maxs) = maskForStr3M;
+    
+    planC = maskToCERRStructure(temp, isUniform, scanNum, userOptS.strNameToLabelMap(i).structureName, planC);
+    
 end
 
 %save final plan
@@ -58,6 +76,5 @@ save_planC(planC,optS,saveflag,finalPlanCfilename);
 
 success = 1;
 end
-
 
 
