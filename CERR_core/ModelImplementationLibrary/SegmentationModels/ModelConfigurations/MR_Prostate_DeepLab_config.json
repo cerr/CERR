@@ -17,5 +17,6 @@
   "value": 7}
 ],
 "intensityOffset" : 1024,
+"passedScanDim" : "3D",
 "reference" : ""
 }
