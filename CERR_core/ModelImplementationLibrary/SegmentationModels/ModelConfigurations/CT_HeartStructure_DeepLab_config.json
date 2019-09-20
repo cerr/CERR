@@ -14,7 +14,7 @@
 
 "structList" : ["h"],
 
-"resize" : {"method": "",
+"resize" : {"method": "none",
             "size" : [512,512]},
 
 "crop" : [{"method": "crop_to_str", "params" : {"structureName": "lung_l"}, "operator" : ""}, 
