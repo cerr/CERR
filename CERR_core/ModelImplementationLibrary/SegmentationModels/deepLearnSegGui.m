@@ -246,7 +246,7 @@ switch upper(command)
         set(hFig,'userdata',ud);
         
     case 'CONTAINER_SELECTED'
-        [containerFile,containerPath] = uigetfile();
+        [containerFile,containerPath] = uigetfile('*.sif');
         ud.containerPath = fullfile(containerPath,containerFile);
         set(ud.inputHandleS.containerPush,'string',containerFile);
         set(hFig,'userdata',ud);
