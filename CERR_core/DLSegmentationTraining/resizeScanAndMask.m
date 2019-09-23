@@ -79,7 +79,7 @@ switch(lower(method))
         % Min/max row and col limits for each slice
         limitsM = varargin{1};
         
-        if outputImgSizeV(1) > origSizV(1)
+        if outputImgSizeV(1) < origSizV(1)
             padFlag = 1;
         else
             padFlag = 0;  %un-pad

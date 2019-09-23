@@ -40,8 +40,8 @@ switch (passedScanDim)
         %Write scan
         exportScan3M = scanC{1};
         scanFilename = fullfile(outDir,[filePrefix,'_scan_3D.h5']);
-        h5create(scanFilename,'/scan1',size(exportScan3M));
-        h5write(scanFilename,'/scan1',exportScan3M);
+        h5create(scanFilename,'/scan',size(exportScan3M));
+        h5write(scanFilename,'/scan',exportScan3M);
         
         
     case '2D'

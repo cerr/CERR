@@ -27,14 +27,12 @@
     }
   ],
 
-"intensityOffset" : 1024,
-
 "resize" : {"method": "pad2D",
             "size" : [256,256]},
 
 "crop": [
     {
-      "method": "crop_pt_outline",
+      "method": "crop_pt_outline_2D",
       "params": { "structureName": "generated_pt_outline", "saveStrToPlanCFlag": "true"},
       "operator": ""
     },
@@ -45,7 +43,7 @@
       "operator": "intersection"
     } ],
  
-
+"passedScanDim" : "3D",
 
 "reference" : "https://ieeexplore.ieee.org/document/8417454"
 }
