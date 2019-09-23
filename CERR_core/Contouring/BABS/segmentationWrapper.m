@@ -19,55 +19,49 @@ function success = segmentationWrapper(inputDicomPath,cerrPath,segResultCERRPath
 containerPath
 algorithm
 
+
 %build config file path from algorithm
 configFilePath = fullfile(getCERRPath,'ModelImplementationLibrary','SegmentationModels', 'ModelConfigurations', [algorithm, '_config.json']);
-        
-% check if any pre-processing is required  
-% userInS = jsondecode(fileread(configFilePath)); 
-% if sum(strcmp(fieldnames(userInS), 'crop')) == 1
-%     cropS = userInS.crop;
-% else 
-%     cropS = 'None';
-% end
-% if sum(strcmp(fieldnames(userInS), 'intensityOffset')) == 1
-%     intensityOffset = userInS.intensityOffset;
-% else 
-%     intensityOffset = '';
-% end
-% if sum(strcmp(fieldnames(userInS), 'resize')) == 1
-%     resizeS = userInS.resize;
-%     resizeMethod = resizeS.method;
-%     outSizeV = userInS.resize.size;
-% else
-%     resizeS = '';
-%     outSizeV = '';
-%     resizeMethod = 'None';
-% end
+testFlag = true;
 
 % % create subdir within fullSessionPath for output h5 files
 outputH5Path = fullfile(fullSessionPath,'outputH5');
 mkdir(outputH5Path);
+%create subdir within fullSessionPath for input h5 files
+inputH5Path = fullfile(fullSessionPath,'inputH5');
+mkdir(inputH5Path);
 
-% convert scan to H5 format
-%[errC,mask3M,rcsM] = cerrToH5(cerrPath, fullSessionPath, cropS, outSizeV, resizeMethod, intensityOffset);
-[userOptS,errC] = prepareSegDataset(configFilePath, inputDicomPath, fullSessionPath); %Updated                  
 
+%get the planC
+planCfiles = dir(fullfile(cerrPath,'*.mat'));
+for p=1:length(planCfiles)
+    
+    % Load scan
+    planCfiles(p).name
+    fileNam = fullfile(planCfiles(p).folder,planCfiles(p).name);
+    planC = loadPlanC(fileNam, tempdir);
+    planC = quality_assure_planC(fileNam,planC);
+    
+    % convert scan to H5 format
+    userOptS = readDLConfigFile(configFilePath);
+   
+    [scanC, mask3M] = extractAndPreprocessDataForDL(userOptS,planC,testFlag);
+    %Note: mask3M is empty for testing
+    filePrefixForHDF5 = 'cerrFile';
+    writeHDF5ForDL(scanC,mask3M,userOptS.passedScanDim,inputH5Path,filePrefixForHDF5,testFlag);
 
-if ~isempty(errC)
-    success = 0;
-    return;
 end
 
+%get the bind path for the container
 bindingDir = ':/scratch';
 bindPath = strcat(fullSessionPath,bindingDir);
-    
-% Execute the container
-command = sprintf('singularity run --app %s --nv --bind  %s %s %s', algorithm, bindPath, containerPath, fullSessionPath);
+ 
+%execute the container
+command = sprintf('singularity run --app %s --nv --bind  %s %s %s %s', algorithm, bindPath, containerPath, num2str(userOptS.batchSize));
 status = system(command);
 
 % Stack H5 files
-outC = stackHDF5Files(fullClientSessionPath,userOptS.passedScanDim); %Updated
-
+outC = stackHDF5Files(fullSessionPath,userOptS.passedScanDim); %Updated
 
 % join segmented mask with planC
 success = joinH5CERR(segResultCERRPath,cerrPath,outC{1},userOptS); %Updated

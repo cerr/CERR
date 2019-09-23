@@ -31,7 +31,7 @@ for indBase = 1:length(dirS)
     % Copy segmentation from segResultCERRRPath to planC
     origFileName = fullfile(cerrPath,dirS(indBase).name);
     % segFileName = fullfile(registeredDir,dirS(indBase).name);
-    segFileName = fullfile(segResultCERRRPath,dirS(indBase).name);    
+    segFileName = fullfile(segResultCERRRPath,'cerrFile.mat'); 
     planC = loadPlanC(origFileName);
     planD = loadPlanC(segFileName);    
     indexS = planC{end};
