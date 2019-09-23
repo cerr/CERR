@@ -71,8 +71,8 @@ switch(lower(method))
         
         %varargin{1}: limitsM = [minrV,maxrV,mincV,maxcV]
         
-        scanOut3M = zeros(outputImgSizeV);  
-        maskOut3M = false(outputImgSizeV);
+        scanOut3M = zeros(size(outputImgSizeV));  
+        maskOut3M = false(size(outputImgSizeV));
         
         limitsM = varargin{1};
         
@@ -83,7 +83,7 @@ switch(lower(method))
         end
             
         
-        for slcNum = 1:outputImgSizeV(3)
+        for slcNum = 1:origSizV(3)
             
             minr = limitsM(slcNum,1);
             maxr = limitsM(slcNum,2);
