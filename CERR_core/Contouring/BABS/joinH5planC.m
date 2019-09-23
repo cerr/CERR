@@ -14,28 +14,30 @@ scanNum = 1;
 isUniform = 0;
 %save structures segmented to planC
 
-%Undo resize
-%mask3M = undoResizeMask(segMask3M,originImageSizV,rcsM,resizeMethod);
-[minr, maxr, minc, maxc, mins, maxs] = getCropLimits(planC,[],scanNum,cropS);
-limitsM = [minr, maxr, minc, maxc, mins, maxs];
-if numel(minr)==1
-    originImageSizV = [maxr-minr+1, maxc-minc+1, maxs-mins+1];
-else
-    originImageSizV = size(getScanArray(scanNum,planC));
-end
-[~, maskOut3M] = resizeScanAndMask([],segMask3M,originImageSizV,resizeMethod,limitsM);
-origSizMask3M = false(size(getScanArray(scanNum,planC)));
 
+% Get mask3M from outline/shoulder crop?
+testFlag = 1;
+[scanC, mask3M] = extractAndPreprocessDataForDL(userOptS,planC,testFlag);
+
+%Undo resize
+% mask3M = undoResizeMask(segMask3M,originImageSizV,rcsM,resizeMethod);
+[minr, maxr, minc, maxc, mins, maxs] = getCropLimits(planC,mask3M,scanNum,cropS);
+limitsM = [minr, maxr, minc, maxc];
+
+scanArray3M = planC{indexS.scan}(scanNum).scanArray;
+sizV = size(scanArray3M);
+maskOut3M = zeros(sizV, 'uint32');
+
+if length(minr) > 1
+    [~, maskOut3M(:,:,mins:maxs)] = resizeScanAndMask(segMask3M,segMask3M,sizV(1:2),resizeMethod,limitsM);
+else
+    [~, maskOut3M(minr:maxr, minc:maxc, mins:maxs)] = resizeScanAndMask(segMask3M,segMask3M,sizV(1:2),resizeMethod,limitsM);
+end
 
 for i = 1 : length(userOptS.strNameToLabelMap)
     
-    temp = origSizMask3M;
-    count = userOptS.strNameToLabelMap(i).value;
-    maskForStr3M = maskOut3M == count;
-    
-    %Undo crop 
-    temp(minr:maxr, minc:maxc, mins:maxs) = maskForStr3M;
-    
-    planC = maskToCERRStructure(temp, isUniform, scanNum, userOptS.strNameToLabelMap(i).structureName, planC);
+    labelVal = userOptS.strNameToLabelMap(i).value;
+    maskForStr3M = maskOut3M == labelVal;        
+    planC = maskToCERRStructure(maskForStr3M, isUniform, scanNum, userOptS.strNameToLabelMap(i).structureName, planC);
     
 end
