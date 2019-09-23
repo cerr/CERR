@@ -68,12 +68,15 @@ switch(lower(method))
         end
         
     case 'pad2d'
+                
+        % Zero out regions outside the mask
+        scan3M(~mask3M) = 0;
         
-        %varargin{1}: limitsM = [minrV,maxrV,mincV,maxcV]
+        % Initialize resized scan and mask
+        scanOut3M = zeros([outputImgSizeV(:)', origSizV(3)]);  
+        maskOut3M = false([outputImgSizeV(:)', origSizV(3)]);
         
-        scanOut3M = zeros(size(outputImgSizeV));  
-        maskOut3M = false(size(outputImgSizeV));
-        
+        % Min/max row and col limits for each slice
         limitsM = varargin{1};
         
         if outputImgSizeV(1) > origSizV(1)
@@ -102,20 +105,31 @@ switch(lower(method))
             end
             rMax = rMin + outputImgSizeV(1) - 1;
             cMax = cMin + outputImgSizeV(2) - 1;
+            if rMax > origSizV(1)
+                rMax = origSizV(1);
+            end
+            if cMax > origSizV(2)
+                cMax = origSizV(2);
+            end
+            
+            outRmin = 1;
+            outCmin = 1;
+            outRmax = outRmin + rMax - rMin;
+            outCmax = outCmin + cMax - cMin;
             
             if ~isempty(scan3M)
                 if padFlag
-                    scanOut3M(:,:,slcNum) = scan3M(rMin:rMax,cMin:cMax,slcNum);
+                    scanOut3M(outRmin:outRmax,outCmin:outCmax,slcNum) = scan3M(rMin:rMax,cMin:cMax,slcNum);
                 else
-                    scanOut3M(rMin:rMax,cMin:cMax,slcNum)= scan3M(:,:,slcNum);
+                    scanOut3M(rMin:rMax,cMin:cMax,slcNum)= scan3M(outRmin:outRmax,outCmin:outCmax,slcNum);
                 end
             end
             
             if ~isempty(mask3M)
                 if padFlag
-                    maskOut3M(:,:,slcNum) = mask3M(rMin:rMax,cMin:cMax,slcNum);
+                    maskOut3M(outRmin:outRmax,outCmin:outCmax,slcNum) = mask3M(rMin:rMax,cMin:cMax,slcNum);
                 else
-                    maskOut3M(rMin:rMax,cMin:cMax,slcNum)= mask3M(:,:,slcNum);
+                    maskOut3M(rMin:rMax,cMin:cMax,slcNum)= mask3M(outRmin:outRmax,outCmin:outCmax,slcNum);
                 end
             end
             

@@ -1,4 +1,4 @@
-function [scanC, mask3M, resM, originalImageSizV] = extractAndPreprocessDataForDL(optS,planC,testFlag)
+function [scanC, mask3M, originalImageSizV] = extractAndPreprocessDataForDL(optS,planC,testFlag)
 %
 % Script to extract scan and mask and perform user-defined pre-processing.
 %
@@ -69,7 +69,7 @@ if ~isempty(exportStrC) || testFlag
     end
     
     UIDc = {planC{indexS.structures}.assocScanUID};
-    resM = nan(length(scanNumV),3);
+    %resM = nan(length(scanNumV),3);
     
     for scanIdx = 1:length(scanNumV)
         
@@ -106,7 +106,7 @@ if ~isempty(exportStrC) || testFlag
         
         %Pre-processing
         
-        %1. Resample
+        %1. Resample to (resolutionXCm,resolutionYCm,resolutionZCm) voxel size
         if ~strcmpi(resampleS.method,'none')
             
             % Get the new x,y,z grid
@@ -133,19 +133,25 @@ if ~isempty(exportStrC) || testFlag
             
         end
         
-        %2. Crop
+        %2. Crop around the region of interest
         [minr, maxr, minc, maxc, mins, maxs] = getCropLimits(planC,mask3M,scanNumV(scanIdx),cropS);
         %- Crop scan 
         if ~isempty(scan3M) && numel(minr)==1
             scan3M = scan3M(minr:maxr,minc:maxc,mins:maxs);
+            limitsM = [minr, maxr, minc, maxc];
+        else
+            scan3M = scan3M(:,:,mins:maxs);
+            limitsM = [minr, maxr, minc, maxc];
         end
+        
         %- Crop mask
         if ~isempty(mask3M) && numel(minr)==1
             mask3M = mask3M(minr:maxr,minc:maxc,mins:maxs);
-        end
+        elseif ~isempty(mask3M)
+            mask3M = mask3M(:,:,mins:maxs);
+        end        
         
         %3. Resize
-        limitsM = [minr, maxr, minc, maxc, mins, maxs];
         [scan3M, mask3M] = resizeScanAndMask(scan3M,mask3M,outSizeV,resizeMethod,limitsM);
         
         scanC{scanIdx} = scan3M;
@@ -159,8 +165,8 @@ if ~isempty(exportStrC) || testFlag
     mask3M = maskC{1};
     
     %Get scan metadata
-    uniformScanInfoS = planC{indexS.scan}(scanNumV(scanIdx)).uniformScanInfo;
-    resM(scanIdx,:) = [uniformScanInfoS.grid2Units, uniformScanInfoS.grid1Units, uniformScanInfoS.sliceThickness];
+    %uniformScanInfoS = planC{indexS.scan}(scanNumV(scanIdx)).uniformScanInfo;
+    %resM(scanIdx,:) = [uniformScanInfoS.grid2Units, uniformScanInfoS.grid1Units, uniformScanInfoS.sliceThickness];
     
     
 end

@@ -34,7 +34,7 @@ for m = 1:length(methodC)
             outMask3M(cropDimV(1):cropDimV(2),cropDimV(3):cropDimV(4),cropDimV(5):cropDimV(6)) = true;
             maskC{m} = outMask3M;
             
-        case {'crop_to_bounding_box','crop_to_bounding_box_2D'}
+        case {'crop_to_bounding_box','crop_to_bounding_box_2d'}
             %Use to crop around one of the structures to be segmented
             %(bounding box computed for 3D mask)
             label = paramS.label;
@@ -45,7 +45,7 @@ for m = 1:length(methodC)
             maskC{m} = outMask3M;
 
             
-        case {'crop_to_str', 'crop_to_str_2D'}
+        case {'crop_to_str', 'crop_to_str_2d'}
             %Use to crop around different structure
             %mask3M = []
             strName = paramS.structureName;
@@ -84,7 +84,7 @@ for m = 1:length(methodC)
             maskC{m} = outMask3M;
             
             
-        case 'crop_pt_outline'
+        case {'crop_pt_outline', 'crop_pt_outline_2d'}
             % Use to crop the patient outline
             indexS = planC{end};
             scan3M = getScanArray(scanNum,planC);
