@@ -125,7 +125,9 @@ numSlcs = length(zValsV);
 if whichFeatS.resample.flag
     switch whichFeatS.resample.interpMethod
         case 'sinc'
-            method = 'lanczos3';
+            method = 'lanczos3'; % Lanczos-3 kernel
+        case 'cubic'
+            method = 'cubic'; % bicubic kernel
         otherwise
             error('Interpolatin method not supported');
     end
