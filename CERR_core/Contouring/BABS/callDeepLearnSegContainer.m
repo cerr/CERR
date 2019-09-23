@@ -26,10 +26,11 @@ else
     cd(sshConfigS.putty_path);
     [~, sessionName, sessionVer] = fileparts(fullSessionPath);
     sessionName = [sessionName,sessionVer];
+    sshCombinedSessionStr = strcat(sshConfigS.ssh_uname, '@',sshConfigS.ssh_server_name)
     command = sprintf('call %s %s %s %s %s %s %s %s %s',sshConfigS.bat_file_path, ...
-        sshConfigS.ssh_key, sshConfigS.ssh_server_name, sshConfigS.ssh_uname, ...
+        sshConfigS.ssh_key, sshCombinedSessionStr, ...
         fullSessionPath, sshConfigS.server_session_dir, sessionName, ...
-        containerPath, algorithm)      
+        containerPath, num2str(batchSize), algorithm)      
     status = system(command);
     cd(currentPath);
 end
