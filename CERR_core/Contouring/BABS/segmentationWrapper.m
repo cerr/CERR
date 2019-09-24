@@ -1,4 +1,4 @@
-function success = segmentationWrapper(inputDicomPath,cerrPath,segResultCERRPath,fullSessionPath, containerPath, algorithm)
+function success = segmentationWrapper(cerrPath,segResultCERRPath,fullSessionPath, containerPath, algorithm)
 % function success =heart(cerrPath,segResultCERRPath,fullSessionPath,deepLabContainerPath)
 %
 % This function serves as a wrapper for the all segmentation models
@@ -16,10 +16,6 @@ function success = segmentationWrapper(inputDicomPath,cerrPath,segResultCERRPath
 % RKP, 5/21/2019
 % RKP, 9/11/19 Updates for compatibility with training pipeline
 
-containerPath
-algorithm
-
-
 %build config file path from algorithm
 configFilePath = fullfile(getCERRPath,'ModelImplementationLibrary','SegmentationModels', 'ModelConfigurations', [algorithm, '_config.json']);
 testFlag = true;
@@ -31,6 +27,8 @@ mkdir(outputH5Path);
 inputH5Path = fullfile(fullSessionPath,'inputH5');
 mkdir(inputH5Path);
 
+% convert scan to H5 format
+userOptS = readDLConfigFile(configFilePath);
 
 %get the planC
 planCfiles = dir(fullfile(cerrPath,'*.mat'));
@@ -42,9 +40,6 @@ for p=1:length(planCfiles)
     planC = loadPlanC(fileNam, tempdir);
     planC = quality_assure_planC(fileNam,planC);
     
-    % convert scan to H5 format
-    userOptS = readDLConfigFile(configFilePath);
-   
     [scanC, mask3M] = extractAndPreprocessDataForDL(userOptS,planC,testFlag);
     %Note: mask3M is empty for testing
     filePrefixForHDF5 = 'cerrFile';

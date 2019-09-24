@@ -75,7 +75,7 @@ if iscell(algorithmC) || ~iscell(algorithmC) && ~strcmpi(algorithmC,'BABS')
         containerPath = varargin{1};      
         origCerrPath = cerrPath;
         for k=1:length(algorithmC)
-            success = segmentationWrapper(inputDicomPath,cerrPath,segResultCERRPath,fullSessionPath,containerPath,algorithmC{k});   
+            success = segmentationWrapper(cerrPath,segResultCERRPath,fullSessionPath,containerPath,algorithmC{k});   
             cerrPath = segResultCERRPath;
         end
     
