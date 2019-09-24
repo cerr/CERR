@@ -90,49 +90,23 @@ if iscell(algorithmC) || ~iscell(algiorithmC) && ~strcmpi(algorithmC,'BABS')
         % Get the config file path
         configFilePath = fullfile(getCERRPath,'ModelImplementationLibrary','SegmentationModels', 'ModelConfigurations', [algorithm, '_config.json']);
         
-        % Prepare data, write scans to HDF5 file
-        %[userOptS,errC] = prepareSegDataset(configFilePath, cerrPath, fullClientSessionPath);  %Updated
         userOptS = readDLConfigFile(configFilePath);
-        %[scanC, mask3M] = extractAndPreprocessDataForDL(userOptS,planC,testFlag);
+        [scanC, mask3M] = extractAndPreprocessDataForDL(userOptS,planC,testFlag);
         %Note: mask3M is empty for testing
-        %filePrefixForHDF5 = 'cerrFile';
-        %writeHDF5ForDL(scanC,mask3M,userOptS.passedScanDim,inputH5Path,filePrefixForHDF5,testFlag);
+        filePrefixForHDF5 = 'cerrFile';
+        writeHDF5ForDL(scanC,mask3M,userOptS.passedScanDim,inputH5Path,filePrefixForHDF5,testFlag);
         
         
         %%% =========== have a flag to tell whether the container runs on the client or a remote server
         % Call the container and execute model     
-        %success = callDeepLearnSegContainer(algorithmC{k}, containerPath, fullClientSessionPath, sshConfigS, userOptS.batchSize); % different workflow for client or session
+        success = callDeepLearnSegContainer(algorithmC{k}, containerPath, fullClientSessionPath, sshConfigS, userOptS.batchSize); % different workflow for client or session
         
         %%% =========== common for client and server
-        % Stack segmented masks returned from model
-        %---temp for testing:
-        %h5Dir = 'M:\Rutu\data\resultDir\out_gpu\'; %temp
-        %outC = stackHDF5Files(h5Dir,userOptS.passedScanDim);  
-        %-----
-        fullClientSessionPath = 'Y:\Rutu\data\SA3d\session2.16.840.1.114362.1.6.7.7.17914.10689841769.502358015.742.215184241.661744.6928'
         outC = stackHDF5Files(fullClientSessionPath,userOptS.passedScanDim); %Updated
         
         % Join results back to planC
         planC  = joinH5planC(outC{1},userOptS,planC); % only 1 file 
-        
-%         % Read segmentation from segResultCERRRPath to display in viewer
-%         segFileName = fullfile(segResultCERRPath,'cerrFile.mat');
-%         planD = loadPlanC(segFileName);
-%         indexSD = planD{end};
-%         scanIndV = 1;
-%         doseIndV = [];
-%         numSegStr = length(planD{indexSD.structures});
-%         numOrigStr = length(planC{indexS.structures});
-%         structIndV = 1:numSegStr;
-%         planC = planMerge(planC, planD, scanIndV, doseIndV, structIndV, '');
-%         numSegStr = numSegStr - numOrigStr;
-%         for iStr = 1:numSegStr
-%             planC = copyStrToScan(numOrigStr+iStr,1,planC);
-%         end
-%         planC = deleteScan(planC, 2);
-        
-        %save_planC(planC,[],'passed',cerrFileName);        
-        
+            
     end
     
 else %'BABS'
@@ -166,7 +140,7 @@ end
 
 
 % Remove session directory
-%rmdir(fullClientSessionPath, 's')
+rmdir(fullClientSessionPath, 's')
 
 % refresh the viewer
 if ~isempty(stateS) && ishandle(stateS.handle.CERRSliceViewer)
