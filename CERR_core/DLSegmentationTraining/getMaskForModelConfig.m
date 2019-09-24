@@ -53,10 +53,7 @@ for m = 1:length(methodC)
             strC = {planC{indexS.structures}.structureName};
             strIdx = getMatchingIndex(strName,strC,'EXACT');
             if ~isempty(strIdx)
-                outMask3M = false(size(getScanArray(scanNum,planC)));
-                rasterM = getRasterSegments(strIdx,planC);
-                [slMask3M,slicesV] = rasterToMask(rasterM,scanNum,planC);
-                outMask3M(:,:,slicesV) = slMask3M;
+                outMask3M = getStrMask(strIdx,planC);
             else
                 outMask3M = true(size(getScanArray(scanNum,planC)));
             end
@@ -86,29 +83,32 @@ for m = 1:length(methodC)
             
         case {'crop_pt_outline', 'crop_pt_outline_2d'}
             % Use to crop the patient outline
-            indexS = planC{end};
-            scan3M = getScanArray(scanNum,planC);
-            CToffset = planC{indexS.scan}(scanNum).scanInfo(1).CTOffset;
-            scan3M = double(scan3M);
-            scan3M = scan3M - CToffset;
-            outMask3M = getPatientOutline(scan3M);
-            maskC{m} = outMask3M;
             
-            %Save to planC if reqd
-            structureName = paramS.structureName;     
-            numStructs = length(planC{indexS.structures}); 
-            if paramS.saveStrToPlanCFlag
-                if numStructs > 0
-                    if ~isequal(planC{indexS.structures}.structureName, structureName)
-                        planC = maskToCERRStructure(outMask3M, 1, scanNum, structureName);
-                    end
+            structureName = paramS.structureName;
+            indexS = planC{end};            
+            outlineIndex = getMatchingIndex(structureName,{planC{indexS.structures}.structureName},'exact');
+            
+            if isempty(outlineIndex)
+                scan3M = getScanArray(scanNum,planC);
+                CToffset = planC{indexS.scan}(scanNum).scanInfo(1).CTOffset;
+                scan3M = double(scan3M);
+                scan3M = scan3M - CToffset;
+                outMask3M = getPatientOutline(scan3M);
+                maskC{m} = outMask3M;
+                
+                %Save to planC if reqd
+                
+                if paramS.saveStrToPlanCFlag
+                    planC = maskToCERRStructure(outMask3M, 0, scanNum, structureName,planC);
                 end
-                planC = maskToCERRStructure(outMask3M, 1, scanNum, structureName);
+                
+            else
+                maskC{m} = getStrMask(outlineIndex,planC);
             end
             
         case 'crop_shoulders'
-            % Use to crop above shoulders  
-            % Use pt_outline structure generated in "crop_pt_outline" case           
+            % Use to crop above shoulders
+            % Use pt_outline structure generated in "crop_pt_outline" case
             indexS = planC{end};
             scan3M = getScanArray(scanNum,planC);
             
