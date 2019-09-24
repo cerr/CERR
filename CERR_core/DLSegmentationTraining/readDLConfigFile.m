@@ -20,7 +20,6 @@ end
 defaultS = struct();
 defaultS.exportedFilePrefix = 'inputFileName';
 defaultS.crop.method = 'none';
-defaultS.imageSizeForModel = [];
 defaultS.resize.size = [];
 defaultS.resize.method = 'none';
 defaultS.resample.method = 'none';
