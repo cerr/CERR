@@ -17,7 +17,7 @@ function success = callDeepLearnSegContainer(algorithm, containerPath, fullSessi
 if ~exist('sshConfigS','var') || (exist('sshConfigS','var') && isempty(sshConfigS))
     bindingDir = ':/scratch';
     bindPath = strcat(fullSessionPath,bindingDir);
-    command = sprintf('singularity run --app %s --nv --bind  %s %s %s', algorithm, bindPath, containerPath, batchSize)
+    command = sprintf('singularity run --app %s --nv --bind  %s %s %s', algorithm, bindPath, containerPath, num2str(batchSize))
     status = system(command)
 
 else
@@ -25,13 +25,15 @@ else
     currentPath = pwd;
     cd(sshConfigS.putty_path);
     [~, sessionName, sessionVer] = fileparts(fullSessionPath);
-    sessionName = [sessionName,sessionVer];
     sshCombinedSessionStr = strcat(sshConfigS.ssh_uname, '@',sshConfigS.ssh_server_name)
+    sessionName = [sessionName,sessionVer];
     command = sprintf('call %s %s %s %s %s %s %s %s %s',sshConfigS.bat_file_path, ...
         sshConfigS.ssh_key, sshCombinedSessionStr, ...
         fullSessionPath, sshConfigS.server_session_dir, sessionName, ...
         containerPath, num2str(batchSize), algorithm)      
     status = system(command);
+    
+    
     cd(currentPath);
 end
 success = 1;
