@@ -25,9 +25,6 @@ end
 % Get GUI fig handle
 hFig = findobj('Tag','DLSegFig');
 
-if ~isempty(hFig)
-    ud = get(hFig,'userdata');
-end
 
 % Define GUI size, margins, position, color & title
 leftMarginWidth = 300;
@@ -87,6 +84,7 @@ switch upper(command)
             'FontWeight','Bold','HorizontalAlignment','center',...
             'backgroundColor',defaultColor);
         
+        ud = get(hFig,'userdata');
         ud.handle.title = titleH;
         set(hFig,'userdata',ud);
         deepLearnSegGui('refresh',hFig);
@@ -225,6 +223,7 @@ switch upper(command)
         set(cursorMode, 'Enable','Off');
         
         %% Store handles
+        ud = get(hFig,'userdata');
         ud.inputHandleS = inputHandleS;
         ud.jsonHandleS.saveConfig = jsonSaveConfigH;
         ud.modelConfigDir = configDir;
@@ -236,6 +235,7 @@ switch upper(command)
         closereq
         
     case 'MODEL_SELECTED'
+        ud = get(hFig,'userdata');
         ud.modelIndex = get(ud.inputHandleS.modelPopup,'value');
         modelC = get(ud.inputHandleS.modelPopup,'string');
         ud.modelConfigFile = fullfile(ud.modelConfigDir,modelC{ud.modelIndex});
@@ -246,18 +246,21 @@ switch upper(command)
         set(hFig,'userdata',ud);
         
     case 'CONTAINER_SELECTED'
+        ud = get(hFig,'userdata');
         [containerFile,containerPath] = uigetfile('*.sif');
         ud.containerPath = fullfile(containerPath,containerFile);
         set(ud.inputHandleS.containerPush,'string',containerFile);
         set(hFig,'userdata',ud);
         
     case 'SESSION_SELECTED'
+        ud = get(hFig,'userdata');
         ud.sessionDir = uigetdir();
         [~,sessDir] = fileparts(ud.sessionDir);
         set(ud.inputHandleS.sessionPush,'string',sessDir);
         set(hFig,'userdata',ud);
         
     case 'BATCH_SIZE_CHANGED'
+        ud = get(hFig,'userdata');
         batchSize = str2double(get(ud.inputHandleS.batchSizeEdit,'string'));
         if ~isempty(batchSize)
             if floor(batchSize)==batchSize
@@ -267,6 +270,7 @@ switch upper(command)
         end
         
     case 'SHOW_JSON'
+        ud = get(hFig,'userdata');
         cropS = ud.modelConfigS.crop;
         
         jsonTitle = uicontrol(hFig','units','pixels',...
@@ -326,6 +330,7 @@ switch upper(command)
         set(hFig,'userdata',ud);
         
     case 'EDIT_JSON'
+        ud = get(hFig,'userdata');
         hObj = gcbo;
         cropUdS = get(hObj,'userdata');
         ind = cropUdS.index;
@@ -334,6 +339,7 @@ switch upper(command)
         set(hFig,'userdata',ud);
         
     case 'SAVE_JSON'
+        ud = get(hFig,'userdata');
         saveOption = varargin{1};
         switch upper(saveOption)
             case 'BATCH SIZE'
@@ -347,6 +353,7 @@ switch upper(command)
         %uncomment for production
         
     case 'RUN_SEGMENTATION'
+        ud = get(hFig,'userdata');
         clientSessionPath = ud.sessionDir;
         [~,fname] = fileparts(ud.modelConfigFile);
         algorithm = fname(1:end-7); % remove trailing _config
