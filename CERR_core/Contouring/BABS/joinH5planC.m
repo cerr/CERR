@@ -20,7 +20,7 @@ maskOut3M = zeros(sizV, 'uint32');
 
 switch resizeMethod
     
-    case 'pad2d'
+    case 'pad2D'
         limitsM = [minr, maxr, minc, maxc];
         resizeMethod = 'unpad2d';
         originImageSizV = [sizV(1:2), maxs-mins+1];
