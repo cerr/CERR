@@ -359,7 +359,8 @@ switch upper(command)
         algorithm = fname(1:end-7); % remove trailing _config
         sshConfigFile = [];
         containerPath = ud.containerPath;
-        planC = runSegForPlanC(planC,clientSessionPath,algorithm,sshConfigFile,containerPath);
+        batchSize = str2double(get(ud.inputHandleS.batchSizeEdit,'string'));
+        planC = runSegForPlanC(planC,clientSessionPath,algorithm,sshConfigFile,containerPath,batchSize);
         
 end
 

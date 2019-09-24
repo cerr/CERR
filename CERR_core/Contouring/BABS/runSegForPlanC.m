@@ -85,12 +85,20 @@ end
 if iscell(algorithmC) || ~iscell(algiorithmC) && ~strcmpi(algorithmC,'BABS')
     
     containerPath = varargin{1};
+    
     for k=1:length(algorithmC)
         
         % Get the config file path
         configFilePath = fullfile(getCERRPath,'ModelImplementationLibrary','SegmentationModels', 'ModelConfigurations', [algorithm, '_config.json']);
         
         userOptS = readDLConfigFile(configFilePath);
+        if nargin==6 && ~isnan(varargin{2})
+            batchSize = varargin{2};
+        else
+            batchSize = userOptS.batchSize;
+        end
+        
+        
         [scanC, mask3M] = extractAndPreprocessDataForDL(userOptS,planC,testFlag);
         %Note: mask3M is empty for testing
         filePrefixForHDF5 = 'cerrFile';
