@@ -64,6 +64,7 @@ elseif nargin == 1 & strcmpi(varargin{1},'Selective');
     try, delete(stateS.handle.graphicalComparisonFig);,end;
     try, delete(stateS.handle.aboutCERRFig);,end;
     try, delete(stateS.handle.structureFusionFig);,end;
-    try, delete(stateS.handle.navigationMontage);,end;    
+    try, delete(stateS.handle.navigationMontage);,end;   
+    try, delete(stateS.handle.deepLearnSegFig);,end;
 end
     
