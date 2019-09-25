@@ -1,5 +1,7 @@
-function success = runSegClinic(inputDicomPath,outputDicomPath,sessionPath,algorithm,varargin)
-% function success = runSegClinic(inputDicomPath,outputDicomPath,sessionPath,algorithm,varargin)
+function success = runSegClinic(inputDicomPath,outputDicomPath,...
+    sessionPath,algorithm,savePlanc,varargin)
+% function success = runSegClinic(inputDicomPath,outputDicomPath,...
+%   sessionPath,algorithm,varargin)
 %
 % This function serves as a wrapper for different types of segmentations.
 %
@@ -23,6 +25,7 @@ function success = runSegClinic(inputDicomPath,outputDicomPath,sessionPath,algor
 % sessionPath = '';
 % algorithm = 'BABS';
 % babsPath = '';
+% savePlanc = 'Yes'; or 'No'
 % success = runSegClinic(inputDicomPath,outputDicomPath,sessionPath,algorithm,babsPath);
 %
 %
@@ -87,7 +90,12 @@ else
 end
 
 % Export the RTSTRUCT file
-exportCERRtoDICOM(origCerrPath,segResultCERRPath,outputCERRPath,outputDicomPath,algorithm)
+savePlancFlag = 0;
+if strcmpi(savePlanc,'yes')
+    savePlancFlag = 1;
+end
+exportCERRtoDICOM(origCerrPath,segResultCERRPath,outputCERRPath,...
+    outputDicomPath,algorithm,savePlancFlag)
 
 % Remove session directory
 rmdir(fullSessionPath, 's')

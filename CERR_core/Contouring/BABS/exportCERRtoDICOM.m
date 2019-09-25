@@ -1,5 +1,5 @@
-function exportCERRtoDICOM(cerrPath,segResultCERRRPath,outputCERRPath,outputDicomPath,algorithm)
-% function exportCERRtoDICOM(cerrPath,segResultCERRRPath,outputCERRPath,outputDicomPath,algorithm)
+function exportCERRtoDICOM(cerrPath,segResultCERRRPath,outputCERRPath,outputDicomPath,algorithm,savePlancFlag)
+% function exportCERRtoDICOM(cerrPath,segResultCERRRPath,outputCERRPath,outputDicomPath,algorithm,savePlancFlag)
 %
 % This function exports structures from CERR format to DICMO RTSTRUCT.
 %
@@ -59,9 +59,12 @@ for indBase = 1:length(dirS)
 %         planC = deleteStructure(planC, structNum);
 %     end
     planC = deleteStructure(planC, numOrigStr:-1:1);
-    mergedFileName = fullfile(outputCERRPath,dirS(indBase).name);
-    planC = save_planC(planC,[],'passed',mergedFileName);
-
+    
+    if savePlancFlag
+        mergedFileName = fullfile(outputCERRPath,dirS(indBase).name);
+        planC = save_planC(planC,[],'passed',mergedFileName);
+    end
+    
     % Export DICOM to outputDicomPath
     %export_planC_to_DICOM(planC,outputDicomPath);
     planC = generate_DICOM_UID_Relationships(planC);
