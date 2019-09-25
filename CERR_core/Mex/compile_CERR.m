@@ -20,7 +20,8 @@ current_path = cd;
 compileAbsPath = compiled_path;
 mkdir(compileAbsPath)
 strToAppend = appendMfile(CERR_path);
-copyAdditionalFiles(CERR_path,compiled_path);
+% copyAdditionalFiles(CERR_path,compiled_path); % APA 9/25/2019
+copyDependenciesForCERRCompile(compiled_path)
 strToEval = ['mcc -m CERR.m ',strToAppend];
 cd(compileAbsPath)
 cd(compiled_path)
