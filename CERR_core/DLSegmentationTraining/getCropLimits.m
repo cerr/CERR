@@ -22,12 +22,13 @@ modelMask3M = getMaskForModelConfig(planC,mask3M,scanNum,cropS);
 methodC = {cropS.method};
 crop2DMethodsC = {'crop_to_bounding_box_2D','crop_to_str_2D','crop_pt_outline_2D'};%Suported 2D crop options
 if length(methodC) == 1 && strcmp(methodC{1},'none')
+    scanSizeV = size(getScanArray(scanNum,planC));
     minr = 1;
-    maxr = size(modelMask3M,1);
+    maxr = scanSizeV(1);
     minc = 1;
-    maxc = size(modelMask3M,2);
+    maxc = scanSizeV(2);
     mins = 1;
-    maxs = size(modelMask3M,3);
+    maxs = scanSizeV(3);
     
 elseif any(ismember(methodC,crop2DMethodsC))
     

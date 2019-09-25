@@ -132,9 +132,13 @@ for m = 1:length(methodC)
                 outMask3M = true(size(getScanArray(scanNum,planC)));
             end
             maskC{m} = outMask3M;
-
+            
         case 'none'
             %Skip
+            
+            maskC{m} = [];
+            
+            
             
     end
     
