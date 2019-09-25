@@ -37,10 +37,11 @@ for indBase = 1:length(dirS)
     indexS = planC{end};
     indexSD = planD{end};
     
-    % Save planC to outputDicomPath (TO DO: a separate directory?)
-    planD = save_planC(planD,[],'passed',...
-        fullfile(outputDicomPath,[fname,'.mat']));
-    
+    if savePlancFlag
+        % Save planC to outputDicomPath (TO DO: a separate directory?)
+        planD = save_planC(planD,[],'passed',...
+            fullfile(outputDicomPath,[fname,'.mat']));
+    end
     
     scanIndV = 1;
     doseIndV = [];
@@ -60,10 +61,9 @@ for indBase = 1:length(dirS)
 %     end
     planC = deleteStructure(planC, numOrigStr:-1:1);
     
-    if savePlancFlag
-        mergedFileName = fullfile(outputCERRPath,dirS(indBase).name);
-        planC = save_planC(planC,[],'passed',mergedFileName);
-    end
+    
+    %mergedFileName = fullfile(outputCERRPath,dirS(indBase).name);
+    %planC = save_planC(planC,[],'passed',mergedFileName);
     
     % Export DICOM to outputDicomPath
     %export_planC_to_DICOM(planC,outputDicomPath);
