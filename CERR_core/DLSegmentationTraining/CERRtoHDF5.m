@@ -48,12 +48,21 @@ else
     labelKeyS = [];
 end
 
+%Open parallel pool
+p = gcp('nocreate');
+if isempty(p)
+    p = parpool();
+    closePool = 1;
+else
+    closePool = 0;
+end
+
 %Loop over CERR files
 dirS = dir(fullfile(CERRdir,filesep,'*.mat'));
 errC = {};
-resC = cell(1,length(dirS));
 originImageSizC = cell(1,length(dirS));
-for planNum = 1:length(dirS)
+
+parfor planNum = 1:length(dirS)
     
     try
         
@@ -75,33 +84,34 @@ for planNum = 1:length(dirS)
                 testFlag = false;
             end
         end
-        [scanC, mask3M, resM, originImageSizV] = extractAndPreprocessDataForDL(userOptS,planC,testFlag);
+        [scanC, mask3M, originImageSizV] = extractAndPreprocessDataForDL(userOptS,planC,testFlag);
         
         %Export to HDF5
+        
         %- Get output directory
         if ismember(planNum,trainIdxV)
             outDir = fullfile(HDF5dir,'Train');
         elseif ismember(planNum,valIdxV)
             outDir = fullfile(HDF5dir,'Val');
         else
-            if dataSplitV(3)==100
-                %Testing only
+            if dataSplitV(3)==100 %Testing only
                 outDir = HDF5dir;
             else
                 outDir = fullfile(HDF5dir,'Test');
             end
         end
+        
         %- Get output file prefix
         switch(prefixType)
             case 'inputFileName'
                 identifier = ptName;
                 % Other options to be added
         end
+        
         %- Write to HDF5
         writeHDF5ForDL(scanC,mask3M,passedScanDim,outDir,identifier,testFlag)
         
         %Record metadata 
-        resC{planNum} = resM;
         originImageSizC{planNum} = originImageSizV;
         
     catch e
@@ -115,7 +125,6 @@ end
 if ~isempty(labelKeyS)
     save([HDF5dir,filesep,'labelKeyS'],'labelKeyS','-v7.3');
 end
-save([HDF5dir,filesep,'resolutionC'],'resC','-v7.3');
 
 %Return error messages if any
 idxC = cellfun(@isempty, errC, 'un', 0);
@@ -124,6 +133,9 @@ errC = errC(idxV);
 
 fprintf('\nComplete.\n');
 
-
+%Close parallel pool
+if closePool
+    delete(p); 
 end
 
+end
