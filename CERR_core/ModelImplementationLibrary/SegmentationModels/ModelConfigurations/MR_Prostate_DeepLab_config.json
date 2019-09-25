@@ -16,7 +16,8 @@
 {"structureName": "Bowel_Lg_DLV3",
   "value": 7}
 ],
-"intensityOffset" : 1024,
+
 "passedScanDim" : "3D",
+
 "reference" : ""
 }
