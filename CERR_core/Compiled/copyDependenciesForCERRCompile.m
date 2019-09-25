@@ -66,9 +66,12 @@ destin = fullfile(compiled_path,'doc');
 mkdir(fullfile(destin,'html'));
 copyfile(fullfile(topLevelCERRDir,'CERR_core','CommandLine','CERRCommandLinehelp.html'),fullfile(destin,'html'));
 
-%  Fill-in the ModelConfiguration directory
-destin_modelConfig = fullfile(compiled_path,'ModelImplementationLibrary','SegmentationModels', 'ModelConfigurationFiles');
-mkdir destin_modelConfig;
-copyfile(fullfile(topLevelCERRDir,'CERR_core','ModelImplementationLibrary','SegmentationModels', 'ModelConfigurationFiles'),destin_modelConfig);
+%  Copy JSON configuration files for Segmentation and Dosimetric models
+destin_modelConfig = fullfile(compiled_path,'ModelImplementationLibrary','SegmentationModels', 'ModelConfigurations');
+mkdir(destin_modelConfig)
+copyfile(fullfile(topLevelCERRDir,'CERR_core','ModelImplementationLibrary','SegmentationModels', 'ModelConfigurations'),destin_modelConfig);
+destin_modelConfig = fullfile(compiled_path,'ModelImplementationLibrary','DosimetricModels', 'Models');
+mkdir(destin_modelConfig)
+copyfile(fullfile(topLevelCERRDir,'CERR_core','ModelImplementationLibrary','DosimetricModels', 'Models'),destin_modelConfig);
 
 return;
