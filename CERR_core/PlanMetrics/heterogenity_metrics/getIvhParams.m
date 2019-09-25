@@ -80,7 +80,7 @@ ivhFeaturesS.I50 = calc_Dx(scanBinsV, volsHistV,50);
 % ivhFeaturesS.slopeAtD50 = calc_Slope(scanBinsV, volsHistV, ivhFeaturesS.I50, 0);
 
 ivhFeaturesS.rangeHist = ivhFeaturesS.maxHist - ivhFeaturesS.minHist;
-absFlag = 1;
+normalizeVxByVolumeFlag = 1; % pass as input arg?
 
 for i = 1:length(xForIxV)
     xString = num2str(xForIxV(i));
@@ -88,15 +88,18 @@ for i = 1:length(xForIxV)
     ivhFeaturesS.(['MOHx',xString]) = calc_MOHx(scanBinsV, volsHistV, xForIxV(i));
     ivhFeaturesS.(['MOCx',xString]) = calc_MOCx(scanBinsV, volsHistV, xForIxV(i));
 end
+absFlag = 1;
 for i = 1:length(xAbsForIxV)
     ivhFeaturesS.(['IabsX',strrep(num2str(xAbsForIxV(i)),'-','Minus')]) = calc_Dx(scanBinsV, volsHistV, xAbsForIxV(i), absFlag);
 end
 for i = 1:length(xForVxV)
-    absImgVal = xForVxV(i)*ivhFeaturesS.rangeHist/100 + ivhFeaturesS.minHist;
-    ivhFeaturesS.(['Vx',num2str(xForVxV(i))]) = calc_Vx(scanBinsV, volsHistV, absImgVal);
+    absImgVal = xForVxV(i)*ivhFeaturesS.rangeHist/100 + ivhFeaturesS.minHist;    
+    ivhFeaturesS.(['Vx',num2str(xForVxV(i))]) = calc_Vx(scanBinsV, ...
+        volsHistV, absImgVal, normalizeVxByVolumeFlag);
 end
 for i = 1:length(xAbsForVxV)
-    ivhFeaturesS.(['VabsX',num2str(xAbsForVxV(i))]) = calc_Vx(scanBinsV, volsHistV, xAbsForVxV(i));
+    ivhFeaturesS.(['VabsX',num2str(xAbsForVxV(i))]) = calc_Vx(scanBinsV, ...
+        volsHistV, xAbsForVxV(i), normalizeVxByVolumeFlag);
 end
 
 return
