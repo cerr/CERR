@@ -476,6 +476,9 @@ switch upper(instr)
         % Initialize beam line handles
         stateS.handle.beamLine = [];
         
+        % Initialize handle for deep-learning segmentation GUI
+        stateS.handle.deepLearnSegFig = [];
+        
         % Initialize list of structures available on current views
         stateS.structsOnViews = [];                
         
