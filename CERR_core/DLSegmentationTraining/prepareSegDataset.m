@@ -6,17 +6,18 @@ function [userOptS,errC] = prepareSegDataset(paramFilename,inputDir,outputDir)
 %
 % AI 3/15/19
 %---------------------------------------------------------------------------
-% INPUT:
+% INPUTS
+%
 % paramFilename : Path to JSON file with parameters.
 % inputDir      : Path to input data (DICOM or CERR format)
 % outputDir     : Path for writing intermediate files(CERR, HDF5)
+%
 % --- JSON fields ---:
 % inputFileType    : May be 'DICOM' or 'CERR'
 % structList       : Names of structures to be segmented
 % dataSplit        : %Train/%Val/%Test split passed as vector [%train %val]
 %                    (%test = 100-%train-%val).
 %                    NOTE- Assumes 100% testing if unspecified.
-% imageSizeForModel: Dimensions of output image required by model
 % resample         : Dictionary of resampling parameters-- resolutionXCm,
 %                    resolutionYcm, resolutionZCm and method.
 %                    Supported methods include 'sinc', 'none'.
@@ -31,7 +32,7 @@ function [userOptS,errC] = prepareSegDataset(paramFilename,inputDir,outputDir)
 % channels         : Dictionary with fields 'number', 'imageType' and 'append'.
 %                    Supported image types: 'original', 'coronal', 'sagittal'.
 %                    Supported methods of appending: 'repeat','2.5D','multiscan'.
-% batchsize        : Value of batch size to pass to the Deep Learning Model 
+% batchSize        : Value of batch size to pass to the Deep Learning Model 
 %
 % Example: See sample_train_params.json
 %---------------------------------------------------------------------------
