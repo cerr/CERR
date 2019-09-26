@@ -38,9 +38,11 @@ for m = 1:length(methodC)
             %Use to crop around one of the structures to be segmented
             %(bounding box computed for 3D mask)
             label = paramS.label;
-            outMask3M = true(size(getScanArray(scanNum,planC)));
+            outMask3M = false(size(getScanArray(scanNum,planC)));
             if ~isempty(origMask3M)
                 outMask3M = origMask3M == label;
+            else
+               warning(['Missing label = ', num2str(label)]); 
             end
             maskC{m} = outMask3M;
 
@@ -55,7 +57,6 @@ for m = 1:length(methodC)
             if ~isempty(strIdx)
                 outMask3M = getStrMask(strIdx,planC);
             else
-                warning(['Missing structure ',strName]);
                 outMask3M = false(size(getScanArray(scanNum,planC)));
             end
             maskC{m} = outMask3M;
@@ -132,7 +133,8 @@ for m = 1:length(methodC)
                 outMask3M = false(size(mask3M));
                 outMask3M(:,:,mins:maxs) = true;
             else
-                outMask3M = true(size(getScanArray(scanNum,planC)));
+                warning('Input ''mask3M'' is empty.'); 
+                outMask3M = false(size(getScanArray(scanNum,planC)));
             end
             maskC{m} = outMask3M;
             
