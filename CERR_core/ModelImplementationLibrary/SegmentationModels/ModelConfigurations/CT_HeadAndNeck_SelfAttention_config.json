@@ -33,7 +33,7 @@
 "crop": [
     {
       "method": "crop_pt_outline_2D",
-      "params": { "structureName": "generated_pt_outline", "saveStrToPlanCFlag": "true"},
+      "params": { "structureName": "generated_pt_outline", "saveStrToPlanCFlag": "true", "outlineThreshold": -400},
       "operator": ""
     },
 
