@@ -38,9 +38,11 @@ for m = 1:length(methodC)
             %Use to crop around one of the structures to be segmented
             %(bounding box computed for 3D mask)
             label = paramS.label;
-            outMask3M = true(size(getScanArray(scanNum,planC)));
+            outMask3M = false(size(getScanArray(scanNum,planC)));
             if ~isempty(origMask3M)
                 outMask3M = origMask3M == label;
+            else
+               warning(['Missing label = ', num2str(label)]); 
             end
             maskC{m} = outMask3M;
 
@@ -55,7 +57,6 @@ for m = 1:length(methodC)
             if ~isempty(strIdx)
                 outMask3M = getStrMask(strIdx,planC);
             else
-                warning(['Missing structure ',strName]);
                 outMask3M = false(size(getScanArray(scanNum,planC)));
             end
             maskC{m} = outMask3M;
@@ -113,14 +114,9 @@ for m = 1:length(methodC)
             % Use to crop above shoulders
             % Use pt_outline structure generated in "crop_pt_outline" case
             indexS = planC{end};
-            scan3M = getScanArray(scanNum,planC);
-            
-            pt_outline_mask3M = zeros(size(scan3M),'logical');
             strName = paramS.structureName;
             strNum = getStructNum(strName,planC,indexS);
-            rasterM = getRasterSegments(strNum,planC);
-            [maskSlices3M , uniqueSlices] = rasterToMask(rasterM,scanNum,planC);      
-            pt_outline_mask3M(:,:,uniqueSlices) = maskSlices3M;
+            pt_outline_mask3M = getStrMask(strNum,planC);
             
             % generate mask after cropping shoulder slices       
             outMask3M = cropShoulder(pt_outline_mask3M,planC);
@@ -132,7 +128,8 @@ for m = 1:length(methodC)
                 outMask3M = false(size(mask3M));
                 outMask3M(:,:,mins:maxs) = true;
             else
-                outMask3M = true(size(getScanArray(scanNum,planC)));
+                warning('Input ''mask3M'' is empty.'); 
+                outMask3M = false(size(getScanArray(scanNum,planC)));
             end
             maskC{m} = outMask3M;
             
