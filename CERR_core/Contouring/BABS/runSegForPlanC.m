@@ -71,8 +71,8 @@ mkdir(inputH5Path);
 testFlag = true;
 
 % Write planC to CERR .mat file
-cerrFileName = fullfile(cerrPath,'cerrFile.mat');
-save_planC(planC,[],'passed',cerrFileName);
+%cerrFileName = fullfile(cerrPath,'cerrFile.mat');
+%save_planC(planC,[],'passed',cerrFileName);
 
 % algorithm
 algorithmC = {};
