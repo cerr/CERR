@@ -1,4 +1,4 @@
-function ptMask3M = getPatientOutline(scan3M,slicesV)
+function ptMask3M = getPatientOutline(scan3M,slicesV,outThreshold)
 % Returns mask of patient's outline
 %
 % Usage:
@@ -18,31 +18,55 @@ end
 
 
 %Compute threshold
-ptMask3M = false(size(scan3M));
-scanThresh3M = scan3M(scan3M>0);
-threshold = prctile(scanThresh3M(:),5);
+scanThreshV = scan3M(scan3M>outThreshold);
+threshold = prctile(scanThreshV,5);
+sizV = size(scan3M);
+imageCenterRow = sizV(1)/2;
 
+minDistV = nan([numel(slicesV),1]);
 for n = 1:numel(slicesV)
     
     y = scan3M(:,:,slicesV(n))>threshold;
     y = imdilate(y,strel('disk',4,8));
     y = imfill(y,'holes');
+    
+    
     cc = bwconncomp(y);
     ccSiz = cellfun(@numel,[cc.PixelIdxList]);
-    sel = ccSiz==max(ccSiz);
+    %sel = ccSiz==max(ccSiz);
     
-    %------------ Added for registered data---%
-    if isempty(sel) | max(ccSiz)<10000
-        maskM = false(size(y));
-    else
-    %-------------- End added------------------%
-        idx = cc.PixelIdxList{sel};
-        maskM = false(size(y));
-        maskM(idx) = true;
+    % Select the component closest to image center
+    selV = find(ccSiz > 1500);
+    %maskM = false(size(y));
+    if ~isempty(selV)
+        
+        
+        rowMedianV = [];
+        for iSel = 1:length(selV)
+            [rV,~] = ind2sub(size(y),cc.PixelIdxList{selV(iSel)});
+            rowMedianV(iSel) = median(rV);
+        end
+        distV = (rowMedianV - imageCenterRow).^2;
+        [minDistV(n),indMin] = min(distV);
+        sel = selV(indMin);
+        
+        idxC{n} = cc.PixelIdxList{sel};
     end
     
-    ptMask3M(:,:,slicesV(n)) = maskM;
-    
+end
+
+% Compute deviance of row centroid across all the slices
+globalMeanDist = nanmean(minDistV); 
+distDev = nanstd(minDistV,1);
+
+ptMask3M = false(size(scan3M));
+% Filter slices if they deviate too much from the centroid
+for n = 1:numel(slicesV)
+    maskM = false(size(y));
+    if minDistV(n) > globalMeanDist-distDev  &&  minDistV(n) < globalMeanDist+distDev    
+        maskM(idxC{n}) = true;
+    end
+    ptMask3M(:,:,slicesV(n)) = maskM;    
 end
 
 end
