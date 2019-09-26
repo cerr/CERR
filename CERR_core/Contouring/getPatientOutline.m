@@ -66,8 +66,9 @@ end
 
 %- Compute mean & std deviation of distances of row centroids from image 
 %center for all slices
-globalMeanDist = nanmean(minDistV); 
+globalMedianDist = nanmedian(minDistV); 
 distDev = nanstd(minDistV,1);
+%distDev = 50;
 
 %- Filter slices if they deviate too much from image center
 ptMask3M = false(size(scan3M));
@@ -76,7 +77,7 @@ for n = 1:numel(slicesV)
     maskM = false(size(y));
 
     %Check if deviation is within one std dev from global mean 
-    if minDistV(n) > globalMeanDist-distDev  ||  minDistV(n) < globalMeanDist+distDev    
+    if abs(minDistV(n)-globalMedianDist) < distDev  
         maskM(idxC{n}) = true;
     %If largest CC is far from centroid, use mask from previous slice
     elseif n >1
