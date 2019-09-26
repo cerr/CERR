@@ -85,6 +85,7 @@ for m = 1:length(methodC)
             % Use to crop the patient outline
             
             structureName = paramS.structureName;
+            outThreshold = paramS.outlineThreshold;            
             indexS = planC{end};            
             outlineIndex = getMatchingIndex(structureName,{planC{indexS.structures}.structureName},'exact');
             
@@ -93,7 +94,8 @@ for m = 1:length(methodC)
                 CToffset = planC{indexS.scan}(scanNum).scanInfo(1).CTOffset;
                 scan3M = double(scan3M);
                 scan3M = scan3M - CToffset;
-                outMask3M = getPatientOutline(scan3M);
+                sliceV = 1:size(scan3M,3);
+                outMask3M = getPatientOutline(scan3M,sliceV,outThreshold);
                 maskC{m} = outMask3M;
                 
                 %Save to planC if reqd
