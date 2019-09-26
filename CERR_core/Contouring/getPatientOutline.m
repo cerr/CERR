@@ -24,6 +24,7 @@ sizV = size(scan3M);
 imageCenterRow = sizV(1)/2;
 
 minDistV = nan([numel(slicesV),1]);
+idxC = cell(1,numel(slicesV));
 for n = 1:numel(slicesV)
     
     y = scan3M(:,:,slicesV(n))>threshold;
@@ -40,8 +41,7 @@ for n = 1:numel(slicesV)
     %maskM = false(size(y));
     if ~isempty(selV)
         
-        
-        rowMedianV = [];
+        rowMedianV = nan(1,length(selV));
         for iSel = 1:length(selV)
             [rV,~] = ind2sub(size(y),cc.PixelIdxList{selV(iSel)});
             rowMedianV(iSel) = median(rV);
@@ -63,7 +63,7 @@ ptMask3M = false(size(scan3M));
 % Filter slices if they deviate too much from the centroid
 for n = 1:numel(slicesV)
     maskM = false(size(y));
-    if minDistV(n) > globalMeanDist-distDev  &&  minDistV(n) < globalMeanDist+distDev    
+    if minDistV(n) > globalMeanDist-distDev  ||  minDistV(n) < globalMeanDist+distDev    
         maskM(idxC{n}) = true;
     end
     ptMask3M(:,:,slicesV(n)) = maskM;    
