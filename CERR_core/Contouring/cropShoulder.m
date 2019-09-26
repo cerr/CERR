@@ -1,14 +1,19 @@
-function outMask3M = cropShoulder(outerStrMask3M,planC)
-% Return mask with shoulders cropped
+function maskZeroShoulders3M = cropShoulder(outerStrMask3M,planC)
+% function maskZeroShoulders3M = cropShoulder(outerStrMask3M,planC)
+%
+% This function zeroes out the input mask inferior to patient shoulders.
 %
 % RKP 9/9/19
 %
 %------------------------------------------------------------------------
 % INPUT
-% outerStrMask3M   : Mask of pt outline. Set to [] to use structure name
-%                    instead.
+% outerStrMask3M : 3D mask of the patient outline.
+%
+% OUTPUT
+% maskZeroShoulders3M      : 3D mask where slices inferior to shoulders are zeroed out.
 %------------------------------------------------------------------------
+
 sliceNum = getShoulderStartSlice(outerStrMask3M,planC);
-outMask3M = outerStrMask3M;
-outMask3M(:,:,sliceNum-3:end) = 0;
-end
+maskZeroShoulders3M = outerStrMask3M;
+maskZeroShoulders3M(:,:,sliceNum-3:end) = 0;
+
