@@ -74,8 +74,8 @@ switch (passedScanDim)
             
             scanFilename = fullfile(outDir,[filePrefix,'_scan_slice_',...
                 num2str(slIdx),'.h5']);
-            h5create(scanFilename,'/scan1',size(exportScan3M));
-            h5write(scanFilename,'/scan1',exportScan3M);
+            h5create(scanFilename,'/scan',size(exportScan3M));
+            h5write(scanFilename,'/scan',exportScan3M);
             
         end
         
