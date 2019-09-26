@@ -114,14 +114,9 @@ for m = 1:length(methodC)
             % Use to crop above shoulders
             % Use pt_outline structure generated in "crop_pt_outline" case
             indexS = planC{end};
-            scan3M = getScanArray(scanNum,planC);
-            
-            pt_outline_mask3M = zeros(size(scan3M),'logical');
             strName = paramS.structureName;
             strNum = getStructNum(strName,planC,indexS);
-            rasterM = getRasterSegments(strNum,planC);
-            [maskSlices3M , uniqueSlices] = rasterToMask(rasterM,scanNum,planC);      
-            pt_outline_mask3M(:,:,uniqueSlices) = maskSlices3M;
+            pt_outline_mask3M = getStrMask(strNum,planC);
             
             % generate mask after cropping shoulder slices       
             outMask3M = cropShoulder(pt_outline_mask3M,planC);
