@@ -10,5 +10,5 @@ function outMask3M = cropShoulder(outerStrMask3M,planC)
 %------------------------------------------------------------------------
 sliceNum = getShoulderStartSlice(outerStrMask3M,planC);
 outMask3M = outerStrMask3M;
-outMask3M(:,:,sliceNum-15:end) = 0;
+outMask3M(:,:,sliceNum-3:end) = 0;
 end
