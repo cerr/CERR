@@ -64,45 +64,54 @@ end
 %If distance of row centroid of largest CC from image center is too large, 
 %it is excluded
 
-%- Compute deviance of row centroid across all the slices
+%- Compute mean & std deviation of distances of row centroids from image 
+%center for all slices
 globalMeanDist = nanmean(minDistV); 
 distDev = nanstd(minDistV,1);
 
+%- Filter slices if they deviate too much from image center
 ptMask3M = false(size(scan3M));
-%- Filter slices if they deviate too much from the centroid
 for n = 1:numel(slicesV)
+    
     maskM = false(size(y));
+
+    %Check if deviation is within one std dev from global mean 
     if minDistV(n) > globalMeanDist-distDev  ||  minDistV(n) < globalMeanDist+distDev    
         maskM(idxC{n}) = true;
+    %If largest CC is far from centroid, use mask from previous slice
+    elseif n >1
+        maskM = ptMask3M(:,:,slicesV(n-1));
     end
+    
     ptMask3M(:,:,slicesV(n)) = maskM;    
 end
 
-%Fill in mask on missing slices
-maskSlicesV = squeeze(sum(sum(ptMask3M))>0);
-mins = find(maskSlicesV,1,'first');
-maxs = find(maskSlicesV,1,'last');
-maskSlicesV = mins : maxs;
-
-missingIdxV = squeeze(sum(sum(ptMask3M(:,:,maskSlicesV)))==0);
-missingSlicesV = maskSlicesV(missingIdxV);
-
-for n = 1:length(missingSlicesV)
-    
-    prevMaskM  = ptMask3M(:,:,missingSlicesV(n)-1);
-    nextMaskM = ptMask3M(:,:,missingSlicesV(n)+1);
-    
-    if sum(prevMaskM(:))==0
-        maskM = nextMaskM;
-    elseif sum(nextMaskM(:))==0
-        maskM = prevMaskM;
-    else
-        maskM = prevMaskM & nextMaskM;
-    end
-    
-    ptMask3M(:,:,missingSlicesV(n)) = maskM;
-    
-end
+%--- Use finterp in future----
+% %Fill in mask on missing slices
+% maskSlicesV = squeeze(sum(sum(ptMask3M))>0);
+% mins = find(maskSlicesV,1,'first');
+% maxs = find(maskSlicesV,1,'last');
+% maskSlicesV = mins : maxs;
+% 
+% missingIdxV = squeeze(sum(sum(ptMask3M(:,:,maskSlicesV)))==0);
+% missingSlicesV = maskSlicesV(missingIdxV);
+% 
+% for n = 1:length(missingSlicesV)
+%     
+%     prevMaskM  = ptMask3M(:,:,missingSlicesV(n)-1);
+%     nextMaskM = ptMask3M(:,:,missingSlicesV(n)+1);
+%     
+%     if sum(prevMaskM(:))==0
+%         maskM = nextMaskM;
+%     elseif sum(nextMaskM(:))==0
+%         maskM = prevMaskM;
+%     else
+%         maskM = prevMaskM | nextMaskM;
+%     end
+%     
+%     ptMask3M(:,:,missingSlicesV(n)) = maskM;
+%     
+% end
 
 
 end
