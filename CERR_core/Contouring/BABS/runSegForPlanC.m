@@ -89,7 +89,7 @@ if iscell(algorithmC) || ~iscell(algiorithmC) && ~strcmpi(algorithmC,'BABS')
     for k=1:length(algorithmC)
         
         % Get the config file path
-        configFilePath = fullfile(getCERRPath,'ModelImplementationLibrary','SegmentationModels', 'ModelConfigurations', [algorithm, '_config.json']);
+        configFilePath = fullfile(getCERRPath,'ModelImplementationLibrary','SegmentationModels', 'ModelConfigurations', [algorithmC{k}, '_config.json']);
         
         userOptS = readDLConfigFile(configFilePath);
         if nargin==6 && ~isnan(varargin{2})
