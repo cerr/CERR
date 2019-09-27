@@ -59,8 +59,22 @@ switch (passedScanDim)
                 maskM = uint8(mask3M(:,:,slIdx));
                 maskFilename = fullfile(outDir,'Masks',[filePrefix,'_slice',...
                     num2str(slIdx),'.h5']);
-                h5create(maskFilename,'/mask',size(maskM));
-                h5write(maskFilename,'/mask',maskM);
+                % Low-level h5 write
+                filename = maskFilename;
+                fileID = H5F.create(filename,'H5F_ACC_TRUNC','H5P_DEFAULT','H5P_DEFAULT');
+                datatypeID = H5T.copy('H5T_NATIVE_DOUBLE');
+                dims = size(maskM);
+                dataspaceID = H5S.create_simple(2,fliplr(dims),[]);
+                dsetname = '/mask';
+                datasetID = H5D.create(fileID,dsetname,datatypeID,dataspaceID,'H5P_DEFAULT');
+                H5D.write(datasetID,'H5ML_DEFAULT','H5S_ALL','H5S_ALL',...
+                    'H5P_DEFAULT',maskM);
+                H5D.close(datasetID);
+                H5S.close(dataspaceID);
+                H5T.close(datatypeID);
+                H5F.close(fileID);
+                
+                
             end
             
             %Write scan
@@ -74,8 +88,21 @@ switch (passedScanDim)
             
             scanFilename = fullfile(outDir,[filePrefix,'_scan_slice_',...
                 num2str(slIdx),'.h5']);
-            h5create(scanFilename,'/scan',size(exportScan3M));
-            h5write(scanFilename,'/scan',exportScan3M);
+            % Low-level h5 write
+            filename = scanFilename;
+            fileID = H5F.create(filename,'H5F_ACC_TRUNC','H5P_DEFAULT','H5P_DEFAULT');
+            datatypeID = H5T.copy('H5T_NATIVE_DOUBLE');
+            dims = size(exportScan3M);
+            dataspaceID = H5S.create_simple(2,fliplr(dims),[]);
+            dsetname = '/scan';
+            datasetID = H5D.create(fileID,dsetname,datatypeID,dataspaceID,'H5P_DEFAULT');
+            H5D.write(datasetID,'H5ML_DEFAULT','H5S_ALL','H5S_ALL',...
+                'H5P_DEFAULT',exportScan3M);
+            H5D.close(datasetID);
+            H5S.close(dataspaceID);
+            H5T.close(datatypeID);
+            H5F.close(fileID);
+            
             
         end
         
