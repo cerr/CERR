@@ -12,8 +12,6 @@
 
 "inputFileType" : "planC",
 
-"structList" : ["h"],
-
 "resize" : {"method": "none",
             "size" : [512,512]},
 

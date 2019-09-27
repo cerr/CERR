@@ -12,13 +12,12 @@
 
 "inputFileType" : "planC",
 
-"structList" : ["h"],
-
 "resize" : {"method": "none",
             "size" : [512,512]},
 
-"crop" : [{"method": "crop_to_str", "params" : {"structureName": "lung_l"}, "operator" : ""}, 
-          {"method": "crop_to_str", "params" : {"structureName": "lung_r"}, "operator" : "union"} ],
+"crop" : [{"method": "crop_to_str", "params" : {"structureName": "lung_l"}, "operator" : ""},
+          {"method": "crop_to_str", "params" : {"structureName": "lung_r"}, "operator" : ""}, 
+          {"method": "crop_to_str", "params" : {"structureName": "totallung"}, "operator" : "union"} ],
 
 "passedScanDim" : "2D",
 
