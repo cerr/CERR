@@ -133,7 +133,7 @@ switch(keyValue)
         LabBookGui('CAPTURE');
 
     case 127 % delete key.  If in contour mode, deletes contour? think about it.        
-        if stateS.contourState
+        if ~isfield(stateS,'contourState') || ~stateS.contourState
             % delete all segments on the slice
             hAxis = stateS.handle.CERRAxis(stateS.contourAxis);
             contourControl('deleteAllSegments', hAxis)
@@ -145,14 +145,14 @@ switch(keyValue)
         sliceCallBack('TOGGLEZOOM');
 
     case 101 % 'e' key
-        if ~stateS.contourState %Check for contouring mode
+        if ~isfield(stateS,'contourState') || ~stateS.contourState %Check for contouring mode
             return
         end
         contourControl('editMode');
         controlFrame('contour', 'refresh');
 
     case 100 % 'd' key
-        if ~stateS.contourState %Check for contouring mode
+        if ~isfield(stateS,'contourState') || ~stateS.contourState %Check for contouring mode
             return
         end
         contourControl('drawMode');
@@ -161,14 +161,14 @@ switch(keyValue)
     case 27 % 'esc' key
 
     case 116 %'t' key
-        if ~stateS.contourState %Check for contouring mode
+        if ~isfield(stateS,'contourState') || ~stateS.contourState %Check for contouring mode
             return
         end
         contourControl('threshMode');
         controlFrame('contour', 'refresh');
 
     case 114 %'r' key;
-        if ~stateS.contourState %Check for contouring mode
+        if ~isfield(stateS,'contourState') || ~stateS.contourState %Check for contouring mode
             return
         end
         contourControl('reassignMode');
@@ -184,7 +184,7 @@ switch(keyValue)
 %         sliceCallBack('TOGGLESCANWINDOWING');
         
     case 3 %'Ctrl + c' Copy contour from slice
-        if ~stateS.contourState %Check for contouring mode
+        if ~isfield(stateS,'contourState') || ~stateS.contourState %Check for contouring mode
             return
         end
         axIdx = stateS.contourAxis;
@@ -201,7 +201,7 @@ switch(keyValue)
         CERRStatusString(sprintf('Copied structure: %d slice: %d.',ccStruct,srcSlice));
         
     case 22 %'Ctrl + v' Copy contour to slice
-        if ~stateS.contourState %Check for contouring mode
+        if ~isfield(stateS,'contourState') || ~stateS.contourState %Check for contouring mode
             return
         end
         axIdx = stateS.contourAxis;
