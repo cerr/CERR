@@ -127,12 +127,20 @@ if whichFeatS.resample.flag
         case 'sinc'
             method = 'lanczos3'; % Lanczos-3 kernel
         case 'cubic'
-            method = 'cubic'; % bicubic kernel
+            method = 'cubic'; % cubic kernel
+        case 'linear'
+            method = 'linear'; % 
+        case 'triangle'
+            method = 'triangle'; % cubic kernel
         otherwise
             error('Interpolatin method not supported');
     end
-    scanArray3M = imresize3(scanArray3M,[numRows numCols numSlcs],'method',method);
-    mask3M = imresize3(single(mask3M),[numRows numCols numSlcs],'method',method) > 0.5;
+    scanArray3M = imresize3(scanArray3M,[numRows numCols numSlcs],...
+        'method',method,'Antialiasing',false);
+    %mask3M = imresize3(single(mask3M),[numRows numCols numSlcs],'method',method) >= 0.5;
+    roiInterpMethod = 'linear';
+    mask3M = imresize3(single(mask3M),[numRows numCols numSlcs],...
+        'method',roiInterpMethod,'Antialiasing',false) >= 0.5;
 end
 
 
