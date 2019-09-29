@@ -121,17 +121,22 @@ for fileNum = 1:length(fileNamesC)
     %Retain only the selected dose
     planD{indexSD.dose} = planD{indexSD.dose}(dose_to_extractC{fileNum});   
     
-    %Reassociate Dose to cropped scan
-    planD{indexSD.dose}(1).assocScanUID = planD{indexSD.scan}(scanNum).scanUID;
+    maxDoseVal = NaN;
     
-    maxDoseVal = max([maxDoseVal, max(planD{indexSD.dose}.doseArray(:))]);    
+    %Reassociate Dose to cropped scan
+    if ~isempty(planD{indexSD.dose})
+        planD{indexSD.dose}(1).assocScanUID = ...
+            planD{indexSD.scan}(scanNum).scanUID;
+        maxDoseVal = max([maxDoseVal, max(planD{indexSD.dose}.doseArray(:))]);  
+    end
     
     if fileNum == 1
         planC = planD;
     elseif fileNum > 1
         scanIndV = 1;
-        doseIndV = 1;
         structIndV = 1:length(planD{indexSD.structures});
+        doseIndV = dose_to_extractC{fileNum};
+        clc
         planC = planMerge(planC, planD, scanIndV, doseIndV, structIndV, fileNamesC{fileNum});
     end
 end
@@ -181,7 +186,8 @@ else
     hCSV = [];
 end
 if isempty(hCSV) || ~exist('hCSV') || ~ishandle(hCSV)
-    CERR('CERRSLICEVIEWER')
+    %CERR('CERRSLICEVIEWER')
+    sliceCallBack('init');
 end
 sliceCallBack('OPENWORKSPACEPLANC')
 
@@ -223,8 +229,13 @@ end
 %Assign scans, doses and structures to all axes
 for iAxis = 1:length(scanNumsV)
     dosesV = getScanAssociatedDose(scanNumsV(iAxis));
-    setAxisInfo(stateS.handle.CERRAxis(iAxis), 'structureSets', scanNumsV(iAxis) , 'structSelectMode', 'manual',...
-        'scanSelectMode', 'manual', 'scanSets', scanNumsV(iAxis), 'doseSelectMode', 'manual', 'doseSets',dosesV(1) ,'doseSetsLast', dosesV(1));
+    if isempty(dosesV)
+        setAxisInfo(stateS.handle.CERRAxis(iAxis), 'structureSets', scanNumsV(iAxis) , 'structSelectMode', 'manual',...
+            'scanSelectMode', 'manual', 'scanSets', scanNumsV(iAxis), 'doseSelectMode', 'manual');
+    else
+        setAxisInfo(stateS.handle.CERRAxis(iAxis), 'structureSets', scanNumsV(iAxis) , 'structSelectMode', 'manual',...
+            'scanSelectMode', 'manual', 'scanSets', scanNumsV(iAxis), 'doseSelectMode', 'manual', 'doseSets',dosesV(1) ,'doseSetsLast', dosesV(1));
+    end
 end
 
 stateS.layout = 8;
