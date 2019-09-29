@@ -9,7 +9,9 @@ function planC = openPlanCFromFile(file)
 [pathstr, name, ext] = fileparts(file);
 
 %Get temporary directory to extract uncompress
-optS = opts4Exe('CERROptions.m');
+pathStr = getCERRPath;
+optName = [pathStr 'CERROptions.json'];
+optS = opts4Exe(optName);
 
 if isempty(optS.tmpDecompressDir)
     tmpExtractDir = tempdir;
