@@ -196,6 +196,8 @@ if isempty(hCSV) || ~exist('hCSV') || ~ishandle(hCSV)
     sliceCallBack('init');
 end
 sliceCallBack('OPENWORKSPACEPLANC')
+set(stateS.handle.CERRSliceViewer,'visible','off');
+hWait = waitbar(0.5,'Starting Viewer...');
 
 numAxesOld = length(stateS.handle.CERRAxis);
 
@@ -270,4 +272,45 @@ stateS.layout = 8;
 sliceCallBack('resize',8)
 
 CERRRefresh
+
+%--- Change window level
+
+presetWindowNum = 11;  %Add 12 (new preset option)?
+
+%change windowing across all axes
+for n = 1:length(stateS.handle.CERRAxis)
+    
+    scanSet = stateS.handle.aI(n).scanSets;
+    
+    scanUID = ['c',repSpaceHyp(planC{indexS.scan}(scanSet).scanUID(max(1,end-61):end))];
+    
+    stateS.scanStats.CTLevel.(scanUID) = stateS.optS.windowPresets(presetWindowNum).center;
+    stateS.scanStats.CTWidth.(scanUID) = stateS.optS.windowPresets(presetWindowNum).width;
+    
+    stateS.scanStats.windowPresets.(scanUID) = presetWindowNum;
+    
+    %Show top 50% of scan
+    pct = 0.80;
+    sAv = planC{indexS.scan}(scanSet).scanArray(:);
+    indV = find(sAv);
+    sA_no_empty = sAv(indV);
+    sA_no_empty = sort(sA_no_empty);
+    intensityPct = double(sA_no_empty(round(pct*length(indV))));
+    intensityCtr = double(sA_no_empty(round(0.3*length(indV))));
+    stateS.scanStats.CTLevel.(scanUID) = intensityCtr;
+    stateS.scanStats.CTWidth.(scanUID) = intensityPct;
+    
+end
+
+updateScanColorbar(scanSet);
+
+stateS.CTDisplayChanged = 1;
+
+stateS.showPlaneLocators = xor(stateS.showPlaneLocators, 1);
+close(hWait);
+CERRRefresh
+set(stateS.handle.CERRSliceViewer,'visible','on');
+
+
+end
 
