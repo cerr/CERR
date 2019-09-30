@@ -78,10 +78,13 @@ if strcmpi(userOptS.inputFileType,'DICOM')
     mergeScansFlag = 'No';
     batchConvert(inputDir,CERRpath,zipFlag,mergeScansFlag);
     
-else
+elseif strcmpi(userOptS.inputFileType,'CERR')
+    
     %input CERR format
     CERRpath = inputDir;
     
+else
+    error('Input file format not supported');
 end
 
 %% Convert to HDF5 with preprocessing and split into train, val, test datasets

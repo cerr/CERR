@@ -60,7 +60,6 @@ end
 %Loop over CERR files
 dirS = dir(fullfile(CERRdir,filesep,'*.mat'));
 errC = {};
-originImageSizC = cell(1,length(dirS));
 
 parfor planNum = 1:length(dirS)
     
@@ -84,7 +83,7 @@ parfor planNum = 1:length(dirS)
                 testFlag = false;
             end
         end
-        [scanC, mask3M, originImageSizV] = extractAndPreprocessDataForDL(userOptS,planC,testFlag);
+        [scanC, mask3M] = extractAndPreprocessDataForDL(userOptS,planC,testFlag);
         
         %Export to HDF5
         
@@ -110,9 +109,6 @@ parfor planNum = 1:length(dirS)
         
         %- Write to HDF5
         writeHDF5ForDL(scanC,mask3M,passedScanDim,outDir,identifier,testFlag)
-        
-        %Record metadata 
-        originImageSizC{planNum} = originImageSizV;
         
     catch e
         

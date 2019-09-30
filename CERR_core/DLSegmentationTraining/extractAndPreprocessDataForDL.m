@@ -14,6 +14,7 @@ function [scanC, mask3M, originalImageSizV] = extractAndPreprocessDataForDL(optS
 
 %% Get user inputs
 outSizeV = optS.resize.size;
+resampleMethod = optS.resample.method;
 resizeMethod = optS.resize.method;
 cropS = optS.crop;
 resampleS = optS.resample;
@@ -56,8 +57,6 @@ if ~isempty(exportStrC) || testFlag
     end
     
     %Extract scan arrays
-    scanC = {};
-    maskC = {};
     if isempty(exportStrC) && testFlag
         scanNumV = 1; %Assume scan 1
     else
@@ -71,6 +70,8 @@ if ~isempty(exportStrC) || testFlag
     UIDc = {planC{indexS.structures}.assocScanUID};
     %resM = nan(length(scanNumV),3);
     
+    scanC = cell(length(scanNumV),1);
+    maskC = cell(length(scanNumV),1);
     for scanIdx = 1:length(scanNumV)
         
         scan3M = double(getScanArray(scanNumV(scanIdx),planC));
@@ -84,7 +85,7 @@ if ~isempty(exportStrC) || testFlag
             mask3M = [];
             validStrIdxV = [];
         else
-            mask3M = zeros(size(scan3M));
+            mask3M = false(size(scan3M));
             assocStrIdxV = strcmpi(planC{indexS.scan}(scanNumV(scanIdx)).scanUID,UIDc);
             validStrIdxV = ismember(strIdxV,find(assocStrIdxV));
             validExportLabelV = exportLabelV(validStrIdxV);
@@ -119,17 +120,14 @@ if ~isempty(exportStrC) || testFlag
             yValsV = yValsV(1):resampleS.resolutionYCm:(yValsV(end)+10000*eps);
             zValsV = zValsV(1):resampleS.resolutionZCm:(zValsV(end)+10000*eps);
             
-            % Interpolate using sinc sampling
+            %Compute output size
             numCols = length(xValsV);
             numRows = length(yValsV);
             numSlcs = length(zValsV);
+            resampSizV = [numRows numCols numSlcs];
             
-            %Get resampling method
-            if strcmpi(resampleS.method,'sinc')
-                method = 'lanczos3';
-            end
-            scan3M = imresize3(scan3M,[numRows numCols numSlcs],'method',method);
-            mask3M = imresize3(single(mask3M),[numRows numCols numSlcs],'method',method) > 0.5;
+            %Resample
+            [scan3M,mask3M] = resampleScanAndMask(scan3M,mask3M,resampSizV,resampleMethod);
             
         end
         
