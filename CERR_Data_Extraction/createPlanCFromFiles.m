@@ -275,7 +275,7 @@ CERRRefresh
 
 %--- Change window level
 
-presetWindowNum = 11;  %Add 12 (new preset option)?
+presetWindowNum = 1;  %Custom preset option  
 
 %change windowing across all axes
 for n = 1:length(stateS.handle.CERRAxis)
@@ -289,7 +289,7 @@ for n = 1:length(stateS.handle.CERRAxis)
     
     stateS.scanStats.windowPresets.(scanUID) = presetWindowNum;
     
-    %Show top 50% of scan
+    %Set intensity window
     pct = 0.80;
     sAv = planC{indexS.scan}(scanSet).scanArray(:);
     indV = find(sAv);
