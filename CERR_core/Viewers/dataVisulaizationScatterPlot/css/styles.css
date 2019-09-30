@@ -1,0 +1,237 @@
+/*
+styles.css
+
+-Chana Gewanter
+cgewanter1@gmail.com
+
+This file contains all css styles for the page. 
+
+*/
+
+body{
+    width: 80%;
+}
+
+#graphDiv {
+    display: inline;
+    float:right;
+    width: 30%;  
+    vertical-align: middle;
+    margin: 0 auto;
+    padding-right: 75pt;
+    padding-top: 30pt;
+}
+
+#allMenuContainer{
+}
+
+.bigDiv{
+    margin: 10pt;
+    border: 2px solid gray;
+    height: auto;
+    min-height: 200px;
+    max-width: 700px;
+    width: auto;
+    overflow: auto;
+    padding: 10pt;
+    margin-top: 15pt;
+    border-radius: 15px;
+}
+
+.divlegend{
+    font-family: "Calibri";
+    font-size: 14pt;
+    color: gray;
+    font-weight: 600
+}
+
+.menuouterbox{
+    float: left;
+    height: auto;
+    border-radius: 15px;
+    border: 2px solid turquoise;
+    border-width: medium;
+    text-align: center;
+    align-content: center;
+    padding: 10px;
+    margin: 5pt;
+    margin-left: 10pt;
+    margin-right: 10pt;
+    color:black;
+    font-family: "Calibri";
+    font-size: 14pt;
+    width: auto;
+    display:none;
+}
+
+#openFileBox{
+    display:inline-block;
+    width: 150px;
+    height: 193px;
+    white-space: nowrap;
+    overflow: hidden;
+}
+
+
+#goFileBtn{
+    float: left;
+    margin-top: 3pt;
+}
+
+#fileNameSpan{
+    float:left;
+    width: 287px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    text-align: left;
+}
+
+.menutitle{
+    margin-bottom:5pt;
+    margin-top: 0pt;
+    padding: 2pt;
+    color: black;
+    text-align: center;
+    border-radius:5pt;
+    background-color: lightgrey;
+    border: 2pt solid;
+    border-color: darkturquoise;
+}
+
+.button {
+    background-color: darkgray;
+    color: black;
+    border-width: 1pt;
+    border-color: darkgray;
+    border-radius: 5px;
+    font-family: "Calibri";
+    font-size: 12pt;
+}
+
+.button:hover{
+    background-color: dimgray;
+}
+
+#titlebox{
+    height: auto;
+    width: auto;
+}
+
+#titleInput{
+    border-radius: 15px;
+    height: 14pt;
+    padding: 4pt;
+    margin-bottom: 8pt;
+    width: 130px;
+}
+
+#axisMenuContainer{
+    height: auto;
+    width: auto;
+    max-width: 500px;
+    border: none;
+    overflow: auto; 
+    text-align: center;
+    padding: 2px;
+}
+
+.menubox{
+    float: left;
+    text-align: left;
+    color:black;
+    font-family: "Calibri";
+    font-size: 14pt;
+    margin: 5pt;
+    margin-top: 5pt;
+    margin-bottom: 5pt;
+    width: auto;
+    height: auto;
+    border-color: darkturquoise;
+}
+
+fieldset{
+    text-align: center;
+    border-radius: 10px;
+    border-color: lightgray;
+    padding: 8pt;
+    padding-bottom: 15pt;
+}
+
+.axislegend{
+    color: gray;
+    font-weight:900;
+}
+
+.select{
+    border-radius: 5px;
+    font-size: 12pt;
+    font-family: "Calibri";
+    max-width: 100px;
+    min-width: 70px;
+    overflow: auto;
+    margin-top: 5pt;
+}
+
+#traceBox{
+    height: auto;
+    padding: 10pt;
+    max-width: 200px;
+    min-width: 100px;
+}
+
+#hovWrapper {
+    width: 160px;
+    height: 250px;
+}
+
+#hovListDiv {
+    height: 150px; 
+    width: 150px;
+    overflow: auto;
+    border: 1pt solid lightgray;
+    border-radius: 5px;
+    margin-bottom: 5pt;
+    margin-left: 2pt;
+}
+
+#hoverlist{
+    text-align: left;
+    padding: 5pt;
+    margin: 5pt;
+}
+
+.slideSpan{
+    float: left;
+}
+
+#xyzBtn {
+    margin-top: 25pt;
+}
+.slider{
+    
+}
+
+/*
+Uncomment the following .modebar section to hide the Plotly toolbar that 
+currently appears above the graph.
+*/
+/*
+.modebar{
+display: none !important;
+}*/
+
+
+/*
+/*#annotDiv{
+display:none;
+float: right;
+font-family: "Calibri";
+border: 1pt dotted gray;
+border-radius: 15pt;
+padding: 2pt;
+text-align: center;
+}*/
+
+
+

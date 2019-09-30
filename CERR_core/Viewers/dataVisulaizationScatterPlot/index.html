@@ -1,0 +1,134 @@
+<!--
+index.html
+-Chana Gewanter
+cgewanter1@gmail.com
+
+
+This file contains the html for the layout of the page. It contains all the 
+html elements, including a container element for the graph, and container 
+elements for the outer and inner menu options.
+-->
+
+<!DOCTYPE html>
+<html>
+
+    <head>
+        <link rel="stylesheet" href="css/styles.css">
+        <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    </head>
+
+    <body>
+
+        <!-- GRAPH ELEMENT -->
+        <div id="graphDiv" class="graph">
+
+            <!-- The following commented out div allows for all annotations to be cleared at once. To activate, the javascript code that handles the button should be uncommented as well.-->
+            <!--<div id=annotDiv> <p class="subtext" style="margin: 5pt">Click on a point to set an annotation</p><button id="clearAnnBtn" class="button">Clear annotations</button> </div>-->
+
+        </div>
+
+        <!-- ALL MENUS ELEMENTS -->
+        <div id="allMenuContainer">
+
+            <!--Data Options Div-->
+            <fieldset id="dataOptionsDiv"f class="bigDiv">
+                <legend class="divlegend">DATA OPTIONS</legend>
+                
+                <!-- Open-File Box -->
+                <div id= "openFileBox" class= "menuouterbox">
+                    <p class="menutitle">Choose a File</p><br>
+                    <button id="fileOpenBtn" class="button" style="display:inline-block;">Open...</button>
+                    <!-- only accept selected input file types. .xlsx files should be saved as .csv -->
+                    <input id="file-input" type="file" style="display: none;" accept=".csv" /> 
+                    <br>
+                    <p id="fileNameSpan"> &nbsp;[No file selected]</p>
+                    
+                    <button id="goFileBtn" class="button">Go</button>
+                </div>
+
+                <!-- Axis Outer Box -->
+                <div id="axisMenuContainer" class ="menuouterbox">
+
+                    <!-- x-axis inner box -->
+                    <fieldset id= "dataXDiv" class="menubox">
+                        <legend class="axislegend">X</legend>
+                        <select id="x-select" class="select"></select>
+                    </fieldset>
+
+                    <!-- y-axis inner box -->
+                    <fieldset id ="dataYDiv" class="menubox">
+                        <legend class="axislegend">Y</legend>
+                        <select id="y-select" class="select"></select>
+                    </fieldset>
+
+                    <!-- z-axis inner box -->
+                    <fieldset id ="dataZDiv" class="menubox">
+                        <legend class="axislegend">Z</legend>
+                        <select id="z-select" class="select"></select>
+                    </fieldset>
+
+                    <button id="xyzBtn" class= "button">Apply</button>
+                </div>
+                
+                <!-- Trace (filter by color) Box -->
+                <div id="traceBox" class="menuouterbox">
+                    <p class= "menutitle">Group By:</p>
+                    <select id="trace-select" class="select"></select>&emsp;
+                    <button id= "traceBtn" class="button">Apply</button>
+                </div>
+
+            </fieldset>
+
+            <br>
+            
+            <!--Plot Options Div-->
+            <fieldset id="plotOptionsDiv" class="bigDiv">
+                <legend class="divlegend">PLOT OPTIONS</legend>
+                <!-- Title Box -->
+                <div id="titlebox" class="menuouterbox">
+                    <p class= "menutitle">Chart Title</p>
+                    <p></p>
+                    <input id="titleInput" type=text onfocus="this.value=''"> 
+                    <br>
+                    <button id="titleBtn" class="button">Apply</button>
+                </div>
+
+                <!-- Hover-text Box -->
+                <div id="hovWrapper" class=menuouterbox>
+                    <p class=menutitle>Annotations</p>
+                    <br>
+                    <div id="hovListDiv">
+                        <ul id="hoverlist"></ul>
+                    </div>
+                    <button id="hoverBtn" class="button">Apply</button>
+                </div>
+
+                <!--Slider box-->
+                <div id= "sliderBox" class=menuouterbox>
+                    <span class="slideSpan">Opacity</span>
+                    <input id="opacSlider" class="slider" type="range" min="0.01" max="1" value="1" step= "0.01"><br>
+                    <span>&emsp;</span>
+                    <span>&emsp;</span>
+                    <span id="opacText">1</span>
+                    <br><br>
+                    <span class= "slideSpan">Point size</span>
+                    <input id= "sizeSlider" class=slider type ="range" min="0.01" max ="20.00" value="6" step="0.01"><br>
+                    <span>&emsp;</span>
+                    <span>&emsp;</span>
+                    <span id = "sizeText">6</span>
+                    <br><br>
+                    <span class="slideSpan">Font size</span>
+                    <input id= "fontSlider" class=slider type ="range" min="1" max ="30" value="12" step="0.1"><br>
+                    <span>&emsp;</span>
+                    <span>&emsp;</span>
+                    <span id = "fontText">12</span>
+                </div>
+            </fieldset>
+        </div>
+        <br/>
+
+        <script src="js/script.js"></script>
+
+    </body>
+</html>
+
