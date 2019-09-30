@@ -16,9 +16,10 @@ global planC stateS
 % fileNamesC = {fullfile(parentDir,'1003'),fullfile(parentDir,'1004'),fullfile(parentDir,'1005'),fullfile(parentDir,'1006'),fullfile(parentDir,'1007'),fullfile(parentDir,'1008'),fullfile(parentDir,'1009'),fullfile(parentDir,'1010'),fullfile(parentDir,'1011')};
 %fileNamesC = {fullfile(parentDir,'1003'),fullfile(parentDir,'1004'),fullfile(parentDir,'1005'),fullfile(parentDir,'1006'),fullfile(parentDir,'1007'),fullfile(parentDir,'1008'),fullfile(parentDir,'1009'),fullfile(parentDir,'1010'),fullfile(parentDir,'1011'),fullfile(parentDir,'1012'),fullfile(parentDir,'1013'),fullfile(parentDir,'1014'),fullfile(parentDir,'1015'),fullfile(parentDir,'1016'),fullfile(parentDir,'1017'),fullfile(parentDir,'1018')};
 
-tic;
+numFiles = length(fileNamesC);
+hWait = waitbar(0,'Opening scans...');
 maxDoseVal = 0;
-for fileNum = 1:length(fileNamesC)
+for fileNum = 1:numFiles
     planD = openPlanCFromFile(fileNamesC{fileNum});
     
     
@@ -136,13 +137,18 @@ for fileNum = 1:length(fileNamesC)
         scanIndV = 1;
         structIndV = 1:length(planD{indexSD.structures});
         doseIndV = dose_to_extractC{fileNum};
-        clc
         planC = planMerge(planC, planD, scanIndV, doseIndV, structIndV, fileNamesC{fileNum});
     end
-end
-toc;
+    
+    waitbar(fileNum/numFiles,hWait)
 
+end
+
+close(hWait);
+
+stateS.CTDisplayChanged = 1;
 stateS.doseDisplayChanged = 1;
+stateS.structsChanged = 1;
 stateS.doseDisplayRange = [0 maxDoseVal];
 stateS.colorbarRange = [0 maxDoseVal];
 stateS.doseArrayMaxValue = maxDoseVal;
@@ -150,7 +156,7 @@ stateS.colorbarFrameMax = maxDoseVal;
 
 clear planD
 
-reRasterAndUniformize
+planC = reRasterAndUniformize(planC);
 
 indexS = planC{end};
 
@@ -195,6 +201,8 @@ numAxesOld = length(stateS.handle.CERRAxis);
 
 scanNumsV = 1:16; % can be passed as input
 
+cohortAxesIndexV = 1:16; % default to first 16 if layout is 8
+
 if stateS.layout ~= 8
     
     % ------------------ Duplicate Transverse Axis 15 times to create 4x4 grid
@@ -215,14 +223,34 @@ if stateS.layout ~= 8
     
     
     %Order Axes
-    cohortAxes = [indAxis numAxesOld+1:length(stateS.handle.CERRAxis)];
-    CERRAxis_tmp = [stateS.handle.CERRAxis(cohortAxes) stateS.handle.CERRAxis(bottomAxes)];
-    CERRAxisLabel1_tmp = [stateS.handle.CERRAxisLabel1(cohortAxes) stateS.handle.CERRAxisLabel1(bottomAxes)];
-    CERRAxisLabel2_tmp = [stateS.handle.CERRAxisLabel2(cohortAxes) stateS.handle.CERRAxisLabel2(bottomAxes)];
+    cohortAxesIndexV = [indAxis numAxesOld+1:length(stateS.handle.CERRAxis)];
+    CERRAxis_tmp = [stateS.handle.CERRAxis(cohortAxesIndexV) stateS.handle.CERRAxis(bottomAxes)];
+    CERRAxisLabel1_tmp = [stateS.handle.CERRAxisLabel1(cohortAxesIndexV) stateS.handle.CERRAxisLabel1(bottomAxes)];
+    CERRAxisLabel2_tmp = [stateS.handle.CERRAxisLabel2(cohortAxesIndexV) stateS.handle.CERRAxisLabel2(bottomAxes)];
+    CERRAxisLabel3_tmp = [stateS.handle.CERRAxisLabel3(cohortAxesIndexV) stateS.handle.CERRAxisLabel3(bottomAxes)];
+    CERRAxisLabel4_tmp = [stateS.handle.CERRAxisLabel4(cohortAxesIndexV) stateS.handle.CERRAxisLabel4(bottomAxes)];
+    CERRAxisPlnLoc_tmp = [stateS.handle.CERRAxisPlnLoc(cohortAxesIndexV) stateS.handle.CERRAxisPlnLoc(bottomAxes)];
+    CERRAxisPlnLocSdw_tmp = [stateS.handle.CERRAxisPlnLocSdw(cohortAxesIndexV) stateS.handle.CERRAxisPlnLocSdw(bottomAxes)];
+    CERRAxisScale1_tmp = [stateS.handle.CERRAxisScale1(cohortAxesIndexV) stateS.handle.CERRAxisScale1(bottomAxes)];
+    CERRAxisScale2_tmp = [stateS.handle.CERRAxisScale2(cohortAxesIndexV) stateS.handle.CERRAxisScale2(bottomAxes)];
+    CERRAxisTicks1_tmp = [stateS.handle.CERRAxisTicks1(cohortAxesIndexV,:); stateS.handle.CERRAxisTicks1(bottomAxes,:)];
+    CERRAxisTicks2_tmp = [stateS.handle.CERRAxisTicks2(cohortAxesIndexV,:); stateS.handle.CERRAxisTicks2(bottomAxes,:)];
+    aI_tmp = [stateS.handle.aI(cohortAxesIndexV) stateS.handle.aI(bottomAxes)];
+    
     stateS.handle.CERRAxis = CERRAxis_tmp;
     stateS.handle.CERRAxisLabel1 = CERRAxisLabel1_tmp;
     stateS.handle.CERRAxisLabel2 = CERRAxisLabel2_tmp;
+    stateS.handle.CERRAxisLabel3 = CERRAxisLabel3_tmp;
+    stateS.handle.CERRAxisLabel4 = CERRAxisLabel4_tmp;
+
+    stateS.handle.CERRAxisPlnLoc = CERRAxisPlnLoc_tmp;
+    stateS.handle.CERRAxisPlnLocSdw = CERRAxisPlnLocSdw_tmp;
+    stateS.handle.CERRAxisScale1 = CERRAxisScale1_tmp;
+    stateS.handle.CERRAxisScale2 = CERRAxisScale2_tmp;
+    stateS.handle.CERRAxisTicks1 = CERRAxisTicks1_tmp;
+    stateS.handle.CERRAxisTicks2 = CERRAxisTicks2_tmp;
     
+    stateS.handle.aI = aI_tmp;
     
 end
 
