@@ -1234,7 +1234,7 @@ switch upper(instr)
         stateS.handle.CERRAxisPlnLoc{axisNum} = [];
         stateS.handle.CERRAxisPlnLocSdw{axisNum} = [];
         
-        for count = 1:10
+        for count = 1:20
             if stateS.MLVersion < 8.4
                 stateS.handle.CERRAxisPlnLocSdw{axisNum}(count) = line([0.02 0.1], [0.02 0.02], [2 2], 'parent', stateS.handle.CERRAxis(axisNum), 'Color', [0 0 0], 'tag', 'planeLocatorShadow', 'userdata', {'horz', 'trans', axisNum}, 'hittest', 'off', 'linewidth', 1, 'erasemode','xor');
                 stateS.handle.CERRAxisPlnLoc{axisNum}(count) = line([0.02 0.1], [0.02 0.02], [2 2], 'parent', stateS.handle.CERRAxis(axisNum), 'Color', [0 0 0], 'tag', 'planeLocator',  'buttondownfcn', 'sliceCallBack(''locatorClicked'')', 'userdata', {'vert', 'trans', axisNum}, 'linewidth', 1, 'erasemode','xor');
