@@ -6,9 +6,10 @@
     "value": 1
 }
 ],
-"intensityOffset" : 1024,
 
-"passedScanDim" : "2D",
+"inputFileType" : "planC",
+
+"passedScanDim" : "3D",
 
 "reference" : ""
 }
