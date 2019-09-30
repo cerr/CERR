@@ -46,7 +46,9 @@ switch upper(command)
         delete(hStrDictGUI)
         str1 = 'CERR+ (rhymes with "Surplus")';
         position = [200 100 700 400];
-        hFig = figure('color',[0.5 0.5 0.5],'name',str1,'tag','strNameMapGUI','numbertitle','off','position',position,'menubar','none');
+          hFig = figure('color',[0.5 0.5 0.5],'name',str1,'tag','strNameMapGUI',...
+            'numbertitle','off','position',position,'menubar','none',...
+            'CloseRequestFcn','structureNameMapGUI(''QUIT'')');
         figureColor = [0.8 0.9 0.9]; %get(hFig, 'Color');
         units = 'normalized';
         
@@ -2470,7 +2472,9 @@ switch upper(command)
             
         end
         
-        
+    case 'QUIT'
+        set(findobj('Tag','ReviewMode'),'Value',1);
+        closereq
         
 end
 
