@@ -238,6 +238,30 @@ switch upper(command)
         
     case 'MODEL_SELECTED'
         ud = get(hFig,'userdata');
+        
+        %Clear previously displayed objects
+        if isfield(ud.jsonHandleS,'cropHandleS')
+            for n = 1:length(ud.jsonHandleS.cropHandleS)
+                delete(ud.jsonHandleS.cropHandleS(n).method);
+            end
+            
+            for n = 1:length(ud.jsonHandleS.cropHandleS)
+                if isfield(ud.jsonHandleS.cropHandleS(n),'operator')
+                    delete(ud.jsonHandleS.cropHandleS(n).operator);
+                end
+            end
+            
+            for n = 1:length(ud.jsonHandleS.cropHandleS)
+                delete(ud.jsonHandleS.cropHandleS(n).parameters);
+            end
+            
+            ud.jsonHandleS.cropHandleS = [];
+            delete(ud.jsonHandleS.title);
+            delete(ud.jsonHandleS.frame);
+            ud.cropS = [];
+        end
+        set(ud.jsonHandleS.saveConfig,'visible','off')
+
         ud.modelIndex = get(ud.inputHandleS.modelPopup,'value');
         modelC = get(ud.inputHandleS.modelPopup,'string');
         ud.modelConfigFile = fullfile(ud.modelConfigDir,modelC{ud.modelIndex});
@@ -281,64 +305,99 @@ switch upper(command)
             'fontSize',12, 'fontWeight', 'Bold', 'BackgroundColor',defaultColor,...
             'HorizontalAlignment','center');
         
-        indToShowV = 1:length(cropS); % this should come frm slider value.
+        jsonFrame = uicontrol(hFig,'units','pixels',...
+            'Position',[GUIWidth/2+shift shift leftMarginWidth+.1*GUIWidth GUIHeight-topMarginHeight-2*shift ],...,...
+            'Style','frame','backgroundColor',defaultColor);
+        
+        %Get list of available structures
+        indexS = planC{end};
+        structListC = {planC{indexS.structures}.structureName};
+        
+        %Display user-selectable fields
+        indToShowV = 1:length(cropS);
         displayOffset = 0;
+        
         for i = 1:length(indToShowV)
+            
+            %Get crop methods and operators
             ind = indToShowV(i);
             cropMethod = cropS(ind).method;
             cropOperator = cropS(ind).operator;
-            %             % Operator
-            %                 cropHandleS(i).operator = uicontrol(hFig','units','pixels',...
-            %                     'Position',[4*shift+400 posTop-.2*GUIHeight-(i-1)*displayOffset .2*GUIWidth+100 3*shift],...
-            %                     'String',cropOperator,'Style','text',...
-            %                     'fontSize',12, 'fontWeight', 'Bold', 'BackgroundColor',defaultColor,...
-            %                     'HorizontalAlignment','center');
-            % Method
-            if isempty(cropOperator)
-                cropMethodStr = cropMethod;
-            else
-                cropMethodStr = ['( ',cropOperator,' )   ',cropMethod];
+            
+            if ~isempty(cropOperator)
+                cropHandleS(i).operator = uicontrol(hFig','units','pixels',...
+                    'Position',[4*shift+400 posTop-.15*GUIHeight-displayOffset 100 3*shift],...
+                    'String',['( ',cropOperator,' )'],'Style','text',...
+                    'fontSize',10,'fontWeight', 'Bold', 'BackgroundColor',defaultColor,...
+                    'HorizontalAlignment','left');
+                displayOffset = displayOffset + 3*shift;
             end
             cropHandleS(i).method = uicontrol(hFig','units','pixels',...
-                'Position',[4*shift+400 posTop-.2*GUIHeight-displayOffset .2*GUIWidth+100 3*shift],...
-                'String',cropMethodStr,'Style','text',...
-                'fontSize',12, 'fontWeight', 'Bold', 'BackgroundColor',defaultColor,...
+                'Position',[4*shift+400 posTop-.15*GUIHeight-displayOffset 100 3*shift],...
+                'String',cropMethod,'Style','text',...
+                'fontSize',10,'fontWeight', 'Bold', 'BackgroundColor',defaultColor,...
                 'HorizontalAlignment','left');
             
-            % Parameters
-            paramC = [fieldnames(cropS(i).params), struct2cell(cropS(i).params)];
-            colWidth = .2*GUIWidth+150;
-            colWidth = colWidth / 2;
             cropUdS.index = ind;
-            cropHandleS(i).parameters = uitable(hFig,'Tag','fieldEdit',...
-                'units','pixels',...
-                'Position',[4*shift+400 posTop-0.35*GUIHeight-displayOffset .2*GUIWidth+150 3*shift+40],...
-                'Enable','on',...
-                'cellEditCallback','deepLearnSegGui(''EDIT_JSON'')','ColumnName',{'Fields','Values'},'FontSize',10,...
-                'RowName',[],'Visible','on','backgroundColor',defaultColor,...
-                'ColumnWidth',{colWidth,colWidth},...
-                'columnEditable',[false,true],'backgroundcolor',[1 1 1],...
-                'data',paramC,'userdata',cropUdS); %Parameter tables
-            %'ColumnWidth',{round(tablePosV(3)/2),round(tablePosV(3)/2)},.
+
+            % Get user-input parameters
+            %             cropHandleS(i).parameters = uitable(hFig,'Tag','fieldEdit',...
+            %                 'units','pixels',...
+            %                 'Position',[4*shift+400 posTop-0.35*GUIHeight-displayOffset .2*GUIWidth+150 3*shift+40],...
+            %                 'Enable','on',...
+            %                 'cellEditCallback','deepLearnSegGui(''EDIT_JSON'')','ColumnName',{'Fields','Values'},'FontSize',10,...
+            %                 'RowName',[],'Visible','on','backgroundColor',defaultColor,...
+            %                 'ColumnWidth',{colWidth,colWidth},...
+            %                 'columnEditable',[false,true],'backgroundcolor',[1 1 1],...
+            %                 'data',paramC,'userdata',cropUdS);
+            
+            %Display pop-up list for selection
+            %paramC
+            posV = get(cropHandleS(i).method,'Position');
+            paramPosV = posV;
+            paramPosV(1) = posV(1)+posV(3)+shift;
+            paramPosV(2) = posV(2);%+shift/2;
+            paramPosV(3) = paramPosV(3) + 50;
+            cropHandleS(i).parameters = uicontrol(hFig,'Position',...
+                paramPosV,'style','popup','string',...
+                ['Select',structListC],'callback',...
+                'deepLearnSegGui(''EDIT_JSON'')','userdata',cropUdS);
+            
+            strNum = getMatchingIndex(cropS(i).params.structureName,structListC,'EXACT');
+            if ~isempty(strNum)
+                set(cropHandleS(i).parameters,'Value',strNum+1);
+            end
+            
+            
             displayOffset = displayOffset + 3*shift;
-            displayOffset = displayOffset + 3*shift + 50;
+            
         end
+        
         set(ud.jsonHandleS.saveConfig,'visible','on')
         ud.jsonHandleS.cropHandleS = cropHandleS;
         ud.jsonHandleS.title = jsonTitle;
+        ud.jsonHandleS.frame = jsonFrame;
         ud.cropS = cropS;
         set(ud.jsonHandleS.saveConfig,...
-            'callback','deepLearnSegGui(''SAVE_JSON'',''CROP'')') % change as per file type 
+            'callback','deepLearnSegGui(''SAVE_JSON'',''CROP'')') % change as per file type
         set(hFig,'userdata',ud);
         
     case 'EDIT_JSON'
         ud = get(hFig,'userdata');
         hObj = gcbo;
+        
         cropUdS = get(hObj,'userdata');
         ind = cropUdS.index;
-        dataC = hObj.Data;
-        ud.cropS(ind).params.(dataC{1}) = dataC{2};
+        
+        indexS = planC{end};
+        strC = {planC{indexS.structures}.structureName};
+        strIdx = get(hObj,'value')-1;
+        
+        if strIdx>0
+        strName = strC{strIdx};
+        ud.cropS(ind).params.structureName = strName;
         set(hFig,'userdata',ud);
+        end
         
     case 'SAVE_JSON'
         ud = get(hFig,'userdata');
