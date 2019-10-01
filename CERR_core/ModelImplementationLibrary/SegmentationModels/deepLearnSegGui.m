@@ -233,7 +233,7 @@ switch upper(command)
         
         
     case 'CLOSEREQUEST'
-        
+        stateS.handle.deepLearnSegFig = [];
         closereq
         
     case 'MODEL_SELECTED'
