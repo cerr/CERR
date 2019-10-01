@@ -1,4 +1,4 @@
-function planC = runSegForPlanC(planC,clientSessionPath,algorithm,sshConfigFile,varargin)
+function planC = runSegForPlanC(planC,clientSessionPath,algorithm,sshConfigFile,hWait,varargin)
 % function planC = runSegForPlanC(planC,clientSessionPath,algorithm,SSHkeyPath,serverSessionPath,varargin)
 %
 % This function serves as a wrapper for different types of segmentations.
@@ -98,23 +98,41 @@ if iscell(algorithmC) || ~iscell(algiorithmC) && ~strcmpi(algorithmC,'BABS')
             batchSize = userOptS.batchSize;
         end
         
-        
+        if ishandle(hWait)
+            waitbar(0.1,hWait,'Extracting scan and mask');
+        end
         [scanC, mask3M] = extractAndPreprocessDataForDL(userOptS,planC,testFlag);
         %Note: mask3M is empty for testing
+        
+        if ishandle(hWait)
+            waitbar(0.2,hWait,'Writing to HDF5');
+        end
         filePrefixForHDF5 = 'cerrFile';
         writeHDF5ForDL(scanC,mask3M,userOptS.passedScanDim,inputH5Path,filePrefixForHDF5,testFlag);
         
         
         %%% =========== have a flag to tell whether the container runs on the client or a remote server
+        if ishandle(hWait)
+            wbch = allchild(hWait);
+            jp = wbch(1).JavaPeer;
+            jp.setIndeterminate(1)
+        end
         % Call the container and execute model     
         success = callDeepLearnSegContainer(algorithmC{k}, containerPath, fullClientSessionPath, sshConfigS, userOptS.batchSize); % different workflow for client or session
         
         %%% =========== common for client and server
+        if ishandle(hWait)
+            waitbar(0.9,hWait,'Writing segmentation results to CERR');
+        end
         outC = stackHDF5Files(fullClientSessionPath,userOptS.passedScanDim); %Updated
         
         % Join results back to planC
         planC  = joinH5planC(outC{1},userOptS,planC); % only 1 file 
-            
+        
+    end
+    
+    if ishandle(hWait)
+        close(hWait);
     end
     
 else %'BABS'
