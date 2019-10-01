@@ -421,7 +421,8 @@ switch upper(command)
         sshConfigFile = [];
         containerPath = ud.containerPath;
         batchSize = str2double(get(ud.inputHandleS.batchSizeEdit,'string'));
-        planC = runSegForPlanC(planC,clientSessionPath,algorithm,sshConfigFile,containerPath,batchSize);
+        hWait = waitbar(0,'Deep Learning Segmentation');
+        planC = runSegForPlanC(planC,clientSessionPath,algorithm,sshConfigFile,hWait,containerPath,batchSize);
         
 end
 
