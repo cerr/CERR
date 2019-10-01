@@ -1,0 +1,192 @@
+Bootstrap: docker
+From: nvidia/cuda:9.0-cudnn7-devel-ubuntu16.04
+
+%environment
+
+	#Environment variables
+
+	#Use bash as default shell
+	SHELL=/bin/bash
+
+	#Add nvidia driver paths
+	PATH="/nvbin:$PATH"
+	LD_LIBRARY_PATH="/nvlib;$LD_LIBRARY_PATH"
+
+	#Add CUDA paths
+	CPATH="/usr/local/cuda/include:$CPATH"
+	PATH="/usr/local/cuda/bin:$PATH"
+	LD_LIBRARY_PATH="/usr/local/cuda/lib64:$LD_LIBRARY_PATH"
+	CUDA_HOME="/usr/local/cuda"
+	
+	export PATH LD_LIBRARY_PATH CPATH CUDA_HOME
+
+
+%setup
+	#Runs on host
+	#The path to the image is $SINGULARITY_ROOTFS
+	cp -R /vagrant/heart/models/ ${SINGULARITY_ROOTFS}	
+
+
+%post	
+
+	#Load environment variables
+	. /environment
+
+	#Default mount paths
+	mkdir /scratch /data /shared /fastdata
+
+	#Nvidia Library mount paths
+	mkdir /nvlib /nvbin
+
+  	#Update and get required packages
+  	apt-get update
+ 	apt-get install -y python3  	
+
+	#install python3 in python virtualenv
+  	apt update
+  	apt install -y virtualenv
+  	virtualenv -p python3 env
+  	ls env/lib
+  	ls -l `which sh`
+  	. env/bin/activate
+
+	#Install pip
+  	apt install -y python3-pip
+  	python --version
+  	pip3 --version  	  	
+
+  	# Upgrade all packages to their latest versions
+  	apt-get -y update && apt-get -y upgrade
+
+  	# Install expect to automate responses for interactive build questions
+  	apt-get -y install expect  	 
+  	apt update
+  	apt-get clean
+	apt update && apt install -y libsm6 libxext6
+  	apt-get install -y libxrender-dev 
+	apt-get install -y libgtk2.0-dev
+	apt-get install -y python3-tk
+	apt-get install -y python-imaging
+  	
+	#Install other dependencies
+	pip3 install Pillow 
+  	pip3 install numpy
+  	pip3 install scikit-image
+  	pip3 install opencv-python
+  	pip3 install protobuf
+  	pip3 install tqdm
+  	pip3 install h5py
+	pip3 install torch 
+	pip3 install torchvision
+		
+	#Get CERR code files from git 	
+  	mkdir /software	
+  	cd /software
+  	git clone https://github.com/cerr/CERR.git
+	
+	#Copy heart model from local storage
+	cp -r /models/ /software
+
+	#Copy Model Dependencies from CERR to /software
+	cp -r /software/CERR/CERR_core/ModelImplementationLibrary/SegmentationModels/ModelDependencies/CT_Atria_DeepLab/ /software
+	cp -r /software/CERR/CERR_core/ModelImplementationLibrary/SegmentationModels/ModelDependencies/CT_Heart_DeepLab/ /software
+	cp -r /software/CERR/CERR_core/ModelImplementationLibrary/SegmentationModels/ModelDependencies/CT_HeartStructure_DeepLab/ /software
+	cp -r /software/CERR/CERR_core/ModelImplementationLibrary/SegmentationModels/ModelDependencies/CT_Pericardium_DeepLab/ /software
+	cp -r /software/CERR/CERR_core/ModelImplementationLibrary/SegmentationModels/ModelDependencies/CT_Ventricles_DeepLab/ /software
+
+	#Delete CERR
+	rm -rf CERR
+	
+
+##############################
+# CT_Heart_DeepLab
+##############################
+
+%apprun CT_Heart_DeepLab
+   #exec echo "CT_Heart_DeepLab"
+    
+    . /env/bin/activate
+    python /software/CT_Heart_DeepLab/runSegHeart.py $1 	
+    pkill -f software/CT_Heart_DeepLab/runSegHeart.py
+
+##############################
+# CT_HeartStructure_DeepLab
+##############################
+
+%apprun CT_HeartStructure_DeepLab
+    #exec echo "CT_HeartStructure_DeepLab"
+    
+    . /env/bin/activate
+    python /software/CT_HeartStructure_DeepLab/runSegHeartStructure.py $1 	
+    pkill -f software/CT_HeartStructure_DeepLab/runSegHeartStructure.py
+
+
+##############################
+# CT_Pericardium_DeepLab
+##############################
+
+%apprun CT_Pericardium_DeepLab
+    #exec echo "CT_Pericardium_DeepLab"
+    
+    . /env/bin/activate
+    python /software/CT_Pericardium_DeepLab/runSegPericardium.py $1 	
+    pkill -f software/CT_Pericardium_DeepLab/runSegPericardium.py
+    
+
+##############################
+# CT_Atria_DeepLab
+##############################
+
+%apprun CT_Atria_DeepLab
+    #exec echo "CT_Atria_DeepLab"
+    
+    . /env/bin/activate
+    python /software/CT_Atria_DeepLab/runSegAtria.py $1 	
+    pkill -f software/CT_Atria_DeepLab/runSegAtria.py
+
+
+##############################
+# CT_Ventricles_DeepLab
+##############################
+
+%apprun CT_Ventricles_DeepLab
+    #exec echo "CT_Ventricles_DeepLab"
+    
+    . /env/bin/activate
+    python /software/CT_Ventricles_DeepLab/runSegVentricles.py $1 	
+    pkill -f software/CT_Ventricles_DeepLab/runSegVentricles.py
+
+
+%runscript
+	#Executes with the singularity run command	
+	
+	. /env/bin/activate	
+	
+	
+
+%test
+	#Test that script is a success
+
+	#Load environment variables
+	. /env/bin/activate
+
+	#Test pytorch install
+	python -c "import torch"
+
+
+%labels
+    Author: Rutu Pandya (pandyar1@mskcc.org)
+    Version v4.0
+
+
+%help
+    This is a heart segmentation container used to segment the following structures:
+	Heart - Aorta, SVC, IVC, PA, LA, LV, RA, RV 
+	HeartStructure
+	Atria
+	Ventricles
+	Pericardium
+
+
+
+
