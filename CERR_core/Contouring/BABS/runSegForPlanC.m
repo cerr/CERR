@@ -105,7 +105,7 @@ if iscell(algorithmC) || ~iscell(algiorithmC) && ~strcmpi(algorithmC,'BABS')
         %Note: mask3M is empty for testing
         
         if ishandle(hWait)
-            waitbar(0.2,hWait,'Writing to HDF5');
+            waitbar(0.2,hWait,'Segmenting structures...');
         end
         filePrefixForHDF5 = 'cerrFile';
         writeHDF5ForDL(scanC,mask3M,userOptS.passedScanDim,inputH5Path,filePrefixForHDF5,testFlag);

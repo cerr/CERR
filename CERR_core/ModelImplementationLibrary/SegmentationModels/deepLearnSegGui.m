@@ -404,6 +404,10 @@ switch upper(command)
         set(hFig,'userdata',ud);
         end
         
+        %Save modified parameters
+        deepLearnSegGui('SAVE_JSON','CROP');
+        
+        
     case 'SAVE_JSON'
         ud = get(hFig,'userdata');
         saveOption = varargin{1};
