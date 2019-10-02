@@ -252,7 +252,9 @@ switch upper(command)
             end
             
             for n = 1:length(ud.jsonHandleS.cropHandleS)
+                if isfield(ud.jsonHandleS.cropHandleS(n),'parameters')
                 delete(ud.jsonHandleS.cropHandleS(n).parameters);
+                end
             end
             
             ud.jsonHandleS.cropHandleS = [];
@@ -267,7 +269,7 @@ switch upper(command)
         ud.modelIndex = get(ud.inputHandleS.modelPopup,'value');
         modelC = get(ud.inputHandleS.modelPopup,'string');
         ud.modelConfigFile = fullfile(ud.modelConfigDir,modelC{ud.modelIndex});
-        ud.modelConfigS = loadjson(ud.modelConfigFile,'ShowProgress',1);
+        ud.modelConfigS = readDLConfigFile(ud.modelConfigFile);
         if isfield(ud.modelConfigS,'batchSize') 
             set(ud.inputHandleS.batchSizeEdit,'String',num2str(ud.modelConfigS.batchSize));
         end
@@ -324,9 +326,9 @@ switch upper(command)
             %Get crop methods and operators
             ind = indToShowV(i);
             cropMethod = cropS(ind).method;
-            cropOperator = cropS(ind).operator;
             
-            if ~isempty(cropOperator)
+            if isfield(cropS(ind),'operator') && ~isempty( cropS(ind).operator)
+                cropOperator = cropS(ind).operator;
                 cropHandleS(i).operator = uicontrol(hFig','units','pixels',...
                     'Position',[18*shift+400 posTop-.15*GUIHeight-displayOffset 100 3*shift],...
                     'String',['( ',cropOperator,' )'],'Style','text',...
@@ -355,22 +357,22 @@ switch upper(command)
             %                 'data',paramC,'userdata',cropUdS);
             
             %Display pop-up list for selection
-            %paramC
-            posV = get(cropHandleS(i).method,'Position');
-            paramPosV = posV;
-            paramPosV(1) = posV(1)+posV(3)+shift;
-            paramPosV(2) = posV(2);%+shift/2;
-            paramPosV(3) = paramPosV(3) + 50;
-            cropHandleS(i).parameters = uicontrol(hFig,'Position',...
-                paramPosV,'style','popup','string',...
-                ['Select',structListC],'callback',...
-                'deepLearnSegGui(''EDIT_JSON'')','userdata',cropUdS);
-            
-            strNum = getMatchingIndex(cropS(i).params.structureName,structListC,'EXACT');
-            if ~isempty(strNum)
-                set(cropHandleS(i).parameters,'Value',strNum+1);
+            if isfield(cropS(ind),'params') && isfield(cropS(ind).params,'structureName')
+                posV = get(cropHandleS(i).method,'Position');
+                paramPosV = posV;
+                paramPosV(1) = posV(1)+posV(3)+shift;
+                paramPosV(2) = posV(2);%+shift/2;
+                paramPosV(3) = paramPosV(3) + 50;
+                cropHandleS(i).parameters = uicontrol(hFig,'Position',...
+                    paramPosV,'style','popup','string',...
+                    ['Select',structListC],'callback',...
+                    'deepLearnSegGui(''EDIT_JSON'')','userdata',cropUdS);
+                
+                strNum = getMatchingIndex(cropS(i).params.structureName,structListC,'EXACT');
+                if ~isempty(strNum)
+                    set(cropHandleS(i).parameters,'Value',strNum+1);
+                end
             end
-            
             
             displayOffset = displayOffset + 3*shift;
             
