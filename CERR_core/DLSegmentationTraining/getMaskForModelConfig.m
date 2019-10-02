@@ -57,6 +57,7 @@ for m = 1:length(methodC)
             if ~isempty(strIdx)
                 outMask3M = getStrMask(strIdx,planC);
             else
+                warning(['Missing structure ', strName]); 
                 outMask3M = false(size(getScanArray(scanNum,planC)));
             end
             maskC{m} = outMask3M;
