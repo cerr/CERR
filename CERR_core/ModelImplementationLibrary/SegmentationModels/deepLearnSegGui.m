@@ -267,7 +267,7 @@ switch upper(command)
         ud.modelIndex = get(ud.inputHandleS.modelPopup,'value');
         modelC = get(ud.inputHandleS.modelPopup,'string');
         ud.modelConfigFile = fullfile(ud.modelConfigDir,modelC{ud.modelIndex});
-        ud.modelConfigS = loadjson(ud.modelConfigFile,'ShowProgress',1);
+        ud.modelConfigS = readDLConfigFile(ud.modelConfigFile);
         if isfield(ud.modelConfigS,'batchSize') 
             set(ud.inputHandleS.batchSizeEdit,'String',num2str(ud.modelConfigS.batchSize));
         end
