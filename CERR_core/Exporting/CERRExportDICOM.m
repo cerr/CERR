@@ -133,6 +133,9 @@ planC = planC.planC;
 
 planC = updatePlanFields(planC);
 
+% Quality assure
+planC = quality_assure_planC(loadfile, planC, 0);
+
 indexS = planC{end};
 
 if ~isfield(indexS,'IVH')
