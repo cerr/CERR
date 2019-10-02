@@ -16,6 +16,7 @@
 {"structureName": "Bowel_Lg_DLV3",
   "value": 7}
 ],
+"batchSize" : 1,
 
 "passedScanDim" : "3D",
 

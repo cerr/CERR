@@ -30,6 +30,7 @@
 "resize" : {"method": "pad2D",
             "size" : [256,256]},
 
+"batchSize" : 1,
 
 
 "crop": [
