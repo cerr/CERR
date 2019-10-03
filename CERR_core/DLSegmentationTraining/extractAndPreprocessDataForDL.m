@@ -167,7 +167,6 @@ if ~isempty(exportStrC) || testFlag
     %4. Transform view
     [scanC,maskC] = transformView(scanC,maskC,view);
     
-<<<<<<< HEAD
     %5. Filter images
     procScanC = cell(numChannels,1);    
     for c = 1:numChannels
