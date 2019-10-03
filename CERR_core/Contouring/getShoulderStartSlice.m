@@ -1,4 +1,4 @@
-function sliceNum = getShoulderStartSlice(outerStrMask3M,planC,outerStrName)
+function [shoulderSliceNum,noseSliceNum] = getShoulderStartSlice(outerStrMask3M,planC,outerStrName)
 % Automatically identify shoulder start slice in H&N scans based on
 % size of patient outline.
 %
@@ -10,35 +10,29 @@ function sliceNum = getShoulderStartSlice(outerStrMask3M,planC,outerStrName)
 %                    instead.
 % outerStrName     : Structure name corresponding to pt outline
 %------------------------------------------------------------------------
+% AI 10/3/19 Modified to return nose slice
 
-
-if ~isempty(outerStrMask3M)
-    
-    mask3M = outerStrMask3M;
-    
-else
+if isempty(outerStrMask3M)
     %Get mask of outer structure
     indexS = planC{end};
     strC = {planC{indexS.structures}.structureName};
     strIdx = getMatchingIndex(outerStrName,strC,'exact');
-    scanIdx = getStructureAssociatedScan(strIdx,planC);
-    
-    rasterM = getRasterSegments(strIdx, planC);
-    [maskSl3M, slicesV] = rasterToMask(rasterM,1,planC);
-    mask3M = false(size(getScanArray(scanIdx,planC)));
-    mask3M(:,:,slicesV) = maskSl3M;
+    outerStrMask3M = getStrMask(strIdx, planC);
 end
 
+noseSliceNum = getNoseSlice(outerStrMask3M,planC);
+
 %Get size on each slice
-[sel,colIdxM] = max(mask3M, [], 2);
+infMask3M = outerStrMask3M(:,:,noseSliceNum+1:end);
+[sel,colIdxM] = max(infMask3M, [], 2);
 colIdxM = squeeze(sel.*(colIdxM)).';
 colIdxM(colIdxM==0) = nan;
 minColV = nanmin(colIdxM,[],2);
 
-[sel,colIdxM] = max(fliplr(mask3M), [], 2);
+[sel,colIdxM] = max(fliplr(infMask3M), [], 2);
 colIdxM = squeeze(sel.*(colIdxM)).';
 colIdxM(colIdxM==0) = nan;
-maxColV = size(mask3M,2) - nanmin(colIdxM,[],2) + 1;
+maxColV = size(infMask3M,2) - nanmin(colIdxM,[],2) + 1;
 
 sizV = maxColV - minColV;
 
@@ -47,13 +41,14 @@ sizV = movmean(sizV,10);
 diffV = [0;diff(sizV)];
 [~,argMax] = max(diffV);
 
+argMax = argMax + noseSliceNum - 1;
 
 if (sizV(argMax)-max(sizV(1:50))) / max(sizV(1:50)) > .2
-    sliceNum = argMax;
+    shoulderSliceNum = argMax;
 else
     % If not substantially wider, return last slice
     % (assumes shoulders not included)
-    sliceNum = size(mask3M,3)  ;
+    shoulderSliceNum = size(outerStrMask3M,3)  ;
 end
 
 end
