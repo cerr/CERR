@@ -233,20 +233,4 @@
 "ROEModelPath" : "M:/Aditi/OutcomesModels/ROE/Models",
 "ROECriteriaPath" : "M:/Aditi/OutcomesModels/ROE/Criteria",
 
-"shape_rcsV" : [100, 100, 100], 
-
-"higherOrder_minIntensity" : -140,
-"higherOrder_maxIntensity" : 100,
-"higherOrder_numGrLevels" : 100,
-"higherOrder_patchRadius2dV" : [1, 1, 0],
-"higherOrder_patchRadius3dV" : [1, 1, 1],
-"higherOrder_imgDiffThresh" : 0,
-
-"peakValley_peakRadius" : [2, 2, 0],
-
-"ivh_xForIxV" : [10, 20, 30, 40, 50, 60, 70, 80, 90],
-"ivh_xAbsForIxV" : [10, 30, 50, 70, 90, 110, 130, 150, 170, 190],
-"ivh_xForVxV" : [10, 20, 30, 40, 50, 60, 70, 80, 90],
-"ivh_xAbsForVxV" :  [-140,  -130,  -120,  -110,  -100,   -90,   -80,   -70,   -60,   -50,   -40,   -30,   -20,   -10,     0,    10,    20,    30,    40,    50,    60,  70,    80,    90,   100]
-
 }
