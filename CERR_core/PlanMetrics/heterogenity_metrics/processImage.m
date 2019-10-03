@@ -260,6 +260,12 @@ switch filterType
             paramS.Cooccur_Radius.val, paramS.Number_Gray_Levels.val, dir, hWait);
         outS.entropy = coLlAGe3M;
         
+    otherwise
+        
+        mask3M = mask3M(minr:maxr,minc:maxc,mins:maxs);
+        scan3M = scan3M(minr:maxr,minc:maxc,mins:maxs);
+        outS.(filterType) = feval(filterType,scan3M,mask3M,paramS);
+        
 end
 
 % make input/output dimensions same
