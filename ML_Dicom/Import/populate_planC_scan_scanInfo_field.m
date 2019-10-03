@@ -128,14 +128,14 @@ switch fieldname
         %%%%%%%  AI 12/28/16 Added Scale slope/intercept for Philips scanners %%%%
     case 'scaleSlope'
         if attr.contains(hex2dec('2005100E')) % Philips
-            dataS = dcm2ml_Element(dcmobj.get(hex2dec('2005100E')));
+            dataS = attr.getDoubles(hex2dec('2005100E'));
         else
             dataS = '';
         end
         
     case 'scaleIntercept'
         if attr.contains(hex2dec('2005100D')) % Philips
-            dataS =  dcm2ml_Element(dcmobj.get(hex2dec('2005100D')));
+            dataS = attr.getDoubles(hex2dec('2005100D'));
         else
             dataS = '';
         end
