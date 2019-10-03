@@ -24,9 +24,8 @@ defaultS.resize.size = [];
 defaultS.resize.method = 'none';
 defaultS.resample.method = 'none';
 defaultS.view = 'axial';
-defaultS.channels.imageType = 'original';
-defaultS.channels.append.method = 'none';
-defaultS.channels.number = 1;
+defaultS.channels.imageType = struct('original',[]);
+defaultS.channels.slice = 'current';
 defaultS.batchSize = 1;
 
 optS = userInS;

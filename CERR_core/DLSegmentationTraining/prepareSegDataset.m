@@ -29,9 +29,15 @@ function [userOptS,errC] = prepareSegDataset(paramFilename,inputDir,outputDir)
 %                    Supported methods include 'crop_fixed_amt','crop_to_bounding_box',
 %                    'crop_to_str', 'crop_around_center', 'crop_pt_outline',
 %                    'crop_shoulder'  'none'.
-% channels         : Dictionary with fields 'number', 'imageType' and 'append'.
-%                    Supported image types: 'original', 'coronal', 'sagittal'.
-%                    Supported methods of appending: 'repeat','2.5D','multiscan'.
+% view             : Image orientation. Supported options include 'axial'
+%                    (default), 'coronal', and 'sagittal'.
+% channels         : Dictionary with fields 'imageType', 'slice', and
+%                    'scantype' (optional - in case multiple
+%                    sequences are being used).
+%                    Supported image types: 'original' and filters from
+%                    processImg.m. 
+%                    Supported slice inputs:'current-n','current','current+n',
+%                    where n is no. of slices relative to current slice.
 % batchSize        : Value of batch size to pass to the Deep Learning Model 
 %
 % Example: See sample_train_params.json
