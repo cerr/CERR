@@ -18,6 +18,7 @@ resampleMethod = optS.resample.method;
 resizeMethod = optS.resize.method;
 cropS = optS.crop;
 resampleS = optS.resample;
+view = optS.view;
 channelS = optS.channels;
 maskChannelS = channelS;
 maskChannelS.method = 'none';
@@ -157,9 +158,11 @@ if ~isempty(exportStrC) || testFlag
         
     end
     
-    %Populate channels
+    %4. Transform view
+    [scanC,maskC] = transformView(scanC,maskC,view);
+    
+    %5. Populate channels
     scanC = populateChannels(scanC,channelS);
-    maskC = populateChannels(maskC,maskChannelS);
     mask3M = maskC{1};
     
     %Get scan metadata
