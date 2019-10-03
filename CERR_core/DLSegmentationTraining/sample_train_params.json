@@ -13,7 +13,12 @@
 
 "resize" : {"method": "sinc", "size": [512,512]},
 
-"channels" : {"number" : 3, "imageType" : "original", "append" : {"method" : "multiscan", "parameters" : [1,2,3]} },
+"view" : "sagittal",
+
+"channels" :[{"scanType": "CT", "imageType": {"original" : {} }, "slice": "current-1"},
+             {"scanType": "MR", "imageType": { "Wavelets": {"Wavelets": "Haar", "Index": "","Direction": "HLH"}},
+	     "slice": "current"},
+             {"scanType": "PET", "imageType": {"original" : {} }, "slice": "current+1"}],
 
 "exportedFilePrefix" : "inputfilename",
 
