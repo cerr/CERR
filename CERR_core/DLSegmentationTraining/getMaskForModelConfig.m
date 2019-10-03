@@ -119,7 +119,7 @@ for m = 1:length(methodC)
             strNum = getStructNum(strName,planC,indexS);
             pt_outline_mask3M = getStrMask(strNum,planC);
             
-            % generate mask after cropping shoulder slices       
+            % generate mask after cropping shoulder slices
             outMask3M = cropShoulder(pt_outline_mask3M,planC);
             maskC{m} = outMask3M;
             
@@ -139,8 +139,12 @@ for m = 1:length(methodC)
             
             maskC{m} = [];
             
-            
-            
+        otherwise
+            %Custom crop function
+            maskC{m} = feval(method,planC,paramS,mask3M,scanNum);
+            if paramS.saveStrToPlanCFlag
+                planC = maskToCERRStructure(maskC{m}, 0, scanNum, method,planC);
+            end
     end
     
     if m>1
