@@ -93,7 +93,12 @@ switch (passedScanDim)
             fileID = H5F.create(filename,'H5F_ACC_TRUNC','H5P_DEFAULT','H5P_DEFAULT');
             datatypeID = H5T.copy('H5T_NATIVE_DOUBLE');
             dims = size(exportScan3M);
-            dataspaceID = H5S.create_simple(2,fliplr(dims),[]);
+            if length(dims)==2 
+                rank = 2;
+            else
+                rank = 3; %Multiple channels
+            end
+            dataspaceID = H5S.create_simple(rank,fliplr(dims),[]);
             dsetname = '/scan';
             datasetID = H5D.create(fileID,dsetname,datatypeID,dataspaceID,'H5P_DEFAULT');
             H5D.write(datasetID,'H5ML_DEFAULT','H5S_ALL','H5S_ALL',...

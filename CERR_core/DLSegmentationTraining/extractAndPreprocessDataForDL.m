@@ -1,4 +1,4 @@
-function [scanC, mask3M, originalImageSizV] = extractAndPreprocessDataForDL(optS,planC,testFlag)
+function [channelC, mask3M, originalImageSizV] = extractAndPreprocessDataForDL(optS,planC,testFlag)
 %
 % Script to extract scan and mask and perform user-defined pre-processing.
 %
@@ -18,9 +18,13 @@ resampleMethod = optS.resample.method;
 resizeMethod = optS.resize.method;
 cropS = optS.crop;
 resampleS = optS.resample;
+view = optS.view;
 channelS = optS.channels;
-maskChannelS = channelS;
-maskChannelS.method = 'none';
+numChannels = length(channelS);
+filterTypeC = {channelS.imageType};
+
+
+
 if isfield(optS,'structList')
     strListC = optS.structList;
 else
@@ -60,8 +64,11 @@ if ~isempty(exportStrC) || testFlag
     if isempty(exportStrC) && testFlag
         scanNumV = 1; %Assume scan 1
     else
-        if strcmpi(channelS.append.method,'multiscan')
-            scanNumV = channelS.append.parameters;
+        if isfield(channelS,'scanType')
+            scanTypeC = {channelS.scanType};
+            for c = 1:length(scanTypeC)
+                scanNumV(c) = find(strcmp(channelS(c).scanType, {planC{indexS.scan}.scanType}));
+            end
         else
             scanNumV = unique(getStructureAssociatedScan(strIdxV,planC));
         end
@@ -157,9 +164,36 @@ if ~isempty(exportStrC) || testFlag
         
     end
     
-    %Populate channels
-    scanC = populateChannels(scanC,channelS);
-    maskC = populateChannels(maskC,maskChannelS);
+    %4. Transform view
+    [scanC,maskC] = transformView(scanC,maskC,view);
+    
+    %5. Filter images
+    procScanC = cell(numChannels,1);    
+    for c = 1:numChannels
+        
+        if isfield(channelS(c),'scanType')
+            scanId = c;
+        else
+            scanId = 1;
+        end
+        
+        mask3M = true(size(scanC{scanId}));
+        imType = fieldnames(filterTypeC{c});
+        imType = imType{1};
+        if strcmpi(imType,'original')
+            procScanC{c} = scanC{scanId};
+        else
+            paramS = getRadiomicsParamTemplate([],channelS(c));
+            paramS = paramS.imageType.(imType);
+            outS = processImage(imType,scanC{scanId},mask3M,paramS);
+            fieldName = fieldnames(outS);
+            fieldName = fieldName{1};
+            procScanC{c} = outS.(fieldName);
+        end
+    end
+    
+    %6. Populate channels
+    channelC = populateChannels(procScanC,channelS);
     mask3M = maskC{1};
     
     %Get scan metadata
