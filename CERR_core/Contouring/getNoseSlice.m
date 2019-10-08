@@ -25,7 +25,7 @@ else
 end
 
 startSliceIdx = 11;
-endSliceIdx = 50;
+endSliceIdx = 70;
 supMask3M = double(mask3M(:,:,startSliceIdx:endSliceIdx));
 
 %Identify first non-zero row
