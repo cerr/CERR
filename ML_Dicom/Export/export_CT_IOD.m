@@ -140,10 +140,14 @@ for scanNum = 1:length(planC{indexS.scan})
         attr.addAll(SOPattr);
 
         clear imgattr imgplaneattr imgpixelattr ctimageattr SOPattr
-
-        fileNum  = num2str(filenumber + nWritten);
-        filename = fullfile(destDirPath,['IMG_', repmat('0', [1 5-length(fileNum)]), fileNum]);
-
+        
+        if ischar(filenumber)
+            filename = fullfile(filenameRoot,filenumber);
+        else
+            fileNum  = num2str(filenumber + nWritten);
+            filename = fullfile(destDirPath,['IMG_', repmat('0', [1 5-length(fileNum)]), fileNum]);
+        end
+        
         writefile_mldcm(attr, filename);
 
         nWritten = nWritten + 1;

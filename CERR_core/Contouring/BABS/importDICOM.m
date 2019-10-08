@@ -1,4 +1,4 @@
-function importDICOM(source,destn)
+function planC = importDICOM(source,destn)
 % function importDICOM(source,destn)
 %
 % Function to import DICOM from source and write CERR file to destn.
@@ -118,20 +118,24 @@ for dirNum = 1:length(dirsToImportC)
         %fullOutFileName = fullfile(destn,fileName);
         
         %Check for duplicate name of fullOutFileName
-        dirOut = dir(destn);
-        allOutNames = {dirOut.name};
-        if any(strcmpi([outFileName,'.mat'],allOutNames))
-            fullOutFileName = [outFileName,'_duplicate_',num2str(rand(1))];
+        if exist('destn','var') && ~isempty(destn)
+            dirOut = dir(destn);
+            allOutNames = {dirOut.name};
+            if any(strcmpi([outFileName,'.mat'],allOutNames))
+                fullOutFileName = [outFileName,'_duplicate_',num2str(rand(1))];
+            end
+            if strcmpi(zipFlag,'Yes')
+                saved_fullFileName = fullfile(destn,[outFileName,'.mat.bz2']);
+            else
+                saved_fullFileName = fullfile(destn,[outFileName,'.mat']);
+            end
+            
+            
+            if ~exist(fileparts(saved_fullFileName),'dir')
+                mkdir(fileparts(saved_fullFileName))
+            end
+            save_planC(planC,[], 'passed', saved_fullFileName);
         end
-        if strcmpi(zipFlag,'Yes')
-            saved_fullFileName = fullfile(destn,[outFileName,'.mat.bz2']);
-        else
-            saved_fullFileName = fullfile(destn,[outFileName,'.mat']);
-        end
-        if ~exist(fileparts(saved_fullFileName),'dir')
-            mkdir(fileparts(saved_fullFileName))
-        end
-        save_planC(planC,[], 'passed', saved_fullFileName);
         
     catch
         
