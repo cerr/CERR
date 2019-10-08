@@ -13,7 +13,8 @@ function maskZeroShoulders3M = cropShoulder(outerStrMask3M,planC)
 % maskZeroShoulders3M      : 3D mask where slices inferior to shoulders are zeroed out.
 %------------------------------------------------------------------------
 
-sliceNum = getShoulderStartSlice(outerStrMask3M,planC);
+[shoulderSliceNum,noseSliceNum] = getShoulderStartSlice(outerStrMask3M,planC);
 maskZeroShoulders3M = outerStrMask3M;
-maskZeroShoulders3M(:,:,sliceNum-3:end) = 0;
+maskZeroShoulders3M(:,:,shoulderSliceNum-3:end) = 0;
+maskZeroShoulders3M(:,:,1:noseSliceNum) = 0;
 
