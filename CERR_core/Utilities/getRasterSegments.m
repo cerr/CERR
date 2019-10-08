@@ -1,4 +1,4 @@
-function [rasterSegments, planC, isError] = getRasterSegments(structureID, planC, varargin)
+function [rasterSegments, planC, isError] = getRasterSegments(structureIDv, planC, varargin)
 %"getRasterSegments"
 %   Data Access Function -- Returns rasterSegments for specified 
 %   structure from given planC.  varargin allows for a particular 
@@ -7,7 +7,7 @@ function [rasterSegments, planC, isError] = getRasterSegments(structureID, planC
 %
 %   If structureID is a string, segs are returned from the structure 
 %   whose name (case insensitive) matches structureID. If numeric, 
-%   a direct index is used.
+%   a direct index is used. Can be a numeric list of structure indices.
 %
 % JRA 10/27/03
 %
@@ -59,17 +59,17 @@ catch
 end 
 
 %Check for matching structureID strings.
-if ischar(structureID)    
-    requestedName = structureID;
-    structureID = find(strcmpi(structureID, allStructureNames));
-    if isempty(structureID)
+if ischar(structureIDv)    
+    requestedName = structureIDv;
+    structureIDv = find(strcmpi(structureIDv, allStructureNames));
+    if isempty(structureIDv)
         isError = errorEncounter(['No structure matching name ''' requestedName ''' exists.'], showWarnings);
         return;
     end    
 %Check that numeric ID is in range, and only one value is asked for.
-elseif isnumeric(structureID)
+elseif isnumeric(structureIDv)
     numStructures = length(planC{indexS.structures});
-    if structureID > numStructures | structureID <= 0 | length(structureID) > 1
+    if any(structureIDv > numStructures) | any(structureIDv <= 0) %| length(structureID) > 1
         isError = errorEncounter(['Numeric structureID is out of range.'], showWarnings);
         return;
     end
@@ -79,17 +79,24 @@ else
     return;
 end    
 
+
 %Try and access rasterSegments given the current index.
 if isfield(planC{indexS.structures}, 'rasterSegments')
-    rasterSegments = planC{indexS.structures}(structureID).rasterSegments;
     
-    if isempty(rasterSegments) && ~(isfield(planC{indexS.structures},'rasterized') && ~isempty(planC{indexS.structures}(structureID).rasterized) && planC{indexS.structures}(structureID).rasterized == 1)
+    rasterSegments = [];
+    for n = 1:length(structureIDv)
+        rasterSegments = [rasterSegments; planC{indexS.structures}(structureIDv(n)).rasterSegments];
+    end
+    
+    %rasterSegments = {planC{indexS.structures}(structureID).rasterSegments};
+    
+    if isempty(rasterSegments) && ~(isfield(planC{indexS.structures},'rasterized') && ~isempty(planC{indexS.structures}(structureIDv).rasterized) && planC{indexS.structures}(structureIDv).rasterized == 1)
         try
-            warning(['No rasterSegments exist for structure ' allStructureNames{structureID} ', generating.']); %Do not set iserror.            
-            planC = getRasterSegs(planC, structureID);
-            rasterSegments = planC{indexS.structures}(structureID).rasterSegments;
+            warning(['No rasterSegments exist for structure ' allStructureNames{structureIDv} ', generating.']); %Do not set iserror.            
+            planC = getRasterSegs(planC, structureIDv);
+            rasterSegments = planC{indexS.structures}(structureIDv).rasterSegments;
         catch
-            isError = errorEncounter(['No rasterSegments exist for structure ' allStructureNames{structureID} ', could not be generated.'], showWarnings);
+            isError = errorEncounter(['No rasterSegments exist for structure ' allStructureNames{structureIDv} ', could not be generated.'], showWarnings);
         end
     end
     
