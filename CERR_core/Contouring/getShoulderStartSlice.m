@@ -41,14 +41,12 @@ sizV = movmean(sizV,10);
 diffV = [0;diff(sizV)];
 [~,argMax] = max(diffV);
 
-argMax = argMax + noseSliceNum - 1;
-
 if (sizV(argMax)-max(sizV(1:50))) / max(sizV(1:50)) > .2
-    shoulderSliceNum = argMax;
+    shoulderSliceNum = argMax + noseSliceNum - 1;
 else
     % If not substantially wider, return last slice
     % (assumes shoulders not included)
-    shoulderSliceNum = size(outerStrMask3M,3)  ;
+    shoulderSliceNum = size(outerStrMask3M,3);
 end
 
 end
