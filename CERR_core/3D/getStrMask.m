@@ -1,17 +1,16 @@
-function mask3M = getStrMask(structNum, planC)
-% function mask3M = getStrMask(structNum, planC)
+function mask3M = getStrMask(structNumV, planC)
+% function mask3M = getStrMask(structNumV, planC)
 %
 % This function returns the 3D mask that is of the same size as the scan
-% dimensions for the passed structure number
+% dimensions for the passed structure numbers
 %
 % INPUT: 
-% structNum - structure index within planC
+% structNumV - structure indices within planC
 % 
 
-
-scanNum = getStructureAssociatedScan(structNum, planC);
+scanNum = getStructureAssociatedScan(structNumV(1), planC);
 mask3M = false(size(getScanArray(scanNum,planC)));
-rasterM = getRasterSegments(structNum,planC);
+rasterM = getRasterSegments(structNumV,planC);
 [slMask3M,slicesV] = rasterToMask(rasterM,scanNum,planC);
 mask3M(:,:,slicesV) = slMask3M;
 
