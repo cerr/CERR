@@ -173,7 +173,8 @@ for i=1:length(uniqueScans)
             if relStructsTomove(bitCount) <= 52
                 otherCellNum = 1;
             else
-                otherCellNum = ceil((relStructsTomove(bitCount)-52)/8)+1;
+                % otherCellNum = ceil((relStructsTomove(bitCount)-52)/8)+1;
+                otherCellNum = ceil((relStructsTomove(bitCount)-52)/8);
             end
 %             %otherCellNum = ceil(relStructsTomove(bitCount)/8);            
             if otherCellNum == cellNum
