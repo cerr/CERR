@@ -10,6 +10,10 @@ function outS = processImage(filterType,scan3M,mask3M,paramS,hWait)
 %-------------------------------------------------------------------------
 %AI 03/16/18
 
+if ~exist('hWait','var')
+    hWait = [];
+end
+
 filterType = strrep(filterType,' ','');
 
 % record the original image size
@@ -53,7 +57,7 @@ switch filterType
             paramS.binWidth.val = [];
         end
         
-        if exist('hWait','var') && ishandle(hWait)
+        if ishandle(hWait)
             [energy,entropy,sumAvg,corr,...
                 invDiffMom,contrast,clustShade,...
                 clustProminence,haralCorr] = textureByPatchCombineCooccur(volToEval,...
@@ -132,7 +136,7 @@ switch filterType
                 
                 outS.(outname) = out3M;
                 
-                if exist('hWait','var') && ishandle(hWait)
+                if ishandle(hWait)
                     set(hWait, 'Vertices', [[0 0 (n-1)/(length(dirListC)-1) (n-1)/(length(dirListC)-1)]' [0 1 1 0]']);
                     drawnow;
                 end
@@ -147,7 +151,7 @@ switch filterType
                 out3M = out3M(:,:,1:end-1);
             end
             out3M = flip(out3M,3);
-            if exist('hWait','var') && ishandle(hWait)
+            if ishandle(hWait)
                 set(hWait, 'Vertices', [[0 0 1 1]' [0 1 1 0]']);
                 drawnow;
             end
@@ -161,7 +165,7 @@ switch filterType
         scan3M                   = scan3M(minr:maxr,minc:maxc,mins:maxs);
         vol3M   = double(mask3M).*double(scan3M);
         [outS.SobelMag,outS.SobelDir] = sobelFilt(vol3M);
-        if exist('hWait','var') && ishandle(hWait)
+        if ishandle(hWait)
             set(hWait, 'Vertices', [[0 0 1 1]' [0 1 1 0]']);
             drawnow;
         end
@@ -176,7 +180,7 @@ switch filterType
         scan3M                   = scan3M(minr:maxr,minc:maxc,mins:maxs);
         vol3M   = double(mask3M).*double(scan3M);
         outS.LoG_recursive = recursiveLOG(vol3M,paramS.Sigma_mm.val,paramS.VoxelSize_mm.val);
-        if exist('hWait','var') && ishandle(hWait)
+        if ishandle(hWait)
             set(hWait, 'Vertices', [[0 0 1 1]' [0 1 1 0]']);
             drawnow;
         end
@@ -187,7 +191,7 @@ switch filterType
         vol3M   = double(mask3M).*double(scan3M);
         outS.Gabor = filtImgGabor(vol3M,paramS.Radius.val,paramS.Sigma.val,...
             paramS.AspectRatio.val,paramS.Orientation.val,paramS.Wavlength.val);
-        if exist('hWait','var') && ishandle(hWait)
+        if ishandle(hWait)
             set(hWait, 'Vertices', [[0 0 1 1]' [0 1 1 0]']);
             drawnow;
         end
@@ -214,7 +218,7 @@ switch filterType
             outV = patchStatM(:,n);
             out3M(mask3M) = outV;
             outS.(statC{n}) = out3M;
-            if exist('hWait','var') && ishandle(hWait)
+            if ishandle(hWait)
                 set(hWait, 'Vertices', [[0 0 n/length(statC) n/length(statC)]' [0 1 1 0]']);
                 drawnow;
             end
@@ -244,7 +248,7 @@ switch filterType
                     text3M = convn(paddedVolM,lawsMasksS.(fieldNamesC{i}),'same');
                     text3M = text3M(6:end-5,6:end-5,6:end-5);
                     outS.(fieldNamesC{i}) = text3M; % for the entire cubic roi
-                    if exist('hWait','var') && ishandle(hWait)
+                    if ishandle(hWait)
                         set(hWait, 'Vertices', [[0 0 i/numFeatures i/numFeatures]' [0 1 1 0]']);
                         drawnow;
                     end
@@ -259,6 +263,10 @@ switch filterType
         coLlAGe3M = getCollageFeature(scan3M, mask3M, paramS.Dominant_Dir_Radius.val,...
             paramS.Cooccur_Radius.val, paramS.Number_Gray_Levels.val, dir, hWait);
         outS.entropy = coLlAGe3M;
+        if ishandle(hWait)
+            set(hWait, 'Vertices', [[0 0 1 1]' [0 1 1 0]']);
+            drawnow;
+        end
         
     otherwise
         
