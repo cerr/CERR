@@ -94,6 +94,7 @@ newSeriesInstanceUID = dicomuid;
 
 for n = 1:length(planC{indexS.scan}(scanNum).scanInfo)
     planC{indexS.scan}(scanNum).scanInfo(n).seriesInstanceUID = newSeriesInstanceUID;
+    planC{indexS.scan}(scanNum).scanInfo(n).CTOffset = minInt;
 end
 
 planC = generate_DICOM_UID_Relationships(planC);
