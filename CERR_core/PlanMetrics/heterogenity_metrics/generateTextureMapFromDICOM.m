@@ -44,43 +44,56 @@ fieldName = fieldnames(outS);
 fieldName = fieldName{1};
 filtScan3M = outS.(fieldName);
 
+%% Assign min intensity to voxels outside bounding box  
+[minr, maxr, minc, maxc, mins, maxs] = compute_boundingbox(mask3M);
+minInt = nanmin(filtScan3M(:));
+bbox3M = true(size(mask3M));
+bbox3M(minr:maxr, minc:maxc, mins:maxs) = false;
+filtScan3M(bbox3M) = minInt;
 
 %% Create Texture Scans
-assocScanUID = planC{indexS.scan}(scanNum).scanUID;
-nTexture = length(planC{indexS.texture}) + 1;
-planC{indexS.texture}(nTexture).assocScanUID = assocScanUID;
-assocStrUID = strjoin({planC{indexS.structures}(strNumV).strUID},',');
-planC{indexS.texture}(nTexture).assocStructUID = assocStrUID;
-planC{indexS.texture}(nTexture).category = filterType;
-planC{indexS.texture}(nTexture).parameters = paramS;
-planC{indexS.texture}(nTexture).description = filterType;
-planC{indexS.texture}(nTexture).textureUID = createUID('TEXTURE');
+% assocScanUID = planC{indexS.scan}(scanNum).scanUID;
+% nTexture = length(planC{indexS.texture}) + 1;
+% planC{indexS.texture}(nTexture).assocScanUID = assocScanUID;
+% assocStrUID = strjoin({planC{indexS.structures}(strNumV).strUID},',');
+% planC{indexS.texture}(nTexture).assocStructUID = assocStrUID;
+% planC{indexS.texture}(nTexture).category = filterType;
+% planC{indexS.texture}(nTexture).parameters = paramS;
+% planC{indexS.texture}(nTexture).description = filterType;
+% planC{indexS.texture}(nTexture).textureUID = createUID('TEXTURE');
+% 
+% [xVals, yVals, zVals] = getScanXYZVals(planC{indexS.scan}(scanNum));
+% dx = abs(mean(diff(xVals)));
+% dy = abs(mean(diff(yVals)));
+% dz = abs(mean(diff(zVals)));
+% deltaXYZv = [dy dx dz];
+% zV = zVals;
+% regParamsS.horizontalGridInterval = deltaXYZv(1);
+% regParamsS.verticalGridInterval   = deltaXYZv(2); %(-)ve for dose
+% regParamsS.coord1OFFirstPoint   = xVals(1);
+% regParamsS.coord2OFFirstPoint   = yVals(end);
+% regParamsS.zValues  = zV;
+% regParamsS.sliceThickness =[planC{indexS.scan}(scanNum).scanInfo(:).sliceThickness];
+% assocTextureUID = planC{indexS.texture}(nTexture).textureUID;
 
-[xVals, yVals, zVals] = getScanXYZVals(planC{indexS.scan}(scanNum));
-dx = abs(mean(diff(xVals)));
-dy = abs(mean(diff(yVals)));
-dz = abs(mean(diff(zVals)));
-deltaXYZv = [dy dx dz];
-zV = zVals;
-regParamsS.horizontalGridInterval = deltaXYZv(1);
-regParamsS.verticalGridInterval   = deltaXYZv(2); %(-)ve for dose
-regParamsS.coord1OFFirstPoint   = xVals(1);
-regParamsS.coord2OFFirstPoint   = yVals(end);
-regParamsS.zValues  = zV;
-regParamsS.sliceThickness =[planC{indexS.scan}(scanNum).scanInfo(:).sliceThickness];
-assocTextureUID = planC{indexS.texture}(nTexture).textureUID;
+% planC = scan2CERR(filtScan3M,'CT','Passed',regParamsS,assocTextureUID,planC);
 
-planC = scan2CERR(filtScan3M,'CT','Passed',regParamsS,assocTextureUID,planC);
+%% Replace CT image with texture map
+planC{indexS.scan}(scanNum).scanArray = filtScan3M;
 
 
 %% Write filtered image to DICOM
-for n = 1:length(planC{indexS.scan})-1
-    planC = deleteScan(planC, 1);
-end
+% for n = 1:length(planC{indexS.scan})-1
+%     planC = deleteScan(planC, 1);
+% end
 
 newSeriesInstanceUID = dicomuid;
-for n = 1:length(planC{indexS.scan}(1).scanInfo)
-    planC{indexS.scan}(1).scanInfo(n).seriesInstanceUID = newSeriesInstanceUID;
+% for n = 1:length(planC{indexS.scan}(1).scanInfo)
+%     planC{indexS.scan}(1).scanInfo(n).seriesInstanceUID = newSeriesInstanceUID;
+% end
+
+for n = 1:length(planC{indexS.scan}(scanNum).scanInfo)
+    planC{indexS.scan}(scanNum).scanInfo(n).seriesInstanceUID = newSeriesInstanceUID;
 end
 
 planC = generate_DICOM_UID_Relationships(planC);
