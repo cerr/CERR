@@ -44,6 +44,12 @@ fieldName = fieldnames(outS);
 fieldName = fieldName{1};
 filtScan3M = outS.(fieldName);
 
+%% Assign min intensity to voxels outside bounding box  
+[minr, maxr, minc, maxc, mins, maxs] = compute_boundingbox(mask3M);
+minInt = nanmin(filtScan3M(:));
+bbox3M = true(size(mask3M));
+bbox3M(minr:maxr, minc:maxc, mins:maxs) = false;
+filtScan3M(bbox3M) = minInt;
 
 %% Create Texture Scans
 assocScanUID = planC{indexS.scan}(scanNum).scanUID;
