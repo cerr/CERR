@@ -43,6 +43,9 @@ switch filterType
                     idx = find(strcmpi(typesC,sel{iFeat}));
                     flagV(idx-1) = 1;
                 end
+            else
+                 idx = find(strcmpi(typesC,sel));
+                 flagV(idx-1) = 1;
             end
         end
         
