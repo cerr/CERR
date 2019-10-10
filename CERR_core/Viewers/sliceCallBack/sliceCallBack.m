@@ -2227,6 +2227,8 @@ switch upper(instr)
         clear global stateS;
         closereq;
         set(findobj('Tag','ReviewMode'),'Value',1);
+        set(findobj('Tag','CERRImportPopUp'),'Value',1);
+
         CERR
         return
 
