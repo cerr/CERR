@@ -70,7 +70,7 @@ regParamsS.zValues  = zV;
 regParamsS.sliceThickness =[planC{indexS.scan}(scanNum).scanInfo(:).sliceThickness];
 assocTextureUID = planC{indexS.texture}(nTexture).textureUID;
 
-planC = scan2CERR(filtScan3M,filterType,'Passed',regParamsS,assocTextureUID,planC);
+planC = scan2CERR(filtScan3M,'CT','Passed',regParamsS,assocTextureUID,planC);
 
 
 %% Write filtered image to DICOM
@@ -87,7 +87,7 @@ planC = generate_DICOM_UID_Relationships(planC);
 if ~exist(outputDicomPath,'dir')
     mkdir(outputDicomPath)
 end
-export_CT_IOD(planC,outputDicomPath,filterType);
+export_CT_IOD(planC,outputDicomPath,1);
 
 
 end
