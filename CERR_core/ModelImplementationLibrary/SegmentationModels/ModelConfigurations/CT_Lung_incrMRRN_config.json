@@ -10,5 +10,7 @@
 
 "passedScanDim" : "3D",
 
-"reference" : ""
+"postProc" : {"LungNodule": [{"method": "getLargestConnComps", "params" : {"numCC": 1}}]},
+
+"reference" : "10.1109/TMI.2018.2857800"
 }
