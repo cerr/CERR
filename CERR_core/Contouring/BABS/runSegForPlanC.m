@@ -131,6 +131,9 @@ if iscell(algorithmC) || ~iscell(algiorithmC) && ~strcmpi(algorithmC,'BABS')
         
     end
     
+    % Post-process segmentation
+    planC = postProcStruct(planC,userOptS);
+    
     if ishandle(hWait)
         close(hWait);
     end
