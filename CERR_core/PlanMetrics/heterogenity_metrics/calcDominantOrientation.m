@@ -7,7 +7,7 @@ function domOrient3M = calcDominantOrientation(scanArray3M, mask3M, patchSizeV, 
 
 % Flag to draw waitbar
 waitbarFlag = 0;
-if exist('hWait','var') && ishandle(hWait)
+if exist('hWait','var') & ishandle(hWait)
     waitbarFlag = 1;
 end
 

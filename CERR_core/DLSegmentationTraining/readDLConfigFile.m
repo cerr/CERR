@@ -27,6 +27,7 @@ defaultS.view = 'axial';
 defaultS.channels.imageType = struct('original',[]);
 defaultS.channels.slice = 'current';
 defaultS.batchSize = 1;
+defaultS.postProc = [];
 
 optS = userInS;
 defC = fieldnames(defaultS);
