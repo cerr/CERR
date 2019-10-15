@@ -407,13 +407,19 @@ switch upper(command)
         scanNum = get(ud.handles.scan,'value');
         featH = ud.handles.featureType;
         featureIdx = get(featH, 'value');
-        featListC = get(featH,'string');
-        featureType = featListC{featureIdx};
-        featureType = strrep(featureType,' ','');
+        
+        if isempty(featureIdx)
+            featureType = varargin{2};
+        else
+            featListC = get(featH,'string');
+            featureType = featListC{featureIdx};
+            featureType = strrep(featureType,' ','');
+            paramS = [];
+        end
         startPosV = get(featH,'position');
         delPos = .07;
-        paramS = [];
-
+        
+        
         if nargin== 1 %List parameters for new texture map
         switch featureType
             case 'HaralickCooccurance' 
@@ -1336,7 +1342,11 @@ colormap(hAxis, ud.cM);
 %Display scan name
 scanType = planC{indexS.scan}(index).scanType;
 scanType = strrep(scanType,'_','\_'); 
-scanType = [scanType,' ',num2str(thumbSlice+ firstROISlice - 1),'/',num2str(endSlice+ firstROISlice - 1)];
+%scanType = [scanType,' ',num2str(thumbSlice+ firstROISlice - 1),'/',num2str(endSlice+ firstROISlice - 1)];
+scanType = [scanType,' ',num2str(thumbSlice),'/',num2str(endSlice)];
+slNum = ['Sl ',num2str(thumbSlice+ firstROISlice - 1)];
+
+
 
 %---for radiomics paper---
 % thumbSlice = 76;
@@ -1367,7 +1377,9 @@ xLim = get(hAxis, 'xlim');
 yLim = get(hAxis, 'ylim');
 x = (xLim(2) - xLim(1)) * .05 + xLim(1);
 y = (yLim(2) - yLim(1)) * .15 + yLim(1);
+y2 = (yLim(2) - yLim(1)) * .2 + yLim(1);
 text(x, y, scanType, 'fontsize', 9, 'color', 'k', 'hittest', 'off', 'parent', hAxis);
+text(x, y2, slNum, 'fontsize', 9, 'color', 'k', 'hittest', 'off', 'parent', hAxis); %added
 
 %--- For radiomics paper---
 % text(x, y, scanType, 'fontsize', 11, 'fontweight', 'bold', 'color', 'k', 'hittest', 'off', 'parent', hAxis);
