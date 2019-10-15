@@ -7,7 +7,10 @@ function planC = postProcStruct(planC,userOptS)
 % AI 10/14/19
 
 % Get list of structures to be post-processed
-postS = userOptS.postProc;
+postS = [];
+if isfield(userOptS,'postProc')
+    postS = userOptS.postProc;
+end
 
 if ~isempty(postS)
     
