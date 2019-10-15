@@ -24,17 +24,19 @@ ccSiz = cellfun(@numel,[cc.PixelIdxList]);
 %sel = ccSiz==max(ccSiz);
 
 [~,rankV] = sort(ccSiz,'descend');
-selV = rankV(1:numConnComponents);
+if length(rankV) > numConnComponents
+    selV = rankV(1:numConnComponents);
+else
+    selV = rankV(1:end);
+end
 
 idxV = [];
 for n = 1:length(selV)
-idxV = [idxV;cc.PixelIdxList{selV(n)}];
+    idxV = [idxV;cc.PixelIdxList{selV(n)}];
 end
 
 maskOut3M = false(size(mask3M));
 maskOut3M(idxV) = true;
-
-%planC = maskToCERRStructure(maskOut3M,0,1,'test',planC);
 
 end
 
