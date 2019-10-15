@@ -22,6 +22,9 @@ planC = planC.planC;
 
 planC  = joinH5planC(segMask3M,userOptS,planC);
 
+% Post-process segmentation
+planC = postProcStruct(planC,userOptS);
+
 %save final plan
 finalPlanCfilename = fullfile(segResultCERRPath, 'cerrFile.mat');
 optS = [];
