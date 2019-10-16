@@ -27,10 +27,12 @@ function coLlAGe3M = getCollageFeature(scanNum, structNum, domDirPatchRadV,...
 %
 % APA, 11/2/2018
 
-if ~exist('planC','var')
-    global planC
-end
+if exist('planC','var')
+    %global planC
+%end
 indexS = planC{end};
+end
+
 
 if ~exist('hWait','var')
     hWait = NaN;
