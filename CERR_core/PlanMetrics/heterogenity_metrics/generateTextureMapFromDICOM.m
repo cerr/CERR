@@ -51,8 +51,10 @@ minInt = nanmin(filtScan3M(:));
 maxInt = nanmax(filtScan3M(:));
 
 slope = (maxIntPseudoCT-minIntPseudoCT)/(maxInt-minInt);
+intercept = maxIntPseudoCT - slope*maxInt;
 
-pseudoCT3M = slope*filtScan3M + minIntPseudoCT;
+%pseudoCT3M = slope*filtScan3M + minIntPseudoCT;
+pseudoCT3M = slope*filtScan3M + intercept;
 
 
 %% Assign min intensity to voxels outside bounding box  
