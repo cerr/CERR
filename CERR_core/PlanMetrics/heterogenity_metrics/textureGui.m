@@ -853,6 +853,7 @@ switch upper(command)
         fieldNamC = fieldnames(outS);
         for i = 1:length(fieldNamC)
             tempImg3M = outS.(fieldNamC{i});
+            tempImg3M(~fullMask3M) = NaN;
             tempImg3M = tempImg3M(minr:maxr,minc:maxc,mins:maxs);
             outS.(fieldNamC{i}) = tempImg3M;
         end

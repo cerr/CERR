@@ -1508,7 +1508,7 @@ switch lower(in)
         c = interp1(1:N, a(:,2), pts);
         d = interp1(1:N, a(:,3), pts);
         map = [b' c' d'];
-        map(1,:) = [0 0 0];
+        %map(1,:) = [0 0 0];
 
     case 'hotcold'
         a = [0 1 1;...
