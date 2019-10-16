@@ -44,12 +44,22 @@ fieldName = fieldnames(outS);
 fieldName = fieldName{1};
 filtScan3M = outS.(fieldName);
 
+%Scale to range
+minIntPseudoCT = -500;
+maxIntPseudoCT = 3500;
+minInt = nanmin(filtScan3M(:));
+maxInt = nanmax(filtScan3M(:));
+
+slope = (maxIntPseudoCT-minIntPseudoCT)/(maxInt-minInt);
+
+pseudoCT3M = slope*filtScan3M + minIntPseudoCT;
+
+
 %% Assign min intensity to voxels outside bounding box  
 [minr, maxr, minc, maxc, mins, maxs] = compute_boundingbox(mask3M);
-minInt = nanmin(filtScan3M(:));
 bbox3M = true(size(mask3M));
 bbox3M(minr:maxr, minc:maxc, mins:maxs) = false;
-filtScan3M(bbox3M) = minInt;
+pseudoCT3M(bbox3M) = minIntPseudoCT;
 
 %% Create Texture Scans
 % assocScanUID = planC{indexS.scan}(scanNum).scanUID;
@@ -79,7 +89,7 @@ filtScan3M(bbox3M) = minInt;
 % planC = scan2CERR(filtScan3M,'CT','Passed',regParamsS,assocTextureUID,planC);
 
 %% Replace CT image with texture map
-planC{indexS.scan}(scanNum).scanArray = filtScan3M;
+planC{indexS.scan}(scanNum).scanArray = pseudoCT3M;
 
 
 %% Write filtered image to DICOM
@@ -94,7 +104,7 @@ newSeriesInstanceUID = dicomuid;
 
 for n = 1:length(planC{indexS.scan}(scanNum).scanInfo)
     planC{indexS.scan}(scanNum).scanInfo(n).seriesInstanceUID = newSeriesInstanceUID;
-    planC{indexS.scan}(scanNum).scanInfo(n).CTOffset = minInt;
+    planC{indexS.scan}(scanNum).scanInfo(n).CTOffset = -1000;
 end
 
 planC = generate_DICOM_UID_Relationships(planC);
