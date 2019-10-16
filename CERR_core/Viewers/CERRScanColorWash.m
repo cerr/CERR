@@ -189,7 +189,7 @@ end
 
 % If in print mode, replace area outside of skin with white. OR dose
 % outside skin is set to zero. the code repeats so just take the same code
-if stateS.printMode | stateS.optS.calcDoseInsideSkinOnly
+if stateS.printMode || stateS.optS.calcDoseInsideSkinOnly
 
     %     structNum = strmatch('skin',lower({planC{indexS.structures}.structureName}),'exact');
     %     [assocScan, relStructNum] = getStructureAssociatedScan(structNum, planC);
