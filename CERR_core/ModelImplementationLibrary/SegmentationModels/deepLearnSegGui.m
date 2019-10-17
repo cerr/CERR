@@ -419,7 +419,7 @@ switch upper(command)
                 ud.modelConfigS.crop = ud.cropS;
         end
         fprintf('\nSaving changes to %s ...',ud.modelConfigFile);
-        %savejson('',ud.modelConfigS,'filename',ud.modelConfigFile); %
+        savejson('',ud.modelConfigS,'filename',ud.modelConfigFile); %
         %uncomment for production
         
     case 'RUN_SEGMENTATION'
