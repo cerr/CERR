@@ -41,23 +41,27 @@ function [segmentsM] = mask2scan(maskM, optS, sliceNum)
 % You should have received a copy of the GNU General Public License
 % along with CERR.  If not, see <http://www.gnu.org/licenses/>.
 
-imageSizeV = optS.ROIImageSize;
+% imageSizeV = optS.ROIImageSize;
 
 %First convert to pixel-based coords:
-xOffset = optS.xCTOffset;
-yOffset = optS.yCTOffset;
-
-zerosV = zeros(size(maskM,1),1);  %padding vector
+% xOffset = optS.xCTOffset;
+% yOffset = optS.yCTOffset;
+%zerosV = zeros(size(maskM,1),1);  %padding vector
+%mask2M = [zerosV, maskM, zerosV];
 
 delta_x = optS.ROIxVoxelWidth;
 delta_y = optS.ROIyVoxelWidth;
 
-mask2M = [zerosV, maskM, zerosV];
+sizV = size(maskM);
+mask2M = false(sizV(1),sizV(2)+2);
+mask2M(:,2:end-1) = maskM; %[zerosV, maskM, zerosV];
 
-diffM = diff(mask2M');  %note: mask is rotated here!
-startM = [diffM == 1];
+%diffM = diff(mask2M');  %note: mask is rotated here!
+rotMask2M = mask2M';
+diffM = rotMask2M(2:end,:) - rotMask2M(1:end-1,:);
+startM = diffM == 1;
 startM = startM(:,2:end-1);
-stopM  = [diffM == -1];
+stopM  = diffM == -1;
 stopM = stopM(:,2:end-1);
 
 [i1V, j1V] = find(startM);

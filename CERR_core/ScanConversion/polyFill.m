@@ -33,8 +33,8 @@ result = zeros(xSize, ySize);
 % a seperate polygon on the same image.  They shouldn't overlap, but if
 % they do, the value of the resultant mask will just be the composite of
 % the two (all mask values will be 1.0).
-edgeList = [];
 pointCount = length(rowV);
+edgeList = zeros(pointCount,4);
 
 % NOTE : Even if a segment has zero points, the points
 % structure still shows up with 1 empty point, so I skip the
@@ -58,9 +58,11 @@ for point = 1 : pointCount
     % edge endpoint (ie it will have no effect on the mask if the
     % polygon is already closed).
     if (p1y <= p2y)
-        edgeList = [edgeList; [p1x p1y p2x p2y]];
+        % edgeList = [edgeList; [p1x p1y p2x p2y]];
+        edgeList(point,:) = [p1x p1y p2x p2y];
     else
-        edgeList = [edgeList; [p2x p2y p1x p1y]];
+        %edgeList = [edgeList; [p2x p2y p1x p1y]];
+        edgeList(point,:) = [p2x p2y p1x p1y];
     end
 end
 

@@ -94,7 +94,8 @@ for i = 1:length(structsV)
     end
 
     outString   = ['Creating raster-scan representation of ' structName ' contour.'];
-    CERRStatusString(outString);
+    %CERRStatusString(outString);
+    disp(outString)
 
     %------Create 'scan formats' of the structures------------%
 
@@ -114,7 +115,8 @@ for i = 1:length(structsV)
     segOptS.xCTOffset = xCTOffset;
     segOptS.yCTOffset = yCTOffset;
 
-    dummyM = zeros(segOptS.ROIImageSize);
+    % dummyM = zeros(segOptS.ROIImageSize);
+    dummyM = false(segOptS.ROIImageSize);
 
     segmentsM = [];
 
@@ -132,14 +134,16 @@ for i = 1:length(structsV)
         numSegs = length(planC{indexS.structures}(structNum).contour(slice).segments);
 
         maskM = dummyM;
-        mask3M = [];
+        % mask3M = [];
+        mask3M = false([segOptS.ROIImageSize,numSegs]);
 
         % APA: added Tim's function
         for k = 1 : numSegs
             pointsM = planC{indexS.structures}(structNum).contour(slice).segments(k).points;
             if ~isempty(pointsM)
-                str4 = ['Scan converting structure ' num2str(structNum) ', slice ' num2str(slice) ', segment ' num2str(k) '.'];
-                CERRStatusString(str4)
+                %str4 = ['Scan converting structure ' num2str(structNum) ', slice ' num2str(slice) ', segment ' num2str(k) '.'];
+                % CERRStatusString(str4)
+                
                 [xScanV, yScanV, zScanV] = getScanXYZVals(planC{indexS.scan}(scanNum), slice);
                 %convertedContour = convertContourToPixels_1(xScanV, yScanV, planC{indexS.structures}(structNum).contour(slice),k);
 
@@ -168,7 +172,7 @@ for i = 1:length(structsV)
                 end
 
                 %convertedContour.segments.points = [round(rowV), round(colV)];
-                convertedContour.segments.points = [(rowV), (colV)];
+                %convertedContour.segments.points = [(rowV), (colV)];
                 maskM = uint32(polyFill(length(yScanV), length(xScanV), rowV, colV));
                 if (size(pointsM,1) == 1) || (size(pointsM,1) == 2 && isequal(pointsM(1,:),pointsM(2,:)))
                     maskM(floor(rowV(1)):ceil(rowV(1)),floor(colV(1)):ceil(colV(1))) = uint32(1);
@@ -179,7 +183,7 @@ for i = 1:length(structsV)
         end
         % APA: added Tim's function ends
 
-        if ~isempty(find(mask3M))
+        if any(mask3M(:))
 
             %Combine masks
             %Add segments together:
@@ -190,17 +194,18 @@ for i = 1:length(structsV)
                 baseM = baseM + mask3M(:,:,m);  %to catalog overlaps
             end
 
-            maskM = [baseM == 1];  %% To leave alone self-intersecting contours (eg. baseM == 2,3.. are left alone)
+            maskM = baseM == 1;  %% To leave alone self-intersecting contours (eg. baseM == 2,3.. are left alone)
 
             tmpM = mask2scan(maskM, segOptS, slice);       %convert mask into scan segment format
 
             zValuesV = ones(size(tmpM,1),1) * zValue;
 
-            try    %%JOD, 16 Oct 03
+            %try    %%JOD, 16 Oct 03
+            if isfield(planC{indexS.scan}(scanNum).scanInfo(slice),'voxelThickness')
 
                 voxelThickness = planC{indexS.scan}(scanNum).scanInfo(slice).voxelThickness;
 
-            catch
+            else
                 voxelThicknessV = deduceVoxelThicknesses(scanNum, planC);
                 for p = 1 : length(voxelThicknessV)  %put back into planC
                     planC{indexS.scan}(scanNum).scanInfo(p).voxelThickness = voxelThicknessV(p);
@@ -215,6 +220,6 @@ for i = 1:length(structsV)
     planC{indexS.structures}(structNum).rasterSegments = segmentsM;
     planC{indexS.structures}(structNum).rasterized = 1;
 
-    CERRStatusString('')
+    %CERRStatusString('')
 
 end
