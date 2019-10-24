@@ -236,37 +236,17 @@ switch fieldname
             %Reshape Contour Data
             data    = reshape(data, [3 nPoints])';
 
-            data(:,3) = -data(:,3); %Z is always negative to match RTOG spec
-
-            if isstr(pPos)
-                switch upper(pPos)
-                    case 'HFS' %+x,-y,-z
-                        data(:,2) = -data(:,2);
-                        %data(:,2) = 2*yOffset*10 - data(:,2);
-                    case 'HFP' %-x,+y,-z
-                        data(:,1) = -data(:,1);
-                        %data(:,1) = 2*xOffset*10 - data(:,1); %1/3/2017
-                    case 'HFDR' %
-                        data(:,2) = 2*yOffset*10 - data(:,2);
-                        data(:,1) = -data(:,1);
-                    case 'FFS' %+x,-y,-z
-                        data(:,2) = -data(:,2);
-                        data(:,1) = -data(:,1);
-                        %data(:,1) = 2*xOffset*10 - data(:,1);
-                        %data(:,2) = 2*yOffset*10 - data(:,2);
-                    case 'FFP' %-x,+y,-z
-                        data(:,1) = -data(:,1);
-                        %data(:,1) = 2*xOffset*10 - data(:,1);
-                    otherwise
-                        data(:,2) = -data(:,2);
-                        %data(:,2) = -1*yOffset*10 + 2*data(:,2);
-                        %data(:,1) = -data(:,1);
-                        %data(:,1) = 2*xOffset*10 - data(:,1);
-                end
-            else
-                data(:,2) = -data(:,2); %Default it to HFS
-            end
-
+            %data(:,3) = -data(:,3); %Z is always negative to match RTOG spec
+            
+            % Flip based on pt position
+             if ischar(pPos)
+                  data = convertCoordinates(data, pPos);
+             else
+                    %Default it to HFS
+                data(:,3) = -data(:,3); %Z is always negative to match RTOG spec
+                data(:,2) = -data(:,2); 
+             end
+            
             %Convert from DICOM mm to CERR cm.
             data    = data / 10;
 

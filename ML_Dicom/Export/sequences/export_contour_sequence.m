@@ -106,10 +106,10 @@ switch tag
         %Convert from CERR cm to DICOM mm.
         contour = contour * 10;
         
-        %Convert from CERR coordinates to DICOM patient orientation
-        %coordinates.  Currently assuming HFS orientation.
-        contour(:,2) = -contour(:,2);
-        contour(:,3) = -contour(:,3);
+        %Convert from CERR coordinates to DICOM coordinates based on pt
+        %position.
+        ptPos = scanS.scanInfo(1).patientPosition;
+        contour = convertCoordinates(contour, ptPos);
         
         %Check for first/last points being the same.  If the same, remove
         %one as specified by DICOM's closed contour definition.

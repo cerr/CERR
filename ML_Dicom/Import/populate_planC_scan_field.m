@@ -148,15 +148,25 @@ switch fieldname
                     
                     % Study instance UID
                     studyUID = getTagValue(imgobj, '0020000D');
-
+                    
                     %Check the image orientation.
                     imgOri = getTagValue(imgobj, '00200037');
                     
-                    if ~isempty(imgOri) && max(abs((imgOri(:) - [1 0 0 0 1 0]'))) < 1e-3
-                        pPos = 'HFS';
+                    if ~isempty(imgOri)
+                        if max(abs((imgOri(:) - [1 0 0 0 1 0]'))) < 1e-3
+                            pPos = 'HFS';
+                        elseif max(abs((imgOri(:) - [-1 0 0 0 1 0]'))) < 1e-3
+                            pPos = 'FFS';
+                        elseif max(abs((imgOri(:) - [-1 0 0 0 -1 0]'))) < 1e-3
+                            pPos = 'HFP';
+                        elseif max(abs((imgOri(:) - [1 0 0 0 -1 0]'))) < 1e-3
+                            pPos = 'FFP';
+                        else
+                            pPos = 'OBLIQUE';    %Oblique
+                        end
                     else
                         %Check patient position
-                        pPos = getTagValue(imgobj, '00185100');
+                        pPos = dcm2ml_Element(imgobj.get(hex2dec('00185100')));
                     end
                     
                     % Store the patient position associated with this studyUID
@@ -229,10 +239,10 @@ switch fieldname
                     end
                     
                     % Check for oblique scan
-                    isOblique = 0;
-                    if max(abs(abs(imgOri(:)) - [1 0 0 0 1 0]')) > obliqTol
-                        isOblique = 1;
-                    end
+                    %isOblique = 0;
+                    %if max(abs(abs(imgOri(:)) - [1 0 0 0 1 0]')) > obliqTol
+                    %    isOblique = 1;
+                    %end
                     
                     %Store zValue for sorting, converting DICOM mm to CERR cm and
                     %inverting to match CERR's z direction.
@@ -245,26 +255,26 @@ switch fieldname
                     %    pPos = 'HFS';
                     %end
                     
-                    if ~isOblique && (imgOri(1)==-1)
-                        dataS(:,:,imageNum) = flipdim(dataS(:,:,imageNum), 2);
-                    end
-                    if ~isOblique && (imgOri(5)==-1)
-                        dataS(:,:,imageNum) = flipdim(dataS(:,:,imageNum), 1);
-                    end
-                    
-                    if ~isOblique
-                        switch upper(pPos)
-                            case 'HFP'
-                                dataS(:,:,imageNum) = flipdim(dataS(:,:,imageNum), 1); %Similar flip as doseArray
-                                dataS(:,:,imageNum) = flipdim(dataS(:,:,imageNum), 2); % 1/3/2017
+                    %if ~isOblique && (imgOri(1)==-1)
+                    %    dataS(:,:,imageNum) = flipdim(dataS(:,:,imageNum), 2);
+                    %end
+                    %if ~isOblique && (imgOri(5)==-1)
+                    %    dataS(:,:,imageNum) = flipdim(dataS(:,:,imageNum), 1);
+                    %end
+                    %
+                    %if ~isOblique
+                    %    switch upper(pPos)
+                    %        case 'HFP'
+                    %            dataS(:,:,imageNum) = flipdim(dataS(:,:,imageNum), 1); %Similar flip as doseArray
+                    %            dataS(:,:,imageNum) = flipdim(dataS(:,:,imageNum), 2); % 1/3/2017
                                 
-                            case 'FFS'
-                                dataS(:,:,imageNum) = flipdim(dataS(:,:,imageNum), 2);  % 1/3/2017
+                    %        case 'FFS'
+                    %            dataS(:,:,imageNum) = flipdim(dataS(:,:,imageNum), 2);  % 1/3/2017
                                 
-                            case 'FFP'
-                                dataS(:,:,imageNum) = flipdim(dataS(:,:,imageNum), 1); %Similar flip as doseArray
-                        end
-                    end
+                    %        case 'FFP'
+                    %            dataS(:,:,imageNum) = flipdim(dataS(:,:,imageNum), 1); %Similar flip as doseArray
+                    %    end
+                    %end
                     
                     clear imageobj;
                     
@@ -334,7 +344,24 @@ switch fieldname
                     studyUID = dcm2ml_Element(imgobj.get(hex2dec('0020000D')));
                     
                     %Check patient position
-                    pPos = getTagValue(imgobj, '00185100');
+                    imgOri = getTagValue(imgobj, '00200037');
+                    
+                    if ~isempty(imgOri)
+                        if max(abs((imgOri(:) - [1 0 0 0 1 0]'))) < 1e-3
+                            pPos = 'HFS';
+                        elseif max(abs((imgOri(:) - [-1 0 0 0 1 0]'))) < 1e-3
+                            pPos = 'FFS';
+                        elseif max(abs((imgOri(:) - [-1 0 0 0 -1 0]'))) < 1e-3
+                            pPos = 'HFP';
+                        elseif max(abs((imgOri(:) - [1 0 0 0 -1 0]'))) < 1e-3
+                            pPos = 'FFP';
+                        else
+                            pPos = 'OBLIQUE';    %Oblique
+                        end
+                    else
+                        %Check patient position
+                        pPos = dcm2ml_Element(imgobj.get(hex2dec('00185100')));
+                    end
                     
                     % Get Patient Position from the associated CT/MR scan
                     % in case of NM missing the patient position.
@@ -383,6 +410,7 @@ switch fieldname
                     if ~isOblique && (isequal(pPos,'FFP') || isequal(pPos,'FFS'))
                         dataS = flipdim(dataS, 3); %Similar flip as doseArray
                     end
+                    
                     clear imageobj;                    
                 
         end
@@ -434,12 +462,6 @@ switch fieldname
                     if ismember(type,{'MG','SM'}) % mammogram or pathology
                         imgpos = [0 0 0];
                         imgOri = zeros(6,1);
-                    end
-                    
-                    % Check for oblique scan
-                    isOblique = 0;
-                    if max(abs(abs(imgOri(:)) - [1 0 0 0 1 0]')) > obliqTol
-                        isOblique = 1;
                     end
                     
                     %Store zValue for sorting, converting DICOM mm to CERR cm and

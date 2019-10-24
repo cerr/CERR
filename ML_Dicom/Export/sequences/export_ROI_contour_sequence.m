@@ -44,6 +44,7 @@ tag         = args.tag;
 structS     = args.data{1};
 index       = args.data{2};
 template    = args.template;
+scanS       = args.data{3}; 
 
 switch tag
     case 805699716 %3006,0084   Referenced ROI Number
@@ -88,7 +89,7 @@ switch tag
                     points = structS.contour(i).segments(j).points;
 
                     % dcmobj = export_sequence(fHandle, templateEl, {points});
-                    dcmobj = export_sequence(fHandle, templateEl, {structS.contour(i), j});
+                    dcmobj = export_sequence(fHandle, templateEl, {structS.contour(i), j, scanS});
                     el.add(numAdded, dcmobj);
 
                     numAdded = numAdded + 1;

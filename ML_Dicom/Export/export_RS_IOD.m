@@ -83,7 +83,7 @@ for scanNum = 1:length(planC{indexS.scan})
     attr.addAll(ssattr);
     clear ssattr;
     
-    ssattr = export_module('roi_contour', structureS);
+    ssattr = export_module('roi_contour', structureS, scanS); %AI mod
     attr.addAll(ssattr);
     clear ssattr;
     

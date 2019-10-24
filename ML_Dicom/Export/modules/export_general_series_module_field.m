@@ -18,6 +18,7 @@ function el = export_general_series_module_field(args)
 %JRA 06/19/06
 %NAV 07/19/16 updated to dcm4che3
 %   replaced ml2dcm_Element to data2dcmElement
+%AI 10/24/19 Use imageOrientationPatient to determine patient position
 %
 %Usage:
 %   dcmobj = export_general_series_module_field(args)
@@ -79,18 +80,28 @@ switch tag
         data = [];
         el = data2dcmElement(template, data, tag);
      
-    %Class 3 Tags -- presence is optional, currently undefined.        
+    %Class 3 Tags -- presence is optional    
     case  524321    %0008,0021 Series Date
+
+        try
+            data = scanS(1).scanInfo(1).DICOMHeaders.SeriesDate;
+        catch
+            data = [];
+        end
+        el = data2dcmElement(template, data, tag);
+                
+        %Class 3 Tags -- presence is optional
+    case  528446    %0008,103E Series Description
+        data = scanInfo.scanDescription;
+        %el = template.get(tag);
+        %el = ml2dcm_Element(el, data);
+        el = data2dcmElement(template, data, tag);
+        
+        %Class 3 Tags -- presence is optional, currently undefined.
     case  524337    %0008,0031 Series Time
     case  528464    %0008,1050 Performing Physician's Name
     case  528466    %0008,1052 Performing Physican Identification Number
     case 1577008    %0018,1030 Protocol Name
-    case  528446    %0008,103E Series Description
-        data = scanInfo.scanDescription;
-        %el = template.get(tag);   
-        %el = ml2dcm_Element(el, data);
-        el = data2dcmElement(template, data, tag);
-        
     case  528496    %0008,1070 Operator's Name
     case  528498    %0008,1072 Operator Identification Sequence
     case  528657    %0008,1111 Referenced Performed Procedure Step Sequence
@@ -113,34 +124,14 @@ switch tag
     case 1593600    %0018,5100 Patient Position
         %This field is required for CT and MR images.
         try
-            hIO = scanInfo.headInOut;
-            pIS = scanInfo.positionInScan;
-
-            if strcmpi(hIO, 'out') & strcmpi(pIS, 'nose up')
-                data = 'FFS';   %Feet First Supine.
-            elseif strcmpi(hIO, 'out') & strcmpi(pIS, 'nose down')
-                data = 'FFP';   %Feet First Prone
-            elseif strcmpi(hIO, 'out') & strcmpi(pIS, 'right side down')
-                data = 'FFDR';  %Feet First Decubitus Right
-            elseif strcmpi(hIO, 'out') & strcmpi(pIS, 'left side down')
-                data = 'FFDL';  %Feet First Decubitus Left
-            elseif strcmpi(hIO, 'in') & strcmpi(pIS, 'nose up')
-                data = 'HFS';   %Head First Supine
-            elseif strcmpi(hIO, 'in') & strcmpi(pIS, 'nose down')
-                data = 'HFP';   %Head First Prone
-            elseif strcmpi(hIO, 'in') & strcmpi(pIS, 'right side down')
-                data = 'HFDR';  %Head First Decubitus Right
-            elseif strcmpi(hIO, 'in') & strcmpi(pIS, 'left side down')
-                data = 'HFDL';  %Head First Decubitus Left
-            else
-                warning('scanInfo.headInOut or scanInfo.positionInScan contain invalid values.  Assuming HFS.');
-                data = 'HFS';   %Head First Supine
-            end
+            
+            data = scanInfo.patientPosition;
             el = data2dcmElement(template, data, tag);
+            
         catch
-            warning('scanInfo does not contain Patient Position information. Defaul to HFS');
+            warning('scanInfo does not contain Patient Position information. Defaulting to HFS');
             data = 'HFS';
-            el = data2dcmElement(template, data, tag);           
+            el = data2dcmElement(template, data, tag);
         end
                    
     otherwise
