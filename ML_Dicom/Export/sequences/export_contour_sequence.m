@@ -43,6 +43,7 @@ tag         = args.tag;
 % contour     = args.data{1};
 contour     = args.data{1}.segments(args.data{2}).points;
 template    = args.template;
+scanS       = args.data{3};
 
 switch tag
     case 805699656  %3006,0048  Contour Number

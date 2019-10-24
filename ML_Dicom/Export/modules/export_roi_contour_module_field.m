@@ -51,6 +51,7 @@ el = [];
 tag         = args.tag;
 structS     = args.data{1};
 template    = args.template;
+scanS       = args.data{2}; 
 
 switch tag
     %Class 1 Tags -- Required, must have data.    
