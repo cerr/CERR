@@ -67,7 +67,7 @@ switch tag
         nStructures = length(structS);
         
         for i=1:nStructures
-            dcmobj = export_sequence(fHandle, templateEl, {structS(i), i});
+            dcmobj = export_sequence(fHandle, templateEl, {structS(i), i, scanS});
             %dcmobj = export_sequence(fHandle, tag, {structS(i), i});
             el.add(i-1, dcmobj);
         end                      
