@@ -245,6 +245,12 @@ switch fieldname
         end
         %End modified
         
+    case 'imageOrientationPatient'
+        %Image Orientation
+        %dataS = dcm2ml_Element(dcmobj.get(hex2dec('00200037')));
+        dataS  = getTagValue(attr, '00200037');
+
+        
     case 'xOffset'
         %Image Position (Patient)
         imgpos = getTagValue(attr, '00200032');
@@ -498,9 +504,11 @@ switch fieldname
         end
         
     case 'patientPosition'
-        if attr.contains(hex2dec('00185100'))
-            dataS  = getTagValue(attr, '00185100');
-        end
+        
+        dataS = pPos;
+%         if attr.contains(hex2dec('00185100'))
+%             dataS  = getTagValue(attr, '00185100');
+%         end
         
     case 'imageOrientationPatient'
         dataS  = getTagValue(attr, '00200037');
