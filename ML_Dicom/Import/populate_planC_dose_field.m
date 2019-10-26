@@ -436,10 +436,26 @@ switch fieldname
         %Bits Allocated
         bA = getTagValue(attr, '00280100');
         
+        %Pixel Representation
+        pixRep = getTagValue(attr, '00280103');
+        
+        transferSyntaxUID = getTagValue(attr,'00020010');
+        
+        doseType = getTagValue(attr,'30040004');
+        
         mread = 0;
         %wy Pixel Data
         try
-            doseV = uint16(getTagValue(attr, '7FE00010'));
+
+            % doseV = uint16(getTagValue(attr, '7FE00010'));
+            doseV = getTagValue(attr, '7FE00010');
+            
+            % doseV is a vector of 16 bit numbers
+            if strcmpi(class(doseV),'int32')
+                doseV = typecast(int16(doseV),'uint16');
+            elseif strcmpi(class(doseV),'int16')
+                doseV = typecast(doseV,'uint16');
+            end
             if isempty(doseV)
                 doseV = dicomread(DOSE.file);
                 mread = 1;
@@ -455,6 +471,7 @@ switch fieldname
                 otherwise
                     error('RT Dose objects must have attribute "Bits Allocated" set to either 16 or 32.');
             end
+            
         catch
             doseV = dicomread(DOSE.file);
             doseV = squeeze(doseV);
