@@ -103,7 +103,7 @@
 
 "dosePlotType" : "colorwash",
 
-"doseColormap" : "weather",
+"doseColormap" : "starinterp",
 
 "CTColormap" : "gray256",
 
