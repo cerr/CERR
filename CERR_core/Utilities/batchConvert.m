@@ -172,8 +172,8 @@ for dirNum = 1:length(allDirS)
 %                         rtEndIndex = rtEndIndex - 1;
 %                     end
 %                 end
-                oneDirUp = sourceDir(slashIndex(end-1)+1:slashIndex(end)-1);
-                twoDirUp = sourceDir(slashIndex(end-2)+1:slashIndex(end-2+1)-1);
+%                 oneDirUp = sourceDir(slashIndex(end-1)+1:slashIndex(end)-1);
+%                 twoDirUp = sourceDir(slashIndex(end-2)+1:slashIndex(end-2+1)-1);
 %                 % For Metropolis with all plans per patient
 %                 sourceDirName = [oneDirUp,'_',sourceDir(rtStartIndex:rtEndIndex)];
 %                 % For Metropolis with one plan per patient
