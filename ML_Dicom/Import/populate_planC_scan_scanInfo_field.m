@@ -291,7 +291,7 @@ switch fieldname
         else
             % by Deshan Yang, 3/2/2010
             xOffset = imgpos(1);
-            pPos = '';
+            %pPos = ''; %AI mod
         end
         %         xOffset = imgpos(1) + (pixspac(1) * (nCols - 1) / 2);
         
@@ -354,7 +354,7 @@ switch fieldname
         else
             % by Deshan Yang, 3/2/2010
             yOffset = imgpos(2);
-            pPos = '';
+            %pPos = ''; %AI mod
         end
         %         yOffset = imgpos(2) + (pixspac(2) * (nRows - 1) / 2);
         
