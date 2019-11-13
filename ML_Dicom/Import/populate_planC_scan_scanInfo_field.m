@@ -279,10 +279,15 @@ switch fieldname
         nCols  = getTagValue(attr, '00280011');
         
         % check for oblique scan
-        isOblique = 0;
-        if max(abs(abs(imgOri(:)) - [1 0 0 0 1 0]')) > obliqTol
+        if strcmpi(pPos,'oblique')
             isOblique = 1;
+        else
+            isOblique = 0;
         end
+%        isOblique = 0;
+%         if max(abs(abs(imgOri(:)) - [1 0 0 0 1 0]')) > obliqTol
+%             isOblique = 1;
+%         end
         
         if ~isOblique && (imgOri(1)-1)^2 < 1e-5
             xOffset = imgpos(1) + (pixspac(2) * (nCols - 1) / 2);
@@ -339,10 +344,15 @@ switch fieldname
         end
         
         % check for oblique scan
-        isOblique = 0;
-        if max(abs(abs(imgOri(:)) - [1 0 0 0 1 0]')) > obliqTol
+        if strcmpi(pPos,'oblique')
             isOblique = 1;
+        else
+            isOblique = 0;
         end
+%         isOblique = 0;
+%         if max(abs(abs(imgOri(:)) - [1 0 0 0 1 0]')) > obliqTol
+%             isOblique = 1;
+%         end
         
         %Rows
         nRows  = getTagValue(attr, '00280010');
@@ -373,7 +383,7 @@ switch fieldname
                     dataS = yOffset / 10;
             end
         else
-            dataS = yOffset / 10;
+            dataS = yOffset / 10;  %?
             
         end
         

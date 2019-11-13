@@ -94,36 +94,29 @@ switch tag
         
         xV = scanInfoS.xOffset - ((scanInfoS.sizeOfDimension2-1)*scanInfoS.grid2Units)/2;
         yV = scanInfoS.yOffset + ((scanInfoS.sizeOfDimension1-1)*scanInfoS.grid2Units)/2;
-        zV = scanInfoS.zValue;
+        posV = scanInfoS.imagePositionPatient;
+        zV = posV(3)/10;
         coord3M = [xV, yV, zV];
         
         ptPos = scanInfoS.patientPosition;
         switch type
             case 'scan'
                 
-                if ~isempty(ptPos) && ischar(ptPos)
-                    coord3M = convertCoordinates(coord3M, ptPos);
-                    xV = coord3M(:,1);
-                    yV = coord3M(:,2);
-                    zV = coord3M(:,3);
-                else
-                    %?
-                end
+                coord3M = convertCoordinates(coord3M, ptPos);
+                xV = coord3M(:,1);
+                yV = coord3M(:,2);
+                zV = coord3M(:,3);
                 
             case 'dose'
                 xV = doseS.coord1OFFirstPoint;
                 yV = doseS.coord2OFFirstPoint;
-                zV = -doseS.zValues(end);
+                zV = -doseS.zValues(end); %?
                 coord3M = [xV, yV, zV];
                 
-                if ~isempty(ptPos) && ischar(ptPos)
-                    coord3M = convertCoordinates(coord3M, ptPos);
-                    xV = coord3M(:,1);
-                    yV = coord3M(:,2);
-                    zV = coord3M(:,3);
-                else
-                    %?
-                end
+                coord3M = convertCoordinates(coord3M, ptPos);
+                xV = coord3M(:,1);
+                yV = coord3M(:,2);
+                zV = coord3M(:,3);
                 
         end
         
