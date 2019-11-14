@@ -221,7 +221,9 @@ for scanNum = 1:numScans
             % for each contour
             points = planC{indexS.structures}(nvoi).contour(sliceno).segments;
             % y and z are inverted, now get the original data back
-            points(:,2:3) = -points(:,2:3);
+            %points(:,2:3) = -points(:,2:3);
+            % z is inverted, now get the original data back
+            points(:,3) = -points(:,3);
             
             if ~isempty(points)
                 tempa = [points ones(size(points,1),1)];
