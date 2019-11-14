@@ -23,9 +23,7 @@ switch upper(ptPos)
     case 'FFP' %+x,+y,-z
         %skip
     case 'OBLIQUE'
-        %Oblique
-        warning('Defaulting to HFS .');
-        converted3M(:,2) = -converted3M(:,2); 
+        %skip
     otherwise
         error('Invalid pt. position %s',ptPos)
 end
