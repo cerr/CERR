@@ -92,43 +92,30 @@ switch tag
         
     case 2097202    %0020,0032 Image Position (Patient) (mm)
         
-        xV = scanInfoS.xOffset - ((scanInfoS.sizeOfDimension2-1)*scanInfoS.grid2Units)/2;
-        yV = scanInfoS.yOffset + ((scanInfoS.sizeOfDimension1-1)*scanInfoS.grid2Units)/2;
-        zV = scanInfoS.zValue;
-        coord3M = [xV, yV, zV];
-        
-        ptPos = scanInfoS.patientPosition;
         switch type
             case 'scan'
                 
-                if ~isempty(ptPos) && ischar(ptPos)
-                    coord3M = convertCoordinates(coord3M, ptPos);
-                    xV = coord3M(:,1);
-                    yV = coord3M(:,2);
-                    zV = coord3M(:,3);
-                else
-                    %?
+                posV = scanInfoS.imagePositionPatient;
+                if isempty(posV) %non-dicom
+                    xV = scanInfoS.xOffset - ((scanInfoS.sizeOfDimension2-1)*scanInfoS.grid2Units)/2;
+                    yV = scanInfoS.yOffset + ((scanInfoS.sizeOfDimension1-1)*scanInfoS.grid2Units)/2;
+                    zV = scanInfoS.zValue;
+                    posV = convertCoordinates([xV,yV,zV], ptPos);
+                    %Convert from CERR cm to DICOM mm.
+                    posV = posV * 10;
                 end
                 
             case 'dose'
                 xV = doseS.coord1OFFirstPoint;
                 yV = doseS.coord2OFFirstPoint;
-                zV = -doseS.zValues(end);
+                zV = -doseS.zValues(end); %?
                 coord3M = [xV, yV, zV];
-                
-                if ~isempty(ptPos) && ischar(ptPos)
-                    coord3M = convertCoordinates(coord3M, ptPos);
-                    xV = coord3M(:,1);
-                    yV = coord3M(:,2);
-                    zV = coord3M(:,3);
-                else
-                    %?
-                end
-                
+                posV = convertCoordinates(coord3M, ptPos);
+                %Convert from CERR cm to DICOM mm.
+                posV = posV * 10;
         end
         
-        %Convert from CERR cm to DICOM mm.
-        data = [xV yV zV] * 10;
+        data = posV;
         el = data2dcmElement(template, data, tag);
         
         %Class 2 Tags -- Must be present, can be blank.

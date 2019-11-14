@@ -38,6 +38,9 @@ function writefile_mldcm(attrData, filename)
 
 %Create a java file object associated with this filename
 ofile       = java.io.File([filename,'.dcm']);
+[dirName,~] = fileparts(filename);
+odir      = java.io.File(dirName);
+odir.mkdirs();
 
 %Create a DicomOutputStream to read this input file.
 tsuid        = '1.2.840.10008.1.2';

@@ -279,9 +279,10 @@ switch fieldname
         nCols  = getTagValue(attr, '00280011');
         
         % check for oblique scan
-        isOblique = 0;
-        if max(abs(abs(imgOri(:)) - [1 0 0 0 1 0]')) > obliqTol
+        if strcmpi(pPos,'oblique')
             isOblique = 1;
+        else
+            isOblique = 0;
         end
         
         if ~isOblique && (imgOri(1)-1)^2 < 1e-5
@@ -312,7 +313,6 @@ switch fieldname
             
         else
             dataS = xOffset / 10;
-            
         end
         
         xOffset = dataS; %done for setting global, used in Structure coord
@@ -339,10 +339,12 @@ switch fieldname
         end
         
         % check for oblique scan
-        isOblique = 0;
-        if max(abs(abs(imgOri(:)) - [1 0 0 0 1 0]')) > obliqTol
+        if strcmpi(pPos,'oblique')
             isOblique = 1;
+        else
+            isOblique = 0;
         end
+        
         
         %Rows
         nRows  = getTagValue(attr, '00280010');
@@ -373,8 +375,7 @@ switch fieldname
                     dataS = yOffset / 10;
             end
         else
-            dataS = yOffset / 10;
-            
+            dataS = yOffset / 10;  %?
         end
         
         yOffset = dataS; %done for setting global, used in Structure coord
@@ -515,6 +516,7 @@ switch fieldname
         
     case 'imagePositionPatient'
         dataS  = getTagValue(attr, '00200032');
+
         
     case 'bValue' %REPLACED EL WITH TAG
         % b-value for MR scans (vendor specific private tag)
