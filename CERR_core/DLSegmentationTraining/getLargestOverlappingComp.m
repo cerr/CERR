@@ -25,7 +25,7 @@ cc = bwconncomp(mask3M,26);
 ccSizV = cellfun(@numel,[cc.PixelIdxList]);
 
 %Loop over components
-isIntersect = false(length(ccSizV),1);
+numIntersect = zeros(length(ccSizV),1);
 
 for compIdx = 1:length(ccSizV)
     
@@ -33,13 +33,12 @@ for compIdx = 1:length(ccSizV)
     compMask3M = false(size(mask3M));
     compMask3M(idxV) = true;
     %Calc. intersection
-    isIntersect(compIdx)  = sum(compMask3M(:) & roiMask3M(:))>0;
+    numIntersect(compIdx)  = sum(compMask3M(:) & roiMask3M(:));
     
 end
 
-%Return mask of largest overlapping component
-ccSizV(~isIntersect)=nan;
-[~,maxOverlapIdx] = nanmax(ccSizV);
+%Return mask of component with max overlap
+[~,maxOverlapIdx] = max(numIntersect);
 idxV = cc.PixelIdxList{maxOverlapIdx};
 maskOut3M = false(size(mask3M));
 maskOut3M(idxV) = true;
