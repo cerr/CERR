@@ -48,6 +48,12 @@ if ~isempty(postS)
                     numConnComponents = postS.(strC{iStr}).params.numCC;
                     maskC{iMethod} = getLargestConnComps(strNum,numConnComponents,planC);
                     
+                case 'getLargestOverlappingComp'
+                    
+                    roiName = postS.(strC{iStr}).params.roiName;
+                    roiStrNum = getMatchingIndex(roiName,strListC,'EXACT');
+                    maskC{iMethod} = getLargestOverlappingComp(strNum,roiStrNum,planC);
+                    
                 case 'getSegInROI'
                     
                     roiName = postS.(strC{iStr}).params.roiName;
@@ -57,7 +63,6 @@ if ~isempty(postS)
                     strMask3M = getStrMask(strNum,planC);
                     
                     maskC{iMethod} = roiMask3M & strMask3M;
-                    
                     
                 case 'none'
                      
