@@ -17,10 +17,12 @@ if ~isempty(postS)
     strC = fieldnames(postS);
     
     indexS = planC{end};
-    strListC = {planC{indexS.structures}.structureName};
     
-    %Loop pver structures
+    
+    %Loop over structures
     for iStr = 1:length(strC)
+        
+        strListC = {planC{indexS.structures}.structureName};
         
         outMask3M = [];
         
@@ -46,7 +48,31 @@ if ~isempty(postS)
                     numConnComponents = postS.(strC{iStr}).params.numCC;
                     maskC{iMethod} = getLargestConnComps(strNum,numConnComponents,planC);
                     
+                case 'getSegInROI'
                     
+                    roiName = postS.(strC{iStr}).params.roiName;
+                    roiStrNum = getMatchingIndex(roiName,strListC,'EXACT');
+                    
+                    roiMask3M = getStrMask(roiStrNum,planC);
+                    strMask3M = getStrMask(strNum,planC);
+                    
+                    maskC{iMethod} = roiMask3M & strMask3M;
+                    
+                    
+                case 'none'
+                     
+                    maskC{iMethod} = getStrMask(strNum,planC);
+                     
+                otherwise
+                    %Custom post-processing function
+                    customMethod = methodC{iMethod};
+                    if isfield(postS.(strC{iStr}),'params')
+                        paramS = postS.(strC{iStr}).params;
+                    else
+                        paramS = [];
+                    end
+                    maskC{iMethod} = feval(customMethod,strNum,paramS,planC);
+                   
             end
             
             %Combine masks
