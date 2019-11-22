@@ -1,4 +1,4 @@
-function [t50Map3M,s50Map3M] = TTHP_main(planC,strNum,varargin)
+function [t50Map3M,s50Map3M,planC] = TTHP_main(planC,strNum,varargin)
 % [t50Map3M,s50Map3M] = TTHP_main(planC,strNum,varargin)
 % AI 2/02/16
 %==========================================================================
@@ -8,12 +8,12 @@ function [t50Map3M,s50Map3M] = TTHP_main(planC,strNum,varargin)
 % --- Optional -----
 % varargin{1} :  Flag for temporal smoothing (Default:0)
 % varargin{2} :  Flag for resampling         (Default:0)
-% varargin{3} :  Spatial smoothing filter size & sigma 
+% varargin{3} :  Spatial smoothing filter size & sigma
 %                filtV =[fSize, fSigma] (Default: no smoothing)
 %==========================================================================
 %% Check inputs
-minargs = 2; 
-maxargs = 5; 
+minargs = 2;
+maxargs = 5;
 narginchk(minargs,maxargs);
 % Set defaults
 smoothFlag = 0;
@@ -56,9 +56,9 @@ for n = 1:nMaskSlices
     
     %Smooth
     if ~filtV==0
-    for l = 1:size(filtSlice3M,3)
-        filtSlice3M(:,:,l) = filter2(hFilt,slice3M(:,:,l));
-    end
+        for l = 1:size(filtSlice3M,3)
+            filtSlice3M(:,:,l) = filter2(hFilt,slice3M(:,:,l));
+        end
     else
         filtSlice3M = slice3M;
     end
@@ -89,8 +89,8 @@ normDCEShift4M = normDCE4M(:,:,shift+1:end,:);
 CERRStatusString('Computing TTHP...','console');
 t50C = cell(1,nMaskSlices);
 s50C = cell(1,nMaskSlices);
-t50Map3M = zeros(sizV(1:3));
-s50Map3M = zeros(sizV(1:3));
+t50Map3M = zeros(sizV(1),sizV(2),sizV(4));
+s50Map3M = zeros(sizV(1),sizV(2),sizV(4));
 for n = 1:nMaskSlices
     [ROIidxV,ROIDataM] = getRasterROI(normDCEShift4M(:,:,:,roiSlicesV(n)));
     
@@ -105,11 +105,34 @@ for n = 1:nMaskSlices
     s50MapV(ROIidxV) = s50C{n};
     s50Map3M(:,:,roiSlicesV(n)) = reshape(s50MapV,sizV(2),sizV(1)).';
 end
+
+%% Add maps to planC
+scanNum = getStructureAssociatedScan(strNum,planC);
+[xVals, yVals, zVals] = getScanXYZVals(planC{indexS.scan}(scanNum));
+dx = abs(mean(diff(xVals)));
+dy = abs(mean(diff(yVals)));
+dz = abs(mean(diff(zVals)));
+deltaXYZv = [dy dx dz];
+regParamsS.horizontalGridInterval = deltaXYZv(1);
+regParamsS.verticalGridInterval   = deltaXYZv(2);
+regParamsS.coord1OFFirstPoint   = xVals(1);
+regParamsS.coord2OFFirstPoint   = yVals(sizV(1));
+regParamsS.zValues  = zVals;
+regParamsS.sliceThickness =[planC{indexS.scan}(scanNum).scanInfo(:).sliceThickness];
+
+assocTextureUID1 = createUID('texture');
+planC = scan2CERR(t50Map3M,'TTHP','Passed',regParamsS,assocTextureUID1,planC);
+
+assocTextureUID2 = createUID('texture');
+planC = scan2CERR(s50Map3M,'SHP','Passed',regParamsS,assocTextureUID2,planC);
+
 CERRStatusString('Complete.','console');
 
-% -- Sub-functions --
-function [shift,nbase] = getShift(maskedDCE3M,maskM)
-       [i,j] = find(maskM);
+
+
+%% -- Sub-functions --
+    function [shift,nbase] = getShift(maskedDCE3M,maskM)
+        [i,j] = find(maskM);
         ROISigM = (maskedDCE3M(i,j,:));
         avgROIsigV = squeeze(sum(sum(ROISigM)))/size(maskedDCE3M,3);
         h = figure('Name','ROI avg signal');
@@ -123,10 +146,10 @@ function [shift,nbase] = getShift(maskedDCE3M,maskM)
         close(h)
         % Get number of baseline points (prior to uptake)
         if shift>1
-            nbase = shift-1; 
+            nbase = shift-1;
         else
             nbase = 1;
         end
-end
+    end
 
 end
