@@ -10,7 +10,7 @@ rasterSegs1 = getRasterSegments(structNum1, planC);
 rasterSegs2 = getRasterSegments(structNum2, planC);
 
 % Get associated scanNum 
-scanNum = 1;
+scanNum = getStructureAssociatedScan(structNum1,planC);
 
 % Get Union of the two rasterSegments
 rasterSegs = structUnion(rasterSegs1, rasterSegs2, scanNum, planC);
@@ -42,3 +42,9 @@ end
 %Update uniformized data.
 planC = updateStructureMatrices(planC, numStructs+1);
 
+% Refresh View
+global stateS
+if ~isempty(stateS) && isfield(stateS,'handle') && isfield(stateS.handle,'CERRSliceViewer') && ishandle(stateS.handle.CERRSliceViewer)
+    stateS.structsChanged = 1;
+    CERRRefresh
+end
