@@ -267,7 +267,7 @@ switch fieldname
         end
         
         %Pixel Spacing
-        if strcmpi(modality,{'MG','SM'})
+        if ismember(modality,{'MG','SM'})
             pixspac = getTagValue(attr, '00181164');
             imgOri = zeros(6,1);
             imgpos = [0 0 0];
