@@ -141,6 +141,13 @@ for scanNum = 1:numScans
 %     else
 %         ImageOrientationPatientV = [1 0 0 0 1 0]';
 %     end
+
+    % Check for Mammogram images
+    imageType = planC{indexS.scan}(scanNum).scanInfo(1).imageType;
+    if ismember(imageType,{'MG','SM'})
+        continue
+    end
+    
     ImageOrientationPatientV = planC{indexS.scan}(scanNum).scanInfo(1).imageOrientationPatient;
     
     % Check for obliqueness
