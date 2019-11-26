@@ -114,9 +114,11 @@ switch fieldname
                     
                     switch pixRep
                         case 0
-                            if bitsAllocated == 16 || bitsAllocated == 32
+                            if bitsAllocated == 8 || bitsAllocated == 16 || bitsAllocated == 32
                                 if strcmpi(class(sliceV),'int32')
-                                    if bitsAllocated == 16
+                                    if bitsAllocated == 8
+                                        sliceV = typecast(sliceV,'uint8');
+                                    elseif bitsAllocated == 16
                                         sliceV = typecast(sliceV,'uint16');
                                     else
                                         sliceV = typecast(sliceV,'uint32');
@@ -166,7 +168,12 @@ switch fieldname
                         end
                     else
                         %Check patient position
-                        pPos = dcm2ml_Element(imgobj.get(hex2dec('00185100')));
+                        modality = getTagValue(imgobj, '00080060');
+                        if ~ismember(modality,{'MG','SM'})
+                            pPos = dcm2ml_Element(imgobj.get(hex2dec('00185100')));
+                        else
+                            pPos = 'OBLIQUE';
+                        end                        
                     end
                     
                     % Store the patient position associated with this studyUID
