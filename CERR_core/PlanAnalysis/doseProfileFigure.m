@@ -411,7 +411,9 @@ switch upper(command)
             else
                 xV1 = xV; yV1 = yV; zV1 = zV;
             end
-            sV{i} = getScanAt(scanNum, xV1, yV1, zV1, planC);
+            scanV = getScanAt(scanNum, xV1, yV1, zV1, planC);
+            offset = planC{indexS.scan}(scanNum).scanInfo(1).CTOffset;
+            sV{i} = single(scanV) - offset;
             sV{i}(ptsDel) = NaN;
         end
 
