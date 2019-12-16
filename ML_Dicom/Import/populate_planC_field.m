@@ -97,21 +97,31 @@ switch cellName
                 end
                 
                 if isempty(dataS(scansAdded+1).scanInfo(1).rescaleIntercept)
-                   dataS(scansAdded+1).scanInfo(1).rescaleIntercept = 0; 
+                    dataS(scansAdded+1).scanInfo(1).rescaleIntercept = 0;
                 end
                 
                 %Apply ReScale Intercept and Slope
                 if strcmpi(typeC{seriesNum}, 'CT')
-                    % Check minimum scan value after applying scale and
-                    % intercept and adjust CTOffset to make scanArray
-                    % uint16
-                    minScanVal = min(dataS(scansAdded+1).scanArray(:));                    
-                    if abs(dataS(scansAdded+1).scanInfo(1).rescaleSlope - 1) > eps*1e5 || ...
-                            minScanVal * dataS(scansAdded+1).scanInfo(1).rescaleSlope + ...
-                            dataS(scansAdded+1).scanInfo(1).CTOffset + ...
-                            dataS(scansAdded+1).scanInfo(1).rescaleIntercept < 0
+                    minScanVal = min(dataS(scansAdded+1).scanArray(:));
+                    if abs(dataS(scansAdded+1).scanInfo(1).rescaleSlope - 1) > eps*1e5
                         dataS(scansAdded+1).scanArray = single(int32(dataS(scansAdded+1).scanArray) * dataS(scansAdded+1).scanInfo(1).rescaleSlope + ...
                             dataS(scansAdded+1).scanInfo(1).rescaleIntercept + dataS(scansAdded+1).scanInfo(1).CTOffset);
+                        % Check minimum scan value after applying scale and
+                        % intercept and adjust CTOffset to make scanArray
+                        % uint16
+                    elseif  minScanVal * dataS(scansAdded+1).scanInfo(1).rescaleSlope + ...
+                            dataS(scansAdded+1).scanInfo(1).CTOffset + ...
+                            dataS(scansAdded+1).scanInfo(1).rescaleIntercept < 0
+                        dataS(scansAdded+1).scanArray = dataS(scansAdded+1).scanArray * dataS(scansAdded+1).scanInfo(1).rescaleSlope + ...
+                            dataS(scansAdded+1).scanInfo(1).rescaleIntercept;
+                        minScanVal = min(dataS(scansAdded+1).scanArray(:));
+                        for slc = 1:length(dataS(scansAdded+1).scanInfo)
+                            dataS(scansAdded+1).scanInfo(slc).CTOffset = single(-minScanVal);
+                        end
+                        dataS(scansAdded+1).scanArray = ...
+                            uint16(dataS(scansAdded+1).scanArray + ...
+                            cast(dataS(scansAdded+1).scanInfo(1).CTOffset,...
+                            class(dataS(scansAdded+1).scanArray)));
                     else
                         if min(dataS(scansAdded+1).scanArray(:)) >= -32768 && max(dataS(scansAdded+1).scanArray(:)) <= 32767
                             dataS(scansAdded+1).scanArray = uint16(int16(dataS(scansAdded+1).scanArray) * dataS(scansAdded+1).scanInfo(1).rescaleSlope + ...
@@ -121,10 +131,32 @@ switch cellName
                                 dataS(scansAdded+1).scanInfo(1).rescaleIntercept + dataS(scansAdded+1).scanInfo(1).CTOffset);
                         end
                     end
-                elseif ~strcmpi(typeC{seriesNum}, 'PT')
+                elseif strcmpi(typeC{seriesNum}, 'PT')
+                    % No need to apply rescaleSlope and rescaleIntercept
+                    % for PET scans since it is applied on per-slice basis within
+                    % populate_planC_scan_field.m
+                else
                     rescaleSlope = dataS(scansAdded+1).scanInfo(1).rescaleSlope;
+                    minScanVal = min(dataS(scansAdded+1).scanArray(:));
                     if abs(rescaleSlope - 1) > eps*1e5
-                        dataS(scansAdded+1).scanArray = single(int32(dataS(scansAdded+1).scanArray) * rescaleSlope + dataS(scansAdded+1).scanInfo(1).rescaleIntercept);
+                        dataS(scansAdded+1).scanArray = ...
+                            single(int32(dataS(scansAdded+1).scanArray) * ...
+                            rescaleSlope + dataS(scansAdded+1).scanInfo(1).rescaleIntercept);
+                    elseif  minScanVal * dataS(scansAdded+1).scanInfo(1).rescaleSlope + ...
+                            dataS(scansAdded+1).scanInfo(1).CTOffset + ...
+                            dataS(scansAdded+1).scanInfo(1).rescaleIntercept < 0
+                        dataS(scansAdded+1).scanArray = ...
+                            dataS(scansAdded+1).scanArray * ...
+                            dataS(scansAdded+1).scanInfo(1).rescaleSlope + ...
+                            dataS(scansAdded+1).scanInfo(1).rescaleIntercept;
+                        minScanVal = min(dataS(scansAdded+1).scanArray(:));
+                        for slc = 1:length(dataS(scansAdded+1).scanInfo)
+                            dataS(scansAdded+1).scanInfo(slc).CTOffset = single(-minScanVal);
+                        end
+                        dataS(scansAdded+1).scanArray = ...
+                            uint16(dataS(scansAdded+1).scanArray + ...
+                            cast(dataS(scansAdded+1).scanInfo(1).CTOffset,...
+                            class(dataS(scansAdded+1).scanArray)));
                     else
                         if min(dataS(scansAdded+1).scanArray(:)) >= -32768 && max(dataS(scansAdded+1).scanArray(:)) <= 32767
                             dataS(scansAdded+1).scanArray = uint16(int16(dataS(scansAdded+1).scanArray) * rescaleSlope + dataS(scansAdded+1).scanInfo(1).rescaleIntercept);
@@ -133,7 +165,7 @@ switch cellName
                         end
                     end
                     if strcmpi(typeC{seriesNum}, 'MR')  %% ADDED AI 12/28/16 %%
-                        % Ref: Chenevert, Thomas L., et al. "Errors in quantitative image analysis due to platform-dependent image scaling." 
+                        % Ref: Chenevert, Thomas L., et al. "Errors in quantitative image analysis due to platform-dependent image scaling."
                         %Apply scale slope & intercept for Philips data
                         manufacturer = dataS(scansAdded+1).scanInfo(1).manufacturer;
                         if strcmpi(manufacturer,'philips') && ...
@@ -144,8 +176,6 @@ switch cellName
                     end
                 end
                 
-                
-
                 scansAdded = scansAdded + 1;
                 
             elseif strcmpi(typeC{seriesNum}, 'US')
