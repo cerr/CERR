@@ -102,7 +102,14 @@ switch cellName
                 
                 %Apply ReScale Intercept and Slope
                 if strcmpi(typeC{seriesNum}, 'CT')
-                    if abs(dataS(scansAdded+1).scanInfo(1).rescaleSlope - 1) > eps*1e5
+                    % Check minimum scan value after applying scale and
+                    % intercept and adjust CTOffset to make scanArray
+                    % uint16
+                    minScanVal = min(dataS(scansAdded+1).scanArray(:));                    
+                    if abs(dataS(scansAdded+1).scanInfo(1).rescaleSlope - 1) > eps*1e5 || ...
+                            minScanVal * dataS(scansAdded+1).scanInfo(1).rescaleSlope + ...
+                            dataS(scansAdded+1).scanInfo(1).CTOffset + ...
+                            dataS(scansAdded+1).scanInfo(1).rescaleIntercept < 0
                         dataS(scansAdded+1).scanArray = single(int32(dataS(scansAdded+1).scanArray) * dataS(scansAdded+1).scanInfo(1).rescaleSlope + ...
                             dataS(scansAdded+1).scanInfo(1).rescaleIntercept + dataS(scansAdded+1).scanInfo(1).CTOffset);
                     else
