@@ -123,7 +123,8 @@ switch fieldname
                                     else
                                         sliceV = typecast(sliceV,'uint32');
                                     end
-                                    sliceV = sliceV(1:2:end);
+                                    % sliceV = sliceV(1:2:end);
+                                    sliceV = sliceV(1:2:2*nCols*nRows);
                                 else
                                     sliceV = typecast(sliceV,'uint16');
                                 end
