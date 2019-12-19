@@ -101,7 +101,7 @@ end
 %%%%% 4/18/16 ADDED : skipping non-DICOM files %%%%%%%%%%%
 if ~isempty(dcmdirS)
     for patNum = 1:length(dcmdirS.PATIENT)
-    dcmdirS.PATIENT(patNum).STUDY = rmfield(dcmdirS.PATIENT(patNum).STUDY, 'MRI');
+        dcmdirS.PATIENT(patNum).STUDY = rmfield(dcmdirS.PATIENT(patNum).STUDY, 'MRI');
     end
 end
 
