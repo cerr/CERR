@@ -135,7 +135,7 @@ for structNum = indAssocV
 end
 
 %Reassociate Dose to cropped scan
-for i=1:length(assocDoseV);
+for i=1:length(assocDoseV)
     planC{indexS.dose}(assocDoseV(i)).assocScanUID = planC{indexS.scan}(scanNum).scanUID;
 end
 
@@ -145,8 +145,8 @@ if isfield(stateS,'scanSet')
     stateS.scanSet = scanNum;    
     % Update scan stats in stateS
     scanUID = ['c',repSpaceHyp(planC{indexS.scan}(scanNum).scanUID(max(1,end-61):end))];
-    stateS.scanStats.minScanVal.(scanUID) = single(min(planC{indexS.scan}(scanNum).scanArray(:)));
-    stateS.scanStats.maxScanVal.(scanUID) = single(max(planC{indexS.scan}(scanNum).scanArray(:)));
+    %stateS.scanStats.minScanVal.(scanUID) = single(min(planC{indexS.scan}(scanNum).scanArray(:)));
+    %stateS.scanStats.maxScanVal.(scanUID) = single(max(planC{indexS.scan}(scanNum).scanArray(:)));
     stateS.scanStats.CTLevel.(scanUID) = stateS.scanStats.CTLevel.(oldScanUID);
     stateS.scanStats.CTWidth.(scanUID) = stateS.scanStats.CTWidth.(oldScanUID);
     stateS.scanStats.windowPresets.(scanUID) = stateS.scanStats.windowPresets.(oldScanUID);

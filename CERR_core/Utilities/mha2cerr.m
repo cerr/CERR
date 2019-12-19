@@ -104,10 +104,12 @@ end
 
 if ~isempty(stateS) 
     scanUID = ['c',repSpaceHyp(planC{indexS.scan}(ind).scanUID(max(1,end-61):end))];
-    stateS.scanStats.minScanVal.(scanUID) = single(min(planC{indexS.scan}(ind).scanArray(:)));
-    stateS.scanStats.maxScanVal.(scanUID) = single(max(planC{indexS.scan}(ind).scanArray(:)));
-    scanDiff = stateS.scanStats.maxScanVal.(scanUID) - stateS.scanStats.minScanVal.(scanUID);
-    scanCenter = (stateS.scanStats.minScanVal.(scanUID) + stateS.scanStats.maxScanVal.(scanUID)) / 2;
+    %stateS.scanStats.minScanVal.(scanUID) = single(min(planC{indexS.scan}(ind).scanArray(:)));
+    %stateS.scanStats.maxScanVal.(scanUID) = single(max(planC{indexS.scan}(ind).scanArray(:)));
+    minScan = single(min(planC{indexS.scan}(ind).scanArray(:)));
+    maxScan = single(max(planC{indexS.scan}(ind).scanArray(:)));    
+    scanDiff = maxScan - minScan;
+    scanCenter = (minScan + maxScan - 2*CTOffset) / 2;
     stateS.scanStats.CTLevel.(scanUID) = scanCenter;
     stateS.scanStats.CTWidth.(scanUID) = scanDiff;
     stateS.scanStats.Colormap.(scanUID) = 'gray256';

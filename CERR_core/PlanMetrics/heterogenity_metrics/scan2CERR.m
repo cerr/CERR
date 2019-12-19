@@ -183,14 +183,14 @@ planC{indexS.scan} = dissimilarInsert(planC{indexS.scan},scanInitS, setIndex,[])
 % Update min/max scan value in stateS
 if ~isempty(stateS)
     scanUID = ['c',repSpaceHyp(planC{indexS.scan}(setIndex).scanUID(max(1,end-61):end))];
-    stateS.scanStats.minScanVal.(scanUID) = single(min(planC{indexS.scan}(setIndex).scanArray(:)));
-    stateS.scanStats.maxScanVal.(scanUID) = single(max(planC{indexS.scan}(setIndex).scanArray(:)));
-    stateS.scanStats.CTLevel.(scanUID) = (stateS.scanStats.minScanVal.(scanUID) ...
-        + stateS.scanStats.maxScanVal.(scanUID) - 2*CTOffset) / 2;
-    stateS.scanStats.CTWidth.(scanUID) = abs(stateS.scanStats.maxScanVal.(scanUID) ...
-        - stateS.scanStats.minScanVal.(scanUID));
+    %stateS.scanStats.minScanVal.(scanUID) = single(min(planC{indexS.scan}(setIndex).scanArray(:)));
+    %stateS.scanStats.maxScanVal.(scanUID) = single(max(planC{indexS.scan}(setIndex).scanArray(:)));
+    minScan = single(min(planC{indexS.scan}(setIndex).scanArray(:)));
+    maxScan = single(max(planC{indexS.scan}(setIndex).scanArray(:)));
+    stateS.scanStats.CTLevel.(scanUID) = (minScan + maxScan - 2*CTOffset) / 2;
+    stateS.scanStats.CTWidth.(scanUID) = maxScan - maxScan;
     stateS.scanStats.windowPresets.(scanUID) = 1;
-    stateS.scanStats.Colormap.(scanUID) = 'StarInterp';
+    stateS.scanStats.Colormap.(scanUID) = 'gray256';
 end
 
 % Uniformize scan

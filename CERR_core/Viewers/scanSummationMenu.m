@@ -391,8 +391,16 @@ switch upper(command)
         % Save scan statistics for fast image rendering
         for scanNum = newScanNum
             scanUID = ['c',repSpaceHyp(planC{indexS.scan}(scanNum).scanUID(max(1,end-61):end))];
-            stateS.scanStats.minScanVal.(scanUID) = single(min(planC{indexS.scan}(scanNum).scanArray(:)));
-            stateS.scanStats.maxScanVal.(scanUID) = single(max(planC{indexS.scan}(scanNum).scanArray(:)));
+            %stateS.scanStats.minScanVal.(scanUID) = single(min(planC{indexS.scan}(scanNum).scanArray(:)));
+            %stateS.scanStats.maxScanVal.(scanUID) = single(max(planC{indexS.scan}(scanNum).scanArray(:)));
+            minScan = single(min(planC{indexS.scan}(scanNum).scanArray(:)));
+            maxScan = single(max(planC{indexS.scan}(scanNum).scanArray(:)));
+            scanDiff = maxScan - minScan;
+            scanCenter = (minScan + maxScan - 2*CTOffset) / 2;
+            stateS.scanStats.CTLevel.(scanUID) = scanCenter;
+            stateS.scanStats.CTWidth.(scanUID) = scanDiff;
+            stateS.scanStats.Colormap.(scanUID) = 'gray256';
+            stateS.scanStats.windowPresets.(scanUID) = 1;            
         end
         
         %switch to new scan, with a short pause to let the dialogue clear.

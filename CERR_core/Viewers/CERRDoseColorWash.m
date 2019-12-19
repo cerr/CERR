@@ -280,11 +280,10 @@ if stateS.CTToggle == 1 && ~noCT %Don't show very low doses
     % Get Min/max of CT2M scan to scale accordingly.
     %minCT = min(CT2M(:));
     %maxCT = max(CT2M(:));
-    scanMin = stateS.scanStats.minScanVal.(scanUID);
-    scanMax = stateS.scanStats.maxScanVal.(scanUID);
-    
-    CTLow = max(CTLow,scanMin);
-    CTHigh = max(CTLow,min(CTHigh,scanMax));
+    %scanMin = stateS.scanStats.minScanVal.(scanUID);
+    %scanMax = stateS.scanStats.maxScanVal.(scanUID);    
+    %CTLow = max(CTLow,scanMin);
+    %CTHigh = max(CTLow,min(CTHigh,scanMax));
     
     CT2M = clip(CT2M, CTLow, CTHigh, 'limits');
     

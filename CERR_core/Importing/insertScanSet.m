@@ -130,13 +130,34 @@ if match ~= 1  %Selected scan is not yet in current study.
         temp_planC = guessPlanUID(temp_planC);
     end
 
-    % Add new scan to planC.       
+    % Add new scan to planC.
     planC{planC{end}.scan} = dissimilarInsert(planC{planC{end}.scan}, temp_planC{temp_planC{end}.scan}(1,scanNum));     %add scan
     
+    indexS = planC{end};
+
     % Save scan statistics for fast image rendering
+    %scanUID = ['c',repSpaceHyp(planC{indexS.scan}(end).scanUID(max(1,end-61):end))];
+    %stateS.scanStats.minScanVal.(scanUID) = single(min(planC{indexS.scan}(end).scanArray(:)));
+    %stateS.scanStats.maxScanVal.(scanUID) = single(max(planC{indexS.scan}(end).scanArray(:)));
+    % Set Window and Width from DICOM header, if available
+    CTLevel = '';
+    CTWidth = '';
+    if isfield(planC{indexS.scan}(end).scanInfo(1),'DICOMHeaders') && ...
+            isfield(planC{indexS.scan}(end).scanInfo(1).DICOMHeaders,'WindowCenter')...
+            && isfield(planC{indexS.scan}(end).scanInfo(1).DICOMHeaders,'WindowWidth')
+        CTLevel = planC{indexS.scan}(end).scanInfo(1).DICOMHeaders.WindowCenter(end);
+        CTWidth = planC{indexS.scan}(end).scanInfo(1).DICOMHeaders.WindowWidth(end);
+    end
+    if ~isnumeric(CTLevel) || ~isnumeric(CTWidth)
+        CTLevel = str2double(get(stateS.handle.CTLevel,'String'));
+        CTWidth = str2double(get(stateS.handle.CTWidth,'String'));
+    end
     scanUID = ['c',repSpaceHyp(planC{indexS.scan}(end).scanUID(max(1,end-61):end))];
-    stateS.scanStats.minScanVal.(scanUID) = single(min(planC{indexS.scan}(end).scanArray(:)));
-    stateS.scanStats.maxScanVal.(scanUID) = single(max(planC{indexS.scan}(end).scanArray(:)));
+    stateS.scanStats.CTLevel.(scanUID) = CTLevel;
+    stateS.scanStats.CTWidth.(scanUID) = CTWidth;
+    stateS.scanStats.windowPresets.(scanUID) = 1;
+    % Set colormap
+    stateS.scanStats.Colormap.(scanUID) = 'gray256';
     
     %Add new scan to scan menu.
     hCSV = stateS.handle.CERRSliceViewer;
@@ -147,7 +168,7 @@ if match ~= 1  %Selected scan is not yet in current study.
     sliceCallBack('selectScan', num2str(length(planC{planC{end}.scan})));
 
     addedscans = addedscans + 1;
-    display(['The scan ', ID, ' from study ', fname, ' has been added to the current study.'])
+    disp(['The scan ', ID, ' from study ', fname, ' has been added to the current study.'])
 
     sentence1 = horzcat('The selected scan has been added to the current study. ',...
         'The changes have not been saved.  Please remember to save changes ',...

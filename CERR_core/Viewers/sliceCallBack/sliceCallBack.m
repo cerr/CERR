@@ -776,8 +776,8 @@ switch upper(instr)
         colorMapIndex = get(stateS.handle.BaseCMap,'value');
         for scanNum = 1:length(planC{indexS.scan})
             scanUID = ['c',repSpaceHyp(planC{indexS.scan}(scanNum).scanUID(max(1,end-61):end))];
-            stateS.scanStats.minScanVal.(scanUID) = single(min(planC{indexS.scan}(scanNum).scanArray(:)));
-            stateS.scanStats.maxScanVal.(scanUID) = single(max(planC{indexS.scan}(scanNum).scanArray(:)));
+            %stateS.scanStats.minScanVal.(scanUID) = single(min(planC{indexS.scan}(scanNum).scanArray(:)));
+            %stateS.scanStats.maxScanVal.(scanUID) = single(max(planC{indexS.scan}(scanNum).scanArray(:)));
             stateS.scanStats.CTLevel.(scanUID) = str2double(get(stateS.handle.CTLevel,'String'));
             stateS.scanStats.CTWidth.(scanUID) = str2double(get(stateS.handle.CTWidth,'String'));
             stateS.scanStats.windowPresets.(scanUID) = 1;
@@ -2636,7 +2636,7 @@ switch upper(instr)
                 
     case 'SCANWINDOWMOTION'
         hAxis = gca;
-        hFig  = get(hAxis, 'parent');
+        %hFig  = get(hAxis, 'parent');
         cP    = get(hAxis, 'CurrentPoint');
         pointDiff =  cP(1,1:2) - stateS.scanWindowCurrentPoint;
         [dX,dY] = getAxisInfo(hAxis,'xRange','yRange');
@@ -2646,12 +2646,13 @@ switch upper(instr)
         stateS.scanWindowCurrentPoint = cP(1,1:2);   
         scanNum = getAxisInfo(gca,'scanSets');
         scanUID = ['c',repSpaceHyp(planC{indexS.scan}(scanNum).scanUID(max(1,end-61):end))];
-        minScanVal = stateS.scanStats.minScanVal.(scanUID);
-        maxScanVal = stateS.scanStats.maxScanVal.(scanUID);
-        dMov = maxScanVal - minScanVal;
-
-        stateS.scanStats.CTLevel.(scanUID) = stateS.scanStats.CTLevel.(scanUID) + pointDiff(2)*dMov*1.0/100*percentMov(2);        
-        stateS.scanStats.CTWidth.(scanUID) = stateS.scanStats.CTWidth.(scanUID) + pointDiff(1)*dMov*0.5/100*percentMov(1); 
+        %minScanVal = stateS.scanStats.minScanVal.(scanUID);
+        %maxScanVal = stateS.scanStats.maxScanVal.(scanUID);
+        %dMov = maxScanVal - minScanVal;
+        dMov = stateS.scanStats.CTWidth.(scanUID); % move by fraction of CT width
+        
+        stateS.scanStats.CTLevel.(scanUID) = stateS.scanStats.CTLevel.(scanUID) + pointDiff(2)*dMov*2.0/100*percentMov(2);        
+        stateS.scanStats.CTWidth.(scanUID) = stateS.scanStats.CTWidth.(scanUID) + pointDiff(1)*dMov*1/100*percentMov(1); 
         stateS.scanStats.CTWidth.(scanUID) = max([0.1 stateS.scanStats.CTWidth.(scanUID)]);
         set(stateS.handle.CTLevel,'String',stateS.scanStats.CTLevel.(scanUID))
         set(stateS.handle.CTWidth,'String',stateS.scanStats.CTWidth.(scanUID))
@@ -3224,29 +3225,20 @@ switch upper(instr)
 
         showPlaneLocators;
 
-%         % Set Window and Width from DICOM header, if available
-%         CTLevel = 'temp';
-%         CTWidth = 'temp';
-%         scanUID = ['c',repSpaceHyp(planC{indexS.scan}(stateS.scanSet).scanUID(max(1,end-61):end))];
-%         if isfield(stateS.scanStats.CTLevel,scanUID)
-%             CTLevel = stateS.scanStats.CTLevel.(scanUID);
-%             CTWidth = stateS.scanStats.CTWidth.(scanUID);
-%         elseif isfield(planC{indexS.scan}(stateS.scanSet).scanInfo(1).DICOMHeaders,'WindowCenter') && isfield(planC{indexS.scan}(stateS.scanSet).scanInfo(1).DICOMHeaders,'WindowWidth')
-%             CTLevel = planC{indexS.scan}(stateS.scanSet).scanInfo(1).DICOMHeaders.WindowCenter;
-%             CTWidth = planC{indexS.scan}(stateS.scanSet).scanInfo(1).DICOMHeaders.WindowWidth;
-%         end
-%         if isnumeric(CTLevel) && isnumeric(CTWidth)
-%             set(stateS.handle.CTLevel,'string',num2str(CTLevel(1)))
-%             set(stateS.handle.CTWidth,'string',num2str(CTWidth(1)))
-%             %sliceCallBack('CTLevel')
-%             %sliceCallBack('CTWidth')
-%         end
-%         scanUID = ['c',repSpaceHyp(planC{indexS.scan}(stateS.scanSet).scanUID(max(1,end-61):end))];
-%         stateS.scanStats.CTLevel.(scanUID) = str2double(get(stateS.handle.CTLevel,'String'));
-%         stateS.scanStats.CTWidth.(scanUID) = str2double(get(stateS.handle.CTWidth,'String'));
-%         colorMapIndex = get(stateS.handle.BaseCMap,'value');
-%         stateS.scanStats.Colormap.(scanUID) = stateS.optS.scanColorMap(colorMapIndex).name;
-
+        % Update Level, Width and Colormap
+        scanUID = ['c',repSpaceHyp(planC{indexS.scan}(stateS.scanSet).scanUID(max(1,end-61):end))];
+        CTLevel = stateS.scanStats.CTLevel.(scanUID);
+        CTWidth = stateS.scanStats.CTWidth.(scanUID);
+        windowPreset = stateS.scanStats.windowPresets.(scanUID);
+        scanColormap = stateS.scanStats.Colormap.(scanUID);
+        colorC = get(stateS.handle.BaseCMap,'string');
+        baseMapVal = find(~cellfun(@isempty,strfind(colorC,scanColormap)));        
+        set(stateS.handle.CTLevel,'string',num2str(CTLevel))
+        set(stateS.handle.CTWidth,'string',num2str(CTWidth))
+        set(stateS.handle.CTPreset,'value',windowPreset)
+        set(stateS.handle.BaseCMap,'value',baseMapVal)
+        updateScanColorbar(stateS.scanSet)
+        
         stateS.scanChkFlag = 1;
 
         CERRRefresh

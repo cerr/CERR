@@ -78,7 +78,9 @@ for i=1:length(axisInfo.scanObj)
     %wy if imageRegistration, refresh scans for diff computation
     if ~ismember(sO.scanSet, scanSets) || ~isequal(coord, sO.coord) || ~isequal(getTransM('scan', sO.scanSet, planC), sO.transM) || ~isequal(view, sO.view)
         imagesChanged = 1;
-        try, delete(sO.handles); end
+        %try
+            delete(sO.handles); 
+        %end
         toRemove = [toRemove;i];
         %If any doseObjs were drawn on this scan, tell them to refresh.
         for j=1:length(axisInfo.doseObj)
@@ -89,7 +91,9 @@ for i=1:length(axisInfo.scanObj)
     elseif ~isequal(sO.dispMode, [stateS.scanStats.CTLevel.(scanUID) stateS.scanStats.CTWidth.(scanUID)]) || stateS.imageRegistration  || stateS.CTDisplayChanged
         axisInfo.scanObj(i).redraw = 1;
         imagesChanged = 1;
-        try, delete(sO.handles); end
+        %try
+            delete(sO.handles); 
+        %end
         toRemove = [toRemove;i];
         for j=1:length(axisInfo.doseObj)
             if axisInfo.doseObj(j).scanBase == sO.scanSet;
@@ -102,7 +106,7 @@ axisInfo.scanObj(toRemove) = [];
 
 %Add a new image/scan data element for any scanNums that don't have one,
 %and cache the calculated scan and its coordinates.
-for i=1:length(scanSets);
+for i=1:length(scanSets)
     if ~ismember(scanSets(i),[axisInfo.scanObj.scanSet])
         numObjs = length(axisInfo.scanObj);
         [im, imageXVals, imageYVals]        = getCTOnSlice(scanSets(i), coord, dim, planC);
@@ -161,10 +165,10 @@ for i=1:length(axisInfo.scanObj)
                 CTWidth     = stateS.scanStats.CTWidth.(scanUID);
                 CTLow       = CTLevel - CTWidth/2;
                 CTHigh      = CTLevel + CTWidth/2;                
-                scanMin = stateS.scanStats.minScanVal.(scanUID);
-                scanMax = stateS.scanStats.maxScanVal.(scanUID);
-                CTLow = max(CTLow,scanMin);
-                CTHigh = min(CTHigh,scanMax);                
+                %scanMin = stateS.scanStats.minScanVal.(scanUID);
+                %scanMax = stateS.scanStats.maxScanVal.(scanUID);
+                %CTLow = max(CTLow,scanMin);
+                %CTHigh = min(CTHigh,scanMax);                
                 clippedCT = clip(im, CTLow, CTHigh, 'limits');
                 
 %                 hFrame = stateS.handle.controlFrame;
@@ -213,10 +217,10 @@ for i=1:length(axisInfo.scanObj)
                 CTWidth     = stateS.scanStats.CTWidth.(scanUID);
                 CTLow       = CTLevel - CTWidth/2;
                 CTHigh      = CTLevel + CTWidth/2;                                
-                scanMin = stateS.scanStats.minScanVal.(scanUID);
-                scanMax = stateS.scanStats.maxScanVal.(scanUID);                
-                CTLow = max(CTLow,scanMin);
-                CTHigh = min(CTHigh,scanMax);                
+                %scanMin = stateS.scanStats.minScanVal.(scanUID);
+                %scanMax = stateS.scanStats.maxScanVal.(scanUID);                
+                %CTLow = max(CTLow,scanMin);
+                %CTHigh = min(CTHigh,scanMax);                
                 %wy Apply window and level by clipping CT.
                 clippedCT = clip(im, CTLow, CTHigh, 'limits');
                              
@@ -242,10 +246,10 @@ for i=1:length(axisInfo.scanObj)
             CTWidth     = stateS.scanStats.CTWidth.(scanUID);
             CTLow       = CTLevel - CTWidth/2;
             CTHigh      = CTLevel + CTWidth/2;
-            scanMin = stateS.scanStats.minScanVal.(scanUID);
-            scanMax = stateS.scanStats.maxScanVal.(scanUID);
-            CTLow = max(CTLow,scanMin);
-            CTHigh = max(CTLow,min(CTHigh,scanMax));
+            %scanMin = stateS.scanStats.minScanVal.(scanUID);
+            %scanMax = stateS.scanStats.maxScanVal.(scanUID);
+            %CTLow = max(CTLow,scanMin);
+            %CTHigh = max(CTLow,min(CTHigh,scanMax));
 
             %wy Apply window and level by clipping CT.
             clippedCT = clip(im, CTLow, CTHigh, 'limits');

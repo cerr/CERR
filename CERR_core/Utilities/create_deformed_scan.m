@@ -98,8 +98,14 @@ end
 
 if ~isempty(stateS) 
     scanUID = ['c',repSpaceHyp(planC{indexS.scan}(ind).scanUID(max(1,end-61):end))];
-    stateS.scanStats.minScanVal.(scanUID) = single(min(planC{indexS.scan}(ind).scanArray(:)));
-    stateS.scanStats.maxScanVal.(scanUID) = single(max(planC{indexS.scan}(ind).scanArray(:)));
+    %stateS.scanStats.minScanVal.(scanUID) = single(min(planC{indexS.scan}(ind).scanArray(:)));
+    %stateS.scanStats.maxScanVal.(scanUID) = single(max(planC{indexS.scan}(ind).scanArray(:)));
+    minScan = single(min(planC{indexS.scan}(ind).scanArray(:)));
+    maxScan = single(max(planC{indexS.scan}(ind).scanArray(:)));
+    stateS.scanStats.CTLevel.(scanUID) = (minScan + maxScan - 2*CTOffset) / 2;
+    stateS.scanStats.CTWidth.(scanUID) = maxScan - maxScan;
+    stateS.scanStats.windowPresets.(scanUID) = 1;
+    stateS.scanStats.Colormap.(scanUID) = 'gray256';    
 end
 
 % Populate CERR Options
