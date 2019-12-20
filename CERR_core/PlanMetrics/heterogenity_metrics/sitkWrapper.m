@@ -84,14 +84,13 @@ scanPy = scanPy.astype(py.numpy.int64);
 origShape = py.numpy.array(size(scanM));
 origShape = origShape.astype(py.numpy.int64);
 
+% reshape numpy array to original shape
+scanPy = reshape(scanPy,origShape);
 
 try      
     switch filterType
         case 'GradientImageFilter'
-            
-            % reshape numpy array to original shape
-            scanPy = reshape(scanPy,origShape);
-            
+                                  
             % Get image from the array
             itkimg = py.SimpleITK.GetImageFromArray(scanPy);
             
@@ -117,11 +116,22 @@ try
             
         case 'HistogramMatchingImageFilter'
             
-            %call to python wrapper
-            histMatchResultM = py.testSITK.histMatching(scanFilename, resultPath, paramS.refImgPath, paramS.numHistLevel, paramS.numMatchPts);
+            refImg = py.SimpleITK.ReadImage(paramS.refImgPath);            
+ 
+            % src images from the array
+            srcImg = py.SimpleITK.GetImageFromArray(scanPy);            
+            
+            matcher = py.SimpleITK.HistogramMatchingImageFilter();
+            matcher.SetNumberOfHistogramLevels(paramS.numHistLevel);
+            matcher.SetNumberOfMatchPoints(paramS.numMatchPts);
+            matcher.ThresholdAtMeanIntensityOn();
+            matchedImg = matcher.Execute(srcImg,refImg);
+            
+            % extract numpy array from resulting image
+            npmatchedImg = py.SimpleITK.GetArrayFromImage(matchedImg);
             
             %convert to double
-            dblhistMatchResultM = double(py.array.array('d',py.numpy.nditer(histMatchResultM)));
+            dblhistMatchResultM = double(py.array.array('d',py.numpy.nditer(npmatchedImg)));
             
             %reshape and permute to match matlab input
             histMatM = reshape(dblhistMatchResultM,[3,512,512,121]);
