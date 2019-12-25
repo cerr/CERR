@@ -144,20 +144,20 @@ for i = 1 : length(volV)
         str = regexprep(str,'_','-');
         if dispLegend % if only one DVH is displayed do not show legend
             if isempty(legend_str)
-                legend_str = str;
+                legend_str = {str};
             else
-                legend_str = char(legend_str,str);
+                legend_str{end+1} = str;
             end
             
             if absV(i) && isempty(legend_string_abs)
-                legend_string_abs = str;
+                legend_string_abs = {str};
             elseif absV(i)
-                legend_string_abs = char(legend_string_abs,str);
+                legend_string_abs{end+1} = str;
             end
-            legend(hAxis,'Location', 'NorthEastOutside', legend_str);%adds legend to DSH plot
+            legend(hAxis,'Location', 'NorthEastOutside', 'String',legend_str);%adds legend to DSH plot
             absDVHAxis = findobj('tag', 'AbsDVHAxis');
             if ~isempty(absDVHAxis)
-                legend(absDVHAxis,'Location', 'NorthEastOutside', legend_string_abs);%adds legend to DVH plot
+                legend(absDVHAxis,'Location', 'NorthEastOutside', 'String',legend_string_abs);%adds legend to DVH plot
             end
         end
     end
@@ -212,20 +212,20 @@ for i = 1 : length(volV)
         name = regexprep(name,'_','-');
         if dispLegend % if only one DVH is displayed do not show legend
             if isempty(legend_string)
-                legend_string = name;
+                legend_string = {name};
             else
-                legend_string = char(legend_string,name); %strvcat(legend_string,name);
+                legend_string{end+1} = name; %strvcat(legend_string,name);
             end
             
             if absV(i) && isempty(legend_string_abs)
-                legend_string_abs = name;
+                legend_string_abs = {name};
             elseif absV(i)
-                legend_string_abs = char(legend_string_abs,name);
+                legend_string_abs{end+1} = name;
             end
-            legend(hAxis,'Location', 'NorthEastOutside', legend_string);%adds legend to DVH plot
+            legend(hAxis,'Location', 'NorthEastOutside', 'String',legend_string);%adds legend to DVH plot
             absDVHAxis = findobj('tag', 'AbsDVHAxis');
             if ~isempty(absDVHAxis)
-                legend(absDVHAxis,'Location', 'NorthEastOutside', legend_string_abs);%adds legend to DVH plot
+                legend(absDVHAxis,'Location', 'NorthEastOutside', 'String',legend_string_abs);%adds legend to DVH plot
             end
         end
     end
