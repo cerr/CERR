@@ -1,4 +1,4 @@
-function planC = reRasterAndUniformize(planC)
+function planC = reRasterAndUniformize(planC,scanNumV)
 %reRasterAndUniformize.m
 %script to delete all existing rasterSegments and re-uniformize the plan
 %
@@ -31,7 +31,11 @@ if ~exist('planC','var')
 end
 indexS = planC{end};
 
-for scanNum = 1:length(indexS.scan)
+if ~exist('scanNumV','var')
+    scanNumV = 1:length(indexS.scan);
+end
+
+for scanNum = scanNumV
     planC{indexS.scan}(scanNum).uniformScanInfo         = [];
     planC{indexS.scan}(scanNum).scanArraySuperior       = [];
     planC{indexS.scan}(scanNum).scanArrayInferior       = [];
@@ -41,11 +45,14 @@ for scanNum = 1:length(indexS.scan)
     planC{indexS.structureArrayMore}(scanNum).bitsArray     = [];    
 end
 
+numStructs = length(planC{indexS.structures});
+assocScanV = getStructureAssociatedScan(1:numStructs,planC);
+strIndV = find(ismember(assocScanV,scanNumV));
 %re-generate raster segments
-if ~isempty(planC{indexS.structures})
-    [planC{indexS.structures}.rasterized] = deal(0);
-    planC = getRasterSegs(planC);
+if ~isempty(strIndV)
+    [planC{indexS.structures}(strIndV).rasterized] = deal(0);
+    planC = getRasterSegs(planC,strIndV);
 end
 
 %uniformize
-planC = setUniformizedData(planC);
+planC = setUniformizedData(planC,[],scanNumV);
