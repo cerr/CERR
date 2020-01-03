@@ -42,7 +42,7 @@ end
 
 if ~isfield(cerr_optS,'lowerLimitUniformCTSliceSpacing')
     pathStr = getCERRPath;
-    optName = [pathStr 'CERROptions.m'];
+    optName = [pathStr 'CERROptions.json'];
     opt_S = opts4Exe(optName);
     cerr_optS.lowerLimitUniformCTSliceSpacing = opt_S.lowerLimitUniformCTSliceSpacing;
     cerr_optS.upperLimitUniformCTSliceSpacing = opt_S.upperLimitUniformCTSliceSpacing;
