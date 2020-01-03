@@ -33,7 +33,7 @@ global planC
 global stateS
 indexS = planC{end};
 
-if ~stateS.planLoaded
+if ~isfield(stateS,'planLoaded') || ~stateS.planLoaded
     return;
 end
 
