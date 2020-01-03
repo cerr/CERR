@@ -75,7 +75,7 @@ for doseNum = 1:length(planC{indexS.dose})
 end
 
 %ReRaster and ReUniformize
-planC = reRasterAndUniformize(planC);
+planC = reRasterAndUniformize(planC,scanNum);
 
 if isfield(stateS,'handle') && isfield(stateS.handle,'CERRSliceViewer') && ...
         ishandle(stateS.handle.CERRSliceViewer) && ...

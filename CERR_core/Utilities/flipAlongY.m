@@ -75,6 +75,6 @@ for doseNum = 1:length(planC{indexS.dose})
 end
 
 %ReRaster and ReUniformize
-planC = reRasterAndUniformize(planC);
+planC = reRasterAndUniformize(planC,scanNum);
 
 CERRRefresh
