@@ -1,7 +1,7 @@
 function planC = guessPlanUID(planC,force,dcm)
 % guessPlanUID
 % This function creates linking UID's for the planC passed. Scan,
-% dose and structures are given indipendent UID's and then the associated
+% dose and structures are given independent UID's and then the associated
 % fields are updated.
 
 %
@@ -43,7 +43,8 @@ if exist('dcm', 'var') && (dcm)
     for i = 1:nScans
         try
             scanUID = planC{indexS.scan}(i).scanUID; % Series instance UID
-            forUID = planC{indexS.scan}(i).scanInfo(1).DICOMHeaders.FrameofReferenceUID; % Frame of Reference UID
+            %forUID = planC{indexS.scan}(i).scanInfo(1).DICOMHeaders.FrameofReferenceUID; % Frame of Reference UID
+            forUID = planC{indexS.scan}(i).scanInfo(1).frameOfReferenceUID; % Frame of Reference UID
         catch
             break;
         end  
