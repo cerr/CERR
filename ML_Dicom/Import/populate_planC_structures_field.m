@@ -336,6 +336,8 @@ switch fieldname
         RSS = getReferencedSeriesSequence(RFRS, FORUID);
         
         dataS = getTagValue(RSS,'0020000E');
+        
+        dataS = ['CT.',dataS];
 
 %         %Convert to ML structure format.
 %         RSSML = getTagStruct(RSS);
