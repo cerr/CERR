@@ -100,13 +100,6 @@ for m = 1:length(methodC)
                 sliceV = 1:size(scan3M,3);
                 outMask3M = getPatientOutline(scan3M,sliceV,outThreshold);
                 maskC{m} = outMask3M;
-                
-                %Save to planC if reqd
-                
-                if paramS.saveStrToPlanCFlag
-                    planC = maskToCERRStructure(outMask3M, 0, scanNum, structureName,planC);
-                end
-                
             else
                 maskC{m} = getStrMask(outlineIndex,planC);
             end
@@ -145,6 +138,16 @@ for m = 1:length(methodC)
             if paramS.saveStrToPlanCFlag
                 planC = maskToCERRStructure(maskC{m}, 0, scanNum, method,planC);
             end
+    end
+    
+    %Save to planC if reqd
+    if isfield(paramS,'saveStrToPlanCFlag') && paramS.saveStrToPlanCFlag
+        if isfield(paramS,'outStrName')
+            outStrName = paramS.outStrName;
+        else
+            outStrName = method;
+        end
+        planC = maskToCERRStructure(maskC{m}, 0, scanNum, outStrName,planC);
     end
     
     if m>1
