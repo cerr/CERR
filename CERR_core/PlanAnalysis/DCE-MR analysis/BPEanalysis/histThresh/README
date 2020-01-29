@@ -1,0 +1,70 @@
+HistThresh toolbox for MATLAB
+Copyright (C) 2004 Antti Niemistö
+
+This program is free software; you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation; either version 2 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program; if not, write to the Free Software
+Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+
+-------------------------------------------------------------------------
+
+The HistThresh toolbox contains selected histogram-based thresholding
+algorithms for MATLAB. The toolbox has been tested with MATLAB 6.5
+(R13), but it may work with some older versions of MATLAB as well.
+
+
+CURRENT VERSION
+---------------
+
+v1.02 (2 Nov 2004)
+- minor update: fixed the perpetual loop bug in th_minimum.m and
+  th_intermodes.m
+
+
+INSTALLATION
+------------
+
+Extract the contents of the zip file "HistThresh.zip" into a directory
+from which MATLAB can find the m-files.
+
+
+GETTING STARTED
+---------------
+
+The thresholding algorithms are named with the prefix "th_". For
+example, "th_minimum.m" is the function for the algorithm by Prewitt
+and Mendelsohn that chooses the threshold to be in the valley of a
+bimodal histogram. The threshold for an 8-bit image can be found by
+typing "T = th_minimum(I)". Further help can be obtained by typing
+"help <m-file>" in MATLAB, where "<m-file>" is replaced by the name of
+an m-file.
+
+
+CONTACT
+-------
+
+Antti Niemistö
+Institute of Signal Processing
+Tampere University of Technology
+P.O. Box 553
+33101 TAMPERE
+FINLAND
+
+E-mail: antti.niemisto@tut.fi
+Tel: +358-3-3115 4507
+Fax: +358-3-3115 4989
+
+-------------------------------------
+
+http://www.cs.tut.fi/~ant/histthresh/
+
+-------------------------------------
