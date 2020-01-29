@@ -64,13 +64,6 @@ for j = 1:numel(maskSliceV)
 end
 
 %Find global threshold
-
-%CHANGES:
-%1. Look at a bunch of histograms-- sample looks like it has one big peak
-% at lower end corresp to air/breast boundary
-%2. Second peak-- probably coresponds to FGT--maybe some part of outline
-% That needs to be removed by erosion. Check!
-
 dataV = diffImg3M(breastMask3M);
 
 if isempty(dataV)
@@ -84,21 +77,6 @@ else
     if threshold>=100 || threshold<-100 || isnan(threshold)
         threshold =0;
     end
-    
-    
-    %---TEMP (for hist plots)----
-    % indexS = planC{end};
-    % H = planC{indexS.scan}(1).scanInfo(1).DICOMHeaders;
-    % pid = H.PatientID;
-    % h=figure;
-    % histogram(dataV);
-    % hold on
-    % line([threshold threshold],[1 10000]);
-    % saveas(h,['C:\Users\iyera\Desktop\test_BPE\plots\',...
-    %     pid,'_thresh'],'jpeg');
-    % close(h);
-    %----------
-    
     
     %Create FGT mask
     FGTMask3M = false(nRows,nCols,nSlices);
