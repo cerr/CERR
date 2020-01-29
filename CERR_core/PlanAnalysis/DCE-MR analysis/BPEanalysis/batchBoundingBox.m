@@ -37,11 +37,7 @@ for i = 1:length(dirS)
 %     outName = [outName,'_autobbox.mat'];
     save_planC(planC,[],'passed',fullfile(outFpath,dirS(i).name));
     
-%-------------- Save plots ------------------%     
-%     h = getBreastBoundingBox(scan3M);
-%     saveas(h,fullfile('B:\Soft\Apte\AxialFiles\IMAGINE\Batch2\Auto_test\plots',outname),'jpeg');
-%     close(h);
-%-----------------------------------------------%     
+    
     catch e
         fprintf('\n Error with pt: %s. Message: ',fname, e.message);
     end

@@ -5,7 +5,6 @@ function processedC = batchBPE(BPEfPath,latPath,outPath)
 % Inputs:
 % BPEfPath - Path to CERR files with bounding boxes
 % latPath  - Path to Matlab table w/ laterality info
-% % latPath = '\\VPensBST\BstShared\Epidemiology\Pike\Breast_MSK\BPE\Soft\Apte\AxialFiles\IMAGINE\Batch8_jan2019\lattable.mat';
 % outPath  - Path to output folder
 %
 % Output: 'processedC' constains a message indicating if the pt
@@ -21,7 +20,8 @@ varname = fieldnames(T);
 T = T.(varname{1});
 
 %Command file for registration
-cmdFile = '\\VPensBST\BstShared\Epidemiology\Pike\Breast_MSK\BPE\Soft\Apte\CERR\CERR_core\ImageRegistration\plastimatch_command\malcolm_pike_mr_breast_data.txt';
+CERRpath = getCERRPath;
+cmdFile = fullfile(CERRpath,'PlanAnalysis\DCE-MR analysis\BPEanalysis\malcolm_pike_mr_breast_data.txt');
 
 % Loop over files
 dirS = dir([BPEfPath,filesep,'*.mat']);

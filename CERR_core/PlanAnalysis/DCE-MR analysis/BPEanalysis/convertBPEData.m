@@ -4,10 +4,7 @@ function convertBPEData(xlsFile,outPath)
 %
 % iyera@mskcc.org  5/4/18
 %--------------------------------------------------------------------------
-% Example:
-% xlsFile = 'M:\Aditi\forDrPike\batch2_reg\autobbox\Combined_AI.xlsx';
-% outPath = ' B\Soft\Apte\AxialFiles\IMAGINE\Batch8_jan2019\CERR_files'
-%--------------------------------------------------------------------------
+
 
 %% Read spreadsheet
 [~,~,X] = xlsread(xlsFile,1);
