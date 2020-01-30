@@ -1,0 +1,37 @@
+{
+"strNameToLabelMap":[
+
+  {"structureName" : "LARYNX", "value" : 1}
+
+  ],
+
+"inputFileType" : "CERR",
+
+"view" : ["axial", "sagittal", "coronal"],
+
+"crop" : [{     
+            "method": "crop_for_larynx",
+            "params": { "structureName": { "chewingStructures": ["MML_1_auto_ensemble_post","MMR_1_auto_ensemble_post","PML_1_auto_ensemble_post","PMR_1_auto_ensemble_post"],
+                        "cropStructure": "crop_for_chewing_structs"},
+                        "saveStrToPlanCFlag": "Yes"
+                      },
+            "operator": ""
+          }
+         ],
+
+"resize" : {"method": "none",
+            "size" : [320,320]},
+
+"channels" :[{"imageType": "original", "slice": "current-1"},
+             {"imageType": "original", "slice": "current"},
+             {"imageType": "original", "slice": "current+1"}],
+
+"passedScanDim" : "2D",
+
+"batchSize" : 1,
+
+"postProc" : {"LARYNX": [{"method": "post_process_chewing_structs2"}]},
+
+"reference" : "https://www.biorxiv.org/content/10.1101/772178v1"
+
+}
