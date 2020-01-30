@@ -3,27 +3,39 @@
 
     {
       "structureName": "Left Parotid",
-      "value": 2
-    },
-    {
-      "structureName": "Right Parotid",
       "value": 1
     },
     {
-      "structureName": "Left Submandiblar",
-      "value": 4
+      "structureName": "Right Parotid",
+      "value": 2
     },
     {
-      "structureName": "Right Submandiblar",
+      "structureName": "Left Submandiblar",
       "value": 3
     },
     {
+      "structureName": "Right Submandiblar",
+      "value": 4
+    },
+    {
       "structureName": "Mandible",
-      "value": 5
+      "value": 7
     },
     {
       "structureName": "Brain stem",
+      "value": 9
+    },
+    {
+      "structureName": "Left branchial plexus",
       "value": 6
+    },
+    {
+      "structureName": "Spine Core",
+      "value": 8
+    },
+{
+      "structureName": "Right branchial plexus",
+      "value": 5
     }
   ],
 
@@ -36,7 +48,7 @@
 "crop": [
     {
       "method": "crop_pt_outline_2D",
-      "params": { "structureName": "generated_pt_outline", "saveStrToPlanCFlag": "true", "outlineThreshold": -400},
+      "params": { "structureName": "generated_pt_outline", "outStrName":"generated_pt_outline", "saveStrToPlanCFlag": 1, "outlineThreshold": -400},
       "operator": ""
     },
 
