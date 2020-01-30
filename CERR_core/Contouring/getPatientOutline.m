@@ -1,4 +1,4 @@
-function ptMask3M = getPatientOutline(scan3M,slicesV,outThreshold)
+function ptMask3M = getPatientOutline(scan3M,slicesV,outThreshold,minMaskSiz)
 % Returns mask of patient's outline
 %
 % Usage:
@@ -16,6 +16,9 @@ if ~exist('slicesV','var')
     slicesV = 1:size(scan3M,3);
 end
 
+if ~exist('minMaskSiz','var')
+    minMaskSiz = 1500;
+end
 
 %Compute threshold
 scanThreshV = scan3M(scan3M>outThreshold);
@@ -114,5 +117,13 @@ end
 %     
 % end
 
+%% Morphological post-processing
+ptMask3M = imfill(ptMask3M,26,'holes');
+%Fuse disjointed segments
+for n = 1:size(ptMask3M,3)
+    labelM = double(ptMask3M(:,:,n));
+    labelM = imclose(labelM,strel('disk',4));
+    ptMask3M(:,:,n) = labelM;
+end
 
 end
