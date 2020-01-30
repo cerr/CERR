@@ -76,7 +76,7 @@ switch(lower(method))
         
         % Initialize resized scan and mask
         scanOut3M = zeros(outputImgSizeV);
-        scanOut3M = scanOut3M - 1024;
+        %scanOut3M = scanOut3M - 1024;
         maskOut3M = zeros(outputImgSizeV,'uint32');
         
         % Min/max row and col limits for each slice
@@ -137,8 +137,13 @@ switch(lower(method))
         
         % Initialize resized scan and mask
         scanOut3M = zeros(outputImgSizeV);
-        scanOut3M = scanOut3M - 1024;
-        maskOut3M = zeros(outputImgSizeV,'uint32');
+        %scanOut3M = scanOut3M - 1024;
+        
+        if isempty(mask3M)
+            maskOut3M = [];
+        else
+            maskOut3M = zeros(outputImgSizeV,'uint32');
+        end
         
         % Min/max row and col limits for each slice
         limitsM = varargin{1};
