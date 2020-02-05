@@ -3,20 +3,21 @@
 	"name": "4Gy x 15",
         "numFractions": 15,
 	"totalDose": 60,
-	"models":{
+	"models": {
 
-		  "Esophagitis (Wijsman)": {
-				             "modelFile": "Esophagitis (Wijsman).json"
-					   },
-		  "Pneumonitis (Appelt)":  {
-    					      "modelFile": "Pneumonitis (Appelt).json"
-			                   },
-		  "BED": {
+		"Esophagitis (Wijsman)": {
+				         	"modelFile": "Esophagitis (Huang).json"
+					 },
+		"Pneumonitis(Appelt)":   {
+				       		"modelFile": "Pneumonitis (Appelt).json"
+		                         }, 
+	  	"BED":  {
 		  	    "modelFile": "Lung BED.json"
-			 }
-		},
+			}
+		  },
+	"criteriaFile": "LungCriteria_4x15.json",
         "created_by": "Aditi Iyer",
-	"created_at": "6PM 10\/31\/18",
+	"created_at": "3PM 10\/31\/18",
 	"modified_by": "",
 	"modified_at": ""
 }
