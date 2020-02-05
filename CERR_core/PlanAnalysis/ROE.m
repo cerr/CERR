@@ -270,16 +270,16 @@ switch upper(command)
         ud = get(hFig,'userdata');
         
         %Get paths to JSON files
-        optS = CERROptions; %NOTE: Define path to .json files for protocols, models & clinical criteria in CERROptions.m
-        %                  optS.ROEProtocolPath = 'yourpathtoprotocols';
-        %                  optS.ROEModelPath = 'yourpathtomodels';
-        %                  optS.ROECriteriaPath = 'yourpathtocriteria';
+        optS = opts4Exe('CERRoptions.json'); 
+        %NOTE: Define path to .json files for protocols, models & clinical criteria in CERROptions.json
+        %optS.ROEProtocolPath = 'your/path/to/protocols';
+        %optS.ROEModelPath = 'your/path/to/models';
+        %optS.ROECriteriaPath = 'your/path/to/criteria';
         
-        protocolPath = 'M:\Aditi\OutcomesModels\ROE\forTesting\Protocols';
-        modelPath = 'M:\Aditi\OutcomesModels\ROE\forTesting\Models';
-        criteriaPath = 'M:\Aditi\OutcomesModels\ROE\forTesting\Criteria';
-        
-        
+        protocolPath = eval(optS.ROEProtocolPath);
+        modelPath = eval(optS.ROEModelPath);
+        criteriaPath = eval(optS.ROECriteriaPath);
+
         % List available protocols for user selection
         [protocolListC,protocolIdx,ok] = listFiles(protocolPath,'Multiple');
         if ~ok
@@ -412,7 +412,7 @@ switch upper(command)
                     xIndx = find(strcmp(modTypeC,'BED') | strcmp(modTypeC,'TCP')); %Identify TCP/BED models
                     
                     %Scale planned dose array
-                    plnNum = protocolS(p).planNum;
+                    plnNum = ud.planNum;
                     numFrxProtocol = protocolS(p).numFractions;
                     protDose = protocolS(p).totalDose;
                     dpfProtocol = protDose/numFrxProtocol;
@@ -602,9 +602,9 @@ switch upper(command)
                 close(hWait);
                 return
             end
-            isPlan = isfield(protocolS,'planNum') && ~isempty(protocolS(p).planNum);
+            isPlan = isfield(ud,'planNum') && ~isempty(ud.planNum);
             if ~isPlan
-                msgbox(sprintf('Please select dose plan:\n protocol: %d',p),'Plot model');
+                msgbox(sprintf('Please select valid dose plan.'),'Plot model');
                 close(hWait);
                 return
             end
@@ -630,7 +630,7 @@ switch upper(command)
             end
             
             %Scale planned dose array
-            plnNum = protocolS(p).planNum;
+            plnNum = ud.planNum;
             numFrxProtocol = protocolS(p).numFractions;
             protDose = protocolS(p).totalDose;
             dpfProtocol = protDose/numFrxProtocol;
@@ -1799,7 +1799,7 @@ end
                     dosListC = {'Select Plan',planC{indexS.dose}.fractionGroupID};
                     matchIdx = find(strcmp(dosListC,val));
                     %modelsC{modelNum}.planNum = matchIdx - 1;
-                    ud.Protocols(prtcNum).planNum = matchIdx - 1;
+                    ud.planNum = matchIdx - 1;
                 end
             case 'fieldEdit'
                 modelsC{modelNum} = modelsC{modelNum};
@@ -2151,6 +2151,13 @@ end
         if  ~isempty(hEvt) && currNode.getLevel==0      %Expand to list protocols
             tree.expandRow(tree.getSelectionRows);
             
+            %Set default dose plan if only one is available
+            planListC = {'Select dose plan',planC{indexS.dose}.fractionGroupID};
+            if numel(planListC)==2 
+                planIdx = 2;
+                ud.planNum = 1; %Default to 1st plan
+            end
+            
         elseif ~isempty(hEvt) && currNode.getLevel==1   %Expand protocol node to list models
             
             %Get selected protocol no.
@@ -2161,17 +2168,12 @@ end
             
             %Get dose plan input
             planListC = {'Select dose plan',planC{indexS.dose}.fractionGroupID};
-            if isfield(protS(prtcNum),'planNum') & ~isempty(protS(prtcNum).planNum)
-                planIdx = protS(prtcNum).planNum + 1;
+            if isfield(ud,'planNum') & ~isempty(ud.planNum)
+                planIdx = ud.planNum + 1;
             else
-                if numel(planListC)==2 %Default to 1st plan if only one is available
-                    planIdx = 2;
-                    ud.Protocols(prtcNum).planNum = 1;
-                else
-                    %User selection
-                    planIdx = 1;
-                    ud.Protocols(prtcNum).planNum = [];
-                end
+                %User selection
+                planIdx = 1;
+                ud.planNum = [];
             end
             
             %Table for selecting dose plan
@@ -2201,9 +2203,9 @@ end
                 prtcNumV = 1:length(ud.Protocols); %For initialization
             end
             
+            planNum = ud.planNum;
             for t = 1:length(prtcNumV)
                 
-                planNum = protS(prtcNumV(t)).planNum;
                 if ~isempty(planNum)
                     %Table2 : Plan selection
                     hTab2 = ud.handle.inputH(5);
@@ -2314,6 +2316,7 @@ end
                 end
                 protS(prtcNumV(t)).model = modelsC;
             end
+            
             if ~isempty(hEvt)
                 %set current model nos
                 ud.ModelNum = modelNumV;
@@ -2324,9 +2327,7 @@ end
             ud.Protocols = protS;
             set(hFig,'userdata',ud);
         end
-        
-        
-        
+                
     end
 
 %Listdlg for folder selection
@@ -2414,7 +2415,7 @@ end
             end
             
             %Get plan no.
-            planNum = ud.Protocols(l).planNum;
+            planNum = ud.planNum;
             
             %Loop over models
             for k = 1:nMod

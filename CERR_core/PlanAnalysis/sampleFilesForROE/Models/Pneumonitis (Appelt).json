@@ -1,10 +1,9 @@
 {
 	"name": "Pneumonitis (Appelt)",
 	"type": "NTCP",
-
 	"stdNumFractions": 35,
 	"fractionCorrect": "Yes",
-	"abCorrect": "No",
+	"correctionType": "nfrx",
 	"abRatio": 3,
 	"parameters": {
 
@@ -14,7 +13,7 @@
 				       "val": "Yes",
 				       "type": ["string"]
 				     },
-		        "D50_0": {
+                        "D50_0": {
 				       "val": 34.4,
 				       "type": ["cont"]
                                  },

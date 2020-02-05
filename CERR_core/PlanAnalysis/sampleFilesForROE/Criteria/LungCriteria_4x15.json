@@ -1,0 +1,127 @@
+{
+   "name": "Lung criteria_15x4",
+   "numFrx": 15,
+   "structures": {
+
+		"Esophagus": {
+ 				"abRatio": 10,
+        			"criteria": {
+        					
+						"MaxPtDose": {
+						 	        "function":"calc_maxDose",
+								"limit": 66
+						              },
+
+						"NTCP":{
+							  "function": "ntcp",
+						          "limit":0.45
+
+						       }
+
+			                    },
+				"guidelines": {
+						
+						"NTCP":{
+							  "function": "ntcp",
+						          "limit":0.35
+
+						       },
+						"MaxPtDose": {
+						 	        "function":"calc_maxDose",
+								"limit": 60
+						              }
+
+					      }
+
+				
+		           },
+
+
+
+		"Lung-GTV": {
+			     "abRatio": 3,
+			     "criteria": {
+
+					  "V20": {
+						  "function": "calc_Vx",
+						  "parameters": {
+								"x": {
+									"val": 20
+								     },
+								"volumeType":{
+										"val": 1
+									     }				
+							        },
+						  "limit": 0.30
+						 },
+
+
+					  "NTCP":{
+					             "function": "ntcp",
+						     "limit":0.2
+
+						 }
+
+
+			    		}
+                               },
+
+
+
+
+			
+		"CORD": {
+
+
+ 				"abRatio": 2,
+        			"criteria": {
+			                    
+						"MaxPtDose": {
+						 	        "function":"calc_maxDose",
+								"limit": 40
+						              }	
+
+
+							
+					     }
+                       },
+
+
+
+
+
+
+
+
+		"HEART": {
+ 				"abRatio": 3,
+        			"criteria": {
+        					
+						"MaxPtDose": {
+						 	        "function": "calc_maxDose",
+								"limit": 60
+						             },
+			                    
+						"V45":{	
+							"function": "calc_Vx",
+							"parameters":{
+								       "x": {
+									     "val": 45
+									    },
+									"volumeType":{
+										       "val": 1
+									              }		
+								     },
+							"limit": 0.30	
+						      }
+					     }
+		        }
+
+		
+
+
+		}
+}
+
+		
+			      

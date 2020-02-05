@@ -229,8 +229,8 @@
 
 "linePoolSize" : 30,
 
-"ROEProtocolPath" : "M:/Aditi/OutcomesModels/ROE/Protocols", 
-"ROEModelPath" : "M:/Aditi/OutcomesModels/ROE/Models",
-"ROECriteriaPath" : "M:/Aditi/OutcomesModels/ROE/Criteria"
+"ROEProtocolPath" : "fullfile(getCERRPath,'PlanAnalysis/sampleFilesForROE/Protocols')", 
+"ROEModelPath" : "fullfile(getCERRPath,'PlanAnalysis/sampleFilesForROE/Models')",
+"ROECriteriaPath" : "fullfile(getCERRPath,'PlanAnalysis/sampleFilesForROE/Criteria')"
 
 }

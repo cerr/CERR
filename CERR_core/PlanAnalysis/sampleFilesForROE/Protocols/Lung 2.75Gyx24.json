@@ -6,7 +6,7 @@
 	"models": {
 
 		"Esophagitis (Wijsman)": {
-				         	"modelFile": "Esophagitis (Wijsman).json"
+				         	"modelFile": "Esophagitis (Huang).json"
 					 },
 		"Pneumonitis(Appelt)":   {
 				       		"modelFile": "Pneumonitis (Appelt).json"
@@ -15,6 +15,7 @@
 		  	    "modelFile": "Lung BED.json"
 			}
 		  },
+	"criteriaFile": "LungCriteria_4x15.json",
         "created_by": "Aditi Iyer",
 	"created_at": "3PM 10\/31\/18",
 	"modified_by": "",
