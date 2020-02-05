@@ -270,16 +270,16 @@ switch upper(command)
         ud = get(hFig,'userdata');
         
         %Get paths to JSON files
-        optS = CERROptions; %NOTE: Define path to .json files for protocols, models & clinical criteria in CERROptions.m
-        %                  optS.ROEProtocolPath = 'yourpathtoprotocols';
-        %                  optS.ROEModelPath = 'yourpathtomodels';
-        %                  optS.ROECriteriaPath = 'yourpathtocriteria';
+        optS = opts4Exe('CERRoptions.json'); 
+        %NOTE: Define path to .json files for protocols, models & clinical criteria in CERROptions.json
+        %optS.ROEProtocolPath = 'your/path/to/protocols';
+        %optS.ROEModelPath = 'your/path/to/models';
+        %optS.ROECriteriaPath = 'your/path/to/criteria';
         
-        protocolPath = 'M:\Aditi\OutcomesModels\ROE\forTesting\Protocols';
-        modelPath = 'M:\Aditi\OutcomesModels\ROE\forTesting\Models';
-        criteriaPath = 'M:\Aditi\OutcomesModels\ROE\forTesting\Criteria';
-        
-        
+        protocolPath = eval(optS.ROEProtocolPath);
+        modelPath = eval(optS.ROEModelPath);
+        criteriaPath = eval(optS.ROECriteriaPath);
+
         % List available protocols for user selection
         [protocolListC,protocolIdx,ok] = listFiles(protocolPath,'Multiple');
         if ~ok
