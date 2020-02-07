@@ -57,7 +57,7 @@ for iFile=1:numFiles
         end
         cd(currDir)
         
-        stateS.optS = CERROptions;
+        stateS.optS = opts4Exe([getCERRPath,'CERROptions.json']);
         
         %Check color assignment for displaying structures
         [assocScanV,relStrNumV] = getStructureAssociatedScan(1:length(planC{indexS.structures}),planC);

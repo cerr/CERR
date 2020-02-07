@@ -133,7 +133,7 @@ switch(keyValue)
         LabBookGui('CAPTURE');
 
     case 127 % delete key.  If in contour mode, deletes contour? think about it.        
-        if ~isfield(stateS,'contourState') || ~stateS.contourState
+        if isfield(stateS,'contourState') && stateS.contourState
             % delete all segments on the slice
             hAxis = stateS.handle.CERRAxis(stateS.contourAxis);
             contourControl('deleteAllSegments', hAxis)

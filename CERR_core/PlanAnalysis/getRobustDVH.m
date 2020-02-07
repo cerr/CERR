@@ -68,7 +68,7 @@ global stateS;
 if ~isempty(stateS) && isfield(stateS, 'optS') && isfield(stateS.optS, 'DVHBinWidth') && ~isempty(stateS.optS.DVHBinWidth)
     binWidth = stateS.optS.DVHBinWidth;
 else
-    optS = CERROptions;
+    optS = opts4Exe([getCERRPath,'CERROptions.json']);
     binWidth = optS.DVHBinWidth;
 end
 

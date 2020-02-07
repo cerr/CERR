@@ -84,7 +84,7 @@ for i = 1:size(info,2)
     
 end
 
-planC{indexS.CERROptions}= CERROptions;
+planC{indexS.CERROptions}= opts4Exe([getCERRPath,'CERROptions.json']);
 planC{indexS.scan}(1).scanType = 'plunc CT';
 planC{indexS.scan}(1).scanArray = permute(scanArray,[2 1 3]) - single(head.min);
 planC{indexS.scan}(1).scanInfo = scanInfo;

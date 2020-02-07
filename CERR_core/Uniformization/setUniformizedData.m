@@ -57,13 +57,13 @@ if ~isfield(cerr_optS,'uniformizedDataType')
             cerr_optS.uniformizedDataType = 'uint16';
         end
     catch
-        opt_S = CERROptions;
+        opt_S = opts4Exe([getCERRPath,'CERROptions.json']);
         cerr_optS.uniformizedDataType = opt_S.uniformizedDataType;
     end
 end
 
 if ~isfield(cerr_optS,'uniformizeExcludeStructs') 
-    opt_S = CERROptions;
+    opt_S = opts4Exe([getCERRPath,'CERROptions.json']);
     cerr_optS.uniformizeExcludeStructs = opt_S.uniformizeExcludeStructs;
 end
 

@@ -52,7 +52,7 @@ global stateS;
 if ~isempty(stateS) & isfield(stateS, 'optS')
     optS = stateS.optS;
 else
-    optS = CERROptions;
+    optS = opts4Exe([getCERRPath,'CERROptions.json']);
 end
 
 doseV = [];

@@ -186,7 +186,7 @@ switch fieldname
         
         nContours = cSeq.size();
         
-        %optS = CERROptions;
+        %optS = opts4Exe([getCERRPath,'CERROptions.json']);
         contourSliceTol = optS.contourToSliceTolerance;
         
         for i = 1:nContours

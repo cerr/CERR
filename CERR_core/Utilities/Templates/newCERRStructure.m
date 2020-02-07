@@ -73,7 +73,7 @@ end
 if isfield(stateS,'optS')
     color = stateS.optS.colorOrder( mod(colorNum-1, size(stateS.optS.colorOrder,1))+1,:);
 else
-    stateS.optS = CERROptions;
+    stateS.optS = opts4Exe([getCERRPath,'CERROptions.json']);
     color = stateS.optS.colorOrder( mod(colorNum-1, size(stateS.optS.colorOrder,1))+1,:);
 end
 

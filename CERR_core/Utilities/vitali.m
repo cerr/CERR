@@ -26,7 +26,7 @@ global planC stateS
 
 stateS.planLoaded = 0;
 
-stateS.optS = CERROptions;
+stateS.optS = opts4Exe([getCERRPath,'CERROptions.json']);
 
 vitaliDir = uigetdir();
 

@@ -145,7 +145,7 @@ end
 
 %Check color assignment for displaying structures
 if ~isfield(stateS,'optS')
-    stateS.optS = CERROptions;
+    stateS.optS = opts4Exe([getCERRPath,'CERROptions.json']);
 end
 for scanNum = 1:length(planD{indexSD.scan})
     scanStrIndV = find(assocScansV==scanNum);

@@ -109,7 +109,7 @@ switch upper(command)
         delete(hFig);
         
     case 'SEND'
-        CERROptions;
+        optS = opts4Exe([getCERRPath,'CERROptions.json']);
         toField = findobj(hFig, 'Tag', 'LabBookEmailToField');
         subjectField = findobj(hFig, 'Tag', 'LabBookEmailSubjectField');
         bodyField    = findobj(hFig, 'Tag', 'LabBookEmailBodyField');

@@ -29,7 +29,7 @@ function spread = organSpread(planC,structNum,doseNum)
 % along with CERR.  If not, see <http://www.gnu.org/licenses/>.
 
 global stateS
-stateS.optS = CERROptions;
+stateS.optS = opts4Exe([getCERRPath,'CERROptions.json']);
 stateS.MLVersion = getMLVersion;
 
 indexS = planC{end};

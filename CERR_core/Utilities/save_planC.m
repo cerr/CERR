@@ -174,7 +174,7 @@ while permission == 0   %Use while statement in case permission to overwrite fil
         extSave = extSave{1};
         if ~strcmpi(extSave,'bz2') || ~strcmpi(extSave,'zip')
             if ~isfield(stateS,'optS')
-                stateS.optS = CERROptions;
+                stateS.optS = opts4Exe([getCERRPath,'CERROptions.json']);
             end
             extSave = stateS.optS.CompressType;
         end
@@ -183,7 +183,7 @@ while permission == 0   %Use while statement in case permission to overwrite fil
     elseif ~zipFile & strcmpi(saveflag, 'saveas')
         ans = questdlg('Zip the .mat file using bz2/zip?');
         if ~isfield(stateS,'optS')
-            stateS.optS = CERROptions;
+            stateS.optS = opts4Exe([getCERRPath,'CERROptions.json']);
         end
         extSave = stateS.optS.CompressType;
     else

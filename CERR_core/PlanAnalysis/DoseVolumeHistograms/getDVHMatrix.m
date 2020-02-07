@@ -65,7 +65,7 @@ if isempty(volsHistV)
         %Histogram the volumes by dose.
         [doseBinsV, volsHistV] = doseHist(dosesV, volsV, binWidth);
     elseif nargin ~= 4
-        optS = CERROptions;
+        optS = opts4Exe([getCERRPath,'CERROptions.json']);
         binWidth = optS.DVHBinWidth;
         %Histogram the volumes by dose.
         [doseBinsV, volsHistV] = doseHist(dosesV, volsV, binWidth);

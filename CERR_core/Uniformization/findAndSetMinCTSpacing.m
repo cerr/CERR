@@ -151,7 +151,7 @@ for scanNum = scanNumV
                 optS.uniformizedDataType = 'uint16';
             end
         catch
-            optFromFile = CERROptions;
+            optFromFile = opts4Exe([getCERRPath,'CERROptions.json']);
             optS.uniformizedDataType = optFromFile.uniformizedDataType;
         end
         planC{indexS.CERROptions} = optS;

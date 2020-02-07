@@ -48,7 +48,7 @@ end
 % cd(currDir)
 
 if ~isfield(stateS,'optS')
-    stateS.optS = CERROptions;
+    stateS.optS = opts4Exe([getCERRPath,'CERROptions.json']);
 end
 
 %Check color assignment for displaying structures

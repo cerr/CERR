@@ -194,7 +194,7 @@ for iPlan = 1:length(data_pat.PlanList.Plan)
 end
 
 % CERR Options
-planC{indexS.CERROptions} = CERROptions;
+planC{indexS.CERROptions} = opts4Exe([getCERRPath,'CERROptions.json']);
 planC = getRasterSegs(planC);
 planC = setUniformizedData(planC);
 

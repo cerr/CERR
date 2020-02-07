@@ -50,7 +50,7 @@ path = uigetdir( cd,'Select destination Directory for DVH export');
 global planC
 indexS = planC{end};
 structureCell = planC{indexS.structures};
-optS = CERROptions;
+optS = opts4Exe([getCERRPath,'CERROptions.json']);
 %loop over all the structures that need to be exported
 for i = 1:length(structNum)
     name = structureCell(structNum(i)).structureName;        

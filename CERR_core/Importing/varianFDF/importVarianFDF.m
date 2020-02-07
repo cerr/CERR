@@ -62,7 +62,7 @@ if exist('optFile')
         optS = optFile;
     end
 else
-    optS = CERROptions;
+    optS = opts4Exe([getCERRPath,'CERROptions.json']);
 end
 
 planC = initializeCERR;

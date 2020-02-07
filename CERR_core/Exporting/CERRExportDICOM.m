@@ -160,7 +160,7 @@ if ~batch_flag
 end
 
 
-optS = CERROptions;
+%optS = CERROptions;
 
 %Check color assignment for displaying structures
 [assocScanV,relStrNumV] = getStructureAssociatedScan(1:length(planC{indexS.structures}), planC);

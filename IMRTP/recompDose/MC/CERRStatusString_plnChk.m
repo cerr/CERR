@@ -38,7 +38,7 @@ global stateS
 
 %Check options to see if StatusString should be muted, only display to the GUI.
 if isempty(stateS)
-%     optS = CERROptions;
+%     optS = opts4Exe([getCERRPath,'CERROptions.json']);
 elseif isfield(stateS, 'optS');
     optS = stateS.optS;    
 else

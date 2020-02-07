@@ -109,7 +109,7 @@ if ~isempty(stateS)
 end
 
 % Populate CERR Options
-planC{indexS.CERROptions} = CERROptions;
+planC{indexS.CERROptions} = opts4Exe([getCERRPath,'CERROptions.json']);
 
 planC = setUniformizedData(planC);
 

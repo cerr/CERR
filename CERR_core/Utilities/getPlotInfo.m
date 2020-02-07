@@ -48,7 +48,7 @@ end
 
 plotParam = [];
 if versionNum >= 7
-    tmpOptS = CERROptions;
+    tmpOptS = opts4Exe([getCERRPath,'CERROptions.json']);
 	if isfield(tmpOptS, 'plotObjFormat') && ~isempty(tmpOptS.plotObjFormat)
         plotParam = tmpOptS.plotObjFormat;
 	end
