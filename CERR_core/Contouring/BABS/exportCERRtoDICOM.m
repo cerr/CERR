@@ -1,19 +1,19 @@
-function exportCERRtoDICOM(cerrPath,segResultCERRRPath,outputCERRPath,outputDicomPath,algorithm,savePlancFlag)
-% function exportCERRtoDICOM(cerrPath,segResultCERRRPath,outputCERRPath,outputDicomPath,algorithm,savePlancFlag)
+function exportCERRtoDICOM(cerrPath,allLabelNamesC,outputCERRPath,outputDicomPath,algorithm,savePlancFlag)
+% function exportCERRtoDICOM(cerrPath,allLabelNamesC,outputCERRPath,outputDicomPath,algorithm,savePlancFlag)
 %
-% This function exports structures from CERR format to DICMO RTSTRUCT.
+% This function exports selected structures from CERR format to DICOM RTSTRUCT.
 %
 % INPUTS:
 % cerrPath           - directory containing CERR files with initial
 %                      sementation
-% segResultCERRRPath - directory containing CERR files with sementation
-%                      resulting from an algorithm
+% allLabelNamesC     - Cell array of labelnames for export
+%
 % outputCERRPath     - directory to save CERR file with segmentation copied
 %                      to original CERR file.
 % outputDicomPath    - directory to export DICOM RTSTRUCT
 %
 % APA, 8/14/2018
-
+% AI, 2/7/2020
 
 dirS = dir(cerrPath);
 dirS(1:2) = [];
@@ -21,52 +21,35 @@ init_ML_DICOM
 
 for indBase = 1:length(dirS)
     
-    [~,fname,~] = fileparts(dirS(indBase).name);
     
-    fname = [fname,'_',algorithm];
-    
-    %registeredDir = fullfile(registeredDirLoc,['registered_to_',fname]); 
-
-        
-    % Copy segmentation from segResultCERRRPath to planC
+    %Load planC
     origFileName = fullfile(cerrPath,dirS(indBase).name);
-    % segFileName = fullfile(registeredDir,dirS(indBase).name);
-    segFileName = fullfile(segResultCERRRPath,'cerrFile.mat'); 
     planC = loadPlanC(origFileName);
-    planD = loadPlanC(segFileName);    
     indexS = planC{end};
-    indexSD = planD{end};
     
+    %Save planC to outputDicomPath 
+    [~,fname,~] = fileparts(dirS(indBase).name);
+    fname = [fname,'_',algorithm];
     if savePlancFlag
-        % Save planC to outputDicomPath (TO DO: a separate directory?)
-        planD = save_planC(planD,[],'passed',...
+        planC = save_planC(planC,[],'passed',...
             fullfile(outputDicomPath,[fname,'.mat']));
     end
     
-    scanIndV = 1;
-    doseIndV = [];
-    numSegStr = length(planD{indexSD.structures});
-    numOrigStr = length(planC{indexS.structures});
-    % structIndV = [numStr-1 numStr];
-    structIndV = 1:numSegStr;
-    planC = planMerge(planC, planD, scanIndV, doseIndV, structIndV, '');        
-    numSegStr = numSegStr - numOrigStr;
-    for iStr = 1:numSegStr
-        planC = copyStrToScan(numOrigStr+iStr,1,planC);
+    %Retain only user-input structures (in allLabelNamesC) 
+    numStr = length(planC{indexS.structures});
+    allStrC = {planC{indexS.structures}.structureName};
+    keepStrNumV = zeros(length(allLabelNamesC),1);
+    for i=1:length(allLabelNamesC)
+        matchStrNum = getMatchingIndex(allLabelNamesC{i},allStrC,'EXACT');
+        keepStrNumV(i) =  max(matchStrNum);
     end
-%     %planC = copyStrToScan(numStr,1,planC);
-    planC = deleteScan(planC, 2);
-%     for structNum = numOrigStr:-1:1
-%         planC = deleteStructure(planC, structNum);
-%     end
-    planC = deleteStructure(planC, numOrigStr:-1:1);
     
+    allStrV = 1:numStr;
+    allStrV(keepStrNumV)=[];
     
-    %mergedFileName = fullfile(outputCERRPath,dirS(indBase).name);
-    %planC = save_planC(planC,[],'passed',mergedFileName);
+    planC = deleteStructure(planC,allStrV);
     
-    % Export DICOM to outputDicomPath
-    %export_planC_to_DICOM(planC,outputDicomPath);
+    %Export DICOM RT structs to outputDicomPath
     planC = generate_DICOM_UID_Relationships(planC);
     export_RS_IOD(planC,outputDicomPath,fname);
     

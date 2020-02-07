@@ -59,5 +59,5 @@ status = system(command);
 outC = stackHDF5Files(fullSessionPath,userOptS.passedScanDim); %Updated
 
 % join segmented mask with planC
-success = joinH5CERR(segResultCERRPath,cerrPath,outC{1},userOptS); %Updated
+success = joinH5CERR(cerrPath,outC{1},userOptS); %Updated
           
