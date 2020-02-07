@@ -5,7 +5,7 @@ function success = runSegClinic(inputDicomPath,outputDicomPath,...
 %
 % This function serves as a wrapper for different types of segmentations.
 %
-% INPUT: 
+% INPUT:
 % inputDicomPath - path to input DICOM directory which needs to be segmented.
 % outputDicomPath - path to write DICOM RTSTRUCT for resulting segmentation.
 % sessionPath - path to write temporary segmentation metadata.
@@ -14,14 +14,14 @@ function success = runSegClinic(inputDicomPath,outputDicomPath,...
 %
 % Following directories are created within the session directory:
 % --- ctCERR: contains CERR file/s of input DICOM.
-% --- segmentedOrigCERR: CERR file with resulting segmentation fused with 
+% --- segmentedOrigCERR: CERR file with resulting segmentation fused with
 % original CERR file.
 % --- segResultCERR: CERR file with segmentation. Note that CERR file can
 % be cropped based on initial segmentation.
 %
 % EXAMPLE: to run BABS segmentation
 % inputDicomPath = '';
-% outputDicomPath = ''; 
+% outputDicomPath = '';
 % sessionPath = '';
 % algorithm = 'BABS';
 % babsPath = '';
@@ -31,7 +31,7 @@ function success = runSegClinic(inputDicomPath,outputDicomPath,...
 %
 % APA, 12/14/2018
 % RKP, 9/11/19 Updates for compatibility with training pipeline
-
+% AI, 2/7/2020 Added separate DICOM export functions for BABS and DL algorithms
 
 % Create session directory to write segmentation metadata
 
@@ -75,27 +75,44 @@ end
 
 if iscell(algorithmC) || ~iscell(algorithmC) && ~strcmpi(algorithmC,'BABS')
     
-        containerPath = varargin{1};      
-        origCerrPath = cerrPath;
-        for k=1:length(algorithmC)
-            success = segmentationWrapper(cerrPath,segResultCERRPath,fullSessionPath,containerPath,algorithmC{k});   
-            cerrPath = segResultCERRPath;
-        end
+    containerPath = varargin{1};
+    origCerrPath = cerrPath;
+    allLabelNamesC = {};
+    for k=1:length(algorithmC)
+        
+        % Run segmentation algorithm
+        success = segmentationWrapper(cerrPath,segResultCERRPath,fullSessionPath,containerPath,algorithmC{k});
+        
+        %Get list of label names
+        configFilePath = fullfile(getCERRPath,'ModelImplementationLibrary','SegmentationModels',...
+            'ModelConfigurations', [algorithmC{k}, '_config.json']);
+        userOptS = readDLConfigFile(configFilePath);
+        allLabelNamesC = [allLabelNamesC,{userOptS.strNameToLabelMap.structureName}];
+        
+    end
+    
+    % Export segmentations to DICOM RTSTRUCT files
+    savePlancFlag = 0;
+    if strcmpi(savePlanc,'yes')
+        savePlancFlag = 1;
+    end
+    exportCERRtoDICOM(origCerrPath,allLabelNamesC,outputCERRPath,...
+        outputDicomPath,algorithm,savePlancFlag)
     
 else
     
-        babsPath = varargin{1};
-        success = babsSegmentation(cerrPath,fullSessionPath,babsPath,segResultCERRPath);
-   
+    babsPath = varargin{1};
+    success = babsSegmentation(cerrPath,fullSessionPath,babsPath,segResultCERRPath);
+    
+    % Export the RTSTRUCT file
+    savePlancFlag = 0;
+    if strcmpi(savePlanc,'yes')
+        savePlancFlag = 1;
+    end
+    exportCERRtoDICOM_forBABS(origCerrPath,segResultCERRPath,outputCERRPath,...
+        outputDicomPath,algorithm,savePlancFlag)
+    
 end
-
-% Export the RTSTRUCT file
-savePlancFlag = 0;
-if strcmpi(savePlanc,'yes')
-    savePlancFlag = 1;
-end
-exportCERRtoDICOM(origCerrPath,segResultCERRPath,outputCERRPath,...
-    outputDicomPath,algorithm,savePlancFlag)
 
 % Remove session directory
 rmdir(fullSessionPath, 's')
