@@ -382,9 +382,9 @@ optS.plastimatch_command_file = 'bspline_register_cmd_dir.txt'; %'malcolm_pike_m
 optS.linePoolSize = 300;
 
 %-- Paths to protocol, model, and criteria files for ROE
-optS.ROEProtocolPath = fullfile(getCERRpath,'PlanAnalysis/sampleFilesForROE/Protocols');
-optS.ROEModelPath = fullfile(getCERRpath,'PlanAnalysis/sampleFilesForROE/Models');
-optS.ROECriteriaPath = fullfile(getCERRpath,'PlanAnalysis/sampleFilesForROE/Criteria');
+optS.ROEProtocolPath = fullfile(getCERRPath,'PlanAnalysis/sampleFilesForROE/Protocols');
+optS.ROEModelPath = fullfile(getCERRPath,'PlanAnalysis/sampleFilesForROE/Models');
+optS.ROECriteriaPath = fullfile(getCERRPath,'PlanAnalysis/sampleFilesForROE/Criteria');
 
 %-- Radiomics features calculation parameters
 
