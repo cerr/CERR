@@ -332,18 +332,20 @@ uiwait;
                     patientName = strrep(patientName, '^', ' ');
                     string = strcat(string, '(', patientName, ')');
                     iconpath = which('patient.gif');
-                end;
+                end
                 if strcmp(fnames{i}, 'STUDY')
                     string = 'STUDIES';
                     iconpath = which('studiesFolder.gif');
-                end;
+                end
                 if strcmp(fnames{i}, 'SERIES')
                     iconpath = which('seriesFolder.gif');
-                end;
+                end
                 if strcmp(fnames{i}, 'Data')
                     iconpath = which('dataFolder.gif');
-                end;
-                if strcmp(fnames{i}, 'Modality'), disp('WOWHEREINSHOWDCMINFO'); string = x; end;
+                end
+                if strcmp(fnames{i}, 'Modality')
+                    string = x; 
+                end
                 
                 if getMLVersion > 7.10
                     nodes(count) = uitreenode('v0', value, string, iconpath, ~isstruct(x));
