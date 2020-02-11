@@ -178,11 +178,11 @@ if ~isempty(exportStrC) || testFlag
         end
         
         mask3M = true(size(scanC{scanId}));
-        imType = fieldnames(filterTypeC{c});
-        imType = imType{1};
-        if strcmpi(imType,'original')
+        if strcmpi(filterTypeC{c},'original')
             procScanC{c} = scanC{scanId};
         else
+            imType = fieldnames(filterTypeC{c});
+            imType = imType{1};
             paramS = getRadiomicsParamTemplate([],channelS(c));
             paramS = paramS.imageType.(imType);
             outS = processImage(imType,scanC{scanId},mask3M,paramS);
