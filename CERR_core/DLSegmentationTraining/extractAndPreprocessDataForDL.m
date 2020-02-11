@@ -1,4 +1,4 @@
-function [channelC, mask3M, originalImageSizV] = extractAndPreprocessDataForDL(optS,planC,testFlag)
+function [scanOutC, maskOutC, originalImageSizV] = extractAndPreprocessDataForDL(optS,planC,testFlag)
 %
 % Script to extract scan and mask and perform user-defined pre-processing.
 %
@@ -143,7 +143,7 @@ if ~isempty(exportStrC) || testFlag
         
         %2. Crop around the region of interest
         [minr, maxr, minc, maxc, mins, maxs] = getCropLimits(planC,mask3M,scanNumV(scanIdx),cropS);
-        %- Crop scan 
+        %- Crop scan
         if ~isempty(scan3M) && numel(minr)==1
             scan3M = scan3M(minr:maxr,minc:maxc,mins:maxs);
             limitsM = [minr, maxr, minc, maxc];
@@ -157,7 +157,7 @@ if ~isempty(exportStrC) || testFlag
             mask3M = mask3M(minr:maxr,minc:maxc,mins:maxs);
         elseif ~isempty(mask3M)
             mask3M = mask3M(:,:,mins:maxs);
-        end        
+        end
         
         %3. Resize
         [scan3M, mask3M] = resizeScanAndMask(scan3M,mask3M,outSizeV,resizeMethod,limitsM);
@@ -168,36 +168,42 @@ if ~isempty(exportStrC) || testFlag
     end
     
     %4. Transform view
-    [scanC,maskC] = transformView(scanC,maskC,viewC);
+    [scanOutC,maskOutC] = transformView(scanC,maskC,viewC);
     
     %5. Filter images
-    procScanC = cell(numChannels,1);    
-    for c = 1:numChannels
+    procScanC = cell(numChannels,1);
+    
+    for i = 1:length(viewC)
         
-        if isfield(channelS(c),'scanType')
-            scanId = c;
-        else
-            scanId = 1;
-        end
+        scanC = scanOutC{i};
         
-        mask3M = true(size(scanC{scanId}));
-        if strcmpi(filterTypeC{c},'original')
-            procScanC{c} = scanC{scanId};
-        else
-            imType = fieldnames(filterTypeC{c});
-            imType = imType{1};
-            paramS = getRadiomicsParamTemplate([],channelS(c));
-            paramS = paramS.imageType.(imType);
-            outS = processImage(imType,scanC{scanId},mask3M,paramS);
-            fieldName = fieldnames(outS);
-            fieldName = fieldName{1};
-            procScanC{c} = outS.(fieldName);
+        for c = 1:numChannels
+            
+            if isfield(channelS(c),'scanType')
+                scanId = c;
+            else
+                scanId = 1;
+            end
+            
+            mask3M = true(size(scanC{scanId}));
+            if strcmpi(filterTypeC{c},'original')
+                procScanC{c} = scanC{scanId};
+            else
+                imType = fieldnames(filterTypeC{c});
+                imType = imType{1};
+                paramS = getRadiomicsParamTemplate([],channelS(c));
+                paramS = paramS.imageType.(imType);
+                outS = processImage(imType,scanC{scanId},mask3M,paramS);
+                fieldName = fieldnames(outS);
+                fieldName = fieldName{1};
+                procScanC{c} = outS.(fieldName);
+            end
         end
+        scanOutC{i} = procScanC;
     end
     
     %6. Populate channels
-    channelC = populateChannels(procScanC,channelS);
-    mask3M = maskC{1};
+    scanOutC = populateChannels(scanOutC,channelS);
     
     %Get scan metadata
     %uniformScanInfoS = planC{indexS.scan}(scanNumV(scanIdx)).uniformScanInfo;
@@ -207,3 +213,4 @@ if ~isempty(exportStrC) || testFlag
 end
 
 end
+
