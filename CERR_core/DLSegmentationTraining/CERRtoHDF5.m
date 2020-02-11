@@ -61,7 +61,7 @@ end
 dirS = dir(fullfile(CERRdir,filesep,'*.mat'));
 errC = {};
 
-parfor planNum = 1:length(dirS)
+for planNum = 1:length(dirS)
     
     try
         
@@ -83,20 +83,37 @@ parfor planNum = 1:length(dirS)
                 testFlag = false;
             end
         end
-        [scanC, mask3M] = extractAndPreprocessDataForDL(userOptS,planC,testFlag);
+        [scanC, maskC] = extractAndPreprocessDataForDL(userOptS,planC,testFlag);
         
         %Export to HDF5
-        
+        outDirC = {};
         %- Get output directory
+        if length(userOptS.view)>1
+            viewC = userOptS.view;
+            for i=1:length(viewC)
+                outDirC{i} = fullfile(HDF5dir,viewC{i});
+            end
+        else
+            outDirC{1} = HDF5dir;
+            % to do: /Axial
+        end
+        
         if ismember(planNum,trainIdxV)
-            outDir = fullfile(HDF5dir,'Train');
+            outDirC = fullfile(outDirC,'Train');
         elseif ismember(planNum,valIdxV)
-            outDir = fullfile(HDF5dir,'Val');
+            outDirC = fullfile(outDirC,'Val');
         else
             if dataSplitV(3)==100 %Testing only
-                outDir = HDF5dir;
+                %Do nothing
             else
-                outDir = fullfile(HDF5dir,'Test');
+                outDirC = fullfile(outDirC,'Test');
+            end
+        end
+        
+        %- Create output directories
+        for i =1:length(outDirC)
+            if ~exist(outDirC{i},'dir')
+                mkdir(outDirC{i});
             end
         end
         
@@ -108,7 +125,7 @@ parfor planNum = 1:length(dirS)
         end
         
         %- Write to HDF5
-        writeHDF5ForDL(scanC,mask3M,passedScanDim,outDir,identifier,testFlag)
+        writeHDF5ForDL(scanC,maskC,passedScanDim,outDirC,identifier,testFlag)
         
     catch e
         
