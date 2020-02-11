@@ -18,7 +18,10 @@ resampleMethod = optS.resample.method;
 resizeMethod = optS.resize.method;
 cropS = optS.crop;
 resampleS = optS.resample;
-view = optS.view;
+viewC = optS.view;
+if ~iscell(viewC)
+    viewC = {viewC};
+end
 channelS = optS.channels;
 numChannels = length(channelS);
 filterTypeC = {channelS.imageType};
@@ -165,7 +168,7 @@ if ~isempty(exportStrC) || testFlag
     end
     
     %4. Transform view
-    [scanC,maskC] = transformView(scanC,maskC,view);
+    [scanC,maskC] = transformView(scanC,maskC,viewC);
     
     %5. Filter images
     procScanC = cell(numChannels,1);    
