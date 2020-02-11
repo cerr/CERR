@@ -14,7 +14,7 @@ if isempty(strNum)
     CToffset = planC{indexS.scan}(scanNum).scanInfo(1).CTOffset;
     scan3M = scan3M - CToffset;
     ptMask3M = getPatientOutline(scan3M,1:size(scan3M,3),-400);
-    planC = maskToCERRStructure(ptMask3M,0,scanNum,'OUTER_1',planC);
+    planC = maskToCERRStructure(ptMask3M,0,scanNum,outerStr,planC);
     strC = {planC{indexS.structures}.structureName};
     strNum = length(strC);
 end
