@@ -29,7 +29,7 @@ for indBase = 1:length(dirS)
     
     %Save planC to outputDicomPath 
     [~,fname,~] = fileparts(dirS(indBase).name);
-    fname = [fname,'_',algorithm];
+    %fname = [fname,'_',algorithm];
     if savePlancFlag
         planC = save_planC(planC,[],'passed',...
             fullfile(outputDicomPath,[fname,'.mat']));
