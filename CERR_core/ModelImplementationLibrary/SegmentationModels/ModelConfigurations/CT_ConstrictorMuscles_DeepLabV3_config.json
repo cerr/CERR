@@ -16,7 +16,7 @@
                           "larynx": "LARYNX_1_auto_ensemble_post",
                           "cropStructure": "crop_for_larynx"
                         },
-                        "saveStrToPlanCFlag": "Yes"
+                        "saveStrToPlanCFlag": 1
                       },
             "operator": ""
           }
