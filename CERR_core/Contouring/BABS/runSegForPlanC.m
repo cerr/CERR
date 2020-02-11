@@ -92,7 +92,7 @@ if iscell(algorithmC) || ~iscell(algiorithmC) && ~strcmpi(algorithmC,'BABS')
         configFilePath = fullfile(getCERRPath,'ModelImplementationLibrary','SegmentationModels', 'ModelConfigurations', [algorithmC{k}, '_config.json']);
         
         userOptS = readDLConfigFile(configFilePath);
-        if nargin==6 && ~isnan(varargin{2})
+        if nargin==7 && ~isnan(varargin{2})
             batchSize = varargin{2};
         else
             batchSize = userOptS.batchSize;
