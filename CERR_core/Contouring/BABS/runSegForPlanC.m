@@ -108,7 +108,7 @@ if iscell(algorithmC) || ~iscell(algiorithmC) && ~strcmpi(algorithmC,'BABS')
             waitbar(0.2,hWait,'Segmenting structures...');
         end
         filePrefixForHDF5 = 'cerrFile';
-        writeHDF5ForDL(scanC,mask3M,userOptS.passedScanDim,inputH5Path,filePrefixForHDF5,testFlag);
+        writeHDF5ForDL(scanC,mask3M,userOptS.passedScanDim,{inputH5Path},filePrefixForHDF5,testFlag);
         
         
         %%% =========== have a flag to tell whether the container runs on the client or a remote server

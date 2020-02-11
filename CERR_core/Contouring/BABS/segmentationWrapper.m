@@ -43,7 +43,7 @@ for p=1:length(planCfiles)
     [scanC, mask3M] = extractAndPreprocessDataForDL(userOptS,planC,testFlag);
     %Note: mask3M is empty for testing
     filePrefixForHDF5 = 'cerrFile';
-    writeHDF5ForDL(scanC,mask3M,userOptS.passedScanDim,inputH5Path,filePrefixForHDF5,testFlag);
+    writeHDF5ForDL(scanC,mask3M,userOptS.passedScanDim,{inputH5Path},filePrefixForHDF5,testFlag);
 
 end
 
