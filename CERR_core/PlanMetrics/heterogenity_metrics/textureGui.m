@@ -153,15 +153,17 @@ switch upper(command)
         end
         
         set(ud.handles.scan, 'value', scanNum,'Enable','On');
-        set(ud.handles.structure, 'value', structNum + 1,'Enable','On');
+        set(ud.handles.structure, 'value', 1,'Enable','On');
 
         
         set(ud.handles.featureType,'value',featureNum, 'Enable','On');
         scanTypeC = [{'Select texture'}, planC{indexS.scan}.scanType];
         set(ud.handles.selectTextureMapsForMIM,'string',scanTypeC,...
             'value',1)
-
+        
         set(h, 'userdata', ud);
+        
+        textureGui('SCAN_SELECTED');
         
 %         if ~isempty(ud.currentTexture) && ud.currentTexture>0
 %             textureGui('FEATURE_TYPE_SELECTED');
@@ -281,11 +283,13 @@ switch upper(command)
         ud.handles.scan          = uicontrol(h, 'units',units,'Position',...
             [fieldLeft-.05 1-.29 fieldWidth+0.05 rowHeight],'String', scansC,...
             'value', 1,  'Style', 'popup', 'horizontalAlignment', 'right',...
-            'BackgroundColor', 'w','enable','off','fontSize',10);
+            'BackgroundColor', 'w','callback', 'textureGui(''SCAN_SELECTED'');',...
+            'enable','off','fontSize',10);
         ud.handles.structure     = uicontrol(h, 'units',units,'Position',...
             [fieldLeft-.05 1-.36 fieldWidth+.05 rowHeight],'String', structsC,...
             'value', 1, 'Style', 'popup', 'horizontalAlignment', 'right',...
-            'BackgroundColor', 'w','callback', 'textureGui(''STRUCT_SELECTED'');','enable','off','fontSize',10);
+            'BackgroundColor', 'w','callback', 'textureGui(''STRUCT_SELECTED'');',...
+            'enable','off','fontSize',10);
 
         ud.handles.featureType   = uicontrol(h, 'units',units,'Position',...
             [fieldLeft-.05 1-.43 fieldWidth+.05 rowHeight],'String', featureTypeC,...
@@ -314,10 +318,29 @@ switch upper(command)
             textureGui('REFRESH_THUMBS');
         end        
         
+    case 'SCAN_SELECTED'
+        ud = get(h, 'userdata');
+        scanNum = get(ud.handles.scan,'value');
+        % Find structures associated with this scanNum
+        numStructs = length(planC{indexS.structures});
+        allStrV = 1:numStructs;
+        scanNumV = getStructureAssociatedScan(allStrV,planC);
+        matchV = scanNumV == scanNum;
+        strNameC = {planC{indexS.structures}(matchV).structureName};
+        structNumV = find(matchV);
+        strNameC = strcat(cellfun(@num2str,num2cell(structNumV),...
+            'UniformOutput',false),{'. '},strNameC);
+        strNameC = [{'0. Entire Scan'},strNameC];
+        set(ud.handles.structure,'string',strNameC,'value',1)        
+        ud.structNumV   = [0,structNumV];
+        set(h, 'userdata', ud);
+        
+        
     case 'STRUCT_SELECTED'
         ud = get(h, 'userdata');
-        structNum = get(ud.handles.structure,'value')-1;
-        ud.dXYZ   = getVoxelSize(structNum,h);
+        % structNum = get(ud.handles.structure,'value')-1;
+        ud.structNum = ud.structNumV(get(ud.handles.structure,'value'));        
+        ud.dXYZ   = getVoxelSize(ud.structNum,h);
         set(h, 'userdata', ud);
        
     case 'PATCH_CM_SELECTED'
@@ -675,7 +698,8 @@ switch upper(command)
                 %Display selected texture map
                 scanUID = ['c',repSpaceHyp(planC{indexS.scan}(varargin{1}).scanUID(max(1,end-61):end))];
                 stateS.scanStats.Colormap.(scanUID) = 'weather';
-                strNum = get(ud.handles.structure,'value')-1; %Get current structure
+                % strNum = get(ud.handles.structure,'value')-1; %Get current structure
+                strNum = ud.structNum;
                 rasterSegments = getRasterSegments(strNum, planC);
                 slicesV = unique(rasterSegments(:, 6)); 
                 midSlice = floor((length(slicesV)+1)/2); %Get middle slice
@@ -706,7 +730,8 @@ switch upper(command)
         rescaleSlope = double(txtMax)/double(intmax('int16'));
         rescaleIntercept = 0;
         text3M = int16(double(text3M)/rescaleSlope);
-        structNum = get(ud.handles.structure,'value')-1;
+        %structNum = get(ud.handles.structure,'value')-1;
+        structNum = ud.structNum;
         mask3M = getUniformStr(structNum);
         [minr, maxr, minc, maxc, mins, maxs]= compute_boundingbox(mask3M);
         vol3M(minr:maxr,minc:maxc,mins:maxs) = text3M;
@@ -764,7 +789,8 @@ switch upper(command)
         ud          = get(h, 'userdata');
         set(ud.handles.createTextureMaps,'enable','off'); %Disable while computing texture maps
         scanNum     = get(ud.handles.scan, 'value');
-        structNum   = get(ud.handles.structure, 'value')-1;
+        % structNum   = get(ud.handles.structure, 'value')-1;
+        structNum = ud.structNum;
         hwait = ud.wb.handles.patch;
         indexS = planC{end};
         
@@ -1323,7 +1349,8 @@ end
 
 
 %Create thumbnail
-strNum = ud.handles.structure.Value - 1;
+%strNum = ud.handles.structure.Value - 1;
+strNum = ud.structNum;
 if strNum==0 %Entire scan
     firstROISlice = 1;
 else
