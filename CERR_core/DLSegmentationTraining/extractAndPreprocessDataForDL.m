@@ -191,12 +191,16 @@ if ~isempty(exportStrC) || testFlag
             else
                 imType = fieldnames(filterTypeC{c});
                 imType = imType{1};
-                paramS = getRadiomicsParamTemplate([],channelS(c));
-                paramS = paramS.imageType.(imType);
-                outS = processImage(imType,scanC{scanId},mask3M,paramS);
-                fieldName = fieldnames(outS);
-                fieldName = fieldName{1};
-                procScanC{c} = outS.(fieldName);
+                if strcmpi(imType,'original')
+                    procScanC{c} = scanC{scanId};
+                else
+                    paramS = getRadiomicsParamTemplate([],channelS(c));
+                    paramS = paramS.imageType.(imType);
+                    outS = processImage(imType,scanC{scanId},mask3M,paramS);
+                    fieldName = fieldnames(outS);
+                    fieldName = fieldName{1};
+                    procScanC{c} = outS.(fieldName);
+                end
             end
         end
         scanOutC{i} = procScanC;
