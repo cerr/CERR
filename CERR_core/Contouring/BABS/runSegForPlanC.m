@@ -172,7 +172,7 @@ end
 rmdir(fullClientSessionPath, 's')
 
 % refresh the viewer
-if ~isempty(stateS) && ishandle(stateS.handle.CERRSliceViewer)
+if ~isempty(stateS) && (isfield(stateS,'handle') && ishandle(stateS.handle.CERRSliceViewer))
     stateS.structsChanged = 1;
     CERRRefresh
 end
