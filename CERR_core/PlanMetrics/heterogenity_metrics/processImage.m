@@ -271,6 +271,18 @@ switch filterType
             drawnow;
         end
         
+    case 'SimpleITK'
+        
+        scan3M = scan3M(minr:maxr,minc:maxc,mins:maxs);
+        vol3M   = double(scan3M); 
+        %% needs to come from config file
+        sitkLibPath = 'C:\Python34\Lib\site-packages\SimpleITK\'; 
+        %%
+        sitkFilterName = paramS.sitkFilterName;
+        out3M = sitkWrapper(sitkLibPath, vol3M, sitkFilterName, paramS);        
+        outname = [filterType,'_', sitkFilterName];
+        outS.(outname) = out3M;
+        
     otherwise
         
         mask3M = mask3M(minr:maxr,minc:maxc,mins:maxs);
