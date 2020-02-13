@@ -5,28 +5,30 @@ function planC = insertDCMStruct(planC,dcmFileName)
 % 06/05/2015
 %
 % Copyright 2010, Joseph O. Deasy, on behalf of the CERR development team.
-% 
+%
 % This file is part of The Computational Environment for Radiotherapy Research (CERR).
-% 
+%
 % CERR development has been led by:  Aditya Apte, Divya Khullar, James Alaly, and Joseph O. Deasy.
-% 
+%
 % CERR has been financially supported by the US National Institutes of Health under multiple grants.
-% 
-% CERR is distributed under the terms of the Lesser GNU Public License. 
-% 
+%
+% CERR is distributed under the terms of the Lesser GNU Public License.
+%
 %     This version of CERR is free software: you can redistribute it and/or modify
 %     it under the terms of the GNU General Public License as published by
 %     the Free Software Foundation, either version 3 of the License, or
 %     (at your option) any later version.
-% 
+%
 % CERR is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
 % without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 % See the GNU General Public License for more details.
-% 
+%
 % You should have received a copy of the GNU General Public License
 % along with CERR.  If not, see <http://www.gnu.org/licenses/>.
+%
+% AI 2/13/20 Updated to account for pt orientation
 
-global stateS
+global pPos stateS
 
 if ~exist('planC','var')
     global planC
@@ -58,7 +60,7 @@ dataS = populate_planC_field('structures', dcmdirS.PATIENT, optS);
 % parameter in future)
 numScans = length(planC{indexS.scan});
 obliqTol = 1e-3;
-isObliqScanV = ones(1,numScans);
+isObliqScanV = zeros(1,numScans);
 
 % Check scan to associate the strucutres
 scanUIDc = {planC{indexS.scan}.scanUID};
@@ -66,15 +68,33 @@ scanTypesC = {};
 for i = 1 : numScans
     scanTypesC{i} = [num2str(i) '.  ' planC{indexS.scan}(i).scanType];
     
-    if isfield(planC{indexS.scan}(i).scanInfo(1),'DICOMHeaders') && ...
-            ~isempty(planC{indexS.scan}(i).scanInfo(1).DICOMHeaders)
-        ImageOrientationPatientV = planC{indexS.scan}(i).scanInfo(1).DICOMHeaders.ImageOrientationPatient;
-    else
-        ImageOrientationPatientV = [];
-    end
+    ImageOrientationPatientV = planC{indexS.scan}(i).scanInfo(1).imageOrientationPatient;
+    
     % Check for obliqueness
-    if ~isempty(ImageOrientationPatientV) && max(abs((abs(ImageOrientationPatientV) - [1 0 0 0 1 0]'))) <= obliqTol
-        isObliqScanV(i) = 0;
+    %     if ~isempty(ImageOrientationPatientV) && max(abs((abs(ImageOrientationPatientV) - [1 0 0 0 1 0]'))) <= obliqTol
+    %         isObliqScanV(i) = 0;
+    %     end
+    if ~isempty(ImageOrientationPatientV)
+        if max(abs((ImageOrientationPatientV(:) - [1 0 0 0 1 0]'))) < 1e-3
+            pPos = 'HFS';
+        elseif max(abs((ImageOrientationPatientV(:) - [-1 0 0 0 1 0]'))) < 1e-3
+            pPos = 'FFS';
+        elseif max(abs((ImageOrientationPatientV(:) - [-1 0 0 0 -1 0]'))) < 1e-3
+            pPos = 'HFP';
+        elseif max(abs((ImageOrientationPatientV(:) - [1 0 0 0 -1 0]'))) < 1e-3
+            pPos = 'FFP';
+        else
+            pPos = 'OBLIQUE';    %Oblique
+            isObliqScanV(i) = 1;
+        end
+    else
+        if ~isempty(planC{indexS.scan}(i).scanInfo(1).patientPosition)
+            pPos = planC{indexS.scan}(i).scanInfo(1).patientPosition;
+        else
+            pPos = 'OBLIQUE';
+            isObliqScanV(i) = 1;
+        end
+        
     end
     
 end
@@ -100,8 +120,8 @@ if ~ismember(dataS(1).assocScanUID,scanUIDc)
     end
 end
 numStructs = length(planC{indexS.structures});
-for i=1:length(dataS)    
-    dataS(i) = sortStructures(dataS(i),isObliqScanV,planC); 
+for i=1:length(dataS)
+    dataS(i) = sortStructures(dataS(i),isObliqScanV,planC);
     colorNum = numStructs + i;
     if isempty(dataS(i).structureColor)
         color = stateS.optS.colorOrder( mod(colorNum-1, size(stateS.optS.colorOrder,1))+1,:);
@@ -111,7 +131,7 @@ end
 %Find any structures in dataS not already in planC.
 toDeleteV = [];
 for i=length(dataS):-1:1
-%     newStructName = temp_planC{temp_planC{end}.structures}(i).structureName;
+    %     newStructName = temp_planC{temp_planC{end}.structures}(i).structureName;
     newStructData = dataS(i).contour;
     for j=1:length(planC{planC{end}.structures})
         oldStructName = planC{planC{end}.structures}(j).structureName;
