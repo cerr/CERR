@@ -46,63 +46,74 @@ for i = 1: nSlices
         [~,boundsV] = findpeaks(outSmoothV,'MinPeakProminence',10,'SortStr','descend');
         boundsV = sort(boundsV(1:2));
         
-        %Find valley between peaks
-        flipSigV = nRow-outlineV(boundsV(1):boundsV(2));
-        [~,locV] = findpeaks(flipSigV,'MinPeakProminence',30,'SortStr','descend');
-        if isempty(locV)
-            [~,locV] = findpeaks(flipSigV,'SortStr','descend');
+        %AI 2/10/20
+        %Added to handle cases where one side is not visible
+        if abs(outSmoothV(boundsV(2))-outSmoothV(boundsV(1)))>100
+            %skip slice
+            emptyMaskM = false(size(th_maskM));
+            bboxLeft3M(:,:,i) = emptyMaskM;
+            bboxRight3M(:,:,i) = emptyMaskM;
+            fVoxV(i) = 0;
+            bsizeV(i)=0;
+        else
+            %Find valley between peaks
+            flipSigV = nRow-outlineV(boundsV(1):boundsV(2));
+            [~,locV] = findpeaks(flipSigV,'MinPeakProminence',30,'SortStr','descend');
+            if isempty(locV)
+                [~,locV] = findpeaks(flipSigV,'SortStr','descend');
+            end
+            loc = locV(1) + boundsV(1);
+            rowLim = outlineV(loc);
+            rowLim = rowLim-tol;
+            
+            % --- For testing ----
+            %Display
+            %   figure,scatter(colIdxV,rowIdxV,'bo'),axis([1 nCol 1 nRow]);
+            %   hold on
+            %   plot(colIdxV,outlineV,'--r')
+            %---------------------
+            
+            outlineV(outlineV<rowLim) = rowLim;
+            bsizeV(i) = max(outlineV)- rowLim;
+            
+            %Create mask
+            xV = [flipud(colIdxV);colIdxV];
+            yV = [repmat(rowLim,nCol,1);outlineV];
+            maskM = poly2mask(xV,yV,nRow,nCol) & th_maskM;
+            maskM = bwareaopen(maskM,100);
+            leftMaskM = maskM;
+            leftMaskM(:,loc+1:end) = 0;
+            rightMaskM = maskM;
+            rightMaskM(:,1:loc) = 0;
+            
+            %Morphological processing
+            leftMaskM = imfill(leftMaskM,'holes');
+            leftMaskM = imclose(leftMaskM,strel('disk',4));
+            rightMaskM = imfill(rightMaskM,'holes');
+            rightMaskM = imclose(rightMaskM,strel('disk',4));
+            
+            bboxLeft3M(:,:,i) = leftMaskM;
+            bboxRight3M(:,:,i) = rightMaskM;
         end
-        loc = locV(1) + boundsV(1);
-        rowLim = outlineV(loc);
-        rowLim = rowLim-tol;
-        
-        % --- For testing ----
-        %Display
-        %   figure,scatter(colIdxV,rowIdxV,'bo'),axis([1 nCol 1 nRow]);
-        %   hold on
-        %   plot(colIdxV,outlineV,'--r')
-        %---------------------
-        
-        outlineV(outlineV<rowLim) = rowLim;
-        bsizeV(i) = max(outlineV)- rowLim;
-        
-        %Create mask
-        xV = [flipud(colIdxV);colIdxV];
-        yV = [repmat(rowLim,nCol,1);outlineV];
-        maskM = poly2mask(xV,yV,nRow,nCol) & th_maskM;
-        maskM = bwareaopen(maskM,100);
-        leftMaskM = maskM;
-        leftMaskM(:,loc+1:end) = 0;
-        rightMaskM = maskM;
-        rightMaskM(:,1:loc) = 0;
-        
-        %Morphological processing
-        leftMaskM = imfill(leftMaskM,'holes');
-        leftMaskM = imclose(leftMaskM,strel('disk',4));
-        rightMaskM = imfill(rightMaskM,'holes');
-        rightMaskM = imclose(rightMaskM,strel('disk',4));
-        
-        bboxLeft3M(:,:,i) = leftMaskM;
-        bboxRight3M(:,:,i) = rightMaskM;         
         
     catch
         
         fVoxV(i) = 0;
         bsizeV(i) = 0;
-
+        
     end
 end
 
 %Plot size across slices
 sliceV = 1:length(bsizeV);
 % Smooth to remove sudden spikes
-filtV = gausswin(64,10.5);                
+filtV = gausswin(64,10.5);
 filtV = filtV./sum(filtV);
-smooth_bsizeV = medfilt1(bsizeV,10);         
-smooth_bsizeV = conv(smooth_bsizeV,filtV,'same');   
+smooth_bsizeV = medfilt1(bsizeV,10);
+smooth_bsizeV = conv(smooth_bsizeV,filtV,'same');
 % Get dir of change in size
 diffV = diff(smooth_bsizeV);
-signV = [0 sign(diffV)];         
+signV = [0 sign(diffV)];
 signV = movmean(signV,10);             %Smooth
 
 %Identify slices to retain
@@ -150,7 +161,7 @@ skipIdxV = ~ismember(sliceV,keepSlicesV);
 % ylabel('Slice #');
 %----------------------------------
 
-%Skip selected slices 
+%Skip selected slices
 bboxLeft3M(:,:,skipIdxV) = false(size(scan3M,1),size(scan3M,2),nnz(skipIdxV));
 bboxRight3M(:,:,skipIdxV) = false(size(scan3M,1),size(scan3M,2),nnz(skipIdxV));
 
