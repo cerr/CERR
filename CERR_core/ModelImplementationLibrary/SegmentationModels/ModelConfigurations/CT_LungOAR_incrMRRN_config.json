@@ -1,0 +1,39 @@
+{
+"strNameToLabelMap" : [
+{
+    "structureName": "Heart",
+
+    "value": 1
+    },
+{
+      "structureName": "Lungs",
+      "value": 2
+    },
+{
+      "structureName": "Easophagus",
+      "value": 3
+    },
+{
+      "structureName": "Cord",
+      "value": 4
+    }
+
+
+],
+"batchSize" : 1,
+
+"passedScanDim" : "3D",
+
+"resize" : {"method": "none",
+            "size" : [256,256]},
+
+"crop": [
+    {
+      "method": "crop_pt_outline_2D",
+      "params": { "structureName": "generated_pt_outline", "outStrName":"generated_pt_outline", "saveStrToPlanCFlag": 1, "outlineThreshold": -400},
+      "operator": ""
+    }],
+
+
+"reference" : "10.1109/TMI.2018.2857800"
+}
