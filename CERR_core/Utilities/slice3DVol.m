@@ -180,7 +180,7 @@ end
 % DK
 % compareModes =
 % ['RELMAXPRODIFF';'RELMINPRODIFF';'ABSMAXPRODIFF';'ABSMINPRODIFF'];
-if ~isempty(compareMode)
+if exist('compareMode','var') && ~isempty(compareMode)
     switch upper(compareMode)
         case 'RELDIFF'
             %do nothing
