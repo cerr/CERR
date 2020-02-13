@@ -1,4 +1,4 @@
-function [shoulderSliceNum,noseSliceNum] = getShoulderStartSlice(outerStrMask3M,planC,outerStrName)
+function [shoulderSliceNum,startSliceNum] = getShoulderStartSlice(outerStrMask3M,planC,outerStrName)
 % Automatically identify shoulder start slice in H&N scans based on
 % size of patient outline.
 %
@@ -11,6 +11,7 @@ function [shoulderSliceNum,noseSliceNum] = getShoulderStartSlice(outerStrMask3M,
 % outerStrName     : Structure name corresponding to pt outline
 %------------------------------------------------------------------------
 % AI 10/3/19 Modified to return nose slice
+% AI 02/13/20 Modified to start from first slice (instead of nose).
 
 if isempty(outerStrMask3M)
     %Get mask of outer structure
@@ -20,10 +21,11 @@ if isempty(outerStrMask3M)
     outerStrMask3M = getStrMask(strIdx, planC);
 end
 
-noseSliceNum = getNoseSlice(outerStrMask3M,planC);
+%noseSliceNum = getNoseSlice(outerStrMask3M,planC);
+startSliceNum = 1;
 
 %Get size on each slice
-infMask3M = outerStrMask3M(:,:,noseSliceNum+1:end);
+infMask3M = outerStrMask3M(:,:,startSliceNum+1:end);
 [sel,colIdxM] = max(infMask3M, [], 2);
 colIdxM = squeeze(sel.*(colIdxM)).';
 colIdxM(colIdxM==0) = nan;
@@ -42,7 +44,7 @@ diffV = [0;diff(sizV)];
 [~,argMax] = max(diffV);
 
 if (sizV(argMax)-max(sizV(1:50))) / max(sizV(1:50)) > .2
-    shoulderSliceNum = argMax + noseSliceNum - 1;
+    shoulderSliceNum = argMax + startSliceNum - 1;
 else
     % If not substantially wider, return last slice
     % (assumes shoulders not included)
