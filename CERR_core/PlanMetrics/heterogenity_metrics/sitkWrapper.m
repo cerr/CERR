@@ -1,4 +1,4 @@
-function filteredScanM = sitkWrapper(sitkLibPath, scanM, filterType, paramS, planC)
+function filteredScanM = sitkWrapper(sitkLibPath, scanM, filterType, paramS)
 %function filteredScanM = sitkWrapper(sitkLibPath, scanM, filterType, paramS, planC)
 %Calculate image filters using the Simple ITK Python Library
 %sitkLibPath - location of sitk python wrappscan to be filtered
@@ -7,11 +7,10 @@ function filteredScanM = sitkWrapper(sitkLibPath, scanM, filterType, paramS, pla
 %paramS: parameters required to calculate the filter
 %planC: to convert scan back to cerr
 %
-%example usage:
+% example usage:
 % filterType = 'GradientImageFilter';
 % paramS.bImgSpacing = false;
 % paramS.bImgDir = true;
-% cerrFileName = 'E:\data\HeartSegDeepLab\testCase.mat';
 % sitkLibPath = 'C:\Python34\Lib\site-packages\SimpleITK\';
 % planC = loadPlanC(cerrFileName,tempdir);
 % planC = updatePlanFields(planC);
@@ -23,7 +22,7 @@ function filteredScanM = sitkWrapper(sitkLibPath, scanM, filterType, paramS, pla
 %  scanM = double(planC{indexS.scan}(scanNum).scanArray) ...
 %      - planC{indexS.scan}(scanNum).scanInfo(1).CTOffset;%         
 % 
-% sitkWrapper(sitkLibPath, scanM, filterType, paramS, planC)
+% sitkWrapper(sitkLibPath, scanM, filterType, paramS)
 %
 %
 % Rutu Pandya, Dec, 16 2019.
@@ -50,10 +49,8 @@ function filteredScanM = sitkWrapper(sitkLibPath, scanM, filterType, paramS, pla
 % You should have received a copy of the GNU General Public License
 % along with CERR.
 
-% importing python module Simple ITK
 
-indexS = planC{end};
-
+% import python module SimpleITK 
 sitkModule = 'SimpleITK';
 P = py.sys.path;
 currentPath = pwd;
@@ -72,9 +69,11 @@ end
 
 cd(currentPath);
 
+origScanSize = size(scanM);
 % visualize original scan
-slc = 50;
-figure, imagesc(scanM(:,:,50)), title('orig Image')
+%slc = 50;
+%figure, imagesc(scanM(:,:,50)), title('orig Image')
+
 
 % convert scan to numpy array and integer
 scanPy = py.numpy.array(scanM(:).');
@@ -88,15 +87,26 @@ origShape = origShape.astype(py.numpy.int64);
 try      
     switch filterType
         case 'GradientImageFilter'
-            
+        % paramS inputs needed: 
+        % useImageSpacing (bool), true by default
+        % useImageDirection (bool), true by default
+        
+        
             % reshape numpy array to original shape
             scanPy = reshape(scanPy,origShape);
             
             % Get image from the array
-            itkimg = py.SimpleITK.GetImageFromArray(scanPy);
+            itkimg = py.SimpleITK.GetImageFromArray(scanPy);            
             
             % calculate gradient
             gradient = py.SimpleITK.GradientImageFilter();
+            
+            if(paramS.useImageSpacing == false)
+                gradient.SetUseImageSpacing(paramS.useImageSpacing);
+            end
+            if(paramS.useImageDirection == false)
+                gradient.SetUseImageDirection(paramS.useImageDirection);
+            end
             gradImg = gradient.Execute(itkimg);
             
             % extract numpy array from resulting image
@@ -104,32 +114,57 @@ try
             
             % convert resulting numpy array to matlab array in required shape
             dblGradResultM = double(py.array.array('d',py.numpy.nditer(npGradImg)));
+            %gradMatM = reshape(dblGradResultM,[3,origScanSize(1),origScanSize(2),origScanSize(3)]);
             gradMatM = reshape(dblGradResultM,[3,512,512,121]);
             gradMatM = permute(gradMatM,[3,2,4,1]);
          
 %             %visualize
 %             size(gradMatM)
-%             figure, imagesc(gradMatM(:,:,slc,1))
-%             figure, imagesc(gradMatM(:,:,slc,2))
-%             figure, imagesc(gradMatM(:,:,slc,3))
+%             figure, imagesc(gradMatM(:,:,50,1))
+%             figure, imagesc(gradMatM(:,:,50,2))
+%             figure, imagesc(gradMatM(:,:,50,3))
             
             filteredScanM = gradMatM;
             
         case 'HistogramMatchingImageFilter'
+        % paramS inputs needed: 
+        % numHistLevel (int), paramS.numMatchPts (int),
+        % ThresholdAtMeanIntensityOn (bool),
+        % refImgPath (char vector)
+                    
+            % get src image
+            scanPy = reshape(scanPy,origShape);
+            srcItkImg = py.SimpleITK.GetImageFromArray(scanPy);
             
-            %call to python wrapper
-            histMatchResultM = py.testSITK.histMatching(scanFilename, resultPath, paramS.refImgPath, paramS.numHistLevel, paramS.numMatchPts);
+%             srcItkImg = py.SimpleITK.ReadImage('E:\data\TumorAware_MR\nrrdScanFormat.nrrd');
             
-            %convert to double
-            dblhistMatchResultM = double(py.array.array('d',py.numpy.nditer(histMatchResultM)));
+            % get ref image
+            refItkImg = py.SimpleITK.ReadImage(paramS.refImgPath);            
+            refItkImg = py.SimpleITK.reshape(refItkImg, scanPy);
+            % execute Histogram Matching 
+            matcher = py.SimpleITK.HistogramMatchingImageFilter();
+            matcher.SetNumberOfHistogramLevels(uint32(paramS.numHistLevel));
+            matcher.SetNumberOfMatchPoints(uint32(paramS.numMatchPts));
+            if(paramS.ThresholdAtMeanIntensityOn)
+                matcher.ThresholdAtMeanIntensityOn();
+            end
+            matchedImg = matcher.Execute(srcItkImg,refItkImg);
             
-            %reshape and permute to match matlab input
-            histMatM = reshape(dblhistMatchResultM,[3,512,512,121]);
-            histMatM = permute(histMatM,[3,2,4,1]);
-            size(histMatM)
-            figure, imagesc(histMatM(:,:,slc,1))
-            figure, imagesc(histMatM(:,:,slc,2))
-            figure, imagesc(histMatM(:,:,slc,3))
+            % extract numpy array from resulting image
+            npHistImg = py.SimpleITK.GetArrayFromImage(matchedImg);
+            
+            % convert resulting numpy array to matlab array in required shape
+            dblHistResultM = double(py.array.array('d',py.numpy.nditer(npHistImg)));
+            histMatM = reshape(dblHistResultM,[origScanSize(1),origScanSize(2),origScanSize(3)]);
+            histMatM = permute(histMatM,[3,2,1]);
+            
+            filteredScanM = histMatM;
+                       
+%             %visualize
+%             size(histMatM)
+%             figure, imagesc(histMatM(:,:,slc,1))
+%             figure, imagesc(histMatM(:,:,slc,2))
+%             figure, imagesc(histMatM(:,:,slc,3))
     end
     
 catch
@@ -137,31 +172,6 @@ catch
    
 end
 
-%convert scan back to planC
-
-newScanIndex = 1;
-[xVals, yVals, zVals] = getScanXYZVals(planC{indexS.scan}(newScanIndex));
-dx = abs(mean(diff(xVals)));
-dy = abs(mean(diff(yVals)));
-dz = abs(mean(diff(zVals)));
-deltaXYZv = [dy dx dz];
-minc = 1;
-maxr = size(gradMatM,1);
-uniqueSlicesV = 1:size(gradMatM,3);
-zV = zVals(uniqueSlicesV);
-regParamsS.horizontalGridInterval = deltaXYZv(1);
-regParamsS.verticalGridInterval   = deltaXYZv(2); %(-)ve for dose
-regParamsS.coord1OFFirstPoint   = xVals(minc);
-regParamsS.coord2OFFirstPoint   = yVals(maxr);
-
-regParamsS.zValues  = zV;
-regParamsS.sliceThickness =[planC{indexS.scan}(newScanIndex).scanInfo(uniqueSlicesV).sliceThickness];
-
-assocTextureUID ='';
-
-planC = scan2CERR(squeeze(filteredScanM(:,:,:,1)),'x-direction','Passed',regParamsS,assocTextureUID,planC);
-planC = scan2CERR(squeeze(filteredScanM(:,:,:,2)),'y-direction','Passed',regParamsS,assocTextureUID,planC);
-planC = scan2CERR(squeeze(filteredScanM(:,:,:,3)),'z-direction','Passed',regParamsS,assocTextureUID,planC);
 
     
 
