@@ -115,8 +115,8 @@ try
             % convert resulting numpy array to matlab array in required shape
             dblGradResultM = double(py.array.array('d',py.numpy.nditer(npGradImg)));
             %gradMatM = reshape(dblGradResultM,[3,origScanSize(1),origScanSize(2),origScanSize(3)]);
-            gradMatM = reshape(dblGradResultM,[3,512,512,121]);
-            gradMatM = permute(gradMatM,[3,2,4,1]);
+            gradMatM = reshape(dblGradResultM,[3,origScanSize]);
+            gradMatM = permute(gradMatM,[2,3,4,1]);
          
 %             %visualize
 %             size(gradMatM)
@@ -124,7 +124,9 @@ try
 %             figure, imagesc(gradMatM(:,:,50,2))
 %             figure, imagesc(gradMatM(:,:,50,3))
             
-            filteredScanM = gradMatM;
+            filteredScanM.xGradient = gradMatM(:,:,:,1);
+            filteredScanM.yGradient = gradMatM(:,:,:,2);
+            filteredScanM.zGradient = gradMatM(:,:,:,3);
             
         case 'HistogramMatchingImageFilter'
         % paramS inputs needed: 
