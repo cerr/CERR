@@ -1,5 +1,5 @@
-function filteredScanM = sitkWrapper(sitkLibPath, scanM, filterType, paramS)
-%function filteredScanM = sitkWrapper(sitkLibPath, scanM, filterType, paramS, planC)
+function filteredOutS = sitkWrapper(sitkLibPath, scanM, filterType, paramS)
+%function filteredOutS = sitkWrapper(sitkLibPath, scanM, filterType, paramS, planC)
 %Calculate image filters using the Simple ITK Python Library
 %sitkLibPath - location of sitk python wrappscan to be filtered
 %description - Short description string if desired.
@@ -20,49 +20,49 @@ function filteredScanM = sitkWrapper(sitkLibPath, scanM, filterType, paramS)
 %  % Get Scan
 %  scanNum  =1;
 %  scanM = double(planC{indexS.scan}(scanNum).scanArray) ...
-%      - planC{indexS.scan}(scanNum).scanInfo(1).CTOffset;%         
-% 
+%      - planC{indexS.scan}(scanNum).scanInfo(1).CTOffset;%
+%
 % sitkWrapper(sitkLibPath, scanM, filterType, paramS)
 %
 %
 % Rutu Pandya, Dec, 16 2019.
 %
 % Copyright 2010, Joseph O. Deasy, on behalf of the CERR development team.
-% 
+%
 % This file is part of The Computational Environment for Radiotherapy Research (CERR).
-% 
+%
 % CERR development has been led by:  Aditya Apte, Divya Khullar, James Alaly, and Joseph O. Deasy.
-% 
+%
 % CERR has been financially supported by the US National Institutes of Health under multiple grants.
-% 
-% CERR is distributed under the terms of the Lesser GNU Public License. 
-% 
+%
+% CERR is distributed under the terms of the Lesser GNU Public License.
+%
 %     This version of CERR is free software: you can redistribute it and/or modify
 %     it under the terms of the GNU General Public License as published by
 %     the Free Software Foundation, either version 3 of the License, or
 %     (at your option) any later version.
-% 
+%
 % CERR is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
 % without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 % See the GNU General Public License for more details.
-% 
+%
 % You should have received a copy of the GNU General Public License
 % along with CERR.
 
 
-% import python module SimpleITK 
+% import python module SimpleITK
 sitkModule = 'SimpleITK';
 P = py.sys.path;
 currentPath = pwd;
 cd(sitkLibPath);
 sitkFileName = fullfile(sitkLibPath,sitkModule);
 
-try    
+try
     if count(P,sitkFileName) == 0
         insert(P,int32(0),sitkFileName);
     end
     py.importlib.import_module(sitkModule);
-        
+    
 catch
     disp('SimpleITK module could not be imported, check the path');
 end
@@ -75,28 +75,35 @@ origScanSize = size(scanM);
 %figure, imagesc(scanM(:,:,50)), title('orig Image')
 
 
-% convert scan to numpy array and integer
-scanPy = py.numpy.array(scanM(:).');
-scanPy = scanPy.astype(py.numpy.int64);
+% % convert scan to numpy array and integer
+% scanPy = py.numpy.array(scanM(:).');
+% scanPy = scanPy.astype(py.numpy.int64);
+%
+% % get original shape of the scan
+% origShape = py.numpy.array(size(scanM));
+% origShape = origShape.astype(py.numpy.int64);
 
-% get original shape of the scan 
-origShape = py.numpy.array(size(scanM));
-origShape = origShape.astype(py.numpy.int64);
 
-
-try      
+try
     switch filterType
         case 'GradientImageFilter'
-        % paramS inputs needed: 
-        % useImageSpacing (bool), true by default
-        % useImageDirection (bool), true by default
-        
-        
+            % paramS inputs needed:
+            % useImageSpacing (bool), true by default
+            % useImageDirection (bool), true by default
+            
+            % convert scan to numpy array and integer
+            scanPy = py.numpy.array(scanM(:).');
+            scanPy = scanPy.astype(py.numpy.int64);
+            
+            % get original shape of the scan
+            origShape = py.numpy.array(size(scanM));
+            origShape = origShape.astype(py.numpy.int64);
+            
             % reshape numpy array to original shape
             scanPy = reshape(scanPy,origShape);
             
             % Get image from the array
-            itkimg = py.SimpleITK.GetImageFromArray(scanPy);            
+            itkimg = py.SimpleITK.GetImageFromArray(scanPy);
             
             % calculate gradient
             gradient = py.SimpleITK.GradientImageFilter();
@@ -117,33 +124,56 @@ try
             %gradMatM = reshape(dblGradResultM,[3,origScanSize(1),origScanSize(2),origScanSize(3)]);
             gradMatM = reshape(dblGradResultM,[3,origScanSize]);
             gradMatM = permute(gradMatM,[2,3,4,1]);
-         
-%             %visualize
-%             size(gradMatM)
-%             figure, imagesc(gradMatM(:,:,50,1))
-%             figure, imagesc(gradMatM(:,:,50,2))
-%             figure, imagesc(gradMatM(:,:,50,3))
             
-            filteredScanM.xGradient = gradMatM(:,:,:,1);
-            filteredScanM.yGradient = gradMatM(:,:,:,2);
-            filteredScanM.zGradient = gradMatM(:,:,:,3);
+            %             %visualize
+            %             size(gradMatM)
+            %             figure, imagesc(gradMatM(:,:,50,1))
+            %             figure, imagesc(gradMatM(:,:,50,2))
+            %             figure, imagesc(gradMatM(:,:,50,3))
+            
+            filteredOutS.xGradient = gradMatM(:,:,:,1);
+            filteredOutS.yGradient = gradMatM(:,:,:,2);
+            filteredOutS.zGradient = gradMatM(:,:,:,3);
             
         case 'HistogramMatchingImageFilter'
-        % paramS inputs needed: 
-        % numHistLevel (int), paramS.numMatchPts (int),
-        % ThresholdAtMeanIntensityOn (bool),
-        % refImgPath (char vector)
-                    
-            % get src image
+            % paramS inputs needed:
+            % numHistLevel (int), paramS.numMatchPts (int),
+            % ThresholdAtMeanIntensityOn (bool),
+            % refImgPath (char vector)
+ 
+            % convert scan to numpy array and integer
+            scanPy = py.numpy.array(scanM(:)');
+            scanPy = scanPy.astype(py.numpy.int64);
+            
+            % get original shape of the scan
+            origShape = py.numpy.array(size(scanM(:)'));
+            origShape = origShape.astype(py.numpy.int64);
+            
+            % reshape numpy array to original shape
             scanPy = reshape(scanPy,origShape);
+            
+            % Get image from the array
             srcItkImg = py.SimpleITK.GetImageFromArray(scanPy);
             
-%             srcItkImg = py.SimpleITK.ReadImage('E:\data\TumorAware_MR\nrrdScanFormat.nrrd');
+            
+            %             srcItkImg = py.SimpleITK.ReadImage('E:\data\TumorAware_MR\nrrdScanFormat.nrrd');
             
             % get ref image
-            refItkImg = py.SimpleITK.ReadImage(paramS.refImgPath);            
-            refItkImg = py.SimpleITK.reshape(refItkImg, scanPy);
-            % execute Histogram Matching 
+            refItkImg = py.SimpleITK.ReadImage(paramS.refImgPath);
+            refScanPy = py.SimpleITK.GetArrayFromImage(refItkImg);
+            refNumElems = int64(py.numpy.prod(refScanPy.shape));
+            refShape = py.numpy.array([1,refNumElems]);
+            refScanPy = refScanPy.astype(py.numpy.int64);
+            
+            % reshape numpy array to original shape
+            refScanPy = reshape(refScanPy,refShape);
+            
+            % Get image from the array
+            refItkImg = py.SimpleITK.GetImageFromArray(refScanPy);
+            
+            
+            %refItkImg = py.SimpleITK.reshape(refItkImg, scanPy);
+            % execute Histogram Matching
             matcher = py.SimpleITK.HistogramMatchingImageFilter();
             matcher.SetNumberOfHistogramLevels(uint32(paramS.numHistLevel));
             matcher.SetNumberOfMatchPoints(uint32(paramS.numMatchPts));
@@ -158,24 +188,24 @@ try
             % convert resulting numpy array to matlab array in required shape
             dblHistResultM = double(py.array.array('d',py.numpy.nditer(npHistImg)));
             histMatM = reshape(dblHistResultM,[origScanSize(1),origScanSize(2),origScanSize(3)]);
-            histMatM = permute(histMatM,[3,2,1]);
+            %histMatM = permute(histMatM,[3,2,1]);
             
-            filteredScanM = histMatM;
-                       
-%             %visualize
-%             size(histMatM)
-%             figure, imagesc(histMatM(:,:,slc,1))
-%             figure, imagesc(histMatM(:,:,slc,2))
-%             figure, imagesc(histMatM(:,:,slc,3))
+            filteredOutS.histMatchedImage = histMatM;
+            
+            %             %visualize
+            %             size(histMatM)
+            %             figure, imagesc(histMatM(:,:,slc,1))
+            %             figure, imagesc(histMatM(:,:,slc,2))
+            %             figure, imagesc(histMatM(:,:,slc,3))
     end
     
 catch
-        disp('error using sitk filter')
-   
+    disp('error using sitk filter')
+    
 end
 
 
-    
+
 
 
 
