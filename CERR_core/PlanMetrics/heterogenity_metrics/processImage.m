@@ -277,11 +277,12 @@ switch filterType
         vol3M   = double(scan3M); 
         %% needs to come from config file
         sitkLibPath = 'C:\Python34\Lib\site-packages\SimpleITK\'; 
+        sitkLibPath = 'C:\Users\aptea\AppData\Local\Programs\Python\Python37\Lib\site-packages\SimpleITK\'; 
         %%
         sitkFilterName = paramS.sitkFilterName;
-        out3M = sitkWrapper(sitkLibPath, vol3M, sitkFilterName, paramS);        
-        outname = [filterType,'_', sitkFilterName];
-        outS.(outname) = out3M;
+        outS = sitkWrapper(sitkLibPath, vol3M, sitkFilterName, paramS);        
+        %outname = [filterType,'_', sitkFilterName];
+        %outS.(outname) = out3M;
         
     otherwise
         
