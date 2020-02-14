@@ -1,0 +1,13 @@
+{
+
+"strNameToLabelMap" : [
+{"structureName": "lung",
+  "value": 1} 
+],
+
+"batchSize" : 1,
+
+"passedScanDim" : "3D",
+
+"reference" : ""
+}
