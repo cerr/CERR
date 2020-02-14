@@ -407,6 +407,7 @@ optS.ivh_xForVxV = 10:10:90; % percent intensity cutoff
 optS.ivh_xAbsForVxV =  -140:10:100; % CT eg., absolute intensity cutoff (image units)
                                     % 0:2:28; % PET
 
+optS.sitkLibPath = 'C:\\Users\\aptea\\AppData\\Local\\Programs\\Python\\Python37\\Lib\\site-packages\\SimpleITK';
                                     
 %-------------------------------------------fini--------------------------%
                                     

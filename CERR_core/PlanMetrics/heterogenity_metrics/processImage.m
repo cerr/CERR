@@ -8,6 +8,38 @@ function outS = processImage(filterType,scan3M,mask3M,paramS,hWait)
 % mask3M     - 3-D mask
 % paramS     - Filter parameters
 %-------------------------------------------------------------------------
+%
+% EXAMPLES:
+%
+% The following examples demonstrate using filters from the SimpleITK
+% library.
+%
+% global planC
+% indexS = planC{end};
+% 
+% filterType = 'SimpleITK';
+% structNum = 1;
+% scanNum = getStructureAssociatedScan(structNum,planC);
+% CTOffset = planC{indexS.scan}(scanNum).scanInfo(1).CTOffset;
+% scan3M = single(planC{indexS.scan}(scanNum).scanArray) - CTOffset;
+% mask3M = getUniformStr(structNum);
+% hWait = NaN;
+% 
+% % Gradient Image Filter
+% paramS.sitkFilterName = 'GradientImageFilter';
+% paramS.useImageSpacing = false;
+% paramS.useImageDirection = false;
+% outS = processImage(filterType,scan3M,mask3M,paramS,hWait);
+% 
+% % Histogram matching
+% paramS.sitkFilterName = 'HistogramMatchingImageFilter';
+% paramS.numHistLevel = 1024;
+% paramS.numMatchPts = 7;
+% paramS.ThresholdAtMeanIntensityOn = true;
+% paramS.refImgPath = fullfile(getCERRPath,...
+%     'ModelImplementationLibrary\SegmentationModels\MR_LungNodules_TumorAware\model_wrapper\reference_image_for_hist_match.nii');
+% outS = processImage(filterType,scan3M,mask3M,paramS,hWait);
+%
 %AI 03/16/18
 
 if ~exist('hWait','var')
@@ -275,14 +307,13 @@ switch filterType
         
         scan3M = scan3M(minr:maxr,minc:maxc,mins:maxs);
         vol3M   = double(scan3M); 
-        %% needs to come from config file
-        sitkLibPath = 'C:\Python34\Lib\site-packages\SimpleITK\'; 
-        sitkLibPath = 'C:\Users\aptea\AppData\Local\Programs\Python\Python37\Lib\site-packages\SimpleITK\'; 
-        %%
+        % Path to SimpleITK
+        optS = opts4Exe([getCERRPath,'CERROptions.json']);
+        sitkLibPath = optS.sitkLibPath;
+        % Call the SimpleITK wrapper
         sitkFilterName = paramS.sitkFilterName;
+        % to do - update the signature to include mask3M?
         outS = sitkWrapper(sitkLibPath, vol3M, sitkFilterName, paramS);        
-        %outname = [filterType,'_', sitkFilterName];
-        %outS.(outname) = out3M;
         
     otherwise
         
