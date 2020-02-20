@@ -407,14 +407,18 @@ switch cellName
                         RTDOSE(doseNum), doseobj, rtPlans, optS);
 
                     if ~isempty(dvhsequence)
+                        
+                        structureNameC = {};
+                        structureNumberV = [];
+                        
                         % get a list of Structure Names
                         for seriesNumStr = 1:length(seriesC)
 
                             if strcmpi(typeC{seriesNumStr}, 'RTSTRUCT')
 
                                 RTSTRUCT = seriesC{seriesNumStr}.Data;   
-                                structureNameC = {};
-                                structureNumberV = [];
+                                %structureNameC = {};
+                                %structureNumberV = [];
                                 for k = 1:length(RTSTRUCT)
                                     strobj  = scanfile_mldcm(RTSTRUCT(k).file);
 
