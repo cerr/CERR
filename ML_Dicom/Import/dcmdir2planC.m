@@ -335,6 +335,7 @@ end
 % Create a Dummy Scan if no scan is available
 if isempty(planC{indexS.scan})
     planC = createDummyScan(planC);
+    isObliqScanV(1) = 0; % non-oblique "dummy" scan
     %associate all structures to the first scanset.
     strNum = length(planC{indexS.structures});
     for i=1:strNum
