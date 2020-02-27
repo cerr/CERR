@@ -11,7 +11,7 @@
 
 "crop" : [{     
             "method": "crop_for_larynx",
-            "params": { "structureName": { "chewingStructures": ["MML_1_auto_ensemble_post","MMR_1_auto_ensemble_post","PML_1_auto_ensemble_post","PMR_1_auto_ensemble_post"],
+            "params": { "structureName": { "chewingStructures": ["MML","MMR","PML","PMR"],
                         "cropStructure": "crop_for_chewing_structs"},
                         "saveStrToPlanCFlag": 1
                       },
