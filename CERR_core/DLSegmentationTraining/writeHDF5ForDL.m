@@ -26,7 +26,7 @@ switch (passedScanDim)
     
     case '3D'
         
-        mask3M = maskC{1};
+        mask3M = maskC{1}{1};
         %Write mask
         if ~isempty(mask3M) && ~testFlag
             if ~exist(fullfile(outDirC{1},'Masks'),'dir')

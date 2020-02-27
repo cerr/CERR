@@ -25,6 +25,7 @@ end
 %Define paths for train/val/test split where needed
 if isempty(split)
     %Do nothing (assumes testing only)
+else
     switch lower(split)
         case 'train'
             outDirC = fullfile(outDirC,'Train');
