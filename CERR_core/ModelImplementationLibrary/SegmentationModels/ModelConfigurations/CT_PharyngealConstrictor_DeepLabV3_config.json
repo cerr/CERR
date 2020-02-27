@@ -13,7 +13,7 @@
             "method": "crop_for_constrictor",
             "params": { "structureName": 
                         { 
-                          "larynx": "LARYNX_1_auto_ensemble_post",
+                          "larynx": "LARYNX",
                           "cropStructure": "crop_for_larynx"
                         },
                         "saveStrToPlanCFlag": 1
