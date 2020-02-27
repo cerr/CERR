@@ -1,4 +1,4 @@
-function [scanOutC, maskOutC, originalImageSizV] = extractAndPreprocessDataForDL(optS,planC,testFlag)
+function [scanOutC, maskOutC, planC] = extractAndPreprocessDataForDL(optS,planC,testFlag)
 %
 % Script to extract scan and mask and perform user-defined pre-processing.
 %
@@ -142,7 +142,7 @@ if ~isempty(exportStrC) || testFlag
         end
         
         %2. Crop around the region of interest
-        [minr, maxr, minc, maxc, mins, maxs] = getCropLimits(planC,mask3M,scanNumV(scanIdx),cropS);
+        [minr, maxr, minc, maxc, mins, maxs, planC] = getCropLimits(planC,mask3M,scanNumV(scanIdx),cropS);
         %- Crop scan
         if ~isempty(scan3M) && numel(minr)==1
             scan3M = scan3M(minr:maxr,minc:maxc,mins:maxs);

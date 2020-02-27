@@ -101,7 +101,7 @@ if iscell(algorithmC) || ~iscell(algiorithmC) && ~strcmpi(algorithmC,'BABS')
         if ishandle(hWait)
             waitbar(0.1,hWait,'Extracting scan and mask');
         end
-        [scanC, mask3M] = extractAndPreprocessDataForDL(userOptS,planC,testFlag);
+        [scanC, mask3M, planC] = extractAndPreprocessDataForDL(userOptS,planC,testFlag);
         %Note: mask3M is empty for testing
         
         if ishandle(hWait)

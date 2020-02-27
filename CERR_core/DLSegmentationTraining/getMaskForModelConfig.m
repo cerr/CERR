@@ -1,4 +1,4 @@
-function outMask3M = getMaskForModelConfig(planC,mask3M,scanNum,cropS)
+function [outMask3M, planC] = getMaskForModelConfig(planC,mask3M,scanNum,cropS)
 % getMaskForModelConfig.m
 % Create mask for deep learning based on input configuration file.
 %
@@ -135,9 +135,6 @@ for m = 1:length(methodC)
         otherwise
             %Custom crop function
             maskC{m} = feval(method,planC,paramS,mask3M,scanNum);
-            if paramS.saveStrToPlanCFlag
-                planC = maskToCERRStructure(maskC{m}, 0, scanNum, method,planC);
-            end
     end
     
     %Save to planC if reqd
