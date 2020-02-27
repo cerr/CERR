@@ -61,7 +61,7 @@ end
 dirS = dir(fullfile(CERRdir,filesep,'*.mat'));
 errC = {};
 
-for planNum = 1:length(dirS)
+parfor planNum = 1:length(dirS)
     
     try
         
@@ -86,36 +86,22 @@ for planNum = 1:length(dirS)
         [scanC, maskC] = extractAndPreprocessDataForDL(userOptS,planC,testFlag);
         
         %Export to HDF5
-        outDirC = {};
-        %- Get output directory
-        if length(userOptS.view)>1
-            viewC = userOptS.view;
-            for i=1:length(viewC)
-                outDirC{i} = fullfile(HDF5dir,viewC{i});
-            end
-        else
-            outDirC{1} = HDF5dir;
-            % to do: /Axial
-        end
         
+        %- Get split
         if ismember(planNum,trainIdxV)
-            outDirC = fullfile(outDirC,'Train');
+            split = 'Train';
         elseif ismember(planNum,valIdxV)
-            outDirC = fullfile(outDirC,'Val');
+            split = 'Val';
         else
             if dataSplitV(3)==100 %Testing only
-                %Do nothing
+                split = '';
             else
-                outDirC = fullfile(outDirC,'Test');
+                split ='Test';
             end
         end
         
-        %- Create output directories
-        for i =1:length(outDirC)
-            if ~exist(outDirC{i},'dir')
-                mkdir(outDirC{i});
-            end
-        end
+        %-Get o/p path
+        outDirC = getOutputH5Dir(HDF5dir,userOptS,split);
         
         %- Get output file prefix
         switch(prefixType)
