@@ -16,7 +16,7 @@ function [minr, maxr, minc, maxc, mins, maxs, planC] = getCropLimits(planC,mask3
 % AI 7/23/19
 
 %Get mask for model config
-modelMask3M = getMaskForModelConfig(planC,mask3M,scanNum,cropS);
+[modelMask3M, planC] = getMaskForModelConfig(planC,mask3M,scanNum,cropS);
 
 %Compute bounding box
 methodC = {cropS.method};
