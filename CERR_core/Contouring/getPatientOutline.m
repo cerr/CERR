@@ -7,7 +7,7 @@ function ptMask3M = getPatientOutline(scan3M,slicesV,outThreshold,minMaskSiz)
 % scan3M = getScanArray(scanNum,planC);
 % CToffset = planC{indexS.scan}(scanNum).scanInfo(1).CTOffset;
 % scan3M = scan3M - CToffset;
-% ptMask3M = getPatientOutline(scan3M); %Returns mask for all slices by default
+% ptMask3M = getPatientOutline(scan3M,1:size(scan3M,3),0); %Returns mask for all slices by default
 %
 % AI 7/13/19
 
@@ -25,9 +25,9 @@ scanThreshV = scan3M(scan3M>outThreshold);
 threshold = prctile(scanThreshV,5);
 sizV = size(scan3M);
 imageCenterRow = sizV(1)/2;
+imageCenterCol = sizV(2)/2;
 
 %% Extract mask
-minMaskSiz = 1500;
 minDistV = nan([numel(slicesV),1]);
 idxC = cell(1,numel(slicesV));
 for n = 1:numel(slicesV)
@@ -49,11 +49,13 @@ for n = 1:numel(slicesV)
     if ~isempty(selV)
         
         rowMedianV = nan(1,length(selV));
+        colMedianV = nan(1,length(selV));
         for iSel = 1:length(selV)
-            [rV,~] = ind2sub(size(y),cc.PixelIdxList{selV(iSel)});
+            [rV,cV] = ind2sub(size(y),cc.PixelIdxList{selV(iSel)});
             rowMedianV(iSel) = median(rV);
+            colMedianV(iSel) = median(cV);
         end
-        distV = (rowMedianV - imageCenterRow).^2;
+        distV = (rowMedianV - imageCenterRow).^2 + (colMedianV - imageCenterCol).^2 ;
         [minDistV(n),indMin] = min(distV);
         sel = selV(indMin);
         
