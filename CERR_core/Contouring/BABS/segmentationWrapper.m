@@ -40,10 +40,15 @@ for p=1:length(planCfiles)
     planC = loadPlanC(fileNam, tempdir);
     planC = quality_assure_planC(fileNam,planC);
     
-    [scanC, mask3M] = extractAndPreprocessDataForDL(userOptS,planC,testFlag);
+    [scanC, mask3M, planC] = extractAndPreprocessDataForDL(userOptS,planC,testFlag);
+    
     %Note: mask3M is empty for testing
     filePrefixForHDF5 = 'cerrFile';
-    writeHDF5ForDL(scanC,mask3M,userOptS.passedScanDim,{inputH5Path},filePrefixForHDF5,testFlag);
+    outDirC = getOutputH5Dir(inputH5Path,userOptS,'');
+    writeHDF5ForDL(scanC,mask3M,userOptS.passedScanDim,outDirC,filePrefixForHDF5,testFlag);
+    
+    %Save updated planC file
+    save_planC(planC,[],'PASSED',fileNam);
 
 end
 
@@ -51,7 +56,7 @@ end
 bindingDir = ':/scratch';
 bindPath = strcat(fullSessionPath,bindingDir);
  
-%execute the container
+%execute the containergit 
 command = sprintf('singularity run --app %s --nv --bind  %s %s %s %s', algorithm, bindPath, containerPath, num2str(userOptS.batchSize));
 status = system(command);
 
