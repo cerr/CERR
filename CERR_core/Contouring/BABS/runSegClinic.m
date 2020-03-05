@@ -4,7 +4,7 @@ function success = runSegClinic(inputDicomPath,outputDicomPath,...
 %   sessionPath,algorithm,varargin)
 %
 % This function serves as a wrapper for different types of segmentations.
-%
+%---------------------------------------------------------------------------------------
 % INPUT:
 % inputDicomPath - path to input DICOM directory which needs to be segmented.
 % outputDicomPath - path to write DICOM RTSTRUCT for resulting segmentation.
@@ -28,10 +28,11 @@ function success = runSegClinic(inputDicomPath,outputDicomPath,...
 % savePlanc = 'Yes'; or 'No'
 % success = runSegClinic(inputDicomPath,outputDicomPath,sessionPath,algorithm,babsPath);
 %
-%
+% ------------------------------------------------------------------------------------
 % APA, 12/14/2018
 % RKP, 9/11/19 Updates for compatibility with training pipeline
 % AI, 2/7/2020 Added separate DICOM export functions for BABS and DL algorithms
+% AI, 3/5/2020 Updates to handle multiple algorithms
 
 % Create session directory to write segmentation metadata
 
@@ -60,25 +61,48 @@ mkdir(segResultCERRPath)
 % Import DICOM to CERR
 importDICOM(inputDicomPath,cerrPath);
 
-% algorithm
-algorithmC = {};
-
-[algorithmC{end+1},remStr] = strtok(algorithm,'^');
-algorithmC{end} = char(algorithmC{end});
-remStr = char(remStr);
-
-while ~isempty(remStr) && ~isequal(remStr,"")
-    [algorithmC{end+1},remStr] = strtok(remStr,'^');
-    algorithmC{end} = char(algorithmC{end});
-    remStr = char(remStr);
+% Get algorithm
+if ~iscell(algorithm)
+    algorithm = {algorithm};
 end
 
+[algorithmC,remStr] = strtok(algorithm,'^');
+if iscell(remStr)
+    isEmptyC = cellfun(@isempty,remStr,'Un',0);
+    isEmpty = any([isEmptyC{:}]);
+    isEqualC = cellfun(@(x)isequal(x,""),remStr,'Un',0);
+    isEqual = any([isEqualC{:}]);
+    while ~isEmpty && ~isEqual
+        [algorithmC,remStr] = strtok(remStr,'^');
+        isEmptyC = cellfun(@isempty,remStr,'Un',0);
+        isEmpty = any([isEmptyC{:}]);
+        isEqualC = cellfun(@(x)isequal(x,""),remStr,'Un',0);
+        isEqual = any([isEqualC{:}]);
+    end
+else
+    while ~isempty(remStr) && ~isequal(remStr,"")
+        [algorithmC,remStr] = strtok(remStr,'^');
+        remStr = char(remStr);
+    end
+end
+
+%Run inference
 if iscell(algorithmC) || ~iscell(algorithmC) && ~strcmpi(algorithmC,'BABS')
     
     containerPath = varargin{1};
     origCerrPath = cerrPath;
     allLabelNamesC = {};
     for k=1:length(algorithmC)
+        
+        %Delete previous inputs where needed
+        inputH5Path = fullfile(fullSessionPath,'inputH5');
+        outputH5Path = fullfile(fullSessionPath,'outputH5');
+        if exist(inputH5Path, 'dir')
+            rmdir(inputH5Path, 's')
+        end
+        if exist(outputH5Path, 'dir')
+            rmdir(outputH5Path, 's')
+        end
         
         % Run segmentation algorithm
         success = segmentationWrapper(cerrPath,segResultCERRPath,fullSessionPath,containerPath,algorithmC{k});
