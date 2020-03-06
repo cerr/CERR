@@ -352,6 +352,10 @@ switch upper(command)
         ROE('CLEAR_PLOT',hFig);
         
         ud = get(hFig,'userdata');
+        if ~isfield(ud,'planNum') || isempty(ud.planNum) || ud.planNum==0
+            msgbox('Please select valid dose plan','Selection required');
+            return
+        end
         indexS = planC{end};
         
         %% Initialize plot handles
@@ -408,6 +412,18 @@ switch upper(command)
                 for p = 1:numel(protocolS)
                     
                     modelC = protocolS(p).model;
+                    
+                    %Ensure reqd structures are selected 
+                    strSelC = cellfun(@(x)x.strNum , modelC,'un',0);
+                    noSelV = find([strSelC{:}]==0);
+                    
+                    if any(noSelV)
+                       modList = cellfun(@(x)x.name , modelC,'un',0);
+                       modList = strjoin(modList(noSelV),',');  
+                       msgbox(['Please select structures required for models ' modList],'Selection required');
+                       return
+                    end
+                    
                     modTypeC = cellfun(@(x)(x.type),modelC,'un',0);
                     xIndx = find(strcmp(modTypeC,'BED') | strcmp(modTypeC,'TCP')); %Identify TCP/BED models
                     
@@ -2203,7 +2219,12 @@ end
                 prtcNumV = 1:length(ud.Protocols); %For initialization
             end
             
-            planNum = ud.planNum;
+            if isfield(ud,'planNum')
+                planNum = ud.planNum;
+            else
+                planNum = [];
+            end
+            
             for t = 1:length(prtcNumV)
                 
                 if ~isempty(planNum)
@@ -2257,8 +2278,11 @@ end
                         end
                     end
                     
+                    
                     %Get parameters
+                    set(hFig,'userdata',ud);
                     hPar = extractParams(modelsC{modelNumV(s)});
+                    ud = get(hFig,'userdata');
                     
                     if ~isempty(hEvt)
                         %Add file properties if missing
