@@ -62,28 +62,16 @@ mkdir(segResultCERRPath)
 importDICOM(inputDicomPath,cerrPath);
 
 % Get algorithm
-if ~iscell(algorithm)
-    algorithm = {algorithm};
-end
+algorithmC = {};
 
-[algorithmC,remStr] = strtok(algorithm,'^');
-if iscell(remStr)
-    isEmptyC = cellfun(@isempty,remStr,'Un',0);
-    isEmpty = any([isEmptyC{:}]);
-    isEqualC = cellfun(@(x)isequal(x,""),remStr,'Un',0);
-    isEqual = any([isEqualC{:}]);
-    while ~isEmpty && ~isEqual
-        [algorithmC,remStr] = strtok(remStr,'^');
-        isEmptyC = cellfun(@isempty,remStr,'Un',0);
-        isEmpty = any([isEmptyC{:}]);
-        isEqualC = cellfun(@(x)isequal(x,""),remStr,'Un',0);
-        isEqual = any([isEqualC{:}]);
-    end
-else
-    while ~isempty(remStr) && ~isequal(remStr,"")
-        [algorithmC,remStr] = strtok(remStr,'^');
-        remStr = char(remStr);
-    end
+[algorithmC{end+1},remStr] = strtok(algorithm,'^');
+algorithmC{end} = char(algorithmC{end});
+remStr = char(remStr);
+
+while ~isempty(remStr) && ~isequal(remStr,"")
+    [algorithmC{end+1},remStr] = strtok(remStr,'^');
+    algorithmC{end} = char(algorithmC{end});
+    remStr = char(remStr);
 end
 
 %Run inference
