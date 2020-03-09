@@ -834,6 +834,7 @@ switch upper(command)
                         ud.NTCPCurve(ntcp).DisplayName = [ud.Protocols(p).protocol,': ',modelC{modIdxV(j)}.name];
                         hCurr = hNTCPAxis;
                     end
+
                 else %plotModes 3&4
                     
                     if plotMode == 4
@@ -1251,6 +1252,9 @@ switch upper(command)
         if isfield(ud,'y2Disp')
             ud = rmfield(ud,'y2Disp');
         end
+        
+        %Clear user-input scale factor/no. frx
+        set(ud.handle.modelsAxis(10),'String','')
         
         %Turn off datacursor mode
         cursorMode = datacursormode(hFig);
@@ -2525,11 +2529,11 @@ end
                     end
                     
                     if ~skip %Error here: TO DO! Check!
-%                         plot([xScale xScale],[0 cpNew],'Color',pColorM(clrIdx,:),'LineStyle','-.',...
-%                             'linewidth',2,'parent',hplotAx);
-%                         plot([loc xScale],[cpNew cpNew],'Color',pColorM(clrIdx,:),'LineStyle','-.',...
-%                             'linewidth',2,'parent',hplotAx);
-%                         set(hText,'Position',[txtPos,cpNew],'String',sprintf('%.3f',cpNew));
+                        plot([xScale xScale],[0 cpNew],'Color',pColorM(clrIdx,:),'LineStyle','-.',...
+                            'linewidth',2,'parent',hplotAx);
+                        plot([loc xScale],[cpNew cpNew],'Color',pColorM(clrIdx,:),'LineStyle','-.',...
+                            'linewidth',2,'parent',hplotAx);
+                        set(hText,'Position',[txtPos,cpNew],'String',sprintf('%.3f',cpNew));
                     end
                     
                 end
@@ -2556,11 +2560,18 @@ end
         ud.plotMode = sel - 1;
         if ud.plotMode==3
              set(ud.handle.modelsAxis(11),'String','Enter scale factor');
-        else
+             set(ud.handle.modelsAxis(10),'Visible','On','Enable','On');
+             set(ud.handle.modelsAxis(11),'Visible','On'); 
+        elseif ud.plotMode==4
              txt = sprintf('Enter\n \x0394nfrx');
              set(ud.handle.modelsAxis(11),'String',txt);
+               set(ud.handle.modelsAxis(10),'Visible','On','Enable','On');
+             set(ud.handle.modelsAxis(11),'Visible','On'); 
+        else
+            set(ud.handle.modelsAxis(10),'Visible','Off');
+            set(ud.handle.modelsAxis(11),'Visible','Off');
         end
-        set(ud.handle.modelsAxis(11),'Visible','On');
+       
         set(hFig,'userData',ud);
     end
 
