@@ -10,7 +10,7 @@ strNum = getMatchingIndex(outerStr,strC,'EXACT');
 if isempty(strNum)
     %Generate pt outline
     scanNum = 1;
-    scan3M = getScanArray(scanNum,planC);
+    scan3M = double(getScanArray(scanNum,planC));
     CToffset = planC{indexS.scan}(scanNum).scanInfo(1).CTOffset;
     scan3M = scan3M - CToffset;
     ptMask3M = getPatientOutline(scan3M,1:size(scan3M,3),-400);
