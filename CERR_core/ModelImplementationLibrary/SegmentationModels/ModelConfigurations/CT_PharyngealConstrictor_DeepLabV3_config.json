@@ -33,7 +33,7 @@
 
 "batchSize" : 1,
 
-"postProc" : {"CM": [{"method": "post_process_cm"}]},
+"postProc" : {"CM": [{"method": "post_process_constrictor"}]},
 
 "reference" : "https://www.biorxiv.org/content/10.1101/772178v1"
 
