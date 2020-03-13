@@ -94,6 +94,17 @@ for scanNum = 1:length(planC{indexS.scan})
             end
         end
     end
+    % Save image orientation to scanInfo
+    if ~isfield(planC{indexS.scan}(scanNum).scanInfo(1),'imageOrientationPatient') || ...
+            isempty(planC{indexS.scan}(scanNum).scanInfo(1).imageOrientationPatient)
+        imgOriV = planC{indexS.scan}(scanNum).scanInfo(1).DICOMHeaders.ImageOrientationPatient;
+        [planC{indexS.scan}(scanNum).scanInfo(:).imageOrientationPatient] = deal(imgOriV);
+    end
+    if ~isfield(planC{indexS.scan}(scanNum).scanInfo(1),'imagePositionPatient') || ...
+            isempty(planC{indexS.scan}(scanNum).scanInfo(1).imagePositionPatient)
+        imgPosV = planC{indexS.scan}(scanNum).scanInfo(1).DICOMHeaders.ImagePositionPatient;
+        [planC{indexS.scan}(scanNum).scanInfo(:).imagePositionPatient] = deal(imgPosV);
+    end
 end
 
 %Check dose-grid
@@ -154,11 +165,13 @@ if str2num(strtok(CERRImportVersion, ',')) < 5.2
         if isfield(planC{indexS.scan}(scanNum).scanInfo(1),'DICOMHeaders') ...
                 && ~isempty(planC{indexS.scan}(scanNum).scanInfo(1).DICOMHeaders) ...
                 && isfield(planC{indexS.scan}(scanNum).scanInfo(1).DICOMHeaders,'PatientPosition')
-            pPos = planC{indexS.scan}(scanNum).scanInfo(1).DICOMHeaders.PatientPosition;
+            %pPos = planC{indexS.scan}(scanNum).scanInfo(1).DICOMHeaders.PatientPosition;
+            imgOriV = planC{indexS.scan}(scanNum).scanInfo(1).DICOMHeaders.ImageOrientationPatient;
         else
-            pPos = '';
+            %pPos = '';
+            imgOriV = [];
         end
-        if strcmpi(pPos,'HFP')
+        if  max(abs((imgOriV(:) - [-1 0 0 0 -1 0]'))) < 1e-3 % Position: HFP
             planC = flipAlongX(scanNum, planC);
             bug_found = 1;
         end

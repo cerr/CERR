@@ -38,7 +38,7 @@ function dataS = populate_planC_registration_field(fieldname, dcmdir_PATIENT_STU
 
 
 %For easier handling
-global pPos xOffset yOffset;
+global xOffset yOffset;
 
 STRUCT = dcmdir_PATIENT_STUDY_SERIES_REG;
 
@@ -186,13 +186,13 @@ switch fieldname
             vectorGridData = [];
             if ~isempty(defRegSeq)
                 defRegSeqObj = defRegSeq.get(0);
-                imgOri = getTagValue(defRegSeqObj, '00200037');
+                imgOriV = getTagValue(defRegSeqObj, '00200037');
                 imgpos    = getTagValue(defRegSeqObj, '00200032')/10;
                 gridDimensions          = getTagValue(defRegSeqObj, '00640007');
                 pixspac          = getTagValue(defRegSeqObj, '00640008')/10;
                 vectorGridData          = getTagValue(defRegSeqObj, '00640009')/10;
             end
-            dataS(i).imageOrientationPatient = imgOri;
+            dataS(i).imageOrientationPatient = imgOriV;
             dataS(i).imagePositionPatient = imgpos;
             dataS(i).gridDimensions = gridDimensions;
             dataS(i).gridResolution = pixspac;
@@ -206,9 +206,9 @@ switch fieldname
             % i.e. the x, y, and z coordinates of the upper left hand voxel (center of the first voxel transmitted) of the grid
             nCols = gridDimensions(1);
             nRows = gridDimensions(2);
-            if (imgOri(1)-1)^2 < 1e-5
+            if (imgOriV(1)-1)^2 < 1e-5
                 xOffset = imgpos(1) + (pixspac(2) * (nCols - 1) / 2);
-            elseif (imgOri(1)+1)^2 < 1e-5
+            elseif (imgOriV(1)+1)^2 < 1e-5
                 xOffset = imgpos(1) - (pixspac(2) * (nCols - 1) / 2);
             else
                 xOffset = imgpos(1);
@@ -216,21 +216,24 @@ switch fieldname
             %         xOffset = imgpos(1) + (pixspac(1) * (nCols - 1) / 2);
             
             %Convert from DICOM mm to CERR cm.
-            switch upper(pPos)
-                case 'HFS'
-                    xOffset = xOffset;
-                case 'HFP'
-                    xOffset = -xOffset;
-                case 'FFS'
-                    xOffset = xOffset;
-                case 'FFP'
-                    xOffset = -xOffset;
+            if max(abs((imgOriV(:) - [1 0 0 0 1 0]'))) < 1e-3
+                %HFS
+                xOffset = xOffset;
+            elseif  max(abs((imgOriV(:) - [-1 0 0 0 1 0]'))) < 1e-3
+                %FFS;
+                xOffset = xOffset;
+            elseif max(abs((imgOriV(:) - [-1 0 0 0 -1 0]'))) < 1e-3
+                %HFP
+                xOffset = -xOffset;
+            elseif max(abs((imgOriV(:) - [1 0 0 0 -1 0]'))) < 1e-3
+                %FFP
+                xOffset = -xOffset;
             end
             dataS(i).xOffset = xOffset;
             
-            if (imgOri(5)-1)^2 < 1e-5
+            if (imgOriV(5)-1)^2 < 1e-5
                 yOffset = imgpos(2) + (pixspac(1) * (nRows - 1) / 2);
-            elseif (imgOri(5)+1)^2 < 1e-5
+            elseif (imgOriV(5)+1)^2 < 1e-5
                 yOffset = imgpos(2) - (pixspac(1) * (nRows - 1) / 2);
             else
                 % by Deshan Yang, 3/2/2010
@@ -239,15 +242,18 @@ switch fieldname
             %         yOffset = imgpos(2) + (pixspac(2) * (nRows - 1) / 2);
             
             %Convert from DICOM mm to CERR cm, invert to match CERR y dir.
-            switch upper(pPos)
-                case 'HFS'
-                    yOffset = - yOffset;
-                case 'HFP'
-                    yOffset = yOffset;
-                case 'FFS'
-                    yOffset = - yOffset;
-                case 'FFP'
-                    yOffset = yOffset;
+            if max(abs((imgOriV(:) - [1 0 0 0 1 0]'))) < 1e-3
+                %HFS
+                yOffset = - yOffset;
+            elseif  max(abs((imgOriV(:) - [-1 0 0 0 1 0]'))) < 1e-3
+                %FFS;
+                yOffset = - yOffset;
+            elseif max(abs((imgOriV(:) - [-1 0 0 0 -1 0]'))) < 1e-3
+                %HFP
+                yOffset = yOffset;
+            elseif max(abs((imgOriV(:) - [1 0 0 0 -1 0]'))) < 1e-3
+                %FFP
+                yOffset = yOffset;
             end
             dataS(i).yOffset = yOffset;
             

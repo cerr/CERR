@@ -23,8 +23,8 @@ function dataS = populate_planC_DVH_field(fieldname, dcmdir_PATIENT_STUDY_SERIES
 % request a license.  Contact Joe Deasy for more information
 % (radonc.wustl.edu@jdeasy, reversed).
 
-%For easier handling
-global pPos
+% %For easier handling
+% global pPos
 
 persistent RTPlanUID maxDose
 

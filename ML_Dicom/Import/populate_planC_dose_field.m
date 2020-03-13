@@ -39,7 +39,7 @@ function dataS = populate_planC_dose_field(fieldname, dcmdir_PATIENT_STUDY_SERIE
 
 
 %For easier handling
-global pPos xOffset yOffset;
+global xOffset yOffset;
 
 persistent RTPlanUID maxDose
 
@@ -207,45 +207,61 @@ switch fieldname
         %Columns
         nCols  = getTagValue(attr, '00280011');
         
-        imgOri = getTagValue(attr, '00200037');
+        imgOriV = getTagValue(attr, '00200037');
         
         % Check for oblique scan
-        isOblique = 0;
-        if max(abs(abs(imgOri(:)) - [1 0 0 0 1 0]')) > 1e-3
+        if max(abs((imgOriV(:) - [1 0 0 0 1 0]'))) < 1e-3
+            %HFS
+            isOblique = 0;
+        elseif  max(abs((imgOriV(:) - [-1 0 0 0 1 0]'))) < 1e-3
+            %FFS;
+            isOblique = 0;
+        elseif max(abs((imgOriV(:) - [-1 0 0 0 -1 0]'))) < 1e-3
+            %HFP
+            isOblique = 0;
+        elseif max(abs((imgOriV(:) - [1 0 0 0 -1 0]'))) < 1e-3
+            %FFP
+            isOblique = 0;
+        else
+            %OBLIQUE
             isOblique = 1;
         end
         
-        if (imgOri(1)==-1) && ~isOblique
+        if (imgOriV(1)==-1) && ~isOblique
             dataS = iPP(1) - (abs(pixspac(2)) * (nCols - 1));
             dataS = dataS / 10;
         else
             dataS = iPP(1) / 10;
         end
         
-        if isstr(pPos) && ~isOblique
-            switch upper(pPos)
-                case 'HFS'
-                    dataS = dataS;
-                case 'HFP'
-                    %dataS = -dataS; %APA commented                    
-                    dataS = -dataS; % 1/3/2017
-                    xDoseSiz = (abs(pixspac(2)) * (nCols - 1))/10;
-                    dataS = dataS - xDoseSiz; % 1/3/2017
-                    
-                case 'FFS'
-                    dataS = -dataS;
-                    %dataS = dataS; %APA change
-                    xDoseSiz = (abs(pixspac(2)) * (nCols - 1))/10;
-                    dataS = dataS - xDoseSiz; % 1/3/2017
-                    
-                case 'FFP'
-                    dataS = dataS;
-                    %dataS = -dataS;
-                    %dataS = 2*xOffset - dataS;                    
+        if ~isOblique
+            if max(abs((imgOriV(:) - [1 0 0 0 1 0]'))) < 1e-3
+                %'HFS'
+                dataS = dataS;
+                
+            elseif  max(abs((imgOriV(:) - [-1 0 0 0 -1 0]'))) < 1e-3
+                %'HFP'
+                %dataS = -dataS; %APA commented
+                dataS = -dataS; % 1/3/2017
+                xDoseSiz = (abs(pixspac(2)) * (nCols - 1))/10;
+                dataS = dataS - xDoseSiz; % 1/3/2017
+                
+            elseif max(abs((imgOriV(:) - [-1 0 0 0 1 0]'))) < 1e-3
+                %'FFS'
+                dataS = -dataS;
+                %dataS = dataS; %APA change
+                xDoseSiz = (abs(pixspac(2)) * (nCols - 1))/10;
+                dataS = dataS - xDoseSiz; % 1/3/2017
+                
+            elseif max(abs((imgOriV(:) - [1 0 0 0 -1 0]'))) < 1e-3
+                %'FFP'
+                dataS = dataS;
+                %dataS = -dataS;
+                %dataS = 2*xOffset - dataS;
             end
         else
             dataS = dataS; % default to HFS
-        end        
+        end
         
 
 %APA commented begins
@@ -290,39 +306,46 @@ switch fieldname
         %Rows
         nRows = getTagValue(attr, '00280010');
         
-        imgOri = getTagValue(attr, '00200037');
+        imgOriV = getTagValue(attr, '00200037');
         
         % Check for oblique scan
         isOblique = 0;
-        if max(abs(abs(imgOri(:)) - [1 0 0 0 1 0]')) > 1e-3
+        if max(abs(abs(imgOriV(:)) - [1 0 0 0 1 0]')) > 1e-3
             isOblique = 1;
         end        
         
-        if (imgOri(2)==-1) && ~isOblique
+        if (imgOriV(2)==-1) && ~isOblique
             dataS = iPP(2) + (abs(pixspac(1)) * (nRows - 1));
             dataS = dataS / 10;
-        elseif  ~isOblique && (imgOri(2)==0) && (imgOri(5)==1) && (strcmpi(pPos,'FFP') || strcmpi(pPos,'HFP')) % flip is necessary to display couch at the bottom. How anout HFP?
+        elseif  ~isOblique && (imgOriV(2)==0) && (imgOriV(5)==1) && ...
+                (max(abs((imgOriV(:) - [1 0 0 0 -1 0]'))) < 1e-3 || ...
+                max(abs((imgOriV(:) - [-1 0 0 0 -1 0]'))) < 1e-3)
+            % FFP or HFP
+            % flip is necessary to display couch at the bottom. How anout HFP?
             % should be based on imgOri(5)?
             dataS = iPP(2) + (abs(pixspac(1)) * (nRows - 1));
-            dataS = dataS / 10;            
+            dataS = dataS / 10;
         else
-            dataS = iPP(2) / 10;            
-        end        
+            dataS = iPP(2) / 10;
+        end
         
-        if isstr(pPos) && ~isOblique
-            switch upper(pPos)
-                case 'HFS'
-                    dataS = -dataS;
-                case 'HFP'
-                    dataS = dataS;
-                case 'FFS'
-                    dataS = -dataS;
-                case 'FFP'
-                    dataS = dataS;
+        if ~isOblique
+            if max(abs((imgOriV(:) - [1 0 0 0 1 0]'))) < 1e-3
+                %'HFS'
+                dataS = -dataS;
+            elseif max(abs((imgOriV(:) - [-1 0 0 0 -1 0]'))) < 1e-3
+                %'HFP'
+                dataS = dataS;
+            elseif max(abs((imgOriV(:) - [-1 0 0 0 1 0]'))) < 1e-3
+                %'FFS'
+                dataS = -dataS;
+            elseif max(abs((imgOriV(:) - [1 0 0 0 -1 0]'))) < 1e-3
+                %'FFP'
+                dataS = dataS;
             end
         else
             dataS = -dataS; % default to HFS
-        end        
+        end
         
 
 %APA commented begins        
@@ -507,20 +530,21 @@ switch fieldname
         end
         dataS = dose3;
         
-        imgOri = getTagValue(attr, '00200037');
-        if (imgOri(1)==-1)            
+        imgOriV = getTagValue(attr, '00200037');
+        if (imgOriV(1)==-1)            
             dataS = flipdim(dataS, 2);
         end
         
-        if (imgOri(5)==-1)
+        if (imgOriV(5)==-1)
             dataS = flipdim(dataS, 1);
         end
 
-        if isequal(pPos,'HFP') || isequal(pPos,'FFP')
+        if (max(abs((imgOriV(:) - [-1 0 0 0 -1 0]'))) < 1e-3 ||...
+            max(abs((imgOriV(:) - [1 0 0 0 -1 0]'))) < 1e-3) %HFP or FFP
             %dataS = flipdim(dataS, 2);
             dataS = flipdim(dataS, 1); %APA change
         end
-        if isequal(pPos,'HFP')
+        if max(abs((imgOriV(:) - [-1 0 0 0 -1 0]'))) < 1e-3 %HFP
             dataS = flipdim(dataS, 2); % 1/3/2017
         end
 
@@ -529,11 +553,11 @@ switch fieldname
     case 'zValues'
         %Image Position (Patient)
         iPP = getTagValue(attr, '00200032');
-        imgOri = getTagValue(attr, '00200037');
+        imgOriV = getTagValue(attr, '00200037');
 
         % Check if oblique
         isOblique = 0;
-        if max(abs(abs(imgOri(:)) - [1 0 0 0 1 0]')) > 1e-3
+        if max(abs(abs(imgOriV(:)) - [1 0 0 0 1 0]')) > 1e-3
             isOblique = 1;
         end
         
@@ -555,7 +579,8 @@ switch fieldname
 
         try
             gFOV = getTagValue(attr, fIP);
-            if ((imgOri(1)==-1) || (imgOri(5)==-1)) && ~isequal(pPos,'HFP')
+            if ((imgOriV(1)==-1) || (imgOriV(5)==-1)) && ...
+                    ~(max(abs((imgOriV(:) - [-1 0 0 0 -1 0]'))) < 1e-3) %Not HFP
                 gFOV = - gFOV;
             end            
         catch

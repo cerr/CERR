@@ -3420,7 +3420,7 @@ switch command
                 stateS.annotToggle = 1;
                 set(ud.handles.sliceText, 'String', ['Image ',num2str(ud.annotation.currentMatchingSlc),'/',num2str(length(ud.annotation.matchingSliceIndV))])
                 % Get the patient position
-                pPos = planC{indexS.scan}(scanNum).scanInfo(1).DICOMHeaders.PatientPosition;
+                imgOriV = planC{indexS.scan}(scanNum).scanInfo(1).DICOMHeaders.ImageOrientationPatient;
                 xOffset = planC{indexS.scan}(scanNum).scanInfo(1).xOffset;
                 yOffset = planC{indexS.scan}(scanNum).scanInfo(1).yOffset;
                 
@@ -3443,26 +3443,26 @@ switch command
                     %yV = yV*gridUnits(1)+offset(1);
                     
                     %xV = 2*xOffset - xV;
-                    switch upper(pPos)
-                        case 'FFS'
-                            % no flip needed
-                            % xV = 2*xOffset - xV;
-                            
-                        case 'FFP'
-
-                            yV = 2*yOffset - yV;
-                            
-                        case 'HFP'
-                            
-                            xV = 2*xOffset - xV;
-                            yV = 2*yOffset - yV;
-                                                        
-                        case 'HFS'
-                            % no flip needed
-                            
+                    
+                    if max(abs((imgOriV(:) - [1 0 0 0 1 0]'))) < 1e-3
+                        %HFS
+                        % no flip needed
+                    elseif max(abs((imgOriV(:) - [-1 0 0 0 1 0]'))) < 1e-3
+                        %FFS
+                        % no flip needed
+                        % xV = 2*xOffset - xV;
+                    elseif max(abs((imgOriV(:) - [-1 0 0 0 -1 0]'))) < 1e-3
+                        %HFP
+                        xV = 2*xOffset - xV;
+                        yV = 2*yOffset - yV;
+                    elseif max(abs((imgOri(:) - [1 0 0 0 -1 0]'))) < 1e-3    
+                        %FFP    
+                        yV = 2*yOffset - yV;
+                    else
+                        %Oblique
+                        %skip
                     end
-                    
-                    
+                  
                     if strcmpi(graphicAnnotationType,'POLYLINE')
                         hV = [hV, plot(xV,yV,'r','parent',stateS.handle.CERRAxis(1))];
                     elseif strcmpi(graphicAnnotationType,'ELLIPSE')
@@ -3482,23 +3482,24 @@ switch command
                     rowV = graphicAnnotationData(1:2:end) + 1; % 0-index  to 1-index
                     colV = graphicAnnotationData(2:2:end) + 1;
                     [xV, yV] = mtoaapm(colV, rowV, Dims, gridUnits, offset);
-                    switch upper(pPos)
-                        case 'FFS'
-                            % no flip needed
-                            % xV = 2*xOffset - xV;
-                            
-                        case 'FFP'
-
-                            yV = 2*yOffset - yV;
-                            
-                        case 'HFP'
-                            
-                            xV = 2*xOffset - xV;
-                            yV = 2*yOffset - yV;
-                                                        
-                        case 'HFS'
-                            % no flip needed
-                            
+                    
+                     if max(abs((imgOriV(:) - [1 0 0 0 1 0]'))) < 1e-3
+                        %HFS
+                        % no flip needed
+                    elseif max(abs((imgOriV(:) - [-1 0 0 0 1 0]'))) < 1e-3
+                        %FFS
+                        % no flip needed
+                        % xV = 2*xOffset - xV;
+                    elseif max(abs((imgOriV(:) - [-1 0 0 0 -1 0]'))) < 1e-3
+                        %HFP
+                        xV = 2*xOffset - xV;
+                        yV = 2*yOffset - yV;
+                    elseif max(abs((imgOri(:) - [1 0 0 0 -1 0]'))) < 1e-3    
+                        %FFP    
+                        yV = 2*yOffset - yV;
+                    else
+                        %Oblique
+                        %skip
                     end
                     
                     if strcmpi(graphicAnnotationType,'POLYLINE') && graphicAnnotationNumPts == 2

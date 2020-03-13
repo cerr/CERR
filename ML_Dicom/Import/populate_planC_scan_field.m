@@ -37,7 +37,7 @@ function dataS = populate_planC_scan_field(fieldname, dcmdir_PATIENT_STUDY_SERIE
 
 %For easier handling.
 
-global pPos studyC;
+global studyC;
 
 SERIES = dcmdir_PATIENT_STUDY_SERIES;
 
@@ -153,38 +153,26 @@ switch fieldname
                     studyUID = getTagValue(imgobj, '0020000D');
                     
                     %Check the image orientation.
-                    imgOri = getTagValue(imgobj, '00200037');
+                    imgOriV = getTagValue(imgobj, '00200037');
                     
-                    if ~isempty(imgOri)
-                        if max(abs((imgOri(:) - [1 0 0 0 1 0]'))) < 1e-3
-                            pPos = 'HFS';
-                        elseif max(abs((imgOri(:) - [-1 0 0 0 1 0]'))) < 1e-3
-                            pPos = 'FFS';
-                        elseif max(abs((imgOri(:) - [-1 0 0 0 -1 0]'))) < 1e-3
-                            pPos = 'HFP';
-                        elseif max(abs((imgOri(:) - [1 0 0 0 -1 0]'))) < 1e-3
-                            pPos = 'FFP';
-                        else
-                            pPos = 'OBLIQUE';    %Oblique
-                        end
-                    else
-                        %Check patient position
+                    if isempty(imgOriV)
+                        %Check patient orientation
                         modality = getTagValue(imgobj, '00080060');
                         if ~ismember(modality,{'MG','SM'})
-                            pPos = dcm2ml_Element(imgobj.get(hex2dec('00185100')));
+                            imgOriV = imgobj.getValue(hex2dec('00200037'));
                         else
-                            pPos = 'OBLIQUE';
-                        end                        
+                            imgOriV = [];
+                        end
                     end
                     
-                    % Store the patient position associated with this studyUID
+                    % Store the patient orientation associated with this studyUID
                     studyUIDc = {};
                     for i = 1:size(studyC,1)
                         studyUIDc{i} = studyC{i,1};
                     end
                     if ~any(strcmpi(studyUID,studyUIDc))
                         studyC{end+1,1} = studyUID;
-                        studyC{end,2} = pPos;
+                        studyC{end,2} = imgOriV;
                     end
                     
                     if (strcmpi(type, 'PT')) || (strcmpi(type, 'PET')) %Compute SUV for PET scans
@@ -234,7 +222,7 @@ switch fieldname
                         
                     elseif ismember(type, {'MG','SM'}) % mammogram or pathology
                         imgpos = [0 0 0];
-                        imgOri = zeros(6,1);
+                        imgOriV = zeros(6,1);
 
                     elseif ~strcmpi(type, 'CT')
                         %slice2D = single(slice2D);
@@ -258,10 +246,6 @@ switch fieldname
                     
                     %Store the slice in the 3D matrix.
                     dataS(:,:,imageNum) = slice2D';
-                    
-                    %if isempty(pPos)
-                    %    pPos = 'HFS';
-                    %end
                     
                     %if ~isOblique && (imgOri(1)==-1)
                     %    dataS(:,:,imageNum) = flipdim(dataS(:,:,imageNum), 2);
@@ -351,24 +335,12 @@ switch fieldname
                     % Study instance UID
                     studyUID = dcm2ml_Element(imgobj.get(hex2dec('0020000D')));
                     
-                    %Check patient position
-                    imgOri = getTagValue(imgobj, '00200037');
+                    %Check patient orientation
+                    imgOriV = getTagValue(imgobj, '00200037');
                     
-                    if ~isempty(imgOri)
-                        if max(abs((imgOri(:) - [1 0 0 0 1 0]'))) < 1e-3
-                            pPos = 'HFS';
-                        elseif max(abs((imgOri(:) - [-1 0 0 0 1 0]'))) < 1e-3
-                            pPos = 'FFS';
-                        elseif max(abs((imgOri(:) - [-1 0 0 0 -1 0]'))) < 1e-3
-                            pPos = 'HFP';
-                        elseif max(abs((imgOri(:) - [1 0 0 0 -1 0]'))) < 1e-3
-                            pPos = 'FFP';
-                        else
-                            pPos = 'OBLIQUE';    %Oblique
-                        end
-                    else
-                        %Check patient position
-                        pPos = dcm2ml_Element(imgobj.get(hex2dec('00185100')));
+                    if isempty(imgOriV)    
+                        %Check patient orientation
+                        imgOriV = imgobj.getValue(hex2dec('00200037'));
                     end
                     
                     % Get Patient Position from the associated CT/MR scan
@@ -378,44 +350,46 @@ switch fieldname
                     for i = 1:size(studyC,1)
                         studyUIDc{i} = studyC{i,1};
                     end                    
-                    if strcmpi(modality,'NM') && isempty(pPos)
+                    if strcmpi(modality,'NM') && isempty(imgOriV)
                         studyIndex = strcmpi(studyUID,studyUIDc);
-                        pPos = studyC{studyIndex,2};
+                        imgOriV = studyC{studyIndex,2};
                     end
                     
-                    % Store the patient position associated with this studyUID
+                    % Store the patient orientation associated with this studyUID
                     if ~any(strcmpi(studyUID,studyUIDc))
                         studyC{end+1,1} = studyUID;
-                        studyC{end,2} = pPos;
+                        studyC{end,2} = imgOriV;
                     end                    
                     
                     imgpos = dcm2ml_Element(imgobj.get(hex2dec('00200032')));
-                    imgOri = dcm2ml_Element(imgobj.get(hex2dec('00200037')));
+                    imgOriV = dcm2ml_Element(imgobj.get(hex2dec('00200037')));
                     if isempty(imgpos) && strcmpi(modality,'NM')
                         % Multiframe NM image.
                         detectorInfoSequence = dcm2ml_Element(imgobj.get(hex2dec('00540022')));
                         imgpos = detectorInfoSequence.Item_1.ImagePositionPatient;
-                        imgOri = detectorInfoSequence.Item_1.ImageOrientationPatient;                        
+                        imgOriV = detectorInfoSequence.Item_1.ImageOrientationPatient;                        
                     end
                           
                     % Check for oblique scan
                     isOblique = 0;
-                    if isempty(imgOri) || max(abs(abs(imgOri(:)) - [1 0 0 0 1 0]')) > obliqTol
+                    if isempty(imgOriV) || max(abs(abs(imgOriV(:)) - [1 0 0 0 1 0]')) > obliqTol
                         isOblique = 1;
                     end
                     
-                    if ~isOblique && (imgOri(1)==-1)
+                    if ~isOblique && (imgOriV(1)==-1)
                         dataS = flipdim(dataS, 2);
                     end
-                    if ~isOblique && (imgOri(5)==-1)
+                    if ~isOblique && (imgOriV(5)==-1)
                         dataS = flipdim(dataS, 1);
                     end
                     
-                    if ~isOblique && (isequal(pPos,'HFP') || isequal(pPos,'FFP'))
+                    if ~isOblique && ( max(abs((imgOriV(:) - [-1 0 0 0 -1 0]'))) < 1e-3 || ...
+                            max(abs((imgOriV(:) - [1 0 0 0 -1 0]'))) < 1e-3 ) %HFP of FFP
                         dataS = flipdim(dataS, 1); %Similar flip as doseArray
                     end
                     
-                    if ~isOblique && (isequal(pPos,'FFP') || isequal(pPos,'FFS'))
+                    if ~isOblique && ( max(abs((imgOriV(:) - [1 0 0 0 -1 0]'))) < 1e-3 || ....
+                            max(abs((imgOriV(:) - [-1 0 0 0 1 0]'))) < 1e-3 ) %FFP or FFS
                         dataS = flipdim(dataS, 3); %Similar flip as doseArray
                     end
                     
@@ -465,11 +439,11 @@ switch fieldname
                     imgpos = getTagValue(imgobj, '00200032');
                     
                     % Image Orientation                    
-                    imgOri = getTagValue(imgobj,'00200037');
+                    imgOriV = getTagValue(imgobj,'00200037');
                     
                     if ismember(type,{'MG','SM'}) % mammogram or pathology
                         imgpos = [0 0 0];
-                        imgOri = zeros(6,1);
+                        imgOriV = zeros(6,1);
                     end
                     
                     %Store zValue for sorting, converting DICOM mm to CERR cm and
@@ -499,18 +473,18 @@ switch fieldname
                 %imgpos = dcm2ml_Element(imgobj.get(hex2dec('00200032')));
                 imgpos = getTagValue(imgobj, '00200032');
                 %imgOri = dcm2ml_Element(imgobj.get(hex2dec('00200037')));
-                imgOri = getTagValue(imgobj, '00200037');
+                imgOriV = getTagValue(imgobj, '00200037');
                 if isempty(imgpos) && strcmpi(modality,'NM')
                     % Multiframe NM image.
                     %detectorInfoSequence = dcm2ml_Element(imgobj.get(hex2dec('00540022')));
                     detectorInfoSequence = getTagValue(imgobj, '00540022'); 
                     imgpos = detectorInfoSequence.Item_1.ImagePositionPatient;
-                    imgOri = detectorInfoSequence.Item_1.ImageOrientationPatient;
+                    imgOriV = detectorInfoSequence.Item_1.ImageOrientationPatient;
                 end
                 
                 % Check for oblique scan
                 isOblique = 0;
-                if isempty(imgOri) || max(abs(abs(imgOri(:)) - [1 0 0 0 1 0]')) > 1e-2
+                if isempty(imgOriV) || max(abs(abs(imgOriV(:)) - [1 0 0 0 1 0]')) > 1e-2
                     isOblique = 1;
                 end
                 
@@ -531,7 +505,8 @@ switch fieldname
                 if sliceSpacing < 0 % http://dicom.nema.org/medical/dicom/current/output/chtml/part03/sect_C.8.4.15.html
                     zValuesV = fliplr(zValuesV);
                 end
-                if ~isOblique && (isequal(pPos,'FFP') || isequal(pPos,'FFS'))
+                if ~isOblique && (max(abs((imgOriV(:) - [1 0 0 0 -1 0]'))) < 1e-3 || ...
+                        max(abs((imgOri(:) - [-1 0 0 0 1 0]'))) < 1e-3 ) %FFP or FFS
                     zValuesV = fliplr(zValuesV);
                 end
                 for i = 1:length(names)

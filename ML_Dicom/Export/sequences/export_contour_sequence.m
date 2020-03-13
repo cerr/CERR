@@ -109,8 +109,8 @@ switch tag
         
         %Convert from CERR coordinates to DICOM coordinates based on pt
         %position.
-        ptPos = scanS.scanInfo(1).patientPosition;
-        contour = convertCoordinates(contour, ptPos);
+        imgOri = scanS.scanInfo(1).imageOrientationPatient;
+        contour = convertCoordinates(contour, imgOri);
         
         %Check for first/last points being the same.  If the same, remove
         %one as specified by DICOM's closed contour definition.

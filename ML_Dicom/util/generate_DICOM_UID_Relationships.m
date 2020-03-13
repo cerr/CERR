@@ -188,8 +188,11 @@ for i = 1:length(planC{indexS.dose})
     aS = getDoseAssociatedScan(i, planC);
     if ~isempty(aS)
         planC{indexS.dose}(i).Frame_Of_Reference_UID = planC{indexS.scan}(aS).Frame_Of_Reference_UID;
+        planC{indexS.dose}(i).imageOrientationPatient = planC{indexS.scan}(aS).scanInfo(1).imageOrientationPatient;
     else
         planC{indexS.dose}(i).Frame_Of_Reference_UID = dicomuid;
+        warning('No associated scan found. Assuming HFS orientation.');
+        planC{indexS.dose}(i).imageOrientationPatient = [1 0 0 0 1 0];
     end
     
     %Generate a SOP ClassUID for each dose.
@@ -203,7 +206,7 @@ for i = 1:length(planC{indexS.dose})
     %now they are dummy plans.
     planC{indexS.dose}(i).Referenced_RT_Plan_Sequence_SOP_Class_UID = '1.2.840.10008.5.1.4.1.1.481.5';
     planC{indexS.dose}(i).Referenced_RT_Plan_Sequence_SOP_Instance_UID = dicomuid;
-    
+       
 end
 
 %% STRUCTURE UIDs
@@ -246,6 +249,14 @@ for i = 1:length(planC{indexS.structures})
             planC{indexS.scan}(assocScanNum).scanInfo(slc).SOP_Class_UID;
         planC{indexS.structures}(i).contour(slc).SOP_Instance_UID = ...
             planC{indexS.scan}(assocScanNum).scanInfo(slc).SOP_Instance_UID;                
+    end
+    
+    aS = getStructureAssociatedScan(i, planC);
+    if ~isempty(aS)
+        planC{indexS.structures}(i).imageOrientationPatient = planC{indexS.scan}(aS).scanInfo(1).imageOrientationPatient;
+    else
+        warning('No associated scan found. Assuming HFS orientation.');
+        planC{indexS.structures}(i).imageOrientationPatient = [1 0 0 0 1 0];
     end
     
 end

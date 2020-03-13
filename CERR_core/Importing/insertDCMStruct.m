@@ -28,7 +28,7 @@ function planC = insertDCMStruct(planC,dcmFileName)
 %
 % AI 2/13/20 Updated to account for pt orientation
 
-global pPos stateS
+global stateS
 
 if ~exist('planC','var')
     global planC
@@ -76,22 +76,21 @@ for i = 1 : numScans
     %     end
     if ~isempty(ImageOrientationPatientV)
         if max(abs((ImageOrientationPatientV(:) - [1 0 0 0 1 0]'))) < 1e-3
-            pPos = 'HFS';
+            isObliqScanV(i) = 0;
         elseif max(abs((ImageOrientationPatientV(:) - [-1 0 0 0 1 0]'))) < 1e-3
-            pPos = 'FFS';
+            isObliqScanV(i) = 0;
         elseif max(abs((ImageOrientationPatientV(:) - [-1 0 0 0 -1 0]'))) < 1e-3
-            pPos = 'HFP';
+            isObliqScanV(i) = 0;
         elseif max(abs((ImageOrientationPatientV(:) - [1 0 0 0 -1 0]'))) < 1e-3
-            pPos = 'FFP';
+            isObliqScanV(i) = 0;
         else
-            pPos = 'OBLIQUE';    %Oblique
             isObliqScanV(i) = 1;
         end
     else
-        if ~isempty(planC{indexS.scan}(i).scanInfo(1).patientPosition)
-            pPos = planC{indexS.scan}(i).scanInfo(1).patientPosition;
+        if ~isempty(planC{indexS.scan}(i).scanInfo(1).imageOrientationPatient)
+            ImageOrientationPatientV = planC{indexS.scan}(i).scanInfo(1).imageOrientationPatient;
         else
-            pPos = 'OBLIQUE';
+            ImageOrientationPatientV = [];
             isObliqScanV(i) = 1;
         end
         
