@@ -1,4 +1,4 @@
-function dataS = populate_planC_structures_field(fieldname, dcmdir_PATIENT_STUDY_SERIES_RTSTRUCTS, structNum, attr, optS)
+function dataS = populate_planC_structures_field(fieldname, dcmdir_PATIENT_STUDY_SERIES_RTSTRUCTS, structNum, scanOriS, attr, optS)
 %"populate_planC_structures_field"
 %   Given the name of a child field to planC{indexS.structures}, populates that
 %   field based on the data contained in dcmdir.PATIENT.STUDY.SERIES.RTSTRUCTS
@@ -41,7 +41,7 @@ function dataS = populate_planC_structures_field(fieldname, dcmdir_PATIENT_STUDY
 
 
 %For easier handling
-global pPos xOffset yOffset;
+global xOffset yOffset;
 
 STRUCTS = dcmdir_PATIENT_STUDY_SERIES_RTSTRUCTS;
 
@@ -75,8 +75,8 @@ ssObj = SSRS.get(structNum - 1);
 ROINumber = getTagValue(ssObj, '30060022');
 
 %Find the contour object for this structure.
-for i=1:nStructs
-    cObj = RCS.get(i - 1);
+for s=1:nStructs
+    cObj = RCS.get(s - 1);
 
     %Referenced ROI Number
     RRN = getTagValue(cObj, '30060084');
@@ -189,8 +189,8 @@ switch fieldname
         %optS = opts4Exe([getCERRPath,'CERROptions.json']);
         contourSliceTol = optS.contourToSliceTolerance;
         
-        for i = 1:nContours
-            aContour = cSeq.get(i-1);
+        for c = 1:nContours
+            aContour = cSeq.get(c-1);
             
             % Referenced SOP instance UID
             refSeq = aContour.getValue(hex2dec('30060016'));
@@ -199,7 +199,7 @@ switch fieldname
                 sopInstanceUID = getTagValue(refSeq.get(0), '00081155');
             end
             
-            dataS(i).sopInstanceUID = sopInstanceUID;
+            dataS(c).sopInstanceUID = sopInstanceUID;
             
             %Contour Geometric Type
             geoType = getTagValue(aContour, '30060042');
@@ -230,7 +230,7 @@ switch fieldname
                 data    = getTagValue(aContour, '30060050');
             catch
                 disp('vacant contour found ...');
-                dataS(i).segments = [];
+                dataS(c).segments = [];
                 continue;
             end
             %Reshape Contour Data
@@ -239,13 +239,21 @@ switch fieldname
             %data(:,3) = -data(:,3); %Z is always negative to match RTOG spec
             
             % Flip based on pt position
-             if ischar(pPos)
-                  data = convertCoordinates(data, pPos);
-             else
-                    %Default it to HFS
-                data(:,3) = -data(:,3); %Z is always negative to match RTOG spec
-                data(:,2) = -data(:,2); 
-             end
+            
+            %Get assoc scanUID
+            assocUID = getAssocScanUID(attr,ssObj);
+            assocScanNum = strcmp(assocUID,{scanOriS.scanUID});
+            if ~any(assocScanNum) && length(scanOriS)==1
+                assocScanNum = 1;
+            end
+            imgOriV = scanOriS(assocScanNum).imageOrientationPatient;
+%              if ~isempty(imgOri)
+                  data = convertCoordinates(data, imgOriV);
+%              else
+%                     %Default it to HFS
+%                 data(:,3) = -data(:,3); %Z is always negative to match RTOG spec
+%                 data(:,2) = -data(:,2); 
+%              end
             
             %Convert from DICOM mm to CERR cm.
             data    = data / 10;
@@ -270,7 +278,7 @@ switch fieldname
 %}
             end
 
-            dataS(i).segments = data;
+            dataS(c).segments = data;
 
         end
 
@@ -324,20 +332,8 @@ switch fieldname
         
         %dataS = getTagValue(SSRS.get(hex2dec('00200052')));
         %dataS = ['CT.',dataS];
-        
-        %commented by wy
-        %Referenced Frame of Reference Sequence
-        RFRS = attr.getValue(hex2dec('30060010'));
-        
-        %Frame of Reference UID
-        FORUID = getTagValue(ssObj, '30060024');
-        
-        %Find the series referenced by these contours.  See bottom of file.
-        RSS = getReferencedSeriesSequence(RFRS, FORUID);
-        
-        dataS = getTagValue(RSS,'0020000E');
-        
-        dataS = ['CT.',dataS];
+
+        dataS = getAssocScanUID(attr,ssObj);
 
 %         %Convert to ML structure format.
 %         RSSML = getTagStruct(RSS);
@@ -364,22 +360,22 @@ function attr = getReferencedSeriesSequence(Referenced_Frame_Of_Reference_Sequen
 %   only used when populating structure fields.
 
 %Easier reading.
-RFRS = Referenced_Frame_Of_Reference_Sequence;
-FORUID = Frame_of_Reference_UID;
+referencedSeq = Referenced_Frame_Of_Reference_Sequence;
+refUID = Frame_of_Reference_UID;
 
-if ~isempty(RFRS)
-    nRFRS = RFRS.size();
+if ~isempty(referencedSeq)
+    nRFRS = referencedSeq.size();
 else
     nRFRS = 0;
 end
 %Search the RFR sequence for the UID matching the FORUID.
 for i=1:nRFRS
 
-    myRFR = RFRS.get(i-1);
+    myRFR = referencedSeq.get(i-1);
 
     RFRUID = getTagValue(myRFR, '00200052');
 
-    if isequal(RFRUID,FORUID)
+    if isequal(RFRUID,refUID)
 
         %RT Referenced Study Sequence
         RTRSS = myRFR.getValue(hex2dec('30060012'));
@@ -402,4 +398,25 @@ end
 if ~exist('attr', 'var')
     warning('No explicit association between structures and a scan could be found.');
     attr = org.dcm4che3.data.Attributes;
+end
+
+end %End of function
+
+function assocScanUID = getAssocScanUID(attr,ssObj)
+%commented by wy
+        %Referenced Frame of Reference Sequence
+        referencedSeq = attr.getValue(hex2dec('30060010'));
+        
+        %Frame of Reference UID
+        refUID = getTagValue(ssObj, '30060024');
+        
+        %Find the series referenced by these contours.  See bottom of file.
+        refSerSeq = getReferencedSeriesSequence(referencedSeq, refUID);
+        
+        assocScanUID = getTagValue(refSerSeq,'0020000E');
+        
+        assocScanUID = ['CT.',assocScanUID];
+
+end %End of function
+
 end

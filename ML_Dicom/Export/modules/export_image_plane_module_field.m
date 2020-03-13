@@ -100,7 +100,8 @@ switch tag
                     xV = scanInfoS.xOffset - ((scanInfoS.sizeOfDimension2-1)*scanInfoS.grid2Units)/2;
                     yV = scanInfoS.yOffset + ((scanInfoS.sizeOfDimension1-1)*scanInfoS.grid2Units)/2;
                     zV = scanInfoS.zValue;
-                    posV = convertCoordinates([xV,yV,zV], ptPos);
+                    imgOri = scanInfoS.imageOrientationPatient;
+                    posV = convertCoordinates([xV,yV,zV], imgOri);
                     %Convert from CERR cm to DICOM mm.
                     posV = posV * 10;
                 end
@@ -110,7 +111,8 @@ switch tag
                 yV = doseS.coord2OFFirstPoint;
                 zV = -doseS.zValues(end); %?
                 coord3M = [xV, yV, zV];
-                posV = convertCoordinates(coord3M, ptPos);
+                imgOri = doseS.imageOrientationPatient;
+                posV = convertCoordinates(coord3M, imgOri);
                 %Convert from CERR cm to DICOM mm.
                 posV = posV * 10;
         end

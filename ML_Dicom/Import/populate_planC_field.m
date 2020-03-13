@@ -1,3 +1,4 @@
+
 function dataS = populate_planC_field(cellName, dcmdir_patient, optS)
 %"populate_planC_field"
 %   Given the name of a child cell to planC, such as 'scan', 'dose',
@@ -37,7 +38,7 @@ function dataS = populate_planC_field(cellName, dcmdir_patient, optS)
 % along with CERR.  If not, see <http://www.gnu.org/licenses/>.
 
 %Get template for the requested cell.
-persistent rtPlans
+persistent rtPlans scanOriS
 structS = initializeCERR(cellName);
 names   = fields(structS);
 
@@ -66,6 +67,8 @@ switch cellName
         
         %ctSeries = length(find(seriesC(strcmpi(typeC, 'CT'))==1));
         
+        %Initialize structure to store image orientation per scan.
+        scanOriS = struct();
         %Place each series (CT, MR, etc.) into its own array element.
         for seriesNum = 1:length(seriesC)
             %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -86,7 +89,6 @@ switch cellName
             
             % Test IOP here to find if it is "nominal" or "non-nominal"
             % % %             outIOP = getTest_Scan_IOP(seriesC{seriesNum}.Data(1).file);
-            
             if ismember(typeC{seriesNum},{'CT','OT','NM','MR','PT','ST','MG','SM'})
                 
                 %Populate each field in the scan structure.
@@ -183,10 +185,10 @@ switch cellName
                 for i = 1:length(names)
                     dataS(scansAdded+1).(names{i}) = populate_planC_USscan_field(names{i}, seriesC{seriesNum}, typeC{seriesNum});
                 end
-                
                 scansAdded = scansAdded + 1;
             end
-            
+             scanOriS(scansAdded).scanUID = dataS(scansAdded).scanUID;
+             scanOriS(scansAdded).imageOrientationPatient = dataS(scansAdded).scanInfo(1).imageOrientationPatient;
         end
         
         
@@ -255,7 +257,7 @@ switch cellName
                         for i = 1:length(names)
                             dataS(structsAdded+1).(names{i}) = ...
                                 populate_planC_structures_field(names{i}, ...
-                                RTSTRUCT, structNum, strobj, optS);
+                                RTSTRUCT, structNum, scanOriS, strobj, optS);
                         end
                         %curStructNum = curStructNum + 1;
                         structsAdded = structsAdded + 1;

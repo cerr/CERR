@@ -41,7 +41,7 @@ function dataS = populate_planC_USscan_scanInfo_field(fieldname, dcmdir_PATIENT_
 % You should have received a copy of the GNU General Public License
 % along with CERR.  If not, see <http://www.gnu.org/licenses/>.
 
-global pPos xOffset yOffset;
+global xOffset yOffset;
 
 %For easier handling
 IMAGE = dcmdir_PATIENT_STUDY_SERIES_IMAGE;
@@ -164,7 +164,7 @@ switch fieldname
         imgpos  = getTagValue(attr,'00200032');
         
         %imgOri = dcm2ml_Element(dcmobj.get(hex2dec('00200037')));
-        imgOri  = getTagValue(attr,'00200037');
+        imgOriV  = getTagValue(attr,'00200037');
                        
         modality  = getTagValue(attr, '00080060');
         
@@ -173,14 +173,14 @@ switch fieldname
             %detectorInfoSequence = dcm2ml_Element(dcmobj.get(hex2dec('00540022')));
             detectorInfoSequence = getTagValue(attr, '00540022');
             imgpos = detectorInfoSequence.Item_1.ImagePositionPatient;
-            imgOri = detectorInfoSequence.Item_1.ImageOrientationPatient;            
+            imgOriV = detectorInfoSequence.Item_1.ImageOrientationPatient;            
         end
         
         %Pixel Spacing
         if strcmpi(modality,'MG')
             %pixspac = dcm2ml_Element(dcmobj.get(hex2dec('00181164')));
             pixspac = getTagValue(attr, '00181164');
-            imgOri = zeros(6,1);
+            imgOriV = zeros(6,1);
             imgpos = [0 0 0];
         else
             %pixspac = dcm2ml_Element(dcmobj.get(hex2dec('00280030')));
@@ -191,32 +191,33 @@ switch fieldname
         % nCols  = dcm2ml_Element(dcmobj.get(hex2dec('00280011')));
         nCols  = getTagValue(attr,'00280011');
         
-        if ~isempty(imgOri) && (imgOri(1)-1)^2 < 1e-5
+        if ~isempty(imgOriV) && (imgOriV(1)-1)^2 < 1e-5
             xOffset = imgpos(1) + (pixspac(2) * (nCols - 1) / 2);
-		elseif ~isempty(imgOri) && (imgOri(1)+1)^2 < 1e-5
+        elseif ~isempty(imgOriV) && (imgOriV(1)+1)^2 < 1e-5
             xOffset = imgpos(1) - (pixspac(2) * (nCols - 1) / 2);
-		else
-			% by Deshan Yang, 3/2/2010
-			xOffset = imgpos(1);
-            pPos = '';
+        else
+            % by Deshan Yang, 3/2/2010
+            xOffset = imgpos(1);
         end
         %         xOffset = imgpos(1) + (pixspac(1) * (nCols - 1) / 2);
-
+        
         %Convert from DICOM mm to CERR cm.
-        switch upper(pPos)
-            case 'HFS'
-                dataS = xOffset / 10;
-            case {'HFP', 'HFDR'}
-                dataS = -xOffset / 10;
-            case 'FFS'
-                dataS = xOffset / 10;
-            case 'FFP'
-                dataS = -xOffset / 10;
-            otherwise
-                dataS = xOffset / 10;
+        if max(abs((imgOriV(:) - [1 0 0 0 1 0]'))) < 1e-3
+            %'HFS'
+            dataS = xOffset / 10;
+        elseif max(abs((imgOriV(:) - [-1 0 0 0 -1 0]'))) < 1e-3
+            %'HFP', 'HFDR'
+            dataS = -xOffset / 10;
+        elseif  max(abs((imgOriV(:) - [-1 0 0 0 1 0]'))) < 1e-3
+            %'FFS'
+            dataS = -xOffset / 10;
+        elseif max(abs((imgOriV(:) - [1 0 0 0 -1 0]'))) < 1e-3
+            %FFP
+            dataS = xOffset / 10;
+        else
+            dataS = xOffset / 10;
         end
-
-        xOffset = dataS; %done for setting global, used in Structure coord        
+        xOffset = dataS; %done for setting global, used in Structure coord
 
     case 'yOffset' %wy
 %         rows  = dcm2ml_Element(dcmobj.get(hex2dec('00280010')));
@@ -233,7 +234,7 @@ switch fieldname
 %         imgOri = dcm2ml_Element(dcmobj.get(hex2dec('00200037')));
 %         modality = dcm2ml_Element(dcmobj.get(hex2dec('00080060')));
         imgpos  = getTagValue(attr, '00200032');
-        imgOri  = getTagValue(attr, '00200037');
+        imgOriV  = getTagValue(attr, '00200037');
         modality  = getTagValue(attr, '00080060');
         
         if isempty(imgpos) && strcmpi(modality,'NM')
@@ -241,14 +242,14 @@ switch fieldname
             %detectorInfoSequence = dcm2ml_Element(dcmobj.get(hex2dec('00540022')));
             detectorInfoSequence = getTagValue(attr, '00540022');
             imgpos = detectorInfoSequence.Item_1.ImagePositionPatient;
-            imgOri = detectorInfoSequence.Item_1.ImageOrientationPatient;            
+            imgOriV = detectorInfoSequence.Item_1.ImageOrientationPatient;            
         end
         
         %Pixel Spacing
         if strcmpi(modality,'MG')
             %pixspac = dcm2ml_Element(dcmobj.get(hex2dec('00181164')));
             pixspac = getTagValue(attr, '00181164');
-            imgOri = zeros(6,1);
+            imgOriV = zeros(6,1);
             imgpos = [0 0 0];
         else
             %pixspac = dcm2ml_Element(dcmobj.get(hex2dec('00280030')));
@@ -259,31 +260,32 @@ switch fieldname
         %nRows  = dcm2ml_Element(dcmobj.get(hex2dec('00280010')));
         nRows  = getTagValue(attr,'00280010');
 		
-        if ~isempty(imgOri) && (imgOri(5)-1)^2 < 1e-5
+        if ~isempty(imgOriV) && (imgOriV(5)-1)^2 < 1e-5
             yOffset = imgpos(2) + (pixspac(1) * (nRows - 1) / 2);
-		elseif ~isempty(imgOri) && (imgOri(5)+1)^2 < 1e-5
+		elseif ~isempty(imgOriV) && (imgOriV(5)+1)^2 < 1e-5
             yOffset = imgpos(2) - (pixspac(1) * (nRows - 1) / 2);
 		else
-			% by Deshan Yang, 3/2/2010
-			yOffset = imgpos(2);
-            pPos = '';
+            % by Deshan Yang, 3/2/2010
+            yOffset = imgpos(2);
         end
         %         yOffset = imgpos(2) + (pixspac(2) * (nRows - 1) / 2);
-
+        
         %Convert from DICOM mm to CERR cm, invert to match CERR y dir.
-        switch upper(pPos)
-            case 'HFS'
-                dataS = - yOffset / 10;
-            case {'HFP', 'HFDR'}
-                dataS = yOffset / 10;
-            case 'FFS'
-                dataS = - yOffset / 10;
-            case 'FFP'
-                dataS = yOffset / 10;
-            otherwise
-                dataS = yOffset / 10;
+        if max(abs((imgOriV(:) - [1 0 0 0 1 0]'))) < 1e-3
+            %'HFS'
+            dataS = - yOffset / 10;
+        elseif max(abs((imgOriV(:) - [-1 0 0 0 -1 0]'))) < 1e-3
+            %'HFP', 'HFDR'
+            dataS = yOffset / 10;
+        elseif  max(abs((imgOriV(:) - [-1 0 0 0 1 0]'))) < 1e-3
+            %'FFS'
+            dataS = - yOffset / 10;
+        elseif max(abs((imgOriV(:) - [1 0 0 0 -1 0]'))) < 1e-3
+            %FFP
+            dataS = yOffset / 10;
+        else
+            dataS = yOffset / 10;
         end
-
         yOffset = dataS; %done for setting global, used in Structure coord
         
     case 'CTAir'
