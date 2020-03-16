@@ -34,35 +34,51 @@ userOptS = readDLConfigFile(configFilePath);
 planCfiles = dir(fullfile(cerrPath,'*.mat'));
 for p=1:length(planCfiles)
     
-    % Load scan
+    % Load plan
     planCfiles(p).name
     fileNam = fullfile(planCfiles(p).folder,planCfiles(p).name);
     planC = loadPlanC(fileNam, tempdir);
     planC = quality_assure_planC(fileNam,planC);
     
-    [scanC, mask3M, planC] = extractAndPreprocessDataForDL(userOptS,planC,testFlag);
+    %Pr-process scna & mask
+    fprintf('\nPre-processing data...\n');
+    tic
+    [scanC, mask3M, planC] = extractAndPreprocessDataForDL(userOptS,planC,testFlag); %Note: mask3M is empty in inference mode
+    toc
     
-    %Note: mask3M is empty for testing
+    %Export to H5 format
+    tic
+    fprintf('\nWriting to H5 format...\n');
     filePrefixForHDF5 = 'cerrFile';
     outDirC = getOutputH5Dir(inputH5Path,userOptS,'');
     writeHDF5ForDL(scanC,mask3M,userOptS.passedScanDim,outDirC,filePrefixForHDF5,testFlag);
+    toc
     
     %Save updated planC file
+    tic
     save_planC(planC,[],'PASSED',fileNam);
-
+    toc
 end
 
 %get the bind path for the container
 bindingDir = ':/scratch';
 bindPath = strcat(fullSessionPath,bindingDir);
  
-%execute the containergit 
+%execute the container
 command = sprintf('singularity run --app %s --nv --bind  %s %s %s %s', algorithm, bindPath, containerPath, num2str(userOptS.batchSize));
+tic
 status = system(command);
+toc
 
 % Stack H5 files
+fprintf('\nRreading output masks...');
+tic
 outC = stackHDF5Files(fullSessionPath,userOptS.passedScanDim); %Updated
+toc
 
 % join segmented mask with planC
+fprintf('\nImporting to CERR...\n');
+tic
 success = joinH5CERR(cerrPath,outC{1},userOptS); %Updated
+toc
           
