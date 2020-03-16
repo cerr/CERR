@@ -23,7 +23,10 @@ planC = planC.planC;
 planC  = joinH5planC(segMask3M,userOptS,planC);
 
 % Post-process segmentation
+fprintf('\nPost-processing results...\n');
+tic
 planC = postProcStruct(planC,userOptS);
+toc
 
 % save final plan
 % finalPlanCfilename = fullfile(segResultCERRPath, 'cerrFile.mat'); % Decomissioned to avoid duplicate CERR file creation.

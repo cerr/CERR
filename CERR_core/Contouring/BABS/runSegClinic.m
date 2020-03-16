@@ -59,7 +59,9 @@ segResultCERRPath = fullfile(fullSessionPath,'segResultCERR');
 mkdir(segResultCERRPath)
 
 % Import DICOM to CERR
+tic
 importDICOM(inputDicomPath,cerrPath);
+toc
 
 % Get algorithm
 algorithmC = {};
@@ -108,8 +110,11 @@ if iscell(algorithmC) || ~iscell(algorithmC) && ~strcmpi(algorithmC,'BABS')
     if strcmpi(savePlanc,'yes')
         savePlancFlag = 1;
     end
+    fprintf('\nExporting to DICOM format...');
+    tic
     exportCERRtoDICOM(origCerrPath,allLabelNamesC,outputCERRPath,...
         outputDicomPath,algorithm,savePlancFlag)
+    toc
     
 else
     

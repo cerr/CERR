@@ -1,3 +1,4 @@
+
 function [scanOutC, maskOutC, planC] = extractAndPreprocessDataForDL(optS,planC,testFlag)
 %
 % Script to extract scan and mask and perform user-defined pre-processing.
@@ -120,6 +121,8 @@ if ~isempty(exportStrC) || testFlag
         %1. Resample to (resolutionXCm,resolutionYCm,resolutionZCm) voxel size
         if ~strcmpi(resampleS.method,'none')
             
+            fprintf('\n Resampling data...\n');
+            tic
             % Get the new x,y,z grid
             [xValsV, yValsV, zValsV] = getScanXYZVals(planC{indexS.scan}(scanNumV(scanIdx)));
             if yValsV(1) > yValsV(2)
@@ -138,29 +141,40 @@ if ~isempty(exportStrC) || testFlag
             
             %Resample
             [scan3M,mask3M] = resampleScanAndMask(scan3M,mask3M,resampSizV,resampleMethod);
+            toc
             
         end
         
         %2. Crop around the region of interest
-        [minr, maxr, minc, maxc, mins, maxs, planC] = getCropLimits(planC,mask3M,scanNumV(scanIdx),cropS);
-        %- Crop scan
-        if ~isempty(scan3M) && numel(minr)==1
-            scan3M = scan3M(minr:maxr,minc:maxc,mins:maxs);
-            limitsM = [minr, maxr, minc, maxc];
-        else
-            scan3M = scan3M(:,:,mins:maxs);
-            limitsM = [minr, maxr, minc, maxc];
-        end
-        
-        %- Crop mask
-        if ~isempty(mask3M) && numel(minr)==1
-            mask3M = mask3M(minr:maxr,minc:maxc,mins:maxs);
-        elseif ~isempty(mask3M)
-            mask3M = mask3M(:,:,mins:maxs);
+        if ~strcmpi({cropS.method},'none')
+            fprintf('\nCropping to region of interest...\n');
+            tic
+            [minr, maxr, minc, maxc, mins, maxs, planC] = getCropLimits(planC,mask3M,scanNumV(scanIdx),cropS);
+            %- Crop scan
+            if ~isempty(scan3M) && numel(minr)==1
+                scan3M = scan3M(minr:maxr,minc:maxc,mins:maxs);
+                limitsM = [minr, maxr, minc, maxc];
+            else
+                scan3M = scan3M(:,:,mins:maxs);
+                limitsM = [minr, maxr, minc, maxc];
+            end
+            
+            %- Crop mask
+            if ~isempty(mask3M) && numel(minr)==1
+                mask3M = mask3M(minr:maxr,minc:maxc,mins:maxs);
+            elseif ~isempty(mask3M)
+                mask3M = mask3M(:,:,mins:maxs);
+            end
+            toc
         end
         
         %3. Resize
-        [scan3M, mask3M] = resizeScanAndMask(scan3M,mask3M,outSizeV,resizeMethod,limitsM);
+        if ~strcmpi(resizeMethod,'none')
+            fprintf('\nResizing data...\n');
+            tic
+            [scan3M, mask3M] = resizeScanAndMask(scan3M,mask3M,outSizeV,resizeMethod,limitsM);
+            toc
+        end
         
         scanC{scanIdx} = scan3M;
         maskC{scanIdx} = mask3M;
@@ -168,9 +182,14 @@ if ~isempty(exportStrC) || testFlag
     end
     
     %4. Transform view
+    fprintf('\nTransforming orientation...\n');
+    tic
     [scanOutC,maskOutC] = transformView(scanC,maskC,viewC);
+    toc
     
     %5. Filter images
+    fprintf('\nApplying filters...\n');
+    tic
     procScanC = cell(numChannels,1);
     
     for i = 1:length(viewC)
@@ -205,9 +224,13 @@ if ~isempty(exportStrC) || testFlag
         end
         scanOutC{i} = procScanC;
     end
+    toc
     
     %6. Populate channels
+    fprintf('\nPopulating channels...\n');
+    tic
     scanOutC = populateChannels(scanOutC,channelS);
+    toc
     
     %Get scan metadata
     %uniformScanInfoS = planC{indexS.scan}(scanNumV(scanIdx)).uniformScanInfo;
