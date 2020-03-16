@@ -9,17 +9,25 @@ unionStrListC = paramS.structureName.chewingStructures;
 
 idxV = nan(1,length(unionStrListC));
 for k = 1:length(unionStrListC)
-    idxV(k) = getMatchingIndex(unionStrListC{k},strC,'EXACT');
-    if k == 1
-        endStr = idxV(k);
-    else
-        planC = createUnionStructure(idxV(k),endStr,planC);
-        endStr = length(planC{indexS.structures});
+%    idxV(k) = getMatchingIndex(unionStrListC{k},strC,'EXACT');
+%     if k == 1
+%         endStr = idxV(k);
+%     else
+%         planC = createUnionStructure(idxV(k),endStr,planC);
+%         endStr = length(planC{indexS.structures});
+%     end
+    idx = getMatchingIndex(unionStrListC{k},strC,'EXACT');
+    if k==1
+        scanIdx = getStructureAssociatedScan(idx,planC);
+        sizV = size(getScanArray(scanIdx,planC));
+        mask3M = false(sizV);
     end
+    strMask3M = getStrMask(idx,planC);
+    mask3M = mask3M | strMask3M;
 end
 
 %Get limits of bbox around union str
-mask3M = getStrMask(endStr,planC);
+%mask3M = getStrMask(endStr,planC);
 [minr,~,minc,maxc,mins,~] = compute_boundingbox(mask3M);
 
 %% Get limits of bounding box around cropped pt outline
