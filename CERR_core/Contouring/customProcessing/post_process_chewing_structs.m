@@ -6,10 +6,10 @@ function procMask3M = post_process_chewing_structs(strNum,paramS,planC)
 %Get auto-segemented mask
 mask3M = getStrMask(strNum,planC);
 procMask3M = zeros(size(mask3M));
-labelV = unique(mask3M);
+labelV = [0 1 2 3 4];
 conn = 26;
 
-for l = 2:length(labelV) %labelV(1) = 0;
+for l = 2:length(labelV) 
     
     strMask3M = zeros(size(mask3M));
     

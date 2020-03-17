@@ -1,4 +1,4 @@
-function procMask3M = post_process_cm(strNum,paramS,planC)
+function procMask3M = post_process_constrictor(strNum,paramS,planC)
 % AI 10/1/19
 % Morphological post-processing for auto-segmentation of constrictor muscle.
 %--------------------------------------------------------------------------
@@ -6,11 +6,11 @@ function procMask3M = post_process_cm(strNum,paramS,planC)
 %Get auto-segemented mask
 mask3M = getStrMask(strNum,planC);
 procMask3M = zeros(size(mask3M));
-labelV = unique(mask3M);
+labelV = [0,1];
 conn = 26;
 
 
-for l = 2:length(labelV) %labelV(1) = 0;
+for l = 2:length(labelV)
     
     strMask3M = zeros(size(mask3M));
     
