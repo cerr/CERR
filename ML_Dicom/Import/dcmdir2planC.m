@@ -401,5 +401,12 @@ for i=1:length(planC{indexS.structures})
 end
 
 planC = getRasterSegs(planC);
-planC = setUniformizedData(planC);
+
+%---------Create uniformized datasets----------------%
+str = optS.createUniformizedDataset;
+if strcmpi(str,'yes') && ...
+        strcmpi(optS.loadCT,'yes') && ...
+        isfield(planC{indexS.scan}, 'scanInfo') %can only make uniformized dataset if scan exists
+    planC = setUniformizedData(planC);
+end
 
