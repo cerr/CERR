@@ -34,7 +34,7 @@ ROIImageSize   = [planC{indexS.scan}(scanNum).scanInfo(1).sizeOfDimension1  plan
 
 numSlices = length(planC{indexS.scan}(scanNum).scanInfo);
 
-mask3MU = uint8(zeros(ROIImageSize(1),ROIImageSize(2),numSlices));
+mask3MU = false(ROIImageSize(1),ROIImageSize(2),numSlices);
 
 zValues = [];
 
