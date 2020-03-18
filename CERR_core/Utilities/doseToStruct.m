@@ -1,5 +1,5 @@
-function doseToStruct(doseNum,doseLevel,assocScanNum)
-%function doseToStruct(doseNum,doseLevel,assocScanNum)
+function planC = doseToStruct(doseNum,doseLevel,assocScanNum,planC)
+%function planC = doseToStruct(doseNum,doseLevel,assocScanNum,planC)
 %
 %This function creates structure associated with assocScanNum at iso-dose level doseLevel.
 %Example: doseToStruct(1,50,2)
@@ -29,8 +29,11 @@ function doseToStruct(doseNum,doseLevel,assocScanNum)
 % You should have received a copy of the GNU General Public License
 % along with CERR.  If not, see <http://www.gnu.org/licenses/>.
 
+global stateS
 
-global planC stateS
+if ~exist('planC','var')
+    global planC
+end
 indexS = planC{end};
 
 % for command line help document
