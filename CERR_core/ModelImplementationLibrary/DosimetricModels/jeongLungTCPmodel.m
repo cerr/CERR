@@ -1,23 +1,25 @@
-function [TCP,eqd2] = jeongLungTCPmodel(fx_in,schedule_in)
-%[TCP,eqd2] = jeongLungTCPmodel(fx_in,schedule_in)
-%
-%Lung TCP model
-%
-%----------------------------------------------------------------------------
+function TCP = jeongLungTCPmodel(paramS,doseBinsV,volHistV)
+% Usage: TCP = jeongLungTCPmodel(paramS);
+% Lung TCP model
+% Based on code by Jeho Jeong jeongj@mskcc.org
+%------------------------------------------------------------------------------------
 % INPUTS:
-% fx_in : Fraction size (Gy)
-% schedule_in: Vector of treatment days
+% paramS : Parameter dictionary with fields
+%          -frxSize (Fraction size (Gy)), 
+%          -treatmentSchedule(Vector indicating treatment days)
 % Example: 
-% fx_in=2; 
-% schedule_in=[ 1  2  3  4  5 ...
-%               8  9 10 11 12 ...
-%              15 16 17 18 19 ...
-%              22 23 24 25 26];
+% paramS.frxSize.val = 2; 
+% paramS.treatmentSchedule.val = [ 1  2  3  4  5 ...
+%                           8  9 10 11 12 ...
+%                           15 16 17 18 19 ...
+%                           22 23 24 25 26];
+% 
 %----------------------------------------------------------------------------
 % AI 8/30/18
-% Based on code by Jeho Jeong jeongj@mskcc.org
 
-
+%% Get frx size and treatment days
+fx_in = paramS.frxSize.val;
+schedule_in = paramS.treatmentSchedule.val; 
 
 %% Input variables for the analysis
 alpha_p_ori=0.305; 
