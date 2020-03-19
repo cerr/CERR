@@ -3,19 +3,19 @@
 
     {
       "structureName": "Left Parotid",
-      "value": 1
-    },
-    {
-      "structureName": "Right Parotid",
       "value": 2
     },
     {
+      "structureName": "Right Parotid",
+      "value": 1
+    },
+    {
       "structureName": "Left Submandiblar",
-      "value": 3
+      "value": 4
     },
     {
       "structureName": "Right Submandiblar",
-      "value": 4
+      "value": 3
     },
     {
       "structureName": "Mandible",
@@ -30,7 +30,7 @@
       "value": 6
     },
     {
-      "structureName": "Spine Core",
+      "structureName": "Spine Cord",
       "value": 8
     },
 {
