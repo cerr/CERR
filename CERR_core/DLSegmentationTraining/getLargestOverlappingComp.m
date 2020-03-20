@@ -1,4 +1,4 @@
-function maskOut3M = getLargestOverlappingComp(strNum,roiStrNum,planC)
+function [maskOut3M, planC] = getLargestOverlappingComp(strNum,roiStrNum,planC)
 % maskOut3M = getLargestConnComps(strNum1,strNum2,planC)
 % Returns largest connected component that overlaps with ROI.
 % ------------------------------------------------------------------------
@@ -17,10 +17,10 @@ function maskOut3M = getLargestOverlappingComp(strNum,roiStrNum,planC)
 
 
 %Get ROI mask
-roiMask3M = getStrMask(roiStrNum,planC);
+[roiMask3M, planC] = getStrMask(roiStrNum,planC);
 
 %Get connected components in str mask
-mask3M = getStrMask(strNum,planC);
+[mask3M, planC] = getStrMask(strNum,planC);
 cc = bwconncomp(mask3M,26);
 ccSizV = cellfun(@numel,[cc.PixelIdxList]);
 
@@ -45,4 +45,3 @@ maskOut3M(idxV) = true;
 
 
 end
-

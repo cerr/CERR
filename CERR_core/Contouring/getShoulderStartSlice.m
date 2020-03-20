@@ -1,4 +1,4 @@
-function [shoulderSliceNum,startSliceNum] = getShoulderStartSlice(outerStrMask3M,planC,outerStrName)
+function [shoulderSliceNum,startSliceNum, planC] = getShoulderStartSlice(outerStrMask3M,planC,outerStrName,startSliceNum)
 % Automatically identify shoulder start slice in H&N scans based on
 % size of patient outline.
 %
@@ -18,11 +18,13 @@ if isempty(outerStrMask3M)
     indexS = planC{end};
     strC = {planC{indexS.structures}.structureName};
     strIdx = getMatchingIndex(outerStrName,strC,'exact');
-    outerStrMask3M = getStrMask(strIdx, planC);
+    [outerStrMask3M, planC] = getStrMask(strIdx, planC);
 end
 
-%noseSliceNum = getNoseSlice(outerStrMask3M,planC);
-startSliceNum = 1;
+if ~exist('startSliceNum','var')
+    [~,~,~,~,mins,~] = compute_boundingbox(outerStrMask3M);
+    startSliceNum = mins;
+end
 
 %Get size on each slice
 infMask3M = outerStrMask3M(:,:,startSliceNum+1:end);

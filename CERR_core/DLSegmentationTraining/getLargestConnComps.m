@@ -1,4 +1,4 @@
-function maskOut3M = getLargestConnComps(strNum,numConnComponents,planC)
+function [maskOut3M, planC] = getLargestConnComps(strNum,numConnComponents,planC)
 % maskOut3M = getLargestConnComps(strNum,numConnComponents,planC)
 % Returns largest connected components from structure mask. No. components
 % is specified using the numConnComponents input.
@@ -17,7 +17,7 @@ function maskOut3M = getLargestConnComps(strNum,numConnComponents,planC)
 % AI 10/14/19
 
 
-mask3M = getStrMask(strNum,planC);
+[mask3M,planC] = getStrMask(strNum,planC);
 
 cc = bwconncomp(mask3M,26);
 ccSiz = cellfun(@numel,[cc.PixelIdxList]);
