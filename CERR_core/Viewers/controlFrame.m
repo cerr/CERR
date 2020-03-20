@@ -1311,7 +1311,9 @@ switch command
                 for i=1:length(stateS.handle.CERRAxis)
                     hAxis       = stateS.handle.CERRAxis(i);
                     hOld = findobj(hAxis, 'tag', 'clipBox');
-                    delete(hOld);
+                    if ishandle(hOld)
+                        delete(hOld);
+                    end
                     oldMiscHandles = getAxisInfo(hAxis, 'miscHandles');
                     setAxisInfo(hAxis, 'miscHandles', setdiff(oldMiscHandles, [hOld]));
                 end
@@ -1730,7 +1732,7 @@ switch command
                     'tooltipstring','CheckerBoard Size', 'visible', 'off');
                 
                 ud.handles.newcheckerSize= uicontrol(hFig, 'style',  'slider','units', units, 'position', absPos([.27 .22+dy .35 .04], posFrame),...
-                    'string', 'CB Size', 'tag', 'controlFrameItem', 'min', 2, 'max', 20, 'sliderstep', [0.1 0.2], 'value', 4, ...
+                    'string', 'CB Size', 'tag', 'controlFrameItem', 'min', 2, 'max', 20, 'sliderstep', [1 2], 'value', 4, ...
                     'BusyAction', 'cancel', 'Interruptible', 'off', ...
                     'tooltipstring','CheckerBoard Size', 'callback', 'controlFrame(''fusion'', ''checkerSlider'')', 'visible', 'off');
                 
@@ -2449,7 +2451,8 @@ switch command
                     set(ud.handles.newcheckerToggle, 'enable', 'on');
                     set(ud.handles.mirrorToggle, 'visible', 'on');
                     set(ud.handles.mirrorScopeToggle, 'visible', 'on');
-                    set(ud.handles.blockMatchToggle, 'visible', 'on');
+                    %set(ud.handles.blockMatchToggle, 'visible', 'on'); %
+                    %decommissioned until "MeanSquare2D_64" is fixed.
                 end
                 
                 %                 if button_state == get(hObject,'Max')
@@ -2660,7 +2663,8 @@ switch command
                                 ind = find(xV>=median(xV));
                                 %ind = find(xV>=min(xV)+(max(xV)-min(xV))/2);
                                 
-                                line([xV(ind(1)) xV(ind(1))], yLimit, [2 2], 'parent', hAxis, 'color', [1 1 1], 'tag', 'mirrorLocator', ...
+                                stateS.handle.aI(i).axisFusion.MirrorScopeLocator = ...
+                                    line([xV(ind(1)) xV(ind(1))], yLimit, [2 2], 'parent', hAxis, 'color', [1 1 1], 'tag', 'mirrorLocator', ...
                                     'buttondownfcn', 'controlFrame(''fusion'', ''mirrorLocatorClicked'')', ...
                                     'userdata', {'vert', 'transverse', ind(1)}, 'hittest', 'on');
                                 
@@ -2672,7 +2676,8 @@ switch command
                                     ind = find(xV<=median(xV));
                                 end
                                 
-                                line([xV(ind(1)) xV(ind(1))], yLimit, [2 2], 'parent', hAxis, 'color', [1 1 1], 'tag', 'mirrorLocator', ...
+                                stateS.handle.aI(i).axisFusion.MirrorScopeLocator = ...
+                                    line([xV(ind(1)) xV(ind(1))], yLimit, [2 2], 'parent', hAxis, 'color', [1 1 1], 'tag', 'mirrorLocator', ...
                                     'buttondownfcn', 'controlFrame(''fusion'', ''mirrorLocatorClicked'')', ...
                                     'userdata', {'vert', 'sagittal', ind(1)}, 'hittest', 'on');
                                 
@@ -2680,14 +2685,16 @@ switch command
                                 [slc1, xV, yV] = getCTOnSlice(stateS.imageRegistrationBaseDataset, coord, 2, planC);
                                 ind = find(xV>=median(xV));
                                 
-                                line([xV(ind(1)) xV(ind(1))], yLimit, [2 2], 'parent', hAxis, 'color', [1 1 1], 'tag', 'mirrorLocator', ...
+                                stateS.handle.aI(i).axisFusion.MirrorScopeLocator = ...
+                                    line([xV(ind(1)) xV(ind(1))], yLimit, [2 2], 'parent', hAxis, 'color', [1 1 1], 'tag', 'mirrorLocator', ...
                                     'buttondownfcn', 'controlFrame(''fusion'', ''mirrorLocatorClicked'')', ...
                                     'userdata', {'vert', 'coronal', ind(1)}, 'hittest', 'on');
                             otherwise
                                 continue;
                         end
                         
-                        hLines = findobj(hAxis, 'tag', 'mirrorLocator');
+                        %hLines = findobj(hAxis, 'tag', 'mirrorLocator');
+                        hLines = stateS.handle.aI(i).axisFusion.MirrorScopeLocator;
                         %Add new lines to the miscHandles axis field.
                         setAxisInfo(hAxis, 'miscHandles', [oldMiscHandles reshape(hLines, 1, [])]);
                         
@@ -2713,8 +2720,14 @@ switch command
                     
                     for i=1:length(stateS.handle.CERRAxis)
                         hAxis       = stateS.handle.CERRAxis(i);
-                        hOld = findobj(hAxis, 'tag', 'mirrorLocator');
-                        delete(hOld);
+                        %hOld = findobj(hAxis, 'tag', 'mirrorLocator');
+                        hOld = [];
+                        if isfield(stateS.handle.aI(i).axisFusion,'MirrorScopeLocator')
+                            hOld = stateS.handle.aI(i).axisFusion.MirrorScopeLocator;
+                            if ishandle(hOld)
+                                delete(hOld);
+                            end
+                        end
                         oldMiscHandles = getAxisInfo(hAxis, 'miscHandles');
                         setAxisInfo(hAxis, 'miscHandles', setdiff(oldMiscHandles, [hOld]));
                     end
@@ -2849,6 +2862,7 @@ switch command
                         yRange = [max(yVals(:)) min(yVals(:))];
                         
                         hBox = patch([xVals median(xRange)], [yVals max(yRange)], -2*ones(size(xVals,2)+1,1), [.86 .10 .10]);
+                        stateS.handle.aI(i).axisFusion.MirrorScopePatch = hBox;
                         
                         ud{1} = [xRange yRange];
                         ud{2} = [xVals median(xRange)];
@@ -2856,11 +2870,11 @@ switch command
                         
                         set(hBox, 'Parent', hAxis, 'EdgeColor', [.10 .86 .10], ...
                             'Tag', 'MirrorScope', 'FaceColor', [.10 .10 .86], ...
-                            'FaceAlpha', 0.1, 'LineWidth', 2, ...
+                            'FaceAlpha', 0.1, 'LineWidth', 2, 'PickableParts', 'all',...
                             'ButtonDownFcn','controlFrame(''fusion'', ''mirrorScopeClicked'')', ...
                             'userdata', ud);
                         
-                        hBox = findobj(hAxis, 'tag', 'MirrorScope');
+                        %hBox = findobj(hAxis, 'tag', 'MirrorScope');
                         %Add new lines to the miscHandles axis field.
                         setAxisInfo(hAxis, 'miscHandles', [oldMiscHandles reshape(hBox, 1, [])]);
                         
@@ -2885,10 +2899,15 @@ switch command
                     
                     for i=1:length(stateS.handle.CERRAxis)
                         hAxis       = stateS.handle.CERRAxis(i);
-                        hOld = findobj(hAxis, 'tag', 'MirrorScope');
-                        delete(hOld);
+                        %hOld = findobj(hAxis, 'tag', 'MirrorScope');
+                        if isfield(stateS.handle.aI(i).axisFusion,'MirrorScopePatch')
+                            hOld = stateS.handle.aI(i).axisFusion.MirrorScopePatch;
+                            if ishandle(hOld)
+                                delete(hOld);
+                            end
+                        end
                         oldMiscHandles = getAxisInfo(hAxis, 'miscHandles');
-                        setAxisInfo(hAxis, 'miscHandles', setdiff(oldMiscHandles, [hOld]));
+                        setAxisInfo(hAxis, 'miscHandles', setdiff(oldMiscHandles, hOld));
                     end
                     
                 end
@@ -2903,13 +2922,50 @@ switch command
                 %CERRRefresh;
                 
             case 'mirrorscopefresh'
-                delete(findobj('tag', 'MirrorScope'));
-                controlFrame('fusion', 'mirrorscope');
+                %                 %delete(findobj('tag', 'MirrorScope'));
+                %                 aiS = [stateS.handle.aI(:).axisFusion];
+                %                 delete([aiS.MirrorScopePatch])
+                %                 controlFrame('fusion', 'mirrorscope');
+                % ============== NEW
+                udf = stateS.handle.controlFrameUd ;
+                r = floor(str2double(get(udf.handles.mirrScopeValue, 'string')));
+                for i=1:length(stateS.handle.CERRAxis)
+                    %hAxis       = stateS.handle.CERRAxis(i);
+                    %[view, coord] = getAxisInfo(hAxis, 'view', 'coord');
+                    
+                    if ~isfield(stateS.handle.aI(i).axisFusion,'MirrorScopePatch')
+                        continue;
+                    end
+                    
+                    hScope = stateS.handle.aI(i).axisFusion.MirrorScopePatch;
+                    ud = get(hScope,'userdata');
+                    cx = mean(ud{2});
+                    cy = mean(ud{3});
+
+                    
+                    t = -pi/2:pi/60:3*pi/2;
+                    xVals = cx + r*cos(t);
+                    yVals = cy + r*sin(t);
+                    
+                    xRange = [min(xVals(:)) max(xVals(:))];
+                    yRange = [max(yVals(:)) min(yVals(:))];                    
+                                       
+                    ud{1} = [xRange yRange];
+                    ud{2} = [xVals median(xRange)];
+                    ud{3} = [yVals max(yRange)];
+                    
+                    set(hScope,'xData',[xVals median(xRange)],...
+                        'yData',[yVals max(yRange)],...
+                        'zData',-2*ones(size(xVals,2)+1,1),...
+                        'userdata',ud)
+                    
+                end
+                CERRRefresh;
                 
-            case 'mirrorScopeClicked'                
+            case 'mirrorScopeClicked'
                 set(gcf, 'WindowButtonUpFcn', 'controlFrame(''fusion'', ''mirrorScopeUnClicked'')');
                 set(gcf, 'WindowButtonMotionFcn', 'controlFrame(''fusion'', ''mirrorScopeMoving'')');
-                setappdata(gcf, 'scopeMirrHandle', gcbo);
+                %setappdata(gcf, 'scopeMirrHandle', gcbo);
                 
                 cP = get(gca, 'currentpoint');
                 setappdata(gcf, 'clickPoint', cP);
@@ -2921,7 +2977,8 @@ switch command
                 return;
                 
             case 'mirrorScopeMoving'
-                hScope = getappdata(gcf, 'scopeMirrHandle');
+                %hScope = getappdata(gcf, 'scopeMirrHandle');
+                hScope = stateS.handle.aI(stateS.currentAxis).axisFusion.MirrorScopePatch;
                 
                 %                 %close the moving image when move the scope field;
                 %                 hAxis = get(hScope, 'parent');
@@ -2946,7 +3003,8 @@ switch command
                 set(gcf, 'WindowButtonUpFcn', '');
                 set(gcf, 'WindowButtonMotionFcn', '');
                 
-                hScope = getappdata(gcf, 'scopeMirrHandle');
+                %hScope = getappdata(gcf, 'scopeMirrHandle');
+                hScope = stateS.handle.aI(stateS.currentAxis).axisFusion.MirrorScopePatch;
                 ud = get(hScope, 'userdata');
                 
                 ud{2} = get(hScope, 'xData');
@@ -3042,10 +3100,20 @@ switch command
                 
                 for i=1:length(stateS.handle.CERRAxis)
                     hAxis       = stateS.handle.CERRAxis(i);
-                    hOld = findobj(hAxis, 'tag', 'MirrorScope');
-                    delete(hOld);
-                    hOld = findobj(hAxis, 'tag', 'mirrorLocator');
-                    delete(hOld);
+                    %hOld = findobj(hAxis, 'tag', 'MirrorScope');
+                    if isfield(stateS.handle.aI(i).axisFusion,'MirrorScopePatch')
+                        hOld = stateS.handle.aI(i).axisFusion.MirrorScopePatch;
+                        if ishandle(hOld)
+                            delete(hOld);
+                        end
+                    end
+                    if isfield(stateS.handle.aI(i).axisFusion,'MirrorScopeLocator')
+                        hOld = stateS.handle.aI(i).axisFusion.MirrorScopeLocator;
+                        %hOld = findobj(hAxis, 'tag', 'mirrorLocator');
+                        if ishandle(hOld)
+                            delete(hOld);
+                        end
+                    end
                     oldMiscHandles = getAxisInfo(hAxis, 'miscHandles');
                     setAxisInfo(hAxis, 'miscHandles', setdiff(oldMiscHandles, [hOld]));
                 end

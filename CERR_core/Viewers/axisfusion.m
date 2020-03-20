@@ -85,6 +85,8 @@ end
 
 switch method
     case 'colorblend'
+        ud = stateS.handle.controlFrameUd ;
+        
         cLim = get(hAxis, 'cLim');
         %img1 = get(surfaces(1), 'cData');
         %img2 = get(surfaces(2), 'cData');
@@ -161,7 +163,13 @@ switch method
             set(gcf,'Pointer','arrow');
         end
         if stateS.optS.mirrorscope
-            lineInfo = get(findobj(hAxis, 'tag', 'mirrorLocator'), 'userdata');
+            lineInfo = [];
+            if isfield(stateS.handle.aI(axNum).axisFusion,'MirrorScopeLocator')
+                hMirrorLocator = stateS.handle.aI(axNum).axisFusion.MirrorScopeLocator;
+                if ishandle(hMirrorLocator)
+                    lineInfo = get(hMirrorLocator, 'userdata');
+                end
+            end
             if ~isempty(lineInfo)
                 mirrPos = lineInfo{3};
             end
@@ -186,7 +194,8 @@ switch method
             return;
             
         elseif stateS.optS.mirrorscope
-            hBox = findobj('Tag', 'MirrorScope', 'Parent', hAxis);
+            %hBox = findobj('Tag', 'MirrorScope', 'Parent', hAxis);
+            hBox = stateS.handle.aI(axNum).axisFusion.MirrorScopePatch;
             ud = get(hBox, 'userdata');
             xyRange = ud{1}; %ud{1} = [x: min(ud{2}) max(ud{2}) y: max(ud{3}) min(ud{3})];
             
@@ -242,6 +251,13 @@ switch method
                 set(surfaces(1:end), 'facealpha', 1);
                 set(surfaces(end), 'facealpha', 0);
                 
+                % Set stacking order so that MirrorScope patch is at the
+                % top
+                %childV = get(hAxis,'Children');
+                %childV([1,2,3]) = childV([3,1,2]);
+                %set(hAxis,'Children',childV);
+                uistack(hBox,'top')
+                
                 return;
             end
             
@@ -249,7 +265,11 @@ switch method
             
         elseif stateS.optS.mirror
             
-            lineInfo = get(findobj(hAxis, 'tag', 'mirrorLocator'), 'userdata');
+            lineInfo = [];
+            if isfield(stateS.handle.aI(axNum).axisFusion,'MirrorScopeLocator')
+                hMirrorLocator = stateS.handle.aI(axNum).axisFusion.MirrorScopeLocator;
+                lineInfo = get(hMirrorLocator, 'userdata');
+            end
             if ~isempty(lineInfo)
                 mirrPos = lineInfo{3};
             end
@@ -286,8 +306,8 @@ switch method
                 set(surfaces(end-1), 'cData', imgOv, 'xdata', xd, 'ydata', [sliceYVals1(1) sliceYVals1(end)]);
             end
             
-            set(surfaces(1:end), 'facealpha', 1);
-            set(surfaces(end), 'facealpha', 0);
+            %set(surfaces(1:end), 'facealpha', 1);
+            %set(surfaces(end), 'facealpha', 0);
             
             return;
             
@@ -311,7 +331,9 @@ switch method
             orientationVal = get(ud.handles.mirrorcheckerOrientation,'value');
             orientationStr = get(ud.handles.mirrorcheckerOrientation,'string');
             orientation = orientationStr{orientationVal};
-            metricVal = get(ud.handles.mirrorcheckerMetricPopup,'value');
+            checkerSize = get(ud.handles.newcheckerSize,'value');
+            metricVal = round(get(ud.handles.mirrorcheckerMetricPopup,'value'));
+            set(ud.handles.mirrorcheckerMetricPopup,'value',metricVal)
             imgOv = RegdoMirrCheckboard(img1, img2, checkerSize, checkerSize, orientation, metricVal);
             set(surfaces(end-1), 'cData', double(imgOv));
             set(surfaces(1:end), 'facealpha', 0);
@@ -357,7 +379,7 @@ switch method
         %wy enable base image display %
         %img23D = repmat(zeros(size(img1)), [1 1 3]);
         img23D = zeros([size(img1) 3]);
-        ud = stateS.handle.controlFrameUd ;
+        %ud = stateS.handle.controlFrameUd ;
         clrVal = get(ud.handles.basedisplayModeColor,'value');
         
         switch num2str(clrVal)
