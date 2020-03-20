@@ -46,27 +46,27 @@ if ~isempty(postS)
                 case 'getLargestConnComps'
                     
                     numConnComponents = postS.(strC{iStr}).params.numCC;
-                    maskC{iMethod} = getLargestConnComps(strNum,numConnComponents,planC);
+                    [maskC{iMethod}, planC]= getLargestConnComps(strNum,numConnComponents,planC);
                     
                 case 'getLargestOverlappingComp'
                     
                     roiName = postS.(strC{iStr}).params.roiName;
                     roiStrNum = getMatchingIndex(roiName,strListC,'EXACT');
-                    maskC{iMethod} = getLargestOverlappingComp(strNum,roiStrNum,planC);
+                    [maskC{iMethod}, planC] = getLargestOverlappingComp(strNum,roiStrNum,planC);
                     
                 case 'getSegInROI'
                     
                     roiName = postS.(strC{iStr}).params.roiName;
                     roiStrNum = getMatchingIndex(roiName,strListC,'EXACT');
                     
-                    roiMask3M = getStrMask(roiStrNum,planC);
-                    strMask3M = getStrMask(strNum,planC);
+                    [roiMask3M, planC] = getStrMask(roiStrNum,planC);
+                    [strMask3M, planC] = getStrMask(strNum,planC);
                     
                     maskC{iMethod} = roiMask3M & strMask3M;
                     
                 case 'none'
                      
-                    maskC{iMethod} = getStrMask(strNum,planC);
+                    [maskC{iMethod}, planC] = getStrMask(strNum,planC);
                      
                 otherwise
                     %Custom post-processing function
@@ -76,7 +76,7 @@ if ~isempty(postS)
                     else
                         paramS = [];
                     end
-                    maskC{iMethod} = feval(customMethod,strNum,paramS,planC);
+                    [maskC{iMethod},planC] = feval(customMethod,strNum,paramS,planC);
                    
             end
             

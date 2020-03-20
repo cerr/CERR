@@ -55,7 +55,7 @@ for m = 1:length(methodC)
             strC = {planC{indexS.structures}.structureName};
             strIdx = getMatchingIndex(strName,strC,'EXACT');
             if ~isempty(strIdx)
-                outMask3M = getStrMask(strIdx,planC);
+                [outMask3M, planC] = getStrMask(strIdx,planC);
             else
                 warning(['Missing structure ', strName]); 
                 outMask3M = false(size(getScanArray(scanNum,planC)));
@@ -101,7 +101,7 @@ for m = 1:length(methodC)
                 outMask3M = getPatientOutline(scan3M,sliceV,outThreshold);
                 maskC{m} = outMask3M;
             else
-                maskC{m} = getStrMask(outlineIndex,planC);
+                [maskC{m}, planC] = getStrMask(outlineIndex,planC);
             end
             
         case 'crop_shoulders'
@@ -110,7 +110,7 @@ for m = 1:length(methodC)
             indexS = planC{end};
             strName = paramS.structureName;
             strNum = getStructNum(strName,planC,indexS);
-            pt_outline_mask3M = getStrMask(strNum,planC);
+            [pt_outline_mask3M, planC] = getStrMask(strNum,planC);
             
             % generate mask after cropping shoulder slices
             outMask3M = cropShoulder(pt_outline_mask3M,planC);
@@ -134,7 +134,7 @@ for m = 1:length(methodC)
             
         otherwise
             %Custom crop function
-            maskC{m} = feval(method,planC,paramS,mask3M,scanNum);
+            [maskC{m},planC] = feval(method,planC,paramS,mask3M,scanNum);
     end
     
     %Save to planC if reqd
@@ -164,7 +164,3 @@ end
 outMask3M = maskC{end};
 
 end
-
-
-
-

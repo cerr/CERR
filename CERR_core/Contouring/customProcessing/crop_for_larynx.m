@@ -1,6 +1,6 @@
-function bbox3M = crop_for_larynx(planC,paramS,varargin)
+function [bbox3M, planC] = crop_for_larynx(planC,paramS,varargin)
 % Custom crop function for larynx segmentation model
-% AI 10/04/19?
+% AI 10/04/19
 
 %% Create union of masseters (left & right) and medial pterygoids (left & right)
 indexS = planC{end};
@@ -22,7 +22,7 @@ for k = 1:length(unionStrListC)
         sizV = size(getScanArray(scanIdx,planC));
         mask3M = false(sizV);
     end
-    strMask3M = getStrMask(idx,planC);
+    [strMask3M, planC] = getStrMask(idx,planC);
     mask3M = mask3M | strMask3M;
 end
 
