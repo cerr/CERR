@@ -1,4 +1,4 @@
-function [slice, sliceXVals, sliceYVals] = getCTSlice(scanSet, sliceNum, dim, planC)
+function [slice, sliceXVals, sliceYVals, planC] = getCTSlice(scanSet, sliceNum, dim, planC)
 %"getCTSlice"
 %   Returns the CTSlice at sliceNum in dimension dim, where dim = 1,2,3 for
 %   x,y,z respectively.  sliceXVals and sliceYVals are the coordinates of
@@ -41,6 +41,14 @@ if ~exist('planC','var')
 end
 global stateS
 indexS = planC{end};
+
+%Get uniformized data
+uniformScanInfo = scanSet.uniformScanInfo;
+if isempty(uniformScanInfo)
+     planC = setUniformizedData(planC);
+     scanNum = strcmp({planC{indexS.scan}.scanUID},scanSet.scanUID);
+     scanSet = planC{indexS.scan}(scanNum);
+end
 
 [xs, ys, zs] = getUniformScanXYZVals(scanSet);
 %Use scan access function in case of remote variables.
