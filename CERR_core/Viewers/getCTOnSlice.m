@@ -1,4 +1,4 @@
-function [slc, sliceXVals, sliceYVals] = getCTOnSlice(scanSet, coord, dim, planC)
+function [slc, sliceXVals, sliceYVals, planC] = getCTOnSlice(scanSet, coord, dim, planC)
 %"getCTOnSlice"
 %   Returns the CT values on a slice in dimension dim.  If the CT has a
 %   transformation matrix transM associated with it, the slice returned is
@@ -217,10 +217,10 @@ else %Rotation is not required, use simple linear interpolation.
     upperSlcRatio = 1 - lowerSlcRatio;
     %     getCTSlice(planC{indexS.scan}(scanSet), lowerSlc, dim);
     if isequal(lowerSlc, upperSlc)
-        [slc, sliceXVals, sliceYVals] = getCTSlice(planC{indexS.scan}(scanSet), uint16(lowerSlc), dim, planC);
+        [slc, sliceXVals, sliceYVals, planC] = getCTSlice(planC{indexS.scan}(scanSet), uint16(lowerSlc), dim, planC);
     else
-        [upslc, sliceXVals, sliceYVals] = getCTSlice(planC{indexS.scan}(scanSet), uint16(upperSlc), dim, planC);
-        [lowslc, sliceXVals, sliceYVals] = getCTSlice(planC{indexS.scan}(scanSet), uint16(lowerSlc), dim, planC);
+        [upslc, sliceXVals, sliceYVals, planC] = getCTSlice(planC{indexS.scan}(scanSet), uint16(upperSlc), dim, planC);
+        [lowslc, sliceXVals, sliceYVals, planC] = getCTSlice(planC{indexS.scan}(scanSet), uint16(lowerSlc), dim, planC);
         upperSlcRatio = slice - lowerSlc;
         slc = double(lowslc)*(lowerSlcRatio) + double(upslc)*(upperSlcRatio);
     end

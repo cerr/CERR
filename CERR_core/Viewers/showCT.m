@@ -109,7 +109,7 @@ axisInfo.scanObj(toRemove) = [];
 for i=1:length(scanSets)
     if ~ismember(scanSets(i),[axisInfo.scanObj.scanSet])
         numObjs = length(axisInfo.scanObj);
-        [im, imageXVals, imageYVals]        = getCTOnSlice(scanSets(i), coord, dim, planC);
+        [im, imageXVals, imageYVals, planC]        = getCTOnSlice(scanSets(i), coord, dim, planC);
         axisInfo.scanObj(numObjs+1).coord   = coord;
         axisInfo.scanObj(numObjs+1).data2M  = im;
         axisInfo.scanObj(numObjs+1).xV      = imageXVals;
