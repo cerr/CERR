@@ -1,70 +1,57 @@
-function procMask3M = post_process_constrictor(strNum,paramS,planC)
+function [procMask3M, planC] = post_process_constrictor(strNum,paramS,planC)
 % AI 10/1/19
 % Morphological post-processing for auto-segmentation of constrictor muscle.
 %--------------------------------------------------------------------------
 
 %Get auto-segemented mask
-mask3M = getStrMask(strNum,planC);
-procMask3M = zeros(size(mask3M));
-labelV = [0,1];
-conn = 26;
+label3M = getStrMask(strNum,planC);
+slicesV = find(squeeze(sum(sum(double(label3M)))>0));
 
-
-for l = 2:length(labelV)
+%Post-process
+if ~isempty(slicesV)
     
-    strMask3M = zeros(size(mask3M));
+    conn = 26;
+    filtSize = 3;
     
-    label3M = mask3M == l-1;
+    sliceListV = slicesV(1):slicesV(end);
+    strMask3M = zeros(size(label3M,1),size(label3M,1),length(sliceListV));
+    sliceLabels3M = label3M(:,:,sliceListV);
     
-    %Fill holes
-    label3M = imfill(label3M,conn,'holes');
-    
-    %Fuse disjointed segments
-    for n = 1:size(label3M,3)
-        
-        labelM = double(label3M(:,:,n)== l-1);
-        labelM = imclose(labelM,strel('disk',4)); 
-        label3M(:,:,n) = labelM;
-        
-    end
+    sliceLabels3M = imclose(sliceLabels3M,strel('sphere',4));
     
     %Retain largest connected component
-    connCompS = bwconncomp(label3M,conn);
+    connCompS = bwconncomp(sliceLabels3M,conn);
     ccSiz = cellfun(@numel,[connCompS.PixelIdxList]);
     sel = ccSiz==max(ccSiz);
-    if ~ (isempty(label3M(sel)) | max(ccSiz)< 50)
+    if ~ (isempty(sliceLabels3M(sel)) | max(ccSiz)< 50)
         idx = connCompS.PixelIdxList{sel};
-        strMask3M(idx) = l-1;
+        strMask3M(idx) = 1;
     end
     
-    %Morph proc
+    %Fill holes and remove islands
     for n = 1:size(strMask3M,3)
         
-        %strMaskM = strMask3M(:,:,n);
-        strMaskM = double(strMask3M(:,:,n)== l-1);
-        
-        
-        labelM = imclose(strMaskM,strel('disk',2)); 
-        labelM = imfill(labelM,'holes');
-        
+        strMaskM = strMask3M(:,:,n);
+        labelM = imclose(strMaskM,strel('disk',2));
         cc = bwconncomp(labelM);
         ccSiz = cellfun(@numel,[cc.PixelIdxList]);
         sel = ccSiz==max(ccSiz);
-        if ~ (isempty(label3M(sel)) | max(ccSiz)< 20)
+        if ~ (isempty(sliceLabels3M(sel)) | max(ccSiz)< 20)
             idx = cc.PixelIdxList{sel};
             labelM = zeros(size(labelM));
-            labelM(idx) = l-1;
+            labelM(idx) = 1;
             strMask3M(:,:,n) = labelM;
         else
             strMask3M(:,:,n) = zeros(size(labelM));
         end
-                
+        
     end
     
-    
-    procMask3M =  procMask3M + strMask3M;
+    %Smooth
+    smoothedlabel3M = smooth3(double(strMask3M),'box',filtSize);
+    strMask3M = smoothedlabel3M > 0.5;
+    label3M(:,:,sliceListV) = strMask3M;
     
 end
 
-
-end
+procMask3M = label3M;

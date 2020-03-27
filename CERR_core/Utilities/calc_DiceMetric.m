@@ -1,4 +1,4 @@
-function dice = calc_DiceMetric(structNum1,structNum2,planC)
+function [dice, planC] = calc_DiceMetric(structNum1,structNum2,planC)
 %function dice = calc_DiceMetric(structNum1,structNum2,planC)
 %
 %This function computes Dice similarity metric between structNum1 and structNum2
@@ -31,8 +31,8 @@ if ~exist('planC','var')
     global planC
 end
 
-intersectVol = getIntersectionVolume(structNum1,structNum2,planC);
-vol1 = getStructureVol(structNum1, planC);
-vol2 = getStructureVol(structNum2, planC);
+[intersectVol, planC] = getIntersectionVolume(structNum1,structNum2,planC);
+[vol1, planC] = getStructureVol(structNum1, planC);
+[vol2, planC] = getStructureVol(structNum2, planC);
 
 dice = 2 * intersectVol / (vol1 + vol2);

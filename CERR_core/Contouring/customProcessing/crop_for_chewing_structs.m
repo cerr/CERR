@@ -23,7 +23,7 @@ end
 
 %% Get S-I limits
 [noseSliceNum, planC] = getNoseSlice(outerMask3M,planC,outerStr);
-[maxs, mins, planC] = getShoulderStartSlice([],planC,outerStr,noseSliceNum);
+[maxs, mins, planC] = getShoulderStartSlice(outerMask3M,planC,outerStr,noseSliceNum);
 %[maxs, mins, planC] = getShoulderStartSlice([],planC,outerStr);
 
 
