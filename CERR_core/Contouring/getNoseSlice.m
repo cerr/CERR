@@ -38,7 +38,7 @@ minRowV = movmean(minRowV,5,'omitnan');
 
 %Compute difference & identify min
 %[~,mins] = min(diff([NaN;minRowV]));
-[~,mins] = findpeaks(-minRowV,'MinPeakWidth',2, 'MaxPeakWidth',10);
+[~,mins] = findpeaks(-minRowV,'MinPeakWidth',2, 'MaxPeakWidth',40);
 if ~isempty(mins)
     sliceNum = mins(1) + startSliceIdx -1;
 else
