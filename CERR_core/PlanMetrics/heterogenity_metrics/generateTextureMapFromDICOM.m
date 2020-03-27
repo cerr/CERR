@@ -24,11 +24,11 @@ strNumV = nan(1,length(strNameC));
 for n = 1:length(strNameC)
     strNumV(n) = getMatchingIndex(strNameC{n},strC,'EXACT');
 end
-mask3M = getStrMask(strNumV,planC);
+[mask3M, planC] = getStrMask(strNumV,planC);
 
 %% Get scan array
 scanNum = getStructureAssociatedScan(strNumV(1),planC);
-scan3M = getScanArray(scanNum,planC);
+scan3M = double(getScanArray(scanNum,planC));
 CToffset = planC{indexS.scan}(scanNum).scanInfo(1).CTOffset;
 scan3M = scan3M - CToffset;
 

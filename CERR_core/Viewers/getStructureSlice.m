@@ -53,6 +53,11 @@ else
 end
 
 %Get the coordinates of the original scan.
+uniformScanInfo = planC{indexS.scan}(scanSet).uniformScanInfo;
+if isempty(uniformScanInfo)
+     planC = setUniformizedData(planC);
+end
+
 [xV, yV, zV] = getUniformScanXYZVals(planC{indexS.scan}(scanSet));
 
 %Figure out which spatial dimension is in the slice's X and Y direction.

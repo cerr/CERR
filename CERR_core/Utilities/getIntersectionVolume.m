@@ -1,4 +1,4 @@
-function intersectVol = getIntersectionVolume(structNum1,structNum2,planC)
+function [intersectVol, planC] = getIntersectionVolume(structNum1,structNum2,planC)
 %function intersectVol = getIntersectionVolume(structNum1,structNum2,planC)
 %
 %This function computes intersection volume between structNum1 and structNum2
@@ -41,8 +41,8 @@ end
 
 scanNum = scanNum1;
 
-rasterSegs1 = getRasterSegments(structNum1,planC);
-rasterSegs2 = getRasterSegments(structNum2,planC);
+[rasterSegs1, planC] = getRasterSegments(structNum1,planC);
+[rasterSegs2, planC] = getRasterSegments(structNum2,planC);
 
 % Return 0 if any of the rastersegments are empty
 if isempty(rasterSegs1) || isempty(rasterSegs2)

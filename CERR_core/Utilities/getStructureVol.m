@@ -1,4 +1,4 @@
-function structVol = getStructureVol(structNum,planC)
+function [structVol, planC] = getStructureVol(structNum,planC)
 % getStructureVol
 % This function returns the abslute volume of a structure. Can be accessed 
 % from MATLAB command line or from CERR command. 
