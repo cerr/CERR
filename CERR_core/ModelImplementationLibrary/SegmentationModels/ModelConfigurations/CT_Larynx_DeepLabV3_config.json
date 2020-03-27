@@ -30,7 +30,7 @@
 
 "batchSize" : 1,
 
-"postProc" : {"LARYNX": [{"method": "post_process_chewing_structs"}]},
+"postProc" : {"LARYNX": [{"method": "post_process_larynx"}]},
 
 "reference" : "https://www.biorxiv.org/content/10.1101/772178v1"
 
