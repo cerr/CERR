@@ -63,23 +63,22 @@ tic
 importDICOM(inputDicomPath,cerrPath);
 toc
 
-% Get algorithm
-algorithmC = {};
-
-[algorithmC{end+1},remStr] = strtok(algorithm,'^');
-algorithmC{end} = char(algorithmC{end});
-remStr = char(remStr);
-
-while ~isempty(remStr) && ~isequal(remStr,"")
-    [algorithmC{end+1},remStr] = strtok(remStr,'^');
-    algorithmC{end} = char(algorithmC{end});
-    remStr = char(remStr);
-end
+% Parse algorithm and convert to cell arrray
+algorithmC = split(algorithm,'^');
 
 %Run inference
 if iscell(algorithmC) || ~iscell(algorithmC) && ~strcmpi(algorithmC,'BABS')
     
-    containerPath = varargin{1};
+    containerPathStr = varargin{1};
+    % Parse container path and convert to cell arrray
+    containerPathC = split(containerPathStr,'^');
+    numAlgorithms = numel(algorithmC);
+    numContainers = numel(containerPathC);
+    if numAlgorithms > 1 && numContainers == 1
+        containerPathC = repmat(containerPathC,numAlgorithms,1);
+    elseif numAlgorithms ~= numContainers
+        error('Mismatch between number of algorithms and containers')
+    end
     origCerrPath = cerrPath;
     allLabelNamesC = {};
     for k=1:length(algorithmC)
@@ -95,7 +94,8 @@ if iscell(algorithmC) || ~iscell(algorithmC) && ~strcmpi(algorithmC,'BABS')
         end
         
         % Run segmentation algorithm
-        success = segmentationWrapper(cerrPath,segResultCERRPath,fullSessionPath,containerPath,algorithmC{k});
+        success = segmentationWrapper(cerrPath,segResultCERRPath,...
+            fullSessionPath,containerPathC{k},algorithmC{k});
         
         %Get list of label names
         configFilePath = fullfile(getCERRPath,'ModelImplementationLibrary','SegmentationModels',...
@@ -135,3 +135,5 @@ end
 rmdir(fullSessionPath, 's')
 
 success = 1;
+
+

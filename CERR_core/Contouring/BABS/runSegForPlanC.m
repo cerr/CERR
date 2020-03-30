@@ -74,22 +74,28 @@ testFlag = true;
 %cerrFileName = fullfile(cerrPath,'cerrFile.mat');
 %save_planC(planC,[],'passed',cerrFileName);
 
-% algorithm
-algorithmC = {};
-
-[algorithmC{end+1},remStr] = strtok(algorithm,'^');
-while ~isempty(remStr)
-    [algorithmC{end+1},remStr] = strtok(remStr,'^');
-end
+% Parse algorithm and convert to cell arrray
+algorithmC = split(algorithm,'^');
 
 if iscell(algorithmC) || ~iscell(algiorithmC) && ~strcmpi(algorithmC,'BABS')
     
-    containerPath = varargin{1};
+    containerPathStr = varargin{1};
+    % Parse container path and convert to cell arrray
+    containerPathC = split(containerPathStr,'^');
+    numAlgorithms = numel(algorithmC);
+    numContainers = numel(containerPathC);
+    if numAlgorithms > 1 && numContainers == 1
+        containerPathC = repmat(containerPathC,numAlgorithms,1);
+    elseif numAlgorithms ~= numContainers
+        error('Mismatch between number of algorithms and containers')
+    end
     
     for k=1:length(algorithmC)
         
         % Get the config file path
-        configFilePath = fullfile(getCERRPath,'ModelImplementationLibrary','SegmentationModels', 'ModelConfigurations', [algorithmC{k}, '_config.json']);
+        configFilePath = fullfile(getCERRPath,'ModelImplementationLibrary',...
+            'SegmentationModels', 'ModelConfigurations',...
+            [algorithmC{k}, '_config.json']);
         
         userOptS = readDLConfigFile(configFilePath);
         if nargin==7 && ~isnan(varargin{2})
@@ -121,7 +127,9 @@ if iscell(algorithmC) || ~iscell(algiorithmC) && ~strcmpi(algorithmC,'BABS')
             jp.setIndeterminate(1)
         end
         % Call the container and execute model     
-        success = callDeepLearnSegContainer(algorithmC{k}, containerPath, fullClientSessionPath, sshConfigS, userOptS.batchSize); % different workflow for client or session
+        success = callDeepLearnSegContainer(algorithmC{k}, ...
+            containerPathC{k}, fullClientSessionPath, sshConfigS,...
+            userOptS.batchSize); % different workflow for client or session
         
         %%% =========== common for client and server
         if ishandle(hWait)
