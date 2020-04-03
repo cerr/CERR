@@ -52,7 +52,7 @@ if isfield(userInS,'settings')
     
     % ---1. First-order features ---
     idx = strcmpi(settingsC,'firstOrder');
-    if ~isempty(idx)
+    if any(idx)
         paramC = fieldnames(userInS.settings.(settingsC{idx}));
         for k = 1: length(paramC)
             firstOrderParamS.(paramC{k}) = userInS.settings.(settingsC{idx}).(paramC{k});
@@ -62,7 +62,7 @@ if isfield(userInS,'settings')
     
     %---2. Shape features ----
     idx = strcmpi(settingsC,'shape');
-    if ~isempty(idx)
+    if any(idx)
         paramC = fieldnames(userInS.settings.(settingsC{idx}));
         for k = 1: length(paramC)
             shapeParamS.(paramC{k}) = userInS.settings.(settingsC{idx}).(paramC{k});
@@ -72,7 +72,7 @@ if isfield(userInS,'settings')
     
     %---3. Higher-order (texture) features ----
     idx = strcmpi(settingsC,'texture');
-    if ~isempty(idx)
+    if any(idx)
         paramC = fieldnames(userInS.settings.(settingsC{idx}));
         for k = 1: length(paramC)
             textureParamS.(paramC{k}) = userInS.settings.(settingsC{idx}).(paramC{k});
@@ -82,7 +82,7 @@ if isfield(userInS,'settings')
     
     %---4. Peak-valley features ----
     idx = strcmpi(settingsC,'peakvalley');
-    if ~isempty(idx)
+    if any(idx)
         paramC = fieldnames(userInS.settings.(settingsC{idx}));
         for k = 1: length(paramC)
             peakValleyParamS.(paramC{k}) = userInS.settings.(settingsC{idx}).(paramC{k});
@@ -92,7 +92,7 @@ if isfield(userInS,'settings')
     
     %---5. IVH features ----
     idx = strcmpi(settingsC,'ivh');
-    if ~isempty(idx)
+    if any(idx)
         paramC = fieldnames(userInS.settings.(settingsC{idx}));
         for k = 1: length(paramC)
             ivhParamS.(paramC{k}) = userInS.settings.(settingsC{idx}).(paramC{k});
