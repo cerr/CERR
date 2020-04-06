@@ -9,4 +9,7 @@ function [haus, planC] = calc_HausdorffMetric(structNum1,structNum2,planC)
 [~, x1V, y1V, z1V, planC] = getStructSurface(structNum1,planC);
 [~, x2V, y2V, z2V, planC] = getStructSurface(structNum2,planC);
 
-haus = hausdorff([x1V(:) y1V(:) z1V(:)],[x2V(:) y2V(:) z2V(:)]);
+haus = NaN;
+if ~isempty(x1V) && ~isempty(x1V)
+    haus = hausdorff([x1V(:) y1V(:) z1V(:)],[x2V(:) y2V(:) z2V(:)]);
+end
