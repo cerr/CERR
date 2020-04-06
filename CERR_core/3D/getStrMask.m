@@ -11,5 +11,7 @@ function [mask3M, planC] = getStrMask(structNumV, planC)
 scanNum = getStructureAssociatedScan(structNumV(1), planC);
 mask3M = false(size(getScanArray(scanNum,planC)));
 [rasterM, planC] = getRasterSegments(structNumV,planC);
-[slMask3M,slicesV] = rasterToMask(rasterM,scanNum,planC);
-mask3M(:,:,slicesV) = slMask3M;
+if ~isempty(rasterM)
+    [slMask3M,slicesV] = rasterToMask(rasterM,scanNum,planC);
+    mask3M(:,:,slicesV) = slMask3M;
+end
