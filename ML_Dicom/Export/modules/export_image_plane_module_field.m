@@ -87,7 +87,12 @@ switch tag
         
     case 2097207    %0020,0037 Image Orientation (Patient)
         
-        data = scanInfoS.imageOrientationPatient;
+        switch type
+            case 'scan'
+                data = scanInfoS.imageOrientationPatient;
+            case 'dose'
+                data = doseS.imageOrientationPatient;
+        end        
         el = data2dcmElement(template, data, tag);
         
     case 2097202    %0020,0032 Image Position (Patient) (mm)
