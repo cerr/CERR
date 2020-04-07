@@ -97,24 +97,45 @@ for scanNum = 1:length(planC{indexS.scan})
     % Save image orientation to scanInfo
     if ~isfield(planC{indexS.scan}(scanNum).scanInfo(1),'imageOrientationPatient') || ...
             isempty(planC{indexS.scan}(scanNum).scanInfo(1).imageOrientationPatient)
-        imgOriV = planC{indexS.scan}(scanNum).scanInfo(1).DICOMHeaders.ImageOrientationPatient;
-        [planC{indexS.scan}(scanNum).scanInfo(:).imageOrientationPatient] = deal(imgOriV);
+        if isfield(planC{indexS.scan}(scanNum).scanInfo(1).DICOMHeaders,'ImageOrientationPatient')
+            imgOriV = planC{indexS.scan}(scanNum).scanInfo(1).DICOMHeaders.ImageOrientationPatient;
+            [planC{indexS.scan}(scanNum).scanInfo(:).imageOrientationPatient] = deal(imgOriV);
+        end
     end
     if ~isfield(planC{indexS.scan}(scanNum).scanInfo(1),'imagePositionPatient') || ...
             isempty(planC{indexS.scan}(scanNum).scanInfo(1).imagePositionPatient)
-        imgPosV = planC{indexS.scan}(scanNum).scanInfo(1).DICOMHeaders.ImagePositionPatient;
-        [planC{indexS.scan}(scanNum).scanInfo(:).imagePositionPatient] = deal(imgPosV);
+        if isfield(planC{indexS.scan}(scanNum).scanInfo(1).DICOMHeaders,'ImagePositionPatient')
+            for slc = 1:length(planC{indexS.scan}(scanNum).scanInfo)
+                planC{indexS.scan}(scanNum).scanInfo(slc).imagePositionPatient = ...
+                    planC{indexS.scan}(scanNum).scanInfo(slc).DICOMHeaders.ImagePositionPatient;
+            end
+        end
     end
 end
 
 %Check dose-grid
 for doseNum = 1:length(planC{indexS.dose})
     if length(planC{indexS.dose}(doseNum).zValues) > 1
-    if planC{indexS.dose}(doseNum).zValues(2) - planC{indexS.dose}(doseNum).zValues(1) < 0
-        planC{indexS.dose}(doseNum).zValues = flipud(planC{indexS.dose}(doseNum).zValues);
-        planC{indexS.dose}(doseNum).doseArray = flipdim(planC{indexS.dose}(doseNum).doseArray,3);
+        if planC{indexS.dose}(doseNum).zValues(2) - planC{indexS.dose}(doseNum).zValues(1) < 0
+            planC{indexS.dose}(doseNum).zValues = flipud(planC{indexS.dose}(doseNum).zValues);
+            planC{indexS.dose}(doseNum).doseArray = flipdim(planC{indexS.dose}(doseNum).doseArray,3);
+        end
     end
+    % Save image orientation and position to dose field
+    if ~isfield(planC{indexS.dose}(doseNum),'imageOrientationPatient') || ...
+            isempty(planC{indexS.dose}(doseNum).imageOrientationPatient)
+        if isfield(planC{indexS.dose}(doseNum).DICOMHeaders,'ImageOrientationPatient')
+            imgOriV = planC{indexS.dose}(doseNum).DICOMHeaders.ImageOrientationPatient;
+            planC{indexS.dose}(doseNum).imageOrientationPatient = imgOriV;
+        end
     end
+    if ~isfield(planC{indexS.dose}(doseNum),'imagePositionPatient') || ...
+            isempty(planC{indexS.dose}(doseNum).imagePositionPatient)
+        if isfield(planC{indexS.dose}(doseNum).DICOMHeaders,'ImagePositionPatient')
+            imgPosV = planC{indexS.dose}(doseNum).DICOMHeaders.ImagePositionPatient;
+            planC{indexS.dose}(doseNum).imagePositionPatient = imgPosV;
+        end
+    end    
 end
 
 %Check whether uniformized data is in cellArray format.
@@ -218,7 +239,7 @@ if length(planC{indexS.GSPS}) == 1 && isempty(planC{indexS.GSPS}.SOPInstanceUID)
 end
 
 % Check for IM UIDs
-if length(planC{indexS.IM})>0 && isfield(planC{indexS.IM}(1),'IMUID') && isempty(planC{indexS.IM}(1).IMUID)
+if ~isempty(planC{indexS.IM}) && isfield(planC{indexS.IM}(1),'IMUID') && isempty(planC{indexS.IM}(1).IMUID)
     planC = createIMuids(planC);
 end
 

@@ -176,6 +176,13 @@ switch fieldname
         %In CERR, Dose is always oriented transversely.
         dataS = 'TRANSVERSE';
         
+    case 'imagePositionPatient'
+        dataS  = getTagValue(attr, '00200032');
+
+    case 'imageOrientationPatient'
+        %Image Orientation
+        dataS  = getTagValue(attr, '00200037');        
+        
     case 'numberRepresentation'
         %Artifact of RTOG, not indicative of CERR's representation
         dataS = 'CHARACTER';
@@ -590,7 +597,7 @@ switch fieldname
         if gFOV(1) == 0
             %Relative Grid Frame, add to zValue from patient position.
             dataS = iPP(3) + gFOV;
-        else
+        else % iPP(3)==gFOV(1)
             %Absolute Grid Frame, use zValues directly.
             dataS = gFOV;
         end
