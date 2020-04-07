@@ -534,13 +534,9 @@ switch fieldname
         if attr.contains(hex2dec('00185100'))
             dataS  = getTagValue(attr, '00185100');
         end
-        
-    case 'imageOrientationPatient'
-        dataS  = getTagValue(attr, '00200037');
-        
+                
     case 'imagePositionPatient'
         dataS  = getTagValue(attr, '00200032');
-
         
     case 'bValue' %REPLACED EL WITH TAG
         % b-value for MR scans (vendor specific private tag)
