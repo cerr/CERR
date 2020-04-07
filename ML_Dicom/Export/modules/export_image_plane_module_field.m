@@ -112,14 +112,17 @@ switch tag
                 end
                 
             case 'dose'
-                xV = doseS.coord1OFFirstPoint;
-                yV = doseS.coord2OFFirstPoint;
-                zV = -doseS.zValues(end); %?
-                coord3M = [xV, yV, zV];
-                imgOri = doseS.imageOrientationPatient;
-                posV = convertCoordinates(coord3M, imgOri);
-                %Convert from CERR cm to DICOM mm.
-                posV = posV * 10;
+                posV = doseS.imagePositionPatient;
+                if isempty(posV) %non-dicom
+                    xV = doseS.coord1OFFirstPoint;
+                    yV = doseS.coord2OFFirstPoint;
+                    zV = -doseS.zValues(end); %?
+                    coord3M = [xV, yV, zV];
+                    imgOri = doseS.imageOrientationPatient;
+                    posV = convertCoordinates(coord3M, imgOri);
+                    %Convert from CERR cm to DICOM mm.
+                    posV = posV * 10;
+                end
         end
         
         data = posV;
