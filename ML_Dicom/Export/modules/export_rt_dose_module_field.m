@@ -158,13 +158,18 @@ switch tag
     case 805568524  %3004,000C  Grid Frame Offset Vector
         %Vector of monotonically varying values starting at zero,
         %indicating offset of Z coordinate from image position (patient)
-        firstZ = doseS.zValues(1);
-        lastZ  = doseS.zValues(end);
-        numZ   = length(doseS.zValues);      
-        data   = linspace(firstZ, lastZ, numZ) - firstZ;
-
+        %firstZ = doseS.zValues(1);
+        %lastZ  = doseS.zValues(end);
+        %numZ   = length(doseS.zValues);      
+        %data   = linspace(firstZ, lastZ, numZ) - firstZ;
+        
+        % (-)ve z-values to go back to DICOM coordinates
+        zDicomV = -doseS.zValues; % tested only for non-oblique dose HFS
+        data = zDicomV - zDicomV(1);
+        
         %Convert from CERR cm to DICOM mm.                
         data = data * 10;
+        
         el = data2dcmElement(template, data, tag);              
         
     case 805568526  %3004,000E  Dose Grid Scaling
