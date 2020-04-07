@@ -197,7 +197,7 @@ switch tag
                 
                 %Flip the Z dimension.  As yet unknown why this is
                 %necessary.
-                data = flipdim(data, 3);
+                %data = flipdim(data, 3);
 
                 %Flatten the data into a vector.
                 data = data(:);
