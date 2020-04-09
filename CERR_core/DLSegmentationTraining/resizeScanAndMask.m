@@ -8,7 +8,7 @@ function [scanOut3M, maskOut3M] = resizeScanAndMask(scan3M,mask3M,outputImgSizeV
 % scan3M         :  Scan array
 % mask3M         :  Mask
 % method         :  Supported methods: 'none','pad2d', 'pad3d',
-%                 'bilinear', 'sinc'
+%                   'bilinear', 'sinc'
 % outputImgSizeV :  Required output size [height, width]
 %--------------------------------------------------------------------------
 %RKP 9/13/19 - Added method 'pad2d'
@@ -76,19 +76,11 @@ switch(lower(method))
         
         % Initialize resized scan and mask
         scanOut3M = zeros(outputImgSizeV);
-        %scanOut3M = scanOut3M - 1024;
         maskOut3M = zeros(outputImgSizeV,'uint32');
         
         % Min/max row and col limits for each slice
         limitsM = varargin{1};
-        
-        %         if outputImgSizeV(1) < origSizV(1)
-        %             padFlag = 1;
-        %         else
-        %             padFlag = 0;  %un-pad
-        %         end
-        
-        
+       
         for slcNum = 1:origSizV(3)
             
             minr = limitsM(slcNum,1);
@@ -130,6 +122,7 @@ switch(lower(method))
             maskOut3M(rMin:rMax,cMin:cMax,slcNum)= mask3M(outRmin:outRmax,outCmin:outCmax,slcNum);
             
         end
+        
     case 'pad2d'
         
         % Zero out regions outside the mask
@@ -137,7 +130,6 @@ switch(lower(method))
         
         % Initialize resized scan and mask
         scanOut3M = zeros(outputImgSizeV);
-        %scanOut3M = scanOut3M - 1024;
         
         if isempty(mask3M)
             maskOut3M = [];
@@ -147,13 +139,6 @@ switch(lower(method))
         
         % Min/max row and col limits for each slice
         limitsM = varargin{1};
-        
-        %         if outputImgSizeV(1) < origSizV(1)
-        %             padFlag = 1;
-        %         else
-        %             padFlag = 0;  %un-pad
-        %         end
-        
         
         for slcNum = 1:origSizV(3)
             
@@ -165,41 +150,24 @@ switch(lower(method))
             rowCenter = round((minr+maxr)/2);
             colCenter = round((minc+maxc)/2);
             
-            %             if outputImgSizeV(1) < origSizV(1)
             rMin = rowCenter - outputImgSizeV(1)/2;
             cMin = colCenter - outputImgSizeV(2)/2;
-            %             else
-            %                 rMin = rowCenter - origSizV(1)/2;
-            %                 cMin = colCenter - origSizV(2)/2;
-            %             end
+            
             if rMin < 1
                 rMin = 1;
             end
             if cMin < 1
                 cMin = 1;
             end
-            %             if outputImgSizeV(1) < origSizV(1)
             rMax = rMin + outputImgSizeV(1) - 1;
             cMax = cMin + outputImgSizeV(2) - 1;
-            %             else
-            %                 rMax = rMin + origSizV(1) - 1;
-            %                 cMax = cMin + origSizV(2) - 1;
-            %             end
-            %             if outputImgSizeV(1) < origSizV(1)
+            
             if rMax > origSizV(1)
                 rMax = origSizV(1);
             end
             if cMax > origSizV(2)
                 cMax = origSizV(2);
             end
-            %             else
-            %                 if rMax > outputImgSizeV(1)
-            %                     rMax = outputImgSizeV(1);
-            %                 end
-            %                 if cMax > outputImgSizeV(2)
-            %                     cMax = outputImgSizeV(2);
-            %                 end
-            %             end
             
             outRmin = 1;
             outCmin = 1;
@@ -207,19 +175,11 @@ switch(lower(method))
             outCmax = outCmin + cMax - cMin;
             
             if ~isempty(scan3M)
-                %                 if padFlag
                 scanOut3M(outRmin:outRmax,outCmin:outCmax,slcNum) = scan3M(rMin:rMax,cMin:cMax,slcNum);
-                %                 else
-                %                     scanOut3M(rMin:rMax,cMin:cMax,slcNum)= scan3M(outRmin:outRmax,outCmin:outCmax,slcNum);
-                %                 end
             end
             
             if ~isempty(mask3M)
-                %                 if padFlag
                 maskOut3M(outRmin:outRmax,outCmin:outCmax,slcNum) = mask3M(rMin:rMax,cMin:cMax,slcNum);
-                %                 else
-                %                     maskOut3M(rMin:rMax,cMin:cMax,slcNum)= mask3M(outRmin:outRmax,outCmin:outCmax,slcNum);
-                %                 end
             end
             
         end
