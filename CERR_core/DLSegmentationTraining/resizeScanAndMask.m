@@ -8,7 +8,7 @@ function [scanOut3M, maskOut3M] = resizeScanAndMask(scan3M,mask3M,outputImgSizeV
 % scan3M         :  Scan array
 % mask3M         :  Mask
 % method         :  Supported methods: 'none','pad2d', 'pad3d',
-%                   'bilinear', 'sinc'
+%                   'bilinear', 'sinc', 'bicubic'.
 % outputImgSizeV :  Required output size [height, width]
 %--------------------------------------------------------------------------
 %RKP 9/13/19 - Added method 'pad2d'
@@ -184,14 +184,20 @@ switch(lower(method))
             
         end
         
-    case 'bilinear'
+    case {'bilinear','sinc','bicubic'} 
+        
+        if strcmp(method,'sinc')
+            methodName = 'lanczos3';
+        else
+            methodName = method;
+        end
         
         if isempty(scan3M)
             scanOut3M = [];
             
         else
             if nargin==4 || size(varargin{1},1)==1 %Previously cropped (3D)
-                scanOut3M = imresize(scan3M, outputImgSizeV, 'bilinear');
+                scanOut3M = imresize(scan3M, outputImgSizeV, methodName);
                 
             else %2-D cropping and resizing
                 scanOut3M = nan([outputImgSizeV,origSizV(3)]);
@@ -212,7 +218,7 @@ switch(lower(method))
                     
                     %Resize slice
                     resizedSliceM = imresize(croppedSliceM, outputImgSizeV,...
-                        'bilinear');
+                        methodName);
                     
                     scanOut3M(:,:,slcNum) = resizedSliceM;
                 end
@@ -252,75 +258,7 @@ switch(lower(method))
             end
         end
         
-    case 'sinc'
-        
-        if isempty(scan3M)
-            scanOut3M = [];
-            
-        else
-            if nargin==4 || size(varargin{1},1)==1 %Previously cropped (3D)
-                scanOut3M = imresize(scan3M, outputImgSizeV, 'lanczos3');
-                
-            else %2-D cropping and resizing
-                scanOut3M = nan([outputImgSizeV,origSizV(3)]);
-                limitsM = varargin{1};
-                
-                %Loop over slices
-                for slcNum = 1:origSizV(3)
-                    
-                    %Get bounds
-                    minr = limitsM(slcNum,1);
-                    maxr = limitsM(slcNum,2);
-                    minc = limitsM(slcNum,3);
-                    maxc = limitsM(slcNum,4);
-                    
-                    %Crop slice
-                    scanSliceM = scan3M(:,:,slcNum);
-                    croppedSliceM = scanSliceM(minr:maxr, minc:maxc);
-                    
-                    %Resize slice
-                    resizedSliceM = imresize(croppedSliceM, outputImgSizeV,...
-                        'lanczos3');
-                    
-                    scanOut3M(:,:,slcNum) = resizedSliceM;
-                end
-            end
-        end
-        
-        if isempty(mask3M)
-            maskOut3M = [];
-            
-        else
-            if nargin==4 || size(varargin{1},1)==1 
-                %Previousy cropped (3D)
-                maskOut3M = imresize(scan3M, outputImgSizeV, 'nearest');
-                
-            else %2-D cropping and resizing
-                maskOut3M = false([outputImgSizeV,origSizV(3)]);
-                limitsM = varargin{1};
-                
-                %Loop over slices
-                for slcNum = 1:origSizV(3)
-                    
-                    %Get bounds
-                    minr = limitsM(slcNum,1);
-                    maxr = limitsM(slcNum,2);
-                    minc = limitsM(slcNum,3);
-                    maxc = limitsM(slcNum,4);
-                    
-                    %Crop slice
-                    maskSliceM = mask3M(:,:,slcNum);
-                    croppedSliceM = maskSliceM(minr:maxr, minc:maxc);
-                    
-                    %Resize slice
-                    resizedSliceM = imresize(croppedSliceM, outputImgSizeV,...
-                        'nearest');
-                    
-                    maskOut3M(:,:,slcNum) = resizedSliceM;
-                end
-            end
-        end
-        
+    
         
     case 'none'
         scanOut3M = scan3M;
