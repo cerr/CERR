@@ -3,6 +3,8 @@ function offsetsM = getOffsets(dirctn)
 %
 %This function returns offsets for the passed directionality
 %
+% dirctn = 1 for 3D, or 2 for 2D offsets.
+%
 % APA, 04/04/2016
 
 
