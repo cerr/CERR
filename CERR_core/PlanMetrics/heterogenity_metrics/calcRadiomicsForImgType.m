@@ -14,21 +14,7 @@ PixelSpacingY = gridS.PixelSpacingV(2);
 PixelSpacingZ = gridS.PixelSpacingV(3);
 VoxelVol = PixelSpacingX*PixelSpacingY*PixelSpacingZ*1000; % convert cm to mm
 
-% Clip original image for computing derived image
-minIntensityCutoff = [];
-maxIntensityCutoff = [];
-if isfield(paramS.textureParamS,'minIntensityCutoff')
-    minIntensityCutoff = paramS.textureParamS.minIntensityCutoff;
-end
-if isfield(paramS.textureParamS,'maxIntensityCutoff')
-    maxIntensityCutoff = paramS.textureParamS.maxIntensityCutoff;
-end
-if ~isempty(minIntensityCutoff)
-    volOrig3M(volOrig3M < minIntensityCutoff) = minIntensityCutoff;
-end
-if ~isempty(maxIntensityCutoff)
-    volOrig3M(volOrig3M > maxIntensityCutoff) = maxIntensityCutoff;
-end
+
 whichFeatS = paramS.whichFeatS;
 featureS = struct;
 
@@ -49,24 +35,17 @@ for k = 1:length(imageTypeC)
     
     %Generate volume based on original/derived imageType
     if strcmpi(imageTypeC{k}.imageType,'original')
-        minIntensityCutoff = [];
-        maxIntensityCutoff = [];
-        if isfield(paramS.textureParamS,'minIntensityCutoff')
-            minIntensityCutoff = paramS.textureParamS.minIntensityCutoff;
-        end
-        if isfield(paramS.textureParamS,'maxIntensityCutoff')
-            maxIntensityCutoff = paramS.textureParamS.maxIntensityCutoff;
-        end        
-        volToEval = volOrig3M;
         quantizeFlag = paramS.toQuantizeFlag;
+        minClipIntensity = paramS.minClipIntensity;
+        maxClipIntensity = paramS.maxClipIntensity;
     else
         outS = processImage(imageTypeC{k}.imageType,volOrig3M,maskBoundingBox3M,...
             imageTypeC{k}.paramS);
         derivedImgName = fieldnames(outS);
         volToEval = outS.(derivedImgName{1});
         quantizeFlag = true; % always quantize the derived image
-        minIntensityCutoff = []; % no clipping imposed for derived images
-        maxIntensityCutoff = []; % no clipping imposed for derived images
+        minClipIntensity = []; % no clipping imposed for derived images
+        maxClipIntensity = []; % no clipping imposed for derived images
     end
     
     % Quantize the volume of interest
@@ -82,7 +61,7 @@ for k = 1:length(imageTypeC)
         % Don't use intensities outside the ROI in discretization
         volToEval(~maskBoundingBox3M) = NaN;
         quantizedM = imquantize_cerr(volToEval,numGrLevels,...
-            minIntensityCutoff,maxIntensityCutoff,binwidth);
+            minClipIntensity,maxClipIntensity,binwidth);
         % Reassign the number of gray levels in case they were computed for the
         % passed binwidth
         numGrLevels = max(quantizedM(:));

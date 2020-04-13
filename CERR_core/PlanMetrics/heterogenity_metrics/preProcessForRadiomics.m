@@ -165,20 +165,21 @@ yValsV = yValsV(minr:maxr);
 zValsV = zValsV(mins:maxs);
 
 % Ignore voxels below and above cutoffs, if defined
-minIntensityCutoff = [];
-maxIntensityCutoff = [];
-if isfield(paramS.textureParamS,'minIntensityCutoff')
-    minIntensityCutoff = paramS.textureParamS.minIntensityCutoff;
+minSegThreshold = [];
+maxSegThreshold = [];
+if isfield(paramS.textureParamS,'minSegThreshold')
+    minSegThreshold = paramS.textureParamS.minSegThreshold;
 end
-if isfield(paramS.textureParamS,'maxIntensityCutoff')
-    maxIntensityCutoff = paramS.textureParamS.maxIntensityCutoff;
+if isfield(paramS.textureParamS,'maxSegThreshold')
+    maxSegThreshold = paramS.textureParamS.maxSegThreshold;
 end
-if ~isempty(minIntensityCutoff)
-    maskBoundingBox3M(volToEval < minIntensityCutoff) = 0;
+if ~isempty(minSegThreshold)
+    maskBoundingBox3M(volToEval < minSegThreshold) = 0;
 end
-if ~isempty(maxIntensityCutoff)
-    maskBoundingBox3M(volToEval > maxIntensityCutoff) = 0;
+if ~isempty(maxSegThreshold)
+    maskBoundingBox3M(volToEval > maxSegThreshold) = 0;
 end
+
 
 %volToEval(~maskBoundingBox3M) = NaN;
 
