@@ -21,22 +21,38 @@ scanNum = getStructureAssociatedScan(structNum,planC);
 [volToEval,maskBoundingBox3M] =  preProcessForRadiomics(scanNum,...
     structNum, paramS, planC);
 
-%Quantize
-fieldListC = {'numGrLevels','clipMin','clipMax','binWidth'};
-for n = 1:length(fieldListC)
-    if ~isfield(paramS.textureParamS,fieldListC{n})
-        paramS.textureParamS.(fieldListC{n}) = [];
+%Quantization
+minClipIntensity = paramS.minClipIntensity;
+maxClipIntensity = paramS.maxClipIntensity;
+
+if quantizeFlag
+    numGrLevels = [];
+    binwidth = [];
+    if isfield(paramS.textureParamS,'numGrLevels')
+        numGrLevels = paramS.textureParamS.numGrLevels;
     end
+    if isfield(paramS.textureParamS,'binwidth')
+        binwidth = paramS.textureParamS.binwidth;
+    end
+    % Don't use intensities outside the ROI in discretization
+    volToEval(~maskBoundingBox3M) = NaN;
+    quantized3M = imquantize_cerr(volToEval,numGrLevels,...
+        minClipIntensity,maxClipIntensity,binwidth);
+    % Reassign the number of gray levels in case they were computed for the
+    % passed binwidth
+    numGrLevels = max(quantized3M(:));
+    paramS.textureParamS.numGrLevels = numGrLevels;
+    
+else
+    quantized3M = volToEval;
 end
-quantized3M = imquantize_cerr(volToEval,paramS.textureParamS.numGrLevels,...
-    paramS.textureParamS.clipMin,paramS.textureParamS.clipMax,...
-    paramS.textureParamS.binWidth);
 quantized3M(~maskBoundingBox3M) = NaN;
 
 %Calc texture matrices
 textureS = struct();
 
 if paramS.whichFeatS.glcm.flag
+    
     directionality = paramS.textureParamS.directionality;
     switch lower(directionality)
         case '2d'
@@ -46,9 +62,21 @@ if paramS.whichFeatS.glcm.flag
         otherwise
             error('Invalid input. Directionality must be "2D" or "3D"');
     end
+    
+    switch lower(avgType)
+        case 'texturematrix'
+            %Haralick features with combined cooccurrence matrix
+            cooccurType = 1;
+        case 'feature'
+            %'Haralick features from separate cooccurrence matrix per direction, averaged'
+            cooccurType = 2;
+        otherwise
+            error('Invalid input. Directionality must be "2D" or "3D"');
+    end
+    
     offsetsM = getOffsets(dirctn);
     textureS.GLCM = calcCooccur(quantized3M, offsetsM, ...
-        paramS.textureParamS.numGrLevels, paramS.textureParamS.avgType);
+        paramS.textureParamS.numGrLevels, cooccurType);
 end
 
 if paramS.whichFeatS.glrlm.flag

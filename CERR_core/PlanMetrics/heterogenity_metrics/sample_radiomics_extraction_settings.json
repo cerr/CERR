@@ -21,12 +21,9 @@
 				 "interpMethod": "sinc"
 			       },
 
-		   "perturbation": {
-				      "sequence": "RV",
-				      "angle2DStdDeg": 7,
-				      "volScaleStdFraction": 0.1,
-				      "superPixVol": 0.005
-			           },
+           "perturbation": { 
+
+                           },
 
 		   "firstOrder" :{ 
 				   "binWidthEntropy": 25,
@@ -34,9 +31,12 @@
                                  },
 
 		   "texture" :{ 
-				"binwidth": 25,
-				"minIntensity": 0,
-				"maxIntensity": 500,
+                "binWidth": [],
+				"numGrLevels": 50,
+				"minSegThreshold": -500,
+				"maxSegThreshold": 1000,
+                "minClipIntensity": -200,
+                "maxClipIntensity": 300,
                 "directionality": "2D",
 				"avgType": "feature",
 				"voxelOffset": 1,
@@ -45,7 +45,7 @@
                               },
 
 		   "shape" :{ 
-			       "rcs": [100, 100, 100]
+                     "rcs": []
                             },
 
 		  "peakValley" :{ 
