@@ -1,0 +1,43 @@
+{
+
+"structures": ["pt_outline_bounding_box"],
+
+"imageType": {
+  	                       "Original": {}
+	                   },
+
+"settings": {		   
+
+		            "resample": {
+				                         "resolutionXCm": 0.06, 
+				                         "resolutionYCm": 0.06,
+                                                         "resolutionZCm": [],
+				                         "interpMethod": "sinc"
+			                             },
+
+		   "texture" :{ 
+                                "numGrLevels": 64,
+				"minSegThreshold": -200,
+				"maxSegThreshold": 600,
+				"minClipIntensity": -200,
+				"maxClipIntensity": 600,
+                                "binWidth": [],
+                                "directionality": "2D",
+				"avgType": "textureMatrix",
+			        "voxelOffset": 1,
+			        "patchRadiusVox": [3, 3, 3]
+                              }
+	    },
+
+
+ "featureClass":{
+			
+
+		"glcm": {
+			    	
+                        }
+
+
+            }
+
+}
