@@ -36,8 +36,8 @@ for k = 1:length(imageTypeC)
     %Generate volume based on original/derived imageType
     if strcmpi(imageTypeC{k}.imageType,'original')
         quantizeFlag = paramS.toQuantizeFlag;
-        minClipIntensity = paramS.minClipIntensity;
-        maxClipIntensity = paramS.maxClipIntensity;
+        minClipIntensity = paramS.textureParamS.minClipIntensity;
+        maxClipIntensity = paramS.textureParamS.maxClipIntensity;
     else
         outS = processImage(imageTypeC{k}.imageType,volOrig3M,maskBoundingBox3M,...
             imageTypeC{k}.paramS);
