@@ -1,4 +1,4 @@
-function textureS = calcGlobalRadiomicTextureMatrices(paramFilename, planC)
+function [textureS,paramS] = calcGlobalRadiomicTextureMatrices(paramFilename, planC)
 % Wrapper to extract global radiomics texture matrices using JSON config
 % file
 %--------------------------------------------------------------------------
@@ -22,8 +22,8 @@ scanNum = getStructureAssociatedScan(structNum,planC);
     structNum, paramS, planC);
 
 %Quantization
-minClipIntensity = paramS.minClipIntensity;
-maxClipIntensity = paramS.maxClipIntensity;
+minClipIntensity = paramS.textureParamS.minClipIntensity;
+maxClipIntensity = paramS.textureParamS.maxClipIntensity;
 
 if quantizeFlag
     numGrLevels = [];
