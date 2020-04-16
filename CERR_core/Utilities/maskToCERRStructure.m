@@ -123,7 +123,7 @@ else
 end
 
 %Update uniformized data.
-if isUniform
+if stateS.optS.createUniformizedDataset
     planC = updateStructureMatrices(planC, numStructs+1);
 end
 
