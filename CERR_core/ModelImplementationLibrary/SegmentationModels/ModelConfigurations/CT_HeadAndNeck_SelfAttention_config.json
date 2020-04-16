@@ -26,16 +26,8 @@
       "value": 9
     },
     {
-      "structureName": "Left branchial plexus",
-      "value": 6
-    },
-    {
-      "structureName": "Spine Cord",
+      "structureName": "Spinal Cord",
       "value": 8
-    },
-{
-      "structureName": "Right branchial plexus",
-      "value": 5
     }
   ],
 
@@ -48,14 +40,8 @@
 "crop": [
     {
       "method": "crop_pt_outline_2D",
-      "params": { "structureName": "generated_pt_outline", "outStrName":"generated_pt_outline", "saveStrToPlanCFlag": 1, "outlineThreshold": -400},
+      "params": { "structureName": "generated_pt_outline", "outStrName":"generated_pt_outline", "saveStrToPlanCFlag": 0, "outlineThreshold": -400},
       "operator": ""
-    },
-
-    {      
-      "method": "crop_shoulders",
-      "params": { "structureName": "generated_pt_outline" },
-      "operator": "intersection"
     } ],
  
 "passedScanDim" : "3D",
