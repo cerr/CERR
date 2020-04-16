@@ -123,7 +123,7 @@ else
 end
 
 %Update uniformized data.
-if stateS.optS.createUniformizedDataset
+if strcmpi(stateS.optS.createUniformizedDataset,'yes')
     planC = updateStructureMatrices(planC, numStructs+1);
 end
 
