@@ -2,7 +2,6 @@
 "strNameToLabelMap" : [
 {
     "structureName": "Heart",
-
     "value": 1
     },
 {
@@ -10,30 +9,55 @@
       "value": 2
     },
 {
-      "structureName": "Easophagus",
+      "structureName": "Esophagus",
       "value": 3
     },
 {
       "structureName": "Cord",
       "value": 4
     }
-
-
 ],
-"batchSize" : 1,
+
+"resize" : {
+    "method": "simpleCenterCrop",
+    "size" : [256,256]
+},
+
+"crop": [
+{
+    "method": "crop_pt_outline_2D",
+    "params": { "structureName": "generated_pt_outline", "outStrName":"generated_pt_outline", "saveStrToPlanCFlag": 1, "outlineThreshold": -400},
+    "operator": ""
+    }
+],
+
+"batchSize" : 1 ,
 
 "passedScanDim" : "3D",
 
-"resize" : {"method": "none",
-            "size" : [256,256]},
+"reference" : "10.1109/TMI.2018.2857800",
 
-"crop": [
-    {
-      "method": "crop_pt_outline_2D",
-      "params": { "structureName": "generated_pt_outline", "outStrName":"generated_pt_outline", "saveStrToPlanCFlag": 1, "outlineThreshold": -400},
-      "operator": ""
-    }],
+"passedScanAxisOrder" : "ZXY",
 
+"inputScanDim" : "2D+",
 
-"reference" : "10.1109/TMI.2018.2857800"
+"inputScanAxisOrder" : "ZXY",
+
+"labelProbabilityThreshold" : 0.5,
+
+"preprocessing" : [
+{
+    "imageOffset" : 1024,
+    "rotation" : { "angle": 90, "axis": "+Z" } , 
+    "flipdim" : "none" ,
+    "couchFlag" : 1 
+    }
+],
+
+"algorithm" : { 
+    "algorithmName" : "CT_LungOAR_incrMRRN" , 
+    "version" : "2.X", 
+    "releaseDate" : "2020/04/09" 
+}
+
 }
