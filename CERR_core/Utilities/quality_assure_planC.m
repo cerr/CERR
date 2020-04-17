@@ -89,8 +89,10 @@ for scanNum = 1:length(planC{indexS.scan})
                     planC{indexS.scan}(scanNum).scanInfo(slcNum).frameOfReferenceUID = ...
                         planC{indexS.scan}(scanNum).scanInfo(slcNum).DICOMHeaders.FrameofReferenceUID;
                 end
-                planC{indexS.scan}(scanNum).scanInfo(slcNum).patientID = ...
-                    planC{indexS.scan}(scanNum).scanInfo(slcNum).DICOMHeaders.PatientID;
+                if isfield(planC{indexS.scan}(scanNum).scanInfo(slcNum).DICOMHeaders,'PatientID')
+                    planC{indexS.scan}(scanNum).scanInfo(slcNum).patientID = ...
+                        planC{indexS.scan}(scanNum).scanInfo(slcNum).DICOMHeaders.PatientID;
+                end
             end
         end
     end
@@ -135,7 +137,7 @@ for doseNum = 1:length(planC{indexS.dose})
             imgPosV = planC{indexS.dose}(doseNum).DICOMHeaders.ImagePositionPatient;
             planC{indexS.dose}(doseNum).imagePositionPatient = imgPosV;
         end
-    end    
+    end
 end
 
 %Check whether uniformized data is in cellArray format.
@@ -169,7 +171,7 @@ elseif isfield(planC{indexS.header},'CERRImportVersion') && ~isempty(planC{index
 else
     CERRImportVersion = '0';
 end
-    
+
 %Check DSH Points for old CERR versions
 if str2num(CERRImportVersion(1)) < 4
     bug_found = 1;
@@ -192,7 +194,7 @@ if str2num(strtok(CERRImportVersion, ',')) < 5.2
             %pPos = '';
             imgOriV = [];
         end
-        if  max(abs((imgOriV(:) - [-1 0 0 0 -1 0]'))) < 1e-3 % Position: HFP
+        if  ~isempty(imgOriV) && max(abs((imgOriV(:) - [-1 0 0 0 -1 0]'))) < 1e-3 % Position: HFP
             planC = flipAlongX(scanNum, planC);
             bug_found = 1;
         end
@@ -211,7 +213,7 @@ for scanNum = 1:length(planC{indexS.scan})
             ptweight = dicomhd.PatientWeight;
         elseif isfield(dicomhd,'PatientsWeight')
             ptweight = dicomhd.PatientsWeight;
-        end                
+        end
         injectionTime = ...
             dicomhd.RadiopharmaceuticalInformationSequence.Item_1.RadiopharmaceuticalStartTime;
         halfLife = ...
@@ -252,13 +254,13 @@ end
 
 % Overwrite the existing CERR file if a bug is found and fixed
 if forceSaveFlag == 1 || (~isempty(stateS) && isfield(stateS.optS,'overwrite_CERR_File') && stateS.optS.overwrite_CERR_File == 1 && bug_found)
-    try 
-        if exist('fileName','var') 
+    try
+        if exist('fileName','var')
             % do nothing
         elseif isfield(stateS,'CERRFile')
             fileName = stateS.CERRFile;
         end
-        planC = save_planC(planC, stateS.optS, 'passed', fileName); 
+        planC = save_planC(planC, stateS.optS, 'passed', fileName);
     catch
         disp('Could not overwrite the exisitng file. Please save manually')
     end
