@@ -3,8 +3,10 @@ function testBrainStemMeanDose
 %
 % APA, 06/07/2013
 
+global stateS
+
 % --------- Expected Mean Dose to BrainStem ----------
-expected_mean_dose = 14.0871;
+expected_mean_dose = 13.9829;
 
 % ---------  Calculated Mean Dose to BrainStem ----------
 
@@ -21,12 +23,15 @@ planC = loadPlanC(HNfileName, tempdir);
 forceSaveFlag = 0; % do not force save
 planC = quality_assure_planC(HNfileName, planC, forceSaveFlag);
 
+% Set binwidth for DVH calculation
+stateS.optS.DVHBinWidth = 0.1;
+
 % Call the mean dose calculator
 structNum = 2;
 doseNum = 1;
 calculated_mean_dose = meanDose(planC, structNum, doseNum, 'Absolute');
 
 % Compare expected and calculated mean dose
-assertTOL = 1e-5;
+assertTOL = 1e-3;
 assertAlmostEqual(calculated_mean_dose, expected_mean_dose,assertTOL);
 
