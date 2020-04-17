@@ -1,3 +1,4 @@
+
 function success = runSegClinic(inputDicomPath,outputDicomPath,...
     sessionPath,algorithm,savePlanc,varargin)
 % function success = runSegClinic(inputDicomPath,outputDicomPath,...
@@ -93,13 +94,16 @@ if iscell(algorithmC) || ~iscell(algorithmC) && ~strcmpi(algorithmC,'BABS')
             rmdir(outputH5Path, 's')
         end
         
+        %Copy config file to session dir
+        configFilePath = fullfile(getCERRPath,'ModelImplementationLibrary','SegmentationModels',...
+            'ModelConfigurations', [algorithmC{k}, '_config.json']);
+        copyfile(configFilePath,fullSessionPath);
+        
         % Run segmentation algorithm
         success = segmentationWrapper(cerrPath,segResultCERRPath,...
             fullSessionPath,containerPathC{k},algorithmC{k});
         
         %Get list of label names
-        configFilePath = fullfile(getCERRPath,'ModelImplementationLibrary','SegmentationModels',...
-            'ModelConfigurations', [algorithmC{k}, '_config.json']);
         userOptS = readDLConfigFile(configFilePath);
         allLabelNamesC = [allLabelNamesC,{userOptS.strNameToLabelMap.structureName}];
         
