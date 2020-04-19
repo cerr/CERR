@@ -114,7 +114,7 @@ switch tag
         
         %Check for first/last points being the same.  If the same, remove
         %one as specified by DICOM's closed contour definition.
-        if contour(1,:) == contour(end,:) & size(contour, 1) > 1
+        if all(contour(1,:) == contour(end,:)) && size(contour, 1) > 1
            contour(end,:) = [] ;
         end
         
