@@ -57,6 +57,8 @@ else
     destDICOMDir = varargin{2};
 end
 
+init_ML_DICOM
+
 if ispc
     slashType = '\';
 else
