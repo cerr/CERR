@@ -165,8 +165,8 @@ switch tag
         
         % (-)ve z-values to go back to DICOM coordinates
         zDicomV = -doseS.zValues; % tested only for non-oblique dose HFS
-        data = zDicomV - zDicomV(1);
-        
+        data = zDicomV(1) - zDicomV;
+                
         %Convert from CERR cm to DICOM mm.                
         data = data * 10;
         
