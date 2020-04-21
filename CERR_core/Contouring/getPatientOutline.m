@@ -3,6 +3,7 @@ function ptMask3M = getPatientOutline(scan3M,slicesV,outThreshold,minMaskSiz)
 %
 % Usage:
 % global planC
+% scanNum = 1;
 % indexS = planC{end};
 % scan3M = getScanArray(scanNum,planC);
 % CToffset = planC{indexS.scan}(scanNum).scanInfo(1).CTOffset;
