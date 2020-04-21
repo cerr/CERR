@@ -59,7 +59,7 @@ switch(lower(method))
             if isempty(scan3M)
                 scanOut3M = [];
             else
-                scanOut3M = scan3M(xPad+1:xPad+origSizV(1), yPad+1:yPad+origSizV(2), :);
+                scanOut3M = scan3M(xPad+1:xPad+outputImgSizeV(1), yPad+1:yPad+outputImgSizeV(2), :);
             end
             
             if isempty(mask3M)
