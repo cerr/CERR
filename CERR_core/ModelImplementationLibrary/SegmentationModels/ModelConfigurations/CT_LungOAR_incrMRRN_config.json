@@ -19,7 +19,7 @@
 ],
 
 "resize" : {
-    "method": "simpleCenterCrop",
+    "method": "pad3D",
     "size" : [256,256]
 },
 
