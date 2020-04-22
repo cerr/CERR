@@ -15,6 +15,12 @@ function [scanOut3M, maskOut3M] = resizeScanAndMask(scan3M,mask3M,outputImgSizeV
 %AI 9/19/19  - Updated to handle undo-resize options
 
 
+if numel(varargin) > 1
+    preserveAspectFlag = varargin{2};
+else
+    preserveAspectFlag = 0;
+end
+
 outputImgSizeV = outputImgSizeV(:)';
 
 %Get input image size
@@ -199,9 +205,24 @@ switch(lower(method))
             scanOut3M = [];
             
         else
+            if preserveAspectFlag % preserve aspect ratio == yes
+                cornerCube = scan3M(1:5,1:5,1:5);
+                bgMean = mean(cornerCube(:));
+                scanSize = size(scan3M);
+            end
             if nargin==4 || size(varargin{1},1)==1 %Previously cropped (3D)
-                scanOut3M = imresize(scan3M, outputImgSizeV, methodName);
-                
+                if preserveAspectFlag  %%add case for non-square outputImgSizeV?
+                    paddedSize = max(scanSize(1:2));
+                    padded3M = bgMean * ones(paddedSize,paddedSize,size(scan3M,3));
+                    idx11 = 1 + (paddedSize - scanSize(1))/2;
+                    idx12 = idx11 + scanSize(1) - 1;
+                    idx21 = 1 + (paddedSize - scanSize(2))/2;
+                    idx22 = idx21 + scanSize(2) - 1;
+                    padded3M(idx11:idx12,idx21:idx22,:) = scan3M;
+                    scanOut3M = imresize(padded3M, outputImgSizeV, methodName);
+                else
+                    scanOut3M = imresize(scan3M, outputImgSizeV, methodName);
+                end
             else %2-D cropping and resizing
                 scanOut3M = nan([outputImgSizeV,origSizV(3)]);
                 limitsM = varargin{1};
@@ -217,8 +238,18 @@ switch(lower(method))
                     
                     %Crop slice
                     scanSliceM = scan3M(:,:,slcNum);
-                    croppedSliceM = scanSliceM(minr:maxr, minc:maxc);
-                    
+                    if preserveAspectFlag
+                        cropSize = [maxr - minr, maxc - minc];
+                        paddedSize = max(cropSize);
+                        croppedSliceM = bgMean * ones(paddedSize,paddedSize);
+                        idx11 = 1 + floor((paddedSize - cropSize(1)) / 2);
+                        idx12 = idx11 + cropSize(1);
+                        idx21 = 1 + floor((paddedSize - cropSize(2)) / 2);
+                        idx22 = idx21 + cropSize(2);
+                        croppedSliceM(idx11:idx12,idx21:idx22) = scanSliceM(minr:maxr,minc:maxc);
+                    else
+                        croppedSliceM = scanSliceM(minr:maxr, minc:maxc);
+                    end
                     %Resize slice
                     resizedSliceM = imresize(croppedSliceM, outputImgSizeV,...
                         methodName);

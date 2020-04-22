@@ -26,7 +26,13 @@ channelS = optS.channels;
 numChannels = length(channelS);
 filterTypeC = {channelS.imageType};
 
-
+if isfield(optS.resize,'preserveAspectRatio') 
+    if strcmp(optS.resize.preserveAspectRatio,'Yes') 
+        preserveAspectFlag = 1; 
+    end
+else
+    preserveAspectFlag = 0;
+end
 
 if isfield(optS,'structList')
     strListC = optS.structList;
@@ -171,7 +177,7 @@ if ~isempty(exportStrC) || testFlag
         if ~strcmpi(resizeMethod,'none')
             fprintf('\nResizing data...\n');
             tic
-            [scan3M, mask3M] = resizeScanAndMask(scan3M,mask3M,outSizeV,resizeMethod,limitsM);
+            [scan3M, mask3M] = resizeScanAndMask(scan3M,mask3M,outSizeV,resizeMethod,limitsM,preserveAspectFlag);
             toc
         end
         
