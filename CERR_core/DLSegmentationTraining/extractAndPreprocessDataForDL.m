@@ -1,4 +1,3 @@
-
 function [scanOutC, maskOutC, planC] = extractAndPreprocessDataForDL(optS,planC,testFlag)
 %
 % Script to extract scan and mask and perform user-defined pre-processing.
@@ -182,13 +181,15 @@ if ~isempty(exportStrC) || testFlag
     end
     
     %4. Transform view
-    fprintf('\nTransforming orientation...\n');
     tic
     [scanOutC,maskOutC] = transformView(scanC,maskC,viewC);
-    toc
+    if ~isequal(view,{'axial'})
+        fprintf('\nTransforming orientation...\n');
+        toc
+    end
+    
     
     %5. Filter images
-    fprintf('\nApplying filters...\n');
     tic
     procScanC = cell(numChannels,1);
     
@@ -213,6 +214,7 @@ if ~isempty(exportStrC) || testFlag
                 if strcmpi(imType,'original')
                     procScanC{c} = scanC{scanId};
                 else
+                    fprintf('\nApplying %s filter...\n',filterType);
                     paramS = getRadiomicsParamTemplate([],channelS(c));
                     paramS = paramS.imageType.(imType);
                     outS = processImage(imType,scanC{scanId},mask3M,paramS);
@@ -227,10 +229,12 @@ if ~isempty(exportStrC) || testFlag
     toc
     
     %6. Populate channels
-    fprintf('\nPopulating channels...\n');
     tic
     scanOutC = populateChannels(scanOutC,channelS);
-    toc
+    if numChannels > 1
+        fprintf('\nPopulating channels...\n');
+        toc
+    end
     
     %Get scan metadata
     %uniformScanInfoS = planC{indexS.scan}(scanNumV(scanIdx)).uniformScanInfo;
@@ -240,4 +244,3 @@ if ~isempty(exportStrC) || testFlag
 end
 
 end
-

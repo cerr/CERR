@@ -32,42 +32,45 @@ switch(lower(method))
         xPad = floor((outputImgSizeV(1) - origSizV(1))/2);
         yPad = floor((outputImgSizeV(2) - origSizV(2))/2);
         
-        if xPad > 0
-            
-            %Pad scan
-            if isempty(scan3M)
-                scanOut3M = [];
-            else
-                scanOut3M = zeros(outputImgSizeV);
-                scanOut3M(xPad+1:xPad+origSizV(1), yPad+1:yPad+origSizV(2), 1:origSizV(3)) = scan3M;
-            end
-            
-            %Pad mask
-            if isempty(mask3M)
-                maskOut3M = [];
-            else
-                maskOut3M = zeros(outputImgSizeV);
-                maskOut3M(xPad+1:xPad+origSizV(1), yPad+1:yPad+origSizV(2), 1:origSizV(3)) = mask3M;
-            end
-            
+        if xPad<0 || yPad<0
+            error(['To resize by padding, output image dimensions must be',...
+                ' larger than (cropped) input image dimensions']);
+        end
+                
+        %Pad scan
+        if isempty(scan3M)
+            scanOut3M = [];
         else
-            
-            %un-pad
-            xPad = -xPad;
-            yPad = -yPad;
-            
-            if isempty(scan3M)
-                scanOut3M = [];
-            else
-                scanOut3M = scan3M(xPad+1:xPad+outputImgSizeV(1), yPad+1:yPad+outputImgSizeV(2), :);
-            end
-            
-            if isempty(mask3M)
-                maskOut3M = [];
-            else
-                maskOut3M = mask3M(xPad+1:xPad+origSizV(1), yPad+1:yPad+origSizV(2), :);
-            end
-            
+            scanOut3M = zeros(outputImgSizeV);
+            scanOut3M(xPad+1:xPad+origSizV(1), yPad+1:yPad+origSizV(2), 1:origSizV(3)) = scan3M;
+        end
+        
+        %Pad mask
+        if isempty(mask3M)
+            maskOut3M = [];
+        else
+            maskOut3M = zeros(outputImgSizeV);
+            maskOut3M(xPad+1:xPad+origSizV(1), yPad+1:yPad+origSizV(2), 1:origSizV(3)) = mask3M;
+        end
+        
+    case 'unpad3d'
+        
+        xPad = floor((outputImgSizeV(1) - origSizV(1))/2);
+        yPad = floor((outputImgSizeV(2) - origSizV(2))/2);
+        
+        xPad = -xPad;
+        yPad = -yPad;
+        
+        if isempty(scan3M)
+            scanOut3M = [];
+        else
+            scanOut3M = scan3M(xPad+1:xPad+outputImgSizeV(1), yPad+1:yPad+outputImgSizeV(2), :);
+        end
+        
+        if isempty(mask3M)
+            maskOut3M = [];
+        else
+            maskOut3M = mask3M(xPad+1:xPad+origSizV(1), yPad+1:yPad+origSizV(2), :);
         end
         
     case 'unpad2d'
@@ -184,7 +187,7 @@ switch(lower(method))
             
         end
         
-    case {'bilinear','sinc','bicubic'} 
+    case {'bilinear','sinc','bicubic'}
         
         if strcmp(method,'sinc')
             methodName = 'lanczos3';
@@ -258,7 +261,7 @@ switch(lower(method))
             end
         end
         
-    
+        
         
     case 'none'
         scanOut3M = scan3M;

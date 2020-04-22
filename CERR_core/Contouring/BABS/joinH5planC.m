@@ -18,19 +18,24 @@ scanArray3M = planC{indexS.scan}(scanNum).scanArray;
 sizV = size(scanArray3M);
 maskOut3M = zeros(sizV, 'uint32');
 
-switch resizeMethod
+switch lower(resizeMethod)
     
-    case 'pad2D'
+    case 'pad2d'
         limitsM = [minr, maxr, minc, maxc];
         resizeMethod = 'unpad2d';
         originImageSizV = [sizV(1:2), maxs-mins+1];
         [~, maskOut3M(:,:,mins:maxs)] = ...
             resizeScanAndMask(segMask3M,segMask3M,originImageSizV,resizeMethod,limitsM);
         
+    case 'pad3d'
+        resizeMethod = 'unpad3d';
+        [~, maskOut3M] = ...
+            resizeScanAndMask([],segMask3M,sizV,resizeMethod);
+        
     otherwise
         originImageSizV = [maxr-minr+1, maxc-minc+1, maxs-mins+1];       
         tempMask3M = ...
-            resizeScanAndMask(segMask3M,segMask3M,originImageSizV,resizeMethod);
+            resizeScanAndMask([],segMask3M,originImageSizV,resizeMethod);
         maskOut3M(minr:maxr, minc:maxc, mins:maxs) = tempMask3M;
 end
 
