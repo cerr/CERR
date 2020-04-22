@@ -18,6 +18,14 @@
 ],
 "batchSize" : 1,
 
+"crop": [
+    {
+      "method": "none",
+      "params": "",
+      "operator": ""
+   
+    } ],
+ 
 "passedScanDim" : "3D",
 
 "reference" : ""
