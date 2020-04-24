@@ -41,24 +41,24 @@ function [planC,maskM] = getRasterSegs(planC, structsV, slicesV)
 %   function planC = getRasterSegs(planC, structsV, slicesV);
 %
 % Copyright 2010, Joseph O. Deasy, on behalf of the CERR development team.
-% 
+%
 % This file is part of The Computational Environment for Radiotherapy Research (CERR).
-% 
+%
 % CERR development has been led by:  Aditya Apte, Divya Khullar, James Alaly, and Joseph O. Deasy.
-% 
+%
 % CERR has been financially supported by the US National Institutes of Health under multiple grants.
-% 
-% CERR is distributed under the terms of the Lesser GNU Public License. 
-% 
+%
+% CERR is distributed under the terms of the Lesser GNU Public License.
+%
 %     This version of CERR is free software: you can redistribute it and/or modify
 %     it under the terms of the GNU General Public License as published by
 %     the Free Software Foundation, either version 3 of the License, or
 %     (at your option) any later version.
-% 
+%
 % CERR is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
 % without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 % See the GNU General Public License for more details.
-% 
+%
 % You should have received a copy of the GNU General Public License
 % along with CERR.  If not, see <http://www.gnu.org/licenses/>.
 
@@ -92,17 +92,17 @@ for i = 1:length(structsV)
     if strcmpi(sliceMode, 'all')
         slicesV = 1:length(planC{indexS.scan}(scanNum).scanInfo);
     end
-
+    
     outString   = ['Creating raster-scan representation of ' structName ' contour.'];
     %CERRStatusString(outString);
     disp(outString)
-
+    
     %------Create 'scan formats' of the structures------------%
-
+    
     segOptS.ROIxVoxelWidth = planC{indexS.scan}(scanNum).scanInfo(1).grid2Units;
     segOptS.ROIyVoxelWidth = planC{indexS.scan}(scanNum).scanInfo(1).grid1Units;
     segOptS.ROIImageSize   = double([planC{indexS.scan}(scanNum).scanInfo(1).sizeOfDimension1  planC{indexS.scan}(scanNum).scanInfo(1).sizeOfDimension2]);
-
+    
     %Get any offset of CT scans to apply (neg) to structures
     if ~isempty(planC{indexS.scan}(scanNum).scanInfo(1).xOffset)
         xCTOffset = planC{indexS.scan}(scanNum).scanInfo(1).xOffset;
@@ -111,32 +111,34 @@ for i = 1:length(structsV)
         xCTOffset = 0;
         yCTOffset = 0;
     end
-
+    
     segOptS.xCTOffset = xCTOffset;
     segOptS.yCTOffset = yCTOffset;
-
+    
     % dummyM = zeros(segOptS.ROIImageSize);
     dummyM = false(segOptS.ROIImageSize);
-
+    
     segmentsM = [];
-
+    
     %Wipe out old rasterSegments for slices we are about to recalc.
     if ~isempty(planC{indexS.structures}(structNum).rasterSegments)
         toRecalc = ismember(planC{indexS.structures}(structNum).rasterSegments(:,6), slicesV);
         planC{indexS.structures}(structNum).rasterSegments(toRecalc,:) = [];
         segmentsM = planC{indexS.structures}(structNum).rasterSegments;
     end
-
+    
+    [xScanV, yScanV] = getScanXYZVals(planC{indexS.scan}(scanNum));
+    
     for j = 1:length(slicesV)
-
+        
         slice = slicesV(j);
-
+        
         numSegs = length(planC{indexS.structures}(structNum).contour(slice).segments);
-
+        
         maskM = dummyM;
         % mask3M = [];
         mask3M = false([segOptS.ROIImageSize,numSegs]);
-
+        
         % APA: added Tim's function
         for k = 1 : numSegs
             pointsM = planC{indexS.structures}(structNum).contour(slice).segments(k).points;
@@ -144,11 +146,11 @@ for i = 1:length(structsV)
                 %str4 = ['Scan converting structure ' num2str(structNum) ', slice ' num2str(slice) ', segment ' num2str(k) '.'];
                 % CERRStatusString(str4)
                 
-                [xScanV, yScanV, zScanV] = getScanXYZVals(planC{indexS.scan}(scanNum), slice);
+                %[xScanV, yScanV, zScanV] = getScanXYZVals(planC{indexS.scan}(scanNum), slice);
                 %convertedContour = convertContourToPixels_1(xScanV, yScanV, planC{indexS.structures}(structNum).contour(slice),k);
-
+                
                 [rowV, colV] = xytom(planC{indexS.structures}(structNum).contour(slice).segments(k).points(:,1), planC{indexS.structures}(structNum).contour(slice).segments(k).points(:,2), slice, planC,scanNum);
-
+                
                 if any(rowV < 1) || any(rowV > segOptS.ROIImageSize(1))
                     %if any(rowV+5 < 1) || any(rowV-5  > segOptS.ROIImageSize(1))
                     %    %warning('A row index is off the edge of image mask: these set of points will be discarded');
@@ -159,7 +161,7 @@ for i = 1:length(structsV)
                         [rowV > segOptS.ROIImageSize(1)] .* segOptS.ROIImageSize(1) + ...
                         [rowV < 1];
                 end
-
+                
                 if any(colV < 1) || any(colV > segOptS.ROIImageSize(2))
                     %if any(colV+5 < 1) || any(colV-5  > segOptS.ROIImageSize(2))
                     %    %warning('A column index is off the edge of image mask: these set of points will be discarded');
@@ -170,7 +172,7 @@ for i = 1:length(structsV)
                         [colV > segOptS.ROIImageSize(2)] .* segOptS.ROIImageSize(2) + ...
                         [colV < 1];
                 end
-
+                
                 %convertedContour.segments.points = [round(rowV), round(colV)];
                 %convertedContour.segments.points = [(rowV), (colV)];
                 maskM = uint32(polyFill(length(yScanV), length(xScanV), rowV, colV));
@@ -182,29 +184,33 @@ for i = 1:length(structsV)
             end
         end
         % APA: added Tim's function ends
-
+        
         if any(mask3M(:))
-
+            
             %Combine masks
             %Add segments together:
             %Any overlap is interpreted as a 'hole'
-
-            baseM = dummyM;
-            for m = 1 : size(mask3M,3)
-                baseM = baseM + mask3M(:,:,m);  %to catalog overlaps
+            
+            %             baseM = dummyM;
+            %             for m = 1 : size(mask3M,3)
+            %                 baseM = baseM + mask3M(:,:,m);  %to catalog overlaps
+            %             end
+            if size(mask3M,3) > 1
+                baseM = sum(mask3M,3);
+                maskM = baseM == 1;  %% To leave alone self-intersecting contours (eg. baseM == 2,3.. are left alone)
+            else
+                maskM = mask3M == 1;
             end
-
-            maskM = baseM == 1;  %% To leave alone self-intersecting contours (eg. baseM == 2,3.. are left alone)
-
+            
             tmpM = mask2scan(maskM, segOptS, slice);       %convert mask into scan segment format
-
+            
             zValuesV = ones(size(tmpM,1),1) * zValue;
-
+            
             %try    %%JOD, 16 Oct 03
             if isfield(planC{indexS.scan}(scanNum).scanInfo(slice),'voxelThickness')
-
+                
                 voxelThickness = planC{indexS.scan}(scanNum).scanInfo(slice).voxelThickness;
-
+                
             else
                 voxelThicknessV = deduceVoxelThicknesses(scanNum, planC);
                 for p = 1 : length(voxelThicknessV)  %put back into planC
@@ -213,13 +219,13 @@ for i = 1:length(structsV)
                 voxelThickness = planC{indexS.scan}(scanNum).scanInfo(slice).voxelThickness;
             end
             thicknessV = ones(size(tmpM,1),1) * voxelThickness;
-
+            
             segmentsM = [segmentsM; [zValuesV, tmpM, thicknessV]];
         end
     end
     planC{indexS.structures}(structNum).rasterSegments = segmentsM;
     planC{indexS.structures}(structNum).rasterized = 1;
-
+    
     %CERRStatusString('')
-
+    
 end
