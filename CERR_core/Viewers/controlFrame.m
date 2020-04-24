@@ -3101,13 +3101,15 @@ switch command
                 for i=1:length(stateS.handle.CERRAxis)
                     hAxis       = stateS.handle.CERRAxis(i);
                     %hOld = findobj(hAxis, 'tag', 'MirrorScope');
-                    if isfield(stateS.handle.aI(i).axisFusion,'MirrorScopePatch')
+                    if isfield(stateS.handle.aI(i),'axisFusion') &&...
+                            isfield(stateS.handle.aI(i).axisFusion,'MirrorScopePatch')
                         hOld = stateS.handle.aI(i).axisFusion.MirrorScopePatch;
                         if ishandle(hOld)
                             delete(hOld);
                         end
                     end
-                    if isfield(stateS.handle.aI(i).axisFusion,'MirrorScopeLocator')
+                    if isfield(stateS.handle.aI(i),'axisFusion') &&...
+                            isfield(stateS.handle.aI(i).axisFusion,'MirrorScopeLocator')
                         hOld = stateS.handle.aI(i).axisFusion.MirrorScopeLocator;
                         %hOld = findobj(hAxis, 'tag', 'mirrorLocator');
                         if ishandle(hOld)
