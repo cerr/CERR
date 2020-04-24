@@ -631,6 +631,17 @@ switch fieldname
         if attr.contains(hex2dec('00280051'))
             dataS = getTagValue(attr, '00280051');
         end
+        
+    case 'windowCenter'
+        if attr.contains(hex2dec('00281050'))
+            dataS = getTagValue(attr, '00281050');
+        end
+        
+    case 'windowWidth'
+        if attr.contains(hex2dec('00281051'))
+            dataS = getTagValue(attr,'00281051');
+        end
+
                 
     otherwise
         % warning(['DICOM Import has no methods defined for import into the planC{indexS.scan}.scanInfo' fieldname ' field, leaving empty.']);
