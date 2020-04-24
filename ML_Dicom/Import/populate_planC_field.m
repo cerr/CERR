@@ -435,9 +435,9 @@ switch cellName
                                     for js = 1:nStructures
                                         %get Structure name
                                         structureNameC{end+1} = ...
-                                            populate_planC_structures_field('structureName', RTSTRUCT, js, strobj, optS);
+                                            populate_planC_structures_field('structureName', RTSTRUCT, js, scanOriS, strobj, optS);
                                         structureNumberV(end+1) = ...
-                                            populate_planC_structures_field('roiNumber', RTSTRUCT, js, strobj, optS);
+                                            populate_planC_structures_field('roiNumber', RTSTRUCT, js, scanOriS, strobj, optS);
                                     end                                    
                                 end
 
