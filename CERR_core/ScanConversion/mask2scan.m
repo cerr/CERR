@@ -57,12 +57,22 @@ mask2M = false(sizV(1),sizV(2)+2);
 mask2M(:,2:end-1) = maskM; %[zerosV, maskM, zerosV];
 
 %diffM = diff(mask2M');  %note: mask is rotated here!
-rotMask2M = mask2M';
+rotMask2M = int8(mask2M');
 diffM = rotMask2M(2:end,:) - rotMask2M(1:end-1,:);
 startM = diffM == 1;
-startM = startM(:,2:end-1);
+%startM = startM(:,2:end-1);
+startM(:,[1,end]) = [];
 stopM  = diffM == -1;
-stopM = stopM(:,2:end-1);
+%stopM = stopM(:,2:end-1);
+stopM(:,[1,end]) = [];
+
+% ==== alternate approach to determine start/stop points
+% mask2M = mask2M';
+% rising_edges = mask2M(2:end,:) & ~mask2M(1:end-1,:);
+% [i1V, j1V] = find(rising_edges(:,2:end-1));
+% falling_edges = mask2M(1:end-1,:) & ~mask2M(2:end,:);
+% [i2V, j2V] = find(falling_edges(:,2:end-1));
+
 
 [i1V, j1V] = find(startM);
 [xStartV, yStartV] = mtoaapm(j1V + 1, i1V, size(maskM));
