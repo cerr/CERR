@@ -1,3 +1,4 @@
+
 function tagS = image_plane_module_tags
 %"image_plane_module_tags"
 %   Return the tags used to represent an image plane as specified by 
@@ -66,4 +67,10 @@ tagS(end+1) = struct('tag', ['00180050'], 'type', ['2'], 'children', []);
 
 %Slice Location
 tagS(end+1) = struct('tag', ['00201041'], 'type', ['3'], 'children', []);
+
+%Window center (1C)
+tagS(end+1) = struct('tag', ['00281050'], 'type', ['1C'], 'children', []);
+
+%Window width (1C)
+tagS(end+1) = struct('tag', ['00281051'], 'type', ['1C'], 'children', []);
 

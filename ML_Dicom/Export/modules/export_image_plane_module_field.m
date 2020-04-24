@@ -128,13 +128,35 @@ switch tag
         data = posV;
         el = data2dcmElement(template, data, tag);
         
-        %Class 2 Tags -- Must be present, can be blank.
+        %Class 1C tag -- conditionally required.
         
-    case 1572944    %0018,0050 Slice Thickness (mm)
+    case 2625616 %0028,1050 Window Center
         switch type
             case 'scan'
-                data = scanInfoS.sliceThickness;
-            case 'dose'
+                data = scanInfoS.windowCenter;
+            otherwise
+                data = [];
+        end
+        el = data2dcmElement(template, data, tag);
+
+        
+    case 2625617 %0028,1050 Window Width
+        switch type
+            case 'scan'
+                data = scanInfoS.windowWidth;
+            otherwise
+                data = [];
+        end
+        el = data2dcmElement(template, data, tag);
+
+
+%Class 2 Tags -- Must be present, can be blank.
+
+case 1572944    %0018,0050 Slice Thickness (mm)
+    switch type
+        case 'scan'
+            data = scanInfoS.sliceThickness;
+        case 'dose'
                 firstZ = doseS.zValues(1);
                 lastZ  = doseS.zValues(end);
                 numZ   = length(doseS.zValues);
