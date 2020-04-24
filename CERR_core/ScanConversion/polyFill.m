@@ -77,8 +77,8 @@ for y = ceil(minY):floor(maxY)
     % y value of the line we're considering.  There might be room for
     % improvement here if the number of edges becomes very large, but
     % for now this seems to be pretty quick.
-    tempEdges = edgeList(edgeList(:,2) <= y, :);
-    activeEdges = tempEdges(tempEdges(:,4) >= y, :);
+    indV = edgeList(:,2) <= y & edgeList(:,4) >= y;
+    activeEdges = edgeList(indV,:);  
 
     % Create two lists, one for pixels we know we need to draw called
     % drawlist (for flat lines and peaks / valleys) and one for places
