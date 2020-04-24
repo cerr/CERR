@@ -201,25 +201,29 @@ for zSliceUniformValue = zSliceUniformValuesA
   indicesToCondenseM = double(indicesUpto52M(beginningEntry:endEntry,:));
 
   [uniqueindicesUpto52M, m, n] = unique(indicesToCondenseM,'rows');
-  clear m
+  %clear m
   if size(uniqueindicesUpto52M,1) ~= size(indicesToCondenseM,1) %at least one point on one structure overlaps another structure
       
       switch class(structBitsUpto52M)
           case 'double'
-              uniquestructBitsUpto52M = double(zeros(size(uniqueindicesUpto52M,1),1));
+              uniquestructBitsUpto52M = zeros(size(uniqueindicesUpto52M,1),1,'double');
           case 'uint32'
-              uniquestructBitsUpto52M = uint32(zeros(size(uniqueindicesUpto52M,1),1));
+              uniquestructBitsUpto52M = zeros(size(uniqueindicesUpto52M,1),1,'uint32');
           case 'uint16'
-              uniquestructBitsUpto52M = uint16(zeros(size(uniqueindicesUpto52M,1),1));
+              uniquestructBitsUpto52M = zeros(size(uniqueindicesUpto52M,1),1,'uint16');
           case 'uint8'
-              uniquestructBitsUpto52M = uint8(zeros(size(uniqueindicesUpto52M,1),1));              
+              uniquestructBitsUpto52M = zeros(size(uniqueindicesUpto52M,1),1,'uint8');
       end      
       
       for i = 1:length(n) %also the size of indicesToCondenseM in dim 1
-          uniquestructBitsUpto52M(n(i)) = bitor(uniquestructBitsUpto52M(n(i)), structBitsUpto52M(i+beginningEntry-1));
+         uniquestructBitsUpto52M(n(i)) = bitor(uniquestructBitsUpto52M(n(i)), structBitsUpto52M(i+beginningEntry-1));
       end
       
-      newEndEntry = beginningEntry + size(uniqueindicesUpto52M,1) - 1;
+%       uniquestructBitsUpto52M = accumarray(n,...
+%           structBitsUpto52M(beginningEntry:beginningEntry+length(n)-1),...
+%           [length(m),1],@bitorForVec);
+      
+      newEndEntry = beginningEntry + length(m) - 1;
       indicesUpto52M(beginningEntry:newEndEntry,:) = uint16(uniqueindicesUpto52M);
       structBitsUpto52M(beginningEntry:newEndEntry) = uniquestructBitsUpto52M;
       lastEntry = newEndEntry;
