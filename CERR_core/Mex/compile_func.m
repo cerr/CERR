@@ -24,7 +24,7 @@ if isempty(ext)
     func = [func,'.m'];
 end
 if exist(func,'file')==2 % valid .m file
-    strToEval = ['mcc -m ',func,' ',compile_path];
+    strToEval = ['mcc -m ',func,' -d ',compile_path];
     eval(strToEval)
 end
 
