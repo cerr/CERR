@@ -26,6 +26,8 @@ end
 if exist(func,'file')==2 % valid .m file
     strToEval = ['mcc -m ',func,' -d ',compile_path];
     eval(strToEval)
+    % Copy dependencies
+    copyDependenciesForCERRCompile(compile_path)    
 end
 
 % Update options file
