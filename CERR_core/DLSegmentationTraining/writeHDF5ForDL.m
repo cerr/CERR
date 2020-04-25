@@ -34,14 +34,14 @@ switch (passedScanDim)
             end
             mask3M = uint8(mask3M);
             maskFilename = fullfile(outDirC{1},'Masks',[filePrefix,'_3D.h5']);
-            h5create(maskFilename,'/mask',size(mask3M));
+            %h5create(maskFilename,'/mask',size(mask3M));
             h5write(maskFilename,'/mask',mask3M);
         end
         
         %Write scan
         exportScan3M = scanC{1}{1};
         scanFilename = fullfile(outDirC{1},[filePrefix,'_scan_3D.h5']);
-        h5create(scanFilename,'/scan',size(exportScan3M));
+        %h5create(scanFilename,'/scan',size(exportScan3M));
         h5write(scanFilename,'/scan',exportScan3M);
         
         
