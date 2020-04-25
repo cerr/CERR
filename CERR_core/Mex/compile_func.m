@@ -1,22 +1,24 @@
-function compile_func(func, CERR_path, compile_path, optC)
-%function compile_func(func, CERR_path, compile_path, optC)
+function compile_func(func, compile_path, optC)
+%function compile_func(func, compile_path, optC)
 %
-% Call this function to compile a CERR function.
+% This function compiles the passed CERR function func.
+% It assumes CERR is already added to Matlab path.
+% For example, addpath(genpath(CERR_path)) adds CERR to Matlab path.
+%
 % INPUTS:
 % func: name of the .m file to compile (directory path should not be passed
-% since it is obtained from the passed CERR_path)
-% CERR_path: Path to CERR. i.e. absolute path where CERR_core, CERR_Data_Extraction,
-% IMRTP, ML_Dicom and other directories reside.
-% compiled_path: absolute directory location where you want to save the
+% since it is obtained from CERR_path on Matlab path)
+% compile_path: absolute directory location where you want to save the
 % compiled function.
 % optC: Options. Currently not supported.
 %
 % Usage:
-% compile_CERR('G:\Projects\CERR_compile\CERR_git\CERR','C:\Projects\compiled_cerr_win7_64bit_Sep_01_2015')
+% CERR_path = 'C:\path\to\CERR';
+% addpath(genpath(CERR_path))
+% compile_func('runSegClinic.m','C:\path\to\compiledRunSegClinic')
 %
 % APA, 04/25/2020
 
-addpath(genpath(CERR_path))
 [~,~,ext] = fileparts(func);
 if isempty(ext)
     func = [func,'.m'];
