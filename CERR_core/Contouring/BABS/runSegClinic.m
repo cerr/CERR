@@ -44,11 +44,15 @@ else
 end
 
 dateTimeV = clock;
-randNum = 1000.*rand;
+randStr = sprintf('%6.3f',rand*1000);
 sessionDir = ['session',folderNam,num2str(dateTimeV(4)), num2str(dateTimeV(5)),...
-    num2str(dateTimeV(6)), num2str(randNum)];
-
+    num2str(dateTimeV(6)), randStr];
 fullSessionPath = fullfile(sessionPath,sessionDir);
+while exist(fullSessionPath,'dir')
+    randStr = sprintf('%6.3f',rand*1000);
+    sessionDir = [sessionDir, randStr];
+    fullSessionPath = fullfile(sessionPath,sessionDir);
+end
 
 % Create directories to write CERR files
 mkdir(fullSessionPath)
@@ -138,6 +142,6 @@ end
 % Remove session directory
 rmdir(fullSessionPath, 's')
 
-success = 1;
+success = 0;
 
 
