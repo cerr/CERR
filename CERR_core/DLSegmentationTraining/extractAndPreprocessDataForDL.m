@@ -187,13 +187,12 @@ if ~isempty(exportStrC) || testFlag
     end
     
     %4. Transform view
-    tic
-    [scanOutC,maskOutC] = transformView(scanC,maskC,viewC);
-    if ~isequal(view,{'axial'})
-        fprintf('\nTransforming orientation...\n');
-        toc
+    tic    
+    if ~isequal(viewC,{'axial'})
+        fprintf('\nTransforming orientation...\n');        
     end
-    
+    [scanOutC,maskOutC] = transformView(scanC,maskC,viewC);
+    toc
     
     %5. Filter images
     tic
