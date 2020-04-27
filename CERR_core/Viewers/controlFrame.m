@@ -3115,9 +3115,9 @@ switch command
                         if ishandle(hOld)
                             delete(hOld);
                         end
+                        oldMiscHandles = getAxisInfo(hAxis, 'miscHandles');
+                        setAxisInfo(hAxis, 'miscHandles', setdiff(oldMiscHandles, [hOld]));
                     end
-                    oldMiscHandles = getAxisInfo(hAxis, 'miscHandles');
-                    setAxisInfo(hAxis, 'miscHandles', setdiff(oldMiscHandles, [hOld]));
                 end
                 
                 delete(findobj('tag','rotSpeedBar'));
