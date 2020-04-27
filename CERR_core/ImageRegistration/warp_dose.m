@@ -44,6 +44,9 @@ if exist(optS.plastimatch_build_dir,'dir') && isunix
 end
 
 % Issue plastimatch warp command with nearest neighbor interpolation
+%fail = system([plmCommand, '--input ', movDoseFileName, ' --output-img ',
+%warpedMhaFileName, ' --xf ', bspFileName, ' --algorithm itk']); %
+%ITK-based warping, consider adding it an an option.
 fail = system([plmCommand, '--input ', movDoseFileName, ' --output-img ', warpedMhaFileName, ' --xf ', bspFileName]);
 if fail % try escaping slashes
     system([plmCommand, '--input ', escapeSlashes(movDoseFileName), ' --output-img ', escapeSlashes(warpedMhaFileName), ' --xf ', escapeSlashes(bspFileName)])
@@ -54,7 +57,10 @@ end
 %data3M = mha_read_volume(infoS);
 [data3M,infoS] = readmha(warpedMhaFileName);
 doseName = movPlanC{indexMovS.dose}(movDoseNum).fractionGroupID;
-planC = dose2CERR(flipdim(permute(data3M,[2,1,3]),3),[],['Warped_',doseName],[],[],'UniformCT',[],'no',planC{indexS.scan}(doseCreationScanNum).scanUID,planC);
+assocScanUID = planC{indexS.scan}(doseCreationScanNum).scanUID;
+planC = dose2CERR(flipdim(permute(data3M,[2,1,3]),3),[],...
+    ['Warped_',doseName],[],[],'UniformCT',[],'no',...
+    assocScanUID,planC);
 
 % Cleanup
 try
@@ -70,3 +76,18 @@ end
 
 % Switch back to the previous directory
 cd(prevDir)
+
+% Get DICOMHeader for the original dose
+dcmHeaderS = planC{indexS.dose}(movDoseNum).DICOMHeaders;
+if ~isempty(dcmHeaderS)
+    dcmHeaderS.PixelSpacing = [];
+    dcmHeaderS.ImagePositionPatient = [];
+    dcmHeaderS.ImageOrientationPatient = [];
+    dcmHeaderS.GridFrameOffsetVector = [];
+    dcmHeaderS.Rows = [];
+    dcmHeaderS.Columns = [];
+    dcmHeaderS.SliceThickness = [];
+end
+planC{indexS.dose}(end).DICOMHeaders = dcmHeaderS;
+
+
