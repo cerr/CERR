@@ -74,7 +74,11 @@ switch upper(vrString)
         %attr.setDate(tag, date);
 
     case 'DS'
-        attr.setFloat(tag, vr, data);        
+        if ~isempty(data)
+            attr.setFloat(tag, vr, data);
+        else
+            attr.setFloat(tag, vr, []);
+        end
     case 'DT'
         %Needs implementation        
     case 'FL'        
