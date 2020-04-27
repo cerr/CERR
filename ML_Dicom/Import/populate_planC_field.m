@@ -1,5 +1,5 @@
 
-function dataS = populate_planC_field(cellName, dcmdir_patient, optS)
+function dataS = populate_planC_field(cellName, dcmdir_patient, optS, varargin)
 %"populate_planC_field"
 %   Given the name of a child cell to planC, such as 'scan', 'dose',
 %   'comment', etc. return a copy of that cell with all fields properly
@@ -200,6 +200,12 @@ switch cellName
         [seriesC, typeC]    = extract_all_series(dcmdir_patient);
         supportedTypes      = {'RTSTRUCT'};
         structsAdded          = 0;
+        
+        % Get scan object from varargin if it is not empty. 
+        % for inserting structures to existing planC
+        if ~isempty(varargin)
+            scanOriS = varargin{1};
+        end
         
         hWaitbar = waitbar(0,'Loading Structures Please wait...');
         

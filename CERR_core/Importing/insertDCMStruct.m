@@ -54,7 +54,13 @@ pathStr = getCERRPath;
 optName = [pathStr 'CERROptions.json'];
 optS = opts4Exe(optName);
 
-dataS = populate_planC_field('structures', dcmdirS.PATIENT, optS);
+scanOriS = planC{indexS.scan};
+for scanNum = 1:length(scanOriS)
+    imageOrientationPatient = scanOriS(scanNum).scanInfo(1).imageOrientationPatient;
+    scanOriS(scanNum).imageOrientationPatient = imageOrientationPatient;
+end
+
+dataS = populate_planC_field('structures', dcmdirS.PATIENT, optS, scanOriS);
 
 % Tolerance to determine oblique scan (think about passing it as a
 % parameter in future)
