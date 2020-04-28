@@ -28,7 +28,7 @@
 
 "passedScanDim" : "2D",
 
-"batchSize" : 1,
+"batchSize" : 4,
 
 "postProc" : {"LARYNX": [{"method": "post_process_larynx"}]},
 

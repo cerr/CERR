@@ -31,7 +31,7 @@
 
 "passedScanDim" : "2D",
 
-"batchSize" : 1,
+"batchSize" : 4,
 
 "postProc" : {"CM": [{"method": "post_process_constrictor"}]},
 

@@ -29,7 +29,7 @@
 
 "passedScanDim" : "2D",
 
-"batchSize" : 1,
+"batchSize" : 4,
 
 "postProc" : {"MML": [{"method": "post_process_chewing_structs"}], "MMR": [{"method": "post_process_chewing_structs"}], "PML": [{"method": "post_process_chewing_structs"}], "PMR": [{"method": "post_process_chewing_structs"}]},
 
