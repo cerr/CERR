@@ -10,6 +10,14 @@
 
 "passedScanDim" : "3D",
 
+"crop": [
+    {
+      "method": "none",
+      "params": "",
+      "operator": ""
+   
+    } ],
+
 "postProc" : {"LungNodule": [{"method": "getLargestConnComps", "params" : {"numCC": 1}}]},
 
 "reference" : "10.1109/TMI.2018.2857800"
