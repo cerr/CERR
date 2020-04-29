@@ -423,10 +423,14 @@ switch fieldname
     case 'planNumberOfOrigin'
     case 'planEditionOfOrigin'
     case 'studyNumberOfOrigin'
+
+    case 'studyInstanceUID'
+        dataS  = getTagValue(attr, '0020000D');
+        
     case 'versionNumberOfProgram'
     case 'xcoordOfNormaliznPoint'
         %Type 3 field, may not exist.
-        if attr.contains(hex2dec('30040008'));
+        if attr.contains(hex2dec('30040008'))
             
             %Normalization Point
             nP  = getTagValue(attr, '30040008');
