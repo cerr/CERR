@@ -1,7 +1,7 @@
 {
 "strNameToLabelMap":[
 
-  {"structureName" : "LARYNX", "value" : 1}
+  {"structureName" : "Larynx", "value" : 1}
 
   ],
 
@@ -11,7 +11,7 @@
 
 "crop" : [{     
             "method": "crop_for_larynx",
-            "params": { "structureName": { "chewingStructures": ["MML","MMR","PML","PMR"],
+            "params": { "structureName": { "chewingStructures": ["Left_masseter","Right_masseter","Left_medial_pterygoid","Right_medial_pterygoid"],
                         "cropStructure": "crop_for_chewing_structs"},
                         "saveStrToPlanCFlag": 1
                       },
@@ -30,7 +30,7 @@
 
 "batchSize" : 4,
 
-"postProc" : {"LARYNX": [{"method": "post_process_larynx"}]},
+"postProc" : {"Larynx": [{"method": "post_process_larynx"}]},
 
 "reference" : "https://www.biorxiv.org/content/10.1101/772178v1"
 

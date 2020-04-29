@@ -1,10 +1,10 @@
 {
 "strNameToLabelMap":[
 
-  {"structureName" : "MML", "value" : 1},
-  {"structureName" : "MMR", "value" : 2},
-  {"structureName" : "PML", "value" : 3},
-  {"structureName" : "PMR", "value" : 4}
+  {"structureName" : "Left_masseter", "value" : 1},
+  {"structureName" : "Right_masseter", "value" : 2},
+  {"structureName" : "Left_medial_pterygoid", "value" : 3},
+  {"structureName" : "Right_medial_pterygoid", "value" : 4}
 
   ],
 
@@ -31,7 +31,7 @@
 
 "batchSize" : 4,
 
-"postProc" : {"MML": [{"method": "post_process_chewing_structs"}], "MMR": [{"method": "post_process_chewing_structs"}], "PML": [{"method": "post_process_chewing_structs"}], "PMR": [{"method": "post_process_chewing_structs"}]},
+"postProc" : {"Left_masseter": [{"method": "post_process_chewing_structs"}], "Right_masseter": [{"method": "post_process_chewing_structs"}], "Left_medial_pterygoid": [{"method": "post_process_chewing_structs"}], "Right_medial_pterygoid": [{"method": "post_process_chewing_structs"}]},
 
 "reference" : "https://www.biorxiv.org/content/10.1101/772178v1"
 
