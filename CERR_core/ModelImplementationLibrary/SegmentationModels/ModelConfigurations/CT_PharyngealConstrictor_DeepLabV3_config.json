@@ -1,7 +1,7 @@
 {
 "strNameToLabelMap":[
 
-  {"structureName" : "CM", "value" : 1}
+  {"structureName" : "Constrictor_muscle", "value" : 1}
 
   ],
 
@@ -13,7 +13,7 @@
             "method": "crop_for_constrictor",
             "params": { "structureName": 
                         { 
-                          "larynx": "LARYNX",
+                          "larynx": "Larynx",
                           "cropStructure": "crop_for_larynx"
                         },
                         "saveStrToPlanCFlag": 1
@@ -33,7 +33,7 @@
 
 "batchSize" : 4,
 
-"postProc" : {"CM": [{"method": "post_process_constrictor"}]},
+"postProc" : {"Constrictor_muscle": [{"method": "post_process_constrictor"}]},
 
 "reference" : "https://www.biorxiv.org/content/10.1101/772178v1"
 
