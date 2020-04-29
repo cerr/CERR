@@ -45,6 +45,7 @@ if exist('dcm', 'var') && (dcm)
             scanUID = planC{indexS.scan}(i).scanUID; % Series instance UID
             %forUID = planC{indexS.scan}(i).scanInfo(1).DICOMHeaders.FrameofReferenceUID; % Frame of Reference UID
             forUID = planC{indexS.scan}(i).scanInfo(1).frameOfReferenceUID; % Frame of Reference UID
+            studyInstanceUID = planC{indexS.scan}(i).scanInfo(1).studyInstanceUID;
         catch
             break;
         end  
@@ -57,7 +58,9 @@ if exist('dcm', 'var') && (dcm)
         end
         for j = 1:nDoses
             assocScanUID = planC{indexS.dose}(j).assocScanUID;
-            if strcmp(assocScanUID, forUID)
+            doseStudyInstanceUID = planC{indexS.dose}(j).studyInstanceUID;
+            if strcmp(assocScanUID, forUID) && ...
+                    strcmp(doseStudyInstanceUID,studyInstanceUID)
                 doseAssocList(j) = i;
                 continue;
             end
