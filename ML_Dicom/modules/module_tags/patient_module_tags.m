@@ -44,6 +44,9 @@ function tagS = patient_module_tags
 % You should have received a copy of the GNU General Public License
 % along with CERR.  If not, see <http://www.gnu.org/licenses/>.
 
+% {SudyInstanceUID, Patient's Name, PatientID, Issuer of Patient ID, Patient's Birth Date,
+% PatientSex, Patient's Birth Time, Other Patient IDs, Other Patient Names,
+% Ethnic Group, Patient Comments}
 
 tagC = {'0020000D','00100010','00100020','00100021','00100030',...
 '00100040','00100032','00101000','00101001','00102160','00104000'};
