@@ -101,3 +101,19 @@ assocScanUID = planC{indexS.dose}(doseNum).assocScanUID;
 planC = dose2CERR(newDoseArray,doseError,fractionGroupID,...
     doseEdition,description,register,regParamsS,...
     overWriteLastDose,assocScanUID,planC);
+
+
+% Get DICOMHeader for the original dose
+dcmHeaderS = planC{indexS.dose}(movDoseNum).DICOMHeaders;
+if ~isempty(dcmHeaderS)
+    dcmHeaderS.PixelSpacing = [];
+    dcmHeaderS.ImagePositionPatient = [];
+    dcmHeaderS.ImageOrientationPatient = [];
+    dcmHeaderS.GridFrameOffsetVector = [];
+    dcmHeaderS.Rows = [];
+    dcmHeaderS.Columns = [];
+    dcmHeaderS.SliceThickness = [];
+end
+planC{indexS.dose}(end).DICOMHeaders = dcmHeaderS;
+
+
