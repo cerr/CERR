@@ -85,6 +85,18 @@ else
     newDoseArray = reshape(doseInterpV,numRows,numCols,numSlcs);
 end
 
+% Get DICOMHeader for the original dose
+dcmHeaderS = planC{indexS.dose}(doseNum).DICOMHeaders;
+if ~isempty(dcmHeaderS)
+    dcmHeaderS.PixelSpacing = [];
+    dcmHeaderS.ImagePositionPatient = [];
+    dcmHeaderS.ImageOrientationPatient = [];
+    dcmHeaderS.GridFrameOffsetVector = [];
+    dcmHeaderS.Rows = [];
+    dcmHeaderS.Columns = [];
+    dcmHeaderS.SliceThickness = [];
+end
+
 % Create new dose distribution
 regParamsS.horizontalGridInterval = dCor; %(x voxel width)
 regParamsS.verticalGridInterval   = -abs(dSag); %(y voxel width)
@@ -103,17 +115,6 @@ planC = dose2CERR(newDoseArray,doseError,fractionGroupID,...
     overWriteLastDose,assocScanUID,planC);
 
 
-% Get DICOMHeader for the original dose
-dcmHeaderS = planC{indexS.dose}(movDoseNum).DICOMHeaders;
-if ~isempty(dcmHeaderS)
-    dcmHeaderS.PixelSpacing = [];
-    dcmHeaderS.ImagePositionPatient = [];
-    dcmHeaderS.ImageOrientationPatient = [];
-    dcmHeaderS.GridFrameOffsetVector = [];
-    dcmHeaderS.Rows = [];
-    dcmHeaderS.Columns = [];
-    dcmHeaderS.SliceThickness = [];
-end
 planC{indexS.dose}(end).DICOMHeaders = dcmHeaderS;
 
 
