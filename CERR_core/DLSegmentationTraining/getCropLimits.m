@@ -32,9 +32,7 @@ if length(methodC) == 1 && strcmp(methodC{1},'none')
     
 elseif any(ismember(methodC,crop2DMethodsC))
     
-    [~, ~, ~, ~, mins, maxs] = compute_boundingbox(modelMask3M);
-    
-    slcV = mins:maxs;
+    slcV = find(sum(sum(modelMask3M))>0);
     numSlcs = length(slcV);
     minr = nan(numSlcs,1);
     minc = nan(numSlcs,1);
@@ -43,7 +41,8 @@ elseif any(ismember(methodC,crop2DMethodsC))
     for n = 1:numSlcs
         [minr(n), maxr(n), minc(n), maxc(n)] = compute_boundingbox(modelMask3M(:,:,slcV(n)));
     end
-    
+    mins = slcV(1);
+    maxs = slcV(end);
 else
     [minr, maxr, minc, maxc, mins, maxs] = compute_boundingbox(modelMask3M);
 end
