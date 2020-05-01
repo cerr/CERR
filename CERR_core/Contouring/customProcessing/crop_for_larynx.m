@@ -7,15 +7,7 @@ indexS = planC{end};
 strC = {planC{indexS.structures}.structureName};
 unionStrListC = paramS.structureName.chewingStructures;
 
-idxV = nan(1,length(unionStrListC));
 for k = 1:length(unionStrListC)
-%    idxV(k) = getMatchingIndex(unionStrListC{k},strC,'EXACT');
-%     if k == 1
-%         endStr = idxV(k);
-%     else
-%         planC = createUnionStructure(idxV(k),endStr,planC);
-%         endStr = length(planC{indexS.structures});
-%     end
     idx = getMatchingIndex(unionStrListC{k},strC,'EXACT');
     if k==1
         scanIdx = getStructureAssociatedScan(idx,planC);
