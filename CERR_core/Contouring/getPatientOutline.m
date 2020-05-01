@@ -1,4 +1,4 @@
-function ptMask3M = getPatientOutline(scan3M,slicesV,outThreshold,minMaskSiz)
+function connPtMask3M = getPatientOutline(scan3M,slicesV,outThreshold,minMaskSiz)
 % Returns mask of patient's outline
 %
 % Usage:
@@ -23,6 +23,7 @@ end
 
 %% Mask out couch
 couchStartIdx = getCouchLocationHough(scan3M);
+
 sizV = size(scan3M);
 couchMaskM = false(sizV(1),sizV(2));
 couchMaskM(couchStartIdx:end,:) = true;
@@ -47,19 +48,29 @@ for n = 1:numel(slicesV)
     binM = imerode(binM,strel('disk',1,0));
     
     %Identify largest connected component
-    cc = bwconncomp(binM);
-    ccSiz = cellfun(@numel,[cc.PixelIdxList]);
+    ccS = bwconncomp(binM);
+    ccSiz = cellfun(@numel,[ccS.PixelIdxList]);
     [maxCompSiz,largestCompIdx] = max(ccSiz);
     
     %Retain if > minMaskSiz
     maskM = false(size(binM));
     if maxCompSiz >= minMaskSiz
-        idxV = cc.PixelIdxList{largestCompIdx};
+        idxV = ccS.PixelIdxList{largestCompIdx};
         maskM(idxV) = true;
     end
     
     ptMask3M(:,:,slicesV(n)) = maskM;
     
 end
+
+%% 3D connected component filter
+connPtMask3M = false(size(ptMask3M));
+ccS = bwconncomp(ptMask3M,26);
+ccSiz = cellfun(@numel,[ccS.PixelIdxList]);
+[~,largestCompIdx] = max(ccSiz);
+idxV = ccS.PixelIdxList{largestCompIdx};
+connPtMask3M(idxV) = true;
+
+
 
 end
