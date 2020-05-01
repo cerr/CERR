@@ -138,12 +138,13 @@ if iscell(algorithmC) || ~iscell(algiorithmC) && ~strcmpi(algorithmC,'BABS')
         outC = stackHDF5Files(fullClientSessionPath,userOptS.passedScanDim); %Updated
         
         % Join results back to planC
-        planC  = joinH5planC(outC{1},userOptS,planC); % only 1 file 
+        planC  = joinH5planC(outC{1},userOptS,planC); % only 1 file
+        
+        % Post-process segmentation
+        planC = postProcStruct(planC,userOptS);
         
     end
     
-    % Post-process segmentation
-    planC = postProcStruct(planC,userOptS);
     
     if ishandle(hWait)
         close(hWait);
