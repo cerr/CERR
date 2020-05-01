@@ -23,9 +23,10 @@ end
 
 %% Get S-I limits
 [noseSliceNum, planC] = getNoseSlice(outerMask3M,planC,outerStr);
-[maxs, mins, planC] = getShoulderStartSlice(outerMask3M,planC,outerStr,noseSliceNum);
-%[maxs, mins, planC] = getShoulderStartSlice([],planC,outerStr);
-
+%[maxs, mins, planC] = ...
+%getShoulderStartSlice(outerMask3M,planC,outerStr,noseSliceNum); %Crop to shoulder slice
+mins = noseSliceNum;
+maxs = size(outerMask3M,3); %Use all slices
 
 %% Get L,R and A,P limits from nose slice
 lrMaskM = double(outerMask3M(:,:,mins));
