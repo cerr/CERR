@@ -154,21 +154,21 @@ if ~isempty(exportStrC) || testFlag
         if ~strcmpi({cropS.method},'none')
             fprintf('\nCropping to region of interest...\n');
             tic
-            [minr, maxr, minc, maxc, mins, maxs, planC] = getCropLimits(planC,mask3M,scanNumV(scanIdx),cropS);
+            [minr, maxr, minc, maxc, slcV, planC] = getCropLimits(planC,mask3M,scanNumV(scanIdx),cropS);
             %- Crop scan
             if ~isempty(scan3M) && numel(minr)==1
-                scan3M = scan3M(minr:maxr,minc:maxc,mins:maxs);
+                scan3M = scan3M(minr:maxr,minc:maxc,slcV);
                 limitsM = [minr, maxr, minc, maxc];
             else
-                scan3M = scan3M(:,:,mins:maxs);
+                scan3M = scan3M(:,:,slcV);
                 limitsM = [minr, maxr, minc, maxc];
             end
             
             %- Crop mask
             if ~isempty(mask3M) && numel(minr)==1
-                mask3M = mask3M(minr:maxr,minc:maxc,mins:maxs);
+                mask3M = mask3M(minr:maxr,minc:maxc,slcV);
             elseif ~isempty(mask3M)
-                mask3M = mask3M(:,:,mins:maxs);
+                mask3M = mask3M(:,:,slcV);
             end
             toc
         end
