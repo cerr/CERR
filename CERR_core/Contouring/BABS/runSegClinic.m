@@ -72,7 +72,7 @@ toc
 algorithmC = split(algorithm,'^');
 
 %Run inference
-if iscell(algorithmC) || ~iscell(algorithmC) && ~strcmpi(algorithmC,'BABS')
+if ~any(strcmpi(algorithmC,'BABS'))
     
     containerPathStr = varargin{1};
     % Parse container path and convert to cell arrray
