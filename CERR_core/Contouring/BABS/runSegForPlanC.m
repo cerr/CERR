@@ -76,7 +76,7 @@ testFlag = true;
 % Parse algorithm and convert to cell arrray
 algorithmC = split(algorithm,'^');
 
-if length(algorithmC)==1 && ~strcmpi(algorithmC,'BABS')
+if ~any(strcmpi(algorithmC,'BABS'))
     
     containerPathStr = varargin{1};
     % Parse container path and convert to cell arrray
