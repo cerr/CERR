@@ -40,6 +40,7 @@ for n = 1:numel(slicesV)
     
     % Threshold image
     binM = scan3M(:,:,slicesV(n))>threshold;
+    binM = imopen(binM,strel('disk',5));
     binM = binM & ~couchMaskM;
     
     % Fill holes
