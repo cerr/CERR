@@ -67,7 +67,6 @@ mkdir(outputH5Path);
 % create subdir within fullSessionPath for input h5 files
 inputH5Path = fullfile(fullClientSessionPath,'inputH5');
 mkdir(inputH5Path);
-
 testFlag = true;
 
 % Write planC to CERR .mat file
@@ -77,7 +76,7 @@ testFlag = true;
 % Parse algorithm and convert to cell arrray
 algorithmC = split(algorithm,'^');
 
-if iscell(algorithmC) || ~iscell(algiorithmC) && ~strcmpi(algorithmC,'BABS')
+if ~any(strcmpi(algorithmC,'BABS'))
     
     containerPathStr = varargin{1};
     % Parse container path and convert to cell arrray
@@ -91,6 +90,18 @@ if iscell(algorithmC) || ~iscell(algiorithmC) && ~strcmpi(algorithmC,'BABS')
     end
     
     for k=1:length(algorithmC)
+        
+        %Delete previous inputs where needed
+        inputH5Path = fullfile(fullClientSessionPath,'inputH5');
+        outputH5Path = fullfile(fullClientSessionPath,'outputH5');
+        if exist(inputH5Path, 'dir')
+            rmdir(inputH5Path, 's')
+            mkdir(inputH5Path);
+        end
+        if exist(outputH5Path, 'dir')
+            rmdir(outputH5Path, 's')
+            mkdir(outputH5Path);
+        end
         
         % Get the config file path
         configFilePath = fullfile(getCERRPath,'ModelImplementationLibrary',...
@@ -144,8 +155,7 @@ if iscell(algorithmC) || ~iscell(algiorithmC) && ~strcmpi(algorithmC,'BABS')
         planC = postProcStruct(planC,userOptS);
         
     end
-    
-    
+
     if ishandle(hWait)
         close(hWait);
     end
