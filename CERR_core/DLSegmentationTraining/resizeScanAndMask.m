@@ -48,7 +48,7 @@ switch(lower(method))
             scanOut3M = [];
         else
             minScanVal = min(scan3M(:));
-            scanOut3M = zeros(outputImgSizeV) + minScanVal;            
+            scanOut3M = zeros(outputImgSizeV,class(scan3M)) + minScanVal;            
             scanOut3M(xPad+1:xPad+origSizV(1), yPad+1:yPad+origSizV(2), 1:origSizV(3)) = scan3M;
         end
         
@@ -86,7 +86,7 @@ switch(lower(method))
         
         % Initialize resized scan and mask
         minScanVal = min(scan3M(:));
-        scanOut3M = zeros(outputImgSizeV) + minScanVal;        
+        scanOut3M = zeros(outputImgSizeV,class(scan3M)) + minScanVal;        
         maskOut3M = zeros(outputImgSizeV,'uint32');
         
         % Min/max row and col limits for each slice
@@ -141,7 +141,7 @@ switch(lower(method))
         
         % Initialize resized scan and mask
         minScanVal = min(scan3M(:));
-        scanOut3M = zeros(outputImgSizeV) + minScanVal;
+        scanOut3M = zeros(outputImgSizeV,class(scan3M)) + minScanVal;
         
         if isempty(mask3M)
             maskOut3M = [];
