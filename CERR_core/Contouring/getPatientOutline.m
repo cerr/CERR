@@ -33,31 +33,50 @@ couchMaskM(couchStartIdx:end,:) = true;
 % Compute threshold
 scanThreshV = scan3M(scan3M>outThreshold);
 threshold = prctile(scanThreshV,5);
+minInt = min(scan3M(:));
 
 %Iterate over slices
 ptMask3M = false([sizV(1:2),length(slicesV)]);
 for n = 1:numel(slicesV)
     
     % Threshold image
-    binM = scan3M(:,:,slicesV(n))>threshold;
+    sliceM = scan3M(:,:,slicesV(n));
+    threshM = sliceM>threshold;
+    
+    % Mask out couch
+    binM = threshM & ~couchMaskM;
+    
+    % Separate pt outline from table
     binM = imopen(binM,strel('disk',5));
-    binM = binM & ~couchMaskM;
     
-    % Fill holes
-    binM = imdilate(binM,strel('disk',3,6));
-    binM = imfill(binM,'holes');
-    binM = imerode(binM,strel('disk',1,0));
-    
-    %Identify largest connected component
-    ccS = bwconncomp(binM);
-    ccSiz = cellfun(@numel,[ccS.PixelIdxList]);
-    [maxCompSiz,largestCompIdx] = max(ccSiz);
-    
-    %Retain if > minMaskSiz
+    % Fill holes in pt outline
     maskM = false(size(binM));
-    if maxCompSiz >= minMaskSiz
-        idxV = ccS.PixelIdxList{largestCompIdx};
-        maskM(idxV) = true;
+    if any(binM(:))
+        
+        %Identify largest connected component
+        ccS = bwconncomp(binM);
+        ccSiz = cellfun(@numel,[ccS.PixelIdxList]);
+        [maxCompSiz,largestCompIdx] = max(ccSiz);
+        
+        %Retain if > minMaskSiz
+        if maxCompSiz >= minMaskSiz
+            
+            idxV = ccS.PixelIdxList{largestCompIdx};
+            maskM(idxV) = true;
+            
+            % Fill holes
+            [keepIdxV,rowMaxV] = max(flipud(maskM));
+            rowMaxIdx = size(binM,1) - min(rowMaxV(keepIdxV));
+            sliceM(rowMaxIdx:end,:) = minInt;
+            thresh2M = sliceM > 1.5*threshold;
+            thresh2M = imfill(thresh2M,'holes');
+            thresh2M = bwareaopen(thresh2M,200,8);
+            thresh2M = imclose(thresh2M,strel('disk',3));
+            smoothedlabel3M = imboxfilt(double(thresh2M),5);
+            maskM = smoothedlabel3M > 0.5;
+            
+        end
+        
     end
     
     ptMask3M(:,:,slicesV(n)) = maskM;
