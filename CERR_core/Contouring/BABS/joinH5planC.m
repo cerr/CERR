@@ -13,6 +13,7 @@ cropS = userOptS.crop; %Added
 scanNum = 1;
 isUniform = 0;
 
+cropS.params.saveStrToPlanCFlag=0;
 [minr, maxr, minc, maxc, slcV, planC] = getCropLimits(planC,segMask3M,scanNum,cropS);
 scanArray3M = planC{indexS.scan}(scanNum).scanArray;
 sizV = size(scanArray3M);
