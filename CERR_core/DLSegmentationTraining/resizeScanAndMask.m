@@ -47,7 +47,8 @@ switch(lower(method))
         if isempty(scan3M)
             scanOut3M = [];
         else
-            scanOut3M = zeros(outputImgSizeV);
+            minScanVal = min(scan3M(:));
+            scanOut3M = zeros(outputImgSizeV) + minScanVal;            
             scanOut3M(xPad+1:xPad+origSizV(1), yPad+1:yPad+origSizV(2), 1:origSizV(3)) = scan3M;
         end
         
@@ -81,10 +82,11 @@ switch(lower(method))
         
     case 'unpad2d'
         % Zero out regions outside the mask
-        scan3M(~mask3M) = 0;
+        %scan3M(~mask3M) = 0;
         
         % Initialize resized scan and mask
-        scanOut3M = zeros(outputImgSizeV);
+        minScanVal = min(scan3M(:));
+        scanOut3M = zeros(outputImgSizeV) + minScanVal;        
         maskOut3M = zeros(outputImgSizeV,'uint32');
         
         % Min/max row and col limits for each slice
@@ -135,10 +137,11 @@ switch(lower(method))
     case 'pad2d'
         
         % Zero out regions outside the mask
-        scan3M(~mask3M) = 0;
+        %scan3M(~mask3M) = 0; % make this optional in future
         
         % Initialize resized scan and mask
-        scanOut3M = zeros(outputImgSizeV);
+        minScanVal = min(scan3M(:));
+        scanOut3M = zeros(outputImgSizeV) + minScanVal;
         
         if isempty(mask3M)
             maskOut3M = [];
