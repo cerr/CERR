@@ -22,15 +22,30 @@ else
 end
 
 %% Get S-I limits
-[noseSliceNum, planC] = getNoseSlice(outerMask3M,planC,outerStr);
+% ----- Decommissioned----
+%[noseSliceNum, planC] = getNoseSlice(outerMask3M,planC,outerStr);
 %[maxs, mins, planC] = ...
 %getShoulderStartSlice(outerMask3M,planC,outerStr,noseSliceNum); %Crop to shoulder slice
-mins = noseSliceNum;
-maxs = size(outerMask3M,3); %Use all slices
+%--------------------------
+%Use all slices
+mins = 1;
+maxs = size(outerMask3M,3); 
 
-%% Get L,R and A,P limits from nose slice
-lrMaskM = double(outerMask3M(:,:,mins));
-[minr, maxr, minc, maxc] = compute_boundingbox(lrMaskM);
+%% Get L,R , A,P limits 
+minrV = nan(size(outerMask3M,3),1);
+maxrV = minrV;
+mincV = minrV;
+maxcV = minrV;
+for n = 1:size(outerMask3M,3)
+    maskSlcM = outerMask3M(:,:,n);
+    if any(maskSlcM(:))
+        [minrV(n),maxrV(n),mincV(n),maxcV(n)] = compute_boundingbox(outerMask3M(:,:,n));
+    end
+end
+minc = round(nanmedian(mincV));
+maxc = round(nanmedian(maxcV));
+minr = round(prctile(minrV,5));
+maxr = round(nanmedian(maxrV));
 width = maxr-minr+1;
 maxr = round(maxr-.25*width);
 

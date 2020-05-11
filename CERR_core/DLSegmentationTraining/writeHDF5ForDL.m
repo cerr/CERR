@@ -52,14 +52,13 @@ switch (passedScanDim)
         %Loop over views
         for i = 1:length(scanC)
             
-            mask3M = maskC{i};
-            
-            
             % Loop over slices
             for slIdx = 1:size(scanC{i}{1},3)
-                
+             
                 %Write mask
-                if ~isempty(mask3M) && ~testFlag
+                if ~isempty(maskC{i}) && ~testFlag
+                    mask3M = maskC{i}{1};
+
                     if slIdx == 1
                         if ~exist(fullfile(outDirC{i},'Masks'),'dir')
                             mkdir(fullfile(outDirC{i},'Masks'))
@@ -68,6 +67,8 @@ switch (passedScanDim)
                     maskM = uint8(mask3M(:,:,slIdx));
                     maskFilename = fullfile(outDirC{i},'Masks',[filePrefix,'_slice',...
                         num2str(slIdx),'.h5']);
+                    
+                    
                     % Low-level h5 write
                     filename = maskFilename;
                     fileID = H5F.create(filename,'H5F_ACC_TRUNC','H5P_DEFAULT','H5P_DEFAULT');
