@@ -15,12 +15,17 @@ function [scanOut3M, maskOut3M] = resizeScanAndMask(scan3M,mask3M,outputImgSizeV
 %AI 9/19/19  - Updated to handle undo-resize options
 
 
-if numel(varargin) > 1
-    preserveAspectFlag = varargin{2};
+if nargin > 3
+    limitsM = varargin{1};
+    if numel(varargin) > 1
+        preserveAspectFlag = varargin{2};
+    else
+        preserveAspectFlag = 0;
+    end
 else
+    limitsM = [];
     preserveAspectFlag = 0;
 end
-
 outputImgSizeV = outputImgSizeV(:)';
 
 %Get input image size
@@ -266,15 +271,38 @@ switch(lower(method))
             maskOut3M = [];
             
         else
-            if nargin==4 || size(varargin{1},1)==1 %Previously cropped (3D)
-                maskOut3M = imresize(scan3M, outputImgSizeV, 'nearest');
-                
+            if nargin > 3 && size(limitsM,1)==1 % cropped 3D
+                minr = limitsM(1); 
+                maxr = limitsM(2);
+                minc = limitsM(3);
+                maxc = limitsM(4);
+                cropDim = [maxr-minr+1, maxc-minc+1];
+%                 slcV = limitsM(6) - limitsM(5) + 1;                
+                if preserveAspectFlag  %%add case for non-square outputImgSizeV?
+                    paddedSize = max(cropDim(1:2))*[1, 1];
+                    maskResize3M = imresize(mask3M, [paddedSize size(mask3M,3)], 'nearest');
+%                     padded3M = bgMean * ones(paddedSize,paddedSize,size(scan3M,3));
+                    idx11 = 1 + (paddedSize - cropDim(1))/2;
+                    idx12 = idx11 + cropDim(1) - 1;
+                    idx21 = 1 + (paddedSize - cropDim(2))/2;
+                    idx22 = idx21 + cropDim(2) - 1;
+                    
+%                     maskOut3M = zeros([outputImgSizeV(1:2), origSizV(3)]);
+%                     maskOut3M(minr:maxr,minc:maxc,:) = maskResize3M(idx11:idx12,idx21:idx11,:);
+                    maskOut3M = maskResize3M(idx11:idx12,idx21:idx11,:);
+                else
+                    maskOut3M = imresize(mask3M, [outputImgSizeV(1:2) origSizV(3)], 'nearest');
+                end
             else %2-D cropping and resizing
                 maskOut3M = false([outputImgSizeV,origSizV(3)]);
                 limitsM = varargin{1};
                 
+                maskOut3M = false([outputImgSizeV(1:2),origSizV(3)]);
+
                 %Loop over slices
                 for slcNum = 1:origSizV(3)
+                    
+                    maskSliceM = mask3M(:,:,slcNum);
                     
                     %Get bounds
                     minr = limitsM(slcNum,1);
@@ -282,14 +310,28 @@ switch(lower(method))
                     minc = limitsM(slcNum,3);
                     maxc = limitsM(slcNum,4);
                     
-                    %Crop slice
-                    maskSliceM = mask3M(:,:,slcNum);
-                    croppedSliceM = maskSliceM(minr:maxr, minc:maxc);
+                    cropDim = [maxr-minr+1, maxc-minc+1];
                     
-                    %Resize slice
-                    resizedSliceM = imresize(croppedSliceM, outputImgSizeV,...
-                        'nearest');
-                    
+                    if preserveAspectFlag
+                        paddedSize = max(cropDim(1:2))*[1, 1];
+                        maskSliceResize = imresize(maskSliceM,paddedSize,'nearest');
+                    %Un-crop slice
+%                         paddedSize = max(cropDim);
+                        idx11 = 1 + floor((paddedSize(1) - cropDim(1)) / 2);
+                        idx12 = idx11 + cropDim(1) - 1;
+                        idx21 = 1 + floor((paddedSize(2) - cropDim(2)) / 2);
+                        idx22 = idx21 + cropDim(2)-1;
+                        resizedSliceM = zeros(outputImgSizeV(1:2));
+                        resizedSliceM(minr:maxr,minc:maxc) = maskSliceResize(idx11:idx12,idx21:idx22);
+%                       resizedSliceM = maskSliceResize(idx11:idx12,idx21:idx22);
+                    else
+
+                        croppedSliceM = maskSliceM(minr:maxr, minc:maxc);
+
+                        %Resize slice
+                        resizedSliceM = imresize(croppedSliceM, outputImgSizeV,...
+                            'nearest');
+                    end
                     maskOut3M(:,:,slcNum) = resizedSliceM;
                 end
             end

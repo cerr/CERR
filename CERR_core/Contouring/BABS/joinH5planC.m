@@ -17,7 +17,7 @@ preserveAspectFlag = 0;
 if isfield(userOptS.resize,'preserveAspectRatio') 
     if strcmp(userOptS.resize.preserveAspectRatio,'Yes') 
         preserveAspectFlag = 1; 
-    end    ;
+    end    
 end
 
 cropS.params.saveStrToPlanCFlag=0;
@@ -25,6 +25,7 @@ cropS.params.saveStrToPlanCFlag=0;
 scanArray3M = planC{indexS.scan}(scanNum).scanArray;
 sizV = size(scanArray3M);
 maskOut3M = zeros(sizV, 'uint32');
+originImageSizV = [sizV(1:2), length(slcV)];
 
 switch lower(resizeMethod)
     
