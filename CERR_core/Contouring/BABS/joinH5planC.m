@@ -12,6 +12,13 @@ cropS = userOptS.crop; %Added
 
 scanNum = 1;
 isUniform = 0;
+preserveAspectFlag = 0;
+
+if isfield(userOptS.resize,'preserveAspectRatio') 
+    if strcmp(userOptS.resize.preserveAspectRatio,'Yes') 
+        preserveAspectFlag = 1; 
+    end    ;
+end
 
 cropS.params.saveStrToPlanCFlag=0;
 [minr, maxr, minc, maxc, slcV, planC] = getCropLimits(planC,segMask3M,scanNum,cropS);
@@ -35,10 +42,12 @@ switch lower(resizeMethod)
         maskOut3M(:,:,slcV) = tempMask3M;
         
     otherwise
-        originImageSizV = [maxr-minr+1, maxc-minc+1, length(slcV)];       
+        limitsM = [minr, maxr, minc, maxc];
+                   
         [~,tempMask3M] = ...
-            resizeScanAndMask([],segMask3M,originImageSizV,resizeMethod);
-        maskOut3M(minr:maxr, minc:maxc, slcV) = tempMask3M;
+            resizeScanAndMask([],segMask3M,originImageSizV,resizeMethod,limitsM,preserveAspectFlag);
+        maskOut3M(:,:,slcV) = tempMask3M;
+%         maskOut3M(minr:maxr, minc:maxc, slcV) = tempMask3M;
 end
 
 
