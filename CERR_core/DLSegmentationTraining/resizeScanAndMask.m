@@ -294,10 +294,10 @@ switch(lower(method))
                     maskOut3M = imresize(mask3M, [outputImgSizeV(1:2) origSizV(3)], 'nearest');
                 end
             else %2-D cropping and resizing
-                maskOut3M = false([outputImgSizeV,origSizV(3)]);
+                maskOut3M = zeros([outputImgSizeV(1:2),origSizV(3)]);
                 limitsM = varargin{1};
                 
-                maskOut3M = false([outputImgSizeV(1:2),origSizV(3)]);
+                maskOut3M = zeros([outputImgSizeV(1:2),origSizV(3)]);
 
                 %Loop over slices
                 for slcNum = 1:origSizV(3)
