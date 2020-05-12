@@ -47,8 +47,14 @@ switch lower(resizeMethod)
                    
         [~,tempMask3M] = ...
             resizeScanAndMask([],segMask3M,originImageSizV,resizeMethod,limitsM,preserveAspectFlag);
-        maskOut3M(:,:,slcV) = tempMask3M;
-%         maskOut3M(minr:maxr, minc:maxc, slcV) = tempMask3M;
+        
+        if size(limitsM,1)>1
+            %2-D resize methods
+            maskOut3M(:,:,slcV) = tempMask3M;
+        else
+            %3-D resize methods
+            maskOut3M(minr:maxr, minc:maxc, slcV) = tempMask3M;
+        end
 end
 
 
