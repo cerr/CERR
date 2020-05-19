@@ -116,7 +116,7 @@ switch tag
                 if isempty(posV) %non-dicom
                     xV = doseS.coord1OFFirstPoint;
                     yV = doseS.coord2OFFirstPoint;
-                    zV = -doseS.zValues(end); %?
+                    zV = doseS.zValues(end); %?
                     coord3M = [xV, yV, zV];
                     imgOri = doseS.imageOrientationPatient;
                     posV = convertCoordinates(coord3M, imgOri);
