@@ -51,6 +51,9 @@ end
 
 modality = planC{indexS.scan}(scanInd).scanInfo(1).imageType;
 
+optS = opts4Exe([getCERRPath,'CERROptions.json']);
+contourSliceTol = optS.contourToSliceTolerance;
+
 for j=1:length(zmesh) % loop through the number of CT
     
     if isObliqScanV(scanInd)  % strcmpi(modality,'mr')
@@ -59,7 +62,8 @@ for j=1:length(zmesh) % loop through the number of CT
         sopInstanceUID = planC{indexS.scan}(scanInd).scanInfo(j).sopInstanceUID;
         locate_point = strmatch(sopInstanceUID,sopInstanceC);
     else    
-        locate_point=find(voiZ==zmesh(j)); % search for a match between Z-location of current CT and voiZ
+        %locate_point=find(voiZ==zmesh(j)); % search for a match between Z-location of current CT and voiZ
+        locate_point = find(abs(voiZ-zmesh(j)) < contourSliceTol);
     end
 
     if isempty(locate_point) && ~isObliqScanV(scanInd)  % ~strcmpi(modality,'mr')
