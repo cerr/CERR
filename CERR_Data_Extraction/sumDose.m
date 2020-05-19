@@ -1,4 +1,4 @@
-function planC = sumDose(doseNums,wtfactor,assocScan,newDoseName,planC)
+function planC = sumDose(doseNums,wtfactor,lqParamS,assocScan,newDoseName,planC)
 %function planC = sumDose(doseNumsV,weightsV,assocScan)
 %
 %This function creates a new dose distribution by adding up doseNums
@@ -78,7 +78,8 @@ for i = 1:length(doseNums)
     zRes{doseNum} = length(zV);
     
     %Get associated scan
-    assocScanV{doseNum} = getAssociatedScan(planC{indexS.dose}(doseNum).assocScanUID);
+    % assocScanV{doseNum} = getAssociatedScan(planC{indexS.dose}(doseNum).assocScanUID);
+    assocScanV{doseNum} = getDoseAssociatedScan(doseNum,planC);
 end
 newXgrid = linspace(min(cell2mat(xGrid)),max(cell2mat(xGrid)),max(cell2mat(xRes)));
 newYgrid = linspace(max(cell2mat(yGrid)),min(cell2mat(yGrid)),max(cell2mat(yRes)));
@@ -146,11 +147,13 @@ for i = 1:length(doseNums)
     end
     
     SOPInstanceUIDv = {planC{indexS.beams}.SOPInstanceUID};
-    paramS.Tk.val = inf;         %Kick-off time of repopulation (days)
-    paramS.Tp.val = NaN;        %Potential tumor doubling time (days)
-    paramS.alpha.val = NaN;
-    paramS.abRatio.val = 10;  %alpha/beta
-    stdFractionSize = 2;
+    if ~isempty(lqParamS)
+        paramS.Tk.val = inf;         %Kick-off time of repopulation (days)
+        paramS.Tp.val = NaN;        %Potential tumor doubling time (days)
+        paramS.alpha.val = NaN;
+        paramS.abRatio.val = lqParamS.abRatio; %10;  %alpha/beta
+        paramS.stdFractionSize = lqParamS.stdFractionSize; % 2;
+    end
     
     %Get the summation for this grid
     doseCombinedM = [];
@@ -169,15 +172,18 @@ for i = 1:length(doseNums)
             doseOffset = 0;
         end
         doseArray = single(getDoseArray(planC{indexS.dose}(iDose)) - doseOffset);
+        
         % Apply BED/EQD2 correction
-        ReferencedSOPInstanceUID = planC{indexS.dose}(iDose)...
-            .DICOMHeaders.ReferencedRTPlanSequence.Item_1.ReferencedSOPInstanceUID;
-        planNum = find(strcmpi(ReferencedSOPInstanceUID,SOPInstanceUIDv));
-        paramS.numFractions.val = planC{indexS.beams}(planNum).FractionGroupSequence...
-            .Item_1.NumberOfFractionsPlanned;
-        paramS.numFractions.val = double(paramS.numFractions.val);
-        paramS.frxSize.val = doseArray / paramS.numFractions.val;
-        doseArray = calc_BED(paramS) / (1+stdFractionSize/paramS.abRatio.val);
+        if ~isempty(lqParamS)
+            ReferencedSOPInstanceUID = planC{indexS.dose}(iDose)...
+                .DICOMHeaders.ReferencedRTPlanSequence.Item_1.ReferencedSOPInstanceUID;
+            planNum = find(strcmpi(ReferencedSOPInstanceUID,SOPInstanceUIDv));
+            paramS.numFractions.val = planC{indexS.beams}(planNum(1)).FractionGroupSequence...
+                .Item_1.NumberOfFractionsPlanned;
+            paramS.numFractions.val = double(paramS.numFractions.val);
+            paramS.frxSize.val = doseArray / paramS.numFractions.val;
+            doseArray = calc_BED(paramS) / (1+paramS.stdFractionSize/paramS.abRatio.val);
+        end
         
         if ~isempty(doseCombinedM)
             doseCombinedM = doseCombinedM + multFact * wtfactor(iDose) * doseArray;
