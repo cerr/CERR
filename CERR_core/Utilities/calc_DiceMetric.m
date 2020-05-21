@@ -1,4 +1,4 @@
-function [dice, planC] = calc_DiceMetric(structNum1,structNum2,planC)
+function [dice,tp,fp,p,q,c,volSimilarity,absRelVolDiff] = calc_DiceMetric(structNum1,structNum2,planC)
 %function dice = calc_DiceMetric(structNum1,structNum2,planC)
 %
 %This function computes Dice similarity metric between structNum1 and structNum2
@@ -36,3 +36,48 @@ end
 [vol2, planC] = getStructureVol(structNum2, planC);
 
 dice = 2 * intersectVol / (vol1 + vol2);
+
+
+% Additional volumetric metrics
+mask1M = getStrMask(structNum1,planC);
+mask2M = getStrMask(structNum2,planC);
+
+% intrsctMaskM = mask1M & mask2M;
+
+maskTruePosM = mask1M & mask2M;
+maskTrueNegM = ~mask1M & ~mask2M;
+maskFalsePosM = mask2M & ~mask1M;
+maskFalseNegM = ~mask2M & mask1M;
+
+
+volSimilarity = 2*sum(abs(mask1M(:) - mask2M(:))) / (sum(mask1M(:)) + sum(mask2M(:)));
+volSimilarity = 1 - volSimilarity;
+
+absRelVolDiff = abs(sum(mask1M(:))/sum(mask2M(:)) - 1) * 100;
+
+% True positive
+tp = sum(maskTruePosM(:));
+
+% False positive
+fp = sum(maskFalsePosM(:));
+
+% sensitivity
+p = sum(maskTruePosM(:)) / (sum(maskTruePosM(:)) + sum(maskFalseNegM(:)));
+
+% specificity
+q = sum(maskTrueNegM(:)) / (sum(maskTrueNegM(:)) + sum(maskFalsePosM(:)));
+
+
+% C-factor
+d = 2*p*(1-q) / (p+1-q) + 2*(1-p)*q / (1-p+q);
+
+c = NaN;
+if p > 1-q && p >= q
+    c = d;
+elseif p > 1-q && p < q
+    c = -d;
+end
+
+
+
+
