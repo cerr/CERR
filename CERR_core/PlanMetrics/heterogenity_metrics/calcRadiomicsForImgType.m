@@ -44,6 +44,7 @@ for k = 1:length(imageTypeC)
         if isfield(paramS.textureParamS,'maxClipIntensity')
             maxClipIntensity = paramS.textureParamS.maxClipIntensity;
         end
+        volToEval = volOrig3M;
     else
         outS = processImage(imageTypeC{k}.imageType,volOrig3M,maskBoundingBox3M,...
             imageTypeC{k}.paramS);
