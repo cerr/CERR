@@ -18,10 +18,9 @@
 
 		   "texture" :{ 
 				"binwidth": 25,
-                "minIntensityCutoff": -500,
-                "maxIntensityCutoff": 400,
-				"minIntensity": -500,
-                "directionality": "2D",
+                                "minSegThreshold": -500,
+                                "maxSegThreshold": 400,
+                                "directionality": "2D",
 				"avgType": "feature",
 				"voxelOffset": 1,
 				"patchRadiusVox": [1, 1, 0],
@@ -57,11 +56,11 @@
 
         "firstOrder": {
 			    	  "featureList": ["all"]
-			          },
+		      },
 
 		"glcm": {
 			    	  "featureList": ["all"]
-                },
+                        },
 
 		"glrlm": {
 			    	  "featureList": ["all"]
@@ -69,16 +68,16 @@
 		         },
 
 		"glszm": {
-			        "featureList": ["all"]  
-                },
+			          "featureList": ["all"]  
+                         },
 
 		"gldm": {
-			    "featureList": ["all"]
-                },
+			          "featureList": ["all"]
+                        },
 
 		"gtdm": {			    	
-                   "featureList": ["all"]               
-		         }
+                                  "featureList": ["all"]               
+		        }
 
 
             }
