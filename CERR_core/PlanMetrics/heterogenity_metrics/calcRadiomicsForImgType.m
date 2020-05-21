@@ -44,6 +44,7 @@ for k = 1:length(imageTypeC)
         if isfield(paramS.textureParamS,'maxClipIntensity')
             maxClipIntensity = paramS.textureParamS.maxClipIntensity;
         end
+        volToEval = volOrig3M;
     else
         outS = processImage(imageTypeC{k}.imageType,volOrig3M,maskBoundingBox3M,...
             imageTypeC{k}.paramS);
@@ -89,8 +90,9 @@ for k = 1:length(imageTypeC)
 
     % --- 1. First-order features ---
     if whichFeatS.firstOrder.flag
+        volV = volToEval(logical(maskBoundingBox3M));
         featureS.(outFieldName).firstOrderS = radiomics_first_order_stats...
-            (volToEval(logical(maskBoundingBox3M)), VoxelVol,...
+            (volV, VoxelVol,...
             paramS.firstOrderParamS.offsetForEnergy,paramS.firstOrderParamS.binWidthEntropy);
     end
     
