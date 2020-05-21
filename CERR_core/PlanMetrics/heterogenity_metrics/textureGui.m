@@ -212,7 +212,8 @@ switch upper(command)
         for i = 1:nStructs
             structsC{i+1} = [num2str(i), '.', planC{indexS.structures}(i).structureName];
         end
-        
+         
+         
         % List of feature types
         featureTypeC = {'Select',...
             'Haralick Cooccurance',...
@@ -317,6 +318,7 @@ switch upper(command)
             textureGui('REFRESHFIELDS');
             textureGui('REFRESH_THUMBS');
         end        
+        textureGui('SCAN_SELECTED');
         
     case 'SCAN_SELECTED'
         ud = get(h, 'userdata');
