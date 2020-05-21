@@ -1,5 +1,5 @@
-function deviance = calc_deviance(trueStructNum,testStructNum,margin,planC)
-% function deviance = calc_deviance(trueStructNum,testStructNum,margin,planC)
+function deviance = calc_deviance(trueStructNum,testStructNum,devMargin,planC)
+% function deviance = calc_deviance(trueStructNum,testStructNum,devMargin,planC)
 %
 % Calculates the deviance of testStructNum from trueStructNum.
 %
@@ -7,17 +7,17 @@ function deviance = calc_deviance(trueStructNum,testStructNum,margin,planC)
 % test structure + excess volume of the test structure over the true
 % structure) / volume of the true structure.
 %
-% The true structure is 3-d contracted by the margin while computing the 
+% The true structure is 3-d contracted by the devMargin while computing the 
 % volume of the true structure missed by the test structure. 
 % 
-% The true structure is 3-d expanded by the margin while computing the 
+% The true structure is 3-d expanded by the devMargin while computing the 
 % excess volume of the test structure over the true structure. 
 %
 % Example call:
 % trueStructNum = 1; % structure index in planC
 % testStructNum = 2; % structure index in planC
-% margin = 0.2; % cm
-% deviance = calc_deviance(trueStructNum,testStructNum,margin,planC);
+% devMargin = 0.2; % cm
+% deviance = calc_deviance(trueStructNum,testStructNum,devMargin,planC);
 %
 % APA, 9/18/2017
 
@@ -28,12 +28,12 @@ indexS = planC{end};
 
 numStructs = length(planC{indexS.structures});
 
-% Expand the test structure by amount equal to the margin
-planC = createExpandedStructure(trueStructNum, margin, planC);
+% Expand the test structure by amount equal to the devMargin
+planC = createExpandedStructure(trueStructNum, devMargin, planC);
 expandedStructNum = numStructs + 1;
 
-% Contract the test structure by amount equal to the margin
-planC = createExpandedStructure(trueStructNum, -margin, planC);
+% Contract the test structure by amount equal to the devMargin
+planC = createExpandedStructure(trueStructNum, -devMargin, planC);
 contracttructNum = numStructs + 2;
 
 % Create a structure that's equal to the excess test volume
