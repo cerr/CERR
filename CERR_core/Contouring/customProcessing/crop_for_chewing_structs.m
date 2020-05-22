@@ -28,28 +28,41 @@ end
 %getShoulderStartSlice(outerMask3M,planC,outerStr,noseSliceNum); %Crop to shoulder slice
 %--------------------------
 %Use all slices
-mins = 1;
+mins = find(sum(sum(outerMask3M))>0,1,'first');
+%mins = 1;
 maxs = size(outerMask3M,3); 
 
-%% Get L,R , A,P limits 
+%% Get head extent
+zStart = planC{indexS.scan}(1).scanInfo(mins).zValue;
+zV = [planC{indexS.scan}(1).scanInfo(mins:end).zValue];
+headSizLimit = paramS.headSizeLimitCm;
+zDiffV = (zV-zStart);
+[~, endSlc] = min(abs(zDiffV-headSizLimit));
+endSlc = endSlc + mins;
+
+%% Get A,P extents 
 minrV = nan(size(outerMask3M,3),1);
 maxrV = minrV;
 mincV = minrV;
 maxcV = minrV;
-for n = 1:size(outerMask3M,3)
+for n = 1:endSlc
     maskSlcM = outerMask3M(:,:,n);
     if any(maskSlcM(:))
         [minrV(n),maxrV(n),mincV(n),maxcV(n)] = compute_boundingbox(outerMask3M(:,:,n));
     end
 end
-minc = round(nanmedian(mincV));
-maxc = round(nanmedian(maxcV));
+
 minr = round(prctile(minrV,5));
 maxr = round(nanmedian(maxrV));
 width = maxr-minr+1;
 maxr = round(maxr-.25*width);
 
-%Return bounding box
+%% Get L,R extents 
+[~,slcRmin] = min(abs(minrV-minr));
+minc = mincV(slcRmin);
+maxc = maxcV(slcRmin);
+
+%% Return bounding box
 bbox3M = false(size(outerMask3M));
 bbox3M(minr:maxr,minc:maxc,mins:maxs) = true;
 

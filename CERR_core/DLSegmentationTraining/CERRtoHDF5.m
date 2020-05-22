@@ -58,12 +58,13 @@ else
 end
 
 %Loop over CERR files
-dirS = dir(fullfile(CERRdir,filesep,'*.mat'));
+dirS = dir(fullfile(CERRdir,filesep,'*.mat')); 
+
 errC = {};
 
 parfor planNum = 1:length(dirS)
     
-    try
+     try
         
         %Load file
         fprintf('\nProcessing pt %d of %d...\n',planNum,length(dirS));
@@ -77,11 +78,12 @@ parfor planNum = 1:length(dirS)
         if ~ismember(planNum,testIdxV)
             testFlag = false;
         else
-            if isempty(strListC)
-                testFlag = true;
-            else
-                testFlag = false;
-            end
+            %if isempty(strListC)
+            % testFlag = true;
+            %else
+            % testFlag = false;
+            %end
+            testFlag = true;
         end
         [scanC, maskC] = extractAndPreprocessDataForDL(userOptS,planC,testFlag);
         
