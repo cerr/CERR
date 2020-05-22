@@ -13,12 +13,11 @@ if ~isempty(slicesV)
     filtSize = 3;
     conn = 26;
     
-    sliceListV = slicesV(1):slicesV(end);
-    strMask3M = zeros(size(label3M,1),size(label3M,1),length(sliceListV));
-    sliceLabels3M = label3M(:,:,sliceListV);
+    strMask3M = zeros(size(label3M,1),size(label3M,1),length(slicesV));
+    sliceLabels3M = label3M(:,:,slicesV);
     
     %Fill holes
-    sliceLabels3M = imclose(sliceLabels3M,strel('sphere',3));
+    sliceLabels3M = imclose(sliceLabels3M,strel('sphere',5));
     
     %Remove islands
     for s = 1:size(sliceLabels3M,3)
@@ -47,7 +46,7 @@ if ~isempty(slicesV)
     
     %Smooth
     smoothedlabel3M = smooth3(double(strMask3M),'box',filtSize);
-    strMask3M = smoothedlabel3M > 0.5;
+    strMask3M = smoothedlabel3M > 0.4;
     
     
     label3M(:,:,slicesV) = strMask3M;
