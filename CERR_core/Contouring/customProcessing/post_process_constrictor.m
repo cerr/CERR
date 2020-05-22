@@ -14,8 +14,8 @@ if ~isempty(slicesV)
     filtSize = 3;
     
     sliceListV = slicesV(1):slicesV(end);
-    strMask3M = zeros(size(label3M,1),size(label3M,1),length(sliceListV));
-    sliceLabels3M = label3M(:,:,sliceListV);
+    strMask3M = zeros(size(label3M,1),size(label3M,1),length(slicesV));
+    sliceLabels3M = label3M(:,:,slicesV);
     
     sliceLabels3M = imclose(sliceLabels3M,strel('sphere',4));
     
@@ -50,7 +50,7 @@ if ~isempty(slicesV)
     %Smooth
     smoothedlabel3M = smooth3(double(strMask3M),'box',filtSize);
     strMask3M = smoothedlabel3M > 0.5;
-    label3M(:,:,sliceListV) = strMask3M;
+    label3M(:,:,slicesV) = strMask3M;
     
 end
 

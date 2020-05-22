@@ -13,9 +13,8 @@ if ~isempty(slicesV)
     filtSize = 5;
     conn = 26;
     
-    sliceListV = slicesV(1):slicesV(end);
-    strMask3M = zeros(size(label3M,1),size(label3M,1),length(sliceListV));
-    sliceLabels3M = label3M(:,:,sliceListV);
+    strMask3M = zeros(size(label3M,1),size(label3M,1),length(slicesV));
+    sliceLabels3M = label3M(:,:,slicesV);
     
     %Fill holes
     sliceLabels3M = imclose(sliceLabels3M,strel('sphere',3));
@@ -48,7 +47,7 @@ if ~isempty(slicesV)
     smoothedlabel3M = smooth3(double(strMask3M),'box',filtSize);
     strMask3M = smoothedlabel3M > 0.5; 
     
-    label3M(:,:,sliceListV) = strMask3M;
+    label3M(:,:,slicesV) = strMask3M;
     
 end
 

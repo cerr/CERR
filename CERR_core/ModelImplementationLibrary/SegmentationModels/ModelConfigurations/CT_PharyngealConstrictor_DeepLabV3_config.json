@@ -16,7 +16,7 @@
                           "larynx": "Larynx",
                           "cropStructure": "crop_for_larynx"
                         },
-                        "saveStrToPlanCFlag": 1
+                        "saveStrToPlanCFlag": 0
                       },
             "operator": ""
           }
