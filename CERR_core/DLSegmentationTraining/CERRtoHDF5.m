@@ -79,9 +79,9 @@ parfor planNum = 1:length(dirS)
             testFlag = false;
         else
             %if isempty(strListC)
-            %  testFlag = true;
+            % testFlag = true;
             %else
-            %  testFlag = false;
+            % testFlag = false;
             %end
             testFlag = true;
         end
