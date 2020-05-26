@@ -480,7 +480,10 @@ switch upper(instr)
         stateS.handle.deepLearnSegFig = [];
         
         % Initialize list of structures available on current views
-        stateS.structsOnViews = [];                
+        stateS.structsOnViews = [];    
+        
+        % Initialize spotlight handles
+        stateS.handle.spotLightS = [];
         
         %Change Panel-Layout according to CERROptions
         sliceCallBack('layout',stateS.optS.layout)
@@ -2859,63 +2862,183 @@ switch upper(instr)
         
         
     case 'SPOTLIGHTSTART'
+        spotLightS = stateS.handle.spotLightS;
+        if isfield(spotLightS,'base_spotlight_xcrosshair') && ...
+                ishandle(spotLightS.base_spotlight_xcrosshair)
+            delete(spotLightS.base_spotlight_xcrosshair)
+            delete(spotLightS.base_spotlight_ycrosshair)
+        end
+        if isfield(spotLightS,'mov_spotlight_xcrosshair') && ...
+                ishandle(spotLightS.base_spotlight_xcrosshair)
+            delete(spotLightS.mov_spotlight_xcrosshair)
+            delete(spotLightS.mov_spotlight_ycrosshair)
+        end
+        
         hAxis = gcbo;
         cP = get(hAxis, 'CurrentPoint');
-        delete([findobj('tag', 'spotlight_patch'); findobj('tag', 'spotlight_xcrosshair'); findobj('tag', 'spotlight_ycrosshair')]);
+        %delete([findobj('tag', 'spotlight_patch'); findobj('tag', 'spotlight_xcrosshair'); findobj('tag', 'spotlight_ycrosshair')]);
         [view, coord] = getAxisInfo(hAxis, 'view', 'coord');
         axesToDraw = hAxis;
         for i=1:length(stateS.handle.CERRAxis);
             [otherView, otherCoord] = getAxisInfo(stateS.handle.CERRAxis(i), 'view', 'coord');
-            if isequal(view, otherView) & isequal(coord, otherCoord) & ~isequal(hAxis, stateS.handle.CERRAxis(i));
+            if isequal(view, otherView) %& isequal(coord, otherCoord) & ~isequal(hAxis, stateS.handle.CERRAxis(i));
                 axesToDraw = [axesToDraw;stateS.handle.CERRAxis(i)];
             end
         end
-        delta = 0.2;
+        spotLightS.axesToDraw = axesToDraw;
+        spotLightS.baseScanNum = 1;
+        spotLightS.movScanNum = 2;
+        spotLightS.indScanNum = 4;
+        
         cross_hair_delta = 2;
-        thetaV = linspace(0,2*pi,30);
-        xV = cP(1,1) + delta*cos(thetaV);
-        yV = cP(2,2) + delta*sin(thetaV);
-        for i=1:length(axesToDraw);
-            % patch([cP(1,1)-delta cP(1,1)+delta cP(1,1)+delta cP(1,1)-delta cP(1,1)-delta], [cP(2,2)-delta cP(2,2)-delta cP(2,2)+delta cP(2,2)+delta cP(2,2)-delta], [0 1 0], 'tag', 'spotlight', 'userdata', hAxis, 'eraseMode', 'xor', 'parent', axesToDraw(i), 'edgeColor', 'none', 'faceColor', [0 1 0], 'faceAlpha', 0.5, 'hittest', 'off');
-            patch(xV, yV, [0 1 0], 'tag', 'spotlight_patch', 'userdata', hAxis, 'parent', axesToDraw(i), 'edgeColor', 'none', 'faceColor', [1 1 0], 'faceAlpha', 0.9, 'hittest', 'off');
-            line([cP(1,1)-cross_hair_delta cP(1,1)+cross_hair_delta], [cP(2,2) cP(2,2)], 'tag', 'spotlight_xcrosshair', 'userdata', hAxis, 'eraseMode', 'xor', 'parent', axesToDraw(i),  'color', [1 1 0], 'hittest', 'off','linewidth',3);
-            line([cP(1,1) cP(1,1)], [cP(2,2)-cross_hair_delta cP(2,2)+cross_hair_delta], 'tag', 'spotlight_ycrosshair', 'userdata', hAxis, 'eraseMode', 'xor', 'parent', axesToDraw(i),  'color', [1 1 0], 'hittest', 'off','linewidth',3);
-            line(cP(1,1), cP(2,2), 'tag', 'spotlight_trail', 'userdata', hAxis, 'parent', axesToDraw(i),  'color', [1 0.4 0.2], 'hittest', 'off','linewidth',3);
+%         delta = 0.2;
+%         thetaV = linspace(0,2*pi,30);
+%         xV = cP(1,1) + delta*cos(thetaV);
+%         yV = cP(2,2) + delta*sin(thetaV);
+        xV = [];
+        yV = [];
+        % APA added
+        % Get x,y coordinates on moving scan
+        %baseScanNum = 1;
+        %movScanNum = 2;
+        %indScanNum = 4;
+        %sizUnifBase = getUniformScanSize(planC{indexS.scan}(spotLightS.baseScanNum));
+        %[~,~,zBaseV] = getUniformScanXYZVals(...
+        %    planC{indexS.scan}(spotLightS.baseScanNum));
+        %sliceNum = findnearest(coord,zBaseV);
+        xV = [xV,...         
+            cP(1,1)-cross_hair_delta,...
+            cP(1,1)+cross_hair_delta,...
+            cP(1,1),...
+            cP(1,1),...
+            cP(1,1)];
+        yV = [yV,...
+            cP(2,2),...
+            cP(2,2),...
+            cP(2,2)-cross_hair_delta,...
+            cP(2,2)+cross_hair_delta,...
+            cP(2,2)];
+%             
+%         [rowV, colV] = xytom(xV, yV, sliceNum, planC,spotLightS.baseScanNum);
+%         rowV = round(rowV);
+%         colV = round(colV);
+%         indBaseV = sub2ind(sizUnifBase,rowV, colV, sliceNum*colV.^0);
+%         
+%         [movRowV,movColV,movSlcV] = ind2sub(sizUnifBase,indBaseV);
+%         indCtOffset = planC{indexS.scan}(spotLightS.indScanNum).scanInfo(1).CTOffset;
+%         indMovV = planC{indexS.scan}(spotLightS.indScanNum).scanArray - indCtOffset;        
+%         indMovV = indMovV(indBaseV);
+%         [xUnifMovV,yUnifMovV,zUnifMovV] = getUniformScanXYZVals(...
+%             planC{indexS.scan}(spotLightS.movScanNum));
+%         [xUnifMovM,yUnifMovM,zUnifMovM] = meshgrid(xUnifMovV,yUnifMovV,zUnifMovV);
+%         xmV = xUnifMovM(indMovV);
+%         ymV = yUnifMovM(indMovV);
+%         zmV = zUnifMovM(indMovV);
+%         
+        [xmV,ymV,zmV] = getMovScanCoords(xV, yV, coord, ...
+            spotLightS.baseScanNum, spotLightS.movScanNum, ...
+            spotLightS.indScanNum, planC);
+        
+        
+        crossHairHorXv = xmV(end-4:end-3);
+        crossHairHorYv = ymV(end-4:end-3);
+        %crossHairHorZv = zmV(end-4:end-3);
+        crossHairVerXv = xmV(end-2:end-1);
+        crossHairVerYv = ymV(end-2:end-1);
+        %crossHairVerZv = zmV(end-2:end-1);
+        crossHairX = xmV(end);
+        crossHairY = ymV(end);
+        crossHairZ = zmV(end);
+        %xmV = xmV(1:end-5);
+        %ymV = ymV(1:end-5);
+        %zmV = zmV(1:end-5);
+        % APA added ends
+        for i=1:length(axesToDraw)
+            axScan = getAxisInfo(axesToDraw(i),'scanSets');
+            if axScan == spotLightS.baseScanNum
+                % patch([cP(1,1)-delta cP(1,1)+delta cP(1,1)+delta cP(1,1)-delta cP(1,1)-delta], [cP(2,2)-delta cP(2,2)-delta cP(2,2)+delta cP(2,2)+delta cP(2,2)-delta], [0 1 0], 'tag', 'spotlight', 'userdata', hAxis, 'eraseMode', 'xor', 'parent', axesToDraw(i), 'edgeColor', 'none', 'faceColor', [0 1 0], 'faceAlpha', 0.5, 'hittest', 'off');
+                %patch(xV, yV, [0 1 0], 'tag', 'spotlight_patch', 'userdata', hAxis, 'parent', axesToDraw(i), 'edgeColor', 'none', 'faceColor', [1 1 0], 'faceAlpha', 0.9, 'hittest', 'off');
+                spotLightS.base_spotlight_xcrosshair = line([cP(1,1)-cross_hair_delta cP(1,1)+cross_hair_delta], [cP(2,2) cP(2,2)], 'tag', 'spotlight_xcrosshair', 'userdata', hAxis, 'parent', axesToDraw(i),  'color', [1 1 0], 'hittest', 'off','linewidth',3);
+                spotLightS.base_spotlight_ycrosshair = line([cP(1,1) cP(1,1)], [cP(2,2)-cross_hair_delta cP(2,2)+cross_hair_delta], 'tag', 'spotlight_xcrosshair', 'userdata', hAxis, 'parent', axesToDraw(i),  'color', [1 1 0], 'hittest', 'off','linewidth',3);
+                %line(cP(1,1), cP(2,2), 'tag', 'spotlight_trail', 'userdata', hAxis, 'parent', axesToDraw(i),  'color', [1 0.4 0.2], 'hittest', 'off','linewidth',3);
+            elseif axScan == spotLightS.movScanNum
+                setAxisInfo(axesToDraw(i),'coord',crossHairZ)
+                CERRRefresh
+                %patch(xmV, ymV, [0 1 0], 'tag', 'spotlight_patch', 'userdata', hAxis, 'parent', axesToDraw(i), 'edgeColor', 'none', 'faceColor', [1 1 0], 'faceAlpha', 0.9, 'hittest', 'off');
+                spotLightS.mov_spotlight_xcrosshair = line(crossHairHorXv, crossHairHorYv, 'tag', 'spotlight_xcrosshair', 'userdata', hAxis, 'parent', axesToDraw(i),  'color', [1 1 0], 'hittest', 'off','linewidth',3);
+                spotLightS.mov_spotlight_ycrosshair = line(crossHairVerXv, crossHairVerYv, 'tag', 'spotlight_ycrosshair', 'userdata', hAxis, 'parent', axesToDraw(i),  'color', [1 1 0], 'hittest', 'off','linewidth',3);
+                %line(crossHairX, crossHairY, 'tag', 'spotlight_trail', 'userdata', hAxis, 'parent', axesToDraw(i),  'color', [1 0.4 0.2], 'hittest', 'off','linewidth',3);                
+            end
         end
+        
+        stateS.handle.spotLightS = spotLightS;
+        
         return;
         
         
     case'SPOTLIGHTMOTION'
-        spotlight = findobj(gcbo,'tag', 'spotlight_patch');        
-        if isempty(spotlight)
-            return
-        end
-        hAxis = get(spotlight(1), 'userdata');
-        spotlight_trail = findobj(gcbo, 'tag', 'spotlight_trail');
-        cP = get(hAxis, 'CurrentPoint');
-        xTrailV = [get(spotlight_trail(1), 'XData'), cP(1,1)];
-        yTrailV = [get(spotlight_trail(1), 'YData'), cP(2,2)];
-        numTrailPts = 20;
-        if length(yTrailV) > numTrailPts
-            xTrailV = xTrailV(end-numTrailPts+1:end);
-            yTrailV = yTrailV(end-numTrailPts+1:end);
-        end
-        set(spotlight_trail, 'XData', xTrailV, 'YData', yTrailV);
-        delta = 0.2;
-        cross_hair_delta = 2;
-        thetaV = linspace(0,2*pi,30);
-        xV = cP(1,1) + delta*cos(thetaV);
-        yV = cP(2,2) + delta*sin(thetaV);        
-        %set(spotlight, 'XData', [cP(1,1)-delta cP(1,1)+delta cP(1,1)+delta cP(1,1)-delta cP(1,1)-delta]);
-        %set(spotlight, 'YData', [cP(2,2)-delta cP(2,2)-delta cP(2,2)+delta cP(2,2)+delta cP(2,2)-delta]);
-        set(spotlight, 'XData', xV);
-        set(spotlight, 'YData', yV);
-        spotlight_x_hair = findobj(gcbo, 'tag', 'spotlight_xcrosshair');
-        spotlight_y_hair = findobj(gcbo, 'tag', 'spotlight_ycrosshair');
-        set(spotlight_x_hair,'XData',[cP(1,1)-cross_hair_delta cP(1,1)+cross_hair_delta], 'YData',[cP(2,2) cP(2,2)])
-        set(spotlight_y_hair,'YData',[cP(2,2)-cross_hair_delta cP(2,2)+cross_hair_delta], 'XData',[cP(1,1) cP(1,1)])
+        %         spotlight = findobj(gcbo,'tag', 'spotlight_patch');
+        %         if isempty(spotlight)
+        %             return
+        %         end
+        %         hAxis = get(spotlight(1), 'userdata');
+        %         spotlight_trail = findobj(gcbo, 'tag', 'spotlight_trail');
+        %         cP = get(hAxis, 'CurrentPoint');
+        %         xTrailV = [get(spotlight_trail(1), 'XData'), cP(1,1)];
+        %         yTrailV = [get(spotlight_trail(1), 'YData'), cP(2,2)];
+        %         numTrailPts = 20;
+        %         if length(yTrailV) > numTrailPts
+        %             xTrailV = xTrailV(end-numTrailPts+1:end);
+        %             yTrailV = yTrailV(end-numTrailPts+1:end);
+        %         end
+        %         set(spotlight_trail, 'XData', xTrailV, 'YData', yTrailV);
+        %         delta = 0.2;
+        %         cross_hair_delta = 2;
+        %         thetaV = linspace(0,2*pi,30);
+        %         xV = cP(1,1) + delta*cos(thetaV);
+        %         yV = cP(2,2) + delta*sin(thetaV);
+        %         %set(spotlight, 'XData', [cP(1,1)-delta cP(1,1)+delta cP(1,1)+delta cP(1,1)-delta cP(1,1)-delta]);
+        %         %set(spotlight, 'YData', [cP(2,2)-delta cP(2,2)-delta cP(2,2)+delta cP(2,2)+delta cP(2,2)-delta]);
+        %         set(spotlight, 'XData', xV);
+        %         set(spotlight, 'YData', yV);
+        %         spotlight_x_hair = findobj(gcbo, 'tag', 'spotlight_xcrosshair');
+        %         spotlight_y_hair = findobj(gcbo, 'tag', 'spotlight_ycrosshair');
+        %         set(spotlight_x_hair,'XData',[cP(1,1)-cross_hair_delta cP(1,1)+cross_hair_delta], 'YData',[cP(2,2) cP(2,2)])
+        %         set(spotlight_y_hair,'YData',[cP(2,2)-cross_hair_delta cP(2,2)+cross_hair_delta], 'XData',[cP(1,1) cP(1,1)])
         
-        return;        
+        cross_hair_delta = 2;
+        spotLightS = stateS.handle.spotLightS;
+        hAxis = get(spotLightS.base_spotlight_xcrosshair(1), 'userdata');
+        [~, coord] = getAxisInfo(hAxis, 'view', 'coord');
+        cP = get(hAxis, 'CurrentPoint');
+        xV = [];
+        yV = [];
+        xV = [xV,...
+            cP(1,1)-cross_hair_delta,...
+            cP(1,1)+cross_hair_delta,...
+            cP(1,1),...
+            cP(1,1),...
+            cP(1,1)];
+        yV = [yV,...
+            cP(2,2),...
+            cP(2,2),...
+            cP(2,2)-cross_hair_delta,...
+            cP(2,2)+cross_hair_delta,...
+            cP(2,2)];
+        [xmV,ymV,zmV] = getMovScanCoords(xV, yV, coord, ...
+            spotLightS.baseScanNum, spotLightS.movScanNum, ...
+            spotLightS.indScanNum, planC);
+        crossHairHorXv = xmV(end-4:end-3);
+        crossHairHorYv = ymV(end-4:end-3);
+        crossHairVerXv = xmV(end-2:end-1);
+        crossHairVerYv = ymV(end-2:end-1);
+        
+        set(spotLightS.base_spotlight_xcrosshair,'XData',[cP(1,1)-cross_hair_delta cP(1,1)+cross_hair_delta], 'YData',[cP(2,2) cP(2,2)])
+        set(spotLightS.base_spotlight_ycrosshair,'YData',[cP(2,2)-cross_hair_delta cP(2,2)+cross_hair_delta], 'XData',[cP(1,1) cP(1,1)])
+        set(spotLightS.mov_spotlight_xcrosshair,'YData',crossHairHorYv, 'XData',crossHairHorXv)
+        set(spotLightS.mov_spotlight_ycrosshair,'YData',crossHairVerYv, 'XData',crossHairVerXv)
+        
+        return;
         
     case 'SPOTLIGHTMOTIONDONE'
         hFig = gcbo;
