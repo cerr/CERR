@@ -19,6 +19,15 @@ switch(lower(imageType))
     case {'original','sobel'}
         fieldName = imageType;
         
+    case 'haralickcooccurance'
+        dirC = {'3d','2d'};
+        dir = dirC{settingS.Directionality.val};
+        settingsStr = [settingS.Type.val,'_',dir,'_',...
+            num2str(settingS.NumLevels.val),'levels_patchsize',...
+            num2str(settingS.PatchSize.val(1)),num2str(settingS.PatchSize.val(2)),...
+            num2str(settingS.PatchSize.val(3))];
+        fieldName = [imageType,'_',settingsStr];
+        
     case 'wavelets'
         settingsStr = [settingS.Wavelets.val,'_',num2str(settingS.Index.val),'_',settingS.Direction.val];
         fieldName = [imageType,'_',settingsStr];
@@ -32,7 +41,7 @@ switch(lower(imageType))
         settingsStr = ['radius',num2str(settingS.Radius.val),'_sigma',...
             num2str(settingS.Sigma.val),'_AR',num2str(settingS.AspectRatio.val),...
             '_',num2str(settingS.Orientation.val),'_deg_wavelength',...
-            num2str(settingS.Wavelength.val)];
+            num2str(settingS.Wavlength.val)];
         fieldName = [imageType,'_',settingsStr];
         
     case 'firstorderstatistics'
