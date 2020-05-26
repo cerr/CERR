@@ -16,7 +16,7 @@
             "method": "crop_for_chewing_structs",
             "params": { "structureName": "OUTER_1",
                         "headSizeLimitCm" : 23,
-                        "saveStrToPlanCFlag": 0},
+                        "saveStrToPlanCFlag": 1},
             "operator": ""
           }
          ],

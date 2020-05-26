@@ -13,7 +13,7 @@
             "method": "crop_for_larynx",
             "params": { "structureName": { "chewingStructures": ["Left_masseter","Right_masseter","Left_medial_pterygoid","Right_medial_pterygoid"],
                         "cropStructure": "crop_for_chewing_structs"},
-                        "saveStrToPlanCFlag": 0
+                        "saveStrToPlanCFlag": 1
                       },
             "operator": ""
           }
