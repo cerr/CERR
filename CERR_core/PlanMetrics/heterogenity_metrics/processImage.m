@@ -264,8 +264,9 @@ switch filterType
         
                 mask3M                   = mask3M(minr:maxr,minc:maxc,mins:maxs);
                 scan3M                   = scan3M(minr:maxr,minc:maxc,mins:maxs);
-                vol3M = double(mask3M).*double(scan3M);
-                vol3M(mask3M==0) = NaN;
+                vol3M = scan3M;
+                %vol3M = double(mask3M).*double(scan3M);
+                %vol3M(mask3M==0) = NaN;
         
                 %Pad with mean intensities
                 meanVol = nanmean(vol3M(:));
@@ -282,6 +283,7 @@ switch filterType
                 for i = 1:numFeatures
                     text3M = convn(paddedVolM,lawsMasksS.(fieldNamesC{i}),'same');
                     text3M = text3M(6:end-5,6:end-5,6:end-5);
+                    text3M = text3M.*mask3M;
                     outS.(fieldNamesC{i}) = text3M; % for the entire cubic roi
                     if ishandle(hWait)
                         set(hWait, 'Vertices', [[0 0 i/numFeatures i/numFeatures]' [0 1 1 0]']);
@@ -289,6 +291,8 @@ switch filterType
                     end
                 end
         
+                
+                
     case 'CoLlage'
         
         mask3M = mask3M(minr:maxr,minc:maxc,mins:maxs);
