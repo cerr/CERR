@@ -458,7 +458,8 @@ end
 if ~isempty(axisInfo.scanObj) && (isempty(axisInfo.doseObj) || ...
         (~isempty(axisInfo.doseObj) && isempty(axisInfo.doseObj.data2M))) ...
         && ~stateS.imageRegistration && ~isempty(axisInfo.scanObj.handles)
-    axisInfo.scanObj.handles.FaceAlpha = 1;
+    %axisInfo.scanObj.handles.FaceAlpha = 1;
+    set(axisInfo.scanObj.handles,'FaceAlpha',1);
 end
 
 
