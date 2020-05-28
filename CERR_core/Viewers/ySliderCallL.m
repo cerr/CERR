@@ -1,4 +1,4 @@
-function ySliderCallL
+function ySliderCallL()
 %
 %APA, 04/12/2010
 %
@@ -50,7 +50,8 @@ end
 % posNewXY = posOldY;
 % posNewXY(3:4) = posNewY;
 % axis(ha,posNewXY)
-ha.YLim = posNewY;
+%ha.YLim = posNewY;
+set(ha,'YLim',posNewY);
 
 % %%% Make lines/text outside axis not visible
 % Iall = posYallO(1)+1:posYallO(2)-1;

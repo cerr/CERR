@@ -107,7 +107,7 @@ axisInfo.scanObj(toRemove) = [];
 %Add a new image/scan data element for any scanNums that don't have one,
 %and cache the calculated scan and its coordinates.
 for i=1:length(scanSets)
-    if ~ismember(scanSets(i),[axisInfo.scanObj.scanSet])
+    if isempty(axisInfo.scanObj)||(isfield(axisInfo.scanObj,'scanSet') && ~ismember(scanSets(i),[axisInfo.scanObj.scanSet]))
         numObjs = length(axisInfo.scanObj);
         [im, imageXVals, imageYVals, planC]        = getCTOnSlice(scanSets(i), coord, dim, planC);
         axisInfo.scanObj(numObjs+1).coord   = coord;
