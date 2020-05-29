@@ -30,7 +30,7 @@ function bool = isCompressed(variable)
 % along with CERR.  If not, see <http://www.gnu.org/licenses/>.
 
 bool = 0;
-if isstruct(variable) & isfield(variable, 'compressedData') & isfield(variable, 'info') 
+if isstruct(variable) && isfield(variable, 'compressedData') && isfield(variable, 'info') 
     if strcmpi(variable.info, 'Compressed variable. Use decompress to extract.')
         bool = 1;
     end
