@@ -46,20 +46,20 @@ switch upper(command)
         delete(hStrDictGUI)
         str1 = 'CERR+ (rhymes with "Surplus")';
         position = [200 100 700 400];
-          hFig = figure('color',[0.5 0.5 0.5],'name',str1,'tag','strNameMapGUI',...
+        figureColor = [0.8 0.9 0.9]; %get(hFig, 'Color');
+          hFig = figure('color',figureColor,'name',str1,'tag','strNameMapGUI',...
             'numbertitle','off','position',position,'menubar','none',...
             'CloseRequestFcn','structureNameMapGUI(''QUIT'')');
-        figureColor = [0.8 0.9 0.9]; %get(hFig, 'Color');
         units = 'normalized';
         
         
         %Create tabs
-        tabH.scan_dir = uicontrol(hFig,'style','toggle','tag','scan_dir_tab','string','Scan Directory','units',units,'position',[0.02 0.94 0.15 0.07],'fontWeight','bold','fontSize',10,'BackgroundColor', figureColor,'foregroundColor',[0.5 0.5 0.5],'HorizontalAlignment','left','callback','structureNameMapGUI(''scan_dir'')','tooltipString','Scan Directory');
-        tabH.sum_doses = uicontrol(hFig,'style','toggle','tag','sum_doses_tab','string','Sum/Adjust Doses','units',units,'position',[0.175 0.94 0.15 0.07],'fontWeight','bold','fontSize',10,'BackgroundColor', figureColor,'foregroundColor',[0.5 0.5 0.5],'HorizontalAlignment','left','callback','structureNameMapGUI(''sum_doses'')','tooltipString','Sum/Adjust Doses');
-        tabH.fix_names = uicontrol(hFig,'style','toggle','tag','fix_names_tab','string','Match Names','units',units,'position',[0.33 0.94 0.15 0.07],'fontWeight','bold','fontSize',10,'BackgroundColor', figureColor,'foregroundColor',[0.5 0.5 0.5],'HorizontalAlignment','left','callback','structureNameMapGUI(''fix_names'')','tooltipString','Match Names');
-        tabH.review_plans = uicontrol(hFig,'style','toggle','tag','review_tab','string','Review','units',units,'position',[0.485 0.94 0.15 0.07],'fontWeight','bold','fontSize',10,'BackgroundColor', figureColor,'foregroundColor',[0.5 0.5 0.5],'HorizontalAlignment','left','callback','structureNameMapGUI(''review_plans'')','tooltipString','Review');
-        tabH.extract_metrics = uicontrol(hFig,'style','toggle','tag','metrics_tab','string','Extract Metrics','units',units,'position',[0.64 0.94 0.15 0.07],'fontWeight','bold','fontSize',10,'BackgroundColor', figureColor,'foregroundColor',[0.5 0.5 0.5],'HorizontalAlignment','left','callback','structureNameMapGUI(''extract_metrics'')','tooltipString','Extract Metrics');
-        tabH.results = uicontrol(hFig,'style','toggle','tag','metrics_tab','string','Results','units',units,'position',[0.795 0.94 0.15 0.07],'fontWeight','bold','fontSize',10,'BackgroundColor', figureColor,'foregroundColor',[0.5 0.5 0.5],'HorizontalAlignment','left','callback','structureNameMapGUI(''show_results'')','tooltipString','Results');
+        tabH.scan_dir = uicontrol(hFig,'style','togglebutton','tag','scan_dir_tab','string','Scan Directory','units',units,'position',[0.02 0.94 0.15 0.07],'fontWeight','bold','fontSize',10,'BackgroundColor', figureColor,'foregroundColor',[0.5 0.5 0.5],'HorizontalAlignment','left','callback','structureNameMapGUI(''scan_dir'')','tooltipString','Scan Directory');
+        tabH.sum_doses = uicontrol(hFig,'style','togglebutton','tag','sum_doses_tab','string','Sum/Adjust Doses','units',units,'position',[0.175 0.94 0.15 0.07],'fontWeight','bold','fontSize',10,'BackgroundColor', figureColor,'foregroundColor',[0.5 0.5 0.5],'HorizontalAlignment','left','callback','structureNameMapGUI(''sum_doses'')','tooltipString','Sum/Adjust Doses');
+        tabH.fix_names = uicontrol(hFig,'style','togglebutton','tag','fix_names_tab','string','Match Names','units',units,'position',[0.33 0.94 0.15 0.07],'fontWeight','bold','fontSize',10,'BackgroundColor', figureColor,'foregroundColor',[0.5 0.5 0.5],'HorizontalAlignment','left','callback','structureNameMapGUI(''fix_names'')','tooltipString','Match Names');
+        tabH.review_plans = uicontrol(hFig,'style','togglebutton','tag','review_tab','string','Review','units',units,'position',[0.485 0.94 0.15 0.07],'fontWeight','bold','fontSize',10,'BackgroundColor', figureColor,'foregroundColor',[0.5 0.5 0.5],'HorizontalAlignment','left','callback','structureNameMapGUI(''review_plans'')','tooltipString','Review');
+        tabH.extract_metrics = uicontrol(hFig,'style','togglebutton','tag','metrics_tab','string','Extract Metrics','units',units,'position',[0.64 0.94 0.15 0.07],'fontWeight','bold','fontSize',10,'BackgroundColor', figureColor,'foregroundColor',[0.5 0.5 0.5],'HorizontalAlignment','left','callback','structureNameMapGUI(''extract_metrics'')','tooltipString','Extract Metrics');
+        tabH.results = uicontrol(hFig,'style','togglebutton','tag','metrics_tab','string','Results','units',units,'position',[0.795 0.94 0.15 0.07],'fontWeight','bold','fontSize',10,'BackgroundColor', figureColor,'foregroundColor',[0.5 0.5 0.5],'HorizontalAlignment','left','callback','structureNameMapGUI(''show_results'')','tooltipString','Results');
         tabH.frame = uicontrol(hFig,'style','frame','units',units,'position',[0.0 0.0 1 0.95],'BackgroundColor', figureColor);
         %Create tabs end
         
@@ -72,7 +72,7 @@ switch upper(command)
         
         scanDirH.dir_txt = uicontrol(hFig,'style','text','string','Choose Directory','units',units,'position',[0.02 0.8 0.2 0.05],'fontWeight','bold','fontSize',10,'BackgroundColor', figureColor,'HorizontalAlignment','left');
         scanDirH.dir_edit = uicontrol(hFig,'style','edit','tag','dir_edit_box','string','','units',units,'position',[0.25 0.8 0.45 0.05],'fontWeight','normal','fontSize',8,'BackgroundColor', figureColor,'HorizontalAlignment','left');
-        scanDirH.dir_Push = uicontrol(hFig,'style','push','tag','dir_push_box','string','Browse','units',units,'position',[0.72 0.8 0.15 0.05],'fontWeight','normal','fontSize',10,'BackgroundColor', figureColor,'HorizontalAlignment','left','callback','structureNameMapGUI(''browse_dir'')');
+        scanDirH.dir_Push = uicontrol(hFig,'style','pushbutton','tag','dir_push_box','string','Browse','units',units,'position',[0.72 0.8 0.15 0.05],'fontWeight','normal','fontSize',10,'BackgroundColor', figureColor,'HorizontalAlignment','left','callback','structureNameMapGUI(''browse_dir'')');
         
         scanDirH.struct_txt = uicontrol(hFig,'style','text','string','Input structures to extract','units',units,'position',[0.02 0.65 0.25 0.1],'fontWeight','bold','fontSize',10,'BackgroundColor', figureColor,'HorizontalAlignment','left');
         scanDirH.struct_edit = uicontrol(hFig,'style','edit','tag','struct_edit_box','string','','units',units,'position',[0.25 0.7 0.7 0.05],'fontWeight','normal','fontSize',10,'BackgroundColor', figureColor,'HorizontalAlignment','left');
@@ -82,7 +82,7 @@ switch upper(command)
         scanDirH.dose_edit = uicontrol(hFig,'style','edit','tag','dose_edit_box','string','','units',units,'position',[0.25 0.55 0.7 0.05],'fontWeight','normal','fontSize',10,'BackgroundColor', figureColor,'HorizontalAlignment','left');
         scanDirH.dose_txt_help = uicontrol(hFig,'style','text','string','e.g.: Final','units',units,'position',[0.25 0.49 0.7 0.05],'fontWeight','normal','fontSize',8,'BackgroundColor', figureColor,'HorizontalAlignment','left');
         
-        scanDirH.done_Push = uicontrol(hFig,'style','push','tag','done_push','string','Start scan','units',units,'position',[0.72 0.35 0.15 0.05],'fontWeight','normal','fontSize',10,'BackgroundColor', figureColor,'HorizontalAlignment','left','callback','structureNameMapGUI(''done_selecting_dir'')');
+        scanDirH.done_Push = uicontrol(hFig,'style','pushbutton','tag','done_push','string','Start scan','units',units,'position',[0.72 0.35 0.15 0.05],'fontWeight','normal','fontSize',10,'BackgroundColor', figureColor,'HorizontalAlignment','left','callback','structureNameMapGUI(''done_selecting_dir'')');
         
         %Waitbar
         scanDirH.waitbar_status_text = uicontrol(hFig, 'style', 'text', 'units', units, 'position', [0.05 0.15+0.08 0.2 0.03], 'string', 'Status', 'fontweight', 'bold','HorizontalAlignment','left','BackgroundColor', figureColor);
@@ -114,10 +114,10 @@ switch upper(command)
         %         fixNamesH.scanDir_frame4 = uicontrol(hFig,'style','frame','units',units,'position',[0.375 0.94 0.01 1],'foregroundColor',figureColor,'backgroundColor',figureColor);
         
         % Previous Plan handle
-        fixNamesH.prev_plan = uicontrol(hFig,'style','push','tag','prev_plan','string','<< Previous Plan','units',units,'position',[0.02 0.88 0.18 0.05],'fontWeight','normal','fontSize',10,'BackgroundColor', figureColor,'HorizontalAlignment','left','callback','structureNameMapGUI(''previous_plan'')');
+        fixNamesH.prev_plan = uicontrol(hFig,'style','pushbutton','tag','prev_plan','string','<< Previous Plan','units',units,'position',[0.02 0.88 0.18 0.05],'fontWeight','normal','fontSize',10,'BackgroundColor', figureColor,'HorizontalAlignment','left','callback','structureNameMapGUI(''previous_plan'')');
         
         % Next Plan handle
-        fixNamesH.next_plan = uicontrol(hFig,'style','push','tag','next_plan','string','Next Plan >>','units',units,'position',[0.78 0.88 0.18 0.05],'fontWeight','normal','fontSize',10,'BackgroundColor', figureColor,'HorizontalAlignment','left','callback','structureNameMapGUI(''next_plan'')');
+        fixNamesH.next_plan = uicontrol(hFig,'style','pushbutton','tag','next_plan','string','Next Plan >>','units',units,'position',[0.78 0.88 0.18 0.05],'fontWeight','normal','fontSize',10,'BackgroundColor', figureColor,'HorizontalAlignment','left','callback','structureNameMapGUI(''next_plan'')');
         
         % Plan-Name text handle
         fixNamesH.plan_name = uicontrol(hFig,'style','text','tag','plan_name','string','','units',units,'position',[0.2 0.815 0.62 0.04],'fontWeight','normal','fontSize',10,'BackgroundColor', figureColor,'HorizontalAlignment','center');
@@ -129,25 +129,25 @@ switch upper(command)
         % Assign Structure Name handle
         fixNamesH.assign_struct_str = uicontrol(hFig,'style','text','string','Structures','units',units,'position',[0.04 0.75 0.25 0.04],'fontWeight','bold','fontSize',10,'BackgroundColor', figureColor,'HorizontalAlignment','left');
         fixNamesH.structure_assign_txt2 = uicontrol(hFig,'style','text','tag','structure_assign_txt1','string','Desired','units',units,'position',[0.05 0.70 0.1 0.04],'fontWeight','normal','fontSize',10,'BackgroundColor', figureColor,'HorizontalAlignment','left');
-        fixNamesH.desired_structure_list = uicontrol(hFig,'style','list','tag','structure_desired_list','string','- - -','units',units,'Min',1,'Max',1,'position',[0.05 0.35 0.25 0.35],'fontWeight','normal','fontSize',10,'BackgroundColor', figureColor,'HorizontalAlignment','left');
+        fixNamesH.desired_structure_list = uicontrol(hFig,'style','listbox','tag','structure_desired_list','string','- - -','units',units,'Min',1,'Max',1,'position',[0.05 0.35 0.25 0.35],'fontWeight','normal','fontSize',10,'BackgroundColor', figureColor,'HorizontalAlignment','left');
         fixNamesH.structure_assign_txt3 = uicontrol(hFig,'style','text','tag','structure_assign_txt2','string','>>','units',units,'position',[0.32 0.5 0.04 0.04],'fontWeight','bold','fontSize',10,'BackgroundColor', figureColor,'HorizontalAlignment','left');
         fixNamesH.structure_assign_txt4 = uicontrol(hFig,'style','text','tag','structure_assign_txt3','string','Available','units',units,'position',[0.36 0.75 0.1 0.04],'fontWeight','normal','fontSize',10,'BackgroundColor', figureColor,'HorizontalAlignment','left');
-        fixNamesH.available_structure_list = uicontrol(hFig,'style','list','tag','structure_available_list','string','','units',units,'Min',1,'Max',1,'Value',1,'position',[0.36 0.35 0.25 0.4],'fontWeight','normal','fontSize',10,'BackgroundColor', figureColor,'HorizontalAlignment','left');
-        fixNamesH.structure_assign_push = uicontrol(hFig,'style','push','tag','structure_assign_push','string','>>','units',units,'position',[0.62 0.55 0.06 0.06],'fontWeight','bold','fontSize',10,'BackgroundColor', figureColor,'HorizontalAlignment','left','callback','structureNameMapGUI(''update_structure_map'')');
+        fixNamesH.available_structure_list = uicontrol(hFig,'style','listbox','tag','structure_available_list','string','','units',units,'Min',1,'Max',1,'Value',1,'position',[0.36 0.35 0.25 0.4],'fontWeight','normal','fontSize',10,'BackgroundColor', figureColor,'HorizontalAlignment','left');
+        fixNamesH.structure_assign_push = uicontrol(hFig,'style','pushbutton','tag','structure_assign_push','string','>>','units',units,'position',[0.62 0.55 0.06 0.06],'fontWeight','bold','fontSize',10,'BackgroundColor', figureColor,'HorizontalAlignment','left','callback','structureNameMapGUI(''update_structure_map'')');
         fixNamesH.structure_assign_txt5 = uicontrol(hFig,'style','text','tag','structure_assign_txt4','string','','units',units,'position',[0.70 0.35 0.25 0.45],'fontWeight','normal','fontSize',7,'BackgroundColor', figureColor,'foregroundColor',[1 0 0],'HorizontalAlignment','left');
         
         % Assign Dose Name handle
         fixNamesH.assign_dose_str = uicontrol(hFig,'style','text','string','Dose','units',units,'position',[0.04 0.25 0.25 0.04],'fontWeight','bold','fontSize',10,'BackgroundColor', figureColor,'HorizontalAlignment','left');
-        fixNamesH.dose_popup = uicontrol(hFig,'style','popup','tag','dose_popup','string','- - -','units',units,'position',[0.04 0.20 0.27 0.04],'fontWeight','normal','fontSize',10,'BackgroundColor', figureColor,'HorizontalAlignment','left');
+        fixNamesH.dose_popup = uicontrol(hFig,'style','popupmenu','tag','dose_popup','string','- - -','units',units,'position',[0.04 0.20 0.27 0.04],'fontWeight','normal','fontSize',10,'BackgroundColor', figureColor,'HorizontalAlignment','left');
         fixNamesH.dose_assign_txt1 = uicontrol(hFig,'style','text','tag','dose_assign_txt2','string','>>','units',units,'position',[0.32 0.19 0.04 0.04],'fontWeight','bold','fontSize',10,'BackgroundColor', figureColor,'HorizontalAlignment','left');
-        fixNamesH.dose_list = uicontrol(hFig,'style','list','tag','dose_list','string','','units',units,'Min',1,'Max',1,'Value',1,'position',[0.36 0.05 0.25 0.25],'fontWeight','normal','fontSize',10,'BackgroundColor', figureColor,'HorizontalAlignment','left');
-        fixNamesH.dose_assign_txt3 = uicontrol(hFig,'style','push','tag','dose_assign_txt2','string','>>','units',units,'position',[0.62 0.19 0.06 0.06],'fontWeight','bold','fontSize',10,'BackgroundColor', figureColor,'HorizontalAlignment','left','callback','structureNameMapGUI(''update_dose_map'')');
+        fixNamesH.dose_list = uicontrol(hFig,'style','listbox','tag','dose_list','string','','units',units,'Min',1,'Max',1,'Value',1,'position',[0.36 0.05 0.25 0.25],'fontWeight','normal','fontSize',10,'BackgroundColor', figureColor,'HorizontalAlignment','left');
+        fixNamesH.dose_assign_txt3 = uicontrol(hFig,'style','pushbutton','tag','dose_assign_txt2','string','>>','units',units,'position',[0.62 0.19 0.06 0.06],'fontWeight','bold','fontSize',10,'BackgroundColor', figureColor,'HorizontalAlignment','left','callback','structureNameMapGUI(''update_dose_map'')');
         fixNamesH.dose_assign_txt5 = uicontrol(hFig,'style','text','tag','dose_assign_txt4','string','','units',units,'position',[0.70 0.15 0.25 0.12],'fontWeight','normal','fontSize',7,'BackgroundColor', figureColor,'foregroundColor',[1 0 0],'HorizontalAlignment','left');
         
         % Save New Mapping handle
         %uicontrol(hFig,'style','text','string','Save mapping for selected structure','units',units,'position',[0.7 0.55 0.2 0.2],'fontWeight','normal','fontSize',11,'BackgroundColor', figureColor,'HorizontalAlignment','left')
-        %fixNamesH.save_names_map = uicontrol(hFig,'style','push','string','Undo name assignment','units',units,'position',[0.66 0.06 0.28 0.05],'fontWeight','normal','fontSize',10,'BackgroundColor', figureColor,'HorizontalAlignment','left','callback','structureNameMapGUI(''undo'')');
-        fixNamesH.load_cerr      = uicontrol(hFig,'style','push','string','View this Plan','units',units,'position',[0.4 0.88 0.18 0.04],'fontWeight','normal','fontSize',10,'BackgroundColor', figureColor,'HorizontalAlignment','left','callback','structureNameMapGUI(''load_cerr'')');
+        %fixNamesH.save_names_map = uicontrol(hFig,'style','pushbutton','string','Undo name assignment','units',units,'position',[0.66 0.06 0.28 0.05],'fontWeight','normal','fontSize',10,'BackgroundColor', figureColor,'HorizontalAlignment','left','callback','structureNameMapGUI(''undo'')');
+        fixNamesH.load_cerr      = uicontrol(hFig,'style','pushbutton','string','View this Plan','units',units,'position',[0.4 0.88 0.18 0.04],'fontWeight','normal','fontSize',10,'BackgroundColor', figureColor,'HorizontalAlignment','left','callback','structureNameMapGUI(''load_cerr'')');
         
         fNameC = fieldnames(fixNamesH);
         handleVals =[];
@@ -181,13 +181,13 @@ switch upper(command)
         sumDosesH.sumDoses_frame3 = uicontrol(hFig,'style','frame','units',units,'position',[0.02 0.02 0.95 0.85],'foregroundColor',[0 0 0],'backgroundColor',[0.8 0.9 0.9]-0.015);
         
         % Previous Plan handle
-        sumDosesH.prev_plan = uicontrol(hFig,'style','push','tag','prev_plan','string','<< Previous Plan','units',units,'position',[0.02 0.88 0.18 0.05],'fontWeight','normal','fontSize',10,'BackgroundColor', figureColor,'HorizontalAlignment','left','callback','structureNameMapGUI(''sum_dose_previous_plan'')');
+        sumDosesH.prev_plan = uicontrol(hFig,'style','pushbutton','tag','prev_plan','string','<< Previous Plan','units',units,'position',[0.02 0.88 0.18 0.05],'fontWeight','normal','fontSize',10,'BackgroundColor', figureColor,'HorizontalAlignment','left','callback','structureNameMapGUI(''sum_dose_previous_plan'')');
         
         % Next Plan handle
-        sumDosesH.next_plan = uicontrol(hFig,'style','push','tag','next_plan','string','Next Plan >>','units',units,'position',[0.78 0.88 0.18 0.05],'fontWeight','normal','fontSize',10,'BackgroundColor', figureColor,'HorizontalAlignment','left','callback','structureNameMapGUI(''sum_dose_next_plan'')');
+        sumDosesH.next_plan = uicontrol(hFig,'style','pushbutton','tag','next_plan','string','Next Plan >>','units',units,'position',[0.78 0.88 0.18 0.05],'fontWeight','normal','fontSize',10,'BackgroundColor', figureColor,'HorizontalAlignment','left','callback','structureNameMapGUI(''sum_dose_next_plan'')');
         
         %Sum Button
-        %sumDosesH.sum_doses_push = uicontrol(hFig,'style','push','tag','sum_doses_push','string','Done selecting doses to sum','units',units,'position',[0.32 0.88 0.36 0.05],'fontWeight','normal','fontSize',10,'BackgroundColor', figureColor,'HorizontalAlignment','left','fontWeight','bold','callback','structureNameMapGUI(''sum_selected_doses'')');
+        %sumDosesH.sum_doses_push = uicontrol(hFig,'style','pushbutton','tag','sum_doses_push','string','Done selecting doses to sum','units',units,'position',[0.32 0.88 0.36 0.05],'fontWeight','normal','fontSize',10,'BackgroundColor', figureColor,'HorizontalAlignment','left','fontWeight','bold','callback','structureNameMapGUI(''sum_selected_doses'')');
         
         % Plan-Name text handle
         sumDosesH.plan_name = uicontrol(hFig,'style','text','tag','plan_name','string','','units',units,'position',[0.2 0.81 0.62 0.04],'fontWeight','normal','fontSize',8,'BackgroundColor', figureColor,'HorizontalAlignment','center');
@@ -196,18 +196,18 @@ switch upper(command)
         sumDosesH.dose_sum_str  = uicontrol(hFig,'style','text','string','Select Doses to Sum','units',units,'position',[0.04 0.74 0.25 0.04],'fontWeight','bold','fontSize',10,'BackgroundColor', figureColor,'HorizontalAlignment','left');
         sumDosesH.dose_sum_str2  = uicontrol(hFig,'style','text','string','(use Shift + mouse to select two or more)','units',units,'position',[0.27 0.735 0.34 0.04],'fontWeight','normal','fontSize',8,'BackgroundColor', figureColor,'HorizontalAlignment','left');
         sumDosesH.dose_sum_str3 = uicontrol(hFig,'style','text','string','DoseNumber  (Max Dose)   FractionGroupID','units',units,'position',[0.05 0.68 0.55 0.04],'fontWeight','normal','fontSize',10,'BackgroundColor', figureColor,'HorizontalAlignment','left');
-        sumDosesH.dose_list     = uicontrol(hFig,'style','list','tag','dose_list','string','','units',units,'Min',1,'Max',1000,'Value',1,'position',[0.05 0.08 0.55 0.59],'fontWeight','normal','fontSize',10,'BackgroundColor', figureColor,'HorizontalAlignment','left','callback','structureNameMapGUI(''doses_to_sum_selected'')');
+        sumDosesH.dose_list     = uicontrol(hFig,'style','listbox','tag','dose_list','string','','units',units,'Min',1,'Max',1000,'Value',1,'position',[0.05 0.08 0.55 0.59],'fontWeight','normal','fontSize',10,'BackgroundColor', figureColor,'HorizontalAlignment','left','callback','structureNameMapGUI(''doses_to_sum_selected'')');
         
         % RadBio Correction
         sumDosesH.dose_adjustment_str = uicontrol(hFig,'style','text','string','Adjust Dose','units',units,'position',[0.65 0.72 0.15 0.04],'fontWeight','bold','fontSize',10,'BackgroundColor', figureColor,'HorizontalAlignment','left');
-        sumDosesH.radbioCorrect_dose_popup = uicontrol(hFig,'style','popup','tag','dose_popup','string',{'None','BED''s','EQD'},'units',units,'position',[0.78 0.73 0.15 0.04],'fontWeight','normal','fontSize',10,'BackgroundColor', figureColor,'HorizontalAlignment','left','callback','structureNameMapGUI(''fractionation_correction_selected'')');
+        sumDosesH.radbioCorrect_dose_popup = uicontrol(hFig,'style','popupmenu','tag','dose_popup','string',{'None','BED''s','EQD'},'units',units,'position',[0.78 0.73 0.15 0.04],'fontWeight','normal','fontSize',10,'BackgroundColor', figureColor,'HorizontalAlignment','left','callback','structureNameMapGUI(''fractionation_correction_selected'')');
         sumDosesH.stdFraction_str = uicontrol(hFig,'style','text','tag','stdPerFrac_txt','string','d as in EQD(d)','units',units,'position',[0.65 0.65 0.15 0.04],'fontWeight','normal','fontSize',10,'BackgroundColor', figureColor,'HorizontalAlignment','left','visible','off');
         sumDosesH.stdFraction_edit = uicontrol(hFig,'style','edit','tag','stdPerFrac_edit','string','2','units',units,'position',[0.8 0.65 0.05 0.04],'fontWeight','normal','fontSize',10,'BackgroundColor', figureColor,'HorizontalAlignment','left','callback','structureNameMapGUI(''APPLY_FRACT_CORRECT_VALS'')','visible','off');
         sumDosesH.numFraction_str = uicontrol(hFig,'style','text','tag','numPerFrac_txt','string','#Fr.','units',units,'position',[0.65 0.58 0.1 0.04],'fontWeight','normal','fontSize',10,'BackgroundColor', figureColor,'HorizontalAlignment','left','visible','off');
         sumDosesH.numFraction_edit = uicontrol(hFig,'style','edit','tag','numPerFrac_edit','string','35','units',units,'position',[0.70 0.58 0.05 0.04],'fontWeight','normal','fontSize',10,'BackgroundColor', figureColor,'HorizontalAlignment','left','callback','structureNameMapGUI(''APPLY_FRACT_CORRECT_VALS'')','visible','off');
         sumDosesH.abRatio_str = uicontrol(hFig,'style','text','tag','abratio_txt','string','a/b','units',units,'position',[0.78 0.58 0.1 0.04],'fontWeight','normal','fontSize',10,'BackgroundColor', figureColor,'HorizontalAlignment','left','visible','off');
         sumDosesH.abRatio_edit = uicontrol(hFig,'style','edit','tag','abratio_edit','string','3','units',units,'position',[0.82 0.58 0.05 0.04],'fontWeight','normal','fontSize',10,'BackgroundColor', figureColor,'HorizontalAlignment','left','callback','structureNameMapGUI(''APPLY_FRACT_CORRECT_VALS'')','visible','off');
-        sumDosesH.applyAll_check = uicontrol(hFig,'style','check','tag','all_check','string','All','units',units,'position',[0.892 0.58 0.05 0.04],'fontWeight','normal','fontSize',10,'BackgroundColor', figureColor,'HorizontalAlignment','left','callback','structureNameMapGUI(''apply_fract_correct_to_all'')','visible','off');        
+        sumDosesH.applyAll_check = uicontrol(hFig,'style','checkbox','tag','all_check','string','All','units',units,'position',[0.892 0.58 0.05 0.04],'fontWeight','normal','fontSize',10,'BackgroundColor', figureColor,'HorizontalAlignment','left','callback','structureNameMapGUI(''apply_fract_correct_to_all'')','visible','off');        
         %New Dose Name
         sumDosesH.new_dose_str  = uicontrol(hFig,'style','text','tag','new_dose_name_str','string','Name New Dose','units',units,'position',[0.65 0.50 0.25 0.05],'fontWeight','bold','fontSize',10,'BackgroundColor', figureColor,'HorizontalAlignment','left');
         sumDosesH.new_dose_edit = uicontrol(hFig,'style','edit','tag','new_dose_name_edit','string','','units',units,'position',[0.65 0.42 0.25 0.07],'fontWeight','normal','fontSize',10,'BackgroundColor', figureColor,'HorizontalAlignment','left','callback','structureNameMapGUI(''doses_to_sum_selected'')');
@@ -228,12 +228,12 @@ switch upper(command)
         %-------------- Handles for reviewing plans
         reviewPlansH.reviewPlans_frame2 = uicontrol(hFig,'style','frame','units',units,'position',[0.485 0.94 0.15 0.01],'foregroundColor',figureColor,'backgroundColor',figureColor);
         reviewPlansH.allStruct_txt       = uicontrol(hFig,'style','text','string','Structure to review','units',units,'position',[0.02 0.85 0.2 0.04],'fontWeight','bold','fontSize',10,'BackgroundColor', figureColor,'HorizontalAlignment','left');
-        reviewPlansH.allStruct_list      = uicontrol(hFig,'style','list','string','','units',units,'Min',1,'Max',1,'Value',1,'position',[0.02 0.07 0.25 0.73],'fontWeight','normal','fontSize',10,'BackgroundColor', figureColor,'HorizontalAlignment','left');
+        reviewPlansH.allStruct_list      = uicontrol(hFig,'style','listbox','string','','units',units,'Min',1,'Max',1,'Value',1,'position',[0.02 0.07 0.25 0.73],'fontWeight','normal','fontSize',10,'BackgroundColor', figureColor,'HorizontalAlignment','left');
         reviewPlansH.allPlans_txt        = uicontrol(hFig,'style','text','string','Plans to review','units',units,'position',[0.30 0.85 0.15 0.04],'fontWeight','bold','fontSize',10,'BackgroundColor', figureColor,'HorizontalAlignment','left');
-        reviewPlansH.allPlans_list       = uicontrol(hFig,'style','list','string','','units',units,'Min',1,'Max',16,'Value',1:16,'position',[0.30 0.07 0.35 0.73],'fontWeight','normal','fontSize',10,'BackgroundColor', figureColor,'HorizontalAlignment','left');
-        reviewPlansH.prevPlans_push      = uicontrol(hFig,'style','push','string','<--','units',units,'position',[0.46 0.84 0.06 0.06],'fontWeight','bold','fontSize',10,'HorizontalAlignment','center', 'callback','structureNameMapGUI(''PREV_COHORT'')');
-        reviewPlansH.nextPlans_push      = uicontrol(hFig,'style','push','string','-->','units',units,'position',[0.53 0.84 0.06 0.06],'fontWeight','bold','fontSize',10,'HorizontalAlignment','center', 'callback','structureNameMapGUI(''NEXT_COHORT'')');
-        reviewPlansH.openViewer_push     = uicontrol(hFig,'style','push','string','Viewer','units',units,'position',[0.60 0.84 0.07 0.06],'fontWeight','bold','fontSize',10,'HorizontalAlignment','center', 'callback','structureNameMapGUI(''COHORT_VIEVER'')');
+        reviewPlansH.allPlans_list       = uicontrol(hFig,'style','listbox','string','','units',units,'Min',1,'Max',16,'Value',1:16,'position',[0.30 0.07 0.35 0.73],'fontWeight','normal','fontSize',10,'BackgroundColor', figureColor,'HorizontalAlignment','left');
+        reviewPlansH.prevPlans_push      = uicontrol(hFig,'style','pushbutton','string','<--','units',units,'position',[0.46 0.84 0.06 0.06],'fontWeight','bold','fontSize',10,'HorizontalAlignment','center', 'callback','structureNameMapGUI(''PREV_COHORT'')');
+        reviewPlansH.nextPlans_push      = uicontrol(hFig,'style','pushbutton','string','-->','units',units,'position',[0.53 0.84 0.06 0.06],'fontWeight','bold','fontSize',10,'HorizontalAlignment','center', 'callback','structureNameMapGUI(''NEXT_COHORT'')');
+        reviewPlansH.openViewer_push     = uicontrol(hFig,'style','pushbutton','string','Viewer','units',units,'position',[0.60 0.84 0.07 0.06],'fontWeight','bold','fontSize',10,'HorizontalAlignment','center', 'callback','structureNameMapGUI(''COHORT_VIEVER'')');
         
         %Store default values for directoryNames, structures and dose
         ud.reviewPlans.planNums  = 1:16;
@@ -256,12 +256,12 @@ switch upper(command)
         extractMetricsH.additonal_metrics_help_txt   = uicontrol(hFig,'style','text','string','myMetric1, myMetric2','units',units,'position',[0.04 0.58 0.25 0.1],'fontWeight','normal','fontSize',8,'BackgroundColor', figureColor,'HorizontalAlignment','left');
         extractMetricsH.additonal_metrics_edit  = uicontrol(hFig,'style','edit','string','','units',units,'position',[0.28 0.68 0.7 0.05],'fontWeight','normal','fontSize',10,'BackgroundColor', figureColor,'HorizontalAlignment','left');
         extractMetricsH.export_format_txt    = uicontrol(hFig,'style','text','string','Export Format','units',units,'position',[0.02 0.5 0.25 0.1],'fontWeight','bold','fontSize',10,'BackgroundColor', figureColor,'HorizontalAlignment','left');
-        extractMetricsH.export_format_popup  = uicontrol(hFig,'style','popup','string',{'DREES (.mat)','OQA (mySql database)', 'SPSS (MS-Excel)', 'RADRESEARCH (database)', 'BIRN (database)'},'units',units,'position',[0.28 0.57 0.3 0.05],'fontWeight','normal','fontSize',10,'BackgroundColor', figureColor,'HorizontalAlignment','left');
+        extractMetricsH.export_format_popup  = uicontrol(hFig,'style','popupmenu','string',{'DREES (.mat)','OQA (mySql database)', 'SPSS (MS-Excel)', 'RADRESEARCH (database)', 'BIRN (database)'},'units',units,'position',[0.28 0.57 0.3 0.05],'fontWeight','normal','fontSize',10,'BackgroundColor', figureColor,'HorizontalAlignment','left');
         extractMetricsH.excel_data_txt    = uicontrol(hFig,'style','text','string','Excel Data','units',units,'position',[0.02 0.41 0.25 0.1],'fontWeight','bold','fontSize',10,'BackgroundColor', figureColor,'HorizontalAlignment','left');
-        extractMetricsH.excel_data_push  = uicontrol(hFig,'style','push','string','Select','units',units,'position',[0.28 0.46 0.25 0.05],'fontWeight','normal','fontSize',10,'BackgroundColor', figureColor,'HorizontalAlignment','left','callback','structureNameMapGUI(''GET_EXCEL_DATA'')');
+        extractMetricsH.excel_data_push  = uicontrol(hFig,'style','pushbutton','string','Select','units',units,'position',[0.28 0.46 0.25 0.05],'fontWeight','normal','fontSize',10,'BackgroundColor', figureColor,'HorizontalAlignment','left','callback','structureNameMapGUI(''GET_EXCEL_DATA'')');
         extractMetricsH.drees_fileName_str    = uicontrol(hFig,'style','text','string','Saved FileName','units',units,'position',[0.02 0.32 0.25 0.1],'fontWeight','bold','fontSize',10,'BackgroundColor', figureColor,'HorizontalAlignment','left');
-        extractMetricsH.drees_fileName_push  = uicontrol(hFig,'style','push','string','Select','units',units,'position',[0.28 0.37 0.60 0.05],'fontWeight','normal','fontSize',10,'BackgroundColor', figureColor,'HorizontalAlignment','left','callback','structureNameMapGUI(''GET_DREES_FILENAME'')');
-        extractMetricsH.export_push         = uicontrol(hFig,'style','push','string','Start Export','units',units,'position',[0.7 0.25 0.25 0.05],'fontWeight','normal','fontSize',10,'BackgroundColor', figureColor,'HorizontalAlignment','left','callback','structureNameMapGUI(''save_extracted_metrics'')');
+        extractMetricsH.drees_fileName_push  = uicontrol(hFig,'style','pushbutton','string','Select','units',units,'position',[0.28 0.37 0.60 0.05],'fontWeight','normal','fontSize',10,'BackgroundColor', figureColor,'HorizontalAlignment','left','callback','structureNameMapGUI(''GET_DREES_FILENAME'')');
+        extractMetricsH.export_push         = uicontrol(hFig,'style','pushbutton','string','Start Export','units',units,'position',[0.7 0.25 0.25 0.05],'fontWeight','normal','fontSize',10,'BackgroundColor', figureColor,'HorizontalAlignment','left','callback','structureNameMapGUI(''save_extracted_metrics'')');
         %Waitbar
         extractMetricsH.waitbar_status_text = uicontrol(hFig, 'style', 'text', 'units', units, 'position', [0.05 0.15+0.05 0.2 0.03], 'string', 'Status', 'fontweight', 'bold','HorizontalAlignment','left','BackgroundColor', figureColor);
         extractMetricsH.percent_text = uicontrol(hFig, 'style', 'text', 'units', units, 'position', [0.15 0.15+0.05 0.7 0.03], 'string', '', 'fontweight', 'normal','HorizontalAlignment','left','BackgroundColor', figureColor);
@@ -288,21 +288,21 @@ switch upper(command)
         resultsH.doseNames_txt1      = uicontrol(hFig,'style','text','string','Doses to extract:','units',units,'position',[0.02 0.79 0.22 0.04],'fontWeight','bold','fontSize',8,'BackgroundColor', figureColor,'HorizontalAlignment','left');
         resultsH.doseNames_txt2      = uicontrol(hFig,'style','text','string','','units',units,'position',[0.25 0.78 0.7 0.06],'fontWeight','normal','fontSize',10,'BackgroundColor', figureColor,'HorizontalAlignment','left');
         resultsH.planNames_txt       = uicontrol(hFig,'style','text','string','File Names','units',units,'position',[0.04 0.72 0.25 0.04],'fontWeight','bold','fontSize',10,'BackgroundColor', figureColor,'HorizontalAlignment','left');
-        resultsH.planNames_list      = uicontrol(hFig,'style','list','string','','units',units,'Min',1,'Max',1,'Value',1,'position',[0.05 0.30 0.25 0.41],'fontWeight','normal','fontSize',10,'BackgroundColor', figureColor,'HorizontalAlignment','left','callback','structureNameMapGUI(''fix_selected_plan'')');
+        resultsH.planNames_list      = uicontrol(hFig,'style','listbox','string','','units',units,'Min',1,'Max',1,'Value',1,'position',[0.05 0.30 0.25 0.41],'fontWeight','normal','fontSize',10,'BackgroundColor', figureColor,'HorizontalAlignment','left','callback','structureNameMapGUI(''fix_selected_plan'')');
         resultsH.allStruct_txt       = uicontrol(hFig,'style','text','string','Structures selected','units',units,'position',[0.34 0.72 0.25 0.04],'fontWeight','bold','fontSize',10,'BackgroundColor', figureColor,'HorizontalAlignment','left');
-        resultsH.allStruct_list      = uicontrol(hFig,'style','list','string','','units',units,'Min',1,'Max',1,'Value',1,'position',[0.35 0.30 0.25 0.41],'fontWeight','normal','fontSize',10,'BackgroundColor', figureColor,'HorizontalAlignment','left');
+        resultsH.allStruct_list      = uicontrol(hFig,'style','listbox','string','','units',units,'Min',1,'Max',1,'Value',1,'position',[0.35 0.30 0.25 0.41],'fontWeight','normal','fontSize',10,'BackgroundColor', figureColor,'HorizontalAlignment','left');
         resultsH.allDoses_txt       = uicontrol(hFig,'style','text','string','Doses selected','units',units,'position',[0.64 0.72 0.25 0.04],'fontWeight','bold','fontSize',10,'BackgroundColor', figureColor,'HorizontalAlignment','left');
-        resultsH.allDoses_list      = uicontrol(hFig,'style','list','string','','units',units,'Min',1,'Max',1,'Value',1,'position',[0.65 0.30 0.25 0.41],'fontWeight','normal','fontSize',10,'BackgroundColor', figureColor,'HorizontalAlignment','left');
+        resultsH.allDoses_list      = uicontrol(hFig,'style','listbox','string','','units',units,'Min',1,'Max',1,'Value',1,'position',[0.65 0.30 0.25 0.41],'fontWeight','normal','fontSize',10,'BackgroundColor', figureColor,'HorizontalAlignment','left');
         
         resultsH.writeFilesTxt      = uicontrol(hFig,'style','text','string','Write updated plans to disk','units',units,'position',[0.02 0.23 0.28 0.04],'fontWeight','bold','fontSize',8,'BackgroundColor', figureColor,'HorizontalAlignment','left');
         
         resultsH.dir_txt = uicontrol(hFig,'style','text','string','Choose directory to save updated plans','units',units,'position',[0.03 0.15 0.18 0.07],'fontWeight','normal','fontSize',8,'BackgroundColor', figureColor,'HorizontalAlignment','left');
         resultsH.dir_edit = uicontrol(hFig,'style','edit','tag','write_dir_edit_box','string','','units',units,'position',[0.20 0.15 0.25 0.05],'fontWeight','normal','fontSize',8,'BackgroundColor', figureColor,'HorizontalAlignment','left');
-        resultsH.dir_Push = uicontrol(hFig,'style','push','tag','write_dir_push_box','string','...','units',units,'position',[0.46 0.15 0.03 0.05],'fontWeight','normal','fontSize',10,'BackgroundColor', figureColor,'HorizontalAlignment','left','callback','structureNameMapGUI(''browse_dir_to_write_plans'')');
+        resultsH.dir_Push = uicontrol(hFig,'style','pushbutton','tag','write_dir_push_box','string','...','units',units,'position',[0.46 0.15 0.03 0.05],'fontWeight','normal','fontSize',10,'BackgroundColor', figureColor,'HorizontalAlignment','left','callback','structureNameMapGUI(''browse_dir_to_write_plans'')');
         
-        resultsH.overwriteRadio = uicontrol(hFig,'style','radio','tag','write_radio','string','Overwrite existing plans','units',units,'position',[0.51 0.15 0.30 0.05],'fontWeight','normal','fontSize',10,'BackgroundColor', figureColor,'HorizontalAlignment','left','callback','structureNameMapGUI(''overwrite_plans_option_selected'')');
+        resultsH.overwriteRadio = uicontrol(hFig,'style','radiobutton','tag','write_radio','string','Overwrite existing plans','units',units,'position',[0.51 0.15 0.30 0.05],'fontWeight','normal','fontSize',10,'BackgroundColor', figureColor,'HorizontalAlignment','left','callback','structureNameMapGUI(''overwrite_plans_option_selected'')');
         
-        resultsH.write_plans_Push = uicontrol(hFig,'style','push','tag','write_plans_push_box','string','Write','units',units,'position',[0.82 0.13 0.10 0.09],'fontWeight','normal','fontSize',10,'BackgroundColor', figureColor,'HorizontalAlignment','left','callback','structureNameMapGUI(''write_plans_to_disk'')');
+        resultsH.write_plans_Push = uicontrol(hFig,'style','pushbutton','tag','write_plans_push_box','string','Write','units',units,'position',[0.82 0.13 0.10 0.09],'fontWeight','normal','fontSize',10,'BackgroundColor', figureColor,'HorizontalAlignment','left','callback','structureNameMapGUI(''write_plans_to_disk'')');
         
         %Waitbar
         resultsH.waitbar_status_text = uicontrol(hFig, 'style', 'text', 'units', units, 'position', [0.05 0.04+0.05 0.2 0.03], 'string', 'Status', 'fontweight', 'bold','HorizontalAlignment','left','BackgroundColor', figureColor);
