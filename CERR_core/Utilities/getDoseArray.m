@@ -48,7 +48,7 @@ persistent isLastDoseCompressed;
 persistent isLastDoseRemote;
 
 %Check if a doseStruct, not a doseIndex was passed.
-if isstruct(doseIndex) & isfield(doseIndex, 'doseArray')
+if isstruct(doseIndex) && isfield(doseIndex, 'doseArray')
     
     doseStruct = doseIndex(1);
     
@@ -75,13 +75,13 @@ end
 doseArray = doseStruct.doseArray;
 
 %If remote or compressed, and struct is same as last time, return cached array.
-if (isCompressed(doseArray) | ~isLocal(doseArray)) & isequal(doseStruct, lastDoseStruct);
+if (isCompressed(doseArray) || ~isLocal(doseArray)) && isequal(doseStruct, lastDoseStruct);
     doseArray = lastDoseArray;    
     isCompress = isLastDoseCompressed;
     isRemote = isLastDoseRemote;
     return;
 %If remote or compressed and NOT the same as last time, clear cache.    
-elseif (isCompressed(doseArray) | ~isLocal(doseArray)) & ~isequal(doseStruct, lastDoseStruct);
+elseif (isCompressed(doseArray) || ~isLocal(doseArray)) && ~isequal(doseStruct, lastDoseStruct);
 	lastDoseArray           = [];
 	lastDoseStruct          = [];
 	isLastDoseCompressed    = [];
@@ -93,7 +93,7 @@ isCompress  = 0;
 isRemote    = 0;
 
 %Decompress and follow all file pointers until get to an array.
-while isCompressed(doseArray) | ~isLocal(doseArray);
+while isCompressed(doseArray) || ~isLocal(doseArray);
     if isCompressed(doseArray)
         doseArray   = decompress(doseArray);
         isCompress  = 1;
