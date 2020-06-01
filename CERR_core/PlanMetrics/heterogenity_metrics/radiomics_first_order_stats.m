@@ -61,8 +61,10 @@ RadiomicsFirstOrderS.min           = nanmin(Iarray);
 RadiomicsFirstOrderS.max           = nanmax(Iarray);
 RadiomicsFirstOrderS.mean          = nanmean(Iarray);
 RadiomicsFirstOrderS.range         = range(Iarray);
-RadiomicsFirstOrderS.std           = std(Iarray,1,'omitnan');
-RadiomicsFirstOrderS.var           = var(Iarray,1,'omitnan');
+%RadiomicsFirstOrderS.std           = std(Iarray,1,'omitnan');
+RadiomicsFirstOrderS.std           = nanstd(Iarray,1);
+%RadiomicsFirstOrderS.var           = var(Iarray,1,'omitnan');
+RadiomicsFirstOrderS.var           = nanvar(Iarray,1); 
 RadiomicsFirstOrderS.median        = nanmedian(Iarray);
 
 % Skewness is a measure of the asymmetry of the data around the sample mean.
@@ -97,7 +99,9 @@ xmaxV = max(Iarray); % + offsetForEnergy;
 xminV = min(Iarray);
 offsetForEntropyV = zeros(1,size(xminV,2));
 offsetForEntropyV(xminV<0) = -xminV(xminV<0);
-offsetForEntropyV = cast(offsetForEntropyV,'like',Iarray);
+%offsetForEntropyV = cast(offsetForEntropyV,'like',Iarray);
+offsetForEntropyV = cast(offsetForEntropyV,class(Iarray)); %for octave
+
 
 xmaxV = xmaxV + offsetForEntropyV;
 xminV = xminV + offsetForEntropyV;
@@ -112,12 +116,15 @@ edgeMaxV(edgeMaxV==edgeMinV) = binWidth;
 %--------
 
 entropyV = nan(1,size(Iarray,2));
-entropyV = cast(entropyV,'like',Iarray);
+%entropyV = cast(entropyV,'like',Iarray); %for octave
+entropyV = cast(entropyV,class(Iarray));
+
 sizeV = sum(~isnan(Iarray));
 for k = 1:size(Iarray,2)
 edgeV = edgeMinV(k):binWidth:edgeMaxV(k); 
 if any(~isnan(Iarray(:,k)))
-countV = histcounts(Iarray(:,k)+offsetForEntropyV(k),edgeV) + eps; 
+%countV = histcounts(Iarray(:,k)+offsetForEntropyV(k),edgeV) + eps; 
+countV = histc(Iarray(:,k)+offsetForEntropyV(k),edgeV) + eps;   %for octave
 %-------%
 %numGrLevels = 16; %For GRE calculation;
 %countV = histcounts(Iarray(:,k)+offsetForEntropyV(k),numGrLevels); %For GRE calculation;
@@ -146,11 +153,11 @@ RadiomicsFirstOrderS.meanAbsDev            = mad(Iarray);
 RadiomicsFirstOrderS.medianAbsDev = nansum(abs(Iarray-RadiomicsFirstOrderS.median))./sizeV;
 
 %   P10
-p10 = prctile(Iarray,10);
+p10 = prctile(Iarray(~isnan(Iarray)),10);
 RadiomicsFirstOrderS.P10 = p10;
 
 %   P90
-p90 = prctile(Iarray,90);
+p90 = prctile(Iarray(~isnan(Iarray)),90);
 RadiomicsFirstOrderS.P90 = p90;
 
 Iarray10_90 = Iarray;
@@ -162,7 +169,7 @@ RadiomicsFirstOrderS.robustMeanAbsDev  = mad(Iarray10_90);
 
 %   Robust Median Absolute Deviation
 RadiomicsFirstOrderS.robustMedianAbsDev  = nansum(abs(Iarray10_90-nanmedian(Iarray10_90)))...
-    ./ sum(idx10_90);
+    ./ double(sum(idx10_90));
 
 % Inter-Quartile Range (IQR)
 % P75 - P25
