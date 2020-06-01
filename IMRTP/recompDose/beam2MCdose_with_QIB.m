@@ -280,7 +280,7 @@ if ~isempty(planC{indexS.beams}) && ((isfield(planC{indexS.beams}(1).FractionGro
             catch
                 disp('No IC defined in DICOM header, use the one from RTOG Beam Geometry');
                 s=planC{indexS.beamGeometry}(indexBeam).file{1};
-                ind=max(findstr(s, '"'));
+                ind=max(strfind(s, '"'));
                 IMBase.beams(1).isocenter.x = str2num(s(ind+1:end));
 
                 s=planC{indexS.beamGeometry}(indexBeam).file{2};

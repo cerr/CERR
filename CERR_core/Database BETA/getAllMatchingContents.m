@@ -51,7 +51,7 @@ for i=1:(nargin-1)
             contents = getAllMatchingContents(fieldname(fieldEnd+1:end), data{cellIndex});
             
         case 'struct'
-            periods = [findstr(fieldname, '.') length(fieldname)+1];
+            periods = [strfind(fieldname, '.') length(fieldname)+1];
             range = periods(1)+1:periods(2)-1;
             
             nextFieldName = fieldname(range);

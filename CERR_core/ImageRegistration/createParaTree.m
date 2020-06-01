@@ -180,7 +180,7 @@ function expFcn = createParaTree(varargin)
         fields = {};        
         while cNode.getLevel ~=0
             fields = [fields; cNode.getValue];
-            c = findstr(cNode.getValue, '(');
+            c = strfind(cNode.getValue, '(');
             if ~isempty(c) && cNode.getLevel ~=0
                 cNode = cNode.getParent;
             end
@@ -195,7 +195,7 @@ function expFcn = createParaTree(varargin)
             for j = L-1:-1:1, displayed = strcat(displayed, '.', fields{j}); end
             for i=L:-1:1
                 field = fields{i};            
-                d = findstr(field,'(');
+                d = strfind(field,'(');
                 if ~isempty(d)
                     idx = str2num(field(d+1));
                     field = field(1:d-1);

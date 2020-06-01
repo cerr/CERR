@@ -229,12 +229,12 @@ function result = isSimpleFile(file)
 
 result = 0;
 if isunix
-    if isempty(findstr(file, '/'))
+    if isempty(strfind(file, '/'))
         result = 1;
     end
 else % on windows be more restrictive
-    if isempty(findstr(file, '\')) & isempty(findstr(file, '/'))...
-        & isempty(findstr(file, ':')) % need to keep : for c: case
+    if isempty(strfind(file, '\')) & isempty(strfind(file, '/'))...
+        & isempty(strfind(file, ':')) % need to keep : for c: case
         result = 1;
     end
 end

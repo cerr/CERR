@@ -1989,8 +1989,8 @@ switch upper(command)
                 
                 %Get RT number from filename
                 [pathStr,fileStr] = fileparts(ud.newNameMapS(planNum).fullFileName);
-                indUscore = findstr(fileStr,'_');
-                indRT = findstr(fileStr,'RT');
+                indUscore = strfind(fileStr,'_');
+                indRT = strfind(fileStr,'RT');
                 IDStr = fileStr(indRT+2:indUscore(1)-1);
                 
                 
@@ -2085,7 +2085,7 @@ switch upper(command)
                 end
                 
                 %Get therapy instance, if possible
-                indP = findstr(pathStr,'P-');
+                indP = strfind(pathStr,'P-');
                 if isempty(indP)
                     plan_instance = 'P-1';
                 else
@@ -2093,7 +2093,7 @@ switch upper(command)
                 end
                 
                 %Get plan instance, if possible
-                indT = findstr(pathStr,'T-');
+                indT = strfind(pathStr,'T-');
                 if isempty(indT)
                     therapy_instance = pathStr(indT:indT+2);
                 else
@@ -2416,7 +2416,7 @@ switch upper(command)
                 end
                 
                 %Get therapy instance, if possible
-                indP = findstr(pathStr,'P-');
+                indP = strfind(pathStr,'P-');
                 if isempty(indP)
                     plan_instance = 'P-1';
                 else
@@ -2424,7 +2424,7 @@ switch upper(command)
                 end
                 
                 %Get plan instance, if possible
-                indT = findstr(pathStr,'T-');
+                indT = strfind(pathStr,'T-');
                 if isempty(indT)
                     therapy_instance = pathStr(indT:indT+2);
                 else
@@ -2482,64 +2482,64 @@ return;
 
 % --------- supporting sub-functions
 function str = repSpaceHyp(str)
-indSpace = findstr(str,' ');
-indDot = findstr(str,'.');
+indSpace = strfind(str,' ');
+indDot = strfind(str,'.');
 str(indDot) = [];
-indOpenParan = findstr(str,'(');
-indCloseParan = findstr(str,')');
-indPlus = findstr(str,'+');
-indMinus = findstr(str,'-');
-indPercent = findstr(str,'%');
-indComma = findstr(str,',');
-indBackSlash = findstr(str,'\');
-indFwdSlash = findstr(str,'/');
-indEqualTo = findstr(str,'=');
-indQuestion = findstr(str,'?');
-indAnd = findstr(str,'&');
-indColon = findstr(str,':');
+indOpenParan = strfind(str,'(');
+indCloseParan = strfind(str,')');
+indPlus = strfind(str,'+');
+indMinus = strfind(str,'-');
+indPercent = strfind(str,'%');
+indComma = strfind(str,',');
+indBackSlash = strfind(str,'\');
+indFwdSlash = strfind(str,'/');
+indEqualTo = strfind(str,'=');
+indQuestion = strfind(str,'?');
+indAnd = strfind(str,'&');
+indColon = strfind(str,':');
 indToReplace = [indSpace indOpenParan indCloseParan indPlus indMinus indPercent indComma indBackSlash indFwdSlash indEqualTo indQuestion indAnd indColon];
 str(indToReplace) = '_';
-indGreaterThan = findstr(str,'>');
-indLessThan = findstr(str,'<');
+indGreaterThan = strfind(str,'>');
+indLessThan = strfind(str,'<');
 str(indGreaterThan) = 'G';
 str(indLessThan) = 'L';
-indNum = findstr(str,'1');
+indNum = strfind(str,'1');
 if indNum == 1
     str(indNum) = 'A';
 end
-indNum = findstr(str,'2');
+indNum = strfind(str,'2');
 if indNum == 1
     str(indNum) = 'B';
 end
-indNum = findstr(str,'3');
+indNum = strfind(str,'3');
 if indNum == 1
     str(indNum) = 'C';
 end
-indNum = findstr(str,'4');
+indNum = strfind(str,'4');
 if indNum == 1
     str(indNum) = 'D';
 end
-indNum = findstr(str,'5');
+indNum = strfind(str,'5');
 if indNum == 1
     str(indNum) = 'E';
 end
-indNum = findstr(str,'6');
+indNum = strfind(str,'6');
 if indNum == 1
     str(indNum) = 'F';
 end
-indNum = findstr(str,'7');
+indNum = strfind(str,'7');
 if indNum == 1
     str(indNum) = 'G';
 end
-indNum = findstr(str,'8');
+indNum = strfind(str,'8');
 if indNum == 1
     str(indNum) = 'H';
 end
-indNum = findstr(str,'9');
+indNum = strfind(str,'9');
 if indNum == 1
     str(indNum) = 'I';
 end
-indNum = findstr(str,'0');
+indNum = strfind(str,'0');
 if indNum == 1
     str(indNum) = 'Z';
 end

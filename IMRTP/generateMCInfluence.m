@@ -97,7 +97,7 @@ offset(5:6)=offset(5:6)-zres/2;
 
 %Setup the options for the VMC++ input.
 VMCOpt = VMCOptInit;
-phantomFilename(findstr(phantomFilename, '\')) = '/'; %VMC requires '/'.
+phantomFilename(strfind(phantomFilename, '\')) = '/'; %VMC requires '/'.
 VMCOpt.startGeometry.startXYZGeometry.phantomFile=phantomFilename;
 
 %Set options from IM.params.VMC
@@ -198,7 +198,7 @@ for beamIndex=1:numBeams,
             otherwise
                 error('Invalid beam energy.'); %Eventually add custom beamEnergy files here.
         end
-        energyFile(findstr(energyFile, '\')) = '/'; %Must use '/' instead of '\' for VMC.                
+        energyFile(strfind(energyFile, '\')) = '/'; %Must use '/' instead of '\' for VMC.                
         
         VMCOpt.startBeamletSource.spectrum = energyFile;      
         

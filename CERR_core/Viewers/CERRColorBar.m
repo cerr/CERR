@@ -133,8 +133,8 @@ switch upper(command)
         
         %calculate increment counter
         str             = num2str(abs(colorbarFrameMax));
-        indZero         = findstr(str,'0');
-        indDot          = findstr(str,'.');
+        indZero         = strfind(str,'0');
+        indDot          = strfind(str,'.');
         indToNeglect    = [indZero indDot];
         indAll          = 1:length(str);
         indSignif       = indAll;

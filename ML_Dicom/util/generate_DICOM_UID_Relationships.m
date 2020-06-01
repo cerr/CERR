@@ -134,10 +134,10 @@ for i = 1:length(planC{indexS.scan})
         modality = planC{indexS.scan}.scanInfo(1).imageType;
     end
     
-    if any(findstr(upper(modality), 'CT'))
+    if any(strfind(upper(modality), 'CT'))
         SOP_Class_UID = '1.2.840.10008.5.1.4.1.1.2';
         
-    elseif any(findstr(upper(modality), 'MR'))
+    elseif any(strfind(upper(modality), 'MR'))
         SOP_Class_UID = '1.2.840.10008.5.1.4.1.1.4';
         
     else

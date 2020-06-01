@@ -59,7 +59,7 @@ function tmpS = importDose(doseFileName, tmpS, optS)
 %No warranty or fitness is expressed or implied for any purpose whatsoever--use at your own risk.
 
 
-if ~isempty(findstr(lower(tmpS.numberRepresentation),'complement'))  %binary?
+if ~isempty(strfind(lower(tmpS.numberRepresentation),'complement'))  %binary?
     type = 'binary';
 else
     type = 'ASCII';

@@ -4,7 +4,7 @@ function strOut = escapeSlashes(strIn)
 % APA, 07/17/2012
 
 strOut = strIn;
-slashIndices = findstr(strIn,'\');
+slashIndices = strfind(strIn,'\');
 count = 0;
 for ind = slashIndices
     strTmp = strIn(ind+1:end);

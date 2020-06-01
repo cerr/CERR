@@ -111,14 +111,14 @@ elseif nargin == 1 %Assume options given
     fid = fopen(optName,'r');
     while(1)
         tline = fgetl(fid);
-        if findstr((tline), 'optS.saveZip'), break, end
+        if strfind((tline), 'optS.saveZip'), break, end
     end
     fclose(fid);
-    index = findstr(tline, '=');
+    index = strfind(tline, '=');
     toZipOrNot = lower(midstring(tline, (index + 1), length(tline) - 1));
-    if findstr(toZipOrNot, 'yes')
+    if strfind(toZipOrNot, 'yes')
         toZipOrNot = 'yes';
-    elseif findstr(toZipOrNot, 'no')
+    elseif strfind(toZipOrNot, 'no')
         toZipOrNot = 'no';
     else
         warndlg('Output file compression not set: defaulting to full.', ...
@@ -132,14 +132,14 @@ elseif nargin == 2
     fid = fopen(optName,'r');
     while(1)
         tline = fgetl(fid);
-        if findstr((tline), 'optS.saveZip'), break, end
+        if strfind((tline), 'optS.saveZip'), break, end
     end
     fclose(fid);
-    index = findstr(tline, '=');
+    index = strfind(tline, '=');
     toZipOrNot = lower(midstring(tline, (index + 1), length(tline) - 1));
-    if findstr(toZipOrNot, 'yes')
+    if strfind(toZipOrNot, 'yes')
         toZipOrNot = 'yes';
-    elseif findstr(toZipOrNot, 'no')
+    elseif strfind(toZipOrNot, 'no')
         toZipOrNot = 'no';
     else
         warndlg('Output file compression not set: defaulting to full.', ...
@@ -153,14 +153,14 @@ elseif nargin == 3
     fid = fopen(optName,'r');
     while(1)
         tline = fgetl(fid);
-        if findstr((tline), 'optS.saveZip'), break, end
+        if strfind((tline), 'optS.saveZip'), break, end
     end
     fclose(fid);
-    index = findstr(tline, '=');
+    index = strfind(tline, '=');
     toZipOrNot = lower(midstring(tline, (index + 1), length(tline) - 1));
-    if findstr(toZipOrNot, 'yes')
+    if strfind(toZipOrNot, 'yes')
         toZipOrNot = 'yes';
-    elseif findstr(toZipOrNot, 'no')
+    elseif strfind(toZipOrNot, 'no')
         toZipOrNot = 'no';
     else
         warndlg('Output file compression not set: defaulting to full.', ...

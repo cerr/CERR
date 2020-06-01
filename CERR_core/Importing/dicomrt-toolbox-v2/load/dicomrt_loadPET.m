@@ -39,7 +39,7 @@ while feof(fid)~=1
         %Check if PET is corrected for Scatter and attenuation
         if nPET == 1
             CorrectedImage = info.CorrectedImage;
-            if ~findstr('ATTN',CorrectedImage)| ~findstr('SCAT',CorrectedImage)
+            if ~strfind('ATTN',CorrectedImage)|| ~strfind('SCAT',CorrectedImage)
                 wDlg = warndlg('PET imported is not corrected for Attenuation OR Scatter. The Intensities for SUV calculation will differ from PET scan with following correction');
                 waitfor(wDlg);
             end

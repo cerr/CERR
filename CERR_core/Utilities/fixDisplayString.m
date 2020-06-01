@@ -26,7 +26,7 @@ function [out] = fixDisplayString(in)
 % along with CERR.  If not, see <http://www.gnu.org/licenses/>.
 
 
-indV = findstr(in,'_');
+indV = strfind(in,'_');
 tmp = in;
 for i = 1 : length(indV)
   [tmp] = insert('\',tmp,indV(i)-1+(i-1));

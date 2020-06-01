@@ -326,7 +326,7 @@ fclose(fid);
 if (sourceModel == 1)  % Use source model, version 1.
     % Get the photon spectrum file for the Flatteing Filter.
     % Get the correct filename
-    inds = max(findstr(Energy, '.'));
+    inds = max(strfind(Energy, '.'));
     fid = fopen([Energy(1:inds-1), '_FF', Energy(inds:end)]);
     if (fid == -1),
         disp('Can not Open photon spectrum file for the flattening filter');
@@ -338,7 +338,7 @@ if (sourceModel == 1)  % Use source model, version 1.
 
     % Get all the other parameters for the whole source model
     % Fluence weight of Flattening Filter, Horn, and Electron contamination
-    inds = max(findstr(Energy, '.'));
+    inds = max(strfind(Energy, '.'));
     fid = fopen([Energy(1:inds-1), '_Params', Energy(inds:end)]);
     if (fid == -1),
         disp('Can not Open photon spectrum file for the flattening filter');

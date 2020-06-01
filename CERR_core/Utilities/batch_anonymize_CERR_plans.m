@@ -116,7 +116,7 @@ for dirNum = 1:length(allDirS)
                 while indexSlash~=length(slashIndex) && any(strcmpi(newFileName, allOutNames))
                     newFileName = [sourceDirName,'_',newFileName];
                     sourceDirName = sourceDir(slashIndex(end-indexSlash)+1:end);
-                    sourceDirName(findstr(sourceDirName,slashType)) = deal('_');
+                    sourceDirName(strfind(sourceDirName,slashType)) = deal('_');
                     indexSlash = indexSlash + 1;
                 end
                 if any(strcmpi(newFileName,allOutNames))

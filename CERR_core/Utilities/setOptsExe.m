@@ -36,10 +36,10 @@ if nargin == 1
 end
 
 opt_str = deblank2(opt_str);
-if ~isempty(findstr(opt_str,'=')) && ~strcmp(opt_str(1),'%')
+if ~isempty(strfind(opt_str,'=')) && ~strcmp(opt_str(1),'%')
   if ~strcmp(word(opt_str,1),'function') %skip function line if present
    %Remove any comments:
-   ind1 = findstr('%',opt_str);
+   ind1 = strfind('%',opt_str);
    if ~isempty(ind1)
      if ind1 == 1
        return
@@ -47,7 +47,7 @@ if ~isempty(findstr(opt_str,'=')) && ~strcmp(opt_str(1),'%')
      opt_str = opt_str(1:ind1-1);
    end
    %remove trailing ';'
-   ind1 = findstr(';',opt_str);
+   ind1 = strfind(';',opt_str);
    if ~isempty(ind1)
      opt_str = opt_str(1:ind1-1);
    end
@@ -56,10 +56,10 @@ if ~isempty(findstr(opt_str,'=')) && ~strcmp(opt_str(1),'%')
    %Get the first wor
    firstW = word(opt_str,1);
    %Find the period:
-   ind2 = findstr('.',firstW);
+   ind2 = strfind('.',firstW);
    leaf = firstW(ind2+1:length(firstW));
    %Get setting: everything past the '=' sign
-   ind3 = findstr(opt_str,'=');
+   ind3 = strfind(opt_str,'=');
    value = opt_str(ind3+1:length(opt_str));
    value = deblank2(value);
    %Convert numerical assignments to numbers:
@@ -67,7 +67,7 @@ if ~isempty(findstr(opt_str,'=')) && ~strcmp(opt_str(1),'%')
    %catch cell arrays
    if strcmp(value(1),'{')
      %build cell array of strings
-     iV = findstr(value,'''');
+     iV = strfind(value,'''');
      value2 = {};
      for i = 1 : length(iV)/2
        j = i * 2 - 1;
@@ -79,7 +79,7 @@ if ~isempty(findstr(opt_str,'=')) && ~strcmp(opt_str(1),'%')
      if ~isempty(str2num(value))
        value = str2num(value);
      else  %remove apostrophes
-       iV = findstr(value,'''');
+       iV = strfind(value,'''');
        if ~isempty(iV)
          value(iV) = [];
        end

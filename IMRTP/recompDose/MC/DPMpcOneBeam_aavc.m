@@ -452,7 +452,7 @@ elseif (~isempty(planC{7}) & (planC{7}(1).FractionGroupSequence.Item_1.NumberOfB
             catch
                 disp('No IC defined in DICOM header, use the one from RTOG Beam Geometry');
                 s=planC{indexS.beamGeometry}(indexBeam).file{1};
-                ind=max(findstr(s, '"'));
+                ind=max(strfind(s, '"'));
                 IMBase.beams(1).isocenter.x = str2num(s(ind+1:end));
 
                 s=planC{indexS.beamGeometry}(indexBeam).file{2};

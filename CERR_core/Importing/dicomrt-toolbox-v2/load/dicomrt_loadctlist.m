@@ -154,7 +154,7 @@ imagetypeAXIAL=' ';
 filelistAXIAL=' ';
 
 for i=1:size(filelistUID,1)
-    if isempty(findstr('AXIAL',imagetypeUID(i,:)))==1 % Scout image found
+    if isempty(strfind('AXIAL',imagetypeUID(i,:)))==1 % Scout image found
         disp(['The following image :',filelistUID(i,:),' is not AXIAL. Skipped ...']);
         change=1; % just make sure we return alterations to the filelist
     else

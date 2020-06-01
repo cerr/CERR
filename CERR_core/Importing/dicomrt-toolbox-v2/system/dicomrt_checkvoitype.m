@@ -14,7 +14,7 @@ VOI_array=VOI{2,1};
 nvois=size(VOI_array,1);
 
 for i=1:nvois
-    n3d(i)=isempty(findstr(VOI_array{i,1},'3D'));
+    n3d(i)=isempty(strfind(VOI_array{i,1},'3D'));
 end
 
 if find(n3d)
