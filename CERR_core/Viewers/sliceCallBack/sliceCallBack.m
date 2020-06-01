@@ -104,7 +104,8 @@ switch upper(instr)
         
         if ~exist('planC','var') || (exist('planC','var')  && isempty(planC))
             %Check java version and add DCM4CHE libraries to Matlab path
-            dcm_init_flag = init_ML_DICOM;
+            %dcm_init_flag = init_ML_DICOM;
+            dcm_init_flag = 1; %mod for octave compatibility
         else
             dcm_init_flag = 0;
         end
@@ -206,10 +207,15 @@ switch upper(instr)
 
         str1 = ['CERR'];
         position = [5 40 940 620];
+        %--- temp for octave compatibility---
+        %hCSV = figure('tag','CERRSliceViewer','name',str1,'numbertitle','off',...
+        %    'position',position, 'doublebuffer', 'off','CloseRequestFcn',...
+        %    'sliceCallBack(''closeRequest'')','backingstore','off','tag',...
+        %   'CERRSliceViewer', 'renderer', 'zbuffer');
         hCSV = figure('tag','CERRSliceViewer','name',str1,'numbertitle','off',...
             'position',position, 'doublebuffer', 'off','CloseRequestFcn',...
-            'sliceCallBack(''closeRequest'')','backingstore','off','tag',...
-            'CERRSliceViewer', 'renderer', 'zbuffer');
+            'sliceCallBack(''closeRequest'')','tag',...
+            'CERRSliceViewer');
                 
         figureColor = get(hCSV, 'Color');
         stateS.handle.CERRSliceViewer = hCSV;
@@ -285,9 +291,9 @@ switch upper(instr)
         uicontrol(hCSV,'units','pixels','BackgroundColor',uicolor,'Position',[(frameWidth-50)/2+10+15 510 (frameWidth-50)/2 25], 'String','Width','Style','text', 'enable', 'inactive' ,'Tag','CTWindow','ForegroundColor',[0.1 0.4 0.1]);
 
         %Presets dropdown.
-        stateS.handle.CTPreset = uicontrol(hCSV,'units','pixels', 'BackgroundColor',uicolor,'Position',[20 540 (frameWidth-30)/2 25], 'String',{stateS.optS.windowPresets.name},'Style','popup','Tag','CTPreset', 'callback','sliceCallBack(''CTPreset'');','tooltipstring','Select Preset Window');
+        stateS.handle.CTPreset = uicontrol(hCSV,'units','pixels', 'BackgroundColor',uicolor,'Position',[20 540 (frameWidth-30)/2 25], 'String',{stateS.optS.windowPresets.name},'Style','popupmenu','Tag','CTPreset', 'callback','sliceCallBack(''CTPreset'');','tooltipstring','Select Preset Window');
         %Base Colormap Presets dropdown.
-        stateS.handle.BaseCMap = uicontrol(hCSV,'units','pixels', 'BackgroundColor',uicolor,'Position',[(frameWidth-30)/2+20+10 540 (frameWidth-30)/2 25], 'String',{stateS.optS.scanColorMap.name},'Style','popup','Tag','CMapPreset', 'callback','sliceCallBack(''BaseColorMap'');','tooltipstring','Select Scan Color Map','Enable','on');
+        stateS.handle.BaseCMap = uicontrol(hCSV,'units','pixels', 'BackgroundColor',uicolor,'Position',[(frameWidth-30)/2+20+10 540 (frameWidth-30)/2 25], 'String',{stateS.optS.scanColorMap.name},'Style','popupmenu','Tag','CMapPreset', 'callback','sliceCallBack(''BaseColorMap'');','tooltipstring','Select Scan Color Map','Enable','on');
         %CTLevel edit box
         stateS.handle.CTLevel = uicontrol(hCSV,'units','pixels', 'BackgroundColor',uicolor,'Position',[20 500 (frameWidth-50)/2 20], 'String',num2str(stateS.optS.CTLevel),'Style','edit','Tag','CTLevel', 'callback','sliceCallBack(''CTLevel'');','tooltipstring','Change CT window center');
         %CT Width edit box.
@@ -308,7 +314,8 @@ switch upper(instr)
         if isdeployed
             [I,map] = imread(fullfile(getCERRPath,'pics','Icons','tool_zoom.gif'),'gif');
         else
-            [I,map] = imread('tool_zoom.gif','gif');
+        %    [I,map] = imread('tool_zoom.gif','gif');
+             [I,map] = imread(fullfile(getCERRPath,'Icons','tool_zoom.gif'),'gif');
         end
         zoomImg = ind2rgb(I,map);
         stateS.handle.zoom = uicontrol(hCSV,'units',units,'style', 'togglebutton', 'position',[0.018*512+dx, 345, dx - 35, 20]/512,'cdata',zoomImg,'BackgroundColor',uicolor, 'callback','sliceCallBack(''togglezoom'')','interruptible','on','tooltipstring', 'Toggle ZoomIn(Left)/ZoomOut(Right)');
@@ -316,7 +323,8 @@ switch upper(instr)
         if isdeployed
             [I,map] = imread(fullfile(getCERRPath,'pics','Icons','reset_zoom.GIF'),'gif');
         else
-            [I,map] = imread('reset_zoom.GIF','gif');
+            %[I,map] = imread('reset_zoom.GIF','gif');
+            [I,map] = imread(fullfile(getCERRPath,'Icons','reset_zoom.gif'),'gif');
         end
         resetZoomImg = ind2rgb(I,map);
         stateS.handle.resetZoom = uicontrol(hCSV,'units',units,'style', 'PushButton', 'position',[0.018*512+dx*1.4, 345, dx - 35, 20]/512,'cdata',resetZoomImg,'BackgroundColor',uicolor, 'callback','sliceCallBack(''ZOOMRESET'')','interruptible','on','tooltipstring', 'Reset Zoom to Original');
@@ -325,8 +333,8 @@ switch upper(instr)
         %   stateS.handle.zoomOutTrans = uicontrol(hCSV,'units',units,'pos',[0.018*512, 345 dx - 10, 20]/512,'string','Zoom out','fontsize',fontsize, 'BackgroundColor',uicolor, 'callback','sliceCallBack(''zoomout'')','interruptible','on','tooltipstring','Zoom out by factor optS.zoomFactor');
 
         %Temporary next/prev slice buttons.
-        stateS.handle.buttonUp = uicontrol(hCSV,'units',units,'style', 'pushbutton', 'pos',[0.018*512, 345 dx/2-10, 20]/512,'string','S+','fontsize',fontsize, 'BackgroundColor',uicolor, 'callback','sliceCallBack(''ChangeSlc'',''nextslice'')','interruptible','on');
-        stateS.handle.buttonDwn = uicontrol(hCSV,'units',units,'style', 'pushbutton', 'pos',[0.018*512+dx*0.4, 345 dx/2-10, 20]/512,'string','S-','fontsize',fontsize, 'BackgroundColor',uicolor, 'callback','sliceCallBack(''ChangeSlc'',''prevslice'')','interruptible','on');
+        stateS.handle.buttonUp = uicontrol(hCSV,'units',units,'style', 'pushbutton', 'position',[0.018*512, 345 dx/2-10, 20]/512,'string','S+','fontsize',fontsize, 'BackgroundColor',uicolor, 'callback','sliceCallBack(''ChangeSlc'',''nextslice'')','interruptible','on');
+        stateS.handle.buttonDwn = uicontrol(hCSV,'units',units,'style', 'pushbutton', 'position',[0.018*512+dx*0.4, 345 dx/2-10, 20]/512,'string','S-','fontsize',fontsize, 'BackgroundColor',uicolor, 'callback','sliceCallBack(''ChangeSlc'',''prevslice'')','interruptible','on');
 
         % Capture Button on CERR
         %[I,map] = imread('capture.GIF','gif');
@@ -447,7 +455,7 @@ switch upper(instr)
 
         %Populate bottom margin Gui Objects.
         %Command line editbox.
-        stateS.handle.commandLine = uicontrol(hCSV,'units',units,'BackgroundColor',[1 1 1], 'pos',[145 30 90 18]/512, 'String','help','Style','edit','Tag','command', 'callback','sliceCallBack(''command'');','horizontalalignment','left');
+        stateS.handle.commandLine = uicontrol(hCSV,'units',units,'BackgroundColor',[1 1 1], 'position',[145 30 90 18]/512, 'String','help','Style','edit','Tag','command', 'callback','sliceCallBack(''command'');','horizontalalignment','left');
         hCmd = uicontrol(hCSV,'units',units,'Position',[110 25 30 20]/512,'Style','text', 'enable', 'inactive'  ,'String','Command:', 'horizontalAlignment', 'left', 'Backgroundcolor', figureColor);
         set([stateS.handle.commandLine, hCmd], 'units', 'pixels');
 
@@ -501,7 +509,7 @@ switch upper(instr)
         indexS = planC{end};
         
         % Quality assure
-        quality_assure_planC
+        quality_assure_planC;
 
         %Set Patient-Name string
         patName = planC{indexS.scan}(1).scanInfo(1).patientName;
