@@ -88,7 +88,7 @@ for dirNum = 1:length(allDirS)
             try
                 disp(['Importing ',sourceDir_rtog,' ...'])
                 planC = importRTOGDir(CERROptions,sourceDir_rtog, allDirS(dirNum).name);
-                rtStartIndex = findstr(sourceDir,[slashType,'RT']);                
+                rtStartIndex = strfind(sourceDir,[slashType,'RT']);                
                 if isempty(rtStartIndex)
                     rtStartIndex = slashIndex(end) + 1;
                     rtEndIndex = length(sourceDir);
@@ -108,7 +108,7 @@ for dirNum = 1:length(allDirS)
                 allOutNames = {dirOut.name};
                 while any(strcmpi([sourceDirName,'.mat.bz2'],allOutNames))
                     sourceDirName = sourceDir(slashIndex(end-2)+1:end);
-                    sourceDirName(findstr(sourceDirName,slashType)) = deal('_');
+                    sourceDirName(strfind(sourceDirName,slashType)) = deal('_');
                 end
                 if strcmpi(zipFlag,'Yes')
                     save_planC(planC,[], 'passed', fullfile(destinationDir,[sourceDirName,'.mat.bz2']));
@@ -158,7 +158,7 @@ for dirNum = 1:length(allDirS)
                 end       
 %                 % For TopModule/Metropolis plans that are named as
 %                 RT000000...
-%                 rtStartIndex = findstr(sourceDir,[slashType,'RT']);                
+%                 rtStartIndex = strfind(sourceDir,[slashType,'RT']);                
 %                 if isempty(rtStartIndex)
 %                     rtStartIndex = slashIndex(end)+1;
 %                     rtEndIndex = length(sourceDir);
@@ -205,7 +205,7 @@ for dirNum = 1:length(allDirS)
                 indexSlash = 1;
                 while indexSlash~=length(slashIndex) && any(strcmpi([sourceDirName,'.mat.bz2'],allOutNames))
                     sourceDirName = sourceDir(slashIndex(end-indexSlash)+1:end);
-                    sourceDirName(findstr(sourceDirName,slashType)) = deal('_');
+                    sourceDirName(strfind(sourceDirName,slashType)) = deal('_');
                     indexSlash = indexSlash + 1;
                 end
                 if any(strcmpi([sourceDirName,'.mat.bz2'],allOutNames))
@@ -249,7 +249,7 @@ try
 catch
     dcmflag = 0;
 end
-if ~dcmflag && ~isempty(findstr(fileName,'0000'))
+if ~dcmflag && ~isempty(strfind(fileName,'0000'))
     flag = 1;
 end
 end

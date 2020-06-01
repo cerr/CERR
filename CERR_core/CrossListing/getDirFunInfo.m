@@ -672,7 +672,7 @@ for i = 1:size(wordlets,2)
             data{3} = {data{3}{1,:}, functionName; data{3}{2,:}, functionPath};
         end
 
-    elseif ~isempty(findstr(type, '\')) | ~isempty(findstr(type,'/')) %then 'type' is a pathname for the function
+    elseif ~isempty(strfind(type, '\')) | ~isempty(strfind(type,'/')) %then 'type' is a pathname for the function
         if strcmp(type,which(fun))  % path of this fun is same as master fun
             if ~strcmp(currentWord,fun) % then this is a subfunction.
                 type = 'subfunction';
@@ -971,13 +971,13 @@ for i = 1:length(file)
     str = file{i};
 
     % APA: remove == and ~=
-    indexV = findstr('==',str);
-    indexV = [ indexV findstr('~=',str) ];
+    indexV = strfind('==',str);
+    indexV = [ indexV strfind('~=',str) ];
     str([indexV indexV+1]) = '';
     % APA: remove == and ~= ends
 
     % APA: Add blanks to the sides of =
-    indexVeq = findstr('=',str);
+    indexVeq = strfind('=',str);
     if ~isempty(indexVeq)
         str = [str(1:indexVeq-1),' = ',str(indexVeq+1:end)];
     end
@@ -985,7 +985,7 @@ for i = 1:length(file)
     %str(str == ' ') = '&'; %remove whitespace
 
     for j = 1:length(delims)
-        indexV = findstr(delims{j},str);
+        indexV = strfind(delims{j},str);
         for k =1:length(indexV)
             q = indexV(k);
             len = length(delims{j});
@@ -1027,7 +1027,7 @@ for i = 1:length(file)
         end
 
     else
-        indexVeq = findstr('=',str);
+        indexVeq = strfind('=',str);
         str(indexVeq) = ' ';
         for k=1:words(str)
             str2  = word(str,k);

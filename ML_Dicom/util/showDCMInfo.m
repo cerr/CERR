@@ -218,7 +218,7 @@ uiwait;
         fields = {};
         while cNode.getLevel ~=0
             fields = [fields; cNode.getValue];
-            c = findstr(cNode.getValue, '(');
+            c = strfind(cNode.getValue, '(');
             if ~isempty(c) && cNode.getLevel ~=0
                 cNode = cNode.getParent;
             end
@@ -233,8 +233,8 @@ uiwait;
             for j = L-1:-1:1, displayed = strcat(displayed, '.', fields{j}); end
             for i=L:-1:1
                 field = fields{i};
-                d1 = findstr(field,'(');
-                d2 = findstr(field,')');
+                d1 = strfind(field,'(');
+                d2 = strfind(field,')');
                 if ~isempty(d1)
                     idx = str2double(field(d1+1:d2-1));
                     field = field(1:d1-1);

@@ -5,7 +5,7 @@ indexS=planC{end};
 % assume the words Isocenter Coordinates are enclosed by quotes
 % look for the end quotes to denote the begining of the actual numbers
 s=planC{indexS.beamGeometry}(beamNumber).file{1};
-ind=max(findstr(s, '"'));
+ind=max(strfind(s, '"'));
 isocenter=str2num(s(ind+1:end));
 indiceJaws = 2;
 
@@ -28,14 +28,14 @@ beamEnergy = planC{indexS.beamGeometry}(beamNumber).beamEnergyMeV;
 % if planC{indexS.beamGeometry}(beamNumber).file has only 
 % 3 entries, then this is a square field defined by collimator
   s=planC{indexS.beamGeometry}(beamNumber).file{indiceJaws};
-  ind=max(findstr(s, '"'));
+  ind=max(strfind(s, '"'));
   xjaws=str2num(s(ind+1:end));
   if(length(xjaws)==1), 
       xjaws = [xjaws/2 xjaws/2];
   end
   
   s=planC{indexS.beamGeometry}(beamNumber).file{indiceJaws+1};
-  ind=max(findstr(s, '"'));
+  ind=max(strfind(s, '"'));
   yjaws=str2num(s(ind+1:end));
   if(length(yjaws)==1), 
       yjaws = [yjaws/2 yjaws/2];
@@ -70,7 +70,7 @@ if(length(planC{indexS.beamGeometry}(beamNumber).file)<7),
 else
   MLC = 1;
   s=planC{indexS.beamGeometry}(beamNumber).file{7};
-  ind=max(findstr(s, '"'));
+  ind=max(strfind(s, '"'));
   numPairs=str2num(s(ind+1:end));
   for i=1:numPairs, 
     input(i, :)=str2num(planC{indexS.beamGeometry}(beamNumber).file{7+i});

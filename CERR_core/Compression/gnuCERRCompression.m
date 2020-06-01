@@ -28,11 +28,11 @@ pathStr = getCERRPath;
 fmat = ''; outstr = '';
 fmat = (strcat('"', aFile,'"'));
 if strcmpi(userSelect, 'compress')
-    if ~isempty(findstr(aFile,'.mat.bz2'))
+    if ~isempty(strfind(aFile,'.mat.bz2'))
         % compressed file exists already!
         warndlg('Compressed output file verified. Will exit compression routine.', ...
             'CERR Compression');
-    elseif ~isempty(findstr(aFile,'.mat'))
+    elseif ~isempty(strfind(aFile,'.mat'))
         if isdeployed
             cd(fullfile(pathStr,'bin','Compression'))
         else
@@ -46,7 +46,7 @@ if strcmpi(userSelect, 'compress')
         cd(oldDir);
     end
 elseif strcmpi(userSelect, 'uncompress')
-    if ~isempty(findstr(aFile,'.mat.bz2'))
+    if ~isempty(strfind(aFile,'.mat.bz2'))
         % compressed file exists
         if isdeployed
             cd(fullfile(pathStr,'bin','Compression'))

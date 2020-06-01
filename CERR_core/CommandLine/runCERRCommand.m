@@ -130,7 +130,7 @@ if ~isempty(in_str)
 
                 try
                     optS = stateS.optS;
-                    tmp = findstr('set',in_str);
+                    tmp = strfind('set',in_str);
 
                     in_str2 = in_str(tmp + 3:length(in_str));
 
@@ -152,10 +152,10 @@ if ~isempty(in_str)
                     optS = setOptsExe(in_str2,optS);
 
                     stateS.optS = optS;
-                    tmpInd = findstr('=',in_str2);
+                    tmpInd = strfind('=',in_str2);
 
                     opt_str = deblank2(in_str2(1:tmpInd-1));
-                    tmpInd = findstr('.',opt_str);
+                    tmpInd = strfind('.',opt_str);
 
                     opt_str2 = opt_str(tmpInd+1:length(opt_str));
 

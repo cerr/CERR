@@ -68,13 +68,13 @@ tagMapS = initTagMapS;
 
 %-----------Get the file extension and root of the file names---------------------%
 fileExt = '';
-dot = findstr(fname,'.');
+dot = strfind(fname,'.');
 if ~isempty(dot)
     dot = dot(end);  %take last one
     fileExt = fname(dot:end);  %includes the dot
 end
 
-str = findstr(fname,'0');
+str = strfind(fname,'0');
 dir_file_str = fname(1:str(end));
 %Numbers are assumed to be in positions adjacent to the dot, if there is an extension,
 %and to the end of the filename if no extension.
@@ -302,7 +302,7 @@ IV = find([real(str)<32]);
 str(IV) = '';
 
 %Replace # with 'number'              %JOD -- 16 Sept 04
-IV = findstr(str,'#');
+IV = strfind(str,'#');
 if ~isempty(IV)
   str(IV) = ''; %delete '#'
   str = insert('NUMBER',str,IV(1));
@@ -311,27 +311,27 @@ end
 %Get field name:
 %Find delimiter:
 tmpstr = str;
-pos = findstr(tmpstr,delim);
+pos = strfind(tmpstr,delim);
 
 %Get field name:
 field = deblank2(tmpstr(1:pos-1));
 field  = upper(field);
 
 %delete spaces
-IV = findstr(field,' ');
+IV = strfind(field,' ');
 field(IV) = '';
 
 
-IV = findstr(field,'/');
+IV = strfind(field,'/');
 field(IV) = '';
 
-IV = findstr(field,'(');
+IV = strfind(field,'(');
 field(IV) = '';
 
-IV = findstr(field,')');
+IV = strfind(field,')');
 field(IV) = '';
 
-IV = findstr(field,'-');
+IV = strfind(field,'-');
 field(IV) = '';
 
 
@@ -446,7 +446,7 @@ switch imageType
             num = tmpS.fractionGroupID;
             tmpS.fractionGroupID = num2str(tmpS.fractionGroupID);
         end
-        ind = findstr(lower(optS.loadDoseSet), lower(tmpS.fractionGroupID));
+        ind = strfind(lower(optS.loadDoseSet), lower(tmpS.fractionGroupID));
         if strcmpi(optS.loadDoseSet, 'any') | ~isempty(ind)
             CERRStatusString(['Loading dose Fraction ID ' tmpS.fractionGroupID '.' ])
             tmpS = importDose(fileStr, tmpS, optS);

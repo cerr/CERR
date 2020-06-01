@@ -39,7 +39,7 @@ h = waitbar(100,'Loading selected study...');
 bzFile = 0;
 
 % Test for compressed file (*.gz), GNUZIP (freeware).  Code by A. Blanco.
-if ~isempty(findstr(file,'.bz2'))
+if ~isempty(strfind(file,'.bz2'))
     bzFile = 1;
     disp(['Uncompressing file ', fname]);
     outstr = gnuCERRCompression(file, 'uncompress',tempdir);

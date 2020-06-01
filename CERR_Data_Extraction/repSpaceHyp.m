@@ -24,69 +24,69 @@ function str = repSpaceHyp(str)
 % along with CERR.  If not, see <http://www.gnu.org/licenses/>.
 
 
-indSpace = findstr(str,' ');
-indDot = findstr(str,'.');
+indSpace = strfind(str,' ');
+indDot = strfind(str,'.');
 str(indDot) = 'p';
-indOpenParan = findstr(str,'(');
-indCloseParan = findstr(str,')');
-indPlus = findstr(str,'+');
-indMinus = findstr(str,'-');
-indPercent = findstr(str,'%');
-indComma = findstr(str,',');
-indBackSlash = findstr(str,'\');
-indFwdSlash = findstr(str,'/');
-indEqualTo = findstr(str,'=');
-indQuestion = findstr(str,'?');
-indAnd = findstr(str,'&');
-indColon = findstr(str,':');
-indStar = findstr(str,'*');
-indHash = findstr(str,'#');
-indCaret = findstr(str,'^');
+indOpenParan = strfind(str,'(');
+indCloseParan = strfind(str,')');
+indPlus = strfind(str,'+');
+indMinus = strfind(str,'-');
+indPercent = strfind(str,'%');
+indComma = strfind(str,',');
+indBackSlash = strfind(str,'\');
+indFwdSlash = strfind(str,'/');
+indEqualTo = strfind(str,'=');
+indQuestion = strfind(str,'?');
+indAnd = strfind(str,'&');
+indColon = strfind(str,':');
+indStar = strfind(str,'*');
+indHash = strfind(str,'#');
+indCaret = strfind(str,'^');
 indToReplace = [indSpace indOpenParan indCloseParan indPlus indMinus ...
     indPercent indComma indBackSlash indFwdSlash indEqualTo indQuestion ...
     indAnd indColon indStar indHash indCaret];
 str(indToReplace) = '_';
-indGreaterThan = findstr(str,'>');
-indLessThan = findstr(str,'<');
+indGreaterThan = strfind(str,'>');
+indLessThan = strfind(str,'<');
 str(indGreaterThan) = 'G';
 str(indLessThan) = 'L';
-indNum = findstr(str,'1');
+indNum = strfind(str,'1');
 if indNum == 1
     str(indNum) = 'A';
 end
-indNum = findstr(str,'2');
+indNum = strfind(str,'2');
 if indNum == 1
     str(indNum) = 'B';
 end
-indNum = findstr(str,'3');
+indNum = strfind(str,'3');
 if indNum == 1
     str(indNum) = 'C';
 end
-indNum = findstr(str,'4');
+indNum = strfind(str,'4');
 if indNum == 1
     str(indNum) = 'D';
 end
-indNum = findstr(str,'5');
+indNum = strfind(str,'5');
 if indNum == 1
     str(indNum) = 'E';
 end
-indNum = findstr(str,'6');
+indNum = strfind(str,'6');
 if indNum == 1
     str(indNum) = 'F';
 end
-indNum = findstr(str,'7');
+indNum = strfind(str,'7');
 if indNum == 1
     str(indNum) = 'G';
 end
-indNum = findstr(str,'8');
+indNum = strfind(str,'8');
 if indNum == 1
     str(indNum) = 'H';
 end
-indNum = findstr(str,'9');
+indNum = strfind(str,'9');
 if indNum == 1
     str(indNum) = 'I';
 end
-indNum = findstr(str,'0');
+indNum = strfind(str,'0');
 if indNum == 1
     str(indNum) = 'Z';
 end

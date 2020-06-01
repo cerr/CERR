@@ -429,10 +429,10 @@ if strcmp(stringtrim(precision), '%d')
 end
 % Look for trailing tabs or commas in precision string
 trail = '';
-if any(findstr(precision, ','))
+if any(strfind(precision, ','))
     trail = ',';
 end
-if any(findstr(precision, '\t'))
+if any(strfind(precision, '\t'))
     trail     = sprintf('\t');
     precision = strrep(precision, '\t', '');
 end

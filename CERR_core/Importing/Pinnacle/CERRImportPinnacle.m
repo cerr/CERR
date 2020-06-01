@@ -278,7 +278,7 @@ for iPlan = 1:length(data_pat.PlanList.Plan)
         for k = 1:numbeam
             beam = beams{k};
             fileName = beam.DoseVolume;
-            indColon = findstr(fileName,':');
+            indColon = strfind(fileName,':');
             fileName = fileName(indColon+1:end-1);
             fileName = sprintf('%3g',str2num(fileName));
             indZero = fileName == ' ';

@@ -99,7 +99,7 @@ file = [pathname fname];
 
 
 % Test for compressed file (*.gz), GNUZIP (freeware).  Code by A. Blanco.
-if ~isempty(findstr(file,'.bz2'))
+if ~isempty(strfind(file,'.bz2'))
     outstr = gnuCERRCompression(file, 'uncompress');
     file = file(1:end-3);
 end

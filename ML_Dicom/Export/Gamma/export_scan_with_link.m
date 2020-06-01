@@ -42,13 +42,13 @@ planD{indexS.structures} = planC{indexS.structures}(structIndx);
 
 scanType = planD{indexS.scan}.scanInfo(1).scanType;
 
-if any(findstr(upper(scanType), 'CT'))
+if any(strfind(upper(scanType), 'CT'))
 
     % Export the CT IOD.
     nNew     = export_CT_IOD(planD, filenameRoot, nWritten);
     nWritten = nWritten + nNew;
 
-elseif any(findstr(upper(scanType), 'MR'))
+elseif any(strfind(upper(scanType), 'MR'))
     % Export the MR IOD.
     nNew     = export_MR_IOD(planD, filenameRoot, nWritten);
     nWritten = nWritten + nNew;

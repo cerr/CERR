@@ -127,7 +127,7 @@ load (filename, 'xPosV', 'yPosV', 'beamlet_delta_x', 'beamlet_delta_y', 'w_field
 
 % Load the Horn Coefficients.
 Energy = '6MV10x10MDA.spectrum';
-inds = max(findstr(Energy, '.'));
+inds = max(strfind(Energy, '.'));
 % filename:
 fid = fopen([Energy(1:inds-1), '_CosHorn', Energy(inds:end)]);
 % Here, the file extension ".spectrum" is only for the purpose of being

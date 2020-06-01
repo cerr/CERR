@@ -118,15 +118,15 @@ return;
 
 % --------- supporting sub-functions
 function str = repSpaceHyp(str)
-indSpace = findstr(str,' ');
-indDot = findstr(str,'.');
+indSpace = strfind(str,' ');
+indDot = strfind(str,'.');
 str(indDot) = [];
-indOpenParan = findstr(str,'(');
-indCloseParan = findstr(str,')');
+indOpenParan = strfind(str,'(');
+indCloseParan = strfind(str,')');
 indToReplace = [indSpace indOpenParan indCloseParan];
 str(indToReplace) = '_';
-indGreaterThan = findstr(str,'>');
-indLessThan = findstr(str,'<');
+indGreaterThan = strfind(str,'>');
+indLessThan = strfind(str,'<');
 str(indGreaterThan) = 'G';
 str(indLessThan) = 'L';
 return;

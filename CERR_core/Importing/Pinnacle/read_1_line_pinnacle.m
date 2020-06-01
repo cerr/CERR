@@ -24,7 +24,7 @@ function tl = read_1_line_pinnacle(fid)
 
 tl = fgetl(fid);
 if ischar(tl)
-	idx = findstr(tl,'//');
+	idx = strfind(tl,'//');
 	if ~isempty(idx)
 		if idx(1) == 1
 			tl = '';

@@ -75,9 +75,9 @@ switch upper(command)
         doseFileName = varargin{2};        
         [pname,fname] = fileparts(doseFileName);
         if ispc
-            indSlash = findstr(pname,'\');
+            indSlash = strfind(pname,'\');
         else
-            indSlash = findstr(pname,'/');
+            indSlash = strfind(pname,'/');
         end
 
         if ~isempty(indSlash)

@@ -58,10 +58,10 @@ for dirNum = 1:length(allDirS)
     elseif allDirS(dirNum).isdir && ~strcmp(allDirS(dirNum).name,'.') && ~strcmp(allDirS(dirNum).name,'..') && ~strcmpi(allDirS(dirNum).name,'Log') && ~strcmpi(allDirS(dirNum).name,'CVS')
         dirName = allDirS(dirNum).name;
         indRemove = [];
-        indRemove = [indRemove findstr(dirName,' ')];
-        indRemove = [indRemove findstr(dirName,'.')];
-        indRemove = [indRemove findstr(dirName,'-')];
-        indRemove = [indRemove findstr(dirName,'+')];
+        indRemove = [indRemove strfind(dirName,' ')];
+        indRemove = [indRemove strfind(dirName,'.')];
+        indRemove = [indRemove strfind(dirName,'-')];
+        indRemove = [indRemove strfind(dirName,'+')];
         dirName(indRemove) = '_';
         logStrTmp.dirLog.(['dir_',dirName]) = allDirS(dirNum).bytes + datenum(allDirS(dirNum).date);
         if ispc
