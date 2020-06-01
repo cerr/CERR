@@ -30,7 +30,7 @@ function [bool, storageType, remotePath, fileName] = isLocal(variable)
 % along with CERR.  If not, see <http://www.gnu.org/licenses/>.
 
 bool = 1;
-if isstruct(variable) & isfield(variable, 'remotePath') & isfield(variable, 'info') & strcmpi(variable.info, 'Remotely stored data.  Use getRemoteVariable to access.')
+if isstruct(variable) && isfield(variable, 'remotePath') & isfield(variable, 'info') && strcmpi(variable.info, 'Remotely stored data.  Use getRemoteVariable to access.')
     bool = 0;
     storageType = variable.storageType;
     remotePath  = variable.remotePath;    
