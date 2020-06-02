@@ -3042,13 +3042,25 @@ switch upper(instr)
 %                 %line(crossHairX, crossHairY, 'tag', 'spotlight_trail', 'userdata', hAxis, 'parent', axesToDraw(i),  'color', [1 0.4 0.2], 'hittest', 'off','linewidth',3);                
 %             end
 %         end
-        
+                
+        setAxisInfo(spotLightS.movAxis,'coord',crossHairZ)
+        %setAxisInfo(spotLightS.movAxis,'coord',crossHairZ,...
+        %    'xRange',[crossHairX-1 crossHairX+1],...
+        %    'yRange',[crossHairY+1 crossHairY-1])
+        %zoomToXYRange(spotLightS.movAxis)
+        CERRRefresh
+
         spotLightS.base_spotlight_xcrosshair = line([cP(1,1)-cross_hair_delta cP(1,1)+cross_hair_delta], [cP(2,2) cP(2,2)], 'tag', 'spotlight_xcrosshair', 'parent', spotLightS.baseAxis,  'color', [1 1 0], 'hittest', 'off','linewidth',3);
         spotLightS.base_spotlight_ycrosshair = line([cP(1,1) cP(1,1)], [cP(2,2)-cross_hair_delta cP(2,2)+cross_hair_delta], 'tag', 'spotlight_xcrosshair', 'parent', spotLightS.baseAxis,  'color', [1 1 0], 'hittest', 'off','linewidth',3);
         spotLightS.mov_spotlight_xcrosshair = line(crossHairHorXv, crossHairHorYv, 'tag', 'spotlight_xcrosshair', 'parent', spotLightS.movAxis,  'color', [1 1 0], 'hittest', 'off','linewidth',3);
         spotLightS.mov_spotlight_ycrosshair = line(crossHairVerXv, crossHairVerYv, 'tag', 'spotlight_ycrosshair', 'parent', spotLightS.movAxis,  'color', [1 1 0], 'hittest', 'off','linewidth',3);
         
         stateS.handle.spotLightS = spotLightS;
+        doseNum = 2;
+        doseVal = getDoseAt(doseNum, crossHairX, crossHairY, crossHairZ, planC);
+        strDose = ['Mov Dose = ',num2str(doseVal)];
+        CERRStatusString(strDose,'gui')
+        
         
         return;
         
@@ -3115,9 +3127,24 @@ switch upper(instr)
         crossHairHorYv = ymV(end-4:end-3);
         crossHairVerXv = xmV(end-2:end-1);
         crossHairVerYv = ymV(end-2:end-1);
-        setAxisInfo(spotLightS.movAxis,'coord',mean(zmV(end-2:end-1)))
-        CERRRefresh
+        crossHairX = xmV(end);
+        crossHairY = ymV(end);
+        crossHairZ = zmV(end);
+        setAxisInfo(spotLightS.movAxis,'coord',crossHairZ)
+        doseNum = 2;
+        doseVal = getDoseAt(doseNum, crossHairX, crossHairY, crossHairZ, planC);
+        strDose = ['Mov Dose = ',num2str(doseVal)];
+        CERRStatusString(strDose,'gui')
+
+        %         setAxisInfo(spotLightS.movAxis,'coord',crossHairZ,...
+%             'xRange',[crossHairX-1 crossHairX+1],...
+%             'yRange',[crossHairY+1 crossHairY-1])
+        %zoomToXYRange(spotLightS.movAxis)
+        %CERRRefresh
         
+        
+        setAxisInfo(spotLightS.movAxis,'coord',crossHairZ)
+        CERRRefresh        
         
         set(spotLightS.base_spotlight_xcrosshair,'XData',[cP(1,1)-cross_hair_delta cP(1,1)+cross_hair_delta], 'YData',[cP(2,2) cP(2,2)])
         set(spotLightS.base_spotlight_ycrosshair,'YData',[cP(2,2)-cross_hair_delta cP(2,2)+cross_hair_delta], 'XData',[cP(1,1) cP(1,1)])
