@@ -33,6 +33,9 @@ function matVer = getMLVersion
 
 
 verOutput = ver('MATLAB');
+if isempty(verOutput)
+    verOutput(1).Version = '';
+end
 verString = verOutput.Version;
 matVer = str2num(verString);
 
