@@ -39,7 +39,7 @@ function optS = opts4Exe(fileName)
 % filetext = fileread(fileName);
 % optS = jsondecode(filetext);
 
-if MLVersion < 9.1
+if isempty(MLVersion) || MLVersion < 9.1
     optS = loadjson(fileName);
 else
     filetext = fileread(fileName);
