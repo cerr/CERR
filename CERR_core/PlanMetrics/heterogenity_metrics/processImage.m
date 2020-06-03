@@ -211,9 +211,16 @@ switch filterType
         %         toc
         
     case 'LoG'
+        % Use a margin of +/- 7 row/col/slcs
+        minr = max(1,minr-7);
+        maxr = min(origSiz(1),maxr+7);
+        minc = max(1,minc-7);
+        maxc = min(origSiz(2),maxc+7);
+        mins = max(1,mins-7);
+        maxs = min(origSiz(3),maxs+7);
         mask3M                   = mask3M(minr:maxr,minc:maxc,mins:maxs);
-        scan3M                   = scan3M(minr:maxr,minc:maxc,mins:maxs);
-        vol3M   = double(mask3M).*double(scan3M);
+        scan3M                   = scan3M(minr:maxr,minc:maxc,mins:maxs);        
+        vol3M   = double(scan3M);
         outS.LoG_recursive = recursiveLOG(vol3M,paramS.Sigma_mm.val,paramS.VoxelSize_mm.val);
         if ishandle(hWait)
             set(hWait, 'Vertices', [[0 0 1 1]' [0 1 1 0]']);
