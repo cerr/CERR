@@ -23,6 +23,12 @@ else
     userInS = dictS;
 end
 
+%% Set default options if missing
+if ~isfield(userInS.settings,'padding') || isempty(userInS.settings.padding)
+    userInS.settings.padding.method = 'expand';
+    userInS.settings.padding.size = [5,5,5];
+end
+
 %% Get image type
 filterTypeC = fieldnames(userInS.imageType);
 radiomicsParamS.imageType = struct();
@@ -102,8 +108,9 @@ if isfield(userInS,'settings')
     
     
     %% Set flags for sub-classes of features to be extracted
-    whichFeatS = struct('resample',struct('flag',0),'perturbation',struct('flag',0),...
-        'firstOrder',struct('flag',0),'shape',struct('flag',0),'texture',struct('flag',0),...
+    whichFeatS = struct('resample',struct('flag',0), 'padding',struct('flag',0),...
+        'perturbation',struct('flag',0),'firstOrder',struct('flag',0),...
+        'shape',struct('flag',0),'texture',struct('flag',0),...
         'peakValley',struct('flag',0),'ivh',struct('flag',0),'glcm',struct('flag',0),...
         'glrlm',struct('flag',0),'gtdm',struct('flag',0),'gldm',struct('flag',0),...
         'glszm',struct('flag',0));

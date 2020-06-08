@@ -47,7 +47,7 @@ if numel(scanNum) == 1
     if yValsV(1) > yValsV(2)
         yValsV = fliplr(yValsV);
     end
-    zValsV = zValsV(uniqueSlices);
+    %zValsV = zValsV(uniqueSlices);
    
 else
    
@@ -74,7 +74,7 @@ PixelSpacingY = abs(yValsV(1) - yValsV(2));
 PixelSpacingZ = abs(zValsV(1) - zValsV(2));
 
 
-%Get pre-processing parameters
+%% Apply global settings
 whichFeatS = paramS.whichFeatS;
 
 perturbX = 0;
@@ -143,28 +143,27 @@ if whichFeatS.resample.flag
         'method',roiInterpMethod,'Antialiasing',false) >= 0.5;
 end
 
+%--- 3. Crop scan around mask and pad as required ---
+if whichFeatS.padding.flag
+    
+    scanArray3M = double(scanArray3M);
+    if ~isfield(whichFeatS.padding,'method')
+        %apply default method (pad by expanding [10,10,10])
+        padMethod = 'expand';
+        padSizV = [10,10,10]; 
+    else
+        padMethod = whichFeatS.padding.method;
+        padSizV = whichFeatS.padding.size;
+    end
+    [volToEval,maskBoundingBox3M,outLimitsV] = padScan(scanArray3M,mask3M,padMethod,padSizV);
+    
+    % Crop grid and Pixelspacing (dx,dy,dz)
+    xValsV = xValsV(outLimitsV(3):outLimitsV(4));
+    yValsV = yValsV(outLimitsV(1):outLimitsV(2));
+    zValsV = zValsV(outLimitsV(5):outLimitsV(6));
+end
 
-% Crop scan around mask
-margin = 10;
-origSiz = size(mask3M);
-[minr, maxr, minc, maxc, mins, maxs] = compute_boundingbox(mask3M);
-minr = max(1,minr-margin);
-maxr = min(origSiz(1),maxr+margin);
-minc = max(1,minc-margin);
-maxc = min(origSiz(2),maxc+margin);
-mins = max(1,mins-margin);
-maxs = min(origSiz(3),maxs+margin);
-maskBoundingBox3M = mask3M(minr:maxr,minc:maxc,mins:maxs);
-
-% Get the cropped scan
-volToEval = double(scanArray3M(minr:maxr,minc:maxc,mins:maxs));
-
-% Crop grid and Pixelspacing (dx,dy,dz)
-xValsV = xValsV(minc:maxc);
-yValsV = yValsV(minr:maxr);
-zValsV = zValsV(mins:maxs);
-
-% Ignore voxels below and above cutoffs, if defined
+%--- 4. Ignore voxels below and above cutoffs, if defined ----
 minSegThreshold = [];
 maxSegThreshold = [];
 if isfield(paramS.textureParamS,'minSegThreshold')
@@ -179,7 +178,6 @@ end
 if ~isempty(maxSegThreshold)
     maskBoundingBox3M(volToEval > maxSegThreshold) = 0;
 end
-
 
 %volToEval(~maskBoundingBox3M) = NaN;
 
