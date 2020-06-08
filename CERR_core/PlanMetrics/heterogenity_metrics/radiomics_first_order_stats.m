@@ -152,17 +152,19 @@ RadiomicsFirstOrderS.meanAbsDev            = mad(Iarray);
 % Median absolute deviation
 RadiomicsFirstOrderS.medianAbsDev = nansum(abs(Iarray-RadiomicsFirstOrderS.median))./sizeV;
 
-%   P10
-p10 = prctile(Iarray(~isnan(Iarray)),10);
+%   P10 
+%  (Note: prctile treats NaNs as missing values and removes them.)
+p10 = prctile(Iarray,10);
 RadiomicsFirstOrderS.P10 = p10;
 
 %   P90
-p90 = prctile(Iarray(~isnan(Iarray)),90);
+p90 = prctile(Iarray,90);
 RadiomicsFirstOrderS.P90 = p90;
 
 Iarray10_90 = Iarray;
 idx10_90 = Iarray >= p10 & Iarray <= p90;
 Iarray10_90(~idx10_90) = NaN;
+idx10_90(isnan(idx10_90)) = 0;
 
 %   Robust Mean Absolute Deviation
 RadiomicsFirstOrderS.robustMeanAbsDev  = mad(Iarray10_90);
@@ -178,10 +180,10 @@ p25 = prctile(Iarray,25);
 RadiomicsFirstOrderS.interQuartileRange = p75 - p25;
 
 % Quartile coefficient of Dispersion
-RadiomicsFirstOrderS.coeffDispersion = (p75-p25)./(p75+p25);
+RadiomicsFirstOrderS.coeffDispersion = (p75-p25)./(p75+p25+eps);
 
 % Coefficient of variation
-RadiomicsFirstOrderS.coeffVariation = RadiomicsFirstOrderS.std ./ RadiomicsFirstOrderS.mean;
+RadiomicsFirstOrderS.coeffVariation = RadiomicsFirstOrderS.std ./(RadiomicsFirstOrderS.mean + eps);
 
 
 end
