@@ -188,7 +188,7 @@ if ~isempty(stateS)
     minScan = single(min(planC{indexS.scan}(setIndex).scanArray(:)));
     maxScan = single(max(planC{indexS.scan}(setIndex).scanArray(:)));
     stateS.scanStats.CTLevel.(scanUID) = (minScan + maxScan - 2*CTOffset) / 2;
-    stateS.scanStats.CTWidth.(scanUID) = maxScan - maxScan;
+    stateS.scanStats.CTWidth.(scanUID) = maxScan - minScan;
     stateS.scanStats.windowPresets.(scanUID) = 1;
     stateS.scanStats.Colormap.(scanUID) = 'gray256';
 end
