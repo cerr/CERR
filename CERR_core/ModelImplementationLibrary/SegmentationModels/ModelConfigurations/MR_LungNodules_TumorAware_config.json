@@ -1,7 +1,7 @@
 {
 
 "strNameToLabelMap" : [
-{"structureName": "lung",
+{"structureName": "lung nodules",
   "value": 1} 
 ],
 
@@ -9,5 +9,24 @@
 
 "passedScanDim" : "3D",
 
-"reference" : ""
+"channels":{ "imageType":{"SimpleITK":{
+                                 "filterPar":{                   
+                                        "sitkFilterName":"HistogramMatchingImageFilter",
+                                        "numHistLevel":"1024",
+                                        "numMatchPts":"7",
+                                        "ThresholdAtMeanIntensityOn":"true"
+                                             }
+                                  }
+                         },
+             "slice": "current"
+            },
+"crop": [
+    {
+      "method": "none",
+      "params": "",
+      "operator": ""
+   
+    } ],
+
+"reference" : "https://link.springer.com/chapter/10.1007/978-3-030-00934-2_86"
 }
