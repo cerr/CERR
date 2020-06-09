@@ -3,7 +3,8 @@ function outS = processImage(filterType,scan3M,mask3M,paramS,hWait)
 %-------------------------------------------------------------------------
 % INPUTS
 % filterType -  May be 'Haralick Cooccurance','Wavelets','Sobel',
-%               'LoG','Gabor' or 'First order statistics'.
+%               'LoG','Gabor','First order statistics','LawsConvolution',
+%               'CoLlage' or 'SimpleITK'.
 % scan3M     - 3-D scan array, cropped around ROI and padded if specified
 % mask3M     - 3-D mask, croppped to bounding box
 % paramS     - Filter parameters

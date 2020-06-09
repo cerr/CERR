@@ -213,6 +213,7 @@ for i = 1:length(viewC)
         
         mask3M = true(size(scanC{scanId}));
         if strcmpi(filterTypeC{c},'original')
+            %Use original image
             procScanC{c} = scanC{scanId};
         else
             imType = fieldnames(filterTypeC{c});
@@ -220,10 +221,11 @@ for i = 1:length(viewC)
             if strcmpi(imType,'original')
                 procScanC{c} = scanC{scanId};
             else
-                fprintf('\nApplying %s filter...\n',filterType);
-                paramS = getRadiomicsParamTemplate([],channelS(c));
-                paramS = paramS.imageType.(imType);
-                outS = processImage(imType,scanC{scanId},mask3M,paramS);
+                fprintf('\nApplying %s filter...\n',imType);
+                paramS = channelS(c);
+                paramS = getRadiomicsParamTemplate([],paramS);
+                filterParS = paramS.imageType.(imType).filterPar.val;
+                outS = processImage(imType,scanC{scanId},mask3M,filterParS);
                 fieldName = fieldnames(outS);
                 fieldName = fieldName{1};
                 procScanC{c} = outS.(fieldName);
