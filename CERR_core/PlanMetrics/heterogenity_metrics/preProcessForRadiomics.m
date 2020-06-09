@@ -148,9 +148,9 @@ if whichFeatS.padding.flag
     
     scanArray3M = double(scanArray3M);
     if ~isfield(whichFeatS.padding,'method')
-        %apply default method (pad by expanding [10,10,10])
-        padMethod = 'expand';
-        padSizV = [10,10,10]; 
+        %Default:no padding
+        padMethod = 'none';
+        padSizV = [0,0,0]; 
     else
         padMethod = whichFeatS.padding.method;
         padSizV = whichFeatS.padding.size;

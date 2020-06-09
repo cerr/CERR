@@ -24,9 +24,11 @@ else
 end
 
 %% Set default options if missing
-if ~isfield(userInS.settings,'padding') || isempty(userInS.settings.padding)
-    userInS.settings.padding.method = 'expand';
-    userInS.settings.padding.size = [5,5,5];
+if isfield(userInS,'settings')
+    if ~isfield(userInS.settings,'padding') || isempty(userInS.settings.padding)
+        userInS.settings.padding.method = 'none';
+        userInS.settings.padding.size = [0,0,0];
+    end
 end
 
 %% Get image type
@@ -54,7 +56,10 @@ if isfield(userInS,'settings')
     ivhParamS = struct;
     
     % Structure names
-    radiomicsParamS.structuresC = userInS.structures;
+    if isfield(userInS,'structures')
+        radiomicsParamS.structuresC = userInS.structures;
+    end
+    %Otherwise, use entire scan
     
     % ---1. First-order features ---
     idx = strcmpi(settingsC,'firstOrder');
