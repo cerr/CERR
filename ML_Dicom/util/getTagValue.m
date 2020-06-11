@@ -48,9 +48,21 @@ function data = getTagValue(attr, tag, varargin)
 
 %Get the VR, cast to ML char array.
 %vr = char(org.dcm4che3.data.ElementDictionary.vrOf(hex2dec(tag), []));
-vr = org.dcm4che3.data.ElementDictionary.vrOf(hex2dec(tag), []);
-vr = cell(vr.toString);
-vr = vr{1};
+%vr = org.dcm4che3.data.ElementDictionary.vrOf(hex2dec(tag), []); % apa for Octave compatibility
+mlVer = getMLVersion;
+if isempty(mlVer)
+    elemDict = javaMethod("getStandardElementDictionary","org.dcm4che3.data.ElementDictionary");
+    %attribs = javaObject("org.dcm4che3.data.Attributes");
+    vr = elemDict.vrOf(hex2dec(tag));
+    vr = vr.toString;
+else
+    elemDict = org.dcm4che3.data.ElementDictionary.getStandardElementDictionary();
+    %attribs = org.dcm4che3.data.Attributes;
+    vr = elemDict.vrOf(hex2dec(tag));
+    vr = cell(vr.toString);
+    vr = vr{1};
+end
+
 
 %Set cache buffer to true.
 buf = 1;
@@ -226,13 +238,13 @@ end
 %DEBUGGING: remove this once all DICOM VRs are implemented and fully
 %tested.  Until then, reaching this point in the code indicates that a VR
 %MUST be defined for proper functioning of a called module.
-if ~exist('data', 'var');
+if ~exist('data', 'var')
     disp(['DEBUGGING: ' vr ' is not defined.  Implement it in dcm2ml_Element.m']);
     data = '';
 else
     %Handle empty data situations -- this needs to be tailored to individual
     %VR values if matching MATLAB's dicominfo function output is desired.
-    if isempty(data);
+    if isempty(data)
         data = '';
     end
 end

@@ -41,10 +41,24 @@ tags = hex2dec({tagS.tag});
 %TOOK OFF HEX2DEC
 %%
 
+mlVer = getMLVersion;
+
+if isempty(mlVer)
+    elemDict = javaMethod("getStandardElementDictionary","org.dcm4che3.data.ElementDictionary");
+    %attribs = javaObject("org.dcm4che3.data.Attributes");
+else
+    elemDict = org.dcm4che3.data.ElementDictionary.getStandardElementDictionary();
+    %attribs = org.dcm4che3.data.Attributes;
+end
+  
+ 
 %Create and set passed tag fields to null.
 for i=1:length(tags)
-    % vr = org.dcm4che3.data.ElementDictionary.vrOf(tags(i), attr.getPrivateCreator(tags(i)));
-    vr = org.dcm4che3.data.ElementDictionary.vrOf(tags(i), []);
+    
+    %%% vr = org.dcm4che3.data.ElementDictionary.vrOf(tags(i), attr.getPrivateCreator(tags(i)));
+    %vr = org.dcm4che3.data.ElementDictionary.vrOf(tags(i), []);
+    vr = elemDict.vrOf(tags(i));
+    
     %Handle the case of a tag with no children.
     if isempty(tagS(i).children)
 
@@ -58,8 +72,13 @@ for i=1:length(tags)
        
     %Handle the case of a tag with children, a sequence.
     %CHANGED to ELEMENT DICTIONARY
-    elseif  strcmpi(toString(vr), 'SQ')
-       child_obj = org.dcm4che3.data.Attributes;
+    %elseif  strcmpi(toString(vr), 'SQ') %% apa for Octave
+  elseif  strcmpi(vr.toString, 'SQ')
+       if isempty(mlVer)
+          child_obj = javaObject("org.dcm4che3.data.Attributes");
+       else
+          child_obj = org.dcm4che3.data.Attributes;
+       end
        % convert to setNull from putNull
        attr.setNull(tags(i), vr);
        el = attr.getSequence(tags(i));

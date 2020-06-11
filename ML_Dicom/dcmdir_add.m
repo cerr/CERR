@@ -52,9 +52,16 @@ if ~isempty(attr.get(hex2dec(DirectoryRecordSequenceTag))) || isempty(attr.get(h
 end
 %}
 %% UPDATED DCM4CHE-3
+%mlVer = getMLVersion;
 % modalityTag = org.dcm4che3.data.Tag.Modality;
 modalityTag = 524384;
-DirectoryRecordSequenceTag = org.dcm4che3.data.Tag.DirectoryRecordSequence;
+%if isempty(mlVer)
+%    DirectoryRecordSequenceTag = java_get("org.dcm4che3.data.Tag","DirectoryRecordSequence");
+%else
+%    DirectoryRecordSequenceTag = org.dcm4che3.data.Tag.DirectoryRecordSequence;
+%end
+DirectoryRecordSequenceTag = 266784;
+
 if (~attr.contains(modalityTag) || attr.contains(DirectoryRecordSequenceTag))
     %DICOMdir, forget it.  Consider sticking it in the dcmdirS later.
     return;
@@ -124,7 +131,13 @@ studyUIDTag = '0020000D';
 %Create attribute with studyUID tag to filter
 tagS = struct('tag', {}, 'type', {}, 'children', {});
 tagS(end+1) = struct('tag', ['0020000D'], 'type', ['1'], 'children', []);
-emptyAttr = org.dcm4che3.data.Attributes;
+mlVer = getMLVersion;
+if isempty(mlVer)
+   emptyAttr = javaObject("org.dcm4che3.data.Attributes");
+else
+   emptyAttr = org.dcm4che3.data.Attributes;
+end
+%emptyAttr = org.dcm4che3.data.Attributes;
 emptyAttr = createEmptyFields(emptyAttr, tagS);
 %% Search the list for this item.
 match = 0;
@@ -203,7 +216,13 @@ end
 %% START DCM4CHE3 conversion here
 tagS = struct('tag', {}, 'type', {}, 'children', {});
 tagS(end+1) = struct('tag', ['0020000E'], 'type', ['1'], 'children', []);
-emptyAttr = org.dcm4che3.data.Attributes;
+%emptyAttr = org.dcm4che3.data.Attributes;
+mlVer = getMLVersion;
+if isempty(mlVer)
+   emptyAttr = javaObject("org.dcm4che3.data.Attributes");
+else
+   emptyAttr = org.dcm4che3.data.Attributes;
+end
 emptyAttr = createEmptyFields(emptyAttr, tagS);
 %%
 %Search the list for this item.
@@ -370,8 +389,8 @@ function seriesS = searchAndAddSeriesMember(filename, attr, seriesS)
 %found adds it.
 
 modalityTag = '00080060';
-if (strcmp(org.dcm4che3.data.ElementDictionary.vrOf(hex2dec(modalityTag), []),'CS'))
-end
+%if (strcmp(org.dcm4che3.data.ElementDictionary.vrOf(hex2dec(modalityTag), []),'CS'))
+%end
 %modality = dcm2ml_Element(attr.get(hex2dec(modalityTag)));
 modality = getTagValue(attr, modalityTag);
 if ~isfield(seriesS, 'Modality')
@@ -413,7 +432,13 @@ end % end of function
 %  If tags match, transfer value of tag in attr into patient
 function patient = filter(attr, patienttemplate)
 
-patient = org.dcm4che3.data.Attributes;
+mlVer = getMLVersion;
+if isempty(mlVer)
+    patient = javaObject("org.dcm4che3.data.Attributes");
+else
+    patient = org.dcm4che3.data.Attributes;
+end
+
 %tags = attr.tags(); % Get list of tags
 tags = patienttemplate.tags();
 for i=1:length(tags)

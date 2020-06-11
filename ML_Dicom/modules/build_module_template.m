@@ -91,5 +91,10 @@ end
 %tags = hex2dec({tagS.tag});
 
 %Create all top level tags in this object.
-dcmobj = org.dcm4che3.data.Attributes(length(tagS));
+mlVer = getMLVersion;
+if isempty(mlVer)
+    dcmobj = javaObject("org.dcm4che3.data.Attributes",length(tagS));
+else
+    dcmobj = org.dcm4che3.data.Attributes(length(tagS));
+end
 dcmobj = createEmptyFields(dcmobj, tagS);
