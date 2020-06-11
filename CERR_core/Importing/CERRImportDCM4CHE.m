@@ -38,10 +38,10 @@ elseif isfield(stateS,'initDicomFlag') && ~stateS.initDicomFlag
 end
  
 % Get the path of the directory to be selected for import.
-path = uigetdir(pwd','Select the DICOM directory to scan:');
+dirPath = uigetdir(pwd','Select the DICOM directory to scan:');
 pause(0.1);
  
-if ~path
+if ~dirPath
     disp('DICOM import aborted');
     return
 end
@@ -59,12 +59,12 @@ CERRStatusString('Scanning DICOM directory');
 dcmdirS = []; 
 patientNum = 1;
 
-[filesInCurDir,dirsInCurDir] = rdir(path);
+[filesInCurDir,dirsInCurDir] = rdir(dirPath);
 
 if isfield(optS,'importDICOMsubDirs') && strcmpi(optS.importDICOMsubDirs,'yes') && ~isempty(dirsInCurDir)    
     
     for i = 1:length(dirsInCurDir)
-        %     patient = scandir_mldcm(fullfile(path, dirs(i).name), hWaitbar, i);
+        %     patient = scandir_mldcm(fullfile(dirPath, dirs(i).name), hWaitbar, i);
         patient = scandir_mldcm(dirsInCurDir(i).fullpath, hWaitbar, i);
         if ~isempty(patient)
             for j = 1:length(patient.PATIENT)
@@ -76,15 +76,15 @@ if isfield(optS,'importDICOMsubDirs') && strcmpi(optS.importDICOMsubDirs,'yes') 
     
 else
     
-    filesV = dir(path);
-    disp(path);
+    filesV = dir(dirPath);
+    disp(dirPath);
     dirs = filesV([filesV.isdir]);
     dirs(2) = [];
     dirs(1).name = '';
     
     excludePixelDataFlag = true;
     for i = 1:length(dirs)
-        patient = scandir_mldcm(fullfile(path, dirs(i).name), hWaitbar, i, excludePixelDataFlag);
+        patient = scandir_mldcm(fullfile(dirPath, dirs(i).name), hWaitbar, i, excludePixelDataFlag);
         if ~isempty(patient)
             for j = 1:length(patient.PATIENT)
                 dcmdirS.(['patient_' num2str(patientNum)]) = patient.PATIENT(j);
