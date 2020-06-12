@@ -153,7 +153,9 @@ switch filterType
                     set(hWait, 'Vertices', [[0 0 (n-1)/(length(dirListC)-1) (n-1)/(length(dirListC)-1)]' [0 1 1 0]']);
                     drawnow;
                 end
-                
+                % Remove padding
+                out3M = out3M(minr:maxr,minc:maxc,mins:maxs);
+                outS.(outname) = out3M;
             end
         else
             outname = [wavType,'_',dir];
@@ -169,12 +171,11 @@ switch filterType
                 drawnow;
             end
             
+            % Remove padding
+            out3M = out3M(minr:maxr,minc:maxc,mins:maxs);
+            outS.(outname) = out3M;
         end
         
-        % Remove padding
-        out3M = out3M(minr:maxr,minc:maxc,mins:maxs);
-        outS.(outname) = out3M;
-
         
     case 'Sobel'
         
@@ -194,7 +195,8 @@ switch filterType
     case 'LoG'
       
         vol3M = double(scan3M);
-        LoG3M = recursiveLOG(vol3M,paramS.Sigma_mm.val,paramS.VoxelSize_mm.val);
+        
+        LoG3M = recursiveLOG(vol3M,paramS.Sigma_mm.val,paramS.VoxelSize_mm.val); %temp
         
         %Remove padding
         outS.LoG_recursive = LoG3M(minr:maxr,minc:maxc,mins:maxs);

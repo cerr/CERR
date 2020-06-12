@@ -46,8 +46,15 @@ for k = 1:length(imageTypeC)
         end
         volToEval = volOrig3M;
     else
+        if strcmp(imageTypeC{k}.imageType,'LoG')
+            %Add voxel size param for LoG filter
+            voxSizV = [PixelSpacingX, PixelSpacingY, PixelSpacingZ]*10; %convert cm to mm
+            imageTypeC{k}.paramS.VoxelSize_mm.val = voxSizV;
+        end
         outS = processImage(imageTypeC{k}.imageType,volOrig3M,maskBoundingBox3M,...
             imageTypeC{k}.paramS);
+        [minr, maxr, minc, maxc, mins, maxs] = compute_boundingbox(maskBoundingBox3M);
+        maskBoundingBox3M = maskBoundingBox3M(minr:maxr, minc:maxc, mins:maxs);
         derivedImgName = fieldnames(outS);
         volToEval = outS.(derivedImgName{1});
         quantizeFlag = true; % always quantize the derived image
@@ -59,6 +66,7 @@ for k = 1:length(imageTypeC)
     if quantizeFlag        
         numGrLevels = [];
         binwidth = [];
+        
         if isfield(paramS.textureParamS,'numGrLevels')
             numGrLevels = paramS.textureParamS.numGrLevels;
         end

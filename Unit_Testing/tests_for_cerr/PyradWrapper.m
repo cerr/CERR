@@ -1,67 +1,64 @@
-% this is a wrapper function to create a .nrrd file from CERR and call
+function featS = PyradWrapper(scan3M, mask3M, voxelSizeV, paramFilePath)
+
+% This is a wrapper function to create a .nrrd file from CERR and call
 % pyradiomics.
 % Requires specifying path to Pyradiomics
 %
 % RKP, 03/22/2018
+% AI, 06/10/2020
 
-function teststruct = PyradWrapper(scanM, maskM, pixelSize, preprocessingFilter, waveletDirString)
+%Get path to pyradiomics wrapper
+CERRPath = getCERRPath;
+CERRPathSlashes = strfind(getCERRPath,filesep);
+topLevelCERRDir = CERRPath(1:CERRPathSlashes(end-1));
+pyradiomicsWrapperPath = fullfile(topLevelCERRDir,'Unit_Testing','tests_for_cerr', 'pyFeatureExtraction.py');
 
-    CERRPath = getCERRPath;
-    CERRPathSlashes = strfind(getCERRPath,filesep);
-    topLevelCERRDir = CERRPath(1:CERRPathSlashes(end-1));
+%Add python module to system path & iImport
+pyModule = 'pyFeatureExtraction';
 
-    pyradiomicsWrapperPath = fullfile(topLevelCERRDir,'Unit_Testing','tests_for_cerr', 'pyFeatureExtraction.py');
-    paramFilePath = fullfile(topLevelCERRDir,'Unit_Testing','tests_for_cerr', 'pyradParams.yaml');
-   
-    pyModule = 'pyFeatureExtraction';
-    
-    P = py.sys.path;     
-    currentPath = pwd;
-    cd(fullfile(topLevelCERRDir,'Unit_Testing','tests_for_cerr'));
-    %import python module if not in system path
-    try
-        
-        if count(P,pyradiomicsWrapperPath) == 0
-            insert(P,int32(0),pyradiomicsWrapperPath);
-        end
-        py.importlib.import_module(pyModule);
-        
-    catch
-        disp('Python module could not be imported, check the pyradiomics path');
+P = py.sys.path;
+currentPath = pwd;
+cd(fullfile(topLevelCERRDir,'Unit_Testing','tests_for_cerr'));
+
+try
+    if count(P,pyradiomicsWrapperPath) == 0
+        insert(P,int64(0),pyradiomicsWrapperPath);
     end
-    
-    cd(currentPath);
-    maskM = uint16(maskM);
-    
-    maskM = permute(maskM, [2 1 3]);
-    maskM = flipdim(maskM,3);
-    scanM = permute(scanM, [2 1 3]);
-    scanM = flipdim(scanM,3);
-    
-    %write NRRDs (flip along 3rd axis??)
-    scanFilename = strcat(tempdir,'scan.nrrd');
-    scanRes = nrrdWriter(scanFilename, scanM, pixelSize, [0,0,0], 'raw');
-   
-    maskFilename = strcat(tempdir, 'mask.nrrd');
-    maskRes = nrrdWriter(maskFilename, maskM, pixelSize, [0,0,0], 'raw');
-  
-    testFilter = preprocessingFilter;
-    if ~exist('waveletDirString','var')
-        waveletDirString = '';
-    end
-       
-    %this python module will use the path of the newly generated nrrd files 
+    py.importlib.import_module(pyModule);
+catch
+    disp('Python module could not be imported, check the pyradiomics path');
+end
 
-    
-    try         
-     pyradiomicsDict = py.pyFeatureExtraction.extract(scanFilename, maskFilename, paramFilePath, testFilter, tempdir, waveletDirString);              
-     teststruct = struct(pyradiomicsDict);          
-    catch
-        disp('error calculating features in pyradiomics')
-        teststruct = [];
-    end
-    
+%Write scan & mask to NRRD format
+fprintf('\nWriting scan and mask to NRRD format...\n');
+cd(currentPath);
+
+originV = [0,0,0];
+encoding = 'raw';
+
+mask3M = uint16(mask3M);
+mask3M = permute(mask3M, [2 1 3]);
+mask3M = flip(mask3M,3);
+
+scan3M = permute(scan3M, [2 1 3]);
+scan3M = flip(scan3M,3);
+
+scanFilename = strcat(tempdir,'scan.nrrd');
+scanRes = nrrdWriter(scanFilename, scan3M, voxelSizeV, originV, encoding);
+
+maskFilename = strcat(tempdir, 'mask.nrrd');
+maskRes = nrrdWriter(maskFilename, mask3M, voxelSizeV, originV, encoding);
 
 
-
-
+%Call feature extractor
+try
+    
+    pyFeatDict = py.pyFeatureExtraction.extract(scanFilename, maskFilename,...
+        paramFilePath, tempdir);
+    
+    %Convert python dictionary to matlab struct
+    featS = struct(pyFeatDict);
+    
+catch e
+    error('Feature extraction failed with message %s',e.message)
+end
