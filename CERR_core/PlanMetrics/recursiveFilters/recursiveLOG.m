@@ -34,74 +34,36 @@ function log3M = recursiveLOG(img3M,sigma,PixelSizeV)
 
 
 % Pad
-img3M = padarray(img3M,[4,4,4],'replicate','both');
+% img3M = padarray(img3M,[4,4,4],'circular','both');
+img3M = padarray(img3M,[4,4,4],0,'both');
 
 coeffS.sigma = sigma;
 
-% y
-% Derivative filter
-derivativeOrder = 'second';
-dim = 1;
-coeffS.sigmad = coeffS.sigma / PixelSizeV(dim);
-coeffS = setGaussOrder(coeffS,derivativeOrder);
-logY3M = applyRecursGaussFilter(img3M,coeffS,dim);
-
-% Smoothing filters
-derivativeOrder = 'zero';
-% x
-dim = 2;
-coeffS.sigmad = sigma / PixelSizeV(dim);
-coeffS = setGaussOrder(coeffS,derivativeOrder);
-logY3M = applyRecursGaussFilter(logY3M,coeffS,dim);
-% z
-dim = 3;
-coeffS.sigmad = sigma / PixelSizeV(dim);
-coeffS = setGaussOrder(coeffS,derivativeOrder);
-logY3M = applyRecursGaussFilter(logY3M,coeffS,dim);
-
-
-% x
-% Derivative filter
-derivativeOrder = 'second';
-dim = 2;
-coeffS.sigmad = coeffS.sigma / PixelSizeV(dim);
-coeffS = setGaussOrder(coeffS,derivativeOrder);
-logX3M = applyRecursGaussFilter(img3M,coeffS,dim);
-
-% Smoothing filters
-derivativeOrder = 'zero';
-% y
-dim = 1;
-coeffS.sigmad = sigma / PixelSizeV(dim);
-coeffS = setGaussOrder(coeffS,derivativeOrder);
-logX3M = applyRecursGaussFilter(logX3M,coeffS,dim);
-% z
-dim = 3;
-coeffS.sigmad = sigma / PixelSizeV(dim);
-coeffS = setGaussOrder(coeffS,derivativeOrder);
-logX3M = applyRecursGaussFilter(logX3M,coeffS,dim);
-
-% z
-% Derivative filter
-derivativeOrder = 'second';
-dim = 3;
-coeffS.sigmad = coeffS.sigma / PixelSizeV(dim);
-coeffS = setGaussOrder(coeffS,derivativeOrder);
-logZ3M = applyRecursGaussFilter(img3M,coeffS,dim);
-
-% Smoothing filters
-derivativeOrder = 'zero';
-% x
-dim = 2;
-coeffS.sigmad = sigma / PixelSizeV(dim);
-coeffS = setGaussOrder(coeffS,derivativeOrder);
-logZ3M = applyRecursGaussFilter(logZ3M,coeffS,dim);
-% y
-dim = 1;
-coeffS.sigmad = sigma / PixelSizeV(dim);
-coeffS = setGaussOrder(coeffS,derivativeOrder);
-logZ3M = applyRecursGaussFilter(logZ3M,coeffS,dim);
-
-log3M = logY3M/PixelSizeV(1)^2 + logX3M/PixelSizeV(2)^2 + logZ3M/PixelSizeV(3)^2;
+log3M = zeros(size(img3M));
+for i = 0:2
+    dimV = circshift([1,2,3],i);
+    % Smoothing filters
+    derivativeOrder = 'zero';
+    % y
+    dim = dimV(1);
+    coeffS.sigmad = sigma / PixelSizeV(dim);
+    coeffS = setGaussOrder(coeffS,derivativeOrder);
+    logDim3M = applyRecursGaussFilter(img3M,coeffS,dim);
+    % x
+    dim = dimV(2);
+    coeffS.sigmad = sigma / PixelSizeV(dim);
+    coeffS = setGaussOrder(coeffS,derivativeOrder);
+    logDim3M = applyRecursGaussFilter(logDim3M,coeffS,dim);
+    % Derivative filter
+    derivativeOrder = 'second';
+    dim = dimV(3);
+    coeffS.sigmad = coeffS.sigma / PixelSizeV(dim);
+    coeffS = setGaussOrder(coeffS,derivativeOrder);
+    logDim3M = applyRecursGaussFilter(logDim3M,coeffS,dim);
+    
+    log3M = log3M + logDim3M/PixelSizeV(dim)^2;
+end
+log3M = log3M*sigma^2;
 
 log3M = log3M(5:end-4,5:end-4,5:end-4);
+
