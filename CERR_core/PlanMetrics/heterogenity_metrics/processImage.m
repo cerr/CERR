@@ -196,8 +196,9 @@ switch filterType
       
         vol3M = double(scan3M);
         
-        LoG3M = recursiveLOG(vol3M,paramS.Sigma_mm.val,paramS.VoxelSize_mm.val); %temp
-        
+        LoG3M = recursiveLOG(vol3M,...
+            paramS.Sigma_mm.val,paramS.VoxelSize_mm.val);
+       
         %Remove padding
         outS.LoG_recursive = LoG3M(minr:maxr,minc:maxc,mins:maxs);
         
@@ -298,9 +299,11 @@ switch filterType
         optS = opts4Exe([getCERRPath,'CERROptions.json']);
         sitkLibPath = optS.sitkLibPath;
         % Call the SimpleITK wrapper
-        sitkFilterName = paramS.sitkFilterName;
+        sitkFilterName = paramS.sitkFilterName.val;
         % to do - update the signature to include mask3M?
-        outS.(sitkFilterName) = sitkWrapper(sitkLibPath, vol3M, sitkFilterName, paramS);
+        sitkOutS = sitkWrapper(sitkLibPath, vol3M, sitkFilterName, paramS);
+        filterNamC = fieldnames(sitkOutS);
+        outS.(sitkFilterName) = sitkOutS.(filterNamC{1});
         
     otherwise
        
