@@ -19,7 +19,7 @@ if numel(scanNum) == 1
     
     % Get structure mask
     [rasterSegments] = getRasterSegments(structNum,planC);
-    [mask3M, uniqueSlices] = rasterToMask(rasterSegments, scanNum, planC);
+    [maskUniq3M, uniqueSlices] = rasterToMask(rasterSegments, scanNum, planC);
     
     % Get scan
     scanArray3M = getScanArray(planC{indexS.scan}(scanNum));
@@ -28,19 +28,23 @@ if numel(scanNum) == 1
     
     scanSiz = size(scanArray3M);
     
-    % Pad scanArray and mask3M to interpolate
-    minSlc = min(uniqueSlices);
-    maxSlc = max(uniqueSlices);
-    if minSlc > 1
-        mask3M = padarray(mask3M,[0 0 1],'pre');
-        uniqueSlices = [minSlc-1; uniqueSlices];
-    end
-    if maxSlc < scanSiz(3)
-        mask3M = padarray(mask3M,[0 0 1],'post');
-        uniqueSlices = [uniqueSlices; maxSlc+1];
-    end
+    mask3M = false(scanSiz);
     
-    scanArray3M = scanArray3M(:,:,uniqueSlices);
+    mask3M(:,:,uniqueSlices) = maskUniq3M;
+    
+%     % Pad scanArray and mask3M to interpolate
+%     minSlc = min(uniqueSlices);
+%     maxSlc = max(uniqueSlices);
+%     if minSlc > 1
+%         mask3M = padarray(mask3M,[0 0 1],'pre');
+%         uniqueSlices = [minSlc-1; uniqueSlices];
+%     end
+%     if maxSlc < scanSiz(3)
+%         mask3M = padarray(mask3M,[0 0 1],'post');
+%         uniqueSlices = [uniqueSlices; maxSlc+1];
+%     end
+%     
+%     scanArray3M = scanArray3M(:,:,uniqueSlices);
     
     % Get x,y,z grid for reslicing and calculating the shape features
     [xValsV, yValsV, zValsV] = getScanXYZVals(planC{indexS.scan}(scanNum));
