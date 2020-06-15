@@ -30,6 +30,19 @@ for iImg = 1:length(fieldNamC)
     end
 end
 
+tic
+%---2. Shape features ----
+if whichFeatS.shape.flag
+    rcsV = [];
+    if isfield(paramS.shapeParamS,'rcs')
+        rcsV = paramS.shapeParamS.rcs.';
+    end
+    featureS.shapeS = getShapeParams(maskBoundingBox3M, ...
+        {xValsV, yValsV, zValsV},rcsV);
+end
+toc
+
+
 %% Loop over image types
 for k = 1:length(imageTypeC)
     
@@ -45,12 +58,13 @@ for k = 1:length(imageTypeC)
             maxClipIntensity = paramS.textureParamS.maxClipIntensity;
         end
         volToEval = volOrig3M;
+        [minr, maxr, minc, maxc, mins, maxs] = compute_boundingbox(maskBoundingBox3M);
+        maskBoundingBox3M = maskBoundingBox3M(minr:maxr, minc:maxc, mins:maxs);
+        volToEval = volToEval(minr:maxr, minc:maxc, mins:maxs);
     else
-        if strcmp(imageTypeC{k}.imageType,'LoG')
-            %Add voxel size param for LoG filter
-            voxSizV = [PixelSpacingX, PixelSpacingY, PixelSpacingZ]*10; %convert cm to mm
-            imageTypeC{k}.paramS.VoxelSize_mm.val = voxSizV;
-        end
+        %Add voxel size in mm to paramS
+        voxSizV = [PixelSpacingX, PixelSpacingY, PixelSpacingZ]*10; %convert cm to mm
+        imageTypeC{k}.paramS.VoxelSize_mm.val = voxSizV;
         outS = processImage(imageTypeC{k}.imageType,volOrig3M,maskBoundingBox3M,...
             imageTypeC{k}.paramS);
         [minr, maxr, minc, maxc, mins, maxs] = compute_boundingbox(maskBoundingBox3M);
@@ -70,9 +84,19 @@ for k = 1:length(imageTypeC)
         if isfield(paramS.textureParamS,'numGrLevels')
             numGrLevels = paramS.textureParamS.numGrLevels;
         end
+        if isfield(imageTypeC{k}.paramS,'textureParamS') && ...
+                isfield(imageTypeC{k}.paramS.textureParamS,'numGrLevels')
+            numGrLevels = imageTypeC{k}.paramS.textureParamS.numGrLevels;
+        end
+        
         if isfield(paramS.textureParamS,'binwidth')
             binwidth = paramS.textureParamS.binwidth;
         end
+        if isfield(imageTypeC{k}.paramS,'textureParamS') && ...
+                isfield(imageTypeC{k}.paramS.textureParamS,'binwidth')
+            numGrLevels = imageTypeC{k}.paramS.textureParamS.binwidth;
+        end
+        
         % Don't use intensities outside the ROI in discretization
         volToEval(~maskBoundingBox3M) = NaN;
         quantizedM = imquantize_cerr(volToEval,numGrLevels,...
@@ -97,24 +121,33 @@ for k = 1:length(imageTypeC)
         (imageTypeC{k}.imageType,imageTypeC{k}.paramS);
 
     % --- 1. First-order features ---
+    offsetForEnergy = paramS.firstOrderParamS.offsetForEnergy;
+    binWidthEntropy = paramS.firstOrderParamS.binWidthEntropy;
+    if isfield(imageTypeC{k}.paramS,'firstOrderParamS') && ...
+            isfield(imageTypeC{k}.paramS.firstOrderParamS,'offsetForEnergy')
+        offsetForEnergy = imageTypeC{k}.paramS.firstOrderParamS.offsetForEnergy;
+    end
+    if isfield(imageTypeC{k}.paramS,'binWidthEntropy') && ...
+            isfield(imageTypeC{k}.paramS.firstOrderParamS,'binWidthEntropy')
+        binWidthEntropy = imageTypeC{k}.paramS.firstOrderParamS.binWidthEntropy;
+    end
     if whichFeatS.firstOrder.flag
         volV = volToEval(logical(maskBoundingBox3M));
         featureS.(outFieldName).firstOrderS = radiomics_first_order_stats...
-            (volV, VoxelVol,...
-            paramS.firstOrderParamS.offsetForEnergy,paramS.firstOrderParamS.binWidthEntropy);
+            (volV, VoxelVol,offsetForEnergy,binWidthEntropy);
     end
     
-    tic
-    %---2. Shape features ----
-    if whichFeatS.shape.flag
-        rcsV = [];
-        if isfield(paramS.shapeParamS,'rcs')
-            rcsV = paramS.shapeParamS.rcs.';
-        end
-        featureS.(outFieldName).shapeS = getShapeParams(maskBoundingBox3M, ...
-            {xValsV, yValsV, zValsV},rcsV);
-    end
-    toc
+%     tic
+%     %---2. Shape features ----
+%     if whichFeatS.shape.flag
+%         rcsV = [];
+%         if isfield(paramS.shapeParamS,'rcs')
+%             rcsV = paramS.shapeParamS.rcs.';
+%         end
+%         featureS.(outFieldName).shapeS = getShapeParams(maskBoundingBox3M, ...
+%             {xValsV, yValsV, zValsV},rcsV);
+%     end
+%     toc
     
     %---3. Higher-order (texture) features ----
     
