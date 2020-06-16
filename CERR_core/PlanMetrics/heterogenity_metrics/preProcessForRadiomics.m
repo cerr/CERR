@@ -32,20 +32,6 @@ if numel(scanNum) == 1
     
     mask3M(:,:,uniqueSlices) = maskUniq3M;
     
-%     % Pad scanArray and mask3M to interpolate
-%     minSlc = min(uniqueSlices);
-%     maxSlc = max(uniqueSlices);
-%     if minSlc > 1
-%         mask3M = padarray(mask3M,[0 0 1],'pre');
-%         uniqueSlices = [minSlc-1; uniqueSlices];
-%     end
-%     if maxSlc < scanSiz(3)
-%         mask3M = padarray(mask3M,[0 0 1],'post');
-%         uniqueSlices = [uniqueSlices; maxSlc+1];
-%     end
-%     
-%     scanArray3M = scanArray3M(:,:,uniqueSlices);
-    
     % Get x,y,z grid for reslicing and calculating the shape features
     [xValsV, yValsV, zValsV] = getScanXYZVals(planC{indexS.scan}(scanNum));
     if yValsV(1) > yValsV(2)
@@ -103,7 +89,27 @@ if whichFeatS.perturbation.flag
 
 end
 
-%--- 2. Resampling ---
+%--- 2. Crop scan around mask and pad as required ---
+if whichFeatS.padding.flag
+    
+    scanArray3M = double(scanArray3M);
+    if ~isfield(whichFeatS.padding,'method')
+        %Default:no padding
+        padMethod = 'none';
+        padSizV = [0,0,0]; 
+    else
+        padMethod = whichFeatS.padding.method;
+        padSizV = whichFeatS.padding.size;
+    end
+    [volToEval,maskBoundingBox3M,outLimitsV] = padScan(scanArray3M,mask3M,padMethod,padSizV);
+    
+    % Crop grid and Pixelspacing (dx,dy,dz)
+    xValsV = xValsV(outLimitsV(3):outLimitsV(4));
+    yValsV = yValsV(outLimitsV(1):outLimitsV(2));
+    zValsV = zValsV(outLimitsV(5):outLimitsV(6));
+end
+
+%--- 3. Resampling ---
 
 % Pixelspacing (dx,dy,dz) after resampling 
 if whichFeatS.resample.flag && ~isempty(whichFeatS.resample.resolutionXCm)
@@ -139,35 +145,16 @@ if whichFeatS.resample.flag
         otherwise
             error('Interpolatin method not supported');
     end
-    scanArray3M = imresize3(scanArray3M,[numRows numCols numSlcs],...
+    volToEval = imresize3(volToEval,[numRows numCols numSlcs],...
         'method',method,'Antialiasing',false);
     %mask3M = imresize3(single(mask3M),[numRows numCols numSlcs],'method',method) >= 0.5;
     roiInterpMethod = 'linear';
-    mask3M = imresize3(single(mask3M),[numRows numCols numSlcs],...
+    maskBoundingBox3M = imresize3(single(maskBoundingBox3M),[numRows numCols numSlcs],...
         'method',roiInterpMethod,'Antialiasing',false) >= 0.5;
 end
 
-%--- 3. Crop scan around mask and pad as required ---
-if whichFeatS.padding.flag
-    
-    scanArray3M = double(scanArray3M);
-    if ~isfield(whichFeatS.padding,'method')
-        %Default:no padding
-        padMethod = 'none';
-        padSizV = [0,0,0]; 
-    else
-        padMethod = whichFeatS.padding.method;
-        padSizV = whichFeatS.padding.size;
-    end
-    [volToEval,maskBoundingBox3M,outLimitsV] = padScan(scanArray3M,mask3M,padMethod,padSizV);
-    
-    % Crop grid and Pixelspacing (dx,dy,dz)
-    xValsV = xValsV(outLimitsV(3):outLimitsV(4));
-    yValsV = yValsV(outLimitsV(1):outLimitsV(2));
-    zValsV = zValsV(outLimitsV(5):outLimitsV(6));
-end
-
 %--- 4. Ignore voxels below and above cutoffs, if defined ----
+
 minSegThreshold = [];
 maxSegThreshold = [];
 if isfield(paramS.textureParamS,'minSegThreshold')
