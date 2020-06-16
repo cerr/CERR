@@ -111,28 +111,29 @@ end
 
 %--- 3. Resampling ---
 
-% Pixelspacing (dx,dy,dz) after resampling 
-if whichFeatS.resample.flag && ~isempty(whichFeatS.resample.resolutionXCm)
-    PixelSpacingX = whichFeatS.resample.resolutionXCm;
-end
-if whichFeatS.resample.flag && ~isempty(whichFeatS.resample.resolutionYCm)
-    PixelSpacingY = whichFeatS.resample.resolutionYCm;
-end
-if whichFeatS.resample.flag && ~isempty(whichFeatS.resample.resolutionZCm)
-    PixelSpacingZ = whichFeatS.resample.resolutionZCm;
-end
-
-% Get the new x,y,z grid
-xValsV = (xValsV(1)+perturbX):PixelSpacingX:(xValsV(end)+10000*eps+perturbX);
-yValsV = (yValsV(1)+perturbY):PixelSpacingY:(yValsV(end)+10000*eps+perturbY);
-zValsV = (zValsV(1)+perturbZ):PixelSpacingZ:(zValsV(end)+10000*eps+perturbZ);
-
-% Interpolate using sinc sampling
-numCols = length(xValsV);
-numRows = length(yValsV);
-numSlcs = length(zValsV);
 %Get resampling method
 if whichFeatS.resample.flag
+    % Pixelspacing (dx,dy,dz) after resampling
+    if ~isempty(whichFeatS.resample.resolutionXCm)
+        PixelSpacingX = whichFeatS.resample.resolutionXCm;
+    end
+    if ~isempty(whichFeatS.resample.resolutionYCm)
+        PixelSpacingY = whichFeatS.resample.resolutionYCm;
+    end
+    if ~isempty(whichFeatS.resample.resolutionZCm)
+        PixelSpacingZ = whichFeatS.resample.resolutionZCm;
+    end
+    
+    % Get the new x,y,z grid
+    xValsV = (xValsV(1)+perturbX):PixelSpacingX:(xValsV(end)+10000*eps+perturbX);
+    yValsV = (yValsV(1)+perturbY):PixelSpacingY:(yValsV(end)+10000*eps+perturbY);
+    zValsV = (zValsV(1)+perturbZ):PixelSpacingZ:(zValsV(end)+10000*eps+perturbZ);
+    
+    % Interpolate using sinc sampling
+    numCols = length(xValsV);
+    numRows = length(yValsV);
+    numSlcs = length(zValsV);
+    
     switch whichFeatS.resample.interpMethod
         case 'sinc'
             method = 'lanczos3'; % Lanczos-3 kernel
