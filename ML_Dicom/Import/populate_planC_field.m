@@ -40,7 +40,7 @@ function dataS = populate_planC_field(cellName, dcmdir_patient, optS, varargin)
 %Get template for the requested cell.
 persistent rtPlans scanOriS
 structS = initializeCERR(cellName);
-names   = fields(structS);
+names   = fieldnames(structS);
 
 dataS = [];
 switch cellName

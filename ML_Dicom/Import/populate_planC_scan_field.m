@@ -419,7 +419,7 @@ switch fieldname
         
         %Get scanInfo field names.
         scanInfoInitS = initializeScanInfo;
-        names = fields(scanInfoInitS);
+        names = fieldnames(scanInfoInitS);
         
         zValues = [];
         
