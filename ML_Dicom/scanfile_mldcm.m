@@ -47,14 +47,24 @@ if ~exist('excludePixelDataFlag','var')
     excludePixelDataFlag = false;
 end
 
+mlVer = getMLVersion;
+
 %Create a java file object associated with this filename
-ifile = java.io.File(filename);
+if isempty(mlVer)
+    ifile = javaObject("java.io.File",filename);
+else
+    ifile = java.io.File(filename);
+end
 
 isDcm  = int8(1); % need to force as int
 
 %Create a DicomInputStream to read this input file.
 try
-    in = org.dcm4che3.io.DicomInputStream(ifile);
+    if isempty(mlVer)
+        in = javaObject("org.dcm4che3.io.DicomInputStream",ifile);
+    else
+        in = org.dcm4che3.io.DicomInputStream(ifile);
+    end
 catch
     isDcm = 0;
     attrData = [];
@@ -79,14 +89,14 @@ try
     attrFMI = in.readFileMetaInformation();
     attrData.addAll(attrFMI);
     
-    if attrData.isempty
+    if attrData.isEmpty
         isDcm = 0;
     end
 catch
 
 end
 %Close input stream.
-in.close
+in.close;
 
 
 %Do we need to explicitly delete the invalid attribute?  Possibly.

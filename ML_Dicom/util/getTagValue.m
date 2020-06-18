@@ -77,7 +77,9 @@ switch upper(vr)
         data = '';
     case 'AT'
         data = dec2hex(attr.getInts(hex2dec(tag)));
-    case {'CS', 'LO', 'SH', 'ST'}
+    case 'CS'
+        data = attr.getString(hex2dec(tag));
+    case {'LO', 'SH', 'ST'}
         data = attr.getStrings(hex2dec(tag));
         %data = org.dcm4che3.data.ElementDictionary.keywordOf(hex2dec(tag), []);
         %If more than one string, put in cell array.
@@ -176,7 +178,10 @@ switch upper(vr)
         %data = uint16(attr.getInts(buf));
         data = attr.getInts(hex2dec(tag));
     case 'PN'
-        nameObj = org.dcm4che3.data.PersonName(attr.getString(hex2dec(tag)));
+        %nameObj = org.dcm4che3.data.PersonName(attr.getString(hex2dec(tag)));
+        attrStr = class(attr.getString(hex2dec(tag)));
+        attrJavaStr =  javaObject("java.lang.String",attrStr);
+        nameObj = javaObject("org.dcm4che3.data.PersonName",attrJavaStr);
         %DCM4CHE3 now uses enum 'Component' instead of an array
         
         compFamilyName = javaMethod('valueOf','org.dcm4che3.data.PersonName$Component','FamilyName');
@@ -211,17 +216,19 @@ switch upper(vr)
         %Time string format: HHMMSS.ss where "ss" is fraction of a second.
         % data = char(attr.getString(hex2dec(tag)));
         data = attr.getString(hex2dec(tag));
-        if ~isempty(data)
-            data = cell(data);
-            data = data{1};
-        end
+        % commented for Octave (required for Matlab to convert to char)
+        %if ~isempty(data)
+        %    data = cell(data);
+        %    data = data{1};
+        %end
     case 'UI'
         % data = char(attr.getString(hex2dec(tag)));
         data = attr.getString(hex2dec(tag));
-        if ~isempty(data)
-            data = cell(data);
-            data = data{1};
-        end
+        % commented for Octave (required for Matlab to convert to char)
+        %if ~isempty(data)
+        %    data = cell(data);
+        %   data = data{1};
+        %end
     case 'UL'
         data = attr.getInts(hex2dec(tag));
     case 'UN'

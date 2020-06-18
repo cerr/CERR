@@ -88,7 +88,11 @@ if isempty(path1) || isempty(path2) || isempty(path3) || isempty(path4) || isemp
     initFlag = 0;
     return;
 else
-    javaaddpath({path1,path2, path5,path6,path7,path9});
+    if isempty(getMLVersion)
+        javaaddpath(path1,path2,path3,path4,path5,path6,path7,path9);
+     else
+        javaaddpath({path1,path2,path3,path4,path5,path6,path7,path9});
+    end
 end
 
 
