@@ -61,7 +61,7 @@ indexS = planC{end};
 %Determine if we want 'save', or 'saveas...' behavior.
 if ~exist('saveflag')
     saveflag = 'saveas';
-elseif ~strcmpi(saveflag, 'save') & ~strcmpi(saveflag, 'saveas') & ~strcmpi(saveflag, 'passed')
+elseif ~any(strcmpi(saveflag, {'save','saveas','passed'}))
     error('Incorrect call to save_planC.m');
 end
 
@@ -148,10 +148,10 @@ while permission == 0   %Use while statement in case permission to overwrite fil
         if strcmpi(ext(1), '.mat')
             zipFile     = 0;
             saveFile    = [roots{1} '.mat'];
-        elseif length(ext) > 2 & strcmpi(ext(1), '.tar') & (strcmpi(ext(2), '.bz2') || strcmpi(ext(2), '.zip')) & strcmpi(ext(3), '.mat')
+        elseif length(ext) > 2 && strcmpi(ext(1), '.tar') && (strcmpi(ext(2), '.bz2') || strcmpi(ext(2), '.zip')) & strcmpi(ext(3), '.mat')
             zipFile     = 1;
             saveFile    = [roots{3} '.mat'];
-        elseif length(ext) > 1 & (strcmpi(ext(1), '.bz2') || strcmpi(ext(1), '.zip'))& strcmpi(ext(2), '.mat')
+        elseif length(ext) > 1 && (strcmpi(ext(1), '.bz2') || strcmpi(ext(1), '.zip')) && strcmpi(ext(2), '.mat')
             zipFile     = 1;
             saveFile    = [roots{2} '.mat'];
         else
@@ -178,9 +178,9 @@ while permission == 0   %Use while statement in case permission to overwrite fil
             end
             extSave = stateS.optS.CompressType;
         end
-    elseif ~zipFile & strcmpi(saveflag, 'passed')
+    elseif ~zipFile && strcmpi(saveflag, 'passed')
         ans = 'no';
-    elseif ~zipFile & strcmpi(saveflag, 'saveas')
+    elseif ~zipFile && strcmpi(saveflag, 'saveas')
         ans = questdlg('Zip the .mat file using bz2/zip?');
         if ~isfield(stateS,'optS')
             stateS.optS = opts4Exe([getCERRPath,'CERROptions.json']);
@@ -297,7 +297,7 @@ end
 if length(filesLocal)>0 & ~exist(fullfile(pathstr,[name,'_store']))
     mkdir(fullfile(pathstr,[name,'_store']))
 elseif length(filesLocal) < 1
-    try
+    if exist(remotePathLocal,'dir')
         rmdir(remotePathLocal)
     end
 end
