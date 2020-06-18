@@ -30,8 +30,10 @@ else
     toc
     
     % Convert to lower case
-    dirNameC = lower({dirsInCurDir.name});
-    dirFullPathC = lower({dirsInCurDir.fullpath});
+    %dirNameC = lower({dirsInCurDir.name});
+    %dirFullPathC = lower({dirsInCurDir.fullpath});
+    dirNameC = {dirsInCurDir.name};
+    dirFullPathC = {dirsInCurDir.fullpath};
     
     % determine back or forward slash
     if ispc
@@ -78,7 +80,7 @@ tic
 hWaitbar = NaN;
 % Import all the dirs
 parfor dirNum = 1:length(dirsToImportC)
-    try
+    %try
         init_ML_DICOM
         %hWaitbar = waitbar(0,'Scanning Directory Please wait...');
         sourceDir = dirsToImportC{dirNum};
@@ -86,9 +88,9 @@ parfor dirNum = 1:length(dirsToImportC)
         if strcmpi(selected,'all')
             combinedDcmdirS = getCombinedDir(sourceDir);
             % Pass the java dicom structures to function to create CERR plan
-            try
+            %try
                 planC = dcmdir2planC(combinedDcmdirS,mergeScansFlag);
-            end
+            %end
         else
             patient = scandir_mldcm(sourceDir, hWaitbar, 1);
             %close(hWaitbar);
@@ -103,10 +105,10 @@ parfor dirNum = 1:length(dirsToImportC)
         indexS = planC{end};
         
         % build the filename for storing planC
-        mrn = planC{indexS.scan}(1).scanInfo(1).DICOMHeaders.PatientID;
-        studyDscr = planC{indexS.scan}(1).scanInfo(1).DICOMHeaders.StudyDescription;
-        seriesDscr = planC{indexS.scan}(1).scanInfo(1).DICOMHeaders.SeriesDescription;
-        modality = planC{indexS.scan}(1).scanInfo(1).DICOMHeaders.Modality;
+        %mrn = planC{indexS.scan}(1).scanInfo(1).DICOMHeaders.PatientID;
+        %studyDscr = planC{indexS.scan}(1).scanInfo(1).DICOMHeaders.StudyDescription;
+        %seriesDscr = planC{indexS.scan}(1).scanInfo(1).DICOMHeaders.SeriesDescription;
+        %modality = planC{indexS.scan}(1).scanInfo(1).DICOMHeaders.Modality;
         
 %         outFileName = [mrn,'~',studyDscr,'~','_FSPost_',seriesDscr,'~',modality];
 %         outFileName = strrep(outFileName,'\','-');
@@ -135,11 +137,11 @@ parfor dirNum = 1:length(dirsToImportC)
         end
         save_planC(planC,[], 'passed', saved_fullFileName);
         
-    catch
+    %catch
         
-        disp(['Cannot convert ',sourceDir])
+    %    disp(['Cannot convert ',sourceDir])
         
-    end
+    %end
 end
 
 toc
