@@ -76,7 +76,13 @@ dcmdirS = [];
 %patient = org.dcm4che2.data.BasicDicomObject;
 %patienttemplate = build_module_template('patient');
 
-for i=1:length(filesV)
+if ishandle(hWaitbar)
+    set(hWaitbar, ...
+    'String',['Scanning Directory ' num2str(dirNum) ' Please wait...'])
+end
+
+numFiles = length(filesV);
+for i=1:numFiles
 
     filename = fullfile(dirPath, filesV(i).name);
     [attrData, isDcm] = scanfile_mldcm(filename,excludePixelDataFlag);
@@ -90,9 +96,11 @@ for i=1:length(filesV)
         % KEEP OUT --->[isValid, errMsg] = validate_patient_module(dcmObj);
       attrData.clear;
     end
-    [pathstr, name, ext] = fileparts(filename);
+    %[pathstr, name, ext] = fileparts(filename);
     if ishandle(hWaitbar)
-        waitbar(i/length(filesV),hWaitbar, ['Scanning Directory ' num2str(dirNum) ' Please wait...']);
+        waitbar(hWaitbar,i/numFiles);
+      else
+        disp(i/numFiles)
     end
     %['file: ' name ext]});
 end
