@@ -32,12 +32,12 @@ function saveParam = getSaveInfo();
 % along with CERR.  If not, see <http://www.gnu.org/licenses/>.
 
 saveParam = [];
-verInfo = ver('MATLAB');
-if str2double(verInfo.Version(1)) >= 7    
+%mlVer = getMLVersion;
+%if mlVer >= 7    
     pathStr = getCERRPath;
     optName = [pathStr 'CERROptions.json'];
     tmpOptS = opts4Exe(optName);    
 	if isfield(tmpOptS, 'saveFormat') && ~isempty(tmpOptS.saveFormat)
         saveParam = tmpOptS.saveFormat;
 	end
-end
+%end
