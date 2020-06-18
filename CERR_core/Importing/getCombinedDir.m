@@ -2,7 +2,7 @@ function combinedDcmdirS = getCombinedDir(srcDir)
 
 %hWaitbar = waitbar(0,'Scanning Directory Please wait...');
 hWaitbar = NaN;
-patient = scandir_mldcm(srcDir, hWaitbar, 1);
+patient = scandir_mldcm(srcDir, hWaitbar, 1,true);
 %close(hWaitbar);
 dcmdirS = struct(['patient_' num2str(1)],patient.PATIENT(1));
 for j = 2:length(patient.PATIENT)
