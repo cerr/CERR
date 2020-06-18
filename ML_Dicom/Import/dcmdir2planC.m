@@ -40,7 +40,7 @@ indexS = planInitC{end};
 dcmdir_PATIENT = dcmdir; %wy .PATIENT{1};
 
 %Get the names of all cells in planC.
-cellNames = fields(indexS);
+cellNames = fieldnames(indexS);
 
 %Read CERROptions.json to get import flags
 pathStr = getCERRPath;
