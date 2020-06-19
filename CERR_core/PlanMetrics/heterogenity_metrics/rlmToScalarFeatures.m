@@ -34,23 +34,23 @@ function featureS = rlmToScalarFeatures(rlmM, numVoxels, flagS)
 % rlmM = calcRLM(imgM, offsetM, nL, rlmType);
 % 
 % % define feature flags
-% flagS.sre = 1;
-% flagS.lre = 1;
-% flagS.gln = 1;
-% flagS.glnNorm = 1;
-% flagS.rln = 1;
-% flagS.rlnNorm = 1;
-% flagS.rp = 1;
-% flagS.lglre = 1;
-% flagS.hglre = 1;
-% flagS.srlgle = 1;
-% flagS.srhgle = 1;
-% flagS.lrlgle = 1;
-% flagS.lrhgle = 1;
-% flagS.glv = 1;
-% flagS.rlv = 1;
-% flagS.re = 1;
-%
+% rlmFlagS.shortRunEmphasis = 1;
+% rlmFlagS.longRunEmphasis = 1;
+% rlmFlagS.grayLevelNonUniformity = 1;
+% rlmFlagS.grayLevelNonUniformityNorm = 1;
+% rlmFlagS.runLengthNonUniformity = 1;
+% rlmFlagS.runLengthNonUniformityNorm = 1;
+% rlmFlagS.runPercentage = 1;
+% rlmFlagS.lowGrayLevelRunEmphasis = 1;
+% rlmFlagS.highGrayLevelRunEmphasis = 1;
+% rlmFlagS.shortRunLowGrayLevelEmphasis = 1;
+% rlmFlagS.shortRunHighGrayLevelEmphasis = 1;
+% rlmFlagS.longRunLowGrayLevelEmphasis = 1;
+% rlmFlagS.longRunHighGrayLevelEmphasis = 1;
+% rlmFlagS.grayLevelVariance = 1;
+% rlmFlagS.runLengthVariance = 1;
+% rlmFlagS.runEntropy = 1;
+
 % % Number of voxels
 % numVoxels = numel(imgM);
 %
@@ -65,102 +65,102 @@ lenV = 1:size(rlmM,2);
 levV = 1:nL;
 
 % Short Run Emphasis (SRE) (Aerts et al, Nature suppl. eq. 45)
-if flagS.sre
+if flagS.shortRunEmphasis
     sreM = bsxfun(@rdivide,rlmM,lenV.^2);
-    featureS.sre = sum(sreM(:))/sum(rlmM(:));
+    featureS.shortRunEmphasis = sum(sreM(:))/sum(rlmM(:));
 end
 
 % Long Run Emphasis (LRE) (Aerts et al, Nature suppl. eq. 46)
-if flagS.lre
+if flagS.longRunEmphasis
     lreM = bsxfun(@times,rlmM,lenV.^2);
-    featureS.lre = sum(lreM(:))/sum(rlmM(:));
+    featureS.longRunEmphasis = sum(lreM(:))/sum(rlmM(:));
 end
 
 % Gray Level Non-Uniformity (GLN) (Aerts et al, Nature suppl. eq. 47)
-if flagS.gln
-    featureS.gln = sum(sum(rlmM,2).^2) / sum(rlmM(:));
+if flagS.grayLevelNonUniformity
+    featureS.grayLevelNonUniformity = sum(sum(rlmM,2).^2) / sum(rlmM(:));
 end
 
-if flagS.glnNorm
-    featureS.glnNorm = sum(sum(rlmM,2).^2) / sum(rlmM(:))^2;
+if flagS.grayLevelNonUniformityNorm
+    featureS.grayLevelNonUniformityNorm = sum(sum(rlmM,2).^2) / sum(rlmM(:))^2;
 end
 
 % Run Length Non-Uniformity (RLN) (Aerts et al, Nature suppl. eq. 48)
-if flagS.rln
-    featureS.rln = sum(sum(rlmM,1).^2) / sum(rlmM(:));
+if flagS.runLengthNonUniformity
+    featureS.runLengthNonUniformity = sum(sum(rlmM,1).^2) / sum(rlmM(:));
 end
 
-if flagS.rlnNorm
-    featureS.rlnNorm = sum(sum(rlmM,1).^2) / sum(rlmM(:))^2;
+if flagS.runLengthNonUniformityNorm
+    featureS.runLengthNonUniformityNorm = sum(sum(rlmM,1).^2) / sum(rlmM(:))^2;
 end
 
 % Run Percentage (RP) (Aerts et al, Nature suppl. eq. 49)
-if flagS.rp
+if flagS.runPercentage
     if isempty(numVoxels)
         numVoxels = 1;
     end
-    featureS.rp = sum(rlmM(:)) / numVoxels;
+    featureS.runPercentage = sum(rlmM(:)) / numVoxels;
 end
 
 % Low Gray Level Run Emphasis (LGLRE) (Aerts et al, Nature suppl. eq. 50)
-if flagS.lglre
+if flagS.lowGrayLevelRunEmphasis
     lglreM = bsxfun(@rdivide,rlmM',levV.^2);
-    featureS.lglre = sum(lglreM(:)) / sum(rlmM(:));
+    featureS.lowGrayLevelRunEmphasis = sum(lglreM(:)) / sum(rlmM(:));
 end
 
 % High Gray Level Run Emphasis (HGLRE) (Aerts et al, Nature suppl. eq. 51)
-if flagS.hglre
+if flagS.highGrayLevelRunEmphasis
     hglreM = bsxfun(@times,rlmM',levV.^2);
-    featureS.hglre = sum(hglreM(:)) / sum(rlmM(:));
+    featureS.highGrayLevelRunEmphasis = sum(hglreM(:)) / sum(rlmM(:));
 end
 
 % Short Run Low Gray Level Emphasis (SRLGLE) (Aerts et al, Nature suppl. eq. 52)
-if flagS.srlgle
+if flagS.shortRunLowGrayLevelEmphasis
     levLenM = bsxfun(@times,(levV').^2,lenV.^2);
     srlgleM = bsxfun(@rdivide,rlmM,levLenM);
-    featureS.srlgle = sum(srlgleM(:)) / sum(rlmM(:));
+    featureS.shortRunLowGrayLevelEmphasis = sum(srlgleM(:)) / sum(rlmM(:));
 end
 
 % Short Run High Gray Level Emphasis (SRHGLE) (Aerts et al, Nature suppl. eq. 53)
-if flagS.srhgle
+if flagS.shortRunHighGrayLevelEmphasis
     levLenM = bsxfun(@times,(levV').^2,1./lenV.^2);
     srhgleM = bsxfun(@times,rlmM,levLenM);
-    featureS.srhgle = sum(srhgleM(:)) / sum(rlmM(:));
+    featureS.shortRunHighGrayLevelEmphasis = sum(srhgleM(:)) / sum(rlmM(:));
 end
 
 % Long Run Low Gray Level Emphasis (LRLGLE) (Aerts et al, Nature suppl. eq. 54)
-if flagS.lrlgle
+if flagS.longRunLowGrayLevelEmphasis
     levLenM = bsxfun(@times,1./(levV').^2,lenV.^2);
     lrlgleM = bsxfun(@times,rlmM,levLenM);
-    featureS.lrlgle = sum(lrlgleM(:)) / sum(rlmM(:));
+    featureS.longRunLowGrayLevelEmphasis = sum(lrlgleM(:)) / sum(rlmM(:));
 end
 
 % Long Run High Gray Level Emphasis (LRHGLE) (Aerts et al, Nature suppl. eq. 55)
-if flagS.lrhgle
+if flagS.longRunHighGrayLevelEmphasis
     levLenM = bsxfun(@times,(levV').^2,lenV.^2);
     lrhgleM = bsxfun(@times,rlmM,levLenM);
-    featureS.lrhgle = sum(lrhgleM(:)) / sum(rlmM(:));
+    featureS.longRunHighGrayLevelEmphasis = sum(lrhgleM(:)) / sum(rlmM(:));
 end
 
 % Grey Level Variance
-if flagS.glv
+if flagS.grayLevelVariance
     iPij = bsxfun(@times,rlmM'/sum(rlmM(:)),levV);
     mu = sum(iPij(:));
     iMinusMuPij = bsxfun(@times,rlmM'/sum(rlmM(:)),(levV-mu).^2);
-    featureS.glv = sum(iMinusMuPij(:));
+    featureS.grayLevelVariance = sum(iMinusMuPij(:));
 end
 
 % Run Length Variance
-if flagS.rlv
+if flagS.runLengthVariance
     jPij = bsxfun(@times,rlmM/sum(rlmM(:)),lenV);
     mu = sum(jPij(:));
     jMinusMuPij = bsxfun(@times,rlmM/sum(rlmM(:)),(lenV-mu).^2);
-    featureS.rlv = sum(jMinusMuPij(:));
+    featureS.runLengthVariance = sum(jMinusMuPij(:));
 end
 
 % Run Entropy
-if flagS.re
+if flagS.runEntropy
     runSum = sum(rlmM(:));
-    featureS.re = -sum(rlmM(:)/runSum .* log2(rlmM(:)/runSum + eps));
+    featureS.runEntropy = -sum(rlmM(:)/runSum .* log2(rlmM(:)/runSum + eps));
 end
 
