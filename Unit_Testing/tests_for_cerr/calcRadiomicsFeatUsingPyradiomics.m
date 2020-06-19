@@ -21,7 +21,7 @@ dz = planC{indexS.scan}(scanNum).scanInfo(1).sliceThickness;
 voxelSizeV = [dx, dy, dz]*10; %convert to mm
 
 %% Calc features
-featS = PyradWrapper_new(scan3M, mask3M, voxelSizeV, paramFilePath);
+featS = PyradWrapper(scan3M, mask3M, voxelSizeV, paramFilePath);
 fieldsC = fieldnames(featS);
 for n=1:length(fieldsC)
    if isa(featS.(fieldsC{n}),'py.numpy.ndarray')
