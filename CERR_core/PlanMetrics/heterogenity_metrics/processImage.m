@@ -153,8 +153,6 @@ switch filterType
                     set(hWait, 'Vertices', [[0 0 (n-1)/(length(dirListC)-1) (n-1)/(length(dirListC)-1)]' [0 1 1 0]']);
                     drawnow;
                 end
-                % Remove padding
-                out3M = out3M(minr:maxr,minc:maxc,mins:maxs);
                 outS.(outname) = out3M;
             end
         else
@@ -170,9 +168,6 @@ switch filterType
                 set(hWait, 'Vertices', [[0 0 1 1]' [0 1 1 0]']);
                 drawnow;
             end
-            
-            % Remove padding
-            out3M = out3M(minr:maxr,minc:maxc,mins:maxs);
             outS.(outname) = out3M;
         end
         
@@ -183,8 +178,8 @@ switch filterType
         [mag3M,dir3M] = sobelFilt(vol3M);
         
         %Remove padding
-        outS.SobelMag = mag3M(minr:maxr,minc:maxc,mins:maxs);
-        outS.SobelDir = dir3M(minr:maxr,minc:maxc,mins:maxs);
+        outS.SobelMag = mag3M;
+        outS.SobelDir = dir3M;
         
         if ishandle(hWait)
             set(hWait, 'Vertices', [[0 0 1 1]' [0 1 1 0]']);
@@ -199,8 +194,7 @@ switch filterType
         LoG3M = recursiveLOG(vol3M,...
             paramS.Sigma_mm.val,paramS.VoxelSize_mm.val);
        
-        %Remove padding
-        outS.LoG_recursive = LoG3M(minr:maxr,minc:maxc,mins:maxs);
+        outS.LoG_recursive = LoG3M;
         
         if ishandle(hWait)
             set(hWait, 'Vertices', [[0 0 1 1]' [0 1 1 0]']);
@@ -213,8 +207,7 @@ switch filterType
         gabor3M = filtImgGabor(vol3M,paramS.Radius.val,paramS.Sigma.val,...
             paramS.AspectRatio.val,paramS.Orientation.val,paramS.Wavlength.val);
         
-        %Remove padding
-        outS.Gabor = gabor3M(minr:maxr,minc:maxc,mins:maxs);
+        outS.Gabor = gabor3M;
         
         if ishandle(hWait)
             set(hWait, 'Vertices', [[0 0 1 1]' [0 1 1 0]']);
@@ -268,8 +261,7 @@ switch filterType
             
             text3M = convn(vol3M,lawsMasksS.(fieldNamesC{i}),'same');
             
-            %Remove padding
-            outS.(fieldNamesC{i}) = text3M(minr:maxr,minc:maxc,mins:maxs);
+            outS.(fieldNamesC{i}) = text3M;
             
             if ishandle(hWait)
                 set(hWait, 'Vertices', [[0 0 i/numFeatures i/numFeatures]' [0 1 1 0]']);
@@ -309,7 +301,7 @@ switch filterType
        
         filtImg3M = feval(filterType,scan3M,mask3M,paramS);
         %Remove padding
-        outS.(filterType) = filtImg3M(minr:maxr,minc:maxc,mins:maxs);
+        outS.(filterType) = filtImg3M;
         
 end
 
