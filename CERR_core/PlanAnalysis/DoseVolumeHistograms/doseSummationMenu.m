@@ -367,7 +367,7 @@ switch upper(command)
                     .DICOMHeaders.ReferencedRTPlanSequence.Item_1.ReferencedSOPInstanceUID;
                 planNum = find(strcmpi(ReferencedSOPInstanceUID,SOPInstanceUIDv));
                 paramS.numFractions.val = planC{indexS.beams}(planNum).FractionGroupSequence...
-                    .Item_1.NumberofFractionsPlanned;
+                    .Item_1.NumberOfFractionsPlanned;
                 paramS.numFractions.val = double(paramS.numFractions.val);                
                 paramS.frxSize.val = doseArray / paramS.numFractions.val;
                 doseArray = calc_BED(paramS) / (1+stdFractionSize/paramS.abRatio.val);                
