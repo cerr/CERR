@@ -48,7 +48,9 @@ global stateS
 planD = updatePlanFields(planD);
 
 % Quality assure
-planD = quality_assure_planC(mergefileName, planD);
+if exist('mergefileName','var')
+    planD = quality_assure_planC(mergefileName, planD);
+end
 
 indexSD = planD{end};
 
