@@ -22,17 +22,21 @@
   <body>
 
     <!-- Navigation -->
-    <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
-      <div class="container">
-        <a class="navbar-brand" href="#">CERR</a>
-        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarResponsive" aria-controls="navbarResponsive" aria-expanded="false" aria-label="Toggle navigation">
+    <nav class="navbar navbar-expand-lg navbar-light bg-light fixed-top">
+      <div class="container" id="navbar">
+        <a class="navbar-brand" href="">CERR</a>
+        <button class="navbar-toggler" type="button" data-toggle="tab" data-target="#navbarResponsive" aria-controls="navbarResponsive" aria-expanded="false" aria-label="Toggle navigation">
           <span class="navbar-toggler-icon"></span>
         </button>
         <div class="collapse navbar-collapse" id="navbarResponsive">
-          <ul class="navbar-nav ml-auto">
-            <li class="nav-item active">
-              <a class="nav-link" href="#">About
+          <ul class="nav navbar-nav nav-tabs ml-auto">
+            <li class="nav-item">
+              <a class="nav-link active" data-toggle="tab" href="#features">Features
                 <span class="sr-only">(current)</span>
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" data-toggle="tab" href="#news">News
               </a>
             </li>
             <li class="nav-item">
@@ -42,7 +46,7 @@
               <a class="nav-link" href="https://groups.google.com/forum/#!forum/cerr-forum">User Group</a>
             </li>
             <li class="nav-item">
-              <a class="nav-link" href="#">Contact</a>
+              <a class="nav-link" data-toggle="tab" href="#team">Team</a>
             </li>
           </ul>
         </div>
@@ -50,61 +54,50 @@
     </nav>
 
     <!-- Page Content -->
-    <div class="container">
+
+<div class="tab-content">
+
+	<div class="tab-pane container fade" id="team">
+		<ul>
+			<li> Aditya P. Apte, Ph.D. </li>
+			<li> Aditi Iyer, M.S. </li>
+			<li> Eve LoCastro, M.S. </li>
+			<li> Joseph O. Deasy, Ph.D. </li>
+		</ul>
+
+    </div>
+
+
+	<div class="tab-pane container fade" id="news">
+	  <table class="news-table">
+        <tr>
+          <th> Date </th>
+          <th> Type </th>
+          <th> Description </th>
+        </tr>
+        <tr>
+          <td> 01/01/2020 </th>
+          <td> Under construction </th>
+          <td>  </th>
+        </tr>
+        <tr>
+          <td> 02/12/2020 </th>
+          <td> Under construction </th>
+          <td>  </th>
+        </tr>
+      </table>
+    </div>
+
+    <div class="tab-pane container active" id="features">
 
       <!-- Page Heading -->
       <h1 class="my-4">A Computational Environment for Radiological Research
         <small>Features</small>
       </h1>
-
       <div class="row">
         <div class="col-lg-6 portfolio-item">
           <div class="card h-100">
-            <a href="#"><img class="card-img-top" src="http://placehold.it/700x400" alt=""></a>
-            <div class="card-body">
-              <h4 class="card-title">
-                <a href="#">User-friendly access to RT and Radiology meta-data</a>
-              </h4>
-              <p class="card-text">CERR provides an extensible data structure for radiotherapy and radiology objects. This makes it convenient to extract and transform the underlying data for prototyping algorithms.</p>
-            </div>
-          </div>
-        </div>
-        <div class="col-lg-6 portfolio-item">
-          <div class="card h-100">
-            <a href="#"><img class="card-img-top" src="http://placehold.it/700x400" alt=""></a>
-            <div class="card-body">
-              <h4 class="card-title">
-                <a href="#">Outcomes Modeling</a>
-              </h4>
-              <p class="card-text">CERR provides utility functions to batch extract dose volume histogram (DVH) based features. These features can be used for modeling toxicity and tumor control. </p>
-            </div>
-          </div>
-        </div>
-        <div class="col-lg-6 portfolio-item">
-          <div class="card h-100">
-            <a href="#"><img class="card-img-top" src="http://placehold.it/700x400" alt=""></a>
-            <div class="card-body">
-              <h4 class="card-title">
-                <a href="#">Radiomics</a>
-              </h4>
-              <p class="card-text">CERR's Radiomics capabilities are built keeping in mind Speed, Quality Assurance and Interfacing with Clinical Software.</p>
-            </div>
-          </div>
-        </div>
-        <div class="col-lg-6 portfolio-item">
-          <div class="card h-100">
-            <a href="#"><img class="card-img-top" src="http://placehold.it/700x400" alt=""></a>
-            <div class="card-body">
-              <h4 class="card-title">
-                <a href="#">IMRTP</a>
-              </h4>
-              <p class="card-text">CERR provides access to the underlying RTPLAN meta-data. The dose calculation options are QIB and Monte Carlo algorithms. The influence matrix and the beamlets are accessible for IMRTP research.</p>
-            </div>
-          </div>
-        </div>
-        <div class="col-lg-6 portfolio-item">
-          <div class="card h-100">
-            <a href="#"><img class="card-img-top" src="http://placehold.it/700x400" alt=""></a>
+            <a href="#"><img class="card-img-top" src="CERR_core/WebPage/images/data_import.png" alt=""></a>
             <div class="card-body">
               <h4 class="card-title">
                 <a href="#">Data Import</a>
@@ -115,7 +108,7 @@
         </div>
         <div class="col-lg-6 portfolio-item">
           <div class="card h-100">
-            <a href="#"><img class="card-img-top" src="http://placehold.it/700x400" alt=""></a>
+            <a href="#"><img class="card-img-top" src="CERR_core/WebPage/images/contouring_tools_brush_eraser.png" alt=""></a>
             <div class="card-body">
               <h4 class="card-title">
                 <a href="#">Contouring</a>
@@ -124,10 +117,69 @@
             </div>
           </div>
         </div>
+        <div class="col-lg-6 portfolio-item">
+          <div class="card h-100">
+            <a href="#"><img class="card-img-top" src="CERR_core/WebPage/images/dvh_outcomes.png" alt=""></a>
+            <div class="card-body">
+              <h4 class="card-title">
+                <a href="https://github.com/cerr/CERR/wiki/CERR-Extractor:-Fusing-DVH-data-with-outcomes.png">Outcomes Modeling</a>
+              </h4>
+              <p class="card-text">CERR provides utility functions to batch extract dose volume histogram (DVH) based features. These features can be used for modeling toxicity and tumor control. </p>
+            </div>
+          </div>
+        </div>
+        <div class="col-lg-6 portfolio-item">
+          <div class="card h-100">
+            <a href="#"><img class="card-img-top" src="CERR_core/WebPage/images/texture_gui.png" alt=""></a>
+            <div class="card-body">
+              <h4 class="card-title">
+                <a href="#">Radiomics</a>
+              </h4>
+              <p class="card-text">CERR's Radiomics capabilities are built keeping in mind Speed, Quality Assurance and Interfacing with Clinical Software.</p>
+            </div>
+          </div>
+        </div>
+        <div class="col-lg-6 portfolio-item">
+          <div class="card h-100">
+            <a href="#"><img class="card-img-top" src="CERR_core/WebPage/images/imrtp_gui.jpg" alt=""></a>
+            <div class="card-body">
+              <h4 class="card-title">
+                <a href="#">IMRTP</a>
+              </h4>
+              <p class="card-text">CERR provides access to the underlying RTPLAN meta-data. The dose calculation options are QIB and Monte Carlo algorithms. The influence matrix and the beamlets are accessible for IMRTP research.</p>
+            </div>
+          </div>
+        </div>
+        <div class="col-lg-6 portfolio-item">
+          <div class="card h-100">
+            <a href="#"><img class="card-img-top" src="CERR_core/WebPage/images/roe.png" alt=""></a>
+            <div class="card-body">
+              <h4 class="card-title">
+                <a href="#">ROE</a>
+              </h4>
+              <p class="card-text">Radiotherapy Outcomes Explorer (ROE) is useful in exploring the clinical impact of scaling dose on Tumor Control Probability (TCP) and Normal Tissue Complication Probability (NTCP) in radiotherapy.</p>
+            </div>
+          </div>
+        </div>
+        <div class="col-lg-6 portfolio-item">
+          <div class="card h-100">
+            <a href="#"><img class="card-img-top" src="CERR_core/WebPage/images/planC_structure.png" alt="" width="80" height="280"></a>
+            <div class="card-body">
+              <h4 class="card-title">
+                <a href="#">User-friendly access to RT and Radiology meta-data</a>
+              </h4>
+              <p class="card-text">CERR provides an extensible data structure for radiotherapy and radiology objects. This makes it convenient to extract and transform the underlying data for prototyping algorithms.</p>
+            </div>
+          </div>
+        </div>
       </div>
-      <!-- /.row -->
+
+ </div> <!-- end class="tab-content" -->
+
+ <!-- /.row -->
 
       <!-- Pagination -->
+      <!--
       <ul class="pagination justify-content-center">
         <li class="page-item">
           <a class="page-link" href="#" aria-label="Previous">
@@ -152,13 +204,17 @@
         </li>
       </ul>
 
+	-->
+
     </div>
+
+
     <!-- /.container -->
 
     <!-- Footer -->
-    <footer class="py-5 bg-dark">
+    <footer class="py-1 bg-light fixed-bottom">
       <div class="container">
-        <p class="m-0 text-center text-white">Copyright &copy; CERR 2017</p>
+        <p class="m-0 text-center text-black">Copyright &copy; CERR 2020</p>
       </div>
       <!-- /.container -->
     </footer>
