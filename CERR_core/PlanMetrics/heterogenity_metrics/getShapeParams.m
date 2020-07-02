@@ -82,7 +82,7 @@ filledVolume = voxelVolume * sum(mask3M(:));
 xV = xValsV(jV);
 yV = yValsV(iV);
 zV = zValsV(kV);
-xyzM = [xV' yV' zV']*10;
+xyzM = [xV' yV' zV'];
 meanV = mean(xyzM);
 xyzM = bsxfun(@minus,xyzM,meanV)/ sqrt(size(xyzM,1));
 eigValV = eig(xyzM' * xyzM);
@@ -104,7 +104,7 @@ ySurfV = yValsV(surfPoints(:,1));
 zSurfV = zValsV(surfPoints(:,3));
 
 distM = sepsq([xSurfV;ySurfV;zSurfV], [xSurfV;ySurfV;zSurfV]);
-shapeS.max3dDiameter = sqrt(max(distM(:))) * 10;
+shapeS.max3dDiameter = sqrt(max(distM(:)));
 
 rowV = unique(surfPoints(:,1));
 colV = unique(surfPoints(:,2));
@@ -119,7 +119,7 @@ for i = 1:length(slcV)
     distM = sepsq([xV;yV], [xV;yV]);
     dmax = max(dmax,max(distM(:)));
 end
-shapeS.max2dDiameterAxialPlane = sqrt(dmax) * 10;
+shapeS.max2dDiameterAxialPlane = sqrt(dmax);
 
 % Max diameter along cols
 dmax = 0;
@@ -130,7 +130,7 @@ for i = 1:length(colV)
     distM = sepsq([zV;yV], [zV;yV]);
     dmax = max(dmax,max(distM(:)));
 end
-shapeS.max2dDiameterSagittalPlane = sqrt(dmax) * 10;
+shapeS.max2dDiameterSagittalPlane = sqrt(dmax);
 
 % Max diameter along rows
 dmax = 0;
@@ -141,7 +141,7 @@ for i = 1:length(rowV)
     distM = sepsq([xV;zV], [xV;zV]);
     dmax = max(dmax,max(distM(:)));
 end
-shapeS.max2dDiameterCoronalPlane = sqrt(dmax) * 10;
+shapeS.max2dDiameterCoronalPlane = sqrt(dmax);
 
 
 % Add a row/col/slice to account for half a voxel
