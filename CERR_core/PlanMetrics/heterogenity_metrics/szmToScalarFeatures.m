@@ -140,7 +140,7 @@ end
 if flagS.largeAreaHighGrayLevelEmphasis
     levLenM = bsxfun(@times,(levV').^2,lenV.^2);
     lahgleM = bsxfun(@times,szmM,levLenM);
-    featureS.largeAreaHighGrayLevelEmphasis = sum(lahgleM(:)) / sum(szmM(:));
+    featureS.largeAreaLowGrayLevelEmphasis = sum(lahgleM(:)) / sum(szmM(:));
 end
 
 % Grey Level Variance

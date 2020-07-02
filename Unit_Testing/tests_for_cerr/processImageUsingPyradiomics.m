@@ -1,6 +1,5 @@
 function filtS = processImageUsingPyradiomics(planC,strName,filtType,paramS)
 %processImageUsingPyradiomics
-%filtType : 'LoG', 'wavlelet'
 % AI 06/12/2020
 
 %% Get scan & mask
@@ -22,11 +21,9 @@ CToffset = planC{indexS.scan}(scanNum).scanInfo(1).CTOffset;
 scan3M = scan3M - CToffset;
 
 %% Get voxel size
-scanS = planC{indexS.scan}(scanNum);
-[xV,yV,zV] = getScanXYZVals(scanS);
-dx = median(abs(diff(xV)));
-dy = median(abs(diff(yV)));
-dz = median(diff(zV));
+dx = planC{indexS.scan}(scanNum).scanInfo(1).grid2Units;
+dy = planC{indexS.scan}(scanNum).scanInfo(1).grid1Units;
+dz = planC{indexS.scan}(scanNum).scanInfo(1).sliceThickness;
 voxelSizeV = [dx,dy,dz]*10; %convert to mm
 
 %% Apply filters
@@ -63,25 +60,22 @@ maskRes = nrrdWriter(maskFilename, mask3M, voxelSizeV, originV, encoding);
 %Call image processing fn
 try
     
-    outPyList = py.pyProcessImage.filtImg(scanFilename, maskFilename,...
+    filtImgPyList = py.pyProcessImage.filtImg(scanFilename, maskFilename,...
         filtType, paramS);
-    filtImgC = outPyList{1};
-    filtTypeC = outPyList{2};
+    filtImgC = cell(filtImgPyList);
     
     filtS = struct();
     paramC = fieldnames(paramS);
     
     for n = 1:length(filtImgC)
         %Convert python dictionary to matlab struct
+        outFieldname = filtType;
         for m = 1:length(paramC)
-            filtType = char(filtTypeC{n});
-            filtType = strrep(filtType,'-','_');
-            outFieldname = filtType;
+            valV = paramS.(paramC{m});
+            addStr = ['_',paramC{m},'_',num2str(valV(n))];
+            outFieldname = [outFieldname,addStr];
         end
-        pyFiltScan3M = double(filtImgC{n});
-        pyFiltScan3M = permute(pyFiltScan3M,[2,3,1]);
-        pyFiltScan3M = flip(pyFiltScan3M,3);
-        filtS.(outFieldname) = pyFiltScan3M;
+        filtS.(outFieldname) = filtImgC{n};
     end
     
 catch e
