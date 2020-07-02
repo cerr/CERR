@@ -1,5 +1,6 @@
 function filtS = processImageUsingPyradiomics(planC,strName,filtType,paramS)
 %processImageUsingPyradiomics
+%filtType : 'LoG', 'wavlelet'
 % AI 06/12/2020
 
 %% Get scan & mask
@@ -60,22 +61,25 @@ maskRes = nrrdWriter(maskFilename, mask3M, voxelSizeV, originV, encoding);
 %Call image processing fn
 try
     
-    filtImgPyList = py.pyProcessImage.filtImg(scanFilename, maskFilename,...
+    outPyList = py.pyProcessImage.filtImg(scanFilename, maskFilename,...
         filtType, paramS);
-    filtImgC = cell(filtImgPyList);
+    filtImgC = outPyList{1};
+    filtTypeC = outPyList{2};
     
     filtS = struct();
     paramC = fieldnames(paramS);
     
     for n = 1:length(filtImgC)
         %Convert python dictionary to matlab struct
-        outFieldname = filtType;
         for m = 1:length(paramC)
-            valV = paramS.(paramC{m});
-            addStr = ['_',paramC{m},'_',num2str(valV(n))];
-            outFieldname = [outFieldname,addStr];
+            filtType = char(filtTypeC{n});
+            filtType = strrep(filtType,'-','_');
+            outFieldname = filtType;
         end
-        filtS.(outFieldname) = filtImgC{n};
+        pyFiltScan3M = double(filtImgC{n});
+        pyFiltScan3M = permute(pyFiltScan3M,[2,3,1]);
+        pyFiltScan3M = flip(pyFiltScan3M,3);
+        filtS.(outFieldname) = pyFiltScan3M;
     end
     
 catch e
