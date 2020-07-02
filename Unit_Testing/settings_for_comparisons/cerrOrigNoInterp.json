@@ -1,0 +1,66 @@
+{
+
+"structures": ["GTV-1"],
+
+"imageType": {
+               "Original": {}
+	     },
+
+"settings": {		   
+
+	     	   "resample": {
+
+			       },
+			       
+		   "padding": {
+                                "method": "expand",  
+                                "size": [5,5,5]
+                              },			       
+
+		   "perturbation": {
+
+			           },
+
+		   "firstOrder" :{ 
+				   "binWidthEntropy": 10,
+				   "offsetForEnergy": 0
+                                 },
+
+		   "texture" :{ 
+				"binwidth": 10,
+                		"numGrLevels": [],
+				"minIntensity": [],
+				"maxIntensity": [],
+                		"directionality": "3D",
+				"avgType": "feature",
+				"voxelOffset": 1,
+				"patchRadiusVox": [1,1,1],
+				"imgDiffThresh": 0
+                              }
+		 
+	    },
+
+
+ "featureClass":{
+
+            
+  	"firstOrder":{
+		       "featureList": ["all"]
+                     },
+                          
+        "glcm": {
+		  "featureList": ["all"]
+                },
+
+	"glrlm": {
+		   "featureList": ["all"]             
+		 },
+	"glszm": {
+		  "featureList": ["all"]  
+                 },
+	"gldm": {
+		  "featureList": ["all"]
+                }
+		
+   }
+}
