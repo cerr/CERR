@@ -17,7 +17,9 @@
 
 "crop" : [{"method": "crop_to_str", "params" : {"structureName": "lung_l"}, "operator" : ""}, 
           {"method": "crop_to_str", "params" : {"structureName": "lung_r"}, "operator" : "union"},
-          {"method": "crop_to_str", "params" : {"structureName": "totallung"}, "operator" : "union"}],
+          {"method": "crop_to_str", "params" : {"structureName": "totallung"}, "operator" : "union"},
+          {"method": "crop_to_str", "params" : {"structureName": "Lungs"}, "operator" : "union"},
+          {"method": "crop_to_str", "params" : {"structureName": "Lungs_NOT_GTV"}, "operator" : "union"}],
  
 "passedScanDim" : "2D",
 
