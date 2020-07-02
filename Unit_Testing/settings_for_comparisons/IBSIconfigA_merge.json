@@ -1,0 +1,46 @@
+{
+
+"structures": ["GTV-1"],
+
+"imageType": {
+  		  "Original": {}
+	     },
+
+"settings": {		   
+
+            "resample": {
+			},
+
+	    "perturbation": {
+			           },
+
+	    "texture": { 
+			  "binwidth": 25,
+		          "minSegThreshold": -500,
+		          "maxSegThreshold": 400,
+                	  "minClipIntensity": -500,
+                	  "maxClipIntensity": 400,
+		          "directionality": "3D",
+			  "avgType": "texturematrix",
+			  "voxelOffset": 1,
+			  "patchRadiusVox": [1, 1, 1],
+			  "imgDiffThresh": 0
+                        }
+
+	    },
+
+
+ "featureClass":{
+			
+	"glcm": {
+			    "featureList": ["all"]
+                },
+
+	"glrlm": {
+			    "featureList": ["all"]
+                                 
+		 }
+
+            }
+
+}

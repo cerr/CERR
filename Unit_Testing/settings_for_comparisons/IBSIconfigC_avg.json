@@ -1,0 +1,94 @@
+{
+
+"structures": ["GTV-1"],
+
+"imageType": {
+  		  "Original": {}
+	     },
+
+"settings": {		   
+
+             "resample": {
+				 "resolutionXCm": 0.2,
+				 "resolutionYCm": 0.2,
+				 "resolutionZCm": 0.2,
+				 "interpMethod": "linear"
+			},
+
+             "padding":{
+                         "method":"expand",
+                         "size":[5,5,5]
+                       },
+
+	     "perturbation": {
+			           },
+
+	     "firstOrder" :{ 
+				   "binWidthEntropy": 25,
+				   "offsetForEnergy": 0
+                                 },
+
+	     "texture" :{ 
+				"binwidth": 25,
+		                "minSegThreshold": -1000,
+		                "maxSegThreshold": 400,
+                		"minClipIntensity": -1000,
+                		"maxClipIntensity": 400,
+		                "directionality": "3D",
+				"avgType": "feature",
+				"voxelOffset": 1,
+				"patchRadiusVox": [1, 1, 1],
+				"imgDiffThresh": 0
+                              },
+
+		   "shape" :{ 
+			       "rcs": []
+                            },
+
+		  "ivh" :{ 
+			    "binwidth": 2.5,
+			    "xForIxPct": [10, 20, 30, 40, 50, 60, 70, 80, 90],
+			    "xForIxCc": [],
+			    "xForVxPct": [10, 20, 30, 40, 50, 60, 70, 80, 90],
+			    "xForVxAbs": []		
+                         }		   	
+
+	    },
+
+
+ "featureClass":{
+			
+
+        "shape": {
+			"featureList": ["all"]
+                 },
+
+        "firstOrder": {
+			 "featureList": ["all"]
+		},
+
+        "glcm": {
+			 "featureList": ["all"]
+                },
+
+	"glrlm": {
+			 "featureList": ["all"]
+                                 
+		 },
+
+	"glszm": {
+		        "featureList": ["all"]  
+                 },
+
+	"gldm": {
+			 "featureList": ["all"]
+                },
+
+	"gtdm": {			    	
+                         "featureList": ["all"]               
+		}
+
+
+            }
+
+}
