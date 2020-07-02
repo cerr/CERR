@@ -163,7 +163,7 @@ switch filterType
         
         logRecursiveFilt.SetNormalizeAcrossScale(true)
         
-        sigmaVal = paramS.Sigma_mm.val;
+        sigmaVal = paramS.params.val.Sigma_mm;
         logRecursiveFilt.SetSigma(sigmaVal);
         
         % Execute the filter

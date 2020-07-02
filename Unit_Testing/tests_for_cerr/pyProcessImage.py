@@ -29,10 +29,6 @@ def filtImg(imagePath, maskPath, filtName, paramS):
   image = sitk.ReadImage(imagePath)
   mask = sitk.ReadImage(maskPath)
 
-  print('SpacingXYZ:')
-  print(image.GetSpacing())
-  print(mask.GetSpacing())
-
   #Apply filter
   if(filtName == "LoG"):
 
@@ -51,12 +47,13 @@ def filtImg(imagePath, maskPath, filtName, paramS):
   if(filtName == "wavelet"):
 
       wavetype = paramS['wavetype']
-      genOut = imageoperations.getWaveletImage(image, mask, wavelet=wavetype, start_level=0, level=1)
-      #genOut = imageoperations.getWaveletImage(image, mask, wavelet=wavetype, start_level=1, level=1)
+      genOut = imageoperations.getWaveletImage(image, mask, wavelet=wavetype, start_level=1, level=1)
 
       wavImgList = []
       wavTypeList = []
       for decompositionImage, decompositionName, inputArgs in genOut:
+         type(decompositionImage)
+         type(decompositionName)	
          outImage = sitk.GetArrayFromImage(decompositionImage)
          wavImgList.append(outImage)
          wavTypeList.append(decompositionName)
