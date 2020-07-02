@@ -15,9 +15,11 @@ scan3M = scan3M - CToffset;
 
 
 %% Get voxel size
-dx = planC{indexS.scan}(scanNum).scanInfo(1).grid2Units;
-dy = planC{indexS.scan}(scanNum).scanInfo(1).grid1Units;
-dz = planC{indexS.scan}(scanNum).scanInfo(1).sliceThickness;
+scanS = planC{indexS.scan}(scanNum);
+[xV,yV,zV] = getScanXYZVals(scanS);
+dx = median(abs(diff(xV)));
+dy = median(abs(diff(yV)));
+dz = median(diff(zV));
 voxelSizeV = [dx, dy, dz]*10; %convert to mm
 
 %% Calc features
