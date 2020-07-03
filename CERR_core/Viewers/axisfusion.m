@@ -71,10 +71,11 @@ end
 %wy
 
 
-minC = min(Cdata(:));
-if minC<cLim(1)
-    set(hAxis, 'CLim', [minC cLim(2)]);
-end
+% minC = min(Cdata(:));
+% if minC<cLim(1)
+%     set(hAxis, 'CLim', [minC cLim(2)]);
+% end
+set(hAxis, 'CLim', [0,1]);
 
 % if length(surfaces) < 2
 %     %set(hFig, 'renderer', 'zbuffer');
@@ -92,16 +93,39 @@ switch method
         %img2 = get(surfaces(2), 'cData');
         
         if stateS.handle.aI(axNum).scanObj(1).scanSet == stateS.imageRegistrationBaseDataset
-            img1 = get(stateS.handle.aI(axNum).scanObj(1).handles,'cData');
-            img2 = get(stateS.handle.aI(axNum).scanObj(2).handles,'cData');
+            %img1 = get(stateS.handle.aI(axNum).scanObj(1).handles,'cData');
+            %img2 = get(stateS.handle.aI(axNum).scanObj(2).handles,'cData');            
             baseIndex = 1;
             movIndex = 2;
         elseif stateS.handle.aI(axNum).scanObj(1).scanSet == stateS.imageRegistrationMovDataset
-            img1 = get(stateS.handle.aI(axNum).scanObj(2).handles,'cData');
-            img2 = get(stateS.handle.aI(axNum).scanObj(1).handles,'cData');
+            %img1 = get(stateS.handle.aI(axNum).scanObj(2).handles,'cData');
+            %img2 = get(stateS.handle.aI(axNum).scanObj(1).handles,'cData');
             baseIndex = 2;
             movIndex = 1;
-        end
+        end       
+        
+        CTOffset    = planC{indexS.scan}(baseIndex).scanInfo(1).CTOffset;
+        scanUID = ['c',repSpaceHyp(planC{indexS.scan}(baseIndex).scanUID(max(1,end-61):end))];
+        CTLevel     = stateS.scanStats.CTLevel.(scanUID) + CTOffset;
+        CTWidth     = stateS.scanStats.CTWidth.(scanUID);
+        CTLow       = CTLevel - CTWidth/2;
+        CTHigh      = CTLevel + CTWidth/2;
+        img1 = stateS.handle.aI(axNum).scanObj(baseIndex).data2M;
+        img1 = img1 - double(CTLow);
+        img1 = img1 / double( CTHigh - CTLow);
+
+        
+        CTOffset    = planC{indexS.scan}(movIndex).scanInfo(1).CTOffset;
+        scanUID = ['c',repSpaceHyp(planC{indexS.scan}(movIndex).scanUID(max(1,end-61):end))];
+        CTLevel     = stateS.scanStats.CTLevel.(scanUID) + CTOffset;
+        CTWidth     = stateS.scanStats.CTWidth.(scanUID);
+        CTLow       = CTLevel - CTWidth/2;
+        CTHigh      = CTLevel + CTWidth/2;
+        img2 = stateS.handle.aI(axNum).scanObj(movIndex).data2M;        
+        img2 = img2 - double(CTLow);
+        img2 = img2 / double( CTHigh - CTLow);
+        
+        
         surfaces = [stateS.handle.aI(axNum).scanObj(baseIndex).handles, ...
             stateS.handle.aI(axNum).scanObj(movIndex).handles];
         
@@ -495,7 +519,6 @@ switch method
         set(stateS.handle.aI(axNum).scanObj(baseIndex).handles,'cData',img23D);
         
         %wy
-        
         
         img23D = repmat(zeros(size(img2)), [1 1 3]);
         ud = stateS.handle.controlFrameUd ;
