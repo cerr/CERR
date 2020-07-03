@@ -29,13 +29,14 @@ function log3M = recursiveLOG(img3M,sigma,PixelSizeV)
 % 1. G Farnebäck, CF Westin, Improving Deriche-style recursive Gaussian filters,
 % Journal of Mathematical Imaging and Vision, 26(3):293-299, December 2006?
 % 2. https://itk.org/Doxygen/html/classitk_1_1LaplacianRecursiveGaussianImageFilter.html
+% 3. https://github.com/InsightSoftwareConsortium/ITK/blob/master/Modules/Filtering/ImageFilterBase/include/itkRecursiveSeparableImageFilter.hxx
 %
 % APA, 6/18/2018
 
 
 % Pad
-% img3M = padarray(img3M,[4,4,4],'circular','both');
-img3M = padarray(img3M,[4,4,4],0,'both');
+img3M = padarray(img3M,[4,4,4],'replicate','both');
+%img3M = padarray(img3M,[4,4,4],0,'both');
 
 coeffS.sigma = sigma;
 
