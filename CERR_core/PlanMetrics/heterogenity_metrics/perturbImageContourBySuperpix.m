@@ -70,14 +70,15 @@ for i=1:size(surfPtsM,1)
 end
 
 % Find intersection of superpixels with original ROI boundary
-activeSuperVoxV = false(numSupPxlCalc,1);
-for i = 1:numSupPxlCalc
-   if any(surfMaskM(:) & superLablM(:)==i)
-       activeSuperVoxV(i) = true;
-   end
-end
+% activeSuperVoxV = false(numSupPxlCalc,1);
+% for i = 1:numSupPxlCalc
+%    if any(surfMaskM(superLablM(:)==i))
+%        activeSuperVoxV(i) = true;
+%    end
+% end
+% activeSuperVoxV = find(activeSuperVoxV);
 
-activeSuperVoxV = find(activeSuperVoxV);
+activeSuperVoxV = unique(superLablM(surfMaskM));
 numSuperVox = length(activeSuperVoxV);
 randSuperVoxV = activeSuperVoxV(rand(numSuperVox,1) >= 0.5);
 
@@ -96,8 +97,8 @@ end
 
 % Closing operation
 se = strel('disk',5);
-windowSize = 11;
-kernel = ones(windowSize) / windowSize ^ 2;
+% windowSize = 11;
+% kernel = ones(windowSize) / windowSize ^ 2;
 for i = 1:size(newMaskM,3)
     slcM = maskM(:,:,i);
     newSlcM = newMaskM(:,:,i);
@@ -111,8 +112,8 @@ for i = 1:size(newMaskM,3)
         end
     end
     newSlcM = imclose(newSlcM,se);
-    blurryImage = conv2(single(newSlcM), kernel, 'same');
-    newSlcM = blurryImage > 0.5; % Rethreshold
+    %blurryImage = conv2(single(newSlcM), kernel, 'same');
+    %newSlcM = blurryImage > 0.5; % Rethreshold
     
     newMaskM(:,:,i) = newSlcM;
 end
