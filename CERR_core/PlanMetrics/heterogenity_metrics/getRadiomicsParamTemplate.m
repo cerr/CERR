@@ -23,14 +23,6 @@ else
     userInS = dictS;
 end
 
-%% Set default options if missing
-if isfield(userInS,'settings')
-    if ~isfield(userInS.settings,'padding') || isempty(userInS.settings.padding)
-        userInS.settings.padding.method = 'none';
-        userInS.settings.padding.size = [0,0,0];
-    end
-end
-
 %% Get image type
 filterTypeC = fieldnames(userInS.imageType);
 radiomicsParamS.imageType = struct();
