@@ -173,14 +173,15 @@ if whichFeatS.resample.flag
     % Interpolate using the method defined in settings file
     roiInterpMethod = 'linear';
     scanInterpMethod = whichFeatS.resample.interpMethod;
+    extrapVal = 0;
     
     switch scanInterpMethod
         
         case {'linear','cubic','nearest'}
             volToEval = interp3(xOrigM,yOrigM,zOrigM,origVolToEval,...
-                xResampM,yResampM,zResampM,scanInterpMethod);
+                xResampM,yResampM,zResampM,scanInterpMethod,extrapVal);
             maskBoundingBox3M = interp3(xOrigM,yOrigM,zOrigM,single(origMask),...
-                xResampM,yResampM,zResampM,roiInterpMethod) >= 0.5;
+                xResampM,yResampM,zResampM,roiInterpMethod,extrapVal) >= 0.5;
             
         case 'sinc'
             %Resize using sinc filter
