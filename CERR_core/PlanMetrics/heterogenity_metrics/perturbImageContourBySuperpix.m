@@ -78,7 +78,7 @@ end
 % end
 % activeSuperVoxV = find(activeSuperVoxV);
 
-activeSuperVoxV = superLablM(surfMaskM);
+activeSuperVoxV = unique(superLablM(surfMaskM));
 numSuperVox = length(activeSuperVoxV);
 randSuperVoxV = activeSuperVoxV(rand(numSuperVox,1) >= 0.5);
 
