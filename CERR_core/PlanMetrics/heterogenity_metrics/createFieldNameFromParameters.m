@@ -33,8 +33,7 @@ switch(lower(imageType))
         fieldName = [imageType,'_',settingsStr];
         
     case 'log'
-        settingsStr = ['radius_',num2str(settingS.VoxelSize_mm.val(1)),...
-            'mm_sigma_',num2str(settingS.Sigma_mm.val),'mm'];
+        settingsStr = ['sigma_',num2str(settingS.Sigma_mm.val),'mm'];
         fieldName = [imageType,'_',settingsStr];
         
     case 'gabor'
