@@ -98,8 +98,8 @@ if length(dirString) > 2
     end
     slcWavScanM = reshape(slcWavScanM,[siz(3) siz(1) siz(2)]);
     slcWavScanM = permute(slcWavScanM,[2 3 1]);
+    % Undo normalization
+    slcWavScanM = slcWavScanM*sqrt(2);
 else
     slcWavScanM = colWavScanM;
 end
-% Undo normalization
-slcWavScanM = slcWavScanM*sqrt(2);
