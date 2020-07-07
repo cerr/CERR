@@ -38,6 +38,8 @@ if padFlag
     %rowWavScanM(end,:) = [];
     rowWavScanM(1,:) = [];
 end
+%Undo normalization
+rowWavScanM = rowWavScanM*sqrt(2);
 
 %% Filter along cols
 scanColM = reshape(rowWavScanM,siz);
@@ -65,6 +67,8 @@ if padFlag
 end
 colWavScanM = reshape(colWavScanM,[siz(2),siz(1),siz(3)]);
 colWavScanM = permute(colWavScanM,[2 1 3]);
+%Undo normalization
+colWavScanM = colWavScanM*sqrt(2);
 
 %% Filter along slices
 %If dirString is of length 2, then filter only in x,y.
@@ -94,9 +98,8 @@ if length(dirString) > 2
     end
     slcWavScanM = reshape(slcWavScanM,[siz(3) siz(1) siz(2)]);
     slcWavScanM = permute(slcWavScanM,[2 3 1]);
+    % Undo normalization
+    slcWavScanM = slcWavScanM*sqrt(2);
 else
     slcWavScanM = colWavScanM;
 end
-
-% Undo normalization
-slcWavScanM = slcWavScanM*sqrt(2)^3;
