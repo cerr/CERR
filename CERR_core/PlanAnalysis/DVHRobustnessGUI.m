@@ -91,11 +91,11 @@ switch upper(command)
         uicontrol(hFig,'units','pixels','Position',[135 posTop-250 25 20], 'String','y-dir','Style','text', 'fontSize',8,'FontWeight','normal','BackgroundColor',defaultColor,'HorizontalAlignment','center');
         inputH(14) = uicontrol(hFig,'tag','zShiftSysEdit','units','pixels','Position',[170 posTop-230 30 20], 'String','','Style','edit', 'fontSize',8,'FontWeight','normal','BackgroundColor',[1 1 1],'HorizontalAlignment','center');
         uicontrol(hFig,'units','pixels','Position',[170 posTop-250 25 20], 'String','z-dir','Style','text', 'fontSize',8,'FontWeight','normal','BackgroundColor',defaultColor,'HorizontalAlignment','center');
-        inputH(15) = uicontrol(hFig,'tag','xRotSysEdit','units','pixels','Position',[205 posTop-230 30 20], 'String','','Style','edit', 'fontSize',8,'FontWeight','normal','BackgroundColor',[1 1 1],'HorizontalAlignment','center');
+        inputH(15) = uicontrol(hFig,'tag','xRotSysEdit','units','pixels','Position',[205 posTop-230 30 20], 'String','0','Style','edit', 'fontSize',8,'FontWeight','normal','BackgroundColor',[1 1 1],'HorizontalAlignment','center','enable','off');
         uicontrol(hFig,'units','pixels','Position',[205 posTop-250 25 20], 'String','x-rot','Style','text', 'fontSize',8,'FontWeight','normal','BackgroundColor',defaultColor,'HorizontalAlignment','center');
-        inputH(16) = uicontrol(hFig,'tag','yRotSysEdit','units','pixels','Position',[240 posTop-230 30 20], 'String','','Style','edit', 'fontSize',8,'FontWeight','normal','BackgroundColor',[1 1 1],'HorizontalAlignment','center');
+        inputH(16) = uicontrol(hFig,'tag','yRotSysEdit','units','pixels','Position',[240 posTop-230 30 20], 'String','0','Style','edit', 'fontSize',8,'FontWeight','normal','BackgroundColor',[1 1 1],'HorizontalAlignment','center','enable','off');
         uicontrol(hFig,'units','pixels','Position',[240 posTop-250 25 20], 'String','y-rot','Style','text', 'fontSize',8,'FontWeight','normal','BackgroundColor',defaultColor,'HorizontalAlignment','center');
-        inputH(17) = uicontrol(hFig,'tag','zRotSysEdit','units','pixels','Position',[275 posTop-230 30 20], 'String','','Style','edit', 'fontSize',8,'FontWeight','normal','BackgroundColor',[1 1 1],'HorizontalAlignment','center');
+        inputH(17) = uicontrol(hFig,'tag','zRotSysEdit','units','pixels','Position',[275 posTop-230 30 20], 'String','0','Style','edit', 'fontSize',8,'FontWeight','normal','BackgroundColor',[1 1 1],'HorizontalAlignment','center','enable','off');
         uicontrol(hFig,'units','pixels','Position',[275 posTop-250 25 20], 'String','z-rot','Style','text', 'fontSize',8,'FontWeight','normal','BackgroundColor',defaultColor,'HorizontalAlignment','center');
         
         inputH(18) = uicontrol(hFig,'tag','shiftStatic','units','pixels','Position',[20 posTop-280 70 30], 'String','Random Shift (cm/deg)','Style','text', 'fontSize',8,'FontWeight','normal','BackgroundColor',defaultColor,'HorizontalAlignment','left');
@@ -106,11 +106,11 @@ switch upper(command)
         uicontrol(hFig,'units','pixels','Position',[135 posTop-290 25 20], 'String','y-dir','Style','text', 'fontSize',8,'FontWeight','normal','BackgroundColor',defaultColor,'HorizontalAlignment','center');
         inputH(21) = uicontrol(hFig,'tag','zShiftRndEdit','units','pixels','Position',[170 posTop-270 30 20], 'String','','Style','edit', 'fontSize',8,'FontWeight','normal','BackgroundColor',[1 1 1],'HorizontalAlignment','center');
         uicontrol(hFig,'units','pixels','Position',[170 posTop-290 25 20], 'String','z-dir','Style','text', 'fontSize',8,'FontWeight','normal','BackgroundColor',defaultColor,'HorizontalAlignment','center');
-        inputH(22) = uicontrol(hFig,'tag','xRotRndEdit','units','pixels','Position',[205 posTop-270 30 20], 'String','','Style','edit', 'fontSize',8,'FontWeight','normal','BackgroundColor',[1 1 1],'HorizontalAlignment','center');
+        inputH(22) = uicontrol(hFig,'tag','xRotRndEdit','units','pixels','Position',[205 posTop-270 30 20], 'String','0','Style','edit', 'fontSize',8,'FontWeight','normal','BackgroundColor',[1 1 1],'HorizontalAlignment','center','enable','off');
         uicontrol(hFig,'units','pixels','Position',[205 posTop-290 25 20], 'String','x-rot','Style','text', 'fontSize',8,'FontWeight','normal','BackgroundColor',defaultColor,'HorizontalAlignment','center');
-        inputH(23) = uicontrol(hFig,'tag','yRotRndEdit','units','pixels','Position',[240 posTop-270 30 20], 'String','','Style','edit', 'fontSize',8,'FontWeight','normal','BackgroundColor',[1 1 1],'HorizontalAlignment','center');
+        inputH(23) = uicontrol(hFig,'tag','yRotRndEdit','units','pixels','Position',[240 posTop-270 30 20], 'String','0','Style','edit', 'fontSize',8,'FontWeight','normal','BackgroundColor',[1 1 1],'HorizontalAlignment','center','enable','off');
         uicontrol(hFig,'units','pixels','Position',[240 posTop-290 25 20], 'String','y-rot','Style','text', 'fontSize',8,'FontWeight','normal','BackgroundColor',defaultColor,'HorizontalAlignment','center');
-        inputH(24) = uicontrol(hFig,'tag','zRotRndEdit','units','pixels','Position',[275 posTop-270 30 20], 'String','','Style','edit', 'fontSize',8,'FontWeight','normal','BackgroundColor',[1 1 1],'HorizontalAlignment','center');
+        inputH(24) = uicontrol(hFig,'tag','zRotRndEdit','units','pixels','Position',[275 posTop-270 30 20], 'String','0','Style','edit', 'fontSize',8,'FontWeight','normal','BackgroundColor',[1 1 1],'HorizontalAlignment','center','enable','off');
         uicontrol(hFig,'units','pixels','Position',[275 posTop-290 25 20], 'String','z-rot','Style','text', 'fontSize',8,'FontWeight','normal','BackgroundColor',defaultColor,'HorizontalAlignment','center');
 
         
