@@ -1,4 +1,4 @@
-function [pyFeatS,cerrFeatS] = compareRadiomicsWithPyradWaveletImgNoInterp
+function [cerrFeatS,pyFeatS] = compareRadiomicsWithPyradWaveletImgNoInterp
 % Compare radiomics features between CERR & Pyradiomics on wavelet images
 %--------------------------------------------------------------------------
 % AI 07/02/2020
