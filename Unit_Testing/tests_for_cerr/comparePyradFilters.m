@@ -1,4 +1,4 @@
-function diffS = comparePyradFilters
+function [pyFiltS,cerrFiltS] = comparePyradFilters
 % Function to compare filtered images computed using CERR vs. Pyradiomics.
 % Supported filer types: LoG, Wavelets.
 %------------------------------------------------------------------------
@@ -19,14 +19,17 @@ scanNum=1;
 filtName = 'LoG';
 testSigmaV = [3.0,4.0]; 
 pyFiltParam1S.sigma = testSigmaV;
-pyFilt1S = processImageUsingPyradiomics(planC,'',filtName,pyFiltParam1S);
-pyFieldLoGC = fieldnames(pyFilt1S);
+pyFiltS = processImageUsingPyradiomics(planC,'',filtName,pyFiltParam1S);
+pyFieldLoGC = fieldnames(pyFiltS);
 
 %2. Wavelets
 filtName = 'wavelet';
 pyFiltParam2S.wavetype = 'coif1';
 pyFilt2S = processImageUsingPyradiomics(planC,'',filtName,pyFiltParam2S);
 pyFieldWavC = fieldnames(pyFilt2S);
+for n = 1:length(pyFieldWavC)
+    pyFiltS.(pyFieldWavC{n}) = pyFilt2S.(pyFieldWavC{n});
+end
 
 %% Apply filters using CERR
 
@@ -38,7 +41,7 @@ wholeScanMask3M = ones(size(scan3M));
 
 % 1. LoG
 filtName = 'LoG';
-cerrFilt1S = struct();
+cerrFiltS = struct();
 scanS = planC{indexS.scan}(scanNum);
 [xV,yV,zV] = getScanXYZVals(scanS);
 dx = median(abs(diff(xV)));
@@ -51,14 +54,14 @@ for n = 1:length(testSigmaV)
         outFieldname = pyFieldLoGC{n};
         outS = processImage(filtName,scan3M,wholeScanMask3M,cerrFiltParam1S);
         fieldsC = fieldnames(outS);
-        cerrFilt1S.(outFieldname) = outS.(fieldsC{1});
+        cerrFiltS.(outFieldname) = outS.(fieldsC{1});
 end
 
 % 2. Wavelets
-cerrFilt2S = struct();
 cerrFiltParam2S = struct();
 cerrFiltParam2S.Wavelets.val='coif';
 cerrFiltParam2S.Index.val='1';
+cerrFiltParam2S.NormFlag.val=0;
 dirC = {'LLH','LHL','LHH','HLL','HLH','HHL','HHH','LLL'};
 filtName = 'Wavelets';
 for n = 1:length(dirC)
@@ -67,30 +70,8 @@ for n = 1:length(dirC)
     outS = processImage(filtName,scan3M,wholeScanMask3M,cerrFiltParam2S);
     outFieldname = pyFieldWavC{n};
     fieldsC = fieldnames(outS);
-    cerrFilt2S.(outFieldname) = outS.(fieldsC{1});
+    cerrFiltS.(outFieldname) = outS.(fieldsC{1});
 end
 
-
-%% Compare
-diffS = struct();
-for n = 1:length(pyFieldLoGC)
-    pyFilt3M = pyFilt1S.(pyFieldLoGC{n});
-    cerrFilt3M = cerrFilt1S.(pyFieldLoGC{n});
-    diff3M = abs((pyFilt3M-cerrFilt3M)*100./pyFilt3M);
-    diffS.(pyFieldLoGC{n}).absMin = min(diff3M(:));
-    diffS.(pyFieldLoGC{n}).absMax = max(diff3M(:));
-    diffS.(pyFieldLoGC{n}).absMean = mean(diff3M(:));
-    diffS.(pyFieldLoGC{n}).absMedian = median(diff3M(:));
-end
-
-for n = 1:length(pyFieldWavC)
-    pyFilt3M = pyFilt2S.(pyFieldWavC{n});
-    cerrFilt3M = cerrFilt2S.(pyFieldWavC{n});
-    diff3M = abs((pyFilt3M-cerrFilt3M)*100./pyFilt3M);
-    diffS.(pyFieldWavC{n}).absMin = min(diff3M(:));
-    diffS.(pyFieldWavC{n}).absMax = max(diff3M(:));
-    diffS.(pyFieldWavC{n}).absMean = mean(diff3M(:));
-    diffS.(pyFieldWavC{n}).absMedian = median(diff3M(:));
-end
 
 end
