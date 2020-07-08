@@ -7,7 +7,8 @@
                "Wavelets": {
 		 	      "Wavelets": "Coif",
 		 	      "Index": "1",
-		 	      "Direction": "HHH"
+		 	      "Direction": "HHH",
+                              "NormFlag": 0
 		            }
 	     },
 
