@@ -1,6 +1,6 @@
-function pctDiffS = compareRadiomicsWithPyradWaveletImgNoInterp
-% Compare radiomics features between CERR & Pyradiomics on the original image 
-%------------------------------------------------------------------------
+function [pyFeatS,cerrFeatS] = compareRadiomicsWithPyradWaveletImgNoInterp
+% Compare radiomics features between CERR & Pyradiomics on wavelet images
+%--------------------------------------------------------------------------
 % AI 07/02/2020
 
 %% Load sample data
@@ -11,15 +11,11 @@ planC = updatePlanFields(planC);
 planC = quality_assure_planC(fpath,planC);
 indexS = planC{end};
 strName = 'GTV-1';
+decomStr = 'HHH';
 
-%% 1. Compute features using Pyradiomics
-pyParamFilePath = fullfile(fileparts(fileparts(getCERRPath)),...
-            'Unit_Testing/settings_for_comparisons/pyWaveletNoInterp.yaml');
-pyFeatS = calcRadiomicsFeatUsingPyradiomics(planC,strName,pyParamFilePath);
-
-%% 2. Compute features using CERR
+%% 1. Compute features using CERR
 cerrParamFilePath = fullfile(fileparts(fileparts(getCERRPath)),...
-            'Unit_Testing/settings_for_comparisons/cerrWaveletNoInterp.json');
+    'Unit_Testing/settings_for_comparisons/cerrWaveletNoInterp.json');
 paramS = getRadiomicsParamTemplate(cerrParamFilePath);
 
 strC = {planC{indexS.structures}.structureName};
@@ -27,65 +23,40 @@ structNum = getMatchingIndex(paramS.structuresC{1},strC,'exact');
 scanNum = getStructureAssociatedScan(structNum,planC);
 cerrFeatS = calcGlobalRadiomicsFeatures...
     (scanNum, structNum, paramS, planC);
+filtName = fieldnames(cerrFeatS);
+filtName = filtName{1};
 
-cerrFieldsC = fieldnames(cerrFeatS);
+%% 2. Compute features using Pyradiomics
+pyParamFilePath = fullfile(fileparts(fileparts(getCERRPath)),...
+    'Unit_Testing/settings_for_comparisons/pyWaveletNoInterp.yaml');
+pyCalcS = calcRadiomicsFeatUsingPyradiomics(planC,strName,pyParamFilePath);
 
+%Map to cerr fieldnames
+pyFeatS = struct();
 
-%% Compare by class
-
-pctDiffS = struct();
-
-% First order
-pyFirstOrdFeatS = getPyradFeatDict(pyFeatS,{'wavelet_HHH_firstorder'});
-pyFirstOrdFeatS = mapPyradFieldnames(pyFirstOrdFeatS,'wavelet_HHH','firstorder');
-%Convert kurtosis to excess kurtosis
-pyFirstOrdFeatS.kurtosis = pyFirstOrdFeatS.kurtosis-3;
-cerrFirstOrdFeatS = cerrFeatS.(cerrFieldsC{1}).firstOrderS;
-diff1S = getPctDiff(cerrFirstOrdFeatS,pyFirstOrdFeatS);
-pctDiffS.FirstOrder = diff1S;
+% First-order
+pyFirstOrdFeatS = getPyradFeatDict(pyCalcS,{['wavelet_',decomStr,'_firstorder']});
+pyFirstOrdFeatS = mapPyradFieldnames(pyFirstOrdFeatS,['wavelet_',decomStr],'firstorder');
+pyFeatS.(filtName).firstOrderS = pyFirstOrdFeatS;
 
 % GLCM
-pyGlcmFeatS = getPyradFeatDict(pyFeatS,{'wavelet_HHH_glcm'});
-pyGlcmFeatS = mapPyradFieldnames(pyGlcmFeatS,'wavelet_HHH','glcm');
-cerrGlcmFeatS = cerrFeatS.(cerrFieldsC{1}).glcmFeatS.AvgS;
-diff2S = getPctDiff(cerrGlcmFeatS,pyGlcmFeatS);
-pctDiffS.GLCM = diff2S;
+pyGlcmFeatS = getPyradFeatDict(pyCalcS,{['wavelet_',decomStr,'_glcm']});
+pyGlcmFeatS = mapPyradFieldnames(pyGlcmFeatS,['wavelet_',decomStr],'glcm');
+pyFeatS.(filtName).glcmFeatS = pyGlcmFeatS;
 
 % GLRLM
-pyGlrlmFeatS = getPyradFeatDict(pyFeatS,{'wavelet_HHH_glrlm'});
-pyGlrlmFeatS = mapPyradFieldnames(pyGlrlmFeatS,'wavelet_HHH','glrlm');
-cerrGlrlmFeatS = cerrFeatS.(cerrFieldsC{1}).rlmFeatS.AvgS;
-diff3S = getPctDiff(cerrGlrlmFeatS,pyGlrlmFeatS);
-pctDiffS.GLRLM = diff3S;
+pyGlrlmFeatS = getPyradFeatDict(pyCalcS,{['wavelet_',decomStr,'_glrlm']});
+pyGlrlmFeatS = mapPyradFieldnames(pyGlrlmFeatS,['wavelet_',decomStr],'glrlm');
+pyFeatS.(filtName).rlmFeatS = pyGlrlmFeatS;
 
 % NGLDM
-pyGldmFeatS = getPyradFeatDict(pyFeatS,{'wavelet_HHH_gldm'});
-pyGldmFeatS = mapPyradFieldnames(pyGldmFeatS,'wavelet_HHH','ngldm');
-cerrGldmFeatS = cerrFeatS.(cerrFieldsC{1}).ngldmFeatS;
-diff4S = getPctDiff(cerrGldmFeatS,pyGldmFeatS);
-pctDiffS.NGLDM = diff4S;
+pyGldmFeatS = getPyradFeatDict(pyCalcS,{['wavelet_',decomStr,'_gldm']});
+pyGldmFeatS = mapPyradFieldnames(pyGldmFeatS,['wavelet_',decomStr],'ngldm');
+pyFeatS.(filtName).ngldmFeatS = pyGldmFeatS;
 
-% GLSZM
-pyGlszmFeatS = getPyradFeatDict(pyFeatS,{'wavelet_HHH_glszm'});
-pyGlszmFeatS = mapPyradFieldnames(pyGlszmFeatS,'wavelet_HHH','glszm');
-cerrGlszmFeatS = cerrFeatS.(cerrFieldsC{1}).szmFeatS;
-diff5S = getPctDiff(cerrGlszmFeatS,pyGlszmFeatS);
-pctDiffS.GLSZM = diff5S;
-
-%% -------- Get pct diff -------------
-    function outS = getPctDiff(feat1S,feat2S)
-        
-        outS = struct();
-        featC = fieldnames(feat1S);
-        for n = 1:length(featC)
-            val1 = feat1S.(featC{n});
-            if isfield(feat2S,featC{n})
-                val2 = feat2S.(featC{n});
-                pctDiff =(val1-val2)*100/val2;
-                outS.(featC{n})= pctDiff;
-            end
-        end
-        
-    end
+%GLSZM
+pyGlszmFeatS = getPyradFeatDict(pyCalcS,{['wavelet_',decomStr,'_glszm']});
+pyGlszmFeatS = mapPyradFieldnames(pyGlszmFeatS,['wavelet_',decomStr],'glszm');
+pyFeatS.(filtName).szmFeatS = pyGlszmFeatS;
 
 end

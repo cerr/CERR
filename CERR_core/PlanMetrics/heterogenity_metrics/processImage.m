@@ -121,15 +121,6 @@ switch filterType
         
     case 'Wavelets'
         
-        %Pad image if no. slices is odd
-        padFlag = 0;
-        scan3M = flip(scan3M,3);
-        if mod(size(scan3M,3),2) > 0
-            scan3M(:,:,end+1) = min(scan3M(:))*scan3M(:,:,1).^0;
-            mask3M(:,:,end+1) = 0*mask3M(:,:,1);
-            padFlag = 1;
-        end
-        
         vol3M   = double(scan3M);
         
         dirListC = {'All','HHH','LHH','HLH','HHL','LLH','LHL','HLL','LLL'};
@@ -138,17 +129,14 @@ switch filterType
             wavType = [wavType,paramS.Index.val];
         end
         dir = paramS.Direction.val;
+        normFlag = paramS.NormFlag.val;
         
         if strcmp(dir,'All')
             for n = 2:length(dirListC)
                 outname = [wavType,'_',dirListC{n}];
                 outname = strrep(outname,'.','_');
-                out3M = wavDecom3D(vol3M,dirListC{n},wavType);
-                if padFlag
-                    out3M = out3M(:,:,1:end-1);
-                end
-                out3M = flip(out3M,3);
-                                
+                out3M = wavDecom3D(vol3M,dirListC{n},wavType,normFlag);
+                
                 if ishandle(hWait)
                     set(hWait, 'Vertices', [[0 0 (n-1)/(length(dirListC)-1) (n-1)/(length(dirListC)-1)]' [0 1 1 0]']);
                     drawnow;
@@ -159,11 +147,7 @@ switch filterType
             outname = [wavType,'_',dir];
             outname = strrep(outname,'.','_');
             outname = strrep(outname,' ','_');
-            out3M = wavDecom3D(vol3M,dir,wavType);
-            if padFlag
-                out3M = out3M(:,:,1:end-1);
-            end
-            out3M = flip(out3M,3);
+            out3M = wavDecom3D(vol3M,dir,wavType,normFlag);
             if ishandle(hWait)
                 set(hWait, 'Vertices', [[0 0 1 1]' [0 1 1 0]']);
                 drawnow;

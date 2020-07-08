@@ -1,4 +1,4 @@
-function diffS = compareRadiomicsWithPyradOriginalImgNoInterp
+function [cerrFeatS,pyFeatS] = compareRadiomicsWithPyradOriginalImgNoInterp
 % Compare radiomics features between CERR & Pyradiomics on the original image 
 %------------------------------------------------------------------------
 % AI 07/01/2020
@@ -12,12 +12,7 @@ planC = quality_assure_planC(fpath,planC);
 indexS = planC{end};
 strName = 'GTV-1';
 
-%% 1. Compute features using Pyradiomics
-pyParamFilePath = fullfile(fileparts(fileparts(getCERRPath)),...
-            'Unit_Testing/settings_for_comparisons/pyOrigNoInterp.yaml');
-pyFeatS = calcRadiomicsFeatUsingPyradiomics(planC,strName,pyParamFilePath);
-
-%% 2. Compute features using CERR
+%% 1. Compute features using CERR
 cerrParamFilePath = fullfile(fileparts(fileparts(getCERRPath)),...
             'Unit_Testing/settings_for_comparisons/cerrOrigNoInterp.json');
 paramS = getRadiomicsParamTemplate(cerrParamFilePath);
@@ -28,64 +23,42 @@ scanNum = getStructureAssociatedScan(structNum,planC);
 cerrFeatS = calcGlobalRadiomicsFeatures...
     (scanNum, structNum, paramS, planC);
 
-cerrFieldsC = fieldnames(cerrFeatS);
+filtName = fieldnames(cerrFeatS);
+filtName = filtName{1};
+
+%% 2. Compute features using Pyradiomics
+pyParamFilePath = fullfile(fileparts(fileparts(getCERRPath)),...
+            'Unit_Testing/settings_for_comparisons/pyOrigNoInterp.yaml');
+pyCalcS = calcRadiomicsFeatUsingPyradiomics(planC,strName,pyParamFilePath);
 
 
-%% Compare by class
+%Map to cerr fieldnames
+pyFeatS = struct();
 
-diffS = struct();
-
-% First order
-pyFirstOrdFeatS = getPyradFeatDict(pyFeatS,{'original_firstorder'});
+% First-order
+pyFirstOrdFeatS = getPyradFeatDict(pyCalcS,{['original','_firstorder']});
 pyFirstOrdFeatS = mapPyradFieldnames(pyFirstOrdFeatS,'original','firstorder');
-%Convert kurtosis to excess kurtosis
-pyFirstOrdFeatS.kurtosis = pyFirstOrdFeatS.kurtosis-3;
-cerrFirstOrdFeatS = cerrFeatS.(cerrFieldsC{1}).firstOrderS;
-diff1S = getPctDiff(cerrFirstOrdFeatS,pyFirstOrdFeatS);
-diffS.fFirstOrder = diff1S;
+pyFeatS.(filtName).firstOrderS = pyFirstOrdFeatS;
 
 % GLCM
-pyGlcmFeatS = getPyradFeatDict(pyFeatS,{'original_glcm'});
+pyGlcmFeatS = getPyradFeatDict(pyCalcS,{['original','_glcm']});
 pyGlcmFeatS = mapPyradFieldnames(pyGlcmFeatS,'original','glcm');
-cerrGlcmFeatS = cerrFeatS.(cerrFieldsC{1}).glcmFeatS.AvgS;
-diff2S = getPctDiff(cerrGlcmFeatS,pyGlcmFeatS);
-diffS.GLCM = diff2S;
+pyFeatS.(filtName).glcmFeatS = pyGlcmFeatS;
 
 % GLRLM
-pyGlrlmFeatS = getPyradFeatDict(pyFeatS,{'original_glrlm'});
+pyGlrlmFeatS = getPyradFeatDict(pyCalcS,{['original','_glrlm']});
 pyGlrlmFeatS = mapPyradFieldnames(pyGlrlmFeatS,'original','glrlm');
-cerrGlrlmFeatS = cerrFeatS.(cerrFieldsC{1}).rlmFeatS.AvgS;
-diff3S = getPctDiff(cerrGlrlmFeatS,pyGlrlmFeatS);
-diffS.GLRLM = diff3S;
+pyFeatS.(filtName).rlmFeatS = pyGlrlmFeatS;
 
 % NGLDM
-pyGldmFeatS = getPyradFeatDict(pyFeatS,{'original_gldm'});
+pyGldmFeatS = getPyradFeatDict(pyCalcS,{['original','_gldm']});
 pyGldmFeatS = mapPyradFieldnames(pyGldmFeatS,'original','ngldm');
-cerrGldmFeatS = cerrFeatS.(cerrFieldsC{1}).ngldmFeatS;
-diff4S = getPctDiff(cerrGldmFeatS,pyGldmFeatS);
-diffS.NGLDM = diff4S;
+pyFeatS.(filtName).ngldmFeatS = pyGldmFeatS;
 
-% GLSZM
-pyGlszmFeatS = getPyradFeatDict(pyFeatS,{'original_glszm'});
+%GLSZM
+pyGlszmFeatS = getPyradFeatDict(pyCalcS,{['original','_glszm']});
 pyGlszmFeatS = mapPyradFieldnames(pyGlszmFeatS,'original','glszm');
-cerrGlszmFeatS = cerrFeatS.(cerrFieldsC{1}).szmFeatS;
-diff5S = getPctDiff(cerrGlszmFeatS,pyGlszmFeatS);
-diffS.GLSZM = diff5S;
+pyFeatS.(filtName).szmFeatS = pyGlszmFeatS;
 
-%% -------- Get pct diff -------------
-    function pctDiffS = getPctDiff(feat1S,feat2S)
-        
-        pctDiffS = struct();
-        featC = fieldnames(feat1S);
-        for n = 1:length(featC)
-            val1 = feat1S.(featC{n});
-            if isfield(feat2S,featC{n})
-                val2 = feat2S.(featC{n});
-                pctDiff =(val1-val2)*100/val2;
-                pctDiffS.(featC{n})= pctDiff;
-            end
-        end
-        
-    end
 
 end
