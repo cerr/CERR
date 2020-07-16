@@ -321,7 +321,7 @@ switch upper(instr)
         stateS.handle.zoom = uicontrol(hCSV,'units',units,'style', 'togglebutton', 'position',[0.018*512+dx, 345, dx - 35, 20]/512,'cdata',zoomImg,'BackgroundColor',uicolor, 'callback','sliceCallBack(''togglezoom'')','interruptible','on','tooltipstring', 'Toggle ZoomIn(Left)/ZoomOut(Right)');
 
         if isdeployed
-            [I,map] = imread(fullfile(getCERRPath,'pics','Icons','reset_zoom.GIF'),'gif');
+            [I,map] = imread(fullfile(getCERRPath,'pics','Icons','reset_zoom.gif'),'gif');
         else
             %[I,map] = imread('reset_zoom.GIF','gif');
             [I,map] = imread(fullfile(getCERRPath,'Icons','reset_zoom.gif'),'gif');
@@ -1929,9 +1929,9 @@ switch upper(instr)
             set(gcbo,'cdata',lockImg,'fontWeight','bold','foregroundColor', [1 0 0]);
         else 
             if isdeployed
-                [I,map] = imread(fullfile(getCERRPath,'pics','Icons','unlock.GIF'),'gif');
+                [I,map] = imread(fullfile(getCERRPath,'pics','Icons','unlock.gif'),'gif');
             else
-                [I,map] = imread('unlock.GIF','gif');
+                [I,map] = imread('unlock.gif','gif');
             end
             lockImg = ind2rgb(I,map);
             set(gcbo,'cdata',lockImg,'fontWeight','bold','foregroundColor',[0.5 0.5 0.5]);
