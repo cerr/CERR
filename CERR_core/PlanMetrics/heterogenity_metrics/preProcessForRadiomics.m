@@ -232,17 +232,19 @@ end
 
 minSegThreshold = [];
 maxSegThreshold = [];
-if isfield(paramS.textureParamS,'minSegThreshold')
-    minSegThreshold = paramS.textureParamS.minSegThreshold;
-end
-if isfield(paramS.textureParamS,'maxSegThreshold')
-    maxSegThreshold = paramS.textureParamS.maxSegThreshold;
-end
-if ~isempty(minSegThreshold)
-    maskBoundingBox3M(volToEval < minSegThreshold) = 0;
-end
-if ~isempty(maxSegThreshold)
-    maskBoundingBox3M(volToEval > maxSegThreshold) = 0;
+if isfield(paramS,'textureParamS')
+    if isfield(paramS.textureParamS,'minSegThreshold')
+        minSegThreshold = paramS.textureParamS.minSegThreshold;
+    end
+    if isfield(paramS.textureParamS,'maxSegThreshold')
+        maxSegThreshold = paramS.textureParamS.maxSegThreshold;
+    end
+    if ~isempty(minSegThreshold)
+        maskBoundingBox3M(volToEval < minSegThreshold) = 0;
+    end
+    if ~isempty(maxSegThreshold)
+        maskBoundingBox3M(volToEval > maxSegThreshold) = 0;
+    end
 end
 
 %volToEval(~maskBoundingBox3M) = NaN;
