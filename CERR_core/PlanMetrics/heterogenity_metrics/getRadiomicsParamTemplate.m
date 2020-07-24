@@ -138,6 +138,8 @@ if isfield(userInS,'featureClass')
     
     %% Flag to quantize input data
     radiomicsParamS.toQuantizeFlag = 1;
+else
+    radiomicsParamS.whichFeatS = whichFeatS;
 end
 
 feature accel on
