@@ -3,8 +3,8 @@ function outS = processImage(filterType,scan3M,mask3M,paramS,hWait)
 %-------------------------------------------------------------------------
 % INPUTS
 % filterType -  May be 'Haralick Cooccurance','Wavelets','Sobel',
-%               'LoG','Gabor','First order statistics','LawsConvolution',
-%               'CoLlage' or 'SimpleITK'.
+%               'LoG','Gabor','Mean','First order statistics',
+%               'LawsConvolution','LawsEnergy','CoLlage' or 'SimpleITK'.
 % scan3M     - 3-D scan array, cropped around ROI and padded if specified
 % mask3M     - 3-D mask, croppped to bounding box
 % paramS     - Filter parameters
@@ -198,6 +198,19 @@ switch filterType
             drawnow;
         end
         
+    case 'Mean'
+        
+        vol3M = double(scan3M);
+        
+        meanFilt3M = imboxfilt(vol3M,paramS.KernelSize.val);
+       
+        outS.meanFilt = meanFilt3M;
+        
+        if ishandle(hWait)
+            set(hWait, 'Vertices', [[0 0 1 1]' [0 1 1 0]']);
+            drawnow;
+        end
+        
     case 'FirstOrderStatistics'
         mask3M                   = mask3M(minr:maxr,minc:maxc,mins:maxs);
         scan3M                   = scan3M(minr:maxr,minc:maxc,mins:maxs);
@@ -205,7 +218,8 @@ switch filterType
         patchSizeV = paramS.PatchSize.val;
         
         %Get voxel size
-        voxelVol = paramS.VoxelVolume.val;
+        voxelSizV = paramS.VoxelSize_mm.val;
+        voxelVol = prod(voxelSizV);
         
         %Compute patch-based statistics
         statC = {'min','max','mean','range','std','var','median','skewness',...
@@ -233,9 +247,12 @@ switch filterType
         
         dirC = {'2d','3d','all'};
         sizC = {'3','5','all'};
+        normFlagC = {'Yes','No'};
         dir = dirC{paramS.Direction.val};
         siz = sizC{paramS.KernelSize.val};
-        lawsMasksS = getLawsMasks(dir,siz);
+        selIdx = find(strcmpi(paramS.Normalize.val,normFlagC));
+        normFlag = 2 - selIdx;
+        lawsMasksS = getLawsMasks(dir,siz,normFlag);
         
         %Compute features
         fieldNamesC = fieldnames(lawsMasksS);
@@ -252,6 +269,22 @@ switch filterType
                 drawnow;
             end
             
+        end
+        
+    case 'LawsEnergy'
+        
+        outS = processImage('LawsConvolution',scan3M,mask3M,paramS,[]);
+        fieldNameC = fieldnames(outS);
+        numFeatures = length(fieldNameC);
+        for i = 1:length(fieldNameC)
+            lawsTex3M = outS.(fieldNameC{i});
+            lawsEnergy3M = processImage('Mean',lawsTex3M,mask3M,paramS,[]);
+            outField = [fieldNameC{i},'_Energy'];
+            outS.(outField) = lawsEnergy3M;
+            if ishandle(hWait)
+                set(hWait, 'Vertices', [[0 0 i/numFeatures i/numFeatures]' [0 1 1 0]']);
+                drawnow;
+            end
         end
         
         
@@ -282,9 +315,8 @@ switch filterType
         outS.(sitkFilterName) = sitkOutS.(filterNamC{1});
         
     otherwise
-       
+        %Call custom function 'filterType'
         filtImg3M = feval(filterType,scan3M,mask3M,paramS);
-        %Remove padding
         outS.(filterType) = filtImg3M;
         
 end
