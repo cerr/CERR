@@ -277,57 +277,59 @@ end
 
 %% GSPS UIDs
 %Iterate over GSPS
-originalSliceSOPInstanceUIDc = {planC{indexS.scan}.scanInfo.sopInstanceUID};
-for i = 1:length(planC{indexS.GSPS})
-    
-    % scanNum associated with this GSPS (expand to handle multiple scans)
-    scanNum = 1;
-    
-    %Set the patient id
-    planC{indexS.GSPS}(i).Patient_ID = Patient_ID;
-    
-    %Set the patient birth date
-    planC{indexS.GSPS}(i).Patient_Birth_Date = Patient_Birth_Date;
-    
-    % Set the patient name
-    planC{indexS.GSPS}(i).patientName = patientName;
-
-    %Set the study instance UID.
-    planC{indexS.GSPS}(i).Study_Instance_UID = Study_Instance_UID;
-    
-    %Generate a series instance UID for each dose;
-    planC{indexS.GSPS}(i).Series_Instance_UID = dicomuid;
-    
-    %Set the frame of reference UID to that of the associated scan, if it
-    %exists.
-    planC{indexS.GSPS}(i).Frame_Of_Reference_UID = planC{indexS.scan}(1).Frame_Of_Reference_UID;
-    
-    %Generate a SOP ClassUID for each GSPS.
-    SOP_Class_UID = '1.2.840.10008.5.1.4.1.1.11.1';
-    
-    planC{indexS.GSPS}(i).SOP_Class_UID = SOP_Class_UID;    
-    planC{indexS.GSPS}(i).SOP_Instance_UID = dicomuid;
-    
-    if strcmpi(optS.retainOriginalUIDonExport,'no')
-        sopInstanceUID = planC{indexS.GSPS}(i).SOPInstanceUID;
-        sliceNum = strncmp(sopInstanceUID,originalSliceSOPInstanceUIDc,length(sopInstanceUID));
-        referenced_SOP_instance_uid = ...
-            planC{indexS.scan}(scanNum).scanInfo(sliceNum).SOP_Instance_UID;
-        referenced_SOP_class_uid = ...
-            planC{indexS.scan}(scanNum).scanInfo(sliceNum).SOP_Class_UID;
-    else
-        referenced_SOP_instance_uid = planC{indexS.GSPS}(i).SOPInstanceUID;
-        referenced_SOP_class_uid = ...
-            planC{indexS.scan}(scanNum).scanInfo(1).SOP_Class_UID;
+for scanNum = 1:length(planC{indexS.scan})
+    originalSliceSOPInstanceUIDc = {planC{indexS.scan}(scanNum).scanInfo.sopInstanceUID};
+    for i = 1:length(planC{indexS.GSPS})
+        
+        % scanNum associated with this GSPS (expand to handle multiple scans)
+        %scanNum = 1;
+        
+        %Set the patient id
+        planC{indexS.GSPS}(i).Patient_ID = Patient_ID;
+        
+        %Set the patient birth date
+        planC{indexS.GSPS}(i).Patient_Birth_Date = Patient_Birth_Date;
+        
+        % Set the patient name
+        planC{indexS.GSPS}(i).patientName = patientName;
+        
+        %Set the study instance UID.
+        planC{indexS.GSPS}(i).Study_Instance_UID = Study_Instance_UID;
+        
+        %Generate a series instance UID for each dose;
+        planC{indexS.GSPS}(i).Series_Instance_UID = dicomuid;
+        
+        %Set the frame of reference UID to that of the associated scan, if it
+        %exists.
+        planC{indexS.GSPS}(i).Frame_Of_Reference_UID = planC{indexS.scan}(1).Frame_Of_Reference_UID;
+        
+        %Generate a SOP ClassUID for each GSPS.
+        SOP_Class_UID = '1.2.840.10008.5.1.4.1.1.11.1';
+        
+        planC{indexS.GSPS}(i).SOP_Class_UID = SOP_Class_UID;
+        planC{indexS.GSPS}(i).SOP_Instance_UID = dicomuid;
+        
+        if strcmpi(optS.retainOriginalUIDonExport,'no')
+            sopInstanceUID = planC{indexS.GSPS}(i).SOPInstanceUID;
+            sliceNum = strncmp(sopInstanceUID,originalSliceSOPInstanceUIDc,length(sopInstanceUID));
+            referenced_SOP_instance_uid = ...
+                planC{indexS.scan}(scanNum).scanInfo(sliceNum).SOP_Instance_UID;
+            referenced_SOP_class_uid = ...
+                planC{indexS.scan}(scanNum).scanInfo(sliceNum).SOP_Class_UID;
+        else
+            referenced_SOP_instance_uid = planC{indexS.GSPS}(i).SOPInstanceUID;
+            referenced_SOP_class_uid = ...
+                planC{indexS.scan}(scanNum).scanInfo(1).SOP_Class_UID;
+        end
+        planC{indexS.GSPS}(i).referenced_SOP_instance_uid = referenced_SOP_instance_uid;
+        planC{indexS.GSPS}(i).referenced_SOP_class_uid = referenced_SOP_class_uid;
+        
+        %Generate a Referenced Study Sequence SOP Class UID for each dose.
+        %planC{indexS.GSPS}(i).Referenced_Study_Sequence_SOP_Class_UID = '1.2.840.10008.5.1.4.1.1.481.5';
+        %planC{indexS.GSPS}(i).Referenced_Study_Sequence_SOP_Instance_UID = dicomuid;
+        
+        %Generate a Referenced Series Sequence SOP Class UID for each dose.
+        
     end
-    planC{indexS.GSPS}(i).referenced_SOP_instance_uid = referenced_SOP_instance_uid;
-    planC{indexS.GSPS}(i).referenced_SOP_class_uid = referenced_SOP_class_uid;
-    
-    %Generate a Referenced Study Sequence SOP Class UID for each dose.
-    %planC{indexS.GSPS}(i).Referenced_Study_Sequence_SOP_Class_UID = '1.2.840.10008.5.1.4.1.1.481.5';
-    %planC{indexS.GSPS}(i).Referenced_Study_Sequence_SOP_Instance_UID = dicomuid;
-    
-    %Generate a Referenced Series Sequence SOP Class UID for each dose.
-    
 end
 
