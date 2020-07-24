@@ -124,12 +124,14 @@ switch filterType
         vol3M   = double(scan3M);
         
         dirListC = {'All','HHH','LHH','HLH','HHL','LLH','LHL','HLL','LLL'};
+        normFlagC = {'Yes','No'};
         wavType =  paramS.Wavelets.val;
         if ~isempty(paramS.Index.val)
             wavType = [wavType,paramS.Index.val];
         end
         dir = paramS.Direction.val;
-        normFlag = paramS.NormFlag.val;
+        selIdx = find(strcmpi(paramS.Normalize.val,normFlagC));
+        normFlag = 2 - selIdx;
         
         if strcmp(dir,'All')
             for n = 2:length(dirListC)
@@ -201,8 +203,11 @@ switch filterType
     case 'Mean'
         
         vol3M = double(scan3M);
-        
-        meanFilt3M = imboxfilt(vol3M,paramS.KernelSize.val);
+        kernelSize = paramS.KernelSize.val;
+        if ~isnumeric(kernelSize)
+            kernelSize = str2double(kernelSize);
+        end
+        meanFilt3M = imboxfilt(vol3M,kernelSize);
        
         outS.meanFilt = meanFilt3M;
         
@@ -245,11 +250,11 @@ switch filterType
 
         vol3M = double(scan3M);
         
-        dirC = {'2d','3d','all'};
-        sizC = {'3','5','all'};
+        %dirC = {'2d','3d','all'};
+        %sizC = {'3','5','all'};
         normFlagC = {'Yes','No'};
-        dir = dirC{paramS.Direction.val};
-        siz = sizC{paramS.KernelSize.val};
+        dir = paramS.Direction.val;
+        siz = str2double(paramS.KernelSize.val);
         selIdx = find(strcmpi(paramS.Normalize.val,normFlagC));
         normFlag = 2 - selIdx;
         lawsMasksS = getLawsMasks(dir,siz,normFlag);
@@ -273,12 +278,13 @@ switch filterType
         
     case 'LawsEnergy'
         
-        outS = processImage('LawsConvolution',scan3M,mask3M,paramS,[]);
-        fieldNameC = fieldnames(outS);
+        lawsOutS = processImage('LawsConvolution',scan3M,mask3M,paramS,[]);
+        fieldNameC = fieldnames(lawsOutS);
         numFeatures = length(fieldNameC);
         for i = 1:length(fieldNameC)
-            lawsTex3M = outS.(fieldNameC{i});
-            lawsEnergy3M = processImage('Mean',lawsTex3M,mask3M,paramS,[]);
+            lawsTex3M = lawsOutS.(fieldNameC{i});
+            meanOutS = processImage('Mean',lawsTex3M,mask3M,paramS,[]);
+            lawsEnergy3M = meanOutS.meanFilt;
             outField = [fieldNameC{i},'_Energy'];
             outS.(outField) = lawsEnergy3M;
             if ishandle(hWait)
