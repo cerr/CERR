@@ -8,10 +8,10 @@ importDICOM(dicomPath,cerrPath);
 
 cerrFile = ls([cerrPath filesep '*.mat']);
 
-cerrFilePath = [cerrPath filesep cerrFile];
+%cerrFilePath = [cerrPath filesep cerrFile];
 
-load(cerrFilePath,'planC');
+load(cerrFile,'planC');
 
 planC = annotatePlanCForXNAT(planC, xhost,xexp,xproj,xsubj);
 
-save(cerrFilePath,'planC');
+save(cerrFile,'planC');
