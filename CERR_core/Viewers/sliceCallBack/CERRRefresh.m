@@ -43,7 +43,7 @@ if stateS.layout == 6;
 end
 
 %If doseSet changed, update labels and colorbar.
-if stateS.doseSetChanged & stateS.doseToggle == 1
+if stateS.doseSetChanged && stateS.doseToggle == 1
     if stateS.layout == 7
         for i = 1:length(stateS.handle.CERRAxis)-4
             doseSet = getAxisInfo(stateS.handle.CERRAxis(4+i),'doseSets');

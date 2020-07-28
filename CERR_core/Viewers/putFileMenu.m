@@ -86,15 +86,15 @@ else
    set(findobj('tag', 'importPlan'), 'enable', 'on'); 
 end
 
-if stateS.workspacePlan & stateS.planLoaded
+if stateS.workspacePlan && stateS.planLoaded
     set(findobj(hMenu, 'tag', 'SaveOption'), 'enable', 'off');
     set(findobj(hMenu, 'tag', 'AnonymizeOption'), 'enable', 'off');
-elseif ~stateS.workspacePlan & stateS.planLoaded
+elseif ~stateS.workspacePlan && stateS.planLoaded
     set(findobj(hMenu, 'tag', 'SaveOption'), 'enable', 'on');
     set(findobj(hMenu, 'tag', 'AnonymizeOption'), 'enable', 'on');
 end
 
-if ~stateS.planLoaded & ~isempty(planC) & iscell(planC)
+if ~stateS.planLoaded && ~isempty(planC) && iscell(planC)
     set(findobj('tag', 'WorkspaceLoadOption'), 'enable', 'on'); 
 else
     set(findobj('tag', 'WorkspaceLoadOption'), 'enable', 'off');
