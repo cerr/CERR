@@ -10,4 +10,5 @@ if nargin < 3 || isempty(xproj)
     end
 end
 
+indexS = planC{end};
 planC{indexS.header}.xnatInfo = struct('host',xhost,'experiment_id',xexp,'project_id',xproj,'subject_id',xsubj);
