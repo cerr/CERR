@@ -3244,11 +3244,11 @@ switch upper(instr)
         updateScanColorbar(scanSet);
         
         if stateS.imageRegistration
-            set(stateS.handle.baseCTLevel, 'String', stateS.scanStats.CTLevel.(scanUID));
-            set(stateS.handle.baseCTWidth, 'String', stateS.scanStats.CTWidth.(scanUID));
+            set(stateS.handle.baseCTLevel, 'String', num2str(stateS.scanStats.CTLevel.(scanUID)));
+            set(stateS.handle.baseCTWidth, 'String', num2str(stateS.scanStats.CTWidth.(scanUID)));
         else
-            set(stateS.handle.CTLevel, 'String', stateS.scanStats.CTLevel.(scanUID));
-            set(stateS.handle.CTWidth, 'String', stateS.scanStats.CTWidth.(scanUID));            
+            set(stateS.handle.CTLevel, 'String', num2str(stateS.scanStats.CTLevel.(scanUID)));
+            set(stateS.handle.CTWidth, 'String', num2str(stateS.scanStats.CTWidth.(scanUID)));            
         end
         
         stateS.CTDisplayChanged = 1;

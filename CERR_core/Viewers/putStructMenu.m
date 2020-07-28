@@ -97,7 +97,7 @@ indexS = planC{end};
 numStructs = length(planC{indexS.structures});
 
 %Init structure visible list.
-if ~isfield(planC{indexS.structures}, 'visible') & length(planC{indexS.structures}) ~= 0
+if ~isfield(planC{indexS.structures}, 'visible') && length(planC{indexS.structures}) ~= 0
     [planC{indexS.structures}.visible] = deal(1);
 end
 

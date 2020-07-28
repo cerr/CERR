@@ -47,7 +47,7 @@ persistent isLastScanCompressed;
 persistent isLastScanRemote;
 
 %Check if a scanStruct, not a scanIndex was passed.
-if isstruct(scanIndex) & isfield(scanIndex, 'scanArray')
+if isstruct(scanIndex) && isfield(scanIndex, 'scanArray')
     
     scanStruct = scanIndex(1);
     
@@ -63,7 +63,7 @@ else
 	
 	indexS = planC{end};
 	
-	if scanIndex > length(planC{indexS.scan}) | scanIndex < 1
+	if scanIndex > length(planC{indexS.scan}) || scanIndex < 1
         error('Cannot get scan.  Requested scanIndex scan not exist.')
 	end
 
@@ -74,13 +74,15 @@ end
 scanArray = scanStruct.scanArray;
 
 %If remote or compressed, and struct is same as last time, return cached array.
-if (isCompressed(scanArray) || ~isLocal(scanArray)) && isequal(scanStruct, lastScanStruct)
+if (isCompressed(scanArray) || ~isLocal(scanArray)) && ...
+  isequal(scanStruct, lastScanStruct)
     scanArray = lastScanArray;    
     isCompress = isLastScanCompressed;
     isRemote = isLastScanRemote;
     return;
 %If remote or compressed and NOT the same as last time, clear cache.    
-elseif (isCompressed(scanArray) || ~isLocal(scanArray)) && ~isequal(scanStruct, lastScanStruct)
+elseif (isCompressed(scanArray) || ~isLocal(scanArray)) && ...
+~isequal(scanStruct, lastScanStruct)
 	lastScanArray           = [];
 	lastScanStruct          = [];
 	isLastScanCompressed    = [];
