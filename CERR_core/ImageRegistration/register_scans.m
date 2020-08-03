@@ -1,6 +1,6 @@
 function [basePlanC, movPlanC, bspFileName] = register_scans(basePlanC, movPlanC,...
     baseScanNum, movScanNum, algorithm, baseMask3M, movMask3M,...
-    threshold_bone, inputCmdFile, inBspFile, outBspFile)
+    threshold_bone, inputCmdFile, inBspFile, outBspFile, tmpDirPath)
 % function [basePlanC, movPlanC, bspFileName] = register_scans(basePlanC, movPlanC,...
 %     baseScanNum, movScanNum, algorithm, baseMask3M, movMask3M,...
 %     threshold_bone, inputCmdFile, inBspFile, outBspFile)
@@ -10,12 +10,17 @@ function [basePlanC, movPlanC, bspFileName] = register_scans(basePlanC, movPlanC
 indexBaseS = basePlanC{end};
 indexMovS  = movPlanC{end};
 
+% Write temp files under CERR distribution if tempDirPath is not specified
+if ~exist('tmpDirPath','var')
+    tmpDirPath = fullfile(getCERRPath,'ImageRegistration','tmpFiles');
+end
+
 % Create .mha file for base scan
 baseScanUID = basePlanC{indexBaseS.scan}(baseScanNum).scanUID;
 randPart = floor(rand*1000);
 baseScanUniqName = [baseScanUID,num2str(randPart)];
-baseScanFileName = fullfile(getCERRPath,'ImageRegistration','tmpFiles',['baseScan_',baseScanUniqName,'.mha']);
-baseMaskFileName = fullfile(getCERRPath,'ImageRegistration','tmpFiles',['baseMask_',baseScanUniqName,'.mha']);
+baseScanFileName = fullfile(tmpDirPath,['baseScan_',baseScanUniqName,'.mha']);
+baseMaskFileName = fullfile(tmpDirPath,['baseMask_',baseScanUniqName,'.mha']);
 if exist(baseScanFileName,'file')
     delete(baseScanFileName);
 end
@@ -31,8 +36,8 @@ end
 movScanUID = movPlanC{indexMovS.scan}(movScanNum).scanUID;
 randPart = floor(rand*1000);
 movScanUniqName = [movScanUID,num2str(randPart)];
-movScanFileName = fullfile(getCERRPath,'ImageRegistration','tmpFiles',['movScan_',movScanUniqName,'.mha']);
-movMaskFileName = fullfile(getCERRPath,'ImageRegistration','tmpFiles',['movMask_',movScanUniqName,'.mha']);
+movScanFileName = fullfile(tmpDirPath,['movScan_',movScanUniqName,'.mha']);
+movMaskFileName = fullfile(tmpDirPath,['movMask_',movScanUniqName,'.mha']);
 if exist(movScanFileName,'file')
     delete(movScanFileName);
 end
@@ -44,87 +49,89 @@ if ~isempty(movMask3M)
     success = createMhaMask(movScanNum, movMaskFileName, movPlanC, movMask3M, []);
 end
 
-%         % Create .mha file for base scan
-%         baseScanUID = basePlanC{indexBaseS.scan}(baseScanNum).scanUID;
-%         randPart = floor(rand*1000);
-%         baseScanUniqName = [baseScanUID,num2str(randPart)];
-%         baseScanFileName = fullfile(getCERRPath,'ImageRegistration','tmpFiles',['baseScan_',baseScanUniqName,'.mha']);
-%         baseMaskFileName = fullfile(getCERRPath,'ImageRegistration','tmpFiles',['baseMask_',baseScanUniqName,'.mha']);
-%         if exist(baseScanFileName,'file')
-%             delete(baseScanFileName);
-%         end
-%         if exist(baseMaskFileName,'file')
-%             delete(baseMaskFileName);
-%         end
-%         success = createMhaScansFromCERR(baseScanNum, baseScanFileName, basePlanC);
-%         success = createMhaMask(baseScanNum, baseMaskFileName, basePlanC, baseMask3M, threshold_bone);
-%
-%         % Create .mha file for moving scan
-%         movScanUID = movPlanC{indexMovS.scan}(movScanNum).scanUID;
-%         randPart = floor(rand*1000);
-%         movScanUniqName = [movScanUID,num2str(randPart)];
-%         movScanFileName = fullfile(getCERRPath,'ImageRegistration','tmpFiles',['movScan_',movScanUniqName,'.mha']);
-%         movMaskFileName = fullfile(getCERRPath,'ImageRegistration','tmpFiles',['movMask_',movScanUniqName,'.mha']);
-%         if exist(movScanFileName,'file')
-%             delete(movScanFileName);
-%         end
-%         if exist(movMaskFileName,'file')
-%             delete(movMaskFileName);
-%         end
-%         success = createMhaScansFromCERR(movScanNum, movScanFileName, movPlanC);
-%         %success = createMhaMask(movScanNum, movMaskFileName, movPlanC, movMask3M, threshold_bone);
-%         success = createMhaMask(movScanNum, movMaskFileName, movPlanC, movMask3M, []);
-%
-% Create a command file path for plastimatch
-cmdFileName_rigid = fullfile(getCERRPath,'ImageRegistration','plastimatch_command',[baseScanUID,'_',movScanUID,'_rigid.txt']);
-cmdFileName_dir   = fullfile(getCERRPath,'ImageRegistration','plastimatch_command',[baseScanUID,'_',movScanUID,'_dir.txt']);
-
-if exist(cmdFileName_rigid,'file')
-    delete(cmdFileName_rigid);
-end
-if exist(cmdFileName_dir,'file')
-    delete(cmdFileName_dir);
-end
-
-% Create a file name and path for storing the resulting transform
-
-bspFileName_rigid = fullfile(getCERRPath,'ImageRegistration','tmpFiles',['bsp_coeffs_',baseScanUID,'_',movScanUID,'_rigid.txt']);
-if exist(bspFileName_rigid,'file')
-    delete(bspFileName_rigid)
-end
-
-% Deformable (DIR) step
-clear cmdFileC
-if exist('inputCmdFile','var') && ~isempty(inputCmdFile)
-    userCmdFile = inputCmdFile;
-else
-    optName = fullfile(getCERRPath,'CERROptions.json');
-    optS = opts4Exe(optName);
-    cmd_fileName = optS.plastimatch_command_file;
-    userCmdFile = fullfile(getCERRPath,'ImageRegistration','plastimatch_command',cmd_fileName);
-end
-ursFileC = file2cell(userCmdFile);
-cmdFileC{1,1} = '[GLOBAL]';
-cmdFileC{end+1,1} = ['fixed=',escapeSlashes(baseScanFileName)];
-cmdFileC{end+1,1} = ['moving=',escapeSlashes(movScanFileName)];
-if ~isempty(baseMask3M)
-    cmdFileC{end+1,1} = ['fixed_roi=',escapeSlashes(baseMaskFileName)];
-end
-if ~isempty(movMask3M)
-    cmdFileC{end+1,1} = ['moving_roi=',escapeSlashes(movMaskFileName)];
-end
-if exist('inBspFile','var') && ~isempty(inBspFile)
-    cmdFileC{end+1,1} = ['xform_in=',escapeSlashes(inBspFile)];
-end
-
-% Switch to plastimatch directory if it exists
-prevDir = pwd;
-plmCommand = 'plastimatch register ';
+% Read build paths from CERROptions.json
 optName = fullfile(getCERRPath,'CERROptions.json');
 optS = opts4Exe(optName);
-if exist(optS.plastimatch_build_dir,'dir') && isunix
-    cd(optS.plastimatch_build_dir)
-    plmCommand = ['./',plmCommand];
+   
+plmFlag = 1;
+if any(ismember(upper(algorithm),{'ELASTIX','ANTS'}))
+    plmFlag = 0;
+end
+
+% Create command file for plastimatch
+if plmFlag
+    
+    % Create a command file path for plastimatch
+    plmCommandDir = fullfile(tmpDirPath,'plastimatch_command');
+    if ~exist(plmCommandDir,'dir')
+        mkdir(plmCommandDir)
+    end
+    cmdFileName_rigid = fullfile(plmCommandDir,[baseScanUID,'_',movScanUID,'_rigid.txt']);
+    cmdFileName_dir   = fullfile(plmCommandDir,[baseScanUID,'_',movScanUID,'_dir.txt']);
+    
+    if exist(cmdFileName_rigid,'file')
+        delete(cmdFileName_rigid);
+    end
+    if exist(cmdFileName_dir,'file')
+        delete(cmdFileName_dir);
+    end
+    
+    % Create a file name and path for storing the resulting transform
+    
+    bspFileName_rigid = fullfile(tmpDirPath,['bsp_coeffs_',baseScanUID,'_',movScanUID,'_rigid.txt']);
+    if exist(bspFileName_rigid,'file')
+        delete(bspFileName_rigid)
+    end
+    
+    
+    % Deformable (DIR) step
+    clear cmdFileC
+    if exist('inputCmdFile','var') && ~isempty(inputCmdFile)
+        userCmdFile = inputCmdFile;
+    else
+        optName = fullfile(getCERRPath,'CERROptions.json');
+        optS = opts4Exe(optName);
+        cmd_fileName = optS.plastimatch_command_file;
+        userCmdFile = fullfile(getCERRPath,'ImageRegistration','plastimatch_command',cmd_fileName);
+    end
+    ursFileC = file2cell(userCmdFile);
+    cmdFileC{1,1} = '[GLOBAL]';
+    cmdFileC{end+1,1} = ['fixed=',escapeSlashes(baseScanFileName)];
+    cmdFileC{end+1,1} = ['moving=',escapeSlashes(movScanFileName)];
+    if ~isempty(baseMask3M)
+        cmdFileC{end+1,1} = ['fixed_roi=',escapeSlashes(baseMaskFileName)];
+    end
+    if ~isempty(movMask3M)
+        cmdFileC{end+1,1} = ['moving_roi=',escapeSlashes(movMaskFileName)];
+    end
+    if exist('inBspFile','var') && ~isempty(inBspFile)
+        cmdFileC{end+1,1} = ['xform_in=',escapeSlashes(inBspFile)];
+    end
+    
+    % Switch to plastimatch directory if it exists
+    %prevDir = pwd;
+    plmCommand = 'plastimatch ';
+    if exist(optS.plastimatch_build_dir,'dir') 
+        %cd(optS.plastimatch_build_dir)
+        %plmCommand = ['./',plmCommand];
+        if isunix
+            plmCommand = ['sh ', fullfile(optS.plastimatch_build_dir,plmCommand,' register')];
+        else
+            plmCommand = [fullfile(optS.plastimatch_build_dir,[plmCommand,'.exe']),' register'];
+        end
+        
+    end
+    
+end
+
+elxCommand = 'elastix';
+if exist(optS.elastix_build_dir,'dir')
+    %cd(optS.elastix_build_dir)
+    if isunix
+        elxCommand = ['sh ', fullfile(optS.elastix_build_dir,elxCommand)];
+    else
+        elxCommand = fullfile(optS.elastix_build_dir,[elxCommand,'.exe']);
+    end
 end
 
 switch upper(algorithm)
@@ -288,7 +295,7 @@ switch upper(algorithm)
         system([plmCommand, cmdFileName_rigid]);
         
         bspFileName = vfFileName;
-
+        
         % Cleanup
         try
             delete(baseScanFileName);
@@ -381,10 +388,89 @@ switch upper(algorithm)
             delete(cmdFileName_dir);
         end
         
+        
+    case 'ELASTIX'
+        
+        deleteBspFlg = 1;
+        if exist('outBspFile','var') && ~isempty(outBspFile)
+            deleteBspFlg = 0;
+            elxOutDir = outBspFile;
+        else
+            elxOutDir = fullfile(tmpDirPath,...
+                ['bsp_coeffs_',baseScanUID,'_',movScanUID]);
+        end
+        if exist(elxOutDir,'dir')
+            try
+                rmdir(elxOutDir,'s')
+            end
+        end
+        
+        mkdir(elxOutDir)
+        
+        % 'elastix -f fixedImage.ext -m movingImage.ext -out outputDirectory -p parameterFile.txt'
+        elxCommand = [elxCommand, ' -f ', escapeSlashes(baseScanFileName),...
+            ' -m ',escapeSlashes(movScanFileName)];
+        if ~isempty(baseMask3M)
+            elxCommand = [elxCommand, ' -fMask ', escapeSlashes(baseMaskFileName)];
+        end
+        if ~isempty(movMask3M)
+            elxCommand = [elxCommand, ' -mMask ', escapeSlashes(movMaskFileName)];
+        end
+        elxCommand = [elxCommand, ' -out ', escapeSlashes(elxOutDir)];
+        if iscell(inputCmdFile)
+            for iStage = 1:length(inputCmdFile)
+                elxCommand = [elxCommand,  ' -p ', escapeSlashes(inputCmdFile{iStage})];
+            end
+        else
+            elxCommand = [elxCommand,  ' -p ', escapeSlashes(inputCmdFile)];
+        end
+        
+        % Run Elastix Registration
+        system(elxCommand);
+        
+        % Create a structure for storing algorithm parameters
+        dirS = dir(elxOutDir);
+        namC = {dirS.name};
+        indTransformParamV = strncmp({dirS.name},'TransformParameters',19);
+        indTransformParamV = find(indTransformParamV);
+        for i = 1:length(indTransformParamV)
+            ind = indTransformParamV(i);
+            fname = namC{ind};
+            [~,fnameNoExt] = fileparts(fname);
+            fnameNoExt = strrep(fnameNoExt,'.','_');
+            algorithmParamsS.(fnameNoExt)= file2cell(fullfile(elxOutDir,fname));
+        end
+        
+        % Create new deform object
+        deformS = createNewDeformObject(baseScanUID,movScanUID,algorithm,algorithmParamsS);
+        
+        % Add deform object to both base and moving planC's
+        baseDeformIndex = length(basePlanC{indexBaseS.deform}) + 1;
+        movDeformIndex  = length(movPlanC{indexMovS.deform}) + 1;
+        basePlanC{indexBaseS.deform}  = dissimilarInsert(basePlanC{indexBaseS.deform},deformS,baseDeformIndex);
+        movPlanC{indexMovS.deform}  = dissimilarInsert(movPlanC{indexMovS.deform},deformS,movDeformIndex);
+                
+        % Cleanup
+        try
+            delete(baseScanFileName);
+            delete(movScanFileName);
+            if deleteBspFlg
+                rmdir(elxOutDir,'s');
+            end
+            delete(baseMaskFileName);
+            delete(movMaskFileName);
+            %delete(cmdFileName_dir);
+        end        
+        
+        
+    case 'ANT'
+        
+        
+        
     case 'DEMONS ITK'
         
 end
 
 % Switch back to the previous directory
-cd(prevDir)
+% cd(prevDir)
 
