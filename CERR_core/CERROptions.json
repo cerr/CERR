@@ -225,7 +225,9 @@
 "retainOriginalUIDonExport" : "yes",
 
 "plastimatch_command_file" : "bspline_register_cmd_dir.txt",
-"plastimatch_build_dir" : "~/software/plastimatch-build",
+"plastimatch_build_dir" : "C:\\software\\plastimatch-build\\Release",
+
+"elastix_build_dir" : "C:\\software\\Elastix_5.0",
 
 "linePoolSize" : 30,
 
