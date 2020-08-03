@@ -487,13 +487,7 @@ switch fieldname
                     imgpos = detectorInfoSequence.Item_1.ImagePositionPatient;
                     imgOriV = detectorInfoSequence.Item_1.ImageOrientationPatient;
                 end
-                
-                % Check for oblique scan
-                isOblique = 0;
-                if isempty(imgOriV) || max(abs(abs(imgOriV(:)) - [1 0 0 0 1 0]')) > 1e-2
-                    isOblique = 1;
-                end
-                
+                                
                 if strcmpi(modality,'MG')
                     imgpos = [0 0 0];
                     xray3dAcqSeq = dcm2ml_Element(imgobj.get(hex2dec('00189507')));
@@ -506,6 +500,25 @@ switch fieldname
                     sharedFrameFuncGrpSeq = dcm2ml_Element(imgobj.get(hex2dec('52009229')));
                     sliceSpacing = sharedFrameFuncGrpSeq.Item_1.PixelMeasuresSequence.Item_1.SliceThickness;                    
                 end
+                
+                if strcmpi(modality,'MR')
+                    %(0020,9113) SQ (Sequence with explicit length #=1)      #  66, 1 PlanePositionSequence
+                    %(0020,0032) DS [-116.20171737670\-150.06574630737\63.0202941894531] #  50, 3 ImagePositionPatient
+                    %(0020,0100) IS [20]      #   2, 1 TemporalPositionIdentifier
+                    %(0020,0105) IS [20]      #   2, 1 NumberOfTemporalPositions
+                    planePositionSequence = getTagValue(imgobj, '00209113');
+                    imgpos = planePositionSequence.Item_1.ImagePositionPatient;
+                    planeOrientationSequence = getTagValue(imgobj, '00209116');
+                    imgOriV = planeOrientationSequence.Item_1.ImageOrientationPatient;
+                    % imgobj.getSequence(hex2dec('00209113'))
+                    sliceSpacing = 1; %?
+                end
+                
+                % Check for oblique scan
+                isOblique = 0;
+                if isempty(imgOriV) || max(abs(abs(imgOriV(:)) - [1 0 0 0 1 0]')) > 1e-2
+                    isOblique = 1;
+                end                
                 
                 zValuesV = imgpos(3):sliceSpacing:imgpos(3)+sliceSpacing*double(numMultiFrameImages-1);
                 if sliceSpacing < 0 % http://dicom.nema.org/medical/dicom/current/output/chtml/part03/sect_C.8.4.15.html
