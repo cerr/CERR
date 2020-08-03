@@ -470,6 +470,12 @@ switch fieldname
                 dataS(1:end)    = dataS(zOrder);
                 
             case 'Yes' % Assume Nuclear Medicine Image
+                zValuesV = [];
+                bValuesV = [];
+                gridUnitsV = [];
+                sliceThickness = [];
+                imageOrientationPatientM = [];
+                imagePositionPatientM = [];
                 sliceSpacing = getTagValue(imgobj, '00180088');
                 %zValues = 0:sliceThickness:sliceThickness*double(numMultiFrameImages-1);
                 %modality = dcm2ml_Element(imgobj.get(hex2dec('00080060')));
@@ -506,12 +512,35 @@ switch fieldname
                     %(0020,0032) DS [-116.20171737670\-150.06574630737\63.0202941894531] #  50, 3 ImagePositionPatient
                     %(0020,0100) IS [20]      #   2, 1 TemporalPositionIdentifier
                     %(0020,0105) IS [20]      #   2, 1 NumberOfTemporalPositions
-                    planePositionSequence = getTagValue(imgobj, '00209113');
-                    imgpos = planePositionSequence.Item_1.ImagePositionPatient;
-                    planeOrientationSequence = getTagValue(imgobj, '00209116');
-                    imgOriV = planeOrientationSequence.Item_1.ImageOrientationPatient;
+                    positionRefIndicatorSequence = getTagValue(imgobj, '52009230');
                     % imgobj.getSequence(hex2dec('00209113'))
-                    sliceSpacing = 1; %?
+                    % IPP
+                    %positionRefIndicatorSequence.Item_2.PlanePositionSequence.Item_1.ImagePositionPatient
+                    % B-value
+                    %scanInfo(1).bValue = positionRefIndicatorSequence.Item_2.MRDiffusionSequence.Item_1;
+                    gridUnitsV = positionRefIndicatorSequence.Item_1...
+                        .PixelMeasuresSequence.Item_1.PixelSpacing;
+                    gridUnitsV = gridUnitsV / 10;
+                    sliceSpacing = positionRefIndicatorSequence.Item_1...
+                        .PixelMeasuresSequence.Item_1.SpacingBetweenSlices;
+                    sliceSpacing = sliceSpacing / 10;
+                    sliceThickness = positionRefIndicatorSequence.Item_1...
+                        .PixelMeasuresSequence.Item_1.SliceThickness;
+                    sliceThickness = sliceThickness / 10;
+                    for imageNum = 1:numMultiFrameImages
+                        item = ['Item_',num2str(imageNum)];
+                        zValuesV(imageNum) = positionRefIndicatorSequence.(item)...
+                            .PlanePositionSequence.Item_1.ImagePositionPatient(3);
+                        imageOrientationPatientM(imageNum,:) = positionRefIndicatorSequence.(item)...
+                            .PlaneOrientationSequence.Item_1.ImageOrientationPatient;
+                        imagePositionPatientM(imageNum,:) = positionRefIndicatorSequence.(item)...
+                            .PlanePositionSequence.Item_1.ImagePositionPatient;                        
+                        if isfield(positionRefIndicatorSequence.(item)...
+                                .MRDiffusionSequence.Item_1,'DiffusionBValue')
+                            bValuesV(imageNum) = positionRefIndicatorSequence.(item)...
+                                .MRDiffusionSequence.Item_1.DiffusionBValue;
+                        end
+                    end
                 end
                 
                 % Check for oblique scan
@@ -520,24 +549,43 @@ switch fieldname
                     isOblique = 1;
                 end                
                 
-                zValuesV = imgpos(3):sliceSpacing:imgpos(3)+sliceSpacing*double(numMultiFrameImages-1);
-                if sliceSpacing < 0 % http://dicom.nema.org/medical/dicom/current/output/chtml/part03/sect_C.8.4.15.html
-                    zValuesV = fliplr(zValuesV);
+                if isempty(zValuesV)
+                    zValuesV = imgpos(3):sliceSpacing:imgpos(3)+sliceSpacing*double(numMultiFrameImages-1);
+                    if sliceSpacing < 0 % http://dicom.nema.org/medical/dicom/current/output/chtml/part03/sect_C.8.4.15.html
+                        zValuesV = fliplr(zValuesV);
+                    end
                 end
+                
                 if ~isOblique && (max(abs((imgOriV(:) - [1 0 0 0 -1 0]'))) < 1e-3 || ...
                         max(abs((imgOri(:) - [-1 0 0 0 1 0]'))) < 1e-3 ) %FFP or FFS
                     zValuesV = fliplr(zValuesV);
                 end
+                
                 for i = 1:length(names)
-                    dataS(1).(names{i}) = ...
-                        populate_planC_scan_scanInfo_field(names{i}, IMAGE, imgobj, optS);
+                    if ~isempty(gridUnitsV) && strcmpi(names{i},'grid1Units')
+                        dataS(1).(names{i}) = gridUnitsV(1);
+                    elseif ~isempty(gridUnitsV) && strcmpi(names{i},'grid2Units')
+                        dataS(1).(names{i}) = gridUnitsV(2);
+                    elseif ~isempty(sliceThickness) && strcmpi(names{i},'sliceThickness')
+                        dataS(1).(names{i}) = sliceThickness;
+                    elseif ~isempty(imageOrientationPatientM) && strcmpi(names{i},'imageOrientationPatient')
+                        dataS(1).(names{i}) = imageOrientationPatientM(1,:);                    
+                    else
+                        dataS(1).(names{i}) = ...
+                            populate_planC_scan_scanInfo_field(names{i}, IMAGE, imgobj, optS);
+                    end
                 end
+                
+                % Flip z_values since CERR z is reverse of DICOM
+                zValuesV = -zValuesV/10;
                 for imageNum = 1:numMultiFrameImages
                     dataS(imageNum) = dataS(1);
-                    if ~isOblique
-                        dataS(imageNum).zValue = -zValuesV(imageNum)/10;
-                    else
-                        dataS(imageNum).zValue = zValuesV(imageNum)/10;
+                    dataS(imageNum).zValue = zValuesV(imageNum);
+                    if ~isempty(bValuesV)
+                        dataS(imageNum).bValue = bValuesV(imageNum);
+                    end
+                    if ~isempty(imagePositionPatientM)
+                        dataS(imageNum).imagePositionPatient = imagePositionPatientM(imageNum,:);
                     end
                 end
                 

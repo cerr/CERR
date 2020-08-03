@@ -266,13 +266,27 @@ switch fieldname
             imgOriV = detectorInfoSequence.Item_1.ImageOrientationPatient;
         end
         
+        if isempty(imgpos) && strcmpi(modality,'MR')
+            % Multiframe MR image.
+            positionRefIndicatorSequence = getTagValue(attr, '52009230');
+            imgpos = positionRefIndicatorSequence.Item_1...
+                .PlanePositionSequence.Item_1.ImagePositionPatient;
+            imgOriV = positionRefIndicatorSequence.Item_1...
+                .PlaneOrientationSequence.Item_1.ImageOrientationPatient;   
+        end
+        
         %Pixel Spacing
         if ismember(modality,{'MG','SM'})
             pixspac = getTagValue(attr, '00181164');
             imgOriV = zeros(6,1);
-            imgpos = [0 0 0];
+            imgpos = [0 0 0];        
         else
             pixspac = getTagValue(attr, '00280030');
+        end
+        
+        if isempty(pixspac) && strcmpi(modality,'MR')
+            pixspac = positionRefIndicatorSequence.Item_1...
+                        .PixelMeasuresSequence.Item_1.PixelSpacing;            
         end
         
         %Columns
@@ -341,6 +355,15 @@ switch fieldname
             imgOriV = detectorInfoSequence.Item_1.ImageOrientationPatient;
         end
         
+        if isempty(imgpos) && strcmpi(modality,'MR')
+            % Multiframe MR image.
+            positionRefIndicatorSequence = getTagValue(attr, '52009230');
+            imgpos = positionRefIndicatorSequence.Item_1...
+                .PlanePositionSequence.Item_1.ImagePositionPatient;
+            imgOriV = positionRefIndicatorSequence.Item_1...
+                .PlaneOrientationSequence.Item_1.ImageOrientationPatient;               
+        end        
+        
         %Pixel Spacing
         if ismember(modality,{'MG','SM'})
             pixspac = getTagValue(attr, '00181164');
@@ -349,6 +372,11 @@ switch fieldname
         else
             pixspac = getTagValue(attr, '00280030');
         end
+        
+        if isempty(pixspac) && strcmpi(modality,'MR')
+            pixspac = positionRefIndicatorSequence.Item_1...
+                        .PixelMeasuresSequence.Item_1.PixelSpacing;            
+        end        
         
         %Check for oblique scan
         if max(abs((imgOriV(:) - [1 0 0 0 1 0]'))) < 1e-3
