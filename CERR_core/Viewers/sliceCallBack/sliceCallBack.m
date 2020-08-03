@@ -128,8 +128,8 @@ switch upper(instr)
         stateS.MLVersion = getMLVersion;
 
         %Set Keypressfunction call back for ALL subsequent figures.
-        set(0,'DefaultFigureCreateFcn','set(gcbo,''WindowKeyPressFcn'',''CERRHotKeys'',''keyReleaseFcn'',''CERRHotKeyRelease'')')
-
+        %set(0,'DefaultFigureCreateFcn','set(gcbo,''WindowKeyPressFcn'',''CERRHotKeys'',''keyReleaseFcn'',''CERRHotKeyRelease'')')
+        
         %Detect and store working directory, in case this is the compiled version.
         %This must go before any calls to getCERRPath
         if ispc
@@ -217,7 +217,8 @@ switch upper(instr)
         hCSV = figure('tag','CERRSliceViewer','name',str1,'numbertitle','off',...
             'position',position, 'doublebuffer', 'off','CloseRequestFcn',...
             'sliceCallBack(''closeRequest'')','tag',...
-            'CERRSliceViewer');
+            'CERRSliceViewer','KeyPressFcn',{@CERRHotKeys},...
+            'keyReleaseFcn',{@CERRHotKeyRelease});
                 
         figureColor = get(hCSV, 'Color');
         stateS.handle.CERRSliceViewer = hCSV;
@@ -259,17 +260,17 @@ switch upper(instr)
 
         %Make invisible frames to subdivide screenspace.  For resizing.
         figureWidth = position(3); figureHeight = position(4);
-        leftMargin    = uicontrol(hCSV,'units', 'pixels', 'Position',[leftMarginWidth-1 0 1 1600], 'Style', 'frame', 'Tag', 'leftMargin', 'visible', 'on');
-        bottomMargin  = uicontrol(hCSV,'units', 'pixels', 'Position',[leftMarginWidth 0 1600 bottomMarginHeight], 'Style', 'frame', 'Tag', 'bottomMargin', 'visible', 'off');
-        mainBody      = uicontrol(hCSV,'units', 'pixels', 'Position',[leftMarginWidth bottomMarginHeight figureWidth-leftMarginWidth figureHeight-bottomMarginHeight],...
-            'Style', 'frame', 'Tag', 'mainBody', 'visible', 'off');
+        leftMargin    = uicontrol(hCSV,'units', 'pixels', 'Position',[leftMarginWidth-1 0 1 1600], 'Style', 'frame', 'Tag', 'leftMargin', 'visible', 'on', 'pickableParts','none','hittest','off');
+        bottomMargin  = uicontrol(hCSV,'units', 'pixels', 'Position',[leftMarginWidth 0 1600 bottomMarginHeight], 'Style', 'frame', 'Tag', 'bottomMargin', 'visible', 'off', 'pickableParts','none','hittest','off');
+        %mainBody      = uicontrol(hCSV,'units', 'pixels', 'Position',[leftMarginWidth bottomMarginHeight figureWidth-leftMarginWidth figureHeight-bottomMarginHeight],...
+        %    'Style', 'frame', 'Tag', 'mainBody', 'visible', 'off', 'pickableParts','none','hittest','off');
 
         x  = 25; %position of buttons
         dx = 50;
         %Populate left margin Gui Objects.
         leftMarginPos = get(leftMargin, 'position');
         %General purpose control frame
-        stateS.handle.controlFrame = uicontrol(hCSV,'units', 'pixels', 'Position', [0 0 leftMarginWidth 400], 'Style', 'frame', 'Tag', 'controlFrame');
+        stateS.handle.controlFrame = uicontrol(hCSV,'units', 'pixels', 'Position', [0 0 leftMarginWidth 400], 'Style', 'frame', 'Tag', 'controlFrame', 'pickableParts','none','hittest','off');
         %Warning message.
         %handle = uicontrol(hCSV, 'units', 'pixels', 'Position', [10 600 leftMarginWidth-20 20], 'Style', 'text', 'enable', 'inactive'  , 'String', 'Not for clinical use', 'foregroundcolor', [1 0 0], 'fontsize', 14);
         stateS.handle.controlFrameUd = [];
@@ -277,7 +278,7 @@ switch upper(instr)
         
         %CT window and level ui:
         frameWidth = leftMarginWidth - 20;
-        stateS.handle.CTSettingsFrame = uicontrol(hCSV,'units','pixels', 'string', 'ctsettingsFrame', 'BackgroundColor',uicolor, 'Position', [10 490 frameWidth 125],'Style','frame', 'Tag','CTSettingsFrame');
+        stateS.handle.CTSettingsFrame = uicontrol(hCSV,'units','pixels', 'string', 'ctsettingsFrame', 'BackgroundColor',uicolor, 'Position', [10 490 frameWidth 125],'Style','frame', 'Tag','CTSettingsFrame', 'pickableParts','none','hittest','off');
         
         % Scan name text
         stateS.handle.ScanTxtWindow = uicontrol(hCSV,'units','pixels','BackgroundColor',uicolor, 'Position',[20 585 (frameWidth-30) 27],'String','', 'Style','text', 'enable', 'inactive','ForegroundColor',[0.1 0.5 0.1]);
@@ -2714,10 +2715,10 @@ switch upper(instr)
         
     case 'SLICEMOTIONSTART'
         hAxis = gca;
-        %hFig  = get(hAxis, 'parent');
-        hFig = hAxis.Parent;
-        %cP    = get(hAxis, 'CurrentPoint');
-        cP = hAxis.CurrentPoint;
+        hFig  = get(hAxis, 'parent');
+        %hFig = hAxis.Parent;
+        cP    = get(hAxis, 'CurrentPoint');
+        %cP = hAxis.CurrentPoint;
         set(hFig, 'interruptible', 'on', 'busyaction', 'cancel');
         stateS.scanWindowCurrentPoint = cP(1,1:2);
         return;     
