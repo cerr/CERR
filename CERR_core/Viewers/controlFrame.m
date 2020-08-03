@@ -1360,7 +1360,7 @@ switch command
                 clBarPos = get(stateS.handle.doseColorbar.trans,'position');
                 clBarPosNew = clBarPos;
                 clBarPosNew(4) = clBarPosNew(4) - 50;
-                set(stateS.handle.doseColorbar.trans,'pos',clBarPosNew)
+                set(stateS.handle.doseColorbar.trans,'position',clBarPosNew)
                 
                 colorbarShildBgClr = get(hFig,'color');
                 
@@ -1375,52 +1375,52 @@ switch command
                 set(stateS.handle.CTLevelWidthInteractive, 'visible', 'off');
                 set(stateS.handle.ScanTxtWindow,'visible','off')
                 
-                %tempControlPos = get(stateS.handle.controlFrame, 'pos');
-                set(stateS.handle.controlFrame, 'pos', [0 0 195 600-270]);
+                %tempControlPos = get(stateS.handle.controlFrame, 'position');
+                set(stateS.handle.controlFrame, 'position', [0 0 195 600-270]);
                 
                 
                 %move the zoom/slice buttons
-                fPos = get(gcf, 'pos');
+                fPos = get(gcf, 'position');
                 dPos1 = [fPos(3)-250 -384   0 0];
                 dPos2 = [fPos(3)-250 -384+8 0 0];
                 
-                %temploopTrans = get(stateS.handle.loopTrans, 'pos');
+                %temploopTrans = get(stateS.handle.loopTrans, 'position');
                 %ud.handle.loopTransPos = temploopTrans;
-                %set(stateS.handle.loopTrans, 'pos', dPos1+temploopTrans);
+                %set(stateS.handle.loopTrans, 'position', dPos1+temploopTrans);
                 
-                %tempunloopTrans = get(stateS.handle.unloopTrans, 'pos');
+                %tempunloopTrans = get(stateS.handle.unloopTrans, 'position');
                 %ud.handle.unloopTransPos = tempunloopTrans;
-                %set(stateS.handle.unloopTrans, 'pos', dPos1+tempunloopTrans);
+                %set(stateS.handle.unloopTrans, 'position', dPos1+tempunloopTrans);
                 
-                tempZoom = get(stateS.handle.zoom, 'pos');
+                tempZoom = get(stateS.handle.zoom, 'position');
                 ud.handle.zoomPos = tempZoom;
-                set(stateS.handle.zoom, 'pos', dPos1+tempZoom);
+                set(stateS.handle.zoom, 'position', dPos1+tempZoom);
                 
-                tempresetZoom = get(stateS.handle.resetZoom, 'pos');
+                tempresetZoom = get(stateS.handle.resetZoom, 'position');
                 ud.handle.resetZoomPos = tempresetZoom;
-                set(stateS.handle.resetZoom, 'pos', dPos1+tempresetZoom);
+                set(stateS.handle.resetZoom, 'position', dPos1+tempresetZoom);
                 
-                %temprulerTrans = get(stateS.handle.rulerTrans, 'pos');
+                %temprulerTrans = get(stateS.handle.rulerTrans, 'position');
                 %ud.handle.rulerTransPos = temprulerTrans;
-                %set(stateS.handle.rulerTrans, 'pos', dPos2+temprulerTrans);
+                %set(stateS.handle.rulerTrans, 'position', dPos2+temprulerTrans);
                 
-                tempbuttonUp = get(stateS.handle.buttonUp, 'pos');
+                tempbuttonUp = get(stateS.handle.buttonUp, 'position');
                 ud.handle.buttonUpPos = tempbuttonUp;
-                set(stateS.handle.buttonUp, 'pos', dPos1+tempbuttonUp);
+                set(stateS.handle.buttonUp, 'position', dPos1+tempbuttonUp);
                 
-                tempbuttonDwn = get(stateS.handle.buttonDwn, 'pos');
+                tempbuttonDwn = get(stateS.handle.buttonDwn, 'position');
                 ud.handle.buttonDwnPos = tempbuttonDwn;
-                set(stateS.handle.buttonDwn, 'pos', dPos1+tempbuttonDwn);
+                set(stateS.handle.buttonDwn, 'position', dPos1+tempbuttonDwn);
                 
                 % hide the scan colorbar in fusion mode
-                tempScanColorbar = get(stateS.handle.scanColorbar, 'pos');
+                tempScanColorbar = get(stateS.handle.scanColorbar, 'position');
                 ud.handle.scanColorbarPos = tempScanColorbar;
-                set(stateS.handle.scanColorbar, 'pos', [0 0 0.01 0.01]);
+                set(stateS.handle.scanColorbar, 'position', [0 0 0.01 0.01]);
                 
                 
-                %tempcapture = get(stateS.handle.capture, 'pos');
+                %tempcapture = get(stateS.handle.capture, 'position');
                 %ud.handle.capturePos = tempcapture;
-                %set(stateS.handle.capture, 'pos', dPos2+tempcapture);
+                %set(stateS.handle.capture, 'position', dPos2+tempcapture);
                 
                 
                 %                 % Set Color Bar Invisible
@@ -1434,7 +1434,7 @@ switch command
                 if isdeployed
                     [I,map] = imread(fullfile(getCERRPath,'pics','Icons','lock.gif'),'gif');
                 else
-                    [I,map] = imread('lock.gif','gif');
+                    [I,map] = imread(fullfile(getCERRPath,'Icons','lock.gif'),'gif');
                 end
                 lockImg = ind2rgb(I,map);
                 uicontrol(hFig,'style','toggle','value',1,'units','pixels','cdata',lockImg,'Position',[leftMarginWidth+10 460 25 20], 'tag','toggleLockMoving','string','','fontWeight','normal','callBack','sliceCallBack(''toggleLockMoving'');');
@@ -1681,7 +1681,7 @@ switch command
                 if isdeployed
                     [I,map] = imread(fullfile(getCERRPath,'pics','Icons','tool_rotate_3d.gif'),'gif');
                 else
-                    [I,map] = imread('tool_rotate_3d.gif','gif');
+                    [I,map] = imread(fullfile(getCERRPath,'Icons','tool_rotate_3d.gif'),'gif');
                 end
                 rotateImg = ind2rgb(I,map);
                 
@@ -3136,23 +3136,23 @@ switch command
                 set(stateS.handle.CTLevelWidthInteractive, 'visible', 'on');
                 set(stateS.handle.ScanTxtWindow,'visible','on')
                 
-                %set(stateS.handle.controlFrame, 'pos', tempControlPos);
+                %set(stateS.handle.controlFrame, 'position', tempControlPos);
                 leftMarginWidth = 195;
-                set(stateS.handle.controlFrame, 'pos', [0 0 leftMarginWidth 400]);
+                set(stateS.handle.controlFrame, 'position', [0 0 leftMarginWidth 400]);
                 
                 ud = stateS.handle.controlFrameUd ;
                 
                 %move back the zoom/slice buttons
-                %set(stateS.handle.loopTrans, 'pos', ud.handle.loopTransPos);
-                %set(stateS.handle.unloopTrans, 'pos', ud.handle.unloopTransPos);
-                set(stateS.handle.zoom, 'pos', ud.handle.zoomPos);
-                set(stateS.handle.resetZoom, 'pos', ud.handle.resetZoomPos);
-                %set(stateS.handle.rulerTrans, 'pos', ud.handle.rulerTransPos);
-                set(stateS.handle.buttonUp, 'pos', ud.handle.buttonUpPos);
-                set(stateS.handle.buttonDwn, 'pos', ud.handle.buttonDwnPos);
-                set(stateS.handle.scanColorbar, 'pos', ud.handle.scanColorbarPos);
+                %set(stateS.handle.loopTrans, 'position', ud.handle.loopTransPos);
+                %set(stateS.handle.unloopTrans, 'position', ud.handle.unloopTransPos);
+                set(stateS.handle.zoom, 'position', ud.handle.zoomPos);
+                set(stateS.handle.resetZoom, 'position', ud.handle.resetZoomPos);
+                %set(stateS.handle.rulerTrans, 'position', ud.handle.rulerTransPos);
+                set(stateS.handle.buttonUp, 'position', ud.handle.buttonUpPos);
+                set(stateS.handle.buttonDwn, 'position', ud.handle.buttonDwnPos);
+                set(stateS.handle.scanColorbar, 'position', ud.handle.scanColorbarPos);
                 
-                %set(stateS.handle.capture, 'pos', ud.handle.capturePos);
+                %set(stateS.handle.capture, 'position', ud.handle.capturePos);
                 
                 set(stateS.handle.doseColorbar.trans,'position',ud.clBarPos)
                 set(gcf,'Pointer','arrow');
