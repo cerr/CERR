@@ -207,7 +207,7 @@ for i=uint8(1:length(stateS.handle.CERRAxis))
 %     zoomToXYRange(hAxis);
 
     %Make sure everything is drawn in the right order.
-    %setChildDrawOrder(hAxis);
+    setChildDrawOrder(hAxis);
 end
 removeCERRHandle('mask');
 
