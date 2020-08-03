@@ -1,4 +1,4 @@
-function CERRHotKeyRelease()
+function CERRHotKeyRelease(hsrc,evt)
 %Routing function called by all CERR figures on keypress release
 %
 % Copyright 2010, Joseph O. Deasy, on behalf of the CERR development team.
