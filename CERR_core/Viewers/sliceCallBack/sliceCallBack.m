@@ -1531,8 +1531,8 @@ switch upper(instr)
             
             % Update Center, Width and Colormap strings on the GUI
             set(stateS.handle.CTPreset, 'Value', stateS.scanStats.windowPresets.(scanUID));
-            set(stateS.handle.CTLevel, 'String', stateS.scanStats.CTLevel.(scanUID));
-            set(stateS.handle.CTWidth, 'String', stateS.scanStats.CTWidth.(scanUID));
+            set(stateS.handle.CTLevel, 'String', num2str(stateS.scanStats.CTLevel.(scanUID)));
+            set(stateS.handle.CTWidth, 'String', num2str(stateS.scanStats.CTWidth.(scanUID)));
             ind = find(strcmpi({stateS.optS.scanColorMap.name},stateS.scanStats.Colormap.(scanUID)));
             set(stateS.handle.BaseCMap,'value',ind);
             
