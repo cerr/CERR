@@ -58,7 +58,7 @@ if isstruct(type) && iscell(number)
     else
         error('Invalid planField passed to getTransM.');
     end
-elseif isstr(type) && isnumeric(number) && iscell(planC)
+elseif ischar(type) && isnumeric(number) && iscell(planC)
 
     %If request scan/struct/dose zero, return [];
     if isempty (number)
