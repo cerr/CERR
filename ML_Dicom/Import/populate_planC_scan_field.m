@@ -283,8 +283,8 @@ switch fieldname
                     % sliceV =
                     % dcm2ml_Element(imgobj.get(hex2dec('7FE00010')),transferSyntaxUID);
                     % AI
-                    % sliceV = getTagValue(imgobj, '7FE00010'); % NAV
-                    sliceV = dcm2ml_Element(imgobj,'7FE00010',transferSyntaxUID);
+                    sliceV = getTagValue(imgobj, '7FE00010'); % NAV
+                    %sliceV = dcm2ml_Element(imgobj,'7FE00010',transferSyntaxUID);
                     
                     %Rows
                     nRows  = getTagValue(imgobj, '00280010');
@@ -333,19 +333,22 @@ switch fieldname
                     dataS = permute(dataS,[2 1 3]);
                     
                     % Study instance UID
-                    studyUID = dcm2ml_Element(imgobj.get(hex2dec('0020000D')));
+                    % studyUID = dcm2ml_Element(imgobj.get(hex2dec('0020000D')));
+                    studyUID = getTagValue(imgobj, '0020000D');
                     
                     %Check patient orientation
                     imgOriV = getTagValue(imgobj, '00200037');
                     
                     if isempty(imgOriV)    
                         %Check patient orientation
-                        imgOriV = imgobj.getValue(hex2dec('00200037'));
+                        % imgOriV = imgobj.getValue(hex2dec('00200037'));
+                        imgOriV = getTagValue(imgobj, '00200037');
                     end
                     
                     % Get Patient Position from the associated CT/MR scan
                     % in case of NM missing the patient position.
-                    modality = dcm2ml_Element(imgobj.get(hex2dec('00080060')));
+                    % modality = dcm2ml_Element(imgobj.get(hex2dec('00080060')));
+                    modality = getTagValue(imgobj,'00080060');
                     studyUIDc = {};
                     for i = 1:size(studyC,1)
                         studyUIDc{i} = studyC{i,1};
@@ -361,8 +364,10 @@ switch fieldname
                         studyC{end,2} = imgOriV;
                     end                    
                     
-                    imgpos = dcm2ml_Element(imgobj.get(hex2dec('00200032')));
-                    imgOriV = dcm2ml_Element(imgobj.get(hex2dec('00200037')));
+                    %imgpos = dcm2ml_Element(imgobj.get(hex2dec('00200032')));
+                    imgpos = getTagValue(imgobj,'00200032');
+                    %imgOriV = dcm2ml_Element(imgobj.get(hex2dec('00200037')));
+                    imgOriV = getTagValue(imgobj,'00200037');
                     if isempty(imgpos) && strcmpi(modality,'NM')
                         % Multiframe NM image.
                         detectorInfoSequence = dcm2ml_Element(imgobj.get(hex2dec('00540022')));
@@ -467,7 +472,8 @@ switch fieldname
             case 'Yes' % Assume Nuclear Medicine Image
                 sliceSpacing = getTagValue(imgobj, '00180088');
                 %zValues = 0:sliceThickness:sliceThickness*double(numMultiFrameImages-1);
-                modality = dcm2ml_Element(imgobj.get(hex2dec('00080060')));
+                %modality = dcm2ml_Element(imgobj.get(hex2dec('00080060')));
+                modality = getTagValue(imgobj,'00080060');
                 %detectorInfoSequence = getTagValue(imgobj, '00540022');                                
                 %imgpos = detectorInfoSequence.Item_1.ImagePositionPatient;
                 %imgpos = dcm2ml_Element(imgobj.get(hex2dec('00200032')));
