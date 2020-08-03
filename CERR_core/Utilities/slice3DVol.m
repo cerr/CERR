@@ -93,7 +93,7 @@ end
 XYZLims = {newXLims, newYLims, newZLims};
 
 %If we are outside the range of the transformed dataset, return empty.
-if coord < min(XYZLims{dim}) | coord > max(XYZLims{dim})
+if coord < min(XYZLims{dim}) || coord > max(XYZLims{dim})
     slc = []; slcRowV = []; slcColV = [];
     return;
 end
