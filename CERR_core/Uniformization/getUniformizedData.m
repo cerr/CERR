@@ -33,7 +33,7 @@ optS = planC{indexS.CERROptions};
 
 if ~exist('makeUniform')
     makeUniform = 'yes';
-elseif ~strcmpi(makeUniform, 'yes') & ~strcmpi(makeUniform, 'no') & ~strcmpi(makeUniform, 'prompt')
+elseif ~strcmpi(makeUniform, 'yes') && ~strcmpi(makeUniform, 'no') && ~strcmpi(makeUniform, 'prompt')
     error(['Invalid call to getUniformizedData, legal flags are ''yes'', ''no'', or ''prompt''.']);
 end
 
