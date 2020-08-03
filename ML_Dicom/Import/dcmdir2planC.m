@@ -135,13 +135,6 @@ isObliqScanV = ones(1,numScans);
 
 for scanNum = 1:numScans
     
-%     % Calculate the slice normal
-%     if isfield(planC{indexS.scan}(scanNum).scanInfo(1).DICOMHeaders,'ImageOrientationPatient')
-%         ImageOrientationPatientV = planC{indexS.scan}(scanNum).scanInfo(1).DICOMHeaders.ImageOrientationPatient;
-%     else
-%         ImageOrientationPatientV = [1 0 0 0 1 0]';
-%     end
-
     % Check for Mammogram images
     imageType = planC{indexS.scan}(scanNum).scanInfo(1).imageType;
     if ismember(imageType,{'MG','SM'})
@@ -155,7 +148,8 @@ for scanNum = 1:numScans
         isObliqScanV(scanNum) = 0;
         continue;
     end
-    
+        
+    % Compute slice normal
     sliceNormV = ImageOrientationPatientV([2 3 1]) .* ImageOrientationPatientV([6 4 5]) ...
         - ImageOrientationPatientV([3 1 2]) .* ImageOrientationPatientV([5 6 4]);
     
@@ -163,52 +157,37 @@ for scanNum = 1:numScans
     numSlcs = length(planC{indexS.scan}(scanNum).scanInfo);
     distV = zeros(1,numSlcs);
     for slcNum = 1:numSlcs
-%         ipp = planC{indexS.scan}(scanNum).scanInfo(slcNum)...
-%             .DICOMHeaders.ImagePositionPatient;
         ipp = planC{indexS.scan}(scanNum).scanInfo(slcNum).imagePositionPatient;            
         distV(slcNum) = sum(sliceNormV .* ipp);
     end
     
+    info1S = planC{indexS.scan}(scanNum).scanInfo(end);
+    info2S = planC{indexS.scan}(scanNum).scanInfo(end-1);
+    
     % sort z-values in ascending order since z increases from head
     % to feet in CERR
     [zV,zOrderV] = sort(distV);
-    
-    % Flip scan since DICOM and CERR's z-convention is opposite.
-    % Hence sort according to descending z-values.
-    %[~,zOrderV] = sort(distV,'descend'); % flip scan
-    planC{indexS.scan}(scanNum).scanInfo = planC{indexS.scan}(scanNum).scanInfo(zOrderV);
-    planC{indexS.scan}(scanNum).scanArray = planC{indexS.scan}(scanNum).scanArray(:,:,zOrderV);
-    
     slice_distance = zV(2) - zV(1);
     for i=1:length(planC{indexS.scan}(scanNum).scanInfo)
         planC{indexS.scan}(scanNum).scanInfo(i).zValue = zV(i) / 10;
     end
-    info1S = planC{indexS.scan}(scanNum).scanInfo(1);
-    info2S = planC{indexS.scan}(scanNum).scanInfo(2);
-    
-    %%%%%%%%%%%%%%%%
-    %info1b = info1S.DICOMHeaders;
-    %info2b = info2S.DICOMHeaders;
-    %pos1b = info1b.ImagePositionPatient;
-    %pos2b = info2b.ImagePositionPatient;
-    %deltaPosV = pos2b-pos1b;
     pos1V = info1S.imagePositionPatient/10; %cm
     pos2V = info2S.imagePositionPatient/10; %cm
     deltaPosV = pos2V-pos1V;
     pixelSpacing = [info1S.grid2Units, info1S.grid1Units];
     
-    positionMatrix = [reshape(ImageOrientationPatientV,[3 2])*diag(pixelSpacing) [deltaPosV(1) pos1V(1); deltaPosV(2) pos1V(2); deltaPosV(3) pos1V(3)]];
-    %positionMatrix = positionMatrix / 10; % mm to cm
+    %Pt coordinate to DICOM image coordinate mapping 
+    %Based on ref: https://nipy.org/nibabel/dicom/dicom_orientation.html
+    positionMatrix = [reshape(ImageOrientationPatientV,[3 2])*diag(pixelSpacing)...
+        [deltaPosV(1) pos1V(1); deltaPosV(2) pos1V(2); deltaPosV(3) pos1V(3)]];
     positionMatrix = [positionMatrix; 0 0 0 1];
     
     positionMatrixInv = inv(positionMatrix);
     planC{indexS.scan}(scanNum).Image2PhysicalTransM = positionMatrix;
     
-    [xs,ys,zs]=getScanXYZVals(planC{indexS.scan}(scanNum));
+    [xs,ys,zs] = getScanXYZVals(planC{indexS.scan}(scanNum));
     dx = xs(2)-xs(1);
     dy = ys(2)-ys(1);
-    nx = length(xs);
-    ny = length(ys);
     virPosMtx = [dx 0 0 xs(1);0 dy 0 ys(1); 0 0 slice_distance zs(1); 0 0 0 1];
     planC{indexS.scan}(scanNum).Image2VirtualPhysicalTransM = virPosMtx;
     
@@ -219,17 +198,15 @@ for scanNum = 1:numScans
     %if N>0
     % Now, translate the contour points to the same coordinate system
     for nvoi = structsToUpdateV
-        %planC{indexS.structures}(nvoi).contour = planC{indexS.structures}(nvoi).contour(zOrderV);
         
         % for each structure
         M = length(planC{indexS.structures}(nvoi).contour);
-        for sliceno = 1:M
+        for segnum = 1:M
             
-            % for each contour
-            points = planC{indexS.structures}(nvoi).contour(sliceno).segments;
-            % y and z are inverted, now get the original data back
-            %points(:,2:3) = -points(:,2:3);
-            % z is inverted, now get the original data back
+            % for each segment
+            points = planC{indexS.structures}(nvoi).contour(segnum).segments;
+            % Undo inversion of z coord inverted for oblique scans 
+            % (in populate_planC_structures_field.m)
             points(:,3) = -points(:,3);
             
             if ~isempty(points)
@@ -240,7 +217,7 @@ for scanNum = 1:numScans
                 tempb = virPosMtx*tempa;
                 tempb = tempb';
                 
-                planC{indexS.structures}(nvoi).contour(sliceno).segments = tempb(:,1:3);
+                planC{indexS.structures}(nvoi).contour(segnum).segments = tempb(:,1:3);
             end
             
         end
