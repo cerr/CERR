@@ -52,10 +52,15 @@ end
 % Read build paths from CERROptions.json
 optName = fullfile(getCERRPath,'CERROptions.json');
 optS = opts4Exe(optName);
-   
-plmFlag = 1;
-if any(ismember(upper(algorithm),{'ELASTIX','ANTS'}))
+
+plmFlag = 1; antsFlag = 0; elastixFlag = 0;
+if any(contains(upper(algorithm),{'ELASTIX','ANTS'}))
     plmFlag = 0;
+        if any(contains(upper(algorithm)),'ANTS')
+            antsFlag = 1;
+        else
+            elastixFlag = 1;
+        end
 end
 
 % Create command file for plastimatch
@@ -124,18 +129,35 @@ if plmFlag
     
 end
 
-elxCommand = 'elastix';
-if exist(optS.elastix_build_dir,'dir')
-    %cd(optS.elastix_build_dir)
-    if isunix
-        elxCommand = ['sh ', fullfile(optS.elastix_build_dir,elxCommand)];
+if elastixFlag
+    elxCommand = 'elastix';
+    if exist(optS.elastix_build_dir,'dir')
+        %cd(optS.elastix_build_dir)
+        if isunix
+            elxCommand = ['sh ', fullfile(optS.elastix_build_dir,elxCommand)];
+        else
+            elxCommand = fullfile(optS.elastix_build_dir,[elxCommand,'.exe']);
+        end
+    end
+end
+
+if antsFlag
+    antsCommand = '';
+    if exist(optS.antspath_dir,'dir')
+        setenv('ANTSPATH',fullfile(optS.antspath_dir,'bin'));
+        if isunix
+            setenv('PATH',['$ANTSPATH:' fullfile(optS.antspath_dir,'Scripts') ':$PATH'])
+            antsCommand = ['sh ', fullfile(optS.antspath_dir,'Scripts')];
+        else
+            setenv('PATH',['$ANTSPATH;' fullfile(optS.antspath_dir,'Scripts') ';$PATH'])
+            antsCommand = fullfile(optS.antspath_dir,'Scripts']);
+        end
     else
-        elxCommand = fullfile(optS.elastix_build_dir,[elxCommand,'.exe']);
+        error(['ANTSPATH ' optS.antspath_dir ' not found on filesystem. Please review CERROptions.']);
     end
 end
 
 switch upper(algorithm)
-    
     
     case 'ALIGN CENTER'
         
@@ -192,6 +214,36 @@ switch upper(algorithm)
         
         % Cleanup
         bspFileName = vfFileName;
+    
+    case 'LDDM ANTS'
+        
+        % Usage:
+        % doseAccumulation_Lung_Registration_CTtoCBCT.sh -d ImageDimension -f FixedImage -m MovingImage -o OutputPrefix
+
+        % Compulsory arguments:
+        %      -d:  ImageDimension: 2 or 3 (for 2 or 3 dimensional registration of single volume)
+        %      -f:  Fixed image(s) or source image(s) or reference image(s)
+        %      -m:  Moving image(s) or target image(s)
+        %      -o:  OutputPrefix: A prefix that is prepended to all output files.
+        % Optional arguments:
+        %      -n:  Number of threads (default = 1)
+        %      -i:  initial transform(s) --- order specified on the command line matters
+
+%         baseScanFileName = fullfile(tmpDirPath,['baseScan_',baseScanUniqName,'.mha']);
+%         baseMaskFileName = fullfile(tmpDirPath,['baseMask_',baseScanUniqName,'.mha']);
+%         movScanFileName = fullfile(tmpDirPath,['movScan_',movScanUniqName,'.mha']);
+%         movMaskFileName = fullfile(tmpDirPath,['movMask_',movScanUniqName,'.mha']);
+
+        outPrefix = fullfile(tmpDirPath,[baseScanUID '_' movScanUID '_']);
+        antsCommand = fullfile(antsCommand,'doseAccumulation_Lung_Registration_CTtoCBCT.sh');
+        %add parameter arguments
+        %      -d 3
+        %      -f baseScanFileName 
+        %      -m movScanFileName 
+        %      -o outPrefix
+        
+        system([antsCommand ' -d 3 -f ' baseScanFileName ' -m ' movScanFileName ' -o ' outPrefix]);
+        
         
     case 'BSPLINE PLASTIMATCH'
         
