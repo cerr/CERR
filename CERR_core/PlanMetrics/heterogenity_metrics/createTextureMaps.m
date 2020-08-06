@@ -54,6 +54,10 @@ else
     maxr = 1;
 end
 
+% Get voxel size
+voxelSizeV = getScanXYZSpacing(scanNum,planC);
+paramS.VoxelSize_mm.val = voxelSizeV;
+
 % Compute features
 outS = processImage(fType,scan3M,fullMask3M,paramS,NaN);
 
