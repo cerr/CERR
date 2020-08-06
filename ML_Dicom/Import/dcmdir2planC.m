@@ -127,6 +127,59 @@ assocScanV = getStructureAssociatedScan(1:numStructs, planC);
 % assocScanV = 1; % temporary, until the issue with DCE/DWI volume split is
 % resolved.
 
+% Assign scan type
+% Check for scanType field and populate it with Series description
+for scanNum = 1:length(planC{indexS.scan})
+    if isempty(planC{indexS.scan}(scanNum).scanType) && ...
+            isfield(planC{indexS.scan}(scanNum).scanInfo(1),'DICOMHeaders') && ...
+            isfield(planC{indexS.scan}(scanNum).scanInfo(1).DICOMHeaders,'SeriesDescription')
+        planC{indexS.scan}(scanNum).scanType = ...
+            planC{indexS.scan}(scanNum).scanInfo(1).DICOMHeaders.SeriesDescription;
+    end
+end
+
+% Split multi-frame MRIs by b-value
+imageTypeC = arrayfun(@(x)x.scanInfo(1).imageType, planC{indexS.scan}, 'un',0);
+mrIdxV = find(ismember(imageTypeC,'MR'));
+splitScanNumV = [];
+if ~isempty(mrIdxV)
+    for m = 1:length(mrIdxV)
+        scanNum = mrIdxV(m);
+        scanS = planC{indexS.scan}(scanNum);
+        bValV = [scanS.scanInfo(:).bValue];
+        uniqueBvalV = unique(bValV);
+        splitScanS = scanS;
+        if length(uniqueBvalV)>1
+            splitScanNumV = [splitScanNumV,scanNum];
+            for n = 1:length(uniqueBvalV)
+                groupIdxV = bValV==uniqueBvalV(n);
+                splitScanS(n) = scanS;
+                splitScanInfoS = scanS.scanInfo(groupIdxV);
+                splitScanArray = scanS.scanArray(:,:,groupIdxV);
+                splitScanS(n).scanInfo = splitScanInfoS;
+                splitScanS(n).scanArray = splitScanArray;
+                splitScanS(n).scanUID = createUID('scan');
+                splitScanS(n).scanType = [scanS.scanType,' (bVal=',...
+                    num2str(uniqueBvalV(n)),')'];
+            end
+        end
+        count = length(splitScanNumV);
+        newScanC{count} = splitScanS;
+    end
+    
+    for m = 1:length(newScanC)
+        
+        newScansS = newScanC{m};
+        origScanNum = splitScanNumV(m);
+        planC = deleteScan(planC,origScanNum);
+        for iScan = 1:length(newScansS)
+            planC{indexS.scan} = dissimilarInsert(planC{indexS.scan}, newScansS(iScan));
+        end
+        
+    end
+end
+
+
 % Tolerance to determine oblique scan (think about passing it as a
 % parameter in future)
 obliqTol = 1e-3;
