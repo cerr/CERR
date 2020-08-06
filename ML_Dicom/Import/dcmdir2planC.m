@@ -320,8 +320,7 @@ for scanNum = 1:numScans
             % 				dose.coord2OFFirstPoint = vecsout(2,3);
             dose.coord1OFFirstPoint = vecsout(1,1);
             dose.coord2OFFirstPoint = vecsout(2,1);
-            dose.horizontalGridInter
-            val = vecsout(1,2) - vecsout(1,1);
+            dose.horizontalGridInterval = vecsout(1,2) - vecsout(1,1);
             dose.verticalGridInterval = vecsout(2,2) - vecsout(2,1);
             
             vecs = [zeros(2,dosedim(3));0:(dosedim(3)-1);ones(1,dosedim(3))];
