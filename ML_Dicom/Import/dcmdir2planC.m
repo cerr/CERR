@@ -143,13 +143,16 @@ imageTypeC = arrayfun(@(x)x.scanInfo(1).imageType, planC{indexS.scan}, 'un',0);
 mrIdxV = find(ismember(imageTypeC,'MR'));
 splitScanNumV = [];
 if ~isempty(mrIdxV)
+    newScanC = {};
     for m = 1:length(mrIdxV)
         scanNum = mrIdxV(m);
         scanS = planC{indexS.scan}(scanNum);
         bValV = [scanS.scanInfo(:).bValue];
+        temporalPositionIndexV = [scanS.scanInfo(:).temporalPositionIndex];
         uniqueBvalV = unique(bValV);
+        uniqueTemporalPosIndV = unique(temporalPositionIndexV);
         splitScanS = scanS;
-        if length(uniqueBvalV)>1
+        if length(uniqueBvalV)>1 && isempty(uniqueTemporalPosIndV)
             splitScanNumV = [splitScanNumV,scanNum];
             for n = 1:length(uniqueBvalV)
                 groupIdxV = bValV==uniqueBvalV(n);
@@ -162,9 +165,25 @@ if ~isempty(mrIdxV)
                 splitScanS(n).scanType = [scanS.scanType,' (bVal=',...
                     num2str(uniqueBvalV(n)),')'];
             end
+            count = length(splitScanNumV);
+            newScanC{count} = splitScanS;
         end
-        count = length(splitScanNumV);
-        newScanC{count} = splitScanS;
+        if length(uniqueTemporalPosIndV)>1 && isempty(uniqueBvalV)
+            splitScanNumV = [splitScanNumV,scanNum];
+            for n = 1:length(uniqueTemporalPosIndV)
+                groupIdxV = temporalPositionIndexV==uniqueTemporalPosIndV(n);
+                splitScanS(n) = scanS;
+                splitScanInfoS = scanS.scanInfo(groupIdxV);
+                splitScanArray = scanS.scanArray(:,:,groupIdxV);
+                splitScanS(n).scanInfo = splitScanInfoS;
+                splitScanS(n).scanArray = splitScanArray;
+                splitScanS(n).scanUID = createUID('scan');
+                splitScanS(n).scanType = [scanS.scanType,' (temporalPos=',...
+                    num2str(uniqueTemporalPosIndV(n)),')'];
+            end
+            count = length(splitScanNumV);
+            newScanC{count} = splitScanS;            
+        end        
     end
     
     for m = 1:length(newScanC)
