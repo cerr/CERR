@@ -527,7 +527,11 @@ switch fieldname
                 imageOrientationPatientM = [];
                 imagePositionPatientM = [];
                 windowCenter = [];
-                windowWifth = [];
+                windowWidth = [];
+                temporalPositionIndexV = [];
+                frameAcquisitionDurationV = [];
+                frameReferenceDateTimeV = [];
+                
                 sliceSpacing = getTagValue(imgobj, '00180088');
                 %zValues = 0:sliceThickness:sliceThickness*double(numMultiFrameImages-1);
                 %modality = dcm2ml_Element(imgobj.get(hex2dec('00080060')));
@@ -587,7 +591,24 @@ switch fieldname
                         imageOrientationPatientM(imageNum,:) = positionRefIndicatorSequence.(item)...
                             .PlaneOrientationSequence.Item_1.ImageOrientationPatient;
                         imagePositionPatientM(imageNum,:) = positionRefIndicatorSequence.(item)...
-                            .PlanePositionSequence.Item_1.ImagePositionPatient;                        
+                            .PlanePositionSequence.Item_1.ImagePositionPatient;
+                        if isfield(positionRefIndicatorSequence.(item),'FrameContentSequence')
+                            if ~isempty(positionRefIndicatorSequence.(item)...
+                                    .FrameContentSequence.Item_1.TemporalPositionIndex)
+                                temporalPositionIndexV(imageNum) = positionRefIndicatorSequence.(item)...
+                                    .FrameContentSequence.Item_1.TemporalPositionIndex;
+                            end
+                            if ~isempty(positionRefIndicatorSequence.(item)...
+                                    .FrameContentSequence.Item_1.FrameAcquisitionDuration)
+                                frameAcquisitionDurationV(imageNum) = positionRefIndicatorSequence.(item)...
+                                    .FrameContentSequence.Item_1.FrameAcquisitionDuration;
+                            end
+                            if ~isempty(positionRefIndicatorSequence.(item)...
+                                    .FrameContentSequence.Item_1.FrameReferenceDateTime)
+                                frameReferenceDateTimeV(imageNum) = positionRefIndicatorSequence.(item)...
+                                    .FrameContentSequence.Item_1.FrameReferenceDateTime;
+                            end
+                        end
                         if isfield(positionRefIndicatorSequence.(item)...
                                 ,'MRDiffusionSequence') && ...
                                 isfield(positionRefIndicatorSequence.(item)...
@@ -654,6 +675,15 @@ switch fieldname
                     end
                     if ~isempty(rescaleSlopetV)
                         dataS(imageNum).rescaleSlope = rescaleSlopetV(imageNum);
+                    end
+                    if ~isempty(temporalPositionIndexV) && length(temporalPositionIndexV) >= imageNum
+                        dataS(imageNum).temporalPositionIndex = temporalPositionIndexV(imageNum);
+                    end
+                    if ~isempty(frameAcquisitionDurationV) && length(frameAcquisitionDurationV) >= imageNum
+                        dataS(imageNum).frameAcquisitionDuration = frameAcquisitionDurationV(imageNum);
+                    end
+                    if ~isempty(frameReferenceDateTimeV) && length(frameReferenceDateTimeV) >= imageNum
+                        dataS(imageNum).frameReferenceDateTime = frameReferenceDateTimeV(imageNum);
                     end
                 end
                 
