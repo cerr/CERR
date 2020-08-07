@@ -54,13 +54,12 @@ optName = fullfile(getCERRPath,'CERROptions.json');
 optS = opts4Exe(optName);
 
 plmFlag = 1; antsFlag = 0; elastixFlag = 0;
-if any(contains(upper(algorithm),{'ELASTIX','ANTS'}))
+if any(strfind(upper(algorithm),'ELASTIX'))
     plmFlag = 0;
-        if any(contains(upper(algorithm)),'ANTS')
-            antsFlag = 1;
-        else
-            elastixFlag = 1;
-        end
+    elastixFlag = 1;
+elseif any(strfind(upper(algorithm),'ANTS'))
+    plmFlag = 0;
+    antsFlag = 1;
 end
 
 % Create command file for plastimatch
@@ -150,7 +149,7 @@ if antsFlag
             antsCommand = ['sh ', fullfile(optS.antspath_dir,'Scripts')];
         else
             setenv('PATH',['$ANTSPATH;' fullfile(optS.antspath_dir,'Scripts') ';$PATH'])
-            antsCommand = fullfile(optS.antspath_dir,'Scripts']);
+            antsCommand = fullfile(optS.antspath_dir,'Scripts');
         end
     else
         error(['ANTSPATH ' optS.antspath_dir ' not found on filesystem. Please review CERROptions.']);
@@ -214,7 +213,19 @@ switch upper(algorithm)
         
         % Cleanup
         bspFileName = vfFileName;
-    
+
+    case 'QUICKSYN ANTS'
+%         build command
+        outPrefix = fullfile(tmpDirPath,[baseScanUID '_' movScanUID '_']);
+        antsCommand = fullfile(antsCommand,'doseAccumulation_Lung_Registration_CTtoCBCT.sh ');
+        %add parameter arguments
+        %      -d 3
+        %      -f baseScanFileName 
+        %      -m movScanFileName 
+        %      -o outPrefix
+%         execute
+        system([antsCommand ' -d 3 -f ' baseScanFileName ' -m ' movScanFileName ' -o ' outPrefix]);
+        
     case 'LDDM ANTS'
         
         % Usage:
@@ -235,7 +246,7 @@ switch upper(algorithm)
 %         movMaskFileName = fullfile(tmpDirPath,['movMask_',movScanUniqName,'.mha']);
 
         outPrefix = fullfile(tmpDirPath,[baseScanUID '_' movScanUID '_']);
-        antsCommand = fullfile(antsCommand,'doseAccumulation_Lung_Registration_CTtoCBCT.sh');
+        antsCommand = fullfile(antsCommand,'doseAccumulation_Lung_Registration_CTtoCBCT.sh ');
         %add parameter arguments
         %      -d 3
         %      -f baseScanFileName 
