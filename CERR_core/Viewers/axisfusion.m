@@ -104,8 +104,8 @@ switch method
             movIndex = 1;
         end       
         
-        CTOffset    = planC{indexS.scan}(baseIndex).scanInfo(1).CTOffset;
-        scanUID = ['c',repSpaceHyp(planC{indexS.scan}(baseIndex).scanUID(max(1,end-61):end))];
+        CTOffset    = planC{indexS.scan}(stateS.imageRegistrationBaseDataset).scanInfo(1).CTOffset;
+        scanUID = ['c',repSpaceHyp(planC{indexS.scan}(stateS.imageRegistrationBaseDataset).scanUID(max(1,end-61):end))];
         CTLevel     = stateS.scanStats.CTLevel.(scanUID) + CTOffset;
         CTWidth     = stateS.scanStats.CTWidth.(scanUID);
         CTLow       = CTLevel - CTWidth/2;
@@ -115,8 +115,8 @@ switch method
         img1 = img1 / double( CTHigh - CTLow);
 
         
-        CTOffset    = planC{indexS.scan}(movIndex).scanInfo(1).CTOffset;
-        scanUID = ['c',repSpaceHyp(planC{indexS.scan}(movIndex).scanUID(max(1,end-61):end))];
+        CTOffset    = planC{indexS.scan}(stateS.imageRegistrationMovDataset).scanInfo(1).CTOffset;
+        scanUID = ['c',repSpaceHyp(planC{indexS.scan}(stateS.imageRegistrationMovDataset).scanUID(max(1,end-61):end))];
         CTLevel     = stateS.scanStats.CTLevel.(scanUID) + CTOffset;
         CTWidth     = stateS.scanStats.CTWidth.(scanUID);
         CTLow       = CTLevel - CTWidth/2;
@@ -288,6 +288,9 @@ switch method
             
             
         elseif stateS.optS.mirror
+            if isempty(img1) || isempty(img2)
+                return
+            end
             
             lineInfo = [];
             if isfield(stateS.handle.aI(axNum).axisFusion,'MirrorScopeLocator')
@@ -336,6 +339,9 @@ switch method
             return;
             
         elseif stateS.optS.mirrchecker
+            if isempty(img1) || isempty(img2)
+                return
+            end
             imgOv = RegdoMirrCheckboard(img1, img2, checkerSize, checkerSize);
             set(surfaces(end-1), 'cData', double(imgOv));
             set(surfaces(1:end), 'facealpha', 0);
@@ -344,6 +350,9 @@ switch method
             return;
             
         elseif stateS.optS.newchecker
+            if isempty(img1) || isempty(img2)
+                return;
+            end
             imgOv = RegdoCheckboard(img1, img2, checkerSize, checkerSize);
             set(surfaces(end-1), 'cData', double(imgOv), 'xdata', [sliceXVals1(1) sliceXVals1(end)], 'ydata', [sliceYVals1(1) sliceYVals1(end)]);
             set(surfaces(1:end), 'facealpha', 0);
@@ -352,6 +361,9 @@ switch method
             return;
             
         elseif stateS.optS.mirrorCheckerBoard
+            if isempty(img1) || isempty(img2)
+                return;
+            end
             orientationVal = get(ud.handles.mirrorcheckerOrientation,'value');
             orientationStr = get(ud.handles.mirrorcheckerOrientation,'string');
             orientation = orientationStr{orientationVal};
@@ -368,6 +380,9 @@ switch method
             
         elseif stateS.optS.difference
             %
+            if isempty(img1) || isempty(img2)
+                return
+            end
             xdim = min(size(img1,1), size(img2,1));
             ydim = min(size(img1,2), size(img2,2));
             imgOv = imabsdiff(img1(1:xdim, 1:ydim), img2(1:xdim, 1:ydim));

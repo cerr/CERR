@@ -1430,14 +1430,19 @@ switch command
                 % Set control toggling between base and moving scan
                 %
                 leftMarginWidth = 195; %obtained from from sliceCallback.m
-                uicontrol(hFig,'style','toggle','units','pixels','Position',[leftMarginWidth+10 490 25 20], 'tag','toggleBasMov','string','B/M','fontWeight','normal','callBack','sliceCallBack(''toggleBaseMoving'');');
+                uicontrol(hFig,'style','toggle','units','pixels',...
+                    'Position',[leftMarginWidth+10 490 25 20], 'tag','toggleBasMov',...
+                    'string','B/M','fontWeight','normal','callBack','sliceCallBack(''toggleBaseMoving'');');
                 if isdeployed
                     [I,map] = imread(fullfile(getCERRPath,'pics','Icons','lock.gif'),'gif');
                 else
                     [I,map] = imread('lock.gif','gif');
                 end
                 lockImg = ind2rgb(I,map);
-                uicontrol(hFig,'style','toggle','value',1,'units','pixels','cdata',lockImg,'Position',[leftMarginWidth+10 460 25 20], 'tag','toggleLockMoving','string','','fontWeight','normal','callBack','sliceCallBack(''toggleLockMoving'');');
+                uicontrol(hFig,'style','toggle','value',1,'units','pixels',...
+                    'cdata',lockImg,'Position',[leftMarginWidth+10 460 25 20],...
+                    'tag','toggleLockMoving','string','','fontWeight','normal',...
+                    'callBack','sliceCallBack(''toggleLockMoving'');');
                 
                 %Which data is being registered?
                 baseData     = stateS.imageRegistrationBaseDataset;
@@ -1457,7 +1462,7 @@ switch command
                 stateS.optS.mirrorscope = 0;
                 stateS.optS.mirrchecker = 0;
                 stateS.optS.mirrorCheckerBoard = 0;
-                stateS.imageFusion.lockMoving = 1;
+                %stateS.imageFusion.lockMoving = 1;
                 %wy
                 
                 % change the label of the slider bar
@@ -1852,8 +1857,8 @@ switch command
                 if value ~= 1
                     %stateS.Mov.CTLevel = stateS.optS.windowPresets(value).center;
                     %stateS.Mov.CTWidth = stateS.optS.windowPresets(value).width;
-                    set(ud.handles.MovCTLevel, 'String', stateS.optS.windowPresets(value).center);
-                    set(ud.handles.MovCTWidth, 'String', stateS.optS.windowPresets(value).width);
+                    set(ud.handles.MovCTLevel, 'String', num2str(stateS.optS.windowPresets(value).center));
+                    set(ud.handles.MovCTWidth, 'String', num2str(stateS.optS.windowPresets(value).width));
                     if strcmpi(stateS.imageRegistrationMovDatasetType,'scan')
                         scanUID = ['c',repSpaceHyp(planC{indexS.scan}(scanSet).scanUID(max(1,end-61):end))];
                         stateS.scanStats.CTLevel.(scanUID) = stateS.optS.windowPresets(value).center;
@@ -1883,8 +1888,8 @@ switch command
                 if value ~= 1
                     %stateS.Mov.CTLevel = stateS.optS.windowPresets(value).center;
                     %stateS.Mov.CTWidth = stateS.optS.windowPresets(value).width;
-                    set(ud.handles.baseCTLevel, 'String', stateS.optS.windowPresets(value).center);
-                    set(ud.handles.baseCTWidth, 'String', stateS.optS.windowPresets(value).width);
+                    set(ud.handles.baseCTLevel, 'String', num2str(stateS.optS.windowPresets(value).center));
+                    set(ud.handles.baseCTWidth, 'String', num2str(stateS.optS.windowPresets(value).width));
                     if strcmpi(stateS.imageRegistrationBaseDatasetType,'scan')
                         scanUID = ['c',repSpaceHyp(planC{indexS.scan}(scanSet).scanUID(max(1,end-61):end))];
                         stateS.scanStats.CTLevel.(scanUID) = stateS.optS.windowPresets(value).center;

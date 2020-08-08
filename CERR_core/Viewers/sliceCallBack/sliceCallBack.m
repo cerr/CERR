@@ -122,6 +122,8 @@ switch upper(instr)
         stateS.webtrev.isOn = 0;
         stateS.currentKeyPress = 0;
         
+        stateS.imageFusion.lockMoving = 1; % 1:lock, 0:unlock
+        
         %Store Matlab version under stateS
         stateS.MLVersion = getMLVersion;
 
@@ -492,6 +494,9 @@ switch upper(instr)
         
         % Initialize spotlight handles
         stateS.handle.spotLightS = [];
+        
+        % Initialize rotation handles
+        stateS.handle.rotationS = [];
         
         %Change Panel-Layout according to CERROptions
         sliceCallBack('layout',stateS.optS.layout)
@@ -1939,6 +1944,7 @@ switch upper(instr)
             end
             lockImg = ind2rgb(I,map);
             set(gcbo,'cdata',lockImg,'fontWeight','bold','foregroundColor', [1 0 0]);
+            set(stateS.handle.CERRAxis,'buttondownfcn', 'sliceCallBack(''axisClicked'')')
         else 
             if isdeployed
                 [I,map] = imread(fullfile(getCERRPath,'pics','Icons','unlock.gif'),'gif');
