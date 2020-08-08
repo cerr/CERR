@@ -1,4 +1,4 @@
-function varargout = CTImageRotation(varargin);
+function varargout = CTImageRotation(varargin)
 %"CTImageRotation"
 %   Used to rotate and translate CT images in a CERR axis with 2 images.
 %
@@ -202,16 +202,28 @@ switch lower(varargin{1})
             cosTheta = cos(theta);
             sinTheta = sin(theta);
             %Center of Rotation
-            plot(centerOfRotation(1), centerOfRotation(2),'parent',hAxis, 'marker', '+', 'lineWidth', 1, 'color','r' , 'markerSize',8,'tag','rotCenter')
+            stateS.handle.rotationS.hRotCenter = plot(centerOfRotation(1), centerOfRotation(2),'parent',hAxis,...
+                'marker', '+', 'lineWidth', 1, 'color','r' , 'markerSize',8,'tag','rotCenter');
             %Circle
-            plot(centerOfRotation(1)+0.96*radius*cosTheta, centerOfRotation(2)+0.96*radius*sinTheta,'parent',hAxis, 'lineWidth', 1, 'color','y' , 'tag','rotCircle1')
+            stateS.handle.rotationS.hRotCircle1 = plot(centerOfRotation(1)+0.96*radius*cosTheta,...
+                centerOfRotation(2)+0.96*radius*sinTheta,'parent',hAxis,...
+                'lineWidth', 1, 'color','y' , 'tag','rotCircle1');
             %Handle
             %prevDownAngle = 0;
-            plot([centerOfRotation(1) centerOfRotation(1)+0.98*radius*cosTheta(1)], [centerOfRotation(2) centerOfRotation(2)],'parent',hAxis, 'lineWidth', 1, 'color','y', 'LineStyle','--', 'tag','rotHandleRef','hittest','off')
-            plot([centerOfRotation(1) centerOfRotation(1)+0.98*radius*cosTheta(1)], [centerOfRotation(2) centerOfRotation(2)],'parent',hAxis, 'lineWidth', 1, 'color','y', 'tag','rotHandle','hittest','off')
-            plot(centerOfRotation(1)+0.98*radius*cosTheta(1), centerOfRotation(2)+0.98*radius*sinTheta(1),'parent',hAxis, 'marker', 'o', 'MarkerSize', 2, 'lineWidth',3, 'color','y' , 'markerSize',10,'tag','handleCenter','hittest','off')
+            stateS.handle.rotationS.hRotHandleRef = plot([centerOfRotation(1) centerOfRotation(1)+0.98*radius*cosTheta(1)],...
+                [centerOfRotation(2) centerOfRotation(2)],'parent',hAxis,...
+                'lineWidth', 1, 'color','y', 'LineStyle','--', 'tag','rotHandleRef','hittest','off');
+            stateS.handle.rotationS.hRotHandle = plot([centerOfRotation(1) centerOfRotation(1)+0.98*radius*cosTheta(1)],...
+                [centerOfRotation(2) centerOfRotation(2)],'parent',hAxis,...
+                'lineWidth', 1, 'color','y', 'tag','rotHandle','hittest','off');
+            stateS.handle.rotationS.handleCenter = plot(centerOfRotation(1)+0.98*radius*cosTheta(1),...
+                centerOfRotation(2)+0.98*radius*sinTheta(1),'parent',hAxis,...
+                'marker', 'o', 'MarkerSize', 2, 'lineWidth',3, 'color','y',...
+                'markerSize',10,'tag','handleCenter','hittest','off');
             strRotate = 'Grab & Rotate handle';
-            text('parent',hAxis, 'string',strRotate, 'position', [.25 .04 0], 'color', [1 0 0], 'units', 'normalized','fontSize',12,'fontWeight','bold','tag','rotMsgString')
+            stateS.handle.rotationS.hRotMsgString = text('parent',hAxis, 'string',strRotate, 'position', [.25 .04 0],...
+                'color', [1 0 0], 'units', 'normalized','fontSize',12,...
+                'fontWeight','bold','tag','rotMsgString');
             stateS.rotation_first_click = 1;
             stateS.rotation_down = 1;
 
@@ -242,9 +254,11 @@ switch lower(varargin{1})
             rotM = [1 0 -deltaX;0 1 -deltaY; 0 0 1];
             tmptransM = transM*rotM;           
         elseif stateS.toggle_rotation ==1 && ~isempty(refPt) && stateS.rotation_first_click
-            rotHandleH = findobj(hAxis,'tag','rotHandle');
+            % rotHandleH = findobj(hAxis,'tag','rotHandle');
+            rotHandleH = stateS.handle.rotationS.hRotHandle;
             %set(rotHandleH,'xData',[x centerOfRotation(1)],'yData',[y centerOfRotation(2)])
-            handleCenterH = findobj(hAxis,'tag','handleCenter');            
+            % handleCenterH = findobj(hAxis,'tag','handleCenter');            
+            handleCenterH = stateS.handle.rotationS.handleCenter;            
             %set(handleCenterH,'xData',x,'yData',y)
 
             angle1 = atan2((centerOfRotation(2) - y), (centerOfRotation(1) - x));
@@ -266,8 +280,10 @@ switch lower(varargin{1})
             angHandle = angle + prevDownAngle - 2*pi ;
             angHandle = -angHandle;
 
-            set(rotHandleH,'xData',[centerOfRotation(1)+0.98*radius*cos(angHandle) centerOfRotation(1)],'yData',[centerOfRotation(2)+0.94*radius*sin(angHandle) centerOfRotation(2)])
-            set(handleCenterH,'xData',centerOfRotation(1)+0.98*radius*cos(angHandle),'yData',centerOfRotation(2)+0.94*radius*sin(angHandle))
+            set(rotHandleH,'xData',[centerOfRotation(1)+0.98*radius*cos(angHandle) centerOfRotation(1)],...
+                'yData',[centerOfRotation(2)+0.94*radius*sin(angHandle) centerOfRotation(2)])
+            set(handleCenterH,'xData',centerOfRotation(1)+0.98*radius*cos(angHandle),...
+                'yData',centerOfRotation(2)+0.94*radius*sin(angHandle))
 
             CERRStatusString('Rotate handle','gui')
 
@@ -354,24 +370,34 @@ switch lower(varargin{1})
 
         end
         prevDownAngle = prevAngle + prevDownAngle - 2*pi;
-
-        if button_state == get(hObject,'Min')
-            transM = tmptransM;            
-            controlFrame('fusion', 'apply', hAxis);
+        transM = tmptransM;            
+        controlFrame('fusion', 'apply', hAxis);
+        %if button_state == get(hObject,'Min')
+            %transM = tmptransM;            
+            %controlFrame('fusion', 'apply', hAxis);
             set(hAxis,'buttondownfcn', 'sliceCallBack(''axisClicked'')')
             % Delete rotation handles
             %uirestore(UISUSPENDDATA);
-            hRotCenter = findobj('tag','rotCenter');
-            hRotCircle1 = findobj('tag','rotCircle1');
-            hRotHandleRef = findobj(hAxis, 'tag','rotHandleRef');
-            hRotHandle = findobj(hAxis, 'tag','rotHandle');
-            handleCenter = findobj(hAxis, 'tag','handleCenter');
-            hRotMsgString = findobj(hAxis, 'tag','rotMsgString');
+            %hRotCenter = findobj('tag','rotCenter');
+            if ~isempty(stateS.handle.rotationS)
+            hRotCenter = stateS.handle.rotationS.hRotCenter;
+            %hRotCircle1 = findobj('tag','rotCircle1');
+            hRotCircle1 = stateS.handle.rotationS.hRotCircle1;
+            % hRotHandleRef = findobj(hAxis, 'tag','rotHandleRef');
+            hRotHandleRef = stateS.handle.rotationS.hRotHandleRef;
+            % hRotHandle = findobj(hAxis, 'tag','rotHandle');
+            hRotHandle = stateS.handle.rotationS.hRotHandle;
+            % handleCenter = findobj(hAxis, 'tag','handleCenter');
+            handleCenter = stateS.handle.rotationS.handleCenter;
+            % hRotMsgString = findobj(hAxis, 'tag','rotMsgString');
+            hRotMsgString = stateS.handle.rotationS.hRotMsgString;
+            
             delete([hRotCenter, hRotCircle1, hRotHandleRef, hRotHandle, ...
                 handleCenter, hRotMsgString])
-            
-        end
-
+            stateS.handle.rotationS = [];
+            end            
+        %end
+        
         %         %hAxis = gca;
 %         transM = tmptransM;
 %         uirestore(UISUSPENDDATA);
@@ -385,6 +411,10 @@ switch lower(varargin{1})
         if isNewchecker
             stateS.optS.newchecker = 1;
             CERRRefresh;
+        end
+        
+        if ~stateS.imageFusion.lockMoving
+            CTImageRotation('init',hAxis)
         end
        
         %Return this axis's local transM value.
