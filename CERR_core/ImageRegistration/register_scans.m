@@ -114,7 +114,7 @@ if plmFlag
     
     % Switch to plastimatch directory if it exists
     %prevDir = pwd;
-    plmCommand = 'plastimatch ';
+    plmCommand = 'plastimatch';
     if exist(optS.plastimatch_build_dir,'dir') 
         %cd(optS.plastimatch_build_dir)
         %plmCommand = ['./',plmCommand];
@@ -263,8 +263,10 @@ switch upper(algorithm)
             deleteBspFlg = 0;
             bspFileName = outBspFile;
         else
-            bspFileName = fullfile(getCERRPath,'ImageRegistration',...
-                'tmpFiles',['bsp_coeffs_',baseScanUID,'_',movScanUID,'.txt']);
+            %bspFileName = fullfile(getCERRPath,'ImageRegistration',...
+            %    'tmpFiles',['bsp_coeffs_',baseScanUID,'_',movScanUID,'.txt']);
+            bspFileName = fullfile(tmpDirPath,...
+                ['bsp_coeffs_',baseScanUID,'_',movScanUID,'.txt']);
         end
         if exist(bspFileName,'file')
             delete(bspFileName)
@@ -290,11 +292,13 @@ switch upper(algorithm)
         cell2file(cmdFileC,cmdFileName_dir)
         
         % Run plastimatch Registration
-        system([plmCommand, cmdFileName_dir]);
+        system([plmCommand, ' ', cmdFileName_dir]);
         
         
         % Read bspline coefficients file
-        [bsp_img_origin,bsp_img_spacing,bsp_img_dim,bsp_roi_offset,bsp_roi_dim,bsp_vox_per_rgn,bsp_direction_cosines,bsp_coefficients] = read_bsplice_coeff_file(bspFileName);
+        [bsp_img_origin,bsp_img_spacing,bsp_img_dim,bsp_roi_offset,...
+            bsp_roi_dim,bsp_vox_per_rgn,bsp_direction_cosines,bsp_coefficients]...
+            = read_bsplice_coeff_file(bspFileName);
         
         % Cleanup
         try
