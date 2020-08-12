@@ -14,11 +14,12 @@ function radiomicsParamS = getRadiomicsParamTemplate(paramFilename,dictS)
 % APA, 2/27/2019
 % AI, 3/22/19     Modified for compatibility with JSON input
 
-feature accel off
+%feature accel off
 
 %% Read JSON file
 if ~isempty(paramFilename)
-    userInS = jsondecode(fileread(paramFilename));
+    %userInS = jsondecode(fileread(paramFilename));
+    userInS = loadjson(fileread(paramFilename));
 else
     userInS = dictS;
 end
@@ -27,13 +28,16 @@ end
 filterTypeC = fieldnames(userInS.imageType);
 radiomicsParamS.imageType = struct();
 for m = 1:length(filterTypeC)
-    paramListC = fieldnames(userInS.imageType.(filterTypeC{m}));
-    radiomicsParamS.imageType.(filterTypeC{m}) = struct();
-    for n = 1:length(paramListC)
+    filterTypeS = userInS.imageType.(filterTypeC{m});
+    if ~isempty(filterTypeS)
+      paramListC = fieldnames(filterTypeS);
+      radiomicsParamS.imageType.(filterTypeC{m}) = struct();
+      for n = 1:length(paramListC)
         for iFilt = 1:length(userInS.imageType.(filterTypeC{m}))
             radiomicsParamS.imageType.(filterTypeC{m})(iFilt).(paramListC{n}).val = ...
                 userInS.imageType.(filterTypeC{m})(iFilt).(paramListC{n});
         end
+    end
     end
 end
 
@@ -111,15 +115,19 @@ if isfield(userInS,'settings')
         'peakValley',struct('flag',0),'ivh',struct('flag',0),'glcm',struct('flag',0),...
         'glrlm',struct('flag',0),'gtdm',struct('flag',0),'gldm',struct('flag',0),...
         'glszm',struct('flag',0));
+        
     for k = 1:length(settingsC)
-        fieldNamC = fieldnames(userInS.settings.(settingsC{k}));
-        if ~isempty(fieldNamC)
+       userSetingsS = userInS.settings.(settingsC{k});
+       if ~isempty(userSetingsS)
+       fieldNamC = fieldnames(userSetingsS);
+         if ~isempty(fieldNamC)
             whichFeatS.(settingsC{k}).flag = 1;
             for iField = 1:length(fieldNamC)
                 whichFeatS.(settingsC{k}).(fieldNamC{iField}) = userInS.settings...
                     .(settingsC{k}).(fieldNamC{iField});
             end
         end
+       end
     end
 end
 
@@ -142,4 +150,4 @@ else
     radiomicsParamS.whichFeatS = whichFeatS;
 end
 
-feature accel on
+%feature accel on
