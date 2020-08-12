@@ -14,7 +14,7 @@ function radiomicsParamS = getRadiomicsParamTemplate(paramFilename,dictS)
 % APA, 2/27/2019
 % AI, 3/22/19     Modified for compatibility with JSON input
 
-feature accel off
+%feature accel off
 
 %% Read JSON file
 if ~isempty(paramFilename)
