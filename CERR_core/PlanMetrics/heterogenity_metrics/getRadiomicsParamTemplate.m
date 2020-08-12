@@ -31,13 +31,13 @@ for m = 1:length(filterTypeC)
     filterTypeS = userInS.imageType.(filterTypeC{m});
     radiomicsParamS.imageType.(filterTypeC{m}) = struct();
     if ~isempty(filterTypeS)
-      paramListC = fieldnames(filterTypeS);
-      for n = 1:length(paramListC)
-        for iFilt = 1:length(userInS.imageType.(filterTypeC{m}))
-            radiomicsParamS.imageType.(filterTypeC{m})(iFilt).(paramListC{n}).val = ...
-                userInS.imageType.(filterTypeC{m})(iFilt).(paramListC{n});
+        paramListC = fieldnames(filterTypeS);
+        for n = 1:length(paramListC)
+            for iFilt = 1:length(userInS.imageType.(filterTypeC{m}))
+                radiomicsParamS.imageType.(filterTypeC{m})(iFilt).(paramListC{n}).val = ...
+                    userInS.imageType.(filterTypeC{m})(iFilt).(paramListC{n});
+            end
         end
-    end
     end
 end
 
