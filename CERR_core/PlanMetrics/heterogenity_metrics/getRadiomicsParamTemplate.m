@@ -29,9 +29,9 @@ filterTypeC = fieldnames(userInS.imageType);
 radiomicsParamS.imageType = struct();
 for m = 1:length(filterTypeC)
     filterTypeS = userInS.imageType.(filterTypeC{m});
+    radiomicsParamS.imageType.(filterTypeC{m}) = struct();
     if ~isempty(filterTypeS)
       paramListC = fieldnames(filterTypeS);
-      radiomicsParamS.imageType.(filterTypeC{m}) = struct();
       for n = 1:length(paramListC)
         for iFilt = 1:length(userInS.imageType.(filterTypeC{m}))
             radiomicsParamS.imageType.(filterTypeC{m})(iFilt).(paramListC{n}).val = ...
