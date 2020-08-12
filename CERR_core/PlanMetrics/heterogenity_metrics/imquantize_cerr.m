@@ -42,7 +42,8 @@ elseif exist('binwidth','var') && ~isempty(binwidth)
         edgeMax = xmax - rem(xmax,binwidth) + binwidth;        
     end
     edgeV = edgeMin:binwidth:edgeMax;
-    q = discretize(x,edgeV);
+    %q = discretize(x,edgeV);
+    [~, q] = histc (x,edgeV);
 else
     error('Specify the number of bins or the binwidth.')
 end
