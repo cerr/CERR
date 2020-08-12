@@ -167,7 +167,8 @@ Iarray10_90(~idx10_90) = NaN;
 idx10_90(isnan(idx10_90)) = 0;
 
 %   Robust Mean Absolute Deviation
-RadiomicsFirstOrderS.robustMeanAbsDev  = mad(Iarray10_90);
+devM = bsxfun(@minus,Iarray10_90,nanmean(Iarray10_90));
+RadiomicsFirstOrderS.robustMeanAbsDev  = nanmean(abs(devM));
 
 %   Robust Median Absolute Deviation
 RadiomicsFirstOrderS.robustMedianAbsDev  = nansum(abs(Iarray10_90-nanmedian(Iarray10_90)))...
