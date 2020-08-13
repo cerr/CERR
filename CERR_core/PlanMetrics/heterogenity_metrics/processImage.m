@@ -310,7 +310,6 @@ switch filterType
             %Apply mean filter
             meanOutS = processImage('Mean',lawsTex3M,mask3M,paramS,[]);
             lawsEnergy3M = meanOutS.meanFilt;
-            
             outField = [fieldNameC{i},'_Energy'];
             outS.(outField) = lawsEnergy3M;
             if ishandle(hWait)
