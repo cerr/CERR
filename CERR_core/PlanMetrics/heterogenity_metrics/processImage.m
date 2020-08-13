@@ -3,8 +3,8 @@ function outS = processImage(filterType,scan3M,mask3M,paramS,hWait)
 %-------------------------------------------------------------------------
 % INPUTS
 % filterType -  May be 'Haralick Cooccurance','Wavelets','Sobel',
-%               'LoG','Gabor','First order statistics','LawsConvolution',
-%               'CoLlage' or 'SimpleITK'.
+%               'LoG','Gabor','Mean','First order statistics',
+%               'LawsConvolution','LawsEnergy','CoLlage' or 'SimpleITK'.
 % scan3M     - 3-D scan array, cropped around ROI and padded if specified
 % mask3M     - 3-D mask, croppped to bounding box
 % paramS     - Filter parameters
@@ -121,60 +121,42 @@ switch filterType
         
     case 'Wavelets'
         
-        %Pad image if no. slices is odd
-        padFlag = 0;
-        scan3M = flip(scan3M,3);
-        if mod(size(scan3M,3),2) > 0
-            scan3M(:,:,end+1) = min(scan3M(:))*scan3M(:,:,1).^0;
-            mask3M(:,:,end+1) = 0*mask3M(:,:,1);
-            padFlag = 1;
-        end
-        
         vol3M   = double(scan3M);
         
         dirListC = {'All','HHH','LHH','HLH','HHL','LLH','LHL','HLL','LLL'};
+        normFlagC = {'Yes','No'};
         wavType =  paramS.Wavelets.val;
         if ~isempty(paramS.Index.val)
             wavType = [wavType,paramS.Index.val];
         end
         dir = paramS.Direction.val;
+        selIdx = find(strcmpi(paramS.Normalize.val,normFlagC));
+        normFlag = 2 - selIdx;
         
         if strcmp(dir,'All')
             for n = 2:length(dirListC)
                 outname = [wavType,'_',dirListC{n}];
                 outname = strrep(outname,'.','_');
-                out3M = wavDecom3D(vol3M,dirListC{n},wavType);
-                if padFlag
-                    out3M = out3M(:,:,1:end-1);
-                end
-                out3M = flip(out3M,3);
-                                
+                out3M = wavDecom3D(vol3M,dirListC{n},wavType,normFlag);
+                
                 if ishandle(hWait)
                     set(hWait, 'Vertices', [[0 0 (n-1)/(length(dirListC)-1) (n-1)/(length(dirListC)-1)]' [0 1 1 0]']);
                     drawnow;
                 end
-                
+                outS.(outname) = out3M;
             end
         else
             outname = [wavType,'_',dir];
             outname = strrep(outname,'.','_');
             outname = strrep(outname,' ','_');
-            out3M = wavDecom3D(vol3M,dir,wavType);
-            if padFlag
-                out3M = out3M(:,:,1:end-1);
-            end
-            out3M = flip(out3M,3);
+            out3M = wavDecom3D(vol3M,dir,wavType,normFlag);
             if ishandle(hWait)
                 set(hWait, 'Vertices', [[0 0 1 1]' [0 1 1 0]']);
                 drawnow;
             end
-            
+            outS.(outname) = out3M;
         end
         
-        % Remove padding
-        out3M = out3M(minr:maxr,minc:maxc,mins:maxs);
-        outS.(outname) = out3M;
-
         
     case 'Sobel'
         
@@ -182,8 +164,8 @@ switch filterType
         [mag3M,dir3M] = sobelFilt(vol3M);
         
         %Remove padding
-        outS.SobelMag = mag3M(minr:maxr,minc:maxc,mins:maxs);
-        outS.SobelDir = dir3M(minr:maxr,minc:maxc,mins:maxs);
+        outS.SobelMag = mag3M;
+        outS.SobelDir = dir3M;
         
         if ishandle(hWait)
             set(hWait, 'Vertices', [[0 0 1 1]' [0 1 1 0]']);
@@ -194,10 +176,11 @@ switch filterType
     case 'LoG'
       
         vol3M = double(scan3M);
-        LoG3M = recursiveLOG(vol3M,paramS.Sigma_mm.val,paramS.VoxelSize_mm.val);
         
-        %Remove padding
-        outS.LoG_recursive = LoG3M(minr:maxr,minc:maxc,mins:maxs);
+        LoG3M = recursiveLOG(vol3M,...
+            paramS.Sigma_mm.val,paramS.VoxelSize_mm.val);
+       
+        outS.LoG_recursive = LoG3M;
         
         if ishandle(hWait)
             set(hWait, 'Vertices', [[0 0 1 1]' [0 1 1 0]']);
@@ -210,8 +193,23 @@ switch filterType
         gabor3M = filtImgGabor(vol3M,paramS.Radius.val,paramS.Sigma.val,...
             paramS.AspectRatio.val,paramS.Orientation.val,paramS.Wavlength.val);
         
-        %Remove padding
-        outS.Gabor = gabor3M(minr:maxr,minc:maxc,mins:maxs);
+        outS.Gabor = gabor3M;
+        
+        if ishandle(hWait)
+            set(hWait, 'Vertices', [[0 0 1 1]' [0 1 1 0]']);
+            drawnow;
+        end
+        
+    case 'Mean'
+        
+        vol3M = double(scan3M);
+        kernelSize = paramS.KernelSize.val;
+        if ~isnumeric(kernelSize)
+            kernelSize = str2double(kernelSize);
+        end
+        meanFilt3M = imboxfilt(vol3M,kernelSize);
+       
+        outS.meanFilt = meanFilt3M;
         
         if ishandle(hWait)
             set(hWait, 'Vertices', [[0 0 1 1]' [0 1 1 0]']);
@@ -225,7 +223,8 @@ switch filterType
         patchSizeV = paramS.PatchSize.val;
         
         %Get voxel size
-        voxelVol = paramS.VoxelVolume.val;
+        voxelSizV = paramS.VoxelSize_mm.val;
+        voxelVol = prod(voxelSizV);
         
         %Compute patch-based statistics
         statC = {'min','max','mean','range','std','var','median','skewness',...
@@ -251,11 +250,14 @@ switch filterType
 
         vol3M = double(scan3M);
         
-        dirC = {'2d','3d','all'};
-        sizC = {'3','5','all'};
-        dir = dirC{paramS.Direction.val};
-        siz = sizC{paramS.KernelSize.val};
-        lawsMasksS = getLawsMasks(dir,siz);
+        %dirC = {'2d','3d','all'};
+        %sizC = {'3','5','all'};
+        normFlagC = {'Yes','No'};
+        dir = paramS.Direction.val;
+        siz = str2double(paramS.KernelSize.val);
+        selIdx = find(strcmpi(paramS.Normalize.val,normFlagC));
+        normFlag = 2 - selIdx;
+        lawsMasksS = getLawsMasks(dir,siz,normFlag);
         
         %Compute features
         fieldNamesC = fieldnames(lawsMasksS);
@@ -265,14 +267,30 @@ switch filterType
             
             text3M = convn(vol3M,lawsMasksS.(fieldNamesC{i}),'same');
             
-            %Remove padding
-            outS.(fieldNamesC{i}) = text3M(minr:maxr,minc:maxc,mins:maxs);
+            outS.(fieldNamesC{i}) = text3M;
             
             if ishandle(hWait)
                 set(hWait, 'Vertices', [[0 0 i/numFeatures i/numFeatures]' [0 1 1 0]']);
                 drawnow;
             end
             
+        end
+        
+    case 'LawsEnergy'
+        
+        lawsOutS = processImage('LawsConvolution',scan3M,mask3M,paramS,[]);
+        fieldNameC = fieldnames(lawsOutS);
+        numFeatures = length(fieldNameC);
+        for i = 1:length(fieldNameC)
+            lawsTex3M = lawsOutS.(fieldNameC{i});
+            meanOutS = processImage('Mean',lawsTex3M,mask3M,paramS,[]);
+            lawsEnergy3M = meanOutS.meanFilt;
+            outField = [fieldNameC{i},'_Energy'];
+            outS.(outField) = lawsEnergy3M;
+            if ishandle(hWait)
+                set(hWait, 'Vertices', [[0 0 i/numFeatures i/numFeatures]' [0 1 1 0]']);
+                drawnow;
+            end
         end
         
         
@@ -296,15 +314,16 @@ switch filterType
         optS = opts4Exe([getCERRPath,'CERROptions.json']);
         sitkLibPath = optS.sitkLibPath;
         % Call the SimpleITK wrapper
-        sitkFilterName = paramS.sitkFilterName;
+        sitkFilterName = paramS.sitkFilterName.val;
         % to do - update the signature to include mask3M?
-        outS.(sitkFilterName) = sitkWrapper(sitkLibPath, vol3M, sitkFilterName, paramS);
+        sitkOutS = sitkWrapper(sitkLibPath, vol3M, sitkFilterName, paramS);
+        filterNamC = fieldnames(sitkOutS);
+        outS.(sitkFilterName) = sitkOutS.(filterNamC{1});
         
     otherwise
-       
+        %Call custom function 'filterType'
         filtImg3M = feval(filterType,scan3M,mask3M,paramS);
-        %Remove padding
-        outS.(filterType) = filtImg3M(minr:maxr,minc:maxc,mins:maxs);
+        outS.(filterType) = filtImg3M;
         
 end
 

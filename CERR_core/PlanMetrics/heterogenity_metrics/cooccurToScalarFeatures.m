@@ -110,7 +110,7 @@ for n=0:nL-1
             sum(n^2*cooccurM(indCtrstC{n+1},:));
     end
     % Dissimilarity (same as difference average)
-    if flagS.dissimilarity
+    if flagS.dissimilarity || flagS.diffVar
         featureS.dissimilarity = featureS.dissimilarity + ...
             sum(n*cooccurM(indCtrstC{n+1},:));
     end    
@@ -148,7 +148,7 @@ end
 
 for n=0:nL-1
     if flagS.diffVar
-        featureS.diffVar = featureS.diffVar + (n - featureS.diffAvg).^2 .* pXminusY(n+1,:) ;
+        featureS.diffVar = featureS.diffVar + (n - featureS.dissimilarity).^2 .* pXminusY(n+1,:) ;
     end    
 end
 

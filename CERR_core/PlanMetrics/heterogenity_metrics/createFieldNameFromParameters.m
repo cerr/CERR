@@ -33,8 +33,7 @@ switch(lower(imageType))
         fieldName = [imageType,'_',settingsStr];
         
     case 'log'
-        settingsStr = ['radius_',num2str(settingS.VoxelSize_mm.val(1)),...
-            'mm_sigma_',num2str(settingS.Sigma_mm.val),'mm'];
+        settingsStr = ['sigma_',num2str(settingS.Sigma_mm.val),'mm'];
         fieldName = [imageType,'_',settingsStr];
         
     case 'gabor'
@@ -61,6 +60,15 @@ switch(lower(imageType))
             num2str(settingS.Dominant_Dir_Radius.val(1)),'_cooccurRadius',...
             num2str(settingS.Cooccur_Radius.val(1))];
         fieldName = [imageType,'_',settingsStr];
+        
+    case 'simpleitk'
+        sitkFilter = settingS.sitkFilterName.val;
+        switch lower(sitkFilter)
+            case 'laplacianrecursivegaussianimagefilter'
+                settingsStr = ['sigma_mm_',num2str(settingS.params.val.Sigma_mm)];
+        end        
+        fieldName = [imageType,'_',sitkFilter,'_',settingsStr];
+        
         
 end
 

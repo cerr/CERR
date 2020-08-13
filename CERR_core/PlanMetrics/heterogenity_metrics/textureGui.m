@@ -147,11 +147,12 @@ switch upper(command)
             category      = planC{indexS.texture}(textureNum).category;
             featC = get(ud.handles.featureType,'String');
             featureNum = find(strcmp(featC,category));
+            
             set(ud.handles.description,'string',texturesC{textureNum},'Enable','On');
         end
         
         set(ud.handles.scan, 'value', scanNum,'Enable','On');
-        set(ud.handles.structure, 'value',structNum,'Enable','On');
+        set(ud.handles.structure, 'value',structNum+1,'Enable','On');
 
         
         set(ud.handles.featureType,'value',featureNum, 'Enable','On');
@@ -160,8 +161,6 @@ switch upper(command)
             'value',1)
         
         set(h, 'userdata', ud);
-        
-        textureGui('SCAN_SELECTED');
         
 %         if ~isempty(ud.currentTexture) && ud.currentTexture>0
 %             textureGui('FEATURE_TYPE_SELECTED');
@@ -216,6 +215,8 @@ switch upper(command)
         featureTypeC = {'Select',...
             'Haralick Cooccurance',...
             'Laws Convolution',...
+            'Laws Energy',...
+            'Mean',...
             'First Order Statistics',...
             'Wavelets',...
             'Gabor',...
@@ -305,7 +306,10 @@ switch upper(command)
             'value', 1, 'Style', 'popup', 'callback',...
             'textureGui(''FEATURE_TYPE_SELECTED'');', 'horizontalAlignment',...
             'right', 'BackgroundColor', 'w', 'enable','off','fontSize',10);
-        ud.dXYZ                  = getVoxelSize(1,h);
+        
+        scanNum = get(ud.handles.scan,'value');
+        voxSizV = getScanXYZSpacing(scanNum,planC);
+        ud.dXYZ = voxSizV;
         
         % uicontrols to generate or delete texture maps
         ud.handles.createTextureMaps  = uicontrol(h, 'units',units,'Position',[0.03 1-.95 0.12 rowHeight],'String', 'Create Maps', 'Style', 'pushbutton', 'callback', 'textureGui(''CREATE_MAPS'');');
@@ -329,8 +333,9 @@ switch upper(command)
 
         if ~isempty(ud.currentTexture) && ud.currentTexture>0
             textureGui('REFRESHFIELDS');
+            textureGui('SCAN_SELECTED');
             textureGui('REFRESH_THUMBS');
-        end        
+        end
         textureGui('SCAN_SELECTED');
         
     case 'SCAN_SELECTED'
@@ -346,7 +351,7 @@ switch upper(command)
         strNameC = strcat(cellfun(@num2str,num2cell(structNumV),...
             'UniformOutput',false),{'. '},strNameC);
         strNameC = [{'0. Entire Scan'},strNameC];
-        set(ud.handles.structure,'string',strNameC,'value',1)        
+        set(ud.handles.structure,'string',strNameC,'value',1)
         ud.structNumV   = [0,structNumV];
         set(h, 'userdata', ud);
         
@@ -354,8 +359,10 @@ switch upper(command)
     case 'STRUCT_SELECTED'
         ud = get(h, 'userdata');
         % structNum = get(ud.handles.structure,'value')-1;
-        ud.structNum = ud.structNumV(get(ud.handles.structure,'value'));        
-        ud.dXYZ   = getVoxelSize(ud.structNum,h);
+        ud.structNum = ud.structNumV(get(ud.handles.structure,'value'));
+        scanNum = get(ud.handles.scan,'value');
+        voxSizV = getScanXYZSpacing(scanNum,planC);
+        ud.dXYZ = voxSizV;
         set(h, 'userdata', ud);
        
     case 'PATCH_CM_SELECTED'
@@ -412,6 +419,7 @@ switch upper(command)
         if length(strC) == 1 && strcmpi(strC{1},'')
             return;
         end
+        %Update description
         ud.currentTexture = get(ud.handles.texture,'value');
         texC = get(ud.handles.texture,'String');
         if iscell(texC)
@@ -419,7 +427,16 @@ switch upper(command)
         else
          set(ud.handles.description,'string',texC);
         end
+        %Update assoc. structure name
+        assocStructUID = {planC{indexS.texture}(ud.currentTexture).assocStructUID};
+        strIdx = getAssociatedStr(assocStructUID);
+        if isempty(strIdx)
+            set(ud.handles.structure,'Value',1); %entire scan
+        else
+            set(ud.handles.structure,'Value',strIdx);
+        end
         set(h, 'userdata', ud);
+        %Update displayed parameters
         paramS = planC{indexS.texture}(ud.currentTexture).parameters;
         fType = planC{indexS.texture}(ud.currentTexture).category;
         textureGui('FEATURE_TYPE_SELECTED',paramS,fType);
@@ -478,32 +495,48 @@ switch upper(command)
                 dispC = {'On','On','On','On','On'};
                 
             case 'LawsConvolution' % Laws 
-                paramC = {'PadMethod', 'PadSize','Direction','KernelSize'};
-                typeC = {'popup','edit','popup','popup'};
-                valC = {{'expand','padzeros','circular','replicate',...
-                    'symmetric','none'},{'5,5,5'},{'2D','3D', 'All'},{'3','5','All'}};
-                dispC = {'On','On','On','On'};
-            
-            case 'FirstOrderStatistics' %First-order statistics
-                paramC = {'PatchSize','VoxelVolume'};
-                typeC = {'edit','edit'};
-                [xUnifV, yUnifV, zUnifV] = getUniformScanXYZVals(planC{indexS.scan}(scanNum));
-                PixelSpacingXi = abs(xUnifV(2)-xUnifV(1));
-                PixelSpacingYi = abs(yUnifV(2)-yUnifV(1));
-                PixelSpacingZi = abs(zUnifV(2)-zUnifV(1));
-                VoxelVol = PixelSpacingXi*PixelSpacingYi*PixelSpacingZi;
-                valC = {'3,3,3',VoxelVol};
-                dispC = {'On','Off'};
-
-            case 'Wavelets'
-                paramC = {'PadMethod','PadSize','Direction','Wavelets','Index'};
+                paramC = {'PadMethod', 'PadSize','Direction','KernelSize','Normalize'};
                 typeC = {'popup','edit','popup','popup','popup'};
                 valC = {{'expand','padzeros','circular','replicate',...
-                    'symmetric','none'},{'5,5,5'},{'All','HHH','LHH',...
-                    'HLH','HHL','LLH','LHL','HLL','LLL'},...
+                    'symmetric','none'},{'5,5,5'},{'2D','3D', 'All'},...
+                    {'3','5','All'},{'Yes','No'}};
+                dispC = {'On','On','On','On','On'};
+                
+            case 'LawsEnergy' %Laws energy
+                paramC = {'PadMethod', 'PadSize','Direction','KernelSize','Normalize'};
+                typeC = {'popup','edit','popup','popup','popup'};
+                valC = {{'expand','padzeros','circular','replicate',...
+                    'symmetric','none'},{'5,5,5'},{'2D','3D', 'All'},...
+                    {'3','5','All'},{'Yes','No'}};
+                dispC = {'On','On','On','On','On'};
+                
+            case 'Mean' % Local mean filter
+                paramC = {'PadMethod', 'PadSize','KernelSize'};
+                typeC = {'popup','edit','edit'};
+                valC = {{'expand','padzeros','circular','replicate',...
+                    'symmetric','none'},{'5,5,5'},{'3'}};
+                dispC = {'On','On','On'};
+                
+            case 'FirstOrderStatistics' %First-order statistics
+                paramC = {'PatchSize','VoxelSize_mm'};
+                typeC = {'edit','edit'};
+                voxSizeV = getScanXYZSpacing(scanNum,planC);
+                voxSizeV = voxSizeV.*10; % convert cm to mm
+                valC = {'3,3,3',voxSizeV};
+                dispC = {'On','Off'};
+                
+
+            case 'Wavelets'
+                paramC = {'PadMethod','PadSize','Normalize','Direction',...
+                    'Wavelets','Index'};
+                typeC = {'popup','edit','popup','popup','popup','popup'};
+                valC = {{'expand','padzeros','circular','replicate',...
+                    'symmetric','none'},{'5,5,5'},{'Yes','No'},{'All','HHH',...
+                    'LHH','HLH','HHL','LLH','LHL','HLL','LLL'},...
                     {'Daubechies','Haar','Coiflets','FejerKorovkin','Symlets',...
-                    'Discrete Meyer wavelet','Biorthogonal','Reverse Biorthogonal'},@getSubParameter};
-                dispC = {'On','On','On','On','On','Off'};
+                    'Discrete Meyer wavelet','Biorthogonal','Reverse Biorthogonal'},...
+                    @getSubParameter};
+                dispC = {'On','On','On','On','On','On','Off'};
                 subTypeC = {{'Index','Wavelets'}};
                 
             case 'Gabor'
@@ -518,14 +551,9 @@ switch upper(command)
             case 'LoG'
                 paramC = {'PadMethod','PadSize','Sigma_mm','VoxelSize_mm'};
                 typeC = {'popup','edit','edit','edit'};
-                dy = planC{indexS.scan}(scanNum).scanInfo(1).grid1Units;
-                dx = planC{indexS.scan}(scanNum).scanInfo(1).grid2Units;
-                dz = planC{indexS.scan}(scanNum).scanInfo(2).zValue - ...
-                    planC{indexS.scan}(scanNum).scanInfo(1).zValue;
-                dx = abs(dx);
-                dy = abs(dy);
-                dz = abs(dz);
-                voxSizeV = [dy, dx, dz]*10; % convert cm to mm
+                
+                voxSizeV = getScanXYZSpacing(scanNum,planC);
+                voxSizeV = voxSizeV.*10; % convert cm to mm
                 valC = {{'expand','padzeros','circular','replicate',...
                     'symmetric','none'},{'5,5,5'},.5,voxSizeV};
                 dispC = {'On','On','On','off'};
@@ -798,7 +826,7 @@ switch upper(command)
         hPar.delete;
         end
         set(h, 'userdata',ud);
-        %textureGui('REFRESHFIELDS');
+        textureGui('SCAN_SELECTED');
         
         
     case 'DELETE_TEXTURE'
@@ -833,11 +861,13 @@ switch upper(command)
         fullMask3M = scan3M.^0;
         if ~(structNum==0)
             fullMask3M = getStrMask(structNum,planC);
-            [~,maxr,minc,~] = compute_boundingbox(fullMask3M);
+            [minr,maxr,minc,maxc] = compute_boundingbox(fullMask3M);
             uniqueSlicesV = find(sum(sum(fullMask3M))>0);
         else
             uniqueSlicesV = 1:size(scan3M,3);
             minc = 1;
+            maxc = size(scan3M,2);
+            minr = 1;
             maxr = size(scan3M,1);
         end
         
@@ -1536,23 +1566,6 @@ for i=1:length(stateS.handle.CERRAxis)
     end
     
 end
-
-
-function dXYZ = getVoxelSize(structNum,hFig)
-global planC
-indexS = planC{end};
-if structNum==0
-    ud = get(hFig,'userdata');
-    scanNum = get(ud.handles.scan,'value');
-else
-scanNum = getStructureAssociatedScan(structNum);
-end
-[xV,yV,zV] = getScanXYZVals(planC{indexS.scan}(scanNum));
-dx = abs(mean(diff(xV)));
-dy = abs(mean(diff(yV)));
-dz = abs(mean(diff(zV)));
-dXYZ = [dy dx dz];
-
 
     function outS = addParam(outS,fieldname,type,val,disp,pos,hFigure)
         

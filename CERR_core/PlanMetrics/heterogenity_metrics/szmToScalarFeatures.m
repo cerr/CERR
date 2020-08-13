@@ -34,21 +34,22 @@ function featureS = szmToScalarFeatures(szmM, numVoxels, flagS)
 % szmM = calcSZM(quantizedM, nL, szmType)
 % 
 % % define feature flags
-% flagS.sae = 1;
-% flagS.lae = 1;
-% flagS.gln = 1;
-% flagS.glv = 1;
-% flagS.szv = 1;
-% flagS.glnNorm
-% flagS.szn = 1;
-% flagS.sznNorm
-% flagS.zp = 1;
-% flagS.lglze = 1;
-% flagS.hglze = 1;
-% flagS.salgle = 1;
-% flagS.sahgle = 1;
-% flagS.lalgle = 1;
-% flagS.larhgle = 1;
+% szmFlagS.grayLevelNonUniformity = 1;
+% szmFlagS.grayLevelNonUniformityNorm = 1;
+% szmFlagS.grayLevelVariance = 1;
+% szmFlagS.highGrayLevelZoneEmphasis = 1;
+% szmFlagS.lowGrayLevelZoneEmphasis = 1;
+% szmFlagS.largeAreaEmphasis = 1;
+% szmFlagS.largeAreaHighGrayLevelEmphasis = 1;
+% szmFlagS.largeAreaLowGrayLevelEmphasis = 1;
+% szmFlagS.sizeZoneNonUniformity = 1;
+% szmFlagS.sizeZoneNonUniformityNorm = 1;
+% szmFlagS.sizeZoneVariance = 1;
+% szmFlagS.zonePercentage = 1;
+% szmFlagS.smallAreaEmphasis = 1;
+% szmFlagS.smallAreaLowGrayLevelEmphasis = 1;
+% szmFlagS.smallAreaHighGrayLevelEmphasis = 1;
+% szmFlagS.zoneEntropy = 1;
 %
 % % Number of voxels
 % numVoxels = numel(imgM);
@@ -64,102 +65,102 @@ lenV = 1:size(szmM,2);
 levV = 1:nL;
 
 % Small Area Emphasis (SAE) (Aerts et al, Nature suppl. eq. 45)
-if flagS.sae
+if flagS.smallAreaEmphasis
     saeM = bsxfun(@rdivide,szmM,lenV.^2);
-    featureS.sae = sum(saeM(:))/sum(szmM(:));
+    featureS.smallAreaEmphasis = sum(saeM(:))/sum(szmM(:));
 end
 
 % Large Area Emphasis (LAE) (Aerts et al, Nature suppl. eq. 46)
-if flagS.lae
+if flagS.largeAreaEmphasis
     laeM = bsxfun(@times,szmM,lenV.^2);
-    featureS.lae = sum(laeM(:))/sum(szmM(:));
+    featureS.largeAreaEmphasis = sum(laeM(:))/sum(szmM(:));
 end
 
 % Gray Level Non-Uniformity (GLN) (Aerts et al, Nature suppl. eq. 47)
-if flagS.gln
-    featureS.gln = sum(sum(szmM,2).^2) / sum(szmM(:));
+if flagS.grayLevelNonUniformity
+    featureS.grayLevelNonUniformity = sum(sum(szmM,2).^2) / sum(szmM(:));
 end
 
-if flagS.glnNorm
-    featureS.glnNorm = sum(sum(szmM,2).^2) / sum(szmM(:))^2;
+if flagS.grayLevelNonUniformityNorm
+    featureS.grayLevelNonUniformityNorm = sum(sum(szmM,2).^2) / sum(szmM(:))^2;
 end
 
 % Size Zone Non-Uniformity (SZN) (Aerts et al, Nature suppl. eq. 48)
-if flagS.szn
-    featureS.szn = sum(sum(szmM,1).^2) / sum(szmM(:));
+if flagS.sizeZoneNonUniformity
+    featureS.sizeZoneNonUniformity = sum(sum(szmM,1).^2) / sum(szmM(:));
 end
 
 % Size Zone Non-Uniformity Normalized (SZNN) (Aerts et al, Nature suppl. eq. 48)
-if flagS.sznNorm
-    featureS.sznNorm = sum(sum(szmM,1).^2) / sum(szmM(:))^2;
+if flagS.sizeZoneNonUniformityNorm
+    featureS.sizeZoneNonUniformityNorm = sum(sum(szmM,1).^2) / sum(szmM(:))^2;
 end
 
 % Zone Percentage (ZP) (Aerts et al, Nature suppl. eq. 49)
-if flagS.zp
+if flagS.zonePercentage
     if isempty(numVoxels)
         numVoxels = 1;
     end
-    featureS.zp = sum(szmM(:)) / numVoxels;
+    featureS.zonePercentage = sum(szmM(:)) / numVoxels;
 end
 
 % Low Gray Level Zone Emphasis (LGLZE) (Aerts et al, Nature suppl. eq. 50)
-if flagS.lglze
+if flagS.lowGrayLevelZoneEmphasis
     lglzeM = bsxfun(@rdivide,szmM',levV.^2);
-    featureS.lglze = sum(lglzeM(:)) / sum(szmM(:));
+    featureS.lowGrayLevelZoneEmphasis = sum(lglzeM(:)) / sum(szmM(:));
 end
 
 % High Gray Level Zone Emphasis (HGLZE) (Aerts et al, Nature suppl. eq. 51)
-if flagS.hglze
+if flagS.highGrayLevelZoneEmphasis
     hglzeM = bsxfun(@times,szmM',levV.^2);
-    featureS.hglze = sum(hglzeM(:)) / sum(szmM(:));
+    featureS.highGrayLevelZoneEmphasis = sum(hglzeM(:)) / sum(szmM(:));
 end
 
 % Small Area Low Gray Level Emphasis (SALGLE) (Aerts et al, Nature suppl. eq. 52)
-if flagS.salgle
+if flagS.smallAreaLowGrayLevelEmphasis
     levLenM = bsxfun(@times,(levV').^2,lenV.^2);
     salgleM = bsxfun(@rdivide,szmM,levLenM);
-    featureS.salgle = sum(salgleM(:)) / sum(szmM(:));
+    featureS.smallAreaLowGrayLevelEmphasis = sum(salgleM(:)) / sum(szmM(:));
 end
 
 % Small Area High Gray Level Emphasis (SAHGLE) (Aerts et al, Nature suppl. eq. 53)
-if flagS.sahgle
+if flagS.smallAreaHighGrayLevelEmphasis
     levLenM = bsxfun(@times,(levV').^2,1./lenV.^2);
     sahgleM = bsxfun(@times,szmM,levLenM);
-    featureS.sahgle = sum(sahgleM(:)) / sum(szmM(:));
+    featureS.smallAreaHighGrayLevelEmphasis = sum(sahgleM(:)) / sum(szmM(:));
 end
 
 % Large Area Low Gray Level Emphasis (LALGLE) (Aerts et al, Nature suppl. eq. 54)
-if flagS.lalgle
+if flagS.largeAreaLowGrayLevelEmphasis
     levLenM = bsxfun(@times,1./(levV').^2,lenV.^2);
     lalgleM = bsxfun(@times,szmM,levLenM);
-    featureS.lalgle = sum(lalgleM(:)) / sum(szmM(:));
+    featureS.largeAreaLowGrayLevelEmphasis = sum(lalgleM(:)) / sum(szmM(:));
 end
 
 % Large Area High Gray Level Emphasis (LAHGLE) (Aerts et al, Nature suppl. eq. 55)
-if flagS.lahgle
+if flagS.largeAreaHighGrayLevelEmphasis
     levLenM = bsxfun(@times,(levV').^2,lenV.^2);
     lahgleM = bsxfun(@times,szmM,levLenM);
-    featureS.lahgle = sum(lahgleM(:)) / sum(szmM(:));
+    featureS.largeAreaHighGrayLevelEmphasis = sum(lahgleM(:)) / sum(szmM(:));
 end
 
 % Grey Level Variance
-if flagS.glv
+if flagS.grayLevelVariance
     iPij = bsxfun(@times,szmM'/sum(szmM(:)),levV);
     mu = sum(iPij(:));
     iMinusMuPij = bsxfun(@times,szmM'/sum(szmM(:)),(levV-mu).^2);
-    featureS.glv = sum(iMinusMuPij(:));
+    featureS.grayLevelVariance = sum(iMinusMuPij(:));
 end
 
 % Size Zone Variance
-if flagS.szv
+if flagS.sizeZoneVariance
     jPij = bsxfun(@times,szmM/sum(szmM(:)),lenV);
     mu = sum(jPij(:));
     jMinusMuPij = bsxfun(@times,szmM/sum(szmM(:)),(lenV-mu).^2);
-    featureS.szv = sum(jMinusMuPij(:));
+    featureS.sizeZoneVariance = sum(jMinusMuPij(:));
 end
 
 %Zone Entropy
-if flagS.ze
+if flagS.zoneEntropy
     zoneSum = sum(szmM(:));
-    featureS.ze = -sum(szmM(:)/zoneSum .* log2(szmM(:)/zoneSum + eps));
+    featureS.zoneEntropy = -sum(szmM(:)/zoneSum .* log2(szmM(:)/zoneSum + eps));
 end

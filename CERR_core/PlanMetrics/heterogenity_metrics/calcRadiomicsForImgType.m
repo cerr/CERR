@@ -30,7 +30,21 @@ for iImg = 1:length(fieldNamC)
     end
 end
 
+% ---- Calc. shape features (same across img. types) ----
+tic
+if whichFeatS.shape.flag
+    rcsV = [];
+    if isfield(paramS.shapeParamS,'rcs')
+        rcsV = paramS.shapeParamS.rcs.';
+    end
+    featureS.shapeS = getShapeParams(maskBoundingBox3M, ...
+        {xValsV, yValsV, zValsV},rcsV);
+end
+toc
+
+
 %% Loop over image types
+maskOrig3M = maskBoundingBox3M;
 for k = 1:length(imageTypeC)
     
     %Generate volume based on original/derived imageType
@@ -45,11 +59,20 @@ for k = 1:length(imageTypeC)
             maxClipIntensity = paramS.textureParamS.maxClipIntensity;
         end
         volToEval = volOrig3M;
+        [minr, maxr, minc, maxc, mins, maxs] = compute_boundingbox(maskBoundingBox3M);
+        maskBoundingBox3M = maskOrig3M(minr:maxr, minc:maxc, mins:maxs);
+        volToEval = volToEval(minr:maxr, minc:maxc, mins:maxs);
     else
-        outS = processImage(imageTypeC{k}.imageType,volOrig3M,maskBoundingBox3M,...
+        %Add voxel size in mm to paramS
+        voxSizV = [PixelSpacingX, PixelSpacingY, PixelSpacingZ]*10; %convert cm to mm
+        imageTypeC{k}.paramS.VoxelSize_mm.val = voxSizV;
+        outS = processImage(imageTypeC{k}.imageType,volOrig3M,maskOrig3M,...
             imageTypeC{k}.paramS);
+        [minr, maxr, minc, maxc, mins, maxs] = compute_boundingbox(maskOrig3M);
+        maskBoundingBox3M = maskOrig3M(minr:maxr, minc:maxc, mins:maxs);
         derivedImgName = fieldnames(outS);
         volToEval = outS.(derivedImgName{1});
+        volToEval = volToEval(minr:maxr, minc:maxc, mins:maxs);
         quantizeFlag = true; % always quantize the derived image
         minClipIntensity = []; % no clipping imposed for derived images
         maxClipIntensity = []; % no clipping imposed for derived images
@@ -59,12 +82,23 @@ for k = 1:length(imageTypeC)
     if quantizeFlag        
         numGrLevels = [];
         binwidth = [];
+        
         if isfield(paramS.textureParamS,'numGrLevels')
             numGrLevels = paramS.textureParamS.numGrLevels;
         end
+        if isfield(imageTypeC{k}.paramS,'textureParamS') && ...
+                isfield(imageTypeC{k}.paramS.textureParamS,'numGrLevels')
+            numGrLevels = imageTypeC{k}.paramS.textureParamS.numGrLevels;
+        end
+        
         if isfield(paramS.textureParamS,'binwidth')
             binwidth = paramS.textureParamS.binwidth;
         end
+        if isfield(imageTypeC{k}.paramS,'textureParamS') && ...
+                isfield(imageTypeC{k}.paramS.textureParamS,'binwidth')
+            numGrLevels = imageTypeC{k}.paramS.textureParamS.binwidth;
+        end
+        
         % Don't use intensities outside the ROI in discretization
         volToEval(~maskBoundingBox3M) = NaN;
         quantizedM = imquantize_cerr(volToEval,numGrLevels,...
@@ -83,32 +117,27 @@ for k = 1:length(imageTypeC)
     
     
     %Feature calculation
-    % outFieldName = createFieldNameFromParameters(paramS,imageTypeC{k});
-    % outFieldName = createFieldNameFromParameters(imageType,filtParamS);
     outFieldName = createFieldNameFromParameters...
         (imageTypeC{k}.imageType,imageTypeC{k}.paramS);
 
     % --- 1. First-order features ---
     if whichFeatS.firstOrder.flag
+        offsetForEnergy = paramS.firstOrderParamS.offsetForEnergy;
+        binWidthEntropy = paramS.firstOrderParamS.binWidthEntropy;
+        if isfield(imageTypeC{k}.paramS,'firstOrderParamS') && ...
+                isfield(imageTypeC{k}.paramS.firstOrderParamS,'offsetForEnergy')
+            offsetForEnergy = imageTypeC{k}.paramS.firstOrderParamS.offsetForEnergy;
+        end
+        if isfield(imageTypeC{k}.paramS,'binWidthEntropy') && ...
+                isfield(imageTypeC{k}.paramS.firstOrderParamS,'binWidthEntropy')
+            binWidthEntropy = imageTypeC{k}.paramS.firstOrderParamS.binWidthEntropy;
+        end
         volV = volToEval(logical(maskBoundingBox3M));
         featureS.(outFieldName).firstOrderS = radiomics_first_order_stats...
-            (volV, VoxelVol,...
-            paramS.firstOrderParamS.offsetForEnergy,paramS.firstOrderParamS.binWidthEntropy);
+            (volV, VoxelVol,offsetForEnergy,binWidthEntropy);
     end
     
-    tic
-    %---2. Shape features ----
-    if whichFeatS.shape.flag
-        rcsV = [];
-        if isfield(paramS.shapeParamS,'rcs')
-            rcsV = paramS.shapeParamS.rcs.';
-        end
-        featureS.(outFieldName).shapeS = getShapeParams(maskBoundingBox3M, ...
-            {xValsV, yValsV, zValsV},rcsV);
-    end
-    toc
-    
-    %---3. Higher-order (texture) features ----
+    %---2. Higher-order (texture) features ----
     
     %Get directionality and avg type
     if any([whichFeatS.glcm.flag,whichFeatS.glrlm.flag,whichFeatS.gtdm.flag,...
@@ -203,7 +232,7 @@ for k = 1:length(imageTypeC)
             xAbsForIxV = paramS.ivhParamS.xForIxCc; % absolute volume [cc]
             xForVxV = paramS.ivhParamS.xForVxPct; % percent intensity cutoff
             xAbsForVxV = paramS.ivhParamS.xForVxAbs; % absolute intensity cutoff [HU]
-            scanV = volToEval(maskBoundingBox3M);
+            scanV = double(volToEval(maskBoundingBox3M));
             volV = repmat(VoxelVol,numel(scanV),1);
             featureS.(outFieldName).ivhFeaturesS = getIvhParams(scanV, volV, IVHBinWidth,...
                 xForIxV, xAbsForIxV, xForVxV, xAbsForVxV);
@@ -258,22 +287,22 @@ end
 
     function rlmFlagS = getRunLengthFlags(varargin)
         
-        rlmFlagS.sre = 1;
-        rlmFlagS.lre = 1;
-        rlmFlagS.gln = 1;
-        rlmFlagS.glnNorm = 1;
-        rlmFlagS.rln = 1;
-        rlmFlagS.rlnNorm = 1;
-        rlmFlagS.rp = 1;
-        rlmFlagS.lglre = 1;
-        rlmFlagS.hglre = 1;
-        rlmFlagS.srlgle = 1;
-        rlmFlagS.srhgle = 1;
-        rlmFlagS.lrlgle = 1;
-        rlmFlagS.lrhgle = 1;
-        rlmFlagS.glv = 1;
-        rlmFlagS.rlv = 1;
-        rlmFlagS.re = 1;
+        rlmFlagS.shortRunEmphasis = 1;
+        rlmFlagS.longRunEmphasis = 1;
+        rlmFlagS.grayLevelNonUniformity = 1;
+        rlmFlagS.grayLevelNonUniformityNorm = 1;
+        rlmFlagS.runLengthNonUniformity = 1;
+        rlmFlagS.runLengthNonUniformityNorm = 1;
+        rlmFlagS.runPercentage = 1;
+        rlmFlagS.lowGrayLevelRunEmphasis = 1;
+        rlmFlagS.highGrayLevelRunEmphasis = 1;
+        rlmFlagS.shortRunLowGrayLevelEmphasis = 1;
+        rlmFlagS.shortRunHighGrayLevelEmphasis = 1;
+        rlmFlagS.longRunLowGrayLevelEmphasis = 1;
+        rlmFlagS.longRunHighGrayLevelEmphasis = 1;
+        rlmFlagS.grayLevelVariance = 1;
+        rlmFlagS.runLengthVariance = 1;
+        rlmFlagS.runEntropy = 1;
         
         if nargin==1 && ~strcmpi(varargin{1},'all')
             featureC = lower(varargin{1});
@@ -288,22 +317,22 @@ end
 
 function szmFlagS = getSizeZoneFlags(varargin)
                 
-        szmFlagS.gln = 1;
-        szmFlagS.glnNorm = 1;
-        szmFlagS.glv = 1;
-        szmFlagS.hglze = 1;
-        szmFlagS.lglze = 1;
-        szmFlagS.lae = 1;
-        szmFlagS.lahgle = 1;
-        szmFlagS.lalgle = 1;
-        szmFlagS.szn = 1;
-        szmFlagS.sznNorm = 1;
-        szmFlagS.szv = 1;
-        szmFlagS.zp = 1;
-        szmFlagS.sae = 1;    
-        szmFlagS.salgle = 1;
-        szmFlagS.sahgle = 1;
-        szmFlagS.ze = 1;
+        szmFlagS.grayLevelNonUniformity = 1;
+        szmFlagS.grayLevelNonUniformityNorm = 1;
+        szmFlagS.grayLevelVariance = 1;
+        szmFlagS.highGrayLevelZoneEmphasis = 1;
+        szmFlagS.lowGrayLevelZoneEmphasis = 1;
+        szmFlagS.largeAreaEmphasis = 1;
+        szmFlagS.largeAreaHighGrayLevelEmphasis = 1;
+        szmFlagS.largeAreaLowGrayLevelEmphasis = 1;
+        szmFlagS.sizeZoneNonUniformity = 1;
+        szmFlagS.sizeZoneNonUniformityNorm = 1;
+        szmFlagS.sizeZoneVariance = 1;
+        szmFlagS.zonePercentage = 1;
+        szmFlagS.smallAreaEmphasis = 1;    
+        szmFlagS.smallAreaLowGrayLevelEmphasis = 1;
+        szmFlagS.smallAreaHighGrayLevelEmphasis = 1;
+        szmFlagS.zoneEntropy = 1;
         
         
         if nargin==1 && ~strcmpi(varargin{1},'all')
