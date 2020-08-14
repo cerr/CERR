@@ -45,6 +45,12 @@ for scanNum = scanNumV
     planC{indexS.structureArrayMore}(scanNum).bitsArray     = [];    
 end
 
+%Read CERROptions.json to get import flags
+pathStr = getCERRPath;
+optName = fullfile(pathStr,'CERROptions.json');
+optS    = opts4Exe(optName);
+planC{indexS.CERROptions} = optS;
+
 numStructs = length(planC{indexS.structures});
 assocScanV = getStructureAssociatedScan(1:numStructs,planC);
 strIndV = find(ismember(assocScanV,scanNumV));
