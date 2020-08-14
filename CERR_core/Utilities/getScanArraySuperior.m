@@ -47,13 +47,13 @@ persistent isLastScanCompressed;
 persistent isLastScanRemote;
 
 %Check if a scanStruct, not a scanIndex was passed.
-if isstruct(scanIndex) & isfield(scanIndex, 'scanArray')
+if isstruct(scanIndex) && isfield(scanIndex, 'scanArray')
     
     scanStruct = scanIndex(1);
     
 else
     %An index was passed, extract the scanStruct.
-	if ~exist('planC')
+	if ~exist('planC','var')
         global planC
 	end
 	
@@ -63,7 +63,7 @@ else
 	
 	indexS = planC{end};
 	
-	if scanIndex > length(planC{indexS.scan}) | scanIndex < 1
+	if scanIndex > length(planC{indexS.scan}) || scanIndex < 1
         error('Cannot get scan.  Requested scanIndex scan not exist.')
 	end
 
@@ -74,13 +74,15 @@ end
 scanArraySuperior = scanStruct.scanArraySuperior;
 
 %If remote or compressed, and struct is same as last time, return cached array.
-if (isCompressed(scanArraySuperior) | ~isLocal(scanArraySuperior)) & isequal(scanStruct, lastScanStruct);
+if (isCompressed(scanArraySuperior) || ...
+        ~isLocal(scanArraySuperior)) && isequal(scanStruct, lastScanStruct)
     scanArraySuperior = lastScanArray;    
     isCompress = isLastScanCompressed;
     isRemote = isLastScanRemote;
     return;
 %If remote or compressed and NOT the same as last time, clear cache.    
-elseif (isCompressed(scanArraySuperior) | ~isLocal(scanArraySuperior)) & ~isequal(scanStruct, lastScanStruct);
+elseif (isCompressed(scanArraySuperior) || ...
+        ~isLocal(scanArraySuperior)) && ~isequal(scanStruct, lastScanStruct)
 	lastScanArray           = [];
 	lastScanStruct          = [];
 	isLastScanCompressed    = [];
@@ -92,11 +94,11 @@ isCompress  = 0;
 isRemote    = 0;
 
 %Decompress and follow all file pointers until get to an array.
-while isCompressed(scanArraySuperior) | ~isLocal(scanArraySuperior);
+while isCompressed(scanArraySuperior) || ~isLocal(scanArraySuperior)
     if isCompressed(scanArraySuperior)
         scanArraySuperior   = decompress(scanArraySuperior);
         isCompress  = 1;
-    elseif ~isLocal(scanArraySuperior);
+    elseif ~isLocal(scanArraySuperior)
         scanArraySuperior   = getRemoteVariable(scanArraySuperior);
         isRemote    = 1;
     end           
