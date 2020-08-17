@@ -34,6 +34,19 @@ nScans = length(planC{indexS.scan});
 nStructures = length(planC{indexS.structures});
 nGSPS = length(planC{indexS.GSPS});
 
+% Build a list of structureSetSopInstUIDs and associated scans
+uniqStrSetSopInstUidC = {};
+uniqScanSetUIDc = {};
+strSetSopInstUidC = cell(nStructures,2);
+for strNum = 1:nStructures
+    strSetSopInstUidC{strNum,1} = planC{indexS.structures}(strNum).structSetSopInstanceUID;
+    strSetSopInstUidC{strNum,2} = planC{indexS.structures}(strNum).assocScanUID;
+end
+if ~isempty(strSetSopInstUidC)
+    [uniqStrSetSopInstUidC,indV] = unique(strSetSopInstUidC(:,1));
+    uniqScanSetUIDc =  strSetSopInstUidC(indV,2);
+end
+
 %
 % wy add codes for generate associateScanUID when scan number more than 1;
 % 
@@ -45,7 +58,13 @@ if exist('dcm', 'var') && (dcm)
             scanUID = planC{indexS.scan}(i).scanUID; % Series instance UID
             %forUID = planC{indexS.scan}(i).scanInfo(1).DICOMHeaders.FrameofReferenceUID; % Frame of Reference UID
             forUID = planC{indexS.scan}(i).scanInfo(1).frameOfReferenceUID; % Frame of Reference UID
-            studyInstanceUID = planC{indexS.scan}(i).scanInfo(1).studyInstanceUID;
+            studyInstanceUID = planC{indexS.scan}(i).scanInfo(1).studyInstanceUID;     
+            indStrSet = ismember(scanUID,uniqScanSetUIDc);
+            if sum(indStrSet) == 1
+                strSetSopInstUID = uniqStrSetSopInstUidC{indStrSet};
+            else
+                strSetSopInstUID = '';
+            end
         catch
             break;
         end  
@@ -57,10 +76,13 @@ if exist('dcm', 'var') && (dcm)
             end
         end
         for j = 1:nDoses
-            assocScanUID = planC{indexS.dose}(j).assocScanUID;
+            refForUID = planC{indexS.dose}(j).frameOfReferenceUID;
+            refStrSetSopInstUID = planC{indexS.dose}(j).refStructSetSopInstanceUID;
             doseStudyInstanceUID = planC{indexS.dose}(j).studyInstanceUID;
-            if strcmp(assocScanUID, forUID) && ...
-                    strcmp(doseStudyInstanceUID,studyInstanceUID)
+            if strcmp(refForUID, forUID) && ...
+                    strcmp(doseStudyInstanceUID,studyInstanceUID) && ...
+                    strcmp(strSetSopInstUID,refStrSetSopInstUID)
+                % planC{indexS.dose}(j).assocScanUID = assocScanUID;
                 doseAssocList(j) = i;
                 continue;
             end
@@ -181,7 +203,7 @@ if nScans == 1 && exist('force','var') && force
         end
     end
     % Link structure set
-    if nStructures == 0 | (nStructures == 1 & isempty(planC{indexS.structures}.contour) )
+    if nStructures == 0 || (nStructures == 1 && isempty(planC{indexS.structures}.contour) )
         nStructures = 0;
         planC{indexS.structures} = initializeCERR('structures');
     end
@@ -194,12 +216,14 @@ if nScans == 1 && exist('force','var') && force
 
     % check for the bug with older plans where structure set length is 1
     % although the fields are empty
-    if length(planC{indexS.structureArray}) == 1 & isempty(planC{indexS.structureArray}.bitsArray)
+    if length(planC{indexS.structureArray}) == 1 && isempty(planC{indexS.structureArray}.bitsArray)
         planC{indexS.structureArray} = initializeCERR('structureArray');
     end
 
 
-    if length(planC{indexS.structureArray})>1, errordlg('Invalid Structure Set Encountered'); end;
+    if length(planC{indexS.structureArray})>1
+        errordlg('Invalid Structure Set Encountered'); 
+    end
 
     planC{indexS.structureArray}(1).assocScanUID =  scanUID;
 
