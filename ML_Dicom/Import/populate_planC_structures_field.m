@@ -59,8 +59,6 @@ SSRS = attr.getValue(hex2dec('30060020'));
 %ROI Contour Sequence
 RCS = attr.getValue(hex2dec('30060039'));
 
-getTagValue(attr, '00200032');
-
 %Count em up.
 
 if ~isempty(RCS)
@@ -117,6 +115,9 @@ switch fieldname
 
     case 'structureFormat'
         dataS = 'SCAN-BASED';
+        
+    case 'structSetSopInstanceUID'
+        dataS = getTagValue(attr, '00080018');
 
     case 'numberOfScans' %aka # of CT slices
         %Referenced Frame of Reference Sequence
@@ -246,7 +247,11 @@ switch fieldname
             if ~any(assocScanNum) && length(scanOriS)==1
                 assocScanNum = 1;
             end
+            if any(assocScanNum)
             imgOriV = scanOriS(assocScanNum).imageOrientationPatient;
+            else
+                imgOriV = [1,0,0,0,1,0]'; % HFS
+            end
 %              if ~isempty(imgOri)
                   data = convertCoordinates(data, imgOriV);
 %              else
