@@ -112,7 +112,6 @@ end
 
 % process NM scans
 for scanNum = 1:length(planC{indexS.scan})
-    disp('dcmdir2planc SCANNUM');
     if strcmpi(planC{indexS.scan}(scanNum).scanInfo(1).imageType, 'NM')
         if planC{indexS.scan}(scanNum).scanInfo(1).DICOMHeaders.SpacingBetweenSlices < 0
             planC{indexS.scan}(scanNum).scanArray = flipdim(planC{indexS.scan}(scanNum).scanArray,3);
@@ -368,14 +367,21 @@ end % end of scan loop
     
 
 % Check uniqueness of scanUIDs
-assocScanUIDc = {planC{indexS.structures}.assocScanUID};
+assocStrScanUIDc = {planC{indexS.structures}.assocScanUID};
+assocDoseScanUIDc = {planC{indexS.dose}.assocScanUID};
 [uidC,iA,iC] = unique({planC{indexS.scan}.scanUID});
 if length(iA) < length(planC{indexS.scan})
-    for scanNum = 1:length(planC{indexS.scan})
-        assocStrV = strcmpi(assocScanUIDc,planC{indexS.scan}(scanNum).scanUID);
+    allScansV = 1:numScans;
+    repeatUidV = allScansV(~ismember(allScansV,iA));
+    for iScan = 1:length(repeatUidV) %length(planC{indexS.scan})
+        scanNum = repeatUidV(iScan);
+        assocStrV = strcmpi(assocStrScanUIDc,planC{indexS.scan}(scanNum).scanUID);
+        assocDoseV = strcmpi(assocDoseScanUIDc,planC{indexS.scan}(scanNum).scanUID);
         planC{indexS.scan}(scanNum).scanUID = ...
-            [planC{indexS.scan}(scanNum).scanUID, '.', num2str(scanNum)];
+            [planC{indexS.scan}(scanNum).scanUID, '.', num2str(iScan)];
         [planC{indexS.structures}(assocStrV).assocScanUID] = ...
+            deal(planC{indexS.scan}(scanNum).scanUID);
+        [planC{indexS.dose}(assocDoseV).assocScanUID] = ...
             deal(planC{indexS.scan}(scanNum).scanUID);
     end
 end
@@ -386,9 +392,14 @@ if isempty(planC{indexS.scan})
     planC = createDummyScan(planC);
     isObliqScanV(1) = 0; % non-oblique "dummy" scan
     %associate all structures to the first scanset.
-    strNum = length(planC{indexS.structures});
-    for i=1:strNum
+    numStructs = length(planC{indexS.structures});
+    for i=1:numStructs
         planC{indexS.structures}(i).assocScanUID = planC{indexS.scan}(1).scanUID;
+    end
+    %associate all doses to the first scanset.
+    numDoses = length(planC{indexS.dose});
+    for i=1:numDoses
+        planC{indexS.dose}(i).assocScanUID = planC{indexS.scan}(1).scanUID;
     end
 end
 
