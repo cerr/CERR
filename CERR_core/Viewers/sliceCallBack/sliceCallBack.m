@@ -528,14 +528,7 @@ switch upper(instr)
         try
             delete(findobj('Tag','CERR_splashAxis'));
         end
-        stateS.doseSet              = [];
-        structIndx = getStructureSetAssociatedScan(1);
-        if ~isempty(structIndx)
-            stateS.structSet = structIndx;
-        else
-            stateS.structSet = [];
-        end
-
+        
         %Check for remotely stored variables
         flag = checkAndSetRemotePath;
         if flag
@@ -586,6 +579,8 @@ switch upper(instr)
         stateS.doseSetChanged       = 1;
         stateS.doseDisplayChanged   = 1;
         stateS.CTDisplayChanged     = 1;
+        stateS.colorbarRange        = [];
+        stateS.doseDisplayRange     = [];        
         stateS.doseChanged          = 1;
         stateS.structsChanged       = 1;
         
@@ -596,6 +591,23 @@ switch upper(instr)
         stateS.imageRegistrationMovDatasetType = 'scan';
         stateS.showPlaneLocators = 1;
         stateS.showNavMontage = 0;
+        
+        structureSet = getStructureSetAssociatedScan(stateS.scanSet);
+
+        if isempty(structureSet)
+            stateS.structSet = [];
+        else
+            stateS.structSet = structureSet(1);
+        end
+
+        doseNum = getScanAssociatedDose(stateS.scanSet);
+
+        if isempty(doseNum)
+            stateS.doseSet = [];
+        else
+            stateS.doseSet = doseNum;
+            %stateS.doseSetChanged = 1;
+        end        
         
         if ~(stateS.planLoaded && stateS.layout == 8)
             
