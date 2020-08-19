@@ -9,9 +9,9 @@ slicesV = find(squeeze(sum(sum(double(label3M)))>0));
 
 maskSiz = size(label3M,1);
 scale = 512/maskSiz;
-%Get morph. structuring element (for Octave)
-S1 = makeSphereStrel(4/scale);
-S2 = makeDiskStrel(2/scale,4/scale);
+%Get morph. structuring element 
+S1 = makeSphereStrel(floor(4/scale));
+S2 = makeDiskStrel(2,floor(2/scale));
 
 %Post-process
 if ~isempty(slicesV)
@@ -29,7 +29,7 @@ if ~isempty(slicesV)
     connCompS = bwconncomp(sliceLabels3M,conn);
     ccSiz = cellfun(@numel,[connCompS.PixelIdxList]);
     sel = ccSiz==max(ccSiz);
-    if ~ (isempty(sliceLabels3M(sel)) | max(ccSiz)< floor(50/scale^2))
+    if ~ (isempty(sliceLabels3M(sel)) || max(ccSiz)< floor(50/scale^2))
         idx = connCompS.PixelIdxList{sel};
         strMask3M(idx) = 1;
     end
@@ -42,7 +42,7 @@ if ~isempty(slicesV)
         cc = bwconncomp(labelM);
         ccSiz = cellfun(@numel,[cc.PixelIdxList]);
         sel = ccSiz==max(ccSiz);
-        if ~ (isempty(sliceLabels3M(sel)) | max(ccSiz)< floor(20/scale^2))
+        if ~ (isempty(sliceLabels3M(sel)) || max(ccSiz)< floor(20/scale^2))
             idx = cc.PixelIdxList{sel};
             labelM = zeros(size(labelM));
             labelM(idx) = 1;
