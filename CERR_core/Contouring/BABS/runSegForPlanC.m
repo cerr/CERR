@@ -75,9 +75,8 @@ testFlag = true;
 %save_planC(planC,[],'passed',cerrFileName);
 
 % Parse algorithm and convert to cell arrray
+algorithmC = strsplit(algorithm,'^');
 confirm_recursive_rmdir(0)
-algorithmC = split(algorithm,'^');
-
 if length(algorithmC)==1 && ~strcmpi(algorithmC,'BABS')
     
     containerPathStr = varargin{1};
