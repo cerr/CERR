@@ -9,6 +9,8 @@ slicesV = find(squeeze(sum(sum(double(label3M)))>0));
 
 maskSiz = size(label3M,1);
 scale = 512/maskSiz;
+%Create morph. structuring elements
+S1 = makeSphereStrel(floor(3/scale));
 
 %Post-process
 if ~isempty(slicesV)
@@ -21,7 +23,7 @@ if ~isempty(slicesV)
     sliceLabels3M = label3M(:,:,slicesV);
     
     %Fill holes
-    sliceLabels3M = imclose(sliceLabels3M,strel('sphere',floor(3/scale)));
+    sliceLabels3M = imclose(sliceLabels3M,S1);
     
     %Remove islands
     for s = 1:size(sliceLabels3M,3)
@@ -31,7 +33,7 @@ if ~isempty(slicesV)
         connCompS = bwconncomp(slcMask,8);
         ccSiz = cellfun(@numel,[connCompS.PixelIdxList]);
         sel = ccSiz==max(ccSiz);
-        if ~ (isempty(slcMask(sel)) | max(ccSiz)< floor(20/scale^2))
+        if ~ (isempty(slcMask(sel)) || max(ccSiz)< floor(20/scale^2))
             idx = connCompS.PixelIdxList{sel};
             strMaskM(idx) = 1;
         end
@@ -42,7 +44,7 @@ if ~isempty(slicesV)
     connCompS = bwconncomp(sliceLabels3M,conn);
     ccSiz = cellfun(@numel,[connCompS.PixelIdxList]);
     sel = ccSiz==max(ccSiz);
-    if ~ (isempty(sliceLabels3M(sel)) | max(ccSiz)< floor(1000/scale^2))
+    if ~ (isempty(sliceLabels3M(sel)) || max(ccSiz)< floor(1000/scale^2))
         idx = connCompS.PixelIdxList{sel};
         strMask3M(idx) = 1;
     end
