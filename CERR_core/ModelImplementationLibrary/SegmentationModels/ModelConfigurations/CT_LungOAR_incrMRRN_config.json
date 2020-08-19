@@ -24,13 +24,11 @@
     "size" : [256,256]
 },
 
-"crop": [
-{
+"crop": {
     "method": "crop_pt_outline_2D",
     "params": { "structureName": "generated_pt_outline", "outStrName":"generated_pt_outline", "saveStrToPlanCFlag": 1, "outlineThreshold": -400},
     "operator": ""
-    }
-],
+    },
 
 "batchSize" : 1 ,
 

@@ -33,12 +33,11 @@
 "batchSize" : 1,
 
 
-"crop": [
-    {
+"crop": {
       "method": "crop_pt_outline_2D",
       "params": { "structureName": "generated_pt_outline", "outStrName":"generated_pt_outline", "saveStrToPlanCFlag": 0, "outlineThreshold": -400},
       "operator": ""
-    } ],
+    },
  
 "passedScanDim" : "3D",
 

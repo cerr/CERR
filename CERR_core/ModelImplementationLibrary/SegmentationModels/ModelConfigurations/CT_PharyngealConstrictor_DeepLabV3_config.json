@@ -9,7 +9,7 @@
 
 "view" : ["axial", "sagittal", "coronal"],
 
-"crop" : [{     
+"crop" : {     
             "method": "crop_for_constrictor",
             "params": { "structureName": 
                         { 
@@ -19,8 +19,7 @@
                         "saveStrToPlanCFlag": 0
                       },
             "operator": ""
-          }
-         ],
+          },
 
 "resize" : {"method": "none",
             "size" : [320,320]},
