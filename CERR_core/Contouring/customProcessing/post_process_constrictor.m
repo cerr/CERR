@@ -7,6 +7,10 @@ function [procMask3M, planC] = post_process_constrictor(strNum,paramS,planC)
 label3M = getStrMask(strNum,planC);
 slicesV = find(squeeze(sum(sum(double(label3M)))>0));
 
+%Get morph. structuring element 
+S1 = makeSphereStrel(4);
+S2 = makeDiskStrel(2,4);
+
 %Post-process
 if ~isempty(slicesV)
     
@@ -17,7 +21,7 @@ if ~isempty(slicesV)
     strMask3M = zeros(size(label3M,1),size(label3M,1),length(slicesV));
     sliceLabels3M = label3M(:,:,slicesV);
     
-    sliceLabels3M = imclose(sliceLabels3M,strel('sphere',4));
+    sliceLabels3M = imclose(sliceLabels3M,S1);
     
     %Retain largest connected component
     connCompS = bwconncomp(sliceLabels3M,conn);
@@ -32,7 +36,7 @@ if ~isempty(slicesV)
     for n = 1:size(strMask3M,3)
         
         strMaskM = strMask3M(:,:,n);
-        labelM = imclose(strMaskM,strel('disk',2));
+        labelM = imclose(strMaskM,S2);
         cc = bwconncomp(labelM);
         ccSiz = cellfun(@numel,[cc.PixelIdxList]);
         sel = ccSiz==max(ccSiz);

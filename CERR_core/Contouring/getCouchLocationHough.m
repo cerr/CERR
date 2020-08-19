@@ -14,7 +14,8 @@ function [yCouch, lines] =  getCouchLocationHough(inputStack)
 midpt = floor(size(inputStack,1)/2);
 
 maxS = max(inputStack, [], 3);
-histeqS = histeq(maxS);
+%histeqS = histeq(maxS);
+histeqS = equalizeHist(maxS);
 edgeS = edge(histeqS,'canny');
     
 [H,T,R] = hough(edgeS);

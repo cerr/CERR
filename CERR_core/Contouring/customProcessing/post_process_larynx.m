@@ -7,6 +7,9 @@ function [procMask3M, planC] = post_process_larynx(strNum,paramS,planC)
 [label3M, planC] = getStrMask(strNum,planC);
 slicesV = find(squeeze(sum(sum(double(label3M)))>0));
 
+%Create morph. structuring elements
+S1 = makeSphereStrel(3);
+
 %Post-process
 if ~isempty(slicesV)
     
@@ -17,7 +20,7 @@ if ~isempty(slicesV)
     sliceLabels3M = label3M(:,:,slicesV);
     
     %Fill holes
-    sliceLabels3M = imclose(sliceLabels3M,strel('sphere',3));
+    sliceLabels3M = imclose(sliceLabels3M,S1);
     
     %Remove islands
     for s = 1:size(sliceLabels3M,3)
