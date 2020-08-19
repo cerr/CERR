@@ -82,7 +82,8 @@ testFlag = true;
 %% Run segmentation algorithm
 
 % Parse algorithm and convert to cell arrray
-algorithmC = split(algorithm,'^');
+confirm_recursive_rmdir(0)
+algorithmC = strsplit(algorithm,'^');
 
 if length(algorithmC) > 1 || ...
         (length(algorithmC)==1 && ~strcmpi(algorithmC,'BABS'))
