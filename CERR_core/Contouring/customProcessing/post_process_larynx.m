@@ -9,6 +9,8 @@ slicesV = find(squeeze(sum(sum(double(label3M)))>0));
 
 maskSiz = size(label3M,1);
 scale = 512/maskSiz;
+%Create morph. structuring elements (for Octave)
+S1 = makeSphereStrel(3/scale);
 
 %Post-process
 if ~isempty(slicesV)
@@ -21,7 +23,7 @@ if ~isempty(slicesV)
     sliceLabels3M = label3M(:,:,slicesV);
     
     %Fill holes
-    sliceLabels3M = imclose(sliceLabels3M,strel('sphere',floor(3/scale)));
+    sliceLabels3M = imclose(sliceLabels3M,S1);
     
     %Remove islands
     for s = 1:size(sliceLabels3M,3)

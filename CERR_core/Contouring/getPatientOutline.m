@@ -35,6 +35,11 @@ scanThreshV = scan3M(scan3M>outThreshold);
 threshold = prctile(scanThreshV,5);
 minInt = min(scan3M(:));
 
+% Define morphological structuring element 
+str1S = makeDiskStrel(5,4); %Equivalent to strel('disk',5)
+str2S = makeDiskStrel(3,4); %Equivalent to strel('disk',3)
+
+
 %Iterate over slices
 ptMask3M = false([sizV(1:2),length(slicesV)]);
 for n = 1:numel(slicesV)
@@ -47,7 +52,7 @@ for n = 1:numel(slicesV)
     binM = threshM & ~couchMaskM;
     
     % Separate pt outline from table
-    binM = imopen(binM,strel('disk',5));
+    binM = imopen(binM,str1S);
     
     % Fill holes in pt outline
     maskM = false(size(binM));
@@ -71,7 +76,7 @@ for n = 1:numel(slicesV)
             thresh2M = sliceM > 1.5*threshold;
             thresh2M = imfill(thresh2M,'holes');
             thresh2M = bwareaopen(thresh2M,200,8);
-            thresh2M = imclose(thresh2M,strel('disk',3));
+            thresh2M = morphClose(thresh2M,str2S);
             smoothedlabel3M = imboxfilt(double(thresh2M),5);
             maskM = smoothedlabel3M > 0.5;
             

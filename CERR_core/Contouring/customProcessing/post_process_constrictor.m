@@ -9,6 +9,9 @@ slicesV = find(squeeze(sum(sum(double(label3M)))>0));
 
 maskSiz = size(label3M,1);
 scale = 512/maskSiz;
+%Get morph. structuring element (for Octave)
+S1 = makeSphereStrel(4/scale);
+S2 = makeDiskStrel(2/scale,4/scale);
 
 %Post-process
 if ~isempty(slicesV)
@@ -20,7 +23,7 @@ if ~isempty(slicesV)
     strMask3M = zeros(size(label3M,1),size(label3M,1),length(slicesV));
     sliceLabels3M = label3M(:,:,slicesV);
     
-    sliceLabels3M = imclose(sliceLabels3M,strel('sphere',floor(4/scale)));
+    sliceLabels3M = imclose(sliceLabels3M,S1);
     
     %Retain largest connected component
     connCompS = bwconncomp(sliceLabels3M,conn);
@@ -35,7 +38,7 @@ if ~isempty(slicesV)
     for n = 1:size(strMask3M,3)
         
         strMaskM = strMask3M(:,:,n);
-        labelM = imclose(strMaskM,strel('disk',floor(2/scale)));
+        labelM = imclose(strMaskM,S2);
         cc = bwconncomp(labelM);
         ccSiz = cellfun(@numel,[cc.PixelIdxList]);
         sel = ccSiz==max(ccSiz);

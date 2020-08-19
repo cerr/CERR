@@ -53,7 +53,8 @@ for n = 1:endSlc
 end
 
 minr = round(prctile(minrV,5));
-maxr = round(nanmedian(maxrV));
+isNanV = isnan(maxrV);
+maxr = round(median(maxrV(~isNanV)));
 width = maxr-minr+1;
 maxr = round(maxr-.25*width);
 
