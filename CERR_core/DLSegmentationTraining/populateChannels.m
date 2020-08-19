@@ -20,7 +20,7 @@ for i = 1:nViews
         
         slice = channelS(c).slice;
         
-        if contains(slice,'current-')
+        if strfind(slice,'current-')
             
             scan3M = scanC{c};
             idx = strfind(slice,'-');
@@ -29,7 +29,7 @@ for i = 1:nViews
             shiftSlice3M(:,:,1:shift) = repmat(scan3M(:,:,1),[1,1,shift]);
             channelC{c} = shiftSlice3M;
             
-        elseif contains(slice,'current+')
+        elseif strfind(slice,'current+')
             
             scan3M = scanC{c};
             idx = strfind(slice,'+');
