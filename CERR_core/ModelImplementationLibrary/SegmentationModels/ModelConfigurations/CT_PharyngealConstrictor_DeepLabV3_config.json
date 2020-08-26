@@ -1,9 +1,5 @@
 {
-"strNameToLabelMap":[
-
-  {"structureName" : "Constrictor_muscle", "value" : 1}
-
-  ],
+"strNameToLabelMap":{"structureName" : "Constrictor_muscle", "value" : 1},
 
 "scan":{
 
@@ -37,7 +33,7 @@
 
 "batchSize" : 4,
 
-"postProc" : {"Constrictor_muscle": [{"method": "post_process_constrictor"}]},
+"postProc" : {"Constrictor_muscle": {"method": "post_process_constrictor"}},
 
 "roiGenerationDescription": "HNDeepLabV3^2.5D^AvgTransSagCor^59df680",
 
