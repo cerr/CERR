@@ -67,6 +67,7 @@ confirm_recursive_rmdir(0)
 %% Get conda installation path
 optS = opts4Exe([getCERRPath,'CERROptions.json']);
 condaPath = optS.condaPath;
+confirm_recursive_rmdir(0)
 
 %% Parse algorithm & functionName and convert to cell arrray
 algorithmC = strsplit(algorithm,'^');
