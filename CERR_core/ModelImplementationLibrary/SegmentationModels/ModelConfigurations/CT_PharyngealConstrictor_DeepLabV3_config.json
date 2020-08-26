@@ -1,9 +1,5 @@
 {
-"strNameToLabelMap":[
-
-  {"structureName" : "Constrictor_muscle", "value" : 1}
-
-  ],
+"strNameToLabelMap":{"structureName" : "Constrictor_muscle", "value" : 1},
 
 "inputFileType" : "CERR",
 
@@ -32,7 +28,7 @@
 
 "batchSize" : 4,
 
-"postProc" : {"Constrictor_muscle": [{"method": "post_process_constrictor"}]},
+"postProc" : {"Constrictor_muscle": {"method": "post_process_constrictor"}},
 
 "reference" : "https://www.biorxiv.org/content/10.1101/772178v1"
 

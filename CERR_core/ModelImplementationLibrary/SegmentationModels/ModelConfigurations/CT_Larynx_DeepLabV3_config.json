@@ -1,9 +1,5 @@
 {
-"strNameToLabelMap":[
-
-  {"structureName" : "Larynx", "value" : 1}
-
-  ],
+"strNameToLabelMap":{"structureName" : "Larynx", "value" : 1},
 
 "inputFileType" : "CERR",
 
@@ -29,7 +25,7 @@
 
 "batchSize" : 4,
 
-"postProc" : {"Larynx": [{"method": "post_process_larynx"}]},
+"postProc" : {"Larynx": {"method": "post_process_larynx"}},
 
 "reference" : "https://www.biorxiv.org/content/10.1101/772178v1"
 
