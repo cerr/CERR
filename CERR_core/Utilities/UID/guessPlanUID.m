@@ -59,12 +59,13 @@ if exist('dcm', 'var') && (dcm)
             %forUID = planC{indexS.scan}(i).scanInfo(1).DICOMHeaders.FrameofReferenceUID; % Frame of Reference UID
             forUID = planC{indexS.scan}(i).scanInfo(1).frameOfReferenceUID; % Frame of Reference UID
             studyInstanceUID = planC{indexS.scan}(i).scanInfo(1).studyInstanceUID;     
-            indStrSet = ismember(scanUID,uniqScanSetUIDc);
-            if sum(indStrSet) == 1
-                strSetSopInstUID = uniqStrSetSopInstUidC{indStrSet};
-            else
-                strSetSopInstUID = '';
-            end
+            indStrSet = ismember(uniqScanSetUIDc,scanUID);
+            strSetSopInstUIDc = uniqStrSetSopInstUidC(indStrSet);
+            %if length(strSetSopInstUIDc) == 1
+            %    strSetSopInstUID = strSetSopInstUIDc{1};
+            %else
+            %    strSetSopInstUID = '';
+            %end
         catch
             break;
         end  
@@ -79,9 +80,8 @@ if exist('dcm', 'var') && (dcm)
             refForUID = planC{indexS.dose}(j).frameOfReferenceUID;
             refStrSetSopInstUID = planC{indexS.dose}(j).refStructSetSopInstanceUID;
             doseStudyInstanceUID = planC{indexS.dose}(j).studyInstanceUID;
-            if strcmp(refForUID, forUID) && ...
-                    strcmp(doseStudyInstanceUID,studyInstanceUID) && ...
-                    strcmp(strSetSopInstUID,refStrSetSopInstUID)
+            if strcmp(refForUID, forUID) && ... %%strcmp(doseStudyInstanceUID,studyInstanceUID) && ...                    
+                    any(ismember(strSetSopInstUIDc,refStrSetSopInstUID))
                 % planC{indexS.dose}(j).assocScanUID = assocScanUID;
                 doseAssocList(j) = i;
                 continue;

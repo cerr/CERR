@@ -653,13 +653,18 @@ switch fieldname
         dataS = getTagValue(attr, '00200052'); % Frame of Reference UID
         
     case 'refStructSetSopInstanceUID'
-        refStructSetSeq = getTagValue(attr, '300C0060');
-        if ~isempty(refStructSetSeq)
-            dataS = refStructSetSeq.Item_1.ReferencedSOPInstanceUID;
-        else
-            dataS = '';
-        end
         
+        dataS = '';
+
+        referencedRTPlanSequence = getTagValue(attr, '300C0002');
+        referencedPlanSOPInstanceUID = referencedRTPlanSequence.Item_1.ReferencedSOPInstanceUID;
+        numChars = length(referencedPlanSOPInstanceUID);
+        for iPlan = 1:length(rtPlans)
+            if strncmp(rtPlans(iPlan).SOPInstanceUID, referencedPlanSOPInstanceUID, numChars)
+                dataS = rtPlans(iPlan).ReferencedStructureSetSequence.Item_1.ReferencedSOPInstanceUID;
+            end
+        end
+           
     case 'transM'
         %Implementation is unnecessary.
         
