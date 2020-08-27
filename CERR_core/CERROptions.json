@@ -229,6 +229,8 @@
 
 "elastix_build_dir" : "C:\\software\\Elastix_5.0",
 
+"ants_build_dir" : "C:\\software\\antsbin",
+
 "linePoolSize" : 30,
 
 "ROEProtocolPath" : "fullfile(getCERRPath,'PlanAnalysis/sampleFilesForROE/Protocols')", 
