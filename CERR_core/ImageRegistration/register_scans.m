@@ -1,4 +1,4 @@
-sfunction [basePlanC, movPlanC, bspFileName] = register_scans(basePlanC, movPlanC,...
+function [basePlanC, movPlanC, bspFileName] = register_scans(basePlanC, movPlanC,...
     baseScanNum, movScanNum, algorithm, baseMask3M, movMask3M,...
     threshold_bone, inputCmdFile, inBspFile, outBspFile, tmpDirPath)
 % function [basePlanC, movPlanC, bspFileName] = register_scans(basePlanC, movPlanC,...
@@ -230,25 +230,8 @@ switch upper(algorithm)
         
     case 'LDDM ANTS'
         
-        % Usage:
-        % doseAccumulation_Lung_Registration_CTtoCBCT.sh -d ImageDimension -f FixedImage -m MovingImage -o OutputPrefix
-
-        % Compulsory arguments:
-        %      -d:  ImageDimension: 2 or 3 (for 2 or 3 dimensional registration of single volume)
-        %      -f:  Fixed image(s) or source image(s) or reference image(s)
-        %      -m:  Moving image(s) or target image(s)
-        %      -o:  OutputPrefix: A prefix that is prepended to all output files.
-        % Optional arguments:
-        %      -n:  Number of threads (default = 1)
-        %      -i:  initial transform(s) --- order specified on the command line matters
-
-%         baseScanFileName = fullfile(tmpDirPath,['baseScan_',baseScanUniqName,'.mha']);
-%         baseMaskFileName = fullfile(tmpDirPath,['baseMask_',baseScanUniqName,'.mha']);
-%         movScanFileName = fullfile(tmpDirPath,['movScan_',movScanUniqName,'.mha']);
-%         movMaskFileName = fullfile(tmpDirPath,['movMask_',movScanUniqName,'.mha']);
-
         outPrefix = fullfile(tmpDirPath,[baseScanUID '_' movScanUID '_']);
-        antsCommand = fullfile(antsCommand,'doseAccumulation_Lung_Registration_CTtoCBCT.sh ');
+        antsCommand = fullfile(antsCommand,'ANTs_Lung_Registration_CT2toCT1.sh ');
         %add parameter arguments
         %      -d 3
         %      -f baseScanFileName 
@@ -257,6 +240,25 @@ switch upper(algorithm)
         
         system([antsCommand ' -d 3 -f ' baseScanFileName ' -m ' movScanFileName ' -o ' outPrefix]);
         
+    case 'LDDM MASK ANTS'
+        
+
+        outPrefix = fullfile(tmpDirPath,[baseScanUID '_' movScanUID '_']);
+        antsCommand = fullfile(antsCommand,'ANTs_Lung_Registration_CT2toCT1_Mask.sh ');
+        
+        system([antsCommand ' -d 3 -f ' baseScanFileName ' -m ' movScanFileName ' -o ' outPrefix]);
+
+    case 'LDDM MASK DIR ANTS'
+
+        outPrefix = fullfile(tmpDirPath,[baseScanUID '_' movScanUID '_']);
+        antsCommand = fullfile(antsCommand,'ANTs_Lung_Registration_CT2toCT1_Mask_Intensity.sh ');
+        %add parameter arguments
+        %      -d 3
+        %      -f baseScanFileName 
+        %      -m movScanFileName 
+        %      -o outPrefix
+        
+        system([antsCommand ' -d 3 -f ' baseScanFileName ' -m ' movScanFileName ' -o ' outPrefix]);
         
     case 'BSPLINE PLASTIMATCH'
         
