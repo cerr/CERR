@@ -142,17 +142,19 @@ end
 
 if antsFlag
     antsCommand = '';
-    if exist(optS.antspath_dir,'dir')
-        setenv('ANTSPATH',fullfile(optS.antspath_dir,'bin'));
+    if exist(optS.ants_build_path,'dir')
+        setenv('ANTSPATH',fullfile(optS.ants_build_path,'bin'));
+        antsScriptPath = fullfile(optS.ants_build_path, 'Scripts');
+        antsCERRScriptPath = fullfile(getCERRPath,'CERR_core','ImageRegistration','antsScripts');
         if isunix
-            setenv('PATH',['$ANTSPATH:' fullfile(optS.antspath_dir,'Scripts') ':$PATH'])
-            antsCommand = ['sh ', fullfile(optS.antspath_dir,'Scripts')];
+            setenv('PATH',['$ANTSPATH:' antsScriptPath ':' antsCERRScriptPath ':$PATH'])
+            antsCommand = 'sh ';
         else
-            setenv('PATH',['$ANTSPATH;' fullfile(optS.antspath_dir,'Scripts') ';$PATH'])
-            antsCommand = fullfile(optS.antspath_dir,'Scripts');
+            setenv('PATH',['$ANTSPATH;' antsScriptPath ';' antsCERRScriptPath  ';$PATH'])
+            antsCommand = '';
         end
     else
-        error(['ANTSPATH ' optS.antspath_dir ' not found on filesystem. Please review CERROptions.']);
+        error(['ANTSPATH ' optS.ants_build_path ' not found on filesystem. Please review CERROptions.']);
     end
 end
 
