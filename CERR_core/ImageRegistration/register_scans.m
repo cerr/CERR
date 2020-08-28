@@ -1,4 +1,4 @@
-function [basePlanC, movPlanC, bspFileName] = register_scans(basePlanC, movPlanC,...
+sfunction [basePlanC, movPlanC, bspFileName] = register_scans(basePlanC, movPlanC,...
     baseScanNum, movScanNum, algorithm, baseMask3M, movMask3M,...
     threshold_bone, inputCmdFile, inBspFile, outBspFile, tmpDirPath)
 % function [basePlanC, movPlanC, bspFileName] = register_scans(basePlanC, movPlanC,...
@@ -142,9 +142,9 @@ end
 
 if antsFlag
     antsCommand = '';
-    if exist(optS.ants_build_path,'dir')
-        setenv('ANTSPATH',fullfile(optS.ants_build_path,'bin'));
-        antsScriptPath = fullfile(optS.ants_build_path, 'Scripts');
+    if exist(optS.ants_build_dir,'dir')
+        setenv('ANTSPATH',fullfile(optS.ants_build_dir,'bin'));
+        antsScriptPath = fullfile(optS.ants_build_dir, 'Scripts');
         antsCERRScriptPath = fullfile(getCERRPath,'CERR_core','ImageRegistration','antsScripts');
         if isunix
             setenv('PATH',['$ANTSPATH:' antsScriptPath ':' antsCERRScriptPath ':$PATH'])
@@ -154,7 +154,7 @@ if antsFlag
             antsCommand = '';
         end
     else
-        error(['ANTSPATH ' optS.ants_build_path ' not found on filesystem. Please review CERROptions.']);
+        error(['ANTSPATH ' optS.ants_build_dir ' not found on filesystem. Please review CERROptions.']);
     end
 end
 
@@ -219,7 +219,7 @@ switch upper(algorithm)
     case 'QUICKSYN ANTS'
 %         build command
         outPrefix = fullfile(tmpDirPath,[baseScanUID '_' movScanUID '_']);
-        antsCommand = fullfile(antsCommand,'doseAccumulation_Lung_Registration_CTtoCBCT.sh ');
+        antsCommand = fullfile(antsCommand,'antsRegistrationSyNQuick.sh ');
         %add parameter arguments
         %      -d 3
         %      -f baseScanFileName 
