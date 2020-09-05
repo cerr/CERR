@@ -20,12 +20,17 @@ planCfilename = fullfile(planCfiles.folder, planCfiles.name);
 planC = load(planCfilename);
 planC = planC.planC;
 
-planC  = joinH5planC(segMask3M,userOptS,planC);
+% Scan number to segment
+% For now, we assume there is only one scan in planC. Consider adding
+% an option in userOptS to determing scanNum. For example, CT, MR, PET
+scanNum = 1;
+
+planC  = joinH5planC(scanNum,segMask3M,userOptS,planC);
 
 % Post-process segmentation
 fprintf('\nPost-processing results...\n');
 tic
-planC = postProcStruct(planC,userOptS);
+planC = postProcStruct(scanNum,planC,userOptS);
 toc
 
 % save final plan

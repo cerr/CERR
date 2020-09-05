@@ -1,4 +1,4 @@
-function planC  = joinH5planC(segMask3M,userOptS,planC)
+function planC  = joinH5planC(scanNum,segMask3M,userOptS,planC)
 % function planC  = joinH5planC(segMask3M,userOptS,planC)
 %
 
@@ -10,7 +10,7 @@ indexS = planC{end};
 resizeMethod = userOptS.resize.method;
 cropS = userOptS.crop; %Added
 
-scanNum = 1;
+%scanNum = 1;
 isUniform = 0;
 preserveAspectFlag = 0;
 
