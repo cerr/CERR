@@ -117,9 +117,9 @@ tMaxPrev = tMin;
 
 reusableZerosM = repmat(0,[CTImageSize(1), CTImageSize(2)]);
 
-try
-    waitbar(tMin,hBar);
-end
+%try
+%    waitbar(tMin,hBar);
+%end
 
 k = 0;
 %for each z-slice in the uniform matrix
@@ -230,9 +230,9 @@ for zSliceUniformValue = zSliceUniformValuesA
       entry = lastEntry+1; % note that there will be non-zero entries in the matrix after the entry index which are now irrelevant and will be written over or deleted later.
   end
   
-  try
-      waitbar(tMaxCurr,hBar);
-  end
+  %try
+  %    waitbar(tMaxCurr,hBar);
+  %end
 end %for each z slice
 
 %if number of entries is less than the preallocated space, then cut off the rest of the array.
@@ -271,9 +271,9 @@ tMaxPrev = tMin;
 
 reusableZerosM = repmat(0,[CTImageSize(1), CTImageSize(2)]);
 
-try
-    waitbar(tMin,hBar);
-end
+%try
+%    waitbar(tMin,hBar);
+%end
 
 for cellNum = 1:cellLength
     structC{cellNum} = structInScan((cellNum-1)*8+1:min(length(structInScan),cellNum*8));
@@ -382,9 +382,9 @@ for cellNum = 1:cellLength
             entry = lastEntry+1; % note that there will be non-zero entries in the matrix after the entry index which are now irrelevant and will be written over or deleted later.
         end
 
-        try
-            waitbar(tMaxCurr,hBar);
-        end
+        %try
+        %    waitbar(tMaxCurr,hBar);
+        %end
     end %for each z slice
 
     %if number of entries is less than the preallocated space, then cut off the rest of the array.

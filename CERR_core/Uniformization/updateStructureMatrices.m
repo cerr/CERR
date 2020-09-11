@@ -136,7 +136,7 @@ end
 %Now we need to generate the indicesM entries for the modified structure
 k = 0;
 if ~isempty(allSegmentsM)
-    wb = waitbar(0, ['Saving updated data for ' planC{indexS.structures}(editStructNum).structureName '...']);
+    %wb = waitbar(0, ['Saving updated data for ' planC{indexS.structures}(editStructNum).structureName '...']);
 
     %If no predefined slice numbers were passed in...
     if ~exist('sliceNumsV')
@@ -171,7 +171,7 @@ if ~isempty(allSegmentsM)
     for zSliceUniformValue = zV(sliceNumsV)
         k = k+1;
         beginningEntry = entry;
-        waitbar(k/length(sliceNumsV), wb);
+        %waitbar(k/length(sliceNumsV), wb);
         structSlc = findStructureMatrixForOneZSlice(allSegmentsM, zSliceUniformValue, CTOriginalZValues, CTSliceThickness, CTdeltaX, CTdeltaY, reusableZerosM);
 
         if ((cellNum == 1) && (isempty(planC{indexS.structureArray}(scanNum).indicesArray))) || ((cellNum > 1) && (cellNum-1 > length(planC{indexS.structureArrayMore}(scanNum).indicesArray)))
@@ -261,9 +261,9 @@ if ~isempty(allSegmentsM)
     end
 end
 
-if exist('wb')
-    close(wb);
-end
+%if exist('wb')
+%    close(wb);
+%end
 return
 
 
