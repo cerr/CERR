@@ -136,10 +136,17 @@ for k=1:length(algorithmC)
     condaEnvPath = fullfile(optS.condaPath,'envs',condaEnvListC{k});
     newPth = [condaBinPath,pth];
     setenv('PATH',newPth)
-    wrapperFunc = functionNameC{k};    
-    command = sprintf('. /usr/local/etc/profile.d/conda.sh && conda activate %s && python %s %s %s %s',...
+    wrapperFunc = functionNameC{k};  
+    if ispc
+        command = sprintf('call activate %s && python %s %s %s %s',...
         condaEnvPath, wrapperFunc, inputH5Path, outputH5Path,...
         num2str(userOptS.batchSize));
+    else
+        condaSrc = fullfile(optS.condaPath,'/usr/local/etc/profile.d/conda.sh');
+        command = sprintf('. %s && conda activate %s && python %s %s %s %s',...
+        condaSrc, condaEnvPath, wrapperFunc, inputH5Path, outputH5Path,...
+        num2str(userOptS.batchSize));
+    end    
     disp(command)    
     tic
     status = system(command);
