@@ -1,0 +1,91 @@
+{
+
+"structures": ["Mandible"],
+
+"imageType": {
+  		  "Original": {}
+	    },
+
+"settings": {		   
+
+		   "perturbation": {
+			           },
+
+		   "resample": {
+				 "resolutionXCm": 0.1,
+				 "resolutionYCm": 0.1,
+				 "resolutionZCm": 0.1,
+				 "interpMethod": "linear"
+			       },
+
+		   "firstOrder" :{ 
+				   "binWidthEntropy": 25,
+				   "offsetForEnergy": 0
+                                 },
+
+		   "texture" :{ 
+				"binwidth": 25,
+                                "minSegThreshold": -500,
+                                "maxSegThreshold": 400,
+                                "directionality": "2D",
+				"avgType": "feature",
+				"voxelOffset": 1,
+				"patchRadiusVox": [1, 1, 0],
+				"imgDiffThresh": 0
+                              },
+
+                  "shape":{
+			     "rcs": []
+                          },
+		
+
+		  "peakValley" :{ 
+				   "peakRadius": [1, 1, 0],
+				   "units": "vox"	
+                                },
+
+		  "ivh" :{ 
+			    "binwidth": 2.5,
+			    "xForIxPct": [10, 20, 30, 40, 50, 60, 70, 80, 90],
+			    "xForIxCc": [],
+			    "xForVxPct": [10, 20, 30, 40, 50, 60, 70, 80, 90],
+			    "xForVxAbs": []		
+                         }		   	
+
+	    },
+
+
+ "featureClass":{
+			
+
+        "firstOrder": {
+			    	  "featureList": ["all"]
+		      },
+
+        "shape": {
+			    	  "featureList": ["all"]
+		      },
+
+       "glcm": {
+			    	  "featureList": ["all"]
+		      },
+       "glrlm": {
+			    	  "featureList": ["all"]
+                                 
+		         },
+
+		"glszm": {
+			          "featureList": ["all"]  
+                         },
+
+		"gldm": {
+			          "featureList": ["all"]
+                        },
+
+		"gtdm": {			    	
+                                  "featureList": ["all"]               
+		        }
+
+            }
+
+}
