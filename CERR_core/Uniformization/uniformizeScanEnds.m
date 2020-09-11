@@ -50,7 +50,9 @@ tDelta = tMax - tMin;
 if calculateSup && length(scanInfo)>1
   inputScanArraySup = scanArray(:, :, 1:sliceNumSup);
   scanInfoSup = scanInfo(1:sliceNumSup);
-  [scanArraySup, uniformScanFirstZValue] = scanUniformize(scanStruct,inputScanArraySup, scanInfoSup, uniformSliceThickness, tMin, tMin+tDelta/tTotal, 'last', optS, hBar);
+  [scanArraySup, uniformScanFirstZValue] = ...
+      scanUniformize(scanStruct,inputScanArraySup, scanInfoSup, ...
+      uniformSliceThickness, tMin, tMin+tDelta/tTotal, 'last', optS, hBar);
   scanArraySup = scanArraySup(:,:,1:end-1); %get rid of duplicate slice
 else
   uniformScanFirstZValue = scanInfo(1).zValue;
@@ -59,7 +61,8 @@ end
 if calculateInf && length(scanInfo)>1
   inputScanArrayInf = scanArray(:, :, sliceNumInf:lastSlice);
   scanInfoInf = scanInfo(sliceNumInf:lastSlice);
-  scanArrayInf = scanUniformize(scanStruct,inputScanArrayInf,scanInfoInf, uniformSliceThickness, tMax - tDelta/tTotal, tMax, 'first', optS, hBar); %the first slice from this will be the last slice in the middle of the CT already.
+  scanArrayInf = scanUniformize(scanStruct,inputScanArrayInf,scanInfoInf, ...
+      uniformSliceThickness, tMax - tDelta/tTotal, tMax, 'first', optS, hBar); %the first slice from this will be the last slice in the middle of the CT already.
   scanArrayInf = scanArrayInf(:,:,2:end); %get rid of duplicate slice
 end
 

@@ -599,7 +599,7 @@ switch fieldname
     case 'acquisitionDate'
         dataS  = getTagValue(attr, '00080022');
     case 'acquisitionTime'
-        dataS  = getTagValue(attr, '00080030');
+        dataS  = getTagValue(attr, '00080032');
     case 'patientWeight'
         dataS  = getTagValue(attr, '00101030');
     case 'RadiopharmaInfoS'

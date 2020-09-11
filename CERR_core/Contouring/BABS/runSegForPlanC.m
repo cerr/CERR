@@ -1,4 +1,4 @@
-function planC = runSegForPlanC(planC,clientSessionPath,algorithm,sshConfigFile,hWait,varargin)
+function planC = runSegForPlanC(scanNum,planC,clientSessionPath,algorithm,sshConfigFile,hWait,varargin)
 % function planC = runSegForPlanC(planC,clientSessionPath,algorithm,SSHkeyPath,serverSessionPath,varargin)
 %
 % This function serves as a wrapper for different types of segmentations.
@@ -33,9 +33,9 @@ global stateS
 indexS = planC{end};
 
 % Use series uid in temporary folder name
-if isfield(planC{indexS.scan}.scanInfo(1),'seriesInstanceUID') && ...
-        ~isempty(planC{indexS.scan}.scanInfo(1).seriesInstanceUID)
-    folderNam = planC{indexS.scan}.scanInfo(1).seriesInstanceUID;
+if isfield(planC{indexS.scan}(scanNum).scanInfo(1),'seriesInstanceUID') && ...
+        ~isempty(planC{indexS.scan}(scanNum).scanInfo(1).seriesInstanceUID)
+    folderNam = planC{indexS.scan}(scanNum).scanInfo(1).seriesInstanceUID;
 else
     folderNam = dicomuid;
 end
@@ -109,7 +109,7 @@ if ~any(strcmpi(algorithmC,'BABS'))
             [algorithmC{k}, '_config.json']);
         
         userOptS = readDLConfigFile(configFilePath);
-        if nargin==7 && ~isnan(varargin{2})
+        if nargin==8 && ~isnan(varargin{2})
             batchSize = varargin{2};
         else
             batchSize = userOptS.batchSize;
@@ -118,7 +118,7 @@ if ~any(strcmpi(algorithmC,'BABS'))
         if ishandle(hWait)
             waitbar(0.1,hWait,'Extracting scan and mask');
         end
-        [scanC, mask3M, planC] = extractAndPreprocessDataForDL(userOptS,planC,testFlag);
+        [scanC, mask3M, planC] = extractAndPreprocessDataForDL(scanNum,userOptS,planC,testFlag);
         %Note: mask3M is empty for testing
         
         if ishandle(hWait)
@@ -149,10 +149,10 @@ if ~any(strcmpi(algorithmC,'BABS'))
         outC = stackHDF5Files(fullClientSessionPath,userOptS.passedScanDim); %Updated
         
         % Join results back to planC
-        planC  = joinH5planC(outC{1},userOptS,planC); % only 1 file
+        planC  = joinH5planC(scanNum,outC{1},userOptS,planC); % only 1 file
         
         % Post-process segmentation
-        planC = postProcStruct(planC,userOptS);
+        planC = postProcStruct(scanNum,planC,userOptS);
         
     end
 
@@ -198,5 +198,4 @@ if ~isempty(stateS) && (isfield(stateS,'handle') && ishandle(stateS.handle.CERRS
     stateS.structsChanged = 1;
     CERRRefresh
 end
-
 

@@ -51,7 +51,9 @@ for scanNum = scanNumV
 	%scanArray = planC{indexS.scan}(scanNum).scanArray;
 	%scanInfo = planC{indexS.scan}(scanNum).scanInfo;
 	
-	[scanArraySup, scanArrayInf, uniformScanFirstZValue] = uniformizeScanEnds(scanStruct, sliceNumSup, sliceNumInf, uniformSliceThickness, tMin, tMax, optS, hBar);
+	[scanArraySup, scanArrayInf, uniformScanFirstZValue] = ...
+        uniformizeScanEnds(scanStruct, sliceNumSup, sliceNumInf,...
+        uniformSliceThickness, tMin, tMax, optS, hBar);
 	
 	uniformScanInfo.firstZValue = uniformScanFirstZValue;
 	uniformScanInfo.supInfScansCreated = 1;

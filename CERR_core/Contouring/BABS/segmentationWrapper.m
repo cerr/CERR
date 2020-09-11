@@ -40,10 +40,15 @@ for p=1:length(planCfiles)
     planC = loadPlanC(fileNam, tempdir);
     planC = quality_assure_planC(fileNam,planC);
     
+    % Scan number to segment
+    % For now, we assume there is only one scan in planC. Consider adding
+    % an option in userOptS to determing scanNum. For example, CT, MR, PET    
+    scanNum = 1;
+    
     %Pr-process scna & mask
     fprintf('\nPre-processing data...\n');
     tic
-    [scanC, mask3M, planC] = extractAndPreprocessDataForDL(userOptS,planC,testFlag); %Note: mask3M is empty in inference mode
+    [scanC, mask3M, planC] = extractAndPreprocessDataForDL(scanNum,userOptS,planC,testFlag); %Note: mask3M is empty in inference mode
     toc
     
     %Export to H5 format

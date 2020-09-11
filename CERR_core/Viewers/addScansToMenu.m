@@ -105,11 +105,7 @@ if numScans > maxScansPerGroup
         end
         
         scanDescription = planC{indexS.scan}(currentScan).scanInfo(1).scanDescription; %AI 5/9/17 Display series description    
-        if isempty(scanDescription)
-            scanTitle = seriesDescription; %scanType;
-        else
-            scanTitle = [scanType,': ',scanDescription];
-        end
+        scanTitle = [scanType,': ',scanDescription];
 
         str2 = num2str(currentScan);
         if topMenuFlag

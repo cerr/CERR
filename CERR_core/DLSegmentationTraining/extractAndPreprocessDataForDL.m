@@ -1,4 +1,4 @@
-function [scanOutC, maskOutC, planC] = extractAndPreprocessDataForDL(optS,planC,testFlag)
+function [scanOutC, maskOutC, planC] = extractAndPreprocessDataForDL(scanNumV,optS,planC,testFlag)
 %
 % Script to extract scan and mask and perform user-defined pre-processing.
 %
@@ -74,7 +74,7 @@ end
 
 %Extract scan arrays
 if isempty(exportStrC) && testFlag
-        scanNumV = 1; %Assume scan 1
+        %scanNumV = 1; %Assume scan 1
 else
     if isfield(channelS,'scanType')
         scanTypeC = {channelS.scanType};

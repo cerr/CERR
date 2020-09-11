@@ -114,7 +114,7 @@ if plmFlag
     
     % Switch to plastimatch directory if it exists
     %prevDir = pwd;
-    plmCommand = 'plastimatch ';
+    plmCommand = 'plastimatch';
     if exist(optS.plastimatch_build_dir,'dir') 
         %cd(optS.plastimatch_build_dir)
         %plmCommand = ['./',plmCommand];
@@ -142,17 +142,35 @@ end
 
 if antsFlag
     antsCommand = '';
-    if exist(optS.antspath_dir,'dir')
-        setenv('ANTSPATH',fullfile(optS.antspath_dir,'bin'));
-        if isunix
-            setenv('PATH',['$ANTSPATH:' fullfile(optS.antspath_dir,'Scripts') ':$PATH'])
-            antsCommand = ['sh ', fullfile(optS.antspath_dir,'Scripts')];
-        else
-            setenv('PATH',['$ANTSPATH;' fullfile(optS.antspath_dir,'Scripts') ';$PATH'])
-            antsCommand = fullfile(optS.antspath_dir,'Scripts');
-        end
+    if ~exist(optS.ants_build_dir,'dir')
+        error(['ANTSPATH ' optS.ants_build_dir ' not found on filesystem. Please review CERROptions.']);
+    end
+    antspath = fullfile(optS.ants_build_dir,'bin');
+    setenv('ANTSPATH', antspath);
+    antsScriptPath = fullfile(optS.ants_build_dir, 'Scripts');
+    antsCERRScriptPath = fullfile(getCERRPath,'CERR_core','ImageRegistration','antsScripts');
+    if isunix
+        setenv('PATH',[antspath ':' antsScriptPath ':' antsCERRScriptPath ':' getenv('PATH')]);
+        antsCommand = 'sh ';
     else
-        error(['ANTSPATH ' optS.antspath_dir ' not found on filesystem. Please review CERROptions.']);
+        setenv('PATH',[antspath ';' antsScriptPath ';' antsCERRScriptPath ';' getenv('PATH')]);
+        antsCommand = '';
+    end
+    
+    %set up basic command with fixed and moving target images
+    outPrefix = fullfile(tmpDirPath,[strrep(algorithm, ' ', '_') '_' baseScanUID '_' movScanUID '_']);
+    antsParams = [' -d 3 -f ' baseScanFileName ' -m ' movScanFileName ' -o ' outPrefix ' '];
+    
+    antsMaskParams = ' ';
+    
+    if exist(baseMaskFileName,'file') && exist(movMaskFileName,'file')
+        antsMaskParams = [' -x [' baseMaskFileName ', ' movMaskFileName  '] '];
+    end
+    
+    %get additional flags for processing
+    if exist('inputCmdFile','var') && ~isempty(inputCmdFile)
+        userCmdFile = inputCmdFile;
+        antsParams = [antsParams antsMaskParams fileread(userCmdFile)];
     end
 end
 
@@ -216,45 +234,76 @@ switch upper(algorithm)
 
     case 'QUICKSYN ANTS'
 %         build command
-        outPrefix = fullfile(tmpDirPath,[baseScanUID '_' movScanUID '_']);
-        antsCommand = fullfile(antsCommand,'doseAccumulation_Lung_Registration_CTtoCBCT.sh ');
-        %add parameter arguments
+%        outPrefix = fullfile(tmpDirPath,[strrep(algorithm, ' ', '_') '_' baseScanUID '_' movScanUID '_']);
+        antsCommand = [antsCommand ' antsRegistrationSyNQuick.sh ' antsParams];
+        % basic parameter arguments
         %      -d 3
         %      -f baseScanFileName 
         %      -m movScanFileName 
         %      -o outPrefix
 %         execute
-        system([antsCommand ' -d 3 -f ' baseScanFileName ' -m ' movScanFileName ' -o ' outPrefix]);
+        system(antsCommand);
+        
+        algorithmParamsS.antsCommand = antsCommand;
+        algorithmParamsS.antsWarpProducts = ls([outPrefix '*']);
+        deformS = createNewDeformObject(baseScanUID,movScanUID,algorithm,algorithmParamsS);
+        
+        % Add deform object to both base and moving planC's
+        baseDeformIndex = length(basePlanC{indexBaseS.deform}) + 1;
+        movDeformIndex  = length(movPlanC{indexMovS.deform}) + 1;
+        basePlanC{indexBaseS.deform}  = dissimilarInsert(basePlanC{indexBaseS.deform},deformS,baseDeformIndex);
+        movPlanC{indexMovS.deform}  = dissimilarInsert(movPlanC{indexMovS.deform},deformS,movDeformIndex);
         
     case 'LDDM ANTS'
+%         build command        
+%         outPrefix = fullfile(tmpDirPath,[strrep(algorithm, ' ', '_') '_' baseScanUID '_' movScanUID '_']);
+        antsCommand = [antsCommand ' ANTs_Lung_Registration_CT2toCT1.sh ' antsParams];
+%         execute
+        system(antsCommand);
         
-        % Usage:
-        % doseAccumulation_Lung_Registration_CTtoCBCT.sh -d ImageDimension -f FixedImage -m MovingImage -o OutputPrefix
-
-        % Compulsory arguments:
-        %      -d:  ImageDimension: 2 or 3 (for 2 or 3 dimensional registration of single volume)
-        %      -f:  Fixed image(s) or source image(s) or reference image(s)
-        %      -m:  Moving image(s) or target image(s)
-        %      -o:  OutputPrefix: A prefix that is prepended to all output files.
-        % Optional arguments:
-        %      -n:  Number of threads (default = 1)
-        %      -i:  initial transform(s) --- order specified on the command line matters
-
-%         baseScanFileName = fullfile(tmpDirPath,['baseScan_',baseScanUniqName,'.mha']);
-%         baseMaskFileName = fullfile(tmpDirPath,['baseMask_',baseScanUniqName,'.mha']);
-%         movScanFileName = fullfile(tmpDirPath,['movScan_',movScanUniqName,'.mha']);
-%         movMaskFileName = fullfile(tmpDirPath,['movMask_',movScanUniqName,'.mha']);
-
-        outPrefix = fullfile(tmpDirPath,[baseScanUID '_' movScanUID '_']);
-        antsCommand = fullfile(antsCommand,'doseAccumulation_Lung_Registration_CTtoCBCT.sh ');
-        %add parameter arguments
-        %      -d 3
-        %      -f baseScanFileName 
-        %      -m movScanFileName 
-        %      -o outPrefix
+        algorithmParamsS.antsCommand = antsCommand;
+        algorithmParamsS.antsWarpProducts = ls([outPrefix '*']);
+        deformS = createNewDeformObject(baseScanUID,movScanUID,algorithm,algorithmParamsS);
         
-        system([antsCommand ' -d 3 -f ' baseScanFileName ' -m ' movScanFileName ' -o ' outPrefix]);
+        % Add deform object to both base and moving planC's
+        baseDeformIndex = length(basePlanC{indexBaseS.deform}) + 1;
+        movDeformIndex  = length(movPlanC{indexMovS.deform}) + 1;
+        basePlanC{indexBaseS.deform}  = dissimilarInsert(basePlanC{indexBaseS.deform},deformS,baseDeformIndex);
+        movPlanC{indexMovS.deform}  = dissimilarInsert(movPlanC{indexMovS.deform},deformS,movDeformIndex);
         
+    case 'LDDM MASK ANTS'
+%         build command
+%         outPrefix = fullfile(tmpDirPath,[strrep(algorithm, ' ', '_') '_' baseScanUID '_' movScanUID '_']);
+        antsCommand = [antsCommand ' ANTs_Lung_Registration_CT2toCT1_Mask.sh ' antsParams];
+%         execute
+        system(antsCommand);
+        
+        algorithmParamsS.antsCommand = antsCommand;
+        algorithmParamsS.antsWarpProducts = ls([outPrefix '*']);
+        deformS = createNewDeformObject(baseScanUID,movScanUID,algorithm,algorithmParamsS);
+        
+        % Add deform object to both base and moving planC's
+        baseDeformIndex = length(basePlanC{indexBaseS.deform}) + 1;
+        movDeformIndex  = length(movPlanC{indexMovS.deform}) + 1;
+        basePlanC{indexBaseS.deform}  = dissimilarInsert(basePlanC{indexBaseS.deform},deformS,baseDeformIndex);
+        movPlanC{indexMovS.deform}  = dissimilarInsert(movPlanC{indexMovS.deform},deformS,movDeformIndex);
+
+    case 'LDDM MASK DIR ANTS'
+%         build command
+%         outPrefix = fullfile(tmpDirPath,[strrep(algorithm, ' ', '_') '_' baseScanUID '_' movScanUID '_']);
+        antsCommand = [antsCommand ' ANTs_Lung_Registration_CT2toCT1_Mask_Intensity.sh ' antsParams];
+%         execute
+        system(antsCommand);
+        
+        algorithmParamsS.antsCommand = antsCommand;
+        algorithmParamsS.antsWarpProducts = ls([outPrefix '*']);
+        deformS = createNewDeformObject(baseScanUID,movScanUID,algorithm,algorithmParamsS);
+        
+        % Add deform object to both base and moving planC's
+        baseDeformIndex = length(basePlanC{indexBaseS.deform}) + 1;
+        movDeformIndex  = length(movPlanC{indexMovS.deform}) + 1;
+        basePlanC{indexBaseS.deform}  = dissimilarInsert(basePlanC{indexBaseS.deform},deformS,baseDeformIndex);
+        movPlanC{indexMovS.deform}  = dissimilarInsert(movPlanC{indexMovS.deform},deformS,movDeformIndex);
         
     case 'BSPLINE PLASTIMATCH'
         
@@ -263,8 +312,10 @@ switch upper(algorithm)
             deleteBspFlg = 0;
             bspFileName = outBspFile;
         else
-            bspFileName = fullfile(getCERRPath,'ImageRegistration',...
-                'tmpFiles',['bsp_coeffs_',baseScanUID,'_',movScanUID,'.txt']);
+            %bspFileName = fullfile(getCERRPath,'ImageRegistration',...
+            %    'tmpFiles',['bsp_coeffs_',baseScanUID,'_',movScanUID,'.txt']);
+            bspFileName = fullfile(tmpDirPath,...
+                ['bsp_coeffs_',baseScanUID,'_',movScanUID,'.txt']);
         end
         if exist(bspFileName,'file')
             delete(bspFileName)
@@ -290,11 +341,13 @@ switch upper(algorithm)
         cell2file(cmdFileC,cmdFileName_dir)
         
         % Run plastimatch Registration
-        system([plmCommand, cmdFileName_dir]);
+        system([plmCommand, ' ', cmdFileName_dir]);
         
         
         % Read bspline coefficients file
-        [bsp_img_origin,bsp_img_spacing,bsp_img_dim,bsp_roi_offset,bsp_roi_dim,bsp_vox_per_rgn,bsp_direction_cosines,bsp_coefficients] = read_bsplice_coeff_file(bspFileName);
+        [bsp_img_origin,bsp_img_spacing,bsp_img_dim,bsp_roi_offset,...
+            bsp_roi_dim,bsp_vox_per_rgn,bsp_direction_cosines,bsp_coefficients]...
+            = read_bsplice_coeff_file(bspFileName);
         
         % Cleanup
         try
