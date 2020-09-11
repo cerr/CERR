@@ -125,6 +125,7 @@ for k=1:length(algorithmC)
         waitbar(0.2,hWait,'Segmenting structures...');
     end
     outDirC = getOutputH5Dir(inputH5Path,userOptS,'');
+    disp(outDirC{1})
     filePrefixForHDF5 = 'cerrFile';
     writeHDF5ForDL(scanC,mask3M,userOptS.passedScanDim,outDirC,...
                    filePrefixForHDF5,testFlag);
@@ -135,10 +136,11 @@ for k=1:length(algorithmC)
     condaEnvPath = fullfile(optS.condaPath,'envs',condaEnvListC{k});
     newPth = [condaBinPath,pth];
     setenv('PATH',newPth)
-    wrapperFunc = functionNameC{k};
-    command = sprintf('call activate %s && python %s %s %s %s',...
+    wrapperFunc = functionNameC{k};    
+    command = sprintf('. /usr/local/etc/profile.d/conda.sh && conda activate %s && python %s %s %s %s',...
         condaEnvPath, wrapperFunc, inputH5Path, outputH5Path,...
         num2str(userOptS.batchSize));
+    disp(command)    
     tic
     status = system(command);
     toc

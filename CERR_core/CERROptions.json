@@ -236,6 +236,6 @@
 "ROECriteriaPath" : "fullfile(getCERRPath,'PlanAnalysis/sampleFilesForROE/Criteria')",
 
 "sitkLibPath" : "C:\\Users\\aptea\\AppData\\Local\\Programs\\Python\\Python37\\Lib\\site-packages\\SimpleITK",
-"condaPath" : "C:/Miniconda3/"
+"condaPath" : "/usr/local/"
 
 }
