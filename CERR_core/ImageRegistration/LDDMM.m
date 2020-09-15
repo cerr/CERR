@@ -1,6 +1,8 @@
-function LDDMM(basePlanC, movPlanC, baseScanNum, movScanNum, algorithm, cropToStrCell, additionalStrMaskNames)
+function LDDMM(basePlanC, movPlanC, baseScanNum, movScanNum, algorithm, baseCostCropStr, movCostCropStr, baseDeformMaskStr, movDeformMaskStr)
 %%% Structures in CERR reference: https://github.com/cerr/CERR/wiki/Editing-Structures
-
+%%% update the input mask string names for: crop (_base, _moving) for cost
+%%% function, deform mask structure (_base, _moving)
+%%
 % Extract list of available structures
 % structureListCB = {basePlanC{indexS.structures}.structureName};
 % structureListCM = {movPlanC{indexS.structures}.structureName};
@@ -15,6 +17,7 @@ end
 baseMask3M = [];
 movMask3M  = [];
 
+cropToStrCell = {baseCostCropStr,movCostCropStr};
 bboxStrCell = {};
 
 if ~isempty(cropToStrCell)
@@ -75,7 +78,8 @@ switch algorithm
         inputCmdFile = fullfile(getCERRPath,'ImageRegistration','antsScripts','LDDMM_MASK_DIR_ANTS_opts.txt');
 end
 
-%%%Call register_scans.m
+%%%Call register_scans.m, alter baseMask3M/movMask3M to accept cell, expect
+%%%structure: 
 
 [basePlanC, movPlanC, ~] = register_scans(basePlanC, movPlanC, baseScanNum, movScanNum, algorithm, baseMask3M, movMask3M,...
     [], inputCmdFile, [], []);
