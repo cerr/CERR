@@ -1,9 +1,13 @@
-function LDDMM(basePlanC, movPlanC, baseScanNum, movScanNum, algorithm, cropToStrName, additionalStrMaskNames)
+function LDDMM(basePlanC, movPlanC, baseScanNum, movScanNum, algorithm, cropToStrCell, additionalStrMaskNames)
 %%% Structures in CERR reference: https://github.com/cerr/CERR/wiki/Editing-Structures
 
 % Extract list of available structures
 % structureListCB = {basePlanC{indexS.structures}.structureName};
 % structureListCM = {movPlanC{indexS.structures}.structureName};
+
+if nargin < 7
+    additionalStrMaskNames = {};
+end
 
 
 %% create masks if cropping structure name is passed
@@ -11,13 +15,19 @@ function LDDMM(basePlanC, movPlanC, baseScanNum, movScanNum, algorithm, cropToSt
 baseMask3M = [];
 movMask3M  = [];
 
-if ~isempty(cropToStrName)
+bboxStrCell = {};
+
+if ~isempty(cropToStrCell)
     
     % check if bounding box ROI name has been given as input
-    if ~strcmpi(cropToStrName(end-4:end),'_bbox')
-        bboxStrName = [cropToStrName '_BBOX'];
-    else
-        bboxStrName = cropToStrName;
+    for i = 1:numel(cropToStrCell)
+        cropToStrName = cropToStrCell{i};
+        if ~strcmpi(cropToStrName(end-4:end),'_bbox')
+            bboxStrName = [cropToStrName '_BBOX'];
+        else
+            bboxStrName = cropToStrName;
+        end
+        bboxStrCell{i} = bboxStrName;
     end
 
     cellPlanC = {basePlanC, movPlanC};
@@ -28,6 +38,8 @@ if ~isempty(cropToStrName)
         planC = cellPlanC{i};
         indexS = planC{end};
         structureListC = {planC{indexS.structures}.structureName};
+        bboxStrName = bboxStrCell{i};
+        cropToStrName = cropToStrCell{i};
         %check if bbox mask structure is in planC, if not, create one
         if isempty(getMatchingIndex(lower(bboxStrName),lower(structureListC),'exact'))
             % Get structure number from name
@@ -52,9 +64,18 @@ if ~isempty(cropToStrName)
     movMask3M  = cellMask3M{2};
 end
 
+%% Determine inputCmdFile for given algorithm
+
+inputCmdFile = '';
+
+switch algorithm
+    case 'LDDMM MASK ANTS'
+        inputCmdFile = fullfile(getCERRPath,'ImageRegistration','antsScripts','LDDMM_MASK_ANTS_opts.txt');
+    case 'LDDMM MASK DIR ANTS'
+        inputCmdFile = fullfile(getCERRPath,'ImageRegistration','antsScripts','LDDMM_MASK_DIR_ANTS_opts.txt');
+end
 
 %%%Call register_scans.m
 
-[basePlanC, movPlanC, bspFileName] = register_scans(basePlanC, movPlanC,...
-    baseScanNum, movScanNum, algorithm, baseMask3M, movMask3M,...
-    [], inputCmdFile, [], [], tmpDirPath)
+[basePlanC, movPlanC, ~] = register_scans(basePlanC, movPlanC, baseScanNum, movScanNum, algorithm, baseMask3M, movMask3M,...
+    [], inputCmdFile, [], []);

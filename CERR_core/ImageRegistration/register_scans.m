@@ -158,19 +158,24 @@ if antsFlag
     end
     
     %set up basic command with fixed and moving target images
+    
+    [~,nproc_str] = system('nproc');
+    nproc = nproc_str(1:end-1);
+    
     outPrefix = fullfile(tmpDirPath,[strrep(algorithm, ' ', '_') '_' baseScanUID '_' movScanUID '_']);
-    antsParams = [' -d 3 -f ' baseScanFileName ' -m ' movScanFileName ' -o ' outPrefix ' '];
+    antsParams = [' -d 3 -f ' baseScanFileName ' -m ' movScanFileName ' -o ' outPrefix ' -n ' nproc ' '];
     
-    antsMaskParams = ' ';
-    
-    if exist(baseMaskFileName,'file') && exist(movMaskFileName,'file')
-        antsMaskParams = [' -x [' baseMaskFileName ', ' movMaskFileName  '] '];
-    end
+%     antsMaskParams = ' ';
+%     
+%     if exist(baseMaskFileName,'file') && exist(movMaskFileName,'file')
+%         antsMaskParams = [' -x [' baseMaskFileName ', ' movMaskFileName  '] '];
+%     end
     
     %get additional flags for processing
     if exist('inputCmdFile','var') && ~isempty(inputCmdFile)
         userCmdFile = inputCmdFile;
-        antsParams = [antsParams antsMaskParams fileread(userCmdFile)];
+%         antsParams = [antsParams antsMaskParams fileread(userCmdFile)];
+        antsParams = strrep(strrep([antsParams ' ' fileread(userCmdFile)],'baseMask3M',baseMaskFileName),'movMask3M',movMaskFileName);
     end
 end
 
@@ -254,7 +259,7 @@ switch upper(algorithm)
         basePlanC{indexBaseS.deform}  = dissimilarInsert(basePlanC{indexBaseS.deform},deformS,baseDeformIndex);
         movPlanC{indexMovS.deform}  = dissimilarInsert(movPlanC{indexMovS.deform},deformS,movDeformIndex);
         
-    case 'LDDM ANTS'
+    case 'LDDMM ANTS'
 %         build command        
 %         outPrefix = fullfile(tmpDirPath,[strrep(algorithm, ' ', '_') '_' baseScanUID '_' movScanUID '_']);
         antsCommand = [antsCommand ' ANTs_Lung_Registration_CT2toCT1.sh ' antsParams];
@@ -271,7 +276,7 @@ switch upper(algorithm)
         basePlanC{indexBaseS.deform}  = dissimilarInsert(basePlanC{indexBaseS.deform},deformS,baseDeformIndex);
         movPlanC{indexMovS.deform}  = dissimilarInsert(movPlanC{indexMovS.deform},deformS,movDeformIndex);
         
-    case 'LDDM MASK ANTS'
+    case 'LDDMM MASK ANTS'
 %         build command
 %         outPrefix = fullfile(tmpDirPath,[strrep(algorithm, ' ', '_') '_' baseScanUID '_' movScanUID '_']);
         antsCommand = [antsCommand ' ANTs_Lung_Registration_CT2toCT1_Mask.sh ' antsParams];
@@ -288,7 +293,7 @@ switch upper(algorithm)
         basePlanC{indexBaseS.deform}  = dissimilarInsert(basePlanC{indexBaseS.deform},deformS,baseDeformIndex);
         movPlanC{indexMovS.deform}  = dissimilarInsert(movPlanC{indexMovS.deform},deformS,movDeformIndex);
 
-    case 'LDDM MASK DIR ANTS'
+    case 'LDDMM MASK DIR ANTS'
 %         build command
 %         outPrefix = fullfile(tmpDirPath,[strrep(algorithm, ' ', '_') '_' baseScanUID '_' movScanUID '_']);
         antsCommand = [antsCommand ' ANTs_Lung_Registration_CT2toCT1_Mask_Intensity.sh ' antsParams];
