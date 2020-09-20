@@ -17,6 +17,14 @@ bboxmask = [];
 
 if maskFlag
     bboxmask = zeros(size(x3D));
+    if maskFlag > 1
+        minr = minr - maskFlag;
+        maxr = maxr + maskFlag;
+        minc = minc - maskFlag;
+        maxc = maxc + maskFlag;
+        mins = mins - maskFlag;
+        maxs = maxs + maskFlag;
+    end
     bboxmask(minr:maxr, minc:maxc, mins:maxs) = 1;
 end
 
