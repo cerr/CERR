@@ -96,7 +96,11 @@ toc
 fprintf('\nImporting to CERR...\n');
 tic
 identifierS = userOptS.structAssocScan.identifier;
-origScanNum = getScanNumFromIdentifiers(identifierS,planC);
+if ~isnumeric(identifierS)
+    origScanNum = getScanNumFromIdentifiers(identifierS,planC);
+else
+    origScanNum = identifierS;
+end
 outScanNum = scanNumV(origScanNum);
 success = joinH5CERR(cerrPath,outC{1},outScanNum,userOptS); %Updated
 toc

@@ -4,7 +4,7 @@ function scanNumV = getScanNumFromIdentifiers(idS,planC)
 % INPUTS
 % idS    : Structure containing identifiers (tags) and expected values
 %          Supported identifiers include 'imageType', 'seriesDescription',
-%          'scanType'.
+%          'scanType', 'scanNum'.
 % planC
 %--------------------------------------------------------------------------
 % AI 9/18/20
@@ -38,6 +38,10 @@ for n = 1:length(identifierC)
             
             scanTypeC = {planC{indexS.scan}.scanType};
             idV = strcmp(matchValC,scanTypeC);
+            
+        case 'scanNum'
+            idV = false(size(matchIdxV));
+            idV(matchValC) = true;
             
         otherwise
             error('Identifier %s not supported.',identifierC{n});

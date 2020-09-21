@@ -37,8 +37,6 @@
 
 "postProc" : {"Larynx": [{"method": "post_process_larynx"}]},
 
-"structAssocScan": {"identifier" : { "imageType": "CT SCAN"}},
-
 "reference" : "https://www.biorxiv.org/content/10.1101/772178v1"
 
 }

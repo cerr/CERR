@@ -23,8 +23,9 @@ defaultS.exportedFilePrefix = 'inputFileName';
 defaultS.batchSize = 1;
 defaultS.postProc = [];
 defaultS.passedScanDim = '3D';
-defaultS.structAssocScan = 1;
-defaultS.scan = struct('identifier',struct(),'resample',struct(),...
+idS.identifier.scanNum = 1;
+defaultS.structAssocScan = idS; %Default assoc. scan no.
+defaultS.scan = struct('identifier',idS.identifier,'resample',struct(),...
     'crop',struct(),'resize',struct(),'view',{'axial'},'channels',struct());
 defaultS.scan.crop.method = 'none';
 defaultS.scan.resize.size = [];
@@ -54,7 +55,6 @@ for n = 1:length(defC)
         if ~strcmp(reqFieldsC{n},'none')
             fieldsC = reqFieldsC{n};
             for m = 1:length(fieldsC)
-                disp(fieldsC{m})
                 for l = 1:length(userInS.(defC{n}))
                     %If not, populate with defaults
                     if ~isfield(userInS.(defC{n})(l),fieldsC{m})
