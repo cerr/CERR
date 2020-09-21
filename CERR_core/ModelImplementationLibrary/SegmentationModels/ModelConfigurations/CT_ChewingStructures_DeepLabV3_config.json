@@ -12,8 +12,6 @@
 
 "scan":{
 
-        "identifier" : {"imageType": "CT SCAN"},
-
 	"view" : ["axial", "sagittal", "coronal"],
 
 	"crop" : [{     
@@ -38,8 +36,6 @@
 "batchSize" : 4,
 
 "postProc" : {"Left_masseter": [{"method": "post_process_chewing_structs"}], "Right_masseter": [{"method": "post_process_chewing_structs"}], "Left_medial_pterygoid": [{"method": "post_process_chewing_structs"}], "Right_medial_pterygoid": [{"method": "post_process_chewing_structs"}]},
-
-"structAssocScan": {"identifier" : { "imageType": "CT SCAN"}},
 
 "reference" : "https://www.biorxiv.org/content/10.1101/772178v1"
 
