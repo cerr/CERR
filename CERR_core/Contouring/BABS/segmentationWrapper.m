@@ -1,36 +1,35 @@
-function success = segmentationWrapper(cerrPath,segResultCERRPath,fullSessionPath, containerPath, algorithm)
+function success = segmentationWrapper(cerrPath,fullSessionPath, containerPath, algorithm)
 % function success =heart(cerrPath,segResultCERRPath,fullSessionPath,deepLabContainerPath)
 %
 % This function serves as a wrapper for the all segmentation models
 %
 % INPUT: 
 % cerrPath - path to the original CERR file to be segmented
-% segResultCERRPath - path to write CERR RTSTRUCT for resulting segmentation.
 % fullSessionPath - path to write temporary segmentation metadata.
 % deepLabContainerPath - path to the MR Prostate DeepLab V3+ container on the
-%algorithm - name of the algorithm to run
-% system
+% algorithm - name of the algorithm to run
+% 
 % 
 %
 %
 % RKP, 5/21/2019
 % RKP, 9/11/19 Updates for compatibility with training pipeline
 
-%build config file path from algorithm
-configFilePath = fullfile(getCERRPath,'ModelImplementationLibrary','SegmentationModels', 'ModelConfigurations', [algorithm, '_config.json']);
+%% Get config file path from algorithm name
+configFilePath = fullfile(getCERRPath,'ModelImplementationLibrary',...
+    'SegmentationModels', 'ModelConfigurations', [algorithm, '_config.json']);
 testFlag = true;
 
-% % create subdir within fullSessionPath for output h5 files
+%% Create directories to write input, output h5 files
 outputH5Path = fullfile(fullSessionPath,'outputH5');
 mkdir(outputH5Path);
-%create subdir within fullSessionPath for input h5 files
 inputH5Path = fullfile(fullSessionPath,'inputH5');
 mkdir(inputH5Path);
 
-% convert scan to H5 format
+%Read config file
 userOptS = readDLConfigFile(configFilePath);
 
-%get the planC
+%% Export data to H5
 planCfiles = dir(fullfile(cerrPath,'*.mat'));
 for p=1:length(planCfiles)
     
@@ -39,25 +38,36 @@ for p=1:length(planCfiles)
     fileNam = fullfile(planCfiles(p).folder,planCfiles(p).name);
     planC = loadPlanC(fileNam, tempdir);
     planC = quality_assure_planC(fileNam,planC);
-    
-    % Scan number to segment
-    % For now, we assume there is only one scan in planC. Consider adding
-    % an option in userOptS to determing scanNum. For example, CT, MR, PET    
-    scanNum = 1;
-    
-    %Pr-process scna & mask
+
+    %Pre-process scan & mask
     fprintf('\nPre-processing data...\n');
     tic
-    [scanC, mask3M, planC] = extractAndPreprocessDataForDL(scanNum,userOptS,planC,testFlag); %Note: mask3M is empty in inference mode
+    [scanC, maskC, scanNumV, planC] = extractAndPreprocessDataForDL(userOptS,...
+        planC,testFlag); %Note: mask3M is empty in inference mode
     toc
     
     %Export to H5 format
     tic
     fprintf('\nWriting to H5 format...\n');
     filePrefixForHDF5 = 'cerrFile';
-    outDirC = getOutputH5Dir(inputH5Path,userOptS,'');
-    writeHDF5ForDL(scanC,mask3M,userOptS.passedScanDim,outDirC,filePrefixForHDF5,testFlag);
-    toc
+    passedScanDim = userOptS.passedScanDim;
+    scanOptS = userOptS.scan;
+    %Loop over scan types
+    for n = 1:size(scanC,1)
+        %Append identifiers to o/p name
+        if length(scanOptS)>1
+            idS = scanOptS(n).identifier;
+            idListC = cellfun(@(x)(idS.(x)),fieldnames(idS),'un',0);
+            appendStr = strjoin(idListC,'_');
+            idOut = [filePrefixForHDF5,'_',appendStr];
+        else
+            idOut = filePrefixForHDF5;
+        end
+        %Get o/p dirs & dim
+        outDirC = getOutputH5Dir(inputH5Path,scanOptS(n),'');
+        %Write to HDF5
+        writeHDF5ForDL(scanC{n},maskC{n},passedScanDim,outDirC,idOut,testFlag);
+    end
     
     %Save updated planC file
     tic
@@ -65,25 +75,29 @@ for p=1:length(planCfiles)
     toc
 end
 
-%get the bind path for the container
+%% Execute the container
+
+%Get the bind path for the container
 bindingDir = ':/scratch';
 bindPath = strcat(fullSessionPath,bindingDir);
- 
-%execute the container
+%Run container app
 command = sprintf('singularity run --app %s --nv --bind  %s %s %s', algorithm, bindPath, containerPath, num2str(userOptS.batchSize));
 tic
 status = system(command);
 toc
 
-% Stack H5 files
+%% Stack H5 files
 fprintf('\nRreading output masks...');
 tic
 outC = stackHDF5Files(fullSessionPath,userOptS.passedScanDim); %Updated
 toc
 
-% join segmented mask with planC
+%% Import segmented mask to planC
 fprintf('\nImporting to CERR...\n');
 tic
-success = joinH5CERR(cerrPath,outC{1},userOptS); %Updated
+identifierS = userOptS.structAssocScan.identifier;
+origScanNum = getScanNumFromIdentifiers(identifierS,planC);
+outScanNum = scanNumV(origScanNum);
+success = joinH5CERR(cerrPath,outC{1},outScanNum,userOptS); %Updated
 toc
           

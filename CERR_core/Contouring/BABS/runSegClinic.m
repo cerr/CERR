@@ -35,7 +35,6 @@ function success = runSegClinic(inputDicomPath,outputDicomPath,...
 % AI, 3/5/2020 Updates to handle multiple algorithms
 
 % Create session directory to write segmentation metadata
-
 if inputDicomPath(end) == filesep
     [~,folderNam] = fileparts(inputDicomPath(1:end-1));
 else
@@ -103,7 +102,7 @@ if ~any(strcmpi(algorithmC,'BABS'))
         copyfile(configFilePath,fullSessionPath);
         
         % Run segmentation algorithm
-        success = segmentationWrapper(cerrPath,segResultCERRPath,...
+        success = segmentationWrapper(cerrPath,...
             fullSessionPath,containerPathC{k},algorithmC{k});
         
         %Get list of label names
@@ -142,5 +141,4 @@ end
 rmdir(fullSessionPath, 's')
 
 success = 0;
-
 
