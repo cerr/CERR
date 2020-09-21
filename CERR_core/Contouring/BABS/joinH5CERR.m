@@ -1,4 +1,4 @@
-function success  = joinH5CERR(cerrPath,segMask3M,userOptS)
+function success = joinH5CERR(cerrPath,segMask3M,scanNum,userOptS)
 %
 % This function merges the segmentations from the respective algorithm back
 % into the original CERR file
@@ -19,18 +19,15 @@ planCfiles = dir(fullfile(cerrPath,'*.mat'));
 planCfilename = fullfile(planCfiles.folder, planCfiles.name);
 planC = load(planCfilename);
 planC = planC.planC;
+indexS = planC{end};
 
-% Scan number to segment
-% For now, we assume there is only one scan in planC. Consider adding
-% an option in userOptS to determing scanNum. For example, CT, MR, PET
-scanNum = 1;
-
+% Import mask
 planC  = joinH5planC(scanNum,segMask3M,userOptS,planC);
 
 % Post-process segmentation
 fprintf('\nPost-processing results...\n');
 tic
-planC = postProcStruct(scanNum,planC,userOptS);
+planC = postProcStruct(planC,userOptS);
 toc
 
 % save final plan
