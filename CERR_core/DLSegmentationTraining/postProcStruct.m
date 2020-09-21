@@ -1,4 +1,4 @@
-function planC = postProcStruct(scanNum,planC,userOptS)
+function planC = postProcStruct(planC,userOptS)
 % planC = postProcStruct(planC,userOptS);
 % Function to post-process segementations.
 %-------------------------------------------------------------------------
@@ -26,11 +26,8 @@ if ~isempty(postS)
         
         outMask3M = [];
         
-        strNumV = getMatchingIndex(strC{iStr},strListC,'EXACT');
-        
-        strAssocScanNum = getStructureAssociatedScan(strNum,planC);
-        assocScanInd = strAssocScanNum==scanNum;
-        strNum = strNumV(assocScanInd);
+        strNum = getMatchingIndex(strC{iStr},strListC,'EXACT');
+        scanNum = getStructureAssociatedScan(strNum,planC);
         
         methodC = postS.(strC{iStr}).method;
         if ~iscell(postS.(strC{iStr}).method)

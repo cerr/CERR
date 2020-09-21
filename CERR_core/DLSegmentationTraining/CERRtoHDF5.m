@@ -20,10 +20,12 @@ function errC = CERRtoHDF5(CERRdir,HDF5dir,userOptS)
 %AI 9/11/19 Updated for compatibility with testing pipeline
 %RKP 9/14/19 Additional updates for compatibility with testing pipeline
 %AI 9/18/19 Modularized
+%AI 9/18/20 Extended to handle multiple scans
 
 %% Get user inputs
 dataSplitV = userOptS.dataSplit;
 prefixType = userOptS.exportedFilePrefix;
+scanOptS = userOptS.scan;
 passedScanDim = userOptS.passedScanDim;
 if isfield(userOptS,'structList')
     strListC = userOptS.structList;
@@ -102,9 +104,6 @@ parfor planNum = 1:length(dirS)
             end
         end
         
-        %-Get o/p path
-        outDirC = getOutputH5Dir(HDF5dir,userOptS,split);
-        
         %- Get output file prefix
         switch(prefixType)
             case 'inputFileName'
@@ -113,14 +112,33 @@ parfor planNum = 1:length(dirS)
         end
         
         %- Write to HDF5
-        writeHDF5ForDL(scanC,maskC,passedScanDim,outDirC,identifier,testFlag)
+        %Loop over scan types
+        for n = 1:size(scanC,1)
+            
+            %Append identifiers to o/p name
+            if length(scanOptS)>1
+                idS = scanOptS(n).identifier;
+                idListC = cellfun(@(x)(idS.(x)),fieldnames(idS),'un',0);
+                appendStr = strjoin(idListC,'_');
+                idOut = [identifier,'_',appendStr];
+            else
+                idOut = identifier;
+            end
+            
+            %Get o/p dirs & dim
+            outDirC = getOutputH5Dir(HDF5dir,scanOptS(n),split);
+
+            %Write to HDF5
+            writeHDF5ForDL(scanC{n},maskC(n),passedScanDim,outDirC,idOut,testFlag);
+            
+        end
         
-    catch e
-        
-        errC{planNum} =  ['Error processing pt %s. Failed with message: %s',fileNam,e.message];
-        
-    end
-    
+     catch e
+         
+         errC{planNum} =  ['Error processing pt %s. Failed with message: %s',fileNam,e.message];
+         
+     end
+     
 end
 
 if ~isempty(labelKeyS)

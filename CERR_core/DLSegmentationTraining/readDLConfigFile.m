@@ -18,39 +18,59 @@ end
 
 %% Set defaults for optional inputs
 defaultS = struct();
+defaultS.register = struct();
 defaultS.exportedFilePrefix = 'inputFileName';
-defaultS.crop.method = 'none';
-defaultS.resize.size = [];
-defaultS.resize.method = 'none';
-defaultS.resize.method = 'none';
-defaultS.resize.preserveAspectRatio = 'no';
-defaultS.resample.method = 'none';
-defaultS.view = {'axial'};
-defaultS.channels.imageType = 'original';
-defaultS.channels.slice = 'current';
 defaultS.batchSize = 1;
 defaultS.postProc = [];
+defaultS.passedScanDim = '3D';
+defaultS.structAssocScan = 1;
+defaultS.scan = struct('identifier',struct(),'resample',struct(),...
+    'crop',struct(),'resize',struct(),'view',{'axial'},'channels',struct());
+defaultS.scan.crop.method = 'none';
+defaultS.scan.resize.size = [];
+defaultS.scan.resize.method = 'none';
+defaultS.scan.resize.preserveAspectRatio = 'no';
+defaultS.scan.resample.method = 'none';
+defaultS.scan.channels.imageType = 'original';
+defaultS.scan.channels.slice = 'current';
+
 
 %% Define required sub-fields
 defC = fieldnames(defaultS);
-reqSubFieldsC = cell(length(defC),1);
+reqFieldsC = cell(length(defC),1);
 for n = 1:length(defC)
     if isstruct(defaultS.(defC{n}))
-        reqSubFieldsC{n} = fieldnames(defaultS.(defC{n}));
+        reqFieldsC{n} = fieldnames(defaultS.(defC{n}));
     else
-        reqSubFieldsC{n} = 'none';
+        reqFieldsC{n} = 'none';
     end
 end
 
 %% Read user inputs and populate defaults where missing
 optS = userInS;
 for n = 1:length(defC)
+    %Check if required fields are present
     if isfield(userInS,defC{n})
-        if ~strcmp(reqSubFieldsC{n},'none')
-            fieldsC = reqSubFieldsC{n};
+        if ~strcmp(reqFieldsC{n},'none')
+            fieldsC = reqFieldsC{n};
             for m = 1:length(fieldsC)
-                if ~isfield(userInS.(defC{n}),fieldsC{m})
-                    optS.(defC{n}).(fieldsC{m}) = defaultS.(defC{n}).(fieldsC{m});
+                disp(fieldsC{m})
+                for l = 1:length(userInS.(defC{n}))
+                    %If not, populate with defaults
+                    if ~isfield(userInS.(defC{n})(l),fieldsC{m})
+                        optS.(defC{n})(l).(fieldsC{m}) = defaultS.(defC{n}).(fieldsC{m});
+                    end
+                end
+                if isstruct(defaultS.(defC{n}).(fieldsC{m}))
+                    reqSubFieldsC = fieldnames(defaultS.(defC{n}).(fieldsC{m}));
+                    for k = 1:length(reqSubFieldsC)
+                        for j = 1:length(userInS.(defC{n}))
+                            if ~isfield(optS.(defC{n})(j).(fieldsC{m}),reqSubFieldsC{k})
+                                optS.(defC{n})(j).(fieldsC{m}).(reqSubFieldsC{k})= ...
+                                    defaultS.(defC{n}).(fieldsC{m}).(reqSubFieldsC{k});
+                            end
+                        end
+                    end
                 end
             end
         end
