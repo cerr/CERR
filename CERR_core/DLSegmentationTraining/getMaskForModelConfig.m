@@ -54,8 +54,6 @@ for m = 1:length(methodC)
             indexS = planC{end};
             strC = {planC{indexS.structures}.structureName};
             strIdx = getMatchingIndex(strName,strC,'EXACT');
-            assocScanumV = getStructureAssociatedScan(strIdx,planC);
-            strIdx = strIdx(assocScanumV == scanNum);
             if ~isempty(strIdx)
                 [outMask3M, planC] = getStrMask(strIdx,planC);
             else
@@ -92,9 +90,8 @@ for m = 1:length(methodC)
             structureName = paramS.structureName;
             outThreshold = paramS.outlineThreshold;            
             indexS = planC{end};            
-            outlineIndex = getMatchingIndex(structureName,{planC{indexS.structures}.structureName},'exact');
-            assocScanumV = getStructureAssociatedScan(outlineIndex,planC);
-            outlineIndex = outlineIndex(assocScanumV == scanNum);
+            outlineIndex = getMatchingIndex(structureName,...
+                {planC{indexS.structures}.structureName},'exact');
 
             if isempty(outlineIndex)
                 scan3M = getScanArray(scanNum,planC);
@@ -113,11 +110,7 @@ for m = 1:length(methodC)
             % Use pt_outline structure generated in "crop_pt_outline" case
             indexS = planC{end};
             strName = paramS.structureName;
-            %strNum = getStructNum(strName,planC,indexS);
             strNum = getMatchingIndex(strName,{planC{indexS.structures}.structureName},'exact');
-            assocScanNumV = getStructureAssociatedScan(strNum,planC);
-            strNum = strNum(assocScanNumV == scanNum);
-
             [pt_outline_mask3M, planC] = getStrMask(strNum,planC);
             
             % generate mask after cropping shoulder slices
