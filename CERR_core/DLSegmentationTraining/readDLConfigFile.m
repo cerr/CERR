@@ -26,7 +26,7 @@ defaultS.passedScanDim = '3D';
 idS.identifier.scanNum = 1;
 defaultS.structAssocScan = idS; %Default assoc. scan no.
 defaultS.scan = struct('identifier',idS.identifier,'resample',struct(),...
-    'crop',struct(),'resize',struct(),'view',{'axial'},'channels',struct());
+    'crop',struct(),'resize',struct(),'view',{{'axial'}},'channels',struct());
 defaultS.scan.crop.method = 'none';
 defaultS.scan.resize.size = [];
 defaultS.scan.resize.method = 'none';
