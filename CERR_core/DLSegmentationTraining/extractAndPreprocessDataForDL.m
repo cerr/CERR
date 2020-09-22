@@ -192,6 +192,8 @@ for scanIdx = 1:numScans
     if ~strcmpi(resizeS(scanIdx).method,'none')
         fprintf('\nResizing data...\n');
         tic
+        resizeMethod = resizeS(scanIdx).method;
+        outSizeV = resizeS(scanIdx).size;
         [scan3M, mask3M] = resizeScanAndMask(scan3M,mask3M,outSizeV,...
             resizeMethod,limitsM,preserveAspectFlag);
         toc

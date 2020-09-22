@@ -166,7 +166,11 @@ if length(algorithmC)==1 && ~strcmpi(algorithmC,'BABS')
         
         % Join results back to planC
         identifierS = userOptS.structAssocScan.identifier;
-        origScanNum = getScanNumFromIdentifiers(identifierS,planC);
+        if ~isempty(fieldnames(userOptS.structAssocScan.identifier))
+            origScanNum = getScanNumFromIdentifiers(identifierS,planC);
+        else
+            origScanNum = 1; %Assoc with first scan by default
+        end
         outScanNum = scanNumV(origScanNum);
         planC  = joinH5planC(outScanNum,outC{1},userOptS,planC);
         
