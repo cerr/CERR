@@ -247,16 +247,18 @@ for scanIdx = 1:numScans
     end
     toc
     
-    %--- TBD--
     %6. Adjust voxel values outside mask
-    %outIntVal = channelParS.mask.assignIntensityVal;
-    %for nView = 1:length(viewOutC)
-    %    scan3M = viewOutC{nView};
-    %    mask3M = maskOutC{nView};
-    %    scan3M(~mask3M) = outIntVal;
-    %    viewOutC{nView} = scan3M;
-    %end
-    %--------
+    if isfield(channelParS,'intensityOutsideMask')
+        intVal = channelParS.intensityOutsideMask.val;
+        procScanC = viewOutC{1};
+        for nView = 1:length(procScanC)
+            scan3M = procScanC{nView};
+            mask3M = logical(procScanC{nView});
+            scan3M(~mask3M) = intVal;
+            procScanC{nView} = scan3M;
+        end
+        viewOutC{1} = procScanC;
+    end
     
     %7. Populate channels
     tic
