@@ -23,8 +23,8 @@ defaultS.exportedFilePrefix = 'inputFileName';
 defaultS.batchSize = 1;
 defaultS.postProc = [];
 defaultS.passedScanDim = '3D';
-idS.identifier.scanNum = 1;
-defaultS.structAssocScan = idS; %Default assoc. scan no.
+idS.identifier = struct();
+defaultS.structAssocScan = idS; 
 defaultS.scan = struct('identifier',idS.identifier,'resample',struct(),...
     'crop',struct(),'resize',struct(),'view',{{'axial'}},'channels',struct());
 defaultS.scan.crop.method = 'none';

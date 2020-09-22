@@ -96,10 +96,10 @@ toc
 fprintf('\nImporting to CERR...\n');
 tic
 identifierS = userOptS.structAssocScan.identifier;
-if ~isnumeric(identifierS)
+if ~isempty(fieldnames(userOptS.structAssocScan.identifier))
     origScanNum = getScanNumFromIdentifiers(identifierS,planC);
 else
-    origScanNum = identifierS;
+    origScanNum = 1; %Assoc with first scan by default
 end
 outScanNum = scanNumV(origScanNum);
 success = joinH5CERR(cerrPath,outC{1},outScanNum,userOptS); %Updated
