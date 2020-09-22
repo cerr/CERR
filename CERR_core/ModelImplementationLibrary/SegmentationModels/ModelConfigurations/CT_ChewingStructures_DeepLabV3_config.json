@@ -12,6 +12,8 @@
 
 "scan":{
 
+        "identifier" : {"imageType": "CT SCAN"},
+
 	"view" : ["axial", "sagittal", "coronal"],
 
 	"crop" : [{     

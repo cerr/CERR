@@ -26,20 +26,25 @@
       "value": 9
     }
   ],
+  
+"scan":{  
 
-"resize" : {"method": "pad2D",
-            "size" : [256,256]},
+        "identifier" : {"imageType": "CT SCAN"},
 
+
+	"resize" : {"method": "pad2D",
+            	    "size" : [256,256]},
+
+	"crop": [{
+      		"method": "crop_pt_outline_2D",
+      		"params": { "structureName": "generated_pt_outline", "outStrName":"generated_pt_outline", "saveStrToPlanCFlag": 0, "outlineThreshold": -400},
+      		"operator": ""
+    		} ]
+    		
+       },
+    		
 "batchSize" : 1,
 
-
-"crop": [
-    {
-      "method": "crop_pt_outline_2D",
-      "params": { "structureName": "generated_pt_outline", "outStrName":"generated_pt_outline", "saveStrToPlanCFlag": 0, "outlineThreshold": -400},
-      "operator": ""
-    } ],
- 
 "passedScanDim" : "3D",
 
 "reference" : "https://ieeexplore.ieee.org/document/8417454"
