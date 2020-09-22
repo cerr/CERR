@@ -27,7 +27,7 @@ for n = 1:length(identifierC)
         
         case 'imageType'
             imTypeC =  arrayfun(@(x)x.scanInfo(1).imageType, planC{indexS.scan},'un',0);
-            idV = strcmp(matchValC,imTypeC);
+            idV = strcmpi(matchValC,imTypeC);
             
         case 'seriesDescription'
             seriesDescC = arrayfun(@(x)x.scanInfo(1).DICOMHeaders.SeriesDescription,...
@@ -37,7 +37,7 @@ for n = 1:length(identifierC)
         case 'scanType'
             
             scanTypeC = {planC{indexS.scan}.scanType};
-            idV = strcmp(matchValC,scanTypeC);
+            idV = strcmpi(matchValC,scanTypeC);
             
         case 'scanNum'
             idV = false(size(matchIdxV));

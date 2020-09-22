@@ -18,19 +18,25 @@
     }
 ],
 
-"resize" : {
-    "method": "bicubic",
-    "preserveAspectRatio":"Yes",
-    "size" : [256,256]
-},
+"scan":{
 
-"crop": [
-{
-    "method": "crop_pt_outline_2D",
-    "params": { "structureName": "generated_pt_outline", "outStrName":"generated_pt_outline", "saveStrToPlanCFlag": 1, "outlineThreshold": -400},
-    "operator": ""
-    }
-],
+        "identifier" : {"imageType": "CT SCAN"},
+
+
+	"resize" : {
+ 	  		 "method": "bicubic",
+   	 		 "preserveAspectRatio":"Yes",
+   	 		 "size" : [256,256]
+		   },
+
+	"crop": [
+		{
+    		  "method": "crop_pt_outline_2D",
+    		  "params": { "structureName": "generated_pt_outline", "outStrName":"generated_pt_outline", "saveStrToPlanCFlag": 1, "outlineThreshold": -400},
+    		  "operator": ""
+   	        }
+		]
+      },
 
 "batchSize" : 1 ,
 
