@@ -93,7 +93,7 @@ end
 for scanNum = 1:length(planC{indexS.scan})
     modality = planC{indexS.scan}(scanNum).scanInfo(1).imageType;
     if strcmpi(modality,'PT') || strcmpi(modality,'PET')
-        imageUnits = planC{indexS.scan}(scanNum).scanInfo(1).petImageUnits;
+        imageUnits = planC{indexS.scan}(scanNum).scanInfo(1).imageUnits;
         if ~strcmpi(imageUnits,'GML') % TO DO: handle various image types
             % Obtain SUV conversion flag from CERROptions.m
 %             pathStr = getCERRPath;
