@@ -600,6 +600,14 @@ switch fieldname
         dataS  = getTagValue(attr, '00080022');
     case 'acquisitionTime'
         dataS  = getTagValue(attr, '00080032');
+    case 'seriesDate'
+        dataS  = getTagValue(attr, '00080021');
+    case 'seriesTime'
+        dataS = getTagValue(attr, '00080031');
+    case 'correctedImage'
+        dataS = getTagValue(attr, '00280051');
+    case 'decayCorrection'
+        dataS = getTagValue(attr, '00541102');
     case 'patientWeight'
         dataS  = getTagValue(attr, '00101030');
     case 'RadiopharmaInfoS'
@@ -635,7 +643,7 @@ switch fieldname
             dataS = getTagValue(attr, '00541000');
         end
         
-    case 'petImageUnits'
+    case 'imageUnits'
         if attr.contains(hex2dec('00541001'))
             dataS = getTagValue(attr, '00541001');
         end

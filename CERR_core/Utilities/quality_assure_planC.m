@@ -207,7 +207,7 @@ for scanNum = 1:length(planC{indexS.scan})
     if isfield(planC{indexS.scan}(scanNum).scanInfo(1),'DICOMHeaders') ...
             && ~isempty(planC{indexS.scan}(scanNum).scanInfo(1).DICOMHeaders) ...
             && any(strcmpi(planC{indexS.scan}(scanNum).scanInfo(1).imageType,{'PT','PET'})) ...
-            && isempty(planC{indexS.scan}(scanNum).scanInfo(1).halfLife)
+            && isempty(planC{indexS.scan}(scanNum).scanInfo(1).decayCorrection)
         for slcNum = 1:size(planC{indexS.scan}(scanNum).scanArray,3)
             dicomhd = planC{indexS.scan}(scanNum).scanInfo(slcNum).DICOMHeaders;
             ptweight = [];
@@ -222,6 +222,10 @@ for scanNum = 1:length(planC{indexS.scan})
                 dicomhd.RadiopharmaceuticalInformationSequence.Item_1.RadionuclideHalfLife;
             injectedDose = ...
                 dicomhd.RadiopharmaceuticalInformationSequence.Item_1.RadionuclideTotalDose;
+            seriesTime = dicomhd.SeriesTime;
+            decayCorrection = dicomhd.DecayCorrection;
+            correctedImage = dicomhd.CorrectedImage;    
+            imageUnits = dcmhd.Units;
             
             planC{indexS.scan}(scanNum).scanInfo(slcNum).patientWeight = ...
                 ptweight;
@@ -233,6 +237,15 @@ for scanNum = 1:length(planC{indexS.scan})
                 halfLife;
             planC{indexS.scan}(scanNum).scanInfo(slcNum).injectedDose = ...
                 injectedDose;
+            planC{indexS.scan}(scanNum).scanInfo(slcNum).seriesTime = ...
+                seriesTime;
+            planC{indexS.scan}(scanNum).scanInfo(slcNum).decayCorrection = ...
+                decayCorrection;
+            planC{indexS.scan}(scanNum).scanInfo(slcNum).correctedImage = ...
+                correctedImage;
+            planC{indexS.scan}(scanNum).scanInfo(slcNum).imageUnits = ...
+                imageUnits;
+            
         end
     end
 end
