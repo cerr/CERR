@@ -148,7 +148,7 @@ for k=1:length(algorithmC)
     
     % Call python wrapper and execute model
     pth = getenv('PATH');
-    condaBinPath = fullfile(condaPath,'condabin');
+    condaBinPath = fullfile(condaPath,'condabin;');
     condaEnvPath = fullfile(condaPath,'envs',condaEnvListC{k});
     newPth = [condaBinPath,pth];
     setenv('PATH',newPth)
