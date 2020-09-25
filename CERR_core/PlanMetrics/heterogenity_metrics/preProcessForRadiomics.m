@@ -99,8 +99,8 @@ if whichFeatS.resample.flag
     dy = median(diff(yValsV));
     dz = median(diff(zValsV));
     padScaleX = ceil(whichFeatS.resample.resolutionXCm/dx);
-    padScaleY = ceil(whichFeatS.resample.resolutionXCm/dy);
-    padScaleZ = ceil(whichFeatS.resample.resolutionXCm/dz);
+    padScaleY = ceil(whichFeatS.resample.resolutionYCm/dy);
+    padScaleZ = ceil(whichFeatS.resample.resolutionZCm/dz);
 end
 if whichFeatS.padding.flag
     if ~isfield(whichFeatS.padding,'method')
