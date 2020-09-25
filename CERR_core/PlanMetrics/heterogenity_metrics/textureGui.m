@@ -468,7 +468,7 @@ switch upper(command)
         else
             featListC = get(featH,'string');
             featureType = featListC{featureIdx};
-            featureType = strrep(featureType,' ','');
+            %featureType = strrep(featureType,' ','');
             paramS = [];
         end
         startPosV = get(featH,'position');
@@ -477,7 +477,7 @@ switch upper(command)
         
         if nargin== 1 %List parameters for new texture map
         switch featureType
-            case 'HaralickCooccurance' 
+            case 'Haralick Cooccurance' 
                 
                 paramC = {'Type','PatchSize','PatchType','Directionality','NumLevels'};
                 typeC = {'popup','edit' ,'popup','popup','edit'};
@@ -494,7 +494,7 @@ switch upper(command)
                     {'16'}};
                 dispC = {'On','On','On','On','On'};
                 
-            case 'LawsConvolution' % Laws 
+            case 'Laws Convolution' % Laws 
                 paramC = {'PadMethod', 'PadSize','Direction','KernelSize','Normalize'};
                 typeC = {'popup','edit','popup','popup','popup'};
                 valC = {{'expand','padzeros','circular','replicate',...
@@ -502,7 +502,7 @@ switch upper(command)
                     {'3','5','All'},{'Yes','No'}};
                 dispC = {'On','On','On','On','On'};
                 
-            case 'LawsEnergy' %Laws energy
+            case 'Laws Energy' %Laws energy
                 paramC = {'PadMethod', 'PadSize','Direction','KernelSize','Normalize'};
                 typeC = {'popup','edit','popup','popup','popup'};
                 valC = {{'expand','padzeros','circular','replicate',...
@@ -517,7 +517,7 @@ switch upper(command)
                     'symmetric','none'},{'5,5,5'},{'3'}};
                 dispC = {'On','On','On'};
                 
-            case 'FirstOrderStatistics' %First-order statistics
+            case 'First Order Statistics' %First-order statistics
                 paramC = {'PatchSize','VoxelSize_mm'};
                 typeC = {'edit','edit'};
                 voxSizeV = getScanXYZSpacing(scanNum,planC);
@@ -894,7 +894,7 @@ switch upper(command)
                 paramS.Index.val = paramS.Index.val{1};
             end
             
-        elseif (strcmp(fType,'HaralickCooccurance') )
+        elseif (strcmp(fType,'Haralick Cooccurance') )
             mappedDirectionalityC = {1,2,3,4,5,6};
             directionalityC = {'Co-occurance with 13 directions in 3D',...
                 'Left-Right, Ant-Post and Diagonals in 2D', ...
@@ -921,7 +921,7 @@ switch upper(command)
                 paramS.PatchSize.val = patchSizeV;
             end
                 
-        elseif (strcmp(fType,'LawsConvolution') )
+        elseif (strcmp(fType,'Laws Convolution') )
             
             mappedDirC = {1,2,3};
             mappedSizC = {1,2,3};
