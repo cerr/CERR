@@ -116,8 +116,8 @@ for k=1:length(algorithmC)
     else
         batchSize = userOptS.batchSize;
     end
-    [scanC, maskC, scanNumV, planC] = extractAndPreprocessDataForDL(userOptS,planC,...
-        testFlag);
+    [scanC, maskC, scanNumV, userOptS, planC] = ...
+        extractAndPreprocessDataForDL(userOptS,planC,testFlag);
     %Note: mask3M is empty for testing
     if ishandle(hWait)
         waitbar(0.2,hWait,'Segmenting structures...');
@@ -183,6 +183,8 @@ for k=1:length(algorithmC)
         origScanNum = 1; %Assoc with first scan by default
     end
     outScanNum = scanNumV(origScanNum);
+    userOptS.scan(outScanNum) = userOptS.scan(origScanNum);
+    userOptS.scan(outScanNum).origScan = origScanNum;
     planC  = joinH5planC(outScanNum,outC{1},userOptS,planC); % only 1 file
     toc
     

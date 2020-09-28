@@ -38,12 +38,13 @@ for p=1:length(planCfiles)
     fileNam = fullfile(planCfiles(p).folder,planCfiles(p).name);
     planC = loadPlanC(fileNam, tempdir);
     planC = quality_assure_planC(fileNam,planC);
-
+    
     %Pre-process scan & mask
     fprintf('\nPre-processing data...\n');
     tic
-    [scanC, maskC, scanNumV, planC] = extractAndPreprocessDataForDL(userOptS,...
-        planC,testFlag); %Note: mask3M is empty in inference mode
+    [scanC, maskC, scanNumV, userOptS, planC] = ...
+        extractAndPreprocessDataForDL(userOptS,planC,testFlag);
+    %Note: mask3M is empty in inference mode
     toc
     
     %Export to H5 format
@@ -102,6 +103,8 @@ else
     origScanNum = 1; %Assoc with first scan by default
 end
 outScanNum = scanNumV(origScanNum);
+userOptS(outScanNum).scan = userOptS(origScanNum).scan;
+userOptS(outScanNum).scan.origScan = origScanNum;
 success = joinH5CERR(cerrPath,outC{1},outScanNum,userOptS); %Updated
 toc
           

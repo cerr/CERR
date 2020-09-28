@@ -1,32 +1,39 @@
-function [outScan3M,outMask3M]  = resampleScanAndMask(scan3M,mask3M,outputImgSizeV,method)
+function [outScan3M,outMask3M,xResampleV,yResampleV,zResampleV] = ...
+    resampleScanAndMask(scan3M,mask3M,inputResV,xValsV,yValsV,zValsV,...
+    outputResV,method)
 % resampleScanAndMask.m
 %
 % Returns resampled scan and mask using input method.
-% Supported methods include: sinc', 'cubic', 'linear', 'triangle'.
+% Supported methods include: 'sinc','linear','cubic','nearest',
+%                            'makima', and 'spline'.
 % Note: Masks are resampled using 'nearest' method.
 %--------------------------------------------------------------------------
 % INPUTS:
 % scan3M         :  Scan array
 % mask3M         :  Mask
-% outputImgSizeV :  Required output size [numRows, numCols, numSlices].
-% method         :  Supported methods: 'sinc','cubic','linear','triangle'.
+% inputResV      :  Input resolution (cm)
+% xValsV         :  Input x grid vals (cm)
+% yValsV         :  Input y grid vals (cm)
+% zValsV         :  Input z grid vals (cm)
+% outputResV     :  Output resolution (cm)
+% method         :  Supported methods: 'sinc','cubic','linear','triangle',
+%                   'spline', 'makima', 'nearest.
 %--------------------------------------------------------------------------
 % AI 9/30/19
+% AI 9/24/20  Updated to call imgResample3d.m
 
-switch lower(method)
-    case 'sinc'
-        method = 'lanczos3';  %Lanczos-3 kernel
-    case 'cubic'
-        method = 'cubic';
-    case 'linear'
-        method = 'linear';
-    case 'triangle'
-        method = 'triangle';
-    otherwise
-        error('Interpolatin method not supported');
+extrapVal = 0;
+
+%Resample scan
+[outScan3M,xResampleV,yResampleV,zResampleV] = imgResample3d(scan3M,...
+    inputResV,xValsV,yValsV,zValsV,outputResV,method,extrapVal);
+
+%Resample mask
+if ~isempty(mask3M)
+    outMask3M = imgResample3d(mask3M,inputResV,xValsV,yValsV,zValsV,...
+        outputResV,'nearest',extrapVal) >= 0.5;
+else
+    outMask3M = [];
 end
-
-outScan3M = imresize3(scan3M,outputImgSizeV,'method',method);
-outMask3M = imresize3(single(mask3M),outputImgSizeV,'method','nearest');
 
 end

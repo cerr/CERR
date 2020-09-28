@@ -1,4 +1,4 @@
-function [scanOutC, maskOutC, scanNumV, planC] = ...
+function [scanOutC, maskOutC, scanNumV, optS, planC] = ...
     extractAndPreprocessDataForDL(optS,planC,testFlag)
 %
 % Script to extract scan and mask and perform user-defined pre-processing.
@@ -97,6 +97,7 @@ for scanIdx = 1:numScans
     scan3M = scan3M - CTOffset;
     
     %Extract masks
+    strC = {planC{indexS.structures}.structureName};
     if isempty(exportStrC) && testFlag
         mask3M = [];
         validStrIdxV = [];
@@ -148,20 +149,56 @@ for scanIdx = 1:numScans
             yValsV = fliplr(yValsV);
         end
         
-        xValsV = xValsV(1):resampleS(scanIdx).resolutionXCm:(xValsV(end)+10000*eps);
-        yValsV = yValsV(1):resampleS(scanIdx).resolutionYCm:(yValsV(end)+10000*eps);
-        zValsV = zValsV(1):resampleS(scanIdx).resolutionZCm:(zValsV(end)+10000*eps);
+        %Get input resolution
+        dx = median(diff(xValsV));
+        dy = median(diff(yValsV));
+        dz = median(diff(zValsV));
+        inputResV = [dx,dy,dz];
+        outResV = inputResV;
+        resListC = {'resolutionXCm','resolutionYCm','resolutionZCm'};
+        for nDim = 1:length(resListC)
+            if isfield(resampleS(scanIdx),resListC{nDim})
+                outResV(nDim) = resampleS(scanIdx).(resListC{nDim});
+            end
+            resampleMethod = resampleS(scanIdx).method;
+        end
         
-        %Compute output size
-        numCols = length(xValsV);
-        numRows = length(yValsV);
-        numSlcs = length(zValsV);
-        resampSizV = [numRows numCols numSlcs];
+        %Resample scan
+        [scan3M,xResampleV,yResampleV,zResampleV] = ...
+            imgResample3d(scan3M,inputResV,xValsV,yValsV,zValsV,...
+            outResV,resampleMethod,0);
         
-        %Resample
-        [scan3M,mask3M] = resampleScanAndMask(scan3M,mask3M,resampSizV,resampleMethod);
+        %Store to planC
+        scanInfoS.horizontalGridInterval = outResV(1);
+        scanInfoS.verticalGridInterval = outResV(2);
+        scanInfoS.coord1OFFirstPoint = xResampleV(1);
+        scanInfoS.coord2OFFirstPoint = yResampleV(1);
+        scanInfoS.zValues = zResampleV;
+        sliceThicknessV = diff(zResampleV);
+        scanInfoS.sliceThickness = [sliceThicknessV,sliceThicknessV(end)];
+        planC = scan2CERR(scan3M,['Resamp_scan',num2str(scanNumV(scanIdx))],...
+            '',scanInfoS,'',planC);
+        scanNumV(scanIdx) = length(planC{indexS.scan});
         toc
         
+        %Resample reqd structures
+        cropStrListC = arrayfun(@(x)x.params.structureName,cropS,'un',0);
+        cropParS = [cropS.params];
+        if ~isempty(cropStrListC)
+            for n = 1:length(cropStrListC)
+                strIdx = getMatchingIndex(cropStrListC{n},strC,'EXACT');
+                if ~isempty(strIdx)
+                    str3M = double(getStrMask(strIdx,planC));
+                    outStr3M = imgResample3d(str3M,inputResV,xValsV,...
+                        yValsV,zValsV,outResV,resampleMethod,0) >= 0.5;
+                    outStrName = [cropParS(n).structureName,'_resamp'];
+                    cropParS(n).structureName = outStrName;
+                    planC = maskToCERRStructure(outStr3M,0,scanNumV(scanIdx),...
+                        outStrName,planC);
+                end
+            end
+            cropS.params = cropParS;
+        end
     end
     
     %2. Crop around the region of interest
@@ -187,6 +224,7 @@ for scanIdx = 1:numScans
         end
         toc
     end
+    scanOptS.crop = cropS;
     
     %3. Resize
     if ~strcmpi(resizeS(scanIdx).method,'none')
@@ -269,7 +307,8 @@ for scanIdx = 1:numScans
     end
     
     scanOutC{scanIdx} = channelOutC;
-    
+    optS(scanIdx).scan = scanOptS;
+
 end
 
 %Get scan metadata
