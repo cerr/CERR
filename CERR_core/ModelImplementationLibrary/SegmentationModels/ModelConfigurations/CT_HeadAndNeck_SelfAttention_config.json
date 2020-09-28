@@ -31,6 +31,10 @@
 
         "identifier" : {"imageType": "CT SCAN"},
 
+	"resample": {"resolutionXCm": 0.1,
+		     "resolutionYCm": 0.1,
+                     "method": "spline"
+		    },
 
 	"resize" : {"method": "pad2D",
             	    "size" : [256,256]},

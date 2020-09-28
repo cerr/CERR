@@ -1,7 +1,6 @@
 function planC  = joinH5planC(scanNum,segMask3M,userOptS,planC)
 % function planC  = joinH5planC(scanNum,segMask3M,userOptS,planC)
 
-
 if ~exist('planC','var')
     global planC
 end
@@ -9,15 +8,14 @@ indexS = planC{end};
 
 isUniform = 0;
 preserveAspectFlag = 0;
-
-%% Resize/pad mask to original dimensions
 scanOptS = userOptS(scanNum).scan;
 
+%% Resize/pad mask to original dimensions
 %Get parameters for resizing & cropping
-resizeMethod = scanOptS(scanNum).resize.method;
-cropS = scanOptS(scanNum).crop; %Added
-if isfield(scanOptS(scanNum).resize,'preserveAspectRatio')
-    if strcmp(scanOptS(scanNum).resize.preserveAspectRatio,'Yes')
+resizeMethod = scanOptS.resize.method;
+cropS = scanOptS.crop; %Added
+if isfield(scanOptS.resize,'preserveAspectRatio')
+    if strcmp(scanOptS.resize.preserveAspectRatio,'Yes')
         preserveAspectFlag = 1;
     end
 end
@@ -61,6 +59,37 @@ switch lower(resizeMethod)
             maskOut3M(minr:maxr, minc:maxc, slcV) = tempMask3M;
         end
 end
+
+%% Resample to original resolution
+resampleS = scanOptS.resample;
+if ~strcmpi(resampleS.method,'none')
+    fprintf('\n Resampling data...\n');
+    % Get the new x,y,z grid
+    [xValsV, yValsV, zValsV] = getScanXYZVals(planC{indexS.scan}(scanNum));
+    if yValsV(1) > yValsV(2)
+        yValsV = fliplr(yValsV);
+    end
+    %Get input scan & resolution
+    dx = median(diff(xValsV));
+    dy = median(diff(yValsV));
+    dz = median(diff(zValsV));
+    inputResV = [dx,dy,dz];
+    %Get original resolution
+    origScanNum = scanOptS.origScan;
+    [xVals0V, yVals0V, zVals0V] = getScanXYZVals(planC{indexS.scan}(origScanNum));
+    if yVals0V(1) > yVals0V(2)
+        yVals0V = fliplr(yVals0V);
+    end
+    dx0 = median(diff(xVals0V));
+    dy0 = median(diff(yVals0V));
+    dz0 = median(diff(zVals0V));
+    outResV = [dx0,dy0,dz0];
+    %Resample
+    maskOut3M = imgResample3d(double(maskOut3M),inputResV,xValsV,yValsV,...
+        zValsV,outResV,resampleS.method,0) >= 0.5;
+    scanNum = origScanNum;
+end
+
 
 
 for i = 1 : length(userOptS.strNameToLabelMap)

@@ -121,7 +121,8 @@ if length(algorithmC)==1 && ~strcmpi(algorithmC,'BABS')
         if ishandle(hWait)
             waitbar(0.1,hWait,'Extracting scan and mask');
         end
-        [scanC, maskC, scanNumV, planC] = extractAndPreprocessDataForDL(userOptS,planC,testFlag);
+        [scanC, maskC, scanNumV, userOptS planC] = ...
+            extractAndPreprocessDataForDL(userOptS,planC,testFlag);
         %Note: mask3M is empty for testing
         
         if ishandle(hWait)
@@ -172,6 +173,8 @@ if length(algorithmC)==1 && ~strcmpi(algorithmC,'BABS')
             origScanNum = 1; %Assoc with first scan by default
         end
         outScanNum = scanNumV(origScanNum);
+        userOptS(outScanNum).scan = userOptS(origScanNum).scan;
+        userOptS(outScanNum).scan.origScan = origScanNum;
         planC  = joinH5planC(outScanNum,outC{1},userOptS,planC);
         
         % Post-process segmentation
