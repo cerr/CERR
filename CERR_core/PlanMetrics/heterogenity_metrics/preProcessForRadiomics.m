@@ -140,87 +140,25 @@ if whichFeatS.resample.flag
     if ~isempty(whichFeatS.resample.resolutionZCm)
         PixelSpacingZ = whichFeatS.resample.resolutionZCm;
     end
-    origVolToEval = volToEval;
-    origMask = maskBoundingBox3M;
     
-    % Construct original image grid
-    xOrigV = dx:dx:size(origVolToEval,2)*dx;
-    yOrigV = dy:dy:size(origVolToEval,1)*dy;
-    zOrigV = dz:dz:size(origVolToEval,3)*dz;
-    
-    % Get no. output rows, cols, slices
-    numCols = ceil((xValsV(end) - xValsV(1) + dx)/PixelSpacingX);
-    numRows = ceil((yValsV(end) - yValsV(1) + dy)/PixelSpacingY);
-    numSlc = ceil((zValsV(end) - zValsV(1) + dz)/PixelSpacingZ);
-    
-    %Align grid centers
-    xCtr = dx/2+size(origVolToEval,2)*dx/2 + perturbX;
-    yCtr = dy/2+size(origVolToEval,1)*dy/2 + perturbY;
-    zCtr = dz/2+size(origVolToEval,3)*dz/2 + perturbZ;
-    
-    % Get output grid coordinates
-    xResampleV = [flip(xCtr-PixelSpacingX/2:-PixelSpacingX:0), ...
-        xCtr+PixelSpacingX/2:PixelSpacingX:size(origVolToEval,2)*dx];
-    yResampleV = [flip(yCtr-PixelSpacingY/2:-PixelSpacingY:0), ...
-        yCtr+PixelSpacingY/2:PixelSpacingY:size(origVolToEval,1)*dy];
-    zResampleV = [flip(zCtr-PixelSpacingZ/2:-PixelSpacingZ:0), ...
-        zCtr+PixelSpacingZ/2:PixelSpacingZ:size(origVolToEval,3)*dz];
-    
-    % Get meshgrids for interpolation
-    [xOrigM,yOrigM,zOrigM] = meshgrid(xOrigV,yOrigV,zOrigV);
-    [xResampM,yResampM,zResampM] = meshgrid(xResampleV,yResampleV,zResampleV);
-   
     % Interpolate using the method defined in settings file
     roiInterpMethod = 'linear';
     scanInterpMethod = whichFeatS.resample.interpMethod;
     extrapVal = 0;
     
-    switch scanInterpMethod
-        
-        case {'linear','cubic','nearest'}
-            volToEval = interp3(xOrigM,yOrigM,zOrigM,origVolToEval,...
-                xResampM,yResampM,zResampM,scanInterpMethod,extrapVal);
-            maskBoundingBox3M = interp3(xOrigM,yOrigM,zOrigM,single(origMask),...
-                xResampM,yResampM,zResampM,roiInterpMethod,extrapVal) >= 0.5;
-            
-        case 'sinc'
-            %Resize using sinc filter
-            scanInterpMethod = 'lanczos3';
-            volToEval = imresize3(origVolToEval,[numRows,numCols,numSlc],...
-                scanInterpMethod,'Antialiasing',false);
-            maskBoundingBox3M = imresize3(single(origMask),...
-                [numRows,numCols,numSlc],roiInterpMethod,'Antialiasing',false);
-            %Get pixel spacing
-            inPixelSpacingX = (xValsV(end) - xValsV(1) + dx)/numCols;
-            inPixelSpacingY = (yValsV(end) - yValsV(1) + dy)/numRows;
-            inPixelSpacingZ = (zValsV(end) - zValsV(1) + dz)/numSlc;
-            %Align grid centers
-            inXvalsV = inPixelSpacingX:inPixelSpacingX:...
-                (numCols)*inPixelSpacingX;
-            inYvalsV = inPixelSpacingY:inPixelSpacingY:...
-                (numRows)*inPixelSpacingY;
-            inZvalsV = inPixelSpacingZ:inPixelSpacingZ:...
-                (numSlc)*inPixelSpacingZ;
-            inXoffset = mean(xOrigV) - mean(inXvalsV);
-            inYoffset = mean(yOrigV) - mean(inYvalsV);
-            inZoffset = mean(zOrigV) - mean(inZvalsV);
-            inXvalsV = inXvalsV + inXoffset;
-            inYvalsV = inYvalsV + inYoffset;
-            inZvalsV = inZvalsV + inZoffset;
-            [inGridX3M,inGridY3M,inGridZ3M] = meshgrid(inXvalsV,...
-                inYvalsV,inZvalsV);
-            %Adjust pixel spacing
-            volToEval = interp3(inGridX3M,inGridY3M,inGridZ3M,volToEval,...
-                xResampM,yResampM,zResampM,'linear');
-            maskBoundingBox3M = interp3(inGridX3M,inGridY3M,inGridZ3M,...
-                single(maskBoundingBox3M),xResampM,yResampM,zResampM,...
-                roiInterpMethod) >= 0.5;
-            
-        otherwise
-            error('Interpolation method %s not supported',...
-                whichFeatS.resample.interpMethod);
-    end
+    % Interpolate using the method defined in settings file
+    origVolToEval = volToEval;
+    origMask = maskBoundingBox3M;
+    inputResV = [dx,dy,dz];
+    outputResV = [PixelSpacingX,PixelSpacingY,PixelSpacingZ];
     
+    [volToEval,xResampleV,yResampleV,zResampleV] = ...
+        imgResample3d(origVolToEval,inputResV,xValsV,yValsV,zValsV,...
+        outputResV,scanInterpMethod,extrapVal,[perturbX,perturbY,perturbZ]);
+    
+    maskBoundingBox3M = imgResample3d(single(origMask),inputResV,xValsV,...
+        yValsV,zValsV,outputResV,roiInterpMethod,extrapVal,...
+        [perturbX,perturbY,perturbZ]) >= 0.5;
 else
     xResampleV = xValsV;
     yResampleV = yValsV;
