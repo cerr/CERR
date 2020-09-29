@@ -142,12 +142,12 @@ end
 
 if antsFlag
     antsCommand = '';
-    if ~exist(optS.ants_build_dir,'dir')
-        error(['ANTSPATH ' optS.ants_build_dir ' not found on filesystem. Please review CERROptions.']);
+    if ~exist(optS.antspath_dir,'dir')
+        error(['ANTSPATH ' optS.antspath_dir ' not found on filesystem. Please review CERROptions.']);
     end
-    antspath = fullfile(optS.ants_build_dir,'bin');
+    antspath = fullfile(optS.antspath_dir,'bin');
     setenv('ANTSPATH', antspath);
-    antsScriptPath = fullfile(optS.ants_build_dir, 'Scripts');
+    antsScriptPath = fullfile(optS.antspath_dir, 'Scripts');
     antsCERRScriptPath = fullfile(getCERRPath,'CERR_core','ImageRegistration','antsScripts');
     if isunix
         setenv('PATH',[antspath ':' antsScriptPath ':' antsCERRScriptPath ':' getenv('PATH')]);
@@ -163,7 +163,7 @@ if antsFlag
     nproc = nproc_str(1:end-1);
     
     outPrefix = fullfile(tmpDirPath,[strrep(algorithm, ' ', '_') '_' baseScanUID '_' movScanUID '_']);
-    antsParams = [' -d 3 -f ' baseScanFileName ' -m ' movScanFileName ' -o ' outPrefix ' -n ' nproc ' '];
+    antsParams = [' -d 3 -f ' baseScanFileName ' -m ' movScanFileName ' -o ' outPrefix '  -n ' nproc ' '];
     
 %     antsMaskParams = ' ';
 %     
@@ -250,7 +250,17 @@ switch upper(algorithm)
         system(antsCommand);
         
         algorithmParamsS.antsCommand = antsCommand;
-        algorithmParamsS.antsWarpProducts = ls([outPrefix '*']);
+%         algorithmParamsS.antsWarpProducts = ls([outPrefix '*']);
+        try algorithmParamsS.antsWarpProducts.Affine = ls([outPrefix '*0GenericAffine.mat']); catch algorithmParamsS.antsWarpProducts.Affine = ''; end
+        try 
+            algorithmParamsS.antsWarpProducts.Warp = ls([outPrefix '*1Warp.nii.gz']);
+            algorithmParamsS.antsWarpProducts.InverseWarp = ls([outPrefix '*1InverseWarp.nii.gz']);
+        catch
+            algorithmParamsS.antsWarpProducts.Warp = '';
+            algorithmParamsS.antsWarpProducts.InverseWarp = '';
+        end
+        algorithmParamsS.antsWarpProducts.Warped = ls([outPrefix '*Warped.nii.gz']);
+        algorithmParamsS.antsWarpProducts.InverseWarped = ls([outPrefix '*InverseWarped.nii.gz']);
         deformS = createNewDeformObject(baseScanUID,movScanUID,algorithm,algorithmParamsS);
         
         % Add deform object to both base and moving planC's
@@ -259,6 +269,7 @@ switch upper(algorithm)
         basePlanC{indexBaseS.deform}  = dissimilarInsert(basePlanC{indexBaseS.deform},deformS,baseDeformIndex);
         movPlanC{indexMovS.deform}  = dissimilarInsert(movPlanC{indexMovS.deform},deformS,movDeformIndex);
         
+        bspFileName = '';
     case 'LDDMM ANTS'
 %         build command        
 %         outPrefix = fullfile(tmpDirPath,[strrep(algorithm, ' ', '_') '_' baseScanUID '_' movScanUID '_']);
