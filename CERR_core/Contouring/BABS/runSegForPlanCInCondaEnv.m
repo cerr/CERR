@@ -183,8 +183,8 @@ for k=1:length(algorithmC)
         origScanNum = 1; %Assoc with first scan by default
     end
     outScanNum = scanNumV(origScanNum);
-    userOptS.scan(outScanNum) = userOptS.scan(origScanNum);
-    userOptS.scan(outScanNum).origScan = origScanNum;
+    userOptS(outScanNum).scan = userOptS(origScanNum).scan;
+    userOptS(outScanNum).scan.origScan = origScanNum;
     planC  = joinH5planC(outScanNum,outC{1},userOptS,planC); % only 1 file
     toc
     

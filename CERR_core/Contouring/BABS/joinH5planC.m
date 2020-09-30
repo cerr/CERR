@@ -63,7 +63,7 @@ end
 %% Resample to original resolution
 resampleS = scanOptS.resample;
 if ~strcmpi(resampleS.method,'none')
-    fprintf('\n Resampling data...\n');
+    fprintf('\n Resampling masks...\n');
     % Get the new x,y,z grid
     [xValsV, yValsV, zValsV] = getScanXYZVals(planC{indexS.scan}(scanNum));
     if yValsV(1) > yValsV(2)
@@ -86,18 +86,18 @@ if ~strcmpi(resampleS.method,'none')
     outResV = [dx0,dy0,dz0];
     %Resample
     maskOut3M = imgResample3d(double(maskOut3M),inputResV,xValsV,yValsV,...
-        zValsV,outResV,resampleS.method,0) >= 0.5;
+        zValsV,outResV,'nearest',0);
     scanNum = origScanNum;
 end
 
 
 
-for i = 1 : length(userOptS.strNameToLabelMap)
+for i = 1 : length(userOptS(scanNum).strNameToLabelMap)
     
-    labelVal = userOptS.strNameToLabelMap(i).value;
+    labelVal = userOptS(scanNum).strNameToLabelMap(i).value;
     maskForStr3M = maskOut3M == labelVal;
     planC = maskToCERRStructure(maskForStr3M, isUniform, scanNum,...
-        userOptS.strNameToLabelMap(i).structureName, planC);
+        userOptS(scanNum).strNameToLabelMap(i).structureName, planC);
     
 end
 
