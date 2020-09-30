@@ -93,7 +93,7 @@ for scanIdx = 1:numScans
     
     %Extract scan array
     scan3M = double(getScanArray(scanNumV(scanIdx),planC));
-    CTOffset = planC{indexS.scan}(scanNumV(scanIdx)).scanInfo(1).CTOffset;
+    CTOffset = double(planC{indexS.scan}(scanNumV(scanIdx)).scanInfo(1).CTOffset);
     scan3M = scan3M - CTOffset;
     
     %Extract masks
@@ -159,14 +159,16 @@ for scanIdx = 1:numScans
         for nDim = 1:length(resListC)
             if isfield(resampleS(scanIdx),resListC{nDim})
                 outResV(nDim) = resampleS(scanIdx).(resListC{nDim});
+            else
+                outResV(nDim) = nan;
             end
-            resampleMethod = resampleS(scanIdx).method;
         end
-        
+        resampleMethod = resampleS(scanIdx).method;
+
         %Resample scan
         [scan3M,xResampleV,yResampleV,zResampleV] = ...
             imgResample3d(scan3M,inputResV,xValsV,yValsV,zValsV,...
-            outResV,resampleMethod,0);
+            outResV,resampleMethod);
         
         %Store to planC
         scanInfoS.horizontalGridInterval = outResV(1);
