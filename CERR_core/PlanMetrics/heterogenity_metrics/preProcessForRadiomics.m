@@ -1,4 +1,4 @@
-function [volToEval,maskBoundingBox3M,gridS] = preProcessForRadiomics(scanNum,...
+function [volToEval,maskBoundingBox3M,gridS,paramS] = preProcessForRadiomics(scanNum,...
     structNum, paramS, planC)
 % preProcessForRadiomics.m
 % Pre-process image for radiomics feature extraction. Includes
@@ -39,6 +39,18 @@ if numel(scanNum) == 1
     end
     %zValsV = zValsV(uniqueSlices);
     
+%     % Get image types with various parameters
+%     fieldNamC = fieldnames(paramS.imageType);
+%     for iImg = 1:length(fieldNamC)
+%         for iFilt = 1:length(paramS.imageType.(fieldNamC{iImg}))
+%             imageType = fieldNamC{iImg};
+%             if strcmpi(imageType,'SUV')
+%                 scanInfoS = planC{indexS.scan}(scanNum).scanInfo;
+%                 paramS.imageType.(fieldNamC{iImg})(iFilt).scanInfoS = scanInfoS;
+%             end
+%         end
+%     end
+    
 else
     
     scanArray3M = scanNum;
@@ -62,7 +74,6 @@ end
 PixelSpacingX = abs(xValsV(1) - xValsV(2));
 PixelSpacingY = abs(yValsV(1) - yValsV(2));
 PixelSpacingZ = abs(zValsV(1) - zValsV(2));
-
 
 %% Apply global settings
 whichFeatS = paramS.whichFeatS;
@@ -125,6 +136,7 @@ scanArray3M = double(scanArray3M);
 xValsV = xValsV(outLimitsV(3):outLimitsV(4));
 yValsV = yValsV(outLimitsV(1):outLimitsV(2));
 zValsV = zValsV(outLimitsV(5):outLimitsV(6));
+slcIndV = outLimitsV(5):outLimitsV(6);
 
 %--- 3. Resampling ---
 
@@ -159,10 +171,17 @@ if whichFeatS.resample.flag
     maskBoundingBox3M = imgResample3d(single(origMask),inputResV,xValsV,...
         yValsV,zValsV,outputResV,roiInterpMethod,extrapVal,...
         [perturbX,perturbY,perturbZ]) >= 0.5;
+    
+    newSlcIndV = zeros(1,length(zResampleV));
+    for iSlc = 1:length(zResampleV)
+        newSlcIndV(iSlc) = findnearest(zValsV, zResampleV(iSlc));
+    end
+    
 else
     xResampleV = xValsV;
     yResampleV = yValsV;
     zResampleV = zValsV;
+    newSlcIndV = slcIndV;
 end
 
 
@@ -192,5 +211,22 @@ gridS.xValsV = xResampleV;
 gridS.yValsV = yResampleV;
 gridS.zValsV = zResampleV;
 gridS.PixelSpacingV = [PixelSpacingX,PixelSpacingY,PixelSpacingZ];
+
+% Pass scanInfo as an additional parameter for imageType = SUV
+if numel(scanNum) == 1
+    % Get image types with various parameters
+    fieldNamC = fieldnames(paramS.imageType);
+    for iImg = 1:length(fieldNamC)
+        for iFilt = 1:length(paramS.imageType.(fieldNamC{iImg}))
+            imageType = fieldNamC{iImg};
+            if strcmpi(imageType,'SUV')
+                scanInfoS = planC{indexS.scan}(scanNum).scanInfo;
+                scanInfoS = scanInfoS(slcIndV);
+                scanInfoS = scanInfoS(newSlcIndV);
+                paramS.imageType.(fieldNamC{iImg})(iFilt).scanInfoS = scanInfoS;
+            end
+        end
+    end
+end
 
 end
