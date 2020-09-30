@@ -307,6 +307,11 @@ switch filterType
             drawnow;
         end
         
+    case 'suv'
+        scanName = ['suv3M_',paramS.suvType.val];
+        headerS = paramS.scanInfoS;
+        outS.(scanName) = getSUV(scan3M, headerS, paramS.suvType.val);
+        
     case 'SimpleITK'
         
         vol3M   = double(scan3M);
