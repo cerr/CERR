@@ -17,7 +17,7 @@ strC = {planC{indexS.structures}.structureName};
 strName = paramS.structuresC{1};
 structNum = getMatchingIndex(strName,strC,'EXACT');
 scanNum = getStructureAssociatedScan(structNum,planC);
-[volToEval,maskBoundingBox3M] =  preProcessForRadiomics(scanNum,...
+[volToEval,maskBoundingBox3M,gridS,paramS] =  preProcessForRadiomics(scanNum,...
     structNum, paramS, planC);
 textureS = struct();
 
