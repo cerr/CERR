@@ -82,7 +82,12 @@ if ~strcmpi(resampleS.method,'none')
     end
     dx0 = median(diff(xVals0V));
     dy0 = median(diff(yVals0V));
-    dz0 = median(diff(zVals0V));
+    if isfield(userOptS(scanNum).scan.resample,'resolutionZCm')
+        dz0 = median(diff(zVals0V));
+        zValsV = zVals0V;
+    else
+        dz0 = nan;
+    end
     outResV = [dx0,dy0,dz0];
     %Resample
     maskOut3M = imgResample3d(double(maskOut3M),inputResV,xValsV,yValsV,...

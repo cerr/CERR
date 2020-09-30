@@ -42,24 +42,34 @@ zOrigV = dz:dz:size(img3M,3)*dz;
 %% Get no. output rows, cols, slices
 PixelSpacingX = outputResV(1);
 PixelSpacingY = outputResV(2);
-PixelSpacingZ = outputResV(3);
 numCols = ceil((xValsV(end) - xValsV(1) + dx)/PixelSpacingX);
 numRows = ceil((yValsV(end) - yValsV(1) + dy)/PixelSpacingY);
-numSlc = ceil((zValsV(end) - zValsV(1) + dz)/PixelSpacingZ);
+if ~isnan(outputResV(3))
+    resamp3DFlag = 1;
+    PixelSpacingZ = outputResV(3);
+    numSlc = ceil((zValsV(end) - zValsV(1) + dz)/PixelSpacingZ);
+else
+    %Resmaple in-plane
+    resamp3DFlag = 0;
+    numSlc = length(zValsV);
+end
 
 %% Get output grid coordinates
 % Align grid centers
 xCtr = dx/2+size(img3M,2)*dx/2 + perturbX;
 yCtr = dy/2+size(img3M,1)*dy/2 + perturbY;
-zCtr = dz/2+size(img3M,3)*dz/2 + perturbZ;
 % Create output grid
 xResampleV = [flip(xCtr-PixelSpacingX/2:-PixelSpacingX:0), ...
     xCtr+PixelSpacingX/2:PixelSpacingX:size(img3M,2)*dx];
 yResampleV = [flip(yCtr-PixelSpacingY/2:-PixelSpacingY:0), ...
     yCtr+PixelSpacingY/2:PixelSpacingY:size(img3M,1)*dy];
-zResampleV = [flip(zCtr-PixelSpacingZ/2:-PixelSpacingZ:0), ...
-    zCtr+PixelSpacingZ/2:PixelSpacingZ:size(img3M,3)*dz];
-zResampleV(end) = [];
+if resamp3DFlag
+    zCtr = dz/2+size(img3M,3)*dz/2 + perturbZ;
+    zResampleV = [flip(zCtr-PixelSpacingZ/2:-PixelSpacingZ:0), ...
+        zCtr+PixelSpacingZ/2:PixelSpacingZ:size(img3M,3)*dz];
+else
+    zResampleV = zOrigV;
+end
 
 %% Interpolation
 % Get meshgrids
