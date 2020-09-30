@@ -610,7 +610,15 @@ switch fieldname
         dataS = getTagValue(attr, '00541102');
     case 'patientWeight'
         dataS  = getTagValue(attr, '00101030');
-    case 'RadiopharmaInfoS'
+    case 'patientSize'
+        dataS  = getTagValue(attr, '00101020');
+    case 'patientBmi'
+        dataS  = getTagValue(attr, '00101022');
+    case 'patientSex' 
+        dataS  = getTagValue(attr, '00100040');
+    case 'suvType'
+        dataS  = getTagValue(attr, '00541006');
+    case 'RadiopharmaInfoS'        
         dataS  = getTagValue(attr, '00540016');
         if isfield(dataS,'Item_1')
             dataS = dataS.Item_1;
