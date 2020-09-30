@@ -94,19 +94,12 @@ for scanNum = 1:length(planC{indexS.scan})
     modality = planC{indexS.scan}(scanNum).scanInfo(1).imageType;
     if strcmpi(modality,'PT') || strcmpi(modality,'PET')
         imageUnits = planC{indexS.scan}(scanNum).scanInfo(1).imageUnits;
-        if ~strcmpi(imageUnits,'GML') % TO DO: handle various image types
-            % Obtain SUV conversion flag from CERROptions.m
-%             pathStr = getCERRPath;
-%             optName = fullfile(pathStr,'CERROptions.json');
-%             optS    = opts4Exe(optName);
+        if ~strcmpi(imageUnits,'GML')
             if isfield(optS,'convert_PET_to_SUV') && optS.convert_PET_to_SUV
-                for slcNum = 1:size(planC{indexS.scan}(scanNum).scanArray,3)
-                    dicomHeaderS = planC{indexS.scan}(scanNum).scanInfo(slcNum);
-                    planC{indexS.scan}(scanNum).scanArray(:,:,slcNum) = ...
-                        calc_suv(dicomHeaderS, planC{indexS.scan}(scanNum).scanArray(:,:,slcNum));
-                end
+                suvType = optS.suvType;
+                planC = calc_suv(scanNum,planC,suvType);
             end
-        end        
+        end
     end
 end
 
