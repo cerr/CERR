@@ -49,7 +49,7 @@ if ~isnan(outputResV(3))
     PixelSpacingZ = outputResV(3);
     numSlc = ceil((zValsV(end) - zValsV(1) + dz)/PixelSpacingZ);
 else
-    %Resmaple in-plane
+    %Resample in-plane
     resamp3DFlag = 0;
     numSlc = length(zValsV);
 end
@@ -92,7 +92,7 @@ switch method
         %Resize using sinc filter
         resizeMethod = 'lanczos3';
         resampImg3M = imresize3(img3M,[numRows,numCols,numSlc],...
-            resizeMethod,'Antialiasing',false);
+            resizeMethod);
         %Get pixel spacing
         inPixelSpacingX = (xValsV(end) - xValsV(1) + dx)/numCols;
         inPixelSpacingY = (yValsV(end) - yValsV(1) + dy)/numRows;
@@ -112,7 +112,11 @@ switch method
         inZvalsV = inZvalsV + inZoffset;
         [inGridX3M,inGridY3M,inGridZ3M] = meshgrid(inXvalsV,...
             inYvalsV,inZvalsV);
-        %Adjust pixel spacing
+        %Resample
+        if ~resamp3DFlag
+            zResampleV = inZvalsV;
+            [xResampM,yResampM,zResampM] = meshgrid(xResampleV,yResampleV,zResampleV);
+        end
         resampImg3M = interp3(inGridX3M,inGridY3M,inGridZ3M,resampImg3M,...
             xResampM,yResampM,zResampM,'linear');
         

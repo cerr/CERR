@@ -93,7 +93,7 @@ for scanIdx = 1:numScans
     
     %Extract scan array
     scan3M = double(getScanArray(scanNumV(scanIdx),planC));
-    CTOffset = planC{indexS.scan}(scanNumV(scanIdx)).scanInfo(1).CTOffset;
+    CTOffset = double(planC{indexS.scan}(scanNumV(scanIdx)).scanInfo(1).CTOffset);
     scan3M = scan3M - CTOffset;
     
     %Extract masks
@@ -159,14 +159,16 @@ for scanIdx = 1:numScans
         for nDim = 1:length(resListC)
             if isfield(resampleS(scanIdx),resListC{nDim})
                 outResV(nDim) = resampleS(scanIdx).(resListC{nDim});
+            else
+                outResV(nDim) = nan;
             end
-            resampleMethod = resampleS(scanIdx).method;
         end
-        
+        resampleMethod = resampleS(scanIdx).method;
+
         %Resample scan
         [scan3M,xResampleV,yResampleV,zResampleV] = ...
             imgResample3d(scan3M,inputResV,xValsV,yValsV,zValsV,...
-            outResV,resampleMethod,0);
+            outResV,resampleMethod);
         
         %Store to planC
         scanInfoS.horizontalGridInterval = outResV(1);
@@ -205,7 +207,7 @@ for scanIdx = 1:numScans
     if ~strcmpi({cropS(scanIdx).method},'none')
         fprintf('\nCropping to region of interest...\n');
         tic
-        [minr, maxr, minc, maxc, slcV, planC] = ...
+        [minr, maxr, minc, maxc, slcV, cropStr3M, planC] = ...
             getCropLimits(planC,mask3M,scanNumV(scanIdx),cropS(scanIdx));
         %- Crop scan
         if ~isempty(scan3M) && numel(minr)==1
@@ -217,14 +219,20 @@ for scanIdx = 1:numScans
         end
         
         %- Crop mask
-        if ~isempty(mask3M) && numel(minr)==1
-            mask3M = mask3M(minr:maxr,minc:maxc,slcV);
-        elseif ~isempty(mask3M)
-            mask3M = mask3M(:,:,slcV);
+        if numel(minr)==1
+            cropStr3M = cropStr3M(minr:maxr,minc:maxc,slcV);
+            if ~isempty(mask3M)
+                mask3M = mask3M(minr:maxr,minc:maxc,slcV);
+            end
+        else
+            cropStr3M = cropStr3M(:,:,slcV);
+            if ~isempty(mask3M)
+                mask3M = mask3M(:,:,slcV);
+            end
         end
         toc
     end
-    scanOptS.crop = cropS;
+    scanOptS(scanIdx).crop = cropS;
     
     %3. Resize
     if ~strcmpi(resizeS(scanIdx).method,'none')
@@ -233,6 +241,8 @@ for scanIdx = 1:numScans
         resizeMethod = resizeS(scanIdx).method;
         outSizeV = resizeS(scanIdx).size;
         [scan3M, mask3M] = resizeScanAndMask(scan3M,mask3M,outSizeV,...
+            resizeMethod,limitsM,preserveAspectFlag);
+        [~, cropStr3M] = resizeScanAndMask([],cropStr3M,outSizeV,...
             resizeMethod,limitsM,preserveAspectFlag);
         toc
     end
@@ -247,6 +257,7 @@ for scanIdx = 1:numScans
         fprintf('\nTransforming orientation...\n');
     end
     [viewOutC,maskOutC{scanIdx}] = transformView(scanC{scanIdx},maskC(scanIdx),viewC);
+    [~,cropStrC] = transformView([],cropStr3M,viewC);
     toc
     
     %5. Filter images
@@ -291,8 +302,8 @@ for scanIdx = 1:numScans
         procScanC = viewOutC{1};
         for nView = 1:length(procScanC)
             scan3M = procScanC{nView};
-            mask3M = logical(procScanC{nView});
-            scan3M(~mask3M) = intVal;
+            cropStr3M = logical(cropStrC{nView});
+            scan3M(~cropStr3M) = intVal;
             procScanC{nView} = scan3M;
         end
         viewOutC{1} = procScanC;
