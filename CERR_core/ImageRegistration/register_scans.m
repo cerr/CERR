@@ -251,16 +251,36 @@ switch upper(algorithm)
         
         algorithmParamsS.antsCommand = antsCommand;
 %         algorithmParamsS.antsWarpProducts = ls([outPrefix '*']);
-        try algorithmParamsS.antsWarpProducts.Affine = ls([outPrefix '*0GenericAffine.mat']); catch algorithmParamsS.antsWarpProducts.Affine = ''; end
-        try 
-            algorithmParamsS.antsWarpProducts.Warp = ls([outPrefix '*1Warp.nii.gz']);
-            algorithmParamsS.antsWarpProducts.InverseWarp = ls([outPrefix '*1InverseWarp.nii.gz']);
-        catch
+        affineMat = [outPrefix '0GenericAffine.mat'];
+        warpField = [outPrefix '1Warp.nii.gz'];
+        inverseWarpField = [outPrefix '*1InverseWarp.nii.gz'];
+        warpedImg = [outPrefix 'Warped.nii.gz'];
+        inverseWarpedImg = [outPrefix 'InverseWarped.nii.gz'];
+        if exist(affineMat, 'file')
+            algorithmParamsS.antsWarpProducts.Affine = affineMat;
+        else
+            algorithmParamsS.antsWarpProducts.Affine = '';
+        end
+        if exist(warpField, 'file')
+            algorithmParamsS.antsWarpProducts.Warp = warpField;
+        else
             algorithmParamsS.antsWarpProducts.Warp = '';
+        end
+        if exist (inverseWarpField,'file')
+            algorithmParamsS.antsWarpProducts.InverseWarp = inverseWarpField;
+        else
             algorithmParamsS.antsWarpProducts.InverseWarp = '';
         end
-        algorithmParamsS.antsWarpProducts.Warped = ls([outPrefix '*Warped.nii.gz']);
-        algorithmParamsS.antsWarpProducts.InverseWarped = ls([outPrefix '*InverseWarped.nii.gz']);
+        if exist(warpedImg, 'file')
+            algorithmParamsS.antsWarpProducts.Warped = warpedImg;
+        else
+            algorithmParamsS.antsWarpProducts.Warped = '';
+        end
+        if exist(inverseWarpedImg, 'file')
+            algorithmParamsS.antsWarpProducts.InverseWarped = inverseWarpedImg;
+        else
+            algorithmParamsS.antsWarpProducts.InverseWarped = '';
+        end
         deformS = createNewDeformObject(baseScanUID,movScanUID,algorithm,algorithmParamsS);
         
         % Add deform object to both base and moving planC's
