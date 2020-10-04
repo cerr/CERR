@@ -1,9 +1,13 @@
-function [basePlanC, movPlanC] = LDDMM(basePlanC, movPlanC, baseScanNum, movScanNum, algorithm, baseBboxCropStr, movBboxCropStr, padWidth, baseDeformMaskStr, movDeformMaskStr)
+function [basePlanC, movPlanC] = LDDMM(basePlanC, movPlanC, baseScanNum, movScanNum, algorithm, baseBboxCropStr, movBboxCropStr, padWidth, baseDeformMaskStr, movDeformMaskStr,tmpDirPath)
 %Usage: [basePlanC, movPlanC] = LDDMM(basePlanC, movPlanC, baseScanNum, movScanNum, algorithm, baseBboxCropStr, movBboxCropStr, padWidth, baseDeformMaskStr, movDeformMaskStr)
 %Function for running LDDMM registration on planC scans
 %EML 2020-09
 
 %% parse input
+
+if nargin < 11 || ~exist('tmpDirPath','var')
+    tmpDirPath = fullfile(getCERRPath,'ImageRegistration','tmpFiles');
+end
 
 if nargin < 10 || ~exist('movDeformMaskStr','var')
     movDeformMaskStr = '';
@@ -153,7 +157,8 @@ if ~isempty(cropToStrCell)
 else
     inputCmdFile = fullfile(getCERRPath,'ImageRegistration','antsScripts','LDDMM_nomask.txt');
 end
+disp(inputCmdFile);
 
 %% Run register_scans
 [basePlanC, movPlanC, ~] = register_scans(basePlanC, movPlanC, baseScanNum, movScanNum, algorithm, baseMask3M, movMask3M,...
-    [], inputCmdFile, [], []);
+    [], inputCmdFile, [], [],   tmpDirPath);
