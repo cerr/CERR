@@ -239,7 +239,7 @@
 
 "sitkLibPath" : "C:\\Users\\aptea\\AppData\\Local\\Programs\\Python\\Python37\\Lib\\site-packages\\SimpleITK",
 
-"antspath_dir" : "/lab/deasylab1/Eve/LDDM/antsbin",
+"antspath_dir" : "/lab/deasylab1/Eve/LDDMM/antsbin",
 
 "condaPath" : "/usr/local/"
 }
