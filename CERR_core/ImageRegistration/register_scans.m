@@ -240,7 +240,7 @@ switch upper(algorithm)
     case 'QUICKSYN ANTS'
 %         build command
 %        outPrefix = fullfile(tmpDirPath,[strrep(algorithm, ' ', '_') '_' baseScanUID '_' movScanUID '_']);
-        antsCommand = [antsCommand ' antsRegistrationSyNQuick.sh ' antsParams];
+%         antsCommand = [antsCommand ' antsRegistrationSyNQuick.sh ' antsParams];
         % basic parameter arguments
         %      -d 3
         %      -f baseScanFileName 
@@ -253,7 +253,7 @@ switch upper(algorithm)
 %         algorithmParamsS.antsWarpProducts = ls([outPrefix '*']);
         affineMat = [outPrefix '0GenericAffine.mat'];
         warpField = [outPrefix '1Warp.nii.gz'];
-        inverseWarpField = [outPrefix '*1InverseWarp.nii.gz'];
+        inverseWarpField = [outPrefix '1InverseWarp.nii.gz'];
         warpedImg = [outPrefix 'Warped.nii.gz'];
         inverseWarpedImg = [outPrefix 'InverseWarped.nii.gz'];
         if exist(affineMat, 'file')
@@ -292,13 +292,43 @@ switch upper(algorithm)
         bspFileName = '';
     case 'LDDMM ANTS'
 %         build command        
-%         outPrefix = fullfile(tmpDirPath,[strrep(algorithm, ' ', '_') '_' baseScanUID '_' movScanUID '_']);
-        antsCommand = [antsCommand ' ANTs_Lung_Registration_CT2toCT1.sh ' antsParams];
-%         execute
+        antsCmdString = fileread(userCmdFile);
+        antsCommand = strrep(strrep(strrep(strrep(strrep(strrep(antsCmdString(1:end-1),'baseScan',baseScanFileName),'movScan',movScanFileName),'baseMask',baseMaskFileName),'movMask',movMaskFileName),'outPrefix',outPrefix),'nproc',nproc);
+        
         system(antsCommand);
         
         algorithmParamsS.antsCommand = antsCommand;
-        algorithmParamsS.antsWarpProducts = ls([outPrefix '*']);
+%         algorithmParamsS.antsWarpProducts = ls([outPrefix '*']);
+        affineMat = [outPrefix '0GenericAffine.mat'];
+        warpField = [outPrefix '1Warp.nii.gz'];
+        inverseWarpField = [outPrefix '1InverseWarp.nii.gz'];
+        warpedImg = [outPrefix 'Warped.nii.gz'];
+        inverseWarpedImg = [outPrefix 'InverseWarped.nii.gz'];
+        if exist(affineMat, 'file')
+            algorithmParamsS.antsWarpProducts.Affine = affineMat;
+        else
+            algorithmParamsS.antsWarpProducts.Affine = '';
+        end
+        if exist(warpField, 'file')
+            algorithmParamsS.antsWarpProducts.Warp = warpField;
+        else
+            algorithmParamsS.antsWarpProducts.Warp = '';
+        end
+        if exist (inverseWarpField,'file')
+            algorithmParamsS.antsWarpProducts.InverseWarp = inverseWarpField;
+        else
+            algorithmParamsS.antsWarpProducts.InverseWarp = '';
+        end
+        if exist(warpedImg, 'file')
+            algorithmParamsS.antsWarpProducts.Warped = warpedImg;
+        else
+            algorithmParamsS.antsWarpProducts.Warped = '';
+        end
+        if exist(inverseWarpedImg, 'file')
+            algorithmParamsS.antsWarpProducts.InverseWarped = inverseWarpedImg;
+        else
+            algorithmParamsS.antsWarpProducts.InverseWarped = '';
+        end
         deformS = createNewDeformObject(baseScanUID,movScanUID,algorithm,algorithmParamsS);
         
         % Add deform object to both base and moving planC's
