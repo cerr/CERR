@@ -52,7 +52,7 @@ if any(strfind(upper(deformS.algorithm),'ANTS'))
     antsCERRScriptPath = fullfile(getCERRPath,'CERR_core','ImageRegistration','antsScripts');
     if isunix
         setenv('PATH',[antspath ':' antsScriptPath ':' antsCERRScriptPath ':' getenv('PATH')]);
-        antsCommand = 'sh ';
+        antsCommand = '';
     else
         setenv('PATH',[antspath ';' antsScriptPath ';' antsCERRScriptPath ';' getenv('PATH')]);
         antsCommand = '';
@@ -65,15 +65,23 @@ if any(strfind(upper(deformS.algorithm),'ANTS'))
     if ~isempty(deformS.algorithmParamsS.antsWarpProducts.Affine )
         transformParams = [transformParams ' -t ' deformS.algorithmParamsS.antsWarpProducts.Affine ' '];
     end
+    if isempty(transformParams)
+        error('ANTS: No transformation products specified');
+    end
     if ~isempty(interpolation)
         interpParams = [' -n ' interpolation];
     else
         interpParams = ' ';
     end
     
-    antsCommand = [antsCommand ' antsApplyTransforms -d 3 -r ' refScanFileName ' -i ' movScanFileName ' -o ' warpedMhaFileName ' ' transformParams]; % ' ' interpParams];
+    antsCommand = [antsCommand ' antsApplyTransforms -d 3 -r ' refScanFileName ' -i ' movScanFileName ' -o ' warpedMhaFileName ' ' transformParams ' ' interpParams];
+    disp(antsCommand);
+    system(antsCommand);
     
-    print(antsCommand);
+     infoS  = mha_read_header(warpedMhaFileName);
+     data3M = mha_read_volume(infoS);
+     save_flag = 0;
+     planC  = mha2cerr(infoS,data3M,movScanOffset,movScanName, planC, save_flag);
 end
 
 % Create b-spline coefficients file
