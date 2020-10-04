@@ -173,10 +173,11 @@ switch upper(algorithm)
         
     case 'QUICKSYN ANTS'
         
+        disp('warp complete');
         
+    case 'LDDMM ANTS'
         
-        tfCommand = [antsCommand ];
-        
+        disp('warp complete');       
         
         
     otherwise % plastimatch
