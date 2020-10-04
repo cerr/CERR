@@ -177,6 +177,7 @@ if antsFlag
 %         antsParams = [antsParams antsMaskParams fileread(userCmdFile)];
         antsParams = strrep(strrep([antsParams ' ' fileread(userCmdFile)],'baseMask3M',baseMaskFileName),'movMask3M',movMaskFileName);
     end
+    bspFileName = '';
 end
 
 switch upper(algorithm)
@@ -239,8 +240,8 @@ switch upper(algorithm)
 
     case 'QUICKSYN ANTS'
 %         build command
-%        outPrefix = fullfile(tmpDirPath,[strrep(algorithm, ' ', '_') '_' baseScanUID '_' movScanUID '_']);
-%         antsCommand = [antsCommand ' antsRegistrationSyNQuick.sh ' antsParams];
+       outPrefix = fullfile(tmpDirPath,[strrep(algorithm, ' ', '_') '_' baseScanUID '_' movScanUID '_']);
+        antsCommand = [antsCommand ' antsRegistrationSyNQuick.sh ' antsParams];
         % basic parameter arguments
         %      -d 3
         %      -f baseScanFileName 
@@ -289,7 +290,6 @@ switch upper(algorithm)
         basePlanC{indexBaseS.deform}  = dissimilarInsert(basePlanC{indexBaseS.deform},deformS,baseDeformIndex);
         movPlanC{indexMovS.deform}  = dissimilarInsert(movPlanC{indexMovS.deform},deformS,movDeformIndex);
         
-        bspFileName = '';
     case 'LDDMM ANTS'
 %         build command        
         antsCmdString = fileread(userCmdFile);
@@ -302,8 +302,8 @@ switch upper(algorithm)
         affineMat = [outPrefix '0GenericAffine.mat'];
         warpField = [outPrefix '1Warp.nii.gz'];
         inverseWarpField = [outPrefix '1InverseWarp.nii.gz'];
-        warpedImg = [outPrefix 'Warped.nii.gz'];
-        inverseWarpedImg = [outPrefix 'InverseWarped.nii.gz'];
+        warpedImg = [outPrefix 'Warped.mha'];
+        inverseWarpedImg = [outPrefix 'InverseWarped.mha'];
         if exist(affineMat, 'file')
             algorithmParamsS.antsWarpProducts.Affine = affineMat;
         else
