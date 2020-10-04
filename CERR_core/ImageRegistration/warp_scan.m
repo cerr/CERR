@@ -1,11 +1,21 @@
-function planC = warp_scan(deformS,movScanNum,movPlanC,planC,tmpDirPath)
+function planC = warp_scan(deformS,movScanNum,movPlanC,planC,tmpDirPath,interpolation)
 % function planC = warp_scan(deformS,movScanNum,movPlanC,planC,tmpDirPath)
 %
 % APA, 07/19/2012
 
+if nargin < 6
+    interpolation = '';
+end
+
+refScanNum = findScanByUID(planC,deformS.baseScanUID);
+
 if ~exist('tmpDirPath','var')
     tmpDirPath = fullfile(getCERRPath,'ImageRegistration','tmpFiles');
 end
+
+%Read in CERR options
+optName = fullfile(getCERRPath,'CERROptions.json');
+optS = opts4Exe(optName);
 
 % Convert moving scan to .mha
 indexMovS = movPlanC{end};
@@ -18,6 +28,53 @@ movScanUniqName = [movScanUID,num2str(randPart)];
 movScanFileName = fullfile(tmpDirPath,['movScan_',movScanUniqName,'.mha']);
 success = createMhaScansFromCERR(movScanNum, movScanFileName, movPlanC);
 
+if ~isempty(refScanNum)
+    indexRefS = planC{end};
+    refScanUID = planC{indexRefS.scan}(refScanNum).scanUID;
+%     refScanOffset = planC{indexRefS.scan}(refScanNum).scanInfo(1).CTOffset;
+%     refScanName = planC{indexRefS.scan}(refScanNum).scanType;
+%     refScanName = [refScanName,'_deformed'];
+    randPart = floor(rand*1000);
+    refScanUniqName = [refScanUID,num2str(randPart)];
+    refScanFileName = fullfile(tmpDirPath,['refScan_',refScanUniqName,'.mha']);
+    success = createMhaScansFromCERR(refScanNum, refScanFileName, planC);
+end
+
+
+if any(strfind(upper(deformS.algorithm),'ANTS'))
+    antsCommand = '';
+    if ~exist(optS.antspath_dir,'dir')
+        error(['ANTSPATH ' optS.antspath_dir ' not found on filesystem. Please review CERROptions.']);
+    end
+    antspath = fullfile(optS.antspath_dir,'bin');
+    setenv('ANTSPATH', antspath);
+    antsScriptPath = fullfile(optS.antspath_dir, 'Scripts');
+    antsCERRScriptPath = fullfile(getCERRPath,'CERR_core','ImageRegistration','antsScripts');
+    if isunix
+        setenv('PATH',[antspath ':' antsScriptPath ':' antsCERRScriptPath ':' getenv('PATH')]);
+        antsCommand = 'sh ';
+    else
+        setenv('PATH',[antspath ';' antsScriptPath ';' antsCERRScriptPath ';' getenv('PATH')]);
+        antsCommand = '';
+    end
+    warpedMhaFileName = fullfile(tmpDirPath,['warped_scan_',refScanUID,'_',movScanUID,'.mha']); 
+    transformParams ='';
+    if ~isempty(deformS.algorithmParamsS.antsWarpProducts.Warp)
+        transformParams = [' -t ' deformS.algorithmParamsS.antsWarpProducts.Warp ' '];
+    end
+    if ~isempty(deformS.algorithmParamsS.antsWarpProducts.Affine )
+        transformParams = [transformParams ' -t ' deformS.algorithmParamsS.antsWarpProducts.Affine ' '];
+    end
+    if ~isempty(interpolation)
+        interpParams = [' -n ' interpolation];
+    else
+        interpParams = ' ';
+    end
+    
+    antsCommand = [antsCommand ' antsApplyTransforms -d 3 -r ' refScanFileName ' -i ' movScanFileName ' -o ' warpedMhaFileName ' ' transformParams]; % ' ' interpParams];
+    
+    print(antsCommand);
+end
 
 % Create b-spline coefficients file
 if isstruct(deformS)
@@ -37,8 +94,6 @@ switch upper(algorithm)
         end
         
         % Read Elastix build path from CERROptions.json
-        optName = fullfile(getCERRPath,'CERROptions.json');
-        optS = opts4Exe(optName);
         elxTransformCmd = 'transformix';
         if exist(optS.elastix_build_dir,'dir')
             %cd(optS.elastix_build_dir)
@@ -108,7 +163,14 @@ switch upper(algorithm)
         end       
         
         
-    case 'ANTS'
+    case 'QUICKSYN ANTS'
+        
+        
+        
+        tfCommand = [antsCommand ];
+        
+        
+        
     otherwise % plastimatch
         % Generate name for the output .mha file
         warpedMhaFileName = fullfile(tmpDirPath,...
