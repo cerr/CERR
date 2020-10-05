@@ -196,14 +196,19 @@ switch fieldname
 %                         % calibrator (0054,1322)
 %                         doseCalibFactor = getTagValue(imgobj, '00541322');
 
-                        if strcmpi(imageUnits,'CNTS') % for philips scanner
-                            %SUV Scale Factor
-                            %suvScaleFactor = getTagValue(imgobj, '70531000');
-                            %slice2D = slice2D * suvScaleFactor; % counts to SUV
-                            %Activity Concentration Scale Factor
-                            activityScaleFactor = getTagValue(imgobj, '70531009');
-                            slice2D = slice2D * activityScaleFactor; % counts to BQ/ml
-                        end
+                           % Moved conversion to BQML to getSUV.m
+%                         if strcmpi(imageUnits,'CNTS') % for philips scanner
+%                             %SUV Scale Factor
+%                             %suvScaleFactor = getTagValue(imgobj, '70531000');
+%                             %slice2D = slice2D * suvScaleFactor; % counts to SUV
+%                             %Activity Concentration Scale Factor
+%                             activityScaleFactor = getTagValue(imgobj, '70531009');
+%                             if isnumeric(activityScaleFactor)
+%                                 strV = native2unicode(activityScaleFactor);
+%                                 activityScaleFactor = str2double(strV);
+%                             end
+%                             slice2D = slice2D * activityScaleFactor; % counts to BQ/ml
+%                         end
                         
                         % Moved SUV conversion to 
 %                         if ~strcmpi(imageUnits,'GML')

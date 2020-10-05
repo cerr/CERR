@@ -651,6 +651,15 @@ switch fieldname
             dataS = getTagValue(attr, '00541000');
         end
         
+    case 'petActivityConcentrationScaleFactor'
+        if attr.contains(hex2dec('70531009'))
+            dataS = getTagValue(attr, '70531009');
+            if isnumeric(dataS)
+                strV = native2unicode(dataS);
+                dataS = str2double(strV);
+            end
+        end
+        
     case 'imageUnits'
         if attr.contains(hex2dec('00541001'))
             dataS = getTagValue(attr, '00541001');

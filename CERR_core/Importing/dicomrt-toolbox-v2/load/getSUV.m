@@ -12,6 +12,19 @@ for slcNum = 1:size(scan3M,3)
     %headerSlcS = planC{indexS.scan}(scanNum).scanInfo(slcNum);
     %imgM = planC{indexS.scan}(scanNum).scanArray(:,:,slcNum);
     imgM = scan3M(:,:,slcNum);
+    
+    % Image Units
+    imgUnits = headerSlcS.imageUnits;
+    switch upper(imgUnits)
+        case 'CNTS'
+            activityScaleFactor = headerSlcS.petActivityConcentrationScaleFactor;
+            imgM = imgM * activityScaleFactor;
+        case 'BQML'
+            % no need for transformation sincel already in BQML
+        otherwise
+            error('SUV calculation is supported only for imageUnits BQML and CNTS')
+    end    
+    
     % Get Scan time based on type of decay correction
     decayCorrection = headerSlcS.decayCorrection;
     switch upper(decayCorrection)

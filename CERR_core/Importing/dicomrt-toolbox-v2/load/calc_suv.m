@@ -18,6 +18,8 @@ function planC = calc_suv(scanNum,planC,suvType)
 %              https://documentation.clearcanvas.ca/Documentation/UsersGuide/Personal/13_1/index.html?suv.htm
 % APA, 9/29/2020, updated to handle suvType
 
+indexS = planC{end};
+
 % Check required fields based on 1st slice
 headerS = planC{indexS.scan}(scanNum).scanInfo(1);
 
@@ -37,8 +39,8 @@ if ~any(ismember('DECY',correctedImage))
 end
 
 imageUnits = headerS.imageUnits;
-if ~strcmpi(imageUnits,'BQML')
-    disp('SUV calciulation is applicable only when image units = BQML');
+if ~any(ismember(imageUnits,{'BQML','CNTS'}))
+    disp('SUV calciulation is applicable only when image units = BQML or CNTS');
     return
 end
 % 1 Ci = 3.7 x 1010 Bq = 37 GBq
