@@ -15,6 +15,17 @@ if ~exist('tmpDirPath','var')
     tmpDirPath = fullfile(getCERRPath,'ImageRegistration','tmpFiles');
 end
 
+deformBaseMask3M = []; deformMovMask3M = [];
+if iscell(baseMask3M)
+    deformBaseMask3M = baseMask3M{2};
+    baseMask3M = baseMask3M{1};
+end
+
+if iscell(movMask3M)
+    deformMovMask3M = movMask3M{2};
+    movMask3M = movMask3M{1};
+end
+
 % Create .mha file for base scan
 baseScanUID = basePlanC{indexBaseS.scan}(baseScanNum).scanUID;
 randPart = floor(rand*1000);
@@ -31,7 +42,10 @@ success = createMhaScansFromCERR(baseScanNum, baseScanFileName, basePlanC);
 if ~isempty(baseMask3M)
     success = createMhaMask(baseScanNum, baseMaskFileName, basePlanC, baseMask3M, []);
 end
-
+if ~isempty(deformBaseMask3M)
+    deformBaseMaskFileName = fullfile(tmpDirPath,['baseDeformMask_',baseScanUniqName,'.mha']);
+    success = createMhaMask(baseScanNum, deformBaseMaskFileName, basePlanC, deformBaseMask3M, []);
+end
 % Create .mha file for moving scan
 movScanUID = movPlanC{indexMovS.scan}(movScanNum).scanUID;
 randPart = floor(rand*1000);
@@ -48,6 +62,11 @@ success = createMhaScansFromCERR(movScanNum, movScanFileName, movPlanC);
 if ~isempty(movMask3M)
     success = createMhaMask(movScanNum, movMaskFileName, movPlanC, movMask3M, []);
 end
+if ~isempty(deformMovMask3M)
+    deformMovMaskFileName = fullfile(tmpDirPath,['deformMovMask_',movScanUniqName,'.mha']);
+    success = createMhaMask(movScanNum, deformMovMaskFileName, movPlanC, deformMovMask3M, []);
+end
+
 
 % Read build paths from CERROptions.json
 optName = fullfile(getCERRPath,'CERROptions.json');
@@ -293,7 +312,13 @@ switch upper(algorithm)
     case 'LDDMM ANTS'
 %         build command        
         antsCmdString = fileread(userCmdFile);
-        antsCommand = strrep(strrep(strrep(strrep(strrep(strrep(antsCmdString(1:end-1),'baseScan',baseScanFileName),'movScan',movScanFileName),'baseMask',baseMaskFileName),'movMask',movMaskFileName),'outPrefix',outPrefix),'nproc',nproc);
+        antsCommand = strrep(strrep(strrep(strrep(strrep(strrep(strrep(strrep(antsCmdString(1:end-1),'baseScan',baseScanFileName), ...
+            'movScan',movScanFileName), ...
+            'baseMask',baseMaskFileName), ...
+            'movMask',movMaskFileName), ...
+            'outPrefix',outPrefix),'nproc',nproc), ...
+            'deformBaseMask',deformBaseMaskFileName), ...
+            'deformMovMask',deformMovMaskFileName);
         
         system(antsCommand);
         
