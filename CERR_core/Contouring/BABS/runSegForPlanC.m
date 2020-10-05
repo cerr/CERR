@@ -109,6 +109,9 @@ if length(algorithmC)==1 && ~strcmpi(algorithmC,'BABS')
             'SegmentationModels', 'ModelConfigurations',...
             [algorithmC{k}, '_config.json']);
         
+        %Copy config file to session dir
+        copyfile(configFilePath,fullClientSessionPath);
+        
         % Read config file
         userOptS = readDLConfigFile(configFilePath);
         if nargin==7 && ~isnan(varargin{2})
