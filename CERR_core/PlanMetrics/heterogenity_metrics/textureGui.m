@@ -495,7 +495,7 @@ switch upper(command)
                 dispC = {'On','On','On','On','On'};
                 
             case 'Laws Convolution' % Laws 
-                paramC = {'PadMethod', 'PadSize','Direction','KernelSize','Normalize'};
+                paramC = {'PadMethod', 'PadSize','Direction','Type','Normalize'};
                 typeC = {'popup','edit','popup','popup','popup'};
                 valC = {{'expand','padzeros','circular','replicate',...
                     'symmetric','none'},{'5,5,5'},{'2D','3D', 'All'},...
@@ -503,7 +503,7 @@ switch upper(command)
                 dispC = {'On','On','On','On','On'};
                 
             case 'Laws Energy' %Laws energy
-                paramC = {'PadMethod', 'PadSize','Direction','KernelSize','Normalize'};
+                paramC = {'PadMethod', 'PadSize','Direction','Type','Normalize'};
                 typeC = {'popup','edit','popup','popup','popup'};
                 valC = {{'expand','padzeros','circular','replicate',...
                     'symmetric','none'},{'5,5,5'},{'2D','3D', 'All'},...
