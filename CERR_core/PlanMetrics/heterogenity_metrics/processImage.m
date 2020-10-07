@@ -2,7 +2,7 @@ function outS = processImage(filterType,scan3M,mask3M,paramS,hWait)
 % Process scan using selected filter and parameters
 %-------------------------------------------------------------------------
 % INPUTS
-% filterType -  May be 'Haralick Cooccurance','Wavelets','Sobel',
+% filterType -  May be 'HaralickCooccurance','Wavelets','Sobel',
 %               'LoG','Gabor','Mean','First order statistics',
 %               'LawsConvolution','LawsEnergy','CoLlage' or 'SimpleITK'.
 % scan3M     - 3-D scan array, cropped around ROI and padded if specified
@@ -254,10 +254,13 @@ switch filterType
         %sizC = {'3','5','all'};
         normFlagC = {'Yes','No'};
         dir = paramS.Direction.val;
-        siz = str2double(paramS.KernelSize.val);
+        type = paramS.Type.val;
+        if isnumeric(type)
+            type = num2str(paramS.Type.val);
+        end
         selIdx = find(strcmpi(paramS.Normalize.val,normFlagC));
         normFlag = 2 - selIdx;
-        lawsMasksS = getLawsMasks(dir,siz,normFlag);
+        lawsMasksS = getLawsMasks(dir,type,normFlag);
         
         %Compute features
         fieldNamesC = fieldnames(lawsMasksS);
