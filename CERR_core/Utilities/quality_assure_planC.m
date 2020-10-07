@@ -19,7 +19,7 @@ indexS = planC{end};
 bug_found = 0;
 
 % Detect and Fix incorrect rasterSegments
-if isfield(planC{indexS.header}(1), 'lastSavedInVer')
+if length(planC{indexS.header})>0 && isfield(planC{indexS.header}(1), 'lastSavedInVer')
     lastSavedInVer = planC{indexS.header}(1).lastSavedInVer;
 else
     lastSavedInVer = '';
@@ -165,9 +165,13 @@ if length(planC{indexS.structureArrayMore}) ~= length(planC{indexS.structureArra
 end
 
 % Get CERR version of last save
-if isfield(planC{indexS.header},'lastSavedInVer') && ~isempty(planC{indexS.header}.lastSavedInVer)
+if length(planC{indexS.header})>0 &&... 
+        isfield(planC{indexS.header},'lastSavedInVer')...
+        && ~isempty(planC{indexS.header}.lastSavedInVer)
     CERRImportVersion = planC{indexS.header}.lastSavedInVer;
-elseif isfield(planC{indexS.header},'CERRImportVersion') && ~isempty(planC{indexS.header}.CERRImportVersion)
+elseif length(planC{indexS.header})>0 && ...
+        isfield(planC{indexS.header},'CERRImportVersion')...
+        && ~isempty(planC{indexS.header}.CERRImportVersion)
     CERRImportVersion = planC{indexS.header}.CERRImportVersion;
 else
     CERRImportVersion = '0';

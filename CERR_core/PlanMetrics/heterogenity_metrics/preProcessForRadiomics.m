@@ -121,6 +121,7 @@ if whichFeatS.padding.flag
     else
         padMethod = whichFeatS.padding.method;
         padSizV = whichFeatS.padding.size;
+        padSizV = reshape(padSizV,1,[]);
     end
 else
     %Default:Pad by 5 voxels (original image intensities)
