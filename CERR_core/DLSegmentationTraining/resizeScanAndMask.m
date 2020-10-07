@@ -90,9 +90,18 @@ switch(lower(method))
         %scan3M(~mask3M) = 0;
         
         % Initialize resized scan and mask
-        minScanVal = min(scan3M(:));
-        scanOut3M = zeros(outputImgSizeV,class(scan3M)) + minScanVal;        
-        maskOut3M = zeros(outputImgSizeV,'uint32');
+        if isempty(scan3M)
+            scanOut3M = [];
+        else
+            minScanVal = min(scan3M(:));
+            scanOut3M = zeros(outputImgSizeV,class(scan3M)) + minScanVal;
+        end
+        
+        if isempty(mask3M)
+            maskOut3M = [];
+        else
+            maskOut3M = zeros(outputImgSizeV,'uint32');
+        end
         
         % Min/max row and col limits for each slice
         limitsM = varargin{1};
@@ -134,8 +143,14 @@ switch(lower(method))
             outRmax = outRmin + rMax - rMin;
             outCmax = outCmin + cMax - cMin;
             
-            scanOut3M(rMin:rMax,cMin:cMax,slcNum)= scan3M(outRmin:outRmax,outCmin:outCmax,slcNum);
-            maskOut3M(rMin:rMax,cMin:cMax,slcNum)= mask3M(outRmin:outRmax,outCmin:outCmax,slcNum);
+            if ~isempty(scan3M)
+                scanOut3M(rMin:rMax,cMin:cMax,slcNum)= ...
+                    scan3M(outRmin:outRmax,outCmin:outCmax,slcNum);
+            end
+            if ~isempty(mask3M)
+                maskOut3M(rMin:rMax,cMin:cMax,slcNum)= ...
+                    mask3M(outRmin:outRmax,outCmin:outCmax,slcNum);
+            end
             
         end
         
@@ -145,8 +160,12 @@ switch(lower(method))
         %scan3M(~mask3M) = 0; % make this optional in future
         
         % Initialize resized scan and mask
-        minScanVal = min(scan3M(:));
-        scanOut3M = zeros(outputImgSizeV,class(scan3M)) + minScanVal;
+        if isempty(scan3M)
+            scanOut3M = [];
+        else
+            minScanVal = min(scan3M(:));
+            scanOut3M = zeros(outputImgSizeV,class(scan3M)) + minScanVal;
+        end
         
         if isempty(mask3M)
             maskOut3M = [];
