@@ -1,20 +1,24 @@
 {
 "strNameToLabelMap" : [
 {
-    "structureName": "Heart",
+    "structureName": "Lung_Right",
     "value": 1
     },
 {
-      "structureName": "Lungs",
+      "structureName": "Lung_Left",
       "value": 2
     },
 {
-      "structureName": "Esophagus",
+      "structureName": "Heart",
       "value": 3
     },
 {
-      "structureName": "Cord",
+      "structureName": "Esophagus",
       "value": 4
+    },
+{
+      "structureName": "Cord",
+      "value": 5
     }
 ],
 
