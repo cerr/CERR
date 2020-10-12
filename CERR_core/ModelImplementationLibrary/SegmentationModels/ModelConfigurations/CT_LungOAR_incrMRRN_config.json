@@ -47,15 +47,8 @@
 "passedScanDim" : "3D",
 
 "reference" : "10.1109/TMI.2018.2857800",
-
-"passedScanAxisOrder" : "ZXY",
-
-"inputScanDim" : "2D+",
-
-"inputScanAxisOrder" : "ZXY",
-
-"labelProbabilityThreshold" : 0.5,
-
+	
+"notes" : {
 "preprocessing" : [
 {
     "imageOffset" : 1024,
@@ -70,5 +63,5 @@
     "version" : "2.X", 
     "releaseDate" : "2020/04/09" 
 }
-
+}
 }
