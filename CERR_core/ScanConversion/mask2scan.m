@@ -61,10 +61,10 @@ rotMask2M = int8(mask2M');
 diffM = rotMask2M(2:end,:) - rotMask2M(1:end-1,:);
 startM = diffM == 1;
 %startM = startM(:,2:end-1);
-startM(:,[1,end]) = [];
+%startM(:,[1,end]) = [];
 stopM  = diffM == -1;
 %stopM = stopM(:,2:end-1);
-stopM(:,[1,end]) = [];
+%stopM(:,[1,end]) = [];
 
 % ==== alternate approach to determine start/stop points
 % mask2M = mask2M';
@@ -75,7 +75,7 @@ stopM(:,[1,end]) = [];
 
 
 [i1V, j1V] = find(startM);
-[xStartV, yStartV] = mtoaapm(j1V + 1, i1V, size(maskM));
+[xStartV, yStartV] = mtoaapm(j1V, i1V, size(maskM));
 xStartV = xStartV * delta_x;
 yStartV = yStartV * delta_y;
 
@@ -83,7 +83,7 @@ xStartV = xStartV + optS.xCTOffset;
 yStartV = yStartV + optS.yCTOffset;
 
 [i2V, j2V] = find(stopM);
-[xStopV, yStopV] = mtoaapm(j2V + 1, i2V - 1 , size(maskM));
+[xStopV, yStopV] = mtoaapm(j2V, i2V - 1 , size(maskM));
 xStopV = xStopV * delta_x;
 yStopV = yStopV * delta_y;
 
@@ -96,5 +96,5 @@ end
 
 %Store: row y, start x, stop x, delta x, CT mask row, CT start col, CT end col.
 z1V = ones(length(j1V),1) * sliceNum;
-segmentsM = [yStartV(:), xStartV(:), xStopV(:), ones(length(xStopV),1) * delta_x, z1V, j1V(:) + 1, i1V(:), i2V(:) - 1];
+segmentsM = [yStartV(:), xStartV(:), xStopV(:), ones(length(xStopV),1) * delta_x, z1V, j1V(:), i1V(:), i2V(:) - 1];
 
