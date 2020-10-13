@@ -6,22 +6,31 @@
 
 "dataSplit" : [80, 10, 10],
 
-"resample": [{ "resolutionXCm": 0.1, "resolutionYCm": 0.1, "resolutionZCm": 0.1, "method": "sinc"}],
+"scan": {
 
-"crop" : [{"method": "crop_to_str", "params" : {"structureName": "structName4"}, "operator" : ""}, 
-          {"method": "crop_to_str", "params" : {"structureName": "structName5"}, "operator" : "union"} ],
+	"identifier" : {"imageType": "CT SCAN"},
 
-"resize" : {"method": "sinc", "size": [512,512]},
+	"resample": { "resolutionXCm": 0.1, "resolutionYCm": 0.1, "resolutionZCm": 0.1, "method": "sinc"},
 
-"view" : "sagittal",
+	"crop" : {"method": "crop_to_str", "params" : {"structureName": "structName4"}, "operator" : ""},
 
-"channels" :[{"scanType": "CT", "imageType": {"original" : {} }, "slice": "current-1"},
-             {"scanType": "MR", "imageType": { "Wavelets": {"Wavelets": "Haar", "Index": "","Direction": "HLH"}},
-	     "slice": "current"},
-             {"scanType": "PET", "imageType": {"original" : {} }, "slice": "current+1"}],
+	"resize" : {"method": "bilinear", "size": [256,256]},
+
+	"view" : "axial",
+
+	"channels" :{"imageType": "original", "slice": "current"}
+             
+         },
+         
 
 "exportedFilePrefix" : "inputfilename",
 
-"passedScanDim" : "2D"
+"passedScanDim" : "3D"
 
 }
+
+
+
+
+
+

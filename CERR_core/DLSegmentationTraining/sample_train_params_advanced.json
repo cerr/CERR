@@ -1,0 +1,49 @@
+{
+
+"inputFileType" : "DICOM",
+
+"structList" : ["structName1","structName2","structName3"],
+
+"dataSplit" : [80, 10, 10],
+
+"scan": [{
+
+	"identifier" : {"imageType": "CT SCAN"},
+
+	"resample": { "resolutionXCm": 0.1, "resolutionYCm": 0.1, "resolutionZCm": 0.1, "method": "sinc"},
+
+	"crop" : [{"method": "crop_to_str", "params" : {"structureName": "structName4"}, "operator" : ""}, 
+                  {"method": "crop_to_str", "params" : {"structureName": "structName5"}, "operator" : "union"} ],
+
+	"resize" : {"method": "bilinear", "size": [256,256]},
+
+	"view" : ["axial","sagittal","coronal"],
+
+	"channels" :[{"imageType": "original", "slice": "current-1"},
+                     {"imageType": "original", "slice": "current"},
+                     {"imageType": "original", "slice": "current+1"}]
+         },
+         {
+	 
+	 	"identifier" : {"imageType": "MR"},
+	 
+	 	"resample": { "resolutionXCm": 0.1, "resolutionYCm": 0.1, "resolutionZCm": 0.1, "method": "sinc"},
+	 
+	 	"crop" : {"method": "crop_to_str", "params" : {"structureName": "structName6"}, "operator" : ""}, 
+	                 
+	 	"resize" : {"method": "bilinear", "size": [256,256]},
+	 
+	 	"view" : ["axial","sagittal","coronal"],
+	 
+	 	"channels" :{"imageType": { "Wavelets": {"Wavelets": "Coif", "Index": "1","Direction": "HLH"}},
+	                                "slice": "current",
+	                                 "intensityOutsideMask":{"val": 0}}
+	              
+         }
+      ],
+
+"exportedFilePrefix" : "inputfilename",
+
+"passedScanDim" : "2D"
+
+}
