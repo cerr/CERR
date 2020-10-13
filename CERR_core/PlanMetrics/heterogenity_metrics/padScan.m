@@ -6,7 +6,7 @@ function [outScan3M,outMask3M, outLimitsV] = padScan(scan3M,mask3M,method,margin
 % scan3M  : Scan array
 % mask3M  : ROI mask
 % method  : Supported options include 'expand','padzeros',
-%           'circular','replicate','symmetric', and 'none'.
+%           'periodic','nearest','mirror', and 'none'.
 % margin  : 3-element vector specifying amount of padding (in voxels) along
 %           each dimension. 
 % AI 06/05/20
@@ -40,9 +40,13 @@ switch lower(method)
         outScan3M = padarray(scan3M,marginV,0,'both');
         outMask3M = padarray(mask3M,marginV,0,'both');
         
-    case {'circular','replicate','symmetric'}
+    case {'periodic','nearest','mirror'}
         
-        outScan3M = padarray(scan3M,marginV,method,'both');
+        supportedMethodsC = {'circular','replicate','symmetric'};
+        matchIdx = strcmpi(method,{'periodic','nearest','mirror'});
+        matchingMethod = supportedMethodsC{matchIdx};
+        
+        outScan3M = padarray(scan3M,marginV,matchingMethod,'both');
         outMask3M = padarray(mask3M,marginV,0,'both');
         
     case 'none'
