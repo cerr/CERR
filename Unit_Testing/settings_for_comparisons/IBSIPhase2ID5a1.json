@@ -1,0 +1,23 @@
+{
+
+"structures": ["wholeScan"],
+
+"imageType": {
+  		  "Wavelets": {
+			    	       "Direction": "LHL",
+				       "Wavelets":"db",
+				       "Index": "2",
+				       "Normalize": "No"
+			 	     }
+	    },
+
+"settings": {		   
+
+                   "padding": [{
+                                "method": "padzeros",  
+                                "size": [1,1,1]
+			       }
+                              ]
+	    }
+
+}

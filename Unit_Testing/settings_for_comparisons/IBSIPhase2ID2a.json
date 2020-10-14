@@ -1,0 +1,20 @@
+{
+
+"structures": ["wholeScan"],
+
+"imageType": {
+  		  "LoG": {
+			    "Sigma_mm": 3
+			  }
+	    },
+
+"settings": {		   
+
+                   "padding": [{
+                                "method": "padzeros",  
+                                "size": [6,6,6]
+			       }
+                              ]
+	    }
+
+}
