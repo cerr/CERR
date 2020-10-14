@@ -8,6 +8,7 @@ function outS = processImage(filterType,scan3M,mask3M,paramS,hWait)
 % scan3M     - 3-D scan array, cropped around ROI and padded if specified
 % mask3M     - 3-D mask, croppped to bounding box
 % paramS     - Filter parameters
+% hWait      - Handle to progress bar (Optional)
 %-------------------------------------------------------------------------
 %
 % EXAMPLES:
@@ -207,8 +208,9 @@ switch filterType
         if ~isnumeric(kernelSize)
             kernelSize = str2double(kernelSize);
         end
-        meanFilt3M = imboxfilt(vol3M,kernelSize);
-       
+        
+        filt3M = ones(kernelSize)./prod(kernelSize);
+        meanFilt3M = convn(vol3M,filt3M,'same');
         outS.meanFilt = meanFilt3M;
         
         if ishandle(hWait)
@@ -280,14 +282,33 @@ switch filterType
         end
         
     case 'LawsEnergy'
+        %Ref: %https://arxiv.org/pdf/2006.05470.pdf
         
+        %Filter padded image using Laws' kernel
         lawsOutS = processImage('LawsConvolution',scan3M,mask3M,paramS,[]);
+        
         fieldNameC = fieldnames(lawsOutS);
         numFeatures = length(fieldNameC);
+        padMethod = paramS.PadMethod.val;
+        padSizV = paramS.PadSize.val;
+        
+        %Loop over response maps
         for i = 1:length(fieldNameC)
+           
+            %Pad response map 
             lawsTex3M = lawsOutS.(fieldNameC{i});
+            if ~isequal(size(lawsTex3M),size(scan3M))
+                responseSizV = size(lawsTex3M);
+                lawsTex3M = lawsTex3M(padSizV(1)+1:responseSizV(1)-padSizV(1),...
+                    padSizV(2)+1:responseSizV(2)-padSizV(2),...
+                    padSizV(3)+1:responseSizV(3)-padSizV(3));
+                lawsTex3M = padScan(lawsTex3M,mask3M,padMethod,padSizV);
+            end
+            
+            %Apply mean filter
             meanOutS = processImage('Mean',lawsTex3M,mask3M,paramS,[]);
             lawsEnergy3M = meanOutS.meanFilt;
+            
             outField = [fieldNameC{i},'_Energy'];
             outS.(outField) = lawsEnergy3M;
             if ishandle(hWait)

@@ -13,10 +13,14 @@ function planC = generateTextureMapFromPlanC(planC,strNum,configFilePath)
 %% Get scan no. & bounding box extents
 scanNum = getStructureAssociatedScan(strNum,planC);
 origSizV = size(getScanArray(scanNum,planC));
+%% temp
 mask3M = false(origSizV);
 [rasterM, planC] = getRasterSegments(strNum,planC);
 [slMask3M,uniqueSlicesV] = rasterToMask(rasterM,scanNum,planC);
 mask3M(:,:,uniqueSlicesV) = slMask3M;
+%mask3M = true(origSizV);
+%uniqueSlicesV = 1:size(mask3M,3);
+%% end temp
 [minr, maxr, minc, maxc] = compute_boundingbox(mask3M);
 maskBoundingBox3M = mask3M(minr:maxr,minc:maxc,uniqueSlicesV);
 
@@ -31,11 +35,12 @@ paramS = getRadiomicsParamTemplate(configFilePath);
 %Get params
 filterType = fieldnames(paramS.imageType);
 filterType = filterType{1};
-paramS = paramS.imageType.(filterType);
+filtParamS = paramS.imageType.(filterType);
 voxSizV = gridS.PixelSpacingV;
-paramS.VoxelSize_mm.val = voxSizV * 10; %convert cm to mm
+filtParamS.VoxelSize_mm.val = voxSizV * 10; %convert cm to mm
+filtParamS.padding = paramS.whichFeatS.padding;
 %Apply filter
-outS = processImage(filterType,procScan3M,maskBoundingBox3M,paramS);
+outS = processImage(filterType,procScan3M,maskBoundingBox3M,filtParamS);
 
 %% Create texture scans
 fieldNamesC = fieldnames(outS);
@@ -44,6 +49,15 @@ indexS = planC{end};
 for n = 1:length(fieldNamesC)
     
     filtScan3M = outS.(fieldNamesC{n});
+    texSizV = size(filtScan3M);
+    
+    %Remove padding
+    if filtParamS.padding.flag
+       padSizV = filtParamS.padding.size;
+       filtScan3M = filtScan3M(padSizV(1)+1 : texSizV(1)-padSizV(1),...
+           padSizV(2)+1 : texSizV(2)-padSizV(2),...
+           padSizV(3)+1 : texSizV(3)-padSizV(3));
+    end
     
     %Create texture object
     assocScanUID = planC{indexS.scan}(scanNum).scanUID;
@@ -52,7 +66,7 @@ for n = 1:length(fieldNamesC)
     assocStrUID = strjoin({planC{indexS.structures}(strNum).strUID},',');
     planC{indexS.texture}(nTexture).assocStructUID = assocStrUID;
     planC{indexS.texture}(nTexture).category = filterType;
-    planC{indexS.texture}(nTexture).parameters = paramS;
+    planC{indexS.texture}(nTexture).parameters = filtParamS;
     planC{indexS.texture}(nTexture).description = filterType;
     planC{indexS.texture}(nTexture).textureUID = createUID('TEXTURE');
     
