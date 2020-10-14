@@ -1,0 +1,23 @@
+{
+
+"structures": ["wholeScan"],
+
+"imageType": {
+  		  "Wavelets": {
+			    	       "Direction": "HHL",
+				       "Wavelets":"coif",
+				       "Index": "1",
+				       "Normalize": "No"
+			 	     }
+	    },
+
+"settings": {		   
+
+                   "padding": [{
+                                "method": "periodic",  
+                                "size": [1,1,1]
+			       }
+                              ]
+	    }
+
+}

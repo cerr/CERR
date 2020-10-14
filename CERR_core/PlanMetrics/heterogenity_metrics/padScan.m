@@ -55,10 +55,9 @@ switch lower(method)
         
     otherwise
         error(['Invalid method ''%s''. Supported methods include ',...
-           '''expand'',''padzeros'',''circular'',''replicate'', '...
-           '''symmetric'' and ''none''.'],method);
-         
-        
+           '''expand'',''padzeros'',''periodic'',''nearest'', '...
+           '''mirror'' and ''none''.'],method);
+       
 end
 
 end

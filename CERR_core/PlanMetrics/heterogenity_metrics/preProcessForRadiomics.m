@@ -130,6 +130,7 @@ else
 end
 
 padSizV = padSizV.*[padScaleX,padScaleY,padScaleZ];
+whichFeatS.padding.size = padSizV;
 
 % Crop to ROI and pad
 scanArray3M = double(scanArray3M);
