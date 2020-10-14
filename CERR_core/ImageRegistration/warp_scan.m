@@ -3,6 +3,11 @@ function planC = warp_scan(deformS,movScanNum,movPlanC,planC,tmpDirPath,interpol
 %
 % APA, 07/19/2012
 
+if ~isstruct(deformS)
+    error('deformS must be in form of deformS --> baseScanUID, movScanUID, algorithm, algorithmParamsS')
+end
+
+
 if nargin < 6
     interpolation = '';
 end
@@ -16,7 +21,6 @@ end
 optS = getCERROptions;
 
 % Create b-spline coefficients file
-% if isstruct(deformS)
 algorithm = deformS.algorithm;
 % else
 %     algorithm = 'PLASTIMATCH';
