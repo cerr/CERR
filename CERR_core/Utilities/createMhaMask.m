@@ -9,6 +9,9 @@ indexS = planC{end};
 success = 1;
 
 try
+    if exist(maskFileName,'file')
+        delete(maskFileName);
+    end
     
     if ~isempty(threshold_bone)
         
@@ -47,9 +50,9 @@ try
     offset = [xVals(1) -yVals(1) -zVals(end)] * 10;
     
     % Write .mha file for scanNum1
-    writemetaimagefile(maskFileName, mask3M, resolution, offset)    
+    writemetaimagefile(maskFileName, mask3M, resolution, offset)
     
-catch    
+catch
     
     success = 0;
     
