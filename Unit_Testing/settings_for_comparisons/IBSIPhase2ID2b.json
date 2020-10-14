@@ -1,0 +1,20 @@
+{
+
+"structures": ["wholeScan"],
+
+"imageType": {
+  		  "LoG": {
+			    "Sigma_mm": 5
+			  }
+	    },
+
+"settings": {		   
+
+                   "padding": [{
+                                "method": "mirror",  
+                                "size": [10,10,10]
+			       }
+                              ]
+	    }
+
+}
