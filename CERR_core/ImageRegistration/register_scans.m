@@ -15,62 +15,72 @@ if ~exist('tmpDirPath','var')
     tmpDirPath = fullfile(getCERRPath,'ImageRegistration','tmpFiles');
 end
 
-deformBaseMask3M = []; deformMovMask3M = [];
-if iscell(baseMask3M)
+% "deform" masks are additional structure masks for LDDMM registration; if LDDMM is invoking "register_scan", the deform mask is passed as second cell and bounding crop mask is first cell.
+if iscell(baseMask3M) && iscell(movMask3M)
     deformBaseMask3M = baseMask3M{2};
     baseMask3M = baseMask3M{1};
-end
-
-if iscell(movMask3M)
+    
     deformMovMask3M = movMask3M{2};
     movMask3M = movMask3M{1};
+else
+    deformBaseMask3M = [];
+    deformMovMask3M = [];
 end
 
-% Create .mha file for base scan
-baseScanUID = basePlanC{indexBaseS.scan}(baseScanNum).scanUID;
-randPart = floor(rand*1000);
-baseScanUniqName = [baseScanUID,num2str(randPart)];
+% Create .mha file for base scan & masks
+% baseScanUID = basePlanC{indexBaseS.scan}(baseScanNum).scanUID;
+% randPart = floor(rand*1000);
+% baseScanUniqName = [baseScanUID,num2str(randPart)];
+
+[baseScanUniqName, baseScanUID] = genScanUniqName(basePlanC,baseScanNum);
 baseScanFileName = fullfile(tmpDirPath,['baseScan_',baseScanUniqName,'.mha']);
-baseMaskFileName = fullfile(tmpDirPath,['baseMask_',baseScanUniqName,'.mha']);
-if exist(baseScanFileName,'file')
-    delete(baseScanFileName);
-end
-if exist(baseMaskFileName,'file')
-    delete(baseMaskFileName);
-end
 success = createMhaScansFromCERR(baseScanNum, baseScanFileName, basePlanC);
+
 if ~isempty(baseMask3M)
+    baseMaskFileName = fullfile(tmpDirPath,['baseMask_',baseScanUniqName,'.mha']);
     success = createMhaMask(baseScanNum, baseMaskFileName, basePlanC, baseMask3M, []);
+else
+    baseMaskFileName = '';
 end
+
 if ~isempty(deformBaseMask3M)
     deformBaseMaskFileName = fullfile(tmpDirPath,['baseDeformMask_',baseScanUniqName,'.mha']);
     success = createMhaMask(baseScanNum, deformBaseMaskFileName, basePlanC, deformBaseMask3M, []);
+else
+    deformBaseMaskFileName = '';
 end
+
 % Create .mha file for moving scan
-movScanUID = movPlanC{indexMovS.scan}(movScanNum).scanUID;
-randPart = floor(rand*1000);
-movScanUniqName = [movScanUID,num2str(randPart)];
+% movScanUID = movPlanC{indexMovS.scan}(movScanNum).scanUID;
+% randPart = floor(rand*1000);
+% movScanUniqName = [movScanUID,num2str(randPart)];
+[movScanUniqName, movScanUID] = genScanUniqName(movPlanC,movScanNum);
 movScanFileName = fullfile(tmpDirPath,['movScan_',movScanUniqName,'.mha']);
-movMaskFileName = fullfile(tmpDirPath,['movMask_',movScanUniqName,'.mha']);
-if exist(movScanFileName,'file')
-    delete(movScanFileName);
-end
-if exist(movMaskFileName,'file')
-    delete(movMaskFileName);
-end
 success = createMhaScansFromCERR(movScanNum, movScanFileName, movPlanC);
+
 if ~isempty(movMask3M)
+    movMaskFileName = fullfile(tmpDirPath,['movMask_',movScanUniqName,'.mha']);
     success = createMhaMask(movScanNum, movMaskFileName, movPlanC, movMask3M, []);
+else
+    movMaskFileName = '';
 end
+
 if ~isempty(deformMovMask3M)
     deformMovMaskFileName = fullfile(tmpDirPath,['deformMovMask_',movScanUniqName,'.mha']);
     success = createMhaMask(movScanNum, deformMovMaskFileName, movPlanC, deformMovMask3M, []);
+else
+    deformMovMaskFileName = '';
 end
 
+%initialize deformS
+algorithmParamsS = [];
+deformS = createNewDeformObject(baseScanUID,movScanUID,algorithm,algorithmParamsS);
 
-% Read build paths from CERROptions.json
-optName = fullfile(getCERRPath,'CERROptions.json');
-optS = opts4Exe(optName);
+
+% Read build paths and options from CERROptions.json
+% optName = fullfile(getCERRPath,'CERROptions.json');
+% optS = opts4Exe(optName);
+
 
 plmFlag = 1; antsFlag = 0; elastixFlag = 0;
 if any(strfind(upper(algorithm),'ELASTIX'))
@@ -160,7 +170,6 @@ if elastixFlag
 end
 
 if antsFlag
-    antsCommand = '';
     if ~exist(optS.antspath_dir,'dir')
         error(['ANTSPATH ' optS.antspath_dir ' not found on filesystem. Please review CERROptions.']);
     end
@@ -170,32 +179,12 @@ if antsFlag
     antsCERRScriptPath = fullfile(getCERRPath,'CERR_core','ImageRegistration','antsScripts');
     if isunix
         setenv('PATH',[antspath ':' antsScriptPath ':' antsCERRScriptPath ':' getenv('PATH')]);
-        antsCommand = 'sh ';
     else
         setenv('PATH',[antspath ';' antsScriptPath ';' antsCERRScriptPath ';' getenv('PATH')]);
-        antsCommand = '';
     end
-    
-    %set up basic command with fixed and moving target images
-    
-    [~,nproc_str] = system('nproc');
-    nproc = nproc_str(1:end-1);
-    
+        
     outPrefix = fullfile(tmpDirPath,[strrep(algorithm, ' ', '_') '_' baseScanUID '_' movScanUID '_']);
-    antsParams = [' -d 3 -f ' baseScanFileName ' -m ' movScanFileName ' -o ' outPrefix '  -n ' nproc ' '];
     
-%     antsMaskParams = ' ';
-%     
-%     if exist(baseMaskFileName,'file') && exist(movMaskFileName,'file')
-%         antsMaskParams = [' -x [' baseMaskFileName ', ' movMaskFileName  '] '];
-%     end
-    
-    %get additional flags for processing
-    if exist('inputCmdFile','var') && ~isempty(inputCmdFile)
-        userCmdFile = inputCmdFile;
-%         antsParams = [antsParams antsMaskParams fileread(userCmdFile)];
-        antsParams = strrep(strrep([antsParams ' ' fileread(userCmdFile)],'baseMask3M',baseMaskFileName),'movMask3M',movMaskFileName);
-    end
     bspFileName = '';
 end
 
@@ -256,146 +245,19 @@ switch upper(algorithm)
         
         % Cleanup
         bspFileName = vfFileName;
+        
+    case {'QUICKSYN ANTS','LDDMM ANTS'}
+        antsCommand = buildAntsCommand(algorithm,inputCmdFile,baseScanFileName,movScanFileName, ...
+            outPrefix,baseMaskFileName,movMaskFileName, ...
+            deformBaseMaskFileName,deformMovMaskFileName);
+        system(antsCommand);
+        
+        deformS.algorithmParamsS.antsCommand = antsCommand;
+        deformS.algorithmParamsS.antsWarpProducts = getAntsWarpProducts(outPrefix);
 
-    case 'QUICKSYN ANTS'
-%         build command
-       outPrefix = fullfile(tmpDirPath,[strrep(algorithm, ' ', '_') '_' baseScanUID '_' movScanUID '_']);
-        antsCommand = [antsCommand ' antsRegistrationSyNQuick.sh ' antsParams];
-        % basic parameter arguments
-        %      -d 3
-        %      -f baseScanFileName 
-        %      -m movScanFileName 
-        %      -o outPrefix
-%         execute
-        system(antsCommand);
-        
-        algorithmParamsS.antsCommand = antsCommand;
-%         algorithmParamsS.antsWarpProducts = ls([outPrefix '*']);
-        affineMat = [outPrefix '0GenericAffine.mat'];
-        warpField = [outPrefix '1Warp.nii.gz'];
-        inverseWarpField = [outPrefix '1InverseWarp.nii.gz'];
-        warpedImg = [outPrefix 'Warped.nii.gz'];
-        inverseWarpedImg = [outPrefix 'InverseWarped.nii.gz'];
-        if exist(affineMat, 'file')
-            algorithmParamsS.antsWarpProducts.Affine = affineMat;
-        else
-            algorithmParamsS.antsWarpProducts.Affine = '';
-        end
-        if exist(warpField, 'file')
-            algorithmParamsS.antsWarpProducts.Warp = warpField;
-        else
-            algorithmParamsS.antsWarpProducts.Warp = '';
-        end
-        if exist (inverseWarpField,'file')
-            algorithmParamsS.antsWarpProducts.InverseWarp = inverseWarpField;
-        else
-            algorithmParamsS.antsWarpProducts.InverseWarp = '';
-        end
-        if exist(warpedImg, 'file')
-            algorithmParamsS.antsWarpProducts.Warped = warpedImg;
-        else
-            algorithmParamsS.antsWarpProducts.Warped = '';
-        end
-        if exist(inverseWarpedImg, 'file')
-            algorithmParamsS.antsWarpProducts.InverseWarped = inverseWarpedImg;
-        else
-            algorithmParamsS.antsWarpProducts.InverseWarped = '';
-        end
-        deformS = createNewDeformObject(baseScanUID,movScanUID,algorithm,algorithmParamsS);
-        
-        % Add deform object to both base and moving planC's
-        baseDeformIndex = length(basePlanC{indexBaseS.deform}) + 1;
-        movDeformIndex  = length(movPlanC{indexMovS.deform}) + 1;
-        basePlanC{indexBaseS.deform}  = dissimilarInsert(basePlanC{indexBaseS.deform},deformS,baseDeformIndex);
-        movPlanC{indexMovS.deform}  = dissimilarInsert(movPlanC{indexMovS.deform},deformS,movDeformIndex);
-        
-    case 'LDDMM ANTS'
-%         build command        
-        antsCmdString = fileread(userCmdFile);
-        antsCommand = strrep(strrep(strrep(strrep(strrep(strrep(strrep(strrep(antsCmdString(1:end-1),'baseScan',baseScanFileName), ...
-            'movScan',movScanFileName), ...
-            'baseMask',baseMaskFileName), ...
-            'movMask',movMaskFileName), ...
-            'outPrefix',outPrefix),'nproc',nproc), ...
-            'deformBaseMask',deformBaseMaskFileName), ...
-            'deformMovMask',deformMovMaskFileName);
-        
-        system(antsCommand);
-        
-        algorithmParamsS.antsCommand = antsCommand;
-%         algorithmParamsS.antsWarpProducts = ls([outPrefix '*']);
-        affineMat = [outPrefix '0GenericAffine.mat'];
-        warpField = [outPrefix '1Warp.nii.gz'];
-        inverseWarpField = [outPrefix '1InverseWarp.nii.gz'];
-        warpedImg = [outPrefix 'Warped.mha'];
-        inverseWarpedImg = [outPrefix 'InverseWarped.mha'];
-        if exist(affineMat, 'file')
-            algorithmParamsS.antsWarpProducts.Affine = affineMat;
-        else
-            algorithmParamsS.antsWarpProducts.Affine = '';
-        end
-        if exist(warpField, 'file')
-            algorithmParamsS.antsWarpProducts.Warp = warpField;
-        else
-            algorithmParamsS.antsWarpProducts.Warp = '';
-        end
-        if exist (inverseWarpField,'file')
-            algorithmParamsS.antsWarpProducts.InverseWarp = inverseWarpField;
-        else
-            algorithmParamsS.antsWarpProducts.InverseWarp = '';
-        end
-        if exist(warpedImg, 'file')
-            algorithmParamsS.antsWarpProducts.Warped = warpedImg;
-        else
-            algorithmParamsS.antsWarpProducts.Warped = '';
-        end
-        if exist(inverseWarpedImg, 'file')
-            algorithmParamsS.antsWarpProducts.InverseWarped = inverseWarpedImg;
-        else
-            algorithmParamsS.antsWarpProducts.InverseWarped = '';
-        end
-        deformS = createNewDeformObject(baseScanUID,movScanUID,algorithm,algorithmParamsS);
-        
-        % Add deform object to both base and moving planC's
-        baseDeformIndex = length(basePlanC{indexBaseS.deform}) + 1;
-        movDeformIndex  = length(movPlanC{indexMovS.deform}) + 1;
-        basePlanC{indexBaseS.deform}  = dissimilarInsert(basePlanC{indexBaseS.deform},deformS,baseDeformIndex);
-        movPlanC{indexMovS.deform}  = dissimilarInsert(movPlanC{indexMovS.deform},deformS,movDeformIndex);
-        
-    case 'LDDMM MASK ANTS'
-%         build command
-%         outPrefix = fullfile(tmpDirPath,[strrep(algorithm, ' ', '_') '_' baseScanUID '_' movScanUID '_']);
-        antsCommand = [antsCommand ' ANTs_Lung_Registration_CT2toCT1_Mask.sh ' antsParams];
-%         execute
-        system(antsCommand);
-        
-        algorithmParamsS.antsCommand = antsCommand;
-        algorithmParamsS.antsWarpProducts = ls([outPrefix '*']);
-        deformS = createNewDeformObject(baseScanUID,movScanUID,algorithm,algorithmParamsS);
-        
-        % Add deform object to both base and moving planC's
-        baseDeformIndex = length(basePlanC{indexBaseS.deform}) + 1;
-        movDeformIndex  = length(movPlanC{indexMovS.deform}) + 1;
-        basePlanC{indexBaseS.deform}  = dissimilarInsert(basePlanC{indexBaseS.deform},deformS,baseDeformIndex);
-        movPlanC{indexMovS.deform}  = dissimilarInsert(movPlanC{indexMovS.deform},deformS,movDeformIndex);
+        basePlanC = insertDeformS(basePlanC,deformS);
+        movPlanC = insertDeformS(movPlanC,deformS);
 
-    case 'LDDMM MASK DIR ANTS'
-%         build command
-%         outPrefix = fullfile(tmpDirPath,[strrep(algorithm, ' ', '_') '_' baseScanUID '_' movScanUID '_']);
-        antsCommand = [antsCommand ' ANTs_Lung_Registration_CT2toCT1_Mask_Intensity.sh ' antsParams];
-%         execute
-        system(antsCommand);
-        
-        algorithmParamsS.antsCommand = antsCommand;
-        algorithmParamsS.antsWarpProducts = ls([outPrefix '*']);
-        deformS = createNewDeformObject(baseScanUID,movScanUID,algorithm,algorithmParamsS);
-        
-        % Add deform object to both base and moving planC's
-        baseDeformIndex = length(basePlanC{indexBaseS.deform}) + 1;
-        movDeformIndex  = length(movPlanC{indexMovS.deform}) + 1;
-        basePlanC{indexBaseS.deform}  = dissimilarInsert(basePlanC{indexBaseS.deform},deformS,baseDeformIndex);
-        movPlanC{indexMovS.deform}  = dissimilarInsert(movPlanC{indexMovS.deform},deformS,movDeformIndex);
-        
     case 'BSPLINE PLASTIMATCH'
         
         deleteBspFlg = 1;
@@ -668,11 +530,7 @@ switch upper(algorithm)
             delete(movMaskFileName);
             %delete(cmdFileName_dir);
         end        
-        
-        
-    case 'ANT'
-        
-        
+       
         
     case 'DEMONS ITK'
         
@@ -680,4 +538,3 @@ end
 
 % Switch back to the previous directory
 % cd(prevDir)
-
