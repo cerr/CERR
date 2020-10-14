@@ -7,41 +7,33 @@ if nargin < 6
     interpolation = '';
 end
 
-refScanNum = findScanByUID(planC,deformS.baseScanUID);
-
 if ~exist('tmpDirPath','var')
     tmpDirPath = fullfile(getCERRPath,'ImageRegistration','tmpFiles');
 end
 
-%Read in CERR options
+%% Read in CERR options
 optS = getCERROptions;
 
-% Convert moving scan to .mha
+%% Convert moving scan to .mha
 indexMovS = movPlanC{end};
-movScanUID = movPlanC{indexMovS.scan}(movScanNum).scanUID;
 movScanOffset = movPlanC{indexMovS.scan}(movScanNum).scanInfo(1).CTOffset;
 movScanName = movPlanC{indexMovS.scan}(movScanNum).scanType;
 movScanName = [movScanName,'_deformed'];
-randPart = floor(rand*1000);
-movScanUniqName = [movScanUID,num2str(randPart)];
+
+[movScanUniqName,movScanUID] = genScanUniqName(movPlanC, movScanNum);
 movScanFileName = fullfile(tmpDirPath,['movScan_',movScanUniqName,'.mha']);
 success = createMhaScansFromCERR(movScanNum, movScanFileName, movPlanC);
 
+%%  Convert reference (target) scan to .mha (req for ANTs)
+refScanNum = findScanByUID(planC,deformS.baseScanUID);
 if ~isempty(refScanNum)
-    indexRefS = planC{end};
-    refScanUID = planC{indexRefS.scan}(refScanNum).scanUID;
-%     refScanOffset = planC{indexRefS.scan}(refScanNum).scanInfo(1).CTOffset;
-%     refScanName = planC{indexRefS.scan}(refScanNum).scanType;
-%     refScanName = [refScanName,'_deformed'];
-    randPart = floor(rand*1000);
-    refScanUniqName = [refScanUID,num2str(randPart)];
+    [refScanUniqName,baseScanUID] = genScanUniqName(planC, refScanNum);
     refScanFileName = fullfile(tmpDirPath,['refScan_',refScanUniqName,'.mha']);
     success = createMhaScansFromCERR(refScanNum, refScanFileName, planC);
 end
 
-
+%% ANTs path setup
 if any(strfind(upper(deformS.algorithm),'ANTS'))
-    antsCommand = '';
     if ~exist(optS.antspath_dir,'dir')
         error(['ANTSPATH ' optS.antspath_dir ' not found on filesystem. Please review CERROptions.']);
     end
@@ -56,44 +48,22 @@ if any(strfind(upper(deformS.algorithm),'ANTS'))
         setenv('PATH',[antspath ';' antsScriptPath ';' antsCERRScriptPath ';' getenv('PATH')]);
         antsCommand = '';
     end
-    warpedMhaFileName = fullfile(tmpDirPath,['warped_scan_',refScanUID,'_',movScanUID,'.mha']); 
-    transformParams ='';
-    if ~isempty(deformS.algorithmParamsS.antsWarpProducts.Warp)
-        transformParams = [' -t ' deformS.algorithmParamsS.antsWarpProducts.Warp ' '];
-    end
-    if ~isempty(deformS.algorithmParamsS.antsWarpProducts.Affine )
-        transformParams = [transformParams ' -t ' deformS.algorithmParamsS.antsWarpProducts.Affine ' '];
-    end
-    if isempty(transformParams)
-        error('ANTS: No transformation products specified');
-    end
-    if ~isempty(interpolation)
-        interpParams = [' -n ' interpolation];
-    else
-        interpParams = ' ';
-    end
-    
-    antsCommand = [antsCommand ' antsApplyTransforms -d 3 -r ' refScanFileName ' -i ' movScanFileName ' -o ' warpedMhaFileName ' ' transformParams ' ' interpParams];
-    disp(antsCommand);
-    system(antsCommand);
-    
-     infoS  = mha_read_header(warpedMhaFileName);
-     data3M = mha_read_volume(infoS);
-     save_flag = 0;
-     planC  = mha2cerr(infoS,data3M,movScanOffset,movScanName, planC, save_flag);
 end
 
 % Create b-spline coefficients file
 if isstruct(deformS)
-    baseScanUID = deformS.baseScanUID;
-    movScanUID  = deformS.movScanUID;
     algorithm = deformS.algorithm;
 else
     algorithm = 'PLASTIMATCH';
 end
+
+%%
 switch upper(algorithm)
     case 'ELASTIX'
         % Generate name for the output directory        
+        baseScanUID = deformS.baseScanUID;
+        movScanUID  = deformS.movScanUID;
+        
         warpedDir = fullfile(tmpDirPath,['warped_scan_',baseScanUID,'_',movScanUID]);   
         
         if ~exist(warpedDir,'dir')
@@ -102,14 +72,17 @@ switch upper(algorithm)
         
         % Read Elastix build path from CERROptions.json
         elxTransformCmd = 'transformix';
-        if exist(optS.elastix_build_dir,'dir')
-            %cd(optS.elastix_build_dir)
-            if isunix
-                elxTransformCmd = ['sh ', fullfile(optS.elastix_build_dir,elxTransformCmd)];
-            else
-                elxTransformCmd = fullfile(optS.elastix_build_dir,[elxTransformCmd,'.exe']);
-            end
+        if ~exist(optS.elastix_build_dir,'dir')
+            error(['ELASTIX executable not found on path ' optS.elastix_build_dir]);
         end
+            %cd(optS.elastix_build_dir)
+            
+        if isunix
+            elxTransformCmd = ['sh ', fullfile(optS.elastix_build_dir,elxTransformCmd)];
+        else
+            elxTransformCmd = fullfile(optS.elastix_build_dir,[elxTransformCmd,'.exe']);
+        end
+
         transformC = fieldnames(deformS.algorithmParamsS);
         for iTransform = 1:length(transformC)
             fileC = deformS.algorithmParamsS.(transformC{iTransform});
@@ -168,18 +141,45 @@ switch upper(algorithm)
             delete(movScanFileName)
             rmdir(warpedDir,'s')
         end       
+                
+    case {'LDDMM ANTS','QUICKSYN ANTS'}
+        warpedMhaFileName = fullfile(tmpDirPath,['warped_scan_', refScanUID, '_', movScanUID, '.mha']);
+        transformParams ='';
+        if ~isempty(deformS.algorithmParamsS.antsWarpProducts.Warp) 
+            if exist(deformS.algorithmParamsS.antsWarpProducts.Warp,'file')
+                transformParams = [' -t ' deformS.algorithmParamsS.antsWarpProducts.Warp ' '];
+            else
+                error(['Unable to complete transform, warp product missing: ' deformS.algorithmParamS.antsWarpProducts.Warp,'file']);
+            end
+        end
+        if ~isempty(deformS.algorithmParamsS.antsWarpProducts.Affine)
+            if exist(deformS.algorithmParamsS.antsWarpProducts.Affine, 'file')
+                transformParams = [transformParams ' -t ' deformS.algorithmParamsS.antsWarpProducts.Affine ' '];
+            else
+                error(['Unable to complete transform, affine product missing: ' deformS.algorithmParamsS.antsWarpProducts.Affine]);
+            end
+        end
+        if isempty(transformParams)
+            error('ANTs: No transformation products specified');
+        end
+        if ~isempty(interpolation)
+            interpParams = [' -n ' interpolation];
+        else
+            interpParams = ' ';
+        end
         
+        antsCommand = [antsCommand ' antsApplyTransforms -d 3 -r ' refScanFileName ' -i ' movScanFileName ' -o ' warpedMhaFileName ' ' transformParams ' ' interpParams];
+        disp(antsCommand);
+        system(antsCommand);
         
-    case 'QUICKSYN ANTS'
+        infoS  = mha_read_header(warpedMhaFileName);
+        data3M = mha_read_volume(infoS);
+        save_flag = 0;
+        planC  = mha2cerr(infoS,data3M,movScanOffset,movScanName, planC, save_flag);
         
         disp('warp complete');
         
-    case 'LDDMM ANTS'
-        
-        disp('warp complete');       
-        
-        
-    otherwise % plastimatch
+    otherwise % PLASTIMATCH
         % Generate name for the output .mha file
         warpedMhaFileName = fullfile(tmpDirPath,...
             ['warped_scan_',baseScanUID,'_',movScanUID,'.mha']);        
