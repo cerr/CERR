@@ -1,4 +1,4 @@
-function antsCommand = buildAntsCommand(algorithm,userCmdFile,baseScanFileName,movScanFileName,outPrefix,deformBaseMaskFileName,deformMovMaskFileName)
+function antsCommand = buildAntsCommand(algorithm,userCmdFile,baseScanFileName,movScanFileName,outPrefix,baseMaskFileName,movMaskFileName,deformBaseMaskFileName,deformMovMaskFileName)
 
 if isunix
     antsCommand = 'sh ';
