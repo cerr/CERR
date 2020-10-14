@@ -27,10 +27,7 @@ else
     deformMovMask3M = [];
 end
 
-% Create .mha file for base scan & masks
-% baseScanUID = basePlanC{indexBaseS.scan}(baseScanNum).scanUID;
-% randPart = floor(rand*1000);
-% baseScanUniqName = [baseScanUID,num2str(randPart)];
+%% Create .mha file for base scan & mask(s)
 
 [baseScanUniqName, baseScanUID] = genScanUniqName(basePlanC,baseScanNum);
 baseScanFileName = fullfile(tmpDirPath,['baseScan_',baseScanUniqName,'.mha']);
@@ -50,10 +47,8 @@ else
     deformBaseMaskFileName = '';
 end
 
-% Create .mha file for moving scan
-% movScanUID = movPlanC{indexMovS.scan}(movScanNum).scanUID;
-% randPart = floor(rand*1000);
-% movScanUniqName = [movScanUID,num2str(randPart)];
+%% Create .mha file for moving scan & mask(s)
+
 [movScanUniqName, movScanUID] = genScanUniqName(movPlanC,movScanNum);
 movScanFileName = fullfile(tmpDirPath,['movScan_',movScanUniqName,'.mha']);
 success = createMhaScansFromCERR(movScanNum, movScanFileName, movPlanC);
@@ -72,16 +67,15 @@ else
     deformMovMaskFileName = '';
 end
 
-%initialize deformS
+%% initialize deformS
 algorithmParamsS = [];
 deformS = createNewDeformObject(baseScanUID,movScanUID,algorithm,algorithmParamsS);
 
 
-% Read build paths and options from CERROptions.json
-% optName = fullfile(getCERRPath,'CERROptions.json');
-% optS = opts4Exe(optName);
+%% Read build paths and options from CERROptions.json
+optS = getCERROptions;
 
-
+%% Determine registration program from supplied algorithm
 plmFlag = 1; antsFlag = 0; elastixFlag = 0;
 if any(strfind(upper(algorithm),'ELASTIX'))
     plmFlag = 0;
@@ -91,6 +85,7 @@ elseif any(strfind(upper(algorithm),'ANTS'))
     antsFlag = 1;
 end
 
+%% PLASTIMATCH setup
 % Create command file for plastimatch
 if plmFlag
     
@@ -157,6 +152,7 @@ if plmFlag
     
 end
 
+%% ELASTIX setup
 if elastixFlag
     elxCommand = 'elastix';
     if exist(optS.elastix_build_dir,'dir')
@@ -166,9 +162,12 @@ if elastixFlag
         else
             elxCommand = fullfile(optS.elastix_build_dir,[elxCommand,'.exe']);
         end
+    else
+        error(['Elastix executable path ' optS.elastix_build_dir ' not found on filesystem. Please review CERROptions']);
     end
 end
 
+%% ANTS setup
 if antsFlag
     if ~exist(optS.antspath_dir,'dir')
         error(['ANTSPATH ' optS.antspath_dir ' not found on filesystem. Please review CERROptions.']);
