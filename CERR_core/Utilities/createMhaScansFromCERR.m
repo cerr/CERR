@@ -16,7 +16,9 @@ indexS = planC{end};
 success = 1;
 
 try
-    
+    if exist(scanFileName,'file')
+        delete(scanFileName);
+    end
     % Write .mha for scanNum1
     [uniformCT, uniformScanInfoS] = getUniformizedCTScan(0,scanNum,planC);
     uniformCT = permute(uniformCT, [2 1 3]);
