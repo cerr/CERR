@@ -1,5 +1,5 @@
 function planC = warp_scan(deformS,movScanNum,movPlanC,planC,tmpDirPath,interpolation)
-% function planC = warp_scan(deformS,movScanNum,movPlanC,planC,tmpDirPath)
+% function planC = warp_scan(deformS,movScanNum,movPlanC,planC,tmpDirPath,interpolation)
 %
 % APA, 07/19/2012
 
@@ -14,8 +14,7 @@ if ~exist('tmpDirPath','var')
 end
 
 %Read in CERR options
-optName = fullfile(getCERRPath,'CERROptions.json');
-optS = opts4Exe(optName);
+optS = getCERROptions;
 
 % Convert moving scan to .mha
 indexMovS = movPlanC{end};
