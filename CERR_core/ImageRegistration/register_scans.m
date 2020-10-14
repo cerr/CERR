@@ -155,15 +155,14 @@ end
 %% ELASTIX setup
 if elastixFlag
     elxCommand = 'elastix';
-    if exist(optS.elastix_build_dir,'dir')
-        %cd(optS.elastix_build_dir)
-        if isunix
-            elxCommand = ['sh ', fullfile(optS.elastix_build_dir,elxCommand)];
-        else
-            elxCommand = fullfile(optS.elastix_build_dir,[elxCommand,'.exe']);
-        end
-    else
+    if ~exist(optS.elastix_build_dir,'dir')
         error(['Elastix executable path ' optS.elastix_build_dir ' not found on filesystem. Please review CERROptions']);
+    end
+    %cd(optS.elastix_build_dir)
+    if isunix
+        elxCommand = ['sh ', fullfile(optS.elastix_build_dir,elxCommand)];
+    else
+        elxCommand = fullfile(optS.elastix_build_dir,[elxCommand,'.exe']);
     end
 end
 
@@ -249,6 +248,7 @@ switch upper(algorithm)
         antsCommand = buildAntsCommand(algorithm,inputCmdFile,baseScanFileName,movScanFileName, ...
             outPrefix,baseMaskFileName,movMaskFileName, ...
             deformBaseMaskFileName,deformMovMaskFileName);
+
         system(antsCommand);
         
         deformS.algorithmParamsS.antsCommand = antsCommand;
@@ -323,15 +323,10 @@ switch upper(algorithm)
         algorithmParamsS.bsp_coefficients       = bsp_coefficients;
         algorithmParamsS.bsp_direction_cosines  = bsp_direction_cosines;
         
-        % Create new deform object
-        deformS = createNewDeformObject(baseScanUID,movScanUID,algorithm,algorithmParamsS);
+        deformS.algorithmParamsS = algorithmParamsS;
         
-        % Add deform object to both base and moving planC's
-        baseDeformIndex = length(basePlanC{indexBaseS.deform}) + 1;
-        movDeformIndex  = length(movPlanC{indexMovS.deform}) + 1;
-        basePlanC{indexBaseS.deform}  = dissimilarInsert(basePlanC{indexBaseS.deform},deformS,baseDeformIndex);
-        movPlanC{indexMovS.deform}  = dissimilarInsert(movPlanC{indexMovS.deform},deformS,movDeformIndex);
-        
+        basePlanC = insertDeformS(basePlanC, deformS);
+        movPlanC = insertDeformS(movPlanC, deformS);
         
     case 'RIGID PLASTIMATCH'
         
@@ -510,7 +505,8 @@ switch upper(algorithm)
         end
         
         % Create new deform object
-        deformS = createNewDeformObject(baseScanUID,movScanUID,algorithm,algorithmParamsS);
+%         deformS = createNewDeformObject(baseScanUID,movScanUID,algorithm,algorithmParamsS);
+        deformS.algorithmParamsS = algorithmParamsS;
         
         % Add deform object to both base and moving planC's
         baseDeformIndex = length(basePlanC{indexBaseS.deform}) + 1;
