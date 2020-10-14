@@ -27,10 +27,14 @@ success = createMhaScansFromCERR(movScanNum, movScanFileName, movPlanC);
 %%  Convert reference (target) scan to .mha (req for ANTs)
 refScanNum = findScanByUID(planC,deformS.baseScanUID);
 if ~isempty(refScanNum)
-    [refScanUniqName,baseScanUID] = genScanUniqName(planC, refScanNum);
+    [refScanUniqName, baseScanUID] = genScanUniqName(planC, refScanNum);
     refScanFileName = fullfile(tmpDirPath,['refScan_',refScanUniqName,'.mha']);
     success = createMhaScansFromCERR(refScanNum, refScanFileName, planC);
+else
+    baseScanUID = deformS.baseScanUID;
 end
+
+warpOutPrefix = fullfile(tmpDirPath,['warped_scan_', baseScanUID, '_', movScanUID]);
 
 %% ANTs path setup
 if any(strfind(upper(deformS.algorithm),'ANTS'))
@@ -60,11 +64,8 @@ end
 %%
 switch upper(algorithm)
     case 'ELASTIX'
-        % Generate name for the output directory        
-        baseScanUID = deformS.baseScanUID;
-        movScanUID  = deformS.movScanUID;
-        
-        warpedDir = fullfile(tmpDirPath,['warped_scan_',baseScanUID,'_',movScanUID]);   
+        % Generate name for the output directory 
+        warpedDir = warpOutPrefix;   
         
         if ~exist(warpedDir,'dir')
             mkdir(warpedDir)
@@ -143,7 +144,7 @@ switch upper(algorithm)
         end       
                 
     case {'LDDMM ANTS','QUICKSYN ANTS'}
-        warpedMhaFileName = fullfile(tmpDirPath,['warped_scan_', refScanUID, '_', movScanUID, '.mha']);
+        warpedMhaFileName = [warpOutPrefix '.mha']; %fullfile(tmpDirPath,['warped_scan_', refScanUID, '_', movScanUID, '.mha']);
         transformParams ='';
         if ~isempty(deformS.algorithmParamsS.antsWarpProducts.Warp) 
             if exist(deformS.algorithmParamsS.antsWarpProducts.Warp,'file')
@@ -181,8 +182,7 @@ switch upper(algorithm)
         
     otherwise % PLASTIMATCH
         % Generate name for the output .mha file
-        warpedMhaFileName = fullfile(tmpDirPath,...
-            ['warped_scan_',baseScanUID,'_',movScanUID,'.mha']);        
+        warpedMhaFileName = [warpOutPrefix '.mha']; %fullfile(tmpDirPath, ['warped_scan_',baseScanUID,'_',movScanUID,'.mha']);        
         
         if ~isstruct(deformS)
             bspFileName = deformS;
