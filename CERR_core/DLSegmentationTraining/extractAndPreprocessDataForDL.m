@@ -130,6 +130,14 @@ for scanIdx = 1:numScans
     if ~iscell(viewC)
         viewC = {viewC};
     end
+    
+    if ~isequal(viewC,{'axial'})
+        transformFlag = 1;
+    else
+        transformFlag = 0;
+    end
+    
+    
     if strcmp(resizeS(scanIdx).preserveAspectRatio,'Yes')
         preserveAspectFlag = 1;
     else
@@ -242,8 +250,10 @@ for scanIdx = 1:numScans
         outSizeV = resizeS(scanIdx).size;
         [scan3M, mask3M] = resizeScanAndMask(scan3M,mask3M,outSizeV,...
             resizeMethod,limitsM,preserveAspectFlag);
-        [~, cropStr3M] = resizeScanAndMask([],cropStr3M,outSizeV,...
-            resizeMethod,limitsM,preserveAspectFlag);
+        if transformFlag
+            [~, cropStr3M] = resizeScanAndMask([],cropStr3M,outSizeV,...
+                resizeMethod,limitsM,preserveAspectFlag);
+        end
         toc
     end
     
@@ -252,74 +262,78 @@ for scanIdx = 1:numScans
     
     
     %4. Transform view
-    tic
-    if ~isequal(viewC,{'axial'})
-        fprintf('\nTransforming orientation...\n');
-    end
-    [viewOutC,maskOutC{scanIdx}] = transformView(scanC{scanIdx},maskC(scanIdx),viewC);
-    [~,cropStrC] = transformView([],cropStr3M,viewC);
-    toc
-    
-    %5. Filter images
-    tic
-    procScanC = cell(numChannels,1);
-    
-    for i = 1:length(viewC)
+    if transformFlag
+        tic
+        %     if ~isequal(viewC,{'axial'})
+        %         fprintf('\nTransforming orientation...\n');
+        %     end
+        [viewOutC,maskOutC{scanIdx}] = transformView(scanC{scanIdx},maskC(scanIdx),viewC);
+        [~,cropStrC] = transformView([],cropStr3M,viewC);
+        toc
         
-        scanView3M = viewOutC{i};
+        %5. Filter images
+        tic
+        procScanC = cell(numChannels,1);
         
-        for c = 1:numChannels
+        for i = 1:length(viewC)
             
-            mask3M = true(size(scanView3M));
+            scanView3M = viewOutC{i};
             
-            if strcmpi(filterTypeC{c},'original')
-                %Use original image
-                procScanC{c} = scanView3M;
-            else
-                imType = fieldnames(filterTypeC{c});
-                imType = imType{1};
-                if strcmpi(imType,'original')
+            for c = 1:numChannels
+                
+                mask3M = true(size(scanView3M));
+                
+                if strcmpi(filterTypeC{c},'original')
+                    %Use original image
                     procScanC{c} = scanView3M;
                 else
-                    fprintf('\nApplying %s filter...\n',imType);
-                    paramS = channelS(c);
-                    paramS = getRadiomicsParamTemplate([],paramS);
-                    filterParS = paramS.imageType.(imType).filterPar.val;
-                    outS = processImage(imType,scanView3M,mask3M,filterParS);
-                    fieldName = fieldnames(outS);
-                    fieldName = fieldName{1};
-                    procScanC{c} = outS.(fieldName);
+                    imType = fieldnames(filterTypeC{c});
+                    imType = imType{1};
+                    if strcmpi(imType,'original')
+                        procScanC{c} = scanView3M;
+                    else
+                        fprintf('\nApplying %s filter...\n',imType);
+                        paramS = channelS(c);
+                        paramS = getRadiomicsParamTemplate([],paramS);
+                        filterParS = paramS.imageType.(imType).filterPar.val;
+                        outS = processImage(imType,scanView3M,mask3M,filterParS);
+                        fieldName = fieldnames(outS);
+                        fieldName = fieldName{1};
+                        procScanC{c} = outS.(fieldName);
+                    end
                 end
             end
+            viewOutC{i} = procScanC;
         end
-        viewOutC{i} = procScanC;
-    end
-    toc
-    
-    %6. Adjust voxel values outside mask
-    if isfield(channelParS,'intensityOutsideMask')
-        intVal = channelParS.intensityOutsideMask.val;
-        procScanC = viewOutC{1};
-        for nView = 1:length(procScanC)
-            scan3M = procScanC{nView};
-            cropStr3M = logical(cropStrC{nView});
-            scan3M(~cropStr3M) = intVal;
-            procScanC{nView} = scan3M;
-        end
-        viewOutC{1} = procScanC;
-    end
-    
-    %7. Populate channels
-    tic
-    channelOutC = populateChannels(viewOutC,channelParS);
-    if numChannels > 1
-        fprintf('\nPopulating channels...\n');
         toc
+        
+        %6. Adjust voxel values outside mask
+        if isfield(channelParS,'intensityOutsideMask')
+            intVal = channelParS.intensityOutsideMask.val;
+            procScanC = viewOutC{1};
+            for nView = 1:length(procScanC)
+                scan3M = procScanC{nView};
+                cropStr3M = logical(cropStrC{nView});
+                scan3M(~cropStr3M) = intVal;
+                procScanC{nView} = scan3M;
+            end
+            viewOutC{1} = procScanC;
+        end
+        
+        %7. Populate channels
+        tic
+        channelOutC = populateChannels(viewOutC,channelParS);
+        if numChannels > 1
+            fprintf('\nPopulating channels...\n');
+            toc
+        end
+        
+        scanOutC{scanIdx} = channelOutC;
+        optS(scanIdx).scan = scanOptS;
+    else
+        scanOutC{1} = scanC;
+    	maskOutC{1} = maskC;
     end
-    
-    scanOutC{scanIdx} = channelOutC;
-    optS(scanIdx).scan = scanOptS;
-
 end
 
 %Get scan metadata
