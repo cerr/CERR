@@ -1,5 +1,5 @@
 function batchConvertWithSubDirs(varargin)
-%function batchConvert(sourceDir,destinationDir,zipFlag,mergeScansFlag)
+%function batchConvert(sourceDir,destinationDir,zipFlag,mergeScansFlag,singleCerrFileFlag)
 %
 %Type "init_ML_DICOM; batchConvertWithSubDirs" (without quotes) in Command window to run batch conversion. User will be
 %prompted to select source and destination directories. This function converts DICOM and RTOG files
@@ -36,7 +36,8 @@ function batchConvertWithSubDirs(varargin)
 % destinationDir = 'J:\bioruser\apte\batch code\OUT';
 % zipFlag = 'No';
 % mergeScansFlag = 'No';
-% batchConvert(sourceDir,destinationDir,zipFlag,mergeScansFlag)
+% singleCerrFileFlag = 'No';
+% batchConvert(sourceDir,destinationDir,zipFlag,mergeScansFlag,singleCerrFileFlag)
 
 feature accel off
 
@@ -59,7 +60,8 @@ if isempty(varargin)
         return;
     end
     zipFlag = questdlg('Do you want to bz2 zip output CERR files?', 'bz2 Zip files?', 'Yes','No','No');
-    mergeScansFlag = [];
+    mergeScansFlag = 'no';
+    singleCerrFileFlag = questdlg('Do you want to import all directories to single CERR file?', 'Single CERR file?', 'Yes','No','No');
 else
     convertedC = {'Source Directory:'};
     planNameC = {'Converted Plan Name:'};
@@ -67,6 +69,10 @@ else
     destinationDir = varargin{2};
     zipFlag = varargin{3};
     mergeScansFlag = varargin{4};
+    singleCerrFileFlag = 'no';
+    if length(varargin) > 4
+        singleCerrFileFlag = varargin{5};
+    end
 end
 
 if ispc
@@ -80,8 +86,13 @@ end
 slashIndex = strfind(sourceDir,slashType);
 allDirS = dir(sourceDir);
 namC = {allDirS.name};
-indRemoveV = ismember(namC,{'.','..'});
-allDirS(indRemoveV) = [];
+if strcmpi(singleCerrFileFlag,'yes')
+    indCurrentDir = ismember(namC,'.');
+    allDirS = allDirS(indCurrentDir);
+else
+    indRemoveV = ismember(namC,{'.','..'});
+    allDirS(indRemoveV) = [];
+end
 
 excludePixelDataFlag = true;
 
@@ -198,7 +209,10 @@ for dirNum = 1:length(allDirS)
         planC = dcmdir2planC(combinedDcmdirS,mergeScansFlag);
         
      
-        [~,sourceDirName] = fileparts(dirPath);
+        [sourcePath,sourceDirName] = fileparts(dirPath);
+        if isempty(sourceDirName)
+            [~,sourceDirName] = fileparts(sourcePath);
+        end
         
         %Check for duplicate name of sourceDirName
         dirOut = dir(destinationDir);
