@@ -14,7 +14,7 @@ function [scanOutC, maskOutC, scanNumV, optS, planC] = ...
 % AI 9/18/19
 % AI 9/18/20  Extended to handle multiple scans
 
-%% Get user inputs
+%% Get processing directives from optS
 regS = optS.register;
 scanOptS = optS.scan;
 resampleS = [scanOptS.resample];
@@ -31,7 +31,7 @@ if ~exist('testFlag','var')
     testFlag = true;
 end
 
-%% Identify available structures
+%% Identify available structures in planC
 indexS = planC{end};
 allStrC = {planC{indexS.structures}.structureName};
 strNotAvailableV = ~ismember(lower(strListC),lower(allStrC)); %Case-insensitive
@@ -58,7 +58,7 @@ if ~isempty(exportStrC) || testFlag
     end
 end
 
-%% Register scans
+%% Register scans (in progress)
 if ~isempty(fieldnames(regS))
     identifierS = regS.baseScan.identifier;
     scanNumV(1) = getScanNumFromIdentifiers(identifierS,planC);
@@ -78,7 +78,7 @@ else
     end
 end
 
-%% Extract data
+%% Extract & preprocess data
 numScans = length(scanOptS);
 scanC = cell(numScans,1);
 scanOutC = cell(numScans,1);
@@ -91,12 +91,12 @@ UIDc = {planC{indexS.structures}.assocScanUID};
 %-Loop over scans
 for scanIdx = 1:numScans
     
-    %Extract scan array
+    %Extract scan array from planC
     scan3M = double(getScanArray(scanNumV(scanIdx),planC));
     CTOffset = double(planC{indexS.scan}(scanNumV(scanIdx)).scanInfo(1).CTOffset);
     scan3M = scan3M - CTOffset;
     
-    %Extract masks
+    %Extract masks from planC
     strC = {planC{indexS.structures}.structureName};
     if isempty(exportStrC) && testFlag
         mask3M = [];
@@ -122,7 +122,7 @@ for scanIdx = 1:numScans
         
     end
     
-    %Get scan-specific parameters
+    %Set scan-specific parameters: channels, view orientation, background adjustment, aspect ratio
     channelParS = scanOptS(scanIdx).channels;
     numChannels = length(channelParS);
     filterTypeC = {channelParS.imageType};
@@ -132,11 +132,16 @@ for scanIdx = 1:numScans
     end
     
     if ~isequal(viewC,{'axial'})
-        transformFlag = 1;
+        transformViewFlag = 1;
     else
-        transformFlag = 0;
+        transformViewFlag = 0;
     end
     
+    if isfield(channelParS,'intensityOutsideMask')
+        adjustBackgroundVoxFlag = 1;
+    else
+        adjustBackgroundVoxFlag = 0;
+    end
     
     if strcmp(resizeS(scanIdx).preserveAspectRatio,'Yes')
         preserveAspectFlag = 1;
@@ -250,9 +255,12 @@ for scanIdx = 1:numScans
         outSizeV = resizeS(scanIdx).size;
         [scan3M, mask3M] = resizeScanAndMask(scan3M,mask3M,outSizeV,...
             resizeMethod,limitsM,preserveAspectFlag);
-        if transformFlag
+        % obtain patient outline in view if background adjustment is needed
+        if adjustBackgroundVoxFlag || transformViewFlag
             [~, cropStr3M] = resizeScanAndMask([],cropStr3M,outSizeV,...
                 resizeMethod,limitsM,preserveAspectFlag);
+        else
+            cropStr3M = [];
         end
         toc
     end
@@ -262,78 +270,83 @@ for scanIdx = 1:numScans
     
     
     %4. Transform view
-    if transformFlag
+    if transformViewFlag
         tic
         %     if ~isequal(viewC,{'axial'})
-        %         fprintf('\nTransforming orientation...\n');
+        fprintf('\nTransforming orientation...\n');
         %     end
         [viewOutC,maskOutC{scanIdx}] = transformView(scanC{scanIdx},maskC(scanIdx),viewC);
         [~,cropStrC] = transformView([],cropStr3M,viewC);
         toc
+    else % case: 1 view, 'axial'
+        viewOutC = {scanC{scanIdx}};
+        maskOutC{scanIdx} = {maskC(scanIdx)};
+    end
+    
+    %5. Filter images as required
+    tic
+    procScanC = cell(numChannels,1);
+    
+    for i = 1:length(viewC)
         
-        %5. Filter images
-        tic
-        procScanC = cell(numChannels,1);
+        scanView3M = viewOutC{i};
         
-        for i = 1:length(viewC)
+        for c = 1:numChannels
             
-            scanView3M = viewOutC{i};
+%             mask3M = true(size(scanView3M));
             
-            for c = 1:numChannels
-                
-                mask3M = true(size(scanView3M));
-                
-                if strcmpi(filterTypeC{c},'original')
-                    %Use original image
+            if strcmpi(filterTypeC{c},'original')
+                %Use original image
+                procScanC{c} = scanView3M;
+            else
+                imType = fieldnames(filterTypeC{c});
+                imType = imType{1};
+                if strcmpi(imType,'original')
                     procScanC{c} = scanView3M;
                 else
-                    imType = fieldnames(filterTypeC{c});
-                    imType = imType{1};
-                    if strcmpi(imType,'original')
-                        procScanC{c} = scanView3M;
-                    else
-                        fprintf('\nApplying %s filter...\n',imType);
-                        paramS = channelS(c);
-                        paramS = getRadiomicsParamTemplate([],paramS);
-                        filterParS = paramS.imageType.(imType).filterPar.val;
-                        outS = processImage(imType,scanView3M,mask3M,filterParS);
-                        fieldName = fieldnames(outS);
-                        fieldName = fieldName{1};
-                        procScanC{c} = outS.(fieldName);
-                    end
+                    fprintf('\nApplying %s filter...\n',imType);
+                    paramS = channelS(c);
+                    paramS = getRadiomicsParamTemplate([],paramS);
+                    filterParS = paramS.imageType.(imType).filterPar.val;
+%                     outS = processImage(imType,scanView3M,mask3M,filterParS);
+                    outS = processImage(imType, scanView3M, true(size(scanView3M)), filterParS);
+                    fieldName = fieldnames(outS);
+                    fieldName = fieldName{1};
+                    procScanC{c} = outS.(fieldName);
                 end
             end
-            viewOutC{i} = procScanC;
         end
-        toc
-        
-        %6. Adjust voxel values outside mask
-        if isfield(channelParS,'intensityOutsideMask')
-            intVal = channelParS.intensityOutsideMask.val;
-            procScanC = viewOutC{1};
-            for nView = 1:length(procScanC)
-                scan3M = procScanC{nView};
-                cropStr3M = logical(cropStrC{nView});
-                scan3M(~cropStr3M) = intVal;
-                procScanC{nView} = scan3M;
-            end
-            viewOutC{1} = procScanC;
+        viewOutC{i} = procScanC;
+    end
+    toc
+    
+    %6. Adjust voxel values outside mask
+    if adjustBackgroundVoxFlag
+        intVal = channelParS.intensityOutsideMask.val;
+        procScanC = viewOutC{1};
+        for nView = 1:length(procScanC)
+            scan3M = procScanC{nView};
+            cropStr3M = logical(cropStrC{nView});
+            scan3M(~cropStr3M) = intVal;
+            procScanC{nView} = scan3M;
         end
-        
-        %7. Populate channels
+        viewOutC{1} = procScanC;
+    end
+    
+    %7. Populate channels
+
+    if numChannels > 1
         tic
         channelOutC = populateChannels(viewOutC,channelParS);
-        if numChannels > 1
-            fprintf('\nPopulating channels...\n');
-            toc
-        end
-        
-        scanOutC{scanIdx} = channelOutC;
-        optS(scanIdx).scan = scanOptS;
+        fprintf('\nPopulating channels...\n');
+        toc
     else
-        scanOutC{1} = scanC;
-    	maskOutC{1} = maskC;
+        channelOutC = viewOutC;
     end
+    
+    scanOutC{scanIdx} = channelOutC;
+    optS(scanIdx).scan = scanOptS;
+
 end
 
 %Get scan metadata
