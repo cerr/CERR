@@ -31,10 +31,9 @@ else
     planC = {};
 end
 
-%% create masks if cropping structure name is passed
+registration_tool = 'ANTS';
 
-baseMask3M = [];
-movMask3M  = [];
+%% create masks if cropping structure name is passed
 
 if ~isempty(baseBboxCropStr) || ~isempty(movBboxCropStr)
     cropToStrCell = {baseBboxCropStr,movBboxCropStr};
@@ -134,14 +133,13 @@ for i = 1:numel(cellPlanC)
     end
 end
 
-if isempty(cellMask3M{2}{1})
-    baseMask3M = cellMask3M{1}{1};
-    movMask3M  = cellMask3M{1}{2};
-else
-    baseMask3M{1} = cellMask3M{1}{1};
-    baseMask3M{2} = cellMask3M{2}{1};
-    movMask3M{1} = cellMask3M{1}{2};
-    movMask3M{2} = cellMask3M{2}{2};
+
+baseMask3M = cellMask3M{1}{1};
+movMask3M  = cellMask3M{1}{2};
+
+if ~isempty(cellMask3M{2}{1})
+    baseMask3M(:,:,:,2) = cellMask3M{2}{1};
+    movMask3M(:,:,:,2) = cellMask3M{2}{2};
 end
 
 %% Determine inputCmdFile for given algorithm
@@ -160,5 +158,5 @@ end
 disp(inputCmdFile);
 
 %% Run register_scans
-[basePlanC, movPlanC, ~] = register_scans(basePlanC, movPlanC, baseScanNum, movScanNum, algorithm, baseMask3M, movMask3M,...
-    [], inputCmdFile, [], [],   tmpDirPath);
+[basePlanC, movPlanC, ~] = register_scans(basePlanC, baseScanNum, movPlanC,movScanNum, algorithm, registration_tool, tmpDirPath, ... 
+    baseMask3M, movMask3M, [], inputCmdFile, '', '');
