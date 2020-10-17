@@ -16,10 +16,10 @@ switch algorithm
     %get additional flags for processing
     if exist('userCmdFile','var') && ~isempty(userCmdFile)
         if ~iscell(userCmdFile)
-            userCmdFile = cell(userCmdFile);
+            userCmdFile = {userCmdFile};
         end
         for i = 1:numel(userCmdFile)
-            antsParams = strrep(strrep([antsParams ' ' fileread(userCmdFile)],'baseMask3M',baseMaskFileName),'movMask3M',movMaskFileName);
+            antsParams = strrep(strrep([antsParams ' ' fileread(userCmdFile{i})],'baseMask3M',baseMaskFileName),'movMask3M',movMaskFileName);
         end
         antsCommand = [antsCommand ' antsRegistrationSyNQuick.sh ' antsParams];
     end        
