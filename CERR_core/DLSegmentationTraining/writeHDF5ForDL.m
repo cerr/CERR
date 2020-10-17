@@ -42,8 +42,8 @@ switch (passedScanDim)
         end
         
         %Write scan
-%         exportScan3M = scanC{1}{1};
-        exportScan3M = scanC{1};
+        exportScan3M = scanC{1}{1}; % one view and one scan matrix
+        %exportScan3M = scanC{1};
         scanFilename = fullfile(outDirC{1},[filePrefix,'_scan_3D.h5']);
         h5create(scanFilename,'/scan',size(exportScan3M));
         pause(0.1)
