@@ -12,27 +12,38 @@ function success = joinH5CERR(cerrPath,segMask3M,scanNum,userOptS)
 %   userOptS          : User options read from configuration file
 
 
-%configFilePath = fullfile(getCERRPath,'ModelImplementationLibrary','SegmentationModels', 'ModelConfigurations', [algorithm, '_config.json']);
-
-%load original planC
+%% Load original planC
 planCfiles = dir(fullfile(cerrPath,'*.mat'));
 planCfilename = fullfile(planCfiles.folder, planCfiles.name);
 planC = load(planCfilename);
 planC = planC.planC;
 indexS = planC{end};
 
-% Import mask
+%% Import mask
 planC  = joinH5planC(scanNum,segMask3M,userOptS,planC);
 
-% Post-process segmentation
+%% Post-process segmentations
 fprintf('\nPost-processing results...\n');
 tic
 planC = postProcStruct(planC,userOptS);
 toc
 
-% save final plan
-% finalPlanCfilename = fullfile(segResultCERRPath, 'cerrFile.mat'); % Decomissioned to avoid duplicate CERR file creation.
+%% Delete intermediate (resampled) scans if any
+identifierS = userOptS.structAssocScan.identifier;
+if ~isempty(fieldnames(userOptS.structAssocScan.identifier))
+    origScanNum = getScanNumFromIdentifiers(identifierS,planC);
+else
+    origScanNum = 1; 
+end
+scanListC = arrayfun(@(x)x.scanType, planC{indexS.scan},'un',0);
+resampScanName = ['Resamp_scan',num2str(origScanNum)];
+matchIdxV = ismember(scanListC,resampScanName);
+if any(matchIdxV)
+    deleteScanNum = find(matchIdxV);
+    planC = deleteScan(planC,deleteScanNum);
+end
 
+%% Save planC
 optS = [];
 saveflag = 'passed';
 save_planC(planC,optS,saveflag,planCfilename);

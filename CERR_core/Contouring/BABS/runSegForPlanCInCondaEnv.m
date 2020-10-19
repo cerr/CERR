@@ -191,6 +191,15 @@ for k=1:length(algorithmC)
     % Post-process segmentation
     planC = postProcStruct(planC,userOptS);
     
+    %Delete intermediate (resampled) scans if any
+    scanListC = arrayfun(@(x)x.scanType, planC{indexS.scan},'un',0);
+    resampScanName = ['Resamp_scan',num2str(origScanNum)];
+    matchIdxV = ismember(scanListC,resampScanName);
+    if any(matchIdxV)
+        deleteScanNum = find(matchIdxV);
+        planC = deleteScan(planC,deleteScanNum);
+    end
+    
 end
 
 if ishandle(hWait)

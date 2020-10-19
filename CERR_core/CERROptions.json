@@ -241,5 +241,5 @@
 
 "antspath_dir" : "/lab/deasylab1/Eve/LDDMM/antsbin",
 
-"condaPath" : "/usr/local/"
+"condaPath" : "C:/Miniconda3/"
 }
