@@ -2,9 +2,10 @@
 
 ## Features:
 
+* Deep learning segmentation
+* Radiomics
 * User-friendly access to RT and Radiology meta-data
 * Outcomes Modeling
-* Radiomics
 * IMRTP
 * Data Import
 * Contouring
