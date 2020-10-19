@@ -29,11 +29,10 @@ planC = postProcStruct(planC,userOptS);
 toc
 
 %% Delete intermediate (resampled) scans if any
-identifierS = userOptS.structAssocScan.identifier;
-if ~isempty(fieldnames(userOptS.structAssocScan.identifier))
-    origScanNum = getScanNumFromIdentifiers(identifierS,planC);
+if isfield(userOptS(scanNum).scan,'origScan')
+    origScanNum = userOptS(scanNum).scan.origScan;
 else
-    origScanNum = 1; 
+    origScanNum = 1;
 end
 scanListC = arrayfun(@(x)x.scanType, planC{indexS.scan},'un',0);
 resampScanName = ['Resamp_scan',num2str(origScanNum)];
