@@ -229,10 +229,23 @@ for scanNum = 1:length(planC{indexS.scan})
             seriesTime = dicomhd.SeriesTime;
             decayCorrection = dicomhd.DecayCorrection;
             correctedImage = dicomhd.CorrectedImage;    
-            imageUnits = dcmhd.Units;
+            imageUnits = dicomhd.Units;
+            petActivityConcentrationScaleFactor = [];
+            if isfield(dicomhd,'ActivityConcentrationScaleFactor')
+                petActivityConcentrationScaleFactor = ...
+                    dicomhd.ActivityConcentrationScaleFactor;
+            end
+            patientSize = [];
+            if isfield(dicomhd,'PatientSize')
+                patientSize = dicomhd.PatientSize;
+            end
             
             planC{indexS.scan}(scanNum).scanInfo(slcNum).patientWeight = ...
                 ptweight;
+            planC{indexS.scan}(scanNum).scanInfo(slcNum).patientSize = ...
+                patientSize;
+            planC{indexS.scan}(scanNum).scanInfo(slcNum).petActivityConcentrationScaleFactor = ...
+                petActivityConcentrationScaleFactor;
             planC{indexS.scan}(scanNum).scanInfo(slcNum).acquisitionTime = ...
                 dicomhd.AcquisitionTime;
             planC{indexS.scan}(scanNum).scanInfo(slcNum).injectionTime = ...
