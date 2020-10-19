@@ -56,6 +56,6 @@ for slcNum = 1:size(planC{indexS.scan}(scanNum).scanArray,3)
     planC{indexS.scan}(scanNum).scanInfo(slcNum).suvType = upper(suvType);
     planC{indexS.scan}(scanNum).scanArray(:,:,slcNum) = suv3M(:,:,slcNum);    
 end
-
+planC = setUniformizedData(planC,[],scanNum);
 
 return
