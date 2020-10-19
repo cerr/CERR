@@ -27,6 +27,9 @@ if ~isempty(postS)
         outMask3M = [];
         
         strNum = getMatchingIndex(strC{iStr},strListC,'EXACT');
+        if length(strNum) ~= 1
+            error(['Post-processing error: ', strC{iStr},' not found'])
+        end
         scanNum = getStructureAssociatedScan(strNum,planC);
         
         methodC = postS.(strC{iStr}).method;
