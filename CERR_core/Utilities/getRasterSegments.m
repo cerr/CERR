@@ -90,7 +90,10 @@ if isfield(planC{indexS.structures}, 'rasterSegments')
     
     %rasterSegments = {planC{indexS.structures}(structureID).rasterSegments};
     
-    if isempty(rasterSegments) && ~(isfield(planC{indexS.structures},'rasterized') && ~isempty(planC{indexS.structures}(structureIDv).rasterized) && planC{indexS.structures}(structureIDv).rasterized == 1)
+    if isempty(rasterSegments) && ~(...
+            isfield(planC{indexS.structures},'rasterized') && ...
+            length([planC{indexS.structures}(structureIDv).rasterized]) == length(structureIDv) && ...
+            all([planC{indexS.structures}(structureIDv).rasterized] == 1))
         try
             warning(['No rasterSegments exist for structure ' allStructureNames{structureIDv} ', generating.']); %Do not set iserror.            
             planC = getRasterSegs(planC, structureIDv);
