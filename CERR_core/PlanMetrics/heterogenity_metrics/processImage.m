@@ -208,8 +208,10 @@ switch filterType
         if ~isnumeric(kernelSize)
             kernelSize = str2double(kernelSize);
         end
+        kernelSize = reshape(kernelSize,1,[]);
         
-        filt3M = ones(kernelSize)./prod(kernelSize);
+        filt3M = ones(kernelSize);
+        filt3M = filt3M./sum(filt3M(:));
         meanFilt3M = convn(vol3M,filt3M,'same');
         outS.meanFilt = meanFilt3M;
         
