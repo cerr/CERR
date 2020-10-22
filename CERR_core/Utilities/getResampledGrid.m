@@ -69,7 +69,7 @@ if resamp3DFlag
     zResampleV = PixelSpacingZ/2:PixelSpacingZ:length(zValsV)*dz;
     zResampCtr = (zResampleV(1)+zResampleV(end))/2;
     zDeltaCtr = zResampCtr - zCtr;
-    xResampleV = -zDeltaCtr + zResampleV;
+    zResampleV = -zDeltaCtr + zResampleV;
 else
     zResampleV = zValsV;
 end
