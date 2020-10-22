@@ -177,11 +177,19 @@ for scanIdx = 1:numScans
             end
         end
         resampleMethod = resampleS(scanIdx).method;
-
+        
         %Resample scan
-        [scan3M,xResampleV,yResampleV,zResampleV] = ...
-            imgResample3d(scan3M,inputResV,xValsV,yValsV,zValsV,...
-            outResV,resampleMethod);
+        gridResampleMethod = 'center';
+        volumeInterpMethod = resampleS.method;
+        [xResampleV,yResampleV,zResampleV] = ...
+            getResampledGrid(outResV,xValsV,yValsV,zValsV,gridResampleMethod);
+        scan3M = imgResample3d(double(scan3M), ...
+                    xValsV,yValsV,zValsV,...
+                    xResampleV,yResampleV,zResampleV,...
+                    resampleMethod);              
+        %[scan3M,xResampleV,yResampleV,zResampleV] = ...
+        %   imgResample3d(scan3M,inputResV,xValsV,yValsV,zValsV,...
+        %   outResV,resampleMethod);
         
         %Store to planC
         scanInfoS.horizontalGridInterval = outResV(1);
@@ -195,6 +203,8 @@ for scanIdx = 1:numScans
             '',scanInfoS,'',planC);
         scanNumV(scanIdx) = length(planC{indexS.scan});
         toc
+        
+        % Resample structures required for training
         
         %Resample reqd structures
         cropStrListC = arrayfun(@(x)x.params.structureName,cropS,'un',0);

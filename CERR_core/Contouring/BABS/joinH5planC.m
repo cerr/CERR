@@ -90,12 +90,20 @@ if ~strcmpi(resampleS.method,'none')
     end
     outResV = [dx0,dy0,dz0];
     %Resample
-    maskOut3M = imgResample3d(double(maskOut3M),inputResV,xValsV,yValsV,...
-        zValsV,outResV,'nearest',0);
+    %maskOut3M = imgResample3d(double(maskOut3M),inputResV,xValsV,yValsV,...
+    %   zValsV,outResV,'nearest',0);
+    gridResampleMethod = 'center';
+    volumeResampleMethod = 'nearest';
+    [xResampleV,yxResampleV,zResampleV] = ...
+        getResampledGrid(outResV,xValsV,yValsV,zValsV,gridResampleMethod);
+    maskOut3M = imgResample3d(...
+                                    double(maskOut3M),...
+                                    xValsV,yValsV,zValsV,...
+                                    xResampleV,yxResampleV,zResampleV,...
+                                    volumeResampleMethod);
+                                
     scanNum = origScanNum;
 end
-
-
 
 for i = 1 : length(userOptS(scanNum).strNameToLabelMap)
     
