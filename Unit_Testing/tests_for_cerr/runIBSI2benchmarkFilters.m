@@ -54,7 +54,7 @@ planC{index1S.scan}(scanNum).scanType = ...
 
 planName = fullfile(outDir,'1a.mat');
 save_planC(planC,[],'PASSED',planName);
-exportScans(planName,'1a',metadataS.checkerboard);
+exportScans(planName,outDir,'1a',metadataS.checkerboard);
 
 clear planC
 %% 2.a
@@ -69,7 +69,7 @@ planC{index1S.scan}(scanNum).scanType = ...
 
 planName = fullfile(outDir,'2a.mat');
 save_planC(planC,[],'PASSED',planName);
-exportScans(planName,'2a',metadataS.impulse);
+exportScans(planName,outDir,'2a',metadataS.impulse);
 
 clear planC
 %% 2.b
@@ -84,7 +84,7 @@ planC{index1S.scan}(scanNum).scanType = ...
 
 planName = fullfile(outDir,'2b.mat');
 save_planC(planC,[],'PASSED',planName);
-exportScans(planName,'2b',metadataS.checkerboard);
+exportScans(planName,outDir,'2b',metadataS.checkerboard);
 
 clear planC
 %% 3.a.1
@@ -99,7 +99,7 @@ planC{index1S.scan}(scanNum).scanType = ...
 
 planName = fullfile(outDir,'3a1.mat');
 save_planC(planC,[],'PASSED',planName);
-exportScans(planName,'3a',metadataS.impulse);
+exportScans(planName,outDir,'3a',metadataS.impulse);
 
 clear planC
 %% 3.b.1
@@ -114,7 +114,7 @@ planC{index1S.scan}(scanNum).scanType = ...
 
 planName = fullfile(outDir,'3b1.mat');
 save_planC(planC,[],'PASSED',planName);
-exportScans(planName,'3b',metadataS.checkerboard);
+exportScans(planName,outDir,'3b',metadataS.checkerboard);
 
 %% 5.a.1
 fileName = fullfile(dataDirName,'impulse.mat');
@@ -128,7 +128,7 @@ planC{index1S.scan}(scanNum).scanType = ...
 
 planName = fullfile(outDir,'5a1.mat');
 save_planC(planC,[],'PASSED',planName);
-exportScans(planName,'5a',metadataS.impulse);
+exportScans(planName,outDir,'5a',metadataS.impulse);
 
 clear planC
 %% 6.a.1
@@ -143,7 +143,7 @@ planC{index1S.scan}(scanNum).scanType = ...
 
 planName = fullfile(outDir,'6a1.mat');
 save_planC(planC,[],'PASSED',planName);
-exportScans(planName,'6a',metadataS.sphere);
+exportScans(planName,outDir,'6a',metadataS.sphere);
 
 %% -- Supporting functions --
 
@@ -170,7 +170,7 @@ exportScans(planName,'6a',metadataS.sphere);
         structNum = getMatchingIndex('wholeScan',strC,'EXACT');
     end
 
-    function exportScans(planName,outFname,infoS)
+    function exportScans(planName,outDir,outFname,infoS)
         plan2C = loadPlanC(planName,tempdir);
         plan2C = updatePlanFields(plan2C);
         plan2C = quality_assure_planC(planName,plan2C);
