@@ -159,20 +159,23 @@ if whichFeatS.resample.flag
     roiInterpMethod = 'linear';
     scanInterpMethod = whichFeatS.resample.interpMethod;
     extrapVal = 0;
+    gridResampleMethod = 'center';
     
     % Interpolate using the method defined in settings file
     origVolToEval = volToEval;
     origMask = maskBoundingBox3M;
-    inputResV = [dx,dy,dz];
     outputResV = [PixelSpacingX,PixelSpacingY,PixelSpacingZ];
     
-    [volToEval,xResampleV,yResampleV,zResampleV] = ...
-        imgResample3d(origVolToEval,inputResV,xValsV,yValsV,zValsV,...
-        outputResV,scanInterpMethod,extrapVal,[perturbX,perturbY,perturbZ]);
-    
-    maskBoundingBox3M = imgResample3d(single(origMask),inputResV,xValsV,...
-        yValsV,zValsV,outputResV,roiInterpMethod,extrapVal,...
-        [perturbX,perturbY,perturbZ]) >= 0.5;
+    %Get resampling grid 
+    [xResampleV,yResampleV,zResampleV] = ...
+        getResampledGrid(outputResV,xValsV,yValsV,zValsV,...
+        gridResampleMethod,extrapVal,[perturbX,perturbY,perturbZ]);
+    %Resample scan
+    volToEval = imgResample3d(origVolToEval,xValsV,yValsV,zValsV,...
+        xResampleV,yResampleV,zResampleV,scanInterpMethod);
+    %Resample mask
+    maskBoundingBox3M = imgResample3d(single(origMask),xValsV,yValsV,zValsV,...
+        xResampleV,yResampleV,zResampleV,roiInterpMethod) >= 0.5;
     
     newSlcIndV = zeros(1,length(zResampleV));
     for iSlc = 1:length(zResampleV)
