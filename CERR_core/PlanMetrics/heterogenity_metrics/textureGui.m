@@ -514,7 +514,7 @@ switch upper(command)
                 paramC = {'PadMethod', 'PadSize','KernelSize'};
                 typeC = {'popup','edit','edit'};
                 valC = {{'expand','padzeros','periodic','nearest',...
-                    'mirror','none'},{'5,5,5'},{'3'}};
+                    'mirror','none'},{'5,5,5'},{'3,3,3'}};
                 dispC = {'On','On','On'};
                 
             case 'First Order Statistics' %First-order statistics
