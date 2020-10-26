@@ -9,7 +9,7 @@ end
 [~,nproc_str] = system('nproc');
 nproc = nproc_str(1:end-1);
 
-switch algorithm
+switch upper(algorithm)
     case 'QUICKSYN ANTS'
     antsParams = [' -d 3 -f ' baseScanFileName ' -m ' movScanFileName ' -o ' outPrefix '  -n ' nproc ' '];
         
