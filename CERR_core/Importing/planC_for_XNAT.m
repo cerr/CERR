@@ -10,7 +10,7 @@ cerrFile = ls([cerrPath filesep '*.mat']);
 
 %cerrFilePath = [cerrPath filesep cerrFile];
 
-load(cerrFile(1:end-1),'planC');
+planC = loadPlanC(cerrFile);
 
 planC = annotatePlanCForXNAT(planC, xhost,xexp,xproj,xsubj);
 
