@@ -30,7 +30,7 @@ end
 % set affine transform 
 inputCmdFile = fullfile(getCERRPath,'ImageRegistration','antsScripts','SyN_a.txt');
 templatePlanC = loadTemplatePlanC;
-[planC, ~, ~] = register_scans(templatePlanC, 1, planC, scanNum, 'QuickSyn ANTs', 'ANTs', '', [], [], [], inputCmdFile);
+[ ~, planC, ~] = register_scans(templatePlanC, 1, planC, scanNum, 'QuickSyn ANTs', 'ANTs', '', [], [], [], inputCmdFile);
 
 %% inverse-warp the template face mask to scan space
 
@@ -47,6 +47,5 @@ end
 
 
 function templatePlanC = loadTemplatePlanC
-    templateMat = fullfile(getCERRPath,'Extras','faceOffBeta','template0.mat');
-    T = load(templateMat);
-    templatePlanC = T.planC;
+    templatePlanC = fullfile(getCERRPath,'Extras','faceOffBeta','template0.nii.gz');
+
