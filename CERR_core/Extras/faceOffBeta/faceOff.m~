@@ -1,0 +1,53 @@
+function planC = faceOff(planC, scanNum, tmpDirPath, exportDicomFlag, outputDICOMPath)
+
+%% parse input and set up parameters, variables
+if ~exist('exportDicomFlag', 'var')
+        exportDicomFlag = 0;
+end
+
+if ~exist('tmpDirPath', 'var') || isempty(tmpDirPath)
+    tmpDirPath = fullfile(getCERRPath,'ImageRegistration','tmpFiles');
+end
+
+%% ANTs setup
+% 
+% if ~exist(optS.antspath_dir,'dir')
+%     error(['ANTSPATH ' optS.antspath_dir ' not found on filesystem. Please review CERROptions.']);
+% end
+% antspath = fullfile(optS.antspath_dir,'bin');
+% setenv('ANTSPATH', antspath);
+% antsScriptPath = fullfile(optS.antspath_dir, 'Scripts');
+% antsCERRScriptPath = fullfile(getCERRPath,'CERR_core', 'ImageRegistration', 'antsScripts');
+% if isunix
+%     setenv('PATH',[antspath ':' antsScriptPath ':' antsCERRScriptPath ':' getenv('PATH')]);
+% else
+%     setenv('PATH',[antspath ';' antsScriptPath ';' antsCERRScriptPath ';' getenv('PATH')]);
+% end
+
+
+%% register scan to template
+
+% set affine transform 
+inputCmdFile = fullfile(getCERRPath,'ImageRegistration','antsScripts','SyN_a.txt');
+templatePlanC = loadTemplatePlanC;
+[planC, ~, ~] = register_scans(templatePlanC, 1, planC, scanNum, 'QuickSyn ANTs', 'ANTs', tmpDirPath, ... 
+    [], [], [], inputCmdFile);
+
+%% inverse-warp the template face mask to scan space
+
+
+
+
+%% export CERR to DICOM
+disp('Exporting to DICOM format...');
+if exportDicomFlag
+    export_planC_to_DICOM(planC, outputDICOMPath, 0);
+%     exportCERRtoDICOM(origCerrPath,allLabelNamesC,outputCERRPath,...
+%         outputDicomPath,algorithm,savePlancFlag)
+end
+
+
+function templatePlanC = loadTemplatePlanC
+    templateMat = fullfile(getCERRPath,'Extras','faceOffBeta','template0.mat');
+    T = load(templateMat);
+    templatePlanC = T.planC;
