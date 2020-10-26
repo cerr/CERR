@@ -11,38 +11,48 @@ function [basePlanC, movPlanC, bspFileName] = register_scans(basePlanC, baseScan
 %         algorithm - string, identifies type of registration to run (5)
 %         registration_tool - string, identifies registration software to use ('PLASTIMATCH','ELASTIX','ANTS'); (6)
 %    optional varargin:
-%         tmpDirPath - string to working directory location
-%         baseMask3M - 3D or 4D binary mask(s) in target space (7)
-%         movMask3M - 3D or 4D binary mask(s) in moving space (8)
-%         threshold_bone - scalar value for CT HU thresholding (9)
-%         inputCmdFile - string or cell array of strings to parameter files  (10)
-%         inBspFile - paramter file for plastimatch (11)
-%         outBspFile - output filename for plastimatch (12)
+%         tmpDirPath - string to working directory location (7)
+%         baseMask3M - 3D or 4D binary mask(s) in target space (8)
+%         movMask3M - 3D or 4D binary mask(s) in moving space (9)
+%         threshold_bone - scalar value for CT HU thresholding (10)
+%         inputCmdFile - string or cell array of strings to parameter files  (11)
+%         inBspFile - paramter file for plastimatch (12)
+%         outBspFile - output filename for plastimatch (13)
 %
 % APA, 07/12/2012
-if nargin < 13
+% EML 10/2020
+
+disp(nargin);
+
+if ~exist('outBspFile','var')
     outBspFile = '';
-    if nargin < 12
-        inBspFile = '';
-        if nargin < 11
-            inputCmdFile = '';
-            if nargin < 10
-                threshold_bone = [];
-                if nargin < 9 
-                    movMask3M = [];
-                    if nargin < 8
-                        baseMask3M = [];
-                        if nargin < 7
-                            tmpDirPath = fullfile(getCERRPath, 'ImageRegistration', 'tmpFiles'); % Write temp files under CERR distribution if tempDirPath is not specified
-                        end
-                    end
-                end
-            end
-        end
-    end
 end
 
-%% Determine registration program from supplied algorithm
+if ~exist('inBspFile', 'var')
+    inBspFile = '';
+end
+
+if ~exist('inputCmdFile', 'var')
+    inputCmdFile = '';
+end
+
+if ~exist('threshold_bone', 'var')
+    threshold_bone = [];
+end
+
+if ~exist('movMask3M', 'var')
+    movMask3M = [];
+end
+
+if ~exist('baseMask3M', 'var')
+    baseMask3M = [];
+end
+
+if ~exist('tmpDirPath', 'var') || isempty(tmpDirPath)
+    tmpDirPath = fullfile(getCERRPath, 'ImageRegistration', 'tmpFiles'); % Write temp files under CERR distribution if tempDirPath is not specified
+end
+
+%% Set flag for registration program 
 plmFlag = 0; elastixFlag = 0; antsFlag = 0;
 switch upper(registration_tool)
     case 'PLASTIMATCH'
@@ -54,7 +64,7 @@ switch upper(registration_tool)
 end
 
 %% Parse input masks ("deform" masks are additional structure masks for LDDMM registration; if LDDMM is invoking "register_scan", the deform mask is passed as second volume, bounding mask is first volume)
-if numel(size(baseMask3M)) > 3
+if numel(size(baseMask3M)) > 3 && numel(size(movMask3M)) > 3
     deformBaseMask3M = baseMask3M(:,:,:,2);
     baseMask3M = baseMask3M(:,:,:,1);
     
@@ -479,14 +489,14 @@ if antsFlag
             antsCommand = buildAntsCommand(algorithm,inputCmdFile,baseScanFileName,movScanFileName, ...
                 outPrefix,baseMaskFileName,movMaskFileName, ...
                 deformBaseMaskFileName,deformMovMaskFileName);
-
-        system(antsCommand);
-        
-        deformS.algorithmParamsS.antsCommand = antsCommand;
-        deformS.algorithmParamsS.antsWarpProducts = getAntsWarpProducts(outPrefix);
-
-        basePlanC = insertDeformS(basePlanC,deformS);
-        movPlanC = insertDeformS(movPlanC,deformS);    
+            
+            system(antsCommand);
+            
+            deformS.algorithmParamsS.antsCommand = antsCommand;
+            deformS.algorithmParamsS.antsWarpProducts = getAntsWarpProducts(outPrefix);
+            
+            basePlanC = insertDeformS(basePlanC,deformS);
+            movPlanC = insertDeformS(movPlanC,deformS);
     end
 end
     
