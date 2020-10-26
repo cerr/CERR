@@ -4,7 +4,7 @@ function [basePlanC, movPlanC, bspFileName] = register_scans(basePlanC, baseScan
 %     baseMask3M, movMask3M, threshold_bone, inputCmdFile, inBspFile, outBspFile)
 %
 %  Arguments: 
-%         basePlanC - CERR planC struct, contains fixed target scan (1)
+%         basePlanC - CERR planC struct (cell) or 3D image filename, contains fixed target scan (1)
 %         baseScanNum - integer, identifies target scan in basePlanC (2)
 %         movPlanc - CERR planC struct, contains moving scan (3) 
 %         movScanNum - integer, identifies moving scan in movPlanC (4)
@@ -22,7 +22,42 @@ function [basePlanC, movPlanC, bspFileName] = register_scans(basePlanC, baseScan
 % APA, 07/12/2012
 % EML 10/2020
 
-disp(nargin);
+%check whether planC is a scan or filename
+basegz = '';
+if ~ischar(basePlanC) && ~iscell(basePlanC)
+    error('Input should be filename string or planC cell array');
+elseif ischar(basePlanC)
+    xsplit = strsplit(basePlanC,'.');
+    if any(strcmp(xsplit{end},{'bz2','gz'}))
+        basegz = ['.' xsplit{end}];
+        baseext = xsplit{end - 1};
+    else
+        baseext = xsplit{end};
+    end
+    if ~any(strcmp(baseext,{'mat','nii','mha','img','hdr'}))
+        error('Base image filename should be planC (.mat) or 3D image volume (mha, nii, img/hdr');
+    elseif strcmp(baseext,'mat')
+        basePlanC = loadPlanC(basePlanC);
+    end
+end
+
+movegz = '';
+if ~ischar(movPlanC) && ~iscell(movPlanC)
+    error('Input should be filename string or planC cell array');
+elseif ischar(movPlanC)
+    xsplit = strsplit(movPlanC,'.');
+    if any(strcmp(xsplit{end},{'bz2','gz'}))
+        movegz = ['.' xsplit{end}];
+        moveext = xsplit{end - 1};
+    else
+        moveext = xsplit{end};
+    end
+    if ~any(strcmp(moveext,{'mat','nii','mha','img','hdr'}))
+        error('Moving image filename should be for planC (.mat) or 3D image volume (mha, nii, img/hdr');
+    elseif strcmp(moveext, 'mat')
+        movPlanC = loadPlanC(movPlanC);
+    end
+end
 
 if ~exist('outBspFile','var')
     outBspFile = '';
@@ -49,7 +84,7 @@ if ~exist('baseMask3M', 'var')
 end
 
 if ~exist('tmpDirPath', 'var') || isempty(tmpDirPath)
-    tmpDirPath = fullfile(getCERRPath, 'ImageRegistration', 'tmpFiles'); % Write temp files under CERR distribution if tempDirPath is not specified
+    tmpDirPath = fullfile(getCERRPath, 'ImageRegistration', 'tmpFiles'); % Write temp files under CERR distribution if tmpDirPath is not specified
 end
 
 %% Set flag for registration program 
@@ -57,10 +92,13 @@ plmFlag = 0; elastixFlag = 0; antsFlag = 0;
 switch upper(registration_tool)
     case 'PLASTIMATCH'
         plmFlag = 1;
+        disp('Plastimatch selected');
     case 'ELASTIX'
         elastixFlag = 1;
+        disp('Elastix selected');
     case 'ANTS'
         antsFlag = 1;
+        disp('ANTs selected');
 end
 
 %% Parse input masks ("deform" masks are additional structure masks for LDDMM registration; if LDDMM is invoking "register_scan", the deform mask is passed as second volume, bounding mask is first volume)
@@ -78,8 +116,13 @@ end
 %% Convert basePlanC scan & mask(s) to .mha file
 
 [baseScanUniqName, baseScanUID] = genScanUniqName(basePlanC,baseScanNum);
-baseScanFileName = fullfile(tmpDirPath,['baseScan_',baseScanUniqName,'.mha']);
-success = createMhaScansFromCERR(baseScanNum, baseScanFileName, basePlanC);
+if ischar(basePlanC)
+    baseScanFileName = fullfile(tmpDirPath, ['baseScan_' baseScanUniqName '.' baseext basegz]);
+    copyfile(basePlanC, baseScanFileName);
+else
+    baseScanFileName = fullfile(tmpDirPath,['baseScan_',baseScanUniqName,'.mha']);
+    success = createMhaScansFromCERR(baseScanNum, baseScanFileName, basePlanC);
+end
 
 if ~isempty(baseMask3M)
     baseMaskFileName = fullfile(tmpDirPath,['baseMask_',baseScanUniqName,'.mha']);
@@ -97,8 +140,13 @@ end
 
 %% Convert movPlanC scan & mask(s) to .mha file
 [movScanUniqName, movScanUID] = genScanUniqName(movPlanC,movScanNum);
-movScanFileName = fullfile(tmpDirPath,['movScan_',movScanUniqName,'.mha']);
-success = createMhaScansFromCERR(movScanNum, movScanFileName, movPlanC);
+if ischar(movPlanC)
+    movScanFileName = fullfile(tmpDirPath, ['movScan_' movScanUniqName '.' moveext movegz]);
+    copyfile(movPlanC, movScanFileName);
+else
+    movScanFileName = fullfile(tmpDirPath,['movScan_',movScanUniqName,'.mha']);
+    success = createMhaScansFromCERR(movScanNum, movScanFileName, movPlanC);
+end
 
 if ~isempty(movMask3M)
     movMaskFileName = fullfile(tmpDirPath,['movMask_',movScanUniqName,'.mha']);
@@ -495,9 +543,32 @@ if antsFlag
             deformS.algorithmParamsS.antsCommand = antsCommand;
             deformS.algorithmParamsS.antsWarpProducts = getAntsWarpProducts(outPrefix);
             
-            basePlanC = insertDeformS(basePlanC,deformS);
-            movPlanC = insertDeformS(movPlanC,deformS);
+            if iscell(basePlanC)
+                basePlanC = insertDeformS(basePlanC,deformS);
+            end
+            if iscell(movPlanC)
+                movPlanC = insertDeformS(movPlanC,deformS);
+            end
     end
 end
     
 end
+% 
+% function TF = checkPlanCInput(x)
+%    TF = false;
+%    if ~ischar(x) || ~iscell(x)
+%        error('Input should be filename string or planC cell array');
+%    elseif ischar(x)
+%        xsplit = strsplit(x,'.');
+%        if any(strcmp(xsplit{end},{'bz2','gz'}))
+%            ext = xsplit{end - 1};
+%        else
+%            ext = xsplit{end};
+%        end
+%        if ~any(strcmp(ext,{'mat','nii','mha','img','hdr'}))
+%            error('Filename should be for planC (.mat) or 3D image volume (mha, nii, img/hdr');
+%        else
+%            TF = true;
+%        end
+%    end
+% end
