@@ -92,7 +92,8 @@ end
 
 close(hWaitbar);
 
-selected = showDCMInfo(dcmdirS);
+%selected = showDCMInfo(dcmdirS); % commented out for Octave
+selected = 'all';
 patNameC = fieldnames(dcmdirS);
 if isempty(selected)
     return
