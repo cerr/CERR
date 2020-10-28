@@ -77,8 +77,10 @@ dcmdirS = [];
 %patienttemplate = build_module_template('patient');
 
 if ishandle(hWaitbar)
-    set(hWaitbar, ...
-    'String',['Scanning Directory ' num2str(dirNum) ' Please wait...'])
+    %set(hWaitbar, ...
+    %'String',['Scanning Directory ' num2str(dirNum) ' Please wait...'])
+    msg = ['Scanning Directory ' num2str(dirNum) ' Please wait...'];
+    waitbar(0,hWaitbar,msg)
 end
 
 numFiles = length(filesV);
@@ -98,7 +100,7 @@ for i=1:numFiles
     end
     %[pathstr, name, ext] = fileparts(filename);
     if ishandle(hWaitbar)
-        waitbar(hWaitbar,i/numFiles);
+        waitbar(i/numFiles,hWaitbar);
       else
         disp(i/numFiles)
     end
