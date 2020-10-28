@@ -41,7 +41,7 @@ end
 pos = 3;  %position of menu
 
 %Create new menu if necessary.
-if isfield(stateS, 'handle') & isfield(stateS.handle, 'CERRDoseMenu') & ishandle(stateS.handle.CERRDoseMenu);
+if isfield(stateS, 'handle') && isfield(stateS.handle, 'CERRDoseMenu') && ishandle(stateS.handle.CERRDoseMenu);
     hDoseMenu = stateS.handle.CERRDoseMenu;
 else
     hDoseMenu = uimenu(stateS.handle.CERRSliceViewer, 'label', '&Dose', 'callback', 'putDoseMenu;', 'Interruptible', 'off');

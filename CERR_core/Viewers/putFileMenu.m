@@ -31,7 +31,7 @@ global stateS
 pos = 1;  %position of menu
 
 %Create new menu if necessary.
-if isfield(stateS, 'handle') & isfield(stateS.handle, 'CERRFileMenu') & ishandle(stateS.handle.CERRFileMenu);
+if isfield(stateS, 'handle') && isfield(stateS.handle, 'CERRFileMenu') && ishandle(stateS.handle.CERRFileMenu);
     hMenu = stateS.handle.CERRFileMenu;
 else    
     hMenu = uimenu(stateS.handle.CERRSliceViewer, 'label', '&File', 'callback', 'putFileMenu;', 'Interruptible', 'off');
