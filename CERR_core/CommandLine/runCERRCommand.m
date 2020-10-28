@@ -642,7 +642,10 @@ if ~isempty(in_str)
                             
                             zValue = getAxisInfo(hAxis,'coord');                            
                             
-                            if isfield(planC{indexS.scan}(scanNum),'transM') && isempty(planC{indexS.scan}(scanNum).transM)
+                            if isfield(planC{indexS.scan}(scanNum),'transM') && ...
+                                    (isempty(planC{indexS.scan}(scanNum).transM) || ...
+                                    (~isempty(planC{indexS.scan}(scanNum).transM) && ...
+                                    isequal(planC{indexS.scan}(scanNum).transM,eye(4))))
                                 
                                 sliceT=findnearest(zCTV,zValue);
                                 zslice = zCTV(sliceT);

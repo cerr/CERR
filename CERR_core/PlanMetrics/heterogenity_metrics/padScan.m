@@ -6,14 +6,18 @@ function [outScan3M,outMask3M, outLimitsV] = padScan(scan3M,mask3M,method,margin
 % scan3M  : Scan array
 % mask3M  : ROI mask
 % method  : Supported options include 'expand','padzeros',
-%           'circular','replicate','symmetric', and 'none'.
+%           'periodic','nearest','mirror', and 'none'.
 % margin  : 3-element vector specifying amount of padding (in voxels) along
-%           each dimension. 
+%           each dimension.
 % AI 06/05/20
 % ----------------------------------------------------------------------
 
 %% Compute ROI bounding box extents
 [minr, maxr, minc, maxc, mins, maxs] = compute_boundingbox(mask3M);
+
+%% Crop scan
+croppedScan3M = scan3M(minr:maxr,minc:maxc,mins:maxs);
+croppedMask3M = mask3M(minr:maxr,minc:maxc,mins:maxs);
 
 %% Compute padded image size
 if strcmpi(method,'none')
@@ -30,30 +34,33 @@ outLimitsV = [minr,maxr,minc,maxc,mins,maxs];
 %% Apply padding
 switch lower(method)
     
-     case 'expand'
-        
+    case 'expand'
+       
         outScan3M = scan3M(minr:maxr,minc:maxc,mins:maxs);
         outMask3M = mask3M(minr:maxr,minc:maxc,mins:maxs);
-    
+        
     case 'padzeros'
         
-        outScan3M = padarray(scan3M,marginV,0,'both');
-        outMask3M = padarray(mask3M,marginV,0,'both');
+        outScan3M = padarray(croppedScan3M,marginV,0,'both');
+        outMask3M = padarray(croppedMask3M,marginV,0,'both');
         
-    case {'circular','replicate','symmetric'}
+    case {'periodic','nearest','mirror'}
         
-        outScan3M = padarray(scan3M,marginV,method,'both');
-        outMask3M = padarray(mask3M,marginV,0,'both');
+        supportedMethodsC = {'circular','replicate','symmetric'};
+        matchIdx = strcmpi(method,{'periodic','nearest','mirror'});
+        matchingMethod = supportedMethodsC{matchIdx};
+        
+        outScan3M = padarray(croppedScan3M,marginV,matchingMethod,'both');
+        outMask3M = padarray(croppedMask3M,marginV,0,'both');
         
     case 'none'
-        outScan3M = scan3M(minr:maxr,minc:maxc,mins:maxs);
-        outMask3M = mask3M(minr:maxr,minc:maxc,mins:maxs);
+        outScan3M = croppedScan3M;
+        outMask3M = croppedMask3M;
         
     otherwise
         error(['Invalid method ''%s''. Supported methods include ',...
-           '''expand'',''padzeros'',''circular'',''replicate'', '...
-           '''symmetric'' and ''none''.'],method);
-         
+            '''expand'',''padzeros'',''periodic'',''nearest'', '...
+            '''mirror'' and ''none''.'],method);
         
 end
 

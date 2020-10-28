@@ -12,7 +12,7 @@ calcGlobalRadiomicsFeatures(scanNum, structNum, paramS, planC)
 % paramS = getRadiomicsParamTemplate(paramFilename);
 
 %% Pre-processing 
-[volToEval,maskBoundingBox3M,gridS] =  preProcessForRadiomics(scanNum,...
+[volToEval,maskBoundingBox3M,gridS,paramS] =  preProcessForRadiomics(scanNum,...
                                        structNum, paramS, planC);
 
 if ~any(maskBoundingBox3M(:))

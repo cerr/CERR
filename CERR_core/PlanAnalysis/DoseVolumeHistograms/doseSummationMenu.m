@@ -41,13 +41,20 @@ switch upper(command)
         
         ud.handles.instruction = uicontrol('units',units,'HorizontalAlignment','left','Position',[dx y-dy-60 x-2*dx 20],'String', 'Select the doses to be included in the sum dose.', 'Style','text','Tag','text1');
         ud.handles.labelname = uicontrol('units',units,'HorizontalAlignment','left','Position',[dx y-dy-10 100 15],'String', 'New Dose Name:', 'Style','text','Tag','text2'); 
-        ud.handles.newDoseName = uicontrol('units',units,'Position',[dx y-dy-35 120 20],'BackgroundColor',[1 1 1],'HorizontalAlignment','left','String', '', 'Style','edit','Tag','doseName');          
-        ud.handles.assocname = uicontrol('units',units,'HorizontalAlignment','left','Position',[x-dx-250 y-dy-10 140 15],'String', 'Associate with scan:', 'Style','text','Tag','scanAssoc');
+        ud.handles.newDoseName = uicontrol('units',units,'Position',[dx y-dy-35 80 20],'BackgroundColor',[1 1 1],'HorizontalAlignment','left','String', '', 'Style','edit','Tag','doseName');          
+        ud.handles.lqCheck = uicontrol('units',units,'Position',[dx+95 y-dy-35 50 40],...
+            'BackgroundColor',[1 1 1],'HorizontalAlignment','center','String', 'LQ?',...
+            'value',1, 'Style','check','Tag','lqCheck','callback', 'doseSummationMenu(''LQCHECK'');');          
+        ud.handles.abLabel = uicontrol('units',units,'HorizontalAlignment','center','Position',[dx+150 y-dy-10 50 15],'String', 'a/b:', 'Style','text','Tag','a/b'); 
+        ud.handles.abRatio = uicontrol('units',units,'Position',[dx+150 y-dy-35 50 20],'BackgroundColor',[1 1 1],'HorizontalAlignment','left','String', '10', 'Style','edit','Tag','doseName');          
+        ud.handles.stdFxLabel = uicontrol('units',units,'HorizontalAlignment','center','Position',[dx+205 y-dy-10 50 15],'String', 'Std Fx:', 'Style','text','Tag','stdFx'); 
+        ud.handles.stdFx = uicontrol('units',units,'Position',[dx+205 y-dy-35 50 20],'BackgroundColor',[1 1 1],'HorizontalAlignment','left','String', '2', 'Style','edit','Tag','doseName');          
+        ud.handles.assocname = uicontrol('units',units,'HorizontalAlignment','left','Position',[x-dx-170 y-dy-10 80 15],'String', 'Associate with scan:', 'Style','text','Tag','scanAssoc');
         scanStr{1} = 'None';
         for i=1:length(planC{indexS.scan})
             scanStr{i+1} = [num2str(i), '. ', planC{indexS.scan}(i).scanType];
         end        
-        ud.handles.scanSelect = uicontrol('units',units,'Position',[x-dx-250 y-dy-35 120 20],'BackgroundColor',[1 1 1],'HorizontalAlignment','left','String', scanStr, 'Style','popup','value',1,'Tag','scanSelect');
+        ud.handles.scanSelect = uicontrol('units',units,'Position',[x-dx-170 y-dy-35 80 20],'BackgroundColor',[1 1 1],'HorizontalAlignment','left','String', scanStr, 'Style','popup','value',1,'Tag','scanSelect');
 
         %Make CANCEL and SUM buttons
         ud.handles.cancelButton = uicontrol(hFig, 'callback', 'doseSummationMenu(''CANCEL'');', 'units',units,'Position',[x-dx-70 y-dy-35 70 20],'String','Cancel', 'Style','pushbutton','Tag','cancelButton');
@@ -93,6 +100,18 @@ switch upper(command)
         set(hFig, 'userdata', ud);
         doseSummationMenu('refresh');        
 
+    case 'LQCHECK'
+        ud = get(hFig, 'userdata'); 
+        lqVal = get(ud.handles.lqCheck,'value');
+        onOffStr = 'off';
+        if lqVal
+            onOffStr = 'on';
+        end
+        set(ud.handles.abLabel,'enable',onOffStr)
+        set(ud.handles.abRatio,'enable',onOffStr)
+        set(ud.handles.stdFxLabel,'enable',onOffStr)
+        set(ud.handles.stdFx,'enable',onOffStr)
+        
         
     case 'REFRESH'
         ud = get(hFig, 'userdata');     
@@ -224,6 +243,18 @@ switch upper(command)
             wtfactor(i) = factor;
         end        
         
+        % LQ or Physical summation
+        lqCheckVal = get(ud.handles.lqCheck,'value');
+        if lqCheckVal
+            abRatio = str2num(get(ud.handles.abRatio,'string'));
+            stdFractionSize = str2num(get(ud.handles.stdFx,'string'));
+            SOPInstanceUIDv = {planC{indexS.beams}.SOPInstanceUID};
+            paramS.Tk.val = inf;         %Kick-off time of repopulation (days)
+            paramS.Tp.val = NaN;        %Potential tumor doubling time (days)
+            paramS.alpha.val = NaN;
+            paramS.abRatio.val = abRatio;  %alpha/beta            
+        end
+        
         %% APA code begins
         assocScan = get(ud.handles.scanSelect,'value') - 1;
 
@@ -337,13 +368,6 @@ switch upper(command)
                     inputTM = eye(4);
                 end
             end
-
-            SOPInstanceUIDv = {planC{indexS.beams}.SOPInstanceUID};
-            paramS.Tk.val = inf;         %Kick-off time of repopulation (days)
-            paramS.Tp.val = NaN;        %Potential tumor doubling time (days)
-            paramS.alpha.val = NaN;
-            paramS.abRatio.val = 10;  %alpha/beta
-            stdFractionSize = 2;
             
             %Get the summation for this grid
             doseCombinedM = [];
@@ -363,14 +387,16 @@ switch upper(command)
                 end
                 doseArray = single(getDoseArray(planC{indexS.dose}(iDose)) - doseOffset);
                 % Apply BED/EQD2 correction
-                ReferencedSOPInstanceUID = planC{indexS.dose}(iDose)...
-                    .DICOMHeaders.ReferencedRTPlanSequence.Item_1.ReferencedSOPInstanceUID;
-                planNum = find(strcmpi(ReferencedSOPInstanceUID,SOPInstanceUIDv));
-                paramS.numFractions.val = planC{indexS.beams}(planNum).FractionGroupSequence...
-                    .Item_1.NumberofFractionsPlanned;
-                paramS.numFractions.val = double(paramS.numFractions.val);                
-                paramS.frxSize.val = doseArray / paramS.numFractions.val;
-                doseArray = calc_BED(paramS) / (1+stdFractionSize/paramS.abRatio.val);                
+                if lqCheckVal
+                    ReferencedSOPInstanceUID = planC{indexS.dose}(iDose)...
+                        .DICOMHeaders.ReferencedRTPlanSequence.Item_1.ReferencedSOPInstanceUID;
+                    planNum = find(strcmpi(ReferencedSOPInstanceUID,SOPInstanceUIDv));
+                    paramS.numFractions.val = planC{indexS.beams}(planNum).FractionGroupSequence...
+                        .Item_1.NumberOfFractionsPlanned;
+                    paramS.numFractions.val = double(paramS.numFractions.val);
+                    paramS.frxSize.val = doseArray / paramS.numFractions.val;
+                    doseArray = calc_BED(paramS) / (1+stdFractionSize/paramS.abRatio.val);
+                end
                 
                 if ~isempty(doseCombinedM)
                     doseCombinedM = doseCombinedM + multFact * wtfactor(iDose) * doseArray;

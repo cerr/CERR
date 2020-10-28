@@ -2,12 +2,13 @@ function outS = processImage(filterType,scan3M,mask3M,paramS,hWait)
 % Process scan using selected filter and parameters
 %-------------------------------------------------------------------------
 % INPUTS
-% filterType -  May be 'Haralick Cooccurance','Wavelets','Sobel',
+% filterType -  May be 'HaralickCooccurance','Wavelets','Sobel',
 %               'LoG','Gabor','Mean','First order statistics',
 %               'LawsConvolution','LawsEnergy','CoLlage' or 'SimpleITK'.
 % scan3M     - 3-D scan array, cropped around ROI and padded if specified
 % mask3M     - 3-D mask, croppped to bounding box
 % paramS     - Filter parameters
+% hWait      - Handle to progress bar (Optional)
 %-------------------------------------------------------------------------
 %
 % EXAMPLES:
@@ -207,8 +208,11 @@ switch filterType
         if ~isnumeric(kernelSize)
             kernelSize = str2double(kernelSize);
         end
-        meanFilt3M = imboxfilt(vol3M,kernelSize);
-       
+        kernelSize = reshape(kernelSize,1,[]);
+        
+        filt3M = ones(kernelSize);
+        filt3M = filt3M./sum(filt3M(:));
+        meanFilt3M = convn(vol3M,filt3M,'same');
         outS.meanFilt = meanFilt3M;
         
         if ishandle(hWait)
@@ -254,10 +258,13 @@ switch filterType
         %sizC = {'3','5','all'};
         normFlagC = {'Yes','No'};
         dir = paramS.Direction.val;
-        siz = str2double(paramS.KernelSize.val);
+        type = paramS.Type.val;
+        if isnumeric(type)
+            type = num2str(paramS.Type.val);
+        end
         selIdx = find(strcmpi(paramS.Normalize.val,normFlagC));
         normFlag = 2 - selIdx;
-        lawsMasksS = getLawsMasks(dir,siz,normFlag);
+        lawsMasksS = getLawsMasks(dir,type,normFlag);
         
         %Compute features
         fieldNamesC = fieldnames(lawsMasksS);
@@ -277,14 +284,33 @@ switch filterType
         end
         
     case 'LawsEnergy'
+        %Ref: %https://arxiv.org/pdf/2006.05470.pdf
         
+        %Filter padded image using Laws' kernel
         lawsOutS = processImage('LawsConvolution',scan3M,mask3M,paramS,[]);
+        
         fieldNameC = fieldnames(lawsOutS);
         numFeatures = length(fieldNameC);
+        padMethod = paramS.PadMethod.val;
+        padSizV = paramS.PadSize.val;
+        
+        %Loop over response maps
         for i = 1:length(fieldNameC)
+           
+            %Pad response map 
             lawsTex3M = lawsOutS.(fieldNameC{i});
+            if ~isequal(size(lawsTex3M),size(scan3M))
+                responseSizV = size(lawsTex3M);
+                lawsTex3M = lawsTex3M(padSizV(1)+1:responseSizV(1)-padSizV(1),...
+                    padSizV(2)+1:responseSizV(2)-padSizV(2),...
+                    padSizV(3)+1:responseSizV(3)-padSizV(3));
+                lawsTex3M = padScan(lawsTex3M,mask3M,padMethod,padSizV);
+            end
+            
+            %Apply mean filter
             meanOutS = processImage('Mean',lawsTex3M,mask3M,paramS,[]);
             lawsEnergy3M = meanOutS.meanFilt;
+            
             outField = [fieldNameC{i},'_Energy'];
             outS.(outField) = lawsEnergy3M;
             if ishandle(hWait)
@@ -306,6 +332,11 @@ switch filterType
             set(hWait, 'Vertices', [[0 0 1 1]' [0 1 1 0]']);
             drawnow;
         end
+        
+    case 'suv'
+        scanName = ['suv3M_',paramS.suvType.val];
+        headerS = paramS.scanInfoS;
+        outS.(scanName) = getSUV(scan3M, headerS, paramS.suvType.val);
         
     case 'SimpleITK'
         

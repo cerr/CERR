@@ -69,6 +69,9 @@ switch(lower(imageType))
         end        
         fieldName = [imageType,'_',sitkFilter,'_',settingsStr];
         
+    case 'suv'
+        suvType = settingS.suvType.val;
+        fieldName = [imageType,'_',suvType];
         
 end
 

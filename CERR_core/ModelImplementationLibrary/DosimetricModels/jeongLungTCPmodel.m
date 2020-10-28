@@ -20,6 +20,11 @@ function TCP = jeongLungTCPmodel(paramS,doseBinsV,volHistV)
 %% Get frx size and treatment days
 fx_in = paramS.frxSize.val;
 schedule_in = paramS.treatmentSchedule.val; 
+if ~isnumeric(schedule_in)
+    schedule_in = str2num(schedule_in);
+end
+
+%TBD: Extending schedule ased on no. fractions
 
 %% Input variables for the analysis
 alpha_p_ori=0.305; 

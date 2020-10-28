@@ -131,10 +131,9 @@ switch upper(command)
         featureNum = 1;
                 
         texturesC = {planC{indexS.texture}(:).description};        
-        
         % Populate values from an existing texture
         if textureNum > 0
-            set(ud.handles.texture, 'Value',textureNum);
+            set(ud.handles.texture, 'Value', textureNum);
             %set(ud.handles.texture, 'String', texturesC{textureNum});
             scanUID       = planC{indexS.texture}(textureNum).assocScanUID;
             scanNum       = getAssociatedScan(scanUID);
@@ -468,7 +467,7 @@ switch upper(command)
         else
             featListC = get(featH,'string');
             featureType = featListC{featureIdx};
-            featureType = strrep(featureType,' ','');
+            %featureType = strrep(featureType,' ','');
             paramS = [];
         end
         startPosV = get(featH,'position');
@@ -477,7 +476,7 @@ switch upper(command)
         
         if nargin== 1 %List parameters for new texture map
         switch featureType
-            case 'HaralickCooccurance' 
+            case 'Haralick Cooccurance' 
                 
                 paramC = {'Type','PatchSize','PatchType','Directionality','NumLevels'};
                 typeC = {'popup','edit' ,'popup','popup','edit'};
@@ -494,30 +493,31 @@ switch upper(command)
                     {'16'}};
                 dispC = {'On','On','On','On','On'};
                 
-            case 'LawsConvolution' % Laws 
-                paramC = {'PadMethod', 'PadSize','Direction','KernelSize','Normalize'};
-                typeC = {'popup','edit','popup','popup','popup'};
-                valC = {{'expand','padzeros','circular','replicate',...
-                    'symmetric','none'},{'5,5,5'},{'2D','3D', 'All'},...
-                    {'3','5','All'},{'Yes','No'}};
+            case 'Laws Convolution' % Laws 
+                paramC = {'PadMethod','PadSize','Direction','Type','Normalize'};
+                typeC = {'popup','edit','popup','edit','popup'};
+                valC = {{'expand','padzeros','periodic','nearest',...
+                    'mirror','none'},{'2,2,2'},{'2D','3D', 'All'},...
+                    {'E5L5S5'},{'Yes','No'}};
                 dispC = {'On','On','On','On','On'};
                 
-            case 'LawsEnergy' %Laws energy
-                paramC = {'PadMethod', 'PadSize','Direction','KernelSize','Normalize'};
-                typeC = {'popup','edit','popup','popup','popup'};
-                valC = {{'expand','padzeros','circular','replicate',...
-                    'symmetric','none'},{'5,5,5'},{'2D','3D', 'All'},...
-                    {'3','5','All'},{'Yes','No'}};
-                dispC = {'On','On','On','On','On'};
+            case 'Laws Energy' %Laws energy
+                paramC = {'PadMethod','PadSize','Direction','Type',...
+                          'KernelSize','Normalize'};
+                typeC = {'popup','edit','popup','edit','edit','popup'};
+                valC = {{'expand','padzeros','periodic','nearest',...
+                    'mirror','none'},{'2,2,2'},{'2D','3D', 'All'},...
+                    {'E5L5S5'},'5,5,5',{'Yes','No'}};
+                dispC = {'On','On','On','On','On', 'On'};
                 
             case 'Mean' % Local mean filter
                 paramC = {'PadMethod', 'PadSize','KernelSize'};
                 typeC = {'popup','edit','edit'};
-                valC = {{'expand','padzeros','circular','replicate',...
-                    'symmetric','none'},{'5,5,5'},{'3'}};
+                valC = {{'expand','padzeros','periodic','nearest',...
+                    'mirror','none'},{'5,5,5'},{'3,3,3'}};
                 dispC = {'On','On','On'};
                 
-            case 'FirstOrderStatistics' %First-order statistics
+            case 'First Order Statistics' %First-order statistics
                 paramC = {'PatchSize','VoxelSize_mm'};
                 typeC = {'edit','edit'};
                 voxSizeV = getScanXYZSpacing(scanNum,planC);
@@ -530,8 +530,8 @@ switch upper(command)
                 paramC = {'PadMethod','PadSize','Normalize','Direction',...
                     'Wavelets','Index'};
                 typeC = {'popup','edit','popup','popup','popup','popup'};
-                valC = {{'expand','padzeros','circular','replicate',...
-                    'symmetric','none'},{'5,5,5'},{'Yes','No'},{'All','HHH',...
+                valC = {{'expand','padzeros','periodic','nearest',...
+                    'mirror','none'},{'5,5,5'},{'Yes','No'},{'All','HHH',...
                     'LHH','HLH','HHL','LLH','LHL','HLL','LLL'},...
                     {'Daubechies','Haar','Coiflets','FejerKorovkin','Symlets',...
                     'Discrete Meyer wavelet','Biorthogonal','Reverse Biorthogonal'},...
@@ -543,8 +543,8 @@ switch upper(command)
                 paramC = {'PadMethod','PadSize','Radius','Sigma',...
                     'AspectRatio','Orientation','Wavlength'};
                 typeC = {'popup','edit','edit','edit','edit','edit','edit'};
-                valC = {{'expand','padzeros','circular','replicate',...
-                    'symmetric','none'},{'5,5,5'},3,.5,1,30,1};
+                valC = {{'expand','padzeros','periodic','nearest',...
+                    'mirror','none'},{'5,5,5'},3,.5,1,30,1};
                 dispC = {'On','On','On','On','On','On','On'};
                 
                 
@@ -554,15 +554,15 @@ switch upper(command)
                 
                 voxSizeV = getScanXYZSpacing(scanNum,planC);
                 voxSizeV = voxSizeV.*10; % convert cm to mm
-                valC = {{'expand','padzeros','circular','replicate',...
-                    'symmetric','none'},{'5,5,5'},.5,voxSizeV};
+                valC = {{'expand','padzeros','periodic','nearest',...
+                    'mirror','none'},{'5,5,5'},.5,voxSizeV};
                 dispC = {'On','On','On','off'};
 
             case 'Sobel'
                 paramC = {'PadMethod', 'PadSize'};
                 typeC = {'popup','edit'};
-                valC = {{'expand','padzeros','circular','replicate',...
-                    'symmetric','none'},{'5,5,5'}};
+                valC = {{'expand','padzeros','periodic','nearest',...
+                    'mirror','none'},{'5,5,5'}};
                 dispC = {'On','On','off','On'};
 
                 
@@ -822,8 +822,8 @@ switch upper(command)
         set(ud.handles.featureType,'Value',1);
         %Clear any previous parameter controls
         if isfield(ud.handles,'paramControls')
-        hPar = ud.handles.paramControls;
-        hPar.delete;
+            hPar = ud.handles.paramControls;
+            hPar.delete;
         end
         set(h, 'userdata',ud);
         textureGui('SCAN_SELECTED');
@@ -894,7 +894,7 @@ switch upper(command)
                 paramS.Index.val = paramS.Index.val{1};
             end
             
-        elseif (strcmp(fType,'HaralickCooccurance') )
+        elseif (strcmp(fType,'Haralick Cooccurance') )
             mappedDirectionalityC = {1,2,3,4,5,6};
             directionalityC = {'Co-occurance with 13 directions in 3D',...
                 'Left-Right, Ant-Post and Diagonals in 2D', ...
@@ -921,38 +921,31 @@ switch upper(command)
                 paramS.PatchSize.val = patchSizeV;
             end
                 
-        elseif (strcmp(fType,'LawsConvolution') )
+        elseif (strcmp(fType,'Laws Convolution') )
             
             mappedDirC = {1,2,3};
-            mappedSizC = {1,2,3};
             mappedPadMethodC = {1,2,3,4,5,6};
             
             dirC = {'2D','3D', 'All'};
-            sizC = {'3','5','All'};
-            padMethodC = {'expand','padzeros','circular','replicate',...
-                    'symmetric','none'};
+            padMethodC = {'expand','padzeros','periodic','nearest',...
+                    'mirror','none'};
                 
             idx1 = paramS.Direction.val;
-            idx2 = paramS.KernelSize.val;
-            idx3 = paramS.PadMethod.val;
+            idx2 = paramS.PadMethod.val;
             isDir = cellfun(@(x)isequal(x,idx1),dirC);
-            isSiz = cellfun(@(x)isequal(x,idx2),sizC);
-            isPadMethod = cellfun(@(x)isequal(x,idx3),padMethodC);
+            isPadMethod = cellfun(@(x)isequal(x,idx2),padMethodC);
             [~,idx1] = find(isDir);
-            [~,idx2] = find(isSiz);
-            [~,idx3] = find(isPadMethod);
+            [~,idx2] = find(isPadMethod);
             out1 = mappedDirC{idx1};
-            out2 = mappedSizC{idx2};
-            out3 = mappedPadMethodC{idx3};
+            out2 = mappedPadMethodC{idx2};
             paramS.Direction.val = out1;
-            paramS.KernelSize.val = out2;
-            paramS.PadMethod.val = out3;
-            
+            paramS.PadMethod.val = out2;
+
             elseif (strcmp(fType,'LoG'))
             
             mappedPadMethodC = {1,2,3,4,5,6};
-            padMethodC = {'expand','padzeros','circular','replicate',...
-                'symmetric','none'};
+            padMethodC = {'expand','padzeros','periodic','nearest',...
+                'mirror','none'};
             idx = paramS.PadMethod.val;
             isPadMethod = cellfun(@(x)isequal(x,idx),padMethodC);
             [~,idx] = find(isPadMethod);
@@ -1577,7 +1570,10 @@ end
                 in = in{1};
             end
             if ~isnumeric(in)
-                in = str2num(in);   
+                temp = str2num(in);
+                if ~isempty(temp)
+                    in = temp;
+                end
             end
             outS.(fieldname).val = in;
         elseif strcmp(type,'popup')

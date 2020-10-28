@@ -5,28 +5,34 @@
   "value": 1} 
 ],
 
-"batchSize" : 1,
+"scan":{
 
+        "identifier" : {"imageType": "MR"},
+
+	"crop": [
+    		{
+      		  "method": "none",
+      		  "params": "",
+      		  "operator": ""
+  		} ],
+  		
+  	"channels":{ "imageType":{"SimpleITK":{
+                                 		"filterPar":{                   
+                                        			"sitkFilterName":"HistogramMatchingImageFilter",
+                                        			"numHistLevel":"1024",
+                                       			        "numMatchPts":"7",
+                                        			"ThresholdAtMeanIntensityOn":"true"
+                                                 	    }
+                                  	      }
+                                 },
+             	     "slice": "current"
+           	   }	
+  		
+       },
+    
 "passedScanDim" : "3D",
-
-"channels":{ "imageType":{"SimpleITK":{
-                                 "filterPar":{                   
-                                        "sitkFilterName":"HistogramMatchingImageFilter",
-                                        "numHistLevel":"1024",
-                                        "numMatchPts":"7",
-                                        "ThresholdAtMeanIntensityOn":"true"
-                                             }
-                                  }
-                         },
-             "slice": "current"
-            },
-"crop": [
-    {
-      "method": "none",
-      "params": "",
-      "operator": ""
-   
-    } ],
+    
+"batchSize" : 1,
 
 "reference" : "https://link.springer.com/chapter/10.1007/978-3-030-00934-2_86"
 }

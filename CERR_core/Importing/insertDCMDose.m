@@ -38,6 +38,7 @@ if ~exist('dcmFileName','var')
     dcmFileName = fullfile(dirName,fileName);
 end
 
+dcmInitFlag = init_ML_DICOM;
 [dcmObj, isDcm] = scanfile_mldcm(dcmFileName);
 dcmdirS = [];
 if isDcm

@@ -93,7 +93,8 @@ try
         isDcm = 0;
     end
 catch
-
+    isDcm = 0;
+    attrData = [];
 end
 %Close input stream.
 in.close;

@@ -1,49 +1,54 @@
 {
 "strNameToLabelMap" : [
 {
-    "structureName": "Heart",
+    "structureName": "Lung_Right",
     "value": 1
     },
 {
-      "structureName": "Lungs",
+      "structureName": "Lung_Left",
       "value": 2
     },
 {
-      "structureName": "Esophagus",
+      "structureName": "Heart",
       "value": 3
     },
 {
-      "structureName": "Cord",
+      "structureName": "Esophagus",
       "value": 4
+    },
+{
+      "structureName": "Cord",
+      "value": 5
     }
 ],
 
-"resize" : {
-    "method": "bicubic",
-    "preserveAspectRatio":"Yes",
-    "size" : [256,256]
-},
+"scan":{
 
-"crop": {
-    "method": "crop_pt_outline_2D",
-    "params": { "structureName": "generated_pt_outline", "outStrName":"generated_pt_outline", "saveStrToPlanCFlag": 1, "outlineThreshold": -400},
-    "operator": ""
-    },
+        "identifier" : {"imageType": "CT SCAN"},
+
+
+	"resize" : {
+ 	  		 "method": "bicubic",
+   	 		 "preserveAspectRatio":"Yes",
+   	 		 "size" : [256,256]
+		   },
+
+	"crop": [
+		{
+    		  "method": "crop_pt_outline_2D",
+    		  "params": { "structureName": "generated_pt_outline", "outStrName":"generated_pt_outline", "saveStrToPlanCFlag": 1, "outlineThreshold": -400},
+    		  "operator": ""
+   	        }
+		]
+      },
 
 "batchSize" : 1 ,
 
 "passedScanDim" : "3D",
 
 "reference" : "10.1109/TMI.2018.2857800",
-
-"passedScanAxisOrder" : "ZXY",
-
-"inputScanDim" : "2D+",
-
-"inputScanAxisOrder" : "ZXY",
-
-"labelProbabilityThreshold" : 0.5,
-
+	
+"notes" : {
 "preprocessing" : [
 {
     "imageOffset" : 1024,
@@ -58,5 +63,5 @@
     "version" : "2.X", 
     "releaseDate" : "2020/04/09" 
 }
-
+}
 }

@@ -26,9 +26,11 @@ switch (passedScanDim)
     
     case '3D'
         
-        mask3M = maskC{1}{1};
+%         mask3M = maskC{1}{1};
         %Write mask
-        if ~isempty(mask3M) && ~testFlag
+%         if ~isempty(mask3M) && ~testFlag
+        if ~isempty(maskC{1}) && ~testFlag
+            mask3M = maskC{1}{1};
             if ~exist(fullfile(outDirC{1},'Masks'),'dir')
                 mkdir(fullfile(outDirC{1},'Masks'))
             end
@@ -51,7 +53,7 @@ switch (passedScanDim)
             for slIdx = 1:size(scanC{i}{1},3)
              
                 %Write mask
-                if ~isempty(maskC{i}) && ~testFlag
+                if ~isempty(maskC) && ~isempty(maskC{i}) && ~testFlag
                     mask3M = maskC{i}{1};
 
                     if slIdx == 1

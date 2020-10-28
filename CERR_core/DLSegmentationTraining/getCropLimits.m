@@ -1,4 +1,5 @@
-function [minr, maxr, minc, maxc, slcV, planC] = getCropLimits(planC,mask3M,scanNum,cropS)
+function [minr, maxr, minc, maxc, slcV, modelMask3M, planC] = ...
+    getCropLimits(planC,mask3M,scanNum,cropS)
 % getCropLimits.m
 % Get limits of bounding box for various cropping options.
 %

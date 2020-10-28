@@ -52,7 +52,7 @@ function planC = mha2cerr(infoS,data3M,movScanOffset,movScanName,planC,save_flag
 
 global stateS
 
-CTOffset = movScanOffset;
+CTOffset = double(movScanOffset);
 %save_flag = 0;
 if ~exist('planC','var') || (exist('planC','var') && isempty(planC))
     planC = initializeCERR;
@@ -71,7 +71,11 @@ ind = length(planC{indexS.scan}) + 1;
 
 %Create array of all zeros, size of y,x,z vals.
 %planC{indexS.scan}(ind).scanArray = uint16(flipdim(permute(data3M,[2,1,3]),3) + CTOffset);
-planC{indexS.scan}(ind).scanArray = flipdim(permute(data3M,[2,1,3]),3) + CTOffset;
+data3M = flipdim(permute(data3M,[2,1,3]),3) + CTOffset;
+if strcmpi(class(data3M),'int16')
+    data3M = uint16(data3M);
+end
+planC{indexS.scan}(ind).scanArray = data3M;
 planC{indexS.scan}(ind).scanType = movScanName;
 planC{indexS.scan}(ind).scanUID = createUID('scan'); 
 %planC{indexS.scan}(ind).uniformScanInfo = [];

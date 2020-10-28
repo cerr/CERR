@@ -1,56 +1,61 @@
-function SUV=calc_suv(dicomhd,slice)
-% SUV=calc_suv(dicomhd,slice)
+function planC = calc_suv(scanNum,planC,suvType)
+%function suvM = calc_suv(scanNum,planC,suvType)
 %
-% Calcualtes the SUV for the passed dicomHeader (dicomhd) and PET image
-% slice(slice)
+% Calcualtes SUV for the passed scanNum and suvType.
 %
-%Written IEN
+% Input:
+% planC{indexS.scan}(scanNum).scanArray must be in Bq/ml.
+%
+% Output:
+% planC{indexS.scan}(scanNum).scanArray will be in gm/ml
+% planC{indexS.scan}(scanNum).scanInfo.imageUnits and 
+% planC{indexS.scan}(scanNum).scanInfo.suvType fields will be updated.
+%
+% Written IEN
+% APA, 9/22/2020, updated to (1) get scan time based on deay correction,
+% (2) checked imageUnits.
+%  References: http://www.turkupetcentre.net/petanalysis/model_suv.html
+%              https://documentation.clearcanvas.ca/Documentation/UsersGuide/Personal/13_1/index.html?suv.htm
+% APA, 9/29/2020, updated to handle suvType
 
-% Get Patient weight in grams
-ptweight = dicomhd.patientWeight*1000;
-% if isfield(dicomhd,'PatientWeight')
-%     ptweight = dicomhd.PatientWeight*1000;  % in grams
-% elseif isfield(dicomhd,'PatientsWeight')
-%      ptweight = dicomhd.PatientsWeight*1000;  % in grams
-% else
-%     disp('Patient Weight not found. SUV calculation ignored.')
-%     SUV=slice;
-%     return    
-% end
+indexS = planC{end};
 
+% Check required fields based on 1st slice
+headerS = planC{indexS.scan}(scanNum).scanInfo(1);
+
+% Check Patient weight
+ptweight = headerS.patientWeight; % in grams
 if isempty(ptweight) || ptweight==0
-    disp('Patient Weight is missing. SUV calculation ignored.');
-    SUV=slice;
+    disp('Patient Weight is missing. suvM calculation ignored.');
+    return
+end
+%ptweight = ptweight * 1000; % in grams
+
+% Check Decay correction
+correctedImage = headerS.correctedImage;
+if ~any(ismember('DECY',correctedImage))
+    disp('SUV calciulation is applicable only when petDecayCorrection = DECY');
     return
 end
 
-% Get Scan time
-%scantime=dcm_hhmmss(dicomhd.AcquisitionTime);
-scantime=dcm_hhmmss(dicomhd.acquisitionTime);
-% Get calibration factor which is the Rescale slope Attribute Name in DICOM
-%calibration_factor=dicomhd.RescaleSlope;
+imageUnits = headerS.imageUnits;
+if ~any(ismember(imageUnits,{'BQML','CNTS'}))
+    disp('SUV calciulation is applicable only when image units = BQML or CNTS');
+    return
+end
+% 1 Ci = 3.7 x 1010 Bq = 37 GBq
+% 1 mCi = 3.7 x 107 Bq = 37 MBq
+% 1 µCi = 3.7 x 104 Bq = 37 kBq
+% 1 nCi = 37 Bq
 
-% intercept=dicomhd.RescaleIntercept; Not Used
-
-% Start Time for the Radiopharmaceutical Injection
-% injection_time=dcm_hhmmss(dicomhd.RadiopharmaceuticalInformationSequence.Item_1.RadiopharmaceuticalStartTime);
-injection_time = dcm_hhmmss(dicomhd.injectionTime);
-% Half Life for Radionuclide
-% half_life=dicomhd.RadiopharmaceuticalInformationSequence.Item_1.RadionuclideHalfLife;
-half_life=dicomhd.halfLife;
-% Total dose injected for Radionuclide
-% injected_dose=dicomhd.RadiopharmaceuticalInformationSequence.Item_1.RadionuclideTotalDose;
-injected_dose=dicomhd.injectedDose;
-
-% Calculate the decay
-%   decayFactor = e^(t1-t2/halflife);
-decay=exp(-log(2)*(scantime-injection_time)/half_life);
-%Calculate the dose decayed during procedure
-injected_dose_decay=injected_dose*decay; % in Bq
-
-% Calculate SUV.
-% SUV  = (2DSlice x Calibration factor x Patient Weight) / Dose after decay
-% SUV=slice*calibration_factor*ptweight/injected_dose_decay;
-SUV=slice*ptweight/injected_dose_decay; % NOTE that the "slice" coming in already has the calibration factor.
+scan3M = planC{indexS.scan}(scanNum).scanArray;
+headerS = planC{indexS.scan}(scanNum).scanInfo;
+[suv3M,imageUnits] = getSUV(scan3M, headerS, suvType);
+for slcNum = 1:size(planC{indexS.scan}(scanNum).scanArray,3)
+    planC{indexS.scan}(scanNum).scanInfo(slcNum).imageUnits = imageUnits;
+    planC{indexS.scan}(scanNum).scanInfo(slcNum).suvType = upper(suvType);
+    planC{indexS.scan}(scanNum).scanArray(:,:,slcNum) = suv3M(:,:,slcNum);    
+end
+planC = setUniformizedData(planC,[],scanNum);
 
 return

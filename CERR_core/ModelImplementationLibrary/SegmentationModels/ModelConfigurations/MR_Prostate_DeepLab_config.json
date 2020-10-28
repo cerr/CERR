@@ -16,17 +16,22 @@
 {"structureName": "Bowel_Lg_DLV3",
   "value": 7}
 ],
-"batchSize" : 1,
 
-"crop": [
-    {
-      "method": "none",
-      "params": "",
-      "operator": ""
-   
-    } ],
- 
+"scan":{
+
+        "identifier" : {"imageType": "MR"},
+
+	"crop": [
+   	        {
+    		  "method": "none",
+     		  "params": "",
+     		  "operator": ""
+   		 } ]
+       },
+   		 
 "passedScanDim" : "3D",
+
+"batchSize" : 1,
 
 "reference" : ""
 }

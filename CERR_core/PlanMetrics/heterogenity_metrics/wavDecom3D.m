@@ -1,48 +1,113 @@
-function scan3M = wavDecom3D(scan3M,dirString,wavType)
-% function scan3M = wavDecom3D(scan3M,dirString,wavType)
-% 
-% Wavelet filtering as defined in:
-% Aerts HJWL, Velazquez ER, Leijenaar RTH, et al. Decoding tumour phenotype
-% by noninvasive imaging using a quantitative radiomics approach. Nature 
-% Communications. 2014;5:4006. doi:10.1038/ncomms5006.
+function slcWavScanM = wavDecom3D(scan3M,dirString,wavType,normFlag)
+% function scan3M = wavDecomNew3D(scan3M,dirString,wavType)
 %
 % Example Usage:
 % waveletDirString = 'HLH';
 % waveletType = 'coif1';
-% wavFilteredScan3M = wavDecom3D(scan3M,waveletDirString,waveletType);
+% normFlag = 0;
+% wavFilteredScan3M = wavDecom3D(scan3M,waveletDirString,waveletType,normFlag);
 %
-% APA, 5/24/2017
+% AI, 7/6/2020
+%------------------------------------------------------------------------
 
+%% Get wavelet type and decomposition filters
 if ~exist('wavType','var')
     wavType = 'coif1';
 end
-[loD,hiD] = wfilters(wavType,'d');
-numPad = length(loD);
 siz = size(scan3M);
-% scan3M = padarray(scan3M,[numPad, numPad, numPad],'circular','both');
-
 dirString = upper(dirString);
-
-if dirString(1) == 'L'
-    scan3M = convn(scan3M,(loD'),'same');
-else
-    scan3M = convn(scan3M,(hiD'),'same');
+level = 1;
+if ~normFlag
+    scan3M = scan3M .* sqrt(2);
 end
 
-if dirString(2) == 'L'
-    scan3M = convn(scan3M,(loD),'same');
-else
-    scan3M = convn(scan3M,(hiD),'same');
+%% Filter along rows
+scanRowM = reshape(scan3M,[siz(1),siz(2)*siz(3)]);
+padFlag = 0;
+if mod(size(scanRowM,1),2)==1
+    scanRowM = padarray(scanRowM,[1,0],'replicate','post');
+    padFlag=1;
 end
 
-% If dirString is of length 2, then filter only in x,y.
-if length(dirString) > 2
-    if dirString(3) == 'L'
-        scan3M = convn(scan3M,flip(reshape(loD,1,1,length(loD))),'same');
+rowWavScanM = zeros(size(scanRowM,1),size(scanRowM,2));
+for n = 1:size(scanRowM,2)
+    %wavImgM = swt(scanRowM(:,n),1,wavType);
+    wavImgM = modwt(scanRowM(:,n),wavType,level);
+    if dirString(1) == 'L'
+        rowWavScanM(:,n) = wavImgM(2,:);
     else
-        scan3M = convn(scan3M,flip(reshape(hiD,1,1,length(hiD))),'same');
+        rowWavScanM(:,n) = wavImgM(1,:);
     end
 end
+if padFlag
+    rowWavScanM(end,:) = [];
+end
+if ~normFlag
+    rowWavScanM = rowWavScanM .* sqrt(2);
+end
 
-% scan3M = scan3M(numPad+1:numPad+siz(1),numPad+1:numPad+siz(2),numPad+1:numPad+siz(3));
+%% Filter along cols
+scanColM = reshape(rowWavScanM,siz);
+scanColM = permute(scanColM,[2 1 3]);
+scanColM = reshape(scanColM,[siz(2),siz(1)*siz(3)]);
+padFlag = 0;
+if mod(size(scanColM,1),2)==1
+    scanColM = padarray(scanColM,[1,0],'replicate','post');
+    padFlag=1;
+end
 
+colWavScanM = zeros(size(scanColM,1),size(scanColM,2));
+for n = 1:size(scanColM,2)
+    %wavImgM = swt(scanColM(:,n),1,wavType);
+    wavImgM = modwt(scanColM(:,n),wavType,level);
+    if dirString(1) == 'L'
+        colWavScanM(:,n) = wavImgM(2,:);
+    else
+        colWavScanM(:,n) = wavImgM(1,:);
+    end
+end
+if padFlag
+    colWavScanM(end,:) = [];
+end
+colWavScanM = reshape(colWavScanM,[siz(2),siz(1),siz(3)]);
+colWavScanM = permute(colWavScanM,[2 1 3]);
+
+%% Filter along slices
+%If dirString is of length 2, then filter only in x,y.
+if length(dirString) > 2
+    if ~normFlag
+        colWavScanM = colWavScanM .* sqrt(2);
+    end
+    
+    scanSlcM = permute(colWavScanM,[3 2 1]);
+    scanSlcM = reshape(scanSlcM,[siz(3),siz(1)*siz(2)]);
+    padFlag = 0;
+    if mod(size(scanSlcM,1),2)==1
+        scanSlcM = padarray(scanSlcM,[1,0],'replicate','post');
+        padFlag=1;
+    end
+    
+    slcWavScanM = zeros(size(scanSlcM,1),size(scanSlcM,2));
+    for n = 1:size(scanSlcM,2)
+        %wavImgM = swt(scanSlcM(:,n),1,wavType);
+        wavImgM = modwt(scanSlcM(:,n),wavType,level);
+        if dirString(1) == 'L'
+            slcWavScanM(:,n) = wavImgM(2,:);
+        else
+            slcWavScanM(:,n) = wavImgM(1,:);
+        end
+    end
+    if padFlag
+        slcWavScanM(end,:) = [];
+    end
+    slcWavScanM = reshape(slcWavScanM,[siz(3) siz(2) siz(1)]);
+    slcWavScanM = permute(slcWavScanM,[3 2 1]);
+else
+    slcWavScanM = colWavScanM;
+end
+
+%% Circ. shift
+% Note: Offset to be investigated
+[lo] = wfilters(wavType);
+shift = ceil(length(lo))/2-1;
+slcWavScanM = circshift(slcWavScanM,[-shift,-shift,-shift]);

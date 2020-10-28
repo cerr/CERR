@@ -19,6 +19,8 @@ planC{indexS.structures}(structToDelete) = [];
 %Delete structureArray
 if length(planC{indexS.structureArray}) >= scanNum
     planC{indexS.structureArray}(scanNum) = [];
+end
+if length(planC{indexS.structureArrayMore}) >= scanNum
     planC{indexS.structureArrayMore}(scanNum) = [];
 end
 

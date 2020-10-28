@@ -33,9 +33,10 @@ global stateS
 indexS = planC{end};
 
 % Use series uid in temporary folder name
-if isfield(planC{indexS.scan}.scanInfo(1),'seriesInstanceUID') && ...
-        ~isempty(planC{indexS.scan}.scanInfo(1).seriesInstanceUID)
-    folderNam = planC{indexS.scan}.scanInfo(1).seriesInstanceUID;
+scanNum = stateS.scanSet;
+if isfield(planC{indexS.scan}(scanNum).scanInfo(1),'seriesInstanceUID') && ...
+        ~isempty(planC{indexS.scan}(scanNum).scanInfo(1).seriesInstanceUID)
+    folderNam = planC{indexS.scan}(scanNum).scanInfo(1).seriesInstanceUID;
 else
     folderNam = dicomuid;
 end
@@ -74,9 +75,10 @@ testFlag = true;
 %save_planC(planC,[],'passed',cerrFileName);
 
 % Parse algorithm and convert to cell arrray
-algorithmC = strsplit(algorithm,'^');
 confirm_recursive_rmdir(0)
-if ~any(strcmpi(algorithmC,'BABS'))
+algorithmC = split(algorithm,'^');
+
+if length(algorithmC)==1 && ~strcmpi(algorithmC,'BABS')
     
     containerPathStr = varargin{1};
     % Parse container path and convert to cell arrray
@@ -108,6 +110,10 @@ if ~any(strcmpi(algorithmC,'BABS'))
             'SegmentationModels', 'ModelConfigurations',...
             [algorithmC{k}, '_config.json']);
         
+        %Copy config file to session dir
+        copyfile(configFilePath,fullClientSessionPath);
+        
+        % Read config file
         userOptS = readDLConfigFile(configFilePath);
         if nargin==7 && ~isnan(varargin{2})
             batchSize = varargin{2};
@@ -115,21 +121,36 @@ if ~any(strcmpi(algorithmC,'BABS'))
             batchSize = userOptS.batchSize;
         end
         
+        %Pre-process data
         if ishandle(hWait)
             waitbar(0.1,hWait,'Extracting scan and mask');
         end
-        [scanC, mask3M, planC] = extractAndPreprocessDataForDL(userOptS,planC,testFlag);
+        [scanC, maskC, scanNumV, userOptS planC] = ...
+            extractAndPreprocessDataForDL(userOptS,planC,testFlag);
         %Note: mask3M is empty for testing
         
         if ishandle(hWait)
             waitbar(0.2,hWait,'Segmenting structures...');
         end
         
-        outDirC = getOutputH5Dir(inputH5Path,userOptS,'');
-
+        %Export scans to H5
+        scanOptS = userOptS.scan;
+        passedScanDim = userOptS.passedScanDim;
         filePrefixForHDF5 = 'cerrFile';
-        writeHDF5ForDL(scanC,mask3M,userOptS.passedScanDim,outDirC,filePrefixForHDF5,testFlag);
-        
+        for nScan = 1:length(scanOptS)
+            %Append identifiers to o/p name
+            if length(scanOptS)>1
+                idS = scanOptS(nScan).identifier;
+                idListC = cellfun(@(x)(idS.(x)),fieldnames(idS),'un',0);
+                appendStr = strjoin(idListC,'_');
+                idOut = [filePrefixForHDF5,'_',appendStr];
+            else
+                idOut = filePrefixForHDF5;
+            end
+            outDirC = getOutputH5Dir(inputH5Path,scanOptS(nScan),'');
+            writeHDF5ForDL(scanC{nScan},maskC{nScan},passedScanDim,outDirC,...
+                idOut,testFlag);
+        end
         
         %%% =========== have a flag to tell whether the container runs on the client or a remote server
         if ishandle(hWait)
@@ -137,7 +158,7 @@ if ~any(strcmpi(algorithmC,'BABS'))
             jp = wbch(1).JavaPeer;
             jp.setIndeterminate(1)
         end
-        % Call the container and execute model     
+        % Call the container and execute model
         success = callDeepLearnSegContainer(algorithmC{k}, ...
             containerPathC{k}, fullClientSessionPath, sshConfigS,...
             userOptS.batchSize); % different workflow for client or session
@@ -149,10 +170,29 @@ if ~any(strcmpi(algorithmC,'BABS'))
         outC = stackHDF5Files(fullClientSessionPath,userOptS.passedScanDim); %Updated
         
         % Join results back to planC
-        planC  = joinH5planC(outC{1},userOptS,planC); % only 1 file
+        identifierS = userOptS.structAssocScan.identifier;
+        if ~isempty(fieldnames(userOptS.structAssocScan.identifier))
+            origScanNum = getScanNumFromIdentifiers(identifierS,planC);
+        else
+            origScanNum = 1; %Assoc with first scan by default
+        end
+        outScanNum = scanNumV(origScanNum);
+        userOptS(outScanNum).scan = userOptS(origScanNum).scan;
+        userOptS(outScanNum).scan.origScan = origScanNum;
+        planC  = joinH5planC(outScanNum,outC{1},userOptS,planC);
         
         % Post-process segmentation
         planC = postProcStruct(planC,userOptS);
+        
+        
+        % Delete intermediate (resampled) scans if any
+        scanListC = arrayfun(@(x)x.scanType, planC{indexS.scan},'un',0);
+        resampScanName = ['Resamp_scan',num2str(origScanNum)];
+        matchIdxV = ismember(scanListC,resampScanName);
+        if any(matchIdxV)
+            deleteScanNum = find(matchIdxV);
+            planC = deleteScan(planC,deleteScanNum);
+        end
         
     end
 
@@ -198,5 +238,4 @@ if ~isempty(stateS) && (isfield(stateS,'handle') && ishandle(stateS.handle.CERRS
     stateS.structsChanged = 1;
     CERRRefresh
 end
-
 

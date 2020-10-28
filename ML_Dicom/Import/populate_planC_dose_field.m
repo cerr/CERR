@@ -16,24 +16,24 @@ function dataS = populate_planC_dose_field(fieldname, dcmdir_PATIENT_STUDY_SERIE
 %   dataS = populate_planC_dose_field(fieldname,dcmdir_PATIENT_STUDY_SERIES_RTDOSE);
 %
 % Copyright 2010, Joseph O. Deasy, on behalf of the CERR development team.
-% 
+%
 % This file is part of The Computational Environment for Radiotherapy Research (CERR).
-% 
+%
 % CERR development has been led by:  Aditya Apte, Divya Khullar, James Alaly, and Joseph O. Deasy.
-% 
+%
 % CERR has been financially supported by the US National Institutes of Health under multiple grants.
-% 
-% CERR is distributed under the terms of the Lesser GNU Public License. 
-% 
+%
+% CERR is distributed under the terms of the Lesser GNU Public License.
+%
 %     This version of CERR is free software: you can redistribute it and/or modify
 %     it under the terms of the GNU General Public License as published by
 %     the Free Software Foundation, either version 3 of the License, or
 %     (at your option) any later version.
-% 
+%
 % CERR is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
 % without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 % See the GNU General Public License for more details.
-% 
+%
 % You should have received a copy of the GNU General Public License
 % along with CERR.  If not, see <http://www.gnu.org/licenses/>.
 
@@ -92,7 +92,7 @@ switch fieldname
         
     case 'doseSummationType'
         dataS = getTagValue(attr, '3004000A');
-    
+        
     case 'refBeamNumber'
         %Use getValue instead of get
         rtplanSeq = attr.getValue(hex2dec('300C0002'));
@@ -101,13 +101,13 @@ switch fieldname
         end
         %Find attribute in first position of sequence
         artpSeq = rtplanSeq.get(0);
-        fractionGroupSeq = artpSeq.getValue(hex2dec('300C0020'));      
+        fractionGroupSeq = artpSeq.getValue(hex2dec('300C0020'));
         if isempty(fractionGroupSeq)
-            return; 
+            return;
         end
         %If sequence is empty, then size is zero, so if not
         %empty, it is assumed that size is gretaer than zero
-       
+        
         %replace with the following for dcm4che3
         aFractionGroupSeq = fractionGroupSeq.get(0);
         beamSeq = aFractionGroupSeq.getValue(hex2dec('300C0004'));
@@ -119,12 +119,12 @@ switch fieldname
             aBeamSeq = beamSeq.get(0);
             dataS = getTagValue(aBeamSeq,'300C0006');
         end
-                    
+        
     case 'refFractionGroupNumber'
         rtplanSeq = attr.getValue(hex2dec('300C0002'));
         if isempty(rtplanSeq)
             return;
-        end        
+        end
         artpSeq = rtplanSeq.get(0);
         fractionGroupSeq = artpSeq.getValue(hex2dec('300C0020'));
         if isempty(fractionGroupSeq)
@@ -178,10 +178,10 @@ switch fieldname
         
     case 'imagePositionPatient'
         dataS  = getTagValue(attr, '00200032');
-
+        
     case 'imageOrientationPatient'
         %Image Orientation
-        dataS  = getTagValue(attr, '00200037');        
+        dataS  = getTagValue(attr, '00200037');
         
     case 'numberRepresentation'
         %Artifact of RTOG, not indicative of CERR's representation
@@ -270,30 +270,30 @@ switch fieldname
             dataS = dataS; % default to HFS
         end
         
-
-%APA commented begins
-%         if (imgOri(1)==1)
-%             xOffset = iPP(1) + (pixspac(1) * (nCols - 1) / 2);
-%         end
-%         if (imgOri(1)==-1)
-%             xOffset = iPP(1) - (pixspac(1) * (nCols - 1) / 2);
-%         end
-%         
-%         if isstr(pPos)
-%             switch upper(pPos)
-%                 case 'HFS'
-%                     dataS = iPP(1) / 10;
-%                 case 'HFP'
-%                     dataS = -iPP(1) / 10;
-%                 case 'FFS'
-%                     dataS = -iPP(1) / 10;
-%                 case 'FFP'
-%                     dataS = -iPP(1) / 10;
-%             end
-%         else
-%             dataS = iPP(1) / 10; % default to HFS
-%         end
-%APA commented ends
+        
+        %APA commented begins
+        %         if (imgOri(1)==1)
+        %             xOffset = iPP(1) + (pixspac(1) * (nCols - 1) / 2);
+        %         end
+        %         if (imgOri(1)==-1)
+        %             xOffset = iPP(1) - (pixspac(1) * (nCols - 1) / 2);
+        %         end
+        %
+        %         if isstr(pPos)
+        %             switch upper(pPos)
+        %                 case 'HFS'
+        %                     dataS = iPP(1) / 10;
+        %                 case 'HFP'
+        %                     dataS = -iPP(1) / 10;
+        %                 case 'FFS'
+        %                     dataS = -iPP(1) / 10;
+        %                 case 'FFP'
+        %                     dataS = -iPP(1) / 10;
+        %             end
+        %         else
+        %             dataS = iPP(1) / 10; % default to HFS
+        %         end
+        %APA commented ends
         
         %         %for HFP
         %         if isequal(pPos,'HFP')
@@ -319,7 +319,7 @@ switch fieldname
         isOblique = 0;
         if max(abs(abs(imgOriV(:)) - [1 0 0 0 1 0]')) > 1e-3
             isOblique = 1;
-        end        
+        end
         
         if (imgOriV(2)==-1) && ~isOblique
             dataS = iPP(2) + (abs(pixspac(1)) * (nRows - 1));
@@ -354,65 +354,65 @@ switch fieldname
             dataS = -dataS; % default to HFS
         end
         
-
-%APA commented begins        
-%         if (imgOri(2)==1)
-%             yOffset = iPP(2) + (pixspac(2) * (nRows - 1) / 2);
-%         end
-%         if (imgOri(2)==-1)
-%             yOffset = iPP(2) - (pixspac(2) * (nRows - 1) / 2);
-%         end
-%         %Convert from DICOM mm to CERR cm, negate to match CERR Y dir
-%         
-%         if isstr(pPos)
-%             switch upper(pPos)
-%                 case 'HFS'
-%                     dataS = -iPP(2) / 10;
-%                 case 'HFP'
-%                     dataS = iPP(2) / 10;
-%                 case 'FFS'
-%                     dataS = -iPP(2) / 10;
-%                 case 'FFP'
-%                     dataS = -iPP(2) / 10;
-%             end
-%         else
-%             dataS = -iPP(2) / 10; % default to HFS
-%         end
-%APA commented ends
+        
+        %APA commented begins
+        %         if (imgOri(2)==1)
+        %             yOffset = iPP(2) + (pixspac(2) * (nRows - 1) / 2);
+        %         end
+        %         if (imgOri(2)==-1)
+        %             yOffset = iPP(2) - (pixspac(2) * (nRows - 1) / 2);
+        %         end
+        %         %Convert from DICOM mm to CERR cm, negate to match CERR Y dir
+        %
+        %         if isstr(pPos)
+        %             switch upper(pPos)
+        %                 case 'HFS'
+        %                     dataS = -iPP(2) / 10;
+        %                 case 'HFP'
+        %                     dataS = iPP(2) / 10;
+        %                 case 'FFS'
+        %                     dataS = -iPP(2) / 10;
+        %                 case 'FFP'
+        %                     dataS = -iPP(2) / 10;
+        %             end
+        %         else
+        %             dataS = -iPP(2) / 10; % default to HFS
+        %         end
+        %APA commented ends
         
     case 'horizontalGridInterval'
         %Pixel Spacing
         pixspac = getTagValue(attr, '00280030');
         dataS = abs(pixspac(2)) / 10;
         
-%         %Convert from DICOM mm to CERR cm.
-%         imgOri = getTagValue(attr.get(hex2dec('00200037')));
-%         if isequal(pPos,'HFP')
-%             dataS = pixspac(2) / 10;
-%         else
-%             if (imgOri(5)==1)
-%                 dataS = pixspac(2) / 10;
-%             else
-%                 dataS = -pixspac(2) / 10;
-%             end
-%         end         
+        %         %Convert from DICOM mm to CERR cm.
+        %         imgOri = getTagValue(attr.get(hex2dec('00200037')));
+        %         if isequal(pPos,'HFP')
+        %             dataS = pixspac(2) / 10;
+        %         else
+        %             if (imgOri(5)==1)
+        %                 dataS = pixspac(2) / 10;
+        %             else
+        %                 dataS = -pixspac(2) / 10;
+        %             end
+        %         end
         
     case 'verticalGridInterval'
         %Pixel Spacing
         pixspac = getTagValue(attr, '00280030');
         dataS = -abs(pixspac(1)) / 10;
         
-%         %Convert from DICOM mm to CERR cm, negate to match CERR Y dir.
-%         imgOri = getTagValue(attr.get(hex2dec('00200037')));
-%         if isequal(pPos,'HFP')
-%             dataS = - pixspac(1) / 10;
-%         else
-%             if (imgOri(1)==1)
-%                 dataS = - pixspac(1) / 10;
-%             else
-%                 dataS = pixspac(1) / 10;
-%             end
-%         end
+        %         %Convert from DICOM mm to CERR cm, negate to match CERR Y dir.
+        %         imgOri = getTagValue(attr.get(hex2dec('00200037')));
+        %         if isequal(pPos,'HFP')
+        %             dataS = - pixspac(1) / 10;
+        %         else
+        %             if (imgOri(1)==1)
+        %                 dataS = - pixspac(1) / 10;
+        %             else
+        %                 dataS = pixspac(1) / 10;
+        %             end
+        %         end
         
         
     case 'doseDescription'
@@ -423,7 +423,7 @@ switch fieldname
     case 'planNumberOfOrigin'
     case 'planEditionOfOrigin'
     case 'studyNumberOfOrigin'
-
+        
     case 'studyInstanceUID'
         dataS  = getTagValue(attr, '0020000D');
         
@@ -480,7 +480,7 @@ switch fieldname
         mread = 0;
         %wy Pixel Data
         try
-
+            
             % doseV = uint16(getTagValue(attr, '7FE00010'));
             doseV = getTagValue(attr, '7FE00010');
             
@@ -542,30 +542,30 @@ switch fieldname
         dataS = dose3;
         
         imgOriV = getTagValue(attr, '00200037');
-        if (imgOriV(1)==-1)            
+        if (imgOriV(1)==-1)
             dataS = flipdim(dataS, 2);
         end
         
         if (imgOriV(5)==-1)
             dataS = flipdim(dataS, 1);
         end
-
+        
         if (max(abs((imgOriV(:) - [-1 0 0 0 -1 0]'))) < 1e-3 ||...
-            max(abs((imgOriV(:) - [1 0 0 0 -1 0]'))) < 1e-3) %HFP or FFP
+                max(abs((imgOriV(:) - [1 0 0 0 -1 0]'))) < 1e-3) %HFP or FFP
             %dataS = flipdim(dataS, 2);
             dataS = flipdim(dataS, 1); %APA change
         end
         if max(abs((imgOriV(:) - [-1 0 0 0 -1 0]'))) < 1e-3 %HFP
             dataS = flipdim(dataS, 2); % 1/3/2017
         end
-
+        
         maxDose = max(dataS(:));
         
     case 'zValues'
         %Image Position (Patient)
         iPP = getTagValue(attr, '00200032');
         imgOriV = getTagValue(attr, '00200037');
-
+        
         % Check if oblique
         isOblique = 0;
         if max(abs(abs(imgOriV(:)) - [1 0 0 0 1 0]')) > 1e-3
@@ -573,11 +573,11 @@ switch fieldname
         end
         
         %APA commented begins
-%         if ~isequal(pPos,'HFP')
-%             if (imgOri(1)==-1) || (imgOri(5)==-1)
-%                 iPP(3) = -- iPP(3);
-%             end
-%         end
+        %         if ~isequal(pPos,'HFP')
+        %             if (imgOri(1)==-1) || (imgOri(5)==-1)
+        %                 iPP(3) = -- iPP(3);
+        %             end
+        %         end
         %APA commented ends
         %Frame Increment Pointer
         fIP = getTagValue(attr, '00280009');
@@ -587,13 +587,13 @@ switch fieldname
         end
         
         %Follow pointer to attribute containing zValues, usually Grid Frame Offset Vector
-
+        
         try
             gFOV = getTagValue(attr, fIP);
             if ((imgOriV(1)==-1) || (imgOriV(5)==-1)) && ...
                     ~(max(abs((imgOriV(:) - [-1 0 0 0 -1 0]'))) < 1e-3) %Not HFP
                 gFOV = - gFOV;
-            end            
+            end
         catch
             gFOV = 0;
         end
@@ -638,15 +638,33 @@ switch fieldname
     case 'assocScanUID'
         %wy, use the frame of reference UID to associate dose to scan.
         %dataS = char(dcmobj.getString(org.dcm4che2.data.Tag.FrameofReferenceUID));
-%         dataS = dcm2ml_Element(dcmobj.get(hex2dec('00080018'))); % SOP instance UID
-%         dataS = dcm2ml_Element(dcmobj.get(hex2dec('00200052'))); % Frame of Reference UID
-        dataS = getTagValue(attr, '00200052'); % Frame of Reference UID
-%         rtplanSeq = dcmobj.get(hex2dec('300C0002'));
-%         artpSeq = rtplanSeq.getDicomObject(0);
-%         rtplanML = dcm2ml_Object(artpSeq);
-%         refSOPClassUID = dcm2ml_Element(artpSeq.get(hex2dec('00081150')));
-%         refSOPInstanceUID = dcm2ml_Element(artpSeq.get(hex2dec('00081155')));
+        %         dataS = dcm2ml_Element(dcmobj.get(hex2dec('00080018'))); % SOP instance UID
+        %         dataS = dcm2ml_Element(dcmobj.get(hex2dec('00200052'))); % Frame of Reference UID
+        dataS.forUID = getTagValue(attr, '00200052'); % Frame of Reference UID
+        %         rtplanSeq = dcmobj.get(hex2dec('300C0002'));
+        %         artpSeq = rtplanSeq.getDicomObject(0);
+        %         rtplanML = dcm2ml_Object(artpSeq);
+        %         refSOPClassUID = dcm2ml_Element(artpSeq.get(hex2dec('00081150')));
+        %         refSOPInstanceUID = dcm2ml_Element(artpSeq.get(hex2dec('00081155')));
+        dataS = ''; % implemented in guessPlanUID based on structures set's sopInstanceUID
 
+        
+    case 'frameOfReferenceUID'
+        dataS = getTagValue(attr, '00200052'); % Frame of Reference UID
+        
+    case 'refStructSetSopInstanceUID'
+        
+        dataS = '';
+
+        referencedRTPlanSequence = getTagValue(attr, '300C0002');
+        referencedPlanSOPInstanceUID = referencedRTPlanSequence.Item_1.ReferencedSOPInstanceUID;
+        numChars = length(referencedPlanSOPInstanceUID);
+        for iPlan = 1:length(rtPlans)
+            if strncmp(rtPlans(iPlan).SOPInstanceUID, referencedPlanSOPInstanceUID, numChars)
+                dataS = rtPlans(iPlan).ReferencedStructureSetSequence.Item_1.ReferencedSOPInstanceUID;
+            end
+        end
+           
     case 'transM'
         %Implementation is unnecessary.
         
@@ -658,18 +676,39 @@ switch fieldname
         %         warning(['DICOM Import has no methods defined for import into the planC{indexS.dose}.' fieldname ' field, leaving empty.']);
 end
 
-function [RTPlanLabel RTPlanUID]= getRelatedRTPlanLabel(rtPlans,attr)
 
-RTPlanLabel = ''; RTPlanUID = '';
-
-try
-    ReferencedRTPlanSequence = getTagValue(attr, '300C0002');
-
-    for i = 1:length(rtPlans)
-        if strmatch(rtPlans(i).SOPInstanceUID, ReferencedRTPlanSequence.Item_1.ReferencedSOPInstanceUID)
-            RTPlanLabel = rtPlans(i).RTPlanLabel;
-            RTPlanUID = rtPlans(i).BeamUID;
+    function [RTPlanLabel RTPlanUID]= getRelatedRTPlanLabel(rtPlans,attr)
+        
+        RTPlanLabel = ''; RTPlanUID = '';
+        
+        try
+            ReferencedRTPlanSequence = getTagValue(attr, '300C0002');
+            
+            for i = 1:length(rtPlans)
+                if strmatch(rtPlans(i).SOPInstanceUID, ReferencedRTPlanSequence.Item_1.ReferencedSOPInstanceUID)
+                    RTPlanLabel = rtPlans(i).RTPlanLabel;
+                    RTPlanUID = rtPlans(i).BeamUID;
+                end
+            end
+        catch
         end
     end
-catch
+
+    function assocScanUID = getAssocScanUID(attr,ssObj)
+        %commented by wy
+        %Referenced Frame of Reference Sequence
+        referencedSeq = attr.getValue(hex2dec('30060010'));
+        
+        %Frame of Reference UID
+        refUID = getTagValue(ssObj, '30060024');
+        
+        %Find the series referenced by these contours.  See bottom of file.
+        refSerSeq = getReferencedSeriesSequence(referencedSeq, refUID);
+        
+        assocScanUID = getTagValue(refSerSeq,'0020000E');
+        
+        assocScanUID = ['CT.',assocScanUID];
+        
+    end %End of function
+
 end

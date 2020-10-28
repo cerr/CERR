@@ -122,6 +122,8 @@ switch upper(instr)
         stateS.webtrev.isOn = 0;
         stateS.currentKeyPress = 0;
         
+        stateS.imageFusion.lockMoving = 1; % 1:lock, 0:unlock
+        
         %Store Matlab version under stateS
         stateS.MLVersion = getMLVersion;
 
@@ -322,7 +324,7 @@ switch upper(instr)
         stateS.handle.zoom = uicontrol(hCSV,'units',units,'style', 'togglebutton', 'position',[0.018*512+dx, 345, dx - 35, 20]/512,'cdata',zoomImg,'BackgroundColor',uicolor, 'callback','sliceCallBack(''togglezoom'')','interruptible','on','tooltipstring', 'Toggle ZoomIn(Left)/ZoomOut(Right)');
 
         if isdeployed
-            [I,map] = imread(fullfile(getCERRPath,'pics','Icons','reset_zoom.GIF'),'gif');
+            [I,map] = imread(fullfile(getCERRPath,'pics','Icons','reset_zoom.gif'),'gif');
         else
             %[I,map] = imread('reset_zoom.GIF','gif');
             [I,map] = imread(fullfile(getCERRPath,'Icons','reset_zoom.gif'),'gif');
@@ -494,6 +496,9 @@ switch upper(instr)
         % Initialize spotlight handles
         stateS.handle.spotLightS = [];
         
+        % Initialize rotation handles
+        stateS.handle.rotationS = [];
+        
         %Change Panel-Layout according to CERROptions
         sliceCallBack('layout',stateS.optS.layout)
         
@@ -524,14 +529,7 @@ switch upper(instr)
         try
             delete(findobj('Tag','CERR_splashAxis'));
         end
-        stateS.doseSet              = [];
-        structIndx = getStructureSetAssociatedScan(1);
-        if ~isempty(structIndx)
-            stateS.structSet = structIndx;
-        else
-            stateS.structSet = [];
-        end
-
+        
         %Check for remotely stored variables
         flag = checkAndSetRemotePath;
         if flag
@@ -582,6 +580,8 @@ switch upper(instr)
         stateS.doseSetChanged       = 1;
         stateS.doseDisplayChanged   = 1;
         stateS.CTDisplayChanged     = 1;
+        stateS.colorbarRange        = [];
+        stateS.doseDisplayRange     = [];        
         stateS.doseChanged          = 1;
         stateS.structsChanged       = 1;
         
@@ -592,6 +592,23 @@ switch upper(instr)
         stateS.imageRegistrationMovDatasetType = 'scan';
         stateS.showPlaneLocators = 1;
         stateS.showNavMontage = 0;
+        
+        structureSet = getStructureSetAssociatedScan(stateS.scanSet);
+
+        if isempty(structureSet)
+            stateS.structSet = [];
+        else
+            stateS.structSet = structureSet(1);
+        end
+
+        doseNum = getScanAssociatedDose(stateS.scanSet);
+
+        if isempty(doseNum)
+            stateS.doseSet = [];
+        else
+            stateS.doseSet = doseNum;
+            %stateS.doseSetChanged = 1;
+        end        
         
         if ~(stateS.planLoaded && stateS.layout == 8)
             
@@ -800,7 +817,7 @@ switch upper(instr)
         updateScanColorbar(stateS.scanSet);
         
         %If any duplicates, remove them and make new entry first.
-        if any(strcmpi(stateS.planHistory, stateS.CERRFile));
+        if any(strcmpi(stateS.planHistory, stateS.CERRFile))
             ind = find(strcmpi(stateS.planHistory, stateS.CERRFile));
             stateS.planHistory(ind) = [];
         end
@@ -812,7 +829,7 @@ switch upper(instr)
         try
             %Save functions... modified to work with matlab 7
             saveOpt = getSaveInfo;
-            if ~isempty(saveOpt);
+            if ~isempty(saveOpt)
                 save(fullfile(getCERRPath, 'planHistory'), 'planHistory', saveOpt);
             else
                 save(fullfile(getCERRPath, 'planHistory'), 'planHistory');
@@ -824,26 +841,38 @@ switch upper(instr)
                
         % Set Window and Width from DICOM header, if available
         for scanNum = 1:length(planC{indexS.scan})
-            if isfield(planC{indexS.scan}(scanNum).scanInfo(1),'DICOMHeaders')...
-                    && isfield(planC{indexS.scan}(scanNum).scanInfo(1).DICOMHeaders,'WindowCenter')...
-                    && isfield(planC{indexS.scan}(scanNum).scanInfo(1).DICOMHeaders,'WindowWidth')
-                CTLevel = planC{indexS.scan}(scanNum).scanInfo(1).DICOMHeaders.WindowCenter(end);
-                CTWidth = planC{indexS.scan}(scanNum).scanInfo(1).DICOMHeaders.WindowWidth(end);
+            if ~isempty(planC{indexS.scan}(scanNum).scanInfo(1).windowCenter)...
+                    && ~isempty(planC{indexS.scan}(scanNum).scanInfo(1).windowWidth)
+                CTLevel = planC{indexS.scan}(scanNum).scanInfo(1).windowCenter(end);
+                CTWidth = planC{indexS.scan}(scanNum).scanInfo(1).windowWidth(end);
                 scanUID = ['c',repSpaceHyp(planC{indexS.scan}(scanNum).scanUID(max(1,end-61):end))];
                 stateS.scanStats.CTLevel.(scanUID) = CTLevel;
                 stateS.scanStats.CTWidth.(scanUID) = CTWidth;
-        %%%%%%%%% ADDED AI 1/10/16 : Scaling window center/width for Philips display %%%%%
-                if strfind(lower(planC{indexS.scan}(scanNum).scanInfo(1).scannerType),'philips')...
-                   & ~isempty(planC{indexS.scan}(scanNum).scanInfo(1).rescaleSlope)...
-                   & ~isempty(planC{indexS.scan}(scanNum).scanInfo(1).scaleSlope)
-                    rescaleSlope = planC{indexS.scan}(scanNum).scanInfo(1).rescaleSlope;
-                    scaleSlope = planC{indexS.scan}(scanNum).scanInfo(1).scaleSlope;
-                    scanUID = ['c',repSpaceHyp(planC{indexS.scan}(scanNum).scanUID(max(1,end-61):end))];
-                    stateS.scanStats.CTLevel.(scanUID) = stateS.scanStats.CTLevel.(scanUID)/(rescaleSlope*scaleSlope);
-                    stateS.scanStats.CTWidth.(scanUID) = stateS.scanStats.CTWidth.(scanUID)/(rescaleSlope*scaleSlope);
-                end
+                %%%%%%%%% ADDED AI 1/10/16 : Scaling window center/width for Philips display %%%%%
+                %if strfind(lower(planC{indexS.scan}(scanNum).scanInfo(1).scannerType),'philips')...
+                %        && ~isempty(planC{indexS.scan}(scanNum).scanInfo(1).rescaleSlope)...
+                %        && ~isempty(planC{indexS.scan}(scanNum).scanInfo(1).scaleSlope)
+                %    rescaleSlope = planC{indexS.scan}(scanNum).scanInfo(1).rescaleSlope;
+                %    scaleSlope = planC{indexS.scan}(scanNum).scanInfo(1).scaleSlope;
+                %    scanUID = ['c',repSpaceHyp(planC{indexS.scan}(scanNum).scanUID(max(1,end-61):end))];
+                %    stateS.scanStats.CTLevel.(scanUID) = stateS.scanStats.CTLevel.(scanUID)/(rescaleSlope*scaleSlope);
+                %    stateS.scanStats.CTWidth.(scanUID) = stateS.scanStats.CTWidth.(scanUID)/(rescaleSlope*scaleSlope);
+                %end
             end
         end
+        % Update Level, Width and Colormap
+        scanUID = ['c',repSpaceHyp(planC{indexS.scan}(stateS.scanSet).scanUID(max(1,end-61):end))];
+        CTLevel = stateS.scanStats.CTLevel.(scanUID);
+        CTWidth = stateS.scanStats.CTWidth.(scanUID);
+        windowPreset = stateS.scanStats.windowPresets.(scanUID);
+        scanColormap = stateS.scanStats.Colormap.(scanUID);
+        colorC = get(stateS.handle.BaseCMap,'string');
+        baseMapVal = find(~cellfun(@isempty,strfind(colorC,scanColormap)));        
+        set(stateS.handle.CTLevel,'string',num2str(CTLevel))
+        set(stateS.handle.CTWidth,'string',num2str(CTWidth))
+        set(stateS.handle.CTPreset,'value',windowPreset)
+        set(stateS.handle.BaseCMap,'value',baseMapVal)
+        updateScanColorbar(stateS.scanSet)
         %%%%%%%%%%%%%%%%%%%% End added %%%%%%%%%%%%%
         
         %Update status string
@@ -1928,11 +1957,12 @@ switch upper(instr)
             end
             lockImg = ind2rgb(I,map);
             set(gcbo,'cdata',lockImg,'fontWeight','bold','foregroundColor', [1 0 0]);
+            set(stateS.handle.CERRAxis,'buttondownfcn', 'sliceCallBack(''axisClicked'')')
         else 
             if isdeployed
-                [I,map] = imread(fullfile(getCERRPath,'pics','Icons','unlock.GIF'),'gif');
+                [I,map] = imread(fullfile(getCERRPath,'pics','Icons','unlock.gif'),'gif');
             else
-                [I,map] = imread('unlock.GIF','gif');
+                [I,map] = imread('unlock.gif','gif');
             end
             lockImg = ind2rgb(I,map);
             set(gcbo,'cdata',lockImg,'fontWeight','bold','foregroundColor',[0.5 0.5 0.5]);

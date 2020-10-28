@@ -196,14 +196,19 @@ switch fieldname
 %                         % calibrator (0054,1322)
 %                         doseCalibFactor = getTagValue(imgobj, '00541322');
 
-                        if strcmpi(imageUnits,'CNTS') % for philips scanner
-                            %SUV Scale Factor
-                            %suvScaleFactor = getTagValue(imgobj, '70531000');
-                            %slice2D = slice2D * suvScaleFactor; % counts to SUV
-                            %Activity Concentration Scale Factor
-                            activityScaleFactor = getTagValue(imgobj, '70531009');
-                            slice2D = slice2D * activityScaleFactor; % counts to BQ/ml
-                        end
+                           % Moved conversion to BQML to getSUV.m
+%                         if strcmpi(imageUnits,'CNTS') % for philips scanner
+%                             %SUV Scale Factor
+%                             %suvScaleFactor = getTagValue(imgobj, '70531000');
+%                             %slice2D = slice2D * suvScaleFactor; % counts to SUV
+%                             %Activity Concentration Scale Factor
+%                             activityScaleFactor = getTagValue(imgobj, '70531009');
+%                             if isnumeric(activityScaleFactor)
+%                                 strV = native2unicode(activityScaleFactor);
+%                                 activityScaleFactor = str2double(strV);
+%                             end
+%                             slice2D = slice2D * activityScaleFactor; % counts to BQ/ml
+%                         end
                         
                         % Moved SUV conversion to 
 %                         if ~strcmpi(imageUnits,'GML')
@@ -274,126 +279,179 @@ switch fieldname
                 end
                                 
                 %Reorder 3D matrix based on zValues.
+                %========= scanArray is such that zValue increases from 1st
+                %slice to the last slice. Note that zValues are (-)ve of
+                %DICOM z-Values. Hence, patient's head is towards the top
+                %of the screen.                
                 [jnk, zOrder]       = sort(zValues);
                 dataS(:,:,1:end)    = dataS(:,:,zOrder);
                 
             case 'Yes' % Assume Nuclear medicine image
                 
-                    transferSyntaxUID = getTagValue(imgobj,'00020010');
-                    % sliceV =
-                    % dcm2ml_Element(imgobj.get(hex2dec('7FE00010')),transferSyntaxUID);
-                    % AI
-                    % sliceV = getTagValue(imgobj, '7FE00010'); % NAV
-                    sliceV = dcm2ml_Element(imgobj,'7FE00010',transferSyntaxUID);
-                    
-                    %Rows
-                    nRows  = getTagValue(imgobj, '00280010');
-                    
-                    %Columns
-                    nCols  = getTagValue(imgobj, '00280011');
-                    
-                    %Image Position (Patient)                   
-
-                    %detectorInfoSequence = getTagValue(imgobj, '00540022');
-                    %imgOri = detectorInfoSequence.Item_1.ImageOrientationPatient;
-                    
-                    %Pixel Representation commented by wy
-                    pixRep = getTagValue(imgobj, '00280103');
-                    
-                    %Bits Allocated
-                    bitsAllocated = getTagValue(imgobj, '00280100');
-                    
-                    if bitsAllocated > 16
-                        error('Only 16 bits per scan pixel are supported')
-                    end
-                    
-                    switch pixRep
-                        case 0
-                            if bitsAllocated == 16
-                                if strcmpi(class(sliceV),'int32')
-                                    sliceV = typecast(sliceV,'uint16');
-                                    sliceV = sliceV(1:2:end);
-                                else
-                                    sliceV = typecast(sliceV,'uint16');
-                                end
+                zValuesV = [];
+                
+                transferSyntaxUID = getTagValue(imgobj,'00020010');
+                % sliceV =
+                % dcm2ml_Element(imgobj.get(hex2dec('7FE00010')),transferSyntaxUID);
+                % AI
+                sliceV = getTagValue(imgobj, '7FE00010'); % NAV
+                %sliceV = dcm2ml_Element(imgobj,'7FE00010',transferSyntaxUID);
+                
+                %Rows
+                nRows  = getTagValue(imgobj, '00280010');
+                
+                %Columns
+                nCols  = getTagValue(imgobj, '00280011');
+                
+                %Image Position (Patient)
+                
+                %detectorInfoSequence = getTagValue(imgobj, '00540022');
+                %imgOri = detectorInfoSequence.Item_1.ImageOrientationPatient;
+                
+                %Pixel Representation commented by wy
+                pixRep = getTagValue(imgobj, '00280103');
+                
+                %Bits Allocated
+                bitsAllocated = getTagValue(imgobj, '00280100');
+                
+                if bitsAllocated > 16
+                    error('Only 16 bits per scan pixel are supported')
+                end
+                
+                switch pixRep
+                    case 0
+                        if bitsAllocated == 16
+                            if strcmpi(class(sliceV),'int32')
+                                sliceV = typecast(sliceV,'uint16');
+                                sliceV = sliceV(1:2:end);
+                            else
+                                sliceV = typecast(sliceV,'uint16');
                             end
-                        case 1
-                            if bitsAllocated == 16
-                                if strcmpi(class(sliceV),'int32')
-                                    sliceV = typecast(sliceV,'int16');
-                                    sliceV = sliceV(1:2:end);
-                                else
-                                    sliceV = typecast(sliceV,'int16');
-                                end
+                        end
+                    case 1
+                        if bitsAllocated == 16
+                            if strcmpi(class(sliceV),'int32')
+                                sliceV = typecast(sliceV,'int16');
+                                sliceV = sliceV(1:2:end);
+                            else
+                                sliceV = typecast(sliceV,'int16');
                             end
-                            
-                    end
-                    %Shape the slice.
-                    dataS = reshape(sliceV, [nCols nRows numMultiFrameImages]);
-                    dataS = permute(dataS,[2 1 3]);
-                    
-                    % Study instance UID
-                    studyUID = dcm2ml_Element(imgobj.get(hex2dec('0020000D')));
-                    
-                    %Check patient orientation
-                    imgOriV = getTagValue(imgobj, '00200037');
-                    
-                    if isempty(imgOriV)    
-                        %Check patient orientation
-                        imgOriV = imgobj.getValue(hex2dec('00200037'));
-                    end
-                    
-                    % Get Patient Position from the associated CT/MR scan
-                    % in case of NM missing the patient position.
-                    modality = dcm2ml_Element(imgobj.get(hex2dec('00080060')));
-                    studyUIDc = {};
-                    for i = 1:size(studyC,1)
-                        studyUIDc{i} = studyC{i,1};
-                    end                    
-                    if strcmpi(modality,'NM') && isempty(imgOriV)
+                        end
+                        
+                end
+                %Shape the slice.
+                dataS = reshape(sliceV, [nCols nRows numMultiFrameImages]);
+                dataS = permute(dataS,[2 1 3]);
+                
+                % Study instance UID
+                % studyUID = dcm2ml_Element(imgobj.get(hex2dec('0020000D')));
+                studyUID = getTagValue(imgobj, '0020000D');
+                
+                %Check patient orientation
+                imgOriV = getTagValue(imgobj, '00200037');
+                
+                imgpos = getTagValue(imgobj,'00200032');
+                
+                modality = getTagValue(imgobj,'00080060');
+                
+                % Get Patient Position from the associated CT/MR scan
+                % in case of NM missing the patient position.
+                studyUIDc = {};
+                for i = 1:size(studyC,1)
+                    studyUIDc{i} = studyC{i,1};
+                end
+                
+                % Handle modality-specific tags for position and orientation
+                
+                if strcmpi(modality,'NM')
+                    if isempty(imgOriV) % get orientation from the associated scan
                         studyIndex = strcmpi(studyUID,studyUIDc);
-                        imgOriV = studyC{studyIndex,2};
+                        if ~isempty(studyIndex)
+                            imgOriV = studyC{studyIndex,2};
+                        end
                     end
-                    
-                    % Store the patient orientation associated with this studyUID
-                    if ~any(strcmpi(studyUID,studyUIDc))
-                        studyC{end+1,1} = studyUID;
-                        studyC{end,2} = imgOriV;
-                    end                    
-                    
-                    imgpos = dcm2ml_Element(imgobj.get(hex2dec('00200032')));
-                    imgOriV = dcm2ml_Element(imgobj.get(hex2dec('00200037')));
-                    if isempty(imgpos) && strcmpi(modality,'NM')
-                        % Multiframe NM image.
+                    if isempty(imgpos) || isempty(imgOriV)
                         detectorInfoSequence = dcm2ml_Element(imgobj.get(hex2dec('00540022')));
                         imgpos = detectorInfoSequence.Item_1.ImagePositionPatient;
-                        imgOriV = detectorInfoSequence.Item_1.ImageOrientationPatient;                        
+                        if isempty(imgOriV)
+                            imgOriV = detectorInfoSequence.Item_1.ImageOrientationPatient;
+                        end
                     end
-                          
-                    % Check for oblique scan
-                    isOblique = 0;
-                    if isempty(imgOriV) || max(abs(abs(imgOriV(:)) - [1 0 0 0 1 0]')) > obliqTol
-                        isOblique = 1;
+                end                                
+                                
+                if strcmpi(modality,'MG')
+                    imgpos = [0 0 0];
+                    xray3dAcqSeq = dcm2ml_Element(imgobj.get(hex2dec('00189507')));
+                    bodyPartThickness = xray3dAcqSeq.Item_1.BodyPartThickness;
+                    sliceSpacing = bodyPartThickness/double(numMultiFrameImages);
+                end                
+                
+                if strcmpi(modality,'SM')
+                    imgpos = [0 0 0];
+                    sharedFrameFuncGrpSeq = dcm2ml_Element(imgobj.get(hex2dec('52009229')));
+                    sliceSpacing = sharedFrameFuncGrpSeq.Item_1.PixelMeasuresSequence.Item_1.SliceThickness;                    
+                end                
+                
+                if strcmpi(modality,'MR')
+                    positionRefIndicatorSequence = getTagValue(imgobj, '52009230');
+                    imgOriV = positionRefIndicatorSequence.Item_1...
+                        .PlaneOrientationSequence.Item_1.ImageOrientationPatient;
+                    for imageNum = 1:numMultiFrameImages
+                        item = ['Item_',num2str(imageNum)];
+                        zValuesV(imageNum) = positionRefIndicatorSequence.(item)...
+                            .PlanePositionSequence.Item_1.ImagePositionPatient(3);
                     end
-                    
-                    if ~isOblique && (imgOriV(1)==-1)
-                        dataS = flipdim(dataS, 2);
+                end
+                
+                % Store the patient orientation associated with this studyUID
+                if ~any(strcmpi(studyUID,studyUIDc))
+                    studyC{end+1,1} = studyUID;
+                    studyC{end,2} = imgOriV;
+                end
+                
+                %======= OLD: dataS was flipped based on obliqueness or
+                %imageOrientation
+                %====== NEW: flip dataS based on zValuesV
+%                 % Check for oblique scan
+%                 isOblique = 0;
+%                 if isempty(imgOriV) || max(abs(abs(imgOriV(:)) - [1 0 0 0 1 0]')) > obliqTol
+%                     isOblique = 1;
+%                 end
+%                 
+%                 if ~isOblique && (imgOriV(1)==-1)
+%                     dataS = flipdim(dataS, 2);
+%                 end
+%                 if ~isOblique && (imgOriV(5)==-1)
+%                     dataS = flipdim(dataS, 1);
+%                 end
+%                 
+%                 if ~isOblique && ( max(abs((imgOriV(:) - [-1 0 0 0 -1 0]'))) < 1e-3 || ...
+%                         max(abs((imgOriV(:) - [1 0 0 0 -1 0]'))) < 1e-3 ) %HFP of FFP
+%                     dataS = flipdim(dataS, 1); %Similar flip as doseArray
+%                 end
+%                 
+%                 if ~isOblique && ( max(abs((imgOriV(:) - [1 0 0 0 -1 0]'))) < 1e-3 || ....
+%                         max(abs((imgOriV(:) - [-1 0 0 0 1 0]'))) < 1e-3 ) %FFP or FFS
+%                     dataS = flipdim(dataS, 3); %Similar flip as doseArray
+%                 end
+                
+                clear imageobj;
+                
+                if isempty(zValuesV)
+                    zValuesV = imgpos(3):sliceSpacing:imgpos(3)+sliceSpacing*double(numMultiFrameImages-1);
+                    if sliceSpacing < 0 % http://dicom.nema.org/medical/dicom/current/output/chtml/part03/sect_C.8.4.15.html
+                        zValuesV = fliplr(zValuesV);
                     end
-                    if ~isOblique && (imgOriV(5)==-1)
-                        dataS = flipdim(dataS, 1);
-                    end
-                    
-                    if ~isOblique && ( max(abs((imgOriV(:) - [-1 0 0 0 -1 0]'))) < 1e-3 || ...
-                            max(abs((imgOriV(:) - [1 0 0 0 -1 0]'))) < 1e-3 ) %HFP of FFP
-                        dataS = flipdim(dataS, 1); %Similar flip as doseArray
-                    end
-                    
-                    if ~isOblique && ( max(abs((imgOriV(:) - [1 0 0 0 -1 0]'))) < 1e-3 || ....
-                            max(abs((imgOriV(:) - [-1 0 0 0 1 0]'))) < 1e-3 ) %FFP or FFS
-                        dataS = flipdim(dataS, 3); %Similar flip as doseArray
-                    end
-                    
-                    clear imageobj;                    
+                end       
+                zValuesV = -zValuesV/10;
+                
+                %Reorder 3D matrix based on zValues.
+                %========= scanArray is such that zValue increases from 1st
+                %slice to the last slice. Note that zValues are (-)ve of
+                %DICOM z-Values. Hence, patient's head is towards the top
+                %of the screen.
+                [jnk, zOrder]       = sort(zValuesV);
+                dataS(:,:,1:end)    = dataS(:,:,zOrder);                
                 
         end
         
@@ -465,9 +523,24 @@ switch fieldname
                 dataS(1:end)    = dataS(zOrder);
                 
             case 'Yes' % Assume Nuclear Medicine Image
+                zValuesV = [];
+                bValuesV = [];
+                gridUnitsV = [];
+                rescaleInterceptV = [];
+                rescaleSlopeV = [];
+                sliceThickness = [];
+                imageOrientationPatientM = [];
+                imagePositionPatientM = [];
+                windowCenter = [];
+                windowWidth = [];
+                temporalPositionIndexV = [];
+                frameAcquisitionDurationV = [];
+                frameReferenceDateTimeV = [];
+                
                 sliceSpacing = getTagValue(imgobj, '00180088');
                 %zValues = 0:sliceThickness:sliceThickness*double(numMultiFrameImages-1);
-                modality = dcm2ml_Element(imgobj.get(hex2dec('00080060')));
+                %modality = dcm2ml_Element(imgobj.get(hex2dec('00080060')));
+                modality = getTagValue(imgobj,'00080060');
                 %detectorInfoSequence = getTagValue(imgobj, '00540022');                                
                 %imgpos = detectorInfoSequence.Item_1.ImagePositionPatient;
                 %imgpos = dcm2ml_Element(imgobj.get(hex2dec('00200032')));
@@ -481,13 +554,7 @@ switch fieldname
                     imgpos = detectorInfoSequence.Item_1.ImagePositionPatient;
                     imgOriV = detectorInfoSequence.Item_1.ImageOrientationPatient;
                 end
-                
-                % Check for oblique scan
-                isOblique = 0;
-                if isempty(imgOriV) || max(abs(abs(imgOriV(:)) - [1 0 0 0 1 0]')) > 1e-2
-                    isOblique = 1;
-                end
-                
+                                
                 if strcmpi(modality,'MG')
                     imgpos = [0 0 0];
                     xray3dAcqSeq = dcm2ml_Element(imgobj.get(hex2dec('00189507')));
@@ -501,24 +568,127 @@ switch fieldname
                     sliceSpacing = sharedFrameFuncGrpSeq.Item_1.PixelMeasuresSequence.Item_1.SliceThickness;                    
                 end
                 
-                zValuesV = imgpos(3):sliceSpacing:imgpos(3)+sliceSpacing*double(numMultiFrameImages-1);
-                if sliceSpacing < 0 % http://dicom.nema.org/medical/dicom/current/output/chtml/part03/sect_C.8.4.15.html
-                    zValuesV = fliplr(zValuesV);
+                if strcmpi(modality,'MR')
+                    positionRefIndicatorSequence = getTagValue(imgobj, '52009230');
+                    gridUnitsV = positionRefIndicatorSequence.Item_1...
+                        .PixelMeasuresSequence.Item_1.PixelSpacing;
+                    gridUnitsV = gridUnitsV / 10;
+                    sliceSpacing = positionRefIndicatorSequence.Item_1...
+                        .PixelMeasuresSequence.Item_1.SpacingBetweenSlices;
+                    sliceSpacing = sliceSpacing / 10;
+                    sliceThickness = positionRefIndicatorSequence.Item_1...
+                        .PixelMeasuresSequence.Item_1.SliceThickness;
+                    sliceThickness = sliceThickness / 10;
+                    rescaleType = positionRefIndicatorSequence.Item_1...
+                        .PixelValueTransformationSequence.Item_1.RescaleType;    
+                    windowCenter = positionRefIndicatorSequence.Item_1...
+                        .FrameVOILUTSequence.Item_1.WindowCenter; 
+                    windowWidth = positionRefIndicatorSequence.Item_1...
+                        .FrameVOILUTSequence.Item_1.WindowWidth; 
+                    for imageNum = 1:numMultiFrameImages
+                        item = ['Item_',num2str(imageNum)];
+                        zValuesV(imageNum) = positionRefIndicatorSequence.(item)...
+                            .PlanePositionSequence.Item_1.ImagePositionPatient(3);
+                        rescaleInterceptV(imageNum) = positionRefIndicatorSequence.(item)...
+                            .PixelValueTransformationSequence.Item_1.RescaleIntercept;
+                        rescaleSlopetV(imageNum) = positionRefIndicatorSequence.(item)...
+                            .PixelValueTransformationSequence.Item_1.RescaleSlope;
+                        imageOrientationPatientM(imageNum,:) = positionRefIndicatorSequence.(item)...
+                            .PlaneOrientationSequence.Item_1.ImageOrientationPatient;
+                        imagePositionPatientM(imageNum,:) = positionRefIndicatorSequence.(item)...
+                            .PlanePositionSequence.Item_1.ImagePositionPatient;
+                        if isfield(positionRefIndicatorSequence.(item),'FrameContentSequence')
+                            if ~isempty(positionRefIndicatorSequence.(item)...
+                                    .FrameContentSequence.Item_1.TemporalPositionIndex)
+                                temporalPositionIndexV(imageNum) = positionRefIndicatorSequence.(item)...
+                                    .FrameContentSequence.Item_1.TemporalPositionIndex;
+                            end
+                            if ~isempty(positionRefIndicatorSequence.(item)...
+                                    .FrameContentSequence.Item_1.FrameAcquisitionDuration)
+                                frameAcquisitionDurationV(imageNum) = positionRefIndicatorSequence.(item)...
+                                    .FrameContentSequence.Item_1.FrameAcquisitionDuration;
+                            end
+                            if ~isempty(positionRefIndicatorSequence.(item)...
+                                    .FrameContentSequence.Item_1.FrameReferenceDateTime)
+                                frameReferenceDateTimeV(imageNum) = positionRefIndicatorSequence.(item)...
+                                    .FrameContentSequence.Item_1.FrameReferenceDateTime;
+                            end
+                        end
+                        if isfield(positionRefIndicatorSequence.(item)...
+                                ,'MRDiffusionSequence') && ...
+                                isfield(positionRefIndicatorSequence.(item)...
+                                .MRDiffusionSequence.Item_1,'DiffusionBValue')
+                            bValuesV(imageNum) = positionRefIndicatorSequence.(item)...
+                                .MRDiffusionSequence.Item_1.DiffusionBValue;
+                        end
+                    end
                 end
-                if ~isOblique && (max(abs((imgOriV(:) - [1 0 0 0 -1 0]'))) < 1e-3 || ...
-                        max(abs((imgOri(:) - [-1 0 0 0 1 0]'))) < 1e-3 ) %FFP or FFS
-                    zValuesV = fliplr(zValuesV);
+                
+                % Check for oblique scan
+                %isOblique = 0;
+                %if isempty(imgOriV) || max(abs(abs(imgOriV(:)) - [1 0 0 0 1 0]')) > 1e-2
+                %    isOblique = 1;
+                %end                
+                
+                if isempty(zValuesV)
+                    zValuesV = imgpos(3):sliceSpacing:imgpos(3)+sliceSpacing*double(numMultiFrameImages-1);
+                    if sliceSpacing < 0 % http://dicom.nema.org/medical/dicom/current/output/chtml/part03/sect_C.8.4.15.html
+                        zValuesV = fliplr(zValuesV);
+                    end
                 end
+                
+                %if ~isOblique && (max(abs((imgOriV(:) - [1 0 0 0 -1 0]'))) < 1e-3 || ...
+                %        max(abs((imgOri(:) - [-1 0 0 0 1 0]'))) < 1e-3 ) %FFP or FFS
+                %    zValuesV = fliplr(zValuesV);
+                %end
+                
                 for i = 1:length(names)
-                    dataS(1).(names{i}) = ...
-                        populate_planC_scan_scanInfo_field(names{i}, IMAGE, imgobj, optS);
+                    if ~isempty(gridUnitsV) && strcmpi(names{i},'grid1Units')
+                        dataS(1).(names{i}) = gridUnitsV(1);
+                    elseif ~isempty(gridUnitsV) && strcmpi(names{i},'grid2Units')
+                        dataS(1).(names{i}) = gridUnitsV(2);
+                    elseif ~isempty(sliceThickness) && strcmpi(names{i},'sliceThickness')
+                        dataS(1).(names{i}) = sliceThickness;
+                    elseif ~isempty(windowCenter) && strcmpi(names{i},'windowCenter')
+                        dataS(1).(names{i}) = windowCenter;
+                    elseif ~isempty(windowWidth) && strcmpi(names{i},'windowWidth')
+                        dataS(1).(names{i}) = windowWidth;
+                    elseif ~isempty(imageOrientationPatientM) && strcmpi(names{i},'imageOrientationPatient')
+                        dataS(1).(names{i}) = imageOrientationPatientM(1,:);                    
+                    else
+                        dataS(1).(names{i}) = ...
+                            populate_planC_scan_scanInfo_field(names{i}, IMAGE, imgobj, optS);
+                    end
                 end
+                
+                % Flip z_values since CERR z is reverse of DICOM
+                zValuesV = -zValuesV/10;
                 for imageNum = 1:numMultiFrameImages
                     dataS(imageNum) = dataS(1);
-                    if ~isOblique
-                        dataS(imageNum).zValue = -zValuesV(imageNum)/10;
-                    else
-                        dataS(imageNum).zValue = zValuesV(imageNum)/10;
+                    dataS(imageNum).zValue = zValuesV(imageNum);
+                    if ~isempty(bValuesV)
+                        dataS(imageNum).bValue = bValuesV(imageNum);
+                    end
+                    if ~isempty(imagePositionPatientM)
+                        dataS(imageNum).imagePositionPatient = imagePositionPatientM(imageNum,:);
+                    end
+                    if ~isempty(imageOrientationPatientM)
+                        dataS(imageNum).imageOrientationPatient = imageOrientationPatientM(imageNum,:);
+                    end
+                    if ~isempty(rescaleInterceptV)
+                        dataS(imageNum).rescaleIntercept = rescaleInterceptV(imageNum);
+                    end
+                    if ~isempty(rescaleSlopetV)
+                        dataS(imageNum).rescaleSlope = rescaleSlopetV(imageNum);
+                    end
+                    if ~isempty(temporalPositionIndexV) && length(temporalPositionIndexV) >= imageNum
+                        dataS(imageNum).temporalPositionIndex = temporalPositionIndexV(imageNum);
+                    end
+                    if ~isempty(frameAcquisitionDurationV) && length(frameAcquisitionDurationV) >= imageNum
+                        dataS(imageNum).frameAcquisitionDuration = frameAcquisitionDurationV(imageNum);
+                    end
+                    if ~isempty(frameReferenceDateTimeV) && length(frameReferenceDateTimeV) >= imageNum
+                        dataS(imageNum).frameReferenceDateTime = frameReferenceDateTimeV(imageNum);
                     end
                 end
                 

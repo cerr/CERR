@@ -266,13 +266,27 @@ switch fieldname
             imgOriV = detectorInfoSequence.Item_1.ImageOrientationPatient;
         end
         
+        if isempty(imgpos) && strcmpi(modality,'MR')
+            % Multiframe MR image.
+            positionRefIndicatorSequence = getTagValue(attr, '52009230');
+            imgpos = positionRefIndicatorSequence.Item_1...
+                .PlanePositionSequence.Item_1.ImagePositionPatient;
+            imgOriV = positionRefIndicatorSequence.Item_1...
+                .PlaneOrientationSequence.Item_1.ImageOrientationPatient;   
+        end
+        
         %Pixel Spacing
         if ismember(modality,{'MG','SM'})
             pixspac = getTagValue(attr, '00181164');
             imgOriV = zeros(6,1);
-            imgpos = [0 0 0];
+            imgpos = [0 0 0];        
         else
             pixspac = getTagValue(attr, '00280030');
+        end
+        
+        if isempty(pixspac) && strcmpi(modality,'MR')
+            pixspac = positionRefIndicatorSequence.Item_1...
+                        .PixelMeasuresSequence.Item_1.PixelSpacing;            
         end
         
         %Columns
@@ -341,6 +355,15 @@ switch fieldname
             imgOriV = detectorInfoSequence.Item_1.ImageOrientationPatient;
         end
         
+        if isempty(imgpos) && strcmpi(modality,'MR')
+            % Multiframe MR image.
+            positionRefIndicatorSequence = getTagValue(attr, '52009230');
+            imgpos = positionRefIndicatorSequence.Item_1...
+                .PlanePositionSequence.Item_1.ImagePositionPatient;
+            imgOriV = positionRefIndicatorSequence.Item_1...
+                .PlaneOrientationSequence.Item_1.ImageOrientationPatient;               
+        end        
+        
         %Pixel Spacing
         if ismember(modality,{'MG','SM'})
             pixspac = getTagValue(attr, '00181164');
@@ -349,6 +372,11 @@ switch fieldname
         else
             pixspac = getTagValue(attr, '00280030');
         end
+        
+        if isempty(pixspac) && strcmpi(modality,'MR')
+            pixspac = positionRefIndicatorSequence.Item_1...
+                        .PixelMeasuresSequence.Item_1.PixelSpacing;            
+        end        
         
         %Check for oblique scan
         if max(abs((imgOriV(:) - [1 0 0 0 1 0]'))) < 1e-3
@@ -571,10 +599,26 @@ switch fieldname
     case 'acquisitionDate'
         dataS  = getTagValue(attr, '00080022');
     case 'acquisitionTime'
-        dataS  = getTagValue(attr, '00080030');
+        dataS  = getTagValue(attr, '00080032');
+    case 'seriesDate'
+        dataS  = getTagValue(attr, '00080021');
+    case 'seriesTime'
+        dataS = getTagValue(attr, '00080031');
+    case 'correctedImage'
+        dataS = getTagValue(attr, '00280051');
+    case 'decayCorrection'
+        dataS = getTagValue(attr, '00541102');
     case 'patientWeight'
         dataS  = getTagValue(attr, '00101030');
-    case 'RadiopharmaInfoS'
+    case 'patientSize'
+        dataS  = getTagValue(attr, '00101020');
+    case 'patientBmi'
+        dataS  = getTagValue(attr, '00101022');
+    case 'patientSex' 
+        dataS  = getTagValue(attr, '00100040');
+    case 'suvType'
+        dataS  = getTagValue(attr, '00541006');
+    case 'RadiopharmaInfoS'        
         dataS  = getTagValue(attr, '00540016');
         if isfield(dataS,'Item_1')
             dataS = dataS.Item_1;
@@ -607,7 +651,16 @@ switch fieldname
             dataS = getTagValue(attr, '00541000');
         end
         
-    case 'petImageUnits'
+    case 'petActivityConcentrationScaleFactor'
+        if attr.contains(hex2dec('70531009'))
+            dataS = getTagValue(attr, '70531009');
+            if isnumeric(dataS)
+                strV = native2unicode(dataS);
+                dataS = str2double(strV);
+            end
+        end
+        
+    case 'imageUnits'
         if attr.contains(hex2dec('00541001'))
             dataS = getTagValue(attr, '00541001');
         end

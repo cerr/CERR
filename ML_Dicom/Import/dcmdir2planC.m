@@ -93,26 +93,18 @@ end
 for scanNum = 1:length(planC{indexS.scan})
     modality = planC{indexS.scan}(scanNum).scanInfo(1).imageType;
     if strcmpi(modality,'PT') || strcmpi(modality,'PET')
-        imageUnits = planC{indexS.scan}(scanNum).scanInfo(1).petImageUnits;
-        if ~strcmpi(imageUnits,'GML') % TO DO: handle various image types
-            % Obtain SUV conversion flag from CERROptions.m
-%             pathStr = getCERRPath;
-%             optName = fullfile(pathStr,'CERROptions.json');
-%             optS    = opts4Exe(optName);
+        imageUnits = planC{indexS.scan}(scanNum).scanInfo(1).imageUnits;
+        if ~strcmpi(imageUnits,'GML')
             if isfield(optS,'convert_PET_to_SUV') && optS.convert_PET_to_SUV
-                for slcNum = 1:size(planC{indexS.scan}(scanNum).scanArray,3)
-                    dicomHeaderS = planC{indexS.scan}(scanNum).scanInfo(slcNum);
-                    planC{indexS.scan}(scanNum).scanArray(:,:,slcNum) = ...
-                        calc_suv(dicomHeaderS, planC{indexS.scan}(scanNum).scanArray(:,:,slcNum));
-                end
+                suvType = optS.suvType;
+                planC = calc_suv(scanNum,planC,suvType);
             end
-        end        
+        end
     end
 end
 
 % process NM scans
 for scanNum = 1:length(planC{indexS.scan})
-    disp('dcmdir2planc SCANNUM');
     if strcmpi(planC{indexS.scan}(scanNum).scanInfo(1).imageType, 'NM')
         if planC{indexS.scan}(scanNum).scanInfo(1).DICOMHeaders.SpacingBetweenSlices < 0
             planC{indexS.scan}(scanNum).scanArray = flipdim(planC{indexS.scan}(scanNum).scanArray,3);
@@ -127,6 +119,78 @@ assocScanV = getStructureAssociatedScan(1:numStructs, planC);
 % assocScanV = 1; % temporary, until the issue with DCE/DWI volume split is
 % resolved.
 
+% Assign scan type
+% Check for scanType field and populate it with Series description
+for scanNum = 1:length(planC{indexS.scan})
+    if isempty(planC{indexS.scan}(scanNum).scanType) && ...
+            isfield(planC{indexS.scan}(scanNum).scanInfo(1),'DICOMHeaders') && ...
+            isfield(planC{indexS.scan}(scanNum).scanInfo(1).DICOMHeaders,'SeriesDescription')
+        planC{indexS.scan}(scanNum).scanType = ...
+            planC{indexS.scan}(scanNum).scanInfo(1).DICOMHeaders.SeriesDescription;
+    end
+end
+
+% Split multi-frame MRIs by b-value
+imageTypeC = arrayfun(@(x)x.scanInfo(1).imageType, planC{indexS.scan}, 'un',0);
+mrIdxV = find(ismember(imageTypeC,'MR'));
+splitScanNumV = [];
+if ~isempty(mrIdxV)
+    newScanC = {};
+    for m = 1:length(mrIdxV)
+        scanNum = mrIdxV(m);
+        scanS = planC{indexS.scan}(scanNum);
+        bValV = [scanS.scanInfo(:).bValue];
+        temporalPositionIndexV = [scanS.scanInfo(:).temporalPositionIndex];
+        uniqueBvalV = unique(bValV);
+        uniqueTemporalPosIndV = unique(temporalPositionIndexV);
+        splitScanS = scanS;
+        if length(uniqueBvalV)>1 && isempty(uniqueTemporalPosIndV)
+            splitScanNumV = [splitScanNumV,scanNum];
+            for n = 1:length(uniqueBvalV)
+                groupIdxV = bValV==uniqueBvalV(n);
+                splitScanS(n) = scanS;
+                splitScanInfoS = scanS.scanInfo(groupIdxV);
+                splitScanArray = scanS.scanArray(:,:,groupIdxV);
+                splitScanS(n).scanInfo = splitScanInfoS;
+                splitScanS(n).scanArray = splitScanArray;
+                splitScanS(n).scanUID = createUID('scan');
+                splitScanS(n).scanType = [scanS.scanType,' (bVal=',...
+                    num2str(uniqueBvalV(n)),')'];
+            end
+            count = length(splitScanNumV);
+            newScanC{count} = splitScanS;
+        end
+        if length(uniqueTemporalPosIndV)>1 && isempty(uniqueBvalV)
+            splitScanNumV = [splitScanNumV,scanNum];
+            for n = 1:length(uniqueTemporalPosIndV)
+                groupIdxV = temporalPositionIndexV==uniqueTemporalPosIndV(n);
+                splitScanS(n) = scanS;
+                splitScanInfoS = scanS.scanInfo(groupIdxV);
+                splitScanArray = scanS.scanArray(:,:,groupIdxV);
+                splitScanS(n).scanInfo = splitScanInfoS;
+                splitScanS(n).scanArray = splitScanArray;
+                splitScanS(n).scanUID = createUID('scan');
+                splitScanS(n).scanType = [scanS.scanType,' (temporalPos=',...
+                    num2str(uniqueTemporalPosIndV(n)),')'];
+            end
+            count = length(splitScanNumV);
+            newScanC{count} = splitScanS;            
+        end        
+    end
+    
+    for m = 1:length(newScanC)
+        
+        newScansS = newScanC{m};
+        origScanNum = splitScanNumV(m);
+        planC = deleteScan(planC,origScanNum);
+        for iScan = 1:length(newScansS)
+            planC{indexS.scan} = dissimilarInsert(planC{indexS.scan}, newScansS(iScan));
+        end
+        
+    end
+end
+
+
 % Tolerance to determine oblique scan (think about passing it as a
 % parameter in future)
 obliqTol = 1e-3;
@@ -135,13 +199,6 @@ isObliqScanV = ones(1,numScans);
 
 for scanNum = 1:numScans
     
-%     % Calculate the slice normal
-%     if isfield(planC{indexS.scan}(scanNum).scanInfo(1).DICOMHeaders,'ImageOrientationPatient')
-%         ImageOrientationPatientV = planC{indexS.scan}(scanNum).scanInfo(1).DICOMHeaders.ImageOrientationPatient;
-%     else
-%         ImageOrientationPatientV = [1 0 0 0 1 0]';
-%     end
-
     % Check for Mammogram images
     imageType = planC{indexS.scan}(scanNum).scanInfo(1).imageType;
     if ismember(imageType,{'MG','SM'})
@@ -155,7 +212,8 @@ for scanNum = 1:numScans
         isObliqScanV(scanNum) = 0;
         continue;
     end
-    
+        
+    % Compute slice normal
     sliceNormV = ImageOrientationPatientV([2 3 1]) .* ImageOrientationPatientV([6 4 5]) ...
         - ImageOrientationPatientV([3 1 2]) .* ImageOrientationPatientV([5 6 4]);
     
@@ -163,52 +221,37 @@ for scanNum = 1:numScans
     numSlcs = length(planC{indexS.scan}(scanNum).scanInfo);
     distV = zeros(1,numSlcs);
     for slcNum = 1:numSlcs
-%         ipp = planC{indexS.scan}(scanNum).scanInfo(slcNum)...
-%             .DICOMHeaders.ImagePositionPatient;
         ipp = planC{indexS.scan}(scanNum).scanInfo(slcNum).imagePositionPatient;            
         distV(slcNum) = sum(sliceNormV .* ipp);
     end
     
+    info1S = planC{indexS.scan}(scanNum).scanInfo(end);
+    info2S = planC{indexS.scan}(scanNum).scanInfo(end-1);
+    
     % sort z-values in ascending order since z increases from head
     % to feet in CERR
     [zV,zOrderV] = sort(distV);
-    
-    % Flip scan since DICOM and CERR's z-convention is opposite.
-    % Hence sort according to descending z-values.
-    %[~,zOrderV] = sort(distV,'descend'); % flip scan
-    planC{indexS.scan}(scanNum).scanInfo = planC{indexS.scan}(scanNum).scanInfo(zOrderV);
-    planC{indexS.scan}(scanNum).scanArray = planC{indexS.scan}(scanNum).scanArray(:,:,zOrderV);
-    
     slice_distance = zV(2) - zV(1);
     for i=1:length(planC{indexS.scan}(scanNum).scanInfo)
         planC{indexS.scan}(scanNum).scanInfo(i).zValue = zV(i) / 10;
     end
-    info1S = planC{indexS.scan}(scanNum).scanInfo(1);
-    info2S = planC{indexS.scan}(scanNum).scanInfo(2);
-    
-    %%%%%%%%%%%%%%%%
-    %info1b = info1S.DICOMHeaders;
-    %info2b = info2S.DICOMHeaders;
-    %pos1b = info1b.ImagePositionPatient;
-    %pos2b = info2b.ImagePositionPatient;
-    %deltaPosV = pos2b-pos1b;
     pos1V = info1S.imagePositionPatient/10; %cm
     pos2V = info2S.imagePositionPatient/10; %cm
     deltaPosV = pos2V-pos1V;
     pixelSpacing = [info1S.grid2Units, info1S.grid1Units];
     
-    positionMatrix = [reshape(ImageOrientationPatientV,[3 2])*diag(pixelSpacing) [deltaPosV(1) pos1V(1); deltaPosV(2) pos1V(2); deltaPosV(3) pos1V(3)]];
-    %positionMatrix = positionMatrix / 10; % mm to cm
+    %Pt coordinate to DICOM image coordinate mapping 
+    %Based on ref: https://nipy.org/nibabel/dicom/dicom_orientation.html
+    positionMatrix = [reshape(ImageOrientationPatientV,[3 2])*diag(pixelSpacing)...
+        [deltaPosV(1) pos1V(1); deltaPosV(2) pos1V(2); deltaPosV(3) pos1V(3)]];
     positionMatrix = [positionMatrix; 0 0 0 1];
     
     positionMatrixInv = inv(positionMatrix);
     planC{indexS.scan}(scanNum).Image2PhysicalTransM = positionMatrix;
     
-    [xs,ys,zs]=getScanXYZVals(planC{indexS.scan}(scanNum));
+    [xs,ys,zs] = getScanXYZVals(planC{indexS.scan}(scanNum));
     dx = xs(2)-xs(1);
     dy = ys(2)-ys(1);
-    nx = length(xs);
-    ny = length(ys);
     virPosMtx = [dx 0 0 xs(1);0 dy 0 ys(1); 0 0 slice_distance zs(1); 0 0 0 1];
     planC{indexS.scan}(scanNum).Image2VirtualPhysicalTransM = virPosMtx;
     
@@ -219,17 +262,15 @@ for scanNum = 1:numScans
     %if N>0
     % Now, translate the contour points to the same coordinate system
     for nvoi = structsToUpdateV
-        %planC{indexS.structures}(nvoi).contour = planC{indexS.structures}(nvoi).contour(zOrderV);
         
         % for each structure
         M = length(planC{indexS.structures}(nvoi).contour);
-        for sliceno = 1:M
+        for segnum = 1:M
             
-            % for each contour
-            points = planC{indexS.structures}(nvoi).contour(sliceno).segments;
-            % y and z are inverted, now get the original data back
-            %points(:,2:3) = -points(:,2:3);
-            % z is inverted, now get the original data back
+            % for each segment
+            points = planC{indexS.structures}(nvoi).contour(segnum).segments;
+            % Undo inversion of z coord inverted for oblique scans 
+            % (in populate_planC_structures_field.m)
             points(:,3) = -points(:,3);
             
             if ~isempty(points)
@@ -240,7 +281,7 @@ for scanNum = 1:numScans
                 tempb = virPosMtx*tempa;
                 tempb = tempb';
                 
-                planC{indexS.structures}(nvoi).contour(sliceno).segments = tempb(:,1:3);
+                planC{indexS.structures}(nvoi).contour(segnum).segments = tempb(:,1:3);
             end
             
         end
@@ -319,14 +360,21 @@ end % end of scan loop
     
 
 % Check uniqueness of scanUIDs
-assocScanUIDc = {planC{indexS.structures}.assocScanUID};
+assocStrScanUIDc = {planC{indexS.structures}.assocScanUID};
+assocDoseScanUIDc = {planC{indexS.dose}.assocScanUID};
 [uidC,iA,iC] = unique({planC{indexS.scan}.scanUID});
 if length(iA) < length(planC{indexS.scan})
-    for scanNum = 1:length(planC{indexS.scan})
-        assocStrV = strcmpi(assocScanUIDc,planC{indexS.scan}(scanNum).scanUID);
+    allScansV = 1:numScans;
+    repeatUidV = allScansV(~ismember(allScansV,iA));
+    for iScan = 1:length(repeatUidV) %length(planC{indexS.scan})
+        scanNum = repeatUidV(iScan);
+        assocStrV = strcmpi(assocStrScanUIDc,planC{indexS.scan}(scanNum).scanUID);
+        assocDoseV = strcmpi(assocDoseScanUIDc,planC{indexS.scan}(scanNum).scanUID);
         planC{indexS.scan}(scanNum).scanUID = ...
-            [planC{indexS.scan}(scanNum).scanUID, '.', num2str(scanNum)];
+            [planC{indexS.scan}(scanNum).scanUID, '.', num2str(iScan)];
         [planC{indexS.structures}(assocStrV).assocScanUID] = ...
+            deal(planC{indexS.scan}(scanNum).scanUID);
+        [planC{indexS.dose}(assocDoseV).assocScanUID] = ...
             deal(planC{indexS.scan}(scanNum).scanUID);
     end
 end
@@ -337,9 +385,14 @@ if isempty(planC{indexS.scan})
     planC = createDummyScan(planC);
     isObliqScanV(1) = 0; % non-oblique "dummy" scan
     %associate all structures to the first scanset.
-    strNum = length(planC{indexS.structures});
-    for i=1:strNum
+    numStructs = length(planC{indexS.structures});
+    for i=1:numStructs
         planC{indexS.structures}(i).assocScanUID = planC{indexS.scan}(1).scanUID;
+    end
+    %associate all doses to the first scanset.
+    numDoses = length(planC{indexS.dose});
+    for i=1:numDoses
+        planC{indexS.dose}(i).assocScanUID = planC{indexS.scan}(1).scanUID;
     end
 end
 

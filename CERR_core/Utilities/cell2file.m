@@ -8,7 +8,10 @@ function cell2file(dataC,fileName)
 % APA, 07/12/2012
 
 fid = fopen(fileName,'wb');
+dataC = dataC(:);
 for rowNum = 1:length(dataC)
-    fprintf(fid,[dataC{rowNum,1},'\n']);
+    strIn = dataC{rowNum,1};
+    strEscaped = escapeSlashes(strIn);
+    fprintf(fid,[strEscaped,'\n']);
 end
-fclose(fid)
+fclose(fid);

@@ -13,7 +13,7 @@ function featureS = getImPeakValley(structNum, scanNum, radius, radiusUnit, plan
 %             If radiusUnit is 'vox', radius is a 3-element vector 
 %             specifying the number of voxels along the columns, rows and 
 %             slices in that order. radius must be a vector of integers if 
-%             radiusUnit is 'cm' 
+%             radiusUnit is 'vox' 
 % radiusUnit: 'cm' or 'vox'
 %
 % APA, 04/07/2017
@@ -31,10 +31,8 @@ else
     scanArray3M                         = getScanArray(planC{indexS.scan}(scanNum));
     scanArray3M = double(scanArray3M) - planC{indexS.scan}(scanNum).scanInfo(1).CTOffset;
     
-    scan3M = mask3M.*double(scanArray3M(:,:,uniqueSlices));
+    scan3M = double(scanArray3M(:,:,uniqueSlices));
     [minr, maxr, minc, maxc, mins, maxs]= compute_boundingbox(mask3M);
-    struct3M = mask3M(minr:maxr,minc:maxc,mins:maxs);
-    scan3M = scan3M(minr:maxr,minc:maxc,mins:maxs);
     
     if strcmpi(radiusUnit,'cm')
         [xV,yV,zV] = getScanXYZVals(planC{indexS.scan}(scanNum));
@@ -49,6 +47,17 @@ else
         ny = radius(2);
         nz = radius(3);
     end
+    % Crop scan
+    sizV = size(scan3M);
+    minr = max(1,minr-ny);
+    maxr = min(maxr+ny,sizV(1));
+    minc = max(1,minc-nx);
+    maxc = min(maxc+nx,sizV(2));
+    mins = max(1,mins-nz);
+    maxs = min(maxs+nz,sizV(3));
+    struct3M = mask3M(minr:maxr,minc:maxc,mins:maxs);
+    scan3M = scan3M(minr:maxr,minc:maxc,mins:maxs);
+
 end
 
 if ~isequal(radius, uint16(radius))
@@ -74,20 +83,20 @@ end
 cC = nx + 1;
 rC = ny + 1;
 sC = nz + 1;
-distM = (rowsM - rC).^2/ny^2 + (colsM - cC).^2/nx^2 + (slcsM - sC).^2/nz^2;
+distM = (rowsM - rC).^2/(ny+eps)^2 + (colsM - cC).^2/(nx+eps)^2 + (slcsM - sC).^2/(nz+eps)^2;
 sphereM(distM > 1) = 0;
 
 % Convolve neighborhood on the entire scan and the structure mask
-scan3M(~struct3M) = 0;
+%scan3M(~struct3M) = 0;
 sumM = convn(scan3M,sphereM,'same');
-numVoxM = convn(struct3M,sphereM,'same');
+numVoxM = sum(sphereM(:)); %convn(struct3M,sphereM,'same');
 
 % Compute average per voxel
-avgM = sumM ./ numVoxM;
+avgM = sumM / numVoxM;
 
 % Get peak and valley
-featureS.peak = max(avgM(:));
-featureS.valley = min(avgM(:));
+featureS.peak = max(avgM(struct3M));
+featureS.valley = min(avgM(struct3M));
 featureS.radius = radius;
 featureS.radiusUnit = radiusUnit;
 

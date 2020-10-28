@@ -3,27 +3,34 @@
 
 "inputFileType" : "CERR",
 
-"view" : ["axial", "sagittal", "coronal"],
+"scan":{
 
-"crop" : {     
-            "method": "crop_for_constrictor",
-            "params": { "structureName": 
-                        { 
-                          "larynx": "Larynx",
-                          "cropStructure": "crop_for_larynx"
-                        },
-                        "saveStrToPlanCFlag": 0
-                      },
-            "operator": ""
-          },
+        "identifier" : {"imageType": "CT SCAN"},
 
-"resize" : {"method": "none",
-            "size" : [320,320]},
+	"view" : ["axial", "sagittal", "coronal"],
 
-"channels" :[{"imageType": "original", "slice": "current-1"},
-             {"imageType": "original", "slice": "current"},
-             {"imageType": "original", "slice": "current+1"}],
+	"crop" : [{     
+            		"method": "crop_for_constrictor",
+            		"params": { "structureName": 
+            		             { 
+                         	     "larynx": "Larynx",
+                                     "cropStructure": "crop_for_larynx"
+                        	     },
+                        	     "saveStrToPlanCFlag": 0
+                  		   },
+            		"operator": ""
+                  }
+         ],
 
+	"resize" : {"method": "none",
+            	    "size" : [320,320]},
+
+	"channels" :[{"imageType": "original", "slice": "current-1"},
+             	     {"imageType": "original", "slice": "current"},
+            	     {"imageType": "original", "slice": "current+1"}]
+             
+},
+             
 "passedScanDim" : "2D",
 
 "batchSize" : 4,

@@ -90,8 +90,9 @@ for m = 1:length(methodC)
             structureName = paramS.structureName;
             outThreshold = paramS.outlineThreshold;            
             indexS = planC{end};            
-            outlineIndex = getMatchingIndex(structureName,{planC{indexS.structures}.structureName},'exact');
-            
+            outlineIndex = getMatchingIndex(structureName,...
+                {planC{indexS.structures}.structureName},'exact');
+
             if isempty(outlineIndex)
                 scan3M = getScanArray(scanNum,planC);
                 CToffset = planC{indexS.scan}(scanNum).scanInfo(1).CTOffset;
@@ -109,7 +110,7 @@ for m = 1:length(methodC)
             % Use pt_outline structure generated in "crop_pt_outline" case
             indexS = planC{end};
             strName = paramS.structureName;
-            strNum = getStructNum(strName,planC,indexS);
+            strNum = getMatchingIndex(strName,{planC{indexS.structures}.structureName},'exact');
             [pt_outline_mask3M, planC] = getStrMask(strNum,planC);
             
             % generate mask after cropping shoulder slices
