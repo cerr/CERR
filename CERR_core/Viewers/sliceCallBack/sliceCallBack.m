@@ -215,7 +215,7 @@ switch upper(instr)
         %    'sliceCallBack(''closeRequest'')','backingstore','off','tag',...
         %   'CERRSliceViewer', 'renderer', 'zbuffer');
         hCSV = figure('tag','CERRSliceViewer','name',str1,'numbertitle','off',...
-            'position',position, 'doublebuffer', 'off','CloseRequestFcn',...
+            'position',position,'CloseRequestFcn',...
             'sliceCallBack(''closeRequest'')','tag',...
             'CERRSliceViewer','KeyPressFcn',{@CERRHotKeys},...
             'keyReleaseFcn',{@CERRHotKeyRelease});
@@ -302,7 +302,7 @@ switch upper(instr)
         %CT Width edit box.
         stateS.handle.CTWidth = uicontrol(hCSV,'units','pixels','BackgroundColor',uicolor, 'Position',[(frameWidth-50)/2+10+15 500 (frameWidth-50)/2 20], 'String',num2str(stateS.optS.CTWidth),'Style','edit','Tag','CTWidth', 'callback','sliceCallBack(''CTWidth'');','tooltipstring','Change CT window width');
         %CT Level/Width pushbutton
-        stateS.handle.CTLevelWidthInteractive = uicontrol(hCSV,'units','pixels','BackgroundColor',uicolor, 'Position',[(frameWidth-50)+35 500 20 20], 'String','L','Style','toggle','Tag','CTInteractiveWindowing', 'callback','sliceCallBack(''TOGGLESCANWINDOWING'');','tooltipstring','Drag mouse on view to change display window');
+        stateS.handle.CTLevelWidthInteractive = uicontrol(hCSV,'units','pixels','BackgroundColor',uicolor, 'Position',[(frameWidth-50)+35 500 20 20], 'String','L','Style','togglebutton','Tag','CTInteractiveWindowing', 'callback','sliceCallBack(''TOGGLESCANWINDOWING'');','tooltipstring','Drag mouse on view to change display window');
         %CT Colorbar
         stateS.handle.scanColorbar = axes('parent', hCSV, 'units', 'pixels', 'position', [20, 470 dx*3, 14], 'xTickLabel', [], 'yTickLabel', [], 'xTick', [], 'yTick', [], 'Tag', 'scanColorbar', 'visible', 'off','fontsize',10);
 
@@ -2343,12 +2343,12 @@ switch upper(instr)
             cData(1:2:16,8) = 2;
             %set(hCSV,'pointer','crosshair');
             set(hCSV,'pointerShapeCData',cData,'pointer','custom','PointerShapeHotSpot',[8,8]);
-            set(stateS.handle.zoom,'background','red');
+            set(stateS.handle.zoom,'backgroundcolor','red');
             set(stateS.handle.fractionGroupIDTrans,'String','Left Click: ZOOMIN');
 
             set(stateS.handle.doseDescriptionTrans,'String','Right Click: ZOOMOUT');
         else
-            set(stateS.handle.zoom,'background','white');
+            set(stateS.handle.zoom,'backgroundcolor','white');
             % Define Pointer
             set(hCSV,'pointer','arrow');
             set(stateS.handle.fractionGroupIDTrans,'String','');
@@ -2385,7 +2385,7 @@ switch upper(instr)
         hFig = get(hAxis(1), 'parent');
         startPt  = get(hAxis(1), 'currentPoint');
         %rbbox([get(hFig,'currentpoint') 0 0],get(hFig,'currentpoint'),hFig);
-        rbbox([get(hFig,'currentpoint') 0 0],get(hFig,'currentpoint'));
+        %rbbox([get(hFig,'currentpoint') 0 0],get(hFig,'currentpoint'));
         endPt = get(hAxis(1), 'currentPoint');
         xLim = get(hAxis(1), 'xLim');
         yLim = get(hAxis(1), 'yLim');

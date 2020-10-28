@@ -282,7 +282,7 @@ switch upper(command)
         else
         texListC = {'   Click ''+'' to create  '};
         end
-        ud.handles.texture       = uicontrol(h, 'units',units,'Position',[fieldLeft-0.14 1-.12 fieldWidth+0.08 rowHeight-.015],'String',texListC, 'Style', 'popup', 'callback', 'textureGui(''TEXTURE_SELECTED'');', 'enable', 'on', 'horizontalAlignment', 'right','fontSize',10);
+        ud.handles.texture       = uicontrol(h, 'units',units,'Position',[fieldLeft-0.14 1-.12 fieldWidth+0.08 rowHeight-.015],'String',texListC, 'Style', 'popupmenu', 'callback', 'textureGui(''TEXTURE_SELECTED'');', 'enable', 'on', 'horizontalAlignment', 'right','fontSize',10);
         ud.handles.textureAdd    = uicontrol(h, 'units',units,'Position',[2*fieldLeft-0.12 1-.12 0.03 rowHeight-.01],'String','+', 'Style', 'push', 'callback', 'textureGui(''CREATE_NEW_TEXTURE'');', 'horizontalAlignment', 'right','enable','on','fontSize',10);
         ud.handles.textureDel    = uicontrol(h, 'units',units,'Position',[2*fieldLeft-0.08 1-.12 0.03 rowHeight-.01],'String','-', 'Style', 'push', 'callback', 'textureGui(''DELETE_TEXTURE'');', 'horizontalAlignment', 'right','enable','on','fontSize',10);
         ud.handles.description   = uicontrol(h, 'units',units,'Position',...
@@ -291,18 +291,18 @@ switch upper(command)
             'w','enable','off','callback',{@updateLabel,h},'fontSize',10);
         ud.handles.scan          = uicontrol(h, 'units',units,'Position',...
             [fieldLeft-.05 1-.26 fieldWidth+0.05 rowHeight],'String', scansC,...
-            'value', 1,  'Style', 'popup', 'horizontalAlignment', 'right',...
+            'value', 1,  'Style', 'popupmenu', 'horizontalAlignment', 'right',...
             'BackgroundColor', 'w','callback', 'textureGui(''SCAN_SELECTED'');',...
             'enable','off','fontSize',10);
         ud.handles.structure     = uicontrol(h, 'units',units,'Position',...
             [fieldLeft-.05 1-.33 fieldWidth+.05 rowHeight],'String', structsC,...
-            'value', 1, 'Style', 'popup', 'horizontalAlignment', 'right',...
+            'value', 1, 'Style', 'popupmenu', 'horizontalAlignment', 'right',...
             'BackgroundColor', 'w','callback', 'textureGui(''STRUCT_SELECTED'');',...
             'enable','off','fontSize',10);
 
         ud.handles.featureType   = uicontrol(h, 'units',units,'Position',...
             [fieldLeft-.05 1-.4 fieldWidth+.05 rowHeight],'String', featureTypeC,...
-            'value', 1, 'Style', 'popup', 'callback',...
+            'value', 1, 'Style', 'popupmenu', 'callback',...
             'textureGui(''FEATURE_TYPE_SELECTED'');', 'horizontalAlignment',...
             'right', 'BackgroundColor', 'w', 'enable','off','fontSize',10);
         
@@ -479,7 +479,7 @@ switch upper(command)
             case 'Haralick Cooccurance' 
                 
                 paramC = {'Type','PatchSize','PatchType','Directionality','NumLevels'};
-                typeC = {'popup','edit' ,'popup','popup','edit'};
+                typeC = {'popupmenu','edit' ,'popupmenu','popupmenu','edit'};
                 valC = {{'All','Entropy','Energy','Sum Avg','Correlation',...
                     'Homogeneity','Contrast','Cluster Shade',...
                     'Cluster Promincence', 'Haralick Correlation'},...
@@ -495,7 +495,7 @@ switch upper(command)
                 
             case 'Laws Convolution' % Laws 
                 paramC = {'PadMethod','PadSize','Direction','Type','Normalize'};
-                typeC = {'popup','edit','popup','edit','popup'};
+                typeC = {'popupmenu','edit','popupmenu','edit','popupmenu'};
                 valC = {{'expand','padzeros','periodic','nearest',...
                     'mirror','none'},{'2,2,2'},{'2D','3D', 'All'},...
                     {'E5L5S5'},{'Yes','No'}};
@@ -504,7 +504,7 @@ switch upper(command)
             case 'Laws Energy' %Laws energy
                 paramC = {'PadMethod','PadSize','Direction','Type',...
                           'KernelSize','Normalize'};
-                typeC = {'popup','edit','popup','edit','edit','popup'};
+                typeC = {'popupmenu','edit','popupmenu','edit','edit','popupmenu'};
                 valC = {{'expand','padzeros','periodic','nearest',...
                     'mirror','none'},{'2,2,2'},{'2D','3D', 'All'},...
                     {'E5L5S5'},'5,5,5',{'Yes','No'}};
@@ -512,7 +512,7 @@ switch upper(command)
                 
             case 'Mean' % Local mean filter
                 paramC = {'PadMethod', 'PadSize','KernelSize'};
-                typeC = {'popup','edit','edit'};
+                typeC = {'popupmenu','edit','edit'};
                 valC = {{'expand','padzeros','periodic','nearest',...
                     'mirror','none'},{'5,5,5'},{'3,3,3'}};
                 dispC = {'On','On','On'};
@@ -529,7 +529,7 @@ switch upper(command)
             case 'Wavelets'
                 paramC = {'PadMethod','PadSize','Normalize','Direction',...
                     'Wavelets','Index'};
-                typeC = {'popup','edit','popup','popup','popup','popup'};
+                typeC = {'popupmenu','edit','popupmenu','popupmenu','popupmenu','popupmenu'};
                 valC = {{'expand','padzeros','periodic','nearest',...
                     'mirror','none'},{'5,5,5'},{'Yes','No'},{'All','HHH',...
                     'LHH','HLH','HHL','LLH','LHL','HLL','LLL'},...
@@ -542,7 +542,7 @@ switch upper(command)
             case 'Gabor'
                 paramC = {'PadMethod','PadSize','Radius','Sigma',...
                     'AspectRatio','Orientation','Wavlength'};
-                typeC = {'popup','edit','edit','edit','edit','edit','edit'};
+                typeC = {'popupmenu','edit','edit','edit','edit','edit','edit'};
                 valC = {{'expand','padzeros','periodic','nearest',...
                     'mirror','none'},{'5,5,5'},3,.5,1,30,1};
                 dispC = {'On','On','On','On','On','On','On'};
@@ -550,7 +550,7 @@ switch upper(command)
                 
             case 'LoG'
                 paramC = {'PadMethod','PadSize','Sigma_mm','VoxelSize_mm'};
-                typeC = {'popup','edit','edit','edit'};
+                typeC = {'popupmenu','edit','edit','edit'};
                 
                 voxSizeV = getScanXYZSpacing(scanNum,planC);
                 voxSizeV = voxSizeV.*10; % convert cm to mm
@@ -560,7 +560,7 @@ switch upper(command)
 
             case 'Sobel'
                 paramC = {'PadMethod', 'PadSize'};
-                typeC = {'popup','edit'};
+                typeC = {'popupmenu','edit'};
                 valC = {{'expand','padzeros','periodic','nearest',...
                     'mirror','none'},{'5,5,5'}};
                 dispC = {'On','On','off','On'};
@@ -568,7 +568,7 @@ switch upper(command)
                 
             case 'CoLlage'
                 paramC = {'Dimension','Dominant_Dir_Radius','Cooccur_Radius','Number_Gray_Levels'};
-                typeC = {'popup','edit','edit','edit'};
+                typeC = {'popupmenu','edit','edit','edit'};
                 valC = {{'2d','3d'},'3 3 0','3 3 0',64};
                 dispC = {'On','On','On','On'};
                 
@@ -1576,7 +1576,7 @@ end
                 end
             end
             outS.(fieldname).val = in;
-        elseif strcmp(type,'popup')
+        elseif strcmp(type,'popupmenu')
             %outS.(fieldname).val = 1;
             if iscell(in)
             outS.(fieldname).val = in{1};
