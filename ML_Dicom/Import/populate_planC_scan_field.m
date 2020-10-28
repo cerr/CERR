@@ -68,7 +68,8 @@ switch fieldname
             end
         end
         
-        hWaitbar = waitbar(0,'Loading Scan Data Please wait...');
+        %hWaitbar = waitbar(0,'Loading Scan Data Please wait...');
+        hWaitbar = waitbar(0, ['Loading scans from Series ' num2str(seriesNum) '. Please wait...']);
         
         switch multiFrameFlag
             
@@ -275,7 +276,7 @@ switch fieldname
                     
                     clear imageobj;
                     
-                    waitbar(imageNum/(nImages),hWaitbar, ['Loading scans from Series ' num2str(seriesNum) '. Please wait...']);
+                    waitbar(imageNum/(nImages),hWaitbar);
                 end
                                 
                 %Reorder 3D matrix based on zValues.
@@ -515,7 +516,7 @@ switch fieldname
                     
                     clear imageobj;
                     
-                    waitbar(imageNum/(nImages),hWaitbar, ['Loading scans Info. ' 'Please wait...']);
+                    waitbar(imageNum/(nImages),hWaitbar);
                 end                
                 
                 %Reorder scanInfo elements based on zValues.
