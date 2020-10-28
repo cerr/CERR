@@ -234,7 +234,7 @@ for i=1:length(studyS.SERIES)
     %thisUID = studyS.SERIES(i).info.subSet(hex2dec(seriesUIDTag));
     %thisUID = studyS.SERIES(i).info.filter(emptyAttr);
     thisUID = filter(studyS.SERIES(i).info, emptyAttr);
-    thisUIDstr = thisUID.getStrings(hex2dec(seriesUIDTag));
+    thisUIDstr = char(thisUID.getStrings(hex2dec(seriesUIDTag)));
     % thisUID = filter(studyS.SERIES(i).info, hex2dec({tagS.tag}));
     seriesModality = studyS.SERIES(i).info.getString(hex2dec(modalityTag));
     if strcmpi(currentModality,'MR') && strcmpi(seriesModality,'MR')
