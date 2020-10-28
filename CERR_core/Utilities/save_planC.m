@@ -277,6 +277,7 @@ remoteFiles = listRemoteScanAndDose(planC);
 %Prepare a list of files that will be added to _store directory.
 filesLocal = [];
 remoteFullFile = {};
+remotePathLocal = {};
 for i = 1:length(remoteFiles)
     switch upper(remoteFiles(i).storageType)
         case {'LOCAL'}
@@ -297,8 +298,8 @@ end
 if length(filesLocal)>0 & ~exist(fullfile(pathstr,[name,'_store']))
     mkdir(fullfile(pathstr,[name,'_store']))
 elseif length(filesLocal) < 1
-    if exist(remotePathLocal,'dir')
-        rmdir(remotePathLocal)
+    if ~isempty(remotePathLocal) && exist(remotePathLocal{1},'dir')
+        rmdir(remotePathLocal{1})
     end
 end
 
