@@ -83,10 +83,12 @@ switch upper(vr)
         data = attr.getStrings(hex2dec(tag));
         %data = org.dcm4che3.data.ElementDictionary.keywordOf(hex2dec(tag), []);
         %If more than one string, put in cell array.
-        if numel(data) > 1
+        if length(data) > 1
             data = cell(data);
+        elseif length(data) == 1
+            data = data(1);
         else
-            data = char(data);
+            data = '';    
         end
     case 'DA'
         %Date string format: YYYYMMDD
