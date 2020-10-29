@@ -8,7 +8,7 @@ if ~isstruct(deformS)
 end
 
 
-if nargin < 6
+if ~exist('interpolation','var')
     interpolation = '';
 end
 
