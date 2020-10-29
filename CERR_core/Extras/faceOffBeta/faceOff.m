@@ -1,8 +1,12 @@
-function planC = faceOff(planC, scanNum, tmpDirPath, exportDicomFlag, outputDICOMPath)
+function planC = faceOff(planC, scanNum, tmpDirPath, exportDICOMFlag, outputDICOMPath)
 
 %% parse input and set up parameters, variables
-if ~exist('exportDicomFlag', 'var')
-        exportDicomFlag = 0;
+if ~exist('exportDICOMFlag', 'var') && ~exist('outputDICOMPath','var')
+        exportDICOMFlag = 0;
+end
+
+if exportDICOMFlag && (~exist('outputDICOMPath','var') || isempty(outputDICOMPath))
+    outputDICOMPath = pwd;
 end
 
 if ~exist('tmpDirPath', 'var') || isempty(tmpDirPath)
@@ -29,12 +33,14 @@ end
 
 % set affine transform 
 inputCmdFile = fullfile(getCERRPath,'ImageRegistration','antsScripts','SyN_a.txt');
-templatePlanC = loadTemplatePlanC;
+[templateImageFile, faceMaskImageFile] = loadTemplatePlanC;
 [ ~, planC, ~] = register_scans(templatePlanC, 1, planC, scanNum, 'QuickSyn ANTs', 'ANTs', '', [], [], [], inputCmdFile);
 
 %% inverse-warp the template face mask to scan space
-
-
+indexS = planC{end};
+deformS = planC{indexS.deform}(end);
+inverseFlag = 1;
+warp_structures(deformS, strCreationScanNum, movStructNumsV, planC, faceMaskImageFIle, inverseFlag);
 
 
 %% export CERR to DICOM
@@ -46,6 +52,7 @@ if exportDicomFlag
 end
 
 
-function templatePlanC = loadTemplatePlanC
-    templatePlanC = fullfile(getCERRPath,'Extras','faceOffBeta','template0.nii.gz');
+function [templateImageFile, faceMaskImageFile] = loadTemplatePlanC
+    templateImageFile = fullfile(getCERRPath,'Extras','faceOffBeta','template0.nii.gz');
+    faceMaskImageFile = fullfile(getCERRPath,'Extras','faceOffBeta','deface_template_40_M_GD_8.nii.gz');
 
