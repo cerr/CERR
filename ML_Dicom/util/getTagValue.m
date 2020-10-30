@@ -46,8 +46,9 @@ function data = getTagValue(attr, tag, varargin)
 % You should have received a copy of the GNU General Public License
 % along with CERR.  If not, see <http://www.gnu.org/licenses/>.
 
+%transferSyntaxUID = attr.getString(hex2dec('00020010'));                    
 %Get the VR, cast to ML char array.
-%vr = char(org.dcm4che3.data.ElementDictionary.vrOf(hex2dec(tag), []));
+%vr = org.dcm4che3.data.ElementDictionary.vrOf(hex2dec(tag), transferSyntaxUID);
 vr = org.dcm4che3.data.ElementDictionary.vrOf(hex2dec(tag), []);
 vr = cell(vr.toString);
 vr = vr{1};
@@ -162,7 +163,8 @@ switch upper(vr)
         %representation fields, but the data conversion b/w matlab and java is int32.
         
         %data = uint16(attr.getInts(buf));
-        data = attr.getInts(hex2dec(tag));
+        %data = attr.getInts(hex2dec(tag));
+        data = cast(attr.getInts(hex2dec(tag)),'int16');
     case 'PN'
         nameObj = org.dcm4che3.data.PersonName(attr.getString(hex2dec(tag)));
         %DCM4CHE3 now uses enum 'Component' instead of an array
@@ -226,13 +228,13 @@ end
 %DEBUGGING: remove this once all DICOM VRs are implemented and fully
 %tested.  Until then, reaching this point in the code indicates that a VR
 %MUST be defined for proper functioning of a called module.
-if ~exist('data', 'var');
+if ~exist('data', 'var')
     disp(['DEBUGGING: ' vr ' is not defined.  Implement it in dcm2ml_Element.m']);
     data = '';
 else
     %Handle empty data situations -- this needs to be tailored to individual
     %VR values if matching MATLAB's dicominfo function output is desired.
-    if isempty(data);
+    if isempty(data)
         data = '';
     end
 end

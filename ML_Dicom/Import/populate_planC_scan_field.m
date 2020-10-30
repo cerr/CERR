@@ -83,8 +83,12 @@ switch fieldname
                     %Pixel Data
                     %wy sliceV = getTagValue(imgobj.get(hex2dec('7FE00010')));
                     %sliceV = imgobj.getInts(org.dcm4che2.data.Tag.PixelData);
-
-                    transferSyntaxUID = getTagValue(imgobj,'00020010');
+                    
+                    %transferSyntaxUID = getTagValue(imgobj,'00020010');                    
+                    %vr = org.dcm4che3.data.ElementDictionary.vrOf(hex2dec('7FE00010'), transferSyntaxUID);
+                    %vr = cell(vr.toString);
+                    %vr = vr{1};
+                    
                     %sliceV =
                     %dcm2ml_Element(imgobj.get(hex2dec('7FE00010')),transferSyntaxUID);
                     % AI
@@ -108,46 +112,46 @@ switch fieldname
                     %Bits Allocated
                     bitsAllocated = getTagValue(imgobj, '00280100');
                     
+                    % Samples per pixel
+                    samplesPerPixel = getTagValue(imgobj,'00280002');
+                    
+                    % Photometric Interpretation
+                    PhotometricInterpretation = getTagValue(imgobj ,'00280004');
+                    
                     if bitsAllocated > 32
                         error('Maximum 32 bits per scan pixel are supported')
                     end
                     
                     switch pixRep
                         case 0
-                            if bitsAllocated == 8 || bitsAllocated == 16 || bitsAllocated == 32
-                                if strcmpi(class(sliceV),'int32')
-                                    if bitsAllocated == 8
-                                        sliceV = typecast(sliceV,'uint8');
-                                    elseif bitsAllocated == 16
-                                        sliceV = typecast(sliceV,'uint16');
-                                    else
-                                        sliceV = typecast(sliceV,'uint32');
-                                    end
-                                    % sliceV = sliceV(1:2:end);
-                                    sliceV = sliceV(1:2:2*nCols*nRows);
-                                else
-                                    sliceV = typecast(sliceV,'uint16');
-                                end
+                            if bitsAllocated == 8
+                                sliceV = typecast(sliceV,'uint8');
+                            elseif bitsAllocated == 16
+                                sliceV = typecast(sliceV,'uint16');
+                            elseif bitsAllocated == 32
+                                sliceV = typecast(sliceV,'uint32');
                             end
                         case 1
-                            if bitsAllocated == 16 || bitsAllocated == 32
-                                if strcmpi(class(sliceV),'int32')
-                                    if bitsAllocated == 16
-                                        sliceV = typecast(sliceV,'int16');
-                                    else
-                                        sliceV = typecast(sliceV,'int32');
-                                    end
-                                    sliceV = sliceV(1:2:end);
-                                else
-                                    sliceV = typecast(sliceV,'int16');
-                                end
+                            if bitsAllocated == 8
+                                sliceV = typecast(sliceV,'int8');
+                            elseif bitsAllocated == 16
+                                sliceV = typecast(sliceV,'int16');
+                            elseif bitsAllocated == 32
+                                sliceV = typecast(sliceV,'int32');
                             end
                         otherwise
-                            sliceV = typecast(sliceV,'int16');
+                            error('Unknown pixel representation')
                             
                     end
-                    %Shape the slice.
-                    slice2D = reshape(sliceV, [nCols nRows]);
+                    
+                    % Reshape the slice.
+                    if samplesPerPixel == 3 % for exaple, rgb
+                        slice2D = reshape(sliceV, [samplesPerPixel,nCols,nRows]);
+                        slice2D = permute(slice2D,[2,3,1]);
+                        slice2D = rgb2gray(slice2D);
+                    else
+                        slice2D = reshape(sliceV, [nCols,nRows]);
+                    end
                     
                     % Study instance UID
                     studyUID = getTagValue(imgobj, '0020000D');
@@ -314,31 +318,31 @@ switch fieldname
                 %Bits Allocated
                 bitsAllocated = getTagValue(imgobj, '00280100');
                 
-                if bitsAllocated > 16
+                if bitsAllocated > 32
                     error('Only 16 bits per scan pixel are supported')
                 end
                 
                 switch pixRep
                     case 0
-                        if bitsAllocated == 16
-                            if strcmpi(class(sliceV),'int32')
-                                sliceV = typecast(sliceV,'uint16');
-                                sliceV = sliceV(1:2:end);
-                            else
-                                sliceV = typecast(sliceV,'uint16');
-                            end
+                        if bitsAllocated == 8
+                            sliceV = typecast(sliceV,'uint8');
+                        elseif bitsAllocated == 16
+                            sliceV = typecast(sliceV,'uint16');
+                        elseif bitsAllocated == 32
+                            sliceV = typecast(sliceV,'uint32');
                         end
                     case 1
-                        if bitsAllocated == 16
-                            if strcmpi(class(sliceV),'int32')
-                                sliceV = typecast(sliceV,'int16');
-                                sliceV = sliceV(1:2:end);
-                            else
-                                sliceV = typecast(sliceV,'int16');
-                            end
+                        if bitsAllocated == 8
+                            sliceV = typecast(sliceV,'int8');
+                        elseif bitsAllocated == 16
+                            sliceV = typecast(sliceV,'int16');
+                        elseif bitsAllocated == 32
+                            sliceV = typecast(sliceV,'int32');
                         end
-                        
+                    otherwise
+                        error('Unknown pixel representation')                        
                 end
+
                 %Shape the slice.
                 dataS = reshape(sliceV, [nCols nRows numMultiFrameImages]);
                 dataS = permute(dataS,[2 1 3]);
