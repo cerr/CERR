@@ -484,27 +484,49 @@ switch fieldname
             % doseV = uint16(getTagValue(attr, '7FE00010'));
             doseV = getTagValue(attr, '7FE00010');
             
-            % doseV is a vector of 16 bit numbers
-            if strcmpi(class(doseV),'int32')
-                doseV = typecast(int16(doseV),'uint16');
-            elseif strcmpi(class(doseV),'int16')
-                doseV = typecast(doseV,'uint16');
-            end
+            switch pixRep
+                case 0
+                    if bA == 8
+                        doseV = typecast(doseV,'uint8');
+                    elseif bA == 16
+                        doseV = typecast(doseV,'uint16');
+                    elseif bA == 32
+                        doseV = typecast(doseV,'uint32');
+                    end
+                case 1
+                    if bA == 8
+                        doseV = typecast(doseV,'int8');
+                    elseif bA == 16
+                        doseV = typecast(doseV,'int16');
+                    elseif bA == 32
+                        doseV = typecast(doseV,'int32');
+                    end
+                otherwise
+                    error('Unknown pixel representation')
+                    
+            end            
+            
+%             % doseV is a vector of 16 bit numbers
+%             if strcmpi(class(doseV),'int32')
+%                 doseV = typecast(int16(doseV),'uint16');
+%             elseif strcmpi(class(doseV),'int16')
+%                 doseV = typecast(doseV,'uint16');
+%             end
             if isempty(doseV)
                 doseV = dicomread(DOSE.file);
                 mread = 1;
             end
             
-            switch bA
-                case 32
-                    %doseV is a vector of 16 bit numbers in which the 4 bytes
-                    %of 2 consecutive elements represent a single 32 bit point.
-                    doseV = bitstream_conversion_to('uint32', doseV);
-                case 16
-                    %Data already consists of one dose point per word.
-                otherwise
-                    error('RT Dose objects must have attribute "Bits Allocated" set to either 16 or 32.');
-            end
+%             switch bA
+%                 case 32
+%                     %doseV is a vector of 16 bit numbers in which the 4 bytes
+%                     %of 2 consecutive elements represent a single 32 bit point.
+%                     doseV = bitstream_conversion_to('uint32', doseV);
+%                 case 16
+%                     %Data already consists of one dose point per word.
+%                 otherwise
+%                     error('RT Dose objects must have attribute "Bits Allocated" set to either 16 or 32.');
+%             end
             
         catch
             doseV = dicomread(DOSE.file);
