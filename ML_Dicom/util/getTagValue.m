@@ -202,7 +202,8 @@ switch vrCode
     case 20558
  %elseif vr.equals(org.dcm4che3.data.VR.PN) %strcmpi(vr,'PN')
     %case 'PN'
-        nameObj = org.dcm4che3.data.PersonName(attr.getString(tag));
+        %nameObj = org.dcm4che3.data.PersonName(attr.getString(tag));
+        nameObj = javaObject('org.dcm4che3.data.PersonName',attr.getString(tag));
         %DCM4CHE3 now uses enum 'Component' instead of an array
         
         compFamilyName = javaMethod('valueOf','org.dcm4che3.data.PersonName$Component','FamilyName');
