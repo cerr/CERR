@@ -1,4 +1,4 @@
-function [scan3M,dose3M,strMaskC,xyzGridC] = ...
+function [scan3M,dose3M,strMaskC,xyzGridC,strColorC] = ...
     getScanDoseStrVolumes(scanNum,doseNum,structNamC,planC)
 % function [scan3M,dose3M,strMaskC] = ...
 % getScanDoseStr(scanNum,doseNum,structnamC,planC)
@@ -41,9 +41,11 @@ dose3M = getDoseOnCT(doseNum, scanNum, scanType, planC);
 numStructs = length(structNamC);
 strC = {planC{indexS.structures}.structureName};
 strMaskC = cell(1,numStructs);
+strColorC = cell(1,numStructs);
 for iStr = 1:numStructs
     strNum = getMatchingIndex(structNamC{iStr},strC,'exact');
     strMask3M = getStrMask(strNum,planC);
     strMaskC{iStr} = strMask3M;
+    strColorC{iStr} = planC{indexS.structures}(strNum).structureColor;
 end
 
