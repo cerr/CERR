@@ -1,4 +1,4 @@
-function planC = warp_scan(deformS,movScanNum,movPlanC,planC,tmpDirPath,interpolation)
+function planC = warp_scan(deformS,movScanNum,movPlanC,planC,tmpDirPath,interpolation,inverseFlag)
 % function planC = warp_scan(deformS,movScanNum,movPlanC,planC,tmpDirPath,interpolation)
 %
 % APA, 07/19/2012
@@ -11,6 +11,12 @@ end
 if ~exist('interpolation','var')
     interpolation = '';
 end
+
+
+if ~exist('inverseFlag','var')
+    inverseFlag = '';
+end
+
 
 if ~exist('tmpDirPath','var')
     tmpDirPath = fullfile(getCERRPath,'ImageRegistration','tmpFiles');
