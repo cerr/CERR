@@ -1,4 +1,4 @@
-function planC = warp_structures(deformS,strCreationScanNum,movStructNumsV,movPlanC,planC, inverseFlag)
+function planC = warp_structures(deformS,strCreationScanNum,movStructNumsV,movPlanC,planC, tmpDirPath, inverseFlag)
 % function planC = warp_structures(deformS,strCreationScanNum,movStructNumsV,movPlanC,planC)
 %
 % APA, 07/20/2012
@@ -7,11 +7,13 @@ if ~exist('inverseFlag','var')
     inverseFlag = 0;
 end
 
-tmpDirPath = fullfile(getCERRPath,'ImageRegistration','tmpFiles');
+if ~exist(tmpDirPath,'var') || isempty(tmpDirPath)
+    tmpDirPath = fullfile(getCERRPath,'ImageRegistration','tmpFiles');
+end
 
 indexMovS = movPlanC{end};
+
 antsFlag = 0; plmFlag = 0; elxFlag = 0;
-% Create b-spline coefficients file
 if isstruct(deformS)
     if ~inverseFlag
         baseScanUID = deformS.baseScanUID;
@@ -29,13 +31,14 @@ if isstruct(deformS)
             bspFileName = fullfile(getCERRPath,'ImageRegistration','tmpFiles',['bsp_coeffs_',baseScanUID,'_',movScanUID,'.txt']);
             success = write_bspline_coeff_file(bspFileName,deformS.algorithmParamsS);
         case 'ELASTIX'
-            elastixFlag = 1;
+            elxFlag = 1;
             disp('Elastix selected');
         case 'ANTS'
             antsFlag = 1;
             disp('ANTs selected');
     end
 else
+    % Create b-spline coefficients file
     plmFlag = 1;
     bspFileName = deformS;
     indexS = planC{end};
@@ -61,6 +64,8 @@ else
     success = createMhaScansFromCERR(baseScanNum, baseScanFileName, basePlanC);
 end
 
+% Generate name for the output .mha file
+warpedMhaFileName = fullfile(tmpDirPath,['warped_struct_',baseScanUID,'_',movScanUID,'.mha']);
 
 
 if antsFlag
@@ -78,11 +83,26 @@ if antsFlag
     end
     transformParams = buildAntsTransform(deformS.algorithmParamsS.antsWarpProducts,inverseFlag);
     interpParams = ' -n NearestNeighbor';
-    antsCommand = [' antsApplyTransforms -d 3 -r ' refScanFileName ' -i ' movScanFileName ' -o ' warpedMhaFileName ' ' transformParams ' ' interpParams];
     
-    disp(antsCommand);
-    system(antsCommand);
-    disp('Warp complete, importing warped scan to planC...');
+    for structNum = movStructNumsV
+        antsCommand = [' antsApplyTransforms -d 3 -r ' refScanFileName ' -i ' movScanFileName ' -o ' warpedMhaFileName ' ' transformParams ' ' interpParams];
+        
+        disp(antsCommand);
+        system(antsCommand);
+        disp('Warp complete, importing warped scan to planC...');
+        
+        [data3M,infoS] = readmha(warpedMhaFileName);
+        data3M = flipdim(permute(data3M,[2,1,3]),3);
+        isUniform = 1;
+        strName = ['Warped_',movPlanC{indexMovS.structures}(structNum).structureName];
+        planC = maskToCERRStructure(data3M,isUniform,strCreationScanNum,strName,planC);
+        
+        % Cleanup
+        try
+            delete(movStrFileName)
+            delete(warpedMhaFileName)
+        end
+    end
 end
 
 if plmFlag
@@ -113,14 +133,13 @@ if plmFlag
         % Write .mha file for this structure
         writemetaimagefile(movStrFileName, mask3M, resolution, offset)
         
-        % Generate name for the output .mha file
-        warpedMhaFileName = fullfile(getCERRPath,'ImageRegistration','tmpFiles',['warped_struct_',baseScanUID,'_',movScanUID,'.mha']);
         
         % Issue plastimatch warp command with nearest neighbor interpolation
         fail = system([plmCommand, '--input ', movStrFileName, ' --output-img ', warpedMhaFileName, ' --xf ', bspFileName, ' --interpolation nn']);
         if fail % try escaping slashes
             system([plmCommand, '--input ', escapeSlashes(movStrFileName), ' --output-img ', escapeSlashes(warpedMhaFileName), ' --xf ', escapeSlashes(bspFileName), ' --interpolation nn'])
         end
+        
         
         % Read the warped output .mha file within CERR
         %infoS  = mha_read_header(warpedMhaFileName);
