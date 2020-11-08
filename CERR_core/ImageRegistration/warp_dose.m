@@ -8,10 +8,29 @@ indexS = planC{end};
 
 % Create b-spline coefficients file
 if isstruct(deformS)
-    baseScanUID = deformS.baseScanUID;
-    movScanUID  = deformS.movScanUID;
-    bspFileName = fullfile(getCERRPath,'ImageRegistration','tmpFiles',['bsp_coeffs_',baseScanUID,'_',movScanUID,'.txt']);
-    success = write_bspline_coeff_file(bspFileName,deformS.algorithmParamsS);
+    if ~inverseFlag
+        baseScanUID = deformS.baseScanUID;
+        movScanUID  = deformS.movScanUID;
+    else
+        baseScanUID = deformS.movScanUID;
+        movScanUID  = deformS.baseScanUID;
+    end
+    algorithm = deformS.algorithm;
+    registration_tool = deformS.registration_tool;
+    switch upper(registration_tool)
+        case 'PLASTIMATCH'
+            plmFlag = 1;
+            disp('Plastimatch selected');
+            bspFileName = fullfile(getCERRPath,'ImageRegistration','tmpFiles',['bsp_coeffs_',baseScanUID,'_',movScanUID,'.txt']);
+            success = write_bspline_coeff_file(bspFileName,deformS.algorithmParamsS);
+        case 'ELASTIX'
+            elxFlag = 1;
+            disp('Elastix selected');
+        case 'ANTS'
+            antsFlag = 1;
+            disp('ANTs selected');
+    end   
+    
 else
     bspFileName = deformS;
     indexS = planC{end};
@@ -33,24 +52,52 @@ success = createMhaDosesFromCERR(movDoseNum, movDoseFileName, movPlanC);
 % Generate name for the output .mha file
 warpedMhaFileName = fullfile(getCERRPath,'ImageRegistration','tmpFiles',['warped_dose_',baseScanUID,'_',movScanUID,'.mha']);
 
-% Switch to plastimatch directory if it exists
-prevDir = pwd;
-plmCommand = 'plastimatch warp ';
-optName = fullfile(getCERRPath,'CERROptions.json');
-optS = opts4Exe(optName);
-if exist(optS.plastimatch_build_dir,'dir') && isunix
-    cd(stateS.optS.plastimatch_build_dir)
-    plmCommand = ['./',plmCommand];
+if plmFlag
+    % Switch to plastimatch directory if it exists
+    prevDir = pwd;
+    plmCommand = 'plastimatch warp ';
+    optName = fullfile(getCERRPath,'CERROptions.json');
+    optS = opts4Exe(optName);
+    if exist(optS.plastimatch_build_dir,'dir') && isunix
+        cd(stateS.optS.plastimatch_build_dir)
+        plmCommand = ['./',plmCommand];
+    end
+    
+    % Issue plastimatch warp command with nearest neighbor interpolation
+    %fail = system([plmCommand, '--input ', movDoseFileName, ' --output-img ',
+    %warpedMhaFileName, ' --xf ', bspFileName, ' --algorithm itk']); %
+    %ITK-based warping, consider adding it an an option.
+    fail = system([plmCommand, '--input ', movDoseFileName, ' --output-img ', warpedMhaFileName, ' --xf ', bspFileName]);
+    if fail % try escaping slashes
+        system([plmCommand, '--input ', escapeSlashes(movDoseFileName), ' --output-img ', escapeSlashes(warpedMhaFileName), ' --xf ', escapeSlashes(bspFileName)])
+    end
 end
 
-% Issue plastimatch warp command with nearest neighbor interpolation
-%fail = system([plmCommand, '--input ', movDoseFileName, ' --output-img ',
-%warpedMhaFileName, ' --xf ', bspFileName, ' --algorithm itk']); %
-%ITK-based warping, consider adding it an an option.
-fail = system([plmCommand, '--input ', movDoseFileName, ' --output-img ', warpedMhaFileName, ' --xf ', bspFileName]);
-if fail % try escaping slashes
-    system([plmCommand, '--input ', escapeSlashes(movDoseFileName), ' --output-img ', escapeSlashes(warpedMhaFileName), ' --xf ', escapeSlashes(bspFileName)])
+if antsFlag
+            % ANTs path setup
+        if ~exist(optS.antspath_dir,'dir')
+            error(['ANTSPATH ' optS.antspath_dir ' not found on filesystem. Please review CERROptions.']);
+        end
+        antspath = fullfile(optS.antspath_dir,'bin');
+        setenv('ANTSPATH', antspath);
+        antsScriptPath = fullfile(optS.antspath_dir, 'Scripts');
+        antsCERRScriptPath = fullfile(getCERRPath,'CERR_core','ImageRegistration','antsScripts');
+        if isunix
+            setenv('PATH',[antspath ':' antsScriptPath ':' antsCERRScriptPath ':' getenv('PATH')]);
+            antsCommand = '';
+        else
+            setenv('PATH',[antspath ';' antsScriptPath ';' antsCERRScriptPath ';' getenv('PATH')]);
+            antsCommand = '';
+        end
+        % generate transform command
+        transformParams = buildAntsTransform(deformS.algorithmParamsS.antsWarpProducts);
+        antsCommand = [antsCommand ' antsApplyTransforms -d 3 -r ' refScanFileName ' -i ' movScanFileName ' -o ' warpedMhaFileName ' ' transformParams ' ' interpParams];
+        disp(antsCommand);
+        system(antsCommand);
+        disp('Warp complete, importing warped scan to planC...');
+        
 end
+
 
 % Read the warped output .mha file within CERR
 %infoS  = mha_read_header(warpedMhaFileName);
