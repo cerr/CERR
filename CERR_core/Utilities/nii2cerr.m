@@ -5,7 +5,7 @@ function planC = nii2cerr(filename,scanName,planC,save_flag)
 % Usage: planC = nii2cerr(filename,scanName,planC,save_flag);
 %
 % AI 4/10/19
-% EL 10/23/20 import for gzipped nii
+% EL 10/23/20 support for gzipped nii
 
 if ~exist('planC','var') || isempty(planC)
     planC = [];
