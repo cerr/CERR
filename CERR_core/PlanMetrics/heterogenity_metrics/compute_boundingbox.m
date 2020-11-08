@@ -22,13 +22,25 @@ if ~isempty(maskFlag)
     bboxmask = zeros(size(x3D));
     if maskFlag > 1
         minr = minr - maskFlag;
-        maxr = maxr + maskFlag;
+        maxr = maxr + maskFlag; 
+        if maxr > size(x3D,1)
+            maxr = size(x3D,1);
+        end
         minc = minc - maskFlag;
         maxc = maxc + maskFlag;
+        if maxc > size(x3D,2)
+            maxc = size(x3D,2);
+        end
         mins = mins - maskFlag;
         maxs = maxs + maskFlag;
+        if maxs > size(x3D,3)
+            maxs = size(x3D,3);
+        end
+        maxarr = [maxr,maxc,maxs];
+        minarr = [minr, minc, mins];
+        minarr(minarr < 1) = 1;
     end
-    bboxmask(minr:maxr, minc:maxc, mins:maxs) = 1;
+    bboxmask(minarr(1):maxarr(1), minarr(2):maxarr(2), minarr(3):maxarr(3)) = 1;
 end
 
 return
