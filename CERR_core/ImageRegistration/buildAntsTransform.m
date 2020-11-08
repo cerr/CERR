@@ -15,8 +15,8 @@ if ~inverseFlag
             error(['Unable to complete transform, warp product missing: ' antsWarpProducts.Warp]);
         end
     end
-    if ~isempty(deformS.algorithmParamsS.antsWarpProducts.Affine)
-        if exist(deformS.algorithmParamsS.antsWarpProducts.Affine, 'file')
+    if ~isempty(antsWarpProducts.Affine)
+        if exist(antsWarpProducts.Affine, 'file')
             transformParams = [transformParams ' -t ' antsWarpProducts.Affine ' '];
         else
             error(['Unable to complete transform, affine product missing: ' antsWarpProducts.Affine]);
