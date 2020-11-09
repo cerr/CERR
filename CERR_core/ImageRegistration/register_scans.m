@@ -261,7 +261,7 @@ switch upper(algorithm)
         
         % Cleanup
         bspFileName = vfFileName;
-    case 'BSPLINE PLASTIMATCH'
+    case {'BSPLINE PLASTIMATCH','BSPLINE'}
         
         deleteBspFlg = 1;
         if exist('outBspFile','var') && ~isempty(outBspFile)
@@ -270,8 +270,7 @@ switch upper(algorithm)
         else
             %bspFileName = fullfile(getCERRPath,'ImageRegistration',...
             %    'tmpFiles',['bsp_coeffs_',baseScanUID,'_',movScanUID,'.txt']);
-            bspFileName = fullfile(tmpDirPath,...
-                ['bsp_coeffs_',baseScanUID,'_',movScanUID,'.txt']);
+            bspFileName = fullfile(tmpDirPath, ['bsp_coeffs_',baseScanUID,'_',movScanUID,'.txt']);
         end
         if exist(bspFileName,'file')
             delete(bspFileName)
@@ -309,12 +308,12 @@ switch upper(algorithm)
         try
             delete(baseScanFileName);
             delete(movScanFileName);
-            if deleteBspFlg
-                delete(bspFileName);
-            end
+%             if deleteBspFlg
+%                 delete(bspFileName);
+%             end
             delete(baseMaskFileName);
             delete(movMaskFileName);
-            delete(cmdFileName_dir);
+%             delete(cmdFileName_dir);
         end
         
         % Create a structure for storing algorithm parameters
@@ -533,11 +532,11 @@ if antsFlag
     
     % Run ANTs cases
     switch upper(algorithm)
-        case {'QUICKSYN ANTS','LDDMM ANTS'}
+        case {'QUICKSYN ANTS', 'LDDMM ANTS', 'QUICKSYN', 'LDDMM'}
             antsCommand = buildAntsCommand(algorithm,inputCmdFile,baseScanFileName,movScanFileName, ...
                 outPrefix,baseMaskFileName,movMaskFileName, ...
                 deformBaseMaskFileName,deformMovMaskFileName);
-            
+            disp(['Executing: ' antsCommand]);
             system(antsCommand);
             
             deformS.algorithmParamsS.antsCommand = antsCommand;
@@ -548,6 +547,21 @@ if antsFlag
             end
             if iscell(movPlanC)
                 movPlanC = insertDeformS(movPlanC,deformS);
+            end
+            
+            %add warped image to planC
+            if exist(deformS.algorithmParamsS.antsWarpProducts.Warped,'file')
+                save_flag = 0; movScanOffset = 0;
+                movScanName = ['deformed_' strrep(algorithm,' ','_')  '_' registration_tool];
+                warpedMhaFile = deformS.algorithmParamsS.antsWarpProducts.Warped;
+                [~,~,e] = fileparts(warpedMhaFile);
+                if strcmp(e,'.mha')
+                    infoS  = mha_read_header(warpedMhaFile);
+                    data3M = mha_read_volume(infoS);
+                    basePlanC  = mha2cerr(infoS,data3M, movScanOffset, movScanName, basePlanC, save_flag);
+                else
+                    basePlanC = nii2cerr(warpedMhaFile,movScanName,basePlanC,save_flag);
+                end
             end
     end
 end
