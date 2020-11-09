@@ -1,11 +1,21 @@
-function planC = warp_dose(deformS,doseCreationScanNum,movDoseNum,movPlanC,planC)
+function planC = warp_dose(deformS,doseCreationScanNum,movDoseNum,movPlanC,planC,tmpDirPath,inverseFlag)
 % function planC = warp_dose(deformS,doseCreationScanNum,movPlanC,planC)
 %
 % APA, 07/19/2012
 
+if ~exist('inverseFlag','var') 
+    inverseFlag = 0;
+end
+
+if ~exist('tmpDirPath','var') || isempty(tmpDirPath)
+    tmpDirPath = fullfile(getCERRPath,'ImageRegistration','tmpFiles');
+end
+
 indexMovS = movPlanC{end};
 indexS = planC{end};
 
+optS = getCERROptions();
+plmFlag = 0; elxFlag = 0; antsFlag = 0;
 % Create b-spline coefficients file
 if isstruct(deformS)
     if ~inverseFlag
@@ -15,13 +25,13 @@ if isstruct(deformS)
         baseScanUID = deformS.movScanUID;
         movScanUID  = deformS.baseScanUID;
     end
-    algorithm = deformS.algorithm;
+%     algorithm = deformS.algorithm;
     registration_tool = deformS.registration_tool;
     switch upper(registration_tool)
         case 'PLASTIMATCH'
             plmFlag = 1;
             disp('Plastimatch selected');
-            bspFileName = fullfile(getCERRPath,'ImageRegistration','tmpFiles',['bsp_coeffs_',baseScanUID,'_',movScanUID,'.txt']);
+            bspFileName = fullfile(tmpDirPath,['bsp_coeffs_',baseScanUID,'_',movScanUID,'.txt']);
             success = write_bspline_coeff_file(bspFileName,deformS.algorithmParamsS);
         case 'ELASTIX'
             elxFlag = 1;
@@ -37,20 +47,26 @@ else
     indexMovS = movPlanC{end};
     movScanNum = getDoseAssociatedScan(movDoseNum,movPlanC);
     movScanUID = movPlanC{indexMovS.scan}(movScanNum).scanUID;
-    baseScanUID = planC{indexS.scan}(doseCreationScanNum).scanUID;    
+    baseScanUID = planC{indexS.scan}(doseCreationScanNum).scanUID;
 end
 
-% Convert structure mask to .mha
+% Convert dose to .mha
 movDoseUID = movPlanC{indexMovS.dose}(movDoseNum).doseUID;
 randPart = floor(rand*1000);
 movDoseUniqName = [movDoseUID,num2str(randPart)];
-movDoseFileName = fullfile(getCERRPath,'ImageRegistration','tmpFiles',['movDose_',movDoseUniqName,'.mha']);
+movDoseFileName = fullfile(tmpDirPath,['movDose_',movDoseUniqName,'.mha']);
 
 % Write .mha file for this dose
 success = createMhaDosesFromCERR(movDoseNum, movDoseFileName, movPlanC);
 
+%write target space reference mha scan
+refScanNum = findScanByUID(planC,baseScanUID);
+[refScanUniqName, ~] = genScanUniqName(planC,refScanNum);
+refScanFileName = fullfile(tmpDirPath,['baseScan_',refScanUniqName,'.mha']);
+success = createMhaScansFromCERR(refScanNum, refScanFileName, planC);
+
 % Generate name for the output .mha file
-warpedMhaFileName = fullfile(getCERRPath,'ImageRegistration','tmpFiles',['warped_dose_',baseScanUID,'_',movScanUID,'.mha']);
+warpedMhaFileName = fullfile(tmpDirPath,['warped_dose_',baseScanUID,'_',movScanUID,'.mha']);
 
 if plmFlag
     % Switch to plastimatch directory if it exists
@@ -91,7 +107,7 @@ if antsFlag
         end
         % generate transform command
         transformParams = buildAntsTransform(deformS.algorithmParamsS.antsWarpProducts);
-        antsCommand = [antsCommand ' antsApplyTransforms -d 3 -r ' refScanFileName ' -i ' movScanFileName ' -o ' warpedMhaFileName ' ' transformParams ' ' interpParams];
+        antsCommand = [antsCommand ' antsApplyTransforms -d 3 -r ' refScanFileName ' -i ' movDoseFileName ' -o ' warpedMhaFileName ' ' transformParams]; % ' ' interpParams];
         disp(antsCommand);
         system(antsCommand);
         disp('Warp complete, importing warped scan to planC...');
@@ -100,9 +116,9 @@ end
 
 
 % Read the warped output .mha file within CERR
-%infoS  = mha_read_header(warpedMhaFileName);
-%data3M = mha_read_volume(infoS);
-[data3M,infoS] = readmha(warpedMhaFileName);
+infoS  = mha_read_header(warpedMhaFileName);
+data3M = mha_read_volume(infoS);
+% [data3M,infoS] = readmha(warpedMhaFileName);
 doseName = movPlanC{indexMovS.dose}(movDoseNum).fractionGroupID;
 assocScanUID = planC{indexS.scan}(doseCreationScanNum).scanUID;
 planC = dose2CERR(flipdim(permute(data3M,[2,1,3]),3),[],...
@@ -122,7 +138,7 @@ try
 end
 
 % Switch back to the previous directory
-cd(prevDir)
+% cd(prevDir)
 
 % Get DICOMHeader for the original dose
 dcmHeaderS = planC{indexS.dose}(movDoseNum).DICOMHeaders;
