@@ -88,7 +88,7 @@ for i = 1:numel(cellPlanC)
     structureListC = {planC{indexS.structures}.structureName};
     bboxStrName = bboxStrCell{i};
     cropToStrName = cropToStrCell{i};
-    if ~strcmp(cropToStrName,'NULL')
+    if ~isempty(cropToStrName)
         %check if bbox mask structure is in planC, if not, create one
         bbIdx = getMatchingIndex(lower(bboxStrName),lower(structureListC),'exact');
         if isempty(bbIdx)
