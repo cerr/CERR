@@ -13,6 +13,8 @@ end
 
 indexMovS = movPlanC{end};
 
+optS = getCERROptions();
+
 antsFlag = 0; plmFlag = 0; elxFlag = 0;
 if isstruct(deformS)
     if ~inverseFlag
@@ -58,10 +60,10 @@ end
 [refScanUniqName, ~] = genScanUniqName(planC,refScanNum);
 if ischar(planC)
     refScanFileName = fullfile(tmpDirPath, ['baseScan_' refScanUniqName '.' baseext basegz]);
-    copyfile(basePlanC, baseScanFileName);
+    copyfile(basePlanC, refScanFileName);
 else
-    baseScanFileName = fullfile(tmpDirPath,['baseScan_',baseScanUniqName,'.mha']);
-    success = createMhaScansFromCERR(baseScanNum, baseScanFileName, basePlanC);
+    refScanFileName = fullfile(tmpDirPath,['baseScan_',refScanUniqName,'.mha']);
+    success = createMhaScansFromCERR(refScanNum, refScanFileName, planC);
 end
 
 % Generate name for the output .mha file
@@ -85,13 +87,29 @@ if antsFlag
     interpParams = ' -n NearestNeighbor';
     
     for structNum = movStructNumsV
-        antsCommand = [' antsApplyTransforms -d 3 -r ' refScanFileName ' -i ' movScanFileName ' -o ' warpedMhaFileName ' ' transformParams ' ' interpParams];
+        mask3M = getUniformStr(structNum,movPlanC);
+        mask3M = permute(mask3M, [2 1 3]);
+        mask3M = flipdim(mask3M,3);
+        movStrUID = movPlanC{indexMovS.structures}(structNum).strUID;
+        randPart = floor(rand*1000);
+        movStrUniqName = [movStrUID,num2str(randPart)];
+        movStrFileName = fullfile(tmpDirPath, ['movStr_',movStrUniqName,'.mha']);
+        scanNum = getStructureAssociatedScan(structNum,movPlanC);
+        [xVals, yVals, zVals] = getUniformScanXYZVals(movPlanC{indexMovS.scan}(scanNum));
+        resolution = [abs(xVals(2)-xVals(1)), abs(yVals(2)-yVals(1)), abs(zVals(2)-zVals(1))] * 10;
+        offset = [xVals(1) -yVals(1) -zVals(end)] * 10;
+        % Write .mha file for this structure
+        writemetaimagefile(movStrFileName, mask3M, resolution, offset)
+        
+        antsCommand = [' antsApplyTransforms -d 3 -r ' refScanFileName ' -i ' movStrFileName ' -o ' warpedMhaFileName ' ' transformParams ' ' interpParams];
         
         disp(antsCommand);
         system(antsCommand);
         disp('Warp complete, importing warped scan to planC...');
         
-        [data3M,infoS] = readmha(warpedMhaFileName);
+%         [data3M,infoS] = readmha(warpedMhaFileName);
+        infoS  = mha_read_header(warpedMhaFileName);
+        data3M = mha_read_volume(infoS);
         data3M = flipdim(permute(data3M,[2,1,3]),3);
         isUniform = 1;
         strName = ['Warped_',movPlanC{indexMovS.structures}(structNum).structureName];
