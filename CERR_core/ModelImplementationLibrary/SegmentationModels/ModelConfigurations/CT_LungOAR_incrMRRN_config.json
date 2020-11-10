@@ -1,11 +1,11 @@
 {
 "strNameToLabelMap" : [
 {
-    "structureName": "Lung_Right",
+    "structureName": "Lung_Left",
     "value": 1
     },
 {
-      "structureName": "Lung_Left",
+      "structureName": "Lung_Right",
       "value": 2
     },
 {
@@ -27,19 +27,12 @@
         "identifier" : {"imageType": "CT SCAN"},
 
 
-	"resize" : {
- 	  		 "method": "bicubic",
-   	 		 "preserveAspectRatio":"Yes",
-   	 		 "size" : [256,256]
-		   },
+	"crop": [{
+      		"method": "none",
+      		"params": "",
+      		"operator": ""
+    		} ]
 
-	"crop": [
-		{
-    		  "method": "crop_pt_outline_2D",
-    		  "params": { "structureName": "generated_pt_outline", "outStrName":"generated_pt_outline", "saveStrToPlanCFlag": 1, "outlineThreshold": -400},
-    		  "operator": ""
-   	        }
-		]
       },
 
 "batchSize" : 1 ,
@@ -60,8 +53,8 @@
 
 "algorithm" : { 
     "algorithmName" : "CT_LungOAR_incrMRRN" , 
-    "version" : "2.X", 
-    "releaseDate" : "2020/04/09" 
+    "version" : "197a625", 
+    "releaseDate" : "2020/11/10" 
 }
 }
 }
