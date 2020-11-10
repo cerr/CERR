@@ -1,4 +1,4 @@
-function planC = importNiftiSegToPlanC(planC,structFileName)
+function planC = importNiftiSegToPlanC(planC,structFileName,structNum)
 % function planC = importNiftiSegToPlanC(planC,structFileName)
 % 
 % Script to load segmentation mask from nifti file and add to CERR planC
@@ -18,9 +18,35 @@ indexS = planC{end};
 
 strName = 'ROI';
 isUniform = 0;
-scanNum = 2; % assuming PET scan is at index 1
 
-% Read .mha file
+if ~exist(structNum,'var')
+    scanNum = 2; % assuming PET scan is at index 1
+end
+
+% Read NIfTI file
+
+gzFlag = 0;
+
+% check if files gzipped
+fileparts = strsplit(structFileName,'.');
+if strcmp(fileparts{end},'gz') && any(strcmp(fileparts{end - 1},{'img','hdr','nii'}))
+    gzFlag = 1;    
+    tmpDirPath = fullfile(getCERRPath, 'ImageRegistration', 'tmpFiles');
+    if strcmp(fileparts{end - 1},'nii')
+        filegz = structFileName;
+        ungzfile = gunzip(filegz,tmpDirPath);
+        structFileName = ungzfile{1};
+    end
+    if any(strcmp(fileparts{end - 1},{'hdr','img'}))
+        filebase = structFileName(1:end - 7);
+        for ext = {'hdr','img'}
+            filegz = [filebase '.hdr.gz'];
+            ungzfile = gunzip(filegz, tmpDirPath);
+        end
+        structFileName = ungzfile{1};
+    end
+end
+
 [vol,info] = nifti_read_volume(structFileName);
 mask3M = permute(vol,[2,1,3]);
 
@@ -32,9 +58,14 @@ mask3M = permute(vol,[2,1,3]);
 % end
 
 % Add mask to CERR structure
-numStructs = max(mask3M(:));
+numStructs = unique(mask3M(:));
 for strNum = 1:numStructs
     planC = maskToCERRStructure(mask3M==strNum, isUniform, scanNum, ...
         [strName,'_',num2str(strNum)], planC);
 end
 
+%remove temp unzipped files
+if gzFlag
+    filebase = filename(1:end-4);
+    delete([filebase filesep '*']);
+end
