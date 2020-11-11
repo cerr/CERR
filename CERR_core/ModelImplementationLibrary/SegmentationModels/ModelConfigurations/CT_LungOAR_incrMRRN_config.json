@@ -42,7 +42,7 @@
           "Heart": [{"method": "removeBackgroundFP"}],
           "Esophagus": [{"method": "removeBackgroundFP"}],
           "Cord": [{"method": "removeBackgroundFP"}]
-}
+},
 
 "passedScanDim" : "3D",
 
