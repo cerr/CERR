@@ -13,7 +13,7 @@ function connPtMask3M = getPatientOutline(scan3M,slicesV,outThreshold,minMaskSiz
 % AI 7/13/19
 
 %% Set default values
-if ~exist('slicesV','var')
+if ~exist('slicesV','var') || isempty(slicesV)
     slicesV = 1:size(scan3M,3);
 end
 
