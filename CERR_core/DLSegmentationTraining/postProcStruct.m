@@ -66,6 +66,15 @@ if ~isempty(postS)
                     
                     maskC{iMethod} = roiMask3M & strMask3M;
                     
+                case 'removeBackgroundFP'
+                    scan3M =getScanArray(scanNum,planC);
+                    connPtMask3M = getPatientOutline(scan3M,[],0);
+                    roiName = postS.(strC{iStr}).params.roiName;
+                    roiStrNum = getMatchingIndex(roiName,strListC,'EXACT');
+                    [roiMask3M, planC] = getStrMask(roiStrNum,planC);
+                    
+                    maskC{iMethod} = roiMask3M & connPtMask3M;
+                    
                 case 'none'
                      
                     [maskC{iMethod}, planC] = getStrMask(strNum,planC);
