@@ -37,6 +37,13 @@
 
 "batchSize" : 1 ,
 
+"postProc" : {"Left_lung": [{"method": "removeBackgroundFP"}], 
+          "Right_lung": [{"method": "removeBackgroundFP"}],
+          "Heart": [{"method": "removeBackgroundFP"}],
+          "Esophagus": [{"method": "removeBackgroundFP"}],
+          "Cord": [{"method": "removeBackgroundFP"}]
+}
+
 "passedScanDim" : "3D",
 
 "reference" : "10.1109/TMI.2018.2857800",
