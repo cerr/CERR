@@ -70,13 +70,14 @@ scanIndV = find(assocScanV==scanSet);
 if ~exist('colorNum','var')
     colorNum = length(scanIndV) + 1;
 end
-if isfield(stateS,'optS')
-    color = stateS.optS.colorOrder( mod(colorNum-1, size(stateS.optS.colorOrder,1))+1,:);
-else
+if ~isfield(stateS,'optS')
+%     color = stateS.optS.colorOrder( mod(colorNum-1, size(stateS.optS.colorOrder,1))+1,:);
+% else
     stateS.optS = opts4Exe([getCERRPath,'CERROptions.json']);
-    color = stateS.optS.colorOrder( mod(colorNum-1, size(stateS.optS.colorOrder,1))+1,:);
+%     color = stateS.optS.colorOrder( mod(colorNum-1, size(stateS.optS.colorOrder,1))+1,:);
 end
-
+colorArr = stateS.optS.colorOrder;
+color = setStructureColor(planC,colorArr);
 %Assign these values to structure.
 struct(1).contour        = contour;
 struct(1).structureName  = structureName;
