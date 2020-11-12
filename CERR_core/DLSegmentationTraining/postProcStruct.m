@@ -68,8 +68,8 @@ if ~isempty(postS)
                     
                 case 'removeBackgroundFP'
                     scan3M =getScanArray(scanNum,planC);
-                    connPtMask3M = getPatientOutline(scan3M,[],0);
-                    roiName = postS.(strC{iStr}).params.roiName;
+                    connPtMask3M = getPatientOutline(scan3M,[],100);
+                    roiName = strC{iStr};
                     roiStrNum = getMatchingIndex(roiName,strListC,'EXACT');
                     [roiMask3M, planC] = getStrMask(roiStrNum,planC);
                     
