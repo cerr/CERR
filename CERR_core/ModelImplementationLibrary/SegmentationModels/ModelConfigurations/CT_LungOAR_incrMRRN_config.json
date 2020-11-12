@@ -37,8 +37,8 @@
 
 "batchSize" : 1 ,
 
-"postProc" : {"Left_lung": [{"method": "removeBackgroundFP"}], 
-          "Right_lung": [{"method": "removeBackgroundFP"}],
+"postProc" : {"Lung_Left": [{"method": "removeBackgroundFP"}], 
+          "Lung_Right": [{"method": "removeBackgroundFP"}],
           "Heart": [{"method": "removeBackgroundFP"}],
           "Esophagus": [{"method": "removeBackgroundFP"}],
           "Cord": [{"method": "removeBackgroundFP"}]
