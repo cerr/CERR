@@ -16,10 +16,10 @@ if ~isempty(planC{indexS.structures})
     else
         lastUsed = colorReserve(end,:);
         lastIdx = find(ismember(colorArr,lastUsed,'rows'));
-        if lastIdx ~= colorsTotal
+        if lastIdx ~= colorsTotal && ~isempty(lastIdx)
             nextColorNum = lastIdx + 1;
         else
-            nextColorNum = 2;
+            nextColorNum = 1;
         end
     end
 else
