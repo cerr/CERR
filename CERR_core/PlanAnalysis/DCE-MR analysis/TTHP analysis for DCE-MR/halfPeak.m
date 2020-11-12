@@ -1,4 +1,4 @@
-function [resampSigM,t50V,s50V,timeOutV] = halfPeak(ROIDataM,timeV,smoothFlag,resampFlag)
+function [resampSigM,TTHPv,SHPv,timeOutV] = halfPeak(ROIDataM,timeV,smoothFlag,resampFlag)
 % =======================================================================================
 % AI  09/28/16
 % AI  10/20/16  Added smoothing/resampling options.
@@ -15,17 +15,17 @@ function [resampSigM,t50V,s50V,timeOutV] = halfPeak(ROIDataM,timeV,smoothFlag,re
 nVox = size(ROIDataM,1);
 [resampSigM,timeOutV] = smoothResamp(ROIDataM,timeV,smoothFlag,resampFlag);
 normalizedBaseline = 1;
-changeSigM = resampSigM - normalizedBaseline;
+relSigEnhM = resampSigM - normalizedBaseline;
 
-%% Compute t50,s50
+%% Compute TTHP, SHP
 %Identify first time point where changeSig > half-peak
-gts50 = bsxfun(@ge,changeSigM,(max(resampSigM,[],2) - normalizedBaseline)/2);
-[~,s50ColIdx] = max(gts50,[],2);
-s50rowIdx = (1:nVox).';
-s50Idx = sub2ind([nVox,numel(timeOutV)],s50rowIdx,s50ColIdx);
+gts50 = bsxfun(@ge,relSigEnhM,(max(resampSigM,[],2) - normalizedBaseline)/2);
+[~,SHPcolIdx] = max(gts50,[],2);
+SHProwIdx = (1:nVox).';
+SHPidx = sub2ind([nVox,numel(timeOutV)],SHProwIdx,SHPcolIdx);
 %Get signal at half-peak
-s50V = resampSigM(s50Idx).';
+SHPv = resampSigM(SHPidx).';
 %Get time to half-peak
-t50V = timeOutV(1,s50ColIdx);
+TTHPv = timeOutV(1,SHPcolIdx);
 
 end
