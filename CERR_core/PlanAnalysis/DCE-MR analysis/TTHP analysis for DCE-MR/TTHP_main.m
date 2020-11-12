@@ -94,7 +94,7 @@ s50Map3M = zeros(sizV(1),sizV(2),sizV(4));
 for n = 1:nMaskSlices
     [ROIidxV,ROIDataM] = getRasterROI(normDCEShift4M(:,:,:,roiSlicesV(n)));
     
-    %Compute t50,s50
+    %Compute TTHP, SHP
     [resampSigM,t50C{n},s50C{n},timeOutV] = halfPeak(ROIDataM,timeShiftV,smoothFlag,resampFlag);
     
     %Create maps
