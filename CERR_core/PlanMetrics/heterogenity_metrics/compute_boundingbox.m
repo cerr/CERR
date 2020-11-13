@@ -15,6 +15,8 @@ minc=min(jV);
 maxc=max(jV);
 mins=min(kV);
 maxs=max(kV);
+maxarr = [maxr,maxc,maxs];
+minarr = [minr,minc,mins];
 
 bboxmask = [];
 
