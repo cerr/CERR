@@ -15,16 +15,15 @@ minc=min(jV);
 maxc=max(jV);
 mins=min(kV);
 maxs=max(kV);
-maxarr = [maxr,maxc,maxs];
-minarr = [minr,minc,mins];
 
 bboxmask = [];
 
-if ~isempty(maskFlag)
+if maskFlag ~= 0
     bboxmask = zeros(size(x3D));
+    
     if maskFlag > 1
         minr = minr - maskFlag;
-        maxr = maxr + maskFlag; 
+        maxr = maxr + maskFlag;
         if maxr > size(x3D,1)
             maxr = size(x3D,1);
         end
@@ -38,10 +37,13 @@ if ~isempty(maskFlag)
         if maxs > size(x3D,3)
             maxs = size(x3D,3);
         end
-        maxarr = [maxr,maxc,maxs];
-        minarr = [minr, minc, mins];
-        minarr(minarr < 1) = 1;
     end
+    maxarr = [maxr,maxc,maxs];
+    minarr = [minr, minc, mins];
+    minarr(minarr < 1) = 1;
+    minr = minarr(1);
+    minc = minarr(2);
+    mins = minarr(3);
     bboxmask(minarr(1):maxarr(1), minarr(2):maxarr(2), minarr(3):maxarr(3)) = 1;
 end
 
