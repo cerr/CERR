@@ -129,7 +129,7 @@ parfor planNum = 1:length(dirS)
             outDirC = getOutputH5Dir(HDF5dir,scanOptS(n),split);
 
             %Write to HDF5
-            writeHDF5ForDL(scanC{n},maskC(n),passedScanDim,outDirC,idOut,testFlag);
+            writeHDF5ForDL(scanC{n},maskC{n},passedScanDim,outDirC,idOut,testFlag);
             
         end
         
