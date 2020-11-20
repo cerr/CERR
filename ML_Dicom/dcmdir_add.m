@@ -341,6 +341,7 @@ for i=1:length(studyS.SERIES)
     if strcmpi(currentSeriesUID,thisUIDstr) && bValueMatch && tempPosMatch && acqNumMatch
         studyS.SERIES(seriesNum) = searchAndAddSeriesMember(filename, attr, studyS.SERIES(seriesNum));
         match = 1;
+        break
     end
     
 end
