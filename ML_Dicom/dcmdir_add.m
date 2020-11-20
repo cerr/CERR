@@ -202,7 +202,7 @@ tempPosMatch = 1;
 acqNumMatch = 1;
 
 % Loop over all available series'
-for seriesNum = 1:length(studyS.SERIES)
+for seriesNum = length(studyS.SERIES):-1:1
     
     thisUID = filter(studyS.SERIES(seriesNum).info, emptyAttr);
     thisUIDstr = thisUID.getStrings(hex2dec(seriesUIDTag));
@@ -323,6 +323,7 @@ for seriesNum = 1:length(studyS.SERIES)
     if strcmpi(currentSeriesUID,thisUIDstr) && bValueMatch && tempPosMatch && acqNumMatch
         studyS.SERIES(seriesNum) = searchAndAddSeriesMember(filename, attr, studyS.SERIES(seriesNum));
         match = 1;
+        break
     end
     
 end
