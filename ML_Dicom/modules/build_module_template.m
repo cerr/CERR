@@ -8,6 +8,7 @@ function dcmobj = build_module_template(moduleName)
 %
 %JRA 06/06/06
 %NAV 07/19/16 updated to dcm4che3
+% AI 11/20/2020 Added module subsets used in dcmdir_add to group images.
 %
 %Usage:
 %   dcmobj = general_equipment_module_template;
@@ -44,10 +45,16 @@ switch lower(moduleName)
     %Get the top level tags used in this module.
     case 'patient'
         tagS = patient_module_tags;
+    case 'patient_subset'
+        tagS = patient_module_tags_subset;
     case 'general_study'
         tagS = general_study_module_tags;
+    case 'general_study_subset'
+        tagS = general_study_module_tags_subset;
     case 'general_series'
         tagS = general_series_module_tags;
+    case 'general_series_subset'
+        tagS = general_series_module_tags_subset;
     case 'frame_of_reference'
         tagS = frame_of_reference_module_tags;
     case 'general_equipment'
@@ -66,6 +73,8 @@ switch lower(moduleName)
         tagS = PT_image_module_tags;
     case 'mr_image'
         tagS = MR_image_module_tags;
+    case 'mr_image_subset'
+        tagS = MR_image_module_tags_subset;
     case 'sop_common'
         tagS = SOP_common_module_tags;
     case 'structure_set'
