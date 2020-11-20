@@ -61,17 +61,6 @@ end
 HDF5path = fullfile(outputDir,'inputH5');   
 mkdir(HDF5path)
 
-if dataSplitV(3) ~= 100
-    
-    mkdir(fullfile(HDF5path,'Train'));
-    mkdir(fullfile(HDF5path,'Train','Masks'));
-    
-    mkdir(fullfile(HDF5path,'Val'));
-    mkdir(fullfile(HDF5path,'Val','Masks'));
-    
-    mkdir(fullfile(HDF5path,'Test'));
-    mkdir(fullfile(HDF5path,'Test','Masks'));
-end
 fprintf('\nComplete\n');
 
 %% Import data to CERR
