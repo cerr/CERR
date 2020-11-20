@@ -207,6 +207,7 @@ for scanIdx = 1:numScans
         % Resample structures required for training
         
         %Resample reqd structures
+        % TBD: add structures reqd for training
         cropStrListC = arrayfun(@(x)x.params.structureName,cropS,'un',0);
         cropParS = [cropS.params];
         if ~isempty(cropStrListC)
@@ -285,7 +286,8 @@ for scanIdx = 1:numScans
         %     if ~isequal(viewC,{'axial'})
         fprintf('\nTransforming orientation...\n');
         %     end
-        [viewOutC,maskOutC{scanIdx}] = transformView(scanC{scanIdx},maskC(scanIdx),viewC);
+        [viewOutC,maskOutC{scanIdx}] = transformView(scanC{scanIdx},...
+                                       maskC{scanIdx},viewC);
         [~,cropStrC] = transformView([],cropStr3M,viewC);
         toc
     else % case: 1 view, 'axial'
@@ -308,6 +310,7 @@ for scanIdx = 1:numScans
             if strcmpi(filterTypeC{c},'original')
                 %Use original image
                 procScanC{c} = scanView3M;
+                
             else
                 imType = fieldnames(filterTypeC{c});
                 imType = imType{1};
