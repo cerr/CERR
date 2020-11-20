@@ -45,7 +45,7 @@ if ~any(strcmp(type,{'3','5','all'}))
     f1 = eval(type(1:2));
     f2 = eval(type(3:4));
     if length(type)==4 %2d
-        lawsMasksS.(type) = f1'* f2;
+        lawsMasksS.(type) = f2'* f1;
     elseif length(type)==6
         f3 = eval(type(5:6));
         lawsMasksS.(type) = get3dLawsText(f1,f2,f3);
@@ -261,11 +261,11 @@ else
 end
 
 function conved3M = get3dLawsText(x,y,z)
-conved2M = x'*y;
+conved2M = y'*x;
 [numRows, numCols] = size(conved2M);
-conved3M = zeros(numCols,length(z),numRows,'single');
+conved3M = zeros(numRows, numCols, length(z), 'single');
 for i = 1:numRows
-    conved3M(:,:,i) = conved2M(i,:)' * z;
+    conved3M(i,:,:) = conved2M(i,:)' * z;
 end
 
 
