@@ -1,0 +1,123 @@
+.highlight {
+    background-color: lightblue;
+}
+
+#calendar-body td:empty {
+    cursor: pointer;
+    border: none;
+}
+
+#calendar-body td {
+    cursor: pointer;
+}
+
+
+#calendar thead {
+    border-bottom: 2px solid #cecece;
+}
+
+#calendar th {
+    border: none;
+    text-align: center;
+    padding: 0;
+    width: 10%;
+}
+
+#calendar td {
+    border: 1px solid rgba(0,0,0,.125);
+    text-align: center;
+    padding: 5px;
+    width: 10%;
+}
+
+.previous {
+    margin-top: 4%;
+    margin-left: 2%;
+}
+
+.next {
+    margin-top: 4%;
+    margin-right: 2%;
+}
+
+.round {
+    border-radius: 50%;
+}
+
+.month-selected {
+    font-family: inherit;
+    font-weight: 500;
+    line-height: 1.2;
+    color: inherit;
+}
+
+a:hover {
+    text-decoration: none;
+}
+
+
+.header {
+    margin-bottom: 0px;
+    background-color: #e7e7e7;
+    border-bottom: 1px solid rgba(0,0,0,.125);
+}
+
+.header-row {
+    background-color: lightgray;
+    margin: 0px;
+    padding: 5px;
+}
+
+#monthAndYear {
+    border-bottom: none;
+    background-color: transparent;
+    padding-left: 14px;
+    padding-right: 14px;
+    display: none;
+}
+
+#previous, #next {
+    color: darkslategrey;
+}
+
+.today-color {
+    background-color: #D3D3D3;
+}
+
+#parent {
+    border: 2px solid rgba(0,0,0,.125);
+    border-radius: .25rem;
+    padding: 5px;
+}
+
+.date-values {
+    width: 297px;
+    padding: 5px;
+    border-radius: 5px;
+    border: 1px solid #cecece;
+}
+
+
+.buttonPanel td {
+    border: none !important;
+    padding: 6px 0 0 0 !important;
+}
+
+    .buttonPanel td div:nth-of-type(odd) {
+        padding: 5px;
+        /*border: 1px solid #cecece;*/
+        width: 100%;
+        text-align: left;
+    }
+
+    .buttonPanel td div:nth-of-type(even) {
+        padding: 5px;
+        /*border: 1px solid #cecece;*/
+        width: 100%;
+        text-align: right;
+    }
+
+.buttonPanel-row {
+    margin: 0;
+    border-top: 2px solid lightgray;
+}
