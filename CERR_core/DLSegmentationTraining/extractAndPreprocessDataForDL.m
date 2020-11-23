@@ -49,11 +49,11 @@ if ~isempty(exportStrC) || testFlag
     exportLabelV = labelV(~strNotAvailableV);
     
     %Get structure ID and assoc scan
-    strIdxV = nan(length(exportStrC),1);
+    strIdxC = cell(length(exportStrC),1);
     for strNum = 1:length(exportStrC)
         
         currentLabelName = exportStrC{strNum};
-        strIdxV(strNum) = getMatchingIndex(currentLabelName,allStrC,'exact');
+        strIdxC{strNum} = getMatchingIndex(currentLabelName,allStrC,'exact');
         
     end
 end
@@ -102,11 +102,14 @@ for scanIdx = 1:numScans
         mask3M = [];
         validStrIdxV = [];
     else
-        mask3M = false(size(scan3M));
+        mask3M = zeros(size(scan3M));
         assocStrIdxV = strcmpi(planC{indexS.scan}(scanNumV(scanIdx)).scanUID,UIDc);
+        strIdxV = [strIdxC{:}];
+        strIdxV = reshape(strIdxV,1,[]);
         validStrIdxV = ismember(strIdxV,find(assocStrIdxV));
-        validExportLabelV = exportLabelV(validStrIdxV);
         validStrIdxV = strIdxV(validStrIdxV);
+        keepLabelIdxV = assocStrIdxV(validStrIdxV);
+        validExportLabelV = exportLabelV(keepLabelIdxV);
     end
     
     for strNum = 1:length(validStrIdxV)
