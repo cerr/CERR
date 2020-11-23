@@ -44,6 +44,7 @@ fprintf('\nConverting data to HDF5...\n');
 if ~isempty(strListC)
     labelKeyS = struct();
     for n = 1:length(strListC)
+        strListC{n} = strrep(strListC{n},'-','_');
         labelKeyS.(strListC{n}) = n;
     end
 else
