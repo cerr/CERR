@@ -91,15 +91,15 @@ IAUC150V = IAUCv(find(timeOutV>2.5,1,'first'),:);%IAUC at t=150s
 IAUC180V = IAUCv(find(timeOutV>3,1,'first'),:);  %IAUC at t=180s
 
 % Create parameter dictionary
-paramS.PE = PEv;
-paramS.TTP = TTPv;
-paramS.TTHP = TTHPv;
-paramS.SHP = SHPv;
-paramS.WIS = WISv;
-paramS.WOS = WOSv;
-paramS.IG = IGv;
-paramS.WOG = WOGv;
-paramS.SER = SERv;
+paramS.PeakEnhancement = PEv;
+paramS.TimeToPeak = TTPv;
+paramS.TimeToHalfPeak = TTHPv;
+paramS.SignalAtHalfPeak = SHPv;
+paramS.WashInSlope = WISv;
+paramS.WashOutSlope = WOSv;
+paramS.InitialGradient = IGv;
+paramS.WashOutGradient = WOGv;
+paramS.SignalEnhancementRatio = SERv;
 paramS.IAUC30 = IAUC30V;
 paramS.IAUC60 = IAUC60V;
 paramS.IAUC90 = IAUC90V;

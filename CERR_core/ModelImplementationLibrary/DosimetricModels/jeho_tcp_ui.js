@@ -50,7 +50,7 @@ var layout = {
   },
   xaxis: {
     title: {
-      text: 'EQD2',
+      text: 'EQD2-model',
       font: {
         family: 'Courier New, monospace',
         size: 32,
