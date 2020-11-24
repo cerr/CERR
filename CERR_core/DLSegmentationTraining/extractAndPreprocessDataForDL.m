@@ -231,11 +231,11 @@ for scanIdx = 1:numScans
     end
     
     %2. Crop around the region of interest
-    if ~strcmpi({cropS(scanIdx).method},'none')
+    if ~strcmpi({cropS(:,scanIdx).method},'none')
         fprintf('\nCropping to region of interest...\n');
         tic
         [minr, maxr, minc, maxc, slcV, cropStr3M, planC] = ...
-            getCropLimits(planC,mask3M,scanNumV(scanIdx),cropS(scanIdx));
+            getCropLimits(planC,mask3M,scanNumV(scanIdx),cropS(:,scanIdx));
         %- Crop scan
         if ~isempty(scan3M) && numel(minr)==1
             scan3M = scan3M(minr:maxr,minc:maxc,slcV);
@@ -296,6 +296,7 @@ for scanIdx = 1:numScans
     else % case: 1 view, 'axial'
         viewOutC = {scanC{scanIdx}};
         maskOutC{scanIdx} = {maskC(scanIdx)};
+        cropStrC = {cropStr3M};
     end
     
     %5. Filter images as required

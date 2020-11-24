@@ -50,7 +50,6 @@ function [userOptS,errC] = prepareSegDataset(paramFilename,inputDir,outputDir)
 
 %% Get user inputs from JSON
 userOptS = readDLConfigFile(paramFilename);
-dataSplitV = userOptS.dataSplit;                                                   
  
 %% Create directories to write CERR, HDF5 files
 fprintf('\nCreating directories for HDF5 files...\n');
@@ -71,7 +70,9 @@ if strcmpi(userOptS.inputFileType,'DICOM')
     
     zipFlag = 'No';
     mergeScansFlag = 'No';
-    batchConvert(inputDir,CERRpath,zipFlag,mergeScansFlag);
+    singleCerrFileFlag = 'No';
+    batchConvertWithSubDirs(inputDir,CERRpath,zipFlag,mergeScansFlag,...
+        singleCerrFileFlag);
     
 elseif strcmpi(userOptS.inputFileType,'CERR')
     
