@@ -206,7 +206,7 @@ if plmFlag
         optName = fullfile(getCERRPath,'CERROptions.json');
         optS = opts4Exe(optName);
         cmd_fileName = optS.plastimatch_command_file;
-        userCmdFile = fullfile(getCERRPath,'ImageRegistration','plastimatch_command',cmd_fileName);
+        userCmdFile = fullfile(plmCommandDir,cmd_fileName);
     end
     ursFileC = file2cell(userCmdFile);
     cmdFileC{1,1} = '[GLOBAL]';
@@ -226,12 +226,13 @@ if plmFlag
     %prevDir = pwd;
     plmCommand = 'plastimatch';
     if exist(optS.plastimatch_build_dir,'dir') 
-        %cd(optS.plastimatch_build_dir)
-        %plmCommand = ['./',plmCommand];
+%         cd(optS.plastimatch_build_dir)
+        plmCommand = fullfile(optS.plastimatch_build_dir,plmCommand);
+    else
         if isunix
-            plmCommand = ['sh ', fullfile(optS.plastimatch_build_dir,plmCommand,' register')];
+            plmCommand = [plmCommand,' register'];
         else
-            plmCommand = [fullfile(optS.plastimatch_build_dir,[plmCommand,'.exe']),' register'];
+            plmCommand = [plmCommand '.exe register'];
         end
         
     end
@@ -246,7 +247,7 @@ switch upper(algorithm)
         if exist('outBspFile','var') & ~isempty(outBspFile)
             vfFileName = outBspFile;
         else
-            vfFileName = fullfile(getCERRPath,'ImageRegistration','tmpFiles',['align_center_vf_',baseScanUID,'_',movScanUID,'.mha']);
+            vfFileName = fullfile(tmpDirPath,['align_center_vf_',baseScanUID,'_',movScanUID,'.mha']);
         end
         
         cmdFileC{end+1,1} = ['vf_out=',escapeSlashes(vfFileName)];
@@ -331,10 +332,10 @@ switch upper(algorithm)
         basePlanC = insertDeformS(basePlanC, deformS);
         movPlanC = insertDeformS(movPlanC, deformS);
         
-    case 'RIGID PLASTIMATCH'
+    case {'RIGID PLASTIMATCH','RIGID'}
         
         % Create a command file path for plastimatch
-        cmdFileName_rigid = fullfile(getCERRPath,'ImageRegistration','plastimatch_command',[baseScanUID,'_',movScanUID,'_rigid.txt']);
+        cmdFileName_rigid = fullfile(plmCommandDir,[baseScanUID,'_',movScanUID,'_rigid.txt']);
         
         if exist(cmdFileName_rigid,'file')
             delete(cmdFileName_rigid);
@@ -344,7 +345,7 @@ switch upper(algorithm)
         if exist('outBspFile','var') & ~isempty(outBspFile)
             vfFileName = outBspFile;
         else
-            vfFileName = fullfile(getCERRPath,'ImageRegistration','tmpFiles',['rigid_vf_',baseScanUID,'_',movScanUID,'.mha']);
+            vfFileName = fullfile(tmpDirPath,['rigid_vf_',baseScanUID,'_',movScanUID,'.mha']);
         end
         if exist(vfFileName,'file')
             delete(vfFileName)
@@ -358,7 +359,7 @@ switch upper(algorithm)
         cell2file(cmdFileC,cmdFileName_rigid)
         
         % Run plastimatch Registration
-        system([plmCommand, cmdFileName_rigid]);
+        system([plmCommand ' ' cmdFileName_rigid]);
         
         bspFileName = vfFileName;
         
