@@ -33,7 +33,7 @@ indexS = planC{end};
 if ~filtV==0
     fSize = filtV(1);
     fSigma = filtV(2);
-    hFilt = fspecial('gaussian',11,5); %fSize=11, fSigma=5
+    hFilt = fspecial('gaussian',fSize,fSigma); 
 end
 
 %% Get masked data
@@ -90,7 +90,7 @@ timeShiftV = timeShiftV(shift+1:end);
 normDCEShift4M = normDCE4M(:,:,shift+1:end,:);
 
 %% Get T50, s50
-CERRStatusString('Computing TTHP...','console');
+CERRStatusString('Computing parameters...','console');
 for n = 1:nMaskSlices
     [ROIidxV,ROIDataM] = getRasterROI(normDCEShift4M(:,:,:,roiSlicesV(n)));
     
@@ -104,6 +104,7 @@ for n = 1:nMaskSlices
     for nPar = 1:length(paramsC)
         if n==1
             temp = [];
+            mapsC = cell(length(paramsC),1);
         else
             temp = paramCatC{nPar};
         end
@@ -113,7 +114,6 @@ for n = 1:nMaskSlices
     
     %Create maps
     if createMapsFlag
-        mapsC = cell(length(paramsC),1);
         for nPar = 1:length(paramsC)
             if ~isempty(paramS.(paramsC{nPar}))
                 mapV = zeros(sizV(1)*sizV(2),1);
