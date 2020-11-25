@@ -1,4 +1,4 @@
-function [basePlanC, movPlanC, bspFileName] = register_scans(basePlanC, baseScanNum, movPlanC,movScanNum, algorithm, registration_tool, tmpDirPath, ... 
+function [basePlanC, movPlanC, deformS] = register_scans(basePlanC, baseScanNum, movPlanC,movScanNum, algorithm, registration_tool, tmpDirPath, ... 
     baseMask3M, movMask3M, threshold_bone, inputCmdFile, inBspFile, outBspFile)
 % Usage: [basePlanC, movPlanC, bspFileName] = register_scans(basePlanC, baseScanNum, movPlanC,movScanNum, algorithm, registration_tool, tmpDirPath, ... 
 %     baseMask3M, movMask3M, threshold_bone, inputCmdFile, inBspFile, outBspFile)
@@ -166,6 +166,9 @@ end
 algorithmParamsS = [];
 deformS = createNewDeformObject(baseScanUID,movScanUID,algorithm,registration_tool,algorithmParamsS);
 
+%% set output MHA image prefix
+outPrefix = fullfile(tmpDirPath,[strrep(algorithm, ' ', '_') '_' baseScanUID '_' movScanUID]);
+
 
 %% Read build paths and options from CERROptions.json
 optS = getCERROptions;
@@ -173,254 +176,71 @@ optS = getCERROptions;
 
 %% PLASTIMATCH setup
 % Create command file for plastimatch
-if plmFlag
-    
+if plmFlag    
     % Create a command file path for plastimatch
     plmCommandDir = fullfile(tmpDirPath,'plastimatch_command');
     if ~exist(plmCommandDir,'dir')
         mkdir(plmCommandDir)
     end
-    cmdFileName_rigid = fullfile(plmCommandDir,[baseScanUID,'_',movScanUID,'_rigid.txt']);
-    cmdFileName_dir   = fullfile(plmCommandDir,[baseScanUID,'_',movScanUID,'_dir.txt']);
     
-    if exist(cmdFileName_rigid,'file')
-        delete(cmdFileName_rigid);
-    end
-    if exist(cmdFileName_dir,'file')
-        delete(cmdFileName_dir);
+    cmdFileName = fullfile(plmCommandDir,[baseScanUID,'_',movScanUID,'_cmdFile.txt']);
+    
+    if exist(cmdFileName,'file')
+        delete(cmdFileName);
     end
     
     % Create a file name and path for storing the resulting transform
-    
-    bspFileName_rigid = fullfile(tmpDirPath,['bsp_coeffs_',baseScanUID,'_',movScanUID,'_rigid.txt']);
-    if exist(bspFileName_rigid,'file')
-        delete(bspFileName_rigid)
+    xformFileNameBase = fullfile(tmpDirPath,['xform_coeffs_',baseScanUID,'_',movScanUID,'_xform']);
+    if exist(xformFileNameBase,'file')
+        delete(xformFileNameBase);
     end
     
-    
-    % Deformable (DIR) step
-    clear cmdFileC
+    % Compose cmdFileC command file
     if exist('inputCmdFile','var') && ~isempty(inputCmdFile)
         userCmdFile = inputCmdFile;
     else
-        optName = fullfile(getCERRPath,'CERROptions.json');
-        optS = opts4Exe(optName);
-        cmd_fileName = optS.plastimatch_command_file;
-        userCmdFile = fullfile(plmCommandDir,cmd_fileName);
+        userCmdFile = '';
     end
-    ursFileC = file2cell(userCmdFile);
-    cmdFileC{1,1} = '[GLOBAL]';
-    cmdFileC{end+1,1} = ['fixed=',escapeSlashes(baseScanFileName)];
-    cmdFileC{end+1,1} = ['moving=',escapeSlashes(movScanFileName)];
-    if ~isempty(baseMask3M)
-        cmdFileC{end+1,1} = ['fixed_roi=',escapeSlashes(baseMaskFileName)];
-    end
-    if ~isempty(movMask3M)
-        cmdFileC{end+1,1} = ['moving_roi=',escapeSlashes(movMaskFileName)];
-    end
-    if exist('inBspFile','var') && ~isempty(inBspFile)
-        cmdFileC{end+1,1} = ['xform_in=',escapeSlashes(inBspFile)];
-    end
+
+    warpedMhaFile = [outPrefix '.mha'];
     
-    % Switch to plastimatch directory if it exists
-    %prevDir = pwd;
+    cmdFileC = genPlastimatchCmdFile(baseScanFileName, movScanFileName, baseMaskFileName, movMaskFileName, warpedMhaFile, inBspFile, xformFileNameBase, algorithm, userCmdFile, threshold_bone);
+    cell2file(cmdFileC,cmdFileName);
+    
+    % Run plastimatch cases
     plmCommand = 'plastimatch';
     
     if exist(optS.plastimatch_build_dir,'dir')
-        %         cd(optS.plastimatch_build_dir)
         plmCommand = fullfile(optS.plastimatch_build_dir,plmCommand);
     else
         if isunix
-            plmCommand = [plmCommand,' register'];
+            plmCommand = [plmCommand,' register ' cmdFileName];
         else
-            plmCommand = [plmCommand '.exe register'];
+            plmCommand = [plmCommand '.exe register ' cmdFileName];
         end
-        
     end
     
+    % Run plastimatch Registration
+    system([plmCommand ' ' cmdFileName]);
     
-    % Run plastimatch cases
-    switch upper(algorithm)
-        case 'ALIGN CENTER'
+    %Return xform coefficients
+    
+    algorithmParamsS = readPlastimatchCoeffs(xformFileNameBase);
+    
+    deformS.algorithmParamsS = algorithmParamsS;
+    
+    basePlanC = insertDeformS(basePlanC, deformS);
+    movPlanC = insertDeformS(movPlanC, deformS);     
+    
+      %add warped image to planC
+      if exist(warpedMhaFile,'file')
+          save_flag = 0; movScanOffset = 0;
+          movScanName = ['deformed_' strrep(algorithm,' ','_')  '_' registration_tool];
+          infoS  = mha_read_header(warpedMhaFile);
+          data3M = mha_read_volume(infoS);
+          basePlanC  = mha2cerr(infoS,data3M, movScanOffset, movScanName, basePlanC, save_flag);
+      end
             
-            % Rigid step
-            if exist('outBspFile','var') & ~isempty(outBspFile)
-                vfFileName = outBspFile;
-            else
-                vfFileName = fullfile(tmpDirPath,['align_center_vf_',baseScanUID,'_',movScanUID,'.mha']);
-            end
-            
-            cmdFileC{end+1,1} = ['vf_out=',escapeSlashes(vfFileName)];
-            cmdFileC{end+1,1} = '';
-            cmdFileC{end+1,1} ='[STAGE]';
-            cmdFileC{end+1,1} ='xform=align_center';
-            cmdFileC{end+1,1} = '';
-            cell2file(cmdFileC,cmdFileName_rigid)
-            
-            % Run plastimatch Registration
-            system([plmCommand, cmdFileName_rigid]);
-            
-            % Cleanup
-            bspFileName = vfFileName;
-        case {'BSPLINE PLASTIMATCH','BSPLINE'}
-            
-            deleteBspFlg = 1;
-            if exist('outBspFile','var') && ~isempty(outBspFile)
-                deleteBspFlg = 0;
-                bspFileName = outBspFile;
-            else
-                %bspFileName = fullfile(getCERRPath,'ImageRegistration',...
-                %    'tmpFiles',['bsp_coeffs_',baseScanUID,'_',movScanUID,'.txt']);
-                bspFileName = fullfile(tmpDirPath, ['bsp_coeffs_',baseScanUID,'_',movScanUID,'.txt']);
-            end
-            if exist(bspFileName,'file')
-                delete(bspFileName)
-            end
-            
-            
-            %cmdFileC{end+1,1} = ['xform_in=',escapeSlashes(bspFileName_rigid)];
-            cmdFileC{end+1,1} = ['xform_out=',escapeSlashes(bspFileName)];
-            cmdFileC{end+1,1} = '';
-            % Append the user-defined stages
-            cmdFileC(end+1:end+size(ursFileC,2),1) = ursFileC(:);
-            % Add background_max to all the stages if threshold_bone is not empty
-            if ~isempty(threshold_bone)
-                backgrC = cell(1);
-                backgrC{1} = ['background_max=',num2str(threshold_bone)];
-                indStageV = find(strcmp(cmdFileC,'[STAGE]'));
-                for i = 1:length(indStageV)
-                    ind = indStageV(i)+i-1;
-                    cmdFileC(ind+2:end+1) = cmdFileC(ind+1:end);
-                    cmdFileC(ind+1) = backgrC;
-                end
-            end
-            cell2file(cmdFileC,cmdFileName_dir)
-            
-            % Run plastimatch Registration
-            system([plmCommand, ' ', cmdFileName_dir]);
-            
-            
-            % Read bspline coefficients file
-            [bsp_img_origin,bsp_img_spacing,bsp_img_dim,bsp_roi_offset,...
-                bsp_roi_dim,bsp_vox_per_rgn,bsp_direction_cosines,bsp_coefficients]...
-                = read_bsplice_coeff_file(bspFileName);
-            
-            % Cleanup
-            try
-                delete(baseScanFileName);
-                delete(movScanFileName);
-                %             if deleteBspFlg
-                %                 delete(bspFileName);
-                %             end
-                delete(baseMaskFileName);
-                delete(movMaskFileName);
-                %             delete(cmdFileName_dir);
-            end
-            
-            % Create a structure for storing algorithm parameters
-            algorithmParamsS.bsp_img_origin         = bsp_img_origin;
-            algorithmParamsS.bsp_img_spacing        = bsp_img_spacing;
-            algorithmParamsS.bsp_img_dim            = bsp_img_dim;
-            algorithmParamsS.bsp_roi_offset         = bsp_roi_offset;
-            algorithmParamsS.bsp_roi_dim            = bsp_roi_dim;
-            algorithmParamsS.bsp_vox_per_rgn        = bsp_vox_per_rgn;
-            algorithmParamsS.bsp_coefficients       = bsp_coefficients;
-            algorithmParamsS.bsp_direction_cosines  = bsp_direction_cosines;
-            
-            deformS.algorithmParamsS = algorithmParamsS;
-            
-            basePlanC = insertDeformS(basePlanC, deformS);
-            movPlanC = insertDeformS(movPlanC, deformS);
-            
-        case {'RIGID PLASTIMATCH','RIGID'}
-            
-            % Create a command file path for plastimatch
-            cmdFileName_rigid = fullfile(plmCommandDir,[baseScanUID,'_',movScanUID,'_rigid.txt']);
-            
-            if exist(cmdFileName_rigid,'file')
-                delete(cmdFileName_rigid);
-            end
-            
-            % Create a file name and path for storing VF
-            if exist('outBspFile','var') & ~isempty(outBspFile)
-                vfFileName = outBspFile;
-            else
-                vfFileName = fullfile(tmpDirPath,['rigid_vf_',baseScanUID,'_',movScanUID,'.mha']);
-            end
-            if exist(vfFileName,'file')
-                delete(vfFileName)
-            end
-            
-            % Rigid step
-            ursFileC = file2cell(userCmdFile);
-            cmdFileC{end+1,1} = ['vf_out=',escapeSlashes(vfFileName)];
-            cmdFileC{end+1,1} = '';
-            cmdFileC(end+1:end+size(ursFileC,2),1) = ursFileC(:);
-            cell2file(cmdFileC,cmdFileName_rigid)
-            
-            % Run plastimatch Registration
-            system([plmCommand ' ' cmdFileName_rigid]);
-            
-            bspFileName = vfFileName;
-            
-            % Cleanup
-            try
-                delete(baseScanFileName);
-                delete(movScanFileName);
-                if deleteBspFlg
-                    delete(bspFileName);
-                end
-                delete(baseMaskFileName);
-                delete(movMaskFileName);
-                delete(cmdFileName_dir);
-            end
-        case 'DEMONS PLASTIMATCH'
-            
-            deleteBspFlg = 1;
-            if exist('outBspFile','var') && ~isempty(outBspFile)
-                deleteBspFlg = 0;
-                bspFileName = outBspFile;
-            else
-                bspFileName = fullfile(getCERRPath,'ImageRegistration',...
-                    'tmpFiles',['bsp_coeffs_',baseScanUID,'_',movScanUID,'.nrrd']);
-            end
-            if exist(bspFileName,'file')
-                delete(bspFileName)
-            end
-            
-            %cmdFileC{end+1,1} = ['xform_in=',escapeSlashes(bspFileName_rigid)];
-            cmdFileC{end+1,1} = ['xform_out=',escapeSlashes(bspFileName)];
-            cmdFileC{end+1,1} = '';
-            % Append the user-defined stages
-            cmdFileC(end+1:end+size(ursFileC,2),1) = ursFileC(:);
-            % Add background_max to all the stages if threshold_bone is not empty
-            if ~isempty(threshold_bone)
-                backgrC = cell(1);
-                backgrC{1} = ['background_max=',num2str(threshold_bone)];
-                indStageV = find(strcmp(cmdFileC,'[STAGE]'));
-                for i = 1:length(indStageV)
-                    ind = indStageV(i)+i-1;
-                    cmdFileC(ind+2:end+1) = cmdFileC(ind+1:end);
-                    cmdFileC(ind+1) = backgrC;
-                end
-            end
-            cell2file(cmdFileC,cmdFileName_dir)
-            
-            % Run plastimatch Registration
-            system([plmCommand, cmdFileName_dir]);
-            
-            % Cleanup
-            try
-                delete(baseScanFileName);
-                delete(movScanFileName);
-                if deleteBspFlg
-                    delete(bspFileName);
-                end
-                delete(baseMaskFileName);
-                delete(movMaskFileName);
-                delete(cmdFileName_dir);
-            end
-    end
 end
 
 %% ELASTIX setup
@@ -528,7 +348,6 @@ if antsFlag
         setenv('PATH',[antspath ';' antsScriptPath ';' antsCERRScriptPath ';' getenv('PATH')]);
     end
         
-    outPrefix = fullfile(tmpDirPath,[strrep(algorithm, ' ', '_') '_' baseScanUID '_' movScanUID '_']);
     
     bspFileName = '';
     
