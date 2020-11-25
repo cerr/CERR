@@ -2,13 +2,13 @@
 
 ## Features:
 
-* [Deep learning segmentation] (https://github.com/cerr/CERR/wiki/Auto-Segmentation-models)
-* [Radiomics] (https://github.com/cerr/CERR/wiki/Radiomics)
-* [User-friendly access to RT and Radiology meta-data] (https://github.com/cerr/CERR/wiki/Data-Structure-(The-planC-object))
-* [Outcomes Modeling] (ROE: Radiotherapy Outcomes Explorer)
-* [IMRTP] (https://github.com/cerr/CERR/wiki/IMRT-optimization-interfacing-with-an-external-solver)
-* [Data Import] (https://github.com/cerr/CERR/wiki/Importing-to-CERR)
-* [Contouring] (https://github.com/cerr/CERR/wiki/Contouring-tools)
+* [Deep learning segmentation](https://github.com/cerr/CERR/wiki/Auto-Segmentation-models)
+* [Radiomics](https://github.com/cerr/CERR/wiki/Radiomics)
+* [User-friendly access to RT and Radiology meta-data](https://github.com/cerr/CERR/wiki/Data-Structure-(The-planC-object))
+* [Outcomes Modeling](ROE: Radiotherapy Outcomes Explorer)
+* [IMRTP](https://github.com/cerr/CERR/wiki/IMRT-optimization-interfacing-with-an-external-solver)
+* [Data Import](https://github.com/cerr/CERR/wiki/Importing-to-CERR)
+* [Contouring](https://github.com/cerr/CERR/wiki/Contouring-tools)
 
 See https://cerr.github.io/CERR for more information
 
