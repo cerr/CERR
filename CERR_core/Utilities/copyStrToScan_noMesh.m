@@ -46,12 +46,12 @@ if assocScanNum == scanNum
 end
 
 %Get transformation matrix
-if ~isfield(planC{indexS.scan}(scanNum),'transM') | isempty(planC{indexS.scan}(scanNum).transM)
+if ~isfield(planC{indexS.scan}(scanNum),'transM') || isempty(planC{indexS.scan}(scanNum).transM)
     transMnew = eye(4);
 else    
     transMnew = planC{indexS.scan}(scanNum).transM;
 end
-if ~isfield(planC{indexS.scan}(assocScanNum),'transM') | isempty(planC{indexS.scan}(assocScanNum).transM) 
+if ~isfield(planC{indexS.scan}(assocScanNum),'transM') || isempty(planC{indexS.scan}(assocScanNum).transM) 
     transMold = eye(4);
 else    
     transMold = planC{indexS.scan}(assocScanNum).transM;

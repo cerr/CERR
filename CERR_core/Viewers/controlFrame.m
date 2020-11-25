@@ -225,12 +225,16 @@ switch command
                     planC{indexS.scan}(overlayScanNum).transM = eye(4);
                 end
                 baseScan = getAxisInfo(stateS.handle.CERRAxis(1),'scanSets');
-                if isempty(appData.transMList{baseScan})
+                if ~isfield(appData,'transMList') || ...
+                        (isfield(appData,'transMList') && ...
+                        isempty(appData.transMList{baseScan}))
                     TMbase = eye(4);
                 else
                     TMbase = appData.transMList{baseScan};
                 end
-                if isempty(appData.transMList{overlayScanNum})
+                if ~isfield(appData,'transMList') || ...
+                        (isfield(appData,'transMList') && ...
+                        isempty(appData.transMList{overlayScanNum}))
                     TMoverlay = eye(4);
                 else
                     TMoverlay = appData.transMList{overlayScanNum};
