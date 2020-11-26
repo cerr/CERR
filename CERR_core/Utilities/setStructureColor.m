@@ -7,9 +7,13 @@ function color = setStructureColor(planC,colorArr)
 
 indexS = planC{end};
 colorsTotal = size(colorArr,1);
-
-if ~isempty(planC{indexS.structures})
+try
     colorReserve = cell2mat({planC{indexS.structures}.structureColor}');
+catch
+    colorReserve = [];
+end
+
+if ~isempty(planC{indexS.structures}) && ~isempty(colorReserve)
     vacantList = find(~ismember(colorArr,colorReserve,'rows'));
     if ~isempty(vacantList)
         nextColorNum = vacantList(1);
