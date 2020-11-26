@@ -8,6 +8,10 @@ if ~exist('rebuildRS','var')
     rebuildRS = 0;
 end
 
+if strcmpi(rebuildRS,'Y')
+    rebuildRS = 1;
+end
+disp(['importing DICOM from ' dicomPath]);
 importDICOM(dicomPath,cerrPath);
 
 cerrFile = dir(fullfile(cerrPath, '*.mat'));
