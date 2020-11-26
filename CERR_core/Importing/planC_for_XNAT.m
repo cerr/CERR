@@ -11,7 +11,9 @@ end
 if strcmpi(rebuildRS,'Y')
     rebuildRS = 1;
 end
+
 disp(['importing DICOM from ' dicomPath]);
+initFlag = init_ML_DICOM;
 importDICOM(dicomPath,cerrPath);
 
 cerrFile = dir(fullfile(cerrPath, '*.mat'));
