@@ -23,8 +23,11 @@ planC = loadPlanC(cerrFile);
 
 planC = annotatePlanCForXNAT(planC, xhost,xexp,xproj,xsubj);
 
+strE = strsplit(xexp,'E');
+numExt = str2num(strE{end});
+
 if rebuildRS
-    planC = reviveRS(planC,cerrPath);
+    planC = reviveRS(planC,cerrPath,numExt);
 end
 
 save_planC(planC,[],'passed',cerrFile);
