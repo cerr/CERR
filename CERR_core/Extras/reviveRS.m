@@ -1,12 +1,21 @@
-function planC = reviveRS(planC,planCDir)
+function planC = reviveRS(planC,planCDir,numExt,scanNum)
 
 % [planCDir,~,~] = fileparts(planCFileName); % = '/cluster/home/xnat_pipeline/results/20201126021900';
 
 % planC = loadPlanC(planCFileName);
+
+if ~exist('numExt','var')
+    numExt = 0;
+end
+
+if ~exist('scanNum','var')
+    scanNum = 1;
+end
+
 indexS = planC{end};
 structureListC = {planC{indexS.structures}.structureName};
 
-scanNum = 1;
+
 
 for i = 1:numel(structureListC)
     strName = structureListC{i};
