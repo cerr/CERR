@@ -16,7 +16,8 @@ disp(['importing DICOM from ' dicomPath]);
 initFlag = init_ML_DICOM;
 importDICOM(dicomPath,cerrPath);
 
-cerrFile = dir(fullfile(cerrPath, '*.mat'));
+C = dir(fullfile(cerrPath, '*.mat'));
+cerrFile = fullfile(C.folder, C.name);
 
 planC = loadPlanC(cerrFile);
 
