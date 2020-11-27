@@ -30,5 +30,5 @@ end
 disp('Generating DICOM UID Relationships');
 planC = generate_DICOM_UID_Relationships(planC);
 disp('Exporting RTSTRUCT');
-export_RS_IOD(planC,planCDir,0);
+export_RS_IOD(planC,planCDir,numExt);
 % save_planC(planC,[],'passed',planCFileName);
