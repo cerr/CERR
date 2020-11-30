@@ -262,14 +262,14 @@ switch command
                         uicontrol(hFig,'style','text','String','Select Options for Overlaid Scan','units',units,'fontWeight','bold','position',[0.05 0.850 0.9 0.1]);
                         uicontrol(hFig,'style','frame','units', units, 'Position',[0.05 0.35 0.9 0.45]);
                         ud.handle.ovrlayWindowTxt       = uicontrol(hFig,'style','text','String','CT Window','units',units,'position',[0.1 0.65 0.3 0.1]);
-                        ud.handle.ovrlayWindowChoices   = uicontrol(hFig,'style','popup','string',{stateS.optS.windowPresets.name},'units',units,'position',[0.45 0.65 0.4 0.1],'value',1, 'callback', 'controlFrame(''contour'', ''selectOverlayOptions'',''windowpreset'')');
+                        ud.handle.ovrlayWindowChoices   = uicontrol(hFig,'style','popupmenu','string',{stateS.optS.windowPresets.name},'units',units,'position',[0.45 0.65 0.4 0.1],'value',1, 'callback', 'controlFrame(''contour'', ''selectOverlayOptions'',''windowpreset'')');
                         ud.handle.ovrlayWindowCenterTxt = uicontrol(hFig,'style','text','string','Center','units',units,'position',[0.1 0.50 0.35 0.1]);
                         ud.handle.ovrlayWindowCenterEdt = uicontrol(hFig,'style','edit','string','0','units',units,'position',[0.1 0.40 0.35 0.1], 'callback', 'controlFrame(''contour'', ''selectOverlayOptions'',''setManualWindow'')');
                         ud.handle.ovrlayWindowWidthTxt  = uicontrol(hFig,'style','text','string','Width','units',units,'position',[0.55 0.50 0.35 0.1]);
                         ud.handle.ovrlayWindowWidthEdt  = uicontrol(hFig,'style','edit','string','300','units',units,'position',[0.55 0.40 0.35 0.1], 'callback', 'controlFrame(''contour'', ''selectOverlayOptions'',''setManualWindow'')');                        
                         colorbarStrC = {'Gray256','Copper','Red','Green','Blue','StarInterp','hotCold'};
                         ud.handle.ovrlayMapTxt          = uicontrol(hFig,'style','text','string','Colorbar','units',units,'position',[0.05 0.20 0.3 0.1]);
-                        ud.handle.ovrlayMapChoices      = uicontrol(hFig,'style','popup','string',colorbarStrC,'units',units,'position',[0.40 0.20 0.45 0.1],'value',1, 'callback', 'controlFrame(''contour'', ''selectOverlayOptions'',''fieldClicked'')');
+                        ud.handle.ovrlayMapChoices      = uicontrol(hFig,'style','popupmenu','string',colorbarStrC,'units',units,'position',[0.40 0.20 0.45 0.1],'value',1, 'callback', 'controlFrame(''contour'', ''selectOverlayOptions'',''fieldClicked'')');
                         
                         ud.handle.ovrlayApply           = uicontrol(hFig,'style','push','string','Apply','units',units,'position',[0.25 0.05 0.20 0.1], 'callback', 'controlFrame(''contour'', ''selectOverlayOptions'',''apply'')');
                         ud.handle.ovrlayExit           = uicontrol(hFig,'style','push','string','Exit','units',units,'position',[0.55 0.05 0.20 0.1], 'callback', 'controlFrame(''contour'', ''selectOverlayOptions'',''exit'')');
@@ -1351,7 +1351,7 @@ switch command
                 
                 controlFrame('default');
                 
-                if length(planC{planC{end}.scan}) < 2 & length(planC{planC{end}.dose})< 1
+                if length(planC{planC{end}.scan}) < 2 && length(planC{planC{end}.dose})< 1
                     hWarn = warndlg('At least two scans or one scan and one dose are needed for image fusion.', 'Not enough data for fusion.');
                     waitfor(hWarn);
                     return;
@@ -1425,12 +1425,12 @@ switch command
                 
                 %                 % Set Color Bar Invisible
                 uicontrol(hFig,'style','frame','position', [clBarPos(1)-5 clBarPos(2)-30 clBarPos(3)+9 clBarPos(4)+55],...
-                    'tag', 'colorbarShild','Background',colorbarShildBgClr,'ForegroundColor',colorbarShildBgClr);
+                    'tag', 'colorbarShild','backgroundcolor',colorbarShildBgClr,'ForegroundColor',colorbarShildBgClr);
                 
                 % Set control toggling between base and moving scan
                 %
                 leftMarginWidth = 195; %obtained from from sliceCallback.m
-                uicontrol(hFig,'style','toggle','units','pixels',...
+                uicontrol(hFig,'style','togglebutton','units','pixels',...
                     'Position',[leftMarginWidth+10 490 25 20], 'tag','toggleBasMov',...
                     'string','B/M','fontWeight','normal','callBack','sliceCallBack(''toggleBaseMoving'');');
                 if isdeployed
@@ -1439,7 +1439,7 @@ switch command
                     [I,map] = imread(fullfile(getCERRPath,'Icons','lock.gif'),'gif');
                 end
                 lockImg = ind2rgb(I,map);
-                uicontrol(hFig,'style','toggle','value',1,'units','pixels',...
+                uicontrol(hFig,'style','togglebutton','value',1,'units','pixels',...
                     'cdata',lockImg,'Position',[leftMarginWidth+10 460 25 20],...
                     'tag','toggleLockMoving','string','','fontWeight','normal',...
                     'callBack','sliceCallBack(''toggleLockMoving'');');
@@ -1592,7 +1592,7 @@ switch command
                 presetValue = get(stateS.handle.CTPreset,'value');                
                 ud.handles.basePreset = uicontrol(gcf,'units','pixels', 'BackgroundColor',uicolor, ...
                     'Position',[20 600-90-dy (frameWidth-30)/2 20], 'String',stringPresetC, ...
-                    'Style','popup','Tag','controlFrameItem', 'value', presetValue, ...
+                    'Style','popupmenu','Tag','controlFrameItem', 'value', presetValue, ...
                     'callback','controlFrame(''fusion'', ''basepreset'')', ...
                     'tooltipstring','Select Preset Window');
                 %Base Colormap Presets dropdown.
@@ -1600,7 +1600,7 @@ switch command
                 cmapValue = get(stateS.handle.BaseCMap,'value');
                 ud.handles.basedisplayModeColor = uicontrol(gcf,'units','pixels', 'BackgroundColor',uicolor, ...
                     'Position',[(frameWidth-30)/2+20+10 600-90-dy (frameWidth-30)/2 20], ...
-                    'String',stringCmapC,'value',cmapValue,'Style','popup','Tag','controlFrameItem', ...
+                    'String',stringCmapC,'value',cmapValue,'Style','popupmenu','Tag','controlFrameItem', ...
                     'callback','controlFrame(''fusion'', ''basecolormap'')','tooltipstring','Select Scan Color Map','Enable','On');
                 %CTLevel edit box
                 ud.handles.baseCTLevel = uicontrol(gcf,'units','pixels', 'BackgroundColor',uicolor, ...
@@ -1645,7 +1645,7 @@ switch command
                 
                 %Presets dropdown.
                 ud.handles.MovPresets = uicontrol(hFig,'units','pixels','Position',[20 600-205-dy (frameWidth-30)/2 20],...
-                    'String',stringPresetC,'value',presetValue,'Style','popup','Tag','controlFrameItem', ...
+                    'String',stringPresetC,'value',presetValue,'Style','popupmenu','Tag','controlFrameItem', ...
                     'callback','controlFrame(''fusion'', ''movpreset'')',...
                     'tooltipstring','Select Moving Data Preset Window');
                 
@@ -3127,7 +3127,7 @@ switch command
                 
                 delete(findobj('tag','rotSpeedBar'));
                 
-                set(hFig, 'renderer', 'zbuffer');
+                %set(hFig, 'renderer', 'zbuffer');
                 %wy
                 
                 %recover the control frame left tool bar
@@ -3197,7 +3197,7 @@ switch command
                 %create UI controls
                 
                 %rotate toggle button
-                %funStateS.handle.rotate = uicontrol(hFig,'units', units, 'Position',absPos([.05 .87 0.8 .05], posFrame), 'Style', 'toggle', 'String', 'Rotate View', 'visible', 'on', 'callBack','controlFrame(''rotate_axis'',''rotateViewPlane'')','tag', 'controlFrameItem');
+                %funStateS.handle.rotate = uicontrol(hFig,'units', units, 'Position',absPos([.05 .87 0.8 .05], posFrame), 'Style', 'togglebutton', 'String', 'Rotate View', 'visible', 'on', 'callBack','controlFrame(''rotate_axis'',''rotateViewPlane'')','tag', 'controlFrameItem');
                 %reset push button
                 ud.handles.reset = uicontrol(hFig,'units', units, 'Position',absPos([.05 .8 0.8 .05], posFrame), 'Style', 'push', 'String', 'Reset View', 'visible', 'on', 'callBack','controlFrame(''rotate_axis'',''resetViewPlane'')','tag', 'controlFrameItem');
                 %exit push button
@@ -3425,7 +3425,7 @@ switch command
                 ud.handles.prevSlcPush = uicontrol(hFig, 'style', 'push', 'units', units, 'position', absPos([.05 .75 .2 .05], posFrame), 'string', '<<', 'tag', 'controlFrameItem', 'visible', 'on', 'callBack','controlFrame(''ANNOTATION'',''prevSlc'')', 'horizontalAlignment', 'center','fontsize',14);
                 ud.handles.nextSlcPush = uicontrol(hFig, 'style', 'push', 'units', units, 'position', absPos([.8 .75 .15 .05], posFrame), 'string', '>>', 'tag', 'controlFrameItem', 'visible', 'on', 'callBack','controlFrame(''ANNOTATION'',''nextSlc'')', 'horizontalAlignment', 'center','fontsize',14);
                 ud.handles.AnnotSelectTxt = uicontrol(hFig, 'style', 'text', 'enable', 'inactive', 'units', units, 'position', absPos([.05 .65 .35 .05], posFrame), 'string', 'Item #', 'tag', 'controlFrameItem', 'visible', 'on', 'horizontalAlignment', 'center','fontsize',14);
-                ud.handles.AnnotSelect = uicontrol(hFig, 'style', 'popup', 'units', units, 'position', absPos([.4 .65 .55 .05], posFrame), 'string', '','value',1, 'tag', 'controlFrameItem', 'visible', 'on', 'callBack','controlFrame(''ANNOTATION'',''show'')', 'horizontalAlignment', 'center','fontsize',14);
+                ud.handles.AnnotSelect = uicontrol(hFig, 'style', 'popupmenu', 'units', units, 'position', absPos([.4 .65 .55 .05], posFrame), 'string', '','value',1, 'tag', 'controlFrameItem', 'visible', 'on', 'callBack','controlFrame(''ANNOTATION'',''show'')', 'horizontalAlignment', 'center','fontsize',14);
                 ud.handles.AnnotStat1 = uicontrol(hFig, 'style', 'text', 'enable', 'inactive', 'units', units, 'position', absPos([.06 .50 .9 .08], posFrame), 'string', '', 'tag', 'controlFrameItem', 'visible', 'on', 'horizontalAlignment', 'left','fontsize',14);
                 ud.handles.quitPush = uicontrol(hFig, 'style', 'push', 'units', units, 'position', absPos([.35 .1 .3 .05], posFrame), 'string', 'Quit', 'tag', 'controlFrameItem', 'visible', 'on', 'callBack','controlFrame(''ANNOTATION'',''quit'')', 'horizontalAlignment', 'center','fontsize',14);
                 
