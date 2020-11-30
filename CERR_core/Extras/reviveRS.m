@@ -1,8 +1,7 @@
 function planC = reviveRS(planC,planCDir,numExt,scanNum)
-
-% [planCDir,~,~] = fileparts(planCFileName); % = '/cluster/home/xnat_pipeline/results/20201126021900';
-
-% planC = loadPlanC(planCFileName);
+% Usage: planC = reviveRS(planC,planCDir,numExt,scanNum)
+% Extract structure masks in planC and re-import them to eliminate inconsistencies in older versions of saved structures.
+% EML 2020-11-26
 
 if ~exist('numExt','var')
     numExt = 0;
@@ -31,4 +30,3 @@ disp('Generating DICOM UID Relationships');
 planC = generate_DICOM_UID_Relationships(planC);
 disp('Exporting RTSTRUCT');
 export_RS_IOD(planC,planCDir,numExt);
-% save_planC(planC,[],'passed',planCFileName);
