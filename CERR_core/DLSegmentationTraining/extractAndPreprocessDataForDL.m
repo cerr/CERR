@@ -211,22 +211,24 @@ for scanIdx = 1:numScans
         
         %Resample reqd structures
         % TBD: add structures reqd for training
-        cropStrListC = arrayfun(@(x)x.params.structureName,cropS,'un',0);
-        cropParS = [cropS.params];
-        if ~isempty(cropStrListC)
-            for n = 1:length(cropStrListC)
-                strIdx = getMatchingIndex(cropStrListC{n},strC,'EXACT');
-                if ~isempty(strIdx)
-                    str3M = double(getStrMask(strIdx,planC));
-                    outStr3M = imgResample3d(str3M,inputResV,xValsV,...
-                        yValsV,zValsV,outResV,resampleMethod,0) >= 0.5;
-                    outStrName = [cropParS(n).structureName,'_resamp'];
-                    cropParS(n).structureName = outStrName;
-                    planC = maskToCERRStructure(outStr3M,0,scanNumV(scanIdx),...
-                        outStrName,planC);
+        if ~strcmpi(cropS(:,scanIdx).method,'none')
+            cropStrListC = arrayfun(@(x)x.params.structureName,cropS,'un',0);
+            cropParS = [cropS.params];
+            if ~isempty(cropStrListC)
+                for n = 1:length(cropStrListC)
+                    strIdx = getMatchingIndex(cropStrListC{n},strC,'EXACT');
+                    if ~isempty(strIdx)
+                        str3M = double(getStrMask(strIdx,planC));
+                        outStr3M = imgResample3d(str3M,inputResV,xValsV,...
+                            yValsV,zValsV,outResV,resampleMethod,0) >= 0.5;
+                        outStrName = [cropParS(n).structureName,'_resamp'];
+                        cropParS(n).structureName = outStrName;
+                        planC = maskToCERRStructure(outStr3M,0,scanNumV(scanIdx),...
+                            outStrName,planC);
+                    end
                 end
+                cropS.params = cropParS;
             end
-            cropS.params = cropParS;
         end
     end
     
@@ -277,6 +279,8 @@ for scanIdx = 1:numScans
             cropStr3M = [];
         end
         toc
+    else 
+        cropStr3M = [];
     end
     
     scanC{scanIdx} = scan3M;
