@@ -62,8 +62,13 @@ if ~isempty(postS)
                     maskC{iMethod} = roiMask3M & strMask3M;
                     
                 case 'removeBackgroundFP'
-                    scan3M =getScanArray(scanNum,planC);
-                    connPtMask3M = getPatientOutline(scan3M,[],100);
+                    ctOffset = planC{indexS.scan}(scanNum).scanInfo(1).CTOffset;
+                    scan3M = double(getScanArray(scanNum,planC)) - ctOffset;
+                    threshold = -400; % default for CT
+                    if isfield(methodC{iMethod}.params,'threshold')
+                        threshold = methodC{iMethod}.params.threshold;
+                    end
+                    connPtMask3M = getPatientOutline(scan3M,[],threshold);
                     [strMask3M, planC] = getStrMask(strNum,planC);
                     
                     maskC{iMethod} = strMask3M & connPtMask3M;
