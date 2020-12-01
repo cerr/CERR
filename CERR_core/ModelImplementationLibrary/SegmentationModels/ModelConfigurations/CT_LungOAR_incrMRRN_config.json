@@ -26,8 +26,12 @@
 
         "identifier" : {"imageType": "CT SCAN"},
 
+        "resample": {"resolutionXCm": 0.1,
+		          "resolutionYCm": 0.1,
+                  "method": "linear"
+		    },
 
-	"crop": [{
+        "crop": [{
       		"method": "none",
       		"params": "",
       		"operator": ""
