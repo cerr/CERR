@@ -28,7 +28,6 @@ for p = 1:length(ptListC)
             fileName = fullfile(outPath,'outputH5',fileNameC{1});
             loadDataS = load(fileName);
             mask3M = loadDataS.mask;
-            mask3M = mask3M.'
             mask3M = permute(mask3M,[3 2 1]);
             
         case '2D'
