@@ -25,6 +25,7 @@ for i = 1:length(dataC)
     end
 end
 
+
 if ~isempty(fieldC)
     [~,idxV] = unique(fieldC,'first');
     uniqFieldC = fieldC(sort(idxV));
@@ -37,4 +38,3 @@ if ~isempty(fieldC)
 else
     dataS = dataC;
 end
-
