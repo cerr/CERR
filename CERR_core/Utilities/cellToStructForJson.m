@@ -25,21 +25,16 @@ for i = 1:length(dataC)
     end
 end
 
+
 if ~isempty(fieldC)
-    %uniqFieldC = unique(fieldC,'stable');
     [~,idxV] = unique(fieldC,'first');
     uniqFieldC = fieldC(sort(idxV));
-    %if size(uniqFieldC,2) == 1 
         dataS = struct();
         for i = 1:size(fieldC,1)
-            for j = 1:size(uniqFieldC,1)
+            for j = 1:size(fieldC,2)
                 dataS(i).(uniqFieldC{j}) = valC{i,j};
             end
         end
-    %else 
-        %dataS = dataC;
-    %end
 else
     dataS = dataC;
 end
-
