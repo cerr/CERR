@@ -61,9 +61,10 @@ switch upper(command)
     case 'INIT'
         %Initialize display ranges.
         hAxis = varargin{1};
+        CERRColorBar('INIT_HANDLES', hAxis);
         CERRColorBar('REFRESH', hAxis);
-
-    case 'REFRESH'
+        
+    case 'INIT_HANDLES'
         offset = 0;
         try
             if(~isempty(planC{indexS.dose}(stateS.doseSet).doseOffset))
@@ -102,8 +103,8 @@ switch upper(command)
         axis(hAxis, 'manual', 'off');
 
         %Setup Figure in case it is not initialized.
-        hFig  = get(hAxis, 'parent');
-        set(hFig, 'doublebuffer', 'on');
+        %hFig  = get(hAxis, 'parent');
+        %set(hFig, 'doublebuffer', 'on');
 
         ud.dY = double(colorbarFrameMax) - double(colorbarFrameMin);
         ud.dX = 2;
@@ -153,16 +154,16 @@ switch upper(command)
 
         %Draw actual image, with margin so image doesnt leak outside frame.
         margin = (upLim-lowLim)/nColors/2;
-        colorbarImageH = imagesc([.5 .5], [upLim-margin lowLim+margin], cB, 'parent', hAxis, 'hittest', 'on', 'buttondownfcn', 'CERRColorBar(''ColorbarAxisClicked'')','Tag',tag);
+        ud.handle.colorbarImageH = imagesc([.5 .5], [upLim-margin lowLim+margin], cB, 'parent', hAxis, 'hittest', 'on', 'buttondownfcn', 'CERRColorBar(''ColorbarAxisClicked'')','Tag',tag);
         %Create arrows and associated text for colorRange.
 %         ud.handle.colorrangebot = patch([.5 0 1], [lowLim lowLim-ud.dY/ratio lowLim-ud.dY/ratio], 'w', 'edgecolor', 'k', 'buttondownfcn', 'CERRColorBar(''RANGERCLICKED'', ''CRB'')', 'userdata', hAxis, 'parent', hAxis, 'erasemode', 'xor');
 %         ud.handle.colorrangebottxt = text(1, lowLim - ud.dY/ratio, sprintf('%.3g',textNumBot), 'verticalAlignment', 'top', 'horizontalAlignment', 'right', 'buttondownfcn', 'CERRColorBar(''RANGERCLICKED'', ''CRB'')', 'fontsize', 8, 'erasemode', 'xor', 'parent', hAxis, 'userdata', hAxis);
 %         ud.handle.colorrangetop = patch([.5 0 1], [upLim upLim+ud.dY/ratio upLim+ud.dY/ratio], 'w', 'edgecolor', 'k', 'buttondownfcn', 'CERRColorBar(''RANGERCLICKED'', ''CRT'')', 'userdata', hAxis, 'parent', hAxis, 'erasemode', 'xor');
 %         ud.handle.colorrangetoptxt = text(1, upLim + ud.dY/ratio, sprintf('%.3g',textNumTop), 'verticalAlignment', 'bottom', 'horizontalAlignment', 'right', 'buttondownfcn', 'CERRColorBar(''RANGERCLICKED'', ''CRT'')', 'fontsize', 8, 'erasemode', 'xor', 'parent', hAxis, 'userdata', hAxis);
-        ud.handle.colorrangebot = patch([.5 0 1], [lowLim lowLim-ud.dY/ratio lowLim-ud.dY/ratio], 'w', 'edgecolor', 'k', 'buttondownfcn', 'CERRColorBar(''RANGERCLICKED'', ''CRB'')', 'userdata', hAxis, 'parent', hAxis);
-        ud.handle.colorrangebottxt = text(1, lowLim - ud.dY/ratio, sprintf('%.3g',textNumBot), 'verticalAlignment', 'top', 'horizontalAlignment', 'right', 'buttondownfcn', 'CERRColorBar(''RANGERCLICKED'', ''CRB'')', 'fontsize', 8, 'parent', hAxis, 'userdata', hAxis);
-        ud.handle.colorrangetop = patch([.5 0 1], [upLim upLim+ud.dY/ratio upLim+ud.dY/ratio], 'w', 'edgecolor', 'k', 'buttondownfcn', 'CERRColorBar(''RANGERCLICKED'', ''CRT'')', 'userdata', hAxis, 'parent', hAxis);
-        ud.handle.colorrangetoptxt = text(1, upLim + ud.dY/ratio, sprintf('%.3g',textNumTop), 'verticalAlignment', 'bottom', 'horizontalAlignment', 'right', 'buttondownfcn', 'CERRColorBar(''RANGERCLICKED'', ''CRT'')', 'fontsize', 8, 'parent', hAxis, 'userdata', hAxis);
+        ud.handle.colorrangebot = patch([.5, 0, 1], [lowLim, lowLim-ud.dY/ratio, lowLim-ud.dY/ratio],[1,1,1], 'w', 'edgecolor', 'k', 'buttondownfcn', 'CERRColorBar(''RANGERCLICKED'', ''CRB'')', 'userdata', hAxis, 'parent', hAxis);
+        ud.handle.colorrangebottxt = text(1, lowLim - ud.dY/ratio, 1, sprintf('%.3g',textNumBot), 'verticalAlignment', 'top', 'horizontalAlignment', 'right', 'buttondownfcn', 'CERRColorBar(''RANGERCLICKED'', ''CRB'')', 'fontsize', 8, 'parent', hAxis, 'userdata', hAxis);
+        ud.handle.colorrangetop = patch([.5 0 1], [upLim, upLim+ud.dY/ratio, upLim+ud.dY/ratio],[1,1,1], 'w', 'edgecolor', 'k', 'buttondownfcn', 'CERRColorBar(''RANGERCLICKED'', ''CRT'')', 'userdata', hAxis, 'parent', hAxis);
+        ud.handle.colorrangetoptxt = text(1, upLim + ud.dY/ratio, 1, sprintf('%.3g',textNumTop), 'verticalAlignment', 'bottom', 'horizontalAlignment', 'right', 'buttondownfcn', 'CERRColorBar(''RANGERCLICKED'', ''CRT'')', 'fontsize', 8, 'parent', hAxis, 'userdata', hAxis);
 
         %Create arrows and associated text for doseRange.
         upLim = double(doseDisplayRange(2));
@@ -175,19 +176,120 @@ switch upper(command)
             textNumTop = upLim;
         end
         %ud.handle.doserangebot = patch([1 2 2], [lowLim lowLim lowLim-ud.dY/ratio], 'w', 'edgecolor', 'k', 'buttondownfcn', 'CERRColorBar(''RANGERCLICKED'', ''DRB'')', 'userdata', hAxis, 'parent', hAxis, 'erasemode', 'xor');
-        ud.handle.doserangebot = patch([1 2 2], [lowLim lowLim lowLim-ud.dY/ratio], 'w', 'edgecolor', 'k', 'buttondownfcn', 'CERRColorBar(''RANGERCLICKED'', ''DRB'')', 'userdata', hAxis, 'parent', hAxis);
+        ud.handle.doserangebot = patch([1, 2, 2], [lowLim, lowLim, lowLim-ud.dY/ratio],[1,1,1], 'w', 'edgecolor', 'k', 'buttondownfcn', 'CERRColorBar(''RANGERCLICKED'', ''DRB'')', 'userdata', hAxis, 'parent', hAxis);
         %ud.handle.doserangebottxt = text(1.2, lowLim - ud.dY/ratio, sprintf('%.3g',textNumBot), 'verticalAlignment', 'top',  'buttondownfcn', 'CERRColorBar(''RANGERCLICKED'', ''DRB'')','horizontalAlignment', 'left', 'fontsize', 8, 'parent', hAxis, 'erasemode', 'xor', 'userdata', hAxis,'color',[0.3 0.3 1]);
-        ud.handle.doserangebottxt = text(1.2, lowLim - ud.dY/ratio, sprintf('%.3g',textNumBot), 'verticalAlignment', 'top',  'buttondownfcn', 'CERRColorBar(''RANGERCLICKED'', ''DRB'')','horizontalAlignment', 'left', 'fontsize', 8, 'parent', hAxis, 'userdata', hAxis,'color',[0.3 0.3 1]);
+        ud.handle.doserangebottxt = text(1.2, lowLim - ud.dY/ratio, 1, sprintf('%.3g',textNumBot), 'verticalAlignment', 'top',  'buttondownfcn', 'CERRColorBar(''RANGERCLICKED'', ''DRB'')','horizontalAlignment', 'left', 'fontsize', 8, 'parent', hAxis, 'userdata', hAxis,'color',[0.3 0.3 1]);
         %ud.handle.doserangetop = patch([1 2 2], [upLim upLim upLim+ud.dY/ratio], 'w', 'edgecolor', 'k', 'buttondownfcn', 'CERRColorBar(''RANGERCLICKED'', ''DRT'')', 'userdata', hAxis, 'parent', hAxis, 'erasemode', 'xor');
-        ud.handle.doserangetop = patch([1 2 2], [upLim upLim upLim+ud.dY/ratio], 'w', 'edgecolor', 'k', 'buttondownfcn', 'CERRColorBar(''RANGERCLICKED'', ''DRT'')', 'userdata', hAxis, 'parent', hAxis);
+        ud.handle.doserangetop = patch([1, 2, 2], [upLim, upLim, upLim+ud.dY/ratio],[1,1,1], 'w', 'edgecolor', 'k', 'buttondownfcn', 'CERRColorBar(''RANGERCLICKED'', ''DRT'')', 'userdata', hAxis, 'parent', hAxis);
         %ud.handle.doserangetoptxt = text(1.2, upLim + ud.dY/ratio, sprintf('%.3g',textNumTop), 'verticalAlignment', 'bottom', 'horizontalAlignment', 'left',  'buttondownfcn', 'CERRColorBar(''RANGERCLICKED'', ''DRT'')', 'fontsize', 8, 'parent', hAxis, 'erasemode', 'xor', 'userdata', hAxis,'color',[0.3 0.3 1]);
-        ud.handle.doserangetoptxt = text(1.2, upLim + ud.dY/ratio, sprintf('%.3g',textNumTop), 'verticalAlignment', 'bottom', 'horizontalAlignment', 'left',  'buttondownfcn', 'CERRColorBar(''RANGERCLICKED'', ''DRT'')', 'fontsize', 8, 'parent', hAxis, 'userdata', hAxis,'color',[0.3 0.3 1]);
+        ud.handle.doserangetoptxt = text(1.2, upLim + ud.dY/ratio, 1, sprintf('%.3g',textNumTop), 'verticalAlignment', 'bottom', 'horizontalAlignment', 'left',  'buttondownfcn', 'CERRColorBar(''RANGERCLICKED'', ''DRT'')', 'fontsize', 8, 'parent', hAxis, 'userdata', hAxis,'color',[0.3 0.3 1]);
 
         %Draw border around colorbar.
         cFMax = colorbarFrameMax;
         cFMin = colorbarFrameMin;
-        line([0 0 1 1 0], [cFMin cFMax cFMax cFMin cFMin], 'color', 'k', 'hittest', 'off', 'parent', hAxis);
+        line([0 0 1 1 0], [cFMin cFMax cFMax cFMin cFMin],[1,1,1,1,1], 'color', 'k', 'hittest', 'off', 'parent', hAxis);
         set(hAxis, 'userdata', ud);
+        updateColorBarStateS(hAxis,colorbarFrameMax,doseArrayMaxValue,doseDisplayRange,colorbarRange,colorbarFrameMin,ud.handle.colorbarImageH);
+        CERRColorBar('REFRESHCOLORBARIMAGE', hAxis);
+        
+
+    case 'REFRESH'
+        ud = get(hAxis, 'userdata');
+        offset = 0;
+        try
+            if(~isempty(planC{indexS.dose}(stateS.doseSet).doseOffset))
+                offset = double(planC{indexS.dose}(stateS.doseSet).doseOffset);
+            end
+        end
+
+        %Set bounds for the colorbar frame
+        if isempty(stateS.optS.colorbarMax)
+            colorbarFrameMax = max([offset, doseArrayMaxValue - offset, doseDisplayRange(2), colorbarRange(2)]);
+        else
+            colorbarFrameMax = stateS.optS.colorbarMax;
+        end
+        if isempty(stateS.optS.colorbarMin)
+            if offset > 0
+                colorbarFrameMin = min([-offset, -(doseArrayMaxValue - offset), doseDisplayRange(1), colorbarRange(1)]);
+            else
+                colorbarFrameMin = min([0, doseDisplayRange(1), colorbarRange(1)]);
+            end
+        else
+            colorbarFrameMin = stateS.optS.colorbarMin;
+        end
+
+        if colorbarFrameMax == colorbarFrameMin
+            colorbarFrameMax = colorbarFrameMin + 1;
+        end
+
+        %Ratio of bar height to arrow height;
+        ud.ratio = 50;
+        ratio = ud.ratio;
+
+        ud.dY = double(colorbarFrameMax) - double(colorbarFrameMin);
+        ud.dX = 2;
+
+        set(hAxis, 'xLim', [-.5 2.5]);
+        set(hAxis, 'yLim', [double(colorbarFrameMin)-ud.dY/(ratio/2) double(colorbarFrameMax)+ud.dY/(ratio/2)]);
+
+        %Create colorbar image.
+        cM      = CERRColorMap(stateS.optS.doseColormap);
+        if stateS.optS.doubleSidedColorbar
+            cM = [flipud(cM);cM];
+        end
+        nColors = size(cM,1);
+        tmpV    = nColors:-1:1;
+        cB      = ind2rgb(tmpV', cM);
+        upLim   = double(colorbarRange(2));
+        lowLim  = double(colorbarRange(1));
+
+        if(colorbarFrameMax>100)
+            textNumBot = lowLim/100;
+            textNumTop = upLim/100;
+            text(0,lowLim-4*ud.dY/(ratio),1,'x10^2','parent',hAxis,'hittest','off')
+        else
+            textNumBot = lowLim;
+            textNumTop = upLim;
+        end
+        
+        %Draw actual image, with margin so image doesnt leak outside frame.
+        %margin = (upLim-lowLim)/nColors/2;
+        %colorbarImageH = imagesc([.5 .5], [upLim-margin lowLim+margin], cB, 'parent', hAxis, 'hittest', 'on', 'buttondownfcn', 'CERRColorBar(''ColorbarAxisClicked'')','Tag',tag);
+        set(ud.handle.colorbarImageH,'cData',cB)
+        %Create arrows and associated text for colorRange.
+%         ud.handle.colorrangebot = patch([.5 0 1], [lowLim lowLim-ud.dY/ratio lowLim-ud.dY/ratio], 'w', 'edgecolor', 'k', 'buttondownfcn', 'CERRColorBar(''RANGERCLICKED'', ''CRB'')', 'userdata', hAxis, 'parent', hAxis, 'erasemode', 'xor');
+%         ud.handle.colorrangebottxt = text(1, lowLim - ud.dY/ratio, sprintf('%.3g',textNumBot), 'verticalAlignment', 'top', 'horizontalAlignment', 'right', 'buttondownfcn', 'CERRColorBar(''RANGERCLICKED'', ''CRB'')', 'fontsize', 8, 'erasemode', 'xor', 'parent', hAxis, 'userdata', hAxis);
+%         ud.handle.colorrangetop = patch([.5 0 1], [upLim upLim+ud.dY/ratio upLim+ud.dY/ratio], 'w', 'edgecolor', 'k', 'buttondownfcn', 'CERRColorBar(''RANGERCLICKED'', ''CRT'')', 'userdata', hAxis, 'parent', hAxis, 'erasemode', 'xor');
+%         ud.handle.colorrangetoptxt = text(1, upLim + ud.dY/ratio, sprintf('%.3g',textNumTop), 'verticalAlignment', 'bottom', 'horizontalAlignment', 'right', 'buttondownfcn', 'CERRColorBar(''RANGERCLICKED'', ''CRT'')', 'fontsize', 8, 'erasemode', 'xor', 'parent', hAxis, 'userdata', hAxis);
+        set(ud.handle.colorrangebot,'XData',[.5, 0, 1],'YData',[lowLim, lowLim-ud.dY/ratio, lowLim-ud.dY/ratio],'ZData',[1,1,1])
+        set(ud.handle.colorrangebottxt,'Position',[1, lowLim - ud.dY/ratio, 1], 'string',sprintf('%.3g',textNumBot))
+        set(ud.handle.colorrangetop,'XData',[.5, 0, 1],'YData',[upLim, upLim+ud.dY/ratio, upLim+ud.dY/ratio],'ZData',[1,1,1])
+        set(ud.handle.colorrangetoptxt,'Position',[1, upLim + ud.dY/ratio, 1],'string',sprintf('%.3g',textNumTop))
+
+        %Create arrows and associated text for doseRange.
+        upLim = double(doseDisplayRange(2));
+        lowLim = double(doseDisplayRange(1));
+        if(colorbarFrameMax>100)
+            textNumBot = lowLim/100;
+            textNumTop = upLim/100;
+        else
+            textNumBot = lowLim;
+            textNumTop = upLim;
+        end
+        %ud.handle.doserangebot = patch([1 2 2], [lowLim lowLim lowLim-ud.dY/ratio], 'w', 'edgecolor', 'k', 'buttondownfcn', 'CERRColorBar(''RANGERCLICKED'', ''DRB'')', 'userdata', hAxis, 'parent', hAxis, 'erasemode', 'xor');
+        set(ud.handle.doserangebot,'XData',[1, 2, 2],'YData',[lowLim, lowLim, lowLim-ud.dY/ratio],'ZData',[1,1,1])
+        %ud.handle.doserangebottxt = text(1.2, lowLim - ud.dY/ratio, sprintf('%.3g',textNumBot), 'verticalAlignment', 'top',  'buttondownfcn', 'CERRColorBar(''RANGERCLICKED'', ''DRB'')','horizontalAlignment', 'left', 'fontsize', 8, 'parent', hAxis, 'erasemode', 'xor', 'userdata', hAxis,'color',[0.3 0.3 1]);
+        set(ud.handle.doserangebottxt,'Position',[1,lowLim - ud.dY/ratio,1], 'string',sprintf('%.3g',textNumBot))
+        %ud.handle.doserangetop = patch([1 2 2], [upLim upLim upLim+ud.dY/ratio], 'w', 'edgecolor', 'k', 'buttondownfcn', 'CERRColorBar(''RANGERCLICKED'', ''DRT'')', 'userdata', hAxis, 'parent', hAxis, 'erasemode', 'xor');
+        set(ud.handle.doserangetop,'XData',[1,2,2],'YData',[upLim, upLim, upLim+ud.dY/ratio],'ZData',[1,1,1])
+        %ud.handle.doserangetoptxt = text(1.2, upLim + ud.dY/ratio, sprintf('%.3g',textNumTop), 'verticalAlignment', 'bottom', 'horizontalAlignment', 'left',  'buttondownfcn', 'CERRColorBar(''RANGERCLICKED'', ''DRT'')', 'fontsize', 8, 'parent', hAxis, 'erasemode', 'xor', 'userdata', hAxis,'color',[0.3 0.3 1]);
+        set(ud.handle.doserangetoptxt,'Position', [1.2, upLim + ud.dY/ratio, 1], 'string',sprintf('%.3g',textNumTop))
+
+        %Draw border around colorbar.
+        %cFMax = colorbarFrameMax;
+        %cFMin = colorbarFrameMin;
+        %line([0 0 1 1 0], [cFMin cFMax cFMax cFMin cFMin], 'color', 'k', 'hittest', 'off', 'parent', hAxis);
+        %set(hAxis, 'userdata', ud);
         updateColorBarStateS(hAxis,colorbarFrameMax,doseArrayMaxValue,doseDisplayRange,colorbarRange,colorbarFrameMin,colorbarImageH);
         CERRColorBar('REFRESHCOLORBARIMAGE', hAxis);
 
@@ -207,7 +309,7 @@ switch upper(command)
         ud    = get(hAxis, 'userdata');
 
         %Suspend figure while motion is going on, restore later.
-        ud.UISTATE = uisuspend(hFig);
+        %ud.UISTATE = uisuspend(hFig);
 
         %Determine which triangle is clicked.
         switch upper(varargin{1})
@@ -245,8 +347,11 @@ switch upper(command)
 
     case 'INDICATORMOVING'
         hAxis = get(gco, 'userdata');
-        hFig  = get(hAxis, 'parent');
+        %hFig  = get(hAxis, 'parent');
         ud    = get(hAxis, 'userdata');
+        if isempty(ud)
+            return;
+        end
         hObj  = ud.handle.movingObject;
         yData = get(hObj, 'yData');
         cp = get(hAxis, 'currentpoint');
@@ -272,9 +377,13 @@ switch upper(command)
     case 'MOTIONDONE'
         hAxis = get(gco, 'userdata');
         ud = get(hAxis, 'userdata');
+        
+        if isempty(ud)
+            return;
+        end
 
         %Restore the figure to pre-motion state.
-        uirestore(ud.UISTATE);
+        %uirestore(ud.UISTATE);
 
         %Match position of arrow with rounded text value.
         hObj  = ud.handle.movingObject;
@@ -304,6 +413,10 @@ switch upper(command)
         colorRangeMin = get(ud.handle.colorrangebot, 'yData');
         doseDisplayRange    = [doseRangeMin(1) doseRangeMax(1)];
         colorbarRange       = [colorRangeMin(1) colorRangeMax(1)];
+
+        hFig = get(hAxis, 'parent');
+        set(hFig, 'windowbuttonmotionfcn', '')
+        set(hFig, 'windowbuttonupfcn', '')
 
         stateS.doseDisplayChanged = 1;
         updateColorBarStateS(hAxis,colorbarFrameMax,doseArrayMaxValue,doseDisplayRange,colorbarRange,colorbarFrameMin,colorbarImageH);
