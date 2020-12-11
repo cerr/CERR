@@ -233,6 +233,7 @@ for scanIdx = 1:numScans
     end
     
     %2. Crop around the region of interest
+    limitsM = [];
     if ~strcmpi({cropS(:,scanIdx).method},'none')
         fprintf('\nCropping to region of interest...\n');
         tic
