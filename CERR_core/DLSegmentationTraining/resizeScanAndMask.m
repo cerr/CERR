@@ -100,7 +100,8 @@ switch(lower(method))
         if isempty(mask3M)
             maskOut3M = [];
         else
-            maskOut3M = mask3M(xPad+1:xPad+origSizV(1), yPad+1:yPad+origSizV(2), :);
+%             maskOut3M = mask3M(xPad+1:xPad+origSizV(1), yPad+1:yPad+origSizV(2), :);
+            maskOut3M = mask3M(xPad+1:xPad+outputImgSizeV(1), yPad+1:yPad+outputImgSizeV(2), :);
         end
         
     case 'unpad2d'
