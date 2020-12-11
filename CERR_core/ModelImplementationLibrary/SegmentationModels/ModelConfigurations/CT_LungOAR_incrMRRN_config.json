@@ -24,24 +24,24 @@
 
 "scan":{
 
-        "identifier" : {"imageType": "CT SCAN"},
+        "resample": {"resolutionXCm": 0.1,
+		          "resolutionYCm": 0.1,
+                  "method": "linear"
+		    },
+        "resize": {"method" : "padOrCrop3d",
+                    "size" : [512,512]
+            }
 
-
-	"crop": [{
-      		"method": "none",
-      		"params": "",
-      		"operator": ""
-    		} ]
 
       },
 
 "batchSize" : 1 ,
 
-"postProc" : {"Lung_Left": [{"method": "removeBackgroundFP"}], 
-          "Lung_Right": [{"method": "removeBackgroundFP"}],
-          "Heart": [{"method": "removeBackgroundFP"}],
-          "Esophagus": [{"method": "removeBackgroundFP"}],
-          "Cord": [{"method": "removeBackgroundFP"}]
+"postProc" : {"Lung_Left": [{"method": "removeBackgroundFP"},{"method": "getLargestConnComps", "operator": "intersection", "params" : {"numCC": 1}}], 
+          "Lung_Right": [{"method": "removeBackgroundFP"},{"method": "getLargestConnComps","operator": "intersection", "params" : {"numCC": 1}}],
+          "Heart": [{"method": "removeBackgroundFP"},{"method": "getLargestConnComps", "operator": "intersection", "params" : {"numCC": 1}}],
+          "Esophagus": [{"method": "removeBackgroundFP"},{"method": "getLargestConnComps", "operator": "intersection", "params" : {"numCC": 1}}],
+          "Cord": [{"method": "removeBackgroundFP"},{"method": "getLargestConnComps", "operator": "intersection", "params" : {"numCC": 1}}]
 },
 
 "passedScanDim" : "3D",

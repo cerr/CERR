@@ -1,35 +1,108 @@
 <!DOCTYPE html>
 <html>
 <head>
-<title>Jeong TCP model</title>
+<title>Early Lung TCP</title>
+ <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.0/css/bootstrap.min.css"
+          integrity="sha384-9gVQ4dYFwwWSjIDZnLEWnxCjeSWFphJiwGPXr1jddIhOegiu1FwO5qRGvFXOdJZ4" crossorigin="anonymous">
+    <link href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet" integrity="sha384-wvfXpqpZZVQGK6TAh5PVlGOfQNHSoD2xbE+QkPxCAFlNEevoEH3Sl0sibVcOQVnN"
+          crossorigin="anonymous">
+
+    <link href="jeongTCP/styles.css" rel="stylesheet">
+
+    <script src="https://code.jquery.com/jquery-3.4.1.min.js" integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo="
+            crossorigin="anonymous"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/js/bootstrap.min.js"></script>
+
+    <script src="jeongTCP/multidatespicker.js" type="text/javascript"></script>
+
+    <script src="jeho_tcp_ui.js" type="text/javascript"></script>
+	<script src='https://cdn.plot.ly/plotly-latest.min.js'></script>
+
 </head>
 <body>
 
-<h2>Jeong model</h2>
+<h2> Tumor control probability for early stage lung cancer radiotherapy</h2>
 
-<form id=resultFrm>
+<p> This tool allows the prediction of tumor control for early-stage lung cancer for different fractionation sizes and schedules. It is based on work by Jeong et al which showed that a mechanistic mathematical model can quantitatively predict the tremendous differences in response seen in early-stage lung cancer across the range of clinical dose and fractionation schemes. The model can be used to predict which fractionation schemes over- or undertreat lung tumors. </p>
 
-  Fraction size:
-  <input type="number"  id="fxsiz" value="2">
+<h4> References </h4>
+<ul>
+<li> Jeong, J., K. I. Shoghi, and J. O. Deasy. "Modelling the interplay between hypoxia and proliferation in radiotherapy tumour response." Physics in Medicine & Biology 58.14 (2013): 4897-4919. </li>
+<li> Jeong, Jeho, et al. "Modeling the cellular response of lung cancer to radiation therapy for a broad range of fractionation schedules." Clinical Cancer Research 23.18 (2017): 5469-5479. </li>
+</ul>
 
-  <br><br>
-  Treatment days:
-  <input type="text" id="txday" size="75" value="1 2 3 4 5 8 9 10 11 12 15 16 17 18 19 22 23 24 25 26">
+<h4> TCP Calculator </h4>
 
+<!-- <form id=resultFrm> -->
+
+  <div style="width: 25%;margin:20px;">
+    Fraction size (Gy):
+        <input type="number"  id="fxsiz" value="2" class="date-values">
+
+  <!-- <input type="text" id="txday" size="75" value="1 2 3 4 5 8 9 10 11 12 15 16 17 18 19 22 23 24 25 26">
   <br>
   Note: Treatment days must be separated by spaces.
+  -->
+    <!--<div style="width: 22%;margin:20px;"> -->
+    <br>
+    <br>
+    Treatment days:
+        <input type="text" id="txday" class="date-values" readonly/>
+        <div id="txdayparent" class="container" style="display:none;">
+            <div class="row header-row">
+                <div class="col-xs previous">
+                    <a href="#" id="previous" onclick="previous()">
+                        <i class="fa fa-arrow-left" aria-hidden="true"></i>
+                    </a>
+                </div>
+                <div class="card-header month-selected col-sm" id="monthAndYear">
+                </div>
+                <div class="col-sm">
+                    <select class="form-control col-xs-6" name="month" id="month" onchange="change()"></select>
+                </div>
+                <div class="col-sm">
+                    <select class="form-control col-xs-6" name="year" id="year" onchange="change()"></select>
+                </div>
+                <div class="col-xs next">
+                    <a href="#" id="next" onclick="next()">
+                        <i class="fa fa-arrow-right" aria-hidden="true"></i>
+                    </a>
+                </div>
+            </div>
+            <table id="calendar">
+                <thead>
+                    <tr>
+                        <th>S</th>
+                        <th>M</th>
+                        <th>T</th>
+                        <th>W</th>
+                        <th>T</th>
+                        <th>F</th>
+                        <th>S</th>
+                    </tr>
+                </thead>
+                <tbody id="calendar-body"></tbody>
+            </table>
+        </div>
+
+		<br>
+		<br>
+
+        <input type="button" value="Get TCP" onclick="calculateTCP()"></button><br>
 
 
-  <br><br>
-  <input type="button" value="Calculate" onclick="calculateTCP()"></button><br>
+    </div>
 
-  <br><br>
-  <output id="tcp" for="fxsiz txday"></output>
+    <!-- <output id="tcp" for="fxsiz txday"></output> -->
+
+    <div id='tcpPlotDiv' style="width: 40%;"><!-- Plotly chart will be drawn inside this DIV --></div>
 
 
-</form>
+<!-- </form> -->
 
-<script src="jeho_tcp_ui.js" type="text/javascript"></script>
+<script>
+  plotTcpCurve();
+</script>
 
 </body>
 </html>

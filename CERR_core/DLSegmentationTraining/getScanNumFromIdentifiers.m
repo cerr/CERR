@@ -4,7 +4,7 @@ function scanNumV = getScanNumFromIdentifiers(idS,planC)
 % INPUTS
 % idS    : Structure containing identifiers (tags) and expected values
 %          Supported identifiers include 'imageType', 'seriesDescription',
-%          'scanType', 'scanNum'.
+%          'scanType', 'scanDate', 'scanNum'.
 % planC
 %--------------------------------------------------------------------------
 % AI 9/18/20
@@ -42,6 +42,20 @@ for n = 1:length(identifierC)
         case 'scanNum'
             idV = false(size(matchIdxV));
             idV(matchValC) = true;
+            
+        case 'scanDate'
+            scanDatesC =  arrayfun(@(x)x.scanInfo(1).scanDate, planC{indexS.scan},'un',0);
+            scanDatesC = datetime(scanDatesC,'InputFormat','yyyyMMdd');
+            [~,ordV] = sort(scanDatesC,'ascend');
+            
+            idV = false(size(matchIdxV));
+            if strcmp(matchValC,'first')
+                idV(ordV(1)) = true;
+            elseif strcmp(matchValC,'last')
+                idV(ordV(end)) = true;
+            else
+                error(['scanDate value ''',matchValC,''' is not supported.'])
+            end
             
         otherwise
             error('Identifier %s not supported.',identifierC{n});

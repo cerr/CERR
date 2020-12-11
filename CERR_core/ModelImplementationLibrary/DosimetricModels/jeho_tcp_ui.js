@@ -1,25 +1,146 @@
+function plotTcpCurve(){
+	/* This function plots the EQD2 vs TCP curve.
+	APA, 11/22/2020
+	*/
+	// Plot TCP curve
+   var eqd2V = [];
+   for (var i = 0; i <= 300; i++) {
+       eqd2V.push(i);
+   }
+   var TD_50 = 62.1
+   var gamma_50 = 1.5
+   var TCP_upper_bound = 0.95
+   let tcpV = new Array(eqd2V.length-1)
+   for (var i = 0; i <= eqd2V.length-1; i++) {
+	   tcpV[i] = TCP_upper_bound / (1+Math.pow(TD_50/eqd2V[i],4*gamma_50));
+   }
+   var tcpCurve = {
+     x: eqd2V,
+     y: tcpV,
+     type: 'lines',
+     showlegend: false
+   };
+
+	var tcpPoint = {
+	  x: [],
+	  y: [],
+	  type: 'scatter',
+	  mode: 'markers',
+	  marker: {
+	    color: 'rgb(17, 157, 255)',
+	    size: 20,
+	    line: {
+	      color: 'rgb(231, 99, 250)',
+	      width: 2
+	          }
+	    },
+	  showlegend: false
+	};
+
+var layout = {
+  title: {
+    text:'',
+    font: {
+      family: 'Courier New, monospace',
+      size: 32,
+      color: '#ff6961'
+    },
+    xref: 'paper',
+    x: 0.05
+  },
+  xaxis: {
+    title: {
+      text: 'EQD2-model',
+      font: {
+        family: 'Courier New, monospace',
+        size: 32,
+        color: '#7f7f7f'
+      }
+    },
+      tickfont: {
+	        family: 'Courier New, monospace',
+	        size: 24,
+	        color: 'black'
+	    }
+  },
+  yaxis: {
+    title: {
+      text: 'TCP',
+      font: {
+        family: 'Courier New, monospace',
+        size: 30,
+        color: '#7f7f7f'
+      }
+    },
+      tickfont: {
+	        family: 'Courier New, monospace',
+	        size: 24,
+	        color: 'black'
+	    }
+  }
+
+  };
+
+	var data = [ tcpCurve, tcpPoint ];
+
+   Plotly.newPlot('tcpPlotDiv', data, layout);
+
+   return;
+};
+
 function calculateTCP(){
+	/*
+	This function calculates PCP for the input fractionation and \shows the marker on TCP curve
+	APA, 11/22/2020
+	*/
+	var fxsize = document.getElementById("fxsiz").value;
+	var datevals = document.getElementById("txday").value;
+	// var res = val1 + val2;
+	//var txdays = val2.split(" ");
+	var txDatesV = datevals.split(",");
+	let txDaysV = new Array(txDatesV.length-1)
+	var refDate = new Date(txDatesV[0])
+	var dayFactor = 1000 * 3600 * 24
+	for (var i = 0; i <= txDatesV.length-1; i++) {
+	   var currDate = new Date(txDatesV[i])
+	   txDaysV[i] = (currDate.getTime()-refDate.getTime())/ dayFactor + 1
+   }
+	tcp = Lung_TCP_Jeho(fxsize,txDaysV)
+    //document.getElementById("tcp").innerHTML = "TCP = " + tcp[1];
+    var data_update =  {
+		x: [[tcp[0]]],
+	    y: [[tcp[1]]]
+	    }
 
-	var val1 = document.getElementById("fxsiz").value;
-	var val2 = document.getElementById("txday").value;
-	var res = val1 + val2;
-	var txdays = val2.split(" ");
-	tcp = Lung_TCP_Jeho(val1,txdays)
-        document.getElementById("tcp").innerHTML = "TCP = " + tcp[1];
+    var layout_update = {
+			title: {
+    		text:'TCP = ' + Math.round(tcp[1] * 10000) / 10000.00,
+    		 font: {
+			      family: 'Courier New, monospace',
+			      size: 32,
+			      color: '#ff6961'
+			    },
+			    xref: 'paper',
+    			x: 0.05
+  			}
+  		};
 
-}
+    Plotly.update('tcpPlotDiv', data_update, layout_update,[1])
+    return;
 
-     
+};
+
+
 function Lung_TCP_Jeho(fx_in,schedule_in) {
 /* TCP model for stage-I lung cancer
 Based on code by Jeho Jeong, jeongj@mskcc.org
 AI 12/06/18 iyera@mskcc.org
 
 INPUTS:
-fx_in       : Fraction size in Gy (fx_in=2.5;) 
+fx_in       : Fraction size in Gy (fx_in=2.5;)
 schedule_in : Treatment schedule
-E.g.: schedule_in=[ 1 ,2 ,3 ,4 ,5 ,8 ,9, 10, 11, 12, 15, 16, 17, 18, 19, 22, 23, 24, 25, 26, 29, 30, 31, 32, 33, 36, 37, 38, 39, 40]; 
-  
+E.g.: schedule_in=[ 1 ,2 ,3 ,4 ,5 ,8 ,9, 10, 11, 12, 15, 16, 17, 18, 19, 22, 23, 24, 25, 26, 29, 30, 31, 32, 33, 36, 37, 38, 39, 40];
+
 */
 
   // Define function f to calculate cell-cycle-dependent radiosensitivity
@@ -48,12 +169,12 @@ E.g.: schedule_in=[ 1 ,2 ,3 ,4 ,5 ,8 ,9, 10, 11, 12, 15, 16, 17, 18, 19, 22, 23,
   a_over_b = 2.8;
   oer_i = 1.7;
   rho_t = 1e6;              // Tumor density (no. cells/mm^3)
-  v_t_ref = 3e4;            // Ref. tumor volume (mm^3)    
-  f_s = 0.01;               // Stem cell fraction 
+  v_t_ref = 3e4;            // Ref. tumor volume (mm^3)
+  f_s = 0.01;               // Stem cell fraction
   t_c = 2;                  // Cell cycle time (days)
   f_p_pro_in = 0.5;         // Fraction cells actively proliferating in p-compartment
   ht_loss = 2;              // Half-time of cell loss (h-compartment)
-  k_m = 0.3;                // Survival probability of progeny after mitosis  
+  k_m = 0.3;                // Survival probability of progeny after mitosis
   ht_lys = 3;               // Half-time for lysis
 
   oer_h = 1.37;                 // OER for h-compartment
@@ -93,7 +214,7 @@ E.g.: schedule_in=[ 1 ,2 ,3 ,4 ,5 ,8 ,9, 10, 11, 12, 15, 16, 17, 18, 19, 22, 23,
   TCP = [];
   TD50 = [];
   BED = [];
-  comp_size = [];       //P,H,I    
+  comp_size = [];       //P,H,I
   comp_size_ref = [];
   p_pre = [];
   i_pre = [];
@@ -170,7 +291,7 @@ E.g.: schedule_in=[ 1 ,2 ,3 ,4 ,5 ,8 ,9, 10, 11, 12, 15, 16, 17, 18, 19, 22, 23,
     Alpha_p_cyc[0] = Alpha_p_cyc[1] * Alpha_ratio_p_cyc[0];
     Alpha_p_cyc[2] = Alpha_p_cyc[1] * Alpha_ratio_p_cyc[1];
 
-    // Effective alpha, beta from survival fractions 
+    // Effective alpha, beta from survival fractions
     Su_p = F_p_cyc[0] * Math.exp(-Alpha_p_cyc[0] * d - (Alpha_p_cyc[0] / a_over_b) * Math.pow(d, 2)) +
       F_p_cyc[1] * Math.exp(-Alpha_p_cyc[1] * d - (Alpha_p_cyc[1] / a_over_b) * Math.pow(d, 2)) +
       F_p_cyc[2] * Math.exp(-Alpha_p_cyc[2] * d - (Alpha_p_cyc[2] / a_over_b) * Math.pow(d, 2));
@@ -192,11 +313,11 @@ E.g.: schedule_in=[ 1 ,2 ,3 ,4 ,5 ,8 ,9, 10, 11, 12, 15, 16, 17, 18, 19, 22, 23,
     beta_p = beta_p_eff;
 
     // Run the sub-routine for a specific CLF and GF
-    // RT fractional dose for SBRT schedule 
+    // RT fractional dose for SBRT schedule
 
     f_p_pro = f_p_pro_in; // Assign proliferating fraction to the initial value
 
-    /* Cell distribution in each compartment 
+    /* Cell distribution in each compartment
     (1:Pv, 2:Pd, 3:Iv, 4:Id, 5:Hv, 6:Hd, 7:lysis) (V:viable, D:doomed)
     Initially all compartments are fully filled with viable cells
     "comp_size" is the size of each compartment (1:P, 2:I, 3:H) */
@@ -234,7 +355,7 @@ E.g.: schedule_in=[ 1 ,2 ,3 ,4 ,5 ,8 ,9, 10, 11, 12, 15, 16, 17, 18, 19, 22, 23,
         j = j + 1;
       }
 
-      // Cell Proliferation & Death  
+      // Cell Proliferation & Death
       cell_dist[0] = cell_dist[0] * Math.pow(2, (f_p_pro * delta_t / t_c));
       h_pre = cell_dist[4] + cell_dist[5];
       cell_dist[4] = cell_dist[4] * Math.pow(0.5, (delta_t / ht_loss));
@@ -247,7 +368,7 @@ E.g.: schedule_in=[ 1 ,2 ,3 ,4 ,5 ,8 ,9, 10, 11, 12, 15, 16, 17, 18, 19, 22, 23,
       cell_dist[6] = cell_dist[6] + md;
       cell_dist[6] = cell_dist[6] * Math.pow(0.5, (delta_t / ht_lys));
 
-      // Recompartmentalization of the cell                      
+      // Recompartmentalization of the cell
       if (cell_dist[0] + cell_dist[1] >= comp_size[0]) {
         p_ex = (cell_dist[0] + cell_dist[1]) - comp_size[0];
         p_ratio = cell_dist[0] / (cell_dist[0] + cell_dist[1]);
@@ -342,13 +463,13 @@ E.g.: schedule_in=[ 1 ,2 ,3 ,4 ,5 ,8 ,9, 10, 11, 12, 15, 16, 17, 18, 19, 22, 23,
     eqd2 = 0;
 
 
-    // RT fractional dose for EQD2 estimation 
+    // RT fractional dose for EQD2 estimation
 
     // Assign proliferating fraction to the initial value
 
     f_p_pro = f_p_pro_in;
 
-    /* Cell distribution in each compartment 
+    /* Cell distribution in each compartment
      (1:Pv, 2:Pd, 3:Iv, 4:Id, 5:Hv, 6:Hd, 7:lysis)
      Initially all compartments are fully filled with viable cells
      "comp_size" is the size of each compartment (1:P, 2:I, 3:H) */
@@ -395,7 +516,7 @@ E.g.: schedule_in=[ 1 ,2 ,3 ,4 ,5 ,8 ,9, 10, 11, 12, 15, 16, 17, 18, 19, 22, 23,
       }
 
 
-      //Cell Proliferation & Death  
+      //Cell Proliferation & Death
       cell_dist[0] = cell_dist[0] * Math.pow(2, (f_p_pro * delta_t / t_c));
       h_pre = cell_dist[4] + cell_dist[5];
       cell_dist[4] = cell_dist[4] * Math.pow(0.5, (delta_t / ht_loss));
@@ -410,7 +531,7 @@ E.g.: schedule_in=[ 1 ,2 ,3 ,4 ,5 ,8 ,9, 10, 11, 12, 15, 16, 17, 18, 19, 22, 23,
       cell_dist[6] = cell_dist[6] * Math.pow(0.5, (delta_t / ht_lys));
 
 
-      //Recompartmentalization of the cell                      
+      //Recompartmentalization of the cell
       if (cell_dist[0] + cell_dist[1] >= comp_size[0]) {
         p_ex = (cell_dist[0] + cell_dist[1]) - comp_size[0];
         p_ratio = cell_dist[0] / (cell_dist[0] + cell_dist[1]);
@@ -505,10 +626,12 @@ E.g.: schedule_in=[ 1 ,2 ,3 ,4 ,5 ,8 ,9, 10, 11, 12, 15, 16, 17, 18, 19, 22, 23,
 
   return [eqd2, TCP];
 
-}
-
-// Export module for testing
-module.exports = function(fx_in,schedule_in) {
-  var myModule = Lung_TCP_Jeho(fx_in,schedule_in);
-  return myModule; 
 };
+
+
+// APA commented to get rid of missing module error
+// Export module for testing
+//module.exports = function(fx_in,schedule_in) {
+//  var myModule = Lung_TCP_Jeho(fx_in,schedule_in);
+//  return myModule;
+//};

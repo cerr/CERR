@@ -22,6 +22,7 @@ maskC = cell(length(methodC),1);
 for m = 1:length(methodC)
     
     method = methodC{m};
+    paramS = [];
     if isfield(cropS(m),'params')
         paramS = cropS(m).params;
     end

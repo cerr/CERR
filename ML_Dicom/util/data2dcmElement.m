@@ -154,9 +154,13 @@ switch upper(vrString)
         jDate = org.dcm4che3.util.DateUtils;
         tz = attr.getTimeZone();
         precision = org.dcm4che3.data.DatePrecision;
-        date = jDate.parseTM(tz, data, 1, precision);
-        attr.setDate(tag, vr, []);
-        attr.setString(tag, vr, jDate.formatTM(tz, date));
+        try
+            date = jDate.parseTM(tz, data, 1, precision);
+            attr.setDate(tag, vr, []);
+            attr.setString(tag, vr, jDate.formatTM(tz, date));
+        catch
+            attr.setDate(tag,vr,[]);
+        end
     case 'UI'
           attr.setString(tag, vr, data);
     case 'UL'

@@ -38,6 +38,24 @@ end
 %Resize image by method
 switch(lower(method))
     
+    case 'padorcrop3d'
+        xPad = floor((outputImgSizeV(1) - origSizV(1))/2);
+        if xPad < 0
+            resizeMethod = 'unpad3d'       ;     
+        else
+            resizeMethod = 'pad3d';
+        end
+        [scanOut3M, maskOut3M] = resizeScanAndMask(scan3M,mask3M,outputImgSizeV,resizeMethod,varargin);
+        
+    case 'padorcrop2d'
+        xPad = floor((outputImgSizeV(1) - origSizV(1))/2);
+        if xPad < 0
+            resizeMethod = 'unpad2d';
+        else
+            resizeMethod = 'pad2d';
+        end
+        [scanOut3M, maskOut3M] = resizeScanAndMask(scan3M,mask3M,outputImgSizeV,resizeMethod,varargin);
+        
     case 'pad3d'
         
         xPad = floor((outputImgSizeV(1) - origSizV(1))/2);
@@ -174,7 +192,7 @@ switch(lower(method))
         end
         
         % Min/max row and col limits for each slice
-        limitsM = varargin{1};
+%         limitsM = varargin{1};
         
         for slcNum = 1:origSizV(3)
             

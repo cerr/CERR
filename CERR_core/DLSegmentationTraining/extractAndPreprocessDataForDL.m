@@ -49,11 +49,11 @@ if ~isempty(exportStrC) || testFlag
     exportLabelV = labelV(~strNotAvailableV);
     
     %Get structure ID and assoc scan
-    strIdxV = nan(length(exportStrC),1);
+    strIdxC = cell(length(exportStrC),1);
     for strNum = 1:length(exportStrC)
         
         currentLabelName = exportStrC{strNum};
-        strIdxV(strNum) = getMatchingIndex(currentLabelName,allStrC,'exact');
+        strIdxC{strNum} = getMatchingIndex(currentLabelName,allStrC,'exact');
         
     end
 end
@@ -102,11 +102,14 @@ for scanIdx = 1:numScans
         mask3M = [];
         validStrIdxV = [];
     else
-        mask3M = false(size(scan3M));
+        mask3M = zeros(size(scan3M));
         assocStrIdxV = strcmpi(planC{indexS.scan}(scanNumV(scanIdx)).scanUID,UIDc);
+        strIdxV = [strIdxC{:}];
+        strIdxV = reshape(strIdxV,1,[]);
         validStrIdxV = ismember(strIdxV,find(assocStrIdxV));
-        validExportLabelV = exportLabelV(validStrIdxV);
         validStrIdxV = strIdxV(validStrIdxV);
+        keepLabelIdxV = assocStrIdxV(validStrIdxV);
+        validExportLabelV = exportLabelV(keepLabelIdxV);
     end
     
     for strNum = 1:length(validStrIdxV)
@@ -208,31 +211,33 @@ for scanIdx = 1:numScans
         
         %Resample reqd structures
         % TBD: add structures reqd for training
-        cropStrListC = arrayfun(@(x)x.params.structureName,cropS,'un',0);
-        cropParS = [cropS.params];
-        if ~isempty(cropStrListC)
-            for n = 1:length(cropStrListC)
-                strIdx = getMatchingIndex(cropStrListC{n},strC,'EXACT');
-                if ~isempty(strIdx)
-                    str3M = double(getStrMask(strIdx,planC));
-                    outStr3M = imgResample3d(str3M,inputResV,xValsV,...
-                        yValsV,zValsV,outResV,resampleMethod,0) >= 0.5;
-                    outStrName = [cropParS(n).structureName,'_resamp'];
-                    cropParS(n).structureName = outStrName;
-                    planC = maskToCERRStructure(outStr3M,0,scanNumV(scanIdx),...
-                        outStrName,planC);
+        if ~strcmpi(cropS(:,scanIdx).method,'none')
+            cropStrListC = arrayfun(@(x)x.params.structureName,cropS,'un',0);
+            cropParS = [cropS.params];
+            if ~isempty(cropStrListC)
+                for n = 1:length(cropStrListC)
+                    strIdx = getMatchingIndex(cropStrListC{n},strC,'EXACT');
+                    if ~isempty(strIdx)
+                        str3M = double(getStrMask(strIdx,planC));
+                        outStr3M = imgResample3d(str3M,inputResV,xValsV,...
+                            yValsV,zValsV,outResV,resampleMethod,0) >= 0.5;
+                        outStrName = [cropParS(n).structureName,'_resamp'];
+                        cropParS(n).structureName = outStrName;
+                        planC = maskToCERRStructure(outStr3M,0,scanNumV(scanIdx),...
+                            outStrName,planC);
+                    end
                 end
+                cropS.params = cropParS;
             end
-            cropS.params = cropParS;
         end
     end
     
     %2. Crop around the region of interest
-    if ~strcmpi({cropS(scanIdx).method},'none')
+    if ~strcmpi({cropS(:,scanIdx).method},'none')
         fprintf('\nCropping to region of interest...\n');
         tic
         [minr, maxr, minc, maxc, slcV, cropStr3M, planC] = ...
-            getCropLimits(planC,mask3M,scanNumV(scanIdx),cropS(scanIdx));
+            getCropLimits(planC,mask3M,scanNumV(scanIdx),cropS(:,scanIdx));
         %- Crop scan
         if ~isempty(scan3M) && numel(minr)==1
             scan3M = scan3M(minr:maxr,minc:maxc,slcV);
@@ -274,6 +279,8 @@ for scanIdx = 1:numScans
             cropStr3M = [];
         end
         toc
+    else 
+        cropStr3M = [];
     end
     
     scanC{scanIdx} = scan3M;
@@ -293,6 +300,7 @@ for scanIdx = 1:numScans
     else % case: 1 view, 'axial'
         viewOutC = {scanC{scanIdx}};
         maskOutC{scanIdx} = {maskC(scanIdx)};
+        cropStrC = {cropStr3M};
     end
     
     %5. Filter images as required

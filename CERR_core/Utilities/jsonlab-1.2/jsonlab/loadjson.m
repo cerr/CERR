@@ -121,8 +121,18 @@ for i = 1:length(fieldC)
     if iscell(data.(fieldC{i})) && ~isempty(data.(fieldC{i}))
         data.(fieldC{i}) = cellToStructForJson(data.(fieldC{i}));
     end
+    if isstruct(data.(fieldC{i}))
+        subFieldC = fieldnames(data.(fieldC{i}));
+        for j = 1:length(subFieldC)
+            val = data.(fieldC{i}).(subFieldC{j});
+            if iscell(val) && ...
+                    ~isempty(val)
+                data.(fieldC{i}).(subFieldC{j}) = ...
+                    cellToStructForJson(data.(fieldC{i}).(subFieldC{j}));
+            end
+        end
+    end
 end
-
 
 
 if(isfield(opt,'progressbar_'))
