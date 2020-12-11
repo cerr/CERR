@@ -65,7 +65,7 @@ if ~isempty(postS)
                     ctOffset = planC{indexS.scan}(scanNum).scanInfo(1).CTOffset;
                     scan3M = double(getScanArray(scanNum,planC)) - ctOffset;
                     threshold = -400; % default for CT
-                    if isfield(methodC{iMethod}.params,'threshold')
+                    if isfield(methodC{iMethod},'params') && isfield(methodC{iMethod}.params,'threshold')
                         threshold = methodC{iMethod}.params.threshold;
                     end
                     connPtMask3M = getPatientOutline(scan3M,[],threshold);
