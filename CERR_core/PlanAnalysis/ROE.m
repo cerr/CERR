@@ -95,7 +95,7 @@ function ROE(command,varargin)
     'backgroundColor',defaultColor);
     
     ud.handle.title = titleH;
-    set(hFig,'userdata',ud);
+    guidata(hFig,ud);
     ROE('refresh',hFig);
     figure(hFig);
     
@@ -268,11 +268,11 @@ function ROE(command,varargin)
     %% Store handles
     ud.handle.inputH = inputH;
     ud.handle.modelsAxis = plotH;
-    set(hFig,'userdata',ud);
+    guidata(hFig,ud);
     
   case 'LOAD_MODELS'
     ROE('REFRESH');
-    ud = get(hFig,'userdata');
+    ud = guidata(hFig);
     
     %Get paths to JSON files
     optS = opts4Exe(fullfile(getCERRPath,'CERRoptions.json')); 
@@ -327,13 +327,12 @@ function ROE(command,varargin)
     
     %Store protocol & model parameters from JSON files to GUI userdata
     ud.Protocols = protocolS;
-    
-    set(hFig,'userdata',ud);
+    guidata(hFig,ud);
     
   case 'PLOT_MODELS'
     
     %% Get plot mode
-    ud = get(hFig,'userdata');
+    ud = guidata(hFig);
     if ~isfield(ud,'plotMode') || isempty(ud.plotMode) || isequal(ud.plotMode,0)
       msgbox('Please select display mode','Plot models');
       return
@@ -344,7 +343,7 @@ function ROE(command,varargin)
     %% Clear previous plots
     ROE('CLEAR_PLOT',hFig);
     
-    ud = get(hFig,'userdata');
+    ud = guidata(hFig);
     if ~isfield(ud,'planNum') || isempty(ud.planNum) || ud.planNum==0
       msgbox('Please select valid dose plan','Selection required');
       return
@@ -1137,7 +1136,7 @@ function ROE(command,varargin)
     
     %Store userdata
     ud.Protocols = protocolS;
-    set(hFig,'userdata',ud);
+    guidata(hFig,ud);
     
     %Display current dose/probability
     scaleDoseROE(hSlider);
@@ -1212,7 +1211,7 @@ function ROE(command,varargin)
     
     
   case 'CLEAR_PLOT'
-    ud = get(hFig,'userdata');
+    ud = guidata(hFig);
     %Clear data/plots from any previously loaded models/plans/structures
     ud.NTCPCurve = [];
     ud.TCPCurve = [];
@@ -1258,11 +1257,11 @@ function ROE(command,varargin)
     set(ud.handle.modelsAxis(7),'Visible','Off');
     set(ud.handle.modelsAxis(8),'Visible','Off');
     set(ud.handle.modelsAxis(10),'enable','Off');
-    set(hFig,'userdata',ud);
+    guidata(hFig,ud);
     
   case 'LIST_MODELS'
     %Get selected protocols
-    ud = get(hFig,'userdata');
+    ud = guidata(hFig);
     ud.handle.editModels = [];
     protocolS = ud.Protocols;
     currProtocol = get(gcbo,'Value') - 1;
@@ -1300,11 +1299,11 @@ function ROE(command,varargin)
     modelListC = cellfun(@(x)x.name,protocolS(currProtocol).model,'un',0);
     set(ud.handle.inputH(10),'Enable','On'); %Plot button on
     set(ud.handle.inputH(14),'String',modelListC,'Visible','On','Enable','On');
-    set(hFig,'userdata',ud);
+    guidata(hFig,ud);
     getParamsROE(ud.handle.inputH(13),'INIT',hFig,planC);
     
   case 'SAVE_MODELS'
-    ud = get(hFig,'userData');
+    ud = guidata(hFig);
     protocolS = ud.Protocols;
     
     %Save changes to model files
@@ -1332,8 +1331,7 @@ function ROE(command,varargin)
     fprintf('\nSave complete.\n');
     
     set(ud.handle.inputH(9),'Enable','Off');  %Disable save
-    set(hFig,'userdata',ud);
-    
+    guidata(hFig,ud)
     
   case 'CLOSEREQUEST'
     

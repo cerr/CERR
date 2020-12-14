@@ -4,7 +4,6 @@ function hTab = extractParamsROE(hFig,modelS)
 % AI 12/14/2020
   
   %Delete any previous param tables
-  %ud = get(hFig,'userdata');
   ud = guidata(hFig);
   if isfield(ud,'currentPar')
     delete(ud.currentPar);
