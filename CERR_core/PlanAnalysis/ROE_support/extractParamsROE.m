@@ -1,12 +1,13 @@
-function hTab = extractParamsROE(hFig,modelS,planC)
-  % Extract model parameters & values for table display
-  %
-  % AI 12/14/2020
+function hTab = extractParamsROE(hFig,modelS)
+% Extract model parameters & values for table display
+%
+% AI 12/14/2020
   
   %Delete any previous param tables
+  %ud = get(hFig,'userdata');
   ud = guidata(hFig);
-  if isfield(ud,'currentPar') && ~isempty(ud.currentPar)
-      delete(ud.currentPar);
+  if isfield(ud,'currentPar')
+    delete(ud.currentPar);
   end
   
   %Get parameter names
@@ -18,13 +19,13 @@ function hTab = extractParamsROE(hFig,modelS,planC)
   %Define table dimensions
   rowHt = 25;
   rowSep = 10;
-  rowWidth = 120;
+  rowWidth = 130;
   pos = get(hFig,'Position');
   fwidth = pos(3);
   fheight = pos(3);
   left = 10;
   columnWidth ={rowWidth-1,rowWidth-1};
-  posV = [.2*fwidth .4*fheight 2*rowWidth rowHt];
+  posV = [.22*fwidth-2.5*left .4*fheight 2*rowWidth rowHt];
   row = 1;
   hTab = [];
   % Create rows displaying model parameters
@@ -63,4 +64,4 @@ function hTab = extractParamsROE(hFig,modelS,planC)
       end
     end
   end
-end
+  end
