@@ -1,4 +1,4 @@
-function hTab = extractParamsROE(hFig,modelS)
+function hTab = extractParamsROE(hFig,modelS,planC)
 % Extract model parameters & values for table display
 %
 % AI 12/14/2020
