@@ -3,7 +3,7 @@ function getParamsROE(hObj,hEvt,hFig,planC)
 %
 % AI 12/14/2020
   
-  ud = get(hFig,'userdata');
+  ud = guidata(hFig);
   protS = ud.Protocols;
   indexS = planC{end};
   if strcmp(hEvt,'INIT')#initialization
@@ -95,7 +95,7 @@ function getParamsROE(hObj,hEvt,hFig,planC)
       %Get parameters
       set(hFig,'userdata',ud);
       hPar = extractParamsROE(hFig,modelsC{modelNumV(s)});
-      ud = get(hFig,'userdata');
+      ud = guidata(hFig);
       
   %AI temp hide JSON field display    
       if ~strcmp(hEvt,'INIT')
@@ -165,6 +165,6 @@ function getParamsROE(hObj,hEvt,hFig,planC)
     set(ud.handle.inputH(9),'Enable','On');
   end
   ud.Protocols = protS;
-  set(hFig,'userdata',ud);
+  guidata(hFig,ud);
   
   end
