@@ -3,7 +3,7 @@ function editParamsROE(hObj,hData,hFig,planC)
 %
 % AI 12/14/2020
 
-ud = get(hFig,'userdata');
+ud = guidata(hFig);
 tag = get(hObj,'Tag');
 indexS = planC{end};
 
@@ -107,7 +107,6 @@ switch(tag)
         set(ud.handle.inputH(9),'Enable','On');  %Enable save
 end
 ud.Protocols(prtcNum).model = modelsC;
-set(hFig,'userdata',ud);
 guidata(hFig,ud);
 
 end
