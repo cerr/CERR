@@ -627,12 +627,13 @@ function ROE(command,varargin)
       
       %Set plot transparency
       if p == ud.foreground
-        plotColorM = [colorOrderM,ones(size(colorOrderM,1),1)];
+        %plotColorM = [colorOrderM,ones(size(colorOrderM,1),1)];
+        %transparency not supported
+        plotColorM = colorOrderM;
         lineStyle = '-';
       else
-        alpha = 0.5;
-        %gray = repmat([.5 .5 .5],size(colorOrderM,1),1);
-        plotColorM = [colorOrderM,repmat(alpha,size(colorOrderM,1),1)];
+        %alpha = 0.5; %not supported
+        plotColorM = colorOrderM;
         lineStyleC = {'--',':','-.'};
         lineStyle = lineStyleC{p};
       end
