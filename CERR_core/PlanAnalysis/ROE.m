@@ -123,12 +123,12 @@ function ROE(command,varargin)
     'Position',[shift shift leftMarginWidth+.12*GUIWidth GUIHeight-topMarginHeight-2*shift ],...
     'Style','frame','backgroundColor',defaultColor);
     inputH(2) = uicontrol(hFig,'tag','modelTitle','units','pixels',...
-    'Position',[4*shift posTop-.16*GUIHeight .16*GUIWidth 2*shift],...
+    'Position',[2.5*shift posTop-.16*GUIHeight .16*GUIWidth 2*shift],...
     'String','Protocols & models','Style','text','fontSize',9,...
     'fontWeight', 'Bold', 'BackgroundColor',figColor,...
     'HorizontalAlignment','left','Visible','Off');
     inputH(3) = uicontrol(hFig,'tag','modelFileSelect','units','pixels',...
-    'Position',[2*shift posTop-.1*GUIHeight .16*GUIWidth 3*shift], 'String',...
+    'Position',[shift posTop-.1*GUIHeight .16*GUIWidth 3*shift], 'String',...
     'Select protocols','Style','push', 'fontSize',10,...
     'FontWeight','normal','BackgroundColor',defaultColor,...
     'HorizontalAlignment','right','callback',...
@@ -171,18 +171,18 @@ function ROE(command,varargin)
     inputH(10) = uicontrol(hFig,'units','pixels','Tag','plotButton','Position',[.29*GUIWidth 1.5*shift .06*GUIWidth 3*shift],'backgroundColor',defaultColor,...
     'String','Plot','Style','Push', 'fontSize',10,'FontWeight','normal','Enable','Off','Callback','ROE(''PLOT_MODELS'' )'); %plot
     inputH(11) = uicontrol(hFig,'units','pixels','Tag','switchPlot','Position',[.18*GUIWidth 1.5*shift .1*GUIWidth 3*shift],'backgroundColor',[1 1 1],...
-    'String',{'--Display mode--','NTCP v.BED','NTCP v.TCP','Scale fraction size', 'Scale no. fractions' },'Style','popupmenu', 'fontSize',10,'FontWeight','normal','Enable','On','Callback',@setPlotModeROE);
+    'String',{'--Display mode--','NTCP v.BED','NTCP v.TCP','Scale fraction size', 'Scale no. fractions' },'Style','popupmenu', 'fontSize',10,'FontWeight','normal','Enable','On','Callback',@(hObj,hEvt)setPlotModeROE(hObj,hEvt,hFig));
     
     %% Panel for protocol & model display
     inputH(12) = uicontrol(hFig,'Style','frame','units','pixels',...
-    'Position',[2*shift 4*shift .16*GUIWidth .7*GUIHeight],...
+    'Position',[shift 4*shift .16*GUIWidth .7*GUIHeight],...
     'backgroundColor',[1 1 1]);
     inputH(13) = uicontrol(hFig,'Style','popupmenu',...
-    'Position',[2.5*shift GUIHeight-18*shift .15*GUIWidth 2*shift],...
+    'Position',[1.5*shift GUIHeight-18*shift .15*GUIWidth 2*shift],...
     'String','Protocols','fontSize',10,'Visible','Off','Enable','Off',...
     'Callback','ROE(''LIST_MODELS'')');
     inputH(14) = uicontrol(hFig,'Style','listbox',...
-    'Position',[2.5*shift 1.5*shift .15*GUIWidth .65*GUIHeight],...
+    'Position',[1.5*shift 1.5*shift .15*GUIWidth .65*GUIHeight],...
     'String','','fontSize',10,'Enable','Off','Visible','Off',...
     'Callback',@(hObj,hEvt)getParamsROE(hObj,hEvt,hFig,planC));
     
@@ -198,8 +198,8 @@ function ROE(command,varargin)
     %NTCP vs TCP/BED
     plotH(2) = axes('parent',hFig,'tag','modelsAxis','tickdir', 'out',...
     'nextplot','add','units','pixels','Position',...
-    [leftMarginWidth+.11*GUIWidth .16*GUIHeight .73*GUIWidth-leftMarginWidth,...
-    GUIHeight-topMarginHeight-0.3*GUIHeight],'color',[1 1 1],...
+    [leftMarginWidth+.14*GUIWidth .17*GUIHeight .46*GUIWidth,...
+    GUIHeight-topMarginHeight-13*shift],'color',[1 1 1],...
     'XAxisLocation','bottom','YAxisLocation','left','xlim',[50 51],'ylim',[0 1],...
     'fontSize',9,'fontWeight','bold','box','on','visible','off');
     
@@ -232,7 +232,7 @@ function ROE(command,varargin)
     %Sliders
     %scale frx size
     plotH(7) = uicontrol('parent',hFig,'units','pixels','Position',...
-    [leftMarginWidth+.18*GUIWidth 5*shift .75*GUIWidth-leftMarginWidth 1.8*shift],...
+    [leftMarginWidth+.18*GUIWidth 4.5*shift .75*GUIWidth-leftMarginWidth 1.8*shift],...
     'Style','Slider','Visible','Off','Tag','Scale','Min',0.5,'Max',1.5,'Value',1,...
     'SliderStep',[1/(99-1),1/(99-1)]);
     %addlistener(plotH(7),'Value',@scaleDoseROE);
@@ -246,7 +246,7 @@ function ROE(command,varargin)
     
     %Push-button for constraints panel
     plotH(9) = uicontrol('parent',hFig,'units','pixels','Position',...
-    [GUIWidth-17*shift 1.5*shift 15*shift 3*shift],...
+    [GUIWidth-16*shift 1.2*shift 13*shift 3*shift],...
     'Style','push','Enable','On','String','View constraints',...
     'backgroundColor',[192 205 230]./255,'fontSize',10,...
     'Callback',{@critPanelROE,'INIT'});
@@ -254,10 +254,10 @@ function ROE(command,varargin)
     %Input scale
     % AI temp comment
     plotH(10) = uicontrol('parent',hFig,'units','pixels','Position',...
-    [GUIWidth-6*shift 5*shift 3*shift 2*shift],...
+    [GUIWidth-6*shift 4.5*shift 3*shift 2*shift],...
     'Style','edit','Enable','Off','fontSize',10,'Callback',@enterScale);
     plotH(11) = uicontrol('parent',hFig,'units','pixels','Position',...
-    [GUIWidth-8*shift 7*shift 6*shift 3*shift],'backgroundColor',defaultColor,...
+    [GUIWidth-8*shift 4.5*shift 6*shift 3*shift],'backgroundColor',defaultColor,...
     'Style','Text','Visible','Off','fontSize',8,'Callback',@enterScale);
     
     %Turn off datacursor mode
@@ -396,7 +396,7 @@ function ROE(command,varargin)
       nfrxScaleV = linspace(-maxDeltaFrx,maxDeltaFrx,99);
       
       hNTCPAxis = ud.handle.modelsAxis(2);
-      hNTCPAxis.Visible = 'On';
+      set(hNTCPAxis,'Visible','On');
       grid(hNTCPAxis,'On');
       
       tcpM = nan(numel(protocolS),length(nfrxScaleV));
@@ -487,7 +487,7 @@ function ROE(command,varargin)
           
           
           %Apply fractionation correction as required
-          correctedScaledDoseC = frxCorrect(modelC{xIndx},structNumV,newNumFrx,scaledDoseBinsC);
+          correctedScaledDoseC = frxCorrectROE(modelC{xIndx},structNumV,newNumFrx,scaledDoseBinsC);
           
           %Update nFrx parameter
           paramS.numFractions.val = newNumFrx;
@@ -503,7 +503,7 @@ function ROE(command,varargin)
           if n==numel(xScaleV)
             %Get corrected dose at scale == 1
             paramS.frxSize.val = dpfProtocol;
-            testDoseC = frxCorrect(modelC{xIndx},structNumV,numFrxProtocol,doseBinsC);
+            testDoseC = frxCorrectROE(modelC{xIndx},structNumV,numFrxProtocol,doseBinsC);
             %Display mean dose, EUD, GTD(if applicable)
             outType = modelC{xIndx}.type;
             testMeanDose = calc_meanDose(testDoseC{1},volHistC{1});
@@ -627,12 +627,13 @@ function ROE(command,varargin)
       
       %Set plot transparency
       if p == ud.foreground
-        plotColorM = [colorOrderM,ones(size(colorOrderM,1),1)];
+        %plotColorM = [colorOrderM,ones(size(colorOrderM,1),1)];
+        %transparency not supported
+        plotColorM = colorOrderM;
         lineStyle = '-';
       else
-        alpha = 0.5;
-        %gray = repmat([.5 .5 .5],size(colorOrderM,1),1);
-        plotColorM = [colorOrderM,repmat(alpha,size(colorOrderM,1),1)];
+        %alpha = 0.5; %not supported
+        plotColorM = colorOrderM;
         lineStyleC = {'--',':','-.'};
         lineStyle = lineStyleC{p};
       end
@@ -697,7 +698,7 @@ function ROE(command,varargin)
             scale = xScaleV(n);
             scaledDoseBinsC = cellfun(@(x) x*scale,doseBinsC,'un',0);
             %Apply fractionation correction as required
-            correctedScaledDoseC = frxCorrect(modelC{modIdxV(j)},structNumV,numFrxProtocol,scaledDoseBinsC);
+            correctedScaledDoseC = frxCorrectROE(modelC{modIdxV(j)},structNumV,numFrxProtocol,scaledDoseBinsC);
             
             %Correct frxSize parameter
             paramS.frxSize.val = scale*dpfProtocol;
@@ -713,7 +714,7 @@ function ROE(command,varargin)
             if n==numel(xScaleV)
               %Get corrected dose at scale == 1
               paramS.frxSize.val = dpfProtocol;
-              testDoseC = frxCorrect(modelC{modIdxV(j)},structNumV,numFrxProtocol,doseBinsC);
+              testDoseC = frxCorrectROE(modelC{modIdxV(j)},structNumV,numFrxProtocol,doseBinsC);
               %Display mean dose, EUD, GTD(if applicable)
               outType = modelC{modIdxV(j)}.type;
               testMeanDose = calc_meanDose(testDoseC{1},volHistC{1});
@@ -759,7 +760,7 @@ function ROE(command,varargin)
             scaledDoseBinsC = cellfun(@(x) x*scale,doseBinsC,'un',0);
             
             %Apply fractionation correction as required
-            correctedScaledDoseC = frxCorrect(modelC{j},structNumV,newNumFrx,scaledDoseBinsC);
+            correctedScaledDoseC = frxCorrectROE(modelC{j},structNumV,newNumFrx,scaledDoseBinsC);
             
             %Correct nFrx parameter
             paramS.numFractions.val = newNumFrx;
@@ -775,7 +776,7 @@ function ROE(command,varargin)
             if n==numel(nfrxScaleV)
               %Get corrected dose at scale == 1
               paramS.numFractions.val = numFrxProtocol;
-              testDoseC = frxCorrect(modelC{j},structNumV,numFrxProtocol,doseBinsC);
+              testDoseC = frxCorrectROE(modelC{j},structNumV,numFrxProtocol,doseBinsC);
               %Display mean dose, EUD, GTD(if applicable)
               outType = modelC{j}.type;
               if isfield(paramS,'n')
@@ -822,8 +823,9 @@ function ROE(command,varargin)
             tcpV = tcpM(p,:);
             ud.NTCPCurve = [ud.NTCPCurve plot(hNTCPAxis,tcpV(~isnan(tcpV)),scaledCPv,'linewidth',3,...
             'Color',plotColorM(colorIdx,:),'lineStyle',lineStyle)];
-            
-            ud.NTCPCurve(ntcp).DisplayName = [ud.Protocols(p).protocol,': ',modelC{modIdxV(j)}.name];
+        
+            dispName = [ud.Protocols(p).protocol,': ',modelC{modIdxV(j)}.name];
+            set(ud.NTCPCurve(ntcp),'DisplayName',dispName);
             hCurr = hNTCPAxis;
           end
           
@@ -837,20 +839,25 @@ function ROE(command,varargin)
           if strcmp(modelC{j}.type,'NTCP')
             ntcp = ntcp + 1;
             ud.NTCPCurve = [ud.NTCPCurve plot(hNTCPAxis,xScaleV,scaledCPv,'linewidth',3,...
-            'Color',plotColorM(colorIdx,:),'lineStyle',lineStyle)];
-            ud.NTCPCurve(ntcp).DisplayName = [ud.Protocols(p).protocol,': ',modelC{j}.name];
+                'Color',plotColorM(colorIdx,:),'lineStyle',lineStyle)];
+            
+            dispName = [ud.Protocols(p).protocol,': ',modelC{j}.name];
+            set(ud.NTCPCurve(ntcp),'DisplayName',dispName);
             hCurr = hNTCPAxis;
           elseif strcmp(modelC{j}.type,'TCP')
             tcp = tcp + 1;
             ud.TCPCurve = [ud.TCPCurve plot(hTCPAxis,xScaleV,scaledCPv,'linewidth',3,...
             'Color',plotColorM(colorIdx,:),'lineStyle',lineStyle)];
-            ud.TCPCurve(tcp).DisplayName = [ud.Protocols(p).protocol,': ',modelC{j}.name];
+        
+            dispName = [ud.Protocols(p).protocol,': ',modelC{j}.name];
+            set(ud.TCPCurve(tcp),'DisplayName',dispName);
             hCurr = hTCPAxis;
           elseif strcmp(modelC{j}.type,'BED')
             bed = bed + 1;
             ud.BEDCurve = [ud.BEDCurve plot(hTCPAxis,xScaleV,scaledCPv,'linewidth',3,...
             'Color',plotColorM(colorIdx,:),'lineStyle',lineStyle)];
-            ud.BEDCurve(bed).DisplayName = [ud.Protocols(p).protocol,': ',modelC{j}.name];
+            dispName = [ud.Protocols(p).protocol,': ',modelC{j}.name];
+            set(ud.BEDCurve(bed),'DisplayName',dispName);
             hCurr = hTCPAxis;
           end
         end
@@ -902,11 +909,11 @@ function ROE(command,varargin)
                   prevIdxV = strcmpi('ntcp',prevC);
                   cProtocolStart(p) = sum(prevIdxV);
                 end
-                xV = ud.NTCPCurve(cProtocolStart(p)+cIdx).XData;
+                xV = get(ud.NTCPCurve(cProtocolStart(p)+cIdx),'XData');
                 
                 
                 %Identify where limit is exceeded
-                ntcpV = ud.NTCPCurve(cProtocolStart(p)+cIdx).YData;
+                ntcpV = get(ud.NTCPCurve(cProtocolStart(p)+cIdx),'YData');
                 cCount = cCount + 1;
                 exceedIdxV = ntcpV >= strCritS.(criteriaC{n}).limit;
                 if ~any(exceedIdxV)
@@ -941,7 +948,7 @@ function ROE(command,varargin)
                   prevIdxV = strcmpi('ntcp',prevC);
                   cProtocolStart(p) = sum(prevIdxV);
                 end
-                xV = ud.NTCPCurve(cProtocolStart(p)+1).XData;
+                xV = get(ud.NTCPCurve(cProtocolStart(p)+1),'XData');
                 
                 %Idenitfy dose/volume limits
                 cCount = cCount + 1;
@@ -1003,10 +1010,10 @@ function ROE(command,varargin)
                     prevIdxV = strcmpi('ntcp',prevC);
                     gProtocolStart(p) = sum(prevIdxV);
                   end
-                  xV = ud.NTCPCurve(gProtocolStart(p)+gIdx).XData;
+                  xV = get(ud.NTCPCurve(gProtocolStart(p)+gIdx),'XData');
                   
                   %Identify where guideline is exceeded
-                  ntcpV = ud.NTCPCurve(gProtocolStart(p)+gIdx).YData;
+                  ntcpV = get(ud.NTCPCurve(gProtocolStart(p)+gIdx),'YData');
                   exceedIdxV = ntcpV >= strGuideS.(guidelinesC{n}).limit;
                   gCount = gCount + 1;
                   if ~any(exceedIdxV)
@@ -1041,7 +1048,7 @@ function ROE(command,varargin)
                     prevIdxV = strcmpi('ntcp',prevC);
                     gProtocolStart(p) = sum(prevIdxV);
                   end
-                  xV = ud.NTCPCurve(gProtocolStart(p)+1).XData;
+                  xV = get(ud.NTCPCurve(gProtocolStart(p)+1),'XData');
                   %Idenitfy dose/volume limits
                   gCount = gCount + 1;
                   %nFrx = planC{indexS.dose}(plnNum).numFractions;
@@ -1101,7 +1108,7 @@ function ROE(command,varargin)
     end
     
     %Add legend
-    NTCPLegendC = arrayfun(@(x)x.DisplayName,ud.NTCPCurve,'un',0);
+    NTCPLegendC = arrayfun(@(x)get(x,'DisplayName'),ud.NTCPCurve,'un',0);
     
     constraintS = protocolS(ud.foreground);
     if isfield(constraintS,'criteria') && ~isempty(constraintS.criteria)
@@ -1116,11 +1123,11 @@ function ROE(command,varargin)
         end
       else
         if isfield(constraintS,'guidelines') && ~isempty(constraintS.guidelines)
-          BEDlegendC = arrayfun(@(x)x.DisplayName,ud.BEDCurve,'un',0);
+          BEDlegendC = arrayfun(@(x)get(x,'DisplayName'),ud.BEDCurve,'un',0);
           hax = [ud.NTCPCurve,ud.BEDCurve,constraintS.criteria(end),constraintS.guidelines(end)];
           key = [NTCPLegendC,BEDlegendC,'Clinical criteria','Clinical guidelines'];
         else
-          BEDlegendC = arrayfun(@(x)x.DisplayName,ud.BEDCurve,'un',0);
+          BEDlegendC = arrayfun(@(x)get(x,'DisplayName'),ud.BEDCurve,'un',0);
           hax = [ud.NTCPCurve,ud.BEDCurve,constraintS.criteria(end)];
           key = [NTCPLegendC,BEDlegendC,'Clinical criteria'];
         end
@@ -1146,8 +1153,8 @@ function ROE(command,varargin)
     
     %Get datacursor mode
     if ~isempty([protocolS.criteria])
-      cursorMode = datacursormode(hFig);
-      set(cursorMode,'Enable','On');
+      %cursorMode = datacursormode(hFig);
+      %set(cursorMode,'Enable','On');
       
       %Display first clinical criterion/guideline that is violated
       for p = 1:numel(ud.Protocols)
@@ -1185,27 +1192,27 @@ function ROE(command,varargin)
           %firstcViolation = [false(1:i1-1),firstcViolation];
           dttag = 'criteria';
           dispSelCriteriaROE([],[],dttag,firstcViolation,p);
-          hDatatip = cursorMode.createDatatip(hcFirst(1));
-          hDatatip.Marker = '^';
-          hDatatip.MarkerSize=7;
-          set(hDatatip,'Visible','On','OrientationMode','Manual',...
-          'UpdateFcn',@expandDataTip,'Tag',dttag);
+          %hDatatip = cursorMode.createDatatip(hcFirst(1));
+          %hDatatip.Marker = '^';
+          %hDatatip.MarkerSize=7;
+          %set(hDatatip,'Visible','On','OrientationMode','Manual',...
+          %'UpdateFcn',@expandDataTip,'Tag',dttag);
         else
           %firstgViolation = [false(1:j1-1),firstgViolation];
           dttag = 'guidelines';
           dispSelCriteriaROE([],[],dttag,firstgViolation,p);
-          hDatatip = cursorMode.createDatatip(hgFirst(1));
-          hDatatip.Marker = '^';
-          hDatatip.MarkerSize=7;
-          set(hDatatip,'Visible','On','OrientationMode','Manual',...
-          'UpdateFcn',@expandDataTip,'Tag',dttag);
+          %hDatatip = cursorMode.createDatatip(hgFirst(1));
+          %hDatatip.Marker = '^';
+          %hDatatip.MarkerSize=7;
+          %set(hDatatip,'Visible','On','OrientationMode','Manual',...
+          %'UpdateFcn',@expandDataTip,'Tag',dttag);
         end
         
       end
       
       %Set datacursor update function
-      set(cursorMode, 'Enable','On','SnapToDataVertex','off',...
-      'UpdateFcn',@expandDataTip);
+      %set(cursorMode, 'Enable','On','SnapToDataVertex','off',...
+      %'UpdateFcn',@expandDataTip);
       
     end
     
@@ -1230,7 +1237,10 @@ function ROE(command,varargin)
     ud.Protocols = protocolS;
     for ax = 2:6
       cla(ud.handle.modelsAxis(ax));
-      legend(ud.handle.modelsAxis(ax),'off')
+      labObj = get(ud.handle.modelsAxis(ax),'children');
+      if ~isempty(labObj)
+        legend(ud.handle.modelsAxis(ax),'off')
+      end
       set(ud.handle.modelsAxis(ax),'Visible','Off');
     end
     
@@ -1249,9 +1259,9 @@ function ROE(command,varargin)
     set(ud.handle.modelsAxis(10),'String','')
     
     %Turn off datacursor mode
-    cursorMode = datacursormode(hFig);
-    cursorMode.removeAllDataCursors;
-    set(cursorMode, 'Enable','Off');
+    %cursorMode = datacursormode(hFig);
+    %cursorMode.removeAllDataCursors;
+    %set(cursorMode, 'Enable','Off');
     
     %turn slider display off
     set(ud.handle.modelsAxis(7),'Visible','Off');
