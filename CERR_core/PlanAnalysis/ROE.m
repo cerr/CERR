@@ -487,7 +487,7 @@ function ROE(command,varargin)
           
           
           %Apply fractionation correction as required
-          correctedScaledDoseC = frxCorrect(modelC{xIndx},structNumV,newNumFrx,scaledDoseBinsC);
+          correctedScaledDoseC = frxCorrectROE(modelC{xIndx},structNumV,newNumFrx,scaledDoseBinsC);
           
           %Update nFrx parameter
           paramS.numFractions.val = newNumFrx;
@@ -503,7 +503,7 @@ function ROE(command,varargin)
           if n==numel(xScaleV)
             %Get corrected dose at scale == 1
             paramS.frxSize.val = dpfProtocol;
-            testDoseC = frxCorrect(modelC{xIndx},structNumV,numFrxProtocol,doseBinsC);
+            testDoseC = frxCorrectROE(modelC{xIndx},structNumV,numFrxProtocol,doseBinsC);
             %Display mean dose, EUD, GTD(if applicable)
             outType = modelC{xIndx}.type;
             testMeanDose = calc_meanDose(testDoseC{1},volHistC{1});
@@ -698,7 +698,7 @@ function ROE(command,varargin)
             scale = xScaleV(n);
             scaledDoseBinsC = cellfun(@(x) x*scale,doseBinsC,'un',0);
             %Apply fractionation correction as required
-            correctedScaledDoseC = frxCorrect(modelC{modIdxV(j)},structNumV,numFrxProtocol,scaledDoseBinsC);
+            correctedScaledDoseC = frxCorrectROE(modelC{modIdxV(j)},structNumV,numFrxProtocol,scaledDoseBinsC);
             
             %Correct frxSize parameter
             paramS.frxSize.val = scale*dpfProtocol;
@@ -714,7 +714,7 @@ function ROE(command,varargin)
             if n==numel(xScaleV)
               %Get corrected dose at scale == 1
               paramS.frxSize.val = dpfProtocol;
-              testDoseC = frxCorrect(modelC{modIdxV(j)},structNumV,numFrxProtocol,doseBinsC);
+              testDoseC = frxCorrectROE(modelC{modIdxV(j)},structNumV,numFrxProtocol,doseBinsC);
               %Display mean dose, EUD, GTD(if applicable)
               outType = modelC{modIdxV(j)}.type;
               testMeanDose = calc_meanDose(testDoseC{1},volHistC{1});
@@ -760,7 +760,7 @@ function ROE(command,varargin)
             scaledDoseBinsC = cellfun(@(x) x*scale,doseBinsC,'un',0);
             
             %Apply fractionation correction as required
-            correctedScaledDoseC = frxCorrect(modelC{j},structNumV,newNumFrx,scaledDoseBinsC);
+            correctedScaledDoseC = frxCorrectROE(modelC{j},structNumV,newNumFrx,scaledDoseBinsC);
             
             %Correct nFrx parameter
             paramS.numFractions.val = newNumFrx;
@@ -776,7 +776,7 @@ function ROE(command,varargin)
             if n==numel(nfrxScaleV)
               %Get corrected dose at scale == 1
               paramS.numFractions.val = numFrxProtocol;
-              testDoseC = frxCorrect(modelC{j},structNumV,numFrxProtocol,doseBinsC);
+              testDoseC = frxCorrectROE(modelC{j},structNumV,numFrxProtocol,doseBinsC);
               %Display mean dose, EUD, GTD(if applicable)
               outType = modelC{j}.type;
               if isfield(paramS,'n')
