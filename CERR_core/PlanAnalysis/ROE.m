@@ -1231,7 +1231,10 @@ function ROE(command,varargin)
     ud.Protocols = protocolS;
     for ax = 2:6
       cla(ud.handle.modelsAxis(ax));
-      legend(ud.handle.modelsAxis(ax),'off')
+      labObj = get(ud.handle.modelsAxis(ax),'children');
+      if ~isempty(labObj)
+        legend(ud.handle.modelsAxis(ax),'off')
+      end
       set(ud.handle.modelsAxis(ax),'Visible','Off');
     end
     
