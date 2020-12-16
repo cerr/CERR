@@ -1147,8 +1147,8 @@ function ROE(command,varargin)
     
     %Get datacursor mode
     if ~isempty([protocolS.criteria])
-      cursorMode = datacursormode(hFig);
-      set(cursorMode,'Enable','On');
+      %cursorMode = datacursormode(hFig);
+      %set(cursorMode,'Enable','On');
       
       %Display first clinical criterion/guideline that is violated
       for p = 1:numel(ud.Protocols)
@@ -1186,27 +1186,27 @@ function ROE(command,varargin)
           %firstcViolation = [false(1:i1-1),firstcViolation];
           dttag = 'criteria';
           dispSelCriteriaROE([],[],dttag,firstcViolation,p);
-          hDatatip = cursorMode.createDatatip(hcFirst(1));
-          hDatatip.Marker = '^';
-          hDatatip.MarkerSize=7;
-          set(hDatatip,'Visible','On','OrientationMode','Manual',...
-          'UpdateFcn',@expandDataTip,'Tag',dttag);
+          %hDatatip = cursorMode.createDatatip(hcFirst(1));
+          %hDatatip.Marker = '^';
+          %hDatatip.MarkerSize=7;
+          %set(hDatatip,'Visible','On','OrientationMode','Manual',...
+          %'UpdateFcn',@expandDataTip,'Tag',dttag);
         else
           %firstgViolation = [false(1:j1-1),firstgViolation];
           dttag = 'guidelines';
           dispSelCriteriaROE([],[],dttag,firstgViolation,p);
-          hDatatip = cursorMode.createDatatip(hgFirst(1));
-          hDatatip.Marker = '^';
-          hDatatip.MarkerSize=7;
-          set(hDatatip,'Visible','On','OrientationMode','Manual',...
-          'UpdateFcn',@expandDataTip,'Tag',dttag);
+          %hDatatip = cursorMode.createDatatip(hgFirst(1));
+          %hDatatip.Marker = '^';
+          %hDatatip.MarkerSize=7;
+          %set(hDatatip,'Visible','On','OrientationMode','Manual',...
+          %'UpdateFcn',@expandDataTip,'Tag',dttag);
         end
         
       end
       
       %Set datacursor update function
-      set(cursorMode, 'Enable','On','SnapToDataVertex','off',...
-      'UpdateFcn',@expandDataTip);
+      %set(cursorMode, 'Enable','On','SnapToDataVertex','off',...
+      %'UpdateFcn',@expandDataTip);
       
     end
     
@@ -1253,9 +1253,9 @@ function ROE(command,varargin)
     set(ud.handle.modelsAxis(10),'String','')
     
     %Turn off datacursor mode
-    cursorMode = datacursormode(hFig);
-    cursorMode.removeAllDataCursors;
-    set(cursorMode, 'Enable','Off');
+    %cursorMode = datacursormode(hFig);
+    %cursorMode.removeAllDataCursors;
+    %set(cursorMode, 'Enable','Off');
     
     %turn slider display off
     set(ud.handle.modelsAxis(7),'Visible','Off');
