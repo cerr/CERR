@@ -396,7 +396,7 @@ function ROE(command,varargin)
       nfrxScaleV = linspace(-maxDeltaFrx,maxDeltaFrx,99);
       
       hNTCPAxis = ud.handle.modelsAxis(2);
-      hNTCPAxis.Visible = 'On';
+      set(hNTCPAxis,'Visible','On');
       grid(hNTCPAxis,'On');
       
       tcpM = nan(numel(protocolS),length(nfrxScaleV));
@@ -823,8 +823,9 @@ function ROE(command,varargin)
             tcpV = tcpM(p,:);
             ud.NTCPCurve = [ud.NTCPCurve plot(hNTCPAxis,tcpV(~isnan(tcpV)),scaledCPv,'linewidth',3,...
             'Color',plotColorM(colorIdx,:),'lineStyle',lineStyle)];
-            
-            ud.NTCPCurve(ntcp).DisplayName = [ud.Protocols(p).protocol,': ',modelC{modIdxV(j)}.name];
+        
+            dispName = [ud.Protocols(p).protocol,': ',modelC{modIdxV(j)}.name];
+            set(ud.NTCPCurve(ntcp),'DisplayName',dispName);
             hCurr = hNTCPAxis;
           end
           
@@ -838,20 +839,25 @@ function ROE(command,varargin)
           if strcmp(modelC{j}.type,'NTCP')
             ntcp = ntcp + 1;
             ud.NTCPCurve = [ud.NTCPCurve plot(hNTCPAxis,xScaleV,scaledCPv,'linewidth',3,...
-            'Color',plotColorM(colorIdx,:),'lineStyle',lineStyle)];
-            ud.NTCPCurve(ntcp).DisplayName = [ud.Protocols(p).protocol,': ',modelC{j}.name];
+                'Color',plotColorM(colorIdx,:),'lineStyle',lineStyle)];
+            
+            dispName = [ud.Protocols(p).protocol,': ',modelC{j}.name];
+            set(ud.NTCPCurve(ntcp),'DisplayName',dispName);
             hCurr = hNTCPAxis;
           elseif strcmp(modelC{j}.type,'TCP')
             tcp = tcp + 1;
             ud.TCPCurve = [ud.TCPCurve plot(hTCPAxis,xScaleV,scaledCPv,'linewidth',3,...
             'Color',plotColorM(colorIdx,:),'lineStyle',lineStyle)];
-            ud.TCPCurve(tcp).DisplayName = [ud.Protocols(p).protocol,': ',modelC{j}.name];
+        
+            dispName = [ud.Protocols(p).protocol,': ',modelC{j}.name];
+            set(ud.TCPCurve(tcp),'DisplayName',dispName);
             hCurr = hTCPAxis;
           elseif strcmp(modelC{j}.type,'BED')
             bed = bed + 1;
             ud.BEDCurve = [ud.BEDCurve plot(hTCPAxis,xScaleV,scaledCPv,'linewidth',3,...
             'Color',plotColorM(colorIdx,:),'lineStyle',lineStyle)];
-            ud.BEDCurve(bed).DisplayName = [ud.Protocols(p).protocol,': ',modelC{j}.name];
+            dispName = [ud.Protocols(p).protocol,': ',modelC{j}.name];
+            set(ud.BEDCurve(bed),'DisplayName',dispName);
             hCurr = hTCPAxis;
           end
         end
@@ -903,11 +909,11 @@ function ROE(command,varargin)
                   prevIdxV = strcmpi('ntcp',prevC);
                   cProtocolStart(p) = sum(prevIdxV);
                 end
-                xV = ud.NTCPCurve(cProtocolStart(p)+cIdx).XData;
+                xV = get(ud.NTCPCurve(cProtocolStart(p)+cIdx),'XData');
                 
                 
                 %Identify where limit is exceeded
-                ntcpV = ud.NTCPCurve(cProtocolStart(p)+cIdx).YData;
+                ntcpV = get(ud.NTCPCurve(cProtocolStart(p)+cIdx),'YData');
                 cCount = cCount + 1;
                 exceedIdxV = ntcpV >= strCritS.(criteriaC{n}).limit;
                 if ~any(exceedIdxV)
@@ -942,7 +948,7 @@ function ROE(command,varargin)
                   prevIdxV = strcmpi('ntcp',prevC);
                   cProtocolStart(p) = sum(prevIdxV);
                 end
-                xV = ud.NTCPCurve(cProtocolStart(p)+1).XData;
+                xV = get(ud.NTCPCurve(cProtocolStart(p)+1),'XData');
                 
                 %Idenitfy dose/volume limits
                 cCount = cCount + 1;
@@ -1004,10 +1010,10 @@ function ROE(command,varargin)
                     prevIdxV = strcmpi('ntcp',prevC);
                     gProtocolStart(p) = sum(prevIdxV);
                   end
-                  xV = ud.NTCPCurve(gProtocolStart(p)+gIdx).XData;
+                  xV = get(ud.NTCPCurve(gProtocolStart(p)+gIdx),'XData');
                   
                   %Identify where guideline is exceeded
-                  ntcpV = ud.NTCPCurve(gProtocolStart(p)+gIdx).YData;
+                  ntcpV = get(ud.NTCPCurve(gProtocolStart(p)+gIdx),'YData');
                   exceedIdxV = ntcpV >= strGuideS.(guidelinesC{n}).limit;
                   gCount = gCount + 1;
                   if ~any(exceedIdxV)
@@ -1042,7 +1048,7 @@ function ROE(command,varargin)
                     prevIdxV = strcmpi('ntcp',prevC);
                     gProtocolStart(p) = sum(prevIdxV);
                   end
-                  xV = ud.NTCPCurve(gProtocolStart(p)+1).XData;
+                  xV = get(ud.NTCPCurve(gProtocolStart(p)+1),'XData');
                   %Idenitfy dose/volume limits
                   gCount = gCount + 1;
                   %nFrx = planC{indexS.dose}(plnNum).numFractions;
@@ -1102,7 +1108,7 @@ function ROE(command,varargin)
     end
     
     %Add legend
-    NTCPLegendC = arrayfun(@(x)x.DisplayName,ud.NTCPCurve,'un',0);
+    NTCPLegendC = arrayfun(@(x)get(x,'DisplayName'),ud.NTCPCurve,'un',0);
     
     constraintS = protocolS(ud.foreground);
     if isfield(constraintS,'criteria') && ~isempty(constraintS.criteria)
@@ -1117,11 +1123,11 @@ function ROE(command,varargin)
         end
       else
         if isfield(constraintS,'guidelines') && ~isempty(constraintS.guidelines)
-          BEDlegendC = arrayfun(@(x)x.DisplayName,ud.BEDCurve,'un',0);
+          BEDlegendC = arrayfun(@(x)get(x,'DisplayName'),ud.BEDCurve,'un',0);
           hax = [ud.NTCPCurve,ud.BEDCurve,constraintS.criteria(end),constraintS.guidelines(end)];
           key = [NTCPLegendC,BEDlegendC,'Clinical criteria','Clinical guidelines'];
         else
-          BEDlegendC = arrayfun(@(x)x.DisplayName,ud.BEDCurve,'un',0);
+          BEDlegendC = arrayfun(@(x)get(x,'DisplayName'),ud.BEDCurve,'un',0);
           hax = [ud.NTCPCurve,ud.BEDCurve,constraintS.criteria(end)];
           key = [NTCPLegendC,BEDlegendC,'Clinical criteria'];
         end
