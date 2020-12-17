@@ -235,13 +235,13 @@ function ROE(command,varargin)
     [leftMarginWidth+.18*GUIWidth 4.5*shift .75*GUIWidth-leftMarginWidth 1.8*shift],...
     'Style','Slider','Visible','Off','Tag','Scale','Min',0.5,'Max',1.5,'Value',1,...
     'SliderStep',[1/(99-1),1/(99-1)]);
-    %addlistener(plotH(7),'Value',@scaleDoseROE);
+    %addlistener(plotH(7),'Value',@(hObj)scaleDoseROE(hFig));
     %scale nfrx
     plotH(8) = uicontrol('parent',hFig,'units','pixels','Position',...
-    [leftMarginWidth+.18*GUIWidth 5*shift .75*GUIWidth-leftMarginWidth 1.8*shift],...
+    [leftMarginWidth+.18*GUIWidth 4.5*shift .75*GUIWidth-leftMarginWidth 1.8*shift],...
     'Style','Slider','Visible','Off','Tag','Scale','Min',-15,'Max',15,'Value',0,...
     'SliderStep',[1/30 1/30]);
-    %addlistener(plotH(8),'Value',@scaleDoseROE);
+    %addlistener(plotH(8),'Value',@(hObj)scaleDoseROE(hFig));
     
     
     %Push-button for constraints panel
@@ -255,10 +255,10 @@ function ROE(command,varargin)
     % AI temp comment
     plotH(10) = uicontrol('parent',hFig,'units','pixels','Position',...
     [GUIWidth-6*shift 4.5*shift 3*shift 2*shift],...
-    'Style','edit','Enable','Off','fontSize',10,'Callback',@enterScale);
+    'Style','edit','Enable','Off','fontSize',10,'Callback',@(hObj)enterScaleROE(hFig));
     plotH(11) = uicontrol('parent',hFig,'units','pixels','Position',...
     [GUIWidth-8*shift 4.5*shift 6*shift 3*shift],'backgroundColor',defaultColor,...
-    'Style','Text','Visible','Off','fontSize',8,'Callback',@enterScale);
+    'Style','Text','Visible','Off','fontSize',8,'Callback',@(hObj)enterScaleROE(hFig));
     
     %Turn off datacursor mode
     %cursorMode = datacursormode(hFig);
@@ -1092,7 +1092,6 @@ function ROE(command,varargin)
       
       planC{indexS.dose}(plnNum).doseArray = dA;
     end
-    
     close(hWait);
     
     %Add plot labels
@@ -1146,7 +1145,7 @@ function ROE(command,varargin)
     guidata(hFig,ud);
     
     %Display current dose/probability
-    scaleDoseROE(hSlider);
+    scaleDoseROE(hSlider,hFig);
     
     %Enable user-entered scale entry
     set(ud.handle.modelsAxis(10),'enable','On');
@@ -1186,9 +1185,11 @@ function ROE(command,varargin)
           hgFirst = guidH(firstgViolation);
         end
         
+        cFirstX = get(hcFirst(1),'XData');
+        gFirstX = get(hgFirst(1),'XData');
         if isempty(hcFirst) && isempty(hgFirst)
           %Skip
-          elseif(~isempty(hcFirst) && isempty(hgFirst)) || hcFirst(1).XData(1)<= hgFirst(1).XData(1)
+        elseif(~isempty(hcFirst) && isempty(hgFirst)) || cFirstX(1)<= gFirstX(1)
           %firstcViolation = [false(1:i1-1),firstcViolation];
           dttag = 'criteria';
           dispSelCriteriaROE([],[],dttag,firstcViolation,p);
