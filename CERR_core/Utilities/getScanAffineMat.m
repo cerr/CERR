@@ -1,7 +1,7 @@
 function [affineMat,scan3M] = getScanAffineMat(planC, scanNum, reorientFlag, getMasksFlag)
 
 if ~exist('reorientFlag','var') || isempty(reorientFlag)
-  reorientFlag = 0;
+    reorientFlag = 0;
 end
 
 if ~exist('getMasksFlag','var') || isempty(getMasksFlag)
@@ -9,7 +9,7 @@ if ~exist('getMasksFlag','var') || isempty(getMasksFlag)
 end
 
 if ischar(planC)
-  planC = loadPlanC(planC);
+    planC = loadPlanC(planC);
 end
 
 indexS = planC{end};
@@ -33,7 +33,7 @@ N = numel(planC{indexS.scan}(scanNum).scanInfo);
 ipp = (planC{indexS.scan}(scanNum).scanInfo(end).imagePositionPatient - planC{indexS.scan}(scanNum).scanInfo(1).imagePositionPatient)/(N-1);
 
 originLPS = planC{indexS.scan}(scanNum).scanInfo(1).imagePositionPatient;
-rawAffineMat = [planeMat ipp originLPS; 0 0 0 1]; 
+rawAffineMat = [planeMat ipp originLPS; 0 0 0 1];
 
 rawPixDim = [pixsp(2) pixsp(1) sliceThickness];
 [~,xCol] = max(abs(rawAffineMat * iHat)); %[1; 0; 0; 0]))
@@ -60,35 +60,36 @@ zLoc = find([xCol yCol zCol] == 3);
 originRAS = originLPS;
 
 if ~reorientFlag
-  scan3M = scanArray;
-% ##  scan3M = permute(scanArray,[
+    scan3M = scanArray;
+    % ##  scan3M = permute(scanArray,[
 else
-  
-  scan3M = permute(scanArray,[xLoc yLoc zLoc]);  
-  affineMat = [affineMat(:,xCol) affineMat(:,yCol) affineMat(:,zCol) affineMat(:,end)];
-
-  coMat = eye(4);
-  if affineMat(1,1) < 0
-    coMat(1,1) = -1;
-    scan3M = flip(scan3M,1);
-%   else
-      %fix origin
-      originRAS(1) = -pixDim(1)*(size(scan3M,1) - (abs(originLPS(1)) / pixDim(1)));
-  end
-  if affineMat(2,2) < 0
-    coMat(2,2) = -1;
-    scan3M = flip(scan3M,2);
-%   else
-     originRAS(2) = -pixDim(2)*(size(scan3M,2) - (abs(originLPS(2)) / pixDim(2)));
-  end
-  if affineMat(3,3) < 0
-    coMat(3,3) = -1;
-    scan3M = flip(scan3M,3);
+    
+    scan3M = permute(scanArray,[xLoc yLoc zLoc]);
+    affineMat = [affineMat(:,xCol) affineMat(:,yCol) affineMat(:,zCol) affineMat(:,end)];
+    
+    %fix origin
+    originRAS(1) = -pixDim(1)*(size(scan3M,1) - (abs(originLPS(1)) / pixDim(1)));
+    originRAS(2) = -pixDim(2)*(size(scan3M,2) - (abs(originLPS(2)) / pixDim(2)));
     originRAS(3) = -pixDim(3)*(size(scan3M,3) - (abs(originLPS(3)) / pixDim(3)));
-  end
-  
-  affineMat = affineMat * coMat;
-  affineMat(1:3,4) = originRAS;
+    
+    coMat = eye(4);
+    if affineMat(1,1) < 0
+        coMat(1,1) = -1;
+        scan3M = flip(scan3M,1);
+       
+    end
+    if affineMat(2,2) < 0
+        coMat(2,2) = -1;
+        scan3M = flip(scan3M,2);
+        %   else
+    end
+    if affineMat(3,3) < 0
+        coMat(3,3) = -1;
+        scan3M = flip(scan3M,3);
+    end
+    
+    affineMat = affineMat * coMat;
+    affineMat(1:3,4) = originRAS;
 end
 
 zCorrect = [9 10 3 7];
