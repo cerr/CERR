@@ -1,4 +1,4 @@
-function cmdFileC = genPlastimatchCmdFile(baseScanFileName, movScanFileName, baseMaskFileName, movMaskFileName, warpedMhaFile, inBspFile, xformOutFileName, algorithm, userCmdFile, threshold_bone)
+function cmdFileC = genPlastimatchCmdFile(baseScanFileName, movScanFileName, baseMaskFileName, movMaskFileName, warpedMhaFile, inBspFile, xformOutFileName, algorithm, userCmdFile, threshold_bone,landmarkListM)
 
 % function cmdFileName = genPlastimatchCmdFile(inCmdFileC, xformOutFileName, algorithm, userCmdFile, threshold_bone)
 %
@@ -6,6 +6,8 @@ function cmdFileC = genPlastimatchCmdFile(baseScanFileName, movScanFileName, bas
 % user-
 % specified algorithm
 
+[workingDir,baseFile,~] = fileparts(baseScanFileName);
+[~,movFile,~] = fileparts(movScanFileName);
 
 cmdFileC{1,1} = '[GLOBAL]';
 cmdFileC{end+1,1} = ['fixed=',escapeSlashes(baseScanFileName)];
@@ -29,11 +31,26 @@ if ~exist('threshold_bone','var')
     threshold_bone = [];
 end
 
-if exist('userCmdFIle','var') && exist(userCmdFile,'file')
+if exist('userCmdFile','var') && exist(userCmdFile,'file')
     usrFileC = file2cell(userCmdFile);
     cmdFileC(end+1:end+size(usrFileC,2),1) = usrFileC(:);
 end
 
+if exist('landmarkListM','var') && ~isempty(landmarkListM)
+    baseLandmarkM = landmarkList(:,:,1);
+    movLandmarkM = landmarkList(:,:,2);
+    
+    baseLandmarkFile = fullfile(workingDir,[baseFile '.csv']);
+    movLandmarkFile = fullfile(workingDir,[movFile '.csv']);
+    
+    csvwrite(baseLandmarkFile,baseLandmarkM);
+    csvwrite(movLandmarkFile,movLandmarkM);
+    
+    cmdFileC{end+1,1} = ['fixed_landmarks=',escapeSlashes(baseLandmarkFile)];
+    cmdFileC{end+1,1} = ['moving_landmarks=',escapeSlashes(movLandmarkFile)];
+else
+    landmarkListM = [];
+end
 
 %add algorithm-specific options
 switch upper(algorithm)

@@ -1,5 +1,5 @@
 function [basePlanC, movPlanC, deformS] = register_scans(basePlanC, baseScanNum, movPlanC,movScanNum, algorithm, registration_tool, tmpDirPath, ... 
-    baseMask3M, movMask3M, threshold_bone, inputCmdFile, inBspFile, outBspFile)
+    baseMask3M, movMask3M, threshold_bone, inputCmdFile, inBspFile, outBspFile, landmarkList)
 % Usage: [basePlanC, movPlanC, bspFileName] = register_scans(basePlanC, baseScanNum, movPlanC,movScanNum, algorithm, registration_tool, tmpDirPath, ... 
 %     baseMask3M, movMask3M, threshold_bone, inputCmdFile, inBspFile, outBspFile)
 %
@@ -86,6 +86,15 @@ end
 if ~exist('tmpDirPath', 'var') || isempty(tmpDirPath)
     tmpDirPath = fullfile(getCERRPath, 'ImageRegistration', 'tmpFiles'); % Write temp files under CERR distribution if tmpDirPath is not specified
 end
+
+if ~exist('landmarkFlag','var') || isempty(landmarkFlag)
+    landmarkFlag = 0;
+end
+
+if ~exist('landmarkList','var')
+    landmarkList = [];
+end
+
 
 %% Set flag for registration program 
 plmFlag = 0; elastixFlag = 0; antsFlag = 0;
@@ -204,7 +213,7 @@ if plmFlag
 
     warpedMhaFile = [outPrefix '.mha'];
     
-    cmdFileC = genPlastimatchCmdFile(baseScanFileName, movScanFileName, baseMaskFileName, movMaskFileName, warpedMhaFile, inBspFile, xformFileNameBase, algorithm, userCmdFile, threshold_bone);
+    cmdFileC = genPlastimatchCmdFile(baseScanFileName, movScanFileName, baseMaskFileName, movMaskFileName, warpedMhaFile, inBspFile, xformFileNameBase, algorithm, userCmdFile, threshold_bone, landmarkList);
     cell2file(cmdFileC,cmdFileName);
     
     % Run plastimatch cases
