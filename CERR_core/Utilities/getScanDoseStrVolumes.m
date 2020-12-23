@@ -1,7 +1,7 @@
-function [scan3M,dose3M,strMaskC,xyzGridC,strColorC] = ...
-    getScanDoseStrVolumes(scanNum,doseNum,structNamC,planC)
-% function [scan3M,dose3M,strMaskC] = ...
-% getScanDoseStr(scanNum,doseNum,structnamC,planC)
+function [scan3M,dose3mC,strMaskC,xyzGridC,strColorC] = ...
+    getScanDoseStrVolumes(scanNum,doseNumV,structNamC,planC)
+% function [scan3M,dose3mC,strMaskC] = ...
+% getScanDoseStr(scanNum,doseNumV,structnamC,planC)
 %
 % This function returns volumetric matrices for scan, dose and structure 
 % masks on the original scan grid.
@@ -35,7 +35,10 @@ scan3M = scan3M - ctOffset;
 
 % Extract Dose on scan grid
 scanType = 'normal';
-dose3M = getDoseOnCT(doseNum, scanNum, scanType, planC);
+for iDose = 1:length(doseNumV)
+    doseNum = doseNumV(iDose);
+    dose3mC{iDose} = getDoseOnCT(doseNum, scanNum, scanType, planC);
+end
 
 % Extract structure
 numStructs = length(structNamC);
