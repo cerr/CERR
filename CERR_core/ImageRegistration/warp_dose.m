@@ -83,9 +83,13 @@ if plmFlag
     %fail = system([plmCommand, '--input ', movDoseFileName, ' --output-img ',
     %warpedMhaFileName, ' --xf ', bspFileName, ' --algorithm itk']); %
     %ITK-based warping, consider adding it an an option.
-    fail = system([plmCommand, '--input ', movDoseFileName, ' --output-img ', warpedMhaFileName, ' --xf ', bspFileName]);
+    fail = system([plmCommand, '--input ', movDoseFileName, ' --output-img ',...
+        warpedMhaFileName, ' --xf ', bspFileName, ' --fixed ', refScanFileName]);
     if fail % try escaping slashes
-        system([plmCommand, '--input ', escapeSlashes(movDoseFileName), ' --output-img ', escapeSlashes(warpedMhaFileName), ' --xf ', escapeSlashes(bspFileName)])
+        system([plmCommand, '--input ', escapeSlashes(movDoseFileName),...
+            ' --output-img ', escapeSlashes(warpedMhaFileName),...
+            ' --xf ', escapeSlashes(bspFileName),...
+            ' --fixed ', escapeSlashes(refScanFileName)])
     end
 end
 

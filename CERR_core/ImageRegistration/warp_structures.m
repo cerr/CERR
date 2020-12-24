@@ -153,9 +153,14 @@ if plmFlag
         
         
         % Issue plastimatch warp command with nearest neighbor interpolation
-        fail = system([plmCommand, '--input ', movStrFileName, ' --output-img ', warpedMhaFileName, ' --xf ', bspFileName, ' --interpolation nn']);
+        fail = system([plmCommand, '--input ', movStrFileName, ...
+            ' --output-img ', warpedMhaFileName, ' --xf ', bspFileName,...
+            ' --interpolation nn', ' --fixed ', refScanFileName]);
         if fail % try escaping slashes
-            system([plmCommand, '--input ', escapeSlashes(movStrFileName), ' --output-img ', escapeSlashes(warpedMhaFileName), ' --xf ', escapeSlashes(bspFileName), ' --interpolation nn'])
+            system([plmCommand, '--input ', escapeSlashes(movStrFileName),...
+                ' --output-img ', escapeSlashes(warpedMhaFileName),...
+                ' --xf ', escapeSlashes(bspFileName), ' --interpolation nn',...
+                ' --fixed ', escapeSlashes(refScanFileName)])
         end
         
         
