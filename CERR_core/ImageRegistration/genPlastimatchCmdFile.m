@@ -1,6 +1,9 @@
-function cmdFileC = genPlastimatchCmdFile(baseScanFileName, movScanFileName, baseMaskFileName, movMaskFileName, warpedMhaFile, inBspFile, xformOutFileName, algorithm, userCmdFile, threshold_bone,landmarkListM)
-
-% function cmdFileName = genPlastimatchCmdFile(inCmdFileC, xformOutFileName, algorithm, userCmdFile, threshold_bone)
+function cmdFileC = genPlastimatchCmdFile(baseScanFileName, movScanFileName, ...
+    baseMaskFileName, movMaskFileName, warpedMhaFile, inBspFile, ...
+    xformOutFileName, algorithm, userCmdFile, threshold_bone,landmarkListM)
+% function cmdFileC = genPlastimatchCmdFile(baseScanFileName, movScanFileName, ...
+%     baseMaskFileName, movMaskFileName, warpedMhaFile, inBspFile, ...
+%     xformOutFileName, algorithm, userCmdFile, threshold_bone,landmarkListM)
 %
 % Generates parameter cmd file for running plastimatch register based on
 % user-
@@ -31,14 +34,9 @@ if ~exist('threshold_bone','var')
     threshold_bone = [];
 end
 
-if exist('userCmdFile','var') && exist(userCmdFile,'file')
-    usrFileC = file2cell(userCmdFile);
-    cmdFileC(end+1:end+size(usrFileC,2),1) = usrFileC(:);
-end
-
 if exist('landmarkListM','var') && ~isempty(landmarkListM)
-    baseLandmarkM = landmarkList(:,:,1);
-    movLandmarkM = landmarkList(:,:,2);
+    baseLandmarkM = landmarkListM(:,:,1);
+    movLandmarkM = landmarkListM(:,:,2);
     
     baseLandmarkFile = fullfile(workingDir,[baseFile '.csv']);
     movLandmarkFile = fullfile(workingDir,[movFile '.csv']);
@@ -48,8 +46,12 @@ if exist('landmarkListM','var') && ~isempty(landmarkListM)
     
     cmdFileC{end+1,1} = ['fixed_landmarks=',escapeSlashes(baseLandmarkFile)];
     cmdFileC{end+1,1} = ['moving_landmarks=',escapeSlashes(movLandmarkFile)];
-else
-    landmarkListM = [];
+    
+end
+
+if exist('userCmdFile','var') && exist(userCmdFile,'file')
+    usrFileC = file2cell(userCmdFile);
+    cmdFileC(end+1:end+size(usrFileC,2),1) = usrFileC(:);
 end
 
 %add algorithm-specific options
