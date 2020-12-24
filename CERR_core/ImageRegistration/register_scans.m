@@ -213,7 +213,9 @@ if plmFlag
 
     warpedMhaFile = [outPrefix '.mha'];
     
-    cmdFileC = genPlastimatchCmdFile(baseScanFileName, movScanFileName, baseMaskFileName, movMaskFileName, warpedMhaFile, inBspFile, xformFileNameBase, algorithm, userCmdFile, threshold_bone, landmarkList);
+    cmdFileC = genPlastimatchCmdFile(baseScanFileName, movScanFileName, ...
+        baseMaskFileName, movMaskFileName, warpedMhaFile, inBspFile, ...
+        xformFileNameBase, algorithm, userCmdFile, threshold_bone, landmarkList);
     cell2file(cmdFileC,cmdFileName);
     
     % Run plastimatch cases
@@ -239,17 +241,17 @@ if plmFlag
     deformS.algorithmParamsS = algorithmParamsS;
     
     basePlanC = insertDeformS(basePlanC, deformS);
-    movPlanC = insertDeformS(movPlanC, deformS);     
+    movPlanC = insertDeformS(movPlanC, deformS);
     
-      %add warped image to planC
-      if exist(warpedMhaFile,'file')
-          save_flag = 0; movScanOffset = 0;
-          movScanName = ['deformed_' strrep(algorithm,' ','_')  '_' registration_tool];
-          infoS  = mha_read_header(warpedMhaFile);
-          data3M = mha_read_volume(infoS);
-          basePlanC  = mha2cerr(infoS,data3M, movScanOffset, movScanName, basePlanC, save_flag);
-      end
-            
+    %add warped image to planC
+    if exist(warpedMhaFile,'file')
+        save_flag = 0; movScanOffset = 0;
+        movScanName = ['deformed_' strrep(algorithm,' ','_')  '_' registration_tool];
+        infoS  = mha_read_header(warpedMhaFile);
+        data3M = mha_read_volume(infoS);
+        basePlanC  = mha2cerr(infoS,data3M, movScanOffset, movScanName, basePlanC, save_flag);
+    end
+    
 end
 
 %% ELASTIX setup
