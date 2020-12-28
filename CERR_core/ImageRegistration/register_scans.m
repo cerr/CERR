@@ -221,6 +221,8 @@ if plmFlag
     % Run plastimatch cases
     plmCommand = 'plastimatch';
     
+    deleteBspFlg = 1; % for b-splines
+    
     if exist(optS.plastimatch_build_dir,'dir')
         plmCommand = fullfile(optS.plastimatch_build_dir,plmCommand);
     else
@@ -245,12 +247,36 @@ if plmFlag
     
     %add warped image to planC
     if exist(warpedMhaFile,'file')
-        save_flag = 0; movScanOffset = 0;
+        save_flag = 0; 
         movScanName = ['deformed_' strrep(algorithm,' ','_')  '_' registration_tool];
         infoS  = mha_read_header(warpedMhaFile);
         data3M = mha_read_volume(infoS);
+        movScanOffset = -min(0,min(data3M(:)));
         basePlanC  = mha2cerr(infoS,data3M, movScanOffset, movScanName, basePlanC, save_flag);
     end
+    
+    % Cleanup
+    try
+        delete(baseScanFileName);
+        delete(movScanFileName);
+        if deleteBspFlg
+            delete(cmdFileName);
+        end
+        delete(baseMaskFileName);
+        delete(movMaskFileName);
+        %delete(cmdFileName_dir);
+        [workingDir,baseFile,~] = fileparts(baseScanFileName);
+        [workingDir,movFile,~] = fileparts(movScanFileName);
+        baseLandmarkFile = fullfile(workingDir,[baseFile '.csv']);
+        movLandmarkFile = fullfile(workingDir,[movFile '.csv']);
+        if exist(baseLandmarkFile,'file')
+            delete(baseLandmarkFile)
+        end
+        if exist(movLandmarkFile,'file')
+            delete(movLandmarkFile)
+        end
+    end
+
     
 end
 
@@ -383,13 +409,14 @@ if antsFlag
             
             %add warped image to planC
             if exist(deformS.algorithmParamsS.antsWarpProducts.Warped,'file')
-                save_flag = 0; movScanOffset = 0;
+                save_flag = 0;
                 movScanName = ['deformed_' strrep(algorithm,' ','_')  '_' registration_tool];
                 warpedMhaFile = deformS.algorithmParamsS.antsWarpProducts.Warped;
                 [~,~,e] = fileparts(warpedMhaFile);
                 if strcmp(e,'.mha')
                     infoS  = mha_read_header(warpedMhaFile);
                     data3M = mha_read_volume(infoS);
+                    movScanOffset = -min(0,min(data3M(:)));
                     basePlanC  = mha2cerr(infoS,data3M, movScanOffset, movScanName, basePlanC, save_flag);
                 else
                     basePlanC = nii2cerr(warpedMhaFile,movScanName,basePlanC,save_flag);
