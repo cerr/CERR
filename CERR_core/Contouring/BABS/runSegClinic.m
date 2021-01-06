@@ -34,7 +34,7 @@ function success =  runSegClinic(inputDicomPath,outputDicomPath,...
 % AI, 2/7/2020 Added separate DICOM export functions for BABS and DL algorithms
 % AI, 3/5/2020 Updates to handle multiple algorithms
 
-% Create session directory to write segmentation metadata
+%% Create session directory to write segmentation metadata
 if inputDicomPath(end) == filesep
     [~,folderNam] = fileparts(inputDicomPath(1:end-1));
 else
@@ -52,7 +52,8 @@ while exist(fullSessionPath,'dir')
     fullSessionPath = fullfile(sessionPath,sessionDir);
 end
 
-% Create directories to write CERR files
+%% Create sub-directories 
+%-For  CERR files
 mkdir(fullSessionPath)
 cerrPath = fullfile(fullSessionPath,'dataCERR');
 mkdir(cerrPath)
@@ -60,6 +61,9 @@ outputCERRPath = fullfile(fullSessionPath,'segmentedOrigCERR');
 mkdir(outputCERRPath)
 segResultCERRPath = fullfile(fullSessionPath,'segResultCERR');
 mkdir(segResultCERRPath)
+%-For structname-to-label map
+labelPath = fullfile(fullSessionPath,'outputLabelMap');
+mkdir(labelPath);
 
 % Import DICOM to CERR
 tic
@@ -69,7 +73,7 @@ toc
 % Parse algorithm and convert to cell arrray
 algorithmC = split(algorithm,'^');
 
-%Run inference
+%% Run inference
 if ~any(strcmpi(algorithmC,'BABS'))
     
     containerPathStr = varargin{1};

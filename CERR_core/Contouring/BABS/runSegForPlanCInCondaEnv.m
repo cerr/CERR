@@ -49,7 +49,8 @@ sessionDir = ['session',folderNam,num2str(dateTimeV(4)), num2str(dateTimeV(5)),.
 fullSessionPath = fullfile(sessionPath,sessionDir);
 
 
-%% Create directories to write CERR files
+%% Create sub-directories 
+%-For CERR files
 mkdir(fullSessionPath)
 cerrPath = fullfile(fullSessionPath,'dataCERR');
 mkdir(cerrPath)
@@ -57,12 +58,16 @@ outputCERRPath = fullfile(fullSessionPath,'segmentedOrigCERR');
 mkdir(outputCERRPath)
 segResultCERRPath = fullfile(fullSessionPath,'segResultCERR');
 mkdir(segResultCERRPath)
-% Create sub-directories for input & output h5 files
+%-For H5 files
 outputH5Path = fullfile(fullSessionPath,'outputH5');
 mkdir(outputH5Path);
 inputH5Path = fullfile(fullSessionPath,'inputH5');
 mkdir(inputH5Path);
 testFlag = true;
+%-For structname-to-label map
+labelPath = fullfile(fullSessionPath,'outputLabelMap');
+mkdir(labelPath);
+
 
 %% Get conda installation path
 optS = opts4Exe([getCERRPath,'CERROptions.json']);
@@ -185,7 +190,7 @@ for k=1:length(algorithmC)
     outScanNum = scanNumV(origScanNum);
     userOptS(outScanNum).scan = userOptS(origScanNum).scan;
     userOptS(outScanNum).scan.origScan = origScanNum;
-    planC  = joinH5planC(outScanNum,outC{1},userOptS,planC); % only 1 file
+    planC  = joinH5planC(outScanNum,outC{1},labelPath,userOptS,planC); % only 1 file
     toc
     
     % Post-process segmentation

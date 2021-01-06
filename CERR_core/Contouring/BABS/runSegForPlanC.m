@@ -26,7 +26,7 @@ function planC = runSegForPlanC(planC,clientSessionPath,algorithm,sshConfigFile,
 % RKP, 09/18/19 Updates for compatibility with training pipeline
 
 
-% Create session directory to write segmentation metadata
+%% Create session directory to write segmentation metadata
 
 global stateS
 
@@ -54,7 +54,8 @@ if ~isempty(sshConfigFile)
     sshConfigS.fullServerSessionPath = fullServerSessionPath;
 end
 
-% Create directories to write CERR files
+%% Create sub-directories  
+%-For CERR files
 mkdir(fullClientSessionPath)
 cerrPath = fullfile(fullClientSessionPath,'dataCERR');
 mkdir(cerrPath)
@@ -62,17 +63,18 @@ outputCERRPath = fullfile(fullClientSessionPath,'segmentedOrigCERR');
 mkdir(outputCERRPath)
 segResultCERRPath = fullfile(fullClientSessionPath,'segResultCERR');
 mkdir(segResultCERRPath)
-% create subdir within fullSessionPath for output h5 files
+%-For H5 files
 outputH5Path = fullfile(fullClientSessionPath,'outputH5');
 mkdir(outputH5Path);
-% create subdir within fullSessionPath for input h5 files
 inputH5Path = fullfile(fullClientSessionPath,'inputH5');
 mkdir(inputH5Path);
+%-For structname-to-label map
+labelPath = fullfile(fullSessionPath,'outputLabelMap');
+mkdir(labelPath);
+
 testFlag = true;
 
-% Write planC to CERR .mat file
-%cerrFileName = fullfile(cerrPath,'cerrFile.mat');
-%save_planC(planC,[],'passed',cerrFileName);
+%% Run segmentation algorithm
 
 % Parse algorithm and convert to cell arrray
 algorithmC = split(algorithm,'^');
@@ -178,7 +180,7 @@ if length(algorithmC)==1 && ~strcmpi(algorithmC,'BABS')
         outScanNum = scanNumV(origScanNum);
         userOptS(outScanNum).scan = userOptS(origScanNum).scan;
         userOptS(outScanNum).scan.origScan = origScanNum;
-        planC  = joinH5planC(outScanNum,outC{1},userOptS,planC);
+        planC  = joinH5planC(outScanNum,outC{1},labelPath,userOptS,planC);
         
         % Post-process segmentation
         planC = postProcStruct(planC,userOptS);
