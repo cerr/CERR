@@ -1,5 +1,5 @@
-function planC  = joinH5planC(scanNum,segMask3M,userOptS,planC)
-% function planC  = joinH5planC(scanNum,segMask3M,userOptS,planC)
+function planC  = joinH5planC(scanNum,segMask3M,labelPath,userOptS,planC)
+% function planC  = joinH5planC(scanNum,segMask3M,labelPath,userOptS,planC)
 
 if ~exist('planC','var')
     global planC
@@ -69,48 +69,33 @@ if ~strcmpi(resampleS.method,'none')
     if yValsV(1) > yValsV(2)
         yValsV = fliplr(yValsV);
     end
-    %Get input scan & resolution
-    dx = median(diff(xValsV));
-    dy = median(diff(yValsV));
-    dz = median(diff(zValsV));
-    inputResV = [dx,dy,dz];
-    %Get original resolution
+    %Get original grid
     origScanNum = scanOptS.origScan;
     [xVals0V, yVals0V, zVals0V] = getScanXYZVals(planC{indexS.scan}(origScanNum));
     if yVals0V(1) > yVals0V(2)
         yVals0V = fliplr(yVals0V);
     end
-    dx0 = median(diff(xVals0V));
-    dy0 = median(diff(yVals0V));
-    if isfield(userOptS(scanNum).scan.resample,'resolutionZCm')
-        dz0 = median(diff(zVals0V));
-        zValsV = zVals0V;
-    else
-        dz0 = nan;
-    end
-    outResV = [dx0,dy0,dz0];
     %Resample
-    %maskOut3M = imgResample3d(double(maskOut3M),inputResV,xValsV,yValsV,...
-    %   zValsV,outResV,'nearest',0);
-    gridResampleMethod = 'center';
     volumeResampleMethod = 'nearest';
-    %[xResampleV,yxResampleV,zResampleV] = ...
-    %    getResampledGrid(outResV,xValsV,yValsV,zValsV,gridResampleMethod);
       maskOut3M = imgResample3d(double(maskOut3M),...
                               xValsV,yValsV,zValsV,...
                               xVals0V, yVals0V, zVals0V,...
                               volumeResampleMethod);
-                                
     scanNum = origScanNum;
 end
 
-for i = 1 : length(userOptS(scanNum).strNameToLabelMap)
-    
-    labelVal = userOptS(scanNum).strNameToLabelMap(i).value;
+%% Convert label maps to CERR structs
+labelMapS = userOptS(scanNum).strNameToLabelMap;
+if ischar(labelMapS)
+    % Read JSON file containing strname-to-label map
+    labelMapFileName = fullfile(labelPath,labelMapS);
+    valS = jsondecode(fileread(labelMapFileName));
+    labelMapS = valS.strNameToLabelMap;
+end
+for i = 1 : length(labelMapS)
+    labelVal = labelMapS(i).value;
     maskForStr3M = maskOut3M == labelVal;
     planC = maskToCERRStructure(maskForStr3M, isUniform, scanNum,...
         userOptS(scanNum).strNameToLabelMap(i).structureName, planC);
-    
 end
-
 end
