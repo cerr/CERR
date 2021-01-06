@@ -5,8 +5,6 @@
 
   ],
 
-"inputFileType" : "CERR",
-
 "scan":{
 
         "identifier" : {"imageType": "CT SCAN"},

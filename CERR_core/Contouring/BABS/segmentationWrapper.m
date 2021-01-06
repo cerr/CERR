@@ -97,6 +97,7 @@ toc
 fprintf('\nImporting to CERR...\n');
 tic
 identifierS = userOptS.structAssocScan.identifier;
+labelPath = fullfile(fullSessionPath,'outputLabelMap');
 if ~isempty(fieldnames(userOptS.structAssocScan.identifier))
     origScanNum = getScanNumFromIdentifiers(identifierS,planC);
 else
@@ -105,6 +106,5 @@ end
 outScanNum = scanNumV(origScanNum);
 userOptS(outScanNum).scan = userOptS(origScanNum).scan;
 userOptS(outScanNum).scan.origScan = origScanNum;
-success = joinH5CERR(cerrPath,outC{1},outScanNum,userOptS); %Updated
+success = joinH5CERR(cerrPath,outC{1},labelPath,outScanNum,userOptS); %Updated
 toc
-          

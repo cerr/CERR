@@ -77,9 +77,13 @@ else
         scanNumV(n) = getScanNumFromIdentifiers(identifierS,planC);
     end
 end
+% Ignore missing inputs if marked optional
+optFlagV = strcmpi({scanOptS.required},'no');
+ignoreIdxV = optFlagV & isnan(scanNumV);
+scanNumV(ignoreIdxV) = [];
 
 %% Extract & preprocess data
-numScans = length(scanOptS);
+numScans = length(scanNumV);
 scanC = cell(numScans,1);
 scanOutC = cell(numScans,1);
 maskC = cell(numScans,1);
