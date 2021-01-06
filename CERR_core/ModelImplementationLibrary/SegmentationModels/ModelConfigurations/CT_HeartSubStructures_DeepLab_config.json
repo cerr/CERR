@@ -11,8 +11,6 @@
   {"structureName" : "PA", "value" : 9}
   ],
 
-"inputFileType" : "planC",
-
 "scan":{
 
 	"identifier" : {"imageType": "CT SCAN"},

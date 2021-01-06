@@ -10,8 +10,6 @@
 
 "batchSize" : 1,
 
-"inputFileType" : "planC",
-
 "scan": {
 
         "identifier" : {"imageType": "CT SCAN"},
@@ -26,7 +24,9 @@
          	 {"method": "crop_to_str", "params" : {"structureName": "lung_total"}, "operator" : "union"},
          	 {"method": "crop_to_str", "params" : {"structureName": "totallung"}, "operator" : "union"},
          	 {"method": "crop_to_str", "params" : {"structureName": "Lungs"}, "operator" : "union"},
-         	 {"method": "crop_to_str", "params" : {"structureName": "Lungs_NOT_GTV"}, "operator" : "union"} ]
+         	 {"method": "crop_to_str", "params" : {"structureName": "Lungs_NOT_GTV"}, "operator" : "union"} ],
+
+	"channels" :{"imageType": "original", "slice": "current"}
          	 
          },
 
