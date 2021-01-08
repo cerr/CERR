@@ -93,7 +93,7 @@ function getParamsROE(hObj,hEvt,hFig,planC)
       
       
       %Get parameters
-      set(hFig,'userdata',ud);
+      guidata(hFig,ud);
       hPar = extractParamsROE(hFig,modelsC{modelNumV(s)},planC);
       ud = guidata(hFig);
       
