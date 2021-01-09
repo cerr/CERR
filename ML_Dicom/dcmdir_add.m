@@ -219,13 +219,13 @@ match = 0;
 bValueMatch = 1;
 tempPosMatch = 1;
 acqNumMatch = 1;
-for i=1:length(studyS.SERIES)
+for seriesNum = length(studyS.SERIES):-1:1
     %thisUID = studyS.SERIES(i).info.subSet(hex2dec(seriesUIDTag));
     %thisUID = studyS.SERIES(i).info.filter(emptyAttr);
-    thisUID = filter(studyS.SERIES(i).info, emptyAttr);
+    thisUID = filter(studyS.SERIES(seriesNum).info, emptyAttr);
     thisUIDstr = char(thisUID.getStrings(hex2dec(seriesUIDTag)));
     % thisUID = filter(studyS.SERIES(i).info, hex2dec({tagS.tag}));
-    seriesModality = studyS.SERIES(i).info.getString(hex2dec(modalityTag));
+    seriesModality = studyS.SERIES(seriesNum).info.getString(hex2dec(modalityTag));
 
     if strcmpi(currentModality,'MR') && strcmpi(seriesModality,'MR')
         % 1.Check for series matching b-value 
