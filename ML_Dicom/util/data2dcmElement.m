@@ -32,9 +32,29 @@ function el = data2dcmElement(el, data, tag)
 % along with CERR.  If not, see <http://www.gnu.org/licenses/>.
 
 %Create an empty attr to act as a temporary container for the new element.
-attr = org.dcm4che3.data.Attributes;
-vr = org.dcm4che3.data.ElementDictionary.vrOf(tag, []);
+mlVer = getMLVersion;
+if isempty(mlVer)
+   attr = javaObject("org.dcm4che3.data.Attributes");
+else
+   attr = org.dcm4che3.data.Attributes;
+end
+% attr = org.dcm4che3.data.Attributes;
+
+mlVer = getMLVersion;
+if isempty(mlVer)
+    elemDict = javaMethod("getStandardElementDictionary","org.dcm4che3.data.ElementDictionary");
+    %attribs = javaObject("org.dcm4che3.data.Attributes");
+    vr = elemDict.vrOf(tag);
+else
+    elemDict = org.dcm4che3.data.ElementDictionary.getStandardElementDictionary();
+    %attribs = org.dcm4che3.data.Attributes;
+    vr = elemDict.vrOf(tag);
+end
 vrString = char(vr);
+
+%vr = org.dcm4che3.data.ElementDictionary.vrOf(tag, []);
+%vrString = char(vr);
+
 %Get the tag for this element.
 %tag = el.tag;
 
@@ -65,7 +85,7 @@ switch upper(vrString)
         %Use builtin dcm4che Date functions.
         attr.setDate(tag, vr, []);
         if ~isempty(data)
-            jDate = org.dcm4che3.util.DateUtils;
+            jDate = javaObject('org.dcm4che3.util.DateUtils');
             tz = attr.getTimeZone();
             date = jDate.parseDA(tz, data, 1);
             attr.setString(tag, vr, jDate.formatDA(tz, date));
@@ -103,7 +123,15 @@ switch upper(vrString)
 
     case 'PN' 
          %nameObj = org.dcm4che3.data.PersonName(el.getString(tag));
-         nameObj = org.dcm4che3.data.PersonName(dec2hex(tag));
+         
+         %nameObj = org.dcm4che3.data.PersonName(dec2hex(tag));
+         
+         mlVer = getMLVersion;
+         if isempty(mlVer)
+            nameObj = javaObject("org.dcm4che3.data.PersonName",dec2hex(tag));
+         else
+           nameObj = org.dcm4che3.data.PersonName(dec2hex(tag));
+         end
          
          %DCM4CHE3 now uses enum 'Component' instead of an array
         
@@ -151,9 +179,9 @@ switch upper(vrString)
         %Needs implementation
     case 'TM'   
         %Use builtin dcm4che Time functions.
-        jDate = org.dcm4che3.util.DateUtils;
+        jDate = javaObject('org.dcm4che3.util.DateUtils');
         tz = attr.getTimeZone();
-        precision = org.dcm4che3.data.DatePrecision;
+        precision = javaObject('org.dcm4che3.data.DatePrecision');
         try
             date = jDate.parseTM(tz, data, 1, precision);
             attr.setDate(tag, vr, []);
