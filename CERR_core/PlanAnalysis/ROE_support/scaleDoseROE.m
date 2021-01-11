@@ -55,8 +55,10 @@ function scaleVal = scaleDoseROE(hObj,hEvt,hFig)
   end
   
   %Set color order
-  colorM = [0 229 238;123 104 238;255 131 250;0 238 118;218 165 32;...
-  196	196	196;0 139 0;28 134 238;238 223 204]/255;
+  colorOrderP1M = [0 229 238;123 104 238;255 131 250;0 238 118;218 165 32;141	141	141;0 139 0;28 134 238;238 189 125]/255;
+  
+  colorOrderP2M = [140 215 218;200 193 235;255 188 254;158 238 198;218 188 105;196	196	196;126 226 126;108 173 238;238 223 204]/255;
+    
   
   %Scale plots as selected
   modNum = 0;
@@ -68,11 +70,11 @@ function scaleVal = scaleDoseROE(hObj,hEvt,hFig)
     if l == ud.foreground
       %pColorM = [colorM,ones(size(colorM,1),1)];
       %transparency not yet supported
-      pColorM = colorM;
+      pColorM = colorOrderP1M;
     else
       wt = 0.4;
       %pColorM = [colorM,repmat(wt,size(colorM,1),1)];
-      pColorM = colorM;
+      pColorM = colorOrderP2M;
     end
     
     %Get plan no.
