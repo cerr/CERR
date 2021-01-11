@@ -1,4 +1,4 @@
-function [dirListC,dirIdx,selected] = listFilesROE(fpath,mode)
+function [dirListC,dirIdx,selected] = listFilesROE(fpath)
 %listFiles.m  List dialog for folder selection
 %
 % AI 12/14/2020
@@ -7,6 +7,6 @@ function [dirListC,dirIdx,selected] = listFilesROE(fpath,mode)
   dirListC = {dirS(:).name};
   dirListC = dirListC(~ismember(dirListC,{'.','..'}));
   [dirIdx,selected] = listdlg('ListString',dirListC,...
-  'ListSize',[300 100],'Name','Select protocols','SelectionMode',mode);
+  'ListSize',[300 100],'Name','Select protocols','SelectionMode','Multiple');
   
   end
