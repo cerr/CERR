@@ -243,14 +243,14 @@ function ROE(command,varargin)
     [leftMarginWidth+.12*GUIWidth 4.5*shift .47*GUIWidth, 1.8*shift],...
     'Style','Slider','Visible','Off','Tag','Scale','Min',0.5,'Max',1.5,'Value',1,...
     'SliderStep',[1/(99-1),1/(99-1)]);
-    %addlistener(plotH(7),'Value',@(hObj,hEvt)scaleDoseROE(hObj,hEvt,hFig));
+    addlistener(plotH(7),'Value',@(hObj,hEvt)scaleDoseROE(hObj,hEvt,hFig));
+    
     %scale nfrx
     plotH(8) = uicontrol('parent',hFig,'units','pixels','Position',...
     [leftMarginWidth+.12*GUIWidth 4.5*shift .47*GUIWidth 1.8*shift],...
     'Style','Slider','Visible','Off','Tag','Scale','Min',-15,'Max',15,'Value',0,...
     'SliderStep',[1/30 1/30]);
-    %addlistener(plotH(8),'Value',@(hObj,hEvt)scaleDoseROE(hObj,hEvt,hFig));
-    
+    addlistener(plotH(8),'Value',@(hObj,hEvt)scaleDoseROE(hObj,hEvt,hFig));
     
     %Push-button for constraints panel
     plotH(9) = uicontrol('parent',hFig,'units','pixels','Position',...
@@ -261,13 +261,12 @@ function ROE(command,varargin)
     
     %Input scale
     plotH(10) = uicontrol('parent',hFig,'units','pixels','Position',...
-    [GUIWidth-4*shift 4.5*shift 2*shift 2*shift],...
+    [GUIWidth-3.5*shift 4.5*shift 2*shift 2*shift],...
     'Style','edit','Visible','Off','Enable','Off','fontSize',10,...
     'Callback',@(hObj,hEvt)enterScaleROE(hObj,hEvt,hFig));
     plotH(11) = uicontrol('parent',hFig,'units','pixels','Position',...
     [GUIWidth-7.5*shift 6.5*shift 6*shift 3*shift],'backgroundColor',defaultColor,...
-    'Style','Text','Visible','Off','fontSize',8,...
-    'Callback',@(hObj,hEvt)enterScaleROE(hObj,hEvt,Fig));
+    'Style','Text','Visible','Off','fontSize',8);
     
     %Turn off datacursor mode
     %cursorMode = datacursormode(hFig);
@@ -298,7 +297,7 @@ function ROE(command,varargin)
     criteriaPath = optS.ROECriteriaPath;
     
     % List available protocols for user selection
-    [protocolListC,protocolIdx,ok] = listFilesROE(protocolPath,'Multiple');
+    [protocolListC,protocolIdx,ok] = listFilesROE(protocolPath);
     if ~ok
       return
     end
@@ -379,9 +378,11 @@ function ROE(command,varargin)
       ud.gMarker = [];
     end
     
-    %% Define color order, foreground protocol
-    colorOrderM = [0 229 238;123 104 238;255 131 250;0 238 118;218 165 32;...
-    196	196	196;0 139 0;28 134 238;238 223 204]/255;
+    %% Define color order
+    colorOrderP1M = [0 229 238;123 104 238;255 131 250;0 238 118;218 165 32;141	141	141;0 139 0;28 134 238;238 189 125]/255;
+    
+    colorOrderP2M = [140 215 218;200 193 235;255 188 254;158 238 198;218 188 105;196	196	196;126 226 126;108 173 238;238 223 204]/255;
+    
     if ~isfield(ud,'foreground') || isempty(ud.foreground)
       ud.foreground = 1;
     end
@@ -647,11 +648,12 @@ function ROE(command,varargin)
       if p == ud.foreground
         %plotColorM = [colorOrderM,ones(size(colorOrderM,1),1)];
         %transparency not supported
-        plotColorM = colorOrderM;
+        plotColorM = colorOrderP1M;
         lineStyle = '-';
       else
         %alpha = 0.5; %not supported
-        plotColorM = colorOrderM;
+        plotColorM = colorOrderP2M;
+        
         lineStyleC = {'--',':','-.'};
         lineStyle = lineStyleC{p};
       end
@@ -949,11 +951,13 @@ function ROE(command,varargin)
                     cValV(cCount),'o','MarkerSize',8,'MarkerFaceColor',...
                     'r','MarkerEdgeColor','k')];
                   else
+                    clr = [255 142 142]./255;
+                    eclr = [114 76 76]./255;
                     addMarker = scatter(hNTCPAxis,cXv(cCount),...
-                    cValV(cCount),60,'MarkerFaceColor','r',...
+                    cValV(cCount),60,'MarkerFaceColor',clr,...
                     'MarkerEdgeColor','k');
-                    addMarker.MarkerFaceAlpha = .3;
-                    addMarker.MarkerEdgeAlpha = .3;
+                    %addMarker.MarkerFaceAlpha = .3; %Transparency not supported
+                    %addMarker.MarkerEdgeAlpha = .3; %Transparency not supported
                     ud.cMarker = [ud.cMarker,addMarker];
                   end
                 end
@@ -992,8 +996,9 @@ function ROE(command,varargin)
                 'Visible','Off');
               else
                 critLineH = line(hNTCPAxis,x,y,'LineWidth',2,...
-                'Color',[1 0 0 alpha],'LineStyle',':','Tag','criteria',...
-                'Visible','Off');
+                'Color',[1 0 0],'LineStyle',':','Tag','criteria',...
+                'Visible','Off'); 
+                %'Color' transparency [1 0 0 alpha] not supported
               end
               critLineUdS.protocol = p;
               critLineUdS.structure = structC{m};
@@ -1044,17 +1049,19 @@ function ROE(command,varargin)
                     gScaleV(gCount) = cgScaleV(exceedIdxV);
                     ind =  cgScaleV == gScaleV(gCount);
                     gXv(gCount) = xV(ind);
-                    clr = [239 197 57]./255;
                     if p==ud.foreground
+                      clr = [239 197 57]./255;
                       ud.gMarker = [ud.cMarker,plot(hNTCPAxis,gXv(gCount),...
                       gValV(gCount),'o','MarkerSize',8,'MarkerFaceColor',...
                       clr,'MarkerEdgeColor','k')];
                     else
+                      clr = [240 216 138]./255;
+                      eclr = [127 114 72]./255;
                       addMarker = scatter(hNTCPAxis,gXv(gCount),...
                       gValV(gCount),60,'MarkerFaceColor',clr,...
                       'MarkerEdgeColor','k');
-                      addMarker.MarkerFaceAlpha = .3;
-                      addMarker.MarkerEdgeAlpha = .3;
+                      %addMarker.MarkerFaceAlpha = .3; %Transparency not supported
+                      %addMarker.MarkerEdgeAlpha = .3; %Transparency not supported
                       ud.gMarker = [ud.cMarker,addMarker];
                     end
                   end
