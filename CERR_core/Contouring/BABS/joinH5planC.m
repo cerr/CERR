@@ -96,6 +96,6 @@ for i = 1 : length(labelMapS)
     labelVal = labelMapS(i).value;
     maskForStr3M = maskOut3M == labelVal;
     planC = maskToCERRStructure(maskForStr3M, isUniform, scanNum,...
-        userOptS(scanNum).strNameToLabelMap(i).structureName, planC);
+        labelMapS(i).structureName, planC);
 end
 end
