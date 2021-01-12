@@ -1,0 +1,53 @@
+{
+"strNameToLabelMap": "userDefinedStrLabelMap.json",
+
+"scan": [{
+
+         "identifier" : {"imageType": "CT SCAN"},
+
+         "required" : "no",
+                
+         "view" : ["axial"],
+
+         "crop" : {     
+                    "method": "crop_to_str",
+                    "params": {"structureName": "brain"},
+                    "operator": ""
+                  },
+
+         "channels" : {
+                       "imageType": "original",
+                       "intensityOutsideMask":{"val": 0},
+                       "slice": "current"
+                     }
+       },
+       {
+         "identifier" : { "imageType": "MR"},
+
+         "required" : "yes",
+                
+         "view" : ["axial"],
+
+         "crop" : {     
+                     "method": "crop_to_str",
+                     "params": {"structureName": "brain"},
+                     "operator": ""
+                  },
+
+         "channels" :{
+                         "imageType": "original",
+                         "intensityOutsideMask":{"val": 0},
+                         "slice": "current"
+                      }
+   }
+],
+
+"passedScanDim" : "3D",
+
+"batchSize" : 1,
+
+"structAssocScan": {"identifier" : { "imageType": "MR"}},
+
+"reference" : ""
+
+}
