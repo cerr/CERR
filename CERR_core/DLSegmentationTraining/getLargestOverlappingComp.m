@@ -5,7 +5,7 @@ function [maskOut3M, planC] = getLargestOverlappingComp(strNum,roiStrNum,planC)
 % INPUTS
 % strNum             : Structure no.
 % roiStrNum          : ROI structure no.
-% planC          
+% planC
 % ------------------------------------------------------------------------
 % Example usage:
 % strNum = 1;
@@ -19,29 +19,36 @@ function [maskOut3M, planC] = getLargestOverlappingComp(strNum,roiStrNum,planC)
 %Get ROI mask
 [roiMask3M, planC] = getStrMask(roiStrNum,planC);
 
-%Get connected components in str mask
+%Get str mask
 [mask3M, planC] = getStrMask(strNum,planC);
-cc = bwconncomp(mask3M,26);
-ccSizV = cellfun(@numel,[cc.PixelIdxList]);
 
-%Loop over components
-numIntersect = zeros(length(ccSizV),1);
-
-for compIdx = 1:length(ccSizV)
+if sum(mask3M(:))>1
+    %Get connected components in str mask
     
-    idxV = cc.PixelIdxList{compIdx};
-    compMask3M = false(size(mask3M));
-    compMask3M(idxV) = true;
-    %Calc. intersection
-    numIntersect(compIdx)  = sum(compMask3M(:) & roiMask3M(:));
+    cc = bwconncomp(mask3M,26);
+    ccSizV = cellfun(@numel,[cc.PixelIdxList]);
     
+    %Loop over components
+    numIntersect = zeros(length(ccSizV),1);
+    
+    for compIdx = 1:length(ccSizV)
+        
+        idxV = cc.PixelIdxList{compIdx};
+        compMask3M = false(size(mask3M));
+        compMask3M(idxV) = true;
+        %Calc. intersection
+        numIntersect(compIdx)  = sum(compMask3M(:) & roiMask3M(:));
+        
+    end
+    
+    %Return mask of component with max overlap
+    [~,maxOverlapIdx] = max(numIntersect);
+    idxV = cc.PixelIdxList{maxOverlapIdx};
+    maskOut3M = false(size(mask3M));
+    maskOut3M(idxV) = true;
+    
+else
+    maskOut3M = mask3M;
 end
-
-%Return mask of component with max overlap
-[~,maxOverlapIdx] = max(numIntersect);
-idxV = cc.PixelIdxList{maxOverlapIdx};
-maskOut3M = false(size(mask3M));
-maskOut3M(idxV) = true;
-
 
 end

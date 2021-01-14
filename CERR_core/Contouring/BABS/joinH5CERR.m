@@ -23,10 +23,12 @@ indexS = planC{end};
 planC  = joinH5planC(scanNum,segMask3M,userOptS,planC);
 
 %% Post-process segmentations
-fprintf('\nPost-processing results...\n');
-tic
-planC = postProcStruct(planC,userOptS);
-toc
+if sum(segMask3M(:))>0 
+    fprintf('\nPost-processing results...\n');
+    tic
+    planC = postProcStruct(planC,userOptS);
+    toc
+end
 
 %% Delete intermediate (resampled) scans if any
 if isfield(userOptS(scanNum).scan,'origScan')
