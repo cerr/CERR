@@ -20,7 +20,14 @@ end
 
 %Get limits of bbox around union str
 %mask3M = getStrMask(endStr,planC);
-[minr,~,minc,maxc,mins,~] = compute_boundingbox(mask3M);
+if sum(mask3M(:))>1
+    [minr,~,minc,maxc,mins,~] = compute_boundingbox(mask3M);
+else
+    minr = 1;
+    minc = 1;
+    maxc = size(mask3M,2);
+    mins = 1;
+end
 
 %% Get limits of bounding box around cropped pt outline
 outStrName = paramS.structureName.cropStructure;
