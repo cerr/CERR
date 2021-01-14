@@ -6,7 +6,7 @@ function [maskOut3M, planC] = getLargestConnComps(strNum,numConnComponents,planC
 % INPUTS
 % strNum             : Structure no.
 % numConnComponents  : No. largest connected components to retain.
-% planC          
+% planC
 % ------------------------------------------------------------------------
 % Example usage:
 % strNum = 1;
@@ -19,24 +19,27 @@ function [maskOut3M, planC] = getLargestConnComps(strNum,numConnComponents,planC
 
 [mask3M,planC] = getStrMask(strNum,planC);
 
-cc = bwconncomp(mask3M,26);
-ccSiz = cellfun(@numel,[cc.PixelIdxList]);
-%sel = ccSiz==max(ccSiz);
-
-[~,rankV] = sort(ccSiz,'descend');
-if length(rankV) > numConnComponents
-    selV = rankV(1:numConnComponents);
+if sum(mask3M(:))>1
+    cc = bwconncomp(mask3M,26);
+    ccSiz = cellfun(@numel,[cc.PixelIdxList]);
+    %sel = ccSiz==max(ccSiz);
+    
+    [~,rankV] = sort(ccSiz,'descend');
+    if length(rankV) > numConnComponents
+        selV = rankV(1:numConnComponents);
+    else
+        selV = rankV(1:end);
+    end
+    
+    idxV = [];
+    for n = 1:length(selV)
+        idxV = [idxV;cc.PixelIdxList{selV(n)}];
+    end
+    
+    maskOut3M = false(size(mask3M));
+    maskOut3M(idxV) = true;
 else
-    selV = rankV(1:end);
+    maskOut3M = mask3M;
 end
 
-idxV = [];
-for n = 1:length(selV)
-    idxV = [idxV;cc.PixelIdxList{selV(n)}];
 end
-
-maskOut3M = false(size(mask3M));
-maskOut3M(idxV) = true;
-
-end
-

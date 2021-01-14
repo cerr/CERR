@@ -51,8 +51,11 @@ if ~isempty(slicesV)
     end
     
     %Smooth
-    smoothedlabel3M = smooth3(double(strMask3M),'box',filtSize);
-    strMask3M = smoothedlabel3M > 0.5;
+    if size(strMask3M,3)>1
+        smoothedlabel3M = smooth3(double(strMask3M),'box',filtSize);
+        strMask3M = smoothedlabel3M > 0.5;
+    end
+    
     label3M(:,:,slicesV) = strMask3M;
     
 end
