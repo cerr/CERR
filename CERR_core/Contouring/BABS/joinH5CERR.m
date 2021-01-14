@@ -1,4 +1,4 @@
-function success = joinH5CERR(cerrPath,segMask3M,scanNum,userOptS)
+function success = joinH5CERR(cerrPath,segMask3M,labelPath,scanNum,userOptS)
 %
 % This function merges the segmentations from the respective algorithm back
 % into the original CERR file
@@ -9,6 +9,7 @@ function success = joinH5CERR(cerrPath,segMask3M,scanNum,userOptS)
 % INPUTS:
 %   cerrPath          : Path to the original CERR file to be segmented
 %   segMask3M         : Mask returned after segmentation
+%   labelPath         : Path to JSON file with structure-to-label map
 %   userOptS          : User options read from configuration file
 
 
@@ -20,7 +21,7 @@ planC = planC.planC;
 indexS = planC{end};
 
 %% Import mask
-planC  = joinH5planC(scanNum,segMask3M,userOptS,planC);
+planC  = joinH5planC(scanNum,segMask3M,labelPath,userOptS,planC);
 
 %% Post-process segmentations
 if sum(segMask3M(:))>0 
