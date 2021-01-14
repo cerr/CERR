@@ -190,7 +190,11 @@ switch upper(vr)
         end
         data = [];
         for i=0:nElements-1
-            data.(['Item_' num2str(i+1)]) = getTagStruct(el.get(i)); %CHANGE THIS TOO IMPORTANT
+            a = getTagStruct(el.get(i)); %CHANGE THIS TOO IMPORTANT
+            if ~isempty(a)
+                b =  char(fieldnames(a));
+                data.('Item_1').(b) = a.(b); %CHANGE THIS TOO IMPORTANT
+            end
         end
     case 'SS'
         %Needs implementation
