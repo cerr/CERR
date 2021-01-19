@@ -39,7 +39,7 @@ end
 
 % Get the path of the directory to be selected for import.
 dirPath = uigetdir(pwd','Select the DICOM directory to scan:');
-pause(0.1);
+%pause(0.1);
 
 if ~dirPath
     disp('DICOM import aborted');
@@ -50,17 +50,18 @@ tic;
 
 % Read options file
 pathStr = getCERRPath;
-optName = [pathStr 'CERROptions.json'];
+optName = [pathStr,'CERROptions.json'];
 optS = opts4Exe(optName);
 
-hWaitbar = waitbar(0,'Scanning Directory Please wait...');
-CERRStatusString('Scanning DICOM directory');
+%hWaitbar = waitbar(0,'Scanning Directory Please wait...');
+%CERRStatusString('Scanning DICOM directory');
+disp('CERR>>  Scanning DICOM directory')
 
 dcmdirS = [];
 patientNum = 1;
 excludePixelDataFlag = true;
 
-patient = scandir_mldcm(dirPath, hWaitbar, 1, excludePixelDataFlag);
+patient = scandir_mldcm(dirPath, excludePixelDataFlag);
 if ~isempty(patient)
     for j = 1:length(patient.PATIENT)
         dcmdirS.(['patient_' num2str(patientNum)]) = patient.PATIENT(j);
@@ -73,7 +74,7 @@ if isfield(optS,'importDICOMsubDirs') && strcmpi(optS.importDICOMsubDirs,'yes') 
     
     for i = 1:length(dirsInCurDir)
         %     patient = scandir_mldcm(fullfile(dirPath, dirs(i).name), hWaitbar, i);
-        patient = scandir_mldcm(dirsInCurDir(i).fullpath, hWaitbar, i, excludePixelDataFlag);
+        patient = scandir_mldcm(dirsInCurDir(i).fullpath, excludePixelDataFlag);
         if ~isempty(patient)
             for j = 1:length(patient.PATIENT)
                 dcmdirS.(['patient_' num2str(patientNum)]) = patient.PATIENT(j);
@@ -84,14 +85,16 @@ if isfield(optS,'importDICOMsubDirs') && strcmpi(optS.importDICOMsubDirs,'yes') 
 end
 
 if isempty(dcmdirS)
-    close(hWaitbar);
+    %close(hWaitbar);
     msgbox('There is no dicom data!','Application Info','warn');
     return;
 end
 
-close(hWaitbar);
+%close(hWaitbar);
 
-selected = showDCMInfo(dcmdirS);
+mergeScansFlag = 'No'; % define it in CERROptions?
+%selected = showDCMInfo(dcmdirS);
+selected = 'all';
 patNameC = fieldnames(dcmdirS);
 if isempty(selected)
     return
@@ -114,10 +117,10 @@ elseif strcmpi(selected,'all')
         end
     end
     % Pass the java dicom structures to function to create CERR plan
-    planC = dcmdir2planC(combinedDcmdirS);
+    planC = dcmdir2planC(combinedDcmdirS,mergeScansFlag,optS);
 else
     % Pass the java dicom structures to function to create CERR plan
-    planC = dcmdir2planC(dcmdirS.(selected)); %wy
+    planC = dcmdir2planC(dcmdirS.(selected),mergeScansFlag,optS); %wy
 end
 
 indexS = planC{end};

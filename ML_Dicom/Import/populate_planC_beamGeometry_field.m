@@ -51,7 +51,8 @@ tags.nimages = nbeams;
 for i=1:nbeams
     beamGeometryInitS(1,i).imageType            = type;
     try
-        temp_value = [getfield(beamsInitS, 'PatientName', 'GivenName') ', ' getfield(beamsInitS, 'PatientName', 'FamilyName')];
+        %temp_value = [getfield(beamsInitS, 'PatientName', 'GivenName') ', ' getfield(beamsInitS, 'PatientName', 'FamilyName')];
+        temp_value = beamsInitS.PatientName;
         if ~isempty(temp_value)
             beamGeometryInitS(1,i).patientName  = temp_value;
         end

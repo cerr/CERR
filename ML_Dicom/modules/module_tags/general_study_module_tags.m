@@ -47,13 +47,15 @@ function tagS = general_study_module_tags
 
 tagC = {'0020000D','00080020','00080030','00080090','00080096','00200010',...
 '00080050','00081030','00081048','00081049','00081060','00081062','00081110','00081032'};
+tagDecC = {2097165, 524320, 524336, 524432, 524438, 2097168, 524368, ...
+    528432, 528456, 528457, 528480, 528482, 528656, 528434};
 tagTypeC = {'1','2','2','2','3','2','2','3','3','3','3','3','3','3'};
-child1S = struct('tag',{'00081150','00081155'},'type',{'1C','1C'},'children',{[],[]});
+child1S = struct('tag',{'00081150','00081155'},'tagdec',{528720,528725},'type',{'1C','1C'},'children',{[],[]});
 childC = {[],[],[],[],person_identification_macro_tags,[],[],[],...
 [],person_identification_macro_tags,[],person_identification_macro_tags,...
 child1S,code_sequence_macro_tags};
 
-tagS = struct('tag',tagC,'type',tagTypeC,'children',childC);
+tagS = struct('tag',tagC,'tagdec',tagDecC,'type',tagTypeC,'children',childC);
 
 
 % 

@@ -48,13 +48,15 @@ if ~exist('excludePixelDataFlag','var')
 end
 
 %Create a java file object associated with this filename
-ifile = java.io.File(filename);
+%ifile = java.io.File(filename);
+ifile = javaObject("java.io.File",filename);
 
 isDcm  = int8(1); % need to force as int
 
 %Create a DicomInputStream to read this input file.
 try
-    in = org.dcm4che3.io.DicomInputStream(ifile);
+    %in = org.dcm4che3.io.DicomInputStream(ifile);
+    in = javaObject("org.dcm4che3.io.DicomInputStream",ifile);
 catch
     isDcm = 0;
     attrData = [];
@@ -69,7 +71,8 @@ end
 try
     % get attributes data from file
     if excludePixelDataFlag
-        attrData = in.readDataset(-1, hex2dec('7FE00010')); % org.dcm4che3.data.Tag.PixelData
+        %attrData = in.readDataset(-1, hex2dec('7FE00010')); % org.dcm4che3.data.Tag.PixelData
+        attrData = in.readDataset(-1, 2.145386512000000e+09); % org.dcm4che3.data.Tag.PixelData
     else
         %in.setIncludeBulkData(in.getIncludeBulkData.NO);
         attrData = in.readDataset(-1, -1);
@@ -79,7 +82,7 @@ try
     attrFMI = in.readFileMetaInformation();
     attrData.addAll(attrFMI);
     
-    if attrData.isempty
+    if attrData.isEmpty
         isDcm = 0;
     end
 catch
@@ -87,7 +90,7 @@ catch
     attrData = [];
 end
 %Close input stream.
-in.close
+in.close;
 
 
 %Do we need to explicitly delete the invalid attribute?  Possibly.

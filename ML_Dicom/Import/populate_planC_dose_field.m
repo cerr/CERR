@@ -59,7 +59,8 @@ switch fieldname
         
     case 'imageNumber'
         %Currently undefined.
-        maxDose = []; RTPlanUID = []; % Reset to avoid junk value
+        maxDose = []; 
+        RTPlanUID = []; % Reset to avoid junk value
         
     case 'imageType'
         dataS = 'DOSE';
@@ -69,14 +70,26 @@ switch fieldname
         
     case 'patientName'
         %Patient's Name
-        dataS = getTagValue(attr, '00100010');
+        %dataS = getTagValue(attr, '00100010');
+        %nameObj = org.dcm4che3.data.PersonName(attr.getString(org.dcm4che3.data.Tag.PatientName));
+        nameObj = javaObject('org.dcm4che3.data.PersonName',attr.getString(1048592));
+        compFamilyName = javaMethod('valueOf','org.dcm4che3.data.PersonName$Component','FamilyName');
+        compGivenName = javaMethod('valueOf','org.dcm4che3.data.PersonName$Component','GivenName');
+        compMiddleName = javaMethod('valueOf','org.dcm4che3.data.PersonName$Component','MiddleName');       
+        dataS = [char(nameObj.get(compFamilyName)), '^',...
+            char(nameObj.get(compGivenName)), '^',...
+            char(nameObj.get(compMiddleName))];   
+        % Check whether joining given, middle and family names is ok
+         
         
     case 'doseNumber'
         %Currently undefined.
         
     case 'doseType'
         %Dose Type
-        dT = getTagValue(attr, '30040004');
+        %dT = getTagValue(attr, '30040004');
+        %dT = char(attr.getStrings(org.dcm4che3.data.Tag.DoseType)); %CS
+        dT = char(attr.getString(805568516,0)); %CS
         
         switch upper(dT)
             case 'PHYSICAL'
@@ -91,17 +104,23 @@ switch fieldname
         end
         
     case 'doseSummationType'
-        dataS = getTagValue(attr, '3004000A');
+        %dataS = getTagValue(attr, '3004000A');
+        %dataS = char(attr.getStrings(org.dcm4che3.data.Tag.DoseSummationType)); %CS
+        dataS = char(attr.getString(805568522,0)); %CS
         
     case 'refBeamNumber'
         %Use getValue instead of get
-        rtplanSeq = attr.getValue(hex2dec('300C0002'));
+        %rtplanSeq = attr.getValue(hex2dec('300C0002'));
+        %rtplanSeq = attr.getValue(org.dcm4che3.data.Tag.ReferencedRTPlanSequence);
+        rtplanSeq = attr.getValue(806092802);
         if isempty(rtplanSeq)
             return;
         end
         %Find attribute in first position of sequence
         artpSeq = rtplanSeq.get(0);
-        fractionGroupSeq = artpSeq.getValue(hex2dec('300C0020'));
+        %fractionGroupSeq = artpSeq.getValue(hex2dec('300C0020'));
+        %fractionGroupSeq = artpSeq.getValue(org.dcm4che3.data.Tag.ReferencedFractionGroupSequence);
+        fractionGroupSeq = artpSeq.getValue(806092832);
         if isempty(fractionGroupSeq)
             return;
         end
@@ -110,23 +129,32 @@ switch fieldname
         
         %replace with the following for dcm4che3
         aFractionGroupSeq = fractionGroupSeq.get(0);
-        beamSeq = aFractionGroupSeq.getValue(hex2dec('300C0004'));
+        %beamSeq = aFractionGroupSeq.getValue(hex2dec('300C0004'));
+        %beamSeq = aFractionGroupSeq.getValue(org.dcm4che3.data.Tag.ReferencedBeamSequence);
+        beamSeq = aFractionGroupSeq.getValue(806092804);
         if isempty(beamSeq)
             return;
         end
         numBeams = beamSeq.size;
         if numBeams > 0
             aBeamSeq = beamSeq.get(0);
-            dataS = getTagValue(aBeamSeq,'300C0006');
+            %dataS = getTagValue(aBeamSeq,'300C0006');
+            %dataS = aBeamSeq.getInts(org.dcm4che3.data.Tag.ReferencedBeamNumber);
+            dataS = aBeamSeq.getInts(806092806);
         end
         
     case 'refFractionGroupNumber'
-        rtplanSeq = attr.getValue(hex2dec('300C0002'));
+        %rtplanSeq = attr.getValue(hex2dec('300C0002'));
+        %rtplanSeq = attr.getValue(org.dcm4che3.data.Tag.ReferencedRTPlanSequence);
+        rtplanSeq = attr.getValue(806092802);
+        
         if isempty(rtplanSeq)
             return;
         end
         artpSeq = rtplanSeq.get(0);
-        fractionGroupSeq = artpSeq.getValue(hex2dec('300C0020'));
+        %fractionGroupSeq = artpSeq.getValue(hex2dec('300C0020'));
+        %fractionGroupSeq = artpSeq.getValue(org.dcm4che3.data.Tag.ReferencedFractionGroupSequence);
+        fractionGroupSeq = artpSeq.getValue(806092832);
         if isempty(fractionGroupSeq)
             return;
         end
@@ -134,14 +162,20 @@ switch fieldname
         %empty, it is assumed that size is gretaer than zero
         
         aFractionGroupSeq = fractionGroupSeq.get(0);
-        dataS = getTagValue(aFractionGroupSeq, '300C0022');
+        %dataS = getTagValue(aFractionGroupSeq, '300C0022');
+        %dataS = aFractionGroupSeq.getInts(org.dcm4che3.data.Tag.ReferencedFractionGroupNumber);
+        dataS = aFractionGroupSeq.getInts(806092834);
         
     case 'numberMultiFrameImages'
-        dataS = getTagValue(attr, '00280008');
+        %dataS = getTagValue(attr, '00280008');
+        %dataS = attr.getInts(org.dcm4che3.data.Tag.NumberOfFrames);
+        dataS = attr.getInts(2621448);
         
     case 'doseUnits'
         %Dose Units
-        dU = getTagValue(attr, '30040002');
+        %dU = getTagValue(attr, '30040002');
+        %dU = char(attr.getStrings(org.dcm4che3.data.Tag.DoseUnits));
+        dU = char(attr.getString(805568514,0));
         
         switch upper(dU)
             case {'GY', 'GYS', 'GRAYS', 'GRAY'}
@@ -152,7 +186,10 @@ switch fieldname
         
     case 'doseScale'
         %Dose Grid Scaling. Imported, not indicative of CERR's representation.
-        dataS = getTagValue(attr, '3004000E');
+        %dataS = getTagValue(attr, '3004000E');
+        %dataS = attr.getDoubles(org.dcm4che3.data.DoseGridScaling); %
+        %DoseGridScaling missing in dcm4che3
+        dataS = attr.getDoubles(805568526); %hex2dec('3004000E')
         
     case 'fractionGroupID' %Needs implementation, paired with RTPLAN
         if ~isempty(rtPlans)
@@ -160,10 +197,13 @@ switch fieldname
             
             dataS = RTPlanLabel;
         else
-            DoseSummationType = getTagValue(attr, '3004000A');
-            dU = getTagValue(attr, '30040002');
-            maxDose = num2str(maxDose);
-            dataS = [DoseSummationType '_' maxDose '_' dU];
+            %DoseSummationType = getTagValue(attr, '3004000A');
+            %DoseSummationType = char(attr.getStrings(org.dcm4che3.data.Tag.DoseSummationType));
+            DoseSummationType = char(attr.getString(805568522,0));
+            %dU = getTagValue(attr, '30040002');
+            %dU = char(attr.getStrings(org.dcm4che3.data.Tag.DoseUnits));
+            dU = char(attr.getString(805568514,0));
+            dataS = [DoseSummationType, '_', num2str(maxDose), '_', dU];
         end
         
     case 'assocBeamUID'
@@ -177,11 +217,15 @@ switch fieldname
         dataS = 'TRANSVERSE';
         
     case 'imagePositionPatient'
-        dataS  = getTagValue(attr, '00200032');
+        %dataS  = getTagValue(attr, '00200032');
+        %dataS  = attr.getDoubles(org.dcm4che3.data.Tag.ImagePositionPatient);
+        dataS  = attr.getDoubles(2097202);
         
     case 'imageOrientationPatient'
         %Image Orientation
-        dataS  = getTagValue(attr, '00200037');
+        %dataS  = getTagValue(attr, '00200037');
+        %dataS = attr.getDoubles(org.dcm4che3.data.Tag.ImageOrientationPatient);
+        dataS = attr.getDoubles(2097207);
         
     case 'numberRepresentation'
         %Artifact of RTOG, not indicative of CERR's representation
@@ -194,27 +238,41 @@ switch fieldname
         
     case 'sizeOfDimension1'
         %Columns
-        dataS = getTagValue(attr, '00280011');
+        %dataS = getTagValue(attr, '00280011');
+        %dataS = attr.getInt(org.dcm4che3.data.Tag.Columns,0);
+        dataS = attr.getInt(2621457,0);
         
     case 'sizeOfDimension2'
         %Rows
-        dataS = getTagValue(attr, '00280010');
+        %dataS = getTagValue(attr, '00280010');
+        %dataS = attr.getInt(org.dcm4che3.data.Tag.Rows,0);
+        dataS = attr.getInt(2621456,0);
         
     case 'sizeOfDimension3'
         %Number of Frames
-        dataS = getTagValue(attr, '00280008');
+        %dataS = getTagValue(attr, '00280008');
+        %dataS = attr.getInts(org.dcm4che3.data.Tag.NumberOfFrames);
+        dataS = attr.getInts(2621448);
         
     case 'coord1OFFirstPoint'
         %Image Position (Patient)
-        iPP = getTagValue(attr, '00200032');
+        %iPP = getTagValue(attr, '00200032');
+        %iPP = attr.getDoubles(org.dcm4che3.data.Tag.ImagePositionPatient);
+        iPP = attr.getDoubles(2097202);
         
         %Pixel Spacing
-        pixspac = getTagValue(attr, '00280030');
+        %pixspac = getTagValue(attr, '00280030');
+        %pixspac = attr.getDoubles(org.dcm4che3.data.Tag.PixelSpacing);
+        pixspac = attr.getDoubles(2621488);
         
         %Columns
-        nCols  = getTagValue(attr, '00280011');
+        %nCols  = getTagValue(attr, '00280011');
+        %nCols  = attr.getInt(org.dcm4che3.data.Tag.Columns,0);
+        nCols  = attr.getInt(2621457,0);
         
-        imgOriV = getTagValue(attr, '00200037');
+        %imgOriV = getTagValue(attr, '00200037');
+        %imgOriV = attr.getDoubles(org.dcm4che3.data.Tag.ImageOrientationPatient);
+        imgOriV = attr.getDoubles(2097207);
         
         % Check for oblique scan
         if max(abs((imgOriV(:) - [1 0 0 0 1 0]'))) < 1e-3
@@ -305,16 +363,23 @@ switch fieldname
         
     case 'coord2OFFirstPoint'
         %Image Position (Patient)
-        iPP = getTagValue(attr, '00200032');
+        %iPP = attr.getDoubles(org.dcm4che3.data.Tag.ImagePositionPatient);
+        iPP = attr.getDoubles(2097202);
         
         %Pixel Spacing
-        pixspac = getTagValue(attr, '00280030');
+        %pixspac = getTagValue(attr, '00280030');
+        %pixspac = attr.getDoubles(org.dcm4che3.data.Tag.PixelSpacing);
+        pixspac = attr.getDoubles(2621488);
         
-        %Rows
-        nRows = getTagValue(attr, '00280010');
+        %Columns
+        %nCols  = getTagValue(attr, '00280011');
+        %nRows  = attr.getInt(org.dcm4che3.data.Tag.Rows,0);
+        nRows  = attr.getInt(2621456,0);
         
-        imgOriV = getTagValue(attr, '00200037');
-        
+        %imgOriV = getTagValue(attr, '00200037');
+        %imgOriV = attr.getDoubles(org.dcm4che3.data.Tag.ImageOrientationPatient);
+        imgOriV = attr.getDoubles(2097207);
+                
         % Check for oblique scan
         isOblique = 0;
         if max(abs(abs(imgOriV(:)) - [1 0 0 0 1 0]')) > 1e-3
@@ -382,7 +447,9 @@ switch fieldname
         
     case 'horizontalGridInterval'
         %Pixel Spacing
-        pixspac = getTagValue(attr, '00280030');
+        %pixspac = getTagValue(attr, '00280030');
+        %pixspac = attr.getDoubles(org.dcm4che3.data.Tag.PixelSpacing);
+        pixspac = attr.getDoubles(2621488);
         dataS = abs(pixspac(2)) / 10;
         
         %         %Convert from DICOM mm to CERR cm.
@@ -399,7 +466,9 @@ switch fieldname
         
     case 'verticalGridInterval'
         %Pixel Spacing
-        pixspac = getTagValue(attr, '00280030');
+        %pixspac = getTagValue(attr, '00280030');
+        %pixspac = attr.getDoubles(org.dcm4che3.data.Tag.PixelSpacing);
+        pixspac = attr.getDoubles(2621488);
         dataS = -abs(pixspac(1)) / 10;
         
         %         %Convert from DICOM mm to CERR cm, negate to match CERR Y dir.
@@ -425,15 +494,18 @@ switch fieldname
     case 'studyNumberOfOrigin'
         
     case 'studyInstanceUID'
-        dataS  = getTagValue(attr, '0020000D');
+        %dataS  = getTagValue(attr, '0020000D');
+        %dataS = char(attr.getStrings(org.dcm4che3.data.Tag.StudyInstanceUID));
+        dataS = char(attr.getString(2097165,0));
         
     case 'versionNumberOfProgram'
     case 'xcoordOfNormaliznPoint'
         %Type 3 field, may not exist.
-        if attr.contains(hex2dec('30040008'))
+        if attr.contains(805568520) %org.dcm4che3.data.Tag.NormalizationPoint % hex2dec('30040008')
             
             %Normalization Point
-            nP  = getTagValue(attr, '30040008');
+            %nP  = getTagValue(attr, '30040008');
+            nP = attr.getDoubles(805568520);
             
             %Convert from DICOM mm to CERR cm.
             dataS = nP(1) / 10;
@@ -441,10 +513,11 @@ switch fieldname
         
     case 'ycoordOfNormaliznPoint'
         %Type 3 field, may not exist.
-        if attr.contains(hex2dec('30040008'));
+        if attr.contains(805568520) %org.dcm4che3.data.Tag.NormalizationPoint
             
             %Normalization Point
-            nP  = getTagValue(attr, '30040008');
+            %nP  = getTagValue(attr, '30040008');
+            nP = attr.getDoubles(805568520);
             
             %Convert from DICOM mm to CERR cm.
             dataS = nP(2) / 10;
@@ -452,10 +525,11 @@ switch fieldname
         
     case 'zcoordOfNormaliznPoint'
         %Type 3 field, may not exist.
-        if attr.contains(hex2dec('30040008'));
+        if attr.contains(805568520) %org.dcm4che3.data.Tag.NormalizationPoint
             
             %Normalization Point
-            nP  = getTagValue(attr, '30040008');
+            %nP  = getTagValue(attr, '30040008');
+            nP = attr.getDoubles(805568520);
             
             %Convert from DICOM mm to CERR cm.
             dataS = nP(3) / 10;
@@ -468,21 +542,27 @@ switch fieldname
     case 'planIDOfOrigin'
     case 'doseArray'
         %Bits Allocated
-        bA = getTagValue(attr, '00280100');
+        %bA = getTagValue(attr, '00280100');
+        %bA = attr.getInt(org.dcm4che3.data.Tag.BitsAllocated,0);
+        bA = attr.getInt(2621696,0);
         
         %Pixel Representation
-        pixRep = getTagValue(attr, '00280103');
+        %pixRep = getTagValue(attr, '00280103');
+        %pixRep = attr.getInt(org.dcm4che3.data.Tag.PixelRepresentation,0);
+        pixRep = attr.getInt(2621699,0);
         
-        transferSyntaxUID = getTagValue(attr,'00020010');
+        %transferSyntaxUID = getTagValue(attr,'00020010');
         
-        doseType = getTagValue(attr,'30040004');
+        %doseType = getTagValue(attr,'30040004');
         
         mread = 0;
         %wy Pixel Data
         try
             
             % doseV = uint16(getTagValue(attr, '7FE00010'));
-            doseV = getTagValue(attr, '7FE00010');
+            %doseV = getTagValue(attr, '7FE00010');
+            %doseV = cast(attr.getInts(org.dcm4che3.data.Tag.PixelData),'int16'); %OW
+            doseV = cast(attr.getInts(2.145386512000000e+09),'int16'); %OW
             
             switch pixRep
                 case 0
@@ -530,63 +610,73 @@ switch fieldname
             
         catch
             doseV = dicomread(DOSE.file);
-            doseV = squeeze(doseV);
+            doseV = single(squeeze(doseV));
             mread = 1;
         end
         
         %Dose Grid Scaling
-        dGS = getTagValue(attr, '3004000E');
+        %dGS = getTagValue(attr, '3004000E');
+        %dGS = attr.getDoubles(org.dcm4che3.data.Tag.DoseGridScaling);
+        dGS = attr.getDoubles(805568526);
         
         %Columns
-        nCols = getTagValue(attr, '00280011');
+        %nCols = getTagValue(attr, '00280010');
+        %nCols = attr.getInt(org.dcm4che3.data.Tag.Columns,0);
+        nCols = attr.getInt(2621457,0);
         
         %Rows
-        nRows = getTagValue(attr, '00280010');
+        %nRows = getTagValue(attr, '00280011');
+        %nRows = attr.getInt(org.dcm4che3.data.Tag.Rows,0);
+        nRows = attr.getInt(2621456,0);
         
         %Number of Frames
-        nSlcs = getTagValue(attr ,'00280008');
+        %nSlcs = getTagValue(attr ,'00280008');
+        %nSlcs = attr.getInts(org.dcm4che3.data.Tag.NumberOfFrames);
+        nSlcs = attr.getInts(2621448);
         
         %Rescale dose to get real dose values.
         doseV = single(doseV) * dGS;
         
         %Reshape to 3D matrix.
         if mread
-            dose3 = reshape(doseV, [nRows nCols nSlcs]);
+            dataS = reshape(doseV, [nRows,nCols,nSlcs]);
         else
-            dose3 = reshape(doseV, [nCols nRows nSlcs]);
+            dataS = reshape(doseV, [nCols,nRows,nSlcs]);
+            %Permute dimensions x and y
+            dataS = permute(dataS, [2,1,3]);
         end
         clear doseV;
-        
-        %Permute dimensions x and y.
-        if ~mread
-            dose3 = permute(dose3, [2 1 3]);
-        end
-        dataS = dose3;
-        
-        imgOriV = getTagValue(attr, '00200037');
+                
+        %imgOriV = getTagValue(attr, '00200037');
+        %imgOriV = attr.getDoubles(org.dcm4che3.data.Tag.ImageOrientationPatient);
+        imgOriV = attr.getDoubles(2097207);
         if (imgOriV(1)==-1)
-            dataS = flipdim(dataS, 2);
+            dataS = flip(dataS, 2);
         end
         
         if (imgOriV(5)==-1)
-            dataS = flipdim(dataS, 1);
+            dataS = flip(dataS, 1);
         end
         
         if (max(abs((imgOriV(:) - [-1 0 0 0 -1 0]'))) < 1e-3 ||...
                 max(abs((imgOriV(:) - [1 0 0 0 -1 0]'))) < 1e-3) %HFP or FFP
             %dataS = flipdim(dataS, 2);
-            dataS = flipdim(dataS, 1); %APA change
+            dataS = flip(dataS, 1); %APA change
         end
         if max(abs((imgOriV(:) - [-1 0 0 0 -1 0]'))) < 1e-3 %HFP
-            dataS = flipdim(dataS, 2); % 1/3/2017
+            dataS = flip(dataS, 2); % 1/3/2017
         end
         
         maxDose = max(dataS(:));
         
     case 'zValues'
         %Image Position (Patient)
-        iPP = getTagValue(attr, '00200032');
-        imgOriV = getTagValue(attr, '00200037');
+        %iPP = getTagValue(attr, '00200032');
+        %imgOriV = getTagValue(attr, '00200037');
+        %iPP = attr.getDoubles(org.dcm4che3.data.Tag.ImagePositionPatient);
+        iPP = attr.getDoubles(2097202);
+        %imgOriV = attr.getDoubles(org.dcm4che3.data.Tag.ImageOrientationPatient);
+        imgOriV = attr.getDoubles(2097207);
         
         % Check if oblique
         isOblique = 0;
@@ -602,16 +692,22 @@ switch fieldname
         %         end
         %APA commented ends
         %Frame Increment Pointer
-        fIP = getTagValue(attr, '00280009');
+        %fIP = getTagValue(attr, '00280009');
+        %fIP = attr.getValue(org.dcm4che3.data.Tag.FrameIncrementPointer); % check this
         
-        if size(fIP,1) == 2
-            fIP = [fIP(1,:) fIP(2,:)]; %added DK to make fIP a size of 1.
-        end
+        %if size(fIP,1) == 2
+        %    fIP = [fIP(1,:) fIP(2,:)]; %added DK to make fIP a size of 1.
+        %end
         
         %Follow pointer to attribute containing zValues, usually Grid Frame Offset Vector
         
         try
-            gFOV = getTagValue(attr, fIP);
+            % Assume that dose distribution is encoded as a multi-frame
+            % image and GridFrameOffsetVector is present
+            % (http://dicom.nema.org/medical/Dicom/2017c/output/chtml/part03/sect_C.8.8.3.2.html)
+            %gFOV = getTagValue(attr, fIP);
+            %gFOV = attr.getDoubles(org.dcm4che3.data.Tag.GridFrameOffsetVector);
+            gFOV = attr.getDoubles(805568524);
             if ((imgOriV(1)==-1) || (imgOriV(5)==-1)) && ...
                     ~(max(abs((imgOriV(:) - [-1 0 0 0 -1 0]'))) < 1e-3) %Not HFP
                 gFOV = - gFOV;
@@ -662,7 +758,8 @@ switch fieldname
         %dataS = char(dcmobj.getString(org.dcm4che2.data.Tag.FrameofReferenceUID));
         %         dataS = dcm2ml_Element(dcmobj.get(hex2dec('00080018'))); % SOP instance UID
         %         dataS = dcm2ml_Element(dcmobj.get(hex2dec('00200052'))); % Frame of Reference UID
-        dataS.forUID = getTagValue(attr, '00200052'); % Frame of Reference UID
+        %dataS.forUID = getTagValue(attr, '00200052'); % Frame of Reference UID
+        %dataS.forUID = char(attr.getStrings(org.dcm4che3.data.Tag.FrameOfReferenceUID));
         %         rtplanSeq = dcmobj.get(hex2dec('300C0002'));
         %         artpSeq = rtplanSeq.getDicomObject(0);
         %         rtplanML = dcm2ml_Object(artpSeq);
@@ -672,14 +769,20 @@ switch fieldname
 
         
     case 'frameOfReferenceUID'
-        dataS = getTagValue(attr, '00200052'); % Frame of Reference UID
+        %dataS = getTagValue(attr, '00200052'); % Frame of Reference UID
+        %dataS = char(attr.getStrings(org.dcm4che3.data.Tag.FrameOfReferenceUID));
+        dataS = char(attr.getString(2097234,0));
         
     case 'refStructSetSopInstanceUID'
         
         dataS = '';
 
-        referencedRTPlanSequence = getTagValue(attr, '300C0002');
-        referencedPlanSOPInstanceUID = referencedRTPlanSequence.Item_1.ReferencedSOPInstanceUID;
+        %referencedRTPlanSequence = getTagValue(attr, '300C0002');
+        %referencedRTPlanSequence = attr.getValue(org.dcm4che3.data.Tag.ReferencedRTPlanSequence);
+        referencedRTPlanSequence = attr.getValue(806092802);
+        %referencedPlanSOPInstanceUID = referencedRTPlanSequence.Item_1.ReferencedSOPInstanceUID;
+        %referencedPlanSOPInstanceUID = char(referencedRTPlanSequence.get(0).getStrings(org.dcm4che3.data.Tag.ReferencedSOPInstanceUID));
+        referencedPlanSOPInstanceUID = char(referencedRTPlanSequence.get(0).getString(528725,0));
         numChars = length(referencedPlanSOPInstanceUID);
         for iPlan = 1:length(rtPlans)
             if strncmp(rtPlans(iPlan).SOPInstanceUID, referencedPlanSOPInstanceUID, numChars)
@@ -692,7 +795,9 @@ switch fieldname
         
     case 'dvhsequence'
         %Get DVH Sequence.
-        dataS = getTagValue(attr, '30040050');
+        %dataS = getTagValue(attr, '30040050');
+        %dataS = attr.getValue(org.dcm4che3.data.Tag.DVHSequence);
+        dataS = attr.getValue(805568592);
         
     otherwise
         %         warning(['DICOM Import has no methods defined for import into the planC{indexS.dose}.' fieldname ' field, leaving empty.']);
@@ -704,10 +809,12 @@ end
         RTPlanLabel = ''; RTPlanUID = '';
         
         try
-            ReferencedRTPlanSequence = getTagValue(attr, '300C0002');
+            %ReferencedRTPlanSequence = getTagValue(attr, '300C0002');
+            %ReferencedRTPlanSequence = attr.getValue(org.dcm4che3.data.Tag.ReferencedRTPlanSequence);
+            ReferencedRTPlanSequence = attr.getValue(806092802);
             
             for i = 1:length(rtPlans)
-                if strmatch(rtPlans(i).SOPInstanceUID, ReferencedRTPlanSequence.Item_1.ReferencedSOPInstanceUID)
+                if strcmpi(rtPlans(i).SOPInstanceUID, ReferencedRTPlanSequence.Item_1.ReferencedSOPInstanceUID)
                     RTPlanLabel = rtPlans(i).RTPlanLabel;
                     RTPlanUID = rtPlans(i).BeamUID;
                 end
@@ -719,15 +826,21 @@ end
     function assocScanUID = getAssocScanUID(attr,ssObj)
         %commented by wy
         %Referenced Frame of Reference Sequence
-        referencedSeq = attr.getValue(hex2dec('30060010'));
+        %referencedSeq = attr.getValue(hex2dec('30060010'));
+        %referencedSeq = attr.getValue(org.dcm4che3.data.Tag.ReferencedFrameOfReferenceSequence);
+        referencedSeq = attr.getValue(805699600);
         
         %Frame of Reference UID
-        refUID = getTagValue(ssObj, '30060024');
+        %refUID = getTagValue(ssObj, '30060024');
+        %refUID = char(ssObj.getStrings(org.dcm4che3.data.Tag.ReferencedFrameOfReferenceUID));
+        refUID = char(ssObj.getString(805699620,0));
         
         %Find the series referenced by these contours.  See bottom of file.
         refSerSeq = getReferencedSeriesSequence(referencedSeq, refUID);
         
-        assocScanUID = getTagValue(refSerSeq,'0020000E');
+        %assocScanUID = getTagValue(refSerSeq,'0020000E');
+        %assocScanUID = char(refSerSeq.getStrings(org.dcm4che3.data.Tag.SeriesInstanceUID));
+        assocScanUID = char(refSerSeq.getString(2097166,0));
         
         assocScanUID = ['CT.',assocScanUID];
         

@@ -31,7 +31,7 @@ function tagS = digital_signatures_macro_tags
 % along with CERR.  If not, see <http://www.gnu.org/licenses/>.
 
 %Initialize the tagS structure.
-tagS = struct('tag', {}, 'type', {}, 'children', {});
+tagS = struct('tag', {}, 'tagdec', {}, 'type', {}, 'children', {});
 
 %Create an empty tagS template for sequence creation.
 template = tagS;
@@ -39,53 +39,53 @@ template = tagS;
 %Add tags based on PS3.3 attribute lists.
 
 %MAC Parameters Sequence
-tagS(end+1) = struct('tag', ['4FFE0001'], 'type', ['3'], 'children', []);
+tagS(end+1) = struct('tag', '4FFE0001', 'tagdec', 1.342046209000000e+09, 'type', '3', 'children', []);
 child_1 = template;
     
     %MAC ID Number
-    child_1(end+1) = struct('tag', ['04000005'], 'type', ['1'], 'children', []);
+    child_1(end+1) = struct('tag', '04000005', 'tagdec', 67108869, 'type', '1', 'children', []);
     
     %Mac Calculation Transfer Syntax UID
-    child_1(end+1) = struct('tag', ['04000010'], 'type', ['1'], 'children', []);    
+    child_1(end+1) = struct('tag', '04000010', 'tagdec', 67108880, 'type', '1', 'children', []);    
     
     %MAC Algorithm
-    child_1(end+1) = struct('tag', ['04000015'], 'type', ['1'], 'children', []);    
+    child_1(end+1) = struct('tag', '04000015', 'tagdec', 67108885, 'type', '1', 'children', []);    
     
     %Data Elements Signed
-    child_1(end+1) = struct('tag', ['04000020'], 'type', ['1'], 'children', []);        
+    child_1(end+1) = struct('tag', '04000020', 'tagdec', 67108896, 'type', '1', 'children', []);        
          
     tagS(end).children = child_1;
     
 %Digital Signatures Sequence
-tagS(end+1) = struct('tag', ['FFFAFFFA'], 'type', ['3'], 'children', []);
+tagS(end+1) = struct('tag', 'FFFAFFFA', 'tagdec', 4.294639610000000e+09, 'type', '3', 'children', []);
 child_1 = template;
 
     %MAC ID Number
-    child_1(end+1) = struct('tag', ['04000005'], 'type', ['1'], 'children', []);        
+    child_1(end+1) = struct('tag', '04000005', 'tagdec', 67108869, 'type', '1', 'children', []);        
     
     %Digital Signature UID
-    child_1(end+1) = struct('tag', ['04000100'], 'type', ['1'], 'children', []);            
+    child_1(end+1) = struct('tag', '04000100', 'tagdec', 67109120, 'type', '1', 'children', []);            
     
     %Digital Signature DateTime
-    child_1(end+1) = struct('tag', ['04000105'], 'type', ['1'], 'children', []);            
+    child_1(end+1) = struct('tag', '04000105', 'tagdec', 67109125, 'type', '1', 'children', []);            
     
     %Certificate Type
-    child_1(end+1) = struct('tag', ['04000110'], 'type', ['1'], 'children', []);        
+    child_1(end+1) = struct('tag', '04000110', 'tagdec', 67109136, 'type', '1', 'children', []);        
     
     %Certificate of Signer
-    child_1(end+1) = struct('tag', ['04000115'], 'type', ['1'], 'children', []);            
+    child_1(end+1) = struct('tag', '04000115', 'tagdec', 67109141, 'type', '1', 'children', []);            
     
     %Signature
-    child_1(end+1) = struct('tag', ['04000120'], 'type', ['1'], 'children', []);            
+    child_1(end+1) = struct('tag', '04000120', 'tagdec', 67109152, 'type', '1', 'children', []);            
     
     %Certified Timestamp Type
-    child_1(end+1) = struct('tag', ['04000305'], 'type', ['1C'], 'children', []);            
+    child_1(end+1) = struct('tag', '04000305', 'tagdec', 67109637, 'type', '1C', 'children', []);            
     
     %Certified Timestamp
-    child_1(end+1) = struct('tag', ['04000310'], 'type', ['3'], 'children', []);            
+    child_1(end+1) = struct('tag', '04000310', 'tagdec', 67109648, 'type', '3', 'children', []);            
     
     %Digital Signature Purpose Code Sequence
-    child_1(end+1) = struct('tag', ['04000401'], 'type', ['3'], 'children', []);            
+    child_1(end+1) = struct('tag', '04000401', 'tagdec', 67109889, 'type', '3', 'children', []);            
     
         %Include "code sequence macro"
         child_1(end).children = code_sequence_macro_tags;

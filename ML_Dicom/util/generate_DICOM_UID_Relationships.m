@@ -36,9 +36,11 @@ function planC = generate_DICOM_UID_Relationships(planC)
 % along with CERR.  If not, see <http://www.gnu.org/licenses/>.
 
 % Read CERROptions.json
-pathStr = getCERRPath;
-optName = [pathStr 'CERROptions.json'];
-optS = opts4Exe(optName);
+if ~exist('optName','var')
+    pathStr = getCERRPath;
+    optName = [pathStr,'CERROptions.json'];
+end
+optS = getCERROptions(optName);
 
 indexS = planC{end};
 

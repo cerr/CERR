@@ -59,9 +59,9 @@ global stateS
 indexS = planC{end};
 
 %Determine if we want 'save', or 'saveas...' behavior.
-if ~exist('saveflag')
+if ~exist('saveflag','var')
     saveflag = 'saveas';
-elseif ~strcmpi(saveflag, 'save') & ~strcmpi(saveflag, 'saveas') & ~strcmpi(saveflag, 'passed')
+elseif ~strcmpi(saveflag, 'save') && ~strcmpi(saveflag, 'saveas') && ~strcmpi(saveflag, 'passed')
     error('Incorrect call to save_planC.m');
 end
 
@@ -99,7 +99,7 @@ while permission == 0   %Use while statement in case permission to overwrite fil
                 cd(directory);
                 [fname pname] = uiputfile({'*.mat;*.mat.bz2;*mat.zip', 'CERR Plans (*.mat, *.mat.bz2, *.mat.zip)';'*.*', 'All Files (*.*)'},['Save the ' whichPlan ' data as:']);
                 cd(wd);
-                if isequal(fname,0) | isequal(pname,0)
+                if isequal(fname,0) || isequal(pname,0)
                     CERRStatusString('Save cancelled. Ready.');
                     return;
                 end
@@ -148,10 +148,12 @@ while permission == 0   %Use while statement in case permission to overwrite fil
         if strcmpi(ext(1), '.mat')
             zipFile     = 0;
             saveFile    = [roots{1} '.mat'];
-        elseif length(ext) > 2 & strcmpi(ext(1), '.tar') & (strcmpi(ext(2), '.bz2') || strcmpi(ext(2), '.zip')) & strcmpi(ext(3), '.mat')
+        elseif length(ext) > 2 && strcmpi(ext(1), '.tar') && ...
+                (strcmpi(ext(2), '.bz2') || strcmpi(ext(2), '.zip')) && strcmpi(ext(3), '.mat')
             zipFile     = 1;
             saveFile    = [roots{3} '.mat'];
-        elseif length(ext) > 1 & (strcmpi(ext(1), '.bz2') || strcmpi(ext(1), '.zip'))& strcmpi(ext(2), '.mat')
+        elseif length(ext) > 1 && (strcmpi(ext(1), '.bz2') || ...
+                strcmpi(ext(1), '.zip')) && strcmpi(ext(2), '.mat')
             zipFile     = 1;
             saveFile    = [roots{2} '.mat'];
         else
@@ -169,7 +171,7 @@ while permission == 0   %Use while statement in case permission to overwrite fil
         %[jnk1,jnk2,ext] = fileparts(stateS.CERRFile);
         %if ~strcmpi(ext,'bz2') || ~strcmpi(ext,'zip')
         extSave = ext;
-        indMat = strmatch('.mat',extSave);
+        indMat = strcmpi('.mat',extSave);
         extSave(indMat) = [];
         extSave = extSave{1};
         if ~strcmpi(extSave,'bz2') || ~strcmpi(extSave,'zip')
@@ -178,9 +180,9 @@ while permission == 0   %Use while statement in case permission to overwrite fil
             end
             extSave = stateS.optS.CompressType;
         end
-    elseif ~zipFile & strcmpi(saveflag, 'passed')
+    elseif ~zipFile && strcmpi(saveflag, 'passed')
         ans = 'no';
-    elseif ~zipFile & strcmpi(saveflag, 'saveas')
+    elseif ~zipFile && strcmpi(saveflag, 'saveas')
         ans = questdlg('Zip the .mat file using bz2/zip?');
         if ~isfield(stateS,'optS')
             stateS.optS = opts4Exe([getCERRPath,'CERROptions.json']);
@@ -294,7 +296,7 @@ CERRStatusString(['Saving ' name ext '...']);
 if zipFile
     name = [name '.mat'];
 end
-if length(filesLocal)>0 & ~exist(fullfile(pathstr,[name,'_store']))
+if length(filesLocal)>0 && ~exist(fullfile(pathstr,[name,'_store']))
     mkdir(fullfile(pathstr,[name,'_store']))
 elseif length(filesLocal) < 1
     try
@@ -311,15 +313,17 @@ end
 % delete unnecessary remote files in original plan that were created
 % temporarily
 for i = 1:length(remoteFullFile)
-    if isfield(stateS,'reqdRemoteFiles') && ~ismember(remoteFullFile{i},stateS.reqdRemoteFiles) && ~isequal(fileparts(remoteFullFile{i}),fullfile(pathstr,[name,'_store']))
+    if isfield(stateS,'reqdRemoteFiles') && ~ismember(remoteFullFile{i},stateS.reqdRemoteFiles) && ...
+            ~isequal(fileparts(remoteFullFile{i}),fullfile(pathstr,[name,'_store']))
         delete(remoteFullFile{i})
     end
 end
 
 %delete unnecessary remote files in original plan that changed
-if ~isempty(stateS) & isfield(stateS,'reqdRemoteFiles')
+if ~isempty(stateS) && isfield(stateS,'reqdRemoteFiles')
     for i = 1:length(stateS.reqdRemoteFiles)
-        if ~ismember(stateS.reqdRemoteFiles(i),remoteFullFile) & isequal(fileparts(stateS.reqdRemoteFiles{i}),fullfile(pathstr,[name,'_store']))
+        if ~ismember(stateS.reqdRemoteFiles(i),remoteFullFile) && ...
+                isequal(fileparts(stateS.reqdRemoteFiles{i}),fullfile(pathstr,[name,'_store']))
             delete(stateS.reqdRemoteFiles{i})
         end
     end
@@ -334,7 +338,7 @@ if varInfoS.bytes > 2*10^9 %Use save version 7.3 for plans > 2GB
 else
 saveOpt = getSaveInfo;     %Default save version (defined in CERROptions.m)
 end
-if ~isempty(saveOpt);
+if ~isempty(saveOpt)
     save(saveFile, 'planC', saveOpt);
 else
     save(saveFile, 'planC');

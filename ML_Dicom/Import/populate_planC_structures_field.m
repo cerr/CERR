@@ -1,4 +1,4 @@
-function dataS = populate_planC_structures_field(fieldname, dcmdir_PATIENT_STUDY_SERIES_RTSTRUCTS, structNum, scanOriS, attr, optS)
+function dataS = populate_planC_structures_field(fieldname, dcmdir_PATIENT_STUDY_SERIES_RTSTRUCTS, scanOriS, attr, ssObj, cObj, optS)
 %"populate_planC_structures_field"
 %   Given the name of a child field to planC{indexS.structures}, populates that
 %   field based on the data contained in dcmdir.PATIENT.STUDY.SERIES.RTSTRUCTS
@@ -41,50 +41,54 @@ function dataS = populate_planC_structures_field(fieldname, dcmdir_PATIENT_STUDY
 
 
 %For easier handling
-global xOffset yOffset;
+%global xOffset yOffset;
 
-STRUCTS = dcmdir_PATIENT_STUDY_SERIES_RTSTRUCTS;
+%STRUCTS = dcmdir_PATIENT_STUDY_SERIES_RTSTRUCTS;
 
 %Default value for undefined fields.
 dataS = '';
 
-if ~exist('attr', 'var')
-    %Grab the dicom object representing the structures.
-    attr = scanfile_mldcm(STRUCTS.file);
-end
+% if ~exist('attr', 'var')
+%     %Grab the dicom object representing the structures.
+%     attr = scanfile_mldcm(STRUCTS.file);
+% end
+% 
+% %Structure Set ROI Sequence
+% %SSRS = attr.getValue(hex2dec('30060020'));
+% SSRS = attr.getValue(org.dcm4che3.data.Tag.StructureSetROISequence);
+% 
+% %ROI Contour Sequence
+% %RCS = attr.getValue(hex2dec('30060039'));
+% RCS = attr.getValue(org.dcm4che3.data.Tag.ROIContourSequence);
 
-%Structure Set ROI Sequence
-SSRS = attr.getValue(hex2dec('30060020'));
-
-%ROI Contour Sequence
-RCS = attr.getValue(hex2dec('30060039'));
-
-%Count em up.
-
-if ~isempty(RCS)
-    nStructs = RCS.size();
-else
-    nStructs = 0;
-end
-%Structure Set item for this structure.
-ssObj = SSRS.get(structNum - 1);
-%ssObj = org.dcm4che3.data.Attributes(SSRS)
-%ROI Number
-ROINumber = getTagValue(ssObj, '30060022');
-
-%Find the contour object for this structure.
-for s=1:nStructs
-    cObj = RCS.get(s - 1);
-
-    %Referenced ROI Number
-    RRN = getTagValue(cObj, '30060084');
-
-    if RRN == ROINumber
-        %We found the correct contour for this structure.
-        break;
-    end
-
-end
+% %Count em up.
+% 
+% if ~isempty(RCS)
+%     nStructs = RCS.size();
+% else
+%     nStructs = 0;
+% end
+% %Structure Set item for this structure.
+% ssObj = SSRS.get(structNum - 1);
+% %ssObj = org.dcm4che3.data.Attributes(SSRS)
+% %ROI Number
+% %ROINumber = getTagValue(ssObj, '30060022');
+% ROINumber = ssObj.getInts(org.dcm4che3.data.Tag.ROINumber); % vr=IS
+% 
+% %Find the contour object for this structure.
+% for s=1:nStructs
+%     cObj = RCS.get(s - 1);
+% 
+%     %Referenced ROI Number
+%     %RRN = getTagValue(cObj, '30060084');
+%     RRN = cObj.getInts(org.dcm4che3.data.Tag.ReferencedROINumber); %IS    
+% 
+%     if RRN == ROINumber
+%         %We found the correct contour for this structure.
+%         break;
+%     end
+% 
+% end
 
 switch fieldname
 
@@ -98,16 +102,25 @@ switch fieldname
         %Currently not implemented
         
     case 'roiNumber'
-        dataS = ROINumber;
+        %dataS = ROINumber;
+        dataS = ssObj.getInts(805699618); %org.dcm4che3.data.Tag.ROINumber;
 
     case 'patientName'
         %Patient's Name
-        nameS = getTagValue(attr, '00100010');
-        dataS = [nameS.FamilyName '^' nameS.GivenName '^' nameS.MiddleName];
+        %nameS = getTagValue(attr, '00100010');
+        %dataS = [nameS.FamilyName '^' nameS.GivenName '^' nameS.MiddleName];
+        nameObj = javaObject('org.dcm4che3.data.PersonName',attr.getString(1048592)); %org.dcm4che3.data.Tag.PatientName;
+        compFamilyName = javaMethod('valueOf','org.dcm4che3.data.PersonName$Component','FamilyName');
+        compGivenName = javaMethod('valueOf','org.dcm4che3.data.PersonName$Component','GivenName');
+        compMiddleName = javaMethod('valueOf','org.dcm4che3.data.PersonName$Component','MiddleName');       
+        dataS = [char(nameObj.get(compFamilyName)), '^',...
+            char(nameObj.get(compGivenName)), '^',...
+            char(nameObj.get(compMiddleName))];        
 
     case 'structureName'
         %ROI Name
-        dataS = getTagValue(ssObj, '30060026');
+        %dataS = getTagValue(ssObj, '30060026');
+        dataS = char(ssObj.getString(805699622,0)); %org.dcm4che3.data.Tag.ROIName;
 
     case 'numberRepresentation'
         %Artifact of RTOG field names, not representative of CERR data.
@@ -117,19 +130,24 @@ switch fieldname
         dataS = 'SCAN-BASED';
         
     case 'structSetSopInstanceUID'
-        dataS = getTagValue(attr, '00080018');
+        %dataS = getTagValue(attr, '00080018');
+        dataS = char(attr.getString(524312,0)); %org.dcm4che3.data.Tag.SOPInstanceUID;
 
     case 'numberOfScans' %aka # of CT slices
         %Referenced Frame of Reference Sequence
-        RFRS = attr.getValue(hex2dec('30060010'));
+        %RFRS = attr.getValue(hex2dec('30060010'));
+        %RFRS = attr.getValue(org.dcm4che3.data.Tag.ReferencedFrameOfReferenceSequence);
 
         %Frame of Reference UID
-        FORUID = getTagValue(ssObj, '30060024');
+        %FORUID = getTagValue(ssObj, '30060024');
+        %FORUID = char(attr.getStrings(org.dcm4che3.data.Tag.ReferencedFrameOfReferenceUID));
 
         %Find the series referenced by these contours.  See bottom of file.
-        RSS = getReferencedSeriesSequence(RFRS, FORUID);
+        %RSS = getReferencedSeriesSequence(RFRS, FORUID);
 
-        dataS = getTagValue(RSS,'30060016');
+        %dataS = getTagValue(RSS,hex2dec('30060016')); % check this
+        contourSeq = cObj.getValue(805699648); %org.dcm4che3.data.Tag.ContourSequence;
+        dataS = contourSeq.size();
 
 %         %Convert to ML structure format.
 %         RSSML = getTagStruct(RSS);
@@ -159,11 +177,13 @@ switch fieldname
 
     case 'writer'
         %Manufacturer
-        dataS = getTagValue(attr, '00080070');
+        %dataS = getTagValue(attr, '00080070');
+        dataS = char(attr.getString(524400,0)); %org.dcm4che3.data.Tag.Manufacturer;
 
     case 'dateWritten'
         %Structure Set Date.
-        dataS = getTagValue(attr, '30060008');
+        %dataS = getTagValue(attr, '30060008');
+        dataS = char(attr.getString(805699592,0)); %org.dcm4che3.data.Tag.StructureSetDate;
 
     case 'structureColor'
         %Currently not implemented
@@ -176,10 +196,11 @@ switch fieldname
 
     case 'contour'
         %Contour Sequence
-        if ~cObj.contains(hex2dec('30060040'))
+        if ~cObj.contains(805699648) %org.dcm4che3.data.Tag.ContourSequence %hex2dec('30060040')
             return;
         end
-        cSeq = cObj.getValue(hex2dec('30060040'));            
+        % cSeq = cObj.getValue(hex2dec('30060040'));            
+        cSeq = cObj.getValue(805699648); %org.dcm4che3.data.Tag.ContourSequence;
 
         if cSeq.isEmpty
             return;
@@ -188,22 +209,25 @@ switch fieldname
         nContours = cSeq.size();
         
         %optS = opts4Exe([getCERRPath,'CERROptions.json']);
-        contourSliceTol = optS.contourToSliceTolerance;
+        %contourSliceTol = optS.contourToSliceTolerance;
         
         for c = 1:nContours
             aContour = cSeq.get(c-1);
             
             % Referenced SOP instance UID
-            refSeq = aContour.getValue(hex2dec('30060016'));
+            % refSeq = aContour.getValue(hex2dec('30060016'));
+            refSeq = aContour.getValue(805699606); %org.dcm4che3.data.Tag.ContourImageSequence;
             sopInstanceUID = '';
             if ~isempty(refSeq)
-                sopInstanceUID = getTagValue(refSeq.get(0), '00081155');
+                % sopInstanceUID = getTagValue(refSeq.get(0), '00081155');
+                sopInstanceUID = char(refSeq.get(0).getString(528725,0)); %org.dcm4che3.data.Tag.ReferencedSOPInstanceUID;
             end
             
             dataS(c).sopInstanceUID = sopInstanceUID;
             
             %Contour Geometric Type
-            geoType = getTagValue(aContour, '30060042');
+            %geoType = getTagValue(aContour, '30060042');
+            geoType = char(aContour.getString(805699650,0)); %org.dcm4che3.data.Tag.ContourGeometricType;
 
             switch upper(geoType)
                 case 'POINT'
@@ -217,7 +241,8 @@ switch fieldname
             end
 
             %Number of Contour Points
-            nPoints = getTagValue(aContour, '30060046');
+            %nPoints = getTagValue(aContour, '30060046');
+            nPoints = aContour.getInts(805699654); %org.dcm4che3.data.Tag.NumberOfContourPoints;
             if isempty(nPoints)
                 nPoints = 0;
             end
@@ -228,7 +253,8 @@ switch fieldname
 
             %Contour Data
             try
-                data    = getTagValue(aContour, '30060050');
+                %data    = getTagValue(aContour, '30060050');
+                data    = aContour.getDoubles(805699664); %org.dcm4che3.data.Tag.ContourData;
             catch
                 disp('vacant contour found ...');
                 dataS(c).segments = [];
@@ -248,7 +274,7 @@ switch fieldname
                 assocScanNum = 1;
             end
             if any(assocScanNum)
-            imgOriV = scanOriS(assocScanNum).imageOrientationPatient;
+                imgOriV = scanOriS(assocScanNum).imageOrientationPatient;
             else
                 imgOriV = [1,0,0,0,1,0]'; % HFS
             end
@@ -378,12 +404,14 @@ for i=1:nRFRS
 
     myRFR = referencedSeq.get(i-1);
 
-    RFRUID = getTagValue(myRFR, '00200052');
+    % RFRUID = getTagValue(myRFR, '00200052');
+    RFRUID = char(myRFR.getString(2097234,0)); %org.dcm4che3.data.Tag.FrameOfReferenceUID;
 
     if isequal(RFRUID,refUID)
 
         %RT Referenced Study Sequence
-        RTRSS = myRFR.getValue(hex2dec('30060012'));
+        %RTRSS = myRFR.getValue(hex2dec('30060012'));
+        RTRSS = myRFR.getValue(805699602); %org.dcm4che3.data.Tag.RTReferencedStudySequence;
 
         if isempty(RTRSS)
             break;
@@ -392,7 +420,8 @@ for i=1:nRFRS
         RTRSS_1 = RTRSS.get(0);
 
         %RT Referenced Series Sequence
-        RTRSS = RTRSS_1.getValue(hex2dec('30060014'));
+        %RTRSS = RTRSS_1.getValue(hex2dec('30060014'));
+        RTRSS = RTRSS_1.getValue(805699604); %org.dcm4che3.data.Tag.RTReferencedSeriesSequence;
 
         attr = RTRSS.get(0);
 
@@ -402,7 +431,7 @@ end
 
 if ~exist('attr', 'var')
     warning('No explicit association between structures and a scan could be found.');
-    attr = org.dcm4che3.data.Attributes;
+    attr = javaObject('org.dcm4che3.data.Attributes');
 end
 
 end %End of function
@@ -410,15 +439,18 @@ end %End of function
 function assocScanUID = getAssocScanUID(attr,ssObj)
 %commented by wy
         %Referenced Frame of Reference Sequence
-        referencedSeq = attr.getValue(hex2dec('30060010'));
+        %referencedSeq = attr.getValue(hex2dec('30060010'));
+        referencedSeq = attr.getValue(805699600); %org.dcm4che3.data.Tag.ReferencedFrameOfReferenceSequence; 
         
         %Frame of Reference UID
-        refUID = getTagValue(ssObj, '30060024');
+        %refUID = getTagValue(ssObj, '30060024');
+        refUID = char(ssObj.getString(805699620,0)); %org.dcm4che3.data.Tag.ReferencedFrameOfReferenceUID;
         
         %Find the series referenced by these contours.  See bottom of file.
         refSerSeq = getReferencedSeriesSequence(referencedSeq, refUID);
         
-        assocScanUID = getTagValue(refSerSeq,'0020000E');
+        %assocScanUID = getTagValue(refSerSeq,'0020000E');
+        assocScanUID = char(refSerSeq.getString(2097166,0)); %org.dcm4che3.data.Tag.SeriesInstanceUID;
         
         assocScanUID = ['CT.',assocScanUID];
 
