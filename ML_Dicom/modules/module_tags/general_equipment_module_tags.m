@@ -45,45 +45,45 @@ function tagS = general_equipment_module_tags
 % along with CERR.  If not, see <http://www.gnu.org/licenses/>.
 
 %Initialize the tagS structure.
-tagS = struct('tag', {}, 'type', {}, 'children', {});
+tagS = struct('tag', {}, 'tagdec', {}, 'type', {}, 'children', {});
 
 %Create an empty tagS template for sequence creation.
-template = tagS;
+%template = tagS;
 
 %Add tags based on PS3.3 attribute lists.
 
 %Manufacturer
-tagS(end+1) = struct('tag', ['00080070'], 'type', ['2'], 'children', []);
+tagS(end+1) = struct('tag', '00080070', 'tagdec', 524400, 'type', '2', 'children', []);
 
 %Institution Name
-tagS(end+1) = struct('tag', ['00080080'], 'type', ['2'], 'children', []);
+tagS(end+1) = struct('tag', '00080080', 'tagdec', 524416, 'type', '2', 'children', []);
 
 %Institution Address
-tagS(end+1) = struct('tag', ['00080081'], 'type', ['3'], 'children', []);
+tagS(end+1) = struct('tag', '00080081', 'tagdec', 524417, 'type', '3', 'children', []);
 
 %Station Name
-tagS(end+1) = struct('tag', ['00081010'], 'type', ['3'], 'children', []);
+tagS(end+1) = struct('tag', '00081010', 'tagdec', 528400, 'type', '3', 'children', []);
 
 %Institutional Department Name
-tagS(end+1) = struct('tag', ['00081040'], 'type', ['3'], 'children', []);
+tagS(end+1) = struct('tag', '00081040', 'tagdec', 528448, 'type', '3', 'children', []);
 
 %Manufacturer's Model Name
-tagS(end+1) = struct('tag', ['00081090'], 'type', ['3'], 'children', []);
+tagS(end+1) = struct('tag', '00081090', 'tagdec', 528528, 'type', '3', 'children', []);
 
 %Device Serial Number
-tagS(end+1) = struct('tag', ['00181000'], 'type', ['3'], 'children', []);
+tagS(end+1) = struct('tag', '00181000', 'tagdec', 1576960, 'type', '3', 'children', []);
 
 %Software Versions
-tagS(end+1) = struct('tag', ['00181020'], 'type', ['3'], 'children', []);
+tagS(end+1) = struct('tag', '00181020', 'tagdec', 1576992, 'type', '3', 'children', []);
 
 %Spatial Resolution
-tagS(end+1) = struct('tag', ['00181050'], 'type', ['3'], 'children', []);
+tagS(end+1) = struct('tag', '00181050', 'tagdec', 1577040, 'type', '3', 'children', []);
 
 %Date of Last Calibration
-tagS(end+1) = struct('tag', ['00181200'], 'type', ['3'], 'children', []);
+tagS(end+1) = struct('tag', '00181200', 'tagdec', 1577472, 'type', '3', 'children', []);
 
 %Time of Last Calibration
-tagS(end+1) = struct('tag', ['00181201'], 'type', ['3'], 'children', []);
+tagS(end+1) = struct('tag', '00181201', 'tagdec', 1577473, 'type', '3', 'children', []);
 
 %Pixel Padding Value
-tagS(end+1) = struct('tag', ['00280120'], 'type', ['3'], 'children', []);
+tagS(end+1) = struct('tag', '00280120', 'tagdec', 2621728, 'type', '3', 'children', []);

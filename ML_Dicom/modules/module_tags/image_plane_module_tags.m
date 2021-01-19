@@ -46,31 +46,31 @@ function tagS = image_plane_module_tags
 % along with CERR.  If not, see <http://www.gnu.org/licenses/>.
 
 %Initialize the tagS structure.
-tagS = struct('tag', {}, 'type', {}, 'children', {});
+tagS = struct('tag', {}, 'tagdec', {}, 'type', {}, 'children', {});
 
 %Create an empty tagS template for sequence creation.
-template = tagS;
+%template = tagS;
 
 %Add tags based on PS3.3 attribute lists.
 
 %Pixel Spacing
-tagS(end+1) = struct('tag', ['00280030'], 'type', ['1'], 'children', []);
+tagS(end+1) = struct('tag', '00280030', 'tagdec', 2621488, 'type', '1', 'children', []);
 
 %Image Orientation (Patient)
-tagS(end+1) = struct('tag', ['00200037'], 'type', ['1'], 'children', []);
+tagS(end+1) = struct('tag', '00200037', 'tagdec', 2097207, 'type', '1', 'children', []);
 
 %Image Position (Patient)
-tagS(end+1) = struct('tag', ['00200032'], 'type', ['1'], 'children', []);
+tagS(end+1) = struct('tag', '00200032', 'tagdec', 2097202, 'type', '1', 'children', []);
 
 %Slice Thickness
-tagS(end+1) = struct('tag', ['00180050'], 'type', ['2'], 'children', []);
+tagS(end+1) = struct('tag', '00180050', 'tagdec', 1572944, 'type', '2', 'children', []);
 
 %Slice Location
-tagS(end+1) = struct('tag', ['00201041'], 'type', ['3'], 'children', []);
+tagS(end+1) = struct('tag', '00201041', 'tagdec', 2101313, 'type', '3', 'children', []);
 
 %Window center (1C)
-tagS(end+1) = struct('tag', ['00281050'], 'type', ['1C'], 'children', []);
+tagS(end+1) = struct('tag', '00281050', 'tagdec', 2625616, 'type', '1C', 'children', []);
 
 %Window width (1C)
-tagS(end+1) = struct('tag', ['00281051'], 'type', ['1C'], 'children', []);
+tagS(end+1) = struct('tag', '00281051', 'tagdec', 2625617, 'type', '1C', 'children', []);
 

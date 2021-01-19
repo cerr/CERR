@@ -25,9 +25,9 @@
 
 "downsampledVoxelSize" : [0.2, 0.2, 0.3],
 
-"importDICOMsubDirs" : "no",
+"importDICOMsubDirs" : "yes",
 
-"saveDICOMheaderInPlanC" : "yes",
+"saveDICOMheaderInPlanC" : "no",
 
 "structuresToImport" : "",
 

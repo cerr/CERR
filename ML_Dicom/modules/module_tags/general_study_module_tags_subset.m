@@ -46,7 +46,8 @@ function tagS = general_study_module_tags_subset
 
 
 tagC = {'0020000D','00080020','00080030','00200010','00080050'};
+tagDecC = {2097165, 524320, 524336, 2097168, 524368};
 tagTypeC = {'1','2','2','2','2'};
 childC = cell(1,length(tagC));
 
-tagS = struct('tag',tagC,'type',tagTypeC,'children',childC);
+tagS = struct('tag',tagC,'tagdec',tagDecC,'type',tagTypeC,'children',childC);

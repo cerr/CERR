@@ -38,8 +38,8 @@ for i=1:length(tagS)
     
     %Get the element's name.
     % name = char(org.dcm4che3.data.ElementDictionary.keywordOf(tag, []));
-    name = cell(org.dcm4che3.data.ElementDictionary.keywordOf(tag, []));
-    name = name{1};
+    name = char(javaMethod('keywordOf','org.dcm4che3.data.ElementDictionary',tag, []));
+    %name = name{1};
        
     %Convert to a valid ML fieldname.
     name = dcm2ml_Fieldname(name, tag); 
@@ -48,25 +48,26 @@ for i=1:length(tagS)
     
     if strcmpi(name, 'ROIContourSequence'), continue; end
     
-    if isempty(name), continue; end;
+    if isempty(name), continue; end
 
-    if org.dcm4che3.util.TagUtils.isPrivateCreator(tag)
+    if javaMethod('isPrivateCreator','org.dcm4che3.util.TagUtils',tag)
         %Handle the special case of a private creator data element... many
         %may exist so they need to be renamed based on the tag code.
-        tagString  = char(org.dcm4che3.util.TagUtils.toString(tag));
+        
+        tagString  = char(javaMethod('toString','org.dcm4che3.util.TagUtils',tag));
         name = ['Private_' tagString(2:5) '_10xx_Creator'];
         
-    elseif org.dcm4che3.util.TagUtils.isPrivateTag(tag)
+    elseif javaMethod('isPrivateTag','org.dcm4che3.util.TagUtils',tag)
         %Handle the special case of a private data element, requires the 
         %tag to be part of the name.
-        tagString  = char(org.dcm4che3.util.TagUtils.toString(tag));        
+        tagString  = char(javaMethod('toString','org.dcm4che3.util.TagUtils',tag));
         name = ['Private_' tagString(2:5) '_' tagString(7:10)];
     end
 
-    if isempty(name) && strcmpi(char(attr.getVR(tag)), 'UN');
+    if isempty(name) && strcmpi(char(attr.getVR(tag)), 'UN')
         %Handle the case of a tag that is not in the current DICOM 
         %dictionary.
-        tagString  = char(org.dcm4che3.util.TagUtils.toString(tag));
+        tagString  = char(javaMethod('toString','org.dcm4che3.util.TagUtils',tag));
         name = ['Unknown_' tagString(2:5) '_' tagString(7:10)];
     end
          
@@ -74,7 +75,8 @@ for i=1:length(tagS)
     try   
         %data = dcm2ml_Element(el);
         %Replace with this for dcm4che3
-        data = getTagValue(attr, dec2hex(tag));
+        % data = getTagValue(attr, dec2hex(tag));
+        data = getTagValue(attr, tag);
         mlObj.(name) = data;
     catch
         continue;

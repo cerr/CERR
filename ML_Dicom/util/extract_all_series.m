@@ -48,7 +48,7 @@ for studyNum = 1:length(dcmdir_PATIENT.STUDY)
         %of series this is.
        % disp(study.SERIES(seriesNum));
         tmp = rmfield(study.SERIES(seriesNum), 'info'); %wy {} --> ()
-        tmpFields = fields(tmp);
+        tmpFields = fieldnames(tmp);
         if length(tmpFields) == 2; %wy 1-->2
             imgModality = tmp.Modality;
             imgModality = parseModality(imgModality);

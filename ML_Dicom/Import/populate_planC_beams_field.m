@@ -49,85 +49,144 @@ end
 switch fieldname
     case 'PatientName'
         %Patient's Name
-        dataS = getTagValue(attr, '00100010');
+        %dataS = getTagValue(attr, '00100010');
+        %nameObj = org.dcm4che3.data.PersonName(attr.getString(org.dcm4che3.data.Tag.PatientName));
+        nameObj = javaObject('org.dcm4che3.data.PersonName',attr.getString(1048592));
+        compFamilyName = javaMethod('valueOf','org.dcm4che3.data.PersonName$Component','FamilyName');
+        compGivenName = javaMethod('valueOf','org.dcm4che3.data.PersonName$Component','GivenName');
+        compMiddleName = javaMethod('valueOf','org.dcm4che3.data.PersonName$Component','MiddleName');       
+        dataS = [char(nameObj.get(compFamilyName)), '^',...
+            char(nameObj.get(compGivenName)), '^',...
+            char(nameObj.get(compMiddleName))];   
+        
     case 'PatientID'
         % Patient Identification
-        dataS = getTagValue(attr, '00100020');
+        %dataS = getTagValue(attr, '00100020');
+        %dataS = attr.getStrings(org.dcm4che3.data.Tag.PatientID);
+        dataS = attr.getString(1048608,0);
     case 'PatientBirthDate'
         %Patient Date of Birth
-        dataS = getTagValue(attr, '00100030');
+        %dataS = getTagValue(attr, '00100030');
+        %dataS = attr.getStrings(org.dcm4che3.data.Tag.PatientBirthDate);
+        dataS = attr.getString(1048624,0);
     case 'PatientSex'
         %Patient Sex
-        dataS = getTagValue(attr, '00100040');
+        %dataS = getTagValue(attr, '00100040');
+        %dataS = char(attr.getStrings(org.dcm4che3.data.Tag.PatientSex)); %CS
+        dataS = char(attr.getString(1048640,0)); %CS
     case 'AcquisitionGroupLength'
         
     case 'RelationshipGroupLength'
     case 'ImagePresentationGroupLength'
     case 'PixelPaddingValue'
-        %Patient Sex
-        dataS = getTagValue(attr, '00280120');
+        %dataS = getTagValue(attr, '00280120');
+        %dataS = attr.getInts(org.dcm4che3.data.Tag.PixelPaddingValue); %vr=IS/SS
+        dataS = attr.getInts(2621728); %vr=IS/SS
         
     case 'PlanGroupLength'
         
     case 'RTPlanLabel'
         %RT Plan Label
-        dataS = getTagValue(attr, '300A0002');
+        %dataS = getTagValue(attr, '300A0002');
+        %dataS = char(attr.getStrings(org.dcm4che3.data.Tag.RTPlanLabel));
+        dataS = char(attr.getString(805961730,0));
     case 'RTPlanDate'
         %RT Plan Date
-        dataS = getTagValue(attr, '300A0006');
+        %dataS = getTagValue(attr, '300A0006');
+        %dataS = char(attr.getStrings(org.dcm4che3.data.Tag.RTPlanDate));
+        dataS = char(attr.getString(805961734,0));
     case 'RTPlanTime'
         %RT Plan Time
-        dataS = getTagValue(attr, '300A0007');
+        %dataS = getTagValue(attr, '300A0007');
+        %dataS = char(attr.getStrings(org.dcm4che3.data.Tag.RTPlanTime));
+        dataS = char(attr.getString(805961735,0));
     case 'RTPlanGeometry'
         %RT Plan Geometry
-        dataS = getTagValue(attr, '300A000C');
+        %dataS = getTagValue(attr, '300A000C');
+        %dataS = char(attr.getStrings(org.dcm4che3.data.Tag.RTPlanGeometry)); %CS
+        dataS = char(attr.getString(805961740,0)); %CS
     case 'TreatmentSites'
         %Treatment Site
-        dataS = getTagValue(attr, '300A000B');
+        %dataS = getTagValue(attr, '300A000B');
+        %dataS = char(attr.getStrings(org.dcm4che3.data.Tag.TreatmentSites));
+        dataS = char(attr.getString(805961739,0));
     case 'PrescriptionDescription'
         %Prescription Description
-        dataS = getTagValue(attr, '300A000E');
+        %dataS = getTagValue(attr, '300A000E');
+        %dataS = attr.getStrings(org.dcm4che3.data.Tag.PrescriptionDescription);
+        dataS = attr.getString(805961742,0);
+        if numel(dataS) > 1
+            dataS = cell(dataS);
+        else
+            dataS = char(dataS);
+        end
     case 'DoseReferenceSequence'
         %Dose Reference Sequence (Has multiple sequences)
-        dataS = getTagValue(attr, '300A0010');
+        % dataS = getTagValue(attr, '300A0010');
+        %dataS = getTagValue(attr, org.dcm4che3.data.Tag.DoseReferenceSequence);
+        dataS = getTagValue(attr, 805961744);
     case 'FractionGroupSequence'
         %Fraction Group Sequence
-        dataS = getTagValue(attr, '300A0070');
+        %dataS = getTagValue(attr, '300A0070');
+        %dataS = getTagValue(attr, org.dcm4che3.data.Tag.FractionGroupSequence);
+        dataS = getTagValue(attr, 805961840);
     case 'BeamSequence'
         %Beam Sequence
-        dataS = getTagValue(attr, '300A00B0');
+        %dataS = getTagValue(attr, '300A00B0');
+        %dataS = getTagValue(attr, org.dcm4che3.data.Tag.BeamSequence);
+        dataS = getTagValue(attr, 805961904);
     case 'PatientSetupSequence'
         %Patient Setup Sequence
-        dataS = getTagValue(attr, '300A0180');
+        %dataS = getTagValue(attr, '300A0180');
+        %dataS = getTagValue(attr, org.dcm4che3.data.Tag.PatientSetupSequence);
+        dataS = getTagValue(attr, 805962112);
     case 'ReferencedRTGroupLength'
     case 'ReferencedStructureSetSequence'
         %Referenced Structure Set Sequence
-        dataS = getTagValue(attr, '300C0060');
+        %dataS = getTagValue(attr, '300C0060');
+        %dataS = getTagValue(attr, org.dcm4che3.data.Tag.ReferencedStructureSetSequence);
+        dataS = getTagValue(attr, 806092896);
     case 'ReferencedDoseSequence'
         %Referenced Dose Sequence
-        dataS = getTagValue(attr, '300C0080');
+        %dataS = getTagValue(attr, '300C0080');
+        %dataS = getTagValue(attr, org.dcm4che3.data.Tag.ReferencedDoseSequence);
+        dataS = getTagValue(attr, 806092928);
     case 'ReviewGroupLength'
     case 'ApprovalStatus'
         %Approval status
-        dataS = getTagValue(attr, '300E0002');
+        %dataS = getTagValue(attr, '300E0002');
+        %dataS = char(attr.getStrings(org.dcm4che3.data.Tag.ApprovalStatus));
+        dataS = char(attr.getString(806223874,0));
     case 'ReviewDate'
         %Review Date
-        if attr.contains(hex2dec('300E0004'))
-            dataS = getTagValue(attr, '300E0004');
+        if attr.contains(806223876) %org.dcm4che3.data.Tag.ReviewDate %hex2dec('300E0004')
+            %dataS = getTagValue(attr, '300E0004');
+            dataS = char(attr.getString(806223876,0));
         end
     case 'ReviewTime'
         %Review Time
-        if attr.contains(hex2dec('300E0005'))
-            dataS = getTagValue(attr, '300E0005');
+        if attr.contains(806223877) %org.dcm4che3.data.Tag.ReviewTime %hex2dec('300E0005')
+            %dataS = getTagValue(attr, '300E0005');
+            dataS = char(attr.getString(806223877,0));
         end
     case 'ReviewerName'
         %Reviewer Name
-        if attr.contains(hex2dec('300E0008'))
-            dataS = getTagValue(attr, '300E0008');
+        if attr.contains(806223880) %org.dcm4che3.data.Tag.ReviewerName %hex2dec('300E0008')
+            %dataS = getTagValue(attr, '300E0008');
+            nameObj = javaObject('org.dcm4che3.data.PersonName',attr.getString(806223880));
+            compFamilyName = javaMethod('valueOf','org.dcm4che3.data.PersonName$Component','FamilyName');
+            compGivenName = javaMethod('valueOf','org.dcm4che3.data.PersonName$Component','GivenName');
+            compMiddleName = javaMethod('valueOf','org.dcm4che3.data.PersonName$Component','MiddleName');
+            dataS = [char(nameObj.get(compFamilyName)), '^',...
+                char(nameObj.get(compGivenName)), '^',...
+                char(nameObj.get(compMiddleName))];
+            
         end
     case 'SOPInstanceUID'
         % SOP Instance UID: used to link RTPlan to respective dose file
-        dataS = getTagValue(attr, '00080018');
+        %dataS = getTagValue(attr, '00080018');
+        %dataS = char(attr.getStrings(org.dcm4che3.data.Tag.SOPInstanceUID));
+        dataS = char(attr.getString(524312,0));
     case 'BeamUID'
         dataS = createUID('beams');
 end

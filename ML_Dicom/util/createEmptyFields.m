@@ -36,33 +36,38 @@ function attr = createEmptyFields(attr, tagS)
 % along with CERR.  If not, see <http://www.gnu.org/licenses/>.
 
 %Get the decimal tags.
-tags = hex2dec({tagS.tag});
+%tags = hex2dec({tagS.tag});
 %%
 %TOOK OFF HEX2DEC
 %%
 
 %Create and set passed tag fields to null.
-for i=1:length(tags)
+for i=1:length(tagS)
     % vr = org.dcm4che3.data.ElementDictionary.vrOf(tags(i), attr.getPrivateCreator(tags(i)));
-    vr = org.dcm4che3.data.ElementDictionary.vrOf(tags(i), []);
+    % vr = org.dcm4che3.data.ElementDictionary.vrOf(tags(i), []);
+    %tag = org.dcm4che3.data.Tag.(tagS(i).fieldname);
+    tag = tagS(i).tagdec;
+    %vr = org.dcm4che3.data.ElementDictionary.vrOf(tag, []);
+    vr = javaMethod("vrOf","org.dcm4che3.data.ElementDictionary", tag,[]);
     %Handle the case of a tag with no children.
     if isempty(tagS(i).children)
 
        if (isempty(vr))
            %If VR not found, set as unknown
-           vr = org.dcm4che3.data.VR.UN;
+           %vr = org.dcm4che3.data.VR.UN;
            error(['Cant find VR, so exiting....If VR not needed here,' ...
            'remove error in file createEmptyFields.m']);
        end
-       attr.setNull(tags(i), vr);
+       attr.setNull(tag, vr);
        
     %Handle the case of a tag with children, a sequence.
     %CHANGED to ELEMENT DICTIONARY
     elseif  strcmpi(toString(vr), 'SQ')
-       child_obj = org.dcm4che3.data.Attributes;
+       %child_obj = org.dcm4che3.data.Attributes;
+       child_obj = javaObject('org.dcm4che3.data.Attributes');
        % convert to setNull from putNull
-       attr.setNull(tags(i), vr);
-       el = attr.getSequence(tags(i));
+       attr.setNull(tag, vr);
+       el = attr.getSequence(tag);
        kids = tagS(i).children;
        child_obj = createEmptyFields(child_obj, kids); 
        %Convert to dcm4che3 by removing
@@ -76,7 +81,7 @@ for i=1:length(tags)
     else    
         CERRStatusString('Warning !!! A field with child elements is not of type SQ in the DICOM dictionary.\n\t\t Dictionary is out-of-date or module''s tag is incorrect.', 1);
         disp('bad -- AT createEmptyFields');
-        attr.setNull(tags(i), vr);    
+        attr.setNull(tag, vr);    
     end
     
 end

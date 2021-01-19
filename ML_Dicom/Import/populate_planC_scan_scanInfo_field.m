@@ -52,7 +52,7 @@ dataS = '';
 
 % Tolerance to determine oblique scan (think about passing it as a
 % parameter in future)
-obliqTol = 1e-3;
+%obliqTol = 1e-3;
 
 if ~exist('attr', 'var')
     %Grab the dicom object representing this image.
@@ -62,11 +62,15 @@ end
 switch fieldname
     case 'imageNumber'
         %Direct mapping from (0020,0013), "Instance Number"
-        dataS = getTagValue(attr, '00200013');
+        %dataS = getTagValue(attr, '00200013');
+        %dataS = attr.getInts(org.dcm4che3.data.Tag.InstanceNumber); % vr=IS
+        dataS = attr.getInts(2097171); % vr=IS
         
     case 'imageType'
         %Mostly direct mapping from (0008,0060), "Modality"
-        modality = getTagValue(attr, '00080060');
+        %modality = getTagValue(attr, '00080060');
+        %modality = char(attr.getStrings(org.dcm4che3.data.Tag.Modality)); %vr=CS
+        modality = char(attr.getString(524384,0));
         
         switch modality
             case {'CT', 'CT SCAN'}
@@ -83,14 +87,33 @@ switch fieldname
         
     case 'patientName'
         %Largely direct mapping from (0010,0010), "Patient's Name"
-        nameS = getTagValue(attr, '00100010');
-        dataS = [nameS.FamilyName '^' nameS.GivenName '^' nameS.MiddleName];
+        %nameS = getTagValue(attr, '00100010');
+        %dataS = [nameS.FamilyName '^' nameS.GivenName '^' nameS.MiddleName];
+        
+        %nameObj = org.dcm4che3.data.PersonName(attr.getString(org.dcm4che3.data.Tag.PatientName));
+        nameObj = javaObject('org.dcm4che3.data.PersonName',attr.getString(1048592));
+        %DCM4CHE3 now uses enum 'Component' instead of an array
+        
+        compFamilyName = javaMethod('valueOf','org.dcm4che3.data.PersonName$Component','FamilyName');
+        compGivenName = javaMethod('valueOf','org.dcm4che3.data.PersonName$Component','GivenName');
+        compMiddleName = javaMethod('valueOf','org.dcm4che3.data.PersonName$Component','MiddleName');
+        %compNamePrefix = javaMethod('valueOf','org.dcm4che3.data.PersonName$Component','NamePrefix');
+        %compNameSuffix = javaMethod('valueOf','org.dcm4che3.data.PersonName$Component','NameSuffix');
+        
+        dataS = [char(nameObj.get(compFamilyName)), '^',...
+            char(nameObj.get(compGivenName)), '^',...
+            char(nameObj.get(compMiddleName))];
+        
         
     case 'patientID'        
-        dataS = getTagValue(attr, '00100020');
+        %dataS = getTagValue(attr, '00100020');
+        %dataS = attr.getStrings(org.dcm4che3.data.Tag.PatientID);
+        dataS = attr.getString(1048608,0);
         
     case 'patientBirthDate'
-        dataS = getTagValue(attr, '00100030');
+        %dataS = getTagValue(attr, '00100030');
+        %dataS = attr.getStrings(org.dcm4che3.data.Tag.PatientBirthDate);
+        dataS = attr.getString(1048624,0);
         
     case 'scanType'
         %In CERR, scan slices are always transverse.
@@ -98,28 +121,40 @@ switch fieldname
         
     case 'CTOffset'
         %In CERR, CT Offset is always 1000, as CT water is 1000. (???)
-        modality = getTagValue(attr, '00080060');
+        %modality = getTagValue(attr, '00080060');
+        %modality = char(attr.getStrings(org.dcm4che3.data.Tag.Modality)); %vr=CS
+        modality = char(attr.getString(524384,0)); %vr=CS
         if strcmpi(modality,'CT')
             % dataS = 1000;
-            dataS = -getTagValue(attr, '00281052');
+            %dataS = -getTagValue(attr, '00281052');
+            %dataS = -attr.getDoubles(org.dcm4che3.data.Tag.RescaleIntercept); % vr=DS
+            dataS = -attr.getDoubles(2625618); % vr=DS
         else
             dataS = 0;
         end
         
     case 'rescaleIntercept'
-        modality = getTagValue(attr, '00080060');
+        %modality = getTagValue(attr, '00080060');
+        %modality = char(attr.getStrings(org.dcm4che3.data.Tag.Modality)); %vr=CS
+        modality = char(attr.getString(524384,0)); %vr=CS
         if strcmpi(modality,'PT') || strcmpi(modality,'PET')
             dataS = 0;
         else
-            dataS = getTagValue(attr, '00281052');
+            %dataS = getTagValue(attr, '00281052');
+            %dataS = attr.getDoubles(org.dcm4che3.data.Tag.RescaleIntercept); % vr=DS
+            dataS = attr.getDoubles(2625618); % vr=DS
         end
         
     case 'rescaleSlope'
-        modality = getTagValue(attr, '00080060');
+        %modality = getTagValue(attr, '00080060');
+        %modality = char(attr.getStrings(org.dcm4che3.data.Tag.Modality)); %vr=CS
+        modality = char(attr.getString(524384,0)); %vr=CS
         if strcmpi(modality,'PT') || strcmpi(modality,'PET')
             dataS = 1;
         else
-            dataS = getTagValue(attr, '00281053');
+            %dataS = getTagValue(attr, '00281053');
+            %dataS = attr.getDoubles(org.dcm4che3.data.Tag.RescaleSlope); % vr=DS
+            dataS = attr.getDoubles(2625619); % vr=DS
             if isempty(dataS)
                 dataS = 1;
             end
@@ -127,27 +162,31 @@ switch fieldname
         
         %%%%%%%  AI 12/28/16 Added Scale slope/intercept for Philips scanners %%%%
     case 'scaleSlope'
-        if attr.contains(hex2dec('2005100E')) % Philips
-            dataS = attr.getDoubles(hex2dec('2005100E'));
+        if attr.contains(537202702) %hex2dec('2005100E') % Philips
+            dataS = attr.getDoubles(537202702);
         else
             dataS = '';
         end
         
     case 'scaleIntercept'
-        if attr.contains(hex2dec('2005100D')) % Philips
-            dataS = attr.getDoubles(hex2dec('2005100D'));
+        if attr.contains(537202701) %hex2dec('2005100D') % Philips
+            dataS = attr.getDoubles(537202701);
         else
             dataS = '';
         end
         %%%%%%%%%%%%   End added %%%%%%%%%%%%%%%
         
     case 'grid1Units'
-        modality = getTagValue(attr, '00080060');
+        %modality = getTagValue(attr, '00080060');
+        %modality = char(attr.getStrings(org.dcm4che3.data.Tag.Modality)); %vr=CS
+        modality = char(attr.getString(524384,0)); %vr=CS
         %Pixel Spacing
         if strcmpi(modality,'MG')
             % pixspac = getTagValue(attr, '00181164');
             % perFrameFuncGrpSeq = dcm2ml_Element(dcmobj.get(hex2dec('52009230')));
-            perFrameFuncGrpSeq = getTagValue(attr,'52009230');
+            %perFrameFuncGrpSeq = getTagValue(attr,'52009230');
+            %perFrameFuncGrpSeq = getTagValue(attr,org.dcm4che3.data.Tag.PerframeFunctionalGroupsSequence);
+            perFrameFuncGrpSeq = getTagValue(attr,1.375769136000000e+09);
             if isstruct(perFrameFuncGrpSeq)
                 pixspac = perFrameFuncGrpSeq.Item_1.PixelMeasuresSequence.Item_1.PixelSpacing;
             else
@@ -155,14 +194,18 @@ switch fieldname
             end
         elseif strcmpi(modality,'SM')
             %sharedFrameFuncGrpSeq = dcm2ml_Element(dcmobj.get(hex2dec('52009229')));
-            sharedFrameFuncGrpSeq = getTagValue(attr,'52009229');
+            %sharedFrameFuncGrpSeq = getTagValue(attr,'52009229');
+            %sharedFrameFuncGrpSeq = getTagValue(attr,org.dcm4che3.data.Tag.SharedFunctionalGroupsSequence);
+            sharedFrameFuncGrpSeq = getTagValue(attr,1.375769129000000e+09);
             if isstruct(sharedFrameFuncGrpSeq)
                 pixspac = sharedFrameFuncGrpSeq.Item_1.PixelMeasuresSequence.Item_1.PixelSpacing;
             else
                 pixspac = [1 1];
             end
         else
-            pixspac = getTagValue(attr, '00280030');
+            % pixspac = getTagValue(attr, '00280030');
+            %pixspac = attr.getDoubles(org.dcm4che3.data.Tag.PixelSpacing);
+            pixspac = attr.getDoubles(2621488);
         end
         
         %Convert from DICOM mm to CERR cm.
@@ -170,11 +213,15 @@ switch fieldname
         dataS = pixspac(2) / 10;	%By Deshan Yang, 3/19/2010
         
     case 'grid2Units'
-        modality = getTagValue(attr, '00080060');
+        %modality = getTagValue(attr, '00080060');
+        %modality = char(attr.getStrings(org.dcm4che3.data.Tag.Modality)); %vr=CS
+        modality = char(attr.getString(524384,0)); %vr=CS
         %Pixel Spacing
         if strcmpi(modality,'MG')
             % perFrameFuncGrpSeq = dcm2ml_Element(dcmobj.get(hex2dec('52009230')));
-            perFrameFuncGrpSeq = getTagValue(attr,'52009230');
+            %perFrameFuncGrpSeq = getTagValue(attr,'52009230');
+            %perFrameFuncGrpSeq = getTagValue(attr,org.dcm4che3.data.Tag.PerframeFunctionalGroupsSequence);
+            perFrameFuncGrpSeq = getTagValue(attr,1.375769136000000e+09);
             if isstruct(perFrameFuncGrpSeq)
                 pixspac = perFrameFuncGrpSeq.Item_1.PixelMeasuresSequence.Item_1.PixelSpacing;
             else
@@ -182,14 +229,18 @@ switch fieldname
             end
         elseif strcmpi(modality,'SM')
             %sharedFrameFuncGrpSeq = dcm2ml_Element(dcmobj.get(hex2dec('52009229')));
-            sharedFrameFuncGrpSeq = getTagValue(attr,'52009229');
+            %sharedFrameFuncGrpSeq = getTagValue(attr,'52009229');
+            %sharedFrameFuncGrpSeq = getTagValue(attr,org.dcm4che3.data.Tag.SharedFunctionalGroupsSequence);
+            sharedFrameFuncGrpSeq = getTagValue(attr,1.375769129000000e+09);
             if isstruct(sharedFrameFuncGrpSeq)
                 pixspac = sharedFrameFuncGrpSeq.Item_1.PixelMeasuresSequence.Item_1.PixelSpacing;
             else
                 pixspac = [1 1];
             end
         else
-            pixspac = getTagValue(attr, '00280030');
+            %pixspac = getTagValue(attr, '00280030');
+            %pixspac = attr.getDoubles(org.dcm4che3.data.Tag.PixelSpacing);
+            pixspac = attr.getDoubles(2621488);
         end
         
         %Convert from DICOM mm to CERR cm.
@@ -211,19 +262,27 @@ switch fieldname
         
     case 'sizeOfDimension1'
         %Rows
-        dataS  = getTagValue(attr, '00280010');
+        %dataS  = getTagValue(attr, '00280010');
+        %dataS = attr.getInt(org.dcm4che3.data.Tag.Rows,0);
+        dataS = attr.getInt(2621456,0);
         
     case 'sizeOfDimension2'
         %Columns
-        dataS  = getTagValue(attr, '00280011');
+        %dataS  = getTagValue(attr, '00280011');
+        %dataS = attr.getInt(org.dcm4che3.data.Tag.Columns,0);
+        dataS = attr.getInt(2621457,0);
         
     case 'zValue'
-        modality = getTagValue(attr, '00080060');
+        %modality = getTagValue(attr, '00080060');
+        %modality = char(attr.getStrings(org.dcm4che3.data.Tag.Modality));
+        modality = char(attr.getString(524384,0));
         %Image Position (Patient)
         if strcmpi(modality,'MG')
             imgpos = [0 0 0];
         else
-            imgpos = getTagValue(attr, '00200032');
+            %imgpos = getTagValue(attr, '00200032');
+            %imgpos = attr.getDoubles(org.dcm4che3.data.Tag.ImagePositionPatient);
+            imgpos = attr.getDoubles(2097202);
         end
         
         if isempty(imgpos)
@@ -232,12 +291,14 @@ switch fieldname
             return;
         end
         
-        seriesDescription =  getTagValue(attr, '0008103E');
+        % seriesDescription =  getTagValue(attr, '0008103E');
+        %seriesDescription = attr.getStrings(org.dcm4che3.data.Tag.SeriesDescription);
+        seriesDescription = char(attr.getString(528446,0));
         
         %Modified AI 10/20/16
-        if strfind(upper(seriesDescription),'CORONAL')
+        if ~isempty(strfind(upper(seriesDescription),'CORONAL'))
             dataS = - imgpos(2) / 10;
-        elseif strfind(upper(seriesDescription),'SAGITTAL')
+        elseif ~isempty(strfind(upper(seriesDescription),'SAGITTAL'))
             dataS = - imgpos(1) / 10;
         else
             %Convert from DICOM mm to CERR cm, invert to match CERR z dir
@@ -248,27 +309,39 @@ switch fieldname
     case 'imageOrientationPatient'
         %Image Orientation
         %dataS = dcm2ml_Element(dcmobj.get(hex2dec('00200037')));
-        dataS  = getTagValue(attr, '00200037');
+        %dataS  = getTagValue(attr, '00200037');
+        %dataS = attr.getDoubles(org.dcm4che3.data.Tag.ImageOrientationPatient);
+        dataS = attr.getDoubles(2097207);
 
         
     case 'xOffset'
         %Image Position (Patient)
-        imgpos = getTagValue(attr, '00200032');
+        %imgpos = getTagValue(attr, '00200032');
+        %imgpos = attr.getDoubles(org.dcm4che3.data.Tag.ImagePositionPatient);
+        imgpos = attr.getDoubles(2097202);
         
-        imgOriV = getTagValue(attr, '00200037');
+        %imgOriV = getTagValue(attr, '00200037');
+        %imgOriV = attr.getDoubles(org.dcm4che3.data.Tag.ImageOrientationPatient);
+        imgOriV = attr.getDoubles(2097207);
         
-        modality = getTagValue(attr, '00080060');
+        %modality = getTagValue(attr, '00080060');
+        %modality = char(attr.getStrings(org.dcm4che3.data.Tag.Modality));
+        modality = char(attr.getString(524384,0));
         
         if isempty(imgpos) && strcmpi(modality,'NM')
             % Multiframe NM image.
-            detectorInfoSequence = getTagValue(attr, '00540022');
+            %detectorInfoSequence = getTagValue(attr, '00540022');
+            %detectorInfoSequence = getTagValue(attr,org.dcm4che3.data.Tag.DetectorInformationSequence);
+            detectorInfoSequence = getTagValue(attr,5505058);
             imgpos = detectorInfoSequence.Item_1.ImagePositionPatient;
             imgOriV = detectorInfoSequence.Item_1.ImageOrientationPatient;
         end
         
         if isempty(imgpos) && strcmpi(modality,'MR')
             % Multiframe MR image.
-            positionRefIndicatorSequence = getTagValue(attr, '52009230');
+            %positionRefIndicatorSequence = getTagValue(attr, '52009230');
+            %positionRefIndicatorSequence = getTagValue(attr,org.dcm4che3.data.Tag.PerframeFunctionalGroupsSequence);
+            positionRefIndicatorSequence = getTagValue(attr,1.375769136000000e+09);
             imgpos = positionRefIndicatorSequence.Item_1...
                 .PlanePositionSequence.Item_1.ImagePositionPatient;
             imgOriV = positionRefIndicatorSequence.Item_1...
@@ -277,11 +350,15 @@ switch fieldname
         
         %Pixel Spacing
         if ismember(modality,{'MG','SM'})
-            pixspac = getTagValue(attr, '00181164');
+            %pixspac = getTagValue(attr, '00181164');
+            %pixspac = attr.getDoubles(org.dcm4che3.data.Tag.ImagerPixelSpacing);
+            pixspac = attr.getDoubles(1577316);
             imgOriV = zeros(6,1);
             imgpos = [0 0 0];        
         else
-            pixspac = getTagValue(attr, '00280030');
+            %pixspac = getTagValue(attr, '00280030');
+            %pixspac = attr.getDoubles(org.dcm4che3.data.Tag.PixelSpacing);
+            pixspac = attr.getDoubles(2621488);
         end
         
         if isempty(pixspac) && strcmpi(modality,'MR')
@@ -290,7 +367,9 @@ switch fieldname
         end
         
         %Columns
-        nCols  = getTagValue(attr, '00280011');
+        %nCols  = getTagValue(attr, '00280011');
+        %nCols = attr.getInt(org.dcm4che3.data.Tag.Columns,0);
+        nCols = attr.getInt(2621457,0);
         
         %Check for oblique scan
         if max(abs((imgOriV(:) - [1 0 0 0 1 0]'))) < 1e-3
@@ -345,19 +424,31 @@ switch fieldname
         
     case 'yOffset'
         %Image Position (Patient)
-        imgpos = getTagValue(attr, '00200032');
-        imgOriV = getTagValue(attr, '00200037');
-        modality = getTagValue(attr, '00080060');
+        %imgpos = getTagValue(attr, '00200032');
+        %imgOriV = getTagValue(attr, '00200037');
+        %modality = getTagValue(attr, '00080060');
+        %imgpos = attr.getDoubles(org.dcm4che3.data.Tag.ImagePositionPatient);        
+        %imgOriV = attr.getDoubles(org.dcm4che3.data.Tag.ImageOrientationPatient);
+        %modality = char(attr.getStrings(org.dcm4che3.data.Tag.Modality));
+        imgpos = attr.getDoubles(2097202);        
+        imgOriV = attr.getDoubles(2097207);
+        modality = char(attr.getString(524384,0));
+        
+        
         if isempty(imgpos) && strcmpi(modality,'NM')
             % Multiframe NM image.
-            detectorInfoSequence = getTagValue(attr, '00540022');
+            %detectorInfoSequence = getTagValue(attr, '00540022');
+            %detectorInfoSequence = getTagValue(attr,org.dcm4che3.data.Tag.DetectorInformationSequence);
+            detectorInfoSequence = getTagValue(attr,5505058);
             imgpos = detectorInfoSequence.Item_1.ImagePositionPatient;
             imgOriV = detectorInfoSequence.Item_1.ImageOrientationPatient;
         end
         
         if isempty(imgpos) && strcmpi(modality,'MR')
             % Multiframe MR image.
-            positionRefIndicatorSequence = getTagValue(attr, '52009230');
+            %positionRefIndicatorSequence = getTagValue(attr, '52009230');
+            %positionRefIndicatorSequence = getTagValue(attr,org.dcm4che3.data.Tag.PerframeFunctionalGroupsSequence);
+            positionRefIndicatorSequence = getTagValue(attr,1.375769136000000e+09);
             imgpos = positionRefIndicatorSequence.Item_1...
                 .PlanePositionSequence.Item_1.ImagePositionPatient;
             imgOriV = positionRefIndicatorSequence.Item_1...
@@ -366,11 +457,15 @@ switch fieldname
         
         %Pixel Spacing
         if ismember(modality,{'MG','SM'})
-            pixspac = getTagValue(attr, '00181164');
+            %pixspac = getTagValue(attr, '00181164');
+            %pixspac = attr.getDoubles(org.dcm4che3.data.Tag.ImagerPixelSpacing);
+            pixspac = attr.getDoubles(1577316);
             imgOriV = zeros(6,1);
             imgpos = [0 0 0];
         else
-            pixspac = getTagValue(attr, '00280030');
+            %pixspac = getTagValue(attr, '00280030');
+            %pixspac = attr.getDoubles(org.dcm4che3.data.Tag.PixelSpacing);
+            pixspac = attr.getDoubles(2621488);
         end
         
         if isempty(pixspac) && strcmpi(modality,'MR')
@@ -397,7 +492,9 @@ switch fieldname
         end
         
         %Rows
-        nRows  = getTagValue(attr, '00280010');
+        %nRows  = getTagValue(attr, '00280010');
+        %nRows = attr.getInt(org.dcm4che3.data.Tag.Rows,0);
+        nRows = attr.getInt(2621456,0);
         
         if ~isOblique && (imgOriV(5)-1)^2 < 1e-5
             yOffset = imgpos(2) + (pixspac(1) * (nRows - 1) / 2);
@@ -440,11 +537,15 @@ switch fieldname
         %In CERR, CT Water is always 1000.
         % dataS = 1000;        
         %Changed to match ReScale Intercept
-        dataS = getTagValue(attr, '00281052');
+        %dataS = getTagValue(attr, '00281052');
+        %dataS = attr.getDoubles(org.dcm4che3.data.Tag.RescaleIntercept);
+        dataS = attr.getDoubles(2625618);
         
     case 'sliceThickness'
         %Slice Thickness
-        slcthk  = getTagValue(attr, '00180050');
+        %slcthk  = getTagValue(attr, '00180050');
+        %slcthk = attr.getDoubles(org.dcm4che3.data.Tag.SliceThickness);
+        slcthk = attr.getDoubles(1572944);
         
         %Convert from DICOM mm to CERR cm.
         dataS  = slcthk / 10;
@@ -454,9 +555,10 @@ switch fieldname
         
     case 'unitNumber'
         %Type 3 field, may not exist.
-        if attr.contains(hex2dec('00081090'))
+        if attr.contains(528528) %org.dcm4che3.data.Tag.ManufacturerModelName
             %Manufacturer's Model Name
-            dataS  = getTagValue(attr, '00081090');
+            %dataS  = getTagValue(attr, '00081090');
+            dataS = attr.getDoubles(528528);
         else
             dataS = 'Unknown';
         end
@@ -466,7 +568,9 @@ switch fieldname
         
     case 'scannerType'
         %Manufacturer
-        dataS  = getTagValue(attr, '00080070');
+        %dataS  = getTagValue(attr, '00080070');
+        %dataS = attr.getDoubles(org.dcm4che3.data.Tag.Manufacturer);
+        dataS = attr.getDoubles(524400);
         
     case 'scanFileName'
         %Store the current open .dcm file.
@@ -482,16 +586,19 @@ switch fieldname
         
     case 'scanID'
         %Study ID
-        dataS  = getTagValue(attr, '00200010');
+        %dataS  = getTagValue(attr, '00200010');
+        %dataS = attr.getStrings(org.dcm4che3.data.Tag.StudyID);
+        dataS = attr.getString(2097168,0);
         
     case 'scanNumber'
         %Currently undefined.
         
     case 'scanDate'
         %Type 3 field, may not exist.
-        if attr.contains(hex2dec('00080021'))
+        if attr.contains(524321) %org.dcm4che3.data.Tag.SeriesDate
             %Series Date
-            dataS  = getTagValue(attr, '00080021');
+            % dataS  = getTagValue(attr, '00080021');
+            dataS = char(attr.getString(524321,0));
         else
             dataS = '';
         end
@@ -510,19 +617,29 @@ switch fieldname
         dataS = 'DICOM';
         
     case 'studyInstanceUID'
-        dataS  = getTagValue(attr, '0020000D');
+        %dataS  = getTagValue(attr, '0020000D');
+        %dataS = char(attr.getStrings(org.dcm4che3.data.Tag.StudyInstanceUID));
+        dataS = char(attr.getString(2097165,0));
         
     case 'seriesInstanceUID'
-        dataS  = getTagValue(attr, '0020000E');
+        %dataS  = getTagValue(attr, '0020000E');
+        %dataS = char(attr.getStrings(org.dcm4che3.data.Tag.SeriesInstanceUID));
+        dataS = char(attr.getString(2097166,0));
         
     case 'sopInstanceUID'
-        dataS = getTagValue(attr, '00080018');
+        %dataS = getTagValue(attr, '00080018');
+        %dataS = char(attr.getStrings(org.dcm4che3.data.Tag.SOPInstanceUID));
+        dataS = char(attr.getString(524312,0));
         
     case 'sopClassUID'
-        dataS = getTagValue(attr, '00080016');
+        %dataS = getTagValue(attr, '00080016');
+        %dataS = char(attr.getStrings(org.dcm4che3.data.Tag.SOPClassUID));
+        dataS = char(attr.getString(524310,0));
         
     case 'frameOfReferenceUID'
-        dataS  = getTagValue(attr, '00200052');
+        %dataS  = getTagValue(attr, '00200052');
+        %dataS = char(attr.getStrings(org.dcm4che3.data.Tag.FrameOfReferenceUID));
+        dataS = char(attr.getString(2097234,0));
         
     case 'DICOMHeaders'
         %Read all the dcm data into a MATLAB struct.
@@ -540,18 +657,20 @@ switch fieldname
         
     case 'headInOut'
         % read out Patient Orientation
-        if attr.contains(hex2dec('00200020'))
+        if attr.contains(2097184) %org.dcm4che3.data.Tag.PatientOrientation
             %AP,LR,HF
-            dataS  = getTagValue(attr, '00200020');
+            %dataS  = getTagValue(attr, '00200020');
+            dataS = char(attr.getString(2097184,0));
         else
             dataS = '';
         end
         
     case 'positionInScan'
         % read out ImageOrientationPatient
-        if attr.contains(hex2dec('00200037'))
+        if attr.contains(2097207) %org.dcm4che3.data.Tag.ImageOrientationPatient
             %Series Date
-            dataS  = getTagValue(attr, '00200037');
+            %dataS  = getTagValue(attr, '00200037');
+            dataS = attr.getDoubles(2097207);
         else
             dataS = '';
         end
@@ -559,30 +678,34 @@ switch fieldname
     case 'patientPosition'
         
         %dataS = pPos;
-        if attr.contains(hex2dec('00185100'))
-            dataS  = getTagValue(attr, '00185100');
+        if attr.contains(1593600) %org.dcm4che3.data.Tag.PatientPosition
+            %dataS  = getTagValue(attr, '00185100');
+            %dataS = char(attr.getStrings(org.dcm4che3.data.Tag.PatientPosition));
+            dataS = char(attr.getString(1593600,0));
         end
                 
     case 'imagePositionPatient'
-        dataS  = getTagValue(attr, '00200032');
+        %dataS  = getTagValue(attr, '00200032');
+        %dataS = attr.getDoubles(org.dcm4che3.data.Tag.ImagePositionPatient);
+        dataS = attr.getDoubles(2097202);
         
     case 'bValue' %REPLACED EL WITH TAG
         % b-value for MR scans (vendor specific private tag)
-        if attr.contains(hex2dec('00431039')) % GE
+        if attr.contains(4395065) %hex2dec('00431039')) % GE
             %el = attr.get(hex2dec('00431039'));
-            tag = '00431039';
-        elseif attr.contains(hex2dec('00189087')) % Philips
+            tag = 4395065;
+        elseif attr.contains(1609863) %hex2dec('00189087')) % Philips
             %el = attr.get(hex2dec('00189087'));
-            tag = '00189087';
-        elseif attr.contains(hex2dec('0019100C')) % SIEMENS
+            tag = 1609863;
+        elseif attr.contains(1642508) %hex2dec('0019100C')) % SIEMENS
             %el = attr.get(hex2dec('0019100C'));
-            tag = '0019100C';
+            tag = 1642508;
         else
             dataS = '';
             return
         end
         %vr = char(el.vr.toString);
-        vr = char(attr.getVR(hex2dec(tag)));
+        vr = char(attr.getVR(tag));
         dataS  = getTagValue(attr, tag);
         if strcmp(vr,'UN')
             dataS = str2double(strtok(char(dataS),'\'));
@@ -597,29 +720,52 @@ switch fieldname
         end
         
     case 'acquisitionDate'
-        dataS  = getTagValue(attr, '00080022');
+        %dataS  = getTagValue(attr, '00080022');
+        %dataS = char(attr.getStrings(org.dcm4che3.data.Tag.AcquisitionDate));
+        dataS = char(attr.getString(524322,0));
     case 'acquisitionTime'
-        dataS  = getTagValue(attr, '00080032');
+        %dataS  = getTagValue(attr, '00080032');
+        %dataS = char(attr.getStrings(org.dcm4che3.data.Tag.AcquisitionTime));
+        dataS = char(attr.getString(524338,0));
     case 'seriesDate'
-        dataS  = getTagValue(attr, '00080021');
+        %dataS  = getTagValue(attr, '00080021');
+        %dataS = char(attr.getStrings(org.dcm4che3.data.Tag.SeriesDate)); %DA
+        dataS = char(attr.getString(524321,0)); %DA
     case 'seriesTime'
-        dataS = getTagValue(attr, '00080031');
+        %dataS = getTagValue(attr, '00080031');
+        %dataS = char(attr.getStrings(org.dcm4che3.data.Tag.SeriesTime)); %TM
+        dataS = char(attr.getString(524337,0)); %TM
     case 'correctedImage'
-        dataS = getTagValue(attr, '00280051');
+        %dataS = getTagValue(attr, '00280051');
+        %dataS = char(attr.getStrings(org.dcm4che3.data.Tag.CorrectedImage)); %CS
+        dataS = char(attr.getString(2621521,0)); %CS
     case 'decayCorrection'
-        dataS = getTagValue(attr, '00541102');
+        %dataS = getTagValue(attr, '00541102');
+        %dataS = char(attr.getStrings(org.dcm4che3.data.Tag.DecayCorrection)); %CS
+        dataS = char(attr.getString(5509378,0)); %CS
     case 'patientWeight'
-        dataS  = getTagValue(attr, '00101030');
+        % dataS  = getTagValue(attr, '00101030');
+        %dataS = attr.getDoubles(org.dcm4che3.data.Tag.PatientWeight); %DS
+        dataS = attr.getDoubles(1052720); %DS
     case 'patientSize'
-        dataS  = getTagValue(attr, '00101020');
+        % dataS  = getTagValue(attr, '00101020');
+        %dataS = attr.getDoubles(org.dcm4che3.data.Tag.PatientSize); %DS
+        dataS = attr.getDoubles(1052704); %DS
     case 'patientBmi'
-        dataS  = getTagValue(attr, '00101022');
+        %dataS  = getTagValue(attr, hex2dec('00101022'));
+        dataS  = getTagValue(attr, 1052706);
+        % NA
     case 'patientSex' 
-        dataS  = getTagValue(attr, '00100040');
+        %dataS  = getTagValue(attr, '00100040');
+        %dataS = char(attr.getStrings(org.dcm4che3.data.Tag.PatientSex)); %CS
+        dataS = char(attr.getString(1048640,0)); %CS
     case 'suvType'
-        dataS  = getTagValue(attr, '00541006');
+        %dataS  = getTagValue(attr, hex2dec('00541006'));
+        dataS  = getTagValue(attr, 5509126);        
     case 'RadiopharmaInfoS'        
-        dataS  = getTagValue(attr, '00540016');
+        %dataS  = getTagValue(attr, '00540016');
+        %dataS = getTagValue(attr, org.dcm4che3.data.Tag.RadiopharmaceuticalInformationSequence); %SQ
+        dataS = getTagValue(attr, 5505046); %SQ
         if isfield(dataS,'Item_1')
             dataS = dataS.Item_1;
         end
@@ -627,33 +773,47 @@ switch fieldname
         %dataS = radiopharmaInfoSeq.get(0);
         
     case 'injectionTime'
-        radiopharmaInfoSeq = attr.getValue(hex2dec('00540016'));
+        %radiopharmaInfoSeq = attr.getValue(hex2dec('00540016'));
+        %radiopharmaInfoSeq = attr.getValue(org.dcm4che3.data.Tag.RadiopharmaceuticalInformationSequence); %SQ
+        radiopharmaInfoSeq = attr.getValue(5505046); %SQ
         if ~isempty(radiopharmaInfoSeq)
             radiopharmaInfoObj = radiopharmaInfoSeq.get(0);
-            dataS = getTagValue(radiopharmaInfoObj, '00181072');
+            %dataS = getTagValue(radiopharmaInfoObj, '00181072');
+            %dataS = char(radiopharmaInfoObj.getStrings(org.dcm4che3.data.Tag.RadiopharmaceuticalStartTime)); %TM
+            dataS = char(radiopharmaInfoObj.getString(1577074,0)); %TM
         end
         
     case 'injectedDose'
-        radiopharmaInfoSeq = attr.getValue(hex2dec('00540016'));
+        %radiopharmaInfoSeq = attr.getValue(hex2dec('00540016'));
+        %radiopharmaInfoSeq = attr.getValue(org.dcm4che3.data.Tag.RadiopharmaceuticalInformationSequence); %SQ
+        radiopharmaInfoSeq = attr.getValue(5505046); %SQ
         if ~isempty(radiopharmaInfoSeq)
             radiopharmaInfoObj = radiopharmaInfoSeq.get(0);
-            dataS = getTagValue(radiopharmaInfoObj, '00181074');
+            %dataS = getTagValue(radiopharmaInfoObj, '00181074');
+            %dataS = radiopharmaInfoObj.getDoubles(org.dcm4che3.data.Tag.RadionuclideTotalDose); %DS
+            dataS = radiopharmaInfoObj.getDoubles(1577076); %DS
         end
     case 'halfLife'
-        radiopharmaInfoSeq = attr.getValue(hex2dec('00540016'));
+        %radiopharmaInfoSeq = attr.getValue(hex2dec('00540016'));
+        %radiopharmaInfoSeq = attr.getValue(org.dcm4che3.data.Tag.RadiopharmaceuticalInformationSequence); %SQ
+        radiopharmaInfoSeq = attr.getValue(5505046); %SQ
         if ~isempty(radiopharmaInfoSeq)
             radiopharmaInfoObj = radiopharmaInfoSeq.get(0);
-            dataS = getTagValue(radiopharmaInfoObj, '00181075');
+            %dataS = getTagValue(radiopharmaInfoObj, '00181075');
+            %dataS = radiopharmaInfoObj.getDoubles(org.dcm4che3.data.Tag.RadionuclideHalfLife); %DS
+            dataS = radiopharmaInfoObj.getDoubles(1577077); %DS
         end
         
     case 'petSeriesType'
-        if attr.contains(hex2dec('00541000'))
-            dataS = getTagValue(attr, '00541000');
+        if attr.contains(5509120) %org.dcm4che3.data.Tag.SeriesType
+            %dataS = getTagValue(attr, '00541000');
+            dataS = char(attr.getString(5509120,0)); %CS
         end
         
     case 'petActivityConcentrationScaleFactor'
-        if attr.contains(hex2dec('70531009'))
-            dataS = getTagValue(attr, '70531009');
+        % Not available in dcm4che dict
+        if attr.contains(1.884491785000000e+09) %hex2dec('70531009')
+            dataS = getTagValue(attr, 1.884491785000000e+09);
             if isnumeric(dataS)
                 strV = native2unicode(dataS);
                 dataS = str2double(strV);
@@ -661,38 +821,45 @@ switch fieldname
         end
         
     case 'imageUnits'
-        if attr.contains(hex2dec('00541001'))
-            dataS = getTagValue(attr, '00541001');
+        if attr.contains(5509121) %org.dcm4che3.data.Tag.Units
+            %dataS = getTagValue(attr, '00541001');
+            dataS = char(attr.getString(5509121,0)); %CS
         end
         
     case 'petCountSource'
-        if attr.contains(hex2dec('00541002'))
-            dataS = getTagValue(attr, '00541002');
+        if attr.contains(5509122) %org.dcm4che3.data.Tag.CountsSource
+            %dataS = getTagValue(attr, '00541002');
+            dataS = char(attr.getString(5509122,0)); %CS
         end
         
     case 'petNumSlices'
-        if attr.contains(hex2dec('00540081'))
-            dataS = getTagValue(attr, '00540081');
+        if attr.contains(5505153) %org.dcm4che3.data.Tag.NumberOfSlices
+            %dataS = getTagValue(attr, '00540081');
+            dataS = attr.getInt(5505153,0); %US
         end
         
     case 'petDecayCorrection'
-        if attr.contains(hex2dec('00541102'))
-            dataS = getTagValue(attr, '00541102');
+        if attr.contains(5509378) %org.dcm4che3.data.Tag.DecayCorrection
+            %dataS = getTagValue(attr, '00541102');
+            dataS = char(attr.getString(5509378,0)); %CS
         end
         
     case 'petCorrectedImage' % type 2
-        if attr.contains(hex2dec('00280051'))
-            dataS = getTagValue(attr, '00280051');
+        if attr.contains(2621521) %org.dcm4che3.data.Tag.CorrectedImage
+            %dataS = getTagValue(attr, '00280051');
+            dataS = char(attr.getString(2621521,0)); %CS
         end
         
     case 'windowCenter'
-        if attr.contains(hex2dec('00281050'))
-            dataS = getTagValue(attr, '00281050');
+        if attr.contains(2625616) %org.dcm4che3.data.Tag.WindowCenter
+            %dataS = getTagValue(attr, '00281050');
+            dataS = attr.getDoubles(2625616); %DS
         end
         
     case 'windowWidth'
-        if attr.contains(hex2dec('00281051'))
-            dataS = getTagValue(attr,'00281051');
+        if attr.contains(2625617) %org.dcm4che3.data.Tag.WindowWidth
+            %dataS = getTagValue(attr,'00281051');
+            dataS = attr.getDoubles(2625617); %DS            
         end
 
                 

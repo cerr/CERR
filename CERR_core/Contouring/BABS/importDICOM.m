@@ -62,15 +62,20 @@ zipFlag = 'No';
 dirsToImportC = {source};
 
 %% Import DICOM to CERR
-tic
-hWaitbar = NaN;
+% Read options file
+pathStr = getCERRPath;
+optName = [pathStr,'CERROptions.json'];
+optS = opts4Exe(optName);
+
 % Import all the dirs
 for dirNum = 1:length(dirsToImportC)
     try
         init_ML_DICOM
         %hWaitbar = waitbar(0,'Scanning Directory Please wait...');
         sourceDir = dirsToImportC{dirNum};
-        patient = scandir_mldcm_babs(sourceDir, hWaitbar, 1);
+        %patient = scandir_mldcm_babs(sourceDir, hWaitbar, 1);
+        excludePixelDataFlag = true;
+        patient = scandir_mldcm(sourceDir, excludePixelDataFlag);
         %close(hWaitbar);
         dcmdirS = struct(['patient_' num2str(1)],patient.PATIENT(1));
         for j = 2:length(patient.PATIENT)
@@ -89,10 +94,10 @@ for dirNum = 1:length(dirsToImportC)
             end
             % Pass the java dicom structures to function to create CERR plan
             try
-                planC = dcmdir2planC(combinedDcmdirS,mergeScansFlag);
+                planC = dcmdir2planC(combinedDcmdirS,mergeScansFlag,optS);
             end
         else
-            planC = dcmdir2planC(patient.PATIENT,mergeScansFlag);
+            planC = dcmdir2planC(patient.PATIENT,mergeScansFlag,optS);
         end
         
         indexS = planC{end};
@@ -143,7 +148,4 @@ for dirNum = 1:length(dirsToImportC)
         
     end
 end
-
-toc
-
 

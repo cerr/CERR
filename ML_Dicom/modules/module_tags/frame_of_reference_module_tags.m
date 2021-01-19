@@ -45,15 +45,15 @@ function tagS = frame_of_reference_module_tags
 % along with CERR.  If not, see <http://www.gnu.org/licenses/>.
 
 %Initialize the tagS structure.
-tagS = struct('tag', {}, 'type', {}, 'children', {});
+tagS = struct('tag', {}, 'tagdec', {}, 'type', {}, 'children', {});
 
 %Create an empty tagS template for sequence creation.
-template = tagS;
+%template = tagS;
 
 %Add tags based on PS3.3 attribute lists.
 
 %Frame of Reference UID
-tagS(end+1) = struct('tag', ['00200052'], 'type', ['1'], 'children', []);
+tagS(end+1) = struct('tag', '00200052', 'tagdec', 2097234, 'type', '1', 'children', []);
 
 %Position Reference Indicator
-tagS(end+1) = struct('tag', ['00201040'], 'type', ['2'], 'children', []);
+tagS(end+1) = struct('tag', '00201040', 'tagdec', 2101312, 'type', '2', 'children', []);

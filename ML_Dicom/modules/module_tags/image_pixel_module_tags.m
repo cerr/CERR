@@ -45,10 +45,10 @@ function tagS = image_pixel_module_tags
 % along with CERR.  If not, see <http://www.gnu.org/licenses/>.
 
 %Initialize the tagS structure.
-tagS = struct('tag', {}, 'type', {}, 'children', {});
+%tagS = struct('tag', {}, 'tagdec', {}, 'type', {}, 'children', {});
 
 %Create an empty tagS template for sequence creation.
-template = tagS;
+%template = tagS;
 
 %Add tags based on PS3.3 attribute lists.
 
@@ -56,4 +56,4 @@ template = tagS;
 tagS = image_pixel_macro_tags;
 
 %Pixel Data Provider URL
-tagS(end+1) = struct('tag', ['00287FE0'], 'type', ['1C'], 'children', []);
+tagS(end+1) = struct('tag', '00287FE0', 'tagdec', 2654176, 'type', '1C', 'children', []);

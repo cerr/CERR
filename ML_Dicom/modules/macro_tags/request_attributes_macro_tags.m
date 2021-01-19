@@ -31,46 +31,46 @@ function tagS = request_attributes_macro_tags
 % along with CERR.  If not, see <http://www.gnu.org/licenses/>.
 
 %Initialize the tagS structure.
-tagS = struct('tag', {}, 'type', {}, 'children', {});
+tagS = struct('tag', {}, 'tagdec', {}, 'type', {}, 'children', {});
 
 %Create an empty tagS template for sequence creation.
-template = tagS;
+%template = tagS;
 
 %Add tags based on PS3.3 attribute lists.
 
 %Requested Procedure ID
-tagS(end+1) = struct('tag', ['00401001'], 'type', ['1'], 'children', []);
+tagS(end+1) = struct('tag', '00401001', 'tagdec', 4198401, 'type', '1', 'children', []);
 
 %Reason for the Requested Procedure
-tagS(end+1) = struct('tag', ['00401002'], 'type', ['3'], 'children', []);
+tagS(end+1) = struct('tag', '00401002', 'tagdec', 4198402, 'type', '3', 'children', []);
 
 %Reason for Requested Procedure Code Sequence
-tagS(end+1) = struct('tag', ['0040100A'], 'type', ['3'], 'children', []);
+tagS(end+1) = struct('tag', '0040100A', 'tagdec', 4198410, 'type', '3', 'children', []);
 
     %Include Code Sequence Macro
     child_1 = code_sequence_macro_tags;
     tagS(end).children = child_1;
     
 %Scheduled Procedure Step ID
-tagS(end+1) = struct('tag', ['00400009'], 'type', ['1'], 'children', []);
+tagS(end+1) = struct('tag', '00400009', 'tagdec', 4194313, 'type', '1', 'children', []);
 
 %Scheduled Procedure Step Description
-tagS(end+1) = struct('tag', ['00400007'], 'type', ['3'], 'children', []);
+tagS(end+1) = struct('tag', '00400007', 'tagdec', 4194311, 'type', '3', 'children', []);
 
 %Scheduled Protocol Code Sequence
-tagS(end+1) = struct('tag', ['00400008'], 'type', ['3'], 'children', []);
+tagS(end+1) = struct('tag', '00400008', 'tagdec', 4194312, 'type', '3', 'children', []);
 
     %Include Code Sequence Macro
     child_1 = code_sequence_macro_tags;
 
     %Protocol Context Sequence
-    child_1(end+1) = struct('tag', ['00400440'], 'type', ['3'], 'children', []);
+    child_1(end+1) = struct('tag', '00400440', 'tagdec', 4195392, 'type', '3', 'children', []);
     
     %Include Content Item Macro
         child_2 = content_item_macro_tags;
         
         %Content Item Modifier Sequence
-        child_2(end+1) = struct('tag', ['00400441'], 'type', ['3'], 'children', []);
+        child_2(end+1) = struct('tag', '00400441', 'tagdec', 4195393, 'type', '3', 'children', []);
         
             %Include Content Item Macro
             child_3 = content_item_macro_tags;

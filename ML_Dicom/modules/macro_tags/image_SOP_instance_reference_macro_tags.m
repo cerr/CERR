@@ -31,18 +31,18 @@ function tagS = image_SOP_instance_reference_macro_tags
 % along with CERR.  If not, see <http://www.gnu.org/licenses/>.
 
 %Initialize the tagS structure.
-tagS = struct('tag', {}, 'type', {}, 'children', {});
+tagS = struct('tag', {}, 'tagdec', {}, 'type', {}, 'children', {});
 
 %Create an empty tagS template for sequence creation.
-template = tagS;
+%template = tagS;
 
 %Add tags based on PS3.3 attribute lists.
 
 %Referenced SOP Class UID
-tagS(end+1) = struct('tag', ['00081150'], 'type', ['1'], 'children', []);
+tagS(end+1) = struct('tag', '00081150', 'tagdec', 528720, 'type', '1', 'children', []);
 
 %Referenced SOP Instance UID
-tagS(end+1) = struct('tag', ['00081155'], 'type', ['1'], 'children', []);
+tagS(end+1) = struct('tag', '00081155', 'tagdec', 528725, 'type', '1', 'children', []);
 
 %Referenced Frame Number
-tagS(end+1) = struct('tag', ['00081160'], 'type', ['1C'], 'children', []);
+tagS(end+1) = struct('tag', '00081160', 'tagdec', 528736, 'type', '1C', 'children', []);

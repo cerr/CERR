@@ -45,7 +45,7 @@ function tagS = RT_dose_module_tags
 % along with CERR.  If not, see <http://www.gnu.org/licenses/>.
 
 %Initialize the tagS structure.
-tagS = struct('tag', {}, 'type', {}, 'children', {});
+tagS = struct('tag', {}, 'tagdec', {}, 'type', {}, 'children', {});
 
 %Create an empty tagS template for sequence creation.
 template = tagS;
@@ -53,85 +53,85 @@ template = tagS;
 %Add tags based on PS3.3 attribute lists.
 
 %Samples per Pixel
-tagS(end+1) = struct('tag', ['00280002'], 'type', ['1C'], 'children', []);
+tagS(end+1) = struct('tag', '00280002', 'tagdec', 2621442, 'type', '1C', 'children', []);
 
 %Photometric Interpretation
-tagS(end+1) = struct('tag', ['00280004'], 'type', ['1C'], 'children', []);
+tagS(end+1) = struct('tag', '00280004', 'tagdec', 2621444, 'type', '1C', 'children', []);
 
 %Bits Allocated
-tagS(end+1) = struct('tag', ['00280100'], 'type', ['1C'], 'children', []);
+tagS(end+1) = struct('tag', '00280100', 'tagdec', 2621696, 'type', '1C', 'children', []);
 
 %Bits Stored
-tagS(end+1) = struct('tag', ['00280101'], 'type', ['1C'], 'children', []);
+tagS(end+1) = struct('tag', '00280101', 'tagdec', 2621697, 'type', '1C', 'children', []);
 
 %High Bit
-tagS(end+1) = struct('tag', ['00280102'], 'type', ['1C'], 'children', []);
+tagS(end+1) = struct('tag', '00280102', 'tagdec', 2621698, 'type', '1C', 'children', []);
 
 %Pixel Representation
-tagS(end+1) = struct('tag', ['00280103'], 'type', ['1C'], 'children', []);
+tagS(end+1) = struct('tag', '00280103', 'tagdec', 2621699, 'type', '1C', 'children', []);
 
 %Dose Units
-tagS(end+1) = struct('tag', ['30040002'], 'type', ['1'], 'children', []);
+tagS(end+1) = struct('tag', '30040002', 'tagdec', 805568514, 'type', '1', 'children', []);
 
 %Dose Type
-tagS(end+1) = struct('tag', ['30040004'], 'type', ['1'], 'children', []);
+tagS(end+1) = struct('tag', '30040004', 'tagdec', 805568516, 'type', '1', 'children', []);
 
 %Instance Number
-tagS(end+1) = struct('tag', ['00200013'], 'type', ['3'], 'children', []);
+tagS(end+1) = struct('tag', '00200013', 'tagdec', 2097171, 'type', '3', 'children', []);
 
 %Dose Comment
-tagS(end+1) = struct('tag', ['30040006'], 'type', ['3'], 'children', []);
+tagS(end+1) = struct('tag', '30040006', 'tagdec', 805568518, 'type', '3', 'children', []);
 
 %Normalization Point
-tagS(end+1) = struct('tag', ['30040008'], 'type', ['3'], 'children', []);
+tagS(end+1) = struct('tag', '30040008', 'tagdec', 805568520, 'type', '3', 'children', []);
 
 %Dose Summation Type
-tagS(end+1) = struct('tag', ['3004000A'], 'type', ['1'], 'children', []);
+tagS(end+1) = struct('tag', '3004000A', 'tagdec', 805568522, 'type', '1', 'children', []);
 
 %Referenced RT Plan Sequence
-tagS(end+1) = struct('tag', ['300C0002'], 'type', ['1C'], 'children', []);
+tagS(end+1) = struct('tag', '300C0002', 'tagdec', 806092802, 'type', '1C', 'children', []);
 child_1 = template;
 
     %Referenced SOP Class UID
-    child_1(end+1) = struct('tag', ['00081150'], 'type', ['1C'], 'children', []);
+    child_1(end+1) = struct('tag', '00081150', 'tagdec', 528720, 'type', '1C', 'children', []);
     
     %Referenced SOP Instance UID
-    child_1(end+1) = struct('tag', ['00081155'], 'type', ['1C'], 'children', []);
+    child_1(end+1) = struct('tag', '00081155', 'tagdec', 528725, 'type', '1C', 'children', []);
     
     %Referenced Fraction Group Sequence
-    child_1(end+1) = struct('tag', ['300C0020'], 'type', ['1C'], 'children', []);    
+    child_1(end+1) = struct('tag', '300C0020', 'tagdec', 806092832, 'type', '1C', 'children', []);    
     child_2 = template;
     
         %Referenced Fraction Group Number
-        child_2(end+1) = struct('tag', ['300C0022'], 'type', ['1C'], 'children', []);    
+        child_2(end+1) = struct('tag', '300C0022', 'tagdec', 806092834, 'type', '1C', 'children', []);    
         
         %Referenced Beam Sequence
-        child_2(end+1) = struct('tag', ['300C0004'], 'type', ['1C'], 'children', []);            
+        child_2(end+1) = struct('tag', '300C0004', 'tagdec', 806092804, 'type', '1C', 'children', []);            
         child_3 = template;
         
             %Referenced Beam Number
-            child_3(end+1) = struct('tag', ['300C0006'], 'type', ['1C'], 'children', []);            
+            child_3(end+1) = struct('tag', '300C0006', 'tagdec', 806092806, 'type', '1C', 'children', []);            
             
             %Referenced Control Point Sequence
-            child_3(end+1) = struct('tag', ['300C00F2'], 'type', ['1C'], 'children', []);                        
+            child_3(end+1) = struct('tag', '300C00F2', 'tagdec', 806093042, 'type', '1C', 'children', []);                        
             child_4 = template;
             
                 %Referenced Start Control Point Index
-                child_4(end+1) = struct('tag', ['300C00F4'], 'type', ['1'], 'children', []);            
+                child_4(end+1) = struct('tag', '300C00F4', 'tagdec', 806093044, 'type', '1', 'children', []);            
                 
                 %Referenced Stop Control Point Index
-                child_4(end+1) = struct('tag', ['300C00F6'], 'type', ['1'], 'children', []);                            
+                child_4(end+1) = struct('tag', '300C00F6', 'tagdec', 806093046, 'type', '1', 'children', []);                            
                 
                 child_3(end).children = child_4;
                 
             child_2(end).children = child_3;                
             
         %Referenced Brachy Application Setup Sequence
-        child_2(end+1) = struct('tag', ['300C000A'], 'type', ['1C'], 'children', []); 
+        child_2(end+1) = struct('tag', '300C000A', 'tagdec', 806092810, 'type', '1C', 'children', []); 
         child_3 = template;
             
             %Referenced Brachy Application Setup Number
-            child_3(end+1) = struct('tag', ['300C000C'], 'type', ['1C'], 'children', []); 
+            child_3(end+1) = struct('tag', '300C000C', 'tagdec', 806092812, 'type', '1C', 'children', []); 
             
             child_2(end).children = child_3;
             
@@ -140,25 +140,11 @@ child_1 = template;
     tagS(end).children = child_1;
     
 %Grid Frame Offset Vector
-tagS(end+1) = struct('tag', ['3004000C'], 'type', ['1C'], 'children', []);    
+tagS(end+1) = struct('tag', '3004000C', 'tagdec', 805568524, 'type', '1C', 'children', []);    
 
 %Dose Grid Scaling
-tagS(end+1) = struct('tag', ['3004000E'], 'type', ['1C'], 'children', []);
+tagS(end+1) = struct('tag', '3004000E', 'tagdec', 805568526, 'type', '1C', 'children', []);
 
 %Tissue Heterogeneity Correction
-tagS(end+1) = struct('tag', ['30040014'], 'type', ['3'], 'children', []);
+tagS(end+1) = struct('tag', '30040014', 'tagdec', 805568532, 'type', '3', 'children', []);
     
-
-
-
-
-
-
-
-
-
-
-
-
-
-

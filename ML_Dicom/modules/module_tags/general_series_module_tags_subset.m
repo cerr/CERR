@@ -47,8 +47,12 @@ function tagS = general_series_module_tags_subset
 
 tagC = {'00080060','0020000E'};
 
+tagDecC = {524384,2097166};
+
+fieldnameC = {'Modality','SeriesInstanceUID'};
+
 typeC = {'1','1'};
 
 childC = cell(1,length(tagC));
 
-tagS = struct('tag',tagC,'type',typeC,'children',childC);
+tagS = struct('tag',tagC,'fieldname',fieldnameC,'tagdec',tagDecC,'type',typeC,'children',childC);

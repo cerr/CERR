@@ -62,13 +62,15 @@ switch fieldname
         if nImages == 1
             IMAGE   = SERIES.Data;
             [imgobj, ~]  = scanfile_mldcm(IMAGE.file);
-            numMultiFrameImages = getTagValue(imgobj, '00280008');
+            %numMultiFrameImages = getTagValue(imgobj, '00280008');
+            %numMultiFrameImages = imgobj.getInts(org.dcm4che3.data.Tag.NumberOfFrames); %IS
+            numMultiFrameImages = imgobj.getInts(2621448); %IS
             if numMultiFrameImages > 1
                 multiFrameFlag = 'Yes';
             end
         end
         
-        hWaitbar = waitbar(0,'Loading Scan Data Please wait...');
+        %hWaitbar = waitbar(0,'Loading Scan Data Please wait...');
         
         switch multiFrameFlag
             
@@ -92,31 +94,47 @@ switch fieldname
                     %sliceV =
                     %dcm2ml_Element(imgobj.get(hex2dec('7FE00010')),transferSyntaxUID);
                     % AI
-                    sliceV = getTagValue(imgobj, '7FE00010'); % NAV
+                    %sliceV = getTagValue(imgobj, '7FE00010'); % NAV
+                    %sliceV = cast(imgobj.getInts(org.dcm4che3.data.Tag.PixelData),'int16'); %OW
+                    sliceV = cast(imgobj.getInts(2.145386512000000e+09),'int16'); %OW
                     % sliceV =
                     % dcm2ml_Element(imgobj,'7FE00010',transferSyntaxUID);
                     % ====== TO DO ===== incorporate changes related to transferSyntaxUID into getTagValue
                     
                     %Rows
-                    nRows  = getTagValue(imgobj, '00280010');
+                    %nRows  = getTagValue(imgobj, '00280010');
+                    %nRows = imgobj.getInt(org.dcm4che3.data.Tag.Rows,0);
+                    nRows = imgobj.getInt(2621456,0);
                     
                     %Columns
-                    nCols  = getTagValue(imgobj ,'00280011');
+                    %nCols  = getTagValue(imgobj ,'00280011');
+                    %nCols = imgobj.getInt(org.dcm4che3.data.Tag.Columns,0);
+                    nCols = imgobj.getInt(2621457,0);
                     
                     %Image Position (Patient)
-                    imgpos = getTagValue(imgobj, '00200032');
+                    %imgpos = getTagValue(imgobj, '00200032');
+                    %imgpos = imgobj.getDoubles(org.dcm4che3.data.Tag.ImagePositionPatient);
+                    imgpos = imgobj.getDoubles(2097202);
                     
                     %Pixel Representation commented by wy
-                    pixRep = getTagValue(imgobj, '00280103');
+                    %pixRep = getTagValue(imgobj, '00280103');
+                    %pixRep = imgobj.getInt(org.dcm4che3.data.Tag.PixelRepresentation,0);
+                    pixRep = imgobj.getInt(2621699,0);
                     
                     %Bits Allocated
-                    bitsAllocated = getTagValue(imgobj, '00280100');
+                    %bitsAllocated = getTagValue(imgobj, '00280100');
+                    %bitsAllocated = imgobj.getInt(org.dcm4che3.data.Tag.BitsAllocated,0);
+                    bitsAllocated = imgobj.getInt(2621696,0);
                     
                     % Samples per pixel
-                    samplesPerPixel = getTagValue(imgobj,'00280002');
+                    %samplesPerPixel = getTagValue(imgobj,'00280002');
+                    %samplesPerPixel = imgobj.getInt(org.dcm4che3.data.Tag.SamplesPerPixel,0);
+                    samplesPerPixel = imgobj.getInt(2621442,0);
                     
                     % Photometric Interpretation
-                    PhotometricInterpretation = getTagValue(imgobj ,'00280004');
+                    %PhotometricInterpretation = getTagValue(imgobj ,'00280004');
+                    %PhotometricInterpretation = char(imgobj.getStrings(org.dcm4che3.data.Tag.PhotometricInterpretation));
+                    %PhotometricInterpretation = char(imgobj.getStrings(2621444));
                     
                     if bitsAllocated > 32
                         error('Maximum 32 bits per scan pixel are supported')
@@ -140,12 +158,11 @@ switch fieldname
                                 sliceV = typecast(sliceV,'int32');
                             end
                         otherwise
-                            error('Unknown pixel representation')
+                            sliceV = typecast(sliceV,'int16');
                             
                     end
-                    
-                    % Reshape the slice.
-                    if samplesPerPixel == 3 % for exaple, rgb
+                    %Shape the slice.
+                    if samplesPerPixel == 3 %rgb
                         slice2D = reshape(sliceV, [samplesPerPixel,nCols,nRows]);
                         slice2D = permute(slice2D,[2,3,1]);
                         slice2D = rgb2gray(slice2D);
@@ -154,16 +171,23 @@ switch fieldname
                     end
                     
                     % Study instance UID
-                    studyUID = getTagValue(imgobj, '0020000D');
+                    %studyUID = getTagValue(imgobj, '0020000D');
+                    %studyUID = char(imgobj.getStrings(org.dcm4che3.data.Tag.StudyInstanceUID));
+                    studyUID = char(imgobj.getString(2097165,0));
                     
                     %Check the image orientation.
-                    imgOriV = getTagValue(imgobj, '00200037');
+                    %imgOriV = getTagValue(imgobj, '00200037');
+                    %imgOriV = imgobj.getDoubles(org.dcm4che3.data.Tag.ImageOrientationPatient);
+                    imgOriV = imgobj.getDoubles(2097207);
                     
                     if isempty(imgOriV)
                         %Check patient orientation
-                        modality = getTagValue(imgobj, '00080060');
+                        %modality = getTagValue(imgobj, '00080060');
+                        %modality = char(imgobj.getStrings(org.dcm4che3.data.Tag.Modality));
+                        modality = char(imgobj.getString(524384,0));
                         if ~ismember(modality,{'MG','SM'})
-                            imgOriV = imgobj.getValue(hex2dec('00200037'));
+                            %imgOriV = imgobj.getValue(org.dcm4che3.data.Tag.ImageOrientationPatient);
+                            imgOriV = imgobj.getValue(2097207);
                         else
                             imgOriV = [];
                         end
@@ -185,13 +209,18 @@ switch fieldname
                         %dicomHeaderS.PatientWeight = getTagValue(imgobj, '00101030');
 
                         % image units
-                        imageUnits = getTagValue(imgobj, '00541001');
+                        %imageUnits = getTagValue(imgobj, '00541001');
+                        %imageUnits = char(imgobj.getStrings(org.dcm4che3.data.Tag.Units));
 
                         % Get calibration factor which is the Rescale slope Attribute Name in DICOM
                         %calibration_factor=dicomHeaderS.RescaleSlope;
-                        rescaleSlope = getTagValue(imgobj, '00281053');
+                        %rescaleSlope = getTagValue(imgobj, '00281053');
+                        %rescaleSlope = imgobj.getDoubles(org.dcm4che3.data.Tag.RescaleSlope);
+                        rescaleSlope = imgobj.getDoubles(2625619);
 
-                        rescaleIntercept = getTagValue(imgobj, '00281052');
+                        %rescaleIntercept = getTagValue(imgobj, '00281052');
+                        %rescaleIntercept = imgobj.getDoubles(org.dcm4che3.data.Tag.RescaleIntercept);
+                        rescaleIntercept = imgobj.getDoubles(2625618);
                         
                         slice2D = rescaleIntercept + single(slice2D)*rescaleSlope;
                         
@@ -279,7 +308,7 @@ switch fieldname
                     
                     clear imageobj;
                     
-                    waitbar(imageNum/(nImages),hWaitbar, ['Loading scans from Series ' num2str(seriesNum) '. Please wait...']);
+                    %waitbar(imageNum/(nImages),hWaitbar, ['Loading scans from Series ' num2str(seriesNum) '. Please wait...']);
                 end
                                 
                 %Reorder 3D matrix based on zValues.
@@ -294,18 +323,25 @@ switch fieldname
                 
                 zValuesV = [];
                 
-                transferSyntaxUID = getTagValue(imgobj,'00020010');
+                %transferSyntaxUID = getTagValue(imgobj,'00020010');
+                %transferSyntaxUID = char(imgobj.getStrings(org.dcm4che3.data.Tag.TransferSyntaxUID));
                 % sliceV =
                 % dcm2ml_Element(imgobj.get(hex2dec('7FE00010')),transferSyntaxUID);
                 % AI
-                sliceV = getTagValue(imgobj, '7FE00010'); % NAV
                 %sliceV = dcm2ml_Element(imgobj,'7FE00010',transferSyntaxUID);
+                %sliceV = getTagValue(imgobj, '7FE00010'); % NAV
+                %sliceV = cast(imgobj.getInts(org.dcm4che3.data.Tag.PixelData),'int16'); %OW
+                sliceV = cast(imgobj.getInts(2.145386512000000e+09),'int16'); %OW
                 
                 %Rows
-                nRows  = getTagValue(imgobj, '00280010');
+                %nRows  = getTagValue(imgobj, '00280010');
+                %nRows = imgobj.getInt(org.dcm4che3.data.Tag.Rows,0);
+                nRows = imgobj.getInt(2621456,0);
                 
                 %Columns
-                nCols  = getTagValue(imgobj, '00280011');
+                %nCols  = getTagValue(imgobj, '00280011');
+                %nCols = imgobj.getInt(org.dcm4che3.data.Tag.Columns,0);
+                nCols = imgobj.getInt(2621457,0);
                 
                 %Image Position (Patient)
                 
@@ -313,16 +349,20 @@ switch fieldname
                 %imgOri = detectorInfoSequence.Item_1.ImageOrientationPatient;
                 
                 %Pixel Representation commented by wy
-                pixRep = getTagValue(imgobj, '00280103');
+                %pixRep = getTagValue(imgobj, '00280103');
+                %pixRep = imgobj.getInt(org.dcm4che3.data.Tag.PixelRepresentation,0);
+                pixRep = imgobj.getInt(2621699,0);
                 
                 %Bits Allocated
-                bitsAllocated = getTagValue(imgobj, '00280100');
+                %bitsAllocated = getTagValue(imgobj, '00280100');
+                %bitsAllocated = imgobj.getInt(org.dcm4che3.data.Tag.BitsAllocated,0);
+                bitsAllocated = imgobj.getInt(2621696,0);
                 
                 if bitsAllocated > 32
-                    error('Only 16 bits per scan pixel are supported')
+                    error('Upto 32 bits per scan pixel are supported')
                 end
                 
-                switch pixRep
+                 switch pixRep
                     case 0
                         if bitsAllocated == 8
                             sliceV = typecast(sliceV,'uint8');
@@ -342,21 +382,28 @@ switch fieldname
                     otherwise
                         error('Unknown pixel representation')                        
                 end
-
                 %Shape the slice.
                 dataS = reshape(sliceV, [nCols nRows numMultiFrameImages]);
                 dataS = permute(dataS,[2 1 3]);
                 
                 % Study instance UID
                 % studyUID = dcm2ml_Element(imgobj.get(hex2dec('0020000D')));
-                studyUID = getTagValue(imgobj, '0020000D');
+                %studyUID = getTagValue(imgobj, '0020000D');
+                %studyUID = char(imgobj.getStrings(org.dcm4che3.data.Tag.StudyInstanceUID));
+                studyUID = char(imgobj.getString(2097165,0));
                 
                 %Check patient orientation
-                imgOriV = getTagValue(imgobj, '00200037');
+                %imgOriV = getTagValue(imgobj, '00200037');
+                %imgOriV = imgobj.getDoubles(org.dcm4che3.data.Tag.ImageOrientationPatient);
+                imgOriV = imgobj.getDoubles(2097207);
                 
-                imgpos = getTagValue(imgobj,'00200032');
+                %imgpos = getTagValue(imgobj,'00200032');
+                %imgpos = imgobj.getDoubles(org.dcm4che3.data.Tag.ImagePositionPatient);
+                imgpos = imgobj.getDoubles(2097202);
                 
-                modality = getTagValue(imgobj,'00080060');
+                %modality = getTagValue(imgobj,'00080060');
+                %modality = char(imgobj.getStrings(org.dcm4che3.data.Tag.Modality));
+                modality = char(imgobj.getString(524384,0));
                 
                 % Get Patient Position from the associated CT/MR scan
                 % in case of NM missing the patient position.
@@ -375,7 +422,9 @@ switch fieldname
                         end
                     end
                     if isempty(imgpos) || isempty(imgOriV)
-                        detectorInfoSequence = dcm2ml_Element(imgobj.get(hex2dec('00540022')));
+                        %detectorInfoSequence = dcm2ml_Element(imgobj.get(hex2dec('00540022')));
+                        %detectorInfoSequence = getTagValue(attr, org.dcm4che3.data.Tag.DetectorInformationSequence); %SQ
+                        detectorInfoSequence = getTagValue(attr, 5505058); %SQ
                         imgpos = detectorInfoSequence.Item_1.ImagePositionPatient;
                         if isempty(imgOriV)
                             imgOriV = detectorInfoSequence.Item_1.ImageOrientationPatient;
@@ -385,19 +434,25 @@ switch fieldname
                                 
                 if strcmpi(modality,'MG')
                     imgpos = [0 0 0];
-                    xray3dAcqSeq = dcm2ml_Element(imgobj.get(hex2dec('00189507')));
+                    %xray3dAcqSeq = dcm2ml_Element(imgobj.get(hex2dec('00189507')));
+                    %xray3dAcqSeq = getTagValue(attr, org.dcm4che3.data.Tag.XRay3DAcquisitionSequence); %SQ
+                    xray3dAcqSeq = getTagValue(attr, 1611015); %SQ
                     bodyPartThickness = xray3dAcqSeq.Item_1.BodyPartThickness;
                     sliceSpacing = bodyPartThickness/double(numMultiFrameImages);
                 end                
                 
                 if strcmpi(modality,'SM')
                     imgpos = [0 0 0];
-                    sharedFrameFuncGrpSeq = dcm2ml_Element(imgobj.get(hex2dec('52009229')));
+                    %sharedFrameFuncGrpSeq = dcm2ml_Element(imgobj.get(hex2dec('52009229')));
+                    %sharedFrameFuncGrpSeq = getTagValue(attr, org.dcm4che3.data.Tag.SharedFunctionalGroupsSequence); %SQ
+                    sharedFrameFuncGrpSeq = getTagValue(attr, 1.375769129000000e+09); %SQ
                     sliceSpacing = sharedFrameFuncGrpSeq.Item_1.PixelMeasuresSequence.Item_1.SliceThickness;                    
                 end                
                 
                 if strcmpi(modality,'MR')
-                    positionRefIndicatorSequence = getTagValue(imgobj, '52009230');
+                    %positionRefIndicatorSequence = getTagValue(imgobj, '52009230');
+                    %positionRefIndicatorSequence = getTagValue(attr, org.dcm4che3.data.Tag.PerframeFunctionalGroupsSequence); %SQ
+                    positionRefIndicatorSequence = getTagValue(attr, 1.375769136000000e+09); %SQ
                     imgOriV = positionRefIndicatorSequence.Item_1...
                         .PlaneOrientationSequence.Item_1.ImageOrientationPatient;
                     for imageNum = 1:numMultiFrameImages
@@ -459,8 +514,8 @@ switch fieldname
                 
         end
         
-        close(hWaitbar);
-        pause(1);
+        %close(hWaitbar);
+        %pause(1);
         
         
     case 'scanType'
@@ -473,12 +528,14 @@ switch fieldname
     case 'scanInfo'
         %Determine number of images
         nImages = length(SERIES.Data);
-        
+        excludePixelDataFlag = true;
         multiFrameFlag = 'No';
         if nImages == 1
             IMAGE   = SERIES.Data;
-            imgobj  = scanfile_mldcm(IMAGE.file);
-            numMultiFrameImages = getTagValue(imgobj, '00280008');
+            imgobj  = scanfile_mldcm(IMAGE.file,excludePixelDataFlag);
+            %numMultiFrameImages = getTagValue(imgobj, '00280008');
+            %numMultiFrameImages = imgobj.getInts(org.dcm4che3.data.Tag.NumberOfFrames); %IS
+            numMultiFrameImages = imgobj.getInts(2621448); %IS
             if numMultiFrameImages > 1
                 multiFrameFlag = 'Yes';
             end
@@ -486,11 +543,11 @@ switch fieldname
         
         %Get scanInfo field names.
         scanInfoInitS = initializeScanInfo;
-        names = fields(scanInfoInitS);
+        names = fieldnames(scanInfoInitS);
         
         zValues = [];
         
-        hWaitbar = waitbar(0,'Loading Scan Info Please wait...');
+        %hWaitbar = waitbar(0,'Loading Scan Info Please wait...');
         
         switch multiFrameFlag
             
@@ -500,13 +557,17 @@ switch fieldname
                 for imageNum = 1:nImages
                     
                     IMAGE   = SERIES.Data(imageNum);  % wy {} --> ()
-                    imgobj  = scanfile_mldcm(IMAGE.file);
+                    imgobj  = scanfile_mldcm(IMAGE.file,excludePixelDataFlag);
                     
                     %Image Position (Patient)
-                    imgpos = getTagValue(imgobj, '00200032');
+                    %imgpos = getTagValue(imgobj, '00200032');
+                    %imgpos = imgobj.getDoubles(org.dcm4che3.data.Tag.ImagePositionPatient);
+                    imgpos = imgobj.getDoubles(2097202);
                     
                     % Image Orientation                    
-                    imgOriV = getTagValue(imgobj,'00200037');
+                    %imgOriV = getTagValue(imgobj,'00200037');
+                    %imgOriV = imgobj.getDoubles(org.dcm4che3.data.Tag.ImageOrientationPatient);
+                    imgOriV = imgobj.getDoubles(2097207);
                     
                     if ismember(type,{'MG','SM'}) % mammogram or pathology
                         imgpos = [0 0 0];
@@ -524,7 +585,7 @@ switch fieldname
                     
                     clear imageobj;
                     
-                    waitbar(imageNum/(nImages),hWaitbar, ['Loading scans Info. ' 'Please wait...']);
+                    %waitbar(imageNum/(nImages),hWaitbar, ['Loading scans Info. ' 'Please wait...']);
                 end                
                 
                 %Reorder scanInfo elements based on zValues.
@@ -546,39 +607,55 @@ switch fieldname
                 frameAcquisitionDurationV = [];
                 frameReferenceDateTimeV = [];
                 
-                sliceSpacing = getTagValue(imgobj, '00180088');
+                %sliceSpacing = getTagValue(imgobj, '00180088');
+                %sliceSpacing = imgobj.getDoubles(org.dcm4che3.data.Tag.SpacingBetweenSlices);
+                sliceSpacing = imgobj.getDoubles(1573000);
                 %zValues = 0:sliceThickness:sliceThickness*double(numMultiFrameImages-1);
                 %modality = dcm2ml_Element(imgobj.get(hex2dec('00080060')));
-                modality = getTagValue(imgobj,'00080060');
+                %modality = getTagValue(imgobj,'00080060');
+                %modality = char(imgobj.getStrings(org.dcm4che3.data.Tag.Modality));
+                modality = char(imgobj.getString(524384,0));
                 %detectorInfoSequence = getTagValue(imgobj, '00540022');                                
                 %imgpos = detectorInfoSequence.Item_1.ImagePositionPatient;
                 %imgpos = dcm2ml_Element(imgobj.get(hex2dec('00200032')));
-                imgpos = getTagValue(imgobj, '00200032');
+                %imgpos = getTagValue(imgobj, '00200032');
+                %imgpos = imgobj.getDoubles(org.dcm4che3.data.Tag.ImagePositionPatient);
+                imgpos = imgobj.getDoubles(2097202);
                 %imgOri = dcm2ml_Element(imgobj.get(hex2dec('00200037')));
-                imgOriV = getTagValue(imgobj, '00200037');
+                %imgOriV = getTagValue(imgobj, '00200037');
+                %imgOriV = imgobj.getDoubles(org.dcm4che3.data.Tag.ImageOrientationPatient);
+                imgOriV = imgobj.getDoubles(2097207);
                 if isempty(imgpos) && strcmpi(modality,'NM')
                     % Multiframe NM image.
                     %detectorInfoSequence = dcm2ml_Element(imgobj.get(hex2dec('00540022')));
-                    detectorInfoSequence = getTagValue(imgobj, '00540022'); 
+                    %detectorInfoSequence = getTagValue(imgobj, '00540022'); 
+                    %detectorInfoSequence = getTagValue(attr, org.dcm4che3.data.Tag.DetectorInformationSequence); %SQ
+                    detectorInfoSequence = getTagValue(attr, 5505058); %SQ
                     imgpos = detectorInfoSequence.Item_1.ImagePositionPatient;
                     imgOriV = detectorInfoSequence.Item_1.ImageOrientationPatient;
                 end
                                 
                 if strcmpi(modality,'MG')
                     imgpos = [0 0 0];
-                    xray3dAcqSeq = dcm2ml_Element(imgobj.get(hex2dec('00189507')));
+                    %xray3dAcqSeq = dcm2ml_Element(imgobj.get(hex2dec('00189507')));
+                    %xray3dAcqSeq = getTagValue(attr, org.dcm4che3.data.Tag.XRay3DAcquisitionSequence); %SQ
+                    xray3dAcqSeq = getTagValue(attr, 1611015); %SQ
                     bodyPartThickness = xray3dAcqSeq.Item_1.BodyPartThickness;
                     sliceSpacing = bodyPartThickness/double(numMultiFrameImages);
                 end                
                 
                 if strcmpi(modality,'SM')
                     imgpos = [0 0 0];
-                    sharedFrameFuncGrpSeq = dcm2ml_Element(imgobj.get(hex2dec('52009229')));
+                    %sharedFrameFuncGrpSeq = dcm2ml_Element(imgobj.get(hex2dec('52009229')));
+                    %sharedFrameFuncGrpSeq = getTagValue(attr, org.dcm4che3.data.Tag.SharedFunctionalGroupsSequence); %SQ
+                    sharedFrameFuncGrpSeq = getTagValue(attr, 1.375769129000000e+09); %SQ
                     sliceSpacing = sharedFrameFuncGrpSeq.Item_1.PixelMeasuresSequence.Item_1.SliceThickness;                    
                 end
                 
                 if strcmpi(modality,'MR')
-                    positionRefIndicatorSequence = getTagValue(imgobj, '52009230');
+                    %positionRefIndicatorSequence = getTagValue(imgobj, '52009230');
+                    %positionRefIndicatorSequence = getTagValue(attr, org.dcm4che3.data.Tag.PerframeFunctionalGroupsSequence); %SQ
+                    positionRefIndicatorSequence = getTagValue(attr, 1.375769136000000e+09); %SQ
                     gridUnitsV = positionRefIndicatorSequence.Item_1...
                         .PixelMeasuresSequence.Item_1.PixelSpacing;
                     gridUnitsV = gridUnitsV / 10;
@@ -703,7 +780,7 @@ switch fieldname
                 
         end
         
-        close(hWaitbar);
+        %close(hWaitbar);
         
         
     case 'uniformScanInfo'
@@ -718,7 +795,9 @@ switch fieldname
         %Implementation is unnecessary.
     case 'scanUID'
         %Series Instance UID
-        dataS = getTagValue(SERIES.info, '0020000E');
+        %dataS = getTagValue(SERIES.info, '0020000E');
+        %dataS = char(SERIES.info.getStrings(org.dcm4che3.data.Tag.SeriesInstanceUID));
+        dataS = char(SERIES.info.getString(2097166,0));
         
         %wy, use the frame of reference UID to associate dose to scan.
         %IMAGE   = SERIES.Data(1); % wy {} --> ()

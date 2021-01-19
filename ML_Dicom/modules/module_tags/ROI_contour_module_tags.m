@@ -45,7 +45,7 @@ function tagS = ROI_contour_module_tags
 % along with CERR.  If not, see <http://www.gnu.org/licenses/>.
 
 %Initialize the tagS structure.
-tagS = struct('tag', {}, 'type', {}, 'children', {});
+tagS = struct('tag', {}, 'tagdec', {}, 'type', {}, 'children', {});
 
 %Create an empty tagS template for sequence creation.
 template = tagS;
@@ -55,27 +55,27 @@ template = tagS;
 %Add tags based on PS3.3 attribute lists.
 
 %ROI Contour Sequence
-tagS(end+1) = struct('tag', ['30060039'], 'type', ['1'], 'children', []);
+tagS(end+1) = struct('tag', '30060039', 'tagdec', 805699641, 'type', '1', 'children', []);
 child_1     = template;
   
     %Referenced ROI Number
-    child_1(end+1) = struct('tag', ['30060084'], 'type', ['1'], 'children', []);    
+    child_1(end+1) = struct('tag', '30060084', 'tagdec', 805699716, 'type', '1', 'children', []);    
     
     %ROI Display Color
-    child_1(end+1) = struct('tag', ['3006002A'], 'type', ['3'], 'children', []);             
+    child_1(end+1) = struct('tag', '3006002A', 'tagdec', 805699626, 'type', '3', 'children', []);             
     
     %Contour Sequence
-    child_1(end+1) = struct('tag', ['30060040'], 'type', ['3'], 'children', []);    
+    child_1(end+1) = struct('tag', '30060040', 'tagdec', 805699648, 'type', '3', 'children', []);    
     child_2        = template;
     
         %Contour Number
-        child_2(end+1) = struct('tag', ['30060048'], 'type', ['3'], 'children', []);    
+        child_2(end+1) = struct('tag', '30060048', 'tagdec', 805699656, 'type', '3', 'children', []);    
 
         %Attached Contours
-        child_2(end+1) = struct('tag', ['30060049'], 'type', ['3'], 'children', []);        
+        child_2(end+1) = struct('tag', '30060049', 'tagdec', 805699657, 'type', '3', 'children', []);        
         
         %Contour Image Sequence
-        child_2(end+1) = struct('tag', ['30060016'], 'type', ['3'], 'children', []);    
+        child_2(end+1) = struct('tag', '30060016', 'tagdec', 805699606, 'type', '3', 'children', []);    
         child_3        = template;
         
             %Image SOP Instance Reference Macro
@@ -83,19 +83,19 @@ child_1     = template;
             child_2(end).children = child_3;
             
         %Contour Geometric Type
-        child_2(end+1) = struct('tag', ['30060042'], 'type', ['1C'], 'children', []);    
+        child_2(end+1) = struct('tag', '30060042', 'tagdec', 805699650, 'type', '1C', 'children', []);    
         
         %Contour Slab Thickness
-        child_2(end+1) = struct('tag', ['30060044'], 'type', ['3'], 'children', []);            
+        child_2(end+1) = struct('tag', '30060044', 'tagdec', 805699652, 'type', '3', 'children', []);            
         
         %Contour Offset Vector
-        child_2(end+1) = struct('tag', ['30060045'], 'type', ['3'], 'children', []);            
+        child_2(end+1) = struct('tag', '30060045', 'tagdec', 805699653, 'type', '3', 'children', []);            
         
         %Number of Contour Points
-        child_2(end+1) = struct('tag', ['30060046'], 'type', ['1C'], 'children', []);                    
+        child_2(end+1) = struct('tag', '30060046', 'tagdec', 805699654, 'type', '1C', 'children', []);                    
         
         %Contour Data
-        child_2(end+1) = struct('tag', ['30060050'], 'type', ['1C'], 'children', []);            
+        child_2(end+1) = struct('tag', '30060050', 'tagdec', 805699664, 'type', '1C', 'children', []);            
         
         child_1(end).children = child_2;
         

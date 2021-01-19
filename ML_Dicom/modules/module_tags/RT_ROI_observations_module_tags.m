@@ -45,45 +45,43 @@ function tagS = RT_ROI_observations_module_tags
 % along with CERR.  If not, see <http://www.gnu.org/licenses/>.
 
 %Initialize the tagS structure.
-tagS = struct('tag', {}, 'type', {}, 'children', {});
+tagS = struct('tag', {}, 'tagdec', {}, 'type', {}, 'children', {});
 
 %Create an empty tagS template for sequence creation.
 template = tagS;
 
-
-
 %Add tags based on PS3.3 attribute lists.
 
 %RT ROI Observations Sequence
-tagS(end+1) = struct('tag', ['30060080'], 'type', ['1'], 'children', []);
+tagS(end+1) = struct('tag', '30060080', 'tagdec', 805699712, 'type', '1', 'children', []);
 child_1     = template;
 
     %Observation Number
-    child_1(end+1) = struct('tag', ['30060082'], 'type', ['1'], 'children', []);
+    child_1(end+1) = struct('tag', '30060082', 'tagdec', 805699714, 'type', '1', 'children', []);
     
     %Referenced ROI Number
-    child_1(end+1) = struct('tag', ['30060084'], 'type', ['1'], 'children', []);    
+    child_1(end+1) = struct('tag', '30060084', 'tagdec', 805699716, 'type', '1', 'children', []);    
     
     %ROI Observation Label
-    child_1(end+1) = struct('tag', ['30060085'], 'type', ['3'], 'children', []);    
+    child_1(end+1) = struct('tag', '30060085', 'tagdec', 805699717, 'type', '3', 'children', []);    
     
     %Referenced ROI Description
-    child_1(end+1) = struct('tag', ['30060088'], 'type', ['3'], 'children', []);    
+    child_1(end+1) = struct('tag', '30060088', 'tagdec', 805699720, 'type', '3', 'children', []);    
     
     %RT Related ROI Sequence
-    child_1(end+1) = struct('tag', ['30060030'], 'type', ['3'], 'children', []);    
+    child_1(end+1) = struct('tag', '30060030', 'tagdec', 805699632, 'type', '3', 'children', []);    
     child_2        = template;
     
         %Referenced ROI Number
-        child_2(end+1) = struct('tag', ['30060084'], 'type', ['1C'], 'children', []);    
+        child_2(end+1) = struct('tag', '30060084', 'tagdec', 805699716, 'type', '1C', 'children', []);    
         
         %RT ROI Relationship
-        child_2(end+1) = struct('tag', ['30060033'], 'type', ['3'], 'children', []);    
+        child_2(end+1) = struct('tag', '30060033', 'tagdec', 805699635, 'type', '3', 'children', []);    
     
         child_1(end).children = child_2;
         
     %RT ROI Identification Code Sequence
-    child_1(end+1) = struct('tag', ['30060086'], 'type', ['3'], 'children', []);    
+    child_1(end+1) = struct('tag', '30060086', 'tagdec', 805699718, 'type', '3', 'children', []);    
     child_2        = template;
     
         child_2 = code_sequence_macro_tags;
@@ -91,32 +89,32 @@ child_1     = template;
         child_1(end).children = child_2;
         
     %Related RT ROI Observations Sequence
-    child_1(end+1) = struct('tag', ['300600A0'], 'type', ['3'], 'children', []);    
+    child_1(end+1) = struct('tag', '300600A0', 'tagdec', 805699744, 'type', '3', 'children', []);    
     child_2        = template;
     
         %Observation Number
-        child_2(end+1) = struct('tag', ['30060082'], 'type', ['1C'], 'children', []);    
+        child_2(end+1) = struct('tag', '30060082', 'tagdec', 805699714, 'type', '1C', 'children', []);    
         
         child_1(end).children = child_1;
         
     %RT ROI Interpreted Type
-    child_1(end+1) = struct('tag', ['300600A4'], 'type', ['2'], 'children', []);       
+    child_1(end+1) = struct('tag', '300600A4', 'tagdec', 805699748, 'type', '2', 'children', []);       
     
     %ROI Interpreter
-    child_1(end+1) = struct('tag', ['300600A6'], 'type', ['2'], 'children', []);           
+    child_1(end+1) = struct('tag', '300600A6', 'tagdec', 805699750, 'type', '2', 'children', []);           
     
     %Material ID
-    child_1(end+1) = struct('tag', ['300A00E1'], 'type', ['3'], 'children', []);           
+    child_1(end+1) = struct('tag', '300A00E1', 'tagdec', 805961953, 'type', '3', 'children', []);           
     
     %ROI Physical Properties Sequence
-    child_1(end+1) = struct('tag', ['300600B0'], 'type', ['3'], 'children', []);           
+    child_1(end+1) = struct('tag', '300600B0', 'tagdec', 805699760, 'type', '3', 'children', []);           
     child_2        = template;
     
         %ROI Physical Property
-        child_2(end+1) = struct('tag', ['300600B2'], 'type', ['1C'], 'children', []);           
+        child_2(end+1) = struct('tag', '300600B2', 'tagdec', 805699762, 'type', '1C', 'children', []);           
         
         %ROI Physical Property Value
-        child_2(end+1) = struct('tag', ['300600B4'], 'type', ['1C'], 'children', []);           
+        child_2(end+1) = struct('tag', '300600B4', 'tagdec', 805699764, 'type', '1C', 'children', []);           
         
         child_1(end).children = child_2;
         

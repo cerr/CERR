@@ -1,4 +1,4 @@
-function structS = sortStructures(structS, isObliqScanV, planC)
+function structS = sortStructures(structS, isObliqScanV, optS, planC)
 
 if ~exist('planC','var')
     global planC
@@ -49,9 +49,9 @@ if ~isempty(sopInstanceC)
     sopInstanceC = sopInstanceC(index);
 end
 
-modality = planC{indexS.scan}(scanInd).scanInfo(1).imageType;
+%modality = planC{indexS.scan}(scanInd).scanInfo(1).imageType;
 
-optS = opts4Exe([getCERRPath,'CERROptions.json']);
+%optS = opts4Exe([getCERRPath,'CERROptions.json']);
 contourSliceTol = optS.contourToSliceTolerance;
 
 for j=1:length(zmesh) % loop through the number of CT

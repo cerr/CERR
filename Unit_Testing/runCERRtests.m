@@ -17,6 +17,6 @@ logFileName = fullfile(topLevelCERRDir,'Unit_Testing',['UnitTestResult_',datestr
 testsDir = fullfile(topLevelCERRDir,'Unit_Testing','tests_for_cerr');
 
 % Run tests
-runtests(testsDir, '-verbose', '-logfile', logFileName)
+runtests_xunit(testsDir, '-verbose', '-logfile', logFileName)
 
 disp(['--------- Tests Finished. Output written to ', logFileName, ' ---------'])

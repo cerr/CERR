@@ -31,12 +31,12 @@ function tagS = person_identification_macro_tags
 % along with CERR.  If not, see <http://www.gnu.org/licenses/>.
 
 tagC = {'00401101','00401102','00401103','00080080','00080081','00080082'};
-
+tagDecC = {4198657, 4198658, 4198659, 524416, 524417, 524418};
 typeC = {'1','3','3','1C','3','1C'};
 
 childC = {code_sequence_macro_tags,[],[],[],[],code_sequence_macro_tags};
 
-tagS = struct('tag', tagC, 'type', typeC, 'children', childC);
+tagS = struct('tag', tagC, 'tagdec', tagDecC, 'type', typeC, 'children', childC);
 
 
 % 
