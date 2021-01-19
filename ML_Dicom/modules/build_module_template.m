@@ -39,7 +39,7 @@ function dcmobj = build_module_template(moduleName)
 %%dcmobj = org.dcm4che2.data.BasicDicomObject;
   %dcmobj = org.dcm4che3.data.Attributes;
   
-Done = 0;
+%Done = 0;
 
 switch lower(moduleName)
     %Get the top level tags used in this module.
@@ -100,5 +100,5 @@ end
 %tags = hex2dec({tagS.tag});
 
 %Create all top level tags in this object.
-dcmobj = org.dcm4che3.data.Attributes(length(tagS));
+dcmobj = javaObject('org.dcm4che3.data.Attributes',length(tagS));
 dcmobj = createEmptyFields(dcmobj, tagS);

@@ -1,4 +1,3 @@
-
 function dataS = populate_planC_field(cellName, dcmdir_patient, optS, varargin)
 %"populate_planC_field"
 %   Given the name of a child cell to planC, such as 'scan', 'dose',
@@ -40,7 +39,7 @@ function dataS = populate_planC_field(cellName, dcmdir_patient, optS, varargin)
 %Get template for the requested cell.
 persistent rtPlans scanOriS
 structS = initializeCERR(cellName);
-names   = fields(structS);
+names   = fieldnames(structS);
 
 dataS = [];
 switch cellName
@@ -51,6 +50,9 @@ switch cellName
         end
         
     case 'scan'
+        
+        disp('Loading Scan ...')
+        
         % supportedModalities = {'CT'};
         scansAdded = 0;
         
@@ -198,7 +200,6 @@ switch cellName
         
     case 'structures'
         [seriesC, typeC]    = extract_all_series(dcmdir_patient);
-        supportedTypes      = {'RTSTRUCT'};
         structsAdded          = 0;
         
         % Get scan object from varargin if it is not empty. 
@@ -207,9 +208,11 @@ switch cellName
             scanOriS = varargin{1};
         end
         
-        hWaitbar = waitbar(0,'Loading Structures Please wait...');
+        %hWaitbar = waitbar(0,'Loading Structures Please wait...');
         
-        strSeries = length(find(strcmpi(typeC, 'RTSTRUCT')==1));
+        %strSeries = length(find(strcmpi(typeC, 'RTSTRUCT')==1));
+        
+        disp('Loading RTSTRUCT ...')
         
         %Place each structure into its own array element.
         for seriesNum = 1:length(seriesC)
@@ -219,17 +222,22 @@ switch cellName
                 RTSTRUCT = seriesC{seriesNum}.Data;
                 for k = 1:length(RTSTRUCT)
                     strobj  = scanfile_mldcm(RTSTRUCT(k).file);
-
-                    SSRS = strobj.getValue(hex2dec('30060020'));
+                    
+                    % StructureSetROISequence
+                    SSRS = strobj.getValue(805699616); %org.dcm4che3.data.Tag.StructureSetROISequence; %hex2dec('30060020')
+                    numSSRS = SSRS.size();
+                    roiNummV = zeros(1,numSSRS,'int32');
+                    for iStr = 1:numSSRS
+                        ssObj = SSRS.get(iStr - 1);
+                        roiNummV(iStr) = ssObj.getInts(805699618); %org.dcm4che3.data.Tag.ROINumber; % vr=IS
+                    end
                     
                     %ROI Contour Sequence.
-                    %el = strobj.getStrings(hex2dec('30060039'));
-                    el = strobj.getValue(hex2dec('30060039'));
-                    %%%UPDATED dcm4che3
-                    %If non-empty sequence, get item count, else set to
-                    %zero
-                    if ~isempty(el)
-                        nStructures = el.size();
+                    RCS = strobj.getValue(805699641); %org.dcm4che3.data.Tag.ROIContourSequence; % hex2dec('30060039')                        
+                    
+                    %If non-empty sequence, get item count, else set to zero
+                    if ~isempty(RCS)
+                        nStructures = RCS.size();
                     else
                          nStructures = 0;
                     end
@@ -243,9 +251,18 @@ switch cellName
                     %curStructNum = 1; %wy modified for suppport multiple RS files
                     for structNum = 1:nStructures
                         
+                        cObj = RCS.get(structNum - 1);
+                        
+                        %Referenced ROI Number
+                        %RRN = getTagValue(cObj, '30060084');
+                        RRN = cObj.getInts(805699716); %org.dcm4che3.data.Tag.ReferencedROINumber; %IS
+                        
+                        indSSRS = find(ismember(roiNummV,RRN));
+                        
                         % Get Structure name
-                        ssObj = SSRS.get(structNum - 1);
-                        structureName = getTagValue(ssObj, '30060026');
+                        ssObj = SSRS.get(indSSRS - 1);
+                        %structureName = getTagValue(ssObj, '30060026');
+                        structureName = char(ssObj.getStrings(805699622)); %org.dcm4che3.data.Tag.ROIName;
                         
                         if ~isempty(structuresToImportC)
                             matchIndex = getMatchingIndex(structureName,...
@@ -257,18 +274,18 @@ switch cellName
 
                         if isempty(matchIndex)
                             continue;
-                        end
+                        end                                                
                         
                         %Populate each field in the structure field set
                         for i = 1:length(names)
                             dataS(structsAdded+1).(names{i}) = ...
                                 populate_planC_structures_field(names{i}, ...
-                                RTSTRUCT, structNum, scanOriS, strobj, optS);
+                                RTSTRUCT, scanOriS, strobj, ssObj, cObj, optS);
                         end
                         %curStructNum = curStructNum + 1;
                         structsAdded = structsAdded + 1;
                         
-                        waitbar(structsAdded/(nStructures*length(RTSTRUCT)*strSeries), hWaitbar, 'Loading structures, Please wait...');
+                        %waitbar(structsAdded/(nStructures*length(RTSTRUCT)*strSeries), hWaitbar, 'Loading structures, Please wait...');
                         
                         %a temporary limit of 52 structs
                         %if (structsAdded>=52)
@@ -281,15 +298,14 @@ switch cellName
             end
             
         end
-        close(hWaitbar);
-        pause(0.1);
+        %close(hWaitbar);
+        %pause(0.1);
         
         %     case 'structureArray'
         %         populate_planC_structureArray_field(fieldName, dcmdir);
         
     case 'dose'
         [seriesC, typeC]    = extract_all_series(dcmdir_patient);
-        supportedTypes      = {'RTDOSE'};
         dosesAdded          = 0;
         frameOfRefUIDC       = {};
         %Place each RTDOSE into its own array element.
@@ -302,7 +318,8 @@ switch cellName
                     doseobj  = scanfile_mldcm(RTDOSE(doseNum).file);
                     
                     % Frame of Reference UID
-                    frameOfRefUID = getTagValue(doseobj, '00200052');
+                    %frameOfRefUID = getTagValue(doseobj, '00200052');
+                    frameOfRefUID = char(doseobj.getStrings(2097234)); %org.dcm4che3.data.Tag.FrameOfReferenceUID;
                                             
                     %check if it is a DVH                    
                     dvhsequence = populate_planC_dose_field('dvhsequence', ...
@@ -425,25 +442,20 @@ switch cellName
                             if strcmpi(typeC{seriesNumStr}, 'RTSTRUCT')
 
                                 RTSTRUCT = seriesC{seriesNumStr}.Data;   
-                                %structureNameC = {};
-                                %structureNumberV = [];
                                 for k = 1:length(RTSTRUCT)
                                     strobj  = scanfile_mldcm(RTSTRUCT(k).file);
+                                    
+                                    % StructureSetROISequence
+                                    SSRS = strobj.getValue(805699616); %org.dcm4che3.data.Tag.StructureSetROISequence; %hex2dec('30060020');
+                                    numSSRS = SSRS.size();
+                                    for js = 1:numSSRS                                        
+                                        % Get Structure name
+                                        ssObj = SSRS.get(js - 1);
+                                        
+                                        %structureName = getTagValue(ssObj, '30060026');
+                                        structureNameC{end+1} = char(ssObj.getStrings(805699622)); %org.dcm4che3.data.Tag.ROIName;
+                                        structureNumberV(end+1) = ssObj.getInts(805699618); %org.dcm4che3.data.Tag.ROINumber;
 
-                                    %ROI Contour Sequence.
-                                    el = strobj.getValue(hex2dec('30060039'));
-                                    % ROI = strobj.getInt(org.dcm4che2.data.Tag.ROIContourSequence);                                    
-                                    if ~isempty(el)
-                                        nStructures = el.size();
-                                    else
-                                        nStructures = 0;
-                                    end                                 
-                                    for js = 1:nStructures
-                                        %get Structure name
-                                        structureNameC{end+1} = ...
-                                            populate_planC_structures_field('structureName', RTSTRUCT, js, scanOriS, strobj, optS);
-                                        structureNumberV(end+1) = ...
-                                            populate_planC_structures_field('roiNumber', RTSTRUCT, js, scanOriS, strobj, optS);
                                     end                                    
                                 end
 
@@ -451,24 +463,40 @@ switch cellName
 
                         end                        
                         
-                        DVH_items = fieldnames(dvhsequence);
-                        for i = 1:length(DVH_items)
+                        %DVH_items = fieldnames(dvhsequence);
+                        DVH_items = dvhsequence.size();
+                        for i = 1:DVH_items
+                            dvhsAdded = dvhsAdded + 1;
                             for j = 1:length(names)
-                                dataS(dvhsAdded+1).(names{j}) = populate_planC_DVH_field(names{j}, RTDOSE(doseNum), doseobj, rtPlans);
+                                dataS(dvhsAdded).(names{j}) = populate_planC_DVH_field(names{j}, RTDOSE(doseNum), doseobj, rtPlans);
                             end
+                            dvhObj = dvhsequence.get(i-1);
+                            dataS(dvhsAdded).volumeType = char(dvhObj.getStrings(805568513)); %org.dcm4che3.data.Tag.DVHType;
+                            dataS(dvhsAdded).doseType = char(dvhObj.getStrings(805568516)); %org.dcm4che3.data.Tag.DoseType;
+                            dataS(dvhsAdded).doseUnits = char(dvhObj.getStrings(805568514)); %org.dcm4che3.data.Tag.DoseUnits;
                             
-                            dataS(dvhsAdded+1).volumeType = dvhsequence.(['Item_',num2str(i)]).DVHType;                                                        
-                            dataS(dvhsAdded+1).doseType = dvhsequence.(['Item_',num2str(i)]).DoseType; 
-                            dataS(dvhsAdded+1).doseUnits = dvhsequence.(['Item_',num2str(i)]).DoseUnits; 
-                            if isfield(dvhsequence.(['Item_',num2str(i)]),'DVHReferencedROISequence')
-                                structureNumber = dvhsequence.(['Item_',num2str(i)]).DVHReferencedROISequence.Item_1.ReferencedROINumber;
+                            %dataS(dvhsAdded+1).volumeType = dvhsequence.(['Item_',num2str(i)]).DVHType;                                                        
+                            %dataS(dvhsAdded+1).doseType = dvhsequence.(['Item_',num2str(i)]).DoseType; 
+                            %dataS(dvhsAdded+1).doseUnits = dvhsequence.(['Item_',num2str(i)]).DoseUnits; 
+                            
+                            dvhReferencedROISequence = dvhObj.getValue(805568608); %org.dcm4che3.data.Tag.DVHReferencedROISequence;
+                            if ~isempty(dvhReferencedROISequence) %isfield(dvhsequence.(['Item_',num2str(i)]),'DVHReferencedROISequence')
+                                %structureNumber = dvhsequence.(['Item_',num2str(i)]).DVHReferencedROISequence.Item_1.ReferencedROINumber;
+                                structureNumber = dvhReferencedROISequence.get(0).getInts(805699716); %org.dcm4che3.data.Tag.ReferencedROINumber); % .(['Item_',num2str(i)]).DVHReferencedROISequence.Item_1.ReferencedROINumber;
                                 indROINumber = find(structureNumberV==structureNumber);
                                 if ~isempty(indROINumber)
-                                    dataS(dvhsAdded+1).structureName = structureNameC{indROINumber};
+                                    %dataS(dvhsAdded+1).structureName = structureNameC{indROINumber};
+                                    dataS(dvhsAdded).structureName = structureNameC{indROINumber};
                                 end
                             end
-                            dataS(dvhsAdded+1).doseScale = dvhsequence.(['Item_',num2str(i)]).DVHDoseScaling;
-                            binWidthsV = dvhsequence.(['Item_',num2str(i)]).DVHData(1:2:end);
+                            %dataS(dvhsAdded+1).doseScale = dvhsequence.(['Item_',num2str(i)]).DVHDoseScaling;
+                            dataS(dvhsAdded).doseScale = dvhObj.getDoubles(805568594); %org.dcm4che3.data.Tag.DVHDoseScaling;
+                            %binWidthsV = dvhsequence.(['Item_',num2str(i)]).DVHData(1:2:end);
+                            binWidthsV = dvhObj.getDoubles(805568600); %org.dcm4che3.data.Tag.DVHData;
+                            binWidthsV = binWidthsV(1:2:end);
+                            volumeBinsV = dvhObj.getDoubles(805568600); %org.dcm4che3.data.Tag.DVHData;
+                            volumeBinsV = volumeBinsV(2:2:end);
+                            
                             %maxDVHDose = dvhsequence.(['Item_',num2str(i)]).DVHMaximumDose;
                             %minDVHDose = dvhsequence.(['Item_',num2str(i)]).DVHMinimumDose;
                             doseBinsV = [];
@@ -476,21 +504,21 @@ switch cellName
                             for iBin = 2:length(binWidthsV)
                                 doseBinsV(iBin) = doseBinsV(iBin-1) + binWidthsV(iBin);
                             end                                                          
-                            dataS(dvhsAdded+1).DVHMatrix(:,1) = doseBinsV(:);
-                            if strcmpi(dataS(dvhsAdded+1).volumeType,'cumulative')
-                                if length(dvhsequence.(['Item_',num2str(i)]).DVHData) > 2
-                                    volumeBinsV = dvhsequence.(['Item_',num2str(i)]).DVHData(2:2:end);
+                            dataS(dvhsAdded).DVHMatrix(:,1) = doseBinsV(:);
+                            if strcmpi(dataS(dvhsAdded).volumeType,'cumulative')
+                                if length(doseBinsV) > 1
+                                    %volumeBinsV = dvhsequence.(['Item_',num2str(i)]).DVHData(2:2:end);
                                     volumeBinsV = diff(volumeBinsV(1)-volumeBinsV);
                                     volumeBinsV = [volumeBinsV(1); volumeBinsV(:)];
                                 else
                                     volumeBinsV = dataS(dvhsAdded+1).DVHMatrix(:,1)*NaN;
                                 end
                             else
-                                volumeBinsV = dvhsequence.(['Item_',num2str(i)]).DVHData(2:2:end);
+                                %volumeBinsV = dvhsequence.(['Item_',num2str(i)]).DVHData(2:2:end);
                                 volumeBinsV = volumeBinsV(:);
                             end
-                            dataS(dvhsAdded+1).DVHMatrix(:,2) = volumeBinsV;                            
-                            dvhsAdded = dvhsAdded + 1;
+                            dataS(dvhsAdded).DVHMatrix(:,2) = volumeBinsV;                            
+                            %dvhsAdded = dvhsAdded + 1;
                         end
                         
                     end
@@ -512,7 +540,7 @@ switch cellName
         %%%DK Re-writing RTPLAN file to not use MATLAB image processing
         %%%tool.
         
-        seriesNum = strmatch('RTPLAN', typeC);
+        seriesNum = find(strncmpi('RTPLAN', typeC, 6));
         
         planCount = 0;
         
@@ -594,8 +622,7 @@ switch cellName
                     gspsobj  = scanfile_mldcm(GSPS(k).file);
                     
                     %Graphic Annotation Sequence.             
-
-                    el = gspsobj.getValue(hex2dec('00700001'));
+                    el = gspsobj.getValue(7340033); %org.dcm4che3.data.Tag.GraphicAnnotationSequence; %hex2dec('00700001')
 
                     % ROI = strobj.getInt(org.dcm4che2.data.Tag.ROIContourSequence);
                     
@@ -640,7 +667,8 @@ switch cellName
                     regobj  = scanfile_mldcm(REG(regNum).file);
                     
                     % Frame of Reference UID
-                    frameOfRefUID = getTagValue(regobj, '00200052');
+                    %frameOfRefUID = getTagValue(regobj, '00200052');
+                    frameOfRefUID = char(regobj.getStrings(2097234)); %org.dcm4che3.data.Tag.FrameOfReferenceUID;
                     
                     
                     %Populate each field in the dose structure.

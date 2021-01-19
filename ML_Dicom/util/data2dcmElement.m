@@ -32,9 +32,12 @@ function el = data2dcmElement(el, data, tag)
 % along with CERR.  If not, see <http://www.gnu.org/licenses/>.
 
 %Create an empty attr to act as a temporary container for the new element.
-attr = org.dcm4che3.data.Attributes;
+if isempty(el)
+    el = org.dcm4che3.data.Attributes;
+end
+    
 vr = org.dcm4che3.data.ElementDictionary.vrOf(tag, []);
-vrString = char(vr);
+%vrString = char(vr);
 %Get the tag for this element.
 %tag = el.tag;
 
@@ -42,66 +45,81 @@ vrString = char(vr);
 %vr = char(vr.toString);
 
 %%
-switch upper(vrString)
-    case 'AE'
+%switch upper(vrString)
+if vr.equals(org.dcm4che3.data.VR.AE) %strcmpi(vr,'AE')
+    %case 'AE'
         %Needs implementation
-    case 'AS'
+elseif vr.equals(org.dcm4che3.data.VR.AS) %strcmpi(vr,'AS')
+    %case 'AS'
         %Needs implementation
-    case 'AT'
+elseif vr.equals(org.dcm4che3.data.VR.AT) %strcmpi(vr,'AT')
+    %case 'AT'
         %Attribute tags may be passed as a hex string, ie '000A003E', or an
         %integer that would be the result of hex2dec('000A003E');
         if ~isnumeric(data) && ischar(data)
             data = hex2dec(data);
         end
-        attr.setInt(tag, vr, data);
-    case 'CS'
+        el.setInt(tag, vr, data);
+elseif vr.equals(org.dcm4che3.data.VR.CS) %strcmpi(vr,'CS')
+        %case 'CS'
         if ~isempty(data)
             data = upper(strtrim(data));
         end
-        attr.setString(tag, vr, data);
-    case {'LO', 'ST'}
-        attr.setString(tag, vr, data);
-    case 'DA' 
+        el.setString(tag, vr, data);
+elseif vr.equals(org.dcm4che3.data.VR.LO) || vr.equals(org.dcm4che3.data.VR.ST) %any(strcmpi(vr,{'LO', 'ST'}))
+    %case {'LO', 'ST'}
+        el.setString(tag, vr, data);
+elseif vr.equals(org.dcm4che3.data.VR.DA) %strcmpi(vr,'DA')
+    %case 'DA' 
         %Use builtin dcm4che Date functions.
-        attr.setDate(tag, vr, []);
+        el.setDate(tag, vr, []);
         if ~isempty(data)
             jDate = org.dcm4che3.util.DateUtils;
-            tz = attr.getTimeZone();
+            tz = el.getTimeZone();
             date = jDate.parseDA(tz, data, 1);
-            attr.setString(tag, vr, jDate.formatDA(tz, date));
+            el.setString(tag, vr, jDate.formatDA(tz, date));
         end
         %setDate(privateCreator, tmTag, VR.TM, org.dcm4che3.data.DatePrecision;, date);
-        %attr.setDate(tag, date);
+        %el.setDate(tag, date);
 
-    case 'DS'
+elseif vr.equals(org.dcm4che3.data.VR.DS) %strcmpi(vr,'DS')
+    %case 'DS'
         if ~isempty(data)
-            attr.setFloat(tag, vr, data);
+            el.setFloat(tag, vr, data);
         else
-            attr.setFloat(tag, vr, []);
+            el.setFloat(tag, vr, []);
         end
-    case 'DT'
-        %Needs implementation        
-    case 'FL'        
-        attr.setFloat(tag, vr, data);        
-    case 'FD'
-        %Needs implementation        
-    case 'IS'
+elseif vr.equals(org.dcm4che3.data.VR.DT) %strcmpi(vr,'DT')
+    %case 'DT'
+        %Needs implementation     
+elseif vr.equals(org.dcm4che3.data.VR.FL) %strcmpi(vr,'FL')
+    %case 'FL'        
+        el.setFloat(tag, vr, data); 
+elseif vr.equals(org.dcm4che3.data.VR.FD) %strcmpi(vr,'FD')
+    %case 'FD'
+        %Needs implementation   
+elseif vr.equals(org.dcm4che3.data.VR.IS) %strcmpi(vr,'IS')
+    %case 'IS'
         if isnumeric(data)
-            attr.setInt(tag, vr, data);
+            el.setInt(tag, vr, data);
         else
             error('The input should be numeric for "IS" ');
         end
-    case 'LT'
-        %Needs implementation        
-    case 'OB'
-        %Needs implementation        
-    case 'OF'
-        %Needs implementation        
-    case 'OW'
-         attr.setInt(tag, vr, double(data));  %Incorrect. Requires putBytes unless LUT data.
-%          attr.putBytes(tag, vr, 1, data);         
-
-    case 'PN' 
+elseif vr.equals(org.dcm4che3.data.VR.LT) %strcmpi(vr,'LT')
+    %case 'LT'
+        %Needs implementation     
+elseif vr.equals(org.dcm4che3.data.VR.OB) %strcmpi(vr,'OB')
+    %case 'OB'
+        %Needs implementation  
+elseif vr.equals(org.dcm4che3.data.VR.OF) %strcmpi(vr,'OF')
+    %case 'OF'
+        %Needs implementation  
+elseif vr.equals(org.dcm4che3.data.VR.OW) %strcmpi(vr,'OW')
+    %case 'OW'
+         el.setInt(tag, vr, double(data));  %Incorrect. Requires putBytes unless LUT data.
+%          el.putBytes(tag, vr, 1, data);         
+elseif vr.equals(org.dcm4che3.data.VR.PN) %strcmpi(vr,'PN')
+    %case 'PN' 
          %nameObj = org.dcm4che3.data.PersonName(el.getString(tag));
          nameObj = org.dcm4che3.data.PersonName(dec2hex(tag));
          
@@ -120,9 +138,9 @@ switch upper(vrString)
          nameObj.set(compNamePrefix, data.NamePrefix);
          nameObj.set(compNameSuffix, data.NameSuffix);         
          
-         attr.setString(tag, vr, nameObj.toString);
-
-    case 'SH'
+         el.setString(tag, vr, nameObj.toString);
+elseif vr.equals(org.dcm4che3.data.VR.SH) %strcmpi(vr,'SH')
+    %case 'SH'
         %SH requires that all strings are <= 16 characters.
         switch class(data)
             case 'cell'
@@ -141,47 +159,57 @@ switch upper(vrString)
             end
             
         end                  
-        attr.setString(tag, vr, data);
-    case 'SL'
+        el.setString(tag, vr, data);
+elseif vr.equals(org.dcm4che3.data.VR.SL) %strcmpi(vr,'SL')
+    %case 'SL'
         %Needs implementation       
-        attr.setInt(tag, vr, data);
-    case 'SQ'
+        el.setInt(tag, vr, data);
+elseif vr.equals(org.dcm4che3.data.VR.SQ) %strcmpi(vr,'SQ')
+    %case 'SQ'
         %Implementation currently unnecessary.
-    case 'SS'
+elseif vr.equals(org.dcm4che3.data.VR.SS) %strcmpi(vr,'SS')
+    %case 'SS'
         %Needs implementation
-    case 'TM'   
+elseif vr.equals(org.dcm4che3.data.VR.TM) %strcmpi(vr,'TM')
+    %case 'TM'   
         %Use builtin dcm4che Time functions.
         jDate = org.dcm4che3.util.DateUtils;
-        tz = attr.getTimeZone();
+        tz = el.getTimeZone();
         precision = org.dcm4che3.data.DatePrecision;
         try
             date = jDate.parseTM(tz, data, 1, precision);
-            attr.setDate(tag, vr, []);
-            attr.setString(tag, vr, jDate.formatTM(tz, date));
+            el.setDate(tag, vr, []);
+            el.setString(tag, vr, jDate.formatTM(tz, date));
         catch
-            attr.setDate(tag,vr,[]);
+            el.setDate(tag,vr,[]);
         end
-    case 'UI'
-          attr.setString(tag, vr, data);
-    case 'UL'
+elseif vr.equals(org.dcm4che3.data.VR.UI) %strcmpi(vr,'UI')
+    %case 'UI'
+          el.setString(tag, vr, data);
+elseif vr.equals(org.dcm4che3.data.VR.UL) %strcmpi(vr,'UL')
+    %case 'UL'
         %Needs implementation
-    case 'UN'
+elseif vr.equals(org.dcm4che3.data.VR.UN) %strcmpi(vr,'UN')
+    %case 'UN'
         %Needs implementation
-    case 'US'
-        attr.setInt(tag, vr, data);
-    case 'UT'
-        %Needs implementation        
-    otherwise
+elseif vr.equals(org.dcm4che3.data.VR.US) %strcmpi(vr,'US')
+    %case 'US'
+        el.setInt(tag, vr, data);
+elseif vr.equals(org.dcm4che3.data.VR.UT) %strcmpi(vr,'UT')
+    %case 'UT'
+        %Needs implementation 
+else
+    %otherwise
         error('Unrecognized VR type.'); %%Consider more gracious exit.
 end
 
 %DEBUGGING CODE: remove this once all VRs are implemented.
-if attr.isEmpty
-    warning(['DEBUGGING: ' vrString ' is not defined.  Implement it in data2dcmElement.m']);
+if el.isEmpty
+    warning(['DEBUGGING: ' vr ' is not defined.  Implement it in data2dcmElement.m']);
     el = [];
 
 else
-    el = attr;
+    %el = attr;
 end
 
-clear attr;
+%clear attr;

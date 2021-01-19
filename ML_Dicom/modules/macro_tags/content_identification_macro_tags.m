@@ -1,5 +1,5 @@
-function tagS = content_identification_tags
-%"content_identification_tags"
+function tagS = content_identification_macro_tags
+%"content_identification_macro_tags"
 %   Return the tags used to represent content as specified by C.10.9 in
 %   PS3.3 of 2006 DICOM specification. Tags are returned in a struct array 
 %   with 3 fields:
@@ -47,11 +47,13 @@ function tagS = content_identification_tags
 
 tagC = {'00200013','00700080','00700081','00700084'};
 
+tagDecC = {2097171, 7340160, 7340161, 7340164};
+
 tagTypeC = {'1','1','2','2'};
 
 childC = {[],[],[],[]};
 
-tagS = struct('tag', tagC, 'type', tagTypeC, 'children', childC);
+tagS = struct('tag', tagC, 'tagdec', tagDecC, 'type', tagTypeC, 'children', childC);
 
 
 

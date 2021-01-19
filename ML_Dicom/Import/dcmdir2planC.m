@@ -1,4 +1,4 @@
-function planC = dcmdir2planC(dcmdir,mergeScansFlag)
+function planC = dcmdir2planC(dcmdir,mergeScansFlag,optS)
 %"dcmdir2planC"
 %   Convert a dcmdir object representing a patient into a planC.
 %
@@ -40,12 +40,12 @@ indexS = planInitC{end};
 dcmdir_PATIENT = dcmdir; %wy .PATIENT{1};
 
 %Get the names of all cells in planC.
-cellNames = fields(indexS);
+cellNames = fieldnames(indexS);
 
-%Read CERROptions.json to get import flags
-pathStr = getCERRPath;
-optName = fullfile(pathStr,'CERROptions.json');
-optS    = opts4Exe(optName);
+% %Read CERROptions.json to get import flags
+% pathStr = getCERRPath;
+% optName = fullfile(pathStr,'CERROptions.json');
+% optS    = opts4Exe(optName);
 
 for i = 1:length(cellNames)
     %Populate each field in the planC.
@@ -450,7 +450,7 @@ end
 %Sort contours for each structure to match the associated scan.
 for i=1:length(planC{indexS.structures})
     planC{indexS.structures}(i) = sortStructures(planC{indexS.structures}(i),...
-        isObliqScanV, planC);
+        isObliqScanV, optS, planC);
 end
 
 planC = getRasterSegs(planC);

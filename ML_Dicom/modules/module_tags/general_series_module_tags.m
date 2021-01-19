@@ -50,32 +50,40 @@ tagC = {'00080060','0020000E','00200011','00200060','00080021','00080031',...
 '00081111','00081250','00180015','00185100','00280108', '00280109','00400275',...
 '00400253','00400244','00400245','00400254','00400260','00400280'};
 
+tagDecC = { 524384, 2097166, 2097169, 2097248, 524321, 524337, 2097170,...
+    528464, 528466, 1577008, 528446, 528496, 528498, 528657, 528976,...
+    1572885, 1593600, 2621704, 2621705, 4194933, 4194899, 4194884,...
+    4194885, 4194900, 4194912, 4194944};
+
 typeC = {'1','1','2','2C','3','3','3','3','3','3','3','3','3','3','3',...
 '3','2C','3','3','3','3','3','3','3','3','3'};
 
-child1S = struct('tag',{'00081150','00081155'},'type',{'1C','1C'},'children',{[],[]});
+child1S = struct('tag',{'00081150','00081155'},'tagdec',{528720,528725},'type',{'1C','1C'},'children',{[],[]});
 
-child2S = struct('tag',{'0020000D','0020000E','0040A170'},'type',...
+child2S = struct('tag',{'0020000D','0020000E','0040A170'},...
+        'tegdec',{2097165,2097166,4235632},'type',...
         {'1','1','2'},'children',{[],[],code_sequence_macro_tags});
 
 contentItemS = content_item_macro_tags;
 child4TagC = {contentItemS.tag,'00400441'};
+child4TagDecC = {contentItemS.tagdec,4195393};
 child4TypeC = {contentItemS.type,'3'};
 child4ChildC = {contentItemS.children,content_item_macro_tags};
-child4ChildS = struct('tag',child4TagC,'type',child4TypeC,'children',child4ChildC);
+child4ChildS = struct('tag',child4TagC,'tagdec',child4TagDecC,'type',child4TypeC,'children',child4ChildC);
 
 codeSeqS = code_sequence_macro_tags;
 child3TagC = {codeSeqS.tag,'00400440'};
+child3TagDecC = {codeSeqS.tagdec,4195392};
 child3TypeC = {codeSeqS.type,'3'};
 child3ChildC = {codeSeqS.children,child4ChildS};
-child3ChildS = struct('tag',child3TagC,'type',child3TypeC,'children',child3ChildC);
+child3ChildS = struct('tag',child3TagC,'tagdec',child3TagDecC,'type',child3TypeC,'children',child3ChildC);
 
 
 childC = {[],[],[],[],[],[],[],[],person_identification_macro_tags,[],[],[],...
 person_identification_macro_tags,child1S,child2S,[],[],[],[],...
 request_attributes_macro_tags,[],[],[],[],child3ChildS,[]};
 
-tagS = struct('tag',tagC,'type',typeC,'children',childC);
+tagS = struct('tag',tagC,'tagdec',tagDecC,'type',typeC,'children',childC);
 
 
 

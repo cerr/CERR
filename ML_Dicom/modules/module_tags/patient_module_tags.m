@@ -51,11 +51,19 @@ function tagS = patient_module_tags
 tagC = {'0020000D','00100010','00100020','00100021','00100030',...
 '00100040','00100032','00101000','00101001','00102160','00104000'};
 
+tagdecC = {2097165, 1048592, 1048608, 1048609, 1048624, 1048640, 1048626,...
+    1052672, 1052673, 1057120, 1064960};
+
+fieldNameC = {'StudyInstanceUID','PatientName','PatientID',...
+    'IssuerOfPatientID','PatientBirthDate','PatientSex',...
+    'PatientBirthTime','OtherPatientIDs','OtherPatientNames',...
+    'EthnicGroup','PatientComments'};
+
 tagTypeC = {'1','2','2','3','2','2','3','3','3','3','3'};
 
 childC = {[],[],[],[],[],[],[],[],[],[],[]};
 
-tagS = struct('tag', tagC, 'type', tagTypeC, 'children', childC);
+tagS = struct('tag', tagC, 'tagdec', tagdecC, 'fieldname', fieldNameC, 'type', tagTypeC, 'children', childC);
 
 
 

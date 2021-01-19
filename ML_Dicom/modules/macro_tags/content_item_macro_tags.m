@@ -34,12 +34,15 @@ function tagS = content_item_macro_tags
 tagC = {'0040A040','0040A043','0040100A','0040A120','0040A121','0040A122',...
 '0040A123','0040A124','0040A160','0040A168','0040A30A','004008EA'};
 
+tagDecC = {4235328, 4235331, 4198410, 4235552, 4235553, 4235554, 4235555,...
+    4235556, 4235616, 4235624, 4236042, 4196586};
+
 tagTypeC = {'1','1','3','1C','1C','1C','1C','1C','1C','1C','1C','1C'};
 
 childC = {[],[],code_sequence_macro_tags,[],[],[],[],[],[],...
 code_sequence_macro_tags,[],code_sequence_macro_tags};
 
-tagS = struct('tag', tagC, 'type', tagTypeC, 'children', childC);
+tagS = struct('tag', tagC, 'tagdec', tagDecC, 'type', tagTypeC, 'children', childC);
 
 
 % %Initialize the tagS structure.

@@ -39,7 +39,7 @@ function v = cmp(a,op,b,about)
 
 v = zeros(1,length(a));
 
-if nargin == 4 & strcmpi(about,'nocase') %case insensitive tests
+if nargin == 4 && strcmpi(about,'nocase') %case insensitive tests
   for i = 1 : length(a)
     a{i} = lower(a{i});
   end

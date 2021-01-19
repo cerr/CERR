@@ -26,7 +26,7 @@ function dataS = populate_planC_DVH_field(fieldname, dcmdir_PATIENT_STUDY_SERIES
 % %For easier handling
 % global pPos
 
-persistent RTPlanUID maxDose
+persistent maxDose
 
 DOSE = dcmdir_PATIENT_STUDY_SERIES_RTDOSE;
 
@@ -54,14 +54,22 @@ switch fieldname
         
     case 'patientName'
         %Patient's Name
-        dataS = getTagValue(attr, '00100010');
+        %dataS = getTagValue(attr, '00100010');
+        nameObj = javaObject('org.dcm4che3.data.PersonName',(attr.getString(1048592))); %org.dcm4che3.data.Tag.PatientName
+        compFamilyName = javaMethod('valueOf','org.dcm4che3.data.PersonName$Component','FamilyName');
+        compGivenName = javaMethod('valueOf','org.dcm4che3.data.PersonName$Component','GivenName');
+        compMiddleName = javaMethod('valueOf','org.dcm4che3.data.PersonName$Component','MiddleName');       
+        dataS = [char(nameObj.get(compFamilyName)), '^',...
+            char(nameObj.get(compGivenName)), '^',...
+            char(nameObj.get(compMiddleName))];   
         
     case 'structureName'
         %Structure Name        
                
     case 'doseType'
         %Dose Type
-        dT = getTagValue(attr, '30040004');
+        %dT = getTagValue(attr, '30040004');
+        dT = char(attr.getStrings(805568516)); %org.dcm4che3.data.Tag.DoseType)); %CS
         
         switch upper(dT)
             case 'PHYSICAL'
@@ -77,7 +85,8 @@ switch fieldname
         
     case 'doseUnits'
         %Dose Units
-        dU = getTagValue(attr, '30040002');
+        %dU = getTagValue(attr, '30040002');
+        dU = char(attr.getStrings(805568514)); %org.dcm4che3.data.Tag.DoseUnits;
         
         switch upper(dU)
             case {'GY', 'GYS', 'GRAYS', 'GRAY'}
@@ -87,23 +96,25 @@ switch fieldname
         end
         
     case 'volumeType'
-        dataS = getTagValue(attr, '30040001');
+        %dataS = getTagValue(attr, '30040001');
+        dataS = char(attr.getStrings(805568513)); %org.dcm4che3.data.Tag.DVHType;
         
         
     case 'doseScale'
         %Dose Grid Scaling. Imported, not indicative of CERR's representation.
-        dataS = getTagValue(attr, '3004000E');
+        %dataS = getTagValue(attr, '3004000E');
+        dataS = attr.getDoubles(805568526); %hex2dec('3004000E')
         
     case 'fractionIDOfOrigin' %Needs implementation, paired with RTPLAN
         if ~isempty(rtPlans)
-            [RTPlanLabel RTPlanUID]= getRelatedRTPlanLabel(rtPlans,attr);
-            
+            RTPlanLabel= getRelatedRTPlanLabel(rtPlans,attr);            
             dataS = RTPlanLabel;
         else
-            DoseSummationType = getTagValue(attr, '3004000A');
-            dU = getTagValue(attr, '30040002');
-            maxDose = num2str(maxDose);
-            dataS = [DoseSummationType '_' maxDose '_' dU];
+            %DoseSummationType = getTagValue(attr, '3004000A');
+            DoseSummationType = char(attr.getStrings(805568522)); % org.dcm4che3.data.Tag.DoseSummationType
+            %dU = getTagValue(attr, '30040002');
+            dU = char(attr.getStrings(805568514)); %org.dcm4che3.data.Tag.DoseUnits;
+            dataS = [DoseSummationType, '_', num2str(maxDose), '_', dU];
         end
         
         
@@ -138,10 +149,11 @@ function [RTPlanLabel RTPlanUID]= getRelatedRTPlanLabel(rtPlans,attr)
 RTPlanLabel = ''; RTPlanUID = '';
 
 try
-    ReferencedRTPlanSequence = getTagValue(attr, '300C0002');
-
+    %ReferencedRTPlanSequence = getTagValue(attr, '300C0002');
+    referencedRTPlanSequence = attr.getValue(806092802); %org.dcm4che3.data.Tag.ReferencedRTPlanSequence;
+    referencedPlanSOPInstanceUID = char(referencedRTPlanSequence.get(0).getStrings(528725)); %org.dcm4che3.data.Tag.ReferencedSOPInstanceUID;
     for i = 1:length(rtPlans)
-        if strmatch(rtPlans(i).SOPInstanceUID, ReferencedRTPlanSequence.Item_1.ReferencedSOPInstanceUID)
+        if strncmpi(rtPlans(i).SOPInstanceUID, referencedPlanSOPInstanceUID,length(rtPlans(i).SOPInstanceUID))
             RTPlanLabel = rtPlans.RTPlanLabel;
             RTPlanUID = rtPlans.BeamUID;
         end

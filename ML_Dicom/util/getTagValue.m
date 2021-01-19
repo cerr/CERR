@@ -49,53 +49,84 @@ function data = getTagValue(attr, tag, varargin)
 %transferSyntaxUID = attr.getString(hex2dec('00020010'));                    
 %Get the VR, cast to ML char array.
 %vr = org.dcm4che3.data.ElementDictionary.vrOf(hex2dec(tag), transferSyntaxUID);
-vr = org.dcm4che3.data.ElementDictionary.vrOf(hex2dec(tag), []);
-vr = cell(vr.toString);
-vr = vr{1};
+
+% apa - 1/11/21
+% vr = org.dcm4che3.data.ElementDictionary.vrOf(hex2dec(tag), []);
+% vr = cell(vr.toString);
+% vr = vr{1};
+% apa - 1/11/21 end
+
+vr = javaMethod('vrOf','org.dcm4che3.data.ElementDictionary',tag, []);
+vrCode = vr.code;
 
 %Set cache buffer to true.
 buf = 1;
 cs = [];
 
-switch upper(vr)
-    case 'AE'
+%switch upper(vr)
+switch vrCode
+    case 16709
+ %if vr.equals(org.dcm4che3.data.VR.AE) %strcmpi(vr,'AE')
+    %case 'AE'
         %Needs implementation
         data = '';
-    case 'AS'
+    case 16723
+ %elseif vr.equals(org.dcm4che3.data.VR.AS) %strcmpi(vr,'AS')
+    %case 'AS'
         %Needs implementation
         data = '';
-    case 'AT'
-        data = dec2hex(attr.getInts(hex2dec(tag)));
-    case {'CS', 'LO', 'SH', 'ST'}
-        data = attr.getStrings(hex2dec(tag));
+    case 16724
+ %elseif vr.equals(org.dcm4che3.data.VR.AT) %strcmpi(vr,'AT')
+    %case 'AT'
+        data = dec2hex(attr.getInts(tag));
+    case {17235,19535,21320,21332}
+ %elseif vr.equals(org.dcm4che3.data.VR.CS) || vr.equals(org.dcm4che3.data.VR.LO) || ...
+ %        vr.equals(org.dcm4che3.data.VR.SH) || vr.equals(org.dcm4che3.data.VR.ST) %any(strcmpi(vr,{'CS', 'LO', 'SH', 'ST'}))
+    %case {'CS', 'LO', 'SH', 'ST'}
+        data = char(attr.getString(tag,0));
         %data = org.dcm4che3.data.ElementDictionary.keywordOf(hex2dec(tag), []);
         %If more than one string, put in cell array.
-        if numel(data) > 1
-            data = cell(data);
-        else
-            data = char(data);
-        end
-    case 'DA'
+        %if numel(data) > 1
+        %    data = cell(data);
+        %else
+        %    data = char(data);
+        %end
+    case 17473
+ %elseif vr.equals(org.dcm4che3.data.VR.DA) %strcmpi(vr,'DA')
+    %case 'DA'
         %Date string format: YYYYMMDD
-        data = char(attr.getString(hex2dec(tag)));
-    case 'DS'
-        data = attr.getDoubles(hex2dec(tag));
-    case 'DT'
-        data = attr.getDate(hex2dec(tag));
-        
-    case 'FL'
+        data = char(attr.getString(tag,0));
+    case 17491
+ %elseif vr.equals(org.dcm4che3.data.VR.DS) %strcmpi(vr,'DS')
+    %case 'DS'
+        data = attr.getDoubles(tag);
+    case 17492
+ %elseif vr.equals(org.dcm4che3.data.VR.DT) %strcmpi(vr,'DT')
+    %case 'DT'
+        data = attr.getDate(tag);
+    case 17996
+ %elseif vr.equals(org.dcm4che3.data.VR.FL) %strcmpi(vr,'FL')
+    %case 'FL'
         %Needs implementation
         %wy
         %data =  float(attr.getFloat(buf));
-        data =  attr.getFloats(hex2dec(tag));
-        
-    case 'FD'
-        data = attr.getDoubles(hex2dec(tag));
-    case 'IS'
-        data = attr.getInts(hex2dec(tag));
-    case 'LT'
-        data = char(attr.getString(cs, buf));
-    case 'OB'
+        data =  attr.getFloats(tag);
+    case 17988
+ %elseif vr.equals(org.dcm4che3.data.VR.FD) %strcmpi(vr,'FD')
+    %case 'FD'
+        data = attr.getDoubles(tag);
+    case 18771
+ %elseif vr.equals(org.dcm4che3.data.VR.IS) %strcmpi(vr,'IS')
+    %case 'IS'
+        data = attr.getInts(tag);
+    case 19540
+ %elseif vr.equals(org.dcm4che3.data.VR.LT) %strcmpi(vr,'LT')
+    %case 'LT'
+        %data = char(attr.getString(cs, buf));
+        data = char(attr.getString(cs, 0));
+    case 20290
+ %elseif vr.equals(org.dcm4che3.data.VR.OB) %strcmpi(vr,'OB')
+    %case 'OB'
         data = attr.getBytes;
 %         %%%%%% Modified to import compressed data AI 02/06/17 %%%%%%%
 %         txSyntax = varargin{1};
@@ -152,10 +183,13 @@ switch upper(vr)
 %                 error('dc2ml_Element : Encoding not supported');
 %         end
 %         %%%%%%%%%%%%%%%%%%% End Modified %%%%%%%%%%%%%%%%%%%%%
-        
-    case 'OF'
-        data = attr.getFloats(hex2dec(tag));
-    case 'OW'
+    case 20294
+ %elseif vr.equals(org.dcm4che3.data.VR.OF) %strcmpi(vr,'OF')
+    %case 'OF'
+        data = attr.getFloats(tag);
+    case 20311
+ %elseif vr.equals(org.dcm4che3.data.VR.OW) %strcmpi(vr,'OW')
+    %case 'OW'
         %OW contains 16 bit words.  Conversion of this data into meaningful
         %values is the responsibility of the calling function.
         
@@ -164,9 +198,11 @@ switch upper(vr)
         
         %data = uint16(attr.getInts(buf));
         %data = attr.getInts(hex2dec(tag));
-        data = cast(attr.getInts(hex2dec(tag)),'int16');
-    case 'PN'
-        nameObj = org.dcm4che3.data.PersonName(attr.getString(hex2dec(tag)));
+        data = cast(attr.getInts(tag),'int16');
+    case 20558
+ %elseif vr.equals(org.dcm4che3.data.VR.PN) %strcmpi(vr,'PN')
+    %case 'PN'
+        nameObj = org.dcm4che3.data.PersonName(attr.getString(tag));
         %DCM4CHE3 now uses enum 'Component' instead of an array
         
         compFamilyName = javaMethod('valueOf','org.dcm4che3.data.PersonName$Component','FamilyName');
@@ -181,10 +217,14 @@ switch upper(vr)
         data.MiddleName = char(nameObj.get(compMiddleName));
         data.NamePrefix = char(nameObj.get(compNamePrefix));
         data.NameSuffix = char(nameObj.get(compNameSuffix));
-    case 'SL'
-        data = attr.getInt(hex2dec(tag), 0);
-    case 'SQ'
-        el = attr.getValue(hex2dec(tag));
+    case 21324
+ %elseif vr.equals(org.dcm4che3.data.VR.SL) %strcmpi(vr,'SL')
+    %case 'SL'
+        data = attr.getInt(tag, 0);
+    case 21329
+ %elseif vr.equals(org.dcm4che3.data.VR.SQ) %strcmpi(vr,'SQ')
+    %case 'SQ'
+        el = attr.getValue(tag);
         if ~isempty(el) && ~el.isEmpty
             nElements = el.size();
         else
@@ -194,33 +234,48 @@ switch upper(vr)
         for i=0:nElements-1
             data.(['Item_' num2str(i+1)]) = getTagStruct(el.get(i)); %CHANGE THIS TOO IMPORTANT
         end
-    case 'SS'
+    case 21331
+ %elseif vr.equals(org.dcm4che3.data.VR.SS) %strcmpi(vr,'SS')
+    %case 'SS'
         %Needs implementation
         data = '';
-    case 'TM'
+    case 21581
+ %elseif vr.equals(org.dcm4che3.data.VR.TM) %strcmpi(vr,'TM')
+    %case 'TM'
         %Time string format: HHMMSS.ss where "ss" is fraction of a second.
         % data = char(attr.getString(hex2dec(tag)));
-        data = attr.getString(hex2dec(tag));
-        if ~isempty(data)
-            data = cell(data);
-            data = data{1};
-        end
-    case 'UI'
+        data = char(attr.getString(tag,0));
+        %if ~isempty(data)
+        %    data = cell(data);
+        %    data = data{1};
+        %end
+    case 21833
+ %elseif vr.equals(org.dcm4che3.data.VR.UI) %strcmpi(vr,'UI')
+    %case 'UI'
         % data = char(attr.getString(hex2dec(tag)));
-        data = attr.getString(hex2dec(tag));
-        if ~isempty(data)
-            data = cell(data);
-            data = data{1};
-        end
-    case 'UL'
-        data = attr.getInts(hex2dec(tag));
-    case 'UN'
-        data = attr.getBytes(hex2dec(tag));
-    case 'US'
-        data = attr.getInt(hex2dec(tag), 0);
-    case 'UT'
+        data = char(attr.getString(tag,0));
+        %if ~isempty(data)
+        %    data = cell(data);
+        %    data = data{1};
+        %end
+    case 21836
+ %elseif vr.equals(org.dcm4che3.data.VR.UL) %strcmpi(vr,'UL')
+    %case 'UL'
+        data = attr.getInts(tag);
+    case 21838
+ %elseif vr.equals(org.dcm4che3.data.VR.UN) %strcmpi(vr,'UN')
+    %case 'UN'
+        data = attr.getBytes(tag);
+    case 21843
+ %elseif vr.equals(org.dcm4che3.data.VR.US) %strcmpi(vr,'US')
+    %case 'US'
+        data = attr.getInt(tag, 0);
+    case 21844
+ %elseif vr.equals(org.dcm4che3.data.VR.UT) %strcmpi(vr,'UT')
+    %case 'UT'
         %Needs implementation
         data = '';
+ %else
     otherwise
         error('Unrecognized VR type.'); %%Consider more gracious exit.
 end

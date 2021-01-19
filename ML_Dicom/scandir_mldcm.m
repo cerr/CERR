@@ -1,4 +1,4 @@
-function [dcmdirS] = scandir_mldcm(dirPath, hWaitbar, dirNum, excludePixelDataFlag)
+function [dcmdirS] = scandir_mldcm(dirPath, excludePixelDataFlag)
 %"scandir_mldcm"
 %   Scans a passed directory for DICOM files, checking each file in the
 %   directory for properly formatted DICOM regardless of file extension.
@@ -40,6 +40,7 @@ function [dcmdirS] = scandir_mldcm(dirPath, hWaitbar, dirNum, excludePixelDataFl
 
 %Check that dirPath is a string
 
+disp(strcat('Reading directory: ', dirPath, ' ...'))
 
 if ~exist('excludePixelDataFlag','var')
     excludePixelDataFlag = false;
@@ -53,7 +54,7 @@ switch lower(class(dirPath))
 end
 
 %Check that it's a real dirPath.
-if ~isdir(dirPath)
+if ~isfolder(dirPath)
     error('Input to scandir_mldcm must be a directory.');
 end
 
@@ -90,10 +91,10 @@ for i=1:length(filesV)
         % KEEP OUT --->[isValid, errMsg] = validate_patient_module(dcmObj);
       attrData.clear;
     end
-    [pathstr, name, ext] = fileparts(filename);
-    if ishandle(hWaitbar)
-        waitbar(i/length(filesV),hWaitbar, ['Scanning Directory ' num2str(dirNum) ' Please wait...']);
-    end
+    %[pathstr, name, ext] = fileparts(filename);
+    %if ishandle(hWaitbar)
+    %    waitbar(i/length(filesV),hWaitbar, ['Scanning Directory ' num2str(dirNum) ' Please wait...']);
+    %end
     %['file: ' name ext]});
 end
 % Remove the MRI field, since it stores temporary information for matching

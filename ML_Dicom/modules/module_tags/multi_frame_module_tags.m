@@ -45,16 +45,16 @@ function tagS = multi_frame_module_tags
 % along with CERR.  If not, see <http://www.gnu.org/licenses/>.
 
 %Initialize the tagS structure.
-tagS = struct('tag', {}, 'type', {}, 'children', {});
+tagS = struct('tag', {}, 'tagdec', {}, 'type', {}, 'children', {});
 
 %Create an empty tagS template for sequence creation.
-template = tagS;
+%template = tagS;
 
 %Add tags based on PS3.3 attribute lists.
 
 %Number of Frames
-tagS(end+1) = struct('tag', ['00280008'], 'type', ['1C'], 'children', []);
+tagS(end+1) = struct('tag', '00280008', 'tagdec', 2621448, 'type', '1C', 'children', []);
 
 %Frame Increment Pointer
-tagS(end+1) = struct('tag', ['00280009'], 'type', ['1C'], 'children', []);
+tagS(end+1) = struct('tag', '00280009', 'tagdec', 2621449, 'type', '1C', 'children', []);
 

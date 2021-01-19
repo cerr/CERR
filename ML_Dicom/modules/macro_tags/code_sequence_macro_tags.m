@@ -39,14 +39,15 @@ function tagS = code_sequence_macro_tags
 % Define tags
 tagsC = {'00080100','00080102','00080103','00080104','0008010F','00080105',...
     '00080106','0008010B','00080107','0008010D'};
-
+tagDecC = {524544, 524546, 524547, 524548, 524559, 524549, 524550,...
+    524555, 524551, 524557};
 % Define tag type
 tagTypeC = {'1','1','1C','1','3','1C','1C','3','1C','1C'};
 
 % Define children
 childC = {[],[],[],[],[],[],[],[],[],[]};
 
-tagS = struct('tag', tagsC, 'type', tagTypeC, 'children', childC);
+tagS = struct('tag', tagsC, 'tagdec', tagDecC, 'type', tagTypeC, 'children', childC);
 
 % %Initialize the tagS structure.
 % tagS = struct('tag', {}, 'type', {}, 'children', {]);

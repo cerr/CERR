@@ -47,8 +47,10 @@ function tagS = patient_module_tags_subset
 
 tagC = {'00100010','00100020'};
 
+tagDecC = {1048592,1048608};
+
 tagTypeC = {'2','2'};
 
 childC = {[],[]};
 
-tagS = struct('tag', tagC, 'type', tagTypeC, 'children', childC);
+tagS = struct('tag', tagC, 'tagdec', tagDecC, 'type', tagTypeC, 'children', childC);

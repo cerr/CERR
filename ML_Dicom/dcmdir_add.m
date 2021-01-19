@@ -55,7 +55,8 @@ end
 %% UPDATED DCM4CHE-3
 % modalityTag = org.dcm4che3.data.Tag.Modality;
 modalityTag = 524384;
-DirectoryRecordSequenceTag = org.dcm4che3.data.Tag.DirectoryRecordSequence;
+%DirectoryRecordSequenceTag = org.dcm4che3.data.Tag.DirectoryRecordSequence;
+DirectoryRecordSequenceTag = 266784;
 if (~attr.contains(modalityTag) || attr.contains(DirectoryRecordSequenceTag))
     %DICOMdir, forget it.  Consider sticking it in the dcmdirS later.
     return;
@@ -76,19 +77,23 @@ attr.subSet(patienttemplate).copyTo(patient);
 %}
 %% UPDATED DCM4CHE-3
 % Created inner function filter which is contained at bottom of this function
-patienttemplate = build_module_template('patient_subset');
-patient = filter(attr, patienttemplate);
+patient = build_module_template('patient_subset');
+%patient = filterAttribs(attr, patienttemplate);
+patient = addAttribs(patient,attr);
 
 %% Search the patient list for this patient.
 match = 0;
 for i=1:length(dcmdirS.PATIENT)
     matchFlag = 0;
     %try
-    matchFlag = matchFlag || patient.equals(dcmdirS.PATIENT(i).info);
+    %matchFlag = matchFlag || patient.equals(dcmdirS.PATIENT(i).info);
     %catch
     %end
     %try
     matchFlag = matchFlag || patient.matches(dcmdirS.PATIENT(i).info, 1, 0);
+    
+    %matchFlag = attr.matches(patient,1,0); %apa 1/11/21
+    
     %catch
     %end
     if matchFlag %patient.matches(dcmdirS.PATIENT(i).info, 1) || patient.equals(dcmdirS.PATIENT(i).info)
@@ -119,21 +124,24 @@ if ~isfield(patientS.STUDY, 'SERIES')
 end
 
 %Extract the data from the attr.
-studytemplate = build_module_template('general_study_subset');
-study = filter(attr, studytemplate);
+study = build_module_template('general_study_subset');
+%study = filterAttribs(attr, studytemplate);
+study = addAttribs(study,attr);
 studyUIDTag = '0020000D';
+studyInstanceUIDdec = 2097165;
 
 %Create attribute with studyUID tag to filter
-tagS = struct('tag', {}, 'type', {}, 'children', {});
-tagS(end+1) = struct('tag', studyUIDTag, 'type', ['1'], 'children', []);
-emptyAttr = org.dcm4che3.data.Attributes;
+tagS = struct('tag', {}, 'tagdec', {}, 'type', {}, 'children', {});
+tagS(end+1) = struct('tag', studyUIDTag, 'tagdec', studyInstanceUIDdec, 'type', '1', 'children', []);
+emptyAttr = javaObject('org.dcm4che3.data.Attributes');
 emptyAttr = createEmptyFields(emptyAttr, tagS);
 
 %% Search the list for this item.
 match = 0;
 for i=1:length(patientS.STUDY)
-    thisUID = filter(patientS.STUDY(i).info, emptyAttr);
-    if study.matches(thisUID, 1, 0) %ADDED 0 AS parameter
+    %thisUID = filterAttribs(patientS.STUDY(i).info, emptyAttr);
+    thisUID = addAttribs(emptyAttr,patientS.STUDY(i).info);
+    if study.matches(thisUID, 1, 0)
         patientS.STUDY(i) = searchAndAddSeries(filename, attr, patientS.STUDY(i));
         match = 1;
     end
@@ -161,39 +169,42 @@ if ~isfield(studyS, 'SERIES')
 end
 
 %Extract the data from the attr.
-seriesUIDTag = '0020000E';
-modalityTag = '00080060';
-currentSeriesUID = attr.getString(hex2dec(seriesUIDTag));
-currentModality = attr.getString(hex2dec(modalityTag));
+% seriesUIDTag = '0020000E';
+% modalityTag = '00080060';
+SeriesInstanceUIDdec = 2097166;
+modalityDec = 524384;
+currentSeriesUID = attr.getString(SeriesInstanceUIDdec,0); %attr.getString(org.dcm4che3.data.Tag.SeriesInstanceUID);
+currentModality = attr.getString(modalityDec,0); %attr.getString(org.dcm4che3.data.Tag.Modality);
 
 mri = [];
 if strcmpi(currentModality,'MR')
     
-    mriTemplate = build_module_template('mr_image_subset');
-    mri = filter(attr, mriTemplate);
-    manufacturerTag = '00080070';
-    currentManufacturer = attr.getString(hex2dec(manufacturerTag));
-    mriBvalueTag1 = '00431039';
-    mriBvalueTag2 = '00189087';
-    mriBvalueTag3 = '0019100C';
-    tempPosTag = '00200100'; %%AI 8/29/16 Added tempPosTag (Philips)
-    triggerTag = '00181060'; %%AI 10/14/16 Added trigger time tag
-    instNumTag = '00200013';    %Instance no.
-    numSlicesTag = '0021104F';  %No. locations in acquisition
-    nSlices = double(attr.getInts(hex2dec(numSlicesTag)));
+    mri = build_module_template('mr_image_subset');
+    %mri = filterAttribs(attr, mriTemplate);
+    mri = addAttribs(mri,attr);
+    %manufacturerTag = '00080070';
+    currentManufacturer = attr.getString(524400,0); %org.dcm4che3.data.Tag.Manufacturer;
+    mriBvalueTag1Dec = 4395065; %'00431039';
+    mriBvalueTag2Dec = 1609863; %'00189087';
+    mriBvalueTag3Dec = 1642508; %'0019100C';
+    tempPosTagDec = 2097408; %'00200100'; %%AI 8/29/16 Added tempPosTag (Philips)
+    triggerTagDec = 1577056; %'00181060'; %%AI 10/14/16 Added trigger time tag
+    instNumTagDec = 2097171; %'00200013';    %Instance no.
+    numSlicesTagDec = 2166863; %'0021104F';  %No. locations in acquisition
+    nSlices = double(attr.getInts(numSlicesTagDec));
     
 elseif strcmpi(currentModality,'CT')
     
-    acqNumTag = '00200012';
-    acqNum1Series = attr.getString(hex2dec(acqNumTag));
+    acqNumTagDec = 2097170; %'00200012';
+    acqNum1Series = attr.getString(acqNumTagDec,0); %org.dcm4che3.data.Tag.AcquisitionNumber;
     
 end
 
 %% Identify matching series
 
-tagS = struct('tag', {}, 'type', {}, 'children', {});
-tagS(end+1) = struct('tag', ['0020000E'], 'type', ['1'], 'children', []);
-emptyAttr = org.dcm4che3.data.Attributes;
+tagS = struct('tag', {}, 'tagdec', {}, 'type', {}, 'children', {});
+tagS(end+1) = struct('tag', '0020000E', 'tagdec', SeriesInstanceUIDdec, 'type', '1', 'children', []);
+emptyAttr = javaObject('org.dcm4che3.data.Attributes');
 emptyAttr = createEmptyFields(emptyAttr, tagS);
 %Search the list for this item
 match = 0;
@@ -204,19 +215,20 @@ acqNumMatch = 1;
 % Loop over all available series'
 for seriesNum = length(studyS.SERIES):-1:1
     
-    thisUID = filter(studyS.SERIES(seriesNum).info, emptyAttr);
-    thisUIDstr = thisUID.getStrings(hex2dec(seriesUIDTag));
-    seriesModality = studyS.SERIES(seriesNum).info.getString(hex2dec(modalityTag));
+    %thisUID = filterAttribs(studyS.SERIES(seriesNum).info, emptyAttr);
+    thisUID = addAttribs(emptyAttr,studyS.SERIES(seriesNum).info);
+    thisUIDstr = thisUID.getString(SeriesInstanceUIDdec,0);
+    seriesModality = studyS.SERIES(seriesNum).info.getString(modalityDec,0);
     
     % For MR images: 
     if strcmpi(currentModality,'MR') && strcmpi(seriesModality,'MR')
         % 1.Check for series matching b-value 
-        bvalue1Series = studyS.MRI(seriesNum).info.getString(hex2dec(mriBvalueTag1));
-        bvalue2Series = studyS.MRI(seriesNum).info.getString(hex2dec(mriBvalueTag2));
-        bvalue3Series = studyS.MRI(seriesNum).info.getString(hex2dec(mriBvalueTag3));
-        bvalue1Current = mri.getString(hex2dec(mriBvalueTag1));
-        bvalue2Current = mri.getString(hex2dec(mriBvalueTag2));
-        bvalue3Current = mri.getString(hex2dec(mriBvalueTag3));
+        bvalue1Series = studyS.MRI(seriesNum).info.getString(mriBvalueTag1Dec,0);
+        bvalue2Series = studyS.MRI(seriesNum).info.getString(mriBvalueTag2Dec,0);
+        bvalue3Series = studyS.MRI(seriesNum).info.getString(mriBvalueTag3Dec,0);
+        bvalue1Current = mri.getString(mriBvalueTag1Dec,0);
+        bvalue2Current = mri.getString(mriBvalueTag2Dec,0);
+        bvalue3Current = mri.getString(mriBvalueTag3Dec,0);
         if strcmpi(bvalue1Series,bvalue1Current) || ...
                 strcmpi(bvalue2Series,bvalue2Current) || ...
                 strcmpi(bvalue3Series,bvalue3Current) || ...
@@ -232,8 +244,8 @@ for seriesNum = length(studyS.SERIES):-1:1
         %2. Check for series matching temporal position
         % For Philips data, compare temporal position ID tag 
         if contains(string(currentManufacturer),'Philips')
-            temporalPosSeries = studyS.MRI(seriesNum).info.getString(hex2dec(tempPosTag));
-            temporalPosCurrent = mri.getString(hex2dec(tempPosTag));
+            temporalPosSeries = studyS.MRI(seriesNum).info.getString(tempPosTagDec,0);
+            temporalPosCurrent = mri.getString(tempPosTagDec,0);
             if ~(isempty(temporalPosCurrent)||isempty(temporalPosSeries))
                 if strcmpi(temporalPosCurrent,temporalPosSeries)
                     tempPosMatch = 1;
@@ -250,8 +262,8 @@ for seriesNum = length(studyS.SERIES):-1:1
             currentInstNum = [];
             seriesInstNum = [];
             if ~isempty(nSlices)
-                seriesInstNum = studyS.MRI(seriesNum).info.getInts(hex2dec(instNumTag));
-                currentInstNum = mri.getInts(hex2dec(instNumTag));
+                seriesInstNum = studyS.MRI(seriesNum).info.getInts(instNumTagDec);
+                currentInstNum = mri.getInts(instNumTagDec);
                 currentInstNum = ceil(double(currentInstNum)/nSlices);
                 seriesInstNum = ceil(double(seriesInstNum)/nSlices);
             end
@@ -273,8 +285,8 @@ for seriesNum = length(studyS.SERIES):-1:1
             % Trigger time
             % (For DCE MRI data. Trigger Time identifies individual
             % temporally resolved frames.)
-            trigTimeSeries = studyS.MRI(seriesNum).info.getString(hex2dec(triggerTag));
-            trigTimeCurrent = mri.getString(hex2dec(triggerTag));
+            trigTimeSeries = studyS.MRI(seriesNum).info.getString(triggerTagDec,0);
+            trigTimeCurrent = mri.getString(triggerTagDec,0);
             if ~(isempty(trigTimeCurrent)||isempty(trigTimeSeries))
                 if strcmpi(trigTimeCurrent,trigTimeSeries) 
                     tempPosMatch = 1;
@@ -284,8 +296,8 @@ for seriesNum = length(studyS.SERIES):-1:1
             else
             % Temporal position ID (non-Philips scanners)
                 if ~contains(string(currentManufacturer),'Philips')
-                    temporalPosSeries = studyS.MRI(seriesNum).info.getString(hex2dec(tempPosTag));
-                    temporalPosCurrent = mri.getString(hex2dec(tempPosTag));
+                    temporalPosSeries = studyS.MRI(seriesNum).info.getString(tempPosTagDec,0);
+                    temporalPosCurrent = mri.getString(tempPosTagDec,0);
                     if ~(isempty(temporalPosCurrent)||isempty(temporalPosSeries))
                         if strcmpi(temporalPosCurrent,temporalPosSeries)
                             tempPosMatch = 1;
@@ -303,7 +315,7 @@ for seriesNum = length(studyS.SERIES):-1:1
     elseif false && ...
             strcmpi(currentModality,'CT') && ...
             strcmpi(seriesModality,'CT') % match by acquisition number 
-        acqNum1 = studyS.SERIES(seriesNum).info.getString(hex2dec(acqNumTag));
+        acqNum1 = studyS.SERIES(seriesNum).info.getString(acqNumTagDec,0);
         %acqNum1Series = series.getString(hex2dec(acqNumTag));
         if strcmpi(acqNum1Series,acqNum1) || ...
                 (isempty(acqNum1) && ...
@@ -335,12 +347,14 @@ if ~match
     studyS.SERIES(ind).Data = [];
     studyS.SERIES(ind).info = [];
     studyS.SERIES(ind) = searchAndAddSeriesMember(filename, attr, studyS.SERIES(ind));
-    seriestemplate = build_module_template('general_series_subset');
-    series = filter(attr, seriestemplate);
+    series = build_module_template('general_series_subset');
+    %series = filterAttribs(attr, seriestemplate);
+    series = addAttribs(series,attr);
     studyS.SERIES(ind).info     = series;
     if strcmpi(currentModality,'MR')
-        mriTemplate = build_module_template('mr_image_subset');
-        mri = filter(attr, mriTemplate);
+        mri = build_module_template('mr_image_subset');
+        %mri = filterAttribs(attr, mriTemplate);
+        mri = addAttribs(mri,attr);
     else
         mri = [];
     end
@@ -353,11 +367,12 @@ function seriesS = searchAndAddSeriesMember(filename, attr, seriesS)
 %Looks for the image/plan/dose specified in attr in the seriesS, if not
 %found adds it.
 
-modalityTag = '00080060';
-if (strcmp(org.dcm4che3.data.ElementDictionary.vrOf(hex2dec(modalityTag), []),'CS'))
-end
+modalityTagDec = 524384; %'00080060';
+% if (strcmp(org.dcm4che3.data.ElementDictionary.vrOf(hex2dec(modalityTag), []),'CS'))
+% if strcmp(org.dcm4che3.data.ElementDictionary.vrOf(org.dcm4che3.data.Tag.Modality, []),'CS')
+% end
 
-modality = getTagValue(attr, modalityTag);
+modality = char(attr.getString(modalityTagDec,0));
 if ~isfield(seriesS, 'Modality')
     seriesS.Modality = [];
 end
@@ -371,21 +386,33 @@ seriesS.Data(ind).file = filename;
 end % end of function
 
 
-%% function for subset replacement
-%  If tags match, transfer value of tag in attr into patient
-function patient = filter(attr, patienttemplate)
+% %% function for subset replacement
+% %  If tags match, transfer value of tag in attr into patient
+% function patient = filterAttribs(attr, patienttemplate)
+% 
+% patient = javaObject('org.dcm4che3.data.Attributes');
+% tags = patienttemplate.tags(); % Get list of tags
+% for i=1:length(tags)
+%     tag = tags(i);
+%     if attr.contains(tag)        
+%         val = getTagValue(attr, tag);        
+%         patient = data2dcmElement(patient, val, tag);
+%         el.setString(tag, vr, data);
+%         %if ~isempty(el)
+%         %    patient.addAll(el);
+%         %end
+%     end
+% end
 
-patient = org.dcm4che3.data.Attributes;
-tags = patienttemplate.tags(); % Get list of tags
+% end % end of function
+
+function template = addAttribs(template,attr)
+tags = template.tags;
 for i=1:length(tags)
-    tag = tags(i);
-    if attr.contains(tag)
-        val = getTagValue(attr, dec2hex(tag));
-        el = data2dcmElement([], val, tag);
-        if ~isempty(el)
-            patient.addAll(el);
-        end
-    end
+    tag =tags(i);
+    vr = javaMethod('vrOf','org.dcm4che3.data.ElementDictionary',tag,[]);
+    template.setValue(tag,vr,attr.getValue(tag));
 end
 
-end % end of function
+end
+

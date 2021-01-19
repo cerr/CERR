@@ -22,6 +22,7 @@ else
     % Define file and directory filter patterns
     fileFilterC = {'dose','scout','cor','sag','report','_nac','mip',...
         'coronal','sagittal','screen_save'};
+    fileFilterC = {};
     dirFilterC = {'ot'};
     
     % Get all directories and files
@@ -77,7 +78,7 @@ end
 tic
 hWaitbar = NaN;
 % Import all the dirs
-parfor dirNum = 1:length(dirsToImportC)
+for dirNum = 1:length(dirsToImportC)
     try
         init_ML_DICOM
         %hWaitbar = waitbar(0,'Scanning Directory Please wait...');
