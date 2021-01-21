@@ -90,7 +90,7 @@ toc
 %% Stack H5 files
 fprintf('\nRreading output masks...');
 tic
-outC = stackHDF5Files(fullSessionPath,userOptS.passedScanDim); %Updated
+outC = stackHDF5Files(fullSessionPath,passedScanDim); %Updated
 toc
 
 %% Import segmented mask to planC
@@ -104,7 +104,7 @@ else
     origScanNum = 1; %Assoc with first scan by default
 end
 outScanNum = scanNumV(origScanNum);
-userOptS(outScanNum).scan = userOptS(origScanNum).scan;
-userOptS(outScanNum).scan.origScan = origScanNum;
+userOptS.scan(outScanNum) = userOptS.scan(origScanNum);
+userOptS.scan(outScanNum).origScan = origScanNum;
 success = joinH5CERR(cerrPath,outC{1},labelPath,outScanNum,userOptS); %Updated
 toc

@@ -8,7 +8,7 @@ indexS = planC{end};
 
 isUniform = 0;
 preserveAspectFlag = 0;
-scanOptS = userOptS(scanNum).scan;
+scanOptS = userOptS.scan(scanNum);
 
 %% Resize/pad mask to original dimensions
 %Get parameters for resizing & cropping
@@ -85,7 +85,7 @@ if ~strcmpi(resampleS.method,'none')
 end
 
 %% Convert label maps to CERR structs
-labelMapS = userOptS(scanNum).strNameToLabelMap;
+labelMapS = userOptS.strNameToLabelMap;
 if ischar(labelMapS)
     % Read JSON file containing strname-to-label map
     labelMapFileName = fullfile(labelPath,labelMapS);
