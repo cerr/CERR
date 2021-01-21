@@ -59,14 +59,14 @@ switch tag
             case 'dose'
                 data = length(dataS.zValues);                
         end
-        el = data2dcmElement(template, data, tag); 
+        el = data2dcmElement(data, tag); 
         
     case 2621449    %0028,0009  Frame Increment Pointer                       
         switch type
             case 'dose'
                 data = '3004000C'; %CERR exports this data in "Grid Frame Offset Vector" (3004, 000C).
         end
-        el = data2dcmElement(template, data, tag); 
+        el = data2dcmElement(data, tag); 
         
     otherwise
         warning(['No methods exist to populate DICOM rt_dose module field ' dec2hex(tag,8) '.']);

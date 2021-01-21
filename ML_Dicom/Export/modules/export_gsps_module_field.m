@@ -57,22 +57,22 @@ switch tag
     %Class 1 Tags -- Required, must have data.    
     case  7340162  %0070,0082 Presentation Creation Date
         data = datestr(now,'yyyymmdd');
-        el = data2dcmElement(template, data, tag);
+        el = data2dcmElement(data, tag);
         
     case  7340163   % 0070,0083 Presentation Creation Time 
         data = datestr(now,'hhmmss');
-        el = data2dcmElement(template, data, tag);        
+        el = data2dcmElement(data, tag);        
         
     case 542113824  % 2050,0020  Presentation LUT Shape 
         data = 'IDENTITY'; % or 'INVERSE'
-        el = data2dcmElement(template, data, tag);
+        el = data2dcmElement(data, tag);
         
     case 7340122  % 0070,005A  Displayed Area Selection Sequence
         templateEl  = template.getValue(tag);
         fHandle = @export_displayed_area_selection_sequence;
 
         %New null sequence
-        tmp = org.dcm4che3.data.Attributes;
+        tmp = javaObject('org.dcm4che3.data.Attributes');
         el = tmp.newSequence(tag, 0);
                 
         % Only one item since all images use the displayed area selection 
@@ -92,7 +92,7 @@ switch tag
         fHandle = @export_referenced_series_sequence;
 
         %New null sequence
-        tmp = org.dcm4che3.data.Attributes;
+        tmp = javaObject('org.dcm4che3.data.Attributes');
         el = tmp.newSequence(tag, 0);
                 
         % Only one item since all images use the displayed area selection 
@@ -113,7 +113,7 @@ switch tag
         fHandle = @export_graphic_annotation_sequence;
 
         %New null sequence
-        tmp = org.dcm4che3.data.Attributes;
+        tmp = javaObject('org.dcm4che3.data.Attributes');
         el = tmp.newSequence(tag, 0);
         
         scanSopInstanceUIDc = {scanS.scanInfo.sopInstanceUID};
@@ -133,7 +133,7 @@ switch tag
         fHandle = @export_graphic_layer_sequence;
         
         %New null sequence
-        tmp = org.dcm4che3.data.Attributes;
+        tmp = javaObject('org.dcm4che3.data.Attributes');
         el = tmp.newSequence(tag, 0);
         
         [uniqLabelC,indUniqV] = unique({gspsS.presentLabel});

@@ -45,18 +45,18 @@ template    = args.template;
 switch tag
     case    528720  %0008,1150  Referenced SOP Class UID
         data = classUID;
-        el = data2dcmElement(template, data, tag); %replace el with temp
+        el = data2dcmElement(data, tag); %replace el with temp
         
     case    528725  %0008,1155  Referenced SOP Instance UID
         data = instanceUID;
-        el = data2dcmElement(template, data, tag);
+        el = data2dcmElement(data, tag);
         
     case 805699604  %3006,0014  RT Referenced Series Sequence
 
         templateEl = template.getValue(tag);
         fHandle = @export_rt_referenced_series_sequence;
 
-        tmp = org.dcm4che3.data.Attributes;
+        tmp = javaObject('org.dcm4che3.data.Attributes');
         el = tmp.newSequence(tag, 0);
 
         %Iterate over each series.

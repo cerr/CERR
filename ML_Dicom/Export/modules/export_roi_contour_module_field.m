@@ -62,7 +62,7 @@ switch tag
         fHandle = @export_ROI_contour_sequence;
 
         %New null sequence
-        tmp = org.dcm4che3.data.Attributes;
+        tmp = javaObject('org.dcm4che3.data.Attributes');
         el = tmp.newSequence(tag, 0);
 
         nStructures = length(structS);

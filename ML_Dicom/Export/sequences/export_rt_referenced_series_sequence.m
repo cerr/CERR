@@ -45,7 +45,7 @@ switch tag
     case   2097166  %0020,000E  Series Instance UID
         data = SeriesInstanceUID;
 
-        el = data2dcmElement(template, data, tag);        
+        el = data2dcmElement(data, tag);        
         
     case 805699606  %3006,0016  Contour Image Sequence
     %UPDATED to dcm4che3
@@ -54,7 +54,7 @@ switch tag
         fHandle = @export_contour_image_sequence;
 
         %New empty sequence
-        tmp = org.dcm4che3.data.Attributes;
+        tmp = javaObject('org.dcm4che3.data.Attributes');
         el = tmp.newSequence(tag, 0);
 
         %Iterate over each slice.

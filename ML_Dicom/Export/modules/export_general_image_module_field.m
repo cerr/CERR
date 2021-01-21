@@ -52,7 +52,7 @@ el = [];
 tag         = args.tag;
 type        = args.data{1};
 dataS       = args.data{2};
-template    = args.template;
+%template    = args.template;
 
 switch tag
     %Class 1 Tags -- Required, must have data.
@@ -68,7 +68,7 @@ switch tag
                     data = 1;
                 end
         end
-        el = data2dcmElement(template, data, tag);
+        el = data2dcmElement(data, tag);
 
         %Class 3 Tags -- presence is optional, currently undefined.
     case  524296    %0008,0008 Image Type

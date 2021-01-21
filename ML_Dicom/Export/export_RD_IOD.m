@@ -48,7 +48,7 @@ for i = 1:length(planC{indexS.dose})
     doseS = planC{indexS.dose}(i);    
     
     %Create empty attr.
-    attr = org.dcm4che3.data.Attributes;    
+    attr = javaObject('org.dcm4che3.data.Attributes');    
     
     % Get associated scan
     scanNum = getDoseAssociatedScan(i,planC);

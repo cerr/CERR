@@ -87,7 +87,9 @@ for n = 1:length(fieldNamesC)
     %Update scan metadata
     newScanNum = length(planC{indexS.scan});
     planC{indexS.scan}(newScanNum).scanType = [filterType,'_',fieldNamesC{n}];
-    newSeriesInstanceUID = dicomuid;
+    %newSeriesInstanceUID = dicomuid;
+    orgRoot = '1.3.6.1.4.1.9590.100.1.2';
+    newSeriesInstanceUID = javaMethod('createUID','org.dcm4che3.util.UIDUtils',orgRoot);    
     imgOriV = planC{indexS.scan}(scanNum).scanInfo(1).imageOrientationPatient;
     for k = 1:length(planC{indexS.scan}(newScanNum).scanInfo)
         planC{indexS.scan}(newScanNum).scanInfo(k).seriesInstanceUID = newSeriesInstanceUID;

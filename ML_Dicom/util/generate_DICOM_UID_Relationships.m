@@ -35,6 +35,9 @@ function planC = generate_DICOM_UID_Relationships(planC)
 % You should have received a copy of the GNU General Public License
 % along with CERR.  If not, see <http://www.gnu.org/licenses/>.
 
+% Organization root for DOCOM UIDs
+orgRoot = '1.3.6.1.4.1.9590.100.1.2';
+
 % Read CERROptions.json
 if ~exist('optName','var')
     pathStr = getCERRPath;
@@ -52,14 +55,16 @@ if isfield(planC{indexS.scan}(1).scanInfo(1),'studyInstanceUID') && ...
         ~isempty(planC{indexS.scan}(1).scanInfo(1).studyInstanceUID)
     Study_Instance_UID = planC{indexS.scan}(1).scanInfo(1).studyInstanceUID;
 else
-    Study_Instance_UID = dicomuid;
+    %Study_Instance_UID = dicomuid;    
+    Study_Instance_UID = javaMethod('createUID','org.dcm4che3.util.UIDUtils',orgRoot);    
 end
 
 if isfield(planC{indexS.scan}(1).scanInfo(1),'patientID') && ...
         ~isempty(planC{indexS.scan}(1).scanInfo(1).patientID)
     Patient_ID = planC{indexS.scan}(1).scanInfo(1).patientID;
 else
-    Patient_ID = dicomuid;
+    %Patient_ID = dicomuid;
+    Patient_ID = javaMethod('createUID','org.dcm4che3.util.UIDUtils',orgRoot);        
 end
 
 if isfield(planC{indexS.scan}(1).scanInfo(1),'patientName') && ...
@@ -99,7 +104,9 @@ for i = 1:length(planC{indexS.scan})
         planC{indexS.scan}(i).Series_Instance_UID = ...
             planC{indexS.scan}(i).scanInfo(1).seriesInstanceUID;
     else
-        planC{indexS.scan}(i).Series_Instance_UID = dicomuid;
+        Series_Instance_UID = javaMethod('createUID','org.dcm4che3.util.UIDUtils',orgRoot);
+        %planC{indexS.scan}(i).Series_Instance_UID = dicomuid;
+        planC{indexS.scan}(i).Series_Instance_UID = Series_Instance_UID;
     end
     
     %Generate a frame of reference UID for each scan.
@@ -112,7 +119,9 @@ for i = 1:length(planC{indexS.scan})
         planC{indexS.scan}(i).Frame_Of_Reference_UID = ...
             planC{indexS.scan}(i).scanInfo(1).frameOfReferenceUID;
     else
-        planC{indexS.scan}(i).Frame_Of_Reference_UID = dicomuid;
+        Frame_Of_Reference_UID = javaMethod('createUID','org.dcm4che3.util.UIDUtils',orgRoot);        
+        planC{indexS.scan}(i).Frame_Of_Reference_UID = Frame_Of_Reference_UID;
+        %planC{indexS.scan}(i).Frame_Of_Reference_UID = dicomuid;
     end
     
     % %     %Generate a SOP ClassUID for each scan.
@@ -159,7 +168,9 @@ for i = 1:length(planC{indexS.scan})
     else
         for j=1:length(planC{indexS.scan}(i).scanInfo)
             planC{indexS.scan}(i).scanInfo(j).SOP_Class_UID      = SOP_Class_UID;
-            planC{indexS.scan}(i).scanInfo(j).SOP_Instance_UID   = dicomuid;
+            Frame_Of_Reference_UID = javaMethod('createUID','org.dcm4che3.util.UIDUtils',orgRoot);            
+            planC{indexS.scan}(i).scanInfo(j).SOP_Instance_UID   = Frame_Of_Reference_UID;
+            %planC{indexS.scan}(i).scanInfo(j).SOP_Instance_UID   = dicomuid;
         end
     end
     
@@ -183,7 +194,9 @@ for i = 1:length(planC{indexS.dose})
     planC{indexS.dose}(i).Study_Instance_UID = Study_Instance_UID;
     
     %Generate a series instance UID for each dose;
-    planC{indexS.dose}(i).Series_Instance_UID = dicomuid;
+    %planC{indexS.dose}(i).Series_Instance_UID = dicomuid;
+    Series_Instance_UID = javaMethod('createUID','org.dcm4che3.util.UIDUtils',orgRoot);
+    planC{indexS.dose}(i).Series_Instance_UID = Series_Instance_UID;
     
     %Set the frame of reference UID to that of the associated scan, if it
     %exists.
@@ -192,7 +205,9 @@ for i = 1:length(planC{indexS.dose})
         planC{indexS.dose}(i).Frame_Of_Reference_UID = planC{indexS.scan}(aS).Frame_Of_Reference_UID;
         planC{indexS.dose}(i).imageOrientationPatient = planC{indexS.scan}(aS).scanInfo(1).imageOrientationPatient;
     else
-        planC{indexS.dose}(i).Frame_Of_Reference_UID = dicomuid;
+        %planC{indexS.dose}(i).Frame_Of_Reference_UID = dicomuid;
+        Frame_Of_Reference_UID = javaMethod('createUID','org.dcm4che3.util.UIDUtils',orgRoot);
+        planC{indexS.dose}(i).Frame_Of_Reference_UID = Frame_Of_Reference_UID;
         warning('No associated scan found. Assuming HFS orientation.');
         planC{indexS.dose}(i).imageOrientationPatient = [1 0 0 0 1 0];
     end
@@ -201,24 +216,31 @@ for i = 1:length(planC{indexS.dose})
     SOP_Class_UID = '1.2.840.10008.5.1.4.1.1.481.2';
     
     planC{indexS.dose}(i).SOP_Class_UID = SOP_Class_UID;
-    planC{indexS.dose}(i).SOP_Instance_UID = dicomuid;
+    %planC{indexS.dose}(i).SOP_Instance_UID = dicomuid;
+    SOP_Instance_UID = javaMethod('createUID','org.dcm4che3.util.UIDUtils',orgRoot);
+    planC{indexS.dose}(i).SOP_Instance_UID = SOP_Instance_UID;
     
     %Generate a Referenced RT Plan Sequence SOP Class UID for each dose.
     %When plan support is added this must reference actual plans, but for
     %now they are dummy plans.
     planC{indexS.dose}(i).Referenced_RT_Plan_Sequence_SOP_Class_UID = '1.2.840.10008.5.1.4.1.1.481.5';
-    planC{indexS.dose}(i).Referenced_RT_Plan_Sequence_SOP_Instance_UID = dicomuid;
+    %planC{indexS.dose}(i).Referenced_RT_Plan_Sequence_SOP_Instance_UID = dicomuid;
+    Referenced_RT_Plan_Sequence_SOP_Instance_UID = javaMethod('createUID','org.dcm4che3.util.UIDUtils',orgRoot);
+    planC{indexS.dose}(i).Referenced_RT_Plan_Sequence_SOP_Instance_UID = Referenced_RT_Plan_Sequence_SOP_Instance_UID;
        
 end
 
 %% STRUCTURE UIDs
 
 %Generate a single series instance UID for all structures.
-Structure_Set_Series_UID = dicomuid;
+%Structure_Set_Series_UID = dicomuid;
+Structure_Set_Series_UID = javaMethod('createUID','org.dcm4che3.util.UIDUtils',orgRoot);
 
 %Generate a single SOP_Class and SOP_Instance ID for all structures;
 Structure_Set_SOP_Class_UID = '1.2.840.10008.5.1.4.1.1.481.3';
-Structure_Set_SOP_Instance_UID = dicomuid;
+%Structure_Set_SOP_Instance_UID = dicomuid;
+Structure_Set_SOP_Instance_UID = javaMethod('createUID','org.dcm4che3.util.UIDUtils',orgRoot);
+
 %Iterate over structures
 for i = 1:length(planC{indexS.structures})
     
@@ -299,7 +321,9 @@ for scanNum = 1:length(planC{indexS.scan})
         planC{indexS.GSPS}(i).Study_Instance_UID = Study_Instance_UID;
         
         %Generate a series instance UID for each dose;
-        planC{indexS.GSPS}(i).Series_Instance_UID = dicomuid;
+        %planC{indexS.GSPS}(i).Series_Instance_UID = dicomuid;
+        Series_Instance_UID = javaMethod('createUID','org.dcm4che3.util.UIDUtils',orgRoot);
+        planC{indexS.GSPS}(i).Series_Instance_UID = Series_Instance_UID;
         
         %Set the frame of reference UID to that of the associated scan, if it
         %exists.
@@ -309,7 +333,9 @@ for scanNum = 1:length(planC{indexS.scan})
         SOP_Class_UID = '1.2.840.10008.5.1.4.1.1.11.1';
         
         planC{indexS.GSPS}(i).SOP_Class_UID = SOP_Class_UID;
-        planC{indexS.GSPS}(i).SOP_Instance_UID = dicomuid;
+        %planC{indexS.GSPS}(i).SOP_Instance_UID = dicomuid;
+        SOP_Instance_UID = javaMethod('createUID','org.dcm4che3.util.UIDUtils',orgRoot);
+        planC{indexS.GSPS}(i).SOP_Instance_UID = SOP_Instance_UID;
         
         if strcmpi(optS.retainOriginalUIDonExport,'no')
             sopInstanceUID = planC{indexS.GSPS}(i).SOPInstanceUID;

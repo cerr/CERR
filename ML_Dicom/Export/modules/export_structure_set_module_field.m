@@ -55,16 +55,16 @@ switch tag
     %Class 1 Tags -- Required, must have data.
     case 805699586  %3006,0002 Structure Set Label.
         data = 'CERR Export';
-        el = data2dcmElement(template, data, tag);
+        el = data2dcmElement(data, tag);
               
     %Class 2 Tags -- Must be present, can be NULL.
     case 805699592  %3006,0008 Structure Set Date
         data = datestr(now, 29);
-        el = data2dcmElement(template, data, tag);
+        el = data2dcmElement(data, tag);
         
     case 805699593  %3006,0009 Structure Set Time
         data = datestr(now, 13);
-        el = data2dcmElement(template, data, tag);  
+        el = data2dcmElement(data, tag);  
                      
     %Class 3 Tags -- presence is optional, currently undefined.
     case 805699588  %3006,0004 Structure Set Name
@@ -81,7 +81,7 @@ switch tag
 
         fHandle = @export_referenced_frame_of_reference_sequence;
 
-        tmp = org.dcm4che3.data.Attributes;
+        tmp = javaObject('org.dcm4che3.data.Attributes');
         el = tmp.newSequence(tag, 0);
 
         %Get unique frame of reference UIDs used by structures.
@@ -100,7 +100,7 @@ switch tag
         templateEl = template.getValue(tag);
         fHandle = @export_structure_set_ROI_sequence;
 
-        tmp = org.dcm4che3.data.Attributes;
+        tmp = javaObject('org.dcm4che3.data.Attributes');
         el = tmp.newSequence(tag, 0);
 
         nStructures = length(structuresS);

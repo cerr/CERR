@@ -44,11 +44,11 @@ template    = args.template;
 switch tag
     case    528720  %0008,1150  Referenced SOP Class UID
         data = doseS.Referenced_RT_Plan_Sequence_SOP_Class_UID;
-        el = data2dcmElement(el, data, tag);         
+        el = data2dcmElement(data, tag);         
         
     case    528725  %0008,1155  Referenced SOP Instance UID
         data = doseS.Referenced_RT_Plan_Sequence_SOP_Instance_UID;
-        el = data2dcmElement(el, data, tag);                 
+        el = data2dcmElement(data, tag);                 
         
     case 806092832  %300C,0020  Referenced Fraction Group Sequence
         %Currently unsupported, as Dose Summation Type is always PLAN.

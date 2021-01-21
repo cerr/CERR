@@ -41,27 +41,27 @@ template            = args.template;
 switch tag
     case 7340037     %0070,0005  Graphic Annotation Units
         data = graphicObjectS.graphicAnnotationUnits;     
-        el = data2dcmElement(template, data, tag);
+        el = data2dcmElement(data, tag);
         
     case 7340064     %0070,0020  Graphic Dimensions
         data = graphicObjectS.graphicAnnotationDims;        
-        el = data2dcmElement(template, data, tag);
+        el = data2dcmElement(data, tag);
         
     case 7340065     %0070,0021  Number of Graphic Points
         data = graphicObjectS.graphicAnnotationNumPts;        
-        el = data2dcmElement(template, data, tag);
+        el = data2dcmElement(data, tag);
 
     case 7340066     %0070,0022  Graphic Data
         data = graphicObjectS.graphicAnnotationData;        
-        el = data2dcmElement(template, data, tag);
+        el = data2dcmElement(data, tag);
 
     case 7340067     %0070,0023  Graphic Type
         data = graphicObjectS.graphicAnnotationType;        
-        el = data2dcmElement(template, data, tag);
+        el = data2dcmElement(data, tag);
         
     case 7340068     %0070,0024  Graphic Filled
         data = graphicObjectS.graphicAnnotationFilled;        
-        el = data2dcmElement(template, data, tag);
+        el = data2dcmElement(data, tag);
        
     otherwise
         warning(['No methods exist to populate DICOM GSPS module''s graphic_object_sequence field ' dec2hex(tag,8) '.']);

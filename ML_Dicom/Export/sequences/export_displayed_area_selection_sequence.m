@@ -46,7 +46,7 @@ switch tag
         fHandle = @export_referenced_image_sequence;
 
         %New null sequence
-        tmp = org.dcm4che3.data.Attributes;
+        tmp = javaObject('org.dcm4che3.data.Attributes');
         el = tmp.newSequence(tag, 0);
         
         scanSopInstanceUIDc = {scanS.scanInfo.sopInstanceUID};
@@ -61,20 +61,20 @@ switch tag
         el = el.getParent();
     
     case 7340114 %0070,0052  Displayed Area Top Left Hand Corner
-        el = data2dcmElement(template, [1,1], tag);
+        el = data2dcmElement([1,1], tag);
     
     case 7340115 %0070,0053  Displayed Area Bottom Right Hand Corner
         data = size(scanS.scanArray);
-        el = data2dcmElement(template, data(1:2), tag);
+        el = data2dcmElement(data(1:2), tag);
 
     case 7340288  %0070,0100  Presentation Size Mode
         data = 'SCALE TO FIT';
-        el = data2dcmElement(template, data, tag);
+        el = data2dcmElement(data, tag);
 
     case 7340289  %0070,0101  Presentation Pixel Spacing
         data = [scanS.scanInfo(1).grid1Units, scanS.scanInfo(1).grid2Units];
         data = data * 10; % cm to mm conversion
-        el = data2dcmElement(template, data, tag);
+        el = data2dcmElement(data, tag);
 
     case 7340290  %0070,0102  Presentation Pixel Aspect Ratio    
     % not implemented
