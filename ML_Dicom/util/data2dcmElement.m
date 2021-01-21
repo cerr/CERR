@@ -1,4 +1,4 @@
-function el = data2dcmElement(el, data, tag)
+function el = data2dcmElement(data, tag)
 %"ml2dcm_Element"
 %   Place the passed data into a copy of the passed Java DICOM element.
 %
@@ -32,9 +32,9 @@ function el = data2dcmElement(el, data, tag)
 % along with CERR.  If not, see <http://www.gnu.org/licenses/>.
 
 %Create an empty attr to act as a temporary container for the new element.
-if isempty(el)
-    el = javaObject('org.dcm4che3.data.Attributes');
-end
+%if isempty(el)
+    el = javaObject('org.dcm4che3.data.Attributes',1);
+%end
     
 vr = javaMethod('vrOf','org.dcm4che3.data.ElementDictionary',tag, []);
 vrCode = vr.code;
@@ -46,7 +46,7 @@ vrCode = vr.code;
 %vr = char(vr.toString);
 
 %%
-switch upper(vrCode)
+switch vrCode
 %if vr.equals(org.dcm4che3.data.VR.AE) %strcmpi(vr,'AE')
     case 16709
     %case 'AE'
@@ -60,10 +60,14 @@ switch upper(vrCode)
     %case 'AT'
         %Attribute tags may be passed as a hex string, ie '000A003E', or an
         %integer that would be the result of hex2dec('000A003E');
-        if ~isnumeric(data) && ischar(data)
-            data = hex2dec(data);
+        %if ~isnumeric(data) && ischar(data)
+        %    data = hex2dec(data);
+        %end
+        %el.setInt(tag, vr, data);
+        if isnumeric(data)
+          data = de2hex(data);
         end
-        el.setInt(tag, vr, data);
+        el.setString(tag, vr, data);
 %elseif vr.equals(org.dcm4che3.data.VR.CS) %strcmpi(vr,'CS')
     case 17235
         %case 'CS'
@@ -92,11 +96,17 @@ switch upper(vrCode)
 %elseif vr.equals(org.dcm4che3.data.VR.DS) %strcmpi(vr,'DS')
     case 17491
     %case 'DS'
-        if ~isempty(data)
-            el.setFloat(tag, vr, data);
+        %if ~isempty(data)
+        %    el.setFloat(tag, vr, data);
+        %else
+        %    el.setFloat(tag, vr, []);
+        %end
+        if length(data) < 2
+          el.setString(tag, vr, num2str(data));
         else
-            el.setFloat(tag, vr, []);
+          el.setFloat(tag, vr, data);
         end
+        
 %elseif vr.equals(org.dcm4che3.data.VR.DT) %strcmpi(vr,'DT')
     case 17492
     %case 'DT'
@@ -104,7 +114,12 @@ switch upper(vrCode)
 %elseif vr.equals(org.dcm4che3.data.VR.FL) %strcmpi(vr,'FL')
     case 17996
     %case 'FL'        
-        el.setFloat(tag, vr, data); 
+        if length(data) < 2
+            el.setString(tag, vr, num2str(data));
+        else
+            el.setFloat(tag, vr, data);
+        end
+         
 %elseif vr.equals(org.dcm4che3.data.VR.FD) %strcmpi(vr,'FD')
     case 17988
     %case 'FD'
@@ -113,7 +128,12 @@ switch upper(vrCode)
     case 18771
     %case 'IS'
         if isnumeric(data)
-            el.setInt(tag, vr, data);
+            if length(data) < 2
+                el.setString(tag,vr,num2str(data));
+            else              
+                el.setInt(tag, vr, data);
+            end
+            
         else
             error('The input should be numeric for "IS" ');
         end
@@ -186,7 +206,11 @@ switch upper(vrCode)
     case 21324
     %case 'SL'
         %Needs implementation       
-        el.setInt(tag, vr, data);
+        if length(data) < 2
+            el.setString(tag, vr, num2str(data));
+        else
+            el.setInt(tag, vr, data);
+        end        
 %elseif vr.equals(org.dcm4che3.data.VR.SQ) %strcmpi(vr,'SQ')
     case 21329
     %case 'SQ'
@@ -224,7 +248,12 @@ switch upper(vrCode)
 %elseif vr.equals(org.dcm4che3.data.VR.US) %strcmpi(vr,'US')
     case 21843
     %case 'US'
-        el.setInt(tag, vr, data);
+        if length(data) < 2
+            el.setString(tag, vr, num2str(data));
+        else
+            el.setInt(tag, vr, data);
+        end       
+      
 %elseif vr.equals(org.dcm4che3.data.VR.UT) %strcmpi(vr,'UT')
     case 21844
     %case 'UT'

@@ -46,11 +46,11 @@ template    = args.template;
 switch tag
     case 528720     %0008,1150  Referneced SOP Class UID
         data = DVHS.Referenced_Structure_Set_SOP_Class_UID; 
-        el = data2dcmElement(el, data, tag);        
+        el = data2dcmElement(data, tag);        
         
     case 528725     %0008,1155  Referenced SOP Instance UID
         data = DVHS.Referenced_Structure_Set_SOP_Instance_UID;
-        el = data2dcmElement(el, data, tag);       
+        el = data2dcmElement(data, tag);       
         
     otherwise
         warning(['No methods exist to populate DICOM ROI_contour module''s ROI_contour_sequence field: ' dec2hex(tag,8) '.']);

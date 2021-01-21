@@ -38,7 +38,9 @@ if isfield(planC{indexS.scan}(scanNum).scanInfo(1),'seriesInstanceUID') && ...
         ~isempty(planC{indexS.scan}(scanNum).scanInfo(1).seriesInstanceUID)
     folderNam = planC{indexS.scan}(scanNum).scanInfo(1).seriesInstanceUID;
 else
-    folderNam = dicomuid;
+    %folderNam = dicomuid;
+    orgRoot = '1.3.6.1.4.1.9590.100.1.2';
+    folderNam = javaMethod('createUID','org.dcm4che3.util.UIDUtils',orgRoot);
 end
 
 dateTimeV = clock;

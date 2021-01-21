@@ -49,7 +49,7 @@ switch tag
         
     case 805568513  %3004,0001  DVH Type
         data = 'DIFFERENTIAL';    
-        el = data2dcmElement(el, data, tag);            
+        el = data2dcmElement(data, tag);            
         
     case 805568514  %3004,0002  Dose Units
         dUnits = DVHS.doseUnits;
@@ -68,7 +68,7 @@ switch tag
                 data = 'GY';
                 warning('Unable to determine if DVH dose units are ''GY'' or ''RELATIVE''.  Assuming ''GY''.');
         end
-        el = data2dcmElement(el, data, tag);             
+        el = data2dcmElement(data, tag);             
         
     case 805568516  %3004,0004  Dose Type
         dtype = DVHS.doseType;
@@ -85,19 +85,19 @@ switch tag
                 data = 'PHYSICAL';
                 warning('Unable to determine if DVH dose type is ''PHYSICAL'', ''EFFECTIVE'', or ''ERROR''.  Assuming ''PHYSICAL''.');
         end
-        el = data2dcmElement(el, data, tag);             
+        el = data2dcmElement(data, tag);             
         
     case 805568594  %3004,0052  DVH Dose Scaling
         data = 1; %CERR DVHs have no dose scaling factor.
-        el = data2dcmElement(el, data, tag);          
+        el = data2dcmElement(data, tag);          
         
     case 805568596  %3004,0054  DVH Volume Units
         data = 'CM3'; %CERR DVH data is all in cubic cm.
-        el = data2dcmElement(el, data, tag);               
+        el = data2dcmElement(data, tag);               
         
     case 805568598  %3004,0056  DVH Number of Bins
         data = size(DVHS.DVHMatrix, 1);
-        el = data2dcmElement(el, data, tag);                  
+        el = data2dcmElement(data, tag);                  
         
     case 805568600  %3004,0058  DVH Data
         nBins     = size(DVHS.DVHMatrix, 1);
@@ -112,7 +112,7 @@ switch tag
             data(2:2:2*nBins) = volumesV;    
         end
         
-        el = data2dcmElement(el, data, tag);           
+        el = data2dcmElement(data, tag);           
                 
     case 805568624  %3004,0070  DVH Minimum Dose
         %Currently not implemented.        

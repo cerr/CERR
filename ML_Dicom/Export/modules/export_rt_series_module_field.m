@@ -78,7 +78,7 @@ switch tag
             case 'gsps'
                 data = 'PR';
         end
-        el = data2dcmElement(template, data, tag);      
+        el = data2dcmElement(data, tag);      
         
     case 2097166    %0020,000E Series Instance UID  
         switch type
@@ -90,7 +90,7 @@ switch tag
             case 'gsps'
                 UID = structS(1).Series_Instance_UID;
         end
-        el = data2dcmElement(template, UID, tag);        
+        el = data2dcmElement(UID, tag);        
         
     %Class 2 Tags -- Must be present, can be NULL.        
 
@@ -100,7 +100,7 @@ switch tag
         %el.setString(tag, template.getVR(tag), template.getString(tag));
         %seriesNumber = structS(1).SeriesNumber;
         seriesNumber = [];
-        el = data2dcmElement(template, seriesNumber, tag);
+        el = data2dcmElement(seriesNumber, tag);
     %Class 3 Tags -- presence is optional, currently undefined.        
 
     case  528446    %0008,103E Series Description
@@ -112,7 +112,7 @@ switch tag
                 %el = ml2dcm_Element(el, data);
                 %seriesDescription = structS(1).SeriesDescription;
                 seriesDescription = [];
-                el = data2dcmElement(template, seriesDescription, tag);
+                el = data2dcmElement(seriesDescription, tag);
             case 'gsps'                
         end
     case  528657    %0008,1111 Referenced Performed Procedure Step Sequence

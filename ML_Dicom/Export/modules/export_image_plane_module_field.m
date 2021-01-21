@@ -23,7 +23,7 @@ function el = export_image_plane_module_field(args)
 %               square dose pixels.
 %AI 10/23/19   Updated Image Position, Orientation field for  HFP, FFS, and FFP
 %patient positions.
-%               
+%
 %Usage:
 %   dcmobj = export_image_plane_module_field(args)
 %
@@ -80,10 +80,10 @@ switch tag
                 pixHeight   = doseS.horizontalGridInterval;
         end
         
-        %Convert from CERR cm to DICOM mm.        
+        %Convert from CERR cm to DICOM mm.
         data        = [pixWidth pixHeight] * 10;
-        el = data2dcmElement(template, data, tag);
-       
+        el = data2dcmElement(data, tag);
+        
         
     case 2097207    %0020,0037 Image Orientation (Patient)
         
@@ -92,8 +92,8 @@ switch tag
                 data = scanInfoS.imageOrientationPatient;
             case 'dose'
                 data = doseS.imageOrientationPatient;
-        end        
-        el = data2dcmElement(template, data, tag);
+        end
+        el = data2dcmElement(data, tag);
         
     case 2097202    %0020,0032 Image Position (Patient) (mm)
         
@@ -126,7 +126,7 @@ switch tag
         end
         
         data = posV;
-        el = data2dcmElement(template, data, tag);
+        el = data2dcmElement(data, tag);
         
         %Class 1C tag -- conditionally required.
         
@@ -137,8 +137,8 @@ switch tag
             otherwise
                 data = [];
         end
-        el = data2dcmElement(template, data, tag);
-
+        el = data2dcmElement(data, tag);
+        
         
     case 2625617 %0028,1050 Window Width
         switch type
@@ -147,16 +147,16 @@ switch tag
             otherwise
                 data = [];
         end
-        el = data2dcmElement(template, data, tag);
-
-
-%Class 2 Tags -- Must be present, can be blank.
-
-case 1572944    %0018,0050 Slice Thickness (mm)
-    switch type
-        case 'scan'
-            data = scanInfoS.sliceThickness;
-        case 'dose'
+        el = data2dcmElement(data, tag);
+        
+        
+        %Class 2 Tags -- Must be present, can be blank.
+        
+    case 1572944    %0018,0050 Slice Thickness (mm)
+        switch type
+            case 'scan'
+                data = scanInfoS.sliceThickness;
+            case 'dose'
                 firstZ = doseS.zValues(1);
                 lastZ  = doseS.zValues(end);
                 numZ   = length(doseS.zValues);
@@ -169,10 +169,10 @@ case 1572944    %0018,0050 Slice Thickness (mm)
                 end
         end
         
-        %Convert from CERR cm to DICOM mm.        
-        data = data * 10;       
-        el = data2dcmElement(template, data, tag);      
-       
+        %Convert from CERR cm to DICOM mm.
+        data = data * 10;
+        el = data2dcmElement(data, tag);
+        
         %Class 3 Tags -- presence is optional, currently undefined.
         
     case 2101313    %0020,1041 Slice Location

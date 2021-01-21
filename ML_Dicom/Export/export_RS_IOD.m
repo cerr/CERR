@@ -57,7 +57,7 @@ for scanNum = 1:length(planC{indexS.scan})
     end
     
     %Create empty attr.
-    attr = org.dcm4che3.data.Attributes;    
+    attr = javaObject('org.dcm4che3.data.Attributes');    
     
     structureS = planC{indexS.structures}(matchStructsV);
         

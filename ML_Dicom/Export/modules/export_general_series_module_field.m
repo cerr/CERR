@@ -51,7 +51,7 @@ el = [];
 %Unpack input data.
 tag         = args.tag;
 scanS       = args.data{1};
-template    = args.template;
+%template    = args.template;
 
 scanInfo = scanS.scanInfo(1);
 
@@ -66,19 +66,19 @@ switch tag
         elseif strcmpi(data,'GSPS')
             data = 'PR';
         end
-        el = data2dcmElement(template, data, tag);
+        el = data2dcmElement(data, tag);
         
     case 2097166    %0020,000E Series Instance UID
         data = scanS.Series_Instance_UID;
-        el = data2dcmElement(template, data, tag);
+        el = data2dcmElement(data, tag);
 
     %Class 2 Tags -- Must be present, can be blank.
     case 2097169    %0020,0011 Series Number
 
-        el = org.dcm4che3.data.Attributes;
+        %el = org.dcm4che3.data.Attributes;
         %el.setString(tag, template.getVR(tag), template.getString(tag));
         data = [];
-        el = data2dcmElement(template, data, tag);
+        el = data2dcmElement(data, tag);
      
     %Class 3 Tags -- presence is optional    
     case  524321    %0008,0021 Series Date
@@ -88,14 +88,14 @@ switch tag
         catch
             data = [];
         end
-        el = data2dcmElement(template, data, tag);
+        el = data2dcmElement(data, tag);
                 
         %Class 3 Tags -- presence is optional
     case  528446    %0008,103E Series Description
         data = scanInfo.scanDescription;
         %el = template.get(tag);
         %el = ml2dcm_Element(el, data);
-        el = data2dcmElement(template, data, tag);
+        el = data2dcmElement(data, tag);
         
         %Class 3 Tags -- presence is optional, currently undefined.
     case  524337    %0008,0031 Series Time
@@ -126,12 +126,12 @@ switch tag
         try
             
             data = scanInfo.patientPosition;
-            el = data2dcmElement(template, data, tag);
+            el = data2dcmElement(data, tag);
             
         catch
             warning('scanInfo does not contain Patient Position information. Defaulting to HFS');
             data = 'HFS';
-            el = data2dcmElement(template, data, tag);
+            el = data2dcmElement(data, tag);
         end
                    
     otherwise

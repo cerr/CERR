@@ -44,7 +44,7 @@ switch tag
     case 2097234    %0020,0052  Frame of Reference UID
         data = UID;
 
-        el = data2dcmElement(template, data, tag); %replaced el with template
+        el = data2dcmElement(data, tag); %replaced el with template
 
     %Class 3 Tags -- presence is optional, currently undefined.        
     case 805699776  %3006,00C0  Frame of Reference Relationship Sequence       
@@ -58,7 +58,7 @@ switch tag
         fHandle = @export_rt_referenced_study_sequence;
     
         %created new empty sequence
-        tmp = org.dcm4che3.data.Attributes;
+        tmp = javaObject('org.dcm4che3.data.Attributes');
         el = tmp.newSequence(tag, 0);
 
         %Study Component Management SOP

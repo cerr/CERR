@@ -50,19 +50,19 @@ switch tag
     case 805699716 %3006,0084   Referenced ROI Number
 
         data = index; %Simply using CERR structS index.
-        el = data2dcmElement(template, data, tag);
+        el = data2dcmElement(data, tag);
 
     case 805699626 %3006,002A   ROI Display Color
 
         structColor = structColorRescale(structS.structureColor);
         
-        el = data2dcmElement(el, structColor, tag);
+        el = data2dcmElement(structColor, tag);
 
     case 805699648 %3006,0048   Contour Sequence
         templateEl  = template.getValue(tag);
         fHandle = @export_contour_sequence;
 
-        tmp = org.dcm4che3.data.Attributes;
+        tmp = javaObject('org.dcm4che3.data.Attributes');
         el = tmp.newSequence(tag, 0);
 
         nContours = length(structS.contour);

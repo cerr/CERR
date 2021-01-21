@@ -51,7 +51,7 @@ switch tag
         fHandle = @export_referenced_image_sequence;        
         
         %New null sequence
-        tmp = org.dcm4che3.data.Attributes;
+        tmp = javaObject('org.dcm4che3.data.Attributes');
         el = tmp.newSequence(tag, 0);
         
         i = 1; % only one layer
@@ -64,7 +64,7 @@ switch tag
     case 7340034  %0070,0002  Graphic layer
         
         graphicLayer = gspsS.presentLabel; % must be the same name used inthe graphic layer sequence
-        el = data2dcmElement(el, graphicLayer, tag);        
+        el = data2dcmElement(graphicLayer, tag);        
         
     case 7340040  %0070,0008  Text object sequence
 
@@ -72,7 +72,7 @@ switch tag
         fHandle = @export_text_object_sequence;
         
         %New null sequence
-        tmp = org.dcm4che3.data.Attributes;
+        tmp = javaObject('org.dcm4che3.data.Attributes');
         el = tmp.newSequence(tag, 0);
 
         textAnnotationS = gspsS.textAnnotationS;
@@ -92,7 +92,7 @@ switch tag
         fHandle = @export_graphic_object_sequence;
         
         %New null sequence
-        tmp = org.dcm4che3.data.Attributes;
+        tmp = javaObject('org.dcm4che3.data.Attributes');
         el = tmp.newSequence(tag, 0);
 
         graphicAnnotationS = gspsS.graphicAnnotationS;

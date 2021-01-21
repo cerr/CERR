@@ -49,15 +49,15 @@ layerColor  = args.data{3};
 switch tag
     case   7340034  %0070,0002  Graphic Layer
         data = layerLabel;
-        el = data2dcmElement(template, data, tag); 
+        el = data2dcmElement(data, tag); 
         
     case   7340130  %0070,0062  Graphic Layer Order
         data = layerOrder; % Lower numbered layers are to be rendered first.
-        el = data2dcmElement(template, data, tag); 
+        el = data2dcmElement(data, tag); 
         
     case   7340134  %0070,0066  Graphic Layer Recommended Display Grayscale Value
         data = 255; %'FFFFH'; % white
-        el = data2dcmElement(template, data, tag); 
+        el = data2dcmElement(data, tag); 
         
     case   7341057  %0070,0401  Graphic Layer Recommended Display CIELab Value
         data = rgb2lab(layerColor); % cielab color. (this combination results in a shade of orange).
@@ -65,11 +65,11 @@ switch tag
         data(1) = data(1)/100*65535;
         data(2) = (100+data(2))/200*65535;
         data(3) = (100+data(3))/200*65535;
-        el = data2dcmElement(template, data, tag); 
+        el = data2dcmElement(data, tag); 
         
     case   7340136  %0070,0068  Graphic Layer Description
         data = 'RTSTRUCT converted to GSPS using CERR';
-        el = data2dcmElement(template, data, tag);         
+        el = data2dcmElement(data, tag);         
    
     otherwise
         warning(['No methods exist to populate DICOM graphic_layer module''s graphic_layer sequence field: ' dec2hex(tag,8) '.']);

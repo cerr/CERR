@@ -51,7 +51,7 @@ el = [];
 tag         = args.tag;
 type        = args.data{1};
 structS     = args.data{2};
-template    = args.template;
+%template    = args.template;
 
 %Check for a supported type.
 switch type
@@ -83,21 +83,21 @@ switch tag
             case 'gsps'
                 data = 'CERR';
         end
-        el = data2dcmElement(template, data, tag);
+        el = data2dcmElement(data, tag);
         
     %Class 3 Tags -- presence is optional, currently undefined.
     case  524416    %0008,0080 Institution Name
         data = 'CERR';
-        el = data2dcmElement(template, data, tag);
+        el = data2dcmElement(data, tag);
     case  524417    %0008,0081 Institution Address        
     case  528400    %0008,1010 Station Name
         data = 'CERR';
-        el = data2dcmElement(template, data, tag);
+        el = data2dcmElement(data, tag);
         
     case  528448    %0008,1040 Institutional Department Name
     case  528528    %0008,1090 Manufacturer's Model Name
         data = 'CERR';
-        el = data2dcmElement(template, data, tag);       
+        el = data2dcmElement(data, tag);       
     case 1576960    %0018,1000 Device Serial Number
     case 1576992    %0018,1020 Software Versions
     case 1577040    %0018,1050 Spatial Resolution

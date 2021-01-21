@@ -61,7 +61,7 @@ switch tag
         el = el.getParent();
     
     case 2097166 %0020,000E  Series Instance UID
-        el = data2dcmElement(template, scanS.Series_Instance_UID, tag);
+        el = data2dcmElement(scanS.Series_Instance_UID, tag);
     
     otherwise
         warning(['No methods exist to populate DICOM GSPS module''s export_displayed_area_selection_sequence field ' dec2hex(tag,8) '.']);
