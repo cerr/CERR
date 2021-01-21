@@ -73,7 +73,7 @@ else
     %Get scan no. matching identifiers
     scanNumV = nan(1,length(scanOptS));
     for n = 1:length(scanOptS)
-        identifierS = scanOptS.identifier;
+        identifierS = scanOptS(n).identifier;
         scanNumV(n) = getScanNumFromIdentifiers(identifierS,planC);
     end
 end
@@ -371,9 +371,9 @@ for scanIdx = 1:numScans
     end
     
     scanOutC{scanIdx} = channelOutC;
-    optS(scanIdx).scan = scanOptS;
 
 end
+optS.scan = scanOptS;
 
 %Get scan metadata
 %uniformScanInfoS = planC{indexS.scan}(scanNumV(scanIdx)).uniformScanInfo;

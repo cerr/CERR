@@ -32,8 +32,8 @@ if sum(segMask3M(:))>0
 end
 
 %% Delete intermediate (resampled) scans if any
-if isfield(userOptS(scanNum).scan,'origScan')
-    origScanNum = userOptS(scanNum).scan.origScan;
+if isfield(userOptS.scan(scanNum),'origScan')
+    origScanNum = userOptS.scan(scanNum).origScan;
 else
     origScanNum = 1;
 end
