@@ -111,8 +111,14 @@ if ~any(strcmpi(algorithmC,'BABS'))
         
         %Get list of label names
         userOptS = readDLConfigFile(configFilePath);
-        allLabelNamesC = [allLabelNamesC,{userOptS.strNameToLabelMap.structureName}];
-        
+        if ischar(userOptS.strNameToLabelMap)
+            labelDatS = readDLConfigFile(fullfile(labelPath,...
+                userOptS.strNameToLabelMap));
+            labelMapS = labelDatS.strNameToLabelMap;
+        else
+            labelMapS = userOptS.strNameToLabelMap;
+        end
+        allLabelNamesC = [allLabelNamesC,{labelMapS.structureName}];
     end
     
     % Export segmentations to DICOM RTSTRUCT files
