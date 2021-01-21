@@ -51,7 +51,7 @@ switch tag
         
     case 805568610  %3004,0062  DVH ROI Contribution Type
         data = 'INCLUDED';
-        el = data2dcmElement(template, data, tag);  
+        el = data2dcmElement(data, tag);  
         
     otherwise
         warning(['No methods exist to populate DICOM RT Dose module''s DVH_referenced_ROI sequence field: ' dec2hex(tag,8) '.']);

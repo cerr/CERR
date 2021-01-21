@@ -43,7 +43,7 @@ switch tag
     %Class 1 Tags -- Required, must have data.
     case 2097234    %0020,0052 Frame of Reference UID
         data = dataS.Frame_Of_Reference_UID;
-        el = data2dcmElement(template, data, tag);
+        el = data2dcmElement(data, tag);
 
     %Class 2 Tags -- Must be present, can be blank.
     case 2101312    %0020,1040 Position Reference Indicator
@@ -52,7 +52,7 @@ switch tag
         %vr = org.dcm4che3.data.ElementDictionary.vrOf(tag, []);
         %el.setString(tag, vr, template.getString(tag));
         data = [];
-        el = data2dcmElement(template, data, tag);
+        el = data2dcmElement(data, tag);
         
     otherwise
         warning(['No methods exist to populate DICOM frame of reference module field ' dec2hex(tag,8) '.']);

@@ -41,35 +41,35 @@ template            = args.template;
 switch tag
     case 7340035     %0070,0003  Bounding Box Annotation Units
         data = textObjectS.boundingBoxAnnotationUnits;     
-        el = data2dcmElement(template, data, tag);
+        el = data2dcmElement(data, tag);
         
     case 7340036     %0070,0004  Anchor Point Annotation Units
         data = textObjectS.anchorPtAnnotationUnits;        
-        el = data2dcmElement(template, data, tag);
+        el = data2dcmElement(data, tag);
         
     case 7340038     %00700006  Unformatted Text Value
         data = textObjectS.unformattedTextValue;        
-        el = data2dcmElement(template, data, tag);
+        el = data2dcmElement(data, tag);
 
     case 7340048     %00700010  Bounding Box Top Left Hand Corner
         data = textObjectS.boundingBoxTopLeftHandCornerPt;        
-        el = data2dcmElement(template, data, tag);
+        el = data2dcmElement(data, tag);
 
     case 7340049     %00700011  Bounding Box Bottom Right Hand Corner
         data = textObjectS.boundingBoxBottomRightHandCornerPt;        
-        el = data2dcmElement(template, data, tag);
+        el = data2dcmElement(data, tag);
         
     case 7340050     %00700012  Bounding Box Text Horizontal Justification
         data = textObjectS.boundingBoxTextHorizontalJustification;        
-        el = data2dcmElement(template, data, tag);
+        el = data2dcmElement(data, tag);
        
     case 7340052     %00700014  Anchor Point
         data = textObjectS.anchorPoint;        
-        el = data2dcmElement(template, data, tag);
+        el = data2dcmElement(data, tag);
 
     case 7340053     %00700015  Anchor Point Visibility
         data = textObjectS.anchorPointVisibility;        
-        el = data2dcmElement(template, data, tag);
+        el = data2dcmElement(data, tag);
 
     otherwise
         warning(['No methods exist to populate DICOM GSPS module''s graphic_object_sequence field ' dec2hex(tag,8) '.']);

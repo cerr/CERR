@@ -72,16 +72,16 @@ switch tag
     case 2097171  %0020,0013 Instance Number
         %instanceNumber = dataS.instanceNumber;
         instanceNumber = 1;
-        el = data2dcmElement(template, instanceNumber, tag);
+        el = data2dcmElement(instanceNumber, tag);
         
     case 7340160  %0070,0080 Content Label
         ContentLabel = 'RT TARGET';
-        el = data2dcmElement(template, ContentLabel, tag);
+        el = data2dcmElement(ContentLabel, tag);
         
     %Class 2 Tags -- Must be present, can be blank.
     case 7340161 %0070,0081 Content Description
         ContentDescription = 'RT Planning Target';
-        el = data2dcmElement(template, ContentDescription, tag);
+        el = data2dcmElement(ContentDescription, tag);
 
     case 7340164 %0070,0084 Content Creator's Name
          contentCreatorsName.FamilyName = 'Med Phys';
@@ -89,7 +89,7 @@ switch tag
          contentCreatorsName.MiddleName = '';
          contentCreatorsName.NamePrefix = '';
          contentCreatorsName.NameSuffix = '';         
-         el = data2dcmElement(template, contentCreatorsName, tag);
+         el = data2dcmElement(contentCreatorsName, tag);
         
     otherwise
         warning(['No methods exist to populate DICOM content module field ' dec2hex(tag,8) '.']);

@@ -56,23 +56,23 @@ template    = args.template;
 switch tag
     case   2621442  %0028,0002  Samples per Pixel
         data = 1;
-        el = data2dcmElement(template, data, tag); 
+        el = data2dcmElement(data, tag); 
         
     case   2621444  %0028,0004  Photometric Interpretation
         data = 'MONOCHROME2';
-        el = data2dcmElement(template, data, tag); 
+        el = data2dcmElement(data, tag); 
         
     case   2621696  %0028,0100  Bits Allocated
         data = 32;
-        el = data2dcmElement(template, data, tag); 
+        el = data2dcmElement(data, tag); 
         
     case   2621697  %0028,0101  Bits Stored
         data = 32;
-        el = data2dcmElement(template, data, tag); 
+        el = data2dcmElement(data, tag); 
         
     case   2621698  %0028,0102  High Bit
         data = 32 - 1;
-        el = data2dcmElement(template, data, tag);         
+        el = data2dcmElement(data, tag);         
         
     case   2621699  %0028,0103  Pixel Representation
 %wy         switch upper(doseS.doseType)
@@ -87,13 +87,13 @@ switch tag
             data = 0;
         end
 %wy
-        el = data2dcmElement(template, data, tag);               
+        el = data2dcmElement(data, tag);               
         
     case 805568514  %3004,0002  Dose Units
         if isempty(doseUnits)
             doseUnits = 'relative';
         end
-        switch upper(doseUnits);
+        switch upper(doseUnits)
             case 'GY' %Add more cases here if required.
                 data = 'GY';
             case 'CGY' %Add more cases here if required.
@@ -101,7 +101,7 @@ switch tag
             otherwise
                 data = 'RELATIVE';
         end
-        el = data2dcmElement(template, data, tag);                         
+        el = data2dcmElement(data, tag);                         
         
     case 805568516  %3004,0004  Dose Type
         if ~isempty(doseS.doseType)
@@ -119,7 +119,7 @@ switch tag
             data = 'PHYSICAL';
         end
         
-        el = data2dcmElement(template, data, tag);                        
+        el = data2dcmElement(data, tag);                        
         
     case   2097171  %0020,0013  Instance Number
         %Currently unimplemented.
@@ -129,25 +129,27 @@ switch tag
         
     case 805568520  %3004,0008  Normalization Point
         %[x,y,z] coordinate of the normalization point, if it is defined.
-        if ~isempty(doseS.xcoordOfNormaliznPoint) & ~isempty(doseS.ycoordOfNormaliznPoint) & ~isempty(doseS.zcoordOfNormaliznPoint)
-           data = [doseS.xcoordOfNormaliznPoint doseS.ycoordOfNormaliznPoint doseS.zcoordOfNormaliznPoint];
+        if ~isempty(doseS.xcoordOfNormaliznPoint) && ...
+                ~isempty(doseS.ycoordOfNormaliznPoint) && ...
+                ~isempty(doseS.zcoordOfNormaliznPoint)
+           data = [doseS.xcoordOfNormaliznPoint, doseS.ycoordOfNormaliznPoint, doseS.zcoordOfNormaliznPoint];
            
            %Convert from CERR cm to DICOM mm.                
            data = data * 10;           
-           el = data2dcmElement(template, data, tag); 
+           el = data2dcmElement(data, tag); 
         end
         
     case 805568522  %3004,000A  Dose Summation Type
         %Currently insufficent data in CERR's doseS structure to determine
         %this value, so defaulting to PLAN for all doseS.
         data = 'PLAN';
-        el = data2dcmElement(template, data, tag);        
+        el = data2dcmElement(data, tag);        
         
     case 806092802  %300C,0002  Referenced RT Plan Sequence
         templateEl = template.getValue(tag);
         fHandle = @export_referenced_rt_plan_sequence;
 
-        tmp = org.dcm4che3.data.Attributes;
+        tmp = javaObject('org.dcm4che3.data.Attributes');
         el = tmp.newSequence(tag, 0);
        
         dcmobj = export_sequence(fHandle, templateEl, {doseS});
@@ -170,7 +172,7 @@ switch tag
         %Convert from CERR cm to DICOM mm.                
         data = data * 10;
         
-        el = data2dcmElement(template, data, tag);              
+        el = data2dcmElement(data, tag);              
         
     case 805568526  %3004,000E  Dose Grid Scaling
         nBits = 31;
@@ -180,7 +182,7 @@ switch tag
         maxScaled  = 2^nBits;
 
         data = maxABSDose ./ maxScaled;
-        el = data2dcmElement(template, data, tag);                       
+        el = data2dcmElement(data, tag);                       
         
     case 805568532  %3004,0014  Tissue Heterogeneity Correction
         %Currently unimplemented.

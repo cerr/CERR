@@ -62,7 +62,7 @@ for i=1:length(tagS)
        
     %Handle the case of a tag with children, a sequence.
     %CHANGED to ELEMENT DICTIONARY
-    elseif  strcmpi(toString(vr), 'SQ')
+    elseif  vr.code == 21329 %strcmpi(toString(vr), 'SQ')
        %child_obj = org.dcm4che3.data.Attributes;
        child_obj = javaObject('org.dcm4che3.data.Attributes');
        % convert to setNull from putNull

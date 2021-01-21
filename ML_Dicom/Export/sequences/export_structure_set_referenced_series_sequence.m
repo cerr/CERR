@@ -45,7 +45,7 @@ switch tag
     %Class 1 Tags -- Required, must have data.
     case 2097234    %0020,000E  Series Instance UID
         data = UID;
-        el = data2dcmElement(el, data, tag); 
+        el = data2dcmElement(data, tag); 
 
     otherwise
         warning(['No methods exist to populate DICOM structure_set module''s export_structure_set_referenced_series_sequence field ' dec2hex(tag,8) '.']);

@@ -38,7 +38,7 @@ function attr = export_sequence(function_handle, el, data)
 % You should have received a copy of the GNU General Public License
 % along with CERR.  If not, see <http://www.gnu.org/licenses/>.
 
-attr = org.dcm4che3.data.Attributes;
+attr = javaObject('org.dcm4che3.data.Attributes');
 obj = el.get(0);
 tagS = obj.tags();
 %template = el;
@@ -63,10 +63,10 @@ for i=1:length(tagS)
         % matlab by filling up the Java memory heap. the remove function
         % prevents a crash be removing extra item
         if (el.size() > 1)
-          el.remove(el.size()-1);
-          attr.addAll(el.getParent());
+            el.remove(el.size()-1);
+            attr.addAll(el.getParent());
         else
-        attr.addAll(el);
+            attr.addAll(el);
         end
     end
 end

@@ -67,20 +67,20 @@ switch tag
     %Class 1 Tags -- Required, must have data.
     case 524310     %0008,0016 SOP Class UID
         data = structS(1).SOP_Class_UID;                
-        el = data2dcmElement(template, data, tag);
+        el = data2dcmElement(data, tag);
     case 524312     %0008,0018 SOP Instance UID
         data = structS(1).SOP_Instance_UID;
-        el = data2dcmElement(template, data, tag);      
+        el = data2dcmElement(data, tag);      
     %Class 2 Tags -- Must be present, can be blank.        
 
     %Class 3 Tags -- presence is optional, currently undefined.  
     case   524306   %0008,0012 Instance Creation Date
         data = datestr(now, 29);
-        el = data2dcmElement(template, data, tag);
+        el = data2dcmElement(data, tag);
         
     case   524307   %0008,0013 Instance Creation Time
         data = datestr(now, 13);
-        el = data2dcmElement(template, data, tag);    
+        el = data2dcmElement(data, tag);    
         
     case   524308   %0008,0014 Instance Creator UID
     case   524314   %0008,001A Related GEneral SOP Class UID

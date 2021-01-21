@@ -54,7 +54,7 @@ function attr = export_module(moduleName, varargin)
 % along with CERR.  If not, see <http://www.gnu.org/licenses/>.
 
 %convert to dcm4che3 attribute
-attr = org.dcm4che3.data.Attributes;
+attr = javaObject('org.dcm4che3.data.Attributes');
 
 switch lower(moduleName)
     %Get the top level tags used in this module.
@@ -133,7 +133,8 @@ end
 template = build_module_template(moduleName);
 
 %Convert top level tags to decimal form.
-allTags = hex2dec({tagS.tag});
+%allTags = hex2dec({tagS.tag});
+allTags = [tagS.tagdec];
 
 %Iterate over all tags, calling the appropriate export function.
 for i=1:length(allTags)
