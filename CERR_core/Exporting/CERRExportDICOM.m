@@ -84,9 +84,9 @@ end
 optS = stateS.optS;
 if isempty(optS.tmpDecompressDir)
     tmpExtractDir = tempdir;
-elseif isdir(optS.tmpDecompressDir)
+elseif isfolder(optS.tmpDecompressDir)
     tmpExtractDir = optS.tmpDecompressDir;
-elseif ~isdir(optS.tmpDecompressDir)
+elseif ~isfolder(optS.tmpDecompressDir)
     error('Please specify a valid directory within CERROptions.m for optS.tmpDecompressDir')
 end
 
@@ -143,7 +143,8 @@ if ~isfield(indexS,'IVH')
     indexS = planC{end}; % Reset indexS structure
 end
 
-if ~isfield(planC{indexS.scan}(1),'scanUID')| ((length(planC{indexS.structureArray})>0) & (~isfield(planC{indexS.structureArray}(1),'structureSetUID')))
+if ~isfield(planC{indexS.scan}(1),'scanUID') || ...
+        ((~isempty(planC{indexS.structureArray})) && (~isfield(planC{indexS.structureArray}(1),'structureSetUID')))
     planC = guessPlanUID(planC);
 end
 
