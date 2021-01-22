@@ -21,30 +21,23 @@ function [indicesC, structBitsC, planC] = getUniformizedData(planC, scanNum, mak
 %Usage:
 %   function [indicesC, structBitsC, planC] = getUniformizedData(planC, scanNum, makeUniform)
 % copyright (c) 2001-2006, Washington University in St. Louis.
-% Permission is granted to use or modify only for non-commercial, 
-% non-treatment-decision applications, and further only if this header is 
-% not removed from any file. No warranty is expressed or implied for any 
-% use whatever: use at your own risk.  Users can request use of CERR for 
-% institutional review board-approved protocols.  Commercial users can 
-% request a license.  Contact Joe Deasy for more information 
+% Permission is granted to use or modify only for non-commercial,
+% non-treatment-decision applications, and further only if this header is
+% not removed from any file. No warranty is expressed or implied for any
+% use whatever: use at your own risk.  Users can request use of CERR for
+% institutional review board-approved protocols.  Commercial users can
+% request a license.  Contact Joe Deasy for more information
 % (radonc.wustl.edu@jdeasy, reversed).
 indexS = planC{end};
 optS = planC{indexS.CERROptions};
 
-if ~exist('makeUniform')
+if ~exist('makeUniform','var')
     makeUniform = 'yes';
-elseif ~strcmpi(makeUniform, 'yes') & ~strcmpi(makeUniform, 'no') & ~strcmpi(makeUniform, 'prompt')
-    error(['Invalid call to getUniformizedData, legal flags are ''yes'', ''no'', or ''prompt''.']);
+elseif ~strcmpi(makeUniform, 'yes') && ~strcmpi(makeUniform, 'no') && ~strcmpi(makeUniform, 'prompt')
+    error('Invalid call to getUniformizedData, legal flags are ''yes'', ''no'', or ''prompt''.');
 end
 
-indicesM    = planC{indexS.structureArray}(scanNum).indicesArray;
-structBitsM = planC{indexS.structureArray}(scanNum).bitsArray;
-
-indicesC    = planC{indexS.structureArrayMore}(scanNum).indicesArray;
-structBitsC = planC{indexS.structureArrayMore}(scanNum).bitsArray;
-
-indicesC = [{indicesM} indicesC];
-structBitsC = [{structBitsM} structBitsC];
+[indicesC, structBitsC] = getUnifStructData(planC,scanNum);
 
 if ~isempty(indicesC) || ~isempty(structBitsC)
     return;
@@ -53,12 +46,7 @@ else
         case 'yes'
             %Generate the uniformized data.
             planC       = setUniformizedData(planC, optS);
-            indicesM    = planC{indexS.structureArray}(scanNum).indicesArray;
-            structBitsM = planC{indexS.structureArray}(scanNum).bitsArray;
-            indicesC    = planC{indexS.structureArrayMore}(scanNum).indicesArray;
-            structBitsC = planC{indexS.structureArrayMore}(scanNum).bitsArray;
-            indicesC = [{indicesM} indicesC];
-            structBitsC = [{structBitsM} structBitsC];
+            [indicesC, structBitsC] = getUnifStructData(planC,scanNum);
         case 'no'
             %Return with the empty indicesM and structBitsM
             return;
@@ -68,19 +56,40 @@ else
             switch generate
                 case {'Yes' , []}
                     planC       = setUniformizedData(planC, optS);
-                    indicesM    = planC{indexS.structureArray}(scanNum).indicesArray;
-                    structBitsM = planC{indexS.structureArray}(scanNum).bitsArray;
-                    indicesC    = planC{indexS.structureArrayMore}(scanNum).indicesArray;
-                    structBitsC = planC{indexS.structureArrayMore}(scanNum).bitsArray;
-                    indicesC = [{indicesM} indicesC];
-                    structBitsC = [{structBitsM} structBitsC];
+                    [indicesC, structBitsC] = getUnifStructData(planC,scanNum);
                     wantToSave = questdlg('Would you like to save the new data generated for future sessions?', 'Save Option','Yes','No','Yes');
                     if strcmp(wantToSave, 'Yes')
                         sliceCallBack('saveplanc');
                     end
                 case 'No'
                     return;
-            end       
+            end
             
     end
+end
+
+%% Function to handle empty structureArray
+
+    function [indicesC, structBitsC] = getUnifStructData(planC,scanNum)
+        
+        indicesM = [];
+        structBitsM = [];
+        indexS = planC{end};
+        
+        if ~isempty(planC{indexS.structureArray})
+            indicesM    = planC{indexS.structureArray}(scanNum).indicesArray;
+            structBitsM = planC{indexS.structureArray}(scanNum).bitsArray;
+        end
+        
+        indicesC = {};
+        structBitsC = {};
+        if ~isempty(planC{indexS.structureArrayMore})
+            indicesC    = planC{indexS.structureArrayMore}(scanNum).indicesArray;
+            structBitsC = planC{indexS.structureArrayMore}(scanNum).bitsArray;
+        end
+        
+        indicesC = [{indicesM} indicesC];
+        structBitsC = [{structBitsM} structBitsC];
+    end
+
 end
