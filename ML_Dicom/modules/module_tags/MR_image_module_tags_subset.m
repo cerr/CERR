@@ -45,7 +45,7 @@ function tagS = MR_image_module_tags_subset
 % along with CERR.  If not, see <http://www.gnu.org/licenses/>.
 
 %Initialize the tagS structure.
-tagS = struct('tag', {}, 'type', {}, 'children', {});
+tagS = struct('tag', {}, 'tagdec', {}, 'type', {}, 'children', {});
 
 %Create an empty tagS template for sequence creation.
 template = tagS;
@@ -53,27 +53,27 @@ template = tagS;
 %Add tags based on PS3.3 attribute lists.
 
 %Modality
-tagS(end+1) = struct('tag', ['00080060'], 'type', ['1'], 'children', []);
+tagS(end+1) = struct('tag', '00080060', 'tagdec', 524384, 'type', '1', 'children', []);
 
 % Acquisition Time
-tagS(end+1) = struct('tag', ['00080032'], 'type', ['3'], 'children', []);
+tagS(end+1) = struct('tag', '00080032', 'tagdec', 524338, 'type', '3', 'children', []);
 
 % b-value for MR scans
-tagS(end+1) = struct('tag', ['00431039'], 'type', ['4'], 'children', []); % GE    
-tagS(end+1) = struct('tag', ['00189087'], 'type', ['4'], 'children', []); % Philips    
-tagS(end+1) = struct('tag', ['0019100C'], 'type', ['4'], 'children', []); % SIEMENS   
+tagS(end+1) = struct('tag', '00431039', 'tagdec', 4395065, 'type', '4', 'children', []); % GE    
+tagS(end+1) = struct('tag', '00189087', 'tagdec', 1609863, 'type', '4', 'children', []); % Philips    
+tagS(end+1) = struct('tag', '0019100C', 'tagdec', 1642508, 'type', '4', 'children', []); % SIEMENS   
 
 % Temporal position ID
-tagS(end+1) = struct('tag', ['00200100'], 'type', ['3'], 'children', []);  
+tagS(end+1) = struct('tag', '00200100', 'tagdec', 2097408, 'type', '3', 'children', []);  
 
 %Trigger time  
-tagS(end+1) = struct('tag', ['00181060'], 'type', ['2C'], 'children', []);  
+tagS(end+1) = struct('tag', '00181060', 'tagdec', 1577056, 'type', '2C', 'children', []);  
 
 %Number of slices (for GE data)
-tagS(end+1) = struct('tag', ['0021104F'], 'type', ['3'], 'children', []);  
+tagS(end+1) = struct('tag', '0021104F', 'tagdec', 2166863, 'type', '3', 'children', []);  
 
 %Instance number
-tagS(end+1) = struct('tag', ['00200013'], 'type', ['1'], 'children', []);  
+tagS(end+1) = struct('tag', '00200013', 'tagdec', 2097171, 'type', '1', 'children', []);  
 
 %Manufacturer
-tagS(end+1) = struct('tag', ['00080070'], 'type', ['2'], 'children', []);  
+tagS(end+1) = struct('tag', '00080070', 'tagdec', 524400, 'type', '2', 'children', []);  
