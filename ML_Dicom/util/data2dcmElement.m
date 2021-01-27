@@ -127,13 +127,12 @@ switch vrCode
 %elseif vr.equals(org.dcm4che3.data.VR.IS) %strcmpi(vr,'IS')
     case 18771
     %case 'IS'
-        if isnumeric(data)
+        if isnumeric(data) || isempty(data)
             if length(data) < 2
                 el.setString(tag,vr,num2str(data));
             else              
                 el.setInt(tag, vr, data);
-            end
-            
+            end            
         else
             error('The input should be numeric for "IS" ');
         end
