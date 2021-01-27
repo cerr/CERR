@@ -86,8 +86,13 @@ switch upper(vrString)
     case 'FD'
         %Needs implementation        
     case 'IS'
-        if isnumeric(data)
-            attr.setInt(tag, vr, data);
+        if isnumeric(data) || isempty(data)
+            %attr.setInt(tag, vr, data);
+            if length(data) < 2
+                attr.setString(tag,vr,num2str(data));
+            else              
+                attr.setInt(tag, vr, data);
+            end            
         else
             error('The input should be numeric for "IS" ');
         end
