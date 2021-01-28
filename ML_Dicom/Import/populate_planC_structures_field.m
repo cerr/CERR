@@ -190,6 +190,12 @@ switch fieldname
 
     case 'structureDescription'
         %Currently not implemented
+        
+    case 'roiGenerationAlgorithm'
+        dataS = getTagValue(ssObj, '30060036');
+        
+    case 'roiGenerationDescription'
+        dataS = getTagValue(ssObj, '30060038');
 
     case 'studyNumberOfOrigin'
         %Currently not implemented

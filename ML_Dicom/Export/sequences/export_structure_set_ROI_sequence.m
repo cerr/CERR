@@ -64,16 +64,18 @@ switch tag
         
     case 805699628  %3006,002C  ROI Volume
         %Currently unsupported.
-        
+                
     case 805699638  %3006,0036  ROI Generation Algorithm
        % el = template.get(tag);
         %el = org.dcm4che3.data.Attributes;
         %el.setString(tag, template.getVR(tag), template.getString(tag));
-        data = ''; % get it from structS.roiGenerationAlgorithm
+        data = structS.roiGenerationAlgorithm;
         el = data2dcmElement(data, tag);
         
     case 805699640  %3006,0038  ROI Generation Description
-        %Currently unsupported.
+        data = structS.roiGenerationDescription;
+        el = data2dcmElement(data, tag);
+        
         
     otherwise
         warning(['No methods exist to populate DICOM structure_set module''s structure_set_ROI sequence field: ' dec2hex(tag,8) '.']);
