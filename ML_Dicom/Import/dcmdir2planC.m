@@ -119,16 +119,16 @@ assocScanV = getStructureAssociatedScan(1:numStructs, planC);
 % assocScanV = 1; % temporary, until the issue with DCE/DWI volume split is
 % resolved.
 
-% Assign scan type
-% Check for scanType field and populate it with Series description
-for scanNum = 1:length(planC{indexS.scan})
-    if isempty(planC{indexS.scan}(scanNum).scanType) && ...
-            isfield(planC{indexS.scan}(scanNum).scanInfo(1),'DICOMHeaders') && ...
-            isfield(planC{indexS.scan}(scanNum).scanInfo(1).DICOMHeaders,'SeriesDescription')
-        planC{indexS.scan}(scanNum).scanType = ...
-            planC{indexS.scan}(scanNum).scanInfo(1).DICOMHeaders.SeriesDescription;
-    end
-end
+% % Assign scan type
+% % Check for scanType field and populate it with Series description
+% for scanNum = 1:length(planC{indexS.scan})
+%     if isempty(planC{indexS.scan}(scanNum).scanType) && ...
+%             isfield(planC{indexS.scan}(scanNum).scanInfo(1),'DICOMHeaders') && ...
+%             isfield(planC{indexS.scan}(scanNum).scanInfo(1).DICOMHeaders,'SeriesDescription')
+%         planC{indexS.scan}(scanNum).scanType = ...
+%             planC{indexS.scan}(scanNum).scanInfo(1).DICOMHeaders.SeriesDescription;
+%     end
+% end
 
 % Split multi-frame MRIs by b-value
 imageTypeC = arrayfun(@(x)x.scanInfo(1).imageType, planC{indexS.scan}, 'un',0);
