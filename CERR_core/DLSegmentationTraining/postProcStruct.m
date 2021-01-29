@@ -103,9 +103,12 @@ if ~isempty(postS)
             
             %Replace original structure
             outMask3M = maskC{iMethod};
-            planC = deleteStructure(planC,strNum);
             planC = maskToCERRStructure(outMask3M,0,scanNum,strC{iStr},planC);
-            
+            roiGenAlg = planC{indexS.structures}(strNum).roiGenerationAlgorithm;
+            roiGenDesc = planC{indexS.structures}(strNum).roiGenerationDescription;
+            planC{indexS.structures}(end).roiGenerationAlgorithm = roiGenAlg;
+            planC{indexS.structures}(end).roiGenerationDescrption = roiGenDesc;
+            planC = deleteStructure(planC,strNum);
         end
         
     end

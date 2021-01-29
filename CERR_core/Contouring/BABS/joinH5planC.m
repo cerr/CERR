@@ -93,9 +93,9 @@ if ischar(labelMapS)
     labelMapS = valS.strNameToLabelMap;
 end
 
-roiGenerationDescrption = '';
+roiGenerationDescription = '';
 if isfield(userOptS,'roiGenerationDescrption')
-    roiGenerationDescrption = userOptS.roiGenerationDescrption;
+    roiGenerationDescription = userOptS.roiGenerationDescription;
 end
 for i = 1 : length(labelMapS)
     labelVal = labelMapS(i).value;
@@ -103,6 +103,6 @@ for i = 1 : length(labelMapS)
     planC = maskToCERRStructure(maskForStr3M, isUniform, scanNum,...
         labelMapS(i).structureName, planC);
     planC{indexS.structures}(end).roiGenerationAlgorithm = 'AUTOMATIC';
-    planC{indexS.structures}(end).roiGenerationDescription = roiGenerationDescrption;
+    planC{indexS.structures}(end).roiGenerationDescription = roiGenerationDescription;
 end
 end
