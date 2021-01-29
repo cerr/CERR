@@ -460,6 +460,11 @@ switch fieldname
         
         
     case 'scanType'
+        imageNum = 1; % works for both, multiFrame and singleFrame, images
+        IMAGE   = SERIES.Data(imageNum);
+        excludePixelDataFlag = true;
+        imgobj  = scanfile_mldcm(IMAGE.file,excludePixelDataFlag);
+        dataS =  getTagValue(imgobj, '0008103E'); % series description
         
     case 'scanInfo'
         %Determine number of images
