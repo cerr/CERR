@@ -92,10 +92,17 @@ if ischar(labelMapS)
     valS = jsondecode(fileread(labelMapFileName));
     labelMapS = valS.strNameToLabelMap;
 end
+
+roiGenerationDescrption = '';
+if isfield(userOptS,'roiGenerationDescrption')
+    roiGenerationDescrption = userOptS.roiGenerationDescrption;
+end
 for i = 1 : length(labelMapS)
     labelVal = labelMapS(i).value;
     maskForStr3M = maskOut3M == labelVal;
     planC = maskToCERRStructure(maskForStr3M, isUniform, scanNum,...
         labelMapS(i).structureName, planC);
+    planC{indexS.structures}(end).roiGenerationAlgorithm = 'AUTOMATIC';
+    planC{indexS.structures}(end).roiGenerationDescription = roiGenerationDescrption;
 end
 end
