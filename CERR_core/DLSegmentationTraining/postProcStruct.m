@@ -107,7 +107,7 @@ if ~isempty(postS)
             roiGenAlg = planC{indexS.structures}(strNum).roiGenerationAlgorithm;
             roiGenDesc = planC{indexS.structures}(strNum).roiGenerationDescription;
             planC{indexS.structures}(end).roiGenerationAlgorithm = roiGenAlg;
-            planC{indexS.structures}(end).roiGenerationDescrption = roiGenDesc;
+            planC{indexS.structures}(end).roiGenerationDescription = roiGenDesc;
             planC = deleteStructure(planC,strNum);
         end
         

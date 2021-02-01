@@ -94,7 +94,7 @@ if ischar(labelMapS)
 end
 
 roiGenerationDescription = '';
-if isfield(userOptS,'roiGenerationDescrption')
+if isfield(userOptS,'roiGenerationDescription')
     roiGenerationDescription = userOptS.roiGenerationDescription;
 end
 for i = 1 : length(labelMapS)
