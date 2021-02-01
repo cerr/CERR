@@ -63,5 +63,7 @@
 
 "passedScanDim" : "3D",
 
+"roiGenerationDescription": "HNSelfAttention2D^05d23bf",
+
 "reference" : "https://ieeexplore.ieee.org/document/8417454"
 }
