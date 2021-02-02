@@ -32,17 +32,20 @@ global stateS
 
 indexS = planC{end};
 
-% Use series uid in temporary folder name
-scanNum = stateS.scanSet;
-if isfield(planC{indexS.scan}(scanNum).scanInfo(1),'seriesInstanceUID') && ...
-        ~isempty(planC{indexS.scan}(scanNum).scanInfo(1).seriesInstanceUID)
-    folderNam = planC{indexS.scan}(scanNum).scanInfo(1).seriesInstanceUID;
-else
-    %folderNam = dicomuid;
-    orgRoot = '1.3.6.1.4.1.9590.100.1.2';
-    folderNam = javaMethod('createUID','org.dcm4che3.util.UIDUtils',orgRoot);
-end
-
+% % Use series uid in temporary folder name
+% if isfield(stateS,'scanSet') && ~isempty(stateS.scanSet)
+%     scanNum = stateS.scanSet;
+% else
+%     scanNum = 1;
+% end
+% if isfield(planC{indexS.scan}(scanNum).scanInfo(1),'seriesInstanceUID') && ...
+%         ~isempty(planC{indexS.scan}(scanNum).scanInfo(1).seriesInstanceUID)
+%     folderNam = planC{indexS.scan}(scanNum).scanInfo(1).seriesInstanceUID;
+% else
+%     folderNam = dicomuid;
+% end
+% Create folderName with uid
+folderNam = char(javaMethod('createUID','org.dcm4che3.util.UIDUtils'));
 dateTimeV = clock;
 randNum = 1000.*rand;
 sessionDir = ['session',folderNam,num2str(dateTimeV(4)), num2str(dateTimeV(5)),...
@@ -71,7 +74,7 @@ mkdir(outputH5Path);
 inputH5Path = fullfile(fullClientSessionPath,'inputH5');
 mkdir(inputH5Path);
 %-For structname-to-label map
-labelPath = fullfile(fullSessionPath,'outputLabelMap');
+labelPath = fullfile(fullClientSessionPath,'outputLabelMap');
 mkdir(labelPath);
 
 testFlag = true;
@@ -81,7 +84,8 @@ testFlag = true;
 % Parse algorithm and convert to cell arrray
 algorithmC = split(algorithm,'^');
 
-if length(algorithmC)==1 && ~strcmpi(algorithmC,'BABS')
+if length(algorithmC) > 1 || ...
+        (length(algorithmC)==1 && ~strcmpi(algorithmC,'BABS'))
     
     containerPathStr = varargin{1};
     % Parse container path and convert to cell arrray
