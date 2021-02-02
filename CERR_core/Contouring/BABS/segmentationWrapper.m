@@ -83,6 +83,9 @@ bindingDir = ':/scratch';
 bindPath = strcat(fullSessionPath,bindingDir);
 %Run container app
 command = sprintf('singularity run --app %s --nv --bind  %s %s %s', algorithm, bindPath, containerPath, num2str(userOptS.batchSize));
+%Print command to stdout
+disp('Running container....');
+disp(command);
 tic
 status = system(command);
 toc
