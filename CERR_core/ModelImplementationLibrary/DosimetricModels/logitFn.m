@@ -17,7 +17,7 @@ function prob = logitFn(paramS,doseBinsC,volHistC)
 % AI, 11/16/17   Copy number of fractions, abRatio to any sub-parameter structures
 
 %Extract parameters and corresponding weights 
-[x,weight] = getParCoeff(paramS,'weight',doseBinsC,volHistC);
+[weight,x] = getParCoeff(paramS,'weight',doseBinsC,volHistC);
 %Compute TCP/NTCP
 gx = sum(weight.*x);
 prob = 1 / (1 + exp(-gx));
