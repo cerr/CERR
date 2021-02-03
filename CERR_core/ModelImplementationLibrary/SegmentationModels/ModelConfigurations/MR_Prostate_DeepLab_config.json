@@ -20,8 +20,11 @@
 "scan":{
 
         "identifier" : {"imageType": "MR"},
+    
+        "resample": {"resolutionXCm":0.04, "resolutionYCm":0.04, "resolutionZCm":0.11, "method":"linear"},
 
-	"crop": [
+        "resize": {"method" : "padOrCrop3d", "size" : [512,512]},
+        "crop": [
    	        {
     		  "method": "none",
      		  "params": "",
