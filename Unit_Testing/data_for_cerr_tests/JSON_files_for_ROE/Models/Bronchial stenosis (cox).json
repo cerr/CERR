@@ -1,0 +1,23 @@
+{
+  "name": "Bronchial stenosis (cox)",
+  "type": "NTCP",
+  "fractionCorrect": "No",
+  "parameters": {
+			"structures": {
+				"testStr1":{
+						         "meanDose": {    
+								   "val": "calc_meanDose",
+								    "weight": 0.0629 ,
+								    "type": ["string", "cont"],
+						                    "cteg": ["calc_meanDose"]
+                          		                                       }
+                          		              }
+                          		       },                   
+                	"baselineHazard": { 
+				"val": 1,
+				"weight": 0.00887 ,
+				"type": ["cont", "cont"]
+		            }
+	               },
+	"function": "coxFn"
+}

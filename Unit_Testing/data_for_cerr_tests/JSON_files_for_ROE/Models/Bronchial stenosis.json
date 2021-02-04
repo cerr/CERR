@@ -1,0 +1,23 @@
+{
+  "name": "Bronchial stenosis",
+  "type": "NTCP",
+  "fractionCorrect": "No",
+  "parameters": {
+			"structures": {
+				"testStr1":{
+						         "meanDose": {    
+								   "val": "calc_meanDose",
+								    "weight": -0.0644,
+								    "type": ["string", "cont"],
+						                    "cteg": ["calc_meanDose"]
+                          		                                       }
+                          		              }
+                          		       },                   
+                	"constant": { 
+				"val": 1,
+				"weight": 5.17 ,
+				"type": ["cont", "cont"]
+		            }
+	               },
+	"function": "logitFn"
+}
