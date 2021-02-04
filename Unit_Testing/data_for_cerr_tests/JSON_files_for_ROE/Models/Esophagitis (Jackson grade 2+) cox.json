@@ -1,0 +1,38 @@
+{
+  "name": "Esophagitis grade 2+ (cox)",
+  "type": "NTCP",
+  "stdFractionSize": 2,
+  "fractionCorrect": "Yes",
+  "correctionType": "fsize",
+  "abCorrect": "Yes",
+  "abRatio": 10,
+  "parameters": {
+			"structures": {
+				"testStr1":{
+						    "D3": {    
+								"val": "calc_Dx",
+								"weight": 0.0774,
+								"type": ["string", "cont"],
+								"cteg": ["calc_Dx","calc_Dx"],
+								"params": {
+					   				   "x": {
+					              				    "val": 3,
+					              				    "type": ["Cont"]
+					        		   	         },
+									   "volType": {
+									    	            "val": 0,
+									     	            "type": ["Cont"]
+					        		          	            }
+					  		                        }
+                          		                          }
+
+                          		                    }
+                          		       },                   
+                	"baselineHazard": { 
+				"val": 1,
+				"weight": 0.0155,
+				"type": ["cont", "cont"]
+		            }
+	               },
+	"function": "coxFn"
+}

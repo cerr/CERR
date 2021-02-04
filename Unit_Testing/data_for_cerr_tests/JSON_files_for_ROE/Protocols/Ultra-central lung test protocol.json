@@ -1,0 +1,15 @@
+{  
+ "name": "4Gy x 15",  
+ "totalDose": 60,  
+ "numFractions": 15,  
+ "models": {   
+              "Esophagitis 2+":{"modelFile" : "Esophagitis (Jackson grade 2+).json"},   
+              "Esophagitis 2+ (cox)":{"modelFile" : "Esophagitis (Jackson grade 2+) cox.json"},
+              "Bronchial stenosis":{"modelFile" : "Bronchial stenosis.json"},
+              "Bronchial stenosis (cox)":{"modelFile" : "Bronchial stenosis (cox).json"}
+           },  
+ "created_by": "Aditi Iyer",
+ "created_at": "10AM 1\/21\/21",
+ "modified_by": "",
+ "modified_at": ""
+}  
