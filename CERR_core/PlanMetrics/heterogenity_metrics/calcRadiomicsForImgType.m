@@ -78,6 +78,9 @@ for k = 1:length(imageTypeC)
         maxClipIntensity = []; % no clipping imposed for derived images
     end
     
+    % Volume without NaNs for Peak/Valley computation
+    volToEvalOrigM = volToEval;
+
     % Quantize the volume of interest
     if quantizeFlag        
         numGrLevels = [];
@@ -133,6 +136,7 @@ for k = 1:length(imageTypeC)
             binWidthEntropy = imageTypeC{k}.paramS.firstOrderParamS.binWidthEntropy;
         end
         volV = volToEval(logical(maskBoundingBox3M));
+        volV = volV(:);
         featureS.(outFieldName).firstOrderS = radiomics_first_order_stats...
             (volV, VoxelVol,offsetForEnergy,binWidthEntropy);
     end
@@ -222,7 +226,7 @@ for k = 1:length(imageTypeC)
             radiusV = paramS.peakValleyParamS.peakRadius;
             units = paramS.peakValleyParamS.units; %'cm' or 'vox'
             featureS.(outFieldName).peakValleyFeatureS = getImPeakValley(maskBoundingBox3M,...
-                volToEval, radiusV, units);
+                volToEvalOrigM, radiusV, units);
         end
         
         %g. IVH
