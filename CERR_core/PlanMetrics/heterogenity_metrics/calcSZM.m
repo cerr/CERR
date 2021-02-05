@@ -45,11 +45,13 @@ szmM = sparse(nL,numel(quantizedM));
 maxSiz = 0;
 for level = 1:nL
     connM = bwlabeln(quantizedM==level, numNeighbors);
-    regiosSizV = accumarray(connM(connM > 0),1);
-    if ~isempty(regiosSizV)
-        maxSiz = max(maxSiz,max(regiosSizV));
+    if any(connM(:))
+        regiosSizV = accumarray(connM(connM > 0),1);
+        if ~isempty(regiosSizV)
+            maxSiz = max(maxSiz,max(regiosSizV));
+        end
+        szmM(level,:) = accumarray(regiosSizV,1,[size(szmM,2) 1])';
     end
-    szmM(level,:) = accumarray(regiosSizV,1,[size(szmM,2) 1])';
 end
 szmM = szmM(:,1:maxSiz);
 
