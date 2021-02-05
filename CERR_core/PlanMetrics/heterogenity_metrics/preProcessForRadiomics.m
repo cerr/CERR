@@ -186,7 +186,7 @@ else
     xResampleV = xValsV;
     yResampleV = yValsV;
     zResampleV = zValsV;
-    newSlcIndV = slcIndV;
+    newSlcIndV = 1:length(slcIndV);
 end
 
 
@@ -226,8 +226,8 @@ if numel(scanNum) == 1
             imageType = fieldNamC{iImg};
             if strcmpi(imageType,'SUV')
                 scanInfoS = planC{indexS.scan}(scanNum).scanInfo;
-                scanInfoS = scanInfoS(slcIndV);
-                scanInfoS = scanInfoS(newSlcIndV);
+                scanInfoS = scanInfoS(slcIndV); % slices for the cropped volume
+                scanInfoS = scanInfoS(newSlcIndV); % resampled slices
                 paramS.imageType.(fieldNamC{iImg})(iFilt).scanInfoS = scanInfoS;
             end
         end
