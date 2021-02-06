@@ -201,70 +201,13 @@ switch fieldname
                     if ~any(strcmpi(studyUID,studyUIDc))
                         studyC{end+1,1} = studyUID;
                         studyC{end,2} = imgOriV;
-                    end
-                    
-                    if (strcmpi(type, 'PT')) || (strcmpi(type, 'PET')) %Compute SUV for PET scans
-                        %dcmobj = scanfile_mldcm(IMAGE.file);
-                        %dicomHeaderS = getTagStruct(dcmobj);
-                        %dicomHeaderS.PatientWeight = getTagValue(imgobj, '00101030');
-
-                        % image units
-                        %imageUnits = getTagValue(imgobj, '00541001');
-                        %imageUnits = char(imgobj.getStrings(org.dcm4che3.data.Tag.Units));
-
-                        % Get calibration factor which is the Rescale slope Attribute Name in DICOM
-                        %calibration_factor=dicomHeaderS.RescaleSlope;
-                        %rescaleSlope = getTagValue(imgobj, '00281053');
-                        %rescaleSlope = imgobj.getDoubles(org.dcm4che3.data.Tag.RescaleSlope);
-                        rescaleSlope = imgobj.getDoubles(2625619);
-
-                        %rescaleIntercept = getTagValue(imgobj, '00281052');
-                        %rescaleIntercept = imgobj.getDoubles(org.dcm4che3.data.Tag.RescaleIntercept);
-                        rescaleIntercept = imgobj.getDoubles(2625618);
+                    end                                                            
                         
-                        slice2D = rescaleIntercept + single(slice2D)*rescaleSlope;
-                        
-%                         % factor that was used to scale this image from
-%                         % counts/sec to Bq/ml using an external dose
-%                         % calibrator (0054,1322)
-%                         doseCalibFactor = getTagValue(imgobj, '00541322');
-
-                           % Moved conversion to BQML to getSUV.m
-%                         if strcmpi(imageUnits,'CNTS') % for philips scanner
-%                             %SUV Scale Factor
-%                             %suvScaleFactor = getTagValue(imgobj, '70531000');
-%                             %slice2D = slice2D * suvScaleFactor; % counts to SUV
-%                             %Activity Concentration Scale Factor
-%                             activityScaleFactor = getTagValue(imgobj, '70531009');
-%                             if isnumeric(activityScaleFactor)
-%                                 strV = native2unicode(activityScaleFactor);
-%                                 activityScaleFactor = str2double(strV);
-%                             end
-%                             slice2D = slice2D * activityScaleFactor; % counts to BQ/ml
-%                         end
-                        
-                        % Moved SUV conversion to 
-%                         if ~strcmpi(imageUnits,'GML')
-%                                                         
-%                             % Obtain SUV conversion flag from CERROptions.m
-%                             pathStr = getCERRPath;
-%                             optName = fullfile(pathStr,'CERROptions.json');
-%                             optS    = opts4Exe(optName);
-%                             if isfield(optS,'convert_PET_to_SUV') && optS.convert_PET_to_SUV
-%                                 dcmobj = scanfile_mldcm(IMAGE.file);
-%                                 dicomHeaderS = getTagStruct(dcmobj);
-%                                 dicomHeaderS.PatientWeight = getTagValue(imgobj, '00101030');
-%                                 slice2D = calc_suv(dicomHeaderS, slice2D);
-%                             end
-%                         end                        
-                        
-                    elseif ismember(type, {'MG','SM'}) % mammogram or pathology
+                    if ismember(type, {'MG','SM'}) % mammogram or pathology
+                        % assign a dummy position value for mammogram or
+                        % pathology 2D image
                         imgpos = [0 0 0];
                         imgOriV = zeros(6,1);
-
-                    elseif ~strcmpi(type, 'CT')
-                        %slice2D = single(slice2D);
-                    
                     end
                     
                     if ischar(dataS)

@@ -15,24 +15,24 @@ function dataS = populate_planC_field(cellName, dcmdir_patient, optS, varargin)
 %   dataS = populate_planC_field(cellName, dcmdir);
 %
 % Copyright 2010, Joseph O. Deasy, on behalf of the CERR development team.
-% 
+%
 % This file is part of The Computational Environment for Radiotherapy Research (CERR).
-% 
+%
 % CERR development has been led by:  Aditya Apte, Divya Khullar, James Alaly, and Joseph O. Deasy.
-% 
+%
 % CERR has been financially supported by the US National Institutes of Health under multiple grants.
-% 
-% CERR is distributed under the terms of the Lesser GNU Public License. 
-% 
+%
+% CERR is distributed under the terms of the Lesser GNU Public License.
+%
 %     This version of CERR is free software: you can redistribute it and/or modify
 %     it under the terms of the GNU General Public License as published by
 %     the Free Software Foundation, either version 3 of the License, or
 %     (at your option) any later version.
-% 
+%
 % CERR is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
 % without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 % See the GNU General Public License for more details.
-% 
+%
 % You should have received a copy of the GNU General Public License
 % along with CERR.  If not, see <http://www.gnu.org/licenses/>.
 
@@ -73,22 +73,6 @@ switch cellName
         scanOriS = struct();
         %Place each series (CT, MR, etc.) into its own array element.
         for seriesNum = 1:length(seriesC)
-            %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-            %%%%%%%%%%Commented By Divya adding support for US %%%%%%%%%%%%%%%%%%%%%%%%
-            %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-            %             if ismember(typeC{seriesNum}, supportedModalities)
-            %
-            %                 %Populate each field in the scan structure.
-            %                 for i = 1:length(names)
-            %                     dataS(scansAdded+1).(names{i}) = populate_planC_scan_field(names{i}, seriesC{seriesNum}, typeC{seriesNum});
-            %                 end
-            %
-            %                 scansAdded = scansAdded + 1;
-            %             end
-            %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-            %%%%%%%%%%                  End Comment            %%%%%%%%%%%%%%%%%%%%%%%%
-            %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-            
             % Test IOP here to find if it is "nominal" or "non-nominal"
             % % %             outIOP = getTest_Scan_IOP(seriesC{seriesNum}.Data(1).file);
             if ismember(typeC{seriesNum},{'CT','OT','NM','MR','PT','ST','MG','SM'})
@@ -105,78 +89,35 @@ switch cellName
                 end
                 
                 %Apply ReScale Intercept and Slope
-                if strcmpi(typeC{seriesNum}, 'CT')
-                    minScanVal = min(dataS(scansAdded+1).scanArray(:));
-                    if abs(dataS(scansAdded+1).scanInfo(1).rescaleSlope - 1) > eps*1e5
-                        dataS(scansAdded+1).scanArray = single(int32(dataS(scansAdded+1).scanArray) * dataS(scansAdded+1).scanInfo(1).rescaleSlope + ...
-                            dataS(scansAdded+1).scanInfo(1).rescaleIntercept + dataS(scansAdded+1).scanInfo(1).CTOffset);
-                        % Check minimum scan value after applying scale and
-                        % intercept and adjust CTOffset to make scanArray
-                        % uint16
-                    elseif  minScanVal * dataS(scansAdded+1).scanInfo(1).rescaleSlope + ...
-                            dataS(scansAdded+1).scanInfo(1).CTOffset + ...
-                            dataS(scansAdded+1).scanInfo(1).rescaleIntercept < 0
-                        dataS(scansAdded+1).scanArray = dataS(scansAdded+1).scanArray * dataS(scansAdded+1).scanInfo(1).rescaleSlope + ...
-                            dataS(scansAdded+1).scanInfo(1).rescaleIntercept;
-                        minScanVal = min(dataS(scansAdded+1).scanArray(:));
-                        for slc = 1:length(dataS(scansAdded+1).scanInfo)
-                            dataS(scansAdded+1).scanInfo(slc).CTOffset = single(-minScanVal);
-                        end
-                        dataS(scansAdded+1).scanArray = ...
-                            uint16(dataS(scansAdded+1).scanArray + ...
-                            cast(dataS(scansAdded+1).scanInfo(1).CTOffset,...
-                            class(dataS(scansAdded+1).scanArray)));
-                    else
-                        if min(dataS(scansAdded+1).scanArray(:)) >= -32768 && max(dataS(scansAdded+1).scanArray(:)) <= 32767
-                            dataS(scansAdded+1).scanArray = uint16(int16(dataS(scansAdded+1).scanArray) * dataS(scansAdded+1).scanInfo(1).rescaleSlope + ...
-                                dataS(scansAdded+1).scanInfo(1).rescaleIntercept + dataS(scansAdded+1).scanInfo(1).CTOffset);
-                        else
-                            dataS(scansAdded+1).scanArray = uint16(int32(dataS(scansAdded+1).scanArray) * dataS(scansAdded+1).scanInfo(1).rescaleSlope + ...
-                                dataS(scansAdded+1).scanInfo(1).rescaleIntercept + dataS(scansAdded+1).scanInfo(1).CTOffset);
-                        end
-                    end
-                elseif strcmpi(typeC{seriesNum}, 'PT')
-                    % No need to apply rescaleSlope and rescaleIntercept
-                    % for PET scans since it is applied on per-slice basis within
-                    % populate_planC_scan_field.m
-                else
-                    rescaleSlope = dataS(scansAdded+1).scanInfo(1).rescaleSlope;
-                    minScanVal = min(dataS(scansAdded+1).scanArray(:));
-                    if abs(rescaleSlope - 1) > eps*1e5
-                        dataS(scansAdded+1).scanArray = ...
-                            single(dataS(scansAdded+1).scanArray) * ...
-                            single(rescaleSlope) + single(dataS(scansAdded+1).scanInfo(1).rescaleIntercept);
-                    elseif  minScanVal * dataS(scansAdded+1).scanInfo(1).rescaleSlope + ...
-                            dataS(scansAdded+1).scanInfo(1).CTOffset + ...
-                            dataS(scansAdded+1).scanInfo(1).rescaleIntercept < 0
-                        dataS(scansAdded+1).scanArray = ...
-                            dataS(scansAdded+1).scanArray * ...
-                            dataS(scansAdded+1).scanInfo(1).rescaleSlope + ...
-                            dataS(scansAdded+1).scanInfo(1).rescaleIntercept;
-                        minScanVal = min(dataS(scansAdded+1).scanArray(:));
-                        for slc = 1:length(dataS(scansAdded+1).scanInfo)
-                            dataS(scansAdded+1).scanInfo(slc).CTOffset = single(-minScanVal);
-                        end
-                        dataS(scansAdded+1).scanArray = ...
-                            uint16(dataS(scansAdded+1).scanArray + ...
-                            cast(dataS(scansAdded+1).scanInfo(1).CTOffset,...
-                            class(dataS(scansAdded+1).scanArray)));
-                    else
-                        if min(dataS(scansAdded+1).scanArray(:)) >= -32768 && max(dataS(scansAdded+1).scanArray(:)) <= 32767
-                            dataS(scansAdded+1).scanArray = uint16(int16(dataS(scansAdded+1).scanArray) * rescaleSlope + dataS(scansAdded+1).scanInfo(1).rescaleIntercept);
-                        else
-                            dataS(scansAdded+1).scanArray = uint16(int32(dataS(scansAdded+1).scanArray) * rescaleSlope + dataS(scansAdded+1).scanInfo(1).rescaleIntercept);
-                        end
-                    end
-                    if strcmpi(typeC{seriesNum}, 'MR')  %% ADDED AI 12/28/16 %%
-                        % Ref: Chenevert, Thomas L., et al. "Errors in quantitative image analysis due to platform-dependent image scaling."
-                        %Apply scale slope & intercept for Philips data
-                        manufacturer = dataS(scansAdded+1).scanInfo(1).manufacturer;
-                        if strcmpi(manufacturer,'philips') && ...
-                                ~isempty(dataS(scansAdded+1).scanInfo(1).scaleSlope)
-                            scaleSlope = dataS(scansAdded+1).scanInfo(1).scaleSlope;
-                            dataS(scansAdded+1).scanArray = single(dataS(scansAdded+1).scanArray)./(rescaleSlope*scaleSlope);
-                        end
+                scanArray3M = zeros(size(dataS(scansAdded+1).scanArray),'single');
+                numSlcs = size(dataS(scansAdded+1).scanArray,3);
+                rescaleSlopeV = ones(numSlcs,1);
+                for slcNum = 1:numSlcs
+                    rescaleSlope = dataS(scansAdded+1).scanInfo(slcNum).rescaleSlope;
+                    rescaleIntrcpt = dataS(scansAdded+1).scanInfo(1).rescaleIntercept;
+                    scanArray3M(:,:,slcNum) = ...
+                        single(dataS(scansAdded+1).scanArray(:,:,slcNum)) * single(rescaleSlope) + single(rescaleIntrcpt);
+                    rescaleSlopeV(slcNum) = rescaleSlope;
+                end
+                minScanVal = min(scanArray3M(:));
+                ctOffset = max(0,-minScanVal);
+                scanArray3M = scanArray3M + ctOffset;
+                if ~any(abs(rescaleSlopeV-1) > eps*1e5)
+                    scanArray3M = uint16(scanArray3M);
+                end
+                for slcNum = 1:numSlcs
+                    dataS(scansAdded+1).scanInfo(slcNum).CTOffset = ctOffset;
+                end
+                dataS(scansAdded+1).scanArray = scanArray3M;
+                
+                %Apply scale slope & intercept for Philips data
+                if strcmpi(typeC{seriesNum}, 'MR')  %% ADDED AI 12/28/16 %%
+                    % Ref: Chenevert, Thomas L., et al. "Errors in quantitative image analysis due to platform-dependent image scaling."
+                    manufacturer = dataS(scansAdded+1).scanInfo(1).manufacturer;
+                    if strcmpi(manufacturer,'philips') && ...
+                            ~isempty(dataS(scansAdded+1).scanInfo(1).scaleSlope)
+                        scaleSlope = dataS(scansAdded+1).scanInfo(1).scaleSlope;
+                        dataS(scansAdded+1).scanArray = single(dataS(scansAdded+1).scanArray)./(rescaleSlope*scaleSlope);
                     end
                 end
                 
@@ -189,20 +130,16 @@ switch cellName
                 end
                 scansAdded = scansAdded + 1;
             end
-             scanOriS(scansAdded).scanUID = dataS(scansAdded).scanUID;
-             scanOriS(scansAdded).imageOrientationPatient = dataS(scansAdded).scanInfo(1).imageOrientationPatient;
+            scanOriS(scansAdded).scanUID = dataS(scansAdded).scanUID;
+            scanOriS(scansAdded).imageOrientationPatient = dataS(scansAdded).scanInfo(1).imageOrientationPatient;
         end
         
-        
-        %     case 'comment'
-        %         populate_planC_comment_field(fieldName, dcmdir);
-        %
-        
+                
     case 'structures'
         [seriesC, typeC]    = extract_all_series(dcmdir_patient);
         structsAdded          = 0;
         
-        % Get scan object from varargin if it is not empty. 
+        % Get scan object from varargin if it is not empty.
         % for inserting structures to existing planC
         if ~isempty(varargin)
             scanOriS = varargin{1};
@@ -233,21 +170,21 @@ switch cellName
                     end
                     
                     %ROI Contour Sequence.
-                    RCS = strobj.getValue(805699641); %org.dcm4che3.data.Tag.ROIContourSequence; % hex2dec('30060039')                        
+                    RCS = strobj.getValue(805699641); %org.dcm4che3.data.Tag.ROIContourSequence; % hex2dec('30060039')
                     
                     %If non-empty sequence, get item count, else set to zero
                     if ~isempty(RCS)
                         nStructures = RCS.size();
                     else
-                         nStructures = 0;
+                        nStructures = 0;
                     end
-
+                    
                     % ROI = strobj.getInt(org.dcm4che2.data.Tag.ROIContourSequence);
                     
                     structuresToImportC = optS.structuresToImport;
                     
                     structuresImportMatchCriteria = optS.structuresImportMatchCriteria;
-
+                    
                     %curStructNum = 1; %wy modified for suppport multiple RS files
                     for structNum = 1:nStructures
                         
@@ -271,10 +208,10 @@ switch cellName
                         else
                             matchIndex = 1;
                         end
-
+                        
                         if isempty(matchIndex)
                             continue;
-                        end                                                
+                        end
                         
                         %Populate each field in the structure field set
                         for i = 1:length(names)
@@ -311,7 +248,7 @@ switch cellName
         %Place each RTDOSE into its own array element.
         for seriesNum = 1:length(seriesC)
             %             if ismember(typeC{seriesNum}, supportedTypes)
-            if strcmpi(typeC{seriesNum}, 'RTDOSE')                
+            if strcmpi(typeC{seriesNum}, 'RTDOSE')
                 
                 RTDOSE = seriesC{seriesNum}.Data; %wy RTDOSE{1} for import more than one dose files;
                 for doseNum = 1:length(RTDOSE)
@@ -320,15 +257,15 @@ switch cellName
                     % Frame of Reference UID
                     %frameOfRefUID = getTagValue(doseobj, '00200052');
                     frameOfRefUID = char(doseobj.getStrings(2097234)); %org.dcm4che3.data.Tag.FrameOfReferenceUID;
-                                            
-                    %check if it is a DVH                    
+                    
+                    %check if it is a DVH
                     dvhsequence = populate_planC_dose_field('dvhsequence', ...
                         RTDOSE(doseNum), doseobj, rtPlans, optS);
                     
                     %Check if doesArray is present
                     dose3M = populate_planC_dose_field('doseArray', ...
                         RTDOSE(doseNum), doseobj, rtPlans, optS);
-                                        
+                    
                     if isempty(dvhsequence) || ~isempty(dose3M)
                         %Populate each field in the dose structure.
                         for i = 1:length(names)
@@ -347,7 +284,7 @@ switch cellName
                         % existing doses and add slices.
                         
                         % If frame of reference UID does not match, then
-                        % create a new dose                        
+                        % create a new dose
                         %dosesAdded = dosesAdded + 1;
                     end
                 end
@@ -363,7 +300,7 @@ switch cellName
                 end
                 multiFrameDoseNumsV = find(multiFrameIndV);
                 for doseNum = multiFrameDoseNumsV
-                    dosesAdded = dosesAdded + 1;                    
+                    dosesAdded = dosesAdded + 1;
                     if isempty(dataS)
                         dataS = dataSeriesS(doseNum);
                     else
@@ -380,7 +317,7 @@ switch cellName
                     doseSeries = dataSeriesS(indV);
                     switch doseSumType
                         case 'BEAM'
-                            beamNumberV = unique([doseSeries.refBeamNumber]);                            
+                            beamNumberV = unique([doseSeries.refBeamNumber]);
                             for iB = 1:length(beamNumberV)
                                 beamNum = beamNumberV(iB);
                                 indV = [doseSeries.refBeamNumber] == beamNum;
@@ -421,16 +358,16 @@ switch cellName
         for seriesNum = 1:length(seriesC)
             
             %             if ismember(typeC{seriesNum}, supportedTypes)
-            if strcmpi(typeC{seriesNum}, 'RTDOSE')                
+            if strcmpi(typeC{seriesNum}, 'RTDOSE')
                 
                 RTDOSE = seriesC{seriesNum}.Data; %wy RTDOSE{1} for import more than one dose files;
                 for doseNum = 1:length(RTDOSE)
                     doseobj  = scanfile_mldcm(RTDOSE(doseNum).file);
                     
-                    %check if it is a DVH                    
+                    %check if it is a DVH
                     dvhsequence = populate_planC_dose_field('dvhsequence', ...
                         RTDOSE(doseNum), doseobj, rtPlans, optS);
-
+                    
                     if ~isempty(dvhsequence)
                         
                         structureNameC = {};
@@ -438,30 +375,30 @@ switch cellName
                         
                         % get a list of Structure Names
                         for seriesNumStr = 1:length(seriesC)
-
+                            
                             if strcmpi(typeC{seriesNumStr}, 'RTSTRUCT')
-
-                                RTSTRUCT = seriesC{seriesNumStr}.Data;   
+                                
+                                RTSTRUCT = seriesC{seriesNumStr}.Data;
                                 for k = 1:length(RTSTRUCT)
                                     strobj  = scanfile_mldcm(RTSTRUCT(k).file);
                                     
                                     % StructureSetROISequence
                                     SSRS = strobj.getValue(805699616); %org.dcm4che3.data.Tag.StructureSetROISequence; %hex2dec('30060020');
                                     numSSRS = SSRS.size();
-                                    for js = 1:numSSRS                                        
+                                    for js = 1:numSSRS
                                         % Get Structure name
                                         ssObj = SSRS.get(js - 1);
                                         
                                         %structureName = getTagValue(ssObj, '30060026');
                                         structureNameC{end+1} = char(ssObj.getStrings(805699622)); %org.dcm4che3.data.Tag.ROIName;
                                         structureNumberV(end+1) = ssObj.getInts(805699618); %org.dcm4che3.data.Tag.ROINumber;
-
-                                    end                                    
+                                        
+                                    end
                                 end
-
+                                
                             end
-
-                        end                        
+                            
+                        end
                         
                         %DVH_items = fieldnames(dvhsequence);
                         DVH_items = dvhsequence.size();
@@ -475,9 +412,9 @@ switch cellName
                             dataS(dvhsAdded).doseType = char(dvhObj.getStrings(805568516)); %org.dcm4che3.data.Tag.DoseType;
                             dataS(dvhsAdded).doseUnits = char(dvhObj.getStrings(805568514)); %org.dcm4che3.data.Tag.DoseUnits;
                             
-                            %dataS(dvhsAdded+1).volumeType = dvhsequence.(['Item_',num2str(i)]).DVHType;                                                        
-                            %dataS(dvhsAdded+1).doseType = dvhsequence.(['Item_',num2str(i)]).DoseType; 
-                            %dataS(dvhsAdded+1).doseUnits = dvhsequence.(['Item_',num2str(i)]).DoseUnits; 
+                            %dataS(dvhsAdded+1).volumeType = dvhsequence.(['Item_',num2str(i)]).DVHType;
+                            %dataS(dvhsAdded+1).doseType = dvhsequence.(['Item_',num2str(i)]).DoseType;
+                            %dataS(dvhsAdded+1).doseUnits = dvhsequence.(['Item_',num2str(i)]).DoseUnits;
                             
                             dvhReferencedROISequence = dvhObj.getValue(805568608); %org.dcm4che3.data.Tag.DVHReferencedROISequence;
                             if ~isempty(dvhReferencedROISequence) %isfield(dvhsequence.(['Item_',num2str(i)]),'DVHReferencedROISequence')
@@ -503,7 +440,7 @@ switch cellName
                             doseBinsV(1) = 0;
                             for iBin = 2:length(binWidthsV)
                                 doseBinsV(iBin) = doseBinsV(iBin-1) + binWidthsV(iBin);
-                            end                                                          
+                            end
                             dataS(dvhsAdded).DVHMatrix(:,1) = doseBinsV(:);
                             if strcmpi(dataS(dvhsAdded).volumeType,'cumulative')
                                 if length(doseBinsV) > 1
@@ -517,7 +454,7 @@ switch cellName
                                 %volumeBinsV = dvhsequence.(['Item_',num2str(i)]).DVHData(2:2:end);
                                 volumeBinsV = volumeBinsV(:);
                             end
-                            dataS(dvhsAdded).DVHMatrix(:,2) = volumeBinsV;                            
+                            dataS(dvhsAdded).DVHMatrix(:,2) = volumeBinsV;
                             %dvhsAdded = dvhsAdded + 1;
                         end
                         
@@ -526,8 +463,8 @@ switch cellName
             end
             
         end
-                
-                
+        
+        
         %     case 'digitalFilm'
         %         populate_planC_digitalFilm_field(fieldName, dcmdir);
         %     case 'RTTreatment'
@@ -550,23 +487,23 @@ switch cellName
             for planNum = 1:length(RTPLAN)
                 
                 planCount = planCount + 1;
-
+                
                 planobj  = scanfile_mldcm(RTPLAN(planNum).file);
-
+                
                 %Populate each field in the dose structure.
                 for i = 1:length(names)
                     dataS(planCount).(names{i}) = populate_planC_beams_field(names{i}, RTPLAN(planNum), planobj);
                 end
-
+                
             end
-
+            
         end
         rtPlans= dataS;
-
+        
     case 'beamGeometry'
         
         dataS = initializeCERR('beamGeometry');
-
+        
         for i = 1:length(rtPlans)
             beamGeometryS = populate_planC_beamGeometry_field(rtPlans(i), dataS);
             
@@ -603,7 +540,7 @@ switch cellName
         % %         end
         
         
-    case 'GSPS'        
+    case 'GSPS'
         [seriesC, typeC]    = extract_all_series(dcmdir_patient);
         supportedTypes      = {'PR'};
         gspsAdded          = 0;
@@ -621,15 +558,15 @@ switch cellName
                 for k = 1:length(GSPS)
                     gspsobj  = scanfile_mldcm(GSPS(k).file);
                     
-                    %Graphic Annotation Sequence.             
+                    %Graphic Annotation Sequence.
                     el = gspsobj.getValue(7340033); %org.dcm4che3.data.Tag.GraphicAnnotationSequence; %hex2dec('00700001')
-
+                    
                     % ROI = strobj.getInt(org.dcm4che2.data.Tag.ROIContourSequence);
                     
                     if ~isempty(el)
                         nGsps = el.size();
                     else
-                         nGsps = 0;
+                        nGsps = 0;
                     end
                     curGspsNum = 1;
                     for j = 1:nGsps
@@ -642,9 +579,9 @@ switch cellName
                         gspsAdded = gspsAdded + 1;
                         
                         waitbar(gspsAdded/(nGsps*length(GSPS)*numGspsSeries), hWaitbar, 'Loading Annotations, Please wait...');
-
+                        
                     end
-                end                
+                end
             end
             
         end
@@ -697,10 +634,10 @@ switch cellName
     case 'importLog'
         %Implementation is unnecessary.
         
-    case 'CERROptions'        
+    case 'CERROptions'
         pathStr = getCERRPath;
         optName = [pathStr 'CERROptions.json'];
-        dataS = opts4Exe(optName);        
+        dataS = opts4Exe(optName);
         
     case 'indexS'
         %Implementation is unnecessary.

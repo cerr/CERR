@@ -123,42 +123,42 @@ switch fieldname
         %In CERR, CT Offset is always 1000, as CT water is 1000. (???)
         %modality = getTagValue(attr, '00080060');
         %modality = char(attr.getStrings(org.dcm4che3.data.Tag.Modality)); %vr=CS
-        modality = char(attr.getString(524384,0)); %vr=CS
-        if strcmpi(modality,'CT')
-            % dataS = 1000;
-            %dataS = -getTagValue(attr, '00281052');
-            %dataS = -attr.getDoubles(org.dcm4che3.data.Tag.RescaleIntercept); % vr=DS
-            dataS = -attr.getDoubles(2625618); % vr=DS
-        else
-            dataS = 0;
-        end
+%         modality = char(attr.getString(524384,0)); %vr=CS
+%         if strcmpi(modality,'CT')
+%             % dataS = 1000;
+%             %dataS = -getTagValue(attr, '00281052');
+%             %dataS = -attr.getDoubles(org.dcm4che3.data.Tag.RescaleIntercept); % vr=DS
+%             dataS = -attr.getDoubles(2625618); % vr=DS
+%         else
+%             dataS = 0;
+%         end
         
     case 'rescaleIntercept'
         %modality = getTagValue(attr, '00080060');
         %modality = char(attr.getStrings(org.dcm4che3.data.Tag.Modality)); %vr=CS
-        modality = char(attr.getString(524384,0)); %vr=CS
-        if strcmpi(modality,'PT') || strcmpi(modality,'PET')
-            dataS = 0;
-        else
+        %modality = char(attr.getString(524384,0)); %vr=CS
+        %if strcmpi(modality,'PT') || strcmpi(modality,'PET')
+        %    dataS = 0;
+        %else
             %dataS = getTagValue(attr, '00281052');
             %dataS = attr.getDoubles(org.dcm4che3.data.Tag.RescaleIntercept); % vr=DS
             dataS = attr.getDoubles(2625618); % vr=DS
-        end
+        %end
         
     case 'rescaleSlope'
         %modality = getTagValue(attr, '00080060');
         %modality = char(attr.getStrings(org.dcm4che3.data.Tag.Modality)); %vr=CS
-        modality = char(attr.getString(524384,0)); %vr=CS
-        if strcmpi(modality,'PT') || strcmpi(modality,'PET')
-            dataS = 1;
-        else
+        %modality = char(attr.getString(524384,0)); %vr=CS
+        %if strcmpi(modality,'PT') || strcmpi(modality,'PET')
+        %    dataS = 1;
+        %else
             %dataS = getTagValue(attr, '00281053');
             %dataS = attr.getDoubles(org.dcm4che3.data.Tag.RescaleSlope); % vr=DS
             dataS = attr.getDoubles(2625619); % vr=DS
             if isempty(dataS)
                 dataS = 1;
             end
-        end
+        %end
         
         %%%%%%%  AI 12/28/16 Added Scale slope/intercept for Philips scanners %%%%
     case 'scaleSlope'
