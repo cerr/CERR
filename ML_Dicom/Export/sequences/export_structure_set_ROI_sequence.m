@@ -47,35 +47,35 @@ template    = args.template;
 
 switch tag
     case 805699618  %3006,0020  ROI Number
-        data = index;
+        data = uint32(index);
        % el = template.get(tag);
-        el = data2dcmElement(template, data, tag);
+        el = data2dcmElement(data, tag);
         
     case 805699620  %3006,0024  Referenced Frame of Reference UID
         UID = structS.Frame_Of_Reference_UID;
-        el = data2dcmElement(template, UID, tag);      
+        el = data2dcmElement(UID, tag);      
         
     case 805699622  %3006,0026  ROI Name
         data = structS.structureName;
-        el = data2dcmElement(template, data, tag);      
+        el = data2dcmElement(data, tag);      
         
     case 805699624  %3006,0028  ROI Description
         %Currently unsupported.        
         
     case 805699628  %3006,002C  ROI Volume
         %Currently unsupported.
-        
+                
     case 805699638  %3006,0036  ROI Generation Algorithm
        % el = template.get(tag);
         %el = org.dcm4che3.data.Attributes;
         %el.setString(tag, template.getVR(tag), template.getString(tag));
         data = structS.roiGenerationAlgorithm;
-        el = data2dcmElement(template, data, tag);
+        el = data2dcmElement(data, tag);
         
     case 805699640  %3006,0038  ROI Generation Description
-        %Currently unsupported.
         data = structS.roiGenerationDescription;
-        el = data2dcmElement(template, data, tag);
+        el = data2dcmElement(data, tag);
+        
         
     otherwise
         warning(['No methods exist to populate DICOM structure_set module''s structure_set_ROI sequence field: ' dec2hex(tag,8) '.']);

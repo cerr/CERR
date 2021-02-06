@@ -523,7 +523,7 @@ switch fieldname
         IMAGE   = SERIES.Data(imageNum);
         excludePixelDataFlag = true;
         imgobj  = scanfile_mldcm(IMAGE.file,excludePixelDataFlag);
-        dataS =  getTagValue(imgobj, '0008103E'); % series description
+        dataS = char(imgobj.getString(528446,0)); % series description
         
     case 'scanInfo'
         %Determine number of images
