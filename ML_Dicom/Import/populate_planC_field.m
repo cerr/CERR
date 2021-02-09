@@ -102,8 +102,14 @@ switch cellName
                 minScanVal = min(scanArray3M(:));
                 ctOffset = max(0,-minScanVal);
                 scanArray3M = scanArray3M + ctOffset;
-                if ~any(abs(rescaleSlopeV-1) > eps*1e5)
-                    scanArray3M = uint16(scanArray3M);
+                minScanVal = min(scanArray3M(:));
+                maxScanVal = max(scanArray3M(:));                
+                if ~any(abs(rescaleSlopeV-1) > eps*1e5) % convert to uint if rescale slope is not 1.
+                    if minScanVal >= -32768 && maxScanVal <= 32767
+                        scanArray3M = uint16(scanArray3M);
+                    else
+                        scanArray3M = uint32(scanArray3M);
+                    end
                 end
                 for slcNum = 1:numSlcs
                     dataS(scansAdded+1).scanInfo(slcNum).CTOffset = ctOffset;
