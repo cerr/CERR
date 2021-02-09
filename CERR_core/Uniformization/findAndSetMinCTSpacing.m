@@ -76,7 +76,7 @@ for scanNum = scanNumV
         same = 1;
 	
       go = 0;
-      while same & (slice <= length(thicknessV) - 1)      %changed < to <=, ES.
+      while same && (slice <= length(thicknessV) - 1)      %changed < to <=, ES.
         go = 1;
         if (abs(thicknessV(slice + 1) - thicknessV(slice)) < accuracy)
           slice = slice + 1;
@@ -105,7 +105,7 @@ for scanNum = scanNumV
 	
 	okV = [];
 	for i = 1 : length(blockS)
-      if blockS(i).spacing <= maxSpacing &  blockS(i).spacing >= minSpacing
+      if blockS(i).spacing <= maxSpacing &&  blockS(i).spacing >= minSpacing
         okV = [okV, i];
       end
 	end
