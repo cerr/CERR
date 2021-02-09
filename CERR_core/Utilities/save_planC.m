@@ -225,13 +225,9 @@ switch lower(ans)
             delete(saveFile)
             stateS.CERRFile = [saveFile '.zip'];
         end
-        if exist(fullfile(pathstr,[name,'_store']))==7
+        if exist(fullfile(pathstr,[name,'_store']),'dir')==7
             copyfile(fullfile(pathstr,[name,'_store']),fullfile(pathstr,[name,'.mat_store']),'f')
-            allFiles = what(fullfile(pathstr,[name,'_store']));
-            for i=1:length(allFiles.mat)
-                delete(fullfile(pathstr,[name,'_store'],allFiles.mat{i}))
-            end
-            rmdir(fullfile(pathstr,[name,'_store']))
+            rmdir(fullfile(pathstr,[name,'_store']),'s')
             [planC, stateS] = updateRemotePaths(planC, stateS, stateS.CERRFile);
         end
 end
@@ -249,12 +245,16 @@ if isfield(stateS,'reqdRemoteFiles') && ~isempty(stateS.reqdRemoteFiles)
 else
     %delete the tar file since no remote files exist
     if exist([stateS.CERRFile,'.tar'],'file')
-        try, delete([stateS.CERRFile,'.tar']), end
+        %try
+            delete([stateS.CERRFile,'.tar'])
+        %end
     end
 end
 
 if strcmpi(saveflag,'SAVEAS')
-    try, rmdir(remotePath,'s'), end
+    if exist(remotePath,'dir') == 7
+        rmdir(remotePath,'s')
+    end
 end
 
 CERRStatusString(['Saved ' name ext '. Ready. (' datestr(now) ')']);
