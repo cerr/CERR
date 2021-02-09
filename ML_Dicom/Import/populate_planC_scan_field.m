@@ -46,7 +46,7 @@ dataS = '';
 
 % Tolerance to determine oblique scan (think about passing it as a
 % parameter in future)
-obliqTol = 1e-3;
+% obliqTol = 1e-3;
 
 switch fieldname
     case 'scanArray'
@@ -96,6 +96,8 @@ switch fieldname
                     % AI
                     %sliceV = getTagValue(imgobj, '7FE00010'); % NAV
                     %sliceV = cast(imgobj.getInts(org.dcm4che3.data.Tag.PixelData),'int16'); %OW
+                    % Get value representation for image data
+                    %vr = javaMethod('vrOf','org.dcm4che3.data.ElementDictionary',2.145386512000000e+09, []);
                     sliceV = cast(imgobj.getInts(2.145386512000000e+09),'int16'); %OW
                     % sliceV =
                     % dcm2ml_Element(imgobj,'7FE00010',transferSyntaxUID);
@@ -620,7 +622,7 @@ switch fieldname
                             .PlanePositionSequence.Item_1.ImagePositionPatient(3);
                         rescaleInterceptV(imageNum) = positionRefIndicatorSequence.(item)...
                             .PixelValueTransformationSequence.Item_1.RescaleIntercept;
-                        rescaleSlopetV(imageNum) = positionRefIndicatorSequence.(item)...
+                        rescaleSlopeV(imageNum) = positionRefIndicatorSequence.(item)...
                             .PixelValueTransformationSequence.Item_1.RescaleSlope;
                         imageOrientationPatientM(imageNum,:) = positionRefIndicatorSequence.(item)...
                             .PlaneOrientationSequence.Item_1.ImageOrientationPatient;
@@ -707,8 +709,8 @@ switch fieldname
                     if ~isempty(rescaleInterceptV)
                         dataS(imageNum).rescaleIntercept = rescaleInterceptV(imageNum);
                     end
-                    if ~isempty(rescaleSlopetV)
-                        dataS(imageNum).rescaleSlope = rescaleSlopetV(imageNum);
+                    if ~isempty(rescaleSlopeV)
+                        dataS(imageNum).rescaleSlope = rescaleSlopeV(imageNum);
                     end
                     if ~isempty(temporalPositionIndexV) && length(temporalPositionIndexV) >= imageNum
                         dataS(imageNum).temporalPositionIndex = temporalPositionIndexV(imageNum);
