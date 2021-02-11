@@ -192,10 +192,10 @@ switch fieldname
         %Currently not implemented
         
     case 'roiGenerationAlgorithm'
-        dataS = getTagValue(ssObj, '30060036');
+        dataS = char(attr.getString(805699638,0)); %dataS = getTagValue(ssObj, '30060036');
         
     case 'roiGenerationDescription'
-        dataS = getTagValue(ssObj, '30060038');
+        dataS = char(attr.getString(805699640,0)); %dataS = getTagValue(ssObj, '30060038');
 
     case 'studyNumberOfOrigin'
         %Currently not implemented
