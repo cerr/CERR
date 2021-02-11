@@ -61,7 +61,7 @@ indexS = planC{end};
 %Determine if we want 'save', or 'saveas...' behavior.
 if ~exist('saveflag','var')
     saveflag = 'saveas';
-elseif ~strcmpi(saveflag, 'save') && ~strcmpi(saveflag, 'saveas') && ~strcmpi(saveflag, 'passed')
+elseif ~any(strcmpi(saveflag, {'save','saveas','passed'}))
     error('Incorrect call to save_planC.m');
 end
 
@@ -279,6 +279,7 @@ remoteFiles = listRemoteScanAndDose(planC);
 %Prepare a list of files that will be added to _store directory.
 filesLocal = [];
 remoteFullFile = {};
+remotePathLocal = {};
 for i = 1:length(remoteFiles)
     switch upper(remoteFiles(i).storageType)
         case {'LOCAL'}
@@ -296,11 +297,16 @@ CERRStatusString(['Saving ' name ext '...']);
 if zipFile
     name = [name '.mat'];
 end
-if length(filesLocal)>0 && ~exist(fullfile(pathstr,[name,'_store']))
+if ~isempty(filesLocal) && ~exist(fullfile(pathstr,[name,'_store']),'dir')
     mkdir(fullfile(pathstr,[name,'_store']))
-elseif length(filesLocal) < 1
-    try
-        rmdir(remotePathLocal)
+elseif isempty(filesLocal)
+    if length(remotePathLocal) > 1 
+        uniqRemothPathC = unique(remotePathLocal);
+        for iPath = 1:length(uniqRemothPathC)
+            if exist(uniqRemothPathC{iPath},'dir') == 7
+                rmdir(uniqRemothPathC{iPath},'s')
+            end
+        end
     end
 end
 
@@ -371,7 +377,7 @@ else
     return;
 end
 
-if ~exist('zipFile')
+if ~exist('zipFile','var')
     zipFile = 0;
 end
 [pathstr, name, ext] = fileparts(saveFile);
@@ -406,5 +412,4 @@ for i = 1:length(planC{indexS.IM})
         end
     end
 end
-
 
