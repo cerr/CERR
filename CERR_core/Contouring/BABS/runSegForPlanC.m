@@ -90,7 +90,7 @@ if length(algorithmC) > 1 || ...
     
     containerPathStr = varargin{1};
     % Parse container path and convert to cell arrray
-    containerPathC = split(containerPathStr,'^');
+    containerPathC = strsplit(containerPathStr,'^');
     numAlgorithms = numel(algorithmC);
     numContainers = numel(containerPathC);
     if numAlgorithms > 1 && numContainers == 1

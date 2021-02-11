@@ -70,7 +70,6 @@ testFlag = true;
 labelPath = fullfile(fullSessionPath,'outputLabelMap');
 mkdir(labelPath);
 
-
 %% Get conda installation path
 optS = opts4Exe([getCERRPath,'CERROptions.json']);
 condaPath = optS.condaPath;
@@ -172,6 +171,7 @@ for k=1:length(algorithmC)
             num2str(batchSize));
     end
     disp(command)
+
     tic
     status = system(command);
     toc

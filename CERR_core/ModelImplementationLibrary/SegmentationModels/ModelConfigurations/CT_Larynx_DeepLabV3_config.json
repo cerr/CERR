@@ -9,16 +9,16 @@
 
         "identifier" : {"imageType": "CT SCAN"},
 
-	"view" : ["axial", "sagittal", "coronal"],
+	      "view" : ["axial", "sagittal", "coronal"],
 
-	"crop" : [{     
+	      "crop" : [{     
             		"method": "crop_for_larynx",
             		"params": { "structureName":{ 
             						"chewingStructures": ["Left_masseter","Right_masseter","Left_medial_pterygoid","Right_medial_pterygoid"],
                         				"cropStructure": "crop_for_chewing_structs"},
                         				"saveStrToPlanCFlag": 1
                     				     },
-            		"operator": ""
+            		 "operator": ""
                   }
          ],
 

@@ -22,6 +22,20 @@ E5   =  [-1,  -2,   0,   2,   1]; % GRadient: ReSpondS to RoW oR coLumn Step edg
 S5   =  [-1,   0,   2,   0,  -1]; % LOG: detectS SpotS
 R5   =  [ 1,  -4,   6,  -4,   1]; % GaboR: detectS RippLeS
 W5  =   [-1,   2,   0,  -2,   1];
+ 
+if normFlag
+    %Normalization ensures average pixel in filtered image
+    %is as bright as the average pixel in the original image
+    
+    L3 = L3./sqrt(6);
+    E3 = E3./sqrt(2);
+    S3 = S3./sqrt(6);
+    L5 = L5./sqrt(70);
+    E5 = E5./sqrt(10);
+    S5 = S5./sqrt(6);
+    R5 = R5./sqrt(70);
+    W5 = W5./sqrt(10);
+end
 
 %% Normalize
 if normFlag
