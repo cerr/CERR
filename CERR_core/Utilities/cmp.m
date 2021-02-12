@@ -47,7 +47,7 @@ if nargin == 4 && strcmpi(about,'nocase') %case insensitive tests
 end
 
 
-if ~isstr(b)
+if ~ischar(b)
 
     switch op
 
