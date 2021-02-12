@@ -60,7 +60,7 @@ for j=1:length(zmesh) % loop through the number of CT
         % APA: use sopInstanceUID to find the matching slice for MR scan
         % sopInstanceUID = planC{indexS.scan}(scanInd).scanInfo(j).DICOMHeaders.SOPInstanceUID;
         sopInstanceUID = planC{indexS.scan}(scanInd).scanInfo(j).sopInstanceUID;
-        locate_point = strmatch(sopInstanceUID,sopInstanceC);
+        locate_point = find(strcmpi(sopInstanceUID,sopInstanceC));
     else    
         %locate_point=find(voiZ==zmesh(j)); % search for a match between Z-location of current CT and voiZ
         locate_point = find(abs(voiZ-zmesh(j)) < contourSliceTol);

@@ -105,8 +105,8 @@ for k=1:size(list,1)
             if isempty(PatientName)==0
                 % yes, a patient name has been already loaded
                 % check if this patient's name has been already loaded
-                matchname=strmatch(temp.PatientName.FamilyName,PatientName);
-                if isempty(matchname)==1
+                matchname=strcmpi(temp.PatientName.FamilyName,PatientName);
+                if matchname
                     % no, add this the name to the list
                     PatientName=strvcat(PatientName,temp.PatientName.FamilyName);
                     % add this patient to the studylist
@@ -135,8 +135,8 @@ for k=1:size(list,1)
                 if isempty(studyUID)==0
                     % yes, a study has been already loaded
                     % check if this study has been already loaded
-                    matchstudy=strmatch(temp.StudyInstanceUID,studyUID);
-                    if isempty(matchstudy)==1
+                    matchstudy = strcmpi(temp.StudyInstanceUID,studyUID);
+                    if matchstudy
                         % no, add this study to the list
                         studyUID=strvcat(studyUID,temp.StudyInstanceUID);
                         % add this study to the studylist

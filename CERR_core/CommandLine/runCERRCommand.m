@@ -96,9 +96,9 @@ if ~isempty(in_str)
                 stateS.printMode = xor(stateS.printMode, 1);
                 if stateS.printMode
 
-                    structNum = strmatch('skin',lower({planC{indexS.structures}.structureName}),'exact');
+                    structNum = find(strcmpi('skin',{planC{indexS.structures}.structureName}));
                     if isempty(structNum)
-                        structNum = strmatch('external',lower({planC{indexS.structures}.structureName}),'exact');
+                        structNum = find(strcmpi('external',{planC{indexS.structures}.structureName}));
                     end
 
                     if isempty(structNum)
@@ -1268,7 +1268,7 @@ if ~isempty(in_str)
                     def = {'';''};
                     output = inputdlg(prompt,dlg_title,num_lines,def);
 
-                    if length(output)<2 | isempty(output)
+                    if length(output)<2 || isempty(output)
                         CERRStatusString('Exiting Structure Association');
                         return;
                     end
@@ -1280,7 +1280,7 @@ if ~isempty(in_str)
                     for i=1:numWords
                         allWords{i} = word(in_str,i);
                     end
-                    indTo = strmatch('to',lower(allWords),'exact');
+                    indTo = find(strcmpi('to',allWords));
 
                     %get scanNum to associate structures
                     scanNum = str2num(allWords{indTo+1});

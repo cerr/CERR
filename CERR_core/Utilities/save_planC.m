@@ -97,7 +97,9 @@ while permission == 0   %Use while statement in case permission to overwrite fil
                 end
                 wd = cd;
                 cd(directory);
-                [fname pname] = uiputfile({'*.mat;*.mat.bz2;*mat.zip', 'CERR Plans (*.mat, *.mat.bz2, *.mat.zip)';'*.*', 'All Files (*.*)'},['Save the ' whichPlan ' data as:']);
+                fileTypeC = {'*.mat', 'Native Matlab/Octave (*.mat)';
+                    '*.mat.bz2, *.mat.zip)','Compressed (*.mat.zip, *.mat.zip)'};
+                [fname,pname] = uiputfile(fileTypeC,['Save the ' whichPlan ' data as:']);
                 cd(wd);
                 if isequal(fname,0) || isequal(pname,0)
                     CERRStatusString('Save cancelled. Ready.');
@@ -130,7 +132,7 @@ while permission == 0   %Use while statement in case permission to overwrite fil
             end
 
             %get storage directory for remote variables in the original plan
-            remotePath = [];
+            remotePath = '';
             if isfield(stateS,'CERRFile') && ~isempty(stateS.CERRFile)
                 [pathstr, name, ext] = fileparts(stateS.CERRFile);
                 remotePath = fullfile(pathstr,[name,'_store']);

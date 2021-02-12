@@ -36,13 +36,13 @@ for iFile = 1:length(fileC)
     
     
     % Combine Iliacs
-    structure_index = strmatch(structureName,lower({planC{indexS.structures}.structureName}),'exact');
+    structure_index = find(strcmpi(structureName,{planC{indexS.structures}.structureName}));
     
     if length(structure_index) > 1
         structure_index = structure_index(1);
     end
      
-    if length(structure_index) == 0
+    if isempty(structure_index)
         
         filesNotConvertedC = [filesNotConvertedC, fileC{iFile}];
         continue;
@@ -52,7 +52,7 @@ for iFile = 1:length(fileC)
     doseNum = 1;
     
     % Check Units
-    if any(strmatch(lower(planC{indexS.dose}(doseNum).doseUnits),{'cgy','cgrays','cgray'},'exact'))
+    if any(strcmpi(planC{indexS.dose}(doseNum).doseUnits,{'cgy','cgrays','cgray'}))
         planC{indexS.dose}(doseNum).doseArray = planC{indexS.dose}(doseNum).doseArray / 100;
     end
     

@@ -370,7 +370,8 @@ switch command
                     set(ud.handles.structRenameEdit, 'string', structs{val}, 'enable', 'on');
                     set(ud.handles.assocScanVal, 'string', imageSets{getStructureAssociatedScan(structNumsV(val))});
                     if ~isempty(planC{indexS.structures}(structNumsV(val)).ROIInterpretedType)
-                        interIndx = strmatch(planC{indexS.structures}(structNumsV(val)).ROIInterpretedType, fieldnames(initROIInterpretedType));
+                        interIndx = find(strcmpi(planC{indexS.structures}(structNumsV(val)).ROIInterpretedType,...
+                            fieldnames(initROIInterpretedType)));
                         set(ud.handles.ROIInterpretedType,'value', interIndx+1);
                     end
                 else
@@ -3410,7 +3411,7 @@ switch command
                         SOPInstanceUIDc{slcNum} = planC{indexS.scan}(scanNum).scanInfo(slcNum).sopInstanceUID;
                     end
                     for i=1:numSignificantSlcs
-                        sliceNum = strmatch(planC{indexS.GSPS}(i).SOPInstanceUID, SOPInstanceUIDc, 'exact');
+                        sliceNum = find(strcmpi(planC{indexS.GSPS}(i).SOPInstanceUID, SOPInstanceUIDc));
                         if isempty(sliceNumsC{i})
                             sliceNumsC{i} = sliceNum;
                         end

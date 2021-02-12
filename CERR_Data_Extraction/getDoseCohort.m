@@ -101,7 +101,7 @@ for iFile = 1:length(fileNamesC)
     infoS(iFile).fullFileName = fileNamesC{iFile};
     
     if isequal(matchCriteria,'exact')
-        indV = strmatch(lower(structureName), lower({planC{indexS.structures}.structureName}),'exact');
+        indV = strcmpi(structureName, {planC{indexS.structures}.structureName});
     else
         indV = getMatchingIndex(structureName ,{planC{indexS.structures}.structureName});
     end    

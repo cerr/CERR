@@ -69,7 +69,7 @@ function jp2imformats(opt,varargin)
     stjp2=imformats('jp2'); 
     stlst=imformats;
     if length(stjp2),
-      idx=strmatch(stjp2.description,{ stlst(:).description });
+      idx=find(strcmpi(stjp2.description,{ stlst(:).description }));
       stlst=stlst([ 1:idx-1, idx+1:end]);
       imformats(stlst);
     end
@@ -77,7 +77,7 @@ function jp2imformats(opt,varargin)
     stjp2=imformats('pgx'); 
     stlst=imformats;
     if length(stjp2),
-      idx=strmatch(stjp2.description,{ stlst(:).description });
+      idx=find(strcmpi(stjp2.description,{ stlst(:).description }));
       stlst=stlst([ 1:idx-1, idx+1:end]);
       imformats(stlst);
     end

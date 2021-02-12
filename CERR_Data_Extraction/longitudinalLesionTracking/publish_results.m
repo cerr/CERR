@@ -11,14 +11,15 @@ for lesionNum = 1:length(lesionStory)
     %plot(longitLen{lesionNum},'r','linewidth',2)
     [~,remC] = strtok({dirS.name},'_');
     [scanLesionUIDc,remC] = strtok(remC,'_');
-    indImagesV = strmatch(['_',num2str(lesionNum),'.png'],remC);
+    imgName = ['_',num2str(lesionNum),'.png'];
+    indImagesV = strncmp(imgName,remC,length(imgName));
     % Get scanUIDs for these indImagesV
     scanNumV = [];
     for i = 1:length(indImagesV)
         imgNum = indImagesV(i);
         [~,rem] = strtok(dirS(imgNum).name,'_');
         scanUID = strtok(rem,'_');
-        scanNumV(i) = strmatch(scanUID,scanUIDc);
+        scanNumV(i) = strncmp(scanUID,scanUIDc,length(scanUIDc));
     end
     [scanNumV,indSort] = sort(scanNumV);
     indImagesV = indImagesV(indSort);

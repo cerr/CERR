@@ -71,7 +71,7 @@ else
     if isempty(answer)
         assocScanUID = '';
     else
-        ind = strmatch(answer, matchAns);
+        ind = find(strcmpi(answer, matchAns));
         if ind == length(matchAns)
             assocScanUID = '';
         else
