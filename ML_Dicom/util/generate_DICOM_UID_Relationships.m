@@ -39,11 +39,7 @@ function planC = generate_DICOM_UID_Relationships(planC)
 orgRoot = '1.3.6.1.4.1.9590.100.1.2';
 
 % Read CERROptions.json
-if ~exist('optName','var')
-    pathStr = getCERRPath;
-    optName = [pathStr,'CERROptions.json'];
-end
-optS = getCERROptions(optName);
+optS = getCERROptions();
 
 indexS = planC{end};
 
