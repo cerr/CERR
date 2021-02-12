@@ -27,7 +27,7 @@
 
 "importDICOMsubDirs" : "yes",
 
-"saveDICOMheaderInPlanC" : "no",
+"saveDICOMheaderInPlanC" : "yes",
 
 "structuresToImport" : "",
 
