@@ -43,7 +43,8 @@ end
 
 
 for i=1:length(planC{indexS.IM}(end).IMDosimetry.goals)
-    structROIV(i) = strmatch(planC{indexS.IM}(end).IMDosimetry.goals(i).strUID,{planC{indexS.structures}.strUID});
+    structROIV(i) = find(strcmpi(planC{indexS.IM}(end).IMDosimetry.goals(i).strUID,...
+        {planC{indexS.structures}.strUID}));
 end
 % Precalc voxel indices for all structures
 scanIndV=cell(max(structROIV),1);

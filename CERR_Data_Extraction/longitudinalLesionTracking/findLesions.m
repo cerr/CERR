@@ -26,7 +26,7 @@ numSignificantSlcs = length(planC{indexS.GSPS});
 matchingSliceIndV = [];
 matchingGSPSIndV = [];
 for i=1:numSignificantSlcs
-    sliceNum = strmatch(planC{indexS.GSPS}(i).SOPInstanceUID, SOPInstanceUIDc, 'exact');
+    sliceNum = strcmpi(planC{indexS.GSPS}(i).SOPInstanceUID, SOPInstanceUIDc);
     sliceNumsC{i} = sliceNum;
     if ~isempty(sliceNum)
         matchingSliceIndV = [matchingSliceIndV sliceNum];

@@ -57,7 +57,7 @@ for planNum = 1:length(dirS)
     igrtFlag = isIGRTv(igrtInd);
     
     mrn = strtok(fliplr(strtok(fliplr(fileName),'\')),'_');
-    mrnInd = strmatch(mrn,mrnC,'exact');
+    mrnInd = strcmpi(mrn,mrnC);
     
     structurenamesC = {planC{indexS.structures}.structureName};
 

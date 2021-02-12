@@ -143,10 +143,10 @@ switch lower(command)
 %             viewC{i} = getAxisInfo(stateS.handle.CERRAxis(i),'view');
 %         end
         
-        transIndex = strmatch('transverse',viewC);
-        sagIndex = strmatch('sagittal',viewC);
-        corIndex = strmatch('coronal',viewC);
-        legIndex = strmatch('legend',viewC);
+        transIndex = find(strcmpi('transverse',viewC));
+        sagIndex = find(strcmpi('sagittal',viewC));
+        corIndex = find(strcmpi('coronal',viewC));
+        legIndex = find(strcmpi('legend',viewC));
         
         orderV = [transIndex(:)', sagIndex(:)', corIndex(:)', legIndex(:)'];
         

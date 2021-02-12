@@ -45,19 +45,19 @@ if(jsonopt('Recursive',0,varargin{:})==1)
     end
   end
 end
-if(~isempty(strmatch('x0x5F_ArrayType_',fn)) && ~isempty(strmatch('x0x5F_ArrayData_',fn)))
+if strncmpi('x0x5F_ArrayType_',fn,16) && strncmpi('x0x5F_ArrayData_',fn,16)
   newdata=cell(len,1);
   for j=1:len
     ndata=cast(data(j).x0x5F_ArrayData_,data(j).x0x5F_ArrayType_);
     iscpx=0;
-    if(~isempty(strmatch('x0x5F_ArrayIsComplex_',fn)))
+    if strncmpi('x0x5F_ArrayIsComplex_',fn,21)
         if(data(j).x0x5F_ArrayIsComplex_)
            iscpx=1;
         end
     end
-    if(~isempty(strmatch('x0x5F_ArrayIsSparse_',fn)))
+    if strncmpi('x0x5F_ArrayIsSparse_',fn,20)
         if(data(j).x0x5F_ArrayIsSparse_)
-            if(~isempty(strmatch('x0x5F_ArraySize_',fn)))
+            if strncmpi('x0x5F_ArraySize_',fn,16)
                 dim=double(data(j).x0x5F_ArraySize_);
                 if(iscpx && size(ndata,2)==4-any(dim==1))
                     ndata(:,end-1)=complex(ndata(:,end-1),ndata(:,end));
@@ -82,7 +82,7 @@ if(~isempty(strmatch('x0x5F_ArrayType_',fn)) && ~isempty(strmatch('x0x5F_ArrayDa
                 ndata=sparse(ndata(:,1),ndata(:,2),ndata(:,3));
             end
         end
-    elseif(~isempty(strmatch('x0x5F_ArraySize_',fn)))
+    elseif strncmpi('x0x5F_ArraySize_',fn,16)
         if(iscpx && size(ndata,2)==2)
              ndata=complex(ndata(:,1),ndata(:,2));
         end

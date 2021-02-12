@@ -132,7 +132,8 @@ switch upper(command)
             doseNum  = ud.firstVisDose+i-1;
             doseName = planC{indexS.dose}(doseNum).fractionGroupID;    
             if ~isempty(planC{indexS.dose}(doseNum).assocScanUID)
-                scanNum = strmatch(planC{indexS.dose}(doseNum).assocScanUID,{planC{indexS.scan}.scanUID});
+                scanNum = find(strcmpi(planC{indexS.dose}(doseNum).assocScanUID,...
+                    {planC{indexS.scan}.scanUID}));
             else
                 scanNum = [];
             end

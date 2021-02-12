@@ -207,8 +207,9 @@ for beamIndex=1:numBeams
         continue
     elseif ~all(updateM(:,beamIndex))
         indstructV = find(updateM(:,beamIndex));
-        if ~ismember('skin',lower({IM.goals(indstructV).structName})) && ismember('skin',lower({IM.goals.structName}))
-            skinInd = strmatch('skin',lower({IM.goals.structName}),'exact');
+        if ~ismember('skin',lower({IM.goals(indstructV).structName})) && ...
+                ismember('skin',lower({IM.goals.structName}))
+            skinInd = find(strcmpi('skin',{IM.goals.structName}));
             recomputeDose = 0;
         else
             recomputeDose = 1;

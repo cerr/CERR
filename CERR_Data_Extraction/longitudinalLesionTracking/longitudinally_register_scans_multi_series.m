@@ -44,7 +44,8 @@ for i=1:length(fileNamesC)
     planC = quality_assure_planC(filename, planC, isUIDCreated);
     indexS = planC{end};
     seriesDescription = planC{indexS.scan}.scanInfo(1).DICOMHeaders.SeriesDescription;
-    if isempty(strmatch('CORONAL', seriesDescription)) && isempty(strmatch('SAGITTAL', seriesDescription))
+    if ~strncmp('CORONAL', seriesDescription,7) && ...
+            ~strncmp('SAGITTAL', seriesDescription,8)
         scanNum = 1;        
         lesionS = findLesions(scanNum,planC);
         scanLesions{uniqueIndexV(i)} = [scanLesions{uniqueIndexV(i)} lesionS];
@@ -142,7 +143,8 @@ for i=1:length(filesC)-1
     baseMask3M = [];
     filesToCopy = find(~ismember(scanFileNames{i},filename1));
     scan1PlanC = copyStructsFromFilesToPlanC(scanFileNames{i}(filesToCopy), scan1PlanC);
-    annotROIIndV = strmatch('Annotation ROI',{scan1PlanC{indexSscan1.structures}.structureName});
+    annotROIIndV = strncmp('Annotation ROI',...
+        {scan1PlanC{indexSscan1.structures}.structureName},length('Annotation ROI'));
     annotStrV = find(annotROIIndV);    
     if ~isempty(annotStrV)        
         baseMask3M = getUniformStr(annotStrV,scan1PlanC);
@@ -152,7 +154,8 @@ for i=1:length(filesC)-1
     movMask3M = [];
     filesToCopy = find(~ismember(scanFileNames{i+1},filename2));
     scan2PlanC = copyStructsFromFilesToPlanC(scanFileNames{i+1}(filesToCopy), scan2PlanC);
-    annotROIIndV = strmatch('Annotation ROI',{scan2PlanC{indexSscan2.structures}.structureName});
+    annotROIIndV = strncmp('Annotation ROI',...
+        {scan2PlanC{indexSscan2.structures}.structureName},length('Annotation ROI'));
     annotStrV = find(annotROIIndV);    
     if ~isempty(annotStrV)        
         movMask3M = getUniformStr(annotStrV,scan2PlanC);

@@ -307,9 +307,11 @@ for iPlan = 1:length(data_pat.PlanList.Plan)
         structNumV = getStructureAssociatedScan(1:length(planC{indexS.structures}),planC);
         structNumV = find(structNumV == assocScanNum);
         if isfield(prescription,'PrescriptionRoi')
-            structIndex = strmatch(prescription.PrescriptionRoi,{planC{indexS.structures}(structNumV).structureName},'exact');
+            structIndex = find(strcmpi(prescription.PrescriptionRoi,...
+                {planC{indexS.structures}(structNumV).structureName}));
         elseif isfield(prescription,'PrescriptionPoint')
-            structIndex = strmatch(prescription.PrescriptionPoint,{planC{indexS.structures}(structNumV).structureName},'exact');
+            structIndex = find(strcmpi(prescription.PrescriptionPoint,...
+                {planC{indexS.structures}(structNumV).structureName}));
         end
         if ~isempty(structIndex)
             structIndex = structIndex(1);

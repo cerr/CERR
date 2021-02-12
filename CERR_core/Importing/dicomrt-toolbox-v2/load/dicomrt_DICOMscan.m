@@ -121,52 +121,52 @@ for j=1:size(studylist_old,1)
         names=strvcat(names,studylist{k,1});
     end
     % check if the next name match one of the existing name in the new list
-    matchname=strmatch(studylist_old{j,1},names);
+    matchname = strcmpi(studylist_old{j,1},names);
     if isempty(matchname)==0
         % match found, we are dealing with the same patient
         % attach infos for rtplan
-        if isempty(studylist{matchname,2})==1 & isempty(studylist_old{j,2})==0
+        if isempty(studylist{matchname,2})==1 && isempty(studylist_old{j,2})==0
             studylist{matchname,2}=studylist_old{j,2};
-        elseif isempty(studylist{matchname,2})==0 & isempty(studylist_old{j,2})==0
+        elseif isempty(studylist{matchname,2})==0 && isempty(studylist_old{j,2})==0
             studylist{matchname,2}((size(studylist{matchname,2},1)+1),:)=studylist_old{j,2};
         end
         % attach infos for rtdose
-        if isempty(studylist{matchname,3})==1 & isempty(studylist_old{j,3})==0
+        if isempty(studylist{matchname,3})==1 && isempty(studylist_old{j,3})==0
             studylist{matchname,3}=studylist_old{j,3};
-        elseif isempty(studylist{matchname,3})==0 & isempty(studylist_old{j,3})==0
+        elseif isempty(studylist{matchname,3})==0 && isempty(studylist_old{j,3})==0
             studylist{matchname,3}((size(studylist{matchname,3},1)+1),:)=studylist_old{j,3};
         end
         % attach infos for ct
-        if isempty(studylist{matchname,4})==1 & isempty(studylist_old{j,4})==0
+        if isempty(studylist{matchname,4})==1 && isempty(studylist_old{j,4})==0
             studylist{matchname,4}=studylist_old{j,4};
-        elseif isempty(studylist{matchname,4})==0 & isempty(studylist_old{j,4})==0
+        elseif isempty(studylist{matchname,4})==0 && isempty(studylist_old{j,4})==0
             studylist{matchname,4}((size(studylist{matchname,4},1)+1),:)=studylist_old{j,4};
         end
         % attach infos for structure
-        if isempty(studylist{matchname,5})==1 & isempty(studylist_old{j,5})==0
+        if isempty(studylist{matchname,5})==1 && isempty(studylist_old{j,5})==0
             studylist{matchname,5}=studylist_old{j,5};
-        elseif isempty(studylist{matchname,5})==0 & isempty(studylist_old{j,5})==0
+        elseif isempty(studylist{matchname,5})==0 && isempty(studylist_old{j,5})==0
             studylist{matchname,5}((size(studylist{matchname,5},1)+1),:)=studylist_old{j,5};
         end
 
         % attach infos for MR
-        if isempty(studylist{matchname,6})==1 & isempty(studylist_old{j,6})==0
+        if isempty(studylist{matchname,6})==1 && isempty(studylist_old{j,6})==0
             studylist{matchname,6}=studylist_old{j,6};
-        elseif isempty(studylist{matchname,6})==0 & isempty(studylist_old{j,6})==0
+        elseif isempty(studylist{matchname,6})==0 && isempty(studylist_old{j,6})==0
             studylist{matchname,6}((size(studylist{matchname,6},1)+1),:)=studylist_old{j,6};
         end
 
         % attach infos for PET
-        if isempty(studylist{matchname,7})==1 & isempty(studylist_old{j,7})==0
+        if isempty(studylist{matchname,7})==1 && isempty(studylist_old{j,7})==0
             studylist{matchname,7}=studylist_old{j,7};
-        elseif isempty(studylist{matchname,7})==0 & isempty(studylist_old{j,7})==0
+        elseif isempty(studylist{matchname,7})==0 && isempty(studylist_old{j,7})==0
             studylist{matchname,7}((size(studylist{matchname,7},1)+1),:)=studylist_old{j,7};
         end
 
         % attach infos for SPET
-        if isempty(studylist{matchname,8})==1 & isempty(studylist_old{j,8})==0
+        if isempty(studylist{matchname,8})==1 && isempty(studylist_old{j,8})==0
             studylist{matchname,8}=studylist_old{j,8};
-        elseif isempty(studylist{matchname,8})==0 & isempty(studylist_old{j,8})==0
+        elseif isempty(studylist{matchname,8})==0 && isempty(studylist_old{j,8})==0
             studylist{matchname,8}((size(studylist{matchname,8},1)+1),:)=studylist_old{j,8};
         end
         

@@ -88,7 +88,8 @@ else
 end
 
 for i=1:length(IM.goals)
-    structROIV(i) = strmatch(IM.goals(i).strUID,{planC{indexS.structures}.strUID});
+    structROIV(i) = find(strcmpi(IM.goals(i).strUID,...
+        {planC{indexS.structures}.strUID}));
     sampleRateV(i) = IM.goals(i).xySampleRate;
 end
 [sampleRateV,indSort] = sort(sampleRateV);

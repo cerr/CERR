@@ -43,7 +43,7 @@ offset = [planC{indexS.scan}(scanNum).scanInfo(1).yOffset planC{indexS.scan}(sca
 % Loop through slices and create assign points to a new structure
 createStructureFlag = 0;
 for i=gspsNumV
-    sliceNum = strmatch(planC{indexS.GSPS}(i).SOPInstanceUID, SOPInstanceUIDc, 'exact');
+    sliceNum = find(strcmpi(planC{indexS.GSPS}(i).SOPInstanceUID, SOPInstanceUIDc));
     if isempty(sliceNum)
         continue
     end

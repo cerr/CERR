@@ -58,7 +58,7 @@ fileList = dir;
 
 filesToRun = {};
 
-matches = strmatch('RD', {fileList.name});
+matches = find(strcmpi('RD', {fileList.name}));
 
 cd(currentDir);
 
