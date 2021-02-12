@@ -776,7 +776,7 @@ switch fieldname
         %radiopharmaInfoSeq = attr.getValue(hex2dec('00540016'));
         %radiopharmaInfoSeq = attr.getValue(org.dcm4che3.data.Tag.RadiopharmaceuticalInformationSequence); %SQ
         radiopharmaInfoSeq = attr.getValue(5505046); %SQ
-        if ~isempty(radiopharmaInfoSeq)
+        if ~isempty(radiopharmaInfoSeq) && ~radiopharmaInfoSeq.isEmpty
             radiopharmaInfoObj = radiopharmaInfoSeq.get(0);
             %dataS = getTagValue(radiopharmaInfoObj, '00181072');
             %dataS = char(radiopharmaInfoObj.getStrings(org.dcm4che3.data.Tag.RadiopharmaceuticalStartTime)); %TM
@@ -787,7 +787,7 @@ switch fieldname
         %radiopharmaInfoSeq = attr.getValue(hex2dec('00540016'));
         %radiopharmaInfoSeq = attr.getValue(org.dcm4che3.data.Tag.RadiopharmaceuticalInformationSequence); %SQ
         radiopharmaInfoSeq = attr.getValue(5505046); %SQ
-        if ~isempty(radiopharmaInfoSeq)
+        if ~isempty(radiopharmaInfoSeq) && ~radiopharmaInfoSeq.isEmpty
             radiopharmaInfoObj = radiopharmaInfoSeq.get(0);
             %dataS = getTagValue(radiopharmaInfoObj, '00181074');
             %dataS = radiopharmaInfoObj.getDoubles(org.dcm4che3.data.Tag.RadionuclideTotalDose); %DS
@@ -797,7 +797,7 @@ switch fieldname
         %radiopharmaInfoSeq = attr.getValue(hex2dec('00540016'));
         %radiopharmaInfoSeq = attr.getValue(org.dcm4che3.data.Tag.RadiopharmaceuticalInformationSequence); %SQ
         radiopharmaInfoSeq = attr.getValue(5505046); %SQ
-        if ~isempty(radiopharmaInfoSeq)
+        if ~isempty(radiopharmaInfoSeq) && ~radiopharmaInfoSeq.isEmpty
             radiopharmaInfoObj = radiopharmaInfoSeq.get(0);
             %dataS = getTagValue(radiopharmaInfoObj, '00181075');
             %dataS = radiopharmaInfoObj.getDoubles(org.dcm4che3.data.Tag.RadionuclideHalfLife); %DS

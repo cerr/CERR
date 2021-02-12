@@ -358,10 +358,10 @@ switch fieldname
                 end
                 
                 % Handle modality-specific tags for position and orientation
-                
+                sliceSpacing = imgobj.getDoubles(1573000);
                 if strcmpi(modality,'NM')
                     if isempty(imgOriV) % get orientation from the associated scan
-                        studyIndex = strcmpi(studyUID,studyUIDc);
+                        studyIndex = find(strcmpi(studyUID,studyUIDc));
                         if ~isempty(studyIndex)
                             imgOriV = studyC{studyIndex,2};
                         end
@@ -369,7 +369,7 @@ switch fieldname
                     if isempty(imgpos) || isempty(imgOriV)
                         %detectorInfoSequence = dcm2ml_Element(imgobj.get(hex2dec('00540022')));
                         %detectorInfoSequence = getTagValue(attr, org.dcm4che3.data.Tag.DetectorInformationSequence); %SQ
-                        detectorInfoSequence = getTagValue(attr, 5505058); %SQ
+                        detectorInfoSequence = getTagValue(imgobj, 5505058); %SQ
                         imgpos = detectorInfoSequence.Item_1.ImagePositionPatient;
                         if isempty(imgOriV)
                             imgOriV = detectorInfoSequence.Item_1.ImageOrientationPatient;
@@ -381,7 +381,7 @@ switch fieldname
                     imgpos = [0 0 0];
                     %xray3dAcqSeq = dcm2ml_Element(imgobj.get(hex2dec('00189507')));
                     %xray3dAcqSeq = getTagValue(attr, org.dcm4che3.data.Tag.XRay3DAcquisitionSequence); %SQ
-                    xray3dAcqSeq = getTagValue(attr, 1611015); %SQ
+                    xray3dAcqSeq = getTagValue(imgobj, 1611015); %SQ
                     bodyPartThickness = xray3dAcqSeq.Item_1.BodyPartThickness;
                     sliceSpacing = bodyPartThickness/double(numMultiFrameImages);
                 end                
@@ -390,14 +390,14 @@ switch fieldname
                     imgpos = [0 0 0];
                     %sharedFrameFuncGrpSeq = dcm2ml_Element(imgobj.get(hex2dec('52009229')));
                     %sharedFrameFuncGrpSeq = getTagValue(attr, org.dcm4che3.data.Tag.SharedFunctionalGroupsSequence); %SQ
-                    sharedFrameFuncGrpSeq = getTagValue(attr, 1.375769129000000e+09); %SQ
+                    sharedFrameFuncGrpSeq = getTagValue(imgobj, 1.375769129000000e+09); %SQ
                     sliceSpacing = sharedFrameFuncGrpSeq.Item_1.PixelMeasuresSequence.Item_1.SliceThickness;                    
                 end                
                 
                 if strcmpi(modality,'MR')
                     %positionRefIndicatorSequence = getTagValue(imgobj, '52009230');
                     %positionRefIndicatorSequence = getTagValue(attr, org.dcm4che3.data.Tag.PerframeFunctionalGroupsSequence); %SQ
-                    positionRefIndicatorSequence = getTagValue(attr, 1.375769136000000e+09); %SQ
+                    positionRefIndicatorSequence = getTagValue(imgobj, 1.375769136000000e+09); %SQ
                     imgOriV = positionRefIndicatorSequence.Item_1...
                         .PlaneOrientationSequence.Item_1.ImageOrientationPatient;
                     for imageNum = 1:numMultiFrameImages
@@ -575,16 +575,21 @@ switch fieldname
                     %detectorInfoSequence = dcm2ml_Element(imgobj.get(hex2dec('00540022')));
                     %detectorInfoSequence = getTagValue(imgobj, '00540022'); 
                     %detectorInfoSequence = getTagValue(attr, org.dcm4che3.data.Tag.DetectorInformationSequence); %SQ
-                    detectorInfoSequence = getTagValue(attr, 5505058); %SQ
+                    detectorInfoSequence = getTagValue(imgobj, 5505058); %SQ
                     imgpos = detectorInfoSequence.Item_1.ImagePositionPatient;
                     imgOriV = detectorInfoSequence.Item_1.ImageOrientationPatient;
+                    imageOrientationPatientM(1:numMultiFrameImages,:) = repmat(imgOriV(:)',numMultiFrameImages,1);
+                    for imgNum = 1:numMultiFrameImages
+                        imagePositionPatientM(imgNum,:) = imgpos(:)';
+                        imagePositionPatientM(imgNum,3) = imgpos(3)+sliceSpacing*(imgNum-1);
+                    end
                 end
                                 
                 if strcmpi(modality,'MG')
                     imgpos = [0 0 0];
                     %xray3dAcqSeq = dcm2ml_Element(imgobj.get(hex2dec('00189507')));
                     %xray3dAcqSeq = getTagValue(attr, org.dcm4che3.data.Tag.XRay3DAcquisitionSequence); %SQ
-                    xray3dAcqSeq = getTagValue(attr, 1611015); %SQ
+                    xray3dAcqSeq = getTagValue(imgobj, 1611015); %SQ
                     bodyPartThickness = xray3dAcqSeq.Item_1.BodyPartThickness;
                     sliceSpacing = bodyPartThickness/double(numMultiFrameImages);
                 end                
@@ -593,14 +598,14 @@ switch fieldname
                     imgpos = [0 0 0];
                     %sharedFrameFuncGrpSeq = dcm2ml_Element(imgobj.get(hex2dec('52009229')));
                     %sharedFrameFuncGrpSeq = getTagValue(attr, org.dcm4che3.data.Tag.SharedFunctionalGroupsSequence); %SQ
-                    sharedFrameFuncGrpSeq = getTagValue(attr, 1.375769129000000e+09); %SQ
+                    sharedFrameFuncGrpSeq = getTagValue(imgobj, 1.375769129000000e+09); %SQ
                     sliceSpacing = sharedFrameFuncGrpSeq.Item_1.PixelMeasuresSequence.Item_1.SliceThickness;                    
                 end
                 
                 if strcmpi(modality,'MR')
                     %positionRefIndicatorSequence = getTagValue(imgobj, '52009230');
                     %positionRefIndicatorSequence = getTagValue(attr, org.dcm4che3.data.Tag.PerframeFunctionalGroupsSequence); %SQ
-                    positionRefIndicatorSequence = getTagValue(attr, 1.375769136000000e+09); %SQ
+                    positionRefIndicatorSequence = getTagValue(imgobj, 1.375769136000000e+09); %SQ
                     gridUnitsV = positionRefIndicatorSequence.Item_1...
                         .PixelMeasuresSequence.Item_1.PixelSpacing;
                     gridUnitsV = gridUnitsV / 10;
@@ -722,6 +727,14 @@ switch fieldname
                         dataS(imageNum).frameReferenceDateTime = frameReferenceDateTimeV(imageNum);
                     end
                 end
+                
+                %Reorder based on zValues.
+                %========= scanArray is such that zValue increases from 1st
+                %slice to the last slice. Note that zValues are (-)ve of
+                %DICOM z-Values. Hence, patient's head is towards the top
+                %of the screen.
+                [jnk, zOrder]       = sort(zValuesV);
+                dataS               = dataS(zOrder);
                 
         end
         
