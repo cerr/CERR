@@ -782,11 +782,13 @@ switch fieldname
         referencedRTPlanSequence = attr.getValue(806092802);
         %referencedPlanSOPInstanceUID = referencedRTPlanSequence.Item_1.ReferencedSOPInstanceUID;
         %referencedPlanSOPInstanceUID = char(referencedRTPlanSequence.get(0).getStrings(org.dcm4che3.data.Tag.ReferencedSOPInstanceUID));
-        referencedPlanSOPInstanceUID = char(referencedRTPlanSequence.get(0).getString(528725,0));
-        numChars = length(referencedPlanSOPInstanceUID);
-        for iPlan = 1:length(rtPlans)
-            if strncmp(rtPlans(iPlan).SOPInstanceUID, referencedPlanSOPInstanceUID, numChars)
-                dataS = rtPlans(iPlan).ReferencedStructureSetSequence.Item_1.ReferencedSOPInstanceUID;
+        if ~isempty(referencedRTPlanSequence)
+            referencedPlanSOPInstanceUID = char(referencedRTPlanSequence.get(0).getString(528725,0));
+            numChars = length(referencedPlanSOPInstanceUID);
+            for iPlan = 1:length(rtPlans)
+                if strncmp(rtPlans(iPlan).SOPInstanceUID, referencedPlanSOPInstanceUID, numChars)
+                    dataS = rtPlans(iPlan).ReferencedStructureSetSequence.Item_1.ReferencedSOPInstanceUID;
+                end
             end
         end
            
