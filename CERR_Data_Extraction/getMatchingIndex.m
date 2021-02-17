@@ -37,14 +37,14 @@ switch upper(matchCriteria)
         
         indMatchV = [];
         if ~isempty(strC)
-            indMatchV = strcmpi(str,strC);
+            indMatchV = find(strcmpi(str,strC));
             %if length(indMatchV) > 1
             %    indMatchV = [];
             %end
         end
         
     case 'FIRSTCHARS'
-        indMatchV = strncmpi(str,strC,length(str));        
+        indMatchV = find(strncmpi(str,strC,length(str)));
         
     otherwise
         
