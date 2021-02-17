@@ -37,7 +37,7 @@ switch upper(matchCriteria)
         
         indMatchV = [];
         if ~isempty(strC)
-            indMatchV = strcmpi(str,trC);
+            indMatchV = strcmpi(str,strC);
             %if length(indMatchV) > 1
             %    indMatchV = [];
             %end
