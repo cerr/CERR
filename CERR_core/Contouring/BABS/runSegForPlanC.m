@@ -122,10 +122,11 @@ if length(algorithmC) > 1 || ...
         
         % Read config file
         userOptS = readDLConfigFile(configFilePath);
+        %batchSize = userOptS.batchSize;
         if nargin==7 && ~isnan(varargin{2})
-            batchSize = varargin{2};
+            scanNum = varargin{2};
         else
-            batchSize = userOptS.batchSize;
+            scanNum = [];
         end
         
         %Pre-process data
@@ -133,7 +134,7 @@ if length(algorithmC) > 1 || ...
             waitbar(0.1,hWait,'Extracting scan and mask');
         end
         [scanC, maskC, scanNumV, userOptS planC] = ...
-            extractAndPreprocessDataForDL(userOptS,planC,testFlag);
+            extractAndPreprocessDataForDL(userOptS,planC,testFlag,scanNum);
         %Note: mask3M is empty for testing
         
         if ishandle(hWait)
