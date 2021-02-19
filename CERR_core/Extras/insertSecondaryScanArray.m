@@ -1,5 +1,6 @@
 function planC = insertSecondaryScanArray(newScan3M, seriesDescription, refScanNum, planC) %, forceInsert)
 
+saveFlag = 0;
 if ischar(planC)
     saveFlag = 1;
     saveFileName = planC;
