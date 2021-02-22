@@ -134,15 +134,23 @@ switch upper(command)
         fixNamesH.structure_assign_txt4 = uicontrol(hFig,'style','text','tag','structure_assign_txt3','string','Available','units',units,'position',[0.36 0.75 0.1 0.04],'fontWeight','normal','fontSize',10,'BackgroundColor', figureColor,'HorizontalAlignment','left');
         fixNamesH.available_structure_list = uicontrol(hFig,'style','listbox','tag','structure_available_list','string','','units',units,'Min',1,'Max',1,'Value',1,'position',[0.36 0.35 0.25 0.4],'fontWeight','normal','fontSize',10,'BackgroundColor', figureColor,'HorizontalAlignment','left');
         fixNamesH.structure_assign_push = uicontrol(hFig,'style','pushbutton','tag','structure_assign_push','string','>>','units',units,'position',[0.62 0.55 0.06 0.06],'fontWeight','bold','fontSize',10,'BackgroundColor', figureColor,'HorizontalAlignment','left','callback','structureNameMapGUI(''update_structure_map'')');
-        fixNamesH.structure_assign_txt5 = uicontrol(hFig,'style','text','tag','structure_assign_txt4','string','','units',units,'position',[0.70 0.35 0.25 0.45],'fontWeight','normal','fontSize',7,'BackgroundColor', figureColor,'foregroundColor',[1 0 0],'HorizontalAlignment','left');
-        
+        fixNamesH.structure_assign_txt5 = uicontrol(hFig,'style','listbox',...
+            'tag','structure_assign_txt4','string','','units',units,...
+            'position',[0.70 0.35 0.25 0.45],'fontWeight','normal',...
+            'fontSize',9,'BackgroundColor', figureColor,'foregroundColor',...
+            [1 0 0],'HorizontalAlignment','left');
+
         % Assign Dose Name handle
         fixNamesH.assign_dose_str = uicontrol(hFig,'style','text','string','Dose','units',units,'position',[0.04 0.25 0.25 0.04],'fontWeight','bold','fontSize',10,'BackgroundColor', figureColor,'HorizontalAlignment','left');
         fixNamesH.dose_popup = uicontrol(hFig,'style','popupmenu','tag','dose_popup','string','- - -','units',units,'position',[0.04 0.20 0.27 0.04],'fontWeight','normal','fontSize',10,'BackgroundColor', figureColor,'HorizontalAlignment','left');
         fixNamesH.dose_assign_txt1 = uicontrol(hFig,'style','text','tag','dose_assign_txt2','string','>>','units',units,'position',[0.32 0.19 0.04 0.04],'fontWeight','bold','fontSize',10,'BackgroundColor', figureColor,'HorizontalAlignment','left');
         fixNamesH.dose_list = uicontrol(hFig,'style','listbox','tag','dose_list','string','','units',units,'Min',1,'Max',1,'Value',1,'position',[0.36 0.05 0.25 0.25],'fontWeight','normal','fontSize',10,'BackgroundColor', figureColor,'HorizontalAlignment','left');
         fixNamesH.dose_assign_txt3 = uicontrol(hFig,'style','pushbutton','tag','dose_assign_txt2','string','>>','units',units,'position',[0.62 0.19 0.06 0.06],'fontWeight','bold','fontSize',10,'BackgroundColor', figureColor,'HorizontalAlignment','left','callback','structureNameMapGUI(''update_dose_map'')');
-        fixNamesH.dose_assign_txt5 = uicontrol(hFig,'style','text','tag','dose_assign_txt4','string','','units',units,'position',[0.70 0.15 0.25 0.12],'fontWeight','normal','fontSize',7,'BackgroundColor', figureColor,'foregroundColor',[1 0 0],'HorizontalAlignment','left');
+        fixNamesH.dose_assign_txt5 = uicontrol(hFig,'style','listbox',...
+            'tag','dose_assign_txt4','string','','units',units,'position',...
+            [0.70 0.15 0.25 0.12],'fontWeight','normal','fontSize',9,...
+            'BackgroundColor', figureColor,'foregroundColor',[1 0 0],...
+            'HorizontalAlignment','left');
         
         % Save New Mapping handle
         %uicontrol(hFig,'style','text','string','Save mapping for selected structure','units',units,'position',[0.7 0.55 0.2 0.2],'fontWeight','normal','fontSize',11,'BackgroundColor', figureColor,'HorizontalAlignment','left')
