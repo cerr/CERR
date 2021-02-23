@@ -1,8 +1,24 @@
-function featureS = getInterTumorHeteroFeature(structNumV,planC)
-% function featureS = getInterTumorHeteroFeature(structNumV,planC)
+function featureS = getInterTumorHeteroFeature(structNumV,textureParamS,nCenters,planC)
+% function featureS = getInterTumorHeteroFeature(structNumV,textureParamS,nCenters,planC)
 %
 % This function computes inter-tumor heterogeneity features based on
 % Veeraraghavan et al.
+%
+% Example: 
+%
+% fname = 'path/to/cerr/planc/file.mat';
+% planC = loadPlanC(fname,tempdir);
+% planC = updatePlanFields(planC);
+% structNumV = [1,2,3,4];
+% textureParamS.Type.val = 'all';
+% textureParamS.Directionality.val = 2; %1:'3d'; %2:'2d';
+% textureParamS.NumLevels.val = [];
+% textureParamS.binWidth.val = 0.05;
+% textureParamS.minIntensity.val = [];
+% textureParamS.maxIntensity.val = [];
+% textureParamS.PatchSize.val = [2 2 0]; % radius of 1 voxel (hence, patch size of 3x3)
+% nCenters = 5;
+% featureS = getInterTumorHeteroFeature(structNumV,textureParamS,nCenters,planC);
 %
 % Reference:
 % Computed Tomography Measures of Inter-site tumor Heterogeneity for 
@@ -25,18 +41,19 @@ indexS = planC{end};
 
 % parameters
 filterType = 'HaralickCooccurance';
-textureParamS.Type.val = 'all';
-textureParamS.Directionality.val = 2; %1:'3d'; %2:'2d';
-textureParamS.NumLevels.val = 32;
-textureParamS.binWidth.val = [];
-textureParamS.minIntensity.val = [];
-textureParamS.maxIntensity.val = [];
-textureParamS.PatchSize.val = [2 2 0];
 haralickTextFeatNameC = {'Energy','Entropy','Contrast','Corr','InvDiffMom'};
-ncenters = 5;
+% textureParamS.Type.val = 'all';
+% textureParamS.Directionality.val = 2; %1:'3d'; %2:'2d';
+% textureParamS.NumLevels.val = [];
+% textureParamS.binWidth.val = 0.05;
+% textureParamS.minIntensity.val = [];
+% textureParamS.maxIntensity.val = [];
+% textureParamS.PatchSize.val = [2 2 0];
+% haralickTextFeatNameC = {'Energy','Entropy','Contrast','Corr','InvDiffMom'};
+% nCenters = 5; % number of clusters
 
 
-siteClusterFeats = []; %zeros(nlabels*ncenters, nfeats);
+siteClusterFeats = []; %zeros(nlabels*nCenters, nfeats);
 
 scanNumV = getStructureAssociatedScan(structNumV,planC);
 if length(unique(scanNumV)) ~= 1
@@ -62,20 +79,26 @@ for iStr = 1 : numStructs
    fimg = repmat(zeros(size(simg),'single'),[1,1,1,6]);
    
    % Compute patch-wise texture
+   [minr, maxr, minc, maxc, mins, maxs] = compute_boundingbox(mask3M);
+   simg = simg(minr:maxr, minc:maxc, mins:maxs);
+   mask3M = mask3M(minr:maxr, minc:maxc, mins:maxs);
    outS = processImage(filterType,simg,mask3M,textureParamS,NaN);
    for indImgType = 1:length(haralickTextFeatNameC)
-      fimg(:,:,:,indImgType) = outS.(haralickTextFeatNameC{indImgType});
+      %fimg(:,:,:,indImgType) = outS.(haralickTextFeatNameC{indImgType});
+      fimg(minr:maxr, minc:maxc, mins:maxs,indImgType) = outS.(haralickTextFeatNameC{indImgType});
    end
    
    % Include the original image as the last image
-   fimg(:,:,:,6) = simg;
+   %fimg(:,:,:,6) = simg;
+   fimg(minr:maxr, minc:maxc, mins:maxs,6) = simg;
    
    I = find(mask3M);
    data = zeros(numel(I), size(fimg,4));
    cfeats = zeros(1, size(fimg,4));
     
     for f = 1 : size(fimg,4)
-        fim = fimg(:,:,:,f);
+        %fim = fimg(:,:,:,f);
+        fim = fimg(minr:maxr, minc:maxc, mins:maxs,f);
         data(:,f) = fim(I);
         indxNoNan = find(~isnan(data(:,f)));
         if(~isempty(indxNoNan))
@@ -87,7 +110,7 @@ for iStr = 1 : numStructs
     sdata1 = data(:,indx);
    
     %[~,~,cIndx] = doClustering('kmeans', sdata1, 5, [], 1);
-    cIndx = kmeans(sdata1, ncenters);
+    cIndx = kmeans(sdata1, nCenters);
     cIndx = cIndx';
     ulabels = unique(cIndx);
     for c = 1 : numel(ulabels)

@@ -80,6 +80,8 @@ attr.subSet(patienttemplate).copyTo(patient);
 patient = build_module_template('patient_subset');
 %patient = filterAttribs(attr, patienttemplate);
 patient = addAttribs(patient,attr);
+ptName = attr.getString(1048592);
+ptId = attr.getString(1048608);
 
 %% Search the patient list for this patient.
 match = 0;
@@ -90,8 +92,14 @@ for i=1:length(dcmdirS.PATIENT)
     %catch
     %end
     %try
-    matchFlag = matchFlag || patient.matches(dcmdirS.PATIENT(i).info, 1, 0);
     
+    ptNameToMatch = dcmdirS.PATIENT(i).info.getString(1048592);
+    ptIdToMatch = dcmdirS.PATIENT(i).info.getString(1048608);
+    
+    emptyFlag = isempty([ptName,ptNameToMatch,ptId,ptIdToMatch]);
+
+    matchFlag = emptyFlag || patient.matches(dcmdirS.PATIENT(i).info, 1, 0);
+        
     %matchFlag = attr.matches(patient,1,0); %apa 1/11/21
     
     %catch

@@ -147,7 +147,9 @@ switch fieldname
 
         %dataS = getTagValue(RSS,hex2dec('30060016')); % check this
         contourSeq = cObj.getValue(805699648); %org.dcm4che3.data.Tag.ContourSequence;
-        dataS = contourSeq.size();
+        if ~isempty(contourSeq)
+            dataS = contourSeq.size();
+        end
 
 %         %Convert to ML structure format.
 %         RSSML = getTagStruct(RSS);

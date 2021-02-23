@@ -1,5 +1,5 @@
 function [scanOutC, maskOutC, scanNumV, optS, planC] = ...
-    extractAndPreprocessDataForDL(optS,planC,testFlag)
+    extractAndPreprocessDataForDL(optS,planC,testFlag,scanNumV)
 %
 % Script to extract scan and mask and perform user-defined pre-processing.
 %
@@ -71,10 +71,12 @@ if ~isempty(fieldnames(regS))
     %---
 else
     %Get scan no. matching identifiers
-    scanNumV = nan(1,length(scanOptS));
-    for n = 1:length(scanOptS)
-        identifierS = scanOptS(n).identifier;
-        scanNumV(n) = getScanNumFromIdentifiers(identifierS,planC);
+    if ~exist('scanNumV','var')
+        scanNumV = nan(1,length(scanOptS));
+        for n = 1:length(scanOptS)
+            identifierS = scanOptS(n).identifier;
+            scanNumV(n) = getScanNumFromIdentifiers(identifierS,planC);
+        end
     end
 end
 % Ignore missing inputs if marked optional
@@ -191,9 +193,9 @@ for scanIdx = 1:numScans
         [xResampleV,yResampleV,zResampleV] = ...
             getResampledGrid(outResV,xValsV,yValsV,zValsV,gridResampleMethod);
         scan3M = imgResample3d(double(scan3M), ...
-                    xValsV,yValsV,zValsV,...
-                    xResampleV,yResampleV,zResampleV,...
-                    resampleMethod);              
+            xValsV,yValsV,zValsV,...
+            xResampleV,yResampleV,zResampleV,...
+            resampleMethod);
         %[scan3M,xResampleV,yResampleV,zResampleV] = ...
         %   imgResample3d(scan3M,inputResV,xValsV,yValsV,zValsV,...
         %   outResV,resampleMethod);
@@ -284,7 +286,7 @@ for scanIdx = 1:numScans
             cropStr3M = [];
         end
         toc
-    else 
+    else
         cropStr3M = [];
     end
     
@@ -299,7 +301,7 @@ for scanIdx = 1:numScans
         fprintf('\nTransforming orientation...\n');
         %     end
         [viewOutC,maskOutC{scanIdx}] = transformView(scanC{scanIdx},...
-                                       maskC{scanIdx},viewC);
+            maskC{scanIdx},viewC);
         [~,cropStrC] = transformView([],cropStr3M,viewC);
         toc
     else % case: 1 view, 'axial'
@@ -318,7 +320,7 @@ for scanIdx = 1:numScans
         
         for c = 1:numChannels
             
-%             mask3M = true(size(scanView3M));
+            %             mask3M = true(size(scanView3M));
             
             if strcmpi(filterTypeC{c},'original')
                 %Use original image
@@ -334,7 +336,7 @@ for scanIdx = 1:numScans
                     paramS = channelS(c);
                     paramS = getRadiomicsParamTemplate([],paramS);
                     filterParS = paramS.imageType.(imType).filterPar.val;
-%                     outS = processImage(imType,scanView3M,mask3M,filterParS);
+                    %                     outS = processImage(imType,scanView3M,mask3M,filterParS);
                     outS = processImage(imType, scanView3M, true(size(scanView3M)), filterParS);
                     fieldName = fieldnames(outS);
                     fieldName = fieldName{1};
@@ -360,7 +362,7 @@ for scanIdx = 1:numScans
     end
     
     %7. Populate channels
-
+    
     if numChannels > 1
         tic
         channelOutC = populateChannels(viewOutC,channelParS);
@@ -371,7 +373,7 @@ for scanIdx = 1:numScans
     end
     
     scanOutC{scanIdx} = channelOutC;
-
+    
 end
 optS.scan = scanOptS;
 

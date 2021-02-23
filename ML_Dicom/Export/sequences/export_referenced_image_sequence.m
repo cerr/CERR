@@ -1,4 +1,4 @@
-function el = export_text_object_sequence(args)
+function el = export_referenced_image_sequence(args)
 %Subfunction to handle text_object sequences within the
 %gsps module.  Uses the same layout and principle as the parent
 %function.
@@ -36,16 +36,16 @@ el = [];
 %Unpack input data.
 tag                 = args.tag;
 scanInfoS           = args.data{1};
-template            = args.template;
+%template            = args.template;
 
 switch tag
     case 528720     %0008,1150  Referenced SOP Class UID
         data = scanInfoS.SOP_Class_UID;     
-        el = data2dcmElement(template, data, tag);
+        el = data2dcmElement(data, tag);
         
     case 528725     %0008,1155  Referenced SOP Instance UID
         data = scanInfoS.SOP_Instance_UID;        
-        el = data2dcmElement(template, data, tag);
+        el = data2dcmElement(data, tag);
         
 %     case 528736     %0008,1160  Referenced Frame Number
 %         data = scanS.frameNumber;        

@@ -53,8 +53,14 @@ for m = 1:length(methodC)
             %mask3M = []
             strName = paramS.structureName;
             indexS = planC{end};
+            numStructs = length(planC{indexS.structures});
+            assocScanV = getStructureAssociatedScan(1:numStructs,planC);
             strC = {planC{indexS.structures}.structureName};
             strIdx = getMatchingIndex(strName,strC,'EXACT');
+            % Find structure associated with scanNum
+            if ~isempty(strIdx)
+                strIdx = strIdx(assocScanV(strIdx) == scanNum);
+            end
             if ~isempty(strIdx)
                 [outMask3M, planC] = getStrMask(strIdx,planC);
             else
@@ -93,6 +99,12 @@ for m = 1:length(methodC)
             indexS = planC{end};            
             outlineIndex = getMatchingIndex(structureName,...
                 {planC{indexS.structures}.structureName},'exact');
+            numStructs = length(planC{indexS.structures});
+            assocScanV = getStructureAssociatedScan(1:numStructs,planC);
+            % Find structure associated with scanNum
+            if ~isempty(outlineIndex)
+                outlineIndex = outlineIndex(assocScanV(strIdx) == scanNum);
+            end
 
             if isempty(outlineIndex)
                 scan3M = getScanArray(scanNum,planC);
@@ -112,6 +124,14 @@ for m = 1:length(methodC)
             indexS = planC{end};
             strName = paramS.structureName;
             strNum = getMatchingIndex(strName,{planC{indexS.structures}.structureName},'exact');
+            
+            numStructs = length(planC{indexS.structures});
+            assocScanV = getStructureAssociatedScan(1:numStructs,planC);
+            % Find structure associated with scanNum
+            if ~isempty(strNum)
+                strNum = strNum(assocScanV(strIdx) == scanNum);
+            end
+
             [pt_outline_mask3M, planC] = getStrMask(strNum,planC);
             
             % generate mask after cropping shoulder slices
