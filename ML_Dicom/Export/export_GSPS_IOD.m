@@ -96,7 +96,7 @@ nWritten = 0;
 
         %Create a attr to hold a single slice.
         %CHANGE to dcm4che 3attribute
-        attr = org.dcm4che3.data.Attributes;
+        attr = javaObject('org.dcm4che3.data.Attributes');
 
         %Get info for the slice we are handling.
         %scanInfoS = scanS.scanInfo(slcNum);        

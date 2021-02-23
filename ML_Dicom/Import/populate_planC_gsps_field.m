@@ -64,7 +64,7 @@ switch fieldname
         %Referenced Image Sequence
         refImageSeq = annotObj.getValue(hex2dec('00081140'));
         refImageObj = refImageSeq.get(0); % Assuming only one image reference.
-        dataS = getTagValue(refImageObj, '00081155');
+        dataS = getTagValue(refImageObj,528725); % '00081155';
         
         
     case 'graphicAnnotationS'
@@ -84,12 +84,12 @@ switch fieldname
         graphicAnnotationS(1:numGraphicAnnot) = struct();
         for i = 1:numGraphicAnnot
             aGraphicAnnot = graphicObjSeq.get(i-1);
-            graphicAnnotationS(i).graphicAnnotationUnits   = getTagValue(aGraphicAnnot, '00700005');
-            graphicAnnotationS(i).graphicAnnotationDims    = getTagValue(aGraphicAnnot, '00700020');
-            graphicAnnotationS(i).graphicAnnotationNumPts  = getTagValue(aGraphicAnnot, '00700021');
-            graphicAnnotationS(i).graphicAnnotationData    = getTagValue(aGraphicAnnot, '00700022');
-            graphicAnnotationS(i).graphicAnnotationType    = getTagValue(aGraphicAnnot, '00700023');
-            graphicAnnotationS(i).graphicAnnotationFilled  = getTagValue(aGraphicAnnot, '00700024');            
+            graphicAnnotationS(i).graphicAnnotationUnits   = getTagValue(aGraphicAnnot, 7340037); %'00700005'
+            graphicAnnotationS(i).graphicAnnotationDims    = getTagValue(aGraphicAnnot, 7340064); %'00700020'
+            graphicAnnotationS(i).graphicAnnotationNumPts  = getTagValue(aGraphicAnnot, 7340065); %'00700021'
+            graphicAnnotationS(i).graphicAnnotationData    = getTagValue(aGraphicAnnot, 7340066); %'00700022';
+            graphicAnnotationS(i).graphicAnnotationType    = getTagValue(aGraphicAnnot, 7340067); %'00700023';
+            graphicAnnotationS(i).graphicAnnotationFilled  = getTagValue(aGraphicAnnot, 7340068); %'00700024';
         end
         
         dataS = graphicAnnotationS;
@@ -113,14 +113,14 @@ switch fieldname
         
         for i = 1:numTextAnnot
             aTextAnnot = textObjSeq.get(i-1);
-            textAnnotationS(i).boundingBoxAnnotationUnits                = getTagValue(aTextAnnot, '00700003');
-            textAnnotationS(i).anchorPtAnnotationUnits                   = getTagValue(aTextAnnot, '00700004');
-            textAnnotationS(i).unformattedTextValue                      = getTagValue(aTextAnnot, '00700006');            
-            textAnnotationS(i).boundingBoxTopLeftHandCornerPt            = getTagValue(aTextAnnot, '00700010');            
-            textAnnotationS(i).boundingBoxBottomRightHandCornerPt        = getTagValue(aTextAnnot, '00700011');            
-            textAnnotationS(i).boundingBoxTextHorizontalJustification    = getTagValue(aTextAnnot, '00700012');            
-            textAnnotationS(i).anchorPoint                               = getTagValue(aTextAnnot, '00700014');            
-            textAnnotationS(i).anchorPointVisibility                     = getTagValue(aTextAnnot, '00700015');                        
+            textAnnotationS(i).boundingBoxAnnotationUnits                = getTagValue(aTextAnnot, 7340035); %'00700003';
+            textAnnotationS(i).anchorPtAnnotationUnits                   = getTagValue(aTextAnnot, 7340036); %'00700004';
+            textAnnotationS(i).unformattedTextValue                      = getTagValue(aTextAnnot, 7340038); %'00700006';
+            textAnnotationS(i).boundingBoxTopLeftHandCornerPt            = getTagValue(aTextAnnot, 7340048); %'00700010';
+            textAnnotationS(i).boundingBoxBottomRightHandCornerPt        = getTagValue(aTextAnnot, 7340049); %'00700011';
+            textAnnotationS(i).boundingBoxTextHorizontalJustification    = getTagValue(aTextAnnot, 7340050); %'00700012';
+            textAnnotationS(i).anchorPoint                               = getTagValue(aTextAnnot, 7340052); %'00700014';
+            textAnnotationS(i).anchorPointVisibility                     = getTagValue(aTextAnnot, 7340053); %'00700015';
         end
         
         dataS = textAnnotationS;
