@@ -7,9 +7,9 @@ function basePlanC = calc_vf_jacobain(deformS,basePlanC,refScanNum)
 baseScanUID = deformS.baseScanUID;
 movScanUID  = deformS.movScanUID;
 
-[refScanUniqName, ~] = genScanUniqName(planC,refScanNum);
-refScanFileName = fullfile(tmpDirPath,['baseScan_',refScanUniqName,'.mha']);
-success = createMhaScansFromCERR(refScanNum, refScanFileName, planC);
+[refScanUniqName, ~] = genScanUniqName(basePlanC,refScanNum);
+refScanFileName = fullfile(getCERRPath,'ImageRegistration','tmpFiles',['baseScan_',refScanUniqName,'.mha']);
+success = createMhaScansFromCERR(refScanNum, refScanFileName, basePlanC);
 
 % Create b-spline coefficients file
 bspFileName = fullfile(getCERRPath,'ImageRegistration','tmpFiles',['bsp_coeffs_',baseScanUID,'_',movScanUID,'.txt']);
