@@ -65,7 +65,9 @@ switch tag
         StudySOPClassUID = '1.2.840.10008.3.1.2.3.2'; 
 
         %Find unique study instance UIDs.
-        [uniqueStudies,i,j] = unique({scansS.Study_Instance_UID});
+        UIDc = {scansS.Study_Instance_UID};
+        UIDc = cellfun(@char,UIDc,'un',0);
+        [uniqueStudies,i,j] = unique(UIDc);
         nUniqueStudies = length(uniqueStudies);
         
         for i=1:nUniqueStudies
