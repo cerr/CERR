@@ -8,7 +8,7 @@ indexS = planC{end};
 
 isUniform = 0;
 preserveAspectFlag = 0;
-scanOptS = userOptS(scanNum).scan;
+scanOptS = userOptS.scan(scanNum);
 
 %% Resize/pad mask to original dimensions
 %Get parameters for resizing & cropping
