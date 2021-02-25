@@ -127,15 +127,16 @@ switch fieldname
         
     case 'presentLabel'
         % Label
-        dataS = annotObj.getValue(hex2dec('00700080'));
+        dataS  = char(annotObj.getString(hex2dec('00700080'),0));
         
     case 'presentDescription'
         % Description
-        dataS = annotObj.getValue(hex2dec('00700081'));
+        %dataS = char(annotObj.getValue(hex2dec('00700081')));
+        dataS = char(annotObj.getString(hex2dec('00700081'),0));
         
     case 'presentCreationDate'
         % Date
-        dataS = annotObj.getValue(hex2dec('00700082'));
+        dataS  = char(annotObj.getString(hex2dec('00700082'),0));
         
     case 'annotUID'
         

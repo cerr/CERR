@@ -67,7 +67,8 @@ mkdir(labelPath);
 
 % Import DICOM to CERR
 tic
-importDICOM(inputDicomPath,cerrPath);
+recursiveFlag = true;
+importDICOM(inputDicomPath,cerrPath,recursiveFlag);
 toc
 
 % Parse algorithm and convert to cell arrray

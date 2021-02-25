@@ -1,4 +1,4 @@
-function [dcmdirS] = scandir_mldcm(dirPath, excludePixelDataFlag)
+function [dcmdirS] = scandir_mldcm(dirPath, excludePixelDataFlag, recursiveFlag)
 %"scandir_mldcm"
 %   Scans a passed directory for DICOM files, checking each file in the
 %   directory for properly formatted DICOM regardless of file extension.
@@ -38,6 +38,11 @@ function [dcmdirS] = scandir_mldcm(dirPath, excludePixelDataFlag)
 % You should have received a copy of the GNU General Public License
 % along with CERR.  If not, see <http://www.gnu.org/licenses/>.
 
+%Set recursiveFlag off by default     
+if ~exist('recursiveFlag','var')
+    recursiveFlag = false;
+end
+
 %Check that dirPath is a string
 
 disp(strcat('Reading directory: ', dirPath, ' ...'))
@@ -65,8 +70,13 @@ end
 %     %filesV = dir([dirPath '/*.*']);
 %     filesV = dir([dirPath]);
 % end
-
-filesV = dir(dirPath);
+if recursiveFlag
+    filesV = rdir(dirPath);
+else
+    filesV = dir(dirPath);
+    fullPathC = fullfile(dirPath,{filesV.name});
+    [filesV(1:length(fullPathC)).fullpath] = fullPathC{:};
+end
 
 %Remove directories from the fileList.
 filesV([filesV.isdir]) = [];
@@ -79,7 +89,7 @@ dcmdirS = [];
 
 for i=1:length(filesV)
 
-    filename = fullfile(dirPath, filesV(i).name);
+    filename = filesV(i).fullpath; 
     [attrData, isDcm] = scanfile_mldcm(filename,excludePixelDataFlag);
 
     if isDcm

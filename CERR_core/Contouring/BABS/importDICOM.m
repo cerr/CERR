@@ -1,9 +1,13 @@
-function planC = importDICOM(source,destn)
+function planC = importDICOM(source,destn,recursiveFlag)
 % function importDICOM(source,destn)
 %
 % Function to import DICOM from source and write CERR file to destn.
 %
 % APA, 8/14/2018
+
+if ~exist('recursiveFlag','var')
+    recursiveFlag = false;
+end
 
 zipFlag = 'No';
 
@@ -75,7 +79,7 @@ for dirNum = 1:length(dirsToImportC)
         sourceDir = dirsToImportC{dirNum};
         %patient = scandir_mldcm_babs(sourceDir, hWaitbar, 1);
         excludePixelDataFlag = true;
-        patient = scandir_mldcm(sourceDir, excludePixelDataFlag);
+        patient = scandir_mldcm(sourceDir, excludePixelDataFlag, recursiveFlag);
         %close(hWaitbar);
         dcmdirS = struct(['patient_' num2str(1)],patient.PATIENT(1));
         for j = 2:length(patient.PATIENT)
