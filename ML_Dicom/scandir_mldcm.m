@@ -74,6 +74,8 @@ if recursiveFlag
     filesV = rdir(dirPath);
 else
     filesV = dir(dirPath);
+    fullPathC = fullfile(dirPath,{filesV.name});
+    [filesV(1:length(fullPathC)).fullpath] = fullPathC{:};
 end
 
 %Remove directories from the fileList.
