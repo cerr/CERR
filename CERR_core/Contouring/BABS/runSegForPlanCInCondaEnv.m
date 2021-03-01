@@ -156,7 +156,17 @@ for k=1:length(algorithmC)
     % Call python wrapper and execute model
     pth = getenv('PATH');
     condaBinPath = fullfile(condaPath,'condabin;');
-    condaEnvPath = fullfile(condaPath,'envs',condaEnvListC{k});
+    %condaScriptsPath = fullfile(condaPath,'Scripts;');
+    if ~isempty(strfind(condaEnvListC{k},filesep))        
+        condaEnvPath = condaEnvListC{k};
+        condaBinPath = fullfile(condaEnvPath,'Scripts;');
+    else
+        condaEnvPath = fullfile(condaPath,'envs',condaEnvListC{k});
+    end
+    %if isempty(strfind(pth,condaBinPath))
+    %    newPth = [condaBinPath,pth];
+    %    setenv('PATH',newPth)
+    %end
     newPth = [condaBinPath,pth];
     setenv('PATH',newPth)
     wrapperFunc = functionNameC{k};
@@ -170,10 +180,17 @@ for k=1:length(algorithmC)
             condaSrc, condaEnvPath, wrapperFunc, inputH5Path, outputH5Path,...
             num2str(batchSize));
     end
+    % Resolve error by setting KMP_DUPLICATE_LIB_OK' to 'TRUE'
+    % OMP: Error #15: Initializing libiomp5md.dll, but found libiomp5md.dll already initialized.
+    % https://community.intel.com/t5/Intel-Integrated-Performance/Solution-to-Error-15-Initializing-libiomp5md-dll-but-found/td-p/800649
+    setenv('KMP_DUPLICATE_LIB_OK','TRUE')
     disp(command)
     tic
     status = system(command);
     toc
+    
+    % Set Environment variables to default
+    setenv('PATH',pth)
     
     % Read structure masks
     if ishandle(hWait)
