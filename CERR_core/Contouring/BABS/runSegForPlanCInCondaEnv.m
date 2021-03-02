@@ -77,12 +77,12 @@ condaPath = optS.condaPath;
 
 %% Parse algorithm & functionName and convert to cell arrray
 algorithmC = strsplit(algorithm,'^');
-functionNameC = strsplit(functionName,'^');
 numAlgorithms = numel(algorithmC);
-numWrapperFunctions = numel(functionNameC);
-if numAlgorithms ~= numWrapperFunctions
-    error('Mismatch between no. specified algorithms and wrapper functions')
-end
+%functionNameC = strsplit(functionName,'^');
+% numWrapperFunctions = numel(functionNameC);
+% if numAlgorithms ~= numWrapperFunctions
+%     error('Mismatch between no. specified algorithms and wrapper functions')
+% end
 
 condaEnvList = varargin{1};
 condaEnvListC = strsplit(condaEnvList,'^');
@@ -92,6 +92,10 @@ if numAlgorithms > 1 && numContainers == 1
 elseif numAlgorithms ~= numContainers
     error('Mismatch between no. specified algorithms and conda envs.')
 end
+
+% Get wrapper function names for algorithm/condaEnvs
+functionNameC = getSegWrapperFunc(condaEnvListC,algorithmC);
+
 
 % Loop over algorithms
 for k=1:length(algorithmC)
