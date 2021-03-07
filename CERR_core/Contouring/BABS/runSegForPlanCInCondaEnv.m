@@ -1,5 +1,5 @@
-function planC = runSegForPlanCInCondaEnv(planC,sessionPath,algorithm,functionName,hWait,varargin)
-% function planC = runSegForPlanCInCondaEnv(planC,sessionPath,algorithm,functionName,hWait,varargin)
+function planC = runSegForPlanCInCondaEnv(planC,sessionPath,algorithm,varargin)
+% function planC = runSegForPlanCInCondaEnv(planC,sessionPath,algorithm,varargin)
 %
 % This function serves as a wrapper for auto-segmentation algorithms.
 % -------------------------------------------------------------------------------
@@ -11,10 +11,9 @@ function planC = runSegForPlanCInCondaEnv(planC,sessionPath,algorithm,functionNa
 %                 Pass caret-delimited list to chain multilple algorithms, e.g:
 %                   algorithm = ['CT_ChewingStructures_DeepLabV3^',...
 %                   'CT_Larynx_DeepLabV3^CT_PharyngealConstrictor_DeepLabV3'];
-% functionName -  Path to python wrapper function.
-%                 Pass caret-delimited list to chain multilple wrappers.
 % varargin     -  Additional algorithm-specific inputs
-%                 varargin{1} : conda env name.
+%                 varargin{1} : string containing caret-separated names of conda env.
+%                 It can also be a cell-array of conda environment names.
 %--------------------------------------------------------------------------------
 % EXAMPLE:
 % Specify conda path in CERRoptions.JSON, e.g.:
@@ -25,9 +24,8 @@ function planC = runSegForPlanCInCondaEnv(planC,sessionPath,algorithm,functionNa
 %   global planC
 %   sessionPath = '/path/to/session/dir';
 %   algorithm = 'CT_Heart_DeepLab';
-%   functionName = '/path/to/python_wrapper.py';
 %   condaEnvName = 'testEnv';
-%   planC = runSegForPlanCInCondaEnv(planC,sessionPath,algorithm,functionName,[],condaEnvName);
+%   planC = runSegForPlanCInCondaEnv(planC,sessionPath,algorithm,condaEnvName);
 %--------------------------------------------------------------------------------
 % AI, 09/21/2020
 
@@ -76,7 +74,12 @@ optS = opts4Exe([getCERRPath,'CERROptions.json']);
 condaPath = optS.condaPath;
 
 %% Parse algorithm & functionName and convert to cell arrray
-algorithmC = strsplit(algorithm,'^');
+if iscell(algorithm)
+    algorithmC = algorithm;
+else
+    algorithmC = strsplit(algorithm,'^');
+end
+
 numAlgorithms = numel(algorithmC);
 %functionNameC = strsplit(functionName,'^');
 % numWrapperFunctions = numel(functionNameC);
@@ -85,7 +88,11 @@ numAlgorithms = numel(algorithmC);
 % end
 
 condaEnvList = varargin{1};
-condaEnvListC = strsplit(condaEnvList,'^');
+if iscell(condaEnvList)
+    condaEnvListC = condaEnvList;
+else
+    condaEnvListC = strsplit(condaEnvList,'^');
+end
 numContainers = numel(condaEnvListC);
 if numAlgorithms > 1 && numContainers == 1
     condaEnvListC = repmat(condaEnvListC,numAlgorithms,1);
@@ -118,9 +125,6 @@ for k=1:length(algorithmC)
         [algorithmC{k}, '_config.json']);
     
     % Pre-process and export data to HDF5 format
-    if ishandle(hWait)
-        waitbar(0.1,hWait,'Extracting scan and mask');
-    end
     userOptS = readDLConfigFile(configFilePath);
     if nargin==7 && ~isnan(varargin{2})
         batchSize = varargin{2};
@@ -130,9 +134,6 @@ for k=1:length(algorithmC)
     [scanC, maskC, scanNumV, userOptS, planC] = ...
         extractAndPreprocessDataForDL(userOptS,planC,testFlag);
     %Note: mask3M is empty for testing
-    if ishandle(hWait)
-        waitbar(0.2,hWait,'Segmenting structures...');
-    end
     
     %Export to H5 format
     tic
@@ -197,9 +198,6 @@ for k=1:length(algorithmC)
     setenv('PATH',pth)
     
     % Read structure masks
-    if ishandle(hWait)
-        waitbar(0.9,hWait,'Writing segmentation results to CERR');
-    end
     outC = stackHDF5Files(fullSessionPath,userOptS.passedScanDim); %Updated
     
     % Import to planC
@@ -229,11 +227,6 @@ for k=1:length(algorithmC)
     end
     
 end
-
-if ishandle(hWait)
-    close(hWait);
-end
-
 
 % Remove session directory
 rmdir(fullSessionPath, 's')
