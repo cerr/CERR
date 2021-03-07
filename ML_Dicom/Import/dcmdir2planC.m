@@ -252,7 +252,7 @@ for scanNum = 1:numScans
     [xs,ys,zs] = getScanXYZVals(planC{indexS.scan}(scanNum));
     dx = xs(2)-xs(1);
     dy = ys(2)-ys(1);
-    virPosMtx = [dx 0 0 xs(1);0 dy 0 ys(1); 0 0 slice_distance zs(1); 0 0 0 1];
+    virPosMtx = [dx 0 0 xs(1);0 dy 0 ys(1); 0 0 slice_distance/10 zs(1); 0 0 0 1];
     planC{indexS.scan}(scanNum).Image2VirtualPhysicalTransM = virPosMtx;
     
     % Find structures associated with scanNum and update
@@ -299,17 +299,20 @@ for scanNum = 1:numScans
             end
             
             % ======== TO DO: update for use without DICOMHeaders
-            info = dose.DICOMHeaders;
+            %info = dose.DICOMHeaders;
             
-            vec1 = info.ImageOrientationPatient(1:3);
-            vec2 = info.ImageOrientationPatient(4:6);
+            vec1 = dose.imageOrientationPatient(1:3);
+            vec2 = dose.imageOrientationPatient(4:6);
             vec3 = cross(vec1,vec2);
-            vec3 = vec3 * (info.GridFrameOffsetVector(2)-info.GridFrameOffsetVector(1));
-            pos1 = info.ImagePositionPatient;
+            %vec3 = vec3 * (info.GridFrameOffsetVector(2)-info.GridFrameOffsetVector(1));
+            vec3 = vec3 * (dose.zValues(2)-dose.zValues(1))*10; % factor of 10 to go to DICOM mm
+            pos1 = dose.imagePositionPatient;
             
             % positionMatrix translate voxel indexes to physical
             % coordinates
-            dosePositionMatrix = [reshape(info.ImageOrientationPatient,[3 2])*diag(info.PixelSpacing) [vec3(1) pos1(1);vec3(2) pos1(2); vec3(3) pos1(3)]];
+            pixelSpacing = [-dose.verticalGridInterval, dose.horizontalGridInterval]*10;
+            % dosePositionMatrix = [reshape(dose.imageOrientationPatient,[3 2])*diag(info.PixelSpacing) [vec3(1) pos1(1);vec3(2) pos1(2); vec3(3) pos1(3)]];
+            dosePositionMatrix = [reshape(dose.imageOrientationPatient,[3 2])*diag(pixelSpacing) [vec3(1) pos1(1);vec3(2) pos1(2); vec3(3) pos1(3)]];
             dosePositionMatrix = [dosePositionMatrix; 0 0 0 1];
             
             dosedim = size(dose.doseArray);
@@ -340,7 +343,7 @@ for scanNum = 1:numScans
             vecsout = inv(positionMatrix) * vecsout;  % to MR image index (not dose voxel index)
             vecsout = virPosMtx * vecsout; % to the virtual coordinates
             
-            zValuesV = vecsout(3,:)'/10;
+            zValuesV = vecsout(3,:)';
             [zdoseV,zOrderV] = sort(zValuesV);
             dose.zValues = zdoseV;
             %[zdoseV,zOrderV] = sort(dose.zValues);
