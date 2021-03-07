@@ -2367,8 +2367,8 @@ switch command
                 catch
                     deltaTransM = eye(4);
                 end
-                if strcmpi(setType, 'scan');
-                    if isfield(planC{indexS.scan}, 'transM') & ~isempty(planC{indexS.scan}(setNum).transM);
+                if strcmpi(setType, 'scan')
+                    if isfield(planC{indexS.scan}, 'transM') && ~isempty(planC{indexS.scan}(setNum).transM)
                         planC{indexS.scan}(setNum).transM = inv(deltaTransM) * planC{indexS.scan}(setNum).transM;
                         %planC{indexS.scan}(setNum).transMCur = inv(deltaTransM) * planC{indexS.scan}(setNum).transM;
                     else
@@ -2379,8 +2379,8 @@ switch command
                         %                             planC{indexS.dose}(doseNum(i)).transM = inv(deltaTransM); %wy doseNum(i);
                         %                         end
                     end
-                elseif strcmpi(setType, 'dose');
-                    if isfield(planC{indexS.dose}, 'transM') & ~isempty(planC{indexS.dose}(setNum).transM);
+                elseif strcmpi(setType, 'dose')
+                    if isfield(planC{indexS.dose}, 'transM') && ~isempty(planC{indexS.dose}(setNum).transM)
                         planC{indexS.dose}(setNum).transM = inv(deltaTransM) * planC{indexS.dose}(setNum).transM;
                         %planC{indexS.dose}(setNum).transMCur = inv(deltaTransM) * planC{indexS.dose}(setNum).transM;
                     else
@@ -2407,6 +2407,10 @@ switch command
                 if length(scanSets)>1 %wy in case moving is dose
                     [slc1, sliceXVals1, sliceYVals1] = getCTOnSlice(scanSets(1), coord, dim, planC);
                     [slc2, sliceXVals2, sliceYVals2] = getCTOnSlice(scanSets(2), coord, dim, planC);
+                    ctOffset1 = planC{indexS.scan}(scanSets(1)).scanInfo(1).CTOffset;
+                    ctOffset2 = planC{indexS.scan}(scanSets(2)).scanInfo(1).CTOffset;
+                    slc1 = double(slc1) - ctOffset1;
+                    slc2 = double(slc2) - ctOffset2;
                     try
                         slc1(isnan(slc1)) = 0;
                         slc2(isnan(slc2)) = 0;

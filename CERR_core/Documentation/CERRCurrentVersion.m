@@ -21,6 +21,6 @@ function [Version, date] = CERRCurrentVersion
 % You should have received a copy of the GNU General Public License
 % along with CERR.  If not, see <http://www.gnu.org/licenses/>.
 
-Version  = '5.2';
-date =  '25-Jan-2017';
+Version  = '6.0';
+date =  '07-Mar-2021';
 
