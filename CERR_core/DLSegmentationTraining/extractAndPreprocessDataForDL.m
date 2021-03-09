@@ -18,7 +18,7 @@ function [scanOutC, maskOutC, scanNumV, optS, planC] = ...
 regS = optS.register;
 scanOptS = optS.scan;
 resampleS = [scanOptS.resample];
-cropS = [scanOptS.crop];
+%cropS = [scanOptS.crop];
 resizeS = [scanOptS.resize];
 
 if isfield(optS,'structList')
@@ -159,6 +159,7 @@ for scanIdx = 1:numScans
     end
     
     %% Pre-processing
+    cropS = scanOptS(scanIdx).crop;
     
     %1. Resample to (resolutionXCm,resolutionYCm,resolutionZCm) voxel size
     if ~strcmpi(resampleS(scanIdx).method,'none')
@@ -189,7 +190,7 @@ for scanIdx = 1:numScans
         
         %Resample scan
         gridResampleMethod = 'center';
-        volumeInterpMethod = resampleS.method;
+        %volumeInterpMethod = resampleS.method;
         [xResampleV,yResampleV,zResampleV] = ...
             getResampledGrid(outResV,xValsV,yValsV,zValsV,gridResampleMethod);
         scan3M = imgResample3d(double(scan3M), ...
@@ -216,8 +217,8 @@ for scanIdx = 1:numScans
         % Resample structures required for training
         
         %Resample reqd structures
-        % TBD: add structures reqd for training
-        if ~strcmpi(cropS(:,scanIdx).method,'none')
+        % TBD: add structures reqd for training        
+        if ~(length(cropS) == 1 && strcmpi(cropS(1).method,'none'))
             cropStrListC = arrayfun(@(x)x.params.structureName,cropS,'un',0);
             cropParS = [cropS.params];
             if ~isempty(cropStrListC)
@@ -240,11 +241,11 @@ for scanIdx = 1:numScans
     
     %2. Crop around the region of interest
     limitsM = [];
-    if ~strcmpi({cropS(:,scanIdx).method},'none')
+    if ~(length(cropS) == 1 && strcmpi(cropS(1).method,'none'))
         fprintf('\nCropping to region of interest...\n');
         tic
         [minr, maxr, minc, maxc, slcV, cropStr3M, planC] = ...
-            getCropLimits(planC,mask3M,scanNumV(scanIdx),cropS(:,scanIdx));
+            getCropLimits(planC,mask3M,scanNumV(scanIdx),cropS);
         %- Crop scan
         if ~isempty(scan3M) && numel(minr)==1
             scan3M = scan3M(minr:maxr,minc:maxc,slcV);
