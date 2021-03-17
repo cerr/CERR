@@ -36,12 +36,23 @@ for algoNum = 1:numAlgoritms
                 'runSegHeartSubStructures.py');
             
         case 'CT_CHEWINGSTRUCTURES_DEEPLABV3'
-            
+            functionNameC{algoNum} = fullfile(condaEnvListC{algoNum},...
+                'model_wrapper','CT_ChewingStructures_DeepLabV3',...
+                'chewing_main.py');
+        
         case 'CT_PHARYNGEALCONSTRICTOR_DEEPLABV3'
+            functionNameC{algoNum} = fullfile(condaEnvListC{algoNum},...
+                'model_wrapper','CT_PharyngealConstrictor_DeepLabV3',...
+                'pharyngeal_constrictor_main.py');
+        
             
         case 'CT_HEADANDNECK_SELFATTENTION'
             
         case 'CT_LARYNX_DEEPLABV3'
+         functionNameC{algoNum} = fullfile(condaEnvListC{algoNum},...
+                'model_wrapper','CT_Larynx_DeepLabV3',...
+                'larynx_main.py');
+        
             
         case 'CT_LUNG_INCRMRRN'
             
