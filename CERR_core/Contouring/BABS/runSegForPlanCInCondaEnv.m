@@ -40,7 +40,8 @@ if isfield(planC{indexS.scan}(1).scanInfo(1),'seriesInstanceUID') && ...
 else
     %folderNam = dicomuid;
     orgRoot = '1.3.6.1.4.1.9590.100.1.2';
-    folderNam = javaMethod('createUID','org.dcm4che3.util.UIDUtils',orgRoot);    
+    folderNamJava = javaMethod('createUID','org.dcm4che3.util.UIDUtils',orgRoot);    
+    folderNam = folderNamJava.toCharArray';
 end
 dateTimeV = clock;
 randNum = 1000.*rand;
