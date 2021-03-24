@@ -104,7 +104,7 @@ if strcmp(callFlag,'update')
         end
     end
 
-    set(gca,'visible','off');
+    set(gca,'visible','off','ZDir','reverse');
 
     set(hSurface,'userdata',OptSurf);
 
