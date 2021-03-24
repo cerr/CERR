@@ -94,7 +94,7 @@ switch cellName
                 rescaleSlopeV = ones(numSlcs,1);
                 for slcNum = 1:numSlcs
                     rescaleSlope = dataS(scansAdded+1).scanInfo(slcNum).rescaleSlope;
-                    rescaleIntrcpt = dataS(scansAdded+1).scanInfo(1).rescaleIntercept;
+                    rescaleIntrcpt = dataS(scansAdded+1).scanInfo(slcNum).rescaleIntercept;
                     scanArray3M(:,:,slcNum) = ...
                         single(dataS(scansAdded+1).scanArray(:,:,slcNum)) * single(rescaleSlope) + single(rescaleIntrcpt);
                     rescaleSlopeV(slcNum) = rescaleSlope;

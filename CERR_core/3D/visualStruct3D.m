@@ -184,7 +184,8 @@ lighting gouraud;
 view(42.48,-15.40);
 
 set(h,'CameraPosition',[716.99 -648.02 -226.14],'CameraTarget',[S(1)/2 S(2)/2 S(3)/(SZ(1)/S(1))],...
-    'CameraViewAngle',6.91,'CameraUpVector',[-0.22 0.24 -0.76],'PlotBoxAspectRatio',[bA(1) bA(2) bA(3)]);
+    'CameraViewAngle',6.91,'CameraUpVector',[-0.22 0.24 -0.76],'PlotBoxAspectRatio',[bA(1) bA(2) bA(3)],...
+    'ZDir','reverse');
 
 light('Color','white','Position',[22, 0, -8],'Style','infinite');
 light('Color','white','Position',[-535.04, 9.98, 700.51],'Style','local');

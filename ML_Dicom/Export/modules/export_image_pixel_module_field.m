@@ -113,7 +113,7 @@ switch tag
                 % apply scale factor
                 scaleFactorV = args.data{4};
                 scaleFactor = scaleFactorV(bools);
-                maxV = uint16(maxV/scaleFactor);                
+                maxV = uint16(maxV/scaleFactor(1));                
                 log2s = log2(double(maxV));
                 mostSignificantBit = floor(max(log2s)) + 1;
                 data = max(mostSignificantBit, 12);
@@ -133,7 +133,7 @@ switch tag
                 % apply scale factor
                 scaleFactorV = args.data{4};
                 scaleFactor = scaleFactorV(bools);
-                maxV = uint16(maxV/scaleFactor);                
+                maxV = uint16(maxV/scaleFactor(1));                
                 log2s = log2(double(maxV));
                 mostSignificantBit = floor(max(log2s)) + 1;
                 data = max(mostSignificantBit, 12);
@@ -179,12 +179,12 @@ switch tag
         switch type
             case 'scan'
                 sliceNum = find([scanS.scanInfo.zValue] == scanInfoS.zValue);
-                data = scanS.scanArray(:,:,sliceNum);
+                data = scanS.scanArray(:,:,sliceNum(1));
                 
                 %Convert to unsigned 16-bit integer if scanArray is single
                 scaleFactorV = args.data{4};
-                scaleFactor = scaleFactorV(sliceNum);
-                data = uint16(data/scaleFactor);
+                scaleFactor = scaleFactorV(sliceNum(1));
+                data = uint16(data/scaleFactor(1));
                 
                 data = data';
                 data = data(:);
@@ -197,7 +197,7 @@ switch tag
                 
                 %Flip the Z dimension.  As yet unknown why this is
                 %necessary.
-                %data = flip(data, 3);
+                data = flip(data, 3);
 
                 %Flatten the data into a vector.
                 data = data(:);

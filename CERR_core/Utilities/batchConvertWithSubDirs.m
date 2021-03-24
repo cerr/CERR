@@ -105,35 +105,35 @@ for dirNum = 1:length(allDirS)
     disp(['Importing ',sourceDir,' ...'])
     try
         
-        hWaitbar = waitbar(0,'Scanning Directory Please wait...');
+        %hWaitbar = waitbar(0,'Scanning Directory Please wait...');
         CERRStatusString('Scanning DICOM directory');
         
         dcmdirS = [];
         patientNum = 1;
         dirPath = fullfile(sourceDir,allDirS(dirNum).name);        
-        
-        patient = scandir_mldcm(dirPath, hWaitbar, 1, excludePixelDataFlag);
+        recursiveFlag = true;
+        patient = scandir_mldcm(dirPath, excludePixelDataFlag, recursiveFlag);
         if ~isempty(patient)
             for j = 1:length(patient.PATIENT)
                 dcmdirS.(['patient_' num2str(patientNum)]) = patient.PATIENT(j);
                 patientNum = patientNum + 1;
             end
         end
-        if isfield(optS,'importDICOMsubDirs') && strcmpi(optS.importDICOMsubDirs,'yes') % && ~isempty(dirsInCurDir)
-            
-            [filesInCurDir,dirsInCurDir] = rdir(dirPath);
-            
-            for i = 1:length(dirsInCurDir)
-                %     patient = scandir_mldcm(fullfile(dirPath, dirs(i).name), hWaitbar, i);
-                patient = scandir_mldcm(dirsInCurDir(i).fullpath, hWaitbar, i, excludePixelDataFlag);
-                if ~isempty(patient)
-                    for j = 1:length(patient.PATIENT)
-                        dcmdirS.(['patient_' num2str(patientNum)]) = patient.PATIENT(j);
-                        patientNum = patientNum + 1;
-                    end
-                end
-            end
-        end
+%         if isfield(optS,'importDICOMsubDirs') && strcmpi(optS.importDICOMsubDirs,'yes') % && ~isempty(dirsInCurDir)
+%             
+%             [filesInCurDir,dirsInCurDir] = rdir(dirPath);
+%             
+%             for i = 1:length(dirsInCurDir)
+%                 %     patient = scandir_mldcm(fullfile(dirPath, dirs(i).name), hWaitbar, i);
+%                 patient = scandir_mldcm(dirsInCurDir(i).fullpath, excludePixelDataFlag);
+%                 if ~isempty(patient)
+%                     for j = 1:length(patient.PATIENT)
+%                         dcmdirS.(['patient_' num2str(patientNum)]) = patient.PATIENT(j);
+%                         patientNum = patientNum + 1;
+%                     end
+%                 end
+%             end
+%         end
         
 %         [filesInCurDir,dirsInCurDir] = rdir(dirPath);
 %         
@@ -173,12 +173,12 @@ for dirNum = 1:length(allDirS)
         
         
         if isempty(dcmdirS)
-            close(hWaitbar);
+            %close(hWaitbar);
             %msgbox('There is no dicom data!','Application Info','warn');
             continue;
         end
         
-        close(hWaitbar);
+        %close(hWaitbar);
         
         patNameC = fieldnames(dcmdirS);
 
@@ -206,7 +206,7 @@ for dirNum = 1:length(allDirS)
             end
         end
         % Pass the java dicom structures to function to create CERR plan
-        planC = dcmdir2planC(combinedDcmdirS,mergeScansFlag);
+        planC = dcmdir2planC(combinedDcmdirS,mergeScansFlag,optS);
         
      
         [sourcePath,sourceDirName] = fileparts(dirPath);
