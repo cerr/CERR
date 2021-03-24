@@ -125,7 +125,7 @@ else
     if scaleFactor < 1
         scaleFactor = 1;
     end
-    scaleFactorV = repmat(scaleFactor,size(scanS.scanArray,3));
+    scaleFactorV = repmat(scaleFactor,1,size(scanS.scanArray,3));
 end
 
 %For slice-specific modules iterate over scaninfo.
