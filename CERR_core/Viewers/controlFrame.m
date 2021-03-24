@@ -2409,8 +2409,8 @@ switch command
                     [slc2, sliceXVals2, sliceYVals2] = getCTOnSlice(scanSets(2), coord, dim, planC);
                     ctOffset1 = planC{indexS.scan}(scanSets(1)).scanInfo(1).CTOffset;
                     ctOffset2 = planC{indexS.scan}(scanSets(2)).scanInfo(1).CTOffset;
-                    slc1 = double(slc1) - ctOffset1;
-                    slc2 = double(slc2) - ctOffset2;
+                    slc1 = double(slc1) - double(ctOffset1);
+                    slc2 = double(slc2) - double(ctOffset2);
                     try
                         slc1(isnan(slc1)) = 0;
                         slc2(isnan(slc2)) = 0;
