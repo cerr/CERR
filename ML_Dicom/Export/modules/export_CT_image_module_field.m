@@ -115,6 +115,7 @@ switch tag
         data = args.data{3}; %APA: factor for conversion to uint16 for modalities other than CT
         bools = [scanS.scanInfo.zValue] == scanInfoS.zValue;
         data = data(bools);
+        data = data(1); % handle multiple slices at same z-location
         el = data2dcmElement(data, tag);
         
     %Class 2 Tags -- Must be present, can be NULL.       
