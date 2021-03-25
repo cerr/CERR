@@ -72,14 +72,14 @@ importDICOM(inputDicomPath,cerrPath,recursiveFlag);
 toc
 
 % Parse algorithm and convert to cell arrray
-algorithmC = split(algorithm,'^');
+algorithmC = strsplit(algorithm,'^');
 
 %% Run inference
 if ~any(strcmpi(algorithmC,'BABS'))
     
     containerPathStr = varargin{1};
     % Parse container path and convert to cell arrray
-    containerPathC = split(containerPathStr,'^');
+    containerPathC = strsplit(containerPathStr,'^');
     numAlgorithms = numel(algorithmC);
     numContainers = numel(containerPathC);
     if numAlgorithms > 1 && numContainers == 1
