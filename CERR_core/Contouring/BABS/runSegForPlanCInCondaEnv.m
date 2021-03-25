@@ -12,20 +12,16 @@ function planC = runSegForPlanCInCondaEnv(planC,sessionPath,algorithm,varargin)
 %                   algorithm = ['CT_ChewingStructures_DeepLabV3^',...
 %                   'CT_Larynx_DeepLabV3^CT_PharyngealConstrictor_DeepLabV3'];
 % varargin     -  Additional algorithm-specific inputs
-%                 varargin{1} : string containing caret-separated names of conda env.
-%                 It can also be a cell-array of conda environment names.
+%                 varargin{1} : string containing caret-separated paths to conda 
+%                 archive. Alt: cell-array of paths to conda archives.
 %--------------------------------------------------------------------------------
 % EXAMPLE:
-% Specify conda path in CERRoptions.JSON, e.g.:
-%    "condaPath" : "C:/Miniconda3/"
-%    It is assumed that subdirectory 'condabin' exists and contains activate script
-%    and subdirectory 'envs' exists and contains environment 'condaEnvName'.
 % To run segmentation, open a CERR-format file using the GUI, followed by:
 %   global planC
 %   sessionPath = '/path/to/session/dir';
 %   algorithm = 'CT_Heart_DeepLab';
-%   condaEnvName = 'testEnv';
-%   planC = runSegForPlanCInCondaEnv(planC,sessionPath,algorithm,condaEnvName);
+%   condaEnvPth = 'testEnv';
+%   planC = runSegForPlanCInCondaEnv(planC,sessionPath,algorithm,condaEnvPth);
 %--------------------------------------------------------------------------------
 % AI, 09/21/2020
 
@@ -38,7 +34,6 @@ if isfield(planC{indexS.scan}(1).scanInfo(1),'seriesInstanceUID') && ...
         ~isempty(planC{indexS.scan}(1).scanInfo(1).seriesInstanceUID)
     folderNam = planC{indexS.scan}(1).scanInfo(1).seriesInstanceUID;
 else
-    %folderNam = dicomuid;
     orgRoot = '1.3.6.1.4.1.9590.100.1.2';
     folderNam = javaMethod('createUID','org.dcm4che3.util.UIDUtils',orgRoot);    
 end
@@ -68,24 +63,13 @@ testFlag = true;
 labelPath = fullfile(fullSessionPath,'outputLabelMap');
 mkdir(labelPath);
 
-%% Get conda installation path
-optS = opts4Exe([getCERRPath,'CERROptions.json']);
-condaPath = optS.condaPath;
-confirm_recursive_rmdir(0)
-
 %% Parse algorithm & functionName and convert to cell arrray
 if iscell(algorithm)
     algorithmC = algorithm;
 else
     algorithmC = strsplit(algorithm,'^');
 end
-
 numAlgorithms = numel(algorithmC);
-%functionNameC = strsplit(functionName,'^');
-% numWrapperFunctions = numel(functionNameC);
-% if numAlgorithms ~= numWrapperFunctions
-%     error('Mismatch between no. specified algorithms and wrapper functions')
-% end
 
 condaEnvList = varargin{1};
 if iscell(condaEnvList)
@@ -159,19 +143,9 @@ for k=1:length(algorithmC)
     end
     
     % Call python wrapper and execute model
+    condaEnvPath = condaEnvListC{k};
+    condaBinPath = fullfile(condaEnvPath,'Scripts;');
     pth = getenv('PATH');
-    condaBinPath = fullfile(condaPath,'condabin;');
-    %condaScriptsPath = fullfile(condaPath,'Scripts;');
-    if ~isempty(strfind(condaEnvListC{k},filesep))        
-        condaEnvPath = condaEnvListC{k};
-        condaBinPath = fullfile(condaEnvPath,'Scripts;');
-    else
-        condaEnvPath = fullfile(condaPath,'envs',condaEnvListC{k});
-    end
-    %if isempty(strfind(pth,condaBinPath))
-    %    newPth = [condaBinPath,pth];
-    %    setenv('PATH',newPth)
-    %end
     newPth = [condaBinPath,pth];
     setenv('PATH',newPth)
     wrapperFunc = functionNameC{k};
@@ -194,9 +168,6 @@ for k=1:length(algorithmC)
     tic
     status = system(command);
     toc
-    
-    % Set Environment variables to default
-    setenv('PATH',pth)
     
     % Read structure masks
     outC = stackHDF5Files(fullSessionPath,userOptS.passedScanDim); %Updated
