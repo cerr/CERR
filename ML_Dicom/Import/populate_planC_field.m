@@ -550,9 +550,9 @@ switch cellName
         [seriesC, typeC]    = extract_all_series(dcmdir_patient);
         supportedTypes      = {'PR'};
         gspsAdded          = 0;
-        
-        hWaitbar = waitbar(0,'Loading GSPS. Please wait...');
-        
+        try
+        	hWaitbar = waitbar(0,'Loading GSPS. Please wait...');
+        end
         numGspsSeries = length(find(strcmpi(typeC, 'PR')==1));
         
         %Place each structure into its own array element.
@@ -583,15 +583,17 @@ switch cellName
                         end
                         curGspsNum = curGspsNum + 1;
                         gspsAdded = gspsAdded + 1;
-                        
+                        try
                         waitbar(gspsAdded/(nGsps*length(GSPS)*numGspsSeries), hWaitbar, 'Loading Annotations, Please wait...');
-                        
+                        end
                     end
                 end
             end
             
         end
+try
         close(hWaitbar);
+end
         pause(0.1);
         
     case 'registration'
