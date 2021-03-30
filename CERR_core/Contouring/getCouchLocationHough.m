@@ -20,7 +20,8 @@ edgeS = edge(histeqS,'canny');
 [H,T,R] = hough(edgeS);
 P = houghpeaks(H,20);
 
-lines = houghlines(edgeS,T,R,P,'FillGap',5,'MinLength',20);
+minLength = floor(size(edgeS,2)/8); % couch covers 1/8th of image
+lines = houghlines(edgeS,T,R,P,'FillGap',5,'MinLength',minLength);
 
 % Require couch lines to have same starting & ending point2
 yi = zeros(1,numel(lines)); 
