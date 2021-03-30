@@ -91,7 +91,12 @@ status = system(command);
 toc
 
 % Run container app to get hash (placeholder for now)
-% userOptS.roiGenerationDescription = containerHash;
+[~,hashChk] = system(['singularity apps ' containerPath ' | grep get_hash'],'-echo');
+if ~isempty(hashChk)
+    [~,containerHash] = system(['singularity run --app get_hash ' containerPath],'-echo');
+else
+	containerHash = userOptS.roiGenerationDescription; % = containerHash;
+end
 
 %% Stack H5 files
 fprintf('\nRreading output masks...');
