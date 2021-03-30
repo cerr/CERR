@@ -90,6 +90,9 @@ tic
 status = system(command);
 toc
 
+% Run container app to get hash (placeholder for now)
+% userOptS.roiGenerationDescription = containerHash;
+
 %% Stack H5 files
 fprintf('\nRreading output masks...');
 tic
