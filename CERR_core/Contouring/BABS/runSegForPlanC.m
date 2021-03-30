@@ -167,11 +167,17 @@ if length(algorithmC) > 1 || ...
             jp.setIndeterminate(1)
         end
         % Call the container and execute model
-        success = callDeepLearnSegContainer(algorithmC{k}, ...
+        [success,gitHash] = callDeepLearnSegContainer(algorithmC{k}, ...
             containerPathC{k}, fullClientSessionPath, sshConfigS,...
             userOptS.batchSize); % different workflow for client or session
         
         %%% =========== common for client and server
+        if isfield(userOptS,'roiGenerationDescription')
+            roiDescrpt = userOptS.roiGenerationDescription;
+        end
+        roiDescrpt = [roiDescrpt, '  __git_hash:',gitHash];
+        userOptS.roiGenerationDescription = roiDescrpt;
+        
         if ishandle(hWait)
             waitbar(0.9,hWait,'Writing segmentation results to CERR');
         end

@@ -93,10 +93,13 @@ toc
 % Run container app to get hash (placeholder for now)
 [~,hashChk] = system(['singularity exec ' containerPath ' ls /scif/apps | grep get_hash'],'-echo');
 if ~isempty(hashChk)
-    [~,containerHash] = system(['singularity run --app get_hash ' containerPath],'-echo');
-else
-	containerHash = userOptS.roiGenerationDescription; % = containerHash;
+    [~,gitHash] = system(['singularity run --app get_hash ' containerPath],'-echo');
 end
+if isfield(userOptS,'roiGenerationDescription')
+    roiDescrpt = userOptS.roiGenerationDescription;
+end
+roiDescrpt = [roiDescrpt, '  __git_hash:',gitHash];
+userOptS.roiGenerationDescription = roiDescrpt;
 
 %% Stack H5 files
 fprintf('\nRreading output masks...');
