@@ -1,4 +1,4 @@
-function [yCouch, lines] =  getCouchLocationHough(inputStack,minLengthOpt)
+function [yCouch, lines] =  getCouchLocationHough(inputStack,minLengthOpt,retryOpt)
 
 %
 % Function: getCouchLocationHough
@@ -15,32 +15,40 @@ if ~exist('minLengthOpt','var')
     minLengthOpt = [];
 end
 
-midpt = floor(size(inputStack,1)/2);
+if ~exist('retryOpt','var')
+    retryOpt = 0;
+end
 
-maxS = max(inputStack, [], 3);
-histeqS = histeq(maxS);
-edgeM = edge(histeqS,'sobel',[],'horizontal');
-edgeS = bwmorph(edgeM,'thicken');
+midptS = floor(size(inputStack,1)/2);
+
+maxM = max(inputStack, [], 3);
+histeqM = histeq(maxM);
+edgeM1 = edge(histeqM,'sobel',[],'horizontal');
+edgeM2 = bwmorph(edgeM1,'thicken');
     
-[H,T,R] = hough(edgeS);
+[H,T,R] = hough(edgeM2);
 P = houghpeaks(H,20);
 
 if isempty(minLengthOpt)
-    minLength = floor(size(edgeS,2)/8); % couch covers 1/8th of image
+    minLength = floor(size(edgeM2,2)/8); % couch covers 1/8th of image
 else
     minLength = minLengthOpt;
 end
 
-lines = houghlines(edgeS,T,R,P,'FillGap',5,'MinLength',minLength);
+lines = houghlines(edgeM2,T,R,P,'FillGap',5,'MinLength',minLength);
 
 % Require couch lines to have same starting & ending point2
 yi = zeros(1,numel(lines)); 
 for i = 1:numel(lines)
     if lines(i).point1(2) == lines(i).point2(2)
-        if lines(i).point1(2) > midpt
+        if lines(i).point1(2) > midptS
             yi(i) = lines(i).point2(2); 
         end
     end
 end
 
 yCouch = min(yi(find(yi > 0)));
+
+if retryOpt && isempty(yCouch)
+    [yCouch, lines] =  getCouchLocationHough(inputStack,20);
+end
