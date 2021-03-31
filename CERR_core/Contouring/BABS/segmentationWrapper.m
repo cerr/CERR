@@ -95,6 +95,7 @@ toc
 if ~isempty(hashChk)
     [~,gitHash] = system(['singularity run --app get_hash ' containerPath],'-echo');
 end
+roiDescrpt = '';
 if isfield(userOptS,'roiGenerationDescription')
     roiDescrpt = userOptS.roiGenerationDescription;
 end

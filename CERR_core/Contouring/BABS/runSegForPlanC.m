@@ -172,6 +172,7 @@ if length(algorithmC) > 1 || ...
             userOptS.batchSize); % different workflow for client or session
         
         %%% =========== common for client and server
+        roiDescrpt = '';
         if isfield(userOptS,'roiGenerationDescription')
             roiDescrpt = userOptS.roiGenerationDescription;
         end
