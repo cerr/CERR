@@ -90,7 +90,8 @@ tic
 status = system(command);
 toc
 
-% Run container app to get hash (placeholder for now)
+% Run container app to get git_hash
+gitHash = 'unavailable';
 [~,hashChk] = system(['singularity exec ' containerPath ' ls /scif/apps | grep get_hash'],'-echo');
 if ~isempty(hashChk)
     [~,gitHash] = system(['singularity run --app get_hash ' containerPath],'-echo');

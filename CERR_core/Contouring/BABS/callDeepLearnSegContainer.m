@@ -14,7 +14,7 @@ function [success,gitHash] = callDeepLearnSegContainer(algorithm, containerPath,
    
 
 % Execute the container
-gitHash = '';
+gitHash = 'unavailable';
 if ~exist('sshConfigS','var') || (exist('sshConfigS','var') && isempty(sshConfigS))
     bindingDir = ':/scratch';
     bindPath = strcat(fullSessionPath,bindingDir);
