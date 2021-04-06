@@ -88,7 +88,9 @@ for dirNum = 1:length(dirsToImportC)
             combinedDcmdirS = getCombinedDir(sourceDir);
             % Pass the java dicom structures to function to create CERR plan
             try
-                planC = dcmdir2planC(combinedDcmdirS,mergeScansFlag);
+                optName = fullfile(getCERRPath,'CERROptions.json');
+                optS    = opts4Exe(optName);
+                planC = dcmdir2planC(combinedDcmdirS,mergeScansFlag,optS);
             end
         else
             patient = scandir_mldcm(sourceDir, hWaitbar, 1);
