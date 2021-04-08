@@ -4,8 +4,8 @@
 
 "imageType": {
   		  "LoG_IBSI": {
-			    "Sigma_mm": [5,5,5],
-                "CutOff_mm":[12,12,12]
+			    "Sigma_mm": [5,5],
+                "CutOff_mm":[12,12]
 			  }
 	    },
 
@@ -13,7 +13,7 @@
 
                    "padding": [{
                                 "method": "mirror",  
-                                "size": [10,10,10]
+                                "size": [10,10,0]
 			       }
                               ]
 	    }
