@@ -87,6 +87,22 @@ save_planC(planC,[],'PASSED',planName);
 exportScans(planName,outDir,'2b',metadataS.checkerboard);
 
 clear planC
+
+%% 2.c
+fileName = fullfile(dataDirName,'checkerboard.mat');
+[planC,structNum] = preparePlanC(fileName);
+paramFile = fullfile(configDirName,'IBSIPhase2ID2c.json');
+
+planC = generateTextureMapFromPlanC(planC,structNum,paramFile);
+scanNum = length(planC{index1S.scan});
+planC{index1S.scan}(scanNum).scanType = ...
+    [planC{index1S.scan}(scanNum).scanType,'_2c'];
+
+planName = fullfile(outDir,'2c.mat');
+save_planC(planC,[],'PASSED',planName);
+exportScans(planName,outDir,'2c',metadataS.checkerboard);
+
+clear planC
 %% 3.a.1
 fileName = fullfile(dataDirName,'impulse.mat');
 [planC,structNum] = preparePlanC(fileName);

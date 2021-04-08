@@ -3,8 +3,9 @@
 "structures": ["wholeScan"],
 
 "imageType": {
-  		  "LoG": {
-			    "Sigma_mm": 3
+  		  "LoG_IBSI": {
+			    "Sigma_mm": [3,3,3],
+                "CutOff_mm": [12,12,12]
 			  }
 	    },
 
