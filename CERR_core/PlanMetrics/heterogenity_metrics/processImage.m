@@ -129,7 +129,7 @@ switch filterType
         dir = paramS.Direction.val;
         selIdx = find(strcmpi(paramS.Normalize.val,normFlagC));
         normFlag = 2 - selIdx;
-        
+
         if strcmp(dir,'All')
             for n = 2:length(dirListC)
                 outname = [wavType,'_',dirListC{n}];
@@ -178,6 +178,22 @@ switch filterType
             paramS.Sigma_mm.val,paramS.VoxelSize_mm.val);
        
         outS.LoG_recursive = LoG3M;
+        
+        if ishandle(hWait)
+            set(hWait, 'Vertices', [[0 0 1 1]' [0 1 1 0]']);
+            drawnow;
+        end
+        
+    case 'LoG_IBSI'
+        
+        vol3M = double(scan3M);
+        
+        sigmaV = reshape(paramS.Sigma_mm.val,1,[]);
+        cutOffV = reshape(paramS.CutOff_mm.val,1,[]);
+        voxelSizeV = paramS.VoxelSize_mm.val;
+        LoG3M = logFiltIBSI(vol3M,sigmaV,cutOffV,voxelSizeV);
+       
+        outS.LoG_IBSI = LoG3M;
         
         if ishandle(hWait)
             set(hWait, 'Vertices', [[0 0 1 1]' [0 1 1 0]']);
