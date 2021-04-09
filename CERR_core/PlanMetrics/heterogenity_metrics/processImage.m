@@ -231,7 +231,15 @@ switch filterType
         
         filt3M = ones(kernelSize);
         filt3M = filt3M./sum(filt3M(:));
-        meanFilt3M = convn(vol3M,filt3M,'same');
+        
+        if length(kernelSize)==3 %3d
+            meanFilt3M = convn(vol3M,filt3M,'same');
+        elseif length(kernelSize)==2 %2d
+            meanFilt3M = nan(size(vol3M));
+            for slc = 1:size(vol3M,3)
+                meanFilt3M(:,:,slc) = conv2(vol3M(:,:,slc),filt3M,'same');
+            end
+        end
         outS.meanFilt = meanFilt3M;
         
         if ishandle(hWait)
