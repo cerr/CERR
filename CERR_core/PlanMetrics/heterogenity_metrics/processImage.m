@@ -121,36 +121,43 @@ switch filterType
         vol3M   = double(scan3M);
         
         dirListC = {'All','HHH','LHH','HLH','HHL','LLH','LHL','HLL','LLL'};
-        normFlagC = {'Yes','No'};
         wavType =  paramS.Wavelets.val;
         if ~isempty(paramS.Index.val)
             wavType = [wavType,paramS.Index.val];
         end
         dir = paramS.Direction.val;
-        selIdx = find(strcmpi(paramS.Normalize.val,normFlagC));
-        normFlag = 2 - selIdx;
 
         if strcmp(dir,'All')
             for n = 2:length(dirListC)
                 outname = [wavType,'_',dirListC{n}];
                 outname = strrep(outname,'.','_');
-                out3M = wavDecom3D(vol3M,dirListC{n},wavType,normFlag);
+                outname = strrep(outname,' ','_');
+                
+                subbandsS = getWaveletSubbands(vol3M,wavType);
+                matchDir = [dirListC{n},'_',wavType];
+                out3M = subbandsS.(matchDir);
                 
                 if ishandle(hWait)
                     set(hWait, 'Vertices', [[0 0 (n-1)/(length(dirListC)-1) (n-1)/(length(dirListC)-1)]' [0 1 1 0]']);
                     drawnow;
                 end
+                
                 outS.(outname) = out3M;
             end
         else
             outname = [wavType,'_',dir];
             outname = strrep(outname,'.','_');
             outname = strrep(outname,' ','_');
-            out3M = wavDecom3D(vol3M,dir,wavType,normFlag);
+            
+            subbandsS = getWaveletSubbands(vol3M,wavType);
+            matchDir = [dir,'_',wavType];
+            out3M = subbandsS.(matchDir);
+            
             if ishandle(hWait)
                 set(hWait, 'Vertices', [[0 0 1 1]' [0 1 1 0]']);
                 drawnow;
             end
+            
             outS.(outname) = out3M;
         end
         
