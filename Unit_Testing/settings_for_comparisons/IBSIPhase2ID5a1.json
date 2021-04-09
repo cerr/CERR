@@ -6,8 +6,7 @@
   		  "Wavelets": {
 			    	       "Direction": "LHL",
 				       "Wavelets":"db",
-				       "Index": "2",
-				       "Normalize": "No"
+				       "Index": "2"
 			 	     }
 	    },
 
