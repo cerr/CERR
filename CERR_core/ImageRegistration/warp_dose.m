@@ -145,7 +145,10 @@ end
 % cd(prevDir)
 
 % Get DICOMHeader for the original dose
-dcmHeaderS = planC{indexS.dose}(movDoseNum).DICOMHeaders;
+dcmHeaderS = [];
+if isfield(movPlanC{indexMovS.dose}(movDoseNum),'DICOMHeaders')
+    dcmHeaderS = movPlanC{indexMovS.dose}(movDoseNum).DICOMHeaders;
+end
 if ~isempty(dcmHeaderS)
     dcmHeaderS.PixelSpacing = [];
     dcmHeaderS.ImagePositionPatient = [];
