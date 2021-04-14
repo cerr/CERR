@@ -1,6 +1,5 @@
 function [yCouch, lines] =  getCouchLocationHough(scan3M,minLengthOpt,retryOpt)
 
-%
 % Function: getCouchLocationHough
 % Description: Returns anterior coordinate of patient couch surface
 %
@@ -37,19 +36,26 @@ end
 
 % lines = houghlines(edgeM2,T,R,P,'FillGap',5,'MinLength',minLength);
 lines = houghlines(edgeM2,T,R,P);
-
+overlapFraction = zeros(1,numel(lines));
+midV = [floor(0.5*midptS):floor(0.5*midptS) + midptS];
 % Require couch lines to have same starting & ending point2
 yi = zeros(1,numel(lines)); 
 for i = 1:numel(lines)
     len = norm(lines(i).point1 - lines(i).point2);
     if lines(i).point1(2) == lines(i).point2(2) && len > minLength
-        if lines(i).point1(2) > midptS
+        lineV = [lines(i).point1(1):lines(i).point2(1)];
+        if lines(i).point1(2) > midptS && ~isempty(intersect(lineV,midV))
             yi(i) = lines(i).point2(2); 
+            overlapFraction(i) = numel(intersect(lineV,midV));
         end
     end
 end
 
-yCouch = min(yi(find(yi > 0)));
+if any(overlapFraction)
+    yCouch = yi(find(max(overlapFraction)));
+else
+    yCouch = min(yi(find(yi > 0)));
+end
 
 if retryOpt && isempty(yCouch)
     [yCouch, lines] =  getCouchLocationHough(scan3M,minLength/2);
