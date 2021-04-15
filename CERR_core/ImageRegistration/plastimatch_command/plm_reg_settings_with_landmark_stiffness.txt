@@ -1,0 +1,69 @@
+# command_file for plastimatch
+
+#  STEP 1: Align Center
+[STAGE]
+xform=align_center
+landmark_stiffness=1
+
+#[STAGE]
+#xform=translation
+#impl=plastimatch
+#gridsearch_min_overlap=0.7 0.7 0.7
+#max_its=500
+#metric=mse
+
+[STAGE]
+xform=rigid
+impl=plastimatch
+max_its=200
+metric=mse
+landmark_stiffness=0.9
+res=3 3 2
+
+# STEP 4: Coarse grid
+[STAGE]
+impl = plastimatch
+metric=mse
+#threading = cuda
+xform=bspline
+#xform=vf
+#optim=demons
+res=3 3 2
+max_its=60
+grid_spac=20 20 20
+regularization = analytic
+regularization_lambda=0.2
+#mi_histogram_bins = 25
+landmark_stiffness=0.2
+
+# STEP 4: Refinement
+[STAGE]
+impl = plastimatch
+metric=mse
+#threading = cuda
+xform=bspline
+#optim=demons
+res=2 2 1
+max_its=10
+grid_spac=15 15 15
+regularization = analytic
+regularization_lambda=0.1
+#mi_histogram_bins = 25
+landmark_stiffness=0.2
+
+
+
+# STEP 7: Refinement
+[STAGE]
+impl = plastimatch
+metric=mse
+#threading = cuda
+xform=bspline
+##optim=demons
+res=1 1 1
+max_its=0
+grid_spac=7 7 3
+regularization = analytic
+regularization_lambda=0.1
+##mi_histogram_bins = 25
+
