@@ -36,6 +36,7 @@ if ~isempty(postS)
             strListC = {planC{indexS.structures}.structureName};
             %get updated structure number in case iMethod > 1
             strNum = getMatchingIndex(strC{iStr},strListC,'EXACT');
+            strNum = strNum(end); %Use most recent str if >1 matches found 
             scanNum = getStructureAssociatedScan(strNum,planC);
             
             switch methodC{iMethod}.method
