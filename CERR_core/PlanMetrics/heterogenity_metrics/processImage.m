@@ -2,9 +2,10 @@ function outS = processImage(filterType,scan3M,mask3M,paramS,hWait)
 % Process scan using selected filter and parameters
 %-------------------------------------------------------------------------
 % INPUTS
-% filterType -  May be 'HaralickCooccurance','Wavelets','Sobel',
+% filterType -  Supported textures: 'HaralickCooccurance','Wavelets','Sobel',
 %               'LoG','Gabor','Mean','First order statistics',
 %               'LawsConvolution','LawsEnergy','CoLlage' or 'SimpleITK'.
+%               Other filters: 'suv', 'assignBkgIntensity'.
 % scan3M     - 3-D scan array, cropped around ROI and padded if specified
 % mask3M     - 3-D mask, croppped to bounding box
 % paramS     - Filter parameters
@@ -211,8 +212,7 @@ switch filterType
         
         vol3M = double(scan3M);
         gabor3M = filtImgGabor(vol3M,paramS.Radius.val,paramS.Sigma.val,...
-            paramS.AspectRatio.val,paramS.Orientation.val,paramS.Wavlength.val);
-        
+            paramS.AspectRatio.val,paramS.Orientation.val,paramS.Wavlength.val);      
         outS.Gabor = gabor3M;
         
         if ishandle(hWait)
@@ -377,6 +377,12 @@ switch filterType
         sitkOutS = sitkWrapper(sitkLibPath, vol3M, sitkFilterName, paramS);
         filterNamC = fieldnames(sitkOutS);
         outS.(sitkFilterName) = sitkOutS.(filterNamC{1});
+        
+    case 'assignBkgIntensity'
+        intVal = paramS.assignVal;
+        scan3M(~mask3M) = intVal;
+        outS.(filterType) = scan3M;
+        
         
     otherwise
         %Call custom function 'filterType'
