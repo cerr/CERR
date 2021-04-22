@@ -1,6 +1,13 @@
 {
 "strNameToLabelMap": "userDefinedStrLabelMap.json",
 
+"register": {
+                    "baseScan":{"identifier":{"imageType":"CT SCAN"}},
+                    "movingScan":{"identifier":{"imageType":"MR"}},
+                    "method": "none",
+                    "copyStr": ["brain"]
+                 },
+
 "scan": [{
 
          "identifier" : {"imageType": "CT SCAN"},
@@ -16,9 +23,10 @@
                   },
 
          "channels" : {
-                       "imageType": "original",
-                       "intensityOutsideMask":{"val": 0},
-                       "slice": "current"
+                                     "imageType": {
+                                        "assignBkgIntensity": {
+                                               "assignVal":0}},
+                                     "slice": "current"
                      }
        },
        {
@@ -35,9 +43,10 @@
                   },
 
          "channels" :{
-                         "imageType": "original",
-                         "intensityOutsideMask":{"val": 0},
-                         "slice": "current"
+                        "imageType": {
+                                        "assignBkgIntensity": {
+                                               "assignVal":0}},
+                                     "slice": "current"
                       }
    }
 ],

@@ -64,10 +64,23 @@ if ~isempty(fieldnames(regS))
     identifierS = regS.movingScan.identifier;
     movScanV = getScanNumFromIdentifiers(identifierS,planC);
     scanNumV(2:length(movScanV)+1) = movScanV;
-    %--TBD
-    % [outScanV, planC]  = registerScans(regS, planC);
-    % Update scanNumV with warped scan IDs (outScanV)
-    %---
+    if strcmp(regS.method,'none')
+        %For pre-registered scans
+        if isfield(regS,'copyStr')
+            copyStrsC = {regS.copyStr};
+            for nStr = 1:length(copyStrsC)
+                cpyStrV = getMatchingIndex(copyStrsC{nStr},allStrC,'exact');
+                assocScanV = getStructureAssociatedScan(cpyStrV,planC);
+                cpyStr = cpyStrV(assocScanV==scanNumV(1));
+                planC = copyStrToScan(cpyStr,movScanV,planC);
+            end
+        end
+    else
+        %--TBD
+        % [outScanV, planC]  = registerScans(regS, planC);
+        % Update scanNumV with warped scan IDs (outScanV)
+        %---
+    end
 else
     %Get scan no. matching identifiers
     if ~exist('scanNumV','var')
@@ -335,7 +348,7 @@ for scanIdx = 1:numScans
                 procScanC{c} = scanView3M;
                 
             else
-                imType = fieldnames(filterTypeC{c});
+                imType = filterTypeC{c};
                 imType = imType{1};
                 if strcmpi(imType,'original')
                     procScanC{c} = scanView3M;
