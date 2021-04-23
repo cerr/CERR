@@ -1,7 +1,9 @@
-function planC = runSegForPlanCInCondaEnv(planC,sessionPath,algorithm,varargin)
-% function planC = runSegForPlanCInCondaEnv(planC,sessionPath,algorithm,varargin)
+function planC = runSegForPlanCInCondaEnv(planC,sessionPath,algorithm,...
+    condaEnvList,wrapperFunctionList,batchSize)
+% function planC = runSegForPlanCInCondaEnv(planC,sessionPath,algorithm,...
+%     condaEnvList,wrapperFunctionList,batchSize)
 %
-% This function serves as a wrapper for auto-segmentation algorithms.
+% This function is a wrapper to run DL-segmentation models in Conda environments.
 % -------------------------------------------------------------------------------
 % INPUTS:
 % planC
@@ -11,22 +13,36 @@ function planC = runSegForPlanCInCondaEnv(planC,sessionPath,algorithm,varargin)
 %                 Pass caret-delimited list to chain multilple algorithms, e.g:
 %                   algorithm = ['CT_ChewingStructures_DeepLabV3^',...
 %                   'CT_Larynx_DeepLabV3^CT_PharyngealConstrictor_DeepLabV3'];
-% varargin     -  Additional algorithm-specific inputs
-%                 varargin{1} : string containing caret-separated names of conda env.
+% condaEnvList -  String containing caret-separated names of conda env.
 %                 It can also be a cell-array of conda environment names.
+%                 It is obtained from getSegWrapperFunc if not specified or empty
+%                 Specify absolute paths of Conda environmnents. If names are specified,
+%                 the location of conda installation must be defined in CERROptions.json.
+%                 "condaPath" : "C:/Miniconda3/"
+%                 The environment muust contain subdirectory 'condabin', "activate" script
+%                 and subdirectory 'envs'.
+% wrapperFunctionList (optionsl)
+%              - String containing caret-separated absolute paths of wrapper functions.
+%                It can also be a cell-array of strings. 
+%                If not specified or empty, the names of wrapper functions
+%                are obtained from getSegWrapperFunc.m.
+% batchSize (optional)
+%              -  Batch size for inference
+%
+%
 %--------------------------------------------------------------------------------
 % EXAMPLE:
-% Specify conda path in CERRoptions.JSON, e.g.:
-%    "condaPath" : "C:/Miniconda3/"
-%    It is assumed that subdirectory 'condabin' exists and contains activate script
-%    and subdirectory 'envs' exists and contains environment 'condaEnvName'.
-% To run segmentation, open a CERR-format file using the GUI, followed by:
-%   global planC
+% To run segmentation, open a CERR-format file using the GUI or command-line, followed by:
+%
+%   global planC % to access metadata from CERR Viewer
 %   sessionPath = '/path/to/session/dir';
 %   algorithm = 'CT_Heart_DeepLab';
-%   condaEnvName = 'testEnv';
-%   planC = runSegForPlanCInCondaEnv(planC,sessionPath,algorithm,condaEnvName);
+%   condaEnvName = '/path/to/condaEnv/testEnv';
+%   wrapperFunctionList = '/path/to/wrapperFunction/testWrapper.py';
+%   batchSize = 1;
+%   planC = runSegForPlanCInCondaEnv(planC,sessionPath,algorithm,condaEnvName,wrapperFunctionList,batchSize);
 %--------------------------------------------------------------------------------
+%
 % AI, 09/21/2020
 
 global stateS
@@ -88,7 +104,7 @@ numAlgorithms = numel(algorithmC);
 %     error('Mismatch between no. specified algorithms and wrapper functions')
 % end
 
-condaEnvList = varargin{1};
+%condaEnvList = varargin{1};
 if iscell(condaEnvList)
     condaEnvListC = condaEnvList;
 else
@@ -102,7 +118,19 @@ elseif numAlgorithms ~= numContainers
 end
 
 % Get wrapper function names for algorithm/condaEnvs
-functionNameC = getSegWrapperFunc(condaEnvListC,algorithmC);
+if ~exist('wrapperFunctionList','var') || isempty(wrapperFunctionList)
+    functionNameC = getSegWrapperFunc(condaEnvListC,algorithmC);
+elseif iscell(wrapperFunctionList)
+    functionNameC = wrapperFunctionList;
+else
+    functionNameC = strsplit(wrapperFunctionList,'^');
+end
+numContainers = numel(functionNameC);
+if numAlgorithms > 1 && numContainers == 1
+    functionNameC = repmat(functionNameC,numAlgorithms,1);
+elseif numAlgorithms ~= numContainers
+    error('Mismatch between no. specified algorithms and wrapper functions')
+end
 
 
 % Loop over algorithms
@@ -127,9 +155,7 @@ for k=1:length(algorithmC)
     
     % Pre-process and export data to HDF5 format
     userOptS = readDLConfigFile(configFilePath);
-    if nargin==7 && ~isnan(varargin{2})
-        batchSize = varargin{2};
-    else
+    if ~exist('batchSize','var') || isempty(batchSize)
         batchSize = userOptS.batchSize;
     end
     [scanC, maskC, scanNumV, userOptS, planC] = ...
