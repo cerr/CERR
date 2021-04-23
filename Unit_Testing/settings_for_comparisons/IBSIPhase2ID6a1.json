@@ -4,10 +4,9 @@
 
 "imageType": {
   		  "Wavelets": {
-			    	       "Direction": "HHL",
-				       "Wavelets":"coif",
-				       "Index": "1",
-				       "Normalize": "No"
+			    	           "Direction": "HHL",
+				           "Wavelets":"coif",
+				           "Index": "1"
 			 	     }
 	    },
 

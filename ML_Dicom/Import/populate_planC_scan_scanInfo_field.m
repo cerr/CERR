@@ -143,6 +143,9 @@ switch fieldname
             %dataS = getTagValue(attr, '00281052');
             %dataS = attr.getDoubles(org.dcm4che3.data.Tag.RescaleIntercept); % vr=DS
             dataS = attr.getDoubles(2625618); % vr=DS
+            if isempty(dataS)
+                dataS = 0;
+            end
         %end
         
     case 'rescaleSlope'

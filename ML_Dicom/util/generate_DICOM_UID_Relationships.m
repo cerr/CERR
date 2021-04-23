@@ -115,7 +115,7 @@ for i = 1:length(planC{indexS.scan})
         planC{indexS.scan}(i).Frame_Of_Reference_UID = ...
             planC{indexS.scan}(i).scanInfo(1).frameOfReferenceUID;
     else
-        Frame_Of_Reference_UID = javaMethod('createUID','org.dcm4che3.util.UIDUtils',orgRoot);        
+        Frame_Of_Reference_UID = char(javaMethod('createUID','org.dcm4che3.util.UIDUtils',orgRoot));
         planC{indexS.scan}(i).Frame_Of_Reference_UID = Frame_Of_Reference_UID;
         %planC{indexS.scan}(i).Frame_Of_Reference_UID = dicomuid;
     end
@@ -160,13 +160,19 @@ for i = 1:length(planC{indexS.scan})
             sopClassUID = planC{indexS.scan}(i).scanInfo(j).sopClassUID;
             planC{indexS.scan}(i).scanInfo(j).SOP_Class_UID      = sopClassUID;
             planC{indexS.scan}(i).scanInfo(j).SOP_Instance_UID   = sopInstanceUID;
+            if isempty(planC{indexS.scan}(i).scanInfo(j).imageOrientationPatient)
+                planC{indexS.scan}(i).scanInfo(j).imageOrientationPatient = [1,0,0,0,1,0];
+            end
         end
     else
         for j=1:length(planC{indexS.scan}(i).scanInfo)
             planC{indexS.scan}(i).scanInfo(j).SOP_Class_UID      = SOP_Class_UID;
-            Frame_Of_Reference_UID = javaMethod('createUID','org.dcm4che3.util.UIDUtils',orgRoot);            
+            Frame_Of_Reference_UID = char(javaMethod('createUID','org.dcm4che3.util.UIDUtils',orgRoot));
             planC{indexS.scan}(i).scanInfo(j).SOP_Instance_UID   = Frame_Of_Reference_UID;
             %planC{indexS.scan}(i).scanInfo(j).SOP_Instance_UID   = dicomuid;
+            if isempty(planC{indexS.scan}(i).scanInfo(j).imageOrientationPatient)
+                planC{indexS.scan}(i).scanInfo(j).imageOrientationPatient = [1,0,0,0,1,0];
+            end            
         end
     end
     
@@ -202,7 +208,7 @@ for i = 1:length(planC{indexS.dose})
         planC{indexS.dose}(i).imageOrientationPatient = planC{indexS.scan}(aS).scanInfo(1).imageOrientationPatient;
     else
         %planC{indexS.dose}(i).Frame_Of_Reference_UID = dicomuid;
-        Frame_Of_Reference_UID = javaMethod('createUID','org.dcm4che3.util.UIDUtils',orgRoot);
+        Frame_Of_Reference_UID = char(javaMethod('createUID','org.dcm4che3.util.UIDUtils',orgRoot));
         planC{indexS.dose}(i).Frame_Of_Reference_UID = Frame_Of_Reference_UID;
         warning('No associated scan found. Assuming HFS orientation.');
         planC{indexS.dose}(i).imageOrientationPatient = [1 0 0 0 1 0];
@@ -330,7 +336,7 @@ for scanNum = 1:length(planC{indexS.scan})
         
         planC{indexS.GSPS}(i).SOP_Class_UID = SOP_Class_UID;
         %planC{indexS.GSPS}(i).SOP_Instance_UID = dicomuid;
-        SOP_Instance_UID = javaMethod('createUID','org.dcm4che3.util.UIDUtils',orgRoot);
+        SOP_Instance_UID = char(javaMethod('createUID','org.dcm4che3.util.UIDUtils',orgRoot));
         planC{indexS.GSPS}(i).SOP_Instance_UID = SOP_Instance_UID;
         
         if strcmpi(optS.retainOriginalUIDonExport,'no')
@@ -340,7 +346,7 @@ for scanNum = 1:length(planC{indexS.scan})
                 planC{indexS.scan}(scanNum).scanInfo(sliceNum).SOP_Instance_UID;
             referenced_SOP_class_uid = ...
                 planC{indexS.scan}(scanNum).scanInfo(sliceNum).SOP_Class_UID;
-            Series_Instance_UID = javaMethod('createUID','org.dcm4che3.util.UIDUtils',orgRoot);
+            Series_Instance_UID = char(javaMethod('createUID','org.dcm4che3.util.UIDUtils',orgRoot));
             planC{indexS.GSPS}(i).Series_Instance_UID = Series_Instance_UID;            
         else
             referenced_SOP_instance_uid = planC{indexS.GSPS}(i).SOPInstanceUID;

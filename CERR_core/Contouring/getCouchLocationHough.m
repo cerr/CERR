@@ -1,6 +1,5 @@
-function [yCouch, lines] =  getCouchLocationHough(inputStack)
+function [yCouch, lines] =  getCouchLocationHough(scan3M,minLengthOpt,retryOpt)
 
-%
 % Function: getCouchLocationHough
 % Description: Returns anterior coordinate of patient couch surface
 %
@@ -11,26 +10,53 @@ function [yCouch, lines] =  getCouchLocationHough(inputStack)
 % EML 2020-04-13
 %
 
-midpt = floor(size(inputStack,1)/2);
+if ~exist('minLengthOpt','var')
+    minLengthOpt = [];
+end
 
-maxS = max(inputStack, [], 3);
-%histeqS = histeq(maxS);
-histeqS = equalizeHist(maxS);
-edgeS = edge(histeqS,'canny');
+if ~exist('retryOpt','var')
+    retryOpt = 0;
+end
+
+midptS = floor(size(scan3M,1)/2);
+
+maxM = max(scan3M, [], 3);
+histeqM = histeq(maxM);
+edgeM1 = edge(histeqM,'sobel',[],'horizontal');
+edgeM2 = bwmorph(edgeM1,'thicken');
     
-[H,T,R] = hough(edgeS);
+[H,T,R] = hough(edgeM2);
 P = houghpeaks(H,20);
 
-lines = houghlines(edgeS,T,R,P,'FillGap',5,'MinLength',20);
+if isempty(minLengthOpt)
+    minLength = floor(size(edgeM2,2)/8); % couch covers 1/8th of image
+else
+    minLength = minLengthOpt;
+end
 
+% lines = houghlines(edgeM2,T,R,P,'FillGap',5,'MinLength',minLength);
+lines = houghlines(edgeM2,T,R,P);
+overlapFraction = zeros(1,numel(lines));
+midV = [floor(0.5*midptS):floor(0.5*midptS) + midptS];
 % Require couch lines to have same starting & ending point2
 yi = zeros(1,numel(lines)); 
 for i = 1:numel(lines)
-    if lines(i).point1(2) == lines(i).point2(2)
-        if lines(i).point1(2) > midpt
+    len = norm(lines(i).point1 - lines(i).point2);
+    if lines(i).point1(2) == lines(i).point2(2) && len > minLength
+        lineV = [lines(i).point1(1):lines(i).point2(1)];
+        if lines(i).point1(2) > midptS && ~isempty(intersect(lineV,midV))
             yi(i) = lines(i).point2(2); 
+            overlapFraction(i) = numel(intersect(lineV,midV));
         end
     end
 end
 
-yCouch = min(yi(find(yi > 0)));
+if any(overlapFraction)
+    yCouch = yi(find(max(overlapFraction)));
+else
+    yCouch = min(yi(find(yi > 0)));
+end
+
+if retryOpt && isempty(yCouch)
+    [yCouch, lines] =  getCouchLocationHough(scan3M,minLength/2);
+end

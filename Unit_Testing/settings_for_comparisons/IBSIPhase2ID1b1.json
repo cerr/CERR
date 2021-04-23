@@ -3,17 +3,17 @@
 "structures": ["wholeScan"],
 
 "imageType": {
-  		  "LoG_IBSI": {
-			    "Sigma_mm": [3,3,3],
-                "CutOff_mm": [12,12,12]
+  		  "Mean": {
+			    "KernelSize": [15,15]
 			  }
 	    },
 
 "settings": {		   
 
-                   "padding": [{
+                   "padding": [
+			       {
                                 "method": "padzeros",  
-                                "size": [6,6,6]
+                                "size": [7,7,0]
 			       }
                               ]
 	    }

@@ -1,8 +1,8 @@
 function combinedDcmdirS = getCombinedDir(srcDir)
 
 %hWaitbar = waitbar(0,'Scanning Directory Please wait...');
-hWaitbar = NaN;
-patient = scandir_mldcm(srcDir, hWaitbar, 1,true);
+excludePixelDataFlag = false;
+patient = scandir_mldcm(srcDir, excludePixelDataFlag, 1);
 %close(hWaitbar);
 dcmdirS = struct(['patient_' num2str(1)],patient.PATIENT(1));
 for j = 2:length(patient.PATIENT)

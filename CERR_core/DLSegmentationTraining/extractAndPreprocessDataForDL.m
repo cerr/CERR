@@ -18,7 +18,6 @@ function [scanOutC, maskOutC, scanNumV, optS, planC] = ...
 regS = optS.register;
 scanOptS = optS.scan;
 resampleS = [scanOptS.resample];
-%cropS = [scanOptS.crop];
 resizeS = [scanOptS.resize];
 
 if isfield(optS,'structList')
@@ -65,10 +64,23 @@ if ~isempty(fieldnames(regS))
     identifierS = regS.movingScan.identifier;
     movScanV = getScanNumFromIdentifiers(identifierS,planC);
     scanNumV(2:length(movScanV)+1) = movScanV;
-    %--TBD
-    % [outScanV, planC]  = registerScans(regS, planC);
-    % Update scanNumV with warped scan IDs (outScanV)
-    %---
+    if strcmp(regS.method,'none')
+        %For pre-registered scans
+        if isfield(regS,'copyStr')
+            copyStrsC = {regS.copyStr};
+            for nStr = 1:length(copyStrsC)
+                cpyStrV = getMatchingIndex(copyStrsC{nStr},allStrC,'exact');
+                assocScanV = getStructureAssociatedScan(cpyStrV,planC);
+                cpyStr = cpyStrV(assocScanV==scanNumV(1));
+                planC = copyStrToScan(cpyStr,movScanV,planC);
+            end
+        end
+    else
+        %--TBD
+        % [outScanV, planC]  = registerScans(regS, planC);
+        % Update scanNumV with warped scan IDs (outScanV)
+        %---
+    end
 else
     %Get scan no. matching identifiers
     if ~exist('scanNumV','var')
@@ -134,7 +146,7 @@ for scanIdx = 1:numScans
     %Set scan-specific parameters: channels, view orientation, background adjustment, aspect ratio
     channelParS = scanOptS(scanIdx).channels;
     numChannels = length(channelParS);
-    filterTypeC = {channelParS.imageType};
+    
     viewC = scanOptS(scanIdx).view;
     if ~iscell(viewC)
         viewC = {viewC};
@@ -146,8 +158,15 @@ for scanIdx = 1:numScans
         transformViewFlag = 0;
     end
     
-    if isfield(channelParS,'intensityOutsideMask')
-        adjustBackgroundVoxFlag = 1;
+    filterTypeC = {channelParS.imageType};
+    structIdxC = cellfun(@isstruct,filterTypeC,'un',0);
+    if any([structIdxC{:}])
+     filterTypeC = arrayfun(@(x)fieldnames(x.imageType),channelParS,'un',0);
+     if any(ismember([filterTypeC{:}],'assignBkgIntensity'))
+         adjustBackgroundVoxFlag = 1;
+     else
+         adjustBackgroundVoxFlag = 0;
+     end
     else
         adjustBackgroundVoxFlag = 0;
     end
@@ -318,6 +337,7 @@ for scanIdx = 1:numScans
     for i = 1:length(viewC)
         
         scanView3M = viewOutC{i};
+        maskView3M = logical(cropStrC{i});
         
         for c = 1:numChannels
             
@@ -328,17 +348,15 @@ for scanIdx = 1:numScans
                 procScanC{c} = scanView3M;
                 
             else
-                imType = fieldnames(filterTypeC{c});
+                imType = filterTypeC{c};
                 imType = imType{1};
                 if strcmpi(imType,'original')
                     procScanC{c} = scanView3M;
                 else
                     fprintf('\nApplying %s filter...\n',imType);
-                    paramS = channelS(c);
-                    paramS = getRadiomicsParamTemplate([],paramS);
-                    filterParS = paramS.imageType.(imType).filterPar.val;
-                    %                     outS = processImage(imType,scanView3M,mask3M,filterParS);
-                    outS = processImage(imType, scanView3M, true(size(scanView3M)), filterParS);
+                    paramS = channelParS(c);
+                    filterParS = paramS.imageType.(imType);
+                    outS = processImage(imType, scanView3M, maskView3M, filterParS);
                     fieldName = fieldnames(outS);
                     fieldName = fieldName{1};
                     procScanC{c} = outS.(fieldName);
@@ -349,20 +367,7 @@ for scanIdx = 1:numScans
     end
     toc
     
-    %6. Adjust voxel values outside mask
-    if adjustBackgroundVoxFlag
-        intVal = channelParS.intensityOutsideMask.val;
-        procScanC = viewOutC{1};
-        for nView = 1:length(procScanC)
-            scan3M = procScanC{nView};
-            cropStr3M = logical(cropStrC{nView});
-            scan3M(~cropStr3M) = intVal;
-            procScanC{nView} = scan3M;
-        end
-        viewOutC{1} = procScanC;
-    end
-    
-    %7. Populate channels
+    %6. Populate channels
     
     if numChannels > 1
         tic

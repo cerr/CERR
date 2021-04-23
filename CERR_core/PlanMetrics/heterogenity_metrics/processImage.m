@@ -2,9 +2,10 @@ function outS = processImage(filterType,scan3M,mask3M,paramS,hWait)
 % Process scan using selected filter and parameters
 %-------------------------------------------------------------------------
 % INPUTS
-% filterType -  May be 'HaralickCooccurance','Wavelets','Sobel',
+% filterType -  Supported textures: 'HaralickCooccurance','Wavelets','Sobel',
 %               'LoG','Gabor','Mean','First order statistics',
 %               'LawsConvolution','LawsEnergy','CoLlage' or 'SimpleITK'.
+%               Other filters: 'suv', 'assignBkgIntensity'.
 % scan3M     - 3-D scan array, cropped around ROI and padded if specified
 % mask3M     - 3-D mask, croppped to bounding box
 % paramS     - Filter parameters
@@ -121,36 +122,43 @@ switch filterType
         vol3M   = double(scan3M);
         
         dirListC = {'All','HHH','LHH','HLH','HHL','LLH','LHL','HLL','LLL'};
-        normFlagC = {'Yes','No'};
         wavType =  paramS.Wavelets.val;
         if ~isempty(paramS.Index.val)
             wavType = [wavType,paramS.Index.val];
         end
         dir = paramS.Direction.val;
-        selIdx = find(strcmpi(paramS.Normalize.val,normFlagC));
-        normFlag = 2 - selIdx;
-        
+
         if strcmp(dir,'All')
             for n = 2:length(dirListC)
                 outname = [wavType,'_',dirListC{n}];
                 outname = strrep(outname,'.','_');
-                out3M = wavDecom3D(vol3M,dirListC{n},wavType,normFlag);
+                outname = strrep(outname,' ','_');
+                
+                subbandsS = getWaveletSubbands(vol3M,wavType);
+                matchDir = [dirListC{n},'_',wavType];
+                out3M = subbandsS.(matchDir);
                 
                 if ishandle(hWait)
                     set(hWait, 'Vertices', [[0 0 (n-1)/(length(dirListC)-1) (n-1)/(length(dirListC)-1)]' [0 1 1 0]']);
                     drawnow;
                 end
+                
                 outS.(outname) = out3M;
             end
         else
             outname = [wavType,'_',dir];
             outname = strrep(outname,'.','_');
             outname = strrep(outname,' ','_');
-            out3M = wavDecom3D(vol3M,dir,wavType,normFlag);
+            
+            subbandsS = getWaveletSubbands(vol3M,wavType);
+            matchDir = [dir,'_',wavType];
+            out3M = subbandsS.(matchDir);
+            
             if ishandle(hWait)
                 set(hWait, 'Vertices', [[0 0 1 1]' [0 1 1 0]']);
                 drawnow;
             end
+            
             outS.(outname) = out3M;
         end
         
@@ -184,12 +192,27 @@ switch filterType
             drawnow;
         end
         
+    case 'LoG_IBSI'
+        
+        vol3M = double(scan3M);
+        
+        sigmaV = reshape(paramS.Sigma_mm.val,1,[]);
+        cutOffV = reshape(paramS.CutOff_mm.val,1,[]);
+        voxelSizeV = paramS.VoxelSize_mm.val;
+        LoG3M = logFiltIBSI(vol3M,sigmaV,cutOffV,voxelSizeV);
+       
+        outS.LoG_IBSI = LoG3M;
+        
+        if ishandle(hWait)
+            set(hWait, 'Vertices', [[0 0 1 1]' [0 1 1 0]']);
+            drawnow;
+        end
+        
     case 'Gabor'
         
         vol3M = double(scan3M);
         gabor3M = filtImgGabor(vol3M,paramS.Radius.val,paramS.Sigma.val,...
-            paramS.AspectRatio.val,paramS.Orientation.val,paramS.Wavlength.val);
-        
+            paramS.AspectRatio.val,paramS.Orientation.val,paramS.Wavlength.val);      
         outS.Gabor = gabor3M;
         
         if ishandle(hWait)
@@ -208,7 +231,15 @@ switch filterType
         
         filt3M = ones(kernelSize);
         filt3M = filt3M./sum(filt3M(:));
-        meanFilt3M = convn(vol3M,filt3M,'same');
+        
+        if length(kernelSize)==3 %3d
+            meanFilt3M = convn(vol3M,filt3M,'same');
+        elseif length(kernelSize)==2 %2d
+            meanFilt3M = nan(size(vol3M));
+            for slc = 1:size(vol3M,3)
+                meanFilt3M(:,:,slc) = conv2(vol3M(:,:,slc),filt3M,'same');
+            end
+        end
         outS.meanFilt = meanFilt3M;
         
         if ishandle(hWait)
@@ -345,6 +376,12 @@ switch filterType
         sitkOutS = sitkWrapper(sitkLibPath, vol3M, sitkFilterName, paramS);
         filterNamC = fieldnames(sitkOutS);
         outS.(sitkFilterName) = sitkOutS.(filterNamC{1});
+        
+    case 'assignBkgIntensity'
+        intVal = paramS.assignVal;
+        scan3M(~mask3M) = intVal;
+        outS.(filterType) = scan3M;
+        
         
     otherwise
         %Call custom function 'filterType'

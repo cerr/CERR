@@ -159,7 +159,7 @@ for i=1:length(structNumV)
     if ~any(bitMaskV) & generateData
         warning(['Structure ' planC{indexS.structures}(structNum).structureName ' does not appear to be uniformized.  Adding it to uniformized data.']);
         planC = updateStructureMatrices(planC, structNum);
-        otherIndices = [];
+        otherIndicesM = [];
         [otherIndicesM(:,1), otherIndicesM(:,2), otherIndicesM(:,3), planC] = getUniformStr(structNumV, planC, optS, 0);
         break;
     end

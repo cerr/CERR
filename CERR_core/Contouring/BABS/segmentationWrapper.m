@@ -90,6 +90,19 @@ tic
 status = system(command);
 toc
 
+% Run container app to get git_hash
+gitHash = 'unavailable';
+[~,hashChk] = system(['singularity exec ' containerPath ' ls /scif/apps | grep get_hash'],'-echo');
+if ~isempty(hashChk)
+    [~,gitHash] = system(['singularity run --app get_hash ' containerPath],'-echo');
+end
+roiDescrpt = '';
+if isfield(userOptS,'roiGenerationDescription')
+    roiDescrpt = userOptS.roiGenerationDescription;
+end
+roiDescrpt = [roiDescrpt, '  __git_hash:',gitHash];
+userOptS.roiGenerationDescription = roiDescrpt;
+
 %% Stack H5 files
 fprintf('\nRreading output masks...');
 tic

@@ -125,8 +125,10 @@ if ~ismember(dataS(1).assocScanUID,scanUIDc)
     end
 end
 numStructs = length(planC{indexS.structures});
+
+
 for i=1:length(dataS)
-    dataS(i) = sortStructures(dataS(i),isObliqScanV,planC);
+    dataS(i) = sortStructures(dataS(i),isObliqScanV,optS,planC); 
     colorNum = numStructs + i;
     if isempty(dataS(i).structureColor)
         color = stateS.optS.colorOrder( mod(colorNum-1, size(stateS.optS.colorOrder,1))+1,:);

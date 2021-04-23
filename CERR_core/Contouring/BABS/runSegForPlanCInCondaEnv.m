@@ -1,7 +1,9 @@
-function planC = runSegForPlanCInCondaEnv(planC,sessionPath,algorithm,varargin)
-% function planC = runSegForPlanCInCondaEnv(planC,sessionPath,algorithm,varargin)
+function planC = runSegForPlanCInCondaEnv(planC,sessionPath,algorithm,...
+    condaEnvList,wrapperFunctionList,batchSize)
+% function planC = runSegForPlanCInCondaEnv(planC,sessionPath,algorithm,...
+%     condaEnvList,wrapperFunctionList,batchSize)
 %
-% This function serves as a wrapper for auto-segmentation algorithms.
+% This function is a wrapper to run DL-segmentation models in Conda environments.
 % -------------------------------------------------------------------------------
 % INPUTS:
 % planC
@@ -11,18 +13,36 @@ function planC = runSegForPlanCInCondaEnv(planC,sessionPath,algorithm,varargin)
 %                 Pass caret-delimited list to chain multilple algorithms, e.g:
 %                   algorithm = ['CT_ChewingStructures_DeepLabV3^',...
 %                   'CT_Larynx_DeepLabV3^CT_PharyngealConstrictor_DeepLabV3'];
-% varargin     -  Additional algorithm-specific inputs
-%                 varargin{1} : string containing caret-separated paths to conda 
-%                 archive. Alt: cell-array of paths to conda archives.
+% condaEnvList -  String containing caret-separated names of conda env.
+%                 It can also be a cell-array of conda environment names.
+%                 It is obtained from getSegWrapperFunc if not specified or empty
+%                 Specify absolute paths of Conda environmnents. If names are specified,
+%                 the location of conda installation must be defined in CERROptions.json.
+%                 "condaPath" : "C:/Miniconda3/"
+%                 The environment muust contain subdirectory 'condabin', "activate" script
+%                 and subdirectory 'envs'.
+% wrapperFunctionList (optionsl)
+%              - String containing caret-separated absolute paths of wrapper functions.
+%                It can also be a cell-array of strings. 
+%                If not specified or empty, the names of wrapper functions
+%                are obtained from getSegWrapperFunc.m.
+% batchSize (optional)
+%              -  Batch size for inference
+%
+%
 %--------------------------------------------------------------------------------
 % EXAMPLE:
-% To run segmentation, open a CERR-format file using the GUI, followed by:
-%   global planC
+% To run segmentation, open a CERR-format file using the GUI or command-line, followed by:
+%
+%   global planC % to access metadata from CERR Viewer
 %   sessionPath = '/path/to/session/dir';
 %   algorithm = 'CT_Heart_DeepLab';
-%   condaEnvPth = 'testEnv';
-%   planC = runSegForPlanCInCondaEnv(planC,sessionPath,algorithm,condaEnvPth);
+%   condaEnvName = '/path/to/condaEnv/testEnv';
+%   wrapperFunctionList = '/path/to/wrapperFunction/testWrapper.py';
+%   batchSize = 1;
+%   planC = runSegForPlanCInCondaEnv(planC,sessionPath,algorithm,condaEnvName,wrapperFunctionList,batchSize);
 %--------------------------------------------------------------------------------
+%
 % AI, 09/21/2020
 
 global stateS
@@ -34,8 +54,10 @@ if isfield(planC{indexS.scan}(1).scanInfo(1),'seriesInstanceUID') && ...
         ~isempty(planC{indexS.scan}(1).scanInfo(1).seriesInstanceUID)
     folderNam = planC{indexS.scan}(1).scanInfo(1).seriesInstanceUID;
 else
+    %folderNam = dicomuid;
     orgRoot = '1.3.6.1.4.1.9590.100.1.2';
-    folderNam = javaMethod('createUID','org.dcm4che3.util.UIDUtils',orgRoot);    
+    folderNamJava = javaMethod('createUID','org.dcm4che3.util.UIDUtils',orgRoot);    
+    folderNam = folderNamJava.toCharArray';
 end
 dateTimeV = clock;
 randNum = 1000.*rand;
@@ -63,15 +85,26 @@ testFlag = true;
 labelPath = fullfile(fullSessionPath,'outputLabelMap');
 mkdir(labelPath);
 
+
+%% Get conda installation path
+optS = opts4Exe([getCERRPath,'CERROptions.json']);
+condaPath = optS.condaPath;
+
 %% Parse algorithm & functionName and convert to cell arrray
 if iscell(algorithm)
     algorithmC = algorithm;
 else
     algorithmC = strsplit(algorithm,'^');
 end
-numAlgorithms = numel(algorithmC);
 
-condaEnvList = varargin{1};
+numAlgorithms = numel(algorithmC);
+%functionNameC = strsplit(functionName,'^');
+% numWrapperFunctions = numel(functionNameC);
+% if numAlgorithms ~= numWrapperFunctions
+%     error('Mismatch between no. specified algorithms and wrapper functions')
+% end
+
+%condaEnvList = varargin{1};
 if iscell(condaEnvList)
     condaEnvListC = condaEnvList;
 else
@@ -85,7 +118,19 @@ elseif numAlgorithms ~= numContainers
 end
 
 % Get wrapper function names for algorithm/condaEnvs
-functionNameC = getSegWrapperFunc(condaEnvListC,algorithmC);
+if ~exist('wrapperFunctionList','var') || isempty(wrapperFunctionList)
+    functionNameC = getSegWrapperFunc(condaEnvListC,algorithmC);
+elseif iscell(wrapperFunctionList)
+    functionNameC = wrapperFunctionList;
+else
+    functionNameC = strsplit(wrapperFunctionList,'^');
+end
+numContainers = numel(functionNameC);
+if numAlgorithms > 1 && numContainers == 1
+    functionNameC = repmat(functionNameC,numAlgorithms,1);
+elseif numAlgorithms ~= numContainers
+    error('Mismatch between no. specified algorithms and wrapper functions')
+end
 
 
 % Loop over algorithms
@@ -110,9 +155,7 @@ for k=1:length(algorithmC)
     
     % Pre-process and export data to HDF5 format
     userOptS = readDLConfigFile(configFilePath);
-    if nargin==7 && ~isnan(varargin{2})
-        batchSize = varargin{2};
-    else
+    if ~exist('batchSize','var') || isempty(batchSize)
         batchSize = userOptS.batchSize;
     end
     [scanC, maskC, scanNumV, userOptS, planC] = ...
@@ -143,31 +186,43 @@ for k=1:length(algorithmC)
     end
     
     % Call python wrapper and execute model
-    condaEnvPath = condaEnvListC{k};
-    condaBinPath = fullfile(condaEnvPath,'Scripts;');
     pth = getenv('PATH');
+    condaBinPath = fullfile(condaPath,'condabin;');
+    %condaScriptsPath = fullfile(condaPath,'Scripts;');
+    if ~isempty(strfind(condaEnvListC{k},filesep))        
+        condaEnvPath = condaEnvListC{k};
+        condaBinPath = fullfile(condaEnvPath,'Scripts;');
+    else
+        condaEnvPath = fullfile(condaPath,'envs',condaEnvListC{k});
+    end
+    %if isempty(strfind(pth,condaBinPath))
+    %    newPth = [condaBinPath,pth];
+    %    setenv('PATH',newPth)
+    %end
     newPth = [condaBinPath,pth];
     setenv('PATH',newPth)
     wrapperFunc = functionNameC{k};
     if ispc
-      command = sprintf('call activate %s && python %s %s %s %s',...
-      condaEnvPath, wrapperFunc, inputH5Path, outputH5Path,...
-      num2str(batchSize));
+        command = sprintf('call activate %s && python %s %s %s %s',...
+            condaEnvPath, wrapperFunc, inputH5Path, outputH5Path,...
+            num2str(batchSize));
     else
-      condaSrc = fullfile(condaEnvPath,'/bin/activate');
-      command = sprintf('source %s && python %s %s %s %s',...
-      condaSrc, wrapperFunc, inputH5Path, outputH5Path,...
-      num2str(batchSize));
+        condaSrc = fullfile(condaEnvPath,'/bin/activate');
+        command = sprintf('source %s && python %s %s %s %s',...
+            condaSrc, wrapperFunc, inputH5Path, outputH5Path,...
+            num2str(batchSize));
     end
     % Resolve error by setting KMP_DUPLICATE_LIB_OK' to 'TRUE'
     % OMP: Error #15: Initializing libiomp5md.dll, but found libiomp5md.dll already initialized.
     % https://community.intel.com/t5/Intel-Integrated-Performance/Solution-to-Error-15-Initializing-libiomp5md-dll-but-found/td-p/800649
     setenv('KMP_DUPLICATE_LIB_OK','TRUE')
     disp(command)
-
     tic
     status = system(command);
     toc
+    
+    % Set Environment variables to default
+    setenv('PATH',pth)
     
     % Read structure masks
     outC = stackHDF5Files(fullSessionPath,userOptS.passedScanDim); %Updated

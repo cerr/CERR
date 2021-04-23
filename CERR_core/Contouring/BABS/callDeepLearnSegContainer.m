@@ -1,4 +1,4 @@
-function success = callDeepLearnSegContainer(algorithm, containerPath, fullSessionPath, sshConfigS, batchSize)
+function [success,gitHash] = callDeepLearnSegContainer(algorithm, containerPath, fullSessionPath, sshConfigS, batchSize)
 % This function merges the segmentations from the respective algorithm back
 % into the original CERR file
 %
@@ -14,11 +14,18 @@ function success = callDeepLearnSegContainer(algorithm, containerPath, fullSessi
    
 
 % Execute the container
+gitHash = 'unavailable';
 if ~exist('sshConfigS','var') || (exist('sshConfigS','var') && isempty(sshConfigS))
     bindingDir = ':/scratch';
     bindPath = strcat(fullSessionPath,bindingDir);
     command = sprintf('singularity run --app %s --nv --bind  %s %s %s', algorithm, bindPath, containerPath, num2str(batchSize))
-    status = system(command)
+    status = system(command);
+    
+    % Run container app to get hash (placeholder for now)
+    [~,hashChk] = system(['singularity apps ' containerPath ' | grep get_hash'],'-echo');    
+    if ~isempty(hashChk)
+        [~,gitHash] = system(['singularity run --app get_hash ' containerPath],'-echo');
+    end    
 
 else
     %call .bat file with correct inputs

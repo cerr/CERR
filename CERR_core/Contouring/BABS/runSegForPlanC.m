@@ -168,11 +168,18 @@ if length(algorithmC) > 1 || ...
             jp.setIndeterminate(1)
         end
         % Call the container and execute model
-        success = callDeepLearnSegContainer(algorithmC{k}, ...
+        [success,gitHash] = callDeepLearnSegContainer(algorithmC{k}, ...
             containerPathC{k}, fullClientSessionPath, sshConfigS,...
             userOptS.batchSize); % different workflow for client or session
         
         %%% =========== common for client and server
+        roiDescrpt = '';
+        if isfield(userOptS,'roiGenerationDescription')
+            roiDescrpt = userOptS.roiGenerationDescription;
+        end
+        roiDescrpt = [roiDescrpt, '  __git_hash:',gitHash];
+        userOptS.roiGenerationDescription = roiDescrpt;
+        
         if ishandle(hWait)
             waitbar(0.9,hWait,'Writing segmentation results to CERR');
         end
@@ -186,8 +193,8 @@ if length(algorithmC) > 1 || ...
             origScanNum = 1; %Assoc with first scan by default
         end
         outScanNum = scanNumV(origScanNum);
-        userOptS(outScanNum).scan = userOptS(origScanNum).scan;
-        userOptS(outScanNum).scan.origScan = origScanNum;
+        userOptS.scan(outScanNum) = userOptS(origScanNum).scan;
+        userOptS.scan(outScanNum).origScan = origScanNum;
         planC  = joinH5planC(outScanNum,outC{1},labelPath,userOptS,planC);
         
         % Post-process segmentation

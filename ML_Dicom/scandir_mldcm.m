@@ -59,7 +59,7 @@ switch lower(class(dirPath))
 end
 
 %Check that it's a real dirPath.
-if ~isfolder(dirPath)
+if ~(exist(dirPath,'dir') == 7)
     error('Input to scandir_mldcm must be a directory.');
 end
 
