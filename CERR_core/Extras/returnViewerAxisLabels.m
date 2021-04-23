@@ -8,6 +8,10 @@ end
 
 iop = planC{indexS.scan}(scanNum).scanInfo(1).imageOrientationPatient;
 
+if isempty(iop)
+    iop = [1,0,0,0,1,0]; % temporary. assign this during loading planC
+end
+
 [~,idx2] = max(abs(iop(1:3)));
 [~,idx1] = max(abs(iop(4:end)));
 
