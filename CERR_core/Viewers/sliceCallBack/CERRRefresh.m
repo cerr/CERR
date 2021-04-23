@@ -284,6 +284,10 @@ if isfield(stateS,'structCompare')
     end
 end
 
+if stateS.CTDisplayChanged
+    showPatientOrientation;
+end
+
 stateS.doseSetChanged     = 0;
 stateS.doseDisplayChanged = 0;
 stateS.CTDisplayChanged   = 0;
