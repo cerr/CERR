@@ -22,8 +22,11 @@ function showPatientOrientation(varargin)
 %
 % You should have received a copy of the GNU General Public License
 % along with CERR.  If not, see <http://www.gnu.org/licenses/>.
+%
+% APA, 4/23/2021
 
-global planeLocatorLastCall
+
+% global planeLocatorLastCall
 
 % persistent num units addToView %ADDED
 %
