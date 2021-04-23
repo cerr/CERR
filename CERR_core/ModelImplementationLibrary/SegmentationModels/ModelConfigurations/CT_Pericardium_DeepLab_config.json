@@ -16,7 +16,7 @@
             	    "size" : [512,512]},
 
 	"crop" : [{"method": "crop_to_str", "params" : {"structureName": "lung_cntr"}, "operator" : ""},
-                 {"method": "crop_to_str", "params" : {"structureName": "lung_contra"}, "operator" : ""},
+              {"method": "crop_to_str", "params" : {"structureName": "lung_contra"}, "operator" : "union"},
         	  {"method": "crop_to_str", "params" : {"structureName": "lung_ipsi"}, "operator" : "union"}, 
          	  {"method": "crop_to_str", "params" : {"structureName": "lung_l"}, "operator" : "union"}, 
         	  {"method": "crop_to_str", "params" : {"structureName": "lung_r"}, "operator" : "union"},
