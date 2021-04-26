@@ -11,7 +11,7 @@
 				"testStr1":{
 						    "D3": {    
 								"val": "calc_Dx",
-								"weight": -0.0882 ,
+								"weight": 0.0882 ,
 								"type": ["string", "cont"],
 								"cteg": ["calc_Dx","calc_Dx"],
 								"params": {
@@ -30,7 +30,7 @@
                           		       },                   
                 	"constant": { 
 				"val": 1,
-				"weight": 4.53,
+				"weight": -4.53,
 				"type": ["cont", "cont"]
 		            }
 	               },
