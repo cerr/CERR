@@ -1,0 +1,47 @@
+{
+	"name": "Bronchial toxicity (D)",
+	"type": "NTCP",
+        "stdFractionSize": 2,
+	"fractionCorrect": "Yes",
+	"correctionType": "fsize",
+	"abRatio": 3,
+  	"parameters": 
+        	     {
+		       "constant": { 
+				     "val": 1,
+				     "weight": -3.865,
+				     "type": ["cont", "cont"],
+				     "cteg": [0, 1]
+		            	    },
+
+		       "structures":{
+
+                                    "PBT_protocol":{
+					              "D0.1":{
+							     		 "weight":  0.011,
+							     		"type": ["string", "cont"],
+							    		 "val": "calc_Dx",								
+							    		"cteg": ["calc_Dx","calc_Dx"],								
+							    		 "params": {
+							    					"x": {
+							    					          "val": 0.01,
+							    						  "type": ["Cont"]
+							    					      },
+							    					"volType": {
+							    						           "val": 0,
+							    						           "type": ["Cont"]
+							    					    }   					  		                    
+                                                          		   		  }
+                                                         	 }
+				             	    }   
+		
+		
+                                      }
+  
+	               },
+	"function": "logitFn",
+	"created_by": "Aditi",
+	"created_at": "10AM 12\/14\/20",
+	"modified_by": "",
+	"modified_at": ""
+}

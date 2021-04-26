@@ -1,0 +1,42 @@
+{
+  "name": "Radiation pneumonitis grade 2+ (lung v15)",
+  "type": "NTCP",
+  "stdFractionSize": 2,
+  "fractionCorrect": "Yes",
+  "correctionType": "fsize",
+  "abCorrect": "Yes",
+  "abRatio": 3,
+  "parameters": {
+			"structures": {
+				"Lungs_NOT_GTV_protocol":{
+						    "V15": {    
+								"val": "calc_Vx",
+								"weight": 17.7,
+								"type": ["string", "cont"],
+								"cteg": ["calc_Vx","calc_Vx"],
+								"params": {
+					   				   "x": {
+					              				    "val": 15,
+					              				    "type": ["Cont"]
+					        		   	         },
+									   "volumeType": {
+									    	            "val": 1,
+									     	            "type": ["Cont"]
+					        		          	            }
+					  		                        }
+                          		                          }
+
+                          		                    }
+                          		       },                   
+                	"constant": { 
+				"val": 1,
+				"weight": -3.88,
+				"type": ["cont", "cont"]
+		            }
+	               },
+	"function": "logitFn",
+	"created_by": "Aditi",
+	"created_at": "5PM 01\/20\/21",
+	"modified_by": "",
+	"modified_at": ""
+}

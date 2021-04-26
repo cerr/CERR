@@ -1,0 +1,43 @@
+{
+  "name": "Radiation pneumonitis grade 3+ (heart D75)",
+  "type": "NTCP",
+  "stdFractionSize": 2,
+  "fractionCorrect": "Yes",
+  "correctionType": "fsize",
+  "abCorrect": "Yes",
+  "abRatio": 3,
+  "limit": [0.05,0.10],
+  "parameters": {
+			"structures": {
+				"Heart_protocol":{
+						    "D75": {    
+								"val": "calc_Dx",
+								"weight": 0.534,
+								"type": ["string", "cont"],
+								"cteg": ["calc_Dx","calc_Dx"],
+								"params": {
+					   				   "x": {
+					              				    "val": 75,
+					              				    "type": ["Cont"]
+					        		   	         },
+									   "volType": {
+									    	            "val": 1,
+									     	            "type": ["Cont"]
+					        		          	            }
+					  		                        }
+                          		                          }
+
+                          		                    }
+                          		       },                   
+                	"constant": { 
+				"val": 1,
+				"weight": -2.850,
+				"type": ["cont", "cont"]
+		            }
+	               },
+	"function": "logitFn",
+	"created_by": "Aditi",
+	"created_at": "11AM 04\/01\/21",
+	"modified_by": "",
+	"modified_at": ""
+}
