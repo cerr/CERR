@@ -2446,6 +2446,7 @@ switch upper(instr)
         end
         %Redraw locators
         showPlaneLocators;
+        showPatientOrientation;
         %Update scale        
         for hAxis = allhAxis
             indAxis = find(hAxis == stateS.handle.CERRAxis);
@@ -2493,6 +2494,7 @@ switch upper(instr)
         end        
         %Redraw locators
         showPlaneLocators;
+        showPatientOrientation;
         %Update scale        
         for hAxis = allhAxis
             indAxis = find(hAxis == stateS.handle.CERRAxis);
@@ -2533,8 +2535,9 @@ switch upper(instr)
             zoomToXYRange(stateS.handle.CERRAxis(axisNum));
         end
         %Redraw locators
-        %showPlaneLocators;
-        CERRRefresh
+        %showPlaneLocators;   
+        showPatientOrientation;
+        CERRRefresh        
         return;
 
         %CALLBACKS TO QUERY SCAN.
