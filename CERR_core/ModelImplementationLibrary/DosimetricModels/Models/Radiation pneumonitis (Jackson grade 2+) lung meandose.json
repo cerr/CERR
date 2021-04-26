@@ -1,0 +1,31 @@
+{
+  "name": "Radiation pneumonitis grade 2+ (lung mean dose)",
+  "type": "NTCP",
+  "stdFractionSize": 2,
+  "fractionCorrect": "Yes",
+  "correctionType": "fsize",
+  "abCorrect": "Yes",
+  "abRatio": 3,
+  "parameters": {
+			"structures": {
+				"Lungs_NOT_GTV_protocol":{
+						    "meanDose": {    
+								           "val": "calc_meanDose",
+								           "weight": 0.269,
+								           "type": ["string", "cont"],
+								           "cteg": ["calc_meanDose"]
+                          		                                 }
+                          		                              }
+                          		       },                   
+                	"constant": { 
+				"val": 1,
+				"weight": -3.64,
+				"type": ["cont", "cont"]
+		            }
+	               },
+	"function": "logitFn",
+	"created_by": "Aditi",
+	"created_at": "2PM 04\/01\/21",
+	"modified_by": "",
+	"modified_at": ""
+}
