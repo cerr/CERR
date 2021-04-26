@@ -1,0 +1,42 @@
+{
+  "name": "Esophagitis grade 2+ (Jackson)",
+  "type": "NTCP",
+  "stdFractionSize": 2,
+  "fractionCorrect": "Yes",
+  "correctionType": "fsize",
+  "abCorrect": "Yes",
+  "abRatio": 10,
+  "parameters": {
+			"structures": {
+				"testStr1":{
+						    "D3": {    
+								"val": "calc_Dx",
+								"weight": 0.0882 ,
+								"type": ["string", "cont"],
+								"cteg": ["calc_Dx","calc_Dx"],
+								"params": {
+					   				   "x": {
+					              				    "val": 3,
+					              				    "type": ["Cont"]
+					        		   	         },
+									   "volType": {
+									    	            "val": 0,
+									     	            "type": ["Cont"]
+					        		          	            }
+					  		                        }
+                          		                          }
+
+                          		                    }
+                          		       },                   
+                	"constant": { 
+				"val": 1,
+				"weight": -4.53,
+				"type": ["cont", "cont"]
+		            }
+	               },
+	"function": "logitFn",
+    "created_by": "Aditi",
+	"created_at": "3PM 01\/21\/21",
+	"modified_by": "",
+	"modified_at": ""
+}
