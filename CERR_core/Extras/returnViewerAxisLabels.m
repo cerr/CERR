@@ -9,7 +9,7 @@ end
 iop = planC{indexS.scan}(scanNum).scanInfo(1).imageOrientationPatient;
 
 if isempty(iop)
-    iop = [1,0,0,0,1,0]; % temporary. assign this during loading planC
+    iop = [1,0,0,0,1,0]'; % temporary. assign this during loading planC
 end
 
 [~,idx2] = max(abs(iop(1:3)));
@@ -30,11 +30,11 @@ HFP = [-1; 0; 0; 0; -1; 0];
 FFS = [-1; 0; 0; 0; 1; 0];
 FFP = [1; 0; 0; 0; -1; 0];
 
-if isequal(iopProjSign, HFS)
+if isequal(iopProjSign(:), HFS)
         axisLabelCell = {'A','P';'R','L';'S','I'};
-elseif isequal(iopProjSign, HFP)
+elseif isequal(iopProjSign(:), HFP)
         axisLabelCell = {'P','A';'L','R';'S','I'};
-elseif isequal(iopProjSign, FFS)
+elseif isequal(iopProjSign(:), FFS)
         axisLabelCell = {'A','P';'L','R';'S','I'};
 else %FFP
         axisLabelCell = {'P','A';'R','L';'S','I'};

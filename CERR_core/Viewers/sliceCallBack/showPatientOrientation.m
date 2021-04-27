@@ -76,11 +76,11 @@ for i=uint8(1:length(stateS.handle.CERRAxis))
             case 'transverse'
                 leftLabel = axisLabelC{2,1};
                 rightLabel = axisLabelC{2,2};
-                topLabel = axisLabelC{1,1};
-                bottomLabel = axisLabelC{1,2};
+                topLabel = axisLabelC{1,2};
+                bottomLabel = axisLabelC{1,1};
             case 'sagittal'
-                leftLabel = axisLabelC{1,1};
-                rightLabel = axisLabelC{1,2};
+                leftLabel = axisLabelC{1,2};
+                rightLabel = axisLabelC{1,1};
                 topLabel = axisLabelC{3,1};
                 bottomLabel = axisLabelC{3,2};
                 horizAlignLeft = 'right';
