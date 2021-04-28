@@ -59,9 +59,39 @@ switch fieldname
         
         multiFrameFlag = 'No';
         
+        % Uncompress files if transferSyntaxUID other than '1.2.840.10008.1.2'
+        IMAGE   = SERIES(1).Data;
+        [imgobj, ~]  = scanfile_mldcm(IMAGE(1).file,true);
+        transferSyntaxUID = imgobj.getString(131088); % 00020010
+        tempDirPathC = {};
+        if ~strcmpi(transferSyntaxUID,'1.2.840.10008.1.2')
+            fileC = {SERIES.Data.file};
+            dcmPathC = cellfun(@fileparts,fileC,...
+                'UniformOutput',false);
+            uniqDcmPathC = unique(dcmPathC);
+            numDirs = length(uniqDcmPathC);
+            tempDirPathC = cell(1,numDirs);
+            dcm2dcmPath = fullfile(getDcm4cheBinPath,'dcm2dcm');
+            for iDir = 1:numDirs
+                dcmPath = dcmPathC{iDir};
+                [~,dirName,ext] = fileparts(dcmPath);
+                randStr = num2str(randi(1e6));
+                tempDirPathC{iDir} = fullfile(tempdir,[dirName,ext,randStr]);
+                if ~exist(tempDirPathC{iDir},'dir')
+                    mkdir(tempDirPathC{iDir})
+                end
+                evalStr = [dcm2dcmPath,' -t 1.2.840.10008.1.2 "',dcmPath,'" "',tempDirPathC{iDir},'"'];
+                system(evalStr)
+                indSeriesC = strfind(fileC,dcmPath);
+                indSeriesV = ~cellfun(@isempty,indSeriesC);
+                newFileNamC = strrep(fileC(indSeriesV),dcmPath,tempDirPathC{iDir});
+                [SERIES.Data(indSeriesV).file] = deal(newFileNamC{:});
+            end
+        end
+        
         if nImages == 1
             IMAGE   = SERIES.Data;
-            [imgobj, ~]  = scanfile_mldcm(IMAGE.file);
+            [imgobj, ~]  = scanfile_mldcm(IMAGE.file,false);
             %numMultiFrameImages = getTagValue(imgobj, '00280008');
             %numMultiFrameImages = imgobj.getInts(org.dcm4che3.data.Tag.NumberOfFrames); %IS
             numMultiFrameImages = imgobj.getInts(2621448); %IS
@@ -80,7 +110,7 @@ switch fieldname
                 for imageNum = 1:nImages
                     
                     IMAGE   = SERIES.Data(imageNum); % wy {} --> ()
-                    [imgobj, ~]  = scanfile_mldcm(IMAGE.file);
+                    [imgobj, ~]  = scanfile_mldcm(IMAGE.file,false);
                     
                     %Pixel Data
                     %wy sliceV = getTagValue(imgobj.get(hex2dec('7FE00010')));
@@ -457,6 +487,12 @@ switch fieldname
                 [jnk, zOrder]       = sort(zValuesV);
                 dataS(:,:,1:end)    = dataS(:,:,zOrder);                
                 
+        end
+        
+        if ~isempty(tempDirPathC)
+            for iDir = 1:length(tempDirPathC)
+                rmdir(tempDirPathC{iDir},'s')
+            end
         end
         
         %close(hWaitbar);
