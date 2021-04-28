@@ -3545,6 +3545,8 @@ switch upper(instr)
         stateS.scanChkFlag = 1;
 
         CERRRefresh
+        showPatientOrientation
+        
         return;
 
     case 'SELECTIMRTP'
