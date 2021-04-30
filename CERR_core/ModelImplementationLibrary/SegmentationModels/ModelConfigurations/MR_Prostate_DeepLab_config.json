@@ -21,9 +21,9 @@
 
         "identifier" : {"imageType": "MR"},
     
-        "resample": {"resolutionXCm":0.04, "resolutionYCm":0.04, "resolutionZCm":0.11, "method":"linear"},
+        "resample": {"resolutionXCm":0.1, "resolutionYCm":0.1, "resolutionZCm":0.2, "method":"linear"},
 
-        "resize": {"method" : "padOrCrop3d", "size" : [512,512]},
+        "resize": {"method" : "padOrCrop3d", "size" : [256,256]},
         "crop": [
    	        {
     		  "method": "none",
