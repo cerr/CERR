@@ -43,7 +43,7 @@ yi = zeros(1,numel(lines));
 % figure; imagesc(maxM); axis equal; hold on
 for i = 1:numel(lines)
     len = norm(lines(i).point1 - lines(i).point2);
-    if lines(i).point1(2) == lines(i).point2(2) %&& len > minLength
+    if lines(i).point1(2) == lines(i).point2(2) && len > minLength
 %         xy = [lines(i).point1; lines(i).point2];
 %         plot(xy(:,1),xy(:,2),'LineWidth',2,'Color','green');
 %         % Plot beginnings and ends of lines
