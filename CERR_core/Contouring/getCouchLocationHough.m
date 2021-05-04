@@ -40,9 +40,15 @@ overlapFraction = zeros(1,numel(lines));
 midV = [floor(0.5*midptS):floor(0.5*midptS) + midptS];
 % Require couch lines to have same starting & ending point2
 yi = zeros(1,numel(lines)); 
+% figure; imagesc(maxM); axis equal; hold on
 for i = 1:numel(lines)
     len = norm(lines(i).point1 - lines(i).point2);
-    if lines(i).point1(2) == lines(i).point2(2) && len > minLength
+    if lines(i).point1(2) == lines(i).point2(2) %&& len > minLength
+%         xy = [lines(i).point1; lines(i).point2];
+%         plot(xy(:,1),xy(:,2),'LineWidth',2,'Color','green');
+%         % Plot beginnings and ends of lines
+%         plot(xy(1,1),xy(1,2),'x','LineWidth',2,'Color','yellow');
+%         plot(xy(2,1),xy(2,2),'x','LineWidth',2,'Color','red');
         lineV = [lines(i).point1(1):lines(i).point2(1)];
         if lines(i).point1(2) > midptS && ~isempty(intersect(lineV,midV))
             yi(i) = lines(i).point2(2); 
@@ -52,7 +58,8 @@ for i = 1:numel(lines)
 end
 
 if any(overlapFraction)
-    yCouch = yi(find(max(overlapFraction)));
+    [~,I] = max(overlapFraction);
+    yCouch = yi(I);
 else
     yCouch = min(yi(find(yi > 0)));
 end
