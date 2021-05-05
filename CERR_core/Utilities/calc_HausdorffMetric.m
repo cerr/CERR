@@ -5,6 +5,9 @@ function [haus, meanAbsSurfDist] = calc_HausdorffMetric(structNum1,structNum2,pl
 %
 %APA, 11/20/2014
 
+if ~exist('planC','var')
+    global planC
+end
 
 [~, x1V, y1V, z1V, planC] = getStructSurface(structNum1,planC);
 [~, x2V, y2V, z2V, planC] = getStructSurface(structNum2,planC);
