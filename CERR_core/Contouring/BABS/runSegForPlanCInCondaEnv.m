@@ -208,9 +208,16 @@ for k=1:length(algorithmC)
             num2str(batchSize));
     else
         condaSrc = fullfile(condaEnvPath,'/bin/activate');
-        command = sprintf('source %s && python %s %s %s %s',...
-            condaSrc, wrapperFunc, inputH5Path, outputH5Path,...
-            num2str(batchSize));
+	if exist(condaSrc,'file')
+            command = sprintf('/bin/bash -c "source %s && python %s %s %s %s"',...
+               condaSrc, wrapperFunc, inputH5Path, outputH5Path,...
+               num2str(batchSize));
+	else
+	    [~,f,~] = fileparts(condaEnvPath);
+	    command = sprintf('conda run -n %s python %s %s %s %s',...
+               f, wrapperFunc, inputH5Path, outputH5Path,...
+               num2str(batchSize));
+        end
     end
     % Resolve error by setting KMP_DUPLICATE_LIB_OK' to 'TRUE'
     % OMP: Error #15: Initializing libiomp5md.dll, but found libiomp5md.dll already initialized.
