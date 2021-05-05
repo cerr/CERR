@@ -1,5 +1,5 @@
 {
-  "name": "Esophagitis grade 2+",
+  "name": "Esophagitis grade 2+ (Jackson)",
   "type": "NTCP",
   "stdFractionSize": 2,
   "fractionCorrect": "Yes",
@@ -34,5 +34,9 @@
 				"type": ["cont", "cont"]
 		            }
 	               },
-	"function": "logitFn"
+	"function": "logitFn",
+    "created_by": "Aditi",
+	"created_at": "3PM 01\/21\/21",
+	"modified_by": "",
+	"modified_at": ""
 }

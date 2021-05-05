@@ -400,6 +400,10 @@ switch upper(instr)
             stateS.handle.CERRAxisScale2(i) = line([0.02 0.02], [0.02 0.1], [2 2], 'parent', stateS.handle.CERRAxis(i), 'color', [1 0.5 0.5], 'hittest', 'off', 'visible', 'off');
             stateS.handle.CERRAxisLabel3(i) = text('parent', stateS.handle.CERRAxis(i), 'string', '5', 'position', [0.02 0.1 0], 'color', 'y', 'units', 'data', 'visible', 'off', 'hittest', 'off','fontSize',8);
             stateS.handle.CERRAxisLabel4(i) = text('parent', stateS.handle.CERRAxis(i), 'string', '5', 'position', [0.1 0.02 0], 'color', 'y', 'units', 'data', 'visible', 'off', 'hittest', 'off','fontSize',8);
+            stateS.handle.CERRAxisScreenLeftLabel(i)  = text('parent', stateS.handle.CERRAxis(i), 'string', 'L', 'position', [0.02 0.1 2], 'color', 'y', 'units', 'data', 'visible', 'off', 'hittest', 'off','fontSize',10);
+            stateS.handle.CERRAxisScreenRightLabel(i)  = text('parent', stateS.handle.CERRAxis(i), 'string', 'R', 'position', [0.1 0.02 2], 'color', 'y', 'units', 'data', 'visible', 'off', 'hittest', 'off','fontSize',10);
+            stateS.handle.CERRAxisScreenTopLabel(i)  = text('parent', stateS.handle.CERRAxis(i), 'string', 'A', 'position', [0.1 0.02 2], 'color', 'y', 'units', 'data', 'visible', 'off', 'hittest', 'off','fontSize',10);
+            stateS.handle.CERRAxisScreenBottomLabel(i)  = text('parent', stateS.handle.CERRAxis(i), 'string', 'P', 'position', [0.1 0.02 2], 'color', 'y', 'units', 'data', 'visible', 'off', 'hittest', 'off','fontSize',10);
             
             %aI = get(stateS.handle.CERRAxis(i), 'userdata');
             aI = stateS.handle.aI(i);
@@ -419,12 +423,14 @@ switch upper(instr)
                 
             end
             
-            aI.miscHandles = [aI.miscHandles stateS.handle.CERRAxisLabel1(i) ...
-                stateS.handle.CERRAxisLabel2(i) stateS.handle.CERRAxisLabel3(i) ...
-                stateS.handle.CERRAxisLabel4(i) stateS.handle.CERRAxisScale1(i) ...
-                stateS.handle.CERRAxisScale2(i) stateS.handle.CERRAxisTicks1(i,:) ...
-                stateS.handle.CERRAxisTicks2(i,:) stateS.handle.CERRAxisPlnLoc{i} ...
-                stateS.handle.CERRAxisPlnLocSdw{i}];
+            aI.miscHandles = [aI.miscHandles, stateS.handle.CERRAxisLabel1(i), ...
+                stateS.handle.CERRAxisLabel2(i), stateS.handle.CERRAxisLabel3(i), ...
+                stateS.handle.CERRAxisLabel4(i), stateS.handle.CERRAxisScale1(i), ...
+                stateS.handle.CERRAxisScale2(i), stateS.handle.CERRAxisTicks1(i,:), ...
+                stateS.handle.CERRAxisTicks2(i,:), stateS.handle.CERRAxisPlnLoc{i}, ...
+                stateS.handle.CERRAxisPlnLocSdw{i}, stateS.handle.CERRAxisScreenLeftLabel(i), ...
+                stateS.handle.CERRAxisScreenRightLabel(i), stateS.handle.CERRAxisScreenTopLabel(i),...
+                stateS.handle.CERRAxisScreenBottomLabel(i)];
             %set(stateS.handle.CERRAxis(i), 'userdata', aI);
             stateS.handle.aI(i) = aI;
         end
@@ -592,6 +598,7 @@ switch upper(instr)
         stateS.imageRegistrationMovDatasetType = 'scan';
         stateS.showPlaneLocators = 1;
         stateS.showNavMontage = 0;
+        stateS.showPatientOrientation = 1;
         
         structureSet = getStructureSetAssociatedScan(stateS.scanSet);
 
@@ -642,12 +649,14 @@ switch upper(instr)
                 structHandlePoolV = [stateS.handle.aI(i).lineHandlePool.lineV, ...
                             stateS.handle.aI(i).lineHandlePool.dotsV];
                 set(structHandlePoolV,'visible','off')
-                keepV = [structHandlePoolV stateS.handle.CERRAxisLabel1(i) ...
-                    stateS.handle.CERRAxisLabel2(i) stateS.handle.CERRAxisLabel3(i) ...
-                    stateS.handle.CERRAxisLabel4(i) stateS.handle.CERRAxisScale1(i) ...
-                    stateS.handle.CERRAxisScale2(i) stateS.handle.CERRAxisTicks1(i,:) ...
-                    stateS.handle.CERRAxisTicks2(i,:) stateS.handle.CERRAxisPlnLoc{i} ...
-                    stateS.handle.CERRAxisPlnLocSdw{i}];
+                keepV = [structHandlePoolV, stateS.handle.CERRAxisLabel1(i), ...
+                    stateS.handle.CERRAxisLabel2(i), stateS.handle.CERRAxisLabel3(i), ...
+                    stateS.handle.CERRAxisLabel4(i), stateS.handle.CERRAxisScale1(i), ...
+                    stateS.handle.CERRAxisScale2(i), stateS.handle.CERRAxisTicks1(i,:), ...
+                    stateS.handle.CERRAxisTicks2(i,:), stateS.handle.CERRAxisPlnLoc{i}, ...
+                    stateS.handle.CERRAxisPlnLocSdw{i}, stateS.handle.CERRAxisScreenLeftLabel(i), ...
+                    stateS.handle.CERRAxisScreenRightLabel(i), stateS.handle.CERRAxisScreenTopLabel(i),...
+                    stateS.handle.CERRAxisScreenBottomLabel(i)];
                         
                 stateS.handle.aI = dissimilarInsert(stateS.handle.aI, aI, i);                
                 stateS.handle.aI(i).lineHandlePool = lineHandlePool; 
@@ -1081,6 +1090,7 @@ switch upper(instr)
         %end
         %try
             showPlaneLocators;
+            showPatientOrientation;
         %end
         return;
 
@@ -1152,7 +1162,8 @@ switch upper(instr)
         axisInfo.scanObj(1:end) = [];
         axisInfo.doseObj(1:end) = [];
         axisInfo.structureGroup(1:end) = [];
-        axisInfo.miscHandles = [];        
+        axisInfo.miscHandles = [];     
+        axisInfo.lineHandlePool = [];
         if strcmpi(axisInfo.view, 'Legend')
             return
         end
@@ -1186,6 +1197,10 @@ switch upper(instr)
         stateS.handle.CERRAxisScale2(axisNum) = line([0.02 0.02], [0.02 0.1], [2 2], 'parent', stateS.handle.CERRAxis(axisNum), 'color', [1 0.5 0.5], 'hittest', 'off', 'visible', 'off');
         stateS.handle.CERRAxisLabel3(axisNum) = text('parent', stateS.handle.CERRAxis(axisNum), 'string', '5', 'position', [0.02 0.1 0], 'color', 'y', 'units', 'data', 'visible', 'off', 'hittest', 'off','fontSize',8);
         stateS.handle.CERRAxisLabel4(axisNum) = text('parent', stateS.handle.CERRAxis(axisNum), 'string', '5', 'position', [0.1 0.02 0], 'color', 'y', 'units', 'data', 'visible', 'off', 'hittest', 'off','fontSize',8);
+        stateS.handle.CERRAxisScreenLeftLabel(axisNum) = text('parent', stateS.handle.CERRAxis(axisNum), 'string', '5', 'position', [0.02 0.1 0], 'color', 'y', 'units', 'data', 'visible', 'off', 'hittest', 'off','fontSize',8);
+        stateS.handle.CERRAxisScreenRightLabel(axisNum) = text('parent', stateS.handle.CERRAxis(axisNum), 'string', '5', 'position', [0.02 0.1 0], 'color', 'y', 'units', 'data', 'visible', 'off', 'hittest', 'off','fontSize',8);
+        stateS.handle.CERRAxisScreenTopLabel(axisNum) = text('parent', stateS.handle.CERRAxis(axisNum), 'string', '5', 'position', [0.02 0.1 0], 'color', 'y', 'units', 'data', 'visible', 'off', 'hittest', 'off','fontSize',8);
+        stateS.handle.CERRAxisScreenBottomLabel(axisNum) = text('parent', stateS.handle.CERRAxis(axisNum), 'string', '5', 'position', [0.02 0.1 0], 'color', 'y', 'units', 'data', 'visible', 'off', 'hittest', 'off','fontSize',8);
         
         stateS.handle.CERRAxisPlnLoc{axisNum} = [];
         stateS.handle.CERRAxisPlnLocSdw{axisNum} = [];
@@ -1201,14 +1216,15 @@ switch upper(instr)
         end
         
         
-        axisInfo.miscHandles = [axisInfo.miscHandles stateS.handle.CERRAxisLabel1(axisNum) ...
-            stateS.handle.CERRAxisLabel2(axisNum) stateS.handle.CERRAxisLabel3(axisNum) ...
-            stateS.handle.CERRAxisLabel4(axisNum) stateS.handle.CERRAxisScale1(axisNum) ...
-            stateS.handle.CERRAxisScale2(axisNum) stateS.handle.CERRAxisTicks1(axisNum,:) ...
-            stateS.handle.CERRAxisTicks2(axisNum,:) stateS.handle.CERRAxisPlnLoc{axisNum} ...
-            stateS.handle.CERRAxisPlnLocSdw{axisNum}];
+        axisInfo.miscHandles = [axisInfo.miscHandles, stateS.handle.CERRAxisLabel1(axisNum), ...
+            stateS.handle.CERRAxisLabel2(axisNum), stateS.handle.CERRAxisLabel3(axisNum), ...
+            stateS.handle.CERRAxisLabel4(axisNum), stateS.handle.CERRAxisScale1(axisNum), ...
+            stateS.handle.CERRAxisScale2(axisNum), stateS.handle.CERRAxisTicks1(axisNum,:), ...
+            stateS.handle.CERRAxisTicks2(axisNum,:), stateS.handle.CERRAxisPlnLoc{axisNum}, ...
+            stateS.handle.CERRAxisPlnLocSdw{axisNum}, stateS.handle.CERRAxisScreenLeftLabel(axisNum),...
+            stateS.handle.CERRAxisScreenRightLabel(axisNum), stateS.handle.CERRAxisScreenTopLabel(axisNum),...
+            stateS.handle.CERRAxisScreenBottomLabel(axisNum)];                    
 
-            
         % Create a pool of line objects to display contours
         for i = 1:stateS.optS.linePoolSize
             axisInfo.lineHandlePool(1).lineV(i) = line(NaN, NaN, 'parent', ...
@@ -1270,7 +1286,11 @@ switch upper(instr)
         stateS.handle.CERRAxisScale1(axisNum) = line([0.02 0.1], [0.02 0.02], [2 2], 'parent', stateS.handle.CERRAxis(axisNum), 'color', [1 0.5 0.5], 'hittest', 'off', 'visible', 'off');
         stateS.handle.CERRAxisScale2(axisNum) = line([0.02 0.02], [0.02 0.1], [2 2], 'parent', stateS.handle.CERRAxis(axisNum), 'color', [1 0.5 0.5], 'hittest', 'off', 'visible', 'off');
         stateS.handle.CERRAxisLabel3(axisNum) = text('parent', stateS.handle.CERRAxis(axisNum), 'string', '5', 'position', [0.02 0.1 0], 'color', 'y', 'units', 'data', 'visible', 'off', 'hittest', 'off','fontSize',8);
-        stateS.handle.CERRAxisLabel4(axisNum) = text('parent', stateS.handle.CERRAxis(axisNum), 'string', '5', 'position', [0.1 0.02 0], 'color', 'y', 'units', 'data', 'visible', 'off', 'hittest', 'off','fontSize',8);
+        stateS.handle.CERRAxisLabel4(axisNum) = text('parent', stateS.handle.CERRAxis(axisNum), 'string', '5', 'position', [0.1 0.02 0], 'color', 'y', 'units', 'data', 'visible', 'off', 'hittest', 'off','fontSize',8);        
+        stateS.handle.CERRAxisScreenLeftLabel(axisNum) = text('parent', stateS.handle.CERRAxis(axisNum), 'string', '5', 'position', [0.1 0.02 0], 'color', 'y', 'units', 'data', 'visible', 'off', 'hittest', 'off','fontSize',8);
+        stateS.handle.CERRAxisScreenRightLabel(axisNum) = text('parent', stateS.handle.CERRAxis(axisNum), 'string', '5', 'position', [0.1 0.02 0], 'color', 'y', 'units', 'data', 'visible', 'off', 'hittest', 'off','fontSize',8);
+        stateS.handle.CERRAxisScreenTopLabel(axisNum) = text('parent', stateS.handle.CERRAxis(axisNum), 'string', '5', 'position', [0.1 0.02 0], 'color', 'y', 'units', 'data', 'visible', 'off', 'hittest', 'off','fontSize',8);
+        stateS.handle.CERRAxisScreenBottomLabel(axisNum) = text('parent', stateS.handle.CERRAxis(axisNum), 'string', '5', 'position', [0.1 0.02 0], 'color', 'y', 'units', 'data', 'visible', 'off', 'hittest', 'off','fontSize',8);
         
         stateS.handle.CERRAxisPlnLoc{axisNum} = [];
         stateS.handle.CERRAxisPlnLocSdw{axisNum} = [];
@@ -1286,12 +1306,14 @@ switch upper(instr)
         end
         
         
-        axisInfo.miscHandles = [axisInfo.miscHandles stateS.handle.CERRAxisLabel1(axisNum) ...
-            stateS.handle.CERRAxisLabel2(axisNum) stateS.handle.CERRAxisLabel3(axisNum) ...
-            stateS.handle.CERRAxisLabel4(axisNum) stateS.handle.CERRAxisScale1(axisNum) ...
-            stateS.handle.CERRAxisScale2(axisNum) stateS.handle.CERRAxisTicks1(axisNum,:) ...
-            stateS.handle.CERRAxisTicks2(axisNum,:) stateS.handle.CERRAxisPlnLoc{axisNum} ...
-            stateS.handle.CERRAxisPlnLocSdw{axisNum}];
+        axisInfo.miscHandles = [axisInfo.miscHandles, stateS.handle.CERRAxisLabel1(axisNum), ...
+            stateS.handle.CERRAxisLabel2(axisNum), stateS.handle.CERRAxisLabel3(axisNum), ...
+            stateS.handle.CERRAxisLabel4(axisNum), stateS.handle.CERRAxisScale1(axisNum), ...
+            stateS.handle.CERRAxisScale2(axisNum), stateS.handle.CERRAxisTicks1(axisNum,:), ...
+            stateS.handle.CERRAxisTicks2(axisNum,:), stateS.handle.CERRAxisPlnLoc{axisNum}, ...
+            stateS.handle.CERRAxisPlnLocSdw{axisNum}, stateS.handle.CERRAxisScreenLeftLabel(axisNum), ...
+            stateS.handle.CERRAxisScreenRightLabel(axisNum), stateS.handle.CERRAxisScreenTopLabel(axisNum), ...
+            stateS.handle.CERRAxisScreenBottomLabel(axisNum)];
 
             
         % Create a pool of line objects to display contours
@@ -1346,6 +1368,10 @@ switch upper(instr)
                     axisTickTmp2 = stateS.handle.CERRAxisTicks2(pos,:);
                     axisScaleTmp1 = stateS.handle.CERRAxisScale1(pos);
                     axisScaleTmp2 = stateS.handle.CERRAxisScale2(pos);
+                    axisScreenLeftLabelTmp = stateS.handle.CERRAxisScreenLeftLabel(pos);
+                    axisScreenRightLabelTmp = stateS.handle.CERRAxisScreenRightLabel(pos);
+                    axisScreenTopLabelTmp = stateS.handle.CERRAxisScreenTopLabel(pos);
+                    axisScreenBottomLabelTmp = stateS.handle.CERRAxisScreenBottomLabel(pos);
                     plnLocTmp = stateS.handle.CERRAxisPlnLoc{pos};
                     plnLocSdwTmp = stateS.handle.CERRAxisPlnLocSdw{pos};
                     aItmp = stateS.handle.aI(pos);
@@ -1354,6 +1380,10 @@ switch upper(instr)
                     stateS.handle.CERRAxisLabel2(pos) = stateS.handle.CERRAxisLabel2(stateS.lastAxis);
                     stateS.handle.CERRAxisLabel3(pos) = stateS.handle.CERRAxisLabel3(stateS.lastAxis);
                     stateS.handle.CERRAxisLabel4(pos) = stateS.handle.CERRAxisLabel4(stateS.lastAxis);
+                    stateS.handle.CERRAxisScreenLeftLabel(pos) = stateS.handle.CERRAxisScreenLeftLabel(stateS.lastAxis);
+                    stateS.handle.CERRAxisScreenRightLabel(pos) = stateS.handle.CERRAxisScreenRightLabel(stateS.lastAxis);
+                    stateS.handle.CERRAxisScreenTopLabel(pos) = stateS.handle.CERRAxisScreenTopLabel(stateS.lastAxis);
+                    stateS.handle.CERRAxisScreenBottomLabel(pos) = stateS.handle.CERRAxisScreenBottomLabel(stateS.lastAxis);
                     stateS.handle.CERRAxisScale1(pos) = stateS.handle.CERRAxisScale1(stateS.lastAxis);
                     stateS.handle.CERRAxisScale2(pos) = stateS.handle.CERRAxisScale2(stateS.lastAxis);
                     stateS.handle.CERRAxisTicks1(pos,:) = stateS.handle.CERRAxisTicks1(stateS.lastAxis,:);
@@ -1366,6 +1396,10 @@ switch upper(instr)
                     stateS.handle.CERRAxisLabel2(stateS.lastAxis) = axisLabelTmp2;
                     stateS.handle.CERRAxisLabel3(stateS.lastAxis) = axisLabelTmp3;
                     stateS.handle.CERRAxisLabel4(stateS.lastAxis) = axisLabelTmp4;
+                    stateS.handle.CERRAxisScreenLeftLabel(stateS.lastAxis) = axisScreenLeftLabelTmp;
+                    stateS.handle.CERRAxisScreenRightLabel(stateS.lastAxis) = axisScreenRightLabelTmp;
+                    stateS.handle.CERRAxisScreenTopLabel(stateS.lastAxis) = axisScreenTopLabelTmp;
+                    stateS.handle.CERRAxisScreenBottomLabel(stateS.lastAxis) = axisScreenBottomLabelTmp;
                     stateS.handle.CERRAxisScale1(stateS.lastAxis) = axisScaleTmp1;
                     stateS.handle.CERRAxisScale2(stateS.lastAxis) = axisScaleTmp2;
                     stateS.handle.CERRAxisTicks1(stateS.lastAxis,:) = axisTickTmp1;
@@ -2413,6 +2447,7 @@ switch upper(instr)
         end
         %Redraw locators
         showPlaneLocators;
+        showPatientOrientation;
         %Update scale        
         for hAxis = allhAxis
             indAxis = find(hAxis == stateS.handle.CERRAxis);
@@ -2460,6 +2495,7 @@ switch upper(instr)
         end        
         %Redraw locators
         showPlaneLocators;
+        showPatientOrientation;
         %Update scale        
         for hAxis = allhAxis
             indAxis = find(hAxis == stateS.handle.CERRAxis);
@@ -2500,8 +2536,9 @@ switch upper(instr)
             zoomToXYRange(stateS.handle.CERRAxis(axisNum));
         end
         %Redraw locators
-        %showPlaneLocators;
-        CERRRefresh
+        %showPlaneLocators;   
+        showPatientOrientation;
+        CERRRefresh        
         return;
 
         %CALLBACKS TO QUERY SCAN.
@@ -3509,6 +3546,8 @@ switch upper(instr)
         stateS.scanChkFlag = 1;
 
         CERRRefresh
+        showPatientOrientation
+        
         return;
 
     case 'SELECTIMRTP'
@@ -3578,6 +3617,10 @@ switch upper(instr)
                 stateS.handle.CERRAxisLabel2(ind) = [];
                 stateS.handle.CERRAxisLabel3(ind) = [];
                 stateS.handle.CERRAxisLabel4(ind) = [];
+                stateS.handle.CERRAxisScreenLeftLabel(ind) = [];
+                stateS.handle.CERRAxisScreenRightLabel(ind) = [];
+                stateS.handle.CERRAxisScreenTopLabel(ind) = [];
+                stateS.handle.CERRAxisScreenBottomLabel(ind) = [];
                 stateS.handle.CERRAxisScale1(ind) = [];
                 stateS.handle.CERRAxisScale2(ind) = [];
                 stateS.handle.CERRAxisTicks1(ind,:) = [];
@@ -3589,7 +3632,9 @@ switch upper(instr)
                 %axisInfo.yRange      = {'Linked', hAxis};
                 % Move handles up one axis
                 stateS.handle.CERRAxisPlnLocSdw(ind) = [];
-                stateS.handle.CERRAxisPlnLoc(ind)    = [];
+                stateS.handle.CERRAxisPlnLoc(ind)    = [];                
+                delete(stateS.handle.aI(ind).lineHandlePool.lineV)
+                delete(stateS.handle.aI(ind).lineHandlePool.dotsV)
                 stateS.handle.aI(ind) = [];
                 
                 stateS.currentAxis = 1;

@@ -39,7 +39,7 @@ wid = pos(3); hgt = pos(4);
 scanText = ['S: ' sprintf('%d',scanSet)];
 doseText = ['D: ' sprintf('%d',doseSet)];
 
-if isempty(coord);
+if isempty(coord)
     set(stateS.handle.CERRAxisLabel1(i), 'string', '', 'visible', 'on', 'color', [0 0 0], 'hittest', 'off');
     set(stateS.handle.CERRAxisLabel2(i), 'string', '', 'visible', 'on', 'color', [0 0 0], 'hittest', 'off');
     return;

@@ -1,26 +1,26 @@
 {
-  "name": "Esophagitis grade 2+",
+  "name": "Radiation pneumonitis grade 2+ (lung v15)",
   "type": "NTCP",
   "stdFractionSize": 2,
   "fractionCorrect": "Yes",
   "correctionType": "fsize",
   "abCorrect": "Yes",
-  "abRatio": 10,
+  "abRatio": 3,
   "parameters": {
 			"structures": {
-				"testStr1":{
-						    "D3": {    
-								"val": "calc_Dx",
-								"weight": 0.0882 ,
+				"Lungs_NOT_GTV_protocol":{
+						    "V15": {    
+								"val": "calc_Vx",
+								"weight": 17.7,
 								"type": ["string", "cont"],
-								"cteg": ["calc_Dx","calc_Dx"],
+								"cteg": ["calc_Vx","calc_Vx"],
 								"params": {
 					   				   "x": {
-					              				    "val": 3,
+					              				    "val": 15,
 					              				    "type": ["Cont"]
 					        		   	         },
-									   "volType": {
-									    	            "val": 0,
+									   "volumeType": {
+									    	            "val": 1,
 									     	            "type": ["Cont"]
 					        		          	            }
 					  		                        }
@@ -30,9 +30,13 @@
                           		       },                   
                 	"constant": { 
 				"val": 1,
-				"weight": -4.53,
+				"weight": -3.88,
 				"type": ["cont", "cont"]
 		            }
 	               },
-	"function": "logitFn"
+	"function": "logitFn",
+	"created_by": "Aditi",
+	"created_at": "5PM 01\/20\/21",
+	"modified_by": "",
+	"modified_at": ""
 }

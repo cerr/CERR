@@ -94,6 +94,8 @@ end
 
 set(hAxis, 'xLim', xLim);
 set(hAxis, 'yLim', yLim);
+setAxisInfo(hAxis, 'xRange', xLim)
+setAxisInfo(hAxis, 'yRange', yLim)
 
 xAll = linspace(xStart,xEnd,6);
 yAll = linspace(yStart,yEnd,6);

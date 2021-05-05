@@ -1,17 +1,18 @@
 {
-  "name": "Bronchial stenosis",
+  "name": "Bronchial stenosis (RU)",
   "type": "NTCP",
   "fractionCorrect": "No",
+  "limit": [0.05,100],
   "parameters": {
 			"structures": {
-				"testStr1":{
+                          	"Right_upper_LB_protocol":{
 						         "meanDose": {    
 								   "val": "calc_meanDose",
 								    "weight": 0.0644,
 								    "type": ["string", "cont"],
 						                    "cteg": ["calc_meanDose"]
                           		                                       }
-                          		              }
+                          		                                }	
                           		       },                   
                 	"constant": { 
 				"val": 1,
@@ -19,5 +20,9 @@
 				"type": ["cont", "cont"]
 		            }
 	               },
-	"function": "logitFn"
+	"function": "logitFn",
+	"created_by": "Aditi",
+	"created_at": "3PM 01\/21\/21",
+	"modified_by": "",
+	"modified_at": ""
 }
