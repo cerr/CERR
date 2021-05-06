@@ -58,8 +58,8 @@ switch(lower(method))
         
     case 'pad3d'
         
-        xPad = floor((outputImgSizeV(1) - origSizV(1))/2);
-        yPad = floor((outputImgSizeV(2) - origSizV(2))/2);
+        xPad = ceil((outputImgSizeV(1) - origSizV(1))/2);
+        yPad = ceil((outputImgSizeV(2) - origSizV(2))/2);
         
         if xPad<0 || yPad<0
             error(['To resize by padding, output image dimensions must be',...
