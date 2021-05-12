@@ -164,7 +164,7 @@ switch upper(command)
             'Position',tablePosV + [0 -.1*GUIHeight 0 0 ],'String','Model parameters','Style','text',...
             'FontWeight','Bold','HorizontalAlignment','Left','backgroundColor',defaultColor); %Title: Model parameters
         inputH(7) = uicontrol(hFig,'units','pixels','Visible','Off','String','',...
-            'Position',tablePosV + [0 -.15*GUIHeight 0 0 ],'FontSize',10,'Style','text',...
+            'Position',tablePosV + [0 -.15*GUIHeight 0 10 ],'FontSize',9,'Style','text',...
             'FontWeight','Bold','HorizontalAlignment','Left','backgroundColor',defaultColor,...
             'foregroundColor',[.6 0 0]); %Model name display
         inputH(8) = uitable(hFig,'Tag','fieldEdit','Position',tablePosV + [0 -.75*GUIHeight 0 8*shift],'Enable','Off',...
@@ -271,14 +271,27 @@ switch upper(command)
         
         %Get paths to JSON files
         optS = opts4Exe('CERRoptions.json'); 
-        %NOTE: Define path to .json files for protocols, models & clinical criteria in CERROptions.json
+        %NOTE: Define path to .json files for protocols, models & clinical
+        %criteria in CERROptions.json
         %optS.ROEProtocolPath = 'your/path/to/protocols';
         %optS.ROEModelPath = 'your/path/to/models';
         %optS.ROECriteriaPath = 'your/path/to/criteria';
         
-        protocolPath = eval(optS.ROEProtocolPath);
-        modelPath = eval(optS.ROEModelPath);
-        criteriaPath = eval(optS.ROECriteriaPath);
+        if contains(optS.ROEProtocolPath,'getCERRPath')
+            protocolPath = eval(optS.ROEProtocolPath);
+        else
+            protocolPath = optS.ROEProtocolPath;
+        end
+        if contains(optS.ROEModelPath,'getCERRPath')
+            modelPath = eval(optS.ROEModelPath);
+        else
+            modelPath = optS.ROEModelPath;
+        end
+        if contains(optS.ROECriteriaPath,'getCERRPath')
+            criteriaPath = eval(optS.ROECriteriaPath);
+        else
+            criteriaPath = optS.ROECriteriaPath;
+        end
 
         % List available protocols for user selection
         [protocolListC,protocolIdx,ok] = listFiles(protocolPath,'Multiple');
@@ -679,8 +692,10 @@ switch upper(command)
                 %-fraction size
                 paramS.frxSize.val = dpfProtocol;
                 %-alpha/beta
-                abRatio = modelC{modIdxV(j)}.abRatio;
-                paramS.abRatio.val = abRatio;
+                if isfield(modelC{modIdxV(j)},'abRatio')
+                    abRatio = modelC{modIdxV(j)}.abRatio;
+                    paramS.abRatio.val = abRatio;
+                end
                 
                 %Scale dose bins
                 if isfield(modelC{modIdxV(j)},'dv')
@@ -704,6 +719,7 @@ switch upper(command)
                         %Scale dose bins
                         scale = xScaleV(n);
                         scaledDoseBinsC = cellfun(@(x) x*scale,doseBinsC,'un',0);
+                        
                         %Apply fractionation correction as required
                         correctedScaledDoseC = frxCorrect(modelC{modIdxV(j)},structNumV,numFrxProtocol,scaledDoseBinsC);
                         
@@ -772,7 +788,7 @@ switch upper(command)
                         %Correct nFrx parameter
                         paramS.numFractions.val = newNumFrx;
                         
-                        %% Compute TCP/NTCP
+                        %% Compute NTCP
                         if numel(structNumV)==1
                             scaledCPv(n) = feval(modelC{j}.function,paramS,correctedScaledDoseC{1},volHistC{1});
                         else
@@ -825,8 +841,12 @@ switch upper(command)
                 if plotMode==1 || plotMode ==2
                     if strcmp(modelC{j}.type,'NTCP')
                         ntcp = ntcp + 1;
-                        xLmt = get(hNTCPAxis,'xlim');
-                        set(hNTCPAxis,'xlim',[min(xLmt(1),tcpM(p,1)), max(xLmt(2),tcpM(p,end))]);
+                        if plotMode == 1
+                            xLmt = get(hNTCPAxis,'xlim');
+                            set(hNTCPAxis,'xlim',[min(xLmt(1),tcpM(p,1)), max(xLmt(2),tcpM(p,end))]);
+                        else
+                            set(hNTCPAxis,'xlim',[0,1]);
+                        end
                         tcpV = tcpM(p,:);
                         ud.NTCPCurve = [ud.NTCPCurve plot(hNTCPAxis,tcpV(~isnan(tcpV)),scaledCPv,'linewidth',3,...
                             'Color',plotColorM(colorIdx,:),'lineStyle',lineStyle)];
@@ -885,7 +905,9 @@ switch upper(command)
                 %Loop over structures
                 for m = 1:numel(structC)
                     cStr = find(strcmpi(structC{m}, availableStructsC));
-                    if ~isempty(cStr)              %If structure is available in plan
+                    %If structure & clinical criteria are available
+                    if ~isempty(cStr) & ...
+                          isfield(critS.structures.(structC{m}),'criteria')
                         %Extract criteria
                         strCritS = critS.structures.(structC{m}).criteria;
                         criteriaC = fieldnames(strCritS);
@@ -1098,12 +1120,10 @@ switch upper(command)
         
         %Add plot labels
         ylabel(hNTCPAxis,'NTCP');
-        if plotMode == 1 || plotMode == 2
-            if max(get(hNTCPAxis,'xlim'))>1
-                xlabel(hNTCPAxis,'BED (Gy)');
-            else
-                xlabel(hNTCPAxis,'TCP');
-            end
+        if plotMode == 1
+            xlabel(hNTCPAxis,'BED (Gy)');
+        elseif plotMode == 2
+            xlabel(hNTCPAxis,'TCP');
         else
             xlabel(hNTCPAxis,xlab);
         end
@@ -1360,7 +1380,7 @@ end
         critVal = -inf;
         count = 0;
         s = 0;
-        while critVal <= cLim && count<length(scaleFactorV)
+        while critVal <= cLim(1) && count<length(scaleFactorV)
             count = count + 1;
             %Scale dose bins
             s = scaleFactorV(count);
@@ -2461,7 +2481,9 @@ end
                 paramsS.planNum = planNum;
                 paramsS.numFractions.val = ud.Protocols(l).numFractions;
                 paramsS.frxSize.val = ud.Protocols(l).totalDose/ud.Protocols(l).numFractions;
-                paramsS.abRatio.val = modelsC{k}.abRatio;
+                if isfield(modelsC{k},'abRatio')
+                    paramsS.abRatio.val = modelsC{k}.abRatio;
+                end
                 
                 % Get dose bins
                 if isfield(modelsC{k},'dv')
