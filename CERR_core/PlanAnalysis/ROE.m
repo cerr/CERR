@@ -1132,34 +1132,40 @@ switch upper(command)
         
         %Add legend
         NTCPLegendC = arrayfun(@(x)x.DisplayName,ud.NTCPCurve,'un',0);
+        hax = ud.NTCPCurve;
+        key = NTCPLegendC;
         
         constraintS = protocolS(ud.foreground);
         if isfield(constraintS,'criteria') && ~isempty(constraintS.criteria)
-            
             if isempty(ud.BEDCurve)
+                if isfield(ud,'TCPCurve') && ~isempty(ud.TCPCurve)
+                    TCPlegendC = arrayfun(@(x)x.DisplayName,ud.TCPCurve,'un',0);
+                    hax = [hax,ud.TCPCurve];
+                    key = [key,TCPlegendC];
+                end
                 if isfield(constraintS,'guidelines') && ~isempty(constraintS.guidelines)
-                    hax = [ud.NTCPCurve,constraintS.criteria(end),constraintS.guidelines(end)];
-                    key = [NTCPLegendC,'Clinical criteria','Clinical guidelines'];
+                    hax = [hax,constraintS.criteria(end),constraintS.guidelines(end)];
+                    key = [key,'Clinical criteria','Clinical guidelines'];
                 else
-                    hax = [ud.NTCPCurve,constraintS.criteria(end)];
-                    key = [NTCPLegendC,'Clinical criteria'];
+                    hax = [hax,constraintS.criteria(end)];
+                    key = [key,'Clinical criteria'];
                 end
             else
                 if isfield(constraintS,'guidelines') && ~isempty(constraintS.guidelines)
                     BEDlegendC = arrayfun(@(x)x.DisplayName,ud.BEDCurve,'un',0);
-                    hax = [ud.NTCPCurve,ud.BEDCurve,constraintS.criteria(end),constraintS.guidelines(end)];
-                    key = [NTCPLegendC,BEDlegendC,'Clinical criteria','Clinical guidelines'];
+                    hax = [hax,ud.BEDCurve,constraintS.criteria(end),constraintS.guidelines(end)];
+                    key = [key,BEDlegendC,'Clinical criteria','Clinical guidelines'];
                 else
                     BEDlegendC = arrayfun(@(x)x.DisplayName,ud.BEDCurve,'un',0);
-                    hax = [ud.NTCPCurve,ud.BEDCurve,constraintS.criteria(end)];
-                    key = [NTCPLegendC,BEDlegendC,'Clinical criteria'];
+                    hax = [ud.hax,ud.BEDCurve,constraintS.criteria(end)];
+                    key = [key,BEDlegendC,'Clinical criteria'];
                 end
             end
             legend(hax,key,'Location','northwest','Color','none','FontName',...
                 'Arial','FontWeight','normal','FontSize',11,'AutoUpdate','off');
             
         else
-            legend(ud.NTCPCurve,NTCPLegendC,...
+            legend(hax,key,...
                 'Location','northwest','Color','none','FontName','Arial',...
                 'FontWeight','normal','FontSize',11,'AutoUpdate','off');
         end
