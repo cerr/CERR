@@ -925,14 +925,16 @@ switch upper(command)
                                 %Get NTCP over entire scale
                                 strC = cellfun(@(x) x.strNum,modelC,'un',0);
                                 cIdx = find([strC{:}]==cStr);
+                                
+                                if p == 1
+                                    cProtocolStart(p) = 0;
+                                else
+                                    prevC = cellfun(@(x) x.type,ud.Protocols(p-1).model,'un',0);
+                                    prevIdxV = strcmpi('ntcp',prevC);
+                                    cProtocolStart(p) = sum(prevIdxV);
+                                end
+                                
                                 if ~isempty(cIdx)
-                                    if p == 1
-                                        cProtocolStart(p) = 0;
-                                    else
-                                        prevC = cellfun(@(x) x.type,ud.Protocols(p-1).model,'un',0);
-                                        prevIdxV = strcmpi('ntcp',prevC);
-                                        cProtocolStart(p) = sum(prevIdxV);
-                                    end
                                     xV = ud.NTCPCurve(cProtocolStart(p)+cIdx).XData;
                                     
                                     
@@ -964,52 +966,56 @@ switch upper(command)
                                         end
                                     end
                                 else
-                                    
-                                    if p == 1
-                                        cProtocolStart(p) = 0;
-                                    else
-                                        prevC = cellfun(@(x) x.type,ud.Protocols(p-1).model,'un',0);
-                                        prevIdxV = strcmpi('ntcp',prevC);
-                                        cProtocolStart(p) = sum(prevIdxV);
-                                    end
-                                    xV = ud.NTCPCurve(cProtocolStart(p)+1).XData;
-                                    
-                                    %Idenitfy dose/volume limits
                                     cCount = cCount + 1;
-                                    %nFrx = planC{indexS.dose}(plnNum).numFractions;
-                                    [cScaleV(cCount),cValV(cCount)] = calc_Limit(doseBinV,volHistV,strCritS.(criteriaC{n}),...
-                                        nFrxProtocol,critS.numFrx,abRatio,cgScaleV);
-                                    
+                                    cScaleV(cCount) = inf;
+                                    cValV(cCount) = -inf;
                                 end
-                                %Display line indicating clinical criteria/guidelines
-                                if isinf(cScaleV(cCount))
-                                    cXv(cCount) = inf;
-                                    x = [cXv(cCount) cXv(cCount)];
+                            else
+                                
+                                if p == 1
+                                    cProtocolStart(p) = 0;
                                 else
-                                    ind = cgScaleV == cScaleV(cCount);
-                                    cXv(cCount) = xV(ind);
-                                    x = [cXv(cCount) cXv(cCount)];
+                                    prevC = cellfun(@(x) x.type,ud.Protocols(p-1).model,'un',0);
+                                    prevIdxV = strcmpi('ntcp',prevC);
+                                    cProtocolStart(p) = sum(prevIdxV);
                                 end
-                                y = [0 1];
-                                %Set criteria line transparency
-                                if p==ud.foreground
-                                    critLineH = line(hNTCPAxis,x,y,'LineWidth',1,...
-                                        'Color',[1 0 0],'LineStyle','--','Tag','criteria',...
-                                        'Visible','Off');
-                                else
-                                    critLineH = line(hNTCPAxis,x,y,'LineWidth',2,...
-                                        'Color',[1 0 0 alpha],'LineStyle',':','Tag','criteria',...
-                                        'Visible','Off');
-                                end
-                                critLineUdS.protocol = p;
-                                critLineUdS.structure = structC{m};
-                                critLineUdS.label = criteriaC{n};
-                                critLineUdS.limit = strCritS.(criteriaC{n}).limit;
-                                critLineUdS.scale = cScaleV(cCount);
-                                critLineUdS.val = cValV(cCount);
-                                set(critLineH,'userdata',critLineUdS);
-                                protocolS(p).criteria = [protocolS(p).criteria,critLineH];
+                                xV = ud.NTCPCurve(cProtocolStart(p)+1).XData;
+                                
+                                %Idenitfy dose/volume limits
+                                cCount = cCount + 1;
+                                %nFrx = planC{indexS.dose}(plnNum).numFractions;
+                                [cScaleV(cCount),cValV(cCount)] = calc_Limit(doseBinV,volHistV,strCritS.(criteriaC{n}),...
+                                    nFrxProtocol,critS.numFrx,abRatio,cgScaleV);
                             end
+                            
+                            %Display line indicating clinical criteria/guidelines
+                            if isinf(cScaleV(cCount))
+                                cXv(cCount) = inf;
+                                x = [cXv(cCount) cXv(cCount)];
+                            else
+                                ind = cgScaleV == cScaleV(cCount);
+                                cXv(cCount) = xV(ind);
+                                x = [cXv(cCount) cXv(cCount)];
+                            end
+                            y = [0 1];
+                            %Set criteria line transparency
+                            if p==ud.foreground
+                                critLineH = line(hNTCPAxis,x,y,'LineWidth',1,...
+                                    'Color',[1 0 0],'LineStyle','--','Tag','criteria',...
+                                    'Visible','Off');
+                            else
+                                critLineH = line(hNTCPAxis,x,y,'LineWidth',2,...
+                                    'Color',[1 0 0 alpha],'LineStyle',':','Tag','criteria',...
+                                    'Visible','Off');
+                            end
+                            critLineUdS.protocol = p;
+                            critLineUdS.structure = structC{m};
+                            critLineUdS.label = criteriaC{n};
+                            critLineUdS.limit = strCritS.(criteriaC{n}).limit;
+                            critLineUdS.scale = cScaleV(cCount);
+                            critLineUdS.val = cValV(cCount);
+                            set(critLineH,'userdata',critLineUdS);
+                            protocolS(p).criteria = [protocolS(p).criteria,critLineH];
                         end
                         
                         %------------ Loop over guidelines --------------------
@@ -1027,14 +1033,14 @@ switch upper(command)
                                     strC = cellfun(@(x) x.strNum,modelC,'un',0);
                                     gIdx = find([strC{:}]==cStr);
                                     
+                                    if p == 1
+                                        gProtocolStart(p) = 0;
+                                    else
+                                        prevC = cellfun(@(x) x.type,ud.Protocols(p-1).model,'un',0);
+                                        prevIdxV = strcmpi('ntcp',prevC);
+                                        gProtocolStart(p) = sum(prevIdxV);
+                                    end
                                     if ~isempty(gIdx)
-                                        if p == 1
-                                            gProtocolStart(p) = 0;
-                                        else
-                                            prevC = cellfun(@(x) x.type,ud.Protocols(p-1).model,'un',0);
-                                            prevIdxV = strcmpi('ntcp',prevC);
-                                            gProtocolStart(p) = sum(prevIdxV);
-                                        end
                                         xV = ud.NTCPCurve(gProtocolStart(p)+gIdx).XData;
                                         
                                         %Identify where guideline is exceeded
@@ -1066,55 +1072,57 @@ switch upper(command)
                                             end
                                         end
                                     else
-                                        if p == 1
-                                            gProtocolStart(p) = 0;
-                                        else
-                                            prevC = cellfun(@(x) x.type,ud.Protocols(p-1).model,'un',0);
-                                            prevIdxV = strcmpi('ntcp',prevC);
-                                            gProtocolStart(p) = sum(prevIdxV);
-                                        end
-                                        xV = ud.NTCPCurve(gProtocolStart(p)+1).XData;
-                                        %Idenitfy dose/volume limits
                                         gCount = gCount + 1;
-                                        %nFrx = planC{indexS.dose}(plnNum).numFractions;
-                                        [gScaleV(gCount),gValV(gCount)] = calc_Limit(doseBinV,volHistV,strGuideS.(guidelinesC{n}),...
-                                            nFrxProtocol,critS.numFrx,abRatio,cgScaleV);
+                                        gScaleV(gCount) = inf;
+                                        gValV(gCount) = -inf;
                                     end
-                                    
-                                    %Display line indicating clinical criteria/guidelines
-                                    if isinf(gScaleV(gCount))
-                                        gXv(gCount) = inf;
+                                else
+                                    if p == 1
+                                        gProtocolStart(p) = 0;
                                     else
-                                        ind = cgScaleV == gScaleV(gCount);
-                                        gXv(gCount) = xV(ind);
+                                        prevC = cellfun(@(x) x.type,ud.Protocols(p-1).model,'un',0);
+                                        prevIdxV = strcmpi('ntcp',prevC);
+                                        gProtocolStart(p) = sum(prevIdxV);
                                     end
-                                    x = [gXv(gCount) gXv(gCount)];
-                                    y = [0 1];
-                                    if p==ud.foreground
-                                        guideLineH = line(hNTCPAxis,x,y,'LineWidth',2,...
-                                            'Color',[239 197 57]/255,'LineStyle','--',...
-                                            'Tag','guidelines','Visible','Off');
-                                    else
-                                        guideLineH = line(hNTCPAxis,x,y,'LineWidth',2,...
-                                            'Color',[239 197 57]/255,'LineStyle',':',...
-                                            'Tag','guidelines','Visible','Off');
-                                    end
-                                    guideLineUdS.protocol = p;
-                                    guideLineUdS.structure = structC{m};
-                                    guideLineUdS.label = guidelinesC{n};
-                                    guideLineUdS.limit = strGuideS.(guidelinesC{n}).limit;
-                                    guideLineUdS.scale = gScaleV(gCount);
-                                    guideLineUdS.val = gValV(gCount);
-                                    set(guideLineH,'userdata',guideLineUdS);
-                                    protocolS(p).guidelines = [protocolS(p).guidelines,guideLineH];
+                                    xV = ud.NTCPCurve(gProtocolStart(p)+1).XData;
+                                    %Idenitfy dose/volume limits
+                                    gCount = gCount + 1;
+                                    %nFrx = planC{indexS.dose}(plnNum).numFractions;
+                                    [gScaleV(gCount),gValV(gCount)] = calc_Limit(doseBinV,volHistV,strGuideS.(guidelinesC{n}),...
+                                        nFrxProtocol,critS.numFrx,abRatio,cgScaleV);
                                 end
+                                
+                                %Display line indicating clinical criteria/guidelines
+                                if isinf(gScaleV(gCount))
+                                    gXv(gCount) = inf;
+                                else
+                                    ind = cgScaleV == gScaleV(gCount);
+                                    gXv(gCount) = xV(ind);
+                                end
+                                x = [gXv(gCount) gXv(gCount)];
+                                y = [0 1];
+                                if p==ud.foreground
+                                    guideLineH = line(hNTCPAxis,x,y,'LineWidth',2,...
+                                        'Color',[239 197 57]/255,'LineStyle','--',...
+                                        'Tag','guidelines','Visible','Off');
+                                else
+                                    guideLineH = line(hNTCPAxis,x,y,'LineWidth',2,...
+                                        'Color',[239 197 57]/255,'LineStyle',':',...
+                                        'Tag','guidelines','Visible','Off');
+                                end
+                                guideLineUdS.protocol = p;
+                                guideLineUdS.structure = structC{m};
+                                guideLineUdS.label = guidelinesC{n};
+                                guideLineUdS.limit = strGuideS.(guidelinesC{n}).limit;
+                                guideLineUdS.scale = gScaleV(gCount);
+                                guideLineUdS.val = gValV(gCount);
+                                set(guideLineH,'userdata',guideLineUdS);
+                                protocolS(p).guidelines = [protocolS(p).guidelines,guideLineH];
                             end
                         end
-                        
                     end
                 end
             end
-            
             planC{indexS.dose}(plnNum).doseArray = dA;
         end
         
