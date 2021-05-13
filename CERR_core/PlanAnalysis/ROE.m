@@ -418,6 +418,34 @@ switch upper(command)
         cCount = 0;
         gCount = 0;
         
+        
+        %% Handle missing structure input
+        for p = 1:numel(protocolS)
+            
+            modelC = protocolS(p).model;
+            
+            %Identify models with no associated struct. selection
+            strSelC = cellfun(@(x)x.strNum , modelC,'un',0);
+            noSelV = find([strSelC{:}]==0);
+            
+            %Allow users to input missing structures or skip associated models
+            if any(noSelV)
+                modList = cellfun(@(x)x.name , modelC,'un',0);
+                modList = strjoin(modList(noSelV),',');
+                %msgbox(['Please select structures required for models ' modList],'Selection required');
+                missingSel = questdlg(['\fontsize{11}No structure selected',...
+                    ' for ',modList,'. Skip model(s)?'],'Missing structure',...
+                    'Yes','No',struct('Interpreter','tex','Default','Yes'));
+                if ~isempty(missingSel) && strcmp(missingSel,'Yes')
+                    modelC(noSelV) = [];
+                    protocolS(p).model = modelC;
+                else
+                    return
+                end
+            end
+        end
+        
+        
         %% Mode-specific computations
         switch plotMode
             
@@ -435,17 +463,6 @@ switch upper(command)
                 for p = 1:numel(protocolS)
                     
                     modelC = protocolS(p).model;
-                    
-                    %Ensure reqd structures are selected 
-                    strSelC = cellfun(@(x)x.strNum , modelC,'un',0);
-                    noSelV = find([strSelC{:}]==0);
-                    
-                    if any(noSelV)
-                       modList = cellfun(@(x)x.name , modelC,'un',0);
-                       modList = strjoin(modList(noSelV),',');  
-                       msgbox(['Please select structures required for models ' modList],'Selection required');
-                       return
-                    end
                     
                     modTypeC = cellfun(@(x)(x.type),modelC,'un',0);
                     xIndx = find(strcmp(modTypeC,'BED') | strcmp(modTypeC,'TCP')); %Identify TCP/BED models
@@ -994,7 +1011,9 @@ switch upper(command)
                                 %Idenitfy dose/volume limits
                                 cCount = cCount + 1;
                                 %nFrx = planC{indexS.dose}(plnNum).numFractions;
-                                [cScaleV(cCount),cValV(cCount)] = calc_Limit(doseBinV,volHistV,strCritS.(criteriaC{n}),...
+                                [cScaleV(cCount),cValV(cCount)] = ...
+                                    calcLimitROE(doseBinV,volHistV,...
+                                    strCritS.(criteriaC{n}),...
                                     nFrxProtocol,critS.numFrx,abRatio,cgScaleV);
                             end
                             
@@ -1098,7 +1117,9 @@ switch upper(command)
                                     %Idenitfy dose/volume limits
                                     gCount = gCount + 1;
                                     %nFrx = planC{indexS.dose}(plnNum).numFractions;
-                                    [gScaleV(gCount),gValV(gCount)] = calc_Limit(doseBinV,volHistV,strGuideS.(guidelinesC{n}),...
+                                    [gScaleV(gCount),gValV(gCount)] = ...
+                                        calcLimitROE(doseBinV,volHistV,...
+                                        strGuideS.(guidelinesC{n}),...
                                         nFrxProtocol,critS.numFrx,abRatio,cgScaleV);
                                 end
                                 
@@ -1403,43 +1424,6 @@ end
 
 %% -----------------------------------------------------------------------------------------
 
-% Calculate scale factor at which criteria are first violated
-    function [cScale, critVal] = calc_Limit(doseBinV,volHistV,critS,numFrxProtocol,critNumFrx,abRatio,scaleFactorV)
-        cFunc =  critS.function;
-        cLim = critS.limit;
-        critVal = -inf;
-        count = 0;
-        s = 0;
-        while critVal <= cLim(1) && count<length(scaleFactorV)
-            count = count + 1;
-            %Scale dose bins
-            s = scaleFactorV(count);
-            scaledDoseBinsV = s*doseBinV;
-            
-            %Convert to standard no. fractions
-            Na = numFrxProtocol;
-            Nb = critNumFrx;
-            a = Na;
-            b = Na*Nb*abRatio;
-            c = -scaledDoseBinsV.*(b + scaledDoseBinsV*Nb);
-            correctedScaledDoseV = (-b + sqrt(b^2 - 4*a*c))/(2*a);
-            
-            if ~strcmp(cFunc,'ntcp')
-                if isfield(critS,'parameters')
-                    cParamS = critS.parameters;
-                    critVal = feval(cFunc,correctedScaledDoseV,volHistV,cParamS);
-                else
-                    critVal = feval(cFunc,correctedScaledDoseV,volHistV);
-                end
-            end
-        end
-        if s == max(scaleFactorV)
-            cScale = inf;
-            critVal = inf;
-        else
-            cScale = s;
-        end
-    end
 
 %Panel to view constraints & select for display
     function critPanel(hObj,hEvt,command)
@@ -1468,7 +1452,8 @@ end
                 ud = guidata(hFig);
                 protS = ud.Protocols;
                 currProtocol = ud.foreground;
-                if isempty(protS(currProtocol).criteria) && isempty(protS(currProtocol).guidelines)
+                if isempty(protS(currProtocol).criteria) && ...
+                        isempty(protS(currProtocol).guidelines)
                     return
                 end
                 
