@@ -964,7 +964,6 @@ switch upper(command)
                                 if ~isempty(cIdx)
                                     xV = ud.NTCPCurve(cProtocolStart(p)+cIdx).XData;
                                     
-                                    
                                     %Identify where limit is exceeded
                                     ntcpV = ud.NTCPCurve(cProtocolStart(p)+cIdx).YData;
                                     cCount = cCount + 1;
@@ -997,6 +996,9 @@ switch upper(command)
                                     cScaleV(cCount) = inf;
                                     cValV(cCount) = -inf;
                                 end
+                                
+                                %Get crit label
+                                cLabel = strtok(strCritS.(criteriaC{n}).parameters.modelFile,'.');
                             else
                                 
                                 if p == 1
@@ -1015,6 +1017,9 @@ switch upper(command)
                                     calcLimitROE(doseBinV,volHistV,...
                                     strCritS.(criteriaC{n}),...
                                     nFrxProtocol,critS.numFrx,abRatio,cgScaleV);
+                                
+                                %Get crit label
+                                cLabel = criteriaC{n};
                             end
                             
                             %Display line indicating clinical criteria/guidelines
@@ -1039,7 +1044,7 @@ switch upper(command)
                             end
                             critLineUdS.protocol = p;
                             critLineUdS.structure = structC{m};
-                            critLineUdS.label = criteriaC{n};
+                            critLineUdS.label = cLabel;
                             critLineUdS.limit = strCritS.(criteriaC{n}).limit;
                             critLineUdS.scale = cScaleV(cCount);
                             critLineUdS.val = cValV(cCount);
@@ -1105,6 +1110,9 @@ switch upper(command)
                                         gScaleV(gCount) = inf;
                                         gValV(gCount) = -inf;
                                     end
+                                    
+                                    %Get guideline label
+                                    gLabel = strtok(strGuideS.(guidelinesC{n}).parameters.modelFile,'.');
                                 else
                                     if p == 1
                                         gProtocolStart(p) = 0;
@@ -1121,6 +1129,9 @@ switch upper(command)
                                         calcLimitROE(doseBinV,volHistV,...
                                         strGuideS.(guidelinesC{n}),...
                                         nFrxProtocol,critS.numFrx,abRatio,cgScaleV);
+                                    
+                                    %Get guideline label
+                                    gLabel =  guidelinesC{n};
                                 end
                                 
                                 %Display line indicating clinical criteria/guidelines
@@ -1143,7 +1154,7 @@ switch upper(command)
                                 end
                                 guideLineUdS.protocol = p;
                                 guideLineUdS.structure = structC{m};
-                                guideLineUdS.label = guidelinesC{n};
+                                guideLineUdS.label = gLabel;
                                 guideLineUdS.limit = strGuideS.(guidelinesC{n}).limit;
                                 guideLineUdS.scale = gScaleV(gCount);
                                 guideLineUdS.val = gValV(gCount);
@@ -1592,7 +1603,7 @@ end
                                         'Tag','criteria','UpdateFcn',...
                                         @(hObj,hEvt)expandDataTipROE(hObj,hEvt,hFig));
                                 else                 %Criteria
-                                    dispSelCriteria([],[],hFig,'criteria',...
+                                    dispSelCriteriaROE([],[],hFig,'criteria',...
                                         nextLimit(l)-gNum,currProtocol);
                                     hNext = hCrit(nextLimit(l)-gNum);
                                     hData = cMode.createDatatip(hNext);
@@ -1644,7 +1655,7 @@ end
                             prevLimit = limOrderV(prvIdxV);
                             for l = 1:numel(prevLimit)
                                 if prevLimit(l) <= gNum  %Guidelines
-                                    dispSelCriteria([],[],hFig,'guidelines',...
+                                    dispSelCriteriaROE([],[],hFig,'guidelines',...
                                         prevLimit(l),currProtocol);
                                     hNext = hGuide(prevLimit(l));
                                     hData = cMode.createDatatip(hNext);
@@ -1652,7 +1663,7 @@ end
                                         'Tag','guidelines','UpdateFcn',...
                                         @(hObj,hEvt)expandDataTipROE(hObj,hEvt,hFig));
                                 else                 %Criteria
-                                    dispSelCriteria([],[],hFig,'criteria',prevLimit(l)-gNum,currProtocol);
+                                    dispSelCriteriaROE([],[],hFig,'criteria',prevLimit(l)-gNum,currProtocol);
                                     hNext = hCrit(prevLimit(l)-gNum);
                                     hData = cMode.createDatatip(hNext);
                                     set(hData,'Visible','On','OrientationMode','Manual',...
