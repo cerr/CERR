@@ -1,8 +1,11 @@
 function ROE(command,varargin)
 %  GUI for outcomes modeling (TCP, NTCP)
-%  This tool uses JSONlab toolbox v1.2, an open-source JSON/UBJSON encoder and decoder
-%  for MATLAB and Octave.
-%  See : http://www.mathworks.com/matlabcentral/fileexchange/33381-jsonlab--a-toolbox-to-encode-decode-json-files
+%  This tool uses 
+% +  JSONlab toolbox v1.2, an open-source JSON/UBJSON encoder and decoder
+%    for MATLAB and Octave.
+%    http://www.mathworks.com/matlabcentral/fileexchange/33381-jsonlab--a-toolbox-to-encode-decode-json-files
+% +  draggable by William Warriner (2021)
+%    draggable (https://github.com/wwarriner/draggable/releases/tag/v0.1.0), GitHub. Retrieved May 17, 2021.
 % =======================================================================================================================
 % APA, 05/10/2016
 % AI , 05/24/2016  Added dose scaling
@@ -237,14 +240,14 @@ switch upper(command)
             'Style','Slider','Visible','Off','Tag','Scale','Min',0.5,'Max',1.5,'Value',1,...
             'SliderStep',[1/(99-1),1/(99-1)]);
         addlistener(plotH(7),'ContinuousValueChange',...
-            @(hObj,hEvt)getParamsROE(hObj,hEvt,hFig,planC));
+            @(hObj,hEvt)scaleDoseROE(hObj,hEvt,hFig));
         %scale nfrx
         plotH(8) = uicontrol('parent',hFig,'units','pixels','Position',...
             [leftMarginWidth+.18*GUIWidth 5*shift .75*GUIWidth-leftMarginWidth 1.8*shift],...
             'Style','Slider','Visible','Off','Tag','Scale','Min',-15,'Max',15,'Value',0,...
             'SliderStep',[1/30 1/30]);
         addlistener(plotH(8),'ContinuousValueChange',...
-            @(hObj,hEvt)getParamsROE(hObj,hEvt,hFig,planC));
+            @(hObj,hEvt)scaleDoseROE(hObj,hEvt,hFig));
         
         
         %Push-button for constraints panel
@@ -264,6 +267,19 @@ switch upper(command)
             'Style','Text','Visible','Off','fontSize',8,'Callback',...
             @(hObj,hEvt)enterScaleROE(hObj,hEvt,hFig));
         
+        %Move data labels
+        if isdeployed
+            [I,map] = imread(fullfile(getCERRPath,'pics','Icons','lock.gif'),'gif');
+        else
+            [I,map] = imread('lock.gif','gif');
+        end
+        lockImg = ind2rgb(I,map);
+        plotH(12) = uicontrol('parent',hFig,'units','pixels','Position',...
+            [leftMarginWidth+.15*GUIWidth 5*shift 2*shift 2*shift],...
+            'cdata',lockImg,'Style','toggle','Value',0,...
+            'Visible','Off','fontSize',8,'tooltip','Toggle to move/lock labels',...
+            'Callback',@(hObj,hEvt)moveLabelsROE(hObj,hEvt,hFig));
+       
         %Turn off datacursor mode
         cursorMode = datacursormode(hFig);
         cursorMode.removeAllDataCursors;
@@ -399,8 +415,9 @@ switch upper(command)
         end
         
         %% Define color order, foreground protocol
-        colorOrderM = [0 229 238;123 104 238;255 131 250;0 238 118;218 165 32;...
-            196	196	196;0 139 0;28 134 238;238 223 204]/255;
+        colorOrderM = [0 229 238;123 104 238;255 131 250;0 238 118;
+            218 165 32;255 153 153;196 196 196;0 139 0;28 134 238;...
+            238 223 204]/255;
         if ~isfield(ud,'foreground') || isempty(ud.foreground)
             ud.foreground = 1;
         end
@@ -417,6 +434,34 @@ switch upper(command)
         jTot = 0;
         cCount = 0;
         gCount = 0;
+        
+        
+        %% Handle missing structure input
+        for p = 1:numel(protocolS)
+            
+            modelC = protocolS(p).model;
+            
+            %Identify models with no associated struct. selection
+            strSelC = cellfun(@(x)x.strNum , modelC,'un',0);
+            noSelV = find([strSelC{:}]==0);
+            
+            %Allow users to input missing structures or skip associated models
+            if any(noSelV)
+                modList = cellfun(@(x)x.name , modelC,'un',0);
+                modList = strjoin(modList(noSelV),',');
+                %msgbox(['Please select structures required for models ' modList],'Selection required');
+                missingSel = questdlg(['\fontsize{11}No structure selected',...
+                    ' for ',modList,'. Skip model(s)?'],'Missing structure',...
+                    'Yes','No',struct('Interpreter','tex','Default','Yes'));
+                if ~isempty(missingSel) && strcmp(missingSel,'Yes')
+                    modelC(noSelV) = [];
+                    protocolS(p).model = modelC;
+                else
+                    return
+                end
+            end
+        end
+        
         
         %% Mode-specific computations
         switch plotMode
@@ -435,17 +480,6 @@ switch upper(command)
                 for p = 1:numel(protocolS)
                     
                     modelC = protocolS(p).model;
-                    
-                    %Ensure reqd structures are selected 
-                    strSelC = cellfun(@(x)x.strNum , modelC,'un',0);
-                    noSelV = find([strSelC{:}]==0);
-                    
-                    if any(noSelV)
-                       modList = cellfun(@(x)x.name , modelC,'un',0);
-                       modList = strjoin(modList(noSelV),',');  
-                       msgbox(['Please select structures required for models ' modList],'Selection required');
-                       return
-                    end
                     
                     modTypeC = cellfun(@(x)(x.type),modelC,'un',0);
                     xIndx = find(strcmp(modTypeC,'BED') | strcmp(modTypeC,'TCP')); %Identify TCP/BED models
@@ -947,7 +981,6 @@ switch upper(command)
                                 if ~isempty(cIdx)
                                     xV = ud.NTCPCurve(cProtocolStart(p)+cIdx).XData;
                                     
-                                    
                                     %Identify where limit is exceeded
                                     ntcpV = ud.NTCPCurve(cProtocolStart(p)+cIdx).YData;
                                     cCount = cCount + 1;
@@ -980,6 +1013,9 @@ switch upper(command)
                                     cScaleV(cCount) = inf;
                                     cValV(cCount) = -inf;
                                 end
+                                
+                                %Get crit label
+                                cLabel = strtok(strCritS.(criteriaC{n}).parameters.modelFile,'.');
                             else
                                 
                                 if p == 1
@@ -994,8 +1030,13 @@ switch upper(command)
                                 %Idenitfy dose/volume limits
                                 cCount = cCount + 1;
                                 %nFrx = planC{indexS.dose}(plnNum).numFractions;
-                                [cScaleV(cCount),cValV(cCount)] = calc_Limit(doseBinV,volHistV,strCritS.(criteriaC{n}),...
+                                [cScaleV(cCount),cValV(cCount)] = ...
+                                    calcLimitROE(doseBinV,volHistV,...
+                                    strCritS.(criteriaC{n}),...
                                     nFrxProtocol,critS.numFrx,abRatio,cgScaleV);
+                                
+                                %Get crit label
+                                cLabel = criteriaC{n};
                             end
                             
                             %Display line indicating clinical criteria/guidelines
@@ -1020,7 +1061,7 @@ switch upper(command)
                             end
                             critLineUdS.protocol = p;
                             critLineUdS.structure = structC{m};
-                            critLineUdS.label = criteriaC{n};
+                            critLineUdS.label = cLabel;
                             critLineUdS.limit = strCritS.(criteriaC{n}).limit;
                             critLineUdS.scale = cScaleV(cCount);
                             critLineUdS.val = cValV(cCount);
@@ -1086,6 +1127,9 @@ switch upper(command)
                                         gScaleV(gCount) = inf;
                                         gValV(gCount) = -inf;
                                     end
+                                    
+                                    %Get guideline label
+                                    gLabel = strtok(strGuideS.(guidelinesC{n}).parameters.modelFile,'.');
                                 else
                                     if p == 1
                                         gProtocolStart(p) = 0;
@@ -1098,8 +1142,13 @@ switch upper(command)
                                     %Idenitfy dose/volume limits
                                     gCount = gCount + 1;
                                     %nFrx = planC{indexS.dose}(plnNum).numFractions;
-                                    [gScaleV(gCount),gValV(gCount)] = calc_Limit(doseBinV,volHistV,strGuideS.(guidelinesC{n}),...
+                                    [gScaleV(gCount),gValV(gCount)] = ...
+                                        calcLimitROE(doseBinV,volHistV,...
+                                        strGuideS.(guidelinesC{n}),...
                                         nFrxProtocol,critS.numFrx,abRatio,cgScaleV);
+                                    
+                                    %Get guideline label
+                                    gLabel =  guidelinesC{n};
                                 end
                                 
                                 %Display line indicating clinical criteria/guidelines
@@ -1122,7 +1171,7 @@ switch upper(command)
                                 end
                                 guideLineUdS.protocol = p;
                                 guideLineUdS.structure = structC{m};
-                                guideLineUdS.label = guidelinesC{n};
+                                guideLineUdS.label = gLabel;
                                 guideLineUdS.limit = strGuideS.(guidelinesC{n}).limit;
                                 guideLineUdS.scale = gScaleV(gCount);
                                 guideLineUdS.val = gValV(gCount);
@@ -1135,7 +1184,7 @@ switch upper(command)
             end
             planC{indexS.dose}(plnNum).doseArray = dA;
         end
-        
+
         close(hWait);
         
         %Add plot labels
@@ -1194,6 +1243,7 @@ switch upper(command)
         
         %Display current dose/probability
         scaleDoseROE(hSlider,[],hFig);
+        ud = guidata(hFig);
         
         %Enable user-entered scale entry
         set(ud.handle.modelsAxis(10),'enable','On');
@@ -1258,12 +1308,30 @@ switch upper(command)
                 end
                 
             end
-            
+
             %Set datacursor update function
             set(cursorMode, 'Enable','On','SnapToDataVertex','off',...
                 'UpdateFcn',@(hObj,hEvt)expandDataTipROE(hObj,hEvt,hFig));
-            
+            % set(cursorMode,'Enable','Off');
+                        
         end
+        
+        
+        %Make labels draggable
+        for nLabel = 1:length(ud.y1Disp)
+            hLabel = ud.y1Disp(nLabel);
+            draggable(hLabel, "v", [0.01 0.1]);
+        end
+        if isfield(ud,'y2Disp') && ~isempty(ud.y2Disp)
+            for nLabel = 1:length(ud.y2Disp)
+                hLabel = ud.y2Disp(nLabel);
+                draggable(hLabel, "v", [0.01 0.1]);
+            end
+        end
+        
+        
+        %Enable data label toggle control
+        set(ud.handle.modelsAxis(12),'Visible','On');
         
         
     case 'CLEAR_PLOT'
@@ -1313,6 +1381,7 @@ switch upper(command)
         set(ud.handle.modelsAxis(7),'Visible','Off');
         set(ud.handle.modelsAxis(8),'Visible','Off');
         set(ud.handle.modelsAxis(10),'enable','Off');
+        set(ud.handle.modelsAxis(12),'Visible','Off');
         guidata(hFig,ud);
         
     case 'LIST_MODELS'
@@ -1403,43 +1472,6 @@ end
 
 %% -----------------------------------------------------------------------------------------
 
-% Calculate scale factor at which criteria are first violated
-    function [cScale, critVal] = calc_Limit(doseBinV,volHistV,critS,numFrxProtocol,critNumFrx,abRatio,scaleFactorV)
-        cFunc =  critS.function;
-        cLim = critS.limit;
-        critVal = -inf;
-        count = 0;
-        s = 0;
-        while critVal <= cLim(1) && count<length(scaleFactorV)
-            count = count + 1;
-            %Scale dose bins
-            s = scaleFactorV(count);
-            scaledDoseBinsV = s*doseBinV;
-            
-            %Convert to standard no. fractions
-            Na = numFrxProtocol;
-            Nb = critNumFrx;
-            a = Na;
-            b = Na*Nb*abRatio;
-            c = -scaledDoseBinsV.*(b + scaledDoseBinsV*Nb);
-            correctedScaledDoseV = (-b + sqrt(b^2 - 4*a*c))/(2*a);
-            
-            if ~strcmp(cFunc,'ntcp')
-                if isfield(critS,'parameters')
-                    cParamS = critS.parameters;
-                    critVal = feval(cFunc,correctedScaledDoseV,volHistV,cParamS);
-                else
-                    critVal = feval(cFunc,correctedScaledDoseV,volHistV);
-                end
-            end
-        end
-        if s == max(scaleFactorV)
-            cScale = inf;
-            critVal = inf;
-        else
-            cScale = s;
-        end
-    end
 
 %Panel to view constraints & select for display
     function critPanel(hObj,hEvt,command)
@@ -1468,7 +1500,8 @@ end
                 ud = guidata(hFig);
                 protS = ud.Protocols;
                 currProtocol = ud.foreground;
-                if isempty(protS(currProtocol).criteria) && isempty(protS(currProtocol).guidelines)
+                if isempty(protS(currProtocol).criteria) && ...
+                        isempty(protS(currProtocol).guidelines)
                     return
                 end
                 
@@ -1607,7 +1640,7 @@ end
                                         'Tag','criteria','UpdateFcn',...
                                         @(hObj,hEvt)expandDataTipROE(hObj,hEvt,hFig));
                                 else                 %Criteria
-                                    dispSelCriteria([],[],hFig,'criteria',...
+                                    dispSelCriteriaROE([],[],hFig,'criteria',...
                                         nextLimit(l)-gNum,currProtocol);
                                     hNext = hCrit(nextLimit(l)-gNum);
                                     hData = cMode.createDatatip(hNext);
@@ -1659,7 +1692,7 @@ end
                             prevLimit = limOrderV(prvIdxV);
                             for l = 1:numel(prevLimit)
                                 if prevLimit(l) <= gNum  %Guidelines
-                                    dispSelCriteria([],[],hFig,'guidelines',...
+                                    dispSelCriteriaROE([],[],hFig,'guidelines',...
                                         prevLimit(l),currProtocol);
                                     hNext = hGuide(prevLimit(l));
                                     hData = cMode.createDatatip(hNext);
@@ -1667,7 +1700,7 @@ end
                                         'Tag','guidelines','UpdateFcn',...
                                         @(hObj,hEvt)expandDataTipROE(hObj,hEvt,hFig));
                                 else                 %Criteria
-                                    dispSelCriteria([],[],hFig,'criteria',prevLimit(l)-gNum,currProtocol);
+                                    dispSelCriteriaROE([],[],hFig,'criteria',prevLimit(l)-gNum,currProtocol);
                                     hNext = hCrit(prevLimit(l)-gNum);
                                     hData = cMode.createDatatip(hNext);
                                     set(hData,'Visible','On','OrientationMode','Manual',...

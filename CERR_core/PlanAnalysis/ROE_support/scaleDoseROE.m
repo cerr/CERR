@@ -48,15 +48,17 @@ if isfield(ud,'y2Disp')
 end
 xLmtV = get(y1PlotAxis,'xLim');
 hDisp_y1 = text(xLmtV(1),0,'','Parent',y1PlotAxis,...
-    'FontSize',8,'Color',[.3 .3 .3]);
+    'FontSize',8,'Color',[.3 .3 .3],'HitTest','on',...
+    'PickableParts','visible');
 if ~isempty(y2PlotAxis)
     hDisp_y2 = text(xLmtV(2),0,'','Parent',y2PlotAxis,...
-        'FontSize',8,'Color',[.3 .3 .3]);
+        'FontSize',8,'Color',[.3 .3 .3],'HitTest','on',...
+        'PickableParts','visible');
 end
 
 %Set color order
 colorM = [0 229 238;123 104 238;255 131 250;0 238 118;218 165 32;...
-    196	196	196;0 139 0;28 134 238;238 223 204]/255;
+    255 153 153;196 196 196;0 139 0;28 134 238;238 223 204]/255;
 
 %Scale plots as selected
 modNum = 0;
@@ -136,7 +138,9 @@ for l = 1:numel(ud.Protocols)
                 y1 = y1+1;
                 count = y1;
                 hDisp_y1(count) = text(xLmtV(1),0,'','Parent',y1PlotAxis,...
-                    'FontSize',8,'Color',[.3 .3 .3]);
+                   'FontSize',8,'Color',[0 0 0],'BackgroundColor',[1 1 1],...
+                   'EdgeColor',pColorM(clrIdx,:),'LineWidth',2,...
+                   'FontWeight','Bold');
                 hText = hDisp_y1(count);
                 txtPos = xLmtV(1) - 0.15*abs(xLmtV(1));
                 if ud.plotMode==1 || ud.plotMode==2
@@ -153,7 +157,9 @@ for l = 1:numel(ud.Protocols)
                     y2 = y2+1;
                     count = y2;
                     hDisp_y2(count) = text(xLmtV(2),0,'','Parent',y2PlotAxis,...
-                        'FontSize',8,'Color',[.3 .3 .3]);
+                        'FontSize',8,'Color',[0 0 0],'BackgroundColor',...
+                        [1 1 1],'EdgeColor',pColorM(clrIdx,:),'LineWidth',...
+                        2,'FontWeight','Bold');
                     hText = hDisp_y2(count);
                     txtPos = xLmtV(2)+.05;
                     skip=0;
@@ -161,11 +167,13 @@ for l = 1:numel(ud.Protocols)
             end
             
             if ~skip %Error here: TO DO! Check!
-                plot([xScale xScale],[0 cpNew],'Color',pColorM(clrIdx,:),'LineStyle','-.',...
-                    'linewidth',2,'parent',hplotAx);
-                plot([loc xScale],[cpNew cpNew],'Color',pColorM(clrIdx,:),'LineStyle','-.',...
-                    'linewidth',2,'parent',hplotAx);
-                set(hText,'Position',[txtPos,cpNew],'String',sprintf('%.3f',cpNew));
+                plot([xScale xScale],[0 cpNew],'Color',pColorM(clrIdx,:),...
+                    'LineStyle','-.','linewidth',2,'parent',hplotAx);
+                plot([loc xScale],[cpNew cpNew],'Color',pColorM(clrIdx,:),...
+                    'LineStyle','-.','linewidth',2,'parent',hplotAx);
+                set(hText,'Position',[txtPos,cpNew],'String',sprintf('%.3f',...
+                   cpNew),'Edge',pColorM(clrIdx,:),'LineWidth',2,...
+                   'FontWeight','Bold');
             end
             
         end
