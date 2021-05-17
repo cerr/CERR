@@ -450,8 +450,9 @@ switch upper(command)
                 modList = cellfun(@(x)x.name , modelC,'un',0);
                 modList = strjoin(modList(noSelV),',');
                 %msgbox(['Please select structures required for models ' modList],'Selection required');
-                missingSel = questdlg(['\fontsize{11}No structure selected',...
-                    ' for ',modList,'. Skip model(s)?'],'Missing structure',...
+                dispMsg = sprintf(['No structure selected',...
+                    ' for ',modList,'.\n Skip model(s)?']);
+                missingSel = questdlg(['\fontsize{11}',dispMsg],'Missing structure',...
                     'Yes','No',struct('Interpreter','tex','Default','Yes'));
                 if ~isempty(missingSel) && strcmp(missingSel,'Yes')
                     modelC(noSelV) = [];
@@ -946,21 +947,144 @@ switch upper(command)
                 critS = protocolS(p).constraints;
                 nFrxProtocol = protocolS(p).numFractions;
                 structC = fieldnames(critS.structures);
+                
                 %Loop over structures
                 for m = 1:numel(structC)
                     cStr = find(strcmpi(structC{m}, availableStructsC));
-                    %If structure & clinical criteria are available
-                    if ~isempty(cStr) & ...
-                            isfield(critS.structures.(structC{m}),'criteria')
-                        %Extract criteria
-                        strCritS = critS.structures.(structC{m}).criteria;
-                        criteriaC = fieldnames(strCritS);
+                    %------------ Loop over guidelines --------------------
+                    %Extract guidelines
+                    if ~isempty(cStr) && isfield(critS.structures.(structC{m}),'guidelines')
+                        strGuideS = critS.structures.(structC{m}).guidelines;
+                        guidelinesC = fieldnames(strGuideS);
+                        
                         %Get alpha/beta ratio
                         abRatio = critS.structures.(structC{m}).abRatio;
                         %Get DVH
                         [doseV,volsV] = getDVH(cStr,plnNum,planC);
                         [doseBinV,volHistV] = doseHist(doseV, volsV, binWidth);
-                        %------------ Loop over criteria ----------------------
+                        dvAvailable = 1;
+                        for n = 1:length(guidelinesC)
+                            
+                            %Idenitfy NTCP limits
+                            if strcmp(strGuideS.(guidelinesC{n}).function,'ntcp')
+                                
+                                %Get NTCP over range of scale factors
+                                strC = cellfun(@(x) x.strNum,modelC,'un',0);
+                                gIdx = find([strC{:}]==cStr);
+                                
+                                if p == 1
+                                    gProtocolStart(p) = 0;
+                                else
+                                    prevC = cellfun(@(x) x.type,ud.Protocols(p-1).model,'un',0);
+                                    prevIdxV = strcmpi('ntcp',prevC);
+                                    gProtocolStart(p) = sum(prevIdxV);
+                                end
+                                if ~isempty(gIdx)
+                                    xV = ud.NTCPCurve(gProtocolStart(p)+gIdx).XData;
+                                    
+                                    %Identify where guideline is exceeded
+                                    ntcpV = ud.NTCPCurve(gProtocolStart(p)+gIdx).YData;
+                                    exceedIdxV = ntcpV >= strGuideS.(guidelinesC{n}).limit;
+                                    gCount = gCount + 1;
+                                    if ~any(exceedIdxV)
+                                        gValV(gCount) = inf;
+                                        gScaleV(gCount) = inf;
+                                        gXv(gCount) = inf;
+                                    else
+                                        exceedIdxV = find(exceedIdxV,1,'first');
+                                        gValV(gCount) = ntcpV(exceedIdxV);
+                                        gScaleV(gCount) = cgScaleV(exceedIdxV);
+                                        ind =  cgScaleV == gScaleV(gCount);
+                                        gXv(gCount) = xV(ind);
+                                        clr = [239 197 57]./255;
+                                        if p==ud.foreground
+                                            ud.gMarker = [ud.cMarker,plot(hNTCPAxis,gXv(gCount),...
+                                                gValV(gCount),'o','MarkerSize',8,'MarkerFaceColor',...
+                                                clr,'MarkerEdgeColor','k')];
+                                        else
+                                            addMarker = scatter(hNTCPAxis,gXv(gCount),...
+                                                gValV(gCount),60,'MarkerFaceColor',clr,...
+                                                'MarkerEdgeColor','k');
+                                            addMarker.MarkerFaceAlpha = .3;
+                                            addMarker.MarkerEdgeAlpha = .3;
+                                            ud.gMarker = [ud.cMarker,addMarker];
+                                        end
+                                    end
+                                else
+                                    gCount = gCount + 1;
+                                    gScaleV(gCount) = inf;
+                                    gValV(gCount) = -inf;
+                                end
+                                
+                                %Get guideline label
+                                gLabel = strtok(strGuideS.(guidelinesC{n}).parameters.modelFile,'.');
+                            else
+                                if p == 1
+                                    gProtocolStart(p) = 0;
+                                else
+                                    prevC = cellfun(@(x) x.type,ud.Protocols(p-1).model,'un',0);
+                                    prevIdxV = strcmpi('ntcp',prevC);
+                                    gProtocolStart(p) = sum(prevIdxV);
+                                end
+                                xV = ud.NTCPCurve(gProtocolStart(p)+1).XData;
+                                %Idenitfy dose/volume limits
+                                gCount = gCount + 1;
+                                %nFrx = planC{indexS.dose}(plnNum).numFractions;
+                                [gScaleV(gCount),gValV(gCount)] = ...
+                                    calcLimitROE(doseBinV,volHistV,...
+                                    strGuideS.(guidelinesC{n}),...
+                                    nFrxProtocol,critS.numFrx,abRatio,cgScaleV);
+                                
+                                %Get guideline label
+                                gLabel =  guidelinesC{n};
+                            end
+                            
+                            %Display line indicating clinical criteria/guidelines
+                            if isinf(gScaleV(gCount))
+                                gXv(gCount) = inf;
+                            else
+                                ind = cgScaleV == gScaleV(gCount);
+                                gXv(gCount) = xV(ind);
+                            end
+                            x = [gXv(gCount) gXv(gCount)];
+                            y = [0 1];
+                            if p==ud.foreground
+                                guideLineH = line(hNTCPAxis,x,y,'LineWidth',2,...
+                                    'Color',[239 197 57]/255,'LineStyle','--',...
+                                    'Tag','guidelines','Visible','Off');
+                            else
+                                guideLineH = line(hNTCPAxis,x,y,'LineWidth',2,...
+                                    'Color',[239 197 57]/255,'LineStyle',':',...
+                                    'Tag','guidelines','Visible','Off');
+                            end
+                            guideLineUdS.protocol = p;
+                            guideLineUdS.structure = structC{m};
+                            guideLineUdS.label = gLabel;
+                            guideLineUdS.limit = strGuideS.(guidelinesC{n}).limit;
+                            guideLineUdS.scale = gScaleV(gCount);
+                            guideLineUdS.val = gValV(gCount);
+                            set(guideLineH,'userdata',guideLineUdS);
+                            protocolS(p).guidelines = [protocolS(p).guidelines,guideLineH];
+                        end
+                    else
+                       dvAvailable = 0; 
+                    end
+                    %----- Loop over hard constraints--------
+                    
+                    %If structure & clinical criteria are available
+                    if ~isempty(cStr) & ...
+                            isfield(critS.structures.(structC{m}),'criteria')
+                        strCritS = critS.structures.(structC{m}).criteria;
+                        criteriaC = fieldnames(strCritS);
+                        
+                        if ~dvAvailable
+                            %Get alpha/beta ratio
+                            abRatio = critS.structures.(structC{m}).abRatio;
+                            %Get DVH
+                            [doseV,volsV] = getDVH(cStr,plnNum,planC);
+                            [doseBinV,volHistV] = doseHist(doseV, volsV, binWidth);
+                        end
+                        
                         for n = 1:length(criteriaC)
                             
                             %Idenitfy NTCP limits
@@ -1068,123 +1192,12 @@ switch upper(command)
                             set(critLineH,'userdata',critLineUdS);
                             protocolS(p).criteria = [protocolS(p).criteria,critLineH];
                         end
-                        
-                        %------------ Loop over guidelines --------------------
-                        %Extract guidelines
-                        if isfield(critS.structures.(structC{m}),'guidelines')
-                            strGuideS = critS.structures.(structC{m}).guidelines;
-                            guidelinesC = fieldnames(strGuideS);
-                            
-                            for n = 1:length(guidelinesC)
-                                
-                                %Idenitfy NTCP limits
-                                if strcmp(strGuideS.(guidelinesC{n}).function,'ntcp')
-                                    
-                                    %Get NTCP over range of scale factors
-                                    strC = cellfun(@(x) x.strNum,modelC,'un',0);
-                                    gIdx = find([strC{:}]==cStr);
-                                    
-                                    if p == 1
-                                        gProtocolStart(p) = 0;
-                                    else
-                                        prevC = cellfun(@(x) x.type,ud.Protocols(p-1).model,'un',0);
-                                        prevIdxV = strcmpi('ntcp',prevC);
-                                        gProtocolStart(p) = sum(prevIdxV);
-                                    end
-                                    if ~isempty(gIdx)
-                                        xV = ud.NTCPCurve(gProtocolStart(p)+gIdx).XData;
-                                        
-                                        %Identify where guideline is exceeded
-                                        ntcpV = ud.NTCPCurve(gProtocolStart(p)+gIdx).YData;
-                                        exceedIdxV = ntcpV >= strGuideS.(guidelinesC{n}).limit;
-                                        gCount = gCount + 1;
-                                        if ~any(exceedIdxV)
-                                            gValV(gCount) = inf;
-                                            gScaleV(gCount) = inf;
-                                            gXv(gCount) = inf;
-                                        else
-                                            exceedIdxV = find(exceedIdxV,1,'first');
-                                            gValV(gCount) = ntcpV(exceedIdxV);
-                                            gScaleV(gCount) = cgScaleV(exceedIdxV);
-                                            ind =  cgScaleV == gScaleV(gCount);
-                                            gXv(gCount) = xV(ind);
-                                            clr = [239 197 57]./255;
-                                            if p==ud.foreground
-                                                ud.gMarker = [ud.cMarker,plot(hNTCPAxis,gXv(gCount),...
-                                                    gValV(gCount),'o','MarkerSize',8,'MarkerFaceColor',...
-                                                    clr,'MarkerEdgeColor','k')];
-                                            else
-                                                addMarker = scatter(hNTCPAxis,gXv(gCount),...
-                                                    gValV(gCount),60,'MarkerFaceColor',clr,...
-                                                    'MarkerEdgeColor','k');
-                                                addMarker.MarkerFaceAlpha = .3;
-                                                addMarker.MarkerEdgeAlpha = .3;
-                                                ud.gMarker = [ud.cMarker,addMarker];
-                                            end
-                                        end
-                                    else
-                                        gCount = gCount + 1;
-                                        gScaleV(gCount) = inf;
-                                        gValV(gCount) = -inf;
-                                    end
-                                    
-                                    %Get guideline label
-                                    gLabel = strtok(strGuideS.(guidelinesC{n}).parameters.modelFile,'.');
-                                else
-                                    if p == 1
-                                        gProtocolStart(p) = 0;
-                                    else
-                                        prevC = cellfun(@(x) x.type,ud.Protocols(p-1).model,'un',0);
-                                        prevIdxV = strcmpi('ntcp',prevC);
-                                        gProtocolStart(p) = sum(prevIdxV);
-                                    end
-                                    xV = ud.NTCPCurve(gProtocolStart(p)+1).XData;
-                                    %Idenitfy dose/volume limits
-                                    gCount = gCount + 1;
-                                    %nFrx = planC{indexS.dose}(plnNum).numFractions;
-                                    [gScaleV(gCount),gValV(gCount)] = ...
-                                        calcLimitROE(doseBinV,volHistV,...
-                                        strGuideS.(guidelinesC{n}),...
-                                        nFrxProtocol,critS.numFrx,abRatio,cgScaleV);
-                                    
-                                    %Get guideline label
-                                    gLabel =  guidelinesC{n};
-                                end
-                                
-                                %Display line indicating clinical criteria/guidelines
-                                if isinf(gScaleV(gCount))
-                                    gXv(gCount) = inf;
-                                else
-                                    ind = cgScaleV == gScaleV(gCount);
-                                    gXv(gCount) = xV(ind);
-                                end
-                                x = [gXv(gCount) gXv(gCount)];
-                                y = [0 1];
-                                if p==ud.foreground
-                                    guideLineH = line(hNTCPAxis,x,y,'LineWidth',2,...
-                                        'Color',[239 197 57]/255,'LineStyle','--',...
-                                        'Tag','guidelines','Visible','Off');
-                                else
-                                    guideLineH = line(hNTCPAxis,x,y,'LineWidth',2,...
-                                        'Color',[239 197 57]/255,'LineStyle',':',...
-                                        'Tag','guidelines','Visible','Off');
-                                end
-                                guideLineUdS.protocol = p;
-                                guideLineUdS.structure = structC{m};
-                                guideLineUdS.label = gLabel;
-                                guideLineUdS.limit = strGuideS.(guidelinesC{n}).limit;
-                                guideLineUdS.scale = gScaleV(gCount);
-                                guideLineUdS.val = gValV(gCount);
-                                set(guideLineH,'userdata',guideLineUdS);
-                                protocolS(p).guidelines = [protocolS(p).guidelines,guideLineH];
-                            end
-                        end
                     end
                 end
             end
             planC{indexS.dose}(plnNum).doseArray = dA;
         end
-
+        
         close(hWait);
         
         %Add plot labels
