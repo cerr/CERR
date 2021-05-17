@@ -1,8 +1,11 @@
 function ROE(command,varargin)
 %  GUI for outcomes modeling (TCP, NTCP)
-%  This tool uses JSONlab toolbox v1.2, an open-source JSON/UBJSON encoder and decoder
-%  for MATLAB and Octave.
-%  See : http://www.mathworks.com/matlabcentral/fileexchange/33381-jsonlab--a-toolbox-to-encode-decode-json-files
+%  This tool uses 
+% +  JSONlab toolbox v1.2, an open-source JSON/UBJSON encoder and decoder
+%    for MATLAB and Octave.
+%    http://www.mathworks.com/matlabcentral/fileexchange/33381-jsonlab--a-toolbox-to-encode-decode-json-files
+% +  draggable by William Warriner (2021)
+%    draggable (https://github.com/wwarriner/draggable/releases/tag/v0.1.0), GitHub. Retrieved May 17, 2021.
 % =======================================================================================================================
 % APA, 05/10/2016
 % AI , 05/24/2016  Added dose scaling
@@ -237,14 +240,14 @@ switch upper(command)
             'Style','Slider','Visible','Off','Tag','Scale','Min',0.5,'Max',1.5,'Value',1,...
             'SliderStep',[1/(99-1),1/(99-1)]);
         addlistener(plotH(7),'ContinuousValueChange',...
-            @(hObj,hEvt)getParamsROE(hObj,hEvt,hFig,planC));
+            @(hObj,hEvt)scaleDoseROE(hObj,hEvt,hFig));
         %scale nfrx
         plotH(8) = uicontrol('parent',hFig,'units','pixels','Position',...
             [leftMarginWidth+.18*GUIWidth 5*shift .75*GUIWidth-leftMarginWidth 1.8*shift],...
             'Style','Slider','Visible','Off','Tag','Scale','Min',-15,'Max',15,'Value',0,...
             'SliderStep',[1/30 1/30]);
         addlistener(plotH(8),'ContinuousValueChange',...
-            @(hObj,hEvt)getParamsROE(hObj,hEvt,hFig,planC));
+            @(hObj,hEvt)scaleDoseROE(hObj,hEvt,hFig));
         
         
         %Push-button for constraints panel
@@ -264,6 +267,19 @@ switch upper(command)
             'Style','Text','Visible','Off','fontSize',8,'Callback',...
             @(hObj,hEvt)enterScaleROE(hObj,hEvt,hFig));
         
+        %Move data labels
+        if isdeployed
+            [I,map] = imread(fullfile(getCERRPath,'pics','Icons','lock.gif'),'gif');
+        else
+            [I,map] = imread('lock.gif','gif');
+        end
+        lockImg = ind2rgb(I,map);
+        plotH(12) = uicontrol('parent',hFig,'units','pixels','Position',...
+            [leftMarginWidth+.15*GUIWidth 5*shift 2*shift 2*shift],...
+            'cdata',lockImg,'Style','toggle','Value',0,...
+            'Visible','Off','fontSize',8,'tooltip','Toggle to move/lock labels',...
+            'Callback',@(hObj,hEvt)moveLabelsROE(hObj,hEvt,hFig));
+       
         %Turn off datacursor mode
         cursorMode = datacursormode(hFig);
         cursorMode.removeAllDataCursors;
@@ -399,8 +415,9 @@ switch upper(command)
         end
         
         %% Define color order, foreground protocol
-        colorOrderM = [0 229 238;123 104 238;255 131 250;0 238 118;218 165 32;...
-            196	196	196;0 139 0;28 134 238;238 223 204]/255;
+        colorOrderM = [0 229 238;123 104 238;255 131 250;0 238 118;
+            218 165 32;255 153 153;196 196 196;0 139 0;28 134 238;...
+            238 223 204]/255;
         if ~isfield(ud,'foreground') || isempty(ud.foreground)
             ud.foreground = 1;
         end
@@ -1167,7 +1184,7 @@ switch upper(command)
             end
             planC{indexS.dose}(plnNum).doseArray = dA;
         end
-        
+
         close(hWait);
         
         %Add plot labels
@@ -1226,6 +1243,7 @@ switch upper(command)
         
         %Display current dose/probability
         scaleDoseROE(hSlider,[],hFig);
+        ud = guidata(hFig);
         
         %Enable user-entered scale entry
         set(ud.handle.modelsAxis(10),'enable','On');
@@ -1290,12 +1308,30 @@ switch upper(command)
                 end
                 
             end
-            
+
             %Set datacursor update function
             set(cursorMode, 'Enable','On','SnapToDataVertex','off',...
                 'UpdateFcn',@(hObj,hEvt)expandDataTipROE(hObj,hEvt,hFig));
-            
+            % set(cursorMode,'Enable','Off');
+                        
         end
+        
+        
+        %Make labels draggable
+        for nLabel = 1:length(ud.y1Disp)
+            hLabel = ud.y1Disp(nLabel);
+            draggable(hLabel, "v", [0.01 0.1]);
+        end
+        if isfield(ud,'y2Disp') && ~isempty(ud.y2Disp)
+            for nLabel = 1:length(ud.y2Disp)
+                hLabel = ud.y2Disp(nLabel);
+                draggable(hLabel, "v", [0.01 0.1]);
+            end
+        end
+        
+        
+        %Enable data label toggle control
+        set(ud.handle.modelsAxis(12),'Visible','On');
         
         
     case 'CLEAR_PLOT'
@@ -1345,6 +1381,7 @@ switch upper(command)
         set(ud.handle.modelsAxis(7),'Visible','Off');
         set(ud.handle.modelsAxis(8),'Visible','Off');
         set(ud.handle.modelsAxis(10),'enable','Off');
+        set(ud.handle.modelsAxis(12),'Visible','Off');
         guidata(hFig,ud);
         
     case 'LIST_MODELS'
