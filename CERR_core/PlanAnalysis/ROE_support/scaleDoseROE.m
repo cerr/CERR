@@ -172,8 +172,12 @@ for l = 1:numel(ud.Protocols)
                 plot([loc xScale],[cpNew cpNew],'Color',pColorM(clrIdx,:),...
                     'LineStyle','-.','linewidth',2,'parent',hplotAx);
                 set(hText,'Position',[txtPos,cpNew],'String',sprintf('%.3f',...
-                   cpNew),'Edge',pColorM(clrIdx,:),'LineWidth',2,...
-                   'FontWeight','Bold');
+                    cpNew),'Edge',pColorM(clrIdx,:),'LineWidth',2,...
+                    'FontWeight','Bold');
+                
+                %Make labels draggable
+                draggable(hText, "v", [0.01 0.1]);
+                
             end
             
         end
