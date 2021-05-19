@@ -1235,6 +1235,10 @@ switch upper(command)
         hax = ud.NTCPCurve;
         key = NTCPLegendC;
         
+        %try
+        %hax : protocolS(p).criteria
+        %
+        
         constraintS = protocolS(ud.foreground);
         if isfield(constraintS,'criteria') && ~isempty(constraintS.criteria)
             if isempty(ud.BEDCurve)
@@ -1261,17 +1265,18 @@ switch upper(command)
                     key = [key,BEDlegendC,'Clinical limits'];
                 end
             end
-            legend(hax,key,'Location','northwest','Color','none','FontName',...
+            legH = legend(hax,key,'Location','northwest','Color','none','FontName',...
                 'Arial','FontWeight','normal','FontSize',11,'AutoUpdate','off');
             
         else
-            legend(hax,key,...
+            legH =legend(hax,key,...
                 'Location','northwest','Color','none','FontName','Arial',...
                 'FontWeight','normal','FontSize',11,'AutoUpdate','off');
         end
         
         %Store userdata
         ud.Protocols = protocolS;
+        ud.handle.legend = legH;
         guidata(hFig,ud);
         
         %Display current dose/probability
@@ -1285,6 +1290,8 @@ switch upper(command)
         if ~isempty([protocolS.criteria])
             cursorMode = datacursormode(hFig);
             set(cursorMode,'Enable','On');
+            
+            legH = ud.handle.legend;
             
             %Display first clinical criterion/guideline that is violated
             for p = 1:numel(ud.Protocols)
@@ -1328,6 +1335,9 @@ switch upper(command)
                     set(hDatatip,'Visible','On','OrientationMode','Manual',...
                         'Tag',dttag,'UpdateFcn',...
                         @(hObj,hEvt)expandDataTipROE(hObj,hEvt,hFig));
+                    %Enable legend entry for constraints
+                    drawnow;
+                    legH.EntryContainer.NodeChildren(2).Label.Color = [0,0,0];
                 else
                     %firstgViolation = [false(1:j1-1),firstgViolation];
                     dttag = 'guidelines';
@@ -1338,17 +1348,21 @@ switch upper(command)
                     set(hDatatip,'Visible','On','OrientationMode','Manual',...
                         'Tag',dttag,'UpdateFcn',...
                         @(hObj,hEvt)expandDataTipROE(hObj,hEvt,hFig));
+                    %Enable legend entry for guidelines
+                    drawnow;
+                    legH.EntryContainer.NodeChildren(1).Label.Color = [0,0,0];
                 end
                 
             end
-
+            
             %Set datacursor update function
             set(cursorMode, 'Enable','On','SnapToDataVertex','off',...
                 'UpdateFcn',@(hObj,hEvt)expandDataTipROE(hObj,hEvt,hFig));
             % set(cursorMode,'Enable','Off');
-                        
+            
+            ud.handle.legend = legH;
+            
         end
-        
         
         %Make labels draggable
         for nLabel = 1:length(ud.y1Disp)
@@ -1362,10 +1376,11 @@ switch upper(command)
             end
         end
         
-        
         %Enable data label toggle control
         set(ud.handle.modelsAxis(12),'Visible','On');
         
+        guidata(hFig,ud);
+
         
     case 'CLEAR_PLOT'
         ud = guidata(hFig);
