@@ -78,7 +78,11 @@ switch fieldname
             otherwise
                 % dataS = 'Unknown';
                 % by Deshan Yang, 3/2/2010
-                dataS = modality;
+                if contains(modality,'SCAN')
+                    dataS = modality;
+                else
+                    dataS = [modality ' SCAN'];
+                end
         end
         
     case 'caseNumber'
