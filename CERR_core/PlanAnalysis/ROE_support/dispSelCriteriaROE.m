@@ -5,10 +5,12 @@ function [selectedIdv,selTypeC] = dispSelCriteriaROE(hObj,hEvt,hFig,varargin)
 cMode = datacursormode(hFig);
 cMode.removeAllDataCursors;
 
+ud = guidata(hFig);
+legH = ud.handle.legend;
+
 if isempty(hEvt)  %Prog call
     
     %Get handles to constraints
-    ud = guidata(hFig);
     protS = ud.Protocols;
     type = varargin{1};
     idxV = varargin{2};
@@ -36,6 +38,10 @@ if isempty(hEvt)  %Prog call
         %protS(pNum).criteria = hCrit(numElements(pNum)+1:numElements(pNum+1));
         %end
         protS(pNum).criteria = hCrit;
+        
+        drawnow;
+        legH.EntryContainer.NodeChildren(2).Label.Color = [0,0,0];
+        legH.EntryContainer.NodeChildren(1).Label.Color = [0.65,0.65,0.65];
     else
         hGuide = [protS(pNum).guidelines];
         set(hGuide(idxV),'Visible','On');
@@ -44,6 +50,10 @@ if isempty(hEvt)  %Prog call
         %protS(pNum).guidelines = hGuide(numElements(pNum)+1:numElements(pNum+1));
         %end
         protS(pNum).guidelines = hGuide;
+        
+        drawnow;
+        legH.EntryContainer.NodeChildren(1).Label.Color = [0,0,0];
+        legH.EntryContainer.NodeChildren(2).Label.Color = [0.65,0.65,0.65];
     end
     
     ud.Protocols = protS;
@@ -52,7 +62,6 @@ if isempty(hEvt)  %Prog call
 else %Checkbox selection
     
     %Get handles to constraints
-    ud = get(hFig,'userdata');
     protS = ud.Protocols;
     
     %Get slelected constraint
@@ -74,6 +83,10 @@ else %Checkbox selection
             end
         end
         
+        drawnow;
+        legH.EntryContainer.NodeChildren(1).Label.Color = [0,0,0];
+        legH.EntryContainer.NodeChildren(2).Label.Color = [0,0,0];
+
     elseif selectedIdv==2 %'None'
         if stateV == 1
             %Criteria
@@ -91,9 +104,12 @@ else %Checkbox selection
         end
         hObj.Data(:,1) = {false};
         
+        drawnow;
+        legH.EntryContainer.NodeChildren(1).Label.Color = [0.65,0.65,0.65];
+        legH.EntryContainer.NodeChildren(2).Label.Color = [0.65,0.65,0.65];
+        
     else
         
-        ud = get(hFig,'userdata');
         protS = ud.Protocols;
         currProtocol = ud.foreground;
         gNum = numel(protS(currProtocol).guidelines);
@@ -106,8 +122,22 @@ else %Checkbox selection
             for k = 1:numel(selectedIdv)
                 if strcmp(selTypeC(k),'guidelines') %guidelines
                     selNum = selectedIdv(k);
+                    if strcmp(stateC{stateV+1},'On')
+                        drawnow;
+                        legH.EntryContainer.NodeChildren(1).Label.Color = [0,0,0];
+                    else
+                        drawnow;
+                        legH.EntryContainer.NodeChildren(1).Label.Color = [0.65,0.65,0.65];
+                    end
                 else                               %criteria
                     selNum = selectedIdv(k)- gNum;
+                    if strcmp(stateC{stateV+1},'On')
+                        drawnow;
+                        legH.EntryContainer.NodeChildren(2).Label.Color = [0,0,0];
+                    else
+                        drawnow;
+                        legH.EntryContainer.NodeChildren(2).Label.Color = [0.65,0.65,0.65];
+                    end
                 end
                 %Toggle display on/off
                 set(protS(pNum).(selTypeC{k})(selNum),'Visible',stateC{stateV(k)+1});
@@ -126,6 +156,7 @@ else %Checkbox selection
 end
 
 ud.Protocols = protS;
+ud.handle.legend = legH;
 guidata(hFig,ud);
 
 end
