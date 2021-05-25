@@ -299,6 +299,14 @@ switch upper(command)
             'Visible','Off','fontSize',8,'tooltip',sprintf(['Toggle to move',...
             '\n/lock label position']),'Callback',...
             @(hObj,hEvt)moveLabelsROE(hObj,hEvt,hFig));
+        
+        %View DVH summary window
+        plotH(13) = uicontrol('parent',hFig,'units','pixels','Position',...
+            [GUIWidth-2*leftMarginWidth GUIHeight/2 2*shift 2*shift],...
+            'Style','push','Value',0,'Visible','Off','fontSize',8,...
+            'tooltip','View DVH','Callback',...
+            @(hObj,hEvt)dvhDisplayROE('init',hFig,planC));
+        
        
         %Turn off datacursor mode
         cursorMode = datacursormode(hFig);
@@ -436,8 +444,8 @@ switch upper(command)
         
         %% Define color order, foreground protocol
         colorOrderM = [0 229 238;123 104 238;255 131 250;0 238 118;
-            218 165 32;255 153 153;196 196 196;0 139 0;28 134 238;...
-            238 223 204]/255;
+            218 165 32;28 134 238;255 153 153;196 196 196;0 139 0;...
+            28 134 238;238 223 204]/255;
         if ~isfield(ud,'foreground') || isempty(ud.foreground)
             ud.foreground = 1;
         end
@@ -464,6 +472,14 @@ switch upper(command)
             %Identify models with no associated struct. selection
             strSelC = cellfun(@(x)x.strNum , modelC,'un',0);
             noSelV = find([strSelC{:}]==0);
+            %Allow for optional inputs 
+            optFlagC = checkInputStructsROE(modelC);
+            optFlagV = find([optFlagC{:}]==1);
+            noSelV(ismember(noSelV,optFlagV)) = [];
+            %Exclude optional structures with no user input
+            modelC = skipOptionalStructusROE(modelC,optFlagC,strSelC);
+            
+            protocolS(p).model = modelC;
             
             %Allow users to input missing structures or skip associated models
             if any(noSelV)
@@ -521,6 +537,7 @@ switch upper(command)
                     %Create parameter dictionary
                     paramS = [modelC{xIndx}.parameters];
                     structNumV = modelC{xIndx}.strNum;
+                    structNumV(structNumV==0)=[]; %test
                     %-No. of fractions
                     paramS.numFractions.val = numFrxProtocol;
                     %-fraction size
@@ -688,14 +705,15 @@ switch upper(command)
                 close(hWait);
                 return
             end
+            
             %2. Check for valid structure & dose plan
-            isStr = cellfun(@(x)any(~isfield(x,'strNum') | isempty(x.strNum) | x.strNum==0),modelC,'un',0);
-            err = find([isStr{:}]);
-            if ~isempty(err)
-                msgbox(sprintf('Please select structure:\n protocol: %d\tmodels: %d',p,err),'Plot model');
-                close(hWait);
-                return
-            end
+%             isStr = cellfun(@(x)any(~isfield(x,'strNum') | isempty(x.strNum) | x.strNum==0),modelC,'un',0);
+%             err = find([isStr{:}]);
+%             if ~isempty(err)
+%                 msgbox(sprintf('Please select structure:\n protocol: %d\tmodels: %d',p,err),'Plot model');
+%                 close(hWait);
+%                 return
+%             end
             isPlan = isfield(ud,'planNum') && ~isempty(ud.planNum);
             if ~isPlan
                 msgbox(sprintf('Please select valid dose plan.'),'Plot model');
@@ -751,6 +769,7 @@ switch upper(command)
                 %Create parameter dictionary
                 paramS = [modelC{modIdxV(j)}.parameters];
                 structNumV = modelC{modIdxV(j)}.strNum;
+                structNumV(structNumV==0)=[];  %test
                 %Copy relevant fields from protocol file
                 %-No. of fractions
                 paramS.numFractions.val = numFrxProtocol;
@@ -990,7 +1009,14 @@ switch upper(command)
                                 
                                 %Get NTCP over range of scale factors
                                 strC = cellfun(@(x) x.strNum,modelC,'un',0);
-                                gIdx = find([strC{:}]==cStr);
+                                %find([strC{:}]==cStr);
+                                gIdx = [];
+                                for gStr = 1:length(modelC)
+                                    if ismember(cStr,strC{gStr})
+                                        gIdx = gStr;
+                                        break;
+                                    end
+                                end
                                 
                                 if p == 1
                                     gProtocolStart(p) = 0;
@@ -1080,7 +1106,8 @@ switch upper(command)
                             guideLineUdS.protocol = p;
                             guideLineUdS.structure = structC{m};
                             guideLineUdS.label = gLabel;
-                            guideLineUdS.limit = strGuideS.(guidelinesC{n}).limit;
+                            guideLmt = strGuideS.(guidelinesC{n}).limit;
+                            guideLineUdS.limit = guideLmt(1);
                             guideLineUdS.scale = gScaleV(gCount);
                             guideLineUdS.val = gValV(gCount);
                             set(guideLineH,'userdata',guideLineUdS);
@@ -1112,7 +1139,14 @@ switch upper(command)
                                 
                                 %Get NTCP over entire scale
                                 strC = cellfun(@(x) x.strNum,modelC,'un',0);
-                                cIdx = find([strC{:}]==cStr);
+                                %cIdx = find([strC{:}]==cStr);
+                                cIdx = [];
+                                for cStr = 1:length(modelC)
+                                    if ismember(cStr,strC{cStr})
+                                        cIdx = cStr;
+                                        break;
+                                    end
+                                end
                                 
                                 if p == 1
                                     cProtocolStart(p) = 0;
@@ -1649,6 +1683,7 @@ end
                     currProtocol = k;
                     hCrit = protS(currProtocol).criteria;
                     hGuide = protS(currProtocol).guidelines;
+                    hConstraint = [hGuide,hCrit];
                     dispStateC = [];
                     if ~isempty(hGuide)
                         dispStateC = {hGuide.Visible};
@@ -1657,9 +1692,16 @@ end
                         dispStateC = [dispStateC,{hCrit.Visible}];
                     end
                     dispIdxV = strcmp(dispStateC,'on');
+                    xScaleC = get(hConstraint(dispIdxV),'XData');
+                    if iscell(xScaleC)
+                        currScaleC = cellfun(@(x)x(1,1),xScaleC,'un',0);
+                        currScaleV = unique([currScaleC{:}]);
+                    else
+                        currScaleV = unique(xScaleC);
+                    end
                     gNum = numel(hGuide);
                     cMode = datacursormode(hFig);
-                    if sum(dispIdxV)~=1 || sum(dispIdxV)==0 %More than one constraint or none displayed
+                    if length(currScaleV)~=1 || sum(dispIdxV)==0 %More than one constraint or none displayed
                         %Do nothing
                         return
                     else
@@ -1667,7 +1709,7 @@ end
                         ud = guidata(hFig);
                         limitsV = [ arrayfun(@(x) x.XData(1),hGuide),...
                             arrayfun(@(x) x.XData(1),hCrit)];
-                        currentLimit = limitsV(dispIdxV);
+                        currentLimit = unique(limitsV(dispIdxV));
                         [limitsV,limOrderV] = sort(limitsV);
                         next = find(limitsV > currentLimit,1,'first');
                         if isempty(next) || isinf(limitsV(next))
