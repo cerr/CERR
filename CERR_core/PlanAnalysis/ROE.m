@@ -1,8 +1,11 @@
 function ROE(command,varargin)
 %  GUI for outcomes modeling (TCP, NTCP)
-%  This tool uses JSONlab toolbox v1.2, an open-source JSON/UBJSON encoder and decoder
-%  for MATLAB and Octave.
-%  See : http://www.mathworks.com/matlabcentral/fileexchange/33381-jsonlab--a-toolbox-to-encode-decode-json-files
+%  This tool uses 
+% +  JSONlab toolbox v1.2, an open-source JSON/UBJSON encoder and decoder
+%    for MATLAB and Octave.
+%    http://www.mathworks.com/matlabcentral/fileexchange/33381-jsonlab--a-toolbox-to-encode-decode-json-files
+% +  draggable by William Warriner (2021)
+%    draggable (https://github.com/wwarriner/draggable/releases/tag/v0.1.0), GitHub. Retrieved May 17, 2021.
 % =======================================================================================================================
 % APA, 05/10/2016
 % AI , 05/24/2016  Added dose scaling
@@ -55,6 +58,9 @@ end
 if isempty(planC)
     if  ~strcmpi(command,'closerequest')
         msgbox('Please load valid plan to begin','Error!');
+        return
+    else
+        closereq
         return
     end
 end
@@ -110,7 +116,7 @@ switch upper(command)
             'backgroundColor',defaultColor);
         
         ud.handle.title = titleH;
-        set(hFig,'userdata',ud);
+        guidata(hFig,ud);
         ROE('refresh',hFig);
         figure(hFig);
         
@@ -140,46 +146,67 @@ switch upper(command)
             'Position',[2*shift posTop-.16*GUIHeight .16*GUIWidth 2*shift], 'String','','Style','text',...
             'fontSize',9, 'fontWeight', 'Bold', 'BackgroundColor',defaultColor,...
             'HorizontalAlignment','left');
+        optS = opts4Exe('CERRoptions.json');
+        protPath = optS.ROEProtocolPath;
+        if contains(protPath,'getCERRPath')
+            protPath = eval(protPath);
+        end
         inputH(3) = uicontrol(hFig,'tag','modelFileSelect','units','pixels',...
             'Position',[2*shift posTop-.1*GUIHeight .16*GUIWidth 3*shift], 'String',...
             'Select protocol','Style','push', 'fontSize',10,...
             'FontWeight','normal','BackgroundColor',defaultColor,...
-            'HorizontalAlignment','right','callback',...
-            'ROE(''LOAD_MODELS'')');
+            'HorizontalAlignment','right','callback','ROE(''LOAD_MODELS'')',...
+            'tooltip',sprintf(['Push to select treatment protocol.\n ',...
+            'Reading from ',protPath,'.\n To read from a different location',...
+            ', update ROEProtocolPath in CERRoptions.json']));
+            
         
         %% Pop-up menus to select structures & dose plans
         tablePosV = [.22*GUIWidth-2.5*shift posTop-.1*GUIHeight .22*GUIWidth 2.4*shift];
         colWidth = tablePosV(3)/2-1;
-        inputH(4) = uitable(hFig,'Tag','strSel','Position',tablePosV-[0 2.5*shift 0 0],'Enable','Off',...
-            'cellEditCallback',@editParams,'ColumnName',[],'RowName',[],'Visible','Off',...
-            'backgroundColor',defaultColor,'columnEditable',[true,true],'Data',...
-            {'Select structure','List of structures'},'ColumnWidth',{colWidth,colWidth},'FontSize',10);
-        inputH(5) = uitable(hFig,'Tag','doseSel','Position',tablePosV,'Enable','Off',...
-            'cellEditCallback',@editParams,'ColumnName',[],'RowName',[],'Visible','Off',...
-            'backgroundColor',defaultColor,'columnEditable',[true,true],'Data',...
-            {'Select dose plan','List of plans'},'ColumnWidth',{colWidth,colWidth},'FontSize',10);
+        inputH(4) = uitable(hFig,'Tag','strSel','Position',tablePosV-...
+            [0 2.5*shift 0 0],'Enable','Off','ColumnName',[],'RowName',[],...
+            'Visible','Off','backgroundColor',defaultColor,'columnEditable',...
+            [true,true],'Data',{'Select structure','List of structures'},...
+            'ColumnWidth',{colWidth,colWidth},'FontSize',10,...
+            'cellEditCallback',@(hObj,hData)editParamsROE(hObj,hData,hFig,planC));
+        inputH(5) = uitable(hFig,'Tag','doseSel','Position',tablePosV,...
+            'Enable','Off','ColumnName',[],'RowName',[],'Visible','Off',...
+            'backgroundColor',defaultColor,'columnEditable',[true,true],...
+            'Data',{'Select dose plan','List of plans'},'ColumnWidth',...
+            {colWidth,colWidth},'FontSize',10,'cellEditCallback',...
+            @(hObj,hData)editParamsROE(hObj,hData,hFig,planC));
         
         %% Tables to display & edit model parameters
         inputH(6) = uicontrol(hFig,'units','pixels','Visible','Off','fontSize',10,...
             'Position',tablePosV + [0 -.1*GUIHeight 0 0 ],'String','Model parameters','Style','text',...
             'FontWeight','Bold','HorizontalAlignment','Left','backgroundColor',defaultColor); %Title: Model parameters
         inputH(7) = uicontrol(hFig,'units','pixels','Visible','Off','String','',...
-            'Position',tablePosV + [0 -.15*GUIHeight 0 0 ],'FontSize',10,'Style','text',...
+            'Position',tablePosV + [0 -.15*GUIHeight 0 10 ],'FontSize',9,'Style','text',...
             'FontWeight','Bold','HorizontalAlignment','Left','backgroundColor',defaultColor,...
             'foregroundColor',[.6 0 0]); %Model name display
         inputH(8) = uitable(hFig,'Tag','fieldEdit','Position',tablePosV + [0 -.75*GUIHeight 0 8*shift],'Enable','Off',...
-            'cellEditCallback',@editParams,'ColumnName',{'Fields','Values'},'FontSize',10,...
-            'RowName',[],'Visible','Off','backgroundColor',defaultColor,...
+            'ColumnName',{'Fields','Values'},'FontSize',10,'RowName',[],...
+            'Visible','Off','backgroundColor',defaultColor,...
             'ColumnWidth',{round(tablePosV(3)/2),round(tablePosV(3)/2)},...
-            'columnEditable',[false,true],'backgroundcolor',[1 1 1]); %Parameter tables
+            'columnEditable',[false,true],'backgroundcolor',[1 1 1],...
+            'cellEditCallback',@(hObj,hData)editParamsROE(hObj,hData,hFig,planC)); %Parameter tables
         
         %% Push-buttons to save, plot, display style
-        inputH(9) = uicontrol(hFig,'units','pixels','Tag','saveJson','Position',[.36*GUIWidth 1.5*shift .06*GUIWidth 3*shift],'backgroundColor',defaultColor,...
-            'String','Save','Style','Push', 'fontSize',10,'FontWeight','normal','Enable','Off','Callback','ROE(''SAVE_MODELS'' )'); %Save
-        inputH(10) = uicontrol(hFig,'units','pixels','Tag','plotButton','Position',[.29*GUIWidth 1.5*shift .06*GUIWidth 3*shift],'backgroundColor',defaultColor,...
-            'String','Plot','Style','Push', 'fontSize',10,'FontWeight','normal','Enable','Off','Callback','ROE(''PLOT_MODELS'' )'); %plot
+        inputH(9) = uicontrol(hFig,'units','pixels','Tag','saveJson',...
+            'Position',[.36*GUIWidth 1.5*shift .06*GUIWidth 3*shift],...
+            'backgroundColor',defaultColor,'String','Save','Style','Push',...
+            'fontSize',10,'FontWeight','normal','Enable','Off',...
+            'Callback','ROE(''SAVE_MODELS'' )','tooltip','Save changes to JSON'); %Save
+        inputH(10) = uicontrol(hFig,'units','pixels','Tag','plotButton',...
+            'Position',[.29*GUIWidth 1.5*shift .06*GUIWidth 3*shift],...
+            'backgroundColor',defaultColor,'String','Plot','Style','Push',...
+            'fontSize',10,'FontWeight','normal','Enable','Off',...
+            'Callback','ROE(''PLOT_MODELS'' )','tooltip','Push to plot'); %plot
         inputH(11) = uicontrol(hFig,'units','pixels','Tag','switchPlot','Position',[.18*GUIWidth .1*shift .1*GUIWidth 4*shift],'backgroundColor',[1 1 1],...
-            'String',{'--Display mode--','NTCP v.BED','NTCP v.TCP','Scale fraction size', 'Scale no. fractions' },'Style','popup', 'fontSize',10,'FontWeight','normal','Enable','On','Callback',@setPlotMode);
+            'String',{'--Display mode--','NTCP v.BED','NTCP v.TCP','Scale fraction size', 'Scale no. fractions' },'Style','popup', 'fontSize',10,'FontWeight','normal','Enable','On','Callback',...
+            @(hObj,hEvt)setPlotModeROE(hObj,hEvt,hFig),'tooltip',...
+            'Select plot axes.');
         
         %% Plot axes
         
@@ -230,13 +257,15 @@ switch upper(command)
             [leftMarginWidth+.18*GUIWidth 5*shift .75*GUIWidth-leftMarginWidth 1.8*shift],...
             'Style','Slider','Visible','Off','Tag','Scale','Min',0.5,'Max',1.5,'Value',1,...
             'SliderStep',[1/(99-1),1/(99-1)]);
-        addlistener(plotH(7),'ContinuousValueChange',@scaleDose);
+        addlistener(plotH(7),'ContinuousValueChange',...
+            @(hObj,hEvt)scaleDoseROE(hObj,hEvt,hFig));
         %scale nfrx
         plotH(8) = uicontrol('parent',hFig,'units','pixels','Position',...
             [leftMarginWidth+.18*GUIWidth 5*shift .75*GUIWidth-leftMarginWidth 1.8*shift],...
             'Style','Slider','Visible','Off','Tag','Scale','Min',-15,'Max',15,'Value',0,...
             'SliderStep',[1/30 1/30]);
-        addlistener(plotH(8),'ContinuousValueChange',@scaleDose);
+        addlistener(plotH(8),'ContinuousValueChange',...
+            @(hObj,hEvt)scaleDoseROE(hObj,hEvt,hFig));
         
         
         %Push-button for constraints panel
@@ -244,16 +273,33 @@ switch upper(command)
             [GUIWidth-17*shift 1.5*shift 15*shift 3*shift],...
             'Style','push','Enable','On','String','View constraints',...
             'backgroundColor',[192 205 230]./255,'fontSize',10,...
-            'Callback',{@critPanel,'INIT'});
+            'Callback',{@critPanel,'INIT'},'tooltip',['Push to select',...
+            ' constraints for display.']);
         
         %Input scale
         plotH(10) = uicontrol('parent',hFig,'units','pixels','Position',...
             [GUIWidth-6*shift 5*shift 3*shift 2*shift],...
-            'Style','edit','Enable','Off','fontSize',10,'Callback',@enterScale);
+            'Style','edit','Enable','Off','fontSize',10,'Callback',...
+            @(hObj,hEvt)enterScaleROE(hObj,hEvt,hFig));
         plotH(11) = uicontrol('parent',hFig,'units','pixels','Position',...
             [GUIWidth-8*shift 7*shift 6*shift 3*shift],'backgroundColor',defaultColor,...
-            'Style','Text','Visible','Off','fontSize',8,'Callback',@enterScale);
+            'Style','Text','Visible','Off','fontSize',8,'Callback',...
+            @(hObj,hEvt)enterScaleROE(hObj,hEvt,hFig));
         
+        %Move data labels
+        if isdeployed
+            [I,map] = imread(fullfile(getCERRPath,'pics','Icons','lock.gif'),'gif');
+        else
+            [I,map] = imread('lock.gif','gif');
+        end
+        lockImg = ind2rgb(I,map);
+        plotH(12) = uicontrol('parent',hFig,'units','pixels','Position',...
+            [leftMarginWidth+.15*GUIWidth 5*shift 2*shift 2*shift],...
+            'cdata',lockImg,'Style','toggle','Value',0,...
+            'Visible','Off','fontSize',8,'tooltip',sprintf(['Toggle to move',...
+            '\n/lock label position']),'Callback',...
+            @(hObj,hEvt)moveLabelsROE(hObj,hEvt,hFig));
+       
         %Turn off datacursor mode
         cursorMode = datacursormode(hFig);
         cursorMode.removeAllDataCursors;
@@ -262,12 +308,12 @@ switch upper(command)
         %% Store handles
         ud.handle.inputH = inputH;
         ud.handle.modelsAxis = plotH;
-        set(hFig,'userdata',ud);
+        guidata(hFig,ud);
         
         
     case 'LOAD_MODELS'
         ROE('REFRESH');
-        ud = get(hFig,'userdata');
+        ud = guidata(hFig);
         
         %Get paths to JSON files
         optS = opts4Exe('CERRoptions.json'); 
@@ -276,12 +322,24 @@ switch upper(command)
         %optS.ROEModelPath = 'your/path/to/models';
         %optS.ROECriteriaPath = 'your/path/to/criteria';
         
-        protocolPath = eval(optS.ROEProtocolPath);
-        modelPath = eval(optS.ROEModelPath);
-        criteriaPath = eval(optS.ROECriteriaPath);
-
+        if contains(optS.ROEProtocolPath,'getCERRPath')
+            protocolPath = eval(optS.ROEProtocolPath);
+        else
+            protocolPath = optS.ROEProtocolPath;
+        end
+        if contains(optS.ROEModelPath,'getCERRPath')
+            modelPath = eval(optS.ROEModelPath);
+        else
+            modelPath = optS.ROEModelPath;
+        end
+        if contains(optS.ROECriteriaPath,'getCERRPath')
+            criteriaPath = eval(optS.ROECriteriaPath);
+        else
+            criteriaPath = optS.ROECriteriaPath;
+        end
+        
         % List available protocols for user selection
-        [protocolListC,protocolIdx,ok] = listFiles(protocolPath,'Multiple');
+        [protocolListC,protocolIdx,ok] = listFilesROE(protocolPath);
         if ~ok
             return
         end
@@ -323,7 +381,8 @@ switch upper(command)
         pos = get(hFig,'Position');
         GUIWidth = pos(3);
         GUIHeight = pos(4);
-        mtree = uitree('v0', 'Root', root, 'SelectionChangeFcn',@getParams);
+        mtree = uitree('v0', 'Root', root, 'SelectionChangeFcn',...
+            @(hObj,hEvt)getParamsROE(hObj,hEvt,hFig,planC));
         set(mtree,'Position',[2*shift 5*shift .16*GUIWidth .68*GUIHeight],...
             'Visible',false);
         drawnow;
@@ -333,14 +392,14 @@ switch upper(command)
         ud.Protocols = protocolS;
         ud.modelTree = mtree;
         
-        set(hFig,'userdata',ud);
+        guidata(hFig,ud);
         ROE('LIST_MODELS');
         
         
     case 'PLOT_MODELS'
         
         %% Get plot mode
-        ud = get(hFig,'userdata');
+        ud = guidata(hFig);
         if ~isfield(ud,'plotMode') || isempty(ud.plotMode) || isequal(ud.plotMode,0)
             msgbox('Please select display mode','Plot models');
             return
@@ -351,9 +410,9 @@ switch upper(command)
         %% Clear previous plots
         ROE('CLEAR_PLOT',hFig);
         
-        ud = get(hFig,'userdata');
+        ud = guidata(hFig);
         if ~isfield(ud,'planNum') || isempty(ud.planNum) || ud.planNum==0
-            msgbox('Please select valid dose plan','Selection required');
+            msgbox('Please select valid dose plan.','Selection required');
             return
         end
         indexS = planC{end};
@@ -376,8 +435,9 @@ switch upper(command)
         end
         
         %% Define color order, foreground protocol
-        colorOrderM = [0 229 238;123 104 238;255 131 250;0 238 118;218 165 32;...
-            196	196	196;0 139 0;28 134 238;238 223 204]/255;
+        colorOrderM = [0 229 238;123 104 238;255 131 250;0 238 118;
+            218 165 32;255 153 153;196 196 196;0 139 0;28 134 238;...
+            238 223 204]/255;
         if ~isfield(ud,'foreground') || isempty(ud.foreground)
             ud.foreground = 1;
         end
@@ -394,6 +454,35 @@ switch upper(command)
         jTot = 0;
         cCount = 0;
         gCount = 0;
+        
+        
+        %% Handle missing structure input
+        for p = 1:numel(protocolS)
+            
+            modelC = protocolS(p).model;
+            
+            %Identify models with no associated struct. selection
+            strSelC = cellfun(@(x)x.strNum , modelC,'un',0);
+            noSelV = find([strSelC{:}]==0);
+            
+            %Allow users to input missing structures or skip associated models
+            if any(noSelV)
+                modList = cellfun(@(x)x.name , modelC,'un',0);
+                modList = strjoin(modList(noSelV),',');
+                %msgbox(['Please select structures required for models ' modList],'Selection required');
+                dispMsg = sprintf(['No structure selected',...
+                    ' for ',modList,'.\n Skip model(s)?']);
+                missingSel = questdlg(['\fontsize{11}',dispMsg],'Missing structure',...
+                    'Yes','No',struct('Interpreter','tex','Default','Yes'));
+                if ~isempty(missingSel) && strcmp(missingSel,'Yes')
+                    modelC(noSelV) = [];
+                    protocolS(p).model = modelC;
+                else
+                    return
+                end
+            end
+        end
+        
         
         %% Mode-specific computations
         switch plotMode
@@ -412,17 +501,6 @@ switch upper(command)
                 for p = 1:numel(protocolS)
                     
                     modelC = protocolS(p).model;
-                    
-                    %Ensure reqd structures are selected 
-                    strSelC = cellfun(@(x)x.strNum , modelC,'un',0);
-                    noSelV = find([strSelC{:}]==0);
-                    
-                    if any(noSelV)
-                       modList = cellfun(@(x)x.name , modelC,'un',0);
-                       modList = strjoin(modList(noSelV),',');  
-                       msgbox(['Please select structures required for models ' modList],'Selection required');
-                       return
-                    end
                     
                     modTypeC = cellfun(@(x)(x.type),modelC,'un',0);
                     xIndx = find(strcmp(modTypeC,'BED') | strcmp(modTypeC,'TCP')); %Identify TCP/BED models
@@ -495,7 +573,7 @@ switch upper(command)
                         
                         
                         %Apply fractionation correction as required
-                        correctedScaledDoseC = frxCorrect(modelC{xIndx},structNumV,newNumFrx,scaledDoseBinsC);
+                        correctedScaledDoseC = frxCorrectROE(modelC{xIndx},structNumV,newNumFrx,scaledDoseBinsC);
                         
                         %Update nFrx parameter
                         paramS.numFractions.val = newNumFrx;
@@ -511,7 +589,7 @@ switch upper(command)
                         if n==numel(xScaleV)
                             %Get corrected dose at scale == 1
                             paramS.frxSize.val = dpfProtocol;
-                            testDoseC = frxCorrect(modelC{xIndx},structNumV,numFrxProtocol,doseBinsC);
+                            testDoseC = frxCorrectROE(modelC{xIndx},structNumV,numFrxProtocol,doseBinsC);
                             %Display mean dose, EUD, GTD(if applicable)
                             outType = modelC{xIndx}.type;
                             testMeanDose = calc_meanDose(testDoseC{1},volHistC{1});
@@ -679,8 +757,10 @@ switch upper(command)
                 %-fraction size
                 paramS.frxSize.val = dpfProtocol;
                 %-alpha/beta
-                abRatio = modelC{modIdxV(j)}.abRatio;
-                paramS.abRatio.val = abRatio;
+                if isfield(modelC{modIdxV(j)},'abRatio')
+                    abRatio = modelC{modIdxV(j)}.abRatio;
+                    paramS.abRatio.val = abRatio;
+                end
                 
                 %Scale dose bins
                 if isfield(modelC{modIdxV(j)},'dv')
@@ -704,8 +784,9 @@ switch upper(command)
                         %Scale dose bins
                         scale = xScaleV(n);
                         scaledDoseBinsC = cellfun(@(x) x*scale,doseBinsC,'un',0);
+                        
                         %Apply fractionation correction as required
-                        correctedScaledDoseC = frxCorrect(modelC{modIdxV(j)},structNumV,numFrxProtocol,scaledDoseBinsC);
+                        correctedScaledDoseC = frxCorrectROE(modelC{modIdxV(j)},structNumV,numFrxProtocol,scaledDoseBinsC);
                         
                         %Correct frxSize parameter
                         paramS.frxSize.val = scale*dpfProtocol;
@@ -721,7 +802,7 @@ switch upper(command)
                         if n==numel(xScaleV)
                             %Get corrected dose at scale == 1
                             paramS.frxSize.val = dpfProtocol;
-                            testDoseC = frxCorrect(modelC{modIdxV(j)},structNumV,numFrxProtocol,doseBinsC);
+                            testDoseC = frxCorrectROE(modelC{modIdxV(j)},structNumV,numFrxProtocol,doseBinsC);
                             %Display mean dose, EUD, GTD(if applicable)
                             outType = modelC{modIdxV(j)}.type;
                             testMeanDose = calc_meanDose(testDoseC{1},volHistC{1});
@@ -767,12 +848,12 @@ switch upper(command)
                         scaledDoseBinsC = cellfun(@(x) x*scale,doseBinsC,'un',0);
                         
                         %Apply fractionation correction as required
-                        correctedScaledDoseC = frxCorrect(modelC{j},structNumV,newNumFrx,scaledDoseBinsC);
+                        correctedScaledDoseC = frxCorrectROE(modelC{j},structNumV,newNumFrx,scaledDoseBinsC);
                         
                         %Correct nFrx parameter
                         paramS.numFractions.val = newNumFrx;
                         
-                        %% Compute TCP/NTCP
+                        %% Compute NTCP
                         if numel(structNumV)==1
                             scaledCPv(n) = feval(modelC{j}.function,paramS,correctedScaledDoseC{1},volHistC{1});
                         else
@@ -783,7 +864,7 @@ switch upper(command)
                         if n==numel(nfrxScaleV)
                             %Get corrected dose at scale == 1
                             paramS.numFractions.val = numFrxProtocol;
-                            testDoseC = frxCorrect(modelC{j},structNumV,numFrxProtocol,doseBinsC);
+                            testDoseC = frxCorrectROE(modelC{j},structNumV,numFrxProtocol,doseBinsC);
                             %Display mean dose, EUD, GTD(if applicable)
                             outType = modelC{j}.type;
                             if isfield(paramS,'n')
@@ -825,8 +906,12 @@ switch upper(command)
                 if plotMode==1 || plotMode ==2
                     if strcmp(modelC{j}.type,'NTCP')
                         ntcp = ntcp + 1;
-                        xLmt = get(hNTCPAxis,'xlim');
-                        set(hNTCPAxis,'xlim',[min(xLmt(1),tcpM(p,1)), max(xLmt(2),tcpM(p,end))]);
+                        if plotMode == 1
+                            xLmt = get(hNTCPAxis,'xlim');
+                            set(hNTCPAxis,'xlim',[min(xLmt(1),tcpM(p,1)), max(xLmt(2),tcpM(p,end))]);
+                        else
+                            set(hNTCPAxis,'xlim',[0,1]);
+                        end
                         tcpV = tcpM(p,:);
                         ud.NTCPCurve = [ud.NTCPCurve plot(hNTCPAxis,tcpV(~isnan(tcpV)),scaledCPv,'linewidth',3,...
                             'Color',plotColorM(colorIdx,:),'lineStyle',lineStyle)];
@@ -882,135 +967,39 @@ switch upper(command)
                 critS = protocolS(p).constraints;
                 nFrxProtocol = protocolS(p).numFractions;
                 structC = fieldnames(critS.structures);
+                
                 %Loop over structures
                 for m = 1:numel(structC)
                     cStr = find(strcmpi(structC{m}, availableStructsC));
-                    if ~isempty(cStr)              %If structure is available in plan
-                        %Extract criteria
-                        strCritS = critS.structures.(structC{m}).criteria;
-                        criteriaC = fieldnames(strCritS);
+                    %------------ Loop over guidelines --------------------
+                    %Extract guidelines
+                    if ~isempty(cStr) && isfield(critS.structures.(structC{m}),'guidelines')
+                        strGuideS = critS.structures.(structC{m}).guidelines;
+                        guidelinesC = fieldnames(strGuideS);
+                        
                         %Get alpha/beta ratio
                         abRatio = critS.structures.(structC{m}).abRatio;
                         %Get DVH
                         [doseV,volsV] = getDVH(cStr,plnNum,planC);
                         [doseBinV,volHistV] = doseHist(doseV, volsV, binWidth);
-                        %------------ Loop over criteria ----------------------
-                        for n = 1:length(criteriaC)
+                        dvAvailable = 1;
+                        for n = 1:length(guidelinesC)
                             
                             %Idenitfy NTCP limits
-                            if strcmp(strCritS.(criteriaC{n}).function,'ntcp')
+                            if strcmp(strGuideS.(guidelinesC{n}).function,'ntcp')
                                 
-                                %Get NTCP over entire scale
+                                %Get NTCP over range of scale factors
                                 strC = cellfun(@(x) x.strNum,modelC,'un',0);
-                                cIdx = find([strC{:}]==cStr);
+                                gIdx = find([strC{:}]==cStr);
+                                
                                 if p == 1
-                                    cProtocolStart(p) = 0;
+                                    gProtocolStart(p) = 0;
                                 else
                                     prevC = cellfun(@(x) x.type,ud.Protocols(p-1).model,'un',0);
                                     prevIdxV = strcmpi('ntcp',prevC);
-                                    cProtocolStart(p) = sum(prevIdxV);
+                                    gProtocolStart(p) = sum(prevIdxV);
                                 end
-                                xV = ud.NTCPCurve(cProtocolStart(p)+cIdx).XData;
-                                
-                                
-                                %Identify where limit is exceeded
-                                ntcpV = ud.NTCPCurve(cProtocolStart(p)+cIdx).YData;
-                                cCount = cCount + 1;
-                                exceedIdxV = ntcpV >= strCritS.(criteriaC{n}).limit;
-                                if ~any(exceedIdxV)
-                                    cValV(cCount) = inf;
-                                    cScaleV(cCount) = inf;
-                                    cXv(cCount) = inf;
-                                else
-                                    exceedIdxV = find(exceedIdxV,1,'first');
-                                    cValV(cCount) = ntcpV(exceedIdxV);
-                                    cScaleV(cCount) = cgScaleV(exceedIdxV);
-                                    ind = cgScaleV == cScaleV(cCount);
-                                    cXv(cCount) = xV(ind);
-                                    if p==ud.foreground
-                                        ud.cMarker = [ud.cMarker,plot(hNTCPAxis,cXv(cCount),...
-                                            cValV(cCount),'o','MarkerSize',8,'MarkerFaceColor',...
-                                            'r','MarkerEdgeColor','k')];
-                                    else
-                                        addMarker = scatter(hNTCPAxis,cXv(cCount),...
-                                            cValV(cCount),60,'MarkerFaceColor','r',...
-                                            'MarkerEdgeColor','k');
-                                        addMarker.MarkerFaceAlpha = .3;
-                                        addMarker.MarkerEdgeAlpha = .3;
-                                        ud.cMarker = [ud.cMarker,addMarker];
-                                    end
-                                end
-                            else
-                                
-                                if p == 1
-                                    cProtocolStart(p) = 0;
-                                else
-                                    prevC = cellfun(@(x) x.type,ud.Protocols(p-1).model,'un',0);
-                                    prevIdxV = strcmpi('ntcp',prevC);
-                                    cProtocolStart(p) = sum(prevIdxV);
-                                end
-                                xV = ud.NTCPCurve(cProtocolStart(p)+1).XData;
-                                
-                                %Idenitfy dose/volume limits
-                                cCount = cCount + 1;
-                                %nFrx = planC{indexS.dose}(plnNum).numFractions;
-                                [cScaleV(cCount),cValV(cCount)] = calc_Limit(doseBinV,volHistV,strCritS.(criteriaC{n}),...
-                                    nFrxProtocol,critS.numFrx,abRatio,cgScaleV);
-                                
-                            end
-                            %Display line indicating clinical criteria/guidelines
-                            if isinf(cScaleV(cCount))
-                                cXv(cCount) = inf;
-                                x = [cXv(cCount) cXv(cCount)];
-                            else
-                                ind = cgScaleV == cScaleV(cCount);
-                                cXv(cCount) = xV(ind);
-                                x = [cXv(cCount) cXv(cCount)];
-                            end
-                            y = [0 1];
-                            %Set criteria line transparency
-                            if p==ud.foreground
-                                critLineH = line(hNTCPAxis,x,y,'LineWidth',1,...
-                                    'Color',[1 0 0],'LineStyle','--','Tag','criteria',...
-                                    'Visible','Off');
-                            else
-                                critLineH = line(hNTCPAxis,x,y,'LineWidth',2,...
-                                    'Color',[1 0 0 alpha],'LineStyle',':','Tag','criteria',...
-                                    'Visible','Off');
-                            end
-                            critLineUdS.protocol = p;
-                            critLineUdS.structure = structC{m};
-                            critLineUdS.label = criteriaC{n};
-                            critLineUdS.limit = strCritS.(criteriaC{n}).limit;
-                            critLineUdS.scale = cScaleV(cCount);
-                            critLineUdS.val = cValV(cCount);
-                            set(critLineH,'userdata',critLineUdS);
-                            protocolS(p).criteria = [protocolS(p).criteria,critLineH];
-                            
-                        end
-                        
-                        %------------ Loop over guidelines --------------------
-                        %Extract guidelines
-                        if isfield(critS.structures.(structC{m}),'guidelines')
-                            strGuideS = critS.structures.(structC{m}).guidelines;
-                            guidelinesC = fieldnames(strGuideS);
-                            
-                            for n = 1:length(guidelinesC)
-                                
-                                %Idenitfy NTCP limits
-                                if strcmp(strGuideS.(guidelinesC{n}).function,'ntcp')
-                                    
-                                    %Get NTCP over range of scale factors
-                                    strC = cellfun(@(x) x.strNum,modelC,'un',0);
-                                    gIdx = find([strC{:}]==cStr);
-                                    
-                                    if p == 1
-                                        gProtocolStart(p) = 0;
-                                    else
-                                        prevC = cellfun(@(x) x.type,ud.Protocols(p-1).model,'un',0);
-                                        prevIdxV = strcmpi('ntcp',prevC);
-                                        gProtocolStart(p) = sum(prevIdxV);
-                                    end
+                                if ~isempty(gIdx)
                                     xV = ud.NTCPCurve(gProtocolStart(p)+gIdx).XData;
                                     
                                     %Identify where guideline is exceeded
@@ -1042,55 +1031,190 @@ switch upper(command)
                                         end
                                     end
                                 else
-                                    if p == 1
-                                        gProtocolStart(p) = 0;
-                                    else
-                                        prevC = cellfun(@(x) x.type,ud.Protocols(p-1).model,'un',0);
-                                        prevIdxV = strcmpi('ntcp',prevC);
-                                        gProtocolStart(p) = sum(prevIdxV);
-                                    end
-                                    xV = ud.NTCPCurve(gProtocolStart(p)+1).XData;
-                                    %Idenitfy dose/volume limits
                                     gCount = gCount + 1;
-                                    %nFrx = planC{indexS.dose}(plnNum).numFractions;
-                                    [gScaleV(gCount),gValV(gCount)] = calc_Limit(doseBinV,volHistV,strGuideS.(guidelinesC{n}),...
-                                        nFrxProtocol,critS.numFrx,abRatio,cgScaleV);
+                                    gScaleV(gCount) = inf;
+                                    gValV(gCount) = -inf;
                                 end
                                 
-                                %Display line indicating clinical criteria/guidelines
-                                if isinf(gScaleV(gCount))
-                                    gXv(gCount) = inf;
+                                %Get guideline label
+                                gLabel = strtok(strGuideS.(guidelinesC{n}).parameters.modelFile,'.');
+                            else
+                                if p == 1
+                                    gProtocolStart(p) = 0;
                                 else
-                                    ind = cgScaleV == gScaleV(gCount);
-                                    gXv(gCount) = xV(ind);
+                                    prevC = cellfun(@(x) x.type,ud.Protocols(p-1).model,'un',0);
+                                    prevIdxV = strcmpi('ntcp',prevC);
+                                    gProtocolStart(p) = sum(prevIdxV);
                                 end
-                                x = [gXv(gCount) gXv(gCount)];
-                                y = [0 1];
-                                if p==ud.foreground
-                                    guideLineH = line(hNTCPAxis,x,y,'LineWidth',2,...
-                                        'Color',[239 197 57]/255,'LineStyle','--',...
-                                        'Tag','guidelines','Visible','Off');
-                                else
-                                    guideLineH = line(hNTCPAxis,x,y,'LineWidth',2,...
-                                        'Color',[239 197 57]/255,'LineStyle',':',...
-                                        'Tag','guidelines','Visible','Off');
-                                end
-                                guideLineUdS.protocol = p;
-                                guideLineUdS.structure = structC{m};
-                                guideLineUdS.label = guidelinesC{n};
-                                guideLineUdS.limit = strGuideS.(guidelinesC{n}).limit;
-                                guideLineUdS.scale = gScaleV(gCount);
-                                guideLineUdS.val = gValV(gCount);
-                                set(guideLineH,'userdata',guideLineUdS);
-                                protocolS(p).guidelines = [protocolS(p).guidelines,guideLineH];
+                                xV = ud.NTCPCurve(gProtocolStart(p)+1).XData;
+                                %Idenitfy dose/volume limits
+                                gCount = gCount + 1;
+                                %nFrx = planC{indexS.dose}(plnNum).numFractions;
+                                [gScaleV(gCount),gValV(gCount)] = ...
+                                    calcLimitROE(doseBinV,volHistV,...
+                                    strGuideS.(guidelinesC{n}),...
+                                    nFrxProtocol,critS.numFrx,abRatio,cgScaleV);
                                 
+                                %Get guideline label
+                                gLabel =  guidelinesC{n};
                             end
+                            
+                            %Display line indicating clinical criteria/guidelines
+                            if isinf(gScaleV(gCount))
+                                gXv(gCount) = inf;
+                            else
+                                ind = cgScaleV == gScaleV(gCount);
+                                gXv(gCount) = xV(ind);
+                            end
+                            x = [gXv(gCount) gXv(gCount)];
+                            y = [0 1];
+                            if p==ud.foreground
+                                guideLineH = line(hNTCPAxis,x,y,'LineWidth',2,...
+                                    'Color',[239 197 57]/255,'LineStyle','--',...
+                                    'Tag','guidelines','Visible','Off');
+                            else
+                                guideLineH = line(hNTCPAxis,x,y,'LineWidth',2,...
+                                    'Color',[239 197 57]/255,'LineStyle',':',...
+                                    'Tag','guidelines','Visible','Off');
+                            end
+                            guideLineUdS.protocol = p;
+                            guideLineUdS.structure = structC{m};
+                            guideLineUdS.label = gLabel;
+                            guideLineUdS.limit = strGuideS.(guidelinesC{n}).limit;
+                            guideLineUdS.scale = gScaleV(gCount);
+                            guideLineUdS.val = gValV(gCount);
+                            set(guideLineH,'userdata',guideLineUdS);
+                            protocolS(p).guidelines = [protocolS(p).guidelines,guideLineH];
+                        end
+                    else
+                       dvAvailable = 0; 
+                    end
+                    %----- Loop over hard constraints--------
+                    
+                    %If structure & clinical criteria are available
+                    if ~isempty(cStr) & ...
+                            isfield(critS.structures.(structC{m}),'criteria')
+                        strCritS = critS.structures.(structC{m}).criteria;
+                        criteriaC = fieldnames(strCritS);
+                        
+                        if ~dvAvailable
+                            %Get alpha/beta ratio
+                            abRatio = critS.structures.(structC{m}).abRatio;
+                            %Get DVH
+                            [doseV,volsV] = getDVH(cStr,plnNum,planC);
+                            [doseBinV,volHistV] = doseHist(doseV, volsV, binWidth);
                         end
                         
+                        for n = 1:length(criteriaC)
+                            
+                            %Idenitfy NTCP limits
+                            if strcmp(strCritS.(criteriaC{n}).function,'ntcp')
+                                
+                                %Get NTCP over entire scale
+                                strC = cellfun(@(x) x.strNum,modelC,'un',0);
+                                cIdx = find([strC{:}]==cStr);
+                                
+                                if p == 1
+                                    cProtocolStart(p) = 0;
+                                else
+                                    prevC = cellfun(@(x) x.type,ud.Protocols(p-1).model,'un',0);
+                                    prevIdxV = strcmpi('ntcp',prevC);
+                                    cProtocolStart(p) = sum(prevIdxV);
+                                end
+                                
+                                if ~isempty(cIdx)
+                                    xV = ud.NTCPCurve(cProtocolStart(p)+cIdx).XData;
+                                    
+                                    %Identify where limit is exceeded
+                                    ntcpV = ud.NTCPCurve(cProtocolStart(p)+cIdx).YData;
+                                    cCount = cCount + 1;
+                                    exceedIdxV = ntcpV >= strCritS.(criteriaC{n}).limit;
+                                    if ~any(exceedIdxV)
+                                        cValV(cCount) = inf;
+                                        cScaleV(cCount) = inf;
+                                        cXv(cCount) = inf;
+                                    else
+                                        exceedIdxV = find(exceedIdxV,1,'first');
+                                        cValV(cCount) = ntcpV(exceedIdxV);
+                                        cScaleV(cCount) = cgScaleV(exceedIdxV);
+                                        ind = cgScaleV == cScaleV(cCount);
+                                        cXv(cCount) = xV(ind);
+                                        if p==ud.foreground
+                                            ud.cMarker = [ud.cMarker,plot(hNTCPAxis,cXv(cCount),...
+                                                cValV(cCount),'o','MarkerSize',8,'MarkerFaceColor',...
+                                                'r','MarkerEdgeColor','k')];
+                                        else
+                                            addMarker = scatter(hNTCPAxis,cXv(cCount),...
+                                                cValV(cCount),60,'MarkerFaceColor','r',...
+                                                'MarkerEdgeColor','k');
+                                            addMarker.MarkerFaceAlpha = .3;
+                                            addMarker.MarkerEdgeAlpha = .3;
+                                            ud.cMarker = [ud.cMarker,addMarker];
+                                        end
+                                    end
+                                else
+                                    cCount = cCount + 1;
+                                    cScaleV(cCount) = inf;
+                                    cValV(cCount) = -inf;
+                                end
+                                
+                                %Get crit label
+                                cLabel = strtok(strCritS.(criteriaC{n}).parameters.modelFile,'.');
+                            else
+                                
+                                if p == 1
+                                    cProtocolStart(p) = 0;
+                                else
+                                    prevC = cellfun(@(x) x.type,ud.Protocols(p-1).model,'un',0);
+                                    prevIdxV = strcmpi('ntcp',prevC);
+                                    cProtocolStart(p) = sum(prevIdxV);
+                                end
+                                xV = ud.NTCPCurve(cProtocolStart(p)+1).XData;
+                                
+                                %Idenitfy dose/volume limits
+                                cCount = cCount + 1;
+                                %nFrx = planC{indexS.dose}(plnNum).numFractions;
+                                [cScaleV(cCount),cValV(cCount)] = ...
+                                    calcLimitROE(doseBinV,volHistV,...
+                                    strCritS.(criteriaC{n}),...
+                                    nFrxProtocol,critS.numFrx,abRatio,cgScaleV);
+                                
+                                %Get crit label
+                                cLabel = criteriaC{n};
+                            end
+                            
+                            %Display line indicating clinical criteria/guidelines
+                            if isinf(cScaleV(cCount))
+                                cXv(cCount) = inf;
+                                x = [cXv(cCount) cXv(cCount)];
+                            else
+                                ind = cgScaleV == cScaleV(cCount);
+                                cXv(cCount) = xV(ind);
+                                x = [cXv(cCount) cXv(cCount)];
+                            end
+                            y = [0 1];
+                            %Set criteria line transparency
+                            if p==ud.foreground
+                                critLineH = line(hNTCPAxis,x,y,'LineWidth',1,...
+                                    'Color',[1 0 0],'LineStyle','--','Tag','criteria',...
+                                    'Visible','Off');
+                            else
+                                critLineH = line(hNTCPAxis,x,y,'LineWidth',2,...
+                                    'Color',[1 0 0 alpha],'LineStyle',':','Tag','criteria',...
+                                    'Visible','Off');
+                            end
+                            critLineUdS.protocol = p;
+                            critLineUdS.structure = structC{m};
+                            critLineUdS.label = cLabel;
+                            critLineUdS.limit = strCritS.(criteriaC{n}).limit;
+                            critLineUdS.scale = cScaleV(cCount);
+                            critLineUdS.val = cValV(cCount);
+                            set(critLineH,'userdata',critLineUdS);
+                            protocolS(p).criteria = [protocolS(p).criteria,critLineH];
+                        end
                     end
                 end
             end
-            
             planC{indexS.dose}(plnNum).doseArray = dA;
         end
         
@@ -1098,56 +1222,66 @@ switch upper(command)
         
         %Add plot labels
         ylabel(hNTCPAxis,'NTCP');
-        if plotMode == 1 || plotMode == 2
-            if max(get(hNTCPAxis,'xlim'))>1
-                xlabel(hNTCPAxis,'BED (Gy)');
-            else
-                xlabel(hNTCPAxis,'TCP');
-            end
+        if plotMode == 1
+            xlabel(hNTCPAxis,'BED (Gy)');
+        elseif plotMode == 2
+            xlabel(hNTCPAxis,'TCP');
         else
             xlabel(hNTCPAxis,xlab);
         end
         
         %Add legend
         NTCPLegendC = arrayfun(@(x)x.DisplayName,ud.NTCPCurve,'un',0);
+        hax = ud.NTCPCurve;
+        key = NTCPLegendC;
+        
+        %try
+        %hax : protocolS(p).criteria
+        %
         
         constraintS = protocolS(ud.foreground);
         if isfield(constraintS,'criteria') && ~isempty(constraintS.criteria)
-            
             if isempty(ud.BEDCurve)
+                if isfield(ud,'TCPCurve') && ~isempty(ud.TCPCurve)
+                    TCPlegendC = arrayfun(@(x)x.DisplayName,ud.TCPCurve,'un',0);
+                    hax = [hax,ud.TCPCurve];
+                    key = [key,TCPlegendC];
+                end
                 if isfield(constraintS,'guidelines') && ~isempty(constraintS.guidelines)
-                    hax = [ud.NTCPCurve,constraintS.criteria(end),constraintS.guidelines(end)];
-                    key = [NTCPLegendC,'Clinical criteria','Clinical guidelines'];
+                    hax = [hax,constraintS.criteria(end),constraintS.guidelines(end)];
+                    key = [key,'Clinical limits','Clinical guidelines'];
                 else
-                    hax = [ud.NTCPCurve,constraintS.criteria(end)];
-                    key = [NTCPLegendC,'Clinical criteria'];
+                    hax = [hax,constraintS.criteria(end)];
+                    key = [key,'Clinical limits'];
                 end
             else
                 if isfield(constraintS,'guidelines') && ~isempty(constraintS.guidelines)
                     BEDlegendC = arrayfun(@(x)x.DisplayName,ud.BEDCurve,'un',0);
-                    hax = [ud.NTCPCurve,ud.BEDCurve,constraintS.criteria(end),constraintS.guidelines(end)];
-                    key = [NTCPLegendC,BEDlegendC,'Clinical criteria','Clinical guidelines'];
+                    hax = [hax,ud.BEDCurve,constraintS.criteria(end),constraintS.guidelines(end)];
+                    key = [key,BEDlegendC,'Clinical limits','Clinical guidelines'];
                 else
                     BEDlegendC = arrayfun(@(x)x.DisplayName,ud.BEDCurve,'un',0);
-                    hax = [ud.NTCPCurve,ud.BEDCurve,constraintS.criteria(end)];
-                    key = [NTCPLegendC,BEDlegendC,'Clinical criteria'];
+                    hax = [ud.hax,ud.BEDCurve,constraintS.criteria(end)];
+                    key = [key,BEDlegendC,'Clinical limits'];
                 end
             end
-            legend(hax,key,'Location','northwest','Color','none','FontName',...
+            legH = legend(hax,key,'Location','northwest','Color','none','FontName',...
                 'Arial','FontWeight','normal','FontSize',11,'AutoUpdate','off');
             
         else
-            legend(ud.NTCPCurve,NTCPLegendC,...
+            legH =legend(hax,key,...
                 'Location','northwest','Color','none','FontName','Arial',...
                 'FontWeight','normal','FontSize',11,'AutoUpdate','off');
         end
         
         %Store userdata
         ud.Protocols = protocolS;
-        set(hFig,'userdata',ud);
+        ud.handle.legend = legH;
+        guidata(hFig,ud);
         
         %Display current dose/probability
-        scaleDose(hSlider);
+        scaleDoseROE(hSlider,[],hFig);
+        ud = guidata(hFig);
         
         %Enable user-entered scale entry
         set(ud.handle.modelsAxis(10),'enable','On');
@@ -1156,6 +1290,8 @@ switch upper(command)
         if ~isempty([protocolS.criteria])
             cursorMode = datacursormode(hFig);
             set(cursorMode,'Enable','On');
+            
+            legH = ud.handle.legend;
             
             %Display first clinical criterion/guideline that is violated
             for p = 1:numel(ud.Protocols)
@@ -1192,34 +1328,62 @@ switch upper(command)
                 elseif(~isempty(hcFirst) && isempty(hgFirst)) || hcFirst(1).XData(1)<= hgFirst(1).XData(1)
                     %firstcViolation = [false(1:i1-1),firstcViolation];
                     dttag = 'criteria';
-                    dispSelCriteria([],[],dttag,firstcViolation,p);
+                    dispSelCriteriaROE([],[],hFig,dttag,firstcViolation,p);
                     hDatatip = cursorMode.createDatatip(hcFirst(1));
                     hDatatip.Marker = '^';
                     hDatatip.MarkerSize=7;
                     set(hDatatip,'Visible','On','OrientationMode','Manual',...
-                        'UpdateFcn',@expandDataTip,'Tag',dttag);
+                        'Tag',dttag,'UpdateFcn',...
+                        @(hObj,hEvt)expandDataTipROE(hObj,hEvt,hFig));
+                    %Enable legend entry for constraints
+                    drawnow;
+                    legH.EntryContainer.NodeChildren(2).Label.Color = [0,0,0];
                 else
                     %firstgViolation = [false(1:j1-1),firstgViolation];
                     dttag = 'guidelines';
-                    dispSelCriteria([],[],dttag,firstgViolation,p);
+                    dispSelCriteriaROE([],[],hFig,dttag,firstgViolation,p);
                     hDatatip = cursorMode.createDatatip(hgFirst(1));
                     hDatatip.Marker = '^';
                     hDatatip.MarkerSize=7;
                     set(hDatatip,'Visible','On','OrientationMode','Manual',...
-                        'UpdateFcn',@expandDataTip,'Tag',dttag);
+                        'Tag',dttag,'UpdateFcn',...
+                        @(hObj,hEvt)expandDataTipROE(hObj,hEvt,hFig));
+                    %Enable legend entry for guidelines
+                    drawnow;
+                    legH.EntryContainer.NodeChildren(1).Label.Color = [0,0,0];
                 end
                 
             end
             
             %Set datacursor update function
             set(cursorMode, 'Enable','On','SnapToDataVertex','off',...
-                'UpdateFcn',@expandDataTip);
+                'UpdateFcn',@(hObj,hEvt)expandDataTipROE(hObj,hEvt,hFig));
+            % set(cursorMode,'Enable','Off');
+            
+            ud.handle.legend = legH;
             
         end
         
+        %Make labels draggable
+        for nLabel = 1:length(ud.y1Disp)
+            hLabel = ud.y1Disp(nLabel);
+            draggable(hLabel, "v", [0.01 0.1]);
+        end
+        if isfield(ud,'y2Disp') && ~isempty(ud.y2Disp)
+            for nLabel = 1:length(ud.y2Disp)
+                hLabel = ud.y2Disp(nLabel);
+                draggable(hLabel, "v", [0.01 0.1]);
+            end
+        end
+        
+        %Enable data label toggle control
+        set(ud.handle.modelsAxis(12),'Visible','On');
+        
+        guidata(hFig,ud);
+
         
     case 'CLEAR_PLOT'
-        ud = get(hFig,'userdata');
+        ud = guidata(hFig);
         %Clear data/plots from any previously loaded models/plans/structures
         ud.NTCPCurve = [];
         ud.TCPCurve = [];
@@ -1265,13 +1429,16 @@ switch upper(command)
         set(ud.handle.modelsAxis(7),'Visible','Off');
         set(ud.handle.modelsAxis(8),'Visible','Off');
         set(ud.handle.modelsAxis(10),'enable','Off');
-        set(hFig,'userdata',ud);
+        set(ud.handle.modelsAxis(12),'Visible','Off');
+        guidata(hFig,ud);
         
     case 'LIST_MODELS'
         %Get selected protocols
-        ud = get(hFig,'userdata');
+        ud = guidata(hFig);
         ud.handle.editModels = [];
         protocolS = ud.Protocols;
+        currProtocol = get(gcbo,'Value');
+        ud.PrtcNum = currProtocol;
         
         %Check models for required fields ('function' and 'parameter')
         numProtocols = length(protocolS);
@@ -1309,10 +1476,10 @@ switch upper(command)
         set(ud.handle.inputH(10),'Enable','On'); %Plot button on
         %set(ud.handle.inputH(12),'Enable','On'); %Allow x-axis selection
         %set(ud.handle.inputH(13),'Enable','On'); %Allow y-axis selection
-        set(hFig,'userdata',ud);
+        guidata(hFig,ud);
         
     case 'SAVE_MODELS'
-        ud = get(hFig,'userData');
+        ud = guidata(hFig);
         protocolS = ud.Protocols;
         
         %Save changes to model files
@@ -1340,7 +1507,7 @@ switch upper(command)
         fprintf('\nSave complete.\n');
         
         set(ud.handle.inputH(9),'Enable','Off');  %Disable save
-        set(hFig,'userdata',ud);
+        guidata(hFig,ud);
         
         
         
@@ -1353,41 +1520,6 @@ end
 
 %% -----------------------------------------------------------------------------------------
 
-% Calculate scale factor at which criteria are first violated
-    function [cScale, critVal] = calc_Limit(doseBinV,volHistV,critS,numFrxProtocol,critNumFrx,abRatio,scaleFactorV)
-        cFunc =  critS.function;
-        cLim = critS.limit;
-        critVal = -inf;
-        count = 0;
-        s = 0;
-        while critVal <= cLim && count<length(scaleFactorV)
-            count = count + 1;
-            %Scale dose bins
-            s = scaleFactorV(count);
-            scaledDoseBinsV = s*doseBinV;
-            
-            %Convert to standard no. fractions
-            Na = numFrxProtocol;
-            Nb = critNumFrx;
-            a = Na;
-            b = Na*Nb*abRatio;
-            c = -scaledDoseBinsV.*(b + scaledDoseBinsV*Nb);
-            correctedScaledDoseV = (-b + sqrt(b^2 - 4*a*c))/(2*a);
-            
-            if isfield(critS,'parameters')
-                cParamS = critS.parameters;
-                critVal = feval(cFunc,correctedScaledDoseV,volHistV,cParamS);
-            else
-                critVal = feval(cFunc,correctedScaledDoseV,volHistV);
-            end
-        end
-        if s == max(scaleFactorV)
-            cScale = inf;
-            critVal = inf;
-        else
-            cScale = s;
-        end
-    end
 
 %Panel to view constraints & select for display
     function critPanel(hObj,hEvt,command)
@@ -1413,10 +1545,11 @@ end
                 defaultColor = [0.8 0.9 0.9];
                 
                 %Get list of available constraints for display
-                ud = get(hFig,'userdata');
+                ud = guidata(hFig);
                 protS = ud.Protocols;
                 currProtocol = ud.foreground;
-                if isempty(protS(currProtocol).criteria) && isempty(protS(currProtocol).guidelines)
+                if isempty(protS(currProtocol).criteria) && ...
+                        isempty(protS(currProtocol).guidelines)
                     return
                 end
                 
@@ -1500,7 +1633,8 @@ end
                     {'Select','Structure','Constraint'},'ColumnEditable',[true,false,false],...
                     'BackgroundColor',[1,1,1],'Position',[3*shift 3*shift,tableWidth,...
                     height/2+shift],'ColumnWidth',{tableWidth/6,tableWidth/3,...
-                    tableWidth/2},'CellEditCallback',@dispSelCriteria);
+                    tableWidth/2},'CellEditCallback',...
+                    @(hObj,hEvt)dispSelCriteriaROE(hObj,hEvt,hFig));
                 set(critPanelH(8),'userdata',typeC);
                 
                 critUd.handles = critPanelH;
@@ -1508,7 +1642,7 @@ end
                 
             case 'NEXT'
                 
-                ud = get(hFig,'userdata');
+                ud = guidata(hFig);
                 protS = ud.Protocols;
                 
                 for k = 1:length(protS)
@@ -1530,7 +1664,7 @@ end
                         return
                     else
                         %Get available limits
-                        ud = get(hFig,'userdata');
+                        ud = guidata(hFig);
                         limitsV = [ arrayfun(@(x) x.XData(1),hGuide),...
                             arrayfun(@(x) x.XData(1),hCrit)];
                         currentLimit = limitsV(dispIdxV);
@@ -1546,17 +1680,21 @@ end
                             nextLimit = limOrderV(nextIdxV);
                             for l = 1:numel(nextLimit)
                                 if nextLimit(l) <= gNum  %Guidelines
-                                    dispSelCriteria([],[],'guidelines',nextLimit(l),currProtocol);
+                                    dispSelCriteriaROE([],[],hFig,...
+                                        'guidelines',nextLimit(l),currProtocol);
                                     hNext = hGuide(nextLimit(l));
                                     hData = cMode.createDatatip(hNext);
                                     set(hData,'Visible','On','OrientationMode','Manual',...
-                                        'UpdateFcn',@expandDataTip,'Tag','guidelines');
+                                        'Tag','criteria','UpdateFcn',...
+                                        @(hObj,hEvt)expandDataTipROE(hObj,hEvt,hFig));
                                 else                 %Criteria
-                                    dispSelCriteria([],[],'criteria',nextLimit(l)-gNum,currProtocol);
+                                    dispSelCriteriaROE([],[],hFig,'criteria',...
+                                        nextLimit(l)-gNum,currProtocol);
                                     hNext = hCrit(nextLimit(l)-gNum);
                                     hData = cMode.createDatatip(hNext);
                                     set(hData,'Visible','On','OrientationMode','Manual',...
-                                        'UpdateFcn',@expandDataTip,'Tag','criteria');
+                                        'Tag','criteria','UpdateFcn',...
+                                        @(hObj,hEvt)expandDataTipROE(hObj,hEvt,hFig));
                                 end
                             end
                             
@@ -1566,7 +1704,7 @@ end
                 
             case 'PREV'
                 
-                ud = get(hFig,'userdata');
+                ud = guidata(hFig);
                 protS = ud.Protocols;
                 
                 for k = 1:length(protS)
@@ -1588,7 +1726,7 @@ end
                         return
                     else
                         %Get available limits
-                        ud = get(hFig,'userdata');
+                        ud = guidata(hFig);
                         limitsV = [ arrayfun(@(x) x.XData(1),hGuide),...
                             arrayfun(@(x) x.XData(1),hCrit)];
                         currentLimit = limitsV(dispIdxV);
@@ -1602,17 +1740,20 @@ end
                             prevLimit = limOrderV(prvIdxV);
                             for l = 1:numel(prevLimit)
                                 if prevLimit(l) <= gNum  %Guidelines
-                                    dispSelCriteria([],[],'guidelines',prevLimit(l),currProtocol);
+                                    dispSelCriteriaROE([],[],hFig,'guidelines',...
+                                        prevLimit(l),currProtocol);
                                     hNext = hGuide(prevLimit(l));
                                     hData = cMode.createDatatip(hNext);
                                     set(hData,'Visible','On','OrientationMode','Manual',...
-                                        'UpdateFcn',@expandDataTip,'Tag','guidelines');
+                                        'Tag','guidelines','UpdateFcn',...
+                                        @(hObj,hEvt)expandDataTipROE(hObj,hEvt,hFig));
                                 else                 %Criteria
-                                    dispSelCriteria([],[],'criteria',prevLimit(l)-gNum,currProtocol);
+                                    dispSelCriteriaROE([],[],hFig,'criteria',prevLimit(l)-gNum,currProtocol);
                                     hNext = hCrit(prevLimit(l)-gNum);
                                     hData = cMode.createDatatip(hNext);
                                     set(hData,'Visible','On','OrientationMode','Manual',...
-                                        'UpdateFcn',@expandDataTip,'Tag','criteria');
+                                        'Tag','criteria','UpdateFcn',...
+                                        @(hObj,hEvt)expandDataTipROE(hObj,hEvt,hFig));
                                 end
                             end
                             
@@ -1627,967 +1768,6 @@ end
                 
         end
     end
-
-%Display selected limits
-    function [selectedIdv,selTypeC] = dispSelCriteria(hObj,hEvt,varargin)
-        
-        cMode = datacursormode(hFig);
-        cMode.removeAllDataCursors;
-        
-        if isempty(hEvt)  %Prog call
-            
-            %Get handles to constraints
-            ud = get(hFig,'userdata');
-            protS = ud.Protocols;
-            type = varargin{1};
-            idxV = varargin{2};
-            pNum = varargin{3};
-            
-            %Turn off currently displayed limits
-            hCrit = protS(pNum).criteria;
-            hGuide = protS(pNum).guidelines;
-            for k = 1:numel(hCrit)
-                set(hCrit(k),'Visible','Off')
-            end
-            for k = 1:numel(hGuide)
-                set(hGuide(k),'Visible','Off')
-            end
-            protS(pNum).criteria = hCrit;
-            protS(pNum).guidelines = hGuide;
-            
-            
-            %Turn on selected limit
-            if strcmp(type,'criteria')
-                hCrit = [protS(pNum).criteria];
-                set(hCrit(idxV),'Visible','On');
-                %numElements = [0,cumsum(arrayfun(@(x)numel(x.criteria),protS))];
-                %for pNum = 1:numel(protS)
-                %protS(pNum).criteria = hCrit(numElements(pNum)+1:numElements(pNum+1));
-                %end
-                protS(pNum).criteria = hCrit;
-            else
-                hGuide = [protS(pNum).guidelines];
-                set(hGuide(idxV),'Visible','On');
-                %numElements = [0,cumsum(arrayfun(@(x)numel(x.guidelines),protS))];
-                %for pNum = 1:numel(protS)
-                %protS(pNum).guidelines = hGuide(numElements(pNum)+1:numElements(pNum+1));
-                %end
-                protS(pNum).guidelines = hGuide;
-            end
-            
-            ud.Protocols = protS;
-            set(hFig,'userdata',ud);
-            
-        else %Checkbox selection
-            
-            %Get handles to constraints
-            ud = get(hFig,'userdata');
-            protS = ud.Protocols;
-            
-            %Get slelected constraint
-            selectedIdv = hEvt.Indices(:,1);
-            stateV = cell2mat(hObj.Data(selectedIdv,1));
-            stateC = {'Off','On'};
-            
-            if selectedIdv==1  %'All'
-                for pNum = 1:numel(protS)
-                    hCrit = protS(pNum).criteria;
-                    hGuide = protS(pNum).guidelines;
-                    %Criteria
-                    for k = 1:numel(hCrit)
-                        set(hCrit(k),'Visible',stateC{stateV+1});
-                    end
-                    %Guidelines
-                    for k = 1:numel(hGuide)
-                        set(hGuide(k),'Visible',stateC{stateV+1});
-                    end
-                end
-                
-            elseif selectedIdv==2 %'None'
-                if stateV == 1
-                    %Criteria
-                    for pNum = 1:numel(protS)
-                        hCrit = protS(pNum).criteria;
-                        hGuide = protS(pNum).guidelines;
-                        for k = 1:numel(hCrit)
-                            set(hCrit(k),'Visible','Off');
-                        end
-                        %Guidelines
-                        for k = 1:numel(hGuide)
-                            set(hGuide(k),'Visible','Off');
-                        end
-                    end
-                end
-                hObj.Data(:,1) = {false};
-                
-            else
-                
-                ud = get(hFig,'userdata');
-                protS = ud.Protocols;
-                currProtocol = ud.foreground;
-                gNum = numel(protS(currProtocol).guidelines);
-                
-                selectedIdv = selectedIdv-2;
-                type =  get(hObj,'userdata');
-                selTypeC = type(selectedIdv);
-                
-                for pNum = 1:numel(protS)
-                    for k = 1:numel(selectedIdv)
-                        if strcmp(selTypeC(k),'guidelines') %guidelines
-                            selNum = selectedIdv(k);
-                        else                               %criteria
-                            selNum = selectedIdv(k)- gNum;
-                        end
-                        %Toggle display on/off
-                        set(protS(pNum).(selTypeC{k})(selNum),'Visible',stateC{stateV(k)+1});
-                        %Expand tooltip if on
-                        if strcmp(stateC{stateV+1},'On')
-                            hExp = cMode.createDatatip(protS(pNum).(selTypeC{k})(selNum));
-                            evt.Target = protS(pNum).(selTypeC{k})(selNum);
-                            evt.Position = [evt.Target.XData(1),evt.Target.YData(1)];
-                            expandDataTip(hExp,evt);
-                        end
-                    end
-                end
-                
-            end
-            
-        end
-        
-        ud.Protocols = protS;
-        set(hFig,'userdata',ud);
-        
-    end
-
-
-
-
-% Edit model parameters
-    function editParams(hObj,hData)
-        
-        ud = get(hFig,'userdata');
-        tag = get(hObj,'Tag');
-        
-        %Get input data
-        idx = hData.Indices(1);
-        val = hData.EditData;
-        val2num = str2num(val);
-        if isempty(val2num) %Convert from string if numerical
-            val2num = val;
-        end
-        prtcNum = ud.PrtcNum;
-        modelsC = ud.Protocols(prtcNum).model;
-        if isfield(ud,'ModelNum')
-            modelNum = ud.ModelNum;
-        end
-        
-        %Update parameter
-        switch(tag)
-            case 'strSel'
-                if hData.Indices(2)==1
-                    parameterS = modelsC{modelNum}.parameters;
-                    inputStructC = fieldnames(parameterS.structures);
-                    inputStructC = strcat('Select structure',{' '},inputStructC);
-                    matchIdx = find(strcmp(inputStructC,val));
-                    modelsC{modelNum}.inputStrNum = matchIdx;
-                    if ~isfield(modelsC{modelNum},'strNum') || ...
-                            modelsC{modelNum}.strNum(matchIdx)==0
-                        hObj.Data{2} = 'Select from list';
-                    end
-                else
-                    strListC = {'Select structure',planC{indexS.structures}.structureName};
-                    matchIdx = find(strcmp(strListC,val));
-                    inputStrNum = modelsC{modelNum}.inputStrNum;
-                    modelsC{modelNum}.strNum(inputStrNum) = matchIdx - 1;
-                    if isfield(ud.Protocols(prtcNum),'constraints')
-                        criteriaS = ud.Protocols(prtcNum).constraints;
-                        expectedStrName = strrep(hObj.Data{1},'Select structure ','');
-                        selectedStrName = strListC{matchIdx};
-                        %Update expected str name in criteria data stucture
-                        if isfield(criteriaS.structures,expectedStrName)
-                            expS = criteriaS.structures.(expectedStrName);
-                            criteriaS.structures.(selectedStrName) = expS;
-                            criteriaS.structures = rmfield(criteriaS.structures,expectedStrName);
-                            ud.Protocols(prtcNum).constraints = criteriaS;
-                        end
-                    end
-                end
-            case 'doseSel'
-                if hData.Indices(2)==1
-                    return
-                else
-                    dosListC = {'Select Plan',planC{indexS.dose}.fractionGroupID};
-                    matchIdx = find(strcmp(dosListC,val));
-                    %modelsC{modelNum}.planNum = matchIdx - 1;
-                    ud.planNum = matchIdx - 1;
-                end
-            case 'fieldEdit'
-                modelsC{modelNum} = modelsC{modelNum};
-                parName = hObj.Data{idx,1};
-                modelsC{modelNum}.(parName) = val2num;
-                modelsC{modelNum} = modelsC{modelNum};
-                set(ud.handle.inputH(9),'Enable','On');  %Enable save
-            case 'paramEdit'
-                %Update modelC
-                parName = hObj.Data{idx,1};
-                strParam = 0;
-                if isfield(modelsC{modelNum}.parameters,'structures')
-                    structS = modelsC{modelNum}.parameters.structures;
-                    if isstruct(structS)
-                        stC = fieldnames(structS);
-                        found = 0;
-                        t = 0;
-                        while ~found & t<numel(stC)
-                            found = isfield(structS.(stC{t+1}),parName);
-                            t = t+1;
-                        end
-                        if found
-                            strParam = 1;
-                            type = structS.(stC{t}).(parName).type;
-                        end
-                    end
-                end
-                if ~strParam
-                    type = modelsC{modelNum}.parameters.(parName).type;
-                end
-                if strcmpi(type{1},'bin')
-                    desc = modelsC{modelNum}.parameters.(parName).desc;
-                    ctgIdx = strcmp(desc,val2num);
-                    value = modelsC{modelNum}.parameters.(parName).cteg(ctgIdx);
-                    modelsC{modelNum}.parameters.(parName).val = value;
-                else
-                    modelsC{modelNum}.parameters.(parName).val = val2num;
-                end
-                set(ud.handle.inputH(9),'Enable','On');  %Enable save
-        end
-        ud.Protocols(prtcNum).model = modelsC;
-        set(hFig,'userdata',ud);
-        
-    end
-
-%User-input scale factor
-    function enterScale(hObj,hEvt)
-        ud = get(hFig,'UserData');
-        val = str2double(get(hObj,'String'));
-        if ud.plotMode==3
-            slider = ud.handle.modelsAxis(7);
-        else
-            slider = ud.handle.modelsAxis(8);
-        end
-        if val < get(slider,'Min') || val > get(slider,'Max')
-            msgbox(sprintf('Invalid input. Please enter value between %.1f and %.1f',get(slider,'Min'),get(slider,'Max')));%Invalid input
-        else
-        set(slider,'Value',val);
-        scaleDose(slider,[]);
-        end
-    end
-
-%Display clinical criteria on selection
-    function txt = expandDataTip(hObj,hEvt)
-        %Get userdata
-        ud = get(hFig,'Userdata');
-        
-        %Check if visible
-        if strcmpi(get(hObj,'Visible'),'Off')
-            return
-        end
-        
-        %Get scale at limit
-        if isempty(hEvt)                 %Initialize (display 1st violation)
-            posV = get(hObj,'Position');
-            xVal = posV(1);
-            pNum = ud.PrtcNum;
-            lscale = cLine.UserData.scale;
-        else
-            %Update (display selected limit)
-            cLine = hEvt.Target;
-            xVal = cLine.XData(1);
-            pNum = cLine.UserData.protocol;
-            lscale = cLine.UserData.scale;
-        end
-        
-        %Get protocol info
-        pName = ud.Protocols(pNum).protocol;
-        numFrx = ud.Protocols(pNum).numFractions;
-        totDose = ud.Protocols(pNum).totalDose;
-        frxSize = totDose/numFrx;
-        
-        %Get scaled frx size or nfrx at limit
-        if ud.plotMode==3
-            %Scale frx size
-            frxSize = lscale*frxSize;
-        else
-            %Scale nfrx
-            numFrx = lscale*numFrx;
-        end
-        
-        %Get TCP/BED at limit
-        if ud.plotMode==2
-            yVal = xVal;
-            yDisp  = 'TCP';
-        elseif ud.plotMode==3
-            if ~isempty(ud.TCPCurve)
-                yDisp  = 'TCP';
-                xidx = ud.TCPCurve(pNum).XData == lscale;
-                yVal = ud.TCPCurve(pNum).YData(xidx);
-            else
-                yDisp  = 'BED';
-                xidx = ud.BEDCurve(pNum).XData == lscale;
-                yVal = ud.BEDCurve(pNum).YData(xidx);
-            end
-        elseif ud.plotMode==4
-            if ~isempty(ud.TCPCurve)
-                yDisp  = 'TCP';
-                xidx = ud.TCPCurve(pNum).XData == xVal;
-                yVal = ud.TCPCurve(pNum).YData(xidx);
-            else
-                yDisp  = 'BED';
-                xidx = ud.BEDCurve(pNum).XData == xVal;
-                yVal = ud.BEDCurve(pNum).YData(xidx);
-            end
-        else %Plot mode:1
-            yVal = xVal;
-            yDisp  = 'BED';
-        end
-        
-        
-        
-        %Check for all violations at same scale
-        %---Criteria:---
-        hCrit = ud.Protocols(pNum).criteria;
-        limitM = get(hCrit,'xData');
-        
-        if isempty(limitM)
-            %Skip
-        else
-            if iscell(limitM)
-                limitM = cell2mat(limitM);
-            end
-            nCrit =  sum(limitM(:,1) == xVal);
-            txt = {};
-            if nCrit>0
-                limitIdx = find(limitM(:,1) == xVal);
-                for k = 1:numel(limitIdx)
-                    lUd = hCrit(limitIdx(k)).UserData;
-                    start = (k-1)*8 + 1;
-                    
-                    if ud.plotMode==3
-                        scDisp = ['Current fraction size: ',num2str(frxSize),' Gy'];
-                    else
-                        scDisp = ['Current fraction no.: ',num2str(numFrx)];
-                    end
-                    
-                    if strcmpi(yDisp,'BED')
-                        last = ['Current ',yDisp,': ',num2str(yVal),' Gy'];
-                    else
-                        last = ['Current ',yDisp,': ',num2str(yVal)];
-                    end
-                    
-                    txt(start : start+8) = { [' '],[num2str(k),'. Structure: ',lUd.structure],...
-                        ['Criterion: ', lUd.label],...
-                        ['Clinical limit: ', num2str(lUd.limit)],...
-                        ['Current value: ', num2str(lUd.val)],...
-                        [' '],...
-                        ['Protocol: ', pName],...
-                        scDisp,last};
-                    
-                end
-            end
-        end
-        
-        %---Guidelines:---
-        hGuide = ud.Protocols(pNum).guidelines;
-        limitM = get(hGuide,'xData');
-        
-        if isempty(limitM)
-            %Skip
-        else
-            if iscell(limitM)
-                limitM = cell2mat(limitM);
-            end
-            nGuide =  sum(limitM(:,1) == xVal);
-            k0 = length(txt);
-            if nGuide>0
-                limitIdx = find(limitM(:,1) == xVal);
-                %Get structures, limits
-                for k = 1:numel(limitIdx)
-                    lUd = hGuide(limitIdx(k)).UserData;
-                    start = k0 + (k-1)*8 + 1;
-                    
-                    if ud.plotMode==3
-                        scDisp = ['Current fraction size: ',num2str(frxSize)];
-                    else
-                        scDisp = ['Current fraction no.: ',num2str(numFrx)];
-                    end
-                    
-                    if strcmpi(yDisp,'BED')
-                        last = ['Current ',yDisp,': ',num2str(yVal),' Gy'];
-                    else
-                        last = ['Current ',yDisp,': ',num2str(yVal)];
-                    end
-                    
-                    
-                    txt(start : start+8) = {[' '],[num2str(nCrit+k),'. Structure: ',lUd.structure],...
-                        ['Criterion: ', lUd.label],...
-                        ['Clinical limit (guideline): ', num2str(lUd.limit)],...
-                        ['Current value: ', num2str(lUd.val)],...
-                        [' '],...
-                        ['Protocol: ', pName],...
-                        scDisp,last};
-                end
-            end
-        end
-        
-        %Display
-        hObj.Marker = '^';
-        hObj.MarkerSize = 7;
-        set(hObj,'Visible','On');
-    end
-
-% Extract model parameters & values and display in table
-    function hTab = extractParams(modelS)
-        
-        %Delete any previous param tables
-        ud = get(hFig,'userdata');
-        if isfield(ud,'currentPar')
-            delete(ud.currentPar);
-        end
-        
-        %Get parameter names
-        modelParS = modelS.parameters;
-        genParListC = fieldnames(modelParS);
-        nPars = numel(genParListC);
-        reservedFieldsC = {'type','cteg','desc'};
-        
-        %Define table dimensions
-        rowHt = 25;
-        rowSep = 10;
-        rowWidth = 130;
-        pos = get(hFig,'Position');
-        fwidth = pos(3);
-        fheight = pos(3);
-        left = 10;
-        columnWidth ={rowWidth-1,rowWidth-1};
-        posV = [.22*fwidth-2.5*left .4*fheight 2*rowWidth rowHt];
-        row = 1;
-        hTab = gobjects(0);
-        % Create rows displaying model parameters
-        for k = 1:nPars
-            if strcmpi(genParListC{k},'structures')
-                if isstruct(modelParS.(genParListC{k}))
-                    structS = modelParS.(genParListC{k});
-                    strListC = fieldnames(structS);
-                    for s = 1:length(strListC)
-                        strParListC = fieldnames(structS.(strListC{s}));
-                        for t = 1:numel(strParListC)
-                            parS = structS.(strListC{s}).(strParListC{t});
-                            %parName = [strListC{s},' ',strParListC{t}];
-                            parName = strParListC{t};
-                            [columnFormat,dispVal] = extractVal(parS);
-                            dataC = {parName,dispVal};
-                            hTab(row) = uitable(hFig,'Tag','paramEdit','Position', posV + [0 -(row*(rowHt+1)) 0 0 ],...
-                                'columnformat',columnFormat,'Data',dataC,'Visible','Off','FontSize',10,...
-                                'columneditable',[false,true],'columnname',[],'rowname',[],...
-                                'columnWidth',columnWidth,'celleditcallback',@editParams);
-                            row = row+1;
-                        end
-                    end
-                end
-            else
-                if ~strcmpi(genParListC{k},reservedFieldsC)
-                    parName = genParListC{k};
-                    [columnFormat,dispVal] = extractVal(modelParS.(genParListC{k}));
-                    dataC = {parName,dispVal};
-                    hTab(row) = uitable(hFig,'Tag','paramEdit','Position', posV + [0 -(row*(rowHt+1)) 0 0 ],...
-                        'columnformat',columnFormat,'Data',dataC,'Visible','Off','FontSize',10,...
-                        'columneditable',[false,true],'columnname',[],'rowname',[],...
-                        'columnWidth',columnWidth,'celleditcallback',@editParams);
-                    row = row+1;
-                end
-            end
-        end
-    end
-
-    function [columnFormat,dispVal] = extractVal(parS)
-        val = parS.val;
-        switch(lower(parS.type{1}))
-            case 'string'
-                columnFormat = {'char','char'};
-                dispVal = val;
-            case'cont'
-                columnFormat = {'numeric','numeric'};
-                dispVal = val ;
-            case 'bin'
-                descV = parS.desc;
-                descC = cellstr(descV);
-                columnFormat = {'char',descC};
-                dispVal = parS.desc{val+1};
-        end
-    end
-
-
-% Perform fractionation correction
-    function eqScaledDoseC = frxCorrect(modelParS,strNumV,numFrx,scaledDoseC)
-        if strcmpi(modelParS.fractionCorrect,'yes') 
-            eqScaledDoseC = cell(1,numel(strNumV));
-            switch lower((modelParS.correctionType))
-                case 'fsize'
-                    %Convert to EQD in std fraction size
-                    stdFrxSize = modelParS.stdFractionSize;
-                    for s = 1:numel(strNumV)
-                        scaledFrxSizeV = scaledDoseC{s}/numFrx;
-                        eqScaledDoseC{s} = scaledDoseC{s} .*(scaledFrxSizeV+modelParS.abRatio)...
-                            ./(stdFrxSize + modelParS.abRatio);
-                    end
-                case 'nfrx'
-                    %Convert to standard no. fractions
-                    Na = numFrx;
-                    Nb = modelParS.stdNumFractions;
-                    a = Na;
-                    b = Na*Nb*modelParS.abRatio;
-                    for s = 1:numel(strNumV)
-                        scaledDoseBinsV = scaledDoseC{s};
-                        c = -scaledDoseBinsV.*(b + scaledDoseBinsV*Nb);
-                        eqScaledDoseC{s}= (-b + sqrt(b^2 - 4*a*c))/(2*a);
-                    end 
-            end
-        else
-            eqScaledDoseC = scaledDoseC;
-        end
-        
-    end
-
-
-
-%Store user inputs to userdata
-    function getParams(hObj,hEvt)
-        
-        ud = get(hFig,'userdata');
-        if ~isempty(hEvt)
-            tree = hObj.getTree;
-            currNode = hEvt.getCurrentNode;
-        end
-        
-        if  ~isempty(hEvt) && currNode.getLevel==0      %Expand to list protocols
-            tree.expandRow(tree.getSelectionRows);
-            
-            %Set default dose plan if only one is available
-            planListC = {'Select dose plan',planC{indexS.dose}.fractionGroupID};
-            if numel(planListC)==2 
-                planIdx = 2;
-                ud.planNum = 1; %Default to 1st plan
-            end
-            
-        elseif ~isempty(hEvt) && currNode.getLevel==1   %Expand protocol node to list models
-            
-            %Get selected protocol no.
-            protS = ud.Protocols;
-            protListC = {protS.protocol};
-            prtcNum = strcmp(currNode.getName,protListC);
-            ud.PrtcNum = find(prtcNum);
-            
-            %Get dose plan input
-            planListC = {'Select dose plan',planC{indexS.dose}.fractionGroupID};
-            if isfield(ud,'planNum') & ~isempty(ud.planNum)
-                planIdx = ud.planNum + 1;
-            else
-                %User selection
-                planIdx = 1;
-                ud.planNum = [];
-            end
-            
-            %Table for selecting dose plan
-            hTab = ud.handle.inputH(5);
-            fmt = {'char' planListC};
-            dosDat = {'Select dose plan',planListC{planIdx}};
-            set(hTab,'ColumnFormat',fmt,'Data',dosDat,'Visible','On','Enable','On');
-            ud.handle.inputH(5) = hTab;
-            set(hFig,'userdata',ud);
-            
-            %Expand protocol node to list models
-            tree.expandRow(tree.getSelectionRows);
-            
-            %Get default parameters (from JSON files for models)
-            getParams([],[]);
-            
-        else
-            %Allow selection of structures & parameters for each model
-            protS = ud.Protocols;
-            
-            if ~isempty(hEvt)
-                prtcol = currNode.getParent.getName;
-                prtListC = {protS.protocol};
-                prtcNumV = find(strcmp(prtcol,prtListC));
-                ud.PrtcNum = prtcNumV;
-            else
-                prtcNumV = 1:length(ud.Protocols); %For initialization
-            end
-            
-            if isfield(ud,'planNum')
-                planNum = ud.planNum;
-            else
-                planNum = [];
-            end
-            
-            for t = 1:length(prtcNumV)
-                
-                if ~isempty(planNum)
-                    %Table2 : Plan selection
-                    hTab2 = ud.handle.inputH(5);
-                    planDispC = get(hTab2,'ColumnFormat');
-                    txtDispC = get(hTab2,'Data');
-                    planListC = planDispC{2};
-                    set(hTab2,'Data',{txtDispC{1},planListC{planNum+1}});
-                    ud.handle.inputH(5) = hTab2;
-                end
-                
-                modelsC = protS(prtcNumV(t)).model;
-                modListC = cellfun(@(x) x.name,modelsC,'un',0);
-                if ~isempty(hEvt)
-                    modelNumV = find(strcmp(currNode.getName,modListC));
-                else
-                    modelNumV = 1:length(modListC);
-                end
-                
-                for s = 1:length(modelNumV)
-                    
-                    modName = modelsC{modelNumV(s)}.name;
-                    
-                    %Get structure input
-                    if ~isstruct(modelsC{modelNumV(s)}.parameters.structures)
-                        %If model has no structure-specific parameters
-                        inputStructC = {modelsC{modelNumV(s)}.parameters.structures};
-                    else
-                        inputStructC = fieldnames(modelsC{modelNumV(s)}.parameters.structures);
-                    end
-                    numStruct = length(inputStructC);
-                    structListC = {'Select from list',planC{indexS.structures}.structureName};
-                    structDispC = cell(numel(inputStructC),1);
-                    
-                    if isfield(modelsC{modelNumV(s)},'strNum')
-                        strIdxV = modelsC{modelNumV(s)}.strNum;
-                        for r = 1:numel(inputStructC)
-                            structDispC{r} = ['Select structure ',inputStructC{r}];
-                        end
-                    else
-                        strIdxV = zeros(1,numStruct);
-                        for r = 1:numel(inputStructC)
-                            structDispC{r} = ['Select structure ',inputStructC{r}];
-                            strMatch = strcmpi(inputStructC{r},structListC);
-                            if ~any(strMatch)
-                                strIdxV(r) = 0;
-                            else
-                                strIdxV(r) = find(strMatch)-1;
-                            end
-                        end
-                    end
-                    
-                    
-                    %Get parameters
-                    set(hFig,'userdata',ud);
-                    hPar = extractParams(modelsC{modelNumV(s)});
-                    ud = get(hFig,'userdata');
-                    
-                    if ~isempty(hEvt)
-                        %Add file properties if missing
-                        fieldsC = fieldnames(modelsC{modelNumV(s)});
-                        valsC = struct2cell(modelsC{modelNumV(s)});
-                        filePropsC = {'modified_at','modified_by','created_at','created_by',};
-                        missingFilePropsV = ~ismember(filePropsC,lower(fieldsC));
-                        if any(missingFilePropsV)
-                            idx = find(missingFilePropsV);
-                            for r = 1:numel(idx)
-                                fieldsC = [fieldsC(:);filePropsC{r}];
-                                valsC = [valsC(:);{''}];
-                            end
-                        end
-                        tab3C = {'name','type','stdFractionSize','prescribedDose','abRatio','function','created_by',...
-                            'created_at','modified_by','modified_at'};
-                        valsC = valsC(ismember(fieldsC,tab3C));
-                        fieldsC = fieldsC(ismember(fieldsC,tab3C));
-                        
-                        
-                        %Display parameters from .json file
-                        %Table1 : Structure selection
-                        hTab1 = ud.handle.inputH(4);
-                        fmtC = {structDispC.',structListC};
-                        if isfield(modelsC{modelNumV(s)},'inputStrNum')
-                            inputStrNum = modelsC{modelNumV(s)}.inputStrNum;
-                        else
-                            inputStrNum = 1;
-                            modelsC{modelNumV(s)}.inputStrNum = 1;
-                        end
-                        strDat = [structDispC{inputStrNum},structListC(strIdxV(inputStrNum)+1)];
-                        set(hTab1,'ColumnFormat',fmtC,'Data',strDat,...
-                            'Visible','On','Enable','On');
-                        
-                        %Table2
-                        
-                        %Table3 : Miscellaneous fields from .json file
-                        hTab3 = ud.handle.inputH(8);
-                        set(hTab3,'Data',[fieldsC,cellfun(@num2str,valsC,'un',0)],'Visible','On','Enable','On');
-                        %Parameters
-                        for r = 1:numel(hPar)
-                            set(hPar(r),'Visible','On');
-                        end
-                        
-                        %Store tables to userdata
-                        ud.handle.inputH(4) = hTab1;
-                        set(ud.handle.inputH(6),'Visible','On'); %Parameters header
-                        set(ud.handle.inputH(7),'String',['Current model:  ',modName],'Visible','On'); %Display name of currently selected model
-                        ud.handle.inputH(8) = hTab3;
-                    end
-                    
-                    ud.currentPar = hPar;
-                    modelsC{modelNumV(s)}.strNum = strIdxV;
-                    
-                end
-                protS(prtcNumV(t)).model = modelsC;
-            end
-            
-            if ~isempty(hEvt)
-                %set current model nos
-                ud.ModelNum = modelNumV;
-                
-                %Enable save
-                set(ud.handle.inputH(9),'Enable','On');
-            end
-            ud.Protocols = protS;
-            set(hFig,'userdata',ud);
-        end
-                
-    end
-
-%Listdlg for folder selection
-    function [dirListC,dirIdx,selected] = listFiles(fpath,mode)
-        
-        dirS = dir([fpath,filesep,'*.json']);
-        dirListC = {dirS(:).name};
-        dirListC = dirListC(~ismember(dirListC,{'.','..'}));
-        [dirIdx,selected] = listdlg('ListString',dirListC,...
-            'ListSize',[300 100],'Name','Select protocols','SelectionMode',mode);
-        
-    end
-
-
-% Compute TCP/NTCP at scaled dose
-    function scaleDose(hObj,hEvent)
-        
-        ud = get(hFig,'userdata');
-        protS = ud.Protocols;
-        
-        %Get selected scale
-        userScale = get(hObj,'Value');
-        xScale = userScale;
-        
-        %Get scale & clear any previous markers
-        switch(ud.plotMode)
-            case {1,2}
-                y1PlotAxis = ud.handle.modelsAxis(2); %NTCP axis
-                y2PlotAxis = [];
-                maxDelFrx = round(max([protS.numFractions])/2); %rounded
-            case 3
-                y1PlotAxis = ud.handle.modelsAxis(3); %NTCP axis
-                y2PlotAxis = ud.handle.modelsAxis(4); %TCP/BED axis
-                fxSizScaleV = linspace(0.5,1.5,99);
-                xIdx = abs(fxSizScaleV-userScale) < eps;
-                if isempty(xIdx)
-                    return %Invalid scale factor entered
-                end
-            case 4
-                y1PlotAxis = ud.handle.modelsAxis(5); %NTCP axis
-                y2PlotAxis = ud.handle.modelsAxis(6); %TCP/BED axis
-                maxDelFrx = round(max([protS.numFractions])/2);
-        end
-        hScaled_y1 = findall(y1PlotAxis,'type','line','LineStyle','-.');
-        delete(hScaled_y1);
-        if ~isempty(y2PlotAxis)
-            hScaled_y2 = findall(y2PlotAxis,'type','line','LineStyle','-.');
-            delete(hScaled_y2);
-        end
-        
-        %Clear readouts
-        if isfield(ud,'scaleDisp')
-            set(ud.scaleDisp,'String','');
-        end
-        if isfield(ud,'y1Disp')
-            set(ud.y1Disp,'String','');
-        end
-        if isfield(ud,'y2Disp')
-            set(ud.y2Disp,'String','');
-        end
-        xLmtV = get(y1PlotAxis,'xLim');
-        hDisp_y1 = text(xLmtV(1),0,'','Parent',y1PlotAxis,...
-            'FontSize',8,'Color',[.3 .3 .3]);
-        if ~isempty(y2PlotAxis)
-            hDisp_y2 = text(xLmtV(2),0,'','Parent',y2PlotAxis,...
-                'FontSize',8,'Color',[.3 .3 .3]);
-        end
-        
-        %Set color order
-        colorM = [0 229 238;123 104 238;255 131 250;0 238 118;218 165 32;...
-            196	196	196;0 139 0;28 134 238;238 223 204]/255;
-        
-        %Scale plots as selected
-        modNum = 0;
-        y1 = 0;
-        y2 = 0;
-        for l = 1:numel(ud.Protocols)
-            
-            nMod = length(ud.Protocols(l).model);
-            if l == ud.foreground
-                pColorM = [colorM,ones(size(colorM,1),1)];
-            else
-                wt = 0.4;
-                pColorM = [colorM,repmat(wt,size(colorM,1),1)];
-            end
-            
-            %Get plan no.
-            planNum = ud.planNum;
-            
-            %Loop over models
-            for k = 1:nMod
-                modNum = modNum+1;
-                
-                % Get params
-                modelsC = ud.Protocols(l).model;
-                paramsS = modelsC{k}.parameters;
-                
-                % Get struct
-                strNum = modelsC{k}.strNum;
-                paramsS.structNum = strNum;
-                
-                % Get plan
-                paramsS.planNum = planNum;
-                paramsS.numFractions.val = ud.Protocols(l).numFractions;
-                paramsS.frxSize.val = ud.Protocols(l).totalDose/ud.Protocols(l).numFractions;
-                paramsS.abRatio.val = modelsC{k}.abRatio;
-                
-                % Get dose bins
-                if isfield(modelsC{k},'dv')
-                    dose0C = modelsC{k}.dv{1};
-                    vol0C = modelsC{k}.dv{2};
-                    
-                    %Scale
-                    if ud.plotMode==3
-                        scdoseC = cellfun(@(x) x*userScale,dose0C,'un',0);
-                        paramsS.frxSize.val = userScale*paramsS.frxSize.val;
-                    else
-                        nFProtocol = paramsS.numFractions.val;
-                        scNumFrx = userScale + nFProtocol;
-                        nfrxV = linspace(-maxDelFrx,maxDelFrx,99);
-                        [~,xIdx] = min(abs(nfrxV-userScale));
-                        if isempty(xIdx)
-                            return %Invalid scale factor entered
-                        end
-                        paramsS.numFractions.val = scNumFrx;
-                        scdoseC = cellfun(@(x) x*scNumFrx/nFProtocol,dose0C,'un',0);
-                    end
-                    %Apply fractionation correction where required
-                    eqScaledDoseC = frxCorrect(modelsC{k},strNum,paramsS.numFractions.val,scdoseC);
-                    
-                    % Pass as vector if nStr==1
-                    if numel(strNum) == 1
-                        vol0C = vol0C{1};
-                        eqScaledDoseC = eqScaledDoseC{1};
-                    end
-                    
-                    % Compute probability
-                    cpNew = feval(modelsC{k}.function,paramsS,eqScaledDoseC,vol0C);
-                    
-                    % Set plot color
-                    clrIdx = mod(k,size(pColorM,1))+1;
-                    
-                    if strcmpi(modelsC{k}.type,'NTCP') %y1 axis
-                        loc = hObj.Min;
-                        hplotAx = y1PlotAxis;
-                        y1 = y1+1;
-                        count = y1;
-                        hDisp_y1(count) = text(xLmtV(1),0,'','Parent',y1PlotAxis,...
-                            'FontSize',8,'Color',[.3 .3 .3]);
-                        hText = hDisp_y1(count);
-                        txtPos = xLmtV(1) - 0.15*abs(xLmtV(1));
-                        if ud.plotMode==1 || ud.plotMode==2
-                            xScale = ud.NTCPCurve(k).XData(xIdx);
-                        end
-                        skip=0;
-                    else %y2 axis
-                        if ud.plotMode==1 || ud.plotMode==2
-                            %Skip
-                            skip = 1;
-                        else
-                            loc = hObj.Max;
-                            hplotAx = y2PlotAxis;
-                            y2 = y2+1;
-                            count = y2;
-                            hDisp_y2(count) = text(xLmtV(2),0,'','Parent',y2PlotAxis,...
-                                'FontSize',8,'Color',[.3 .3 .3]);
-                            hText = hDisp_y2(count);
-                            txtPos = xLmtV(2)+.05;
-                            skip=0;
-                        end
-                    end
-                    
-                    if ~skip %Error here: TO DO! Check!
-                        plot([xScale xScale],[0 cpNew],'Color',pColorM(clrIdx,:),'LineStyle','-.',...
-                            'linewidth',2,'parent',hplotAx);
-                        plot([loc xScale],[cpNew cpNew],'Color',pColorM(clrIdx,:),'LineStyle','-.',...
-                            'linewidth',2,'parent',hplotAx);
-                        set(hText,'Position',[txtPos,cpNew],'String',sprintf('%.3f',cpNew));
-                    end
-                    
-                end
-            end
-        end
-        scaleVal = sprintf('%.3f',xScale);
-        hXDisp = text(xScale,-.03,scaleVal,'Parent',y1PlotAxis,...
-            'FontSize',8,'Color',[.3 .3 .3]);
-        ud.scaleDisp = hXDisp;
-        ud.y1Disp = hDisp_y1;
-        if ~isempty(y2PlotAxis)
-            ud.y2Disp = hDisp_y2;
-        end
-        
-        set(hFig,'userdata',ud);
-        
-    end
-
-
-%Set plot mode
-    function setPlotMode(hObj,~)
-        ud = get(hFig,'userData');
-        sel = get(hObj,'Value');
-        ud.plotMode = sel - 1;
-        if ud.plotMode==3
-             set(ud.handle.modelsAxis(11),'String','Enter scale factor');
-             set(ud.handle.modelsAxis(10),'Visible','On','Enable','On');
-             set(ud.handle.modelsAxis(11),'Visible','On'); 
-        elseif ud.plotMode==4
-             txt = sprintf('Enter\n \x0394nfrx');
-             set(ud.handle.modelsAxis(11),'String',txt);
-               set(ud.handle.modelsAxis(10),'Visible','On','Enable','On');
-             set(ud.handle.modelsAxis(11),'Visible','On'); 
-        else
-            set(ud.handle.modelsAxis(10),'Visible','Off');
-            set(ud.handle.modelsAxis(11),'Visible','Off');
-        end
-       
-        set(hFig,'userData',ud);
-    end
-
-
-% Switch focus between plots for different protocols
-    function switchFocus(hObj,~)
-        ud = get(hFig,'userData');
-        sel = get(hObj,'Value')-1;
-        ud.foreground=sel;
-        set(hFig,'userData',ud);
-        ROE('PLOT_MODELS');
-    end
-
-
-
-
 
 
 
