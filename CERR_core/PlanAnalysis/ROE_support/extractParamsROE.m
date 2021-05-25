@@ -39,13 +39,15 @@ for k = 1:nPars
                     parS = structS.(strListC{s}).(strParListC{t});
                     %parName = [strListC{s},' ',strParListC{t}];
                     parName = strParListC{t};
-                    [columnFormat,dispVal] = extractValROE(parS);
-                    dataC = {parName,dispVal};
-                    hTab(row) = uitable(hFig,'Tag','paramEdit','Position', posV + [0 -(row*(rowHt+1)) 0 0 ],...
-                        'columnformat',columnFormat,'Data',dataC,'Visible','Off','FontSize',10,...
-                        'columneditable',[false,true],'columnname',[],'rowname',[],...
-                        'columnWidth',columnWidth,'celleditcallback',@editParams);
-                    row = row+1;
+                    if ~strcmpi(parName,'optional')
+                        [columnFormat,dispVal] = extractValROE(parS);
+                        dataC = {parName,dispVal};
+                        hTab(row) = uitable(hFig,'Tag','paramEdit','Position', posV + [0 -(row*(rowHt+1)) 0 0 ],...
+                            'columnformat',columnFormat,'Data',dataC,'Visible','Off','FontSize',10,...
+                            'columneditable',[false,true],'columnname',[],'rowname',[],...
+                            'columnWidth',columnWidth,'celleditcallback',@editParams);
+                        row = row+1;
+                    end
                 end
             end
         end
