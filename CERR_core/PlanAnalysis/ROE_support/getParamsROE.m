@@ -152,15 +152,16 @@ else
                 %Table1 : Structure selection
                 hTab1 = ud.handle.inputH(4);
                 fmtC = {structDispC.',structListC};
+                
                 if isfield(modelsC{modelNumV(s)},'inputStrNum')
                     inputStrNum = modelsC{modelNumV(s)}.inputStrNum;
                 else
                     inputStrNum = 1;
-                    modelsC{modelNumV(s)}.inputStrNum = 1;
+                    modelsC{modelNumV(s)}.inputStrNum = inputStrNum;
                 end
-                strDat = [structDispC{inputStrNum},structListC(strIdxV(inputStrNum)+1)];
-                set(hTab1,'ColumnFormat',fmtC,'Data',strDat,...
-                    'Visible','On','Enable','On');
+                strDat = {structDispC{inputStrNum},structListC{strIdxV(inputStrNum)+1}};
+                set(hTab1,'ColumnFormat',fmtC,'Data',strDat,'Visible','On',...
+                    'Enable','On');
                 
                 %Table2
                 
