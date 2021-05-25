@@ -31,6 +31,10 @@ switch(tag)
             if ~isfield(modelsC{modelNum},'strNum') || ...
                     modelsC{modelNum}.strNum(matchIdx)==0
                 hObj.Data{2} = 'Select from list';
+            else
+                allStrC = {planC{indexS.structures}.structureName};
+                strIdx = modelsC{modelNum}.strNum(matchIdx);
+                hObj.Data{2} = allStrC{strIdx};
             end
         else
             strListC = {'Select structure',planC{indexS.structures}.structureName};
