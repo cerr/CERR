@@ -1,0 +1,30 @@
+{
+"strNameToLabelMap": [
+  {"structureName" : "Brain",
+   "value" : 1}
+],
+
+"scan": {
+
+         "identifier" : {"imageType": "CT SCAN"},
+
+         "required" : "no",
+                
+         "view" : ["axial"],
+         
+         "resample": {"resolutionXCm": 0.1,
+		              "resolutionYCm": 0.1,
+                      "resolutionZCm": 0.1,
+                       "method": "linear"
+		              }
+},
+
+"passedScanDim" : "3D",
+
+"batchSize" : 1,
+
+"structAssocScan": {"identifier" : { "imageType": "CT SCAN"}},
+
+"reference" : ""
+
+}
