@@ -208,7 +208,7 @@ for scanNum = 1:numScans
     ImageOrientationPatientV = planC{indexS.scan}(scanNum).scanInfo(1).imageOrientationPatient;
     
     % Check for obliqueness
-    if max(abs((abs(ImageOrientationPatientV(:)) - [1 0 0 0 1 0]'))) <= obliqTol
+    if isempty(ImageOrientationPatientV) || max(abs((abs(ImageOrientationPatientV(:)) - [1 0 0 0 1 0]'))) <= obliqTol
         isObliqScanV(scanNum) = 0;
         continue;
     end
