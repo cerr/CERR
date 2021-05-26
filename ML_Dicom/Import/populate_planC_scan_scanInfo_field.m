@@ -194,8 +194,11 @@ switch fieldname
             %perFrameFuncGrpSeq = getTagValue(attr,'52009230');
             %perFrameFuncGrpSeq = getTagValue(attr,org.dcm4che3.data.Tag.PerframeFunctionalGroupsSequence);
             perFrameFuncGrpSeq = getTagValue(attr,1.375769136000000e+09);
+            imagerPixelSpacing = attr.getDoubles(1577316); % (0018,1164)
             if isstruct(perFrameFuncGrpSeq)
                 pixspac = perFrameFuncGrpSeq.Item_1.PixelMeasuresSequence.Item_1.PixelSpacing;
+            elseif ~isempty(imagerPixelSpacing)
+                pixspac = imagerPixelSpacing;
             else
                 pixspac = [1 1];
             end
@@ -229,8 +232,11 @@ switch fieldname
             %perFrameFuncGrpSeq = getTagValue(attr,'52009230');
             %perFrameFuncGrpSeq = getTagValue(attr,org.dcm4che3.data.Tag.PerframeFunctionalGroupsSequence);
             perFrameFuncGrpSeq = getTagValue(attr,1.375769136000000e+09);
+            imagerPixelSpacing = attr.getDoubles(1577316); % (0018,1164)
             if isstruct(perFrameFuncGrpSeq)
                 pixspac = perFrameFuncGrpSeq.Item_1.PixelMeasuresSequence.Item_1.PixelSpacing;
+            elseif ~isempty(imagerPixelSpacing)
+                pixspac = imagerPixelSpacing;
             else
                 pixspac = [1 1];
             end
