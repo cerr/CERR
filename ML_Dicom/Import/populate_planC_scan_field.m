@@ -95,7 +95,7 @@ switch fieldname
             %numMultiFrameImages = getTagValue(imgobj, '00280008');
             %numMultiFrameImages = imgobj.getInts(org.dcm4che3.data.Tag.NumberOfFrames); %IS
             numMultiFrameImages = imgobj.getInts(2621448); %IS
-            if numMultiFrameImages > 1
+            if isempty(numMultiFrameImages) || numMultiFrameImages > 1
                 multiFrameFlag = 'Yes';
             end
         end
@@ -412,8 +412,13 @@ switch fieldname
                     %xray3dAcqSeq = dcm2ml_Element(imgobj.get(hex2dec('00189507')));
                     %xray3dAcqSeq = getTagValue(attr, org.dcm4che3.data.Tag.XRay3DAcquisitionSequence); %SQ
                     xray3dAcqSeq = getTagValue(imgobj, 1611015); %SQ
-                    bodyPartThickness = xray3dAcqSeq.Item_1.BodyPartThickness;
-                    sliceSpacing = bodyPartThickness/double(numMultiFrameImages);
+                    if ~isempty(xray3dAcqSeq)
+                        bodyPartThickness = xray3dAcqSeq.Item_1.BodyPartThickness;
+                        sliceSpacing = bodyPartThickness/double(numMultiFrameImages);
+                    else
+                        sliceSpacing = 1;
+                        zValuesV = 0;                        
+                    end
                 end                
                 
                 if strcmpi(modality,'SM')
