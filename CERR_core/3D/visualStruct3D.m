@@ -136,7 +136,8 @@ if DoseFlag ==1
     doseIndx = stateS.doseSet;
     dose3M = zeros(sizeArray, 'single');
     for i = 1:sizeArray(3)
-        zValue = planC{indexS.scan}(scanNum).uniformScanInfo.firstZValue + (i-1)*planC{indexS.scan}.uniformScanInfo.sliceThickness;
+        zValue = planC{indexS.scan}(scanNum).uniformScanInfo.firstZValue + ...
+            (i-1)*planC{indexS.scan}(scanNum).uniformScanInfo.sliceThickness;
         doseM = calcDoseSlice(planC{indexS.dose}(doseIndx),zValue,3);
         if ~isempty(doseM)
             dose3M(:,:,i) = fitDoseToCT(doseM, planC{indexS.dose}(doseIndx), planC{indexS.scan}(stateS.scanSet), 3);
