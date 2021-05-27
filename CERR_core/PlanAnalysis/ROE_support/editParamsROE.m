@@ -62,6 +62,14 @@ switch(tag)
             matchIdx = find(strcmp(dosListC,val));
             %modelsC{modelNum}.planNum = matchIdx - 1;
             ud.planNum = matchIdx - 1;
+            %Auto-populate precribed dose if available
+            RxField = ud.handle.inputH(14);
+            if isempty(get(RxField,'String'))
+                if isfield(planC{indexS.dose}(matchIdx - 1),'prescribedDose')
+                    prescribedDose = planC{indexS.dose}(matchIdx - 1).prescribedDose;
+                    set(RxField,'String',num2str(prescribedDose));
+                end
+            end
         end
     case 'fieldEdit'
         modelsC{modelNum} = modelsC{modelNum};
