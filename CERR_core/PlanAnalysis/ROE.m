@@ -178,13 +178,14 @@ switch upper(command)
             @(hObj,hData)editParamsROE(hObj,hData,hFig,planC));
         
         %% Tables to display & edit model parameters
-        inputH(6) = uicontrol(hFig,'units','pixels','Visible','Off','fontSize',10,...
-            'Position',tablePosV + [0 -.1*GUIHeight 0 0 ],'String','Model parameters','Style','text',...
-            'FontWeight','Bold','HorizontalAlignment','Left','backgroundColor',defaultColor); %Title: Model parameters
+        inputH(6) = uicontrol(hFig,'units','pixels','Visible','Off',...
+            'fontSize',10,'Position',tablePosV + [0 -.1*GUIHeight 0 0 ],...
+            'String','Model parameters','Style','text','FontWeight','Bold',...
+            'HorizontalAlignment','Left','backgroundColor',defaultColor);  %Title: Model parameters
         inputH(7) = uicontrol(hFig,'units','pixels','Visible','Off','String','',...
-            'Position',tablePosV + [0 -.15*GUIHeight 0 10 ],'FontSize',9,'Style','text',...
-            'FontWeight','Bold','HorizontalAlignment','Left','backgroundColor',defaultColor,...
-            'foregroundColor',[.6 0 0]); %Model name display
+            'Position',tablePosV + [0 -.15*GUIHeight 0 10 ],'FontSize',9,...
+            'Style','text','FontWeight','Bold','HorizontalAlignment','Left',...
+            'backgroundColor',defaultColor,'foregroundColor',[.6 0 0]);    %Model name display
         inputH(8) = uitable(hFig,'Tag','fieldEdit','Position',tablePosV + [0 -.75*GUIHeight 0 8*shift],'Enable','Off',...
             'ColumnName',{'Fields','Values'},'FontSize',10,'RowName',[],...
             'Visible','Off','backgroundColor',defaultColor,...
@@ -202,11 +203,28 @@ switch upper(command)
             'Position',[.29*GUIWidth 1.5*shift .06*GUIWidth 3*shift],...
             'backgroundColor',defaultColor,'String','Plot','Style','Push',...
             'fontSize',10,'FontWeight','normal','Enable','Off',...
-            'Callback','ROE(''PLOT_MODELS'' )','tooltip','Push to plot'); %plot
-        inputH(11) = uicontrol(hFig,'units','pixels','Tag','switchPlot','Position',[.18*GUIWidth .1*shift .1*GUIWidth 4*shift],'backgroundColor',[1 1 1],...
-            'String',{'--Display mode--','NTCP v.BED','NTCP v.TCP','Scale fraction size', 'Scale no. fractions' },'Style','popup', 'fontSize',10,'FontWeight','normal','Enable','On','Callback',...
-            @(hObj,hEvt)setPlotModeROE(hObj,hEvt,hFig),'tooltip',...
-            'Select plot axes.');
+            'Callback','ROE(''PLOT_MODELS'' )','tooltip','Push to plot');  %Plot
+        inputH(11) = uicontrol(hFig,'units','pixels','Tag','switchPlot',...
+            'Position',[.18*GUIWidth .1*shift .1*GUIWidth 4*shift],...
+            'backgroundColor',[1 1 1],'String',{'--Display mode--',...
+            'NTCP v.BED','NTCP v.TCP','Scale fraction size',...
+            'Scale no. fractions' },'Style','popup', 'fontSize',10,...
+            'FontWeight','normal','Enable','On','Callback',@(hObj,hEvt)...
+            setPlotModeROE(hObj,hEvt,hFig),'tooltip','Select plot axes.'); %Plot mode
+        
+        % Input prescribed dose
+        inputH(13) = uicontrol('parent',hFig,'units','pixels','Position',...
+            [.22*GUIWidth-2.5*shift posTop-.06*GUIHeight 10*shift,2*shift],...
+            'Style','Text','String','Prescribed Dose','fontSize',10,...
+            'backgroundColor',defaultColor);
+        inputH(14) = uicontrol('parent',hFig,'units','pixels','Position',...
+            [.3*GUIWidth+shift posTop-.06*GUIHeight 8*shift,2.5*shift],...
+            'Style','Edit','String','','Visible','On','fontSize',10,...
+            'Callback',@(hObj,hEvt)clearStoredDVHsROE(hObj,hEvt,hFig),...
+            'tooltip','Input Rx (Gy) and press enter.');
+        inputH(15) = uicontrol('parent',hFig,'units','pixels','Position',...
+            [.38*GUIWidth posTop-.06*GUIHeight 2*shift,2*shift],'Style',...
+            'Text','String','Gy','fontSize',10,'backgroundColor',defaultColor);
         
         %% Plot axes
         
@@ -423,6 +441,13 @@ switch upper(command)
             msgbox('Please select valid dose plan.','Selection required');
             return
         end
+        RxField = ud.handle.inputH(14);
+        if isempty(get(RxField,'String'))
+            msgbox('Please provide prescribed dose (Gy).','Missing parameter');
+            return
+        else
+            prescribedDose = str2double(get(RxField,'String'));
+        end
         indexS = planC{end};
         
         %% Initialize plot handles
@@ -477,7 +502,7 @@ switch upper(command)
             optFlagV = find([optFlagC{:}]==1);
             noSelV(ismember(noSelV,optFlagV)) = [];
             %Exclude optional structures with no user input
-            modelC = skipOptionalStructusROE(modelC,optFlagC,strSelC);
+            modelC = skipOptionalStructsROE(modelC,optFlagC,strSelC);
             
             protocolS(p).model = modelC;
             
@@ -526,7 +551,7 @@ switch upper(command)
                     numFrxProtocol = protocolS(p).numFractions;
                     protDose = protocolS(p).totalDose;
                     dpfProtocol = protDose/numFrxProtocol;
-                    prescribedDose = planC{indexS.dose}(plnNum).prescribedDose;
+                    %prescribedDose = planC{indexS.dose}(plnNum).prescribedDose;
                     dA = getDoseArray(plnNum,planC);
                     dAscale = protDose/prescribedDose;
                     dAscaled = dA * dAscale;
@@ -746,7 +771,7 @@ switch upper(command)
             numFrxProtocol = protocolS(p).numFractions;
             protDose = protocolS(p).totalDose;
             dpfProtocol = protDose/numFrxProtocol;
-            prescribedDose = planC{indexS.dose}(plnNum).prescribedDose;
+            %prescribedDose = planC{indexS.dose}(plnNum).prescribedDose;
             dA = getDoseArray(plnNum,planC);
             dAscale = protDose/prescribedDose;
             dAscaled = dA * dAscale;
@@ -989,17 +1014,17 @@ switch upper(command)
                 
                 %Loop over structures
                 for m = 1:numel(structC)
-                    cStr = find(strcmpi(structC{m}, availableStructsC));
+                    conStr = find(strcmpi(structC{m}, availableStructsC));
                     %------------ Loop over guidelines --------------------
                     %Extract guidelines
-                    if ~isempty(cStr) && isfield(critS.structures.(structC{m}),'guidelines')
+                    if ~isempty(conStr) && isfield(critS.structures.(structC{m}),'guidelines')
                         strGuideS = critS.structures.(structC{m}).guidelines;
                         guidelinesC = fieldnames(strGuideS);
                         
                         %Get alpha/beta ratio
                         abRatio = critS.structures.(structC{m}).abRatio;
                         %Get DVH
-                        [doseV,volsV] = getDVH(cStr,plnNum,planC);
+                        [doseV,volsV] = getDVH(conStr,plnNum,planC);
                         [doseBinV,volHistV] = doseHist(doseV, volsV, binWidth);
                         dvAvailable = 1;
                         for n = 1:length(guidelinesC)
@@ -1012,7 +1037,7 @@ switch upper(command)
                                 %find([strC{:}]==cStr);
                                 gIdx = [];
                                 for gStr = 1:length(modelC)
-                                    if ismember(cStr,strC{gStr})
+                                    if ismember(conStr,strC{gStr})
                                         gIdx = gStr;
                                         break;
                                     end
@@ -1119,7 +1144,7 @@ switch upper(command)
                     %----- Loop over hard constraints--------
                     
                     %If structure & clinical criteria are available
-                    if ~isempty(cStr) & ...
+                    if ~isempty(conStr) & ...
                             isfield(critS.structures.(structC{m}),'criteria')
                         strCritS = critS.structures.(structC{m}).criteria;
                         criteriaC = fieldnames(strCritS);
@@ -1128,7 +1153,7 @@ switch upper(command)
                             %Get alpha/beta ratio
                             abRatio = critS.structures.(structC{m}).abRatio;
                             %Get DVH
-                            [doseV,volsV] = getDVH(cStr,plnNum,planC);
+                            [doseV,volsV] = getDVH(conStr,plnNum,planC);
                             [doseBinV,volHistV] = doseHist(doseV, volsV, binWidth);
                         end
                         
@@ -1142,7 +1167,7 @@ switch upper(command)
                                 %cIdx = find([strC{:}]==cStr);
                                 cIdx = [];
                                 for cStr = 1:length(modelC)
-                                    if ismember(cStr,strC{cStr})
+                                    if ismember(conStr,strC{cStr})
                                         cIdx = cStr;
                                         break;
                                     end
