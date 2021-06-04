@@ -1,5 +1,5 @@
 {
-	"name": "Bronchial toxicity (D)",
+	"name": "Pulmonary toxicity (grade 5)",
 	"type": "NTCP",
         "stdFractionSize": 2,
 	"fractionCorrect": "Yes",
