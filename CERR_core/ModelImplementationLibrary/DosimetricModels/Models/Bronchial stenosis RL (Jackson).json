@@ -1,5 +1,5 @@
 {
-  "name": "Bronchial stenosis (RL)",
+  "name": "Lobar stenosis (RL)",
   "type": "NTCP",
   "fractionCorrect": "No",
   "limit": [0.05,100],

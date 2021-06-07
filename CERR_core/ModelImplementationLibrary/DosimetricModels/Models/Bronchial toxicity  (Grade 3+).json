@@ -1,7 +1,7 @@
 {
-	"name": "Bronchial toxicity",
+	"name": "Pulmonary toxicity (grade 3+)",
 	"type": "NTCP",
-        "stdFractionSize": 2,
+    "stdFractionSize": 2,
 	"fractionCorrect": "Yes",
 	"correctionType": "fsize",
 	"abRatio": 3,
