@@ -375,7 +375,7 @@ switch command
                 numSegs = length(planC{indexS.structures}(strNum).contour(slcNum).segments);
                 
                 % segToVoxIndexM = getappdata(hAxis,'segToVoxIndexM');
-                segToVoxIndexM = segmentToVoxel();
+                segToVoxIndexM = segmentToVoxel(strNum);
                 if isempty(segToVoxIndexM)
                     return;
                 end
@@ -511,7 +511,7 @@ if ~isempty(rcM)
 end
 
 %% function to create the segment to voxel index matrix
-function segToVoxIndexM = segmentToVoxel()
+function segToVoxIndexM = segmentToVoxel(strNum)
 global stateS planC
 indexS = planC{end};
 hFrame = stateS.handle.controlFrame;
@@ -521,7 +521,8 @@ hAxis = stateS.handle.CERRAxis(stateS.currentAxis);
 % if(~isempty(planC{indexS.segmentLabel}))
 
 
-scanSet = getStructureAssociatedScan(1);
+%scanSet = getStructureAssociatedScan(1);
+scanSet = getStructureAssociatedScan(strNum);
 % Scan, structure and slice index
 [xV, yV, zV] = getScanXYZVals(planC{indexS.scan}(scanSet));
 %Get the view/coord in case of linked axes.
@@ -530,7 +531,8 @@ if isempty(ud)
     return;
 end
 % scanSet = stateS.handle.aI(stateS.currentAxis).scanSets;
-scanNum = getAxisInfo(stateS.handle.CERRAxis(1),'scanSets');
+%scanNum = getAxisInfo(stateS.handle.CERRAxis(1),'scanSets');
+scanNum = scanSet;
 sliceNum = findnearest(coord, zV);
 setappdata(hAxis, 'slSlice', sliceNum)
 currentObj = get(ud.handles.objectPopup, 'Value') - 1;
@@ -574,16 +576,17 @@ function segmentLabelS = newSegmentLabel(structNum, planC)
 % - this should hapen for tempLabelObject, and save in planC when saving
 global stateS
 
-if ~exist('planC', 'var'); %wy
+if ~exist('planC', 'var')
     global planC
 end
 hFrame = stateS.handle.controlFrame;
 ud = get(hFrame, 'userdata');
 indexS = planC{end};
 
-scanSet = stateS.handle.aI(stateS.currentAxis).scanSets;
+%scanSet = stateS.handle.aI(stateS.currentAxis).scanSets;
+scanSet = getStructureAssociatedScan(structNum,planC);
 
-strNum = 1;
+%strNum = 1;
 
 %Get the segmentLabeler template from initializeCERR.
 segmentLabelS = initializeCERR('segmentLabel');
@@ -603,7 +606,7 @@ segmentLabelName = '';
 % [valueS(1:nSlices).segment] = deal(segment);
 
 %Assign these values to structure.
-segmentLabelS(1).assocStructUID = planC{indexS.structures}(1).strUID;
+segmentLabelS(1).assocStructUID = planC{indexS.structures}(structNum).strUID;
 segmentLabelS.segLabelUID       = createUID('seglabel');
 % segmentLabel(1).valueS         = valueS;
 segmentLabelS(1).name           = segmentLabelName;
@@ -631,4 +634,4 @@ function ColorM = initColorM
 % ColorM = {'r'; 'g'; 'b'; 'm'; 'gold', };
 ColorM = [1 0 0; 0 1 0; 0 0 1; 1 0 1; 1 0.875 0; 0.5765 0.4392 0.8588;...
     1 0.5 0.314; 0.42 0.56 0.14; 0.86 0.075 0.24];
-
+ColorM = ColorM(5:9,:);
