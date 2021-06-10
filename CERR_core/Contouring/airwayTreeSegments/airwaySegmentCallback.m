@@ -132,6 +132,9 @@ switch upper(command)
     case 'LOAD_SEGMENTS'
         if isempty(varargin)            
             [fname,pname] = uigetfile('*.mat','Select filename to save segments');
+            if isnumeric(fname) && fname == 0
+                return;
+            end
             fileNam = fullfile(pname,fname);
         else
             fileNam = varargin{1};
@@ -236,6 +239,9 @@ switch upper(command)
             'baseMedianDoseV',baseMedianDoseV,'baseMedianMinRadiusV',baseMedianMinRadiusV,...
             'followupMedianMinRadiusV',followupMedianMinRadiusV);
         [fname,pname] = uiputfile('*.mat','Select filename to save segments');
+        if isnumeric(fname) && fname == 0
+            return;
+        end
         fileNam = fullfile(pname,fname);
         save(fileNam,'segmentFeatureS')
         
