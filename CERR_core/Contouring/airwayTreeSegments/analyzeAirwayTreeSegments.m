@@ -13,10 +13,12 @@ function analyzeAirwayTreeSegments(ptDir,doseFile,baseTreeFile,followupTreeFile,
 % APA, 6/9/2021
 
 global stateS
-mergedFile = [strtok(baseTreeFile,'_'),'_',strtok(followupTreeFile,'_')];
+%mergedFile = [strtok(baseTreeFile,'_'),'_',strtok(followupTreeFile,'_')];
+mergedFile = [strtok(followupTreeFile,'_')];
 mergedFileName = fullfile(ptDir,'merged_files',mergedFile);
 folllowScanNum = 2;
-sliceCallBack('INIT'); sliceCallBack('OPENNEWPLANC',mergedFileName);
+sliceCallBack('INIT'); 
+sliceCallBack('OPENNEWPLANC',mergedFileName);
 sliceCallBack('layout', 3)
 hAxis = stateS.handle.CERRAxis(2);
 sliceCallBack('selectaxisview', hAxis, 'transverse');
