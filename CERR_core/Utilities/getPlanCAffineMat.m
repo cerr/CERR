@@ -71,7 +71,10 @@ scanArray = double(getScanArray(scanNum,planC)) - ctOffset;
 
 %Extract masks
 if ~isempty(maskStrC)
-    [maskC, ~] = getStructureMasks(planC,maskStrC);
+    [maskV, maskStrC] = getMaskIndices(planC,maskStrC);
+    for i = 1:numel(maskV)
+        maskC{i} = getMask3D(maskV(i),planC);
+    end
 end
 
 %Extract doses
@@ -84,8 +87,17 @@ if ~isempty(doseNumV)
     end
 end
 
+ [axisLabelCell,orientationStr,iop] = returnViewerAxisLabels(planC,scanNum);
+
+
 if ~reorientFlag
-    scan3M = scanArray;
+%     scan3M = scanArray;
+    dirM = [axisLabelCell{1,2} axisLabelCell{2,2} axisLabelCell{3,2}];
+    if strcmpi(dirM,'PLI')
+        scan3M = permute(scanArray,[2 1 3]);
+        affineMat = [affineMat(:,2) affineMat(:,1) affineMat(:,3:4)];
+    end
+
     if ~isempty(doseNumV)
         dose3MC = doseC;
     else
