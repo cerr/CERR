@@ -5,7 +5,7 @@ function [isoScanNiftiFileName, isoDoseNiftiFileName, isoMaskNiftiFileNameC, stl
 %
 % User inputs:
 %   cerrFileName: Name of file containig planC.
-%   structNamC: cell array of structure names to visualize. 
+%   strMaskC: cell array of structure names to visualize. 
 %   scanNum: index of scan in planC.
 %   doseNumV: Indices of dose distributions in planC.
 %   exportDir: export location.
