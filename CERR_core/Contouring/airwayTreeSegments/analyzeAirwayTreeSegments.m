@@ -1,21 +1,20 @@
-function analyzeAirwayTreeSegments(ptDir,doseFile,baseTreeFile,followupTreeFile,segmentsFile)
+function analyzeAirwayTreeSegments(ptDir,baseName,followupName,segmentsFile)
 % function analyzeAirwayTreeSegments(ptDir,doseFile,baseTreeFile,followupTreeFile,segmentsFile)
 %
 % Example:
 % ptDir = 'path/to/patient/dir';
-% doseFile = 'planningCT_plan_ltlung.mat';
-% baseTreeFile = 'Baseline_radius.mat';
-% followupTreeFile = 'Stenosis_radius.mat';
+% baseName = 'Baseline';
+% followupName = 'Stenosis';
 % segmentsFile = 'optional/path/to/segments/file.mat'; % .mat file containing segments
-% segmentsFile = '';
-% analyzeAirwayTreeSegments(ptDir,doseFile,baseTreeFile,followupTreeFile,segmentsFile)
+% segmentsFile = ''; % leave empty if no segments need to be loaded
+% analyzeAirwayTreeSegments(ptDir,baseName,followupName,segmentsFile)
 %
 % APA, 6/9/2021
 
 global stateS
 %mergedFile = [strtok(baseTreeFile,'_'),'_',strtok(followupTreeFile,'_')];
-mergedFile = [strtok(followupTreeFile,'_')];
-mergedFileName = fullfile(ptDir,'merged_files',mergedFile);
+% mergedFile = [strtok(followupTreeFile,'_')];
+mergedFileName = fullfile(ptDir,'merged_files',[followupName,'.mat']);
 folllowScanNum = 2;
 sliceCallBack('INIT'); 
 sliceCallBack('OPENNEWPLANC',mergedFileName);
@@ -34,18 +33,18 @@ showPatientOrientation
 
 
 %% Plot trees
-radInd = strfind(followupTreeFile,'_radius');
+% radInd = strfind(followupTreeFile,'_radius');
 %vfFile = fullfile(ptDir,'registered',[followupTreeFile(1:radInd-1),'_vf.mat']);
-baseRadiusInd = strfind(baseTreeFile,'_radius');
-vfFile = fullfile(ptDir,'registered',[baseTreeFile(1:baseRadiusInd-1),'_',followupTreeFile(1:radInd-1),'_vf.mat']);
-doseFile = fullfile(ptDir,'registered',doseFile);
-baseTreeFile = fullfile(ptDir,'AirwayTree',baseTreeFile);
-followupTreeFile = fullfile(ptDir,'AirwayTree',followupTreeFile);
+% baseRadiusInd = strfind(baseTreeFile,'_radius');
+vfFile = fullfile(ptDir,'registered',[baseName,'_',followupName,'_vf.mat']);
+%doseFile = fullfile(ptDir,'registered',doseFile);
+baseTreeFile = fullfile(ptDir,'AirwayTree',[baseName,'_radius.mat']);
+followupTreeFile = fullfile(ptDir,'AirwayTree',[followupName,'_radius.mat']);
 
 % Longitudinal selection
 if ~exist('segmentsFile','var')
     segmentsFile = '';
 end
-select_segments_on_base_and_followup_trees(doseFile,baseTreeFile,...
+select_segments_on_base_and_followup_trees(mergedFileName,baseTreeFile,...
 followupTreeFile,vfFile,segmentsFile)
 
