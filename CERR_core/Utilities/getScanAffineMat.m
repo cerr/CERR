@@ -19,12 +19,19 @@ N = numel(planC{indexS.scan}(scanNum).scanInfo);
 
 try
     iop = planC{indexS.scan}(scanNum).scanInfo(1).imageOrientationPatient;
+    if isempty(iop)
+        disp('defaulting to HFS orientation');
+        iop = [1 0 0 0 1 0]';
+    end
     ipp = (planC{indexS.scan}(scanNum).scanInfo(end).imagePositionPatient - planC{indexS.scan}(scanNum).scanInfo(1).imagePositionPatient)/(N-1);
+    if isempty(ipp)
+            ipp = [0 0 -planC{indexS.scan}(scanNum).scanInfo(1).sliceThickness*10]';
+    end
 catch err
     disp(err);
     disp('defaulting to HFS orientation');
     iop = [1 0 0 0 1 0]';
-    ipp = [0 0 -planC{indexS.scan}(scanNum).scanInfo(1).sliceThickness*10];
+    ipp = [0 0 -planC{indexS.scan}(scanNum).scanInfo(1).sliceThickness*10]';
 end
 pixsp = 10*[planC{indexS.scan}(scanNum).scanInfo(1).grid1Units planC{indexS.scan}(scanNum).scanInfo(1).grid2Units];
 sliceThickness = planC{indexS.scan}(scanNum).scanInfo(1).sliceThickness * 10;
@@ -37,6 +44,9 @@ planeMat = [pixsp(2)*iop(4:end) pixsp(1)*iop(1:3)]; %.*[-1 -1;-1 -1; 1 1];
 %     originLPS = planC{indexS.scan}(scanNum).scanInfo(1).imagePositionPatient;
 % else
     originLPS = planC{indexS.scan}(scanNum).scanInfo(end).imagePositionPatient;
+    if isempty(originLPS)
+        originLPS = [0; 0; 0];
+    end
 % end
 rawAffineMat = [planeMat ipp originLPS; 0 0 0 1];
 
