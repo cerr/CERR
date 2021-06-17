@@ -3,7 +3,7 @@
 
 "register": {
                     "baseScan":{"identifier":{"imageType":"CT SCAN"}},
-                    "movingScan":{"identifier":{"imageType":"MR"}},
+                    "movingScan":{"identifier":{"imageType":"MR SCAN"}},
                     "method": "none",
                     "copyStr": ["brain"]
                  },
@@ -30,7 +30,7 @@
                      }
        },
        {
-         "identifier" : { "imageType": "MR"},
+         "identifier" : { "imageType": "MR SCAN"},
 
          "required" : "yes",
                 
@@ -55,7 +55,7 @@
 
 "batchSize" : 1,
 
-"structAssocScan": {"identifier" : { "imageType": "MR"}},
+"structAssocScan": {"identifier" : { "imageType": "MR SCAN"}},
 
 "reference" : ""
 
