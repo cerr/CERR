@@ -42,31 +42,48 @@ planC = quality_assure_planC(cerrFileName,planC);
 
 % indexS = planC{end};
 
+origDir = fullfile(exportDir,'original');
+isoDir = fullfile(exportDir,'isotropic');
+stlDir = fullfile(exportDir,'stl');
+
+if ~exist(origDir,'dir')
+    mkdir(origDir);
+end
+
+if~exist(isoDir,'dir')
+    mkdir(isoDir);
+end
+
+if ~exist(stlDir,'dir')
+    mkdir(stlDir);
+end
+
 %% Export Scan and Dose to nii
 reorientFlag = 1; %realign image to RAS
-scanFileNameC = scan2imageOut(planC,scanNum,exportDir,reorientFlag,'nii','int16');
+scanFileNameC = scan2imageOut(planC,scanNum,origDir,reorientFlag,'nii','int16');
 [~,f,~] = fileparts(scanFileNameC{1});
 scanNii = load_untouch_nii(scanFileNameC{1});
 
 %reslice nii to isotropic
 voxel_size = scanNii.hdr.dime.pixdim(2:4);
-isovox_size = sqrt((voxel_size(1)^2) + (voxel_size(2)^2) + (voxel_size(3)^2) );
-isoScanNiftiFileName = fullfile(exportDir,['iso-' f '.nii']);
+% isovox_size = sqrt((voxel_size(1)^2) + (voxel_size(2)^2) + (voxel_size(3)^2) );
+isovox_size = (voxel_size(1)*voxel_size(2)*voxel_size(3))^(1/3);
+isoScanNiftiFileName = fullfile(isoDir,['iso-' f '.nii']);
 reslice_nii(scanFileNameC{1},isoScanNiftiFileName,isovox_size*ones(1,3));
 
 %% Convert dose & reslice isotropic
-doseNiftiFileNameC = dose2imageOut(planC, doseNumV, scanNum, exportDir,reorientFlag,'nii');
+doseNiftiFileNameC = dose2imageOut(planC, doseNumV, scanNum, origDir,reorientFlag,'nii');
 for i = 1:numel(doseNumV)
     [~,f,~] = fileparts(doseNiftiFileNameC{i});
-    isoDoseNiftiFileName = fullfile(exportDir,['iso-' f '.nii']);
+    isoDoseNiftiFileName = fullfile(isoDir,['iso-' f '.nii']);
     reslice_nii(doseNiftiFileNameC{i},isoDoseNiftiFileName,isovox_size*ones(1,3));
 end
 
 %% Convert masks, reslice isotropic, 
-maskFileNameC = mask2imageOut(planC,scanNum,strMaskC,exportDir,reorientFlag,'nii');
+maskFileNameC = mask2imageOut(planC,scanNum,strMaskC,origDir,reorientFlag,'nii');
 for i = 1:numel(strMaskC)
     [~,f,~] = fileparts(maskFileNameC{i});
-    isoMaskNiftiFileNameC{i} = fullfile(exportDir,['iso-' f '.nii']);
+    isoMaskNiftiFileNameC{i} = fullfile(isoDir,['iso-' f '.nii']);
     reslice_nii(maskFileNameC{i},isoMaskNiftiFileNameC{i},isovox_size*ones(1,3),1,[],2);
     isonii = load_untouch_nii(isoMaskNiftiFileNameC{i});
     if ~vox1mmFlag
@@ -77,10 +94,10 @@ for i = 1:numel(strMaskC)
     if ~zeroOriginFlag
         qOffset = [isonii.hdr.hist.qoffset_x  isonii.hdr.hist.qoffset_y isonii.hdr.hist.qoffset_z];
     else
-        qOffset = [0 0 0];
+        qOffset = [];
     end
     isoMask3M = isonii.img;
-    stlFileC{i} =  fullfile(exportDir,['iso-' f '.stl']);
+    stlFileC{i} =  fullfile(stlDir,['iso-' f '.stl']);
     disp(['Generating ' strMaskC{i} ' mesh']);
     struct2mesh(isoMask3M,stlFileC{i},qOffset,voxel_size);
 end
