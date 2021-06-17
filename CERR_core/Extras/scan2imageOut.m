@@ -20,16 +20,17 @@ for i = 1:numel(scanNumV)
     scanNum = scanNumV(i);
     [scanUniqName, ~] = genScanUniqName(planC,scanNum);
     [affineMat,scan3M_RAS,voxel_size] = getPlanCAffineMat(planC, scanNum, reorientFlag);
+    [~,orientationStr,~] = returnViewerAxisLabels(planC,scanNum);
     if ~isempty(dataType)
         eval(['scan3M_RAS = ' dataType '(scan3M_RAS);']);
     end
     qOffset = affineMat(1:3,end)';
     if strcmpi(extn,'nii')
-        scanFileName = fullfile(tmpDirPath, ['scan_' num2str(scanNumV(i)) '_' scanUniqName '.nii']);
-        niiC{i} = vol2nii(scan3M_RAS,affineMat,qOffset,voxel_size,scanFileName);
+        scanFileName = fullfile(tmpDirPath, ['scan_' num2str(scanNum) '_' scanUniqName '.nii']);
+        niiC{i} = vol2nii(scan3M_RAS,affineMat,qOffset,voxel_size,orientationStr,scanFileName);
     elseif strcmpi(extn,'nrrd')
-        scanFileName = fullfile(tmpDirPath, ['scan_' num2str(scanNumV(i)) '_' scanUniqName '.nrrd']);
-        vol2nrrd(scan3M_RAS,affineMat,qOffset,voxel_size,scanFileName);
+        scanFileName = fullfile(tmpDirPath, ['scan_' num2str(scanNum) '_' scanUniqName '.nrrd']);
+        vol2nrrd(scan3M_RAS,affineMat,qOffset,voxel_size,orientationStr,scanFileName);
     end
     scanFileNameC{i} = scanFileName;
 end
