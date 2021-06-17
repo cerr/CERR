@@ -1,4 +1,4 @@
-function nii = vol2nii(vol3M,affineMat,qOffset,voxel_size,scanFileName)
+function nii = vol2nii(vol3M,affineMat,qOffset,voxel_size,orientationStr,scanFileName)
 
 R = affineMat;
 
