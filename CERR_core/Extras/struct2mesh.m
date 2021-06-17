@@ -4,14 +4,14 @@ function [faces,vertices] = struct2mesh(mask3M,stlfile,qOffset,voxel_size)
 % logicalmask = zeros(size(nii.img));
 % logicalmask(find(nii.img)) = 1;
 
-if nargin < 3 || ~exist('qOffset','var') || isempty(qOffset)
-    qOffset = [0 0 0];
-end
-
 if nargin < 4 || ~exist('voxel_size','var') || isempty(voxel_size)
     voxel_size = [1 1 1];
 end
 
+if nargin < 3 || ~exist('qOffset','var') || isempty(qOffset)
+    sz3M = size(mask3M);
+    qOffset = -[voxel_size(1)*sz3M(1) voxel_size(2)*sz3M(2) voxel_size(3)*sz3M(3)]/2;
+end
 
 logicalmask = flip(flip(mask3M,1),2);
 
