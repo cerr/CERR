@@ -38,16 +38,30 @@ if strcmp(fileparts{end},'gz') && any(strcmp(fileparts{end - 1},{'img','hdr','ni
 end
 
 % read nifti file
-[vol3M,infoS] = nifti_read_volume(filename);
+% [vol3M,infoS] = nifti_read_volume(filename);
+nii = load_nii(filename);
+vol3M = nii.img;
+infoS.Offset = [nii.hdr.hist.qoffset_x nii.hdr.hist.qoffset_y nii.hdr.hist.qoffset_z];
+infoS.PixelDimensions = nii.hdr.dime.pixdim(2:4);
+infoS.Dimensions = nii.hdr.dime.dim(2:4);
 
 scanOffset = 0;
 volMin = min(vol3M(:));
 if volMin<0
     scanOffset = -volMin;
 end
-infoS.Offset = [0 0 0];
-infoS.PixelDimensions = infoS.pixdim;
-infoS.Dimensions = infoS.dimension(2:4);
+
+if nii.hdr.hist.srow_x(1) > 0
+    vol3M = flip(vol3M,1);
+end
+
+if nii.hdr.hist.srow_y(2) > 0
+    vol3M = flip(vol3M,2);
+end
+
+% infoS.Offset = [0 0 0];
+% infoS.PixelDimensions = infoS.pixdim;
+% infoS.Dimensions = infoS.dimension(2:4);
 planC = mha2cerr(infoS,vol3M,scanOffset,scanName,planC,save_flag);
 
 %remove temp unzipped files
