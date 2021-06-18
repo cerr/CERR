@@ -38,6 +38,10 @@ if exist(func,'file')==2 % valid .m file
     for n = 1:length(addFuncC)
         strToAppend = [strToAppend,' -a ',addFuncC{n}];
     end
+%     [~,addPathC] = init_ML_DICOM;
+%     for n = 1:length(addFuncC)
+%         strToAppend = [strToAppend,' -a ',addPathC{n}];
+%     end
     strToEval = ['mcc -m ',func,' -d ',compile_path, strToAppend];
     eval(strToEval)
     % Copy dependencies
