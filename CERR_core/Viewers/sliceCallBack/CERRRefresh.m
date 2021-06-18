@@ -147,13 +147,19 @@ for i=uint8(1:length(stateS.handle.CERRAxis))
 
     [scanSelectMode, doseSelectMode, structSelectMode] = getAxisInfo(i, 'scanSelectMode', 'doseSelectMode', 'structSelectMode');
     %If axis is displaying default, get scanSet from stateS.
-    if strcmpi(scanSelectMode, 'auto');
+    if strcmpi(scanSelectMode, 'auto')
         setAxisInfo(i, 'scanSets', stateS.scanSet);
     end
-    if strcmpi(doseSelectMode, 'auto');
-        setAxisInfo(i, 'doseSets', stateS.doseSet);
+    if strcmpi(doseSelectMode, 'auto')
+        scanSets = getAxisInfo(i, 'scanSets');
+        assocScanSet = getDoseAssociatedScan(stateS.doseSet,planC);
+        if any(ismember(scanSets,assocScanSet))
+            setAxisInfo(i, 'doseSets', stateS.doseSet);
+        else
+            setAxisInfo(i, 'doseSets', []);
+        end
     end
-    if strcmpi(structSelectMode, 'auto');
+    if strcmpi(structSelectMode, 'auto')
         setAxisInfo(i, 'structureSets', stateS.structSet);
     end
 

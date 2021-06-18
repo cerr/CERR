@@ -56,14 +56,14 @@ for p=1:length(planCfiles)
     %Loop over scan types
     for n = 1:size(scanC,1)
         %Append identifiers to o/p name
-        if length(scanOptS)>1
+        %if length(scanOptS)>1
             idS = scanOptS(n).identifier;
             idListC = cellfun(@(x)(idS.(x)),fieldnames(idS),'un',0);
             appendStr = strjoin(idListC,'_');
             idOut = [filePrefixForHDF5,'_',appendStr];
-        else
-            idOut = filePrefixForHDF5;
-        end
+        %else
+        %    idOut = filePrefixForHDF5;
+        %end
         %Get o/p dirs & dim
         outDirC = getOutputH5Dir(inputH5Path,scanOptS(n),'');
         %Write to HDF5

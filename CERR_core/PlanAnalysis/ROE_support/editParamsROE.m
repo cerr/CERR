@@ -1,7 +1,6 @@
 function editParamsROE(hObj,hData,hFig,planC)
-% Edit model parameters through ROE
-%
-% AI 12/14/2020
+% Edit model parameters
+% AI 05/12/21
 
 ud = guidata(hFig);
 tag = get(hObj,'Tag');
@@ -10,12 +9,9 @@ indexS = planC{end};
 %Get input data
 idx = hData.Indices(1);
 val = hData.EditData;
-val2num = val;
-if ~isnumeric(val)
-    val2num = str2num(val);
-end
-if isempty(val2num)
-  val2num = val;
+val2num = str2num(val);
+if isempty(val2num) %Convert from string if numerical
+    val2num = val;
 end
 prtcNum = ud.PrtcNum;
 modelsC = ud.Protocols(prtcNum).model;
@@ -24,10 +20,9 @@ if isfield(ud,'ModelNum')
 end
 
 %Update parameter
-ind = hData.Indices;
 switch(tag)
     case 'strSel'
-        if ind(2)==1
+        if hData.Indices(2)==1
             parameterS = modelsC{modelNum}.parameters;
             inputStructC = fieldnames(parameterS.structures);
             inputStructC = strcat('Select structure',{' '},inputStructC);
@@ -36,6 +31,10 @@ switch(tag)
             if ~isfield(modelsC{modelNum},'strNum') || ...
                     modelsC{modelNum}.strNum(matchIdx)==0
                 hObj.Data{2} = 'Select from list';
+            else
+                allStrC = {planC{indexS.structures}.structureName};
+                strIdx = modelsC{modelNum}.strNum(matchIdx);
+                hObj.Data{2} = allStrC{strIdx};
             end
         else
             strListC = {'Select structure',planC{indexS.structures}.structureName};
@@ -44,8 +43,7 @@ switch(tag)
             modelsC{modelNum}.strNum(inputStrNum) = matchIdx - 1;
             if isfield(ud.Protocols(prtcNum),'constraints')
                 criteriaS = ud.Protocols(prtcNum).constraints;
-                strData = get(hObj,'Data');
-                expectedStrName = strrep(strData{1},'Select structure ','');
+                expectedStrName = strrep(hObj.Data{1},'Select structure ','');
                 selectedStrName = strListC{matchIdx};
                 %Update expected str name in criteria data stucture
                 if isfield(criteriaS.structures,expectedStrName)
@@ -57,25 +55,31 @@ switch(tag)
             end
         end
     case 'doseSel'
-        if ind(2)==1
+        if hData.Indices(2)==1
             return
         else
             dosListC = {'Select Plan',planC{indexS.dose}.fractionGroupID};
             matchIdx = find(strcmp(dosListC,val));
             %modelsC{modelNum}.planNum = matchIdx - 1;
             ud.planNum = matchIdx - 1;
+            %Auto-populate precribed dose if available
+            RxField = ud.handle.inputH(14);
+            if isempty(get(RxField,'String'))
+                if isfield(planC{indexS.dose}(matchIdx - 1),'prescribedDose')
+                    prescribedDose = planC{indexS.dose}(matchIdx - 1).prescribedDose;
+                    set(RxField,'String',num2str(prescribedDose));
+                end
+            end
         end
-      case 'fieldEdit'
+    case 'fieldEdit'
         modelsC{modelNum} = modelsC{modelNum};
-        fieldData = get(hObj,'Data');
-        parName = fieldData{idx,1};
+        parName = hObj.Data{idx,1};
         modelsC{modelNum}.(parName) = val2num;
         modelsC{modelNum} = modelsC{modelNum};
         set(ud.handle.inputH(9),'Enable','On');  %Enable save
     case 'paramEdit'
         %Update modelC
-        paramData = get(hObj,'Data');
-        parName = paramData{idx,1};
+        parName = hObj.Data{idx,1};
         strParam = 0;
         if isfield(modelsC{modelNum}.parameters,'structures')
             structS = modelsC{modelNum}.parameters.structures;

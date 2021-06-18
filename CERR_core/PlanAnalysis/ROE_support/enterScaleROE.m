@@ -1,8 +1,8 @@
 function enterScaleROE(hObj,hEvt,hFig)
 %Get user-input scale factor
 %
-% AI 1/11/2020
-  
+% AI 5/12/2021
+
 ud = guidata(hFig);
 val = str2double(get(hObj,'String'));
 if ud.plotMode==3
@@ -12,7 +12,7 @@ else
 end
 if val < get(slider,'Min') || val > get(slider,'Max')
     msgbox(sprintf(['Invalid input. Please enter value between'...
-   ' %.1f and %.1f'],get(slider,'Min'),get(slider,'Max')));%Invalid input
+        ' %.1f and %.1f'],get(slider,'Min'),get(slider,'Max')));%Invalid input
 else
     set(slider,'Value',val);
     scaleDoseROE(slider,[],hFig);

@@ -88,7 +88,18 @@ parfor planNum = 1:length(dirS)
             %end
             testFlag = true;
         end
-        [scanC, maskC] = extractAndPreprocessDataForDL(userOptS,planC,testFlag);
+        [scanC, maskC,~,~,planC] = extractAndPreprocessDataForDL(userOptS,planC,testFlag);
+        
+        %Save ROI to planC if seelcted
+        if ~strcmp(userOptS.scan.crop.method,'none')
+            if isfield(userOptS.scan.crop,'params')
+                parS = userOptS.scan.crop.params;
+                if isfield(parS,'saveStrToPlanCFlag') && ...
+                    parS.saveStrToPlanCFlag
+                    save_planC(planC,[],'PASSED',fileNam);
+                end
+            end
+        end
         
         %Export to HDF5
         

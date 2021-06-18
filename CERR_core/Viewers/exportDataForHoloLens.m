@@ -1,18 +1,23 @@
-function exportDataForHoloLens(cerrFileName,structNamC,scanNum,doseNumV,exportDir)
-% function exportDataForHoloLens(cerrFileName,structNamC,doseNumV,exportDir)
+function [isoScanNiftiFileName, isoDoseNiftiFileName, isoMaskNiftiFileNameC, stlFileC] = exportDataForHoloLens(cerrFileName,strMaskC,scanNum,doseNumV,exportDir,zeroOriginFlag,vox1mmFlag)
+% function exportDataForHoloLens(cerrFileName,structNamC,doseNumV,exportDir,zeroOriginFlag,vox1mmFlag)
 %
-% This function exports scan and dose matrices to nrrd files and segmentation to stl format.
+% This function exports scan and dose matrices to nifti files and segmentation to stl format.
 %
 % User inputs:
 %   cerrFileName: Name of file containig planC.
-%   structNamC: cell array of structure names to visualize. 
+%   strMaskC: cell array of structure names to visualize. 
 %   scanNum: index of scan in planC.
 %   doseNumV: Indices of dose distributions in planC.
 %   exportDir: export location.
+%   zeroOriginFlag: binary 1/0, indicates whether STL file origin set to
+%       [0, 0, 0] or uses qOffset from nifti file
+%   vox1mmFlag: binary 1/0, indicates whether STL file scales each voxel as 1mm [1 1 1] or to
+%   the mm dimensions from nifti file 
+%  
 %
 % Example:
 %
-%   cerrFileName =
+%   cerrFileName = ...
 %   fullfile(getCERRPath,'..','Unit_Testing','data_for_cerr_tests','CERR_plans','lung_ex1_20may03.mat.bz2');
 %   structNamC = { 'PTV2','PTV1','GTV1','CTV1','ESOPHAGUS','HEART','LIVER',...
 %    'LUNG_CONTRA','LUNG_IPSI','SPINAL_CORD','Initial reference','SKIN','TOTAL_LUNG'}; % CERR Lung example
@@ -22,84 +27,80 @@ function exportDataForHoloLens(cerrFileName,structNamC,scanNum,doseNumV,exportDi
 %
 % APA, 04/28/2021
 
+if ~exist('zeroOriginFlag','var')
+    zeroOriginFlag = 0;
+end
+
+if ~exist('vox1mmFlag','var')
+    vox1mmFlag = 0;
+end
+
 % Load planC
 planC = loadPlanC(cerrFileName,tempdir);
 planC = updatePlanFields(planC);
 planC = quality_assure_planC(cerrFileName,planC);
-%global planC
 
-indexS = planC{end};
+% indexS = planC{end};
 
-% Get Scan, Dose and Structure matrices
-strC = {planC{indexS.structures}.structureName};
-[scan3M,dose3mC,strMaskC,xyzGridC,strColorC] = ...
-    getScanDoseStrVolumes(scanNum,doseNumV,structNamC,planC);
+origDir = fullfile(exportDir,'original');
+isoDir = fullfile(exportDir,'isotropic');
+stlDir = fullfile(exportDir,'stl');
 
-% maskCrop3M = strMaskC{1} | strMaskC{2}; % LUNG_IPSI and LUNG_CNTR
-% [minr, maxr, minc, maxc, mins, maxs] = compute_boundingbox(maskCrop3M);
-sizV = size(scan3M);
-minr = 1;
-maxr = sizV(1);
-minc = 1;
-maxc = sizV(2);
-mins = 1;
-maxs = sizV(3);
-%mins = 5; % specific to 0617-489880_09-09-2000-50891 dataset
-
-% Voxel size
-[xV,yV,zV] = getScanXYZVals(planC{indexS.scan}(scanNum));
-dx = xV(2)-xV(1);
-dy = yV(1)-yV(2);
-dz = zV(2)-zV(1);
-
-
-%% Export Scan and Dose to nrrd
-voxelSizeV = [dx,dy,dz]*10;
-originV = [0,0,0];
-encoding = 'raw';
-
-scanFilename = fullfile(exportDir,'scan.nrrd');
-scan3M = scan3M(minr:maxr, minc:maxc, mins:maxs);
-scan3M = permute(scan3M, [2 1 3]);
-scan3M = flip(scan3M,3);
-scanRes = nrrdWriter(scanFilename, single(scan3M), voxelSizeV, originV, encoding);
-
-for iDose = 1:length(doseNumV)
-    doseNum = doseNumV(iDose);
-    dose3M = dose3mC{iDose};
-    dose3M = dose3M(minr:maxr, minc:maxc, mins:maxs);
-    dose3M = permute(dose3M, [2 1 3]);
-    dose3M = flip(dose3M,3);
-    doseName = planC{indexS.dose}(doseNum).fractionGroupID;
-    doseFilename = fullfile(exportDir, [doseName,'.nrrd']);
-    maskRes = nrrdWriter(doseFilename, single(dose3M), voxelSizeV, originV, encoding);
+if ~exist(origDir,'dir')
+    mkdir(origDir);
 end
 
-% Export x,y,x surface points for PTV
-xCropV = xV(minc:maxc);
-yCropV = yV(minr:maxr);
-zCropV = zV(mins:maxs);
-for iStr = 1:length(strMaskC)
-    pointsFilename = fullfile(exportDir, [structNamC{iStr},'.stl']);
-    mask3M = strMaskC{iStr};
-    mask3M = mask3M(minr:maxr,minc:maxc,mins:maxs);
-    mask3M = flip(mask3M,1); % flip along Y
-    mask3M = flip(mask3M,3); % flip along Z
-    [iV,jV,kV] = find3d(mask3M);
-    xCtr = xCropV(1); % L-R
-    yCtr = yCropV(end); % P-A
-    zCtr = zCropV(1); % S-I
-    xyzM = 10*[xCropV(jV)-xCtr; yCropV(iV)-yCtr; zCropV(kV)-zCtr]';
-    %writematrix(xyzM, pointsFilename, 'FileType', 'text', 'Delimiter', '\t');
-    fv = isosurface((xCropV-xCtr)*10,(yCropV-yCtr)*10,(zCropV-zCtr)*10,mask3M, 0.5); % Make patch w. faces "out"
-    hFig = figure;
-    p = patch(fv);
-    numFaces = size(fv.faces,1);
-    maxPatchFaces = numFaces; % maxPatchFaces = 2000;
-    scaleFactor = min(numFaces,maxPatchFaces)/numFaces;
-    reducedFS = reducepatch(p, scaleFactor);
-    close(hFig)
-    stlwrite1(pointsFilename,reducedFS)
+if~exist(isoDir,'dir')
+    mkdir(isoDir);
 end
+
+if ~exist(stlDir,'dir')
+    mkdir(stlDir);
+end
+
+%% Export Scan and Dose to nii
+reorientFlag = 1; %realign image to RAS
+scanFileNameC = scan2imageOut(planC,scanNum,origDir,reorientFlag,'nii','int16');
+[~,f,~] = fileparts(scanFileNameC{1});
+scanNii = load_untouch_nii(scanFileNameC{1});
+
+%reslice nii to isotropic
+voxel_size = scanNii.hdr.dime.pixdim(2:4);
+% isovox_size = sqrt((voxel_size(1)^2) + (voxel_size(2)^2) + (voxel_size(3)^2) );
+isovox_size = (voxel_size(1)*voxel_size(2)*voxel_size(3))^(1/3);
+isoScanNiftiFileName = fullfile(isoDir,['iso-' f '.nii']);
+reslice_nii(scanFileNameC{1},isoScanNiftiFileName,isovox_size*ones(1,3));
+
+%% Convert dose & reslice isotropic
+doseNiftiFileNameC = dose2imageOut(planC, doseNumV, scanNum, origDir,reorientFlag,'nii');
+for i = 1:numel(doseNumV)
+    [~,f,~] = fileparts(doseNiftiFileNameC{i});
+    isoDoseNiftiFileName = fullfile(isoDir,['iso-' f '.nii']);
+    reslice_nii(doseNiftiFileNameC{i},isoDoseNiftiFileName,isovox_size*ones(1,3));
+end
+
+%% Convert masks, reslice isotropic, 
+maskFileNameC = mask2imageOut(planC,scanNum,strMaskC,origDir,reorientFlag,'nii');
+for i = 1:numel(strMaskC)
+    [~,f,~] = fileparts(maskFileNameC{i});
+    isoMaskNiftiFileNameC{i} = fullfile(isoDir,['iso-' f '.nii']);
+    reslice_nii(maskFileNameC{i},isoMaskNiftiFileNameC{i},isovox_size*ones(1,3),1,[],2);
+    isonii = load_untouch_nii(isoMaskNiftiFileNameC{i});
+    if ~vox1mmFlag
+        voxel_size = isonii.hdr.dime.pixdim(2:4);
+    else
+        voxel_size = [1 1 1];
+    end
+    if ~zeroOriginFlag
+        qOffset = [isonii.hdr.hist.qoffset_x  isonii.hdr.hist.qoffset_y isonii.hdr.hist.qoffset_z];
+    else
+        qOffset = [];
+    end
+    isoMask3M = isonii.img;
+    stlFileC{i} =  fullfile(stlDir,['iso-' f '.stl']);
+    disp(['Generating ' strMaskC{i} ' mesh']);
+    struct2mesh(isoMask3M,stlFileC{i},qOffset,voxel_size);
+end
+
 
 

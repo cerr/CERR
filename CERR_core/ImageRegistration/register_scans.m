@@ -253,6 +253,12 @@ if plmFlag
         data3M = mha_read_volume(infoS);
         movScanOffset = -min(0,min(data3M(:)));
         basePlanC  = mha2cerr(infoS,data3M, movScanOffset, movScanName, basePlanC, save_flag);
+        indexS = basePlanC{end};
+        imageOrientationPatient = basePlanC{indexS.scan}(baseScanNum).scanInfo(1).imageOrientationPatient;
+        numSlcs = length(basePlanC{indexS.scan}(end).scanInfo);
+        for slcNum = 1:numSlcs
+            basePlanC{indexS.scan}(end).scanInfo(slcNum).imageOrientationPatient = imageOrientationPatient;
+        end
     end
     
     % Cleanup
