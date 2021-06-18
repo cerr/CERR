@@ -25,7 +25,10 @@ function [out] = fixDisplayString(in)
 % You should have received a copy of the GNU General Public License
 % along with CERR.  If not, see <http://www.gnu.org/licenses/>.
 
-
+if isempty(in)
+    out = in;
+    return
+end
 indV = strfind(in,'_');
 tmp = in;
 for i = 1 : length(indV)
