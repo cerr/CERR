@@ -1,4 +1,4 @@
-function initFlag = init_ML_DICOM
+function [initFlag,addPathC] = init_ML_DICOM
 %"init_ML_DICOM"
 %   Sets env variables necessary for operation of ML_DICOM.
 %
@@ -42,7 +42,9 @@ if isdeployed
     path7 = fullfile(getCERRPath,'bin','dcm4che-5.17.0','lib','dcm4che-imageio-rle-5.17.0.jar');
     %path8 = fullfile(getCERRPath,'bin','dcm4che-5.17.0','lib','dcm4che-iod-2.0.27.jar');
     path9 = fullfile(getCERRPath,'bin','dcm4che-5.17.0','lib','dcm4che-net-5.17.0.jar');
-    javaaddpath({path1,path2, path5,path6,path7,path9});
+    addPathC = {path1,path2, path5,path6,path7,path9};
+    javaaddpath(addPathC);
+    
     return
 end
 
@@ -98,5 +100,5 @@ if ~isempty(octVer)
 elseif ~isempty(mlVer)
     javaaddpath({path1,path2, path5,path6,path7,path9});
 end
-
+addPathC = {path1,path2, path5,path6,path7,path9};
 
