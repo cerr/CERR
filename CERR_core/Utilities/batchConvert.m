@@ -40,6 +40,12 @@ function batchConvert(varargin)
 
 feature accel off
 
+% Read options file
+pathStr = getCERRPath;
+optName = [pathStr 'CERROptions.json'];
+optS = opts4Exe(optName);
+
+
 persistent convertedC planNameC
 if isempty(varargin)    
     %init_ML_DICOM
@@ -137,25 +143,23 @@ for dirNum = 1:length(allDirS)
                 
                 
                 hWaitbar = waitbar(0,'Scanning Directory Please wait...');
-                patient = scandir_mldcm(sourceDir, hWaitbar, 1);
+                %patient = scandir_mldcm(sourceDir, hWaitbar, 1);
+                excludePixelDataFlg = 1;
+                recursiveFlg = 0;
+                patient = scandir_mldcm(sourceDir, excludePixelDataFlg, recursiveFlg);
                 close(hWaitbar);
                 for j = 1:length(patient.PATIENT)
                     dcmdirS.(['patient_' num2str(j)]) = patient.PATIENT(j);                    
                 end
                 patNameC = fieldnames(dcmdirS);
-                selected = 'all';
-                if strcmpi(selected,'all')
-                    combinedDcmdirS = struct('STUDY',dcmdirS.(patNameC{1}).STUDY,'info',dcmdirS.(patNameC{1}).info);
-                    for i = 2:length(patNameC)
-                        for j = 1:length(dcmdirS.(patNameC{i}).STUDY.SERIES)
-                            combinedDcmdirS.STUDY.SERIES(end+1) = dcmdirS.(patNameC{i}).STUDY.SERIES(j);
-                        end
+                combinedDcmdirS = struct('STUDY',dcmdirS.(patNameC{1}).STUDY,'info',dcmdirS.(patNameC{1}).info);
+                for i = 2:length(patNameC)
+                    for j = 1:length(dcmdirS.(patNameC{i}).STUDY.SERIES)
+                        combinedDcmdirS.STUDY.SERIES(end+1) = dcmdirS.(patNameC{i}).STUDY.SERIES(j);
                     end
-                    % Pass the java dicom structures to function to create CERR plan
-                    planC = dcmdir2planC(combinedDcmdirS,mergeScansFlag); 
-                else
-                    planC = dcmdir2planC(patient.PATIENT);
-                end       
+                end
+                % Pass the java dicom structures to function to create CERR plan
+                planC = dcmdir2planC(combinedDcmdirS,mergeScansFlag,optS);
 %                 % For TopModule/Metropolis plans that are named as
 %                 RT000000...
 %                 rtStartIndex = strfind(sourceDir,[slashType,'RT']);                
