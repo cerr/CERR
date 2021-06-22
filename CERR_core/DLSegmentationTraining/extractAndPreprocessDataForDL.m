@@ -315,7 +315,7 @@ for scanIdx = 1:numScans
     end
     
     scanC{scanIdx} = scan3M;
-    maskC{scanIdx} = mask3M;s
+    maskC{scanIdx} = mask3M;
     
     
     %4. Transform view
