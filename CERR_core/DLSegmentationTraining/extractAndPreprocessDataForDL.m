@@ -287,6 +287,8 @@ for scanIdx = 1:numScans
             end
         end
         toc
+    else
+        cropStr3M = [];
     end
     scanOptS(scanIdx).crop = cropS;
     
@@ -307,11 +309,13 @@ for scanIdx = 1:numScans
         end
         toc
     else
-        cropStr3M = [];
+        if ~(adjustBackgroundVoxFlag || transformViewFlag)
+            cropStr3M = [];
+        end
     end
     
     scanC{scanIdx} = scan3M;
-    maskC{scanIdx} = mask3M;
+    maskC{scanIdx} = mask3M;s
     
     
     %4. Transform view
