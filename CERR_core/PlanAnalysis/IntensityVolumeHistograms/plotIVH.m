@@ -78,7 +78,7 @@ ud = get(findobj('Tag', 'IVHGui'),'userdata');
 scanNum = get(ud.af.handles.scan,'value');
 imageType = planC{indexS.scan}(scanNum).scanInfo(1).imageType;
 
-if strcmpi(imageType,'CT')
+if strcmpi(imageType,'CT') || strcmpi(imageType,'CT SCAN')
     units = 'HU';
 elseif strcmpi(imageType,'PET')
     units = 'SUV';
@@ -427,7 +427,7 @@ if ~isempty(planC{indexS.IVH}(IVHNum).IVHMatrix)
     opt = 'standardScan';
     name = planC{indexS.IVH}(IVHNum).structureName;
     nameVol = planC{indexS.IVH}(IVHNum).scanType;
-    dispScanStats(scanBinsV, volsHistV, name, nameVol, planC, indexS, opt)
+    dispScanStats(scanBinsV-offset, volsHistV, name, nameVol, planC, indexS, opt)
 
 
 else   %compute yer own
@@ -481,7 +481,7 @@ else   %compute yer own
     opt = 'standardScan';
     name = planC{indexS.IVH}(IVHNum).structureName;
     nameVol = planC{indexS.IVH}(IVHNum).scanType;
-    dispScanStats(scanBinsV, volsHistV, name, nameVol, planC, indexS, opt)
+    dispScanStats(scanBinsV-offset, volsHistV, name, nameVol, planC, indexS, opt)
 
     binWidth = optS.IVHBinWidth;
 
