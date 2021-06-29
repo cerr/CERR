@@ -68,11 +68,6 @@ outputCERRPath = fullfile(fullClientSessionPath,'segmentedOrigCERR');
 mkdir(outputCERRPath)
 segResultCERRPath = fullfile(fullClientSessionPath,'segResultCERR');
 mkdir(segResultCERRPath)
-%-For H5 files
-outputH5Path = fullfile(fullClientSessionPath,'outputH5');
-mkdir(outputH5Path);
-inputH5Path = fullfile(fullClientSessionPath,'inputH5');
-mkdir(inputH5Path);
 %-For structname-to-label map
 labelPath = fullfile(fullClientSessionPath,'outputLabelMap');
 mkdir(labelPath);
@@ -100,29 +95,30 @@ if length(algorithmC) > 1 || ...
     
     for k=1:length(algorithmC)
         
-        %Delete previous inputs where needed
-        inputH5Path = fullfile(fullClientSessionPath,'inputH5');
-        outputH5Path = fullfile(fullClientSessionPath,'outputH5');
-        if exist(inputH5Path, 'dir')
-            rmdir(inputH5Path, 's')
-            mkdir(inputH5Path);
-        end
-        if exist(outputH5Path, 'dir')
-            rmdir(outputH5Path, 's')
-            mkdir(outputH5Path);
-        end
-        
-        % Get the config file path
+        %Get the config file path
         configFilePath = fullfile(getCERRPath,'ModelImplementationLibrary',...
             'SegmentationModels', 'ModelConfigurations',...
             [algorithmC{k}, '_config.json']);
         
+        %Read config file
+        userOptS = readDLConfigFile(configFilePath);
+        
+        %Delete previous inputs where needed
+        modelFmt = userOptS.modelInputFormat;
+        modInputPath = fullfile(fullClientSessionPath,['input',modelFmt]);
+        modOutputPath = fullfile(fullClientSessionPath,['output',modelFmt]);
+        if exist(modInputPath, 'dir')
+            rmdir(modInputPath, 's')
+            mkdir(modInputPath);
+        end
+        if exist(modOutputPath, 'dir')
+            rmdir(modOutputPath, 's')
+            mkdir(modOutputPath);
+        end
+        
         %Copy config file to session dir
         copyfile(configFilePath,fullClientSessionPath);
         
-        % Read config file
-        userOptS = readDLConfigFile(configFilePath);
-        %batchSize = userOptS.batchSize;
         if nargin==7 && ~isnan(varargin{2})
             scanNum = varargin{2};
         else
@@ -133,7 +129,7 @@ if length(algorithmC) > 1 || ...
         if ishandle(hWait)
             waitbar(0.1,hWait,'Extracting scan and mask');
         end
-        [scanC, maskC, scanNumV, userOptS planC] = ...
+        [scanC, maskC, scanNumV, userOptS, coordInfoS, planC] = ...
             extractAndPreprocessDataForDL(userOptS,planC,testFlag,scanNum);
         %Note: mask3M is empty for testing
         
@@ -141,32 +137,37 @@ if length(algorithmC) > 1 || ...
             waitbar(0.2,hWait,'Segmenting structures...');
         end
         
-        %Export scans to H5
+        %Export scans to model input format
         scanOptS = userOptS.scan;
         passedScanDim = userOptS.passedScanDim;
         filePrefixForHDF5 = 'cerrFile';
+        
+        %Loop over scans
         for nScan = 1:length(scanOptS)
+            
             %Append identifiers to o/p name
-            if length(scanOptS)>1
-                idS = scanOptS(nScan).identifier;
-                idListC = cellfun(@(x)(idS.(x)),fieldnames(idS),'un',0);
-                appendStr = strjoin(idListC,'_');
-                idOut = [filePrefixForHDF5,'_',appendStr];
-            else
-                idOut = filePrefixForHDF5;
-            end
-            outDirC = getOutputH5Dir(inputH5Path,scanOptS(nScan),'');
-            writeHDF5ForDL(scanC{nScan},maskC{nScan},passedScanDim,outDirC,...
-                idOut,testFlag);
+            idS = scanOptS(nScan).identifier;
+            idListC = cellfun(@(x)(idS.(x)),fieldnames(idS),'un',0);
+            appendStr = strjoin(idListC,'_');
+            idOut = [filePrefixForHDF5,'_',appendStr];
+            
+            %Get o/p dirs and dim
+            outDirC = getOutputH5Dir(modInputPath,scanOptS(nScan),'');
+            
+            %Write to model i/p fmt
+            writeDataForDL(scanC{nScan},maskC{nScan},coordInfoS,...
+                passedScanDim,modelFmt,outDirC,idOut,testFlag);
+            
         end
         
-        %%% =========== have a flag to tell whether the container runs on the client or a remote server
+        %Flag indicating if container runs on client or remote server
         if ishandle(hWait)
             wbch = allchild(hWait);
             jp = wbch(1).JavaPeer;
             jp.setIndeterminate(1)
         end
-        % Call the container and execute model
+        
+        %Call container and execute model
         [success,gitHash] = callDeepLearnSegContainer(algorithmC{k}, ...
             containerPathC{k}, fullClientSessionPath, sshConfigS,...
             userOptS.batchSize); % different workflow for client or session
@@ -179,12 +180,15 @@ if length(algorithmC) > 1 || ...
         roiDescrpt = [roiDescrpt, '  __git_hash:',gitHash];
         userOptS.roiGenerationDescription = roiDescrpt;
         
+        %Read mask files
         if ishandle(hWait)
             waitbar(0.9,hWait,'Writing segmentation results to CERR');
         end
-        outC = stackHDF5Files(fullClientSessionPath,userOptS.passedScanDim); %Updated
+        outFmt = userOptS.modelOutputFormat;
+        passedScanDim = userOptS.passedScanDim;
+        outC = stackDLMaskFiles(fullClientSessionPath,outFmt,passedScanDim);
         
-        % Join results back to planC
+        %Import masks to planC
         identifierS = userOptS.structAssocScan.identifier;
         if ~isempty(fieldnames(userOptS.structAssocScan.identifier))
             origScanNum = getScanNumFromIdentifiers(identifierS,planC);
@@ -198,7 +202,6 @@ if length(algorithmC) > 1 || ...
         
         % Post-process segmentation
         planC = postProcStruct(planC,userOptS);
-        
         
         % Delete intermediate (resampled) scans if any
         scanListC = arrayfun(@(x)x.scanType, planC{indexS.scan},'un',0);

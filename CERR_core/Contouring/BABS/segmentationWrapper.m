@@ -20,16 +20,19 @@ configFilePath = fullfile(getCERRPath,'ModelImplementationLibrary',...
     'SegmentationModels', 'ModelConfigurations', [algorithm, '_config.json']);
 testFlag = true;
 
-%% Create directories to write input, output h5 files
-outputH5Path = fullfile(fullSessionPath,'outputH5');
-mkdir(outputH5Path);
-inputH5Path = fullfile(fullSessionPath,'inputH5');
-mkdir(inputH5Path);
-
-%Read config file
+% Read config file
 userOptS = readDLConfigFile(configFilePath);
 
-%% Export data to H5
+%% Create directories to write input, output h5 files
+inFmt = userOptS.modelInputFormat;
+outFmt = userOptS.modelInputFormat;
+modelOutputPath = fullfile(fullSessionPath,['output',outFmt]);
+mkdir(modelOutputPath);
+modelInputPath = fullfile(fullSessionPath,['input',inFmt]);
+mkdir(modelInputPath);
+
+
+%% Export data to fmt reqd by model 
 planCfiles = dir(fullfile(cerrPath,'*.mat'));
 for p=1:length(planCfiles)
     
@@ -42,32 +45,34 @@ for p=1:length(planCfiles)
     %Pre-process scan & mask
     fprintf('\nPre-processing data...\n');
     tic
-    [scanC, maskC, scanNumV, userOptS, planC] = ...
+    [scanC, maskC, scanNumV, userOptS, coordInfoS, planC] = ...
         extractAndPreprocessDataForDL(userOptS,planC,testFlag);
     %Note: mask3M is empty in inference mode
     toc
     
-    %Export to H5 format
+    %% Export to model input format
     tic
-    fprintf('\nWriting to H5 format...\n');
+    inFmt = userOptS.modelInputFormat;
+    fprintf('\nWriting to %s format...\n',inFmt);
     filePrefixForHDF5 = 'cerrFile';
     passedScanDim = userOptS.passedScanDim;
     scanOptS = userOptS.scan;
+   
     %Loop over scan types
     for n = 1:size(scanC,1)
+        
         %Append identifiers to o/p name
-        %if length(scanOptS)>1
-            idS = scanOptS(n).identifier;
-            idListC = cellfun(@(x)(idS.(x)),fieldnames(idS),'un',0);
-            appendStr = strjoin(idListC,'_');
-            idOut = [filePrefixForHDF5,'_',appendStr];
-        %else
-        %    idOut = filePrefixForHDF5;
-        %end
+        idS = scanOptS(n).identifier;
+        idListC = cellfun(@(x)(idS.(x)),fieldnames(idS),'un',0);
+        appendStr = strjoin(idListC,'_');
+        idOut = [filePrefixForHDF5,'_',appendStr];
+        
         %Get o/p dirs & dim
-        outDirC = getOutputH5Dir(inputH5Path,scanOptS(n),'');
-        %Write to HDF5
-        writeHDF5ForDL(scanC{n},maskC{n},passedScanDim,outDirC,idOut,testFlag);
+        outDirC = getOutputH5Dir(modelInputPath,scanOptS(n),'');
+        
+        %Write to user-specified model input format
+        writeDataForDL(scanC{n},maskC{n},coordInfoS, passedScanDim,inFmt,...
+            outDirC,idOut,testFlag);
     end
     
     %Save updated planC file
@@ -103,10 +108,11 @@ end
 roiDescrpt = [roiDescrpt, '  __git_hash:',gitHash];
 userOptS.roiGenerationDescription = roiDescrpt;
 
-%% Stack H5 files
+%% Stack output mask files
 fprintf('\nRreading output masks...');
 tic
-outC = stackHDF5Files(fullSessionPath,passedScanDim); %Updated
+%outC = stackHDF5Files(fullSessionPath,passedScanDim); 
+outC = stackDLMaskFiles(fullSessionPath,outFmt,passedScanDim); 
 toc
 
 %% Import segmented mask to planC
