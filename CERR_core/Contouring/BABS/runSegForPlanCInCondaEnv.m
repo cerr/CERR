@@ -75,11 +75,6 @@ outputCERRPath = fullfile(fullSessionPath,'segmentedOrigCERR');
 mkdir(outputCERRPath)
 segResultCERRPath = fullfile(fullSessionPath,'segResultCERR');
 mkdir(segResultCERRPath)
-%-For H5 files
-outputH5Path = fullfile(fullSessionPath,'outputH5');
-mkdir(outputH5Path);
-inputH5Path = fullfile(fullSessionPath,'inputH5');
-mkdir(inputH5Path);
 testFlag = true;
 %-For structname-to-label map
 labelPath = fullfile(fullSessionPath,'outputLabelMap');
@@ -96,15 +91,9 @@ if iscell(algorithm)
 else
     algorithmC = strsplit(algorithm,'^');
 end
-
 numAlgorithms = numel(algorithmC);
-%functionNameC = strsplit(functionName,'^');
-% numWrapperFunctions = numel(functionNameC);
-% if numAlgorithms ~= numWrapperFunctions
-%     error('Mismatch between no. specified algorithms and wrapper functions')
-% end
 
-%condaEnvList = varargin{1};
+%% Get list of conda envs for each algorithm
 if iscell(condaEnvList)
     condaEnvListC = condaEnvList;
 else
@@ -117,7 +106,7 @@ elseif numAlgorithms ~= numContainers
     error('Mismatch between no. specified algorithms and conda envs.')
 end
 
-% Get wrapper function names for algorithm/condaEnvs
+%% Get wrapper function names for algorithm/condaEnvs
 if ~exist('wrapperFunctionList','var') || isempty(wrapperFunctionList)
     functionNameC = getSegWrapperFunc(condaEnvListC,algorithmC);
 elseif iscell(wrapperFunctionList)
@@ -133,83 +122,83 @@ elseif numAlgorithms ~= numContainers
 end
 
 
-% Loop over algorithms
+%% Loop over algorithms
 for k=1:length(algorithmC)
     
-    %Clear previous contents of session dir
-    inputH5Path = fullfile(fullSessionPath,'inputH5');
-    outputH5Path = fullfile(fullSessionPath,'outputH5');
-    if exist(inputH5Path, 'dir')
-        rmdir(inputH5Path, 's')
-        mkdir(inputH5Path);
-    end
-    if exist(outputH5Path, 'dir')
-        rmdir(outputH5Path, 's')
-        mkdir(outputH5Path);
-    end
-    
-    % Get config file path
+    %Read config file
     configFilePath = fullfile(getCERRPath,'ModelImplementationLibrary',...
         'SegmentationModels', 'ModelConfigurations',...
         [algorithmC{k}, '_config.json']);
+    userOptS = readDLConfigFile(configFilePath);
+    
+    
+    %Clear previous contents of session dir
+    modelFmt = userOptS.modelInputFormat;
+    modInputPath = fullfile(fullSessionPath,['input',modelFmt]);
+    modOutputPath = fullfile(fullSessionPath,['output',modelFmt]);
+    if exist(modInputPath, 'dir')
+        rmdir(modInputPath, 's')
+        mkdir(modInputPath);
+    end
+    if exist(modOutputPath, 'dir')
+        rmdir(modOutputPath, 's')
+        mkdir(modOutputPath);
+    end
     
     % Pre-process and export data to HDF5 format
-    userOptS = readDLConfigFile(configFilePath);
     if ~exist('batchSize','var') || isempty(batchSize)
         batchSize = userOptS.batchSize;
     end
-    [scanC, maskC, scanNumV, userOptS, planC] = ...
+    [scanC, maskC, scanNumV, userOptS, coordInfoS, planC] = ...
         extractAndPreprocessDataForDL(userOptS,planC,testFlag);
     %Note: mask3M is empty for testing
     
-    %Export to H5 format
+    %Export to model input format
     tic
-    fprintf('\nWriting to H5 format...\n');
+    fprintf('\nWriting to %s format...\n',modelFmt);
     filePrefixForHDF5 = 'cerrFile';
     passedScanDim = userOptS.passedScanDim;
     scanOptS = userOptS.scan;
+    
     %Loop over scan types
-    for n = 1:size(scanC,1)
+    for nScan = 1:size(scanC,1)
+        
         %Append identifiers to o/p name
-        if length(scanOptS)>1
-            idS = scanOptS(n).identifier;
-            idListC = cellfun(@(x)(idS.(x)),fieldnames(idS),'un',0);
-            appendStr = strjoin(idListC,'_');
-            idOut = [filePrefixForHDF5,'_',appendStr];
-        else
-            idOut = filePrefixForHDF5;
-        end
+        idS = scanOptS(nScan).identifier;
+        idListC = cellfun(@(x)(idS.(x)),fieldnames(idS),'un',0);
+        appendStr = strjoin(idListC,'_');
+        idOut = [filePrefixForHDF5,'_',appendStr];
+        
         %Get o/p dirs & dim
-        outDirC = getOutputH5Dir(inputH5Path,scanOptS(n),'');
-        %Write to HDF5
-        writeHDF5ForDL(scanC{n},maskC{n},passedScanDim,outDirC,idOut,testFlag);
+        outDirC = getOutputH5Dir(modInputPath,scanOptS(nScan),'');
+        
+        %Write to model input fmt
+        writeDataForDL(scanC{nScan},maskC{nScan},coordInfoS,passedScanDim,...
+            modelFmt,outDirC,idOut,testFlag);
     end
     
-    % Call python wrapper and execute model
+    % Get conda env paths
     pth = getenv('PATH');
     condaBinPath = fullfile(condaPath,'condabin;');
-    %condaScriptsPath = fullfile(condaPath,'Scripts;');
     if ~isempty(strfind(condaEnvListC{k},filesep))        
         condaEnvPath = condaEnvListC{k};
         condaBinPath = fullfile(condaEnvPath,'Scripts;');
     else
         condaEnvPath = fullfile(condaPath,'envs',condaEnvListC{k});
     end
-    %if isempty(strfind(pth,condaBinPath))
-    %    newPth = [condaBinPath,pth];
-    %    setenv('PATH',newPth)
-    %end
+    
+    % Call python wrapper and execute model
     newPth = [condaBinPath,pth];
     setenv('PATH',newPth)
     wrapperFunc = functionNameC{k};
     if ispc
         command = sprintf('call activate %s && python %s %s %s %s',...
-            condaEnvPath, wrapperFunc, inputH5Path, outputH5Path,...
+            condaEnvPath, wrapperFunc, modInputPath, modOutputPath,...
             num2str(batchSize));
     else
         condaSrc = fullfile(condaEnvPath,'/bin/activate');
         command = sprintf('source %s && python %s %s %s %s',...
-            condaSrc, wrapperFunc, inputH5Path, outputH5Path,...
+            condaSrc, wrapperFunc, modInputPath, modOutputPath,...
             num2str(batchSize));
     end
     % Resolve error by setting KMP_DUPLICATE_LIB_OK' to 'TRUE'
@@ -225,7 +214,9 @@ for k=1:length(algorithmC)
     setenv('PATH',pth)
     
     % Read structure masks
-    outC = stackHDF5Files(fullSessionPath,userOptS.passedScanDim); %Updated
+    outFmt = userOptS.modelOutputFormat;
+    passedScanDim = userOptS.passedScanDim;
+    outC = stackDLMaskFiles(fullSessionPath,outFmt,passedScanDim); 
     
     % Import to planC
     tic
