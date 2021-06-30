@@ -145,10 +145,8 @@ for scanIdx = 1:numScans
     
     %Get affine matrix
     [affineInM,~,voxSizV] = getPlanCAffineMat(planC, scanNumV(scanIdx), 1);
-    %--- TEMP FOR TESTING ---
     affineOutM = affineInM;
-    originV = affineInM(1:3,4);
-    %------------------------
+    originV = affineOutM(1:3,4);
     
     %Set scan-specific parameters: channels, view orientation, background adjustment, aspect ratio
     channelParS = scanOptS(scanIdx).channels;
@@ -215,17 +213,13 @@ for scanIdx = 1:numScans
         resampleMethod = resampleS(scanIdx).method;
         
         %Resample scan
-        gridResampleMethod = 'center';
-        %volumeInterpMethod = resampleS.method;
+        gridAlignMethod = 'center';
         [xResampleV,yResampleV,zResampleV] = ...
-            getResampledGrid(outResV,xValsV,yValsV,zValsV,gridResampleMethod);
+            getResampledGrid(outResV,xValsV,yValsV,zValsV,gridAlignMethod);
         scan3M = imgResample3d(double(scan3M), ...
             xValsV,yValsV,zValsV,...
             xResampleV,yResampleV,zResampleV,...
             resampleMethod);
-        %[scan3M,xResampleV,yResampleV,zResampleV] = ...
-        %   imgResample3d(scan3M,inputResV,xValsV,yValsV,zValsV,...
-        %   outResV,resampleMethod);
         
         %Store to planC
         scanInfoS.horizontalGridInterval = outResV(1);
@@ -265,8 +259,8 @@ for scanIdx = 1:numScans
         end
         
         %Update affine matrix
-        %affineOutM = getAffineMatrixforTransform(affineInM,operation,varargin);
-        
+        [affineOutM,~,voxSizV] = getPlanCAffineMat(planC, scanNumV(scanIdx), 1);
+        originV = affineOutM(1:3,4);
     end
     
     %2. Crop around the region of interest
@@ -300,7 +294,7 @@ for scanIdx = 1:numScans
         toc
         
         %Update affine matrix
-        %affineOutM = getAffineMatrixforTransform(affineInM,operation,varargin);
+        %affineOutM = getAffineMatrixforTransform(affineOutM,operation,varargin);
         
     else
         cropStr3M = [];
@@ -325,7 +319,7 @@ for scanIdx = 1:numScans
         toc
         
         %Update affine matrix
-        %affineOutM = getAffineMatrixforTransform(affineInM,operation,varargin);
+        %affineOutM = getAffineMatrixforTransform(affineOutM,operation,varargin);
         
     else
         if ~(adjustBackgroundVoxFlag || transformViewFlag)
@@ -349,7 +343,7 @@ for scanIdx = 1:numScans
         toc
         
         %Update affine matrix
-        %affineOutM = getAffineMatrixforTransform(affineInM,operation,varargin);
+        %affineOutM = getAffineMatrixforTransform(affineOutM,operation,varargin);
         
     else % case: 1 view, 'axial'
         viewOutC = {scanC{scanIdx}};
@@ -368,7 +362,7 @@ for scanIdx = 1:numScans
         
         for c = 1:numChannels
             
-            %             mask3M = true(size(scanView3M));
+            %mask3M = true(size(scanView3M));
             
             if strcmpi(filterTypeC{c},'original')
                 %Use original image
