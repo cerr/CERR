@@ -1,0 +1,35 @@
+{
+"strNameToLabelMap": [
+  {"structureName" : "CAC",
+   "value" : 1}
+],
+
+"scan": {
+
+         "identifier" : {"imageType": "CT SCAN"},
+
+         "required" : "yes",
+                
+         "view" : ["axial"],
+
+         "resample": {  "resolutionXCm": 0.068,
+		               "resolutionYCm": 0.068,
+                               "resolutionZCm": 0.25,
+                               "method": "linear"
+                            }
+         
+},
+
+"modelInputFormat": "NRRD",
+
+"passedScanDim" : "3D",
+
+"modelOutputFormat": "NRRD",
+
+"batchSize" : 1,
+
+"structAssocScan": {"identifier" : { "imageType": "CT SCAN"}},
+
+"reference" : "https://doi.org/10.1038/s41467-021-20966-2"
+
+}

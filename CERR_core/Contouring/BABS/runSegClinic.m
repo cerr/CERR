@@ -91,19 +91,24 @@ if ~any(strcmpi(algorithmC,'BABS'))
     allLabelNamesC = {};
     for k=1:length(algorithmC)
         
+        %Read config file
+        configFilePath = fullfile(getCERRPath,'ModelImplementationLibrary',...
+            'SegmentationModels','ModelConfigurations',...
+            [algorithmC{k}, '_config.json']);
+        userOptS = readDLConfigFile(configFilePath);
+        
         %Delete previous inputs where needed
-        inputH5Path = fullfile(fullSessionPath,'inputH5');
-        outputH5Path = fullfile(fullSessionPath,'outputH5');
-        if exist(inputH5Path, 'dir')
-            rmdir(inputH5Path, 's')
+        modelFmt = userOptS.modelInputFormat;
+        modInputPath = fullfile(fullSessionPath,['input',modelFmt]);
+        modOutputPath = fullfile(fullSessionPath,['output',modelFmt]);
+        if exist(modInputPath, 'dir')
+            rmdir(modInputPath, 's')
         end
-        if exist(outputH5Path, 'dir')
-            rmdir(outputH5Path, 's')
+        if exist(modOutputPath, 'dir')
+            rmdir(modOutputPath, 's')
         end
         
         %Copy config file to session dir
-        configFilePath = fullfile(getCERRPath,'ModelImplementationLibrary','SegmentationModels',...
-            'ModelConfigurations', [algorithmC{k}, '_config.json']);
         copyfile(configFilePath,fullSessionPath);
         
         % Run segmentation algorithm
@@ -111,7 +116,6 @@ if ~any(strcmpi(algorithmC,'BABS'))
             fullSessionPath,containerPathC{k},algorithmC{k});
         
         %Get list of label names
-        userOptS = readDLConfigFile(configFilePath);
         if ischar(userOptS.strNameToLabelMap)
             labelDatS = readDLConfigFile(fullfile(labelPath,...
                 userOptS.strNameToLabelMap));

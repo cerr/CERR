@@ -1,4 +1,4 @@
-function [scanOutC, maskOutC, scanNumV, optS, planC] = ...
+function [scanOutC, maskOutC, scanNumV, optS, coordInfoS, planC] = ...
     extractAndPreprocessDataForDL(optS,planC,testFlag,scanNumV)
 %
 % Script to extract scan and mask and perform user-defined pre-processing.
@@ -83,7 +83,7 @@ if ~isempty(fieldnames(regS))
     end
 else
     %Get scan no. matching identifiers
-    if ~exist('scanNumV','var')
+    if ~exist('scanNumV','var') || isempty(scanNumV)
         scanNumV = nan(1,length(scanOptS));
         for n = 1:length(scanOptS)
             identifierS = scanOptS(n).identifier;
@@ -108,7 +108,7 @@ UIDc = {planC{indexS.structures}.assocScanUID};
 
 %-Loop over scans
 for scanIdx = 1:numScans
-    
+        
     %Extract scan array from planC
     scan3M = double(getScanArray(scanNumV(scanIdx),planC));
     CTOffset = double(planC{indexS.scan}(scanNumV(scanIdx)).scanInfo(1).CTOffset);
@@ -142,6 +142,13 @@ for scanIdx = 1:numScans
         mask3M(tempMask3M) = validExportLabelV(strNum);
         
     end
+    
+    %Get affine matrix
+    [affineInM,~,voxSizV] = getPlanCAffineMat(planC, scanNumV(scanIdx), 1);
+    %--- TEMP FOR TESTING ---
+    affineOutM = affineInM;
+    originV = affineInM(1:3,4);
+    %------------------------
     
     %Set scan-specific parameters: channels, view orientation, background adjustment, aspect ratio
     channelParS = scanOptS(scanIdx).channels;
@@ -256,6 +263,10 @@ for scanIdx = 1:numScans
                 cropS.params = cropParS;
             end
         end
+        
+        %Update affine matrix
+        %affineOutM = getAffineMatrixforTransform(affineInM,operation,varargin);
+        
     end
     
     %2. Crop around the region of interest
@@ -287,6 +298,10 @@ for scanIdx = 1:numScans
             end
         end
         toc
+        
+        %Update affine matrix
+        %affineOutM = getAffineMatrixforTransform(affineInM,operation,varargin);
+        
     else
         cropStr3M = [];
     end
@@ -308,6 +323,10 @@ for scanIdx = 1:numScans
             cropStr3M = [];
         end
         toc
+        
+        %Update affine matrix
+        %affineOutM = getAffineMatrixforTransform(affineInM,operation,varargin);
+        
     else
         if ~(adjustBackgroundVoxFlag || transformViewFlag)
             cropStr3M = [];
@@ -328,6 +347,10 @@ for scanIdx = 1:numScans
             maskC{scanIdx},viewC);
         [~,cropStrC] = transformView([],cropStr3M,viewC);
         toc
+        
+        %Update affine matrix
+        %affineOutM = getAffineMatrixforTransform(affineInM,operation,varargin);
+        
     else % case: 1 view, 'axial'
         viewOutC = {scanC{scanIdx}};
         maskOutC{scanIdx} = {maskC(scanIdx)};
@@ -383,6 +406,10 @@ for scanIdx = 1:numScans
     end
     
     scanOutC{scanIdx} = channelOutC;
+    
+    coordInfoS(scanIdx).affineM = affineOutM;
+    coordInfoS(scanIdx).originV = originV;
+    coordInfoS(scanIdx).voxSizV = voxSizV;
     
 end
 optS.scan = scanOptS;

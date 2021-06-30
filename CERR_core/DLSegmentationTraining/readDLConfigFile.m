@@ -18,6 +18,8 @@ end
 
 %% Set defaults for optional inputs
 defaultS = struct();
+defaultS.modelInputFormat = 'H5';
+defaultS.modelOutputFormat = 'H5';
 defaultS.register = struct();
 defaultS.exportedFilePrefix = 'inputFileName';
 defaultS.batchSize = 1;
