@@ -144,7 +144,7 @@ for scanIdx = 1:numScans
     end
     
     %Get affine matrix
-    affineInM = getPlanCAffineMat(planC, scanNumV(scanIdx), 1);
+    [affineInM,~,voxSizV] = getPlanCAffineMat(planC, scanNumV(scanIdx), 1);
     %--- TEMP FOR TESTING ---
     affineOutM = affineInM;
     originV = affineInM(1:3,4);
@@ -409,6 +409,7 @@ for scanIdx = 1:numScans
     
     coordInfoS(scanIdx).affineM = affineOutM;
     coordInfoS(scanIdx).originV = originV;
+    coordInfoS(scanIdx).voxSizV = voxSizV;
     
 end
 optS.scan = scanOptS;

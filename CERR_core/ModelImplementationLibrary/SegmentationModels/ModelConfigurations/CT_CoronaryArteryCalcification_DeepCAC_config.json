@@ -10,7 +10,13 @@
 
          "required" : "yes",
                 
-         "view" : ["axial"]
+         "view" : ["axial"],
+
+         "resample": {  "resolutionXCm": 0.068,
+		               "resolutionYCm": 0.068,
+                               "resolutionZCm": 0.25,
+                               "method": "linear"
+                            }
          
 },
 

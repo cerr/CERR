@@ -7,12 +7,13 @@ function writeDataForDL(scanC,maskC,coordInfoS,passedScanDim,outFmt,outDirC,...
 %
 % scanC          : Extracted scan(s)
 % maskC          : Extracted masks (for different views)
-% coordInfoS     : Structure array with fields 'affineM' and 'originV' 
-%                  specifying affine transformation matrix and origin for
-%                  each input scan. NOTE: Not reqd (empty) for H5 fmt.
-% passedScanDim  : May be '2D' or '3D'
-% outFmt         : Output format. May be 'NRRD','NIfTI',or 'H5' (default). 
-% outDirC         : Path to output directory
+% coordInfoS     : Structure array with fields 'affineM','originV','voxSizV' 
+%                  specifying affine transformation matrix, origin and for
+%                  voxel size for each input scan. NOTE: Not reqd (empty) 
+%                  for H5 fmt.
+% passedScanDim  : May be '2D' or '3D'. NRRD/NIFTI outputs assumed 3D.
+% outFmt         : Output format. May be 'NRRD','NIFTI',or 'H5' (default). 
+% outDirC        : Path to output directory
 % filePrefix     : File prefix. E.g. Pass CERR file name
 % testFlag       : Set flag to true for test dataset to skip mask export.
 %                  Default:true. Assumes testing dataset if not specified.
@@ -26,7 +27,7 @@ end
 
 
 %Write scan and mask
-switch outFmt
+switch upper(outFmt)
     
     case 'H5'
         
@@ -38,11 +39,20 @@ switch outFmt
         vol3M = scanC{1}{1};
         affineM = coordInfoS.affineM;
         originV = coordInfoS.originV;
+        voxSizV = coordInfoS.voxSizV;
         scanFileName = fullfile(outDirC{1},[filePrefix,'.nrrd']);
-        vol2nrrd(vol3M,affineM,originV,[],[],scanFileName);
+        vol2nrrd(vol3M,affineM,originV,voxSizV,[],scanFileName);
         
-    %case 'NIfTI'
-            
+   case 'NIFTI'
+       
+        %Assumes single scan, with passedScanDim '3D'.
+        vol3M = scanC{1}{1};
+        affineM = coordInfoS.affineM;
+        originV = coordInfoS.originV;
+        voxSizV = coordInfoS.voxSizV;
+        scanFileName = fullfile(outDirC{1},[filePrefix,'.nii']);
+        vol2nii(vol3M,affineM,originV,voxSizV,[],scanFileName);
+        
     otherwise
           error('invalid output format %s',outFmt);
         
