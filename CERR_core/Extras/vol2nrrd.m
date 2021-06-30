@@ -18,11 +18,12 @@ R = affineMat;
 %         orientationStr = 'FFP';
 %     end
 
-headerInfo.data = vol3M;
+headerInfo.data = flip(permute(vol3M,[2,1,3]),3);
 
 headerInfo.dimension = 3;
 headerInfo.sizes = size(vol3M);
 headerInfo.space = 'right-anterior-superior';
+headerInfo.space = 'left-posterior-superior';
 headerInfo.spacedirections = {['(' sprintf('%5.25f',R(1,1)) ',' sprintf('%5.25f',R(1,2)) ',' sprintf('%5.25f',R(1,3)) ')'] , ...
     ['(' sprintf('%5.25f',R(2,1)) ',' sprintf('%5.25f',R(2,2)) ',' sprintf('%5.25f',R(2,3)) ')'], ...
     ['(' sprintf('%5.25f',R(3,1)) ',' sprintf('%5.25f',R(3,2)) ',' sprintf('%5.25f',R(3,3)) ')']};
