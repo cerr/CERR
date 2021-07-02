@@ -29,9 +29,14 @@ function str = getCERRfiles(directory)
 allDirS = dir(directory);
 str = '';
 for dirNum = 1:length(allDirS)
-    if ~allDirS(dirNum).isdir && (length(allDirS(dirNum).name)>3 && strcmpi(allDirS(dirNum).name(end-3:end),'.mat')) || (length(allDirS(dirNum).name)>7 && strcmpi(allDirS(dirNum).name(end-7:end-4),'.mat') && (strcmpi(allDirS(dirNum).name(end-3:end),'.bz2') || strcmpi(allDirS(dirNum).name(end-3:end),'.zip')))
+    if ~allDirS(dirNum).isdir && (length(allDirS(dirNum).name)>3 && ...
+            strcmpi(allDirS(dirNum).name(end-3:end),'.mat')) || ...
+            (length(allDirS(dirNum).name)>7 && ...
+            strcmpi(allDirS(dirNum).name(end-7:end-4),'.mat') && ...
+            (strcmpi(allDirS(dirNum).name(end-3:end),'.bz2') || ...
+            strcmpi(allDirS(dirNum).name(end-3:end),'.zip')))
         str{end+1} = fullfile(directory,allDirS(dirNum).name);
-    elseif ~strcmp(allDirS(dirNum).name,'.') & ~strcmp(allDirS(dirNum).name,'..')
+    elseif ~strcmp(allDirS(dirNum).name,'.') && ~strcmp(allDirS(dirNum).name,'..')
         str = [str getCERRfiles(fullfile(directory,allDirS(dirNum).name))];
     end
 end
