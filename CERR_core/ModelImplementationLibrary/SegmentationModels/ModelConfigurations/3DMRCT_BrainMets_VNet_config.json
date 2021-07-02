@@ -55,7 +55,7 @@
 
 "batchSize" : 1,
 
-"structAssocScan": {"identifier" : { "imageType": "MR SCAN"}},
+"structAssocScan": {"identifier" : { "imageType": "CT SCAN"}},
 
 "reference" : ""
 
