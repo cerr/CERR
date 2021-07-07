@@ -33,17 +33,17 @@ function [initFlag,addPathC] = init_ML_DICOM
 initFlag = 1;
 
 if isdeployed
-    path1 = fullfile(getCERRPath,'bin','dcm4che-5.17.0','lib','dcm4che-core-5.17.0.jar');
-    path2 = fullfile(getCERRPath,'bin','dcm4che-5.17.0','lib','log4j-1.2.17.jar');
-    path3 = fullfile(getCERRPath,'bin','dcm4che-5.17.0','lib','slf4j-api-1.7.25.jar');
-    path4 = fullfile(getCERRPath,'bin','dcm4che-5.17.0','lib','slf4j-log4j12-1.7.25.jar');
-    path5 = fullfile(getCERRPath,'bin','dcm4che-5.17.0','lib','dcm4che-image-5.17.0.jar');
-    path6 = fullfile(getCERRPath,'bin','dcm4che-5.17.0','lib','dcm4che-imageio-5.17.0.jar');
-    path7 = fullfile(getCERRPath,'bin','dcm4che-5.17.0','lib','dcm4che-imageio-rle-5.17.0.jar');
-    %path8 = fullfile(getCERRPath,'bin','dcm4che-5.17.0','lib','dcm4che-iod-2.0.27.jar');
-    path9 = fullfile(getCERRPath,'bin','dcm4che-5.17.0','lib','dcm4che-net-5.17.0.jar');
-    addPathC = {path1,path2, path5,path6,path7,path9};
-    javaaddpath(addPathC);
+%     path1 = fullfile(getCERRPath,'bin','dcm4che-5.17.0','lib','dcm4che-core-5.17.0.jar');
+%     path2 = fullfile(getCERRPath,'bin','dcm4che-5.17.0','lib','log4j-1.2.17.jar');
+%     path3 = fullfile(getCERRPath,'bin','dcm4che-5.17.0','lib','slf4j-api-1.7.25.jar');
+%     path4 = fullfile(getCERRPath,'bin','dcm4che-5.17.0','lib','slf4j-log4j12-1.7.25.jar');
+%     path5 = fullfile(getCERRPath,'bin','dcm4che-5.17.0','lib','dcm4che-image-5.17.0.jar');
+%     path6 = fullfile(getCERRPath,'bin','dcm4che-5.17.0','lib','dcm4che-imageio-5.17.0.jar');
+%     path7 = fullfile(getCERRPath,'bin','dcm4che-5.17.0','lib','dcm4che-imageio-rle-5.17.0.jar');
+%     %path8 = fullfile(getCERRPath,'bin','dcm4che-5.17.0','lib','dcm4che-iod-2.0.27.jar');
+%     path9 = fullfile(getCERRPath,'bin','dcm4che-5.17.0','lib','dcm4che-net-5.17.0.jar');
+%     addPathC = {path1,path2, path5,path6,path7,path9};
+%     javaaddpath(addPathC);
     
     return
 end
