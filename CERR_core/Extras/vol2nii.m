@@ -1,6 +1,8 @@
-function nii = vol2nii(vol3M,affineMat,qOffset,voxel_size,orientationStr,scanFileName)
+function nii = vol2nii(vol3M,affineMat,qOffset,voxel_size,R,scanFileName)
 
-R = affineMat;
+if ~exist('R','var') || isempty(R)
+    R = affineMat;
+end
 
 % https://nifti.nimh.nih.gov/nifti-1/documentation/nifti1fields/nifti1fields_pages/quatern.html
 a = 0.5  * sqrt(1+R(1,1)+R(2,2)+R(3,3));   % (not stored)
