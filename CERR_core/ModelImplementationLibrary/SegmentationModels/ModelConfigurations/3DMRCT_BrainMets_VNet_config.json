@@ -57,6 +57,8 @@
 
 "structAssocScan": {"identifier" : { "imageType": "CT SCAN"}},
 
+"roiGenerationDescription": "Brain Mets Candidates - AI generated",
+
 "reference" : ""
 
 }
