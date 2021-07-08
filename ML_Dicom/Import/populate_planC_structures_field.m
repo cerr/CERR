@@ -191,7 +191,7 @@ switch fieldname
         %Currently not implemented
 
     case 'structureDescription'
-        %Currently not implemented
+        dataS = char(attr.getString(528446,0)); % series description
         
     case 'roiGenerationAlgorithm'
         dataS = char(attr.getString(805699638,0)); %dataS = getTagValue(ssObj, '30060036');
