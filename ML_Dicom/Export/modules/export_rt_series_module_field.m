@@ -106,12 +106,21 @@ switch tag
     case  528446    %0008,103E Series Description
         switch type
             case 'dose'
-            case 'structures'
-                %data = structS.structureDescription;
+            case 'structures'                
+                seriesDescription = '';
+                seriesDescriptionC = {structS(:).structureDescription};
+                emptyV = cellfun(@isempty,seriesDescriptionC);
+                seriesDescriptionC(emptyV) = [];
+                if ~isempty(seriesDescriptionC)
+                    seriesDescriptionC = unique(seriesDescriptionC);
+                    seriesDescriptionC = strcat(seriesDescriptionC,',');
+                    seriesDescriptionC{end}(end) = [];
+                    seriesDescription = [seriesDescriptionC{:}];
+                end                    
                 %el = template.get(tag);
                 %el = ml2dcm_Element(el, data);
                 %seriesDescription = structS(1).SeriesDescription;
-                seriesDescription = [];
+                %seriesDescription = [];
                 el = data2dcmElement(seriesDescription, tag);
             case 'gsps'                
         end

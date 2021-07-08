@@ -104,5 +104,6 @@ for i = 1 : length(labelMapS)
         labelMapS(i).structureName, planC);
     planC{indexS.structures}(end).roiGenerationAlgorithm = 'AUTOMATIC';
     planC{indexS.structures}(end).roiGenerationDescription = roiGenerationDescription;
+    planC{indexS.structures}(end).structureDescription = roiGenerationDescription;
 end
 end
