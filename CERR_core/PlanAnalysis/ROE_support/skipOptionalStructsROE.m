@@ -2,10 +2,16 @@ function modelC = skipOptionalStructsROE(modelC,optFlagC,strSelC)
 %Exclude optional structures with no user input
 
 optStrC = cellfun(@any,optFlagC,'un',0);
-optModC = modelC([optStrC{:}]);
-strSelV = strSelC{[optStrC{:}]};
-flagV = optFlagC{[optStrC{:}]} & strSelV==0;
+optIdxV = [optStrC{:}];
+if any(optIdxV)
+optModC = modelC(optIdxV);
+strSelV = strSelC{optIdxV};
+flagV = optFlagC{optIdxV} & strSelV==0;
 skipIdxV = find(flagV);
+else
+    optModC = {};
+end
+
 for m = 1:length(optModC)
     
     modS = optModC{m};
@@ -19,7 +25,7 @@ for m = 1:length(optModC)
     optModC{m}.strNum(skipIdxV(n))=[];
 end
 
-modelC([optStrC{:}]) = optModC;
+modelC(optIdxV) = optModC;
 
 
 end

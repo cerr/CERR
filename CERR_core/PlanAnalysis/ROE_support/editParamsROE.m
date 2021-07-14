@@ -48,6 +48,7 @@ switch(tag)
                 %Update expected str name in criteria data stucture
                 if isfield(criteriaS.structures,expectedStrName)
                     expS = criteriaS.structures.(expectedStrName);
+                    selectedStrName = strrep(selectedStrName,' ','_');
                     criteriaS.structures.(selectedStrName) = expS;
                     criteriaS.structures = rmfield(criteriaS.structures,expectedStrName);
                     ud.Protocols(prtcNum).constraints = criteriaS;
@@ -62,13 +63,22 @@ switch(tag)
             matchIdx = find(strcmp(dosListC,val));
             %modelsC{modelNum}.planNum = matchIdx - 1;
             ud.planNum = matchIdx - 1;
+            %Clear pre-computed dvh
+            for p = 1:length(ud.Protocols)
+                modelC = ud.Protocols(p).model;
+                for modNum = 1:length(modelC)
+                    if isfield(modelC{modNum},'dv')
+                        modelC{modNum} = rmfield(modelC{modNum},'dv');
+                    end
+                end
+                ud.Protocols(p).model = modelC;
+            end
             %Auto-populate precribed dose if available
             RxField = ud.handle.inputH(14);
-            if isempty(get(RxField,'String'))
-                if isfield(planC{indexS.dose}(matchIdx - 1),'prescribedDose')
-                    prescribedDose = planC{indexS.dose}(matchIdx - 1).prescribedDose;
-                    set(RxField,'String',num2str(prescribedDose));
-                end
+            if isfield(planC{indexS.dose}(matchIdx - 1),'prescribedDose')
+                prescribedDose = planC{indexS.dose}(matchIdx - 1).prescribedDose;
+                set(RxField,'String',num2str(prescribedDose));
+                ud.handle.inputH(14) = RxField;
             end
         end
     case 'fieldEdit'
