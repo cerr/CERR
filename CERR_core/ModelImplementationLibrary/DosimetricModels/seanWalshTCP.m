@@ -1,4 +1,4 @@
-function tcpWithBoost = seanWalshTCP(paramS,doseBinsV,volHistV)
+function tcpWithBoost = seanWalshTCP(paramS,doseBinsC,volHistC)
 % Sean Walsh TCP model for prostate
 % http://dx.doi.org/10.1118/1.4939260
 %
@@ -7,23 +7,29 @@ function tcpWithBoost = seanWalshTCP(paramS,doseBinsV,volHistV)
 
 
 % Get parameters
-alpha = paramS.alpha.val;
-beta = paramS.beta.val;
+alpha = 0.25; %paramS.alpha.val;
+beta = 0.1008;% paramS.beta.val;
 sigmaAlpha = alpha*11.3/100;
 sigmaBeta = beta*12.9/100;
-dilVolume = paramS.dilVolume.val;             % percent
-hypoxicFraction = paramS.hypoxicFraction.val; % percent
-OER = paramS.OER.val;                         % Oxygen Enhancement Ratio
-pCTV = paramS.pCTV.val;                       % Prostate density
-pDIL = paramS.pDIL.val;                       % DIL density
-ctvVolume = paramS.ctvVolume.val;             % 36 cm^3 for intermediate risk patients
-                                              % ctvVolume = 72; % cm^3 for high risk patients
-dDIL = paramS.dDIL.val;                       % dose per fraction to the DIL
-n = paramS.numFractions.val;                  % number of fractions
-numSimulations = paramS.numSimulations.val;   % number of (alpha,beta) simulations
+
+n = paramS.numFractions.val;                      % number of fractions
+
+
+DILparS = paramS.structures.DIL;
+dilVolume = DILparS.dilVolume.val;                % percent
+pDIL = DILparS.pDIL.val;                          % DIL density
+dDIL = DILparS.dDIL.val;                          % dose per fraction to the DIL
+
+PTVparS = paramS.structures.PTV_1;
+hypoxicFraction = PTVparS.hypoxicFraction.val;    % percent
+OER = PTVparS.OER.val;                            % Oxygen Enhancement Ratio
+pCTV = PTVparS.pCTV.val;                          % Prostate density
+ctvVolume = PTVparS.ctvVolume.val;                % 36 cm^3 for intermediate risk 
+                                                  % 72 cm^3 for high risk pts
+numSimulations = PTVparS.numSimulations.val;      % number of (alpha,beta) simulations
 
 %Compute mean dose to prostate
-prost = calc_meanDose(doseBinsV,volHistV,1);
+prost = calc_meanDose(doseBinsC{2},volHistC{2},1);
 %Dose per fraction to the prostate
 dProst = prost/n;
 
