@@ -42,7 +42,11 @@ for k = 1:nPars
                     if ~strcmpi(parName,'optional')
                         [columnFormat,dispVal] = extractValROE(parS);
                         dataC = {parName,dispVal};
-                        dataC = strrep(dataC,'0_0x2E_','0.');
+                        %Correct string display
+                        charIdxC = cellfun(@ischar,dataC,'un',0);
+                        charC = dataC([charIdxC{:}]);
+                        charC = strrep(charC,'0_0x2E_','0.');
+                        dataC([charIdxC{:}]) = charC;
                         hTab(row) = uitable(hFig,'Tag','paramEdit','Position', posV + [0 -(row*(rowHt+1)) 0 0 ],...
                             'columnformat',columnFormat,'Data',dataC,'Visible','Off','FontSize',10,...
                             'columneditable',[false,true],'columnname',[],'rowname',[],...
