@@ -19,7 +19,7 @@
 
 "scan":{
 
-        "identifier" : {"imageType": "MR"},
+        "identifier" : {"imageType": "MR SCAN"},
     
         "resample": {"resolutionXCm":0.1, "resolutionYCm":0.1, "resolutionZCm":0.2, "method":"linear"},
 
