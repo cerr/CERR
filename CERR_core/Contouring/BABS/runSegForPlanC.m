@@ -109,13 +109,14 @@ if length(algorithmC) > 1 || ...
         modInputPath = fullfile(fullClientSessionPath,['input',modelFmt]);
         modOutputPath = fullfile(fullClientSessionPath,['output',modelFmt]);
         if exist(modInputPath, 'dir')
-            rmdir(modInputPath, 's')
-            mkdir(modInputPath);
+            rmdir(modInputPath, 's')            
         end
+        mkdir(modInputPath);
         if exist(modOutputPath, 'dir')
-            rmdir(modOutputPath, 's')
-            mkdir(modOutputPath);
+            rmdir(modOutputPath, 's')            
         end
+        mkdir(modOutputPath);
+
         
         %Copy config file to session dir
         copyfile(configFilePath,fullClientSessionPath);
