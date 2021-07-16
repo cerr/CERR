@@ -24,7 +24,7 @@ dose1M = getDoseOnCT(doseNum1, scanNum, scanType, planC);
 dose2M = getDoseOnCT(doseNum2, scanNum, scanType, planC);
 
 % Get structre mask
-struct3M = getStrMask(strNum,planC);
+struct3M = getStrMask(structNum,planC);
 
 % Get structure bounding box
 [rMin,rMax,cMin,cMax,sMin,sMax] = compute_boundingbox(struct3M);
@@ -38,12 +38,13 @@ dose2M = dose2M(rMin:rMax,cMin:cMax,sMin:sMax);
 % Downsample if required
 disp('Downsampling...')
 disp(downsampleFactor)
+disp('done downsampling.')
 
 % Get the voxel size (scan grid since dose is interpolated to scan grid)
 [xValsV, yValsV, zValsV] = getScanXYZVals(planC{indexS.scan}(scanNum));
-Hx = abs(xDoseV(cMax)-xValsV(cMin))/10;
-Hy = abs(yDoseV(rMax)-yValsV(rMin))/10;
-Hz = abs(zDoseV(sMax)-zValsV(sMin))/10;
+Hx = abs(xValsV(cMax)-xValsV(cMin))/10;
+Hy = abs(yValsV(rMax)-yValsV(rMin))/10;
+Hz = abs(zValsV(sMax)-zValsV(sMin))/10;
 H.Hx = Hx;
 H.Hy = Hy;
 H.Hz = Hz;
