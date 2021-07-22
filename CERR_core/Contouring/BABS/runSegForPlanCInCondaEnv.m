@@ -137,13 +137,13 @@ for k=1:length(algorithmC)
     modInputPath = fullfile(fullSessionPath,['input',modelFmt]);
     modOutputPath = fullfile(fullSessionPath,['output',modelFmt]);
     if exist(modInputPath, 'dir')
-        rmdir(modInputPath, 's')
-        mkdir(modInputPath);
+        rmdir(modInputPath, 's')        
     end
+    mkdir(modInputPath);
     if exist(modOutputPath, 'dir')
-        rmdir(modOutputPath, 's')
-        mkdir(modOutputPath);
+        rmdir(modOutputPath, 's')        
     end
+    mkdir(modOutputPath);
     
     % Pre-process and export data to HDF5 format
     if ~exist('batchSize','var') || isempty(batchSize)
