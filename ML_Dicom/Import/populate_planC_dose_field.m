@@ -193,7 +193,7 @@ switch fieldname
         
     case 'fractionGroupID' %Needs implementation, paired with RTPLAN
         if ~isempty(rtPlans)
-            [RTPlanLabel RTPlanUID]= getRelatedRTPlanLabel(rtPlans,attr);
+            [RTPlanLabel, RTPlanUID]= getRelatedRTPlanLabel(rtPlans,attr);
             
             dataS = RTPlanLabel;
         else
@@ -806,19 +806,23 @@ switch fieldname
 end
 
 
-    function [RTPlanLabel RTPlanUID]= getRelatedRTPlanLabel(rtPlans,attr)
+    function [RTPlanLabel, RTPlanUID]= getRelatedRTPlanLabel(rtPlans,attr)
         
-        RTPlanLabel = ''; RTPlanUID = '';
+        RTPlanLabel = '';
+        RTPlanUID = '';
         
         try
             %ReferencedRTPlanSequence = getTagValue(attr, '300C0002');
             %ReferencedRTPlanSequence = attr.getValue(org.dcm4che3.data.Tag.ReferencedRTPlanSequence);
             ReferencedRTPlanSequence = attr.getValue(806092802);
+            ReferencedRTPlanSequence = ReferencedRTPlanSequence.get(0);
+            referencedSopInstanceUID = char(ReferencedRTPlanSequence.getString(528725,0));
             
-            for i = 1:length(rtPlans)
-                if strcmpi(rtPlans(i).SOPInstanceUID, ReferencedRTPlanSequence.Item_1.ReferencedSOPInstanceUID)
+            for i = 1:length(rtPlans)                
+                if strcmpi(rtPlans(i).SOPInstanceUID,referencedSopInstanceUID) % '(0008,1155)'
                     RTPlanLabel = rtPlans(i).RTPlanLabel;
                     RTPlanUID = rtPlans(i).BeamUID;
+                    return;
                 end
             end
         catch
