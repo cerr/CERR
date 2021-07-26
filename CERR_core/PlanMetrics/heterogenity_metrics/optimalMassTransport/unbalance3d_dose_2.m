@@ -52,7 +52,10 @@ dim1=[n,round(nx*layer1),round(ny*layer1),round(nz*layer1),nt];
 h     = [hx,hy,hz,ht];
 h1=[Hx/dim1(2),Hy/dim1(3),Hz/dim1(4),ht];
 param = paraminit(rho0(:),rho1(:),dim,h,gamma);
-param1 = paraminit(resample3d(rho0,dim1(2),dim1(3),dim1(4)),resample3d(rho1,dim1(2),dim1(3),dim1(4)),dim1,h1,gamma);
+rho0_0 = fastResample3d(rho0,[dim1(2),dim1(3),dim1(4)]);
+rho1_0 = fastResample3d(rho1,[dim1(2),dim1(3),dim1(4)]);
+param1 = paraminit(rho0_0,rho1_0, dim1, h1, gamma);
+
 m=param.m;
 %% Set initial values for p rho u
 px1     = zeros(n,dim1(2)-1,dim1(3),dim1(4),nt);
@@ -61,8 +64,8 @@ pz1     = zeros(n,dim1(2),dim1(3),dim1(4)-1,nt);
 u1      = zeros(m,dim1(2),dim1(3),dim1(4),nt);
 
 tc=linspace(ht*3/2,1-ht/2,nt-1);
-rho0_1=resample3d(rho0,dim1(2),dim1(3),dim1(4));
-rho1_1=resample3d(rho1,dim1(2),dim1(3),dim1(4));
+rho0_1 = fastResample3d(rho0,[dim1(2),dim1(3),dim1(4)]);
+rho1_1 = fastResample3d(rho1,[dim1(2),dim1(3),dim1(4)]);
 rho_1=ones(1,nt-1).*rho0_1(:)+tc.*(rho1_1(:)-rho0_1(:));
 
 lambda1=zeros(dim1);
@@ -99,24 +102,35 @@ lambda2=zeros(dim);
 for k=1:nt
     temp=px1(:,:,:,:,k);
     temp=permute(temp,[2,3,4,1]);
-    px2(:,:,:,:,k)=permute(resample3d(temp,dim(2)-1,dim(3),dim(4)),[4,1,2,3]);
+    interp4M = fastResample3d(temp,[dim(2)-1,dim(3),dim(4)]);
+    px2(:,:,:,:,k) = permute(interp4M,[4,1,2,3]);
+    
     temp=py1(:,:,:,:,k);
     temp=permute(temp,[2,3,4,1]);
-    py2(:,:,:,:,k)=permute(resample3d(temp,dim(2),dim(3)-1,dim(4)),[4,1,2,3]);
+    interp4M = fastResample3d(temp,[dim(2),dim(3)-1,dim(4)]);
+    py2(:,:,:,:,k) = permute(interp4M,[4,1,2,3]);
+    
     temp=pz1(:,:,:,:,k);
     temp=permute(temp,[2,3,4,1]);
-    pz2(:,:,:,:,k)=permute(resample3d(temp,dim(2),dim(3),dim(4)-1),[4,1,2,3]);
+    interp4M = fastResample3d(temp,[dim(2),dim(3),dim(4)-1]);
+    pz2(:,:,:,:,k) = permute(interp4M,[4,1,2,3]);
+    
     if(k~=nt)
         temp=rho_1(:,:,:,:,k);
         temp=permute(temp,[2,3,4,1]);
-        rho_2(:,:,:,:,k)=permute(resample3d(temp,dim(2),dim(3),dim(4)),[4,1,2,3]);
+        interp4M = fastResample3d(temp,[dim(2),dim(3),dim(4)]);
+        rho_2(:,:,:,:,k) = permute(interp4M,[4,1,2,3]);
     end
     temp=u1(:,:,:,:,k);
     temp=permute(temp,[2,3,4,1]);
-    u2(:,:,:,:,k)=permute(resample3d(temp,dim(2),dim(3),dim(4)),[4,1,2,3]);
+    interp4M = fastResample3d(temp,[dim(2),dim(3),dim(4)]);
+    u2(:,:,:,:,k) = permute(interp4M,[4,1,2,3]);
+    
     temp=lambda1(:,:,:,:,k);
     temp=permute(temp,[2,3,4,1]);
-    lambda2(:,:,:,:,k)=permute(resample3d(temp,dim(2),dim(3),dim(4)),[4,1,2,3]);
+    interp4M = fastResample3d(temp,[dim(2),dim(3),dim(4)]);
+    lambda2(:,:,:,:,k) = permute(interp4M,[4,1,2,3]);
+    
 end
 
 
@@ -146,3 +160,4 @@ u      = reshape(u,[m,nx*ny*nz*nt]);
 lambda = reshape(lambda,[n,nx*ny*nz*nt]);
 
 end
+
