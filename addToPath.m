@@ -1,0 +1,22 @@
+function addToPath(cerrDir)
+% function addCerrToPath(cerrDir)
+%
+% This function adds subfolders in cerrDir to MATLAB/OCTAVE path excluding
+% the .git folders.
+%
+% Example:
+% cerrDir = 'C:\Path\to\CERR\';
+% addToPath(cerrDir)
+% 
+% APA, 7/29/2021
+
+pathStr = genpath(cerrDir);
+indSemiColonV = strfind(pathStr,';');
+indGitV = strfind(pathStr,'.git');
+minIndV = arrayfun(@(x) max(indSemiColonV(indSemiColonV<x)),indGitV);
+maxIndV = arrayfun(@(x) min(indSemiColonV(indSemiColonV>x)),indGitV);
+for i = length(minIndV):-1:1
+    pathStr(minIndV(i):maxIndV(i)-1) = [];
+end
+addpath(pathStr)
+
