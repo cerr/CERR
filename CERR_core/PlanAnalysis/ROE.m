@@ -56,9 +56,318 @@ end
 
 %Check for loaded plan
 if isempty(planC)
-    if  ~strcmpi(command,'closerequest')
-        msgbox('Please load valid plan to begin','Error!');
-        return
+  if  ~strcmpi(command,'closerequest')
+    msgbox('Please load valid plan to begin','Error!');
+    return
+  end
+end
+  
+  indexS = planC{end};
+  binWidth = .05;
+  
+  
+  % Get GUI fig handle
+  hFig = findobj('Tag','ROEFig');
+  
+  switch upper(command)
+    
+  case 'INIT'
+    %Initialize main GUI figure
+    
+    % Define GUI size, margins, position, color & title
+    leftMarginWidth = 360;
+    topMarginHeight = 60;
+    stateS.leftMarginWidth = leftMarginWidth;
+    stateS.topMarginHeight = topMarginHeight;
+    screenSizeV = get( 0, 'Screensize' );
+    %GUIWidth = 960;
+    %GUIHeight = 600;
+    GUIWidth = 1300;
+    GUIHeight = 813;
+    shift = 10;
+    position = [(screenSizeV(3)-GUIWidth)/2,(screenSizeV(4)-GUIHeight)/2,GUIWidth,GUIHeight];
+    str1 = 'ROE';
+    defaultColor = [0.8 0.9 0.9];
+    figColor = [.6 .75 .75];
+    
+    if isempty(findobj('tag','ROEFig'))
+      
+      % initialize main GUI figure
+      hFig = figure('tag','ROEFig','name',str1,...
+      'numbertitle','off','position',position,...
+      'CloseRequestFcn', 'ROE(''closeRequest'')',...
+      'menubar','none','resize','off','color',figColor);
+    else
+      figure(findobj('tag','ROEFig'))
+      return
+    end
+    
+    
+    %Create title handles
+    posTop = GUIHeight-topMarginHeight;
+    titleH(1) = axes('parent',hFig,'tag','titleFrame','units','pixels',...
+    'Position',[1.5*shift posTop-shift/2 GUIWidth-2.5*shift 0.08*GUIHeight ],...
+    'color',defaultColor,'ytick',[],'xtick',[],'box','on');
+    titleH(2) = uicontrol(hFig,'tag','title','units','pixels',...
+    'Position',[.3*GUIHeight+1 posTop+2 .6*GUIWidth 3*shift ],...
+    'String','ROE: Radiotherapy Outcomes Estimator','Style','text', 'fontSize',12,...
+    'FontWeight','Bold','HorizontalAlignment','center',...
+    'backgroundColor',defaultColor);
+    
+    ud.handle.title = titleH;
+    guidata(hFig,ud);
+    ROE('refresh',hFig);
+    figure(hFig);
+    
+    
+    
+  case 'REFRESH'
+    
+    if isempty(hFig)
+      return
+    end
+    
+    % Get GUI size, margins
+    leftMarginWidth = stateS.leftMarginWidth;
+    topMarginHeight = stateS.topMarginHeight;
+    pos = get(hFig,'Position');
+    GUIWidth = pos(3);
+    GUIHeight = pos(4);
+    shift = 10;
+    defaultColor = [0.8 0.9 0.9];
+    figColor = [.6 .75 .75];
+    posTop = GUIHeight-topMarginHeight;
+    
+    %% Push button for protocol selection
+    inputH(1) = axes('parent',hFig,'units','pixels','Position',...
+    [1.5*shift shift leftMarginWidth+.07*GUIWidth GUIHeight-topMarginHeight-...
+    3*shift],'color',defaultColor,'ytick',[],'xtick',[],'box','on');
+    inputH(2) = uicontrol(hFig,'tag','modelTitle','units','pixels',...
+    'Position',[2.5*shift posTop-.16*GUIHeight .15*GUIWidth 2*shift],...
+    'String','Protocols & models','Style','text','fontSize',9,...
+    'fontWeight', 'Bold', 'BackgroundColor',figColor,...
+    'HorizontalAlignment','center','Visible','Off');
+    inputH(3) = uicontrol(hFig,'tag','modelFileSelect','units','pixels',...
+    'Position',[2.5*shift posTop-.1*GUIHeight .15*GUIWidth 3*shift], 'String',...
+    'Select protocols','Style','push', 'fontSize',10,...
+    'FontWeight','normal','BackgroundColor',defaultColor,...
+    'HorizontalAlignment','right','callback',...
+    'ROE(''LOAD_MODELS'')');
+    
+    %% Pop-up menus to select structures & dose plans
+    tablePosV = [.22*GUIWidth-2*shift posTop-.1*GUIHeight .25*GUIWidth 2.5*shift];
+    colWidth = tablePosV(3)/2-1;
+    inputH(4) = uitable(hFig,'Tag','strSel','Position',tablePosV-[0 3*shift 0 0],'Enable','Off',...
+    'ColumnName',[],'RowName',[],'Visible','Off','backgroundColor',defaultColor,...
+    'columnEditable',[true,true],'Data',{'Select structure','List of structures'},...
+    'ColumnWidth',{colWidth,colWidth},'FontSize',10,'cellEditCallback',...
+    @(hObj,hData)editParamsROE(hObj,hData,hFig,planC));
+    inputH(5) = uitable(hFig,'Tag','doseSel','Position',tablePosV,'Enable','Off',...
+    'ColumnName',[],'RowName',[],'Visible','Off','backgroundColor',defaultColor,...
+    'columnEditable',[true,true],'Data',{'Select dose plan','List of plans'},...
+    'ColumnWidth',{colWidth,colWidth},'FontSize',10,'cellEditCallback',...
+    @(hObj,hData)editParamsROE(hObj,hData,hFig,planC));
+    
+    %% Tables to display & edit model parameters
+    inputH(6) = uicontrol(hFig,'units','pixels','Visible','Off','fontSize',10,...
+    'Position',tablePosV + [0 -.1*GUIHeight 0 0 ],'String','Model parameters',...
+    'Style','text','FontWeight','Bold','HorizontalAlignment','Left',...
+    'backgroundColor',figColor); %Title: Model parameters
+    inputH(7) = uicontrol(hFig,'units','pixels','Visible','Off','String','',...
+    'Position',tablePosV + [0 -.15*GUIHeight 0 shift ],'FontSize',9,'Style','text',...
+    'FontWeight','Bold','HorizontalAlignment','Left','backgroundColor',figColor,...
+    'foregroundColor',[.6 0 0]); %Model name display
+    
+    % AI hide JSON param display
+    %inputH(8) = uitable(hFig,'Tag','fieldEdit','Position',tablePosV + ...
+    %[0 -.75*GUIHeight 0 8*shift],'Enable','Off','ColumnName',{'Fields','Values'},...
+    %'FontSize',10,'RowName',[],'Visible','Off','backgroundColor',defaultColor,...
+    %'ColumnWidth',{round(tablePosV(3)/2),round(tablePosV(3)/2)},...
+    %'columnEditable',[false,true],'backgroundcolor',[1 1 1],'cellEditCallback',...
+    %@(hObj,hData)editParamsROE(hObj,hData,hFig,planC)); %Parameter tables
+    
+    %% Push-buttons to save, plot, display style
+    inputH(9) = uicontrol(hFig,'units','pixels','Tag','saveJson','Position',...
+    [.39*GUIWidth 1.5*shift .06*GUIWidth 3*shift],'backgroundColor',defaultColor,...
+    'String','Save','Style','Push', 'fontSize',10,'FontWeight','normal',...
+    'Enable','Off','Callback','ROE(''SAVE_MODELS'' )'); %Save
+    inputH(10) = uicontrol(hFig,'units','pixels','Tag','plotButton','Position',...
+    [.31*GUIWidth 1.5*shift .06*GUIWidth 3*shift],'backgroundColor',defaultColor,...
+    'String','Plot','Style','Push', 'fontSize',10,'FontWeight','normal',...
+    'Enable','Off','Callback','ROE(''PLOT_MODELS'' )'); %plot
+    inputH(11) = uicontrol(hFig,'units','pixels','Tag','switchPlot','Position',...
+    [.18*GUIWidth 1.5*shift .12*GUIWidth 3*shift],'backgroundColor',[1 1 1],...
+    'String',{'--Display mode--','NTCP v.BED','NTCP v.TCP','Scale fraction size',...
+    'Scale no. fractions' },'Style','popupmenu', 'fontSize',10,'FontWeight',...
+    'normal','Enable','On','Callback',@(hObj,hEvt)setPlotModeROE(hObj,hEvt,hFig));
+    
+    %% Panel for protocol & model display
+    inputH(12) = uicontrol(hFig,'Style','frame','units','pixels',...
+    'Position',[shift 4*shift .16*GUIWidth .7*GUIHeight],...
+    'backgroundColor',[1 1 1]);
+    inputH(13) = uicontrol(hFig,'Style','popupmenu',...
+    'Position',[2.5*shift GUIHeight-20*shift .15*GUIWidth 2*shift],...
+    'String','Protocols','fontSize',10,'Visible','Off','Enable','Off',...
+    'Callback','ROE(''LIST_MODELS'')');
+    inputH(14) = uicontrol(hFig,'Style','listbox',...
+    'Position',[2.5*shift 1.5*shift .15*GUIWidth .6*GUIHeight],...
+    'String','','fontSize',10,'Enable','Off','Visible','Off',...
+    'Callback',@(hObj,hEvt)getParamsROE(hObj,hEvt,hFig,planC));
+    
+    %% Plot axes
+    
+    %Draw frame
+    plotH(1) = axes('parent',hFig,'units','pixels','Position',...
+    [leftMarginWidth+.09*GUIWidth shift GUIWidth-leftMarginWidth-.1*GUIWidth...
+    GUIHeight-topMarginHeight-3*shift ],'color',defaultColor,'ytick',[],...
+    'xtick',[],'box','on');
+    
+    %Axes
+    %NTCP vs TCP/BED
+    plotH(2) = axes('parent',hFig,'tag','modelsAxis','tickdir', 'out',...
+    'nextplot','add','units','pixels','Position',...
+    [leftMarginWidth+.12*GUIWidth .17*GUIHeight .46*GUIWidth,...
+    GUIHeight-topMarginHeight-13*shift],'color',[1 1 1],...
+    'XAxisLocation','bottom','YAxisLocation','left','xlim',[50 51],'ylim',[0 1],...
+    'fontSize',10,'fontWeight','bold','box','on','visible','off');
+    
+    %NTCP vs. scaled frx size
+    plotH(3) = axes('parent',hFig,'tag','modelsAxis','tickdir', 'out',...
+    'nextplot','add','units','pixels','Position',get(plotH(2),'Position'),'color',[1 1 1],...
+    'XAxisLocation','bottom','YAxisLocation','left','xlim',[.5 1.5],'ylim',[0 1],...
+    'fontSize',10,'fontWeight','bold','box','on','visible','off');
+    %TCP/BED vs. scaled frx size
+    plotH(4) = axes('parent',hFig,'tag','modelsAxis2','tickdir', 'out',...
+    'nextplot','add','units','pixels','Position',get(plotH(2),'Position'),...
+    'color','none','XAxisLocation','bottom','YAxisLocation','right',...
+    'xlim',[.5 1.5],'ylim',[0 1],'xtick',[],'fontSize',10,'fontWeight',...
+    'bold','box','on','visible','off');
+    
+    
+    %NTCP vs. scaled nfrx
+    plotH(5) = axes('parent',hFig,'tag','modelsAxis','tickdir', 'out',...
+    'nextplot','add','units','pixels','Position',get(plotH(2),'Position'),...
+    'color',[1 1 1],'XAxisLocation','bottom','YAxisLocation','left','ylim',[0 1],...
+    'fontSize',10,'fontWeight','bold','box','on','visible','off');
+    %TCP/BED vs. scaled nfrx
+    plotH(6) = axes('parent',hFig,'tag','modelsAxis2','tickdir', 'out',...
+    'nextplot','add','units','pixels','Position',get(plotH(2),'Position'),...
+    'color','none','XAxisLocation','bottom','YAxisLocation','right',...
+    'ylim',[0 1],'xtick',[],'fontSize',10,'fontWeight',...
+    'bold','box','on','visible','off');
+    
+    
+    %Sliders
+    %scale frx size
+    plotH(7) = uicontrol('parent',hFig,'units','pixels','Position',...
+    [leftMarginWidth+.12*GUIWidth 4.5*shift .47*GUIWidth, 1.8*shift],...
+    'Style','Slider','Visible','Off','Tag','Scale','Min',0.5,'Max',1.5,'Value',1,...
+    'SliderStep',[1/(99-1),1/(99-1)]);
+    addlistener(plotH(7),'Value',@(hObj,hEvt)scaleDoseROE(hObj,hEvt,hFig));
+    
+    %scale nfrx
+    plotH(8) = uicontrol('parent',hFig,'units','pixels','Position',...
+    [leftMarginWidth+.12*GUIWidth 4.5*shift .47*GUIWidth 1.8*shift],...
+    'Style','Slider','Visible','Off','Tag','Scale','Min',-15,'Max',15,'Value',0,...
+    'SliderStep',[1/30 1/30]);
+    addlistener(plotH(8),'Value',@(hObj,hEvt)scaleDoseROE(hObj,hEvt,hFig));
+    
+    %Push-button for constraints panel
+    plotH(9) = uicontrol('parent',hFig,'units','pixels','Position',...
+    [GUIWidth-16*shift 1.2*shift 13*shift 3*shift],...
+    'Style','push','Enable','On','String','View constraints',...
+    'backgroundColor',[192 205 230]./255,'fontSize',10,...
+    'Callback',{@critPanelROE,'INIT'});
+    
+    %Input scale
+    plotH(10) = uicontrol('parent',hFig,'units','pixels','Position',...
+    [GUIWidth-3.5*shift 4.5*shift 2*shift 2*shift],...
+    'Style','edit','Visible','Off','Enable','Off','fontSize',10,...
+    'Callback',@(hObj,hEvt)enterScaleROE(hObj,hEvt,hFig));
+    plotH(11) = uicontrol('parent',hFig,'units','pixels','Position',...
+    [GUIWidth-7.5*shift 6.5*shift 6*shift 3*shift],'backgroundColor',defaultColor,...
+    'Style','Text','Visible','Off','fontSize',8);
+    
+    %Turn off datacursor mode
+    %cursorMode = datacursormode(hFig);
+    %cursorMode.removeAllDataCursors;
+    %set(cursorMode, 'Enable','Off');
+    
+    %% Store handles
+    ud.handle.inputH = inputH;
+    ud.handle.modelsAxis = plotH;
+    guidata(hFig,ud);
+    
+  case 'LOAD_MODELS'
+    ROE('REFRESH');
+    ud = guidata(hFig);
+    
+    %Get paths to JSON files
+    optS = opts4Exe(fullfile(getCERRPath,'CERRoptions.json')); 
+    %NOTE: Define path to .json files for protocols, models & clinical criteria in CERROptions.json
+    %optS.ROEProtocolPath = 'your/path/to/protocols';
+    %optS.ROEModelPath = 'your/path/to/models';
+    %optS.ROECriteriaPath = 'your/path/to/criteria';
+    
+%    protocolPath = eval(optS.ROEProtocolPath);
+%    modelPath = eval(optS.ROEModelPath);
+%    criteriaPath = eval(optS.ROECriteriaPath);
+    protocolPath = optS.ROEProtocolPath;
+    modelPath = optS.ROEModelPath;
+    criteriaPath = optS.ROECriteriaPath;
+    
+    % List available protocols for user selection
+    [protocolListC,protocolIdx,ok] = listFilesROE(protocolPath);
+    if ~ok
+      return
+    end
+    
+    for p = 1:numel(protocolIdx)
+      %Cycle through selected protocols
+      [~,protocol] = fileparts(protocolListC{protocolIdx(p)});
+      protocolInfoS = loadjson(fullfile(protocolPath,protocolListC{protocolIdx(p)}),'ShowProgress',1);
+      %Load .json for protocol
+      modelListC = fieldnames(protocolInfoS.models);
+      %Get list of relevant models
+      numModels = numel(modelListC);
+      protocolS(p).modelFiles = '';
+      for m = 1:numModels
+        protocolS(p).protocol = protocolInfoS.name;
+        modelFPath = fullfile(modelPath,protocolInfoS.models.(modelListC{m}).modelFile);
+        %Get path to .json for model
+        protocolS(p).model{m} = loadjson(modelFPath,'ShowProgress',1);
+        %Load model parameters from .json file
+        protocolS(p).modelFiles = [protocolS(p).modelFiles,modelFPath];
+        modelName = protocolS(p).model{m}.name;
+      end
+      protocolS(p).numFractions = protocolInfoS.numFractions;
+      protocolS(p).totalDose = protocolInfoS.totalDose;
+      %Load associated clinical criteria/guidelines
+      if isfield(protocolInfoS,'criteriaFile')
+        critFile = fullfile(criteriaPath,protocolInfoS.criteriaFile);
+        critS = loadjson(critFile,'ShowProgress',0);
+        protocolS(p).constraints = critS;
+      end
+    end
+    
+    protocolDispC = {protocolS(:).protocol};
+    protocolDispC = ['Protocols',protocolDispC];
+    set(ud.handle.inputH(2),'Visible','On');
+    set(ud.handle.inputH(12),'Visible','On');
+    set(ud.handle.inputH(13),'String',protocolDispC,'Visible','On','Enable','On');
+    
+    %Store protocol & model parameters from JSON files to GUI userdata
+    ud.Protocols = protocolS;
+    guidata(hFig,ud);
+    
+  case 'PLOT_MODELS'
+    
+    %% Get plot mode
+    ud = guidata(hFig);
+    if ~isfield(ud,'plotMode') || isempty(ud.plotMode) || isequal(ud.plotMode,0)
+      msgbox('Please select display mode','Plot models');
+      return
+>>>>>>> Stashed changes
     else
         closereq
         return
