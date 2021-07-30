@@ -184,7 +184,9 @@ else
             modelsC{modelNumV(s)}.strNum = strIdxV;
             
         end
-        protS(prtcNumV(t)).model = modelsC;
+        
+         protS(prtcNumV(t)).model = modelsC;
+      
     end
     
     if ~isempty(hEvt)
