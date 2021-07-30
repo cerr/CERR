@@ -59,6 +59,9 @@ if isempty(planC)
   if  ~strcmpi(command,'closerequest')
     msgbox('Please load valid plan to begin','Error!');
     return
+  else
+    closereq
+    return
   end
 end
   
