@@ -155,21 +155,21 @@ end
 
 if any(colLast)
     if length(zFieldV) > 1
-        if strcmpi(computer,'PCWIN') || strcmpi(computer,'GLNXA64')  || strcmpi(computer,'PCWIN64') || strcmpi(computer,'MACI64') || strcmpi(computer,'MAC') || strcmpi(computer,'MACI')
-            interpV(colLast) = interp2(yFieldV(1):yFieldV(2):yFieldV(3), zFieldV, double(squeeze(field3M(:,end,:))'), yInterpColLastV, zInterpColLastV,'linear',OOBV);
-        else
-            interpV(colLast) = interp2(yFieldV(1):yFieldV(2):yFieldV(3), zFieldV, double(squeeze(field3M(:,end,:))), yInterpColLastV, zInterpColLastV,'linear',OOBV);
-        end
+%        if strcmpi(computer,'PCWIN') || strcmpi(computer,'GLNXA64')  || strcmpi(computer,'PCWIN64') || strcmpi(computer,'MACI64') || strcmpi(computer,'MAC') || strcmpi(computer,'MACI')
+           interpV(colLast) = interp2(yFieldV(1):yFieldV(2):yFieldV(3), zFieldV, double(squeeze(field3M(:,end,:))'), yInterpColLastV, zInterpColLastV,'linear',OOBV);
+%        else
+%            interpV(colLast) = interp2(yFieldV(1):yFieldV(2):yFieldV(3), zFieldV, double(squeeze(field3M(:,end,:))), yInterpColLastV, zInterpColLastV,'linear',OOBV);
+%        end
     end
 end
 
 if any(rowLast)
     if length(zFieldV) > 1
-        if strcmpi(computer,'PCWIN') || strcmpi(computer,'GLNXA64') || strcmpi(computer,'PCWIN64') || strcmpi(computer,'MACI64') || strcmpi(computer,'MAC') || strcmpi(computer,'MACI')
+%        if strcmpi(computer,'PCWIN') || strcmpi(computer,'GLNXA64') || strcmpi(computer,'PCWIN64') || strcmpi(computer,'MACI64') || strcmpi(computer,'MAC') || strcmpi(computer,'MACI')
             interpV(rowLast) = interp2(xFieldV(1):xFieldV(2):xFieldV(3), zFieldV, double(squeeze(field3M(end,:,:))'), xInterpRowLastV, zInterpRowLastV,'linear',OOBV);
-        else
-            interpV(rowLast) = interp2(xFieldV(1):xFieldV(2):xFieldV(3), zFieldV, double(squeeze(field3M(end,:,:))), xInterpRowLastV, zInterpRowLastV,'linear',OOBV);
-        end
+%        else
+%            interpV(rowLast) = interp2(xFieldV(1):xFieldV(2):xFieldV(3), zFieldV, double(squeeze(field3M(end,:,:))), xInterpRowLastV, zInterpRowLastV,'linear',OOBV);
+%        end
     end
 end
 
