@@ -42,7 +42,7 @@ if ~exist('scanType')
     scanType = 'normal';
 end
 
-if ~strcmpi(scanType, 'normal') & ~strcmpi(scanType, 'uniform')
+if ~strcmpi(scanType, 'normal') && ~strcmpi(scanType, 'uniform')
     error('Incorrect scanType.');
 end
 
