@@ -454,7 +454,7 @@ switch cellName
                                     volumeBinsV = diff(volumeBinsV(1)-volumeBinsV);
                                     volumeBinsV = [volumeBinsV(1); volumeBinsV(:)];
                                 else
-                                    volumeBinsV = dataS(dvhsAdded+1).DVHMatrix(:,1)*NaN;
+                                    volumeBinsV = dataS(dvhsAdded).DVHMatrix(:,1)*NaN;
                                 end
                             else
                                 %volumeBinsV = dvhsequence.(['Item_',num2str(i)]).DVHData(2:2:end);
