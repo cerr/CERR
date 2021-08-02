@@ -128,14 +128,14 @@ doseM = doseM(ind,:);
 fitDoseM = repmat(offset, [length(CTRowCoords), length(CTColCoords)]);
 %fitDoseM = ones(length(CTRowCoords), length(CTColCoords)) * offset;
 indL = logical(uint8(zeros(length(CTRowCoords),length(CTColCoords))));
-rowIndices = find( (CTRowCoords < max(doseRowCoords)) && (CTRowCoords > min(doseRowCoords)) );
-colIndices = find( (CTColCoords < max(doseColCoords)) && (CTColCoords > min(doseColCoords)) );
+rowIndices = find( (CTRowCoords < max(doseRowCoords)) & (CTRowCoords > min(doseRowCoords)) );
+colIndices = find( (CTColCoords < max(doseColCoords)) & (CTColCoords > min(doseColCoords)) );
 
 indL(min(rowIndices):max(rowIndices),min(colIndices):max(colIndices)) = 1;
 
 %if a mask exists, interpolate only over the mask.
-if nargin == 6 && size(maskM) == size(indL)
-    indL = indL && maskM;
+if nargin == 6 && all(size(maskM) == size(indL))
+    indL = indL & maskM;
 end
 
 [x,y] = meshgrid(doseColCoords, doseRowCoords);
