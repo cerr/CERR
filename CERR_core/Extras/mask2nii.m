@@ -12,8 +12,8 @@ end
 qOffset = affineMat(1:3,end)';
 
 for i = 1:numel(mask3MC)
-    mask3M = mask3MC{i};
+    mask3M = int8(mask3MC{i});
     [maskUniqName, ~] = genScanUniqName(planC,scanNum);
     maskFileNameC{i} = fullfile(tmpDirPath, ['mask_' maskStrC{i} '_' maskUniqName '.nii']);
-    niiC{i} = vol2nii(mask3M,affineMat,qOffset,voxel_size,maskFileNameC{i});
+    niiC{i} = vol2nii(mask3M,affineMat,qOffset,voxel_size,[],maskFileNameC{i});
 end
