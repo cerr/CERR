@@ -92,7 +92,8 @@ end
 % Convert to PET SUV
 for scanNum = 1:length(planC{indexS.scan})
     modality = planC{indexS.scan}(scanNum).scanInfo(1).imageType;
-    if strcmpi(modality,'PT') || strcmpi(modality,'PET')
+    if strcmpi(modality,'PT') || strcmpi(modality,'PET') || ...
+            strcmpi(modality,'PT SCAN') || strcmpi(modality,'PET SCAN')
         imageUnits = planC{indexS.scan}(scanNum).scanInfo(1).imageUnits;
         if ~strcmpi(imageUnits,'GML')
             if isfield(optS,'convert_PET_to_SUV') && optS.convert_PET_to_SUV
