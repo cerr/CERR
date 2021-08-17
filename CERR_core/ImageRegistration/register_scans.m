@@ -1,7 +1,7 @@
 function [basePlanC, movPlanC, deformS] = register_scans(basePlanC, baseScanNum, movPlanC,movScanNum, algorithm, registration_tool, tmpDirPath, ... 
-    baseMask3M, movMask3M, threshold_bone, inputCmdFile, inBspFile, outBspFile, landmarkList)
+    baseMask3M, movMask3M, threshold_bone, inputCmdFile, inBspFile, outBspFile, landmarkList, initialXyzTranslationV)
 % Usage: [basePlanC, movPlanC, bspFileName] = register_scans(basePlanC, baseScanNum, movPlanC,movScanNum, algorithm, registration_tool, tmpDirPath, ... 
-%     baseMask3M, movMask3M, threshold_bone, inputCmdFile, inBspFile, outBspFile)
+%     baseMask3M, movMask3M, threshold_bone, inputCmdFile, inBspFile, outBspFile, landmarkList, initialXyzTranslationV)
 %
 %  Arguments: 
 %         basePlanC - CERR planC struct (cell) or 3D image filename, contains fixed target scan (1)
@@ -212,6 +212,12 @@ if plmFlag
     end
 
     warpedMhaFile = [outPrefix '.mha'];
+    
+    % Create inBspFile for initial translation
+    if exist('initialXyzTranslationV','var')
+        inBspFile = fullfile(tmpDirPath,['xform_init_',baseScanUID,'_',movScanUID,'.txt']);
+        createInitialTranslationTransform(inBspFile,initialXyzTranslationV)
+    end
     
     cmdFileC = genPlastimatchCmdFile(baseScanFileName, movScanFileName, ...
         baseMaskFileName, movMaskFileName, warpedMhaFile, inBspFile, ...
