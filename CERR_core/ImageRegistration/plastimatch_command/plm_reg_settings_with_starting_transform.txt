@@ -1,0 +1,43 @@
+# command_file for plastimatch
+
+[STAGE]
+xform=affine
+optim=rsg
+max_its=1000
+metric=mse
+translation_scale_factor=1000
+res=2 2 1
+
+
+# STEP 4: Coarse grid
+[STAGE]
+impl = plastimatch
+metric=mse
+#threading = cuda
+xform=bspline
+#xform=vf
+#optim=demons
+res=3 3 2
+max_its=200
+grid_spac=50 50 50
+regularization = analytic
+regularization_lambda=0.15
+#mi_histogram_bins = 25
+#landmark_stiffness=100
+
+
+# STEP 4: Refinement
+[STAGE]
+impl = plastimatch
+metric=mse
+#threading = cuda
+xform=bspline
+#optim=demons
+res=3 3 1
+max_its=200
+grid_spac=30 30 30
+regularization = analytic
+regularization_lambda=0.1
+#mi_histogram_bins = 25
+#landmark_stiffness=1
+
