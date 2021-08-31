@@ -216,7 +216,9 @@
 
 "ROIInterpretedType" : "initROIInterpretedType",
 
-"convert_PET_to_SUV" : 0,
+"convert_PET_to_SUV" : 1,
+
+"suvType": "BW",
 
 "overwrite_CERR_File" : 0,
 
