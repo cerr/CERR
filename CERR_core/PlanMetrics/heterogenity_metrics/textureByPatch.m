@@ -1,6 +1,6 @@
 function [energy3M,entropy3M,sumAvg3M,corr3M,invDiffMom3M,contrast3M,...
     clustShade3M,clustPromin3M,haralCorr3M] = textureByPatch(scanArray3M, nL, ...
-    patchSizeV, offsetsM, flagv, hWait, minIntensity,maxIntensity,separateDirnFlag)
+    patchSizeV, offsetsM, flagv, hWait, minIntensity,maxIntensity,binWidth,separateDirnFlag)
 % function [energy3M,entropy3M,sumAvg3M,corr3M,invDiffMom3M,contrast3M,...
 %     clustShade3M,clustPromin3M,haralCorr3M] = textureByPatch(scanArray3M, nL, ...
 %     patchSizeV, offsetsM, flagv, hWait, minIntensity,maxIntensity,separateDirnFlag)
@@ -77,11 +77,26 @@ numVoxels = numRows*numCols;
 %q = padarray(q,[numRowsPad numColsPad numSlcsPad],NaN,'both');
 
 % Quantize the image
-if exist('minIntensity','var') && exist('maxIntensity','var')
+% if exist('minIntensity','var') && exist('maxIntensity','var')
+%     q = imquantize_cerr(scanArray3M,nL,minIntensity,maxIntensity);
+% else
+%     q = imquantize_cerr(scanArray3M,nL);
+% end
+
+if ~exist('minIntensity','var')
+    minIntensity = [];
+end
+if ~exist('maxIntensity','var')
+    maxIntensity = [];
+end
+if exist('binWidth','var') && ~isempty(binWidth)
+    q = imquantize_cerr(scanArray3M,nL,minIntensity,maxIntensity,binWidth);
+elseif exist('nL','var') && ~isempty(nL)
     q = imquantize_cerr(scanArray3M,nL,minIntensity,maxIntensity);
 else
-    q = imquantize_cerr(scanArray3M,nL);
+    error('Number of quantization levels or binWidth required')
 end
+nL = max(q(:));
 
 clear scanArray3M
 
@@ -236,7 +251,7 @@ end
 
 tic
 % Iterate over slices. compute cooccurance for all patches per slice
-parfor slcNum = 1:numSlices
+for slcNum = 1:numSlices
     
     disp(['--- Texture Calculation for Slice # ', num2str(slcNum), ' ----']) 
     if flagv(1), energyV = zeros(dim,numVoxels,'single'); end

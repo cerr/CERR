@@ -98,21 +98,58 @@ switch filterType
         if ~ishandle(hWait)
             hWait = NaN;
         end
+        % Single co-occurrence matrix from all directions
         [energy,entropy,sumAvg,corr,...
             invDiffMom,contrast,clustShade,...
             clustProminence,haralCorr] = textureByPatchCombineCooccur(volToEval,...
             paramS.NumLevels.val, paramS.PatchSize.val, offsetsM, flagV, hWait, ...
             paramS.minIntensity.val, paramS.maxIntensity.val, paramS.binWidth.val);
         
-        outS.Energy = energy;
-        outS.Entropy = entropy;
-        outS.SumAvg = sumAvg;
-        outS.Corr = corr;
-        outS.InvDiffMom = invDiffMom;
-        outS.Contrast = contrast;
-        outS.ClustShade = clustShade;
-        outS.ClustProminence = clustProminence;
-        outS.HaralCorr = haralCorr;
+        % Different co-occurrence mateices for dirrerent directions. Then average
+        % the features.
+        %         separateDirnFlag = 0; % average directions
+        %         [energy,entropy,sumAvg,corr,...
+        %             invDiffMom,contrast,clustShade,...
+        %             clustProminence,haralCorr] = textureByPatch(volToEval,...
+        %             paramS.NumLevels.val, paramS.PatchSize.val, offsetsM, flagV, hWait, ...
+        %             paramS.minIntensity.val, paramS.maxIntensity.val, paramS.binWidth.val, separateDirnFlag);
+        
+        energy3M = zeros(size(scan3M));
+        energy3M(minr:maxr,minc:maxc,mins:maxs) = energy;
+        
+        entropy3M = zeros(size(scan3M));
+        entropy3M(minr:maxr,minc:maxc,mins:maxs) = entropy;
+        
+        sumAvg3M = zeros(size(scan3M));
+        sumAvg3M(minr:maxr,minc:maxc,mins:maxs) = sumAvg;
+        
+        corr3M = zeros(size(scan3M));
+        corr3M(minr:maxr,minc:maxc,mins:maxs) = corr;
+        
+        invDiffMom3M = zeros(size(scan3M));
+        invDiffMom3M(minr:maxr,minc:maxc,mins:maxs) = invDiffMom;
+        
+        contrast3M = zeros(size(scan3M));
+        contrast3M(minr:maxr,minc:maxc,mins:maxs) = contrast;
+        
+        clustShade3M = zeros(size(scan3M));
+        clustShade3M(minr:maxr,minc:maxc,mins:maxs) = clustShade;
+        
+        clustProminence3M = zeros(size(scan3M));
+        clustProminence3M(minr:maxr,minc:maxc,mins:maxs) = clustProminence;
+        
+        haralCorr3M = zeros(size(scan3M));
+        haralCorr3M(minr:maxr,minc:maxc,mins:maxs) = haralCorr;
+
+        outS.Energy = energy3M;
+        outS.Entropy = entropy3M;
+        outS.SumAvg = sumAvg3M;
+        outS.Corr = corr3M;
+        outS.InvDiffMom = invDiffMom3M;
+        outS.Contrast = contrast3M;
+        outS.ClustShade = clustShade3M;
+        outS.ClustProminence = clustProminence3M;
+        outS.HaralCorr = haralCorr3M;
         
         featC = fieldnames(outS);
         outS = rmfield(outS,featC(~flagV));
