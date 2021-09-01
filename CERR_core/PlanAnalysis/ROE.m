@@ -125,7 +125,7 @@ function ROE(command,varargin)
     inputH(2) = uicontrol(hFig,'tag','modelTitle','units','pixels',...
     'Position',[2.5*shift posTop-.16*GUIHeight .15*GUIWidth 2*shift],...
     'String','Protocols & models','Style','text','fontSize',9,...
-    'fontWeight', 'Bold', 'BackgroundColor',figColor,...
+    'fontWeight', 'Bold', 'BackgroundColor',defaultColor,...
     'HorizontalAlignment','center','Visible','Off');
     inputH(3) = uicontrol(hFig,'tag','modelFileSelect','units','pixels',...
     'Position',[2.5*shift posTop-.1*GUIHeight .15*GUIWidth 3*shift], 'String',...
@@ -135,7 +135,7 @@ function ROE(command,varargin)
     'ROE(''LOAD_MODELS'')');
     
     %% Pop-up menus to select structures & dose plans
-    tablePosV = [.22*GUIWidth-2*shift posTop-.1*GUIHeight .25*GUIWidth 2.5*shift];
+    tablePosV = [.22*GUIWidth-2*shift posTop-.13*GUIHeight .25*GUIWidth 2.5*shift];
     colWidth = tablePosV(3)/2-1;
     inputH(4) = uitable(hFig,'Tag','strSel','Position',tablePosV-[0 3*shift 0 0],'Enable','Off',...
     'ColumnName',[],'RowName',[],'Visible','Off','backgroundColor',defaultColor,...
@@ -152,10 +152,10 @@ function ROE(command,varargin)
     inputH(6) = uicontrol(hFig,'units','pixels','Visible','Off','fontSize',10,...
     'Position',tablePosV + [0 -.1*GUIHeight 0 0 ],'String','Model parameters',...
     'Style','text','FontWeight','Bold','HorizontalAlignment','Left',...
-    'backgroundColor',figColor); %Title: Model parameters
+    'backgroundColor',defaultColor); %Title: Model parameters
     inputH(7) = uicontrol(hFig,'units','pixels','Visible','Off','String','',...
     'Position',tablePosV + [0 -.15*GUIHeight 0 0 ],'FontSize',10,'Style','text',...
-    'FontWeight','Bold','HorizontalAlignment','Left','backgroundColor',figColor,...
+    'FontWeight','Bold','HorizontalAlignment','Left','backgroundColor',defaultColor,...
     'foregroundColor',[.6 0 0]); %Model name display
     
     % AI hide JSON param display
@@ -193,6 +193,22 @@ function ROE(command,varargin)
     'Position',[2.5*shift 1.5*shift .15*GUIWidth .6*GUIHeight],...
     'String','','fontSize',10,'Enable','Off','Visible','Off',...
     'Callback',@(hObj,hEvt)getParamsROE(hObj,hEvt,hFig,planC));
+    
+    
+    % Input prescribed dose
+    inputH(15) = uicontrol('parent',hFig,'units','pixels','Position',...
+    [.24*GUIWidth-2.5*shift posTop-.08*GUIHeight 10*shift,2*shift],...
+    'Style','Text','String','Prescribed Dose','fontSize',10,...
+    'backgroundColor',defaultColor);
+    inputH(16) = uicontrol('parent',hFig,'units','pixels','Position',...
+    [.32*GUIWidth+shift posTop-.08*GUIHeight 8*shift,2.5*shift],...
+    'Style','Edit','String','','Visible','On','fontSize',10,...
+    'Callback',@(hObj,hEvt)clearStoredDVHsROE(hObj,hEvt,hFig),...
+    'tooltipstring','Input Rx (Gy) and press enter.');
+    inputH(17) = uicontrol('parent',hFig,'units','pixels','Position',...
+    [.42*GUIWidth posTop-.08*GUIHeight 2*shift,2*shift],'Style',...
+    'Text','String','Gy','fontSize',10,'backgroundColor',defaultColor);
+    
     
     %% Plot axes
     
@@ -359,6 +375,13 @@ function ROE(command,varargin)
       msgbox('Please select valid dose plan','Selection required');
       return
     end
+    RxField = ud.handle.inputH(16);
+    if isempty(get(RxField,'String'))
+      msgbox('Please provide prescribed dose (Gy).','Missing parameter');
+      return
+    else
+      prescribedDose = str2double(get(RxField,'String'));
+    end
     indexS = planC{end};
     
     %% Initialize plot handles
@@ -400,6 +423,41 @@ function ROE(command,varargin)
     cCount = 0;
     gCount = 0;
     
+    %% Handle missing structure input
+    for p = 1:numel(protocolS)
+      
+      modelC = protocolS(p).model;
+      
+      %Identify models with no associated struct. selection
+      strSelC = cellfun(@(x)x.strNum , modelC,'un',0);
+      noSelV = find([strSelC{:}]==0);
+      %Allow for optional inputs 
+      optFlagC = checkInputStructsROE(modelC);
+      numStrV = cellfun(@numel,optFlagC);
+      cumStrV = cumsum(numStrV);
+      optFlagV = find([optFlagC{:}]==1);
+      noSelV(ismember(noSelV,optFlagV)) = [];
+      %Exclude optional structures with no user input
+      modelC = skipOptionalStructsROE(modelC,optFlagC,strSelC);
+      
+      %Allow users to input missing structures or skip associated models
+      if any(noSelV)
+        modList = cellfun(@(x)x.name , modelC,'un',0);
+        modNumV = ismember(cumStrV,noSelV);
+        modList = strjoin(modList(modNumV),',');
+        %msgbox(['Please select structures required for models ' modList],'Selection required');
+        dispMsg = sprintf(['No structure selected',...
+        ' for ',modList,'.\n Skip model(s)?']);
+        missingSel = questdlg(dispMsg,'Missing structure','Yes','No','Yes');
+        if ~isempty(missingSel) && strcmp(missingSel,'Yes')
+          modelC(modNumV) = [];
+        else
+          return
+        end
+      end
+    end
+    
+    
     %% Mode-specific computations
     switch plotMode
       
@@ -437,7 +495,7 @@ function ROE(command,varargin)
         numFrxProtocol = protocolS(p).numFractions;
         protDose = protocolS(p).totalDose;
         dpfProtocol = protDose/numFrxProtocol;
-        prescribedDose = planC{indexS.dose}(plnNum).prescribedDose;
+        %prescribedDose = planC{indexS.dose}(plnNum).prescribedDose;
         dA = getDoseArray(plnNum,planC);
         dAscale = protDose/prescribedDose;
         dAscaled = dA * dAscale;
@@ -453,8 +511,10 @@ function ROE(command,varargin)
         %-fraction size
         paramS.frxSize.val = dpfProtocol;
         %-alpha/beta
-        abRatio = modelC{xIndx}.abRatio;
-        paramS.abRatio.val = abRatio;
+        if isfield(modelC{xIndx},'abRatio')
+          abRatio = modelC{xIndx}.abRatio;
+          paramS.abRatio.val = abRatio;
+        end
         
         %Get DVH
         if isfield(modelC{xIndx},'dv')
@@ -663,7 +723,7 @@ function ROE(command,varargin)
       numFrxProtocol = protocolS(p).numFractions;
       protDose = protocolS(p).totalDose;
       dpfProtocol = protDose/numFrxProtocol;
-      prescribedDose = planC{indexS.dose}(plnNum).prescribedDose;
+      %prescribedDose = planC{indexS.dose}(plnNum).prescribedDose;
       dA = getDoseArray(plnNum,planC);
       dAscale = protDose/prescribedDose;
       dAscaled = dA * dAscale;
@@ -692,8 +752,10 @@ function ROE(command,varargin)
         %-fraction size
         paramS.frxSize.val = dpfProtocol;
         %-alpha/beta
-        abRatio = modelC{modIdxV(j)}.abRatio;
-        paramS.abRatio.val = abRatio;
+        if isfield(modelC{modIdxV(j)},'abRatio')
+          abRatio = modelC{modIdxV(j)}.abRatio;
+          paramS.abRatio.val = abRatio;
+        end
         
         %Scale dose bins
         if isfield(modelC{modIdxV(j)},'dv')
@@ -909,7 +971,11 @@ function ROE(command,varargin)
             strCritS = critS.structures.(structC{m}).criteria;
             criteriaC = fieldnames(strCritS);
             %Get alpha/beta ratio
-            abRatio = critS.structures.(structC{m}).abRatio;
+            if isfield(critS.structures.(structC{m}),'abRatio')
+              abRatio = critS.structures.(structC{m}).abRatio;
+            else
+              abRatio = [];
+            end
             %Get DVH
             [doseV,volsV] = getDVH(cStr,plnNum,planC);
             [doseBinV,volHistV] = doseHist(doseV, volsV, binWidth);
