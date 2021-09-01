@@ -45,7 +45,7 @@ if(jsonopt('Recursive',0,varargin{:})==1)
     end
   end
 end
-if strncmpi('x0x5F_ArrayType_',fn,16) & strncmpi('x0x5F_ArrayData_',fn,16)
+if strncmpi('x0x5F_ArrayType_',fn,16) && strncmpi('x0x5F_ArrayData_',fn,16)
   newdata=cell(len,1);
   for j=1:len
     ndata=cast(data(j).x0x5F_ArrayData_,data(j).x0x5F_ArrayType_);
