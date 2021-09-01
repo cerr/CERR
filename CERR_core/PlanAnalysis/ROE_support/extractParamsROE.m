@@ -24,7 +24,7 @@ function hTab = extractParamsROE(hFig,modelS,planC)
   fheight = pos(3);
   left = 10;
   columnWidth ={rowWidth-1,rowWidth-1};
-  posV = [.2*fwidth .4*fheight 2*rowWidth rowHt];
+  posV = [.2*fwidth .37*fheight 2*rowWidth rowHt];
   row = 1;
   hTab = [];
   % Create rows displaying model parameters
@@ -39,13 +39,15 @@ function hTab = extractParamsROE(hFig,modelS,planC)
             parS = structS.(strListC{s}).(strParListC{t});
             %parName = [strListC{s},' ',strParListC{t}];
             parName = strParListC{t};
-            [columnFormat,dispVal] = extractValROE(parS);
-            dataC = {parName,dispVal};
-            hTab(row) = uitable(hFig,'Tag','paramEdit','Position', posV + [0 -(row*(rowHt+1)) 0 0 ],...
-            'columnformat',columnFormat,'Data',dataC,'Visible','Off','FontSize',10,...
-            'columneditable',[false,true],'columnname',[],'rowname',[],...
-            'columnWidth',columnWidth,'celleditcallback',@(hObj,hData)editParamsROE(hObj,hData,hFig,planC));
-            row = row+1;
+            if ~strcmpi(parName,'optional')
+              [columnFormat,dispVal] = extractValROE(parS);
+              dataC = {parName,dispVal};
+              hTab(row) = uitable(hFig,'Tag','paramEdit','Position', posV + [0 -(row*(rowHt+1)) 0 0 ],...
+              'columnformat',columnFormat,'Data',dataC,'Visible','Off','FontSize',10,...
+              'columneditable',[false,true],'columnname',[],'rowname',[],...
+              'columnWidth',columnWidth,'celleditcallback',@(hObj,hData)editParamsROE(hObj,hData,hFig,planC));
+              row = row+1;
+            end
           end
         end
       end
@@ -63,4 +65,7 @@ function hTab = extractParamsROE(hFig,modelS,planC)
       end
     end
   end
+  
+  guidata(hFig,ud);
+  
 end

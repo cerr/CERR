@@ -34,8 +34,10 @@ switch(tag)
             matchIdx = find(strcmp(inputStructC,val));
             modelsC{modelNum}.inputStrNum = matchIdx;
             if ~isfield(modelsC{modelNum},'strNum') || ...
-                    modelsC{modelNum}.strNum(matchIdx)==0
-                hObj.Data{2} = 'Select from list';
+              modelsC{modelNum}.strNum(matchIdx)==0
+              dataC = get(hObj,'Data');
+              dataC{2} = 'Select from list';
+              set(hObj,'Data',dataC);
             end
         else
             strListC = {'Select structure',planC{indexS.structures}.structureName};
