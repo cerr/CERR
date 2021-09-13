@@ -21,7 +21,7 @@ for i = 1:numel(doseNumV)
     [doseUniqName, ~] = genScanUniqName(planC,scanNum);    
     if strcmpi(extn,'nii')
         doseFileName = fullfile(tmpDirPath, ['dose_' num2str(doseNumV(i)) '_' doseUniqName '.nii']);
-        vol2nii(dose3M,affineMat,qOffset,voxel_size,orientationStr,doseFileName);
+        vol2nii(dose3M,affineMat,qOffset,voxel_size,[],doseFileName);
         doseFileNameC{i} = doseFileName;
     elseif strcmpi(extn,'nrrd')
         doseFileName = fullfile(tmpDirPath, ['dose_' num2str(doseNumV(i)) '_' doseUniqName  '.nrrd']);
