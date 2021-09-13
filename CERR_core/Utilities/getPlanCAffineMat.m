@@ -71,10 +71,16 @@ scanArray = double(getScanArray(scanNum,planC)) - ctOffset;
 
 %Extract masks
 if ~isempty(maskStrC)
-    [maskV, maskStrC] = getMaskIndices(planC,maskStrC);
-    for i = 1:numel(maskV)
-        maskC{i} = getMask3D(maskV(i),planC);
+    indexS = planC{end};
+    planStrNameC = {planC{indexS.structures}.structureName};
+    for iStr = 1:length(maskStrC)
+        strIndex = getMatchingIndex(maskStrC{iStr},planStrNameC,'exact');
+        maskC{iStr} = getStrMask(strIndex,planC);
     end
+    %[maskV, maskStrC] = getMaskIndices(planC,maskStrC);
+    %for i = 1:numel(maskV)
+    %    maskC{i} = getMask3D(maskV(i),planC);
+    %end
 end
 
 %Extract doses
