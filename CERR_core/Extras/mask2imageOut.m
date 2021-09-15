@@ -22,7 +22,7 @@ for i = 1:numel(mask3MC)
     [maskUniqName, ~] = genScanUniqName(planC,scanNum);
     if strcmpi(extn,'nii')
         maskFileNameC{i} = fullfile(tmpDirPath, ['mask_' maskStrC{i} '_' maskUniqName '.nii']);
-        vol2nii(mask3M,affineMat,qOffset,voxel_size,orientationStr,maskFileNameC{i});
+        vol2nii(mask3M,affineMat,qOffset,voxel_size,[],maskFileNameC{i});
     elseif strcmpi(extn,'nrrd')
         maskFileNameC{i} = fullfile(tmpDirPath, ['mask_' maskStrC{i} '_' maskUniqName '.nrrd']);
         vol2nrrd(mask3M,affineMat,qOffset,voxel_size,orientationStr,maskFileNameC{i});
