@@ -18,6 +18,10 @@ indexS = planC{end};
 reorientFlag = 1;
 dataType = [];
 
+scanFileNameC = {};
+doseFileNameC = {};
+maskFileNameC = {};
+
 % scan
 for iScan = 1:length(scanNumV)
     scanNum = scanNumV(iScan);
