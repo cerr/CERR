@@ -1,6 +1,13 @@
 function export_secondary_capture_to_DICOM(image3M, associatedScanNum, exportDir, planC)
 % function export_secondary_capture_to_DICOM(image3M, associatedScanNum, exportDir, planC)
 %
+% INPUTS:
+%
+% image3M: 3D image whis has the same dimensions as associatedScanNum.
+% associatedScanNum: scan index in planC to obtain the grid information for image3M.
+% exportDir: directoey to export DICOM. obtained from global or file.
+% planC: obtained from global or file.
+%
 % APA, 9/15/2021
 
 indexS = planC{end};
