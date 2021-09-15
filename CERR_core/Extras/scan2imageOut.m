@@ -27,7 +27,7 @@ for i = 1:numel(scanNumV)
     qOffset = affineMat(1:3,end)';
     if strcmpi(extn,'nii')
         scanFileName = fullfile(tmpDirPath, ['scan_' num2str(scanNum) '_' scanUniqName '.nii']);
-        niiC{i} = vol2nii(scan3M_RAS,affineMat,qOffset,voxel_size,orientationStr,scanFileName);
+        niiC{i} = vol2nii(scan3M_RAS,affineMat,qOffset,voxel_size,[],scanFileName);
     elseif strcmpi(extn,'nrrd')
         scanFileName = fullfile(tmpDirPath, ['scan_' num2str(scanNum) '_' scanUniqName '.nrrd']);
         vol2nrrd(scan3M_RAS,affineMat,qOffset,voxel_size,orientationStr,scanFileName);

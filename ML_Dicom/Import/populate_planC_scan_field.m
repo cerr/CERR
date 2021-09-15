@@ -442,6 +442,18 @@ switch fieldname
                     end
                 end
                 
+                if strcmpi(modality,'PT')
+                    positionRefIndicatorSequence = getTagValue(imgobj, 1.375769136000000e+09); %SQ
+                    imgOriV = positionRefIndicatorSequence.Item_1...
+                        .PlaneOrientationSequence.Item_1.ImageOrientationPatient;
+                    for imageNum = 1:numMultiFrameImages
+                        item = ['Item_',num2str(imageNum)];
+                        zValuesV(imageNum) = positionRefIndicatorSequence.(item)...
+                            .PlanePositionSequence.Item_1.ImagePositionPatient(3);
+                    end
+
+                end
+                
                 % Store the patient orientation associated with this studyUID
                 if ~any(strcmpi(studyUID,studyUIDc))
                     studyC{end+1,1} = studyUID;
@@ -641,6 +653,51 @@ switch fieldname
                     %sharedFrameFuncGrpSeq = getTagValue(attr, org.dcm4che3.data.Tag.SharedFunctionalGroupsSequence); %SQ
                     sharedFrameFuncGrpSeq = getTagValue(imgobj, 1.375769129000000e+09); %SQ
                     sliceSpacing = sharedFrameFuncGrpSeq.Item_1.PixelMeasuresSequence.Item_1.SliceThickness;                    
+                end
+                
+                if strcmpi(modality,'PT')
+                    sharedFrameFuncGrpSeq = getTagValue(imgobj, 1.375769129000000e+09); %SQ
+                    positionRefIndicatorSequence = getTagValue(imgobj, 1.375769136000000e+09); %SQ
+                    sliceSpacing = sharedFrameFuncGrpSeq.Item_1.PixelMeasuresSequence.Item_1.SliceThickness;
+                    gridUnitsV = sharedFrameFuncGrpSeq.Item_1...
+                        .PixelMeasuresSequence.Item_1.PixelSpacing;
+                    gridUnitsV = gridUnitsV / 10;
+                    windowCenter = positionRefIndicatorSequence.Item_1...
+                        .FrameVOILUTSequence.Item_1.WindowCenter; 
+                    windowWidth = positionRefIndicatorSequence.Item_1...
+                        .FrameVOILUTSequence.Item_1.WindowWidth;
+                    for imageNum = 1:numMultiFrameImages
+                        item = ['Item_',num2str(imageNum)];
+                        zValuesV(imageNum) = positionRefIndicatorSequence.(item)...
+                            .PlanePositionSequence.Item_1.ImagePositionPatient(3);
+                        rescaleInterceptV(imageNum) = positionRefIndicatorSequence.(item)...
+                            .PixelValueTransformationSequence.Item_1.RescaleIntercept;
+                        rescaleSlopeV(imageNum) = positionRefIndicatorSequence.(item)...
+                            .PixelValueTransformationSequence.Item_1.RescaleSlope;
+                        imageOrientationPatientM(imageNum,:) = positionRefIndicatorSequence.(item)...
+                            .PlaneOrientationSequence.Item_1.ImageOrientationPatient;
+                        imagePositionPatientM(imageNum,:) = positionRefIndicatorSequence.(item)...
+                            .PlanePositionSequence.Item_1.ImagePositionPatient;
+                        if isfield(positionRefIndicatorSequence.(item),'FrameContentSequence')
+                            if ~isempty(positionRefIndicatorSequence.(item)...
+                                    .FrameContentSequence.Item_1.TemporalPositionIndex)
+                                temporalPositionIndexV(imageNum) = positionRefIndicatorSequence.(item)...
+                                    .FrameContentSequence.Item_1.TemporalPositionIndex;
+                            end
+                            if ~isempty(positionRefIndicatorSequence.(item)...
+                                    .FrameContentSequence.Item_1.FrameAcquisitionDuration)
+                                frameAcquisitionDurationV(imageNum) = positionRefIndicatorSequence.(item)...
+                                    .FrameContentSequence.Item_1.FrameAcquisitionDuration;
+                            end
+                            if ~isempty(positionRefIndicatorSequence.(item)...
+                                    .FrameContentSequence.Item_1.FrameReferenceDateTime)
+                                dateTimeStr = positionRefIndicatorSequence.(item)...
+                                    .FrameContentSequence.Item_1.FrameReferenceDateTime;
+                                frameReferenceDateTimeV(imageNum) = ...
+                                    datenum(char(dateTimeStr.toGMTString),'dd mmm yyyy HH:MM:SS');
+                            end
+                        end
+                    end
                 end
                 
                 if strcmpi(modality,'MR')

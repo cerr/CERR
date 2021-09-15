@@ -361,6 +361,15 @@ switch fieldname
                 .PlaneOrientationSequence.Item_1.ImageOrientationPatient;   
         end
         
+        if isempty(imgpos) && strcmpi(modality,'PT')
+            positionRefIndicatorSequence = getTagValue(attr,1.375769136000000e+09);
+            imgpos = positionRefIndicatorSequence.Item_1...
+                .PlanePositionSequence.Item_1.ImagePositionPatient;
+            imgOriV = positionRefIndicatorSequence.Item_1...
+                .PlaneOrientationSequence.Item_1.ImageOrientationPatient;               
+        end
+        
+        
         %Pixel Spacing
         if ismember(modality,{'MG','SM'})
             %pixspac = getTagValue(attr, '00181164');
@@ -377,6 +386,12 @@ switch fieldname
         if isempty(pixspac) && strcmpi(modality,'MR')
             pixspac = positionRefIndicatorSequence.Item_1...
                         .PixelMeasuresSequence.Item_1.PixelSpacing;            
+        end
+        
+        if isempty(pixspac) && strcmpi(modality,'PT')
+            sharedFrameFuncGrpSeq = getTagValue(attr, 1.375769129000000e+09); %SQ
+            pixspac = sharedFrameFuncGrpSeq.Item_1...
+                .PixelMeasuresSequence.Item_1.PixelSpacing;                    
         end
         
         %Columns
@@ -466,6 +481,14 @@ switch fieldname
                 .PlanePositionSequence.Item_1.ImagePositionPatient;
             imgOriV = positionRefIndicatorSequence.Item_1...
                 .PlaneOrientationSequence.Item_1.ImageOrientationPatient;               
+        end      
+        
+        if isempty(imgpos) && strcmpi(modality,'PT')
+            positionRefIndicatorSequence = getTagValue(attr,1.375769136000000e+09);
+            imgpos = positionRefIndicatorSequence.Item_1...
+                .PlanePositionSequence.Item_1.ImagePositionPatient;
+            imgOriV = positionRefIndicatorSequence.Item_1...
+                .PlaneOrientationSequence.Item_1.ImageOrientationPatient;               
         end        
         
         %Pixel Spacing
@@ -484,6 +507,12 @@ switch fieldname
         if isempty(pixspac) && strcmpi(modality,'MR')
             pixspac = positionRefIndicatorSequence.Item_1...
                         .PixelMeasuresSequence.Item_1.PixelSpacing;            
+        end        
+        
+        if isempty(pixspac) && strcmpi(modality,'PT')
+            sharedFrameFuncGrpSeq = getTagValue(attr, 1.375769129000000e+09); %SQ
+            pixspac = sharedFrameFuncGrpSeq.Item_1...
+                .PixelMeasuresSequence.Item_1.PixelSpacing;                    
         end        
         
         %Check for oblique scan
