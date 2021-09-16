@@ -80,7 +80,7 @@ switch fieldname
                 if ~exist(tempDirPathC{iDir},'dir')
                     mkdir(tempDirPathC{iDir})
                 end
-                evalStr = [dcm2dcmPath,' -t 1.2.840.10008.1.2 "',dcmPath,'" "',tempDirPathC{iDir},'"'];
+                evalStr = ['"',dcm2dcmPath,'" -t 1.2.840.10008.1.2 "',dcmPath,'" "',tempDirPathC{iDir},'"'];
                 system(evalStr)
                 indSeriesC = strfind(fileC,dcmPath);
                 indSeriesV = ~cellfun(@isempty,indSeriesC);
