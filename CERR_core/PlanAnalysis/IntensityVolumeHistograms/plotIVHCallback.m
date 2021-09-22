@@ -34,7 +34,7 @@ switch upper(command)
     %Request to expand the DVH view.
         hFig = get(gcbo, 'parent');        
         ud = get(hFig, 'userdata');
-        set(hFig, 'doublebuffer', 'on');
+        %set(hFig, 'doublebuffer', 'on');
         
         %Freeze all other figure objects.
         figChild = get(hFig, 'children');

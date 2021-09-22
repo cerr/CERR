@@ -423,7 +423,7 @@ switch command
                 
                 %Setup axis for motion.
                 set(hFig, 'WindowButtonMotionFcn', 'segmentLabelerControl(''segmentLabeler'', ''motionInFigure'');');
-                set(hFig, 'doublebuffer', 'on');
+                %set(hFig, 'doublebuffer', 'on');
                 
                 set(hFrame, 'userdata', ud);
                 

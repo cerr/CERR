@@ -74,7 +74,7 @@ for iFile = 1:numFiles
     end
     vfBaseName = [basePlanCFileName,'~',strtok(fName,'.'),'_vf.mat'];
     vfBaseFile = fullfile(vfDir,vfBaseName);
-    if ~exist(vfBaseFile)
+    if ~exist(vfBaseFile,'file')
         continue;
     end
     
@@ -90,7 +90,7 @@ for iFile = 1:numFiles
     else
         vfDdmName = [strtok(fName,'.'),'~',ddmTemplatePlanCFileName,'_vf.mat'];
         vfDdmFile = fullfile(vfDir,vfDdmName);
-        if ~exist(vfDdmFile)
+        if ~exist(vfDdmFile,'file')
             continue;
         end
         load(vfDdmFile)

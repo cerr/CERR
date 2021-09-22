@@ -32,7 +32,7 @@ switch upper(action)
 		y = 700; %Initial size of figure in pixels.
 		x = 700;
 		
-		h = figure('doublebuffer', 'on', 'position', [(screenSize(3)-x)/2 (screenSize(4)-y)/2 x y], 'units', 'normalized');
+		h = figure('position', [(screenSize(3)-x)/2 (screenSize(4)-y)/2 x y], 'units', 'normalized');
         set(h, 'resizefcn', 'myResize');
 		
         ud = []; %init UD.

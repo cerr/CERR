@@ -69,7 +69,7 @@ switch command
         set(hAxis, 'buttonDownFcn', 'drawContour(''btnDownInAxis'')');
         set(hFig, 'WindowButtonUpFcn', 'drawContour(''btnUp'')');
         set(hFig, 'WindowButtonMotionFcn', 'drawContour(''motionInFigure'')');
-        set(hFig, 'doublebuffer', 'on');
+        %set(hFig, 'doublebuffer', 'on');
 
     case 'quit'
         %Removed passed axis from drawContour mode.
@@ -102,7 +102,7 @@ switch command
         end
         stateS.contouringMetaDataS.oldBtnDown = [];
         set(hFig, 'WindowButtonUpFcn', '');
-        set(hFig, 'doublebuffer', 'on');
+        %set(hFig, 'doublebuffer', 'on');
 
     case 'getState'
         varargout{1} = stateS.contouringMetaDataS;

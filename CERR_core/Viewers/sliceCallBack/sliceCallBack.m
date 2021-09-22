@@ -215,7 +215,7 @@ switch upper(instr)
         %    'sliceCallBack(''closeRequest'')','backingstore','off','tag',...
         %   'CERRSliceViewer', 'renderer', 'zbuffer');
         hCSV = figure('tag','CERRSliceViewer','name',str1,'numbertitle','off',...
-            'position',position, 'doublebuffer', 'off','CloseRequestFcn',...
+            'position',position, 'CloseRequestFcn',...
             'sliceCallBack(''closeRequest'')','tag',...
             'CERRSliceViewer');
                 
@@ -1459,7 +1459,7 @@ switch upper(instr)
                 %Setup axis for motion for Segment Labeler
                 if stateS.segmentLabelerState                    
                     set(hFig, 'WindowButtonMotionFcn', 'segmentLabelerControl(''segmentLabeler'', ''motionInFigure'');');                 
-                    set(hFig, 'doublebuffer', 'on');   
+                    %set(hFig, 'doublebuffer', 'on');   
                     return;
                 end
                 

@@ -40,8 +40,8 @@ avgV    = logical(avgV);
 absV    = logical(absV);
 
 %Prepare a figure.
-if exist('newFlag') & newFlag == 1
-    h = figure('tag', 'IVHPlot', 'doublebuffer', 'on');
+if exist('newFlag','var') && newFlag == 1
+    h = figure('tag', 'IVHPlot');
     pos = get(h,'position');
     nIVHFigs = length(findobj('tag', 'IVHPlot'));
     set(h,'position',[pos(1)*(1 - 0.05*nIVHFigs),pos(2)*(1 - 0.05*nIVHFigs),pos(3),pos(4)])
@@ -58,7 +58,7 @@ else
         set(h, 'userdata', []);
         figure(h);
     else
-        h = figure('tag', 'IVHPlot', 'doublebuffer', 'on');
+        h = figure('tag', 'IVHPlot');
         figure(h);
         try
             stateS.handle.IVHPlot = [stateS.handle.IVHPlot h];
@@ -249,7 +249,7 @@ dispScanStats(scanV, areaV, struct, scanName, planC, indexS, opt);
 
 if absFlag == 1
     hRel = get(hAxis, 'parent');
-    h = figure('tag', 'IVHPlot', 'doublebuffer', 'on');
+    h = figure('tag', 'IVHPlot');
     uimenu(h, 'label', 'Expand Options', 'callback','plotIVHCallback(''EXPANDEDVIEW'')','interruptible','on');
     absAxis = axes('parent', h);
     set(h,'numbertitle','off')
@@ -495,7 +495,7 @@ end
 if absFlag == 1
 
     hRel = gcf;
-    h = figure('tag', 'IVHPlot', 'doublebuffer', 'on');
+    h = figure('tag', 'IVHPlot');
     uimenu(h, 'label', 'Expand Options', 'callback',['plotIVHCallback(''EXPANDEDVIEW'')'],'interruptible','on');
     absAxis = axes('parent', h);
     set(h,'numbertitle','off')

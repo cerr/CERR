@@ -47,7 +47,7 @@ switch upper(command)
         end
         screenSize = get(0,'ScreenSize');        
         units = 'normalized';
-        hFig = figure('Name', 'Dose Subtraction', 'doublebuffer', 'on', 'units', 'pixels', 'position',[screenSize(3)/2-200 screenSize(4)/2-133 400 266], 'MenuBar', 'none', 'NumberTitle', 'off', 'resize', 'off', 'Tag', 'CERRDoseAddSubtractFigure');    
+        hFig = figure('Name', 'Dose Subtraction', 'units', 'pixels', 'position',[screenSize(3)/2-200 screenSize(4)/2-133 400 266], 'MenuBar', 'none', 'NumberTitle', 'off', 'resize', 'off', 'Tag', 'CERRDoseAddSubtractFigure');    
         stateS.handle.doseSubtractionMenuFig = hFig;
         
         %Make List boxes
