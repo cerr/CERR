@@ -199,7 +199,7 @@ if absFlag == 1
     hRel = gcf;
     hAbsDVH = findobj('tag', 'CERRAbsDVHPlot');
     if isempty(hAbsDVH)
-        h = figure('tag', 'CERRAbsDVHPlot', 'doublebuffer', 'on');
+        h = figure('tag', 'CERRAbsDVHPlot');
         uimenu(h, 'label', 'Expand Options', 'callback','plotDVHCallback(''EXPANDEDVIEW'')','interruptible','on');
         set(h,'numbertitle','off')
         pos = get(h,'position');

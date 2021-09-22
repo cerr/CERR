@@ -514,7 +514,7 @@ switch lower(arg)
             delete(stateS.handle.navigationMontage);
         end
         f = figure;
-        set(f,'tag','navigationFigure','doublebuffer', 'on', 'CloseRequestFcn','navigationMontage(''quit'')')
+        set(f,'tag','navigationFigure', 'CloseRequestFcn','navigationMontage(''quit'')')
         if ~exist('posFig','var')
         posFig = get(f,'position');
         end

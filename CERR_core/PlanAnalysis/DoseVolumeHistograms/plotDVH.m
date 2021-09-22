@@ -43,8 +43,8 @@ legend_string = '';
 legend_string_abs = '';
 
 %Prepare a figure.
-if exist('newFlag') & newFlag == 1
-    h = figure('tag', 'DVHPlot', 'doublebuffer', 'on');
+if exist('newFlag','var') && newFlag == 1
+    h = figure('tag', 'DVHPlot');
     pos = get(h,'position');
     nDVHFigs = length(findobj('tag', 'DVHPlot'));
     set(h,'position',[pos(1)*(1 - 0.05*nDVHFigs),pos(2)*(1 - 0.05*nDVHFigs),pos(3),pos(4)])
@@ -61,7 +61,7 @@ else
         set(h, 'userdata', []);
         figure(h);
     else
-        h = figure('tag', 'DVHPlot', 'doublebuffer', 'on');
+        h = figure('tag', 'DVHPlot');
         figure(h);
         try
             stateS.handle.DVHPlot = [stateS.handle.DVHPlot h];
@@ -344,7 +344,7 @@ if absFlag == 1
     hRel = get(hAxis, 'parent');
     hAbsDVH = findobj('tag', 'CERRAbsDVHPlot');
     if isempty(hAbsDVH)
-        hFig = figure('tag', 'CERRAbsDVHPlot', 'doublebuffer', 'on');
+        hFig = figure('tag', 'CERRAbsDVHPlot');
         uimenu(hFig, 'label', 'Expand Options', 'callback','plotDVHCallback(''EXPANDEDVIEW'')','interruptible','on');
         %absAxis = axes('parent', hFig);
         absAxis = axes('parent', hFig, 'tag', 'AbsDVHAxis', 'nextPlot','Add');

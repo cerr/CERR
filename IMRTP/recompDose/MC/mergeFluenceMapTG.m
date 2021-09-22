@@ -74,7 +74,7 @@ set(hAxis2, 'xlim', xL);
 set(hAxis2, 'ylim', yL);
 axis(hAxis2, 'manual');
 %     w_colors = floor((w_field ./ max(w_field))*255)+1;
-set(gcf, 'doublebuffer', 'on');
+%set(gcf, 'doublebuffer', 'on');
 
 %y=0.05; %(?)
 y=0;

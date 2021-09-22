@@ -62,7 +62,7 @@ switch lower(command)
         end
         screenSize = get(0,'ScreenSize');        
         units = 'normalized';
-        hFig = figure('Name', 'DVH Data Export', 'doublebuffer', 'off', 'position',[screenSize(3)/10 screenSize(4)/8 screenSize(3)/10*8 screenSize(4)/10*5], 'MenuBar', 'none', 'NumberTitle', 'off', 'resize', 'off', 'Tag', 'DVHExportFigure');
+        hFig = figure('Name', 'DVH Data Export', 'position',[screenSize(3)/10 screenSize(4)/8 screenSize(3)/10*8 screenSize(4)/10*5], 'MenuBar', 'none', 'NumberTitle', 'off', 'resize', 'off', 'Tag', 'DVHExportFigure');
 
         stateS.handles.figure = hFig;        
 

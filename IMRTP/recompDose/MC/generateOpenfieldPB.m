@@ -17,7 +17,7 @@ save (filename, 'xPosV', 'yPosV', 'beamlet_delta_x', 'beamlet_delta_y', 'w_field
 figure;hAxis2 = axes;hold on;
 %axis(hAxis2, 'manual');
            %     w_colors = floor((w_field ./ max(w_field))*255)+1;
-                set(gcf, 'doublebuffer', 'on');
+                %set(gcf, 'doublebuffer', 'on');
                 for i=1:length(xPosV)
                     patch([xPosV(i) - beamlet_delta_x(i)/2 xPosV(i) - beamlet_delta_x(i)/2 xPosV(i) + beamlet_delta_x(i)/2 xPosV(i) + beamlet_delta_x(i)/2 xPosV(i) - beamlet_delta_x(i)/2], [yPosV(i) - beamlet_delta_y(i)/2 yPosV(i) + beamlet_delta_y(i)/2 yPosV(i) + beamlet_delta_y(i)/2 yPosV(i) - beamlet_delta_y(i)/2 yPosV(i) - beamlet_delta_y(i)/2], w_field(i));
                 end

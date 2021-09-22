@@ -64,7 +64,7 @@ switch upper(command)
         %If gui doesnt exist, create it, else refresh it.
         if isempty(h)
             %Set up a new GUI window.
-            h = figure('doublebuffer', 'on', 'units', 'pixels', 'position',[(screenSize(3)-x)/2 (screenSize(4)-y)/2 x y], 'MenuBar', 'none', 'NumberTitle', 'off', 'resize', 'off', 'Tag', 'scanManagementGui', 'Color', [.75 .75 .75], 'WindowButtonUpFcn', 'scanManagementGui(''FIGUREBUTTONUP'')');
+            h = figure('units', 'pixels', 'position',[(screenSize(3)-x)/2 (screenSize(4)-y)/2 x y], 'MenuBar', 'none', 'NumberTitle', 'off', 'resize', 'off', 'Tag', 'scanManagementGui', 'Color', [.75 .75 .75], 'WindowButtonUpFcn', 'scanManagementGui(''FIGUREBUTTONUP'')');
             stateS.handle.scanManagementFig = h;
             set(h, 'Name','Scan Management');
 

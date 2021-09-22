@@ -1460,7 +1460,7 @@ switch upper(instr)
                 %Setup axis for motion for Segment Labeler
                 if stateS.segmentLabelerState                    
                     set(hFig, 'WindowButtonMotionFcn', 'segmentLabelerControl(''segmentLabeler'', ''motionInFigure'');');                 
-                    set(hFig, 'doublebuffer', 'on');   
+                    %set(hFig, 'doublebuffer', 'on');   
                     return;
                 end
                 
