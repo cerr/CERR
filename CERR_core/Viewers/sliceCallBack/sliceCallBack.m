@@ -464,7 +464,7 @@ switch upper(instr)
 
         %Populate bottom margin Gui Objects.
         %Command line editbox.
-        stateS.handle.commandLine = uicontrol(hCSV,'units',units,'BackgroundColor',[1 1 1], 'position',[145 30 90 18]/512, 'String','help','Style','edit','Tag','command', 'callback','sliceCallBack(''command'');','horizontalalignment','left');
+        stateS.handle.commandLine = uicontrol(hCSV,'units',units,'BackgroundColor',[1 1 1], 'position',[145 30 90 18]/512, 'String','help','Style','edit','Tag','command', 'keypressfcn','sliceCallBack(''command'');','horizontalalignment','left');
         hCmd = uicontrol(hCSV,'units',units,'Position',[110 25 30 20]/512,'Style','text', 'enable', 'inactive'  ,'String','Command:', 'horizontalAlignment', 'left', 'Backgroundcolor', figureColor);
         set([stateS.handle.commandLine, hCmd], 'units', 'pixels');
 
