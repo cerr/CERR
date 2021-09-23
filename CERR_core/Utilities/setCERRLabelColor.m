@@ -37,7 +37,8 @@ else
     colorV = getColor(colorNum, varargin{1}.colorOrder);
 end
 
-if (mean(colorV) < 0.6) & ((max(colorV) == colorV(1)) | (max(colorV) == colorV(3)))  & ~(max(colorV) == colorV(2))
+if (mean(colorV) < 0.6) && ((max(colorV) == colorV(1)) || ...
+        (max(colorV) == colorV(3))) && ~(max(colorV) == colorV(2))
   borw  = [1 1 1]; %white
 else
   borw = [ 0 0 0];  %black
