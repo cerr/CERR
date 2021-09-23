@@ -54,19 +54,19 @@ function varargout = getUniformStr(structNumV, planC, optS, generateData)
 
 
 %Check if plan passed, if not use global.
-if ~exist('planC')
+if ~exist('planC','var')
     global planC;
 end
 indexS = planC{end};
 
-if ~exist('generateData')
+if ~exist('generateData','var')
     generateData = 1;
 end
 
 %Determine whether to return mask or r,c,s coordinates.
-if nargout == 0 | nargout == 1 | nargout == 2
+if nargout == 0 || nargout == 1 || nargout == 2
     wantMask = 1; %Return 3D mask
-elseif nargout == 3 | nargout == 4
+elseif nargout == 3 || nargout == 4
     wantMask = 0; %Return RCS.
 else
     error('Invalid number of output arguments in call to getUniformStr.');    
@@ -74,7 +74,7 @@ end
 
 %Check if optS passed.  If not, try using global stateS options, else use
 %options saved in the CERR plan.
-if ~exist('optS')
+if ~exist('optS','var')
     try
         global stateS;
         optS = stateS.optS;
@@ -84,8 +84,8 @@ if ~exist('optS')
 end
 
 %If structNumV is a string or cell of strings, convert to numerics.
-if isstr(structNumV) | iscell(structNumV)
-    if isstr(structNumV)
+if ischar(structNumV) || iscell(structNumV)
+    if ischar(structNumV)
         structNumV = {structNumV};
     end
     
@@ -156,7 +156,7 @@ for i=1:length(structNumV)
 	%If no voxels are part of structNum, suggests that the structure needs
 	%to be uniformized. Uniformize it.  This is recursive so if a structure
 	%exists that cannot be uniformized...trouble!
-    if ~any(bitMaskV) & generateData
+    if ~any(bitMaskV) && generateData
         warning(['Structure ' planC{indexS.structures}(structNum).structureName ' does not appear to be uniformized.  Adding it to uniformized data.']);
         planC = updateStructureMatrices(planC, structNum);
         otherIndicesM = [];

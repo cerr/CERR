@@ -52,12 +52,12 @@ else
    wordNum = 0;
    while index<= len
       char=stringS(index);
-      if ~isspace(char) & beginning==0
+      if ~isspace(char) && beginning==0
         indices_begin=[indices_begin,index];
         ending=0;
         beginning=1;
       end
-      if isspace(char) & ending==0
+      if isspace(char) && ending==0
         indices_end=[indices_end,index-1];
         beginning=0;
         ending=1;

@@ -43,7 +43,7 @@ units = 'normalized';
 rowHeight = .06;
 
 %If no command given, default to init.
-if ~exist('command') | isempty(command)
+if ~exist('command','var') || isempty(command)
     command = 'init';
 end
 
