@@ -55,7 +55,7 @@ switch upper(command)
         w = 800; h = 600;
 
         %Initial size of figure in pixels. Figure scales fairly well.
-        hFig = figure('name', 'DVH Menu', 'units', units, 'position',[(screenSize(3)-w)/2 (screenSize(4)-h)/2 w h], 'MenuBar', 'none', 'NumberTitle', 'off', 'resize', 'on', 'Tag', 'DVHGui', 'DoubleBuffer', 'on');
+        hFig = figure('name', 'DVH Menu', 'units', units, 'position',[(screenSize(3)-w)/2 (screenSize(4)-h)/2 w h], 'MenuBar', 'none', 'NumberTitle', 'off', 'resize', 'on', 'Tag', 'DVHGui');
         stateS.handle.DVHMenuFigure = hFig;
         ud.figure.w = w; ud.figure.h = h;
 

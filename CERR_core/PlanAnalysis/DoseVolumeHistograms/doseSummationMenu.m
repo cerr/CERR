@@ -33,7 +33,7 @@ switch upper(command)
         dx = 20;
         dy = 20;
         
-        hFig = figure('Name', 'Dose Summation', 'doublebuffer', 'on', 'units', 'pixels', 'position',[(screenSize(3)-x)/2 (screenSize(4)-y)/2 x y], 'MenuBar', 'none', 'NumberTitle', 'off', 'resize', 'off', 'Tag', 'CERRDoseSummationFigure');    
+        hFig = figure('Name', 'Dose Summation', 'units', 'pixels', 'position',[(screenSize(3)-x)/2 (screenSize(4)-y)/2 x y], 'MenuBar', 'none', 'NumberTitle', 'off', 'resize', 'off', 'Tag', 'CERRDoseSummationFigure');    
         stateS.handle.doseSummationMenuFig = hFig; 
 
         bartop = 80;        
