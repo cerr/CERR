@@ -100,7 +100,7 @@ XYZLims = {newXLims, newYLims, newZLims};
 XYZRes  = {length(xV), length(yV), length(zV)};
 
 %If we are outside the range of the transformed CT, return empty.
-if coord < min(XYZLims{dim}) | coord > max(XYZLims{dim})
+if coord < min(XYZLims{dim}) || coord > max(XYZLims{dim})
     slcC = []; sliceXVals = []; sliceYVals = [];
     return;
 end
@@ -126,11 +126,11 @@ if rotation
             imgSize      = [length(imageYVals) length(imageXVals) 1];
             permuteM     = [1 2 3];
     end
-
+    
     %Apply transformation to the limits if necessary.
     if ~isequal(transM,eye(4))
         mat = [xM(:) yM(:) zM(:) ones(numel(xM), 1)]';
-        mat = inv(transM) * mat;
+        mat = transM \ mat; %inv(transM) * mat;
         xM = mat(1,:);
         yM = mat(2,:);
         zM = mat(3,:);

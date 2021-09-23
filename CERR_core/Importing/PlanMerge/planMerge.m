@@ -61,17 +61,17 @@ IM      = planD{indexSD.IM};
 gsps    = planD{indexSD.GSPS};
 
 %Handle case of 'all' or unpassed indVs.
-if (exist('scanIndV') & strcmpi(scanIndV, 'all')) | ~exist('scanIndV')
+if (exist('scanIndV','var') && strcmpi(scanIndV, 'all')) || ~exist('scanIndV','var')
     scanIndV = 1:length(scans);
 end
-if (exist('doseIndV') & strcmpi(doseIndV, 'all')) | ~exist('doseIndV')
+if (exist('doseIndV','var') && strcmpi(doseIndV, 'all')) || ~exist('doseIndV','var')
     doseIndV = 1:length(doses);
 end
-if (exist('structIndV') & strcmpi(structIndV, 'all')) | ~exist('structIndV')
+if (exist('structIndV','var') && strcmpi(structIndV, 'all')) || ~exist('structIndV','var')
     structIndV = 1:length(structs);
 end
 
-if isempty(scanIndV) & isempty(doseIndV) & isempty(structIndV)
+if isempty(scanIndV) && isempty(doseIndV) && isempty(structIndV)
     CERRStatusString('Exiting Plan Merge GUI....')
     return;
 end
@@ -181,13 +181,13 @@ end
 for doseNum = 1:length(doses)
     if doses(doseNum).zValues(2) - doses(doseNum).zValues(1) < 0
         doses(doseNum).zValues = flipud(doses(doseNum).zValues);
-        doses(doseNum).doseArray = flipdim(doses(doseNum).doseArray,3);
+        doses(doseNum).doseArray = flip(doses(doseNum).doseArray,3);
     end
     %Check y grid
     if doses(doseNum).verticalGridInterval > 0
         doses(doseNum).coord2OFFirstPoint = doses(doseNum).coord2OFFirstPoint + abs(doses(doseNum).verticalGridInterval) * doses(doseNum).sizeOfDimension2;
         doses(doseNum).verticalGridInterval = -doses(doseNum).verticalGridInterval;
-        doses.doseArray = flipdim(doses(doseNum).doseArray,1);
+        doses.doseArray = flip(doses(doseNum).doseArray,1);
     end    
 end
 
@@ -299,7 +299,7 @@ doseIndV   = setdiff(doseIndV,dosesWithSameUID);
 structIndV = setdiff(structIndV,structsWithSameUID);
 
 %Remove structures from planD's uniformized data if they aren't being imported.
-toDelete = setdiff(1:length(structs), [structIndV]);
+toDelete = setdiff(1:length(structs), structIndV);
 if ~isempty(uniData) && ~isempty(toDelete)
     planD    = delUniformStr(toDelete, planD);
     uniData = planD{indexSD.structureArray};
