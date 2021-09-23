@@ -375,7 +375,7 @@ switch upper(varargin{1})
                 [c, hStructContour] = contour(1:numCols, 1:numRows, single(structTM), [.5 .5], '-');
                 set(hStructContour, 'parent', hTransverse,'visible','off');
                 if stateS.optS.structureDots
-                    for cNum=1:length(hStructContour);
+                    for cNum=1:length(hStructContour)
                         hStructContourDots(cNum) = line(get(hStructContour(cNum), 'xData'), get(hStructContour(cNum), 'yData'), 'parent', hTransverse, 'hittest', 'off');
                     end
                 end

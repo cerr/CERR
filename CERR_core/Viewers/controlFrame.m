@@ -3726,8 +3726,8 @@ indexS = planC{end};
 baseSet = stateS.imageRegistrationBaseDataset;
 scanUID = ['c',repSpaceHyp(planC{indexS.scan}(baseSet).scanUID(max(1,end-61):end))];
 
-baseCTWidth = stateS.scanStats.CTWidth.(scanUID);
-baseCTLevel = stateS.scanStats.CTLevel.(scanUID);
+baseCTWidth = num2str(stateS.scanStats.CTWidth.(scanUID));
+baseCTLevel = num2str(stateS.scanStats.CTLevel.(scanUID));
 baseColormap = stateS.scanStats.Colormap.(scanUID);
 basePreset = stateS.scanStats.windowPresets.(scanUID);
 
@@ -3746,8 +3746,8 @@ indexS = planC{end};
 movSet = stateS.imageRegistrationMovDataset;
 scanUID = ['c',repSpaceHyp(planC{indexS.scan}(movSet).scanUID(max(1,end-61):end))];
 
-movCTWidth = stateS.scanStats.CTWidth.(scanUID);
-movCTLevel = stateS.scanStats.CTLevel.(scanUID);
+movCTWidth = num2str(stateS.scanStats.CTWidth.(scanUID));
+movCTLevel = num2str(stateS.scanStats.CTLevel.(scanUID));
 movColormap = stateS.scanStats.Colormap.(scanUID);
 movPreset = stateS.scanStats.windowPresets.(scanUID);
 
