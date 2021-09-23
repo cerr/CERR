@@ -50,16 +50,16 @@ units = 'pixels';
 algorithms = {};
 algDefault = '';
 if VMCPresent
-    algorithms = {algorithms{:}, 'VMC++'};
+    algorithms = [algorithms(:)', {'VMC++'}];
     algDefault = 'VMC++';
     %     x = 950;
 end
 if DPMPresent
-    algorithms = {algorithms{:}, 'DPM'};
+    algorithms = [algorithms(:)', {'DPM'}];
     algDefault = 'DPM';
 end
 if QIBPresent
-    algorithms = {algorithms{:}, 'QIB'};
+    algorithms = [algorithms(:)', {'QIB'}];
     algDefault = 'QIB';
 end
 
@@ -275,8 +275,11 @@ switch upper(command)
                     boxStyle = 'popupmenu';
                     choices = fieldChoices{i};
                 end
+                if isempty(choices)
+                    choices = '';
+                end
                 ud.bp.handles = setfield(ud.bp.handles, [[fName{:}] '_txt'], uicontrol(h, 'style', 'text', 'units', units, 'position', [bpX+10+colspac*col bpY+bpH-27-(20*row) bpFieldW bpFieldH], 'string', [fName{:}], 'horizontalAlignment', 'left'));
-                ud.bp.handles = setfield(ud.bp.handles, [[fName{:}] '_val'], uicontrol(h, 'style', boxStyle, 'units', units, 'position', [bpX+10+bpFieldW+colspac*col bpY+bpH-27-(20*row) bpFieldW bpFieldH], 'string', num2str(choices), 'horizontalAlignment', 'left', 'tag', ['IMGui.' [fName{:}]], 'foregroundcolor', fgColor,  'userdata', i, 'callback', 'IMRTPGui(''BEAMPARAMCHANGED'')', 'enable', 'inactive'));
+                ud.bp.handles = setfield(ud.bp.handles, [[fName{:}] '_val'], uicontrol(h, 'style', boxStyle, 'units', units, 'position', [bpX+10+bpFieldW+colspac*col bpY+bpH-27-(20*row) bpFieldW bpFieldH], 'string', choices, 'horizontalAlignment', 'left', 'tag', ['IMGui.' [fName{:}]], 'foregroundcolor', fgColor,  'userdata', i, 'callback', 'IMRTPGui(''BEAMPARAMCHANGED'')', 'enable', 'inactive'));
                 if ~fieldIsEditable(i)
                     ud.bp.handles = setfield(ud.bp.handles, [[fName{:}] '_box'], uicontrol(h, 'style', 'checkbox', 'units', units, 'position', [bpX+10+bpFieldW+colspac*col-18 bpY+bpH-27-(20*row) 15 bpFieldH], 'value', 1, 'userdata', i, 'callback', 'IMRTPGui(''AUTOCHECKCHANGED'')'));
                 end

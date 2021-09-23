@@ -32,7 +32,7 @@ function bool = VMCPresent
 
 bool = 0;
 IMRTPdir = fileparts(which('IMRTP'));
-if exist(fullfile(IMRTPdir, 'vmc++', 'bin', 'vmc_Linux.exe'), 'file') == 2 & ...
+if exist(fullfile(IMRTPdir, 'vmc++', 'bin', 'vmc_Linux.exe'), 'file') == 2 && ...
    exist(fullfile(IMRTPdir, 'vmc++', 'bin', 'vmc_Windows.exe'), 'file') == 2
    bool = 1;
 end
