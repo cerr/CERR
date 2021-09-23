@@ -61,7 +61,7 @@ switch upper(command)
 
         %Initial size of figure in pixels. Figure scales fairly well.
         hFig = figure('name', 'Intensity Volume Histogram Menu', 'units', units, 'position',[(screenSize(3)-w)/2 (screenSize(4)-h)/2 w h],...
-            'MenuBar', 'none', 'NumberTitle', 'off', 'resize', 'on', 'Tag', 'IVHGui', 'DoubleBuffer', 'on');
+            'MenuBar', 'none', 'NumberTitle', 'off', 'resize', 'on', 'Tag', 'IVHGui');
         stateS.handle.IVHMenuFigure = hFig;
         ud.figure.w = w; ud.figure.h = h;
 

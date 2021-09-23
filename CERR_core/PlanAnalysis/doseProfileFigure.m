@@ -76,7 +76,7 @@ switch upper(command)
         w = 510; h = 650;
 
         %Initial size of figure in pixels. Figure scales fairly well.
-        hFig = figure('name', 'Dose Line Profile', 'units', units, 'position',[(screenSize(3)-w) 35 w h], 'MenuBar', 'none', 'NumberTitle', 'off', 'resize', 'off', 'Tag', 'CERR_DoseLineProfile', 'DoubleBuffer', 'on', 'DeleteFcn', 'doseProfileFigure(''CLOSE'')');
+        hFig = figure('name', 'Dose Line Profile', 'units', units, 'position',[(screenSize(3)-w) 35 w h], 'MenuBar', 'none', 'NumberTitle', 'off', 'resize', 'off', 'Tag', 'CERR_DoseLineProfile', 'DeleteFcn', 'doseProfileFigure(''CLOSE'')');
         stateS.handle.doseProfileFigure = hFig;
 
         nDoses = length(planC{indexS.dose});
