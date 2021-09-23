@@ -47,7 +47,7 @@ for i=1:length(stringS)
   if ~isspace(next_char)
     hit_word=1;
   end
-  if  isspace(next_char) & hit_word==1
+  if  isspace(next_char) && hit_word==1
       hit_word=0;
       num_words=num_words+1;
   end
