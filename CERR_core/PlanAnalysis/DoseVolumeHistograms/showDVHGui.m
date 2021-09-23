@@ -39,10 +39,10 @@ end
 hFig = findobj('Tag', 'DVHGui');
 
 %If old figure exists, refresh it.
-if isempty(hFig) & ~strcmpi(command, 'INIT')
+if isempty(hFig) && ~strcmpi(command, 'INIT')
     error('DVHGui no longer exists. Callback failed.');
     return;
-elseif ~isempty(hFig) & strcmpi(command, 'INIT')
+elseif ~isempty(hFig) && strcmpi(command, 'INIT')
     figure(hFig);
     showDVHGui('REFRESH')
     return;
@@ -394,7 +394,11 @@ switch upper(command)
             set(ud.df.handles.avg(i),  'visible', 'on', 'value', ud.state.avg(indDVH), 'backgroundColor', barColor);
             set(ud.df.handles.abs(i) , 'visible', 'on', 'value', ud.state.abs(indDVH), 'backgroundColor', barColor)
             set(ud.df.handles.comp(i), 'visible', 'on', 'string', comp, 'backgroundColor', barColor)
-            set(ud.df.handles.pID(i) , 'visible', 'on', 'string',  planC{indexS.DVH}(indDVH).planIDOfOrigin, 'backgroundColor', barColor);
+            planIDOfOrigin = planC{indexS.DVH}(indDVH).planIDOfOrigin;
+            if isempty(planIDOfOrigin)
+                planIDOfOrigin = '';
+            end
+            set(ud.df.handles.pID(i) , 'visible', 'on', 'string',  planIDOfOrigin, 'backgroundColor', barColor);
             set(ud.df.handles.fID(i) , 'visible', 'on', 'string',  fractGroupID, 'backgroundColor', barColor);
             set(ud.df.handles.dInd(i), 'visible', 'on', 'string',  doseInd, 'backgroundColor', barColor, 'foregroundcolor', doseIndexTextColor,'tooltipstring', doseIndexTooltip,'FontWeight',doseFontWeight);            
             set(ud.df.handles.SInd(i), 'visible', 'on', 'string',  strInd, 'backgroundColor', barColor, 'foregroundcolor', strIndexTextColor,'tooltipstring', strIndexTooltip,'FontWeight',strFontWeight);            
