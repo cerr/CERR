@@ -251,8 +251,8 @@ switch upper(command)
                 for i=1:10
                     ud.bl.handles.numTxt((beamSet-1)*10+i)   = uicontrol(h, 'enable', 'inactive', 'style', 'text', 'units', units, 'position', [blX+10 blY+blH - 20 - 20*(i) 15 15], 'userdata', (beamSet-1)*10+i, 'horizontalAlignment', 'left', 'string', [num2str((beamSet-1)*10+i) '.'], 'visible', 'off');
                     ud.bl.handles.nameTxt((beamSet-1)*10+i)  = uicontrol(h, 'enable', 'inactive', 'style', 'text', 'units', units, 'position', [blX+30 blY+blH - 20 - 20*(i) 90 15], 'userdata', (beamSet-1)*10+i, 'horizontalAlignment', 'center', 'visible', 'off', 'buttondownfcn', 'IMRTPGui(''SELECTBEAM'')');
-                    ud.bl.handles.bevChk((beamSet-1)*10+i)  = uicontrol(h, 'enable', 'on', 'style', 'check', 'units', units, 'position', [blX+130 blY+blH - 20 - 20*(i) 20 15], 'userdata', (beamSet-1)*10+i, 'horizontalAlignment', 'center', 'visible', 'off', 'callBack', ['IMRTPGui(','''BEVCHK'',',num2str(i),')']);
-                    ud.bl.handles.bevType((beamSet-1)*10+i)  = uicontrol(h, 'enable', 'on', 'style', 'popup', 'string',{'Entire jaw-opening','Leaf-sequences','Beamlet-Weights'}, 'fontsize',7, 'units', units, 'position', [blX+150 blY+blH+5 - 20 - 20*(i) 80 10], 'userdata', (beamSet-1)*10+i, 'horizontalAlignment', 'center', 'visible', 'off', 'callBack', 'sliceCallBack(''REFRESH'')');
+                    ud.bl.handles.bevChk((beamSet-1)*10+i)  = uicontrol(h, 'enable', 'on', 'style', 'checkbox', 'units', units, 'position', [blX+130 blY+blH - 20 - 20*(i) 20 15], 'userdata', (beamSet-1)*10+i, 'horizontalAlignment', 'center', 'visible', 'off', 'callBack', ['IMRTPGui(','''BEVCHK'',',num2str(i),')']);
+                    ud.bl.handles.bevType((beamSet-1)*10+i)  = uicontrol(h, 'enable', 'on', 'style', 'popupmenu', 'string',{'Entire jaw-opening','Leaf-sequences','Beamlet-Weights'}, 'fontsize',7, 'units', units, 'position', [blX+150 blY+blH+5 - 20 - 20*(i) 80 10], 'userdata', (beamSet-1)*10+i, 'horizontalAlignment', 'center', 'visible', 'off', 'callBack', 'sliceCallBack(''REFRESH'')');
                 end
             end
             ud.bl.sliderH = uicontrol(h, 'style', 'slider', 'units', units, 'position', [blX+blW/2+110 blY+blH-220 15 200],'min',0,'max',4,'value',4,'callBack','IMRTPGui(''REFRESHBEAMS'')','sliderstep',[0.2 0.2]);            
@@ -276,7 +276,7 @@ switch upper(command)
                     choices = fieldChoices{i};
                 end
                 ud.bp.handles = setfield(ud.bp.handles, [[fName{:}] '_txt'], uicontrol(h, 'style', 'text', 'units', units, 'position', [bpX+10+colspac*col bpY+bpH-27-(20*row) bpFieldW bpFieldH], 'string', [fName{:}], 'horizontalAlignment', 'left'));
-                ud.bp.handles = setfield(ud.bp.handles, [[fName{:}] '_val'], uicontrol(h, 'style', boxStyle, 'units', units, 'position', [bpX+10+bpFieldW+colspac*col bpY+bpH-27-(20*row) bpFieldW bpFieldH], 'string', choices, 'horizontalAlignment', 'left', 'tag', ['IMGui.' [fName{:}]], 'foregroundcolor', fgColor,  'userdata', i, 'callback', 'IMRTPGui(''BEAMPARAMCHANGED'')', 'enable', 'inactive'));
+                ud.bp.handles = setfield(ud.bp.handles, [[fName{:}] '_val'], uicontrol(h, 'style', boxStyle, 'units', units, 'position', [bpX+10+bpFieldW+colspac*col bpY+bpH-27-(20*row) bpFieldW bpFieldH], 'string', num2str(choices), 'horizontalAlignment', 'left', 'tag', ['IMGui.' [fName{:}]], 'foregroundcolor', fgColor,  'userdata', i, 'callback', 'IMRTPGui(''BEAMPARAMCHANGED'')', 'enable', 'inactive'));
                 if ~fieldIsEditable(i)
                     ud.bp.handles = setfield(ud.bp.handles, [[fName{:}] '_box'], uicontrol(h, 'style', 'checkbox', 'units', units, 'position', [bpX+10+bpFieldW+colspac*col-18 bpY+bpH-27-(20*row) 15 bpFieldH], 'value', 1, 'userdata', i, 'callback', 'IMRTPGui(''AUTOCHECKCHANGED'')'));
                 end
