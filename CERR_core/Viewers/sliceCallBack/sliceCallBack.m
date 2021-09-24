@@ -3512,13 +3512,8 @@ switch upper(instr)
 
 
         %hFigure = findobj('tag', 'navigationFigure');
-        if isfield('stateS.handle','navigationMontage')
-        hFigure = stateS.handle.navigationMontage;
-        else
-        hFigure = gobjects(0);
-        end
-
-        if ~isempty(hFigure)
+        if isfield('stateS.handle','navigationMontage') && ...
+                ishandle(stateS.handle.navigationMontage)            
             navigationMontage('init',stateS.scanSet) % initialize montage
         end
 
