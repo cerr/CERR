@@ -69,34 +69,34 @@ XYZsource = repmat(xyzSource',size(xyDoseBoundary(1,:,:)));
 
 %% boundary 1 (intersection between XYZ-plane and rays)
 dXv = (xyDoseBoundary(1,:) - XYZsource(1,:));
-indZeroSlope = find(abs(dXv)<1e-6);
+indZeroSlope = abs(dXv)<1e-6;
 dXv(indZeroSlope) = inf; % change zero slope to inf
 y1 = XYZsource(2,:) + (xyDoseBoundary(2,:) - XYZsource(2,:)).*(coord - XYZsource(1,:))./dXv;
 z1 = XYZsource(3,:) + (xyDoseBoundary(3,:) - XYZsource(3,:)).*(coord - XYZsource(1,:))./dXv;
 
 %% cutoff back projection
-if length(unique(sign(y1-XYZsource(2,:))))==1 & unique(sign(y1-XYZsource(2,:)))==0
+if length(unique(sign(y1-XYZsource(2,:))))==1 && unique(sign(y1-XYZsource(2,:)))==0
     indToKeep = 1;
 else
     intersectToSourceY = y1-XYZsource(2,:);
     polyBoundaryToSourceY = xyDoseBoundary(2,:) - XYZsource(2,:);
-    intersectToSourceY(find(abs(intersectToSourceY)<1e-12)) = 0;
-    polyBoundaryToSourceY(find(abs(polyBoundaryToSourceY)<1e-6)) = 0;
+    intersectToSourceY(abs(intersectToSourceY)<1e-12) = 0;
+    polyBoundaryToSourceY(abs(polyBoundaryToSourceY)<1e-6) = 0;
 
     intersectToSourceZ = z1-XYZsource(3,:);
     polyBoundaryToSourceZ = xyDoseBoundary(3,:) - XYZsource(3,:);
-    intersectToSourceZ(find(abs(intersectToSourceZ)<1e-12)) = 0;
-    polyBoundaryToSourceZ(find(abs(polyBoundaryToSourceZ)<1e-6)) = 0;
+    intersectToSourceZ(abs(intersectToSourceZ)<1e-12) = 0;
+    polyBoundaryToSourceZ(abs(polyBoundaryToSourceZ)<1e-6) = 0;
 
     indToKeep = (sign(intersectToSourceY) == sign(polyBoundaryToSourceY)) & (sign(intersectToSourceZ) == sign(polyBoundaryToSourceZ));
 end
 indBreak = find(diff(indToKeep)~=0);
 
-if length(indBreak)==2 & indToKeep(indBreak(1)+1) == 0
+if length(indBreak)==2 && indToKeep(indBreak(1)+1) == 0
     indCorrectOrder = [indBreak(1):-1:1 length(y1):-1:indBreak(2)+1];
     yy1 = y1(indCorrectOrder);
     zz1 = z1(indCorrectOrder);
-elseif length(indBreak)==2 & indToKeep(indBreak(1)+1)== -1
+elseif length(indBreak)==2 && indToKeep(indBreak(1)+1)== -1
     indCorrectOrder = linspace(indBreak(1),1,indBreak(1)-indBreak(2)+1);
     yy1 = y1(indCorrectOrder);
     zz1 = z1(indCorrectOrder);
@@ -107,7 +107,7 @@ end
     
 %% boundary 2 (intersection between XYZ-plane and polygon)
 yz3 = {};
-if length(yy1)<length(xyDoseBoundary(1,:)) & ~isempty(yy1) % i.e. plane does not intersect all the rays    
+if length(yy1)<length(xyDoseBoundary(1,:)) && ~isempty(yy1) % i.e. plane does not intersect all the rays    
     dxDOSEv = [xyDoseBoundary(1,:) ; [xyDoseBoundary(1,2:end) xyDoseBoundary(1,1)]];
     dyDOSEv = [xyDoseBoundary(2,:) ; [xyDoseBoundary(2,2:end) xyDoseBoundary(2,1)]];
     dzDOSEv = [xyDoseBoundary(3,:) ; [xyDoseBoundary(3,2:end) xyDoseBoundary(3,1)]];
