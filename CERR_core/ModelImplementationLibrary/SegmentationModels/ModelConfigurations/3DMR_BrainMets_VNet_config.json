@@ -16,7 +16,7 @@
 
          "channels" :{
                         "imageType": {
-                                        "assignBkgIntensity": {
+                                     "assignBkgIntensity": {
                                                "assignVal":0}},
                                      "slice": "current"
                       }
@@ -27,6 +27,10 @@
 "batchSize" : 1,
 
 "structAssocScan": {"identifier" : { "imageType": "MR SCAN"}},
+
+"dicomExportOptS": {
+                  "referencedFrameOfReference": {"structureName": "brain"}
+                 },
 
 "reference" : ""
 
