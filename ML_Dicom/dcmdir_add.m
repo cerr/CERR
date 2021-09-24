@@ -251,7 +251,7 @@ for seriesNum = length(studyS.SERIES):-1:1
         
         %2. Check for series matching temporal position
         % For Philips data, compare temporal position ID tag 
-        if contains(string(currentManufacturer),'Philips')
+        if ~isempty(strfind(currentManufacturer,'Philips'))
             temporalPosSeries = studyS.MRI(seriesNum).info.getString(tempPosTagDec,0);
             temporalPosCurrent = mri.getString(tempPosTagDec,0);
             if ~(isempty(temporalPosCurrent)||isempty(temporalPosSeries))
@@ -303,7 +303,7 @@ for seriesNum = length(studyS.SERIES):-1:1
                 end
             else
             % Temporal position ID (non-Philips scanners)
-                if ~contains(string(currentManufacturer),'Philips')
+            if ~isempty(strfind(currentManufacturer,'Philips'))
                     temporalPosSeries = studyS.MRI(seriesNum).info.getString(tempPosTagDec,0);
                     temporalPosCurrent = mri.getString(tempPosTagDec,0);
                     if ~(isempty(temporalPosCurrent)||isempty(temporalPosSeries))
