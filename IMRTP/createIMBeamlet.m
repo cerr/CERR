@@ -38,13 +38,8 @@ beamlet(1).format  = 'uint8';
 beamlet(1).beamNum = beamNum;
 beamlet(1).fullLength = fullLength;
 
-if isempty(indV) | isempty(doseV)    
+if isempty(indV) || isempty(doseV)    
 %     disp(['Warning: a pencil beam in beam ' num2str(beamNum) ' does not contribute any dose to this structure.'])
-    return;
-end
-
-if length(indV) ~= length(doseV)
-    error('createIMBeamlet: Length of indV must match length of doseV.')
     return;
 end
 

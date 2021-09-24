@@ -50,7 +50,7 @@ RTOGVectorsM(:,3) = - gantryVectorsM(:,2);
 % JC Jan 26 2007
 % Include non-zero couchAngle
 % transform the coordinates for couchAngle.
-if (couchAngle ~= 0 & couchAngle ~= 360)
+if (couchAngle ~= 0 && couchAngle ~= 360)
     disp('transform coordinates for couchAngle');
     patientVectorsM = zeros(size(RTOGVectorsM));
     patientVectorsM(:,1) =  cosdeg(couchAngle) * RTOGVectorsM(:,1) - sindeg(couchAngle) * RTOGVectorsM(:,3);
