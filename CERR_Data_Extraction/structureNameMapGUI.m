@@ -1499,8 +1499,9 @@ switch upper(command)
         structureNameMapGUI('refresh')
         
     case 'LOAD_CERR'
-        CERR('CERRSLICEVIEWER')
-        planNum = ud.scanDir.planNum;
+        %CERR('CERRSLICEVIEWER')
+        planNum = ud.scanDir.planNum;        
+        sliceCallBack('init')
         sliceCallBack('OPENNEWPLANC',ud.nameMapS(planNum).fullFileName)
         
     case 'COHORT_VIEVER'

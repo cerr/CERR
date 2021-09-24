@@ -80,6 +80,9 @@ dcmExportOptS(1) = [];
 dcmExportOptS = struct();
 dcmExportOptS(1) = [];
 
+dcmExportOptS = struct();
+dcmExportOptS(1) = [];
+
 %% Run inference
 if ~any(strcmpi(algorithmC,'BABS'))
     

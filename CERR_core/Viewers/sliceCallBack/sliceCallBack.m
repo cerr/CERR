@@ -1618,7 +1618,7 @@ switch upper(instr)
 
     case 'OPENNEWPLANC'
         %DK
-        if stateS.planLoaded
+        if isfield(stateS,'planLoaded') && stateS.planLoaded
             %exit structure comparison mode if active
             if isfield(stateS,'structCompare')
                 structCompare({'exit'})

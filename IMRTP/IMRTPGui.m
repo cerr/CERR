@@ -278,6 +278,13 @@ switch upper(command)
                 if isempty(choices)
                     choices = '';
                 end
+                if strcmpi(boxStyle,'popupmenu')
+                    for iChoice = 1:length(choices)
+                        if isnumeric(choices{iChoice})
+                            choices{iChoice} = num2str(choices{iChoice});
+                        end
+                    end
+                end
                 ud.bp.handles = setfield(ud.bp.handles, [[fName{:}] '_txt'], uicontrol(h, 'style', 'text', 'units', units, 'position', [bpX+10+colspac*col bpY+bpH-27-(20*row) bpFieldW bpFieldH], 'string', [fName{:}], 'horizontalAlignment', 'left'));
                 ud.bp.handles = setfield(ud.bp.handles, [[fName{:}] '_val'], uicontrol(h, 'style', boxStyle, 'units', units, 'position', [bpX+10+bpFieldW+colspac*col bpY+bpH-27-(20*row) bpFieldW bpFieldH], 'string', choices, 'horizontalAlignment', 'left', 'tag', ['IMGui.' [fName{:}]], 'foregroundcolor', fgColor,  'userdata', i, 'callback', 'IMRTPGui(''BEAMPARAMCHANGED'')', 'enable', 'inactive'));
                 if ~fieldIsEditable(i)
