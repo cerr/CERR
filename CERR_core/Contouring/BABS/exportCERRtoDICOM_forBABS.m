@@ -1,5 +1,5 @@
-function exportCERRtoDICOM_forBABS(cerrPath,segResultCERRRPath,outputCERRPath,outputDicomPath,algorithm,savePlancFlag)
-% function exportCERRtoDICOM_forBABS(cerrPath,segResultCERRRPath,outputCERRPath,outputDicomPath,algorithm,savePlancFlag)
+function exportCERRtoDICOM_forBABS(cerrPath,segResultCERRRPath,outputCERRPath,outputDicomPath,dcmExportOptS,savePlancFlag)
+% function exportCERRtoDICOM_forBABS(cerrPath,segResultCERRRPath,outputCERRPath,outputDicomPath,dcmExportOptS,savePlancFlag)
 %
 % This function exports structures from CERR format to DICMO RTSTRUCT.
 %
@@ -54,6 +54,7 @@ for indBase = 1:length(dirS)
     for iStr = 1:numSegStr
         planC = copyStrToScan(numOrigStr+iStr,1,planC);
     end
+            
 %     %planC = copyStrToScan(numStr,1,planC);
     planC = deleteScan(planC, 2);
 %     for structNum = numOrigStr:-1:1

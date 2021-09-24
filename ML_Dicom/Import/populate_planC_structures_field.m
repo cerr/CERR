@@ -338,7 +338,14 @@ switch fieldname
 
     case 'transferProtocol'
         dataS = 'DICOM';
+        
+    case 'referencedFrameOfReferenceUID'
+        %dataS  = getTagValue(attr, '00200052');
+        %dataS = char(attr.getStrings(org.dcm4che3.data.Tag.FrameOfReferenceUID));
+        %dataS = char(attr.getString(2097234,0));
+        dataS = char(ssObj.getString(805699620,0)); %org.dcm4che3.data.Tag.ReferencedFrameOfReferenceUID;
 
+        
     case 'DICOMHeaders'
         %Currently not implemented
         %Read all the dcm data into a MATLAB struct.

@@ -1,4 +1,4 @@
-function exportCERRtoDICOM(cerrPath,allLabelNamesC,outputCERRPath,outputDicomPath,algorithm,savePlancFlag)
+function exportCERRtoDICOM(cerrPath,allLabelNamesC,outputCERRPath,outputDicomPath,dcmExportOptS,savePlancFlag)
 % function exportCERRtoDICOM(cerrPath,allLabelNamesC,outputCERRPath,outputDicomPath,algorithm,savePlancFlag)
 %
 % This function exports selected structures from CERR format to DICOM RTSTRUCT.
@@ -35,6 +35,29 @@ for indBase = 1:length(dirS)
             fullfile(outputDicomPath,[fname,'.mat']));
     end
     
+    %Get custom options for DICOM export 
+    % Handle special case of assignig reference UID fromanother structure
+    % (e.g. exporting registered images from MIM assistant changes their frameOfreferenceUID)
+    structRefForC = {};
+    if exist(dcmExportOptS,'var') && isstruct(dcmExportOptS)
+        structNameC = {planC{indexS.structures}.structureName};
+        for iDcmOpt = 1:length(dcmExportOptS)
+            if isfield(dcmExportOptS(iDcmOpt),'rt_struct') && ...
+                    isfield(dcmExportOptS(iDcmOpt).rt_struct,'referencedFrameOfReference')
+                toStructureName = dcmExportOptS(iDcmOpt).rt_struct.referencedFrameOfReference.toStructureName;
+                fromStructureName = dcmExportOptS(iDcmOpt).rt_struct.referencedFrameOfReference.fromStructureName;                
+                strIndex = getMatchingIndex(fromStructureName,structNameC,'exact');
+                if isempty(strIndex)
+                    continue
+                end
+                structRefFrameOfReferenceUID = planC{indexS.structures}(strIndex).referencedFrameOfReferenceUID;
+                structRefForC{count,1} = toStructureName;
+                structRefForC{count,2} = structRefFrameOfReferenceUID;
+            end
+        end
+    end
+    
+    
     %Retain only user-input structures (in allLabelNamesC) 
     numStr = length(planC{indexS.structures});
     allStrC = {planC{indexS.structures}.structureName};
@@ -50,7 +73,7 @@ for indBase = 1:length(dirS)
     planC = deleteStructure(planC,allStrV);
     
     %Export DICOM RT structs to outputDicomPath
-    planC = generate_DICOM_UID_Relationships(planC);
+    planC = generate_DICOM_UID_Relationships(planC,structRefForC);
     export_RS_IOD(planC,outputDicomPath,fname);
     
 end
