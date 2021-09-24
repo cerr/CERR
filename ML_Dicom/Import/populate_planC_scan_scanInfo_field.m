@@ -78,7 +78,7 @@ switch fieldname
             otherwise
                 % dataS = 'Unknown';
                 % by Deshan Yang, 3/2/2010
-                if contains(modality,'SCAN')
+                if ~isempty(strfind(modality,'SCAN'))
                     dataS = modality;
                 else
                     dataS = [modality ' SCAN'];
