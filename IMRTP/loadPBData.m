@@ -31,11 +31,8 @@ function QIBDataS = loadPBData
 
 IMRTPdir = fileparts(which('IMRTP'));
 
-load(fullfile(IMRTPdir,'QIBData','aahn_6b.dat'))
-load(fullfile(IMRTPdir,'QIBData','aahn_18b.dat'))
-
-QIBDataS.aahn6b = aahn_6b;
-QIBDataS.aahn18b = aahn_18b;
+QIBDataS.aahn6b = load(fullfile(IMRTPdir,'QIBData','aahn_6b.dat'));
+QIBDataS.aahn18b = load(fullfile(IMRTPdir,'QIBData','aahn_18b.dat'));
 
 %QIB matrix
 load(fullfile(IMRTPdir,'QIBData','QIB_lin_0pt125.mat'))
