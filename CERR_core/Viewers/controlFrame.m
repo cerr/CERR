@@ -681,9 +681,8 @@ switch command
                 stateS.contouringMetaDataS.contourSlcLoadedM = contourSlcLoadedM;
 
                 [jnk, relStructNumV] = getStructureAssociatedScan(toAdd);
-                set(ud.handles.structPopup, 'value', relStructNumV);
-                controlFrame('contour', 'refresh')
                 contourControl('changeStruct', toAdd);
+                controlFrame('contour', 'refresh')
                 
             case 'renameStruct'
                 %Structure has been renamed.
