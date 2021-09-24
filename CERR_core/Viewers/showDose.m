@@ -254,10 +254,10 @@ for j=1:length(axisInfo.doseObj)
                         end
                         relativeLevel = ((level-(colorbarFrameMin))/(colorbarFrameMax - colorbarFrameMin)) * (size(c,1) + 0.5);
                         relativeLevel = clip(round(relativeLevel), 1, size(c,1), 'limits');
-                        set(h, 'Color', c(relativeLevel,:));
+                        set(h, 'LineColor', c(relativeLevel,:));
 
                     else
-                        set(h,'Color', getColor(loc, stateS.optS.colorOrder));
+                        set(h,'LineColor', getColor(loc, stateS.optS.colorOrder));
                     end
 
 %                     if level ~= lastLevel

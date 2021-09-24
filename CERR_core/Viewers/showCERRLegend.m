@@ -107,7 +107,7 @@ if strcmpi(stateS.optS.dosePlotType,'isodose')
                     labelsDoseC = [labelsDoseC,{[num2str(uniqueValues{i}) ' cGy']}];
                     %hLabels = {hLabels{:},[num2str(uniqueValues{i}) ' Gy']};
                 end
-                colorsDoseC = [colorsDoseC,{get(hIso(ind(i)), 'color')}];
+                colorsDoseC = [colorsDoseC,{get(hIso(ind(i)), 'LineColor')}];
                 %colors    = {colors{:},get(hIso(i), 'color')};
             end
         end
