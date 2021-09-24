@@ -7,6 +7,9 @@ function optS = readDLConfigFile(paramFilename)
 % -------------------------------------------------------------------------
 % INPUT:
 % paramFilename : Path to JSON file with parameters.
+%
+% Sample JSON configurations available in:
+% CERR_core\ModelImplementationLibrary\SegmentationModels\ModelConfigurations
 % -------------------------------------------------------------------------
 
 %% Get user inputs from JSON
