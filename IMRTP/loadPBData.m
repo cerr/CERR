@@ -29,41 +29,22 @@ function QIBDataS = loadPBData
 
 %-----------Load dose calc params---------------------%
 
-pathStr = getCERRPath;
+IMRTPdir = fileparts(which('IMRTP'));
 
-if isunix == 1    
-    where = fileparts(which('IMRTP'));
+load(fullfile(IMRTPdir,'QIBData','aahn_6b.dat'))
+load(fullfile(IMRTPdir,'QIBData','aahn_18b.dat'))
 
-    load([where '/QIBData/aahn6b.dat'])
-    load([where '/QIBData/aahn18b.dat'])
-    
-    QIBDataS.aahn6b = aahn6b;
-    QIBDataS.aahn18b = aahn18b;
-    
-    %QIB matrix
-    load([where '/QIBData/QIB_lin_0pt125.mat'])
-    QIBDataS.QIB = QIB_lin_0pt125;
-    
-    %Gaussian QIB matrix
-    load([where '/QIBData/QIBGauss_lin_0pt125.mat'])
-    QIBDataS.QIBGauss = QIBGauss_lin_0pt125;    
-else        
-    where = fileparts(which('IMRTP'));
-    
-    load([where '\QIBData\aahn6b.dat'])
-    load([where '\QIBData\aahn18b.dat'])
-    
-    QIBDataS.aahn6b = aahn6b;
-    QIBDataS.aahn18b = aahn18b;
-    
-    %QIB matrix
-    load([where '\QIBData\QIB_lin_0pt125.mat'])
-    QIBDataS.QIB = QIB_lin_0pt125;
-    
-    %Gaussian QIB matrix
-    load([where '\QIBData\QIBGauss_lin_0pt125.mat'])
-    QIBDataS.QIBGauss = QIBGauss_lin_0pt125;
-end
+QIBDataS.aahn6b = aahn_6b;
+QIBDataS.aahn18b = aahn_18b;
+
+%QIB matrix
+load(fullfile(IMRTPdir,'QIBData','QIB_lin_0pt125.mat'))
+QIBDataS.QIB = QIB_lin_0pt125;
+
+%Gaussian QIB matrix
+load(fullfile(IMRTPdir,'QIBData','QIBGauss_lin_0pt125.mat'))
+QIBDataS.QIBGauss = QIBGauss_lin_0pt125;
+
 
 QIBDataS.deltaQBM=0.0125;
 

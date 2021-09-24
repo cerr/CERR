@@ -1145,7 +1145,7 @@ switch upper(command)
                 val = getfield(ud.IM.params, fName{:});
                 choices = paramChoices{i};
                 if ~isempty(choices)
-                    val = find(strcmpi(choices, val));
+                    val = find(strcmpi(choices, num2str(val)));
                     set(ud.ip.handles.val(i), 'Value', val, 'style', 'popupmenu', 'string', choices, 'visible', 'on');
                 elseif paramIsNum(i)
                     set(ud.ip.handles.val(i), 'string', num2str(val), 'style', 'edit', 'visible', 'on');
