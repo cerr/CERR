@@ -74,6 +74,9 @@ toc
 % Parse algorithm and convert to cell arrray
 algorithmC = split(algorithm,'^');
 
+dcmExportOptS = struct();
+dcmExportOptS(1) = [];
+
 %% Run inference
 if ~any(strcmpi(algorithmC,'BABS'))
     
@@ -124,6 +127,15 @@ if ~any(strcmpi(algorithmC,'BABS'))
             labelMapS = userOptS.strNameToLabelMap;
         end
         allLabelNamesC = [allLabelNamesC,{labelMapS.structureName}];
+        
+        % Get DICOM export settings
+        if isfield(userOptS, 'dicomExportOptS')
+            if isempty(dcmExportOptS)
+                dcmExportOptS = userOptS.dicomExportOptS;
+            else
+                dcmExportOptS = dissimilarInsert(dcmExportOptS,userOptS.dicomExportOptS);
+            end
+        end
     end
     
     % Export segmentations to DICOM RTSTRUCT files
@@ -134,7 +146,7 @@ if ~any(strcmpi(algorithmC,'BABS'))
     fprintf('\nExporting to DICOM format...');
     tic
     exportCERRtoDICOM(origCerrPath,allLabelNamesC,outputCERRPath,...
-        outputDicomPath,algorithm,savePlancFlag)
+        outputDicomPath,dcmExportOptS,savePlancFlag)
     toc
     
 else
@@ -148,7 +160,7 @@ else
         savePlancFlag = 1;
     end
     exportCERRtoDICOM_forBABS(origCerrPath,segResultCERRPath,outputCERRPath,...
-        outputDicomPath,algorithm,savePlancFlag)
+        outputDicomPath,dcmExportOptS,savePlancFlag)
     
 end
 
