@@ -85,13 +85,7 @@ if ~strcmpi(resampleS.method,'none')
 end
 
 %% Convert label maps to CERR structs
-labelMapS = userOptS.strNameToLabelMap;
-if ischar(labelMapS)
-    % Read JSON file containing strname-to-label map
-    labelMapFileName = fullfile(labelPath,labelMapS);
-    valS = jsondecode(fileread(labelMapFileName));
-    labelMapS = valS.strNameToLabelMap;
-end
+[outStrListC,labelMapS] = getAutosegStructnames(userOptS);
 
 roiGenerationDescription = '';
 if isfield(userOptS,'roiGenerationDescription')
@@ -101,7 +95,7 @@ for i = 1 : length(labelMapS)
     labelVal = labelMapS(i).value;
     maskForStr3M = maskOut3M == labelVal;
     planC = maskToCERRStructure(maskForStr3M, isUniform, scanNum,...
-        labelMapS(i).structureName, planC);
+        outStrListC{i}, planC);
     planC{indexS.structures}(end).roiGenerationAlgorithm = 'AUTOMATIC';
     planC{indexS.structures}(end).roiGenerationDescription = roiGenerationDescription;
     planC{indexS.structures}(end).structureDescription = roiGenerationDescription;
