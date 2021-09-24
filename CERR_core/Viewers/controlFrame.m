@@ -1086,7 +1086,7 @@ switch command
                         set(ud.handles.numAuto, 'enable', 'off');
                 end
                 
-                ud = stateS.handle.controlFrameUd ;
+                stateS.handle.controlFrameUd = ud;
                 controlFrame('isodose', 'refresh');
                 
             case 'refresh'
