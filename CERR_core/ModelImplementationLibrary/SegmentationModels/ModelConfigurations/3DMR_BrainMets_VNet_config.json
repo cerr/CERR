@@ -28,6 +28,10 @@
 
 "structAssocScan": {"identifier" : { "imageType": "MR SCAN"}},
 
+"dicomExportOptS": {
+                  "referencedFrameOfReference": {"structureName": "brain"}
+                 },
+
 "reference" : ""
 
 }
