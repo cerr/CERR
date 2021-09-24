@@ -1,5 +1,5 @@
 function exportCERRtoDICOM(cerrPath,allLabelNamesC,outputCERRPath,outputDicomPath,dcmExportOptS,savePlancFlag)
-% function exportCERRtoDICOM(cerrPath,allLabelNamesC,outputCERRPath,outputDicomPath,algorithm,savePlancFlag)
+% function exportCERRtoDICOM(cerrPath,allLabelNamesC,outputCERRPath,outputDicomPath,dcmExportOptS,savePlancFlag)
 %
 % This function exports selected structures from CERR format to DICOM RTSTRUCT.
 %
@@ -44,6 +44,7 @@ for indBase = 1:length(dirS)
         for iDcmOpt = 1:length(dcmExportOptS)
             if isfield(dcmExportOptS(iDcmOpt),'rt_struct') && ...
                     isfield(dcmExportOptS(iDcmOpt).rt_struct,'referencedFrameOfReference')
+                % Update to handle multiple structures
                 toStructureName = dcmExportOptS(iDcmOpt).rt_struct.referencedFrameOfReference.toStructureName;
                 fromStructureName = dcmExportOptS(iDcmOpt).rt_struct.referencedFrameOfReference.fromStructureName;                
                 strIndex = getMatchingIndex(fromStructureName,structNameC,'exact');
