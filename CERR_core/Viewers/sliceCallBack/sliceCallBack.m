@@ -1091,6 +1091,10 @@ switch upper(instr)
             showPlaneLocators;
             showPatientOrientation;
         %end
+        
+        % Resize dose colorbar
+        CERRColorBar('refresh',stateS.handle.doseColorbar.trans)
+        
         return;
 
     case 'LAYOUT'        
