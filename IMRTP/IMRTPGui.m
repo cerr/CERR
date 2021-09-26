@@ -1023,10 +1023,10 @@ switch upper(command)
                     end
                     continue;
                 end
-                if ~isempty(choices) & ~fieldIsNum(i)
+                if ~isempty(choices) && ~fieldIsNum(i)
                     val = find(strcmpi(choices, val));
                     set(getfield(ud.bp.handles, [[fName{:}] '_val']), 'Value', val, 'enable', 'on');
-                elseif ~isempty(choices) & fieldIsNum(i)
+                elseif ~isempty(choices) && fieldIsNum(i)
                     val = find(val==[choices{:}]);
                     set(getfield(ud.bp.handles, [[fName{:}] '_val']), 'Value', val, 'enable', 'on');
                 elseif fieldIsNum(i)

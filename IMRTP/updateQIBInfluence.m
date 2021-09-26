@@ -112,7 +112,7 @@ for i = 1 : length(structROIV)
         PBM = [];
         for PBNum = 1 : size(RTOGPBVectorsM,1)
 
-            if mod(PBNum, 25) == 0 | (PBNum == size(RTOGPBVectorsM,1))
+            if mod(PBNum, 25) == 0 || (PBNum == size(RTOGPBVectorsM,1))
                 disp(['Computed ' int2str(PBNum) ' out of ' str]); pause(0.003);
                 try
                     IMRTPGui('status', j, length(beamIndV), structROIV(i), PBNum, size(RTOGPBVectorsM,1));
