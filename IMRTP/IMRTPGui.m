@@ -252,7 +252,7 @@ switch upper(command)
                     ud.bl.handles.numTxt((beamSet-1)*10+i)   = uicontrol(h, 'enable', 'inactive', 'style', 'text', 'units', units, 'position', [blX+10 blY+blH - 20 - 20*(i) 15 15], 'userdata', (beamSet-1)*10+i, 'horizontalAlignment', 'left', 'string', [num2str((beamSet-1)*10+i) '.'], 'visible', 'off');
                     ud.bl.handles.nameTxt((beamSet-1)*10+i)  = uicontrol(h, 'enable', 'inactive', 'style', 'text', 'units', units, 'position', [blX+30 blY+blH - 20 - 20*(i) 90 15], 'userdata', (beamSet-1)*10+i, 'horizontalAlignment', 'center', 'visible', 'off', 'buttondownfcn', 'IMRTPGui(''SELECTBEAM'')');
                     ud.bl.handles.bevChk((beamSet-1)*10+i)  = uicontrol(h, 'enable', 'on', 'style', 'checkbox', 'units', units, 'position', [blX+130 blY+blH - 20 - 20*(i) 20 15], 'userdata', (beamSet-1)*10+i, 'horizontalAlignment', 'center', 'visible', 'off', 'callBack', ['IMRTPGui(','''BEVCHK'',',num2str(i),')']);
-                    ud.bl.handles.bevType((beamSet-1)*10+i)  = uicontrol(h, 'enable', 'on', 'style', 'popupmenu', 'string',{'Entire jaw-opening','Leaf-sequences','Beamlet-Weights'}, 'fontsize',7, 'units', units, 'position', [blX+150 blY+blH+5 - 20 - 20*(i) 80 10], 'userdata', (beamSet-1)*10+i, 'horizontalAlignment', 'center', 'visible', 'off', 'callBack', 'sliceCallBack(''REFRESH'')');
+                    ud.bl.handles.bevType((beamSet-1)*10+i)  = uicontrol(h, 'enable', 'on', 'style', 'popupmenu', 'string',{'Entire jaw-opening','Leaf-sequences','Beamlet-Weights'}, 'fontsize',7, 'units', units, 'position', [blX+150 blY+blH+5 - 20 - 20*(i) 80 15], 'userdata', (beamSet-1)*10+i, 'horizontalAlignment', 'center', 'visible', 'off', 'callBack', 'sliceCallBack(''REFRESH'')');
                 end
             end
             ud.bl.sliderH = uicontrol(h, 'style', 'slider', 'units', units, 'position', [blX+blW/2+110 blY+blH-220 15 200],'min',0,'max',4,'value',4,'callBack','IMRTPGui(''REFRESHBEAMS'')','sliderstep',[0.2 0.2]);            
@@ -299,13 +299,13 @@ switch upper(command)
             for i = 1:length(planC{indexS.scan})
                 scanList{i} = [num2str(i), ' ', planC{indexS.scan}(i).scanType];
             end
-            ud.ss.handles.selScanPop = uicontrol(h, 'style', 'popupmenu', 'units', units, 'position', [ssX+ssW - 126 ssY + ssH + 18 111 15], 'string', scanList, 'value', 1, 'horizontalAlignment', 'left', 'callback', 'IMRTPGui(''SELSCAN'')');
+            ud.ss.handles.selScanPop = uicontrol(h, 'style', 'popupmenu', 'units', units, 'position', [ssX+ssW - 126 ssY + ssH + 18 111 20], 'string', scanList, 'value', 1, 'horizontalAlignment', 'left', 'callback', 'IMRTPGui(''SELSCAN'')');
 
             %Create structure pulldown menu.
             [assocScansV, relStructNumV] = getStructureAssociatedScan(1:length(planC{indexS.structures}), planC);
             structsInScanS = planC{indexS.structures}(assocScansV==1);
             strList = {structsInScanS.structureName};
-            ud.ss.handles.addStructPop = uicontrol(h, 'style', 'popupmenu', 'units', units, 'position', [ssX+ssW - 126 ssY + ssH - 25 111 15], 'string', strList, 'horizontalAlignment', 'left', 'callback', 'IMRTPGui(''ADDGOAL'')');
+            ud.ss.handles.addStructPop = uicontrol(h, 'style', 'popupmenu', 'units', units, 'position', [ssX+ssW - 126 ssY + ssH - 25 111 20], 'string', strList, 'horizontalAlignment', 'left', 'callback', 'IMRTPGui(''ADDGOAL'')');
 
             %Create structure column headers.
             uicontrol(h, 'style', 'text', 'units', units, 'position', [ssX+10 ssY+ssH - 60 100 15], 'string', 'Index / Name', 'horizontalAlignment', 'left');
