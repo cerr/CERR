@@ -1095,7 +1095,7 @@ switch upper(command)
                 choices = MCparamChoices{i};
                 if ~isempty(choices)
                     val = find(strcmpi(choices, val));
-                    set(ud.mc.handles.val(i), 'Value', val, 'style', 'popupmenu', 'string', choices, 'visible', 'on');
+                    set(ud.mc.handles.val(i), 'string', choices, 'style', 'popupmenu', 'Value', val, 'visible', 'on');
                 elseif MCparamIsNum(i)
                     set(ud.mc.handles.val(i), 'string', num2str(val), 'style', 'edit', 'visible', 'on');
                 else
@@ -1146,7 +1146,7 @@ switch upper(command)
                 choices = paramChoices{i};
                 if ~isempty(choices)
                     val = find(strcmpi(choices, num2str(val)));
-                    set(ud.ip.handles.val(i), 'Value', val, 'style', 'popupmenu', 'string', choices, 'visible', 'on');
+                    set(ud.ip.handles.val(i), 'string', choices, 'style', 'popupmenu', 'Value', val, 'visible', 'on');
                 elseif paramIsNum(i)
                     set(ud.ip.handles.val(i), 'string', num2str(val), 'style', 'edit', 'visible', 'on');
                 else
