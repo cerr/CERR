@@ -1093,7 +1093,9 @@ switch upper(instr)
         %end
         
         % Resize dose and scan colorbars
-        CERRColorBar('refresh',stateS.handle.doseColorbar.trans)
+        if isfield(stateS,'colorbarFrameMax') && ~isempty(stateS.colorbarFrameMax)
+            CERRColorBar('refresh',stateS.handle.doseColorbar.trans)
+        end
         if length(stateS.scanSet) == 1 % non image fusion mode
             updateScanColorbar(stateS.scanSet)
         end
@@ -3730,13 +3732,13 @@ switch upper(instr)
         stateS.scanSet = 1;
         stateS.structSet = getStructureSetAssociatedScan(stateS.scanSet);
 
-        if length(planC{indexS.dose}) == 0
+        if isempty(planC{indexS.dose})
             stateS.doseSet = '';
         else
             stateS.doseSet = 1;
         end
         
-        set(stateS.handle.CERRSliceViewer,'renderer','zbuffer')
+        %set(stateS.handle.CERRSliceViewer,'renderer','zbuffer')
         
         CERRRefresh
         return

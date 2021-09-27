@@ -97,7 +97,8 @@ infoS(1) = [];
             infoS(fileNum).doseMap = 1;
         else
             infoS(fileNum).doseMap = getMatchingIndex(dose_to_extract,{planC{indexS.dose}.fractionGroupID},'exact');
-            if isempty(infoS(fileNum).doseMap)
+            if isempty(infoS(fileNum).doseMap) && ~isempty(dose_to_extract) && ...
+                    ~isempty({planC{indexS.dose}.fractionGroupID})
                 infoS(fileNum).doseMap = getMatchingIndex(dose_to_extract,{planC{indexS.dose}.fractionGroupID},'firstchars');
                 if isempty(infoS(fileNum).doseMap)
                     infoS(fileNum).doseMap = getMatchingIndex(dose_to_extract,{planC{indexS.dose}.fractionGroupID},'regex');

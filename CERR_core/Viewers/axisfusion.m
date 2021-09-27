@@ -280,7 +280,12 @@ switch method
                 %childV = get(hAxis,'Children');
                 %childV([1,2,3]) = childV([3,1,2]);
                 %set(hAxis,'Children',childV);
-                uistack(hBox,'top')
+                %uistack(hBox,'top')
+                childV = get(stateS.handle.CERRAxis(axNum),'children');
+                indMirror = find(childV == hBox);
+                childV = [childV(indMirror);childV];
+                childV(indMirror+1) = [];
+                set(stateS.handle.CERRAxis(axNum),'children',childV);
                 
                 return;
             end
