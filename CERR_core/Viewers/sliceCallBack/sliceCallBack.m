@@ -1092,8 +1092,11 @@ switch upper(instr)
             showPatientOrientation;
         %end
         
-        % Resize dose colorbar
+        % Resize dose and scan colorbars
         CERRColorBar('refresh',stateS.handle.doseColorbar.trans)
+        if length(stateS.scanSet) == 1 % non image fusion mode
+            updateScanColorbar(stateS.scanSet)
+        end
         
         return;
 
