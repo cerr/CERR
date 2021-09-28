@@ -110,7 +110,7 @@ switch upper(command)
         doseStringC = cell(nDoses,1);
         colorDose3M = zeros(nDoses,3);
         for i=1:nDoses
-            if ismember(i, initialDoseV);
+            if ismember(i, initialDoseV)
                 chkvaldoseC{i} = true;
             else
                 chkvaldoseC{i} = false;
@@ -193,18 +193,18 @@ switch upper(command)
 
         radioToolTip = 'Choose Absolute(ABS) or Normalized (NOR) Scale for Dose Difference';
         h = uibuttongroup('parent',hFig,'units', 'pixels', 'visible','off','Position',[60 yStart+240 100 25]);
-        u0 = uicontrol('Style','Radio','String','Abs',...
-            'pos',[5 5 40 15],'parent',h,'HandleVisibility','off');
-        u1 = uicontrol('Style','Radio','String','Rel',...
-            'pos',[50 5 40 15],'parent',h,'HandleVisibility','off');
-        set(h,'SelectionChangeFcn',@d_ct_profRadio);
+        u0 = uicontrol('Style','radiobutton','String','Abs',...
+            'position',[5 5 40 15],'parent',h,'HandleVisibility','off');
+        u1 = uicontrol('Style','radiobutton','String','Rel',...
+            'position',[50 5 40 15],'parent',h,'HandleVisibility','off');
+        set(h,'selectionchangedfcn',@d_ct_profRadio);
         set(h,'SelectedObject',u0);  % No selection
         set(h,'Visible','on')
 
 
         % DK Drop down list to select the primary dose
         uicontrol('parent',hFig,'Style','Text','Units','Pixels','Position',[170 yStart+230 120 30],...
-            'String','Select Base Dose','Background',clrBg);
+            'String','Select Base Dose','backgroundcolor',clrBg);
 
         refDoseToolTip = 'Select the reference/Base Dose from which all doses will be subtracted';
 
@@ -386,8 +386,10 @@ switch upper(command)
         
         colors = stateS.optS.colorOrder;
         %AI: Changed
-        drawDoses = [doseUI.Data{:,1}];
-        drawScans = [scanUI.Data{:,1}];
+        drawDoses = get(doseUI,'Data');
+        drawDoses = [drawDoses{:,1}];
+        drawScans = get(scanUI,'Data');
+        drawScans = [drawScans{:,1}];
         %AI: End changed
         
         drawDoses = find(drawDoses);
