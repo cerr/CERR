@@ -513,39 +513,27 @@ end
 ud = get(hFig,'UserData');
 delete(ud.htext)
 
-if strcmp(hObj.Tag, 'doseUI')
-objUI  = ud.doseUI;
+if strcmp(get(hObj,'Tag'), 'doseUI')
+    objUI  = ud.doseUI;
 else
-objUI  = ud.scanUI;
+    objUI  = ud.scanUI;
 end
 
 selectedRowsV = hEvent.Indices(:,1);
-objDataC = objUI.Data;
-drawObjV = [objUI.Data{:,1}];
+objDataC = get(objUI,'Data');
+drawObjV = get(objUI,'Data');
+drawObjV = [drawObjV{:,1}];
 drawObjV(selectedRowsV) = ~drawObjV(selectedRowsV);
 objDataC(:,1) = num2cell(drawObjV);
-objUI.Data = objDataC;
+set(objUI,'Data') = objDataC;
 
-if strcmp(hObj.Tag, 'doseUI')
-ud.doseUI = objUI;
+if strcmp(get(hObj,'Tag'), 'doseUI')
+    ud.doseUI = objUI;
 else
-ud.scanUI = objUI;
+    ud.scanUI = objUI;
 end
 ud.htext = [];
 set(hFig, 'userdata',ud);
 doseProfileFigure('refresh');
 end
-
-
-
-
-
-
-
-
-
-
-
-
-
 

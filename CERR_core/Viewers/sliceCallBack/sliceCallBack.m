@@ -1611,11 +1611,12 @@ switch upper(instr)
             % Update scan colormap
             updateScanColorbar(scanNum);
         end
+        axes(hAxis)
         
         return;
 
     case 'OPENWORKSPACEPLANC'
-        if ~isempty(planC) && iscell(planC);
+        if ~isempty(planC) && iscell(planC)
             stateS.workspacePlan = 1;
             stateS.CERRFile = 'WorkspacePlan';
             sliceCallBack('load');
@@ -2741,8 +2742,8 @@ switch upper(instr)
         stateS.scanStats.CTLevel.(scanUID) = stateS.scanStats.CTLevel.(scanUID) + pointDiff(2)*dMov*2.0/100*percentMov(2);        
         stateS.scanStats.CTWidth.(scanUID) = stateS.scanStats.CTWidth.(scanUID) + pointDiff(1)*dMov*1/100*percentMov(1); 
         stateS.scanStats.CTWidth.(scanUID) = max([0.1 stateS.scanStats.CTWidth.(scanUID)]);
-        set(stateS.handle.CTLevel,'String',stateS.scanStats.CTLevel.(scanUID))
-        set(stateS.handle.CTWidth,'String',stateS.scanStats.CTWidth.(scanUID))
+        set(stateS.handle.CTLevel,'String',num2str(stateS.scanStats.CTLevel.(scanUID)))
+        set(stateS.handle.CTWidth,'String',num2str(stateS.scanStats.CTWidth.(scanUID)))
         stateS.CTDisplayChanged = 1;
         for hAxis = stateS.handle.CERRAxis
             showCT(hAxis)
