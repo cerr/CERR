@@ -156,8 +156,10 @@ function IM = checkAutoIsocenter(IM)
 %   Examines IM structure for auto-isocenter calculation.  If an auto
 %   method is specified, calculates isocenter, stores in IM and returns.
 calcCOM = 0;
-for i = 1:length(IM.beams);
-    if strcmpi(IM.beams(i).isocenter.x, 'COM') | strcmpi(IM.beams(i).isocenter.y, 'COM') | strcmpi(IM.beams(i).isocenter.z, 'COM')
+for i = 1:length(IM.beams)
+    if strcmpi(IM.beams(i).isocenter.x, 'COM') || ...
+            strcmpi(IM.beams(i).isocenter.y, 'COM') || ...
+            strcmpi(IM.beams(i).isocenter.z, 'COM')
         calcCOM = 1;
     end
 end
