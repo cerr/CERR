@@ -2891,19 +2891,23 @@ switch upper(instr)
         hAxis = gcbo;
         cP = get(hAxis, 'CurrentPoint');
         %delete([findobj('tag', 'rulerLine') findobj('tag', 'rulerText1') findobj('tag', 'rulerText2') findobj('tag', 'distText')]);
-        delete(stateS.handle.rulerLine)
+        if isfield(stateS.handle,'rulerLine') && ...
+                ~isempty(stateS.handle.rulerLine) && ...
+                ishandle(stateS.handle.rulerLine)
+            delete(stateS.handle.rulerLine)
+        end
         stateS.handle.rulerLine = [];
         [view, coord] = getAxisInfo(hAxis, 'view', 'coord');
         axesToDraw = hAxis;
-        for i=1:length(stateS.handle.CERRAxis);
+        for i=1:length(stateS.handle.CERRAxis)
             [otherView, otherCoord] = getAxisInfo(stateS.handle.CERRAxis(i), 'view', 'coord');
-            if isequal(view, otherView) && isequal(coord, otherCoord) && ~isequal(hAxis, stateS.handle.CERRAxis(i));
+            if isequal(view, otherView) && isequal(coord, otherCoord) && ~isequal(hAxis, stateS.handle.CERRAxis(i))
                 axesToDraw = [axesToDraw;stateS.handle.CERRAxis(i)];
             end
         end
-        for i=1:length(axesToDraw);
+        for i=1:length(axesToDraw)
             %line([cP(1,1) cP(1,1)], [cP(2,2) cP(2,2)], 'tag', 'rulerLine', 'userdata', hAxis, 'eraseMode', 'xor', 'parent', axesToDraw(i), 'marker', '+', 'color', [.8 .8 .8], 'hittest', 'off');
-            stateS.handle.rulerLine = [stateS.handle.rulerLine; line([cP(1,1) cP(1,1)], [cP(2,2) cP(2,2)], 'tag', 'rulerLine', 'userdata', hAxis, 'parent', axesToDraw(i), 'marker', '+', 'color', [.8 .8 .8], 'hittest', 'off')];
+            stateS.handle.rulerLine = [stateS.handle.rulerLine; line([cP(1,1) cP(1,1)], [cP(2,2) cP(2,2)], [2 2], 'tag', 'rulerLine', 'userdata', hAxis, 'parent', axesToDraw(i), 'marker', '+', 'color', [.8 .8 .8], 'hittest', 'off')];
         end
         return;
     case 'RULERMOTION'
