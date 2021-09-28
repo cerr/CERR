@@ -44,18 +44,18 @@ persistent drawing;
 initialDoseV = [];
 initialScanV = [];
 
-if isnumeric(command) & length(command) == 3
+if isnumeric(command) && length(command) == 3
     startPt = command;
     endPt = varargin{1};
     command = 'init';
-elseif isstr(command) & strcmpi(command, 'init')
+elseif ischar(command) && strcmpi(command, 'init')
     startPt = [];
     endPt = [];
     if nargin > 2
         initialDoseV = varargin{1};
         initialScanV = varargin{2};
     end
-elseif isstr(command)
+elseif ischar(command)
 else
     error('Invalid call to doseProfileFigure. Help doseProfileFigure for details.');
 end
@@ -65,9 +65,13 @@ switch upper(command)
     case 'INIT'
         stateS.doseDiffScale = 'Abs';
         drawing = 0;
-        oldFigs = findobj('tag', 'CERR_DoseLineProfile');
-        delete(oldFigs);
-
+        %oldFigs = findobj('tag', 'CERR_DoseLineProfile');
+        if isfield(stateS.handle,'doseProfileFigure') && ...
+                ~isempty(ishandle(stateS.handle.doseProfileFigure)) && ...
+                ishandle(stateS.handle.doseProfileFigure)
+            delete(stateS.handle.doseProfileFigure);
+        end
+        
         units = 'pixels';
         screenSize = get(0,'ScreenSize');
         % APA: Commented
@@ -235,7 +239,8 @@ switch upper(command)
 
     case 'SELECTREFDOSE'
 
-        hFig = findobj('tag', 'CERR_DoseLineProfile');
+        %hFig = findobj('tag', 'CERR_DoseLineProfile');
+        hFig = stateS.handle.doseProfileFigure;
 
         ud = get(hFig, 'userdata');
 
@@ -251,7 +256,8 @@ switch upper(command)
         set(hFig,'Userdata',ud);
 
     case 'RANGERCLICKED'
-        hFig = findobj('tag', 'CERR_DoseLineProfile');
+        %hFig = findobj('tag', 'CERR_DoseLineProfile');
+        hFig = stateS.handle.doseProfileFigure;
         ud    = get(hFig, 'userdata');
         udS   = get(ud.slideraxis, 'userdata');
 
@@ -276,7 +282,8 @@ switch upper(command)
         set(ud.slideraxis, 'userdata', udS);
 
     case 'INDICATORMOVING'
-        hFig = findobj('tag', 'CERR_DoseLineProfile');
+        %hFig = findobj('tag', 'CERR_DoseLineProfile');
+        hFig = stateS.handle.doseProfileFigure;
         ud    = get(hFig, 'userdata');
         hAxis = ud.slideraxis;
         udS   = get(ud.slideraxis, 'userdata');
@@ -296,7 +303,8 @@ switch upper(command)
         doseProfileFigure('refresh');
 
     case 'MOTIONDONE'
-        hFig = findobj('tag', 'CERR_DoseLineProfile');
+        %hFig = findobj('tag', 'CERR_DoseLineProfile');
+        hFig = stateS.handle.doseProfileFigure;
         ud    = get(hFig, 'userdata');
         udS   = get(ud.slideraxis, 'userdata');
 
@@ -317,7 +325,8 @@ switch upper(command)
    
     case 'NEW_POINTS'
         %New points specified for the profile line.
-        hFig = findobj('tag', 'CERR_DoseLineProfile');
+        %hFig = findobj('tag', 'CERR_DoseLineProfile');
+        hFig = stateS.handle.doseProfileFigure;
         ud = get(hFig, 'userdata');
         ud.startPt = varargin{1};
         ud.endPt = varargin{2};
@@ -337,7 +346,8 @@ switch upper(command)
         clear CERR_doseProfileLastCallTime;
 
         %Make dose profile figure the foreground.
-        hFig = findobj('tag', 'CERR_DoseLineProfile');
+        %hFig = findobj('tag', 'CERR_DoseLineProfile');
+        hFig = stateS.handle.doseProfileFigure;
         if isempty(hFig)
             return;
         end
@@ -370,7 +380,7 @@ switch upper(command)
         startPt = ud.startPt;
         endPt   = ud.endPt;
         
-        if isempty(startPt) | isempty(endPt)
+        if isempty(startPt) || isempty(endPt)
             return;
         end
         
@@ -430,7 +440,7 @@ switch upper(command)
             end
             axis(ud.scanaxis,'tight')
 
-            if exist('dV') & length(dV)>1 & ~isempty(ud.baseDose)
+            if exist('dV','var') && length(dV)>1 && ~isempty(ud.baseDose)
                 delete(ud.htextInit)
                 ud.htextInit = [];
                 set(ud.diffaxis,'XTickLabelMode','auto','YTickLabelMode','auto')
