@@ -18,10 +18,8 @@ cB      = ind2rgb(tmpV, cM);
 %offset = planC{indexS.scan}(scanSet).scanInfo(1).CTOffset;
 minScanVal = stateS.scanStats.CTLevel.(scanUID) - stateS.scanStats.CTWidth.(scanUID)/2;
 maxScanVal = stateS.scanStats.CTLevel.(scanUID) + stateS.scanStats.CTWidth.(scanUID)/2;
-if isempty(getMLVersion)
-    imagesc(stateS.handle.scanColorbar,[minScanVal maxScanVal],[0.5 0.5],cB)  
-else
-    imagesc([minScanVal maxScanVal],[0.5 0.5],cB,'parent',stateS.handle.scanColorbar)
-end
-set(stateS.handle.scanColorbar,'YTick',[],'YTickLabel',[], 'visible','on');
+xTickV = [minScanVal,maxScanVal];
+imagesc([minScanVal maxScanVal],[0.5 0.5],cB,'parent',stateS.handle.scanColorbar)
+set(stateS.handle.scanColorbar,'YTick',[],'YTickLabel',[], 'visible','on',...
+    'XTick',xTickV,'XTickLabel',strsplit(num2str(xTickV)),'xLim',[minScanVal maxScanVal]);
 
