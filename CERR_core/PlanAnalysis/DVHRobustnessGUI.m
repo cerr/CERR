@@ -73,9 +73,9 @@ switch upper(command)
         prefix = 'Select a structure.';
         structList = {prefix, planC{indexS.structures}.structureName};
         inputH(2) = uicontrol(hFig,'tag','doseStatic','units','pixels','Position',[20 posTop-70 120 20], 'String','Select Dose','Style','text', 'fontSize',8,'FontWeight','normal','BackgroundColor',defaultColor,'HorizontalAlignment','right');
-        inputH(3) = uicontrol(hFig,'tag','doseSelect','units','pixels','Position',[150 posTop-70 120 20], 'String',doseList,'Style','popup', 'fontSize',9,'FontWeight','normal','BackgroundColor',[1 1 1],'HorizontalAlignment','left');
+        inputH(3) = uicontrol(hFig,'tag','doseSelect','units','pixels','Position',[150 posTop-70 120 20], 'String',doseList,'Style','popupmenu', 'fontSize',9,'FontWeight','normal','BackgroundColor',[1 1 1],'HorizontalAlignment','left');
         inputH(4) = uicontrol(hFig,'tag','structStatic','units','pixels','Position',[20 posTop-100 120 20], 'String','Select Structure','Style','text', 'fontSize',8,'FontWeight','normal','BackgroundColor',defaultColor,'HorizontalAlignment','right');
-        inputH(5) = uicontrol(hFig,'tag','structSelect','units','pixels','Position',[150 posTop-100 120 20], 'String',structList,'Style','popup', 'fontSize',9,'FontWeight','normal','BackgroundColor',[1 1 1],'HorizontalAlignment','left');
+        inputH(5) = uicontrol(hFig,'tag','structSelect','units','pixels','Position',[150 posTop-100 120 20], 'String',structList,'Style','popupmenu', 'fontSize',9,'FontWeight','normal','BackgroundColor',[1 1 1],'HorizontalAlignment','left');
 
         inputH(6) = uicontrol(hFig,'tag','simulationParamsTitle','units','pixels','Position',[20 posTop-140 180 20], 'String','SIMULATION PARAMETERS','Style','text', 'fontSize',9.5,'FontWeight','Bold','BackgroundColor',defaultColor,'HorizontalAlignment','left');
         inputH(7) = uicontrol(hFig,'tag','doseFxStatic','units','pixels','Position',[20 posTop-170 120 20], 'String','No. of Dose-Fractions','Style','text', 'fontSize',8,'FontWeight','normal','BackgroundColor',defaultColor,'HorizontalAlignment','right');
@@ -117,14 +117,14 @@ switch upper(command)
         %Create Dose-Stats handles
         uicontrol(hFig,'tag','titleFrame','units','pixels','Position',[20 figureHeight-topMarginHeight-525 760 200 ],'Style','frame','backgroundColor',defaultColor);
         dvhStatH(1) = uicontrol(hFig,'tag','dvhStatsTitle','units','pixels','Position',[25 posTop-350 150 20], 'String','DVH Robustness Stats','Style','text', 'fontSize',9.5,'FontWeight','Bold','BackgroundColor',defaultColor,'HorizontalAlignment','left');
-        dvhStatH(2) = uicontrol(hFig,'tag','dvhSelect','units','pixels','Position',[25 posTop-375 140 20], 'String',{'None'},'Style','popup', 'fontSize',9,'FontWeight','normal','BackgroundColor',[1 1 1],'HorizontalAlignment','left','callback', 'DVHRobustnessGUI(''PLOT_DVH'')');
+        dvhStatH(2) = uicontrol(hFig,'tag','dvhSelect','units','pixels','Position',[25 posTop-375 140 20], 'String',{'None'},'Style','popupmenu', 'fontSize',9,'FontWeight','normal','BackgroundColor',[1 1 1],'HorizontalAlignment','left','callback', 'DVHRobustnessGUI(''PLOT_DVH'')');
         
         dvhStatH(3) = uicontrol(hFig,'tag','numTrials','units','pixels','Position',[25 posTop-440 200 20], 'String','numTrials','Style','text', 'fontSize',9,'FontWeight','normal','BackgroundColor',defaultColor,'HorizontalAlignment','left');        
         dvhStatH(4) = uicontrol(hFig,'tag','numFractions','units','pixels','Position',[25 posTop-465 200 20], 'String','numFractions','Style','text', 'fontSize',9,'FontWeight','normal','BackgroundColor',defaultColor,'HorizontalAlignment','left');
         dvhStatH(5) = uicontrol(hFig,'tag','xyzShift','units','pixels','Position',[25 posTop-515 700 20], 'String','Shifts','Style','text', 'fontSize',9,'FontWeight','normal','BackgroundColor',defaultColor,'HorizontalAlignment','left');
         
         dvhStatH(6) = uicontrol(hFig,'tag','sigmaStatic','units','pixels','Position',[250 posTop-355 50 20], 'String','Bounds:','Style','text', 'fontSize',9,'FontWeight','normal','BackgroundColor',defaultColor,'HorizontalAlignment','left');
-        dvhStatH(7) = uicontrol(hFig,'tag','sigmaSelect','units','pixels','Position',[300 posTop-350 80 20], 'String',{'Select Confidence Bounds','1-Sigma','2-Sigma','3-Sigma'},'Style','popup', 'fontSize',9,'FontWeight','normal','BackgroundColor',[1 1 1],'HorizontalAlignment','left','callback', 'DVHRobustnessGUI(''PLOT_DVH'')');
+        dvhStatH(7) = uicontrol(hFig,'tag','sigmaSelect','units','pixels','Position',[300 posTop-350 80 20], 'String',{'Select Confidence Bounds','1-Sigma','2-Sigma','3-Sigma'},'Style','popupmenu', 'fontSize',9,'FontWeight','normal','BackgroundColor',[1 1 1],'HorizontalAlignment','left','callback', 'DVHRobustnessGUI(''PLOT_DVH'')');
         dvhStatH(8) = uicontrol(hFig,'tag','LB','units','pixels','Position',[450 posTop-360 66 25], 'String','Lower Bound','Style','text', 'fontSize',8,'FontWeight','normal','BackgroundColor',defaultColor,'HorizontalAlignment','center');
         dvhStatH(9) = uicontrol(hFig,'tag','Mean','units','pixels','Position',[530 posTop-360 65 25], 'String','Mean','Style','text', 'fontSize',8,'FontWeight','normal','BackgroundColor',defaultColor,'HorizontalAlignment','center');
         dvhStatH(10) = uicontrol(hFig,'tag','UB','units','pixels','Position',[610 posTop-360 65 25], 'String','Upper Bound','Style','text', 'fontSize',8,'FontWeight','normal','BackgroundColor',defaultColor,'HorizontalAlignment','center');
