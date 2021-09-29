@@ -30,6 +30,12 @@ if ~isempty(str2double(lastSavedInVer)) && (isempty(lastSavedInVer) || str2doubl
     bug_found = 1;
 end
 
+%Update imageType for CT scans where required 
+for nScan = 1:length(planC{indexS.scan})
+    if strcmpi(planC{indexS.scan}(nScan).scanInfo(1).imageType,'CT')
+        [planC{indexS.scan}(nScan).scanInfo(:).imageType] = deal('CT SCAN');
+    end
+end
 
 % %Check for mesh representation and load meshes into memory
 % currDir = cd;
