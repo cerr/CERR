@@ -148,7 +148,7 @@ end
 % Get path to activation script
 pth = getenv('PATH');
 condaBinPath = fullfile(condaPath,'condabin;');
-if ~isempty(strfind(condaEnv,filesep)) %contains(condaEnv,filesep)
+if ~isempty(strfind(condaEnvC{1},filesep)) %contains(condaEnv,filesep)
     condaEnvPath = condaEnvC{1};
     condaBinPath = fullfile(condaEnvC{1},'Scripts;');
 else
