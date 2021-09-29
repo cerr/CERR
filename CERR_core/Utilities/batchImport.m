@@ -31,8 +31,8 @@ else
     toc
     
     % Convert to lower case
-    dirNameC = lower({dirsInCurDir.name});
-    dirFullPathC = lower({dirsInCurDir.fullpath});
+    dirNameC = {dirsInCurDir.name};
+    dirFullPathC = {dirsInCurDir.fullpath};
     
     % determine back or forward slash
     if ispc
