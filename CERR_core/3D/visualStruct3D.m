@@ -92,7 +92,8 @@ for i=1:length(V),
     linered((round(0.87*S(1))):(round(0.87*S(1)+2)),(round(0.94*S(2)-2)):(round(0.94*S(2))),(round(0.89*S(3)-15)):(round(0.89*S(3)))) = 1;
     linegreen((round(0.87*S(1))):(round(0.87*S(1)+2)),(round(0.94*S(2)-13)):(round(0.94*S(2))),(round(0.89*S(3)-2)):(round(0.89*S(3)))) = 1;
 
-    [x,y,z,D] = subvolume(D,[1,S(1),1,S(2),1,S(3)]);
+    %[x,y,z,D] = subvolume(D,[1,S(1),1,S(2),1,S(3)]);
+    [x,y,z] = meshgrid(1:S(2), 1:S(1), 1:S(3));
 
     p1 = patch(isosurface(x,y,z,D, 0.1),...
         'FaceColor',color,'EdgeColor','none','FaceAlpha',TR(i));
@@ -106,7 +107,8 @@ for i=1:length(V),
 
 end
 
-[x,y,z,linered] = subvolume(linered,[1,S(1),1,S(2),1,S(3)]);
+%[x,y,z,linered] = subvolume(linered,[1,S(1),1,S(2),1,S(3)]);
+[x,y,z] = meshgrid(1:S(2), 1:S(1), 1:S(3));
 
 p1 = patch(isosurface(x,y,z,linered, 0.1),...
     'FaceColor','red','EdgeColor','none');
@@ -115,7 +117,7 @@ p1 = patch(isosurface(x,y,z,linered, 0.1),...
 %p2 = patch(isocaps(x,y,z,linered, 0.1),...
  %   'FaceColor','interp','EdgeColor','none');
 
-[x,y,z,linegreen] = subvolume(linegreen,[1,S(1),1,S(2),1,S(3)]);
+%[x,y,z,linegreen] = subvolume(linegreen,[1,S(1),1,S(2),1,S(3)]);
 
 p1 = patch(isosurface(x,y,z,linegreen, 0.1),...
     'FaceColor','green','EdgeColor','none');
@@ -165,7 +167,8 @@ if DoseFlag ==1
 
     S = size(D);
 
-    [x,y,z,D] = subvolume(D,[1,S(1),1,S(2),1,S(3)]);
+    %[x,y,z,D] = subvolume(D,[1,S(1),1,S(2),1,S(3)]);
+    [x,y,z] = meshgrid(1:S(2), 1:S(1), 1:S(3));
 
     p1 = patch(isosurface(x,y,z,D, 0.1),...
         'FaceColor',colorDose,'EdgeColor','none','FaceAlpha',DoseT);
