@@ -163,7 +163,7 @@ switch lower(cmdFlag)
     case 'singcontainer'
         
         activate_cmd = '';
-        
+        outFile = '';
         %Get the bind path for the container
         bindingDir = ':/scratch';
         bindPath = strcat(fullSessionPath,bindingDir);
