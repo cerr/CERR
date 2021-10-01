@@ -40,7 +40,6 @@ if inputDicomPath(end) == filesep
 else
     [~,folderNam] = fileparts(inputDicomPath);
 end
-
 dateTimeV = clock;
 randStr = sprintf('%6.3f',rand*1000);
 sessionDir = ['session',folderNam,num2str(dateTimeV(4)), num2str(dateTimeV(5)),...
@@ -65,7 +64,7 @@ mkdir(segResultCERRPath)
 labelPath = fullfile(fullSessionPath,'outputLabelMap');
 mkdir(labelPath);
 
-% Import DICOM to CERR
+%% Import DICOM to CERR
 tic
 recursiveFlag = true;
 importDICOM(inputDicomPath,cerrPath,recursiveFlag);
@@ -98,27 +97,15 @@ if ~any(strcmpi(algorithmC,'BABS'))
     end
     origCerrPath = cerrPath;
     allLabelNamesC = {};
+    
+    %Loop over algorithms
     for k=1:length(algorithmC)
         
-        %Read config file
+        
         configFilePath = fullfile(getCERRPath,'ModelImplementationLibrary',...
             'SegmentationModels','ModelConfigurations',...
             [algorithmC{k}, '_config.json']);
         userOptS = readDLConfigFile(configFilePath);
-        
-        %Delete previous inputs where needed
-        modelFmt = userOptS.modelInputFormat;
-        modInputPath = fullfile(fullSessionPath,['input',modelFmt]);
-        modOutputPath = fullfile(fullSessionPath,['output',modelFmt]);
-        if exist(modInputPath, 'dir')
-            rmdir(modInputPath, 's')
-        end
-        if exist(modOutputPath, 'dir')
-            rmdir(modOutputPath, 's')
-        end
-        
-        %Copy config file to session dir
-        copyfile(configFilePath,fullSessionPath);
         
         % Run segmentation algorithm
         success = segmentationWrapper(cerrPath,...
