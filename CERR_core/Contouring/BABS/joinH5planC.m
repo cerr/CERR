@@ -85,7 +85,7 @@ if ~strcmpi(resampleS.method,'none')
 end
 
 %% Convert label maps to CERR structs
-[outStrListC,labelMapS] = getAutosegStructnames(userOptS);
+[outStrListC,labelMapS] = getAutosegStructnames(labelPath,userOptS);
 
 roiGenerationDescription = '';
 if isfield(userOptS,'roiGenerationDescription')

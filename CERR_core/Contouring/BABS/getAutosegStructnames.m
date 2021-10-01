@@ -1,10 +1,11 @@
-function[outStrListC,labelMapS] = getAutosegStructnames(userOptS)
+function[outStrListC,labelMapS] = getAutosegStructnames(labelPath,userOptS)
 %function[outStrListC,labelMapS] = getAutosegStructnames(userOptS)
 % Returns user-defined names for auto-segmented structures.
 %--------------------------------------------------------------------------
 % INPUTS
-% userOptS : Dictionary of configurations genrated from JSON input. 
-%            See readDLConfigFile.m for additonal details.
+% labelPath : Directory containing JSON with structure name-to-label map.
+% userOptS  : Dictionary of configurations genrated from JSON input. 
+%             See readDLConfigFile.m for additonal details.
 %--------------------------------------------------------------------------
 % AI 9/24/21
 
