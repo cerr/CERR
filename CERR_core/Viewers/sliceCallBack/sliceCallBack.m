@@ -203,11 +203,11 @@ switch upper(instr)
         stateS.colorbarFrameMin = [];
         stateS.colorbarFrameMinCompare = [];
         %DK
-        
+                
         % Handle for IMRTP GUI
         stateS.handle.IMRTMenuFig = [];
 
-        str1 = ['CERR'];
+        str1 = 'CERR';
         position = [5 40 940 620];
         %--- temp for octave compatibility---
         %hCSV = figure('tag','CERRSliceViewer','name',str1,'numbertitle','off',...
@@ -303,7 +303,10 @@ switch upper(instr)
         %CT Level/Width pushbutton
         stateS.handle.CTLevelWidthInteractive = uicontrol(hCSV,'units','pixels','BackgroundColor',uicolor, 'Position',[(frameWidth-50)+35 500 20 20], 'String','L','Style','toggle','Tag','CTInteractiveWindowing', 'callback','sliceCallBack(''TOGGLESCANWINDOWING'');','tooltipstring','Drag mouse on view to change display window');
         %CT Colorbar
-        stateS.handle.scanColorbar = axes('parent', hCSV, 'units', 'pixels', 'position', [20, 470 dx*3, 14], 'xTickLabel', [], 'yTickLabel', [], 'xTick', [], 'yTick', [], 'Tag', 'scanColorbar', 'visible', 'off','fontsize',10,'nextplot','add');
+        stateS.handle.scanColorbar = axes('parent', hCSV, 'units', 'pixels', 'position', [30, 470 dx*3-20, 14], 'xTickLabel', [], 'yTickLabel', [], 'xTick', [], 'yTick', [], 'Tag', 'scanColorbar', 'visible', 'off','fontsize',10,'nextplot','add');
+
+        % Initialize handle for scan colorbar
+        stateS.handle.scanColorbarImage = imagesc([0 1],[0.5 0.5],NaN,'parent',stateS.handle.scanColorbar,'visible','off');
 
 
         %Loop controls:
