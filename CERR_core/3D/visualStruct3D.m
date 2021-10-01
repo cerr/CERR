@@ -100,7 +100,7 @@ for i=1:length(V),
 %    isonormals(x,y,z,D,p1); %%May or maynot be necessary... w/o isonormals
 %    is still pretty good
 
-    %p2 = patch(isocaps(x,y,z,D, 0.1),...
+    %p2 = patch(isocaps(x,y,z,single(D), 0.1),...
      %   'FaceColor','interp','EdgeColor','none','FaceAlpha',TR(i));
 
     CERRStatusString(['Constructing surfaces.  Finished with ' num2str(i) ' out of ' num2str(length(V)) ' structures.'])
@@ -110,7 +110,7 @@ end
 %[x,y,z,linered] = subvolume(linered,[1,S(1),1,S(2),1,S(3)]);
 [x,y,z] = meshgrid(1:S(2), 1:S(1), 1:S(3));
 
-p1 = patch(isosurface(x,y,z,linered, 0.1),...
+p1 = patch(isosurface(x,y,z,single(linered), 0.1),...
     'FaceColor','red','EdgeColor','none');
 %isonormals(x,y,z,linered,p1);
 
@@ -119,7 +119,7 @@ p1 = patch(isosurface(x,y,z,linered, 0.1),...
 
 %[x,y,z,linegreen] = subvolume(linegreen,[1,S(1),1,S(2),1,S(3)]);
 
-p1 = patch(isosurface(x,y,z,linegreen, 0.1),...
+p1 = patch(isosurface(x,y,z,single(linegreen), 0.1),...
     'FaceColor','green','EdgeColor','none');
 %isonormals(x,y,z,linegreen,p1);
 
