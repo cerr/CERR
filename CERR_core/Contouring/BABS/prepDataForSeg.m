@@ -1,8 +1,9 @@
-function [fullSessionPath,activate_cmd,run_cmd,userOptS,outFile,scanNumV,planC] = ...
-    prepDataForSeg(planC,sessionPath,algorithm,condaEnv,wrapperFunction,batchSize)
-% [fullSessionPath,activate_cmd,run_cmd,userOptS,outFile,scanNumV,planC] =
-% prepDataForSeg(planC,sessionPath,algorithm,condaEnv,wrapperFunction,...
-% batchSize)
+function [activate_cmd,run_cmd,userOptS,outFile,scanNumV,planC] = ...
+    prepDataForSeg(planC,fullSessionPath,algorithm,cmdFlag,containerPath,...
+    wrapperFunction)
+% [activate_cmd,run_cmd,userOptS,outFile,scanNumV,planC] =
+% prepDataForSeg(planC,sessionPath,algorithm,cmdFlag,containerPath,...
+% wrapperFunction,batchSize)
 %
 % This wrapper prepares data for DL-based segmentation
 % -------------------------------------------------------------------------
@@ -11,7 +12,9 @@ function [fullSessionPath,activate_cmd,run_cmd,userOptS,outFile,scanNumV,planC] 
 % sessionPath  -  Directory for writitng temporary segmentation metadata.
 % algorithm    -  Algorthim name. For full list, see:
 %                 https://github.com/cerr/CERR/wiki/Auto-Segmentation-models.
-% condaEnv     -  String containing absolute path to conda environment.
+%cmdFlag       -  "condaEnv" or "singContainer"
+%containerPath -  * If cmdFlag is "condaEnv": containerPath must be a string 
+%                 containing the absolute path to a conda environment.
 %                 If env name is provided, the location of conda installation
 %                 must be defined in CERROptions.json (e.g. "condaPath" :
 %                 "C:/Miniconda3/"). The environment muust contain
@@ -19,33 +22,18 @@ function [fullSessionPath,activate_cmd,run_cmd,userOptS,outFile,scanNumV,planC] 
 %                 "activate".
 %                 Note: CondaEnv is obtained from getSegWrapperFunc if not
 %                 specified or empty.
+%                 * If cmdFlag is "singContainer": containerPath must be a  
+%                 string containing the absolute path to a singularity 
+%                 container.
 % wrapperFunction (optional)
 %              - String containing absolute path of wrapper function.
 %                If not specified or empty, wrapper function is obtained
 %                from getSegWrapperFunc.m.
-% batchSize (optional)
-%              -  Batch size for inference (default : 4).
 %--------------------------------------------------------------------------------
 % AI, 09/21/2021
 
-%% Create session directory for segmentation metadata
-indexS = planC{end};
-% Create temp. dir labelled by series UID, local time and date
-if isfield(planC{indexS.scan}(1).scanInfo(1),'seriesInstanceUID') && ...
-        ~isempty(planC{indexS.scan}(1).scanInfo(1).seriesInstanceUID)
-    folderNam = planC{indexS.scan}(1).scanInfo(1).seriesInstanceUID;
-else
-    %folderNam = dicomuid;
-    orgRoot = '1.3.6.1.4.1.9590.100.1.2';
-    folderNamJava = javaMethod('createUID','org.dcm4che3.util.UIDUtils',orgRoot);
-    folderNam = folderNamJava.toCharArray';
-end
-dateTimeV = clock;
-randNum = 1000.*rand;
-sessionDir = ['session',folderNam,num2str(dateTimeV(4)), num2str(dateTimeV(5)),...
-    num2str(dateTimeV(6)), num2str(randNum)];
-fullSessionPath = fullfile(sessionPath,sessionDir);
-
+%To create session directory for segmentation metadata, use:
+%fullSessionPath = createSessionForDLSeg(sessionPath,planC);
 
 %% Create sub-directories
 %-For CERR files
@@ -64,12 +52,6 @@ segScriptPath = fullfile(fullSessionPath,'segScript');
 mkdir(segScriptPath)
 testFlag = true;
 
-%Set default batch size
-if ~exist('batchSize','var')||isempty(batchSize)
-    batchSize = 4; 
-end
-
-
 %% Get conda installation path
 optS = opts4Exe([getCERRPath,'CERROptions.json']);
 condaPath = optS.condaPath;
@@ -81,24 +63,15 @@ else
     algorithmC = algorithm;
 end
 
-if ~iscell(condaEnv)
-    condaEnvC = {condaEnv};
-else
-    condaEnvC = condaEnv;
-end
-
-
-if ~exist('wrapperFunction','var') || isempty(wrapperFunction)
-    wrapperFunction = getSegWrapperFunc(condaEnvC,algorithmC);
-end
-
 %% Data pre-processing
-
 %Read config file
 configFilePath = fullfile(getCERRPath,'ModelImplementationLibrary',...
     'SegmentationModels', 'ModelConfigurations',[algorithmC{1},...
     '_config.json']);
 userOptS = readDLConfigFile(configFilePath);
+
+%Get batch size
+batchSize = userOptS.batchSize; 
 
 %Clear previous contents of session dir
 modelFmt = userOptS.modelInputFormat;
@@ -114,9 +87,7 @@ end
 mkdir(modOutputPath);
 
 % Pre-process and export data to HDF5 format
-if ~exist('batchSize','var') || isempty(batchSize)
-    batchSize = userOptS.batchSize;
-end
+fprintf('\nPre-processing data...\n');
 [scanC, maskC, scanNumV, userOptS, coordInfoS, planC] = ...
     extractAndPreprocessDataForDL(userOptS,planC,testFlag);
 %Note: mask3M is empty for testing
@@ -145,36 +116,63 @@ for nScan = 1:size(scanC,1)
         modelFmt,outDirC,idOut,testFlag);
 end
 
-% Get path to activation script
-pth = getenv('PATH');
-condaBinPath = fullfile(condaPath,'condabin;');
-if ~isempty(strfind(condaEnvC{1},filesep)) %contains(condaEnv,filesep)
-    condaEnvPath = condaEnvC{1};
-    condaBinPath = fullfile(condaEnvC{1},'Scripts;');
-else
-    condaEnvPath = fullfile(condaPath,'envs',condaEnvC{1});
+%% Get run cmd
+% Get wrapper functions if using conda env
+switch lower(cmdFlag)
+    
+    case 'condaenv'
+        if ~iscell(containerPath)
+            condaEnvC = {containerPath};
+        else
+            condaEnvC = containerPath;
+        end
+        if ~exist('wrapperFunction','var') || isempty(wrapperFunction)
+            wrapperFunction = getSegWrapperFunc(condaEnvC,algorithmC);
+        end
+        
+        pth = getenv('PATH');
+        condaBinPath = fullfile(condaPath,'condabin;');
+        if ~isempty(strfind(condaEnvC{1},filesep)) %contains(condaEnv,filesep)
+            condaEnvPath = condaEnvC{1};
+            condaBinPath = fullfile(condaEnvC{1},'Scripts;');
+        else
+            condaEnvPath = fullfile(condaPath,'envs',condaEnvC{1});
+        end
+        
+        newPth = [condaBinPath,pth];
+        setenv('PATH',newPth)
+        if ispc
+            activate_cmd = sprintf('call activate %s',condaEnvC{1});
+        else
+            condaSrc = fullfile(condaEnvPath,'/bin/activate');
+            activate_cmd = sprintf('source %s',condaSrc);
+        end
+        run_cmd = sprintf('python %s %s %s %s',wrapperFunction{1}, modInputPath,...
+            modOutputPath,num2str(batchSize));
+        
+        %% Create script to call segmentation wrappers
+        [uniqName,~] = genScanUniqName(planC, scanNumV(1));
+        outFile = fullfile(segScriptPath,[uniqName,'.sh']);
+        fid = fopen(outFile,'wt');
+        script = sprintf('#!/bin/zsh\n%s\nconda-unpack\npython --version\n%s',...
+            activate_cmd,run_cmd);
+        script = strrep(script,'\','/');
+        fprintf(fid,script);
+        fclose(fid);
+
+    case 'singcontainer'
+        
+        activate_cmd = '';
+        
+        %Get the bind path for the container
+        bindingDir = ':/scratch';
+        bindPath = strcat(fullSessionPath,bindingDir);
+        %Run container app
+        run_cmd = sprintf('singularity run --app %s --nv --bind  %s %s %s',...
+            algorithmC{1}, bindPath, containerPath, num2str(userOptS.batchSize));
+        
 end
 
-newPth = [condaBinPath,pth];
-setenv('PATH',newPth)
-if ispc
-    activate_cmd = sprintf('call activate %s',condaEnvC{1});
-else
-    condaSrc = fullfile(condaEnvPath,'/bin/activate');
-    activate_cmd = sprintf('source %s',condaSrc);
-end
-run_cmd = sprintf('python %s %s %s %s',wrapperFunction{1}, modInputPath,...
-    modOutputPath,num2str(batchSize));
-
-%% Create script to call segmentation wrappers
-[uniqName,~] = genScanUniqName(planC, scanNumV(1));
-outFile = fullfile(segScriptPath,[uniqName,'.sh']);
-fid = fopen(outFile,'wt');
-script = sprintf('#!/bin/zsh\n%s\nconda-unpack\npython --version\n%s',...
-    activate_cmd,run_cmd);
-script = strrep(script,'\','/');
-fprintf(fid,script);
-fclose(fid);
 
 
 end
