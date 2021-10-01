@@ -21,7 +21,7 @@ function planC = runSegForPlanCInCondaEnv(planC,sessionPath,algorithm,...
 %                 "condaPath" : "C:/Miniconda3/"
 %                 The environment muust contain subdirectory 'condabin', "activate" script
 %                 and subdirectory 'envs'.
-% wrapperFunctionList (optional)
+% wrapperFunctionList  (optional)
 %              - String containing caret-separated absolute paths of wrapper functions.
 %                It can also be a cell-array of strings.
 %                If not specified or empty, the names of wrapper functions
@@ -88,6 +88,7 @@ if ~exist('batchSize','var')||isempty(batchSize)
     batchSize = 4; %Default batch size
 end
 
+cmdFlag = 'condaEnv';
 
 %% Loop over algorithms
 % Resolve error by setting KMP_DUPLICATE_LIB_OK' to 'TRUE'
@@ -97,10 +98,12 @@ setenv('KMP_DUPLICATE_LIB_OK','TRUE')
 pth = getenv('PATH');
 for k =1:length(algorithmC)
     
-        %Prepare data for segmentation
-    [fullSessionPath,activate_cmd,run_cmd,userOptS,~,scanNumV,planC] = ...
-        prepDataForSeg(planC,sessionPath,algorithmC(k),condaEnvListC(k),...
-        functionNameC(k),batchSize);
+    fullSessionPath = createSessionForDLSeg(sessionPath,planC);
+    
+    %Prepare data for segmentation
+    [activate_cmd,run_cmd,userOptS,~,scanNumV,planC] = ...
+        prepDataForSeg(planC,fullSessionPath,algorithmC(k),cmdFlag,...
+        condaEnvListC(k),functionNameC(k));
     
     cmd = [activate_cmd,' && ',run_cmd];
     disp(cmd)
