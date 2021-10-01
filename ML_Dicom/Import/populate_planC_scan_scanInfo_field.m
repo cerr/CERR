@@ -112,12 +112,12 @@ switch fieldname
     case 'patientID'        
         %dataS = getTagValue(attr, '00100020');
         %dataS = attr.getStrings(org.dcm4che3.data.Tag.PatientID);
-        dataS = attr.getString(1048608,0);
+        dataS = char(attr.getString(1048608,0));
         
     case 'patientBirthDate'
         %dataS = getTagValue(attr, '00100030');
         %dataS = attr.getStrings(org.dcm4che3.data.Tag.PatientBirthDate);
-        dataS = attr.getString(1048624,0);
+        dataS = char(attr.getString(1048624,0));
         
     case 'scanType'
         %In CERR, scan slices are always transverse.
@@ -630,7 +630,7 @@ switch fieldname
         %Study ID
         %dataS  = getTagValue(attr, '00200010');
         %dataS = attr.getStrings(org.dcm4che3.data.Tag.StudyID);
-        dataS = attr.getString(2097168,0);
+        dataS = char(attr.getString(2097168,0));
         
     case 'scanNumber'
         %Currently undefined.
