@@ -39,7 +39,7 @@ for indBase = 1:length(dirS)
     % Handle special case of assignig reference UID fromanother structure
     % (e.g. exporting registered images from MIM assistant changes their frameOfreferenceUID)
     structRefForC = {};
-    count = 1;
+    count = 0;
     if exist('dcmExportOptS','var') && isstruct(dcmExportOptS)
         structNameC = {planC{indexS.structures}.structureName};
         for iDcmOpt = 1:length(dcmExportOptS)
