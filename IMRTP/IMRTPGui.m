@@ -50,16 +50,16 @@ units = 'pixels';
 algorithms = {};
 algDefault = '';
 if VMCPresent
-    algorithms = {algorithms{:}, 'VMC++'};
+    algorithms = [algorithms(:)', {'VMC++'}];
     algDefault = 'VMC++';
     %     x = 950;
 end
 if DPMPresent
-    algorithms = {algorithms{:}, 'DPM'};
+    algorithms = [algorithms(:)', {'DPM'}];
     algDefault = 'DPM';
 end
 if QIBPresent
-    algorithms = {algorithms{:}, 'QIB'};
+    algorithms = [algorithms(:)', {'QIB'}];
     algDefault = 'QIB';
 end
 
@@ -130,7 +130,7 @@ switch upper(command)
         %If gui doesnt exist, create it, else refresh it.
         if isempty(h)
             %Set up a new GUI window.
-            h = figure('doublebuffer', 'on', 'units', 'pixels', 'position',[(screenSize(3)-x)/2 (screenSize(4)-y)/2 x y], 'MenuBar', 'none', 'NumberTitle', 'off', 'resize', 'off', 'Tag', 'IMRTPGui','WindowButtonUpFcn', 'IMRTPGui(''FIGUREBUTTONUP'')','closeRequestFcn','IMRTPGui(''exit'');');
+            h = figure('units', 'pixels', 'position',[(screenSize(3)-x)/2 (screenSize(4)-y)/2 x y], 'MenuBar', 'none', 'NumberTitle', 'off', 'resize', 'off', 'Tag', 'IMRTPGui','WindowButtonUpFcn', 'IMRTPGui(''FIGUREBUTTONUP'')','closeRequestFcn','IMRTPGui(''exit'');');
             stateS.handle.IMRTMenuFig = h;
             set(h, 'Name','IMRTP');
 
@@ -251,8 +251,8 @@ switch upper(command)
                 for i=1:10
                     ud.bl.handles.numTxt((beamSet-1)*10+i)   = uicontrol(h, 'enable', 'inactive', 'style', 'text', 'units', units, 'position', [blX+10 blY+blH - 20 - 20*(i) 15 15], 'userdata', (beamSet-1)*10+i, 'horizontalAlignment', 'left', 'string', [num2str((beamSet-1)*10+i) '.'], 'visible', 'off');
                     ud.bl.handles.nameTxt((beamSet-1)*10+i)  = uicontrol(h, 'enable', 'inactive', 'style', 'text', 'units', units, 'position', [blX+30 blY+blH - 20 - 20*(i) 90 15], 'userdata', (beamSet-1)*10+i, 'horizontalAlignment', 'center', 'visible', 'off', 'buttondownfcn', 'IMRTPGui(''SELECTBEAM'')');
-                    ud.bl.handles.bevChk((beamSet-1)*10+i)  = uicontrol(h, 'enable', 'on', 'style', 'check', 'units', units, 'position', [blX+130 blY+blH - 20 - 20*(i) 20 15], 'userdata', (beamSet-1)*10+i, 'horizontalAlignment', 'center', 'visible', 'off', 'callBack', ['IMRTPGui(','''BEVCHK'',',num2str(i),')']);
-                    ud.bl.handles.bevType((beamSet-1)*10+i)  = uicontrol(h, 'enable', 'on', 'style', 'popup', 'string',{'Entire jaw-opening','Leaf-sequences','Beamlet-Weights'}, 'fontsize',7, 'units', units, 'position', [blX+150 blY+blH+5 - 20 - 20*(i) 80 10], 'userdata', (beamSet-1)*10+i, 'horizontalAlignment', 'center', 'visible', 'off', 'callBack', 'sliceCallBack(''REFRESH'')');
+                    ud.bl.handles.bevChk((beamSet-1)*10+i)  = uicontrol(h, 'enable', 'on', 'style', 'checkbox', 'units', units, 'position', [blX+130 blY+blH - 20 - 20*(i) 20 15], 'userdata', (beamSet-1)*10+i, 'horizontalAlignment', 'center', 'visible', 'off', 'callBack', ['IMRTPGui(','''BEVCHK'',',num2str(i),')']);
+                    ud.bl.handles.bevType((beamSet-1)*10+i)  = uicontrol(h, 'enable', 'on', 'style', 'popupmenu', 'string',{'Entire jaw-opening','Leaf-sequences','Beamlet-Weights'}, 'fontsize',7, 'units', units, 'position', [blX+150 blY+blH+5 - 20 - 20*(i) 80 15], 'userdata', (beamSet-1)*10+i, 'horizontalAlignment', 'center', 'visible', 'off', 'callBack', 'sliceCallBack(''REFRESH'')');
                 end
             end
             ud.bl.sliderH = uicontrol(h, 'style', 'slider', 'units', units, 'position', [blX+blW/2+110 blY+blH-220 15 200],'min',0,'max',4,'value',4,'callBack','IMRTPGui(''REFRESHBEAMS'')','sliderstep',[0.2 0.2]);            
@@ -275,6 +275,16 @@ switch upper(command)
                     boxStyle = 'popupmenu';
                     choices = fieldChoices{i};
                 end
+                if isempty(choices)
+                    choices = '';
+                end
+                if strcmpi(boxStyle,'popupmenu')
+                    for iChoice = 1:length(choices)
+                        if isnumeric(choices{iChoice})
+                            choices{iChoice} = num2str(choices{iChoice});
+                        end
+                    end
+                end
                 ud.bp.handles = setfield(ud.bp.handles, [[fName{:}] '_txt'], uicontrol(h, 'style', 'text', 'units', units, 'position', [bpX+10+colspac*col bpY+bpH-27-(20*row) bpFieldW bpFieldH], 'string', [fName{:}], 'horizontalAlignment', 'left'));
                 ud.bp.handles = setfield(ud.bp.handles, [[fName{:}] '_val'], uicontrol(h, 'style', boxStyle, 'units', units, 'position', [bpX+10+bpFieldW+colspac*col bpY+bpH-27-(20*row) bpFieldW bpFieldH], 'string', choices, 'horizontalAlignment', 'left', 'tag', ['IMGui.' [fName{:}]], 'foregroundcolor', fgColor,  'userdata', i, 'callback', 'IMRTPGui(''BEAMPARAMCHANGED'')', 'enable', 'inactive'));
                 if ~fieldIsEditable(i)
@@ -289,13 +299,13 @@ switch upper(command)
             for i = 1:length(planC{indexS.scan})
                 scanList{i} = [num2str(i), ' ', planC{indexS.scan}(i).scanType];
             end
-            ud.ss.handles.selScanPop = uicontrol(h, 'style', 'popupmenu', 'units', units, 'position', [ssX+ssW - 126 ssY + ssH + 18 111 15], 'string', scanList, 'value', 1, 'horizontalAlignment', 'left', 'callback', 'IMRTPGui(''SELSCAN'')');
+            ud.ss.handles.selScanPop = uicontrol(h, 'style', 'popupmenu', 'units', units, 'position', [ssX+ssW - 126 ssY + ssH + 18 111 20], 'string', scanList, 'value', 1, 'horizontalAlignment', 'left', 'callback', 'IMRTPGui(''SELSCAN'')');
 
             %Create structure pulldown menu.
             [assocScansV, relStructNumV] = getStructureAssociatedScan(1:length(planC{indexS.structures}), planC);
             structsInScanS = planC{indexS.structures}(assocScansV==1);
             strList = {structsInScanS.structureName};
-            ud.ss.handles.addStructPop = uicontrol(h, 'style', 'popupmenu', 'units', units, 'position', [ssX+ssW - 126 ssY + ssH - 25 111 15], 'string', strList, 'horizontalAlignment', 'left', 'callback', 'IMRTPGui(''ADDGOAL'')');
+            ud.ss.handles.addStructPop = uicontrol(h, 'style', 'popupmenu', 'units', units, 'position', [ssX+ssW - 126 ssY + ssH - 25 111 20], 'string', strList, 'horizontalAlignment', 'left', 'callback', 'IMRTPGui(''ADDGOAL'')');
 
             %Create structure column headers.
             uicontrol(h, 'style', 'text', 'units', units, 'position', [ssX+10 ssY+ssH - 60 100 15], 'string', 'Index / Name', 'horizontalAlignment', 'left');
@@ -1013,10 +1023,10 @@ switch upper(command)
                     end
                     continue;
                 end
-                if ~isempty(choices) & ~fieldIsNum(i)
+                if ~isempty(choices) && ~fieldIsNum(i)
                     val = find(strcmpi(choices, val));
                     set(getfield(ud.bp.handles, [[fName{:}] '_val']), 'Value', val, 'enable', 'on');
-                elseif ~isempty(choices) & fieldIsNum(i)
+                elseif ~isempty(choices) && fieldIsNum(i)
                     val = find(val==[choices{:}]);
                     set(getfield(ud.bp.handles, [[fName{:}] '_val']), 'Value', val, 'enable', 'on');
                 elseif fieldIsNum(i)
@@ -1085,7 +1095,7 @@ switch upper(command)
                 choices = MCparamChoices{i};
                 if ~isempty(choices)
                     val = find(strcmpi(choices, val));
-                    set(ud.mc.handles.val(i), 'Value', val, 'style', 'popupmenu', 'string', choices, 'visible', 'on');
+                    set(ud.mc.handles.val(i), 'string', choices, 'style', 'popupmenu', 'Value', val, 'visible', 'on');
                 elseif MCparamIsNum(i)
                     set(ud.mc.handles.val(i), 'string', num2str(val), 'style', 'edit', 'visible', 'on');
                 else
@@ -1135,8 +1145,8 @@ switch upper(command)
                 val = getfield(ud.IM.params, fName{:});
                 choices = paramChoices{i};
                 if ~isempty(choices)
-                    val = find(strcmpi(choices, val));
-                    set(ud.ip.handles.val(i), 'Value', val, 'style', 'popupmenu', 'string', choices, 'visible', 'on');
+                    val = find(strcmpi(choices, num2str(val)));
+                    set(ud.ip.handles.val(i), 'string', choices, 'style', 'popupmenu', 'Value', val, 'visible', 'on');
                 elseif paramIsNum(i)
                     set(ud.ip.handles.val(i), 'string', num2str(val), 'style', 'edit', 'visible', 'on');
                 else

@@ -40,7 +40,6 @@ if inputDicomPath(end) == filesep
 else
     [~,folderNam] = fileparts(inputDicomPath);
 end
-
 dateTimeV = clock;
 randStr = sprintf('%6.3f',rand*1000);
 sessionDir = ['session',folderNam,num2str(dateTimeV(4)), num2str(dateTimeV(5)),...
@@ -65,7 +64,7 @@ mkdir(segResultCERRPath)
 labelPath = fullfile(fullSessionPath,'outputLabelMap');
 mkdir(labelPath);
 
-% Import DICOM to CERR
+%% Import DICOM to CERR
 tic
 recursiveFlag = true;
 importDICOM(inputDicomPath,cerrPath,recursiveFlag);
@@ -73,6 +72,9 @@ toc
 
 % Parse algorithm and convert to cell arrray
 algorithmC = split(algorithm,'^');
+
+dcmExportOptS = struct();
+dcmExportOptS(1) = [];
 
 %% Run inference
 if ~any(strcmpi(algorithmC,'BABS'))
@@ -89,27 +91,15 @@ if ~any(strcmpi(algorithmC,'BABS'))
     end
     origCerrPath = cerrPath;
     allLabelNamesC = {};
+    
+    %Loop over algorithms
     for k=1:length(algorithmC)
         
-        %Read config file
+        
         configFilePath = fullfile(getCERRPath,'ModelImplementationLibrary',...
             'SegmentationModels','ModelConfigurations',...
             [algorithmC{k}, '_config.json']);
         userOptS = readDLConfigFile(configFilePath);
-        
-        %Delete previous inputs where needed
-        modelFmt = userOptS.modelInputFormat;
-        modInputPath = fullfile(fullSessionPath,['input',modelFmt]);
-        modOutputPath = fullfile(fullSessionPath,['output',modelFmt]);
-        if exist(modInputPath, 'dir')
-            rmdir(modInputPath, 's')
-        end
-        if exist(modOutputPath, 'dir')
-            rmdir(modOutputPath, 's')
-        end
-        
-        %Copy config file to session dir
-        copyfile(configFilePath,fullSessionPath);
         
         % Run segmentation algorithm
         success = segmentationWrapper(cerrPath,...
@@ -124,6 +114,15 @@ if ~any(strcmpi(algorithmC,'BABS'))
             labelMapS = userOptS.strNameToLabelMap;
         end
         allLabelNamesC = [allLabelNamesC,{labelMapS.structureName}];
+        
+        % Get DICOM export settings
+        if isfield(userOptS, 'dicomExportOptS')
+            if isempty(dcmExportOptS)
+                dcmExportOptS = userOptS.dicomExportOptS;
+            else
+                dcmExportOptS = dissimilarInsert(dcmExportOptS,userOptS.dicomExportOptS);
+            end
+        end
     end
     
     % Export segmentations to DICOM RTSTRUCT files
@@ -134,7 +133,7 @@ if ~any(strcmpi(algorithmC,'BABS'))
     fprintf('\nExporting to DICOM format...');
     tic
     exportCERRtoDICOM(origCerrPath,allLabelNamesC,outputCERRPath,...
-        outputDicomPath,algorithm,savePlancFlag)
+        outputDicomPath,dcmExportOptS,savePlancFlag)
     toc
     
 else
@@ -148,7 +147,7 @@ else
         savePlancFlag = 1;
     end
     exportCERRtoDICOM_forBABS(origCerrPath,segResultCERRPath,outputCERRPath,...
-        outputDicomPath,algorithm,savePlancFlag)
+        outputDicomPath,dcmExportOptS,savePlancFlag)
     
 end
 

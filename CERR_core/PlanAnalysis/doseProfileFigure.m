@@ -44,18 +44,18 @@ persistent drawing;
 initialDoseV = [];
 initialScanV = [];
 
-if isnumeric(command) & length(command) == 3
+if isnumeric(command) && length(command) == 3
     startPt = command;
     endPt = varargin{1};
     command = 'init';
-elseif isstr(command) & strcmpi(command, 'init')
+elseif ischar(command) && strcmpi(command, 'init')
     startPt = [];
     endPt = [];
     if nargin > 2
         initialDoseV = varargin{1};
         initialScanV = varargin{2};
     end
-elseif isstr(command)
+elseif ischar(command)
 else
     error('Invalid call to doseProfileFigure. Help doseProfileFigure for details.');
 end
@@ -65,9 +65,13 @@ switch upper(command)
     case 'INIT'
         stateS.doseDiffScale = 'Abs';
         drawing = 0;
-        oldFigs = findobj('tag', 'CERR_DoseLineProfile');
-        delete(oldFigs);
-
+        %oldFigs = findobj('tag', 'CERR_DoseLineProfile');
+        if isfield(stateS.handle,'doseProfileFigure') && ...
+                ~isempty(ishandle(stateS.handle.doseProfileFigure)) && ...
+                ishandle(stateS.handle.doseProfileFigure)
+            delete(stateS.handle.doseProfileFigure);
+        end
+        
         units = 'pixels';
         screenSize = get(0,'ScreenSize');
         % APA: Commented
@@ -76,7 +80,7 @@ switch upper(command)
         w = 510; h = 650;
 
         %Initial size of figure in pixels. Figure scales fairly well.
-        hFig = figure('name', 'Dose Line Profile', 'units', units, 'position',[(screenSize(3)-w) 35 w h], 'MenuBar', 'none', 'NumberTitle', 'off', 'resize', 'off', 'Tag', 'CERR_DoseLineProfile', 'DoubleBuffer', 'on', 'DeleteFcn', 'doseProfileFigure(''CLOSE'')');
+        hFig = figure('name', 'Dose Line Profile', 'units', units, 'position',[(screenSize(3)-w) 35 w h], 'MenuBar', 'none', 'NumberTitle', 'off', 'resize', 'off', 'Tag', 'CERR_DoseLineProfile', 'DeleteFcn', 'doseProfileFigure(''CLOSE'')');
         stateS.handle.doseProfileFigure = hFig;
 
         nDoses = length(planC{indexS.dose});
@@ -106,7 +110,7 @@ switch upper(command)
         doseStringC = cell(nDoses,1);
         colorDose3M = zeros(nDoses,3);
         for i=1:nDoses
-            if ismember(i, initialDoseV);
+            if ismember(i, initialDoseV)
                 chkvaldoseC{i} = true;
             else
                 chkvaldoseC{i} = false;
@@ -189,18 +193,18 @@ switch upper(command)
 
         radioToolTip = 'Choose Absolute(ABS) or Normalized (NOR) Scale for Dose Difference';
         h = uibuttongroup('parent',hFig,'units', 'pixels', 'visible','off','Position',[60 yStart+240 100 25]);
-        u0 = uicontrol('Style','Radio','String','Abs',...
-            'pos',[5 5 40 15],'parent',h,'HandleVisibility','off');
-        u1 = uicontrol('Style','Radio','String','Rel',...
-            'pos',[50 5 40 15],'parent',h,'HandleVisibility','off');
-        set(h,'SelectionChangeFcn',@d_ct_profRadio);
+        u0 = uicontrol('Style','radiobutton','String','Abs',...
+            'position',[5 5 40 15],'parent',h,'HandleVisibility','off');
+        u1 = uicontrol('Style','radiobutton','String','Rel',...
+            'position',[50 5 40 15],'parent',h,'HandleVisibility','off');
+        set(h,'selectionchangedfcn',@d_ct_profRadio);
         set(h,'SelectedObject',u0);  % No selection
         set(h,'Visible','on')
 
 
         % DK Drop down list to select the primary dose
         uicontrol('parent',hFig,'Style','Text','Units','Pixels','Position',[170 yStart+230 120 30],...
-            'String','Select Base Dose','Background',clrBg);
+            'String','Select Base Dose','backgroundcolor',clrBg);
 
         refDoseToolTip = 'Select the reference/Base Dose from which all doses will be subtracted';
 
@@ -235,7 +239,8 @@ switch upper(command)
 
     case 'SELECTREFDOSE'
 
-        hFig = findobj('tag', 'CERR_DoseLineProfile');
+        %hFig = findobj('tag', 'CERR_DoseLineProfile');
+        hFig = stateS.handle.doseProfileFigure;
 
         ud = get(hFig, 'userdata');
 
@@ -251,7 +256,8 @@ switch upper(command)
         set(hFig,'Userdata',ud);
 
     case 'RANGERCLICKED'
-        hFig = findobj('tag', 'CERR_DoseLineProfile');
+        %hFig = findobj('tag', 'CERR_DoseLineProfile');
+        hFig = stateS.handle.doseProfileFigure;
         ud    = get(hFig, 'userdata');
         udS   = get(ud.slideraxis, 'userdata');
 
@@ -276,7 +282,8 @@ switch upper(command)
         set(ud.slideraxis, 'userdata', udS);
 
     case 'INDICATORMOVING'
-        hFig = findobj('tag', 'CERR_DoseLineProfile');
+        %hFig = findobj('tag', 'CERR_DoseLineProfile');
+        hFig = stateS.handle.doseProfileFigure;
         ud    = get(hFig, 'userdata');
         hAxis = ud.slideraxis;
         udS   = get(ud.slideraxis, 'userdata');
@@ -296,7 +303,8 @@ switch upper(command)
         doseProfileFigure('refresh');
 
     case 'MOTIONDONE'
-        hFig = findobj('tag', 'CERR_DoseLineProfile');
+        %hFig = findobj('tag', 'CERR_DoseLineProfile');
+        hFig = stateS.handle.doseProfileFigure;
         ud    = get(hFig, 'userdata');
         udS   = get(ud.slideraxis, 'userdata');
 
@@ -317,7 +325,8 @@ switch upper(command)
    
     case 'NEW_POINTS'
         %New points specified for the profile line.
-        hFig = findobj('tag', 'CERR_DoseLineProfile');
+        %hFig = findobj('tag', 'CERR_DoseLineProfile');
+        hFig = stateS.handle.doseProfileFigure;
         ud = get(hFig, 'userdata');
         ud.startPt = varargin{1};
         ud.endPt = varargin{2};
@@ -337,7 +346,8 @@ switch upper(command)
         clear CERR_doseProfileLastCallTime;
 
         %Make dose profile figure the foreground.
-        hFig = findobj('tag', 'CERR_DoseLineProfile');
+        %hFig = findobj('tag', 'CERR_DoseLineProfile');
+        hFig = stateS.handle.doseProfileFigure;
         if isempty(hFig)
             return;
         end
@@ -370,14 +380,16 @@ switch upper(command)
         startPt = ud.startPt;
         endPt   = ud.endPt;
         
-        if isempty(startPt) | isempty(endPt)
+        if isempty(startPt) || isempty(endPt)
             return;
         end
         
         colors = stateS.optS.colorOrder;
         %AI: Changed
-        drawDoses = [doseUI.Data{:,1}];
-        drawScans = [scanUI.Data{:,1}];
+        drawDoses = get(doseUI,'Data');
+        drawDoses = [drawDoses{:,1}];
+        drawScans = get(scanUI,'Data');
+        drawScans = [drawScans{:,1}];
         %AI: End changed
         
         drawDoses = find(drawDoses);
@@ -430,7 +442,7 @@ switch upper(command)
             end
             axis(ud.scanaxis,'tight')
 
-            if exist('dV') & length(dV)>1 & ~isempty(ud.baseDose)
+            if exist('dV','var') && length(dV)>1 && ~isempty(ud.baseDose)
                 delete(ud.htextInit)
                 ud.htextInit = [];
                 set(ud.diffaxis,'XTickLabelMode','auto','YTickLabelMode','auto')
@@ -501,39 +513,27 @@ end
 ud = get(hFig,'UserData');
 delete(ud.htext)
 
-if strcmp(hObj.Tag, 'doseUI')
-objUI  = ud.doseUI;
+if strcmp(get(hObj,'Tag'), 'doseUI')
+    objUI  = ud.doseUI;
 else
-objUI  = ud.scanUI;
+    objUI  = ud.scanUI;
 end
 
 selectedRowsV = hEvent.Indices(:,1);
-objDataC = objUI.Data;
-drawObjV = [objUI.Data{:,1}];
+objDataC = get(objUI,'Data');
+drawObjV = get(objUI,'Data');
+drawObjV = [drawObjV{:,1}];
 drawObjV(selectedRowsV) = ~drawObjV(selectedRowsV);
 objDataC(:,1) = num2cell(drawObjV);
-objUI.Data = objDataC;
+set(objUI,'Data') = objDataC;
 
-if strcmp(hObj.Tag, 'doseUI')
-ud.doseUI = objUI;
+if strcmp(get(hObj,'Tag'), 'doseUI')
+    ud.doseUI = objUI;
 else
-ud.scanUI = objUI;
+    ud.scanUI = objUI;
 end
 ud.htext = [];
 set(hFig, 'userdata',ud);
 doseProfileFigure('refresh');
 end
-
-
-
-
-
-
-
-
-
-
-
-
-
 

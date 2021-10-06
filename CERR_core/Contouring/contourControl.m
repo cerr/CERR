@@ -373,6 +373,9 @@ switch command
             stateS.contouringMetaDataS.ccStruct = varargin{1};
             loadDrawSlice(hAxis);
             drawContour('noneMode', hAxis);
+            
+            ud = stateS.handle.controlFrameUd;
+            set(ud.handles.structPopup, 'value', newStrNum);
             return;
             
             switch lower(ccMode)

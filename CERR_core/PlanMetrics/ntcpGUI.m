@@ -46,7 +46,7 @@ switch upper(command)
         %create UIcontrols
         units = 'normalized';
         uicontrol(hFig,'style','text','string','Select Model','units',units,'position',[0.65 0.9 0.15 0.04],'fontWeight','bold','fontSize',10,'BackgroundColor', figureColor,'HorizontalAlignment','left')
-        ud.model = uicontrol(hFig,'style','popup','string',{'LKB','CV','WUSTL LUNG'},'units',units,'position',[0.82 0.9 0.15 0.04],'fontWeight','normal','fontSize',10,'callBack','ntcpGUI(''EUD_CHANGED'')');
+        ud.model = uicontrol(hFig,'style','popupmenu','string',{'LKB','CV','WUSTL LUNG'},'units',units,'position',[0.82 0.9 0.15 0.04],'fontWeight','normal','fontSize',10,'callBack','ntcpGUI(''EUD_CHANGED'')');
         uicontrol(hFig,'style','text','string','Select Struct','units',units,'position',[0.65 0.8 0.15 0.04],'fontWeight','bold','fontSize',10,'BackgroundColor', figureColor,'HorizontalAlignment','left')
         %Build list of structure names.
         numStructs = length(planC{indexS.structures});
@@ -55,7 +55,7 @@ switch upper(command)
         else
             structuresC = {'---'};
         end
-        ud.struct = uicontrol(hFig,'style','popup','string',structuresC,'units',units,'position',[0.82 0.8 0.15 0.04],'fontWeight','normal','fontSize',10,'callBack','ntcpGUI(''EUD_CHANGED'')');
+        ud.struct = uicontrol(hFig,'style','popupmenu','string',structuresC,'units',units,'position',[0.82 0.8 0.15 0.04],'fontWeight','normal','fontSize',10,'callBack','ntcpGUI(''EUD_CHANGED'')');
         uicontrol(hFig,'style','text','string','Select Dose','units',units,'position',[0.65 0.7 0.15 0.04],'fontWeight','bold','fontSize',10,'BackgroundColor', figureColor,'HorizontalAlignment','left')
         %Build list of dose names.
         numDoses = length(planC{indexS.dose});
@@ -64,7 +64,7 @@ switch upper(command)
         else
             dosesC = {'---'};
         end
-        ud.dose = uicontrol(hFig,'style','popup','string',dosesC,'units',units,'position',[0.82 0.7 0.15 0.04],'fontWeight','normal','fontSize',10,'callBack','ntcpGUI(''EUD_CHANGED'')');
+        ud.dose = uicontrol(hFig,'style','popupmenu','string',dosesC,'units',units,'position',[0.82 0.7 0.15 0.04],'fontWeight','normal','fontSize',10,'callBack','ntcpGUI(''EUD_CHANGED'')');
 
         %Information frame
         ud.info.frame = uicontrol(hFig,'style','frame','units',units,'position',[0.1 0.05 0.5 0.12],'fontWeight','normal','fontSize',10,'BackgroundColor', figureColor,'visible','off');

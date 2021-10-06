@@ -196,7 +196,7 @@ end
 
 [VolHist cumVols2V]  = normailzeDVHVol(avgVol);
 
-h = figure('tag', 'DAvHPlot', 'doublebuffer', 'on');
+h = figure('tag', 'DAvHPlot');
 
 avgAxis = axes('parent', h);
 

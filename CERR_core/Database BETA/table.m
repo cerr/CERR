@@ -105,7 +105,7 @@ switch upper(action)
         ud.charSizes = getCharSizes(hAxis);
                 
         hFig = get(hAxis, 'parent');
-        set(hFig, 'doublebuffer', 'on', 'renderer', 'zbuffer');
+        set(hFig, 'renderer', 'zbuffer');
         axis(hAxis, 'ij', 'off') 
         
         set(hAxis, 'units', 'pixels');                      

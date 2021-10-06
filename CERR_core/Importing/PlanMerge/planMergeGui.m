@@ -26,7 +26,7 @@ end
 %Find old planMerge figures.
 hFig = findobj('Tag', 'CERR_PlanMergeGui');
 
-if isempty(hFig) & ~strcmpi(command, 'init');
+if isempty(hFig) && ~strcmpi(command, 'init')
     warning('planMergeGui was not initialized.  Initializing now.');
     command = 'init';
 end
@@ -182,21 +182,23 @@ switch upper(command)
         optS = stateS.optS;
         if isempty(optS.tmpDecompressDir)
             tmpExtractDir = tempdir;
-        elseif isdir(optS.tmpDecompressDir)
+        elseif isfolder(optS.tmpDecompressDir)
             tmpExtractDir = optS.tmpDecompressDir;
-        elseif ~isdir(optS.tmpDecompressDir)
+        elseif ~isfolder(optS.tmpDecompressDir)
             error('Please specify a valid directory within CERROptions.m for optS.tmpDecompressDir')
         end        
 
         try
-            [planC] = loadPlanC(fullName,tmpExtractDir);
+            planC = loadPlanC(fullName,tmpExtractDir);
+            planC = updatePlanFields(planC);
+            planC = quality_assure_planC(fullName,planC);
 %             indexS=planC{end};
 %             for i=1:length(planC{indexS.scan}(1).scanInfo)
 %                 planC{indexS.scan}(1).scanInfo(i).planDir = fullName;
 %             end
         end
 
-        if ~exist('planC');
+        if ~exist('planC','var')
             planMergeGui('status', 'UNABLE TO LOAD SPECIFIED PLAN. Try another plan.');
             return;
         end
@@ -334,15 +336,15 @@ switch upper(command)
         
         switch upper(type)
             case 'DOSE'
-                if length(ud.checkedDoses) > 0                
+                if ~isempty(ud.checkedDoses)                
                     ud.checkedDoses(1:end) = value;
                 end
             case 'SCAN'
-                if length(ud.checkedScans) > 0
+                if ~isempty(ud.checkedScans)
                     ud.checkedScans(1:end) = value;                
                 end
             case 'STRUCT'
-                if length(ud.checkedStructs) > 0                
+                if ~isempty(ud.checkedStructs)                
                     ud.checkedStructs(1:end) = value;
                 end
         end

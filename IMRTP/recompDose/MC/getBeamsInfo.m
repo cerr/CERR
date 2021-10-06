@@ -69,7 +69,7 @@ for indexBeam = 1 : planC{7}.FractionGroupSequence.Item_1.NumberOfBeams
     set(hAxis2, 'ylim', yL);
     axis(hAxis2, 'manual');
 %     w_colors = floor((w_field ./ max(w_field))*255)+1;
-    set(gcf, 'doublebuffer', 'on');
+    %set(gcf, 'doublebuffer', 'on');
     for i=1:length(xPosV)
         patch([xPosV(i) - beamlet_delta_x(i)/2 xPosV(i) - beamlet_delta_x(i)/2 xPosV(i) + beamlet_delta_x(i)/2 xPosV(i) + beamlet_delta_x(i)/2 xPosV(i) - beamlet_delta_x(i)/2], [yPosV(i) - beamlet_delta_y(i)/2 yPosV(i) + beamlet_delta_y(i)/2 yPosV(i) + beamlet_delta_y(i)/2 yPosV(i) - beamlet_delta_y(i)/2 yPosV(i) - beamlet_delta_y(i)/2], w_field(i));        
     end

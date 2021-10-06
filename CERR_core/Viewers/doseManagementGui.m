@@ -43,7 +43,7 @@ units = 'normalized';
 rowHeight = .06;
 
 %If no command given, default to init.
-if ~exist('command') | isempty(command)
+if ~exist('command','var') || isempty(command)
     command = 'init';
 end
 
@@ -62,7 +62,7 @@ switch upper(command)
         %If gui doesnt exist, create it, else refresh it.
         if isempty(h)
             %Set up a new GUI window.
-            h = figure('doublebuffer', 'on', 'units', 'pixels', 'position',[(screenSize(3)-x)/2 (screenSize(4)-y)/2 x y], 'MenuBar', 'none', 'NumberTitle', 'off', 'resize', 'off', 'Tag', 'doseManagementGui', 'Color', [.75 .75 .75], 'WindowButtonUpFcn', 'doseManagementGui(''FIGUREBUTTONUP'')');
+            h = figure('units', 'pixels', 'position',[(screenSize(3)-x)/2 (screenSize(4)-y)/2 x y], 'MenuBar', 'none', 'NumberTitle', 'off', 'resize', 'off', 'Tag', 'doseManagementGui', 'Color', [.75 .75 .75], 'WindowButtonUpFcn', 'doseManagementGui(''FIGUREBUTTONUP'')');
             stateS.handle.doseManagementFig = h;
             set(h, 'Name','Dose Management');
 
@@ -293,7 +293,7 @@ switch upper(command)
     case 'FIGUREBUTTONUP'
         %Mouse up, if in preview window disable motion fcn.
         ud = get(h, 'userdata');
-        if ~isfield(ud, 'previewDown') | ud.previewDown == 1;
+        if ~isfield(ud, 'previewDown') || ud.previewDown == 1
             ud.previewDown = 0;
             set(h, 'WindowButtonMotionFcn', '');
             set(h, 'userdata', ud);
@@ -765,7 +765,7 @@ maxLoc = find(dA == maxDose);
 thumbImage = dA(:,:,s(1));
 imagesc(thumbImage, 'hittest', 'off', 'parent', hAxis);
 set(hAxis, 'ytick',[],'xtick',[]);
-if isCompress & isRemote
+if isCompress && isRemote
     text(.1, .1, 'Compressed', 'units', 'normalized', 'fontsize', 8, 'color', 'black', 'horizontalAlignment', 'left', 'hittest', 'off', 'parent', hAxis);
     text(.1, .2, 'Remote', 'units', 'normalized', 'fontsize', 8, 'color', 'black', 'horizontalAlignment', 'left', 'hittest', 'off', 'parent', hAxis);
 elseif isRemote

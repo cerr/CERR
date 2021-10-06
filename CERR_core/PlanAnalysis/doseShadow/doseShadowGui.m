@@ -68,7 +68,14 @@ switch upper(varargin{1})
         x = 900;
         units = 'normalized';
 
-        h = figure('name', 'Dose Projections', 'units', 'pixels', 'position',[(screenSize(3)-x)/2 (screenSize(4)-y)/2 x y], 'MenuBar', 'none', 'NumberTitle', 'off', 'resize', 'off', 'Tag', 'doseShadowGui', 'Color', [.75 .75 .75], 'DoubleBuffer', 'on','WindowButtonDownFcn', 'doseShadowGui(''buttondown'');','WindowButtonUpFcn', 'doseShadowGui(''buttonup'');', 'WindowButtonMotionFcn', 'doseShadowGui(''motion'');', 'interruptible', 'off');
+        h = figure('name', 'Dose Projections', 'units', 'pixels',...
+            'position',[(screenSize(3)-x)/2 (screenSize(4)-y)/2 x y],...
+            'MenuBar', 'none', 'NumberTitle', 'off', 'resize', 'off',...
+            'Tag', 'doseShadowGui', 'Color', [.75 .75 .75], ...
+            'WindowButtonDownFcn', 'doseShadowGui(''buttondown'');',...
+            'WindowButtonUpFcn', 'doseShadowGui(''buttonup'');', ...
+            'WindowButtonMotionFcn', 'doseShadowGui(''motion'');', ...
+            'interruptible', 'off');
         stateS.handle.doseShadowFig = h;
 
         %Axes that provide border highlight around shadow axis.
@@ -93,7 +100,10 @@ switch upper(varargin{1})
         uicontrol(h, 'units',units,'Position',[.49 .51 .295 .47], 'Style', 'frame');
 
         %Labels for controls and fields.
-        x=.51;, y=.93;, dx=.095;, dy=.025;
+        x=.51;
+        y=.93;
+        dx=.095;
+        dy=.025;
         uicontrol(h, 'units',units,'Position',[x y dx dy],'String','Struct:', 'Style', 'text', 'HorizontalAlignment', 'left');
         uicontrol(h, 'units',units,'Position',[x y-.03 dx dy],'String','Mode:', 'Style', 'text', 'HorizontalAlignment', 'left');
         uicontrol(h, 'units',units,'Position',[x y-.06 dx dy],'String','doseSet:', 'Style', 'text', 'HorizontalAlignment', 'left');
@@ -347,7 +357,7 @@ switch upper(varargin{1})
             tMinJ{scanNum} = min(tMinJ{scanNum},min(jV));
             tMaxJ{scanNum} = max(tMaxJ{scanNum},max(jV));
 
-            if matlab_version >= 7 & matlab_version < 7.5
+            if matlab_version >= 7 && matlab_version < 7.5
                 [c, hStructContour] = contour('v6', 1:numCols, 1:numRows, single(structTM), [.5 .5], '-');
                 set(hStructContour, 'parent', hTransverse,'visible','off');
                 if stateS.optS.structureDots
@@ -365,7 +375,7 @@ switch upper(varargin{1})
                 [c, hStructContour] = contour(1:numCols, 1:numRows, single(structTM), [.5 .5], '-');
                 set(hStructContour, 'parent', hTransverse,'visible','off');
                 if stateS.optS.structureDots
-                    for cNum=1:length(hStructContour);
+                    for cNum=1:length(hStructContour)
                         hStructContourDots(cNum) = line(get(hStructContour(cNum), 'xData'), get(hStructContour(cNum), 'yData'), 'parent', hTransverse, 'hittest', 'off');
                     end
                 end
@@ -697,7 +707,9 @@ switch upper(varargin{1})
         oldStruct = ud.structure;
         structNum = get(gcbo, 'Value')-1;
         if structNum == 0
-            try, delete(findobj('tag','dose_projection')), end
+            try
+                delete(findobj('tag','dose_projection'))
+            end
             return;
         end
         [scanNum, ud.structure] = getStructureAssociatedScan(structNum, planC);

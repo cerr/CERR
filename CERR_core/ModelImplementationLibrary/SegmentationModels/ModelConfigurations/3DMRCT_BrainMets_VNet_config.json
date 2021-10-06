@@ -59,6 +59,14 @@
 
 "roiGenerationDescription": "Brain Mets Candidates - AI generated",
 
+"dicomExportOptS": {
+                     "rt_struct": {
+                         "referencedFrameOfReference": 
+                                 {"toStructureName": "all",
+                                  "fromStructureName": "brain"}
+                                   }
+                 },
+
 "reference" : ""
 
 }

@@ -1,4 +1,4 @@
-function planC = generate_DICOM_UID_Relationships(planC)
+function planC = generate_DICOM_UID_Relationships(planC,structRefForC)
 %"generate_DICOM_UID_Relationships"
 %   Creates new fields in the passed planC containing the UIDs required for
 %   DICOM export.  These fields are not a permenant part of the planC, so
@@ -261,9 +261,22 @@ for i = 1:length(planC{indexS.structures})
     %Set the series instance UID
     planC{indexS.structures}(i).Series_Instance_UID = Structure_Set_Series_UID;
     
-    %Set the frame of reference UID to that of the associated scan.
+    %Set the default frame of reference UID to that of the associated scan.
     assocScanNum = getStructureAssociatedScan(i, planC);
-    planC{indexS.structures}(i).Frame_Of_Reference_UID = planC{indexS.scan}(assocScanNum).Frame_Of_Reference_UID;
+    structRefFrameOfReferenceUID = planC{indexS.scan}(assocScanNum).Frame_Of_Reference_UID;    
+    
+%     % Handle special case of assignig reference UID fromanother structure
+%     % (e.g. exporting registered images from MIM assistant changes their frameOfreferenceUID)
+    if exist('structRefForC','var') && ~isempty(structRefForC)
+        ind = ismember(planC{indexS.structures}(i).structureName,structRefForC(:,1));
+        if sum(ind) == 1
+            structRefFrameOfReferenceUID = structRefForC{ind,2};
+        elseif any(ismember('all',structRefForC(:,1)))
+                structRefFrameOfReferenceUID = structRefForC{1,2};            
+        end
+    end
+
+    planC{indexS.structures}(i).Frame_Of_Reference_UID = structRefFrameOfReferenceUID;
     
     %Set the SOP UIDs.
     planC{indexS.structures}(i).SOP_Class_UID    = Structure_Set_SOP_Class_UID;

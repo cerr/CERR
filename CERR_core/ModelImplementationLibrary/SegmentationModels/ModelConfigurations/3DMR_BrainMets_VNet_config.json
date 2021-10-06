@@ -16,7 +16,7 @@
 
          "channels" :{
                         "imageType": {
-                                        "assignBkgIntensity": {
+                                     "assignBkgIntensity": {
                                                "assignVal":0}},
                                      "slice": "current"
                       }

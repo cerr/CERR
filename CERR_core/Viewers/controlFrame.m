@@ -264,7 +264,7 @@ switch command
                         ud = stateS.handle.controlFrameUd ;
                         position = [5 40 200 200];
                         hFig = figure('name','Overlaid Scan Options','numbertitle','off','menuBar','none',...
-                            'position',position, 'doublebuffer', 'on','WindowStyle','normal',...
+                            'position',position, 'WindowStyle','normal',...
                             'resize','off','color',[0.9 0.9 0.9]);
                         ud.handle.ovrlayFig = hFig;
                         
@@ -681,9 +681,8 @@ switch command
                 stateS.contouringMetaDataS.contourSlcLoadedM = contourSlcLoadedM;
 
                 [jnk, relStructNumV] = getStructureAssociatedScan(toAdd);
-                set(ud.handles.structPopup, 'value', relStructNumV);
-                controlFrame('contour', 'refresh')
                 contourControl('changeStruct', toAdd);
+                controlFrame('contour', 'refresh')
                 
             case 'renameStruct'
                 %Structure has been renamed.
@@ -1087,7 +1086,7 @@ switch command
                         set(ud.handles.numAuto, 'enable', 'off');
                 end
                 
-                ud = stateS.handle.controlFrameUd ;
+                stateS.handle.controlFrameUd = ud;
                 controlFrame('isodose', 'refresh');
                 
             case 'refresh'
@@ -3726,8 +3725,8 @@ indexS = planC{end};
 baseSet = stateS.imageRegistrationBaseDataset;
 scanUID = ['c',repSpaceHyp(planC{indexS.scan}(baseSet).scanUID(max(1,end-61):end))];
 
-baseCTWidth = stateS.scanStats.CTWidth.(scanUID);
-baseCTLevel = stateS.scanStats.CTLevel.(scanUID);
+baseCTWidth = num2str(stateS.scanStats.CTWidth.(scanUID));
+baseCTLevel = num2str(stateS.scanStats.CTLevel.(scanUID));
 baseColormap = stateS.scanStats.Colormap.(scanUID);
 basePreset = stateS.scanStats.windowPresets.(scanUID);
 
@@ -3746,8 +3745,8 @@ indexS = planC{end};
 movSet = stateS.imageRegistrationMovDataset;
 scanUID = ['c',repSpaceHyp(planC{indexS.scan}(movSet).scanUID(max(1,end-61):end))];
 
-movCTWidth = stateS.scanStats.CTWidth.(scanUID);
-movCTLevel = stateS.scanStats.CTLevel.(scanUID);
+movCTWidth = num2str(stateS.scanStats.CTWidth.(scanUID));
+movCTLevel = num2str(stateS.scanStats.CTLevel.(scanUID));
 movColormap = stateS.scanStats.Colormap.(scanUID);
 movPreset = stateS.scanStats.windowPresets.(scanUID);
 

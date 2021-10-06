@@ -507,6 +507,9 @@ switch fieldname
         end
         
         if ~isempty(tempDirPathC)
+            if ~isempty(ver('OCTAVE'))
+                confirm_recursive_rmdir(0)
+            end
             for iDir = 1:length(tempDirPathC)
                 rmdir(tempDirPathC{iDir},'s')
             end

@@ -170,7 +170,7 @@ transM(1,4) = xTref;
 transM(2,4) = yTref;
 transM(3,4) = zTref;
 planC{indexS.scan}(1).transM = transM;
-for structNum = 2:16
+for structNum = 1:16
     [xC,yC,zC] = calcIsocenter(structNum, 'COM', planC);
     %Create transM based on difference between COM
     xT = xRef - xC;

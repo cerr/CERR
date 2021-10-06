@@ -203,11 +203,11 @@ switch upper(instr)
         stateS.colorbarFrameMin = [];
         stateS.colorbarFrameMinCompare = [];
         %DK
-        
+                
         % Handle for IMRTP GUI
         stateS.handle.IMRTMenuFig = [];
 
-        str1 = ['CERR'];
+        str1 = 'CERR';
         position = [5 40 940 620];
         %--- temp for octave compatibility---
         %hCSV = figure('tag','CERRSliceViewer','name',str1,'numbertitle','off',...
@@ -215,7 +215,7 @@ switch upper(instr)
         %    'sliceCallBack(''closeRequest'')','backingstore','off','tag',...
         %   'CERRSliceViewer', 'renderer', 'zbuffer');
         hCSV = figure('tag','CERRSliceViewer','name',str1,'numbertitle','off',...
-            'position',position, 'doublebuffer', 'off','CloseRequestFcn',...
+            'position',position, 'CloseRequestFcn',...
             'sliceCallBack(''closeRequest'')','tag',...
             'CERRSliceViewer');
                 
@@ -303,7 +303,10 @@ switch upper(instr)
         %CT Level/Width pushbutton
         stateS.handle.CTLevelWidthInteractive = uicontrol(hCSV,'units','pixels','BackgroundColor',uicolor, 'Position',[(frameWidth-50)+35 500 20 20], 'String','L','Style','toggle','Tag','CTInteractiveWindowing', 'callback','sliceCallBack(''TOGGLESCANWINDOWING'');','tooltipstring','Drag mouse on view to change display window');
         %CT Colorbar
-        stateS.handle.scanColorbar = axes('parent', hCSV, 'units', 'pixels', 'position', [20, 470 dx*3, 14], 'xTickLabel', [], 'yTickLabel', [], 'xTick', [], 'yTick', [], 'Tag', 'scanColorbar', 'visible', 'off','fontsize',10);
+        stateS.handle.scanColorbar = axes('parent', hCSV, 'units', 'pixels', 'position', [30, 470 dx*3-20, 14], 'xTickLabel', [], 'yTickLabel', [], 'xTick', [], 'yTick', [], 'Tag', 'scanColorbar', 'visible', 'off','fontsize',10,'nextplot','add');
+
+        % Initialize handle for scan colorbar
+        stateS.handle.scanColorbarImage = imagesc([0 1],[0.5 0.5],NaN,'parent',stateS.handle.scanColorbar,'visible','off');
 
 
         %Loop controls:
@@ -1091,6 +1094,15 @@ switch upper(instr)
             showPlaneLocators;
             showPatientOrientation;
         %end
+        
+        % Resize dose and scan colorbars
+        if isfield(stateS,'colorbarFrameMax') && ~isempty(stateS.colorbarFrameMax)
+            CERRColorBar('refresh',stateS.handle.doseColorbar.trans)
+        end
+        if length(stateS.scanSet) == 1 % non image fusion mode
+            updateScanColorbar(stateS.scanSet)
+        end
+        
         return;
 
     case 'LAYOUT'        
@@ -1459,7 +1471,7 @@ switch upper(instr)
                 %Setup axis for motion for Segment Labeler
                 if stateS.segmentLabelerState                    
                     set(hFig, 'WindowButtonMotionFcn', 'segmentLabelerControl(''segmentLabeler'', ''motionInFigure'');');                 
-                    set(hFig, 'doublebuffer', 'on');   
+                    %set(hFig, 'doublebuffer', 'on');   
                     return;
                 end
                 
@@ -1606,7 +1618,7 @@ switch upper(instr)
         return;
 
     case 'OPENWORKSPACEPLANC'
-        if ~isempty(planC) && iscell(planC);
+        if ~isempty(planC) && iscell(planC)
             stateS.workspacePlan = 1;
             stateS.CERRFile = 'WorkspacePlan';
             sliceCallBack('load');
@@ -1617,7 +1629,7 @@ switch upper(instr)
 
     case 'OPENNEWPLANC'
         %DK
-        if stateS.planLoaded
+        if isfield(stateS,'planLoaded') && stateS.planLoaded
             %exit structure comparison mode if active
             if isfield(stateS,'structCompare')
                 structCompare({'exit'})
@@ -2732,8 +2744,8 @@ switch upper(instr)
         stateS.scanStats.CTLevel.(scanUID) = stateS.scanStats.CTLevel.(scanUID) + pointDiff(2)*dMov*2.0/100*percentMov(2);        
         stateS.scanStats.CTWidth.(scanUID) = stateS.scanStats.CTWidth.(scanUID) + pointDiff(1)*dMov*1/100*percentMov(1); 
         stateS.scanStats.CTWidth.(scanUID) = max([0.1 stateS.scanStats.CTWidth.(scanUID)]);
-        set(stateS.handle.CTLevel,'String',stateS.scanStats.CTLevel.(scanUID))
-        set(stateS.handle.CTWidth,'String',stateS.scanStats.CTWidth.(scanUID))
+        set(stateS.handle.CTLevel,'String',num2str(stateS.scanStats.CTLevel.(scanUID)))
+        set(stateS.handle.CTWidth,'String',num2str(stateS.scanStats.CTWidth.(scanUID)))
         stateS.CTDisplayChanged = 1;
         for hAxis = stateS.handle.CERRAxis
             showCT(hAxis)
@@ -2882,19 +2894,23 @@ switch upper(instr)
         hAxis = gcbo;
         cP = get(hAxis, 'CurrentPoint');
         %delete([findobj('tag', 'rulerLine') findobj('tag', 'rulerText1') findobj('tag', 'rulerText2') findobj('tag', 'distText')]);
-        delete(stateS.handle.rulerLine)
+        if isfield(stateS.handle,'rulerLine') && ...
+                ~isempty(stateS.handle.rulerLine) && ...
+                ishandle(stateS.handle.rulerLine)
+            delete(stateS.handle.rulerLine)
+        end
         stateS.handle.rulerLine = [];
         [view, coord] = getAxisInfo(hAxis, 'view', 'coord');
         axesToDraw = hAxis;
-        for i=1:length(stateS.handle.CERRAxis);
+        for i=1:length(stateS.handle.CERRAxis)
             [otherView, otherCoord] = getAxisInfo(stateS.handle.CERRAxis(i), 'view', 'coord');
-            if isequal(view, otherView) && isequal(coord, otherCoord) && ~isequal(hAxis, stateS.handle.CERRAxis(i));
+            if isequal(view, otherView) && isequal(coord, otherCoord) && ~isequal(hAxis, stateS.handle.CERRAxis(i))
                 axesToDraw = [axesToDraw;stateS.handle.CERRAxis(i)];
             end
         end
-        for i=1:length(axesToDraw);
+        for i=1:length(axesToDraw)
             %line([cP(1,1) cP(1,1)], [cP(2,2) cP(2,2)], 'tag', 'rulerLine', 'userdata', hAxis, 'eraseMode', 'xor', 'parent', axesToDraw(i), 'marker', '+', 'color', [.8 .8 .8], 'hittest', 'off');
-            stateS.handle.rulerLine = [stateS.handle.rulerLine; line([cP(1,1) cP(1,1)], [cP(2,2) cP(2,2)], 'tag', 'rulerLine', 'userdata', hAxis, 'parent', axesToDraw(i), 'marker', '+', 'color', [.8 .8 .8], 'hittest', 'off')];
+            stateS.handle.rulerLine = [stateS.handle.rulerLine; line([cP(1,1) cP(1,1)], [cP(2,2) cP(2,2)], [2 2], 'tag', 'rulerLine', 'userdata', hAxis, 'parent', axesToDraw(i), 'marker', '+', 'color', [.8 .8 .8], 'hittest', 'off')];
         end
         return;
     case 'RULERMOTION'
@@ -3511,13 +3527,8 @@ switch upper(instr)
 
 
         %hFigure = findobj('tag', 'navigationFigure');
-        if isfield('stateS.handle','navigationMontage')
-        hFigure = stateS.handle.navigationMontage;
-        else
-        hFigure = gobjects(0);
-        end
-
-        if ~isempty(hFigure)
+        if isfield('stateS.handle','navigationMontage') && ...
+                ishandle(stateS.handle.navigationMontage)            
             navigationMontage('init',stateS.scanSet) % initialize montage
         end
 
@@ -3728,13 +3739,13 @@ switch upper(instr)
         stateS.scanSet = 1;
         stateS.structSet = getStructureSetAssociatedScan(stateS.scanSet);
 
-        if length(planC{indexS.dose}) == 0
+        if isempty(planC{indexS.dose})
             stateS.doseSet = '';
         else
             stateS.doseSet = 1;
         end
         
-        set(stateS.handle.CERRSliceViewer,'renderer','zbuffer')
+        %set(stateS.handle.CERRSliceViewer,'renderer','zbuffer')
         
         CERRRefresh
         return

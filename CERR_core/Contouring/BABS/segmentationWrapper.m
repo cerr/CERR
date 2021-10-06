@@ -15,24 +15,13 @@ function success = segmentationWrapper(cerrPath,fullSessionPath, containerPath, 
 % RKP, 5/21/2019
 % RKP, 9/11/19 Updates for compatibility with training pipeline
 
-%% Get config file path from algorithm name
+%Copy config file to session dir
 configFilePath = fullfile(getCERRPath,'ModelImplementationLibrary',...
     'SegmentationModels', 'ModelConfigurations', [algorithm, '_config.json']);
-testFlag = true;
+copyfile(configFilePath,fullSessionPath);
 
-% Read config file
-userOptS = readDLConfigFile(configFilePath);
-
-%% Create directories to write input, output h5 files
-inFmt = userOptS.modelInputFormat;
-outFmt = userOptS.modelInputFormat;
-modelOutputPath = fullfile(fullSessionPath,['output',outFmt]);
-mkdir(modelOutputPath);
-modelInputPath = fullfile(fullSessionPath,['input',inFmt]);
-mkdir(modelInputPath);
-
-
-%% Export data to fmt reqd by model 
+%% Export data to fmt reqd by model
+cmdFlag = 'singcontainer';
 planCfiles = dir(fullfile(cerrPath,'*.mat'));
 for p=1:length(planCfiles)
     
@@ -42,54 +31,21 @@ for p=1:length(planCfiles)
     planC = loadPlanC(fileNam, tempdir);
     planC = quality_assure_planC(fileNam,planC);
     
-    %Pre-process scan & mask
-    fprintf('\nPre-processing data...\n');
-    tic
-    [scanC, maskC, scanNumV, userOptS, coordInfoS, planC] = ...
-        extractAndPreprocessDataForDL(userOptS,planC,testFlag);
-    %Note: mask3M is empty in inference mode
-    toc
-    
-    %% Export to model input format
-    tic
-    inFmt = userOptS.modelInputFormat;
-    fprintf('\nWriting to %s format...\n',inFmt);
-    filePrefixForHDF5 = 'cerrFile';
-    passedScanDim = userOptS.passedScanDim;
-    scanOptS = userOptS.scan;
-   
-    %Loop over scan types
-    for n = 1:size(scanC,1)
-        
-        %Append identifiers to o/p name
-        idS = scanOptS(n).identifier;
-        idListC = cellfun(@(x)(idS.(x)),fieldnames(idS),'un',0);
-        appendStr = strjoin(idListC,'_');
-        idOut = [filePrefixForHDF5,'_',appendStr];
-        
-        %Get o/p dirs & dim
-        outDirC = getOutputH5Dir(modelInputPath,scanOptS(n),'');
-        
-        %Write to user-specified model input format
-        writeDataForDL(scanC{n},maskC{n},coordInfoS, passedScanDim,inFmt,...
-            outDirC,idOut,testFlag);
-    end
+    %Pre-process data and export to model input fmt
+    [~,command,userOptS,~,scanNumV,planC] = ...
+        prepDataForSeg(planC,fullSessionPath,algorithm,cmdFlag,...
+        containerPath,[]);
     
     %Save updated planC file
     tic
     save_planC(planC,[],'PASSED',fileNam);
     toc
+    
 end
 
 %% Execute the container
-
-%Get the bind path for the container
-bindingDir = ':/scratch';
-bindPath = strcat(fullSessionPath,bindingDir);
-%Run container app
-command = sprintf('singularity run --app %s --nv --bind  %s %s %s', algorithm, bindPath, containerPath, num2str(userOptS.batchSize));
-%Print command to stdout
 disp('Running container....');
+%Print command to stdout
 disp(command);
 tic
 status = system(command);
@@ -111,8 +67,9 @@ userOptS.roiGenerationDescription = roiDescrpt;
 %% Stack output mask files
 fprintf('\nRreading output masks...');
 tic
-%outC = stackHDF5Files(fullSessionPath,passedScanDim); 
-outC = stackDLMaskFiles(fullSessionPath,outFmt,passedScanDim); 
+outFmt = userOptS.modelInputFormat;
+passedScanDim = userOptS.passedScanDim;
+outC = stackDLMaskFiles(fullSessionPath,outFmt,passedScanDim);
 toc
 
 %% Import segmented mask to planC

@@ -152,7 +152,7 @@ cumVolsV = cumsum(avgVol);
 cumVols2V  = cumVolsV(end) - cumVolsV;
 VolHist = cumVols2V/cumVolsV(end);
 
-h = figure('tag', 'DAvHPlot', 'doublebuffer', 'on');
+h = figure('tag', 'DAvHPlot');
 avgAxis = axes('parent', h);
 set(h,'numbertitle','off')
 pos = get(h,'position');

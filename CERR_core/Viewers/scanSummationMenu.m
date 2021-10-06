@@ -52,7 +52,7 @@ switch upper(command)
         dx = 20;
         dy = 20;
         
-        hFig = figure('Name', 'Scan Summation', 'doublebuffer', 'on', 'units', 'pixels', 'position',[(screenSize(3)-x)/2 (screenSize(4)-y)/2 x y], 'MenuBar', 'none', 'NumberTitle', 'off', 'resize', 'off', 'Tag', 'CERRScanSummationFigure');    
+        hFig = figure('Name', 'Scan Summation', 'units', 'pixels', 'position',[(screenSize(3)-x)/2 (screenSize(4)-y)/2 x y], 'MenuBar', 'none', 'NumberTitle', 'off', 'resize', 'off', 'Tag', 'CERRScanSummationFigure');    
         stateS.handle.scanSummationMenuFig = hFig; 
 
         bartop = 80;        

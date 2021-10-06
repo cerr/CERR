@@ -85,7 +85,7 @@ else
     index = logical(bitget(structBitsM, relStructNum-52-8*(cellNum-2)));
 end
 
-structCoords = indicesM(find(index), :);
+structCoords = indicesM(index, :);
 minSlice = double(min(structCoords(:,structCoordsIndex)));
 maxSlice = double(max(structCoords(:,structCoordsIndex)));
 
@@ -99,7 +99,8 @@ for i=minSlice:maxSlice
     end
     maskM = getStructureMask(structNum, i, dim, planC);
 
-    if(isfield(planC{indexS.dose}(doseNum), 'doseOffset') & ~isempty(planC{indexS.dose}(doseNum).doseOffset))
+    if(isfield(planC{indexS.dose}(doseNum), 'doseOffset') && ...
+            ~isempty(planC{indexS.dose}(doseNum).doseOffset))
         doseOffset = planC{indexS.dose}(doseNum).doseOffset;
     else
         doseOffset = 0;
@@ -108,39 +109,51 @@ for i=minSlice:maxSlice
     
     switch upper(mode)        
         case 'MAX'
-            if ~exist('shadowM'), shadowM = repmat(-inf, [size(fitDoseM)]);, end
-            if ~exist('sliceValsM'), sliceValsM = repmat(0, [size(fitDoseM)]);, end
+            if ~exist('shadowM','var')
+                shadowM = repmat(-inf, size(fitDoseM));
+            end
+            if ~exist('sliceValsM','var')
+                sliceValsM = zeros(size(fitDoseM));
+            end
             
             oldShadowM = shadowM;
             shadowM(maskM) = max(fitDoseM(maskM), shadowM(maskM));    
-            newIndices = repmat(logical(0), size(fitDoseM));
+            newIndices = false(size(fitDoseM));
             newIndices(maskM) = oldShadowM(maskM) ~= shadowM(maskM);
             sliceValsM(newIndices) = i;
             
             imageM = shadowM;
             
         case 'MIN'
-            if ~exist('shadowM'), shadowM = repmat(inf, [size(fitDoseM)]);, end
-            if ~exist('sliceValsM'), sliceValsM = repmat(0, [size(fitDoseM)]);, end
+            if ~exist('shadowM','var')
+                shadowM = inf(size(fitDoseM));
+            end
+            if ~exist('sliceValsM','var')
+                sliceValsM = zeros(size(fitDoseM));
+            end
             
             oldShadowM = shadowM;
             shadowM(maskM) = min(fitDoseM(maskM), shadowM(maskM));    
-            newIndices = repmat(logical(0), size(fitDoseM));
+            newIndices = false(size(fitDoseM));
             newIndices(maskM) = oldShadowM(maskM) ~= shadowM(maskM);
             sliceValsM(newIndices) = i;
             
             imageM = shadowM;
             
         case 'MEAN'
-            if ~exist('shadowM'), shadowM = repmat(0, [size(fitDoseM)]);, end
-            if ~exist('sliceValsM'), sliceValsM = repmat(0, [size(fitDoseM)]);, end            
+            if ~exist('shadowM','var')
+                shadowM = zeros(size(fitDoseM));
+            end
+            if ~exist('sliceValsM','var')
+                sliceValsM = zeros(size(fitDoseM));
+            end            
             
             shadowM(maskM) = shadowM(maskM) + fitDoseM(maskM);
             sliceValsM(maskM) = sliceValsM(maskM) + 1;
             
-            if exist('hAxis')              
+            if exist('hAxis','var')              
                 nonZeros = find(sliceValsM ~= 0);
-                imageM = repmat(0, [size(fitDoseM)]);
+                imageM = zeros(size(fitDoseM));
                 imageM(nonZeros) = shadowM(nonZeros) ./ sliceValsM(nonZeros);
             end
             
@@ -150,11 +163,11 @@ for i=minSlice:maxSlice
     end
         
     %redraw at 5 fps max.
-    if exist('hAxis')        
+    if exist('hAxis','var')        
         hFig = get(hAxis, 'parent');
         oldAxis = get(hFig, 'currentAxes');        
-        set(hFig, 'DoubleBuffer', 'on');
-        if exist('oldTime') & etime(clock, oldTime) > .2
+        %set(hFig, 'DoubleBuffer', 'on');
+        if exist('oldTime','var') && etime(clock, oldTime) > .2
             pause(.001);
             set(hFig, 'currentAxes', hAxis);            
             if (getappdata(hFig, 'CallbackRun') == 0)
@@ -169,16 +182,15 @@ for i=minSlice:maxSlice
     
 end
 
-if ~exist('shadowM') | ~exist('sliceValsM')
-    shadowM = [];, sliceValsM = [];
+if ~exist('shadowM','var') || ~exist('sliceValsM','var')
+    shadowM = [];
+    sliceValsM = [];
     isError = errorEncounter('Error in calcDoseShadow: Uniformized data does not exist for this structure.', showWarnings);
     return;
 end
 
 if strcmpi('mean', mode)
-    warning off MATLAB:divideByZero
-    shadowM = shadowM ./ sliceValsM;
-    warning on MATLAB:divideByZero
+    shadowM = shadowM ./ (sliceValsM+eps);
 end
 
 function isError = errorEncounter(errorString, showWarnings)
