@@ -37,16 +37,17 @@ el = [];
 
 %Unpack input data.
 tag                 = args.tag;
-scanInfo            = args.data{1};
+%scanInfo            = args.data{1};
+contourS            = args.data{1};
 template            = args.template;
 
 switch tag
     case 528720     %0008,1150  Referenced SOP Class UID
-        data = scanInfo.SOP_Class_UID;     
+        data = contourS.SOP_Class_UID;     
         el = data2dcmElement(data, tag);
         
     case 528725     %0008,1155  Referenced SOP Instance UID
-        data = scanInfo.SOP_Instance_UID;        
+        data = contourS.SOP_Instance_UID;        
         el = data2dcmElement(data, tag);
         
     case 528736     %0008,1160  Referenced Frame Number

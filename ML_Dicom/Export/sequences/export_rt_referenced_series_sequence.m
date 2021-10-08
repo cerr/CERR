@@ -38,7 +38,8 @@ el = [];
 %Unpack input data.
 tag                 = args.tag;
 SeriesInstanceUID   = args.data{1};
-scanS               = args.data{2};
+%scanS               = args.data{2};
+structureS          = args.data{2};
 template            = args.template;
 
 switch tag
@@ -58,10 +59,11 @@ switch tag
         el = tmp.newSequence(tag, 0);
 
         %Iterate over each slice.
-        for i=1:length(scanS.scanInfo)
-            scanInfo = scanS.scanInfo(i);
-            
-            dcmobj = export_sequence(fHandle, templateEl, {scanInfo});
+        for i=1:length(structureS.contour) %length(scanS.scanInfo)
+            %scanInfo = scanS.scanInfo(i);            
+            %dcmobj = export_sequence(fHandle, templateEl, {scanInfo});
+            contourS = structureS.contour(i); 
+            dcmobj = export_sequence(fHandle, templateEl, {contourS});
             el.add(i-1, dcmobj);
         end           
         

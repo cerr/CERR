@@ -40,6 +40,7 @@ tag         = args.tag;
 classUID    = args.data{1};
 instanceUID = args.data{2};
 scansS      = args.data{3};
+structureS   = args.data{4};
 template    = args.template;
 
 switch tag
@@ -60,11 +61,14 @@ switch tag
         el = tmp.newSequence(tag, 0);
 
         %Iterate over each series.
-        for i=1:length(scansS)
-            SeriesInstanceUID = scansS(i).Series_Instance_UID;
-            dcmobj = export_sequence(fHandle, templateEl, {SeriesInstanceUID, scansS(i)});
-            el.add(i-1, dcmobj);
-        end           
+        %for i=1:length(scansS)
+        %    SeriesInstanceUID = scansS(i).Series_Instance_UID;
+        %    dcmobj = export_sequence(fHandle, templateEl, {SeriesInstanceUID, scansS(i)});
+        %    el.add(i-1, dcmobj);
+        %end           
+        SeriesInstanceUID = structureS.Series_Instance_UID;
+        dcmobj = export_sequence(fHandle, templateEl, {SeriesInstanceUID, structureS});
+        el.add(0, dcmobj);
         el = el.getParent();
         
     otherwise
