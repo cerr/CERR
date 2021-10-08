@@ -54,8 +54,12 @@ for indBase = 1:length(dirS)
                 end
                 count = count + 1;
                 structRefFrameOfReferenceUID = planC{indexS.structures}(strIndex).referencedFrameOfReferenceUID;
+                sopClassUidC = {planC{indexS.structures}(strIndex).contour.referencedSopClassUID};
+                sopInstanceUidC = {planC{indexS.structures}(strIndex).contour.referencedSopInstanceUID};
                 structRefForC{count,1} = toStructureName;
                 structRefForC{count,2} = structRefFrameOfReferenceUID;
+                structRefForC{count,3} = sopClassUidC;
+                structRefForC{count,4} = sopInstanceUidC;
             end
         end
     end
