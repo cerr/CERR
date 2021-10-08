@@ -229,9 +229,11 @@ switch fieldname
             if ~isempty(refSeq)
                 % sopInstanceUID = getTagValue(refSeq.get(0), '00081155');
                 sopInstanceUID = char(refSeq.get(0).getString(528725,0)); %org.dcm4che3.data.Tag.ReferencedSOPInstanceUID;
+                sopClassUID = char(refSeq.get(0).getString(528720,0)); %SOPClassUID
             end
             
             dataS(c).sopInstanceUID = sopInstanceUID;
+            dataS(c).sopClassUID = sopClassUID;
             
             %Contour Geometric Type
             %geoType = getTagValue(aContour, '30060042');
@@ -344,7 +346,6 @@ switch fieldname
         %dataS = char(attr.getStrings(org.dcm4che3.data.Tag.FrameOfReferenceUID));
         %dataS = char(attr.getString(2097234,0));
         dataS = char(ssObj.getString(805699620,0)); %org.dcm4che3.data.Tag.ReferencedFrameOfReferenceUID;
-
         
     case 'DICOMHeaders'
         %Currently not implemented
