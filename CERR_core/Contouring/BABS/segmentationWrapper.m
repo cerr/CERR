@@ -1,4 +1,4 @@
-function success = segmentationWrapper(cerrPath,fullSessionPath, containerPath, algorithm)
+function [success,origScanNum] = segmentationWrapper(cerrPath,fullSessionPath, containerPath, algorithm)
 % function success =heart(cerrPath,segResultCERRPath,fullSessionPath,deepLabContainerPath)
 %
 % This function serves as a wrapper for the all segmentation models
