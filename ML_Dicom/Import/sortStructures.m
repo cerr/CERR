@@ -38,7 +38,8 @@ segmentTemplate = struct('points', []);
 segmentTemplate(1) = [];
 segmentCell = cell(length(zmesh), 1);
 [segmentCell{1:end}] = deal(segmentTemplate);
-contourTemplate = struct('segments', segmentCell);
+contourTemplate = struct('segments', segmentCell,'referencedSopInstanceUID',...
+    '','referencedSopClassUID','');
 
 % get a list of sopInstanceUIDs
 sopInstanceC = {};
@@ -113,8 +114,12 @@ for j=1:length(zmesh) % loop through the number of CT
             for k=1:length(locate_point)
                 %slice=slice+1;
                 segment = structS.contour(index(locate_point(k))).segments;
+                referencedSopInstanceUID = structS.contour(index(locate_point(k))).sopInstanceUID;
+                referencedSopClassUID = structS.contour(index(locate_point(k))).sopClassUID;
                 segment(:,3) = zmesh(j);
                 contourTemplate(j).segments(end+1).points = segment;
+                contourTemplate(j).referencedSopInstanceUID = referencedSopInstanceUID;
+                contourTemplate(j).referencedSopClassUID = referencedSopClassUID;
             end
         else %can not find contours in current slice, try larger radius.
             
@@ -126,8 +131,13 @@ for j=1:length(zmesh) % loop through the number of CT
             % store all the segments with the Z location of the current CT.
             %                 slice=slice+1;
             segment = structS.contour(index(locate_point(k))).segments;
+            referencedSopInstanceUID = structS.contour(index(locate_point(k))).sopInstanceUID;
+            referencedSopClassUID = structS.contour(index(locate_point(k))).sopClassUID;            
             segment(:,3) = zmesh(j);
             contourTemplate(j).segments(end+1).points = segment;
+            contourTemplate(j).referencedSopInstanceUID = referencedSopInstanceUID;
+            contourTemplate(j).referencedSopClassUID = referencedSopClassUID;
+            
         end
     end
     clear locate_point;

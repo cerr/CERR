@@ -39,7 +39,7 @@ function struct = newCERRStructure(scanSet, planC, colorNum)
 
 global stateS
 
-if ~exist('planC', 'var'); %wy
+if ~exist('planC', 'var') %wy
     global planC
 end
 
@@ -57,6 +57,8 @@ catch
 end
 segments.points = [];
 [contour(1:nSlices).segments] = deal(segments);
+[contour(1:nSlices).referencedSopInstanceUID] = deal({planC{indexS.scan}(1).scanInfo(:).sopInstanceUID});
+[contour(1:nSlices).referencedSopClassUID] = deal({planC{indexS.scan}(1).scanInfo(:).sopClassUID});
 
 %Create empty name field.
 structureName = '';         
