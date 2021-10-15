@@ -70,6 +70,9 @@ configFilePath = fullfile(getCERRPath,'ModelImplementationLibrary',...
     '_config.json']);
 userOptS = readDLConfigFile(configFilePath);
 
+%Copy to session dir
+copyfile(configFilePath,fullSessionPath);
+
 %Get batch size
 batchSize = userOptS.batchSize; 
 

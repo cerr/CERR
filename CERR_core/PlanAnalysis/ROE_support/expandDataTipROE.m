@@ -38,6 +38,8 @@ if ud.plotMode==3
 else
     %Scale nfrx
     numFrx = lscale*numFrx;
+    %Return nearest whole number <= numFrx
+    numFrx = floor(numFrx);
 end
 
 %Get TCP/BED at limit
@@ -93,7 +95,8 @@ else
             if ud.plotMode==3
                 scDisp = ['Current fraction size: ',num2str(frxSize),' Gy'];
             else
-                scDisp = ['Current fraction no.: ',num2str(numFrx)];
+                scDisp = ['Last safe fraction no.: ',num2str(numFrx)];
+                %scDisp = ['Current fraction no.: ',num2str(numFrx)];
             end
             
             if strcmpi(yDisp,'BED')
@@ -111,7 +114,7 @@ else
                 ['Clinical limit: ', num2str(lUd.limit)],...
                 ['Current value: ', num2str(lUd.val)],...
                 [' '],...
-                ['Protocol: ', pName],...
+                ['Baseline protocol: ', pName],...
                 scDisp,last};
             
         end
@@ -139,15 +142,21 @@ else
             
             if ud.plotMode==3
                 scDisp = ['Current fraction size: ',num2str(frxSize)];
+                if strcmpi(yDisp,'BED')
+                    last = ['Current ',yDisp,': ',num2str(yVal),' Gy'];
+                else
+                    last = ['Current ',yDisp,': ',num2str(yVal)];
+                end
             else
-                scDisp = ['Current fraction no.: ',num2str(numFrx)];
+                scDisp = ['Last safe fraction no.: ',num2str(numFrx)];
+                %scDisp = ['Current fraction no.: ',num2str(numFrx)];
+                if strcmpi(yDisp,'BED')
+                    last = ['Resulting ',yDisp,': ',num2str(yVal),' Gy'];
+                else
+                    last = ['Resulting ',yDisp,': ',num2str(yVal)];
+                end
             end
             
-            if strcmpi(yDisp,'BED')
-                last = ['Current ',yDisp,': ',num2str(yVal),' Gy'];
-            else
-                last = ['Current ',yDisp,': ',num2str(yVal)];
-            end
             
             %strOut = strrep(lUd.structure,'_','-');
             strOut = lUd.structure;
@@ -158,7 +167,7 @@ else
                 ['Clinical limit (guideline): ', num2str(lUd.limit)],...
                 ['Current value: ', num2str(lUd.val)],...
                 [' '],...
-                ['Protocol: ', pName],...
+                ['Baseline protocol: ', pName],...
                 scDisp,last};
         end
     end
