@@ -67,7 +67,7 @@ switch upper(command)
         end
         %Set up the GUI window, loading its graphical background.
         if ~isdeployed
-            file = 'structureFusionBackground.png';
+            file = fullfile(getCERRPath,'Contouring','structureFusionBackground.png'); %'structureFusionBackground.png';
         else
             file = [getCERRPath,'pics\structureFusionBackground.png']; % for compiled CERR
         end
@@ -152,7 +152,8 @@ switch upper(command)
     case 'BUTTONDOWN'
         h = gca;
         clickCoordinate = get(h, 'CurrentPoint');
-        if clickCoordinate(1,1) > 13 & clickCoordinate(1,1) < 120 & clickCoordinate(1,2) > 50 & clickCoordinate(1,2) < 79
+        if clickCoordinate(1,1) > 13 && clickCoordinate(1,1) < 120 && ...
+                clickCoordinate(1,2) > 50 && clickCoordinate(1,2) < 79
             delete(findobj('Tag', 'OpArrow'));
             hText = text(160,64.5,' \leftarrow','FontSize',18, 'Tag', 'OpArrow');
             userData.currentOp = 'INTERSECT';
@@ -160,7 +161,8 @@ switch upper(command)
             %userData.currentStructure = [];
             set(hFig,'userData',userData)
             listStructures(userData.structures, userData.currentPage, userData.currentPageUneval, planC);
-        elseif clickCoordinate(1,1) > 13 & clickCoordinate(1,1) < 120 & clickCoordinate(1,2) > 86 & clickCoordinate(1,2) < 123
+        elseif clickCoordinate(1,1) > 13 && clickCoordinate(1,1) < 120 && ...
+                clickCoordinate(1,2) > 86 && clickCoordinate(1,2) < 123
             delete(findobj('Tag', 'OpArrow'));
             hText = text(160,104.5,' \leftarrow','FontSize',18, 'Tag', 'OpArrow');
             userData.currentOp = 'DIFF';
@@ -168,7 +170,8 @@ switch upper(command)
             %userData.currentStructure = [];
             set(hFig,'userData',userData)
             listStructures(userData.structures, userData.currentPage, userData.currentPageUneval, planC);
-        elseif clickCoordinate(1,1) > 13 & clickCoordinate(1,1) < 120 & clickCoordinate(1,2) > 130 & clickCoordinate(1,2) < 160
+        elseif clickCoordinate(1,1) > 13 && clickCoordinate(1,1) < 120 && ...
+                clickCoordinate(1,2) > 130 && clickCoordinate(1,2) < 160
             delete(findobj('Tag', 'OpArrow'));
             hText = text(160,145,' \leftarrow','FontSize',18, 'Tag', 'OpArrow');
             userData.currentOp = 'UNION';
@@ -176,7 +179,8 @@ switch upper(command)
             %userData.currentStructure = [];
             set(hFig,'userData',userData)
             listStructures(userData.structures, userData.currentPage, userData.currentPageUneval, planC);
-        elseif clickCoordinate(1,1) > 13 & clickCoordinate(1,1) < 120 & clickCoordinate(1,2) > 165 & clickCoordinate(1,2) < 209
+        elseif clickCoordinate(1,1) > 13 && clickCoordinate(1,2) > 165 && ...
+                clickCoordinate(1,2) < 209
             delete(findobj('Tag', 'OpArrow'));
             hText = text(160,187,' \leftarrow','FontSize',18, 'Tag', 'OpArrow');
             userData.currentOp = 'GROW';
@@ -184,7 +188,8 @@ switch upper(command)
             userData.lastStructure = [];
             set(hFig,'userData',userData)
             listStructures(userData.structures, userData.currentPage, userData.currentPageUneval, planC);
-        elseif clickCoordinate(1,1) > 13 & clickCoordinate(1,1) < 120 & clickCoordinate(1,2) > 212 & clickCoordinate(1,2) < 260
+        elseif clickCoordinate(1,1) > 13 && clickCoordinate(1,1) < 120 && ...
+                clickCoordinate(1,2) > 212 && clickCoordinate(1,2) < 260
             delete(findobj('Tag', 'OpArrow'));
             hText = text(160,236,' \leftarrow','FontSize',18, 'Tag', 'OpArrow');
             userData.currentOp = 'SHRINK';
@@ -192,7 +197,8 @@ switch upper(command)
             userData.lastStructure = [];
             set(hFig,'userData',userData)
             listStructures(userData.structures, userData.currentPage, userData.currentPageUneval, planC);
-        elseif clickCoordinate(1,1) > 13 & clickCoordinate(1,1) < 120 & clickCoordinate(1,2) > 264 & clickCoordinate(1,2) < 310
+        elseif clickCoordinate(1,1) > 13 && clickCoordinate(1,1) < 120 && ...
+                clickCoordinate(1,2) > 264 && clickCoordinate(1,2) < 310
             delete(findobj('Tag', 'OpArrow'));
             hText = text(160,287,' \leftarrow','FontSize',18, 'Tag', 'OpArrow');
             userData.currentOp = 'GROW3D';
@@ -200,7 +206,8 @@ switch upper(command)
             userData.lastStructure = [];
             set(hFig,'userData',userData)
             listStructures(userData.structures, userData.currentPage, userData.currentPageUneval, planC);
-        elseif clickCoordinate(1,1) > 13 & clickCoordinate(1,1) < 120 & clickCoordinate(1,2) > 313 & clickCoordinate(1,2) < 361
+        elseif clickCoordinate(1,1) > 13 && clickCoordinate(1,1) < 120 && ...
+                clickCoordinate(1,2) > 313 && clickCoordinate(1,2) < 361
             delete(findobj('Tag', 'OpArrow'));
             hText = text(160,337,' \leftarrow','FontSize',18, 'Tag', 'OpArrow');
             userData.currentOp = 'SHRINK3D';
@@ -208,7 +215,8 @@ switch upper(command)
             userData.lastStructure = [];
             set(hFig,'userData',userData)
             listStructures(userData.structures, userData.currentPage, userData.currentPageUneval, planC);
-        elseif clickCoordinate(1,1) > 13 & clickCoordinate(1,1) < 120 & clickCoordinate(1,2) > 366 & clickCoordinate(1,2) < 419
+        elseif clickCoordinate(1,1) > 13 && clickCoordinate(1,1) < 120 && ...
+                clickCoordinate(1,2) > 366 && clickCoordinate(1,2) < 419
             delete(findobj('Tag', 'OpArrow'));
             hText = text(160,392.5,' \leftarrow','FontSize',18, 'Tag', 'OpArrow');
             userData.currentOp = 'FILL';

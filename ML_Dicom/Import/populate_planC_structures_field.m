@@ -229,9 +229,11 @@ switch fieldname
             if ~isempty(refSeq)
                 % sopInstanceUID = getTagValue(refSeq.get(0), '00081155');
                 sopInstanceUID = char(refSeq.get(0).getString(528725,0)); %org.dcm4che3.data.Tag.ReferencedSOPInstanceUID;
+                sopClassUID = char(refSeq.get(0).getString(528720,0)); %SOPClassUID
             end
             
             dataS(c).sopInstanceUID = sopInstanceUID;
+            dataS(c).sopClassUID = sopClassUID;
             
             %Contour Geometric Type
             %geoType = getTagValue(aContour, '30060042');
@@ -344,8 +346,36 @@ switch fieldname
         %dataS = char(attr.getStrings(org.dcm4che3.data.Tag.FrameOfReferenceUID));
         %dataS = char(attr.getString(2097234,0));
         dataS = char(ssObj.getString(805699620,0)); %org.dcm4che3.data.Tag.ReferencedFrameOfReferenceUID;
-
         
+    case 'referencedSeriesUID'
+        
+        dataS = '';
+        
+        refFrameOfReferenceSeq = attr.getValue(805699600);
+        if ~refFrameOfReferenceSeq.isempty()
+            refFrameOfReferenceSeq = refFrameOfReferenceSeq.get(0);
+        else
+            return
+        end
+        
+        reRefStudySequence = refFrameOfReferenceSeq.getValue(805699602);
+        if ~reRefStudySequence.isempty()
+            reRefStudySequence = reRefStudySequence.get(0);
+        else
+            return;
+        end
+        
+        rtRefSeriesSequence = reRefStudySequence.getValue(805699604);
+        if ~rtRefSeriesSequence.isempty()
+            rtRefSeriesSequence = rtRefSeriesSequence.get(0);
+        else
+            return
+        end
+        
+        dataS = char(rtRefSeriesSequence.getString(2097166,0));
+        
+        
+               
     case 'DICOMHeaders'
         %Currently not implemented
         %Read all the dcm data into a MATLAB struct.

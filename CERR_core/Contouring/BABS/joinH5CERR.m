@@ -1,4 +1,4 @@
-function success = joinH5CERR(cerrPath,segMask3M,labelPath,scanNum,userOptS)
+function [success,origScanNum] = joinH5CERR(cerrPath,segMask3M,labelPath,scanNum,userOptS)
 %
 % This function merges the segmentations from the respective algorithm back
 % into the original CERR file

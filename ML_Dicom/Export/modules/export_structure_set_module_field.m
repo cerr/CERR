@@ -85,12 +85,12 @@ switch tag
         el = tmp.newSequence(tag, 0);
 
         %Get unique frame of reference UIDs used by structures.
-        FORs    = unique({structuresS.Frame_Of_Reference_UID});
+        [FORs,indV]    = unique({structuresS.Frame_Of_Reference_UID});
         nFORs   = length(FORs);
         
         for i=1:nFORs
-            dcmobj = export_sequence(fHandle, templateEl, {FORs(i), scansS});
-            %dcmobj = export_sequence(fHandle, template, {FORs(i), scansS});
+            dcmobj = export_sequence(fHandle, templateEl, {FORs(i), scansS, structuresS(indV(i))});
+            %dcmobj = export_sequence(fHandle, templateEl, {FORs(i), scansS});
             el.add(i-1, dcmobj);
         end  
 

@@ -1,4 +1,4 @@
-function visualStruct3D(V,TR,DoseFlag,DoseL,DoseT,StrN);
+function visualStruct3D(V,TR,DoseFlag,DoseL,DoseT,StrN)
 %function visualStruct3D(V,TR,DoseFlag,DoseL,DoseT,StrN);
 %Latest modifications:  CZ, 18 Feb. 2003
 %                       17 Apr 03, JOD, modifed variable name optS.visual3DxyDownsampleIndex.
@@ -137,10 +137,17 @@ if DoseFlag ==1
     %Uniformizing the dose, same size as uniform scan.
     doseIndx = stateS.doseSet;
     dose3M = zeros(sizeArray, 'single');
+    offset = 0;
+    if isfield(planC{indexS.dose}(doseIndx), 'doseOffset') && ...
+            ~isempty(planC{indexS.dose}(doseIndx).doseOffset)
+        offset = planC{indexS.dose}(doseIndx).doseOffset;        
+    end
+
     for i = 1:sizeArray(3)
         zValue = planC{indexS.scan}(scanNum).uniformScanInfo.firstZValue + ...
             (i-1)*planC{indexS.scan}(scanNum).uniformScanInfo.sliceThickness;
         doseM = calcDoseSlice(planC{indexS.dose}(doseIndx),zValue,3);
+        doseM = doseM - offset;
         if ~isempty(doseM)
             dose3M(:,:,i) = fitDoseToCT(doseM, planC{indexS.dose}(doseIndx), planC{indexS.scan}(stateS.scanSet), 3);
         end
@@ -153,9 +160,11 @@ if DoseFlag ==1
 
     f = size(c);
 
-    doseMax = max(max(max(Dose)));
+    doseMax = stateS.colorbarFrameMax; %max(Dose(:));
+    
+    doseMin = stateS.colorbarFrameMin; %min(Dose(:));
 
-    colorDose = c(round(f(1)*DoseL/doseMax),:);
+    colorDose = c(round(f(1)*(DoseL-doseMin)/(doseMax-doseMin)),:);
 
     SZ=size(Dose);
 
@@ -163,18 +172,18 @@ if DoseFlag ==1
 
     D = smooth3(mD,'gaussian');
 
-    D(D < DoseL) = 0;
+    %D(D < DoseL) = 0;
 
     S = size(D);
 
     %[x,y,z,D] = subvolume(D,[1,S(1),1,S(2),1,S(3)]);
     [x,y,z] = meshgrid(1:S(2), 1:S(1), 1:S(3));
 
-    p1 = patch(isosurface(x,y,z,D, 0.1),...
+    p1 = patch(isosurface(x,y,z,D, DoseL),...
         'FaceColor',colorDose,'EdgeColor','none','FaceAlpha',DoseT);
     isonormals(x,y,z,D,p1);
 
-    p2 = patch(isocaps(x,y,z,D, 0.1),...
+    p2 = patch(isocaps(x,y,z,D, DoseL),...
         'FaceColor','interp','EdgeColor','none','FaceAlpha',DoseT);
 end
 

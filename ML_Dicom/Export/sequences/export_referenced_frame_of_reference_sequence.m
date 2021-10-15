@@ -37,6 +37,7 @@ el = [];
 tag         = args.tag;
 UID         = args.data{1};
 scansS      = args.data{2};
+structureS  = args.data{3};
 template    = args.template;
 
 switch tag
@@ -67,12 +68,15 @@ switch tag
         %Find unique study instance UIDs.
         UIDc = {scansS.Study_Instance_UID};
         UIDc = cellfun(@char,UIDc,'un',0);
-        [uniqueStudies,i,j] = unique(UIDc);
+        [uniqueStudies,indV,j] = unique(UIDc);
         nUniqueStudies = length(uniqueStudies);
+        
+        % Find a structure matching this study to pass to
+        % "export_rt_referenced_study_sequence"
         
         for i=1:nUniqueStudies
             scansInStudy = scansS(j == i);
-            dcmobj = export_sequence(fHandle, templateEl, {StudySOPClassUID, uniqueStudies(i), scansInStudy});
+            dcmobj = export_sequence(fHandle, templateEl, {StudySOPClassUID, uniqueStudies(i), scansInStudy, structureS(indV(i))});
             el.add(i-1, dcmobj);
         end           
         el = el.getParent();

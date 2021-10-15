@@ -1,4 +1,4 @@
-function exportCERRtoDICOM(cerrPath,allLabelNamesC,outputCERRPath,outputDicomPath,dcmExportOptS,savePlancFlag)
+function exportCERRtoDICOM(cerrPath,origScanNum,allLabelNamesC,outputCERRPath,outputDicomPath,dcmExportOptS,savePlancFlag)
 % function exportCERRtoDICOM(cerrPath,allLabelNamesC,outputCERRPath,outputDicomPath,dcmExportOptS,savePlancFlag)
 %
 % This function exports selected structures from CERR format to DICOM RTSTRUCT.
@@ -39,7 +39,7 @@ for indBase = 1:length(dirS)
     % Handle special case of assignig reference UID fromanother structure
     % (e.g. exporting registered images from MIM assistant changes their frameOfreferenceUID)
     structRefForC = {};
-    count = 1;
+    count = 0;
     if exist('dcmExportOptS','var') && isstruct(dcmExportOptS)
         structNameC = {planC{indexS.structures}.structureName};
         for iDcmOpt = 1:length(dcmExportOptS)
@@ -49,13 +49,21 @@ for indBase = 1:length(dirS)
                 toStructureName = dcmExportOptS(iDcmOpt).rt_struct.referencedFrameOfReference.toStructureName;
                 fromStructureName = dcmExportOptS(iDcmOpt).rt_struct.referencedFrameOfReference.fromStructureName;                
                 strIndex = getMatchingIndex(fromStructureName,structNameC,'exact');
+                assocScanV = getStructureAssociatedScan(strIndex,planC);
+                strIndex = strIndex(assocScanV==origScanNum);
                 if isempty(strIndex)
                     continue
                 end
                 count = count + 1;
                 structRefFrameOfReferenceUID = planC{indexS.structures}(strIndex).referencedFrameOfReferenceUID;
+                refSeriesInstanceUID = planC{indexS.structures}(strIndex).referencedSeriesUID; 
+                sopClassUidC = {planC{indexS.structures}(strIndex).contour.referencedSopClassUID};
+                sopInstanceUidC = {planC{indexS.structures}(strIndex).contour.referencedSopInstanceUID};
                 structRefForC{count,1} = toStructureName;
                 structRefForC{count,2} = structRefFrameOfReferenceUID;
+                structRefForC{count,3} = refSeriesInstanceUID;
+                structRefForC{count,4} = sopClassUidC;
+                structRefForC{count,5} = sopInstanceUidC;
             end
         end
     end

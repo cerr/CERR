@@ -108,7 +108,7 @@ if ~any(strcmpi(algorithmC,'BABS'))
         userOptS = readDLConfigFile(configFilePath);
         
         % Run segmentation algorithm
-        success = segmentationWrapper(cerrPath,...
+        [success,origScanNum] = segmentationWrapper(cerrPath,...
             fullSessionPath,containerPathC{k},algorithmC{k});
         
         %Get list of label names
@@ -138,7 +138,7 @@ if ~any(strcmpi(algorithmC,'BABS'))
     end
     fprintf('\nExporting to DICOM format...');
     tic
-    exportCERRtoDICOM(origCerrPath,allLabelNamesC,outputCERRPath,...
+    exportCERRtoDICOM(origCerrPath,origScanNum,allLabelNamesC,outputCERRPath,...
         outputDicomPath,dcmExportOptS,savePlancFlag)
     toc
     
