@@ -37,11 +37,11 @@
 
 "batchSize" : 1 ,
 
-"postProc" : {"Lung_Left": [{"method": "removeBackgroundFP"},{"method": "getLargestConnComps", "operator": "intersection", "params" : {"numCC": 1}}], 
-          "Lung_Right": [{"method": "removeBackgroundFP"},{"method": "getLargestConnComps","operator": "intersection", "params" : {"numCC": 1}}],
-          "Heart": [{"method": "removeBackgroundFP"},{"method": "getLargestConnComps", "operator": "intersection", "params" : {"numCC": 1}}],
-          "Esophagus": [{"method": "removeBackgroundFP"},{"method": "getLargestConnComps", "operator": "intersection", "params" : {"numCC": 1}}],
-          "Cord": [{"method": "removeBackgroundFP"},{"method": "getLargestConnComps", "operator": "intersection", "params" : {"numCC": 1}}]
+"postProc" : {"Lung_Left": [{"method": "removeBackgroundFP","operator": "", "params" :""},{"method": "getLargestConnComps", "operator": "intersection", "params" : {"numCC": 1}}], 
+          "Lung_Right": [{"method": "removeBackgroundFP","operator": "", "params" :""},{"method": "getLargestConnComps","operator": "intersection", "params" : {"numCC": 1}}],
+          "Heart": [{"method": "removeBackgroundFP","operator": "", "params" :""},{"method": "getLargestConnComps", "operator": "intersection", "params" : {"numCC": 1}}],
+          "Esophagus": [{"method": "removeBackgroundFP","operator": "", "params" :""},{"method": "getLargestConnComps", "operator": "intersection", "params" : {"numCC": 1}}],
+          "Cord": [{"method": "removeBackgroundFP","operator": "", "params" :""},{"method": "getLargestConnComps", "operator": "intersection", "params" : {"numCC": 1}}]
 },
 
 "passedScanDim" : "3D",
