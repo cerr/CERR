@@ -120,6 +120,9 @@ for k =1:length(algorithmC)
 end
 
 % Remove session directory
+if ~isempty(ver('OCTAVE'))
+    confirm_recursive_rmdir(0)
+end
 rmdir(fullSessionPath, 's')
 
 % Refresh Viewer
