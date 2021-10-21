@@ -59,6 +59,9 @@ for algoNum = 1:numAlgoritms
         case 'MR_LUNGNODULES_TUMORAWARE'
             
         case 'MR_PROSTATE_DEEPLAB'
+            functionNameC{algoNum} = fullfile(condaEnvListC{algoNum},...
+                'MR_Prostate_Deeplab_ver2','model_wrapper',...
+                'run_inference_mim_test_3D_V3.py');
             
         case 'MRCT_BRAINMETS_VNET'
                        
