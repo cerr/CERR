@@ -15,7 +15,8 @@ rasterSegs1 = getRasterSegments(structNum1, planC);
 rasterSegs2 = getRasterSegments(structNum2, planC);
 
 % Get associated scanNum 
-scanNum = 1;
+%scanNum = 1;
+scanNum = getStructureAssociatedScan(structNum1,planC);
 
 % Get Difference of the two rasterSegments
 if ~isempty(rasterSegs1) && ~isempty(rasterSegs2)
