@@ -608,6 +608,16 @@ switch fieldname
                 frameAcquisitionDurationV = [];
                 frameReferenceDateTimeV = [];
                 
+                % PET attributes
+                injectionTime = [];
+                injectedDose = [];
+                halfLife = [];
+                petIsDecayCorrected = [];
+                petPrimarySourceOfCounts = [];
+                petDecayCorrectionDateTime = [];
+                
+                
+                
                 %sliceSpacing = getTagValue(imgobj, '00180088');
                 %sliceSpacing = imgobj.getDoubles(org.dcm4che3.data.Tag.SpacingBetweenSlices);
                 sliceSpacing = imgobj.getDoubles(1573000);
@@ -661,6 +671,17 @@ switch fieldname
                 if strcmpi(modality,'PT')
                     sharedFrameFuncGrpSeq = getTagValue(imgobj, 1.375769129000000e+09); %SQ
                     positionRefIndicatorSequence = getTagValue(imgobj, 1.375769136000000e+09); %SQ
+                    radiopharmaInfoSeq = imgobj.getValue(5505046);
+                    if ~isempty(radiopharmaInfoSeq) && ~radiopharmaInfoSeq.isEmpty
+                        radiopharmaInfoObj = radiopharmaInfoSeq.get(0);
+                        %injectionTime =
+                        %char(radiopharmaInfoObj.getString(1577074,0)); %TM 0018,1072 (deprecated in favor of 0018,1078)
+                        injectionTime = char(radiopharmaInfoObj.getString(1577080,0)); % 0018,1078
+                        injectionTime = injectionTime(9:end);
+                        injectedDose = radiopharmaInfoObj.getDoubles(1577076);
+                        halfLife = radiopharmaInfoObj.getDoubles(1577077); %DS
+                    end
+                    
                     sliceSpacing = sharedFrameFuncGrpSeq.Item_1.PixelMeasuresSequence.Item_1.SliceThickness;
                     gridUnitsV = sharedFrameFuncGrpSeq.Item_1...
                         .PixelMeasuresSequence.Item_1.PixelSpacing;
@@ -669,6 +690,13 @@ switch fieldname
                         .FrameVOILUTSequence.Item_1.WindowCenter; 
                     windowWidth = positionRefIndicatorSequence.Item_1...
                         .FrameVOILUTSequence.Item_1.WindowWidth;
+                    
+                    % Add to scanInfo
+                    petIsDecayCorrected = char(imgobj.getString(1611608,0)); % 0018,9758
+                    petPrimarySourceOfCounts = char(imgobj.getString(5509122,0)); % 0054,1002
+                    petDecayCorrectionDateTime = char(imgobj.getString(1611521,0)); % 0018,9701
+
+
                     for imageNum = 1:numMultiFrameImages
                         item = ['Item_',num2str(imageNum)];
                         zValuesV(imageNum) = positionRefIndicatorSequence.(item)...
@@ -792,6 +820,18 @@ switch fieldname
                         dataS(1).(names{i}) = windowWidth;
                     elseif ~isempty(imageOrientationPatientM) && strcmpi(names{i},'imageOrientationPatient')
                         dataS(1).(names{i}) = imageOrientationPatientM(1,:);                    
+                    elseif ~isempty(injectionTime) && strcmpi(names{i},'injectionTime')
+                        dataS(1).(names{i}) = injectionTime;
+                    elseif ~isempty(injectedDose) && strcmpi(names{i},'injectedDose')
+                        dataS(1).(names{i}) = injectedDose;
+                    elseif ~isempty(halfLife) && strcmpi(names{i},'halfLife')
+                        dataS(1).(names{i}) = halfLife;
+                    elseif ~isempty(petIsDecayCorrected) && strcmpi(names{i},'petIsDecayCorrected')
+                        dataS(1).(names{i}) = petIsDecayCorrected;
+                    elseif ~isempty(petPrimarySourceOfCounts) && strcmpi(names{i},'petPrimarySourceOfCounts')
+                        dataS(1).(names{i}) = petPrimarySourceOfCounts;
+                    elseif ~isempty(petDecayCorrectionDateTime) && strcmpi(names{i},'petDecayCorrectionDateTime')
+                        dataS(1).(names{i}) = petDecayCorrectionDateTime;
                     else
                         dataS(1).(names{i}) = ...
                             populate_planC_scan_scanInfo_field(names{i}, IMAGE, imgobj, optS);

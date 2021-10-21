@@ -1,4 +1,4 @@
-function planC = calc_suv(scanNum,planC,suvType)
+ function planC = calc_suv(scanNum,planC,suvType)
 %function suvM = calc_suv(scanNum,planC,suvType)
 %
 % Calcualtes SUV for the passed scanNum and suvType.
@@ -33,13 +33,15 @@ end
 
 % Check Decay correction
 correctedImage = headerS.correctedImage;
-if ~any(ismember('DECY',correctedImage))
-    disp('SUV calciulation is applicable only when petDecayCorrection = DECY');
+petIsDecayCorrected = headerS.petIsDecayCorrected;
+if ~(any(ismember('DECY',correctedImage)) || (~isempty(petIsDecayCorrected) && ...
+        strcmpi(petIsDecayCorrected,'YES')))
+    disp('SUV calculation is applicable only when petDecayCorrection = DECY');
     return
 end
 
 imageUnits = headerS.imageUnits;
-if ~any(ismember(imageUnits,{'BQML','CNTS'}))
+if ~any(ismember(imageUnits,{'BQML','CNTS','KBQML','BQCC','KBQCC'}))
     disp('SUV calciulation is applicable only when image units = BQML or CNTS');
     return
 end

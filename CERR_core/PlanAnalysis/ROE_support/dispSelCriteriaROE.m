@@ -1,9 +1,11 @@
-function [selectedIdv,selTypeC] = dispSelCriteriaROE(hObj,hEvt,hFig,varargin)
-%Display selected limits
+function [currSelectedId,selTypeC] = dispSelCriteriaROE(hObj,hEvt,hFig,varargin)
+%Display selected constraints
 % AI 05/12/21
 
 cMode = datacursormode(hFig);
-cMode.removeAllDataCursors;
+%cMode.removeAllDataCursors;
+cursorInfoS = getCursorInfo(cMode);
+
 
 ud = guidata(hFig);
 legH = ud.handle.legend;
@@ -65,11 +67,12 @@ else %Checkbox selection
     protS = ud.Protocols;
     
     %Get slelected constraint
-    selectedIdv = hEvt.Indices(:,1);
-    stateV = cell2mat(hObj.Data(selectedIdv,1));
+    currSelectedId = hEvt.Indices(:,1);
+    datC = hObj.Data;
+    stateV = cell2mat(hObj.Data(currSelectedId,1));
     stateC = {'Off','On'};
     
-    if selectedIdv==1  %'All'
+    if currSelectedId==1  %'All'
         for pNum = 1:numel(protS)
             hCrit = protS(pNum).criteria;
             hGuide = protS(pNum).guidelines;
@@ -87,7 +90,7 @@ else %Checkbox selection
         legH.EntryContainer.NodeChildren(1).Label.Color = [0,0,0];
         legH.EntryContainer.NodeChildren(2).Label.Color = [0,0,0];
 
-    elseif selectedIdv==2 %'None'
+    elseif currSelectedId==2 %'None'
         if stateV == 1
             %Criteria
             for pNum = 1:numel(protS)
@@ -114,14 +117,14 @@ else %Checkbox selection
         currProtocol = ud.foreground;
         gNum = numel(protS(currProtocol).guidelines);
         
-        selectedIdv = selectedIdv-2;
+        currSelectedId = currSelectedId-2;
         type =  get(hObj,'userdata');
-        selTypeC = type(selectedIdv);
+        selTypeC = type(currSelectedId);
         
         for pNum = 1:numel(protS)
-            for k = 1:numel(selectedIdv)
+            for k = 1:numel(currSelectedId)
                 if strcmp(selTypeC(k),'guidelines') %guidelines
-                    selNum = selectedIdv(k);
+                    selNum = currSelectedId(k);
                     if strcmp(stateC{stateV+1},'On')
                         drawnow;
                         legH.EntryContainer.NodeChildren(1).Label.Color = [0,0,0];
@@ -130,7 +133,7 @@ else %Checkbox selection
                         legH.EntryContainer.NodeChildren(1).Label.Color = [0.65,0.65,0.65];
                     end
                 else                               %criteria
-                    selNum = selectedIdv(k)- gNum;
+                    selNum = currSelectedId(k)- gNum;
                     if strcmp(stateC{stateV+1},'On')
                         drawnow;
                         legH.EntryContainer.NodeChildren(2).Label.Color = [0,0,0];
@@ -143,11 +146,15 @@ else %Checkbox selection
                 set(protS(pNum).(selTypeC{k})(selNum),'Visible',stateC{stateV(k)+1});
                 %Expand tooltip if on
                 if strcmp(stateC{stateV+1},'On')
-                    hExp = cMode.createDatatip(protS(pNum).(selTypeC{k})(selNum));
-                    evt.Target = protS(pNum).(selTypeC{k})(selNum);
-                    evt.Position = [evt.Target.XData(1),evt.Target.YData(1)];
-                    expandDataTipROE(hExp,evt,hFig);
+                    %Check if datatip exists
+                    if ~isfield(ud.handle,'datatips')
+                        ud.handle.datatips = [];
+                    end
+                    
+                    target = protS(pNum).(selTypeC{k})(selNum);
+                    createDataTipROE(hFig,target);
                 end
+                
             end
         end
         

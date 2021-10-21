@@ -19,8 +19,13 @@ for slcNum = 1:size(scan3M,3)
         case 'CNTS'
             activityScaleFactor = headerSlcS.petActivityConcentrationScaleFactor;
             imgM = imgM * activityScaleFactor;
-        case 'BQML'
-            % no need for transformation sincel already in BQML
+            imgM = imgM * 1000; % Bq/L
+        case {'BQML','BQCC'}
+            % transformation to Bq/L.
+            imgM = imgM * 1000; % 
+        case {'KBQCC','KBQML'}
+            % transform to Bq/L
+            imgM = imgM * 1e6; % BQ/L
         otherwise
             error('SUV calculation is supported only for imageUnits BQML and CNTS')
     end    
@@ -34,6 +39,8 @@ for slcNum = 1:size(scan3M,3)
             scantime = dcm_hhmmss(headerSlcS.injectionTime);
         case 'NONE'
             scantime = dcm_hhmmss(headerSlcS.acquisitionTime);
+        otherwise
+            scantime = dcm_hhmmss(headerSlcS.petDecayCorrectionDateTime(9:end));
     end
     
     % Start Time for Radiopharmaceutical Injection
@@ -44,6 +51,17 @@ for slcNum = 1:size(scan3M,3)
     
     % Total dose injected for Radionuclide
     injected_dose = headerSlcS.injectedDose;
+    
+    % Modality
+    modality = headerSlcS.imageType;
+    if strcmpi(modality,'NM SCAN')
+        injected_dose = injected_dose * 1e6; % Convert MBq to Bq
+    end
+    
+    % Fix issue where IOD is PT and injected_dose units are in MBq
+    if injected_dose < 1e5
+        injected_dose = injected_dose * 1e6;
+    end    
     
     % Calculate the decay
     % The injected dose used to calculate suvM is corrected for the decay that
@@ -62,7 +80,7 @@ for slcNum = 1:size(scan3M,3)
     % SUVbw and SUVbsa equations are taken from Kim et al. Journal of Nuclear Medicine. Volume 35, No. 1, January 1994. pp 164-167.
     switch upper(suvType)
         case 'BW' % Body Weight
-            suvM = imgM*ptWeight*1000/injected_dose_decay; % pt weight in grams
+            suvM = imgM*ptWeight/injected_dose_decay; % pt weight in grams
             imageUnits = 'GML';
         case 'BSA' % body surface area
             % Patient height
@@ -70,7 +88,7 @@ for slcNum = 1:size(scan3M,3)
             %SUV-bsa = (PET image Pixels) \* (BSA in m2) \* (10000 cm2/m2) / (injected dose).
             ptHeight = headerSlcS.patientSize; % units of meter
             bsaMm = ptWeight^0.425 * (ptHeight*100)^0.725 * 0.007184;
-            suvM = imgM*bsaMm*1000/injected_dose_decay;
+            suvM = imgM*bsaMm/injected_dose_decay;
             imageUnits = 'CM2ML';
         case 'LBM' %  % lean body mass by James method
             ptGender = headerSlcS.patientSex;
@@ -84,7 +102,7 @@ for slcNum = 1:size(scan3M,3)
                 %LBM in kg = 1.07 \* (weight in kg) – 148 \* [(weight in kg) / (height in cm)]^2.
                 lbmKg = 1.07 * ptWeight - 148 * (ptWeight/(ptHeight*100))^2;
             end
-            suvM = imgM*lbmKg*1000/injected_dose_decay;
+            suvM = imgM*lbmKg/injected_dose_decay;
             imageUnits = 'GML';
         case 'LBMJAMES128' % lean body mass by James method
             imageUnits = 'GML';
@@ -97,7 +115,7 @@ for slcNum = 1:size(scan3M,3)
             else
                 lbmKg = (9270 * ptWeight) / (8780 + 244*bmi); % female
             end
-            suvM = imgM*lbmKg*1000/injected_dose_decay;
+            suvM = imgM*lbmKg/injected_dose_decay;
             imageUnits = 'GML';
         case 'IBW' % ideal body weight
             imageUnits = 'GML';
