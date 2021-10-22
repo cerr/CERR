@@ -74,11 +74,17 @@ switch(tag)
                 ud.Protocols(p).model = modelC;
             end
             %Auto-populate precribed dose if available
-            RxField = ud.handle.inputH(14);
-            if isfield(planC{indexS.dose}(matchIdx - 1),'prescribedDose')
+            RxField = ud.handle.tab1H(12);
+            if ~isfield(planC{indexS.dose}(matchIdx - 1),'prescribedDose')
+                try
+                    prescribedDose = getPrescribedDose(matchIdx-1,planC);
+                    set(RxField,'String',num2str(prescribedDose));
+                    ud.handle.tab1H(12) = RxField;
+                end
+            else
                 prescribedDose = planC{indexS.dose}(matchIdx - 1).prescribedDose;
                 set(RxField,'String',num2str(prescribedDose));
-                ud.handle.inputH(14) = RxField;
+                ud.handle.tab1H(12) = RxField;
             end
         end
     case 'fieldEdit'
@@ -86,7 +92,7 @@ switch(tag)
         parName = hObj.Data{idx,1};
         modelsC{modelNum}.(parName) = val2num;
         modelsC{modelNum} = modelsC{modelNum};
-        set(ud.handle.inputH(9),'Enable','On');  %Enable save
+        set(ud.handle.tab1H(8),'Enable','On');  %Enable save
     case 'paramEdit'
         %Update modelC
         parName = hObj.Data{idx,1};
@@ -118,7 +124,7 @@ switch(tag)
         else
             modelsC{modelNum}.parameters.(parName).val = val2num;
         end
-        set(ud.handle.inputH(9),'Enable','On');  %Enable save
+        set(ud.handle.tab1H(8),'Enable','On');  %Enable save
 end
 ud.Protocols(prtcNum).model = modelsC;
 guidata(hFig,ud);
