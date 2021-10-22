@@ -13,20 +13,20 @@ xScale = userScale;
 %Get scale & clear any previous markers
 switch(ud.plotMode)
     case {1,2}
-        y1PlotAxis = ud.handle.modelsAxis(2); %NTCP axis
+        y1PlotAxis = ud.handle.modelsAxis(1); %NTCP axis
         y2PlotAxis = [];
         maxDelFrx = round(max([protS.numFractions])/2); %rounded
     case 3
-        y1PlotAxis = ud.handle.modelsAxis(3); %NTCP axis
-        y2PlotAxis = ud.handle.modelsAxis(4); %TCP/BED axis
+        y1PlotAxis = ud.handle.modelsAxis(2); %NTCP axis
+        y2PlotAxis = ud.handle.modelsAxis(3); %TCP/BED axis
         fxSizScaleV = linspace(0.5,1.5,99);
         xIdx = abs(fxSizScaleV-userScale) < eps;
         if isempty(xIdx)
             return %Invalid scale factor entered
         end
     case 4
-        y1PlotAxis = ud.handle.modelsAxis(5); %NTCP axis
-        y2PlotAxis = ud.handle.modelsAxis(6); %TCP/BED axis
+        y1PlotAxis = ud.handle.modelsAxis(4); %NTCP axis
+        y2PlotAxis = ud.handle.modelsAxis(5); %TCP/BED axis
         maxDelFrx = round(max([protS.numFractions])/2);
 end
 hScaled_y1 = findall(y1PlotAxis,'type','line','LineStyle','-.');
@@ -170,7 +170,7 @@ for l = 1:numel(ud.Protocols)
                         'FontSize',8,'Color',[0 0 0],'BackgroundColor',...
                         [1 1 1],'EdgeColor',pColorM(clrIdx,:),'LineWidth',...
                         2,'FontWeight','Bold','Tag','TCPBEDreadout');
-                    txtPos = xLmtV(2)+.05;
+                    txtPos = xLmtV(2)+.02;
                     skip=0;
                 end
             end
