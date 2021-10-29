@@ -26,7 +26,11 @@ if ~isempty(postS)
                
         methodC = postS.(strC{iStr}); %.method;
         if ~iscell(postS.(strC{iStr})) %.method)
-            methodC = {methodC};
+            methodCStruct = methodC;
+            methodC = {};
+            for i = 1:numel(methodCStruct)
+              methodC{i} = methodCStruct(i);
+            end
         end
         
         maskC = cell(length(methodC),1);
