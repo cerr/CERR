@@ -11,12 +11,16 @@ function addToPath(cerrDir)
 % APA, 7/29/2021
 
 pathStr = genpath(cerrDir);
-indSemiColonV = strfind(pathStr,';');
+if ispc 
+  indSemiColonV = strfind(pathStr,';');
+else
+  indSemiColonV = strfind(pathStr,':');
+end
 indGitV = strfind(pathStr,'.git');
 minIndV = arrayfun(@(x) max(indSemiColonV(indSemiColonV<x)),indGitV);
 maxIndV = arrayfun(@(x) min(indSemiColonV(indSemiColonV>x)),indGitV);
 for i = length(minIndV):-1:1
-    pathStr(minIndV(i):maxIndV(i)-1) = [];
+  pathStr(minIndV(i):maxIndV(i)-1) = [];
 end
 addpath(pathStr)
 
