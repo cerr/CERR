@@ -178,4 +178,6 @@ hObj.Marker = '^';
 hObj.MarkerSize = 7;
 hObj.Interpreter = 'none';
 set(hObj,'Visible','On');
+
+guidata(hFig,ud);
 end
