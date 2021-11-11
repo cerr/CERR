@@ -268,7 +268,8 @@ for i = 1:length(planC{indexS.structures})
     structRefFrameOfReferenceUID = planC{indexS.scan}(assocScanNum).Frame_Of_Reference_UID;    
     
     % Set referenced series UID
-    refSeriesInstanceUID = planC{indexS.scan}(assocScanNum).scanInfo(1).seriesInstanceUID;
+    refSeriesInstanceUID = planC{indexS.scan}(assocScanNum).Series_Instance_UID;
+    %planC{indexS.scan}(assocScanNum).scanInfo(1).seriesInstanceUID;
     
     % Set sereferced sopInstanceUIDs
     sopClassUidc = {planC{indexS.scan}(assocScanNum).scanInfo(:).sopClassUID};
@@ -292,7 +293,7 @@ for i = 1:length(planC{indexS.structures})
     end
 
     planC{indexS.structures}(i).Frame_Of_Reference_UID = structRefFrameOfReferenceUID;
-    planC{indexS.structures}(i).Series_Instance_UID = refSeriesInstanceUID;
+    planC{indexS.structures}(i).Referenced_Series_Instance_UID = refSeriesInstanceUID;
     
     %Set the SOP UIDs.
     planC{indexS.structures}(i).SOP_Class_UID    = Structure_Set_SOP_Class_UID;

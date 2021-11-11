@@ -66,7 +66,7 @@ switch tag
         %    dcmobj = export_sequence(fHandle, templateEl, {SeriesInstanceUID, scansS(i)});
         %    el.add(i-1, dcmobj);
         %end           
-        SeriesInstanceUID = structureS.Series_Instance_UID;
+        SeriesInstanceUID = structureS.Referenced_Series_Instance_UID;
         dcmobj = export_sequence(fHandle, templateEl, {SeriesInstanceUID, structureS});
         el.add(0, dcmobj);
         el = el.getParent();
