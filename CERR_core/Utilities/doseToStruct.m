@@ -37,13 +37,13 @@ end
 indexS = planC{end};
 
 % for command line help document
-if ~exist('doseNum')& ~exist('doseLevel')& ~exist('assocScanNum')
+if ~exist('doseNum','var') && ~exist('doseLevel','var') && ~exist('assocScanNum','var')
     prompt = {'Enter the dose Number';'Enter the dose level'; 'Enter the associated scan number'};
             dlg_title = 'Iso-dose to structure';
             num_lines = 1;
             def = {'';'';''};
             outPutQst = inputdlg(prompt,dlg_title,num_lines,def);
-            if isempty(outPutQst{1}) | isempty(outPutQst{2})| isempty(outPutQst{3})
+            if isempty(outPutQst{1}) || isempty(outPutQst{2}) || isempty(outPutQst{3})
                 warning('Need to enter all the inputs');
                 return
             else
@@ -51,52 +51,19 @@ if ~exist('doseNum')& ~exist('doseLevel')& ~exist('assocScanNum')
                 doseLevel    = str2num(outPutQst{2});
                 assocScanNum = str2num(outPutQst{3});
             end
-elseif ~exist('assocScanNum')
+elseif ~exist('assocScanNum','var')
     assocScanNum = getDoseAssociatedScan(doseNum, planC);
 end
 
-doseTransM = getTransM('dose',doseNum,planC);
-scanTransM = getTransM('scan',assocScanNum,planC);
-
-if isempty(doseTransM)
-    doseTransM = eye(4);
-end
-if isempty(scanTransM)
-    scanTransM = eye(4);
-end
-
-transM = inv(scanTransM)*doseTransM;
 doseOffset = planC{indexS.dose}(doseNum).doseOffset;
 if isempty(doseOffset)
     doseOffset = 0;
 end
 
-[xVals, yVals, zVals] = getScanXYZVals(planC{indexS.scan}(assocScanNum));
-[xV, yV, zV] = getDoseXYZVals(planC{indexS.dose}(doseNum)); 
-newStructS = newCERRStructure(assocScanNum, planC);
-newStructNum = length(planC{indexS.structures}) + 1;
-for i=1:length(zVals)
-    [doseM, imageYVals, imageXVals] = slice3DVol(planC{indexS.dose}(doseNum).doseArray, xV, yV, zV, zVals(i), 3, 'linear', transM, []);
-    if isempty(doseM)
-        indC = [];
-    else
-        C = contourc(imageXVals, imageYVals, doseM, [doseLevel+doseOffset doseLevel+doseOffset]);
-        indC = getSegIndices(C);
-    end
-    if ~isempty(indC)
-        for seg = 1:length(indC)
-            points = [C(:,indC{seg})' zVals(i)*ones(length(C(1,indC{seg})),1)];
-            newStructS.contour(i).segments(seg).points = points;
-        end
-    else
-        newStructS.contour(i).segments.points = [];
-    end
-end
+dose3M = getDoseOnCT(doseNum, assocScanNum);
+structureName    = [planC{indexS.dose}(doseNum).fractionGroupID,'_Level_',num2str(doseLevel)];
+planC = maskToCERRStructure(dose3M > doseLevel+doseOffset, 0, assocScanNum, structureName, planC);
 
-newStructS.structureName    = [planC{indexS.dose}(doseNum).fractionGroupID,'_Level_',num2str(doseLevel)];
-planC{indexS.structures} = dissimilarInsert(planC{indexS.structures}, newStructS, newStructNum);
-planC = getRasterSegs(planC, newStructNum);
-planC = updateStructureMatrices(planC, newStructNum);
 % Refresh GUI if it exists
 if ~isempty(stateS) && isfield(stateS,'handle') && isfield(stateS.handle,'CERRSliceViewer') && ishandle(stateS.handle.CERRSliceViewer)
     stateS.structsChanged = 1;
@@ -104,22 +71,3 @@ if ~isempty(stateS) && isfield(stateS,'handle') && isfield(stateS.handle,'CERRSl
 end
 
 return;
-
-function indC = getSegIndices(C)
-% function getSegIndices(C)
-%
-%This function returns the indices for each segment of input contour C.
-%C is output from in-built "contourc" function
-%
-%APA, 12/15/2006
-
-start = 1;
-counter = 1;
-indC = [];
-while start < length(C(2,:))
-    numPts = C(2,start);
-    indC{counter} = [(start+1):(start+numPts) start+1];
-    start = start + numPts + 1;
-    counter = counter + 1;
-end
-

@@ -38,11 +38,11 @@ elseif ~isempty(hEvt) && currNode.getLevel==1   %Expand protocol node to list mo
     end
     
     %Table for selecting dose plan
-    hTab = ud.handle.inputH(5);
+    hTab = ud.handle.tab1H(4);
     fmt = {'char' planListC};
     dosDat = {'Select dose plan',planListC{planIdx}};
     set(hTab,'ColumnFormat',fmt,'Data',dosDat,'Visible','On','Enable','On');
-    ud.handle.inputH(5) = hTab;
+    ud.handle.tab1H(4) = hTab;
     set(hFig,'userdata',ud);
     
     %Expand protocol node to list models
@@ -74,12 +74,12 @@ else
         
         if ~isempty(planNum)
             %Table2 : Plan selection
-            hTab2 = ud.handle.inputH(5);
+            hTab2 = ud.handle.tab1H(4);
             planDispC = get(hTab2,'ColumnFormat');
             txtDispC = get(hTab2,'Data');
             planListC = planDispC{2};
             set(hTab2,'Data',{txtDispC{1},planListC{planNum+1}});
-            ud.handle.inputH(5) = hTab2;
+            ud.handle.tab1H(4) = hTab2;
         end
         
         modelsC = protS(prtcNumV(t)).model;
@@ -150,7 +150,7 @@ else
                 
                 %Display parameters from .json file
                 %Table1 : Structure selection
-                hTab1 = ud.handle.inputH(4);
+                hTab1 = ud.handle.tab1H(3);
                 fmtC = {structDispC.',structListC};
                 
                 if isfield(modelsC{modelNumV(s)},'inputStrNum')
@@ -165,19 +165,21 @@ else
                 
                 %Table2
                 
-                %Table3 : Miscellaneous fields from .json file
-                hTab3 = ud.handle.inputH(8);
-                set(hTab3,'Data',[fieldsC,cellfun(@num2str,valsC,'un',0)],'Visible','On','Enable','On');
+                %Table3 : Miscellaneous fields from .json file (decomissioned)
+                %hTab3 = ud.handle.tab1H(7);
+                %set(hTab3,'Data',[fieldsC,cellfun(@num2str,valsC,'un',0)],...
+                %    'Visible','On','Enable','On');
+                
                 %Parameters
                 for r = 1:numel(hPar)
                     set(hPar(r),'Visible','On');
                 end
                 
                 %Store tables to userdata
-                ud.handle.inputH(4) = hTab1;
-                set(ud.handle.inputH(6),'Visible','On'); %Parameters header
-                set(ud.handle.inputH(7),'String',['Current model:  ',modName],'Visible','On'); %Display name of currently selected model
-                ud.handle.inputH(8) = hTab3;
+                ud.handle.tab1H(3) = hTab1;
+                set(ud.handle.tab1H(5),'Visible','On'); %Parameters header
+                set(ud.handle.tab1H(6),'String',['Current model:  ',modName],'Visible','On'); %Display name of currently selected model
+                %ud.handle.tab1H(7) = hTab3; %decomissioned
             end
             
             ud.currentPar = hPar;
@@ -192,7 +194,7 @@ else
         ud.ModelNum = modelNumV;
         
         %Enable save
-        set(ud.handle.inputH(9),'Enable','On');
+        set(ud.handle.tab1H(8),'Enable','On');
     end
     ud.Protocols = protS;
     guidata(hFig,ud);

@@ -2,10 +2,8 @@ function [currSelectedId,selTypeC] = dispSelCriteriaROE(hObj,hEvt,hFig,varargin)
 %Display selected constraints
 % AI 05/12/21
 
-cMode = datacursormode(hFig);
+%cMode = datacursormode(hFig);
 %cMode.removeAllDataCursors;
-cursorInfoS = getCursorInfo(cMode);
-
 
 ud = guidata(hFig);
 legH = ud.handle.legend;
@@ -68,7 +66,6 @@ else %Checkbox selection
     
     %Get slelected constraint
     currSelectedId = hEvt.Indices(:,1);
-    datC = hObj.Data;
     stateV = cell2mat(hObj.Data(currSelectedId,1));
     stateC = {'Off','On'};
     
@@ -152,6 +149,7 @@ else %Checkbox selection
                     end
                     
                     target = protS(pNum).(selTypeC{k})(selNum);
+                    guidata(hFig,ud);
                     createDataTipROE(hFig,target);
                 end
                 
@@ -164,6 +162,5 @@ end
 
 ud.Protocols = protS;
 ud.handle.legend = legH;
-guidata(hFig,ud);
 
 end

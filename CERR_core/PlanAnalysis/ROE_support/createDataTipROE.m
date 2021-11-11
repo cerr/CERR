@@ -1,4 +1,4 @@
-function createDataTipROE(hFig,target)
+function hDataTip = createDataTipROE(hFig,target)
 % Create new datatip or expand existing one.
 %
 % AI 10/15/21
@@ -21,21 +21,21 @@ existing = 0;
 for c = 1:length(cursorInfoS)
     if isequal(get(cursorInfoS(c).Target,'userdata'),...
             get(evt.Target,'userdata'))
-        hExp = ud.handle.datatips(c);
+        hDataTip = ud.handle.datatips(c);
         guidata(hFig,ud);
-        expandDataTipROE(hExp,evt,hFig);
+        expandDataTipROE(hDataTip,evt,hFig);
         existing = 1;
         break
     end
 end
 if ~existing
-    hExp = cMode.createDatatip(target);
-    set(hExp,'OrientationMode','Manual',...
-        'Tag','criteria','UpdateFcn',...
-        @(hObj,hEvt)expandDataTipROE(hObj,hEvt,hFig));
-    ud.handle.datatips = [ud.handle.datatips,hExp];
+    hDataTip = cMode.createDatatip(target);
+    set(hDataTip,'Marker','^','OrientationMode','Manual',...
+        'Tag','criteria','userdata',get(target,'userdata'),'UpdateFcn',...
+        @(hObj,hEvt)expandDataTipROE(hObj,hEvt,hFig)); %'MarkerSize,',7,
+    ud.handle.datatips = [ud.handle.datatips,hDataTip];
     guidata(hFig,ud);
-    expandDataTipROE(hExp,evt,hFig);
+    expandDataTipROE(hDataTip,evt,hFig);
 end
 
 end
