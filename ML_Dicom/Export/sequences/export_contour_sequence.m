@@ -105,12 +105,14 @@ switch tag
 
     case 805699664  %3006,0050  Contour Data
         %Convert from CERR cm to DICOM mm.
-        contour = contour * 10;
+        %contour = contour * 10;
         
         %Convert from CERR coordinates to DICOM coordinates based on pt
         %position.
-        imgOri = scanS.scanInfo(1).imageOrientationPatient;
-        contour = convertCoordinates(contour, imgOri);
+        %imgOri = scanS.scanInfo(1).imageOrientationPatient;
+        %contour = convertCoordinates(contour, imgOri);
+        
+        contour = convertCerrToDcmPoints(contour,scanS);
         
         %Check for first/last points being the same.  If the same, remove
         %one as specified by DICOM's closed contour definition.
