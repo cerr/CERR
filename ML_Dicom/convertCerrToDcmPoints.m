@@ -10,7 +10,7 @@ function dcmPatientCoordM = convertCerrToDcmPoints(cerrPointsM,scanNum,planC)
 % scanS = planC{indexS.scan}(scanNum);
 % dcmPatientCoordM = convertCerrToDcmPoints(cerrPointsM,scanS);
 %
-% APA, 11/6/2021
+% APA, 11/16/2021
 
 if exist('planC','var')
     indexS = planC{end};
@@ -26,9 +26,8 @@ end
 dx = xs(2)-xs(1);
 dy = ys(2)-ys(1);
 slice_distance = zs(2)-zs(1);
-virPosMtx = [dx 0 0 xs(1);0 dy 0 ys(1); 0 0 slice_distance -zs(end); 0 0 0 1];
-
-cerrPointsM(:,3) = -cerrPointsM(:,3);
+virPosMtx = [dx 0 0 xs(1);0 dy 0 ys(1); 0 0 slice_distance -zs(end); 0 0 0 1]; % (-)ve zs since CERR z is opposite of DICOM
+cerrPointsM(:,3) = -cerrPointsM(:,3); % (-)ve since cerr z is opposite of DICOM
 cerrPointsM = [cerrPointsM, ones(size(cerrPointsM,1),1)];
 rcsM = virPosMtx \ cerrPointsM';
 
