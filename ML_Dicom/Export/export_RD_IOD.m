@@ -39,7 +39,7 @@ nWritten = 0;
 indexS = planC{end};
 
 %Get required components of planC.
-scanS = planC{indexS.scan};
+%scanS = planC{indexS.scan};
 DVHS  = planC{indexS.DVH};
 
 for i = 1:length(planC{indexS.dose})
@@ -107,13 +107,13 @@ for i = 1:length(planC{indexS.dose})
     %being exported, they are exported in the rt_dvh module.
     dInd = [];
     for dvhNum = 1:length(DVHS)
-        if DVHS(dvhNum).doseIndex == i & ~isempty(DVHS(dvhNum).doseIndex)
+        if DVHS(dvhNum).doseIndex == i && ~isempty(DVHS(dvhNum).doseIndex)
             dInd = [dInd dvhNum];
         end
     end
         
     %Call the rt_dvh export with only the relevant DVHs.
-    if length(dInd) > 0        
+    if ~isempty(dInd)        
         ssattr = export_module('rt_dvh', i, DVHS(dInd));
         attr.addAll(ssattr);
         clear ssattr;
