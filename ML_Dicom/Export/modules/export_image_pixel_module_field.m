@@ -197,7 +197,22 @@ switch tag
                 
                 %Flip the Z dimension.  As yet unknown why this is
                 %necessary.
-                data = flip(data, 3);
+                %data = flip(data, 3);
+                % Flip doseArray if imagePositionPatient corresponds to the
+                % last slice of doseArray
+                imagePositionPatient = doseS.imagePositionPatient/10;
+                zDicomV = -doseS.zValues; % only for non-oblique dose/scan
+                %zDicomV = convertCerrToDcmDoseZgrid(doseS.zValues); % to be implemented
+                if isempty(imagePositionPatient)
+                    imagePositionPatient = zDicomV(1);
+                else
+                    imagePositionPatient = imagePositionPatient(3);
+                end
+                diffFromImgPatPosV = (zDicomV - imagePositionPatient).^2;
+                indImgPosition = find(diffFromImgPatPosV < 1e-5);
+                if ~isempty(indImgPosition) && indImgPosition == length(zDicomV)
+                    data = flip(data, 3);
+                end
 
                 %Flatten the data into a vector.
                 data = data(:);
