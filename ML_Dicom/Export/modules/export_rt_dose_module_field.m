@@ -165,10 +165,22 @@ switch tag
         %numZ   = length(doseS.zValues);      
         %data   = linspace(firstZ, lastZ, numZ) - firstZ;
         
-        % (-)ve z-values to go back to DICOM coordinates
-        zDicomV = doseS.zValues; % tested only for non-oblique dose HFS
-        data = -(zDicomV(1) - zDicomV);
+        % Convert doseS.zValues from virtual to DICOM Patient coordinates
+        % For non-oblique scans/doses, this transformation is simply (-)ve z-values to go back to DICOM coordinates
+        zDicomV = -doseS.zValues; % only for non-oblique dose (e.g. HFS)
+        %data = zDicomV - zDicomV(1);
+        %zDicomV = convertCerrToDcmDoseZgrid(doseS.zValues); % to be implemented
+        
+        % Compute offset from imagePositionPatient
+        imagePositionPatient = doseS.imagePositionPatient/10; % this is already in DICOM Patient coordinates
                 
+        if isempty(imagePositionPatient)
+            imagePositionPatient = zDicomV(1);
+        else
+           imagePositionPatient = imagePositionPatient(3); 
+        end        
+        data = zDicomV - imagePositionPatient;
+        
         %Convert from CERR cm to DICOM mm.                
         data = data * 10;
         
