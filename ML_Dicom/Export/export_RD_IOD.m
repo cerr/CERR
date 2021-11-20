@@ -39,7 +39,7 @@ nWritten = 0;
 indexS = planC{end};
 
 %Get required components of planC.
-scanS = planC{indexS.scan};
+%scanS = planC{indexS.scan};
 DVHS  = planC{indexS.DVH};
 
 for i = 1:length(planC{indexS.dose})
@@ -55,6 +55,7 @@ for i = 1:length(planC{indexS.dose})
     if isempty(scanNum)
         scanNum = 1;
     end    
+    scanS = planC{indexS.scan}(scanNum);
 
     %Export each module required for the RD IOD, copying the results into the
     %common dcmobj container and return.
@@ -90,7 +91,7 @@ for i = 1:length(planC{indexS.dose})
     attr.addAll(ssattr);
     clear ssattr;
 
-    ssattr = export_module('image_pixel', 'dose', doseS);
+    ssattr = export_module('image_pixel', 'dose', doseS, scanS);
     attr.addAll(ssattr);
     clear ssattr;
     
@@ -99,7 +100,7 @@ for i = 1:length(planC{indexS.dose})
     clear ssattr;    
 
     doseUnits = getDoseUnitsStr(i, planC);
-    ssattr = export_module('rt_dose', doseS, doseUnits);
+    ssattr = export_module('rt_dose', doseS, doseUnits, scanS);
     attr.addAll(ssattr);
     clear ssattr;
 
@@ -107,13 +108,13 @@ for i = 1:length(planC{indexS.dose})
     %being exported, they are exported in the rt_dvh module.
     dInd = [];
     for dvhNum = 1:length(DVHS)
-        if DVHS(dvhNum).doseIndex == i & ~isempty(DVHS(dvhNum).doseIndex)
+        if DVHS(dvhNum).doseIndex == i && ~isempty(DVHS(dvhNum).doseIndex)
             dInd = [dInd dvhNum];
         end
     end
         
     %Call the rt_dvh export with only the relevant DVHs.
-    if length(dInd) > 0        
+    if ~isempty(dInd)        
         ssattr = export_module('rt_dvh', i, DVHS(dInd));
         attr.addAll(ssattr);
         clear ssattr;

@@ -226,6 +226,7 @@ switch fieldname
             % refSeq = aContour.getValue(hex2dec('30060016'));
             refSeq = aContour.getValue(805699606); %org.dcm4che3.data.Tag.ContourImageSequence;
             sopInstanceUID = '';
+            sopClassUID = '';
             if ~isempty(refSeq)
                 % sopInstanceUID = getTagValue(refSeq.get(0), '00081155');
                 sopInstanceUID = char(refSeq.get(0).getString(528725,0)); %org.dcm4che3.data.Tag.ReferencedSOPInstanceUID;
