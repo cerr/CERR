@@ -322,37 +322,45 @@ for scanNum = 1:numScans
             % coord2OFFirstPoint, horizontalGridInterval,
             % verticalGridInterval and zValues
             
-            % 				xOffset = iPP(1) + (pixspac(1) * (nCols - 1) / 2);
-            % 				yOffset = iPP(2) + (pixspac(2) * (nRows - 1) / 2);
+            % xOffset = iPP(1) + (pixspac(1) * (nCols - 1) / 2);
+            % yOffset = iPP(2) + (pixspac(2) * (nRows - 1) / 2);
             
             vecs = [0 0 0 1; 1 1 0 1; (dosedim(2)-1)/2 (dosedim(1)-1)/2 0 1];
             vecsout = (dosePositionMatrix*vecs'); % to physical coordinates
             vecsout(1:3,:) = vecsout(1:3,:)/10;
-            vecsout = inv(positionMatrix) * vecsout;  % to MR image index (not dose voxel index)
+            vecsout = positionMatrix \ vecsout;  % to MR image index (not dose voxel index)
             vecsout = virPosMtx * vecsout; % to the virtual coordinates
             
-            % 				dose.coord1OFFirstPoint = vecsout(1,3);
-            % 				dose.coord2OFFirstPoint = vecsout(2,3);
+            % dose.coord1OFFirstPoint = vecsout(1,3);
+            % dose.coord2OFFirstPoint = vecsout(2,3);
             dose.coord1OFFirstPoint = vecsout(1,1);
             dose.coord2OFFirstPoint = vecsout(2,1);
             dose.horizontalGridInterval = vecsout(1,2) - vecsout(1,1);
             dose.verticalGridInterval = vecsout(2,2) - vecsout(2,1);
             
-            vecs = [zeros(2,dosedim(3));0:(dosedim(3)-1);ones(1,dosedim(3))];
-            vecsout = (dosePositionMatrix*vecs); % to physical coordinates
-            vecsout(1:3,:) = vecsout(1:3,:)/10;
-            vecsout = inv(positionMatrix) * vecsout;  % to MR image index (not dose voxel index)
-            vecsout = virPosMtx * vecsout; % to the virtual coordinates
+            % APA commented ====== get z-grid using GridFrameOffset
+            % vecs = [zeros(2,dosedim(3));0:(dosedim(3)-1);ones(1,dosedim(3))];
+            % vecsout = (dosePositionMatrix*vecs); % to physical coordinates
+            % vecsout(1:3,:) = vecsout(1:3,:)/10;
+            % vecsout = positionMatrix \ vecsout;  % to MR image index (not dose voxel index)
+            % vecsout = virPosMtx * vecsout; % to the virtual coordinates
+            % zValuesV = vecsout(3,:)';
+            % APA commented ends
             
-            zValuesV = vecsout(3,:)';
+            % APA added to get zValues in virtual coordinates
+            zValuesV = vecsout(3,1) + dose.zValues - dose.imagePositionPatient(3)/10;
+            
             [zdoseV,zOrderV] = sort(zValuesV);
             dose.zValues = zdoseV;
             %[zdoseV,zOrderV] = sort(dose.zValues);
             %dose.zValues = zdoseV;
             
-            % Flip doseArray similar to the scanArray
-            % Flip scan since DICOM and CERR's z-convention is opposite.
-            % Hence sort according to descending z-values.
+            % Ascending zValuesV order means dose slices go from toe to
+            % head in DICOM. i.e. 1st dose slice is towards the toe and 
+            % the last slice towards the head. doseArray has to be flipped 
+            % opposite to zValuesV to match CERR convention i.e. head to toe
+            
+            % slice is towards the head
             %[~,zOrderV] = sort(dose.zValues,'descend'); % flip dose
             dose.doseArray = dose.doseArray(:,:,flip(zOrderV));
             
