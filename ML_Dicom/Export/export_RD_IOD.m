@@ -55,6 +55,7 @@ for i = 1:length(planC{indexS.dose})
     if isempty(scanNum)
         scanNum = 1;
     end    
+    scanS = planC{indexS.scan}(scanNum);
 
     %Export each module required for the RD IOD, copying the results into the
     %common dcmobj container and return.
@@ -90,7 +91,7 @@ for i = 1:length(planC{indexS.dose})
     attr.addAll(ssattr);
     clear ssattr;
 
-    ssattr = export_module('image_pixel', 'dose', doseS);
+    ssattr = export_module('image_pixel', 'dose', doseS, scanS);
     attr.addAll(ssattr);
     clear ssattr;
     
@@ -99,7 +100,7 @@ for i = 1:length(planC{indexS.dose})
     clear ssattr;    
 
     doseUnits = getDoseUnitsStr(i, planC);
-    ssattr = export_module('rt_dose', doseS, doseUnits);
+    ssattr = export_module('rt_dose', doseS, doseUnits, scanS);
     attr.addAll(ssattr);
     clear ssattr;
 

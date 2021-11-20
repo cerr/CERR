@@ -57,6 +57,7 @@ switch type
         scanS       = args.data{3};        
     case 'dose'
         doseS       = args.data{2};
+        scanS       = args.data{3};
     otherwise
         error('Unsupported data passed to export_image_pixel_module_field.');   
 end
@@ -197,12 +198,17 @@ switch tag
                 
                 %Flip the Z dimension.  As yet unknown why this is
                 %necessary.
-                %data = flip(data, 3);
-                % Flip doseArray if imagePositionPatient corresponds to the
-                % last slice of doseArray
-                imagePositionPatient = doseS.imagePositionPatient/10;
-                zDicomV = -doseS.zValues; % only for non-oblique dose/scan
-                %zDicomV = convertCerrToDcmDoseZgrid(doseS.zValues); % to be implemented
+                %data = flip(data, 3);                
+                
+                % Find whether the slice corresponding to
+                % imagePositionPatient is at the beginning or the end so
+                % that doseArray can be flipped accordingly. This is done
+                % so that the first slice of doseArray in DICOM corresponds
+                % to where imagePositionPatient is defined.
+                
+                zDicomV = convertCerrToDcmDosZGrid(doseS,scanS);
+                
+                imagePositionPatient = doseS.imagePositionPatient/10; % this is already in DICOM Patient coordinates
                 if isempty(imagePositionPatient)
                     imagePositionPatient = zDicomV(1);
                 else
