@@ -205,17 +205,24 @@ switch filterType
         %             srcItkImg = py.SimpleITK.ReadImage('E:\data\TumorAware_MR\nrrdScanFormat.nrrd');
         
         % get ref image
-        refItkImg = py.SimpleITK.ReadImage(paramS.refImgPath);
-        refScanPy = py.SimpleITK.GetArrayFromImage(refItkImg);
-        refNumElems = int64(py.numpy.prod(refScanPy.shape));
-        refShape = py.numpy.array([1,refNumElems]);
-        refScanPy = refScanPy.astype(py.numpy.int64);
+        if isfield(paramS,'refImgPath') && ~isempty(paramS.refImgPath)
+            refItkImg = py.SimpleITK.ReadImage(paramS.refImgPath);
+            %refScanPy = py.SimpleITK.GetArrayFromImage(refItkImg);
+        elseif isfield(paramS,'refImgMat') && ~isempty(paramS.refImgMat)
+            refScanPy = py.numpy.array(paramS.refImgMat);
+            refScanPy = refScanPy.astype(py.numpy.float32);   
+            % Get image from the array
+            refItkImg = py.SimpleITK.GetImageFromArray(refScanPy);
+        else
+            error('Reference image not specified for histogram matching')
+        end
         
+        %refNumElems = int64(py.numpy.prod(refScanPy.shape));
+        %refShape = py.numpy.array([1,refNumElems]);
+        %refScanPy = refScanPy.astype(py.numpy.int64);        
         % reshape numpy array to original shape
-        refScanPy = reshape(refScanPy,refShape);
+        %refScanPy = reshape(refScanPy,refShape);
         
-        % Get image from the array
-        refItkImg = py.SimpleITK.GetImageFromArray(refScanPy);
         
         
         %refItkImg = py.SimpleITK.reshape(refItkImg, scanPy);
