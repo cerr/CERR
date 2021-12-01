@@ -226,6 +226,9 @@ for scanNum = 1:length(planC{indexS.scan})
             elseif isfield(dicomhd,'PatientsWeight')
                 ptweight = dicomhd.PatientsWeight;
             end
+            if isempty(dicomhd.RadiopharmaceuticalInformationSequence)
+                continue;
+            end
             injectionTime = ...
                 dicomhd.RadiopharmaceuticalInformationSequence.Item_1.RadiopharmaceuticalStartTime;
             halfLife = ...
