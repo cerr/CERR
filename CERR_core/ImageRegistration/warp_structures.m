@@ -26,12 +26,16 @@ if isstruct(deformS)
     end
     algorithm = deformS.algorithm;
     registration_tool = deformS.registration_tool;
+    
     switch upper(registration_tool)
         case 'PLASTIMATCH'
             plmFlag = 1;
             disp('Plastimatch selected');
-            bspFileName = fullfile(getCERRPath,'ImageRegistration','tmpFiles',['bsp_coeffs_',baseScanUID,'_',movScanUID,'.txt']);
-            success = write_bspline_coeff_file(bspFileName,deformS.algorithmParamsS);
+            bspFileName = fullfile(getCERRPath,'ImageRegistration',...
+                'tmpFiles',['bsp_coeffs_',baseScanUID,'_',movScanUID,'.txt']);
+            success = write_plm_transform_file(algorithm,bspFileName,...
+                deformS.algorithmParamsS);
+            %success = write_bspline_coeff_file(bspFileName,deformS.algorithmParamsS);
         case 'ELASTIX'
             elxFlag = 1;
             disp('Elastix selected');
