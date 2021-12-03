@@ -4,7 +4,7 @@ function scanNumV = getScanNumFromIdentifiers(idS,planC)
 % INPUTS
 % idS    : Structure containing identifiers (tags) and expected values
 %          Supported identifiers include 'imageType', 'seriesDescription',
-%          'scanType', 'scanDate', 'scanNum'.
+%          'scanType', 'scanDate', 'scanNum', and 'assocStructure'.
 % planC
 %--------------------------------------------------------------------------
 % AI 9/18/20
@@ -57,12 +57,23 @@ for n = 1:length(identifierC)
                 error(['scanDate value ''',matchValC,''' is not supported.'])
             end
             
+        case 'assocStructure'
+            if strcmp(matchValC,'none')
+                strAssocScanV = unique(planC{indexS.structures}.associatedScan);
+                idV = ~ismember(1:numScan,strAssocScanV);
+            else
+                strListC = {planC{indexS.structures}.structureName};
+                strNum = getMatchingIndex(matchValC,strListC,'EXACT');
+                matchScan = getStructureAssociatedScan(strNum,planC);
+                idV = false(1,numScan);
+                idV(matchScan) = true;
+            end
+            
         otherwise
             error('Identifier %s not supported.',identifierC{n});
     end
     
     matchIdxV = matchIdxV & idV;
-    
     
 end
 
