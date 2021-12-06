@@ -207,6 +207,7 @@ switch filterType
         % get ref image
         if isfield(paramS,'refImgPath') && ~isempty(paramS.refImgPath)
             refItkImg = py.SimpleITK.ReadImage(paramS.refImgPath);
+            refItkImg = py.SimpleITK.Cast(refItkImg,py.SimpleITK.sitkFloat32);
             %refScanPy = py.SimpleITK.GetArrayFromImage(refItkImg);
         elseif isfield(paramS,'refImgMat') && ~isempty(paramS.refImgMat)
             refScanPy = py.numpy.array(paramS.refImgMat);
