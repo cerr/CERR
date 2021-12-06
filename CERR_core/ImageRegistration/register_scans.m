@@ -244,7 +244,7 @@ if plmFlag
     
     %Return xform coefficients
     
-    algorithmParamsS = readPlastimatchCoeffs(xformFileNameBase);
+    algorithmParamsS = readPlastimatchCoeffs(xformFileNameBase,algorithm);
     
     deformS.algorithmParamsS = algorithmParamsS;
     

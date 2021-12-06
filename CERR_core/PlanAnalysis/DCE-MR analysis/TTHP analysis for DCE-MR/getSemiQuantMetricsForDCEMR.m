@@ -177,7 +177,10 @@ end
         [i,j] = find(maskM);
         ROISigM = (maskedDCE3M(i,j,:));
         avgROIsigV = squeeze(sum(sum(ROISigM)))/size(maskedDCE3M,3);
-        h = figure('Name','ROI avg signal');
+        
+        screenSizeV = get(0,'ScreenSize') ;
+      
+        h = figure('Name','ROI avg signal','Position',screenSizeV);
         plot(0:length(avgROIsigV)-1,avgROIsigV,'-dr');
         inShift = inputdlg('Enter shift (time) to start of uptake curve)','User-input shift');
         shift = str2num(inShift{1});
