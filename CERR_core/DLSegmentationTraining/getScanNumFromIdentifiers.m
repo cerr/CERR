@@ -59,14 +59,17 @@ for n = 1:length(identifierC)
             
         case 'assocStructure'
             if strcmp(matchValC,'none')
-                strAssocScanV = unique(planC{indexS.structures}.associatedScan);
+                strAssocScanV = unique([planC{indexS.structures}.associatedScan]);
                 idV = ~ismember(1:numScan,strAssocScanV);
             else
-                strListC = {planC{indexS.structures}.structureName};
-                strNum = getMatchingIndex(matchValC,strListC,'EXACT');
-                matchScan = getStructureAssociatedScan(strNum,planC);
-                idV = false(1,numScan);
-                idV(matchScan) = true;
+                idV = true(1,numScan);
+                scanNumV = 1:numScan;
+                for nStr = 1:length(matchValC)
+                    strListC = {planC{indexS.structures}.structureName};
+                    strNum = getMatchingIndex(matchValC{nStr},strListC,'EXACT');
+                    matchScan = getStructureAssociatedScan(strNum,planC);
+                    idV = idV & ismember(scanNumV,matchScan);
+                end
             end
             
         otherwise

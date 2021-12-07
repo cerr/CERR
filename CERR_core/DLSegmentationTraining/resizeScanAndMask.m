@@ -326,7 +326,7 @@ switch(lower(method))
 %                 slcV = limitsM(6) - limitsM(5) + 1;                
                 if preserveAspectFlag  %%add case for non-square outputImgSizeV?
                     paddedSize = max(cropDim(1:2))*[1, 1];
-                    maskResize3M = false([paddedSize,size(mask3M,3)]);
+                    maskResize3M = zeros([paddedSize,size(mask3M,3)]);
                     for nSlc = 1:size(mask3M,3)
                         maskResize3M(:,:,nSlc) = imresize(squeeze(...
                             mask3M(:,:,nslc)),paddedSize, 'nearest');
@@ -341,7 +341,7 @@ switch(lower(method))
 %                     maskOut3M(minr:maxr,minc:maxc,:) = maskResize3M(idx11:idx12,idx21:idx11,:);
                     maskOut3M = maskResize3M(idx11:idx12,idx21:idx11,:);
                 else
-                    maskOut3M = false([outputImgSizeV,size(mask3M,3)]);
+                    maskOut3M = zeros([outputImgSizeV,size(mask3M,3)]);
                     for nSlc = 1:size(mask3M,3)
                         maskOut3M(:,:,nSlc) = imresize(squeeze(...
                             mask3M(:,:,nSlc)),outputImgSizeV, 'nearest');
