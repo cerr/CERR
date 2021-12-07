@@ -336,21 +336,9 @@ E.g.: schedule_in=[ 1 ,2 ,3 ,4 ,5 ,8 ,9, 10, 11, 12, 15, 16, 17, 18, 19, 22, 23,
 
 
   var Treat_day, alpha_p, beta_p, alpha_i, beta_i, alpha_h, beta_h, f_p_pro, alpha_s, grid, pre_f;
+
   alpha_s = 0.3;
   grid = 0.1;
-  pre_f = f(alpha_s, alpha_p, Alpha_ratio_p_cyc);
-
-  while (Math.abs(f(alpha_s, alpha_p, Alpha_ratio_p_cyc)) >= Number.EPSILON) {
-    if (pre_f * f(alpha_s, alpha_p, Alpha_ratio_p_cyc) < 0) {
-      grid = grid * 0.1;
-    }
-    pre_f = f(alpha_s, alpha_p, Alpha_ratio_p_cyc);
-    if (f(alpha_s, alpha_p, Alpha_ratio_p_cyc) > 0) {
-      alpha_s = alpha_s + grid;
-    } else {
-      alpha_s = alpha_s - grid;
-    }
-  }
 
   var d, n, len;
   var fx_in_arr = [];
@@ -368,16 +356,31 @@ E.g.: schedule_in=[ 1 ,2 ,3 ,4 ,5 ,8 ,9, 10, 11, 12, 15, 16, 17, 18, 19, 22, 23,
   var cell_dist = [];
   var Alpha_p_cyc = [0, 0, 0];
 
+  pre_f = f(alpha_s, alpha_p, Alpha_ratio_p_cyc);
+
+  while (Math.abs(f(alpha_s, alpha_p, Alpha_ratio_p_cyc)) >= Number.EPSILON) {
+    if (pre_f * f(alpha_s, alpha_p, Alpha_ratio_p_cyc) < 0) {
+      grid = grid * 0.1;
+    }
+    pre_f = f(alpha_s, alpha_p, Alpha_ratio_p_cyc);
+    if (f(alpha_s, alpha_p, Alpha_ratio_p_cyc) > 0) {
+      alpha_s = alpha_s + grid;
+    } else {
+      alpha_s = alpha_s - grid;
+    }
+  }
+  // Cell cycle and dose-dependent radiosensitivity
+  Alpha_p_cyc[1] = alpha_s;
+  Alpha_p_cyc[0] = Alpha_p_cyc[1] * Alpha_ratio_p_cyc[0];
+  Alpha_p_cyc[2] = Alpha_p_cyc[1] * Alpha_ratio_p_cyc[1];
+
+
   //for (n = 0; n < len; n++) {
 
   //d = fx_in_arr[n];
   Treat_day = schedule_in;
 
-  function calcEffAlphaBetaSurvFrac(d,alpha_s, Alpha_ratio_p_cyc, a_over_b) {
-	// Cell cycle and dose-dependent radiosensitivity
-	Alpha_p_cyc[1] = alpha_s;
-	Alpha_p_cyc[0] = Alpha_p_cyc[1] * Alpha_ratio_p_cyc[0];
-	Alpha_p_cyc[2] = Alpha_p_cyc[1] * Alpha_ratio_p_cyc[1];
+  function calcEffAlphaBetaSurvFrac(d, Alpha_p_cyc) {
 
 	// Effective alpha, beta from survival fractions
 	Su_p = F_p_cyc[0] * Math.exp(-Alpha_p_cyc[0] * d - (Alpha_p_cyc[0] / a_over_b) * Math.pow(d, 2)) +
@@ -386,10 +389,10 @@ E.g.: schedule_in=[ 1 ,2 ,3 ,4 ,5 ,8 ,9, 10, 11, 12, 15, 16, 17, 18, 19, 22, 23,
 	alpha_p_eff = -Math.log(Su_p) / (d * (1 + (d / a_over_b)));
 	beta_p_eff = (alpha_p_eff / a_over_b);
 
-	Su_i_2gy = Math.exp(-alpha_p / oer_i * 2 - (alpha_p / a_over_b) / Math.pow(oer_i, 2) * Math.pow(2, 2));
+	Su_i_2gy = Math.exp(-alpha_p_ori / oer_i * 2 - (alpha_p_ori / a_over_b) / Math.pow(oer_i, 2) * Math.pow(2, 2));
 	oer_i_g1 = (-(Alpha_p_cyc[0] * 2) - Math.sqrt(Math.pow((Alpha_p_cyc[0] * 2), 2) -
 	  4 * Math.log(Su_i_2gy) * (Alpha_p_cyc[0] / a_over_b) * Math.pow(2, 2))) / (2 * Math.log(Su_i_2gy));
-	Su_h_2gy = Math.exp(-alpha_p / oer_h * 2 - (alpha_p / a_over_b) / Math.pow(oer_h, 2) * Math.pow(2, 2));
+	Su_h_2gy = Math.exp(-alpha_p_ori / oer_h * 2 - (alpha_p_ori / a_over_b) / Math.pow(oer_h, 2) * Math.pow(2, 2));
 	oer_h_g1 = (-(Alpha_p_cyc[0] * 2) - Math.sqrt(Math.pow(Alpha_p_cyc[0] * 2, 2) - 4 * Math.log(Su_h_2gy) * (Alpha_p_cyc[0] / a_over_b) * Math.pow(2, 2))) /
 	  (2 * Math.log(Su_h_2gy));
 	alpha_i = Alpha_p_cyc[0] / oer_i_g1;
@@ -400,7 +403,7 @@ E.g.: schedule_in=[ 1 ,2 ,3 ,4 ,5 ,8 ,9, 10, 11, 12, 15, 16, 17, 18, 19, 22, 23,
 	alpha_p = alpha_p_eff;
 	beta_p = beta_p_eff;
 
-	return [alpha_p,beta_p]
+	return [alpha_p,beta_p,alpha_i,beta_i,alpha_h,beta_h]
 
   }
 
@@ -409,18 +412,19 @@ E.g.: schedule_in=[ 1 ,2 ,3 ,4 ,5 ,8 ,9, 10, 11, 12, 15, 16, 17, 18, 19, 22, 23,
 
     f_p_pro = f_p_pro_in; // Assign proliferating fraction to the initial value
 
-    /* Cell distribution in each compartment
-    (1:Pv, 2:Pd, 3:Iv, 4:Id, 5:Hv, 6:Hd, 7:lysis) (V:viable, D:doomed)
-    Initially all compartments are fully filled with viable cells
-    "comp_size" is the size of each compartment (1:P, 2:I, 3:H) */
+	/* Cell distribution in each compartment
+	(1:Pv, 2:Pd, 3:Iv, 4:Id, 5:Hv, 6:Hd, 7:lysis) (V:viable, D:doomed)
+	Initially all compartments are fully filled with viable cells
+	"comp_size" is the size of each compartment (1:P, 2:I, 3:H) */
 
-    cell_dist[0] = comp_size[0];
-    cell_dist[1] = 0;
-    cell_dist[2] = comp_size[1];
-    cell_dist[3] = 0;
-    cell_dist[4] = comp_size[2];
-    cell_dist[5] = 0;
-    cell_dist[6] = 0;
+	cell_dist[0] = comp_size[0];
+	cell_dist[1] = 0;
+	cell_dist[2] = comp_size[1];
+	cell_dist[3] = 0;
+	cell_dist[4] = comp_size[2];
+	cell_dist[5] = 0;
+	cell_dist[6] = 0;
+
 
     /* variables (t:time(day), j:# of fraction, add_time:additional time for
               weekend break, cum_cell_dist: cumulative cell distribution for
@@ -433,7 +437,7 @@ E.g.: schedule_in=[ 1 ,2 ,3 ,4 ,5 ,8 ,9, 10, 11, 12, 15, 16, 17, 18, 19, 22, 23,
     while (t < t_start + (Math.max(...Treat_day) - 1) + delta_t / 2)
     {
 	  d = fx_in_arr[j];
-	  [alpha_p,beta_p] = calcEffAlphaBetaSurvFrac(d,alpha_s, Alpha_ratio_p_cyc, a_over_b)
+	  [alpha_p,beta_p,alpha_i,beta_i,alpha_h,beta_h] = calcEffAlphaBetaSurvFrac(d,Alpha_p_cyc)
 
       // Change in f_p_pro (k_p) as blood supply improves
       f_p_pro = 1 - 0.5 * (cell_dist[0] + cell_dist[1]) / comp_size[0];
