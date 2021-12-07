@@ -30,34 +30,8 @@ if ~exist('testFlag','var')
     testFlag = true;
 end
 
-%% Identify available structures in planC
-indexS = planC{end};
-allStrC = {planC{indexS.structures}.structureName};
-strNotAvailableV = ~ismember(lower(strListC),lower(allStrC)); %Case-insensitive
-labelV = 1:length(strListC);
-if any(strNotAvailableV) && ~testFlag
-    scanOutC = {};
-    maskOutC = {};
-    warning(['Skipping pt. Missing structures: ',strjoin(strListC(strNotAvailableV),',')]);
-    return
-end
-exportStrC = strListC(~strNotAvailableV);
 
-if ~isempty(exportStrC) || testFlag
-    
-    exportLabelV = labelV(~strNotAvailableV);
-    
-    %Get structure ID and assoc scan
-    strIdxC = cell(length(exportStrC),1);
-    for strNum = 1:length(exportStrC)
-        
-        currentLabelName = exportStrC{strNum};
-        strIdxC{strNum} = getMatchingIndex(currentLabelName,allStrC,'exact');
-        
-    end
-end
-
-%% Register scans (in progress)
+%% Register scans 
 if ~isempty(fieldnames(regS))
     identifierS = regS.baseScan.identifier;
     scanNumV(1) = getScanNumFromIdentifiers(identifierS,planC);
@@ -93,6 +67,29 @@ end
 optFlagV = strcmpi({scanOptS.required},'no');
 ignoreIdxV = optFlagV & isnan(scanNumV);
 scanNumV(ignoreIdxV) = [];
+
+%% Identify available structures in planC
+indexS = planC{end};
+allStrC = {planC{indexS.structures}.structureName};
+strNotAvailableV = ~ismember(lower(strListC),lower(allStrC)); %Case-insensitive
+labelV = 1:length(strListC);
+if any(strNotAvailableV) && ~testFlag
+    scanOutC = {};
+    maskOutC = {};
+    warning(['Skipping pt. Missing structures: ',strjoin(strListC(strNotAvailableV),',')]);
+    return
+end
+exportStrC = strListC(~strNotAvailableV);
+
+if ~isempty(exportStrC) || testFlag
+    exportLabelV = labelV(~strNotAvailableV);
+    %Get structure ID and assoc scan
+    strIdxC = cell(length(exportStrC),1);
+    for strNum = 1:length(exportStrC)
+        currentLabelName = exportStrC{strNum};
+        strIdxC{strNum} = getMatchingIndex(currentLabelName,allStrC,'exact');
+    end
+end
 
 %% Extract & preprocess data
 numScans = length(scanNumV);
