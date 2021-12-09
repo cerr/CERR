@@ -20,8 +20,10 @@ scanOptS = optS.scan;
 resampleS = [scanOptS.resample];
 resizeS = [scanOptS.resize];
 
-if isfield(optS,'structList')
-    strListC = optS.structList;
+if isfield(optS,'inputStrNameToLabelMap')
+    exportStrS = optS.inputStrNameToLabelMap;
+    strListC = {exportStrS.structureName};
+    labelV = [exportStrS.value];
 else
     strListC = {};
 end
@@ -72,7 +74,6 @@ scanNumV(ignoreIdxV) = [];
 indexS = planC{end};
 allStrC = {planC{indexS.structures}.structureName};
 strNotAvailableV = ~ismember(lower(strListC),lower(allStrC)); %Case-insensitive
-labelV = 1:length(strListC);
 if any(strNotAvailableV) && ~testFlag
     scanOutC = {};
     maskOutC = {};

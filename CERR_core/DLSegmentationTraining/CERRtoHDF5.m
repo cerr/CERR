@@ -27,11 +27,15 @@ dataSplitV = userOptS.dataSplit;
 prefixType = userOptS.exportedFilePrefix;
 scanOptS = userOptS.scan;
 passedScanDim = userOptS.passedScanDim;
-if isfield(userOptS,'structList')
-    strListC = userOptS.structList;
+if isfield(userOptS,'inputStrNameToLabelMap')
+    labelKeyS = userOptS.inputStrNameToLabelMap;
+    strListC = {labelKeyS.structureName};
+    labelV = [labelKeyS.value];
 else
     strListC = {};
+    labelKeyS = [];
 end
+
 
 %% Get data split
 [trainIdxV,valIdxV,testIdxV] = randSplitData(CERRdir,dataSplitV);
@@ -39,17 +43,6 @@ end
 
 %% Batch convert CERR to HDF5
 fprintf('\nConverting data to HDF5...\n');
-
-%Label key
-if ~isempty(strListC)
-    labelKeyS = struct();
-    for n = 1:length(strListC)
-        strListC{n} = strrep(strListC{n},'-','_');
-        labelKeyS.(strListC{n}) = n;
-    end
-else
-    labelKeyS = [];
-end
 
 %Open parallel pool
 p = gcp('nocreate');
@@ -90,7 +83,7 @@ parfor planNum = 1:length(dirS)
         end
         [scanC, maskC,~,~,planC] = extractAndPreprocessDataForDL(userOptS,planC,testFlag);
         
-        %Save ROI to planC if seelcted
+        %Save ROI to planC if selected
         if ~strcmp(userOptS.scan.crop.method,'none')
             if isfield(userOptS.scan.crop,'params')
                 parS = userOptS.scan.crop.params;
