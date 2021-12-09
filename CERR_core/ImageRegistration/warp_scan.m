@@ -261,5 +261,13 @@ switch upper(algorithm)
         end
         
         
+        %% Add associated base and moving scanUIDs
+        warpedScanNum = length(planC{indexS.scan});
+        planC{indexS.scan}(warpedScanNum).assocBaseScanUID = baseScanUID;
+        planC{indexS.scan}(warpedScanNum).assocMovingScanUID = movScanUID;
+        
+        
+        
+        
 end
 
