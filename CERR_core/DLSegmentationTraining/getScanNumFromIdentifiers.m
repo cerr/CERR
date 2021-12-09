@@ -15,6 +15,10 @@ numScan = length(planC{indexS.scan});
 
 %Read list of identifiers
 identifierC = fieldnames(idS);
+warpFlag = strcmpi(identifierC,'warped');
+if any(warpFlag)
+    identifierC(warpFlag) = [];
+end
 matchIdxV = true(1,numScan);
 
 %Loop over identifiers
@@ -80,7 +84,13 @@ for n = 1:length(identifierC)
     
 end
 
+
 %Return matching scan nos.
 scanNumV = find(matchIdxV);
+
+if isfield(idS,'warped') && idS.warped
+    scanNumV = getAssocWarpedScanNum(scanNumV,planC);
+end
+
 
 end

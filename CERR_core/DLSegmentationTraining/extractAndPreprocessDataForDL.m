@@ -34,10 +34,10 @@ end
 %% Register scans 
 if ~isempty(fieldnames(regS))
     identifierS = regS.baseScan.identifier;
-    scanNumV(1) = getScanNumFromIdentifiers(identifierS,planC);
+    regScanNumV(1) = getScanNumFromIdentifiers(identifierS,planC);
     identifierS = regS.movingScan.identifier;
     movScan = getScanNumFromIdentifiers(identifierS,planC);
-    scanNumV(2) = movScan;
+    regScanNumV(2) = movScan;
     if strcmp(regS.method,'none')
         %For pre-registered scans
         if isfield(regS,'copyStr')
@@ -45,22 +45,22 @@ if ~isempty(fieldnames(regS))
             for nStr = 1:length(copyStrsC)
                 cpyStrV = getMatchingIndex(copyStrsC{nStr},allStrC,'exact');
                 assocScanV = getStructureAssociatedScan(cpyStrV,planC);
-                cpyStr = cpyStrV(assocScanV==scanNumV(1));
+                cpyStr = cpyStrV(assocScanV==regScanNumV(1));
                 planC = copyStrToScan(cpyStr,movScan,planC);
             end
         end
     else
-        [planC,scanNumV] = registerScansForDLS(planC,scanNumV,...
+        planC = registerScansForDLS(planC,regScanNumV,...
             regS.method,regS);
     end
-else
-    %Get scan no. matching identifiers
-    if ~exist('scanNumV','var') || isempty(scanNumV)
-        scanNumV = nan(1,length(scanOptS));
-        for n = 1:length(scanOptS)
-            identifierS = scanOptS(n).identifier;
-            scanNumV(n) = getScanNumFromIdentifiers(identifierS,planC);
-        end
+end
+
+%% Get scan nos. matching identifiers
+if ~exist('scanNumV','var') || isempty(scanNumV)
+    scanNumV = nan(1,length(scanOptS));
+    for n = 1:length(scanOptS)
+        identifierS = scanOptS(n).identifier;
+        scanNumV(n) = getScanNumFromIdentifiers(identifierS,planC);
     end
 end
 % Ignore missing inputs if marked optional
