@@ -1,16 +1,16 @@
-function [planC,scanNumV] = registerScansForDLS(planC,scanNumV,...
+function planC = registerScansForDLS(planC,scanNumV,...
     algorithm,paramS)
 % registerScansForDLS.m
 % -----------------------------------------------------------------------
 % INPUTS
 % planC
 % scanNumV     : Scan nos of fixed and moving scans.
-                 %baseScanNum = scanNumV(1);
-                 %movScanNum = scanNumV(2:end);
-% algorithm    : Name of registration algorithm. See register_scans for 
-%                supported options. Alternatively, specify custom script 
+%baseScanNum = scanNumV(1);
+%movScanNum = scanNumV(2:end);
+% algorithm    : Name of registration algorithm. See register_scans for
+%                supported options. Alternatively, specify custom script
 %                registration function to be used.
-% paramS       : Dictionary of input paramters. 
+% paramS       : Dictionary of input paramters.
 %                Required- paramS.registration_tool: 'plastimatch','elastix',
 %                          'ants', or 'custom'.
 %                Optional- See register_scans.m for supported inputs.
@@ -26,7 +26,7 @@ switch(lower(registrationTool))
     
     case 'custom'
         
-        [planC, deformS, scanNumV] = feval(algorithm,planC,baseScanNum,...
+        planC = feval(algorithm,planC,baseScanNum,...
             movScanNum,paramS);
         
     case {'plastimatch','elastix','ants'}
@@ -37,7 +37,13 @@ switch(lower(registrationTool))
             'inputCmdFile','inBspFile','outBspFile'};
         for nArg = 1:length(optArgC)
             if isfield(paramS,optArgC{nArg})
-                argC{nArg} = paramS.(optArgC{nArg});
+                if strcmpi(optArgC{nArg},'inputCmdFile')
+                    regCmdPath = fullfile(getCERRPath,'ImageRegistration',...
+                        'plastimatch_command');
+                    argC{nArg} = fullfile(regCmdPath,paramS.(optArgC{nArg}));
+                else
+                    argC{nArg} = paramS.(optArgC{nArg});
+                end
             end
         end
         
@@ -52,11 +58,10 @@ switch(lower(registrationTool))
         regScanNum = length(planC{indexS.scan});
         planC{indexS.scan}(regScanNum).scanType = ['Reg_scan',...
             num2str(movScanNum)];
-        scanNumV = [baseScanNum,regScanNum];
+        %scanNumV = [baseScanNum,regScanNum];
         
+        %Warp selected structures
         if isfield(paramS,'copyStr')
-            
-            %Warp selected structures
             copyStrC = paramS.copyStr;
             movStrV = [];
             strC = {planC{indexS.structures}.structureName};
@@ -66,7 +71,6 @@ switch(lower(registrationTool))
             end
             planC = warp_structures(deformS,regScanNum,movStrV,planC,...
                 planC,tmpCmdDir,0);
-           
         end
         
         
@@ -76,5 +80,19 @@ switch(lower(registrationTool))
             '''plastimatch'',''elastix'',''ants'', or ''custom'''],...
             registrationTool);
         
-        
+end
+
+%Rename warped structures
+% if isfield(paramS,'copyStr')
+%     copyStrC = paramS.copyStr;
+%     numStrs = length(planC{indexS.structures});
+%     numCopy = length(copyStrC);
+%     for nStr = 1:length(copyStrC)
+%         strIdx = numStrs-nStr+1;
+%         planC{indexS.structures}(strIdx).structureName =...
+%             copyStrC{numCopy-nStr+1};
+%     end
+% end
+
+
 end
