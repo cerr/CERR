@@ -129,9 +129,11 @@ stdPval = NaN(numVoxels,1);
 hrV = NaN(numVoxels,1);
 stdHrV = NaN(numVoxels,1);
 
-survAbovMonthCutoffV = overalSurvMonthsV > 18;
-overalSurvMonthsV(survAbovMonthCutoffV) = 18;
-survStatusV(survAbovMonthCutoffV) = 0; %alive
+% % Censor at 18 months
+% survAbovMonthCutoffV = overalSurvMonthsV > 18;
+% overalSurvMonthsV(survAbovMonthCutoffV) = 18;
+% survStatusV(survAbovMonthCutoffV) = 0; %alive
+
 censoredV = survStatusV == 1; % this is flipped in call to coxphfit to censor observations that are alive
 indToUseV = diceV > 0.75;
 
