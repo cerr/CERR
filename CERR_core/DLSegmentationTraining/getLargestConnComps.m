@@ -16,8 +16,11 @@ function [maskOut3M, planC] = getLargestConnComps(strNum,numConnComponents,planC
 % ------------------------------------------------------------------------
 % AI 10/14/19
 
-
-[mask3M,planC] = getStrMask(strNum,planC);
+if numel(strNum) == 1
+    [mask3M,planC] = getStrMask(strNum,planC);
+else
+    mask3M = strNum;
+end
 
 if sum(mask3M(:))>1
     cc = bwconncomp(mask3M,26);

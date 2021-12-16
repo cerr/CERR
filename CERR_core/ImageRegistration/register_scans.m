@@ -244,7 +244,7 @@ if plmFlag
     
     %Return xform coefficients
     
-    algorithmParamsS = readPlastimatchCoeffs(xformFileNameBase);
+    algorithmParamsS = readPlastimatchCoeffs(xformFileNameBase,algorithm);
     
     deformS.algorithmParamsS = algorithmParamsS;
     
@@ -436,6 +436,12 @@ if antsFlag
             end
     end
 end
+
+%% Add associated base and moving scanUIDs
+warpedScanNum = length(basePlanC{indexS.scan});
+basePlanC{indexS.scan}(warpedScanNum).assocBaseScanUID = baseScanUID;
+basePlanC{indexS.scan}(warpedScanNum).assocMovingScanUID = movScanUID;
+
     
 end
 % 

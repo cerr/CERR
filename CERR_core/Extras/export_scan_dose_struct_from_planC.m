@@ -25,14 +25,14 @@ maskFileNameC = {};
 % scan
 for iScan = 1:length(scanNumV)
     scanNum = scanNumV(iScan);
-    scanFileNameC = scan2imageOut(planC,scanNumV,outdDir,reorientFlag,exportFormat,dataType);
+    scanFileNameC = scan2imageOut(planC,scanNum,outdDir,reorientFlag,exportFormat,dataType);
 end
 
 % dose
 for iDose = 1:length(doseNumV)
     doseNum = doseNumV(iDose);
     scanNum = getDoseAssociatedScan(doseNum,planC);
-    doseFileNameC = dose2imageOut(planC, doseNumV, scanNum, outdDir,reorientFlag,exportFormat);
+    doseFileNameC = dose2imageOut(planC, doseNum, scanNum, outdDir,reorientFlag,exportFormat);
 end
 
 % structure

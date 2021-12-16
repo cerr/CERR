@@ -80,7 +80,7 @@
                 },
 
 		"glrlm": {
-			    	  "featureList": ["RLN"]
+			    	  "featureList": ["runLengthNonUniformity"]
                                  
 		         },
 

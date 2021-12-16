@@ -38,7 +38,7 @@ function doseM = getDoseOnCT(doseNum, scanNum, scanType, planC, slicesV)
 % You should have received a copy of the GNU General Public License
 % along with CERR.  If not, see <http://www.gnu.org/licenses/>.
 
-if ~exist('scanType')
+if ~exist('scanType','var')
     scanType = 'normal';
 end
 
@@ -46,7 +46,7 @@ if ~strcmpi(scanType, 'normal') && ~strcmpi(scanType, 'uniform')
     error('Incorrect scanType.');
 end
 
-if ~exist('planC')
+if ~exist('planC','var')
     global planC
 end
 indexS = planC{end};

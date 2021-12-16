@@ -265,9 +265,17 @@ switch(lower(method))
                     idx21 = 1 + (paddedSize - scanSize(2))/2;
                     idx22 = idx21 + scanSize(2) - 1;
                     padded3M(idx11:idx12,idx21:idx22,:) = scan3M;
-                    scanOut3M = imresize(padded3M, outputImgSizeV, methodName);
+                    scanOut3M = nan([outputImgSizeV,size(scan3M,3)]);
+                    for nSlc = 1:size(padded3M,3)
+                        scanOut3M(:,:,nSlc) = imresize(squeeze(padded3M(:,:,nSlc)),...
+                            outputImgSizeV, methodName);
+                    end
                 else
-                    scanOut3M = imresize(scan3M, outputImgSizeV, methodName);
+                    scanOut3M = nan([outputImgSizeV,size(scan3M,3)]);
+                    for nSlc = 1:size(scan3M,3)
+                        scanOut3M(:,:,nSlc) = imresize(squeeze(scan3M(:,:,nSlc)),...
+                            outputImgSizeV, methodName);
+                    end
                 end
             else %2-D cropping and resizing
                 scanOut3M = nan([outputImgSizeV,origSizV(3)]);
@@ -318,8 +326,12 @@ switch(lower(method))
 %                 slcV = limitsM(6) - limitsM(5) + 1;                
                 if preserveAspectFlag  %%add case for non-square outputImgSizeV?
                     paddedSize = max(cropDim(1:2))*[1, 1];
-                    maskResize3M = imresize(mask3M, [paddedSize size(mask3M,3)], 'nearest');
-%                     padded3M = bgMean * ones(paddedSize,paddedSize,size(scan3M,3));
+                    maskResize3M = zeros([paddedSize,size(mask3M,3)]);
+                    for nSlc = 1:size(mask3M,3)
+                        maskResize3M(:,:,nSlc) = imresize(squeeze(...
+                            mask3M(:,:,nslc)),paddedSize, 'nearest');
+                    end
+                    %padded3M = bgMean * ones(paddedSize,paddedSize,size(scan3M,3));
                     idx11 = 1 + (paddedSize - cropDim(1))/2;
                     idx12 = idx11 + cropDim(1) - 1;
                     idx21 = 1 + (paddedSize - cropDim(2))/2;
@@ -329,7 +341,11 @@ switch(lower(method))
 %                     maskOut3M(minr:maxr,minc:maxc,:) = maskResize3M(idx11:idx12,idx21:idx11,:);
                     maskOut3M = maskResize3M(idx11:idx12,idx21:idx11,:);
                 else
-                    maskOut3M = imresize(mask3M, [outputImgSizeV(1:2) origSizV(3)], 'nearest');
+                    maskOut3M = zeros([outputImgSizeV,size(mask3M,3)]);
+                    for nSlc = 1:size(mask3M,3)
+                        maskOut3M(:,:,nSlc) = imresize(squeeze(...
+                            mask3M(:,:,nSlc)),outputImgSizeV, 'nearest');
+                    end
                 end
             else %2-D cropping and resizing
                 maskOut3M = zeros([outputImgSizeV(1:2),origSizV(3)]);

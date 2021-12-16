@@ -14,8 +14,8 @@ var selectedDates = [];
 var years = [];
 
 // parameters to be set for the datepicker to run accordingly
-var minYear = 2011;
-var maxYear = 2020;
+var minYear = 2000;
+var maxYear = 2030;
 var startMonth = 0;
 var endMonth = 11;
 var highlightToday = true;
@@ -206,7 +206,7 @@ function addMonths(selectedMonth) {
 }
 
 // adds the years to the selection dropdown
-// by default it is from 1990 to 2030
+// by default it is from 2000 to 2030
 function addYears(selectedYear) {
 
     if (years.length > 0) {
@@ -230,6 +230,12 @@ resetCalendar = function resetCalendar() {
             $(this).removeClass(highlightClass);
         });
     });
+    let fxDiv = document.getElementById("fxSizeDIV");
+    let table = fxDiv.querySelector("table");
+	if (table != null) {
+		table.remove()
+	}
+
 };
 
 function datesToString(dates) {
@@ -238,6 +244,12 @@ function datesToString(dates) {
 
 function endSelection() {
     $('#txdayparent').hide();
+    let fxDiv = document.getElementById("fxSizeDIV");
+	let table = fxDiv.querySelector("table");
+	if (table != null) {
+		table.remove()
+	}
+    createFxSizeTableFromDates()
 }
 
 

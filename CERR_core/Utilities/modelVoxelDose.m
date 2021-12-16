@@ -128,7 +128,11 @@ pValV = NaN(numVoxels,1);
 stdPval = NaN(numVoxels,1);
 hrV = NaN(numVoxels,1);
 stdHrV = NaN(numVoxels,1);
-censoredV = survStatusV == 1;
+
+survAbovMonthCutoffV = overalSurvMonthsV > 18;
+overalSurvMonthsV(survAbovMonthCutoffV) = 18;
+survStatusV(survAbovMonthCutoffV) = 0; %alive
+censoredV = survStatusV == 1; % this is flipped in call to coxphfit to censor observations that are alive
 indToUseV = diceV > 0.75;
 
 % Reserve 30% of data for validation
@@ -139,7 +143,7 @@ indTrainV = indToUseV & cv.training;
 indTestV = indToUseV & cv.test;
 
 % Bootstrap the training set
-numBoots = 10; %10
+numBoots = 100; %10
 numTraining = sum(indTrainV);
 trainIndV = find(indTrainV);
 indBootM = false([numTraining,numBoots]);
@@ -155,7 +159,7 @@ tic
 pValM = zeros(numVoxels,numBoots);
 hrM =  zeros(numVoxels,numBoots);
 
-parfor iBoot = 1:numBoots    
+parfor iBoot = 1:numBoots    %parfor
     
     disp(['====== Bootstrap # ',num2str(iBoot)])
     
@@ -202,22 +206,63 @@ regParamsS.coord2OFFirstPoint =  yValsV(rMin);
 regParamsS.zValues = zValsV(sMin:sMax);
 assocScanUID = planC{indexS.scan}(1).scanUID;
 
-for iBoot = 1:numBoots
-    % Initialize dose matrix to store voxel-wise p-values
-    dose3M = NaN(size(croppedStr3M));
-    % dose3M(str3M(:)) = -log10(pValV);
-    dose3M(croppedStr3M(:)) = pValM(:,iBoot);
-    
-    hazRat3M = NaN(size(croppedStr3M));
-    hazRat3M(croppedStr3M(:)) = exp(hrM(:,iBoot));
-    
-    planC = dose2CERR(dose3M,[],...
-        ['p_boot_',num2str(iBoot)],[],[],'non-CT',regParamsS,'no',...
-        assocScanUID,planC);
-    planC = dose2CERR(hazRat3M,[],...
-        ['Hazard Ratio_',num2str(iBoot)],[],[],'non-CT',regParamsS,'no',...
-        assocScanUID,planC);
+expHrM = exp(hrM);
+hV = zeros(numVoxels,1);
+pV = zeros(numVoxels,1);
+ciM = zeros(numVoxels,2);
+for i = 1:size(expHrM,1)
+    [hV(i) , pV(i) , ciM(i,:)] = ttest(expHrM(i,:),1.02,'Alpha',0.01,'Tail','right');
 end
+
+val3M = NaN(size(croppedStr3M));
+val3M(croppedStr3M(:)) = hV;
+planC = dose2CERR(val3M,[],...
+    'Hazard>1.02',[],[],'non-CT',regParamsS,'no',...
+    assocScanUID,planC);
+
+val3M = NaN(size(croppedStr3M));
+val3M(croppedStr3M(:)) = pV;
+planC = dose2CERR(val3M,[],...
+    'p-value_1.02',[],[],'non-CT',regParamsS,'no',...
+    assocScanUID,planC);
+
+val3M = NaN(size(croppedStr3M));
+val3M(croppedStr3M(:)) = ciM(:,1);
+planC = dose2CERR(val3M,[],...
+    'CI_lower_lim',[],[],'non-CT',regParamsS,'no',...
+    assocScanUID,planC);
+
+val3M = NaN(size(croppedStr3M));
+val3M(croppedStr3M(:)) = ciM(:,2);
+planC = dose2CERR(val3M,[],...
+    'CI_upper_lim',[],[],'non-CT',regParamsS,'no',...
+    assocScanUID,planC);
+
+val3M = NaN(size(croppedStr3M));
+val3M(croppedStr3M(:)) = median(expHrM,2);
+planC = dose2CERR(val3M,[],...
+    'Median Hazard',[],[],'non-CT',regParamsS,'no',...
+    assocScanUID,planC);
+
+% =========== Write individual bootstrap samples to planC
+% for iBoot = 1:numBoots
+%     % Initialize dose matrix to store voxel-wise p-values
+%     dose3M = NaN(size(croppedStr3M));
+%     % dose3M(str3M(:)) = -log10(pValV);
+%     dose3M(croppedStr3M(:)) = pValM(:,iBoot);
+%     
+%     hazRat3M = NaN(size(croppedStr3M));
+%     hazRat3M(croppedStr3M(:)) = exp(hrM(:,iBoot));
+%     
+%     planC = dose2CERR(dose3M,[],...
+%         ['p_boot_',num2str(iBoot)],[],[],'non-CT',regParamsS,'no',...
+%         assocScanUID,planC);
+%     planC = dose2CERR(hazRat3M,[],...
+%         ['Hazard Ratio_',num2str(iBoot)],[],[],'non-CT',regParamsS,'no',...
+%         assocScanUID,planC);
+% end
+
+
 
 % planC = dose2CERR(dose3M,[], 'p_10_boot_avg','test','test','UniformCT',...
 %     regParamsS,'no',assocScanUID,planC);
