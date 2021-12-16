@@ -82,7 +82,7 @@ if any(strNotAvailableV) && ~testFlag
 end
 exportStrC = strListC(~strNotAvailableV);
 
-if ~isempty(exportStrC) || testFlag
+if ~isempty(exportStrC) || ~testFlag
     exportLabelV = labelV(~strNotAvailableV);
     %Get structure ID and assoc scan
     strIdxC = cell(length(exportStrC),1);

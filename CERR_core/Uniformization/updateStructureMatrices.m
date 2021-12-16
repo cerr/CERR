@@ -98,7 +98,8 @@ end
 
 %Clear old data for this structure.  If sliceNumsV is specified clear
 %only those slices, otherwise clear all slices.
-if exist('sliceNumsV') && ((cellNum == 1) || (cellNum-1 <= length(planC{indexS.structureArrayMore}(scanNum).indicesArray)))
+if exist('sliceNumsV','var') && ((cellNum == 1) || ...
+        (cellNum-1 <= length(planC{indexS.structureArrayMore}(scanNum).indicesArray)))
     if isempty(planC{indexS.structureArray}(scanNum).indicesArray)
         optS = planC{indexS.CERROptions};
         [indicesM, structBitsM, indicesC, structBitsC] = createStructuresMatrices(planC, scanNum, 1/2, 1, optS);
@@ -107,13 +108,17 @@ if exist('sliceNumsV') && ((cellNum == 1) || (cellNum-1 <= length(planC{indexS.s
     if cellNum == 1
         tf = ismember(planC{indexS.structureArray}(scanNum).indicesArray(:,3), sliceNumsV);
         if totalStructsInScan > 32
-            planC{indexS.structureArray}(scanNum).bitsArray(tf) = bitset(double(planC{indexS.structureArray}(scanNum).bitsArray(tf)), relStructNum, 0);
+            planC{indexS.structureArray}(scanNum).bitsArray(tf) = ...
+                bitset(double(planC{indexS.structureArray}(scanNum).bitsArray(tf)), relStructNum, 0);
         elseif totalStructsInScan > 16
-            planC{indexS.structureArray}(scanNum).bitsArray(tf) = bitset(uint32(planC{indexS.structureArray}(scanNum).bitsArray(tf)), relStructNum, 0);
+            planC{indexS.structureArray}(scanNum).bitsArray(tf) = ...
+                bitset(uint32(planC{indexS.structureArray}(scanNum).bitsArray(tf)), relStructNum, 0);
         elseif totalStructsInScan > 8
-            planC{indexS.structureArray}(scanNum).bitsArray(tf) = bitset(uint16(planC{indexS.structureArray}(scanNum).bitsArray(tf)), relStructNum, 0);
+            planC{indexS.structureArray}(scanNum).bitsArray(tf) = ...
+                bitset(uint16(planC{indexS.structureArray}(scanNum).bitsArray(tf)), relStructNum, 0);
         else
-            planC{indexS.structureArray}(scanNum).bitsArray(tf) = bitset(uint8(planC{indexS.structureArray}(scanNum).bitsArray(tf)), relStructNum, 0);
+            planC{indexS.structureArray}(scanNum).bitsArray(tf) = ...
+                bitset(uint8(planC{indexS.structureArray}(scanNum).bitsArray(tf)), relStructNum, 0);
         end
     else
         tf = ismember(planC{indexS.structureArrayMore}(scanNum).indicesArray{cellNum-1}(:,3), sliceNumsV);
@@ -121,32 +126,38 @@ if exist('sliceNumsV') && ((cellNum == 1) || (cellNum-1 <= length(planC{indexS.s
     end
 elseif (cellNum == 1)
         if totalStructsInScan > 32
-            planC{indexS.structureArray}(scanNum).bitsArray = bitset(double(planC{indexS.structureArray}(scanNum).bitsArray), relStructNum, 0);
+            planC{indexS.structureArray}(scanNum).bitsArray = ...
+                bitset(double(planC{indexS.structureArray}(scanNum).bitsArray), relStructNum, 0);
         elseif totalStructsInScan > 16
-            planC{indexS.structureArray}(scanNum).bitsArray = bitset(uint32(planC{indexS.structureArray}(scanNum).bitsArray), relStructNum, 0);
+            planC{indexS.structureArray}(scanNum).bitsArray = ...
+                bitset(uint32(planC{indexS.structureArray}(scanNum).bitsArray), relStructNum, 0);
         elseif totalStructsInScan > 8
-            planC{indexS.structureArray}(scanNum).bitsArray = bitset(uint16(planC{indexS.structureArray}(scanNum).bitsArray), relStructNum, 0);
+            planC{indexS.structureArray}(scanNum).bitsArray = ...
+                bitset(uint16(planC{indexS.structureArray}(scanNum).bitsArray), relStructNum, 0);
         else
-            planC{indexS.structureArray}(scanNum).bitsArray = bitset(uint8(planC{indexS.structureArray}(scanNum).bitsArray), relStructNum, 0);
+            planC{indexS.structureArray}(scanNum).bitsArray = ...
+                bitset(uint8(planC{indexS.structureArray}(scanNum).bitsArray), relStructNum, 0);
         end    
 elseif (cellNum-1 <= length(planC{indexS.structureArrayMore}(scanNum).indicesArray))
-    planC{indexS.structureArrayMore}(scanNum).bitsArray{cellNum-1} = bitset(uint8(planC{indexS.structureArrayMore}(scanNum).bitsArray{cellNum-1}), relStructNum - 52 - 8*(cellNum-2), 0);
+    planC{indexS.structureArrayMore}(scanNum).bitsArray{cellNum-1} = ...
+        bitset(uint8(planC{indexS.structureArrayMore}(scanNum).bitsArray{cellNum-1}), relStructNum - 52 - 8*(cellNum-2), 0);
 end
 
 %Now we need to generate the indicesM entries for the modified structure
 k = 0;
 if ~isempty(allSegmentsM)
-    %wb = waitbar(0, ['Saving updated data for ' planC{indexS.structures}(editStructNum).structureName '...']);
+    % wb = waitbar(0, ['Saving updated data for ' planC{indexS.structures}(editStructNum).structureName '...']);
+    disp(['Saving updated data for ' planC{indexS.structures}(editStructNum).structureName '...'])
 
     %If no predefined slice numbers were passed in...
-    if ~exist('sliceNumsV')
+    if ~exist('sliceNumsV','var')
         %Only use slice numbers bookending the raster segments' Zs
         minRasterZ = min(allSegmentsM(:,1));
         maxRasterZ = max(allSegmentsM(:,1));
 
         %Add a one slice buffer to cover all relevant uni. slices.
-        minRasterZ = zVs(max(max(find(zVs <= minRasterZ)) - 1, 1));
-        maxRasterZ = zVs(min(min(find(zVs >= maxRasterZ)) + 1, length(zVs)));
+        minRasterZ = zVs(max(find(zVs <= minRasterZ, 1, 'last' ) - 1, 1));
+        maxRasterZ = zVs(min(find(zVs >= maxRasterZ, 1 ) + 1, length(zVs)));
 
         %1 and length(zV) are included to prevent boundary errors.
         minUniSlice = max([find(zV < minRasterZ) 1]);
@@ -172,9 +183,13 @@ if ~isempty(allSegmentsM)
         k = k+1;
         beginningEntry = entry;
         %waitbar(k/length(sliceNumsV), wb);
-        structSlc = findStructureMatrixForOneZSlice(allSegmentsM, zSliceUniformValue, CTOriginalZValues, CTSliceThickness, CTdeltaX, CTdeltaY, reusableZerosM);
+        structSlc = findStructureMatrixForOneZSlice(allSegmentsM, ...
+            zSliceUniformValue, CTOriginalZValues, CTSliceThickness, ...
+            CTdeltaX, CTdeltaY, reusableZerosM);
 
-        if ((cellNum == 1) && (isempty(planC{indexS.structureArray}(scanNum).indicesArray))) || ((cellNum > 1) && (cellNum-1 > length(planC{indexS.structureArrayMore}(scanNum).indicesArray)))
+        if ((cellNum == 1) && ...
+                (isempty(planC{indexS.structureArray}(scanNum).indicesArray))) || ...
+                ((cellNum > 1) && (cellNum-1 > length(planC{indexS.structureArrayMore}(scanNum).indicesArray)))
             newCellFlag = 1;
         end
         if newCellFlag %cellNum > length(planC{indexS.structureArray}(scanNum).indicesArray)
@@ -261,7 +276,7 @@ if ~isempty(allSegmentsM)
     end
 end
 
-%if exist('wb')
+%if exist('wb','var')
 %    close(wb);
 %end
 return
@@ -317,7 +332,7 @@ iM  = double(indicesM(ind,1)) + (double(indicesM(ind,2))-1)*multiM(1) + (double(
 
 [c, i] = setdiff(mDP, c);
 newValueIndicies = i;
-numNewIndicies = length(i);
+%numNewIndicies = length(i);
 
 %Add these new points.
 indicesM = [indicesM;myDataPoints(newValueIndicies, :)];

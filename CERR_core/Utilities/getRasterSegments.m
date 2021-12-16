@@ -54,7 +54,7 @@ try
     indexS = planC{end};
     allStructureNames = {planC{indexS.structures}.structureName};
 catch
-    isError = errorEncounter(['Invalid planC.'], showWarnings);
+    isError = errorEncounter('Invalid planC.', showWarnings);
     return;
 end 
 
@@ -69,13 +69,13 @@ if ischar(structureIDv)
 %Check that numeric ID is in range, and only one value is asked for.
 elseif isnumeric(structureIDv)
     numStructures = length(planC{indexS.structures});
-    if any(structureIDv > numStructures) | any(structureIDv <= 0) %| length(structureID) > 1
-        isError = errorEncounter(['Numeric structureID is out of range.'], showWarnings);
+    if any(structureIDv > numStructures) || any(structureIDv <= 0) %| length(structureID) > 1
+        isError = errorEncounter('Numeric structureID is out of range.', showWarnings);
         return;
     end
 %Not a number, not a string.  Invalid ID.
 else
-    isError = errorEncounter(['Invalid structureID.'], showWarnings);
+    isError = errorEncounter('Invalid structureID.', showWarnings);
     return;
 end    
 
@@ -106,7 +106,7 @@ if isfield(planC{indexS.structures}, 'rasterSegments')
     if nargin == 3
         sliceNum = varargin{1};
         if ~isempty(rasterSegments)
-            rasterSegments = rasterSegments(find(rasterSegments(:,6) == sliceNum),:);
+            rasterSegments = rasterSegments(rasterSegments(:,6) == sliceNum,:);
         end
     end
 else
