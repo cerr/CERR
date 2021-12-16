@@ -147,10 +147,13 @@ if length(algorithmC) > 1 || ...
         for nScan = 1:length(scanOptS)
             
             %Append identifiers to o/p name
+            idOut = filePrefixForHDF5;
             idS = scanOptS(nScan).identifier;
-            idListC = cellfun(@(x)(idS.(x)),fieldnames(idS),'un',0);
-            appendStr = strjoin(idListC,'_');
-            idOut = [filePrefixForHDF5,'_',appendStr];
+            if ~isempty(idS)
+                idListC = cellfun(@(x)(idS.(x)),fieldnames(idS),'un',0);
+                appendStr = strjoin(idListC,'_');
+                idOut = [idOut,'_',appendStr];
+            end
             
             %Get o/p dirs and dim
             outDirC = getOutputH5Dir(modInputPath,scanOptS(nScan),'');
@@ -191,10 +194,10 @@ if length(algorithmC) > 1 || ...
         
         %Import masks to planC
         identifierS = userOptS.structAssocScan.identifier;
-        if ~isempty(fieldnames(userOptS.structAssocScan.identifier))
+        if ~isempty(userOptS.structAssocScan.identifier)
             origScanNum = getScanNumFromIdentifiers(identifierS,planC);
         else
-            origScanNum = 1; %Assoc with first scan by default
+            origScanNum = 1; %Assoc with the "only" scan by default
         end
         outScanNum = scanNumV(origScanNum);
         userOptS.scan(outScanNum) = userOptS(origScanNum).scan;

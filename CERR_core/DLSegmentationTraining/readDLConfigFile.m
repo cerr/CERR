@@ -28,7 +28,9 @@ defaultS.exportedFilePrefix = 'inputFileName';
 defaultS.batchSize = 1;
 defaultS.postProc = [];
 defaultS.passedScanDim = '3D';
-idS.identifier = struct('warped',0);
+warpedS = struct('warped',0);
+warpedS(:) = [];
+idS.identifier = warpedS;
 defaultS.structAssocScan = idS; 
 defaultS.scan = struct('identifier',idS.identifier,'required','yes',...
     'resample',struct(),'crop',struct(),'resize',struct(),...

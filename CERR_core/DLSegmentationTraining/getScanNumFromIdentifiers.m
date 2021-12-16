@@ -88,7 +88,7 @@ end
 %Return matching scan nos.
 scanNumV = find(matchIdxV);
 
-if isfield(idS,'warped') && idS.warped
+if isfield(idS,'warped') && ~isempty(idS) && idS.warped
     scanNumV = getAssocWarpedScanNum(scanNumV,planC);
 end
 
