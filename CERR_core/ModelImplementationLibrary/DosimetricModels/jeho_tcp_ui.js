@@ -1,3 +1,78 @@
+function applyUniformFxSize() {
+	let fxDiv = document.getElementById("fxSizeDIV");
+	let table = fxDiv.querySelector("table");
+	var fxsize = document.getElementById("fxsiz").value;
+	for (var i = 1; i <= table.getElementsByTagName("tr").length-1; i++) {
+		//table.rows[i].cells[1].innerHTML = '<input type="number" value="' +  fxsize + '">';
+		table.rows[i].cells[1].getElementsByTagName("input")[0].value = fxsize
+	}
+}
+
+function toggleFxSelectionDiv() {
+	let fxDiv = document.getElementById("fxSizeDIV");
+	if (fxDiv.style.display === "none") {
+	  fxDiv.style.display = "block";
+	} else {
+	  fxDiv.style.display = "none";
+	}
+}
+
+
+function createFxSizeTableFromDates() {
+  var datevals = document.getElementById("txday").value;
+  var txDatesV = datevals.split(",");
+  var txDates = []
+  for (var i = 0; i <= txDatesV.length-1; i++) {
+      //var currDate = new Date(txDatesV[i])
+      var dateDict = {}
+      var fxEditbox = document.createElement("input");
+      fxEditbox.setAttribute("type", "number");
+      fxEditbox.setAttribute("value", "");
+      dateDict["day"] = txDatesV[i];
+      dateDict["Fx size"] = fxEditbox;
+	  //txDaysV[i] = (currDate.getTime()-refDate.getTime())/ dayFactor + 1
+	  txDates.push(dateDict);
+  }
+  let fxDiv = document.getElementById("fxSizeDIV");
+  let table = fxDiv.querySelector("table");
+  if (table == null) {
+	  table = document.createElement("table")
+	  fxDiv.append(table);
+      let data = Object.keys(txDates[0]);
+      generateFxSizeTableHead(table, data);
+      generateFxSizeTable(table, txDates);
+  }
+
+}
+
+function generateFxSizeTableHead(table, data) {
+  let thead = table.createTHead();
+  let row = thead.insertRow();
+  for (let key of data) {
+    let th = document.createElement("th");
+    let text = document.createTextNode(key);
+    th.appendChild(text);
+    row.appendChild(th);
+  }
+}
+
+function generateFxSizeTable(table, data) {
+  for (let element of data) {
+    let row = table.insertRow();
+    for (key in element) {
+      let cell = row.insertCell();
+      if (typeof(element["Fx size"]) == "object"){
+		  cell.append(element[key]);
+		  }
+      else {
+          let text = document.createTextNode(element[key]);
+          cell.appendChild(element[key]);
+      }
+    }
+  }
+}
+
+
 function plotTcpCurve(){
 	/* This function plots the EQD2 vs TCP curve.
 	APA, 11/22/2020
@@ -90,9 +165,20 @@ var layout = {
 
 function calculateTCP(){
 	/*
-	This function calculates PCP for the input fractionation and \shows the marker on TCP curve
+	This function calculates TCP for the input fractionation and shows the marker on TCP curve
 	APA, 11/22/2020
 	*/
+	let fxDiv = document.getElementById("fxSizeDIV");
+	let table = fxDiv.querySelector("table");
+    //var fxsize = document.getElementById("fxsiz").value;
+    fxValuesV = [];
+	for (var i = 1; i <= table.getElementsByTagName("tr").length-1; i++) {
+		//table.rows[i].cells[1].innerHTML = '<input type="number" value="' +  fxsize + '">';
+		d = parseFloat(table.rows[i].cells[1].getElementsByTagName("input")[0].value);
+		fxValuesV.push(d);
+	}
+
+
 	var fxsize = document.getElementById("fxsiz").value;
 	var datevals = document.getElementById("txday").value;
 	// var res = val1 + val2;
@@ -105,7 +191,8 @@ function calculateTCP(){
 	   var currDate = new Date(txDatesV[i])
 	   txDaysV[i] = (currDate.getTime()-refDate.getTime())/ dayFactor + 1
    }
-	tcp = Lung_TCP_Jeho(fxsize,txDaysV)
+	//tcp = Lung_TCP_Jeho(fxsize,txDaysV)
+	tcp = Lung_TCP_Jeho(fxValuesV,txDaysV)
     //document.getElementById("tcp").innerHTML = "TCP = " + tcp[1];
     var data_update =  {
 		x: [[tcp[0]]],
@@ -249,21 +336,9 @@ E.g.: schedule_in=[ 1 ,2 ,3 ,4 ,5 ,8 ,9, 10, 11, 12, 15, 16, 17, 18, 19, 22, 23,
 
 
   var Treat_day, alpha_p, beta_p, alpha_i, beta_i, alpha_h, beta_h, f_p_pro, alpha_s, grid, pre_f;
+
   alpha_s = 0.3;
   grid = 0.1;
-  pre_f = f(alpha_s, alpha_p, Alpha_ratio_p_cyc);
-
-  while (Math.abs(f(alpha_s, alpha_p, Alpha_ratio_p_cyc)) >= Number.EPSILON) {
-    if (pre_f * f(alpha_s, alpha_p, Alpha_ratio_p_cyc) < 0) {
-      grid = grid * 0.1;
-    }
-    pre_f = f(alpha_s, alpha_p, Alpha_ratio_p_cyc);
-    if (f(alpha_s, alpha_p, Alpha_ratio_p_cyc) > 0) {
-      alpha_s = alpha_s + grid;
-    } else {
-      alpha_s = alpha_s - grid;
-    }
-  }
 
   var d, n, len;
   var fx_in_arr = [];
@@ -281,54 +356,75 @@ E.g.: schedule_in=[ 1 ,2 ,3 ,4 ,5 ,8 ,9, 10, 11, 12, 15, 16, 17, 18, 19, 22, 23,
   var cell_dist = [];
   var Alpha_p_cyc = [0, 0, 0];
 
-  for (n = 0; n < len; n++) {
+  pre_f = f(alpha_s, alpha_p, Alpha_ratio_p_cyc);
 
-    d = fx_in_arr[n];
-    Treat_day = schedule_in;
+  while (Math.abs(f(alpha_s, alpha_p, Alpha_ratio_p_cyc)) >= Number.EPSILON) {
+    if (pre_f * f(alpha_s, alpha_p, Alpha_ratio_p_cyc) < 0) {
+      grid = grid * 0.1;
+    }
+    pre_f = f(alpha_s, alpha_p, Alpha_ratio_p_cyc);
+    if (f(alpha_s, alpha_p, Alpha_ratio_p_cyc) > 0) {
+      alpha_s = alpha_s + grid;
+    } else {
+      alpha_s = alpha_s - grid;
+    }
+  }
+  // Cell cycle and dose-dependent radiosensitivity
+  Alpha_p_cyc[1] = alpha_s;
+  Alpha_p_cyc[0] = Alpha_p_cyc[1] * Alpha_ratio_p_cyc[0];
+  Alpha_p_cyc[2] = Alpha_p_cyc[1] * Alpha_ratio_p_cyc[1];
 
-    // Cell cycle and dose-dependent radiosensitivity
-    Alpha_p_cyc[1] = alpha_s;
-    Alpha_p_cyc[0] = Alpha_p_cyc[1] * Alpha_ratio_p_cyc[0];
-    Alpha_p_cyc[2] = Alpha_p_cyc[1] * Alpha_ratio_p_cyc[1];
 
-    // Effective alpha, beta from survival fractions
-    Su_p = F_p_cyc[0] * Math.exp(-Alpha_p_cyc[0] * d - (Alpha_p_cyc[0] / a_over_b) * Math.pow(d, 2)) +
-      F_p_cyc[1] * Math.exp(-Alpha_p_cyc[1] * d - (Alpha_p_cyc[1] / a_over_b) * Math.pow(d, 2)) +
-      F_p_cyc[2] * Math.exp(-Alpha_p_cyc[2] * d - (Alpha_p_cyc[2] / a_over_b) * Math.pow(d, 2));
-    alpha_p_eff = -Math.log(Su_p) / (d * (1 + (d / a_over_b)));
-    beta_p_eff = (alpha_p_eff / a_over_b);
+  //for (n = 0; n < len; n++) {
 
-    Su_i_2gy = Math.exp(-alpha_p / oer_i * 2 - (alpha_p / a_over_b) / Math.pow(oer_i, 2) * Math.pow(2, 2));
-    oer_i_g1 = (-(Alpha_p_cyc[0] * 2) - Math.sqrt(Math.pow((Alpha_p_cyc[0] * 2), 2) -
-      4 * Math.log(Su_i_2gy) * (Alpha_p_cyc[0] / a_over_b) * Math.pow(2, 2))) / (2 * Math.log(Su_i_2gy));
-    Su_h_2gy = Math.exp(-alpha_p / oer_h * 2 - (alpha_p / a_over_b) / Math.pow(oer_h, 2) * Math.pow(2, 2));
-    oer_h_g1 = (-(Alpha_p_cyc[0] * 2) - Math.sqrt(Math.pow(Alpha_p_cyc[0] * 2, 2) - 4 * Math.log(Su_h_2gy) * (Alpha_p_cyc[0] / a_over_b) * Math.pow(2, 2))) /
-      (2 * Math.log(Su_h_2gy));
-    alpha_i = Alpha_p_cyc[0] / oer_i_g1;
-    beta_i = (Alpha_p_cyc[0] / a_over_b) / Math.pow(oer_i_g1, 2);
-    alpha_h = Alpha_p_cyc[0] / oer_h_g1;
-    beta_h = (Alpha_p_cyc[0] / a_over_b) / Math.pow(oer_h_g1, 2);
+  //d = fx_in_arr[n];
+  Treat_day = schedule_in;
 
-    alpha_p = alpha_p_eff;
-    beta_p = beta_p_eff;
+  function calcEffAlphaBetaSurvFrac(d, Alpha_p_cyc) {
+
+	// Effective alpha, beta from survival fractions
+	Su_p = F_p_cyc[0] * Math.exp(-Alpha_p_cyc[0] * d - (Alpha_p_cyc[0] / a_over_b) * Math.pow(d, 2)) +
+	  F_p_cyc[1] * Math.exp(-Alpha_p_cyc[1] * d - (Alpha_p_cyc[1] / a_over_b) * Math.pow(d, 2)) +
+	  F_p_cyc[2] * Math.exp(-Alpha_p_cyc[2] * d - (Alpha_p_cyc[2] / a_over_b) * Math.pow(d, 2));
+	alpha_p_eff = -Math.log(Su_p) / (d * (1 + (d / a_over_b)));
+	beta_p_eff = (alpha_p_eff / a_over_b);
+
+	Su_i_2gy = Math.exp(-alpha_p_ori / oer_i * 2 - (alpha_p_ori / a_over_b) / Math.pow(oer_i, 2) * Math.pow(2, 2));
+	oer_i_g1 = (-(Alpha_p_cyc[0] * 2) - Math.sqrt(Math.pow((Alpha_p_cyc[0] * 2), 2) -
+	  4 * Math.log(Su_i_2gy) * (Alpha_p_cyc[0] / a_over_b) * Math.pow(2, 2))) / (2 * Math.log(Su_i_2gy));
+	Su_h_2gy = Math.exp(-alpha_p_ori / oer_h * 2 - (alpha_p_ori / a_over_b) / Math.pow(oer_h, 2) * Math.pow(2, 2));
+	oer_h_g1 = (-(Alpha_p_cyc[0] * 2) - Math.sqrt(Math.pow(Alpha_p_cyc[0] * 2, 2) - 4 * Math.log(Su_h_2gy) * (Alpha_p_cyc[0] / a_over_b) * Math.pow(2, 2))) /
+	  (2 * Math.log(Su_h_2gy));
+	alpha_i = Alpha_p_cyc[0] / oer_i_g1;
+	beta_i = (Alpha_p_cyc[0] / a_over_b) / Math.pow(oer_i_g1, 2);
+	alpha_h = Alpha_p_cyc[0] / oer_h_g1;
+	beta_h = (Alpha_p_cyc[0] / a_over_b) / Math.pow(oer_h_g1, 2);
+
+	alpha_p = alpha_p_eff;
+	beta_p = beta_p_eff;
+
+	return [alpha_p,beta_p,alpha_i,beta_i,alpha_h,beta_h]
+
+  }
 
     // Run the sub-routine for a specific CLF and GF
     // RT fractional dose for SBRT schedule
 
     f_p_pro = f_p_pro_in; // Assign proliferating fraction to the initial value
 
-    /* Cell distribution in each compartment
-    (1:Pv, 2:Pd, 3:Iv, 4:Id, 5:Hv, 6:Hd, 7:lysis) (V:viable, D:doomed)
-    Initially all compartments are fully filled with viable cells
-    "comp_size" is the size of each compartment (1:P, 2:I, 3:H) */
+	/* Cell distribution in each compartment
+	(1:Pv, 2:Pd, 3:Iv, 4:Id, 5:Hv, 6:Hd, 7:lysis) (V:viable, D:doomed)
+	Initially all compartments are fully filled with viable cells
+	"comp_size" is the size of each compartment (1:P, 2:I, 3:H) */
 
-    cell_dist[0] = comp_size[0];
-    cell_dist[1] = 0;
-    cell_dist[2] = comp_size[1];
-    cell_dist[3] = 0;
-    cell_dist[4] = comp_size[2];
-    cell_dist[5] = 0;
-    cell_dist[6] = 0;
+	cell_dist[0] = comp_size[0];
+	cell_dist[1] = 0;
+	cell_dist[2] = comp_size[1];
+	cell_dist[3] = 0;
+	cell_dist[4] = comp_size[2];
+	cell_dist[5] = 0;
+	cell_dist[6] = 0;
+
 
     /* variables (t:time(day), j:# of fraction, add_time:additional time for
               weekend break, cum_cell_dist: cumulative cell distribution for
@@ -340,6 +436,9 @@ E.g.: schedule_in=[ 1 ,2 ,3 ,4 ,5 ,8 ,9, 10, 11, 12, 15, 16, 17, 18, 19, 22, 23,
     // Treat for specific SBRT schedule
     while (t < t_start + (Math.max(...Treat_day) - 1) + delta_t / 2)
     {
+	  d = fx_in_arr[j];
+	  [alpha_p,beta_p,alpha_i,beta_i,alpha_h,beta_h] = calcEffAlphaBetaSurvFrac(d,Alpha_p_cyc)
+
       // Change in f_p_pro (k_p) as blood supply improves
       f_p_pro = 1 - 0.5 * (cell_dist[0] + cell_dist[1]) / comp_size[0];
 
@@ -616,7 +715,7 @@ E.g.: schedule_in=[ 1 ,2 ,3 ,4 ,5 ,8 ,9, 10, 11, 12, 15, 16, 17, 18, 19, 22, 23,
     }
 
     eqd2 = eqd2_pre + ((eqd2 - eqd2_pre) / (s_eqd2_pre - s_eqd2)) * (s_eqd2_pre - s_sbrt);
-  }
+  //}
 
   var TD_50 = 62.1;
   var gamma_50 = 1.5;

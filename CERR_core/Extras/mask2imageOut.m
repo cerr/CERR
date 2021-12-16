@@ -19,6 +19,10 @@ qOffset = affineMat(1:3,end)';
 
 for i = 1:numel(mask3MC)
     mask3M = uint8(mask3MC{i});
+    if isempty(mask3M)
+        maskFileNameC{i} = '';
+        continue;
+    end
     [maskUniqName, ~] = genScanUniqName(planC,scanNum);
     if strcmpi(extn,'nii')
         maskFileNameC{i} = fullfile(tmpDirPath, ['mask_' maskStrC{i} '_' maskUniqName '.nii']);

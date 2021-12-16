@@ -310,7 +310,7 @@ end
         
         if nargin==1 && ~strcmpi(varargin{1},'all')
             featureC = lower(varargin{1});
-            allFeatC = fieldnames(rlmFlagS);
+            allFeatC = lower(fieldnames(rlmFlagS));
             idxV = find(~ismember(allFeatC,featureC));
             for n = 1:length(idxV)
                 rlmFlagS.(allFeatC{idxV(n)})  = 0;

@@ -28,7 +28,7 @@ if exist('inBspFile','var') && exist(inBspFile,'file')
     cmdFileC{end+1,1} = ['xform_in=',escapeSlashes(inBspFile)];
 end
 
-cmdFileC{end+1,1} = ['img_out=' warpedMhaFile];
+cmdFileC{end+1,1} = ['img_out=' escapeSlashes(warpedMhaFile)];
 
 if ~exist('threshold_bone','var')
     threshold_bone = [];
@@ -51,6 +51,14 @@ end
 
 if exist('userCmdFile','var') && exist(userCmdFile,'file')
     usrFileC = file2cell(userCmdFile);
+    matchIdxC = cellfun(@(x)contains(x,'xform_out='),usrFileC,'un',0);
+    matchIdxV = [matchIdxC{:}];
+    if ~isempty(matchIdxV)
+        inFileName = usrFileC{matchIdxV};
+        fnameC = strsplit(inFileName,'xform_out=');
+        [~,~,ext] = fileparts(fnameC{2});
+        usrFileC{matchIdxV} = ['xform_out=',escapeSlashes([xformOutFileName,ext])];
+    end
     cmdFileC(end+1:end+size(usrFileC,2),1) = usrFileC(:);
 end
 
@@ -64,6 +72,7 @@ switch upper(algorithm)
         cmdFileC{end+1,1} ='[STAGE]';
         cmdFileC{end+1,1} ='xform=align_center';
         cmdFileC{end+1,1} = '';
+        
         
     case {'RIGID PLASTIMATCH','RIGID'}
         

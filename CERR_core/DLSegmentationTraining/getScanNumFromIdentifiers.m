@@ -4,7 +4,7 @@ function scanNumV = getScanNumFromIdentifiers(idS,planC)
 % INPUTS
 % idS    : Structure containing identifiers (tags) and expected values
 %          Supported identifiers include 'imageType', 'seriesDescription',
-%          'scanType', 'scanDate', 'scanNum'.
+%          'scanType', 'scanDate', 'scanNum', and 'assocStructure'.
 % planC
 %--------------------------------------------------------------------------
 % AI 9/18/20
@@ -15,6 +15,10 @@ numScan = length(planC{indexS.scan});
 
 %Read list of identifiers
 identifierC = fieldnames(idS);
+warpFlag = strcmpi(identifierC,'warped');
+if any(warpFlag)
+    identifierC(warpFlag) = [];
+end
 matchIdxV = true(1,numScan);
 
 %Loop over identifiers
@@ -57,16 +61,36 @@ for n = 1:length(identifierC)
                 error(['scanDate value ''',matchValC,''' is not supported.'])
             end
             
+        case 'assocStructure'
+            if strcmp(matchValC,'none')
+                strAssocScanV = unique([planC{indexS.structures}.associatedScan]);
+                idV = ~ismember(1:numScan,strAssocScanV);
+            else
+                idV = true(1,numScan);
+                scanNumV = 1:numScan;
+                for nStr = 1:length(matchValC)
+                    strListC = {planC{indexS.structures}.structureName};
+                    strNum = getMatchingIndex(matchValC{nStr},strListC,'EXACT');
+                    matchScan = getStructureAssociatedScan(strNum,planC);
+                    idV = idV & ismember(scanNumV,matchScan);
+                end
+            end
+            
         otherwise
             error('Identifier %s not supported.',identifierC{n});
     end
     
     matchIdxV = matchIdxV & idV;
     
-    
 end
+
 
 %Return matching scan nos.
 scanNumV = find(matchIdxV);
+
+if isfield(idS,'warped') && idS.warped
+    scanNumV = getAssocWarpedScanNum(scanNumV,planC);
+end
+
 
 end

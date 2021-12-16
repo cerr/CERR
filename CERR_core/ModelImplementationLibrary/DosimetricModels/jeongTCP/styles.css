@@ -80,7 +80,7 @@ a:hover {
     color: darkslategrey;
 }
 
-.today-color {
+.today-color-removed {
     background-color: #D3D3D3;
 }
 
@@ -120,4 +120,8 @@ a:hover {
 .buttonPanel-row {
     margin: 0;
     border-top: 2px solid lightgray;
+}
+
+#fxSizeDIV {
+  width: 100%;
 }

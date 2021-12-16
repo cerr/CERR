@@ -906,6 +906,11 @@ switch fieldname
         %dataS = getTagValue(imgobj.get(hex2dec('0020000E')));
         dataS = ['CT.',dataS];
         
+    case 'assocBaseScanUID'
+        %Implementation is unnecessary.
+    case 'assocMovingScanUID'
+        %Implementation is unnecessary.
+        
     otherwise
         %         warning(['DICOM Import has no methods defined for import into the planC{indexS.scan}.' fieldname ' field, leaving empty.']);
 end

@@ -71,11 +71,17 @@ scanArray = double(getScanArray(scanNum,planC)) - ctOffset;
 
 %Extract masks
 if ~isempty(maskStrC)
-    indexS = planC{end};
+    indexS = planC{end};    
     planStrNameC = {planC{indexS.structures}.structureName};
     for iStr = 1:length(maskStrC)
         strIndex = getMatchingIndex(maskStrC{iStr},planStrNameC,'exact');
-        maskC{iStr} = getStrMask(strIndex,planC);
+        assocScanNumV = getStructureAssociatedScan(strIndex,planC);
+        strIndex = strIndex(assocScanNumV == scanNum);
+        if length(strIndex) == 1
+            maskC{iStr} = getStrMask(strIndex,planC);
+        else
+            maskC{iStr} = [];
+        end
     end
     %[maskV, maskStrC] = getMaskIndices(planC,maskStrC);
     %for i = 1:numel(maskV)

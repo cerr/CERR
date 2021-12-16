@@ -20,8 +20,10 @@ scanOptS = optS.scan;
 resampleS = [scanOptS.resample];
 resizeS = [scanOptS.resize];
 
-if isfield(optS,'structList')
-    strListC = optS.structList;
+if isfield(optS,'inputStrNameToLabelMap')
+    exportStrS = optS.inputStrNameToLabelMap;
+    strListC = {exportStrS.structureName};
+    labelV = [exportStrS.value];
 else
     strListC = {};
 end
@@ -30,11 +32,48 @@ if ~exist('testFlag','var')
     testFlag = true;
 end
 
+
+%% Register scans 
+if ~isempty(fieldnames(regS))
+    identifierS = regS.baseScan.identifier;
+    regScanNumV(1) = getScanNumFromIdentifiers(identifierS,planC);
+    identifierS = regS.movingScan.identifier;
+    movScan = getScanNumFromIdentifiers(identifierS,planC);
+    regScanNumV(2) = movScan;
+    if strcmp(regS.method,'none')
+        %For pre-registered scans
+        if isfield(regS,'copyStr')
+            copyStrsC = {regS.copyStr};
+            for nStr = 1:length(copyStrsC)
+                cpyStrV = getMatchingIndex(copyStrsC{nStr},allStrC,'exact');
+                assocScanV = getStructureAssociatedScan(cpyStrV,planC);
+                cpyStr = cpyStrV(assocScanV==regScanNumV(1));
+                planC = copyStrToScan(cpyStr,movScan,planC);
+            end
+        end
+    else
+        planC = registerScansForDLS(planC,regScanNumV,...
+            regS.method,regS);
+    end
+end
+
+%% Get scan nos. matching identifiers
+if ~exist('scanNumV','var') || isempty(scanNumV)
+    scanNumV = nan(1,length(scanOptS));
+    for n = 1:length(scanOptS)
+        identifierS = scanOptS(n).identifier;
+        scanNumV(n) = getScanNumFromIdentifiers(identifierS,planC);
+    end
+end
+% Ignore missing inputs if marked optional
+optFlagV = strcmpi({scanOptS.required},'no');
+ignoreIdxV = optFlagV & isnan(scanNumV);
+scanNumV(ignoreIdxV) = [];
+
 %% Identify available structures in planC
 indexS = planC{end};
 allStrC = {planC{indexS.structures}.structureName};
 strNotAvailableV = ~ismember(lower(strListC),lower(allStrC)); %Case-insensitive
-labelV = 1:length(strListC);
 if any(strNotAvailableV) && ~testFlag
     scanOutC = {};
     maskOutC = {};
@@ -44,57 +83,14 @@ end
 exportStrC = strListC(~strNotAvailableV);
 
 if ~isempty(exportStrC) || testFlag
-    
     exportLabelV = labelV(~strNotAvailableV);
-    
     %Get structure ID and assoc scan
     strIdxC = cell(length(exportStrC),1);
     for strNum = 1:length(exportStrC)
-        
         currentLabelName = exportStrC{strNum};
         strIdxC{strNum} = getMatchingIndex(currentLabelName,allStrC,'exact');
-        
     end
 end
-
-%% Register scans (in progress)
-if ~isempty(fieldnames(regS))
-    identifierS = regS.baseScan.identifier;
-    scanNumV(1) = getScanNumFromIdentifiers(identifierS,planC);
-    identifierS = regS.movingScan.identifier;
-    movScanV = getScanNumFromIdentifiers(identifierS,planC);
-    scanNumV(2:length(movScanV)+1) = movScanV;
-    if strcmp(regS.method,'none')
-        %For pre-registered scans
-        if isfield(regS,'copyStr')
-            copyStrsC = {regS.copyStr};
-            for nStr = 1:length(copyStrsC)
-                cpyStrV = getMatchingIndex(copyStrsC{nStr},allStrC,'exact');
-                assocScanV = getStructureAssociatedScan(cpyStrV,planC);
-                cpyStr = cpyStrV(assocScanV==scanNumV(1));
-                planC = copyStrToScan(cpyStr,movScanV,planC);
-            end
-        end
-    else
-        %--TBD
-        % [outScanV, planC]  = registerScans(regS, planC);
-        % Update scanNumV with warped scan IDs (outScanV)
-        %---
-    end
-else
-    %Get scan no. matching identifiers
-    if ~exist('scanNumV','var') || isempty(scanNumV)
-        scanNumV = nan(1,length(scanOptS));
-        for n = 1:length(scanOptS)
-            identifierS = scanOptS(n).identifier;
-            scanNumV(n) = getScanNumFromIdentifiers(identifierS,planC);
-        end
-    end
-end
-% Ignore missing inputs if marked optional
-optFlagV = strcmpi({scanOptS.required},'no');
-ignoreIdxV = optFlagV & isnan(scanNumV);
-scanNumV(ignoreIdxV) = [];
 
 %% Extract & preprocess data
 numScans = length(scanNumV);
@@ -261,6 +257,7 @@ for scanIdx = 1:numScans
         %Update affine matrix
         [affineOutM,~,voxSizV] = getPlanCAffineMat(planC, scanNumV(scanIdx), 1);
         originV = affineOutM(1:3,4);
+        
     end
     
     %2. Crop around the region of interest
@@ -292,10 +289,8 @@ for scanIdx = 1:numScans
             end
         end
         toc
-        
         %Update affine matrix
         %affineOutM = getAffineMatrixforTransform(affineOutM,operation,varargin);
-        
     else
         cropStr3M = [];
     end
@@ -306,6 +301,7 @@ for scanIdx = 1:numScans
         fprintf('\nResizing data...\n');
         tic
         resizeMethod = resizeS(scanIdx).method;
+        
         outSizeV = resizeS(scanIdx).size;
         [scan3M, mask3M] = resizeScanAndMask(scan3M,mask3M,outSizeV,...
             resizeMethod,limitsM,preserveAspectFlag);
@@ -320,7 +316,6 @@ for scanIdx = 1:numScans
         
         %Update affine matrix
         %affineOutM = getAffineMatrixforTransform(affineOutM,operation,varargin);
-        
     else
         if ~(adjustBackgroundVoxFlag || transformViewFlag)
             cropStr3M = [];
@@ -341,15 +336,14 @@ for scanIdx = 1:numScans
             maskC{scanIdx},viewC);
         [~,cropStrC] = transformView([],cropStr3M,viewC);
         toc
-        
         %Update affine matrix
         %affineOutM = getAffineMatrixforTransform(affineOutM,operation,varargin);
-        
     else % case: 1 view, 'axial'
         viewOutC = {scanC{scanIdx}};
         maskOutC{scanIdx} = {maskC(scanIdx)};
         cropStrC = {cropStr3M};
     end
+    
     
     %5. Filter images as required
     tic
@@ -401,6 +395,7 @@ for scanIdx = 1:numScans
     
     scanOutC{scanIdx} = channelOutC;
     
+    %originV = affineOutM(1:3,4);
     coordInfoS(scanIdx).affineM = affineOutM;
     coordInfoS(scanIdx).originV = originV;
     coordInfoS(scanIdx).voxSizV = voxSizV;

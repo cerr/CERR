@@ -35,15 +35,14 @@
 
 <!-- <form id=resultFrm> -->
 
-  <div style="width: 25%;margin:20px;">
-    Fraction size (Gy):
-        <input type="number"  id="fxsiz" value="2" class="date-values">
-
   <!-- <input type="text" id="txday" size="75" value="1 2 3 4 5 8 9 10 11 12 15 16 17 18 19 22 23 24 25 26">
   <br>
   Note: Treatment days must be separated by spaces.
   -->
     <!--<div style="width: 22%;margin:20px;"> -->
+
+    <div style="width: 25%;margin:20px;">
+
     <br>
     <br>
     Treatment days:
@@ -85,11 +84,20 @@
             </table>
         </div>
 
-		<br>
-		<br>
+        Uniform Fraction size (Gy):
+        <input type="number"  id="fxsiz" value="2" class="date-values">
+        <button onclick="applyUniformFxSize()">Apply</button>
 
+        <br>
+		<br>
+        <button onclick="toggleFxSelectionDiv()">Select Variable Fx sizes</button>
+        <div id="fxSizeDIV" style="display:none">
+
+        </div>
+
+        <br>
+		<br>
         <input type="button" value="Get TCP" onclick="calculateTCP()"></button><br>
-
 
     </div>
 
