@@ -1,4 +1,6 @@
-function modelVoxelDose(baseScanFile,registeredDoseDir,structName,outcomesFile,savePlancFileName,datasetName)
+function modelVoxelDose(baseScanFile,...
+    registeredDoseDir,structName,outcomesFile,...
+    savePlancFileName,datasetName,saveHzFileName)
 % function modelVoxelDose(baseScanFile,registeredDoseDir,structName,outcomesFile,savePlancFileName)
 %
 % Image-based data mining of dose distributions. Function to model dose to each voxel within the heart structure.
@@ -123,16 +125,19 @@ for iFile = 1:numPatients
     doseM(:,iFile) = dataS.dose3M(croppedStr3M(:));
 end
 
+% Seed random number generator
+rng(0617)
+
 % Initialize vectors to store p-value and hazard ratio for voxels
 pValV = NaN(numVoxels,1);
 stdPval = NaN(numVoxels,1);
 hrV = NaN(numVoxels,1);
 stdHrV = NaN(numVoxels,1);
 
-% % Censor at 18 months
-% survAbovMonthCutoffV = overalSurvMonthsV > 18;
-% overalSurvMonthsV(survAbovMonthCutoffV) = 18;
-% survStatusV(survAbovMonthCutoffV) = 0; %alive
+% Censor at 18 months
+survAbovMonthCutoffV = overalSurvMonthsV > 18;
+overalSurvMonthsV(survAbovMonthCutoffV) = 18;
+survStatusV(survAbovMonthCutoffV) = 0; %alive
 
 censoredV = survStatusV == 1; % this is flipped in call to coxphfit to censor observations that are alive
 indToUseV = diceV > 0.75;
@@ -190,12 +195,16 @@ parfor iBoot = 1:numBoots    %parfor
         %stdPval(i) = std([statsS.p]);
         hrM(i,iBoot) = statsS.beta;
         %stdHrV(i) = std([statsS.beta]);
+        
+        %hrV(i) = statsS.beta;
     end
     
 end
 toc
 
-
+if exist('saveHzFileName','var')
+    save(saveHzFileName,'hrM')
+end
 
 % Add doses to planC
 [xValsV, yValsV, zValsV] = getScanXYZVals(planC{indexS.scan}(1));
@@ -212,39 +221,86 @@ expHrM = exp(hrM);
 hV = zeros(numVoxels,1);
 pV = zeros(numVoxels,1);
 ciM = zeros(numVoxels,2);
+
 for i = 1:size(expHrM,1)
     [hV(i) , pV(i) , ciM(i,:)] = ttest(expHrM(i,:),1.02,'Alpha',0.01,'Tail','right');
 end
 
+% Calculate median of bootstraps
+medianHrV = median(expHrM,2);
+
+% Calculate mean of bootstraps
+meanHrV = mean(expHrM,2);
+
+
+% Calculate standard deviation
+stdV = std(expHrM,[],2);
+
+voxelsToKeepV = medianHrV - stdV*2 > 1;
 val3M = NaN(size(croppedStr3M));
-val3M(croppedStr3M(:)) = hV;
+val3M(croppedStr3M(:)) = voxelsToKeepV;
 planC = dose2CERR(val3M,[],...
-    'Hazard>1.02',[],[],'non-CT',regParamsS,'no',...
+    'Median-hazard - (2-sigma) > 1',[],[],'non-CT',regParamsS,'no',...
+    assocScanUID,planC);
+
+
+voxelsToKeepV = medianHrV - stdV*3 > 1;
+val3M = NaN(size(croppedStr3M));
+val3M(croppedStr3M(:)) = voxelsToKeepV;
+planC = dose2CERR(val3M,[],...
+    'Median-hazard - (3-sigma) > 1',[],[],'non-CT',regParamsS,'no',...
+    assocScanUID,planC);
+
+
+voxelsToKeepV = medianHrV - stdV*4 > 1;
+val3M = NaN(size(croppedStr3M));
+val3M(croppedStr3M(:)) = voxelsToKeepV;
+planC = dose2CERR(val3M,[],...
+    'Median-hazard - (4-sigma) > 1',[],[],'non-CT',regParamsS,'no',...
+    assocScanUID,planC);
+
+
+voxelsToKeepV = medianHrV - stdV*4.2 > 1;
+val3M = NaN(size(croppedStr3M));
+val3M(croppedStr3M(:)) = voxelsToKeepV;
+planC = dose2CERR(val3M,[],...
+    'Median-hazard - (4.2-sigma) > 1',[],[],'non-CT',regParamsS,'no',...
+    assocScanUID,planC);
+
+
+val3M = NaN(size(croppedStr3M));
+val3M(croppedStr3M(:)) = stdV;
+planC = dose2CERR(val3M,[],...
+    'Std Dev Hazard',[],[],'non-CT',regParamsS,'no',...
     assocScanUID,planC);
 
 val3M = NaN(size(croppedStr3M));
-val3M(croppedStr3M(:)) = pV;
-planC = dose2CERR(val3M,[],...
-    'p-value_1.02',[],[],'non-CT',regParamsS,'no',...
-    assocScanUID,planC);
-
-val3M = NaN(size(croppedStr3M));
-val3M(croppedStr3M(:)) = ciM(:,1);
-planC = dose2CERR(val3M,[],...
-    'CI_lower_lim',[],[],'non-CT',regParamsS,'no',...
-    assocScanUID,planC);
-
-val3M = NaN(size(croppedStr3M));
-val3M(croppedStr3M(:)) = ciM(:,2);
-planC = dose2CERR(val3M,[],...
-    'CI_upper_lim',[],[],'non-CT',regParamsS,'no',...
-    assocScanUID,planC);
-
-val3M = NaN(size(croppedStr3M));
-val3M(croppedStr3M(:)) = median(expHrM,2);
+val3M(croppedStr3M(:)) = medianHrV; 
 planC = dose2CERR(val3M,[],...
     'Median Hazard',[],[],'non-CT',regParamsS,'no',...
     assocScanUID,planC);
+
+val3M = NaN(size(croppedStr3M));
+val3M(croppedStr3M(:)) = meanHrV; 
+planC = dose2CERR(val3M,[],...
+    'Mean Hazard',[],[],'non-CT',regParamsS,'no',...
+    assocScanUID,planC);
+
+val3M = NaN(size(croppedStr3M));
+val3M(croppedStr3M(:)) = medianHrV ./ stdV; 
+planC = dose2CERR(val3M,[],...
+    'MedianHazard / StdDev',[],[],'non-CT',regParamsS,'no',...
+    assocScanUID,planC);
+
+
+% ========== add a bootstrap hr to planC
+% val3M = NaN(size(croppedStr3M));
+% val3M(croppedStr3M(:)) = hrM(:,95); 
+% planC = dose2CERR(val3M,[],...
+%     'Hazard_boot_95',[],[],'non-CT',regParamsS,'no',...
+%     assocScanUID,planC);
+
+
 
 % =========== Write individual bootstrap samples to planC
 % for iBoot = 1:numBoots
