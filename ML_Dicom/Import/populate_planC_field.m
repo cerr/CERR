@@ -518,7 +518,7 @@ switch cellName
             end
         end
         
-        %%%OLD RTPLAN import code. commented DK 
+        %%%OLD RTPLAN import code. commented DK?
         % %         %Place RTPLAN into planC{indexS.beams}
         % %         plansAdded = 0;
         % %         for seriesNum = 1:length(seriesC)
@@ -551,7 +551,7 @@ switch cellName
         supportedTypes      = {'PR'};
         gspsAdded          = 0;
         
-        hWaitbar = waitbar(0,'Loading GSPS. Please wait...');
+        %hWaitbar = waitbar(0,'Loading GSPS. Please wait...');
         
         numGspsSeries = length(find(strcmpi(typeC, 'PR')==1));
         
@@ -584,14 +584,14 @@ switch cellName
                         curGspsNum = curGspsNum + 1;
                         gspsAdded = gspsAdded + 1;
                         
-                        waitbar(gspsAdded/(nGsps*length(GSPS)*numGspsSeries), hWaitbar, 'Loading Annotations, Please wait...');
+                        %waitbar(gspsAdded/(nGsps*length(GSPS)*numGspsSeries), hWaitbar, 'Loading Annotations, Please wait...');
                         
                     end
                 end
             end
             
         end
-        close(hWaitbar);
+        %close(hWaitbar);
         pause(0.1);
         
     case 'registration'
