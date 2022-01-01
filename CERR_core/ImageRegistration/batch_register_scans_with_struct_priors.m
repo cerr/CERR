@@ -1,12 +1,12 @@
 function batch_register_scans_with_struct_priors(baseScanFileNameC,...
-    movScansFileNameC, baseStructNameC, movStructNameC, ...
-    movStrsToDeformC, movDoseToDeformC, registeredDir)
+    movScansFileNameC, basePriorStructNameC, movPriorStructNameC, ...
+    movStrsToDeformC, movDoseToDeformC, registeredDir, paired_scans_flag)
 % function batch_register_scans_with_struct_priors(baseScanFileNameC,...
-%     movScansFileNameC, baseStructNameC, movStructNameC, ...
-%     strsToDeformC, registeredDir)
+%     movScansFileNameC, basePriorStructNameC, movPriorStructNameC, ...
+%     strsToDeformC, registeredDir, paired_scans_flag)
 %
 % This script registers movScansFileNameC to baseScanFileNameC using
-% baseStructNameC and movStructNameC structure priors for initial alignment.
+% basePriorStructNameC and movPriorStructNameC structure priors for initial alignment.
 % Additionally, the structurnames specified in strsToDeformC are warped on to the base
 % scan and the deformed images and segmwntation are written to registeredDir.
 %
@@ -81,6 +81,18 @@ end
 
 for iBase = 1:length(baseScanFileNameC)
     
+    if paired_scans_flag
+        movScansFileToRegisterC = movScansFileNameC(iBase);
+        movStrsToDeformToUseC = movStrsToDeformC(iBase);
+        movPriorStructNameToUseC = movPriorStructNameC(iBase);
+        movDoseToDeformToUseC = movDoseToDeformC(iBase);
+    else
+        movScansFileToRegisterC = movScansFileNameC;
+        movStrsToDeformToUseC = movStrsToDeformC;
+        movPriorStructNameToUseC = movStructNameC;
+        movDoseToDeformToUseC = movDoseToDeformC;
+    end
+    
     baseScan = baseScanFileNameC{iBase};
     
     % Load base planC
@@ -93,7 +105,7 @@ for iBase = 1:length(baseScanFileNameC)
     baseMask3M = [];
 
     
-    baseLandmarkStrC = baseStructNameC{iBase}; %{'DL_PERICARDIUM'};
+    baseLandmarkStrC = basePriorStructNameC{iBase}; %{'DL_PERICARDIUM'};
     baseScanNum = 1;
     strBaseC = {planC{indexS.structures}.structureName};
     baseLandmarkListM = [];
@@ -114,11 +126,12 @@ for iBase = 1:length(baseScanFileNameC)
     
     allPlanC = {planC};
     
-    for movNum = 1:length(movScansFileNameC)
+    
+    for movNum = 1:length(movScansFileToRegisterC)
         
-        movScanFileName = movScansFileNameC{movNum};
+        movScanFileName = movScansFileToRegisterC{movNum};
         
-        [~,fName] = fileparts(movScanFileName);
+        %[~,fName] = fileparts(movScanFileName);
         %newFileName = fullfile(registeredDir,[fName,'.mat']);
         %if exist(newFileName,'file')
         %    continue;
@@ -169,8 +182,8 @@ for iBase = 1:length(baseScanFileNameC)
                 % Registration settings
                 registration_tool = 'PLASTIMATCH';
                 plmSettingsFile = '/lab/deasylab1/Data/RTOG0617/plastimatch_registration_settings/plm_reg_settings_with_landmark_stiffness_pericard.txt';
-                plmSettingsFile = '//vpensmph/deasylab1/Data/RTOG0617/plastimatch_registration_settings/plm_reg_settings_with_landmark_stiffness_pericard.txt';
-                plmSettingsFile = 'L:/Data/RTOG0617/plastimatch_registration_settings/plm_reg_settings_with_landmark_stiffness_pericard.txt';
+                %plmSettingsFile = '//vpensmph/deasylab1/Data/RTOG0617/plastimatch_registration_settings/plm_reg_settings_with_landmark_stiffness_pericard.txt';
+                %plmSettingsFile = 'L:/Data/RTOG0617/plastimatch_registration_settings/plm_reg_settings_with_landmark_stiffness_pericard.txt';
                 %baseMask3M = [];
                 movMask3M = [];
                 threshold_bone = -800;
@@ -178,8 +191,8 @@ for iBase = 1:length(baseScanFileNameC)
                 outBspFile = '';
                 %tmpDirPath = '/lab/deasylab1/Data/RTOG0617/cerr_registration_temp_dir';
                 tmpDirPath = '/cluster/home/aptea/segSessions/registration_temp';
-                tmpDirPath = '//vpensmph/deasylab1/Data/RTOG0617/cerr_registration_temp_dir';
-                tmpDirPath = 'L:/Data/RTOG0617/cerr_registration_temp_dir';
+                %tmpDirPath = '//vpensmph/deasylab1/Data/RTOG0617/cerr_registration_temp_dir';
+                %tmpDirPath = 'L:/Data/RTOG0617/cerr_registration_temp_dir';
                 algorithm = 'BSPLINE PLASTIMATCH';
                 
                 %         % Generate mask by excluding GTV
@@ -197,7 +210,7 @@ for iBase = 1:length(baseScanFileNameC)
                 
                 
                 % Generate Landmarks
-                movLandmarkStrC = movStructNameC{movNum}; %{'DL_PERICARDIUM'};
+                movLandmarkStrC = movPriorStructNameToUseC{movNum}; %{'DL_PERICARDIUM'};
                 
                 % Register planD to planC
                 baseScanNum = scanNum;
@@ -249,7 +262,8 @@ for iBase = 1:length(baseScanFileNameC)
                 deformS = plnC{indexS.deform}(end);
                 %planC = warp_scan(deformS,movScanNum,planD,planC);
                 
-                strsToDeformC = movStrsToDeformC{movScanNum};
+                strsToDeformC = movStrsToDeformToUseC{movScanNum};
+                
                 movStructNumsV = [];
                 strNamC = {planD{indexSD.structures}.structureName};
                 for iStr = 1:length(strsToDeformC)
@@ -263,7 +277,7 @@ for iBase = 1:length(baseScanFileNameC)
                 
                 doseCreationScanNum = strCreationScanNum;
 %                 numDoses = length(planD{indexSD.dose});
-                doseToDeformC = movDoseToDeformC{movScanNum}; % update to get the correct dose num
+                doseToDeformC = movDoseToDeformToUseC{movScanNum}; % update to get the correct dose num
                 if ~isempty(doseToDeformC)
                     doseNum = length(planD{indexSD.dose});
                     %for doseNum = 1:numDoses
