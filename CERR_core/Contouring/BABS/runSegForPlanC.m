@@ -72,7 +72,11 @@ mkdir(segResultCERRPath)
 labelPath = fullfile(fullClientSessionPath,'outputLabelMap');
 mkdir(labelPath);
 
-testFlag = true;
+if nargin>=8
+    testFlag = varargin{3};
+else
+    testFlag = true;
+end
 
 %% Run segmentation algorithm
 
@@ -149,9 +153,15 @@ if length(algorithmC) > 1 || ...
             %Append identifiers to o/p name
             idOut = filePrefixForHDF5;
             idS = scanOptS(nScan).identifier;
+            idS = rmfield(idS,'warped');
             if ~isempty(idS)
-                idListC = cellfun(@(x)(idS.(x)),fieldnames(idS),'un',0);
-                appendStr = strjoin(idListC,'_');
+                idsC = cellfun(@(x)(idS.(x)),fieldnames(idS),'un',0);
+                idListC = idsC{1};
+                if iscell(idListC)&& length(idListC)>1
+                    appendStr = strjoin(idListC,'_');
+                else
+                    appendStr = idListC;
+                end
                 idOut = [idOut,'_',appendStr];
             end
             
