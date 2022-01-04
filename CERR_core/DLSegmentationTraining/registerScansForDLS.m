@@ -83,16 +83,16 @@ switch(lower(registrationTool))
 end
 
 %Rename warped structures
-% if isfield(paramS,'copyStr')
-%     copyStrC = paramS.copyStr;
-%     numStrs = length(planC{indexS.structures});
-%     numCopy = length(copyStrC);
-%     for nStr = 1:length(copyStrC)
-%         strIdx = numStrs-nStr+1;
-%         planC{indexS.structures}(strIdx).structureName =...
-%             copyStrC{numCopy-nStr+1};
-%     end
-% end
+if isfield(paramS,'copyStr')
+    copyStrC = paramS.copyStr;
+    numStrs = length(planC{indexS.structures});
+    numCopy = length(copyStrC);
+    for nStr = 1:length(copyStrC)
+        strIdx = numStrs-nStr+1;
+        planC{indexS.structures}(strIdx).structureName =...
+            copyStrC{numCopy-nStr+1};
+    end
+end
 
 
 end
