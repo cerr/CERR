@@ -9,7 +9,8 @@ function [scanOutC, maskOutC, scanNumV, optS, coordInfoS, planC] = ...
 % planC         :  CERR archive
 %
 % --Optional--
-% testFlag      : Set flag to true for test dataset. Default:true. Assumes testing dataset if not specified
+% testFlag      : Set flag to true for test dataset. Default:true. 
+%                 Assumes testing dataset if not specified
 % -------------------------------------------------------------------------
 % AI 9/18/19
 % AI 9/18/20  Extended to handle multiple scans
@@ -126,17 +127,20 @@ for scanIdx = 1:numScans
         validExportLabelV = exportLabelV(keepLabelIdxV);
     end
     
-    for strNum = 1:length(validStrIdxV)
-        
-        strIdx = validStrIdxV(strNum);
-        
-        %Update labels
-        tempMask3M = false(size(mask3M));
-        [rasterSegM, planC] = getRasterSegments(strIdx,planC);
-        [maskSlicesM, uniqueSlices] = rasterToMask(rasterSegM, scanNumV(scanIdx), planC);
-        tempMask3M(:,:,uniqueSlices) = maskSlicesM;
-        mask3M(tempMask3M) = validExportLabelV(strNum);
-        
+    if length(validStrIdxV)==0
+        mask3M = [];
+    else
+        for strNum = 1:length(validStrIdxV)
+            
+            strIdx = validStrIdxV(strNum);
+            
+            %Update labels
+            tempMask3M = false(size(mask3M));
+            [rasterSegM, planC] = getRasterSegments(strIdx,planC);
+            [maskSlicesM, uniqueSlices] = rasterToMask(rasterSegM, scanNumV(scanIdx), planC);
+            tempMask3M(:,:,uniqueSlices) = maskSlicesM;
+            mask3M(tempMask3M) = validExportLabelV(strNum);
+        end
     end
     
     %Get affine matrix

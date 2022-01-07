@@ -518,7 +518,7 @@ switch cellName
             end
         end
         
-        %%%OLD RTPLAN import code. commented DK 
+        %%%OLD RTPLAN import code. commented DK?
         % %         %Place RTPLAN into planC{indexS.beams}
         % %         plansAdded = 0;
         % %         for seriesNum = 1:length(seriesC)
@@ -550,9 +550,9 @@ switch cellName
         [seriesC, typeC]    = extract_all_series(dcmdir_patient);
         supportedTypes      = {'PR'};
         gspsAdded          = 0;
-        try
-        	hWaitbar = waitbar(0,'Loading GSPS. Please wait...');
-        end
+        
+        %hWaitbar = waitbar(0,'Loading GSPS. Please wait...');
+        
         numGspsSeries = length(find(strcmpi(typeC, 'PR')==1));
         
         %Place each structure into its own array element.
@@ -583,17 +583,15 @@ switch cellName
                         end
                         curGspsNum = curGspsNum + 1;
                         gspsAdded = gspsAdded + 1;
-                        try
-                        waitbar(gspsAdded/(nGsps*length(GSPS)*numGspsSeries), hWaitbar, 'Loading Annotations, Please wait...');
-                        end
+                        
+                        %waitbar(gspsAdded/(nGsps*length(GSPS)*numGspsSeries), hWaitbar, 'Loading Annotations, Please wait...');
+                        
                     end
                 end
             end
             
         end
-try
-        close(hWaitbar);
-end
+        %close(hWaitbar);
         pause(0.1);
         
     case 'registration'
