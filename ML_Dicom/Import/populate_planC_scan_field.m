@@ -255,7 +255,13 @@ switch fieldname
                     
                     %Store zValue for sorting, converting DICOM mm to CERR cm and
                     %inverting to match CERR's z direction.
-                    zValues(imageNum) = - imgpos(3) / 10;
+                    if all(abs((abs(imgOriV) - [1;0;0;0;0;1])) < 1e-5) % Coronal
+                        zValues(imageNum) = imgpos(2) / 10;
+                    elseif all(abs((abs(imgOriV) - [0;1;0;0;0;1])) < 1e-5) % Sagittal
+                        zValues(imageNum) = imgpos(1) / 10;
+                    else
+                        zValues(imageNum) = - imgpos(3) / 10;
+                    end
                     
                     %Store the slice in the 3D matrix.
                     dataS(:,:,imageNum) = slice2D';
@@ -577,7 +583,13 @@ switch fieldname
                     
                     %Store zValue for sorting, converting DICOM mm to CERR cm and
                     %inverting to match CERR's z direction.
-                    zValues(imageNum) = - imgpos(3) / 10;
+                    if all(abs((abs(imgOriV) - [1;0;0;0;0;1])) < 1e-5) % Coronal
+                        zValues(imageNum) = imgpos(2) / 10;
+                    elseif all(abs((abs(imgOriV) - [0;1;0;0;0;1])) < 1e-5) % Sagittal
+                        zValues(imageNum) = imgpos(1) / 10;
+                    else
+                        zValues(imageNum) = - imgpos(3) / 10;
+                    end
                     
                     for i = 1:length(names)
                         dataS(imageNum).(names{i}) = ...
