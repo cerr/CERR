@@ -4,7 +4,7 @@ from __future__ import print_function
 import SimpleITK as sitk
 import numpy
 import scipy
-import matlab
+#import matlab
 import six
 
 import radiomics
