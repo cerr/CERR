@@ -60,6 +60,10 @@ else
     uimenu(hDoseMenu,'label','Gamma 3D','callback','CERRGammafnc(''INIT3D'')','interruptible','on');
 
     % uimenu(hDAnalysis,'label','&Gamma 3D','callback','RPCCallBack(''GETGAMMAINPUT'',''3D'')','interruptible','on');
+    
+    %ROE
+    uimenu(hDoseMenu,'label','ROE (RT Outcomes Estimator)','callback','ROE(''INIT'')','interruptible','on');
+
 end
 
 if isempty(planC)
@@ -73,7 +77,8 @@ indexS = planC{end};
 %Find and remove old dose listings.
 kids = get(hDoseMenu, 'children');
 numOldMenus = length(kids);
-delete(kids(1:numOldMenus-3));%2 is the number of items to be displayed on the dropdown menu
+delete(kids(1:numOldMenus-4));%4 is the number of fixed items to be 
+                              %displayed on the dropdown menu
 
 %Get list of dose distributions
 numDoses = length(planC{indexS.dose});

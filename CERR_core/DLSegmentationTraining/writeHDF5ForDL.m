@@ -26,19 +26,19 @@ switch (passedScanDim)
     
     case '3D'
         
-%         mask3M = maskC{1}{1};
         %Write mask
-%         if ~isempty(mask3M) && ~testFlag
         if ~isempty(maskC{1}) && ~testFlag
             mask3M = maskC{1}{1};
-            if ~exist(fullfile(outDirC{1},'Masks'),'dir')
-                mkdir(fullfile(outDirC{1},'Masks'))
+            if ~isempty(mask3M)
+                if ~exist(fullfile(outDirC{1},'Masks'),'dir')
+                    mkdir(fullfile(outDirC{1},'Masks'))
+                end
+                mask3M = uint8(mask3M);
+                maskFilename = fullfile(outDirC{1},'Masks',[filePrefix,'_3D.h5']);
+                h5create(maskFilename,'/mask',size(mask3M));
+                pause(0.1)
+                h5write(maskFilename,'/mask',mask3M);
             end
-            mask3M = uint8(mask3M);
-            maskFilename = fullfile(outDirC{1},'Masks',[filePrefix,'_3D.h5']);
-            h5create(maskFilename,'/mask',size(mask3M));
-            pause(0.1)
-            h5write(maskFilename,'/mask',mask3M);
         end
         
         %Write scan

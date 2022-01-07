@@ -103,7 +103,7 @@ for m = 1:length(methodC)
             assocScanV = getStructureAssociatedScan(1:numStructs,planC);
             % Find structure associated with scanNum
             if ~isempty(outlineIndex)
-                outlineIndex = outlineIndex(assocScanV(strIdx) == scanNum);
+                outlineIndex = outlineIndex(assocScanV == scanNum);
             end
 
             if isempty(outlineIndex)

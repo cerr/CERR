@@ -1,4 +1,6 @@
-function modelVoxelDose(baseScanFile,registeredDoseDir,structName,outcomesFile,savePlancFileName,datasetName)
+function modelVoxelDose(baseScanFile,...
+    registeredDoseDir,structName,outcomesFile,...
+    savePlancFileName,datasetName,saveHzFileName)
 % function modelVoxelDose(baseScanFile,registeredDoseDir,structName,outcomesFile,savePlancFileName)
 %
 % Image-based data mining of dose distributions. Function to model dose to each voxel within the heart structure.
@@ -13,6 +15,8 @@ function modelVoxelDose(baseScanFile,registeredDoseDir,structName,outcomesFile,s
 % 
 % APA, 10/22/2021
 
+
+cox_flag = false; % Spearmans rank correlation
 
 % Load Outcomes file
 [numM,txtC,rawC] = xlsread(outcomesFile);
@@ -57,6 +61,46 @@ switch upper(datasetName)
         indV = ~cellfun(@isempty,strfind({dirS.name},'MSK_PORT_'));
         indV = indV & ~cellfun(@isempty,strfind({dirS.name},'.mat'));
         dirS = dirS(indV);
+        
+    case 'NEW_CONVN'
+        % outcomes
+        patIdC = rawC(2:end,1);
+        %patIdC = cellfun(@num2str,patIdC,'UniformOutput', false);
+        patIdC = strtok(patIdC);
+        indNotValidV = isnan(numM(:,1)) | isnan(numM(:,3));
+        survStatusV = numM(~indNotValidV,1);
+        survStatusV = ~survStatusV; % flip so that 1 is death
+        overalSurvMonthsV = numM(~indNotValidV,2);
+        diceV = numM(~indNotValidV,3);
+        patIdC(indNotValidV) = [];
+        
+        % dose files
+        dirS = dir(registeredDoseDir);
+        dirS([dirS.isdir]) = [];
+        indV = ~cellfun(@isempty,strfind({dirS.name},'MSK_NEW_CONVN_'));
+        indV = indV & ~cellfun(@isempty,strfind({dirS.name},'.mat'));
+        dirS = dirS(indV);        
+        
+    case 'OLD_CONVN'
+         % outcomes
+        patIdC = rawC(2:end,1);
+        %patIdC = cellfun(@num2str,patIdC,'UniformOutput', false);
+        patIdC = strtok(patIdC);
+        indNotValidV = isnan(numM(:,1)) | isnan(numM(:,3));
+        survStatusV = numM(~indNotValidV,1);
+        survStatusV = ~survStatusV; % flip so that 1 is death
+        overalSurvMonthsV = numM(~indNotValidV,2);
+        diceV = numM(~indNotValidV,3);
+        patIdC(indNotValidV) = [];
+        
+        % dose files
+        dirS = dir(registeredDoseDir);
+        dirS([dirS.isdir]) = [];
+        indV = ~cellfun(@isempty,strfind({dirS.name},'MSK_OLD_CONVN_'));
+        indV = indV & ~cellfun(@isempty,strfind({dirS.name},'.mat'));
+        dirS = dirS(indV);
+        
+        
 end
 
 % % Load Outcomes file
@@ -100,6 +144,12 @@ str3M = getStrMask(indCropStruct,planC);
 [rMin,rMax,cMin,cMax,sMin,sMax] = compute_boundingbox(str3M);
 croppedStr3M = str3M(rMin:rMax,cMin:cMax,sMin:sMax);
 
+% Get structure mask for Left Atrium
+indLeftAtrium = getMatchingIndex('l atrium',lower(strNamC),'exact');
+%indLeftAtrium = getMatchingIndex('mitral valve',lower(strNamC),'exact');
+leftAtriumMask3M = getStrMask(indLeftAtrium,planC);
+croppedLeftAtriumStr3M = leftAtriumMask3M(rMin:rMax,cMin:cMax,sMin:sMax);
+
 numPatients = length(survStatusV);
 numVoxels = sum(croppedStr3M(:));
 
@@ -110,6 +160,7 @@ numVoxels = sum(croppedStr3M(:));
 % indV = indV & ~cellfun(@isempty,strfind({dirS.name},'.mat'));
 % dirS = dirS(indV);
 doseM = zeros(numVoxels,numPatients,'single');
+leftAtriumMeanDoseV = zeros(numPatients,1);
 fileC = {dirS.name};
 for iFile = 1:numPatients
     disp(iFile)
@@ -121,7 +172,11 @@ for iFile = 1:numPatients
     end        
     dataS = load(fullfile(registeredDoseDir,dirS(ind).name));
     doseM(:,iFile) = dataS.dose3M(croppedStr3M(:));
+    leftAtriumMeanDoseV (iFile,1)= mean(dataS.dose3M(croppedLeftAtriumStr3M(:)));
 end
+
+% Seed random number generator
+rng(0617)
 
 % Initialize vectors to store p-value and hazard ratio for voxels
 pValV = NaN(numVoxels,1);
@@ -129,10 +184,13 @@ stdPval = NaN(numVoxels,1);
 hrV = NaN(numVoxels,1);
 stdHrV = NaN(numVoxels,1);
 
-% % Censor at 18 months
-% survAbovMonthCutoffV = overalSurvMonthsV > 18;
-% overalSurvMonthsV(survAbovMonthCutoffV) = 18;
-% survStatusV(survAbovMonthCutoffV) = 0; %alive
+% Censor at 18 months
+survAbovMonthCutoffV = overalSurvMonthsV > 18;
+overalSurvMonthsV(survAbovMonthCutoffV) = 18;
+survStatusV(survAbovMonthCutoffV) = 0; %alive
+
+% Find observations tht are lost to followup before 18 months
+indLostFupV = overalSurvMonthsV < 18 & survStatusV == 0;
 
 censoredV = survStatusV == 1; % this is flipped in call to coxphfit to censor observations that are alive
 indToUseV = diceV > 0.75;
@@ -140,9 +198,10 @@ indToUseV = diceV > 0.75;
 % Reserve 30% of data for validation
 % train: 70%, validation: 30%
 %cv = cvpartition(numPatients,'HoldOut',0.3);
-cv = cvpartition(numPatients,'HoldOut',0.01);
-indTrainV = indToUseV & cv.training;
-indTestV = indToUseV & cv.test;
+%cv = cvpartition(numPatients,'HoldOut',0.01);
+indTrainV = indToUseV & ~indLostFupV; % & cv.training;
+%indTestV = indToUseV & cv.test;
+
 
 % Bootstrap the training set
 numBoots = 100; %10
@@ -180,22 +239,38 @@ parfor iBoot = 1:numBoots    %parfor
         doseTrainV = doseTrainV(:);
         survTrainV = overalSurvMonthsV(indV);
         censorTrainV = censoredV(indV);
-        [b,logl,H,statsS] = ...
-            coxphfit(double(doseTrainV),survTrainV,...
-            'censoring',~censorTrainV);
-        % C:\Program Files\Matlab\R2019b\toolbox\stats\stats\private\statsfminbx.m figtr line 186
         
-        %statsS = bsxfun(@cox,doseTrainM, survTrainM, censorTrainM);
-        pValM(i,iBoot) = statsS.p;
-        %stdPval(i) = std([statsS.p]);
-        hrM(i,iBoot) = statsS.beta;
-        %stdHrV(i) = std([statsS.beta]);
+        leftAtriumMeanDoseTrainV = leftAtriumMeanDoseV(indV);
+        
+        if cox_flag
+            % ====== Cox model
+            [b,logl,H,statsS] = ...
+                coxphfit(double(doseTrainV),survTrainV,...
+                'censoring',~censorTrainV);
+            % C:\Program Files\Matlab\R2019b\toolbox\stats\stats\private\statsfminbx.m figtr line 186
+            
+            %statsS = bsxfun(@cox,doseTrainM, survTrainM, censorTrainM);
+            pValM(i,iBoot) = statsS.p;
+            hrM(i,iBoot) = statsS.beta;
+            
+        else
+            
+            % ====== Spearman rank correlation
+            %[rho,p] = corr(double(doseTrainV),survTrainV,'Type','spearman');            
+            [rho,p] = corr(double(doseTrainV),leftAtriumMeanDoseTrainV,'Type','spearman');            
+            pValM(i,iBoot) = p;
+            hrM(i,iBoot) = rho;
+            
+        end
+        
     end
     
 end
 toc
 
-
+if exist('saveHzFileName','var')
+    save(saveHzFileName,'hrM')
+end
 
 % Add doses to planC
 [xValsV, yValsV, zValsV] = getScanXYZVals(planC{indexS.scan}(1));
@@ -208,43 +283,96 @@ regParamsS.coord2OFFirstPoint =  yValsV(rMin);
 regParamsS.zValues = zValsV(sMin:sMax);
 assocScanUID = planC{indexS.scan}(1).scanUID;
 
-expHrM = exp(hrM);
-hV = zeros(numVoxels,1);
-pV = zeros(numVoxels,1);
-ciM = zeros(numVoxels,2);
-for i = 1:size(expHrM,1)
-    [hV(i) , pV(i) , ciM(i,:)] = ttest(expHrM(i,:),1.02,'Alpha',0.01,'Tail','right');
+if cox_flag
+    expHrM = exp(hrM);
+else
+    expHrM = hrM;
 end
 
+% hV = zeros(numVoxels,1);
+% pV = zeros(numVoxels,1);
+% ciM = zeros(numVoxels,2);
+% 
+% for i = 1:size(expHrM,1)
+%     [hV(i) , pV(i) , ciM(i,:)] = ttest(expHrM(i,:),1.02,'Alpha',0.01,'Tail','right');
+% end
+
+% Calculate median of bootstraps
+medianHrV = median(expHrM,2);
+
+% Calculate mean of bootstraps
+meanHrV = mean(expHrM,2);
+
+
+% Calculate standard deviation
+stdV = std(expHrM,[],2);
+
+
+% voxelsToKeepV = medianHrV - stdV*2 > 1;
+% val3M = NaN(size(croppedStr3M));
+% val3M(croppedStr3M(:)) = voxelsToKeepV;
+% planC = dose2CERR(val3M,[],...
+%     'Median-hazard - (2-sigma) > 1',[],[],'non-CT',regParamsS,'no',...
+%     assocScanUID,planC);
+% 
+% 
+% voxelsToKeepV = medianHrV - stdV*3 > 1;
+% val3M = NaN(size(croppedStr3M));
+% val3M(croppedStr3M(:)) = voxelsToKeepV;
+% planC = dose2CERR(val3M,[],...
+%     'Median-hazard - (3-sigma) > 1',[],[],'non-CT',regParamsS,'no',...
+%     assocScanUID,planC);
+% 
+% 
+% voxelsToKeepV = medianHrV - stdV*4 > 1;
+% val3M = NaN(size(croppedStr3M));
+% val3M(croppedStr3M(:)) = voxelsToKeepV;
+% planC = dose2CERR(val3M,[],...
+%     'Median-hazard - (4-sigma) > 1',[],[],'non-CT',regParamsS,'no',...
+%     assocScanUID,planC);
+% 
+% 
+% voxelsToKeepV = medianHrV - stdV*4.2 > 1;
+% val3M = NaN(size(croppedStr3M));
+% val3M(croppedStr3M(:)) = voxelsToKeepV;
+% planC = dose2CERR(val3M,[],...
+%     'Median-hazard - (4.2-sigma) > 1',[],[],'non-CT',regParamsS,'no',...
+%     assocScanUID,planC);
+
+
 val3M = NaN(size(croppedStr3M));
-val3M(croppedStr3M(:)) = hV;
+val3M(croppedStr3M(:)) = stdV;
 planC = dose2CERR(val3M,[],...
-    'Hazard>1.02',[],[],'non-CT',regParamsS,'no',...
+    'Std Dev Hazard',[],[],'non-CT',regParamsS,'no',...
     assocScanUID,planC);
 
 val3M = NaN(size(croppedStr3M));
-val3M(croppedStr3M(:)) = pV;
-planC = dose2CERR(val3M,[],...
-    'p-value_1.02',[],[],'non-CT',regParamsS,'no',...
-    assocScanUID,planC);
-
-val3M = NaN(size(croppedStr3M));
-val3M(croppedStr3M(:)) = ciM(:,1);
-planC = dose2CERR(val3M,[],...
-    'CI_lower_lim',[],[],'non-CT',regParamsS,'no',...
-    assocScanUID,planC);
-
-val3M = NaN(size(croppedStr3M));
-val3M(croppedStr3M(:)) = ciM(:,2);
-planC = dose2CERR(val3M,[],...
-    'CI_upper_lim',[],[],'non-CT',regParamsS,'no',...
-    assocScanUID,planC);
-
-val3M = NaN(size(croppedStr3M));
-val3M(croppedStr3M(:)) = median(expHrM,2);
+val3M(croppedStr3M(:)) = medianHrV; 
 planC = dose2CERR(val3M,[],...
     'Median Hazard',[],[],'non-CT',regParamsS,'no',...
     assocScanUID,planC);
+
+val3M = NaN(size(croppedStr3M));
+val3M(croppedStr3M(:)) = meanHrV; 
+planC = dose2CERR(val3M,[],...
+    'Mean Hazard',[],[],'non-CT',regParamsS,'no',...
+    assocScanUID,planC);
+
+val3M = NaN(size(croppedStr3M));
+val3M(croppedStr3M(:)) = medianHrV ./ stdV; 
+planC = dose2CERR(val3M,[],...
+    'MedianHazard / StdDev',[],[],'non-CT',regParamsS,'no',...
+    assocScanUID,planC);
+
+
+% ========== add a bootstrap hr to planC
+% val3M = NaN(size(croppedStr3M));
+% val3M(croppedStr3M(:)) = hrM(:,95); 
+% planC = dose2CERR(val3M,[],...
+%     'Hazard_boot_95',[],[],'non-CT',regParamsS,'no',...
+%     assocScanUID,planC);
+
+
 
 % =========== Write individual bootstrap samples to planC
 % for iBoot = 1:numBoots
