@@ -31,7 +31,7 @@
                                  },
 
 		   "texture" :{ 
-                "binWidth": [],
+                "binwidth": [],
 				"numGrLevels": 50,
 				"minSegThreshold": -500,
 				"maxSegThreshold": 1000,
