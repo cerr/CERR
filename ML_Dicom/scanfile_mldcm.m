@@ -80,7 +80,9 @@ try
     
     % get FMI
     attrFMI = in.readFileMetaInformation();
-    attrData.addAll(attrFMI);
+    if ~isempty(attrFMI)
+        attrData.addAll(attrFMI);
+    end
     
     if attrData.isEmpty
         isDcm = 0;
