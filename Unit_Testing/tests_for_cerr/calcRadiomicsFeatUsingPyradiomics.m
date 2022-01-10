@@ -5,7 +5,11 @@ function featS = calcRadiomicsFeatUsingPyradiomics(planC,strName,paramFilePath)
 %% Get scan & mask
 indexS = planC{end};
 strC = {planC{indexS.structures}.structureName};
-strNum = getMatchingIndex(strName,strC,'exact');
+if isnumeric(strName)
+    strNum = strName;
+else
+    strNum = getMatchingIndex(strName,strC,'exact');    
+end
 mask3M = getStrMask(strNum,planC);
 
 scanNum = getStructureAssociatedScan(strNum,planC);
