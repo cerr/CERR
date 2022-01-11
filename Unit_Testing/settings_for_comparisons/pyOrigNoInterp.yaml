@@ -28,7 +28,6 @@ setting:
   # First order-specific settings:
   voxelArrayShift: 0
   # GLCM & GLRLM-specific settings:
-  #weightingNorm: # If no value is specified, it is interpreted as None
   # GLDM-specific settings:
   gldm_a: 0
   
