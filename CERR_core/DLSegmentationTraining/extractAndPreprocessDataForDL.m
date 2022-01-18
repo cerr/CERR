@@ -16,6 +16,7 @@ function [scanOutC, maskOutC, scanNumV, optS, coordInfoS, planC] = ...
 % AI 9/18/20  Extended to handle multiple scans
 
 %% Get processing directives from optS
+filtS = optS.filter;
 regS = optS.register;
 scanOptS = optS.scan;
 resampleS = [scanOptS.resample];
@@ -33,6 +34,52 @@ if ~exist('testFlag','var')
     testFlag = true;
 end
 
+%% Filter image
+indexS = planC{end};
+strC = {planC{indexS.structures}.structureName};
+
+if ~exist('scanNumV','var') || isempty(scanNumV)
+    scanNumV = nan(1,length(scanOptS));
+    for n = 1:length(scanOptS)
+        
+        identifierS = scanOptS(n).identifier;
+        if ~isempty(filtS) && isfield(identifierS,'filtered') &&...
+                identifierS.filtered
+            
+            % Filter scan
+            [baseScanNum,filtScanNum,planC] = createFilteredScanForDLS(identifierS,...
+                                  filtS,planC);
+            
+            % Copy structures required for registration/cropping
+            copyStrsC = {};
+            if isfield(regS,'copyStr')
+                copyStrsC = {regS.copyStr};
+            end
+            if isfield(scanOptS(n),'crop') &&  isfield(scanOptS(n).crop,'params')
+                scanCropParS = scanOptS(n).crop.params;
+                cropStrListC = arrayfun(@(x)x.structureName,...
+                    scanCropParS,'un',0);
+                copyStrsC = [copyStrsC{:};cropStrListC];
+            end
+            if ~isempty(copyStrsC)
+                for s = 1:length(copyStrsC)
+                    cpyStrV = getMatchingIndex(copyStrsC{s},strC,'EXACT');
+                    assocScanV = getStructureAssociatedScan(cpyStrV,planC);
+                    cpyStr = cpyStrV(assocScanV==baseScanNum);
+                    if ~isempty(cpyStr)
+                        planC = copyStrToScan(cpyStr,filtScanNum,planC);
+                    end
+                end
+            end
+            
+            %Update scan no.
+            scanNumV(n) = filtScanNum;
+        else
+            scanNumV(n) = getScanNumFromIdentifiers(identifierS,planC);
+        end
+    end
+end
+
 
 %% Register scans 
 if ~isempty(fieldnames(regS))
@@ -44,7 +91,6 @@ if ~isempty(fieldnames(regS))
     if strcmp(regS.method,'none')
         %For pre-registered scans
         if isfield(regS,'copyStr')
-            copyStrsC = {regS.copyStr};
             for nStr = 1:length(copyStrsC)
                 cpyStrV = getMatchingIndex(copyStrsC{nStr},allStrC,'exact');
                 assocScanV = getStructureAssociatedScan(cpyStrV,planC);
@@ -59,13 +105,16 @@ if ~isempty(fieldnames(regS))
 end
 
 %% Get scan nos. matching identifiers
-if ~exist('scanNumV','var') || isempty(scanNumV)
-    scanNumV = nan(1,length(scanOptS));
+if ~isempty(scanOptS)
     for n = 1:length(scanOptS)
         identifierS = scanOptS(n).identifier;
-        scanNumV(n) = getScanNumFromIdentifiers(identifierS,planC);
+        if ~isempty(identifierS) && isfield(identifierS,'warped') &&  ...
+                identifierS.warped
+            scanNumV(n) = getAssocWarpedScanNum(scanNumV(n),planC);
+        end
     end
 end
+
 % Ignore missing inputs if marked optional
 optFlagV = strcmpi({scanOptS.required},'no');
 ignoreIdxV = optFlagV & isnan(scanNumV);
