@@ -153,7 +153,10 @@ if length(algorithmC) > 1 || ...
             %Append identifiers to o/p name
             idOut = filePrefixForHDF5;
             idS = scanOptS(nScan).identifier;
-            idS = rmfield(idS,'warped');
+            reservedFieldsC = {'warped','filtered'};
+            for nRes = 1:length(reservedFieldsC)
+                idS = rmfield(idS,reservedFieldsC{nRes});
+            end
             if ~isempty(idS)
                 idsC = cellfun(@(x)(idS.(x)),fieldnames(idS),'un',0);
                 idListC = idsC{1};

@@ -1,11 +1,13 @@
-function scanNumV = getScanNumFromIdentifiers(idS,planC)
+function scanNumV = getScanNumFromIdentifiers(idS,planC,origFlag)
 % Get scan no. with associated metadata matching supplied list of identifiers.
 % ------------------------------------------------------------------------
 % INPUTS
-% idS    : Structure containing identifiers (tags) and expected values
-%          Supported identifiers include 'imageType', 'seriesDescription',
-%          'scanType', 'scanDate', 'scanNum', and 'assocStructure'.
+% idS       : Structure containing identifiers (tags) and expected values
+%             Supported identifiers include 'imageType', 'seriesDescription',
+%             'scanType', 'scanDate', 'scanNum', and 'assocStructure'.
 % planC
+%----- Optional ---
+% origFlag :  Set to 1 to ignore 'warped' and 'filtered' scans (default:0).
 %--------------------------------------------------------------------------
 % AI 9/18/20
 
@@ -15,9 +17,13 @@ numScan = length(planC{indexS.scan});
 
 %Read list of identifiers
 identifierC = fieldnames(idS);
-warpFlag = strcmpi(identifierC,'warped');
-if any(warpFlag)
-    identifierC(warpFlag) = [];
+%Filter reserved fields
+resFieldsC = {'warped','filtered'};
+for k = 1 : length(resFieldsC)
+    keyFlag = strcmpi(identifierC,resFieldsC{k});
+    if any(keyFlag)
+        identifierC(keyFlag) = [];
+    end
 end
 matchIdxV = true(1,numScan);
 
@@ -88,9 +94,13 @@ end
 %Return matching scan nos.
 scanNumV = find(matchIdxV);
 
-if isfield(idS,'warped') && ~isempty(idS) && idS.warped
-    scanNumV = getAssocWarpedScanNum(scanNumV,planC);
+if ~exist('origFlag','var') || ~origFlag
+    if isfield(idS,'filtered') && ~isempty(idS) && idS.filtered
+        scanNumV = getAssocFilteredScanNum(scanNumV,planC);
+    end
+    if isfield(idS,'warped') && ~isempty(idS) && idS.warped
+        scanNumV = getAssocWarpedScanNum(scanNumV,planC);
+    end
 end
-
 
 end
