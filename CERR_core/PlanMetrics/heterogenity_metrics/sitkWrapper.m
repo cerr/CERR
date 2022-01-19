@@ -208,7 +208,14 @@ switch filterType
         if isfield(paramS,'refImgPath') && ~isempty(paramS.refImgPath)
             refItkImg = py.SimpleITK.ReadImage(paramS.refImgPath);
             refItkImg = py.SimpleITK.Cast(refItkImg,py.SimpleITK.sitkFloat32);
-            %refScanPy = py.SimpleITK.GetArrayFromImage(refItkImg);
+            %Adjust to RTOG-compliant orientation 
+            refScanPy = py.SimpleITK.GetArrayFromImage(refItkImg);
+            refScan3M = single(refScanPy);
+            refScan3M = permute(refScan3M,[2,3,1]);
+            refScan3M = flip(flip(refScan3M,1),2);
+            refScan3M = flip(refScan3M,3);
+            refScanPy = py.numpy.array(refScan3M);
+            refItkImg = py.SimpleITK.GetImageFromArray(refScanPy);
         elseif isfield(paramS,'refImgMat') && ~isempty(paramS.refImgMat)
             refScanPy = py.numpy.array(paramS.refImgMat);
             refScanPy = refScanPy.astype(py.numpy.float32);   
