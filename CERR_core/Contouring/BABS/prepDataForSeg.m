@@ -106,24 +106,9 @@ scanOptS = userOptS.scan;
 for nScan = 1:size(scanC,1)
     
     %Append identifiers to o/p name
-    idS = scanOptS(nScan).identifier;
-    reservedFieldsC = {'warped','filtered'};
-    for nRes = 1:length(reservedFieldsC)
-        idS = rmfield(idS,reservedFieldsC{nRes});
-    end
-    if ~isempty(idS)
-        idListC = cellfun(@(x)(idS.(x)),fieldnames(idS),'un',0);
-        idListC = idListC{1};
-        if iscell(idListC)&& length(idListC)>1
-            appendStr = strjoin(idListC,'_');
-        else
-            appendStr = idListC;
-        end
-        idOut = [filePrefixForHDF5,'_',appendStr];
-    else
-        idOut = [filePrefixForHDF5];
-    end
-        
+    idOut = getOutputFileNameForDL(filePrefixForHDF5,scanOptS(nScan),...
+        scanNumV(nScan),planC);
+    
     %Get o/p dirs & dim
     outDirC = getOutputH5Dir(modInputPath,scanOptS(nScan),'');
     

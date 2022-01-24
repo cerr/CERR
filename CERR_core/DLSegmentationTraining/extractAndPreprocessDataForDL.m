@@ -9,8 +9,9 @@ function [scanOutC, maskOutC, scanNumV, optS, coordInfoS, planC] = ...
 % planC         :  CERR archive
 %
 % --Optional--
-% testFlag      : Set flag to true for test dataset. Default:true. 
-%                 Assumes testing dataset if not specified
+% varargin{1}: testFlag. Set flag to false to export structure masks. 
+%              Default:true (Assumes testing dataset if not specified).
+% varargin{2}: Vector of scan nos. Default: Use scan identifiers from optS. 
 % -------------------------------------------------------------------------
 % AI 9/18/19
 % AI 9/18/20  Extended to handle multiple scans
@@ -53,13 +54,15 @@ if ~exist('scanNumV','var') || isempty(scanNumV)
             % Copy structures required for registration/cropping
             copyStrsC = {};
             if isfield(regS,'copyStr')
-                copyStrsC = {regS.copyStr};
+                copyStrsC = [regS.copyStr];
             end
             if isfield(scanOptS(n),'crop') &&  isfield(scanOptS(n).crop,'params')
                 scanCropParS = scanOptS(n).crop.params;
+                if isfield(scanCropParS,'structureName')
                 cropStrListC = arrayfun(@(x)x.structureName,...
                     scanCropParS,'un',0);
-                copyStrsC = [copyStrsC{:};cropStrListC];
+                copyStrsC = [copyStrsC;cropStrListC];
+                end
             end
             if ~isempty(copyStrsC)
                 for s = 1:length(copyStrsC)
