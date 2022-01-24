@@ -22,11 +22,16 @@ cd(fullfile(topLevelCERRDir,'Unit_Testing','tests_for_cerr'));
 
 try
     if count(P,pyradiomicsWrapperPath) == 0
+        %Insert paths to scipy and pyradiomics.
+        insert(P,int64(0),'C:\Miniconda3\Lib\site-packages\radiomics'); %Replace with path to pyradiomic pkg
+        P = py.sys.path;
+        insert(P,int64(0),'C:\Miniconda3\Lib\site-packages\scipy'); %Replace with path to scipy pkg
+        P = py.sys.path;
         insert(P,int64(0),pyradiomicsWrapperPath);
     end
     py.importlib.import_module(pyModule);
-catch
-    disp('Python module could not be imported, check the pyradiomics path');
+catch e 
+    error('Python module %s could not be imported. %s',pyModule,e.message);
 end
 
 %Write scan & mask to NRRD format
