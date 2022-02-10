@@ -70,7 +70,7 @@ planC{index1S.scan}(scanNum).scanType = ...
 
 planName = fullfile(outDir,'1b1.mat');
 save_planC(planC,[],'PASSED',planName);
-exportScans(planName,outDir,'1b',metadataS.checkerboard);
+exportScans(planName,outDir,'1b',metadataS.impulse);
 
 clear planC
 
@@ -149,7 +149,38 @@ planName = fullfile(outDir,'3b1.mat');
 save_planC(planC,[],'PASSED',planName);
 exportScans(planName,outDir,'3b',metadataS.checkerboard);
 
-%% 5.a.1
+clear planC
+
+%% 4.
+% 4.a.1
+fileName = fullfile(dataDirName,'impulse.mat');
+[planC,structNum] = preparePlanC(fileName);
+paramFile = fullfile(configDirName,'IBSIPhase2ID4a1.json');
+
+planC = generateTextureMapFromPlanC(planC,structNum,paramFile);
+scanNum = length(planC{index1S.scan});
+planC{index1S.scan}(scanNum).scanType = ...
+    [planC{index1S.scan}(scanNum).scanType,'_4a1'];
+
+planName = fullfile(outDir,'4a1.mat');
+save_planC(planC,[],'PASSED',planName);
+exportScans(planName,outDir,'4a',metadataS.impulse);
+
+%4.b.1
+fileName = fullfile(dataDirName,'sphere.mat');
+[planC,structNum] = preparePlanC(fileName);
+paramFile = fullfile(configDirName,'IBSIPhase2ID4b1.json');
+
+planC = generateTextureMapFromPlanC(planC,structNum,paramFile);
+scanNum = length(planC{index1S.scan});
+planC{index1S.scan}(scanNum).scanType = ...
+    [planC{index1S.scan}(scanNum).scanType,'_4b1'];
+
+planName = fullfile(outDir,'4b1.mat');
+save_planC(planC,[],'PASSED',planName);
+exportScans(planName,outDir,'4b',metadataS.sphere);
+
+%% 5.a.1a
 fileName = fullfile(dataDirName,'impulse.mat');
 [planC,structNum] = preparePlanC(fileName);
 paramFile = fullfile(configDirName,'IBSIPhase2ID5a1.json');
