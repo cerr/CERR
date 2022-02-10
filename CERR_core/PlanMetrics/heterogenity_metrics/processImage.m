@@ -3,8 +3,10 @@ function outS = processImage(filterType,scan3M,mask3M,paramS,hWait)
 %-------------------------------------------------------------------------
 % INPUTS
 % filterType -  Supported textures: 'HaralickCooccurance','Wavelets','Sobel',
-%               'LoG','Gabor','Mean','First order statistics',
-%               'LawsConvolution','LawsEnergy','CoLlage' or 'SimpleITK'.
+%               'LoG' (ITK-compliant),'LoG_IBSI' (IBSI-compliant),'Gabor'
+%               (IBSI compliant), 'Gabor_deprecated', 'Mean','LawsEnergy'
+%               'LawsConvolution','CoLlage','First order statistics', 
+%               or 'SimpleITK'.
 %               Other filters: 'suv', 'assignBkgIntensity'.
 % scan3M     - 3-D scan array, cropped around ROI and padded if specified
 % mask3M     - 3-D mask, croppped to bounding box
@@ -156,7 +158,7 @@ switch filterType
         
     case 'Wavelets'
         
-        vol3M   = double(scan3M);
+        vol3M   = flip(double(scan3M),3); %FOR IBSI2
         
         dirListC = {'All','HHH','LHH','HLH','HHL','LLH','LHL','HLL','LLL'};
         wavType =  paramS.Wavelets.val;
@@ -196,7 +198,7 @@ switch filterType
                 drawnow;
             end
             
-            outS.(outname) = out3M;
+            outS.(outname) = flip(out3M,3); %FOR IBSI2
         end
         
         
@@ -245,17 +247,35 @@ switch filterType
             drawnow;
         end
         
-    case 'Gabor'
+    case 'Gabor_deprecated'
         
         vol3M = double(scan3M);
         gabor3M = filtImgGabor(vol3M,paramS.Radius.val,paramS.Sigma.val,...
-            paramS.AspectRatio.val,paramS.Orientation.val,paramS.Wavlength.val);      
+           paramS.AspectRatio.val,paramS.Orientation.val,paramS.Wavlength.val);
+       
+        outS.Gabor_deprecated = gabor3M;
+        
+        if ishandle(hWait)
+            set(hWait, 'Vertices', [[0 0 1 1]' [0 1 1 0]']);
+            drawnow;
+        end
+        
+    case 'Gabor'
+        
+        vol3M = double(scan3M);
+        voxelSizV = paramS.VoxelSize_mm.val;
+        sigma = paramS.Sigma_mm.val/voxelSizV(1);
+        wavelength = paramS.Wavlength_mm.val./voxelSizV(1);
+        theta = paramS.Orientation.val;
+        gamma = paramS.SpatialAspectRatio.val;
+        gabor3M = GaborFiltIBSI(vol3M,sigma,wavelength,gamma,theta);
         outS.Gabor = gabor3M;
         
         if ishandle(hWait)
             set(hWait, 'Vertices', [[0 0 1 1]' [0 1 1 0]']);
             drawnow;
         end
+        
         
     case 'Mean'
         
