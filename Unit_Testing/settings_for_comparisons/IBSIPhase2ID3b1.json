@@ -14,7 +14,7 @@
 
                    "padding": [{
                                 "method": "mirror",  
-                                "size": [2,2,2]
+                                "size": [2,1,2]
 			       }
                               ]
 	    }
