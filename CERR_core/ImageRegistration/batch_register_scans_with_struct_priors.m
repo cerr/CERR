@@ -1,7 +1,6 @@
 function batch_register_scans_with_struct_priors(baseScanFileNameC,...
     movScansFileNameC, basePriorStructNameC, movPriorStructNameC, ...
-    movStrsToDeformC, movDoseToDeformC, plmSettingsFile, registeredDir,...
-    tmpDirPath, paired_scans_flag)
+    movStrsToDeformC, movDoseToDeformC, registeredDir, paired_scans_flag)
 % function batch_register_scans_with_struct_priors(baseScanFileNameC,...
 %     movScansFileNameC, basePriorStructNameC, movPriorStructNameC, ...
 %     strsToDeformC, registeredDir, paired_scans_flag)
@@ -32,12 +31,6 @@ function batch_register_scans_with_struct_priors(baseScanFileNameC,...
 %registeredDir = '/lab/deasylab1/Data/RTOG0617/registrations_pericardium/CERR_files_OLD_CONVN_to_RIDER_1225316081_First_template'; %RIDER RIDER-1225316081
 % registeredDir = '/lab/deasylab1/Data/RTOG0617/registrations_pericardium/CERR_files_NEW_CONVN_to_RIDER_1225316081_First_template'; %RIDER RIDER-1225316081
 %registeredDir = '/lab/deasylab1/Data/RTOG0617/registrations_pericardium/CERR_files_MSK_EarlyStage_to_RIDER_1225316081_First_template'; % MSK early stage Lung (fractionation corrected)
-
-%Plastimatch settings file
-%plmSettingsFile = %'/lab/deasylab1/Data/RTOG0617/plastimatch_registration_settings/plm_reg_settings_with_landmark_stiff%ness_pericard.txt';
-
-%Temp dir
-%tmpDirPath = '/cluster/home/aptea/segSessions/registration_temp';
 
 if ~exist(registeredDir,'dir')
     mkdir(registeredDir)
@@ -188,7 +181,7 @@ for iBase = 1:length(baseScanFileNameC)
                 
                 % Registration settings
                 registration_tool = 'PLASTIMATCH';
-                %plmSettingsFile = %'/lab/deasylab1/Data/RTOG0617/plastimatch_registration_settings/plm_reg_settings_wit%h_landmark_stiffness_pericard.txt';
+                plmSettingsFile = '/lab/deasylab1/Data/RTOG0617/plastimatch_registration_settings/plm_reg_settings_with_landmark_stiffness_pericard.txt';
                 %plmSettingsFile = '//vpensmph/deasylab1/Data/RTOG0617/plastimatch_registration_settings/plm_reg_settings_with_landmark_stiffness_pericard.txt';
                 %plmSettingsFile = 'L:/Data/RTOG0617/plastimatch_registration_settings/plm_reg_settings_with_landmark_stiffness_pericard.txt';
                 %baseMask3M = [];
@@ -197,7 +190,7 @@ for iBase = 1:length(baseScanFileNameC)
                 inBspFile = '';
                 outBspFile = '';
                 %tmpDirPath = '/lab/deasylab1/Data/RTOG0617/cerr_registration_temp_dir';
-                %tmpDirPath = '/cluster/home/aptea/segSessions/registration_temp';
+                tmpDirPath = '/cluster/home/aptea/segSessions/registration_temp';
                 %tmpDirPath = '//vpensmph/deasylab1/Data/RTOG0617/cerr_registration_temp_dir';
                 %tmpDirPath = 'L:/Data/RTOG0617/cerr_registration_temp_dir';
                 algorithm = 'BSPLINE PLASTIMATCH';
@@ -317,3 +310,4 @@ for iBase = 1:length(baseScanFileNameC)
     end  % Iterate over moving scans
     
 end % Iterate over base scans
+
