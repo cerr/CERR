@@ -1,6 +1,6 @@
 function modelVoxelDose(baseScanFile,...
     registeredDoseDir,structName,outcomesFile,...
-    savePlancFileName,datasetName,saveHzFileName)
+    savePlancFileName,datasetName,integralDoseFile,saveHzFileName)
 % function modelVoxelDose(baseScanFile,registeredDoseDir,structName,outcomesFile,savePlancFileName)
 %
 % Image-based data mining of dose distributions. Function to model dose to each voxel within the heart structure.
@@ -100,8 +100,38 @@ switch upper(datasetName)
         indV = indV & ~cellfun(@isempty,strfind({dirS.name},'.mat'));
         dirS = dirS(indV);
         
+    case 'RTOG0617_PORT_OLD_CONVN'
+          % outcomes
+        patIdC = rawC(2:end,1);
+        %patIdC = cellfun(@num2str,patIdC,'UniformOutput', false);
+        patIdC = strtok(patIdC);
+        indNotValidV = isnan(numM(:,1)) | isnan(numM(:,3));
+        survStatusV = numM(~indNotValidV,1); % 1: death, 0: alive
+        overalSurvMonthsV = numM(~indNotValidV,2);
+        diceV = numM(~indNotValidV,3);
+        patIdC(indNotValidV) = [];
+        
+        % dose files
+        dirS = dir(registeredDoseDir);
+        dirS([dirS.isdir]) = [];
+        indV = ~cellfun(@isempty,strfind({dirS.name},'.mat')); % use only .mat files
+        dirS = dirS(indV);
         
 end
+
+% % Read integral dose file and adjust overalSurvMonthsV
+% [numM,txtC,rawIntDoseC] = xlsread(integralDoseFile);
+% integralDoseV = nan(length(patIdC),1);
+% for i = 1:length(patIdC)
+%     indMatch = find(strncmp(patIdC{i},rawIntDoseC(:,2),length(patIdC{i})));
+%     integralDoseV(i) = rawIntDoseC{indMatch,3};
+% end
+% highIntDose = quantile(integralDoseV,0.98);
+% lowIntDose = quantile(integralDoseV,0.02);
+% deltaVariance = 0.4;
+% survAdjustFactorV = 1 + deltaVariance/2 - (integralDoseV-lowIntDose)*deltaVariance/(highIntDose-lowIntDose);
+% overalSurvMonthsV = overalSurvMonthsV .* survAdjustFactorV;
+
 
 % % Load Outcomes file
 % [numM,txtC,rawC] = xlsread(outcomesFile);
@@ -145,8 +175,9 @@ str3M = getStrMask(indCropStruct,planC);
 croppedStr3M = str3M(rMin:rMax,cMin:cMax,sMin:sMax);
 
 % Get structure mask for Left Atrium
-indLeftAtrium = getMatchingIndex('l atrium',lower(strNamC),'exact');
+%indLeftAtrium = getMatchingIndex('l atrium',lower(strNamC),'exact');
 %indLeftAtrium = getMatchingIndex('mitral valve',lower(strNamC),'exact');
+indLeftAtrium = getMatchingIndex('l ventricle',lower(strNamC),'exact');
 leftAtriumMask3M = getStrMask(indLeftAtrium,planC);
 croppedLeftAtriumStr3M = leftAtriumMask3M(rMin:rMax,cMin:cMax,sMin:sMax);
 
@@ -184,10 +215,10 @@ stdPval = NaN(numVoxels,1);
 hrV = NaN(numVoxels,1);
 stdHrV = NaN(numVoxels,1);
 
-% Censor at 18 months
-survAbovMonthCutoffV = overalSurvMonthsV > 18;
-overalSurvMonthsV(survAbovMonthCutoffV) = 18;
-survStatusV(survAbovMonthCutoffV) = 0; %alive
+% % Censor at 18 months
+% survAbovMonthCutoffV = overalSurvMonthsV > 18;
+% overalSurvMonthsV(survAbovMonthCutoffV) = 18;
+% survStatusV(survAbovMonthCutoffV) = 0; %alive
 
 % Find observations tht are lost to followup before 18 months
 indLostFupV = overalSurvMonthsV < 18 & survStatusV == 0;
@@ -257,9 +288,12 @@ parfor iBoot = 1:numBoots    %parfor
             
             % ====== Spearman rank correlation
             %[rho,p] = corr(double(doseTrainV),survTrainV,'Type','spearman');            
-            [rho,p] = corr(double(doseTrainV),leftAtriumMeanDoseTrainV,'Type','spearman');            
+            [rho,p] = corr(double(doseTrainV), leftAtriumMeanDoseTrainV,'Type','spearman');    
             pValM(i,iBoot) = p;
             hrM(i,iBoot) = rho;
+            
+            % Ratio of (mean dose to event<30) and (mean dose to event >=30)
+            %hrM(i,iBoot) = mean(doseTrainV(survTrainV < 30)) / mean(doseTrainV(survTrainV >= 30));
             
         end
         
@@ -289,13 +323,13 @@ else
     expHrM = hrM;
 end
 
-% hV = zeros(numVoxels,1);
-% pV = zeros(numVoxels,1);
-% ciM = zeros(numVoxels,2);
-% 
-% for i = 1:size(expHrM,1)
-%     [hV(i) , pV(i) , ciM(i,:)] = ttest(expHrM(i,:),1.02,'Alpha',0.01,'Tail','right');
-% end
+hV = zeros(numVoxels,1);
+pV = zeros(numVoxels,1);
+ciM = zeros(numVoxels,2);
+
+for i = 1:size(expHrM,1)
+    [hV(i) , pV(i) , ciM(i,:)] = ttest(expHrM(i,:),1.0,'Alpha',0.01,'Tail','right');
+end
 
 % Calculate median of bootstraps
 medianHrV = median(expHrM,2);
@@ -362,6 +396,13 @@ val3M = NaN(size(croppedStr3M));
 val3M(croppedStr3M(:)) = medianHrV ./ stdV; 
 planC = dose2CERR(val3M,[],...
     'MedianHazard / StdDev',[],[],'non-CT',regParamsS,'no',...
+    assocScanUID,planC);
+
+
+val3M = NaN(size(croppedStr3M));
+val3M(croppedStr3M(:)) = ciM(:,1); 
+planC = dose2CERR(val3M,[],...
+    'CI Lower Bound',[],[],'non-CT',regParamsS,'no',...
     assocScanUID,planC);
 
 
