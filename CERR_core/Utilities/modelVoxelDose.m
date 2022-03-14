@@ -16,7 +16,7 @@ function modelVoxelDose(baseScanFile,...
 % APA, 10/22/2021
 
 
-cox_flag = false; % Spearmans rank correlation
+cox_flag = true; % false=Spearmans rank correlation, true=cox model.
 
 % Load Outcomes file
 [numM,txtC,rawC] = xlsread(outcomesFile);
@@ -119,13 +119,13 @@ switch upper(datasetName)
         
 end
 
-% % Read integral dose file and adjust overalSurvMonthsV
-% [numM,txtC,rawIntDoseC] = xlsread(integralDoseFile);
-% integralDoseV = nan(length(patIdC),1);
-% for i = 1:length(patIdC)
-%     indMatch = find(strncmp(patIdC{i},rawIntDoseC(:,2),length(patIdC{i})));
-%     integralDoseV(i) = rawIntDoseC{indMatch,3};
-% end
+% Read integral dose file and adjust overalSurvMonthsV
+[numM,txtC,rawIntDoseC] = xlsread(integralDoseFile);
+integralDoseV = nan(length(patIdC),1);
+for i = 1:length(patIdC)
+    indMatch = find(strncmp(patIdC{i},rawIntDoseC(:,2),length(patIdC{i})));
+    integralDoseV(i) = rawIntDoseC{indMatch,3};
+end
 % highIntDose = quantile(integralDoseV,0.98);
 % lowIntDose = quantile(integralDoseV,0.02);
 % deltaVariance = 0.4;
@@ -176,8 +176,8 @@ croppedStr3M = str3M(rMin:rMax,cMin:cMax,sMin:sMax);
 
 % Get structure mask for Left Atrium
 %indLeftAtrium = getMatchingIndex('l atrium',lower(strNamC),'exact');
-%indLeftAtrium = getMatchingIndex('mitral valve',lower(strNamC),'exact');
-indLeftAtrium = getMatchingIndex('l ventricle',lower(strNamC),'exact');
+indLeftAtrium = getMatchingIndex('mitral valve',lower(strNamC),'exact');
+%indLeftAtrium = getMatchingIndex('l ventricle',lower(strNamC),'exact');
 leftAtriumMask3M = getStrMask(indLeftAtrium,planC);
 croppedLeftAtriumStr3M = leftAtriumMask3M(rMin:rMax,cMin:cMax,sMin:sMax);
 
@@ -209,16 +209,14 @@ end
 % Seed random number generator
 rng(0617)
 
-% Initialize vectors to store p-value and hazard ratio for voxels
-pValV = NaN(numVoxels,1);
-stdPval = NaN(numVoxels,1);
-hrV = NaN(numVoxels,1);
-stdHrV = NaN(numVoxels,1);
+% Censor at 18 months
+survAbovMonthCutoffV = overalSurvMonthsV > 18;
+overalSurvMonthsV(survAbovMonthCutoffV) = 18;
+survStatusV(survAbovMonthCutoffV) = 0; %alive
 
-% % Censor at 18 months
-% survAbovMonthCutoffV = overalSurvMonthsV > 18;
-% overalSurvMonthsV(survAbovMonthCutoffV) = 18;
-% survStatusV(survAbovMonthCutoffV) = 0; %alive
+% Filter out low doses
+indDose20pctOver20V = find(sum(doseM > 20,2)/numPatients > 0.2);
+numCalcVoxels = numel(indDose20pctOver20V);
 
 % Find observations tht are lost to followup before 18 months
 indLostFupV = overalSurvMonthsV < 18 & survStatusV == 0;
@@ -235,7 +233,7 @@ indTrainV = indToUseV & ~indLostFupV; % & cv.training;
 
 
 % Bootstrap the training set
-numBoots = 100; %10
+numBoots = 30; %10
 numTraining = sum(indTrainV);
 trainIndV = find(indTrainV);
 indBootM = false([numTraining,numBoots]);
@@ -248,8 +246,10 @@ end
 
 
 tic
-pValM = zeros(numVoxels,numBoots);
-hrM =  zeros(numVoxels,numBoots);
+
+% Initialize vectors to store p-value and hazard ratio for voxels
+pValM = zeros(numCalcVoxels,numBoots);
+hrM =  zeros(numCalcVoxels,numBoots);
 
 parfor iBoot = 1:numBoots    %parfor
     
@@ -258,37 +258,38 @@ parfor iBoot = 1:numBoots    %parfor
     selectedV = randsample(numTraining,numTraining,true);
     indV = trainIndV(selectedV);
 
-    for i = 1:numVoxels
+    for i = 1:numCalcVoxels  % numVoxels
         %if ~mod(i,50)
         %   disp(['========', num2str(i), '  ==============='])
         %end
         %statsS = struct();
         
         %indV = trainIndV(indBootM(:,iBoot));
-        doseTrainV = doseM(i,indV);
-        doseTrainV = doseTrainV + 1e-5*rand(size(doseTrainV));
+        doseTrainV = doseM(indDose20pctOver20V(i),indV);
+        doseTrainV = doseTrainV + 1e-2*rand(size(doseTrainV));
         doseTrainV = doseTrainV(:);
-        survTrainV = overalSurvMonthsV(indV);
+        survTrainV = overalSurvMonthsV(indV) + 0.001*rand(size(doseTrainV));
         censorTrainV = censoredV(indV);
+        intDoseTrainV = integralDoseV(indV)+ rand(size(doseTrainV));
         
         leftAtriumMeanDoseTrainV = leftAtriumMeanDoseV(indV);
         
         if cox_flag
             % ====== Cox model
             [b,logl,H,statsS] = ...
-                coxphfit(double(doseTrainV),survTrainV,...
+                coxphfit([double(doseTrainV),intDoseTrainV(:)],survTrainV,...
                 'censoring',~censorTrainV);
             % C:\Program Files\Matlab\R2019b\toolbox\stats\stats\private\statsfminbx.m figtr line 186
             
             %statsS = bsxfun(@cox,doseTrainM, survTrainM, censorTrainM);
-            pValM(i,iBoot) = statsS.p;
-            hrM(i,iBoot) = statsS.beta;
+            pValM(i,iBoot) = statsS.p(1);
+            hrM(i,iBoot) = statsS.beta(1);
             
         else
             
             % ====== Spearman rank correlation
-            %[rho,p] = corr(double(doseTrainV),survTrainV,'Type','spearman');            
-            [rho,p] = corr(double(doseTrainV), leftAtriumMeanDoseTrainV,'Type','spearman');    
+            [rho,p] = corr(double(doseTrainV),survTrainV,'Type','spearman');            
+            %[rho,p] = corr(double(doseTrainV), leftAtriumMeanDoseTrainV,'Type','spearman');    
             pValM(i,iBoot) = p;
             hrM(i,iBoot) = rho;
             
@@ -323,9 +324,9 @@ else
     expHrM = hrM;
 end
 
-hV = zeros(numVoxels,1);
-pV = zeros(numVoxels,1);
-ciM = zeros(numVoxels,2);
+hV = zeros(numCalcVoxels,1);
+pV = zeros(numCalcVoxels,1);
+ciM = zeros(numCalcVoxels,2);
 
 for i = 1:size(expHrM,1)
     [hV(i) , pV(i) , ciM(i,:)] = ttest(expHrM(i,:),1.0,'Alpha',0.01,'Tail','right');
@@ -375,32 +376,37 @@ stdV = std(expHrM,[],2);
 
 
 val3M = NaN(size(croppedStr3M));
-val3M(croppedStr3M(:)) = stdV;
+%val3M(croppedStr3M(indDose20pctOver20V)) = stdV;
+val3M(indDose20pctOver20V) = stdV;
 planC = dose2CERR(val3M,[],...
-    'Std Dev Hazard',[],[],'non-CT',regParamsS,'no',...
+    'Std Dev',[],[],'non-CT',regParamsS,'no',...
     assocScanUID,planC);
 
 val3M = NaN(size(croppedStr3M));
-val3M(croppedStr3M(:)) = medianHrV; 
+%val3M(croppedStr3M(indDose20pctOver20V)) = medianHrV; 
+val3M(indDose20pctOver20V) = medianHrV; 
 planC = dose2CERR(val3M,[],...
-    'Median Hazard',[],[],'non-CT',regParamsS,'no',...
+    'Median',[],[],'non-CT',regParamsS,'no',...
     assocScanUID,planC);
 
 val3M = NaN(size(croppedStr3M));
-val3M(croppedStr3M(:)) = meanHrV; 
+%val3M(croppedStr3M(indDose20pctOver20V)) = meanHrV; 
+val3M(indDose20pctOver20V) = meanHrV; 
 planC = dose2CERR(val3M,[],...
-    'Mean Hazard',[],[],'non-CT',regParamsS,'no',...
+    'Mean',[],[],'non-CT',regParamsS,'no',...
     assocScanUID,planC);
 
 val3M = NaN(size(croppedStr3M));
-val3M(croppedStr3M(:)) = medianHrV ./ stdV; 
+%val3M(croppedStr3M(indDose20pctOver20V)) = medianHrV ./ stdV; 
+val3M(indDose20pctOver20V) = medianHrV ./ stdV; 
 planC = dose2CERR(val3M,[],...
-    'MedianHazard / StdDev',[],[],'non-CT',regParamsS,'no',...
+    'Median / StdDev',[],[],'non-CT',regParamsS,'no',...
     assocScanUID,planC);
 
 
 val3M = NaN(size(croppedStr3M));
-val3M(croppedStr3M(:)) = ciM(:,1); 
+%val3M(croppedStr3M(indDose20pctOver20V)) = ciM(:,1); 
+val3M(indDose20pctOver20V) = ciM(:,1); 
 planC = dose2CERR(val3M,[],...
     'CI Lower Bound',[],[],'non-CT',regParamsS,'no',...
     assocScanUID,planC);
