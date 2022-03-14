@@ -60,7 +60,7 @@ errC = {};
 
 parfor planNum = 1:length(dirS)
     
-     try
+    try
         
         %Load file
         fprintf('\nProcessing pt %d of %d...\n',planNum,length(dirS));
@@ -123,6 +123,10 @@ parfor planNum = 1:length(dirS)
             %Append identifiers to o/p name
             if length(scanOptS)>1
                 idS = scanOptS(n).identifier;
+                reservedFieldsC = {'warped','filtered'};
+                for nRes = 1:length(reservedFieldsC)
+                    idS = rmfield(idS,reservedFieldsC{nRes});
+                end
                 idListC = cellfun(@(x)(idS.(x)),fieldnames(idS),'un',0);
                 appendStr = strjoin(idListC,'_');
                 idOut = [identifier,'_',appendStr];

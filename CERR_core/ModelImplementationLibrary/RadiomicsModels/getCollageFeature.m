@@ -49,7 +49,7 @@ end
 if numel(scanNum) > 1
     scanArray3M = scanNum;
 else
-    scanArray3M = planC{indexS.scan}(scanNum).scanArray - planC{indexS.scan}(scanNum).scanInfo(1).CTOffset;
+    scanArray3M = single(planC{indexS.scan}(scanNum).scanArray) - planC{indexS.scan}(scanNum).scanInfo(1).CTOffset;
 end
 
 % calculate dominant orientations

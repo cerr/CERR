@@ -2,13 +2,16 @@ function planC = runSegForPlanC(planC,clientSessionPath,algorithm,sshConfigFile,
 % function planC = runSegForPlanC(planC,clientSessionPath,algorithm,SSHkeyPath,serverSessionPath,varargin)
 %
 % This function serves as a wrapper for different types of segmentations.
-%
-% INPUT:
+%--------------------------------------------------------------------------
+% INPUTS:
 % planC - CERR's planC object.
 % sessionPath - path to write temporary segmentation metadata.
 % algorithm - string which specifies segmentation algorith
-% varargin - additional algorithm-specific inputs
-%
+% --Optional inputs---
+% varargin{1}: Path to segmentation container 
+% varargin{2}: Scan no. (replaces scan identifier)
+% varargin{3}: Flag for export of structure masks (Default:0 (off))
+%--------------------------------------------------------------------------
 % Following directories are created within the session directory:
 % --- ctCERR: contains CERR file from planC.
 % --- segmentedOrigCERR: CERR file with resulting segmentation fused with
@@ -151,19 +154,8 @@ if length(algorithmC) > 1 || ...
         for nScan = 1:length(scanOptS)
             
             %Append identifiers to o/p name
-            idOut = filePrefixForHDF5;
-            idS = scanOptS(nScan).identifier;
-            idS = rmfield(idS,'warped');
-            if ~isempty(idS)
-                idsC = cellfun(@(x)(idS.(x)),fieldnames(idS),'un',0);
-                idListC = idsC{1};
-                if iscell(idListC)&& length(idListC)>1
-                    appendStr = strjoin(idListC,'_');
-                else
-                    appendStr = idListC;
-                end
-                idOut = [idOut,'_',appendStr];
-            end
+            idOut = getOutputFileNameForDL(filePrefixForHDF5,scanOptS(nScan),...
+                scanNumV(nScan),planC);
             
             %Get o/p dirs and dim
             outDirC = getOutputH5Dir(modInputPath,scanOptS(nScan),'');

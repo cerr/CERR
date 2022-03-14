@@ -26,7 +26,7 @@ function [out] = fixDisplayString(in)
 % along with CERR.  If not, see <http://www.gnu.org/licenses/>.
 
 if isempty(in)
-    out = in;
+    out = char(in);
     return
 end
 indV = strfind(in,'_');

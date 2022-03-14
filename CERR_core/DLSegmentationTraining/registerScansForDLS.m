@@ -63,14 +63,38 @@ switch(lower(registrationTool))
         %Warp selected structures
         if isfield(paramS,'copyStr')
             copyStrC = paramS.copyStr;
-            movStrV = [];
+            cpyBaseStrV = [];
+            cpyMovStrV = [];
             strC = {planC{indexS.structures}.structureName};
             for nStr = 1:length(copyStrC)
-                matchIdx = getMatchingIndex(copyStrC{nStr},strC,'EXACT');
-                movStrV = [movStrV,matchIdx];
+                matchIdxV = getMatchingIndex(copyStrC{nStr},strC,'EXACT');
+                assocScanV = getStructureAssociatedScan(matchIdxV,planC);
+                baseMatchIdx = matchIdxV(assocScanV==baseScanNum);
+                movMatchIdx = matchIdxV(assocScanV==movScanNum);
+                cpyBaseStrV = [cpyBaseStrV,baseMatchIdx];
+                cpyMovStrV = [cpyMovStrV,movMatchIdx];
             end
-            planC = warp_structures(deformS,regScanNum,movStrV,planC,...
-                planC,tmpCmdDir,0);
+            numStrs = length(planC{indexS.structures});
+            if ~isempty(cpyBaseStrV)
+                planC = warp_structures(deformS,regScanNum,cpyBaseStrV,...
+                    planC,planC,tmpCmdDir,0);
+                numStrs = length(planC{indexS.structures});
+                %Rename warped structures
+                for nStr = 1:length(movStrV)
+                    strIdx = numStrs-nStr+1;
+                    planC{indexS.structures}(strIdx).structureName = ...
+                    planC{indexS.structures}(cpyBaseStrV(nStr)).structureName;
+                end
+            end
+            if ~isempty(cpyMovStrV)
+                for nStr = 1:length(cpyMovStrV)
+                    planC = copyStrToScan(cpyMovStrV(nStr),regScanNum,planC);
+                    %Rename copied structures
+                    numStrs = numStrs+1;
+                    planC{indexS.structures}(numStrs).structureName =...
+                    planC{indexS.structures}(cpyMovStrV(nStr)).structureName;
+                end
+            end
         end
         
         
@@ -81,18 +105,5 @@ switch(lower(registrationTool))
             registrationTool);
         
 end
-
-%Rename warped structures
-if isfield(paramS,'copyStr')
-    copyStrC = paramS.copyStr;
-    numStrs = length(planC{indexS.structures});
-    numCopy = length(copyStrC);
-    for nStr = 1:length(copyStrC)
-        strIdx = numStrs-nStr+1;
-        planC{indexS.structures}(strIdx).structureName =...
-            copyStrC{numCopy-nStr+1};
-    end
-end
-
 
 end
