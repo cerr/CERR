@@ -483,10 +483,9 @@ function [structNum,isSkinUniform] = getStructureIndex(hAxis,structName,planC)
 
 indexS = planC{end};
 
-aI = get(hAxis,'userdata');
+aI = getAxisInfo(hAxis);
 
 scanSet = aI.scanSets;
-
 assocScansV = getStructureAssociatedScan(1:length(planC{indexS.structures}), planC);
 
 indXStr = find(assocScansV == scanSet);
