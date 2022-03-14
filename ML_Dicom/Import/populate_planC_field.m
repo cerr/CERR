@@ -374,7 +374,7 @@ switch cellName
                     dvhsequence = populate_planC_dose_field('dvhsequence', ...
                         RTDOSE(doseNum), doseobj, rtPlans, optS);
                     
-                    if ~isempty(dvhsequence)
+                    if ~isempty(dvhsequence) && ~dvhsequence.isEmpty
                         
                         structureNameC = {};
                         structureNumberV = [];
