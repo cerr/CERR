@@ -9,9 +9,10 @@ function success =  runSegClinic(inputDicomPath,outputDicomPath,...
 % inputDicomPath - path to input DICOM directory which needs to be segmented.
 % outputDicomPath - path to write DICOM RTSTRUCT for resulting segmentation.
 % sessionPath - path to write temporary segmentation metadata.
-% algorithm - string which specifies segmentation algorith
-% varargin - additional algorithm-specific inputs
-%
+% algorithm - string which specifies segmentation algorithm
+% --- Optional---
+% varargin{1} - Path to segmentation container.
+%%---------------------------------------------------------------------------------------
 % Following directories are created within the session directory:
 % --- ctCERR: contains CERR file/s of input DICOM.
 % --- segmentedOrigCERR: CERR file with resulting segmentation fused with

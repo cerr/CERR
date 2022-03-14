@@ -16,8 +16,6 @@ for nScan = 1:length(scanNumV)
     assocIdxV = strcmpi(movScanUID,assocMovScanUIDc);
     if any(assocIdxV)
         warpedScanNumV(nScan) = find(assocIdxV);
-    else
-        warpedScanNumV(nScan) = nan;
     end
 end
 warpedScanNumV = warpedScanNumV(~isnan(warpedScanNumV));

@@ -32,13 +32,13 @@ end
 %ptweight = ptweight * 1000; % in grams
 
 % Check Decay correction
-correctedImage = headerS.correctedImage;
-petIsDecayCorrected = headerS.petIsDecayCorrected;
-if ~(any(ismember('DECY',correctedImage)) || (~isempty(petIsDecayCorrected) && ...
-        strcmpi(petIsDecayCorrected,'YES')))
-    disp('SUV calculation is applicable only when petDecayCorrection = DECY');
-    return
-end
+% correctedImage = headerS.correctedImage;
+% petIsDecayCorrected = headerS.petIsDecayCorrected;
+% if ~(any(ismember('DECY',correctedImage)) || (~isempty(petIsDecayCorrected) && ...
+%         strcmpi(petIsDecayCorrected,'YES')))
+%     disp('SUV calculation is applicable only when petDecayCorrection = DECY');
+%     return
+% end
 
 imageUnits = headerS.imageUnits;
 if ~any(ismember(imageUnits,{'BQML','CNTS','KBQML','BQCC','KBQCC'}))

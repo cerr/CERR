@@ -106,10 +106,8 @@ scanOptS = userOptS.scan;
 for nScan = 1:size(scanC,1)
     
     %Append identifiers to o/p name
-    idS = scanOptS(nScan).identifier;
-    idListC = cellfun(@(x)(idS.(x)),fieldnames(idS),'un',0);
-    appendStr = strjoin(idListC,'_');
-    idOut = [filePrefixForHDF5,'_',appendStr];
+    idOut = getOutputFileNameForDL(filePrefixForHDF5,scanOptS(nScan),...
+        scanNumV(nScan),planC);
     
     %Get o/p dirs & dim
     outDirC = getOutputH5Dir(modInputPath,scanOptS(nScan),'');
