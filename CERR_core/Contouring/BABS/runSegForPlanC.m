@@ -202,10 +202,10 @@ if length(algorithmC) > 1 || ...
             origScanNum = 1; %Assoc with the "only" scan by default
         end
         outScanNum = scanNumV(origScanNum);
-        userOptS.scan(outScanNum) = userOptS(origScanNum).scan;
+        userOptS.scan(outScanNum) = userOptS.scan(origScanNum);
         userOptS.scan(outScanNum).origScan = origScanNum;
         planC  = joinH5planC(outScanNum,outC{1},labelPath,userOptS,planC);
-        
+
         % Post-process segmentation
         planC = postProcStruct(planC,userOptS);
         
