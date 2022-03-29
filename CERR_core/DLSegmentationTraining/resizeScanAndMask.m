@@ -268,13 +268,13 @@ switch(lower(method))
                     scanOut3M = nan([outputImgSizeV,size(scan3M,3)]);
                     for nSlc = 1:size(padded3M,3)
                         scanOut3M(:,:,nSlc) = imresize(squeeze(padded3M(:,:,nSlc)),...
-                            outputImgSizeV, methodName);
+                            outputImgSizeV(1:2), methodName);
                     end
                 else
-                    scanOut3M = nan([outputImgSizeV,size(scan3M,3)]);
+                    scanOut3M = nan([outputImgSizeV(1:2),size(scan3M,3)]);
                     for nSlc = 1:size(scan3M,3)
                         scanOut3M(:,:,nSlc) = imresize(squeeze(scan3M(:,:,nSlc)),...
-                            outputImgSizeV, methodName);
+                            outputImgSizeV(1:2), methodName);
                     end
                 end
             else %2-D cropping and resizing
@@ -305,7 +305,7 @@ switch(lower(method))
                         croppedSliceM = scanSliceM(minr:maxr, minc:maxc);
                     end
                     %Resize slice
-                    resizedSliceM = imresize(croppedSliceM, outputImgSizeV,...
+                    resizedSliceM = imresize(croppedSliceM, outputImgSizeV(1:2),...
                         methodName);
                     
                     scanOut3M(:,:,slcNum) = resizedSliceM;
@@ -341,10 +341,10 @@ switch(lower(method))
 %                     maskOut3M(minr:maxr,minc:maxc,:) = maskResize3M(idx11:idx12,idx21:idx11,:);
                     maskOut3M = maskResize3M(idx11:idx12,idx21:idx11,:);
                 else
-                    maskOut3M = zeros([outputImgSizeV,size(mask3M,3)]);
+                    maskOut3M = zeros([outputImgSizeV(1:2),size(mask3M,3)]);
                     for nSlc = 1:size(mask3M,3)
                         maskOut3M(:,:,nSlc) = imresize(squeeze(...
-                            mask3M(:,:,nSlc)),outputImgSizeV, 'nearest');
+                            mask3M(:,:,nSlc)),outputImgSizeV(1:2), 'nearest');
                     end
                 end
             else %2-D cropping and resizing
