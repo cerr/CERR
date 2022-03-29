@@ -99,8 +99,7 @@ for m = 1:length(methodC)
             indexS = planC{end};            
             outlineIndex = getMatchingIndex(structureName,...
                 {planC{indexS.structures}.structureName},'exact');
-            numStructs = length(planC{indexS.structures});
-            assocScanV = getStructureAssociatedScan(1:numStructs,planC);
+            assocScanV = getStructureAssociatedScan(outlineIndex,planC);
             % Find structure associated with scanNum
             if ~isempty(outlineIndex)
                 outlineIndex = outlineIndex(assocScanV == scanNum);
