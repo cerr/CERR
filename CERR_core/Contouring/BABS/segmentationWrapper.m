@@ -83,7 +83,7 @@ else
     origScanNum = 1; %Assoc with first scan by default
 end
 outScanNum = scanNumV(origScanNum);
-userOptS.scan(outScanNum) = userOptS.scan(origScanNum);
-userOptS.scan(outScanNum).origScan = origScanNum;
+userOptS(outScanNum).scan = userOptS.scan(origScanNum);
+userOptS(outScanNum).scan.origScan = origScanNum;
 success = joinH5CERR(cerrPath,outC{1},labelPath,outScanNum,userOptS); %Updated
 toc
