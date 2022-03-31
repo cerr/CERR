@@ -1,5 +1,5 @@
 function [scanOutC, maskOutC, scanNumV, optS, coordInfoS, planC] = ...
-    extractAndPreprocessDataForDL(optS,planC,testFlag,scanNumV)
+    extractAndPreprocessDataForDL(optS,planC,skipMaskExport,scanNumV)
 %
 % Script to extract scan and mask and perform user-defined pre-processing.
 %
@@ -9,8 +9,8 @@ function [scanOutC, maskOutC, scanNumV, optS, coordInfoS, planC] = ...
 % planC         :  CERR archive
 %
 % --Optional--
-% varargin{1}: testFlag. Set flag to false to export structure masks. 
-%              Default:true (Assumes testing dataset if not specified).
+% varargin{1}: skipMaskExportf flag. Set to false to export structure masks. 
+%              Default:true.
 % varargin{2}: Vector of scan nos. Default: Use scan identifiers from optS. 
 % -------------------------------------------------------------------------
 % AI 9/18/19
@@ -32,7 +32,7 @@ else
 end
 
 if ~exist('testFlag','var')
-    testFlag = true;
+    skipMaskExport = false;
 end
 
 %% Filter image
@@ -127,7 +127,7 @@ scanNumV(ignoreIdxV) = [];
 indexS = planC{end};
 allStrC = {planC{indexS.structures}.structureName};
 strNotAvailableV = ~ismember(lower(strListC),lower(allStrC)); %Case-insensitive
-if any(strNotAvailableV) && ~testFlag
+if any(strNotAvailableV) && skipMaskExport
     scanOutC = {};
     maskOutC = {};
     warning(['Skipping pt. Missing structures: ',strjoin(strListC(strNotAvailableV),',')]);
@@ -135,7 +135,7 @@ if any(strNotAvailableV) && ~testFlag
 end
 exportStrC = strListC(~strNotAvailableV);
 
-if ~isempty(exportStrC) || ~testFlag
+if ~isempty(exportStrC) || skipMaskExport
     exportLabelV = labelV(~strNotAvailableV);
     %Get structure ID and assoc scan
     strIdxC = cell(length(exportStrC),1);
@@ -165,7 +165,7 @@ for scanIdx = 1:numScans
     
     %Extract masks from planC
     strC = {planC{indexS.structures}.structureName};
-    if isempty(exportStrC) && testFlag
+    if isempty(exportStrC) && ~skipMaskExport
         mask3M = [];
         validStrIdxV = [];
     else

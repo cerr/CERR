@@ -1,4 +1,5 @@
-function [success,origScanNum] = segmentationWrapper(cerrPath,fullSessionPath, containerPath, algorithm)
+function [success,origScanNum] = segmentationWrapper(cerrPath,fullSessionPath,...
+    containerPath, algorithm, skipMaskExport)
 % function success =heart(cerrPath,segResultCERRPath,fullSessionPath,deepLabContainerPath)
 %
 % This function serves as a wrapper for the all segmentation models
@@ -8,12 +9,17 @@ function [success,origScanNum] = segmentationWrapper(cerrPath,fullSessionPath, c
 % fullSessionPath - path to write temporary segmentation metadata.
 % deepLabContainerPath - path to the MR Prostate DeepLab V3+ container on the
 % algorithm - name of the algorithm to run
-% 
+% skipMaskExport (optional) - Set to false if model requires segmentation 
+%                             masks as input.Default: true.
 % 
 %
 %
 % RKP, 5/21/2019
 % RKP, 9/11/19 Updates for compatibility with training pipeline
+
+if ~exist('skipMaskExport','var')
+    skipMaskExport = true;
+end
 
 %Copy config file to session dir
 configFilePath = fullfile(getCERRPath,'ModelImplementationLibrary',...
@@ -34,7 +40,7 @@ for p=1:length(planCfiles)
     %Pre-process data and export to model input fmt
     [~,command,userOptS,~,scanNumV,planC] = ...
         prepDataForSeg(planC,fullSessionPath,algorithm,cmdFlag,...
-        containerPath,[]);
+        containerPath,[],skipMaskExport);
     
     %Save updated planC file
     tic
@@ -83,7 +89,7 @@ else
     origScanNum = 1; %Assoc with first scan by default
 end
 outScanNum = scanNumV(origScanNum);
-userOptS(outScanNum).scan = userOptS.scan(origScanNum);
-userOptS(outScanNum).scan.origScan = origScanNum;
+userOptS.scan(outScanNum) = userOptS.scan(origScanNum);
+userOptS.scan(outScanNum).origScan = origScanNum;
 success = joinH5CERR(cerrPath,outC{1},labelPath,outScanNum,userOptS); %Updated
 toc

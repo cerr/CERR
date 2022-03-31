@@ -1,0 +1,8 @@
+xform_out=affine_coefficients.txt
+
+[STAGE]
+xform=affine
+optim=rsg
+metric=mi
+max_its=30
+res=4 4 2
