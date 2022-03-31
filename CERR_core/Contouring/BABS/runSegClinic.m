@@ -12,6 +12,8 @@ function success =  runSegClinic(inputDicomPath,outputDicomPath,...
 % algorithm - string which specifies segmentation algorithm
 % --- Optional---
 % varargin{1} - Path to segmentation container.
+% varargin{2} - Flag (true/false) to skip export of structure masks (default:true)
+% %             Set to false if model requires segmentation masks as input 
 %%---------------------------------------------------------------------------------------
 % Following directories are created within the session directory:
 % --- ctCERR: contains CERR file/s of input DICOM.
@@ -34,6 +36,12 @@ function success =  runSegClinic(inputDicomPath,outputDicomPath,...
 % RKP, 9/11/19 Updates for compatibility with training pipeline
 % AI, 2/7/2020 Added separate DICOM export functions for BABS and DL algorithms
 % AI, 3/5/2020 Updates to handle multiple algorithms
+
+if nargin <= 6
+    skipMaskExport = true;
+else
+    skipMaskExport = varargin{2};
+end
 
 %% Create session directory to write segmentation metadata
 if inputDicomPath(end) == filesep
@@ -104,7 +112,7 @@ if ~any(strcmpi(algorithmC,'BABS'))
         
         % Run segmentation algorithm
         [success,origScanNum] = segmentationWrapper(cerrPath,...
-            fullSessionPath,containerPathC{k},algorithmC{k});
+            fullSessionPath,containerPathC{k},algorithmC{k},skipMaskExport);
         
         %Get list of label names
         if ischar(userOptS.strNameToLabelMap)

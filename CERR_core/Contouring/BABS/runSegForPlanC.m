@@ -10,7 +10,7 @@ function planC = runSegForPlanC(planC,clientSessionPath,algorithm,sshConfigFile,
 % --Optional inputs---
 % varargin{1}: Path to segmentation container 
 % varargin{2}: Scan no. (replaces scan identifier)
-% varargin{3}: Flag for export of structure masks (Default:0 (off))
+% varargin{3}: Flag to skip export of structure masks (Default:true (off))
 %--------------------------------------------------------------------------
 % Following directories are created within the session directory:
 % --- ctCERR: contains CERR file from planC.
@@ -76,9 +76,9 @@ labelPath = fullfile(fullClientSessionPath,'outputLabelMap');
 mkdir(labelPath);
 
 if nargin>=8
-    testFlag = varargin{3};
+    skipMaskExport = varargin{3};
 else
-    testFlag = true;
+    skipMaskExport = true;
 end
 
 %% Run segmentation algorithm
@@ -138,7 +138,7 @@ if length(algorithmC) > 1 || ...
             waitbar(0.1,hWait,'Extracting scan and mask');
         end
         [scanC, maskC, scanNumV, userOptS, coordInfoS, planC] = ...
-            extractAndPreprocessDataForDL(userOptS,planC,testFlag,scanNum);
+            extractAndPreprocessDataForDL(userOptS,planC,skipMaskExport,scanNum);
         %Note: mask3M is empty for testing
         
         if ishandle(hWait)
@@ -162,7 +162,7 @@ if length(algorithmC) > 1 || ...
             
             %Write to model i/p fmt
             writeDataForDL(scanC{nScan},maskC{nScan},coordInfoS,...
-                passedScanDim,modelFmt,outDirC,idOut,testFlag);
+                passedScanDim,modelFmt,outDirC,idOut,skipMaskExport);
             
         end
         
