@@ -44,11 +44,16 @@ switch(lower(imageType))
         fieldName = [imageType,'_',settingsStr];
         
     case 'gabor'
-        settingsStr = ['voxSz',num2str(settingS.VoxelSize_mm.val),'_Sigma',...
-            num2str(settingS.Sigma_mm.val),'_AR',num2str(settingS.SpatialAspectRatio.val),...
-            '_Orient',num2str(settingS.Orientation.val),'_wavLen',...
-            num2str(settingS.Wavlength_mm.val)];
-        fieldName = [imageType,'_',settingsStr];
+        settingsStr = ['voxSz',num2str(settingS.VoxelSize_mm.val),'mm_Sigma',...
+            num2str(settingS.Sigma_mm.val),'mm_AR',num2str(settingS.SpatialAspectRatio.val),...
+            '_wavLen',num2str(settingS.Wavlength_mm.val),'mm'];
+        thetaV = reshape(settingS.Orientation.val,1,[]);
+        if length(thetaV)==1
+            settingsStr = [settingsStr,'_Orient',num2str(thetaV)];
+        else
+            settingsStr = [settingsStr,'_OrientAvg_',num2str(thetaV)];
+            fieldName = [imageType,'_',settingsStr];
+        end
         
         
     case 'firstorderstatistics'
