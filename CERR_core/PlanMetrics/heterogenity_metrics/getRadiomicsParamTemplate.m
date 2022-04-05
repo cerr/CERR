@@ -136,8 +136,12 @@ if isfield(userInS,'featureClass')
     end
     radiomicsParamS.whichFeatS = whichFeatS;
     
-    %% Flag to quantize input data
-    radiomicsParamS.toQuantizeFlag = 1;
+    if isfield(userInS,'toQuantizeFlag')
+        %% Flag to quantize input data
+        radiomicsParamS.toQuantizeFlag = userInS.toQuantizeFlag;
+    else
+        radiomicsParamS.toQuantizeFlag = 1;
+    end
 else
     radiomicsParamS.whichFeatS = whichFeatS;
 end

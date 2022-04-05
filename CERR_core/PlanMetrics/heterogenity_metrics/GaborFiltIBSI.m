@@ -1,4 +1,4 @@
-function out3M = GaborFiltIBSI(scan3M,sigma,lambda,gamma,theta)
+function [out3M,hGaborEven,hGaborOdd] = GaborFiltIBSI(scan3M,sigma,lambda,gamma,theta,radius)
 % out3M = GaborFiltIBSI(scan3M,sigma,lambda,gamma,theta);
 %-----------------------------------------------------------------------
 % INPUTS
@@ -15,14 +15,18 @@ sigmaY = sigma/gamma;
 
 % Define filter size
 d=4;
-if gamma > 1
-    r = 1 + 2*floor(d*gamma*sigmaX+0.5);
+if exist('radius','var')
+    r = radius;
 else
-    r = 1 + 2*floor(d*sigmaX+0.5);
+    if gamma > 1
+        r = 1 + 2*floor(d*gamma*sigmaX+0.5);
+    else
+        r = 1 + 2*floor(d*sigmaX+0.5);
+    end
 end
 [X,Y] = meshgrid(-r:r,-r:r);
 
-% Rotate grid to specified orientation 
+% Rotate grid to specified orientation
 Xtheta = X .*cosd(theta) + Y .*sind(theta);
 Ytheta = X .*sind(theta) - Y .*cosd(theta);
 
@@ -38,7 +42,7 @@ for nSlc = 1 :size(scan3M,3)
     scanM = scan3M(:,:,nSlc);
     outM = conv2(scanM,h,'same');
     %Return modulus
-    out3M(:,:,nSlc) = abs(outM);  
+    out3M(:,:,nSlc) = abs(outM);
 end
 
 
