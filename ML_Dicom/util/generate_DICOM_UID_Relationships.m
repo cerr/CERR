@@ -38,6 +38,9 @@ function planC = generate_DICOM_UID_Relationships(planC,structRefForC)
 % Organization root for DOCOM UIDs
 orgRoot = '1.3.6.1.4.1.9590.100.1.2';
 
+% Initialize Series Number
+seriesNumber = 7700;
+
 % Read CERROptions.json
 optS = getCERROptions();
 
@@ -61,6 +64,20 @@ if isfield(planC{indexS.scan}(1).scanInfo(1),'patientID') && ...
 else
     %Patient_ID = dicomuid;
     Patient_ID = javaMethod('createUID','org.dcm4che3.util.UIDUtils',orgRoot);        
+end
+
+if isfield(planC{indexS.scan}(1).scanInfo(1),'studyDate') && ...
+        ~isempty(planC{indexS.scan}(1).scanInfo(1).studyDate)
+    Study_Date = planC{indexS.scan}(1).scanInfo(1).studyDate;
+else
+    Study_Date = datestr(now,'yyyymmdd');       
+end
+
+if isfield(planC{indexS.scan}(1).scanInfo(1),'studyTime') && ...
+        ~isempty(planC{indexS.scan}(1).scanInfo(1).studyTime)
+    Study_Time = planC{indexS.scan}(1).scanInfo(1).studyTime;
+else
+    Study_Time = datestr(now,'hhmmss');       
 end
 
 if isfield(planC{indexS.scan}(1).scanInfo(1),'patientName') && ...
@@ -90,6 +107,16 @@ for i = 1:length(planC{indexS.scan})
     %Set the study instance UID.
     planC{indexS.scan}(i).Study_Instance_UID = Study_Instance_UID;
     
+    %Set the study date
+    planC{indexS.scan}(i).Study_Date = Study_Date;
+
+    %Set the study time
+    planC{indexS.scan}(i).Study_Time = Study_Time;
+    
+    %Set the series number
+    seriesNumber = seriesNumber + 1;
+    planC{indexS.scan}(i).SeriesNumber = seriesNumber;       
+
     %Generate a series instance UID for each scan;
     %planC{indexS.scan}(i).Series_Instance_UID = dicomuid;
     %if isfield(planC{indexS.scan}(i).scanInfo(1), 'DICOMHeaders') && ...
@@ -195,6 +222,14 @@ for i = 1:length(planC{indexS.dose})
     %Set the study instance UID.
     planC{indexS.dose}(i).Study_Instance_UID = Study_Instance_UID;
     
+    %Set the series number
+    seriesNumber = seriesNumber + 1;
+    planC{indexS.dose}(i).SeriesNumber = seriesNumber;           
+    
+    planC{indexS.dose}(i).Study_Date = Study_Date;
+    
+    planC{indexS.dose}(i).Study_Time = Study_Time;
+    
     %Generate a series instance UID for each dose;
     %planC{indexS.dose}(i).Series_Instance_UID = dicomuid;
     Series_Instance_UID = javaMethod('createUID','org.dcm4che3.util.UIDUtils',orgRoot);
@@ -244,6 +279,7 @@ Structure_Set_SOP_Class_UID = '1.2.840.10008.5.1.4.1.1.481.3';
 Structure_Set_SOP_Instance_UID = javaMethod('createUID','org.dcm4che3.util.UIDUtils',orgRoot);
 
 %Iterate over structures
+seriesNumber = seriesNumber + 1;
 for i = 1:length(planC{indexS.structures})
     
     %Set the patient id.
@@ -257,6 +293,13 @@ for i = 1:length(planC{indexS.structures})
 
     %Set the study instance UID.
     planC{indexS.structures}(i).Study_Instance_UID = Study_Instance_UID;
+    
+    %Set the series number
+    planC{indexS.structures}(i).SeriesNumber = seriesNumber;              
+    
+    planC{indexS.structures}(i).Study_Date = Study_Date;
+    
+    planC{indexS.structures}(i).Study_Time = Study_Time;
     
     %Set the series instance UID
     planC{indexS.structures}(i).Series_Instance_UID = Structure_Set_Series_UID;
@@ -322,9 +365,11 @@ Referenced_Structure_Set_SOP_Class_UID    = Structure_Set_SOP_Class_UID;
 Referenced_Structure_Set_SOP_Instance_UID = Structure_Set_SOP_Instance_UID;
 
 %Iterate over DVHs
+seriesNumber = seriesNumber + 1;
 for i = 1:length(planC{indexS.DVH})
     planC{indexS.DVH}(i).Referenced_Structure_Set_SOP_Class_UID     = Referenced_Structure_Set_SOP_Class_UID;
     planC{indexS.DVH}(i).Referenced_Structure_Set_SOP_Instance_UID  = Referenced_Structure_Set_SOP_Instance_UID;
+    planC{indexS.DVH}(i).SeriesNumber = seriesNumber;
 end
 
 
@@ -333,6 +378,7 @@ end
 %Iterate over GSPS
 for scanNum = 1:length(planC{indexS.scan})
     originalSliceSOPInstanceUIDc = {planC{indexS.scan}(scanNum).scanInfo.sopInstanceUID};
+    seriesNumber = seriesNumber + 1;
     for i = 1:length(planC{indexS.GSPS})
         
         % scanNum associated with this GSPS (expand to handle multiple scans)
@@ -349,6 +395,12 @@ for scanNum = 1:length(planC{indexS.scan})
         
         %Set the study instance UID.
         planC{indexS.GSPS}(i).Study_Instance_UID = Study_Instance_UID;
+        
+        planC{indexS.GSPS}(i).SeriesNumber = seriesNumber;
+        
+        planC{indexS.GSPS}(i).Study_Date = Study_Date;
+        
+        planC{indexS.GSPS}(i).Study_Time = Study_Time;
         
         %Generate a series instance UID for each dose;
         %planC{indexS.GSPS}(i).Series_Instance_UID = dicomuid;

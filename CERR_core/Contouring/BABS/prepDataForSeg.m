@@ -1,6 +1,6 @@
 function [activate_cmd,run_cmd,userOptS,outFile,scanNumV,planC] = ...
     prepDataForSeg(planC,fullSessionPath,algorithm,cmdFlag,containerPath,...
-    wrapperFunction)
+    wrapperFunction,skipMaskExport)
 % [activate_cmd,run_cmd,userOptS,outFile,scanNumV,planC] =
 % prepDataForSeg(planC,sessionPath,algorithm,cmdFlag,containerPath,...
 % wrapperFunction,batchSize)
@@ -29,6 +29,9 @@ function [activate_cmd,run_cmd,userOptS,outFile,scanNumV,planC] = ...
 %              - String containing absolute path of wrapper function.
 %                If not specified or empty, wrapper function is obtained
 %                from getSegWrapperFunc.m.
+% skipMaskExport (optional)
+%              - Set to false if model requires segmentation masks as input.
+%                Default: true.
 %--------------------------------------------------------------------------------
 % AI, 09/21/2021
 
@@ -50,7 +53,9 @@ mkdir(labelPath);
 %-For shell script
 segScriptPath = fullfile(fullSessionPath,'segScript');
 mkdir(segScriptPath)
-testFlag = true;
+if ~exist('skipMaskExport','var')
+    skipMaskExport = true;
+end
 
 %% Get conda installation path
 optS = opts4Exe([getCERRPath,'CERROptions.json']);
@@ -92,7 +97,7 @@ mkdir(modOutputPath);
 % Pre-process and export data to HDF5 format
 fprintf('\nPre-processing data...\n');
 [scanC, maskC, scanNumV, userOptS, coordInfoS, planC] = ...
-    extractAndPreprocessDataForDL(userOptS,planC,testFlag);
+    extractAndPreprocessDataForDL(userOptS,planC,skipMaskExport);
 %Note: mask3M is empty for testing
 
 %Export to model input format
@@ -114,7 +119,7 @@ for nScan = 1:size(scanC,1)
     
     %Write to model input fmt
     writeDataForDL(scanC{nScan},maskC{nScan},coordInfoS,passedScanDim,...
-        modelFmt,outDirC,idOut,testFlag);
+        modelFmt,outDirC,idOut,skipMaskExport);
 end
 
 %% Get run cmd

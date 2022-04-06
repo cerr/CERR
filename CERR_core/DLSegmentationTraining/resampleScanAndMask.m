@@ -1,6 +1,5 @@
-function [outScan3M,outMask3M,xResampleV,yResampleV,zResampleV] = ...
-    resampleScanAndMask(scan3M,mask3M,inputResV,xValsV,yValsV,zValsV,...
-    outputResV,method)
+function [outScan3M,outMask3M] = resampleScanAndMask(scan3M,mask3M,...
+    xValsV,yValsV,zValsV,xResampleV,yResampleV,zResampleV,method)
 % resampleScanAndMask.m
 %
 % Returns resampled scan and mask using input method.
@@ -9,13 +8,14 @@ function [outScan3M,outMask3M,xResampleV,yResampleV,zResampleV] = ...
 % Note: Masks are resampled using 'nearest' method.
 %--------------------------------------------------------------------------
 % INPUTS:
-% scan3M         :  Scan array
-% mask3M         :  Mask
-% inputResV      :  Input resolution (cm)
+% scan3M         :  Scan array (leave empty to skip)
+% mask3M         :  Mask (leave empty to skip)
 % xValsV         :  Input x grid vals (cm)
 % yValsV         :  Input y grid vals (cm)
 % zValsV         :  Input z grid vals (cm)
-% outputResV     :  Output resolution (cm)
+% xResampleV     :  Output x grid vals (cm)
+% yResampleV     :  Output y grid vals (cm)
+% zResampleV     :  Output z grid vals (cm)
 % method         :  Supported methods: 'sinc','cubic','linear','triangle',
 %                   'spline', 'makima', 'nearest.
 %--------------------------------------------------------------------------
@@ -25,13 +25,17 @@ function [outScan3M,outMask3M,xResampleV,yResampleV,zResampleV] = ...
 extrapVal = 0;
 
 %Resample scan
-[outScan3M,xResampleV,yResampleV,zResampleV] = imgResample3d(scan3M,...
-    inputResV,xValsV,yValsV,zValsV,outputResV,method,extrapVal);
+if ~isempty(scan3M)
+    outScan3M = imgResample3d(scan3M,xValsV,yValsV,zValsV,xResampleV,...
+        yResampleV,zResampleV,method,extrapVal);
+else
+    outScan3M = [];
+end
 
 %Resample mask
 if ~isempty(mask3M)
-    outMask3M = imgResample3d(mask3M,inputResV,xValsV,yValsV,zValsV,...
-        outputResV,'nearest',extrapVal) >= 0.5;
+    outMask3M = imgResample3d(mask3M,xValsV,yValsV,zValsV,xResampleV,...
+        yResampleV,zResampleV,'nearest',extrapVal) >= 0.5;
 else
     outMask3M = [];
 end

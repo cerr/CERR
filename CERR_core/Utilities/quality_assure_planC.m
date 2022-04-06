@@ -99,9 +99,35 @@ for scanNum = 1:length(planC{indexS.scan})
                     planC{indexS.scan}(scanNum).scanInfo(slcNum).patientID = ...
                         planC{indexS.scan}(scanNum).scanInfo(slcNum).DICOMHeaders.PatientID;
                 end
+                if isfield(planC{indexS.scan}(scanNum).scanInfo(slcNum).DICOMHeaders,'StudyDate')
+                    planC{indexS.scan}(scanNum).scanInfo(slcNum).studyDate = ...
+                        planC{indexS.scan}(scanNum).scanInfo(slcNum).DICOMHeaders.StudyDate;
+                end
+                if isfield(planC{indexS.scan}(scanNum).scanInfo(slcNum).DICOMHeaders,'StudyTime')
+                    planC{indexS.scan}(scanNum).scanInfo(slcNum).studyTime = ...
+                        planC{indexS.scan}(scanNum).scanInfo(slcNum).DICOMHeaders.StudyTime;
+                end
+                
             end
         end
     end
+    % Save StudyDate and StudyTime within scanInfo
+    if ~isfield(planC{indexS.scan}(scanNum).scanInfo(1),'StudyDate') || ...
+            isempty(planC{indexS.scan}(scanNum).scanInfo(1).StudyDate)
+        if isfield(planC{indexS.scan}(scanNum).scanInfo(1),'DICOMHeaders') ...
+                && ~isempty(planC{indexS.scan}(scanNum).scanInfo(1).DICOMHeaders)
+            for slcNum = 1:length(planC{indexS.scan}(scanNum).scanInfo)                
+                if isfield(planC{indexS.scan}(scanNum).scanInfo(slcNum).DICOMHeaders,'StudyDate')
+                    planC{indexS.scan}(scanNum).scanInfo(slcNum).studyDate = ...
+                        planC{indexS.scan}(scanNum).scanInfo(slcNum).DICOMHeaders.StudyDate;
+                end
+                if isfield(planC{indexS.scan}(scanNum).scanInfo(slcNum).DICOMHeaders,'StudyTime')
+                    planC{indexS.scan}(scanNum).scanInfo(slcNum).studyTime = ...
+                        planC{indexS.scan}(scanNum).scanInfo(slcNum).DICOMHeaders.StudyTime;
+                end                
+            end
+        end
+    end    
     % Save image orientation to scanInfo
     if ~isfield(planC{indexS.scan}(scanNum).scanInfo(1),'imageOrientationPatient') || ...
             isempty(planC{indexS.scan}(scanNum).scanInfo(1).imageOrientationPatient)

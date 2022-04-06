@@ -51,14 +51,16 @@ switch tag
    
         %el = org.dcm4che3.data.Attributes;
         %el.setString(tag, template.getVR(tag), template.getString(tag));
-        data = datestr(now,'yyyymmdd');
+        %data = datestr(now,'yyyymmdd');
+        data = structS(1).Study_Date;
         el = data2dcmElement(data, tag);
         
     case 524336     %0008,0030 Study Time
 
         %el = org.dcm4che3.data.Attributes;
         %el.setString(tag, template.getVR(tag), template.getString(tag));
-        data = datestr(now,'hhmmss');
+        %data = datestr(now,'hhmmss');
+        data = structS(1).Study_Time;
         el = data2dcmElement(data, tag);
         
     case 524432     %0008,0090 Referring Physician's Name

@@ -219,6 +219,8 @@ switch upper(command)
             'First Order Statistics',...
             'Wavelets',...
             'Gabor',...
+            'Gabor_deprecated',...
+            'LoG_IBSI',...
             'LoG',...
             'Sobel', ...
             'CoLlage'}; 
@@ -538,16 +540,42 @@ switch upper(command)
                     @getSubParameter};
                 dispC = {'On','On','On','On','On','On','Off'};
                 subTypeC = {{'Index','Wavelets'}};
-                
+
             case 'Gabor'
+                paramC = {'PadMethod','PadSize','VoxelSize_mm','Radius_mm',...
+                    'Sigma_mm','SpatialAspectRatio','Orientation','Wavlength_mm'};
+                typeC = {'popup','edit','edit','edit','edit','edit',...
+                    'edit','edit'};
+
+                voxSizeV = getScanXYZSpacing(scanNum,planC);
+                voxSizeV = voxSizeV.*10; % convert cm to mm
+                valC = {{'expand','padzeros','periodic','nearest',...
+                    'mirror','none'},{'5,5,5'},voxSizeV,3,.5,1,30,1};
+                dispC = {'On','On','Off','On','On','On','On','On'};
+
+            case 'Gabor_deprecated'
                 paramC = {'PadMethod','PadSize','Radius','Sigma',...
                     'AspectRatio','Orientation','Wavlength'};
                 typeC = {'popupmenu','edit','edit','edit','edit','edit','edit'};
                 valC = {{'expand','padzeros','periodic','nearest',...
                     'mirror','none'},{'5,5,5'},3,.5,1,30,1};
                 dispC = {'On','On','On','On','On','On','On'};
-                
-                
+
+            case 'LoG_IBSI'
+                paramC = {'PadMethod','PadSize','Sigma_mm',...
+                    'CutOff_mm','VoxelSize_mm'};
+                typeC = {'popup','edit','edit','edit','edit'};
+
+                voxSizeV = getScanXYZSpacing(scanNum,planC);
+                voxSizeV = voxSizeV.*10; % convert cm to mm
+                cutOffV = 3*voxSizeV;
+                cutOffC = {[num2str(cutOffV(1)),',',num2str(cutOffV(2)),...
+                    ',',num2str(cutOffV(3))]};
+                valC = {{'expand','padzeros','periodic','nearest',...
+                    'mirror','none'},{'5,5,5'},.5,cutOffC,voxSizeV};
+                dispC = {'On','On','On','On','Off'};
+
+
             case 'LoG'
                 paramC = {'PadMethod','PadSize','Sigma_mm','VoxelSize_mm'};
                 typeC = {'popupmenu','edit','edit','edit'};
@@ -579,15 +607,28 @@ switch upper(command)
         if isempty(paramC)
             paramS = [];
         else
+            dispParCount = 0;
             for n = 1:length(paramC)
                 if isa(valC{n},'function_handle')
-                fn = valC{n};
-                val = fn(featureType, paramS.(paramC{n-1}).val);
-                paramS = addParam(paramS,paramC{n},typeC{n},val,...
-                    dispC{n},startPosV(2)-(n+1)*delPos,h);
+                    fn = valC{n};
+                    val = fn(featureType, paramS.(paramC{n-1}).val);
+                    if strcmpi(dispC{n},'on')
+                        dispParCount = dispParCount + 1;
+                        paramS = addParam(paramS,paramC{n},typeC{n},val,...
+                            dispC{n},startPosV(2)-dispParCount*delPos,h);
+                    else
+                        paramS = addParam(paramS,paramC{n},typeC{n},val,...
+                            dispC{n},startPosV(2)-dispParCount*delPos,h);
+                    end
                 else
-                paramS = addParam(paramS,paramC{n},typeC{n},valC{n},...
-                    dispC{n},startPosV(2)-(n+1)*delPos,h);
+                    if strcmpi(dispC{n},'on')
+                        dispParCount = dispParCount + 1;
+                        paramS = addParam(paramS,paramC{n},typeC{n},valC{n},...
+                            dispC{n},startPosV(2)-dispParCount*delPos,h);
+                    else
+                        paramS = addParam(paramS,paramC{n},typeC{n},valC{n},...
+                            dispC{n},startPosV(2)-dispParCount*delPos,h);
+                    end
                 end
             end
         end
@@ -598,13 +639,20 @@ switch upper(command)
             featureType = varargin{2};
             featureType = strrep(featureType,' ','');
             paramC = fieldnames(paramS);
+            dispParCount = 0;
             for n = 1:length(paramC)
                 val = paramS.(paramC{n}).val;
                 if numel(val)>1
                     val = num2str(val);
                 end
-                paramS = addParam(paramS,paramC{n},paramS.(paramC{n}).type,...
-                val,paramS.(paramC{n}).disp,startPosV(2)-(n+1)*delPos,h);
+                if strcmpi(paramS.(paramC{n}).disp,'on')
+                    dispParCount = dispParCount+1;
+                    paramS = addParam(paramS,paramC{n},paramS.(paramC{n}).type,...
+                        val,paramS.(paramC{n}).disp,startPosV(2)-dispParCount*delPos,h);
+                else
+                    paramS = addParam(paramS,paramC{n},paramS.(paramC{n}).type,...
+                        val,paramS.(paramC{n}).disp,startPosV(2)-dispParCount*delPos,h);
+                end
             end
             end
         end
@@ -893,7 +941,7 @@ switch upper(command)
             if length(paramS.Index.val)>1
                 paramS.Index.val = paramS.Index.val{1};
             end
-            
+
         elseif (strcmp(fType,'Haralick Cooccurance') )
             mappedDirectionalityC = {1,2,3,4,5,6};
             directionalityC = {'Co-occurance with 13 directions in 3D',...
@@ -907,7 +955,7 @@ switch upper(command)
             [~,idx] = find(isDir);
             out = mappedDirectionalityC{idx};
             paramS.Directionality.val = out;
-            
+
             if strcmpi(paramS.PatchType.val,'cm')
                 [xVals, yVals, zVals] = getUniformScanXYZVals(planC{indexS.scan}(scanNum));
                 deltaX = abs(xVals(1)-xVals(2));
@@ -920,16 +968,16 @@ switch upper(command)
                 patchSizeV = [rowWindow, colWindow, slcWindow];
                 paramS.PatchSize.val = patchSizeV;
             end
-                
+
         elseif (strcmp(fType,'Laws Convolution') )
-            
+
             mappedDirC = {1,2,3};
             mappedPadMethodC = {1,2,3,4,5,6};
-            
+
             dirC = {'2D','3D', 'All'};
             padMethodC = {'expand','padzeros','periodic','nearest',...
-                    'mirror','none'};
-                
+                'mirror','none'};
+
             idx1 = paramS.Direction.val;
             idx2 = paramS.PadMethod.val;
             isDir = cellfun(@(x)isequal(x,idx1),dirC);
@@ -941,8 +989,19 @@ switch upper(command)
             paramS.Direction.val = out1;
             paramS.PadMethod.val = out2;
 
-            elseif (strcmp(fType,'LoG'))
-            
+        elseif (strcmp(fType,'LoG_IBSI'))
+
+            mappedPadMethodC = {1,2,3,4,5,6};
+            padMethodC = {'expand','padzeros','periodic','nearest',...
+                'mirror','none'};
+            idx = paramS.PadMethod.val;
+            isPadMethod = cellfun(@(x)isequal(x,idx),padMethodC);
+            [~,idx] = find(isPadMethod);
+            out = mappedPadMethodC{idx};
+            paramS.PadMethod.val = out;
+
+        elseif (strcmp(fType,'LoG)'))
+
             mappedPadMethodC = {1,2,3,4,5,6};
             padMethodC = {'expand','padzeros','periodic','nearest',...
                 'mirror','none'};
@@ -952,10 +1011,10 @@ switch upper(command)
             out = mappedPadMethodC{idx};
             paramS.PadMethod.val = out;
         end
-        
+
         %Apply filter
         outS = processImage(fType,procScan3M,procMask3M,paramS,hwait);
-    
+
         % Create new Texture if ud.currentTexture = 0
         if ud.currentTexture == 0
             initTextureS = initializeCERR('texture');
@@ -972,26 +1031,26 @@ switch upper(command)
             planC{indexS.texture}(ud.currentTexture).assocStructUID = assocStrUID;
         end
         planC{indexS.texture}(ud.currentTexture).category = fType;
-        
+
         % Assign parameters based on category of texture
         planC{indexS.texture}(ud.currentTexture).parameters = paramS;
         planC{indexS.texture}(ud.currentTexture).description = label;
         planC{indexS.texture}(ud.currentTexture).textureUID = createUID('TEXTURE');
-        
+
         % Create Texture Scans
         [xVals, yVals, zVals] = getScanXYZVals(planC{indexS.scan}(scanNum));
         deltaXYZv = ud.dXYZ;
         zV = zVals(uniqueSlicesV);
         regParamsS.horizontalGridInterval = deltaXYZv(1);
-        regParamsS.verticalGridInterval = deltaXYZv(2); 
+        regParamsS.verticalGridInterval = deltaXYZv(2);
         regParamsS.coord1OFFirstPoint = xVals(minc);
         regParamsS.coord2OFFirstPoint   = yVals(maxr);
-        
+
         regParamsS.zValues  = zV;
         regParamsS.sliceThickness =[planC{indexS.scan}(scanNum).scanInfo(uniqueSlicesV).sliceThickness];
-        
+
         assocTextureUID = planC{indexS.texture}(ud.currentTexture).textureUID;
-        
+
         %Save to planC
         featuresC = fieldnames(outS);
         for n = 1:length(featuresC)
