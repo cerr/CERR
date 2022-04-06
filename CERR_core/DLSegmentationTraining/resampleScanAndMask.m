@@ -1,6 +1,5 @@
-function [outScan3M,outMask3M,xResampleV,yResampleV,zResampleV] = ...
-    resampleScanAndMask(scan3M,mask3M,xValsV,yValsV,zValsV,...
-    xResampleV,yResampleV,zResampleV,method)
+function [outScan3M,outMask3M] = resampleScanAndMask(scan3M,mask3M,...
+    xValsV,yValsV,zValsV,xResampleV,yResampleV,zResampleV,method)
 % resampleScanAndMask.m
 %
 % Returns resampled scan and mask using input method.
@@ -9,8 +8,8 @@ function [outScan3M,outMask3M,xResampleV,yResampleV,zResampleV] = ...
 % Note: Masks are resampled using 'nearest' method.
 %--------------------------------------------------------------------------
 % INPUTS:
-% scan3M         :  Scan array
-% mask3M         :  Mask
+% scan3M         :  Scan array (leave empty to skip)
+% mask3M         :  Mask (leave empty to skip)
 % xValsV         :  Input x grid vals (cm)
 % yValsV         :  Input y grid vals (cm)
 % zValsV         :  Input z grid vals (cm)
@@ -26,8 +25,12 @@ function [outScan3M,outMask3M,xResampleV,yResampleV,zResampleV] = ...
 extrapVal = 0;
 
 %Resample scan
-outScan3M = imgResample3d(scan3M,...
-    xValsV,yValsV,zValsV,xResampleV,yResampleV,zResampleV,method,extrapVal);
+if ~isempty(scan3M)
+    outScan3M = imgResample3d(scan3M,xValsV,yValsV,zValsV,xResampleV,...
+        yResampleV,zResampleV,method,extrapVal);
+else
+    outScan3M = [];
+end
 
 %Resample mask
 if ~isempty(mask3M)

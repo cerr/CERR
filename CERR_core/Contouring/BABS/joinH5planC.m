@@ -76,12 +76,10 @@ if ~strcmpi(resampleS.method,'none')
     if yVals0V(1) > yVals0V(2)
         yVals0V = fliplr(yVals0V);
     end
-    %Resample
-    volumeResampleMethod = 'nearest';
-    maskOut3M = imgResample3d(double(maskOut3M),...
-        xValsV,yValsV,zValsV,...
-        xVals0V, yVals0V, zVals0V,...
-        volumeResampleMethod);
+    %Resample mask ('nearest' interpolation)
+    [~,maskOut3M] = resampleScanAndMask([],double(maskOut3M),xValsV,...
+        yValsV,zValsV,xVals0V,yVals0V,zVals0V);
+    
     scanNum = origScanNum;
 end
 
