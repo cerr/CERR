@@ -268,8 +268,34 @@ switch filterType
         wavelength = paramS.Wavlength_mm.val./voxelSizV(1);
         theta = paramS.Orientation.val;
         gamma = paramS.SpatialAspectRatio.val;
-        gabor3M = GaborFiltIBSI(vol3M,sigma,wavelength,gamma,theta);
-        outS.Gabor = gabor3M;
+        if isfield(paramS,'Radius_mm')
+            radius = paramS.Radius_mm.val/voxelSizV(1);
+            gabor3M = GaborFiltIBSI(vol3M,sigma,wavelength,gamma,theta,...
+                radius);
+            outS.Gabor = gabor3M;
+        else
+            if length(theta)==1
+                gabor3M = GaborFiltIBSI(vol3M,sigma,wavelength,gamma,theta);
+                outS.Gabor = gabor3M;
+            else
+                %Multiple orientations
+                gaborOutC = cell(1,length(theta));
+                for nTheta = 1:length(theta)
+                    gaborOutC{nTheta} = GaborFiltIBSI(vol3M,sigma,wavelength,...
+                        gamma,theta(nTheta));
+                end
+                if isfield(paramS,'mode') &&  strcmpi(paramS.mode.val,'avg')
+                    gaborAll = cat(4, gaborOutC{:});  
+                    gabor3M = mean(gaborAll,4);
+                    outS.Gabor = gabor3M;
+                else
+                    for nTheta = 1:length(theta)
+                        fieldName = ['Gabor_',num2str(theta(nTheta))];
+                        outS.(fieldName) = gaborOutC{nTheta};
+                    end
+                end
+            end
+        end
         
         if ishandle(hWait)
             set(hWait, 'Vertices', [[0 0 1 1]' [0 1 1 0]']);

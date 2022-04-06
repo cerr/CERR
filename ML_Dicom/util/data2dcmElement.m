@@ -228,7 +228,7 @@ switch vrCode
         try
             date = jDate.parseTM(tz, data, 1, precision);
             el.setDate(tag, vr, []);
-            el.setString(tag, vr, jDate.formatTM(tz, date));
+            el.setString(tag, vr, jDate.formatTM(tz, date, precision));
         catch
             el.setDate(tag,vr,[]);
         end

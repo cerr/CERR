@@ -73,7 +73,16 @@ for k = 1:length(imageTypeC)
         derivedImgName = fieldnames(outS);
         volToEval = outS.(derivedImgName{1});
         volToEval = volToEval(minr:maxr, minc:maxc, mins:maxs);
-        quantizeFlag = true; % always quantize the derived image
+        if whichFeatS.texture.flag
+            % always quantize the derived image for texture calc.
+            quantizeFlag = true;
+        else
+            if isfield(paramS,'toQuantizeFlag')
+                quantizeFlag = paramS.toQuantizeFlag;
+            else
+                quantizeFlag = false;
+            end
+        end
         minClipIntensity = []; % no clipping imposed for derived images
         maxClipIntensity = []; % no clipping imposed for derived images
     end

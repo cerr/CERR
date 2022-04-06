@@ -777,6 +777,12 @@ switch fieldname
         %dataS = getTagValue(attr, '00080031');
         %dataS = char(attr.getStrings(org.dcm4che3.data.Tag.SeriesTime)); %TM
         dataS = char(attr.getString(524337,0)); %TM
+    case 'studyDate'
+        %dataS = getTagValue(attr, '00080020');
+        dataS = char(attr.getString(524320,0)); %DA
+    case 'studyTime'
+        %dataS = getTagValue(attr, '00080030');
+        dataS = char(attr.getString(524336,0)); %TM
     case 'correctedImage'
         %dataS = getTagValue(attr, '00280051');
         %dataS = char(attr.getStrings(org.dcm4che3.data.Tag.CorrectedImage)); %CS

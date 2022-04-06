@@ -1,5 +1,5 @@
 function planC = runSegForPlanCInCondaEnv(planC,sessionPath,algorithm,...
-    condaEnvList,wrapperFunctionList,batchSize)
+    condaEnvList,wrapperFunctionList,batchSize,skipMaskExport)
 % function planC = runSegForPlanCInCondaEnv(planC,sessionPath,algorithm,...
 %     condaEnvList,wrapperFunctionList,batchSize)
 %
@@ -28,7 +28,9 @@ function planC = runSegForPlanCInCondaEnv(planC,sessionPath,algorithm,...
 %                are obtained from getSegWrapperFunc.m.
 % batchSize (optional)
 %              -  Batch size for inference (default : 4).
-%
+% skipMaskExport (optional)
+%              -  Flag (true/false) to skip export of structure masks (default:true)
+%                Set to false if model requires segmentation masks as input.
 %--------------------------------------------------------------------------------
 % EXAMPLE:
 % To run segmentation, open a CERR-format file using the GUI or command-line, followed by:
@@ -84,6 +86,10 @@ elseif numAlgorithms ~= numContainers
     error('Mismatch between no. specified algorithms and wrapper functions')
 end
 
+if ~exist('skipMaskExport','var')||isempty(skipMaskExport)
+    skipMaskExport = true; %Default: skip mask export
+end
+
 if ~exist('batchSize','var')||isempty(batchSize)
     batchSize = 4; %Default batch size
 end
@@ -103,7 +109,7 @@ for k =1:length(algorithmC)
     %Prepare data for segmentation
     [activate_cmd,run_cmd,userOptS,~,scanNumV,planC] = ...
         prepDataForSeg(planC,fullSessionPath,algorithmC(k),cmdFlag,...
-        condaEnvListC(k),functionNameC(k));
+        condaEnvListC(k),functionNameC(k),skipMaskExport);
     
     cmd = [activate_cmd,' && ',run_cmd];
     disp(cmd)
