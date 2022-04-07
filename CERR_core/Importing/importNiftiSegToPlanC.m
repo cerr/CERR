@@ -30,7 +30,8 @@ gzFlag = 0;
 fileparts = strsplit(structFileName,'.');
 if strcmpi(fileparts{end},'gz') && any(strcmpi(fileparts{end - 1},{'img','hdr','nii'}))
     gzFlag = 1;    
-    tmpDirPath = fullfile(getCERRPath, 'ImageRegistration', 'tmpFiles');
+    %tmpDirPath = fullfile(getCERRPath, 'ImageRegistration', 'tmpFiles');
+    tmpDirPath = tempdir;
     if strcmpi(fileparts{end - 1},'nii')
         filegz = structFileName;
         ungzfile = gunzip(filegz,tmpDirPath);
@@ -48,6 +49,23 @@ end
 
 [vol,info] = nifti_read_volume(structFileName);
 mask3M = permute(vol,[2,1,3]);
+% Flip to match CERR's coordinate system
+if info.orientation.sform
+    orientM = reshape(info.orientation.smatrix,4,3);
+    
+    if orientM(1,1) > 0
+        mask3M = flip(mask3M,2);
+    end
+    
+    if orientM(2,2) > 0
+        mask3M = flip(mask3M,1);
+    end
+    
+    if orientM(3,3) > 0
+        mask3M = flip(mask3M,3);
+    end
+
+end
 
 % Add mask to CERR structure
 structsV = unique(mask3M(:));
@@ -62,4 +80,5 @@ planC = maskToCERRStructure(mask3M>0, isUniform, scanNum, 'All lesions', planC);
 if gzFlag
     filebase = structFileName(1:end-4);
     delete([filebase, filesep, '*']);
+    delete(structFileName);
 end
