@@ -51,7 +51,7 @@ if isempty(p)
     p = parpool();
     closePool = 1;
 else
-    closePool = 0;
+      closePool = 0;
 end
 
 %Loop over CERR files
@@ -128,7 +128,7 @@ parfor planNum = 1:length(dirS)
         for n = 1:size(scanC,1)
 
             %Append identifiers to o/p name
-            idOut = getOutputFileNameForDL('cerrFile',scanOptS(n),...
+            idOut = getOutputFileNameForDL(identifier,scanOptS(n),...
                 scanNumV(n),planC);
 
             %Get o/p dirs & dim
@@ -142,7 +142,7 @@ parfor planNum = 1:length(dirS)
 
     catch e
 
-        errC{planNum} =  ['Error processing pt %s. Failed with message: %s',fileNam,e.message];
+       errC{planNum} =  ['Error processing pt %s. Failed with message: %s',fileNam,e.message];
 
     end
 
