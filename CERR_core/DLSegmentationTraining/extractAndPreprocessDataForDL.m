@@ -296,15 +296,17 @@ for scanIdx = 1:numScans
                     strIdx = getMatchingIndex(cropStrListC{n},strC,'EXACT');
                     if ~isempty(strIdx)
                         str3M = double(getStrMask(strIdx,planC));
-                        outStr3M = imgResample3d(str3M,inputResV,xValsV,...
-                            yValsV,zValsV,outResV,resampleMethod,0) >= 0.5;
+                        [~,outStr3M] = resampleScanAndMask([],double(str3M),...
+                            xValsV,yValsV,zValsV,xResampleV,yResampleV,...
+                            zResampleV);
+                        outStr3M = outStr3M >= 0.5;
                         outStrName = [cropParS(n).structureName,'_resamp'];
                         cropParS(n).structureName = outStrName;
                         planC = maskToCERRStructure(outStr3M,0,scanNumV(scanIdx),...
                             outStrName,planC);
                     end
                 end
-                cropS.params = cropParS;
+                cropS(n).params = cropParS;
             end
         end
         

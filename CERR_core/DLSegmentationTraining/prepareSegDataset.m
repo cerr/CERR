@@ -52,13 +52,14 @@ function [userOptS,errC] = prepareSegDataset(paramFilename,inputDir,outputDir)
 userOptS = readDLConfigFile(paramFilename);
  
 %% Create directories to write CERR, HDF5 files
-fprintf('\nCreating directories for HDF5 files...\n');
+fprintf('\nCreating directories for output files...\n');
 if ~exist(outputDir,'dir')
     mkdir(outputDir)
 end
 
-HDF5path = fullfile(outputDir,'inputH5');   
-mkdir(HDF5path)
+modelFmt = userOptS.modelInputFormat;
+outFilepath = fullfile(outputDir,['input',modelFmt]);
+mkdir(outFilepath)
 
 fprintf('\nComplete\n');
 
@@ -84,7 +85,7 @@ else
 end
 
 %% Convert to HDF5 with preprocessing and split into train, val, test datasets
-errC = CERRtoHDF5(CERRpath, HDF5path, userOptS);
+errC = CERRtoHDF5(CERRpath, outFilepath, userOptS);
 
 
 end
