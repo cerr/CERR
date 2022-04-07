@@ -268,8 +268,9 @@ for scanIdx = 1:numScans
         gridAlignMethod = 'center';
         [xResampleV,yResampleV,zResampleV] = ...
             getResampledGrid(outResV,xValsV,yValsV,zValsV,gridAlignMethod);
-        scan3M = resampleScanAndMask(double(scan3M),[],xValsV,yValsV,zValsV,...
-            xResampleV,yResampleV,zResampleV,resampleMethod);
+        [scan3M,mask3M] = resampleScanAndMask(double(scan3M),double(mask3M),...
+            xValsV,yValsV,zValsV,xResampleV,yResampleV,zResampleV,...
+            resampleMethod);
 
         %Store to planC
         scanInfoS.horizontalGridInterval = outResV(1);
@@ -282,33 +283,48 @@ for scanIdx = 1:numScans
         planC = scan2CERR(scan3M,['Resamp_scan',num2str(scanNumV(scanIdx))],...
             '',scanInfoS,'',planC);
         scanNumV(scanIdx) = length(planC{indexS.scan});
+        for strNum = 1:length(validStrIdxV)
+            strMask3M = mask3M == validExportLabelV(strNum);
+            outStrName = [exportStrC{strNum},'_resamp'];
+            planC = maskToCERRStructure(strMask3M,0,scanNumV(scanIdx),...
+                outStrName,planC);
+        end
+
         toc
         
         % Resample structures required for training
         
         %Resample reqd structures
-        % TBD: add structures reqd for training        
+        % TBD: add structures reqd for training
         if ~(length(cropS) == 1 && strcmpi(cropS(1).method,'none'))
             cropStrListC = arrayfun(@(x)x.params.structureName,cropS,'un',0);
             cropParS = [cropS.params];
             if ~isempty(cropStrListC)
                 for n = 1:length(cropStrListC)
-                    strIdx = getMatchingIndex(cropStrListC{n},strC,'EXACT');
-                    if ~isempty(strIdx)
-                        str3M = double(getStrMask(strIdx,planC));
-                        [~,outStr3M] = resampleScanAndMask([],double(str3M),...
-                            xValsV,yValsV,zValsV,xResampleV,yResampleV,...
-                            zResampleV);
-                        outStr3M = outStr3M >= 0.5;
-                        outStrName = [cropParS(n).structureName,'_resamp'];
+                    resampStrIdx = getMatchingIndex(cropStrListC{n},strC,...
+                        'EXACT');
+                    if isempty(resampStrIdx)
+                        strIdx = getMatchingIndex(cropStrListC{n},strC,'EXACT');
+                        if ~isempty(strIdx)
+                            str3M = double(getStrMask(strIdx,planC));
+                            [~,outStr3M] = resampleScanAndMask([],double(str3M),...
+                                xValsV,yValsV,zValsV,xResampleV,yResampleV,...
+                                zResampleV);
+                            outStr3M = outStr3M >= 0.5;
+                            outStrName = [cropStrListC{n},'_resamp'];
+                            cropParS(n).structureName = outStrName;
+                            planC = maskToCERRStructure(outStr3M,0,scanNumV(scanIdx),...
+                                outStrName,planC);
+                        end
+                    else
+                        outStrName = [cropStrListC{n},'_resamp'];
                         cropParS(n).structureName = outStrName;
-                        planC = maskToCERRStructure(outStr3M,0,scanNumV(scanIdx),...
-                            outStrName,planC);
                     end
+                    cropS(n).params = cropParS(n);
                 end
-                cropS(n).params = cropParS;
             end
         end
+    
         
         %Update affine matrix
         [affineOutM,~,voxSizV] = getPlanCAffineMat(planC, scanNumV(scanIdx), 1);
