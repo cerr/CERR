@@ -35,14 +35,15 @@ else
     strListC = {};
     labelKeyS = [];
 end
-
+skipMaskExport = false;
 
 %% Get data split
 [trainIdxV,valIdxV,testIdxV] = randSplitData(CERRdir,dataSplitV);
 
 
 %% Batch convert CERR to HDF5
-fprintf('\nConverting data to HDF5...\n');
+modelFmt = userOptS.modelInputFormat;
+fprintf('\nConverting data to %s...\n',modelFmt);
 
 %Open parallel pool
 p = gcp('nocreate');
@@ -54,14 +55,14 @@ else
 end
 
 %Loop over CERR files
-dirS = dir(fullfile(CERRdir,filesep,'*.mat')); 
+dirS = dir(fullfile(CERRdir,filesep,'*.mat'));
 
 errC = {};
 
 parfor planNum = 1:length(dirS)
-    
+
     try
-        
+
         %Load file
         fprintf('\nProcessing pt %d of %d...\n',planNum,length(dirS));
         [~,ptName,~] = fileparts(dirS(planNum).name);
@@ -69,7 +70,7 @@ parfor planNum = 1:length(dirS)
         planC = loadPlanC(fileNam, tempdir);
         planC = updatePlanFields(planC);
         planC = quality_assure_planC(fileNam,planC);
-        
+
         %Extract scan and mask and preprocess based on user input
         if ~ismember(planNum,testIdxV)
             testFlag = false;
@@ -81,21 +82,23 @@ parfor planNum = 1:length(dirS)
             %end
             testFlag = true;
         end
-        [scanC, maskC,~,~,planC] = extractAndPreprocessDataForDL(userOptS,planC,testFlag);
-        
+        [scanC, maskC,scanNumV,~,coordInfoS,planC] = ...
+            extractAndPreprocessDataForDL(userOptS,planC,testFlag);
+
         %Save ROI to planC if selected
-        if ~strcmp(userOptS.scan.crop.method,'none')
-            if isfield(userOptS.scan.crop,'params')
-                parS = userOptS.scan.crop.params;
+        cropMethodsC = {userOptS.scan.crop.method};
+        if length(cropMethodsC)>1 || ~strcmp(cropMethodsC,'none')
+            cropS = userOptS.scan.crop;
+            if isfield(cropS,'params')
+                parS = cropS.params;
                 if isfield(parS,'saveStrToPlanCFlag') && ...
-                    parS.saveStrToPlanCFlag
+                        parS.saveStrToPlanCFlag
                     save_planC(planC,[],'PASSED',fileNam);
                 end
             end
         end
-        
+
         %Export to HDF5
-        
         %- Get split
         if ismember(planNum,trainIdxV)
             split = 'Train';
@@ -108,46 +111,41 @@ parfor planNum = 1:length(dirS)
                 split ='Test';
             end
         end
-        
+
         %- Get output file prefix
         switch(prefixType)
             case 'inputFileName'
                 identifier = ptName;
                 % Other options to be added
+            otherwise
+                %default
+                identifier = 'cerrFile';
+
         end
-        
-        %- Write to HDF5
+
+        %- Write to user-selected format
         %Loop over scan types
         for n = 1:size(scanC,1)
-            
+
             %Append identifiers to o/p name
-            if length(scanOptS)>1
-                idS = scanOptS(n).identifier;
-                reservedFieldsC = {'warped','filtered'};
-                for nRes = 1:length(reservedFieldsC)
-                    idS = rmfield(idS,reservedFieldsC{nRes});
-                end
-                idListC = cellfun(@(x)(idS.(x)),fieldnames(idS),'un',0);
-                appendStr = strjoin(idListC,'_');
-                idOut = [identifier,'_',appendStr];
-            else
-                idOut = identifier;
-            end
-            
+            idOut = getOutputFileNameForDL('cerrFile',scanOptS(n),...
+                scanNumV(n),planC);
+
             %Get o/p dirs & dim
             outDirC = getOutputH5Dir(HDF5dir,scanOptS(n),split);
 
-            %Write to HDF5
-            writeHDF5ForDL(scanC{n},maskC{n},passedScanDim,outDirC,idOut,testFlag);
-            
+            %Write to model input fmt
+            writeDataForDL(scanC{n},maskC{n},coordInfoS,passedScanDim,...
+                modelFmt,outDirC,idOut,skipMaskExport);
+
         end
-        
-     catch e
-         
-         errC{planNum} =  ['Error processing pt %s. Failed with message: %s',fileNam,e.message];
-         
-     end
-     
+
+    catch e
+
+        errC{planNum} =  ['Error processing pt %s. Failed with message: %s',fileNam,e.message];
+
+    end
+
 end
 
 if ~isempty(labelKeyS)
