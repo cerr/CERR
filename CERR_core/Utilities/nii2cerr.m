@@ -20,8 +20,9 @@ gzFlag = 0;
 % check if files gzipped
 fileparts = strsplit(filename,'.');
 if strcmp(fileparts{end},'gz') && any(strcmp(fileparts{end - 1},{'img','hdr','nii'}))
-    gzFlag = 1;    
-    tmpDirPath = fullfile(getCERRPath, 'ImageRegistration', 'tmpFiles');
+    gzFlag = 1;        
+    %tmpDirPath = fullfile(getCERRPath, 'ImageRegistration', 'tmpFiles');
+    tmpDirPath = tempdir;
     if strcmp(fileparts{end - 1},'nii')
         filegz = filename;
         ungzfile = gunzip(filegz,tmpDirPath);
@@ -68,6 +69,7 @@ planC = mha2cerr(infoS,vol3M,scanOffset,scanName,planC,save_flag);
 if gzFlag
     filebase = filename(1:end-4);
     delete([filebase filesep '*']);
+    delete(filename);
 end
 
 end
