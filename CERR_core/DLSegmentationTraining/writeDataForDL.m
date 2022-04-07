@@ -52,19 +52,7 @@ switch upper(outFmt)
         voxSizV = coordInfoS.voxSizV;
         scanFileName = fullfile(outDirC{1},[filePrefix,'.nii']);
         vol2nii(vol3M,affineM,originV,voxSizV,[],scanFileName);
-
-        mask3M = maskC{1}{1};
-        if ~isempty(mask3M)
-            maskDir = fullfile(outDirC{1},'Masks');
-            if ~exist(maskDir,'dir')
-                mkdir(maskDir)
-            end
-            idx = strfind(filePrefix,'scan');
-            maskFileName = [filePrefix(1:idx-1),'mask.nii'];
-            maskFileName = fullfile(maskDir,maskFileName);
-            vol2nii(mask3M,affineM,originV,voxSizV,[],maskFileName);
-        end
-
+        
     otherwise
           error('invalid output format %s',outFmt);
         

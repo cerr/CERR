@@ -35,7 +35,7 @@ end
 %Resample mask
 if ~isempty(mask3M)
     outMask3M = imgResample3d(mask3M,xValsV,yValsV,zValsV,xResampleV,...
-        yResampleV,zResampleV,'nearest',extrapVal);
+        yResampleV,zResampleV,'nearest',extrapVal) >= 0.5;
 else
     outMask3M = [];
 end
