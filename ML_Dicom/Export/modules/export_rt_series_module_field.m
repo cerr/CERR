@@ -98,8 +98,8 @@ switch tag
   
         %el = org.dcm4che3.data.Attributes;
         %el.setString(tag, template.getVR(tag), template.getString(tag));
-        %seriesNumber = structS(1).SeriesNumber;
-        seriesNumber = [];
+        seriesNumber = structS(1).SeriesNumber;
+        %seriesNumber = [];
         el = data2dcmElement(seriesNumber, tag);
     %Class 3 Tags -- presence is optional, currently undefined.        
 
