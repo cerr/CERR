@@ -13,7 +13,12 @@ matchIdx = strcmpi(paramListC,'baselineHazard');
 H0 = betaV(matchIdx);
 betaV(matchIdx)=[];
 xV(matchIdx)=[];
-prob = calc_Pa(H0,betaV,xV);
+if isfield(paramS,'outputType') && strcmpi(paramS.outputType,'hazard')
+    prob = calc_Hazard(H0,betaV,xV);
+else
+    %Default: Return actuarial probability of complication using Cox model
+    prob = calc_Pa(H0,betaV,xV);
+end
 
 
 %% Supporting functions to extract model parameters and weights 
