@@ -1,0 +1,38 @@
+{
+
+ "strNameToLabelMap": [
+     {
+       "structureName": "Liver",
+       "value": 1
+    },
+     {
+      "structureName": "Spleen",
+      "value": 2
+    }
+ ],
+
+"scan":{
+
+        "identifier" : {"imageType": "CT SCAN"},
+
+        "crop":{
+    			"method": "crop_pt_outline",
+			"params": { "structureName": "generated_pt_outline",
+	                                "outStrName":"generated_pt_outline",
+	                                "saveStrToPlanCFlag": 1,
+	                                "outlineThreshold": -400},
+	                    "operator": ""
+	 },
+	                 
+        "resize": {"method" : "padOrCrop3d",
+                   "preserveAspectRatio": "Yes",
+                   "size" : [256,256]
+                  }
+ },
+
+
+"passedScanDim" : "3D",
+
+"batchSize": 1
+
+}
