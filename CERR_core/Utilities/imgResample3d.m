@@ -29,7 +29,7 @@ function resampImg3M = imgResample3d(img3M,xValsV,yValsV,zValsV,...
 
 %Limit processing to 50 slices at a time to resolve out of memory errors
 maxNumSlc = 50; 
-
+numPadSlc = 1;
 %Resample
 switch method
 
@@ -45,7 +45,10 @@ switch method
                     numResampSlc);
                 zMin = zResampleV(resampIndV(1));
                 zMax = zResampleV(resampIndV(end));
-                origIndV = zValsV >=zMin & zValsV <=zMax;
+
+                tol = 2*max(abs(diff(zValsV)));
+                origIndV = zValsV >=zMin - tol & zValsV <=zMax + tol;
+                
                 resampImg3M(:,:,resampIndV) = interp3(xOrigM(:,:,origIndV),...
                     yOrigM(:,:,origIndV),zOrigM(:,:,origIndV),...
                     img3M(:,:,origIndV),xResampM(:,:,resampIndV), ...
@@ -55,11 +58,14 @@ switch method
         else
             for iBatch = 1:numBatch
                 resampIndV = (iBatch-1)*maxNumSlc + 1: min(iBatch*maxNumSlc,...
-                    numResampSlc);
+                    numResampSlc) ;
                 zMin = zResampleV(resampIndV(1));
                 zMax = zResampleV(resampIndV(end));
-                origIndV = zValsV >=zMin & zValsV <=zMax;
-                resampImg3M(:,:,resampIndV) = interp3(xOrigM(:,:,origIndV),...
+
+                tol = 2*max(abs(diff(zValsV)));
+                origIndV = zValsV >=zMin - tol & zValsV <=zMax + tol;
+                
+                 resampImg3M(:,:,resampIndV) = interp3(xOrigM(:,:,origIndV),...
                     yOrigM(:,:,origIndV),zOrigM(:,:,origIndV),...
                     img3M(:,:,origIndV),xResampM(:,:,resampIndV), ...
                     yResampM(:,:,resampIndV),zResampM(:,:,resampIndV),...
