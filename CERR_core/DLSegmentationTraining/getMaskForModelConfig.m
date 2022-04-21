@@ -107,7 +107,7 @@ for m = 1:length(methodC)
 
             if isempty(outlineIndex)
                 scan3M = getScanArray(scanNum,planC);
-                CToffset = planC{indexS.scan}(scanNum).scanInfo(1).CTOffset;
+                CToffset = double(planC{indexS.scan}(scanNum).scanInfo(1).CTOffset);
                 scan3M = double(scan3M);
                 scan3M = scan3M - CToffset;
                 sliceV = 1:size(scan3M,3);

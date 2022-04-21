@@ -39,6 +39,22 @@ end
 switch(lower(method))
     
     case 'padorcrop3d'
+
+        if preserveAspectFlag
+            cornerCube = scan3M(1:5,1:5,1:5);
+            bgMean = mean(cornerCube(:));
+            scanSize = size(scan3M);
+            paddedSize = max(scanSize(1:2));
+            padded3M = bgMean * ones(paddedSize,paddedSize,size(scan3M,3));
+            idx11 = 1 + (paddedSize - scanSize(1))/2;
+            idx12 = idx11 + scanSize(1) - 1;
+            idx21 = 1 + (paddedSize - scanSize(2))/2;
+            idx22 = idx21 + scanSize(2) - 1;
+            padded3M(idx11:idx12,idx21:idx22,:) = scan3M;
+            scan3M = padded3M;
+            origSizV = size(scan3M);
+        end
+
         xPad = floor((outputImgSizeV(1) - origSizV(1))/2);
         if xPad < 0
             resizeMethod = 'unpad3d'       ;     

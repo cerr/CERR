@@ -1,0 +1,82 @@
+{
+
+ "strNameToLabelMap": [
+     {
+       "structureName": "Spleen",
+       "value": 1
+     },
+     {
+       "structureName": "Kidney_Right",
+       "value": 2
+     },
+     {
+       "structureName": "Kidney_Left",
+       "value": 3
+     },
+     {
+       "structureName": "Gallbladder",
+       "value": 4
+     },
+     {
+       "structureName": "Esophagus",
+       "value": 5
+     },
+     {
+       "structureName": "Liver",
+       "value": 6
+     },
+     {
+       "structureName": "Stomach",
+       "value": 7
+     },
+     {
+       "structureName": "Aorta",
+       "value": 8
+     },
+     {
+       "structureName": "Inferior_vena_cava",
+       "value": 9
+     },
+     {
+       "structureName": "portal_splenic_vein",
+       "value": 10
+     },
+     {
+       "structureName": "Pancreas",
+       "value": 11
+     },
+     {
+      "structureName": "Adrenal_gland_Right",
+      "value": 12
+     },
+     {
+      "structureName": "Adrenal_gland_Left",
+      "value": 13
+     }
+ ],
+
+"scan":{
+
+        "identifier" : {"imageType": "CT SCAN"},
+
+        "crop":{
+    			"method": "crop_pt_outline",
+			"params": { "structureName": "generated_pt_outline",
+	                                "outStrName":"generated_pt_outline",
+	                                "saveStrToPlanCFlag": 1,
+	                                "outlineThreshold": -400},
+	                    "operator": ""
+	 },
+	                 
+        "resize": {"method" : "padOrCrop3d",
+                   "preserveAspectRatio": "Yes",
+                   "size" : [256,256]
+                  }
+ },
+
+
+"passedScanDim" : "3D",
+
+"batchSize": 1
+
+}

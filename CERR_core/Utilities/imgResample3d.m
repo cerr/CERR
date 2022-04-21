@@ -27,18 +27,52 @@ function resampImg3M = imgResample3d(img3M,xValsV,yValsV,zValsV,...
 [xOrigM,yOrigM,zOrigM] = meshgrid(xValsV,yValsV,zValsV);
 [xResampM,yResampM,zResampM] = meshgrid(xResampleV,yResampleV,zResampleV);
 
+%Limit processing to 50 slices at a time to resolve out of memory errors
+maxNumSlc = 50; 
+numPadSlc = 1;
+%Resample
 switch method
-    
+
     case {'linear','cubic','nearest','makima','spline'}
+        numResampSlc = length(zResampleV);
+        numBatch = ceil(numResampSlc/maxNumSlc);
+        resampImg3M = nan(length(xResampleV),length(yResampleV),...
+            length(zResampleV));
         if nargin>8 && ~isempty(varargin{1})
             extrapVal = varargin{1};
-            resampImg3M = interp3(xOrigM,yOrigM,zOrigM,img3M,...
-                xResampM,yResampM,zResampM,method,extrapVal);
+            for iBatch = 1:numBatch
+                resampIndV = (iBatch-1)*maxNumSlc + 1: min(iBatch*maxNumSlc,...
+                    numResampSlc);
+                zMin = zResampleV(resampIndV(1));
+                zMax = zResampleV(resampIndV(end));
+
+                tol = 2*max(abs(diff(zValsV)));
+                origIndV = zValsV >=zMin - tol & zValsV <=zMax + tol;
+                
+                resampImg3M(:,:,resampIndV) = interp3(xOrigM(:,:,origIndV),...
+                    yOrigM(:,:,origIndV),zOrigM(:,:,origIndV),...
+                    img3M(:,:,origIndV),xResampM(:,:,resampIndV), ...
+                    yResampM(:,:,resampIndV),zResampM(:,:,resampIndV),...
+                    method,extrapVal);
+            end
         else
-            resampImg3M = interp3(xOrigM,yOrigM,zOrigM,img3M,...
-                xResampM,yResampM,zResampM,method);
+            for iBatch = 1:numBatch
+                resampIndV = (iBatch-1)*maxNumSlc + 1: min(iBatch*maxNumSlc,...
+                    numResampSlc) ;
+                zMin = zResampleV(resampIndV(1));
+                zMax = zResampleV(resampIndV(end));
+
+                tol = 2*max(abs(diff(zValsV)));
+                origIndV = zValsV >=zMin - tol & zValsV <=zMax + tol;
+                
+                 resampImg3M(:,:,resampIndV) = interp3(xOrigM(:,:,origIndV),...
+                    yOrigM(:,:,origIndV),zOrigM(:,:,origIndV),...
+                    img3M(:,:,origIndV),xResampM(:,:,resampIndV), ...
+                    yResampM(:,:,resampIndV),zResampM(:,:,resampIndV),...
+                    method);
+            end
         end
-        
+
     case 'sinc'
         %Resize using sinc filter
         resizeMethod = 'lanczos3';
@@ -61,19 +95,19 @@ switch method
             (numRows)*inPixelSpacingY;
         inZvalsV = inPixelSpacingZ:inPixelSpacingZ:...
             (numSlc)*inPixelSpacingZ;
-        
+
         inXoffset = mean(xValsV) - mean(inXvalsV);
         inYoffset = mean(yValsV) - mean(inYvalsV);
         inZoffset = mean(zValsV) - mean(inZvalsV);
         inXvalsV = inXvalsV + inXoffset;
         inYvalsV = inYvalsV + inYoffset;
         inZvalsV = inZvalsV + inZoffset;
-        
+
         [inGridX3M,inGridY3M,inGridZ3M] = meshgrid(inXvalsV,...
             inYvalsV,inZvalsV);
-        resampImg3M = interp3(inGridX3M,inGridY3M,inGridZ3M,resampImg3M,...
+        resampImg3M = finterp3(inGridX3M,inGridY3M,inGridZ3M,resampImg3M,...
             xResampM,yResampM,zResampM,'linear');
-        
+
     otherwise
         error('Interpolation method %s not supported',method);
 end
