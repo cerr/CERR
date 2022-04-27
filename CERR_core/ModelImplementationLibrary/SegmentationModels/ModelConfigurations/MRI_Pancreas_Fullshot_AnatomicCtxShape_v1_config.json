@@ -14,12 +14,13 @@
 
 "scan": [{
 
-         "identifier" : {"assocStructure":
-            ["Liver", "Bowel_lg", "Bowel_sm", "Duostomach"]}, 
+         "identifier" : {"studyDate":"first"}, 
          "view" : ["axial"],
          "crop" : {     
                     "method": "crop_pt_outline",
                     "params": { "structureName": "generated_pt_outline",
+                                "outStrName":"generated_pt_outline",
+	                            "saveStrToPlanCFlag": 1,
                                 "outlineThreshold": 200},
                     "operator": ""
                   },
@@ -29,11 +30,13 @@
          "channels" :{"imageType": "original", "slice": "current"}
        },
        {
-        "identifier":{"assocStructure":"none"},
+        "identifier":{"studyDate":"last"},
         "view" : ["axial"],
         "crop": {
                     "method": "crop_pt_outline",
                     "params": { "structureName": "generated_pt_outline",
+                                "outStrName":"generated_pt_outline",
+	                            "saveStrToPlanCFlag": 1,
                                 "outlineThreshold": 200},
                     "operator": ""
                 },
