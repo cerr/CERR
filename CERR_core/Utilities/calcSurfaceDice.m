@@ -1,4 +1,4 @@
-function surfDist = calcSurfaceDice(gtStrName,predStrName,tol_cm,planC)
+function surfDice = calcSurfaceDice(gtStrName,predStrName,tol_cm,planC)
 %surfDice = calcSurfaceDice(gtStrName,predStrName,tol,mode,planC);
 %Compute surface dice between 2 structures in 2D/3D at specified tolerance
 %-------------------------------------------------------------------------
@@ -56,10 +56,10 @@ try
     predMask3M = py.numpy.array(predMask3M);
     voxSizV = py.tuple(voxSizV);
     tol_mm = py.float(tol_mm);
-    surfDist = py.(pyModule).main(gtMask3M, predMask3M,...
+    surfDice = py.(pyModule).main(gtMask3M, predMask3M,...
         voxSizV, tol_mm);
 catch e
-    error('Surface distance calculation failed with message: %s',e.message)
+    error('Surface dice calculation failed with message: %s',e.message)
 end
 
 end
