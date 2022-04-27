@@ -79,7 +79,7 @@ if ~strcmpi(resampleS.method,'none')
     %Resample mask ('nearest' interpolation)
     [~,maskOut3M] = resampleScanAndMask([],double(maskOut3M),xValsV,...
         yValsV,zValsV,xVals0V,yVals0V,zVals0V);
-    
+
     scanNum = origScanNum;
 end
 
@@ -139,20 +139,21 @@ if isfield(userOptS,'register') && ~isempty(fieldnames(userOptS.register))
             planC = deleteScan(planC,deleteScanV(scanIdx));
         end
     end
+end
 
 
-    %% Convert label maps to CERR structs
-    roiGenerationDescription = '';
-    if isfield(userOptS,'roiGenerationDescription')
-        roiGenerationDescription = userOptS.roiGenerationDescription;
-    end
-    for i = 1 : length(labelMapS)
-        labelVal = labelMapS(i).value;
-        maskForStr3M = maskOut3M == labelVal;
-        planC = maskToCERRStructure(maskForStr3M, isUniform, scanNum,...
-            outStrListC{i}, planC);
-        planC{indexS.structures}(end).roiGenerationAlgorithm = 'AUTOMATIC';
-        planC{indexS.structures}(end).roiGenerationDescription = roiGenerationDescription;
-        planC{indexS.structures}(end).structureDescription = roiGenerationDescription;
-    end
+%% Convert label maps to CERR structs
+roiGenerationDescription = '';
+if isfield(userOptS,'roiGenerationDescription')
+    roiGenerationDescription = userOptS.roiGenerationDescription;
+end
+for i = 1 : length(labelMapS)
+    labelVal = labelMapS(i).value;
+    maskForStr3M = maskOut3M == labelVal;
+    planC = maskToCERRStructure(maskForStr3M, isUniform, scanNum,...
+        outStrListC{i}, planC);
+    planC{indexS.structures}(end).roiGenerationAlgorithm = 'AUTOMATIC';
+    planC{indexS.structures}(end).roiGenerationDescription = roiGenerationDescription;
+    planC{indexS.structures}(end).structureDescription = roiGenerationDescription;
+end
 end

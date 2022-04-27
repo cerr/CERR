@@ -4,7 +4,7 @@ function scanNumV = getScanNumFromIdentifiers(idS,planC,origFlag)
 % INPUTS
 % idS       : Structure containing identifiers (tags) and expected values
 %             Supported identifiers include 'imageType', 'seriesDescription',
-%             'scanType', 'scanDate', 'scanNum', and 'assocStructure'.
+%             'scanType', 'studyDate', 'scanNum', and 'assocStructure'.
 % planC
 %----- Optional ---
 % origFlag :  Set to 1 to ignore 'warped' and 'filtered' scans (default:0).
@@ -53,10 +53,10 @@ for n = 1:length(identifierC)
             idV = false(size(matchIdxV));
             idV(matchValC) = true;
             
-        case 'scanDate'
-            scanDatesC =  arrayfun(@(x)x.scanInfo(1).scanDate, planC{indexS.scan},'un',0);
-            scanDatesC = datetime(scanDatesC,'InputFormat','yyyyMMdd');
-            [~,ordV] = sort(scanDatesC,'ascend');
+        case 'studyDate'
+            studyDatesC =  arrayfun(@(x)x.scanInfo(1).studyDate, planC{indexS.scan},'un',0);
+            studyDatesC = datetime(studyDatesC,'InputFormat','yyyyMMdd');
+            [~,ordV] = sort(studyDatesC,'ascend');
             
             idV = false(size(matchIdxV));
             if strcmp(matchValC,'first')
@@ -64,7 +64,7 @@ for n = 1:length(identifierC)
             elseif strcmp(matchValC,'last')
                 idV(ordV(end)) = true;
             else
-                error(['scanDate value ''',matchValC,''' is not supported.'])
+                error(['studyDate value ''',matchValC,''' is not supported.'])
             end
             
         case 'assocStructure'
