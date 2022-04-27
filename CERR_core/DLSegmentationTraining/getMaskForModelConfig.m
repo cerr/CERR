@@ -89,8 +89,22 @@ for m = 1:length(methodC)
             outMask3M = false(scanSizV);
             outMask3M(minr:maxr,minc:maxc,mins:maxs) = true;
             maskC{m} = outMask3M;
-            
-            
+
+        case 'crop_around_center_of_mass'
+
+            cropStr = paramS.structureName;
+            outputImgSizeV = reshape(paramS.margins,1,[]);
+            if isfield(paramS,'assignBkgIntensity')
+                bkgVal = paramS.assignBkgIntensity.assignVal;
+            else
+                bkgVal = [];
+            end
+
+            %Crop around COM
+            [~,outMask3M] = cropAroundCOM(scanNum,cropStr,...
+                outputImgSizeV,bkgVal,planC);
+            maskC{m} = outMask3M;
+
         case {'crop_pt_outline', 'crop_pt_outline_2d'}
             % Use to crop the patient outline
             
@@ -176,6 +190,9 @@ for m = 1:length(methodC)
             case 'intersection'
                 outMask3M = and(maskC{m-1},maskC{m});
                 maskC{m} = outMask3M;
+            case 'latest'
+                %Return latest resulting mask 
+                %maskC{m} = maskC{m};
         end
     end
     
