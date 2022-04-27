@@ -33,6 +33,10 @@ function ans = calc_MOHx(doseBinsV, volsHistV, percent,tail)
 % along with CERR.  If not, see <http://www.gnu.org/licenses/>.
 
 
+    if isstruct(percent)  %for use with ROE
+        percent = percent.x.val;
+    end
+
     cumVolsV = cumsum(volsHistV);
 	cumVols2V = cumVolsV(end) - cumVolsV;
     
