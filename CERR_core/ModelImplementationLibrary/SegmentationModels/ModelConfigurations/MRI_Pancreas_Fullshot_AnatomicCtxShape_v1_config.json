@@ -61,7 +61,7 @@
 
 "passedScanDim" : "3D",
 
-"structAssocScan": {"identifier" : {"assocStructure":"none","warped":0,"filtered":0}},
+"structAssocScan": {"identifier": {"studyDate":"last"}},
 
 "batchSize" : 1,
 
