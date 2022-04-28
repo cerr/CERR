@@ -7,38 +7,20 @@
   "value": 2},
 {"structureName": "Bowel_sm",
   "value": 3},
-{"structureName": "Stomach",
+{"structureName": "Duostomach",
   "value": 4}
 ],
 
 
-"filter": {
-            "imageType":{"SimpleITK":{"sitkFilterName":{"val":"HistogramMatchingImageFilter"},
-            "refImg":"Abdo_DJ_FX1_POimg.nii",
-            "numHistLevel":128, "numMatchPts":32, "ThresholdAtMeanIntensityOn":1}
-            }
-        },
-
-"register": {
-                    "baseScan":{"identifier":{"assocStructure":"none","filtered":1}},
-                    "movingScan":{"identifier":{"assocStructure":
-                        ["Liver", "Bowel_lg", "Bowel_sm", "Stomach"],"filtered":1}},
-                    "tool": "plastimatch",
-                    "method": "affine",
-                    "inputCmdFile": "plm_register_cmd_mri_abdomen.txt",
-                    "copyStr": ["Liver", "Bowel_lg", "Bowel_sm", "Stomach"]
-                 },
-
 "scan": [{
 
-         "identifier" : {"assocStructure":
-            ["Liver", "Bowel_lg", "Bowel_sm", "Stomach"],"warped": 1,"filtered":1}, 
+         "identifier" : {"studyDate":"first"}, 
          "view" : ["axial"],
          "crop" : {     
                     "method": "crop_pt_outline",
                     "params": { "structureName": "generated_pt_outline",
                                 "outStrName":"generated_pt_outline",
-                                "saveStrToPlanCFlag": 1,
+	                            "saveStrToPlanCFlag": 1,
                                 "outlineThreshold": 200},
                     "operator": ""
                   },
@@ -48,13 +30,13 @@
          "channels" :{"imageType": "original", "slice": "current"}
        },
        {
-        "identifier":{"assocStructure":"none", "warped":0, "filtered":1},
+        "identifier":{"studyDate":"last"},
         "view" : ["axial"],
         "crop": {
                     "method": "crop_pt_outline",
                     "params": { "structureName": "generated_pt_outline",
                                 "outStrName":"generated_pt_outline",
-                                "saveStrToPlanCFlag": 1,
+	                            "saveStrToPlanCFlag": 1,
                                 "outlineThreshold": 200},
                     "operator": ""
                 },
@@ -67,23 +49,19 @@
 
  "inputStrNameToLabelMap" :[ 
  {"structureName": "Liver","value": 1,
-  "assocScanIdentifier":{"assocStructure":["Liver", "Bowel_lg", "Bowel_sm", "Stomach"],
-                        "warped": 1}},
+  "assocScanIdentifier":{"assocStructure":["Liver", "Bowel_lg", "Bowel_sm", "Duostomach"]}},
  {"structureName": "Bowel_lg","value": 2,
-  "assocScanIdentifier":{"assocStructure":["Liver", "Bowel_lg", "Bowel_sm", "Stomach"],
-                        "warped": 1}},
+  "assocScanIdentifier":{"assocStructure":["Liver", "Bowel_lg", "Bowel_sm", "Duostomach"]}},
  {"structureName": "Bowel_sm","value": 3,
-  "assocScanIdentifier":{"assocStructure":["Liver", "Bowel_lg", "Bowel_sm", "Stomach"],
-                        "warped": 1}},
- {"structureName": "Stomach","value": 4,
-  "assocScanIdentifier":{"assocStructure":["Liver", "Bowel_lg", "Bowel_sm", "Stomach"],
-                        "warped": 1}}
+  "assocScanIdentifier":{"assocStructure":["Liver", "Bowel_lg", "Bowel_sm", "Duostomach"]}},
+ {"structureName": "Duostomach","value": 4,
+  "assocScanIdentifier":{"assocStructure":["Liver", "Bowel_lg", "Bowel_sm", "Duostomach"]}}
  ],
 
 
 "passedScanDim" : "3D",
 
-"structAssocScan": {"identifier" : {"assocStructure":"none","warped":0,"filtered":0}},
+"structAssocScan": {"identifier": {"studyDate":"last"}},
 
 "batchSize" : 1,
 

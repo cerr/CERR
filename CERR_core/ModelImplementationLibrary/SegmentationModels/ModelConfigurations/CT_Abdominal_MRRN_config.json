@@ -59,19 +59,24 @@
 
         "identifier" : {"imageType": "CT SCAN"},
 
-        "crop":{
+        "crop":[{
     			"method": "crop_pt_outline",
-			"params": { "structureName": "generated_pt_outline",
+			    "params": { "structureName": "generated_pt_outline",
 	                                "outStrName":"generated_pt_outline",
 	                                "saveStrToPlanCFlag": 1,
 	                                "outlineThreshold": -400},
-	                    "operator": ""
-	 },
-	                 
-        "resize": {"method" : "padOrCrop3d",
-                   "preserveAspectRatio": "Yes",
-                   "size" : [256,256]
-                  }
+	             "operator": ""
+                },
+                {
+                "method": "crop_around_center_of_mass",
+			    "params": { 
+                    "structureName": "generated_pt_outline",
+                    "margins": [256, 256]
+                },
+	            "operator": "latest"
+                }
+
+	 ]
  },
 
 
