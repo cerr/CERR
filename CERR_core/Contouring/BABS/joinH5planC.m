@@ -59,6 +59,10 @@ switch lower(resizeMethod)
             %3-D resize methods
             maskOut3M(minr:maxr, minc:maxc, slcV) = tempMask3M;
         end
+
+    case 'none'
+        maskOut3M(minr:maxr,minc:maxc,slcV) = segMask3M;
+
 end
 
 %% Resample to original resolution
