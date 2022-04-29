@@ -36,7 +36,8 @@ for indBase = 1:length(dirS)
             fullfile(outputCERRPath,[fname,'.mat']));
     end
     
-    exportAISegToDICOM(planC,origScanNum,outputDicomPath,dcmExportOptS,allLabelNamesC)
+    exportAISegToDICOM(planC,origScanNum,outputDicomPath,fname,...
+        dcmExportOptS,allLabelNamesC)
 
     
 end
