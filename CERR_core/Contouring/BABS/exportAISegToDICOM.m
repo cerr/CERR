@@ -1,5 +1,5 @@
-function exportAISegToDICOM(planC,origScanNum,outputDicomPath,dcmExportOptS,allLabelNamesC)
-% function exportAISegToDICOM(planC,outputDicomPath,dcmExportOptS,allLabelNamesC)
+function exportAISegToDICOM(planC,origScanNum,outputDicomPath,fname,dcmExportOptS,allLabelNamesC)
+% function exportAISegToDICOM(planC,outputDicomPath,fname,dcmExportOptS,allLabelNamesC)
 %
 % APA, 4/28/2022
 
