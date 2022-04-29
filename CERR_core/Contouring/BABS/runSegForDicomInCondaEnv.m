@@ -33,8 +33,11 @@ function success =  runSegForDicomInCondaEnv(inputDicomPath,outputDicomPath,...
 % ------------------------------------------------------------------------------------
 % APA, AI 04/28/2022
 
-if ~exist('skipMaskExport','var') || ...
-        (exist('skipMaskExport','var') && isempty(skipMaskExport))
+if ~exist('wrapperFunctionList','var') || isempty(skipMaskExport)
+    wrapperFunctionList = '';
+end
+
+if ~exist('skipMaskExport','var') || isempty(skipMaskExport)
     skipMaskExport = true;
 end
 
@@ -77,36 +80,50 @@ toc
 %% Build DICOM export options
 
 % Parse algorithm and convert to cell arrray
-algorithmC = split(algorithm,'^');
+if iscell(algorithm)
+    algorithmC = algorithm;
+else
+    algorithmC = strsplit(algorithm,'^');
+end
 
+
+%% Read user configurations
+userOptS = struct();
+userOptS(1) = [];
+allLabelNamesC = cell(1,length(algorithmC));
 dcmExportOptS = struct();
 dcmExportOptS(1) = [];
+for nAlg = 1:length(algorithmC)
 
-
-configFilePath = fullfile(getCERRPath,'ModelImplementationLibrary',...
-    'SegmentationModels','ModelConfigurations',...
-    [algorithmC{k}, '_config.json']);
-userOptS = readDLConfigFile(configFilePath);
-
-%Get list of label names
-if ischar(userOptS.strNameToLabelMap)
-    labelDatS = readDLConfigFile(fullfile(labelPath,...
-        userOptS.strNameToLabelMap));
-    labelMapS = labelDatS.strNameToLabelMap;
-else
-    labelMapS = userOptS.strNameToLabelMap;
-end
-allLabelNamesC = [allLabelNamesC,{labelMapS.structureName}];
-
-% Get DICOM export settings
-if isfield(userOptS, 'dicomExportOptS')
-    if isempty(dcmExportOptS)
-        dcmExportOptS = userOptS.dicomExportOptS;
+    configFilePath = fullfile(getCERRPath,'ModelImplementationLibrary',...
+        'SegmentationModels','ModelConfigurations',...
+        [algorithmC{nAlg}, '_config.json']);
+    if isempty(userOptS)
+        userOptS = readDLConfigFile(configFilePath);
     else
-        dcmExportOptS = dissimilarInsert(dcmExportOptS,userOptS.dicomExportOptS);
+        userOptS = dissimilarInsert(userOptS,readDLConfigFile(configFilePath));
+    end
+
+    %Get list of label names
+    if ischar(userOptS(nAlg).strNameToLabelMap)
+        labelDatS = readDLConfigFile(fullfile(labelPath,...
+            userOptS(nAlg).strNameToLabelMap));
+        labelMapS = labelDatS.strNameToLabelMap;
+    else
+        labelMapS = userOptS(nAlg).strNameToLabelMap;
+    end
+    allLabelNamesC{nAlg} = {labelMapS.structureName};
+
+    % Get DICOM export settings
+    if isfield(userOptS(nAlg), 'dicomExportOptS')
+        if isempty(dcmExportOptS)
+            dcmExportOptS = userOptS(nAlg).dicomExportOptS;
+        else
+            dcmExportOptS = dissimilarInsert(dcmExportOptS,...
+                userOptS(nAlg).dicomExportOptS);
+        end
     end
 end
-
 
 %% Load planC
 planCfiles = dir(fullfile(cerrPath,'*.mat'));
@@ -127,15 +144,23 @@ for p=1:length(planCfiles)
     planC = save_planC(planC,[],'passed',fileNam);
     
     % Write RTSTRUCT to DICOM
-    
-    % Get scan index to associate final segmentation
-    identifierS = userOptS.structAssocScan.identifier;
-    if ~isempty(fieldnames(userOptS.structAssocScan.identifier))
-        origScanNum = getScanNumFromIdentifiers(identifierS,planC);
-    else
-        origScanNum = 1; %Assoc with first scan by default
-    end    
-    exportAISegToDICOM(planC,origScanNum,outputDicomPath,dcmExportOptS,allLabelNamesC)
+    [~,dcmFileName,~] = fileparts(fileNam);
+    for nAlg = 1:length(algorithmC)
+        % Get scan index to associate final segmentation
+        identifierS = userOptS(nAlg).structAssocScan.identifier;
+        if ~isempty(fieldnames(userOptS(nAlg).structAssocScan.identifier))
+            origScanNum = getScanNumFromIdentifiers(identifierS,planC);
+        else
+            origScanNum = 1; %Assoc with first scan by default
+        end
+        if isempty(dcmExportOptS)
+            algExportS = struct();
+        else
+            algExportS = dcmExportOptS(nAlg);
+        end
+        exportAISegToDICOM(planC,origScanNum,outputDicomPath,...
+            dcmFileName,algExportS(nAlg),allLabelNamesC{nAlg})
+    end
     
 end
 
