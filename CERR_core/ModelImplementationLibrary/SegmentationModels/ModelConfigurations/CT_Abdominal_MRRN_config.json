@@ -59,7 +59,7 @@
 
         "identifier" : {"imageType": "CT SCAN"},
 
-        "crop":[{
+        "crop":{
     			"method": "crop_pt_outline",
 			    "params": { "structureName": "generated_pt_outline",
 	                                "outStrName":"generated_pt_outline",
@@ -67,16 +67,12 @@
 	                                "outlineThreshold": -400},
 	             "operator": ""
                 },
-                {
-                "method": "crop_around_center_of_mass",
-			    "params": { 
-                    "structureName": "generated_pt_outline",
-                    "margins": [256, 256]
-                },
-	            "operator": "latest"
-                }
 
-	 ]
+        "resize":{
+                    "preserveAspectRatio": "Yes",
+                    "method" : "bicubic",
+                    "size" : [256,256]
+                 }
  },
 
 
