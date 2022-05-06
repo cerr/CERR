@@ -348,9 +348,9 @@ switch(lower(method))
                             mask3M(:,:,nSlc)),paddedSize, 'nearest');
                     end
                     %padded3M = bgMean * ones(paddedSize,paddedSize,size(scan3M,3));
-                    idx11 = 1 + (paddedSize - cropDim(1))/2;
+                    idx11 = 1 + round((paddedSize - cropDim(1))/2);
                     idx12 = idx11 + cropDim(1) - 1;
-                    idx21 = 1 + (paddedSize - cropDim(2))/2;
+                    idx21 = 1 + round((paddedSize - cropDim(2))/2);
                     idx22 = idx21 + cropDim(2) - 1;
                     
 %                     maskOut3M = zeros([outputImgSizeV(1:2), origSizV(3)]);
