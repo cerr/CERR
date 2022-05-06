@@ -63,7 +63,7 @@
     			"method": "crop_pt_outline",
 			    "params": { "structureName": "generated_pt_outline",
 	                                "outStrName":"generated_pt_outline",
-	                                "saveStrToPlanCFlag": 1,
+	                                "saveStrToPlanCFlag": 0,
 	                                "outlineThreshold": -400},
 	             "operator": ""
                 },
@@ -82,6 +82,9 @@
 
 "passedScanDim" : "3D",
 
-"batchSize": 1
+"batchSize": 1,
+
+"structAssocScan": {"identifier": {"imageType":"CT"}}
+
 
 }
