@@ -355,7 +355,7 @@ switch(lower(method))
                     
 %                     maskOut3M = zeros([outputImgSizeV(1:2), origSizV(3)]);
 %                     maskOut3M(minr:maxr,minc:maxc,:) = maskResize3M(idx11:idx12,idx21:idx11,:);
-                    maskOut3M = maskResize3M(idx11:idx12,idx21:idx11,:);
+                    maskOut3M = maskResize3M(idx11:idx12,idx21:idx22,:);
                 else
                     maskOut3M = zeros([outputImgSizeV(1:2),size(mask3M,3)]);
                     for nSlc = 1:size(mask3M,3)
