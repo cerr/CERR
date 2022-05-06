@@ -345,7 +345,7 @@ switch(lower(method))
                     maskResize3M = zeros([paddedSize,size(mask3M,3)]);
                     for nSlc = 1:size(mask3M,3)
                         maskResize3M(:,:,nSlc) = imresize(squeeze(...
-                            mask3M(:,:,nslc)),paddedSize, 'nearest');
+                            mask3M(:,:,nSlc)),paddedSize, 'nearest');
                     end
                     %padded3M = bgMean * ones(paddedSize,paddedSize,size(scan3M,3));
                     idx11 = 1 + (paddedSize - cropDim(1))/2;
