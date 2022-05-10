@@ -12,7 +12,6 @@ scanOptS = userOptS.scan(scanNum);
 
 %% Resize/pad mask to original dimensions
 %Get parameters for resizing & cropping
-resizeMethod = scanOptS.resize.method;
 cropS = scanOptS.crop; %Added
 if isfield(scanOptS.resize,'preserveAspectRatio')
     if strcmp(scanOptS.resize.preserveAspectRatio,'Yes')
@@ -28,41 +27,54 @@ maskOut3M = zeros(sizV, 'uint32');
 originImageSizV = [sizV(1:2), length(slcV)];
 
 %Undo resizing & cropping
-switch lower(resizeMethod)
+resizeS = scanOptS.resize;
 
-    case 'pad2d'
-        limitsM = [minr, maxr, minc, maxc];
-        resizeMethod = 'unpad2d';
-        originImageSizV = [sizV(1:2), length(slcV)];
-        [~, maskOut3M(:,:,slcV)] = ...
-            resizeScanAndMask(segMask3M,segMask3M,originImageSizV,...
-            resizeMethod,limitsM);
+for nMethod = 1:length(resizeS)
 
-    case 'pad3d'
-        resizeMethod = 'unpad3d';
-        [~, tempMask3M] = ...
-            resizeScanAndMask([],segMask3M,sizV,resizeMethod);
-        maskOut3M(:,:,slcV) = tempMask3M;
+    resizeMethod = resizeS(nMethod).method;
+    if nMethod>1
+        segMask3M = maskOut3M;
+    end
+    switch lower(resizeMethod)
 
-    case { 'bilinear', 'sinc', 'bicubic'}
-        limitsM = [minr, maxr, minc, maxc];
+        case 'pad2d'
+            limitsM = [minr, maxr, minc, maxc];
+            resizeMethod = 'unpad2d';
+            originImageSizV = [sizV(1:2), length(slcV)];
+            [~, maskOut3M(:,:,slcV)] = ...
+                resizeScanAndMask(segMask3M,segMask3M,originImageSizV,...
+                resizeMethod,limitsM);
 
-        outSizeV = [maxr-minr+1,maxc-minc+1,originImageSizV(3)];
-        [~,tempMask3M] = ...
-            resizeScanAndMask([],segMask3M,outSizeV,resizeMethod,...
-            limitsM,preserveAspectFlag);
-
-        if size(limitsM,1)>1
-            %2-D resize methods
+        case 'pad3d'
+            resizeMethod = 'unpad3d';
+            [~, tempMask3M] = ...
+                resizeScanAndMask([],segMask3M,sizV,resizeMethod);
             maskOut3M(:,:,slcV) = tempMask3M;
-        else
-            %3-D resize methods
-            maskOut3M(minr:maxr, minc:maxc, slcV) = tempMask3M;
-        end
 
-    case 'none'
-        maskOut3M(minr:maxr,minc:maxc,slcV) = segMask3M;
+        case 'padslices'
+            resizeMethod = 'unpadslices';
+            [~, maskOut3M] = ...
+                resizeScanAndMask([],segMask3M,originImageSizV(3),resizeMethod);
 
+        case { 'bilinear', 'sinc', 'bicubic'}
+            limitsM = [minr, maxr, minc, maxc];
+
+            outSizeV = [maxr-minr+1,maxc-minc+1,originImageSizV(3)];
+            [~,tempMask3M] = ...
+                resizeScanAndMask([],segMask3M,outSizeV,resizeMethod,...
+                limitsM,preserveAspectFlag);
+
+            if size(limitsM,1)>1
+                %2-D resize methods
+                maskOut3M(:,:,slcV) = tempMask3M;
+            else
+                %3-D resize methods
+                maskOut3M(minr:maxr, minc:maxc, slcV) = tempMask3M;
+            end
+
+        case 'none'
+            maskOut3M(minr:maxr,minc:maxc,slcV) = segMask3M;
+    end
 end
 
 %% Resample to original resolution
