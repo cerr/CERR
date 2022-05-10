@@ -8,15 +8,18 @@ function [scanOut3M, maskOut3M] = resizeScanAndMask(scan3M,mask3M,...
 %INPUTS:
 % scan3M         :  Scan array
 % mask3M         :  Mask
+% outputImgSizeV :  Required output size [height, width]
 % method         :  Supported methods: 'none','pad2d', 'pad3d',
 %                   'bilinear', 'sinc', 'bicubic'.
-% outputImgSizeV :  Required output size [height, width]
+% limitsM        :  Matrix with rows listing indices of rows & cols defining
+%                   ROI extents on each slice [minr, maxr, minc, maxc] 
+% preserveAspectFlag : Set to 1 to preserve aspect ratio when reszing (default:0)
 %--------------------------------------------------------------------------
 %RKP 9/13/19 - Added method 'pad2d'
 %AI 9/19/19  - Updated to handle undo-resize options
 
 
-if nargin > 3
+if nargin > 4
     limitsM = varargin{1};
     if numel(varargin) > 1
         preserveAspectFlag = varargin{2};
@@ -267,7 +270,7 @@ switch(lower(method))
 
         maskOut3M = [];
         if ~isempty(mask3M)
-            maskOut3M = false(size(scan3M,1),size(scan3M,2),numSlices);
+            maskOut3M = zeros(size(scan3M,1),size(scan3M,2),numSlices);
             maskOut3M(:,:,1:origSizV(3)) = mask3M;
         end
 

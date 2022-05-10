@@ -13,11 +13,7 @@ scanOptS = userOptS.scan(scanNum);
 %% Resize/pad mask to original dimensions
 %Get parameters for resizing & cropping
 cropS = scanOptS.crop; %Added
-if isfield(scanOptS.resize,'preserveAspectRatio')
-    if strcmp(scanOptS.resize.preserveAspectRatio,'Yes')
-        preserveAspectFlag = 1;
-    end
-end
+
 % cropS.params.saveStrToPlanCFlag=0;
 [minr, maxr, minc, maxc, slcV, ~, planC] = getCropLimits(planC,segMask3M,...
     scanNum,cropS);
@@ -29,15 +25,23 @@ originImageSizV = [sizV(1:2), length(slcV)];
 %Undo resizing & cropping
 resizeS = scanOptS.resize;
 
-for nMethod = 1:length(resizeS)
+for nMethod = length(resizeS):-1:1
 
     resizeMethod = resizeS(nMethod).method;
-    if nMethod>1
+
+    if isfield(resizeS(nMethod),'preserveAspectRatio') && ...
+            strcmp(resizeS(nMethod).preserveAspectRatio,'Yes')
+        preserveAspectFlag = 1;
+    end
+
+    if nMethod<length(resizeS)
         segMask3M = maskOut3M;
     end
     switch lower(resizeMethod)
 
         case 'pad2d'
+
+            maskOut3M = zeros(sizV, 'uint32');
             limitsM = [minr, maxr, minc, maxc];
             resizeMethod = 'unpad2d';
             originImageSizV = [sizV(1:2), length(slcV)];
@@ -57,6 +61,7 @@ for nMethod = 1:length(resizeS)
                 resizeScanAndMask([],segMask3M,originImageSizV(3),resizeMethod);
 
         case { 'bilinear', 'sinc', 'bicubic'}
+            maskOut3M = zeros(sizV, 'uint32');
             limitsM = [minr, maxr, minc, maxc];
 
             outSizeV = [maxr-minr+1,maxc-minc+1,originImageSizV(3)];
