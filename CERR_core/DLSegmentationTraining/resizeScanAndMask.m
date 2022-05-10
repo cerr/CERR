@@ -1,4 +1,5 @@
-function [scanOut3M, maskOut3M] = resizeScanAndMask(scan3M,mask3M,outputImgSizeV,method,varargin)
+function [scanOut3M, maskOut3M] = resizeScanAndMask(scan3M,mask3M,...
+                                  outputImgSizeV,method,varargin)
 % resizeScanAndMask.m
 % Script to resize images and masks for deep learning.
 %
@@ -253,6 +254,34 @@ switch(lower(method))
                 maskOut3M(outRmin:outRmax,outCmin:outCmax,slcNum) = mask3M(rMin:rMax,cMin:cMax,slcNum);
             end
             
+        end
+
+    case 'padslices'
+
+        numSlices = outputImgSizeV;
+        scanOut3M = [];
+        if ~isempty(scan3M)
+            scanOut3M = zeros(size(scan3M,1),size(scan3M,2),numSlices);
+            scanOut3M(:,:,1:origSizV(3)) = scan3M;
+        end
+
+        maskOut3M = [];
+        if ~isempty(mask3M)
+            maskOut3M = false(size(scan3M,1),size(scan3M,2),numSlices);
+            maskOut3M(:,:,1:origSizV(3)) = mask3M;
+        end
+
+    case 'unpadslices'
+
+        numSlices = outputImgSizeV;
+        scanOut3M = [];
+        if ~isempty(scan3M)
+            scanOut3M = scan3M(:,:,1:numSlices);
+        end
+
+        maskOut3M = [];
+        if ~isempty(mask3M)
+            maskOut3M = mask3M(:,:,1:numSlices);
         end
         
     case {'bilinear','sinc','bicubic'}

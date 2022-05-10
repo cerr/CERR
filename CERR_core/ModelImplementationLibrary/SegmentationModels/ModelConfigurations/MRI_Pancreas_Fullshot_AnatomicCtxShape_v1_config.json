@@ -20,13 +20,20 @@
                     "method": "crop_pt_outline",
                     "params": { "structureName": "generated_pt_outline",
                                 "outStrName":"generated_pt_outline",
-	                            "saveStrToPlanCFlag": 1,
+	                            "saveStrToPlanCFlag": 0,
                                 "outlineThreshold": 200},
-                    "operator": ""
+                                "operator": ""
                   },
-         "resize": {"method" : "bicubic",
-                    "size" : [128,192]
-                   },
+         "resize": [{  "method" : "bicubic",
+                       "size" : [128,192],
+                       "preserveAspectRatio": "No"
+                    },
+                    {
+                       "method" : "padSlices",
+                       "size" : 128,
+                       "preserveAspectRatio": "No"
+                    }
+                   ],
          "channels" :{"imageType": "original", "slice": "current"}
        },
        {
@@ -36,13 +43,20 @@
                     "method": "crop_pt_outline",
                     "params": { "structureName": "generated_pt_outline",
                                 "outStrName":"generated_pt_outline",
-	                            "saveStrToPlanCFlag": 1,
+	                            "saveStrToPlanCFlag": 0,
                                 "outlineThreshold": 200},
                     "operator": ""
                 },
-        "resize": {"method" : "bicubic",
-                   "size" : [128,192]
-                   },
+        "resize": [{  "method" : "bicubic",
+                       "size" : [128,192],
+                       "preserveAspectRatio": "No"
+                    },
+                    {
+                       "method" : "padSlices",
+                       "size" : 128,
+                       "preserveAspectRatio": "No"
+                    }
+                   ],
         "channels": {"imageType":"original", "slice": "current"}
        }
  ],

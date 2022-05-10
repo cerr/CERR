@@ -372,17 +372,20 @@ for scanIdx = 1:numScans
     if ~strcmpi(resizeS(scanIdx).method,'none')
         fprintf('\nResizing data...\n');
         tic
-        resizeMethod = resizeS(scanIdx).method;
-        
-        outSizeV = resizeS(scanIdx).size;
-        [scan3M, mask3M] = resizeScanAndMask(scan3M,mask3M,outSizeV,...
-            resizeMethod,limitsM,preserveAspectFlag);
-        % obtain patient outline in view if background adjustment is needed
-        if adjustBackgroundVoxFlag || transformViewFlag
-            [~, cropStr3M] = resizeScanAndMask([],cropStr3M,outSizeV,...
+
+        resizeMethodS = resizeS(:,scanIdx);
+        for nMethod = 1:length(resizeMethodS)
+            resizeMethod = resizeMethodS(nMethod).method;
+            outSizeV = resizeMethodS(nMethod).size;
+            [scan3M, mask3M] = resizeScanAndMask(scan3M,mask3M,outSizeV,...
                 resizeMethod,limitsM,preserveAspectFlag);
-        else
-            cropStr3M = [];
+            % obtain patient outline in view if background adjustment is needed
+            if adjustBackgroundVoxFlag || transformViewFlag
+                [~, cropStr3M] = resizeScanAndMask([],cropStr3M,outSizeV,...
+                    resizeMethod,limitsM,preserveAspectFlag);
+            else
+                cropStr3M = [];
+            end
         end
         toc
         
