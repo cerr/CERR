@@ -1,28 +1,17 @@
 function ROE(command,varargin)
-%  GUI for outcomes modeling (TCP, NTCP)
+%  The Radiotherapy Outcomes Estimator (ROE) is a plug-in to CERR for
+%  interactively exploring the impact of scaling dose on Tumor Control 
+%  Probability (TCP) and Normal Tissue Complication Probability (NTCP).
+%
 %  This tool uses 
 % +  JSONlab toolbox v1.2, an open-source JSON/UBJSON encoder and decoder
-%    for MATLAB and Octave.
-%    http://www.mathworks.com/matlabcentral/fileexchange/33381-jsonlab--a-toolbox-to-encode-decode-json-files
+%    for MATLAB and Octave (http://www.mathworks.com/matlabcentral/
+%    fileexchange/33381-jsonlab--a-toolbox-to-encode-decode-json-files).
 % +  draggable by William Warriner (2021)
-%    draggable (https://github.com/wwarriner/draggable/releases/tag/v0.1.0), GitHub. Retrieved May 17, 2021.
+%    draggable (https://github.com/wwarriner/draggable/releases/tag/v0.1.0),
+%    GitHub. Retrieved May 17, 2021.
+%
 % =======================================================================================================================
-% APA, 05/10/2016
-% AI , 05/24/2016  Added dose scaling
-% AI , 07/28/2016  Added ability to modify model parameters
-% AI , 09/13/2016  Added TCP axis
-% AI , 02/17/17    Added popup to edit structure/plan inputs
-% AI , 02/20/17    Added model selection by protocol
-% AI , 04/24/17    Added plot focus-switching, changed name to ROE
-% AI , 05/23/17    Default plan selection
-% AI , 11/13/17    Modified to handle multiple structures
-% AI , 11/24/17    Modified to display clinical criteria/limits
-% AI , 02/05/18    Added option to change no. fractions
-% AI , 03/27/18    Added option to switch between TCP/BED axes
-% AI,  06/14/18    Added TCP/BED readout, fixed bug with tooltip frxSiz display
-% AI,  09/04/18    Modified plot to show NTCP vs. TCP/BED
-% AI,  10/24/18    Added 4 plot modes : NTCP vs. BED, NTCP vs. TCP, NTCP/TCP vs frx size, NTCP/TCP vs nfrx
-% -------------------------------------------------------------------------
 % Copyright 2010, Joseph O. Deasy, on behalf of the CERR development team.
 %
 % This file is part of The Computational Environment for Radiotherapy Research (CERR).
@@ -45,9 +34,34 @@ function ROE(command,varargin)
 % You should have received a copy of the GNU General Public License
 % along with CERR.  If not, see <http://www.gnu.org/licenses/>.
 % =========================================================================================================================
+% APA, 05/10/2016
+% AI , 05/24/16  Added dose scaling
+% AI , 07/28/16  Added ability to modify model parameters
+% AI , 09/13/16  Added TCP axis
+% AI , 02/17/17  Added popup to edit structure/plan inputs
+% AI , 02/20/17  Added model selection by protocol
+% AI , 04/24/17  Added plot focus-switching, changed name to ROE
+% AI , 05/23/17  Default plan selection
+% AI , 11/13/17  Modified to handle multiple structures
+% AI , 11/24/17  Modified to display clinical criteria/limits
+% AI , 02/05/18  Added option to change no. fractions
+% AI , 03/27/18  Added option to switch between TCP/BED axes
+% AI , 06/14/18  Added TCP/BED readout, fixed bug with tooltip frxSiz display
+% AI , 09/04/18  Modified plot to show NTCP vs. TCP/BED
+% AI , 10/24/18  Added 4 plot modes : NTCP vs. BED, NTCP vs. TCP, NTCP/TCP
+%                vs. frx size, NTCP/TCP vs nfrx
+% AI ,  02/05/20 Read default paths to JSON files for ROE from CERRoptions.json 
+% AI ,  05/12/21 Support for models with optional input structs.
+% AI ,  05/13/21 Modularized code
+% AI ,  05/17/21 Added draggable NTCP/TCP readouts
+% AI ,  06/18/21 Get Rx dose from planC. Alt: added field for user-input Rx.
+% AI ,  05/11/22 Tabbed display for user settings & clinical constraints.
+% --------------------------------------------------------------------------------------------------------------------------
 
 % Globals
 global planC stateS
+% persistent CERRfile
+% currCERRfile = stateS.CERRFile;
 
 %Default command
 if nargin==0
@@ -68,9 +82,16 @@ end
 indexS = planC{end};
 binWidth = .05;
 
-
 % Get GUI fig handle
 hFig = findobj('Tag','ROEFig');
+
+% % Clear plots on loading new CERR file w
+% if ~strcmp(currCERRfile,CERRfile)
+%     CERRfile = currCERRfile;
+%     ROE('CLEAR_PLOT',hFig) -> Store fig handle to stateS and call this
+%     from slicecallback when new plan is loaded.
+% end
+
 
 switch upper(command)
     
@@ -86,7 +107,8 @@ switch upper(command)
         GUIWidth = 1200;
         GUIHeight = 750;
         shift = 10;
-        position = [(screenSizeV(3)-GUIWidth)/2,(screenSizeV(4)-GUIHeight)/2,GUIWidth,GUIHeight];
+        position = [(screenSizeV(3)-GUIWidth)/2,...
+            (screenSizeV(4)-GUIHeight)/2,GUIWidth,GUIHeight];
         str1 = 'ROE';
         defaultColor = [0.8 0.9 0.9];
         figColor = [.6 .75 .75];
@@ -107,13 +129,13 @@ switch upper(command)
         %Create title handles
         posTop = GUIHeight-topMarginHeight;
         titleH(1) = uicontrol(hFig,'tag','titleFrame','units','pixels',...
-            'Position',[shift posTop-shift/2 GUIWidth-2*shift 0.08*GUIHeight ],'Style',...
-            'frame','backgroundColor',defaultColor);
+            'Position',[shift posTop+2 GUIWidth-2*shift,...
+            0.07*GUIHeight],'Style','frame','backgroundColor',defaultColor);
         titleH(2) = uicontrol(hFig,'tag','title','units','pixels',...
-            'Position',[.3*GUIHeight+1 posTop+1 .6*GUIWidth 3*shift ],...
-            'String','ROE: Radiotherapy Outcomes Estimator','Style','text', 'fontSize',12,...
-            'FontWeight','Bold','HorizontalAlignment','center',...
-            'backgroundColor',defaultColor);
+            'Position',[.3*GUIHeight+1 posTop+8 .6*GUIWidth 3*shift ],...
+            'String','ROE: Radiotherapy Outcomes Estimator','Style','text',...
+            'fontSize',12,'FontWeight','Bold','HorizontalAlignment',...
+            'center','backgroundColor',defaultColor);
         
         ud.handle.title = titleH;
         guidata(hFig,ud);
@@ -128,213 +150,8 @@ switch upper(command)
             return
         end
         
-        % Get GUI size, margins
-        leftMarginWidth = stateS.leftMarginWidth;
-        topMarginHeight = stateS.topMarginHeight;
-        pos = get(hFig,'Position');
-        GUIWidth = pos(3);
-        GUIHeight = pos(4);
-        shift = 10;
-        defaultColor = [0.8 0.9 0.9];
-        posTop = GUIHeight-topMarginHeight;
-        
-        %% Push button for protocol selection
-        inputH(1) = uicontrol(hFig,'tag','titleFrame','units','pixels',...
-            'Position',[shift shift leftMarginWidth+.12*GUIWidth GUIHeight-topMarginHeight-2*shift ],...
-            'Style','frame','backgroundColor',defaultColor);
-        inputH(2) = uicontrol(hFig,'tag','modelTitle','units','pixels',...
-            'Position',[2*shift posTop-.16*GUIHeight .16*GUIWidth 2*shift], 'String','','Style','text',...
-            'fontSize',9, 'fontWeight', 'Bold', 'BackgroundColor',defaultColor,...
-            'HorizontalAlignment','left');
-        optS = opts4Exe('CERRoptions.json');
-        protPath = optS.ROEProtocolPath;
-        if contains(protPath,'getCERRPath')
-            protPath = eval(protPath);
-        end
-        inputH(3) = uicontrol(hFig,'tag','modelFileSelect','units','pixels',...
-            'Position',[2*shift posTop-.1*GUIHeight .16*GUIWidth 3*shift], 'String',...
-            'Select protocol','Style','push', 'fontSize',10,...
-            'FontWeight','normal','BackgroundColor',defaultColor,...
-            'HorizontalAlignment','right','callback','ROE(''LOAD_MODELS'')',...
-            'tooltip',sprintf(['Push to select treatment protocol.\n ',...
-            'Reading from ',protPath,'.\n To read from a different location',...
-            ', update ROEProtocolPath in CERRoptions.json']));
-            
-        
-        %% Pop-up menus to select structures & dose plans
-        tablePosV = [.22*GUIWidth-2.5*shift posTop-.1*GUIHeight .22*GUIWidth 2.4*shift];
-        colWidth = tablePosV(3)/2-1;
-        inputH(4) = uitable(hFig,'Tag','strSel','Position',tablePosV-...
-            [0 2.5*shift 0 0],'Enable','Off','ColumnName',[],'RowName',[],...
-            'Visible','Off','backgroundColor',defaultColor,'columnEditable',...
-            [true,true],'Data',{'Select structure','List of structures'},...
-            'ColumnWidth',{colWidth,colWidth},'FontSize',10,...
-            'cellEditCallback',@(hObj,hData)editParamsROE(hObj,hData,hFig,planC));
-        inputH(5) = uitable(hFig,'Tag','doseSel','Position',tablePosV,...
-            'Enable','Off','ColumnName',[],'RowName',[],'Visible','Off',...
-            'backgroundColor',defaultColor,'columnEditable',[true,true],...
-            'Data',{'Select dose plan','List of plans'},'ColumnWidth',...
-            {colWidth,colWidth},'FontSize',10,'cellEditCallback',...
-            @(hObj,hData)editParamsROE(hObj,hData,hFig,planC));
-        
-        %% Tables to display & edit model parameters
-        inputH(6) = uicontrol(hFig,'units','pixels','Visible','Off',...
-            'fontSize',10,'Position',tablePosV + [0 -.1*GUIHeight 0 0 ],...
-            'String','Model parameters','Style','text','FontWeight','Bold',...
-            'HorizontalAlignment','Left','backgroundColor',defaultColor);  %Title: Model parameters
-        inputH(7) = uicontrol(hFig,'units','pixels','Visible','Off','String','',...
-            'Position',tablePosV + [0 -.15*GUIHeight 0 10 ],'FontSize',9,...
-            'Style','text','FontWeight','Bold','HorizontalAlignment','Left',...
-            'backgroundColor',defaultColor,'foregroundColor',[.6 0 0]);    %Model name display
-        inputH(8) = uitable(hFig,'Tag','fieldEdit','Position',tablePosV + [0 -.75*GUIHeight 0 8*shift],'Enable','Off',...
-            'ColumnName',{'Fields','Values'},'FontSize',10,'RowName',[],...
-            'Visible','Off','backgroundColor',defaultColor,...
-            'ColumnWidth',{round(tablePosV(3)/2),round(tablePosV(3)/2)},...
-            'columnEditable',[false,true],'backgroundcolor',[1 1 1],...
-            'cellEditCallback',@(hObj,hData)editParamsROE(hObj,hData,hFig,planC)); %Parameter tables
-        
-        %% Push-buttons to save, plot, display style
-        inputH(9) = uicontrol(hFig,'units','pixels','Tag','saveJson',...
-            'Position',[.36*GUIWidth 1.5*shift .06*GUIWidth 3*shift],...
-            'backgroundColor',defaultColor,'String','Save','Style','Push',...
-            'fontSize',10,'FontWeight','normal','Enable','Off',...
-            'Callback','ROE(''SAVE_MODELS'' )','tooltip','Save changes to JSON'); %Save
-        inputH(10) = uicontrol(hFig,'units','pixels','Tag','plotButton',...
-            'Position',[.29*GUIWidth 1.5*shift .06*GUIWidth 3*shift],...
-            'backgroundColor',defaultColor,'String','Plot','Style','Push',...
-            'fontSize',10,'FontWeight','normal','Enable','Off',...
-            'Callback','ROE(''PLOT_MODELS'' )','tooltip','Push to plot');  %Plot
-        inputH(11) = uicontrol(hFig,'units','pixels','Tag','switchPlot',...
-            'Position',[.18*GUIWidth .1*shift .1*GUIWidth 4*shift],...
-            'backgroundColor',[1 1 1],'String',{'--Display mode--',...
-            'NTCP v.BED','NTCP v.TCP','Scale fraction size',...
-            'Scale no. fractions' },'Style','popup', 'fontSize',10,...
-            'FontWeight','normal','Enable','On','Callback',@(hObj,hEvt)...
-            setPlotModeROE(hObj,hEvt,hFig),'tooltip','Select plot axes.'); %Plot mode
-        
-        % Input prescribed dose
-        inputH(13) = uicontrol('parent',hFig,'units','pixels','Position',...
-            [.22*GUIWidth-2.5*shift posTop-.06*GUIHeight 10*shift,2*shift],...
-            'Style','Text','String','Prescribed Dose','fontSize',10,...
-            'backgroundColor',defaultColor);
-        inputH(14) = uicontrol('parent',hFig,'units','pixels','Position',...
-            [.3*GUIWidth+shift posTop-.06*GUIHeight 8*shift,2.5*shift],...
-            'Style','Edit','String','','Visible','On','fontSize',10,...
-            'Callback',@(hObj,hEvt)clearStoredDVHsROE(hObj,hEvt,hFig),...
-            'tooltip','Input Rx (Gy) and press enter.');
-        inputH(15) = uicontrol('parent',hFig,'units','pixels','Position',...
-            [.38*GUIWidth posTop-.06*GUIHeight 2*shift,2*shift],'Style',...
-            'Text','String','Gy','fontSize',10,'backgroundColor',defaultColor);
-        
-        %% Plot axes
-        
-        %Draw frame
-        plotH(1) = axes('parent',hFig,'units','pixels','Position',...
-            [leftMarginWidth+.14*GUIWidth shift GUIWidth-leftMarginWidth-.15*GUIWidth...
-            GUIHeight-topMarginHeight-2*shift ],'color',defaultColor,'ytick',[],...
-            'xtick',[],'box','on');
-        
-        %Axes
-        %NTCP vs TCP/BED
-        plotH(2) = axes('parent',hFig,'tag','modelsAxis','tickdir', 'out',...
-            'nextplot','add','units','pixels','Position',...
-            [leftMarginWidth+.19*GUIWidth .16*GUIHeight .73*GUIWidth-leftMarginWidth,...
-            GUIHeight-topMarginHeight-0.2*GUIHeight],'color',[1 1 1],...
-            'XAxisLocation','bottom','YAxisLocation','left','xlim',[50 51],'ylim',[0 1],...
-            'fontSize',9,'fontWeight','bold','box','on','visible','off');
-        
-        %NTCP vs. scaled frx size
-        plotH(3) = axes('parent',hFig,'tag','modelsAxis','tickdir', 'out',...
-            'nextplot','add','units','pixels','Position',get(plotH(2),'Position'),'color',[1 1 1],...
-            'XAxisLocation','bottom','YAxisLocation','left','xlim',[.5 1.5],'ylim',[0 1],...
-            'fontSize',9,'fontWeight','bold','box','on','visible','off');
-        %TCP/BED vs. scaled frx size
-        plotH(4) = axes('parent',hFig,'tag','modelsAxis2','tickdir', 'out',...
-            'nextplot','add','units','pixels','Position',get(plotH(2),'Position'),...
-            'color','none','XAxisLocation','bottom','YAxisLocation','right',...
-            'xlim',[.5 1.5],'ylim',[0 1],'xtick',[],'fontSize',9,'fontWeight',...
-            'bold','box','on','visible','off');
-        
-        
-        %NTCP vs. scaled nfrx
-        plotH(5) = axes('parent',hFig,'tag','modelsAxis','tickdir', 'out',...
-            'nextplot','add','units','pixels','Position',get(plotH(2),'Position'),...
-            'color',[1 1 1],'XAxisLocation','bottom','YAxisLocation','left','ylim',[0 1],...
-            'fontSize',9,'fontWeight','bold','box','on','visible','off');
-        %TCP/BED vs. scaled nfrx
-        plotH(6) = axes('parent',hFig,'tag','modelsAxis2','tickdir', 'out',...
-            'nextplot','add','units','pixels','Position',get(plotH(2),'Position'),...
-            'color','none','XAxisLocation','bottom','YAxisLocation','right',...
-            'ylim',[0 1],'xtick',[],'fontSize',9,'fontWeight',...
-            'bold','box','on','visible','off');
-        
-        
-        %Sliders
-        %scale frx size
-        plotH(7) = uicontrol('parent',hFig,'units','pixels','Position',...
-            [leftMarginWidth+.18*GUIWidth 5*shift .75*GUIWidth-leftMarginWidth 1.8*shift],...
-            'Style','Slider','Visible','Off','Tag','Scale','Min',0.5,'Max',1.5,'Value',1,...
-            'SliderStep',[1/(99-1),1/(99-1)]);
-        addlistener(plotH(7),'ContinuousValueChange',...
-            @(hObj,hEvt)scaleDoseROE(hObj,hEvt,hFig));
-        %scale nfrx
-        plotH(8) = uicontrol('parent',hFig,'units','pixels','Position',...
-            [leftMarginWidth+.18*GUIWidth 5*shift .75*GUIWidth-leftMarginWidth 1.8*shift],...
-            'Style','Slider','Visible','Off','Tag','Scale','Min',-15,'Max',15,'Value',0,...
-            'SliderStep',[1/30 1/30]);
-        addlistener(plotH(8),'ContinuousValueChange',...
-            @(hObj,hEvt)scaleDoseROE(hObj,hEvt,hFig));
-        
-        
-        %Push-button for constraints panel
-        plotH(9) = uicontrol('parent',hFig,'units','pixels','Position',...
-            [GUIWidth-17*shift 1.5*shift 15*shift 3*shift],...
-            'Style','push','Enable','On','String','View constraints',...
-            'backgroundColor',[192 205 230]./255,'fontSize',10,...
-            'Callback',{@critPanel,'INIT'},'tooltip',['Push to select',...
-            ' constraints for display.']);
-        
-        %Input scale
-        plotH(10) = uicontrol('parent',hFig,'units','pixels','Position',...
-            [GUIWidth-6*shift 5*shift 3*shift 2*shift],...
-            'Style','edit','Enable','Off','fontSize',10,'Callback',...
-            @(hObj,hEvt)enterScaleROE(hObj,hEvt,hFig));
-        plotH(11) = uicontrol('parent',hFig,'units','pixels','Position',...
-            [GUIWidth-8*shift 7*shift 6*shift 3*shift],'backgroundColor',defaultColor,...
-            'Style','Text','Visible','Off','fontSize',8,'Callback',...
-            @(hObj,hEvt)enterScaleROE(hObj,hEvt,hFig));
-        
-        %Move data labels
-        if isdeployed
-            [I,map] = imread(fullfile(getCERRPath,'pics','Icons','lock.gif'),'gif');
-        else
-            [I,map] = imread('lock.gif','gif');
-        end
-        lockImg = ind2rgb(I,map);
-        plotH(12) = uicontrol('parent',hFig,'units','pixels','Position',...
-            [leftMarginWidth+.15*GUIWidth 5*shift 2*shift 2*shift],...
-            'cdata',lockImg,'Style','toggle','Value',0,...
-            'Visible','Off','fontSize',8,'tooltip',sprintf(['Toggle to move',...
-            '\n/lock label position']),'Callback',...
-            @(hObj,hEvt)moveLabelsROE(hObj,hEvt,hFig));
-        
-        %View DVH summary window
-        plotH(13) = uicontrol('parent',hFig,'units','pixels','Position',...
-            [GUIWidth-2*leftMarginWidth GUIHeight/2 2*shift 2*shift],...
-            'Style','push','Value',0,'Visible','Off','fontSize',8,...
-            'tooltip','View DVH','Callback',...
-            @(hObj,hEvt)dvhDisplayROE('init',hFig,planC));
-        
-       
-        %Turn off datacursor mode
-        cursorMode = datacursormode(hFig);
-        cursorMode.removeAllDataCursors;
-        set(cursorMode, 'Enable','Off');
-        
-        %% Store handles
-        ud.handle.inputH = inputH;
-        ud.handle.modelsAxis = plotH;
-        guidata(hFig,ud);
+        %Create UIcontrols
+        createUIControlsROE(hFig,planC);
         
         
     case 'LOAD_MODELS'
@@ -372,6 +189,7 @@ switch upper(command)
         
         % Load models associated with selected protocol(s)
         root = uitreenode('v0', 'Protocols', 'Protocols', [], false);      %Create root node (for tree display)
+        protocolS(numel(protocolIdx)) = struct();
         for p = 1:numel(protocolIdx)                                       %Cycle through selected protocols
             [~,protocol] = fileparts(protocolListC{protocolIdx(p)});
             protocolInfoS = loadjson(fullfile(protocolPath,protocolListC{protocolIdx(p)}),'ShowProgress',1);
@@ -412,11 +230,12 @@ switch upper(command)
         set(mtree,'Position',[2*shift 5*shift .16*GUIWidth .68*GUIHeight],...
             'Visible',false);
         drawnow;
-        set(ud.handle.inputH(2),'string','Protocols & Models'); %Tree title
+        set(ud.handle.tab1H(1),'string','Protocols & Models'); %Tree title
         
         %Store protocol & model parameters from JSON files to GUI userdata
         ud.Protocols = protocolS;
         ud.modelTree = mtree;
+        guidata(hFig,ud);
         
         guidata(hFig,ud);
         ROE('LIST_MODELS');
@@ -441,14 +260,13 @@ switch upper(command)
             msgbox('Please select valid dose plan.','Selection required');
             return
         end
-        RxField = ud.handle.inputH(14);
+        RxField = ud.handle.tab1H(12);
         if isempty(get(RxField,'String'))
             msgbox('Please provide prescribed dose (Gy).','Missing parameter');
             return
         else
             prescribedDose = str2double(get(RxField,'String'));
         end
-        indexS = planC{end};
         
         %% Initialize plot handles
         if ~isfield(ud,'NTCPCurve')
@@ -499,25 +317,25 @@ switch upper(command)
             noSelV = find([strSelC{:}]==0);
             %Allow for optional inputs 
             optFlagC = checkInputStructsROE(modelC);
+            numStrV = cellfun(@numel,optFlagC);
+            cumStrV = cumsum(numStrV);
             optFlagV = find([optFlagC{:}]==1);
             noSelV(ismember(noSelV,optFlagV)) = [];
             %Exclude optional structures with no user input
             modelC = skipOptionalStructsROE(modelC,optFlagC,strSelC);
-            
-            protocolS(p).model = modelC;
-            
+                        
             %Allow users to input missing structures or skip associated models
             if any(noSelV)
                 modList = cellfun(@(x)x.name , modelC,'un',0);
-                modList = strjoin(modList(noSelV),',');
+                modNumV = ismember(cumStrV,noSelV);
+                modList = strjoin(modList(modNumV),',');
                 %msgbox(['Please select structures required for models ' modList],'Selection required');
                 dispMsg = sprintf(['No structure selected',...
                     ' for ',modList,'.\n Skip model(s)?']);
                 missingSel = questdlg(['\fontsize{11}',dispMsg],'Missing structure',...
                     'Yes','No',struct('Interpreter','tex','Default','Yes'));
                 if ~isempty(missingSel) && strcmp(missingSel,'Yes')
-                    modelC(noSelV) = [];
-                    protocolS(p).model = modelC;
+                    modelC(modNumV) = [];
                 else
                     return
                 end
@@ -533,16 +351,14 @@ switch upper(command)
                 maxDeltaFrx = round(max([protocolS.numFractions])/2);
                 nfrxScaleV = linspace(-maxDeltaFrx,maxDeltaFrx,99);
                 
-                hNTCPAxis = ud.handle.modelsAxis(2);
+                hNTCPAxis = ud.handle.modelsAxis(1);
                 hNTCPAxis.Visible = 'On';
                 grid(hNTCPAxis,'On');
                 
                 tcpM = nan(numel(protocolS),length(nfrxScaleV));
                 %Compute BED/TCP
                 for p = 1:numel(protocolS)
-                    
-                    modelC = protocolS(p).model;
-                    
+                                        
                     modTypeC = cellfun(@(x)(x.type),modelC,'un',0);
                     xIndx = find(strcmp(modTypeC,'BED') | strcmp(modTypeC,'TCP')); %Identify TCP/BED models
                     
@@ -568,8 +384,10 @@ switch upper(command)
                     %-fraction size
                     paramS.frxSize.val = dpfProtocol;
                     %-alpha/beta
-                    abRatio = modelC{xIndx}.abRatio;
-                    paramS.abRatio.val = abRatio;
+                    if isfield(modelC{xIndx},'abRatio')
+                        abRatio = modelC{xIndx}.abRatio;
+                        paramS.abRatio.val = abRatio;
+                    end
                     
                     %Get DVH
                     if isfield(modelC{xIndx},'dv')
@@ -663,15 +481,40 @@ switch upper(command)
                     end
                     planC{indexS.dose}(plnNum).doseArray = dA;
                 end
-                protocolS(p).model = modelC;
-                hSlider = ud.handle.modelsAxis(8); %Invisible; just for readout at scale=1
+                %protocolS(p).model = modelC;
+                hSlider = ud.handle.modelsAxis(7); %Invisible; just for readout at scale=1
                 
             case 3 %vs. scaled frx size
                 
-                hNTCPAxis = ud.handle.modelsAxis(3);
+                hNTCPAxis = ud.handle.modelsAxis(2);
                 hNTCPAxis.Visible = 'On';
                 grid(hNTCPAxis,'On');
-                hTCPAxis = ud.handle.modelsAxis(4);
+                hTCPAxis = ud.handle.modelsAxis(3);
+                hTCPAxis.Visible = 'On';
+                
+                typesC = cellfun(@(x) x.type,protocolS(1).model,'un',0);
+                if any(strcmpi(typesC,'BED'))
+                    set(hTCPAxis,'yLim',[0 200]);
+                    ylabel(hTCPAxis,'BED (Gy)');
+                else
+                    ylabel(hTCPAxis,'TCP');
+                end
+                
+                hSlider = ud.handle.modelsAxis(6);
+                xlab = 'Dose scale factor';
+                
+                numModelC = arrayfun(@(x)numel(x.model),protocolS,'un',0);
+                numModelsV = [numModelC{:}];
+                
+                xScaleV = linspace(0.5,1.5,99);
+                
+            case 4 %vs. scaled nfrx
+                
+                
+                hNTCPAxis = ud.handle.modelsAxis(4);
+                hNTCPAxis.Visible = 'On';
+                grid(hNTCPAxis,'On');
+                hTCPAxis = ud.handle.modelsAxis(5);
                 hTCPAxis.Visible = 'On';
                 
                 typesC = cellfun(@(x) x.type,protocolS(1).model,'un',0);
@@ -683,31 +526,6 @@ switch upper(command)
                 end
                 
                 hSlider = ud.handle.modelsAxis(7);
-                xlab = 'Dose scale factor';
-                
-                numModelC = arrayfun(@(x)numel(x.model),protocolS,'un',0);
-                numModelsV = [numModelC{:}];
-                
-                xScaleV = linspace(0.5,1.5,99);
-                
-            case 4 %vs. scaled nfrx
-                
-                
-                hNTCPAxis = ud.handle.modelsAxis(5);
-                hNTCPAxis.Visible = 'On';
-                grid(hNTCPAxis,'On');
-                hTCPAxis = ud.handle.modelsAxis(6);
-                hTCPAxis.Visible = 'On';
-                
-                typesC = cellfun(@(x) x.type,protocolS(1).model,'un',0);
-                if any(strcmpi(typesC,'BED'))
-                    set(hTCPAxis,'yLim',[0 200]);
-                    ylabel(hTCPAxis,'BED (Gy)');
-                else
-                    ylabel(hTCPAxis,'TCP');
-                end
-                
-                hSlider = ud.handle.modelsAxis(8);
                 xlab = 'Change in no. of fractions';
                 
                 numModelC = arrayfun(@(x)numel(x.model),protocolS,'un',0);
@@ -724,7 +542,7 @@ switch upper(command)
             
             %Check inputs
             %1. Check that valid model file was passed
-            modelC = protocolS(p).model;
+            %modelC = protocolS(p).model;
             if isempty(modelC)
                 msgbox('Please select model files','Plot models');
                 close(hWait);
@@ -846,39 +664,41 @@ switch upper(command)
                         if n==numel(xScaleV)
                             %Get corrected dose at scale == 1
                             paramS.frxSize.val = dpfProtocol;
-                            testDoseC = frxCorrectROE(modelC{modIdxV(j)},structNumV,numFrxProtocol,doseBinsC);
-                            %Display mean dose, EUD, GTD(if applicable)
-                            outType = modelC{modIdxV(j)}.type;
-                            testMeanDose = calc_meanDose(testDoseC{1},volHistC{1});
-                            if isfield(paramS,'n')
-                                temp_a = 1/paramS.n.val;
-                                testEUD = calc_EUD(testDoseC{1},volHistC{1},temp_a);
-                                fprintf(['\n---------------------------------------\n',...
-                                    'Protocol:%d, Model:%d\nMean Dose = %f\n%s = %f\n'],p,modIdxV(j),testEUD);
-                            end
-                            if strcmp(modelC{modIdxV(j)}.name,'Lung TCP')
-                                additionalParamS = paramS.structures.GTV.gTD.params;
-                                for fn = fieldnames(additionalParamS)'
-                                    paramS.(fn{1}) = additionalParamS.(fn{1});
+                            if any(structNumV)
+                                testDoseC = frxCorrectROE(modelC{modIdxV(j)},structNumV,numFrxProtocol,doseBinsC);
+                                %Display mean dose, EUD, GTD(if applicable)
+                                outType = modelC{modIdxV(j)}.type;
+                                testMeanDose = calc_meanDose(testDoseC{1},volHistC{1});
+                                if isfield(paramS,'n')
+                                    temp_a = 1/paramS.n.val;
+                                    testEUD = calc_EUD(testDoseC{1},volHistC{1},temp_a);
+                                    fprintf(['\n---------------------------------------\n',...
+                                        'Protocol:%d, Model:%d\nMean Dose = %f\n%s = %f\n'],p,modIdxV(j),testEUD);
                                 end
-                                testGTD = calc_gTD(testDoseC{1},volHistC{1},paramS);
+                                if strcmp(modelC{modIdxV(j)}.name,'Lung TCP')
+                                    additionalParamS = paramS.structures.GTV.gTD.params;
+                                    for fn = fieldnames(additionalParamS)'
+                                        paramS.(fn{1}) = additionalParamS.(fn{1});
+                                    end
+                                    testGTD = calc_gTD(testDoseC{1},volHistC{1},paramS);
+                                    fprintf(['\n---------------------------------------\n',...
+                                        'GTD  = %f'],testGTD);
+                                end
+                                %Display TCP/NTCP
+                                if numel(testDoseC)>1
+                                    testOut = feval(modelC{modIdxV(j)}.function,paramS,testDoseC,volHistC);
+                                else
+                                    testOut = feval(modelC{modIdxV(j)}.function,paramS,testDoseC{1},volHistC{1});
+                                end
                                 fprintf(['\n---------------------------------------\n',...
-                                    'GTD  = %f'],testGTD);
+                                    'Protocol:%d, Model:%d\nMean Dose = %f\n%s = %f\n'],p,modIdxV(j),testMeanDose,outType,testOut);
                             end
-                            %Display TCP/NTCP
-                            if numel(testDoseC)>1
-                                testOut = feval(modelC{modIdxV(j)}.function,paramS,testDoseC,volHistC);
-                            else
-                                testOut = feval(modelC{modIdxV(j)}.function,paramS,testDoseC{1},volHistC{1});
-                            end
-                            fprintf(['\n---------------------------------------\n',...
-                                'Protocol:%d, Model:%d\nMean Dose = %f\n%s = %f\n'],p,modIdxV(j),testMeanDose,outType,testOut);
                         end
                         %---------------------------------END TEMP-----------------------------------%
                     end
                     set(hSlider,'Value',1);
                     set(hSlider,'Visible','On');
-                    ud.handle.modelsAxis(7) = hSlider;
+                    ud.handle.modelsAxis(6) = hSlider;
                     
                 else %Scale by no. fractions (plot modes : 1,2,4)
                     
@@ -940,7 +760,7 @@ switch upper(command)
                     set(hSlider,'Min',-maxDeltaFrx,'Max',maxDeltaFrx,'SliderStep',[1/step,1/step]);
                     set(hSlider,'Value',0);
                     set(hSlider,'Visible','On');
-                    ud.handle.modelsAxis(8) = hSlider;
+                    ud.handle.modelsAxis(7) = hSlider;
                 end
                 
                 %% Plot NTCP vs.TCP/BED
@@ -983,12 +803,16 @@ switch upper(command)
                             'Color',plotColorM(colorIdx,:),'lineStyle',lineStyle)];
                         ud.TCPCurve(tcp).DisplayName = [ud.Protocols(p).protocol,': ',modelC{j}.name];
                         hCurr = hTCPAxis;
+                        ud.axisHighlight = line(hTCPAxis,1.5*ones(1,11),0:0.1:1,'linewidth',2,...
+                            'color',plotColorM(colorIdx,:));
                     elseif strcmp(modelC{j}.type,'BED')
                         bed = bed + 1;
                         ud.BEDCurve = [ud.BEDCurve plot(hTCPAxis,xScaleV,scaledCPv,'linewidth',3,...
                             'Color',plotColorM(colorIdx,:),'lineStyle',lineStyle)];
                         ud.BEDCurve(bed).DisplayName = [ud.Protocols(p).protocol,': ',modelC{j}.name];
                         hCurr = hTCPAxis;
+                        ud.axisHighlight =line(hTCPAxis,zeros(1,11),0:20:200,'linewidth',2,...
+                            'color',plotColorM(colorIdx,:));
                     end
                 end
                 
@@ -996,7 +820,7 @@ switch upper(command)
                 waitbar(j/sum(numModelsV));
             end
             %% Store model parameters
-            protocolS(p).model = modelC;
+            %protocolS(p).model = modelC;
             
             
             %% Plot criteria & guidelines
@@ -1022,7 +846,11 @@ switch upper(command)
                         guidelinesC = fieldnames(strGuideS);
                         
                         %Get alpha/beta ratio
-                        abRatio = critS.structures.(structC{m}).abRatio;
+                        if isfield(critS.structures.(structC{m}),'abRatio')
+                            abRatio = critS.structures.(structC{m}).abRatio;
+                        else
+                            abRatio = [];
+                        end
                         %Get DVH
                         [doseV,volsV] = getDVH(conStr,plnNum,planC);
                         [doseBinV,volHistV] = doseHist(doseV, volsV, binWidth);
@@ -1107,7 +935,7 @@ switch upper(command)
                                     nFrxProtocol,critS.numFrx,abRatio,cgScaleV);
                                 
                                 %Get guideline label
-                                gLabel =  guidelinesC{n};
+                                gLabel = guidelinesC{n};
                             end
                             
                             %Display line indicating clinical criteria/guidelines
@@ -1144,7 +972,7 @@ switch upper(command)
                     %----- Loop over hard constraints--------
                     
                     %If structure & clinical criteria are available
-                    if ~isempty(conStr) & ...
+                    if ~isempty(conStr) && ...
                             isfield(critS.structures.(structC{m}),'criteria')
                         strCritS = critS.structures.(structC{m}).criteria;
                         criteriaC = fieldnames(strCritS);
@@ -1275,6 +1103,14 @@ switch upper(command)
                 end
             end
             planC{indexS.dose}(plnNum).doseArray = dA;
+            if p>1
+                protocolS(p).origModel = ud.Protocols(p).model;
+                ud.Protocols(p) = protocolS(p);
+            else
+                ud.Protocols(p) = protocolS(p);
+                ud.Protocols(p).origModel = ud.Protocols(p).model;
+            end
+            ud.Protocols(p).model = modelC;
         end
         
         close(hWait);
@@ -1293,10 +1129,6 @@ switch upper(command)
         NTCPLegendC = arrayfun(@(x)x.DisplayName,ud.NTCPCurve,'un',0);
         hax = ud.NTCPCurve;
         key = NTCPLegendC;
-        
-        %try
-        %hax : protocolS(p).criteria
-        %
         
         constraintS = protocolS(ud.foreground);
         if isfield(constraintS,'criteria') && ~isempty(constraintS.criteria)
@@ -1320,32 +1152,62 @@ switch upper(command)
                     key = [key,BEDlegendC,'Clinical limits','Clinical guidelines'];
                 else
                     BEDlegendC = arrayfun(@(x)x.DisplayName,ud.BEDCurve,'un',0);
-                    hax = [ud.hax,ud.BEDCurve,constraintS.criteria(end)];
+                    hax = [hax,ud.BEDCurve,constraintS.criteria(end)];
                     key = [key,BEDlegendC,'Clinical limits'];
                 end
             end
-            legH = legend(hax,key,'Location','northwest','Color','none','FontName',...
-                'Arial','FontWeight','normal','FontSize',11,'AutoUpdate','off');
+            legH = legend(hax,key,'Location','northwest','Color','none',...
+                'FontName','Arial','FontWeight','normal','FontSize',10.5,...
+                'AutoUpdate','off');
             
         else
             legH =legend(hax,key,...
                 'Location','northwest','Color','none','FontName','Arial',...
-                'FontWeight','normal','FontSize',11,'AutoUpdate','off');
+                'FontWeight','normal','FontSize',10.5,'AutoUpdate','off');
+            
         end
         
         %Store userdata
-        ud.Protocols = protocolS;
         ud.handle.legend = legH;
         guidata(hFig,ud);
         
         %Display current dose/probability
+        guidata(hFig,ud);
         scaleDoseROE(hSlider,[],hFig);
         ud = guidata(hFig);
         
-        %Enable user-entered scale entry
-        set(ud.handle.modelsAxis(10),'enable','On');
+        %Copy dvs and store original model info 
+        for p = 1:length(ud.Protocols)
+            origModC = ud.Protocols(p).origModel;
+            origModNameC = cellfun(@(x)x.name,origModC,'un',0);
+            modelC = ud.Protocols(p).model;
+            for m = 1:length(modelC)
+                modIdx = strcmp(modelC{m}.name,origModNameC);
+                origModC{modIdx}.dv = modelC{m}.dv;
+            end
+            ud.Protocols(p).model = origModC;
+            rmfield(ud.Protocols(p),'origModel');
+        end
         
+        %Enable user-entered scale entry
+        set(ud.handle.modelsAxis(9),'enable','On');
+        
+        
+        %Populate constraints table
+        guidata(hFig,ud);
+        [structsC,numCriteria,numGuide,limC,typeC] = ...
+            getConstraintsForDisplayROE(hFig);
+        ud = guidata(hFig);
+        data(:,1) = num2cell(false(numCriteria+numGuide,1));
+        data(:,2) = structsC(:);
+        data(:,3) = limC(:);
+        data = [{false},{'All'},{' '};{false},{'None'},{' '};data];
+        uiTabH = ud.handle.tab2H(5);
+        set(uiTabH,'data',data,'userdata',typeC)
+        ud.ConstraintsInit = 1;
+
         %Get datacursor mode
+        guidata(hFig,ud);
         if ~isempty([protocolS.criteria])
             cursorMode = datacursormode(hFig);
             set(cursorMode,'Enable','On');
@@ -1388,12 +1250,20 @@ switch upper(command)
                     %firstcViolation = [false(1:i1-1),firstcViolation];
                     dttag = 'criteria';
                     dispSelCriteriaROE([],[],hFig,dttag,firstcViolation,p);
-                    hDatatip = cursorMode.createDatatip(hcFirst(1));
-                    hDatatip.Marker = '^';
-                    hDatatip.MarkerSize=7;
-                    set(hDatatip,'Visible','On','OrientationMode','Manual',...
-                        'Tag',dttag,'UpdateFcn',...
-                        @(hObj,hEvt)expandDataTipROE(hObj,hEvt,hFig));
+                    
+                    hDatatip = createDataTipROE(hFig,hcFirst(1));
+                    ud = guidata(hFig);
+                    set(hDatatip,'Tag',dttag);
+                    
+                    constDatC = get(ud.handle.tab2H(5),'data');
+                    strMatchIdx = strcmpi(constDatC(:,2),...
+                        hcFirst(1).UserData.structure);
+                    metricMatchIdx = strcmpi(constDatC(:,3),...
+                        hcFirst(1).UserData.label);
+                    selMatchIdx = strMatchIdx & metricMatchIdx;
+                    constDatC{selMatchIdx,1} = true;
+                    set(ud.handle.tab2H(5),'data',constDatC);
+                    
                     %Enable legend entry for constraints
                     drawnow;
                     legH.EntryContainer.NodeChildren(2).Label.Color = [0,0,0];
@@ -1401,17 +1271,29 @@ switch upper(command)
                     %firstgViolation = [false(1:j1-1),firstgViolation];
                     dttag = 'guidelines';
                     dispSelCriteriaROE([],[],hFig,dttag,firstgViolation,p);
-                    hDatatip = cursorMode.createDatatip(hgFirst(1));
-                    hDatatip.Marker = '^';
-                    hDatatip.MarkerSize=7;
-                    set(hDatatip,'Visible','On','OrientationMode','Manual',...
-                        'Tag',dttag,'UpdateFcn',...
-                        @(hObj,hEvt)expandDataTipROE(hObj,hEvt,hFig));
+                    
+                    hDatatip = createDataTipROE(hFig,hgFirst(1));
+                    set(hDatatip,'Tag',dttag);
+                    ud = guidata(hFig);
+                    
+                    constDatC = get(ud.handle.tab2H(5),'data');
+                    strMatchIdx = strcmpi(constDatC(:,2),...
+                        hgFirst(1).UserData.structure);
+                    metricMatchIdx = strcmpi(constDatC(:,3),...
+                        [hgFirst(1).UserData.label,' (guideline)']);
+                    selMatchIdx = strMatchIdx & metricMatchIdx;
+                    constDatC{selMatchIdx,1} = true;
+                    set(ud.handle.tab2H(5),'data',constDatC);
+                    
                     %Enable legend entry for guidelines
                     drawnow;
                     legH.EntryContainer.NodeChildren(1).Label.Color = [0,0,0];
                 end
                 
+            end
+            
+            if ~isfield(ud.handle,'datatips')
+                ud.handle.datatips = hDatatip;
             end
             
             %Set datacursor update function
@@ -1420,9 +1302,8 @@ switch upper(command)
             % set(cursorMode,'Enable','Off');
             
             ud.handle.legend = legH;
-            
         end
-        
+     
         %Make labels draggable
         for nLabel = 1:length(ud.y1Disp)
             hLabel = ud.y1Disp(nLabel);
@@ -1436,7 +1317,7 @@ switch upper(command)
         end
         
         %Enable data label toggle control
-        set(ud.handle.modelsAxis(12),'Visible','On');
+        set(ud.handle.modelsAxis(11),'Visible','On');
         
         guidata(hFig,ud);
 
@@ -1459,7 +1340,7 @@ switch upper(command)
             end
         end
         ud.Protocols = protocolS;
-        for ax = 2:6
+        for ax = 1:5
             cla(ud.handle.modelsAxis(ax));
             legend(ud.handle.modelsAxis(ax),'off')
             set(ud.handle.modelsAxis(ax),'Visible','Off');
@@ -1477,7 +1358,18 @@ switch upper(command)
         end
         
         %Clear user-input scale factor/no. frx
-        set(ud.handle.modelsAxis(10),'String','')
+        set(ud.handle.modelsAxis(9),'String','')
+        
+        %Clear datatips
+        constDatC = get(ud.handle.tab2H(5),'data');
+        constDatC(:,1) = {false};
+        set(ud.handle.tab2H(5),'data',constDatC);
+        miscFieldsC = {'datatips','axisHighlight'};
+        for f = 1:length(miscFieldsC)
+            if isfield(ud.handle,miscFieldsC{f})
+                ud.handle = rmfield(ud.handle,miscFieldsC{f});
+            end
+        end
         
         %Turn off datacursor mode
         cursorMode = datacursormode(hFig);
@@ -1485,10 +1377,10 @@ switch upper(command)
         set(cursorMode, 'Enable','Off');
         
         %turn slider display off
+        set(ud.handle.modelsAxis(6),'Visible','Off');
         set(ud.handle.modelsAxis(7),'Visible','Off');
-        set(ud.handle.modelsAxis(8),'Visible','Off');
-        set(ud.handle.modelsAxis(10),'enable','Off');
-        set(ud.handle.modelsAxis(12),'Visible','Off');
+        set(ud.handle.modelsAxis(9),'enable','Off');
+        set(ud.handle.modelsAxis(11),'Visible','Off');
         guidata(hFig,ud);
         
     case 'LIST_MODELS'
@@ -1506,7 +1398,7 @@ switch upper(command)
             numModels = length(modelC);
             
             for i = 1:numModels
-                modelNameC = cell(1,numModels);
+                %modelNameC = cell(1,numModels);
                 fieldC = fieldnames(modelC{i});
                 fnIdx = strcmpi(fieldC,'function');
                 paramIdx = strcmpi(fieldC,'parameters');
@@ -1532,9 +1424,9 @@ switch upper(command)
         end
         
         set(ud.modelTree,'Visible',true);
-        set(ud.handle.inputH(10),'Enable','On'); %Plot button on
-        %set(ud.handle.inputH(12),'Enable','On'); %Allow x-axis selection
-        %set(ud.handle.inputH(13),'Enable','On'); %Allow y-axis selection
+        set(ud.handle.tab1H(9),'Enable','On'); %Plot button on
+        %set(ud.handle.tab1H(11),'Enable','On'); %Allow x-axis selection
+        %set(ud.handle.tab1H(12),'Enable','On'); %Allow y-axis selection
         guidata(hFig,ud);
         
     case 'SAVE_MODELS'
@@ -1565,7 +1457,7 @@ switch upper(command)
         end
         fprintf('\nSave complete.\n');
         
-        set(ud.handle.inputH(9),'Enable','Off');  %Disable save
+        set(ud.handle.tab1H(8),'Enable','Off');  %Disable save
         guidata(hFig,ud);
         
         
@@ -1575,267 +1467,5 @@ switch upper(command)
         closereq
         
 end
-
-
-%% -----------------------------------------------------------------------------------------
-
-
-%Panel to view constraints & select for display
-    function critPanel(hObj,hEvt,command)
-        
-        % Get GUI fig handle
-        hCritFig = findobj('Tag','critFig');
-        
-        
-        if nargin==0
-            command = 'INIT';
-        end
-        switch(upper(command))
-            
-            case 'INIT'
-                %Figure postion, colour
-                mainFigPosV = get(hFig,'Position');
-                shift = 10;
-                height = 350;
-                width = 450;
-                posV = [mainFigPosV(1)+mainFigPosV(3)+20, mainFigPosV(2),...
-                    width, height];
-                figColor = [.6 .75 .75];
-                defaultColor = [0.8 0.9 0.9];
-                
-                %Get list of available constraints for display
-                ud = guidata(hFig);
-                protS = ud.Protocols;
-                currProtocol = ud.foreground;
-                if isempty(protS(currProtocol).criteria) && ...
-                        isempty(protS(currProtocol).guidelines)
-                    return
-                end
-                
-                numCriteria = 0;
-                numGuide = 0;
-                %--criteria
-                
-                if ~isempty(protS(currProtocol).criteria)
-                    criteriaS = [protS(currProtocol).criteria.UserData];
-                    structsC = {criteriaS.structure};
-                    limC = {criteriaS.label};
-                    numCriteria = numel(protS(currProtocol).criteria);
-                    typeC(1:numCriteria) = {'criteria'};
-                else
-                    structsC = {};
-                    limC = {};
-                    typeC = {};
-                end
-                %--guidelines
-                if ~isempty(protS(currProtocol).guidelines)
-                    guideS = [protS(currProtocol).guidelines.UserData];
-                    strgC = {guideS.structure};
-                    limgC = {guideS.label};
-                    limgC = cellfun(@(x) strjoin({x,'(guideline)'}),limgC,'un',0);
-                    numGuide = numel(protS(currProtocol).guidelines);
-                    structsC = [strgC,structsC].';
-                    limC = [limgC,limC].';
-                    gtypeC(1:numGuide) = {'guidelines'};
-                    typeC = [gtypeC,typeC];
-                end
-                
-                if isempty(hCritFig)
-                    %Initialize figure
-                    hCritFig = figure('tag','critFig','name','Clinical constraints',...
-                        'numbertitle','off','position',posV,...
-                        'CloseRequestFcn', {@critPanel,'closeRequest'}',...
-                        'menubar','none','resize','off','color',figColor);
-                else
-                    figure(hCritFig)
-                    return
-                end
-                
-                %Frames
-                critPanelH(1) = uicontrol(hCritFig,'units','pixels',...
-                    'Position',[shift shift width-2*shift height-2*shift ],'Style',...
-                    'frame','backgroundColor',defaultColor);
-                critPanelH(2) = uicontrol(hCritFig,'units','pixels',...
-                    'Position',[shift shift width-2*shift height-9*shift ],'Style',...
-                    'frame','backgroundColor',defaultColor);
-                
-                %View prev/next
-                critPanelH(3) = uicontrol(hCritFig,'units','pixels',...
-                    'Position',[width/4 height-8*shift,...
-                    width/2 height/8],'Style', 'text','string','View previous / next',...
-                    'FontSize',10,'FontWeight','Bold',...
-                    'backgroundColor',defaultColor);
-                critPanelH(4) = uicontrol(hCritFig,'units','pixels',...
-                    'Position',[width/4 height-5.5*shift,...
-                    4*shift 2*shift],'Style','push','string','<<','FontSize',...
-                    10,'FontWeight','Bold','backgroundColor',defaultColor,...
-                    'callback',{@critPanel,'prev'}');
-                
-                critPanelH(6) = uicontrol(hCritFig,'units','pixels',...
-                    'Position',[width/2+7*shift height-5.5*shift,...
-                    4*shift 2*shift],'Style','push','string','>>','FontSize',...
-                    10,'FontWeight','Bold','backgroundColor',defaultColor,...
-                    'callback',{@critPanel,'next'}');
-                
-                %Select to display
-                critPanelH(7) = uicontrol(hCritFig,'units','pixels',...
-                    'Position',[1.2*shift 19*shift,width/2 height/6],...
-                    'Style', 'text','string','Select constraints to display',...
-                    'FontSize',10,'FontWeight','Bold','backgroundColor',defaultColor);
-                data(:,1) = num2cell(false(numCriteria+numGuide,1));
-                data(:,2) = structsC(:);
-                data(:,3) = limC(:);
-                data = [{false},{'All'},{' '};{false},{'None'},{' '};data];
-                tableWidth = width-6*shift;
-                critPanelH(8) = uitable('columnFormat',{'logical','char','char'},...
-                    'Data',data,'RowName',[],'ColumnName',...
-                    {'Select','Structure','Constraint'},'ColumnEditable',[true,false,false],...
-                    'BackgroundColor',[1,1,1],'Position',[3*shift 3*shift,tableWidth,...
-                    height/2+shift],'ColumnWidth',{tableWidth/6,tableWidth/3,...
-                    tableWidth/2},'CellEditCallback',...
-                    @(hObj,hEvt)dispSelCriteriaROE(hObj,hEvt,hFig));
-                set(critPanelH(8),'userdata',typeC);
-                
-                critUd.handles = critPanelH;
-                set(hCritFig,'userdata',critUd);
-                
-            case 'NEXT'
-                
-                ud = guidata(hFig);
-                protS = ud.Protocols;
-                
-                for k = 1:length(protS)
-                    currProtocol = k;
-                    hCrit = protS(currProtocol).criteria;
-                    hGuide = protS(currProtocol).guidelines;
-                    hConstraint = [hGuide,hCrit];
-                    dispStateC = [];
-                    if ~isempty(hGuide)
-                        dispStateC = {hGuide.Visible};
-                    end
-                    if ~isempty(hCrit)
-                        dispStateC = [dispStateC,{hCrit.Visible}];
-                    end
-                    dispIdxV = strcmp(dispStateC,'on');
-                    xScaleC = get(hConstraint(dispIdxV),'XData');
-                    if iscell(xScaleC)
-                        currScaleC = cellfun(@(x)x(1,1),xScaleC,'un',0);
-                        currScaleV = unique([currScaleC{:}]);
-                    else
-                        currScaleV = unique(xScaleC);
-                    end
-                    gNum = numel(hGuide);
-                    cMode = datacursormode(hFig);
-                    if length(currScaleV)~=1 || sum(dispIdxV)==0 %More than one constraint or none displayed
-                        %Do nothing
-                        return
-                    else
-                        %Get available limits
-                        ud = guidata(hFig);
-                        limitsV = [ arrayfun(@(x) x.XData(1),hGuide),...
-                            arrayfun(@(x) x.XData(1),hCrit)];
-                        currentLimit = unique(limitsV(dispIdxV));
-                        [limitsV,limOrderV] = sort(limitsV);
-                        next = find(limitsV > currentLimit,1,'first');
-                        if isempty(next) || isinf(limitsV(next))
-                            %Last limit displayed
-                            %OR
-                            %Next limit beyond max display scale
-                            return
-                        else
-                            nextIdxV = find(limitsV==limitsV(next));
-                            nextLimit = limOrderV(nextIdxV);
-                            for l = 1:numel(nextLimit)
-                                if nextLimit(l) <= gNum  %Guidelines
-                                    dispSelCriteriaROE([],[],hFig,...
-                                        'guidelines',nextLimit(l),currProtocol);
-                                    hNext = hGuide(nextLimit(l));
-                                    hData = cMode.createDatatip(hNext);
-                                    set(hData,'Visible','On','OrientationMode','Manual',...
-                                        'Tag','criteria','UpdateFcn',...
-                                        @(hObj,hEvt)expandDataTipROE(hObj,hEvt,hFig));
-                                else                 %Criteria
-                                    dispSelCriteriaROE([],[],hFig,'criteria',...
-                                        nextLimit(l)-gNum,currProtocol);
-                                    hNext = hCrit(nextLimit(l)-gNum);
-                                    hData = cMode.createDatatip(hNext);
-                                    set(hData,'Visible','On','OrientationMode','Manual',...
-                                        'Tag','criteria','UpdateFcn',...
-                                        @(hObj,hEvt)expandDataTipROE(hObj,hEvt,hFig));
-                                end
-                            end
-                            
-                        end
-                    end
-                end
-                
-            case 'PREV'
-                
-                ud = guidata(hFig);
-                protS = ud.Protocols;
-                
-                for k = 1:length(protS)
-                    currProtocol = k;
-                    hCrit = protS(currProtocol).criteria;
-                    hGuide = protS(currProtocol).guidelines;
-                    dispStateC = [];
-                    if ~isempty(hGuide)
-                        dispStateC = {hGuide.Visible};
-                    end
-                    if ~isempty(hCrit)
-                        dispStateC = [dispStateC,{hCrit.Visible}];
-                    end
-                    dispIdxV = strcmp(dispStateC,'on');
-                    gNum = numel(hGuide);
-                    cMode = datacursormode(hFig);
-                    if sum(dispIdxV)~=1 || sum(dispIdxV)==0 %More than one constraint or none displayed
-                        %Do nothing
-                        return
-                    else
-                        %Get available limits
-                        ud = guidata(hFig);
-                        limitsV = [ arrayfun(@(x) x.XData(1),hGuide),...
-                            arrayfun(@(x) x.XData(1),hCrit)];
-                        currentLimit = limitsV(dispIdxV);
-                        [limitsV,limOrderV] = sort(limitsV,'descend');
-                        prev = find(limitsV < currentLimit,1,'first');
-                        if isempty(prev) || isinf(limitsV(prev))
-                            %First limit displayed
-                            return
-                        else
-                            prvIdxV = find(limitsV==limitsV(prev));
-                            prevLimit = limOrderV(prvIdxV);
-                            for l = 1:numel(prevLimit)
-                                if prevLimit(l) <= gNum  %Guidelines
-                                    dispSelCriteriaROE([],[],hFig,'guidelines',...
-                                        prevLimit(l),currProtocol);
-                                    hNext = hGuide(prevLimit(l));
-                                    hData = cMode.createDatatip(hNext);
-                                    set(hData,'Visible','On','OrientationMode','Manual',...
-                                        'Tag','guidelines','UpdateFcn',...
-                                        @(hObj,hEvt)expandDataTipROE(hObj,hEvt,hFig));
-                                else                 %Criteria
-                                    dispSelCriteriaROE([],[],hFig,'criteria',prevLimit(l)-gNum,currProtocol);
-                                    hNext = hCrit(prevLimit(l)-gNum);
-                                    hData = cMode.createDatatip(hNext);
-                                    set(hData,'Visible','On','OrientationMode','Manual',...
-                                        'Tag','criteria','UpdateFcn',...
-                                        @(hObj,hEvt)expandDataTipROE(hObj,hEvt,hFig));
-                                end
-                            end
-                            
-                        end
-                    end
-                end
-                
-                
-                
-            case 'CLOSEREQUEST'
-                closereq;
-                
-        end
-    end
-
-
 
 end
