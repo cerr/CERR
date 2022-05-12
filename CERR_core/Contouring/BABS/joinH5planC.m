@@ -110,29 +110,29 @@ end
 if isfield(userOptS,'register') && ~isempty(fieldnames(userOptS.register))
     regS = userOptS.register;
     regMethod = regS.method;
-    if ~strcmp(regMethod,'none')
 
-        baseIdS = regS.baseScan.identifier;
-        baseIdS.filtered = 0;
-        baseScan = getScanNumFromIdentifiers(baseIdS,planC);
+    baseIdS = regS.baseScan.identifier;
+    baseIdS.filtered = 0;
+    baseScan = getScanNumFromIdentifiers(baseIdS,planC);
 
-        movIdS = regS.movingScan.identifier;
-        movIdS.filtered = 0;
-        movScan = getScanNumFromIdentifiers(movIdS,planC);
+    movIdS = regS.movingScan.identifier;
+    movIdS.filtered = 0;
+    movScan = getScanNumFromIdentifiers(movIdS,planC);
 
-        assocIdS = userOptS.structAssocScan.identifier;
-        assocScan = getScanNumFromIdentifiers(assocIdS,planC);
-        strC = {planC{indexS.structures}.structureName};
-        if baseScan==assocScan
-            %Associate auto-segmentations with base scan
-            scanNum = baseScan;
-        elseif movScan==assocScan
-            %Associate auto-segmentations with moving scan
-            regMovScan = find(strcmp({planC{indexS.scan}.scanType},...
-                ['Reg_scan',num2str(movScan)]));
+    assocIdS = userOptS.structAssocScan.identifier;
+    assocScan = getScanNumFromIdentifiers(assocIdS,planC);
+    strC = {planC{indexS.structures}.structureName};
+    if baseScan==assocScan
+        %Associate auto-segmentations with base scan
+        scanNum = baseScan;
+    elseif movScan==assocScan
+        %Associate auto-segmentations with moving scan
+        regMovScan = find(strcmp({planC{indexS.scan}.scanType},...
+            ['Reg_scan',num2str(movScan)]));
+
+        if ~strcmp(regMethod,'none')
             [planC,deformS] = registerScansForDLS(planC,[regMovScan,movScan],...
                 regS.method,regS);
-            cpyStrV = [];
             tmpCmdDir = fullfile(getCERRPath,'ImageRegistration','tmpFiles');
             maskOut3M(:) = 0;
             for nStr = 1:length(outStrListC)
@@ -149,16 +149,17 @@ if isfield(userOptS,'register') && ~isempty(fieldnames(userOptS.register))
         else
             error('Association with selected scan not supported');
         end
-
-        %Delete derived scans ( filtered/registered)
-        filtMovScanV = find(strcmp({planC{indexS.scan}.scanType},...
-            'Filt_scan'));
-        regMovScanV = find(strcmp({planC{indexS.scan}.scanType},...
-            'Reg_scan'));
-        deleteScanV = sort([filtMovScanV,regMovScanV],'descend');
-        for scanIdx = 1:length(deleteScanV)
-            planC = deleteScan(planC,deleteScanV(scanIdx));
-        end
+    else
+        scanNum = assocScan;
+    end
+    %Delete derived scans ( filtered/registered)
+    filtMovScanC = strfind({planC{indexS.scan}.scanType},'Filt_scan');
+    filtMovScanV = find([filtMovScanC{:}]);
+    regMovScanC = strfind({planC{indexS.scan}.scanType},'Reg_scan');
+    regMovScanV = [regMovScanC{:}];
+    deleteScanV = sort([filtMovScanV,regMovScanV],'descend');
+    for scanIdx = 1:length(deleteScanV)
+        planC = deleteScan(planC,deleteScanV(scanIdx));
     end
 end
 
