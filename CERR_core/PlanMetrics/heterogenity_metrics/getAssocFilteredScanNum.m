@@ -15,7 +15,7 @@ for nScan = 1:length(planC{indexS.scan})
     baseScanUID = planC{indexS.scan}(nScan).assocBaseScanUID;
     assocIdxV = ismember(scanUIDc,baseScanUID);
     if any(assocIdxV)
-        filtScanNumV(scanNumV==nScan) = nScan;
+        filtScanNumV(scanNumV==find(assocIdxV)) = nScan;
     end
 end
 filtScanNumV = filtScanNumV(~isnan(filtScanNumV));

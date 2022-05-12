@@ -85,6 +85,8 @@ end
 
 
 %% Register scans 
+indexS = planC{end};
+allStrC = {planC{indexS.structures}.structureName};
 if ~isempty(fieldnames(regS))
     identifierS = regS.baseScan.identifier;
     regScanNumV(1) = getScanNumFromIdentifiers(identifierS,planC);
@@ -98,7 +100,10 @@ if ~isempty(fieldnames(regS))
                 cpyStrV = getMatchingIndex(copyStrsC{nStr},allStrC,'exact');
                 assocScanV = getStructureAssociatedScan(cpyStrV,planC);
                 cpyStr = cpyStrV(assocScanV==regScanNumV(1));
-                planC = copyStrToScan(cpyStr,movScan,planC);
+                dstStr = cpyStrV(assocScanV==regScanNumV(2));
+                if isempty(dstStr) && ~isempty(cpyStr)
+                    planC = copyStrToScan(cpyStr,movScan,planC);
+                end
             end
         end
     else
@@ -124,7 +129,6 @@ ignoreIdxV = optFlagV & isnan(scanNumV);
 scanNumV(ignoreIdxV) = [];
 
 %% Identify available structures in planC
-indexS = planC{end};
 allStrC = {planC{indexS.structures}.structureName};
 strNotAvailableV = ~ismember(lower(strListC),lower(allStrC)); %Case-insensitive
 if any(strNotAvailableV) && skipMaskExport
