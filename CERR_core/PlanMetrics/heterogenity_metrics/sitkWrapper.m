@@ -248,7 +248,7 @@ switch filterType
         matcher = py.SimpleITK.HistogramMatchingImageFilter();
         matcher.SetNumberOfHistogramLevels(uint32(paramS.numHistLevel));
         matcher.SetNumberOfMatchPoints(uint32(paramS.numMatchPts));
-        if(paramS.ThresholdAtMeanIntensityOn)
+        if(paramS.thresholdAtMeanIntensityOn)
             matcher.ThresholdAtMeanIntensityOn();
         end
         matchedImg = matcher.Execute(srcItkImg,refItkImg);
