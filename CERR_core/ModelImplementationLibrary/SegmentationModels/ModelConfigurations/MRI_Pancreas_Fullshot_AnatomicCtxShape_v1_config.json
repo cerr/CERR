@@ -10,35 +10,18 @@
 {"structureName": "Duostomach",
   "value": 4}
 ],
-
-"filter":{
-            "imageType":{"SimpleITK":{"sitkFilterName":{"val":"HistogramMatchingImageFilter"},
-            "refImg": "Abdo_DJ_FX1_POimg.nii",
-            "numHistLevel": 128,
-            "numMatchPts": 32,
-            "thresholdAtMeanIntensityOn": 1}
-            }       
-        },
-
-"register":{
-            "baseScan" :{"identifier":{"studyDate":"first","filtered":0}},
-            "movingScan":{"identifier":{"studyDate":"first","filtered":1}},
-            "method":"none",
-            "copyStr": ["Liver","Bowel_lg","Bowel_sm","Duostomach"]
-            },
-
         
 "scan": [{
 
-         "identifier" : {"studyDate":"first","filtered":1}, 
+         "identifier" : {"studyDate":"first"}, 
          "view" : ["axial"],
          "crop" : {     
                     "method": "crop_pt_outline",
                     "params": { "structureName": "generated_pt_outline",
                                 "outStrName":"generated_pt_outline",
 	                            "saveStrToPlanCFlag": 0,
-                                "outlineThreshold": 200,
-                                "normFlag": 0},
+                                "outlineThreshold": 0.03,
+                                "normFlag": 1},
                                 "operator": ""
                   },
          "resize": [{  "method" : "bicubic",
@@ -54,15 +37,15 @@
          "channels" :{"imageType": "original", "slice": "current"}
        },
        {
-        "identifier":{"studyDate":"last","filtered":1},
+        "identifier":{"studyDate":"last"},
         "view" : ["axial"],
         "crop": {
                     "method": "crop_pt_outline",
                     "params": { "structureName": "generated_pt_outline",
                                 "outStrName":"generated_pt_outline",
 	                            "saveStrToPlanCFlag": 0,
-                                "outlineThreshold": 200,
-                                "normFlag": 0},
+                                "outlineThreshold": 0.03,
+                                "normFlag": 1},
                     "operator": ""
                 },
         "resize": [{  "method" : "bicubic",
@@ -93,7 +76,7 @@
 
 "passedScanDim" : "3D",
 
-"structAssocScan": {"identifier": {"studyDate":"last"},"filtered":0},
+"structAssocScan": {"identifier": {"studyDate":"last"}},
 
 "batchSize" : 1,
 
