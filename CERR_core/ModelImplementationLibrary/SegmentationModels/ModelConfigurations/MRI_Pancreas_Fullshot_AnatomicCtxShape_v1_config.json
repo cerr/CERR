@@ -10,8 +10,7 @@
 {"structureName": "Duostomach",
   "value": 4}
 ],
-
-
+        
 "scan": [{
 
          "identifier" : {"studyDate":"first"}, 
@@ -20,13 +19,21 @@
                     "method": "crop_pt_outline",
                     "params": { "structureName": "generated_pt_outline",
                                 "outStrName":"generated_pt_outline",
-	                            "saveStrToPlanCFlag": 1,
-                                "outlineThreshold": 200},
-                    "operator": ""
+	                            "saveStrToPlanCFlag": 0,
+                                "outlineThreshold": 0.03,
+                                "normFlag": 1},
+                                "operator": ""
                   },
-         "resize": {"method" : "bicubic",
-                    "size" : [128,192]
-                   },
+         "resize": [{  "method" : "bicubic",
+                       "size" : [128,192],
+                       "preserveAspectRatio": "No"
+                    },
+                    {
+                       "method" : "padSlices",
+                       "size" : 128,
+                       "preserveAspectRatio": "No"
+                    }
+                   ],
          "channels" :{"imageType": "original", "slice": "current"}
        },
        {
@@ -36,13 +43,21 @@
                     "method": "crop_pt_outline",
                     "params": { "structureName": "generated_pt_outline",
                                 "outStrName":"generated_pt_outline",
-	                            "saveStrToPlanCFlag": 1,
-                                "outlineThreshold": 200},
+	                            "saveStrToPlanCFlag": 0,
+                                "outlineThreshold": 0.03,
+                                "normFlag": 1},
                     "operator": ""
                 },
-        "resize": {"method" : "bicubic",
-                   "size" : [128,192]
-                   },
+        "resize": [{  "method" : "bicubic",
+                       "size" : [128,192],
+                       "preserveAspectRatio": "No"
+                    },
+                    {
+                       "method" : "padSlices",
+                       "size" : 128,
+                       "preserveAspectRatio": "No"
+                    }
+                   ],
         "channels": {"imageType":"original", "slice": "current"}
        }
  ],

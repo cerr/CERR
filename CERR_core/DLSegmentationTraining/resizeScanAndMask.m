@@ -1,4 +1,5 @@
-function [scanOut3M, maskOut3M] = resizeScanAndMask(scan3M,mask3M,outputImgSizeV,method,varargin)
+function [scanOut3M, maskOut3M] = resizeScanAndMask(scan3M,mask3M,...
+                                  outputImgSizeV,method,varargin)
 % resizeScanAndMask.m
 % Script to resize images and masks for deep learning.
 %
@@ -7,15 +8,18 @@ function [scanOut3M, maskOut3M] = resizeScanAndMask(scan3M,mask3M,outputImgSizeV
 %INPUTS:
 % scan3M         :  Scan array
 % mask3M         :  Mask
+% outputImgSizeV :  Required output size [height, width]
 % method         :  Supported methods: 'none','pad2d', 'pad3d',
 %                   'bilinear', 'sinc', 'bicubic'.
-% outputImgSizeV :  Required output size [height, width]
+% limitsM        :  Matrix with rows listing indices of rows & cols defining
+%                   ROI extents on each slice [minr, maxr, minc, maxc] 
+% preserveAspectFlag : Set to 1 to preserve aspect ratio when reszing (default:0)
 %--------------------------------------------------------------------------
 %RKP 9/13/19 - Added method 'pad2d'
 %AI 9/19/19  - Updated to handle undo-resize options
 
 
-if nargin > 3
+if nargin > 4
     limitsM = varargin{1};
     if numel(varargin) > 1
         preserveAspectFlag = varargin{2};
@@ -254,6 +258,34 @@ switch(lower(method))
             end
             
         end
+
+    case 'padslices'
+
+        numSlices = outputImgSizeV;
+        scanOut3M = [];
+        if ~isempty(scan3M)
+            scanOut3M = zeros(size(scan3M,1),size(scan3M,2),numSlices);
+            scanOut3M(:,:,1:origSizV(3)) = scan3M;
+        end
+
+        maskOut3M = [];
+        if ~isempty(mask3M)
+            maskOut3M = zeros(size(scan3M,1),size(scan3M,2),numSlices);
+            maskOut3M(:,:,1:origSizV(3)) = mask3M;
+        end
+
+    case 'unpadslices'
+
+        numSlices = outputImgSizeV;
+        scanOut3M = [];
+        if ~isempty(scan3M)
+            scanOut3M = scan3M(:,:,1:numSlices);
+        end
+
+        maskOut3M = [];
+        if ~isempty(mask3M)
+            maskOut3M = mask3M(:,:,1:numSlices);
+        end
         
     case {'bilinear','sinc','bicubic'}
         
@@ -345,17 +377,17 @@ switch(lower(method))
                     maskResize3M = zeros([paddedSize,size(mask3M,3)]);
                     for nSlc = 1:size(mask3M,3)
                         maskResize3M(:,:,nSlc) = imresize(squeeze(...
-                            mask3M(:,:,nslc)),paddedSize, 'nearest');
+                            mask3M(:,:,nSlc)),paddedSize, 'nearest');
                     end
                     %padded3M = bgMean * ones(paddedSize,paddedSize,size(scan3M,3));
-                    idx11 = 1 + (paddedSize - cropDim(1))/2;
+                    idx11 = 1 + round((paddedSize - cropDim(1))/2);
                     idx12 = idx11 + cropDim(1) - 1;
-                    idx21 = 1 + (paddedSize - cropDim(2))/2;
+                    idx21 = 1 + round((paddedSize - cropDim(2))/2);
                     idx22 = idx21 + cropDim(2) - 1;
                     
 %                     maskOut3M = zeros([outputImgSizeV(1:2), origSizV(3)]);
 %                     maskOut3M(minr:maxr,minc:maxc,:) = maskResize3M(idx11:idx12,idx21:idx11,:);
-                    maskOut3M = maskResize3M(idx11:idx12,idx21:idx11,:);
+                    maskOut3M = maskResize3M(idx11:idx12,idx21:idx22,:);
                 else
                     maskOut3M = zeros([outputImgSizeV(1:2),size(mask3M,3)]);
                     for nSlc = 1:size(mask3M,3)

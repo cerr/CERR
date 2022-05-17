@@ -55,9 +55,11 @@ for n = 1:length(identifierC)
             
         case 'studyDate'
             studyDatesC =  arrayfun(@(x)x.scanInfo(1).studyDate, planC{indexS.scan},'un',0);
+            emptyIdxC = cellfun(@isempty,studyDatesC,'un',0);
+            studyDatesC([emptyIdxC{:}]) = '';
             studyDatesC = datetime(studyDatesC,'InputFormat','yyyyMMdd');
             [~,ordV] = sort(studyDatesC,'ascend');
-            
+
             idV = false(size(matchIdxV));
             if strcmp(matchValC,'first')
                 idV(ordV(1)) = true;
