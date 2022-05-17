@@ -14,13 +14,13 @@ indexS = planC{end};
 imType = planC{indexS.scan}(scanNum).scanInfo(1).imageType;
 outFileName = filePrefix;
 if ~isempty(imType)
-    if contains(imType,'deformed')
+    if ~isempty(strfind(imType,'deformed'))
         scanUIDc = {planC{indexS.scan}.scanUID};
         assocBaseScanUID = planC{indexS.scan}(scanNum).assocBaseScanUID;
         scanNum = strcmpi(scanUIDc,assocBaseScanUID);
         imType = planC{indexS.scan}(scanNum).scanInfo(1).imageType;
     end
-    if contains(imType,'Filt')
+    if ~isempty(strfind(imType,'Filt'))
         scanNum = str2num(strtok(imType,'Filt_scan'));
         imType = planC{indexS.scan}(scanNum).scanInfo(1).imageType;
     end
