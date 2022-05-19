@@ -55,6 +55,20 @@ for nMethod = length(resizeS):-1:1
                 resizeScanAndMask([],segMask3M,sizV,resizeMethod);
             maskOut3M(:,:,slcV) = tempMask3M;
 
+        case 'padorcrop3d'
+             resizeMethod = 'padorcrop3d';
+            [~, tempMask3M] = ...
+                resizeScanAndMask([],segMask3M,sizV,resizeMethod);
+            maskOut3M(:,:,slcV) = tempMask3M;
+
+        case 'padorcrop2d'
+            resizeMethod = 'padorcrop2d';
+            limitsM = [minr, maxr, minc, maxc];
+            originImageSizV = [sizV(1:2), length(slcV)];
+            [~, maskOut3M(:,:,slcV)] = ...
+                resizeScanAndMask([],segMask3M,originImageSizV,...
+                resizeMethod,limitsM);
+
         case 'padslices'
             resizeMethod = 'unpadslices';
             [~, maskOut3M] = ...
