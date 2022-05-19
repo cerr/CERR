@@ -18,7 +18,7 @@ numScan = length(planC{indexS.scan});
 %Read list of identifiers
 identifierC = fieldnames(idS);
 %Filter reserved fields
-resFieldsC = {'warped','filtered'};
+resFieldsC = {'warped','filtered','resampled'};
 for k = 1 : length(resFieldsC)
     keyFlag = strcmpi(identifierC,resFieldsC{k});
     if any(keyFlag)
@@ -102,6 +102,9 @@ if ~exist('origFlag','var') || ~origFlag
     end
     if isfield(idS,'warped') && ~isempty(idS) && idS.warped
         scanNumV = getAssocWarpedScanNum(scanNumV,planC);
+    end
+    if isfield(idS,'resampled') && ~isempty(idS) && idS.resampled
+        scanNumV = getAssocResampledScanNum(scanNumV,planC);
     end
 end
 
