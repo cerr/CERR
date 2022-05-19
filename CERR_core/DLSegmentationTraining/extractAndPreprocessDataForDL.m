@@ -286,7 +286,10 @@ for scanIdx = 1:numScans
         scanInfoS.sliceThickness = [sliceThicknessV,sliceThicknessV(end)];
         planC = scan2CERR(scan3M,['Resamp_scan',num2str(scanNumV(scanIdx))],...
             '',scanInfoS,'',planC);
-        scanNumV(scanIdx) = length(planC{indexS.scan});
+        resampScanNum = length(planC{indexS.scan});
+        scanNumV(scanIdx) = resampScanNum;
+        planC{indexS.scan}(resampScanNum).assocBaseScanUID = ...
+        planC{indexS.scan}(scanNumV(scanIdx)).scanUID;
         for strNum = 1:length(validStrIdxV)
             strMask3M = mask3M == validExportLabelV(strNum);
             outStrName = [exportStrC{strNum},'_resamp'];
