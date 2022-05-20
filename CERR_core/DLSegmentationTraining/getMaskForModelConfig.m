@@ -15,12 +15,14 @@ function [outMask3M, planC] = getMaskForModelConfig(planC,mask3M,scanNum,cropS)
 % AI 7/23/19
 % RKP 9/13/19 
 
+indexS = planC{end};
+
 origMask3M = mask3M;
 methodC = {cropS.method};
 maskC = cell(length(methodC),1);
 
 for m = 1:length(methodC)
-    
+
     method = methodC{m};
     paramS = [];
     if isfield(cropS(m),'params')
@@ -52,7 +54,6 @@ for m = 1:length(methodC)
             %Use to crop around different structure
             %mask3M = []
             strName = paramS.structureName;
-            indexS = planC{end};
             numStructs = length(planC{indexS.structures});
             assocScanV = getStructureAssociatedScan(1:numStructs,planC);
             strC = {planC{indexS.structures}.structureName};
@@ -89,29 +90,54 @@ for m = 1:length(methodC)
             outMask3M = false(scanSizV);
             outMask3M(minr:maxr,minc:maxc,mins:maxs) = true;
             maskC{m} = outMask3M;
-            
-            
+
+        case 'crop_around_center_of_mass'
+
+            cropStr = paramS.structureName;
+            outputImgSizeV = reshape(paramS.margins,1,[]);
+            if isfield(paramS,'assignBkgIntensity')
+                bkgVal = paramS.assignBkgIntensity.assignVal;
+            else
+                bkgVal = [];
+            end
+
+            %Crop around COM
+            [~,outMask3M] = cropAroundCOM(scanNum,cropStr,...
+                outputImgSizeV,bkgVal,planC);
+            maskC{m} = outMask3M;
+
         case {'crop_pt_outline', 'crop_pt_outline_2d'}
-            % Use to crop the patient outline
             
             structureName = paramS.structureName;
-            outThreshold = paramS.outlineThreshold;            
-            indexS = planC{end};            
+            outThreshold = paramS.outlineThreshold;  
+            if isfield(paramS,'minMaskSize')
+                minMaskSize = paramS.minMaskSize;
+            else
+                minMaskSize = [];
+            end
+            if isfield(paramS,'normFlag')
+                normFlag = paramS.normFlag;
+            else
+                normFlag = 0;
+            end
+            
+            % Check for outline structure associated with scanNum
             outlineIndex = getMatchingIndex(structureName,...
                 {planC{indexS.structures}.structureName},'exact');
             assocScanV = getStructureAssociatedScan(outlineIndex,planC);
-            % Find structure associated with scanNum
             if ~isempty(outlineIndex)
                 outlineIndex = outlineIndex(assocScanV == scanNum);
             end
 
+            %Get mask of pt outline
             if isempty(outlineIndex)
                 scan3M = getScanArray(scanNum,planC);
                 CToffset = double(planC{indexS.scan}(scanNum).scanInfo(1).CTOffset);
                 scan3M = double(scan3M);
                 scan3M = scan3M - CToffset;
                 sliceV = 1:size(scan3M,3);
-                outMask3M = getPatientOutline(scan3M,sliceV,outThreshold);
+                outMask3M = getPatientOutline(scan3M,sliceV,outThreshold,...
+                            minMaskSize,normFlag);
                 maskC{m} = outMask3M;
             else
                 [maskC{m}, planC] = getStrMask(outlineIndex,planC);
@@ -120,7 +146,6 @@ for m = 1:length(methodC)
         case 'crop_shoulders'
             % Use to crop above shoulders
             % Use pt_outline structure generated in "crop_pt_outline" case
-            indexS = planC{end};
             strName = paramS.structureName;
             strNum = getMatchingIndex(strName,{planC{indexS.structures}.structureName},'exact');
             
@@ -176,6 +201,9 @@ for m = 1:length(methodC)
             case 'intersection'
                 outMask3M = and(maskC{m-1},maskC{m});
                 maskC{m} = outMask3M;
+            case 'latest'
+                %Return latest resulting mask 
+                %maskC{m} = maskC{m};
         end
     end
     

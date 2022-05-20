@@ -61,22 +61,26 @@
 
         "crop":{
     			"method": "crop_pt_outline",
-			"params": { "structureName": "generated_pt_outline",
+			    "params": { "structureName": "generated_pt_outline",
 	                                "outStrName":"generated_pt_outline",
-	                                "saveStrToPlanCFlag": 1,
+	                                "saveStrToPlanCFlag": 0,
 	                                "outlineThreshold": -400},
-	                    "operator": ""
-	 },
-	                 
-        "resize": {"method" : "padOrCrop3d",
-                   "preserveAspectRatio": "Yes",
-                   "size" : [256,256]
-                  }
+	             "operator": ""
+                },
+
+        "resize":{
+                    "preserveAspectRatio": "Yes",
+                    "method" : "bicubic",
+                    "size" : [256,256]
+                 }
  },
 
 
 "passedScanDim" : "3D",
 
-"batchSize": 1
+"batchSize": 1,
+
+"structAssocScan": {"identifier": {"imageType":"CT"}}
+
 
 }

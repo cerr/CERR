@@ -60,7 +60,7 @@ if isempty(doseOffset)
     doseOffset = 0;
 end
 
-dose3M = getDoseOnCT(doseNum, assocScanNum);
+dose3M = getDoseOnCT(doseNum, assocScanNum, 'normal', planC);
 structureName    = [planC{indexS.dose}(doseNum).fractionGroupID,'_Level_',num2str(doseLevel)];
 planC = maskToCERRStructure(dose3M > doseLevel+doseOffset, 0, assocScanNum, structureName, planC);
 

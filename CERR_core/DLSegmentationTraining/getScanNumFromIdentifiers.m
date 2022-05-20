@@ -4,7 +4,7 @@ function scanNumV = getScanNumFromIdentifiers(idS,planC,origFlag)
 % INPUTS
 % idS       : Structure containing identifiers (tags) and expected values
 %             Supported identifiers include 'imageType', 'seriesDescription',
-%             'scanType', 'scanDate', 'scanNum', and 'assocStructure'.
+%             'scanType', 'studyDate', 'scanNum', and 'assocStructure'.
 % planC
 %----- Optional ---
 % origFlag :  Set to 1 to ignore 'warped' and 'filtered' scans (default:0).
@@ -18,7 +18,7 @@ numScan = length(planC{indexS.scan});
 %Read list of identifiers
 identifierC = fieldnames(idS);
 %Filter reserved fields
-resFieldsC = {'warped','filtered'};
+resFieldsC = {'warped','filtered','resampled'};
 for k = 1 : length(resFieldsC)
     keyFlag = strcmpi(identifierC,resFieldsC{k});
     if any(keyFlag)
@@ -53,18 +53,20 @@ for n = 1:length(identifierC)
             idV = false(size(matchIdxV));
             idV(matchValC) = true;
             
-        case 'scanDate'
-            scanDatesC =  arrayfun(@(x)x.scanInfo(1).scanDate, planC{indexS.scan},'un',0);
-            scanDatesC = datetime(scanDatesC,'InputFormat','yyyyMMdd');
-            [~,ordV] = sort(scanDatesC,'ascend');
-            
+        case 'studyDate'
+            studyDatesC =  arrayfun(@(x)x.scanInfo(1).studyDate, planC{indexS.scan},'un',0);
+            emptyIdxC = cellfun(@isempty,studyDatesC,'un',0);
+            studyDatesC([emptyIdxC{:}]) = '';
+            studyDatesC = datetime(studyDatesC,'InputFormat','yyyyMMdd');
+            [~,ordV] = sort(studyDatesC,'ascend');
+
             idV = false(size(matchIdxV));
             if strcmp(matchValC,'first')
                 idV(ordV(1)) = true;
             elseif strcmp(matchValC,'last')
                 idV(ordV(end)) = true;
             else
-                error(['scanDate value ''',matchValC,''' is not supported.'])
+                error(['studyDate value ''',matchValC,''' is not supported.'])
             end
             
         case 'assocStructure'
@@ -100,6 +102,9 @@ if ~exist('origFlag','var') || ~origFlag
     end
     if isfield(idS,'warped') && ~isempty(idS) && idS.warped
         scanNumV = getAssocWarpedScanNum(scanNumV,planC);
+    end
+    if isfield(idS,'resampled') && ~isempty(idS) && idS.resampled
+        scanNumV = getAssocResampledScanNum(scanNumV,planC);
     end
 end
 

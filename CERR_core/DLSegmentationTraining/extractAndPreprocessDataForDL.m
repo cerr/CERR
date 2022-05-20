@@ -85,6 +85,8 @@ end
 
 
 %% Register scans 
+indexS = planC{end};
+allStrC = {planC{indexS.structures}.structureName};
 if ~isempty(fieldnames(regS))
     identifierS = regS.baseScan.identifier;
     regScanNumV(1) = getScanNumFromIdentifiers(identifierS,planC);
@@ -98,7 +100,10 @@ if ~isempty(fieldnames(regS))
                 cpyStrV = getMatchingIndex(copyStrsC{nStr},allStrC,'exact');
                 assocScanV = getStructureAssociatedScan(cpyStrV,planC);
                 cpyStr = cpyStrV(assocScanV==regScanNumV(1));
-                planC = copyStrToScan(cpyStr,movScan,planC);
+                dstStr = cpyStrV(assocScanV==regScanNumV(2));
+                if isempty(dstStr) && ~isempty(cpyStr)
+                    planC = copyStrToScan(cpyStr,movScan,planC);
+                end
             end
         end
     else
@@ -124,7 +129,6 @@ ignoreIdxV = optFlagV & isnan(scanNumV);
 scanNumV(ignoreIdxV) = [];
 
 %% Identify available structures in planC
-indexS = planC{end};
 allStrC = {planC{indexS.structures}.structureName};
 strNotAvailableV = ~ismember(lower(strListC),lower(allStrC)); %Case-insensitive
 if any(strNotAvailableV) && skipMaskExport
@@ -282,7 +286,10 @@ for scanIdx = 1:numScans
         scanInfoS.sliceThickness = [sliceThicknessV,sliceThicknessV(end)];
         planC = scan2CERR(scan3M,['Resamp_scan',num2str(scanNumV(scanIdx))],...
             '',scanInfoS,'',planC);
-        scanNumV(scanIdx) = length(planC{indexS.scan});
+        resampScanNum = length(planC{indexS.scan});
+        scanNumV(scanIdx) = resampScanNum;
+        planC{indexS.scan}(resampScanNum).assocBaseScanUID = ...
+        planC{indexS.scan}(scanNumV(scanIdx)).scanUID;
         for strNum = 1:length(validStrIdxV)
             strMask3M = mask3M == validExportLabelV(strNum);
             outStrName = [exportStrC{strNum},'_resamp'];
@@ -372,17 +379,20 @@ for scanIdx = 1:numScans
     if ~strcmpi(resizeS(scanIdx).method,'none')
         fprintf('\nResizing data...\n');
         tic
-        resizeMethod = resizeS(scanIdx).method;
-        
-        outSizeV = resizeS(scanIdx).size;
-        [scan3M, mask3M] = resizeScanAndMask(scan3M,mask3M,outSizeV,...
-            resizeMethod,limitsM,preserveAspectFlag);
-        % obtain patient outline in view if background adjustment is needed
-        if adjustBackgroundVoxFlag || transformViewFlag
-            [~, cropStr3M] = resizeScanAndMask([],cropStr3M,outSizeV,...
+
+        resizeMethodS = resizeS(:,scanIdx);
+        for nMethod = 1:length(resizeMethodS)
+            resizeMethod = resizeMethodS(nMethod).method;
+            outSizeV = resizeMethodS(nMethod).size;
+            [scan3M, mask3M] = resizeScanAndMask(scan3M,mask3M,outSizeV,...
                 resizeMethod,limitsM,preserveAspectFlag);
-        else
-            cropStr3M = [];
+            % obtain patient outline in view if background adjustment is needed
+            if adjustBackgroundVoxFlag || transformViewFlag
+                [~, cropStr3M] = resizeScanAndMask([],cropStr3M,outSizeV,...
+                    resizeMethod,limitsM,preserveAspectFlag);
+            else
+                cropStr3M = [];
+            end
         end
         toc
         

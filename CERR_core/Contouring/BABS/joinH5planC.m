@@ -12,13 +12,8 @@ scanOptS = userOptS.scan(scanNum);
 
 %% Resize/pad mask to original dimensions
 %Get parameters for resizing & cropping
-resizeMethod = scanOptS.resize.method;
 cropS = scanOptS.crop; %Added
-if isfield(scanOptS.resize,'preserveAspectRatio')
-    if strcmp(scanOptS.resize.preserveAspectRatio,'Yes')
-        preserveAspectFlag = 1;
-    end
-end
+
 % cropS.params.saveStrToPlanCFlag=0;
 [minr, maxr, minc, maxc, slcV, ~, planC] = getCropLimits(planC,segMask3M,...
     scanNum,cropS);
@@ -28,37 +23,77 @@ maskOut3M = zeros(sizV, 'uint32');
 originImageSizV = [sizV(1:2), length(slcV)];
 
 %Undo resizing & cropping
-switch lower(resizeMethod)
+resizeS = scanOptS.resize;
 
-    case 'pad2d'
-        limitsM = [minr, maxr, minc, maxc];
-        resizeMethod = 'unpad2d';
-        originImageSizV = [sizV(1:2), length(slcV)];
-        [~, maskOut3M(:,:,slcV)] = ...
-            resizeScanAndMask(segMask3M,segMask3M,originImageSizV,...
-            resizeMethod,limitsM);
+for nMethod = length(resizeS):-1:1
 
-    case 'pad3d'
-        resizeMethod = 'unpad3d';
-        [~, tempMask3M] = ...
-            resizeScanAndMask([],segMask3M,sizV,resizeMethod);
-        maskOut3M(:,:,slcV) = tempMask3M;
+    resizeMethod = resizeS(nMethod).method;
 
-    case { 'bilinear', 'sinc', 'bicubic'}
-        limitsM = [minr, maxr, minc, maxc];
+    if isfield(resizeS(nMethod),'preserveAspectRatio') && ...
+            strcmp(resizeS(nMethod).preserveAspectRatio,'Yes')
+        preserveAspectFlag = 1;
+    end
 
-        outSizeV = [maxr-minr+1,maxc-minc+1,originImageSizV(3)];
-        [~,tempMask3M] = ...
-            resizeScanAndMask([],segMask3M,outSizeV,resizeMethod,...
-            limitsM,preserveAspectFlag);
+    if nMethod<length(resizeS)
+        segMask3M = maskOut3M;
+    end
+    switch lower(resizeMethod)
 
-        if size(limitsM,1)>1
-            %2-D resize methods
+        case 'pad2d'
+
+            maskOut3M = zeros(sizV, 'uint32');
+            limitsM = [minr, maxr, minc, maxc];
+            resizeMethod = 'unpad2d';
+            originImageSizV = [sizV(1:2), length(slcV)];
+            [~, maskOut3M(:,:,slcV)] = ...
+                resizeScanAndMask(segMask3M,segMask3M,originImageSizV,...
+                resizeMethod,limitsM);
+
+        case 'pad3d'
+            resizeMethod = 'unpad3d';
+            [~, tempMask3M] = ...
+                resizeScanAndMask([],segMask3M,sizV,resizeMethod);
             maskOut3M(:,:,slcV) = tempMask3M;
-        else
-            %3-D resize methods
-            maskOut3M(minr:maxr, minc:maxc, slcV) = tempMask3M;
-        end
+
+        case 'padorcrop3d'
+             resizeMethod = 'padorcrop3d';
+            [~, tempMask3M] = ...
+                resizeScanAndMask([],segMask3M,sizV,resizeMethod);
+            maskOut3M(:,:,slcV) = tempMask3M;
+
+        case 'padorcrop2d'
+            resizeMethod = 'padorcrop2d';
+            limitsM = [minr, maxr, minc, maxc];
+            originImageSizV = [sizV(1:2), length(slcV)];
+            [~, maskOut3M(:,:,slcV)] = ...
+                resizeScanAndMask([],segMask3M,originImageSizV,...
+                resizeMethod,limitsM);
+
+        case 'padslices'
+            resizeMethod = 'unpadslices';
+            [~, maskOut3M] = ...
+                resizeScanAndMask([],segMask3M,originImageSizV(3),resizeMethod);
+
+        case { 'bilinear', 'sinc', 'bicubic'}
+            maskOut3M = zeros(sizV, 'uint32');
+            limitsM = [minr, maxr, minc, maxc];
+
+            outSizeV = [maxr-minr+1,maxc-minc+1,originImageSizV(3)];
+            [~,tempMask3M] = ...
+                resizeScanAndMask([],segMask3M,outSizeV,resizeMethod,...
+                limitsM,preserveAspectFlag);
+
+            if size(limitsM,1)>1
+                %2-D resize methods
+                maskOut3M(:,:,slcV) = tempMask3M;
+            else
+                %3-D resize methods
+                maskOut3M(minr:maxr, minc:maxc, slcV) = tempMask3M;
+            end
+
+        case 'none'
+            maskOut3M(minr:maxr,minc:maxc,slcV) = segMask3M;
+    end
 end
 
 %% Resample to original resolution
@@ -79,7 +114,7 @@ if ~strcmpi(resampleS.method,'none')
     %Resample mask ('nearest' interpolation)
     [~,maskOut3M] = resampleScanAndMask([],double(maskOut3M),xValsV,...
         yValsV,zValsV,xVals0V,yVals0V,zVals0V);
-    
+
     scanNum = origScanNum;
 end
 
@@ -89,29 +124,29 @@ end
 if isfield(userOptS,'register') && ~isempty(fieldnames(userOptS.register))
     regS = userOptS.register;
     regMethod = regS.method;
-    if ~strcmp(regMethod,'none')
 
-        baseIdS = regS.baseScan.identifier;
-        baseIdS.filtered = 0;
-        baseScan = getScanNumFromIdentifiers(baseIdS,planC);
+    baseIdS = regS.baseScan.identifier;
+    baseIdS.filtered = 0;
+    baseScan = getScanNumFromIdentifiers(baseIdS,planC);
 
-        movIdS = regS.movingScan.identifier;
-        movIdS.filtered = 0;
-        movScan = getScanNumFromIdentifiers(movIdS,planC);
+    movIdS = regS.movingScan.identifier;
+    movIdS.filtered = 0;
+    movScan = getScanNumFromIdentifiers(movIdS,planC);
 
-        assocIdS = userOptS.structAssocScan.identifier;
-        assocScan = getScanNumFromIdentifiers(assocIdS,planC);
-        strC = {planC{indexS.structures}.structureName};
-        if baseScan==assocScan
-            %Associate auto-segmentations with base scan
-            scanNum = baseScan;
-        elseif movScan==assocScan
-            %Associate auto-segmentations with moving scan
-            regMovScan = find(strcmp({planC{indexS.scan}.scanType},...
-                ['Reg_scan',num2str(movScan)]));
+    assocIdS = userOptS.structAssocScan.identifier;
+    assocScan = getScanNumFromIdentifiers(assocIdS,planC);
+    strC = {planC{indexS.structures}.structureName};
+    if baseScan==assocScan
+        %Associate auto-segmentations with base scan
+        scanNum = baseScan;
+    elseif movScan==assocScan
+        %Associate auto-segmentations with moving scan
+        regMovScan = find(strcmp({planC{indexS.scan}.scanType},...
+            ['Reg_scan',num2str(movScan)]));
+
+        if ~strcmp(regMethod,'none')
             [planC,deformS] = registerScansForDLS(planC,[regMovScan,movScan],...
                 regS.method,regS);
-            cpyStrV = [];
             tmpCmdDir = fullfile(getCERRPath,'ImageRegistration','tmpFiles');
             maskOut3M(:) = 0;
             for nStr = 1:length(outStrListC)
@@ -128,31 +163,33 @@ if isfield(userOptS,'register') && ~isempty(fieldnames(userOptS.register))
         else
             error('Association with selected scan not supported');
         end
-
-        %Delete derived scans ( filtered/registered)
-        filtMovScanV = find(strcmp({planC{indexS.scan}.scanType},...
-            'Filt_scan'));
-        regMovScanV = find(strcmp({planC{indexS.scan}.scanType},...
-            'Reg_scan'));
-        deleteScanV = sort([filtMovScanV,regMovScanV],'descend');
-        for scanIdx = 1:length(deleteScanV)
-            planC = deleteScan(planC,deleteScanV(scanIdx));
-        end
+    else
+        scanNum = assocScan;
     end
+    %Delete derived scans ( filtered/registered)
+    filtMovScanC = strfind({planC{indexS.scan}.scanType},'Filt_scan');
+    filtMovScanV = find([filtMovScanC{:}]);
+    regMovScanC = strfind({planC{indexS.scan}.scanType},'Reg_scan');
+    regMovScanV = [regMovScanC{:}];
+    deleteScanV = sort([filtMovScanV,regMovScanV],'descend');
+    for scanIdx = 1:length(deleteScanV)
+        planC = deleteScan(planC,deleteScanV(scanIdx));
+    end
+end
 
 
-    %% Convert label maps to CERR structs
-    roiGenerationDescription = '';
-    if isfield(userOptS,'roiGenerationDescription')
-        roiGenerationDescription = userOptS.roiGenerationDescription;
-    end
-    for i = 1 : length(labelMapS)
-        labelVal = labelMapS(i).value;
-        maskForStr3M = maskOut3M == labelVal;
-        planC = maskToCERRStructure(maskForStr3M, isUniform, scanNum,...
-            outStrListC{i}, planC);
-        planC{indexS.structures}(end).roiGenerationAlgorithm = 'AUTOMATIC';
-        planC{indexS.structures}(end).roiGenerationDescription = roiGenerationDescription;
-        planC{indexS.structures}(end).structureDescription = roiGenerationDescription;
-    end
+%% Convert label maps to CERR structs
+roiGenerationDescription = '';
+if isfield(userOptS,'roiGenerationDescription')
+    roiGenerationDescription = userOptS.roiGenerationDescription;
+end
+for i = 1 : length(labelMapS)
+    labelVal = labelMapS(i).value;
+    maskForStr3M = maskOut3M == labelVal;
+    planC = maskToCERRStructure(maskForStr3M, isUniform, scanNum,...
+        outStrListC{i}, planC);
+    planC{indexS.structures}(end).roiGenerationAlgorithm = 'AUTOMATIC';
+    planC{indexS.structures}(end).roiGenerationDescription = roiGenerationDescription;
+    planC{indexS.structures}(end).structureDescription = roiGenerationDescription;
+end
 end

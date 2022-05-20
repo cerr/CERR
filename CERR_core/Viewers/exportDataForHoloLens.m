@@ -1,5 +1,11 @@
-function [isoScanNiftiFileName, isoDoseNiftiFileName, isoMaskNiftiFileNameC, stlFileC] = exportDataForHoloLens(cerrFileName,strMaskC,scanNum,doseNumV,exportDir,zeroOriginFlag,vox1mmFlag)
-% function exportDataForHoloLens(cerrFileName,structNamC,doseNumV,exportDir,zeroOriginFlag,vox1mmFlag)
+function [isoScanNiftiFileName, isoDoseNiftiFileName, ...
+    isoMaskNiftiFileNameC, stlFileC] = exportDataForHoloLens...
+    (cerrFileName,strMaskC,scanNum,doseNumV,doseLevelV,...
+    exportDir,zeroOriginFlag,vox1mmFlag)
+% function [isoScanNiftiFileName, isoDoseNiftiFileName, ...
+%     isoMaskNiftiFileNameC, stlFileC] = exportDataForHoloLens...
+%     (cerrFileName,strMaskC,scanNum,doseNumV,doseLevelV,...
+%     exportDir,zeroOriginFlag,vox1mmFlag)
 %
 % This function exports scan and dose matrices to nifti files and segmentation to stl format.
 %
@@ -8,6 +14,7 @@ function [isoScanNiftiFileName, isoDoseNiftiFileName, isoMaskNiftiFileNameC, stl
 %   strMaskC: cell array of structure names to visualize. 
 %   scanNum: index of scan in planC.
 %   doseNumV: Indices of dose distributions in planC.
+%   doseLevelV: Iso-dose levels to export.
 %   exportDir: export location.
 %   zeroOriginFlag: binary 1/0, indicates whether STL file origin set to
 %       [0, 0, 0] or uses qOffset from nifti file
@@ -77,6 +84,16 @@ for i = 1:numel(doseNumV)
     [~,f,~] = fileparts(doseNiftiFileNameC{i});
     isoDoseNiftiFileName = fullfile(isoDir,['iso-' f '.nii']);
     reslice_nii(doseNiftiFileNameC{i},isoDoseNiftiFileName,isovox_size*ones(1,3));
+end
+
+%% Create iso-dose structures to export
+numDoseLevels = length(doseLevelV);
+indexS = planC{end};
+for iLevel = 1:numDoseLevels
+    planC = doseToStruct(doseNumV,doseLevelV(iLevel),scanNum,planC);   
+    planC{indexS.structures}(end).structureName = ...
+        ['Isodose_',planC{indexS.structures}(end).structureName];
+    strMaskC{end+1} = planC{indexS.structures}(end).structureName;
 end
 
 %% Convert masks, reslice isotropic, 
