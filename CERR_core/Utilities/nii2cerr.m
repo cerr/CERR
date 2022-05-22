@@ -52,13 +52,18 @@ if volMin<0
     scanOffset = -volMin;
 end
 
-if nii.hdr.hist.srow_x(1) > 0
-    vol3M = flip(vol3M,1);
-end
+% vol3M is in RAS coordinates. CERR scanArray is LPI coordinates. The S-I flip takes
+% place in mha2cerr. So we need to flip L-R.
+vol3M = flip(vol3M,1);
+vol3M = flip(vol3M,2);
 
-if nii.hdr.hist.srow_y(2) > 0
-    vol3M = flip(vol3M,2);
-end
+% if nii.hdr.hist.srow_x(1) > 0
+%     vol3M = flip(vol3M,1);
+% end
+% 
+% if nii.hdr.hist.srow_y(2) > 0
+%     vol3M = flip(vol3M,2);
+% end
 
 % infoS.Offset = [0 0 0];
 % infoS.PixelDimensions = infoS.pixdim;
