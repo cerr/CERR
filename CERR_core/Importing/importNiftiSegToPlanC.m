@@ -47,25 +47,32 @@ if strcmpi(fileparts{end},'gz') && any(strcmpi(fileparts{end - 1},{'img','hdr','
     end
 end
 
-[vol,info] = nifti_read_volume(structFileName);
-mask3M = permute(vol,[2,1,3]);
-% Flip to match CERR's coordinate system
-if info.orientation.sform
-    orientM = reshape(info.orientation.smatrix,4,3);
-    
-    if orientM(1,1) > 0
-        mask3M = flip(mask3M,2);
-    end
-    
-    if orientM(2,2) > 0
-        mask3M = flip(mask3M,1);
-    end
-    
-    if orientM(3,3) > 0
-        mask3M = flip(mask3M,3);
-    end
+nii = load_nii(structFileName);
+mask3M = nii.img;
+mask3M = flip(mask3M,1);
+mask3M = flip(mask3M,2);
+mask3M = flip(permute(mask3M,[2,1,3]),3);
 
-end
+%[vol,info] = nifti_read_volume(structFileName);
+%mask3M = permute(vol,[2,1,3]);
+
+% % Flip to match CERR's coordinate system
+% if info.orientation.sform
+%     orientM = reshape(info.orientation.smatrix,4,3);
+%     
+%     if orientM(1,1) > 0
+%         mask3M = flip(mask3M,2);
+%     end
+%     
+%     if orientM(2,2) > 0
+%         mask3M = flip(mask3M,1);
+%     end
+%     
+%     if orientM(3,3) > 0
+%         mask3M = flip(mask3M,3);
+%     end
+% 
+% end
 
 % Add mask to CERR structure
 structsV = unique(mask3M(:));
