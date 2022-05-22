@@ -71,7 +71,7 @@ ind = length(planC{indexS.scan}) + 1;
 
 %Create array of all zeros, size of y,x,z vals.
 %planC{indexS.scan}(ind).scanArray = uint16(flipdim(permute(data3M,[2,1,3]),3) + CTOffset);
-data3M = flipdim(permute(data3M,[2,1,3]),3) + CTOffset;
+data3M = flip(permute(data3M,[2,1,3]),3) + CTOffset;
 if strcmpi(class(data3M),'int16')
     data3M = uint16(data3M);
 end
