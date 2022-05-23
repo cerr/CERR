@@ -22,6 +22,3 @@ resampScanNumV = resampScanNumV(~isnan(resampScanNumV));
 
 end
 
-
-
-end
