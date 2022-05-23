@@ -42,6 +42,10 @@ switch fileinfo.datatype
     dtype = 'double';
   case 132
     dtype = 'int16';
+  case 512
+    dtype = 'uint16';
+  case 768
+    dtype = 'uint32';
   otherwise
     error('Unsupported datatype');
 end
