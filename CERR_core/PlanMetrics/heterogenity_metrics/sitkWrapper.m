@@ -219,12 +219,12 @@ switch filterType
         
         % get ref image
         maskImgPath = fullfile(getCERRPath,'ModelImplementationLibrary/SegmentationModels/referenceImages');
-        if isfield(paramS,'refImg') && ~isempty(paramS.refImg)
-            [refPath,~,~,] = fileparts(paramS.refImg);
+        if isfield(paramS,'refImg') && ~isempty(paramS.refImg.val)
+            [refPath,~,~,] = fileparts(paramS.refImg.val);
             if isempty(refPath)
-                maskImgPath = fullfile(maskImgPath,paramS.refImg);
+                maskImgPath = fullfile(maskImgPath,paramS.refImg.val);
             else
-                maskImgPath = paramS.refImg;
+                maskImgPath = paramS.refImg.val;
             end
             refItkImg = py.extra.ReadImage(maskImgPath);
             refItkImg = py.extra.Cast(refItkImg,py.SimpleITK.sitkFloat32);
@@ -236,8 +236,8 @@ switch filterType
             mask3M = flip(mask3M,3);
             maskPy = py.numpy.array(mask3M);
             refItkImg = py.extra.GetImageFromArray(maskPy);
-        elseif isfield(paramS,'refImgMat') && ~isempty(paramS.refImgMat)
-            maskPy = py.numpy.array(paramS.refImgMat);
+        elseif isfield(paramS,'refImgMat') && ~isempty(paramS.refImgMat.val)
+            maskPy = py.numpy.array(paramS.refImgMat.val);
             maskPy = maskPy.astype(py.numpy.float32);   
             % Get image from the array
             refItkImg = py.extra.GetImageFromArray(maskPy);
@@ -256,9 +256,9 @@ switch filterType
         %refItkImg = py.SimpleITK.reshape(refItkImg, scanPy);
         % execute Histogram Matching
         matcher = py.SimpleITK.HistogramMatchingImageFilter();
-        matcher.SetNumberOfHistogramLevels(uint32(paramS.numHistLevel));
-        matcher.SetNumberOfMatchPoints(uint32(paramS.numMatchPts));
-        if(paramS.thresholdAtMeanIntensityOn)
+        matcher.SetNumberOfHistogramLevels(uint32(paramS.numHistLevel.val));
+        matcher.SetNumberOfMatchPoints(uint32(paramS.numMatchPts.val));
+        if(paramS.thresholdAtMeanIntensityOn.val)
             matcher.ThresholdAtMeanIntensityOn();
         end
         matchedImg = matcher.Execute(srcItkImg,refItkImg);
@@ -287,8 +287,8 @@ switch filterType
         srcItkImg = py.extra.GetImageFromArray(scanPy);
 
         % Get mask
-        if isfield(paramS,'maskImg') && ~isempty(paramS.maskImg)
-            maskImgPath = fullfile(paramS.maskImg);
+        if isfield(paramS,'maskImg') && ~isempty(paramS.maskImg.val)
+            maskImgPath = fullfile(paramS.maskImg.val);
             maskImg = py.extra.ReadImage(maskImgPath);
             maskImg = py.extra.Cast(maskImg,py.SimpleITK.sitkFloat32);
             %Adjust to RTOG-compliant orientation 
@@ -308,8 +308,8 @@ switch filterType
         corrector = py.SimpleITK.N4BiasFieldCorrectionImageFilter()
 
         % Get optional parameters
-        if isfield(paramS,'shrinkFactor') && paramS.shrinkFactor > 1
-            shrink = paramS.shrinkFactor;
+        if isfield(paramS,'shrinkFactor') && paramS.shrinkFactor.val > 1
+            shrink = paramS.shrinkFactor.val;
             srcItkImg = py.SimpleITK.Shrink(srcItkImg,...
                 shrink*srcItkImg.GetDimension());
             maskImg = py.SimpleITK.Shrink(maskImg,...
@@ -317,13 +317,14 @@ switch filterType
         end
 
         if isfield(paramS,'numFittingLevels') 
-            numFitLevels = paramS.shrinkFactor;
+            numFitLevels = paramS.numFittingLevels.val;
         else
             numFitLevels = 4;
         end
 
         if isfield(paramS,'numIterations')
-            maxIterations = int32([paramS.numIterations]) * numFitLevels;
+            numIterationsV = paramS.numIterations.val; %Vector of values per fit level
+            maxIterations = int32(numIterationsV) * numFitLevels;
             corrector.SetMaximumNumberOfIterations(maxIterations);
         end
 
