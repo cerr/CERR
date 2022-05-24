@@ -80,7 +80,7 @@
 
 "batchSize": 1,
 
-"structAssocScan": {"identifier": {"imageType":"CT"}}
+"structAssocScan": {"identifier": {"imageType":"CT SCAN"}}
 
 
 }
