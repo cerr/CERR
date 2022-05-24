@@ -40,7 +40,11 @@ function success =  runSegClinic(inputDicomPath,outputDicomPath,...
 if nargin <= 6
     skipMaskExport = true;
 else
-    skipMaskExport = varargin{2};
+    if ischar(varargin{2})
+        skipMaskExport = logical(eval(varargin{2}));
+    else
+        skipMaskExport = varargin{2};
+    end
 end
 
 %% Create session directory to write segmentation metadata

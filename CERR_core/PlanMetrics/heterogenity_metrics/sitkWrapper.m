@@ -1,12 +1,17 @@
-function filteredOutS = sitkWrapper(sitkLibPath, scanM, filterType, paramS)
-%function filteredOutS = sitkWrapper(sitkLibPath, scanM, filterType, paramS, planC)
+function filteredOutS = sitkWrapper(sitkLibPath, scan3M, filterType, paramS)
+%function filteredOutS = sitkWrapper(sitkLibPath, scan3M, filterType, paramS, planC)
 %Calculate image filters using the Simple ITK Python Library
+%--------------------------------------------------------------------------
 %sitkLibPath - location of sitk python wrappscan to be filtered
 %description - Short description string if desired.
 %filterType - name of sitk filter
+%             Supported options: 'GradientImageFilter','HistogramMatchingImageFilter',...
+%             'LaplacianRecursiveGaussianImageFilter',...
+%             'N4BiasFieldCorrectionImageFilter',
+%             'N4BiasAndHistogramCorrectionImageFilter'.
 %paramS: parameters required to calculate the filter
 %planC: to convert scan back to cerr
-%
+%--------------------------------------------------------------------------
 % example usage:
 % filterType = 'GradientImageFilter';
 % paramS.useImageSpacing = false;
@@ -98,7 +103,7 @@ switch filterType
         % useImageDirection (bool), true by default
         
         % convert scan to numpy array and integer
-        scanPy = py.numpy.array(scanM);
+        scanPy = py.numpy.array(scan3M);
         scanPy = scanPy.astype(py.numpy.float32);
         
         % get original shape of the scan
@@ -146,7 +151,7 @@ switch filterType
         
         % convert scan to numpy array and integer
         % scanPy = py.numpy.array(scanM(:).');
-        scanPy = py.numpy.array(scanM);
+        scanPy = py.numpy.array(scan3M);
         scanPy = scanPy.astype(py.numpy.float32);
         
         % get original shape of the scan
@@ -195,7 +200,7 @@ switch filterType
         % refImgPath (char vector)
         
         % convert scan to numpy array and integer
-        scanPy = py.numpy.array(scanM);
+        scanPy = py.numpy.array(scan3M);
         scanPy = scanPy.astype(py.numpy.float32);
         
         % get original shape of the scan
@@ -213,24 +218,29 @@ switch filterType
         %             srcItkImg = py.SimpleITK.ReadImage('E:\data\TumorAware_MR\nrrdScanFormat.nrrd');
         
         % get ref image
-        refImgPath = fullfile(getCERRPath,'ModelImplementationLibrary/SegmentationModels/referenceImages');
-        if isfield(paramS,'refImg') && ~isempty(paramS.refImg)
-            refImgPath = fullfile(refImgPath,paramS.refImg);
-            refItkImg = py.extra.ReadImage(refImgPath);
+        maskImgPath = fullfile(getCERRPath,'ModelImplementationLibrary/SegmentationModels/referenceImages');
+        if isfield(paramS,'refImg') && ~isempty(paramS.refImg.val)
+            [refPath,~,~,] = fileparts(paramS.refImg.val);
+            if isempty(refPath)
+                maskImgPath = fullfile(maskImgPath,paramS.refImg.val);
+            else
+                maskImgPath = paramS.refImg.val;
+            end
+            refItkImg = py.extra.ReadImage(maskImgPath);
             refItkImg = py.extra.Cast(refItkImg,py.SimpleITK.sitkFloat32);
             %Adjust to RTOG-compliant orientation 
-            refScanPy = py.extra.GetArrayFromImage(refItkImg);
-            refScan3M = single(refScanPy);
-            refScan3M = permute(refScan3M,[2,3,1]);
-            refScan3M = flip(flip(refScan3M,1),2);
-            refScan3M = flip(refScan3M,3);
-            refScanPy = py.numpy.array(refScan3M);
-            refItkImg = py.extra.GetImageFromArray(refScanPy);
-        elseif isfield(paramS,'refImgMat') && ~isempty(paramS.refImgMat)
-            refScanPy = py.numpy.array(paramS.refImgMat);
-            refScanPy = refScanPy.astype(py.numpy.float32);   
+            maskPy = py.extra.GetArrayFromImage(refItkImg);
+            mask3M = single(maskPy);
+            mask3M = permute(mask3M,[2,3,1]);
+            mask3M = flip(flip(mask3M,1),2);
+            mask3M = flip(mask3M,3);
+            maskPy = py.numpy.array(mask3M);
+            refItkImg = py.extra.GetImageFromArray(maskPy);
+        elseif isfield(paramS,'refImgMat') && ~isempty(paramS.refImgMat.val)
+            maskPy = py.numpy.array(paramS.refImgMat.val);
+            maskPy = maskPy.astype(py.numpy.float32);   
             % Get image from the array
-            refItkImg = py.extra.GetImageFromArray(refScanPy);
+            refItkImg = py.extra.GetImageFromArray(maskPy);
         else
             error('Reference image not specified for histogram matching')
         end
@@ -246,9 +256,9 @@ switch filterType
         %refItkImg = py.SimpleITK.reshape(refItkImg, scanPy);
         % execute Histogram Matching
         matcher = py.SimpleITK.HistogramMatchingImageFilter();
-        matcher.SetNumberOfHistogramLevels(uint32(paramS.numHistLevel));
-        matcher.SetNumberOfMatchPoints(uint32(paramS.numMatchPts));
-        if(paramS.thresholdAtMeanIntensityOn)
+        matcher.SetNumberOfHistogramLevels(uint32(paramS.numHistLevel.val));
+        matcher.SetNumberOfMatchPoints(uint32(paramS.numMatchPts.val));
+        if(paramS.thresholdAtMeanIntensityOn.val)
             matcher.ThresholdAtMeanIntensityOn();
         end
         matchedImg = matcher.Execute(srcItkImg,refItkImg);
@@ -269,6 +279,72 @@ switch filterType
         %             figure, imagesc(histMatM(:,:,slc,2))
         %             figure, imagesc(histMatM(:,:,slc,3))
         
+    case 'N4BiasFieldCorrectionImageFilter'
+
+        % Convert to sitk image
+        scanPy = py.numpy.array(scan3M);
+        scanPy = scanPy.astype(py.numpy.float32);
+        srcItkImg = py.extra.GetImageFromArray(scanPy);
+
+        % Get mask
+        if isfield(paramS,'maskImg') && ~isempty(paramS.maskImg.val)
+            maskImgPath = fullfile(paramS.maskImg.val);
+            maskImg = py.extra.ReadImage(maskImgPath);
+            maskImg = py.extra.Cast(maskImg,py.SimpleITK.sitkFloat32);
+            %Adjust to RTOG-compliant orientation 
+            maskPy = py.extra.GetArrayFromImage(refItkImg);
+            mask3M = single(maskPy);
+            mask3M = permute(mask3M,[2,3,1]);
+            mask3M = flip(flip(mask3M,1),2);
+            mask3M = flip(mask3M,3);
+            maskPy = py.numpy.array(mask3M);
+            maskImg = py.extra.GetImageFromArray(maskPy);
+        else
+            %Use defaults
+            maskImg = py.SimpleITK.OtsuThreshold(srcItkImg,...
+                uint8(0),uint8(1),uint32(200));
+        end
+
+        corrector = py.SimpleITK.N4BiasFieldCorrectionImageFilter()
+
+        % Get optional parameters
+        if isfield(paramS,'shrinkFactor') && paramS.shrinkFactor.val > 1
+            shrink = paramS.shrinkFactor.val;
+            srcItkImg = py.SimpleITK.Shrink(srcItkImg,...
+                shrink*srcItkImg.GetDimension());
+            maskImg = py.SimpleITK.Shrink(maskImg,...
+                shrink*srcItkImg.GetDimension());
+        end
+
+        if isfield(paramS,'numFittingLevels') 
+            numFitLevels = paramS.numFittingLevels.val;
+        else
+            numFitLevels = 4;
+        end
+
+        if isfield(paramS,'numIterations')
+            numIterationsV = paramS.numIterations.val; %Vector of values per fit level
+            maxIterations = int32(numIterationsV) * numFitLevels;
+            corrector.SetMaximumNumberOfIterations(maxIterations);
+        end
+
+
+        % Apply bias correction
+        outImg = corrector.Execute(srcItkImg, maskImg);
+
+        % Convert to matlab array 
+        npCorrectedImg = py.extra.GetArrayFromImage(outImg);
+        correctedImg3M = double(npCorrectedImg);
+        filteredOutS.biasCorrectedImage = correctedImg3M;
+
+
+    case 'N4BiasAndHistogramCorrectionImageFilter'
+        filteredOutS = sitkWrapper(sitkLibPath, scan3M, ...
+            'N4BiasFieldCorrectionImageFilter', paramS);
+        correctedScan3M = filteredOutS.biasCorrectedImage;
+        filteredOutS = sitkWrapper(sitkLibPath, correctedScan3M, ...
+            'HistogramMatchingImageFilter', paramS);
+
     otherwise
         
         msgStr = [filterType,' not defined. Add it to sitkWrapper.m'];
