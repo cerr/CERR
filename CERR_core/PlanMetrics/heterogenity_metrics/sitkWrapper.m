@@ -70,11 +70,11 @@ try
     if count(P,numpyFileName) == 0
         insert(P,int32(0),numpyFileName);
     end
-    py.importlib.import_module(numpyModule)
+    py.importlib.import_module(numpyModule);
     if count(P,sitkFileName) == 0
         insert(P,int32(0),sitkFileName);
     end
-    py.importlib.import_module(sitkModule)
+    py.importlib.import_module(sitkModule);
 catch
     disp('SimpleITK module could not be imported, check the path');
 end
@@ -305,7 +305,7 @@ switch filterType
                 uint8(0),uint8(1),uint32(200));
         end
 
-        corrector = py.SimpleITK.N4BiasFieldCorrectionImageFilter()
+        corrector = py.SimpleITK.N4BiasFieldCorrectionImageFilter();
 
         % Get optional parameters
         if isfield(paramS,'shrinkFactor') && paramS.shrinkFactor.val > 1
