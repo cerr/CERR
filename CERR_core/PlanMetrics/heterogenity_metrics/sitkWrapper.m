@@ -292,7 +292,7 @@ switch filterType
             maskImg = py.extra.ReadImage(maskImgPath);
             maskImg = py.extra.Cast(maskImg,py.SimpleITK.sitkFloat32);
             %Adjust to RTOG-compliant orientation 
-            maskPy = py.extra.GetArrayFromImage(refItkImg);
+            maskPy = py.extra.GetArrayFromImage(maskImg);
             mask3M = single(maskPy);
             mask3M = permute(mask3M,[2,3,1]);
             mask3M = flip(flip(mask3M,1),2);
