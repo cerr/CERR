@@ -70,11 +70,11 @@ try
     if count(P,numpyFileName) == 0
         insert(P,int32(0),numpyFileName);
     end
-    py.importlib.import_module(numpyModule)
+    py.importlib.import_module(numpyModule);
     if count(P,sitkFileName) == 0
         insert(P,int32(0),sitkFileName);
     end
-    py.importlib.import_module(sitkModule)
+    py.importlib.import_module(sitkModule);
 catch
     disp('SimpleITK module could not be imported, check the path');
 end
@@ -292,7 +292,7 @@ switch filterType
             maskImg = py.extra.ReadImage(maskImgPath);
             maskImg = py.extra.Cast(maskImg,py.SimpleITK.sitkFloat32);
             %Adjust to RTOG-compliant orientation 
-            maskPy = py.extra.GetArrayFromImage(refItkImg);
+            maskPy = py.extra.GetArrayFromImage(maskImg);
             mask3M = single(maskPy);
             mask3M = permute(mask3M,[2,3,1]);
             mask3M = flip(flip(mask3M,1),2);
@@ -305,7 +305,7 @@ switch filterType
                 uint8(0),uint8(1),uint32(200));
         end
 
-        corrector = py.SimpleITK.N4BiasFieldCorrectionImageFilter()
+        corrector = py.SimpleITK.N4BiasFieldCorrectionImageFilter();
 
         % Get optional parameters
         if isfield(paramS,'shrinkFactor') && paramS.shrinkFactor.val > 1
