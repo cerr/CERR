@@ -78,7 +78,18 @@ switch(lower(imageType))
         sitkFilter = settingS.sitkFilterName.val;
         switch lower(sitkFilter)
             case 'laplacianrecursivegaussianimagefilter'
-                settingsStr = ['sigma_mm_',num2str(settingS.params.val.Sigma_mm)];
+                settingsStr = ['sigma_mm_',num2str(settingS.Sigma_mm.val)];
+                sitkFilter = 'LaplacianRecursiveGauss';
+            case 'n4biasandhistogramcorrectionimagefilter'
+                settingsStr = ['numFitLev_',num2str(settingS.numFittingLevels.val)];
+                sitkFilter = 'N4plusHistMatch';
+            case 'histogrammatchingimagefilter'
+                settingsStr = ['numHistLev_',num2str(settingS.numHistLevel.val),...
+                    '_numMatchPts_',num2str(settingS.numMatchPts.val)];
+                sitkFilter = 'HistMatch';
+            case 'n4biasfieldcorrectionimagefilter'
+                settingsStr = ['numFitLev_',num2str(settingS.numFittingLevels.val)];
+                sitkFilter = 'N4Bias';
         end        
         fieldName = [imageType,'_',sitkFilter,'_',settingsStr];
         
