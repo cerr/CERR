@@ -36,7 +36,7 @@ switch method
     case {'linear','cubic','nearest','makima','spline'}
         numResampSlc = length(zResampleV);
         numBatch = ceil(numResampSlc/maxNumSlc);
-        resampImg3M = nan(length(xResampleV),length(yResampleV),...
+        resampImg3M = nan(length(yResampleV),length(xResampleV),...
             length(zResampleV));
         if nargin>8 && ~isempty(varargin{1})
             extrapVal = varargin{1};
@@ -104,9 +104,12 @@ switch method
         inZvalsV = inZvalsV + inZoffset;
 
         [inGridX3M,inGridY3M,inGridZ3M] = meshgrid(inXvalsV,...
-            inYvalsV,inZvalsV);
-        resampImg3M = finterp3(inGridX3M,inGridY3M,inGridZ3M,resampImg3M,...
-            xResampM,yResampM,zResampM,'linear');
+            inYvalsV,inZvalsV);        
+        xFieldV = [xResampleV(1),xResampleV(2)-xResampleV(1),xResampleV(end)];
+        yFieldV = [yResampleV(1),yResampleV(2)-yResampleV(1),yResampleV(end)];
+        resampImg3M = finterp3(inGridX3M(:),inGridY3M(:),inGridZ3M(:),resampImg3M,...
+            xFieldV,yFieldV,zResampleV,0);
+        resampImg3M = reshape(resampImg3M,size(inGridX3M));
 
     otherwise
         error('Interpolation method %s not supported',method);
