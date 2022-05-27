@@ -21,15 +21,18 @@ mask3M(:,:,uniqueSlicesV) = slMask3M;
 %mask3M = true(origSizV);
 %uniqueSlicesV = 1:size(mask3M,3);
 %% end temp
-[minr, maxr, minc, maxc] = compute_boundingbox(mask3M);
-maskBoundingBox3M = mask3M(minr:maxr,minc:maxc,uniqueSlicesV);
+%[minr, maxr, minc, maxc] = compute_boundingbox(mask3M);
+%maskBoundingBox3M = mask3M(minr:maxr,minc:maxc,uniqueSlicesV);
 
 %% Read config file
 paramS = getRadiomicsParamTemplate(configFilePath);
 
 %% Apply pre-processing
-[procScan3M,~,gridS] = preProcessForRadiomics(scanNum,...
+[procScan3M,procMask3M,gridS] = preProcessForRadiomics(scanNum,...
     strNum, paramS, planC);
+[minr, maxr, minc, maxc] = compute_boundingbox(procMask3M);
+maskSlcV = sum(sum(procMask3M))>0;
+maskBoundingBox3M = procMask3M(minr:maxr,minc:maxc,maskSlcV);
 
 %% Get filtered image
 %Get params
