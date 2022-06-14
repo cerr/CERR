@@ -57,11 +57,15 @@ for n = 1:length(fieldNamesC)
     %Remove padding
     if filtParamS.padding.flag
        padSizV = filtParamS.padding.size;
-       filtScan3M = filtScan3M(padSizV(1)+1 : texSizV(1)-padSizV(1),...
-           padSizV(2)+1 : texSizV(2)-padSizV(2),...
-           padSizV(3)+1 : texSizV(3)-padSizV(3));
+    else
+        %Undo default padding
+        padSizV = [5,5,5];
     end
-    
+    filtScan3M = filtScan3M(padSizV(1)+1 : texSizV(1)-padSizV(1),...
+        padSizV(2)+1 : texSizV(2)-padSizV(2),...
+        padSizV(3)+1 : texSizV(3)-padSizV(3));
+    [~, maxr, minc, ~] = compute_boundingbox(mask3M);
+
     %Create texture object
     assocScanUID = planC{indexS.scan}(scanNum).scanUID;
     nTexture = length(planC{indexS.texture}) + 1;
