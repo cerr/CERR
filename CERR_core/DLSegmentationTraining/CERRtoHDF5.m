@@ -35,7 +35,7 @@ else
     strListC = {};
     labelKeyS = [];
 end
-skipMaskExport = false;
+skipMaskExport = true;
 
 %% Get data split
 [trainIdxV,valIdxV,testIdxV] = randSplitData(CERRdir,dataSplitV);

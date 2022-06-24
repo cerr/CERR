@@ -1,0 +1,31 @@
+{
+
+ "strNameToLabelMap": {
+       "structureName": "Tumor",
+       "value": 1
+       },
+
+"scan":{
+
+        "identifier" : {"imageType": "CBCT SCAN"},
+
+        "crop": {"method": "crop_to_str",
+                 "params" : {"structureName": "Lung"},
+                 "operator" : ""},
+
+        "resize":{
+                    "preserveAspectRatio": "Yes",
+                    "method" : "bicubic",
+                    "size" : [256,256]
+                 }
+ },
+
+
+"passedScanDim" : "3D",
+
+"batchSize": 1,
+
+"structAssocScan": {"identifier": {"imageType":"CBCT SCAN"}}
+
+
+}
