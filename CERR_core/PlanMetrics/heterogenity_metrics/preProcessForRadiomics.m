@@ -172,7 +172,7 @@ if whichFeatS.resample.flag
         gridResampleMethod,[perturbX,perturbY,perturbZ]);
     %Resample scan
     volToEval = imgResample3d(origVolToEval,xValsV,yValsV,zValsV,...
-        xResampleV,yResampleV,zResampleV,scanInterpMethod);
+        xResampleV,yResampleV,zResampleV,scanInterpMethod,extrapVal);
     %Resample mask
     maskBoundingBox3M = imgResample3d(single(origMask),xValsV,yValsV,zValsV,...
         xResampleV,yResampleV,zResampleV,roiInterpMethod) >= 0.5;
