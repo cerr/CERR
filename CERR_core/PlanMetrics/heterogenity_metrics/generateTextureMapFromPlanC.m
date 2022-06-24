@@ -21,15 +21,18 @@ mask3M(:,:,uniqueSlicesV) = slMask3M;
 %mask3M = true(origSizV);
 %uniqueSlicesV = 1:size(mask3M,3);
 %% end temp
-[minr, maxr, minc, maxc] = compute_boundingbox(mask3M);
-maskBoundingBox3M = mask3M(minr:maxr,minc:maxc,uniqueSlicesV);
+%[minr, maxr, minc, maxc] = compute_boundingbox(mask3M);
+%maskBoundingBox3M = mask3M(minr:maxr,minc:maxc,uniqueSlicesV);
 
 %% Read config file
 paramS = getRadiomicsParamTemplate(configFilePath);
 
 %% Apply pre-processing
-[procScan3M,~,gridS] = preProcessForRadiomics(scanNum,...
+[procScan3M,procMask3M,gridS] = preProcessForRadiomics(scanNum,...
     strNum, paramS, planC);
+[minr, maxr, minc, maxc] = compute_boundingbox(procMask3M);
+maskSlcV = sum(sum(procMask3M))>0;
+maskBoundingBox3M = procMask3M(minr:maxr,minc:maxc,maskSlcV);
 
 %% Get filtered image
 %Get params
@@ -54,11 +57,15 @@ for n = 1:length(fieldNamesC)
     %Remove padding
     if filtParamS.padding.flag
        padSizV = filtParamS.padding.size;
-       filtScan3M = filtScan3M(padSizV(1)+1 : texSizV(1)-padSizV(1),...
-           padSizV(2)+1 : texSizV(2)-padSizV(2),...
-           padSizV(3)+1 : texSizV(3)-padSizV(3));
+    else
+        %Undo default padding
+        padSizV = [5,5,5];
     end
-    
+    filtScan3M = filtScan3M(padSizV(1)+1 : texSizV(1)-padSizV(1),...
+        padSizV(2)+1 : texSizV(2)-padSizV(2),...
+        padSizV(3)+1 : texSizV(3)-padSizV(3));
+    [~, maxr, minc, ~] = compute_boundingbox(mask3M);
+
     %Create texture object
     assocScanUID = planC{indexS.scan}(scanNum).scanUID;
     nTexture = length(planC{indexS.texture}) + 1;
