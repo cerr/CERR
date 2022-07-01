@@ -115,8 +115,9 @@ conn3dPtMask3M(idxV) = true;
 %% 2D connected component filter to separate arms and other artifacts
 [numRows,numCols,numSlcs] = size(conn3dPtMask3M);
 connPtMask3M = false(numRows,numCols,numSlcs);
+str3S = makeDiskStrel(10,4); %Equivalent to strel('disk',10)
 for slc = 1:numSlcs
-    erodedSlc2M = imopen(conn3dPtMask3M(:,:,slc),strel('disk',10));
+    erodedSlc2M = imopen(conn3dPtMask3M(:,:,slc),str3S);
     ccS = bwconncomp(erodedSlc2M,8);
     ccSiz = cellfun(@numel,[ccS.PixelIdxList]);
     ccNumObjs = ccS.NumObjects;
