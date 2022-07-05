@@ -352,6 +352,10 @@ switch command
             end
             newStrNum = varargin{1};
             scanSet = getStructureAssociatedScan(newStrNum);
+            numStructs = length(planC{indexS.structures});
+            assocScanNumV = getStructureAssociatedScan(1:numStructs);
+            numStructsInScan = sum(assocScanNumV == scanSet);
+            strSacnIndV(assocScanNumV==scanSet) = 1:numStructsInScan;
             
             %Get the view/coord in case of linked axes.
             coord = getAxisInfo(hAxis, 'coord');
@@ -375,7 +379,7 @@ switch command
             drawContour('noneMode', hAxis);
             
             ud = stateS.handle.controlFrameUd;
-            set(ud.handles.structPopup, 'value', newStrNum);
+            set(ud.handles.structPopup, 'value', strSacnIndV(newStrNum));
             return;
             
             switch lower(ccMode)
