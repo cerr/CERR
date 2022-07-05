@@ -151,7 +151,7 @@ switch lower(cmdFlag)
             activate_cmd = sprintf('call activate %s',condaEnvC{1});
         else
             condaSrc = fullfile(condaEnvPath,'/bin/activate');
-            activate_cmd = sprintf('/bin/bash -c "%s',condaSrc);
+            activate_cmd = sprintf('/bin/bash -c "source %s',condaSrc);
         end
         run_cmd = sprintf('python %s %s %s %s"',wrapperFunction{1}, modInputPath,...
             modOutputPath,num2str(batchSize));
