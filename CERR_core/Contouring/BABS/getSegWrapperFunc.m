@@ -64,6 +64,11 @@ for algoNum = 1:numAlgoritms
                 'run_inference_mim_test_3D_V3.py');
             
         case 'MRCT_BRAINMETS_VNET'
+
+        case 'CBCT_LUNGTUMOR_CMEDL'
+            functionNameC{algoNum} = fullfile(condaEnvListC{algoNum},...
+                'CBCT_LungTumor_CMEDL','model_wrapper',...
+                'inference_code.py');
                        
     end
     
