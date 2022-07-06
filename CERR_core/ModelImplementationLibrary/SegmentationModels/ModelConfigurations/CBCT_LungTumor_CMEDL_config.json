@@ -7,7 +7,7 @@
 
 "scan":{
 
-        "identifier" : {"imageType": "CBCT SCAN"},
+        "identifier" : {"imageType": "CT SCAN"},
 
         "crop": {"method": "crop_to_str",
                  "params" : {"structureName": "Lung"},
@@ -25,7 +25,7 @@
 
 "batchSize": 1,
 
-"structAssocScan": {"identifier": {"imageType":"CBCT SCAN"}}
+"structAssocScan": {"identifier": {"imageType":"CT SCAN"}}
 
 
 }
