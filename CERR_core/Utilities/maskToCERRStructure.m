@@ -132,7 +132,7 @@ if nargout > 0
     varargout{1} = planC;
 end
 
-try
+if isfield(stateS,'handle') && ishandle(stateS.handle.CERRSliceViewer)
     stateS.structsChanged = 1;
     sliceCallBack('refresh');
 end
