@@ -28,10 +28,13 @@
 
 "scan":{
 
+        "identifier" : {"imageType": "CT SCAN"},
+
         "resample": {"resolutionXCm": 0.1,
 		          "resolutionYCm": 0.1,
                   "method": "linear"
 		    },
+
         "resize": {"method" : "padOrCrop3d",
                     "size" : [512,512]
             }
@@ -41,14 +44,17 @@
 
 "batchSize" : 1 ,
 
-"postProc" : {"Lung_Left": [{"method": "removeBackgroundFP","operator": "", "params" :""},{"method": "getLargestConnComps", "operator": "intersection", "params" : {"numCC": 1}}], 
-          "Lung_Right": [{"method": "removeBackgroundFP","operator": "", "params" :""},{"method": "getLargestConnComps","operator": "intersection", "params" : {"numCC": 1}}],
-          "Heart": [{"method": "removeBackgroundFP","operator": "", "params" :""},{"method": "getLargestConnComps", "operator": "intersection", "params" : {"numCC": 1}}],
-          "Esophagus": [{"method": "removeBackgroundFP","operator": "", "params" :""},{"method": "getLargestConnComps", "operator": "intersection", "params" : {"numCC": 1}}],
-          "Cord": [{"method": "removeBackgroundFP","operator": "", "params" :""},{"method": "getLargestConnComps", "operator": "intersection", "params" : {"numCC": 1}}]
+"postProc" : {"Lung_Left": [{"method": "removeBackgroundFP"},{"method": "getLargestConnComps", "operator": "intersection", "params" : {"numCC": 1}}], 
+          "Lung_Right": [{"method": "removeBackgroundFP"},{"method": "getLargestConnComps","operator": "intersection", "params" : {"numCC": 1}}],
+          "Heart": [{"method": "removeBackgroundFP"},{"method": "getLargestConnComps", "operator": "intersection", "params" : {"numCC": 1}}],
+          "Esophagus": [{"method": "removeBackgroundFP"},{"method": "getLargestConnComps", "operator": "intersection", "params" : {"numCC": 1}}],
+          "Cord": [{"method": "removeBackgroundFP"},{"method": "getLargestConnComps", "operator": "intersection", "params" : {"numCC": 1}}],
+          "PBT": [{"method": "removeBackgroundFP"},{"method": "getLargestConnComps", "operator": "intersection", "params" : {"numCC": 1}}]
 },
 
 "passedScanDim" : "3D",
+
+"structAssocScan": {"identifier": {"imageType":"CT SCAN"}},
 
 "reference" : "10.1109/TMI.2018.2857800",
 	
@@ -64,8 +70,8 @@
 
 "algorithm" : { 
     "algorithmName" : "CT_LungOAR_incrMRRN" , 
-    "version" : "197a625", 
-    "releaseDate" : "2020/11/10" 
+    "version" : "64907", 
+    "releaseDate" : "07/08/2022" 
 }
 }
 }
