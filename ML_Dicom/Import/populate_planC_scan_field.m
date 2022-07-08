@@ -107,6 +107,7 @@ switch fieldname
             case 'No'
                 
                 %Iterate over slices.
+                zValues = nan([1,nImages]);
                 for imageNum = 1:nImages
                     
                     IMAGE   = SERIES.Data(imageNum); % wy {} --> ()
@@ -226,8 +227,9 @@ switch fieldname
                     end
                     
                     % Store the patient orientation associated with this studyUID
-                    studyUIDc = {};
-                    for i = 1:size(studyC,1)
+                    numStudies = size(studyC,1);
+                    studyUIDc = cell([1,numStudies]);
+                    for i = 1:numStudies
                         studyUIDc{i} = studyC{i,1};
                     end
                     if ~any(strcmpi(studyUID,studyUIDc))
@@ -297,7 +299,7 @@ switch fieldname
                 %slice to the last slice. Note that zValues are (-)ve of
                 %DICOM z-Values. Hence, patient's head is towards the top
                 %of the screen.                
-                [jnk, zOrder]       = sort(zValues);
+                [~, zOrder]       = sort(zValues);
                 dataS(:,:,1:end)    = dataS(:,:,zOrder);
                 
             case 'Yes' % Assume Nuclear medicine image
@@ -388,8 +390,9 @@ switch fieldname
                 
                 % Get Patient Position from the associated CT/MR scan
                 % in case of NM missing the patient position.
-                studyUIDc = {};
-                for i = 1:size(studyC,1)
+                numStudies = size(studyC,1);
+                studyUIDc = cell([1,numStudies]);
+                for i = 1:numStudies
                     studyUIDc{i} = studyC{i,1};
                 end
                 
@@ -441,6 +444,7 @@ switch fieldname
                     positionRefIndicatorSequence = getTagValue(imgobj, 1.375769136000000e+09); %SQ
                     imgOriV = positionRefIndicatorSequence.Item_1...
                         .PlaneOrientationSequence.Item_1.ImageOrientationPatient;
+                    zValuesV = nan([1,numMultiFrameImages]);
                     for imageNum = 1:numMultiFrameImages
                         item = ['Item_',num2str(imageNum)];
                         zValuesV(imageNum) = positionRefIndicatorSequence.(item)...
@@ -452,6 +456,7 @@ switch fieldname
                     positionRefIndicatorSequence = getTagValue(imgobj, 1.375769136000000e+09); %SQ
                     imgOriV = positionRefIndicatorSequence.Item_1...
                         .PlaneOrientationSequence.Item_1.ImageOrientationPatient;
+                    zValuesV = nan([1,numMultiFrameImages]);
                     for imageNum = 1:numMultiFrameImages
                         item = ['Item_',num2str(imageNum)];
                         zValuesV(imageNum) = positionRefIndicatorSequence.(item)...
@@ -507,7 +512,7 @@ switch fieldname
                 %slice to the last slice. Note that zValues are (-)ve of
                 %DICOM z-Values. Hence, patient's head is towards the top
                 %of the screen.
-                [jnk, zOrder]       = sort(zValuesV);
+                [~, zOrder]       = sort(zValuesV);
                 dataS(:,:,1:end)    = dataS(:,:,zOrder);                
                 
         end
@@ -552,7 +557,7 @@ switch fieldname
         scanInfoInitS = initializeScanInfo;
         names = fieldnames(scanInfoInitS);
         
-        zValues = [];
+        %zValues = [];
         
         %hWaitbar = waitbar(0,'Loading Scan Info Please wait...');
         
@@ -560,6 +565,7 @@ switch fieldname
             
             case 'No'
                 
+                zValues = nan([1,nImages]);
                 %Iterate over slices.
                 for imageNum = 1:nImages
                     
@@ -602,7 +608,7 @@ switch fieldname
                 end                
                 
                 %Reorder scanInfo elements based on zValues.
-                [jnk, zOrder]   = sort(zValues);
+                [~, zOrder]   = sort(zValues);
                 dataS(1:end)    = dataS(zOrder);
                 
             case 'Yes' % Assume Nuclear Medicine Image
@@ -657,6 +663,7 @@ switch fieldname
                     imgpos = detectorInfoSequence.Item_1.ImagePositionPatient;
                     imgOriV = detectorInfoSequence.Item_1.ImageOrientationPatient;
                     imageOrientationPatientM(1:numMultiFrameImages,:) = repmat(imgOriV(:)',numMultiFrameImages,1);
+                    imagePositionPatientM = zeros([numMultiFrameImages,3]);
                     for imgNum = 1:numMultiFrameImages
                         imagePositionPatientM(imgNum,:) = imgpos(:)';
                         imagePositionPatientM(imgNum,3) = imgpos(3)+sliceSpacing*(imgNum-1);
@@ -708,7 +715,14 @@ switch fieldname
                     petPrimarySourceOfCounts = char(imgobj.getString(5509122,0)); % 0054,1002
                     petDecayCorrectionDateTime = char(imgobj.getString(1611521,0)); % 0018,9701
 
-
+                    zValuesV = nan([1,numMultiFrameImages]);
+                    rescaleInterceptV = nan([1,numMultiFrameImages]);
+                    rescaleSlopeV = nan([1,numMultiFrameImages]);
+                    imageOrientationPatientM = zeros([numMultiFrameImages,6]);
+                    imagePositionPatientM = zeros([numMultiFrameImages,3]);
+                    temporalPositionIndexV = nan([1,numMultiFrameImages]);
+                    frameAcquisitionDurationV = nan([1,numMultiFrameImages]);
+                    frameReferenceDateTimeV = nan([1,numMultiFrameImages]);
                     for imageNum = 1:numMultiFrameImages
                         item = ['Item_',num2str(imageNum)];
                         zValuesV(imageNum) = positionRefIndicatorSequence.(item)...
@@ -756,12 +770,22 @@ switch fieldname
                     sliceThickness = positionRefIndicatorSequence.Item_1...
                         .PixelMeasuresSequence.Item_1.SliceThickness;
                     sliceThickness = sliceThickness / 10;
-                    rescaleType = positionRefIndicatorSequence.Item_1...
-                        .PixelValueTransformationSequence.Item_1.RescaleType;    
+                    %rescaleType = positionRefIndicatorSequence.Item_1...
+                    %    .PixelValueTransformationSequence.Item_1.RescaleType;    
                     windowCenter = positionRefIndicatorSequence.Item_1...
                         .FrameVOILUTSequence.Item_1.WindowCenter; 
                     windowWidth = positionRefIndicatorSequence.Item_1...
                         .FrameVOILUTSequence.Item_1.WindowWidth; 
+                    
+                    zValuesV = nan([1,numMultiFrameImages]);
+                    rescaleInterceptV = nan([1,numMultiFrameImages]);
+                    rescaleSlopeV = nan([1,numMultiFrameImages]);
+                    imageOrientationPatientM = zeros([numMultiFrameImages,6]);
+                    imagePositionPatientM = zeros([numMultiFrameImages,3]);
+                    temporalPositionIndexV = nan([1,numMultiFrameImages]);
+                    frameAcquisitionDurationV = nan([1,numMultiFrameImages]);
+                    frameReferenceDateTimeV = nan([1,numMultiFrameImages]);
+                    bValuesV = nan([1,numMultiFrameImages]);
                     for imageNum = 1:numMultiFrameImages
                         item = ['Item_',num2str(imageNum)];
                         zValuesV(imageNum) = positionRefIndicatorSequence.(item)...
@@ -886,7 +910,7 @@ switch fieldname
                 %slice to the last slice. Note that zValues are (-)ve of
                 %DICOM z-Values. Hence, patient's head is towards the top
                 %of the screen.
-                [jnk, zOrder]       = sort(zValuesV);
+                [~, zOrder]       = sort(zValuesV);
                 dataS               = dataS(zOrder);
                 
         end
