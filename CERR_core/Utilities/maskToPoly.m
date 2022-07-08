@@ -1,4 +1,4 @@
-function [contour, sliceValues] = maskToPoly(mask, sliceValues, scanNum, planC)
+function [contourS, sliceValues] = maskToPoly(mask, sliceValues, scanNum, planC)
 %"maskToPoly"
 %   convert a 3D or 2D mask to a set of vertices denoting its contour lines.
 %
@@ -10,10 +10,10 @@ function [contour, sliceValues] = maskToPoly(mask, sliceValues, scanNum, planC)
 %               num.
 %   planC      : planC file used to convert from pixel values to real xyz coordinates
 %
-%   contour    : struct array consisting of segments, one for each slice evaluated.
+%   contourS    : struct array consisting of segments, one for each slice evaluated.
 %   sliceValues: index of slices into coutour, just as the input was.
 %
-%Usage: [contour, sliceValues] = maskToPoly(mask, sliceValues, planC)
+%Usage: [contourS, sliceValues] = maskToPoly(mask, sliceValues, planC)
 %
 % Copyright 2010, Joseph O. Deasy, on behalf of the CERR development team.
 % 
@@ -37,14 +37,14 @@ function [contour, sliceValues] = maskToPoly(mask, sliceValues, scanNum, planC)
 % You should have received a copy of the GNU General Public License
 % along with CERR.  If not, see <http://www.gnu.org/licenses/>.
 
-[ySize, xSize, zSize] = size(mask);
-
+[~, ~, zSize] = size(mask);
+contourS(zSize) = struct();
 for i=1:zSize
     slice = zeros(size(mask(:,:,i))+2);
     slice(2:end-1, 2:end-1) = double(mask(:,:,i));
     rawData = contourc(slice, [.5 .5]); %Contour lies between 0 and 1s
     contourData = postProcess(rawData, sliceValues(i), scanNum, planC);
-    contour(i).segments = contourData;
+    contourS(i).segments = contourData;
 end
 
 

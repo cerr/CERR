@@ -42,12 +42,12 @@ function varargout = maskToCERRStructure(maskM, isUniform, scanNum, strname, pla
 
 global stateS
 
-if ~exist('planC') 
+if ~exist('planC','var') 
     global planC
 end
 indexS = planC{end};
 
-if ~exist('strname')
+if ~exist('strname','var')
     strname = 'Imported Structure';
 end
 
@@ -61,7 +61,7 @@ end
 if numel(normsiz) < 3
     normsiz(3) = 1;
 end
-if ~exist('isUniform')
+if ~exist('isUniform','var')
     if isequal(siz, unisiz)
         isUniform = 1;
     elseif isequal(siz, normsiz)
@@ -77,21 +77,21 @@ end
 
 if ~isUniform
     %If registered to CT, just get contour info.
-    [contour, sliceValues] = maskToPoly(maskM, 1:siz(3), scanNum, planC);
+    [contourS, ~] = maskToPoly(maskM, 1:siz(3), scanNum, planC);
 else
     %If registered to uniformized data, use nearest slice neighbor
     %interpolation.
-    [xUni, yUni, zUni] = getUniformScanXYZVals(planC{indexS.scan}(scanNum));
+    [~, ~, zUni] = getUniformScanXYZVals(planC{indexS.scan}(scanNum));
     
 %     [xUni, yUni, zUni] = getUniformizedXYZVals(planC);
-    [xSca, ySca, zSca] = getScanXYZVals(planC{indexS.scan}(scanNum));
+    [~, ~, zSca] = getScanXYZVals(planC{indexS.scan}(scanNum));
     
-    tmpM = repmat(logical(0), normsiz);
+    tmpM = false(normsiz);
     
     for i=1:normsiz(3)
         zVal = zSca(i);
-        uB = min(find(zUni > zVal));
-        lB = max(find(zUni <= zVal));
+        uB = find(zUni > zVal, 1 );
+        lB = find(zUni <= zVal, 1, 'last' );
         if normsiz(3) > 1 && (isempty(uB) || isempty(lB))
             continue
         end
@@ -102,12 +102,12 @@ else
         end
     end    
     %Get contour info.
-    [contour, sliceValues] = maskToPoly(tmpM, 1:normsiz(3), scanNum, planC);
-end
+    [contourS, ~] = maskToPoly(tmpM, 1:normsiz(3), scanNum, planC);
+ end
 
 %Make an empty structure, assign name/contour.
 newstr = newCERRStructure(scanNum, planC);
-newstr.contour = contour;
+newstr.contour = contourS;
 newstr.structureName = strname;
 newstr.associatedScan = scanNum;
 newstr.assocScanUID = planC{indexS.scan}(scanNum).scanUID;
@@ -132,7 +132,7 @@ if nargout > 0
     varargout{1} = planC;
 end
 
-try
+if isfield(stateS,'handle') && ishandle(stateS.handle.CERRSliceViewer)
     stateS.structsChanged = 1;
     sliceCallBack('refresh');
 end

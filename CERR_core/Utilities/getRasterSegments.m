@@ -47,7 +47,6 @@ else
     showWarnings = 0;
 end
 rasterSegments = [];
-errorString = '';
 isError = 0;
 
 try
