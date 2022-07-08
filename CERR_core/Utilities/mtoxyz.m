@@ -1,4 +1,4 @@
-function [xV,yV,zV] = mtoxyz(rV,cV,sV,scanNum,planC,uniflag,jnk)
+function [xV,yV,zV] = mtoxyz(rV,cV,sV,scanNum,planC,uniflag,~)
 %"mtoxyz"
 %   Convert from rcs coordinates to xyz coordinates, in the nonuniformized
 %   dataset.  scanNum is the number of the scan to use.
@@ -34,7 +34,7 @@ function [xV,yV,zV] = mtoxyz(rV,cV,sV,scanNum,planC,uniflag,jnk)
 
 indexS = planC{end};
 
-if exist('uniflag') & (strcmpi(uniflag, 'uniform') | uniflag == 1)
+if exist('uniflag','var') && (strcmpi(uniflag, 'uniform') || uniflag == 1)
     [xVals, yVals, zVals] = getUniformScanXYZVals(planC{indexS.scan}(scanNum));
 else
     [xVals, yVals, zVals] = getScanXYZVals(planC{indexS.scan}(scanNum));
