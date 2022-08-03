@@ -33,13 +33,13 @@ if strcmpi(correctionType,'LQ')
     
 elseif strcmpi(correctionType,'EQD')
     
-    fractionSize = dose3M / numFractions;
+    fractionSize3M = dose3M / numFractions;
     
     abRatio = alpha / beta;
     
     % BED
     effectiveDose3M = dose3M .* ...
-        (1+fractionSize/abRatio);
+        (1+fractionSize3M/abRatio);
     
     % EQD2
     effectiveDose3M = effectiveDose3M / (1+stdFractionSize/abRatio);

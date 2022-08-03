@@ -68,16 +68,16 @@ if ~isempty(scanStruct)
         uniformScanInfo = [];    
     end
     
-    if isempty(uniformScanInfo) & (dim ~= 3)
+    if isempty(uniformScanInfo) && (dim ~= 3)
         error('No uniformscan info exists.') % maybe create it?
     elseif ~isempty(uniformScanInfo)
      	%Get the z values of the scan set, slightly more complicated
 		nCTSlices = abs(uniformScanInfo.sliceNumSup - uniformScanInfo.sliceNumInf) + 1;
 		[nSupSlices] = size(getScanArraySuperior(scanStruct), 3);
-		if isempty(getScanArraySuperior(scanStruct)), nSupSlices = 0;, end
+		if isempty(getScanArraySuperior(scanStruct)), nSupSlices = 0; end
 		
 		[nInfSlices] = size(getScanArrayInferior(scanStruct), 3);
-		if isempty(getScanArrayInferior(scanStruct)), nInfSlices = 0;, end
+		if isempty(getScanArrayInferior(scanStruct)), nInfSlices = 0; end
 		
 		nZSlices = nCTSlices + nSupSlices + nInfSlices;
 		ctZVals = uniformScanInfo.firstZValue : uniformScanInfo.sliceThickness : uniformScanInfo.sliceThickness * (nZSlices-1) + uniformScanInfo.firstZValue;       
@@ -134,7 +134,7 @@ colIndices = find( (CTColCoords < max(doseColCoords)) & (CTColCoords > min(doseC
 indL(min(rowIndices):max(rowIndices),min(colIndices):max(colIndices)) = 1;
 
 %if a mask exists, interpolate only over the mask.
-if nargin == 6 & size(maskM) == size(indL)
+if nargin == 6 && size(maskM) == size(indL)
     indL = indL & maskM;
 end
 
