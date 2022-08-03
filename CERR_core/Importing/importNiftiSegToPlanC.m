@@ -47,7 +47,11 @@ if strcmpi(fileparts{end},'gz') && any(strcmpi(fileparts{end - 1},{'img','hdr','
     end
 end
 
-nii = load_nii(structFileName);
+try
+    nii = load_nii(structFileName);
+catch
+    nii = load_nii(structFileName,[],[],[],[],[],1);
+end
 mask3M = nii.img;
 mask3M = flip(mask3M,1);
 mask3M = flip(mask3M,2);
