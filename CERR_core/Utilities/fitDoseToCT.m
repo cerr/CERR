@@ -134,7 +134,7 @@ colIndices = find( (CTColCoords < max(doseColCoords)) & (CTColCoords > min(doseC
 indL(min(rowIndices):max(rowIndices),min(colIndices):max(colIndices)) = 1;
 
 %if a mask exists, interpolate only over the mask.
-if nargin == 6 && size(maskM) == size(indL)
+if nargin == 6 && all(size(maskM) == size(indL))
     indL = indL & maskM;
 end
 
