@@ -2277,15 +2277,21 @@ switch upper(instr)
 
         %FOLLOWING FUNCTIONS HAD TO BE BROKEN OUT FOR COMPILATION:
     case 'CLOSEREQUEST'
+        
+        force_close_flag = false;
+        if ~isempty(varargin)
+            force_close_flag = varargin{1};
+        end
+        
         %Clear the persistent variable in getDoseArray when CERR exists.
         try
             controlFrame('default');
         end
-        if isfield(stateS,'planLoaded') && stateS.planLoaded
+        if isfield(stateS,'planLoaded') && stateS.planLoaded && ~force_close_flag
             hQuest = questdlg('Do you want to save changes made to this plan?','Saving plan','Yes','No','Cancel','No');
             if strcmpi(hQuest,'yes')
                 sliceCallBack('saveasplanc');
-            elseif strcmpi(hQuest,'Cancel')|isempty(hQuest)
+            elseif strcmpi(hQuest,'Cancel') || isempty(hQuest)
                 return
             end
         end
@@ -2306,12 +2312,16 @@ switch upper(instr)
         if ~isempty(stateS) && isfield(stateS,'CERRFile') && isfield(stateS,'reqdRemoteFiles')
             remoteFiles = listRemoteScanAndDose(planC);
             if ~isempty(remoteFiles)
-                try, rmdir(remoteFiles(1).remotePath,'s'), end
+                try
+                    rmdir(remoteFiles(1).remotePath,'s')
+                catch
+                end
             end
         end
 
         try
             closeAllCERRFigures;
+        catch
         end
         clear global stateS;
         closereq;

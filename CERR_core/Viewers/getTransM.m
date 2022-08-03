@@ -49,16 +49,16 @@ if isstruct(type) && iscell(number)
     planC = number;
     indexS = planC{end};
     planField = type;
-    if isfield(planField, 'scanInfo');
+    if isfield(planField, 'scanInfo')
         type = 'scan';
-    elseif isfield(planField, 'doseArray');
+    elseif isfield(planField, 'doseArray')
         type = 'dose';
-    elseif isfield(planField, 'structureName');
+    elseif isfield(planField, 'structureName')
         type = 'struct';
     else
         error('Invalid planField passed to getTransM.');
     end
-elseif ischar(type) && isnumeric(number) && iscell(planC)
+elseif ischar(type) && isnumeric(number) && iscell(planC) && numel(number)==1
 
     %If request scan/struct/dose zero, return [];
     if isempty (number)
@@ -77,7 +77,7 @@ elseif ischar(type) && isnumeric(number) && iscell(planC)
     end
 
 else
-    error('Invalid call to getTransM.');
+    %error('Invalid call to getTransM.');
 end
 
 switch lower(type)

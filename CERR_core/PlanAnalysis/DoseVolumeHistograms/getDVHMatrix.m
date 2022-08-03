@@ -37,6 +37,8 @@ function [planC, doseBinsV, volsHistV] = getDVHMatrix(planC, structNum, doseNum,
 %Usage:
 %   [planC, doseBinsV, volsHistV] = getDVHMatrix(planC, structNum, doseNum)
 
+global stateS
+
 indexS = planC{end};
 volsHistV = [];
 doseBinsV = [];
@@ -47,7 +49,9 @@ structName = planC{indexS.structures}(structNum).structureName;
 if nargin ~= 4 % load stored DVHs if numBins is not specified
     for DVHNum=1:length(planC{indexS.DVH})
         % AI 2/8/17
-        if strcmp(upper(planC{indexS.DVH}(DVHNum).structureName), upper(structName)) & isequal(planC{indexS.DVH}(DVHNum).doseIndex,doseNum) & ~isempty(planC{indexS.DVH}(DVHNum).DVHMatrix)
+        if strcmpi(planC{indexS.DVH}(DVHNum).structureName, structName) && ...
+                isequal(planC{indexS.DVH}(DVHNum).doseIndex,doseNum) && ...
+                ~isempty(planC{indexS.DVH}(DVHNum).DVHMatrix)
             [doseBinsV, volsHistV] = loadDVHMatrix(DVHNum, planC);
         end
     end
@@ -58,9 +62,9 @@ if isempty(volsHistV)
     [dosesV, volsV] = getDVH(structNum, doseNum, planC);
     
     %Try and get a binWidth from stateS.  If it doesnt exist, get it from
-    %the CERROptions file (allows this function to be called outside CERR)
-    global stateS;
-    if (nargin ~=4) & ~isempty(stateS) & isfield(stateS, 'optS') & isfield(stateS.optS, 'DVHBinWidth') & ~isempty(stateS.optS.DVHBinWidth)
+    %the CERROptions file (allows this function to be called outside CERR)    
+    if (nargin ~=4) && ~isempty(stateS) && isfield(stateS, 'optS') && ...
+            isfield(stateS.optS, 'DVHBinWidth') && ~isempty(stateS.optS.DVHBinWidth)
         binWidth = stateS.optS.DVHBinWidth;
         %Histogram the volumes by dose.
         [doseBinsV, volsHistV] = doseHist(dosesV, volsV, binWidth);
