@@ -1,4 +1,4 @@
-function dosesV = getDoseAt(doseNum, xV, yV, zV, planC)
+function dosesV = getDoseAt(doseNum, xV, yV, zV, planC, varargin)
 %"getDoseAt"
 %   Returns the dose at the points defined by vectors xV, yV, zV, in the
 %   requested doseNum.  The doseOffset is included, if it exists.  
@@ -37,23 +37,35 @@ function dosesV = getDoseAt(doseNum, xV, yV, zV, planC)
 % You should have received a copy of the GNU General Public License
 % along with CERR.  If not, see <http://www.gnu.org/licenses/>.
 
-if ~exist('planC')
-    global planC
+doseOffset = 0;
+if numel(doseNum) == 1
+    if ~exist('planC','var')
+        global planC
+    end
+    indexS = planC{end};
+    
+    %Use dose access function in case of remote variables.
+    dA = getDoseArray(doseNum, planC);
+    
+    [xVD, yVD, zVD] = getDoseXYZVals(planC{indexS.dose}(doseNum));    
+    if isfield(planC{indexS.dose}(doseNum), 'doseOffset') && ~isempty(planC{indexS.dose}(doseNum).doseOffset)
+        doseOffset = planC{indexS.dose}(doseNum).doseOffset;
+    end    
+else
+    xVD = varargin{1};
+    yVD = varargin{2};
+    zVD = varargin{3};
+    dA = doseNum;
+    
 end
-indexS = planC{end};
-
-[xVD, yVD, zVD] = getDoseXYZVals(planC{indexS.dose}(doseNum));
-
-%Use dose access function in case of remote variables.
-dA = getDoseArray(doseNum, planC);
 
 %Interpolate to values in xV/yV/zV from the dosearray, 0 if out of bounds.
 %Correct numerical noise
 delta = 1e-8;
 zVD(1) = zVD(1)-1e-3;
 zVD(end) = zVD(end)+1e-3;
-dosesV = finterp3(xV, yV, zV, dA, [xVD(1)-delta xVD(2)-xVD(1) xVD(end)+delta], [yVD(1)+delta yVD(2)-yVD(1) yVD(end)-delta], zVD, 0);
+dosesV = finterp3(xV, yV, zV, dA, ...
+    [xVD(1)-delta xVD(2)-xVD(1) xVD(end)+delta], ...
+    [yVD(1)+delta yVD(2)-yVD(1) yVD(end)-delta], zVD, 0);
 
-if isfield(planC{indexS.dose}(doseNum), 'doseOffset') & ~isempty(planC{indexS.dose}(doseNum).doseOffset)
-    dosesV = dosesV - planC{indexS.dose}(doseNum).doseOffset;
-end
+dosesV = dosesV - doseOffset;
