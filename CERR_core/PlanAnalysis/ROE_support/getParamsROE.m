@@ -43,7 +43,7 @@ elseif ~isempty(hEvt) && currNode.getLevel==1   %Expand protocol node to list mo
     dosDat = {'Select dose plan',planListC{planIdx}};
     set(hTab,'ColumnFormat',fmt,'Data',dosDat,'Visible','On','Enable','On');
     ud.handle.tab1H(4) = hTab;
-    set(hFig,'userdata',ud);
+    guidata(hFig,ud);
     
     %Expand protocol node to list models
     tree.expandRow(tree.getSelectionRows);
