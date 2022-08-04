@@ -274,9 +274,11 @@ switch upper(command)
         end
         if ~isfield(ud,'TCPCurve')
             ud.TCPCurve = [];
+            ud.TCPCurveDots = [];
         end
         if ~isfield(ud,'BEDCurve')
             ud.BEDCurve = [];
+            ud.BEDCurveDots = [];
         end
         if ~isfield(ud,'cMarker')
             ud.cMarker = [];
@@ -799,19 +801,28 @@ switch upper(command)
                         hCurr = hNTCPAxis;
                     elseif strcmp(modelC{j}.type,'TCP')
                         tcp = tcp + 1;
-                        ud.TCPCurve = [ud.TCPCurve plot(hTCPAxis,xScaleV,scaledCPv,'linewidth',3,...
-                            'Color',plotColorM(colorIdx,:),'lineStyle',lineStyle)];
-                        ud.TCPCurve(tcp).DisplayName = [ud.Protocols(p).protocol,': ',modelC{j}.name];
+                        ud.TCPCurve = [ud.TCPCurve plot(hTCPAxis,xScaleV,...
+                            scaledCPv,'linewidth',3,'Color',...
+                            plotColorM(colorIdx,:),'lineStyle',lineStyle)];
+                        ud.TCPCurveDots = [ud.TCPCurveDots plot(hTCPAxis,...
+                            xScaleV,scaledCPv,'linewidth',2,'Color','w',...
+                            'lineStyle',':')];
+                        ud.TCPCurve(tcp).DisplayName = ...
+                            [ud.Protocols(p).protocol,': ',modelC{j}.name];
                         hCurr = hTCPAxis;
-%                         ud.axisHighlight = line(hTCPAxis,1.5*ones(1,11),0:0.1:1,'linewidth',2,...
+%                       ud.axisHighlight = line(hTCPAxis,1.5*ones(1,11),0:0.1:1,'linewidth',2,...
 %                             'color',plotColorM(colorIdx,:));
                     elseif strcmp(modelC{j}.type,'BED')
                         bed = bed + 1;
-                        ud.BEDCurve = [ud.BEDCurve plot(hTCPAxis,xScaleV,scaledCPv,'linewidth',3,...
-                            'Color',plotColorM(colorIdx,:),'lineStyle',lineStyle)];
+                        ud.BEDCurve = [ud.BEDCurve plot(hTCPAxis,xScaleV,...
+                            scaledCPv,'linewidth',3,'Color',...
+                            plotColorM(colorIdx,:),'lineStyle',lineStyle)];
+                        ud.BEDCurveDots = [ud.BEDCurveDots plot(hTCPAxis,...
+                            xScaleV,scaledCPv,'linewidth',2,'Color','w',...
+                            'lineStyle',':')];
                         ud.BEDCurve(bed).DisplayName = [ud.Protocols(p).protocol,': ',modelC{j}.name];
                         hCurr = hTCPAxis;
-%                         ud.axisHighlight =line(hTCPAxis,zeros(1,11),0:20:200,'linewidth',2,...
+%                       ud.axisHighlight =line(hTCPAxis,zeros(1,11),0:20:200,'linewidth',2,...
 %                             'color',plotColorM(colorIdx,:));
                     end
                 end
@@ -1335,6 +1346,8 @@ switch upper(command)
         %Clear data/plots from any previously loaded models/plans/structures
         ud.NTCPCurve = [];
         ud.TCPCurve = [];
+        ud.TCPCurveDots = [];
+        ud.BEDCurveDots = [];
         ud.BEDCurve = [];
         protocolS = ud.Protocols;
         for p = 1:numel(protocolS)
