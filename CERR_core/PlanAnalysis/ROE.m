@@ -141,30 +141,28 @@ switch upper(command)
         guidata(hFig,ud);
         ROE('refresh',hFig);
         figure(hFig);
-        
-        
+
         
     case 'REFRESH'
         
         if isempty(hFig)
             return
         end
-        
-        %Create UIcontrols
         createUIControlsROE(hFig,planC);
-        
+       
         
     case 'LOAD_MODELS'
+
+
         ROE('REFRESH');
         ud = guidata(hFig);
-        
+
         %Get paths to JSON files
-        optS = opts4Exe('CERRoptions.json'); 
+        optS = opts4Exe('CERRoptions.json');
         %NOTE: Define path to .json files for protocols, models & clinical criteria in CERROptions.json
         %optS.ROEProtocolPath = 'your/path/to/protocols';
         %optS.ROEModelPath = 'your/path/to/models';
-        %optS.ROECriteriaPath = 'your/path/to/criteria';
-        
+
         if contains(optS.ROEProtocolPath,'getCERRPath')
             protocolPath = eval(optS.ROEProtocolPath);
         else
@@ -186,9 +184,11 @@ switch upper(command)
         if ~ok
             return
         end
+
         
         % Load models associated with selected protocol(s)
-        root = uitreenode('v0', 'Protocols', 'Protocols', [], false);      %Create root node (for tree display)
+        root = uitreenode('v0', 'Fractionation', 'Baseline fractionations',...
+            [], false);      %Create root node (for tree display)
         protocolS(numel(protocolIdx)) = struct();
         for p = 1:numel(protocolIdx)                                       %Cycle through selected protocols
             [~,protocol] = fileparts(protocolListC{protocolIdx(p)});
@@ -202,7 +202,8 @@ switch upper(command)
                 protocolS(p).protocol = protocolInfoS.name;
                 modelFPath = fullfile(modelPath,protocolInfoS.models.(modelListC{m}).modelFile);
                 %Get path to .json for model
-                protocolS(p).model{m} = loadjson(modelFPath,'ShowProgress',1);
+                protocolS(p).model{m} = loadjson(modelFPath,'ShowProgress',...
+                    1);
                 %Load model parameters from .json file
                 protocolS(p).modelFiles = [protocolS(p).modelFiles,modelFPath];
                 modelName = protocolS(p).model{m}.name;
@@ -230,14 +231,13 @@ switch upper(command)
         set(mtree,'Position',[2*shift 5*shift .16*GUIWidth .68*GUIHeight],...
             'Visible',false);
         drawnow;
-        set(ud.handle.tab1H(1),'string','Protocols & Models'); %Tree title
+        set(ud.handle.tab1H(1),'string','Fractionation & Models'); %Tree title
         
         %Store protocol & model parameters from JSON files to GUI userdata
         ud.Protocols = protocolS;
         ud.modelTree = mtree;
         guidata(hFig,ud);
         
-        guidata(hFig,ud);
         ROE('LIST_MODELS');
         
         
@@ -803,16 +803,16 @@ switch upper(command)
                             'Color',plotColorM(colorIdx,:),'lineStyle',lineStyle)];
                         ud.TCPCurve(tcp).DisplayName = [ud.Protocols(p).protocol,': ',modelC{j}.name];
                         hCurr = hTCPAxis;
-                        ud.axisHighlight = line(hTCPAxis,1.5*ones(1,11),0:0.1:1,'linewidth',2,...
-                            'color',plotColorM(colorIdx,:));
+%                         ud.axisHighlight = line(hTCPAxis,1.5*ones(1,11),0:0.1:1,'linewidth',2,...
+%                             'color',plotColorM(colorIdx,:));
                     elseif strcmp(modelC{j}.type,'BED')
                         bed = bed + 1;
                         ud.BEDCurve = [ud.BEDCurve plot(hTCPAxis,xScaleV,scaledCPv,'linewidth',3,...
                             'Color',plotColorM(colorIdx,:),'lineStyle',lineStyle)];
                         ud.BEDCurve(bed).DisplayName = [ud.Protocols(p).protocol,': ',modelC{j}.name];
                         hCurr = hTCPAxis;
-                        ud.axisHighlight =line(hTCPAxis,zeros(1,11),0:20:200,'linewidth',2,...
-                            'color',plotColorM(colorIdx,:));
+%                         ud.axisHighlight =line(hTCPAxis,zeros(1,11),0:20:200,'linewidth',2,...
+%                             'color',plotColorM(colorIdx,:));
                     end
                 end
                 
@@ -897,12 +897,16 @@ switch upper(command)
                                         gXv(gCount) = xV(ind);
                                         clr = [239 197 57]./255;
                                         if p==ud.foreground
-                                            ud.gMarker = [ud.cMarker,plot(hNTCPAxis,gXv(gCount),...
-                                                gValV(gCount),'o','MarkerSize',8,'MarkerFaceColor',...
+                                            ud.gMarker = [ud.cMarker,...
+                                                plot(hNTCPAxis,gXv(gCount),...
+                                                gValV(gCount),'o',...
+                                                'MarkerSize',8,...
+                                                'MarkerFaceColor',...
                                                 clr,'MarkerEdgeColor','k')];
                                         else
-                                            addMarker = scatter(hNTCPAxis,gXv(gCount),...
-                                                gValV(gCount),60,'MarkerFaceColor',clr,...
+                                            addMarker = scatter(hNTCPAxis,...
+                                                gXv(gCount),gValV(gCount),...
+                                                60,'MarkerFaceColor',clr,...
                                                 'MarkerEdgeColor','k');
                                             addMarker.MarkerFaceAlpha = .3;
                                             addMarker.MarkerEdgeAlpha = .3;
@@ -948,11 +952,11 @@ switch upper(command)
                             x = [gXv(gCount) gXv(gCount)];
                             y = [0 1];
                             if p==ud.foreground
-                                guideLineH = line(hNTCPAxis,x,y,'LineWidth',2,...
+                                guideLineH = line(hNTCPAxis,x,y,'LineWidth',1,...
                                     'Color',[239 197 57]/255,'LineStyle','--',...
                                     'Tag','guidelines','Visible','Off');
                             else
-                                guideLineH = line(hNTCPAxis,x,y,'LineWidth',2,...
+                                guideLineH = line(hNTCPAxis,x,y,'LineWidth',1.5,...
                                     'Color',[239 197 57]/255,'LineStyle',':',...
                                     'Tag','guidelines','Visible','Off');
                             end
@@ -1027,12 +1031,16 @@ switch upper(command)
                                         ind = cgScaleV == cScaleV(cCount);
                                         cXv(cCount) = xV(ind);
                                         if p==ud.foreground
-                                            ud.cMarker = [ud.cMarker,plot(hNTCPAxis,cXv(cCount),...
-                                                cValV(cCount),'o','MarkerSize',8,'MarkerFaceColor',...
+                                            ud.cMarker = [ud.cMarker,...
+                                                plot(hNTCPAxis,cXv(cCount),...
+                                                cValV(cCount),'o',...
+                                                'MarkerSize',8,...
+                                                'MarkerFaceColor',...
                                                 'r','MarkerEdgeColor','k')];
                                         else
-                                            addMarker = scatter(hNTCPAxis,cXv(cCount),...
-                                                cValV(cCount),60,'MarkerFaceColor','r',...
+                                            addMarker = scatter(hNTCPAxis,...
+                                                cXv(cCount),cValV(cCount),...
+                                                60,'MarkerFaceColor','r',...
                                                 'MarkerEdgeColor','k');
                                             addMarker.MarkerFaceAlpha = .3;
                                             addMarker.MarkerEdgeAlpha = .3;
@@ -1082,13 +1090,13 @@ switch upper(command)
                             y = [0 1];
                             %Set criteria line transparency
                             if p==ud.foreground
-                                critLineH = line(hNTCPAxis,x,y,'LineWidth',1,...
-                                    'Color',[1 0 0],'LineStyle','--','Tag','criteria',...
-                                    'Visible','Off');
+                                critLineH = line(hNTCPAxis,x,y,'LineWidth',...
+                                    1,'Color',[1 0 0],'LineStyle','--',...
+                                    'Tag','criteria','Visible','Off');
                             else
-                                critLineH = line(hNTCPAxis,x,y,'LineWidth',2,...
-                                    'Color',[1 0 0 alpha],'LineStyle',':','Tag','criteria',...
-                                    'Visible','Off');
+                                critLineH = line(hNTCPAxis,x,y,'LineWidth',...
+                                    1.5,'Color',[1 0 0 alpha],'LineStyle',...
+                                    ':','Tag','criteria','Visible','Off');
                             end
                             critLineUdS.protocol = p;
                             critLineUdS.structure = structC{m};
@@ -1166,7 +1174,7 @@ switch upper(command)
                 'FontWeight','normal','FontSize',10.5,'AutoUpdate','off');
             
         end
-        
+    
         %Store userdata
         ud.handle.legend = legH;
         guidata(hFig,ud);
