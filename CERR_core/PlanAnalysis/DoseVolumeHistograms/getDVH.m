@@ -1,4 +1,4 @@
-function [dosesV, volsV, isError] = getDVH(structNum, doseNum, planC)
+function [dosesV, volsV, isError] = getDVH(structNum, doseNum, planC, varargin)
 %"getDVH"
 %   Returns DVH vectors for a specified structure and dose set, where
 %   dosesV is a vector of dose values at a voxel and volsV is a vector of
@@ -68,7 +68,7 @@ if sampleRate ~= 1
 end
 
 %Block process to avoid swamping on large structures
-if isfield(optS, 'DVHBlockSize') & ~isempty(optS.DVHBlockSize)
+if isfield(optS, 'DVHBlockSize') && ~isempty(optS.DVHBlockSize)
     DVHBlockSize = optS.DVHBlockSize;
 else
     DVHBlockSize = 5000;    
@@ -140,7 +140,7 @@ for b = 1 : blocks
   end
 
   %Interpolate.
-  [dosesSectionV] = getDoseAt(doseNum, x1V, y1V, z1V, planC);
+  [dosesSectionV] = getDoseAt(doseNum, x1V, y1V, z1V, planC, varargin{:});
 
   dosesV = [dosesV, dosesSectionV];
   volsV  = [volsV, volsSectionV];

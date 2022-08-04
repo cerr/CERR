@@ -353,21 +353,21 @@ switch fieldname
         dataS = '';
         
         refFrameOfReferenceSeq = attr.getValue(805699600);
-        if ~refFrameOfReferenceSeq.isempty()
+        if ~refFrameOfReferenceSeq.isEmpty
             refFrameOfReferenceSeq = refFrameOfReferenceSeq.get(0);
         else
             return
         end
         
         reRefStudySequence = refFrameOfReferenceSeq.getValue(805699602);
-        if ~reRefStudySequence.isempty()
+        if ~reRefStudySequence.isEmpty
             reRefStudySequence = reRefStudySequence.get(0);
         else
             return;
         end
         
         rtRefSeriesSequence = reRefStudySequence.getValue(805699604);
-        if ~rtRefSeriesSequence.isempty()
+        if ~rtRefSeriesSequence.isEmpty
             rtRefSeriesSequence = rtRefSeriesSequence.get(0);
         else
             return
