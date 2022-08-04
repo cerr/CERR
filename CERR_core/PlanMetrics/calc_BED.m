@@ -27,7 +27,23 @@ alpha = paramS.alpha.val;
 abRatio = paramS.abRatio.val;  %alpha/beta for tumor
 d = paramS.frxSize.val;
 n = paramS.numFractions.val;
-T = floor(n/5)*7 + mod(n,5);
+if isfield(paramS,'treatmentDays')
+    txDaysV = paramS.treatmentDays.val;
+    %Check for numeric input
+    if ~isnumeric(txDaysV)
+        txDaysV = str2num(txDaysV);
+    end
+    %Otherwise assume function specified
+    if isempty(txDaysV)
+        txDaysV = eval([txDaysV,'(',num2str(n),')']);
+    end
+    T = txDaysV(end);
+else
+    % Default: Compute length of treatment assuming one fraction every
+    % weekday with weekend breaks.
+    T = floor(n/5)*7 + mod(n,5);
+end
+
 
 
 %Compute BED
