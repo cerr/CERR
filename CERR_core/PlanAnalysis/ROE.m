@@ -338,6 +338,7 @@ switch upper(command)
                     'Yes','No',struct('Interpreter','tex','Default','Yes'));
                 if ~isempty(missingSel) && strcmp(missingSel,'Yes')
                     modelC(modNumV) = [];
+                    protocolS(p).model = modelC;
                 else
                     return
                 end
