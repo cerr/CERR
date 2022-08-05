@@ -17,14 +17,24 @@ function TCP = jeongLungTCPmodel(paramS,doseBinsV,volHistV)
 %----------------------------------------------------------------------------
 % AI 8/30/18
 
-%% Get frx size and treatment days
+%% Get fractionation 
 fx_in = paramS.frxSize.val;
-schedule_in = paramS.treatmentSchedule.val; 
-if ~isnumeric(schedule_in)
-    schedule_in = str2num(schedule_in);
-end
+nFrx = paramS.numFractions.val;
 
-%TBD: Extending schedule ased on no. fractions
+%% Get treatment days
+schedule_in = paramS.treatmentSchedule.val; 
+%Check for numeric input
+if ~isnumeric(schedule_in)
+    scheduleV = str2num(schedule_in);
+else
+    scheduleV = schedule_in;
+end
+%Otherwise, assume function specified
+if isempty(scheduleV)
+    scheduleV = eval([schedule_in,'(',num2str(nFrx),')']);
+    %scheduleV = getTreatmentSchedule(nFrx); %every weekday with weekend
+                                             %breaks
+end
 
 %% Input variables for the analysis
 alpha_p_ori=0.305; 
@@ -110,7 +120,7 @@ f_h=comp_size(3)/sum(comp_size);
 
 
 for d=fx_in
-    Treat_day=schedule_in;
+    Treat_day=scheduleV;
     
     %Cell cycle and dose-dependent radiosensitivity
     f = @(alpha_s)F_p_cyc(1)*exp(-Alpha_ratio_p_cyc(1)*alpha_s*2-...

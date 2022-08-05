@@ -7,6 +7,8 @@ function hTab = extractParamsROE(hFig,modelS,planC)
 ud = guidata(hFig);
 if isfield(ud,'currentPar')
     delete(ud.currentPar);
+    ud = rmfield(ud,'currentPar');
+    guidata(hFig,ud);
 end
 
 %Get parameter names

@@ -50,7 +50,9 @@ switch(sel)
         set(settingsH,'visible','off');
         settingsTabH = ud.handle.inputH(3);
         set(ud.modelTree,'visible',false);
-        set(ud.currentPar,'visible','off');
+        if isfield(ud,'currentPar')
+            set(ud.currentPar,'visible','off');
+        end
         set(settingsTabH,'backgroundcolor',bkgColorOff,'foregroundColor',...
             fgColorOff,'value',0);
         

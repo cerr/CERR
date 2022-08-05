@@ -38,7 +38,7 @@ else
     doseName  = planC{indexS.DVH}(DVHNum).fractionIDOfOrigin;
 end
 
-structNum = getStructNum(struct,planC,indexS);
+structNum = getAssociatedStr(planC{indexS.DVH}(DVHNum).assocStrUID);
 
 if ~isempty(planC{indexS.DVH}(DVHNum).DVHMatrix)
 
@@ -101,7 +101,8 @@ if ~isempty(planC{indexS.DVH}(DVHNum).DVHMatrix)
     end
 
     set(hAxis,'nextplot','add')
-    structNum = getStructNum(struct,planC,indexS);
+    %structNum = getStructNum(struct,planC,indexS);
+    structNum = getAssociatedStr(planC{indexS.DVH}(DVHNum).assocStrUID);
 
     if structNum ~= 0
         %colorV = getColor(structNum, optS.colorOrder);
