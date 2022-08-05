@@ -274,7 +274,8 @@ hFig = get(hAxis, 'parent');
 
 struct    = planC{indexS.DVH}(DVHNum).structureName;
 doseName  = planC{indexS.DVH}(DVHNum).fractionIDOfOrigin;
-structNum = getStructNum(struct,planC,indexS);
+%structNum = getStructNum(struct,planC,indexS);
+structNum = getAssociatedStr(planC{indexS.DVH}(DVHNum).assocStrUID);
 
 %If no dose, cant calculate a DSH.
 if isempty(doseSet)
