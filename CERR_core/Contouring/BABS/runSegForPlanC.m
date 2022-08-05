@@ -1,12 +1,13 @@
-function planC = runSegForPlanC(planC,clientSessionPath,algorithm,sshConfigFile,hWait,varargin)
-% function planC = runSegForPlanC(planC,clientSessionPath,algorithm,SSHkeyPath,serverSessionPath,varargin)
-%
+function planC = runSegForPlanC(planC,clientSessionPath,algorithm,...
+                 sshConfigFile,hWait,varargin)
+% function planC = runSegForPlanC(planC,clientSessionPath,algorithm,...
+%                  SSHkeyPath,serverSessionPath,varargin)
 % This function serves as a wrapper for different types of segmentations.
 %--------------------------------------------------------------------------
 % INPUTS:
-% planC - CERR's planC object.
+% planC       - planC 
 % sessionPath - path to write temporary segmentation metadata.
-% algorithm - string which specifies segmentation algorith
+% algorithm   - string which specifies segmentation algorith
 % --Optional inputs---
 % varargin{1}: Path to segmentation container 
 % varargin{2}: Scan no. (replaces scan identifier)
@@ -24,10 +25,9 @@ function planC = runSegForPlanC(planC,clientSessionPath,algorithm,sshConfigFile,
 % sessionPath = '/path/to/session/dir';
 % algorithm = 'CT_Heart_DeepLab';
 % success = runSegClinic(inputDicomPath,outputDicomPath,sessionPath,algorithm);
-%
+%--------------------------------------------------------------------------
 % APA, 06/10/2019
 % RKP, 09/18/19 Updates for compatibility with training pipeline
-
 
 %% Create session directory to write segmentation metadata
 
@@ -35,19 +35,7 @@ global stateS
 
 indexS = planC{end};
 
-% % Use series uid in temporary folder name
-% if isfield(stateS,'scanSet') && ~isempty(stateS.scanSet)
-%     scanNum = stateS.scanSet;
-% else
-%     scanNum = 1;
-% end
-% if isfield(planC{indexS.scan}(scanNum).scanInfo(1),'seriesInstanceUID') && ...
-%         ~isempty(planC{indexS.scan}(scanNum).scanInfo(1).seriesInstanceUID)
-%     folderNam = planC{indexS.scan}(scanNum).scanInfo(1).seriesInstanceUID;
-% else
-%     folderNam = dicomuid;
-% end
-% Create folderName with uid
+%% Use series uid in temporary folder name
 folderNam = char(javaMethod('createUID','org.dcm4che3.util.UIDUtils'));
 dateTimeV = clock;
 randNum = 1000.*rand;
@@ -81,6 +69,8 @@ else
     skipMaskExport = true;
 end
 
+cmdFlag = 'singcontainer';
+
 %% Run segmentation algorithm
 
 % Parse algorithm and convert to cell arrray
@@ -101,71 +91,19 @@ if length(algorithmC) > 1 || ...
     end
     
     for k=1:length(algorithmC)
-        
-        %Get the config file path
-        configFilePath = fullfile(getCERRPath,'ModelImplementationLibrary',...
-            'SegmentationModels', 'ModelConfigurations',...
-            [algorithmC{k}, '_config.json']);
-        
-        %Read config file
-        userOptS = readDLConfigFile(configFilePath);
-        
-        %Delete previous inputs where needed
-        modelFmt = userOptS.modelInputFormat;
-        modInputPath = fullfile(fullClientSessionPath,['input',modelFmt]);
-        modOutputPath = fullfile(fullClientSessionPath,['output',modelFmt]);
-        if exist(modInputPath, 'dir')
-            rmdir(modInputPath, 's')            
-        end
-        mkdir(modInputPath);
-        if exist(modOutputPath, 'dir')
-            rmdir(modOutputPath, 's')            
-        end
-        mkdir(modOutputPath);
 
-        
-        %Copy config file to session dir
-        copyfile(configFilePath,fullClientSessionPath);
-        
         if nargin==7 && ~isnan(varargin{2})
             scanNum = varargin{2};
         else
             scanNum = [];
         end
-        
-        %Pre-process data
-        if ishandle(hWait)
-            waitbar(0.1,hWait,'Extracting scan and mask');
-        end
-        [scanC, maskC, scanNumV, userOptS, coordInfoS, planC] = ...
-            extractAndPreprocessDataForDL(userOptS,planC,skipMaskExport,scanNum);
-        %Note: mask3M is empty for testing
-        
-        if ishandle(hWait)
-            waitbar(0.2,hWait,'Segmenting structures...');
-        end
-        
-        %Export scans to model input format
-        scanOptS = userOptS.scan;
-        passedScanDim = userOptS.passedScanDim;
-        filePrefixForHDF5 = 'cerrFile';
-        
-        %Loop over scans
-        for nScan = 1:length(scanOptS)
-            
-            %Append identifiers to o/p name
-            idOut = getOutputFileNameForDL(filePrefixForHDF5,scanOptS(nScan),...
-                scanNumV(nScan),planC);
-            
-            %Get o/p dirs and dim
-            outDirC = getOutputH5Dir(modInputPath,scanOptS(nScan),'');
-            
-            %Write to model i/p fmt
-            writeDataForDL(scanC{nScan},maskC{nScan},coordInfoS,...
-                passedScanDim,modelFmt,outDirC,idOut,skipMaskExport);
-            
-        end
-        
+
+        %Prepare data for segmentation
+        [activate_cmd,run_cmd,userOptS,~,scanNumV,planC] = ...
+            prepDataForSeg(planC, fullClientSessionPath ,algorithmC(k), ...
+            cmdFlag,containerPathC{k},{},skipMaskExport,scanNum);
+    
+
         %Flag indicating if container runs on client or remote server
         if ishandle(hWait)
             wbch = allchild(hWait);
@@ -178,7 +116,7 @@ if length(algorithmC) > 1 || ...
             containerPathC{k}, fullClientSessionPath, sshConfigS,...
             userOptS.batchSize); % different workflow for client or session
         
-        %%% =========== common for client and server
+        %% common for client and server
         roiDescrpt = '';
         if isfield(userOptS,'roiGenerationDescription')
             roiDescrpt = userOptS.roiGenerationDescription;
@@ -186,44 +124,19 @@ if length(algorithmC) > 1 || ...
         roiDescrpt = [roiDescrpt, '  __git_hash:',gitHash];
         userOptS.roiGenerationDescription = roiDescrpt;
         
-        %Read mask files
+        %% Import segmentations
         if ishandle(hWait)
-            waitbar(0.9,hWait,'Writing segmentation results to CERR');
+            waitbar(0.9,hWait,'Importing segmentation results to CERR');
         end
-        outFmt = userOptS.modelOutputFormat;
-        passedScanDim = userOptS.passedScanDim;
-        outC = stackDLMaskFiles(fullClientSessionPath,outFmt,passedScanDim);
-        
-        %Import masks to planC
-        identifierS = userOptS.structAssocScan.identifier;
-        if ~isempty(userOptS.structAssocScan.identifier)
-            origScanNum = getScanNumFromIdentifiers(identifierS,planC);
-        else
-            origScanNum = 1; %Assoc with the "only" scan by default
-        end
-        outScanNum = scanNumV(origScanNum);
-        userOptS.scan(outScanNum) = userOptS.scan(origScanNum);
-        userOptS.scan(outScanNum).origScan = origScanNum;
-        planC  = joinH5planC(outScanNum,outC{1},labelPath,userOptS,planC);
 
-        % Post-process segmentation
-        planC = postProcStruct(planC,userOptS);
-        
-        % Delete intermediate (resampled) scans if any
-        scanListC = arrayfun(@(x)x.scanType, planC{indexS.scan},'un',0);
-        resampScanName = ['Resamp_scan',num2str(origScanNum)];
-        matchIdxV = ismember(scanListC,resampScanName);
-        if any(matchIdxV)
-            deleteScanNum = find(matchIdxV);
-            planC = deleteScan(planC,deleteScanNum);
-        end
-        
+        planC = processAndImportSeg(planC,scanNumV,...
+            fullClientSessionPath,userOptS);
     end
 
     if ishandle(hWait)
         close(hWait);
     end
-    
+
 else %'BABS'
     
     babsPath = varargin{1};
