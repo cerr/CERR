@@ -480,7 +480,8 @@ switch upper(command)
             end
 
             %Get color for this structure.
-            structNum = getStructNum(strName,planC,indexS);
+            %structNum = getStructNum(strName,planC,indexS);
+            structNum = getAssociatedStr(planC{indexS.IVH}(indIVH).assocStrUID);
             if structNum ~= 0
                 colorNum = structNum;
                 BGColor = planC{indexS.structures}(colorNum).structureColor;

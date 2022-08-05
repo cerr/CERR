@@ -24,16 +24,19 @@
 			"val": 0.35,
 			"type": ["cont"]
 					
-		}
+		},
 
+        "treatmentDays":{
+				"val": [1, 5, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25],
+				"type": ["Cont"]
                              
 			
 	 },
-        "criteriaFile":"LungCriteria_15x4.json",
+    "criteriaFile":"LungCriteria_15x4.json",
 	"function": "calc_BED",
 	"created_by": "Aditi",
 	"created_at": "10AM 3\/26\/18",
 	"modified_by": "",
 	"modified_at": "",
-	"UID": "outcomeModels.calc_BED.762017.94913.609.751.2671"
+	"UID": "outcomeModels.calc_BED.482022.94913.609.751.2671"
 }

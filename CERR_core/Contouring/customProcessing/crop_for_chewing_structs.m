@@ -39,6 +39,13 @@ headSizLimit = paramS.headSizeLimitCm;
 zDiffV = (zV-zStart);
 [~, endSlc] = min(abs(zDiffV-headSizLimit));
 endSlc = endSlc + mins;
+if maxs<endSlc
+    SIextent = zV(maxs) - zV(mins);
+    warning(['Input scan S-I extent = %g cm. Model performance on',...
+        ' cropped scans (S-I extent < %g cm) is untested.'],...
+        SIextent,headSizLimit);
+    endSlc = min(endSlc,maxs);
+end
 
 %% Get A,P extents 
 minrV = nan(size(outerMask3M,3),1);

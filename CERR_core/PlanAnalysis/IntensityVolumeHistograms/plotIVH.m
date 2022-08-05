@@ -118,7 +118,8 @@ for i = 1 : length(volV)
     IVHNum  = i;
     scanSet = getAssociatedScan(planC{indexS.IVH}(i).assocScanUID);
     str = planC{indexS.IVH}(i).structureName;
-    structNum = getStructNum(str,planC,indexS);
+    %structNum = getStructNum(str,planC,indexS);
+    structNum = getAssociatedStr(planC{indexS.DVH}(i).assocStrUID);
     if surfV(i)
         if structNum ~= 0
             sNames = {planC{indexS.IVH}.structureName};
@@ -189,7 +190,9 @@ hFig = get(hAxis, 'parent');
 
 struct    = planC{indexS.IVH}(IVHNum).structureName;
 scanName  = planC{indexS.IVH}(IVHNum).scanType;
-structNum = getStructNum(struct,planC,indexS);
+%structNum = getStructNum(struct,planC,indexS);
+structNum = getAssociatedStr(planC{indexS.DVH}(IVHNum).assocStrUID);
+
 
 %If no scan, cant calculate a DSH.
 if isempty(scanSet)
@@ -328,7 +331,8 @@ struct = planC{indexS.IVH}(IVHNum).structureName;
 
 scanName  = planC{indexS.IVH}(IVHNum).scanType;
 
-structNum = getStructNum(struct,planC,indexS);
+%structNum = getStructNum(struct,planC,indexS);
+structNum = getAssociatedStr(planC{indexS.IVH}(IVHNum).assocStrUID);
 
 if ~isempty(planC{indexS.IVH}(IVHNum).IVHMatrix)
 
@@ -399,7 +403,8 @@ if ~isempty(planC{indexS.IVH}(IVHNum).IVHMatrix)
     end    
     
     set(hAxis,'nextplot','add')
-    structNum = getStructNum(struct,planC,indexS);
+    %structNum = getStructNum(struct,planC,indexS);
+    structNum = getAssociatedStr(planC{indexS.IVH}(IVHNum).assocStrUID);
 
     if structNum ~= 0
         %colorV = getColor(structNum, optS.colorOrder);

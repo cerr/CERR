@@ -93,7 +93,8 @@ else
             start = (k-1)*8 + 1;
             
             if ud.plotMode==3
-                scDisp = ['Current fraction size: ',num2str(frxSize),' Gy'];
+                scDisp = sprintf(['Current scale factor: ',num2str(lscale),...
+                '\nCurrent fraction size: ',num2str(frxSize),' Gy']);
             else
                 scDisp = ['Last safe fraction no.: ',num2str(numFrx)];
                 %scDisp = ['Current fraction no.: ',num2str(numFrx)];
@@ -141,7 +142,8 @@ else
             start = k0 + (k-1)*8 + 1;
             
             if ud.plotMode==3
-                scDisp = ['Current fraction size: ',num2str(frxSize)];
+                scDisp = sprintf(['Current scale factor: ',num2str(lscale),...
+                    '\nCurrent fraction size: ',num2str(frxSize),' Gy']);
                 if strcmpi(yDisp,'BED')
                     last = ['Current ',yDisp,': ',num2str(yVal),' Gy'];
                 else
