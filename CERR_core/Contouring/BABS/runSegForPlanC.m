@@ -72,14 +72,14 @@ end
 
 
 %Parse algorithm and convert to cell array
-algorithmC = split(algorithm,'^');
+algorithmC = strsplit(algorithm,'^');
 
 if length(algorithmC) > 1 || ...
         (length(algorithmC)==1 && ~strcmpi(algorithmC,'BABS'))
     containerPathC = varargin{1};
     % Parse container path and convert to cell arrray
     if iscell(containerPathC)
-        containerPathC = split(containerPathC,'^');
+        containerPathC = strsplit(containerPathC,'^');
     else
         containerPathC = {containerPathC};
     end
