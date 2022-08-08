@@ -51,9 +51,10 @@ end
 
 if exist('userCmdFile','var') && exist(userCmdFile,'file')
     usrFileC = file2cell(userCmdFile);
-    matchIdxC = cellfun(@(x)contains(x,'xform_out='),usrFileC,'un',0);
-    matchIdxV = [matchIdxC{:}];
-    if ~isempty(matchIdxV)
+    %matchIdxC = cellfun(@(x)contains(x,'xform_out='),usrFileC,'un',0);    
+    %matchIdxV = [matchIdxC{:}];
+    matchIdxV = ~cellfun(@isempty,strfind(usrFileC,'xform_out='));
+    if any(matchIdxV)
         inFileName = usrFileC{matchIdxV};
         fnameC = strsplit(inFileName,'xform_out=');
         [~,~,ext] = fileparts(fnameC{2});
