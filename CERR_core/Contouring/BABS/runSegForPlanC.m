@@ -70,6 +70,10 @@ else
     skipMaskExport = true;
 end
 
+% Set flag for recursive directory removal in GNU Octave
+if isempty(getMLVersion)
+    confirm_recursive_rmdir(0)
+end
 
 %Parse algorithm and convert to cell array
 algorithmC = strsplit(algorithm,'^');
