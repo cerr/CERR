@@ -1,6 +1,6 @@
 function [activate_cmd,run_cmd,userOptS,outFile,scanNumV,planC] = ...
     prepDataForSeg(planC,fullSessionPath,algorithm,cmdFlag,containerPath,...
-    wrapperFunction,skipMaskExport)
+    wrapperFunction,skipMaskExport,scanNumV)
 % [activate_cmd,run_cmd,userOptS,outFile,scanNumV,planC] =
 % prepDataForSeg(planC,sessionPath,algorithm,cmdFlag,containerPath,...
 % wrapperFunction,batchSize)
@@ -8,12 +8,12 @@ function [activate_cmd,run_cmd,userOptS,outFile,scanNumV,planC] = ...
 % This wrapper prepares data for DL-based segmentation
 % -------------------------------------------------------------------------
 % INPUTS:
-% planC
+% planC        -  planC OR path to dir containing CERR files.
 % sessionPath  -  Directory for writitng temporary segmentation metadata.
 % algorithm    -  Algorthim name. For full list, see:
 %                 https://github.com/cerr/CERR/wiki/Auto-Segmentation-models.
 %cmdFlag       -  "condaEnv" or "singContainer"
-%containerPath -  * If cmdFlag is "condaEnv": containerPath must be a string 
+%containerPath -  * If cmdFlag is "condaEnv": containerPath must be a string
 %                 containing the absolute path to a conda environment.
 %                 If env name is provided, the location of conda installation
 %                 must be defined in CERROptions.json (e.g. "condaPath" :
@@ -22,8 +22,8 @@ function [activate_cmd,run_cmd,userOptS,outFile,scanNumV,planC] = ...
 %                 "activate".
 %                 Note: CondaEnv is obtained from getSegWrapperFunc if not
 %                 specified or empty.
-%                 * If cmdFlag is "singContainer": containerPath must be a  
-%                 string containing the absolute path to a singularity 
+%                 * If cmdFlag is "singContainer": containerPath must be a
+%                 string containing the absolute path to a singularity
 %                 container.
 % wrapperFunction (optional)
 %              - String containing absolute path of wrapper function.
@@ -32,6 +32,8 @@ function [activate_cmd,run_cmd,userOptS,outFile,scanNumV,planC] = ...
 % skipMaskExport (optional)
 %              - Set to false if model requires segmentation masks as input.
 %                Default: true.
+% scanNumV (optional)
+%              - Vector of scan nos. Default: Use scan identifiers from optS. 
 %--------------------------------------------------------------------------------
 % AI, 09/21/2021
 
@@ -79,7 +81,7 @@ userOptS = readDLConfigFile(configFilePath);
 copyfile(configFilePath,fullSessionPath);
 
 %Get batch size
-batchSize = userOptS.batchSize; 
+batchSize = userOptS.batchSize;
 
 %Clear previous contents of session dir
 modelFmt = userOptS.modelInputFormat;
@@ -94,38 +96,40 @@ if exist(modOutputPath, 'dir')
 end
 mkdir(modOutputPath);
 
-% Pre-process and export data to HDF5 format
-fprintf('\nPre-processing data...\n');
-[scanC, maskC, scanNumV, userOptS, coordInfoS, planC] = ...
-    extractAndPreprocessDataForDL(userOptS,planC,skipMaskExport);
-%Note: mask3M is empty for testing
 
-%Export to model input format
-tic
-fprintf('\nWriting to %s format...\n',modelFmt);
-filePrefixForHDF5 = 'cerrFile';
-passedScanDim = userOptS.passedScanDim;
-scanOptS = userOptS.scan;
+%% Pre-process data and export to model input fmt
+if iscell(planC)
+    scanNumV = processAndExportScans(userOptS,planC,skipMaskExport,...
+               modelFmt,modInputPath,scanNumV);
+else
+    cerrFilePath = planC;
+    planCfiles = dir(fullfile(cerrFilePath,'*.mat'));
 
-%Loop over scan types
-for nScan = 1:size(scanC,1)
-    
-    %Append identifiers to o/p name
-    idOut = getOutputFileNameForDL(filePrefixForHDF5,scanOptS(nScan),...
-        scanNumV(nScan),planC);
-    
-    %Get o/p dirs & dim
-    outDirC = getOutputH5Dir(modInputPath,scanOptS(nScan),'');
-    
-    %Write to model input fmt
-    writeDataForDL(scanC{nScan},maskC{nScan},coordInfoS,passedScanDim,...
-        modelFmt,outDirC,idOut,skipMaskExport);
+    for p=1:length(planCfiles)
+
+        % Load plan
+        planCfiles(p).name
+        fileNam = fullfile(planCfiles(p).folder,planCfiles(p).name);
+        planC = loadPlanC(fileNam, tempdir);
+        planC = quality_assure_planC(fileNam,planC);
+
+        %Pre-process data and export to model input fmt
+        scanNumV = processAndExportScans(userOptS,planC,skipMaskExport,...
+                   modelFmt,modInputPath,scanNumV);
+
+        %Save updated planC file
+        tic
+        save_planC(planC,[],'PASSED',fileNam);
+        toc
+
+    end
+    planC = cerrFilePath;
 end
 
 %% Get run cmd
 % Get wrapper functions if using conda env
 switch lower(cmdFlag)
-    
+
     case 'condaenv'
         if ~iscell(containerPath)
             condaEnvC = {containerPath};
@@ -135,7 +139,7 @@ switch lower(cmdFlag)
         if ~exist('wrapperFunction','var') || isempty(wrapperFunction)
             wrapperFunction = getSegWrapperFunc(condaEnvC,algorithmC);
         end
-        
+
         pth = getenv('PATH');
         condaBinPath = fullfile(condaPath,'condabin;');
         if ~isempty(strfind(condaEnvC{1},filesep)) %contains(condaEnv,filesep)
@@ -144,7 +148,7 @@ switch lower(cmdFlag)
         else
             condaEnvPath = fullfile(condaPath,'envs',condaEnvC{1});
         end
-        
+
         newPth = [condaBinPath,pth];
         setenv('PATH',newPth)
         if ispc
@@ -155,7 +159,7 @@ switch lower(cmdFlag)
         end
         run_cmd = sprintf('python %s %s %s %s"',wrapperFunction{1}, modInputPath,...
             modOutputPath,num2str(batchSize));
-        
+
         %% Create script to call segmentation wrappers
         [uniqName,~] = genScanUniqName(planC, scanNumV(1));
         outFile = fullfile(segScriptPath,[uniqName,'.sh']);
@@ -167,7 +171,7 @@ switch lower(cmdFlag)
         fclose(fid);
 
     case 'singcontainer'
-        
+
         activate_cmd = '';
         outFile = '';
         %Get the bind path for the container
@@ -176,9 +180,41 @@ switch lower(cmdFlag)
         %Run container app
         run_cmd = sprintf('singularity run --app %s --nv --bind  %s %s %s',...
             algorithmC{1}, bindPath, containerPath, num2str(userOptS.batchSize));
-        
+
 end
 
+
+%% --- Supporting functions---
+    function scanNumV = processAndExportScans(userOptS,planC,skipMaskExport,...
+            modelFmt,modInputPath,scanNumV)
+        %Pre-process data and export to model input fmt
+        fprintf('\nPre-processing data...\n');
+        [scanC, maskC, scanNumV, userOptS, coordInfoS, planC] = ...
+            extractAndPreprocessDataForDL(userOptS,planC,skipMaskExport,...
+            scanNumV);
+
+        %Export to model input format
+        tic
+        fprintf('\nWriting to %s format...\n',modelFmt);
+        filePrefixForHDF5 = 'cerrFile';
+        passedScanDim = userOptS.passedScanDim;
+        scanOptS = userOptS.scan;
+
+        %Loop over scan types
+        for nScan = 1:size(scanC,1)
+
+            %Append identifiers to o/p name
+            idOut = getOutputFileNameForDL(filePrefixForHDF5,scanOptS(nScan),...
+                scanNumV(nScan),planC);
+
+            %Get o/p dirs & dim
+            outDirC = getOutputH5Dir(modInputPath,scanOptS(nScan),'');
+
+            %Write to model input fmt
+            writeDataForDL(scanC{nScan},maskC{nScan},coordInfoS,passedScanDim,...
+                modelFmt,outDirC,idOut,skipMaskExport);
+        end
+    end
 
 
 end
