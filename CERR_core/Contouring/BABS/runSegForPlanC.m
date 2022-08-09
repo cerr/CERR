@@ -174,6 +174,10 @@ if length(algorithmC) > 1 || ...
             else
                 dcmExportOptS = dissimilarInsert(dcmExportOptS,userOptS.dicomExportOptS);
             end
+        else
+            if ~exist('dcmExportOptS','var')
+                dcmExportOptS = [];
+            end
         end
 
     end
