@@ -34,8 +34,6 @@ function [planC,allLabelNamesC,dcmExportOptS] = runSegForPlanC(planC,...
 
 global stateS
 
-indexS = planC{end};
-
 %% Use series uid in temporary folder name
 folderNam = char(javaMethod('createUID','org.dcm4che3.util.UIDUtils'));
 dateTimeV = clock;
@@ -172,7 +170,8 @@ if length(algorithmC) > 1 || ...
             if isempty(dcmExportOptS)
                 dcmExportOptS = userOptS.dicomExportOptS;
             else
-                dcmExportOptS = dissimilarInsert(dcmExportOptS,userOptS.dicomExportOptS);
+                dcmExportOptS = dissimilarInsert(dcmExportOptS,...
+                                userOptS.dicomExportOptS);
             end
         else
             if ~exist('dcmExportOptS','var')
@@ -189,10 +188,12 @@ if length(algorithmC) > 1 || ...
 else %'BABS'
     
     babsPath = varargin{1};
-    success = babsSegmentation(cerrPath,fullClientSessionPath,babsPath,segResultCERRPath);
+    success = babsSegmentation(cerrPath,fullClientSessionPath,babsPath,...
+              segResultCERRPath);
     
     % Read segmentation from segResultCERRRPath to display in viewer
     segFileName = fullfile(segResultCERRPath,'cerrFile.mat');
+    indexS = planC{end};
     planD = loadPlanC(segFileName);
     indexSD = planD{end};
     scanIndV = 1;
