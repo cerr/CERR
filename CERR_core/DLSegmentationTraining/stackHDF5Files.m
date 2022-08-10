@@ -1,4 +1,4 @@
-function outC = stackHDF5Files(outPath,passedScanDim)
+function [outC,ptListC] = stackHDF5Files(outPath,passedScanDim)
 % stackHDF5Files.m
 %
 % Reads .H5 files with mask slices and returns 3D stacks
