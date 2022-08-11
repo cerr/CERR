@@ -1,14 +1,18 @@
 function [planC,allLabelNamesC,dcmExportOptS] = runSegForPlanC(planC,...
-         clientSessionPath,algorithm,cmdFlag,sshConfigFile,hWait,varargin)
-% function planC = runSegForPlanC(planC,clientSessionPath,algorithm,...
-%                  SSHkeyPath,serverSessionPath,varargin)
+         clientSessionPath,algorithm,cmdFlag,newSessionFlag,sshConfigFile,...
+         hWait,varargin)
+%function [planC,allLabelNamesC,dcmExportOptS] = runSegForPlanC(planC,...
+%         clientSessionPath,algorithm,cmdFlag,newSessionFlag,sshConfigFile,...
+%         hWait,varargin)
 % This function serves as a wrapper for different types of segmentations.
 %--------------------------------------------------------------------------
 % INPUTS:
-% planC       - planC 
-% sessionPath - path to write temporary segmentation metadata.
-% algorithm   - string which specifies segmentation algorith
-% cmdFlag     - "condaEnv" or "singContainer"
+% planC             : planC 
+% clientSessionPath : path to write temporary segmentation metadata.
+% algorithm         : string which specifies segmentation algorithm
+% cmdFlag           : "condaEnv" or "singContainer"
+% newSessionFlag    : Set to false to use existing session dir
+%                     (default:true).
 % --Optional inputs---
 % varargin{1}: Path to segmentation container OR conda env
 % varargin{2}: Scan no. (replaces scan identifier)
@@ -34,35 +38,42 @@ function [planC,allLabelNamesC,dcmExportOptS] = runSegForPlanC(planC,...
 
 global stateS
 
-%% Use series uid in temporary folder name
-folderNam = char(javaMethod('createUID','org.dcm4che3.util.UIDUtils'));
-dateTimeV = clock;
-randNum = 1000.*rand;
-sessionDir = ['session',folderNam,num2str(dateTimeV(4)), num2str(dateTimeV(5)),...
-    num2str(dateTimeV(6)), num2str(randNum)];
+%% Create session dir
+if newSessionFlag
+    folderNam = char(javaMethod('createUID','org.dcm4che3.util.UIDUtils'));
+    dateTimeV = clock;
+    randNum = 1000.*rand;
+    sessionDir = ['session',folderNam,num2str(dateTimeV(4)), num2str(dateTimeV(5)),...
+        num2str(dateTimeV(6)), num2str(randNum)];
 
-fullClientSessionPath = fullfile(clientSessionPath,sessionDir);
-sshConfigS = [];
-if ~isempty(sshConfigFile)
-    sshConfigS = jsondecode(fileread(sshConfigFile));
-    fullServerSessionPath = fullfile(clientSessionPath,sessionDir);
-    sshConfigS.fullServerSessionPath = fullServerSessionPath;
+    fullClientSessionPath = fullfile(clientSessionPath,sessionDir);
+    sshConfigS = [];
+    if ~isempty(sshConfigFile)
+        sshConfigS = jsondecode(fileread(sshConfigFile));
+        fullServerSessionPath = fullfile(clientSessionPath,sessionDir);
+        sshConfigS.fullServerSessionPath = fullServerSessionPath;
+    end
+
+    %Create sub-directories
+    %-For CERR files
+    mkdir(fullClientSessionPath)
+    cerrPath = fullfile(fullClientSessionPath,'dataCERR');
+    mkdir(cerrPath)
+    outputCERRPath = fullfile(fullClientSessionPath,'segmentedOrigCERR');
+    mkdir(outputCERRPath)
+    segResultCERRPath = fullfile(fullClientSessionPath,'segResultCERR');
+    mkdir(segResultCERRPath)
+    %-For structname-to-label map
+    labelPath = fullfile(fullClientSessionPath,'outputLabelMap');
+    mkdir(labelPath);
+else
+    fullClientSessionPath = clientSessionPath;
+    cerrPath = fullfile(fullClientSessionPath,'dataCERR');
+    segResultCERRPath = fullfile(fullClientSessionPath,'segResultCERR');
+    labelPath = fullfile(fullClientSessionPath,'outputLabelMap');
 end
 
-%% Create sub-directories  
-%-For CERR files
-mkdir(fullClientSessionPath)
-cerrPath = fullfile(fullClientSessionPath,'dataCERR');
-mkdir(cerrPath)
-outputCERRPath = fullfile(fullClientSessionPath,'segmentedOrigCERR');
-mkdir(outputCERRPath)
-segResultCERRPath = fullfile(fullClientSessionPath,'segResultCERR');
-mkdir(segResultCERRPath)
-%-For structname-to-label map
-labelPath = fullfile(fullClientSessionPath,'outputLabelMap');
-mkdir(labelPath);
-
-if nargin>=8
+if nargin>=9
     skipMaskExport = varargin{3};
 else
     skipMaskExport = true;
@@ -98,16 +109,18 @@ if length(algorithmC) > 1 || ...
     allLabelNamesC = {};
     for k=1:length(algorithmC)
 
-        if nargin==8 && ~isnan(varargin{2})
+        if nargin==9 && ~isnan(varargin{2})
             scanNum = varargin{2};
         else
             scanNum = [];
         end
 
+        createSessionFlag = false;
         %Pre-process data for segmentation
         [activate_cmd,run_cmd,userOptS,~,scanNumV,planC] = ...
             prepDataForSeg(planC, fullClientSessionPath ,algorithmC(k), ...
-            cmdFlag,containerPathC{k},{},skipMaskExport,scanNum);
+            cmdFlag,createSessionFlag,containerPathC{k},{},skipMaskExport,...
+            scanNum);
     
         %Flag indicating if container runs on client or remote server
         if ishandle(hWait)
