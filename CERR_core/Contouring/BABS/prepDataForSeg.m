@@ -1,6 +1,6 @@
 function [activate_cmd,run_cmd,userOptS,outFile,scanNumV,planC] = ...
-    prepDataForSeg(planC,fullSessionPath,algorithm,cmdFlag,containerPath,...
-    wrapperFunction,skipMaskExport,scanNumV)
+    prepDataForSeg(planC,fullSessionPath,algorithm,cmdFlag,newSessionFlag,...
+    containerPath,wrapperFunction,skipMaskExport,scanNumV)
 % [activate_cmd,run_cmd,userOptS,outFile,scanNumV,planC] =
 % prepDataForSeg(planC,sessionPath,algorithm,cmdFlag,containerPath,...
 % wrapperFunction,batchSize)
@@ -12,8 +12,9 @@ function [activate_cmd,run_cmd,userOptS,outFile,scanNumV,planC] = ...
 % sessionPath  -  Directory for writitng temporary segmentation metadata.
 % algorithm    -  Algorthim name. For full list, see:
 %                 https://github.com/cerr/CERR/wiki/Auto-Segmentation-models.
-%cmdFlag       -  "condaEnv" or "singContainer"
-%containerPath -  * If cmdFlag is "condaEnv": containerPath must be a string
+% cmdFlag       -  "condaEnv" or "singContainer"
+% newSessionFlag- Set to false to use existing dir (default: true).
+% containerPath -  * If cmdFlag is "condaEnv": containerPath must be a string
 %                 containing the absolute path to a conda environment.
 %                 If env name is provided, the location of conda installation
 %                 must be defined in CERROptions.json (e.g. "condaPath" :
@@ -41,17 +42,19 @@ function [activate_cmd,run_cmd,userOptS,outFile,scanNumV,planC] = ...
 %fullSessionPath = createSessionForDLSeg(sessionPath,planC);
 
 %% Create sub-directories
-%-For CERR files
-mkdir(fullSessionPath)
-cerrPath = fullfile(fullSessionPath,'dataCERR');
-mkdir(cerrPath)
-outputCERRPath = fullfile(fullSessionPath,'segmentedOrigCERR');
-mkdir(outputCERRPath)
-segResultCERRPath = fullfile(fullSessionPath,'segResultCERR');
-mkdir(segResultCERRPath)
-%-For structname-to-label map
-labelPath = fullfile(fullSessionPath,'outputLabelMap');
-mkdir(labelPath);
+if newSessionFlag
+    %-For CERR files
+    mkdir(fullSessionPath)
+    cerrPath = fullfile(fullSessionPath,'dataCERR');
+    mkdir(cerrPath)
+    outputCERRPath = fullfile(fullSessionPath,'segmentedOrigCERR');
+    mkdir(outputCERRPath)
+    segResultCERRPath = fullfile(fullSessionPath,'segResultCERR');
+    mkdir(segResultCERRPath)
+    %-For structname-to-label map
+    labelPath = fullfile(fullSessionPath,'outputLabelMap');
+    mkdir(labelPath);
+end
 %-For shell script
 segScriptPath = fullfile(fullSessionPath,'segScript');
 mkdir(segScriptPath)
@@ -99,23 +102,26 @@ mkdir(modOutputPath);
 
 %% Pre-process data and export to model input fmt
 if iscell(planC)
-    scanNumV = processAndExportScans(userOptS,planC,skipMaskExport,...
-               modelFmt,modInputPath,scanNumV);
+    filePrefixForHDF5 = 'cerrFile';
+    scanNumV = processAndExportScans(userOptS,planC,scanNumV,modelFmt,...
+               modInputPath,filePrefixForHDF5,skipMaskExport);
 else
     cerrFilePath = planC;
-    planCfiles = dir(fullfile(cerrFilePath,'*.mat'));
+    planCfileS = dir(fullfile(cerrFilePath,'*.mat'));
+    planCfiles = {planCfileS.name};
 
-    for p=1:length(planCfiles)
+    for nFile=1:length(planCfileS)
 
         % Load plan
-        planCfiles(p).name
-        fileNam = fullfile(planCfiles(p).folder,planCfiles(p).name);
+        [~,ptName,~] = fileparts(planCfiles{nFile});
+        fileNam = fullfile(cerrFilePath,planCfiles{nFile});
         planC = loadPlanC(fileNam, tempdir);
         planC = quality_assure_planC(fileNam,planC);
 
         %Pre-process data and export to model input fmt
-        scanNumV = processAndExportScans(userOptS,planC,skipMaskExport,...
-                   modelFmt,modInputPath,scanNumV);
+        filePrefixForHDF5 = ['cerrFile_',ptName];
+        scanNumV = processAndExportScans(userOptS,planC,scanNumV,modelFmt,...
+                   modInputPath,filePrefixForHDF5,skipMaskExport);
 
         %Save updated planC file
         tic
@@ -185,8 +191,10 @@ end
 
 
 %% --- Supporting functions---
-    function scanNumV = processAndExportScans(userOptS,planC,skipMaskExport,...
-            modelFmt,modInputPath,scanNumV)
+
+    function scanNumV = processAndExportScans(userOptS,planC,scanNumV,...
+        modelFmt,modInputPath,filePrefixForHDF5,skipMaskExport)
+
         %Pre-process data and export to model input fmt
         fprintf('\nPre-processing data...\n');
         [scanC, maskC, scanNumV, userOptS, coordInfoS, planC] = ...
@@ -196,7 +204,6 @@ end
         %Export to model input format
         tic
         fprintf('\nWriting to %s format...\n',modelFmt);
-        filePrefixForHDF5 = 'cerrFile';
         passedScanDim = userOptS.passedScanDim;
         scanOptS = userOptS.scan;
 
