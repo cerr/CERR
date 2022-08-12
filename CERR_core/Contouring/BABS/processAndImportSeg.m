@@ -1,4 +1,4 @@
-function [planC,origScanNum,success] = processAndImportSeg(planC,scanNumV,...
+function [planC,origScanNumV,success] = processAndImportSeg(planC,scanNumV,...
                                        fullSessionPath,userOptS)
 % planC = processAndImportSeg(planC,scanNumV,fullSessionPath,userOptS);
 %-------------------------------------------------------------------------
@@ -16,7 +16,7 @@ labelPath = fullfile(fullSessionPath,'outputLabelMap');
 % Read structure masks
 outFmt = userOptS.modelOutputFormat;
 passedScanDim = userOptS.passedScanDim;
-outC = stackDLMaskFiles(fullSessionPath,outFmt,passedScanDim);
+[outC,ptListC] = stackDLMaskFiles(fullSessionPath,outFmt,passedScanDim);
 
 % Import to CERR
 success = 0;
@@ -25,18 +25,19 @@ if ~iscell(planC)
     % Load from file
     planCfileS = dir(fullfile(cerrPath,'*.mat'));
     planCfilenameC = {planCfileS.name};
-
+    origScanNumV = nan(1,length(planCfilenameC));
     for nFile = 1:length(planCfilenameC)
         tic
+        [~,ptName,~] = fileparts(planCfilenameC{nFile});
         planCfilename = fullfile(cerrPath, planCfilenameC{nFile});
         planC = loadPlanC(planCfilename,tempdir);
 
-        %ptIdx = strcmp(fullSessionPath,planCfilename)
-        ptIdx = nFile;
+        ptIdx = contains(ptListC,ptName);
         segMask3M = outC{ptIdx};
 
         [origScanNum,planC] = importLabelMap(userOptS,scanNumV,...
             segMask3M,labelPath,planC);
+        origScanNumV(nFile) = origScanNum;
 
         %Save planC
         optS = [];
@@ -47,7 +48,7 @@ if ~iscell(planC)
 else
     segMask3M = outC{1};
     tic
-    [origScanNum,planC] = importLabelMap(userOptS,scanNumV,...
+    [origScanNumV,planC] = importLabelMap(userOptS,scanNumV,...
         segMask3M,labelPath,planC);
     toc
 end
