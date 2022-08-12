@@ -1,6 +1,6 @@
-function success =  runSegClinic(inputDicomPath,outputDicomPath,...
+function success =  runSegForDicom(inputDicomPath,outputDicomPath,...
     sessionPath,algorithm,savePlanc,varargin)
-% function success = runSegClinic(inputDicomPath,outputDicomPath,...
+% function success = runSegForDicom(inputDicomPath,outputDicomPath,...
 %   sessionPath,algorithm,varargin)
 %
 % This function serves as a wrapper for different types of segmentations.
@@ -29,13 +29,14 @@ function success =  runSegClinic(inputDicomPath,outputDicomPath,...
 % algorithm = 'BABS';
 % babsPath = '';
 % savePlanc = 'Yes'; or 'No'
-% success = runSegClinic(inputDicomPath,outputDicomPath,sessionPath,algorithm,babsPath);
-%
+% success = runSegForDicom(inputDicomPath,outputDicomPath,sessionPath,...
+%           algorithm,babsPath);
 % ------------------------------------------------------------------------------------
 % APA, 12/14/2018
 % RKP, 9/11/19 Updates for compatibility with training pipeline
 % AI, 2/7/2020 Added separate DICOM export functions for BABS and DL algorithms
 % AI, 3/5/2020 Updates to handle multiple algorithms
+% AI, 8/12/22  Call runSegForPlanC
 
 if nargin <= 6
     skipMaskExport = true;
@@ -63,8 +64,8 @@ while exist(fullSessionPath,'dir')
     sessionDir = [sessionDir, randStr];
     fullSessionPath = fullfile(sessionPath,sessionDir);
 end
-
-%% Create sub-directories 
+ 
+% Create sub-directories 
 %-For  CERR files
 mkdir(fullSessionPath)
 cerrPath = fullfile(fullSessionPath,'dataCERR');
@@ -83,69 +84,27 @@ recursiveFlag = true;
 importDICOM(inputDicomPath,cerrPath,recursiveFlag);
 toc
 
-% Parse algorithm and convert to cell arrray
-algorithmC = split(algorithm,'^');
-
-dcmExportOptS = struct();
-dcmExportOptS(1) = [];
+% Get container path
+containerPath = varargin{1};
 
 %% Run inference
-if ~any(strcmpi(algorithmC,'BABS'))
-    
-    containerPathStr = varargin{1};
-    % Parse container path and convert to cell arrray
-    containerPathC = split(containerPathStr,'^');
-    numAlgorithms = numel(algorithmC);
-    numContainers = numel(containerPathC);
-    if numAlgorithms > 1 && numContainers == 1
-        containerPathC = repmat(containerPathC,numAlgorithms,1);
-    elseif numAlgorithms ~= numContainers
-        error('Mismatch between number of algorithms and containers')
-    end
-    origCerrPath = cerrPath;
-    allLabelNamesC = {};
-    
-    %Loop over algorithms
-    for k=1:length(algorithmC)
-        
-        
-        configFilePath = fullfile(getCERRPath,'ModelImplementationLibrary',...
-            'SegmentationModels','ModelConfigurations',...
-            [algorithmC{k}, '_config.json']);
-        userOptS = readDLConfigFile(configFilePath);
-        
-        % Run segmentation algorithm
-        [success,origScanNum] = segmentationWrapper(cerrPath,...
-            fullSessionPath,containerPathC{k},algorithmC{k},skipMaskExport);
-        
-        %Get list of label names
-        if ischar(userOptS.strNameToLabelMap)
-            labelDatS = readDLConfigFile(fullfile(labelPath,...
-                userOptS.strNameToLabelMap));
-            labelMapS = labelDatS.strNameToLabelMap;
-        else
-            labelMapS = userOptS.strNameToLabelMap;
-        end
-        allLabelNamesC = [allLabelNamesC,{labelMapS.structureName}];
-        
-        % Get DICOM export settings
-        if isfield(userOptS, 'dicomExportOptS')
-            if isempty(dcmExportOptS)
-                dcmExportOptS = userOptS.dicomExportOptS;
-            else
-                dcmExportOptS = dissimilarInsert(dcmExportOptS,userOptS.dicomExportOptS);
-            end
-        end
-    end
-    
+cmdFlag = 'condaenv';
+newSessionFlag = false;
+savePlancFlag = 0;
+if strcmpi(savePlanc,'yes')
+    savePlancFlag = 1;
+end
+if ~any(strcmpi(algorithm,'BABS'))
+
+   % Get segmentations 
+   [~,origScanNumV,allLabelNamesC,dcmExportOptS] = runSegForPlanC(cerrPath,...
+         fullSessionPath,algorithm,cmdFlag,newSessionFlag,[],[],...
+         containerPath);
+
     % Export segmentations to DICOM RTSTRUCT files
-    savePlancFlag = 0;
-    if strcmpi(savePlanc,'yes')
-        savePlancFlag = 1;
-    end
     fprintf('\nExporting to DICOM format...');
     tic
-    exportCERRtoDICOM(origCerrPath,origScanNum,allLabelNamesC,outputCERRPath,...
+    exportCERRtoDICOM(cerrPath,origScanNumV,allLabelNamesC,outputCERRPath,...
         outputDicomPath,dcmExportOptS,savePlancFlag)
     toc
     
