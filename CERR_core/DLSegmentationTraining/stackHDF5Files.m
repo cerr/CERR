@@ -34,7 +34,8 @@ for p = 1:length(ptListC)
             mask3M = [];
             for s = 1: length(matchIdxV)
                 
-                slcName = fullfile(outPath,'outputH5',fileNameC{s});
+                slcName = fullfile(outPath,'outputH5',...
+                          fileNameC{matchIdxV(s)});
                 idx = strfind(slcName,'_slice');
                 slcNum = str2double(slcName(idx+7:end-3));
                 labelM = h5read(slcName,'/mask').';

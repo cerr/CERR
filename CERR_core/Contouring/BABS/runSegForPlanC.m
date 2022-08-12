@@ -1,9 +1,9 @@
-function [planC,allLabelNamesC,dcmExportOptS] = runSegForPlanC(planC,...
-         clientSessionPath,algorithm,cmdFlag,newSessionFlag,sshConfigFile,...
-         hWait,varargin)
-%function [planC,allLabelNamesC,dcmExportOptS] = runSegForPlanC(planC,...
-%         clientSessionPath,algorithm,cmdFlag,newSessionFlag,sshConfigFile,...
-%         hWait,varargin)
+function [planC,origScanNumV,allLabelNamesC,dcmExportOptS] = ...
+    runSegForPlanC(planC,clientSessionPath,algorithm,cmdFlag,...
+    newSessionFlag,sshConfigFile,hWait,varargin)
+%function [planC,origScanNumV,allLabelNamesC,dcmExportOptS] = ...
+% runSegForPlanC(planC,clientSessionPath,algorithm,cmdFlag,...
+% newSessionFlag,sshConfigFile,hWait,varargin)
 % This function serves as a wrapper for different types of segmentations.
 %--------------------------------------------------------------------------
 % INPUTS:
@@ -107,6 +107,7 @@ if length(algorithmC) > 1 || ...
     %% Run segmentation
     % Loop over algorithms
     allLabelNamesC = {};
+    createSessionFlag = false;
     for k=1:length(algorithmC)
 
         if nargin==9 && ~isnan(varargin{2})
@@ -115,7 +116,6 @@ if length(algorithmC) > 1 || ...
             scanNum = [];
         end
 
-        createSessionFlag = false;
         %Pre-process data for segmentation
         [activate_cmd,run_cmd,userOptS,~,scanNumV,planC] = ...
             prepDataForSeg(planC, fullClientSessionPath ,algorithmC(k), ...
@@ -165,7 +165,7 @@ if length(algorithmC) > 1 || ...
         if ishandle(hWait)
             waitbar(0.9,hWait,'Importing segmentation results to CERR');
         end
-        planC = processAndImportSeg(planC,scanNumV,...
+        [planC,origScanNumV] = processAndImportSeg(planC,scanNumV,...
             fullClientSessionPath,userOptS);
 
         % Get list of auto-segmented structures
@@ -227,7 +227,9 @@ else %'BABS'
 end
 
 % Remove session directory
-rmdir(fullClientSessionPath, 's')
+if newSessionFlag
+    rmdir(fullClientSessionPath, 's')
+end
 
 % refresh the viewer
 if ~isempty(stateS) && (isfield(stateS,'handle') && ishandle(stateS.handle.CERRSliceViewer))
