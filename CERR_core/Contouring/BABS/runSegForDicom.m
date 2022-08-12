@@ -104,7 +104,7 @@ if ~any(strcmpi(algorithm,'BABS'))
     % Export segmentations to DICOM RTSTRUCT files
     fprintf('\nExporting to DICOM format...');
     tic
-    exportCERRtoDICOM(cerrPath,origScanNumV,allLabelNamesC,outputCERRPath,...
+    batchExportAISegToDICOM(cerrPath,origScanNumV,allLabelNamesC,outputCERRPath,...
         outputDicomPath,dcmExportOptS,savePlancFlag)
     toc
     
