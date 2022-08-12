@@ -31,12 +31,12 @@ if ~iscell(planC)
         [~,ptName,~] = fileparts(planCfilenameC{nFile});
         planCfilename = fullfile(cerrPath, planCfilenameC{nFile});
         planC = loadPlanC(planCfilename,tempdir);
-
-        ptIdx = contains(ptListC,ptName);
+        
+        ptIdx = ~cellfun(@isempty, strfind(ptListC, ptName));
         segMask3M = outC{ptIdx};
 
         [origScanNum,planC] = importLabelMap(userOptS,scanNumV,...
-            segMask3M,labelPath,planC);
+                              segMask3M,labelPath,planC);
         origScanNumV(nFile) = origScanNum;
 
         %Save planC
