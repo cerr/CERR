@@ -119,7 +119,7 @@ else
         planC = quality_assure_planC(fileNam,planC);
 
         %Pre-process data and export to model input fmt
-        filePrefixForHDF5 = ['cerrFile_',ptName];
+        filePrefixForHDF5 = ['cerrFile^',ptName];
         scanNumV = processAndExportScans(userOptS,planC,scanNumV,modelFmt,...
                    modInputPath,filePrefixForHDF5,skipMaskExport);
 
