@@ -1,15 +1,16 @@
 function success =  runSegForDicom(inputDicomPath,outputDicomPath,...
-    sessionPath,algorithm,savePlanc,varargin)
+    sessionPath,algorithm,cmdFlag,savePlanc,varargin)
 % function success = runSegForDicom(inputDicomPath,outputDicomPath,...
 %   sessionPath,algorithm,varargin)
 %
 % This function serves as a wrapper for different types of segmentations.
 %---------------------------------------------------------------------------------------
 % INPUT:
-% inputDicomPath - path to input DICOM directory which needs to be segmented.
+% inputDicomPath  - path to input DICOM directory which needs to be segmented.
 % outputDicomPath - path to write DICOM RTSTRUCT for resulting segmentation.
-% sessionPath - path to write temporary segmentation metadata.
-% algorithm - string which specifies segmentation algorithm
+% sessionPath     - path to write temporary segmentation metadata.
+% algorithm       - string which specifies segmentation algorithm
+% cmdFlag         - "condaEnv" or "singContainer"
 % --- Optional---
 % varargin{1} - Path to segmentation container.
 % varargin{2} - Flag (true/false) to skip export of structure masks (default:true)
@@ -38,7 +39,7 @@ function success =  runSegForDicom(inputDicomPath,outputDicomPath,...
 % AI, 3/5/2020 Updates to handle multiple algorithms
 % AI, 8/12/22  Call runSegForPlanC
 
-if nargin <= 6
+if nargin <= 7
     skipMaskExport = true;
 else
     if ischar(varargin{2})
@@ -88,7 +89,6 @@ toc
 containerPath = varargin{1};
 
 %% Run inference
-cmdFlag = 'condaenv';
 newSessionFlag = false;
 savePlancFlag = 0;
 if strcmpi(savePlanc,'yes')
