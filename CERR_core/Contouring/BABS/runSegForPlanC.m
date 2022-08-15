@@ -47,12 +47,6 @@ if newSessionFlag
         num2str(dateTimeV(6)), num2str(randNum)];
 
     fullClientSessionPath = fullfile(clientSessionPath,sessionDir);
-    sshConfigS = [];
-    if ~isempty(sshConfigFile)
-        sshConfigS = jsondecode(fileread(sshConfigFile));
-        fullServerSessionPath = fullfile(clientSessionPath,sessionDir);
-        sshConfigS.fullServerSessionPath = fullServerSessionPath;
-    end
 
     %Create sub-directories
     %-For CERR files
@@ -71,6 +65,12 @@ else
     cerrPath = fullfile(fullClientSessionPath,'dataCERR');
     segResultCERRPath = fullfile(fullClientSessionPath,'segResultCERR');
     labelPath = fullfile(fullClientSessionPath,'outputLabelMap');
+end
+sshConfigS = [];
+if ~isempty(sshConfigFile)
+    sshConfigS = jsondecode(fileread(sshConfigFile));
+    fullServerSessionPath = fullfile(clientSessionPath,sessionDir);
+    sshConfigS.fullServerSessionPath = fullServerSessionPath;
 end
 
 if nargin>=9

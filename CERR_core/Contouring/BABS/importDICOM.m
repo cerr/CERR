@@ -23,6 +23,9 @@ toc
 
 % Convert to lower case
 dirsToImportC = lower({dirsInCurDir.fullpath});
+if isempty(dirsToImportC)
+    dirsToImportC = {source};
+end
 
 % filter directories containing no files
 indV1 = false(1,length(dirsToImportC));
