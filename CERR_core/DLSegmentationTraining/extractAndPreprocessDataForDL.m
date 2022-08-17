@@ -19,19 +19,26 @@ function [scanOutC, maskOutC, scanNumV, optS, coordInfoS, planC] = ...
 %% Get processing directives from optS
 filtS = optS.filter;
 regS = optS.register;
-scanOptS = optS.scan;
+scanOptS = optS.input.scan;
 resampleS = [scanOptS.resample];
 resizeS = [scanOptS.resize];
 
-if isfield(optS,'inputStrNameToLabelMap')
-    exportStrS = optS.inputStrNameToLabelMap;
-    strListC = {exportStrS.structureName};
-    labelV = [exportStrS.value];
+if isfield(optS.input,'structure')
+    if isfield(optS.input.structure,'strNameToLabelMap')
+        exportStrS = optS.input.strNameToLabelMap;
+        strListC = {exportStrS.structureName};
+        labelV = [exportStrS.value];
+    else
+        strListC = optS.input.structure.name;
+        exportStrS.structureName = strListC;
+        labelV = 1:length(strListC);
+        exportStrS.value = labelV;
+    end
 else
     strListC = {};
 end
 
-if ~exist('testFlag','var')
+if ~exist('skipMaskExport','var')
     skipMaskExport = false;
 end
 
@@ -310,19 +317,16 @@ for scanIdx = 1:numScans
                 for n = 1:length(cropStrListC)
                     resampStrIdx = getMatchingIndex(cropStrListC{n},strC,...
                         'EXACT');
-                    if isempty(resampStrIdx)
-                        strIdx = getMatchingIndex(cropStrListC{n},strC,'EXACT');
-                        if ~isempty(strIdx)
-                            str3M = double(getStrMask(strIdx,planC));
-                            [~,outStr3M] = resampleScanAndMask([],double(str3M),...
-                                xValsV,yValsV,zValsV,xResampleV,yResampleV,...
-                                zResampleV);
-                            outStr3M = outStr3M >= 0.5;
-                            outStrName = [cropStrListC{n},'_resamp'];
-                            cropParS(n).structureName = outStrName;
-                            planC = maskToCERRStructure(outStr3M,0,scanNumV(scanIdx),...
-                                outStrName,planC);
-                        end
+                    if ~isempty(resampStrIdx)
+                        str3M = double(getStrMask(strIdx,planC));
+                        [~,outStr3M] = resampleScanAndMask([],double(str3M),...
+                            xValsV,yValsV,zValsV,xResampleV,yResampleV,...
+                            zResampleV);
+                        outStr3M = outStr3M >= 0.5;
+                        outStrName = [cropStrListC{n},'_resamp'];
+                        cropParS(n).structureName = outStrName;
+                        planC = maskToCERRStructure(outStr3M,0,scanNumV(scanIdx),...
+                            outStrName,planC);
                     else
                         outStrName = [cropStrListC{n},'_resamp'];
                         cropParS(n).structureName = outStrName;
