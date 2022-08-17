@@ -1,17 +1,13 @@
 {
-"strNameToLabelMap":[
 
-  {"structureName" : "Constrictor_muscle", "value" : 1}
-
-  ],
-
-"scan":{
+"input":{
+    "scan":{
 
         "identifier" : {"imageType": "CT SCAN"},
 
-	"view" : ["axial", "sagittal", "coronal"],
+	    "view" : ["axial", "sagittal", "coronal"],
 
-	"crop" : [{     
+	    "crop" : [{     
             		"method": "crop_for_constrictor",
             		"params": { "structureName": 
             		             { 
@@ -24,12 +20,13 @@
                   }
          ],
 
-	"resize" : {"method": "none",
+	    "resize" : {"method": "none",
             	    "size" : [320,320]},
 
-	"channels" :[{"imageType": "original", "slice": "current-1"},
+	    "channels" :[{"imageType": "original", "slice": "current-1"},
              	     {"imageType": "original", "slice": "current"},
             	     {"imageType": "original", "slice": "current+1"}]
+    }
              
 },
              
@@ -37,9 +34,14 @@
 
 "batchSize" : 4,
 
-"postProc" : {"Constrictor_muscle": [{"method": "post_process_constrictor"}]},
-
-"roiGenerationDescription": "HNDeepLabV3^2.5D^AvgTransSagCor^59df680",
+"output":{    
+    "labelMap":{
+        "strNameToLabelMap":[{"structureName" : "Constrictor_muscle",
+                              "value" : 1}],
+        "postProc" : {"Constrictor_muscle": [{"method": "post_process_constrictor"}]},
+        "roiGenerationDescription": "HNDeepLabV3^2.5D^AvgTransSagCor^59df680"
+    }
+},
 
 "reference" : "https://doi.org/10.1088/1361-6560/ac4000"
 
