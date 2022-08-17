@@ -138,15 +138,16 @@ scanNumV(ignoreIdxV) = [];
 %% Identify available structures in planC
 allStrC = {planC{indexS.structures}.structureName};
 strNotAvailableV = ~ismember(lower(strListC),lower(allStrC)); %Case-insensitive
-if any(strNotAvailableV) && skipMaskExport
+if any(strNotAvailableV) && ~skipMaskExport
     scanOutC = {};
     maskOutC = {};
-    warning(['Skipping pt. Missing structures: ',strjoin(strListC(strNotAvailableV),',')]);
+    warning(['Skipping pt. Missing structures: ',...
+        strjoin(strListC(strNotAvailableV),',')]);
     return
 end
 exportStrC = strListC(~strNotAvailableV);
 
-if ~isempty(exportStrC) || skipMaskExport
+if ~isempty(exportStrC) || ~skipMaskExport
     exportLabelV = labelV(~strNotAvailableV);
     %Get structure ID and assoc scan
     strIdxC = cell(length(exportStrC),1);
@@ -176,7 +177,7 @@ for scanIdx = 1:numScans
     
     %Extract masks from planC
     strC = {planC{indexS.structures}.structureName};
-    if isempty(exportStrC) && ~skipMaskExport
+    if isempty(exportStrC) && skipMaskExport
         mask3M = [];
         validStrIdxV = [];
     else
