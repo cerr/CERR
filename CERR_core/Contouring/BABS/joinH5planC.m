@@ -8,7 +8,10 @@ indexS = planC{end};
 
 isUniform = 0;
 preserveAspectFlag = 0;
-scanOptS = userOptS.scan(scanNum);
+scanOptS = userOptS.input.scan(scanNum);
+
+%Get output settings for label maps
+labelOptS = userOptS.output.labelMap;
 
 %% Resize/pad mask to original dimensions
 %Get parameters for resizing & cropping
@@ -120,7 +123,7 @@ end
 
 %% Copy auto-segmentations to user-defined scan
 %Get autosegmented structure names
-[outStrListC,labelMapS] = getAutosegStructnames(labelPath,userOptS);
+[outStrListC,labelMapS] = getAutosegStructnames(labelPath,labelOptS);
 if isfield(userOptS,'register') && ~isempty(fieldnames(userOptS.register))
     regS = userOptS.register;
     regMethod = regS.method;
@@ -133,7 +136,7 @@ if isfield(userOptS,'register') && ~isempty(fieldnames(userOptS.register))
     movIdS.filtered = 0;
     movScan = getScanNumFromIdentifiers(movIdS,planC);
 
-    assocIdS = userOptS.structAssocScan.identifier;
+    assocIdS = userOptS.outputAssocScan.identifier;
     assocScan = getScanNumFromIdentifiers(assocIdS,planC);
     strC = {planC{indexS.structures}.structureName};
     if baseScan==assocScan
@@ -180,8 +183,8 @@ end
 
 %% Convert label maps to CERR structs
 roiGenerationDescription = '';
-if isfield(userOptS,'roiGenerationDescription')
-    roiGenerationDescription = userOptS.roiGenerationDescription;
+if isfield(labelOptS,'roiGenerationDescription')
+    roiGenerationDescription = labelOptS.roiGenerationDescription;
 end
 for i = 1 : length(labelMapS)
     labelVal = labelMapS(i).value;

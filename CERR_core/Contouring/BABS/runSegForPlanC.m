@@ -29,7 +29,11 @@ function [planC,origScanNumV,allLabelNamesC,dcmExportOptS] = ...
 % global planC
 % sessionPath = '/path/to/session/dir';
 % algorithm = 'CT_Heart_DeepLab';
-% success = runSegClinic(inputDicomPath,outputDicomPath,sessionPath,algorithm);
+% cmdFlag = 'condaEnv';
+% condaEnvList = '/path/to/conda_archive';
+% newSessionFlag = true;
+% planC = runSegClinic(planC,sessionPath,algorithm,cmdFlag,...
+%    newSessionFlag,[],[],condaEnvList);
 %--------------------------------------------------------------------------
 % APA, 06/10/2019
 % RKP, 09/18/19 Updates for compatibility with training pipeline
@@ -40,6 +44,7 @@ global stateS
 
 %% Create session dir
 if newSessionFlag
+    init_ML_DICOM
     folderNam = char(javaMethod('createUID','org.dcm4che3.util.UIDUtils'));
     dateTimeV = clock;
     randNum = 1000.*rand;
@@ -146,8 +151,8 @@ if length(algorithmC) > 1 || ...
         % Common for client and server
         roiDescrpt = '';
         gitHash = 'unavailable';
-        if isfield(userOptS,'roiGenerationDescription')
-            roiDescrpt = userOptS.roiGenerationDescription;
+        if isfield(userOptS.output.labelMap,'roiGenerationDescription')
+            roiDescrpt = userOptS.output.labelMap.roiGenerationDescription;
         end
         if strcmpi(cmdFlag,'singcontainer') 
             [~,hashChk] = system(['singularity apps ' containerPathC{k},...
@@ -158,7 +163,7 @@ if length(algorithmC) > 1 || ...
             end
             roiDescrpt = [roiDescrpt, '  __git_hash:',gitHash];
         end
-        userOptS.roiGenerationDescription = roiDescrpt;
+        userOptS.output.labelMap.roiGenerationDescription = roiDescrpt;
 
 
         % Import segmentations
@@ -169,22 +174,22 @@ if length(algorithmC) > 1 || ...
             fullClientSessionPath,userOptS);
 
         % Get list of auto-segmented structures
-        if ischar(userOptS.strNameToLabelMap)
+        if ischar(userOptS.output.labelMap.strNameToLabelMap)
             labelDatS = readDLConfigFile(fullfile(labelPath,...
                 userOptS.strNameToLabelMap));
             labelMapS = labelDatS.strNameToLabelMap;
         else
-            labelMapS = userOptS.strNameToLabelMap;
+            labelMapS = userOptS.output.labelMap.strNameToLabelMap;
         end
         allLabelNamesC = [allLabelNamesC,{labelMapS.structureName}];
         
         % Get DICOM export settings
-        if isfield(userOptS, 'dicomExportOptS')
+        if isfield(userOptS.output.labelMap, 'dicomExportOptS')
             if isempty(dcmExportOptS)
-                dcmExportOptS = userOptS.dicomExportOptS;
+                dcmExportOptS = userOptS.output.labelMap.dicomExportOptS;
             else
                 dcmExportOptS = dissimilarInsert(dcmExportOptS,...
-                                userOptS.dicomExportOptS);
+                                userOptS.output.labelMap.dicomExportOptS);
             end
         else
             if ~exist('dcmExportOptS','var')
