@@ -29,7 +29,11 @@ function [planC,origScanNumV,allLabelNamesC,dcmExportOptS] = ...
 % global planC
 % sessionPath = '/path/to/session/dir';
 % algorithm = 'CT_Heart_DeepLab';
-% success = runSegClinic(inputDicomPath,outputDicomPath,sessionPath,algorithm);
+% cmdFlag = 'condaEnv';
+% condaEnvList = '/path/to/conda_archive';
+% newSessionFlag = true;
+% planC = runSegClinic(planC,sessionPath,algorithm,cmdFlag,...
+%    newSessionFlag,[],[],condaEnvList);
 %--------------------------------------------------------------------------
 % APA, 06/10/2019
 % RKP, 09/18/19 Updates for compatibility with training pipeline
@@ -40,6 +44,7 @@ global stateS
 
 %% Create session dir
 if newSessionFlag
+    init_ML_DICOM
     folderNam = char(javaMethod('createUID','org.dcm4che3.util.UIDUtils'));
     dateTimeV = clock;
     randNum = 1000.*rand;
