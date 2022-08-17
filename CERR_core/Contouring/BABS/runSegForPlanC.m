@@ -146,8 +146,8 @@ if length(algorithmC) > 1 || ...
         % Common for client and server
         roiDescrpt = '';
         gitHash = 'unavailable';
-        if isfield(userOptS,'roiGenerationDescription')
-            roiDescrpt = userOptS.roiGenerationDescription;
+        if isfield(userOptS.output.labelMap,'roiGenerationDescription')
+            roiDescrpt = userOptS.output.labelMap.roiGenerationDescription;
         end
         if strcmpi(cmdFlag,'singcontainer') 
             [~,hashChk] = system(['singularity apps ' containerPathC{k},...
@@ -158,7 +158,7 @@ if length(algorithmC) > 1 || ...
             end
             roiDescrpt = [roiDescrpt, '  __git_hash:',gitHash];
         end
-        userOptS.roiGenerationDescription = roiDescrpt;
+        userOptS.output.labelMap.roiGenerationDescription = roiDescrpt;
 
 
         % Import segmentations
@@ -169,22 +169,22 @@ if length(algorithmC) > 1 || ...
             fullClientSessionPath,userOptS);
 
         % Get list of auto-segmented structures
-        if ischar(userOptS.strNameToLabelMap)
+        if ischar(userOptS.output.labelMap.strNameToLabelMap)
             labelDatS = readDLConfigFile(fullfile(labelPath,...
                 userOptS.strNameToLabelMap));
             labelMapS = labelDatS.strNameToLabelMap;
         else
-            labelMapS = userOptS.strNameToLabelMap;
+            labelMapS = userOptS.output.labelMap.strNameToLabelMap;
         end
         allLabelNamesC = [allLabelNamesC,{labelMapS.structureName}];
         
         % Get DICOM export settings
-        if isfield(userOptS, 'dicomExportOptS')
+        if isfield(userOptS.output.labelMap, 'dicomExportOptS')
             if isempty(dcmExportOptS)
-                dcmExportOptS = userOptS.dicomExportOptS;
+                dcmExportOptS = userOptS.output.labelMap.dicomExportOptS;
             else
                 dcmExportOptS = dissimilarInsert(dcmExportOptS,...
-                                userOptS.dicomExportOptS);
+                                userOptS.output.labelMap.dicomExportOptS);
             end
         else
             if ~exist('dcmExportOptS','var')

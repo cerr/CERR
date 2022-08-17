@@ -61,15 +61,15 @@ success = 1;
             segMask3M,labelPath,planC)
 
         indexS = planC{end};
-        identifierS = userOptS.structAssocScan.identifier;
-        if ~isempty(fieldnames(userOptS.structAssocScan.identifier))
+        identifierS = userOptS.outputAssocScan.identifier;
+        if ~isempty(fieldnames(userOptS.outputAssocScan.identifier))
             origScanNum = getScanNumFromIdentifiers(identifierS,planC);
         else
             origScanNum = 1; %Assoc with first scan by default
         end
         outScanNum = scanNumV(origScanNum);
-        userOptS.scan(outScanNum) = userOptS(origScanNum).scan;
-        userOptS.scan(outScanNum).origScan = origScanNum;
+        userOptS.input.scan(outScanNum) = userOptS(origScanNum).input.scan;
+        userOptS.input.scan(outScanNum).origScan = origScanNum;
         planC  = joinH5planC(outScanNum,segMask3M,labelPath,userOptS,planC);
 
         % Post-process segmentation
