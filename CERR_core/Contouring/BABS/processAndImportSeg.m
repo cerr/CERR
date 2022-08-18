@@ -45,6 +45,7 @@ if ~iscell(planC)
         save_planC(planC,optS,saveflag,planCfilename);
         toc
     end
+    planC = cerrPath;
 else
     segMask3M = outC{1};
     tic
