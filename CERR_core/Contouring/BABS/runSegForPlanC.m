@@ -96,10 +96,8 @@ if length(algorithmC) > 1 || ...
         (length(algorithmC)==1 && ~strcmpi(algorithmC,'BABS'))
     containerPathC = varargin{1};
     % Parse container path and convert to cell arrray
-    if iscell(containerPathC)
+    if ~iscell(containerPathC)
         containerPathC = strsplit(containerPathC,'^');
-    else
-        containerPathC = {containerPathC};
     end
     numAlgorithms = numel(algorithmC);
     numContainers = numel(containerPathC);
