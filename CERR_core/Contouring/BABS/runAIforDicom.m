@@ -1,4 +1,4 @@
-function success =  runSegForDicom(inputDicomPath,outputDicomPath,...
+function success =  runAIforDicom(inputDicomPath,outputDicomPath,...
     sessionPath,algorithm,cmdFlag,savePlanc,varargin)
 % function success = runSegForDicom(inputDicomPath,outputDicomPath,...
 %   sessionPath,algorithm,varargin)
@@ -71,13 +71,13 @@ end
 mkdir(fullSessionPath)
 cerrPath = fullfile(fullSessionPath,'dataCERR');
 mkdir(cerrPath)
-outputCERRPath = fullfile(fullSessionPath,'segmentedOrigCERR');
+outputCERRPath = fullfile(fullSessionPath,'outputOrigCERR');
 mkdir(outputCERRPath)
-segResultCERRPath = fullfile(fullSessionPath,'segResultCERR');
-mkdir(segResultCERRPath)
+AIresultCERRPath = fullfile(fullSessionPath,'AIResultCERR');
+mkdir(AIresultCERRPath)
 %-For structname-to-label map
-labelPath = fullfile(fullSessionPath,'outputLabelMap');
-mkdir(labelPath);
+AIoutputPath = fullfile(fullSessionPath,'AIoutput');
+mkdir(AIoutputPath);
 
 %% Import DICOM to CERR
 tic
@@ -97,7 +97,7 @@ end
 if ~any(strcmpi(algorithm,'BABS'))
 
    % Get segmentations 
-   [~,origScanNumV,allLabelNamesC,dcmExportOptS] = runSegForPlanC(cerrPath,...
+   [~,origScanNumV,allLabelNamesC,dcmExportOptS] = runAIforPlanC(cerrPath,...
          fullSessionPath,algorithm,cmdFlag,newSessionFlag,[],[],...
          containerPath);
 
@@ -111,14 +111,14 @@ if ~any(strcmpi(algorithm,'BABS'))
 else
     
     babsPath = varargin{1};
-    success = babsSegmentation(cerrPath,fullSessionPath,babsPath,segResultCERRPath);
+    success = babsSegmentation(cerrPath,fullSessionPath,babsPath,AIresultCERRPath);
     
     % Export the RTSTRUCT file
     savePlancFlag = 0;
     if strcmpi(savePlanc,'yes')
         savePlancFlag = 1;
     end
-    exportCERRtoDICOM_forBABS(origCerrPath,segResultCERRPath,outputCERRPath,...
+    exportCERRtoDICOM_forBABS(origCerrPath,AIresultCERRPath,outputCERRPath,...
         outputDicomPath,dcmExportOptS,savePlancFlag)
     
 end

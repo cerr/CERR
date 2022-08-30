@@ -1,5 +1,5 @@
 function [activate_cmd,run_cmd,userOptS,outFile,scanNumV,planC] = ...
-    prepDataForSeg(planC,fullSessionPath,algorithm,cmdFlag,newSessionFlag,...
+    prepDataForAImodel(planC,fullSessionPath,algorithm,cmdFlag,newSessionFlag,...
     containerPath,wrapperFunction,skipMaskExport,scanNumV)
 % [activate_cmd,run_cmd,userOptS,outFile,scanNumV,planC] =
 % prepDataForSeg(planC,sessionPath,algorithm,cmdFlag,containerPath,...
@@ -47,17 +47,18 @@ if newSessionFlag
     mkdir(fullSessionPath)
     cerrPath = fullfile(fullSessionPath,'dataCERR');
     mkdir(cerrPath)
-    outputCERRPath = fullfile(fullSessionPath,'segmentedOrigCERR');
+    outputCERRPath = fullfile(fullSessionPath,'outputOrigCERR');
     mkdir(outputCERRPath)
-    segResultCERRPath = fullfile(fullSessionPath,'segResultCERR');
-    mkdir(segResultCERRPath)
+    AIResultCERRPath = fullfile(fullSessionPath,'AIResultCERR');
+    mkdir(AIResultCERRPath)
     %-For structname-to-label map
-    labelPath = fullfile(fullSessionPath,'outputLabelMap');
-    mkdir(labelPath);
+    AIoutputPath = fullfile(fullSessionPath,'AIoutput');
+    mkdir(AIoutputPath);
 end
 %-For shell script
-segScriptPath = fullfile(fullSessionPath,'segScript');
-mkdir(segScriptPath)
+AIscriptPath = fullfile(fullSessionPath,'AIscript');
+mkdir(AIscriptPath)
+
 if ~exist('skipMaskExport','var')
     skipMaskExport = true;
 end
@@ -99,12 +100,57 @@ if exist(modOutputPath, 'dir')
 end
 mkdir(modOutputPath);
 
+%% Get input data types
+inputS = userOptS.input;
+inputC = fieldnames(inputS);
+
 
 %% Pre-process data and export to model input fmt
 if iscell(planC)
     filePrefixForHDF5 = 'cerrFile';
-    scanNumV = processAndExportScans(userOptS,planC,scanNumV,modelFmt,...
-               modInputPath,filePrefixForHDF5,skipMaskExport);
+    for nIn = 1:length(inputC)
+
+        inputType = inputC{nIn};
+
+        switch(inputType)
+
+            case 'scan'
+
+                %Pre-process data and export to model input fmt
+                fprintf('\nPre-processing data...\n');
+                [scanC, maskC, scanNumV, userOptS, coordInfoS, planC] = ...
+                    extractAndPreprocessDataForDL(userOptS,planC,...
+                    skipMaskExport,scanNumV);
+
+                %Export to model input format
+                tic
+                fprintf('\nWriting to %s format...\n',modelFmt);
+                passedScanDim = userOptS.passedScanDim;
+                scanOptS = userOptS.scan;
+
+                %Loop over scan types
+                for nScan = 1:size(scanC,1)
+
+                    %Append identifiers to o/p name
+                    idOut = getOutputFileNameForDL(filePrefixForHDF5,...
+                        scanOptS(nScan),scanNumV(nScan),planC);
+
+                    %Get o/p dirs & dim
+                    outDirC = getOutputH5Dir(modInputPath,scanOptS(nScan),'');
+
+                    %Write to model input fmt
+                    writeDataForDL(scanC{nScan},maskC{nScan},coordInfoS,...
+                    passedScanDim,modelFmt,outDirC,idOut,skipMaskExport);
+                end
+
+            case 'structure'
+
+            %case 'dose'
+
+            otherwise
+                error('Invalid input type '' %s ''.')
+        end
+    end
 else
     cerrFilePath = planC;
     planCfileS = dir(fullfile(cerrFilePath,'*.mat'));
@@ -120,8 +166,48 @@ else
 
         %Pre-process data and export to model input fmt
         filePrefixForHDF5 = ['cerrFile^',ptName];
-        scanNumV = processAndExportScans(userOptS,planC,scanNumV,modelFmt,...
-                   modInputPath,filePrefixForHDF5,skipMaskExport);
+        for nIn = 1:length(inputC)
+
+          inputType = inputC{nIn};
+
+          switch(inputType)
+
+              case {'scan','structure'}
+
+                  %Pre-process data and export to model input fmt
+                  fprintf('\nPre-processing data...\n');
+                  [scanC, maskC, scanNumV, userOptS, coordInfoS, planC] = ...
+                      extractAndPreprocessDataForDL(userOptS,planC,...
+                      skipMaskExport,scanNumV);
+
+                  %Export to model input format
+                  tic
+                  fprintf('\nWriting to %s format...\n',modelFmt);
+                  passedScanDim = userOptS.passedScanDim;
+                  scanOptS = userOptS.scan;
+
+                  %Loop over scan types
+                  for nScan = 1:size(scanC,1)
+
+                      %Append identifiers to o/p name
+                      idOut = getOutputFileNameForDL(filePrefixForHDF5,...
+                          scanOptS(nScan),scanNumV(nScan),planC);
+
+                      %Get o/p dirs & dim
+                      outDirC = getOutputH5Dir(modInputPath,scanOptS(nScan),'');
+
+                      %Write to model input fmt
+                      writeDataForDL(scanC{nScan},maskC{nScan},coordInfoS,...
+                      passedScanDim,modelFmt,outDirC,idOut,skipMaskExport);
+                  end
+
+                %case 'dose'
+
+                otherwise
+                    error('Invalid input type '' %s ''.')
+          end
+
+        end
 
         %Save updated planC file
         tic
@@ -168,7 +254,7 @@ switch lower(cmdFlag)
 
         %% Create script to call segmentation wrappers
         [uniqName,~] = genScanUniqName(planC, scanNumV(1));
-        outFile = fullfile(segScriptPath,[uniqName,'.sh']);
+        outFile = fullfile(AIscriptPath,[uniqName,'.sh']);
         fid = fopen(outFile,'wt');
         script = sprintf('#!/bin/zsh\n%s\nconda-unpack\npython --version\n%s',...
             activate_cmd,run_cmd);
@@ -188,40 +274,5 @@ switch lower(cmdFlag)
             algorithmC{1}, bindPath, containerPath, num2str(userOptS.batchSize));
 
 end
-
-
-%% --- Supporting functions---
-
-    function scanNumV = processAndExportScans(userOptS,planC,scanNumV,...
-        modelFmt,modInputPath,filePrefixForHDF5,skipMaskExport)
-
-        %Pre-process data and export to model input fmt
-        fprintf('\nPre-processing data...\n');
-        [scanC, maskC, scanNumV, userOptS, coordInfoS, planC] = ...
-            extractAndPreprocessDataForDL(userOptS,planC,skipMaskExport,...
-            scanNumV);
-
-        %Export to model input format
-        tic
-        fprintf('\nWriting to %s format...\n',modelFmt);
-        passedScanDim = userOptS.passedScanDim;
-        scanOptS = userOptS.scan;
-
-        %Loop over scan types
-        for nScan = 1:size(scanC,1)
-
-            %Append identifiers to o/p name
-            idOut = getOutputFileNameForDL(filePrefixForHDF5,scanOptS(nScan),...
-                scanNumV(nScan),planC);
-
-            %Get o/p dirs & dim
-            outDirC = getOutputH5Dir(modInputPath,scanOptS(nScan),'');
-
-            %Write to model input fmt
-            writeDataForDL(scanC{nScan},maskC{nScan},coordInfoS,passedScanDim,...
-                modelFmt,outDirC,idOut,skipMaskExport);
-        end
-    end
-
 
 end
