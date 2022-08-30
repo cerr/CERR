@@ -66,8 +66,7 @@ end
 
 
 %Set color order
-colorM = [0 229 238;123 104 238;255 131 250;0 238 118;218 165 32;...
-    28 134 238;255 153 153;196 196 196;0 139 0;238 223 204]/255;
+colorM = ud.plotColorOrderM;
 
 %Scale plots as selected
 modNum = 0;
@@ -149,7 +148,7 @@ for l = 1:numel(ud.Protocols)
                 count = y1;
                 hDisp_y1(count) = text(xLmtV(1),0,'','Parent',y1PlotAxis,...
                    'FontSize',8,'Color',[0 0 0],'BackgroundColor',[1 1 1],...
-                   'EdgeColor',pColorM(clrIdx,:),'LineWidth',2,...
+                   'EdgeColor',pColorM(clrIdx,:),'LineWidth',1.5,...
                    'FontWeight','Bold','Tag','NTCPreadout');
                 txtPos = xLmtV(1) - 0.15*abs(xLmtV(1));
                 if ud.plotMode==1 || ud.plotMode==2
@@ -169,7 +168,7 @@ for l = 1:numel(ud.Protocols)
                     hDisp_y2(count) = text(xLmtV(2),0,'','Parent',y2PlotAxis,...
                         'FontSize',8,'Color',[0 0 0],'BackgroundColor',...
                         [1 1 1],'EdgeColor',pColorM(clrIdx,:),'LineWidth',...
-                        2,'FontWeight','Bold','Tag','TCPBEDreadout');
+                        1.5,'FontWeight','Bold','Tag','TCPBEDreadout');
                     txtPos = xLmtV(2)+.02;
                     skip=0;
                 end
@@ -178,9 +177,9 @@ for l = 1:numel(ud.Protocols)
             if ~skip %Error here: TO DO! Check!
                 
                 plot([xScale xScale],[0 cpNew],'Color',pColorM(clrIdx,:),...
-                    'LineStyle','-.','linewidth',2,'parent',hplotAx);
+                    'LineStyle','-.','linewidth',1.5,'parent',hplotAx);
                 plot([loc xScale],[cpNew cpNew],'Color',pColorM(clrIdx,:),...
-                    'LineStyle','-.','linewidth',2,'parent',hplotAx);
+                    'LineStyle','-.','linewidth',1.5,'parent',hplotAx);
                 
                 if strcmp(currAx,'y1')
                     set(hDisp_y1(count),'Position',[txtPos,cpNew],'String',sprintf('%.3f',...

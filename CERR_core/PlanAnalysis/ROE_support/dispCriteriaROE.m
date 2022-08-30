@@ -53,12 +53,24 @@ switch(upper(command))
                     %Next limit beyond max display scale
                     return
                 else
+
                     nextIdxV = find(limitsV==limitsV(next));
                     nextLimit = limOrderV(nextIdxV);
+                    nextGuideLimit = nextLimit <= gNum;
+                    nextCritLimit = nextLimit > gNum;
+                    %Display vertical line at limit
+                    if any(nextGuideLimit)
+                        dispSelCriteriaROE([],[],hFig,'guidelines',...
+                            nextLimit(nextGuideLimit),currProtocol);
+                    end
+                    if any(nextCritLimit)
+                        cNum = nextLimit(nextCritLimit)-gNum;
+                        dispSelCriteriaROE([],[],hFig,'criteria',...
+                            cNum,currProtocol);
+                    end
+                    % Display datatips
                     for l = 1:numel(nextLimit)
                         if nextLimit(l) <= gNum  %Guidelines
-                            dispSelCriteriaROE([],[],hFig,...
-                                'guidelines',nextLimit(l),currProtocol);
                             hNext = hGuide(nextLimit(l));
                             createDataTipROE(hFig,hNext);
                             %hData = cMode.createDatatip(hNext);
@@ -72,11 +84,11 @@ switch(upper(command))
                                 [hNext.UserData.label, ' (guideline)']);
                             selMatchIdx = strMatchIdx & metricMatchIdx;
                             constDatC{selMatchIdx,1} = true;
-                            constDatC{currSelIdx,1} = false;
+                            for nCurr = 1:length(currSelIdx)
+                                constDatC{currSelIdx(nCurr),1} = false;
+                            end
                         else                 %Criteria
                             cNum = nextLimit(l)-gNum;
-                            dispSelCriteriaROE([],[],hFig,'criteria',...
-                                cNum,currProtocol);
                             hNext = hCrit(cNum);
                             createDataTipROE(hFig,hNext);
                             %hData = cMode.createDatatip(hNext);
@@ -90,7 +102,9 @@ switch(upper(command))
                                 hNext.UserData.label);
                             selMatchIdx = strMatchIdx & metricMatchIdx;
                             constDatC{selMatchIdx,1} = true;
-                            constDatC{currSelIdx,1} = false;
+                            for nCurr = 1:length(currSelIdx)
+                                constDatC{currSelIdx(nCurr),1} = false;
+                            end
                         end
                     end
                     
@@ -106,6 +120,7 @@ switch(upper(command))
             currProtocol = k;
             hCrit = protS(currProtocol).criteria;
             hGuide = protS(currProtocol).guidelines;
+            hConstraint = [hGuide,hCrit];
             dispStateC = [];
             if ~isempty(hGuide)
                 dispStateC = {hGuide.Visible};
@@ -114,15 +129,22 @@ switch(upper(command))
                 dispStateC = [dispStateC,{hCrit.Visible}];
             end
             dispIdxV = strcmp(dispStateC,'on');
+            xScaleC = get(hConstraint(dispIdxV),'XData');
+            if iscell(xScaleC)
+                currScaleC = cellfun(@(x)x(1,1),xScaleC,'un',0);
+                currScaleV = unique([currScaleC{:}]);
+            else
+                currScaleV = unique(xScaleC);
+            end
             gNum = numel(hGuide);
-            if sum(dispIdxV)~=1 || sum(dispIdxV)==0 %More than one constraint or none displayed
+            if length(currScaleV)~=1 || sum(dispIdxV)==0 %More than one constraint or none displayed
                 %Do nothing
                 return
             else
                 %Get available limits
                 limitsV = [ arrayfun(@(x) x.XData(1),hGuide),...
                     arrayfun(@(x) x.XData(1),hCrit)];
-                currentLimit = limitsV(dispIdxV);
+                currentLimit = unique(limitsV(dispIdxV));
                 currSelIdx = find(dispIdxV)+2;
                 [limitsV,limOrderV] = sort(limitsV,'descend');
                 prev = find(limitsV < currentLimit,1,'first');
@@ -132,10 +154,21 @@ switch(upper(command))
                 else
                     prvIdxV = find(limitsV==limitsV(prev));
                     prevLimit = limOrderV(prvIdxV);
+                    prevGuideLimit = prevLimit <= gNum;
+                    prevCritLimit = prevLimit > gNum;
+                    %Display vertical line at limit
+                    if any(prevGuideLimit)
+                        dispSelCriteriaROE([],[],hFig,'guidelines',...
+                            prevLimit(prevGuideLimit),currProtocol);
+                    end
+                    if any(prevCritLimit)
+                        cNum = prevLimit(prevCritLimit)-gNum;
+                        dispSelCriteriaROE([],[],hFig,'criteria',...
+                            cNum,currProtocol);
+                    end
+                    %Display datatips
                     for l = 1:numel(prevLimit)
                         if prevLimit(l) <= gNum  %Guidelines
-                            dispSelCriteriaROE([],[],hFig,'guidelines',...
-                                prevLimit(l),currProtocol);
                             hNext = hGuide(prevLimit(l));
                             createDataTipROE(hFig,hNext);
                             %hData = cMode.createDatatip(hNext);
@@ -149,10 +182,10 @@ switch(upper(command))
                                 [hNext.UserData.label, ' (guideline)']);
                             selMatchIdx = strMatchIdx & metricMatchIdx;
                             constDatC{selMatchIdx,1} = true;
-                            constDatC{currSelIdx,1 } = false;
+                            for nCurr = 1:length(currSelIdx)
+                                constDatC{currSelIdx(nCurr),1} = false;
+                            end
                         else                 %Criteria
-                            cNum = prevLimit(l)-gNum;
-                            dispSelCriteriaROE([],[],hFig,'criteria',cNum,currProtocol);
                             hNext = hCrit(cNum);
                             createDataTipROE(hFig,hNext);
                             %hData = cMode.createDatatip(hNext);
@@ -166,7 +199,9 @@ switch(upper(command))
                                 hNext.UserData.label);
                             selMatchIdx = strMatchIdx & metricMatchIdx;
                             constDatC{selMatchIdx,1} = true;
-                            constDatC{currSelIdx,1} = false;
+                            for nCurr = 1:length(currSelIdx)
+                                constDatC{currSelIdx(nCurr),1} = false;
+                            end
                         end
                     end
                     
