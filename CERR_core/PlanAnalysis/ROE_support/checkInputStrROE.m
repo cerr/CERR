@@ -115,6 +115,9 @@ end
 
             modelC = protS(nProt).model;
 
+            %Display selected structures
+            set(ud.handle.tab1H(3),'Enable','On');
+
             %Identify models with no associated struct. selection
             strSelC = cellfun(@(x)x.strNum , modelC,'un',0);
             noSelV = find([strSelC{:}]==0);
