@@ -1,10 +1,10 @@
 function [planC,origScanNumV,allLabelNamesC,dcmExportOptS] = ...
-    runSegForPlanC(planC,clientSessionPath,algorithm,cmdFlag,...
+    runAIforPlanC(planC,clientSessionPath,algorithm,cmdFlag,...
     newSessionFlag,sshConfigFile,hWait,varargin)
 %function [planC,origScanNumV,allLabelNamesC,dcmExportOptS] = ...
-% runSegForPlanC(planC,clientSessionPath,algorithm,cmdFlag,...
+% runAIForPlanC(planC,clientSessionPath,algorithm,cmdFlag,...
 % newSessionFlag,sshConfigFile,hWait,varargin)
-% This function serves as a wrapper for different types of segmentations.
+% This function serves as a wrapper for different types of AI models.
 %--------------------------------------------------------------------------
 % INPUTS:
 % planC             : planC 
@@ -14,7 +14,7 @@ function [planC,origScanNumV,allLabelNamesC,dcmExportOptS] = ...
 % newSessionFlag    : Set to false to use existing session dir
 %                     (default:true).
 % --Optional inputs---
-% varargin{1}: Path to segmentation container OR conda env
+% varargin{1}: Path to singularity container OR conda env
 % varargin{2}: Scan no. (replaces scan identifier)
 % varargin{3}: Flag to skip export of structure masks (Default:true (off))
 %--------------------------------------------------------------------------
@@ -32,7 +32,7 @@ function [planC,origScanNumV,allLabelNamesC,dcmExportOptS] = ...
 % cmdFlag = 'condaEnv';
 % condaEnvList = '/path/to/conda_archive';
 % newSessionFlag = true;
-% planC = runSegClinic(planC,sessionPath,algorithm,cmdFlag,...
+% planC = runAIforPlanC(planC,sessionPath,algorithm,cmdFlag,...
 %    newSessionFlag,[],[],condaEnvList);
 %--------------------------------------------------------------------------
 % APA, 06/10/2019
@@ -58,18 +58,18 @@ if newSessionFlag
     mkdir(fullClientSessionPath)
     cerrPath = fullfile(fullClientSessionPath,'dataCERR');
     mkdir(cerrPath)
-    outputCERRPath = fullfile(fullClientSessionPath,'segmentedOrigCERR');
+    outputCERRPath = fullfile(fullClientSessionPath,'outputOrigCERR');
     mkdir(outputCERRPath)
-    segResultCERRPath = fullfile(fullClientSessionPath,'segResultCERR');
-    mkdir(segResultCERRPath)
+    AIresultCERRPath = fullfile(fullClientSessionPath,'AIResultCERR');
+    mkdir(AIresultCERRPath)
     %-For structname-to-label map
-    labelPath = fullfile(fullClientSessionPath,'outputLabelMap');
-    mkdir(labelPath);
+    AIoutputPath = fullfile(fullClientSessionPath,'AIoutput');
+    mkdir(AIoutputPath);
 else
     fullClientSessionPath = clientSessionPath;
     cerrPath = fullfile(fullClientSessionPath,'dataCERR');
-    segResultCERRPath = fullfile(fullClientSessionPath,'segResultCERR');
-    labelPath = fullfile(fullClientSessionPath,'outputLabelMap');
+    AIresultCERRPath = fullfile(fullClientSessionPath,'AIResultCERR');
+    AIoutputPath = fullfile(fullClientSessionPath,'AIoutput');
 end
 sshConfigS = [];
 if ~isempty(sshConfigFile)
@@ -107,7 +107,7 @@ if length(algorithmC) > 1 || ...
         error('Mismatch between number of algorithms and containers')
     end
 
-    %% Run segmentation
+    %% Run AI model
     % Loop over algorithms
     allLabelNamesC = {};
     createSessionFlag = false;
@@ -121,10 +121,10 @@ if length(algorithmC) > 1 || ...
 
         %Pre-process data for segmentation
         [activate_cmd,run_cmd,userOptS,~,scanNumV,planC] = ...
-            prepDataForSeg(planC, fullClientSessionPath ,algorithmC(k), ...
+            prepDataForAImodel(planC, fullClientSessionPath ,algorithmC(k), ...
             cmdFlag,createSessionFlag,containerPathC{k},{},skipMaskExport,...
             scanNum);
-    
+
         %Flag indicating if container runs on client or remote server
         if ishandle(hWait)
             wbch = allchild(hWait);
@@ -146,54 +146,11 @@ if length(algorithmC) > 1 || ...
         end
         toc
 
-        % Common for client and server
-        roiDescrpt = '';
-        gitHash = 'unavailable';
-        if isfield(userOptS.output.labelMap,'roiGenerationDescription')
-            roiDescrpt = userOptS.output.labelMap.roiGenerationDescription;
-        end
-        if strcmpi(cmdFlag,'singcontainer') 
-            [~,hashChk] = system(['singularity apps ' containerPathC{k},...
-                ' | grep get_hash'],'-echo');
-            if ~isempty(hashChk)
-                [~,gitHash] = system(['singularity run --app get_hash ',...
-                    containerPathC{k}],'-echo');
-            end
-            roiDescrpt = [roiDescrpt, '  __git_hash:',gitHash];
-        end
-        userOptS.output.labelMap.roiGenerationDescription = roiDescrpt;
-
-
-        % Import segmentations
-        if ishandle(hWait)
-            waitbar(0.9,hWait,'Importing segmentation results to CERR');
-        end
-        [planC,origScanNumV] = processAndImportSeg(planC,scanNumV,...
-            fullClientSessionPath,userOptS);
-
-        % Get list of auto-segmented structures
-        if ischar(userOptS.output.labelMap.strNameToLabelMap)
-            labelDatS = readDLConfigFile(fullfile(labelPath,...
-                userOptS.strNameToLabelMap));
-            labelMapS = labelDatS.strNameToLabelMap;
-        else
-            labelMapS = userOptS.output.labelMap.strNameToLabelMap;
-        end
-        allLabelNamesC = [allLabelNamesC,{labelMapS.structureName}];
-        
-        % Get DICOM export settings
-        if isfield(userOptS.output.labelMap, 'dicomExportOptS')
-            if isempty(dcmExportOptS)
-                dcmExportOptS = userOptS.output.labelMap.dicomExportOptS;
-            else
-                dcmExportOptS = dissimilarInsert(dcmExportOptS,...
-                                userOptS.output.labelMap.dicomExportOptS);
-            end
-        else
-            if ~exist('dcmExportOptS','var')
-                dcmExportOptS = [];
-            end
-        end
+        %Process model outputs
+        [planC,origScanNumV,labelNamesC,dcmExportOptS] = ...
+            processAndImportAIOutput(planC,userOptS,scanNumV,...
+            fullClientSessionPath,cmdFlag,hWait);
+        allLabelNamesC = [allLabelNamesC,labelNamesC];
 
     end
 
@@ -205,10 +162,10 @@ else %'BABS'
     
     babsPath = varargin{1};
     success = babsSegmentation(cerrPath,fullClientSessionPath,babsPath,...
-              segResultCERRPath);
+              AIresultCERRPath);
     
     % Read segmentation from segResultCERRRPath to display in viewer
-    segFileName = fullfile(segResultCERRPath,'cerrFile.mat');
+    segFileName = fullfile(AIresultCERRPath,'cerrFile.mat');
     indexS = planC{end};
     planD = loadPlanC(segFileName);
     indexSD = planD{end};
