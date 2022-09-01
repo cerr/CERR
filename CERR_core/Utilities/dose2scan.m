@@ -1,4 +1,4 @@
-function dose2scan(doseNum,scanType,gridType,planC)
+function planC = dose2scan(doseNum,scanType,gridType,planC)
 % dose2scan.m converts dose "doseNum" to pseudo-CT scan.
 %--------------------------------------------------------------------------
 % INPUTS
