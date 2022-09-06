@@ -1,4 +1,5 @@
-function writeHDF5ForDL(scanC,maskC,passedScanDim,outDirC,filePrefix,testFlag)
+function writeHDF5ForDL(scanC,maskC,passedScanDim,coordInfoS,outDirC,...
+                        filePrefix,testFlag)
 %
 % Script to write extracted scan and mask to HDf5 for DL.
 %
@@ -9,7 +10,8 @@ function writeHDF5ForDL(scanC,maskC,passedScanDim,outDirC,filePrefix,testFlag)
 % scanC          : Extracted scan(s)
 % maskC          : Extracted masks (for different views)
 % passedScanDim  : May be '2D' or '3D'
-% outDir         : Path to output directory
+% coordInfoS     : Dictionary of scan metadata
+% outDirC        : Path to output directory
 % filePrefix     : File prefix. E.g. Pass CERR file name
 % testFlag       : Set flag to true for test dataset to skip mask export.
 %                  Default:true. Assumes testing dataset if not specified.
@@ -48,7 +50,9 @@ switch (passedScanDim)
         h5create(scanFilename,'/scan',size(exportScan3M));
         pause(0.1)
         h5write(scanFilename,'/scan',exportScan3M);
-        
+        h5create(scanFilename,'/metadata',size(coordInfoS));
+        pause(0.1)
+        h5write(scanFilename,'/metadata',coordInfoS);
         
     case '2D'
         
