@@ -25,12 +25,12 @@
   "reference" : "10.1109/TMI.2018.2857800",
 	
 "notes" : {
-"preprocessing" : [
-{
-    "imageOffset" : 1024,
-    "rotation" : { "angle": 90, "axis": "+Z" } , 
-    "flipdim" : "none" ,
-    "couchFlag" : 1 
+    "preprocessing" : [
+    {
+     "imageOffset" : 1024,
+     "rotation" : { "angle": 90, "axis": "+Z" } , 
+     "flipdim" : "none" ,
+     "couchFlag" : 1 
     }
 ],
 
@@ -40,6 +40,8 @@
     "releaseDate" : "07/08/2022" 
 }
 },
+
+"outputAssocScan": {"identifier": {"imageType":"CT SCAN"}},
 
 "output":{
 
@@ -72,7 +74,6 @@
         }
     ],
     
-
         "postProc" : {"Lung_Left": [{"method": "removeBackgroundFP"},{"method": "getLargestConnComps", "operator": "intersection", "params" : {"numCC": 1}}], 
           "Lung_Right": [{"method": "removeBackgroundFP"},{"method": "getLargestConnComps","operator": "intersection", "params" : {"numCC": 1}}],
           "Heart": [{"method": "removeBackgroundFP"},{"method": "getLargestConnComps", "operator": "intersection", "params" : {"numCC": 1}}],
@@ -81,13 +82,9 @@
           "PBT": [{"method": "removeBackgroundFP"},{"method": "getLargestConnComps", "operator": "intersection", "params" : {"numCC": 1}}]
         },
 
-        "roiGenerationDescription": "LungOarMRRN2DAxial^mskgit",
+        "roiGenerationDescription": "LungOarMRRN2DAxial^mskgit"
         
-        "structAssocScan": {"identifier": {"imageType":"CT SCAN"}},
-
     }
     
   }
-    
 }
-    
