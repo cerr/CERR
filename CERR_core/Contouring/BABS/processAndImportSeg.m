@@ -1,5 +1,5 @@
-function [planC,origScanNumV,success] = processAndImportSeg(planC,scanNumV,...
-                                       fullSessionPath,userOptS)
+function [planC,origScanNumV,allLabelNamesC,dcmExportOptS,success] = ...
+    processAndImportSeg(planC,scanNumV,fullSessionPath,userOptS)
 % planC = processAndImportSeg(planC,scanNumV,fullSessionPath,userOptS);
 %-------------------------------------------------------------------------
 % INPUTS
@@ -56,6 +56,32 @@ end
 
 success = 1;
 
+% Get list of auto-segmented structures
+AIoutputPath = fullfile(fullSessionPath,'AIoutput');
+if ischar(userOptS.output.labelMap.strNameToLabelMap)
+    labelDatS = readDLConfigFile(fullfile(AIoutputPath,...
+        userOptS.strNameToLabelMap));
+    labelMapS = labelDatS.strNameToLabelMap;
+else
+    labelMapS = userOptS.output.labelMap.strNameToLabelMap;
+end
+allLabelNamesC = {labelMapS.structureName};
+
+% Get DICOM export settings
+if isfield(userOptS.output.labelMap, 'dicomExportOptS')
+    if isempty(dcmExportOptS)
+        dcmExportOptS = userOptS.output.labelMap.dicomExportOptS;
+    else
+        dcmExportOptS = dissimilarInsert(dcmExportOptS,...
+            userOptS.output.labelMap.dicomExportOptS);
+    end
+else
+    if ~exist('dcmExportOptS','var')
+        dcmExportOptS = [];
+    end
+end
+
+
 
 %% ----- Supporting functions ----
     function [origScanNum,planC] = importLabelMap(userOptS,scanNumV,...
@@ -71,7 +97,7 @@ success = 1;
         outScanNum = scanNumV(origScanNum);
         userOptS.input.scan(outScanNum) = userOptS(origScanNum).input.scan;
         userOptS.input.scan(outScanNum).origScan = origScanNum;
-        planC  = joinH5planC(outScanNum,segMask3M,labelPath,userOptS,planC);
+        [segMask3M,planC]  = joinH5planC(outScanNum,segMask3M,labelPath,userOptS,planC);
 
         % Post-process segmentation
         if sum(segMask3M(:))>0

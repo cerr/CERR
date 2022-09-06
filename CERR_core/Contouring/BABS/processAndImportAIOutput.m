@@ -15,45 +15,50 @@ for nOut = 1:length(outputC)
 
     switch(lower(outType))
 
-        %Segmentations
         case 'labelmap'
-            
+        %Segmentations
+
             % Import segmentations
             if ishandle(hWait)
                 waitbar(0.9,hWait,'Importing segmentation results to CERR');
             end
-            [planC,origScanNumV] = processAndImportSeg(planC,scanNumV,...
-                sessionPath,userOptS);
+            [planC,origScanNumV,allLabelNamesC,dcmExportOptS] = ...
+                processAndImportSeg(planC,scanNumV,sessionPath,userOptS);
 
-            % Get list of auto-segmented structures
-            if ischar(outputS.labelMap.strNameToLabelMap)
-                labelDatS = readDLConfigFile(fullfile(AIoutputPath,...
-                    userOptS.strNameToLabelMap));
-                labelMapS = labelDatS.strNameToLabelMap;
-            else
-                labelMapS = outputS.labelMap.strNameToLabelMap;
-            end
-            allLabelNamesC = {labelMapS.structureName};
-
-            % Get DICOM export settings
-            if isfield(outputS.labelMap, 'dicomExportOptS')
-                if isempty(dcmExportOptS)
-                    dcmExportOptS = outputS.labelMap.dicomExportOptS;
-                else
-                    dcmExportOptS = dissimilarInsert(dcmExportOptS,...
-                        outputS.labelMap.dicomExportOptS);
-                end
-            else
-                if ~exist('dcmExportOptS','var')
-                    dcmExportOptS = [];
-                end
-            end
-
+        case 'DVF'
         %Deformation vector field
-        %case 'DVF'
+
+        % Read model output
+            %outFile = assign loc in session dir
+            outFmt = outputS.modelOutputFormat;
+        switch(outFmt)
+            case 'h5'
+                DVF3M = h5read(outFile,'/dvf');
+            otherwise
+                error('Invalid model output format %s.',outFmt)
+        end
+
+        % Convert to CERR coordinate sytem
+        [DVFout3M,planC] = joinH5planC(scanNum,DVF3M,labelPath,...
+                             userOptS,planC);
+
+        % Export to nii 
+        fprintf('\n Writing DVF to file %s',niiFileName);
+        niiFileName = userOptS.output.DVF.dvfOutDir;
+        save_nii(DVFout3M, niiFileName);
+        
+        % Store to deformS
+%         planC{indexS.deformS}(end+1).baseScanUID = %x;
+%         planC{indexS.deformS}(end+1).movScanUID =  %y;
+%         planC{indexS.deformS}(end+1).algorithm =  %alg;
+        planC{indexS.deformS}(end+1).registrationTool = 'CNN';
+%         planC{indexS.deformS}(end+1).algorithmParamsS.singContainerHash = ...
+%             hashid;
+        planC{indexS.deformS}(end+1).DVFfileName = niiFileName;
 
         otherwise
             error('Invalid output type '' %s ''.',outType)
+
 
     end
     userOptS.output.(outType) =  outputS;
