@@ -78,7 +78,7 @@ if ~isempty(sshConfigFile)
     sshConfigS.fullServerSessionPath = fullServerSessionPath;
 end
 
-if nargin>=9
+if nargin>9
     skipMaskExport = varargin{3};
 else
     skipMaskExport = true;
@@ -134,15 +134,29 @@ if length(algorithmC) > 1 || ...
 
         %Call container and execute model
         tic
+        roiDescrpt = '';
         if strcmpi(cmdFlag,'singcontainer') && exist('sshConfigS','var')...
                 && isempty(sshConfigS)
             callDeepLearnSegContainer(algorithmC{k}, ...
                 containerPathC{k}, fullClientSessionPath, sshConfigS,...
                 userOptS.batchSize); % different workflow for client or session
+            gitHash = 'unavailable';
+            [~,hashChk] = system(['singularity apps ' containerPathC{k},...
+                ' | grep get_hash'],'-echo');
+            if ~isempty(hashChk)
+                [~,gitHash] = system(['singularity run --app get_hash ',...
+                    containerPathC{k}],'-echo');
+            end
+            roiDescrpt = [roiDescrpt, '  __git_hash:',gitHash];
+            outputS.labelMap.roiGenerationDescription = roiDescrpt;
         else
             cmd = [activate_cmd,' && ',run_cmd];
             disp(cmd)
             status = system(cmd);
+            if ~isfield(outputS.labelMap,'roiGenerationDescription')
+                outputS.labelMap.roiGenerationDescription = roiDescrpt;
+            end
+
         end
         toc
 
