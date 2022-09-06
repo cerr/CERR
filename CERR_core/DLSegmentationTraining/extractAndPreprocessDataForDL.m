@@ -486,6 +486,8 @@ for scanIdx = 1:numScans
     coordInfoS(scanIdx).affineM = affineOutM;
     coordInfoS(scanIdx).originV = originV;
     coordInfoS(scanIdx).voxSizV = voxSizV;
+    coordInfoS(scanIdx).imageOrientationV =...
+        planC{indexS.scan}(scanNumV(scanIdx)).scanInfo(1).imageOrientationPatient;
     
 end
 optS.scan = scanOptS;
