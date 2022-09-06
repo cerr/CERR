@@ -17,24 +17,7 @@ for nOut = 1:length(outputC)
 
         %Segmentations
         case 'labelmap'
-
-            % Common for client and server
-            roiDescrpt = '';
-            gitHash = 'unavailable';
-            if isfield(outputS.labelMap,'roiGenerationDescription')
-                roiDescrpt = outputS.labelMap.roiGenerationDescription;
-            end
-            if strcmpi(cmdFlag,'singcontainer')
-                [~,hashChk] = system(['singularity apps ' containerPathC{k},...
-                    ' | grep get_hash'],'-echo');
-                if ~isempty(hashChk)
-                    [~,gitHash] = system(['singularity run --app get_hash ',...
-                        containerPathC{k}],'-echo');
-                end
-                roiDescrpt = [roiDescrpt, '  __git_hash:',gitHash];
-            end
-            outputS.labelMap.roiGenerationDescription = roiDescrpt;
-
+            
             % Import segmentations
             if ishandle(hWait)
                 waitbar(0.9,hWait,'Importing segmentation results to CERR');
