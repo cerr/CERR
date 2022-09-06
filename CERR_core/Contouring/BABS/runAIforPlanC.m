@@ -148,13 +148,13 @@ if length(algorithmC) > 1 || ...
                     containerPathC{k}],'-echo');
             end
             roiDescrpt = [roiDescrpt, '  __git_hash:',gitHash];
-            outputS.labelMap.roiGenerationDescription = roiDescrpt;
+            userOptS.output.labelMap.roiGenerationDescription = roiDescrpt;
         else
             cmd = [activate_cmd,' && ',run_cmd];
             disp(cmd)
             status = system(cmd);
-            if ~isfield(outputS.labelMap,'roiGenerationDescription')
-                outputS.labelMap.roiGenerationDescription = roiDescrpt;
+            if ~isfield(userOptS.output.labelMap,'roiGenerationDescription')
+                userOptS.output.labelMap.roiGenerationDescription = roiDescrpt;
             end
 
         end
