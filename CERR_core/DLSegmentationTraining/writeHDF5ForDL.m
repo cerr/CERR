@@ -50,9 +50,6 @@ switch (passedScanDim)
         h5create(scanFilename,'/scan',size(exportScan3M));
         pause(0.1)
         h5write(scanFilename,'/scan',exportScan3M);
-        h5create(scanFilename,'/metadata',size(coordInfoS));
-        pause(0.1)
-        h5write(scanFilename,'/metadata',coordInfoS);
         
     case '2D'
         
@@ -126,11 +123,14 @@ switch (passedScanDim)
                 H5T.close(datatypeID);
                 H5F.close(fileID);
                 
-                
+
             end
         end
-        
-        
+
 end
+
+h5create(scanFilename,'/metadata',size(coordInfoS));
+pause(0.1)
+h5write(scanFilename,'/metadata',coordInfoS);
 
 end
