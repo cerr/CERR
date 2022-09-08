@@ -9,7 +9,8 @@ end
 indexS = planC{end};
 
 %% Reverse pre-processing operations
-[dataOut3M,planC] = reverseTransformAIOutput(scanNum,data3M,userOptS,planC);
+[dataOut3M,scanNum,planC] = reverseTransformAIOutput(scanNum,data3M,...
+    userOptS,planC);
 
 %% Import model output to CERR
 outputTypeC = fieldnames(userOptS.output);

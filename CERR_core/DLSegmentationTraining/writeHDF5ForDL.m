@@ -60,12 +60,10 @@ switch (passedScanDim)
         for nField = 1:length(infoC)
             dims = size(coordInfoS.(infoC{nField}));
             dsetname = ['/',infoC{nField}];
-            if nField == length(infoC)
-                closeFlag = 1;
-            end
             success = lowLevelH5Write(fileID,metadataFilename,dims,...
-                dsetname,rank,coordInfoS.(infoC{nField}));
+                dsetname,rank,coordInfoS.(infoC{nField}),closeFlag);
         end
+        fclose(fileID);
 
     case '2D'
 
