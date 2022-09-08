@@ -1,43 +1,53 @@
 {
-"strNameToLabelMap":[
 
-  {"structureName" : "Left_masseter", "value" : 1},
-  {"structureName" : "Right_masseter", "value" : 2},
-  {"structureName" : "Left_medial_pterygoid", "value" : 3},
-  {"structureName" : "Right_medial_pterygoid", "value" : 4}
+"input":{
 
-  ],
-
-"scan":{
+    "scan":{
 
         "identifier" : {"imageType": "CT SCAN"},
 
-	"view" : ["axial", "sagittal", "coronal"],
+	    "view" : ["axial", "sagittal", "coronal"],
 
-	"crop" : [{     
+	    "crop" : [{     
             		"method": "crop_for_chewing_structs",
             		"params": { "structureName": "OUTER_1",
                         	    "headSizeLimitCm" : 23,
                         	    "saveStrToPlanCFlag": 1},
             		"operator": ""
-         	  }
-         ],
+         	      }
+                ],
 
-	"resize" : {"method": "none",
+	    "resize" : {"method": "none",
            	    "size" : [320,320]},
 
-	"channels" :[{"imageType": "original", "slice": "current-1"},
+	    "channels" :[{"imageType": "original", "slice": "current-1"},
                      {"imageType": "original", "slice": "current"},
                      {"imageType": "original", "slice": "current+1"}]
-	},             
+    }
+},             
 
 "passedScanDim" : "2D",
 
 "batchSize" : 4,
 
-"postProc" : {"Left_masseter": {"method": "post_process_chewing_structs"}, "Right_masseter": {"method": "post_process_chewing_structs"}, "Left_medial_pterygoid": {"method": "post_process_chewing_structs"}, "Right_medial_pterygoid": {"method": "post_process_chewing_structs"}},
+"output":{
+    "labelMap":{
+                "strNameToLabelMap":[
+                 {"structureName" : "Left_masseter", "value" : 1},
+                 {"structureName" : "Right_masseter", "value" : 2},
+                 {"structureName" : "Left_medial_pterygoid", "value" : 3},
+                 {"structureName" : "Right_medial_pterygoid", "value" : 4}
+                 ],
 
-"roiGenerationDescription": "HNDeepLabV32.5DAvgTransSagCor^mskgit59df680",
+                "postProc" : {"Left_masseter":{"method": "post_process_chewing_structs"},
+                  "Right_masseter": {"method": "post_process_chewing_structs"},
+                  "Left_medial_pterygoid": {"method": "post_process_chewing_structs"},
+                  "Right_medial_pterygoid": {"method": "post_process_chewing_structs"}},
+
+                "roiGenerationDescription": "HNDeepLabV32.5DAvgTransSagCor^mskgit59df680"
+
+    }
+},
 
 "reference" : "https://doi.org/10.1088/1361-6560/ac4000"
 

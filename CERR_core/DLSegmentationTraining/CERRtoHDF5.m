@@ -25,17 +25,17 @@ function errC = CERRtoHDF5(CERRdir,HDF5dir,userOptS)
 %% Get user inputs
 dataSplitV = userOptS.dataSplit;
 prefixType = userOptS.exportedFilePrefix;
-scanOptS = userOptS.scan;
+scanOptS = userOptS.input.scan;
 passedScanDim = userOptS.passedScanDim;
-if isfield(userOptS,'inputStrNameToLabelMap')
-    labelKeyS = userOptS.inputStrNameToLabelMap;
+if isfield(userOptS.input,'strNameToLabelMap')
+    labelKeyS = userOptS.input.strNameToLabelMap;
     strListC = {labelKeyS.structureName};
     labelV = [labelKeyS.value];
 else
     strListC = {};
     labelKeyS = [];
 end
-skipMaskExport = true;
+skipMaskExport = false;
 
 %% Get data split
 [trainIdxV,valIdxV,testIdxV] = randSplitData(CERRdir,dataSplitV);
@@ -51,7 +51,7 @@ if isempty(p)
     p = parpool();
     closePool = 1;
 else
-      closePool = 0;
+    closePool = 0;
 end
 
 %Loop over CERR files
@@ -86,9 +86,9 @@ parfor planNum = 1:length(dirS)
             extractAndPreprocessDataForDL(userOptS,planC,testFlag);
 
         %Save ROI to planC if selected
-        cropMethodsC = {userOptS.scan.crop.method};
+        cropMethodsC = {userOptS.input.scan.crop.method};
         if length(cropMethodsC)>1 || ~strcmp(cropMethodsC,'none')
-            cropS = userOptS.scan.crop;
+            cropS = userOptS.input.scan.crop;
             if isfield(cropS,'params')
                 parS = cropS.params;
                 if isfield(parS,'saveStrToPlanCFlag') && ...
@@ -120,7 +120,6 @@ parfor planNum = 1:length(dirS)
             otherwise
                 %default
                 identifier = 'cerrFile';
-
         end
 
         %- Write to user-selected format

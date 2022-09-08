@@ -15,6 +15,9 @@ outDirC = {};
 %Define paths for different views
 if length(userOptS.view)>1
     viewC = userOptS.view;
+    if ~iscell(viewC)
+        viewC = {viewC};
+    end
     for i=1:length(viewC)
         outDirC{i} = fullfile(defaultDir,viewC{i});
     end

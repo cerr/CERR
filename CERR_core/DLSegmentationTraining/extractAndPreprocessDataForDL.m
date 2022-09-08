@@ -19,19 +19,26 @@ function [scanOutC, maskOutC, scanNumV, optS, coordInfoS, planC] = ...
 %% Get processing directives from optS
 filtS = optS.filter;
 regS = optS.register;
-scanOptS = optS.scan;
+scanOptS = optS.input.scan;
 resampleS = [scanOptS.resample];
 resizeS = [scanOptS.resize];
 
-if isfield(optS,'inputStrNameToLabelMap')
-    exportStrS = optS.inputStrNameToLabelMap;
-    strListC = {exportStrS.structureName};
-    labelV = [exportStrS.value];
+if isfield(optS.input,'structure')
+    if isfield(optS.input.structure,'strNameToLabelMap')
+        exportStrS = optS.input.strNameToLabelMap;
+        strListC = {exportStrS.structureName};
+        labelV = [exportStrS.value];
+    else
+        strListC = optS.input.structure.name;
+        exportStrS.structureName = strListC;
+        labelV = 1:length(strListC);
+        exportStrS.value = labelV;
+    end
 else
     strListC = {};
 end
 
-if ~exist('testFlag','var')
+if ~exist('skipMaskExport','var')
     skipMaskExport = false;
 end
 
@@ -83,6 +90,8 @@ if ~exist('scanNumV','var') || isempty(scanNumV)
     end
 end
 
+origScanNumV = scanNumV;
+
 
 %% Register scans 
 indexS = planC{end};
@@ -131,15 +140,16 @@ scanNumV(ignoreIdxV) = [];
 %% Identify available structures in planC
 allStrC = {planC{indexS.structures}.structureName};
 strNotAvailableV = ~ismember(lower(strListC),lower(allStrC)); %Case-insensitive
-if any(strNotAvailableV) && skipMaskExport
+if any(strNotAvailableV) && ~skipMaskExport
     scanOutC = {};
     maskOutC = {};
-    warning(['Skipping pt. Missing structures: ',strjoin(strListC(strNotAvailableV),',')]);
+    warning(['Skipping pt. Missing structures: ',...
+        strjoin(strListC(strNotAvailableV),',')]);
     return
 end
 exportStrC = strListC(~strNotAvailableV);
 
-if ~isempty(exportStrC) || skipMaskExport
+if ~isempty(exportStrC) || ~skipMaskExport
     exportLabelV = labelV(~strNotAvailableV);
     %Get structure ID and assoc scan
     strIdxC = cell(length(exportStrC),1);
@@ -169,7 +179,7 @@ for scanIdx = 1:numScans
     
     %Extract masks from planC
     strC = {planC{indexS.structures}.structureName};
-    if isempty(exportStrC) && ~skipMaskExport
+    if isempty(exportStrC) && skipMaskExport
         mask3M = [];
         validStrIdxV = [];
     else
@@ -200,7 +210,8 @@ for scanIdx = 1:numScans
     end
     
     %Get affine matrix
-    [affineInM,~,voxSizV] = getPlanCAffineMat(planC, scanNumV(scanIdx), 1);
+    %[affineInM,~,voxSizV] = getPlanCAffineMat(planC, scanNumV(scanIdx), 1);
+    [affineInM,~,voxSizV] = getPlanCAffineMat(planC, origScanNumV(scanIdx), 1);
     affineOutM = affineInM;
     originV = affineOutM(1:3,4);
     
@@ -310,19 +321,16 @@ for scanIdx = 1:numScans
                 for n = 1:length(cropStrListC)
                     resampStrIdx = getMatchingIndex(cropStrListC{n},strC,...
                         'EXACT');
-                    if isempty(resampStrIdx)
-                        strIdx = getMatchingIndex(cropStrListC{n},strC,'EXACT');
-                        if ~isempty(strIdx)
-                            str3M = double(getStrMask(strIdx,planC));
-                            [~,outStr3M] = resampleScanAndMask([],double(str3M),...
-                                xValsV,yValsV,zValsV,xResampleV,yResampleV,...
-                                zResampleV);
-                            outStr3M = outStr3M >= 0.5;
-                            outStrName = [cropStrListC{n},'_resamp'];
-                            cropParS(n).structureName = outStrName;
-                            planC = maskToCERRStructure(outStr3M,0,scanNumV(scanIdx),...
-                                outStrName,planC);
-                        end
+                    if ~isempty(resampStrIdx)
+                        str3M = double(getStrMask(strIdx,planC));
+                        [~,outStr3M] = resampleScanAndMask([],double(str3M),...
+                            xValsV,yValsV,zValsV,xResampleV,yResampleV,...
+                            zResampleV);
+                        outStr3M = outStr3M >= 0.5;
+                        outStrName = [cropStrListC{n},'_resamp'];
+                        cropParS(n).structureName = outStrName;
+                        planC = maskToCERRStructure(outStr3M,0,scanNumV(scanIdx),...
+                            outStrName,planC);
                     else
                         outStrName = [cropStrListC{n},'_resamp'];
                         cropParS(n).structureName = outStrName;
@@ -334,7 +342,8 @@ for scanIdx = 1:numScans
     
         
         %Update affine matrix
-        [affineOutM,~,voxSizV] = getPlanCAffineMat(planC, scanNumV(scanIdx), 1);
+        %[affineOutM,~,voxSizV] = getPlanCAffineMat(planC, scanNumV(scanIdx), 1);
+        [affineOutM,~,voxSizV] = getPlanCAffineMat(planC, origScanNumV(scanIdx), 1);
         originV = affineOutM(1:3,4);
         
     end
@@ -479,8 +488,12 @@ for scanIdx = 1:numScans
     
     %originV = affineOutM(1:3,4);
     coordInfoS(scanIdx).affineM = affineOutM;
-    coordInfoS(scanIdx).originV = originV;
-    coordInfoS(scanIdx).voxSizV = voxSizV;
+    coordInfoS(scanIdx).originV = originV;% to do - get this from the resized scan?
+    coordInfoS(scanIdx).voxSizV = voxSizV; % to do - get this from the resized scan.
+    %coordInfoS(scanIdx).imageOrientationV =...
+    %    planC{indexS.scan}(scanNumV(scanIdx)).scanInfo(1).imageOrientationPatient;
+    coordInfoS(scanIdx).imageOrientationV =...
+        planC{indexS.scan}(origScanNumV(scanIdx)).scanInfo(1).imageOrientationPatient;
     
 end
 optS.scan = scanOptS;

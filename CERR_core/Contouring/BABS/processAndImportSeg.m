@@ -1,5 +1,5 @@
-function [planC,origScanNumV,success] = processAndImportSeg(planC,scanNumV,...
-                                       fullSessionPath,userOptS)
+function [planC,origScanNumV,allLabelNamesC,dcmExportOptS,success] = ...
+    processAndImportSeg(planC,scanNumV,fullSessionPath,userOptS)
 % planC = processAndImportSeg(planC,scanNumV,fullSessionPath,userOptS);
 %-------------------------------------------------------------------------
 % INPUTS
@@ -45,6 +45,7 @@ if ~iscell(planC)
         save_planC(planC,optS,saveflag,planCfilename);
         toc
     end
+    planC = cerrPath;
 else
     segMask3M = outC{1};
     tic
@@ -55,22 +56,48 @@ end
 
 success = 1;
 
+% Get list of auto-segmented structures
+AIoutputPath = fullfile(fullSessionPath,'AIoutput');
+if ischar(userOptS.output.labelMap.strNameToLabelMap)
+    labelDatS = readDLConfigFile(fullfile(AIoutputPath,...
+        userOptS.strNameToLabelMap));
+    labelMapS = labelDatS.strNameToLabelMap;
+else
+    labelMapS = userOptS.output.labelMap.strNameToLabelMap;
+end
+allLabelNamesC = {labelMapS.structureName};
+
+% Get DICOM export settings
+if isfield(userOptS.output.labelMap, 'dicomExportOptS')
+    if isempty(dcmExportOptS)
+        dcmExportOptS = userOptS.output.labelMap.dicomExportOptS;
+    else
+        dcmExportOptS = dissimilarInsert(dcmExportOptS,...
+            userOptS.output.labelMap.dicomExportOptS);
+    end
+else
+    if ~exist('dcmExportOptS','var')
+        dcmExportOptS = [];
+    end
+end
+
+
 
 %% ----- Supporting functions ----
     function [origScanNum,planC] = importLabelMap(userOptS,scanNumV,...
             segMask3M,labelPath,planC)
 
         indexS = planC{end};
-        identifierS = userOptS.structAssocScan.identifier;
-        if ~isempty(fieldnames(userOptS.structAssocScan.identifier))
+        identifierS = userOptS.outputAssocScan.identifier;
+        if ~isempty(fieldnames(userOptS.outputAssocScan.identifier))
             origScanNum = getScanNumFromIdentifiers(identifierS,planC);
         else
             origScanNum = 1; %Assoc with first scan by default
         end
         outScanNum = scanNumV(origScanNum);
-        userOptS.scan(outScanNum) = userOptS(origScanNum).scan;
-        userOptS.scan(outScanNum).origScan = origScanNum;
-        planC  = joinH5planC(outScanNum,segMask3M,labelPath,userOptS,planC);
+        userOptS.input.scan(outScanNum) = userOptS(origScanNum).input.scan;
+        userOptS.input.scan(outScanNum).origScan = origScanNum;
+        [segMask3M,planC]  = joinH5planC(outScanNum,segMask3M,labelPath,userOptS,planC);
 
         % Post-process segmentation
         if sum(segMask3M(:))>0
