@@ -90,6 +90,8 @@ if ~exist('scanNumV','var') || isempty(scanNumV)
     end
 end
 
+origScanNumV = scanNumV;
+
 
 %% Register scans 
 indexS = planC{end};
@@ -208,7 +210,8 @@ for scanIdx = 1:numScans
     end
     
     %Get affine matrix
-    [affineInM,~,voxSizV] = getPlanCAffineMat(planC, scanNumV(scanIdx), 1);
+    %[affineInM,~,voxSizV] = getPlanCAffineMat(planC, scanNumV(scanIdx), 1);
+    [affineInM,~,voxSizV] = getPlanCAffineMat(planC, origScanNumV(scanIdx), 1);
     affineOutM = affineInM;
     originV = affineOutM(1:3,4);
     
@@ -339,7 +342,8 @@ for scanIdx = 1:numScans
     
         
         %Update affine matrix
-        [affineOutM,~,voxSizV] = getPlanCAffineMat(planC, scanNumV(scanIdx), 1);
+        %[affineOutM,~,voxSizV] = getPlanCAffineMat(planC, scanNumV(scanIdx), 1);
+        [affineOutM,~,voxSizV] = getPlanCAffineMat(planC, origScanNumV(scanIdx), 1);
         originV = affineOutM(1:3,4);
         
     end
@@ -484,10 +488,12 @@ for scanIdx = 1:numScans
     
     %originV = affineOutM(1:3,4);
     coordInfoS(scanIdx).affineM = affineOutM;
-    coordInfoS(scanIdx).originV = originV;
-    coordInfoS(scanIdx).voxSizV = voxSizV;
+    coordInfoS(scanIdx).originV = originV;% to do - get this from the resized scan?
+    coordInfoS(scanIdx).voxSizV = voxSizV; % to do - get this from the resized scan.
+    %coordInfoS(scanIdx).imageOrientationV =...
+    %    planC{indexS.scan}(scanNumV(scanIdx)).scanInfo(1).imageOrientationPatient;
     coordInfoS(scanIdx).imageOrientationV =...
-        planC{indexS.scan}(scanNumV(scanIdx)).scanInfo(1).imageOrientationPatient;
+        planC{indexS.scan}(origScanNumV(scanIdx)).scanInfo(1).imageOrientationPatient;
     
 end
 optS.scan = scanOptS;
