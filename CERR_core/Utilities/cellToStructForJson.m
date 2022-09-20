@@ -27,14 +27,21 @@ end
 
 
 if ~isempty(fieldC)
+    emptyIdxC = cellfun(@isempty,fieldC,'un',0);
+    if any([emptyIdxC{:}])
+      fieldC([emptyIdxC{:}]) = 'empty';
+    end
     [~,idxV] = unique(fieldC,'first');
     uniqFieldC = fieldC(sort(idxV));
-        dataS = struct();
-        for i = 1:size(fieldC,1)
-            for j = 1:size(fieldC,2)
-                dataS(i).(uniqFieldC{j}) = valC{i,j};
-            end
-        end
+    dataS = struct();
+    for i = 1:size(fieldC,1)
+       for j = 1:size(fieldC,2)
+          dataS(i).(uniqFieldC{j}) = valC{i,j};
+       end
+    end
+    if isfield(dataS,'empty')
+      dataS = rmfield(dataS,'empty');
+    end
 else
     dataS = dataC;
 end
