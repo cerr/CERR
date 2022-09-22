@@ -97,6 +97,7 @@ switch (passedScanDim)
                 for nField = 1:length(infoC)
                   dims = size(coordInfoS.(infoC{nField}));
                   dsetname = infoC{nField};
+                  eval([dsetname,'=','coordInfoS.(dsetname);']);
                 end
                 save ("-hdf5",scanFilename,"OctaveExportScan",infoC{:});
 
