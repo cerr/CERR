@@ -25,7 +25,7 @@ if isstruct(deformS)
         movScanUID  = deformS.baseScanUID;
     end
     algorithm = deformS.algorithm;
-    registration_tool = deformS.registration_tool;
+    registration_tool = deformS.registrationTool;
     
     switch upper(registration_tool)
         case 'PLASTIMATCH'
