@@ -29,7 +29,10 @@ if isfield(optS.input,'structure')
         strListC = {exportStrS.structureName};
         labelV = [exportStrS.value];
     else
-        strListC = optS.input.structure.name;
+        strListC = optS.input.structure.Name;
+        if ~iscell(strListC)
+            strListC = {strListC};
+        end
         exportStrS.structureName = strListC;
         labelV = 1:length(strListC);
         exportStrS.value = labelV;
@@ -62,6 +65,9 @@ if ~exist('scanNumV','var') || isempty(scanNumV)
             copyStrsC = {};
             if isfield(regS,'copyStr')
                 copyStrsC = [regS.copyStr];
+                if ~iscell(copyStrsC)
+                    copyStrsC = {copyStrsC};
+                end
             end
             if isfield(scanOptS(n),'crop') &&  isfield(scanOptS(n).crop,'params')
                 scanCropParS = scanOptS(n).crop.params;
@@ -86,6 +92,12 @@ if ~exist('scanNumV','var') || isempty(scanNumV)
             scanNumV(n) = filtScanNum;
         else
             scanNumV(n) = getScanNumFromIdentifiers(identifierS,planC);
+            if isfield(regS,'copyStr')
+                copyStrsC = [regS.copyStr];
+                if ~iscell(copyStrsC)
+                    copyStrsC = {copyStrsC};
+                end
+            end
         end
     end
 end
@@ -105,6 +117,12 @@ if ~isempty(fieldnames(regS))
     if strcmp(regS.method,'none')
         %For pre-registered scans
         if isfield(regS,'copyStr')
+            if isfield(regS,'renameStr')
+                renameC = regS.renameStr;
+                if ~iscell(renameC)
+                    renameC = {renameC};
+                end
+            end
             for nStr = 1:length(copyStrsC)
                 cpyStrV = getMatchingIndex(copyStrsC{nStr},allStrC,'exact');
                 assocScanV = getStructureAssociatedScan(cpyStrV,planC);
@@ -112,6 +130,10 @@ if ~isempty(fieldnames(regS))
                 dstStr = cpyStrV(assocScanV==regScanNumV(2));
                 if isempty(dstStr) && ~isempty(cpyStr)
                     planC = copyStrToScan(cpyStr,movScan,planC);
+                    if isfield(regS,'renameStr')
+                        planC{indexS.structures}(end).structureName = ...
+                            renameC{nStr};
+                    end
                 end
             end
         end

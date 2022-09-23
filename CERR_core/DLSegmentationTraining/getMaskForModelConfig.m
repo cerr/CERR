@@ -10,7 +10,8 @@ function [outMask3M, planC] = getMaskForModelConfig(planC,mask3M,scanNum,cropS)
 % scanNum        
 % cropS        : Dictionary of parameters for cropping
 %                Supported methods: 'crop_fixed_amt','crop_to_bounding_box',
-%                'crop_to_str', 'crop_around_center','crop_pt_outline','crop_shoulders','none'.
+%                'crop_to_str', 'crop_around_center','crop_pt_outline',
+%                'crop_around_structure_center','crop_shoulders','none'.
 %--------------------------------------------------------------------------
 % AI 7/23/19
 % RKP 9/13/19 
@@ -90,6 +91,46 @@ for m = 1:length(methodC)
             outMask3M = false(scanSizV);
             outMask3M(minr:maxr,minc:maxc,mins:maxs) = true;
             maskC{m} = outMask3M;
+
+        case 'crop_around_structure_center'
+            strName = paramS.structureName;
+            cropDimV = paramS.margins;
+
+            x = cropDimV(1)/2;
+            y = cropDimV(2)/2;
+
+            numStructs = length(planC{indexS.structures});
+            assocScanV = getStructureAssociatedScan(1:numStructs,planC);
+            strC = {planC{indexS.structures}.structureName};
+            strIdx = getMatchingIndex(strName,strC,'EXACT');
+            % Find structure associated with scanNum
+            if ~isempty(strIdx)
+                strIdx = strIdx(assocScanV(strIdx) == scanNum);
+            end
+            if ~isempty(strIdx)
+                [strMask3M, planC] = getStrMask(strIdx,planC);
+                [minr,maxr,minc,maxc,mins,maxs] = ...
+                    compute_boundingbox(strMask3M);
+                minr = floor((minr+maxr)/2) - x;
+                minc = floor((minc+maxc)/2) - y;
+                if length(cropDimV)==2
+                    slcV = mins:maxs;
+                else
+                    z = floor(cropDimV(3)/2);
+                    mids = floor((mins+maxs)/2);
+                    mins = mids-z;
+                    slcV = mins:mins+cropDimV(3)-1;
+                end
+                outMask3M = false(size(strMask3M));
+                outMask3M(minr:minr+cropDimV(1)-1, ...
+                    minc:minc+cropDimV(2)-1,slcV) = true;
+            else
+                warning(['Missing structure ', strName]);
+                outMask3M = false(size(getScanArray(scanNum,planC)));
+            end
+            
+            maskC{m} = outMask3M;
+
 
         case 'crop_around_center_of_mass'
 

@@ -25,7 +25,7 @@ for p = 1:length(ptListC)
     switch(passedScanDim)
         case '3D'
             
-            fileName = fullfile(outPath,'outputH5',fileNameC{1});
+            fileName = fullfile(outPath,'outputH5',fileNameC{matchIdxV});
             mask3M = h5read(fileName,'/mask');
             mask3M = permute(mask3M,[3 2 1]);
             
