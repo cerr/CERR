@@ -1,11 +1,13 @@
 function [planC,statT] = getSemiQuantMetricsForDCEMR(planC,strNum,...
-    createMapsFlag,varargin)
+    shift,createMapsFlag,varargin)
 % [planC,statT] = getSemiQuantMetricsForDCEMR(planC,strNum,...
 %    createMapsFlag,varargin);
 %==========================================================================
 % INPUTS
 % planC : CERR archive
 % strNum: Structure number
+% shift : No. time points to start of uptake. Leave empty (default) for
+%         interactive selection
 % createMapsFlag : Save parameter maps if flag is set to 1 (off:0).
 % --- Optional -----
 % varargin{1} :  Flag for temporal smoothing (Default:0)
@@ -16,7 +18,7 @@ function [planC,statT] = getSemiQuantMetricsForDCEMR(planC,strNum,...
 % AI 11/12/2020
 
 %% Check inputs
-minargs = 3;
+minargs = 4;
 maxargs = 6;
 narginchk(minargs,maxargs);
 % Set defaults
@@ -71,8 +73,16 @@ for n = 1:nMaskSlices
     maskM = mask3M(:,:,roiSlicesV(n));
     maskedDCE3M = bsxfun(@times,filtSlice3M,maskM);
     if n==1
-        %Get user-input shift to start of uptake curve
-        [shift,nbase] = getShift(maskedDCE3M,maskM);
+        if isempty(shift)
+            %Get user-input shift to start of uptake curve
+            shift = getShift(maskedDCE3M,maskM);
+        end
+        % Get number of baseline points (prior to uptake)
+        if shift>1
+            nbase = shift-1;
+        else
+            nbase = 1;
+        end
     end
     %Normalize
     base3M = maskedDCE3M(:,:,1:nbase); %Baseline signal
@@ -173,7 +183,7 @@ end
 
 
 %% -- Sub-functions --
-    function [shift,nbase] = getShift(maskedDCE3M,maskM)
+    function shift = getShift(maskedDCE3M,maskM)
         [i,j] = find(maskM);
         ROISigM = (maskedDCE3M(i,j,:));
         avgROIsigV = squeeze(sum(sum(ROISigM)))/size(maskedDCE3M,3);
@@ -189,12 +199,6 @@ end
             return
         end
         close(h)
-        % Get number of baseline points (prior to uptake)
-        if shift>1
-            nbase = shift-1;
-        else
-            nbase = 1;
-        end
     end
 
     function yV = calcStats(xV)

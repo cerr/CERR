@@ -1,32 +1,22 @@
 {
-
-"inputFileType" : "DICOM",
-
-"structList" : ["structName1","structName2","structName3"],
-
-"dataSplit" : [80, 10, 10],
-
-"scan": {
-
-	"identifier" : {"imageType": "CT SCAN"},
-
-	"resample": { "resolutionXCm": 0.1, "resolutionYCm": 0.1, "resolutionZCm": 0.1, "method": "sinc"},
-
-	"crop" : {"method": "crop_to_str", "params" : {"structureName": "structName4"}, "operator" : ""},
-
-	"resize" : {"method": "bilinear", "size": [256,256]},
-
-	"view" : "axial",
-
-	"channels" :{"imageType": "original", "slice": "current"}
-             
-         },
-         
-
-"exportedFilePrefix" : "inputfilename",
-
-"passedScanDim" : "3D"
-
+    "input":{
+        "format" : "DICOM",
+        "scan": {
+	        "identifier" : {"imageType": "CT SCAN"},
+	        "resample": { "resolutionXCm": 0.1, "resolutionYCm": 0.1, "resolutionZCm": 0.1, "method": "sinc"},
+	        "crop" : {"method": "crop_to_str", "params" : {"structureName": "structName4"}, "operator" : ""},
+	        "resize" : {"method": "bilinear", "size": [256,256]},
+	        "view" : "axial",
+	        "channels" :{"imageType": "original", "slice": "current"}
+        },
+        "structure":{
+            "name":["structName1","structName2","structName3"]
+        }
+    },
+    "dataSplit" : [80, 10, 10],
+    "passedScanDim" : "3D",
+    "modelInputFormat": "H5",
+    "exportedFilePrefix": "inputfilename"
 }
 
 

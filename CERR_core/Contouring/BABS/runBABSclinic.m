@@ -119,7 +119,7 @@ t4end = toc(t4)
 delete(hParpool)
 
 % Export the RTSTRUCT file
-exportCERRtoDICOM(cerrPath,registeredDirLoc,outputCERRPath,outputDicomPath)
+batchExportAISegToDICOM(cerrPath,registeredDirLoc,outputCERRPath,outputDicomPath)
 
 totalTime = toc(t0)/60;
 disp(['BABS calculation finished in ', num2str(totalTime), ' minutes'])

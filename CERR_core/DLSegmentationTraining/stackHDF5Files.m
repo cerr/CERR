@@ -1,4 +1,4 @@
-function outC = stackHDF5Files(outPath,passedScanDim)
+function [outC,ptListC] = stackHDF5Files(outPath,passedScanDim)
 % stackHDF5Files.m
 %
 % Reads .H5 files with mask slices and returns 3D stacks
@@ -34,7 +34,8 @@ for p = 1:length(ptListC)
             mask3M = [];
             for s = 1: length(matchIdxV)
                 
-                slcName = fullfile(outPath,'outputH5',fileNameC{s});
+                slcName = fullfile(outPath,'outputH5',...
+                          fileNameC{matchIdxV(s)});
                 idx = strfind(slcName,'_slice');
                 slcNum = str2double(slcName(idx+7:end-3));
                 labelM = h5read(slcName,'/mask').';

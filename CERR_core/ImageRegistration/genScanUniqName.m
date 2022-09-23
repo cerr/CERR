@@ -16,7 +16,8 @@ else
         [~,f,~] = fileparts(f);
     end
     orgRoot = '1.3.6.1.4.1.9590.100.1.2';
-    scanUID = javaMethod('createUID','org.dcm4che3.util.UIDUtils',orgRoot);    
+    scanUID = char(javaMethod('createUID','org.dcm4che3.util.UIDUtils',...
+        orgRoot));
     %scanUID = dicomuid;
     uniqName = [f '_' scanUID];
 end

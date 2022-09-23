@@ -23,6 +23,9 @@ function [outScan3M,outMask3M] = resampleScanAndMask(scan3M,mask3M,...
 % AI 9/24/20  Updated to call imgResample3d.m
 
 extrapVal = 0;
+if ~exist('method','var')
+    method = 'linear';
+end
 
 %Resample scan
 if ~isempty(scan3M)

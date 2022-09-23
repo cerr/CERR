@@ -31,7 +31,8 @@ switch upper(outFmt)
     
     case 'H5'
         
-        writeHDF5ForDL(scanC,maskC,passedScanDim,outDirC,filePrefix,testFlag);
+        writeHDF5ForDL(scanC,maskC,passedScanDim,coordInfoS,outDirC,...
+            filePrefix,testFlag);
         
     case 'NRRD'
         

@@ -34,6 +34,7 @@ function ROE(command,varargin)
 % You should have received a copy of the GNU General Public License
 % along with CERR.  If not, see <http://www.gnu.org/licenses/>.
 % =========================================================================================================================
+%Latest Modifications:
 % APA, 05/10/2016
 % AI , 05/24/16  Added dose scaling
 % AI , 07/28/16  Added ability to modify model parameters
@@ -56,6 +57,8 @@ function ROE(command,varargin)
 % AI ,  05/17/21 Added draggable NTCP/TCP readouts
 % AI ,  06/18/21 Get Rx dose from planC. Alt: added field for user-input Rx.
 % AI ,  05/11/22 Tabbed display for user settings & clinical constraints.
+% AI ,  08/05/22 Ability to load from preset configurations (towards 
+%                clinical use). Usage: ROE('INIT','preset',configFilePath);
 % --------------------------------------------------------------------------------------------------------------------------
 
 % Globals
@@ -139,7 +142,13 @@ switch upper(command)
         
         ud.handle.title = titleH;
         guidata(hFig,ud);
-        ROE('refresh',hFig);
+
+        if nargin<2
+            ROE('refresh',hFig);
+        else
+            ROE('refresh',hFig,varargin{:});
+        end
+
         figure(hFig);
 
         
@@ -148,21 +157,80 @@ switch upper(command)
         if isempty(hFig)
             return
         end
-        createUIControlsROE(hFig,planC);
-       
-        
+
+        if nargin<3                %default (research use)
+            createUIControlsROE(hFig,planC);
+        else
+            %Create UI controls (clinical use)
+            createUIControlsROEPreset(hFig,planC,varargin);
+            %Load models from config file
+            refreshFlag = 0;
+            listProtocolsFlag = 0;
+            configFile = varargin{3};
+            %'G:\CERR_test\CERR\CERR_core\PlanAnalysis\sampleFilesForROE\ultracentalLungConfig.json';
+            ROE('LOAD_MODELS',configFile,refreshFlag,listProtocolsFlag);
+            %Set default dose plan
+            ud = guidata(hFig);
+            ud.structsChecked = 0;
+            hObj = ud.handle.tab1H(4);
+            hData.Indices = [0,0];
+            hData.EditData = planC{indexS.dose}(1).fractionGroupID;
+            editParamsROE(hObj,hData,hFig,planC)
+            %Check input structures
+            checkInputStrROE(hFig,planC);
+            ud = guidata(hFig);
+            strCheckFigH = ud.handle.strCheckH;
+            uiwait(strCheckFigH)
+            ud = guidata(hFig);
+            if isfield(ud,'structsChecked') && ud.structsChecked
+                %Set default plot mode
+                ud.plotMode = 3;
+                guidata(hFig,ud);
+                %Plot models
+                ROE('PLOT_MODELS');
+                %Switch to constraints tab
+                hObj = ud.handle.inputH(4);
+                switchTabsROE(hObj,[],hFig)
+            end
+        end
+
+
     case 'LOAD_MODELS'
 
 
-        ROE('REFRESH');
+        refreshFlag = 1;%default;
+        showProgFlag = 0;%default
+        listProtocolsFlag = 1;
+        if nargin<2
+            ROE('REFRESH');
+            showProgFlag = 1;
+        else
+            if nargin>2
+                refreshFlag = varargin{2};
+            end
+            if nargin>3
+                listProtocolsFlag = varargin{3};
+            end
+            if refreshFlag
+                ROE('REFRESH',hFig,planC,varargin);
+            end
+        end
+
         ud = guidata(hFig);
-
+        
         %Get paths to JSON files
-        optS = opts4Exe('CERRoptions.json');
-        %NOTE: Define path to .json files for protocols, models & clinical criteria in CERROptions.json
-        %optS.ROEProtocolPath = 'your/path/to/protocols';
-        %optS.ROEModelPath = 'your/path/to/models';
-
+        if nargin<2
+            %Get path from CERRoptions.json
+            optS = opts4Exe('CERRoptions.json');
+            %NOTE: Define path to .json files for protocols, models & clinical criteria in CERROptions.json
+            %optS.ROEProtocolPath = 'your/path/to/protocols';
+            %optS.ROEModelPath = 'your/path/to/models';
+            %optS.ROECriteriaPath = 'your/path/to/criteria';
+        else
+            configFile = varargin{1};
+             optS = loadjson(configFile);
+        end
+        
         if contains(optS.ROEProtocolPath,'getCERRPath')
             protocolPath = eval(optS.ROEProtocolPath);
         else
@@ -180,7 +248,7 @@ switch upper(command)
         end
         
         % List available protocols for user selection
-        [protocolListC,protocolIdx,ok] = listFilesROE(protocolPath);
+        [protocolListC,protocolIdx,ok] = listFilesROE(protocolPath,listProtocolsFlag);
         if ~ok
             return
         end
@@ -203,7 +271,7 @@ switch upper(command)
                 modelFPath = fullfile(modelPath,protocolInfoS.models.(modelListC{m}).modelFile);
                 %Get path to .json for model
                 protocolS(p).model{m} = loadjson(modelFPath,'ShowProgress',...
-                    1);
+                    showProgFlag);
                 %Load model parameters from .json file
                 protocolS(p).modelFiles = [protocolS(p).modelFiles,modelFPath];
                 modelName = protocolS(p).model{m}.name;
@@ -239,7 +307,6 @@ switch upper(command)
         guidata(hFig,ud);
         
         ROE('LIST_MODELS');
-        
         
     case 'PLOT_MODELS'
         
@@ -289,11 +356,12 @@ switch upper(command)
         
         %% Define color order, foreground protocol
         colorOrderM = [0 229 238;123 104 238;255 131 250;0 238 118;
-            218 165 32;28 134 238;255 153 153;196 196 196;0 139 0;...
-            28 134 238;238 223 204]/255;
+            218 165 32;28 134 238;255 153 153;0 139 0;28 134 238;...
+            238 223 204;196 196 196]/255;
         if ~isfield(ud,'foreground') || isempty(ud.foreground)
             ud.foreground = 1;
         end
+        ud.plotColorOrderM = colorOrderM;
         
         %% Define loop variables
         protocolS = ud.Protocols;
@@ -310,42 +378,13 @@ switch upper(command)
         
         
         %% Handle missing structure input
-        for p = 1:numel(protocolS)
-            
-            modelC = protocolS(p).model;
-            
-            %Identify models with no associated struct. selection
-            strSelC = cellfun(@(x)x.strNum , modelC,'un',0);
-            noSelV = find([strSelC{:}]==0);
-            %Allow for optional inputs 
-            optFlagC = checkInputStructsROE(modelC);
-            numStrV = cellfun(@numel,optFlagC);
-            cumStrV = cumsum(numStrV);
-            optFlagV = find([optFlagC{:}]==1);
-            noSelV(ismember(noSelV,optFlagV)) = [];
-            %Exclude optional structures with no user input
-            modelC = skipOptionalStructsROE(modelC,optFlagC,strSelC);
-                        
-            %Allow users to input missing structures or skip associated models
-            if any(noSelV)
-                modList = cellfun(@(x)x.name , modelC,'un',0);
-                modNumV = ismember(cumStrV,noSelV);
-                modList = strjoin(modList(modNumV),',');
-                %msgbox(['Please select structures required for models ' modList],'Selection required');
-                dispMsg = sprintf(['No structure selected',...
-                    ' for ',modList,'.\n Skip model(s)?']);
-                missingSel = questdlg(['\fontsize{11}',dispMsg],'Missing structure',...
-                    'Yes','No',struct('Interpreter','tex','Default','Yes'));
-                if ~isempty(missingSel) && strcmp(missingSel,'Yes')
-                    modelC(modNumV) = [];
-                    protocolS(p).model = modelC;
-                else
-                    return
-                end
-            end
+        guidata(hFig,ud);
+        if ~isfield(ud,'structsChecked') || ~(ud.structsChecked)
+            checkInputStrROE(hFig,planC)
+            ud = guidata(hFig);
         end
-        
-        
+            
+          
         %% Mode-specific computations
         switch plotMode
             
@@ -362,6 +401,7 @@ switch upper(command)
                 %Compute BED/TCP
                 for p = 1:numel(protocolS)
                                         
+                    modelC = protocolS(p).model;
                     modTypeC = cellfun(@(x)(x.type),modelC,'un',0);
                     xIndx = find(strcmp(modTypeC,'BED') | strcmp(modTypeC,'TCP')); %Identify TCP/BED models
                     
@@ -484,7 +524,7 @@ switch upper(command)
                     end
                     planC{indexS.dose}(plnNum).doseArray = dA;
                 end
-                %protocolS(p).model = modelC;
+                protocolS(p).model = modelC;
                 hSlider = ud.handle.modelsAxis(7); %Invisible; just for readout at scale=1
                 
             case 3 %vs. scaled frx size
@@ -545,7 +585,7 @@ switch upper(command)
             
             %Check inputs
             %1. Check that valid model file was passed
-            %modelC = protocolS(p).model;
+            modelC = protocolS(p).model;
             if isempty(modelC)
                 msgbox('Please select model files','Plot models');
                 close(hWait);
@@ -584,7 +624,7 @@ switch upper(command)
                 %gray = repmat([.5 .5 .5],size(colorOrderM,1),1);
                 plotColorM = [colorOrderM,repmat(alpha,size(colorOrderM,1),1)];
                 lineStyleC = {'--',':','-.'};
-                lineStyle = lineStyleC{p};
+                lineStyle = lineStyleC{p-1};
             end
             
             %Scale planned dose array
@@ -1176,16 +1216,23 @@ switch upper(command)
                     key = [key,BEDlegendC,'Clinical limits'];
                 end
             end
-            legH = legend(hax,key,'Location','northwest','Color','none',...
+            [legH,lineObjH] = legend(hax,key,'Location','northwest','Color','none',...
                 'FontName','Arial','FontWeight','normal','FontSize',10.5,...
                 'AutoUpdate','off');
             
         else
-            legH =legend(hax,key,...
+            [legH,lineObjH] = legend(hax,key,...
                 'Location','northwest','Color','none','FontName','Arial',...
                 'FontWeight','normal','FontSize',10.5,'AutoUpdate','off');
             
         end
+
+        %% Toggle model visibility
+        iconH = findobj(lineObjH,'Type','Line');
+        tagC = arrayfun(@(x) x.Tag,iconH,'un',0);
+        tcpIdx = cellfun(@(x) ~isempty(strfind(x,'TCP')),...
+            tagC) | cellfun(@(x) ~isempty(strfind(x,'BED')),tagC);
+        set(iconH(tcpIdx),'LineStyle',':');
     
         %Store userdata
         ud.handle.legend = legH;
@@ -1450,7 +1497,20 @@ switch upper(command)
         %set(ud.handle.tab1H(11),'Enable','On'); %Allow x-axis selection
         %set(ud.handle.tab1H(12),'Enable','On'); %Allow y-axis selection
         guidata(hFig,ud);
-        
+
+        %% Expand model tree
+        mtree = ud.modelTree;
+        root = mtree.Root;
+        mtree.setSelectedNode(root);
+        hEvt.getCurrentNode = root;
+        getParamsROE(mtree,hEvt,hFig,planC);
+        protocolNodes = root.getNextNode;
+        mtree.setSelectedNode(protocolNodes);
+        hEvt.getCurrentNode = protocolNodes;
+        getParamsROE(mtree,hEvt,hFig,planC);
+        ud = guidata(hFig);
+        guidata(hFig,ud);
+
     case 'SAVE_MODELS'
         ud = guidata(hFig);
         protocolS = ud.Protocols;

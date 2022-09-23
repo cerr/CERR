@@ -26,7 +26,7 @@ function planC = saveDVHMatrix(DVHNum, doseBinsV, volsHistV, planC)
 %
 %Usage:
 %   function planC = saveDVHMatrix(DVHNum, doseBinsV, volsHistV, planC)
-if isempty(doseBinsV)|isempty(volsHistV)
+if isempty(doseBinsV) || isempty(volsHistV)
     error('Cannot save DVH for empty structures');
 end
 indexS = planC{end};

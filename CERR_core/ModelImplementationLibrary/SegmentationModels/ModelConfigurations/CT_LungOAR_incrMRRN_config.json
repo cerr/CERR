@@ -1,70 +1,31 @@
 {
-"strNameToLabelMap" : [
-{
-    "structureName": "Lung_Left",
-    "value": 1
-    },
-{
-      "structureName": "Lung_Right",
-      "value": 2
-    },
-{
-      "structureName": "Heart",
-      "value": 3
-    },
-{
-      "structureName": "Esophagus",
-      "value": 4
-    },
-{
-      "structureName": "Cord",
-      "value": 5
-    },
-{
-      "structureName": "PBT",
-      "value": 6
-    }
-],
 
-"scan":{
+"input":{
+    "scan":{
 
         "identifier" : {"imageType": "CT SCAN"},
 
-        "resample": {"resolutionXCm": 0.1,
-		          "resolutionYCm": 0.1,
-                  "method": "linear"
-		    },
-
         "resize": {"method" : "padOrCrop3d",
                     "size" : [512,512]
-            }
+                  }
 
 
+          }
       },
+      
+  "batchSize" : 1 ,
 
-"batchSize" : 1 ,
+  "passedScanDim" : "3D",
 
-"postProc" : {"Lung_Left": [{"method": "removeBackgroundFP"},{"method": "getLargestConnComps", "operator": "intersection", "params" : {"numCC": 1}}], 
-          "Lung_Right": [{"method": "removeBackgroundFP"},{"method": "getLargestConnComps","operator": "intersection", "params" : {"numCC": 1}}],
-          "Heart": [{"method": "removeBackgroundFP"},{"method": "getLargestConnComps", "operator": "intersection", "params" : {"numCC": 1}}],
-          "Esophagus": [{"method": "removeBackgroundFP"},{"method": "getLargestConnComps", "operator": "intersection", "params" : {"numCC": 1}}],
-          "Cord": [{"method": "removeBackgroundFP"},{"method": "getLargestConnComps", "operator": "intersection", "params" : {"numCC": 1}}],
-          "PBT": [{"method": "removeBackgroundFP"},{"method": "getLargestConnComps", "operator": "intersection", "params" : {"numCC": 1}}]
-},
-
-"passedScanDim" : "3D",
-
-"structAssocScan": {"identifier": {"imageType":"CT SCAN"}},
-
-"reference" : "10.1109/TMI.2018.2857800",
+  "reference" : "10.1109/TMI.2018.2857800",
 	
 "notes" : {
-"preprocessing" : [
-{
-    "imageOffset" : 1024,
-    "rotation" : { "angle": 90, "axis": "+Z" } , 
-    "flipdim" : "none" ,
-    "couchFlag" : 1 
+    "preprocessing" : [
+    {
+     "imageOffset" : 1024,
+     "rotation" : { "angle": 90, "axis": "+Z" } , 
+     "flipdim" : "none" ,
+     "couchFlag" : 1 
     }
 ],
 
@@ -73,5 +34,52 @@
     "version" : "64907", 
     "releaseDate" : "07/08/2022" 
 }
-}
+},
+
+"outputAssocScan": {"identifier": {"imageType":"CT SCAN"}},
+
+"output":{
+
+    "labelMap":{
+
+        "strNameToLabelMap" : [
+        {
+            "structureName": "Lung_Left",
+            "value": 1
+        },
+        {
+        "structureName": "Lung_Right",
+        "value": 2
+        },
+        {
+        "structureName": "Heart",
+        "value": 3
+        },
+        {
+        "structureName": "Esophagus",
+        "value": 4
+        },
+        {
+        "structureName": "Cord",
+        "value": 5
+        },
+        {
+        "structureName": "PBT",
+        "value": 6
+        }
+    ],
+    
+        "postProc" : {"Lung_Left": [{"method": "removeBackgroundFP"},{"method": "getLargestConnComps", "operator": "intersection", "params" : {"numCC": 1}}], 
+          "Lung_Right": [{"method": "removeBackgroundFP"},{"method": "getLargestConnComps","operator": "intersection", "params" : {"numCC": 1}}],
+          "Heart": [{"method": "removeBackgroundFP"},{"method": "getLargestConnComps", "operator": "intersection", "params" : {"numCC": 1}}],
+          "Esophagus": [{"method": "removeBackgroundFP"},{"method": "getLargestConnComps", "operator": "intersection", "params" : {"numCC": 1}}],
+          "Cord": [{"method": "removeBackgroundFP"},{"method": "getLargestConnComps", "operator": "intersection", "params" : {"numCC": 1}}],
+          "PBT": [{"method": "removeBackgroundFP"},{"method": "getLargestConnComps", "operator": "intersection", "params" : {"numCC": 1}}]
+        },
+
+        "roiGenerationDescription": "LungOarMRRN2DAxial^mskgit"
+        
+    }
+    
+  }
 }

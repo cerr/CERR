@@ -1,9 +1,10 @@
-function exportCERRtoDICOM(cerrPath,origScanNumV,allLabelNamesC,...
+function batchExportAISegToDICOM(cerrPath,origScanNumV,allLabelNamesC,...
     outputCERRPath,outputDicomPath,dcmExportOptS,savePlancFlag)
-% function exportCERRtoDICOM(cerrPath,origScanNumV,allLabelNamesC,...
+% function batchExportAISegToDICOM(cerrPath,origScanNumV,allLabelNamesC,...
 %     outputCERRPath,outputDicomPath,dcmExportOptS,savePlancFlag)
 %
-% This function exports selected structures from CERR format to DICOM RTSTRUCT.
+% This function exports selected structures to DICOM RTSTRUCT from a batch
+% of CERR files
 %--------------------------------------------------------------------------
 % INPUTS:
 % cerrPath          - directory containing CERR files with initial

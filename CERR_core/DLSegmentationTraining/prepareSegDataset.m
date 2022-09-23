@@ -64,7 +64,7 @@ mkdir(outFilepath)
 fprintf('\nComplete\n');
 
 %% Import data to CERR
-if strcmpi(userOptS.inputFileType,'DICOM')
+if strcmpi(userOptS.input.format,'DICOM')
     
     CERRpath = fullfile(outputDir,'inputCERR');
     mkdir(CERRpath)
@@ -75,7 +75,7 @@ if strcmpi(userOptS.inputFileType,'DICOM')
     batchConvertWithSubDirs(inputDir,CERRpath,zipFlag,mergeScansFlag,...
         singleCerrFileFlag);
     
-elseif strcmpi(userOptS.inputFileType,'CERR')
+elseif strcmpi(userOptS.input.format,'CERR')
     
     %input CERR format
     CERRpath = inputDir;

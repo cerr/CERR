@@ -6,7 +6,7 @@ function matchingFileC = getFilesAssociatedWithSeries(seriesUID,ptDir)
 %
 % APA 7/7/2022
 
-ctDirS = dir(ptDir);
+ctDirS = rdir(ptDir);
 ctDirS([ctDirS.isdir]) = [];
 numFiles = length(ctDirS);
 refRtstructC = {};
@@ -31,10 +31,14 @@ matchingRtdoseV = [];
 init_ML_DICOM;
 
 for iFile = 1:numFiles
-    fname = fullfile(ptDir,ctDirS(iFile).name);
+    %fname = fullfile(ptDir,ctDirS(iFile).name);
+    fname = ctDirS(iFile).fullpath;
     try
         %infoS = dicominfo(fname);
-        attr = scanfile_mldcm(fname,true);
+        [attr,isDcm] = scanfile_mldcm(fname,true);
+        if ~isDcm
+            continue;
+        end
     catch
         continue;
     end    

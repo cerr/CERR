@@ -15,55 +15,30 @@ zipFlag = 'No';
 % fileFilterC = {'scout','corTmp','sag','report','_nac','mip',...
 %     'coronal','sagittal','screen_save'};
 % dirFilterC = {'ot'};
-% 
-% % Get all directories and files
-% tic, 
-% [filesInCurDir,dirsInCurDir] = rdir(source); 
-% toc
-% 
-% % Convert to lower case
-% dirNameC = lower({dirsInCurDir.name});
-% dirFullPathC = lower({dirsInCurDir.fullpath});
-% 
-% % determine back or forward slash
-% if ispc
-%     slashType = '\';
-% else
-%     slashType = '/';
-% end
-% 
-% % Filter out files
-% indV = zeros(1,length(dirNameC));
-% for i = 1:length(fileFilterC)    
-%     indC = strfind(dirNameC,fileFilterC{i});
-%     indV1 = ~cellfun(@isempty, indC);
-%     indV = indV | indV1;
-%     sum(indV)
-% end
-% 
-% % Filter out directories
-% for i = 1:length(dirFilterC)
-%     indC = strfind(dirFullPathC,[slashType,dirFilterC{i},slashType]);
-%     indV1 = ~cellfun(@isempty, indC);
-%     indV = indV | indV1;
-% end
-% 
-% % list of directories after filtering NAC's, etc.
-% dirsToImportC = dirFullPathC(~indV);
-% 
-% % filter directories containing no files
-% indV1 = false(1,length(dirsToImportC));
-% tic,
-% for dirNum = 1:length(dirsToImportC) 
-%     dirS = dir(dirsToImportC{dirNum}); 
-%     if ~all([dirS.isdir])
-%         indV1(dirNum) = 1;
-%     end
-% end
-% toc
-% dirsToImportC = dirsToImportC(indV1);
 
-dirsToImportC = {source};
+% Get all directories and files
+tic, 
+[filesInCurDir,dirsInCurDir] = rdir(source); 
+toc
+
+% Convert to lower case
+dirsToImportC = lower({dirsInCurDir.fullpath});
+if isempty(dirsToImportC)
+    dirsToImportC = {source};
+end
+
+% filter directories containing no files
+indV1 = false(1,length(dirsToImportC));
+tic,
+for dirNum = 1:length(dirsToImportC) 
+    dirS = dir(dirsToImportC{dirNum}); 
+    if ~all([dirS.isdir])
+        indV1(dirNum) = 1;
+    end
+end
+toc
+dirsToImportC = dirsToImportC(indV1);
+
 
 %% Import DICOM to CERR
 % Read options file
@@ -86,24 +61,20 @@ for dirNum = 1:length(dirsToImportC)
             dcmdirS.(['patient_' num2str(j)]) = patient.PATIENT(j);
         end
         patNameC = fieldnames(dcmdirS);
-        selected = 'all';
         mergeScansFlag = 'No';
+        combinedDcmdirS = struct('STUDY',dcmdirS.(patNameC{1}).STUDY);
         combinedDcmdirS = struct('STUDY',dcmdirS.(patNameC{1}).STUDY,'info',dcmdirS.(patNameC{1}).info);
-        if strcmpi(selected,'all')
-            combinedDcmdirS = struct('STUDY',dcmdirS.(patNameC{1}).STUDY,'info',dcmdirS.(patNameC{1}).info);
-            for i = 2:length(patNameC)
-                for j = 1:length(dcmdirS.(patNameC{i}).STUDY.SERIES)
-                    combinedDcmdirS.STUDY.SERIES(end+1) = dcmdirS.(patNameC{i}).STUDY.SERIES(j);
-                end
+        for i = 2:length(patNameC)
+            for j = 1:length(dcmdirS.(patNameC{i}).STUDY.SERIES)
+                combinedDcmdirS.STUDY.SERIES(end+1) = ...
+                    dcmdirS.(patNameC{i}).STUDY.SERIES(j);
             end
-            % Pass the java dicom structures to function to create CERR plan
-            try
-                planC = dcmdir2planC(combinedDcmdirS,mergeScansFlag,optS);
-            end
-        else
-            planC = dcmdir2planC(patient.PATIENT,mergeScansFlag,optS);
         end
-        
+        % Pass the java dicom structures to function to create CERR plan
+        try
+            planC = dcmdir2planC(combinedDcmdirS,mergeScansFlag,optS);
+        end
+
         indexS = planC{end};
         
         % build the filename for storing planC

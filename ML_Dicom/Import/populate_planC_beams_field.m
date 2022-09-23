@@ -63,12 +63,12 @@ switch fieldname
         % Patient Identification
         %dataS = getTagValue(attr, '00100020');
         %dataS = attr.getStrings(org.dcm4che3.data.Tag.PatientID);
-        dataS = attr.getString(1048608,0);
+        dataS = char(attr.getString(1048608,0));
     case 'PatientBirthDate'
         %Patient Date of Birth
         %dataS = getTagValue(attr, '00100030');
         %dataS = attr.getStrings(org.dcm4che3.data.Tag.PatientBirthDate);
-        dataS = attr.getString(1048624,0);
+        dataS = char(attr.getString(1048624,0));
     case 'PatientSex'
         %Patient Sex
         %dataS = getTagValue(attr, '00100040');
@@ -114,7 +114,7 @@ switch fieldname
         %Prescription Description
         %dataS = getTagValue(attr, '300A000E');
         %dataS = attr.getStrings(org.dcm4che3.data.Tag.PrescriptionDescription);
-        dataS = attr.getString(805961742,0);
+        dataS = char(attr.getString(805961742,0));
         if numel(dataS) > 1
             dataS = cell(dataS);
         else

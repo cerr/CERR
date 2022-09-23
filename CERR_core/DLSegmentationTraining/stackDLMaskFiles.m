@@ -1,18 +1,20 @@
-function outC = stackDLMaskFiles(outPath,outFmt,passedScanDim)
+function [outC,ptListC] = stackDLMaskFiles(outPath,outFmt,passedScanDim)
 % stackDLMaskFiles.m Reads output mask files and returns 3D stack.
 %--------------------------------------------------------------------------
 %INPUTS:
-% outPath       : Path to generated H5 files
+% outPath       : Path to generated files
 %                 Note: Assumes output filenames are of the form:
 %                 prefix_slice# if  passedScanDim = '2D' and
 %                 prefix_3D if passedScanDim = '3D'.
+% outFmt        : Output format ('H5' or 'NRRD').
+% passedScanDim : '2D' or '3D'.
 %------------------------------------------------------------------------
 % AI 6/29/21
 
 switch outFmt
     
     case 'H5'
-        outC = stackHDF5Files(outPath,passedScanDim);
+        [outC,ptListC] = stackHDF5Files(outPath,passedScanDim);
         
     case 'NRRD'
         
