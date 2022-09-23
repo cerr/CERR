@@ -36,7 +36,7 @@ end
 
 if ~isempty(idS)
     idsC = cellfun(@(x)(idS.(x)),fieldnames(idS),'un',0);
-    idListC = idsC{1};
+    idListC = num2str(idsC{1});
     if iscell(idListC)&& length(idListC)>1
         appendStr = strjoin(idListC,'_');
     else
