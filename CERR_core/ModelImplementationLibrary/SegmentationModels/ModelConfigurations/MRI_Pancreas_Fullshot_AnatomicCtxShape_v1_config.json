@@ -62,6 +62,9 @@
        }
  ],
 
+ "output":{
+    "labelMap":{
+   
  "inputStrNameToLabelMap" :[ 
  {"structureName": "Liver","value": 1,
   "assocScanIdentifier":{"assocStructure":["Liver", "Bowel_lg", "Bowel_sm", "Duostomach"]}},
