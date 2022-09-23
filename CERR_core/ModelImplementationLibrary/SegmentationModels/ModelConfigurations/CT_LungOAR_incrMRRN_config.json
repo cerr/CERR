@@ -5,11 +5,6 @@
 
         "identifier" : {"imageType": "CT SCAN"},
 
-        "resample": {"resolutionXCm": 0.1,
-		          "resolutionYCm": 0.1,
-                  "method": "linear"
-		            },
-
         "resize": {"method" : "padOrCrop3d",
                     "size" : [512,512]
                   }
