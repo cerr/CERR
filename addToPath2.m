@@ -1,4 +1,4 @@
-function addToPath2(cerrPath)
+function success = addToPath2(cerrPath)
 
 G = dir(cerrPath);
 
@@ -12,3 +12,5 @@ for i = 1:numel(G)
         end
     end
 end
+
+success = 1
