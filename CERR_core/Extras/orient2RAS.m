@@ -9,34 +9,34 @@ orientMat(4,4) = 1;
 
 if strcmpi(orientationStr,'HFS')
     orientMat(2,1) = -1;
-    vol3M = flipdim(vol3M,1);
+    vol3M = flip(vol3M,1);
     orientMat(1,2) = -1;
-    vol3M = flipdim(vol3M,2);
+    vol3M = flip(vol3M,2);
     orientMat(3,3) = -1;
-    vol3M = flipdim(vol3M,3);
+    vol3M = flip(vol3M,3);
 elseif strcmpi(orientationStr,'HFP')
     orientMat(2,1) = 1;
     originRAS(1) = -originLPS(1);
     orientMat(1,2) = 1;
     originRAS(2) = -originLPS(2);
     orientMat(3,3) = -1;
-    vol3M = flipdim(vol3M,3);
+    vol3M = flip(vol3M,3);
 elseif strcmpi(orientationStr,'FFP')
     orientMat(2,1) = -1;
-    vol3M = flipdim(vol3M,1);
+    vol3M = flip(vol3M,1);
     orientMat(1,2) = 1;
 %     vol3M = flipdim(vol3M,2);
     originRAS(2) = -pixDim(2)*(size(vol3M,2) - (abs(originLPS(2)) / pixDim(2)));
     orientMat(3,3) = -1;
-    vol3M = flipdim(vol3M,3);
+    vol3M = flip(vol3M,3);
 else %FFS
     orientMat(2,1) = -1;
-    vol3M = flipdim(vol3M,1);
+    vol3M = flip(vol3M,1);
     originRAS(1) = -pixDim(1)*(size(vol3M,1) - (abs(originLPS(1)) / pixDim(1)));
     orientMat(1,2) = 1;
     originRAS(2) = -originLPS(2);
     orientMat(3,3) = -1;
-    vol3M = flipdim(vol3M,3);
+    vol3M = flip(vol3M,3);
 end
 % 
 % if strcmpi(orientationStr{2,2},'R')
