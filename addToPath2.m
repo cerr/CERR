@@ -7,7 +7,7 @@ for i = 1:numel(G)
     if Gi.isdir
         if ~strcmp(Gi.name(1),'.')
             subpath = fullfile(Gi.folder,Gi.name);
-            disp(['Adding to path ... ' subpath]);
+            %disp(['Adding to path ... ' subpath]);
             addpath(genpath(subpath));
         end
     end
