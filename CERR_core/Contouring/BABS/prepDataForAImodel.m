@@ -126,7 +126,7 @@ if iscell(planC)
                 tic
                 fprintf('\nWriting to %s format...\n',modelFmt);
                 passedScanDim = userOptS.passedScanDim;
-                scanOptS = userOptS.scan;
+                scanOptS = userOptS.input.scan;
 
                 %Loop over scan types
                 for nScan = 1:size(scanC,1)
