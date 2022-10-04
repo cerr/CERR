@@ -96,10 +96,11 @@ if strcmpi(savePlanc,'yes')
 end
 if ~any(strcmpi(algorithm,'BABS'))
 
-   % Get segmentations 
-   [~,origScanNumV,allLabelNamesC,dcmExportOptS] = runAIforPlanC(cerrPath,...
-         fullSessionPath,algorithm,cmdFlag,newSessionFlag,[],[],...
-         containerPath);
+    % Get segmentations
+    [~,origScanNumV,allLabelNamesC,dcmExportOptS] = runAIforPlanC(cerrPath,...
+        fullSessionPath,algorithm,cmdFlag,newSessionFlag,[],[],...
+        containerPath,[],skipMaskExport);
+
 
     % Export segmentations to DICOM RTSTRUCT files
     fprintf('\nExporting to DICOM format...');

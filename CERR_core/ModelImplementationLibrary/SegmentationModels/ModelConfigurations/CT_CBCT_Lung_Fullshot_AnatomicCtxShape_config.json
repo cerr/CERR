@@ -1,0 +1,43 @@
+{
+
+"register" : {"baseScan": {"identifier":{"seriesDate":"first"}},
+"movingScan":{"identifier":{"seriesDate":"last"}},
+"method": "none",
+"copyStr":"GTV",
+"renameStr":"GTV_copy"},
+
+"input":{    
+    "scan": [{
+         "identifier" : {"seriesDate":"first"}, 
+         "view" : ["axial"],
+         "crop" : {     
+                    "method": "crop_around_structure_center",
+                    "params": { "structureName": "GTV", "margins":[192,192,48]},
+                    "operator": ""
+                  },
+         "channels" :{"imageType": "original", "slice": "current"}
+       },
+       {
+        "identifier" : {"seriesDate":"last"}, 
+        "view" : ["axial"],
+        "crop": {
+                    "method": "crop_around_structure_center",
+                    "params": { "structureName": "GTV_copy", "margins":[192,192,48]},
+                    "operator": ""
+                },
+        "channels": {"imageType":"original", "slice": "current"}
+       }],
+   "structure": {"name": "GTV_copy"}
+},
+
+"passedScanDim" : "3D",    
+
+"batchSize" : 1,
+
+"output":{   
+    "labelMap":{"strNameToLabelMap" : [{"structureName": "GTV","value": 1}]},
+    "DVF":{"outputFormat" : "H5", "outputDir":"/cluster/home/iyera/jue_test/Out/"}
+},
+"outputAssocScan": {"identifier" : {"seriesDate":"last"}},
+"reference" : ""
+}

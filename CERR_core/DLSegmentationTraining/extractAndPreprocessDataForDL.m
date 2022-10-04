@@ -29,7 +29,7 @@ if isfield(optS.input,'structure')
         strListC = {exportStrS.structureName};
         labelV = [exportStrS.value];
     else
-        strListC = optS.input.structure.Name;
+        strListC = optS.input.structure.name;
         if ~iscell(strListC)
             strListC = {strListC};
         end
@@ -48,7 +48,7 @@ end
 %% Filter image
 indexS = planC{end};
 strC = {planC{indexS.structures}.structureName};
-
+copyStrsC = {};
 if ~exist('scanNumV','var') || isempty(scanNumV)
     scanNumV = nan(1,length(scanOptS));
     for n = 1:length(scanOptS)
@@ -64,7 +64,7 @@ if ~exist('scanNumV','var') || isempty(scanNumV)
             % Copy structures required for registration/cropping
             copyStrsC = {};
             if isfield(regS,'copyStr')
-                copyStrsC = [regS.copyStr];
+                copyStrsC = [copyStrsC;regS.copyStr];
                 if ~iscell(copyStrsC)
                     copyStrsC = {copyStrsC};
                 end
@@ -92,8 +92,10 @@ if ~exist('scanNumV','var') || isempty(scanNumV)
             scanNumV(n) = filtScanNum;
         else
             scanNumV(n) = getScanNumFromIdentifiers(identifierS,planC);
-            if isfield(regS,'copyStr')
-                copyStrsC = [regS.copyStr];
+            strAssocScan = getScanNumFromIdentifiers(...
+                regS.baseScan.identifier,planC);
+            if isfield(regS,'copyStr') && isequal(scanNumV(n),strAssocScan)
+                copyStrsC = [copyStrsC;regS.copyStr];
                 if ~iscell(copyStrsC)
                     copyStrsC = {copyStrsC};
                 end
@@ -518,7 +520,7 @@ for scanIdx = 1:numScans
         planC{indexS.scan}(origScanNumV(scanIdx)).scanInfo(1).imageOrientationPatient;
     
 end
-optS.scan = scanOptS;
+ptS.input.scan = scanOptS;
 
 %Get scan metadata
 %uniformScanInfoS = planC{indexS.scan}(scanNumV(scanIdx)).uniformScanInfo;
