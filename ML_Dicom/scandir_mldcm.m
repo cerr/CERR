@@ -51,25 +51,11 @@ if ~exist('excludePixelDataFlag','var')
     excludePixelDataFlag = false;
 end
 
-
-switch lower(class(dirPath))
-    case 'char'
-    otherwise
-        error('Input to scandir_mldcm must be a string.');
-end
-
 %Check that it's a real dirPath.
 if ~(exist(dirPath,'dir') == 7)
     error('Input to scandir_mldcm must be a directory.');
 end
 
-% if ispc
-%     %Get directory contents
-%     filesV = dir([dirPath '\*.*']);
-% else
-%     %filesV = dir([dirPath '/*.*']);
-%     filesV = dir([dirPath]);
-% end
 if recursiveFlag
     filesV = rdir(dirPath);
 else
