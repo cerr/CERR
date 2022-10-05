@@ -58,10 +58,11 @@ switch (passedScanDim)
         rank = 2;
         closeFlag = 0;
         for nField = 1:length(infoC)
-            dims = size(coordInfoS.(infoC{nField}));
+            info = coordInfoS.(infoC{nField});
+            dims = size(info);
             dsetname = ['/',infoC{nField}];
             success = lowLevelH5Write(fileID,metadataFilename,dims,...
-                dsetname,rank,coordInfoS.(infoC{nField}),closeFlag);
+                dsetname,info,rank,closeFlag);
         end
         fclose(fileID);
 
@@ -95,7 +96,7 @@ switch (passedScanDim)
                     fileID = H5F.create(maskFilename,'H5F_ACC_TRUNC',...
                         'H5P_DEFAULT','H5P_DEFAULT');
                     success = lowLevelH5Write(fileID,maskFilename,dims,...
-                        dsetname,rank,maskM,1);
+                        dsetname,maskM,rank,1);
                 end
 
                 %Write scan

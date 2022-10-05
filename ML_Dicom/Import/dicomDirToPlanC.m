@@ -4,7 +4,9 @@ function planC = dicomDirToPlanC(dirPath,optS,mergeScansFlag)
 % APA, 9/23/2021
 
 % Read options if not passed
-if exist('optS','var') && ischar(optS) && ~isempty(optS) % optS is filename of json file
+if exist('optS','var') && ~isempty(optS) && isstruct(optS) % optS is filename of json file
+    %passed optS is already a structure. Use as is.
+elseif exist('optS','var') && ~isempty(optS) && ischar(optS)  % optS is filename of json file
     optS = opts4Exe(optS);
 else  % default CERROptions.json from CERR distribution
     pathStr = getCERRPath;

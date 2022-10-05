@@ -81,7 +81,10 @@ switch fieldname
                     mkdir(tempDirPathC{iDir})
                 end
                 evalStr = ['"',dcm2dcmPath,'" -t 1.2.840.10008.1.2 "',dcmPath,'" "',tempDirPathC{iDir},'"'];
-                system(evalStr)
+                err = system(evalStr);
+                if err
+                    error(['Filed command: ', evalStr]);
+                end                
                 indSeriesC = strfind(fileC,dcmPath);
                 indSeriesV = ~cellfun(@isempty,indSeriesC);
                 newFileNamC = strrep(fileC(indSeriesV),dcmPath,tempDirPathC{iDir});
