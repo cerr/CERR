@@ -134,7 +134,7 @@ switch vrCode
     case 20290
         %elseif vr.equals(org.dcm4che3.data.VR.OB) %strcmpi(vr,'OB')
         %case 'OB'
-        data = attr.getBytes;
+        data = attr.getBytes(tag);
         %         %%%%%% Modified to import compressed data AI 02/06/17 %%%%%%%
         %         txSyntax = varargin{1};
         %         switch txSyntax
