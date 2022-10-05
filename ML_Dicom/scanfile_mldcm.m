@@ -93,6 +93,7 @@ catch
 end
 %Close input stream.
 in.close;
+clear('in')
 
 
 %Do we need to explicitly delete the invalid attribute?  Possibly.

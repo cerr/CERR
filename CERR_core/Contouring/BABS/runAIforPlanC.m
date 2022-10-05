@@ -156,6 +156,7 @@ if length(algorithmC) > 1 || ...
             if ~isfield(userOptS.output.labelMap,'roiGenerationDescription')
                 userOptS.output.labelMap.roiGenerationDescription = roiDescrpt;
             end
+            gitHash = 'unavailable';
 
         end
         toc
@@ -163,7 +164,7 @@ if length(algorithmC) > 1 || ...
         %Process model outputs
         [planC,origScanNumV,labelNamesC,dcmExportOptS] = ...
             processAndImportAIOutput(planC,userOptS,scanNumV,...
-            fullClientSessionPath,cmdFlag,hWait);
+            algorithmC(k),gitHash,fullClientSessionPath,cmdFlag,hWait);
         allLabelNamesC = [allLabelNamesC,labelNamesC];
 
     end

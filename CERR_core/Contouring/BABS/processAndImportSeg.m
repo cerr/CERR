@@ -95,7 +95,7 @@ end
             origScanNum = 1; %Assoc with first scan by default
         end
         outScanNum = scanNumV(origScanNum);
-        userOptS.input.scan(outScanNum) = userOptS(origScanNum).input.scan;
+        userOptS.input.scan(outScanNum) = userOptS.input.scan(origScanNum);
         userOptS.input.scan(outScanNum).origScan = origScanNum;
         [segMask3M,planC]  = joinH5planC(outScanNum,segMask3M,labelPath,userOptS,planC);
 
