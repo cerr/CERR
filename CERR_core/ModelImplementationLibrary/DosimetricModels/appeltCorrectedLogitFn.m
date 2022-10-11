@@ -1,10 +1,21 @@
-function prob = appeltCorrectedLogitFn(paramS,doseBinsV,volHistV)
-% function prob = appeltCorrectedLogitFn(paramS,doseBinsV,volHistV);
+function prob = appeltCorrectedLogitFn(paramS,doseBinsC,volHistC)
+% function prob = appeltCorrectedLogitFn(paramS,doseBinsC,volHistC);
 % INPUTS
 % paramS : Dictionary of model parameters
 % Modifications for risk factors are computed based on Appelt et al.
 
 %AI 10/8/18 
+
+if iscell(doseBinsC)
+    doseBinsV = doseBinsC{1};
+else
+    doseBinsV = doseBinsC;
+end
+if iscell(volHistC)
+    volHistV = volHistC{1};
+else
+    volHistV = volHistC;
+end
 
 %Apply Appelt modification to D50, gamma50 for at-risk group
 if isfield(paramS,'appeltMod') && strcmpi(paramS.appeltMod.val,'yes')

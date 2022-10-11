@@ -92,8 +92,7 @@ catch
     attrData = [];
 end
 %Close input stream.
-in.close;
-clear('in')
+in.close();
 
 
 %Do we need to explicitly delete the invalid attribute?  Possibly.
