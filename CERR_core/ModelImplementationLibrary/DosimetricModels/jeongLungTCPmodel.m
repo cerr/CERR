@@ -22,7 +22,12 @@ fx_in = paramS.frxSize.val;
 nFrx = paramS.numFractions.val;
 
 %% Get treatment days
-schedule_in = paramS.treatmentSchedule.val; 
+schedule_in = paramS.treatmentSchedule.val;
+if  isfield(paramS,'scheduleType')
+    scheduleType = paramS.scheduleType;
+else
+    scheduleType = 'weekday';
+end
 %Check for numeric input
 if ~isnumeric(schedule_in)
     scheduleV = str2num(schedule_in);
@@ -31,7 +36,7 @@ else
 end
 %Otherwise, assume function specified
 if isempty(scheduleV)
-    scheduleV = eval([schedule_in,'(',num2str(nFrx),')']);
+    scheduleV = eval([schedule_in,'(',num2str(nFrx),',scheduleType)']);
     %scheduleV = getTreatmentSchedule(nFrx); %every weekday with weekend
                                              %breaks
 end
