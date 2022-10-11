@@ -53,7 +53,7 @@ for n = 1:length(identifierC)
             idV = false(size(matchIdxV));
             idV(matchValC) = true;
             
-        case 'studyDate'
+        case 'seriesDate'
             seriesDatesC =  arrayfun(@(x)x.scanInfo(1).seriesDate,...
                 planC{indexS.scan},'un',0);
             emptyIdxC = cellfun(@isempty,seriesDatesC,'un',0);

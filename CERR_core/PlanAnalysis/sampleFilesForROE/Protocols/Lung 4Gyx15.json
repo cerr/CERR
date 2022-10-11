@@ -11,8 +11,8 @@
 		"Pneumonitis(Appelt)":   {
 				       		"modelFile": "Pneumonitis (Appelt).json"
 		                         }, 
-	  	"BED":  {
-		  	    "modelFile": "Lung BED.json"
+	  	"TCP":  {
+		  	    "modelFile": "Lung TCP.json"
 			}
 		  },
 	"criteriaFile": "LungCriteria_4x15.json",
