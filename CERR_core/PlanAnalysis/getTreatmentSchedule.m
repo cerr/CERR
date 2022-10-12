@@ -12,7 +12,7 @@ switch(scheduleType)
             treatmentDays = [treatmentDays, [1:5] + 7*(week-1)];
         end
         remDays = mod(nFrx,5);
-        treatmentDays = [treatmentDays, 1:remDays + nWeeks*7];
+        treatmentDays = [treatmentDays, [1:remDays] + (nWeeks*7)];
 
     case 'primershot'
         %One initial fraction (termed a "primer shot") followed by a 
