@@ -52,15 +52,15 @@ copyStrsC = {};
 if ~exist('scanNumV','var') || isempty(scanNumV)
     scanNumV = nan(1,length(scanOptS));
     for n = 1:length(scanOptS)
-        
+
         identifierS = scanOptS(n).identifier;
         if ~isempty(filtS) && isfield(identifierS,'filtered') &&...
                 identifierS.filtered
-            
+
             % Filter scan
             [baseScanNum,filtScanNum,planC] = createFilteredScanForDLS(identifierS,...
-                                  filtS,planC);
-            
+                filtS,planC);
+
             % Copy structures required for registration/cropping
             copyStrsC = {};
             if isfield(regS,'copyStr')
@@ -72,9 +72,9 @@ if ~exist('scanNumV','var') || isempty(scanNumV)
             if isfield(scanOptS(n),'crop') &&  isfield(scanOptS(n).crop,'params')
                 scanCropParS = scanOptS(n).crop.params;
                 if isfield(scanCropParS,'structureName')
-                cropStrListC = arrayfun(@(x)x.structureName,...
-                    scanCropParS,'un',0);
-                copyStrsC = [copyStrsC;cropStrListC];
+                    cropStrListC = arrayfun(@(x)x.structureName,...
+                        scanCropParS,'un',0);
+                    copyStrsC = [copyStrsC;cropStrListC];
                 end
             end
             if ~isempty(copyStrsC)
@@ -87,19 +87,9 @@ if ~exist('scanNumV','var') || isempty(scanNumV)
                     end
                 end
             end
-            
+
             %Update scan no.
             scanNumV(n) = filtScanNum;
-        else
-            scanNumV(n) = getScanNumFromIdentifiers(identifierS,planC);
-            strAssocScan = getScanNumFromIdentifiers(...
-                regS.baseScan.identifier,planC);
-            if isfield(regS,'copyStr') && isequal(scanNumV(n),strAssocScan)
-                copyStrsC = [copyStrsC;regS.copyStr];
-                if ~iscell(copyStrsC)
-                    copyStrsC = {copyStrsC};
-                end
-            end
         end
     end
 end
@@ -111,13 +101,32 @@ origScanNumV = scanNumV;
 indexS = planC{end};
 allStrC = {planC{indexS.structures}.structureName};
 if ~isempty(fieldnames(regS))
-    identifierS = regS.baseScan.identifier;
-    regScanNumV(1) = getScanNumFromIdentifiers(identifierS,planC);
-    identifierS = regS.movingScan.identifier;
-    movScan = getScanNumFromIdentifiers(identifierS,planC);
-    regScanNumV(2) = movScan;
+    %Get base scan index
+    if isnan(scanNumV(1))
+        identifierS = regS.baseScan.identifier;
+        baseScanNum = getScanNumFromIdentifiers(identifierS,planC);
+        regScanNumV(1) = baseScanNum;
+    else
+        regScanNumV(1) = scanNumV(1);
+    end
+    %Get moving scan index
+    if isnan(scanNumV(2))
+        identifierS = regS.movingScan.identifier;
+        movScan = getScanNumFromIdentifiers(identifierS,planC);
+        regScanNumV(2) = movScan;
+    else
+        regScanNumV(2) = scanNumV(2);
+    end
+    %Get list of structures to deform
+    if isempty(copyStrsC) && isfield(regS,'copyStr')
+        copyStrsC = [regS.copyStr];
+        if ~iscell(copyStrsC)
+            copyStrsC = {copyStrsC};
+        end
+    end
+
+    %Handle pre-registered scans
     if strcmp(regS.method,'none')
-        %For pre-registered scans
         if isfield(regS,'copyStr')
             if isfield(regS,'renameStr')
                 renameC = regS.renameStr;
@@ -131,7 +140,7 @@ if ~isempty(fieldnames(regS))
                 cpyStr = cpyStrV(assocScanV==regScanNumV(1));
                 dstStr = cpyStrV(assocScanV==regScanNumV(2));
                 if isempty(dstStr) && ~isempty(cpyStr)
-                    planC = copyStrToScan(cpyStr,movScan,planC);
+                    planC = copyStrToScan(cpyStr,regScanNumV(2),planC);
                     if isfield(regS,'renameStr')
                         planC{indexS.structures}(end).structureName = ...
                             renameC{nStr};
@@ -140,6 +149,7 @@ if ~isempty(fieldnames(regS))
             end
         end
     else
+        %Register scans
         planC = registerScansForDLS(planC,regScanNumV,...
             regS.method,regS);
     end

@@ -113,7 +113,7 @@ if length(algorithmC) > 1 || ...
     createSessionFlag = false;
     for k=1:length(algorithmC)
 
-        if nargin>=9 && ~isnan(varargin{2})
+        if nargin>=9 && ~any(isnan(varargin{2}))
             scanNum = varargin{2};
         else
             scanNum = [];
