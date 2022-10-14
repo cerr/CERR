@@ -90,6 +90,8 @@ if ~exist('scanNumV','var') || isempty(scanNumV)
 
             %Update scan no.
             scanNumV(n) = filtScanNum;
+        else
+            scanNumV(n) = getScanNumFromIdentifiers(identifierS,planC);
         end
     end
 end
@@ -165,6 +167,7 @@ if ~isempty(scanOptS)
         end
     end
 end
+
 
 % Ignore missing inputs if marked optional
 optFlagV = strcmpi({scanOptS.required},'no');
@@ -530,7 +533,7 @@ for scanIdx = 1:numScans
         planC{indexS.scan}(origScanNumV(scanIdx)).scanInfo(1).imageOrientationPatient;
     
 end
-ptS.input.scan = scanOptS;
+optS.input.scan = scanOptS;
 
 %Get scan metadata
 %uniformScanInfoS = planC{indexS.scan}(scanNumV(scanIdx)).uniformScanInfo;
