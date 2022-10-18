@@ -78,7 +78,7 @@ switch (passedScanDim)
 
                 %Write mask
                 if ~isempty(maskC) && ~isempty(maskC{i}) && ~testFlag
-                    mask3M = maskC{i};
+                    mask3M = maskC{i}{1};
 
                     if slIdx == 1
                         if ~exist(fullfile(outDirC{i},'Masks'),'dir')
