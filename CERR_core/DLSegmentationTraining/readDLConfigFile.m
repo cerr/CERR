@@ -14,9 +14,9 @@ function optS = readDLConfigFile(paramFilename)
 
 %% Get user inputs from JSON
 userInS = loadjson(paramFilename)
-if ~isfield(userInS,'dataSplit')
+if ~isfield(userInS.input,'dataSplit')
     dataSplitV = [0,0,100]; %Assumes testing if not speciifed otherwise.
-    userInS.dataSplit = dataSplitV;
+    userInS.input.dataSplit = dataSplitV;
 end
 
 %% Set defaults for optional inputs
@@ -24,7 +24,6 @@ defaultS = struct();
 defaultS.modelInputFormat = 'H5';
 defaultS.modelOutputFormat = 'H5';
 defaultS.register = struct();
-defaultS.exportedFilePrefix = 'inputFileName';
 defaultS.batchSize = 1;
 defaultS.postProc = [];
 defaultS.passedScanDim = '3D';
@@ -56,6 +55,7 @@ defaultS.input.scan.resize.preserveAspectRatio = 'no';
 defaultS.input.scan.resample.method = 'none';
 defaultS.input.scan.channels.imageType = 'original';
 defaultS.input.scan.channels.slice = 'current';
+defaultS.input.exportedFilePrefix = 'inputFileName';
 
 defInputC = fieldnames(defaultS.input);
 defaultInS = defaultS.input;
