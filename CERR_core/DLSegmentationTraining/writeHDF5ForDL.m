@@ -32,12 +32,14 @@ switch (passedScanDim)
 %         if ~isempty(mask3M) && ~testFlag
         if ~isempty(maskC{1}) && ~testFlag
             mask3M = maskC{1}{1};
-            if ~exist(fullfile(outDirC{1},'Masks'),'dir')
+            if ~isempty(mask3M)
+              if ~exist(fullfile(outDirC{1},'Masks'),'dir')
                 mkdir(fullfile(outDirC{1},'Masks'))
+              end
+              OctaveExportMask = uint8(mask3M);
+              maskFilename = fullfile(outDirC{1},'Masks',[filePrefix,'_3D.h5']);
+              save ("-hdf5",maskFilename,"OctaveExportMask")
             end
-            OctaveExportMask = uint8(mask3M);
-            maskFilename = fullfile(outDirC{1},'Masks',[filePrefix,'_3D.h5']);
-            save ("-hdf5",maskFilename,"OctaveExportMask")
         end
 
         %Write scan
