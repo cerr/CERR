@@ -36,7 +36,8 @@ for nOut = 1:length(outputC)
             outFile = fullfile(DVFpath,DVFfile.name);
             switch(lower(outFmt))
                 case 'h5'
-                    DVF4M = h5read(outFile,'/dvf');
+                    loadDataS = load(outFile);
+                    DVF4M = loadDataS.dvf;
                 otherwise
                     error('Invalid model output format %s.',outFmt)
             end
