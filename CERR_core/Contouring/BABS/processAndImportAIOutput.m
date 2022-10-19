@@ -58,9 +58,9 @@ for nOut = 1:length(outputC)
             dimsC = {'dx','dy','dz'};
             niiFileNameC = cell(1,length(dimsC));
             for nDim = 1:size(DVF4M,1)
-                DVF3M = squeeze(DVF4M(:,:,:,nDim));
-%                 [DVF3M,~] = joinH5planC(scanNum,DVF3M,labelPath,...
-%                     userOptS,planC);
+                DVF3M = squeeze(DVF4M(nDim,:,:,:));
+                %[DVF3M,~] = joinH5planC(scanNum,DVF3M,labelPath,...
+                %            userOptS,planC);
                 niiFileNameC{nDim} = fullfile(niiOutDir,[DVFfilename,'_'...
                     dimsC{nDim},'.nii.gz']);
                 fprintf('\n Writing DVF to file %s',niiFileNameC{nDim});
