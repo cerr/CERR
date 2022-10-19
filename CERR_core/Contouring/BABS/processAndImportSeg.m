@@ -89,7 +89,9 @@ end
 
         indexS = planC{end};
         identifierS = userOptS.outputAssocScan.identifier;
-        if ~isempty(fieldnames(userOptS.outputAssocScan.identifier))
+        idS = rmfield(identifierS,{'warped','filtered'});
+        idC = fieldnames(idS);
+        if ~isempty(idC)
             origScanNum = getScanNumFromIdentifiers(identifierS,planC);
         else
             origScanNum = 1; %Assoc with first scan by default

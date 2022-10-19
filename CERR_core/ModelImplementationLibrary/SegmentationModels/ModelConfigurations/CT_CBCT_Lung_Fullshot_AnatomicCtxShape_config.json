@@ -36,8 +36,8 @@
 
 "output":{   
     "labelMap":{"strNameToLabelMap" : [{"structureName": "GTV","value": 1}]},
-    "DVF":{"outputFormat" : "H5", "outputDir":"/cluster/home/iyera/jue_test/Out/"}
+    "DVF":{"outputFormat" : "H5", "outputDir":"/content/temp_AI_session"}
 },
-"outputAssocScan": {"identifier" : {"seriesDate":"last"}},
+"outputAssocScan": {"identifier" : {"seriesDate":"last"}},    
 "reference" : ""
 }

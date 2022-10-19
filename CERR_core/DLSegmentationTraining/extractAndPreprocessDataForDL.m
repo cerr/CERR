@@ -42,7 +42,7 @@ else
 end
 
 if ~exist('skipMaskExport','var')
-    skipMaskExport = false;
+    skipMaskExport = true;
 end
 
 %% Filter image
