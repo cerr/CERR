@@ -14,9 +14,9 @@ function optS = readDLConfigFile(paramFilename)
 
 %% Get user inputs from JSON
 userInS = jsondecode(fileread(paramFilename));
-if ~isfield(userInS.input,'dataSplit')
+if ~isfield(userInS,'dataSplit')
     dataSplitV = [0,0,100]; %Assumes testing if not speciifed otherwise.
-    userInS.input.dataSplit = dataSplitV;
+    userInS.dataSplit = dataSplitV;
 end
 
 %% Set defaults for optional inputs
@@ -55,7 +55,7 @@ defaultS.input.scan.resize.preserveAspectRatio = 'no';
 defaultS.input.scan.resample.method = 'none';
 defaultS.input.scan.channels.imageType = 'original';
 defaultS.input.scan.channels.slice = 'current';
-defaultS.input.exportedFilePrefix = 'inputFileName';
+defaultS.exportedFilePrefix = 'inputFileName';
 
 defInputC = fieldnames(defaultS.input);
 defaultInS = defaultS.input;
