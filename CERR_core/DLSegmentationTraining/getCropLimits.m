@@ -20,8 +20,9 @@ function [minr, maxr, minc, maxc, slcV, modelMask3M, planC] = ...
 [modelMask3M, planC] = getMaskForModelConfig(planC,mask3M,scanNum,cropS);
 
 %Compute bounding box
-methodC = {cropS.method};
-crop2DMethodsC = {'crop_to_bounding_box_2D','crop_to_str_2D','crop_pt_outline_2D'};%Suported 2D crop options
+methodC = lower({cropS.method});
+crop2DMethodsC = {'crop_to_bounding_box_2d','crop_to_str_2d',...
+    'crop_pt_outline_2d'};%Suported 2D crop options
 if length(methodC) == 1 && strcmp(methodC{1},'none')
     scanSizeV = size(getScanArray(scanNum,planC));
     minr = 1;
