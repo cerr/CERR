@@ -25,7 +25,8 @@ cropS = scanOptS.crop; %Added
     scanNum,cropS);
 scanArray3M = planC{indexS.scan}(scanNum).scanArray;
 sizV = size(scanArray3M);
-dataOut3M = zeros(sizV, 'uint32');
+%dataOut3M = zeros(sizV, 'uint32');
+dataOut3M = zeros(sizV,class(data3M));
 originImageSizV = [sizV(1:2), length(slcV)];
 
 %Undo resizing & cropping
