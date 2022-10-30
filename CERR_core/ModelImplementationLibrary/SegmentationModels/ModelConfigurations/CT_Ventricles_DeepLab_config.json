@@ -13,6 +13,8 @@
         	  {"method": "crop_to_str", "params" : {"structureName": "lung_ipsi"}, "operator" : "union"}, 
          	  {"method": "crop_to_str", "params" : {"structureName": "lung_l"}, "operator" : "union"}, 
         	  {"method": "crop_to_str", "params" : {"structureName": "lung_r"}, "operator" : "union"},
+         	  {"method": "crop_to_str", "params" : {"structureName": "Lung_Left"}, "operator" : "union"}, 
+        	  {"method": "crop_to_str", "params" : {"structureName": "Lung_Right"}, "operator" : "union"},
          	  {"method": "crop_to_str", "params" : {"structureName": "lung_total"}, "operator" : "union"},
          	  {"method": "crop_to_str", "params" : {"structureName": "totallung"}, "operator" : "union"},
          	  {"method": "crop_to_str", "params" : {"structureName": "Lungs"}, "operator" : "union"},
