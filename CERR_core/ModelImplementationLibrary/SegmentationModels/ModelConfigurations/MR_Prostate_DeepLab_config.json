@@ -1,40 +1,58 @@
 {
 
-"strNameToLabelMap" : [
-{"structureName": "Bladder_O_DLV3",
-  "value": 1},
- {"structureName": "CTV_PROST_DLV3",
-  "value": 2},
- {"structureName": "Penile_Bulb_DLV3",
-  "value": 3},
-{"structureName": "Rectum_O_DLV3",
-  "value": 4},
-{"structureName": "Urethra_Foley_DLV3",
-  "value": 5},
-{"structureName": "Rectal_Spacer_DLV3",
-  "value": 6},
-{"structureName": "Bowel_Lg_DLV3",
-  "value": 7}
-],
-
-"scan":{
+  "input":{
+    "scan":{
 
         "identifier" : {"imageType": "MR SCAN"},
     
         "resample": {"resolutionXCm":0.1, "resolutionYCm":0.1, "resolutionZCm":0.2, "method":"linear"},
 
         "resize": {"method" : "padOrCrop3d", "size" : [256,256]},
+        
         "crop": [
    	        {
     		  "method": "none",
      		  "params": "",
      		  "operator": ""
    		 } ]
-       },
+
+       }
+  },
    		 
 "passedScanDim" : "3D",
 
 "batchSize" : 1,
 
 "reference" : ""
+
+"outputAssocScan": {"identifier": {"imageType":"MR SCAN"}},
+
+
+"output":{
+
+    "labelMap":{
+
+        "strNameToLabelMap" : [
+        {"structureName": "Bladder_O_DLV3",
+          "value": 1},
+         {"structureName": "CTV_PROST_DLV3",
+          "value": 2},
+         {"structureName": "Penile_Bulb_DLV3",
+          "value": 3},
+        {"structureName": "Rectum_O_DLV3",
+          "value": 4},
+        {"structureName": "Urethra_Foley_DLV3",
+          "value": 5},
+        {"structureName": "Rectal_Spacer_DLV3",
+          "value": 6},
+        {"structureName": "Bowel_Lg_DLV3",
+          "value": 7}
+        ],
+
+    "roiGenerationDescription": "MRLinacProstateSeg^mskgit"
+
+    }
+  }
+
 }
+
