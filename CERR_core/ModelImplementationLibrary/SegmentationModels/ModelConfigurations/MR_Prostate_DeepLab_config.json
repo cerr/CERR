@@ -23,7 +23,7 @@
 
 "batchSize" : 1,
 
-"reference" : ""
+"reference" : "",
 
 "outputAssocScan": {"identifier": {"imageType":"MR SCAN"}},
 
