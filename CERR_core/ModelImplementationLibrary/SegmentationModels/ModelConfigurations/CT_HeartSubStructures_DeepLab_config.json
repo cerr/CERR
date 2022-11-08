@@ -10,6 +10,8 @@
           	  {"method": "crop_to_str", "params" : {"structureName": "lung_ipsi"}, "operator" : "union"}, 
           	  {"method": "crop_to_str", "params" : {"structureName": "lung_l"}, "operator" : "union"}, 
           	  {"method": "crop_to_str", "params" : {"structureName": "lung_r"}, "operator" : "union"},
+         	  {"method": "crop_to_str", "params" : {"structureName": "Lung_Left"}, "operator" : "union"}, 
+        	  {"method": "crop_to_str", "params" : {"structureName": "Lung_Right"}, "operator" : "union"},
           	  {"method": "crop_to_str", "params" : {"structureName": "lung_total"}, "operator" : "union"},
          	  {"method": "crop_to_str", "params" : {"structureName": "totallung"}, "operator" : "union"},
         	  {"method": "crop_to_str", "params" : {"structureName": "Lungs"}, "operator" : "union"},
@@ -21,7 +23,7 @@
 
 "passedScanDim" : "2D",
 
-"reference" : "https://w3.aapm.org/meetings/2019AM/programInfo/programAbs.php?sid=8013&aid=45641",
+"reference" : "https://doi.org/10.1016/j.phro.2020.05.009",
 
 "output":{
     "labelMap":{
@@ -33,7 +35,9 @@
                 {"structureName" : "RV", "value" : 6},
                 {"structureName" : "IVC", "value" : 7},
                 {"structureName" : "SVC", "value" : 8},
-                {"structureName" : "PA", "value" : 9}]
+                {"structureName" : "PA", "value" : 9}],
+    
+    "roiGenerationDescription": "HeartSubStructDeeplabV3Axial^mskgit"
                }
           }
 }

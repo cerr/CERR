@@ -53,7 +53,7 @@ for n = 1:length(identifierC)
             idV = false(size(matchIdxV));
             idV(matchValC) = true;
             
-        case 'studyDate'
+        case 'seriesDate'
             seriesDatesC =  arrayfun(@(x)x.scanInfo(1).seriesDate,...
                 planC{indexS.scan},'un',0);
             emptyIdxC = cellfun(@isempty,seriesDatesC,'un',0);
@@ -69,7 +69,24 @@ for n = 1:length(identifierC)
             else
                 error(['seriesDate value ''',matchValC,''' is not supported.'])
             end
-            
+
+        case 'studyDate'
+            studyDatesC =  arrayfun(@(x)x.scanInfo(1).studyDate,...
+                planC{indexS.scan},'un',0);
+            emptyIdxC = cellfun(@isempty,studyDatesC,'un',0);
+            studyDatesC([emptyIdxC{:}]) = '';
+            studyDatesC = datetime(studyDatesC,'InputFormat','yyyyMMdd');
+            [~,ordV] = sort(studyDatesC,'ascend');
+
+            idV = false(size(matchIdxV));
+            if strcmp(matchValC,'first')
+                idV(ordV(1)) = true;
+            elseif strcmp(matchValC,'last')
+                idV(ordV(end)) = true;
+            else
+                error(['studyDate value ''',matchValC,''' is not supported.'])
+            end
+
         case 'assocStructure'
             if strcmp(matchValC,'none')
                 strAssocScanV = unique([planC{indexS.structures}.associatedScan]);

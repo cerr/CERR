@@ -49,14 +49,16 @@ end
 
 %Create a java file object associated with this filename
 %ifile = java.io.File(filename);
-ifile = javaObject("java.io.File",filename);
+%ifile = javaObject("java.io.File",filename);
 
 isDcm  = int8(1); % need to force as int
 
 %Create a DicomInputStream to read this input file.
 try
     %in = org.dcm4che3.io.DicomInputStream(ifile);
-    in = javaObject("org.dcm4che3.io.DicomInputStream",ifile);
+    %in = javaObject("org.dcm4che3.io.DicomInputStream",ifile);
+    inputStreamObj = javaObject("java.io.FileInputStream",filename);
+    in = javaObject("org.dcm4che3.io.DicomInputStream",inputStreamObj);
 catch
     isDcm = 0;
     attrData = [];
@@ -92,8 +94,7 @@ catch
     attrData = [];
 end
 %Close input stream.
-in.close;
-clear('in')
+in.close();
 
 
 %Do we need to explicitly delete the invalid attribute?  Possibly.

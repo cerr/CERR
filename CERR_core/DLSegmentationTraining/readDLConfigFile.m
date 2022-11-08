@@ -24,7 +24,6 @@ defaultS = struct();
 defaultS.modelInputFormat = 'H5';
 defaultS.modelOutputFormat = 'H5';
 defaultS.register = struct();
-defaultS.exportedFilePrefix = 'inputFileName';
 defaultS.batchSize = 1;
 defaultS.postProc = [];
 defaultS.passedScanDim = '3D';
@@ -56,6 +55,7 @@ defaultS.input.scan.resize.preserveAspectRatio = 'no';
 defaultS.input.scan.resample.method = 'none';
 defaultS.input.scan.channels.imageType = 'original';
 defaultS.input.scan.channels.slice = 'current';
+defaultS.exportedFilePrefix = 'inputFileName';
 
 defInputC = fieldnames(defaultS.input);
 defaultInS = defaultS.input;

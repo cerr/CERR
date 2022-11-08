@@ -10,6 +10,7 @@ function [planC,origScanNumV,allLabelNamesC,dcmExportOptS] = ...
 outputS = userOptS.output;
 
 %Loop over model outputs
+
 outputC = fieldnames(outputS);
 for nOut = 1:length(outputC)
 
@@ -52,21 +53,45 @@ for nOut = 1:length(outputC)
             else
                 cerrFile = '';
             end
+            indexS = planC{end};
 
-            niiOutDir = userOptS.output.DVF.outputDir;
+            % Get associated scan num
+            idS = userOptS.outputAssocScan.identifier;
+            assocScan = getScanNumFromIdentifiers(idS,planC);
+
+            tempOptS = userOptS;
+            outTypesC = fieldnames(userOptS.output);
+            matchIdx = strcmpi(outTypesC,'DVF');
+            outTypesC = outTypesC(~matchIdx);
+            tempOptS.output = rmfield(tempOptS.output,outTypesC);
+            niiOutDir = tempOptS.output.DVF.outputDir;
             DVFfilename = strrep(DVFfile.name,'.h5','');
             dimsC = {'dx','dy','dz'};
             niiFileNameC = cell(1,length(dimsC));
             for nDim = 1:size(DVF4M,1)
-                DVF3M = squeeze(DVF4M(:,:,:,nDim));
-%                 [DVF3M,~] = joinH5planC(scanNum,DVF3M,labelPath,...
-%                     userOptS,planC);
+                DVF3M = squeeze(DVF4M(nDim,:,:,:));
+                DVF3M = permute(DVF3M,[2,3,1]);
+                [DVF3M,planC] = joinH5planC(assocScan,DVF3M,[DVFfilename,'_'...
+                    dimsC{nDim}],tempOptS,planC);
                 niiFileNameC{nDim} = fullfile(niiOutDir,[DVFfilename,'_'...
                     dimsC{nDim},'.nii.gz']);
-                fprintf('\n Writing DVF to file %s',niiFileNameC{nDim});
+                fprintf('\n Writing DVF to file %s\n',niiFileNameC{nDim});
                 DVF3M_nii = make_nii(DVF3M);
                 save_nii(DVF3M_nii, niiFileNameC{nDim}, 0);
             end
+
+            %Calc. deformation magnitude
+            DVFmag3M = zeros(size(DVF3M));
+            assocScanUID = planC{indexS.scan}(assocScan).scanUID;    
+            for nDim = 1:size(DVF4M,1)
+                doseNum = length(planC{indexS.dose})-nDim+1;
+                doseArray3M = double(getDoseArray(doseNum,planC));
+                DVFmag3M = DVFmag3M + doseArray3M.^2;
+            end
+            DVFmag3M = sqrt(DVFmag3M);
+            description = 'Deformation magnitude';
+            planC = dose2CERR(DVFmag3M,[],description,'',description,...
+                'CT',[],'no',assocScanUID, planC);
 
             % Store to deformS
             indexS = planC{end};

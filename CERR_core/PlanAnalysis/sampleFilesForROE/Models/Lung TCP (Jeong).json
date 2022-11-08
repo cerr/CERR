@@ -1,0 +1,38 @@
+{
+	"name": "Jeong Lung TCP",
+	"type": "TCP",
+    "stdFractionSize": 2,
+	"fractionCorrect": "Yes",
+	"correctionType": "fsize",
+	"abRatio": 2.8,
+	"parameters": {
+		
+			"structures": "GTV_protocol",
+	
+			"treatmentSchedule": {
+                				  "val": "getTreatmentSchedule",
+                                  "params": {
+                                    "scheduleType": "weekday"
+                                   },
+				 	    	      "type": ["Cont"]
+				                 },
+					        
+			"TD50": {
+				   "val": 62.1,
+				   "type": ["Cont"]
+				},
+
+			"gamma50": {
+				     "val": 1.5,
+				     "type": ["Cont"]
+				   }
+			      
+		       },
+
+	"function": "jeongLungTCPmodel",
+	"created_by": "Aditi",
+	"created_at": "10AM 5\/29\/19",
+	"modified_by": "Aditi",
+	"modified_at": "",
+	"UID": "outcomeModels.jeongLungTCPmodel.052919.94913.659.351.2651"
+}

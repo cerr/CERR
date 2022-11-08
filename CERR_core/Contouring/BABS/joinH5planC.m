@@ -1,5 +1,5 @@
 function [dataOut3M,planC] = joinH5planC(scanNum,data3M,labelPath,...
-                             userOptS,planC)
+    userOptS,planC)
 % function [dataOut3M,planC]  = joinH5planC(scanNum,segMask3M,labelPath,...
 %                               userOptS,planC)
 
@@ -28,7 +28,7 @@ switch(lower(outputType))
         if isfield(labelOptS,'roiGenerationDescription')
             roiGenerationDescription = labelOptS.roiGenerationDescription;
         end
-        
+
         isUniform = 0;
         for i = 1 : length(labelMapS)
             labelVal = labelMapS(i).value;
@@ -39,6 +39,12 @@ switch(lower(outputType))
             planC{indexS.structures}(end).roiGenerationDescription = roiGenerationDescription;
             planC{indexS.structures}(end).structureDescription = roiGenerationDescription;
         end
+
+    case 'dvf'
+        assocScanUID = planC{indexS.scan}(scanNum).scanUID;
+        description = labelPath;
+        planC = dose2CERR(dataOut3M,[],description,'',description,'CT',[],...
+            'no',assocScanUID, planC);
 end
 
 end

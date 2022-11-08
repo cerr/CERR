@@ -1,38 +1,49 @@
 {
-"strNameToLabelMap":[
 
-  {
-    "structureName": "ATRIA",
-    "value": 1
-  }
-  
-  ],
+"input":{
+    "scan":{
+
+	   "identifier" : {"imageType": "CT SCAN"},
+
+	   "resize" : {"method": "none",
+            	    "size" : [512,512]},
+
+	   "crop" : [{"method": "crop_to_str", "params" : {"structureName": "lung_cntr"}, "operator" : ""},
+              {"method": "crop_to_str", "params" : {"structureName": "lung_contra"}, "operator" : "union"},
+        	  {"method": "crop_to_str", "params" : {"structureName": "lung_ipsi"}, "operator" : "union"}, 
+         	  {"method": "crop_to_str", "params" : {"structureName": "lung_l"}, "operator" : "union"}, 
+        	  {"method": "crop_to_str", "params" : {"structureName": "lung_r"}, "operator" : "union"},
+         	  {"method": "crop_to_str", "params" : {"structureName": "Lung_Left"}, "operator" : "union"}, 
+        	  {"method": "crop_to_str", "params" : {"structureName": "Lung_Right"}, "operator" : "union"},
+         	  {"method": "crop_to_str", "params" : {"structureName": "lung_total"}, "operator" : "union"},
+         	  {"method": "crop_to_str", "params" : {"structureName": "totallung"}, "operator" : "union"},
+         	  {"method": "crop_to_str", "params" : {"structureName": "Lungs"}, "operator" : "union"},
+         	  {"method": "crop_to_str", "params" : {"structureName": "Lungs_NOT_GTV"}, "operator" : "union"} ]
+         	  
+      }
+   },
+ 
+"passedScanDim" : "2D",
 
 "batchSize" : 1,
 
-"scan": {
+"reference" : "https://doi.org/10.1016/j.phro.2020.05.009",
 
-        "identifier" : {"imageType": "CT SCAN"},
+"output":{
+    "labelMap":{
 
-	"resize" : {"method": "none",
-            "size" : [512,512]},
+        "strNameToLabelMap":[
 
-	"crop" : [{"method": "crop_to_str", "params" : {"structureName": "lung_cntr"}, "operator" : ""},
-             {"method": "crop_to_str", "params" : {"structureName": "lung_contra"}, "operator" : "union"},
-         	 {"method": "crop_to_str", "params" : {"structureName": "lung_ipsi"}, "operator" : "union"}, 
-         	 {"method": "crop_to_str", "params" : {"structureName": "lung_l"}, "operator" : "union"}, 
-         	 {"method": "crop_to_str", "params" : {"structureName": "lung_r"}, "operator" : "union"},
-         	 {"method": "crop_to_str", "params" : {"structureName": "lung_total"}, "operator" : "union"},
-         	 {"method": "crop_to_str", "params" : {"structureName": "totallung"}, "operator" : "union"},
-         	 {"method": "crop_to_str", "params" : {"structureName": "Lungs"}, "operator" : "union"},
-         	 {"method": "crop_to_str", "params" : {"structureName": "Lungs_NOT_GTV"}, "operator" : "union"} ],
+           {
+              "structureName": "ATRIA",
+              "value": 1
+           }
+          ],
+    
+        "roiGenerationDescription": "PericardiumDeeplabV3Axial^mskgit"
 
-	"channels" :{"imageType": "original", "slice": "current"}
-         	 
-         },
+     }
 
-"passedScanDim" : "2D",
-
-"reference" : "https://w3.aapm.org/meetings/2019AM/programInfo/programAbs.php?sid=8013&aid=45641"
+  }
 
 }
