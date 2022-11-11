@@ -40,7 +40,7 @@ if ~iscell(planC)
         segMask3M = outC{ptIdx};
 
         planC = importLabelMap(userOptS,origScanNumV,scanNumV,...
-                              segMask3M,labelPath,planC);
+                              outputScanNum,segMask3M,labelPath,planC);
         %origScanNumV(nFile) = origScanNum;
 
         %Save planC
@@ -53,7 +53,7 @@ if ~iscell(planC)
 else
     segMask3M = outC{1};
     tic
-    planC = importLabelMap(userOptS,scanNumV,outputScanNum,...
+    planC = importLabelMap(userOptS,origScanNumV,scanNumV,outputScanNum,...
             segMask3M,labelPath,planC);
     toc
 end
@@ -88,7 +88,7 @@ end
 
 
 %% ----- Supporting functions ----
-    function planC = importLabelMap(userOptS,scanNumV,...
+    function planC = importLabelMap(userOptS,origScanNumV,scanNumV,...
                      outputScanNum,segMask3M,labelPath,planC)
 
         indexS = planC{end};
@@ -101,11 +101,10 @@ end
             else
                 origScanNum = 1; %Assoc with first scan by default
             end
-            outScanNum = scanNumV(origScanNum);
         else
-            origScanNum = outputScanNum;
-            outScanNum = outputScanNum;
+            origScanNum = find(origScanNumV==outputScanNum);
         end
+        outScanNum = scanNumV(origScanNum);
         userOptS.input.scan(outScanNum) = userOptS.input.scan(origScanNum);
         userOptS.input.scan(outScanNum).origScan = origScanNum;
         [segMask3M,planC]  = joinH5planC(outScanNum,segMask3M,labelPath,...
