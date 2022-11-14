@@ -60,6 +60,7 @@ filterType = strrep(filterType,' ','');
 aggregationMethod = 'none';
 dim = '2d';
 ndims = 1;
+numRotations = 1;
 if isfield(paramS,'RotationInvariance') && ~isempty(paramS.RotationInvariance)
     rotS = paramS.RotationInvariance.val;
     aggregationMethod = rotS.AggregationMethod;
@@ -69,6 +70,16 @@ if isfield(paramS,'RotationInvariance') && ~isempty(paramS.RotationInvariance)
     else
         numRotations = 24;
     end
+    %Remove padding
+    %if isfield(paramS.padding,'method') && ~isempty(paramS.padding.method)
+    %    padSizeV = paramS.padding.size;
+    %    padMethod = paramS.padding.method;
+    %    scanSizeV = size(scan3M);
+    %    scan3M = scan3M(padSizeV(1)+1:scanSizeV(1)-padSizeV(1), ...
+    %        padSizeV(2)+1:scanSizeV(2)-padSizeV(2),...
+    %        padSizeV(3)+1:scanSizeV(3)-padSizeV(3));
+    %    origScanSizeV = size(scan3M);
+    %end
 end
 
 %% Apply filter at specified orientations
@@ -83,6 +94,12 @@ for index = 1:numRotations
         rotScan3M = rotate3dSequence(scan3M,index-1,1);
         rotMask3M = rotate3dSequence(mask3M,index-1,1);
     end
+
+    %Apply padding
+    %if isfield(paramS.padding,'method') && ~isempty(paramS.padding.method)...
+    %        && numRotations>1
+    %    [rotScan3M,rotMask3M] = padScan(rotScan3M,rotMask3M,padMethod,padSizeV);
+    %end
 
     switch(filterType)
 
@@ -520,6 +537,13 @@ textureS = rotTextureC{1};
 featNameC = fieldnames(textureS);
 for nFeat = 1:length(featNameC)
     outC = cellfun(@(x) x.(featNameC{nFeat}),rotTextureC,'un',0);
+    %Undo padding to aggregate response
+    %if isfield(paramS.padding,'method') && ~isempty(paramS.padding.method)...
+    %         && numRotations>1
+    %    outC = cellfun(@(x) x(padSizeV(1)+1:scanSizeV(1)-padSizeV(1), ...
+    %        padSizeV(2)+1:scanSizeV(2)-padSizeV(2),...
+    %        padSizeV(3)+1:scanSizeV(3)-padSizeV(3)),outC,'un',0);
+    %end
     out4M = cat(4,outC{:});
     switch(aggregationMethod)
         case 'avg'
@@ -529,7 +553,18 @@ for nFeat = 1:length(featNameC)
         case 'std'
             out3M = std(out4M,0,4);
     end
-    outS.(featNameC{nFeat}) = out3M;
+    %Re-apply padding
+    %if isfield(paramS.padding,'method') && ~isempty(paramS.padding.method)...
+    %        && numRotations>1
+    %    padOut3M = zeros(2*padSizeV(1)+origScanSizeV(1), ...
+    %        2*padSizeV(2)+origScanSizeV(2),2*padSizeV(3)+origScanSizeV(3));
+    %    padOut3M(padSizeV(1)+1:scanSizeV(1)-padSizeV(1),...
+    %        padSizeV(2)+1:scanSizeV(2)-padSizeV(2),...
+    %        padSizeV(3)+1:scanSizeV(3)-padSizeV(3)) = out3M;
+    %else
+        padOut3M = out3M;
+    %end
+    outS.(featNameC{nFeat}) = padOut3M;
 end
 
 
