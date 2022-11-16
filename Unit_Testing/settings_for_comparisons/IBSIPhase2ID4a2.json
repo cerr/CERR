@@ -1,0 +1,26 @@
+{
+
+"structures": ["wholeScan"],
+
+"imageType": {
+  		  "Gabor": {
+				       "Sigma_mm": 10,
+				       "Wavlength_mm": 4,
+                       "SpatialAspectRatio": 0.5,
+                       "Orientation":[45,90,135,180,225,270,315,360],
+                       "OrientationAggregation": "average",
+                       "ImagePlane": ["Axial","Sagittal","Coronal"],
+                       "PlaneAggregation": "average"
+			 	     }
+	    },
+
+"settings": {		   
+
+                   "padding": [{
+                                "method": "padzeros",  
+                                "size": [41,41,0]
+			       }
+                              ]
+	    }
+
+}
