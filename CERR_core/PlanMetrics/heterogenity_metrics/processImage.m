@@ -46,6 +46,7 @@ function outS = processImage(filterType,scan3M,mask3M,paramS,hWait)
 % outS = processImage(filterType,scan3M,mask3M,paramS,hWait);
 %-------------------------------------------------------------------------
 %AI 03/16/18
+%AI 11/16/22  Support for rotation-invariant filtering
 
 if ~exist('hWait','var')
     hWait = [];
@@ -59,7 +60,6 @@ filterType = strrep(filterType,' ','');
 %Parameters for rotation invariance
 aggregationMethod = 'none';
 dim = '2d';
-ndims = 1;
 numRotations = 1;
 if isfield(paramS,'RotationInvariance') && ~isempty(paramS.RotationInvariance)
     rotS = paramS.RotationInvariance.val;
@@ -70,16 +70,11 @@ if isfield(paramS,'RotationInvariance') && ~isempty(paramS.RotationInvariance)
     else
         numRotations = 24;
     end
-    %Remove padding
-    %if isfield(paramS.padding,'method') && ~isempty(paramS.padding.method)
-    %    padSizeV = paramS.padding.size;
-    %    padMethod = paramS.padding.method;
-    %    scanSizeV = size(scan3M);
-    %    scan3M = scan3M(padSizeV(1)+1:scanSizeV(1)-padSizeV(1), ...
-    %        padSizeV(2)+1:scanSizeV(2)-padSizeV(2),...
-    %        padSizeV(3)+1:scanSizeV(3)-padSizeV(3));
-    %    origScanSizeV = size(scan3M);
-    %end
+end
+
+%Handle S-I orientation flip for Wavelet filters
+if strcmpi(filterType,'wavelets')
+    scan3M   = flip(double(scan3M),3); %FOR IBSI2 compatibility
 end
 
 %% Apply filter at specified orientations
@@ -94,12 +89,6 @@ for index = 1:numRotations
         rotScan3M = rotate3dSequence(scan3M,index-1,1);
         rotMask3M = rotate3dSequence(mask3M,index-1,1);
     end
-
-    %Apply padding
-    %if isfield(paramS.padding,'method') && ~isempty(paramS.padding.method)...
-    %        && numRotations>1
-    %    [rotScan3M,rotMask3M] = padScan(rotScan3M,rotMask3M,padMethod,padSizeV);
-    %end
 
     switch(filterType)
 
@@ -200,7 +189,8 @@ for index = 1:numRotations
 
         case 'Wavelets'
 
-            vol3M   = flip(double(rotScan3M),3); %FOR IBSI2
+            %vol3M   = flip(double(rotScan3M),3); %FOR IBSI2
+            vol3M = double(rotScan3M);
 
             dirListC = {'All','HHH','LHH','HLH','HHL','LLH','LHL','HLL','LLL'};
             wavType =  paramS.Wavelets.val;
@@ -220,7 +210,9 @@ for index = 1:numRotations
                     out3M = subbandsS.(matchDir);
 
                     if ishandle(hWait)
-                        set(hWait, 'Vertices', [[0 0 (n-1)/(length(dirListC)-1) (n-1)/(length(dirListC)-1)]' [0 1 1 0]']);
+                        set(hWait, 'Vertices', ...
+                            [[0 0 (n-1)/(length(dirListC)-1) ...
+                            (n-1)/(length(dirListC)-1)]' [0 1 1 0]']);
                         drawnow;
                     end
 
@@ -240,7 +232,8 @@ for index = 1:numRotations
                     drawnow;
                 end
 
-                outS.(outname) = flip(out3M,3); %FOR IBSI2
+                %outS.(outname) = flip(out3M,3); %FOR IBSI2
+                outS.(outname) = out3M;
             end
 
 
@@ -304,38 +297,134 @@ for index = 1:numRotations
 
         case 'Gabor'
 
+            %Read filter parameters
             vol3M = double(rotScan3M);
             voxelSizV = paramS.VoxelSize_mm.val;
             sigma = paramS.Sigma_mm.val/voxelSizV(1);
             wavelength = paramS.Wavlength_mm.val./voxelSizV(1);
-            theta = paramS.Orientation.val;
+            theta = reshape(paramS.Orientation.val,1,[]);
             gamma = paramS.SpatialAspectRatio.val;
-            if isfield(paramS,'Radius_mm')
-                radius = paramS.Radius_mm.val/voxelSizV(1);
-                gabor3M = GaborFiltIBSI(vol3M,sigma,wavelength,gamma,theta,...
-                    radius);
-                outS.Gabor = gabor3M;
-            else
-                if length(theta)==1
-                    gabor3M = GaborFiltIBSI(vol3M,sigma,wavelength,gamma,theta);
-                    outS.Gabor = gabor3M;
+            planes = paramS.ImagePlane.val;
+
+            %Loop over image planes
+            for nPlane = 1:length(planes)
+
+                switch lower(planes{nPlane})
+                    case 'axial'
+                        % do nothing
+                    case 'sagittal'
+                        vol3M = permute(vol3M,[3,1,2]);
+                    case 'coronal'
+                        vol3M = permute(vol3M,[3,2,1]);
+                end
+
+                %Apply filter
+                if isfield(paramS,'Radius_mm')
+                    %Use specified filter size
+                    radius = paramS.Radius_mm.val/voxelSizV(1);
+                    gabor3M = GaborFiltIBSI(vol3M,sigma,wavelength,gamma,theta,...
+                        radius);
+                    fieldname = ['Gabor_',lower(planes{nPlane})];
+                    outS.(fieldname) = gabor3M;
                 else
-                    %Multiple orientations
-                    gaborOutC = cell(1,length(theta));
-                    for nTheta = 1:length(theta)
-                        gaborOutC{nTheta} = GaborFiltIBSI(vol3M,sigma,wavelength,...
-                            gamma,theta(nTheta));
-                    end
-                    if isfield(paramS,'mode') &&  strcmpi(paramS.mode.val,'avg')
-                        gaborAll = cat(4, gaborOutC{:});
-                        gabor3M = mean(gaborAll,4);
-                        outS.Gabor = gabor3M;
+                    %Use default filter size
+                    if length(theta)==1
+                        gabor3M = GaborFiltIBSI(vol3M,sigma,wavelength,gamma,theta);
+                        fieldname = ['Gabor_',lower(planes{nPlane})];
+                        outS.(fieldname) = gabor3M;
                     else
+                        %Loop over multiple orientations
+                        gaborOutC = cell(1,length(theta));
                         for nTheta = 1:length(theta)
-                            fieldName = ['Gabor_',num2str(theta(nTheta))];
-                            outS.(fieldName) = gaborOutC{nTheta};
+                            gaborOutC{nTheta} = GaborFiltIBSI(vol3M,...
+                                sigma,wavelength,gamma,theta(nTheta));
+                        end
+
+                        %Aggregate results from different orientaitons
+                        if isfield(paramS,'OrientationAggregation') && ...
+                                ~isempty(paramS.OrientationAggregation)
+                            gaborAll = cat(4, gaborOutC{:});
+                            aggMethod = paramS.OrientationAggregation.val;
+                            switch(aggMethod)
+                                case 'average'
+                                    gabor3M = mean(gaborAll,4);
+                                case 'max'
+                                    gabor3M = max(gaborAll,[],4);
+                                case 'std'
+                                    gabor3M = std(gaborAll,0,4);
+                            end
+                            angle_str = strrep(num2str(theta),' ','_');
+                            fieldname = ['Gabor_',lower(planes{nPlane}),...
+                                '_',angle_str,'_',aggMethod];
+                            outS.(fieldname) = gabor3M;
+                        else
+                            fieldname = {};
+                            for nTheta = 1:length(theta)
+                                currFieldName = ['Gabor_',num2str(theta(nTheta))];
+                                outS.(currFieldName) = gaborOutC{nTheta};
+                                fieldname = [fieldname,currFieldName];
+                            end
                         end
                     end
+                end
+
+                % Re-orient results for cross-plane aggregation
+                if isfield(paramS,'PlaneAggregation') && ...
+                        ~isempty(paramS.PlaneAggregation)
+                    if ~iscell(fieldname)
+                        fieldname = {fieldname};
+                    end
+                    for nFields = 1:length(fieldname)
+                        out3M = outS.(fieldname{nFields});
+                        switch lower(planes{nPlane})
+                            case 'axial'
+                                % do nothing
+                            case 'sagittal'
+                                out3M = permute(out3M,[2,3,1]);
+                                vol3M = permute(vol3M,[2,3,1]);
+                            case 'coronal'
+                                out3M = permute(out3M,[3,2,1]);
+                                vol3M = permute(vol3M,[3,2,1]);
+                        end
+                        outS.(fieldname{nFields}) = out3M;
+                    end
+                end
+
+            end
+
+            %Agggregate resutls across orthogonal planes
+            if isfield(paramS,'PlaneAggregation') && ...
+                    ~isempty(paramS.PlaneAggregation)
+
+                aggMethod = paramS.PlaneAggregation.val;
+                getMatchFields = @(S,varargin) cellfun(@(f)S.(f),...
+                    varargin,'un',0);
+                
+                %Gather results from common settings
+                fieldsC = fieldnames(outS);
+                settingC = regexprep(fieldsC,{'axial','sagittal','coronal'},...
+                    {'','',''});
+                uqSettingC = unique(settingC);
+
+                %Aggregate
+                for nSettings = 1:length(uqSettingC)
+                    matchIdxV = ismember(settingC, uqSettingC{nSettings});
+                    matchFieldsC = fieldsC(matchIdxV);
+                    matchValC = getMatchFields(outS,matchFieldsC{:});
+                    gaborAll = cat(4, matchValC{:});
+                    switch(aggMethod)
+                        case 'average'
+                            gabor3M = mean(gaborAll,4);
+                        case 'max'
+                            gabor3M = max(gaborAll,[],4);
+                        case 'std'
+                            gabor3M = std(gaborAll,0,4);
+                    end
+                    planes_str = strjoin(planes,'_');
+                    fieldname = [uqSettingC{nSettings},'_',planes_str,...
+                        '_', aggMethod];
+                    outS = rmfield(outS,matchFieldsC);
+                    outS.(fieldname) = gabor3M;
                 end
             end
 
@@ -347,6 +436,7 @@ for index = 1:numRotations
 
         case 'Mean'
 
+            % Generate mean filter kernel
             vol3M = double(rotScan3M);
             kernelSize = paramS.KernelSize.val;
             if ~isnumeric(kernelSize)
@@ -357,9 +447,14 @@ for index = 1:numRotations
             filt3M = ones(kernelSize);
             filt3M = filt3M./sum(filt3M(:));
 
-            if length(kernelSize)==3 %3d
+            %Support absolute mean (e.g. for energy calc.)
+            if isfield(paramS,'Absolute') && strcmpi(paramS.Absolute.val,'yes')
+                vol3M = abs(vol3M);
+            end
+
+            if length(kernelSize)==3 && kernelSize(3)~=0 %3d
                 meanFilt3M = convn(vol3M,filt3M,'same');
-            elseif length(kernelSize)==2 %2d
+            elseif length(kernelSize)==2 || kernelSize(3)==0 %2d
                 meanFilt3M = nan(size(vol3M));
                 for slc = 1:size(vol3M,3)
                     meanFilt3M(:,:,slc) = conv2(vol3M(:,:,slc),filt3M,'same');
@@ -440,29 +535,41 @@ for index = 1:numRotations
             %Ref: %https://arxiv.org/pdf/2006.05470.pdf
 
             %Filter padded image using Laws' kernel
-            lawsOutS = processImage('LawsConvolution',rotScan3M,rotMask3M,paramS,[]);
+            lawsOutS = processImage('LawsConvolution',rotScan3M,...
+                rotMask3M,paramS,[]);
 
             fieldNameC = fieldnames(lawsOutS);
             numFeatures = length(fieldNameC);
-            padMethod = paramS.PadMethod.val;
-            padSizV = paramS.PadSize.val;
+            padMethod = paramS.EnergyPadMethod.val;
+            padSizV = paramS.EnergyPadSize.val;
+            %Set reqd mean filter param
+            paramS.KernelSize.val = paramS.EnergyKernelSize.val;
+            paramS.Absolute.val ='yes';
 
             %Loop over response maps
             for i = 1:length(fieldNameC)
 
                 %Pad response map
                 lawsTex3M = lawsOutS.(fieldNameC{i});
-                if ~isequal(size(lawsTex3M),size(rotScan3M))
-                    responseSizV = size(lawsTex3M);
-                    lawsTex3M = lawsTex3M(padSizV(1)+1:responseSizV(1)-padSizV(1),...
-                        padSizV(2)+1:responseSizV(2)-padSizV(2),...
-                        padSizV(3)+1:responseSizV(3)-padSizV(3));
-                    lawsTex3M = padScan(lawsTex3M,rotMask3M,padMethod,padSizV);
-                end
+                %if ~isequal(size(lawsTex3M),size(rotScan3M))
+                %    responseSizV = size(lawsTex3M);
+                %    lawsTex3M = lawsTex3M(padSizV(1)+1:responseSizV(1)-padSizV(1),...
+                %        padSizV(2)+1:responseSizV(2)-padSizV(2),...
+                %        padSizV(3)+1:responseSizV(3)-padSizV(3));
+                %    lawsTex3M = padScan(lawsTex3M,rotMask3M,padMethod,padSizV);
+                %end
+                calcMask3M = true(size(lawsTex3M));
+                lawsTex3M = padScan(lawsTex3M,calcMask3M,padMethod,padSizV);
 
                 %Apply mean filter
-                meanOutS = processImage('Mean',lawsTex3M,rotMask3M,paramS,[]);
+                meanOutS = processImage('Mean',lawsTex3M,...
+                           rotMask3M,paramS,[]);
                 lawsEnergy3M = meanOutS.meanFilt;
+                padResponseSizeV = size(lawsEnergy3M);
+                lawsEnergy3M = lawsEnergy3M(padSizV(1)+1:...
+                    padResponseSizeV(1)-padSizV(1),...
+                    padSizV(2)+1:padResponseSizeV(2)-padSizV(2),...
+                    padSizV(3)+1:padResponseSizeV(3)-padSizV(3));
 
                 outField = [fieldNameC{i},'_Energy'];
                 outS.(outField) = lawsEnergy3M;
@@ -526,45 +633,31 @@ for index = 1:numRotations
         elseif strcmpi(dim,'3d')
             rotOut3M = rotate3dSequence(out3M,index-1,-1);
         end
+        if strcmpi(filterType,'Wavelets')
+            rotOut3M = flip(rotOut3M,3);
+        end
         outS.(featNameC{nFeat}) = rotOut3M;
     end
     rotTextureC{index} = outS;
-
 end
 
 %% Aggregate textures from all orientations
-textureS = rotTextureC{1};
-featNameC = fieldnames(textureS);
-for nFeat = 1:length(featNameC)
-    outC = cellfun(@(x) x.(featNameC{nFeat}),rotTextureC,'un',0);
-    %Undo padding to aggregate response
-    %if isfield(paramS.padding,'method') && ~isempty(paramS.padding.method)...
-    %         && numRotations>1
-    %    outC = cellfun(@(x) x(padSizeV(1)+1:scanSizeV(1)-padSizeV(1), ...
-    %        padSizeV(2)+1:scanSizeV(2)-padSizeV(2),...
-    %        padSizeV(3)+1:scanSizeV(3)-padSizeV(3)),outC,'un',0);
-    %end
-    out4M = cat(4,outC{:});
-    switch(aggregationMethod)
-        case 'avg'
-            out3M = mean(out4M,4);
-        case 'max'
-            out3M = max(out4M,[],4);
-        case 'std'
-            out3M = std(out4M,0,4);
+if isfield(paramS,'RotationInvariance') && ~isempty(paramS.RotationInvariance)
+    textureS = rotTextureC{1};
+    featNameC = fieldnames(textureS);
+    for nFeat = 1:length(featNameC)
+        outC = cellfun(@(x) x.(featNameC{nFeat}),rotTextureC,'un',0);
+        out4M = cat(4,outC{:});
+        switch(aggregationMethod)
+            case 'avg'
+                out3M = mean(out4M,4);
+            case 'max'
+                out3M = max(out4M,[],4);
+            case 'std'
+                out3M = std(out4M,0,4);
+        end
+        outS.(featNameC{nFeat}) = out3M;
     end
-    %Re-apply padding
-    %if isfield(paramS.padding,'method') && ~isempty(paramS.padding.method)...
-    %        && numRotations>1
-    %    padOut3M = zeros(2*padSizeV(1)+origScanSizeV(1), ...
-    %        2*padSizeV(2)+origScanSizeV(2),2*padSizeV(3)+origScanSizeV(3));
-    %    padOut3M(padSizeV(1)+1:scanSizeV(1)-padSizeV(1),...
-    %        padSizeV(2)+1:scanSizeV(2)-padSizeV(2),...
-    %        padSizeV(3)+1:scanSizeV(3)-padSizeV(3)) = out3M;
-    %else
-        padOut3M = out3M;
-    %end
-    outS.(featNameC{nFeat}) = padOut3M;
 end
 
 
