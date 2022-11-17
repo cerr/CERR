@@ -4,10 +4,10 @@
 
 "imageType": {
   		  "Gabor": {
-				       "Sigma_mm": 10,
-				       "Wavlength_mm": 4,
-                       "SpatialAspectRatio": 0.5,
-                       "Orientation":[45,90,135,180,225,270,315,360],
+				       "Sigma_mm": 20,
+				       "Wavlength_mm": 8,
+                       "SpatialAspectRatio": 2.5,
+                       "Orientation":[22.5,45,67.5,90,112.5,135,157.5,180,202.5,225,247.5,270,292.5,315,337.5,360],
                        "OrientationAggregation": "average",
                        "ImagePlane": ["Axial","Sagittal","Coronal"],
                        "PlaneAggregation": "average"
@@ -17,8 +17,8 @@
 "settings": {		   
 
                    "padding": [{
-                                "method": "padzeros",  
-                                "size": [41,41,41]
+                                "method": "mirror",  
+                                "size": [32,32,32]
 			       }
                               ]
 	    }
