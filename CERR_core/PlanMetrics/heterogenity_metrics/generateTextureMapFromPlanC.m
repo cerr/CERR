@@ -4,7 +4,7 @@ function planC = generateTextureMapFromPlanC(planC,strNum,configFilePath)
 % Compute texture maps from and export to DICOM.
 % -------------------------------------------------------------------------
 % INPUTS
-% inputDicomPath   : Path to CERR plan.
+% planC            : CERR archive
 % strNum           : Structure no.
 % configFilePath   : Path to config files for texture calculation.
 % -------------------------------------------------------------------------
@@ -30,9 +30,9 @@ paramS = getRadiomicsParamTemplate(configFilePath);
 %% Apply pre-processing
 [procScan3M,procMask3M,gridS] = preProcessForRadiomics(scanNum,...
     strNum, paramS, planC);
-[minr, maxr, minc, maxc] = compute_boundingbox(procMask3M);
-maskSlcV = sum(sum(procMask3M))>0;
-maskBoundingBox3M = procMask3M(minr:maxr,minc:maxc,maskSlcV);
+%[minr, maxr, minc, maxc] = compute_boundingbox(procMask3M);
+%maskSlcV = sum(sum(procMask3M))>0;
+%maskBoundingBox3M = procMask3M(minr:maxr,minc:maxc,maskSlcV);
 
 %% Get filtered image
 %Get params
@@ -43,7 +43,7 @@ voxSizV = gridS.PixelSpacingV;
 filtParamS.VoxelSize_mm.val = voxSizV * 10; %convert cm to mm
 filtParamS.padding = paramS.whichFeatS.padding;
 %Apply filter
-outS = processImage(filterType,procScan3M,maskBoundingBox3M,filtParamS);
+outS = processImage(filterType,procScan3M,procMask3M,filtParamS);
 
 %% Create texture scans
 fieldNamesC = fieldnames(outS);
