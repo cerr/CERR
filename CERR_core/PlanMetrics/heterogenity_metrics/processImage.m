@@ -305,6 +305,16 @@ for index = 1:numRotations
             theta = reshape(paramS.Orientation.val,1,[]);
             gamma = paramS.SpatialAspectRatio.val;
             planes = paramS.ImagePlane.val;
+            if ~iscell(planes)
+                planes = {planes};
+            end
+
+            %Set default filter size (IBSI-2 recommendation)
+            padV = reshape(paramS.padding.size,1,[]);
+            scanSizeV = size(rotScan3M) - 2*padV;
+            rV = scanSizeV(1:2);
+            evenIdxV = mod(rV,2) == 0;
+            rV(evenIdxV) = rV(evenIdxV)+1;
 
             %Loop over image planes
             for nPlane = 1:length(planes)
@@ -322,14 +332,16 @@ for index = 1:numRotations
                 if isfield(paramS,'Radius_mm')
                     %Use specified filter size
                     radius = paramS.Radius_mm.val/voxelSizV(1);
-                    gabor3M = GaborFiltIBSI(vol3M,sigma,wavelength,gamma,theta,...
-                        radius);
+                    gabor3M = GaborFiltIBSI(vol3M,sigma,wavelength,...
+                        gamma,theta,radius);
                     fieldname = ['Gabor_',lower(planes{nPlane})];
                     outS.(fieldname) = gabor3M;
                 else
                     %Use default filter size
+                    radius = floor(rV/2);     %IBSI recommendation
                     if length(theta)==1
-                        gabor3M = GaborFiltIBSI(vol3M,sigma,wavelength,gamma,theta);
+                        gabor3M = GaborFiltIBSI(vol3M,sigma,wavelength,...
+                            gamma,theta,radius);
                         fieldname = ['Gabor_',lower(planes{nPlane})];
                         outS.(fieldname) = gabor3M;
                     else
@@ -337,7 +349,7 @@ for index = 1:numRotations
                         gaborOutC = cell(1,length(theta));
                         for nTheta = 1:length(theta)
                             gaborOutC{nTheta} = GaborFiltIBSI(vol3M,...
-                                sigma,wavelength,gamma,theta(nTheta));
+                                sigma,wavelength,gamma,theta(nTheta),radius);
                         end
 
                         %Aggregate results from different orientaitons
@@ -353,7 +365,13 @@ for index = 1:numRotations
                                 case 'std'
                                     gabor3M = std(gaborAll,0,4);
                             end
-                            angle_str = strrep(num2str(theta),' ','_');
+                            angle_str = strrep(strjoin(""+theta,'_'),'.','p');
+                            angle_str = char(strrep(angle_str,'-','M'));
+                            if length(angle_str)>39
+                                %temp
+                                angle_str = angle_str(1:39);
+                                %tbd: gen unique fieldname
+                            end
                             fieldname = ['Gabor_',lower(planes{nPlane}),...
                                 '_',angle_str,'_',aggMethod];
                             outS.(fieldname) = gabor3M;
@@ -399,7 +417,7 @@ for index = 1:numRotations
                 aggMethod = paramS.PlaneAggregation.val;
                 getMatchFields = @(S,varargin) cellfun(@(f)S.(f),...
                     varargin,'un',0);
-                
+
                 %Gather results from common settings
                 fieldsC = fieldnames(outS);
                 settingC = regexprep(fieldsC,{'axial','sagittal','coronal'},...
