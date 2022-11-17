@@ -7,7 +7,8 @@
 				       "Sigma_mm": 20,
 				       "Wavlength_mm": 8,
                        "SpatialAspectRatio": 2.5,
-                       "Orientation":225
+                       "Orientation":225,
+                       "ImagePlane" : "axial"
 			 	     }
 	    },
 
@@ -15,7 +16,7 @@
 
                    "padding": [{
                                 "method": "mirror",  
-                                "size": [201,201,0]
+                                "size": [32,32,0]
 			       }
                               ]
 	    }
