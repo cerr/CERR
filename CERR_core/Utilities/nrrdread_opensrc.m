@@ -1,5 +1,5 @@
 function [X, meta] = nrrdread_opensrc(filename)
-%nrrdread_opensrc  Import NRRD imagery and metadata.
+%NRRDREAD_OPENSRC  Import NRRD imagery and metadata.
 %   [X, META] = nrrdread_opensrc(FILENAME) reads the image volume and associated
 %   metadata from the NRRD-format file specified by FILENAME.
 %
