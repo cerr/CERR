@@ -27,7 +27,7 @@ switch outFmt
             
             %Assumes 3D mask file
             fileName = fullfile(outPath,'outputNRRD',fileNameC{1});
-            mask3M = nrrdread(fileName);
+            mask3M = nrrdread_opensrc(fileName);
             outC{p} = mask3M;
         end
         
