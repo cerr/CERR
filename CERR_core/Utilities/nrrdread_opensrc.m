@@ -1,6 +1,6 @@
-function [X, meta] = nrrdread(filename)
-%NRRDREAD  Import NRRD imagery and metadata.
-%   [X, META] = NRRDREAD(FILENAME) reads the image volume and associated
+function [X, meta] = nrrdread_opensrc(filename)
+%nrrdread_opensrc  Import NRRD imagery and metadata.
+%   [X, META] = nrrdread_opensrc(FILENAME) reads the image volume and associated
 %   metadata from the NRRD-format file specified by FILENAME.
 %
 %   Current limitations/caveats:
@@ -13,6 +13,10 @@ function [X, meta] = nrrdread(filename)
 %   http://teem.sourceforge.net/nrrd/format.html
 
 % Copyright 2012 The MathWorks, Inc.
+% Jeff Mather (2022). NRRD Format File Reader 
+% (https://www.mathworks.com/matlabcentral/fileexchange/34653-nrrd-format-file-reader),
+% MATLAB Central File Exchange. Retrieved November 18, 2022
+
 
 
 % Open file.

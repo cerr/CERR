@@ -23,7 +23,7 @@ function [data3M, infoS] = nrrd_read(fileName)
 % planC  = mha2cerr(infoS,data3M,movScanOffset,movScanName, planC, save_flag);
 
 % read nrrd file
-[data3M,infoS] = nrrdread(fileName);
+[data3M,infoS] = nrrdread_opensrc(fileName);
 
 
 % Get the scan dimension

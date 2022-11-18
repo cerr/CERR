@@ -1,10 +1,14 @@
-function [planC,origScanNumV,allLabelNamesC,dcmExportOptS,success] = ...
-    processAndImportSeg(planC,scanNumV,fullSessionPath,userOptS)
-% planC = processAndImportSeg(planC,scanNumV,fullSessionPath,userOptS);
+function [planC,allLabelNamesC,dcmExportOptS,success] = ...
+    processAndImportSeg(planC,origScanNumV,scanNumV,outputScanNum,...
+    fullSessionPath,userOptS)
+% planC = processAndImportSeg(planC,origScanNumV,scanNumV,fullSessionPath,userOptS);
 %-------------------------------------------------------------------------
 % INPUTS
 % planC           : planC OR path to directory containing CERR files.
-% scanNumV        : Scan nos required by model
+% origScanNumV    : User-input or obtained from scan identifiers.
+% scanNumV        : (Processed) Scan nos input to model
+% outputScanNum   : Scan no. for output association 
+%                   (scan identifier used if empty).
 % fullSessionPath : Full path to session dir
 % userOptS        : Dictionary of post-processing parameters.
 %-------------------------------------------------------------------------
@@ -25,7 +29,7 @@ if ~iscell(planC)
     % Load from file
     planCfileS = dir(fullfile(cerrPath,'*.mat'));
     planCfilenameC = {planCfileS.name};
-    origScanNumV = nan(1,length(planCfilenameC));
+    %origScanNumV = nan(1,length(planCfilenameC));
     for nFile = 1:length(planCfilenameC)
         tic
         [~,ptName,~] = fileparts(planCfilenameC{nFile});
@@ -35,9 +39,9 @@ if ~iscell(planC)
         ptIdx = ~cellfun(@isempty, strfind(ptListC, strtok(ptName,'_')));
         segMask3M = outC{ptIdx};
 
-        [origScanNum,planC] = importLabelMap(userOptS,scanNumV,...
-                              segMask3M,labelPath,planC);
-        origScanNumV(nFile) = origScanNum;
+        planC = importLabelMap(userOptS,origScanNumV,scanNumV,...
+                              outputScanNum,segMask3M,labelPath,planC);
+        %origScanNumV(nFile) = origScanNum;
 
         %Save planC
         optS = [];
@@ -49,8 +53,8 @@ if ~iscell(planC)
 else
     segMask3M = outC{1};
     tic
-    [origScanNumV,planC] = importLabelMap(userOptS,scanNumV,...
-        segMask3M,labelPath,planC);
+    planC = importLabelMap(userOptS,origScanNumV,scanNumV,outputScanNum,...
+            segMask3M,labelPath,planC);
     toc
 end
 
@@ -84,22 +88,27 @@ end
 
 
 %% ----- Supporting functions ----
-    function [origScanNum,planC] = importLabelMap(userOptS,scanNumV,...
-            segMask3M,labelPath,planC)
+    function planC = importLabelMap(userOptS,origScanNumV,scanNumV,...
+                     outputScanNum,segMask3M,labelPath,planC)
 
         indexS = planC{end};
-        identifierS = userOptS.outputAssocScan.identifier;
-        idS = rmfield(identifierS,{'warped','filtered'});
-        idC = fieldnames(idS);
-        if ~isempty(idC)
-            origScanNum = getScanNumFromIdentifiers(identifierS,planC);
+        if isempty(outputScanNum) || isnan(outputScanNum)
+            identifierS = userOptS.outputAssocScan.identifier;
+            idS = rmfield(identifierS,{'warped','filtered'});
+            idC = fieldnames(idS);
+            if ~isempty(idC)
+                origScanNum = getScanNumFromIdentifiers(identifierS,planC);
+            else
+                origScanNum = 1; %Assoc with first scan by default
+            end
         else
-            origScanNum = 1; %Assoc with first scan by default
+            origScanNum = find(origScanNumV==outputScanNum);
         end
         outScanNum = scanNumV(origScanNum);
         userOptS.input.scan(outScanNum) = userOptS.input.scan(origScanNum);
         userOptS.input.scan(outScanNum).origScan = origScanNum;
-        [segMask3M,planC]  = joinH5planC(outScanNum,segMask3M,labelPath,userOptS,planC);
+        [segMask3M,planC]  = joinH5planC(outScanNum,segMask3M,labelPath,...
+            userOptS,planC);
 
         % Post-process segmentation
         if sum(segMask3M(:))>0

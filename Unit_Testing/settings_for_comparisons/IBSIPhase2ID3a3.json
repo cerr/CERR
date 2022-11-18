@@ -1,0 +1,21 @@
+{
+
+"structures": ["wholeScan"],
+
+"imageType": {
+  		  "Mean": {
+			    "KernelSize": [15,15,15],
+                "Absolute": "yes"
+			  }
+	    },
+
+"settings": {		   
+
+                   "padding": [{
+                                "method": "padzeros",  
+                                "size": [7,7,7]
+			       }
+                              ]
+	    }
+
+}
