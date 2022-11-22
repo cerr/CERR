@@ -3,7 +3,7 @@
   "input":{
     "scan":{
 
-        "identifier" : {"imageType": "MR SCAN"},
+        "identifier" : {"imageType": "MR SCAN"}
     
           }
   },
