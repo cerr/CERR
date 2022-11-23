@@ -1,0 +1,21 @@
+{
+
+"structures": ["wholeScan"],
+
+"imageType": {
+  		  "LoG_IBSI": {
+			    "Sigma_mm": [5,5],
+                "CutOff_mm":[20,20]
+			  }
+	    },
+
+"settings": {		   
+
+                   "padding": [{
+                                "method": "mirror",  
+                                "size": [10,10,0]
+			       }
+                              ]
+	    }
+
+}

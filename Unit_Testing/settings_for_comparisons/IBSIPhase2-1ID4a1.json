@@ -1,0 +1,24 @@
+{
+
+"structures": ["wholeScan"],
+
+"imageType": {
+  		  "Gabor": {
+				       "Sigma_mm": 10,
+				       "Wavlength_mm": 4,
+                       "SpatialAspectRatio": 0.5,
+                       "Orientation":60,
+                       "ImagePlane": "Axial"
+			 	     }
+	    },
+
+"settings": {		   
+
+                   "padding": [{
+                                "method": "padzeros",  
+                                "size": [41,41,0]
+			       }
+                              ]
+	    }
+
+}

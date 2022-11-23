@@ -1,0 +1,22 @@
+{
+
+"structures": ["wholeScan"],
+
+"imageType": {
+  		  "LawsConvolution": {
+			    	       "Direction": "3d",
+				       "Type": "E3W5R5",
+				       "Normalize": "yes"
+			 	     }
+	    },
+
+"settings": {		   
+
+                   "padding": [{
+                                "method": "mirror",  
+                                "size": [2,1,2]
+			       }
+                              ]
+	    }
+
+}
