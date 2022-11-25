@@ -114,7 +114,7 @@ if iscell(planC)
 
         switch(inputType)
 
-            case 'scan'
+            case {'scan','structure'}
 
                 %Pre-process data and export to model input fmt
                 fprintf('\nPre-processing data...\n');
@@ -143,8 +143,6 @@ if iscell(planC)
                     writeDataForDL(scanC{nScan},maskC{nScan},coordInfoS,...
                     passedScanDim,modelFmt,outDirC,idOut,skipMaskExport);
                 end
-
-            case 'structure'
 
             %case 'dose'
 
@@ -177,7 +175,8 @@ else
 
                   %Pre-process data and export to model input fmt
                   fprintf('\nPre-processing data...\n');
-                  [scanC, maskC, scanNumV, userOptS, coordInfoS, planC] = ...
+                  [scanC, maskC, origScanNumV, scanNumV, userOptS,...
+                      coordInfoS, planC] = ...
                       extractAndPreprocessDataForDL(userOptS,planC,...
                       skipMaskExport,scanNumV);
 
