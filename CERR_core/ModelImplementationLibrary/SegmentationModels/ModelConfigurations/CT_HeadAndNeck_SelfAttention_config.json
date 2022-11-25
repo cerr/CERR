@@ -1,67 +1,73 @@
 {
-  "strNameToLabelMap": [
 
-    {
-      "structureName": "Left Parotid",
-      "value": 1
-    },
-    {
-      "structureName": "Right Parotid",
-      "value": 2
-    },
-    {
-      "structureName": "Left Submandibular",
-      "value": 3
-    },
-    {
-      "structureName": "Right Submandibular",
-      "value": 4
-    },
-    {
-      "structureName": "Mandible",
-      "value": 7
-    },
-    {
-      "structureName": "Spinal cord",
-      "value": 8
-    },
-    {
-      "structureName": "Brain stem",
-      "value": 9
-    },
-    {
-      "structureName": "Oral cavity",
-      "value": 10
-    },
-    {
-      "structureName": "Larynx",
-      "value": 11
-    }
-  ],
-  
-"scan":{  
+"input":{    
+    "scan":{  
 
         "identifier" : {"imageType": "CT SCAN"},
-
-	"resample": {"resolutionXCm": 0.1,
+    
+	    "resample": {"resolutionXCm": 0.1,
 		     "resolutionYCm": 0.1,
                      "method": "spline"
 		    },
-
-	"resize" : {"method": "pad2D",
+    
+	    "resize" : {"method": "pad2D",
             	    "size" : [256,256]},
 
-	"crop": [{
+	    "crop": [{
       		"method": "crop_pt_outline_2D",
       		"params": { "structureName": "generated_pt_outline", "outStrName":"generated_pt_outline", "saveStrToPlanCFlag": 0, "outlineThreshold": -400},
       		"operator": ""
     		} ]
     		
-       },
+    }
+},
     		
 "batchSize" : 1,
 
 "passedScanDim" : "3D",
+
+"output":{
+    "labelMap":{
+        "strNameToLabelMap": [
+        {
+        "structureName": "Left Parotid",
+        "value": 1
+        },
+        {
+        "structureName": "Right Parotid",
+        "value": 2
+        },
+        {
+        "structureName": "Left Submandibular",
+        "value": 3
+        },
+        {
+        "structureName": "Right Submandibular",
+        "value": 4
+        },
+        {
+        "structureName": "Mandible",
+        "value": 7
+        },
+        {
+        "structureName": "Spinal cord",
+        "value": 8
+        },
+        {
+         "structureName": "Brain stem",
+        "value": 9
+        },
+        {
+        "structureName": "Oral cavity",
+        "value": 10
+        },
+        {
+        "structureName": "Larynx",
+        "value": 11
+        }
+    ]
+  }
+},    
 
 "roiGenerationDescription": "HNSelfAttention2D^05d23bf",
 
