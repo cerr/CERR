@@ -50,7 +50,7 @@ for k = 1:length(imageTypeC)
     %Generate volume based on original/derived imageType
     if strcmpi(imageTypeC{k}.imageType,'original')
         quantizeFlag = paramS.toQuantizeFlag;
-        minClipIntensity = []; % no clipping imposed for derived images
+        minClipIntensity = []; 
         maxClipIntensity = [];
         if isfield(paramS.textureParamS,'minClipIntensity')
             minClipIntensity = paramS.textureParamS.minClipIntensity;
@@ -84,7 +84,13 @@ for k = 1:length(imageTypeC)
             end
         end
         minClipIntensity = []; % no clipping imposed for derived images
-        maxClipIntensity = []; % no clipping imposed for derived images
+        maxClipIntensity = []; 
+        if isfield(paramS.textureParamS,'minClipIntensity')
+            minClipIntensity = paramS.textureParamS.minClipIntensity;
+        end
+        if isfield(paramS.textureParamS,'maxClipIntensity')
+            maxClipIntensity = paramS.textureParamS.maxClipIntensity;
+        end
     end
     
     % Volume without NaNs for Peak/Valley computation
