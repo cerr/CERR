@@ -1,5 +1,5 @@
-function [volToEval,maskBoundingBox3M,gridS,paramS] = preProcessForRadiomics(scanNum,...
-    structNum, paramS, planC)
+function [volToEval,maskBoundingBox3M,gridS,paramS,diagS] = ...
+    preProcessForRadiomics(scanNum,structNum, paramS, planC)
 % preProcessForRadiomics.m
 % Pre-process image for radiomics feature extraction. Includes
 % perturbation, resampling, cropping, and intensity-thresholding.
@@ -75,6 +75,8 @@ PixelSpacingX = abs(xValsV(1) - xValsV(2));
 PixelSpacingY = abs(yValsV(1) - yValsV(2));
 PixelSpacingZ = abs(zValsV(1) - zValsV(2));
 
+diagS.numVoxelsOrig = sum(mask3M(:));
+
 %% Apply global settings
 whichFeatS = paramS.whichFeatS;
 
@@ -134,7 +136,8 @@ whichFeatS.padding.size = padSizV;
 
 % Crop to ROI and pad
 scanArray3M = double(scanArray3M);
-[volToEval,maskBoundingBox3M,outLimitsV] = padScan(scanArray3M,mask3M,padMethod,padSizV);
+[volToEval,maskBoundingBox3M,outLimitsV] = padScan(scanArray3M,...
+                                           mask3M,padMethod,padSizV);
 xValsV = xValsV(outLimitsV(3):outLimitsV(4));
 yValsV = yValsV(outLimitsV(1):outLimitsV(2));
 zValsV = zValsV(outLimitsV(5):outLimitsV(6));
@@ -173,9 +176,15 @@ if whichFeatS.resample.flag
     %Resample scan
     volToEval = imgResample3d(origVolToEval,xValsV,yValsV,zValsV,...
         xResampleV,yResampleV,zResampleV,scanInterpMethod,extrapVal);
+    %Option to round
+    if isfield(whichFeatS.resample,'intensityRounding') && ...
+            strcmpi(whichFeatS.resample.intensityRounding,'on')
+        volToEval = round(volToEval);
+    end
+
     %Resample mask
-    maskBoundingBox3M = imgResample3d(single(origMask),xValsV,yValsV,zValsV,...
-        xResampleV,yResampleV,zResampleV,roiInterpMethod) >= 0.5;
+    maskBoundingBox3M = imgResample3d(single(origMask),xValsV,yValsV,...
+        zValsV,xResampleV,yResampleV,zResampleV,roiInterpMethod) >= 0.5;
     
     newSlcIndV = zeros(1,length(zResampleV));
     for iSlc = 1:length(zResampleV)
@@ -207,7 +216,13 @@ if isfield(paramS,'textureParamS')
     if ~isempty(maxSegThreshold)
         maskBoundingBox3M(volToEval > maxSegThreshold) = 0;
     end
+    volV = volToEval(maskBoundingBox3M);
+    diagS.numVoxelsInterpReseg = sum(maskBoundingBox3M(:));
+    diagS.MeanIntensityInterpReseg = mean(volV);
+    diagS.MaxIntensityInterpReseg = max(volV);
+    diagS.MinIntensityInterpReseg = min(volV);
 end
+
 
 %volToEval(~maskBoundingBox3M) = NaN;
 
