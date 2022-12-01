@@ -44,7 +44,9 @@ elseif exist('binwidth','var') && ~isempty(binwidth)
     edgeV = edgeMin:binwidth:edgeMax;
     q = discretize(x,edgeV);
 else
-    error('Specify the number of bins or the binwidth.')
+    %No quantization
+    warning('Returning input image. Specify the number of bins or the binwidth to quantize.')
+    q = x;
 end
 
 return
