@@ -61,7 +61,9 @@ filterType = strrep(filterType,' ','');
 aggregationMethod = 'none';
 dim = '2d';
 numRotations = 1;
-if isfield(paramS,'RotationInvariance') && ~isempty(paramS.RotationInvariance)
+if isfield(paramS,'RotationInvariance') && ...
+        ~isempty(paramS.RotationInvariance) ...
+        && ~strcmpi(filterType,'LawsEnergy') 
     rotS = paramS.RotationInvariance.val;
     aggregationMethod = rotS.AggregationMethod;
     dim = rotS.Dim;
@@ -192,11 +194,13 @@ for index = 1:numRotations
             %vol3M   = flip(double(rotScan3M),3); %FOR IBSI2
             vol3M = double(rotScan3M);
 
-            dirListC = {'All','HHH','LHH','HLH','HHL','LLH','LHL','HLL','LLL'};
+            dirListC = {'All','HHH','LHH','HLH','HHL','LLH','LHL',...
+                        'HLL','LLL'};
             wavType =  paramS.Wavelets.val;
             if ~isempty(paramS.Index.val)
                 wavType = [wavType,paramS.Index.val];
             end
+            %level =  paramS.Level.val;
             dir = paramS.Direction.val;
 
             if strcmp(dir,'All')
@@ -205,7 +209,7 @@ for index = 1:numRotations
                     outname = strrep(outname,'.','_');
                     outname = strrep(outname,' ','_');
 
-                    subbandsS = getWaveletSubbands(vol3M,wavType);
+                    subbandsS = getWaveletSubbands(vol3M,wavType);%,level);
                     matchDir = [dirListC{n},'_',wavType];
                     out3M = subbandsS.(matchDir);
 
@@ -223,7 +227,7 @@ for index = 1:numRotations
                 outname = strrep(outname,'.','_');
                 outname = strrep(outname,' ','_');
 
-                subbandsS = getWaveletSubbands(vol3M,wavType);
+                subbandsS = getWaveletSubbands(vol3M,wavType);%,level);
                 matchDir = [dir,'_',wavType];
                 out3M = subbandsS.(matchDir);
 
@@ -568,6 +572,7 @@ for index = 1:numRotations
             for i = 1:length(fieldNameC)
 
                 %Pad response map
+                cropFlag = 1; %remove padding used for Law's filter 
                 lawsTex3M = lawsOutS.(fieldNameC{i});
                 %if ~isequal(size(lawsTex3M),size(rotScan3M))
                 %    responseSizV = size(lawsTex3M);
@@ -577,7 +582,8 @@ for index = 1:numRotations
                 %    lawsTex3M = padScan(lawsTex3M,rotMask3M,padMethod,padSizV);
                 %end
                 calcMask3M = true(size(lawsTex3M));
-                lawsTex3M = padScan(lawsTex3M,calcMask3M,padMethod,padSizV);
+                lawsTex3M = padScan(lawsTex3M,calcMask3M,padMethod,...
+                            padSizV,cropFlag);
 
                 %Apply mean filter
                 meanOutS = processImage('Mean',lawsTex3M,...
