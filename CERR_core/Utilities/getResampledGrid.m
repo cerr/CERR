@@ -1,9 +1,16 @@
 function [xResampleV,yResampleV,zResampleV] = ...
-    getResampledGrid(resampResolutionV,xValsV,yValsV,zValsV,gridAlignMethod,varargin)
-% function [xResampleV,yResampleV,zResampleV] = ...
-%     getResampledGrid(resampResolutionV,xValsV,yValsV,zValsV,method)
-%
-% APA, 10/22/20
+    getResampledGrid_v2(resampResolutionV,xValsV,yValsV,zValsV,...
+    originV,gridAlignMethod,varargin)
+%getResampledGrid_v2
+% ------------------------------------------------------------------------
+% INPUTS
+% resampResolutionV  : Output voxel spacing in cm [dx dy dz]
+% xValsV             : x coordinates of voxel centers in original scan
+% yValsV             : y coordinates of voxel centers in original scan
+% zValsV             : z coordinates of voxel centers in original scan 
+%------------------------------------------------------------------------
+%Ref: https://arxiv.org/pdf/1612.07003.pdf
+%AI 12/01/22
 
 if ~exist('method','var')
     gridAlignMethod = 'center';   
@@ -21,40 +28,37 @@ else
     perturbZ = perturbV(3);
 end
 
+%% Define voxel spacing
 dx = abs(median(diff(xValsV)));
 dy = abs(median(diff(yValsV)));
 dz = abs(median(diff(zValsV)));
+origResolutionV = [dx dy dz];
 
-%% Get no. output rows, cols, slices
-PixelSpacingX = resampResolutionV(1);
-PixelSpacingY = resampResolutionV(2);
-if ~isnan(resampResolutionV(3))
+if length(resampResolutionV)==3 && ~isnan(resampResolutionV(3))
     resamp3DFlag = 1;
-    PixelSpacingZ = resampResolutionV(3);
 else
     %Resample in-plane
     resamp3DFlag = 0;
 end
 
-%% Get output grid coordinates
-% Align grid centers
-xCtr = (xValsV(1)+xValsV(end))/2 + perturbX;
-yCtr = (yValsV(1)+yValsV(end))/2 + perturbY;
-zCtr = (zValsV(1)+zValsV(end))/2 + perturbZ;
+%% No. voxels
+origSizeV = [length(xValsV) length(yValsV) length(zValsV)];
+resampSizeV = ceil( origSizeV.* origResolutionV ./ resampResolutionV);
 
-% Create output grid
-xPlusV = xCtr+PixelSpacingX:PixelSpacingX:xCtr+(length(xValsV)-1)*dx/2;
-xMinusV = flip(xCtr-PixelSpacingX:-PixelSpacingX:xCtr-(length(xValsV)-1)*dx/2);
-xResampleV = [xMinusV, xCtr, xPlusV];
+%% Get output grid origin 
+% In world coordinates:
+resampOriginV = originV + (origResolutionV.*(origSizeV-1) - ...
+                resampResolutionV.*(resampSizeV-1))/2;
+%In grid co-ords:
+%resampOriginV = 0.5* (origSizeV- 1 -
+%resampResolutionV.*(resampSizeV-1)/origResolutionV); 
 
-yPlusV = yCtr+PixelSpacingY:PixelSpacingY:yCtr+(length(yValsV)-1)*dy/2;
-yMinusV = flip(yCtr-PixelSpacingY:-PixelSpacingY:yCtr-(length(yValsV)-1)*dy/2);
-yResampleV = [yMinusV, yCtr, yPlusV];
-
-if resamp3DFlag  
-    zPlusV = zCtr+PixelSpacingZ:PixelSpacingZ:zCtr+(length(zValsV)-1)*dz/2;
-    zMinusV = flip(zCtr-PixelSpacingZ:-PixelSpacingZ:zCtr-(length(zValsV)-1)*dz/2);
-    zResampleV = [zMinusV, zCtr, zPlusV];    
+xResampleV = resampOriginV(1):resampResolutionV(1): resampOriginV(1)+(resampSizeV(1)-1)*resampResolutionV(1);
+yResampleV = -(resampOriginV(2):resampResolutionV(2):resampOriginV(2)+(resampSizeV(2)-1)*resampResolutionV(2));
+if resamp3DFlag
+    zResampleV = -flip(resampOriginV(3):resampResolutionV(3):resampOriginV(3)+(resampSizeV(3)-1)*resampResolutionV(3));
 else
     zResampleV = zValsV;
+end
+
 end
