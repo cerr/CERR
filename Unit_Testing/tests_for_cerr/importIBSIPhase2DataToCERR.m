@@ -1,4 +1,4 @@
-function importIBSIPhase2DataToCERR(niiDataDir)
+function importIBSIPhase2DataToCERR(dataDir)
 % importIBSIPhase2DataToCERR.m
 % Download datasets from: https://github.com/theibsi/data_sets/
 %-------------------------------------------------------------------------
@@ -12,7 +12,7 @@ savePath = fullfile(cerrPath(1:idxV(end-1)),...
     'Unit_Testing\data_for_cerr_tests\IBSI2_synthetic_phantoms');
 
 subDir = 'ibsi_2_digital_phantom';
-synthDataDir = fullfile(niiDataDir,subDir,'nifti');
+synthDataDir = fullfile(dataDir,subDir,'nifti');
 dirS = dir(synthDataDir);
 dirS(1:2) = [];
 for nDataset = 1:length(dirS)
@@ -43,25 +43,25 @@ subDir = 'ibsi_2_ct_radiomics_phantom';
 savePath = fullfile(cerrPath(1:idxV(end-1)),...
     'Unit_Testing\data_for_cerr_tests\IBSI2_CT_phantom');
 scanName = subDir;
-ctScanFile = fullfile(niiDataDir,subDir,'nifti','image','phantom.nii.gz');
-ctMaskFile = fullfile(niiDataDir,subDir,'nifti','mask','mask.nii.gz');
+dcmMaskDir = fullfile(dataDir,subDir,'dicom','mask');
+maskDirS = dir([dcmMaskDir,filesep,'*.dcm']);
+dcmMaskPath = fullfile(dcmMaskDir,maskDirS.name);
+outFileName = [savePath,filesep,'ibsi_2_ct_radiomics_phantom.mat'];
 
-planC = nii2cerr(ctScanFile,scanName,[],0);
+dcmScanDir = fullfile(dataDir,subDir,'dicom','image');
+%Copy RT struct to be 'image' dir
+copyfile(dcmMaskPath,dcmScanDir);
+
+%planC = dcmdir2planC(dcmDataDir);
+planC = importDICOM(dcmScanDir,savePath,true);
+movefile([savePath,filesep,'image.mat'],outFileName);
+planC = loadPlanC(outFileName,tempdir);
 planC = updatePlanFields(planC);
-planC = quality_assure_planC(ctScanFile,planC);
+planC = quality_assure_planC(outFileName,planC);
 
-%Create 'wholeScan' structure
-mask3M = niftiread(ctMaskFile);
-mask3M = flip(permute(mask3M,[2 1 3]),3);
-planC = maskToCERRStructure(mask3M,0,1,...
-    'ROI',planC);
+%Rename structure
+indexS = planC{end};
+planC{indexS.structures}(1).structureName = 'ROI';
 
-planD = nii2cerr(ctMaskFile,'mask',[],0);
-planD = updatePlanFields(planD);
-planD = quality_assure_planC(ctMaskFile,planD);
-
-
-
-save_planC(planC,[],'PASSED',fullfile(savePath,...
-        [scanName,'.mat']));
+save_planC(planC,[],'PASSED',outFileName);
 end
