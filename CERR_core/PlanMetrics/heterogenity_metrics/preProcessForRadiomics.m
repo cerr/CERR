@@ -176,12 +176,9 @@ if whichFeatS.resample.flag
     originV = reshape(originV/10,1,[]); %convert to cm
     
     %Get resampling grid 
-    %[xResampleV,yResampleV,zResampleV] = ...
-    %    getResampledGrid(outputResV,xValsV,yValsV,zValsV,...
-    %    gridResampleMethod,[perturbX,perturbY,perturbZ]);
-    [xResampleV,yResampleV,zResampleV] = ...
-        getResampledGrid_v2(outputResV,xValsV,yValsV,zValsV,...
-        originV,gridResampleMethod,[perturbX,perturbY,perturbZ]);
+    [xResampleV,yResampleV,zResampleV] = getResampledGrid(outputResV,...
+        xValsV,yValsV,zValsV,originV,gridResampleMethod,...
+        [perturbX,perturbY,perturbZ]);
     if yResampleV(1) > yResampleV(2)
         yResampleV = fliplr(yResampleV);
     end
@@ -216,11 +213,16 @@ end
 
 %Apply padding as required for convolutional filtering
 if whichFeatS.padding.flag
+    if isfield(whichFeatS.padding,'cropToMaskBounds')
+        cropFlag = strcmpi(whichFeatS.padding.cropToMaskBounds,'yes');
+    else
+        cropFlag = 1; %default
+    end
     if isfield(whichFeatS.padding,'method')
         filtPadMethod = whichFeatS.padding.method;
         filtPadSizeV = reshape(whichFeatS.padding.size,1,[]);
     end
-    cropFlag = 1;
+    
     [volToEval,maskBoundingBox3M] = padScan(resampScanBounds3M,...
         resampMaskBounds3M,filtPadMethod,filtPadSizeV,cropFlag);
 else
