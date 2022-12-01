@@ -28,7 +28,7 @@ function resampImg3M = imgResample3d(img3M,xValsV,yValsV,zValsV,...
 [xResampM,yResampM,zResampM] = meshgrid(xResampleV,yResampleV,zResampleV);
 
 %Limit processing to 50 slices at a time to resolve out of memory errors
-maxNumSlc = 50; 
+maxNumSlc = 50;  
 numPadSlc = 1;
 %Resample
 switch method
@@ -46,9 +46,9 @@ switch method
                 zMin = zResampleV(resampIndV(1));
                 zMax = zResampleV(resampIndV(end));
 
-                tol = 2*max(abs(diff(zValsV)));
+                tol = 5*max(abs(diff(zValsV)));
                 origIndV = zValsV >=zMin - tol & zValsV <=zMax + tol;
-                
+
                 resampImg3M(:,:,resampIndV) = interp3(xOrigM(:,:,origIndV),...
                     yOrigM(:,:,origIndV),zOrigM(:,:,origIndV),...
                     img3M(:,:,origIndV),xResampM(:,:,resampIndV), ...
@@ -62,7 +62,7 @@ switch method
                 zMin = zResampleV(resampIndV(1));
                 zMax = zResampleV(resampIndV(end));
 
-                tol = 2*max(abs(diff(zValsV)));
+                tol = 5*max(abs(diff(zValsV)));
                 origIndV = zValsV >=zMin - tol & zValsV <=zMax + tol;
                 
                  resampImg3M(:,:,resampIndV) = interp3(xOrigM(:,:,origIndV),...
