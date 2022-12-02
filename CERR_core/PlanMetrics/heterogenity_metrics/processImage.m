@@ -200,7 +200,7 @@ for index = 1:numRotations
             if ~isempty(paramS.Index.val)
                 wavType = [wavType,paramS.Index.val];
             end
-            %level =  paramS.Level.val;
+            level =  paramS.Level.val;
             dir = paramS.Direction.val;
 
             if strcmp(dir,'All')
@@ -209,7 +209,7 @@ for index = 1:numRotations
                     outname = strrep(outname,'.','_');
                     outname = strrep(outname,' ','_');
 
-                    subbandsS = getWaveletSubbands(vol3M,wavType);%,level);
+                    subbandsS = getWaveletSubbands(vol3M,wavType,level);
                     matchDir = [dirListC{n},'_',wavType];
                     out3M = subbandsS.(matchDir);
 
@@ -227,7 +227,7 @@ for index = 1:numRotations
                 outname = strrep(outname,'.','_');
                 outname = strrep(outname,' ','_');
 
-                subbandsS = getWaveletSubbands(vol3M,wavType);%,level);
+                subbandsS = getWaveletSubbands(vol3M,wavType,level);
                 matchDir = [dir,'_',wavType];
                 out3M = subbandsS.(matchDir);
 
@@ -335,7 +335,11 @@ for index = 1:numRotations
                 %Apply filter
                 if isfield(paramS,'Radius_mm')
                     %Use specified filter size
-                    radius = paramS.Radius_mm.val/voxelSizV(1);
+                    radius = paramS.Radius_mm.val;
+                    if length(radius) == 1
+                        radius = [radius radius];
+                    end
+                    radius = radius/voxelSizV(1:2);
                     gabor3M = GaborFiltIBSI(vol3M,sigma,wavelength,...
                         gamma,theta,radius);
                     fieldname = ['Gabor_',lower(planes{nPlane})];
@@ -571,32 +575,53 @@ for index = 1:numRotations
             %Loop over response maps
             for i = 1:length(fieldNameC)
 
-                %Pad response map
-                cropFlag = 1; %remove padding used for Law's filter 
+                %Remove padding for Laws response map
+                cropFlag = 1; %remove padding used for Law's filter
+                origPadV = reshape(paramS.padding.size,1,[]);
                 lawsTex3M = lawsOutS.(fieldNameC{i});
-                %if ~isequal(size(lawsTex3M),size(rotScan3M))
-                %    responseSizV = size(lawsTex3M);
-                %    lawsTex3M = lawsTex3M(padSizV(1)+1:responseSizV(1)-padSizV(1),...
-                %        padSizV(2)+1:responseSizV(2)-padSizV(2),...
-                %        padSizV(3)+1:responseSizV(3)-padSizV(3));
-                %    lawsTex3M = padScan(lawsTex3M,rotMask3M,padMethod,padSizV);
-                %end
+                origSizeV = size(lawsTex3M);
+
                 calcMask3M = true(size(lawsTex3M));
-                lawsTex3M = padScan(lawsTex3M,calcMask3M,padMethod,...
-                            padSizV,cropFlag);
+                calcMask3M([1:origPadV(1),...
+                    origSizeV(1)-origPadV(1)+1:origSizeV(1)],:,:) = false;
+                calcMask3M(:,[1:origPadV(2),...
+                    origSizeV(2)-origPadV(2)+1:origSizeV(2)],:) = false;
+                calcMask3M(:,:,[1:origPadV(3),...
+                    origSizeV(3)-origPadV(3)+1:origSizeV(3)]) = false;
+
+                %Pad for mean filter
+                cropLawsTex3M = padScan(lawsTex3M,calcMask3M,padMethod,...
+                    padSizV,cropFlag);
 
                 %Apply mean filter
-                meanOutS = processImage('Mean',lawsTex3M,...
-                           rotMask3M,paramS,[]);
+                paramS = rmfield(paramS,'RotationInvariance');
+                meanOutS = processImage('Mean',cropLawsTex3M,...
+                    rotMask3M,paramS,[]);
                 lawsEnergy3M = meanOutS.meanFilt;
                 padResponseSizeV = size(lawsEnergy3M);
+
+                %Remove padding
                 lawsEnergy3M = lawsEnergy3M(padSizV(1)+1:...
                     padResponseSizeV(1)-padSizV(1),...
                     padSizV(2)+1:padResponseSizeV(2)-padSizV(2),...
                     padSizV(3)+1:padResponseSizeV(3)-padSizV(3));
 
+                %Reapply original padding
+                lawsEnergyPad3M = nan(origSizeV);
+                lawsEnergyPad3M(origPadV(1)+1:end-origPadV(1),...
+                origPadV(2)+1:end-origPadV(2),origPadV(3)+1:...
+                end-origPadV(3)) = lawsEnergy3M;
+
+                %cropSizeV = size(lawsEnergy3M);
+                lawsEnergyPad3M([1:origPadV(1),end-origPadV(1)+1:end],:,:) = ...
+                lawsTex3M([1:origPadV(1),end-origPadV(1)+1:end],:,:);
+                lawsEnergyPad3M(:,[1:origPadV(2),end-origPadV(2)+1:end],:) = ...
+                lawsTex3M(:,[1:origPadV(2),end-origPadV(2)+1:end],:);
+                lawsEnergyPad3M(:,:,[1:origPadV(3),end-origPadV(3)+1:end]) = ...
+                lawsTex3M(:,:,[1:origPadV(3),end-origPadV(3)+1:end]);
+
                 outField = [fieldNameC{i},'_Energy'];
-                outS.(outField) = lawsEnergy3M;
+                outS.(outField) = lawsEnergyPad3M;
                 if ishandle(hWait)
                     set(hWait, 'Vertices', [[0 0 i/numFeatures i/numFeatures]' [0 1 1 0]']);
                     drawnow;
