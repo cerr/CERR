@@ -66,6 +66,12 @@ for k = 1:length(imageTypeC)
         %Add voxel size in mm to paramS
         voxSizV = [PixelSpacingX, PixelSpacingY, PixelSpacingZ]*10; %convert cm to mm
         imageTypeC{k}.paramS.VoxelSize_mm.val = voxSizV;
+        if paramS.whichFeatS.padding.flag
+            imageTypeC{k}.paramS.padding.size = paramS.whichFeatS.padding.size;
+        else
+            imageTypeC{k}.paramS.padding.size = [0,0,0];
+        end
+
         outS = processImage(imageTypeC{k}.imageType,volOrig3M,maskOrig3M,...
             imageTypeC{k}.paramS);
         [minr, maxr, minc, maxc, mins, maxs] = compute_boundingbox(maskOrig3M);
