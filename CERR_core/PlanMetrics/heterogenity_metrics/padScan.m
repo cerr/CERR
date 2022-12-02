@@ -27,14 +27,14 @@ end
 %% Crop scan & mask
 if cropFlag
     [minr, maxr, minc, maxc, mins, maxs] = compute_boundingbox(mask3M);
+    croppedScan3M = scan3M(minr:maxr,minc:maxc,mins:maxs);
+    croppedMask3M = mask3M(minr:maxr,minc:maxc,mins:maxs);
     minr = max(minr-marginV(1),1);
     maxr = min(maxr+marginV(1),size(mask3M,1));
     minc = max(minc-marginV(2),1);
     maxc = min(maxc+marginV(2),size(mask3M,2));
     mins = max(mins-marginV(3),1);
     maxs = min(maxs+marginV(3),size(mask3M,3));
-    croppedScan3M = scan3M(minr:maxr,minc:maxc,mins:maxs);
-    croppedMask3M = mask3M(minr:maxr,minc:maxc,mins:maxs);
 else
     inputSizeV = size(scan3M);
     [minr,minc,mins] = deal(1);
