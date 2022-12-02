@@ -4,9 +4,10 @@
 
 "imageType": {
   		  "Wavelets": {
-			    	       "Direction": "LHL",
-				       "Wavelets":"db",
-				       "Index": "2"
+			    	    "Direction": "LHL",
+				        "Wavelets":"db",
+				        "Index": "2",
+                        "Level": 1
 			 	     }
 	    },
 
@@ -14,7 +15,7 @@
 
                    "padding": [{
                                 "method": "padzeros",  
-                                "size": [1,1,1]
+                                "size": [2,2,2]
 			       }
                               ]
 	    }
