@@ -1,4 +1,4 @@
-function [subbands] = getWaveletSubbands(vol,waveletName)
+function [subbands] = getWaveletSubbands(vol,waveletName,level)
 % Copyright (C) 2017-2019 Martin Vallières
 % All rights reserved.
 % https://github.com/mvallieres/radiomics-develop
@@ -11,11 +11,12 @@ function [subbands] = getWaveletSubbands(vol,waveletName)
 % - Strategy: 2D transform for each axial slice. Then 1D transform for each
 % axial line. I need to find a faster way to do that with 3D convolutions
 % of wavelet filters, this is too slow now. Using GPUs would be ideal.
-
+%------------------------------------------------------------------------
+% AI 11/18/22 Adapted for levels other than 1
 
 
 % INITIALIZATION
-level = 1; % Always performing 1 decomposition level
+%level = 1; % Always performing 1 decomposition level
 
 
 % *************************************************************************
@@ -56,7 +57,8 @@ end
 
 % Initialization
 sizeV = size(vol);
-subbands = struct; names = {'LLL','LLH','LHL','LHH','HLL','HLH','HHL','HHH'}; nSub = numel(names);
+subbands = struct; names = {'LLL','LLH','LHL','LHH','HLL','HLH','HHL','HHH'};
+nSub = numel(names);
 %wavNameSave = replaceCharacter(waveletName,'.','dot');
 wavNameSave = waveletName;
 for s = 1:nSub
@@ -64,26 +66,50 @@ for s = 1:nSub
     subbands.(names{s}) = zeros(sizeV);
 end
 
+%Ensure odd filter dimensions
+[lo_filt,hi_filt,~,~] = wfilters(waveletName);
+if mod(numel(lo_filt),2)==0
+    lo_filt = [lo_filt,0];
+end
+if mod(numel(hi_filt),2)==0
+    hi_filt = [hi_filt,0];
+end
+
 % First pass using 2D stationary wavelet transform in axial direction
 for k = 1:sizeV(3)
-    [LL,LH,HL,HH] = swt2(vol(:,:,k),1,waveletName); 
-    subbands.(['LLL_',wavNameSave])(:,:,k) = LL; subbands.(['LLH_',wavNameSave])(:,:,k) = LL;
-    subbands.(['LHL_',wavNameSave])(:,:,k) = LH; subbands.(['LHH_',wavNameSave])(:,:,k) = LH;
-    subbands.(['HLL_',wavNameSave])(:,:,k) = HL; subbands.(['HLH_',wavNameSave])(:,:,k) = HL;
-    subbands.(['HHL_',wavNameSave])(:,:,k) = HH; subbands.(['HHH_',wavNameSave])(:,:,k) = HH;
+    [LL,LH,HL,HH] = swt2_mod(vol(:,:,k),level,lo_filt,hi_filt); 
+    subbands.(['LLL_',wavNameSave])(:,:,k) = LL(:,:,level);
+    subbands.(['LLH_',wavNameSave])(:,:,k) = LL(:,:,level);
+    subbands.(['LHL_',wavNameSave])(:,:,k) = LH(:,:,level);
+    subbands.(['LHH_',wavNameSave])(:,:,k) = LH(:,:,level);
+    subbands.(['HLL_',wavNameSave])(:,:,k) = HL(:,:,level);
+    subbands.(['HLH_',wavNameSave])(:,:,k) = HL(:,:,level);
+    subbands.(['HHL_',wavNameSave])(:,:,k) = HH(:,:,level);
+    subbands.(['HHH_',wavNameSave])(:,:,k) = HH(:,:,level);
 end
 
 % Second pass using 1D stationary wavelet transform for all axial lines
 for j = 1:sizeV(2)
     for i = 1:sizeV(1)
-        vector = squeeze(subbands.(['LLL_',wavNameSave])(i,j,:)); [L,H] = swt(vector,1,waveletName);
-        subbands.(['LLL_',wavNameSave])(i,j,:) = L; subbands.(['LLH_',wavNameSave])(i,j,:) = H;
-        vector = squeeze(subbands.(['LHL_',wavNameSave])(i,j,:)); [L,H] = swt(vector,1,waveletName);
-        subbands.(['LHL_',wavNameSave])(i,j,:) = L; subbands.(['LHH_',wavNameSave])(i,j,:) = H;
-        vector = squeeze(subbands.(['HLL_',wavNameSave])(i,j,:)); [L,H] = swt(vector,1,waveletName);
-        subbands.(['HLL_',wavNameSave])(i,j,:) = L; subbands.(['HLH_',wavNameSave])(i,j,:) = H;
-        vector = squeeze(subbands.(['HHL_',wavNameSave])(i,j,:)); [L,H] = swt(vector,1,waveletName);
-        subbands.(['HHL_',wavNameSave])(i,j,:) = L; subbands.(['HHH_',wavNameSave])(i,j,:) = H;
+        vector = squeeze(subbands.(['LLL_',wavNameSave])(i,j,:)); 
+        [L,H] = swt_mod(vector,level,lo_filt,hi_filt);
+        subbands.(['LLL_',wavNameSave])(i,j,:) = L(level,:);
+        subbands.(['LLH_',wavNameSave])(i,j,:) = H(level,:);
+
+        vector = squeeze(subbands.(['LHL_',wavNameSave])(i,j,:));
+        [L,H] = swt_mod(vector,level,lo_filt,hi_filt);
+        subbands.(['LHL_',wavNameSave])(i,j,:) = L(level,:);
+        subbands.(['LHH_',wavNameSave])(i,j,:) = H(level,:);
+
+        vector = squeeze(subbands.(['HLL_',wavNameSave])(i,j,:));
+        [L,H] = swt_mod(vector,level,lo_filt,hi_filt);
+        subbands.(['HLL_',wavNameSave])(i,j,:) = L(level,:);
+        subbands.(['HLH_',wavNameSave])(i,j,:) = H(level,:);
+
+        vector = squeeze(subbands.(['HHL_',wavNameSave])(i,j,:));
+        [L,H] = swt_mod(vector,level,lo_filt,hi_filt);
+        subbands.(['HHL_',wavNameSave])(i,j,:) = L(level,:);
+        subbands.(['HHH_',wavNameSave])(i,j,:) = H(level,:);
     end
 end
 % -------------------------------------------------------------------------

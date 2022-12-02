@@ -3,17 +3,25 @@
 "structures": ["wholeScan"],
 
 "imageType": {
-  		  "Mean": {
-			    "KernelSize": [15,15,15],
-                "Absolute": "yes"
-			  }
+  		  "LawsEnergy": {
+			    	   "Direction": "3d",
+				       "Type": "E3W5R5",
+				       "Normalize": "yes",
+                       "RotationInvariance": {
+				       						"Dim": "3D",
+				       						"AggregationMethod": "max"
+				       					 },
+                       "EnergyKernelSize": [15,15,15],
+                       "EnergyPadMethod": "mirror",
+                       "EnergyPadSize" : [7,7,7]
+			 	     }
 	    },
 
 "settings": {		   
 
                    "padding": [{
                                 "method": "mirror",  
-                                "size": [7,7,7]
+                                "size": [2,2,2]
 			       }
                               ]
 	    }
