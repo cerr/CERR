@@ -3,17 +3,13 @@
 "structures": ["ROI"],
 
 "imageType": {
-  		  "Mean": {
-			    "KernelSize": [5,5]
-			  }
+  		  "Original": {}
 	    },
 
 "settings": {		   
 
                    "padding": {
-                                "cropToMaskBounds": "no",
-                                "method": "mirror",  
-                                "size": [2,2,0]
+                                "method": "none"
 			       },
                    "texture" :{ 
 		                "minSegThreshold": -1000,

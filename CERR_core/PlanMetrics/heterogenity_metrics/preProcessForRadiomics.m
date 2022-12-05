@@ -219,11 +219,15 @@ if whichFeatS.padding.flag
     else
         cropFlag = 1; %default
     end
-    if isfield(whichFeatS.padding,'method')
+    if isfield(whichFeatS.padding,'method') && ...
+            ~strcmpi(whichFeatS.padding.method,'none')
         filtPadMethod = whichFeatS.padding.method;
         filtPadSizeV = reshape(whichFeatS.padding.size,1,[]);
+    else
+        filtPadMethod = 'none';
+        filtPadSizeV = [0 0 0];
     end
-    
+
     [volToEval,maskBoundingBox3M] = padScan(resampScanBounds3M,...
         resampMaskBounds3M,filtPadMethod,filtPadSizeV,cropFlag);
 else
