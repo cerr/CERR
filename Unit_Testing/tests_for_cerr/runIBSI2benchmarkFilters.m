@@ -36,25 +36,26 @@ switch(config)
         indexS = planC{end};
         %1.a.1
         paramFile = fullfile(configDirName,'IBSIPhase2-1ID1a1.json');
-        planC = generateTextureMapFromPlanC(planC,structNum,paramFile);
+        planC = generateTextureMapFromPlanC(planC,[],structNum,paramFile);
+
         scanNum = length(planC{indexS.scan});
         planC{indexS.scan}(scanNum).scanType = ...
             [planC{indexS.scan}(scanNum).scanType,'_1a1'];
         %1.a.2
         paramFile = fullfile(configDirName,'IBSIPhase2-1ID1a2.json');
-        planC = generateTextureMapFromPlanC(planC,structNum,paramFile);
+        planC = generateTextureMapFromPlanC(planC,[],structNum,paramFile);
         scanNum = length(planC{indexS.scan});
         planC{indexS.scan}(scanNum).scanType = ...
             [planC{indexS.scan}(scanNum).scanType,'_1a2'];
         %1.a.3
         paramFile = fullfile(configDirName,'IBSIPhase2-1ID1a3.json');
-        planC = generateTextureMapFromPlanC(planC,structNum,paramFile);
+        planC = generateTextureMapFromPlanC(planC,[],structNum,paramFile);
         scanNum = length(planC{indexS.scan});
         planC{indexS.scan}(scanNum).scanType = ...
             [planC{indexS.scan}(scanNum).scanType,'_1a3'];
         %1.a.4
         paramFile = fullfile(configDirName,'IBSIPhase2-1ID1a4.json');
-        planC = generateTextureMapFromPlanC(planC,structNum,paramFile);
+        planC = generateTextureMapFromPlanC(planC,[],structNum,paramFile);
         scanNum = length(planC{indexS.scan});
         planC{indexS.scan}(scanNum).scanType = ...
             [planC{indexS.scan}(scanNum).scanType,'_1a4'];
@@ -69,7 +70,7 @@ switch(config)
         indexS = planC{end};
         %1.b.1
         paramFile = fullfile(configDirName,'IBSIPhase2-1ID1b1.json');
-        planC = generateTextureMapFromPlanC(planC,structNum,paramFile);
+        planC = generateTextureMapFromPlanC(planC,[],structNum,paramFile);
         scanNum = length(planC{indexS.scan});
         planC{indexS.scan}(scanNum).scanType = ...
             [planC{indexS.scan}(scanNum).scanType,'_1b1'];
@@ -84,7 +85,7 @@ switch(config)
         indexS = planC{end};
         paramFile = fullfile(configDirName,'IBSIPhase2-1ID2a.json');
 
-        planC = generateTextureMapFromPlanC(planC,structNum,paramFile);
+        planC = generateTextureMapFromPlanC(planC,[],structNum,paramFile);
         scanNum = length(planC{indexS.scan});
         planC{indexS.scan}(scanNum).scanType = ...
             [planC{indexS.scan}(scanNum).scanType,'_2a'];
@@ -99,7 +100,7 @@ switch(config)
         indexS = planC{end};
         paramFile = fullfile(configDirName,'IBSIPhase2-1ID2b.json');
 
-        planC = generateTextureMapFromPlanC(planC,structNum,paramFile);
+        planC = generateTextureMapFromPlanC(planC,[],structNum,paramFile);
         scanNum = length(planC{indexS.scan});
         planC{indexS.scan}(scanNum).scanType = ...
             [planC{indexS.scan}(scanNum).scanType,'_2b'];
@@ -114,7 +115,7 @@ switch(config)
         indexS = planC{end};
         paramFile = fullfile(configDirName,'IBSIPhase2-1ID2c.json');
 
-        planC = generateTextureMapFromPlanC(planC,structNum,paramFile);
+        planC = generateTextureMapFromPlanC(planC,[],structNum,paramFile);
         scanNum = length(planC{indexS.scan});
         planC{indexS.scan}(scanNum).scanType = ...
             [planC{indexS.scan}(scanNum).scanType,'_2c'];
@@ -130,14 +131,14 @@ switch(config)
         indexS = planC{end};
         paramFile = fullfile(configDirName,'IBSIPhase2-1ID3a1.json');
 
-        planC = generateTextureMapFromPlanC(planC,structNum,paramFile);
+        planC = generateTextureMapFromPlanC(planC,[],structNum,paramFile);
         scanNum = length(planC{indexS.scan});
         planC{indexS.scan}(scanNum).scanType = ...
             [planC{indexS.scan}(scanNum).scanType,'_3a1'];
 
         %3.a.2
         paramFile = fullfile(configDirName,'IBSIPhase2-1ID3a2.json');
-        planC = generateTextureMapFromPlanC(planC,structNum,paramFile);
+        planC = generateTextureMapFromPlanC(planC,[],structNum,paramFile);
         indexS = planC{end};
         scanNum = length(planC{indexS.scan});
         planC{indexS.scan}(scanNum).scanType = ...
@@ -161,7 +162,7 @@ switch(config)
         %             [planC{indexS.scan}(scanNum).scanType,'_3a3'];
 
         paramFile = fullfile(configDirName,'IBSIPhase2-1ID3a3.json');
-        planC = generateTextureMapFromPlanC(planC,structNum,paramFile);
+        planC = generateTextureMapFromPlanC(planC,[],structNum,paramFile);
         indexS = planC{end};
         scanNum = length(planC{indexS.scan});
         planC{indexS.scan}(scanNum).scanType = ...
@@ -178,14 +179,14 @@ switch(config)
         indexS = planC{end};
         paramFile = fullfile(configDirName,'IBSIPhase2-1ID3b1.json');
 
-        planC = generateTextureMapFromPlanC(planC,structNum,paramFile);
+        planC = generateTextureMapFromPlanC(planC,[],structNum,paramFile);
         scanNum = length(planC{indexS.scan});
         planC{indexS.scan}(scanNum).scanType = ...
             [planC{indexS.scan}(scanNum).scanType,'_3b1'];
 
         % 3.b.2
         paramFile = fullfile(configDirName,'IBSIPhase2-1ID3b2.json');
-        planC = generateTextureMapFromPlanC(planC,structNum,paramFile);
+        planC = generateTextureMapFromPlanC(planC,[],structNum,paramFile);
         scanNum = length(planC{indexS.scan});
         planC{indexS.scan}(scanNum).scanType = ...
             [planC{indexS.scan}(scanNum).scanType,'_3b2'];
@@ -211,7 +212,7 @@ switch(config)
         %         planC{indexS.scan}(scanNum).scanType = ...
         %             [planC{indexS.scan}(scanNum).scanType,'_3b3'];
         paramFile = fullfile(configDirName,'IBSIPhase2-1ID3b3.json');
-        planC = generateTextureMapFromPlanC(planC,structNum,paramFile);
+        planC = generateTextureMapFromPlanC(planC,[],structNum,paramFile);
         scanNum = length(planC{indexS.scan});
         planC{indexS.scan}(scanNum).scanType = ...
             [planC{indexS.scan}(scanNum).scanType,'_3b3'];
@@ -227,14 +228,14 @@ switch(config)
         indexS = planC{end};
         paramFile = fullfile(configDirName,'IBSIPhase2-1ID3c1.json');
 
-        planC = generateTextureMapFromPlanC(planC,structNum,paramFile);
+        planC = generateTextureMapFromPlanC(planC,[],structNum,paramFile);
         scanNum = length(planC{indexS.scan});
         planC{indexS.scan}(scanNum).scanType = ...
             [planC{indexS.scan}(scanNum).scanType,'_3c1'];
 
         % 3.c.2
         paramFile = fullfile(configDirName,'IBSIPhase2-1ID3c2.json');
-        planC = generateTextureMapFromPlanC(planC,structNum,paramFile);
+        planC = generateTextureMapFromPlanC(planC,[],structNum,paramFile);
         scanNum = length(planC{indexS.scan});
         planC{indexS.scan}(scanNum).scanType = ...
             [planC{indexS.scan}(scanNum).scanType,'_3c2'];
@@ -261,7 +262,7 @@ switch(config)
         %             [planC{indexS.scan}(scanNum).scanType,'_3c3'];
 
         paramFile = fullfile(configDirName,'IBSIPhase2-1ID3c3.json');
-        planC = generateTextureMapFromPlanC(planC,structNum,paramFile);
+        planC = generateTextureMapFromPlanC(planC,[],structNum,paramFile);
         scanNum = length(planC{indexS.scan});
         planC{indexS.scan}(scanNum).scanType = ...
             [planC{indexS.scan}(scanNum).scanType,'_3c3'];
@@ -277,14 +278,14 @@ switch(config)
         indexS = planC{end};
         paramFile = fullfile(configDirName,'IBSIPhase2-1ID4a1.json');
 
-        planC = generateTextureMapFromPlanC(planC,structNum,paramFile);
+        planC = generateTextureMapFromPlanC(planC,[],structNum,paramFile);
         scanNum = length(planC{indexS.scan});
         planC{indexS.scan}(scanNum).scanType = ...
             [planC{indexS.scan}(scanNum).scanType,'_4a1'];
 
         %4.a.2
         paramFile = fullfile(configDirName,'IBSIPhase2-1ID4a2.json');
-        planC = generateTextureMapFromPlanC(planC,structNum,paramFile);
+        planC = generateTextureMapFromPlanC(planC,[],structNum,paramFile);
         scanNum = length(planC{indexS.scan});
         planC{indexS.scan}(scanNum).scanType = ...
             [planC{indexS.scan}(scanNum).scanType,'_4a2'];
@@ -300,14 +301,14 @@ switch(config)
         indexS = planC{end};
         paramFile = fullfile(configDirName,'IBSIPhase2-1ID4b1.json');
 
-        planC = generateTextureMapFromPlanC(planC,structNum,paramFile);
+        planC = generateTextureMapFromPlanC(planC,[],structNum,paramFile);
         scanNum = length(planC{indexS.scan});
         planC{indexS.scan}(scanNum).scanType = ...
             [planC{indexS.scan}(scanNum).scanType,'_4b1'];
 
         %4.b.2
         paramFile = fullfile(configDirName,'IBSIPhase2-1ID4b2.json');
-        planC = generateTextureMapFromPlanC(planC,structNum,paramFile);
+        planC = generateTextureMapFromPlanC(planC,[],structNum,paramFile);
         scanNum = length(planC{indexS.scan});
         planC{indexS.scan}(scanNum).scanType = ...
             [planC{indexS.scan}(scanNum).scanType,'_4b2'];
@@ -323,7 +324,7 @@ switch(config)
         indexS = planC{end};
         paramFile = fullfile(configDirName,'IBSIPhase2-1ID5a1.json');
 
-        planC = generateTextureMapFromPlanC(planC,structNum,paramFile);
+        planC = generateTextureMapFromPlanC(planC,[],structNum,paramFile);
         scanNum = length(planC{indexS.scan});
         planC{indexS.scan}(scanNum).scanType = ...
             [planC{indexS.scan}(scanNum).scanType,'_5a1'];
@@ -346,7 +347,7 @@ switch(config)
         indexS = planC{end};
         paramFile = fullfile(configDirName,'IBSIPhase2-1ID6a1.json');
 
-        planC = generateTextureMapFromPlanC(planC,structNum,paramFile);
+        planC = generateTextureMapFromPlanC(planC,[],structNum,paramFile);
         scanNum = length(planC{indexS.scan});
         planC{indexS.scan}(scanNum).scanType = ...
             [planC{indexS.scan}(scanNum).scanType,'6a1'];
@@ -369,7 +370,7 @@ switch(config)
         indexS = planC{end};
         paramFile = fullfile(configDirName,'IBSIPhase2-1ID7a1.json');
 
-        planC = generateTextureMapFromPlanC(planC,structNum,paramFile);
+        planC = generateTextureMapFromPlanC(planC,[],structNum,paramFile);
         scanNum = length(planC{indexS.scan});
         planC{indexS.scan}(scanNum).scanType = ...
             [planC{indexS.scan}(scanNum).scanType,'7a1'];
