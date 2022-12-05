@@ -1,0 +1,33 @@
+{
+
+"structures": ["ROI"],
+
+"imageType": {
+  		  "Original": {}
+	    },
+
+"settings": {		   
+                "resample": {
+                     "resolutionXCm": 0.1,
+				     "resolutionYCm": 0.1,
+				     "resolutionZCm": 0.1,
+				     "interpMethod": "spline",
+                     "intensityRounding": "On"
+			        },
+
+                   "padding": {
+                                "method": "none"
+			       },
+
+                   "texture" :{ 
+		                "minSegThreshold": -1000,
+		                "maxSegThreshold": 400
+	               },
+
+                   "firstOrder" :{ 
+				            "offsetForEnergy": 0,
+                            "binWidthEntropy":0
+                   }
+
+    }
+}
