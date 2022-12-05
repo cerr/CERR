@@ -16,11 +16,7 @@ if numel(scanNum) == 1
     end
     
     indexS = planC{end};
-    
-    % Get structure mask
-    [rasterSegments] = getRasterSegments(structNum,planC);
-    [maskUniq3M, uniqueSlices] = rasterToMask(rasterSegments, scanNum, planC);
-    
+        
     % Get scan
     scanArray3M = getScanArray(planC{indexS.scan}(scanNum));
     scanArray3M = double(scanArray3M) - ...
@@ -28,9 +24,15 @@ if numel(scanNum) == 1
     
     scanSiz = size(scanArray3M);
     
-    mask3M = false(scanSiz);
-    
-    mask3M(:,:,uniqueSlices) = maskUniq3M;
+    if numel(structNum) == 1
+        % Get structure mask
+        [rasterSegments] = getRasterSegments(structNum,planC);
+        [maskUniq3M, uniqueSlices] = rasterToMask(rasterSegments, scanNum, planC);
+        mask3M = false(scanSiz);
+        mask3M(:,:,uniqueSlices) = maskUniq3M;
+    else
+        mask3M = structNum;
+    end
     
     % Get x,y,z grid for reslicing and calculating the shape features
     [xValsV, yValsV, zValsV] = getScanXYZVals(planC{indexS.scan}(scanNum));
@@ -225,13 +227,16 @@ if whichFeatS.padding.flag
     [volToEval,maskBoundingBox3M] = padScan(resampScanBounds3M,...
         resampMaskBounds3M,filtPadMethod,filtPadSizeV,cropFlag);
 else
+%     resampSizeV = size(resampScanBounds3M);
+%     volToEval = resampScanBounds3M(padSizV(1)+1:resampSizeV(1)-padSizV(1),...
+%         padSizV(2)+1:resampSizeV(2)-padSizV(2),...
+%         padSizV(3)+1:resampSizeV(3)-padSizV(3));
+%     maskBoundingBox3M = resampMaskBounds3M(padSizV(1)+1:resampSizeV(1)-padSizV(1),...
+%         padSizV(2)+1:resampSizeV(2)-padSizV(2),...
+%         padSizV(3)+1:resampSizeV(3)-padSizV(3));
     resampSizeV = size(resampScanBounds3M);
-    volToEval = resampScanBounds3M(padSizV(1)+1:resampSizeV(1)-padSizV(1),...
-        padSizV(2)+1:resampSizeV(2)-padSizV(2),...
-        padSizV(3)+1:resampSizeV(3)-padSizV(3));
-    maskBoundingBox3M = resampMaskBounds3M(padSizV(1)+1:resampSizeV(1)-padSizV(1),...
-        padSizV(2)+1:resampSizeV(2)-padSizV(2),...
-        padSizV(3)+1:resampSizeV(3)-padSizV(3));
+    volToEval = resampScanBounds3M;
+    maskBoundingBox3M = resampMaskBounds3M;
 end
 
 
