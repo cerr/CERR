@@ -1,5 +1,5 @@
-function planC = generateTextureMapFromPlanC(planC,strNum,configFilePath)
-% generateTextureMapFromDICOM(inputCERRPath,strNameC,configFilePath,outputDicomPath);
+function planC = generateTextureMapFromPlanC(planC,scanNum,strNum,configFilePath)
+% planC = generateTextureMapFromPlanC(planC,scanNum,strNum,configFilePath)
 %
 % Compute texture maps from and export to DICOM.
 % -------------------------------------------------------------------------
@@ -10,19 +10,26 @@ function planC = generateTextureMapFromPlanC(planC,strNum,configFilePath)
 % -------------------------------------------------------------------------
 % AI 07/22/20
 
-%% Get scan no. & bounding box extents
-scanNum = getStructureAssociatedScan(strNum,planC);
-origSizV = size(getScanArray(scanNum,planC));
-%% temp
-mask3M = false(origSizV);
-[rasterM, planC] = getRasterSegments(strNum,planC);
-[slMask3M,uniqueSlicesV] = rasterToMask(rasterM,scanNum,planC);
-mask3M(:,:,uniqueSlicesV) = slMask3M;
-%mask3M = true(origSizV);
-%uniqueSlicesV = 1:size(mask3M,3);
-%% end temp
-%[minr, maxr, minc, maxc] = compute_boundingbox(mask3M);
+if numel(strNum) > 1
+    mask3M = strNum;
+    [~,~,sV] = find3d(mask3M);
+    uniqueSlicesV = unique(sV);
+else
+    % Get scan no. & bounding box extents
+    scanNum = getStructureAssociatedScan(strNum,planC);
+    origSizV = size(getScanArray(scanNum,planC));
+    % temp
+    mask3M = false(origSizV);
+    [rasterM, planC] = getRasterSegments(strNum,planC);
+    [slMask3M,uniqueSlicesV] = rasterToMask(rasterM,scanNum,planC);
+    mask3M(:,:,uniqueSlicesV) = slMask3M;
+    mask3M = true(origSizV);
+    uniqueSlicesV = 1:size(mask3M,3);
+    % end temp
+end
+[minr, maxr, minc, maxc] = compute_boundingbox(mask3M);
 %maskBoundingBox3M = mask3M(minr:maxr,minc:maxc,uniqueSlicesV);
+
 
 %% Read config file
 paramS = getRadiomicsParamTemplate(configFilePath);
@@ -30,9 +37,9 @@ paramS = getRadiomicsParamTemplate(configFilePath);
 %% Apply pre-processing
 [procScan3M,procMask3M,gridS] = preProcessForRadiomics(scanNum,...
     strNum, paramS, planC);
-%[minr, maxr, minc, maxc] = compute_boundingbox(procMask3M);
-%maskSlcV = sum(sum(procMask3M))>0;
-%maskBoundingBox3M = procMask3M(minr:maxr,minc:maxc,maskSlcV);
+[minr, maxr, minc, maxc] = compute_boundingbox(procMask3M);
+maskSlcV = sum(sum(procMask3M))>0;
+maskBoundingBox3M = procMask3M(minr:maxr,minc:maxc,maskSlcV);
 
 %% Get filtered image
 %Get params
@@ -70,7 +77,10 @@ for n = 1:length(fieldNamesC)
     assocScanUID = planC{indexS.scan}(scanNum).scanUID;
     nTexture = length(planC{indexS.texture}) + 1;
     planC{indexS.texture}(nTexture).assocScanUID = assocScanUID;
-    assocStrUID = strjoin({planC{indexS.structures}(strNum).strUID},',');
+    assocStrUID = '';
+    if numel(strNum) == 1
+        assocStrUID = strjoin({planC{indexS.structures}(strNum).strUID},',');
+    end
     planC{indexS.texture}(nTexture).assocStructUID = assocStrUID;
     planC{indexS.texture}(nTexture).category = filterType;
     planC{indexS.texture}(nTexture).parameters = filtParamS;
