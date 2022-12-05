@@ -7,7 +7,7 @@ function radiomicsParamS = getRadiomicsParamTemplate(paramFilename,dictS)
 % INPUT:
 % paramFileName : Path to JSON file for radiomics feature extraction.
 %                 Sample JSON file: CERR_core/PlanMetrics/heterogenity_metrics/sample_radiomics_extraction_settings.json
-%
+% -------- Optional --------
 % dictS       : Alternatively, pass dictionary userInS
 % --------------------------------------------------------------------------------------
 %
