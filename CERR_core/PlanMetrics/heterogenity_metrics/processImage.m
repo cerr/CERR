@@ -193,9 +193,6 @@ for index = 1:numRotations
 
             %vol3M   = flip(double(rotScan3M),3); %FOR IBSI2
             vol3M = double(rotScan3M);
-
-            dirListC = {'All','HHH','LHH','HLH','HHL','LLH','LHL',...
-                        'HLL','LLL'};
             wavType =  paramS.Wavelets.val;
             if ~isempty(paramS.Index.val)
                 wavType = [wavType,paramS.Index.val];
@@ -203,13 +200,26 @@ for index = 1:numRotations
             level =  paramS.Level.val;
             dir = paramS.Direction.val;
 
+            if length(dir) == 3
+                dim = '3d';
+            elseif length(dir) == 2
+                dim = '2d'; 
+            end
+
+            if strcmpi(dim,'3d')
+                dirListC = {'All','HHH','LHH','HLH','HHL','LLH','LHL',...
+                    'HLL','LLL'};
+            elseif strcmpi(dim,'2d')
+                dirListC = {'All','HH','HL','LH','LL'};
+            end
+
             if strcmp(dir,'All')
                 for n = 2:length(dirListC)
                     outname = [wavType,'_',dirListC{n}];
                     outname = strrep(outname,'.','_');
                     outname = strrep(outname,' ','_');
 
-                    subbandsS = getWaveletSubbands(vol3M,wavType,level);
+                    subbandsS = getWaveletSubbands(vol3M,wavType,level,dim);
                     matchDir = [dirListC{n},'_',wavType];
                     out3M = subbandsS.(matchDir);
 
@@ -227,7 +237,7 @@ for index = 1:numRotations
                 outname = strrep(outname,'.','_');
                 outname = strrep(outname,' ','_');
 
-                subbandsS = getWaveletSubbands(vol3M,wavType,level);
+                subbandsS = getWaveletSubbands(vol3M,wavType,level,dim);
                 matchDir = [dir,'_',wavType];
                 out3M = subbandsS.(matchDir);
 
