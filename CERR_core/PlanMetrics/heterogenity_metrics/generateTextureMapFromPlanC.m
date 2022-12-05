@@ -5,12 +5,14 @@ function planC = generateTextureMapFromPlanC(planC,scanNum,strNum,configFilePath
 % -------------------------------------------------------------------------
 % INPUTS
 % planC            : CERR archive
+% scanNum          : Scan no. Or leave empty to use scan associated with 
+%                    strNum input.
 % strNum           : Structure no.
 % configFilePath   : Path to config files for texture calculation.
 % -------------------------------------------------------------------------
 % AI 07/22/20
 
-if numel(strNum) > 1
+if numel(strNum) > 1 && ~isempty(scanNum)
     mask3M = strNum;
     [~,~,sV] = find3d(mask3M);
     uniqueSlicesV = unique(sV);
