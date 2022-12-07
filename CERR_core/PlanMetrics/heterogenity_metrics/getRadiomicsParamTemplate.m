@@ -27,12 +27,25 @@ end
 filterTypeC = fieldnames(userInS.imageType);
 radiomicsParamS.imageType = struct();
 for m = 1:length(filterTypeC)
-    paramListC = fieldnames(userInS.imageType.(filterTypeC{m}));
+    %paramListC = fieldnames(userInS.imageType.(filterTypeC{m}));
     radiomicsParamS.imageType.(filterTypeC{m}) = struct();
-    for n = 1:length(paramListC)
-        for iFilt = 1:length(userInS.imageType.(filterTypeC{m}))
-            radiomicsParamS.imageType.(filterTypeC{m})(iFilt).(paramListC{n}).val = ...
-                userInS.imageType.(filterTypeC{m})(iFilt).(paramListC{n});
+    for iFilt = 1:length(userInS.imageType.(filterTypeC{m}))
+        if ~(isstruct(userInS.imageType.(filterTypeC{m})) && ...
+                isempty(fieldnames(userInS.imageType.(filterTypeC{m}))))
+            if isstruct(userInS.imageType.(filterTypeC{m}))
+                paramListC = fieldnames(userInS.imageType.(filterTypeC{m}));
+            else
+                paramListC = fieldnames(userInS.imageType.(filterTypeC{m}){iFilt});
+            end
+            for n = 1:length(paramListC)
+                if isstruct(userInS.imageType.(filterTypeC{m}))
+                    radiomicsParamS.imageType.(filterTypeC{m})(iFilt).(paramListC{n}).val = ...
+                        userInS.imageType.(filterTypeC{m}).(paramListC{n});
+                else
+                    radiomicsParamS.imageType.(filterTypeC{m})(iFilt).(paramListC{n}).val = ...
+                        userInS.imageType.(filterTypeC{m}){iFilt}.(paramListC{n});
+                end
+            end
         end
     end
 end
