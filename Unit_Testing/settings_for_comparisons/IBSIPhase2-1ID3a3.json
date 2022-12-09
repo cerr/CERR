@@ -1,0 +1,29 @@
+{
+
+"structures": ["wholeScan"],
+
+"imageType": {
+  		  "LawsEnergy": {
+			    	       "Direction": "3d",
+				           "Type": "E5L5S5",
+				           "Normalize": "yes",
+				           "RotationInvariance": {
+				       						"Dim": "3D",
+				       						"AggregationMethod": "max"
+				       					 },
+                           "EnergyKernelSize": [15,15,15],
+                           "EnergyPadMethod": "padzeros",
+                           "EnergyPadSize" : [7,7,7]
+			 	     }
+	    },
+
+"settings": {		   
+
+                   "padding": [{
+                                "method": "padzeros",  
+                                "size": [2,2,2]
+			       }
+                              ]
+	    }
+
+}

@@ -33,6 +33,9 @@ catch err
     iop = [1 0 0 0 1 0]';
     ipp = [0 0 -planC{indexS.scan}(scanNum).scanInfo(1).sliceThickness*10]';
 end
+iop = iop(:);
+ipp = ipp(:);
+
 pixsp = 10*[planC{indexS.scan}(scanNum).scanInfo(1).grid1Units planC{indexS.scan}(scanNum).scanInfo(1).grid2Units];
 sliceThickness = planC{indexS.scan}(scanNum).scanInfo(1).sliceThickness * 10;
 % voxel_size = [pixsp sliceThickness];
@@ -48,6 +51,7 @@ planeMat = [pixsp(2)*iop(4:end) pixsp(1)*iop(1:3)]; %.*[-1 -1;-1 -1; 1 1];
         originLPS = [0; 0; 0];
     end
 % end
+originLPS = originLPS(:);
 rawAffineMat = [planeMat ipp originLPS; 0 0 0 1];
 
 rawPixDim = [pixsp(2) pixsp(1) sliceThickness];

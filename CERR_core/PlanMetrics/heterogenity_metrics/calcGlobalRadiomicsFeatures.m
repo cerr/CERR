@@ -1,4 +1,4 @@
-function featureS = ...
+function [featureS,diagS] = ...
 calcGlobalRadiomicsFeatures(scanNum, structNum, paramS, planC)
 % Wrapper to extract global radiomics features
 %
@@ -12,8 +12,8 @@ calcGlobalRadiomicsFeatures(scanNum, structNum, paramS, planC)
 % paramS = getRadiomicsParamTemplate(paramFilename);
 
 %% Pre-processing 
-[volToEval,maskBoundingBox3M,gridS,paramS] =  preProcessForRadiomics(scanNum,...
-                                       structNum, paramS, planC);
+[volToEval,maskBoundingBox3M,gridS,paramS,diagS] = ...
+preProcessForRadiomics(scanNum,structNum, paramS, planC);
 
 if ~any(maskBoundingBox3M(:))
     featureS = struct();

@@ -4,9 +4,10 @@
 
 "imageType": {
   		  "Wavelets": {
-			    	           "Direction": "HHL",
+			    	       "Direction": "HHL",
 				           "Wavelets":"coif",
-				           "Index": "1"
+				           "Index": "1",
+                           "Level": 1
 			 	     }
 	    },
 
@@ -14,7 +15,7 @@
 
                    "padding": [{
                                 "method": "periodic",  
-                                "size": [1,1,1]
+                                "size": [3,3,3]
 			       }
                               ]
 	    }

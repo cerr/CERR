@@ -525,7 +525,8 @@ drawObjV = get(objUI,'Data');
 drawObjV = [drawObjV{:,1}];
 drawObjV(selectedRowsV) = ~drawObjV(selectedRowsV);
 objDataC(:,1) = num2cell(drawObjV);
-set(objUI,'Data') = objDataC;
+%set(objUI,'Data') = objDataC;
+objUI.Data = objDataC;
 
 if strcmp(get(hObj,'Tag'), 'doseUI')
     ud.doseUI = objUI;

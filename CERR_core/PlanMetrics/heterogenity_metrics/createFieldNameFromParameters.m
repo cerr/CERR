@@ -35,7 +35,14 @@ switch(lower(imageType))
     case 'log'
         settingsStr = ['sigma_',num2str(settingS.Sigma_mm.val),'mm'];
         fieldName = [imageType,'_',settingsStr];
-        
+
+    case 'log_ibsi'
+        sigmaV = reshape(settingS.Sigma_mm.val,1,[]);
+        cutoffV = reshape(settingS.CutOff_mm.val,1,[]);
+        settingsStr = ['sigma_',num2str(sigmaV),'mm_',...
+            'cutoff_',num2str(cutoffV),'mm'];
+        fieldName = [imageType,'_',settingsStr];
+
     case 'gabor_deprecated'
         settingsStr = ['radius',num2str(settingS.Radius.val),'_sigma',...
             num2str(settingS.Sigma.val),'_AR',num2str(settingS.AspectRatio.val),...
@@ -62,10 +69,22 @@ switch(lower(imageType))
         fieldName = ['firstOrderStatistics','_',settingsStr];
         
     case 'lawsconvolution'
-        dirC = {'2d','3d'};
-        settingsStr = [dirC{settingS.Direction.val},'_kernelSize',...
-            num2str(settingS.KernelSize.val)];
+        settingsStr = [settingS.Direction.val,'_type',...
+            settingS.Type.val,'_norm',settingS.Normalize.val,...
+            '_rot',settingS.RotationInvariance.val.Dim,'_agg',...
+            settingS.RotationInvariance.val.AggregationMethod];
         fieldName = [imageType,'_',settingsStr];
+
+    case 'lawsenergy'
+        energyKernelSize = reshape(settingS.EnergyKernelSize.val,1,[]);
+        energyKernelSize = strrep(num2str(energyKernelSize),' ','x');
+        settingsStr = [settingS.Direction.val,'_type',...
+            settingS.Type.val,'_norm',settingS.Normalize.val,...
+            '_energyKernelSize',num2str(energyKernelSize),...
+            '_rot',settingS.RotationInvariance.val.Dim,'_agg',...
+            settingS.RotationInvariance.val.AggregationMethod,];
+        fieldName = [imageType,'_',settingsStr];
+
         
     case 'collage'
         settingsStr = [settingS.Dimension.val,'_',...
@@ -96,6 +115,12 @@ switch(lower(imageType))
     case 'suv'
         suvType = settingS.suvType.val;
         fieldName = [imageType,'_',suvType];
+
+    case 'mean'
+        kernelSize = reshape(settingS.KernelSize.val,1,[]);
+        voxelSize_mm = settingS.VoxelSize_mm.val;
+        fieldName = [imageType,'_kernelSize',num2str(kernelSize),...
+            '_voxelSize_mm',num2str(voxelSize_mm)];
         
 end
 

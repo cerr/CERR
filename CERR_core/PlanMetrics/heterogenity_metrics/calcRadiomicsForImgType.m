@@ -49,8 +49,12 @@ for k = 1:length(imageTypeC)
     
     %Generate volume based on original/derived imageType
     if strcmpi(imageTypeC{k}.imageType,'original')
-        quantizeFlag = paramS.toQuantizeFlag;
-        minClipIntensity = []; % no clipping imposed for derived images
+        if isfield(paramS,'toQuantizeFlag')
+            quantizeFlag = paramS.toQuantizeFlag;
+        else
+            quantizeFlag = 0;
+        end
+        minClipIntensity = []; 
         maxClipIntensity = [];
         if isfield(paramS.textureParamS,'minClipIntensity')
             minClipIntensity = paramS.textureParamS.minClipIntensity;
@@ -66,6 +70,12 @@ for k = 1:length(imageTypeC)
         %Add voxel size in mm to paramS
         voxSizV = [PixelSpacingX, PixelSpacingY, PixelSpacingZ]*10; %convert cm to mm
         imageTypeC{k}.paramS.VoxelSize_mm.val = voxSizV;
+        if paramS.whichFeatS.padding.flag
+            imageTypeC{k}.paramS.padding.size = paramS.whichFeatS.padding.size;
+        else
+            imageTypeC{k}.paramS.padding.size = [0,0,0];
+        end
+
         outS = processImage(imageTypeC{k}.imageType,volOrig3M,maskOrig3M,...
             imageTypeC{k}.paramS);
         [minr, maxr, minc, maxc, mins, maxs] = compute_boundingbox(maskOrig3M);
@@ -84,7 +94,13 @@ for k = 1:length(imageTypeC)
             end
         end
         minClipIntensity = []; % no clipping imposed for derived images
-        maxClipIntensity = []; % no clipping imposed for derived images
+        maxClipIntensity = []; 
+        if isfield(paramS.textureParamS,'minClipIntensity')
+            minClipIntensity = paramS.textureParamS.minClipIntensity;
+        end
+        if isfield(paramS.textureParamS,'maxClipIntensity')
+            maxClipIntensity = paramS.textureParamS.maxClipIntensity;
+        end
     end
     
     % Volume without NaNs for Peak/Valley computation

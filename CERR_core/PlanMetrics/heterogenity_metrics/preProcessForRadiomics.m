@@ -1,5 +1,5 @@
-function [volToEval,maskBoundingBox3M,gridS,paramS] = preProcessForRadiomics(scanNum,...
-    structNum, paramS, planC)
+function [volToEval,maskBoundingBox3M,gridS,paramS,diagS] = ...
+    preProcessForRadiomics(scanNum,structNum, paramS, planC)
 % preProcessForRadiomics.m
 % Pre-process image for radiomics feature extraction. Includes
 % perturbation, resampling, cropping, and intensity-thresholding.
@@ -16,11 +16,7 @@ if numel(scanNum) == 1
     end
     
     indexS = planC{end};
-    
-    % Get structure mask
-    [rasterSegments] = getRasterSegments(structNum,planC);
-    [maskUniq3M, uniqueSlices] = rasterToMask(rasterSegments, scanNum, planC);
-    
+        
     % Get scan
     scanArray3M = getScanArray(planC{indexS.scan}(scanNum));
     scanArray3M = double(scanArray3M) - ...
@@ -28,9 +24,15 @@ if numel(scanNum) == 1
     
     scanSiz = size(scanArray3M);
     
-    mask3M = false(scanSiz);
-    
-    mask3M(:,:,uniqueSlices) = maskUniq3M;
+    if numel(structNum) == 1
+        % Get structure mask
+        [rasterSegments] = getRasterSegments(structNum,planC);
+        [maskUniq3M, uniqueSlices] = rasterToMask(rasterSegments, scanNum, planC);
+        mask3M = false(scanSiz);
+        mask3M(:,:,uniqueSlices) = maskUniq3M;
+    else
+        mask3M = structNum;
+    end
     
     % Get x,y,z grid for reslicing and calculating the shape features
     [xValsV, yValsV, zValsV] = getScanXYZVals(planC{indexS.scan}(scanNum));
@@ -75,6 +77,8 @@ PixelSpacingX = abs(xValsV(1) - xValsV(2));
 PixelSpacingY = abs(yValsV(1) - yValsV(2));
 PixelSpacingZ = abs(zValsV(1) - zValsV(2));
 
+diagS.numVoxelsOrig = sum(mask3M(:));
+
 %% Apply global settings
 whichFeatS = paramS.whichFeatS;
 
@@ -86,8 +90,10 @@ perturbZ = 0;
 if whichFeatS.perturbation.flag
     
     [scanArray3M,mask3M] = perturbImageAndSeg(scanArray3M,mask3M,planC,...
-        scanNum,whichFeatS.perturbation.sequence,whichFeatS.perturbation.angle2DStdDeg,...
-        whichFeatS.perturbation.volScaleStdFraction,whichFeatS.perturbation.superPixVol);
+        scanNum,whichFeatS.perturbation.sequence,...
+        whichFeatS.perturbation.angle2DStdDeg,...
+        whichFeatS.perturbation.volScaleStdFraction,...
+        whichFeatS.perturbation.superPixVol);
     
     % Get grid perturbation deltas
     if ismember('T',whichFeatS.perturbation.sequence)
@@ -113,28 +119,30 @@ if whichFeatS.resample.flag
     padScaleY = ceil(whichFeatS.resample.resolutionYCm/dy);
     padScaleZ = ceil(whichFeatS.resample.resolutionZCm/dz);
 end
+
+%Default:Pad by 5 voxels (original image intensities) before resampling
+padMethod = 'expand';
+padSizV = [5,5,5];
 if whichFeatS.padding.flag
-    if ~isfield(whichFeatS.padding,'method')
-        %Default:Pad by 5 voxels (original image intensities)
-        padMethod = 'expand';
-        padSizV = [5,5,5];
-    else
-        padMethod = whichFeatS.padding.method;
-        padSizV = whichFeatS.padding.size;
-        padSizV = reshape(padSizV,1,[]);
+    if isfield(whichFeatS.padding,'size')
+        filtPadSizV = whichFeatS.padding.size;
+        filtPadSizV = reshape(filtPadSizV,1,[]);
+        filtPadSizV = filtPadSizV.*[padScaleX padScaleY padScaleZ];
+        repIdxV = filtPadSizV > padSizV;
+        padSizV(repIdxV) = filtPadSizV(repIdxV);
     end
-else
-    %Default:Pad by 5 voxels (original image intensities)
-    padMethod = 'expand';
-    padSizV = [5,5,5];
 end
 
-padSizV = padSizV.*[padScaleX,padScaleY,padScaleZ];
-whichFeatS.padding.size = padSizV;
-
 % Crop to ROI and pad
+%cropFlag = 1;
+%padMethod = whichFeatS.padding.method;
+%---temp---
+cropFlag = 0;
+padMethod = 'none';
+%----------
 scanArray3M = double(scanArray3M);
-[volToEval,maskBoundingBox3M,outLimitsV] = padScan(scanArray3M,mask3M,padMethod,padSizV);
+[padScanBoundsForResamp3M,padMaskBoundsForResamp3M,outLimitsV] = ...
+    padScan(scanArray3M,mask3M,padMethod,padSizV,cropFlag);
 xValsV = xValsV(outLimitsV(3):outLimitsV(4));
 yValsV = yValsV(outLimitsV(1):outLimitsV(2));
 zValsV = zValsV(outLimitsV(5):outLimitsV(6));
@@ -162,20 +170,33 @@ if whichFeatS.resample.flag
     gridResampleMethod = 'center';
     
     % Interpolate using the method defined in settings file
-    origVolToEval = volToEval;
-    origMask = maskBoundingBox3M;
+    origVolToEval = padScanBoundsForResamp3M;
+    origMask = padMaskBoundsForResamp3M;
     outputResV = [PixelSpacingX,PixelSpacingY,PixelSpacingZ];
+    originV = planC{indexS.scan}(scanNum).scanInfo(end).imagePositionPatient;
+    originV = reshape(originV/10,1,[]); %convert to cm
     
     %Get resampling grid 
-    [xResampleV,yResampleV,zResampleV] = ...
-        getResampledGrid(outputResV,xValsV,yValsV,zValsV,...
-        gridResampleMethod,[perturbX,perturbY,perturbZ]);
+    [xResampleV,yResampleV,zResampleV] = getResampledGrid(outputResV,...
+        xValsV,yValsV,zValsV,originV,gridResampleMethod,...
+        [perturbX,perturbY,perturbZ]);
+    if yResampleV(1) > yResampleV(2)
+        yResampleV = fliplr(yResampleV);
+    end
+
+
     %Resample scan
-    volToEval = imgResample3d(origVolToEval,xValsV,yValsV,zValsV,...
+    resampScanBounds3M = imgResample3d(origVolToEval,xValsV,yValsV,zValsV,...
         xResampleV,yResampleV,zResampleV,scanInterpMethod,extrapVal);
+    %Option to round
+    if isfield(whichFeatS.resample,'intensityRounding') && ...
+            strcmpi(whichFeatS.resample.intensityRounding,'on')
+        resampScanBounds3M = round(resampScanBounds3M);
+    end
+
     %Resample mask
-    maskBoundingBox3M = imgResample3d(single(origMask),xValsV,yValsV,zValsV,...
-        xResampleV,yResampleV,zResampleV,roiInterpMethod) >= 0.5;
+    resampMaskBounds3M = imgResample3d(single(origMask),xValsV,yValsV,...
+        zValsV,xResampleV,yResampleV,zResampleV,roiInterpMethod) >= 0.5;
     
     newSlcIndV = zeros(1,length(zResampleV));
     for iSlc = 1:length(zResampleV)
@@ -183,10 +204,43 @@ if whichFeatS.resample.flag
     end
     
 else
+    resampScanBounds3M = padScanBoundsForResamp3M;
+    resampMaskBounds3M = padMaskBoundsForResamp3M;
     xResampleV = xValsV;
     yResampleV = yValsV;
     zResampleV = zValsV;
     newSlcIndV = 1:length(slcIndV);
+end
+
+%Apply padding as required for convolutional filtering
+if whichFeatS.padding.flag
+    if isfield(whichFeatS.padding,'cropToMaskBounds')
+        cropFlag = strcmpi(whichFeatS.padding.cropToMaskBounds,'yes');
+    else
+        cropFlag = 1; %default
+    end
+    if isfield(whichFeatS.padding,'method') && ...
+            ~strcmpi(whichFeatS.padding.method,'none')
+        filtPadMethod = whichFeatS.padding.method;
+        filtPadSizeV = reshape(whichFeatS.padding.size,1,[]);
+    else
+        filtPadMethod = 'none';
+        filtPadSizeV = [0 0 0];
+    end
+
+    [volToEval,maskBoundingBox3M] = padScan(resampScanBounds3M,...
+        resampMaskBounds3M,filtPadMethod,filtPadSizeV,cropFlag);
+else
+%     resampSizeV = size(resampScanBounds3M);
+%     volToEval = resampScanBounds3M(padSizV(1)+1:resampSizeV(1)-padSizV(1),...
+%         padSizV(2)+1:resampSizeV(2)-padSizV(2),...
+%         padSizV(3)+1:resampSizeV(3)-padSizV(3));
+%     maskBoundingBox3M = resampMaskBounds3M(padSizV(1)+1:resampSizeV(1)-padSizV(1),...
+%         padSizV(2)+1:resampSizeV(2)-padSizV(2),...
+%         padSizV(3)+1:resampSizeV(3)-padSizV(3));
+    resampSizeV = size(resampScanBounds3M);
+    volToEval = resampScanBounds3M;
+    maskBoundingBox3M = resampMaskBounds3M;
 end
 
 
@@ -208,8 +262,13 @@ if isfield(paramS,'textureParamS')
         maskBoundingBox3M(volToEval > maxSegThreshold) = 0;
     end
 end
-
 %volToEval(~maskBoundingBox3M) = NaN;
+volV = volToEval(maskBoundingBox3M);
+diagS.numVoxelsInterpReseg = sum(maskBoundingBox3M(:));
+diagS.MeanIntensityInterpReseg = mean(volV);
+diagS.MaxIntensityInterpReseg = max(volV);
+diagS.MinIntensityInterpReseg = min(volV);
+
 
 % Return grid and pixel-spacing
 gridS.xValsV = xResampleV;

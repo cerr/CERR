@@ -24,7 +24,7 @@ d=4;
 %        radius = 1 + 2*floor(d*sigmaX+0.5);
 %     end
 %end
-[X,Y] = meshgrid(-radius:radius,-radius:radius);
+[X,Y] = meshgrid(-radius(2):radius(2),-radius(1):radius(1));
 
 % Rotate grid to specified orientation
 Xtheta = X .*cosd(theta) + Y .*sind(theta);
