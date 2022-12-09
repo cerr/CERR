@@ -70,8 +70,13 @@ for k = 1:length(imageTypeC)
         %Add voxel size in mm to paramS
         voxSizV = [PixelSpacingX, PixelSpacingY, PixelSpacingZ]*10; %convert cm to mm
         imageTypeC{k}.paramS.VoxelSize_mm.val = voxSizV;
-        if paramS.whichFeatS.padding.flag
-            imageTypeC{k}.paramS.padding.size = paramS.whichFeatS.padding.size;
+        if paramS.whichFeatS.padding.flag && ...
+                ~strcmpi(whichFeatS.padding.method,'none')
+            paddingSizeV = paramS.whichFeatS.padding.size;
+            if length(paddingSizeV)==2
+                paddingSizeV(end+1) = 0;
+            end
+            imageTypeC{k}.paramS.padding.size = paddingSizeV;
         else
             imageTypeC{k}.paramS.padding.size = [0,0,0];
         end
