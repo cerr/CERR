@@ -127,6 +127,9 @@ if whichFeatS.padding.flag
     if isfield(whichFeatS.padding,'size')
         filtPadSizV = whichFeatS.padding.size;
         filtPadSizV = reshape(filtPadSizV,1,[]);
+        if length(filtPadSizV)==2
+            filtPadSizV = [filtPadSizV,0];
+        end
         filtPadSizV = filtPadSizV.*[padScaleX padScaleY padScaleZ];
         repIdxV = filtPadSizV > padSizV;
         padSizV(repIdxV) = filtPadSizV(repIdxV);
@@ -223,6 +226,9 @@ if whichFeatS.padding.flag
             ~strcmpi(whichFeatS.padding.method,'none')
         filtPadMethod = whichFeatS.padding.method;
         filtPadSizeV = reshape(whichFeatS.padding.size,1,[]);
+        if length(filtPadSizeV)==2
+            filtPadSizeV = [filtPadSizeV,0];
+        end
     else
         filtPadMethod = 'none';
         filtPadSizeV = [0 0 0];
