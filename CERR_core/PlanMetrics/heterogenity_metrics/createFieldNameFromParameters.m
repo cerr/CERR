@@ -51,18 +51,21 @@ switch(lower(imageType))
         fieldName = [imageType,'_',settingsStr];
         
     case 'gabor'
-        settingsStr = ['voxSz',num2str(settingS.VoxelSize_mm.val),'mm_Sigma',...
-            num2str(settingS.Sigma_mm.val),'mm_AR',num2str(settingS.SpatialAspectRatio.val),...
+
+        voxelSize_mm = reshape(settingS.VoxelSize_mm.val,1,[]);
+       
+        settingsStr = ['voxSz',num2str(voxelSize_mm),'mm_Sigma',...
+            num2str(settingS.Sigma_mm.val),'mm_AR',...
+            num2str(settingS.SpatialAspectRatio.val),...
             '_wavLen',num2str(settingS.Wavlength_mm.val),'mm'];
         thetaV = reshape(settingS.Orientation.val,1,[]);
         if length(thetaV)==1
             settingsStr = [settingsStr,'_Orient',num2str(thetaV)];
         else
             settingsStr = [settingsStr,'_OrientAvg_',num2str(thetaV)];
-            fieldName = [imageType,'_',settingsStr];
         end
-        
-        
+        fieldName = [imageType,'_',settingsStr];
+
     case 'firstorderstatistics'
         settingsStr = ['patchsize',num2str(settingS.PatchSize.val(1)),...
             '_voxelvol',num2str(settingS.VoxelVolume.val)];
@@ -127,5 +130,6 @@ end
 %Ensure valid fieldname
 fieldName = strrep(fieldName,' ','');
 fieldName = strrep(fieldName,'.','_');
+fieldName = strrep(fieldName,'-','_');
 
 end
