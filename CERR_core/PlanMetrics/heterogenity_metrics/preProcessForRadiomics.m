@@ -177,8 +177,9 @@ if whichFeatS.resample.flag
     origVolToEval = padScanBoundsForResamp3M;
     origMask = padMaskBoundsForResamp3M;
     outputResV = [PixelSpacingX,PixelSpacingY,PixelSpacingZ];
-    originV = planC{indexS.scan}(scanNum).scanInfo(end).imagePositionPatient;
-    originV = reshape(originV/10,1,[]); %convert to cm
+    %originV = planC{indexS.scan}(scanNum).scanInfo(end).imagePositionPatient;
+    %originV = reshape(originV/10,1,[]); %convert to cm
+    originV = [xValsV(1),yValsV(end),zValsV(end)];
     
     %Get resampling grid 
     [xResampleV,yResampleV,zResampleV] = getResampledGrid(outputResV,...
