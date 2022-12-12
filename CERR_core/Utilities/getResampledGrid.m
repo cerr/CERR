@@ -60,11 +60,19 @@ switch(gridAlignMethod)
         %Generate output grid
         xResampleV = resampOriginV(1):resampResolutionV(1):...
             resampOriginV(1)+(resampSizeV(1)-1)*resampResolutionV(1);
-        yResampleV = -(resampOriginV(2):resampResolutionV(2):...
-            resampOriginV(2)+(resampSizeV(2)-1)*resampResolutionV(2));
+        yResampleV = resampOriginV(2):-resampResolutionV(2):...
+            (resampOriginV(2)-(resampSizeV(2)-1)*resampResolutionV(2));
+        yResampleV = flip(yResampleV);
+
+        %yResampleV = -(resampOriginV(2):resampResolutionV(2):...
+        %    resampOriginV(2)+(resampSizeV(2)-1)*resampResolutionV(2));
         if resamp3DFlag
-            zResampleV = -flip(resampOriginV(3):resampResolutionV(3):...
-                resampOriginV(3)+(resampSizeV(3)-1)*resampResolutionV(3));
+            %zResampleV = -flip(resampOriginV(3):resampResolutionV(3):...
+            %    resampOriginV(3)+(resampSizeV(3)-1)*resampResolutionV(3));
+            zResampleV = resampOriginV(3):-resampResolutionV(3):...
+                (resampOriginV(3)-(resampSizeV(3)-1)*resampResolutionV(3));
+            zResampleV = flip(zResampleV);
+
         else
             zResampleV = zValsV;
         end
