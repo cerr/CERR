@@ -5,6 +5,8 @@ function testConvolutionalFilters
 %
 % AI 12/09/22
 
+init_ML_DICOM
+
 %Path to "gold standard" response maps
 CERRPath = getCERRPath;
 CERRPathSlashes = strfind(getCERRPath,filesep);
