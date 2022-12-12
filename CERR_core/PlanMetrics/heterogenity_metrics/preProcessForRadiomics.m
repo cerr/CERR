@@ -179,7 +179,7 @@ if whichFeatS.resample.flag
     outputResV = [PixelSpacingX,PixelSpacingY,PixelSpacingZ];
     %originV = planC{indexS.scan}(scanNum).scanInfo(end).imagePositionPatient;
     %originV = reshape(originV/10,1,[]); %convert to cm
-    originV = [xValsV(1),yValsV(end),zValsV(end)];
+    originV = [xValsV(1),yValsV(1),zValsV(end)];
     
     %Get resampling grid 
     [xResampleV,yResampleV,zResampleV] = getResampledGrid(outputResV,...
