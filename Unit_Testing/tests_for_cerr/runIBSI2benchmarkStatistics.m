@@ -30,7 +30,7 @@ switch(phase)
         niiDataDirC = {niiDataDir};
         modC = {'CT'};
 
-        outFile ='IBSIphase2-2.csv';
+        outFile ='IBSIphase2-2';
         statStartLine = 7;
        
 
@@ -78,8 +78,11 @@ outFieldC = {'mean','var','skewness','kurtosis','median','min','P10',...
     'P90','max','interQuartileRange','range','meanAbsDev',...
     'robustMeanAbsDev','medianAbsDev','coeffVariation',...
     'coeffDispersion','energy','rms'};
-diagFieldC = {'NumVoxOrig'};
+diagFieldC = {'NumVoxOrig','numVoxelsInterpReseg',...
+    'MeanIntensityInterpReseg','MaxIntensityInterpReseg',...
+    'MinIntensityInterpReseg'};
 numStats = length(outFieldC);
+numDiag = length(diagFieldC);
 sheet = 1;
 
 %% Compute response maps
@@ -103,14 +106,6 @@ for nFile = 1:length(fileNameC)
         strC = {planC{indexS.structures}.structureName};
         structNum = getMatchingIndex(strName,strC,'EXACT');
 
-        % Get metadata
-        %         if phase==2
-        %             image = 'phantom';
-        %         else
-        %             image = [modC{nMod},'_image'];
-        %         end
-        %         metadataS = getMetadata(niiDataDir,image);
-
         %Define output filename
         if phase==2
             outFileName = outFile;
@@ -123,6 +118,7 @@ for nFile = 1:length(fileNameC)
         %Loop over configurations
         featM = nan(numStats,length(settingsC));
         featC = cell(numStats,length(settingsC));
+        diagC = cell(numDiag,length(settingsC));
         for setting = 1:length(settingsC)
 
             %Read config. file
@@ -140,7 +136,8 @@ for nFile = 1:length(fileNameC)
                 (scanNum, structNum, paramS, planC);
 
             %Convert diagnositc features to cell
-            diagC(:,setting) = struct2cell(diagS);
+            diagValC = struct2cell(diagS);
+            diagC(:,setting) = diagValC;
 
             %Retain required fields (statistics)
             imgType = fieldnames(cerrFeatS);
@@ -153,67 +150,38 @@ for nFile = 1:length(fileNameC)
         if phase==2
             diagC = cellfun(@num2str,diagC,'un',0);
             tempDiagC = [outC(2:statStartLine-1),diagC];
+            outDiagC = cell(statStartLine-1,1);
+            outDiagC{1} = outC{1};
             for line = 2:statStartLine-1
                 tempDiag = strjoin(tempDiagC(line-1,:),';');
-                outC{line} = tempDiag;
+                outDiagC{line} = tempDiag;
             end
+        else
+               outDiagC = outC;
         end
 
         featC = cellfun(@num2str,featC,'un',0);
         tempC = [outC(statStartLine:end),featC];
+        outValC = outDiagC;
         for line = statStartLine:length(outC)
-            outC{line} = strjoin(tempC(line-statStartLine+1,:),';');
+            outValC{line} = strjoin(tempC(line-statStartLine+1,:),';');
         end
 
-        sheet = nMod;
+        %sheet = nMod;
         outFileName = strrep(outFileName,'IBSIphase2-3_','');
-        writecell(outC,outFileName);
+        writecell(outValC,outFileName);
     end
-
-    %writematrix(featM,fileName,Name,Value)
 end
 
 
 %% -- Supporting functions --
 
-    function infoS = getMetadata(niftiDataDir,phantom)
-        infoS = struct();
-        I = niftiinfo(fullfile(niftiDataDir,[phantom,'.nii']));
-        keepFieldsC = {'ImageSize','PixelDimensions','SpaceUnits',...
-            'TimeUnits','Qfactor','Version','SliceCode',...
-            'FrequencyDimension','PhaseDimension','SpatialDimension'};
-        for n = 1:length(keepFieldsC)
-            infoS.(keepFieldsC{n}) = I.(keepFieldsC{n});
-        end
-        infoS.Datatype = 'double';
-        infoS.Description = 'Response map';
-        
-    end
-
-    function [planC,structNum] = preparePlanC(fileName,strName)
+    function planC = preparePlanC(fileName)
         planC = loadPlanC(fileName,tempdir);
         planC = updatePlanFields(planC);
         planC = quality_assure_planC(fileName,planC);
     end
 
-    function exportScans(planName,outDir,outFname,infoS)
-        plan2C = loadPlanC(planName,tempdir);
-        plan2C = updatePlanFields(plan2C);
-        plan2C = quality_assure_planC(planName,plan2C);
-        indexS = plan2C{end};
-        nScans = length(plan2C{indexS.scan});
-        for m = 2:nScans
-            %Get texture map
-            scan3M = double(getScanArray(m,plan2C));
-            CToffset = plan2C{indexS.scan}(m).scanInfo(1).CTOffset;
-            scan3M = scan3M - double(CToffset);
-            %Flip dim
-            scan3M = flip(permute(scan3M,[2,1,3]),3);
-            %Write to .nii file
-            saveName = [outFname,num2str(m-1),'.nii'];
-            niftiwrite(scan3M,fullfile(outDir,saveName),infoS);
-        end
-    end
 
     function outS = filterFields(inS,keepFieldC)
 
