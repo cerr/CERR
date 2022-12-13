@@ -34,6 +34,10 @@ dy = abs(median(diff(yValsV)));
 dz = abs(median(diff(zValsV)));
 origResolutionV = [dx dy dz];
 
+%Correct to match DICOM convention
+origResolutionV(3) = -origResolutionV(3);
+resampResolutionV(3) = -resampResolutionV(3);
+
 if length(resampResolutionV)==3 && ~isnan(resampResolutionV(3))
     resamp3DFlag = 1;
 else
@@ -53,6 +57,8 @@ switch(gridAlignMethod)
         % In world coordinates:
         resampOriginV = originV + (origResolutionV.*(origSizeV-1) - ...
             resampResolutionV.*(resampSizeV-1))/2;
+
+        
         %In grid co-ords:
         %resampOriginV = 0.5* (origSizeV- 1 -
         %resampResolutionV.*(resampSizeV-1)/origResolutionV);
@@ -60,18 +66,14 @@ switch(gridAlignMethod)
         %Generate output grid
         xResampleV = resampOriginV(1):resampResolutionV(1):...
             resampOriginV(1)+(resampSizeV(1)-1)*resampResolutionV(1);
+
         yResampleV = resampOriginV(2):resampResolutionV(2):...
             (resampOriginV(2)+(resampSizeV(2)-1)*resampResolutionV(2));
 
-        %yResampleV = -(resampOriginV(2):resampResolutionV(2):...
-        %    resampOriginV(2)+(resampSizeV(2)-1)*resampResolutionV(2));
         if resamp3DFlag
-            %zResampleV = -flip(resampOriginV(3):resampResolutionV(3):...
-            %    resampOriginV(3)+(resampSizeV(3)-1)*resampResolutionV(3));
-            zResampleV = resampOriginV(3):-resampResolutionV(3):...
-                (resampOriginV(3)-(resampSizeV(3)-1)*resampResolutionV(3));
+            zResampleV = resampOriginV(3):resampResolutionV(3):...
+                (resampOriginV(3)+(resampSizeV(3)-1)*resampResolutionV(3));
             zResampleV = flip(zResampleV);
-
         else
             zResampleV = zValsV;
         end
