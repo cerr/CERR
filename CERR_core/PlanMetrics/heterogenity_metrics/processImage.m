@@ -197,7 +197,10 @@ for index = 1:numRotations
             if ~isempty(paramS.Index.val)
                 wavType = [wavType,paramS.Index.val];
             end
-            level =  paramS.Level.val;
+            level = 1; %default
+            if isfield(paramS,'Level')
+                level =  paramS.Level.val;
+            end
             dir = paramS.Direction.val;
 
             if length(dir) == 3
@@ -318,7 +321,10 @@ for index = 1:numRotations
             wavelength = paramS.Wavlength_mm.val./voxelSizV(1);
             theta = reshape(paramS.Orientation.val,1,[]);
             gamma = paramS.SpatialAspectRatio.val;
-            planes = paramS.ImagePlane.val;
+            planes = 'Axial'; %default
+            if isfield(paramS)
+                planes = paramS.ImagePlane.val;
+            end
             if ~iscell(planes)
                 planes = {planes};
             end
@@ -587,7 +593,11 @@ for index = 1:numRotations
 
                 %Remove padding for Laws response map
                 cropFlag = 1; %remove padding used for Law's filter
-                origPadV = reshape(paramS.padding.size,1,[]);
+                if isfield(paramS,'padding')
+                    origPadV = reshape(paramS.padding.size,1,[]);
+                else
+                    origPadV = [0,0,0];
+                end
                 lawsTex3M = lawsOutS.(fieldNameC{i});
                 origSizeV = size(lawsTex3M);
 
@@ -604,7 +614,9 @@ for index = 1:numRotations
                     padSizV,cropFlag);
 
                 %Apply mean filter
-                paramS = rmfield(paramS,'RotationInvariance');
+                if isfield(paramS,'RotationInvariance')
+                    paramS = rmfield(paramS,'RotationInvariance');
+                end
                 meanOutS = processImage('Mean',cropLawsTex3M,...
                     rotMask3M,paramS,[]);
                 lawsEnergy3M = meanOutS.meanFilt;
