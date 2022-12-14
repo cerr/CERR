@@ -1,0 +1,37 @@
+{
+
+"structures": ["ROI"],
+
+"imageType": {
+  		   "Wavelets": {
+			    	    "Direction": "LH",
+				        "Wavelets":"db",
+				        "Index": "3",
+                        "Level": 1,
+                        "RotationInvariance": {
+				       						    "Dim": "2D",
+				       						    "AggregationMethod": "avg"
+				       					     }
+			 	     }
+	    },
+
+"settings": {		   
+
+                   "padding": {
+                                "cropToMaskBounds": "no",
+                                "method": "mirror",  
+                                "size": [3,3,0]
+                              },
+                   "texture" :{ 
+		                         "minSegThreshold": -1000,
+		                         "maxSegThreshold": 400
+	                          },
+                   "firstOrder" :{ 
+				            "offsetForEnergy": 0,
+                            "binWidthEntropy":0
+                            }
+
+                              
+	    }
+
+}

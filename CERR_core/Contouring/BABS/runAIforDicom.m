@@ -11,10 +11,13 @@ function success =  runAIforDicom(inputDicomPath,outputDicomPath,...
 % sessionPath     - path to write temporary segmentation metadata.
 % algorithm       - string which specifies segmentation algorithm
 % cmdFlag         - "condaEnv" or "singContainer"
+% savePlanC       - flag to write planC to file ("yes" or "no")
 % --- Optional---
 % varargin{1} - Path to segmentation container.
-% varargin{2} - Flag (true/false) to skip export of structure masks (default:true)
-% %             Set to false if model requires segmentation masks as input 
+% varargin{2} - Scan no. (replaces input scan identifier)
+% varargin{3} - Output assoc. scan no. (replaces output scan identifier)
+% varargin{4} - Flag (true/false) to skip export of structure masks (default:true)
+%              Set to false if model requires segmentation masks as input 
 %%---------------------------------------------------------------------------------------
 % Following directories are created within the session directory:
 % --- ctCERR: contains CERR file/s of input DICOM.
@@ -28,8 +31,8 @@ function success =  runAIforDicom(inputDicomPath,outputDicomPath,...
 % outputDicomPath = '';
 % sessionPath = '';
 % algorithm = 'BABS';
-% babsPath = '';
-% savePlanc = 'Yes'; or 'No'
+% cmdFlag = 'singcontainer';
+%savePlanc = 'yes'
 % success = runSegForDicom(inputDicomPath,outputDicomPath,sessionPath,...
 %           algorithm,babsPath);
 % ------------------------------------------------------------------------------------
@@ -39,13 +42,23 @@ function success =  runAIforDicom(inputDicomPath,outputDicomPath,...
 % AI, 3/5/2020 Updates to handle multiple algorithms
 % AI, 8/12/22  Call runSegForPlanC
 
-if nargin <= 7
+if nargin <=7
+    scanNumV = [];
+else
+    scanNumV = varargin{2};
+end
+if nargin <=8
+    assocScanNumV = [];
+else
+    assocScanNumV = varargin{3};
+end
+if nargin <=9
     skipMaskExport = true;
 else
-    if ischar(varargin{2})
-        skipMaskExport = logical(eval(varargin{2}));
+    if ischar(varargin{4})
+        skipMaskExport = logical(eval(varargin{4}));
     else
-        skipMaskExport = varargin{2};
+        skipMaskExport = varargin{4};
     end
 end
 
@@ -99,8 +112,7 @@ if ~any(strcmpi(algorithm,'BABS'))
     % Get segmentations
     [~,origScanNumV,allLabelNamesC,dcmExportOptS] = runAIforPlanC(cerrPath,...
         fullSessionPath,algorithm,cmdFlag,newSessionFlag,[],[],...
-        containerPath,[],skipMaskExport);
-
+        containerPath,scanNumV,assocScanNumV,skipMaskExport);
 
     % Export segmentations to DICOM RTSTRUCT files
     fprintf('\nExporting to DICOM format...');

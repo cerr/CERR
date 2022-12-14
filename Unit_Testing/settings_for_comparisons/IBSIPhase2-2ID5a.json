@@ -1,0 +1,35 @@
+{
+
+"structures": ["ROI"],
+
+"imageType": {
+  		  "Gabor": {
+			    	   "Sigma_mm": 5,
+				       "Wavlength_mm": 2,
+                       "SpatialAspectRatio": 1.5,
+                       "Orientation":[22.5,45,67.5,90,112.5,135,157.5,180,202.5,225,247.5,270,292.5,315,337.5,360],
+                       "OrientationAggregation": "average",
+                       "ImagePlane": "Axial"
+			 	     }
+	    },
+
+"settings": {		   
+
+                   "padding": {
+                                "cropToMaskBounds": "no",
+                                "method": "mirror",  
+                                "size": [50,50,0]
+                              },
+                   "texture" :{ 
+		                         "minSegThreshold": -1000,
+		                         "maxSegThreshold": 400
+	                          },
+                   "firstOrder" :{ 
+				            "offsetForEnergy": 0,
+                            "binWidthEntropy":0
+                            }
+
+                              
+	    }
+
+}

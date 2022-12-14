@@ -1,0 +1,37 @@
+{
+
+"structures": ["ROI"],
+
+"imageType": {
+  		  "LawsEnergy": {
+                "Direction": "2d",
+                "Type": "L5E5",
+				"Normalize": "yes",
+                "RotationInvariance": {
+				       						"Dim": "2D",
+				       						"AggregationMethod": "max"
+                },
+                "EnergyKernelSize": [15,15],
+                "EnergyPadMethod": "mirror",
+                "EnergyPadSize" : [7,7,0]
+			  }
+	    },
+
+"settings": {		   
+                
+                   "padding": {
+                                "method": "mirror",  
+                                "size": [2,2,0],
+                                "cropToMaskBounds": "no"
+			       },
+                   "texture" :{ 
+		                "minSegThreshold": -1000,
+		                "maxSegThreshold": 400
+	               },
+                   "firstOrder" :{ 
+				            "offsetForEnergy": 0,
+                            "binWidthEntropy":0
+                   }
+
+    }
+}

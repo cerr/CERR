@@ -10,9 +10,9 @@ function out3M = logFiltIBSI(scan3M,sigmaV,cutOffV,pixelSizeV)
 %AI 04/07/21
 
 %Convert from physical to veoxel units
-cutOffV = cutOffV./pixelSizeV(1:length(cutOffV));
+cutOffV = round(cutOffV./pixelSizeV(1:length(cutOffV)));
 sigmaV = sigmaV./pixelSizeV(1:length(cutOffV));
-filtSizV = 2.*cutOffV+1;
+filtSizV = floor(2.*cutOffV+1);
 
 if length(sigmaV)==3 %3d filter
     

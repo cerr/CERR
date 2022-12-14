@@ -1,0 +1,39 @@
+{
+
+  "input":{
+    "scan":{
+
+        "identifier" : {"imageType": "MR SCAN"}
+    
+          }
+  },
+   		 
+"passedScanDim" : "3D",
+
+"batchSize" : 1,
+
+"reference" : "",
+
+"outputAssocScan": {"identifier": {"imageType":"MR SCAN"}},
+
+
+"output":{
+
+    "labelMap":{
+
+        "strNameToLabelMap" : [
+        {"structureName": "structure_name1",
+          "value": 1},
+         {"structureName": "structure_name2",
+          "value": 2},
+         {"structureName": "structure_name3",
+          "value": 3}
+        ],
+
+    "roiGenerationDescription": "MRGynBrachySeg^mskgit"
+
+    }
+  }
+
+}
+

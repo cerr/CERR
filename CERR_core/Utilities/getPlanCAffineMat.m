@@ -71,17 +71,27 @@ scanArray = double(getScanArray(scanNum,planC)) - ctOffset;
 
 %Extract masks
 if ~isempty(maskStrC)
-    indexS = planC{end};    
-    planStrNameC = {planC{indexS.structures}.structureName};
-    for iStr = 1:length(maskStrC)
-        strIndex = getMatchingIndex(maskStrC{iStr},planStrNameC,'exact');
-        assocScanNumV = getStructureAssociatedScan(strIndex,planC);
-        strIndex = strIndex(assocScanNumV == scanNum);
-        if length(strIndex) == 1
-            maskC{iStr} = getStrMask(strIndex,planC);
-        else
-            maskC{iStr} = [];
+    if iscell(maskStrC)
+        indexS = planC{end};
+        planStrNameC = {planC{indexS.structures}.structureName};
+        for iStr = 1:length(maskStrC)
+            strIndex = getMatchingIndex(maskStrC{iStr},planStrNameC,'exact');
+            assocScanNumV = getStructureAssociatedScan(strIndex,planC);
+            strNumV(iStr) = strIndex(assocScanNumV == scanNum);            
         end
+    else
+        strNumV = maskStrC;
+    end
+    for iStr = 1:length(maskStrC)
+        maskC{iStr} = getStrMask(strNumV(iStr),planC);
+%         strIndex = getMatchingIndex(maskStrC{iStr},planStrNameC,'exact');
+%         assocScanNumV = getStructureAssociatedScan(strIndex,planC);
+%         strIndex = strIndex(assocScanNumV == scanNum);
+%         if length(strIndex) == 1
+%             maskC{iStr} = getStrMask(strIndex,planC);
+%         else
+%             maskC{iStr} = [];
+%         end
     end
     %[maskV, maskStrC] = getMaskIndices(planC,maskStrC);
     %for i = 1:numel(maskV)

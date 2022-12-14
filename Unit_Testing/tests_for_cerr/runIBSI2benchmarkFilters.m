@@ -1,11 +1,16 @@
-function runIBSI2benchmarkFilters(outDir)
-% Usage: runIBSI2benchmarkFilters(outDir);
+function runIBSI2benchmarkFilters(outDir,config)
+% Usage: runIBSI2benchmarkFilters(outDir,config);
 % -----------------------------------------------------------------------
 % Inputs
 % outDir : Path to output directory.
+% config : 
 % -----------------------------------------------------------------------
 % AI 10/06/2020
 % Ref: https://arxiv.org/pdf/2006.05470.pdf (Table 6.1)
+
+if ~exist('config','var')
+    config = 'all';
+end
 
 %% Paths to IBSI phase-2 datasets & calc. parameters
 cerrPath = getCERRPath;
@@ -23,303 +28,370 @@ metadataS.impulse = getMetadata(niiDataDir,'impulse');
 metadataS.sphere = getMetadata(niiDataDir,'sphere');
 
 %% Compute response maps
-%% 1.a
-fileName = fullfile(dataDirName,'checkerboard.mat');
-[planC,structNum] = preparePlanC(fileName);
-index1S = planC{end};
-%1.a.1
-paramFile = fullfile(configDirName,'IBSIPhase2ID1a1.json');
-planC = generateTextureMapFromPlanC(planC,structNum,paramFile);
-scanNum = length(planC{index1S.scan});
-planC{index1S.scan}(scanNum).scanType = ...
-    [planC{index1S.scan}(scanNum).scanType,'_1a1'];
-%1.a.2
-paramFile = fullfile(configDirName,'IBSIPhase2ID1a2.json');
-planC = generateTextureMapFromPlanC(planC,structNum,paramFile);
-scanNum = length(planC{index1S.scan});
-planC{index1S.scan}(scanNum).scanType = ...
-    [planC{index1S.scan}(scanNum).scanType,'_1a2'];
-%1.a.3
-paramFile = fullfile(configDirName,'IBSIPhase2ID1a3.json');
-planC = generateTextureMapFromPlanC(planC,structNum,paramFile);
-scanNum = length(planC{index1S.scan});
-planC{index1S.scan}(scanNum).scanType = ...
-    [planC{index1S.scan}(scanNum).scanType,'_1a3'];
-%1.a.4
-paramFile = fullfile(configDirName,'IBSIPhase2ID1a4.json');
-planC = generateTextureMapFromPlanC(planC,structNum,paramFile);
-scanNum = length(planC{index1S.scan});
-planC{index1S.scan}(scanNum).scanType = ...
-    [planC{index1S.scan}(scanNum).scanType,'_1a4'];
+switch(config)
 
-planName = fullfile(outDir,'1a.mat');
-save_planC(planC,[],'PASSED',planName);
-exportScans(planName,outDir,'1a',metadataS.checkerboard);
+    case '1a'
+        fileName = fullfile(dataDirName,'checkerboard.mat');
+        [planC,structNum] = preparePlanC(fileName);
+        indexS = planC{end};
+        %1.a.1
+        paramFile = fullfile(configDirName,'IBSIPhase2-1ID1a1.json');
+        planC = generateTextureMapFromPlanC(planC,[],structNum,paramFile);
 
-clear planC
+        scanNum = length(planC{indexS.scan});
+        planC{indexS.scan}(scanNum).scanType = ...
+            [planC{indexS.scan}(scanNum).scanType,'_1a1'];
+        %1.a.2
+        paramFile = fullfile(configDirName,'IBSIPhase2-1ID1a2.json');
+        planC = generateTextureMapFromPlanC(planC,[],structNum,paramFile);
+        scanNum = length(planC{indexS.scan});
+        planC{indexS.scan}(scanNum).scanType = ...
+            [planC{indexS.scan}(scanNum).scanType,'_1a2'];
+        %1.a.3
+        paramFile = fullfile(configDirName,'IBSIPhase2-1ID1a3.json');
+        planC = generateTextureMapFromPlanC(planC,[],structNum,paramFile);
+        scanNum = length(planC{indexS.scan});
+        planC{indexS.scan}(scanNum).scanType = ...
+            [planC{indexS.scan}(scanNum).scanType,'_1a3'];
+        %1.a.4
+        paramFile = fullfile(configDirName,'IBSIPhase2-1ID1a4.json');
+        planC = generateTextureMapFromPlanC(planC,[],structNum,paramFile);
+        scanNum = length(planC{indexS.scan});
+        planC{indexS.scan}(scanNum).scanType = ...
+            [planC{indexS.scan}(scanNum).scanType,'_1a4'];
 
-%% 1.b
-fileName = fullfile(dataDirName,'impulse.mat');
-[planC,structNum] = preparePlanC(fileName);
-%1.b.1
-paramFile = fullfile(configDirName,'IBSIPhase2ID1b1.json');
-planC = generateTextureMapFromPlanC(planC,structNum,paramFile);
-scanNum = length(planC{index1S.scan});
-planC{index1S.scan}(scanNum).scanType = ...
-    [planC{index1S.scan}(scanNum).scanType,'_1b1'];
+        planName = fullfile(outDir,'1a.mat');
+        save_planC(planC,[],'PASSED',planName);
+        exportScans(planName,outDir,'1a',metadataS.checkerboard);
 
-planName = fullfile(outDir,'1b1.mat');
-save_planC(planC,[],'PASSED',planName);
-exportScans(planName,outDir,'1b',metadataS.impulse);
+    case '1b'
+        fileName = fullfile(dataDirName,'impulse.mat');
+        [planC,structNum] = preparePlanC(fileName);
+        indexS = planC{end};
+        %1.b.1
+        paramFile = fullfile(configDirName,'IBSIPhase2-1ID1b1.json');
+        planC = generateTextureMapFromPlanC(planC,[],structNum,paramFile);
+        scanNum = length(planC{indexS.scan});
+        planC{indexS.scan}(scanNum).scanType = ...
+            [planC{indexS.scan}(scanNum).scanType,'_1b1'];
 
-clear planC
+        planName = fullfile(outDir,'1b1.mat');
+        save_planC(planC,[],'PASSED',planName);
+        exportScans(planName,outDir,'1b',metadataS.impulse);
 
-%% 2.a
-fileName = fullfile(dataDirName,'impulse.mat');
-[planC,structNum] = preparePlanC(fileName);
-paramFile = fullfile(configDirName,'IBSIPhase2ID2a.json');
+    case '2a'
+        fileName = fullfile(dataDirName,'impulse.mat');
+        [planC,structNum] = preparePlanC(fileName);
+        indexS = planC{end};
+        paramFile = fullfile(configDirName,'IBSIPhase2-1ID2a.json');
 
-planC = generateTextureMapFromPlanC(planC,structNum,paramFile);
-scanNum = length(planC{index1S.scan});
-planC{index1S.scan}(scanNum).scanType = ...
-    [planC{index1S.scan}(scanNum).scanType,'_2a'];
+        planC = generateTextureMapFromPlanC(planC,[],structNum,paramFile);
+        scanNum = length(planC{indexS.scan});
+        planC{indexS.scan}(scanNum).scanType = ...
+            [planC{indexS.scan}(scanNum).scanType,'_2a'];
 
-planName = fullfile(outDir,'2a.mat');
-save_planC(planC,[],'PASSED',planName);
-exportScans(planName,outDir,'2a',metadataS.impulse);
+        planName = fullfile(outDir,'2a.mat');
+        save_planC(planC,[],'PASSED',planName);
+        exportScans(planName,outDir,'2a',metadataS.impulse);
 
-clear planC
-%% 2.b
-fileName = fullfile(dataDirName,'checkerboard.mat');
-[planC,structNum] = preparePlanC(fileName);
-paramFile = fullfile(configDirName,'IBSIPhase2ID2b.json');
+    case '2b'
+        fileName = fullfile(dataDirName,'checkerboard.mat');
+        [planC,structNum] = preparePlanC(fileName);
+        indexS = planC{end};
+        paramFile = fullfile(configDirName,'IBSIPhase2-1ID2b.json');
 
-planC = generateTextureMapFromPlanC(planC,structNum,paramFile);
-scanNum = length(planC{index1S.scan});
-planC{index1S.scan}(scanNum).scanType = ...
-    [planC{index1S.scan}(scanNum).scanType,'_2b'];
+        planC = generateTextureMapFromPlanC(planC,[],structNum,paramFile);
+        scanNum = length(planC{indexS.scan});
+        planC{indexS.scan}(scanNum).scanType = ...
+            [planC{indexS.scan}(scanNum).scanType,'_2b'];
 
-planName = fullfile(outDir,'2b.mat');
-save_planC(planC,[],'PASSED',planName);
-exportScans(planName,outDir,'2b',metadataS.checkerboard);
+        planName = fullfile(outDir,'2b.mat');
+        save_planC(planC,[],'PASSED',planName);
+        exportScans(planName,outDir,'2b',metadataS.checkerboard);
 
-clear planC
+    case '2c'
+        fileName = fullfile(dataDirName,'checkerboard.mat');
+        [planC,structNum] = preparePlanC(fileName);
+        indexS = planC{end};
+        paramFile = fullfile(configDirName,'IBSIPhase2-1ID2c.json');
 
-%% 2.c
-fileName = fullfile(dataDirName,'checkerboard.mat');
-[planC,structNum] = preparePlanC(fileName);
-paramFile = fullfile(configDirName,'IBSIPhase2ID2c.json');
+        planC = generateTextureMapFromPlanC(planC,[],structNum,paramFile);
+        scanNum = length(planC{indexS.scan});
+        planC{indexS.scan}(scanNum).scanType = ...
+            [planC{indexS.scan}(scanNum).scanType,'_2c'];
 
-planC = generateTextureMapFromPlanC(planC,structNum,paramFile);
-scanNum = length(planC{index1S.scan});
-planC{index1S.scan}(scanNum).scanType = ...
-    [planC{index1S.scan}(scanNum).scanType,'_2c'];
+        planName = fullfile(outDir,'2c.mat');
+        save_planC(planC,[],'PASSED',planName);
+        exportScans(planName,outDir,'2c',metadataS.checkerboard);
 
-planName = fullfile(outDir,'2c.mat');
-save_planC(planC,[],'PASSED',planName);
-exportScans(planName,outDir,'2c',metadataS.checkerboard);
+    case '3a'
+        % 3.a.1
+        fileName = fullfile(dataDirName,'impulse.mat');
+        [planC,structNum] = preparePlanC(fileName);
+        indexS = planC{end};
+        paramFile = fullfile(configDirName,'IBSIPhase2-1ID3a1.json');
 
-clear planC
-%% 3.a
-% 3.a.1
-fileName = fullfile(dataDirName,'impulse.mat');
-[planC,structNum] = preparePlanC(fileName);
-paramFile = fullfile(configDirName,'IBSIPhase2ID3a1.json');
+        planC = generateTextureMapFromPlanC(planC,[],structNum,paramFile);
+        scanNum = length(planC{indexS.scan});
+        planC{indexS.scan}(scanNum).scanType = ...
+            [planC{indexS.scan}(scanNum).scanType,'_3a1'];
 
-planC = generateTextureMapFromPlanC(planC,structNum,paramFile);
-scanNum = length(planC{index1S.scan});
-planC{index1S.scan}(scanNum).scanType = ...
-    [planC{index1S.scan}(scanNum).scanType,'_3a1'];
+        %3.a.2
+        paramFile = fullfile(configDirName,'IBSIPhase2-1ID3a2.json');
+        planC = generateTextureMapFromPlanC(planC,[],structNum,paramFile);
+        indexS = planC{end};
+        scanNum = length(planC{indexS.scan});
+        planC{indexS.scan}(scanNum).scanType = ...
+            [planC{indexS.scan}(scanNum).scanType,'_3a2'];
 
-%3.a.2
-paramFile = fullfile(configDirName,'IBSIPhase2ID3a2.json');
+        % 3.a.3
+        %         %Get response map from 3.a.2
+        %         response3M = getScanArray(scanNum,planC);
+        %         %Create mask (temp)
+        %         mask3M = true(size(response3M));
+        %         planC = maskToCERRStructure(mask3M,0,scanNum,'wholeScan',planC);
+        %         strNum = length(planC{indexS.structures});
+        %         %Run mean filter to compute energy
+        %         paramFile = fullfile(configDirName,'IBSIPhase2-1ID3a3.json');
+        %         planC = generateTextureMapFromPlanC(planC,strNum,paramFile);
+        %         %Delete mask
+        %         planC = deleteStructure(planC,strNum);
+        %         %Import to CERR
+        %         scanNum = length(planC{indexS.scan});
+        %         planC{indexS.scan}(scanNum).scanType = ...
+        %             [planC{indexS.scan}(scanNum).scanType,'_3a3'];
 
-planC = generateTextureMapFromPlanC(planC,structNum,paramFile);
-scanNum = length(planC{index1S.scan});
-planC{index1S.scan}(scanNum).scanType = ...
-    [planC{index1S.scan}(scanNum).scanType,'_3a2'];
+        paramFile = fullfile(configDirName,'IBSIPhase2-1ID3a3.json');
+        planC = generateTextureMapFromPlanC(planC,[],structNum,paramFile);
+        indexS = planC{end};
+        scanNum = length(planC{indexS.scan});
+        planC{indexS.scan}(scanNum).scanType = ...
+            [planC{indexS.scan}(scanNum).scanType,'_3a3'];
 
-% 3.a.3
-%Get response map from 3.a.2
-response3M = getScanArray(scanNum,planC);
+        planName = fullfile(outDir,'3a.mat');
+        save_planC(planC,[],'PASSED',planName);
+        exportScans(planName,outDir,'3a',metadataS.impulse);
 
-%Create mask (temp)
-mask3M = true(size(response3M));
-planC = maskToCERRStructure(mask3M,0,scanNum,'wholeScan',planC);
-strNum = length(planC{index1S.structures});
+    case '3b'
+        % 3.b.1
+        fileName = fullfile(dataDirName,'checkerboard.mat');
+        [planC,structNum] = preparePlanC(fileName);
+        indexS = planC{end};
+        paramFile = fullfile(configDirName,'IBSIPhase2-1ID3b1.json');
 
-%Run mean filter to compute energy
-paramFile = fullfile(configDirName,'IBSIPhase2ID3a3.json');
-planC = generateTextureMapFromPlanC(planC,strNum,paramFile);
+        planC = generateTextureMapFromPlanC(planC,[],structNum,paramFile);
+        scanNum = length(planC{indexS.scan});
+        planC{indexS.scan}(scanNum).scanType = ...
+            [planC{indexS.scan}(scanNum).scanType,'_3b1'];
 
-%Delete mask
-planC = deleteStructure(planC,strNum);
+        % 3.b.2
+        paramFile = fullfile(configDirName,'IBSIPhase2-1ID3b2.json');
+        planC = generateTextureMapFromPlanC(planC,[],structNum,paramFile);
+        scanNum = length(planC{indexS.scan});
+        planC{indexS.scan}(scanNum).scanType = ...
+            [planC{indexS.scan}(scanNum).scanType,'_3b2'];
 
-%Import to CERR
-scanNum = length(planC{index1S.scan});
-planC{index1S.scan}(scanNum).scanType = ...
-    [planC{index1S.scan}(scanNum).scanType,'_3a3'];
+        % 3.b.3
+        %         %Get response map from 3.b.2
+        %         response3M = getScanArray(scanNum,planC);
+        %
+        %         %Create mask (temp)
+        %         mask3M = true(size(response3M));
+        %         planC = maskToCERRStructure(mask3M,0,scanNum,'wholeScan',planC);
+        %         strNum = length(planC{indexS.structures});
+        %
+        %         %Run mean filter to compute energy
+        %         paramFile = fullfile(configDirName,'IBSIPhase2-1ID3b3.json');
+        %         planC = generateTextureMapFromPlanC(planC,strNum,paramFile);
+        %
+        %         %Delete mask
+        %         planC = deleteStructure(planC,strNum);
+        %
+        %         %Import to CERR
+        %         scanNum = length(planC{indexS.scan});
+        %         planC{indexS.scan}(scanNum).scanType = ...
+        %             [planC{indexS.scan}(scanNum).scanType,'_3b3'];
+        paramFile = fullfile(configDirName,'IBSIPhase2-1ID3b3.json');
+        planC = generateTextureMapFromPlanC(planC,[],structNum,paramFile);
+        scanNum = length(planC{indexS.scan});
+        planC{indexS.scan}(scanNum).scanType = ...
+            [planC{indexS.scan}(scanNum).scanType,'_3b3'];
 
-planName = fullfile(outDir,'3a.mat');
-save_planC(planC,[],'PASSED',planName);
-exportScans(planName,outDir,'3a',metadataS.impulse);
+        planName = fullfile(outDir,'3b.mat');
+        save_planC(planC,[],'PASSED',planName);
+        exportScans(planName,outDir,'3b',metadataS.impulse);
 
-%% 3.b
-% 3.b.1
-fileName = fullfile(dataDirName,'checkerboard.mat');
-[planC,structNum] = preparePlanC(fileName);
-paramFile = fullfile(configDirName,'IBSIPhase2ID3b1.json');
+    case '3c'
+        % 3.c.1
+        fileName = fullfile(dataDirName,'checkerboard.mat');
+        [planC,structNum] = preparePlanC(fileName);
+        indexS = planC{end};
+        paramFile = fullfile(configDirName,'IBSIPhase2-1ID3c1.json');
 
-planC = generateTextureMapFromPlanC(planC,structNum,paramFile);
-scanNum = length(planC{index1S.scan});
-planC{index1S.scan}(scanNum).scanType = ...
-    [planC{index1S.scan}(scanNum).scanType,'_3b1'];
+        planC = generateTextureMapFromPlanC(planC,[],structNum,paramFile);
+        scanNum = length(planC{indexS.scan});
+        planC{indexS.scan}(scanNum).scanType = ...
+            [planC{indexS.scan}(scanNum).scanType,'_3c1'];
 
-% 3.b.2
-paramFile = fullfile(configDirName,'IBSIPhase2ID3b2.json');
-planC = generateTextureMapFromPlanC(planC,structNum,paramFile);
-scanNum = length(planC{index1S.scan});
-planC{index1S.scan}(scanNum).scanType = ...
-    [planC{index1S.scan}(scanNum).scanType,'_3b2'];
+        % 3.c.2
+        paramFile = fullfile(configDirName,'IBSIPhase2-1ID3c2.json');
+        planC = generateTextureMapFromPlanC(planC,[],structNum,paramFile);
+        scanNum = length(planC{indexS.scan});
+        planC{indexS.scan}(scanNum).scanType = ...
+            [planC{indexS.scan}(scanNum).scanType,'_3c2'];
 
-% 3.b.3
-%Get response map from 3.b.2
-response3M = getScanArray(scanNum,planC);
+        %3.c.3
+        %         %Get response map from 3.c.2
+        %         response3M = getScanArray(scanNum,planC);
+        %
+        %         %Create mask (temp)
+        %         mask3M = true(size(response3M));
+        %         planC = maskToCERRStructure(mask3M,0,scanNum,'wholeScan',planC);
+        %         strNum = length(planC{indexS.structures});
+        %
+        %         %Run mean filter to compute energy
+        %         paramFile = fullfile(configDirName,'IBSIPhase2-1ID3c3.json');
+        %         planC = generateTextureMapFromPlanC(planC,strNum,paramFile);
+        %
+        %         %Delete mask
+        %         planC = deleteStructure(planC,strNum);
+        %
+        %         %Import to CERR
+        %         scanNum = length(planC{indexS.scan});
+        %         planC{indexS.scan}(scanNum).scanType = ...
+        %             [planC{indexS.scan}(scanNum).scanType,'_3c3'];
 
-%Create mask (temp)
-mask3M = true(size(response3M));
-planC = maskToCERRStructure(mask3M,0,scanNum,'wholeScan',planC);
-strNum = length(planC{index1S.structures});
+        paramFile = fullfile(configDirName,'IBSIPhase2-1ID3c3.json');
+        planC = generateTextureMapFromPlanC(planC,[],structNum,paramFile);
+        scanNum = length(planC{indexS.scan});
+        planC{indexS.scan}(scanNum).scanType = ...
+            [planC{indexS.scan}(scanNum).scanType,'_3c3'];
 
-%Run mean filter to compute energy
-paramFile = fullfile(configDirName,'IBSIPhase2ID3b3.json');
-planC = generateTextureMapFromPlanC(planC,strNum,paramFile);
+        planName = fullfile(outDir,'3c.mat');
+        save_planC(planC,[],'PASSED',planName);
+        exportScans(planName,outDir,'3c',metadataS.impulse);
 
-%Delete mask
-planC = deleteStructure(planC,strNum);
+    case '4a'
+        % 4.a.1
+        fileName = fullfile(dataDirName,'impulse.mat');
+        [planC,structNum] = preparePlanC(fileName);
+        indexS = planC{end};
+        paramFile = fullfile(configDirName,'IBSIPhase2-1ID4a1.json');
 
-%Import to CERR
-scanNum = length(planC{index1S.scan});
-planC{index1S.scan}(scanNum).scanType = ...
-    [planC{index1S.scan}(scanNum).scanType,'_3b3'];
+        planC = generateTextureMapFromPlanC(planC,[],structNum,paramFile);
+        scanNum = length(planC{indexS.scan});
+        planC{indexS.scan}(scanNum).scanType = ...
+            [planC{indexS.scan}(scanNum).scanType,'_4a1'];
 
-planName = fullfile(outDir,'3b.mat');
-save_planC(planC,[],'PASSED',planName);
-exportScans(planName,outDir,'3b',metadataS.impulse);
+        %4.a.2
+        paramFile = fullfile(configDirName,'IBSIPhase2-1ID4a2.json');
+        planC = generateTextureMapFromPlanC(planC,[],structNum,paramFile);
+        scanNum = length(planC{indexS.scan});
+        planC{indexS.scan}(scanNum).scanType = ...
+            [planC{indexS.scan}(scanNum).scanType,'_4a2'];
 
-%% 3c
-% 3.c.1
-fileName = fullfile(dataDirName,'checkerboard.mat');
-[planC,structNum] = preparePlanC(fileName);
-paramFile = fullfile(configDirName,'IBSIPhase2ID3c1.json');
+        planName = fullfile(outDir,'4a.mat');
+        save_planC(planC,[],'PASSED',planName);
+        exportScans(planName,outDir,'4a',metadataS.impulse);
 
-planC = generateTextureMapFromPlanC(planC,structNum,paramFile);
-scanNum = length(planC{index1S.scan});
-planC{index1S.scan}(scanNum).scanType = ...
-    [planC{index1S.scan}(scanNum).scanType,'_3c1'];
+    case '4b'
+        %4.b.1
+        fileName = fullfile(dataDirName,'sphere.mat');
+        [planC,structNum] = preparePlanC(fileName);
+        indexS = planC{end};
+        paramFile = fullfile(configDirName,'IBSIPhase2-1ID4b1.json');
 
-% 3.c.2
-paramFile = fullfile(configDirName,'IBSIPhase2ID3c2.json');
-planC = generateTextureMapFromPlanC(planC,structNum,paramFile);
-scanNum = length(planC{index1S.scan});
-planC{index1S.scan}(scanNum).scanType = ...
-    [planC{index1S.scan}(scanNum).scanType,'_3c2'];
+        planC = generateTextureMapFromPlanC(planC,[],structNum,paramFile);
+        scanNum = length(planC{indexS.scan});
+        planC{indexS.scan}(scanNum).scanType = ...
+            [planC{indexS.scan}(scanNum).scanType,'_4b1'];
 
-%3.c.3
-%Get response map from 3.c.2
-response3M = getScanArray(scanNum,planC);
+        %4.b.2
+        paramFile = fullfile(configDirName,'IBSIPhase2-1ID4b2.json');
+        planC = generateTextureMapFromPlanC(planC,[],structNum,paramFile);
+        scanNum = length(planC{indexS.scan});
+        planC{indexS.scan}(scanNum).scanType = ...
+            [planC{indexS.scan}(scanNum).scanType,'_4b2'];
 
-%Create mask (temp)
-mask3M = true(size(response3M));
-planC = maskToCERRStructure(mask3M,0,scanNum,'wholeScan',planC);
-strNum = length(planC{index1S.structures});
+        planName = fullfile(outDir,'4b.mat');
+        save_planC(planC,[],'PASSED',planName);
+        exportScans(planName,outDir,'4b',metadataS.sphere);
 
-%Run mean filter to compute energy
-paramFile = fullfile(configDirName,'IBSIPhase2ID3c3.json');
-planC = generateTextureMapFromPlanC(planC,strNum,paramFile);
+    case '5a'
+        % 5.a.1
+        fileName = fullfile(dataDirName,'impulse.mat');
+        [planC,structNum] = preparePlanC(fileName);
+        indexS = planC{end};
+        paramFile = fullfile(configDirName,'IBSIPhase2-1ID5a1.json');
 
-%Delete mask
-planC = deleteStructure(planC,strNum);
+        planC = generateTextureMapFromPlanC(planC,[],structNum,paramFile);
+        scanNum = length(planC{indexS.scan});
+        planC{indexS.scan}(scanNum).scanType = ...
+            [planC{indexS.scan}(scanNum).scanType,'_5a1'];
 
-%Import to CERR
-scanNum = length(planC{index1S.scan});
-planC{index1S.scan}(scanNum).scanType = ...
-    [planC{index1S.scan}(scanNum).scanType,'_3c3'];
+        % 5.a.2
+        %paramFile = fullfile(configDirName,'IBSIPhase2-1ID5a2.json');
+        %planC = generateTextureMapFromPlanC(planC,structNum,paramFile);
+        %scanNum = length(planC{indexS.scan});
+        %planC{indexS.scan}(scanNum).scanType = ...
+        %    [planC{indexS.scan}(scanNum).scanType,'_5a2'];
 
-planName = fullfile(outDir,'3c.mat');
-save_planC(planC,[],'PASSED',planName);
-exportScans(planName,outDir,'3c',metadataS.impulse);
+        planName = fullfile(outDir,'5a.mat');
+        save_planC(planC,[],'PASSED',planName);
+        exportScans(planName,outDir,'5a',metadataS.impulse);
 
+    case '6a'
+        % 6.a.1
+        fileName = fullfile(dataDirName,'sphere.mat');
+        [planC,structNum] = preparePlanC(fileName);
+        indexS = planC{end};
+        paramFile = fullfile(configDirName,'IBSIPhase2-1ID6a1.json');
 
-%% 4.
-% 4.a.1
-fileName = fullfile(dataDirName,'impulse.mat');
-[planC,structNum] = preparePlanC(fileName);
-paramFile = fullfile(configDirName,'IBSIPhase2ID4a1.json');
+        planC = generateTextureMapFromPlanC(planC,[],structNum,paramFile);
+        scanNum = length(planC{indexS.scan});
+        planC{indexS.scan}(scanNum).scanType = ...
+            [planC{indexS.scan}(scanNum).scanType,'6a1'];
 
-planC = generateTextureMapFromPlanC(planC,structNum,paramFile);
-scanNum = length(planC{index1S.scan});
-planC{index1S.scan}(scanNum).scanType = ...
-    [planC{index1S.scan}(scanNum).scanType,'_4a1'];
+        %6.a.2
+        %paramFile = fullfile(configDirName,'IBSIPhase2-1ID6a2.json');
+        %planC = generateTextureMapFromPlanC(planC,structNum,paramFile);
+        %scanNum = length(planC{indexS.scan});
+        %planC{indexS.scan}(scanNum).scanType = ...
+        %    [planC{indexS.scan}(scanNum).scanType,'6a2'];
 
+        planName = fullfile(outDir,'6a.mat');
+        save_planC(planC,[],'PASSED',planName);
+        exportScans(planName,outDir,'6a',metadataS.sphere);
 
-%4.a.2
-paramFile = fullfile(configDirName,'IBSIPhase2ID4a2.json');
-planC = generateTextureMapFromPlanC(planC,structNum,paramFile);
-scanNum = length(planC{index1S.scan});
-planC{index1S.scan}(scanNum).scanType = ...
-    [planC{index1S.scan}(scanNum).scanType,'_4a2'];
+    case '7a'
+        %7.a.1
+        fileName = fullfile(dataDirName,'checkerboard.mat');
+        [planC,structNum] = preparePlanC(fileName);
+        indexS = planC{end};
+        paramFile = fullfile(configDirName,'IBSIPhase2-1ID7a1.json');
 
-planName = fullfile(outDir,'4a.mat');
-save_planC(planC,[],'PASSED',planName);
-exportScans(planName,outDir,'4a',metadataS.impulse);
-clear planC
+        planC = generateTextureMapFromPlanC(planC,[],structNum,paramFile);
+        scanNum = length(planC{indexS.scan});
+        planC{indexS.scan}(scanNum).scanType = ...
+            [planC{indexS.scan}(scanNum).scanType,'7a1'];
 
-%% 4.b
-%4.b.1
-fileName = fullfile(dataDirName,'sphere.mat');
-[planC,structNum] = preparePlanC(fileName);
-paramFile = fullfile(configDirName,'IBSIPhase2ID4b1.json');
+        planName = fullfile(outDir,'7a.mat');
+        save_planC(planC,[],'PASSED',planName);
+        exportScans(planName,outDir,'7a',metadataS.sphere);
 
-planC = generateTextureMapFromPlanC(planC,structNum,paramFile);
-scanNum = length(planC{index1S.scan});
-planC{index1S.scan}(scanNum).scanType = ...
-    [planC{index1S.scan}(scanNum).scanType,'_4b1'];
+    case 'all'
+        %Run all (default)
+        configC = {'1a','1b','2a','2b','2c','3a','3b','3c',...
+            '4a','4b','5a','6a','7a'};
+        for iConf = 1:length(configC)
+            runIBSI2benchmarkFilters(outDir,configC{iConf});
+        end
 
-planName = fullfile(outDir,'4b1.mat');
-save_planC(planC,[],'PASSED',planName);
-exportScans(planName,outDir,'4b',metadataS.sphere);
+    otherwise
+        error('Invalid config %s',config)
 
-%% 5.a
-% 5.a.1
-fileName = fullfile(dataDirName,'impulse.mat');
-[planC,structNum] = preparePlanC(fileName);
-paramFile = fullfile(configDirName,'IBSIPhase2ID5a1.json');
+end
 
-planC = generateTextureMapFromPlanC(planC,structNum,paramFile);
-scanNum = length(planC{index1S.scan});
-planC{index1S.scan}(scanNum).scanType = ...
-    [planC{index1S.scan}(scanNum).scanType,'_5a1'];
-
-planName = fullfile(outDir,'5a.mat');
-save_planC(planC,[],'PASSED',planName);
-exportScans(planName,outDir,'5a',metadataS.impulse);
-
-clear planC
-%% 6.a
-% 6.a.1
-fileName = fullfile(dataDirName,'sphere.mat');
-[planC,structNum] = preparePlanC(fileName);
-paramFile = fullfile(configDirName,'IBSIPhase2ID6a1.json');
-
-planC = generateTextureMapFromPlanC(planC,structNum,paramFile);
-scanNum = length(planC{index1S.scan});
-planC{index1S.scan}(scanNum).scanType = ...
-    [planC{index1S.scan}(scanNum).scanType,'6a1'];
-
-planName = fullfile(outDir,'6a.mat');
-save_planC(planC,[],'PASSED',planName);
-exportScans(planName,outDir,'6a',metadataS.sphere);
 
 %% -- Supporting functions --
 
@@ -334,15 +406,15 @@ exportScans(planName,outDir,'6a',metadataS.sphere);
         end
         infoS.Datatype = 'double';
         infoS.Description = 'Response map';
-        
+
     end
 
     function [planC,structNum] = preparePlanC(fileName)
         planC = loadPlanC(fileName,tempdir);
         planC = updatePlanFields(planC);
         planC = quality_assure_planC(fileName,planC);
-        indexS = planC{end};
-        strC = {planC{indexS.structures}.structureName};
+        idxS = planC{end};
+        strC = {planC{idxS.structures}.structureName};
         structNum = getMatchingIndex('wholeScan',strC,'EXACT');
     end
 
@@ -350,12 +422,12 @@ exportScans(planName,outDir,'6a',metadataS.sphere);
         plan2C = loadPlanC(planName,tempdir);
         plan2C = updatePlanFields(plan2C);
         plan2C = quality_assure_planC(planName,plan2C);
-        indexS = plan2C{end};
-        nScans = length(plan2C{indexS.scan});
+        idxS = plan2C{end};
+        nScans = length(plan2C{idxS.scan});
         for m = 2:nScans
             %Get texture map
             scan3M = double(getScanArray(m,plan2C));
-            CToffset = plan2C{indexS.scan}(m).scanInfo(1).CTOffset;
+            CToffset = plan2C{idxS.scan}(m).scanInfo(1).CTOffset;
             scan3M = scan3M - double(CToffset);
             %Flip dim
             scan3M = flip(permute(scan3M,[2,1,3]),3);
