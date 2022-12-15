@@ -1,0 +1,29 @@
+{
+
+"structures": ["PET_ROI"],
+
+"imageType": {
+  		  "Original": {}
+	    },
+
+"settings": {		  
+    
+                   "resample": {
+                     "resolutionXCm": 0.3,
+				     "resolutionYCm": 0.3,
+				     "resolutionZCm": 0.3,
+				     "interpMethod": "spline"
+			        },
+                   "padding": {
+                                "method": "none"
+			       },
+                   "texture" :{ 
+		                "minSegThreshold": 0
+                       },
+                   "firstOrder" :{ 
+				            "offsetForEnergy": 0,
+                            "binWidthEntropy":0
+                   }
+
+    }
+}
