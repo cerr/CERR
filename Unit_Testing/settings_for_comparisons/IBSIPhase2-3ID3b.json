@@ -1,0 +1,34 @@
+{
+
+"structures": ["MR_T1_ROI"],
+
+"imageType": {
+  		   "LoG_IBSI": {
+                "Sigma_mm": [3,3,3],
+                "CutOff_mm": [12,12,12]
+			  }
+	    },
+
+"settings": {		   
+                "resample": {
+                     "resolutionXCm": 0.1,
+				     "resolutionYCm": 0.1,
+				     "resolutionZCm": 0.1,
+				     "interpMethod": "spline"
+			        },
+
+                   "padding": {
+                                "cropToMaskBounds": "no",
+                                "method": "mirror",  
+                                "size": [12,12,12]
+			       },
+                   "texture" :{ 
+		                "minSegThreshold": 0
+	               },
+                   "firstOrder" :{ 
+				            "offsetForEnergy": 0,
+                            "binWidthEntropy":0
+                   }
+
+    }
+}

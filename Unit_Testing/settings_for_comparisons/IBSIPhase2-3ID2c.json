@@ -1,0 +1,33 @@
+{
+
+"structures": ["PET_ROI"],
+
+"imageType": {
+  		  "Mean": {
+                      "KernelSize": [3,3,3]
+                  }
+	    },
+
+"settings": {		  
+    
+                   "resample": {
+                     "resolutionXCm": 0.3,
+				     "resolutionYCm": 0.3,
+				     "resolutionZCm": 0.3,
+				     "interpMethod": "spline"
+			        },
+                   "padding": {
+                                "cropToMaskBounds": "no",
+                                "method": "mirror",  
+                                "size": [1,1,1]
+			       },
+                   "texture" :{ 
+		                "minSegThreshold": 0
+                       },
+                   "firstOrder" :{ 
+				            "offsetForEnergy": 0,
+                            "binWidthEntropy":0
+                   }
+
+    }
+}
