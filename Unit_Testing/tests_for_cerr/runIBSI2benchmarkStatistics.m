@@ -1,5 +1,5 @@
 function runIBSI2benchmarkStatistics(outDir,phase)
-% Usage: runIBSI2benchmarkStatistics(outDir);
+% Usage: runIBSI2benchmarkStatistics(outDir,phase);
 % -----------------------------------------------------------------------
 % Inputs
 % outDir       : Path to output directory.
@@ -38,7 +38,7 @@ switch(phase)
         templateFile = fullfile(basePath(1:idxV(end-1)),'Unit_Testing',...
             'settings_for_comparisons','IBSI-2-Phase3-Submission-Template.csv');
         paramFilePrefix = 'IBSIPhase2-3ID';
-        settingsC = {'1'};%,'2','3','4','5','6'};%,'7'};
+        settingsC = {'1','2','3','4','5','6'};
         subC = {'a','b','c'};
 
         dataDirName = fullfile(cerrPath(1:idxV(end-1)),...
@@ -92,7 +92,6 @@ for nFile = 1:length(fileNameC)
     planC = preparePlanC(fileNameC{nFile});
     indexS = planC{end};
     niiDataDir = niiDataDirC{nFile};
-
 
     for nMod = 1:length(modC)
 
@@ -165,10 +164,12 @@ for nFile = 1:length(fileNameC)
         outValC = outDiagC;
         for line = statStartLine:length(outC)
             outValC{line} = strjoin(tempC(line-statStartLine+1,:),';');
+            outValC{line} = [outValC{line},';;;']; %Missing configs
         end
+        outValC = split(outValC,';');
 
         %sheet = nMod;
-        outFileName = strrep(outFileName,'IBSIphase2-3_','');
+        %outFileName = strrep(outFileName,'IBSIphase2-3_','');
         writecell(outValC,outFileName);
     end
 end
