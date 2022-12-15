@@ -1,0 +1,31 @@
+{
+
+"structures": ["CT_ROI"],
+
+"imageType": {
+  		  "Original": {}
+	    },
+
+"settings": {		  
+    
+                   "resample": {
+                     "resolutionXCm": 0.1,
+				     "resolutionYCm": 0.1,
+				     "resolutionZCm": 0.1,
+				     "interpMethod": "spline",
+                     "intensityRounding": "On"
+			        },
+                   "padding": {
+                                "method": "none"
+			       },
+                   "texture" :{ 
+		                "minSegThreshold": -200,
+		                "maxSegThreshold": 200
+                       },
+                   "firstOrder" :{ 
+				            "offsetForEnergy": 0,
+                            "binWidthEntropy":0
+                   }
+
+    }
+}
