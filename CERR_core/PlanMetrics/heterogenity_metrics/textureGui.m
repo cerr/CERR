@@ -257,16 +257,16 @@ switch upper(command)
         uicontrol(h, 'units',units,'Position',[txtLeft 1-.20 textWidth rowHeight],...
             'String', 'Description:', 'Style', 'text', 'horizontalAlignment',...
             'left', 'BackgroundColor',frameColor,'fontSize',10);
-        uicontrol(h, 'units',units,'Position',[txtLeft 1-.27 textWidth rowHeight],...
+        uicontrol(h, 'units',units,'Position',[txtLeft 1-.25 textWidth rowHeight],...
             'String', 'Scan:', 'Style', 'text', 'horizontalAlignment',...
             'left', 'BackgroundColor',frameColor,'fontSize',10);
-        uicontrol(h, 'units',units,'Position',[txtLeft 1-.34 textWidth rowHeight],...
+        uicontrol(h, 'units',units,'Position',[txtLeft 1-.30 textWidth rowHeight],...
             'String', 'Structure:', 'Style', 'text', 'horizontalAlignment',...
             'left', 'BackgroundColor',frameColor,'fontSize',10);
-        uicontrol(h, 'units',units,'Position',[txtLeft 1-.41 textWidth rowHeight],...
+        uicontrol(h, 'units',units,'Position',[txtLeft 1-.35 textWidth rowHeight],...
             'String', 'Category:', 'Style', 'text', 'horizontalAlignment',...
             'left', 'BackgroundColor',frameColor,'fontSize',10);
-        uicontrol(h, 'units',units,'Position',[txtLeft 1-.47 2*textWidth rowHeight],...
+        uicontrol(h, 'units',units,'Position',[txtLeft 1-.39 2*textWidth rowHeight],...
             'String', 'Parameters:', 'Style', 'text','fontSize',12,'fontWeight','Bold',...
             'horizontalAlignment', 'left', 'BackgroundColor', frameColor);
 
@@ -280,30 +280,44 @@ switch upper(command)
         end
         
         if length(planC{indexS.texture})>0
-        texListC = strcat('Texture',cellfun(@num2str,num2cell(1:length(planC{indexS.texture})),'un',0));
+        texListC = strcat('Texture',...
+            cellfun(@num2str,num2cell(1:length(planC{indexS.texture})),'un',0));
         else
         texListC = {'   Click ''+'' to create  '};
         end
-        ud.handles.texture       = uicontrol(h, 'units',units,'Position',[fieldLeft-0.14 1-.12 fieldWidth+0.08 rowHeight-.015],'String',texListC, 'Style', 'popup', 'callback', 'textureGui(''TEXTURE_SELECTED'');', 'enable', 'on', 'horizontalAlignment', 'right','fontSize',10);
-        ud.handles.textureAdd    = uicontrol(h, 'units',units,'Position',[2*fieldLeft-0.12 1-.12 0.03 rowHeight-.01],'String','+', 'Style', 'push', 'callback', 'textureGui(''CREATE_NEW_TEXTURE'');', 'horizontalAlignment', 'right','enable','on','fontSize',10);
-        ud.handles.textureDel    = uicontrol(h, 'units',units,'Position',[2*fieldLeft-0.08 1-.12 0.03 rowHeight-.01],'String','-', 'Style', 'push', 'callback', 'textureGui(''DELETE_TEXTURE'');', 'horizontalAlignment', 'right','enable','on','fontSize',10);
+        ud.handles.texture       = uicontrol(h, 'units',units,...
+            'Position',[fieldLeft-0.14 1-.12 fieldWidth+0.08 rowHeight-.015],...
+            'String',texListC, 'Style', 'popup', 'callback',...
+            'textureGui(''TEXTURE_SELECTED'');', 'enable', 'on',...
+            'horizontalAlignment', 'right','fontSize',10);
+        ud.handles.textureAdd    = uicontrol(h, 'units',units,...
+            'Position',[2*fieldLeft-0.12 1-.12 0.03 rowHeight-.01],...
+            'String','+', 'Style', 'push', 'callback',...
+            'textureGui(''CREATE_NEW_TEXTURE'');', 'horizontalAlignment',...
+            'right','enable','on','fontSize',10);
+        ud.handles.textureDel    = uicontrol(h, 'units',units,...
+            'Position',[2*fieldLeft-0.08 1-.12 0.03 rowHeight-.01],...
+            'String','-', 'Style', 'push', 'callback',...
+            'textureGui(''DELETE_TEXTURE'');', 'horizontalAlignment',...
+            'right','enable','on','fontSize',10);
         ud.handles.description   = uicontrol(h, 'units',units,'Position',...
-            [fieldLeft-.05 1-.18 fieldWidth+0.05 rowHeight-0.02],'String', desc,...
-            'Style', 'edit', 'horizontalAlignment', 'left', 'BackgroundColor',...
-            'w','enable','off','callback',{@updateLabel,h},'fontSize',10);
+            [fieldLeft-.05 1-.17 fieldWidth+0.05 rowHeight-0.02],...
+            'String', desc,'Style', 'edit', 'horizontalAlignment',...
+            'left', 'BackgroundColor','w','enable','off','callback',...
+            {@updateLabel,h},'fontSize',10);
         ud.handles.scan          = uicontrol(h, 'units',units,'Position',...
-            [fieldLeft-.05 1-.26 fieldWidth+0.05 rowHeight],'String', scansC,...
+            [fieldLeft-.05 1-.24 fieldWidth+0.05 rowHeight],'String', scansC,...
             'value', 1,  'Style', 'popup', 'horizontalAlignment', 'right',...
             'BackgroundColor', 'w','callback', 'textureGui(''SCAN_SELECTED'');',...
             'enable','off','fontSize',10);
         ud.handles.structure     = uicontrol(h, 'units',units,'Position',...
-            [fieldLeft-.05 1-.33 fieldWidth+.05 rowHeight],'String', structsC,...
+            [fieldLeft-.05 1-.29 fieldWidth+.05 rowHeight],'String', structsC,...
             'value', 1, 'Style', 'popup', 'horizontalAlignment', 'right',...
             'BackgroundColor', 'w','callback', 'textureGui(''STRUCT_SELECTED'');',...
             'enable','off','fontSize',10);
 
         ud.handles.featureType   = uicontrol(h, 'units',units,'Position',...
-            [fieldLeft-.05 1-.4 fieldWidth+.05 rowHeight],'String', featureTypeC,...
+            [fieldLeft-.05 1-.34 fieldWidth+.05 rowHeight],'String', featureTypeC,...
             'value', 1, 'Style', 'popup', 'callback',...
             'textureGui(''FEATURE_TYPE_SELECTED'');', 'horizontalAlignment',...
             'right', 'BackgroundColor', 'w', 'enable','off','fontSize',10);
@@ -313,7 +327,10 @@ switch upper(command)
         ud.dXYZ = voxSizV;
         
         % uicontrols to generate or delete texture maps
-        ud.handles.createTextureMaps  = uicontrol(h, 'units',units,'Position',[0.03 1-.95 0.12 rowHeight],'String', 'Create Maps', 'Style', 'pushbutton', 'callback', 'textureGui(''CREATE_MAPS'');');
+        ud.handles.createTextureMaps  = uicontrol(h, 'units',units,...
+            'Position',[0.03 1-.95 0.12 rowHeight],'String',...
+            'Create Maps', 'Style', 'pushbutton', 'callback',...
+            'textureGui(''CREATE_MAPS'');');
         
         % uicontrols to write texture maps to MIM
         ud.handles.selectTextureMapsForMIM  = uicontrol(h, 'units',units,'Position',...
@@ -473,6 +490,7 @@ switch upper(command)
             paramS = [];
         end
         startPosV = get(featH,'position');
+        startPosV(2) = startPosV(2)-0.03;
         delPos = .055;
         
         
@@ -504,13 +522,17 @@ switch upper(command)
                 dispC = {'On','On','On','On','On'};
                 
             case 'Laws Energy' %Laws energy
-                paramC = {'PadMethod','PadSize','Direction','Type',...
-                          'KernelSize','Normalize'};
-                typeC = {'popup','edit','popup','edit','edit','popup'};
+                paramC = {'PadMethod','PadSize','EnergyPadMethod',...
+                          'EnergyPadSize','Direction','Type',...
+                          'KernelSize','Normalize','EnergyKernelSize'};
+                typeC = {'popup','edit','popup','edit','popup','edit',...
+                    'edit','popup','edit'};
                 valC = {{'expand','padzeros','periodic','nearest',...
+                    'mirror','none'},{'2,2,2'},...
+                    {'expand','padzeros','periodic','nearest',...
                     'mirror','none'},{'2,2,2'},{'2D','3D', 'All'},...
-                    {'E5L5S5'},'5,5,5',{'Yes','No'}};
-                dispC = {'On','On','On','On','On', 'On'};
+                    {'E5L5S5'},'5,5,5',{'Yes','No'},'5,5,5'};
+                dispC = {'On','On','On','On','On','On','On', 'On','On'};
                 
             case 'Mean' % Local mean filter
                 paramC = {'PadMethod', 'PadSize','KernelSize'};
@@ -595,7 +617,8 @@ switch upper(command)
 
                 
             case 'CoLlage'
-                paramC = {'Dimension','Dominant_Dir_Radius','Cooccur_Radius','Number_Gray_Levels'};
+                paramC = {'Dimension','Dominant_Dir_Radius',...
+                    'Cooccur_Radius','Number_Gray_Levels'};
                 typeC = {'popup','edit','edit','edit'};
                 valC = {{'2d','3d'},'3 3 0','3 3 0',64};
                 dispC = {'On','On','On','On'};
@@ -929,87 +952,90 @@ switch upper(command)
         end
         
         %Map user-selections to labels
-        if(strcmp(fType,'Wavelets') )
-            mappedWavFamilyC = {'db','haar','coif', 'fk','sym','dmey','bior','rbio'};
-            wavFamilyC = {'Daubechies','Haar','Coiflets','FejerKorovkin','Symlets',...
-                'Discrete Meyer wavelet','Biorthogonal','Reverse Biorthogonal'};
-            idx = paramS.Wavelets.val;
-            isWav = cellfun(@(x)isequal(x,idx),wavFamilyC);
-            [~,idx] = find(isWav);
-            out = mappedWavFamilyC{idx};
-            paramS.Wavelets.val = out;
-            if length(paramS.Index.val)>1
-                paramS.Index.val = paramS.Index.val{1};
-            end
+        switch(fType)
+            case 'Wavelets'
+                mappedWavFamilyC = {'db','haar','coif', 'fk','sym','dmey',...
+                    'bior','rbio'};
+                wavFamilyC = {'Daubechies','Haar','Coiflets','FejerKorovkin',...
+                    'Symlets','Discrete Meyer wavelet','Biorthogonal',...
+                    'Reverse Biorthogonal'};
+                idx = paramS.Wavelets.val;
+                isWav = cellfun(@(x)isequal(x,idx),wavFamilyC);
+                [~,idx] = find(isWav);
+                out = mappedWavFamilyC{idx};
+                paramS.Wavelets.val = out;
+                if length(paramS.Index.val)>1
+                    paramS.Index.val = paramS.Index.val{1};
+                end
 
-        elseif (strcmp(fType,'Haralick Cooccurance') )
-            mappedDirectionalityC = {1,2,3,4,5,6};
-            directionalityC = {'Co-occurance with 13 directions in 3D',...
-                'Left-Right, Ant-Post and Diagonals in 2D', ...
-                'Left-Right and Ant-Post', ...
-                'Left-Right',...
-                'Anterior-Posterior',...
-                'Superior-Inferior'};
-            idx = paramS.Directionality.val;
-            isDir = cellfun(@(x)isequal(x,idx),directionalityC);
-            [~,idx] = find(isDir);
-            out = mappedDirectionalityC{idx};
-            paramS.Directionality.val = out;
+            case 'Haralick Cooccurance'
+                mappedDirectionalityC = {1,2,3,4,5,6};
+                directionalityC = {'Co-occurance with 13 directions in 3D',...
+                    'Left-Right, Ant-Post and Diagonals in 2D', ...
+                    'Left-Right and Ant-Post', ...
+                    'Left-Right',...
+                    'Anterior-Posterior',...
+                    'Superior-Inferior'};
+                idx = paramS.Directionality.val;
+                isDir = cellfun(@(x)isequal(x,idx),directionalityC);
+                [~,idx] = find(isDir);
+                out = mappedDirectionalityC{idx};
+                paramS.Directionality.val = out;
 
-            if strcmpi(paramS.PatchType.val,'cm')
-                [xVals, yVals, zVals] = getUniformScanXYZVals(planC{indexS.scan}(scanNum));
-                deltaX = abs(xVals(1)-xVals(2));
-                deltaY = abs(yVals(1)-yVals(2));
-                deltaZ = abs(zVals(1)-zVals(2));
-                patchSizeV = paramS.PatchSize.val;
-                slcWindow = floor(patchSizeV(3)/deltaZ);
-                rowWindow = floor(patchSizeV(1)/deltaY);
-                colWindow = floor(patchSizeV(2)/deltaX);
-                patchSizeV = [rowWindow, colWindow, slcWindow];
-                paramS.PatchSize.val = patchSizeV;
-            end
+                if strcmpi(paramS.PatchType.val,'cm')
+                    [xVals, yVals, zVals] = getUniformScanXYZVals(planC{indexS.scan}(scanNum));
+                    deltaX = abs(xVals(1)-xVals(2));
+                    deltaY = abs(yVals(1)-yVals(2));
+                    deltaZ = abs(zVals(1)-zVals(2));
+                    patchSizeV = paramS.PatchSize.val;
+                    slcWindow = floor(patchSizeV(3)/deltaZ);
+                    rowWindow = floor(patchSizeV(1)/deltaY);
+                    colWindow = floor(patchSizeV(2)/deltaX);
+                    patchSizeV = [rowWindow, colWindow, slcWindow];
+                    paramS.PatchSize.val = patchSizeV;
+                end
 
-        elseif (strcmp(fType,'Laws Convolution') )
+            case'Laws Convolution'
 
-            mappedDirC = {1,2,3};
-            mappedPadMethodC = {1,2,3,4,5,6};
+                mappedDirC = {1,2,3};
+                mappedPadMethodC = {1,2,3,4,5,6};
 
-            dirC = {'2D','3D', 'All'};
-            padMethodC = {'expand','padzeros','periodic','nearest',...
-                'mirror','none'};
+                dirC = {'2D','3D', 'All'};
+                padMethodC = {'expand','padzeros','periodic','nearest',...
+                    'mirror','none'};
 
-            idx1 = paramS.Direction.val;
-            idx2 = paramS.PadMethod.val;
-            isDir = cellfun(@(x)isequal(x,idx1),dirC);
-            isPadMethod = cellfun(@(x)isequal(x,idx2),padMethodC);
-            [~,idx1] = find(isDir);
-            [~,idx2] = find(isPadMethod);
-            out1 = mappedDirC{idx1};
-            out2 = mappedPadMethodC{idx2};
-            paramS.Direction.val = out1;
-            paramS.PadMethod.val = out2;
+                idx1 = paramS.Direction.val;
+                idx2 = paramS.PadMethod.val;
+                isDir = cellfun(@(x)isequal(x,idx1),dirC);
+                isPadMethod = cellfun(@(x)isequal(x,idx2),padMethodC);
+                [~,idx1] = find(isDir);
+                [~,idx2] = find(isPadMethod);
+                out1 = mappedDirC{idx1};
+                out2 = mappedPadMethodC{idx2};
+                paramS.Direction.val = out1;
+                paramS.PadMethod.val = out2;
 
-        elseif (strcmp(fType,'LoG_IBSI'))
+            case 'LoG_IBSI'
 
-            mappedPadMethodC = {1,2,3,4,5,6};
-            padMethodC = {'expand','padzeros','periodic','nearest',...
-                'mirror','none'};
-            idx = paramS.PadMethod.val;
-            isPadMethod = cellfun(@(x)isequal(x,idx),padMethodC);
-            [~,idx] = find(isPadMethod);
-            out = mappedPadMethodC{idx};
-            paramS.PadMethod.val = out;
+                mappedPadMethodC = {1,2,3,4,5,6};
+                padMethodC = {'expand','padzeros','periodic','nearest',...
+                    'mirror','none'};
+                idx = paramS.PadMethod.val;
+                isPadMethod = cellfun(@(x)isequal(x,idx),padMethodC);
+                [~,idx] = find(isPadMethod);
+                out = mappedPadMethodC{idx};
+                paramS.PadMethod.val = out;
 
-        elseif (strcmp(fType,'LoG)'))
+            case'LoG)'
 
-            mappedPadMethodC = {1,2,3,4,5,6};
-            padMethodC = {'expand','padzeros','periodic','nearest',...
-                'mirror','none'};
-            idx = paramS.PadMethod.val;
-            isPadMethod = cellfun(@(x)isequal(x,idx),padMethodC);
-            [~,idx] = find(isPadMethod);
-            out = mappedPadMethodC{idx};
-            paramS.PadMethod.val = out;
+                mappedPadMethodC = {1,2,3,4,5,6};
+                padMethodC = {'expand','padzeros','periodic','nearest',...
+                    'mirror','none'};
+                idx = paramS.PadMethod.val;
+                isPadMethod = cellfun(@(x)isequal(x,idx),padMethodC);
+                [~,idx] = find(isPadMethod);
+                out = mappedPadMethodC{idx};
+                paramS.PadMethod.val = out;
         end
 
         %Apply filter

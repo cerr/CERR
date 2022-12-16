@@ -1,0 +1,40 @@
+{
+
+"structures": ["MR_T1_ROI"],
+
+"imageType": {
+  		   "Wavelets": {
+			    	    "Direction": "LHH",
+				        "Wavelets":"coif",
+				        "Index": "3",
+                        "Level": 1,
+                        "RotationInvariance": {
+				       						    "Dim": "3D",
+				       						    "AggregationMethod": "avg"
+				       					     }
+			 	     }
+	    },
+
+"settings": {		   
+                "resample": {
+                     "resolutionXCm": 0.1,
+				     "resolutionYCm": 0.1,
+				     "resolutionZCm": 0.1,
+				     "interpMethod": "spline"
+			        },
+
+                   "padding": {
+                                "cropToMaskBounds": "no",
+                                "method": "mirror",  
+                                "size": [9,9,9]
+			       },
+                   "texture" :{ 
+		                "minSegThreshold": 0
+	               },
+                   "firstOrder" :{ 
+				            "offsetForEnergy": 0,
+                            "binWidthEntropy":0
+                   }
+
+    }
+}

@@ -1,0 +1,42 @@
+{
+
+"structures": ["PET_ROI"],
+
+"imageType": {
+  		   "LawsEnergy": {
+                "Direction": "3d",
+                "Type": "S5E5L5",
+				"Normalize": "yes",
+                "RotationInvariance": {
+				       						"Dim": "3D",
+				       						"AggregationMethod": "max"
+                },
+                "EnergyKernelSize": [5,5,5],
+                "EnergyPadMethod": "mirror",
+                "EnergyPadSize" : [2,2,2]
+           }
+},
+
+"settings": {		   
+                "resample": {
+                     "resolutionXCm": 0.3,
+				     "resolutionYCm": 0.3,
+				     "resolutionZCm": 0.3,
+				     "interpMethod": "spline"
+			        },
+
+                   "padding": {
+                                "cropToMaskBounds": "no",
+                                "method": "mirror",  
+                                "size": [2,2,2]
+			       },
+                   "texture" :{ 
+		                "minSegThreshold": 0
+	               },
+                   "firstOrder" :{ 
+				            "offsetForEnergy": 0,
+                            "binWidthEntropy":0
+                   }
+
+    }
+}
