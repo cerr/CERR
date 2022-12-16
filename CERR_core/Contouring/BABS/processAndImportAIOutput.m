@@ -83,7 +83,7 @@ for nOut = 1:length(outputC)
 
             %Calc. deformation magnitude
             DVFmag3M = zeros(size(DVF3M));
-            assocScanUID = planC{indexS.scan}(assocScan).scanUID;    
+            assocScanUID = planC{indexS.scan}(assocScan).scanUID;
             for nDim = 1:size(DVF4M,1)
                 doseNum = length(planC{indexS.dose})-nDim+1;
                 doseArray3M = double(getDoseArray(doseNum,planC));

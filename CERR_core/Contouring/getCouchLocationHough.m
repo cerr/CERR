@@ -24,7 +24,7 @@ maxM = max(scan3M, [], 3);
 histeqM = histeq(maxM);
 edgeM1 = edge(histeqM,'sobel',[],'horizontal');
 edgeM2 = bwmorph(edgeM1,'thicken');
-    
+
 [H,T,R] = hough(edgeM2);
 P = houghpeaks(H,20);
 
@@ -39,7 +39,7 @@ lines = houghlines(edgeM2,T,R,P);
 overlapFraction = zeros(1,numel(lines));
 midV = [floor(0.5*midptS):floor(0.5*midptS) + midptS];
 % Require couch lines to have same starting & ending point2
-yi = zeros(1,numel(lines)); 
+yi = zeros(1,numel(lines));
 % figure; imagesc(maxM); axis equal; hold on
 for i = 1:numel(lines)
     len = norm(lines(i).point1 - lines(i).point2);
@@ -51,7 +51,7 @@ for i = 1:numel(lines)
 %         plot(xy(2,1),xy(2,2),'x','LineWidth',2,'Color','red');
         lineV = [lines(i).point1(1):lines(i).point2(1)];
         if lines(i).point1(2) > midptS && ~isempty(intersect(lineV,midV))
-            yi(i) = lines(i).point2(2); 
+            yi(i) = lines(i).point2(2);
             overlapFraction(i) = numel(intersect(lineV,midV));
         end
     end

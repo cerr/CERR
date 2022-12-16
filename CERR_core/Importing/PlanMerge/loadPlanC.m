@@ -34,7 +34,7 @@ if strcmpi(ext, '.tar')
     else
         untar(filename,pathstr)
         fileToUnzip = fullfile(pathstr, name);
-    end    
+    end
     %file = fileToUnzip;
     [pathstr, name, ext] = fileparts(fullfile(pathstr, name));
     tarFile = 1;
@@ -51,14 +51,14 @@ if strcmpi(ext, '.bz2') && length(name)>3 && strcmpi(name(end-3:end),'.mat')
     end
     [pathstr, name, ext] = fileparts([fullfile(pathstr, name),ext]);
 elseif strcmpi(ext, '.zip') && length(name)>3 && strcmpi(name(end-3:end),'.mat')
-    bzFile      = 1;    
+    bzFile      = 1;
     if ispc
         unzip(filename,tmpExtractDir)
         loadfile    = fullfile(tmpExtractDir, name);
     else
         unzip(filename,pathstr)
         loadfile    = fullfile(pathstr, name);
-    end    
+    end
     [pathstr, name, ext] = fileparts(fullfile(pathstr, name));
 else
     bzFile      = 0;
@@ -70,7 +70,7 @@ CERRStatusString(['Loading ' name ext '...']);
 try
     planC = load(loadfile);
     planC = planC.planC;
-catch
+catch e
     error('.mat, .mat.bz2 or .mat.zip file does not contain a planC variable.');
 end
 

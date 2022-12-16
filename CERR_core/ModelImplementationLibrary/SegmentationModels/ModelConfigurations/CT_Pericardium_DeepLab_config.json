@@ -10,19 +10,18 @@
 
 	   "crop" : [{"method": "crop_to_str", "params" : {"structureName": "lung_cntr"}, "operator" : ""},
               {"method": "crop_to_str", "params" : {"structureName": "lung_contra"}, "operator" : "union"},
-        	  {"method": "crop_to_str", "params" : {"structureName": "lung_ipsi"}, "operator" : "union"}, 
-         	  {"method": "crop_to_str", "params" : {"structureName": "lung_l"}, "operator" : "union"}, 
+        	  {"method": "crop_to_str", "params" : {"structureName": "lung_ipsi"}, "operator" : "union"},
+         	  {"method": "crop_to_str", "params" : {"structureName": "lung_l"}, "operator" : "union"},
         	  {"method": "crop_to_str", "params" : {"structureName": "lung_r"}, "operator" : "union"},
-         	  {"method": "crop_to_str", "params" : {"structureName": "Lung_Left"}, "operator" : "union"}, 
+         	  {"method": "crop_to_str", "params" : {"structureName": "Lung_Left"}, "operator" : "union"},
         	  {"method": "crop_to_str", "params" : {"structureName": "Lung_Right"}, "operator" : "union"},
          	  {"method": "crop_to_str", "params" : {"structureName": "lung_total"}, "operator" : "union"},
          	  {"method": "crop_to_str", "params" : {"structureName": "totallung"}, "operator" : "union"},
          	  {"method": "crop_to_str", "params" : {"structureName": "Lungs"}, "operator" : "union"},
          	  {"method": "crop_to_str", "params" : {"structureName": "Lungs_NOT_GTV"}, "operator" : "union"} ]
-         	  
       }
    },
- 
+
 "passedScanDim" : "2D",
 
 "batchSize" : 1,
@@ -39,7 +38,7 @@
               "value": 1
            }
           ],
-    
+
         "roiGenerationDescription": "PericardiumDeeplabV3Axial^mskgit"
 
      }

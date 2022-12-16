@@ -11,13 +11,12 @@
 		   "perturbation": {
 			           },
 
-		   "resample": {
-				 "resolutionXCm": 0.1,
-				 "resolutionYCm": 0.1,
-				 "resolutionZCm": 0.1,
-				 "interpMethod": "linear"
+		  "resample": {
+		  			"resolutionXCm": 0.06,
+		  			"resolutionYCm": 0.06,
+		  			"resolutionZCm": 0.35,
+		  		        "interpMethod": "linear"
 			       },
-
 		   "firstOrder" :{ 
 				   "binWidthEntropy": 25,
 				   "offsetForEnergy": 0
