@@ -1,0 +1,21 @@
+{
+
+"structures": ["wholeScan"],
+
+"imageType": {
+  		  "Mean": {
+			    "KernelSize": [15,15,15]
+			  }
+	    },
+
+"settings": {		   
+
+                   "padding": [
+			       {
+                                "method": "mirror",  
+                                "size": [7,7,7]
+			       }
+                              ]
+	    }
+
+}

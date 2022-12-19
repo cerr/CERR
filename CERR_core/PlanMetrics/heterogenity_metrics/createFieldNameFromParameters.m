@@ -35,7 +35,14 @@ switch(lower(imageType))
     case 'log'
         settingsStr = ['sigma_',num2str(settingS.Sigma_mm.val),'mm'];
         fieldName = [imageType,'_',settingsStr];
-        
+
+    case 'log_ibsi'
+        sigmaV = reshape(settingS.Sigma_mm.val,1,[]);
+        cutoffV = reshape(settingS.CutOff_mm.val,1,[]);
+        settingsStr = ['sigma_',num2str(sigmaV),'mm_',...
+            'cutoff_',num2str(cutoffV),'mm'];
+        fieldName = [imageType,'_',settingsStr];
+
     case 'gabor_deprecated'
         settingsStr = ['radius',num2str(settingS.Radius.val),'_sigma',...
             num2str(settingS.Sigma.val),'_AR',num2str(settingS.AspectRatio.val),...
@@ -44,28 +51,43 @@ switch(lower(imageType))
         fieldName = [imageType,'_',settingsStr];
         
     case 'gabor'
-        settingsStr = ['voxSz',num2str(settingS.VoxelSize_mm.val),'mm_Sigma',...
-            num2str(settingS.Sigma_mm.val),'mm_AR',num2str(settingS.SpatialAspectRatio.val),...
+
+        voxelSize_mm = reshape(settingS.VoxelSize_mm.val,1,[]);
+       
+        settingsStr = ['voxSz',num2str(voxelSize_mm),'mm_Sigma',...
+            num2str(settingS.Sigma_mm.val),'mm_AR',...
+            num2str(settingS.SpatialAspectRatio.val),...
             '_wavLen',num2str(settingS.Wavlength_mm.val),'mm'];
         thetaV = reshape(settingS.Orientation.val,1,[]);
         if length(thetaV)==1
             settingsStr = [settingsStr,'_Orient',num2str(thetaV)];
         else
             settingsStr = [settingsStr,'_OrientAvg_',num2str(thetaV)];
-            fieldName = [imageType,'_',settingsStr];
         end
-        
-        
+        fieldName = [imageType,'_',settingsStr];
+
     case 'firstorderstatistics'
         settingsStr = ['patchsize',num2str(settingS.PatchSize.val(1)),...
             '_voxelvol',num2str(settingS.VoxelVolume.val)];
         fieldName = ['firstOrderStatistics','_',settingsStr];
         
     case 'lawsconvolution'
-        dirC = {'2d','3d'};
-        settingsStr = [dirC{settingS.Direction.val},'_kernelSize',...
-            num2str(settingS.KernelSize.val)];
+        settingsStr = [settingS.Direction.val,'_type',...
+            settingS.Type.val,'_norm',settingS.Normalize.val,...
+            '_rot',settingS.RotationInvariance.val.Dim,'_agg',...
+            settingS.RotationInvariance.val.AggregationMethod];
         fieldName = [imageType,'_',settingsStr];
+
+    case 'lawsenergy'
+        energyKernelSize = reshape(settingS.EnergyKernelSize.val,1,[]);
+        energyKernelSize = strrep(num2str(energyKernelSize),' ','x');
+        settingsStr = [settingS.Direction.val,'_type',...
+            settingS.Type.val,'_norm',settingS.Normalize.val,...
+            '_energyKernelSize',num2str(energyKernelSize),...
+            '_rot',settingS.RotationInvariance.val.Dim,'_agg',...
+            settingS.RotationInvariance.val.AggregationMethod,];
+        fieldName = [imageType,'_',settingsStr];
+
         
     case 'collage'
         settingsStr = [settingS.Dimension.val,'_',...
@@ -96,11 +118,18 @@ switch(lower(imageType))
     case 'suv'
         suvType = settingS.suvType.val;
         fieldName = [imageType,'_',suvType];
+
+    case 'mean'
+        kernelSize = reshape(settingS.KernelSize.val,1,[]);
+        voxelSize_mm = settingS.VoxelSize_mm.val;
+        fieldName = [imageType,'_kernelSize',num2str(kernelSize),...
+            '_voxelSize_mm',num2str(voxelSize_mm)];
         
 end
 
 %Ensure valid fieldname
 fieldName = strrep(fieldName,' ','');
 fieldName = strrep(fieldName,'.','_');
+fieldName = strrep(fieldName,'-','_');
 
 end

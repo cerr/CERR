@@ -7,7 +7,7 @@ function radiomicsParamS = getRadiomicsParamTemplate(paramFilename,dictS)
 % INPUT:
 % paramFileName : Path to JSON file for radiomics feature extraction.
 %                 Sample JSON file: CERR_core/PlanMetrics/heterogenity_metrics/sample_radiomics_extraction_settings.json
-%
+% -------- Optional --------
 % dictS       : Alternatively, pass dictionary userInS
 % --------------------------------------------------------------------------------------
 %
@@ -28,14 +28,24 @@ end
 filterTypeC = fieldnames(userInS.imageType);
 radiomicsParamS.imageType = struct();
 for m = 1:length(filterTypeC)
-    filterTypeS = userInS.imageType.(filterTypeC{m});
+    %paramListC = fieldnames(userInS.imageType.(filterTypeC{m}));
     radiomicsParamS.imageType.(filterTypeC{m}) = struct();
-    if ~isempty(filterTypeS)
-        paramListC = fieldnames(filterTypeS);
-        for n = 1:length(paramListC)
-            for iFilt = 1:length(userInS.imageType.(filterTypeC{m}))
-                radiomicsParamS.imageType.(filterTypeC{m})(iFilt).(paramListC{n}).val = ...
-                    userInS.imageType.(filterTypeC{m})(iFilt).(paramListC{n});
+    for iFilt = 1:length(userInS.imageType.(filterTypeC{m}))
+        if ~(isstruct(userInS.imageType.(filterTypeC{m})) && ...
+                isempty(fieldnames(userInS.imageType.(filterTypeC{m}))))
+            if isstruct(userInS.imageType.(filterTypeC{m}))
+                paramListC = fieldnames(userInS.imageType.(filterTypeC{m}));
+            else
+                paramListC = fieldnames(userInS.imageType.(filterTypeC{m}){iFilt});
+            end
+            for n = 1:length(paramListC)
+                if isstruct(userInS.imageType.(filterTypeC{m}))
+                    radiomicsParamS.imageType.(filterTypeC{m})(iFilt).(paramListC{n}).val = ...
+                        userInS.imageType.(filterTypeC{m}).(paramListC{n});
+                else
+                    radiomicsParamS.imageType.(filterTypeC{m})(iFilt).(paramListC{n}).val = ...
+                        userInS.imageType.(filterTypeC{m}){iFilt}.(paramListC{n});
+                end
             end
         end
     end
@@ -56,13 +66,13 @@ if isfield(userInS,'settings')
     shapeParamS = struct;
     peakValleyParamS = struct;
     ivhParamS = struct;
-    
+
     % Structure names
     if isfield(userInS,'structures')
         radiomicsParamS.structuresC = userInS.structures;
     end
     %Otherwise, use entire scan
-    
+
     % ---1. First-order features ---
     idx = strcmpi(settingsC,'firstOrder');
     if any(idx)
@@ -72,7 +82,7 @@ if isfield(userInS,'settings')
         end
         radiomicsParamS.firstOrderParamS = firstOrderParamS;
     end
-    
+
     %---2. Shape features ----
     idx = strcmpi(settingsC,'shape');
     if any(idx)
@@ -82,7 +92,7 @@ if isfield(userInS,'settings')
         end
         radiomicsParamS.shapeParamS = shapeParamS;
     end
-    
+
     %---3. Higher-order (texture) features ----
     idx = strcmpi(settingsC,'texture');
     if any(idx)
@@ -92,7 +102,7 @@ if isfield(userInS,'settings')
         end
         radiomicsParamS.textureParamS = textureParamS;
     end
-    
+
     %---4. Peak-valley features ----
     idx = strcmpi(settingsC,'peakvalley');
     if any(idx)
@@ -102,7 +112,7 @@ if isfield(userInS,'settings')
         end
         radiomicsParamS.peakValleyParamS = peakValleyParamS;
     end
-    
+
     %---5. IVH features ----
     idx = strcmpi(settingsC,'ivh');
     if any(idx)
@@ -112,8 +122,8 @@ if isfield(userInS,'settings')
         end
         radiomicsParamS.ivhParamS = ivhParamS;
     end
-    
-    
+
+
     %% Set flags for sub-classes of features to be extracted
     for k = 1:length(settingsC)
        userSetingsS = userInS.settings.(settingsC{k});
@@ -142,7 +152,7 @@ if isfield(userInS,'featureClass')
         end
     end
     radiomicsParamS.whichFeatS = whichFeatS;
-    
+
     if isfield(userInS,'toQuantizeFlag')
         %% Flag to quantize input data
         radiomicsParamS.toQuantizeFlag = userInS.toQuantizeFlag;

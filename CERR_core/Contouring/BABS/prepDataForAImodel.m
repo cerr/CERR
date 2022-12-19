@@ -1,4 +1,4 @@
-function [activate_cmd,run_cmd,userOptS,outFile,scanNumV,planC] = ...
+function [activate_cmd,run_cmd,userOptS,outFile,origScanNumV,scanNumV,planC] = ...
     prepDataForAImodel(planC,fullSessionPath,algorithm,cmdFlag,newSessionFlag,...
     containerPath,wrapperFunction,skipMaskExport,scanNumV)
 % [activate_cmd,run_cmd,userOptS,outFile,scanNumV,planC] =
@@ -114,11 +114,12 @@ if iscell(planC)
 
         switch(inputType)
 
-            case 'scan'
+            case {'scan','structure'}
 
                 %Pre-process data and export to model input fmt
                 fprintf('\nPre-processing data...\n');
-                [scanC, maskC, scanNumV, userOptS, coordInfoS, planC] = ...
+                [scanC, maskC, origScanNumV, scanNumV, userOptS,...
+                    coordInfoS, planC] = ...
                     extractAndPreprocessDataForDL(userOptS,planC,...
                     skipMaskExport,scanNumV);
 
@@ -142,8 +143,6 @@ if iscell(planC)
                     writeDataForDL(scanC{nScan},maskC{nScan},coordInfoS,...
                     passedScanDim,modelFmt,outDirC,idOut,skipMaskExport);
                 end
-
-            case 'structure'
 
             %case 'dose'
 
@@ -176,7 +175,8 @@ else
 
                   %Pre-process data and export to model input fmt
                   fprintf('\nPre-processing data...\n');
-                  [scanC, maskC, scanNumV, userOptS, coordInfoS, planC] = ...
+                  [scanC, maskC, origScanNumV, scanNumV, userOptS,...
+                      coordInfoS, planC] = ...
                       extractAndPreprocessDataForDL(userOptS,planC,...
                       skipMaskExport,scanNumV);
 

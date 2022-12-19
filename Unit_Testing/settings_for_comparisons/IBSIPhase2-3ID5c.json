@@ -1,0 +1,37 @@
+{
+
+"structures": ["PET_ROI"],
+
+"imageType": {
+  		   "Gabor": {
+                        "Sigma_mm": 3,
+				        "Wavlength_mm": 3,
+                        "SpatialAspectRatio": 1,
+                        "Orientation":-112.5,
+                        "ImagePlane":"Axial"
+			        }
+	    },
+
+"settings": {		   
+                "resample": {
+                     "resolutionXCm": 0.3,
+				     "resolutionYCm": 0.3,
+				     "resolutionZCm": 0.3,
+				     "interpMethod": "spline"
+			        },
+
+                   "padding": {
+                                "cropToMaskBounds": "no",
+                                "method": "mirror",  
+                                "size": [99,97,0]
+			       },
+                   "texture" :{ 
+		                "minSegThreshold": 0
+	               },
+                   "firstOrder" :{ 
+				            "offsetForEnergy": 0,
+                            "binWidthEntropy":0
+                   }
+
+    }
+}

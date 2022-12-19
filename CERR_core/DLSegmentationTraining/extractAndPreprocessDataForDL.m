@@ -1,4 +1,4 @@
-function [scanOutC, maskOutC, scanNumV, optS, coordInfoS, planC] = ...
+function [scanOutC, maskOutC, origScanNumV, scanNumV, optS, coordInfoS, planC] = ...
     extractAndPreprocessDataForDL(optS,planC,skipMaskExport,scanNumV)
 %
 % Script to extract scan and mask and perform user-defined pre-processing.
@@ -12,6 +12,7 @@ function [scanOutC, maskOutC, scanNumV, optS, coordInfoS, planC] = ...
 % varargin{1}: skipMaskExportf flag. Set to false to export structure masks. 
 %              Default:true.
 % varargin{2}: Vector of scan nos. Default: Use scan identifiers from optS. 
+%varargin{2}: Vector of scan nos. Default: Use scan identifiers from optS.
 % -------------------------------------------------------------------------
 % AI 9/18/19
 % AI 9/18/20  Extended to handle multiple scans
@@ -49,6 +50,7 @@ end
 indexS = planC{end};
 strC = {planC{indexS.structures}.structureName};
 copyStrsC = {};
+origScanNumV = nan(1,length(scanOptS));
 if ~exist('scanNumV','var') || isempty(scanNumV)
     scanNumV = nan(1,length(scanOptS));
     for n = 1:length(scanOptS)
@@ -90,13 +92,15 @@ if ~exist('scanNumV','var') || isempty(scanNumV)
 
             %Update scan no.
             scanNumV(n) = filtScanNum;
+            origScanNumV(n) = baseScanNum;
         else
             scanNumV(n) = getScanNumFromIdentifiers(identifierS,planC);
+            origScanNumV(n) = scanNumV(n);
         end
     end
+else
+    origScanNumV = scanNumV;
 end
-
-origScanNumV = scanNumV;
 
 
 %% Register scans 
@@ -173,6 +177,8 @@ end
 optFlagV = strcmpi({scanOptS.required},'no');
 ignoreIdxV = optFlagV & isnan(scanNumV);
 scanNumV(ignoreIdxV) = [];
+origScanNumV(ignoreIdxV) = [];
+
 
 %% Identify available structures in planC
 allStrC = {planC{indexS.structures}.structureName};

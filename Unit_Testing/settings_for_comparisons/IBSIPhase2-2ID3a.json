@@ -1,0 +1,31 @@
+{
+
+"structures": ["ROI"],
+
+"imageType": {
+  		  "LoG_IBSI": {
+                "Sigma_mm": [1.5,1.5],
+                "CutOff_mm": [6,6]
+			  }
+	    },
+
+"settings": {		   
+                
+                   "padding": {
+                                "cropToMaskBounds": "no",
+                                "method": "mirror",  
+                                "size": [6,6,0]
+			       },
+
+                   "texture" :{ 
+		                "minSegThreshold": -1000,
+		                "maxSegThreshold": 400
+	               },
+    
+                   "firstOrder" :{ 
+				            "offsetForEnergy": 0,
+                            "binWidthEntropy":0
+                   }
+
+    }
+}

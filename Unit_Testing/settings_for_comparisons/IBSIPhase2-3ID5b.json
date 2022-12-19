@@ -1,0 +1,37 @@
+{
+
+"structures": ["MR_T1_ROI"],
+
+"imageType": {
+  		   "Gabor": {
+                        "Sigma_mm": 3,
+				        "Wavlength_mm": 3,
+                        "SpatialAspectRatio": 1,
+                        "Orientation":-112.5,
+                        "ImagePlane":"Axial"
+			        }
+	    },
+
+"settings": {		   
+                "resample": {
+                     "resolutionXCm": 0.1,
+				     "resolutionYCm": 0.1,
+				     "resolutionZCm": 0.1,
+				     "interpMethod": "spline"
+			        },
+
+                   "padding": {
+                                "cropToMaskBounds": "no",
+                                "method": "mirror",  
+                                "size": [99,97,0]
+			       },
+                   "texture" :{ 
+		                "minSegThreshold": 0
+	               },
+                   "firstOrder" :{ 
+				            "offsetForEnergy": 0,
+                            "binWidthEntropy":0
+                   }
+
+    }
+}

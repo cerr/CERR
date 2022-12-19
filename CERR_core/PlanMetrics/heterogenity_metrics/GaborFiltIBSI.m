@@ -1,4 +1,5 @@
-function [out3M,hGaborEven,hGaborOdd] = GaborFiltIBSI(scan3M,sigma,lambda,gamma,theta,radius)
+function [out3M,hGaborEven,hGaborOdd] = GaborFiltIBSI(scan3M,sigma,...
+                                        lambda,gamma,theta,radius)
 % out3M = GaborFiltIBSI(scan3M,sigma,lambda,gamma,theta);
 %-----------------------------------------------------------------------
 % INPUTS
@@ -6,6 +7,7 @@ function [out3M,hGaborEven,hGaborOdd] = GaborFiltIBSI(scan3M,sigma,lambda,gamma,
 % lambda - Wavelength (no. voxels)
 % gamma  - Spatial aspect ratio
 % theta  - Orientation (degrees)
+% radius - Kernel radius (no. voxels)
 %-----------------------------------------------------------------------
 % AI 02/07/2022
 
@@ -15,16 +17,14 @@ sigmaY = sigma/gamma;
 
 % Define filter size
 d=4;
-if exist('radius','var')
-    r = radius;
-else
-    if gamma > 1
-        r = 1 + 2*floor(d*gamma*sigmaX+0.5);
-    else
-        r = 1 + 2*floor(d*sigmaX+0.5);
-    end
-end
-[X,Y] = meshgrid(-r:r,-r:r);
+%if ~exist('radius','var')
+%     if gamma > 1
+%        radius = 1 + 2*floor(d*gamma*sigmaX+0.5);
+%     else
+%        radius = 1 + 2*floor(d*sigmaX+0.5);
+%     end
+%end
+[X,Y] = meshgrid(-radius(2):radius(2),-radius(1):radius(1));
 
 % Rotate grid to specified orientation
 Xtheta = X .*cosd(theta) + Y .*sind(theta);

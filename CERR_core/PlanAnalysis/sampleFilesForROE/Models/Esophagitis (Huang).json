@@ -9,7 +9,7 @@
 	"parameters": {
 
 		"structures": {
-			       "Esophagus":{
+			       "Eso_MT":{
                 			  "meanDose": {
 							"val": "calc_meanDose",
  							"weight": 0.0688,

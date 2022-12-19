@@ -1,0 +1,24 @@
+family;feature_name;feature_tag;ibsi_identifier;1.A;1.B;2.A;2.B;3.A;3.B;4.A;4.B;5.A;5.B;6.A;6.B;7.A;7.B;8.A;8.B;9.A;9.B;10.A;10.B;11.A;11.B
+Diagnostic;Number of voxels in ROI before interpolation;diag_n_voxel;0;;;;;;;;;;;;;;;;;;;;;;
+Diagnostic;Number of voxels in intensity ROI-mask after interpolation and resegmentation;diag_n_voxel_interp_reseg;1;;;;;;;;;;;;;;;;;;;;;;
+Diagnostic;Mean intensity in intensity ROI-mask after interpolation and resegmentation;diag_mean_int_interp_reseg;2;;;;;;;;;;;;;;;;;;;;;;
+Diagnostic;Max intensity in intensity ROI-mask after interpolation and resegmentation;diag_max_int_interp_reseg;3;;;;;;;;;;;;;;;;;;;;;;
+Diagnostic;Min intensity in intensity ROI-mask after interpolation and resegmentation;diag_min_int_interp_reseg;4;;;;;;;;;;;;;;;;;;;;;;
+Statistics;Mean;stat_mean;Q4LE;;;;;;;;;;;;;;;;;;;;;;
+Statistics;Variance;stat_var;ECT3;;;;;;;;;;;;;;;;;;;;;;
+Statistics;Skewness;stat_skew;KE2A;;;;;;;;;;;;;;;;;;;;;;
+Statistics;(Excess) kurtosis;stat_kurt;IPH6;;;;;;;;;;;;;;;;;;;;;;
+Statistics;Median;stat_median;Y12H;;;;;;;;;;;;;;;;;;;;;;
+Statistics;Minimum;stat_min;1GSF;;;;;;;;;;;;;;;;;;;;;;
+Statistics;10th percentile;stat_p10;QG58;;;;;;;;;;;;;;;;;;;;;;
+Statistics;90th percentile;stat_p90;8DWT;;;;;;;;;;;;;;;;;;;;;;
+Statistics;Maximum;stat_max;84IY;;;;;;;;;;;;;;;;;;;;;;
+Statistics;Interquartile range;stat_iqr;SALO;;;;;;;;;;;;;;;;;;;;;;
+Statistics;Range;stat_range;2OJQ;;;;;;;;;;;;;;;;;;;;;;
+Statistics;Mean absolute deviation;stat_mad;4FUA;;;;;;;;;;;;;;;;;;;;;;
+Statistics;Robust mean absolute deviation;stat_rmad;1128;;;;;;;;;;;;;;;;;;;;;;
+Statistics;Median absolute deviation;stat_medad;N72L;;;;;;;;;;;;;;;;;;;;;;
+Statistics;Coefficient of variation;stat_cov;7TET;;;;;;;;;;;;;;;;;;;;;;
+Statistics;Quartile coefficient of dispersion;stat_qcod;9S40;;;;;;;;;;;;;;;;;;;;;;
+Statistics;Energy;stat_energy;N8CA;;;;;;;;;;;;;;;;;;;;;;
+Statistics;Root mean square;stat_rms;5ZWQ;;;;;;;;;;;;;;;;;;;;;;

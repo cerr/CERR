@@ -13,10 +13,13 @@ function [planC,origScanNumV,allLabelNamesC,dcmExportOptS] = ...
 % cmdFlag           : "condaEnv" or "singContainer"
 % newSessionFlag    : Set to false to use existing session dir
 %                     (default:true).
+% sshConfigFile
+% hWait 
 % --Optional inputs---
 % varargin{1}: Path to singularity container OR conda env
-% varargin{2}: Scan no. (replaces scan identifier)
-% varargin{3}: Flag to skip export of structure masks (Default:true (off))
+% varargin{2}: Scan no. (replaces input scan identifier)
+% varargin{3}: Output assoc. scan no. (replaces output scan identifier)
+% varargin{4}: Flag to skip export of structure masks (Default:true (off))
 %--------------------------------------------------------------------------
 % Following directories are created within the session directory:
 % --- ctCERR: contains CERR file from planC.
@@ -78,8 +81,8 @@ if ~isempty(sshConfigFile)
     sshConfigS.fullServerSessionPath = fullServerSessionPath;
 end
 
-if nargin>9
-    skipMaskExport = varargin{3};
+if nargin>10
+    skipMaskExport = varargin{4};
 else
     skipMaskExport = true;
 end
@@ -114,16 +117,22 @@ if length(algorithmC) > 1 || ...
     for k=1:length(algorithmC)
 
         if nargin>=9 && ~any(isnan(varargin{2}))
-            scanNum = varargin{2};
+            inputScanNumV = varargin{2};
         else
-            scanNum = [];
+            inputScanNumV = [];
+        end
+
+        if nargin>=10 && ~any(isnan(varargin{3}))
+            outputScanNum = varargin{3};
+        else
+            outputScanNum = [];
         end
 
         %Pre-process data for segmentation
-        [activate_cmd,run_cmd,userOptS,~,scanNumV,planC] = ...
+        [activate_cmd,run_cmd,userOptS,~,origScanNumV,procScanNumV,planC] = ...
             prepDataForAImodel(planC, fullClientSessionPath ,algorithmC(k), ...
             cmdFlag,createSessionFlag,containerPathC{k},{},skipMaskExport,...
-            scanNum);
+            inputScanNumV);
 
         %Flag indicating if container runs on client or remote server
         if ishandle(hWait)
@@ -162,9 +171,10 @@ if length(algorithmC) > 1 || ...
         toc
 
         %Process model outputs
-        [planC,origScanNumV,labelNamesC,dcmExportOptS] = ...
-            processAndImportAIOutput(planC,userOptS,scanNumV,...
-            algorithmC(k),gitHash,fullClientSessionPath,cmdFlag,hWait);
+        [planC,labelNamesC,dcmExportOptS] = ...
+            processAndImportAIOutput(planC,userOptS,origScanNumV,...
+            procScanNumV,outputScanNum,algorithmC(k),gitHash,...
+            fullClientSessionPath,cmdFlag,hWait);
         allLabelNamesC = [allLabelNamesC,labelNamesC];
 
     end
