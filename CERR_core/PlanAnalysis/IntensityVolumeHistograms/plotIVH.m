@@ -119,7 +119,7 @@ for i = 1 : length(volV)
     scanSet = getAssociatedScan(planC{indexS.IVH}(i).assocScanUID);
     str = planC{indexS.IVH}(i).structureName;
     %structNum = getStructNum(str,planC,indexS);
-    structNum = getAssociatedStr(planC{indexS.DVH}(i).assocStrUID);
+    structNum = getAssociatedStr(planC{indexS.IVH}(i).assocStrUID);
     if surfV(i)
         if structNum ~= 0
             sNames = {planC{indexS.IVH}.structureName};
