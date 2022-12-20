@@ -60,4 +60,10 @@ for slcNum = 1:size(planC{indexS.scan}(scanNum).scanArray,3)
 end
 planC = setUniformizedData(planC,[],scanNum);
 
+% Set CTOffset to 0 as (-)ve values are accounted for in getSUV.m
+for i=1:length(planC{indexS.scan}(scanNum).scanInfo)
+    planC{indexS.scan}(scanNum).scanInfo(i).CTOffset = 0;
+end
+
+
 return
