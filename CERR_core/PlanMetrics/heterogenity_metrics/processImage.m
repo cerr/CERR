@@ -389,7 +389,10 @@ for index = 1:numRotations
                                 case 'std'
                                     gabor3M = std(gaborAll,0,4);
                             end
-                            angle_str = strrep(strjoin(""+theta,'_'),'.','p');
+                            angle_str = strjoin(arrayfun(@num2str,theta,...
+                                'un',0),'_');
+                            angle_str = strrep(angle_str,'.','p');
+                            %angle_str = strrep(strjoin(""+theta,'_'),'.','p');
                             angle_str = char(strrep(angle_str,'-','M'));
                             if length(angle_str)>39
                                 %temp
