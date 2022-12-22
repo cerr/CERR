@@ -828,7 +828,26 @@ switch fieldname
             radiopharmaInfoObj = radiopharmaInfoSeq.get(0);
             %dataS = getTagValue(radiopharmaInfoObj, '00181072');
             %dataS = char(radiopharmaInfoObj.getStrings(org.dcm4che3.data.Tag.RadiopharmaceuticalStartTime)); %TM
-            dataS = char(radiopharmaInfoObj.getString(1577074,0)); %TM
+            %dataS = char(radiopharmaInfoObj.getString(1577074,0)); %TM
+            %dataS = char(radiopharmaInfoObj.getStrings(org.dcm4che3.data.Tag.RadiopharmaceuticalStartDateTime));
+            dataS = char(radiopharmaInfoObj.getString(1577080,0)); %DateTime
+            if ~isempty(dataS)
+                dataS = dataS(9:end);
+            else
+                dataS = char(radiopharmaInfoObj.getString(1577074,0)); %TM
+            end
+        end
+        
+    case 'injectionDate'
+        radiopharmaInfoSeq = attr.getValue(5505046); %SQ
+        if ~isempty(radiopharmaInfoSeq) && ~radiopharmaInfoSeq.isEmpty
+            radiopharmaInfoObj = radiopharmaInfoSeq.get(0);
+            dataS = char(radiopharmaInfoObj.getString(1577080,0)); %DateTime
+            if ~isempty(dataS)
+                dataS = dataS(1:8);
+            else
+                dataS = '';
+            end                
         end
         
     case 'injectedDose'
