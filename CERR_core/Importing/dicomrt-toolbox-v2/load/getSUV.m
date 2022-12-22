@@ -7,11 +7,35 @@ function [suv3M,imageUnits] = getSUV(scan3M, headerS, suvType)
 
 scanSiz = size(scan3M);
 suv3M = zeros(scanSiz);
+
+% Obtain Start of acquisition time
+numSlcs = size(scan3M,3);
+acqTimeV = nan(numSlcs,1);
+for slcNum = 1:numSlcs
+    headerSlcS = headerS(slcNum);
+    if isfield(headerSlcS,'acquisitionTime') && ~isempty(headerSlcS.acquisitionTime)
+        acqTimeV(slcNum) = dcm_hhmmss(headerSlcS.acquisitionTime);
+    end
+end
+seriesTime = dcm_hhmmss(headerSlcS.seriesTime);
+seriesDate = NaN;
+if isfield(headerSlcS,'seriesDate') && ~isempty(headerSlcS.seriesDate)
+    seriesDate = datenum(headerSlcS.seriesDate,'yyyymmdd');
+end
+injectionDate = NaN;
+if isfield(headerSlcS,'injectionDate') && ~isempty(headerSlcS.injectionDate)
+    injectionDate = datenum(headerSlcS.injectionDate,'yyyymmdd');
+end
+acqStartTime = [];
+if ~any(isnan(acqTimeV))
+    acqStartTime = min(acqTimeV);
+end
+
 for slcNum = 1:size(scan3M,3)
     headerSlcS = headerS(slcNum);
     %headerSlcS = planC{indexS.scan}(scanNum).scanInfo(slcNum);
     %imgM = planC{indexS.scan}(scanNum).scanArray(:,:,slcNum);
-    imgM = scan3M(:,:,slcNum);
+    imgM = scan3M(:,:,slcNum)-headerSlcS.CTOffset;
     
     % Image Units
     imgUnits = headerSlcS.imageUnits;
@@ -34,17 +58,24 @@ for slcNum = 1:size(scan3M,3)
     decayCorrection = headerSlcS.decayCorrection;
     switch upper(decayCorrection)
         case 'START'
-            scantime = dcm_hhmmss(headerSlcS.seriesTime);
+            scantime = seriesTime;
+            if ~isempty(acqStartTime) && acqStartTime < scantime
+                scantime = acqStartTime;                
+            end
         case 'ADMIN'
             scantime = dcm_hhmmss(headerSlcS.injectionTime);
         case 'NONE'
-            scantime = dcm_hhmmss(headerSlcS.acquisitionTime);
+            scantime = [];
         otherwise
             scantime = dcm_hhmmss(headerSlcS.petDecayCorrectionDateTime(9:end));
     end
     
     % Start Time for Radiopharmaceutical Injection
     injection_time = dcm_hhmmss(headerSlcS.injectionTime);
+    
+    if ~any(isnan([seriesDate,injectionDate]))
+        injection_time = injection_time - (seriesDate-injectionDate)*24*3600;
+    end
     
     % Half Life for Radionuclide
     half_life = headerSlcS.halfLife;
@@ -66,8 +97,12 @@ for slcNum = 1:size(scan3M,3)
     % Calculate the decay
     % The injected dose used to calculate suvM is corrected for the decay that
     % occurs between the time of injection and the time of scan.
-    % decayFactor = e^(t1-t2/halflife);
-    decay = exp(-log(2)*(scantime-injection_time)/half_life);
+    % decayFactor = e^(t1-t2/halflife);    
+    if strcmpi(decayCorrection,'none')
+        decay = 1;
+    else
+        decay = exp(-log(2)*(scantime-injection_time)/half_life);        
+    end
     
     %Calculate the dose decayed during procedure
     injected_dose_decay = injected_dose*decay; % in Bq
