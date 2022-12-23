@@ -74,7 +74,7 @@ try
                 orientationStr = 'FFP';
             end
             
-        case 'saggital'
+        case 'sagittal'
             
     end
 catch err
