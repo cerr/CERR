@@ -110,7 +110,7 @@ switch vrCode
     case 17492
         %elseif vr.equals(org.dcm4che3.data.VR.DT) %strcmpi(vr,'DT')
         %case 'DT'
-        data = attr.getDate(tag);
+        data = char(attr.getDate(tag));
     case 17996
         %elseif vr.equals(org.dcm4che3.data.VR.FL) %strcmpi(vr,'FL')
         %case 'FL'

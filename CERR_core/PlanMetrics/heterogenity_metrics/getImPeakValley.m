@@ -60,9 +60,9 @@ else
 
 end
 
-if ~isequal(radius, uint16(radius))
-    error('Radius must be an integer')
-end
+% if ~isequal(radius, uint16(radius))
+%     error('Radius must be an integer')
+% end
 
 % x = 1; % cm
 % dx = 1;

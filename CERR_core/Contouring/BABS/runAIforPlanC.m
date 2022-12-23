@@ -93,7 +93,11 @@ if isempty(getMLVersion)
 end
 
 %Parse algorithm and convert to cell array
-algorithmC = strsplit(algorithm,'^');
+if ~iscell(algorithm)
+    algorithmC = strsplit(algorithm,'^');
+else
+    algorithmC = algorithm;
+end
 
 if length(algorithmC) > 1 || ...
         (length(algorithmC)==1 && ~strcmpi(algorithmC,'BABS'))
