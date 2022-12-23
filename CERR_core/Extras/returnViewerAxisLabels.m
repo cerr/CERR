@@ -24,25 +24,58 @@ try
     
     iopProjSign(isnan(iopProjSign)) = 0;
     
-    % definitions
+    if isequal(abs(iopProjSign),[1; 0; 0; 0; 1; 0])
+        sliceType = 'axial';
+    elseif isequal(abs(iopProjSign),[1; 0; 0; 0; 0; 1])
+        sliceType = 'coronal';
+    else
+        sliceType = 'sagittal';
+    end
     
-    HFS = [1; 0; 0; 0; 1; 0];
-    HFP = [-1; 0; 0; 0; -1; 0];
-    FFS = [-1; 0; 0; 0; 1; 0];
-    FFP = [1; 0; 0; 0; -1; 0];
-    
-    if isequal(iopProjSign(:), HFS)
-        axisLabelCell = {'A','P';'R','L';'S','I'};
-        orientationStr = 'HFS';
-    elseif isequal(iopProjSign(:), HFP)
-        axisLabelCell = {'P','A';'L','R';'S','I'};
-        orientationStr = 'HFP';
-    elseif isequal(iopProjSign(:), FFS)
-        axisLabelCell = {'A','P';'L','R';'S','I'};
-        orientationStr = 'FFS';
-    else %FFP
-        axisLabelCell = {'P','A';'R','L';'S','I'};
-        orientationStr = 'FFP';
+    switch sliceType
+        
+        case 'axial'
+            % definitions            
+            HFS = [1; 0; 0; 0; 1; 0];
+            HFP = [-1; 0; 0; 0; -1; 0];
+            FFS = [-1; 0; 0; 0; 1; 0];
+            FFP = [1; 0; 0; 0; -1; 0];
+            
+            if isequal(iopProjSign(:), HFS)
+                axisLabelCell = {'A','P';'R','L';'S','I'};
+                orientationStr = 'HFS';
+            elseif isequal(iopProjSign(:), HFP)
+                axisLabelCell = {'P','A';'L','R';'S','I'};
+                orientationStr = 'HFP';
+            elseif isequal(iopProjSign(:), FFS)
+                axisLabelCell = {'A','P';'L','R';'S','I'};
+                orientationStr = 'FFS';
+            else %FFP
+                axisLabelCell = {'P','A';'R','L';'S','I'};
+                orientationStr = 'FFP';
+            end
+        case 'coronal'
+            HFS = [1; 0; 0; 0; 0; 1];
+            HFP = [-1; 0; 0; 0; 0; 1];
+            FFS = [-1; 0; 0; 0; 0; -1];
+            FFP = [1; 0; 0; 0; 0; -1];
+            
+            if isequal(iopProjSign(:), HFS)
+                axisLabelCell = {'S','I';'R','L';'A','P'};
+                orientationStr = 'HFS';
+            elseif isequal(iopProjSign(:), HFP)
+                axisLabelCell = {'S','I';'R','L';'A','P'};
+                orientationStr = 'HFP';
+            elseif isequal(iopProjSign(:), FFS)
+                axisLabelCell = {'S','I';'R','L';'A','P'};
+                orientationStr = 'FFS';
+            else %FFP
+                axisLabelCell = {'S','I';'R','L';'A','P'};
+                orientationStr = 'FFP';
+            end
+            
+        case 'saggital'
+            
     end
 catch err
     %default HFS
