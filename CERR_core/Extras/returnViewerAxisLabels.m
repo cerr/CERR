@@ -74,8 +74,25 @@ try
                 orientationStr = 'FFP';
             end
             
-        case 'sagittal'
+        case 'sagittal' % eg [0; 1; 0; 0; 0; -1]
+            HFS = [0; 1; 0; 0; 0; 1];
+            HFP = [0; -1; 0; 0; 0; 1];
+            FFS = [0; -1; 0; 0; 0; -1];
+            FFP = [0; 1; 0; 0; 0; -1];
             
+            if isequal(iopProjSign(:), HFS)
+                axisLabelCell = {'A','P';'S','I';'R','L'};
+                orientationStr = 'HFS';
+            elseif isequal(iopProjSign(:), HFP)
+                axisLabelCell = {'A','P';'I','S';'R','L'};
+                orientationStr = 'HFP';
+            elseif isequal(iopProjSign(:), FFS)
+                axisLabelCell = {'P','A';'S','I';'R','L'};
+                orientationStr = 'FFS';
+            else %FFP
+                axisLabelCell = {'P','A';'I','S';'R','L'};
+                orientationStr = 'FFP';
+            end
     end
 catch err
     %default HFS
