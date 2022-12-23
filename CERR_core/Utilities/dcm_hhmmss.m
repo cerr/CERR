@@ -1,4 +1,4 @@
-function [totSec hh mm ss fract] = dcm_hhmmss(dateStr)
+function [totSec, hh, mm, ss, fract] = dcm_hhmmss(dateStr)
 %
 % Copyright 2010, Joseph O. Deasy, on behalf of the CERR development team.
 % 

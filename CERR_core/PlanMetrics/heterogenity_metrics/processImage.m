@@ -195,7 +195,7 @@ for index = 1:numRotations
             vol3M = double(rotScan3M);
             wavType =  paramS.Wavelets.val;
             if ~isempty(paramS.Index.val)
-                wavType = [wavType,paramS.Index.val];
+                wavType = [wavType,num2str(paramS.Index.val)];
             end
             level = 1; %default
             if isfield(paramS,'Level')
@@ -322,7 +322,7 @@ for index = 1:numRotations
             theta = reshape(paramS.Orientation.val,1,[]);
             gamma = paramS.SpatialAspectRatio.val;
             planes = 'Axial'; %default
-            if isfield(paramS)
+            if isfield(paramS,'ImagePlane')
                 planes = paramS.ImagePlane.val;
             end
             if ~iscell(planes)
@@ -389,7 +389,10 @@ for index = 1:numRotations
                                 case 'std'
                                     gabor3M = std(gaborAll,0,4);
                             end
-                            angle_str = strrep(strjoin(""+theta,'_'),'.','p');
+                            angle_str = strjoin(arrayfun(@num2str,theta,...
+                                'un',0),'_');
+                            angle_str = strrep(angle_str,'.','p');
+                            %angle_str = strrep(strjoin(""+theta,'_'),'.','p');
                             angle_str = char(strrep(angle_str,'-','M'));
                             if length(angle_str)>39
                                 %temp
