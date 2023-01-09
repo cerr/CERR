@@ -5,7 +5,7 @@ function outS = processImage(filterType,scan3M,mask3M,paramS,hWait)
 % filterType -  Supported textures: 'HaralickCooccurance','Wavelets','Sobel',
 %               'LoG' (ITK-compliant),'LoG_IBSI' (IBSI-compliant),'Gabor'
 %               (IBSI compliant), 'Gabor_deprecated', 'Mean','LawsEnergy'
-%               'LawsConvolution','CoLlage','First order statistics',
+%               'LawsConvolution','CoLlage','First order statistics', 
 %               or 'SimpleITK'.
 %               Other filters: 'suv', 'assignBkgIntensity'.
 % scan3M     - 3-D scan array, cropped around ROI and padded if specified
@@ -542,6 +542,7 @@ for index = 1:numRotations
                     drawnow;
                 end
             end
+
 
         case 'LawsConvolution'
 

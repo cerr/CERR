@@ -16,10 +16,9 @@ switch(phase)
 
     case 2
         templateFile = fullfile(basePath(1:idxV(end-1)),'Unit_Testing',...
-            'settings_for_comparisons','IBSI-2-Phase2-Submission-Template.xlsx');
+            'settings_for_comparisons','IBSI-2-Phase2-Submission-Template.csv');
         paramFilePrefix = 'IBSIPhase2-2ID';
-        settingsC = {'1a','1b','2a','2b','3a','3b','4a','4b','5a','5b'};
-        %,'6a','6b'};
+        settingsC = {'1a','1b','2a','2b','3a','3b','4a','4b','5a','5b','6a','6b'};
 
         dataDirName = fullfile(cerrPath(1:idxV(end-1)),...
             'Unit_Testing\data_for_cerr_tests\IBSI2_CT_phantom');
@@ -33,7 +32,7 @@ switch(phase)
 
         outFile ='IBSIphase2-2';
         statStartLine = 7;
-
+       
 
     case 3
         templateFile = fullfile(basePath(1:idxV(end-1)),'Unit_Testing',...
@@ -57,18 +56,16 @@ switch(phase)
 
         outFile ='IBSIphase2-3';
         statStartLine = 2;
-
+   
 end
 
-%Read output template
+%Read output template 
 [~,~,rawC] = xlsread(templateFile);
 outC = rawC;
-for line = 2:size(rawC,1)
-    tempLine = rawC(line,:);
-    idxC = cellfun(@isempty,tempLine,'un',0);
-    val = tempLine(~[idxC{:}]);
-    outC(line,1:length(val)) = val;
-    #outC(line,:) = tempLine(1:idxC(4)-1);
+for line = 2:length(rawC)
+    tempLine = rawC{line};
+    idxV = strfind(tempLine,';');
+    outC{line} = tempLine(1:idxV(4)-1);
 end
 
 % Path to config. file
@@ -115,15 +112,13 @@ for nFile = 1:length(fileNameC)
             [~,id,~] = fileparts(fileNameC{nFile});
             outFileName = [outFile,'_',id,'_',modC{nMod}];
         end
-        outFileName = fullfile(outDir,[outFileName,'.xlsx']);
+        outFileName = fullfile(outDir,[outFileName,'.csv']);
 
         %Loop over configurations
         featM = nan(numStats,length(settingsC));
         featC = cell(numStats,length(settingsC));
         diagC = cell(numDiag,length(settingsC));
         for setting = 1:length(settingsC)
-
-            settingsC{setting}
 
             %Read config. file
             if phase==2
@@ -151,39 +146,31 @@ for nFile = 1:length(fileNameC)
             featC(:,setting) = struct2cell(featS);
         end
 
-        numCol = size(outC,2);
         if phase==2
             diagC = cellfun(@num2str,diagC,'un',0);
-            diagDimV = size(diagC);
-            %tempDiagC = [outC(2:statStartLine-1,1:diagDimV(2)),diagC];
-            tempDiagC = [outC(2:statStartLine-1,1:4),diagC];
-            outDiagC = cell(statStartLine-1, size(tempDiagC,2));
+            tempDiagC = [outC(2:statStartLine-1),diagC];
+            outDiagC = cell(statStartLine-1,1);
             outDiagC{1} = outC{1};
             for line = 2:statStartLine-1
-                diagValC = tempDiagC(line-1,:);
-                diagValC = cellfun(@num2str,diagValC,'un',0);
-                %diagVal = strjoin(diagValC,';');
-                outDiagC(line,:) = diagValC;
+                tempDiag = strjoin(tempDiagC(line-1,:),';');
+                outDiagC{line} = tempDiag;
             end
         else
                outDiagC = outC;
         end
 
         featC = cellfun(@num2str,featC,'un',0);
-        tempC = [outC(statStartLine:end,1:4),featC];
-        tempC = cellfun(@num2str,tempC,'un',0);
+        tempC = [outC(statStartLine:end),featC];
         outValC = outDiagC;
-        outValC(1,2:numCol) = outC(1,2:end);
-        for line = statStartLine:size(outC,1)
-            statValC = tempC(line-statStartLine+1,:);
-            outValC(line,1:size(statValC,2)) = statValC;
-            %outValC{line} = strjoin(tempC(line-statStartLine+1,:),';');
-            %outValC{line} = [outValC{line},';;;']; %Missing configs
+        for line = statStartLine:length(outC)
+            outValC{line} = strjoin(tempC(line-statStartLine+1,:),';');
+            outValC{line} = [outValC{line},';;;']; %Missing configs
         end
-        %outValC = split(outValC,';');
+        outValC = split(outValC,';');
 
+        %sheet = nMod;
         %outFileName = strrep(outFileName,'IBSIphase2-3_','');
-        xlswrite(outFileName,outValC);
+        writecell(outValC,outFileName);
     end
 end
 
