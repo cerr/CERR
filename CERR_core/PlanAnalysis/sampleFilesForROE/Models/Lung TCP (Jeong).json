@@ -7,7 +7,7 @@
 	"abRatio": 2.8,
 	"parameters": {
 		
-			"structures": "GTV_p_n_MT",
+			"structures": "GTV",
 	
 			"treatmentSchedule": {
                 				  "val": "getTreatmentSchedule",
