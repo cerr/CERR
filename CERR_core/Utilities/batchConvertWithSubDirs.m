@@ -1,5 +1,5 @@
 function batchConvertWithSubDirs(varargin)
-%function batchConvert(sourceDir,destinationDir,zipFlag,mergeScansFlag,singleCerrFileFlag)
+%function batchConvertWithSubDirs(sourceDir,destinationDir,zipFlag,mergeScansFlag,singleCerrFileFlag)
 %
 %Type "init_ML_DICOM; batchConvertWithSubDirs" (without quotes) in Command window to run batch conversion. User will be
 %prompted to select source and destination directories. This function converts DICOM and RTOG files
@@ -37,9 +37,11 @@ function batchConvertWithSubDirs(varargin)
 % zipFlag = 'No';
 % mergeScansFlag = 'No';
 % singleCerrFileFlag = 'No';
-% batchConvert(sourceDir,destinationDir,zipFlag,mergeScansFlag,singleCerrFileFlag)
+% batchConvertWithSubDirs(sourceDir,destinationDir,zipFlag,mergeScansFlag,singleCerrFileFlag)
 
-feature accel off
+if isempty(ver('OCTAVE'))
+    feature accel off
+end
 
 % Read options file
 pathStr = getCERRPath;

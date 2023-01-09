@@ -38,7 +38,9 @@ function batchConvert(varargin)
 % mergeScansFlag = 'No';
 % batchConvert(sourceDir,destinationDir,zipFlag,mergeScansFlag)
 
-feature accel off
+if isempty(ver('OCTAVE'))
+    feature accel off
+end
 
 % Read options file
 pathStr = getCERRPath;
