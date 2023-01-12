@@ -17,7 +17,7 @@ if ~exist('method','var')
 end
 
 % Set default perturbation offsets:
-if nargin<6
+if nargin<7
     perturbX = 0;
     perturbY = 0;
     perturbZ = 0;

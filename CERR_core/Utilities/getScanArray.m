@@ -53,7 +53,7 @@ if isstruct(scanIndex) && isfield(scanIndex, 'scanArray')
     
 else
     %An index was passed, extract the scanStruct.
-	if ~exist('planC')
+	if ~exist('planC','var')
         global planC
 	end
 	
@@ -94,11 +94,11 @@ isCompress  = 0;
 isRemote    = 0;
 
 %Decompress and follow all file pointers until get to an array.
-while isCompressed(scanArray) || ~isLocal(scanArray);
+while isCompressed(scanArray) || ~isLocal(scanArray)
     if isCompressed(scanArray)
         scanArray   = decompress(scanArray);
         isCompress  = 1;
-    elseif ~isLocal(scanArray);
+    elseif ~isLocal(scanArray)
         scanArray   = getRemoteVariable(scanArray);
         isRemote    = 1;
     end           
