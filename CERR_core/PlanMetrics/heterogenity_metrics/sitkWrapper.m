@@ -301,8 +301,9 @@ switch filterType
             maskImg = py.extra.GetImageFromArray(maskPy);
         else
             %Use defaults
-            maskImg = py.SimpleITK.OtsuThreshold(srcItkImg,...
-                uint8(0),uint8(1),uint32(200));
+            %maskImg = py.SimpleITK.OtsuThreshold(srcItkImg,...
+            %    uint8(0),uint8(1),uint32(200));
+            maskImg = [];
         end
 
         corrector = py.SimpleITK.N4BiasFieldCorrectionImageFilter();
@@ -324,18 +325,32 @@ switch filterType
 
         if isfield(paramS,'numIterations')
             numIterationsV = paramS.numIterations.val; %Vector of values per fit level
-            maxIterations = int32(numIterationsV) * numFitLevels;
+            maxIterations = int32(numIterationsV);
             corrector.SetMaximumNumberOfIterations(maxIterations);
         end
 
 
         % Apply bias correction
-        outImg = corrector.Execute(srcItkImg, maskImg);
-
-        % Convert to matlab array 
-        npCorrectedImg = py.extra.GetArrayFromImage(outImg);
-        correctedImg3M = double(npCorrectedImg);
-        filteredOutS.biasCorrectedImage = correctedImg3M;
+        if ~isempty(maskImg)
+            outImg = corrector.Execute(srcItkImg, maskImg);
+        else
+            outImg = corrector.Execute(srcItkImg);
+        end
+        
+        logBiasFieldImg = corrector.GetLogBiasFieldAsImage(srcItkImg);
+        
+        % Convert to matlab array         
+        npLogBiasFieldImg = py.extra.GetArrayFromImage(logBiasFieldImg);
+        logBiasFieldImg3M = double(npLogBiasFieldImg);
+        
+        correctedImageFullResolution = scan3M ./ exp(logBiasFieldImg3M);
+        
+        filteredOutS.biasCorrectedImage = correctedImageFullResolution;        
+        
+        %if isfield(paramS,'shrinkFactor') && paramS.shrinkFactor.val > 1
+        %  npCorrectedImg = py.extra.GetArrayFromImage(outImg);
+        %  correctedImgShrunk3M = double(npCorrectedImg);
+        %end
 
 
     case 'N4BiasAndHistogramCorrectionImageFilter'
