@@ -47,13 +47,13 @@ persistent isLastScanCompressed;
 persistent isLastScanRemote;
 
 %Check if a scanStruct, not a scanIndex was passed.
-if isstruct(scanIndex) & isfield(scanIndex, 'scanArray')
+if isstruct(scanIndex) && isfield(scanIndex, 'scanArray')
     
     scanStruct = scanIndex(1);
     
 else
     %An index was passed, extract the scanStruct.
-	if ~exist('planC')
+	if ~exist('planC','var')
         global planC
 	end
 	
@@ -63,7 +63,7 @@ else
 	
 	indexS = planC{end};
 	
-	if scanIndex > length(planC{indexS.scan}) | scanIndex < 1
+	if scanIndex > length(planC{indexS.scan}) || scanIndex < 1
         error('Cannot get scan.  Requested scanIndex scan not exist.')
 	end
 
@@ -92,11 +92,11 @@ isCompress  = 0;
 isRemote    = 0;
 
 %Decompress and follow all file pointers until get to an array.
-while isCompressed(scanArray) || ~isLocal(scanArray);
+while isCompressed(scanArray) || ~isLocal(scanArray)
     if isCompressed(scanArray)
         scanArray   = decompress(scanArray);
         isCompress  = 1;
-    elseif ~isLocal(scanArray);
+    elseif ~isLocal(scanArray)
         scanArray   = getRemoteVariable(scanArray);
         isRemote    = 1;
     end           
