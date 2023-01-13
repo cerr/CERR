@@ -80,8 +80,8 @@ attr.subSet(patienttemplate).copyTo(patient);
 patient = build_module_template('patient_subset');
 %patient = filterAttribs(attr, patienttemplate);
 patient = addAttribs(patient,attr);
-ptName = attr.getString(1048592);
-ptId = attr.getString(1048608);
+ptName = char(attr.getString(1048592));
+ptId = char(attr.getString(1048608));
 
 %% Search the patient list for this patient.
 match = 0;
@@ -92,16 +92,16 @@ for i=1:length(dcmdirS.PATIENT)
     %catch
     %end
     %try
-    
-    ptNameToMatch = dcmdirS.PATIENT(i).info.getString(1048592);
-    ptIdToMatch = dcmdirS.PATIENT(i).info.getString(1048608);
-    
+
+    ptNameToMatch = char(dcmdirS.PATIENT(i).info.getString(1048592));
+    ptIdToMatch = char(dcmdirS.PATIENT(i).info.getString(1048608));
+
     emptyFlag = isempty([ptName,ptNameToMatch,ptId,ptIdToMatch]);
 
     matchFlag = emptyFlag || patient.matches(dcmdirS.PATIENT(i).info, 1, 0);
-        
+
     %matchFlag = attr.matches(patient,1,0); %apa 1/11/21
-    
+
     %catch
     %end
     if matchFlag %patient.matches(dcmdirS.PATIENT(i).info, 1) || patient.equals(dcmdirS.PATIENT(i).info)
@@ -186,7 +186,7 @@ currentModality = attr.getString(modalityDec,0); %attr.getString(org.dcm4che3.da
 
 mri = [];
 if strcmpi(currentModality,'MR')
-    
+
     mri = build_module_template('mr_image_subset');
     %mri = filterAttribs(attr, mriTemplate);
     mri = addAttribs(mri,attr);
@@ -200,12 +200,12 @@ if strcmpi(currentModality,'MR')
     instNumTagDec = 2097171; %'00200013';    %Instance no.
     numSlicesTagDec = 2166863; %'0021104F';  %No. locations in acquisition
     nSlices = double(attr.getInts(numSlicesTagDec));
-    
+
 elseif strcmpi(currentModality,'CT')
-    
+
     acqNumTagDec = 2097170; %'00200012';
     acqNum1Series = attr.getString(acqNumTagDec,0); %org.dcm4che3.data.Tag.AcquisitionNumber;
-    
+
 end
 
 %% Identify matching series
@@ -222,15 +222,15 @@ acqNumMatch = 1;
 
 % Loop over all available series'
 for seriesNum = length(studyS.SERIES):-1:1
-    
+
     %thisUID = filterAttribs(studyS.SERIES(seriesNum).info, emptyAttr);
     thisUID = addAttribs(emptyAttr,studyS.SERIES(seriesNum).info);
     thisUIDstr = thisUID.getString(SeriesInstanceUIDdec,0);
     seriesModality = studyS.SERIES(seriesNum).info.getString(modalityDec,0);
-    
-    % For MR images: 
+
+    % For MR images:
     if strcmpi(currentModality,'MR') && strcmpi(seriesModality,'MR')
-        % 1.Check for series matching b-value 
+        % 1.Check for series matching b-value
         bvalue1Series = studyS.MRI(seriesNum).info.getString(mriBvalueTag1Dec,0);
         bvalue2Series = studyS.MRI(seriesNum).info.getString(mriBvalueTag2Dec,0);
         bvalue3Series = studyS.MRI(seriesNum).info.getString(mriBvalueTag3Dec,0);
@@ -246,11 +246,11 @@ for seriesNum = length(studyS.SERIES):-1:1
         else
             bValueMatch = 0;
         end
-        
+
         proceed = 0;
-        
+
         %2. Check for series matching temporal position
-        % For Philips data, compare temporal position ID tag 
+        % For Philips data, compare temporal position ID tag
         if ~isempty(strfind(currentManufacturer,'Philips'))
             temporalPosSeries = studyS.MRI(seriesNum).info.getString(tempPosTagDec,0);
             temporalPosCurrent = mri.getString(tempPosTagDec,0);
@@ -263,10 +263,10 @@ for seriesNum = length(studyS.SERIES):-1:1
             else
                 proceed = 1;
             end
-            
+
         else
-        % For other scanners, get series no. from instance no. & 
-        % no. slice locations  
+        % For other scanners, get series no. from instance no. &
+        % no. slice locations
             currentInstNum = [];
             seriesInstNum = [];
             if ~isempty(nSlices)
@@ -275,19 +275,19 @@ for seriesNum = length(studyS.SERIES):-1:1
                 currentInstNum = ceil(double(currentInstNum)/nSlices);
                 seriesInstNum = ceil(double(seriesInstNum)/nSlices);
             end
-            
+
             if ~(isempty(currentInstNum)||isempty(seriesInstNum))
                 if isequal(currentInstNum,seriesInstNum)
                     tempPosMatch = 1;
                 else
                     tempPosMatch = 0;
                 end
-                
+
             else
                 proceed=1;
             end
         end
-        
+
         %Where above tmethods fail, consider other tags to group by time point
         if proceed==1
             % Trigger time
@@ -296,7 +296,7 @@ for seriesNum = length(studyS.SERIES):-1:1
             trigTimeSeries = studyS.MRI(seriesNum).info.getString(triggerTagDec,0);
             trigTimeCurrent = mri.getString(triggerTagDec,0);
             if ~(isempty(trigTimeCurrent)||isempty(trigTimeSeries))
-                if strcmpi(trigTimeCurrent,trigTimeSeries) 
+                if strcmpi(trigTimeCurrent,trigTimeSeries)
                     tempPosMatch = 1;
                 else
                     tempPosMatch = 0;
@@ -314,15 +314,15 @@ for seriesNum = length(studyS.SERIES):-1:1
                         end
                     end
                 end
-                
+
             end
-            
+
         end
-        
+
     %For CT images (decommissioned):
     elseif false && ...
             strcmpi(currentModality,'CT') && ...
-            strcmpi(seriesModality,'CT') % match by acquisition number 
+            strcmpi(seriesModality,'CT') % match by acquisition number
         acqNum1 = studyS.SERIES(seriesNum).info.getString(acqNumTagDec,0);
         %acqNum1Series = series.getString(hex2dec(acqNumTag));
         if strcmpi(acqNum1Series,acqNum1) || ...
@@ -332,11 +332,11 @@ for seriesNum = length(studyS.SERIES):-1:1
         else
             acqNumMatch = 0;
         end
-        
+
     end
-    
+
     %Assign to series `seriesNum` if a match is found
-    
+
     %To avoid different modality data in one series, it must compare whole
     %series structure, but not just UID.
     % if series.matches(thisUID, 1, 0) && bValueMatch && tempPosMatch && acqNumMatch
@@ -345,7 +345,7 @@ for seriesNum = length(studyS.SERIES):-1:1
         match = 1;
         break
     end
-    
+
 end
 
 % Create new series if no match is found
@@ -397,13 +397,13 @@ end % end of function
 % %% function for subset replacement
 % %  If tags match, transfer value of tag in attr into patient
 % function patient = filterAttribs(attr, patienttemplate)
-% 
+%
 % patient = javaObject('org.dcm4che3.data.Attributes');
 % tags = patienttemplate.tags(); % Get list of tags
 % for i=1:length(tags)
 %     tag = tags(i);
-%     if attr.contains(tag)        
-%         val = getTagValue(attr, tag);        
+%     if attr.contains(tag)
+%         val = getTagValue(attr, tag);
 %         patient = data2dcmElement(patient, val, tag);
 %         el.setString(tag, vr, data);
 %         %if ~isempty(el)
@@ -423,4 +423,3 @@ for i=1:length(tags)
 end
 
 end
-
