@@ -11,9 +11,9 @@
 				       						"Dim": "3D",
 				       						"AggregationMethod": "max"
                 },
-                "EnergyKernelSize": [5,5,5],
+                "EnergyKernelSize": [11,11,11],
                 "EnergyPadMethod": "mirror",
-                "EnergyPadSize" : [2,2,2]
+                "EnergyPadSize" : [5,5,5]
            }
 },
 
