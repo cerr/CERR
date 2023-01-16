@@ -18,7 +18,8 @@ switch(phase)
         templateFile = fullfile(basePath(1:idxV(end-1)),'Unit_Testing',...
             'settings_for_comparisons','IBSI-2-Phase2-Submission-Template.csv');
         paramFilePrefix = 'IBSIPhase2-2ID';
-        settingsC = {'1a','1b','2a','2b','3a','3b','4a','4b','5a','5b','6a','6b'};
+        settingsC = {'1a','1b','2a','2b','3a','3b','4a','4b',...
+            '5a','5b','6a','6b'};
 
         dataDirName = fullfile(cerrPath(1:idxV(end-1)),...
             'Unit_Testing\data_for_cerr_tests\IBSI2_CT_phantom');
@@ -146,6 +147,7 @@ for nFile = 1:length(fileNameC)
             featC(:,setting) = struct2cell(featS);
         end
 
+        %Record diagnostic features
         if phase==2
             diagC = cellfun(@num2str,diagC,'un',0);
             tempDiagC = [outC(2:statStartLine-1),diagC];
@@ -162,10 +164,24 @@ for nFile = 1:length(fileNameC)
         featC = cellfun(@num2str,featC,'un',0);
         tempC = [outC(statStartLine:end),featC];
         outValC = outDiagC;
+        numCols = length(split(outValC(1,:),';'));
+
+        for line = 2:statStartLine-1
+            numColsLine = length(split(outValC(line,:),';'));
+            outValC{line} =  [outValC{line},...
+                repmat(';',[1,numCols - numColsLine])];
+        end
+
         for line = statStartLine:length(outC)
             outValC{line} = strjoin(tempC(line-statStartLine+1,:),';');
-            outValC{line} = [outValC{line},';;;']; %Missing configs
+            %Handle missing configurations
+            numColsLine = length(split(outValC(line,:),';'));
+            outValC{line} = [outValC{line},...
+                repmat(';',[1,numCols - numColsLine])];
+            %outValC{line} = [outValC{line},';;;;']; %TEMP
+            %outValC{line} = [outValC{line},';;;;;;;;;;']; %Missing configs
         end
+        %outValC = cellfun(@(x)split(x,';'),outValC,'un',0);
         outValC = split(outValC,';');
 
         %sheet = nMod;
