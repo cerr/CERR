@@ -1,4 +1,4 @@
-function diffS = comparePyradWithIBSIOrigImgWithInterp
+function diffS = comparePyradWithIBSI1OrigImgWithInterp
 % Compare pyradiomics features against IBSI benchmark for config C. 
 %--------------------------------------------------------------------------
 % AI 7/1/2020

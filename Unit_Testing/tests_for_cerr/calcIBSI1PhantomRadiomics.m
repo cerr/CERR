@@ -1,4 +1,4 @@
-function cerrFeatS = calcIBSIPhantomRadiomics(config)
+function cerrFeatS = calcIBSI1PhantomRadiomics(config)
 % Compute features using IBSI reference Lung CT image and configurations.
 %--------------------------------------------------------------------------
 % INPUTS
