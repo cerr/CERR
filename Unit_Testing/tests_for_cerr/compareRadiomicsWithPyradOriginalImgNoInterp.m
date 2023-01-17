@@ -1,5 +1,6 @@
 function [cerrFeatS,pyFeatS] = compareRadiomicsWithPyradOriginalImgNoInterp
-% Compare radiomics features between CERR & Pyradiomics on the original image 
+% Compare radiomics features between CERR & Pyradiomics on the 
+% IBSI1 lung CT phantom.
 %------------------------------------------------------------------------
 % AI 07/01/2020
 
