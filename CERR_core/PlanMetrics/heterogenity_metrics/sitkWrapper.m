@@ -70,11 +70,11 @@ try
     if count(P,numpyFileName) == 0
         insert(P,int32(0),numpyFileName);
     end
-    py.importlib.import_module(numpyModule);
+    np = py.importlib.import_module(numpyModule);
     if count(P,sitkFileName) == 0
         insert(P,int32(0),sitkFileName);
     end
-    py.importlib.import_module(sitkModule);
+    sitk = py.importlib.import_module(sitkModule);
 catch
     disp('SimpleITK module could not be imported, check the path');
 end
@@ -103,7 +103,7 @@ switch filterType
         % useImageDirection (bool), true by default
         
         % convert scan to numpy array and integer
-        scanPy = py.numpy.array(scan3M);
+        scanPy = np.array(scan3M);
         scanPy = scanPy.astype(py.numpy.float32);
         
         % get original shape of the scan
@@ -114,10 +114,10 @@ switch filterType
         %scanPy = reshape(scanPy,origShape);
         
         % Get image from the array
-        itkimg = py.extra.GetImageFromArray(scanPy);
+        itkimg = sitk.GetImageFromArray(scanPy);
         
         % calculate gradient
-        gradient = py.SimpleITK.GradientImageFilter();
+        gradient = sitk.GradientImageFilter();
         
         if(paramS.useImageSpacing == false)
             gradient.SetUseImageSpacing(paramS.useImageSpacing);
@@ -128,7 +128,7 @@ switch filterType
         gradImg = gradient.Execute(itkimg);
         
         % extract numpy array from resulting image
-        npGradImg = py.extra.GetArrayFromImage(gradImg);
+        npGradImg = sitk.GetArrayFromImage(gradImg);
         
         % convert resulting numpy array to matlab array in required shape
         %dblGradResultM = double(py.array.array('d',py.numpy.nditer(npGradImg)));
@@ -151,7 +151,7 @@ switch filterType
         
         % convert scan to numpy array and integer
         % scanPy = py.numpy.array(scanM(:).');
-        scanPy = py.numpy.array(scan3M);
+        scanPy = np.array(scan3M);
         scanPy = scanPy.astype(py.numpy.float32);
         
         % get original shape of the scan
@@ -162,7 +162,7 @@ switch filterType
         %scanPy = reshape(scanPy,origShape);
         
         % Get image from the array
-        itkimg = py.extra.GetImageFromArray(scanPy);
+        itkimg = sitk.GetImageFromArray(scanPy);
         
         % Set Image spacing
         zSpacing = paramS.VoxelSize_mm.val(3);
@@ -171,7 +171,7 @@ switch filterType
         itkimg.SetSpacing([zSpacing, ySpacing, xSpacing]);
         
         % calculate gradient
-        logRecursiveFilt = py.SimpleITK.LaplacianRecursiveGaussianImageFilter();
+        logRecursiveFilt = sitk.LaplacianRecursiveGaussianImageFilter();
         
         logRecursiveFilt.SetNormalizeAcrossScale(true)
         
@@ -182,7 +182,7 @@ switch filterType
         logImg = logRecursiveFilt.Execute(itkimg);
         
         % extract numpy array from resulting image
-        npLogImg = py.extra.GetArrayFromImage(logImg);
+        npLogImg = sitk.GetArrayFromImage(logImg);
         
         % convert resulting numpy array to matlab array in required shape
         %dblLogResultM = double(py.array.array('d',py.numpy.nditer(npLogImg)));
@@ -200,7 +200,8 @@ switch filterType
         % refImgPath (char vector)
         
         % convert scan to numpy array and integer
-        scanPy = py.numpy.array(scan3M);
+        scan3M = permute(scan3M,[3,1,2]);
+        scanPy = np.array(scan3M);
         scanPy = scanPy.astype(py.numpy.float32);
         
         % get original shape of the scan
@@ -212,7 +213,7 @@ switch filterType
         
         % Get image from the array
         
-        srcItkImg = py.extra.GetImageFromArray(scanPy);
+        srcItkImg = sitk.GetImageFromArray(scanPy);
         
         
         %             srcItkImg = py.SimpleITK.ReadImage('E:\data\TumorAware_MR\nrrdScanFormat.nrrd');
@@ -226,21 +227,21 @@ switch filterType
             else
                 maskImgPath = paramS.refImg.val;
             end
-            refItkImg = py.extra.ReadImage(maskImgPath);
-            refItkImg = py.extra.Cast(refItkImg,py.SimpleITK.sitkFloat32);
+            refItkImg = sitk.ReadImage(maskImgPath);
+            refItkImg = sitk.Cast(refItkImg,py.SimpleITK.sitkFloat32);
             %Adjust to RTOG-compliant orientation 
-            maskPy = py.extra.GetArrayFromImage(refItkImg);
+            maskPy = sitk.GetArrayFromImage(refItkImg);
             mask3M = single(maskPy);
             mask3M = permute(mask3M,[2,3,1]);
             mask3M = flip(flip(mask3M,1),2);
             mask3M = flip(mask3M,3);
-            maskPy = py.numpy.array(mask3M);
+            maskPy = np.array(mask3M);
             refItkImg = py.extra.GetImageFromArray(maskPy);
         elseif isfield(paramS,'refImgMat') && ~isempty(paramS.refImgMat.val)
-            maskPy = py.numpy.array(paramS.refImgMat.val);
+            maskPy = np.array(paramS.refImgMat.val);
             maskPy = maskPy.astype(py.numpy.float32);   
             % Get image from the array
-            refItkImg = py.extra.GetImageFromArray(maskPy);
+            refItkImg = sitk.GetImageFromArray(maskPy);
         else
             error('Reference image not specified for histogram matching')
         end
@@ -255,7 +256,7 @@ switch filterType
         
         %refItkImg = py.SimpleITK.reshape(refItkImg, scanPy);
         % execute Histogram Matching
-        matcher = py.SimpleITK.HistogramMatchingImageFilter();
+        matcher = sitk.HistogramMatchingImageFilter();
         matcher.SetNumberOfHistogramLevels(uint32(paramS.numHistLevel.val));
         matcher.SetNumberOfMatchPoints(uint32(paramS.numMatchPts.val));
         if(paramS.thresholdAtMeanIntensityOn.val)
@@ -264,14 +265,14 @@ switch filterType
         matchedImg = matcher.Execute(srcItkImg,refItkImg);
         
         % extract numpy array from resulting image
-        npHistImg = py.extra.GetArrayFromImage(matchedImg);
+        npHistImg = sitk.GetArrayFromImage(matchedImg);
         
         % convert resulting numpy array to matlab array in required shape
         %dblHistResultM = double(py.array.array('d',py.numpy.nditer(npHistImg)));
         %histMatM = reshape(dblHistResultM,[origScanSize(1),origScanSize(2),origScanSize(3)]);
         histMatM = double(npHistImg);
         
-        filteredOutS.histMatchedImage = histMatM;
+        filteredOutS.histMatchedImage = permute(histMatM,[2,3,1]);
         
         %             %visualize
         %             size(histMatM)
@@ -281,24 +282,25 @@ switch filterType
         
     case 'N4BiasFieldCorrectionImageFilter'
 
-        % Convert to sitk image
-        scanPy = py.numpy.array(scan3M);
+        % Convert to sitk image   
+        scan3M = permute(scan3M,[3,1,2]);
+        scanPy = np.array(scan3M);
         scanPy = scanPy.astype(py.numpy.float32);
-        srcItkImg = py.extra.GetImageFromArray(scanPy);
+        srcItkImg = sitk.GetImageFromArray(scanPy);
 
         % Get mask
         if isfield(paramS,'maskImg') && ~isempty(paramS.maskImg.val)
             maskImgPath = fullfile(paramS.maskImg.val);
-            maskImg = py.extra.ReadImage(maskImgPath);
-            maskImg = py.extra.Cast(maskImg,py.SimpleITK.sitkFloat32);
+            maskImg = sitk.ReadImage(maskImgPath);
+            maskImg = sitk.Cast(maskImg,py.SimpleITK.sitkFloat32);
             %Adjust to RTOG-compliant orientation 
-            maskPy = py.extra.GetArrayFromImage(maskImg);
+            maskPy = sitk.GetArrayFromImage(maskImg);
             mask3M = single(maskPy);
             mask3M = permute(mask3M,[2,3,1]);
             mask3M = flip(flip(mask3M,1),2);
             mask3M = flip(mask3M,3);
-            maskPy = py.numpy.array(mask3M);
-            maskImg = py.extra.GetImageFromArray(maskPy);
+            maskPy = np.array(mask3M);
+            maskImg = sitk.GetImageFromArray(maskPy);
         else
             %Use defaults
             %maskImg = py.SimpleITK.OtsuThreshold(srcItkImg,...
@@ -306,14 +308,14 @@ switch filterType
             maskImg = [];
         end
 
-        corrector = py.SimpleITK.N4BiasFieldCorrectionImageFilter();
+        corrector = sitk.N4BiasFieldCorrectionImageFilter();
 
         % Get optional parameters
         if isfield(paramS,'shrinkFactor') && paramS.shrinkFactor.val > 1
             shrink = paramS.shrinkFactor.val;
-            srcItkImg = py.SimpleITK.Shrink(srcItkImg,...
+            srcItkImg = sitk.Shrink(srcItkImg,...
                 shrink*srcItkImg.GetDimension());
-            maskImg = py.SimpleITK.Shrink(maskImg,...
+            maskImg = sitk.Shrink(maskImg,...
                 shrink*srcItkImg.GetDimension());
         end
 
@@ -340,12 +342,12 @@ switch filterType
         logBiasFieldImg = corrector.GetLogBiasFieldAsImage(srcItkImg);
         
         % Convert to matlab array         
-        npLogBiasFieldImg = py.extra.GetArrayFromImage(logBiasFieldImg);
+        npLogBiasFieldImg = sitk.GetArrayFromImage(logBiasFieldImg);
         logBiasFieldImg3M = double(npLogBiasFieldImg);
         
         correctedImageFullResolution = scan3M ./ exp(logBiasFieldImg3M);
         
-        filteredOutS.biasCorrectedImage = correctedImageFullResolution;        
+        filteredOutS.biasCorrectedImage = permute(correctedImageFullResolution,[2,3,1]);
         
         %if isfield(paramS,'shrinkFactor') && paramS.shrinkFactor.val > 1
         %  npCorrectedImg = py.extra.GetArrayFromImage(outImg);
