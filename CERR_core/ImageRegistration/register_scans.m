@@ -173,7 +173,8 @@ end
 
 %% initialize deformS
 algorithmParamsS = [];
-deformS = createNewDeformObject(baseScanUID,movScanUID,algorithm,registration_tool,algorithmParamsS);
+deformS = createNewDeformObject(baseScanUID,movScanUID,algorithm,...
+    registration_tool,algorithmParamsS);
 
 %% set output MHA image prefix
 outPrefix = fullfile(tmpDirPath,[strrep(algorithm, ' ', '_') '_' baseScanUID '_' movScanUID]);

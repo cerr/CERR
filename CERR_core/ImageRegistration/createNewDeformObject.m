@@ -6,6 +6,10 @@ function deformS = createNewDeformObject(baseScanUID,movScanUID,algorithm,...
 % APA, 08/14/2012
 % AI, 09/23/22
 
+if ~exist('DVFfileName','var')
+    DVFfileName = '';
+end
+
 deformS                     = initializeCERR('deform');
 deformS(1).baseScanUID      = baseScanUID;
 deformS(1).movScanUID       = movScanUID;
