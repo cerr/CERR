@@ -58,11 +58,13 @@ for type = 1:length(imageTypeC)
                 featM = nan(numPts,numFeat);
                 for iField = 1:numFeat
                     featVal = [featClassS.(fieldNamC{iField})]';
-                    if length(featVal)>1
-                        %featVal = num2str(featVal);
-                        featVal = strjoin(""+featVal,", ");
+                    %if length(featVal)>1
+                    %    %featVal = num2str(featVal);
+                    %    featVal = strjoin(""+featVal,", ");
+                    %end
+                    if length(featVal)==1
+                        featM(:,iField) = featVal;
                     end
-                    featM(:,iField) = featVal;
                 end
                 variableC=[variableC;fieldNamC];
                 dataM=[dataM featM];
@@ -78,11 +80,9 @@ for type = 1:length(imageTypeC)
                     featM = nan(numPts,numFeat);
                     for iField = 1:length(fieldNamC)
                         featVal = [combFeatS.(fieldNamC{iField})]';
-                        if length(featVal)>1
-                            %featVal = num2str(featVal);
-                            featVal = strjoin(""+featVal,", ");
+                        if length(featVal)==1
+                            featM(:,iField) = featVal;
                         end
-                        featM(:,iField) = featVal;
                     end
                     variableC=[variableC;fieldNamC];
                     dataM=[dataM featM];
@@ -97,11 +97,9 @@ for type = 1:length(imageTypeC)
                 featM = nan(numPts,numFeat);
                 for iField = 1:length(fieldNamC)
                     featVal = [combFeatS.(fieldNamC{iField})]';
-                    if length(featVal)>1
-                        %featVal = num2str(featVal);
-                        featVal = strjoin(""+featVal,", ");
+                    if length(featVal)==1
+                        featM(:,iField) = featVal;
                     end
-                    featM(:,iField) = featVal;
                 end
                 variableC=[variableC;fieldNamC];
                 dataM=[dataM featM];
