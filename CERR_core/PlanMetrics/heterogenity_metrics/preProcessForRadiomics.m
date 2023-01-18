@@ -237,21 +237,21 @@ if whichFeatS.padding.flag
         resampMaskBounds3M,filtPadMethod,filtPadSizeV,cropFlag);
 
     %Extend resampling grid if padding original image (cropFlag=0)
-    if outLimitsV(1)<0
+    if outLimitsV(1)<1
         numPad = (1-outLimitsV(1));
         yExtendV = yResampleV(1)-(1:numPad)*outputResV(2);
         yResampleV = [yExtendV,yResampleV];
         outLimitsV(1) = outLimitsV(1)+numPad;
         outLimitsV(2) = outLimitsV(2)+numPad;
     end
-    if outLimitsV(3)<0
+    if outLimitsV(3)<1
         numPad = (1-outLimitsV(3));
         xExtendV = xResampleV(1)-(1:numPad)*outputResV(1);
         xResampleV = [xExtendV,xResampleV];
         outLimitsV(3) = outLimitsV(3)+numPad;
         outLimitsV(4) = outLimitsV(4)+numPad;
     end
-    if outLimitsV(5)<0
+    if outLimitsV(5)<1
         numPad = (1-outLimitsV(5));
         zExtendV = zResampleV(1)-(1:numPad)*outputResV(3);
         zResampleV = [zExtendV,zResampleV];
