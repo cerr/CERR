@@ -59,7 +59,7 @@ for type = 1:length(imageTypeC)
                 featM = nan(numPts,numFeat);
                 for iField = 1:numFeat
                     featVal1 = featClassS.(fieldNamC{iField});
-                    if ~ischar(featVal1)
+                    if ~ischar(featVal1) && size(featVal1,2)==1
                         featVal = [featClassS.(fieldNamC{iField})]';
                         %if length(featVal)>1
                         %    %featVal = num2str(featVal);
@@ -83,7 +83,7 @@ for type = 1:length(imageTypeC)
                     featM = nan(numPts,numFeat);
                     for iField = 1:length(fieldNamC)
                         featVal1 = combFeatS(1).(fieldNamC{iField});
-                        if ~ischar(featVal1)
+                        if ~ischar(featVal1) && size(featVal1,2)==1
                             featVal = [combFeatS.(fieldNamC{iField})]';
                             if size(featVal,2)==1
                                 featM(:,iField) = featVal;
@@ -102,7 +102,7 @@ for type = 1:length(imageTypeC)
                 featM = nan(numPts,numFeat);
                 for iField = 1:length(fieldNamC)
                     featVal1 = combFeatS(1).(fieldNamC{iField});
-                    if ~ischar(featVal1)
+                    if ~ischar(featVal1) && size(featVal1,2)==1
                         featVal = [combFeatS.(fieldNamC{iField})]';
                         if size(featVal,2)==1
                             featM(:,iField) = featVal;
