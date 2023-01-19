@@ -5,7 +5,7 @@ function writeFeaturesToCSV(featuresS,csvFile,idC)
 % INPUTS
 % featuresS   : Dictionary of features output by calcGlobalRadiomicsFeatures.m
 % csvFile     : Path to output CSV file.
-% idC         : Cell array of patient IDs. 
+% idC         : Cell array of patient IDs.
 % -------------------------------------------------------------------------
 % AI 1/16/23
 
@@ -59,7 +59,7 @@ for type = 1:length(imageTypeC)
                 featM = nan(numPts,numFeat);
                 for iField = 1:numFeat
                     featVal1 = featClassS.(fieldNamC{iField});
-                    if ~ischar(featVal1)
+                    if ~ischar(featVal1) && size(featVal1,2)==1
                         featVal = [featClassS.(fieldNamC{iField})]';
                         %if length(featVal)>1
                         %    %featVal = num2str(featVal);
@@ -83,7 +83,7 @@ for type = 1:length(imageTypeC)
                     featM = nan(numPts,numFeat);
                     for iField = 1:length(fieldNamC)
                         featVal1 = combFeatS(1).(fieldNamC{iField});
-                        if ~ischar(featVal1)
+                        if ~ischar(featVal1) && size(featVal1,2)==1
                             featVal = [combFeatS.(fieldNamC{iField})]';
                             if size(featVal,2)==1
                                 featM(:,iField) = featVal;
@@ -102,7 +102,7 @@ for type = 1:length(imageTypeC)
                 featM = nan(numPts,numFeat);
                 for iField = 1:length(fieldNamC)
                     featVal1 = combFeatS(1).(fieldNamC{iField});
-                    if ~ischar(featVal1)
+                    if ~ischar(featVal1) && size(featVal1,2)==1
                         featVal = [combFeatS.(fieldNamC{iField})]';
                         if size(featVal,2)==1
                             featM(:,iField) = featVal;
@@ -117,12 +117,13 @@ for type = 1:length(imageTypeC)
                 featListC = fieldnames(featClassS);
 
                 %All supported feature categories
-                allCtegC = {'Ix','IabsX','Vx','VabsX','MOHx','MOCx'}; 
+                allCtegC = {'Ix','IabsX','Vx','VabsX','MOHx','MOCx'};
 
                 ivhFeatM = [];
                 availCtegC = {};
                 for cNum = 1:length(allCtegC)
-                    matchIdxV = find(contains(featListC,allCtegC{cNum}));
+                    idxC = strfind(featListC,allCtegC{cNum});
+                    matchIdxV = find([idxC{:}]);
                     if ~isempty(matchIdxV)
                         % variable name
                         matchVar = {};
