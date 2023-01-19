@@ -58,13 +58,16 @@ for type = 1:length(imageTypeC)
                 numFeat = length(fieldNamC);
                 featM = nan(numPts,numFeat);
                 for iField = 1:numFeat
-                    featVal = [featClassS.(fieldNamC{iField})]';
-                    %if length(featVal)>1
-                    %    %featVal = num2str(featVal);
-                    %    featVal = strjoin(""+featVal,", ");
-                    %end
-                    if length(featVal)==1
-                        featM(:,iField) = featVal;
+                    featVal1 = featClassS.(fieldNamC{iField});
+                    if ~ischar(featVal1)
+                        featVal = [featClassS.(fieldNamC{iField})]';
+                        %if length(featVal)>1
+                        %    %featVal = num2str(featVal);
+                        %    featVal = strjoin(""+featVal,", ");
+                        %end
+                        if size(featVal,2)==1
+                            featM(:,iField) = featVal;
+                        end
                     end
                 end
                 variableC=[variableC;fieldNamC];
@@ -79,9 +82,12 @@ for type = 1:length(imageTypeC)
                     numFeat = length(fieldNamC);
                     featM = nan(numPts,numFeat);
                     for iField = 1:length(fieldNamC)
-                        featVal = [combFeatS.(fieldNamC{iField})]';
-                        if length(featVal)==1
-                            featM(:,iField) = featVal;
+                        featVal1 = combFeatS(1).(fieldNamC{iField});
+                        if ~ischar(featVal1)
+                            featVal = [combFeatS.(fieldNamC{iField})]';
+                            if size(featVal,2)==1
+                                featM(:,iField) = featVal;
+                            end
                         end
                     end
                     variableC=[variableC;fieldNamC];
@@ -95,9 +101,12 @@ for type = 1:length(imageTypeC)
                 numFeat = length(fieldNamC);
                 featM = nan(numPts,numFeat);
                 for iField = 1:length(fieldNamC)
-                    featVal = [combFeatS.(fieldNamC{iField})]';
-                    if length(featVal)==1
-                        featM(:,iField) = featVal;
+                    featVal1 = combFeatS(1).(fieldNamC{iField});
+                    if ~ischar(featVal1)
+                        featVal = [combFeatS.(fieldNamC{iField})]';
+                        if size(featVal,2)==1
+                            featM(:,iField) = featVal;
+                        end
                     end
                 end
                 variableC=[variableC;fieldNamC];
