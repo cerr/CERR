@@ -1,4 +1,4 @@
-function [cerrFeatS,IBSIfeatS,pctDiffS] = compareRadiomicsWithIBSIOrigImgWithInterp
+function [cerrFeatS,IBSIfeatS,pctDiffS] = compareRadiomicsWithIBSI1OrigImgWithInterp
 % Function to compare radiomics features computed using CERR against
 % the IBSI benchmark for configuration C.
 

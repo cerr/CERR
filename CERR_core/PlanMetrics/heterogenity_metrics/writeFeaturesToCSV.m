@@ -22,11 +22,13 @@ variableC = {};
 dataM = [];
 
 %Get feature classes
-featFieldsC = fieldnames(featuresS);
+fieldsC = fieldnames(featuresS);
+strFeaturesS = [featuresS(:).(fieldsC{1})];
+featFieldsC = fieldnames(strFeaturesS);
 
 %Record shape features (common across image types)
 if any(ismember(featFieldsC,'shapeS'))
-    featClassS = [featuresS.shapeS];
+    featClassS = [strFeaturesS(:).shapeS];
     fieldNamC = fieldnames(featClassS);
     numFeat = length(fieldNamC);
     featM = nan(numPts,numFeat);
@@ -40,7 +42,7 @@ end
 %Loop over image types
 imageTypeC = featFieldsC(~ismember(featFieldsC,'shapeS'));
 for type = 1:length(imageTypeC)
-    imgFeatS = featuresS.(imageTypeC{type});
+    imgFeatS = [strFeaturesS(:).(imageTypeC{type})];
     featClassesC = fieldnames(imgFeatS);
 
     %Loop over feature classes
@@ -48,28 +50,31 @@ for type = 1:length(imageTypeC)
         featClass = featClassesC{nClass};
 
         switch(featClass)
-            case {'ngtdmFeatures2dS','ngtdmFeatures3dS',...
-                    'ngldmFeatures2dS','ngldmFeatures3dS','szmFeature2dS',...
-                    'szmFeature3dS','firstOrderS','peakValleyFeatureS'}
+            case {'ngtdmFeatS','ngldmFeatS','szmFeatS','firstOrderS',...
+                   'peakValleyFeatureS'}
 
                 featClassS = [imgFeatS.(featClass)];
                 fieldNamC = fieldnames(featClassS);
                 numFeat = length(fieldNamC);
                 featM = nan(numPts,numFeat);
                 for iField = 1:numFeat
-                    featVal = [featClassS.(fieldNamC{iField})]';
-                    if length(featVal)>1
-                        %featVal = num2str(featVal);
-                        featVal = strjoin(""+featVal,", ");
+                    featVal1 = featClassS.(fieldNamC{iField});
+                    if ~ischar(featVal1) && size(featVal1,2)==1
+                        featVal = [featClassS.(fieldNamC{iField})]';
+                        %if length(featVal)>1
+                        %    %featVal = num2str(featVal);
+                        %    featVal = strjoin(""+featVal,", ");
+                        %end
+                        if size(featVal,2)==1
+                            featM(:,iField) = featVal;
+                        end
                     end
-                    featM(:,iField) = featVal;
                 end
                 variableC=[variableC;fieldNamC];
                 dataM=[dataM featM];
 
-            case {'harFeat2DdirS','harFeat3DdirS','rlmFeat2DdirS',...
-                  'rlmFeat3DdirS'}
-                featClassS = [imgFeatS.(featClass)];
+            case {'harFeatS','glcmFeatS','rlmFeatS'}
+                featClassS = [imgFeatS(:).(featClass)];
                 subFieldsC = {'AvgS','MaxS','MinS','StdS','MadS'};
                 for nSub = 1:length(subFieldsC)
                     combFeatS = [featClassS.(subFieldsC{nSub})];
@@ -77,42 +82,42 @@ for type = 1:length(imageTypeC)
                     numFeat = length(fieldNamC);
                     featM = nan(numPts,numFeat);
                     for iField = 1:length(fieldNamC)
-                        featVal = [combFeatS.(fieldNamC{iField})]';
-                        if length(featVal)>1
-                            %featVal = num2str(featVal);
-                            featVal = strjoin(""+featVal,", ");
+                        featVal1 = combFeatS(1).(fieldNamC{iField});
+                        if ~ischar(featVal1) && size(featVal1,2)==1
+                            featVal = [combFeatS.(fieldNamC{iField})]';
+                            if size(featVal,2)==1
+                                featM(:,iField) = featVal;
+                            end
                         end
-                        featM(:,iField) = featVal;
                     end
                     variableC=[variableC;fieldNamC];
                     dataM=[dataM featM];
                 end
 
-            case {'harFeat2DcombS','harFeat3DcombS','rlmFeat2DcombS',...
-                  'rlmFeat3DcombS'}
+            case {'harFeatcombS','rlmFeatcombS'}
                 featClassS = [imgFeatS.(featClass)];
                 combFeatS = [featClassS.CombS];
                 fieldNamC = fieldnames(combFeatS);
                 numFeat = length(fieldNamC);
                 featM = nan(numPts,numFeat);
                 for iField = 1:length(fieldNamC)
-                    featVal = [combFeatS.(fieldNamC{iField})]';
-                    if length(featVal)>1
-                        %featVal = num2str(featVal);
-                        featVal = strjoin(""+featVal,", ");
+                    featVal1 = combFeatS(1).(fieldNamC{iField});
+                    if ~ischar(featVal1) && size(featVal1,2)==1
+                        featVal = [combFeatS.(fieldNamC{iField})]';
+                        if size(featVal,2)==1
+                            featM(:,iField) = featVal;
+                        end
                     end
-                    featM(:,iField) = featVal;
                 end
                 variableC=[variableC;fieldNamC];
                 dataM=[dataM featM];
 
             case 'ivhFeaturesS'
-                featClassS = [imgFeatS.(featClass)];
+                featClassS = [imgFeatS(:).(featClass)];
                 featListC = fieldnames(featClassS);
 
                 %All supported feature categories
                 allCtegC = {'Ix','IabsX','Vx','VabsX','MOHx','MOCx'}; 
-                availCtegC = featListC();
 
                 ivhFeatM = [];
                 availCtegC = {};
@@ -124,7 +129,8 @@ for type = 1:length(imageTypeC)
                         matchVal = [];
                         for i = 1:length(matchIdxV)
                             matchVar = [matchVar,featListC{matchIdxV(i)}];
-                            matchVal = [matchVal,featClassS.(featListC{matchIdxV(i)})];
+                            allVal = [featClassS.(featListC{matchIdxV(i)})]';
+                            matchVal = [matchVal, allVal];
                         end
                     end
                     availCtegC = [availCtegC,matchVar];

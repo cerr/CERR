@@ -139,10 +139,10 @@ end
 % Crop to ROI and pad
 %cropFlag = 1;
 %padMethod = whichFeatS.padding.method;
-%---temp---
+%---For IBSI2 ------
 cropFlag = 0;
 padMethod = 'none';
-%----------
+%------------------
 scanArray3M = double(scanArray3M);
 [padScanBoundsForResamp3M,padMaskBoundsForResamp3M,outLimitsV] = ...
     padScan(scanArray3M,mask3M,padMethod,padSizV,cropFlag);
@@ -208,6 +208,10 @@ else
     yResampleV = yValsV;
     zResampleV = zValsV;
     newSlcIndV = 1:length(slcIndV);
+    dx = abs(median(diff(xResampleV)));
+    dy = abs(median(diff(yResampleV)));
+    dz = abs(median(diff(zResampleV)));
+    outputResV = [dx dy dz];
 end
 
 %Apply padding as required for convolutional filtering
@@ -229,8 +233,49 @@ if whichFeatS.padding.flag
         filtPadSizeV = [0 0 0];
     end
 
-    [volToEval,maskBoundingBox3M] = padScan(resampScanBounds3M,...
+    [volToEval,maskBoundingBox3M,outLimitsV] = padScan(resampScanBounds3M,...
         resampMaskBounds3M,filtPadMethod,filtPadSizeV,cropFlag);
+
+    %Extend resampling grid if padding original image (cropFlag=0)
+    if outLimitsV(1)<1
+        numPad = (1-outLimitsV(1));
+        yExtendV = yResampleV(1)-(1:numPad)*outputResV(2);
+        yResampleV = [yExtendV,yResampleV];
+        outLimitsV(1) = outLimitsV(1)+numPad;
+        outLimitsV(2) = outLimitsV(2)+numPad;
+    end
+    if outLimitsV(3)<1
+        numPad = (1-outLimitsV(3));
+        xExtendV = xResampleV(1)-(1:numPad)*outputResV(1);
+        xResampleV = [xExtendV,xResampleV];
+        outLimitsV(3) = outLimitsV(3)+numPad;
+        outLimitsV(4) = outLimitsV(4)+numPad;
+    end
+    if outLimitsV(5)<1
+        numPad = (1-outLimitsV(5));
+        zExtendV = zResampleV(1)-(1:numPad)*outputResV(3);
+        zResampleV = [zExtendV,zResampleV];
+        outLimitsV(5) = outLimitsV(5)+numPad;
+        outLimitsV(6) = outLimitsV(6)+numPad;
+    end
+    if outLimitsV(2)>length(yResampleV)
+        numPad = (outLimitsV(2)-length(yResampleV));
+        yExtendV = yResampleV(end)+(1:numPad)*outputResV(2);
+        yResampleV = [yResampleV,yExtendV];
+    end
+    if outLimitsV(4)>xResampleV(end)
+        numPad = (outLimitsV(4)-length(xResampleV));
+        xExtendV = xResampleV(end)+(1:numPad)*outputResV(1);
+        xResampleV = [xResampleV,xExtendV];
+    end
+    if outLimitsV(6)>zResampleV(end)
+        numPad = (outLimitsV(6)-length(zResampleV));
+        zExtendV = zResampleV(end)+(1:numPad)*outputResV(3);
+        zResampleV = [zResampleV,zExtendV];
+    end
+    xResampleV = xResampleV(outLimitsV(3):outLimitsV(4));
+    yResampleV = yResampleV(outLimitsV(1):outLimitsV(2));
+    zResampleV = zResampleV(outLimitsV(5):outLimitsV(6));
 else
 %     resampSizeV = size(resampScanBounds3M);
 %     volToEval = resampScanBounds3M(padSizV(1)+1:resampSizeV(1)-padSizV(1),...
@@ -239,7 +284,7 @@ else
 %     maskBoundingBox3M = resampMaskBounds3M(padSizV(1)+1:resampSizeV(1)-padSizV(1),...
 %         padSizV(2)+1:resampSizeV(2)-padSizV(2),...
 %         padSizV(3)+1:resampSizeV(3)-padSizV(3));
-    resampSizeV = size(resampScanBounds3M);
+%    resampSizeV = size(resampScanBounds3M);
     volToEval = resampScanBounds3M;
     maskBoundingBox3M = resampMaskBounds3M;
 end
