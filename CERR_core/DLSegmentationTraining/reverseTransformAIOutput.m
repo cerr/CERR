@@ -18,7 +18,10 @@ output = userOptS.output;
 %% Resize/pad mask to original dimensions
 
 %Get parameters for resizing & cropping
-cropS = scanOptS.crop; %Added
+cropS = scanOptS.crop; 
+if isfield(cropS,'params') && isfield(cropS.params,'saveStrToPlanCFlag')
+    cropS.params.saveStrToPlanCFlag = 0;
+end
 
 % cropS.params.saveStrToPlanCFlag=0;
 [minr, maxr, minc, maxc, slcV, ~, planC] = getCropLimits(planC,data3M,...

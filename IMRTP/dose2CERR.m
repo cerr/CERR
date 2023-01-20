@@ -133,7 +133,7 @@ end
 
 if nargin > 5 & strcmpi(register,'CT')
 
-    scanNum = getAssociatedScan(assocScanUID);
+    scanNum = getAssociatedScan(assocScanUID,planC);
     
     grid2Units = planC{indexS.scan}(scanNum).scanInfo(1).grid2Units;
     grid1Units = planC{indexS.scan}(scanNum).scanInfo(1).grid1Units;
