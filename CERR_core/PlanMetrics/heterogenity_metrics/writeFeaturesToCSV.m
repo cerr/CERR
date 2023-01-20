@@ -23,26 +23,29 @@ dataM = [];
 
 %Get feature classes
 fieldsC = fieldnames(featuresS);
-strFeaturesS = [featuresS(:).(fieldsC{1})];
-featFieldsC = fieldnames(strFeaturesS);
+%strFeaturesS = [featuresS(:).(fieldsC{1})];
+%featFieldsC = fieldnames(strFeaturesS);
+featFieldsC = fieldnames(featuresS);
 
 %Record shape features (common across image types)
 if any(ismember(featFieldsC,'shapeS'))
-    featClassS = [strFeaturesS(:).shapeS];
+    featClassS = [featuresS(:).shapeS];
+    %featClassS = [strFeaturesS(:).shapeS];
     fieldNamC = fieldnames(featClassS);
     numFeat = length(fieldNamC);
     featM = nan(numPts,numFeat);
     for iField = 1:numFeat
         featM(:,iField) = [featClassS.(fieldNamC{iField})]';
     end
-    variableC=[variableC;fieldNamC];
+    variableC=[variableC;strcat('Shape_',fieldNamC)];
     dataM=[dataM featM];
 end
 
 %Loop over image types
 imageTypeC = featFieldsC(~ismember(featFieldsC,'shapeS'));
 for type = 1:length(imageTypeC)
-    imgFeatS = [strFeaturesS(:).(imageTypeC{type})];
+    %imgFeatS = [strFeaturesS(:).(imageTypeC{type})];
+    imgFeatS = [featuresS(:).(imageTypeC{type})];
     featClassesC = fieldnames(imgFeatS);
 
     %Loop over feature classes
@@ -51,7 +54,7 @@ for type = 1:length(imageTypeC)
 
         switch(featClass)
             case {'ngtdmFeatS','ngldmFeatS','szmFeatS','firstOrderS',...
-                   'peakValleyFeatureS'}
+                   'peakValleyFeatureS','ivhFeaturesS'}
 
                 featClassS = [imgFeatS.(featClass)];
                 fieldNamC = fieldnames(featClassS);
@@ -70,18 +73,26 @@ for type = 1:length(imageTypeC)
                         end
                     end
                 end
-                variableC=[variableC;fieldNamC];
-                dataM=[dataM featM];
+                variableC = [variableC;strcat([featClass,'_'],fieldNamC)];
+                dataM = [dataM featM];
 
             case {'harFeatS','glcmFeatS','rlmFeatS'}
                 featClassS = [imgFeatS(:).(featClass)];
                 subFieldsC = {'AvgS','MaxS','MinS','StdS','MadS'};
+                fieldSubSieldC = {};
+                %combFeatS = [featClassS.(subFieldsC{1})];
+                %fieldNamC = fieldnames(combFeatS);
+                %numFeatInSubClass = length(fieldNamC);
+                %numSubfields = length(subFieldsC);
+                %featM = nan(numPts,numFeatInSubClass*numSubfields);
                 for nSub = 1:length(subFieldsC)
                     combFeatS = [featClassS.(subFieldsC{nSub})];
                     fieldNamC = fieldnames(combFeatS);
+                    fieldSubSieldC = strcat(...
+                        [featClass,'_',subFieldsC{nSub},'_'],fieldNamC);
                     numFeat = length(fieldNamC);
                     featM = nan(numPts,numFeat);
-                    for iField = 1:length(fieldNamC)
+                    for iField = 1:numFeat
                         featVal1 = combFeatS(1).(fieldNamC{iField});
                         if ~ischar(featVal1) && size(featVal1,2)==1
                             featVal = [combFeatS.(fieldNamC{iField})]';
@@ -90,8 +101,9 @@ for type = 1:length(imageTypeC)
                             end
                         end
                     end
-                    variableC=[variableC;fieldNamC];
-                    dataM=[dataM featM];
+                    %variableC=[variableC;fieldNamC];
+                    variableC = [variableC;fieldSubSieldC];
+                    dataM=[dataM, featM];
                 end
 
             case {'harFeatcombS','rlmFeatcombS'}
@@ -109,48 +121,49 @@ for type = 1:length(imageTypeC)
                         end
                     end
                 end
-                variableC=[variableC;fieldNamC];
+                %variableC=[variableC;fieldNamC];
+                variableC = [variableC;strcat([featClass,'_'],fieldNamC)];
                 dataM=[dataM featM];
 
-            case 'ivhFeaturesS'
-                featClassS = [imgFeatS(:).(featClass)];
-                featListC = fieldnames(featClassS);
-
-                %All supported feature categories
-                allCtegC = {'Ix','IabsX','Vx','VabsX','MOHx','MOCx'}; 
-
-                ivhFeatM = [];
-                availCtegC = {};
-                for cNum = 1:length(allCtegC)
-                    matchIdxV = find(contains(featListC,allCtegC{cNum}));
-                    if ~isempty(matchIdxV)
-                        % variable name
-                        matchVar = {};
-                        matchVal = [];
-                        for i = 1:length(matchIdxV)
-                            matchVar = [matchVar,featListC{matchIdxV(i)}];
-                            allVal = [featClassS.(featListC{matchIdxV(i)})]';
-                            matchVal = [matchVal, allVal];
-                        end
-                    end
-                    availCtegC = [availCtegC,matchVar];
-                    ivhFeatM = [ivhFeatM,matchVal];
-                end
-
-                variableC=[variableC;availCtegC'];
-                dataM=[dataM ivhFeatM];
+%             case 'ivhFeaturesS'
+%                 featClassS = [imgFeatS(:).(featClass)];
+%                 featListC = fieldnames(featClassS);
+% 
+%                 %All supported feature categories
+%                 allCtegC = {'Ix','IabsX','Vx','VabsX','MOHx','MOCx'}; 
+% 
+%                 ivhFeatM = [];
+%                 availCtegC = {};
+%                 for cNum = 1:length(allCtegC)
+%                     matchIdxV = find(contains(featListC,allCtegC{cNum}));
+%                     if ~isempty(matchIdxV)
+%                         % variable name
+%                         matchVar = {};
+%                         matchVal = [];
+%                         for i = 1:length(matchIdxV)
+%                             matchVar = [matchVar,featListC{matchIdxV(i)}];
+%                             allVal = [featClassS.(featListC{matchIdxV(i)})]';
+%                             matchVal = [matchVal, allVal];
+%                         end
+%                     end
+%                     availCtegC = [availCtegC,matchVar];
+%                     ivhFeatM = [ivhFeatM,matchVal];
+%                 end
+% 
+%                 variableC=[variableC;availCtegC'];
+%                 dataM=[dataM ivhFeatM];
         end
     end
 
     %CSV file headings
     outC = cell(numPts,1);
     rowHeadings = strjoin(variableC,',');
-    rowHeadings = [',',rowHeadings];
+    rowHeadings = ['id,',rowHeadings];
     outC{1} = rowHeadings;
 
     %Write to file
     for pt = 1:size(dataM,1)
-        outC{pt+1} = sprintf('%s,%.3g,' ,idC{pt},dataM(pt,:));
+        outC{pt+1} = sprintf('%s,%.5g,' ,idC{pt},dataM(pt,:));
     end
     cell2file(outC,csvFile);
 
