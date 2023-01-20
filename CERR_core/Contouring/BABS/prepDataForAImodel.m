@@ -174,10 +174,10 @@ if iscell(planC)
 
                     %Write to model input fmt
                     writeDataForDL(scanC{nScan},maskC{nScan},coordInfoS,...
-                    passedScanDim,modelFmt,outDirC,idOut,skipMaskExport);
+                        passedScanDim,modelFmt,outDirC,idOut,skipMaskExport);
                 end
 
-            %case 'dose'
+                %case 'dose'
 
             otherwise
                 error('Invalid input type '' %s ''.')
@@ -200,54 +200,55 @@ else
         filePrefixForHDF5 = ['cerrFile^',ptName];
         for nIn = 1:length(inputC)
 
-          inputType = inputC{nIn};
+            inputType = inputC{nIn};
 
-          switch(inputType)
+            switch(inputType)
 
-              case {'scan','structure'}
+                case {'scan','structure'}
 
-                  exportScan = 1;
-                  if strcmpi(inputType,'structure')
-                      indexS = planC{end};
-                      strNameC = inputS.structure.name;
-                      if ~iscell(strNameC)
-                        strNameC = {strNameC};
-                      end
-                      %For structures associated with scans input to the
-                      %model export is handled in extractAndPreprocessDataForDL
-                      %below
-                      strC = {planC{indexS.structures}.structureName};
-                      strNumV = nan(1,length(strNameC));
-                      for nStr = 1:length(strNameC)
-                          strNumV(nStr) = getMatchingIndex(strNameC,strC,'EXACT');
-                      end
-                      assocScanV = getStructureAssociatedScan(strNumV,planC);
-                      skipIdxV = ismember(assocScanV,scanNumV);
-                      strNumV = strNumV(~skipIdxV);
-                      scanC = {};
-                      for nStr = 1:length(strNumV)
-                          strMaskC{nStr} = getStrMask(strNumV(nStr),planC);
-                      end
-                      if sum(skipIdxV)==0
-                          exportScan = 0;
-                      end
-                      if sum(~skipIdxV)>0
-                          maskC{1} = strMaskC;
-                      end
-                  end
+                    exportScan = 1;
+                    if strcmpi(inputType,'structure')
+                        indexS = planC{end};
+                        strNameC = inputS.structure.name;
+                        if ~iscell(strNameC)
+                            strNameC = {strNameC};
+                        end
+                        %For structures associated with scans input to the
+                        %model export is handled in extractAndPreprocessDataForDL
+                        %below
+                        strC = {planC{indexS.structures}.structureName};
+                        strNumV = nan(1,length(strNameC));
+                        for nStr = 1:length(strNameC)
+                            strNumV(nStr) = getMatchingIndex(strNameC,strC,'EXACT');
+                        end
+                        assocScanV = getStructureAssociatedScan(strNumV,planC);
+                        skipIdxV = ismember(assocScanV,scanNumV);
+                        strNumV = strNumV(~skipIdxV);
+                        if sum(skipIdxV)==length(assocScanV)
+                            exportScan = 0;
+                            continue
+                        end
 
-                  if exportScan
-                     %Pre-process data and export to model input fmt
-                     fprintf('\nPre-processing data...\n');
-                     [scanC, maskC, origScanNumV, scanNumV, userOptS,...
-                      coordInfoS, planC] = ...
-                      extractAndPreprocessDataForDL(userOptS,planC,...
-                          skipMaskExport,scanNumV);
-                  end
+                        scanC = {};
+                        for nStr = 1:length(strNumV)
+                            strMaskC{nStr} = getStrMask(strNumV(nStr),planC);
+                        end
+                        maskC{1} = strMaskC;
 
-                  %Export to model input format
-                  tic
-                  fprintf('\nWriting to %s format...\n',modelFmt);
+                    end
+
+                    if exportScan
+                        %Pre-process data and export to model input fmt
+                        fprintf('\nPre-processing data...\n');
+                        [scanC, maskC, origScanNumV, scanNumV, userOptS,...
+                            coordInfoS, planC] = ...
+                            extractAndPreprocessDataForDL(userOptS,planC,...
+                            skipMaskExport,scanNumV);
+                    end
+
+                    %Export to model input format
+                    tic
+                    fprintf('\nWriting to %s format...\n',modelFmt);
                   passedScanDim = userOptS.passedScanDim;
                   scanOptS = userOptS.input.scan;
 
