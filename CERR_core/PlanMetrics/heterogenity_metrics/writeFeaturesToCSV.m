@@ -156,7 +156,7 @@ for type = 1:length(imageTypeC)
 
     %Write to file
     for pt = 1:size(dataM,1)
-        outC{pt+1} = sprintf('%s,%.5g,' ,idC{pt},dataM(pt,:));
+        outC{pt+1} = [idC{pt},',',sprintf('%.5g,' ,dataM(pt,:))];
     end
     cell2file(outC,csvFile);
 
