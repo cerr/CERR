@@ -43,6 +43,8 @@ if exist('strFileMapC','var') && iscell(strFileMapC)
             strNumV(idMatch) = structIndV(idNum);
         end
     end
+    all_filenames(isnan(strNumV)) = [];
+    strNumV(isnan(strNumV)) = [];
 else
     strNumV = [];
 end
