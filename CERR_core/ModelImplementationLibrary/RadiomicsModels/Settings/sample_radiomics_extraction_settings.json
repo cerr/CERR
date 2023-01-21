@@ -1,0 +1,102 @@
+{
+
+"structures": ["GTV_p_n_MT"],
+
+"imageType": {
+  		  "Original": {},
+		  "Wavelets": {
+				"Wavelets": "Haar",
+				"Index": "",
+				"Direction": "HLH"
+			      }
+
+	    },
+
+"settings": {		   
+
+		   "resample": {
+				 "resolutionXCm": 0.1,
+				 "resolutionYCm": 0.1,
+				 "resolutionZCm": 0.1,
+				 "interpMethod": "sinc"
+			       },
+
+           "perturbation": { 
+
+                           },
+
+		   "firstOrder" :{ 
+				   "binWidthEntropy": 25,
+				   "offsetForEnergy": 0
+                                 },
+
+		   "texture" :{ 
+                "binwidth": [],
+				"numGrLevels": 50,
+				"minSegThreshold": -500,
+				"maxSegThreshold": 1000,
+                "minClipIntensity": -200,
+                "maxClipIntensity": 300,
+                "directionality": "2D",
+				"avgType": "feature",
+				"voxelOffset": 1,
+				"patchRadiusVox": [3, 3, 3],
+				"imgDiffThresh": 10
+                              },
+
+		   "shape" :{ 
+                     "rcs": []
+                            },
+
+		  "peakValley" :{ 
+				   "peakRadius": [2, 2, 0],
+				   "units": "vox"	
+                                },
+
+		  "ivh" :{ 
+			    "binwidth": 0.1,
+			    "xForIxPct": [20, 30, 40],
+			    "xForIxCc": [200,300,400],
+			    "xForVxPct": [10, 30, 30],
+			    "xForVxAbs": [0, 10, 30]		
+                         }		   	
+
+	    },
+
+
+ "featureClass":{
+			
+
+        "shape": {
+			    	   "featureList": ["compactness","sphericity"]
+                 },
+
+        "firstOrder": {
+			    	  "featureList": ["totalEnergy"]
+			          },
+
+		"glcm": {
+			    	  "featureList": ["all"]
+                },
+
+		"glrlm": {
+			    	  "featureList": ["runLengthNonUniformity"]
+                                 
+		         },
+
+		"glszm": {
+			          
+                },
+
+		"gldm": {
+			    
+                },
+
+		"gtdm": {			    	
+                                  
+		         }
+
+
+            }
+
+}
