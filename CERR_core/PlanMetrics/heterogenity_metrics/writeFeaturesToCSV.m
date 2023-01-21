@@ -42,10 +42,11 @@ if any(ismember(featFieldsC,'shapeS'))
 end
 
 %Loop over image types
-imageTypeC = featFieldsC(~ismember(featFieldsC,'shapeS'));
+imageTypeC = featFieldsC(~ismember(featFieldsC,{'shapeS','fileName'}));
 for type = 1:length(imageTypeC)
     %imgFeatS = [strFeaturesS(:).(imageTypeC{type})];
-    imgFeatS = [featuresS(:).(imageTypeC{type})];
+    imgType = imageTypeC{type};
+    imgFeatS = [featuresS(:).(imgType)];
     featClassesC = fieldnames(imgFeatS);
 
     %Loop over feature classes
@@ -73,23 +74,17 @@ for type = 1:length(imageTypeC)
                         end
                     end
                 end
-                variableC = [variableC;strcat([featClass,'_'],fieldNamC)];
+                variableC = [variableC;strcat([imgType,'_',featClass,'_'],fieldNamC)];
                 dataM = [dataM featM];
 
             case {'harFeatS','glcmFeatS','rlmFeatS'}
                 featClassS = [imgFeatS(:).(featClass)];
                 subFieldsC = {'AvgS','MaxS','MinS','StdS','MadS'};
-                fieldSubSieldC = {};
-                %combFeatS = [featClassS.(subFieldsC{1})];
-                %fieldNamC = fieldnames(combFeatS);
-                %numFeatInSubClass = length(fieldNamC);
-                %numSubfields = length(subFieldsC);
-                %featM = nan(numPts,numFeatInSubClass*numSubfields);
                 for nSub = 1:length(subFieldsC)
                     combFeatS = [featClassS.(subFieldsC{nSub})];
                     fieldNamC = fieldnames(combFeatS);
                     fieldSubSieldC = strcat(...
-                        [featClass,'_',subFieldsC{nSub},'_'],fieldNamC);
+                        [imgType,'_',featClass,'_',subFieldsC{nSub},'_'],fieldNamC);
                     numFeat = length(fieldNamC);
                     featM = nan(numPts,numFeat);
                     for iField = 1:numFeat
@@ -101,7 +96,6 @@ for type = 1:length(imageTypeC)
                             end
                         end
                     end
-                    %variableC=[variableC;fieldNamC];
                     variableC = [variableC;fieldSubSieldC];
                     dataM=[dataM, featM];
                 end
@@ -121,8 +115,7 @@ for type = 1:length(imageTypeC)
                         end
                     end
                 end
-                %variableC=[variableC;fieldNamC];
-                variableC = [variableC;strcat([featClass,'_'],fieldNamC)];
+                variableC = [variableC;strcat([imgType,'_',featClass,'_'],fieldNamC)];
                 dataM=[dataM featM];
 
 %             case 'ivhFeaturesS'
