@@ -174,7 +174,7 @@ idx10_90(isnan(idx10_90)) = 0;
 RadiomicsFirstOrderS.robustMeanAbsDev  = mad(Iarray10_90);
 
 %   Robust Median Absolute Deviation
-RadiomicsFirstOrderS.robustMedianAbsDev  = nansum(abs(Iarray10_90-nanmedian(Iarray10_90)))...
+RadiomicsFirstOrderS.robustMedianAbsDev  = nansum(abs(Iarray10_90-median(Iarray10_90,'omitnan')))...
     ./ double(sum(idx10_90));
 
 % Inter-Quartile Range (IQR)
