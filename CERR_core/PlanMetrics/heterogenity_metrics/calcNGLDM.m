@@ -75,7 +75,7 @@ tic
 % Iterate over slices. compute cooccurance for all patches per slice
 for slcNum = (1+numSlcsPad):(numSlices+numSlcsPad)
     
-    disp(['--- NGLDM Calculation for Slice # ', num2str(slcNum), ' ----']) 
+    %disp(['--- NGLDM Calculation for Slice # ', num2str(slcNum), ' ----']) 
     
     calcSlcIndV = calcIndM(:,:,slcNum);    
     calcSlcIndV = calcSlcIndV(:);
