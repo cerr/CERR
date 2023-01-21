@@ -1,5 +1,5 @@
-function featureS = batchExtractRadiomics(dirName,paramFileName,strNumV)
-% function featureS = batchExtractRadiomics(dirName,paramFileName,strNumV)
+function featureS = batchExtractRadiomics(dirName,paramFileName,strFileMapC)
+% function featureS = batchExtractRadiomics(dirName,paramFileName,strFileMapC)
 % 
 % Extract radiomics features for a cohort of CERR files. Features for multiple 
 % structures can be extracted simultaneously by specifying their names in
@@ -9,8 +9,9 @@ function featureS = batchExtractRadiomics(dirName,paramFileName,strNumV)
 %   dirName - directory containing CERR files.
 %   paramFileName - .json file containing parameters for radiomics calculation.
 % Optional:
-%   strNumV - Vector of structure nos. for each CERR file. If empty/missing,
-%   structure no. is identified from name provided in paramFile.
+%   strFileMapC - CellArray of size Nx2 containing 1st element as filename
+%         and 2nd element as structure index. If empty/missing, structure no.
+%         is identified from planC using the structure name provided in paramFileName.
 %
 % OUTPUT:
 %   featureS - data structure for radiomics features. 
@@ -18,7 +19,7 @@ function featureS = batchExtractRadiomics(dirName,paramFileName,strNumV)
 %
 % APA, 3/26/2019
 
-if ~exist('strNumV','var')
+if ~exist('strFileMapC','var')
     strNumV = [];
 end
 
@@ -29,8 +30,21 @@ paramS = getRadiomicsParamTemplate(paramFileName);
 dirS = rdir(dirName);
 all_filenames = {dirS.fullpath};
 
-if length(strNumV) == 1
-    strNumV = repmat(strNumV,[1,length(all_filenames)]);
+% Get structNumV for the passed strFileMapC
+if exist('strFileMapC','var') && iscell(strFileMapC)
+    fileNamC = {dirS.name};
+    fileIdC = strFileMapC(:,1);
+    structIndV = [strFileMapC{:,2}];
+    strNumV = nan(length(fileNamC),1);
+    for idNum = 1:length(fileIdC)
+        fileId = fileIdC{idNum};
+        idMatch = find(strncmp(fileId,fileNamC,length(fileId)));
+        if any(idMatch)
+            strNumV(idMatch) = structIndV(idNum);
+        end
+    end
+else
+    strNumV = [];
 end
 
 % Initialize empty features
@@ -46,31 +60,43 @@ for iFile = 1:length(all_filenames)
     planC = quality_assure_planC(fullFname, planC);
     indexS = planC{end};
 
+    writeFeatFlag = false;
     %Get structure no.
     if isempty(strNumV)
         strC = {planC{indexS.structures}.structureName}; %All structures
         for iStr = 1:length(paramS.structuresC)
             structNum = getMatchingIndex(paramS.structuresC{iStr},strC,'exact');
+            if isempty(structNum) || isnan(structNum)
+                continue;
+            end
             scanNum = getStructureAssociatedScan(structNum,planC);
             structFieldName = ['struct_',repSpaceHyp(paramS.structuresC{iStr})];
             featS.(structFieldName) = calcGlobalRadiomicsFeatures...
-                (scanNum, structNum, paramS, planC);
+                (scanNum, structNum, paramS, planC);  
+            writeFeatFlag = true;
         end
     else
         structNum = strNumV(iFile);
+        if isempty(structNum) || isnan(structNum)
+            continue;
+        end
         scanNum = getStructureAssociatedScan(structNum,planC);
-        structFieldName = ['struct_',repSpaceHyp(paramS.structuresC{iStr})];
-        featS.(structFieldName) = calcGlobalRadiomicsFeatures...
+        structName = planC{indexS.structures}(structNum).structureName;
+        %structFieldName = ['struct_',repSpaceHyp(structName)];
+        featS = calcGlobalRadiomicsFeatures...
             (scanNum, structNum, paramS, planC);
+        writeFeatFlag = true;
     end
     
-    featS.fileName = all_filenames{iFile};
-    
-    if isempty(featureS)
-        featureS = featS;
-    else
-        featureS(iFile) = featS;
-    end    
+    if writeFeatFlag
+        featS.fileName = all_filenames{iFile};
+        
+        if isempty(featureS)
+            featureS = featS;
+        else
+            featureS(end+1) = featS;
+        end
+    end
     
 end
 
