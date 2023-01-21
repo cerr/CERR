@@ -59,13 +59,14 @@ end
 % Calculate standard PET parameters
 RadiomicsFirstOrderS.min           = nanmin(Iarray);
 RadiomicsFirstOrderS.max           = nanmax(Iarray);
-RadiomicsFirstOrderS.mean          = nanmean(Iarray);
+RadiomicsFirstOrderS.mean          = mean(Iarray,'omitnan');
 RadiomicsFirstOrderS.range         = range(Iarray);
-%RadiomicsFirstOrderS.std           = std(Iarray,1,'omitnan');
-RadiomicsFirstOrderS.std           = nanstd(Iarray,1);
-%RadiomicsFirstOrderS.var           = var(Iarray,1,'omitnan');
-RadiomicsFirstOrderS.var           = nanvar(Iarray,1); 
-RadiomicsFirstOrderS.median        = nanmedian(Iarray);
+RadiomicsFirstOrderS.std           = std(Iarray,1,'omitnan');
+%RadiomicsFirstOrderS.std           = nanstd(Iarray,1);
+RadiomicsFirstOrderS.var           = var(Iarray,1,'omitnan');
+%RadiomicsFirstOrderS.var           = nanvar(Iarray,1); 
+RadiomicsFirstOrderS.median        = median(Iarray,'omitnan');
+%RadiomicsFirstOrderS.median        = nanmedian(Iarray);
 
 % Skewness is a measure of the asymmetry of the data around the sample mean.
 % If skewness is negative, the data are spread out more to the left of the mean
@@ -119,26 +120,29 @@ entropyV = nan(1,size(Iarray,2));
 %entropyV = cast(entropyV,'like',Iarray); %for octave
 entropyV = cast(entropyV,class(Iarray));
 
-sizeV = sum(~isnan(Iarray));
+nonNanIndV = ~isnan(Iarray);
+
+sizeV = sum(nonNanIndV);
+
 for k = 1:size(Iarray,2)
-edgeV = edgeMinV(k):binWidth:edgeMaxV(k); 
-if any(~isnan(Iarray(:,k)))
-%countV = histcounts(Iarray(:,k)+offsetForEntropyV(k),edgeV) + eps; 
-countV = histc(Iarray(:,k)+offsetForEntropyV(k),edgeV) + eps;   %for octave
-%-------%
-%numGrLevels = 16; %For GRE calculation;
-%countV = histcounts(Iarray(:,k)+offsetForEntropyV(k),numGrLevels); %For GRE calculation;
-%--------%
-probV = countV/sizeV(k);
-entropyV(k) = - sum(probV .* log2(probV+eps));
-else
-entropyV(k) = NaN;
-end
+    edgeV = edgeMinV(k):binWidth:edgeMaxV(k);
+    if any(~isnan(Iarray(:,k)))
+        %countV = histcounts(Iarray(:,k)+offsetForEntropyV(k),edgeV) + eps;
+        countV = histc(Iarray(:,k)+offsetForEntropyV(k),edgeV) + eps;   %for octave
+        %-------%
+        %numGrLevels = 16; %For GRE calculation;
+        %countV = histcounts(Iarray(:,k)+offsetForEntropyV(k),numGrLevels); %For GRE calculation;
+        %--------%
+        probV = countV/sizeV(k);
+        entropyV(k) = - sum(probV .* log2(probV+eps));
+    else
+        entropyV(k) = NaN;
+    end
 end
 RadiomicsFirstOrderS.entropy = entropyV;
 
 %   Root mean square (RMS)
-RadiomicsFirstOrderS.rms           = sqrt(nansum((Iarray+offsetForEnergy).^2)./sizeV);
+RadiomicsFirstOrderS.rms      = sqrt(nansum((Iarray+offsetForEnergy).^2)./sizeV);
 
 %   Energy ( integraal(a^2) )
 RadiomicsFirstOrderS.energy   = nansum((Iarray+offsetForEnergy).^2);

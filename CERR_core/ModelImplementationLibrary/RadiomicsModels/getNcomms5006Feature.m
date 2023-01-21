@@ -77,8 +77,12 @@ quantizedM(~maskWithinStr3M) = NaN;
 numGrLevels = max(quantizedM(:));
 
 % Run-length features
-fieldsC = {'sre','lre','gln','glnNorm','rln','rlnNorm','rp','lglre',...
-    'hglre','srlgle','srhgle','lrlgle','lrhgle','glv','rlv','re'};
+fieldsC = {'shortRunEmphasis','longRunEmphasis','grayLevelNonUniformity',...
+    'grayLevelNonUniformityNorm','runLengthNonUniformity',...
+    'runLengthNonUniformityNorm','runPercentage','lowGrayLevelRunEmphasis',...
+    'highGrayLevelRunEmphasis','shortRunLowGrayLevelEmphasis',...
+    'shortRunHighGrayLevelEmphasis','longRunLowGrayLevelEmphasis',...
+    'longRunHighGrayLevelEmphasis','grayLevelVariance','runLengthVariance','runEntropy'};
 valsC = {0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0};
 rlmFlagS = cell2struct(valsC,fieldsC,2);
 
@@ -86,14 +90,15 @@ rlmFlagS = cell2struct(valsC,fieldsC,2);
 rlmFeaturesS = get_rlm(dirctn, rlmType, quantizedM, ...
     numGrLevels, numVoxels, rlmFlagS);
 
-featureS.rlmGln = rlmFeaturesS.AvgS.gln;
+featureS.rlmGln = rlmFeaturesS.AvgS.grayLevelNonUniformity;
 
 % Wavelet filtered image
 scan3M = flip(scan3M,3);
 if mod(size(scan3M,3),2) > 0
     scan3M(:,:,end+1) = 0*scan3M(:,:,1);
 end
-scan3M = wavDecom3D(double(scan3M),waveletDirString,waveletType);
+normFlag = 0;
+scan3M = wavDecom3D(double(scan3M),waveletDirString,waveletType,normFlag);
 if mod(size(scan3M,3),2) > 0
     scan3M = scan3M(:,:,1:end-1);
 end
