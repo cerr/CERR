@@ -16,10 +16,10 @@ Step = 1;
 
 if iscell(planC)
     indexS = planC{end};
-    
+
     % Get uniformized structure Mask
     maskStruct3M = getUniformStr(structNum,planC);
-    
+
     % Get uniformized scan mask in HU
     scanNum = getAssociatedScan(planC{indexS.structures}(structNum).assocScanUID, planC);
     maskScan3M = getUniformizedCTScan(1, scanNum, planC);
@@ -41,16 +41,16 @@ if iscell(planC)
     PixelSpacingYi = abs(yUnifV(2)-yUnifV(1));
     PixelSpacingZi = abs(zUnifV(2)-zUnifV(1));
     VoxelVol = PixelSpacingXi*PixelSpacingYi*PixelSpacingZi;
-    
+
     % Iarray = Data.Image(~isnan(Data.Image));     %    Array of Image values
     indStructV = maskStruct3M(:) == 1;
     Iarray = maskScan3M(indStructV);
-    
+
 else
     if ~exist('offsetForEnergy','var')
         offsetForEnergy = 0;
     end
-    
+
     Iarray = planC;
     VoxelVol = structNum;
 end
@@ -64,7 +64,7 @@ RadiomicsFirstOrderS.range         = range(Iarray);
 RadiomicsFirstOrderS.std           = std(Iarray,1,'omitnan');
 %RadiomicsFirstOrderS.std           = nanstd(Iarray,1);
 RadiomicsFirstOrderS.var           = var(Iarray,1,'omitnan');
-%RadiomicsFirstOrderS.var           = nanvar(Iarray,1); 
+%RadiomicsFirstOrderS.var           = nanvar(Iarray,1);
 RadiomicsFirstOrderS.median        = median(Iarray,'omitnan');
 %RadiomicsFirstOrderS.median        = nanmedian(Iarray);
 
@@ -111,7 +111,7 @@ edgeMinV = xminV;
 idxV =  abs(rem(edgeMaxV,binWidth)) > 0;
 edgeMaxV(idxV) = edgeMaxV(idxV) + binWidth - rem(edgeMaxV(idxV),binWidth);
 idxV = abs(rem(xminV,binWidth)) > 0;
-edgeMinV(idxV) = edgeMinV(idxV) - rem(edgeMinV(idxV),binWidth);  
+edgeMinV(idxV) = edgeMinV(idxV) - rem(edgeMinV(idxV),binWidth);
 %---fix---
 edgeMaxV(edgeMaxV==edgeMinV) = binWidth;
 %--------
@@ -156,7 +156,7 @@ RadiomicsFirstOrderS.meanAbsDev            = mad(Iarray);
 % Median absolute deviation
 RadiomicsFirstOrderS.medianAbsDev = nansum(abs(Iarray-RadiomicsFirstOrderS.median))./sizeV;
 
-%   P10 
+%   P10
 %  (Note: prctile treats NaNs as missing values and removes them.)
 p10 = prctile(Iarray,10);
 RadiomicsFirstOrderS.P10 = p10;
@@ -171,8 +171,8 @@ Iarray10_90(~idx10_90) = NaN;
 idx10_90(isnan(idx10_90)) = 0;
 
 %   Robust Mean Absolute Deviation
-devM = bsxfun(@minus,Iarray10_90,nanmean(Iarray10_90));
-RadiomicsFirstOrderS.robustMeanAbsDev  = nanmean(abs(devM));
+devM = bsxfun(@minus,Iarray10_90,mean(Iarray10_90,'omitnan'));
+RadiomicsFirstOrderS.robustMeanAbsDev  = mean(abs(devM),'omitnan');
 
 %   Robust Median Absolute Deviation
 RadiomicsFirstOrderS.robustMedianAbsDev  = nansum(abs(Iarray10_90-nanmedian(Iarray10_90)))...
