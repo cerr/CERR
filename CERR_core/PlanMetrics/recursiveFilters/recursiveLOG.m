@@ -35,8 +35,12 @@ function log3M = recursiveLOG(img3M,sigma,PixelSizeV)
 
 
 % Pad
-img3M = padarray(img3M,[4,4,4],'replicate','both');
-%img3M = padarray(img3M,[4,4,4],0,'both');
+if exist('padarray.m','file')
+    img3M = padarray(img3M,[4,4,4],'replicate','both');
+    %img3M = padarray(img3M,[4,4,4],0,'both');
+else
+    img3M = padarray_oct(img3M,[4,4,4],'replicate','both');
+end
 
 coeffS.sigma = sigma;
 

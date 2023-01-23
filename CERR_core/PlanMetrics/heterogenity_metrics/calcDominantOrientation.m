@@ -29,9 +29,13 @@ numSlcsPad = floor(slcWindow/2);
 numVoxels = numRows*numCols;
 
 % Pad q, so that sliding window works also for the edge voxels
-%scanArrayTmp3M = padarray(scanArray3M,[numRowsPad numColsPad
-%numSlcsPad],NaN,'both'); % aa commented
-q = padarray(scanArray3M,[numRowsPad numColsPad numSlcsPad],NaN,'both');
+if exist('padarray.m','file')
+    %scanArrayTmp3M = padarray(scanArray3M,[numRowsPad numColsPad
+    %numSlcsPad],NaN,'both'); % aa commented
+    q = padarray(scanArray3M,[numRowsPad numColsPad numSlcsPad],NaN,'both');
+else
+    q = padarray_oct(scanArray3M,[numRowsPad numColsPad numSlcsPad],NaN,'both');
+end
 
 % Create indices for 2D blocks
 [m,n,~] = size(q);

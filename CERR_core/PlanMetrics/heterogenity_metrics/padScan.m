@@ -66,18 +66,26 @@ switch lower(method)
         outMask3M = mask3M(minr:maxr,minc:maxc,mins:maxs);
         
     case 'padzeros'
-        
-        outScan3M = padarray(croppedScan3M,marginV,0,'both');
-        outMask3M = padarray(croppedMask3M,marginV,0,'both');
+        if exist('padarray.m','file')
+            outScan3M = padarray(croppedScan3M,marginV,0,'both');
+            outMask3M = padarray(croppedMask3M,marginV,0,'both');
+        else
+            outScan3M = padarray_oct(croppedScan3M,marginV,0,'both');
+            outMask3M = padarray_oct(croppedMask3M,marginV,0,'both');
+        end
         
     case {'periodic','nearest','mirror'}
         
         supportedMethodsC = {'circular','replicate','symmetric'};
         matchIdx = strcmpi(method,{'periodic','nearest','mirror'});
         matchingMethod = supportedMethodsC{matchIdx};
-        
-        outScan3M = padarray(croppedScan3M,marginV,matchingMethod,'both');
-        outMask3M = padarray(croppedMask3M,marginV,0,'both');
+        if exist('padarray.m','file')
+            outScan3M = padarray(croppedScan3M,marginV,matchingMethod,'both');
+            outMask3M = padarray(croppedMask3M,marginV,0,'both');
+        else
+            outScan3M = padarray_oct(croppedScan3M,marginV,matchingMethod,'both');
+            outMask3M = padarray_oct(croppedMask3M,marginV,0,'both');
+        end
         
     case 'none'
         outScan3M = croppedScan3M;

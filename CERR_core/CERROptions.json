@@ -239,7 +239,7 @@
 "ROEModelPath" : "fullfile(getCERRPath,'PlanAnalysis/sampleFilesForROE/Models')",
 "ROECriteriaPath" : "fullfile(getCERRPath,'PlanAnalysis/sampleFilesForROE/Criteria')",
 
-"sitkLibPath" : "C:\\Users\\aptea\\AppData\\Local\\Programs\\Python\\Python37\\Lib\\site-packages\\SimpleITK",
+"sitkLibPath" : "C:\\Program Files\\Python38\\Lib\\site-packages",
 
 "antspath_dir" : "/lab/deasylab1/Eve/LDDMM/antsbin",
 
