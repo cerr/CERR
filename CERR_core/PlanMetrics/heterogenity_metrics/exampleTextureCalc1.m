@@ -143,7 +143,11 @@ volToEval                           = SUVvals3M(minr:maxr,minc:maxc,mins:maxs);
 %volToEval(maskBoundingBox3M==0)     = NaN;
 volToEval(maskBoundingBox3M==0)     = nanmean(volToEval(:));
 meanVol = nanmean(volToEval(:));
-paddedVolM = padarray(volToEval,[5 5 5],meanVol,'both');
+if exist('padarray.m','file')
+    paddedVolM = padarray(volToEval,[5 5 5],meanVol,'both');
+else
+    paddedVolM = padarray_oct(volToEval,[5 5 5],meanVol,'both');
+end
 lawsMasksS = getLawsMasks();
 
 fieldNamesC = fieldnames(lawsMasksS);
@@ -257,8 +261,13 @@ quantizedM = imquantize_cerr(volToEval,numGrLevels);
 hWait = NaN;
 [s,p] = calcNGTDM(quantizedM,patchRadiusV,numGrLevels,hWait);
 
-paddedM = padarray(quantizedM,[1 1 1],0,'both');
-paddedMaskM = padarray(maskBoundingBox3M,[1 1 1],0,'both');
+if exist('padarray.m','file')
+    paddedM = padarray(quantizedM,[1 1 1],0,'both');
+    paddedMaskM = padarray(maskBoundingBox3M,[1 1 1],0,'both');
+else
+    paddedM = padarray_oct(quantizedM,[1 1 1],0,'both');
+    paddedMaskM = padarray_oct(maskBoundingBox3M,[1 1 1],0,'both');
+end
 [rV,cV,sV] = find3d(paddedMaskM);
 mask_rcs = [rV(:),cV(:),sV(:)];
 [NGTDM,vox_occurances_NGD26] = compute_3D_NGTDM_full_vol(paddedM,numGrLevels,mask_rcs);

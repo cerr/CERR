@@ -76,7 +76,7 @@
 % @seealso{cat, flip, resize, prepad, postpad}
 % @end deftypefn
 
-function B = padarray(A, padsize, varargin)
+function B = padarray_oct(A, padsize, varargin)
 
   if (nargin < 2 || nargin > 4)
     print_usage ();
@@ -149,7 +149,8 @@ function B = padarray(A, padsize, varargin)
   end
   if (post && ~ pre && (padval == 0 || fancy_pad))
     % optimization for post padding only with zeros
-    B = resize (A, B_size);
+    %B = resize (A, B_size);
+    B = resize_oct (A, B_size);
   else
     B = repmat (cast (padval, class (A)), B_size);
     B(A_idx{:}) = A;

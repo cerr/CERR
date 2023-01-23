@@ -34,9 +34,13 @@ paddim = newdim-dim;
 padpre = floor(paddim/2);
 padpost = paddim-padpre;
 
-M = padarray(MData,padpre,padval,'pre');
-M = padarray(M,padpost,padval,'post');
-
+if exist('padarray.m','file')
+    M = padarray(MData,padpre,padval,'pre');
+    M = padarray(M,padpost,padval,'post');
+else
+    M = padarray_oct(MData,padpre,padval,'pre');
+    M = padarray_oct(M,padpost,padval,'post');
+end
 
 
 

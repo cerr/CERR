@@ -237,7 +237,7 @@
 "ROEModelPath" : "M:/Aditi/OutcomesModels/ROE/forTesting/batchEvalUltracentralLung/For_ROE_display/Models",
 "ROECriteriaPath" : "M:/Aditi/OutcomesModels/ROE/forTesting/batchEvalUltracentralLung/For_ROE_display/Crtieria",
 
-"sitkLibPath" : "C:\\Users\\aptea\\AppData\\Local\\Programs\\Python\\Python37\\Lib\\site-packages\\SimpleITK",
+"sitkLibPath" : "C:\\Program Files\\Python38\\Lib\\site-packages",
 
 "antspath_dir" : "/lab/deasylab1/Eve/LDDMM/antsbin",
 

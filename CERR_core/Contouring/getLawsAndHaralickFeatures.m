@@ -41,7 +41,11 @@ nanIntenityV = volToEval < -400;
 if ~haralOnlyFlag
     % padd with mean intensities
     meanVol = nanmean(volToEval(:));
-    paddedVolM = padarray(volToEval,[5 5 5],meanVol,'both');
+    if exist('padarray.m','file')
+        paddedVolM = padarray(volToEval,[5 5 5],meanVol,'both');
+    else
+        paddedVolM = padarray_oct(volToEval,[5 5 5],meanVol,'both');
+    end
     lawsMasksS = getLawsMasks();
     
     fieldNamesC = fieldnames(lawsMasksS);

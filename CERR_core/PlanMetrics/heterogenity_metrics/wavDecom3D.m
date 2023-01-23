@@ -25,7 +25,11 @@ end
 scanRowM = reshape(scan3M,[siz(1),siz(2)*siz(3)]);
 padFlag = 0;
 if mod(size(scanRowM,1),2)==1
-    scanRowM = padarray(scanRowM,[1,0],'replicate','post');
+    if exist('padarray.m','file')
+        scanRowM = padarray(scanRowM,[1,0],'replicate','post');
+    else
+        scanRowM = padarray_oct(scanRowM,[1,0],'replicate','post');
+    end
     padFlag=1;
 end
 
@@ -52,7 +56,11 @@ scanColM = permute(scanColM,[2 1 3]);
 scanColM = reshape(scanColM,[siz(2),siz(1)*siz(3)]);
 padFlag = 0;
 if mod(size(scanColM,1),2)==1
-    scanColM = padarray(scanColM,[1,0],'replicate','post');
+    if exist('padarray.m','file')
+        scanColM = padarray(scanColM,[1,0],'replicate','post');
+    else
+        scanColM = padarray_oct(scanColM,[1,0],'replicate','post');
+    end
     padFlag=1;
 end
 
@@ -83,7 +91,11 @@ if length(dirString) > 2
     scanSlcM = reshape(scanSlcM,[siz(3),siz(1)*siz(2)]);
     padFlag = 0;
     if mod(size(scanSlcM,1),2)==1
-        scanSlcM = padarray(scanSlcM,[1,0],'replicate','post');
+        if exist('padarray.m','file')
+            scanSlcM = padarray(scanSlcM,[1,0],'replicate','post');
+        else
+            scanSlcM = padarray_oct(scanSlcM,[1,0],'replicate','post');
+        end
         padFlag=1;
     end
     

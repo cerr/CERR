@@ -31,10 +31,15 @@ numSlcsPad = floor(slcWindow/2);
 numVoxels = numRows*numCols;
 
 % Pad q, so that sliding window works also for the edge voxels
-%scanArrayTmp3M = padarray(scanArray3M,[numRowsPad numColsPad
-%numSlcsPad],NaN,'both'); % aa commented
-q = padarray(scanArray3M,[numRowsPad numColsPad numSlcsPad],NaN,'both');
-calcIndM = padarray(calcIndM,[0 0 numSlcsPad],0,'both');
+if exist('padarray.m','file')    
+    %scanArrayTmp3M = padarray(scanArray3M,[numRowsPad numColsPad
+    %numSlcsPad],NaN,'both'); % aa commented
+    q = padarray(scanArray3M,[numRowsPad numColsPad numSlcsPad],NaN,'both');
+    calcIndM = padarray(calcIndM,[0 0 numSlcsPad],0,'both');
+else
+    q = padarray_oct(scanArray3M,[numRowsPad numColsPad numSlcsPad],NaN,'both');
+    calcIndM = padarray_oct(calcIndM,[0 0 numSlcsPad],0,'both');
+end
 
 % Create indices for 2D blocks
 [m,n,~] = size(q);
@@ -88,7 +93,11 @@ for slcNum = (1+numSlcsPad):(numSlices+numSlcsPad)
     count = 1;
     for iSlc = slcV 
         qSlc = q(:,:,iSlc);
-        maskSlcM = padarray(calcIndM(:,:,iSlc),[numRowsPad, numColsPad],0,'both');
+        if exist('padarray.m','file')    
+            maskSlcM = padarray(calcIndM(:,:,iSlc),[numRowsPad, numColsPad],0,'both');
+        else
+            maskSlcM = padarray_oct(calcIndM(:,:,iSlc),[numRowsPad, numColsPad],0,'both');
+        end
         qM((count-1)*nbhoodSiz+1:count*nbhoodSiz,:) = qSlc(indSlcM);
         mM((count-1)*nbhoodSiz+1:count*nbhoodSiz,:) = maskSlcM(indSlcM);
         count = count + 1;
