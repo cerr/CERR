@@ -163,14 +163,14 @@ function B = padarray(A, padsize, varargin)
     replicate = false;
     symmetric = false;
     reflect = false;
-    switch (tolower (pattern))
+    switch (lower (pattern))
       case 'circular',  circular  = true;
       case 'replicate', replicate = true;
       case 'symmetric', symmetric = true;
       case 'reflect',   reflect   = true;
       otherwise
         error ('padarray: unknown PADVAL `%s`', pattern);
-    endswitch
+    end
 
     % For a dimension of the input matrix of size 1, since reflect does
     % not includes the borders, it is not possible to pad singleton dimensions.
