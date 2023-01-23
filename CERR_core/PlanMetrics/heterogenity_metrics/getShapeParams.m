@@ -145,8 +145,12 @@ shapeS.max2dDiameterCoronalPlane = sqrt(dmax);
 
 
 % Add a row/col/slice to account for half a voxel
-%mask3M = padarray(mask3M,[1 1 1],'replicate');
-mask3M = padarray(mask3M,[1 1 1],0);
+if exist('padarray.m','file')
+    %mask3M = padarray(mask3M,[1 1 1],'replicate');
+    mask3M = padarray(mask3M,[1 1 1],0);
+else
+    mask3M = padarray_oct(mask3M,[1 1 1],0);
+end
 xValsV = [xValsV(1)-voxelSiz(1) xValsV xValsV(end)+voxelSiz(1)];
 yValsV = [yValsV(1)-voxelSiz(2) yValsV yValsV(end)+voxelSiz(2)];
 zValsV = [zValsV(1)-voxelSiz(3) zValsV zValsV(end)+voxelSiz(3)];

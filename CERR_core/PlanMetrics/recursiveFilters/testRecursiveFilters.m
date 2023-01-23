@@ -12,7 +12,12 @@ log3M = double(log3M);
 
 % Recursive LOG filter
 sigma = 3;
-cerrLog3M = recursiveLOG(padarray(orig3M,[4,4,4],'replicate','both'),sigma,infoS.PixelDimensions);
+if exist('padarray.m','file')
+    paddedImgM = padarray(orig3M,[4,4,4],'replicate','both');
+else
+    paddedImgM = padarray_oct(orig3M,[4,4,4],'replicate','both');
+end
+cerrLog3M = recursiveLOG(paddedImgM,sigma,infoS.PixelDimensions);
 cerrLog3M = cerrLog3M(5:end-4,5:end-4,5:end-4);
 diff3M = (cerrLog3M - log3M)./(log3M+1e-5);
 quantile99Diff = quantile(abs(diff3M(abs(log3M)>0.1)),0.99);

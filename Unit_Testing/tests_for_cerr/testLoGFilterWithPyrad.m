@@ -25,7 +25,12 @@ log3M = permute(log3M, [2 1 3]);
 
 %% CERR Recursive LOG filter
 sigma = 3;
-cerrLog3M = recursiveLOG(padarray(testM,[4,4,4],0,'both'),sigma,infoS.PixelDimensions);
+if exist('padarray.m','file')
+    paddedImgM = padarray(testM,[4,4,4],0,'both');
+else
+    paddedImgM = padarray_oct(testM,[4,4,4],0,'both');
+end
+cerrLog3M = recursiveLOG(paddedImgM,sigma,infoS.PixelDimensions);
 %cerrLog3M = recursiveLOG(testM,sigma,infoS.PixelDimensions);
 cerrLog3M = cerrLog3M(5:end-4,5:end-4,5:end-4);
 

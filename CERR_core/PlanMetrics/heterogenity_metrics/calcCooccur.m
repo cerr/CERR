@@ -40,8 +40,12 @@ numSlcsPad = 1;
 % Get number of voxels per slice
 [numRows, numCols, numSlices] = size(quantizedM);
 
-% Pad quantizedM 
-q = padarray(quantizedM,[numRowsPad numColsPad numSlcsPad],NaN,'both');
+% Pad quantizedM
+if exist('padarray.m','file')
+    q = padarray(quantizedM,[numRowsPad numColsPad numSlcsPad],NaN,'both');
+else
+    q = padarray_oct(quantizedM,[numRowsPad numColsPad numSlcsPad],NaN,'both');
+end
 
 % Add level for NaN
 lq = nL + 1;

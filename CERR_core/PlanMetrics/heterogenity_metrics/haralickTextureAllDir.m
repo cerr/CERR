@@ -68,7 +68,11 @@ q2 = imquantize(scanArray3M, levels);
 % Pad doseArray2 so that sliding window works also for the edge voxels
 %scanArrayTmp3M = padarray(scanArray3M,[numRowsPad numColsPad
 %numSlcsPad],NaN,'both'); % aa commented
-q = padarray(q1,[numRowsPad numColsPad numSlcsPad],NaN,'both');
+if exist('padarray.m','file')
+    q = padarray(q1,[numRowsPad numColsPad numSlcsPad],NaN,'both');
+else
+    q = padarray_oct(q1,[numRowsPad numColsPad numSlcsPad],NaN,'both');
+end
 
 % Quantize the image
 %nL = 16;

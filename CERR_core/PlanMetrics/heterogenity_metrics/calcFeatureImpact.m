@@ -78,12 +78,20 @@ numSlcsPad = floor(slcWindow/2);
 numVoxels = numRows*numCols;
 
 % Pad q, so that sliding window works also for the edge voxels
-%scanArrayTmp3M = padarray(scanArray3M,[numRowsPad numColsPad
-%numSlcsPad],NaN,'both'); % aa commented
-q = padarray(scan3M,[numRowsPad numColsPad numSlcsPad],NaN,'both');
-structPadded3M = padarray(uint32(struct3M),[numRowsPad numColsPad numSlcsPad],NaN,'both');
+if exist('padarray.m','file')
+    %scanArrayTmp3M = padarray(scanArray3M,[numRowsPad numColsPad
+    %numSlcsPad],NaN,'both'); % aa commented
+    q = padarray(scan3M,[numRowsPad numColsPad numSlcsPad],NaN,'both');
+    structPadded3M = padarray(uint32(struct3M),[numRowsPad numColsPad numSlcsPad],NaN,'both');
+    calcIndM = padarray(calcIndM,[0 0 numSlcsPad],0,'both');
+else
+    %scanArrayTmp3M = padarray(scanArray3M,[numRowsPad numColsPad
+    %numSlcsPad],NaN,'both'); % aa commented
+    q = padarray_oct(scan3M,[numRowsPad numColsPad numSlcsPad],NaN,'both');
+    structPadded3M = padarray_oct(uint32(struct3M),[numRowsPad numColsPad numSlcsPad],NaN,'both');
+    calcIndM = padarray_oct(calcIndM,[0 0 numSlcsPad],0,'both');
+end
 structPadded3M = logical(structPadded3M);
-calcIndM = padarray(calcIndM,[0 0 numSlcsPad],0,'both');
 
 % Create indices for 2D blocks
 [m,n,~] = size(q);

@@ -22,7 +22,11 @@ else
     numSlcPad = 0;
 end
 
-Iexp = padarray(scan3M,[numRowsPad numColsPad numSlcPad],NaN,'both');
+if exist('padarray.m','file')
+    Iexp = padarray(scan3M,[numRowsPad numColsPad numSlcPad],NaN,'both');
+else
+    Iexp = padarray_oct(scan3M,[numRowsPad numColsPad numSlcPad],NaN,'both');
+end
 
 %Get indices of 2D neighbours
 [m,n,~] = size(Iexp);

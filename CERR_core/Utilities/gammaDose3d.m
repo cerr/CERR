@@ -73,7 +73,13 @@ zV = -numSlcs*deltaZ:deltaZ:numSlcs*deltaZ;
 xysq = xM(:).^2 + yM(:).^2;
 
 % Pad doseArray2 so that sliding window works also for the edge voxels
-doseArray2 = padarray(doseArray2,[floor(rowWindow/2) floor(colWindow/2) floor(slcWindow/2)],NaN,'both');
+if exist('padarray.m','file')
+    doseArray2 = padarray(doseArray2,...
+        [floor(rowWindow/2), floor(colWindow/2), floor(slcWindow/2)],NaN,'both');
+else
+    doseArray2 = padarray_oct(doseArray2,...
+        [floor(rowWindow/2), floor(colWindow/2), floor(slcWindow/2)],NaN,'both');
+end
 
 % Create indices for 2D blocks
 [m,n,~] = size(doseArray2);

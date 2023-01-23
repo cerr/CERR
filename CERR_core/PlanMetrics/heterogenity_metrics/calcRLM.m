@@ -48,7 +48,11 @@ if ~exist('rlmType','var')
     rlmType = 1;
 end
 
-quantizedM = padarray(quantizedM,[1 1 1],0,'both');
+if exist('padarray.m','file')
+    quantizedM = padarray(quantizedM,[1 1 1],0,'both');
+else
+    quantizedM = padarray_oct(quantizedM,[1 1 1],0,'both');
+end
 
 % Apply pading of 1 row/col/slc. This assumes offsets are 1. Need to
 % parameterize this in case of offsets other than 2. Rarely used for
