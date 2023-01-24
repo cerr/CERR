@@ -25,8 +25,6 @@ else
     [rasterM, planC] = getRasterSegments(strNum,planC);
     [slMask3M,uniqueSlicesV] = rasterToMask(rasterM,scanNum,planC);
     mask3M(:,:,uniqueSlicesV) = slMask3M;
-    mask3M = true(origSizV);
-    uniqueSlicesV = 1:size(mask3M,3);
     % end temp
 end
 [minr, maxr, minc, maxc] = compute_boundingbox(mask3M);
@@ -107,6 +105,7 @@ for n = 1:length(fieldNamesC)
     newScanNum = length(planC{indexS.scan});
     planC{indexS.scan}(newScanNum).scanType = [filterType,'_',fieldNamesC{n}];
     %newSeriesInstanceUID = dicomuid;
+    init_ML_DICOM
     orgRoot = '1.3.6.1.4.1.9590.100.1.2';
     newSeriesInstanceUID = javaMethod('createUID','org.dcm4che3.util.UIDUtils',orgRoot);    
     imgOriV = planC{indexS.scan}(scanNum).scanInfo(1).imageOrientationPatient;

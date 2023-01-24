@@ -355,60 +355,60 @@ for index = 1:numRotations
                     if length(radius) == 1
                         radius = [radius radius];
                     end
-                    radius = radius/voxelSizV(1:2);
+                    radius = radius./voxelSizV(1:2);
+                    %                     gabor3M = GaborFiltIBSI(vol3M,sigma,wavelength,...
+                    %                         gamma,theta,radius);
+                    %                     fieldname = ['Gabor_',lower(planes{nPlane})];
+                    %                     outS.(fieldname) = gabor3M;
+                else
+                    %Use default filter size
+                    radius = floor(rV/2);     %IBSI recommendation
+                end
+                if length(theta)==1
                     gabor3M = GaborFiltIBSI(vol3M,sigma,wavelength,...
                         gamma,theta,radius);
                     fieldname = ['Gabor_',lower(planes{nPlane})];
                     outS.(fieldname) = gabor3M;
                 else
-                    %Use default filter size
-                    radius = floor(rV/2);     %IBSI recommendation
-                    if length(theta)==1
-                        gabor3M = GaborFiltIBSI(vol3M,sigma,wavelength,...
-                            gamma,theta,radius);
-                        fieldname = ['Gabor_',lower(planes{nPlane})];
+                    %Loop over multiple orientations
+                    gaborOutC = cell(1,length(theta));
+                    for nTheta = 1:length(theta)
+                        gaborOutC{nTheta} = GaborFiltIBSI(vol3M,...
+                            sigma,wavelength,gamma,theta(nTheta),radius);
+                    end
+
+                    %Aggregate results from different orientaitons
+                    if isfield(paramS,'OrientationAggregation') && ...
+                            ~isempty(paramS.OrientationAggregation)
+                        gaborAll = cat(4, gaborOutC{:});
+                        aggMethod = paramS.OrientationAggregation.val;
+                        switch(aggMethod)
+                            case 'average'
+                                gabor3M = mean(gaborAll,4);
+                            case 'max'
+                                gabor3M = max(gaborAll,[],4);
+                            case 'std'
+                                gabor3M = std(gaborAll,0,4);
+                        end
+                        angle_str = strjoin(arrayfun(@num2str,theta,...
+                            'un',0),'_');
+                        angle_str = strrep(angle_str,'.','p');
+                        %angle_str = strrep(strjoin(""+theta,'_'),'.','p');
+                        angle_str = char(strrep(angle_str,'-','M'));
+                        if length(angle_str)>39
+                            %temp
+                            angle_str = angle_str(1:39);
+                            %tbd: gen unique fieldname
+                        end
+                        fieldname = ['Gabor_',lower(planes{nPlane}),...
+                            '_',angle_str,'_',aggMethod];
                         outS.(fieldname) = gabor3M;
                     else
-                        %Loop over multiple orientations
-                        gaborOutC = cell(1,length(theta));
+                        fieldname = {};
                         for nTheta = 1:length(theta)
-                            gaborOutC{nTheta} = GaborFiltIBSI(vol3M,...
-                                sigma,wavelength,gamma,theta(nTheta),radius);
-                        end
-
-                        %Aggregate results from different orientaitons
-                        if isfield(paramS,'OrientationAggregation') && ...
-                                ~isempty(paramS.OrientationAggregation)
-                            gaborAll = cat(4, gaborOutC{:});
-                            aggMethod = paramS.OrientationAggregation.val;
-                            switch(aggMethod)
-                                case 'average'
-                                    gabor3M = mean(gaborAll,4);
-                                case 'max'
-                                    gabor3M = max(gaborAll,[],4);
-                                case 'std'
-                                    gabor3M = std(gaborAll,0,4);
-                            end
-                            angle_str = strjoin(arrayfun(@num2str,theta,...
-                                'un',0),'_');
-                            angle_str = strrep(angle_str,'.','p');
-                            %angle_str = strrep(strjoin(""+theta,'_'),'.','p');
-                            angle_str = char(strrep(angle_str,'-','M'));
-                            if length(angle_str)>39
-                                %temp
-                                angle_str = angle_str(1:39);
-                                %tbd: gen unique fieldname
-                            end
-                            fieldname = ['Gabor_',lower(planes{nPlane}),...
-                                '_',angle_str,'_',aggMethod];
-                            outS.(fieldname) = gabor3M;
-                        else
-                            fieldname = {};
-                            for nTheta = 1:length(theta)
-                                currFieldName = ['Gabor_',num2str(theta(nTheta))];
-                                outS.(currFieldName) = gaborOutC{nTheta};
-                                fieldname = [fieldname,currFieldName];
-                            end
+                            currFieldName = ['Gabor_',num2str(theta(nTheta))];
+                            outS.(currFieldName) = gaborOutC{nTheta};
+                            fieldname = [fieldname,currFieldName];
                         end
                     end
                 end
@@ -434,9 +434,7 @@ for index = 1:numRotations
                         outS.(fieldname{nFields}) = out3M;
                     end
                 end
-
             end
-
             %Agggregate resutls across orthogonal planes
             if isfield(paramS,'PlaneAggregation') && ...
                     ~isempty(paramS.PlaneAggregation)
