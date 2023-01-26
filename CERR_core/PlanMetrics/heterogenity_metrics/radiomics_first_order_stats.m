@@ -1,4 +1,4 @@
-function RadiomicsFirstOrderS = radiomics_first_order_stats(planC,structNum,offsetForEnergy,binWidth)
+function RadiomicsFirstOrderS = radiomics_first_order_stats(planC,structNum,offsetForEnergy,binWidth,binNum)
 %
 % function RadiomicsFirstOrderS = radiomics_first_order_stats(planC,structNum,offsetForEnergy,binWidth)
 %
@@ -90,19 +90,25 @@ RadiomicsFirstOrderS.kurtosis      = kurtosis(Iarray) - 3;
 % heterogeniteit?
 
 % Entropy
-if ~exist('binWidth','var')
-    binWidth = 25;
-end
 % xmin = min(Iarray) + offsetForEnergy;
 % edgeMin = xmin - rem(xmin,binwidth);
 % edgeMin = 0; % to match pyradiomics definition
 xmaxV = max(Iarray); % + offsetForEnergy;
 xminV = min(Iarray);
+
+if exist('binNum','var') && ~isempty(binNum)
+    binWidth = (xmaxV - xminV)/binNum;
+else
+    if ~exist('binWidth','var') && ~isempty(binWidth) 
+        binWidth = 25;
+    end
+end
+
+
 offsetForEntropyV = zeros(1,size(xminV,2));
 offsetForEntropyV(xminV<0) = -xminV(xminV<0);
 %offsetForEntropyV = cast(offsetForEntropyV,'like',Iarray);
 offsetForEntropyV = cast(offsetForEntropyV,class(Iarray)); %for octave
-
 
 xmaxV = xmaxV + offsetForEntropyV;
 xminV = xminV + offsetForEntropyV;
