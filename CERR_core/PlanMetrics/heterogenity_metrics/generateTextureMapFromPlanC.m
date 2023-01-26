@@ -66,7 +66,8 @@ for n = 1:length(fieldNamesC)
        padSizV = filtParamS.padding.size;
     else
         %Undo default padding
-        padSizV = [5,5,5];
+        %padSizV = [5,5,5]; %For resampling
+        padSizV = [0,0,0];
     end
     filtScan3M = filtScan3M(padSizV(1)+1 : texSizV(1)-padSizV(1),...
         padSizV(2)+1 : texSizV(2)-padSizV(2),...
@@ -86,11 +87,12 @@ for n = 1:length(fieldNamesC)
     planC{indexS.texture}(nTexture).parameters = filtParamS;
     planC{indexS.texture}(nTexture).description = filterType;
     planC{indexS.texture}(nTexture).textureUID = createUID('TEXTURE');
-    
+
     %Create new scan
     scanS = planC{indexS.scan}(scanNum);
     [xVals,yVals,zVals] = getScanXYZVals(scanS);
     zV = zVals(uniqueSlicesV);
+
     regParamsS.horizontalGridInterval = voxSizV(1);
     regParamsS.verticalGridInterval = voxSizV(2);
     regParamsS.coord1OFFirstPoint = xVals(minc);
@@ -111,11 +113,12 @@ for n = 1:length(fieldNamesC)
     imgOriV = planC{indexS.scan}(scanNum).scanInfo(1).imageOrientationPatient;
     for k = 1:length(planC{indexS.scan}(newScanNum).scanInfo)
         planC{indexS.scan}(newScanNum).scanInfo(k).seriesInstanceUID = newSeriesInstanceUID;
-        CToffset = 0;
-        datamin = min(filtScan3M(:));
-        if datamin < 0
-            CToffset = -datamin;
-        end
+        %Handled in scan2CERR
+        %5CToffset = 0;
+        %datamin = min(filtScan3M(:));
+        %if datamin < 0
+        %    CToffset = -datamin;
+        %end
         planC{indexS.scan}(newScanNum).scanInfo(k).CTOffset = CToffset;
         planC{indexS.scan}(newScanNum).scanInfo(k).imageOrientationPatient = imgOriV;
     end
