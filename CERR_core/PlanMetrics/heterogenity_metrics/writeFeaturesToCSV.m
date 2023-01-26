@@ -1,9 +1,12 @@
 function writeFeaturesToCSV(featuresS,csvFile,idC)
 % writeFeaturesToCSV.m Writes scalar radiomic texture features ("featuresS")
-% computed for a cohort using calcGlobalRadiomicsFeatures.m to a CSV file.
+% computed for a single sstructuer across a cohort using 
+% calcGlobalRadiomicsFeatures.m to a CSV file.
 % -------------------------------------------------------------------------
 % INPUTS
-% featuresS   : Dictionary of features output by calcGlobalRadiomicsFeatures.m
+% featuresS   : Dictionary of features for a selected structure output
+%               by calcGlobalRadiomicsFeatures.m
+%               featuresS = featS.(strName);
 % csvFile     : Path to output CSV file.
 % idC         : Cell array of patient IDs. 
 % -------------------------------------------------------------------------
