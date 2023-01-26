@@ -47,7 +47,7 @@ end
 
 %% No. voxels
 origSizeV = [length(xValsV) length(yValsV) length(zValsV)];
-resampSizeV = ceil( origSizeV.* origResolutionV ./ resampResolutionV);
+resampSizeV = round( origSizeV.*origResolutionV ./ resampResolutionV);
 
 switch(gridAlignMethod)
 
