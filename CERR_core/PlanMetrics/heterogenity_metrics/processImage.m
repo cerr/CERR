@@ -61,9 +61,10 @@ filterType = strrep(filterType,' ','');
 aggregationMethod = 'none';
 dim = '2d';
 numRotations = 1;
+skipRotC = {'LawsEnergy'}; %multi-stage filters or rotation not supported
 if isfield(paramS,'RotationInvariance') && ...
         ~isempty(paramS.RotationInvariance) ...
-        && ~strcmpi(filterType,'LawsEnergy') 
+        && isempty(strfind(filterType,skipRotC))
     rotS = paramS.RotationInvariance.val;
     aggregationMethod = rotS.AggregationMethod;
     dim = rotS.Dim;
