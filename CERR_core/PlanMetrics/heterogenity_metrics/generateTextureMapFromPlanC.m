@@ -119,7 +119,7 @@ for n = 1:length(fieldNamesC)
         %if datamin < 0
         %    CToffset = -datamin;
         %end
-        planC{indexS.scan}(newScanNum).scanInfo(k).CTOffset = CToffset;
+        %planC{indexS.scan}(newScanNum).scanInfo(k).CTOffset = CToffset;
         planC{indexS.scan}(newScanNum).scanInfo(k).imageOrientationPatient = imgOriV;
     end
 end
