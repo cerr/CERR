@@ -118,7 +118,7 @@ for m = 1:length(methodC)
                 else
                     z = floor(cropDimV(3)/2);
                     mids = floor((mins+maxs)/2);
-                    mins = mids-z;
+                    mins = max(mids-z,1);
                     slcV = mins:mins+cropDimV(3)-1;
                 end
                 outMask3M = false(size(strMask3M));
