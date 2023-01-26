@@ -56,10 +56,12 @@ for k = 1:length(imageTypeC)
         end
         minClipIntensity = []; 
         maxClipIntensity = [];
-        if isfield(paramS.textureParamS,'minClipIntensity')
+        if isfield(paramS,'textureParamS') && ...
+                isfield(paramS.textureParamS,'minClipIntensity')
             minClipIntensity = paramS.textureParamS.minClipIntensity;
         end
-        if isfield(paramS.textureParamS,'maxClipIntensity')
+        if isfield(paramS,'textureParamS') && ...
+                isfield(paramS.textureParamS,'maxClipIntensity')
             maxClipIntensity = paramS.textureParamS.maxClipIntensity;
         end
         volToEval = volOrig3M;
@@ -100,10 +102,12 @@ for k = 1:length(imageTypeC)
         end
         minClipIntensity = []; % no clipping imposed for derived images
         maxClipIntensity = []; 
-        if isfield(paramS.textureParamS,'minClipIntensity')
+        if isfield(paramS,'textureParamS') && ...
+                isfield(paramS.textureParamS,'minClipIntensity')
             minClipIntensity = paramS.textureParamS.minClipIntensity;
         end
-        if isfield(paramS.textureParamS,'maxClipIntensity')
+        if isfield(paramS,'textureParamS') && ...
+                isfield(paramS.textureParamS,'maxClipIntensity')
             maxClipIntensity = paramS.textureParamS.maxClipIntensity;
         end
     end
@@ -155,8 +159,14 @@ for k = 1:length(imageTypeC)
 
     % --- 1. First-order features ---
     if whichFeatS.firstOrder.flag
+        binWidthEntropy = [];
+        binNumEntropy = [];
         offsetForEnergy = paramS.firstOrderParamS.offsetForEnergy;
-        binWidthEntropy = paramS.firstOrderParamS.binWidthEntropy;
+        if isfield(paramS.firstOrderParamS,'binWidthEntropy')
+            binWidthEntropy = paramS.firstOrderParamS.binWidthEntropy;
+        elseif isfield(paramS.firstOrderParamS,'binNumEntropy')
+            binNumEntropy = paramS.firstOrderParamS.binNumEntropy;
+        end
         if isfield(imageTypeC{k}.paramS,'firstOrderParamS') && ...
                 isfield(imageTypeC{k}.paramS.firstOrderParamS,'offsetForEnergy')
             offsetForEnergy = imageTypeC{k}.paramS.firstOrderParamS.offsetForEnergy;
@@ -165,10 +175,14 @@ for k = 1:length(imageTypeC)
                 isfield(imageTypeC{k}.paramS.firstOrderParamS,'binWidthEntropy')
             binWidthEntropy = imageTypeC{k}.paramS.firstOrderParamS.binWidthEntropy;
         end
+        if isfield(imageTypeC{k}.paramS,'binNumEntropy') && ...
+                isfield(imageTypeC{k}.paramS.firstOrderParamS,'binNumEntropy')
+            binNumEntropy = imageTypeC{k}.paramS.firstOrderParamS.binNumEntropy;
+        end
         volV = volToEval(logical(maskBoundingBox3M));
         volV = volV(:);
         featureS.(outFieldName).firstOrderS = radiomics_first_order_stats...
-            (volV, VoxelVol,offsetForEnergy,binWidthEntropy);
+            (volV, VoxelVol,offsetForEnergy,binWidthEntropy,binNumEntropy);
     end
     
     %---2. Higher-order (texture) features ----
