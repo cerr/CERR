@@ -1,4 +1,4 @@
-function featureS = batchExtractRadiomics(dirName,paramFileName,strFileMapC)
+function [featureS,errC] = batchExtractRadiomics(dirName,paramFileName,strFileMapC)
 % function featureS = batchExtractRadiomics(dirName,paramFileName,strFileMapC)
 % 
 % Extract radiomics features for a cohort of CERR files. Features for multiple 
@@ -16,6 +16,7 @@ function featureS = batchExtractRadiomics(dirName,paramFileName,strFileMapC)
 % OUTPUT:
 %   featureS - data structure for radiomics features. 
 %       Features for each structures are stored under featureS.(struct_structureName)
+%   errC     - cell array with error messages for failed cases if any.
 %
 % APA, 3/26/2019
 
@@ -51,10 +52,11 @@ end
 
 % Initialize empty features
 featureS = [];
+errC = {};
 
 % Loop over CERR files in all dirs/sub-dirs
 for iFile = 1:length(all_filenames)
-    
+    try
     %Load file
     fullFname = all_filenames{iFile};
     planC = loadPlanC(fullFname, tempdir);
@@ -98,6 +100,10 @@ for iFile = 1:length(all_filenames)
         else
             featureS(end+1) = featS;
         end
+    end
+
+    catch e
+            errC{end+1} = [all_filenames{iFile},' failed with ' e.message];
     end
     
 end
