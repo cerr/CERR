@@ -120,20 +120,21 @@ for k = 1:length(imageTypeC)
         numGrLevels = [];
         binwidth = [];
         
-        if isfield(paramS.textureParamS,'numGrLevels')
-            numGrLevels = paramS.textureParamS.numGrLevels;
-        end
-        if isfield(imageTypeC{k}.paramS,'textureParamS') && ...
-                isfield(imageTypeC{k}.paramS.textureParamS,'numGrLevels')
-            numGrLevels = imageTypeC{k}.paramS.textureParamS.numGrLevels;
-        end
-        
-        if isfield(paramS.textureParamS,'binwidth')
-            binwidth = paramS.textureParamS.binwidth;
-        end
-        if isfield(imageTypeC{k}.paramS,'textureParamS') && ...
-                isfield(imageTypeC{k}.paramS.textureParamS,'binwidth')
-            numGrLevels = imageTypeC{k}.paramS.textureParamS.binwidth;
+        if isfield(paramS,'textureParamS')
+            if isfield(paramS.textureParamS,'numGrLevels')
+                numGrLevels = paramS.textureParamS.numGrLevels;
+            end
+            if isfield(imageTypeC{k}.paramS,'textureParamS') && ...
+                    isfield(imageTypeC{k}.paramS.textureParamS,'numGrLevels')
+                numGrLevels = imageTypeC{k}.paramS.textureParamS.numGrLevels;
+            end
+            if isfield(paramS.textureParamS,'binwidth')
+                binwidth = paramS.textureParamS.binwidth;
+            end
+            if isfield(imageTypeC{k}.paramS,'textureParamS') &&...
+                    isfield(imageTypeC{k}.paramS.textureParamS,'binwidth')
+                numGrLevels = imageTypeC{k}.paramS.textureParamS.binwidth;
+            end
         end
         
         % Don't use intensities outside the ROI in discretization
@@ -161,7 +162,10 @@ for k = 1:length(imageTypeC)
     if whichFeatS.firstOrder.flag
         binWidthEntropy = [];
         binNumEntropy = [];
-        offsetForEnergy = paramS.firstOrderParamS.offsetForEnergy;
+        offsetForEnergy = 0;
+        if isfield(paramS.firstOrderParamS,'offsetForEnergy')
+            offsetForEnergy = paramS.firstOrderParamS.offsetForEnergy;
+        end
         if isfield(paramS.firstOrderParamS,'binWidthEntropy')
             binWidthEntropy = paramS.firstOrderParamS.binWidthEntropy;
         elseif isfield(paramS.firstOrderParamS,'binNumEntropy')

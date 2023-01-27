@@ -40,7 +40,7 @@ for m = 1:length(filterTypeC)
             for n = 1:length(paramListC)
                 if isstruct(userInS.imageType.(filterTypeC{m}))
                     radiomicsParamS.imageType.(filterTypeC{m})(iFilt).(paramListC{n}).val = ...
-                        userInS.imageType.(filterTypeC{m}).(paramListC{n});
+                        userInS.imageType.(filterTypeC{m})(iFilt).(paramListC{n});
                 else
                     radiomicsParamS.imageType.(filterTypeC{m})(iFilt).(paramListC{n}).val = ...
                         userInS.imageType.(filterTypeC{m}){iFilt}.(paramListC{n});
