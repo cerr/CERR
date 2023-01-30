@@ -38,8 +38,7 @@ function doseProfileFigure(command, varargin)
 global planC
 global stateS
 indexS = planC{end};
-
-persistent drawing;
+%persistent drawing;
 
 initialDoseV = [];
 initialScanV = [];
@@ -165,6 +164,7 @@ switch upper(command)
         ud.nScans = nScans;
         ud.startPt = startPt;
         ud.endPt = endPt;
+        ud.hDoseProfPlotV = [];
 
         % APA: Commented
         %         %Create axes.
@@ -334,16 +334,16 @@ switch upper(command)
 
     case 'REFRESH'
         %Make sure only the most recent calls are drawn.
-        global CERR_doseProfileLastCallTime;
-        thisCallTime = now;
-        if isempty(CERR_doseProfileLastCallTime)
-            CERR_doseProfileLastCallTime = thisCallTime;
-        else
-            if thisCallTime > CERR_doseProfileLastCallTime
-                CERR_doseProfileLastCallTime = thisCallTime;
-            end
-        end
-        clear CERR_doseProfileLastCallTime;
+        %global CERR_doseProfileLastCallTime;
+        %thisCallTime = now;
+        %if isempty(CERR_doseProfileLastCallTime)
+        %    CERR_doseProfileLastCallTime = thisCallTime;
+        %else
+        %    if thisCallTime > CERR_doseProfileLastCallTime
+        %        CERR_doseProfileLastCallTime = thisCallTime;
+        %    end
+        %end
+        %clear CERR_doseProfileLastCallTime;
 
         %Make dose profile figure the foreground.
         %hFig = findobj('tag', 'CERR_DoseLineProfile');
@@ -361,9 +361,12 @@ switch upper(command)
         delete(ud.htext)
         ud.htext = [];
 
-        figure(hFig);
+        if ~isequal(gcf,hFig)
+            figure(hFig);
+        end
 
-        delete(findobj(hFig, 'Tag', 'CERR_DOSEPROFILE_PLOT'));
+        %delete(findobj(hFig, 'Tag', 'CERR_DOSEPROFILE_PLOT'));
+        delete(ud.hDoseProfPlotV)
 
         nSamples = stateS.optS.numDoseProfileSamples;
         ptsDel = 1:nSamples;
@@ -399,7 +402,10 @@ switch upper(command)
         xV = linspace(startPt(1), endPt(1), nSamples);
         yV = linspace(startPt(2), endPt(2), nSamples);
         zV = linspace(startPt(3), endPt(3), nSamples);
-        distV = sqrt(sepsq(startPt', [xV;yV;zV]));
+        %distV = sqrt(sepsq(startPt', [xV;yV;zV]));
+        len = sqrt(sum((startPt - endPt).^2));
+        distV = 0:len/(nSamples-1):len;
+        %max(abs(distV - dist1V))
 
         for i=1:length(drawDoses)
             set(ud.doseaxis, 'nextplot', 'add', 'tickdir', 'out');
@@ -429,18 +435,24 @@ switch upper(command)
             sV{i}(ptsDel) = NaN;
         end
 
-        global CERR_doseProfileLastCallTime
-        if isequal(CERR_doseProfileLastCallTime, thisCallTime)
+        %persistent CERR_doseProfileLastCallTime
+        hDoseProfPlotV = [];
+        %if isequal(CERR_doseProfileLastCallTime, thisCallTime)
             for i=1:length(drawDoses)
                 doseNum = drawDoses(i);
-                plot(distV, dV{i}, 'parent', ud.doseaxis, 'color', getColor(doseNum, colors, 'loop'), 'Tag', 'CERR_DOSEPROFILE_PLOT','linewidth',2);
+                hDoseProfPlotV(end+1) = plot(distV, dV{i}, 'parent', ud.doseaxis, ...
+                    'color', getColor(doseNum, colors, 'loop'),...
+                    'Tag', 'CERR_DOSEPROFILE_PLOT','linewidth',2);
             end
             axis(ud.doseaxis,'tight')
             for i=1:length(drawScans)
                 scanNum = drawScans(i);
-                plot(distV, sV{i}, 'parent', ud.scanaxis, 'color', getColor(scanNum+nDoses, colors, 'loop'), 'Tag', 'CERR_DOSEPROFILE_PLOT','linewidth',2);
+                hDoseProfPlotV(end+1) = plot(distV, sV{i}, 'parent', ud.scanaxis,...
+                    'color', getColor(scanNum+nDoses, colors, 'loop'),...
+                    'Tag', 'CERR_DOSEPROFILE_PLOT','linewidth',2);
             end
             axis(ud.scanaxis,'tight')
+            ud.hDoseProfPlotV = hDoseProfPlotV;
 
             if exist('dV','var') && length(dV)>1 && ~isempty(ud.baseDose)
                 delete(ud.htextInit)
@@ -461,13 +473,17 @@ switch upper(command)
                         nddV{i} = ddV{i}/max(dV{baseDoseInd});
                     end
                 end
-
+                
                 for i=1:length(ddV)
                     ddoseNum = otherDoses(i);
                     if strcmpi(stateS.doseDiffScale, 'Abs')
-                        plot(distV, ddV{i}, 'parent', ud.diffaxis, 'color', getColor(ddoseNum, colors, 'loop'), 'Tag', 'CERR_DOSEPROFILE_PLOT','linewidth',2);
+                        hDoseProfPlotV(end+1) = plot(distV, ddV{i}, 'parent', ud.diffaxis, 'color', ...
+                            getColor(ddoseNum, colors, 'loop'),...
+                            'Tag', 'CERR_DOSEPROFILE_PLOT','linewidth',2);
                     elseif strcmpi(stateS.doseDiffScale, 'Rel')
-                        plot(distV, nddV{i}, 'parent', ud.diffaxis, 'color', getColor(ddoseNum, colors, 'loop'), 'Tag', 'CERR_DOSEPROFILE_PLOT','linewidth',2);
+                        hDoseProfPlotV(end+1) = plot(distV, nddV{i}, 'parent', ud.diffaxis, 'color', ...
+                            getColor(ddoseNum, colors, 'loop'),...
+                            'Tag', 'CERR_DOSEPROFILE_PLOT','linewidth',2);
                     end
 
                 end
@@ -478,7 +494,7 @@ switch upper(command)
                 %dispText = [text1,' - other doses'];
                 dispText = ['Dose - Ref'];
                 htext = text(ax(2)-(ax(2)-ax(1))*0.03,ax(4)-(ax(4)-ax(3))*0.1,dispText,'parent', ud.diffaxis,'HorizontalAlignment','right','FontWeight','bold');
-                ud.htext = htext;
+                ud.htext = htext;                
                 set(hFig, 'userdata',ud);
                 xlabel(ud.diffaxis,'\bfDistance along line','fontSize',10);
                 ylabel(ud.diffaxis,'\bfDifference','fontSize',10);
@@ -491,10 +507,11 @@ switch upper(command)
                 htextInit = text(0.1,0.5,'Select More than one dose to display difference','parent', ud.diffaxis,'HorizontalAlignment','left','FontWeight','bold');
                 ud.htextInit = htextInit;
                 ud.htext =[];
+                %ud.hDoseProfPlotV = [];
                 set(hFig, 'userdata',ud);
             end
 
-        end
+        %end
 
     case 'CLOSE'
         if stateS.doseProfileState
@@ -525,8 +542,8 @@ drawObjV = get(objUI,'Data');
 drawObjV = [drawObjV{:,1}];
 drawObjV(selectedRowsV) = ~drawObjV(selectedRowsV);
 objDataC(:,1) = num2cell(drawObjV);
-%set(objUI,'Data') = objDataC;
-objUI.Data = objDataC;
+set(objUI,'Data',objDataC);
+%objUI.Data = objDataC;
 
 if strcmp(get(hObj,'Tag'), 'doseUI')
     ud.doseUI = objUI;
