@@ -99,7 +99,7 @@ switch fieldname
             aRegSeq = rSeq.get(i-1);
             
             %Frame of Reference UID
-            FORUID = getTagValue(aRegSeq, '00200052');
+            FORUID = getTagValue(aRegSeq, hex2dec('00200052'));
             RIS = aRegSeq.getValue(hex2dec('00081140'));
             forUID = FORUID;
             
@@ -118,9 +118,9 @@ switch fieldname
             for iMat = 1:numMatrixItems
                 aMatItem = matItemsSeq.get(iMat-1);
                 % Frame of reference Transformation Matrix
-                transV = getTagValue(aMatItem, '300600C6');
+                transV = getTagValue(aMatItem, hex2dec('300600C6'));
                 % Frame of reference Transformation Matrix Type
-                dataS(i).transType{iMat} = getTagValue(aMatItem, '0070030C');
+                dataS(i).transType{iMat} = getTagValue(aMatItem, hex2dec('0070030C'));
                 transM = reshape(transV(:),4,4)';
                 transM(1:3,4) = transM(1:3,4)/10;
                 dataS(i).transM{iMat} = transM;                
@@ -140,25 +140,25 @@ switch fieldname
         end
 
         nRegs = dSeq.size();           
-
+        
         for i = 1:nRegs
             
             aRegSeq = dSeq.get(i-1);
             
             % Get the UID of associated scan
             %Frame of Reference UID
-            FORUID = getTagValue(aRegSeq, '00640003');
+            FORUID = getTagValue(aRegSeq, hex2dec('00640003'));
             RIS = aRegSeq.getValue(hex2dec('00081140'));
             forUID = FORUID;
-
+            
             % Pre reg Matrix Registration Sequence
             preDefMatRegSeq = aRegSeq.getValue(hex2dec('0064000F'));
             preRegTransM = eye(4);
             preRegTransType = '';
-            if ~isempty(preDefMatRegSeq)            
+            if ~isempty(preDefMatRegSeq)
                 preRegDefObj = preDefMatRegSeq.get(0);
-                preRegTransM = getTagValue(preRegDefObj, '300600C6');
-                preRegTransType = getTagValue(preRegDefObj, '0070030C');
+                preRegTransM = getTagValue(preRegDefObj, hex2dec('300600C6'));
+                preRegTransType = getTagValue(preRegDefObj, hex2dec('0070030C'));
             end
             dataS(i).preRegTransM = reshape(preRegTransM,4,4)';
             dataS(i).preRegTransM(1:3,4) = dataS(i).preRegTransM(1:3,4)/10;
@@ -168,10 +168,10 @@ switch fieldname
             postDefMatRegSeq = aRegSeq.getValue(hex2dec('00640010'));
             postRegTransM = eye(4);
             postRegTransType = '';
-            if ~isempty(postDefMatRegSeq)            
+            if ~isempty(postDefMatRegSeq)
                 postRegDefObj = postDefMatRegSeq.get(0);
-                postRegTransM = getTagValue(postRegDefObj, '300600C6');
-                postRegTransType = getTagValue(postRegDefObj, '0070030C');
+                postRegTransM = getTagValue(postRegDefObj, hex2dec('300600C6'));
+                postRegTransType = getTagValue(postRegDefObj, hex2dec('0070030C'));
             end
             dataS(i).postRegTransM = reshape(postRegTransM,4,4)';
             dataS(i).postRegTransM(1:3,4) = dataS(i).postRegTransM(1:3,4)/10;
@@ -179,18 +179,18 @@ switch fieldname
             
             % Deformable registration grid
             defRegSeq = aRegSeq.getValue(hex2dec('00640005'));
-            imageOrientationPatient = [];
-            imagePositionPatient = [];
+            imgOriV = [];
+            imgpos = [];
             gridDimensions = [];
-            gridResolution = [];
+            pixspac = [];
             vectorGridData = [];
             if ~isempty(defRegSeq)
                 defRegSeqObj = defRegSeq.get(0);
-                imgOriV = getTagValue(defRegSeqObj, '00200037');
-                imgpos    = getTagValue(defRegSeqObj, '00200032')/10;
-                gridDimensions          = getTagValue(defRegSeqObj, '00640007');
-                pixspac          = getTagValue(defRegSeqObj, '00640008')/10;
-                vectorGridData          = getTagValue(defRegSeqObj, '00640009')/10;
+                imgOriV = getTagValue(defRegSeqObj, hex2dec('00200037'));
+                imgpos    = getTagValue(defRegSeqObj, hex2dec('00200032'))/10;
+                gridDimensions          = getTagValue(defRegSeqObj, hex2dec('00640007'));
+                pixspac          = getTagValue(defRegSeqObj, hex2dec('00640008'))/10;
+                vectorGridData          = getTagValue(defRegSeqObj, hex2dec('00640009'))/10;
             end
             dataS(i).imageOrientationPatient = imgOriV;
             dataS(i).imagePositionPatient = imgpos;
@@ -202,60 +202,93 @@ switch fieldname
             dataS(i).yDeform3M = vectorGridData(:,:,:,2);
             dataS(i).zDeform3M = vectorGridData(:,:,:,3);
             dataS(i).forUID = forUID;
-            % Get xOffset, yOffset and zOffset
-            % i.e. the x, y, and z coordinates of the upper left hand voxel (center of the first voxel transmitted) of the grid
-            nCols = gridDimensions(1);
-            nRows = gridDimensions(2);
-            if (imgOriV(1)-1)^2 < 1e-5
-                xOffset = imgpos(1) + (pixspac(2) * (nCols - 1) / 2);
-            elseif (imgOriV(1)+1)^2 < 1e-5
-                xOffset = imgpos(1) - (pixspac(2) * (nCols - 1) / 2);
-            else
-                xOffset = imgpos(1);
-            end
-            %         xOffset = imgpos(1) + (pixspac(1) * (nCols - 1) / 2);
             
-            %Convert from DICOM mm to CERR cm.
-            if max(abs((imgOriV(:) - [1 0 0 0 1 0]'))) < 1e-3
-                %HFS
-                xOffset = xOffset;
-            elseif  max(abs((imgOriV(:) - [-1 0 0 0 1 0]'))) < 1e-3
-                %FFS;
-                xOffset = xOffset;
-            elseif max(abs((imgOriV(:) - [-1 0 0 0 -1 0]'))) < 1e-3
-                %HFP
-                xOffset = -xOffset;
-            elseif max(abs((imgOriV(:) - [1 0 0 0 -1 0]'))) < 1e-3
-                %FFP
-                xOffset = -xOffset;
-            end
-            dataS(i).xOffset = xOffset;
+%             % Get xOffset, yOffset and zOffset
+%             % i.e. the x, y, and z coordinates of the upper left hand voxel (center of the first voxel transmitted) of the grid
+%             nCols = gridDimensions(1);
+%             nRows = gridDimensions(2);
+% 
+%             %Check for oblique scan
+%             if max(abs((imgOriV(:) - [1 0 0 0 1 0]'))) < 1e-3
+%                 %HFS
+%                 isOblique = 0;
+%             elseif  max(abs((imgOriV(:) - [-1 0 0 0 1 0]'))) < 1e-3
+%                 %FFS;
+%                 isOblique = 0;
+%             elseif max(abs((imgOriV(:) - [-1 0 0 0 -1 0]'))) < 1e-3
+%                 %HFP
+%                 isOblique = 0;
+%             elseif max(abs((imgOriV(:) - [1 0 0 0 -1 0]'))) < 1e-3
+%                 %FFP
+%                 isOblique = 0;
+%             else
+%                 %OBLIQUE
+%                 isOblique = 1;
+%             end
+%             
+%             if ~isOblique && (imgOriV(1)-1)^2 < 1e-5
+%                 xOffset = imgpos(1) + (pixspac(2) * (nCols - 1) / 2);
+%             elseif ~isOblique && (imgOriV(1)+1)^2 < 1e-5
+%                 xOffset = imgpos(1) - (pixspac(2) * (nCols - 1) / 2);
+%             else
+%                 % by Deshan Yang, 3/2/2010
+%                 xOffset = imgpos(1);
+%             end
+%             %         xOffset = imgpos(1) + (pixspac(1) * (nCols - 1) / 2);
+%             
+%             %Convert from DICOM mm to CERR cm.
+%             if ~isOblique
+%                 if max(abs((imgOriV(:) - [1 0 0 0 1 0]'))) < 1e-3
+%                     %'HFS'
+%                     xOffset = xOffset / 10;
+%                 elseif max(abs((imgOriV(:) - [-1 0 0 0 -1 0]'))) < 1e-3
+%                     %'HFP', 'HFDR'
+%                     xOffset = -xOffset / 10;
+%                 elseif  max(abs((imgOriV(:) - [-1 0 0 0 1 0]'))) < 1e-3
+%                     %'FFS'
+%                     xOffset = -xOffset / 10;
+%                 elseif max(abs((imgOriV(:) - [1 0 0 0 -1 0]'))) < 1e-3
+%                     %FFP
+%                     xOffset = xOffset / 10;
+%                 else
+%                     xOffset = xOffset / 10;
+%                 end
+%             else
+%                 xOffset = xOffset / 10;
+%             end
+%             
+%             
+%             if ~isOblique && (imgOriV(5)-1)^2 < 1e-5
+%                 yOffset = imgpos(2) + (pixspac(1) * (nRows - 1) / 2);
+%             elseif ~isOblique && (imgOriV(5)+1)^2 < 1e-5
+%                 yOffset = imgpos(2) - (pixspac(1) * (nRows - 1) / 2);
+%             else
+%                 % by Deshan Yang, 3/2/2010
+%                 yOffset = imgpos(2);
+%             end
+%             %         yOffset = imgpos(2) + (pixspac(2) * (nRows - 1) / 2);
+%             
+%             %Convert from DICOM mm to CERR cm, invert to match CERR y dir.
+%             if ~isOblique
+%                 if max(abs((imgOriV(:) - [1 0 0 0 1 0]'))) < 1e-3
+%                     %'HFS'
+%                     yOffset = - yOffset / 10;
+%                 elseif max(abs((imgOriV(:) - [-1 0 0 0 -1 0]'))) < 1e-3
+%                     %'HFP', 'HFDR'
+%                     yOffset = yOffset / 10;
+%                 elseif  max(abs((imgOriV(:) - [-1 0 0 0 1 0]'))) < 1e-3
+%                     %'FFS'
+%                     yOffset = - yOffset / 10;
+%                 elseif max(abs((imgOriV(:) - [1 0 0 0 -1 0]'))) < 1e-3
+%                     %FFP
+%                     yOffset = yOffset / 10;
+%                 else
+%                     yOffset = yOffset / 10;
+%                 end
+%             else
+%                 yOffset = yOffset / 10;
+%             end
             
-            if (imgOriV(5)-1)^2 < 1e-5
-                yOffset = imgpos(2) + (pixspac(1) * (nRows - 1) / 2);
-            elseif (imgOriV(5)+1)^2 < 1e-5
-                yOffset = imgpos(2) - (pixspac(1) * (nRows - 1) / 2);
-            else
-                % by Deshan Yang, 3/2/2010
-                yOffset = imgpos(2);
-            end
-            %         yOffset = imgpos(2) + (pixspac(2) * (nRows - 1) / 2);
-            
-            %Convert from DICOM mm to CERR cm, invert to match CERR y dir.
-            if max(abs((imgOriV(:) - [1 0 0 0 1 0]'))) < 1e-3
-                %HFS
-                yOffset = - yOffset;
-            elseif  max(abs((imgOriV(:) - [-1 0 0 0 1 0]'))) < 1e-3
-                %FFS;
-                yOffset = - yOffset;
-            elseif max(abs((imgOriV(:) - [-1 0 0 0 -1 0]'))) < 1e-3
-                %HFP
-                yOffset = yOffset;
-            elseif max(abs((imgOriV(:) - [1 0 0 0 -1 0]'))) < 1e-3
-                %FFP
-                yOffset = yOffset;
-            end
-            dataS(i).yOffset = yOffset;
             
         end
         

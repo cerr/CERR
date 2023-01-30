@@ -75,21 +75,22 @@ end
 %     path9 = which('dcm4che-net-5.17.0.jar');
 % else
 %oldpath = pwd;
-ML_dcm = what(fullfile('dcm4che-5.17.0','lib'));
-if isempty(ML_dcm)
+%ML_dcm = what(fullfile('dcm4che-5.17.0','lib'));
+ML_dcm_path = fullfile(getCERRPath,'..','ML_Dicom','dcm4che-5.17.0','lib');
+if ~exist(ML_dcm_path,'dir')
     warndlg('File "dcm4che-core-5.17.0.jar" is not added to MATLAB path. Add the folder "dcm4che-core-5.17.0" to MATLAB path and start again');
     initFlag = 0;
     return;
 end
-path1 = fullfile(ML_dcm.path,'dcm4che-core-5.17.0.jar');
-path2 = fullfile(ML_dcm.path,'log4j-1.2.17.jar');
-path3 = fullfile(ML_dcm.path,'slf4j-api-1.7.25.jar');
-path4 = fullfile(ML_dcm.path,'slf4j-log4j12-1.7.25.jar');
-path5 = fullfile(ML_dcm.path,'dcm4che-image-5.17.0.jar');
-path6 = fullfile(ML_dcm.path,'dcm4che-imageio-5.17.0.jar');
-path7 = fullfile(ML_dcm.path,'dcm4che-imageio-rle-5.17.0.jar');
+path1 = fullfile(ML_dcm_path,'dcm4che-core-5.17.0.jar');
+path2 = fullfile(ML_dcm_path,'log4j-1.2.17.jar');
+path3 = fullfile(ML_dcm_path,'slf4j-api-1.7.25.jar');
+path4 = fullfile(ML_dcm_path,'slf4j-log4j12-1.7.25.jar');
+path5 = fullfile(ML_dcm_path,'dcm4che-image-5.17.0.jar');
+path6 = fullfile(ML_dcm_path,'dcm4che-imageio-5.17.0.jar');
+path7 = fullfile(ML_dcm_path,'dcm4che-imageio-rle-5.17.0.jar');
 %path8 = fullfile(ML_dcm.path,'dcm4che-iod-3.3.8.jar');
-path9 = fullfile(ML_dcm.path,'dcm4che-net-5.17.0.jar');
+path9 = fullfile(ML_dcm_path,'dcm4che-net-5.17.0.jar');
 %cd(oldpath);
 % end
 

@@ -120,32 +120,34 @@ if whichFeatS.resample.flag
     padScaleZ = ceil(whichFeatS.resample.resolutionZCm/dz);
 end
 
-%Default:Pad by 5 voxels (original image intensities) before resampling
-padMethod = 'expand';
-padSizV = [5,5,5];
-if whichFeatS.padding.flag
-    if isfield(whichFeatS.padding,'size')
-        filtPadSizV = whichFeatS.padding.size;
-        filtPadSizV = reshape(filtPadSizV,1,[]);
-        if length(filtPadSizV)==2
-            filtPadSizV = [filtPadSizV,0];
+%---For IBSI2 ------
+cropForResampling = 0;
+padSizV = [];
+padMethod = 'none';
+%------------------
+if cropForResampling 
+    %Default:Pad by 5 voxels (original image intensities) before resampling
+    padMethod = 'expand';
+    padSizV = [5,5,5];
+    if whichFeatS.padding.flag
+        if isfield(whichFeatS.padding,'size')
+            filtPadSizV = whichFeatS.padding.size;
+            filtPadSizV = reshape(filtPadSizV,1,[]);
+            if length(filtPadSizV)==2
+                filtPadSizV = [filtPadSizV,0];
+            end
+            filtPadSizV = filtPadSizV.*[padScaleX padScaleY padScaleZ];
+            repIdxV = filtPadSizV > padSizV;
+            padSizV(repIdxV) = filtPadSizV(repIdxV);
+            padMethod = whichFeatS.padding.method;
         end
-        filtPadSizV = filtPadSizV.*[padScaleX padScaleY padScaleZ];
-        repIdxV = filtPadSizV > padSizV;
-        padSizV(repIdxV) = filtPadSizV(repIdxV);
     end
 end
 
 % Crop to ROI and pad
-%cropFlag = 1;
-%padMethod = whichFeatS.padding.method;
-%---For IBSI2 ------
-cropFlag = 0;
-padMethod = 'none';
-%------------------
 scanArray3M = double(scanArray3M);
 [padScanBoundsForResamp3M,padMaskBoundsForResamp3M,outLimitsV] = ...
-    padScan(scanArray3M,mask3M,padMethod,padSizV,cropFlag);
+    padScan(scanArray3M,mask3M,padMethod,padSizV,cropForResampling);
 xValsV = xValsV(outLimitsV(3):outLimitsV(4));
 yValsV = yValsV(outLimitsV(1):outLimitsV(2));
 zValsV = zValsV(outLimitsV(5):outLimitsV(6));
@@ -216,24 +218,23 @@ else
 end
 
 %Apply padding as required for convolutional filtering
-if whichFeatS.padding.flag
-    if isfield(whichFeatS.padding,'cropToMaskBounds')
-        cropFlag = strcmpi(whichFeatS.padding.cropToMaskBounds,'yes');
-    else
-        cropFlag = 1; %default
-    end
-    if isfield(whichFeatS.padding,'method') && ...
-            ~strcmpi(whichFeatS.padding.method,'none')
-        filtPadMethod = whichFeatS.padding.method;
-        filtPadSizeV = reshape(whichFeatS.padding.size,1,[]);
-        if length(filtPadSizeV)==2
-            filtPadSizeV = [filtPadSizeV,0];
+filtPadMethod = 'none';
+filtPadSizeV = [0 0 0];
+cropFlag = 1;  %Default
+if ~cropForResampling
+    if whichFeatS.padding.flag
+        if isfield(whichFeatS.padding,'cropToMaskBounds')
+            cropFlag = strcmpi(whichFeatS.padding.cropToMaskBounds,'yes');
         end
-    else
-        filtPadMethod = 'none';
-        filtPadSizeV = [0 0 0];
+        if isfield(whichFeatS.padding,'method') && ...
+                ~strcmpi(whichFeatS.padding.method,'none')
+            filtPadMethod = whichFeatS.padding.method;
+            filtPadSizeV = reshape(whichFeatS.padding.size,1,[]);
+            if length(filtPadSizeV)==2
+                filtPadSizeV = [filtPadSizeV,0];
+            end
+        end
     end
-
     [volToEval,maskBoundingBox3M,outLimitsV] = padScan(resampScanBounds3M,...
         resampMaskBounds3M,filtPadMethod,filtPadSizeV,cropFlag);
 
@@ -278,21 +279,20 @@ if whichFeatS.padding.flag
     yResampleV = yResampleV(outLimitsV(1):outLimitsV(2));
     zResampleV = zResampleV(outLimitsV(5):outLimitsV(6));
 else
-%     resampSizeV = size(resampScanBounds3M);
-%     volToEval = resampScanBounds3M(padSizV(1)+1:resampSizeV(1)-padSizV(1),...
-%         padSizV(2)+1:resampSizeV(2)-padSizV(2),...
-%         padSizV(3)+1:resampSizeV(3)-padSizV(3));
-%     maskBoundingBox3M = resampMaskBounds3M(padSizV(1)+1:resampSizeV(1)-padSizV(1),...
-%         padSizV(2)+1:resampSizeV(2)-padSizV(2),...
-%         padSizV(3)+1:resampSizeV(3)-padSizV(3));
-%    resampSizeV = size(resampScanBounds3M);
+    %     resampSizeV = size(resampScanBounds3M);
+    %     volToEval = resampScanBounds3M(padSizV(1)+1:resampSizeV(1)-padSizV(1),...
+    %         padSizV(2)+1:resampSizeV(2)-padSizV(2),...
+    %         padSizV(3)+1:resampSizeV(3)-padSizV(3));
+    %     maskBoundingBox3M = resampMaskBounds3M(padSizV(1)+1:resampSizeV(1)-padSizV(1),...
+    %         padSizV(2)+1:resampSizeV(2)-padSizV(2),...
+    %         padSizV(3)+1:resampSizeV(3)-padSizV(3));
+    %    resampSizeV = size(resampScanBounds3M);
     volToEval = resampScanBounds3M;
     maskBoundingBox3M = resampMaskBounds3M;
 end
 
 
 %--- 4. Ignore voxels below and above cutoffs, if defined ----
-
 minSegThreshold = [];
 maxSegThreshold = [];
 if isfield(paramS,'textureParamS')
