@@ -60,26 +60,28 @@ if ishandle(1)
 end
 
 %Also write non-empty strings to the matlab console:
-if strcmpi(dispFlag, 'both') || strcmpi(dispFlag, 'console')
+%if strcmpi(dispFlag, 'both') || strcmpi(dispFlag, 'console')
+if any(ismember(lower(dispFlag),{'both','console'}))
     if ~strcmp(str,'')
         disp(['CERR>>  ' str])
     end
 end
 
-h = [];
-try
+%h = [];
+%try
     h = stateS.handle.CERRSliceViewer;
-end
+%end
 
 
 if ishandle(h)
     set(0,'CurrentFigure',h);
     
-    if strcmpi(dispFlag, 'both') || strcmpi(dispFlag, 'gui')
-        try
+    %if strcmpi(dispFlag, 'both') || strcmpi(dispFlag, 'gui')
+    if any(ismember(lower(dispFlag),{'both','gui'}))
+        %try
             set(stateS.handle.CERRStatus,'string',str)
-            drawnow
-        end
+        %    drawnow
+        %end
         
         %return to old figure
         if ishandle(1)

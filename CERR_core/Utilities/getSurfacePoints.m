@@ -97,6 +97,9 @@ end
 
 %Finally drop the kernal back into the middle of mask3M.  All points on the
 %first/last row, column and slice of mask3M are by definion surface points.
+if exist('sampleTrans','var') && exist('sampleAxis','var')
+    mask3M = mask3M & getDown3Mask(mask3M,sampleTrans, sampleAxis);
+end
 mask3M(2:end-1, 2:end-1, 2:end-1) = kernal;
 
 %Find the location of the surface points.
