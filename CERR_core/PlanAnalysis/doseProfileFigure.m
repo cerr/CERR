@@ -90,8 +90,8 @@ switch upper(command)
         %Draw frames.
         yFrameSize = 110;
         yStart = 100;
-        hDoseFrame = uicontrol(hFig, 'units', units, 'style', 'frame', 'position', [10 10 235 yFrameSize]);
-        hScanFrame = uicontrol(hFig, 'units', units, 'style', 'frame', 'position', [255 10 235 yFrameSize]);
+        hDoseFrame = uipanel(hFig, 'units', units, 'position', [10 10 235 yFrameSize]);
+        hScanFrame = uipanel(hFig, 'units', units, 'position', [255 10 235 yFrameSize]);
         uicontrol(hFig, 'style', 'text', 'units', units, 'position', [10 yFrameSize-10 50 20], 'string', 'Doses', 'fontweight', 'bold');
         uicontrol(hFig, 'style', 'text', 'units', units, 'position', [255 yFrameSize-10 50 20], 'string', 'Scans', 'fontweight', 'bold');
         
@@ -208,7 +208,7 @@ switch upper(command)
 
         refDoseToolTip = 'Select the reference/Base Dose from which all doses will be subtracted';
 
-        uicontrol('parent',hFig,'Style','popupmenu', 'Units','Pixels','Position',[300 yStart+220 100 40],'Tag','refDoseSelect',...
+        ud.refDoseSelect = uicontrol('parent',hFig,'Style','popupmenu', 'Units','Pixels','Position',[300 yStart+220 100 40],'Tag','refDoseSelect',...
             'callback', 'doseProfileFigure(''selectrefDose'')','String',outString,'TooltipString',refDoseToolTip);
 
         % APA: Create  difference axis
@@ -246,7 +246,7 @@ switch upper(command)
 
         %doseUI  = ud.doseUI;
 
-        value = get(findobj('Tag','refDoseSelect'),'value')-1;
+        value = get(ud.refDoseSelect,'value')-1;
 
         if value ~=0
             ud.baseDose = value;
