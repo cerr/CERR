@@ -67,9 +67,12 @@ if any(ismember(lower(dispFlag),{'both','console'}))
     end
 end
 
-%h = [];
+h = [];
 %try
+if ~isempty(stateS) && isfield(stateS,'handle') && ...
+        isfield(stateS.handle,'CERRSliceViewer') && ishandle(stateS.handle.CERRSliceViewer)
     h = stateS.handle.CERRSliceViewer;
+end
 %end
 
 
