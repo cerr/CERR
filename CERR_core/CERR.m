@@ -29,8 +29,7 @@ function CERR(varargin)
 % You should have received a copy of the GNU General Public License
 % along with CERR.  If not, see <http://www.gnu.org/licenses/>.
 
-
-persistent logFlag
+%persistent logFlag
 
 if isunix
     setappdata(0,'UseNativeSystemDialogs',false)
@@ -70,6 +69,7 @@ if(nargin == 0)
     axis(gca,'off', 'image')
     
     %Display link for Log file
+    logFlag = 0;
     if ~isempty(logFlag) && logFlag == 1
         uicontrol('units',units,'Position',[0.55 .50 .25 .05],'String', 'View Change Log', 'callback','CERR(''VIEW LOG'')', 'Style','push', 'BackgroundColor', [1 1 1], 'FontSize', 10, 'FontName', 'FixedWidth', 'HorizontalAlignment', 'center');
     end

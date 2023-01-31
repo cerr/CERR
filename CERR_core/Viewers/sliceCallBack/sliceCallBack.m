@@ -65,7 +65,6 @@ function sliceCallBack(instr, varargin)
 %======================================================
 
 global planC stateS
-format compact
 
 if exist('planC','var') && ~isempty(planC)
     indexS = planC{end};
