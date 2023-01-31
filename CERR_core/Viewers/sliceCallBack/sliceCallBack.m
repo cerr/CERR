@@ -259,26 +259,32 @@ switch upper(instr)
 
         %Make invisible frames to subdivide screenspace.  For resizing.
         figureWidth = position(3); figureHeight = position(4);
-        leftMargin    = uicontrol(hCSV,'units', 'pixels', 'Position',[leftMarginWidth-1 0 1 1600], 'Style', 'frame', 'Tag', 'leftMargin', 'visible', 'on', 'pickableParts','none','hittest','off');
-        bottomMargin  = uicontrol(hCSV,'units', 'pixels', 'Position',[leftMarginWidth 0 1600 bottomMarginHeight], 'Style', 'frame', 'Tag', 'bottomMargin', 'visible', 'off', 'pickableParts','none','hittest','off');
+        %leftMargin    = uicontrol(hCSV,'units', 'pixels', 'Position',[leftMarginWidth-1 0 1 1600], 'Style', 'frame', 'Tag', 'leftMargin', 'visible', 'on');
+        leftMargin    = uipanel(hCSV,'units', 'pixels', 'Position',[leftMarginWidth-1 0 1 1600], 'Tag', 'leftMargin', 'visible', 'on');
+        %bottomMargin  = uicontrol(hCSV,'units', 'pixels', 'Position',[leftMarginWidth 0 1600 bottomMarginHeight], 'Style', 'frame', 'Tag', 'bottomMargin', 'visible', 'off');
         %mainBody      = uicontrol(hCSV,'units', 'pixels', 'Position',[leftMarginWidth bottomMarginHeight figureWidth-leftMarginWidth figureHeight-bottomMarginHeight],...
-        %    'Style', 'frame', 'Tag', 'mainBody', 'visible', 'off', 'pickableParts','none','hittest','off');
+        %    'Style', 'frame', 'Tag', 'mainBody', 'visible', 'off');
+        bottomMargin  = uipanel(hCSV,'units', 'pixels', 'Position',[leftMarginWidth 0 1600 bottomMarginHeight], 'Tag', 'bottomMargin', 'visible', 'off');
+        mainBody      = uipanel(hCSV,'units', 'pixels', 'Position',[leftMarginWidth bottomMarginHeight figureWidth-leftMarginWidth figureHeight-bottomMarginHeight],...
+            'Tag', 'mainBody', 'visible', 'off');
 
         x  = 25; %position of buttons
         dx = 50;
         %Populate left margin Gui Objects.
         leftMarginPos = get(leftMargin, 'position');
         %General purpose control frame
-        stateS.handle.controlFrame = uicontrol(hCSV,'units', 'pixels', 'Position', [0 0 leftMarginWidth 400], 'Style', 'frame', 'Tag', 'controlFrame', 'pickableParts','none','hittest','off');
+        %stateS.handle.controlFrame = uicontrol(hCSV,'units', 'pixels', 'Position', [0 0 leftMarginWidth 400], 'Style', 'frame', 'Tag', 'controlFrame');
+        stateS.handle.controlFrame = uipanel(hCSV,'units', 'pixels', 'Position', [0 0 leftMarginWidth 400], 'Tag', 'controlFrame');
         %Warning message.
         %handle = uicontrol(hCSV, 'units', 'pixels', 'Position', [10 600 leftMarginWidth-20 20], 'Style', 'text', 'enable', 'inactive'  , 'String', 'Not for clinical use', 'foregroundcolor', [1 0 0], 'fontsize', 14);
         stateS.handle.controlFrameUd = [];
         stateS.contouringMetaDataS = [];
-
+        
         %CT window and level ui:
         frameWidth = leftMarginWidth - 20;
-        stateS.handle.CTSettingsFrame = uicontrol(hCSV,'units','pixels', 'string', 'ctsettingsFrame', 'BackgroundColor',uicolor, 'Position', [10 490 frameWidth 125],'Style','frame', 'Tag','CTSettingsFrame', 'pickableParts','none','hittest','off');
-
+        %stateS.handle.CTSettingsFrame = uicontrol(hCSV,'units','pixels', 'string', 'ctsettingsFrame', 'BackgroundColor',uicolor, 'Position', [10 490 frameWidth 125],'Style','frame', 'Tag','CTSettingsFrame');
+        stateS.handle.CTSettingsFrame = uipanel(hCSV,'units','pixels', 'BackgroundColor',uicolor, 'Position', [10 490 frameWidth 125], 'Tag','CTSettingsFrame');
+        
         % Scan name text
         stateS.handle.ScanTxtWindow = uicontrol(hCSV,'units','pixels','BackgroundColor',uicolor, 'Position',[20 585 (frameWidth-30) 27],'String','', 'Style','text', 'enable', 'inactive','ForegroundColor',[0.1 0.5 0.1]);
 

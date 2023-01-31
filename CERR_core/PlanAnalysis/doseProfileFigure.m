@@ -90,8 +90,8 @@ switch upper(command)
         %Draw frames.
         yFrameSize = 110;
         yStart = 100;
-        hDoseFrame = uicontrol(hFig, 'units', units, 'style', 'frame', 'position', [10 10 235 yFrameSize]);
-        hScanFrame = uicontrol(hFig, 'units', units, 'style', 'frame', 'position', [255 10 235 yFrameSize]);
+        hDoseFrame = uipanel(hFig, 'units', units, 'position', [10 10 235 yFrameSize]);
+        hScanFrame = uipanel(hFig, 'units', units, 'position', [255 10 235 yFrameSize]);
         uicontrol(hFig, 'style', 'text', 'units', units, 'position', [10 yFrameSize-10 50 20], 'string', 'Doses', 'fontweight', 'bold');
         uicontrol(hFig, 'style', 'text', 'units', units, 'position', [255 yFrameSize-10 50 20], 'string', 'Scans', 'fontweight', 'bold');
         
