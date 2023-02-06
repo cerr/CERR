@@ -331,10 +331,10 @@ switch(config)
 
         % 5.a.2
         %paramFile = fullfile(configDirName,'IBSIPhase2-1ID5a2.json');
-        %planC = generateTextureMapFromPlanC(planC,structNum,paramFile);
+        %planC = generateTextureMapFromPlanC(planC,[],structNum,paramFile);
         %scanNum = length(planC{indexS.scan});
         %planC{indexS.scan}(scanNum).scanType = ...
-        %    [planC{indexS.scan}(scanNum).scanType,'_5a2'];
+        %   [planC{indexS.scan}(scanNum).scanType,'_5a2'];
 
         planName = fullfile(outDir,'5a.mat');
         save_planC(planC,[],'PASSED',planName);
@@ -363,26 +363,26 @@ switch(config)
         save_planC(planC,[],'PASSED',planName);
         exportScans(planName,outDir,'6a',metadataS.sphere);
 
-    case '7a'
-        %7.a.1
-        fileName = fullfile(dataDirName,'checkerboard.mat');
-        [planC,structNum] = preparePlanC(fileName);
-        indexS = planC{end};
-        paramFile = fullfile(configDirName,'IBSIPhase2-1ID7a1.json');
-
-        planC = generateTextureMapFromPlanC(planC,[],structNum,paramFile);
-        scanNum = length(planC{indexS.scan});
-        planC{indexS.scan}(scanNum).scanType = ...
-            [planC{indexS.scan}(scanNum).scanType,'7a1'];
-
-        planName = fullfile(outDir,'7a.mat');
-        save_planC(planC,[],'PASSED',planName);
-        exportScans(planName,outDir,'7a',metadataS.sphere);
+%     case '7a'
+%         %7.a.1
+%         fileName = fullfile(dataDirName,'checkerboard.mat');
+%         [planC,structNum] = preparePlanC(fileName);
+%         indexS = planC{end};
+%         paramFile = fullfile(configDirName,'IBSIPhase2-1ID7a1.json');
+% 
+%         planC = generateTextureMapFromPlanC(planC,[],structNum,paramFile);
+%         scanNum = length(planC{indexS.scan});
+%         planC{indexS.scan}(scanNum).scanType = ...
+%             [planC{indexS.scan}(scanNum).scanType,'7a1'];
+% 
+%         planName = fullfile(outDir,'7a.mat');
+%         save_planC(planC,[],'PASSED',planName);
+%         exportScans(planName,outDir,'7a',metadataS.sphere);
 
     case 'all'
         %Run all (default)
         configC = {'1a','1b','2a','2b','2c','3a','3b','3c',...
-            '4a','4b','5a','6a','7a'};
+            '4a','4b','5a','6a'};%,'7a'};
         for iConf = 1:length(configC)
             runIBSI2benchmarkFilters(outDir,configC{iConf});
         end

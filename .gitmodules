@@ -1,0 +1,3 @@
+[submodule "CERR_core/Nifti_utils/dicm2nii"]
+	path = CERR_core/Nifti_utils/dicm2nii
+	url = https://github.com/xiangruili/dicm2nii.git
