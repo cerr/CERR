@@ -77,7 +77,7 @@ if isfield(paramS,'RotationInvariance') && ...
     dim = rotS.Dim;
     if waveletFlag
         if strcmpi(dim,'2d')
-            numRotations = 2; %??
+            numRotations = 4; %?
         else
             numRotations = 8;
         end
