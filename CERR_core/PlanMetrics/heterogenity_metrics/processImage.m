@@ -53,31 +53,47 @@ if ~exist('hWait','var')
 end
 
 filterType = strrep(filterType,' ','');
+waveletFlag = 0;
+if strcmpi(filterType,'wavelets')
+    waveletFlag = 1;
+end
 
 % Compute ROI bounding box
 [minr, maxr, minc, maxc, mins, maxs] = compute_boundingbox(mask3M);
+
 
 %Parameters for rotation invariance
 aggregationMethod = 'none';
 dim = '2d';
 numRotations = 1;
+rotFlag = 0;
 skipRotC = {'LawsEnergy'}; %multi-stage filters or rotation not supported
 if isfield(paramS,'RotationInvariance') && ...
         ~isempty(paramS.RotationInvariance) ...
         && isempty(strfind(filterType,skipRotC))
+    rotFlag = 1;
     rotS = paramS.RotationInvariance.val;
     aggregationMethod = rotS.AggregationMethod;
     dim = rotS.Dim;
-    if strcmpi(dim,'2d')
-        numRotations = 4;
+    if waveletFlag
+        if strcmpi(dim,'2d')
+            numRotations = 4; %?
+        else
+            numRotations = 8;
+        end
     else
-        numRotations = 24;
+        if strcmpi(dim,'2d')
+            numRotations = 4;
+        else
+            numRotations = 24;
+        end
     end
 end
 
 %Handle S-I orientation flip for Wavelet filters
-if strcmpi(filterType,'wavelets')
+if waveletFlag
     scan3M   = flip(double(scan3M),3); %FOR IBSI2 compatibility
+    mask3M   = flip(mask3M,3);
 end
 
 %% Apply filter at specified orientations
@@ -85,12 +101,17 @@ rotTextureC = cell(1,numRotations);
 
 for index = 1:numRotations
 
-    if strcmpi(dim,'2d')
-        rotScan3M = rot90(scan3M, index-1);
-        rotMask3M = rot90(mask3M, index-1);
-    elseif strcmpi(dim,'3d')
-        rotScan3M = rotate3dSequence(scan3M,index-1,1);
-        rotMask3M = rotate3dSequence(mask3M,index-1,1);
+    if waveletFlag
+        rotScan3M = flipSequenceForWavelets(scan3M,index-1,1);
+        rotMask3M = flipSequenceForWavelets(mask3M,index-1,1);
+    else
+        if strcmpi(dim,'2d')
+            rotScan3M = rot90(scan3M, index-1);
+            rotMask3M = rot90(mask3M, index-1);
+        elseif strcmpi(dim,'3d')
+            rotScan3M = rotate3dSequence(scan3M,index-1,1);
+            rotMask3M = rotate3dSequence(mask3M,index-1,1);
+        end
     end
 
     switch(filterType)
@@ -192,7 +213,6 @@ for index = 1:numRotations
 
         case 'Wavelets'
 
-            %vol3M   = flip(double(rotScan3M),3); %FOR IBSI2
             vol3M = double(rotScan3M);
             wavType =  paramS.Wavelets.val;
             if ~isempty(paramS.Index.val)
@@ -224,8 +244,21 @@ for index = 1:numRotations
                     outname = strrep(outname,' ','_');
 
                     subbandsS = getWaveletSubbands(vol3M,wavType,level,dim);
-                    matchDir = [dirListC{n},'_',wavType];
-                    out3M = subbandsS.(matchDir);
+                    if rotFlag
+                        %Compute average of all permutations of
+                        %selected decomposition
+                        permDirC = cellstr(unique(perms(dirListC{n}),'rows'));
+                        matchDir = [permDirC{1},'_',wavType];
+                        out3M = subbandsS.(matchDir);
+                        for nDir = 2:length(permDirC)
+                            matchDir = [permDirC{nDir},'_',wavType];
+                            out3M = out3M + subbandsS.(matchDir);
+                        end
+                        out3M = out3M./length(permDirC);
+                    else
+                        matchDir = [dirListC{n},'_',wavType];
+                        out3M = subbandsS.(matchDir);
+                    end
 
                     if ishandle(hWait)
                         set(hWait, 'Vertices', ...
@@ -241,9 +274,26 @@ for index = 1:numRotations
                 outname = strrep(outname,'.','_');
                 outname = strrep(outname,' ','_');
 
+                %Get all sub-bands
                 subbandsS = getWaveletSubbands(vol3M,wavType,level,dim);
-                matchDir = [dir,'_',wavType];
-                out3M = subbandsS.(matchDir);
+                
+                if rotFlag
+                    %Compute average of all permutations of 
+                    %selected decomposition
+                    permDirC = cellstr(unique(perms(dir),'rows'));
+                    matchDir = [permDirC{1},'_',wavType];
+                    out3M = subbandsS.(matchDir);
+                    for nDir = 2:length(permDirC)
+                        matchDir = [permDirC{nDir},'_',wavType];
+                        out3M = out3M + subbandsS.(matchDir);
+                    end
+                    out3M = out3M./length(permDirC);
+                else
+                    %Return selected decomposition
+                    matchDir = [dir,'_',wavType];
+                    out3M = subbandsS.(matchDir);
+                end
+                
 
                 if ishandle(hWait)
                     set(hWait, 'Vertices', [[0 0 1 1]' [0 1 1 0]']);
@@ -702,12 +752,16 @@ for index = 1:numRotations
     featNameC = fieldnames(outS);
     for nFeat = 1:length(featNameC)
         out3M = outS.(featNameC{nFeat});
-        if strcmpi(dim,'2d')
-            rotOut3M = rot90(out3M,-(index-1));
-        elseif strcmpi(dim,'3d')
-            rotOut3M = rotate3dSequence(out3M,index-1,-1);
+        if waveletFlag
+            rotOut3M = flipSequenceForWavelets(out3M,index-1,-1);
+        else
+            if strcmpi(dim,'2d')
+                rotOut3M = rot90(out3M,-(index-1));
+            elseif strcmpi(dim,'3d')
+                rotOut3M = rotate3dSequence(out3M,index-1,-1);
+            end
         end
-        if strcmpi(filterType,'Wavelets')
+        if waveletFlag
             rotOut3M = flip(rotOut3M,3);
         end
         outS.(featNameC{nFeat}) = rotOut3M;
