@@ -761,7 +761,7 @@ for index = 1:numRotations
                 rotOut3M = rotate3dSequence(out3M,index-1,-1);
             end
         end
-        if strcmpi(filterType,'Wavelets')
+        if waveletFlag
             rotOut3M = flip(rotOut3M,3);
         end
         outS.(featNameC{nFeat}) = rotOut3M;
