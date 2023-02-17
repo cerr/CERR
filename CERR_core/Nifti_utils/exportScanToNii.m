@@ -1,5 +1,5 @@
-function exportScanToNii(niiFolder,scanNum,outScanNiiFileNameC,...
-    structNumV,outMaskNiiFileNameC,planC)
+function exportScanToNii(niiFolder,scanArrayScanNum,outScanNiiFileNameC,...
+    structNumV,outMaskNiiFileNameC,planC,headerScanNum)
 % function exportScanToNii(scanNum,niiFolder,outNiiFnameC,planC)
 %
 % APA, 2/1/2023
@@ -10,21 +10,21 @@ function exportScanToNii(niiFolder,scanNum,outScanNiiFileNameC,...
 
 indexS = planC{end};
 
-if isfield(planC{indexS.scan}(scanNum).scanInfo(1),'DICOMHeaders')
-    bitsAllocated = planC{indexS.scan}(scanNum).scanInfo(1).DICOMHeaders.BitsAllocated;
+if isfield(planC{indexS.scan}(headerScanNum).scanInfo(1),'DICOMHeaders')
+    bitsAllocated = planC{indexS.scan}(headerScanNum).scanInfo(1).DICOMHeaders.BitsAllocated;
 else
     bitsAllocated = 16;
 end
-%scan3M = double(planC{indexS.scan}(scanNum).scanArray) - planC{indexS.scan}(scanNum).scanInfo(1).CTOffset;
-scan3M = double(planC{indexS.scan}(2).scanArray) - planC{indexS.scan}(2).scanInfo(1).CTOffset;
+%scan3M = double(planC{indexS.scan}(headerScanNum).scanArray) - planC{indexS.scan}(headerScanNum).scanInfo(1).CTOffset;
+scan3M = double(planC{indexS.scan}(scanArrayScanNum).scanArray) - planC{indexS.scan}(scanArrayScanNum).scanInfo(1).CTOffset;
 sizV = size(scan3M);
-for slc = 1:length(planC{indexS.scan}(scanNum).scanInfo)
+for slc = 1:length(planC{indexS.scan}(headerScanNum).scanInfo)
     headerS.Rows = sizV(1);
     headerS.Columns = sizV(2);
-    headerS.SeriesInstanceUID = planC{indexS.scan}(scanNum).scanInfo(slc).seriesInstanceUID;
-    headerS.ImageOrientationPatient = planC{indexS.scan}(scanNum).scanInfo(slc).imageOrientationPatient;
-    headerS.ImagePositionPatient = planC{indexS.scan}(scanNum).scanInfo(slc).imagePositionPatient;
-    pixelSpacingV = [planC{indexS.scan}(scanNum).scanInfo(slc).grid1Units; ...
+    headerS.SeriesInstanceUID = planC{indexS.scan}(headerScanNum).scanInfo(slc).seriesInstanceUID;
+    headerS.ImageOrientationPatient = planC{indexS.scan}(headerScanNum).scanInfo(slc).imageOrientationPatient;
+    headerS.ImagePositionPatient = planC{indexS.scan}(headerScanNum).scanInfo(slc).imagePositionPatient;
+    pixelSpacingV = [planC{indexS.scan}(headerScanNum).scanInfo(slc).grid1Units; ...
         planC{indexS.scan}(1).scanInfo(slc).grid2Units]*10;
     headerS.PixelSpacing = pixelSpacingV;
     [xV,yV,zV] = getScanXYZVals(planC{indexS.scan}(1));
@@ -42,7 +42,7 @@ if exist('outScanNiiFileNameC','var') && ~isempty(outScanNiiFileNameC)
         outScanNiiFileNameC = {outScanNiiFileNameC};
     end
 else    
-    ptId = planC{indexS.scan}(1).scanInfo(1).patientID;
+    ptId = planC{indexS.scan}(headerScanNum).scanInfo(1).patientID;
     if isempty(ptId)
         outScanNiiFileNameC = {'scan'};
     else
@@ -54,7 +54,7 @@ if exist('outMaskNiiFileNameC','var') && ~isempty(outMaskNiiFileNameC)
         outMaskNiiFileNameC = {outMaskNiiFileNameC};
     end
 else    
-    ptId = planC{indexS.scan}(scanNum).scanInfo(1).patientID;
+    ptId = planC{indexS.scan}(headerScanNum).scanInfo(1).patientID;
     if isempty(ptId)
         outMaskNiiFileNameC = {'scan'};
     else
@@ -62,6 +62,9 @@ else
     end
 end
 
+if ~exist(niiFolder,'dir')
+    mkdir(niiFolder)
+end
 %niiFolder = 'M:\Data\soft_tissue_sarcoma_DrBozzo\n4corrected\test';
 ext = '.nii.gz';
 createNifti(scan3M,h,niiFolder,outScanNiiFileNameC,ext)
