@@ -26,7 +26,7 @@ resizeS = [scanOptS.resize];
 
 if isfield(optS.input,'structure')
     if isfield(optS.input.structure,'strNameToLabelMap')
-        exportStrS = optS.input.strNameToLabelMap;
+        exportStrS = optS.input.structure.strNameToLabelMap;
         strListC = {exportStrS.structureName};
         labelV = [exportStrS.value];
     else

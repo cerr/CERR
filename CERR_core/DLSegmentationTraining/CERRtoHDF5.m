@@ -24,7 +24,11 @@ function errC = CERRtoHDF5(CERRdir,HDF5dir,userOptS)
 
 %% Get user inputs
 dataSplitV = userOptS.dataSplit;
-prefixType = userOptS.exportedFilePrefix;
+if isfield(userOptS,'exportedFilePrefix')
+    prefixType = userOptS.exportedFilePrefix;
+else
+    prefixType = 'inputFileName';
+end
 scanOptS = userOptS.input.scan;
 passedScanDim = userOptS.passedScanDim;
 if isfield(userOptS.input,'strNameToLabelMap')
@@ -46,22 +50,23 @@ modelFmt = userOptS.modelInputFormat;
 fprintf('\nConverting data to %s...\n',modelFmt);
 
 %Open parallel pool
-p = gcp('nocreate');
-if isempty(p)
-    p = parpool();
-    closePool = 1;
-else
+%p = gcp('nocreate');
+%if isempty(p)
+%    p = parpool();
+%    closePool = 1;
+%else
     closePool = 0;
-end
+%end
 
 %Loop over CERR files
 dirS = dir(fullfile(CERRdir,filesep,'*.mat'));
 
 errC = {};
 
-parfor planNum = 1:length(dirS)
+%par
+for planNum = 1:length(dirS)
 
-    try
+    %try
 
         %Load file
         fprintf('\nProcessing pt %d of %d...\n',planNum,length(dirS));
@@ -82,20 +87,28 @@ parfor planNum = 1:length(dirS)
             %end
             testFlag = true;
         end
-        [scanC, maskC,scanNumV,~,coordInfoS,planC] = ...
+        [scanC, maskC,~,scanNumV,~,coordInfoS,planC] = ...
             extractAndPreprocessDataForDL(userOptS,planC,testFlag);
 
         %Save ROI to planC if selected
-        cropMethodsC = {userOptS.input.scan.crop.method};
-        if length(cropMethodsC)>1 || ~strcmp(cropMethodsC,'none')
-            cropS = userOptS.input.scan.crop;
-            if isfield(cropS,'params')
-                parS = cropS.params;
-                if isfield(parS,'saveStrToPlanCFlag') && ...
-                        parS.saveStrToPlanCFlag
-                    save_planC(planC,[],'PASSED',fileNam);
+        ROIsaveFlag = 0;
+        scanS = userOptS.input.scan;
+        for scanIdx = 1:length(scanS)
+            cropMethodsC = {scanS(scanIdx).crop.method};
+            if length(cropMethodsC)>1 || ~all(strcmp(cropMethodsC,'none'))
+                cropS = scanS(scanIdx).crop;
+                if isfield(cropS,'params')
+                    parS = cropS.params;
+                    if isfield(parS,'saveStrToPlanCFlag') && ...
+                            parS.saveStrToPlanCFlag
+                        ROIsaveFlag = 1;
+                        break
+                    end
                 end
             end
+        end
+        if ROIsaveFlag
+            save_planC(planC,[],'PASSED',fileNam);
         end
 
         %Export to HDF5
@@ -139,11 +152,11 @@ parfor planNum = 1:length(dirS)
 
         end
 
-    catch e
+    %catch e
 
-       errC{planNum} =  ['Error processing pt %s. Failed with message: %s',fileNam,e.message];
+    %   errC{planNum} =  ['Error processing pt %s. Failed with message: %s',fileNam,e.message];
 
-    end
+    %end
 
 end
 

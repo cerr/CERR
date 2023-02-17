@@ -28,7 +28,7 @@ thk = tryGetField(s, 'SpacingBetweenSlices');
 if isempty(thk), thk = tryGetField(s, 'SliceThickness', pixdim(1)); end
 pixdim = [pixdim; thk];
 haveIPP = isfield(s, 'ImagePositionPatient');
-if haveIPP, ipp = s.ImagePositionPatient; else, ipp = -(dim'.* pixdim)/2; end
+if haveIPP, ipp = s.ImagePositionPatient(:); else, ipp = -(dim'.* pixdim)/2; end
 % Next is almost dicom xform matrix, except mosaic trans and unsure slice_dir
 R = [R * diag(pixdim) ipp];
 
@@ -42,7 +42,7 @@ if s.Columns>dim(1) && ~strncmpi(s.Manufacturer, 'UIH', 3) % Siemens mosaic
         return;
     end
 elseif isfield(s, 'LastFile') && isfield(s.LastFile, 'ImagePositionPatient')
-    R(:, 3) = (s.LastFile.ImagePositionPatient - R(:,4)) / (dim(3)-1);
+    R(:, 3) = (s.LastFile.ImagePositionPatient(:) - R(:,4)) / (dim(3)-1);
     thk = norm(R(:,3)); % override slice thickness if it is off
     if abs(pixdim(3)-thk)/thk > 0.01, pixdim(3) = thk; end
     return; % almost all non-mosaic images return from here
