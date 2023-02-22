@@ -34,7 +34,7 @@ end
 tic
 if whichFeatS.shape.flag
     rcsV = [];
-    if isfield(paramS.shapeParamS,'rcs')
+    if isfield(paramS,'shapeParamS') && isfield(paramS.shapeParamS,'rcs')
         rcsV = paramS.shapeParamS.rcs.';
     end
     featureS.shapeS = getShapeParams(maskBoundingBox3M, ...
