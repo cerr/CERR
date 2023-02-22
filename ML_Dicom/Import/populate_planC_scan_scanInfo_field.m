@@ -608,11 +608,15 @@ switch fieldname
     case 'scanDescription'
         %Currently undefined.
         
+    case 'manufacturer'
+        %dataS = attr.getDoubles(524400); % '00080070'
+        dataS = char(attr.getString(524400,0));
+        
     case 'scannerType'
         %Manufacturer
         %dataS  = getTagValue(attr, '00080070');
         %dataS = attr.getDoubles(org.dcm4che3.data.Tag.Manufacturer);
-        dataS = attr.getDoubles(524400);
+        dataS = char(attr.getString(524400,0));
         
     case 'scanFileName'
         %Store the current open .dcm file.
