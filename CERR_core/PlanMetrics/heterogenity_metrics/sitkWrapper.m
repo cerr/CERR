@@ -229,14 +229,20 @@ switch filterType
             end
             refItkImg = sitk.ReadImage(maskImgPath);
             refItkImg = sitk.Cast(refItkImg,py.SimpleITK.sitkFloat32);
+            
             %Adjust to RTOG-compliant orientation 
-            maskPy = sitk.GetArrayFromImage(refItkImg);
-            mask3M = single(maskPy);
-            mask3M = permute(mask3M,[2,3,1]);
-            mask3M = flip(flip(mask3M,1),2);
-            mask3M = flip(mask3M,3);
-            maskPy = np.array(mask3M);
-            refItkImg = py.extra.GetImageFromArray(maskPy);
+            %maskPy = sitk.GetArrayFromImage(refItkImg);
+            %mask3M = single(maskPy);
+            %mask3M = flip(flip(permute(mask3M,[2,3,1]),1),3); % flip y and z dims to convert from RAS to CERR coordinate system
+            %mask3M = permute(mask3M,[3,1,2]);
+            %scanRefPy = np.array(mask3M);
+            %scanRefPy = scanRefPy.astype(py.numpy.float32);            
+            %refItkImg1 = sitk.GetImageFromArray(scanRefPy);
+            
+            %mask3M = flip(flip(mask3M,1),2);
+            %mask3M = flip(mask3M,3);
+            %maskPy = np.array(mask3M);
+            %refItkImg = py.extra.GetImageFromArray(maskPy);
         elseif isfield(paramS,'refImgMat') && ~isempty(paramS.refImgMat.val)
             maskPy = np.array(paramS.refImgMat.val);
             maskPy = maskPy.astype(py.numpy.float32);   
@@ -259,8 +265,9 @@ switch filterType
         matcher = sitk.HistogramMatchingImageFilter();
         matcher.SetNumberOfHistogramLevels(uint32(paramS.numHistLevel.val));
         matcher.SetNumberOfMatchPoints(uint32(paramS.numMatchPts.val));
-        if(paramS.thresholdAtMeanIntensityOn.val)
-            matcher.ThresholdAtMeanIntensityOn();
+        matcher.SetThresholdAtMeanIntensity(false)
+        if paramS.thresholdAtMeanIntensityOn.val
+            matcher.SetThresholdAtMeanIntensity(true);
         end
         matchedImg = matcher.Execute(srcItkImg,refItkImg);
         

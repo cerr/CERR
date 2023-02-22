@@ -265,12 +265,12 @@ if ~cropForResampling
         yExtendV = yResampleV(end)+(1:numPad)*outputResV(2);
         yResampleV = [yResampleV,yExtendV];
     end
-    if outLimitsV(4)>xResampleV(end)
+    if outLimitsV(4)>length(xResampleV)
         numPad = (outLimitsV(4)-length(xResampleV));
         xExtendV = xResampleV(end)+(1:numPad)*outputResV(1);
         xResampleV = [xResampleV,xExtendV];
     end
-    if outLimitsV(6)>zResampleV(end)
+    if outLimitsV(6)>length(zResampleV)
         numPad = (outLimitsV(6)-length(zResampleV));
         zExtendV = zResampleV(end)+(1:numPad)*outputResV(3);
         zResampleV = [zResampleV,zExtendV];

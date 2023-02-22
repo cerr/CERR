@@ -34,7 +34,7 @@ end
 tic
 if whichFeatS.shape.flag
     rcsV = [];
-    if isfield(paramS.shapeParamS,'rcs')
+    if isfield(paramS,'shapeParamS') && isfield(paramS.shapeParamS,'rcs')
         rcsV = paramS.shapeParamS.rcs.';
     end
     featureS.shapeS = getShapeParams(maskBoundingBox3M, ...
@@ -133,7 +133,7 @@ for k = 1:length(imageTypeC)
             end
             if isfield(imageTypeC{k}.paramS,'textureParamS') &&...
                     isfield(imageTypeC{k}.paramS.textureParamS,'binwidth')
-                numGrLevels = imageTypeC{k}.paramS.textureParamS.binwidth;
+                binwidth = imageTypeC{k}.paramS.textureParamS.binwidth;
             end
         end
         
@@ -166,9 +166,12 @@ for k = 1:length(imageTypeC)
         if isfield(paramS.firstOrderParamS,'offsetForEnergy')
             offsetForEnergy = paramS.firstOrderParamS.offsetForEnergy;
         end
-        if isfield(paramS.firstOrderParamS,'binWidthEntropy')
+        if isfield(paramS.firstOrderParamS,'binWidthEntropy') && ...
+            ~isempty(paramS.firstOrderParamS.offsetForEnergy)
             binWidthEntropy = paramS.firstOrderParamS.binWidthEntropy;
-        elseif isfield(paramS.firstOrderParamS,'binNumEntropy')
+        end
+        if isfield(paramS.firstOrderParamS,'binNumEntropy') && ...
+                ~isempty(paramS.firstOrderParamS.binNumEntropy)
             binNumEntropy = paramS.firstOrderParamS.binNumEntropy;
         end
         if isfield(imageTypeC{k}.paramS,'firstOrderParamS') && ...
