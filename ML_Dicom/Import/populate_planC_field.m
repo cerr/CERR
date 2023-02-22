@@ -120,7 +120,7 @@ switch cellName
                 if strcmpi(typeC{seriesNum}, 'MR')  %% ADDED AI 12/28/16 %%
                     % Ref: Chenevert, Thomas L., et al. "Errors in quantitative image analysis due to platform-dependent image scaling."
                     manufacturer = dataS(scansAdded+1).scanInfo(1).manufacturer;
-                    if strcmpi(manufacturer,'philips') && ...
+                    if ~isempty(strfind(lower(manufacturer),'philips')) && ...
                             ~isempty(dataS(scansAdded+1).scanInfo(1).scaleSlope)
                         scaleSlope = dataS(scansAdded+1).scanInfo(1).scaleSlope;
                         dataS(scansAdded+1).scanArray = single(dataS(scansAdded+1).scanArray)./(rescaleSlope*scaleSlope);
