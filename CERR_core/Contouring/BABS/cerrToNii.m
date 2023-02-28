@@ -11,7 +11,7 @@ indexS = planC{end};
 
 reorientFlag = 1; %realign image to RAS
 niiDataType = 'int16';
-if ismember(class(planC{indexS.scan}(scanNum)),{'single','double'})
+if ismember(class(planC{indexS.scan}(scanNum).scanArray),{'single','double'})
     niiDataType = 'double';
 end
 scanFileNameC = scan2imageOut(planC,scanNum,niiOutDir,reorientFlag,'nii',niiDataType,outFileName);

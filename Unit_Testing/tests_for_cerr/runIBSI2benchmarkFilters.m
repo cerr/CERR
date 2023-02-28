@@ -16,13 +16,13 @@ end
 cerrPath = getCERRPath;
 idxV = strfind(getCERRPath,filesep);
 dataDirName = fullfile(cerrPath(1:idxV(end-1)),...
-    'Unit_Testing\data_for_cerr_tests\IBSI2_synthetic_phantoms');
+    'Unit_Testing','data_for_cerr_tests','IBSI2_synthetic_phantoms');
 configDirName = fullfile(cerrPath(1:idxV(end-1)),...
-    'Unit_Testing\settings_for_comparisons');
+    'Unit_Testing','settings_for_comparisons');
 
 %% Get metadata
 niiDataDir = fullfile(cerrPath(1:idxV(end-1)),...
-    'Unit_Testing\data_for_cerr_tests\IBSI2_synthetic_phantoms');
+    'Unit_Testing','data_for_cerr_tests','IBSI2_synthetic_phantoms');
 
 %% Compute response maps
 switch(config)
