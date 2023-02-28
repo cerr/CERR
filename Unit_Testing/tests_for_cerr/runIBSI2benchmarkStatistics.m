@@ -18,8 +18,8 @@ switch(phase)
         templateFile = fullfile(basePath(1:idxV(end-1)),'Unit_Testing',...
             'settings_for_comparisons','IBSI-2-Phase2-Submission-Template.csv');
         paramFilePrefix = 'IBSIPhase2-2ID';
-        settingsC = {'1a','1b','2a','2b','3a','3b','4a','4b',...
-            '5a','5b','6a','6b'};
+        settingsC = {'1a','1b','2a','2b','3a','3b'};%,'4a','4b',...
+            %'5a','5b','6a','6b'};
 
         dataDirName = fullfile(cerrPath(1:idxV(end-1)),...
             'Unit_Testing\data_for_cerr_tests\IBSI2_CT_phantom');
@@ -33,7 +33,7 @@ switch(phase)
 
         outFile ='IBSIphase2-2';
         statStartLine = 7;
-       
+
 
     case 3
         templateFile = fullfile(basePath(1:idxV(end-1)),'Unit_Testing',...
@@ -57,11 +57,11 @@ switch(phase)
 
         outFile ='IBSIphase2-3';
         statStartLine = 2;
-   
+
 end
 
-%Read output template 
-[~,~,rawC] = xlsread(templateFile);
+%Read output template
+rawC = csv2cell(templateFile);
 outC = rawC;
 for line = 2:length(rawC)
     tempLine = rawC{line};
@@ -164,10 +164,12 @@ for nFile = 1:length(fileNameC)
         featC = cellfun(@num2str,featC,'un',0);
         tempC = [outC(statStartLine:end),featC];
         outValC = outDiagC;
-        numCols = length(split(outValC(1,:),';'));
+        headerC = outValC(1,:);
+        numCols = length(strsplit([headerC{:}],';'));
 
         for line = 2:statStartLine-1
-            numColsLine = length(split(outValC(line,:),';'));
+            lineC = outValC(line,:);
+            numColsLine = length(strsplit([lineC{:}],';'));
             outValC{line} =  [outValC{line},...
                 repmat(';',[1,numCols - numColsLine])];
         end
@@ -175,18 +177,20 @@ for nFile = 1:length(fileNameC)
         for line = statStartLine:length(outC)
             outValC{line} = strjoin(tempC(line-statStartLine+1,:),';');
             %Handle missing configurations
-            numColsLine = length(split(outValC(line,:),';'));
+            lineC = outValC(line,:);
+            numColsLine = length(strsplit([lineC{:}],';'));
             outValC{line} = [outValC{line},...
                 repmat(';',[1,numCols - numColsLine])];
             %outValC{line} = [outValC{line},';;;;']; %TEMP
             %outValC{line} = [outValC{line},';;;;;;;;;;']; %Missing configs
         end
-        %outValC = cellfun(@(x)split(x,';'),outValC,'un',0);
-        outValC = split(outValC,';');
+        %outValC = cellfun(@(x)strsplit(x,';'),outValC,'un',0);
+        outValC = cellfun(@(x)strrep(x,';',','),outValC,'un',0);
 
         %sheet = nMod;
         %outFileName = strrep(outFileName,'IBSIphase2-3_','');
-        writecell(outValC,outFileName);
+        %cell2csv(outValC,outFileName);
+        cell2file(outValC,outFileName);
     end
 end
 
