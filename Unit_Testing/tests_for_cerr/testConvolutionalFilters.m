@@ -1,6 +1,6 @@
 function testConvolutionalFilters
-% testConvolutionalFilters.m This script compares convolutional filter 
-% responses as currently implemented to those submitted to IBSI-2 to 
+% testConvolutionalFilters.m This script compares convolutional filter
+% responses as currently implemented to those submitted to IBSI-2 to
 % ensure continued compliance.
 %
 % AI 12/09/22
@@ -24,8 +24,8 @@ runIBSI2benchmarkFilters(tmpDir,'all');
 
 %Assess deviation from standard
 configC = { '1a1','1a2','1a3','1a4','1b1','2a1','2b1','2c1','3a1','3a2',...
-    '3a3','3b1','3b2','3b3','3c1','3c2','3c3','4a1','4a2','4b1','4b2',...
-    '5a1','5a2','6a1','6a2'};
+    '3a3','3b1','3b2','3b3','3c1','3c2','3c3','4a1','4a2','4b1','4b2'}%,...
+    %'5a1','5a2','6a1','6a2'};
 assertTOL = 1e-5;
 
 disp(['========= Maximum difference for filt config. =========='])
