@@ -1,4 +1,5 @@
-function scanFileNameC = scan2imageOut(planC,scanNumV,tmpDirPath,reorientFlag,extn,dataType)
+function scanFileNameC = scan2imageOut(planC,scanNumV,tmpDirPath,...
+  reorientFlag,extn,dataType,scanFileName)
 
 if ~exist('tmpDirPath','var') || isempty(tmpDirPath) || ~exist(tmpDirPath,'dir')
     tmpDirPath = fullfile(getCERRPath, 'ImageRegistration', 'tmpFiles');
@@ -17,21 +18,29 @@ if ~exist('dataType','var')
 end
 
 for i = 1:numel(scanNumV)
-    scanNum = scanNumV(i);
-    [scanUniqName, ~] = genScanUniqName(planC,scanNum);
-    [affineMat,scan3M_RAS,voxel_size] = getPlanCAffineMat(planC, scanNum, reorientFlag);
-    [~,orientationStr,~] = returnViewerAxisLabels(planC,scanNum);
-    if ~isempty(dataType)
-        eval(['scan3M_RAS = ' dataType '(scan3M_RAS);']);
+  scanNum = scanNumV(i);
+  [scanUniqName, ~] = genScanUniqName(planC,scanNum);
+  [affineMat,scan3M_RAS,voxel_size] = getPlanCAffineMat(planC, scanNum, reorientFlag);
+  [~,orientationStr,~] = returnViewerAxisLabels(planC,scanNum);
+  if ~isempty(dataType)
+    eval(['scan3M_RAS = ' dataType '(scan3M_RAS);']);
+  end
+  qOffset = affineMat(1:3,end)';
+  if strcmpi(extn,'nii')
+    if ~exist('scanFileName','var') || isempty(scanFileName)
+      scanFileName = fullfile(tmpDirPath, ['scan_' num2str(scanNum) '_' scanUniqName '.nii']);
+    else
+      scanFileName = fullfile(tmpDirPath,[scanFileName,'.nii']);
     end
-    qOffset = affineMat(1:3,end)';
-    if strcmpi(extn,'nii')
-        scanFileName = fullfile(tmpDirPath, ['scan_' num2str(scanNum) '_' scanUniqName '.nii']);
-        niiC{i} = vol2nii(scan3M_RAS,affineMat,qOffset,voxel_size,[],scanFileName);
-    elseif strcmpi(extn,'nrrd')
-        scanFileName = fullfile(tmpDirPath, ['scan_' num2str(scanNum) '_' scanUniqName '.nrrd']);
-        vol2nrrd(scan3M_RAS,affineMat,qOffset,voxel_size,orientationStr,scanFileName);
+    niiC{i} = vol2nii(scan3M_RAS,affineMat,qOffset,voxel_size,[],scanFileName);
+  elseif strcmpi(extn,'nrrd')
+    if ~exist('scanFileName','var') || isempty(scanFileName)
+      scanFileName = fullfile(tmpDirPath, ['scan_' num2str(scanNum) '_' scanUniqName '.nrrd']);
+    else
+      scanFileName = fullfile(tmpDirPath,[scanFileName,'.nrrd']);
     end
-    scanFileNameC{i} = scanFileName;
+    vol2nrrd(scan3M_RAS,affineMat,qOffset,voxel_size,orientationStr,scanFileName);
+  end
+  scanFileNameC{i} = scanFileName;
 end
 
