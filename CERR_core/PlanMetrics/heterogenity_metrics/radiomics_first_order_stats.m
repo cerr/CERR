@@ -59,14 +59,11 @@ end
 % Calculate standard PET parameters
 RadiomicsFirstOrderS.min           = nanmin(Iarray);
 RadiomicsFirstOrderS.max           = nanmax(Iarray);
-RadiomicsFirstOrderS.mean          = mean(Iarray,'omitnan');
+RadiomicsFirstOrderS.mean          = nanmean(Iarray,1);
 RadiomicsFirstOrderS.range         = range(Iarray);
-RadiomicsFirstOrderS.std           = std(Iarray,1,'omitnan');
-%RadiomicsFirstOrderS.std           = nanstd(Iarray,1);
-RadiomicsFirstOrderS.var           = var(Iarray,1,'omitnan');
-%RadiomicsFirstOrderS.var           = nanvar(Iarray,1);
-RadiomicsFirstOrderS.median        = median(Iarray,'omitnan');
-%RadiomicsFirstOrderS.median        = nanmedian(Iarray);
+RadiomicsFirstOrderS.std           = nanstd(Iarray,0,1);
+RadiomicsFirstOrderS.var           = nanvar(Iarray,0,1);
+RadiomicsFirstOrderS.median        = nanmedian(Iarray,1);
 
 % Skewness is a measure of the asymmetry of the data around the sample mean.
 % If skewness is negative, the data are spread out more to the left of the mean
@@ -99,7 +96,7 @@ xminV = min(Iarray);
 if exist('binNum','var') && ~isempty(binNum)
     binWidth = (xmaxV - xminV)/binNum;
 else
-    if ~exist('binWidth','var') && ~isempty(binWidth) 
+    if ~exist('binWidth','var') && ~isempty(binWidth)
         binWidth = 25;
     end
 end
@@ -181,7 +178,7 @@ devM = bsxfun(@minus,Iarray10_90,mean(Iarray10_90,'omitnan'));
 RadiomicsFirstOrderS.robustMeanAbsDev  = mean(abs(devM),'omitnan');
 
 %   Robust Median Absolute Deviation
-RadiomicsFirstOrderS.robustMedianAbsDev  = nansum(abs(Iarray10_90-median(Iarray10_90,'omitnan')))...
+RadiomicsFirstOrderS.robustMedianAbsDev  = nansum(abs(Iarray10_90-nanmedian(Iarray10_90)))...
     ./ double(sum(idx10_90));
 
 % Inter-Quartile Range (IQR)
