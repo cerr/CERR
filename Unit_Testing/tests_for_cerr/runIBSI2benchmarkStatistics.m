@@ -22,12 +22,12 @@ switch(phase)
             %'5a','5b','6a','6b'};
 
         dataDirName = fullfile(cerrPath(1:idxV(end-1)),...
-            'Unit_Testing\data_for_cerr_tests\IBSI2_CT_phantom');
+            'Unit_Testing','data_for_cerr_tests','IBSI2_CT_phantom');
         dataDirS = dir([dataDirName,filesep,'*.mat']);
         fileNameC = {[dataDirName,filesep,dataDirS(1).name]};
         niiDataDir = fullfile(cerrPath(1:idxV(end-1)),...
-            ['Unit_Testing\data_for_cerr_tests\IBSI2_CT_phantom\',...
-            'CT_radiomics_phantom\image']);
+            'Unit_Testing','data_for_cerr_tests','IBSI2_CT_phantom',...
+            'CT_radiomics_phantom,image');
         niiDataDirC = {niiDataDir};
         modC = {'CT'};
 
@@ -43,12 +43,12 @@ switch(phase)
         subC = {'a','b','c'};
 
         dataDirName = fullfile(cerrPath(1:idxV(end-1)),...
-            'Unit_Testing\data_for_cerr_tests\IBSI2_multimodal_data');
+            'Unit_Testing','data_for_cerr_tests','IBSI2_multimodal_data');
         dataDirS = dir([dataDirName,filesep,'*.mat']);
         fileNameC = {dataDirS.name};
         fileNameC = strcat([dataDirName,filesep],fileNameC);
         niiDataDir = fullfile(cerrPath(1:idxV(end-1)),...
-            'Unit_Testing\data_for_cerr_tests\IBSI2_multimodal_data\'); ...
+            'Unit_Testing','data_for_cerr_tests','IBSI2_multimodal_data'); ...
         niiDataDirS = dir(niiDataDir);
         niiDataDirS(1:2) = [];
         dirListC = {niiDataDirS([niiDataDirS.isdir]).name};
@@ -72,7 +72,7 @@ end
 % Path to config. file
 idxV = strfind(getCERRPath,filesep);
 configDirName = fullfile(cerrPath(1:idxV(end-1)),...
-    'Unit_Testing\settings_for_comparisons');
+    'Unit_Testing','settings_for_comparisons');
 
 % List required output fields
 outFieldC = {'mean','var','skewness','kurtosis','median','min','P10',...
