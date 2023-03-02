@@ -605,8 +605,13 @@ switch fieldname
             dataS = 'Unknown';
         end
         
-    case 'scanDescription'
-        %Currently undefined.
+    case 'seriesDescription'
+        %Type 3 field, may not exist.
+        if attr.contains(528446) %
+            dataS = attr.getDoubles(528446);
+        else
+            dataS = 'Unknown';
+        end
         
     case 'manufacturer'
         %dataS = attr.getDoubles(524400); % '00080070'
