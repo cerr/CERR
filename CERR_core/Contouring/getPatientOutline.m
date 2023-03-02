@@ -106,27 +106,27 @@ ccSiz = cellfun(@numel,[ccS.PixelIdxList]);
 [~,largestCompIdx] = max(ccSiz);
 idxV = ccS.PixelIdxList{largestCompIdx};
 conn3dPtMask3M(idxV) = true;
+connPtMask3M = conn3dPtMask3M;
 
 %% 2D connected component filter to separate arms and other artifacts
-[numRows,numCols,numSlcs] = size(conn3dPtMask3M);
-connPtMask3M = false(numRows,numCols,numSlcs);
-for slc = 1:numSlcs
-    erodedSlc2M = imopen(conn3dPtMask3M(:,:,slc),strel('disk',10));
-    ccS = bwconncomp(erodedSlc2M,8);
-    ccSiz = cellfun(@numel,[ccS.PixelIdxList]);
-    ccNumObjs = ccS.NumObjects;
-    fractionSizV = ccSiz/max(ccSiz);
-    if ccNumObjs > 1 && any(fractionSizV < 0.25)
-        
-        [~,largestCompIdx] = max(ccSiz);
-        idxV = ccS.PixelIdxList{largestCompIdx};
-        tmpSlcM = false(numRows,numCols);
-        tmpSlcM(idxV) = true;
-        connPtMask3M(:,:,slc) = tmpSlcM;
-    else
-        connPtMask3M(:,:,slc) = conn3dPtMask3M(:,:,slc);
-    end
-end
-
+% [numRows,numCols,numSlcs] = size(conn3dPtMask3M);
+% connPtMask3M = false(numRows,numCols,numSlcs);
+% for slc = 1:numSlcs
+%     erodedSlc2M = imopen(conn3dPtMask3M(:,:,slc),strel('disk',10));
+%     ccS = bwconncomp(erodedSlc2M,8);
+%     ccSiz = cellfun(@numel,[ccS.PixelIdxList]);
+%     ccNumObjs = ccS.NumObjects;
+%     fractionSizV = ccSiz/max(ccSiz);
+%     if ccNumObjs > 1 && any(fractionSizV < 0.25)
+% 
+%         [~,largestCompIdx] = max(ccSiz);
+%         idxV = ccS.PixelIdxList{largestCompIdx};
+%         tmpSlcM = false(numRows,numCols);
+%         tmpSlcM(idxV) = true;
+%         connPtMask3M(:,:,slc) = tmpSlcM;
+%     else
+%         connPtMask3M(:,:,slc) = conn3dPtMask3M(:,:,slc);
+%     end
+% end
 
 end
