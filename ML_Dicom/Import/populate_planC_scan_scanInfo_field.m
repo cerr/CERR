@@ -608,7 +608,7 @@ switch fieldname
     case 'seriesDescription'
         %Type 3 field, may not exist.
         if attr.contains(528446) %
-            dataS = attr.getDoubles(528446);
+            dataS = char(attr.getString(528446,0));
         else
             dataS = 'Unknown';
         end
