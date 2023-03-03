@@ -44,7 +44,7 @@ for n = 1:length(identifierC)
             
             seriesDescC =  arrayfun(@(x)x.scanInfo(1).seriesDescription,...
                 planC{indexS.scan},'un',0);
-            idV = contains(matchValC,seriesDescC);
+            idV = ~cellfun('isempty', strfind(seriesDescC, matchValC));
             
         case 'scanType'
             
