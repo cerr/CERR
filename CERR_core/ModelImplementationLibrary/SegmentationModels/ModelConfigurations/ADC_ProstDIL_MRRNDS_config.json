@@ -1,0 +1,46 @@
+{
+"register" : {"baseScan": {"identifier":{"seriesDescription":"T2"}},
+              "movingScan":{"identifier":{"seriesDescription":"ADC"}},
+              "method": "none",
+              "copyStr":"Prostate",
+              "renameStr":"Prostate_copy"
+             },
+
+"input": {
+
+    "scan":{
+        "identifier" : {"seriesDescription": "ADC"},
+	    "view" : "axial",
+        "resample": {   
+                        "resolutionXCm": 0.0625,
+		                "resolutionYCm": 0.0625,
+                        "resolutionZCm": 0.3,
+                        "method": "linear"
+		            },
+	    "crop" : [{     
+                    "method": "crop_around_structure_center",
+                    "params": { "structureName": "Prostate_copy", "margins":[128,128]},
+            		"operator": ""
+         	      }
+                ],
+	    "channels" :[{"imageType": "original", "slice": "current-2"},
+                     {"imageType": "original", "slice": "current-1"},
+                     {"imageType": "original", "slice": "current"},
+                     {"imageType": "original", "slice": "current+1"},
+                     {"imageType": "original", "slice": "current+2"}]
+    }
+},             
+
+"passedScanDim" : "2D",
+
+"output":{
+    "labelMap":{
+                "strNameToLabelMap":[{"structureName" : "GTV", "value" : 1}],
+                "roiGenerationDescription": "PROSTDILMRRNDS2.5D^mskgitx"
+
+    }
+},
+
+"outputAssocScan": {"identifier" : {"seriesDescription":"ADC"}}  
+
+}
