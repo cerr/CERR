@@ -183,6 +183,36 @@ switch fieldname
         end
         %%%%%%%%%%%%   End added %%%%%%%%%%%%%%%
         
+    case 'realWorldValueSlope'
+        realWorldValueSeq = attr.getValue(4231318); %0040,9096
+        if ~isempty(realWorldValueSeq) && ~realWorldValueSeq.isEmpty
+            realWorldValueObj = realWorldValueSeq.get(0);
+            %dataS = getTagValue(radiopharmaInfoObj, '00181075');
+            %dataS = radiopharmaInfoObj.getDoubles(org.dcm4che3.data.Tag.RadionuclideHalfLife); %DS
+            dataS = realWorldValueObj.getDoubles(4231717); %(0040,9225)
+        end
+        
+    case 'realWorldValueIntercept'
+        realWorldValueSeq = attr.getValue(4231318); %0040,9096
+        if ~isempty(realWorldValueSeq) && ~realWorldValueSeq.isEmpty
+            realWorldValueObj = realWorldValueSeq.get(0);
+            %dataS = getTagValue(radiopharmaInfoObj, '00181075');
+            %dataS = radiopharmaInfoObj.getDoubles(org.dcm4che3.data.Tag.RadionuclideHalfLife); %DS
+            dataS = realWorldValueObj.getDoubles(4231716); %(0040,9224)
+        end
+        
+        
+    case 'realWorldMeasurCodeMeaning'
+        realWorldValueSeq = attr.getValue(4231318); %0040,9096
+        if ~isempty(realWorldValueSeq) && ~realWorldValueSeq.isEmpty
+            realWorldValueObj = realWorldValueSeq.get(0);
+            measurementSeq = realWorldValueObj.getValue(4196586); %0040,08EA
+            if ~isempty(measurementSeq) && ~measurementSeq.isEmpty
+                measurementObj = measurementSeq.get(0);
+                dataS = measurementObj.getString(524548,0); % 0008,0104
+            end
+        end
+        
     case 'grid1Units'
         %modality = getTagValue(attr, '00080060');
         %modality = char(attr.getStrings(org.dcm4che3.data.Tag.Modality)); %vr=CS
