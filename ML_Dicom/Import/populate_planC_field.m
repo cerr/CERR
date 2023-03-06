@@ -92,11 +92,20 @@ switch cellName
                 scanArray3M = zeros(size(dataS(scansAdded+1).scanArray),'single');
                 numSlcs = size(dataS(scansAdded+1).scanArray,3);
                 rescaleSlopeV = ones(numSlcs,1);
+                realWorldImageFlag = false;
                 for slcNum = 1:numSlcs
                     rescaleSlope = dataS(scansAdded+1).scanInfo(slcNum).rescaleSlope;
                     rescaleIntrcpt = dataS(scansAdded+1).scanInfo(slcNum).rescaleIntercept;
-                    scanArray3M(:,:,slcNum) = ...
-                        single(dataS(scansAdded+1).scanArray(:,:,slcNum)) * single(rescaleSlope) + single(rescaleIntrcpt);
+                    realWorldValueSlope = dataS(scansAdded+1).scanInfo(slcNum).realWorldValueSlope;
+                    realWorldValueIntercept = dataS(scansAdded+1).scanInfo(slcNum).realWorldValueIntercept;
+                    if ~isempty(realWorldValueSlope) && strcmpi(typeC{seriesNum}, 'MR')
+                        realWorldImageFlag = true;
+                        scanArray3M(:,:,slcNum) = ...
+                            single(dataS(scansAdded+1).scanArray(:,:,slcNum)) * single(realWorldValueSlope) + single(realWorldValueIntercept);
+                    else
+                        scanArray3M(:,:,slcNum) = ...
+                            single(dataS(scansAdded+1).scanArray(:,:,slcNum)) * single(rescaleSlope) + single(rescaleIntrcpt);                        
+                    end
                     rescaleSlopeV(slcNum) = rescaleSlope;
                 end
                 minScanVal = min(scanArray3M(:));
@@ -104,24 +113,27 @@ switch cellName
                 scanArray3M = scanArray3M + ctOffset;
                 minScanVal = min(scanArray3M(:));
                 maxScanVal = max(scanArray3M(:));                
-                if ~any(abs(rescaleSlopeV-1) > eps*1e5) % convert to uint if rescale slope is not 1.
-                    if minScanVal >= -32768 && maxScanVal <= 32767
-                        scanArray3M = uint16(scanArray3M);
-                    else
-                        scanArray3M = uint32(scanArray3M);
-                    end
+                if ~realWorldImageFlag && ~any(abs(rescaleSlopeV-1) > eps*1e5) % convert to uint if rescale slope is not 1.
+                   if minScanVal >= -32768 && maxScanVal <= 32767
+                       scanArray3M = uint16(scanArray3M);
+                   else
+                       scanArray3M = uint32(scanArray3M);
+                   end
                 end
                 for slcNum = 1:numSlcs
                     dataS(scansAdded+1).scanInfo(slcNum).CTOffset = ctOffset;
                 end
                 dataS(scansAdded+1).scanArray = scanArray3M;
                 
-                %Apply scale slope & intercept for Philips data
+                %Apply scale slope & intercept for Philips data if not
+                %realWorldValue
                 if strcmpi(typeC{seriesNum}, 'MR')  %% ADDED AI 12/28/16 %%
                     % Ref: Chenevert, Thomas L., et al. "Errors in quantitative image analysis due to platform-dependent image scaling."
                     manufacturer = dataS(scansAdded+1).scanInfo(1).manufacturer;
+                    realWorldValueSlope = dataS(scansAdded+1).scanInfo(1).realWorldValueSlope;
                     if ~isempty(strfind(lower(manufacturer),'philips')) && ...
-                            ~isempty(dataS(scansAdded+1).scanInfo(1).scaleSlope)
+                            ~isempty(dataS(scansAdded+1).scanInfo(1).scaleSlope) && ...
+                            isempty(realWorldValueSlope)
                         scaleSlope = dataS(scansAdded+1).scanInfo(1).scaleSlope;
                         dataS(scansAdded+1).scanArray = single(dataS(scansAdded+1).scanArray)./(rescaleSlope*scaleSlope);
                     end
