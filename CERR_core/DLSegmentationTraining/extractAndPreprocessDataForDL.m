@@ -108,21 +108,13 @@ indexS = planC{end};
 allStrC = {planC{indexS.structures}.structureName};
 if ~isempty(fieldnames(regS))
     %Get base scan index
-    if isnan(scanNumV(1))
-        identifierS = regS.baseScan.identifier;
-        baseScanNum = getScanNumFromIdentifiers(identifierS,planC);
-        regScanNumV(1) = baseScanNum;
-    else
-        regScanNumV(1) = scanNumV(1);
-    end
+    identifierS = regS.baseScan.identifier;
+    baseScanNum = getScanNumFromIdentifiers(identifierS,planC);
+    regScanNumV(1) = baseScanNum;
     %Get moving scan index
-    if isnan(scanNumV(2))
-        identifierS = regS.movingScan.identifier;
-        movScan = getScanNumFromIdentifiers(identifierS,planC);
-        regScanNumV(2) = movScan;
-    else
-        regScanNumV(2) = scanNumV(2);
-    end
+    identifierS = regS.movingScan.identifier;
+    movScan = getScanNumFromIdentifiers(identifierS,planC);
+    regScanNumV(2) = movScan;
     %Get list of structures to deform
     if isempty(copyStrsC) && isfield(regS,'copyStr')
         copyStrsC = [regS.copyStr];
@@ -300,6 +292,7 @@ for scanIdx = 1:numScans
         
         fprintf('\n Resampling data...\n');
         tic
+        origScanIdx = scanNumV(scanIdx);
         % Get the new x,y,z grid
         [xValsV, yValsV, zValsV] = getScanXYZVals(planC{indexS.scan}(scanNumV(scanIdx)));
         if yValsV(1) > yValsV(2)
@@ -340,6 +333,17 @@ for scanIdx = 1:numScans
         scanInfoS.zValues = zResampleV;
         sliceThicknessV = diff(zResampleV);
         scanInfoS.sliceThickness = [sliceThicknessV,sliceThicknessV(end)];
+
+        %Copy identifying information
+        copyInfoC = {'scanType','imageType','seriesDescription',...
+            'seriesDate','studyDate'};
+        for nCpy = 1:length(copyInfoC)
+        scanInfoS.(copyInfoC{nCpy}) = ...
+            planC{indexS.scan}(origScanIdx).scanInfo(1).(copyInfoC{nCpy});
+        end
+   
+
+        
         planC = scan2CERR(scan3M,['Resamp_scan',num2str(scanNumV(scanIdx))],...
             '',scanInfoS,'',planC);
         resampScanNum = length(planC{indexS.scan});
@@ -362,12 +366,13 @@ for scanIdx = 1:numScans
         if ~(length(cropS) == 1 && strcmpi(cropS(1).method,'none'))
             cropStrListC = arrayfun(@(x)x.params.structureName,cropS,'un',0);
             cropParS = [cropS.params];
-            if ~isempty(cropStrListC)
+            if ~isempty(cropStrListC) 
                 for n = 1:length(cropStrListC)
                     resampStrIdx = getMatchingIndex(cropStrListC{n},strC,...
                         'EXACT');
-                    if ~isempty(resampStrIdx)
-                        str3M = double(getStrMask(strIdx,planC));
+                    assocScanIdx = getStructureAssociatedScan(resampStrIdx,planC);  
+                    if ~isempty(resampStrIdx) && assocScanIdx==origScanIdx
+                        str3M = double(getStrMask(resampStrIdx,planC));
                         [~,outStr3M] = resampleScanAndMask([],double(str3M),...
                             xValsV,yValsV,zValsV,xResampleV,yResampleV,...
                             zResampleV);
@@ -476,7 +481,7 @@ for scanIdx = 1:numScans
         %affineOutM = getAffineMatrixforTransform(affineOutM,operation,varargin);
     else % case: 1 view, 'axial'
         viewOutC = {scanC{scanIdx}};
-        maskOutC{scanIdx} = {maskC(scanIdx)};
+        maskOutC{scanIdx} = {maskC{scanIdx}};
         cropStrC = {cropStr3M};
     end
     
