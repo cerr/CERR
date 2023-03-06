@@ -231,10 +231,12 @@ for scanNum = 1:numScans
     
     % sort z-values in ascending order since z increases from head
     % to feet in CERR
-    [zV,zOrderV] = sort(distV);
-    slice_distance = zV(2) - zV(1);
+    %[zV,zOrderV] = sort(distV); % not required since this is already
+    %sorted in populate_planC_scan_field.m
+    %slice_distance = zV(2) - zV(1);
+    slice_distance = distV(1) - distV(2);
     for i=1:length(planC{indexS.scan}(scanNum).scanInfo)
-        planC{indexS.scan}(scanNum).scanInfo(i).zValue = zV(i) / 10;
+        planC{indexS.scan}(scanNum).scanInfo(i).zValue = -distV(i)/10; % (-)ve since CERR z-axis is opposite to DICOM %zV(i) / 10;
     end
     pos1V = info1S.imagePositionPatient/10; %cm
     pos2V = info2S.imagePositionPatient/10; %cm
@@ -249,6 +251,18 @@ for scanNum = 1:numScans
     
     positionMatrixInv = inv(positionMatrix);
     planC{indexS.scan}(scanNum).Image2PhysicalTransM = positionMatrix;
+        
+    % Get DICOM x,y,z coordinates of the center voxel.
+    % This serves as the reference point for the image volume.
+    sizV = size(planC{indexS.scan}(scanNum).scanArray); 
+    xyzCtrV = positionMatrix * [(sizV(1)-1)/2,(sizV(2)-1)/2,0,1]';
+    xOffset = sum(ImageOrientationPatientV(1:3) .* xyzCtrV(1:3));
+    yOffset = -sum(ImageOrientationPatientV(4:6) .* xyzCtrV(1:3));  %(-)ve since CERR y-coordinate is opposite of column vector.
+
+    for i=1:length(planC{indexS.scan}(scanNum).scanInfo)
+        planC{indexS.scan}(scanNum).scanInfo(i).xOffset = xOffset;
+        planC{indexS.scan}(scanNum).scanInfo(i).yOffset = yOffset;
+    end
     
     [xs,ys,zs] = getScanXYZVals(planC{indexS.scan}(scanNum));
     dx = xs(2)-xs(1);
