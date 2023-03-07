@@ -170,7 +170,17 @@ switch fieldname
         %%%%%%%  AI 12/28/16 Added Scale slope/intercept for Philips scanners %%%%
     case 'scaleSlope'
         if attr.contains(537202702) %hex2dec('2005100E') % Philips
-            dataS = attr.getDoubles(537202702);
+            vr = attr.getVR(537202702);
+            if strcmpi(vr,'FD')
+                dataS = attr.getDoubles(537202702);
+            elseif strcmpi(vr,'UN')
+                bytesV = attr.getBytes(537202702);
+                if length(bytesV) == 4
+                    dataS = typecast(bytesV,'single');
+                elseif length(bytesV) == 8
+                    dataS = typecast(bytesV,'double');
+                end
+            end
         else
             dataS = '';
         end
