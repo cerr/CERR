@@ -171,15 +171,15 @@ switch fieldname
     case 'scaleSlope'
         if attr.contains(537202702) %hex2dec('2005100E') % Philips
             vr = attr.getVR(537202702);
-            if strcmpi(vr,'FD')
-                dataS = attr.getDoubles(537202702);
-            elseif strcmpi(vr,'UN')
+            if strcmpi(vr,'UN')
                 bytesV = attr.getBytes(537202702);
                 if length(bytesV) == 4
                     dataS = typecast(bytesV,'single');
                 elseif length(bytesV) == 8
                     dataS = typecast(bytesV,'double');
                 end
+            else % VR= 'FD', 'DS', 'FL' etc
+                dataS = getTagValue(attr,537202702);
             end
         else
             dataS = '';
