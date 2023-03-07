@@ -255,7 +255,7 @@ for scanNum = 1:numScans
     % Get DICOM x,y,z coordinates of the center voxel.
     % This serves as the reference point for the image volume.
     sizV = size(planC{indexS.scan}(scanNum).scanArray); 
-    xyzCtrV = positionMatrix * [(sizV(1)-1)/2,(sizV(2)-1)/2,0,1]';
+    xyzCtrV = positionMatrix * [(sizV(2)-1)/2,(sizV(1)-1)/2,0,1]';
     xOffset = sum(ImageOrientationPatientV(1:3) .* xyzCtrV(1:3));
     yOffset = -sum(ImageOrientationPatientV(4:6) .* xyzCtrV(1:3));  %(-)ve since CERR y-coordinate is opposite of column vector.
 
