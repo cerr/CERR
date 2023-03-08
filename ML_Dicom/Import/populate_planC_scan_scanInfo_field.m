@@ -185,20 +185,29 @@ switch fieldname
             dataS = '';
         end
         
-    case 'scaleIntercept'
-        if attr.contains(537202701) %hex2dec('2005100D') % Philips
-            dataS = attr.getDoubles(537202701);
+    case 'scaleIntercept'        
+        if attr.contains(537202701) %hex2dec('2005100E') % Philips
+            vr = attr.getVR(537202701);
+            if strcmpi(vr,'UN')
+                bytesV = attr.getBytes(537202701);
+                if length(bytesV) == 4
+                    dataS = typecast(bytesV,'single');
+                elseif length(bytesV) == 8
+                    dataS = typecast(bytesV,'double');
+                end
+            else % VR= 'FD', 'DS', 'FL' etc
+                dataS = getTagValue(attr,537202701);
+            end
         else
             dataS = '';
         end
+        
         %%%%%%%%%%%%   End added %%%%%%%%%%%%%%%
         
     case 'realWorldValueSlope'
         realWorldValueSeq = attr.getValue(4231318); %0040,9096
         if ~isempty(realWorldValueSeq) && ~realWorldValueSeq.isEmpty
             realWorldValueObj = realWorldValueSeq.get(0);
-            %dataS = getTagValue(radiopharmaInfoObj, '00181075');
-            %dataS = radiopharmaInfoObj.getDoubles(org.dcm4che3.data.Tag.RadionuclideHalfLife); %DS
             dataS = realWorldValueObj.getDoubles(4231717); %(0040,9225)
         end
         
@@ -206,8 +215,6 @@ switch fieldname
         realWorldValueSeq = attr.getValue(4231318); %0040,9096
         if ~isempty(realWorldValueSeq) && ~realWorldValueSeq.isEmpty
             realWorldValueObj = realWorldValueSeq.get(0);
-            %dataS = getTagValue(radiopharmaInfoObj, '00181075');
-            %dataS = radiopharmaInfoObj.getDoubles(org.dcm4che3.data.Tag.RadionuclideHalfLife); %DS
             dataS = realWorldValueObj.getDoubles(4231716); %(0040,9224)
         end
         
