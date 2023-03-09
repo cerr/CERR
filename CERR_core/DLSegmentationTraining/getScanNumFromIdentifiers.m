@@ -36,13 +36,15 @@ for n = 1:length(identifierC)
     switch(identifierC{n})
         
         case 'imageType'
-            imTypeC =  arrayfun(@(x)x.scanInfo(1).imageType, planC{indexS.scan},'un',0);
+            imTypeC =  arrayfun(@(x)x.scanInfo(1).imageType,...
+                planC{indexS.scan},'un',0);
             idV = strcmpi(matchValC,imTypeC);
             
         case 'seriesDescription'
-            seriesDescC = arrayfun(@(x)x.scanInfo(1).DICOMHeaders.SeriesDescription,...
+            
+            seriesDescC =  arrayfun(@(x)x.scanInfo(1).seriesDescription,...
                 planC{indexS.scan},'un',0);
-            idV = contains(matchValC,seriesDescC);
+            idV = ~cellfun('isempty', strfind(seriesDescC, matchValC));
             
         case 'scanType'
             

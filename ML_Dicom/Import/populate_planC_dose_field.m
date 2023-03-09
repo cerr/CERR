@@ -646,26 +646,27 @@ switch fieldname
             dataS = permute(dataS, [2,1,3]);
         end
         clear doseV;
-                
-        %imgOriV = getTagValue(attr, '00200037');
-        %imgOriV = attr.getDoubles(org.dcm4che3.data.Tag.ImageOrientationPatient);
-        imgOriV = attr.getDoubles(2097207);
-        if (imgOriV(1)==-1)
-            dataS = flip(dataS, 2);
-        end
-        
-        if (imgOriV(5)==-1)
-            dataS = flip(dataS, 1);
-        end
-        
-        if (max(abs((imgOriV(:) - [-1 0 0 0 -1 0]'))) < 1e-3 ||...
-                max(abs((imgOriV(:) - [1 0 0 0 -1 0]'))) < 1e-3) %HFP or FFP
-            %dataS = flipdim(dataS, 2);
-            dataS = flip(dataS, 1); %APA change
-        end
-        if max(abs((imgOriV(:) - [-1 0 0 0 -1 0]'))) < 1e-3 %HFP
-            dataS = flip(dataS, 2); % 1/3/2017
-        end
+
+       % ======= Flip doseArray in dcmdir2planC.m if imageOrientation is different from scanArray.                 
+%         %imgOriV = getTagValue(attr, '00200037');
+%         %imgOriV = attr.getDoubles(org.dcm4che3.data.Tag.ImageOrientationPatient);
+%         imgOriV = attr.getDoubles(2097207);
+%         if (imgOriV(1)==-1)
+%             dataS = flip(dataS, 2);
+%         end
+%         
+%         if (imgOriV(5)==-1)
+%             dataS = flip(dataS, 1);
+%         end
+%         
+%         if (max(abs((imgOriV(:) - [-1 0 0 0 -1 0]'))) < 1e-3 ||...
+%                 max(abs((imgOriV(:) - [1 0 0 0 -1 0]'))) < 1e-3) %HFP or FFP
+%             %dataS = flipdim(dataS, 2);
+%             dataS = flip(dataS, 1); %APA change
+%         end
+%         if max(abs((imgOriV(:) - [-1 0 0 0 -1 0]'))) < 1e-3 %HFP
+%             dataS = flip(dataS, 2); % 1/3/2017
+%         end
         
         maxDose = max(dataS(:));
         
@@ -708,8 +709,8 @@ switch fieldname
             %gFOV = getTagValue(attr, fIP);
             %gFOV = attr.getDoubles(org.dcm4che3.data.Tag.GridFrameOffsetVector);
             gFOV = attr.getDoubles(805568524);
-            if ((imgOriV(1)==-1) || (imgOriV(5)==-1)) && ...
-                    ~(max(abs((imgOriV(:) - [-1 0 0 0 -1 0]'))) < 1e-3) %Not HFP
+            slcDir = cross(imgOriV(1:3),imgOriV(4:6));
+            if slcDir(3) < 0 %((imgOriV(1)==-1) || (imgOriV(5)==-1)) && ~(max(abs((imgOriV(:) - [-1 0 0 0 -1 0]'))) < 1e-3) %Not HFP
                 gFOV = - gFOV;
             end
         catch

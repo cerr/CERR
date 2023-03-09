@@ -96,7 +96,7 @@ xminV = min(Iarray);
 if exist('binNum','var') && ~isempty(binNum)
     binWidth = (xmaxV - xminV)/binNum;
 else
-    if ~exist('binWidth','var') && ~isempty(binWidth)
+    if ~exist('binWidth','var') || isempty(binWidth) 
         binWidth = 25;
     end
 end

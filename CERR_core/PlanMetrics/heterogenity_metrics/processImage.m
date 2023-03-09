@@ -5,7 +5,7 @@ function outS = processImage(filterType,scan3M,mask3M,paramS,hWait)
 % filterType -  Supported textures: 'HaralickCooccurance','Wavelets','Sobel',
 %               'LoG' (ITK-compliant),'LoG_IBSI' (IBSI-compliant),'Gabor'
 %               (IBSI compliant), 'Gabor_deprecated', 'Mean','LawsEnergy'
-%               'LawsConvolution','CoLlage','First order statistics', 
+%               'LawsConvolution','CoLlage','FirstOrderStatistics', 
 %               or 'SimpleITK'.
 %               Other filters: 'suv', 'assignBkgIntensity'.
 % scan3M     - 3-D scan array, cropped around ROI and padded if specified
@@ -70,7 +70,7 @@ rotFlag = 0;
 skipRotC = {'LawsEnergy'}; %multi-stage filters or rotation not supported
 if isfield(paramS,'RotationInvariance') && ...
         ~isempty(paramS.RotationInvariance) ...
-        && isempty(strfind(filterType,skipRotC))
+        && ~contains(filterType,skipRotC)
     rotFlag = 1;
     rotS = paramS.RotationInvariance.val;
     aggregationMethod = rotS.AggregationMethod;
@@ -572,6 +572,18 @@ for index = 1:numRotations
             voxelSizV = paramS.VoxelSize_mm.val;
             voxelVol = prod(voxelSizV);
 
+            %Get parameters for entropy calc.
+            if ~isfield(paramS,'offsetForEnergy') || isempty(paramS.offsetForEnergy)
+                offsetForEnergy = 0;
+            end
+            if ~isfield(paramS,'binWidth') || isempty(paramS.binWidth)
+                if ~isfield(paramS,'binNum') || isempty(paramS.binNum)
+                    binWidth = 25;
+                    binNum = [];
+                end
+            end
+
+
             %Compute patch-based statistics
             statC = {'min','max','mean','range','std','var','median','skewness',...
                 'kurtosis','entropy','rms','energy','totalEnergy','meanAbsDev',...
@@ -579,7 +591,7 @@ for index = 1:numRotations
                 'interQuartileRange','coeffDispersion','coeffVariation'};
 
             [~,patchStatM] = firstOrderStatsByPatch(rotScan3M,rotMask3M,...
-                patchSizeV,voxelVol);
+                patchSizeV,voxelVol,offsetForEnergy,binWidth,binNum);
 
             for n = 1:length(statC)
                 out3M = zeros(size(rotScan3M));

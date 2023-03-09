@@ -19,8 +19,10 @@ output = userOptS.output;
 
 %Get parameters for resizing & cropping
 cropS = scanOptS.crop; 
-if isfield(cropS,'params') && isfield(cropS.params,'saveStrToPlanCFlag')
-    cropS.params.saveStrToPlanCFlag = 0;
+if ~isempty(cropS) && isfield(cropS(1),'params')
+    for cropNum = 1:length(cropS)
+        cropS(cropNum).params.saveStrToPlanCFlag = 0;
+    end
 end
 
 % cropS.params.saveStrToPlanCFlag=0;
