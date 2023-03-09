@@ -117,6 +117,8 @@ end
 % 3/2/2010)
 numStructs = length(planC{indexS.structures});
 assocScanV = getStructureAssociatedScan(1:numStructs, planC);
+numDoses = length(planC{indexS.dose});
+doseAssocScanV = getDoseAssociatedScan(1:numDoses, planC);
 % assocScanV = 1; % temporary, until the issue with DCE/DWI volume split is
 % resolved.
 
@@ -175,8 +177,8 @@ if ~isempty(mrIdxV)
                     num2str(uniqueTemporalPosIndV(n)),')'];
             end
             count = length(splitScanNumV);
-            newScanC{count} = splitScanS;            
-        end        
+            newScanC{count} = splitScanS;
+        end
     end
     
     for m = 1:length(newScanC)
@@ -210,10 +212,52 @@ for scanNum = 1:numScans
     
     % Check for obliqueness
     if isempty(ImageOrientationPatientV) || max(abs((abs(ImageOrientationPatientV(:)) - [1 0 0 0 1 0]'))) <= obliqTol
+        % Check scan and dose orientations
+        scanOrientV = planC{indexS.scan}(scanNum).scanInfo(1).imageOrientationPatient;
+        assocDoseIndV = find(doseAssocScanV == scanNum);
+        N = length(assocDoseIndV);
+        % Flip dose to match scan orientation, if different.
+        for doseno = 1:N
+            doseNum = assocDoseIndV(doseno);
+            doseOrientV = planC{indexS.dose}(doseNum).imageOrientationPatient;
+            if max(abs(scanOrientV - doseOrientV)) > 1e-3
+                % check row direction
+                if abs(scanOrientV(1)-doseOrientV(1)) > 1e-3
+                    % flip dose columns
+                    planC{indexS.dose}(doseNum).doseArray = ...
+                        flip(planC{indexS.dose}(doseNum).doseArray,2);
+                    dx = planC{indexS.dose}(doseNum).horizontalGridInterval;
+                    sizV = size(planC{indexS.dose}(doseNum).doseArray);
+                    ipp = planC{indexS.dose}(doseNum).imagePositionPatient;
+                    if scanOrientV(1)== 1 && doseOrientV(1) == -1
+                        newCoord1OFFirstPoint = ipp(1)/10-(sizV(2)-1)*dx;
+                    elseif scanOrientV(1)== -1 && doseOrientV(1) == 1
+                        newCoord1OFFirstPoint = ipp(1)/10+(sizV(2)-1)*dx;
+                    end
+                    planC{indexS.dose}(doseNum).coord1OFFirstPoint = newCoord1OFFirstPoint;
+                end
+                % check col direction
+                if abs(scanOrientV(5)-doseOrientV(5)) > 1e-3
+                    % flip dose rows
+                    planC{indexS.dose}(doseNum).doseArray = ...
+                        flip(planC{indexS.dose}(doseNum).doseArray,1);
+                    dy = planC{indexS.dose}(doseNum).verticalGridInterval;
+                    sizV = size(planC{indexS.dose}(doseNum).doseArray);
+                    ipp = planC{indexS.dose}(doseNum).imagePositionPatient;
+                    if scanOrientV(5)== 1 && doseOrientV(5) == -1
+                        newCoord2OFFirstPoint = -(ipp(2)/10-(sizV(1)-1)*dy);
+                    elseif scanOrientV(5)== -1 && doseOrientV(5) == 1
+                        newCoord2OFFirstPoint = -(ipp(2)/10+(sizV(1)-1)*dy);
+                    end
+                    planC{indexS.dose}(doseNum).coord2OFFirstPoint = newCoord2OFFirstPoint;                    
+                end
+            end
+        end
+        
         isObliqScanV(scanNum) = 0;
         continue;
     end
-        
+    
     % Compute slice normal
     sliceNormV = ImageOrientationPatientV([2 3 1]) .* ImageOrientationPatientV([6 4 5]) ...
         - ImageOrientationPatientV([3 1 2]) .* ImageOrientationPatientV([5 6 4]);
@@ -222,7 +266,7 @@ for scanNum = 1:numScans
     numSlcs = length(planC{indexS.scan}(scanNum).scanInfo);
     distV = zeros(1,numSlcs);
     for slcNum = 1:numSlcs
-        ipp = planC{indexS.scan}(scanNum).scanInfo(slcNum).imagePositionPatient;            
+        ipp = planC{indexS.scan}(scanNum).scanInfo(slcNum).imagePositionPatient;
         distV(slcNum) = sum(sliceNormV .* ipp);
     end
     
@@ -243,7 +287,7 @@ for scanNum = 1:numScans
     deltaPosV = pos2V-pos1V;
     pixelSpacing = [info1S.grid2Units, info1S.grid1Units];
     
-    %Pt coordinate to DICOM image coordinate mapping 
+    %Pt coordinate to DICOM image coordinate mapping
     %Based on ref: https://nipy.org/nibabel/dicom/dicom_orientation.html
     positionMatrix = [reshape(ImageOrientationPatientV,[3 2])*diag(pixelSpacing)...
         [deltaPosV(1) pos1V(1); deltaPosV(2) pos1V(2); deltaPosV(3) pos1V(3)]];
@@ -251,14 +295,14 @@ for scanNum = 1:numScans
     
     positionMatrixInv = inv(positionMatrix);
     planC{indexS.scan}(scanNum).Image2PhysicalTransM = positionMatrix;
-        
+    
     % Get DICOM x,y,z coordinates of the center voxel.
     % This serves as the reference point for the image volume.
-    sizV = size(planC{indexS.scan}(scanNum).scanArray); 
+    sizV = size(planC{indexS.scan}(scanNum).scanArray);
     xyzCtrV = positionMatrix * [(sizV(2)-1)/2,(sizV(1)-1)/2,0,1]';
     xOffset = sum(ImageOrientationPatientV(1:3) .* xyzCtrV(1:3));
     yOffset = -sum(ImageOrientationPatientV(4:6) .* xyzCtrV(1:3));  %(-)ve since CERR y-coordinate is opposite of column vector.
-
+    
     for i=1:length(planC{indexS.scan}(scanNum).scanInfo)
         planC{indexS.scan}(scanNum).scanInfo(i).xOffset = xOffset;
         planC{indexS.scan}(scanNum).scanInfo(i).yOffset = yOffset;
@@ -284,7 +328,7 @@ for scanNum = 1:numScans
             
             % for each segment
             points = planC{indexS.structures}(nvoi).contour(segnum).segments;
-            % Undo inversion of z coord inverted for oblique scans 
+            % Undo inversion of z coord inverted for oblique scans
             % (in populate_planC_structures_field.m)
             points(:,3) = -points(:,3);
             
@@ -304,86 +348,86 @@ for scanNum = 1:numScans
     %end
     
     % Update the doses associated with scanNum (to do)
-    N = length(planC{indexS.dose});
-    if N > 0
-        % Now, translate the coordinates for dose
-        for doseno = 1:N
-            dose = planC{indexS.dose}(doseno);
-            if ~isfield(dose,'DICOMHeaders')
-                continue;
-            end
-            
-            % ======== TO DO: update for use without DICOMHeaders
-            %info = dose.DICOMHeaders;
-            
-            vec1 = dose.imageOrientationPatient(1:3);
-            vec2 = dose.imageOrientationPatient(4:6);
-            vec3 = cross(vec1,vec2);
-            %vec3 = vec3 * (info.GridFrameOffsetVector(2)-info.GridFrameOffsetVector(1));
-            vec3 = vec3 * (dose.zValues(2)-dose.zValues(1))*10; % factor of 10 to go to DICOM mm
-            pos1 = dose.imagePositionPatient;
-            
-            % positionMatrix translate voxel indexes to physical
-            % coordinates
-            pixelSpacing = [-dose.verticalGridInterval, dose.horizontalGridInterval]*10;
-            % dosePositionMatrix = [reshape(dose.imageOrientationPatient,[3 2])*diag(info.PixelSpacing) [vec3(1) pos1(1);vec3(2) pos1(2); vec3(3) pos1(3)]];
-            dosePositionMatrix = [reshape(dose.imageOrientationPatient,[3 2])*diag(pixelSpacing) [vec3(1) pos1(1);vec3(2) pos1(2); vec3(3) pos1(3)]];
-            dosePositionMatrix = [dosePositionMatrix; 0 0 0 1];
-            
-            dosedim = size(dose.doseArray);
-            
-            % Need to figure out coord1OFFirstPoint,
-            % coord2OFFirstPoint, horizontalGridInterval,
-            % verticalGridInterval and zValues
-            
-            % xOffset = iPP(1) + (pixspac(1) * (nCols - 1) / 2);
-            % yOffset = iPP(2) + (pixspac(2) * (nRows - 1) / 2);
-            
-            vecs = [0 0 0 1; 1 1 0 1; (dosedim(2)-1)/2 (dosedim(1)-1)/2 0 1];
-            vecsout = (dosePositionMatrix*vecs'); % to physical coordinates
-            vecsout(1:3,:) = vecsout(1:3,:)/10;
-            vecsout = positionMatrix \ vecsout;  % to MR image index (not dose voxel index)
-            vecsout = virPosMtx * vecsout; % to the virtual coordinates
-            
-            % dose.coord1OFFirstPoint = vecsout(1,3);
-            % dose.coord2OFFirstPoint = vecsout(2,3);
-            dose.coord1OFFirstPoint = vecsout(1,1);
-            dose.coord2OFFirstPoint = vecsout(2,1);
-            dose.horizontalGridInterval = vecsout(1,2) - vecsout(1,1);
-            dose.verticalGridInterval = vecsout(2,2) - vecsout(2,1);
-            
-            % APA commented ====== get z-grid using GridFrameOffset
-            % vecs = [zeros(2,dosedim(3));0:(dosedim(3)-1);ones(1,dosedim(3))];
-            % vecsout = (dosePositionMatrix*vecs); % to physical coordinates
-            % vecsout(1:3,:) = vecsout(1:3,:)/10;
-            % vecsout = positionMatrix \ vecsout;  % to MR image index (not dose voxel index)
-            % vecsout = virPosMtx * vecsout; % to the virtual coordinates
-            % zValuesV = vecsout(3,:)';
-            % APA commented ends
-            
-            % APA added to get zValues in virtual coordinates
-            zValuesV = vecsout(3,1) + dose.zValues - dose.imagePositionPatient(3)/10;
-            
-            [zdoseV,zOrderV] = sort(zValuesV);
-            dose.zValues = zdoseV;
-            %[zdoseV,zOrderV] = sort(dose.zValues);
-            %dose.zValues = zdoseV;
-            
-            % Ascending zValuesV order means dose slices go from toe to
-            % head in DICOM. i.e. 1st dose slice is towards the toe and 
-            % the last slice towards the head. doseArray has to be flipped 
-            % opposite to zValuesV to match CERR convention i.e. head to toe
-            
-            % slice is towards the head
-            %[~,zOrderV] = sort(dose.zValues,'descend'); % flip dose
-            dose.doseArray = dose.doseArray(:,:,flip(zOrderV));
-            
-            planC{indexS.dose}(doseno) = dose;
-        end
-    end
+    assocDoseIndV = find(doseAssocScanV == scanNum);
+    N = length(assocDoseIndV);
+    % Now, translate the coordinates for dose
+    for doseno = 1:N
+        doseNum = assocDoseIndV(doseno);
+        dose = planC{indexS.dose}(doseNum);
+        %if ~isfield(dose,'DICOMHeaders')
+        %    continue;
+        %end
         
-end % end of scan loop
+        % ======== TO DO: update for use without DICOMHeaders
+        %info = dose.DICOMHeaders;
+        
+        vec1 = dose.imageOrientationPatient(1:3);
+        vec2 = dose.imageOrientationPatient(4:6);
+        vec3 = cross(vec1,vec2);
+        %vec3 = vec3 * (info.GridFrameOffsetVector(2)-info.GridFrameOffsetVector(1));
+        vec3 = vec3 * (dose.zValues(2)-dose.zValues(1))*10; % factor of 10 to go to DICOM mm
+        pos1 = dose.imagePositionPatient;
+        
+        % positionMatrix translate voxel indexes to physical
+        % coordinates
+        pixelSpacing = [-dose.verticalGridInterval, dose.horizontalGridInterval]*10;
+        % dosePositionMatrix = [reshape(dose.imageOrientationPatient,[3 2])*diag(info.PixelSpacing) [vec3(1) pos1(1);vec3(2) pos1(2); vec3(3) pos1(3)]];
+        dosePositionMatrix = [reshape(dose.imageOrientationPatient,[3 2])*diag(pixelSpacing) [vec3(1) pos1(1);vec3(2) pos1(2); vec3(3) pos1(3)]];
+        dosePositionMatrix = [dosePositionMatrix; 0 0 0 1];
+        
+        dosedim = size(dose.doseArray);
+        
+        % Need to figure out coord1OFFirstPoint,
+        % coord2OFFirstPoint, horizontalGridInterval,
+        % verticalGridInterval and zValues
+        
+        % xOffset = iPP(1) + (pixspac(1) * (nCols - 1) / 2);
+        % yOffset = iPP(2) + (pixspac(2) * (nRows - 1) / 2);
+        
+        vecs = [0 0 0 1; 1 1 0 1; (dosedim(2)-1)/2 (dosedim(1)-1)/2 0 1];
+        vecsout = (dosePositionMatrix*vecs'); % to physical coordinates
+        vecsout(1:3,:) = vecsout(1:3,:)/10;
+        vecsout = positionMatrix \ vecsout;  % to MR image index (not dose voxel index)
+        vecsout = virPosMtx * vecsout; % to the virtual coordinates
+        
+        % dose.coord1OFFirstPoint = vecsout(1,3);
+        % dose.coord2OFFirstPoint = vecsout(2,3);
+        dose.coord1OFFirstPoint = vecsout(1,1);
+        dose.coord2OFFirstPoint = vecsout(2,1);
+        dose.horizontalGridInterval = vecsout(1,2) - vecsout(1,1);
+        dose.verticalGridInterval = vecsout(2,2) - vecsout(2,1);
+        
+        % APA commented ====== get z-grid using GridFrameOffset
+        % vecs = [zeros(2,dosedim(3));0:(dosedim(3)-1);ones(1,dosedim(3))];
+        % vecsout = (dosePositionMatrix*vecs); % to physical coordinates
+        % vecsout(1:3,:) = vecsout(1:3,:)/10;
+        % vecsout = positionMatrix \ vecsout;  % to MR image index (not dose voxel index)
+        % vecsout = virPosMtx * vecsout; % to the virtual coordinates
+        % zValuesV = vecsout(3,:)';
+        % APA commented ends
+        
+        % APA added to get zValues in virtual coordinates
+        zValuesV = vecsout(3,1) + dose.zValues - dose.imagePositionPatient(3)/10;
+        
+        [zdoseV,zOrderV] = sort(zValuesV);
+        dose.zValues = zdoseV;
+        %[zdoseV,zOrderV] = sort(dose.zValues);
+        %dose.zValues = zdoseV;
+        
+        % Ascending zValuesV order means dose slices go from toe to
+        % head in DICOM. i.e. 1st dose slice is towards the toe and
+        % the last slice towards the head. doseArray has to be flipped
+        % opposite to zValuesV to match CERR convention i.e. head to toe
+        
+        % slice is towards the head
+        %[~,zOrderV] = sort(dose.zValues,'descend'); % flip dose
+        dose.doseArray = dose.doseArray(:,:,flip(zOrderV));
+        
+        planC{indexS.dose}(doseNum) = dose;
+    end
     
+end % end of scan loop
+
 
 % Check uniqueness of scanUIDs
 assocStrScanUIDc = {planC{indexS.structures}.assocScanUID};
@@ -442,7 +486,7 @@ if (scanNum>1)
                     zV(end+1) = scanInfoS(iSlc).zValue;
                     scanNumV(end+1) = i;
                     slcNumV(end+1) = iSlc;
-                end                
+                end
             end
             [zSortV,indSortV] = sort(zV,'ascend');
             scanNumSortV = scanNumV(indSortV);
@@ -456,7 +500,7 @@ if (scanNum>1)
                 scanArray(:,:,i) = planC{indexS.scan}(scanIndex).scanArray(:,:,slcIndex);
                 scanInfo = dissimilarInsert(scanInfo, planC{indexS.scan}(scanIndex).scanInfo(slcIndex),i);
             end
-
+            
             %add all scans to the first one. Delete the rest.
             planC{indexS.scan} = planC{indexS.scan}(1);
             planC{indexS.scan}.scanArray = scanArray;
