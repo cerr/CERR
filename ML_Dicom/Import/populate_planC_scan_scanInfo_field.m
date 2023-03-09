@@ -170,18 +170,65 @@ switch fieldname
         %%%%%%%  AI 12/28/16 Added Scale slope/intercept for Philips scanners %%%%
     case 'scaleSlope'
         if attr.contains(537202702) %hex2dec('2005100E') % Philips
-            dataS = attr.getDoubles(537202702);
+            vr = attr.getVR(537202702);
+            if strcmpi(vr,'UN')
+                bytesV = attr.getBytes(537202702);
+                if length(bytesV) == 4
+                    dataS = typecast(bytesV,'single');
+                elseif length(bytesV) == 8
+                    dataS = typecast(bytesV,'double');
+                end
+            else % VR= 'FD', 'DS', 'FL' etc
+                dataS = getTagValue(attr,537202702);
+            end
         else
             dataS = '';
         end
         
-    case 'scaleIntercept'
-        if attr.contains(537202701) %hex2dec('2005100D') % Philips
-            dataS = attr.getDoubles(537202701);
+    case 'scaleIntercept'        
+        if attr.contains(537202701) %hex2dec('2005100E') % Philips
+            vr = attr.getVR(537202701);
+            if strcmpi(vr,'UN')
+                bytesV = attr.getBytes(537202701);
+                if length(bytesV) == 4
+                    dataS = typecast(bytesV,'single');
+                elseif length(bytesV) == 8
+                    dataS = typecast(bytesV,'double');
+                end
+            else % VR= 'FD', 'DS', 'FL' etc
+                dataS = getTagValue(attr,537202701);
+            end
         else
             dataS = '';
         end
+        
         %%%%%%%%%%%%   End added %%%%%%%%%%%%%%%
+        
+    case 'realWorldValueSlope'
+        realWorldValueSeq = attr.getValue(4231318); %0040,9096
+        if ~isempty(realWorldValueSeq) && ~realWorldValueSeq.isEmpty
+            realWorldValueObj = realWorldValueSeq.get(0);
+            dataS = realWorldValueObj.getDoubles(4231717); %(0040,9225)
+        end
+        
+    case 'realWorldValueIntercept'
+        realWorldValueSeq = attr.getValue(4231318); %0040,9096
+        if ~isempty(realWorldValueSeq) && ~realWorldValueSeq.isEmpty
+            realWorldValueObj = realWorldValueSeq.get(0);
+            dataS = realWorldValueObj.getDoubles(4231716); %(0040,9224)
+        end
+        
+        
+    case 'realWorldMeasurCodeMeaning'
+        realWorldValueSeq = attr.getValue(4231318); %0040,9096
+        if ~isempty(realWorldValueSeq) && ~realWorldValueSeq.isEmpty
+            realWorldValueObj = realWorldValueSeq.get(0);
+            measurementSeq = realWorldValueObj.getValue(4196586); %0040,08EA
+            if ~isempty(measurementSeq) && ~measurementSeq.isEmpty
+                measurementObj = measurementSeq.get(0);
+                dataS = measurementObj.getString(524548,0); % 0008,0104
+            end
+        end
         
     case 'grid1Units'
         %modality = getTagValue(attr, '00080060');
@@ -605,8 +652,13 @@ switch fieldname
             dataS = 'Unknown';
         end
         
-    case 'scanDescription'
-        %Currently undefined.
+    case 'seriesDescription'
+        %Type 3 field, may not exist.
+        if attr.contains(528446) %
+            dataS = char(attr.getString(528446,0));
+        else
+            dataS = 'Unknown';
+        end
         
     case 'manufacturer'
         %dataS = attr.getDoubles(524400); % '00080070'
