@@ -1,9 +1,12 @@
 {
+
+"dataFormat": "DICOM",
+
 "register" : {"baseScan": {"identifier":{"seriesDescription":"T2"}},
               "movingScan":{"identifier":{"seriesDescription":"ADC"}},
               "method": "none",
-              "copyStr":"Prostate",
-              "renameStr":"Prostate_copy"
+              "copyStr":"CTV_PROST_DLV3",
+              "renameStr":"CTV_PROST_DLV3_copy"
              },
 
 "input": {
@@ -19,7 +22,7 @@
 		            },
 	    "crop" : [{     
                     "method": "crop_around_structure_center",
-                    "params": { "structureName": "Prostate_copy", "margins":[128,128]},
+                    "params": { "structureName": "CTV_PROST_DLV3_copy", "margins":[128,128]},
             		"operator": ""
          	      }
                 ],
