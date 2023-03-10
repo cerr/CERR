@@ -97,7 +97,7 @@ switch tag
         
         %Take into account the deletion of last point that will occur in
         %the Contour Data routine if first/last points are duplicates.
-        if all(contour(1,:) == contour(end,:)) && size(contour, 1) > 1
+        if all(abs(contour(1,:)-contour(end,:)) < 1e-6) && size(contour, 1) > 1
            data = data - 1;
         end
         
@@ -116,7 +116,7 @@ switch tag
         
         %Check for first/last points being the same.  If the same, remove
         %one as specified by DICOM's closed contour definition.
-        if all(contour(1,:) == contour(end,:)) && size(contour, 1) > 1
+        if all(abs(contour(1,:)-contour(end,:)) < 1e-6) && size(contour, 1) > 1
            contour(end,:) = [] ;
         end
         
