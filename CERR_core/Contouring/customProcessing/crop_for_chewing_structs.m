@@ -74,7 +74,7 @@ else
     end
 
     minr = round(prctile(minrV,5));
-    maxr = round(nanmedian(maxrV));
+    maxr = round(median(maxrV,'omitnan'));
     width = maxr-minr+1;
     maxr = round(maxr-.25*width);
 
