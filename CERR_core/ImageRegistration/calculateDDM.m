@@ -126,14 +126,15 @@ end
 % end
 % medianDistV = nanmedian(distM,2);
 
-xMeanV = nanmedian(xDeformM,2);
-yMeanV = nanmedian(yDeformM,2);
-zMeanV = nanmedian(zDeformM,2);
+xMeanV = median(xDeformM,2,'omitnan');
+yMeanV = median(yDeformM,2,'omitnan');
+zMeanV = median(zDeformM,2,'omitnan');
 xSquareV = bsxfun(@minus,xDeformM,xMeanV);
 ySquareV = bsxfun(@minus,yDeformM,yMeanV);
 zSquareV = bsxfun(@minus,zDeformM,zMeanV);
 
-medianDistV = nanmedian((xSquareV.^2 + ySquareV.^2 + zSquareV.^2).^0.5,2)/sqrt(2);
+medianDistV = median((xSquareV.^2 + ySquareV.^2 + zSquareV.^2).^0.5,2,...
+    'omitnan')/sqrt(2);
 
 dist3M = reshape(medianDistV,siz);
 
