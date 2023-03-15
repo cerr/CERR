@@ -230,6 +230,11 @@ switch fieldname
             end
         end
         
+    case 'philipsImageUnits'
+        if attr.contains(537203723)
+            dataS = char(attr.getString(537203723,0));
+        end
+        
     case 'grid1Units'
         %modality = getTagValue(attr, '00080060');
         %modality = char(attr.getStrings(org.dcm4che3.data.Tag.Modality)); %vr=CS
