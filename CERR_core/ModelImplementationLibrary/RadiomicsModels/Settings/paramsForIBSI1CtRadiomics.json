@@ -1,6 +1,6 @@
 {
 
-"structures": ["GTV"],
+"structures": ["GTV-1"],
 
 "imageType": {
   		  "Original": {}
@@ -13,8 +13,7 @@
                   "size": [5,5,5]
                               },
 
-		   "perturbation": {
-			           },
+		   "perturbation": {},
 
 		   "firstOrder" :{ 
 				   "binWidthEntropy": 25,
