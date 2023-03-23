@@ -224,6 +224,8 @@
 
 "sinc_filter_on_display" : 0,
 
+"store_scan_as_mr_philips_precise_value" : "yes",
+
 "retainOriginalUIDonExport" : "yes",
 
 "plastimatch_command_file" : "bspline_register_cmd_dir.txt",

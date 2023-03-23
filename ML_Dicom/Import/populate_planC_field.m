@@ -127,7 +127,8 @@ switch cellName
                 
                 %Apply scale slope & intercept for Philips data if not
                 %realWorldValue
-                if strcmpi(typeC{seriesNum}, 'MR')  %% ADDED AI 12/28/16 %%
+                if strcmpi(typeC{seriesNum}, 'MR') && ...
+                        strcmpi(optS.store_scan_as_mr_philips_precise_value, 'yes')
                     % Ref: Chenevert, Thomas L., et al. "Errors in quantitative image analysis due to platform-dependent image scaling."
                     manufacturer = dataS(scansAdded+1).scanInfo(1).manufacturer;
                     realWorldValueSlope = dataS(scansAdded+1).scanInfo(1).realWorldValueSlope;
