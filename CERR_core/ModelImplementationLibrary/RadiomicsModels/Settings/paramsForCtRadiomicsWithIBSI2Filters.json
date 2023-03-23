@@ -1,19 +1,8 @@
 {
 
-"structures": ["GTV"],
+"structures": ["GTV-1"],
 
 "imageType": {
-  		  "Original": {},
-		  "Wavelets": {
-				        "Wavelets": "Coif",
-				        "Index": 1,
-				        "Direction": "HLH", 
-                        "Level": 1,
-                        "RotationInvariance": {
-				       						    "Dim": "3D",
-				       						    "AggregationMethod": "avg"
-				       					      }
-			      },
           "Mean": {
 			        "KernelSize": [5,5,5]
 			      },
@@ -66,40 +55,10 @@
                            },
 
 		   "firstOrder" :{ 
-				   "binWidthEntropy": 25,
+				   "binNumEntropy":64,
 				   "offsetForEnergy": 0
-                                 },
+                   }
 
-		   "texture" :{ 
-                "binwidth": [],
-				"numGrLevels": 50,
-				"minSegThreshold": -500,
-				"maxSegThreshold": 1000,
-                "minClipIntensity": -200,
-                "maxClipIntensity": 300,
-                "directionality": "3D",
-				"avgType": "feature",
-				"voxelOffset": 1,
-				"patchRadiusVox": [3, 3, 3],
-				"imgDiffThresh": 10
-                              },
-
-		   "shape" :{ 
-                     "rcs": []
-                            },
-
-		  "peakValley" :{ 
-				   "peakRadius": [2, 2, 0],
-				   "units": "vox"	
-                                },
-
-		  "ivh" :{ 
-			    "binwidth": 0.1,
-			    "xForIxPct": [20, 30, 40],
-			    "xForIxCc": [200,300,400],
-			    "xForVxPct": [10, 30, 30],
-			    "xForVxAbs": [0, 10, 30]		
-                         }		   	
 
 	    },
 
@@ -107,34 +66,9 @@
  "featureClass":{
 			
 
-        "shape": {
-			    	   "featureList": ["all"]
-                 },
-
         "firstOrder": {
 			    	  "featureList": ["all"]
-			          },
-
-		"glcm": {
-			    	  "featureList": ["all"]
-                },
-
-		"glrlm": {
-			    	  "featureList": ["all"]
-                                 
-		         },
-
-		"glszm": {
-			          
-                },
-
-		"gldm": {
-			    
-                },
-
-		"gtdm": {			    	
-                                  
-		         }
+                      }
 
 
             }
