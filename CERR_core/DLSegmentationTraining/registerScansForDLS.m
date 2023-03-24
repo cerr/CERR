@@ -62,9 +62,18 @@ switch(lower(registrationTool))
         
         %Warp selected structures
         if isfield(paramS,'copyStr')
-            copyStrC = paramS.copyStr;
+            copyStrC = paramS.copyStr; 
+            if ~iscell(copyStrC)
+                copyStrC = {copyStrC};
+            end
+            renameC = paramS.renameStr;
+            if ~iscell(renameC)
+                renameC = {renameC};
+            end
             cpyBaseStrV = [];
             cpyMovStrV = [];
+            renameBaseStrC = {};
+            renameMovStrC = {};
             strC = {planC{indexS.structures}.structureName};
             for nStr = 1:length(copyStrC)
                 matchIdxV = getMatchingIndex(copyStrC{nStr},strC,'EXACT');
@@ -73,6 +82,13 @@ switch(lower(registrationTool))
                 movMatchIdx = matchIdxV(assocScanV==movScanNum);
                 cpyBaseStrV = [cpyBaseStrV,baseMatchIdx];
                 cpyMovStrV = [cpyMovStrV,movMatchIdx];
+                if ~isempty(baseMatchIdx)
+                    renameBaseStrC{end+1} = renameC{nStr};
+                else
+                    if ~isempty(movMatchIdx)
+                        renameMovStrC{end+1} = renameC{nStr};
+                    end
+                end
             end
             numStrs = length(planC{indexS.structures});
             if ~isempty(cpyBaseStrV)
@@ -83,7 +99,7 @@ switch(lower(registrationTool))
                 for nStr = 1:length(movStrV)
                     strIdx = numStrs-nStr+1;
                     planC{indexS.structures}(strIdx).structureName = ...
-                    planC{indexS.structures}(cpyBaseStrV(nStr)).structureName;
+                        renameBaseStrC{cpyBaseStrV(nStr)};
                 end
             end
             if ~isempty(cpyMovStrV)
@@ -92,7 +108,7 @@ switch(lower(registrationTool))
                     %Rename copied structures
                     numStrs = numStrs+1;
                     planC{indexS.structures}(numStrs).structureName =...
-                    planC{indexS.structures}(cpyMovStrV(nStr)).structureName;
+                        renameMovStrC{cpyMovStrV(nStr)};
                 end
             end
         end
