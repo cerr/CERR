@@ -10,7 +10,7 @@ function [scanOut3M, maskOut3M] = resizeScanAndMask(scan3M,mask3M,...
 % mask3M         :  Mask
 % outputImgSizeV :  Required output size [height, width]
 % method         :  Supported methods: 'none','pad2d', 'pad3d',
-%                   'bilinear', 'sinc', 'bicubic'.
+%                   'bilinear', 'sinc', 'bicubic', 'nearest'.
 % limitsM        :  Matrix with rows listing indices of rows & cols defining
 %                   ROI extents on each slice [minr, maxr, minc, maxc] 
 % preserveAspectFlag : Set to 1 to preserve aspect ratio when reszing (default:0)
@@ -287,7 +287,7 @@ switch(lower(method))
             maskOut3M = mask3M(:,:,1:numSlices);
         end
         
-    case {'bilinear','sinc','bicubic'}
+    case {'bilinear','sinc','bicubic','nearest'}
         
         if strcmp(method,'sinc')
             methodName = 'lanczos3';
