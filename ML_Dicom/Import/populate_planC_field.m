@@ -98,7 +98,9 @@ switch cellName
                     rescaleIntrcpt = dataS(scansAdded+1).scanInfo(slcNum).rescaleIntercept;
                     realWorldValueSlope = dataS(scansAdded+1).scanInfo(slcNum).realWorldValueSlope;
                     realWorldValueIntercept = dataS(scansAdded+1).scanInfo(slcNum).realWorldValueIntercept;
-                    if ~isempty(realWorldValueSlope) && strcmpi(typeC{seriesNum}, 'MR')
+                    realWorldMeasurCodeMeaning = dataS(scansAdded+1).scanInfo(slcNum).realWorldMeasurCodeMeaning;
+                    if ~isempty(realWorldValueSlope) && strcmpi(typeC{seriesNum}, 'MR') && ...
+                            ~strcmpi(realWorldMeasurCodeMeaning,'no units')
                         realWorldImageFlag = true;
                         scanArray3M(:,:,slcNum) = ...
                             single(dataS(scansAdded+1).scanArray(:,:,slcNum)) * single(realWorldValueSlope) + single(realWorldValueIntercept);
@@ -131,10 +133,9 @@ switch cellName
                         strcmpi(optS.store_scan_as_mr_philips_precise_value, 'yes')
                     % Ref: Chenevert, Thomas L., et al. "Errors in quantitative image analysis due to platform-dependent image scaling."
                     manufacturer = dataS(scansAdded+1).scanInfo(1).manufacturer;
-                    realWorldValueSlope = dataS(scansAdded+1).scanInfo(1).realWorldValueSlope;
                     if ~isempty(strfind(lower(manufacturer),'philips')) && ...
                             ~isempty(dataS(scansAdded+1).scanInfo(1).scaleSlope) && ...
-                            isempty(realWorldValueSlope)
+                            ~realWorldImageFlag
                         scaleSlope = dataS(scansAdded+1).scanInfo(1).scaleSlope;
                         dataS(scansAdded+1).scanArray = single(dataS(scansAdded+1).scanArray)./(rescaleSlope*scaleSlope);
                     end
