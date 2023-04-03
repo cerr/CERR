@@ -1,25 +1,15 @@
 {
-
-"strNameToLabelMap" : [
-{"structureName": "Liver",
-  "value": 1},
-{"structureName": "Bowel_lg",
-  "value": 2},
-{"structureName": "Bowel_sm",
-  "value": 3},
-{"structureName": "Duostomach",
-  "value": 4}
-],
+"input":{    
         
-"scan": [{
+    "scan": [{
 
-         "identifier" : {"studyDate":"first"}, 
+         "identifier" : {"seriesDate":"first"}, 
          "view" : ["axial"],
          "crop" : {     
                     "method": "crop_pt_outline",
                     "params": { "structureName": "generated_pt_outline",
                                 "outStrName":"generated_pt_outline",
-	                            "saveStrToPlanCFlag": 0,
+	                        "saveStrToPlanCFlag": 1,
                                 "outlineThreshold": 0.03,
                                 "normFlag": 1},
                                 "operator": ""
@@ -37,13 +27,13 @@
          "channels" :{"imageType": "original", "slice": "current"}
        },
        {
-        "identifier":{"studyDate":"last"},
+        "identifier":{"seriesDate":"last"},
         "view" : ["axial"],
         "crop": {
                     "method": "crop_pt_outline",
                     "params": { "structureName": "generated_pt_outline",
                                 "outStrName":"generated_pt_outline",
-	                            "saveStrToPlanCFlag": 0,
+	                        "saveStrToPlanCFlag": 1,
                                 "outlineThreshold": 0.03,
                                 "normFlag": 1},
                     "operator": ""
@@ -61,27 +51,33 @@
         "channels": {"imageType":"original", "slice": "current"}
        }
  ],
+ "structure": {
+     "strNameToLabelMap" : [
+            {"structureName": "Liver",
+             "value": 1},
+            {"structureName": "Bowel_lg",
+            "value": 2},
+            {"structureName": "Bowel_sm",
+             "value": 3},
+            {"structureName": "Duostomach",
+            "value": 4}]
+ }
+},
 
- "output":{
+"output":{
     "labelMap":{
-   
- "inputStrNameToLabelMap" :[ 
- {"structureName": "Liver","value": 1,
-  "assocScanIdentifier":{"assocStructure":["Liver", "Bowel_lg", "Bowel_sm", "Duostomach"]}},
- {"structureName": "Bowel_lg","value": 2,
-  "assocScanIdentifier":{"assocStructure":["Liver", "Bowel_lg", "Bowel_sm", "Duostomach"]}},
- {"structureName": "Bowel_sm","value": 3,
-  "assocScanIdentifier":{"assocStructure":["Liver", "Bowel_lg", "Bowel_sm", "Duostomach"]}},
- {"structureName": "Duostomach","value": 4,
-  "assocScanIdentifier":{"assocStructure":["Liver", "Bowel_lg", "Bowel_sm", "Duostomach"]}}
- ],
-
+        "strNameToLabelMap":[ 
+                {"structureName": "Liver","value": 1},
+                {"structureName": "Bowel_lg","value": 2},
+                {"structureName": "Bowel_sm","value": 3},
+                {"structureName": "Duostomach","value": 4}
+        ]
+    }
+},
 
 "passedScanDim" : "3D",
 
-"structAssocScan": {"identifier": {"studyDate":"last"}},
-
-"batchSize" : 1,
+"outputAssocScan": {"identifier": {"studyDate":"last"}},    
 
 "reference" : ""
 }
