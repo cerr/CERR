@@ -119,7 +119,12 @@ if iscell(planC)
                 exportScan = 1;
                 if strcmpi(inputType,'structure')
                     indexS = planC{end};
+                    if isfield(inputS.structure,'name')
                     strNameC = inputS.structure.name;
+                    elseif isfield(inputS.structure,'strNameToLabelMap')
+                        strNameC = ...
+                            {inputS.structure.strNameToLabelMap.structureName};
+                    end
                     if ~iscell(strNameC)
                         strNameC = {strNameC};
                     end
@@ -129,7 +134,8 @@ if iscell(planC)
                     strC = {planC{indexS.structures}.structureName};
                     strNumV = nan(1,length(strNameC));
                     for nStr = 1:length(strNameC)
-                        strNumV(nStr) = getMatchingIndex(strNameC,strC,'EXACT');
+                        strNum = getMatchingIndex(strNameC{nStr},strC,'EXACT');
+                        strNumV(nStr) = strNum(1);
                     end
                     assocScanV = getStructureAssociatedScan(strNumV,planC);
                     skipIdxV = ismember(assocScanV,scanNumV);
@@ -209,7 +215,13 @@ else
                     exportScan = 1;
                     if strcmpi(inputType,'structure')
                         indexS = planC{end};
-                        strNameC = inputS.structure.name;
+                        if isfield(inputS.structure,'name')
+                            strNameC = inputS.structure.name;
+                        else
+                            if isfield(inputS.structure,'strNameToLabelMap')
+                                strNameC = {inputS.structure.strNameToLabelMap.structureName};
+                            end
+                        end
                         if ~iscell(strNameC)
                             strNameC = {strNameC};
                         end
@@ -219,7 +231,8 @@ else
                         strC = {planC{indexS.structures}.structureName};
                         strNumV = nan(1,length(strNameC));
                         for nStr = 1:length(strNameC)
-                            strNumV(nStr) = getMatchingIndex(strNameC,strC,'EXACT');
+                            strNum = getMatchingIndex(strNameC{nStr},strC,'EXACT');
+                            strNumV(nStr) = strNum(1);
                         end
                         assocScanV = getStructureAssociatedScan(strNumV,planC);
                         skipIdxV = ismember(assocScanV,scanNumV);
