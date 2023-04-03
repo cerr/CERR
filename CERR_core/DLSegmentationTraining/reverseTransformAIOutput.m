@@ -13,7 +13,8 @@ preserveAspectFlag = 0;
 scanOptS = userOptS.input.scan(scanNum);
 
 %% Get output type
-output = userOptS.output;
+outputsC = fieldnames(userOptS.output);
+output = outputsC{1};
 
 %% Resize/pad mask to original dimensions
 

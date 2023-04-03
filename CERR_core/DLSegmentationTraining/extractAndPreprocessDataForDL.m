@@ -499,7 +499,7 @@ for scanIdx = 1:numScans
         %affineOutM = getAffineMatrixforTransform(affineOutM,operation,varargin);
     else % case: 1 view, 'axial'
         viewOutC = {scanC{scanIdx}};
-        maskOutC{scanIdx} = {maskC{scanIdx}};
+        maskOutC{scanIdx} = {maskC(scanIdx)};
         cropStrC = {cropStr3M};
     end
     
