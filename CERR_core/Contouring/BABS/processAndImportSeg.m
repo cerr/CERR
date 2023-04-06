@@ -98,6 +98,9 @@ end
             idC = fieldnames(idS);
             if ~isempty(idC)
                 origScanNum = getScanNumFromIdentifiers(identifierS,planC);
+                if ismember(origScanNum,scanNumV)
+                    origScanNum = find(origScanNumV==origScanNum);
+                end
             else
                 origScanNum = 1; %Assoc with first scan by default
             end
