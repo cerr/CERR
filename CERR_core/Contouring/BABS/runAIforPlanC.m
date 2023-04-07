@@ -120,13 +120,13 @@ if length(algorithmC) > 1 || ...
     createSessionFlag = false;
     for k=1:length(algorithmC)
 
-        if nargin>=9 && ~any(isnan(varargin{2}))
+        if nargin>=9 && all(isnumeric(varargin{2})) && ~any(isnan(varargin{2})) 
             inputScanNumV = varargin{2};
         else
             inputScanNumV = [];
         end
 
-        if nargin>=10 && ~any(isnan(varargin{3}))
+        if nargin>=10 && all(isnumeric(varargin{3})) && ~any(isnan(varargin{3}))
             outputScanNum = varargin{3};
         else
             outputScanNum = [];
