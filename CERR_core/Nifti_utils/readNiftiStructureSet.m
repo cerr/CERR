@@ -1,4 +1,4 @@
-function [mask3M,planC] = readNiftiStructureSet(ssFilename,ssList,...
+function [label3M,planC] = readNiftiStructureSet(ssFilename,ssList,...
                           strNameC,assocScan,planC)
 % Read NIfTI structure set images, stored as one bit per structure, 
 % allowing for overlapping structures 
@@ -54,12 +54,14 @@ for nStr = 1:length(strNameC)
     end
 
     %Import to planC
-    label3M  = flip(label3M,3);
-    mask3M = label3M == nStr;
     if exist('assocScan','var') && ~isempty(assocScan)
+        flipLabel3M  = flip(label3M,3);
+        mask3M = flipLabel3M == nStr;
         planC = maskToCERRStructure(mask3M, 0, assocScan, strNameC{nStr}, planC);
     end
 
 end
+label3M  = flip(label3M,3);
+
 
 end
