@@ -22,7 +22,7 @@ tic,
 toc
 
 % Convert to lower case
-dirsToImportC = lower({dirsInCurDir.fullpath});
+dirsToImportC = {dirsInCurDir.fullpath};
 if isempty(dirsToImportC)
     dirsToImportC = {source};
 end
