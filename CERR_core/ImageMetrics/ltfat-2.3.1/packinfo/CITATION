@@ -1,0 +1,37 @@
+To cite LTFAT in publications please use:
+
+    Peter L. Søndergaard, Bruno Torrésani, Peter Balazs. The Linear Time-Frequency Analysis Toolbox.
+    International Journal of Wavelets, Multiresolution Analysis and Information Processing, 10(4), 2012.
+
+A BibTex entry for LaTex users:
+
+@article{ltfatnote015,
+    author = "Peter L. S{\o}ndergaard and Bruno Torr\'esani and Peter Balazs",
+    title = {{The Linear Time Frequency Analysis Toolbox}},
+    journal = "International Journal of Wavelets, Multiresolution Analysis and Information Processing",
+    year = 2012,
+    volume = 10,
+    number = 4,
+    doi = "10.1142/S0219691312500324"
+}
+
+and/or
+
+    Zdeněk Průša, Peter L. Søndergaard, Nicki Holighaus, Christoph Wiesmeyr, Peter Balazs.
+    The Large Time-Frequency Analysis Toolbox 2.0. Sound, Music, and Motion, Lecture Notes in Computer Science 2014, pp 419-442
+
+A BibTex entry for LaTex users:
+
+@incollection{ltfatnote030,
+    year={2014},
+    isbn={978-3-319-12975-4},
+    booktitle={Sound, Music, and Motion},
+    series={Lecture Notes in Computer Science},
+    editor={Aramaki, Mitsuko and Derrien, Olivier and Kronland-Martinet, Richard and Ystad, S{\o}lvi},
+    title={{The Large Time-Frequency Analysis Toolbox 2.0}},
+    publisher={Springer International Publishing},
+    author={Pr\r{u}\v{s}a, Zden\v{e}k and S{\o}ndergaard, Peter L. and Holighaus, Nicki and Wiesmeyr, Christoph and Balazs, Peter},
+    pages={419-442},
+    url={{http://dx.doi.org/10.1007/978-3-319-12976-1_25}},
+    doi={{10.1007/978-3-319-12976-1_25}},
+}
