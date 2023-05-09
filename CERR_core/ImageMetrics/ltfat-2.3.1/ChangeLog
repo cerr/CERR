@@ -1,0 +1,547 @@
+Version 2.3.1 13/06 2018
+	* multidgtrealmp: Introduced 2 additional MP variants
+	* Fixed Matlab 2018a MEX compilation issue
+	* Bug fixes:
+	multidgtrealmp: 'pedanticsearch' option now works correctly with 'freqinv'
+	ifilterbank: Fixed the multichannel issue
+	Removed symbolic link project.bib preventing successful installation in Octave 4.4 on Windows.
+	Re-enabled compilation of polyboolclipper in the Octave package.
+
+Version 2.3.0 10/04 2018
+	* New function for computing matching pursuit in DGT: multidgtrealmp
+
+	* Matching pursuit and orthogonal matching pursuit for general frames 
+	  (for small problems): franamp
+
+	* ltfat_inferno is now the default colormap.
+
+Version 2.2.1 14/12 2017
+
+	* Added optional debiasing to franalasso.
+
+	* Some adjustments in audfilters.
+
+	* Abandoned nargchk and narginchk. They are deprecated in recent Matlab.
+
+	* Fixed char to number conversion warning in wavload occuring on Octave
+
+Version 2.2.0 24/12 2016
+    * New Gabor window generating functions: ptpfun, ptpfundual, pebfun, pebfundual
+
+    * New filterbank functions: filterbankscale, ifilterbankiter
+
+    * New window and filter generating functions: freqwin, freqfilter
+
+    * New functions for changing DGT phase convention: phaselockreal, phaseunlockreal
+
+    * Included new colormaps: ltfat_inferno, ltfat_magma, ltfat_plasma,
+                              ltfat_viridis, ltfat_nicecolormap
+
+    * erbfilters and audfilters can now generate Gammatone and other filters
+
+    * Removed deprication warnings in test_all_ltfat
+
+    * Mulaclab no longer requires the Image processing toolbox to be installed (for the
+      basic functionality).
+    
+    * Mulaclab now works on GNU Octave (thanks to Florent Jaillet).
+
+Version 2.1.2 x/3 2016
+    * Improved functions for DGT and DGTREAL phase reconstruction: constructphase, constructphasereal
+
+    * The backend library is now in separate repository: https://github.com/ltfat/libltfat
+      and it is included as a subtree in subdirectory libltfat/ (replacing src/)
+
+Version 2.1.1 x/10  2015
+    * New function for computing higher order phase derivatives: gabphasederiv
+
+    * New function doing the adjustable reassignment: gabreassignadjust
+
+    * New function for the Gabor transform phase reconstruction: constructphase, constructphasereal
+
+    * New filterbank-generating function: audfilters
+
+    * New generic quadratic TF distribution function: quadtfdist
+
+    * New functions for reading and writing wav files
+      (since wavread and wavwrite were removed in Matlab 2015b): wavload, wavsave
+      (taken from VOICEBOX http://www.ee.ic.ac.uk/hp/staff/dmb/voicebox/voicebox.html)
+
+    * Added 'nojava' flag to ltfatstart to optionally disable adding the
+      blockproc JAVA classes to the classpath.
+
+    * Updated the lBFGS method in frsynabs according to the new paper.
+
+    * Fixed bug in gabphasegrad which prevented it from being used with any
+      window other than Gaussian.
+
+    * Fixed bug in comp_ifilterbank_fftbl for non-painless filterbanks.
+
+Version 2.1.0 6/5  2015
+
+    * New filterbank-generating function: warpedfilters
+
+    * New filterbank spectrogram reassignment function: filterbankreassign
+
+    * ltfatarghelper is now also implemented as a MEX file.
+
+    * The block function can now handle synchronized simultaneous playback and
+      recording. E.g. {'rec','file.wav'} plays a wav file while recording.
+      This is different from the option 'playrec', which works the "other way"
+      i.e. it records and play the recorded.
+
+    * Function framebounds(...,'iter') now uses pcg to represent the inverse of
+      the frame operator when calculating the lowest eigenvalue using eigs.
+
+    * Added implementation of some quadratic time-frequency representations:
+      Rihaczek, Wigner-Ville
+
+    * Fixed #112 (Sourceforge): Octave package now compiles on Windows (mxe version) thanks to John Donoghue.
+
+    * Related to #111 (Sourceforge): Wavelet filters were hand-centered around the origin.
+
+    * comp_filterbank, comp_ifilterbank and ltfatarghelper can be compiled as MEX files on Octave.
+
+Version 2.0.1 8/10 2014 (released only at Octave-Forge)
+    * Included test suite.
+
+Version 2.0.0 7/10 2014
+    * Fixed bug in filterbankdual and filterbankrealdual for the uniform case.
+      Also the routines are now much faster.
+
+    * Added possibility to force treatment of a filterbank as a painless
+      filterbank using 'forcepainless' flag in filterbank(real)dual routines.
+
+    * Fixed bug in comp_ifilterbank MEX causing crashes for mixed type
+      filterbanks.
+
+    * Added implementation of dual-tree wavelet transform, general dual-tree
+      wavelet filterbanks and *M*-band transforms.
+
+    * New dual-tree wavelet filters: wfiltdt_qshift, wfiltdt_oddeven,
+      wfiltdt_optsym, wfiltdt_dden
+
+    * New regular DWT filters:  wfilt_symorth, wfilt_symtight
+
+    * wfilt_ functions now return filters in a format compatible with
+      LTFAT filter format (struct with .h and .offset fields).
+
+    * Closed #100 FEATURE: Add on-the-fly sample rate conversion to the
+      blockproc framework. It effectivelly allows recording and playback at
+      arbitrary sampling rates.
+
+    * Added support for cross-compilation (src/Makefile_crossmingw): 
+      Producing Windows binaries on an Unix system using MXE (http://mxe.cc/).
+      Works only with MEX files for Matlab.
+
+    * Blockproc. framework now supports any sampling rate from interval 4-96kHz
+      trough on-the-fly resampling in the background.
+
+    * Fixed compilation issue with gcc 4.7.
+
+Version 1.4.5 7/5 2014
+    * Phase locking in DGT ('timeinv' flag) moved to the C backend. It
+      was too slow in Octave.
+
+    * Added franabp - solving a basis pursuit problem
+      argmin ||c||_1 s.t. Fc = f
+      for an arbitrary frame F.
+
+    * The lambda parameter in franabp and franalasso can now be a vector.
+      => thresh acceps such lambda too.
+
+    * New demos to accompany the LTFAT 2.0 paper: demo_filterbanks,
+      demo_wavelets, demo_wfbt, demo_bpframemul, demo_phaseret
+
+    * New blockproc demo: demo_blockproc_effects
+
+    * blockproc framework can be now used offline without a single call to
+      the playrec MEX.
+
+    * Closed #49: blockwrite method. Allows blockwise storage of audio data
+      to a wav file.
+
+    * All wavelet routines were correctly included in the frames framework.
+      Correct computation of canonical dual and tight frames for undecimated
+      wavelet filterbanks.
+
+    * New wrapper frame types in the frames framework: erbletfb, cqtfb
+
+    * Removed demo_blockproc_pitchshift. It is now part of demo_blockproc_effects.
+
+    * Removed some esoteric wavelet filters.
+
+Version 1.4.4 25/2 2014
+    * Mostly bug fixes and doc updates.
+
+    * Reworked build system on Linux and Mac OS.
+
+    * Most of the code moved from Mex/Oct interfaces to the backend.
+
+    * The C code was revised: consistence of argument naming and order,
+      introduced ltfatInt data type for array lengths.
+
+    * New block processing demos: real-time CQT and Erblets
+      (fast enough only in Matlab).
+
+    * Added routines for calculating Gabor dual frames using convex optimization
+      (requires UNLocBoX http://unlocbox.sourceforge.net/).
+
+    * Improved usability of the blockproc GUI: Added possibility to set initial
+      window positions, capturing Ctrl-C shortcut.
+
+    * Closed #22: Wilson and MDCT transforms are now completely implemented in C.
+
+    * Renamed framematrix to frsynmatrix
+
+Version 1.4.3 22/11 2013
+    * Fixed bug in nsgabframebounds.m
+
+    * Added chirped Z-transform
+
+    * Block processing demos now work in Octave (on Linux)
+
+    * Backend library now uses C99 complex number format only
+
+    * Faster block processing via block_interface MEX function
+
+    * New zoomig features for blockplot
+
+Version 1.4.2 17/9 2013
+    * Added mexExecuter to speed up cell array handling in the backends
+
+    * All filterbank algorithms are now in the backend
+
+    * franalasso now packs the FISTA algorithm
+
+    * More block processing demos: pitch shifting
+
+    * Added the generalized Goertzel algorithm
+
+Version 1.4.1 18/7 2013
+    * Major change in the output format from the wfilt_ functions. If
+      a wfilt_ function generates a tigth frames, its two outputs are
+      now identical.
+
+    * Close #67, #68, Mex compilation now works on Mac
+
+    * Experimental filter backend added to handle filters defined on
+      the frequency side and on the time side using structs and
+      anonymous functions
+
+    * Limited support for fractional downsampling in filters and filterbanks
+
+    * erbfilters routine added to generate Erb-spaced filterbanks
+
+    * Fixed bug #6, demo_audioshrink now works again
+
+    * All DCT and DST routines now call FFTW directly.
+
+    * Fixed bug #55, FWT on Octave can now handle complex values
+
+    * Added floor23, floor234, ceil23 and ceil235 to find the next
+      nice number. Useful for constructing downsampling rates in
+      filterbanks.
+
+Version 1.4.0 3/6 2013
+    * All routines calling the C backend now support single precision
+
+    * Frames framework has been rewritten for greater speed using
+      anonymous functions
+
+    * New "operators" directory for the comming inclusion of more
+      operator classes
+
+    * First alpha version of the block processing framework introduced
+      in "blocks"
+
+    * The noshearlength routine computes next efficient transform length
+      for a Gabor system on a non-separable lattice
+
+    * The frames framework now support non-stationary Gabor systems
+
+    * Compilation of functions calling BLAS and LAPACK has been fixed,
+      so gabdual and gabtight now works in C on all platforms
+
+    * Better speed when computing many Hermite functions, support for
+      orthonormalization in the sampled continous case
+
+    * Fast and discrete fractional Fourier transform added
+
+    * cqt and erblett transforms added
+
+Version 1.3.1 5/4 2013
+    * Fixed compilation on Unix
+
+    * Wavelets now works in Octave
+
+    * Improved firwin featuring all the windows from the Nuttall paper
+
+Version 1.3.0 20/3 2013
+    * This is the first full release of the wavelets. Too many changes
+      to list here, but the major features are listed below:
+
+    * fwt - Fast wavelet transform
+
+    * fwt2 - 2D FWT with different layouts
+
+    * ufwt - Undecimated FWT
+
+    * wfbt - Wavelet filter bank tree
+
+    * wpfbt - Wavelet packet filter bank tree
+
+    * wpbest - Best basis search of a wavelet packet tree
+
+    * wfilt_ functions defines a lot of different possible wavelet and
+      scaling functions.
+
+    * Mex compiled code is now supported for Windows 64 bit (Windows
+      Vista, 7). Support for Windows 32 has been dropped.
+
+    * Color test image, lichenstein, added and jpeg color model
+      support in rgb2jpeg
+
+    * frame multipliers added with the usual functions, framemul,
+      framemulinv, framemuladj, framemuleigs and framemulappr
+
+Version 1.2.0 13/12 2012
+    * Full support for non-separable Gabor lattices with support in
+      the C backend.
+
+    * Improved non-stationary Gabor systems: bugfixes for system with
+      odd-length shifts, tester has been extented to cover all these
+      cases.
+
+    * Iterative analysis and synthesis for frames: franaiter and
+      frsyniter uses the conjugate gradients algorithm.
+
+    * The "frames" framework has changed so that each frame object
+      only includes one frame. This means that you will need to create
+      two frames if you want to perform analysis/synthesis with a
+      bi-orthogonal / canonical dual system. On the other hand, a lot of
+      duplication was removed.
+
+    * Small bugfixes: idgt2, gabdualnorm
+
+Version 1.1.2 2/10 2012
+    * Almost full support for non-separable Gabor laticces
+
+    * Multi-win support re-enabled in gabdual and gabtight
+
+    * Demos finally converted to new documentation system
+
+Version 1.1.1 30/3 2012
+    * Initial inclusion of the frames framework
+
+    * New and more flexible groupthresh
+
+    * Much improved framelasso and framegrouplasso replaces the old
+      lasso methods
+
+Version 1.0.0 16/6 2011
+    * Auditory scales: Erb, bark, mel
+
+    * Gammatone filters.
+
+    * Filterbanks with a full set of support functions.
+
+    * non-stationary Gabor frames with a full set of support
+      functions.
+
+    * rangecompress and rangeexpand does ulaw and alaw.
+
+    * cocktailparty test signal replaces older 'greasylong'
+
+    * plot functions for visualizing coefficients of all transforms.
+
+    * C implementation improved: speedup in gabdual and gabtight,
+      implementation of dgtreal, pfilt and ufilterbank.
+
+    * nextfastfft computes next larger problem size with a fast FFT.
+
+    * isgramreal can use BFGS method, requires external software.
+
+Version 0.98.2 25/3 2011
+    * Added C code for IDGT using FIR filters.
+
+    * WinXP compilation now works without LCC.
+
+Version 0.98.1 25/2 2011
+    * New iterative spectrogram reconstruction featuring the word "LTFAT".
+
+    * Features added to ltfatarghelper to support importing definitions
+    from aux. functions.
+
+Version 0.98 28/1 2011
+
+    * The flags 'freqinv' and 'timeinv' can be passed to the DGT, IDGT,
+    DGTREAL and IDGTREAL to select a time- or frequency-invariant phase.
+
+    * Three new functions to ramp a signal (create a smooth transition
+            from 0 to 1), RAMPUP, RAMPDOWN and RAMPSIGNAL.
+
+    * nuttall window added to FIRWIN. General cleanup of FIRWIN. If is
+    now possible to taper the window in the middle.
+
+    * Support for different normalization of the function in all
+    window functions. This is done through the function NORMALIZE.
+
+    * PGAUSS takes options for shifting the center frequency and
+    specifying the bandwidth, in both samples or Hz.
+
+    * PINKNOISE: Pink noise generator.
+
+    * ISGRAM: Spectrogram reconstruction using the classical iterative
+      method by Griffin and Lim.
+
+    * ELITISTHRESH: Elitist LASSO thresholding.
+
+    * PRECT and PSINC: periodic rectangular and periodic Sinc function.
+
+Version 0.97.2
+
+    * The GPC source code is now distributed with LTFAT. A popup
+      dialog has been added to mulaclab to explan the license
+      conditions.
+
+    * The algorithm for computing dgtreal with a FIR window is now
+      implemented in C.
+
+Version 0.97.1
+
+    * Support for Octave on Windows XP.
+
+    * It is now possible to specify various targets and commands in
+      ltfatmex.
+
+Version 0.97
+
+    * Toolbox is now built upon a standalone C library.
+
+    * The 'mulaclab' is a graphical user interface for
+      manipulating the spectrogram of a signal. The gui works only
+      in Matlab.
+
+    * All functions in the LTFAT C library are now available in
+      both single and double precision
+
+    * Compilation and interfaces for both Matlab and Octave
+      interfaces now works on Windows XP.
+
+    * It is now possible to supply a window described by a text
+      string or a cell array to all relevant functions. See the
+      help on gabwin or wilwin for a description of the
+      possibilities.
+
+    * Much better support for optional arguments in functions, and
+      for setting default at startup. See the function
+      ltfatsetdefaults, ltfatgetdefaults and ltfatarghelper
+
+    * GABRIESZBOUNDS: compute Gabor Riesz bounds for a Gabor Riesz
+      sequence.
+
+    * WIL2RECT and RECT2WIL: arrange Wilson coefficients in a
+      rectangular shape (with holes) at the correct position in
+      the TF-plane.
+
+    * PEVEN and PODD extracts the even and odd part of a signal.
+
+Version 0.96 12/1 2009 svn no 728
+    * Matlab MEX compilation now works under Windows. See the
+      instructions in the INSTALL file.
+
+    * Speed optimizations in the C-code used by DGT, DWILT and MDCT
+      and their inverses.
+
+    * New functions DGTREAL and IDGTREAL works with the positive
+      frequencies of the DGT of real valued signals.
+
+    * New functions FFTREAL computes only the positive frequencies of
+      the FFT of a real valued input signal.
+
+    * More systematic naming of functions:
+      CANDUAL -> GABDUAL
+      CANTIGHT -> GABTIGHT
+      MIXDUAL -> GAMIXDUAL
+      PROJDUAL -> GABPROJDUAL
+      GFBOUNDS -> GABFRAMEBOUNDS and GABRIESZBOUNDS
+      TF_ADAPTLASSO -> GABELITISTLASSO
+      TF_GROUPLASSO -> GABGROUPLASSO
+
+    * Reassignment is a method for sharpening the spectrogram. Support
+      for reassignment is included in the new function REASSIGN and an
+      easy to use plot RESGRAM.
+
+    * Easy to use plot for plotting instantantaneous frequency:
+      INSTFREQPLOT
+
+    * Three different methos for computing instantaneous time and
+      frequency: INSTTFDGT, INSTTFPHASE and INSTTFABS.
+
+    * General speedup of many of the SPREAD* routines based on speedup
+      in COL2DIAG and more efficient algorithms for sparse matrices.
+
+    * COL2DIAG provides the basic coordinate change needed for
+      efficient implementation of spreading function methods. COL2DIAG
+      has a C-implementation.
+
+    * New function WIL2RECT converts Wilson coefficients from the
+      standard compact layout to a more loose layout, where the
+      coefficients are appropriatly placed on the TF-plane. The
+      rectangular format is welll suited for visualizing Wilson
+      coefficients.
+
+    * The functionality of GFBOUNDS was split into two methods
+      computing either frame bounds or Riesz basis bounds
+
+    * Dynamic range in SGRAM and RESGRAM is now specified by the
+      'dynrange' parameter instead of previously 'range'.
+
+    * greasylong and doppler signals added.
+
+    * Periodic Heaviside function added, PHEAVISIDE.
+
+    * Simple exponential wave added as EXPMODE.
+
+Version 0.95 6/3 2008 svn no. 595
+
+    * DCT based resampling function.
+
+Version 0.94 24/10 2007 svn no. 556
+
+    * Numerically stable computation of Hermite functions. Thanks to
+      Thomasz Hrycak.
+
+    * gabmulappr (approximation of an operator by a Gabor multiplier)
+      now works with fast algorithm.
+
+    * group lasso shrinkage and adaptive lasso shrinkage added with an
+      example (examp_audioshrink)
+
+    * Removed all support of lattices in the spreading operator
+      routines, as this is not practically usefull.
+
+    * Special support in candual for windows shorter than the number
+      of channels.
+
+    * The configure style system has been removed. Use ltfatmex instead.
+
+    * phaseplot now uses the phaselocked dgt by default.
+
+Version 0.93 10/8 2007 svn no. 504
+
+    * Easy compilation of Mex/Octave interfaces by 'ltfatmex' command
+
+    * Bug fixed for Wilson bases.
+
+    * Better support of choosing an alternative dimension for the
+      various transforms.
+
+    * fmax option added to sgram
+
+    * fftresample does Fourier interpolation
+
+    * phaseplot changed to always do full STFT
+
+    * moved to GPL v 3.0 license
