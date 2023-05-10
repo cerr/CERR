@@ -1,0 +1,12 @@
+# To run this makefile, you must provide your system specific EXT and MATLABROOT
+# variables on the command line e.g.:
+#
+# make -f Makefile_mingw64 MATLABROOT="C:\Program Files\MATLAB\R2011b"  EXT=mexw64 ARCH=win64
+
+MATLABROOT?=C:\Program Files\MATLAB\R2011b
+EXT?=mexw64
+ARCH?=win64
+
+include Makefile_unix
+
+

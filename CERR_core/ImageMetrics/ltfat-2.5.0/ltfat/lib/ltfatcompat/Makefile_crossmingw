@@ -1,0 +1,141 @@
+# This makefile cross-compiles the whole LTFAT for Matlab on Windows 32 and 64 bit
+#
+# It was tested with M cross environment http://mxe.cc/
+#
+# To cross-compile, one must define paths to Matlab (and other libs) in MATLIBS variable
+# and a destination directory OUTDIR. The makefile creates a directory structure mirroring
+# the tree structure of LTFAT i.e. it creates subdirectories mex, thirdparty/Playrec and
+# thirdparty/PolygonClip
+#
+# The MATLIBS dir must contain:
+#    libfftw3-3.dll,libfft3f-3.dll obtainable from http://www.fftw.org/install/windows.html (select correct 32 or 64 bit)
+#   
+#   libmex.dll, libmx.dll libmwblas.dll and libmwlapack.dll from a Windows
+#    Matlab instalation path MATLAB/bin/{arch}, where arch is win64 or win32.
+#
+#   matrix.h, mex.h, tmwtypes.h from a Windows Matlab installation path
+#   MATLAB/extern/include
+#
+#   portaudio_x64.dll - I am using a version compiled on Windows, but it should be
+#   possible to cross-compile that too. Change the library name accordingly.
+#
+#   When cross compiling for 32bin windows, specify EXT=mexw32 in addition to other params.
+#
+#   !!!!!!!!!!!!!!!!!! NO SPACES IN PATHS !!!!!!!!!!!!!!!!!!!!!!!
+#
+#   Example 1: Cross compiling for 64 bit
+#
+#       make -C `pwd`/../libltfat/ltfatcompat -f Makefile_crossmingw CROSS=x86_64-w64-mingw32.shared- MATLIBS=/home/susnak/Dropbox/win64libs OUTDIR=/home/susnak/Dropbox/ltfat_win64 EXT=mexw64 PORTAUDIOLIB=portaudio_x64.dll
+#
+#   Example 2: Cross compiling for 32 bit 
+#
+#       make -C `pwd`/../libltfat/ltfatcompat -f Makefile_crossmingw CROSS=i686-w64-mingw32.shared- MATLIBS=/home/susnak/Dropbox/win64libs OUTDIR=/home/susnak/Dropbox/ltfat_win64 EXT=mexw64 PORTAUDIOLIB=portaudio_x64.dll
+#
+#
+
+ifndef MATLIBS
+   MATLIBS=/home/susnak/Dropbox/win64libs
+endif
+
+ifndef OUTDIR
+   OUTDIR=/home/susnak/Dropbox/ltfat_win64
+endif
+
+ifndef EXT
+	EXT=mexw64
+endif
+
+ifndef CROSS
+$(error CROSS variable should be set as a prefix to Mingw tools)
+endif
+export CROSS
+
+CC=$(CROSS)gcc
+CXX=$(CROSS)g++
+LD=$(CROSS)ld
+AR=$(CROSS)ar
+CP=cp
+MKDIR_P = mkdir -p
+ifndef
+PORTAUDIOLIB = portaudio_x64.dll
+endif
+
+include ../../mex/filedefs.mk
+
+
+MEXBASE = $(MEXBASESAFE) $(MEXBASEMORE)
+MEXS    = $(addsuffix .$(EXT),$(MEXBASE))
+
+MEXCOMPFLAGS=-I$(MATLIBS) -DMATLAB_MEX_FILE -DLTFAT_LARGEARRAYS -DNDEBUG
+
+ifndef POST2018a
+MEXCOMPFLAGS+=-DMATLAB_MEXCMD_RELEASE=R2017b
+else
+MEXCOMPCFLAGS+=-DMATLAB_MEXCMD_RELEASE=R2018a
+endif
+
+MEXLINKFLAGS=-static-libgcc -Wl,--dll -L$(MATLIBS) \
+			    -lmex -lmx -lmwlapack -lmwblas 
+
+all: clean makedirtree backlib $(MEXS) polygonclip playrec copyrest clean 
+
+backlib: 
+	make -C ../../libltfat clean
+	make -C ../../libltfat CROSS=$(CROSS) buildprefix=$(OUTDIR)/mex $(OUTDIR)/mex/libltfat.dll \
+		FFTWLIBS="-L$(MATLIBS) -lfftw3-3 -lfftw3f-3" BLASLAPACKLIBS="-L$(MATLIBS) -lmwblas -lmwlapack" \
+	   	OPTCFLAGS="-DMATLABFORTRAN -DLTFAT_LARGEARRAYS" MAKECMDGOALS=shared
+
+$(MEXS): CFLAGS=-O2 -shared -s -Wall -std=c99 -I../../libltfat/modules/libltfat/include -fvisibility=hidden 
+$(MEXS): %.$(EXT): ../../mex/%.c 
+	$(CC) $(CFLAGS) $(MEXCOMPFLAGS) $< -o $(OUTDIR)/mex/$@ -L$(OUTDIR)/mex -lfftw3-3 -lfftw3f-3 -lltfat $(MEXLINKFLAGS)
+
+polygonclip: CXXFLAGS=-s -O2 -Wall -shared -DMATLAB_MEX_FILE -DMATLAB_MEXCMD_RELEASE=R2017b -DNDEBUG
+polygonclip:
+	$(CXX) $(CXXFLAGS) -I../../thirdparty/polyboolclipper -I$(MATLIBS) \
+	  	../../thirdparty/polyboolclipper/polyboolmex.cpp ../../thirdparty/polyboolclipper/clipper.cpp \
+		-Wl,--dll -L$(MATLIBS) -lmex -lmx -static-libgcc -static-libstdc++ \
+	  	-o $(OUTDIR)/thirdparty/polyboolclipper/polyboolmex.$(EXT)
+
+playrec: CFLAGS=-static-libgcc -std=c99 -O2 -Wall -shared -DMATLAB_MEX_FILE -DMATLAB_MEXCMD_RELEASE=R2017b -DHAVE_PORTAUDIO -DNDEBUG
+playrec: 
+	$(CC) $(CFLAGS) -I../../thirdparty/Playrec -I../thirdparty -I$(MATLIBS) \
+	  	../../thirdparty/Playrec/mex_dll_core.c  ../../thirdparty/Playrec/pa_dll_playrec.c \
+	  	../../thirdparty/Playrec/ltfatresample.c  \
+		-L$(MATLIBS) -l:$(PORTAUDIOLIB) -lmex -lmx -static-libgcc \
+	  	-o $(OUTDIR)/thirdparty/Playrec/playrec.$(EXT)
+
+ltfatarghelper: CFLAGS=-static-libgcc -std=c99 -O2 -Wall -shared -DMATLAB_MEX_FILE -DNDEBUG -I../utils -I../../mex
+ltfatarghelper: 
+	$(CC) $(CFLAGS) $(MEXCOMPFLAGS) -o $(OUTDIR)/mex/ltfatarghelper.$(EXT) ../../mex/ltfatarghelper.c ../ltfatcompat/utils/list.c $(MEXLINKFLAGS)
+
+
+makedirtree:
+	$(MKDIR_P) $(OUTDIR)
+	$(MKDIR_P) $(OUTDIR)/mex
+	$(MKDIR_P) $(OUTDIR)/lib
+	$(MKDIR_P) $(OUTDIR)/thirdparty
+	$(MKDIR_P) $(OUTDIR)/thirdparty/Playrec
+	$(MKDIR_P) $(OUTDIR)/thirdparty/polyboolclipper
+
+copyrest:
+	$(CP) -f $(MATLIBS)/libfftw3-3.dll $(OUTDIR)/mex
+	$(CP) -f $(MATLIBS)/libfftw3f-3.dll $(OUTDIR)/mex
+	$(CP) -f $(MATLIBS)/$(PORTAUDIOLIB) $(OUTDIR)/thirdparty/Playrec
+
+s%.o: %.c 
+	$(CC) $(CFLAGS) -DLTFAT_SINGLE  -c $< -o s$*.o
+
+d%.o: %.c
+	$(CC) $(CFLAGS) -DLTFAT_DOUBLE  -c $< -o d$*.o
+
+%.o: %.c
+	$(CC) $(CFLAGS) -DLTFAT_DOUBLE  -c $<
+
+clean: 
+	$(RM) ../../mex/*.$(EXT)
+	$(RM) *.o
+	$(RM) *.a
+	$(RM) ../../thirdparty/Playrec/*.o
+	$(RM) ../../thirdparty/PolygonClip/*.o
+
+.PHONY: all clean makedirtree copyrest
