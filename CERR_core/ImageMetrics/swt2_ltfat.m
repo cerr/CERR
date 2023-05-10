@@ -24,7 +24,7 @@ swv = swa;
 for i = 1:J
 
     % Apply along cols
-    cols = ufwtpu(img2D,w,J,'noscale');
+    cols = ufwt(img2D,w,J,'noscale');
 
     % Apply along rows
     cols_L = squeeze(cols(:,1,:)).';
