@@ -1,0 +1,66 @@
+# Only .mex, .oct and .m files from the current directory will be copied
+# to the target installaction directory
+targets = oct playrec polyboolclipper
+
+CC=@CC@
+CXX=@CXX@
+
+export CC
+export CXX
+
+ifeq (@have_libportaudio@,1)
+	export HAVE_PORTAUDIO=1
+endif
+
+# Disables compilation of MEX files. They cause trouble
+# with missing help.
+export NOMEX=1
+
+ifeq ($(OS),Windows_NT)
+	# Removes -fPIC from CFLAGS
+	export MINGW=1
+	export OPTCXXFLAGS=-DLTFAT_BUILD_STATIC
+	# If OS==Windows_NT, the makefiles use Windows commands for
+	# file copy, delete and directory creation.
+	# To avoid that and fallback to posix compatible commands
+	# we temporarily redefine OS.
+	export OS=NotWindows_NT
+endif
+
+.PHONY: all oct playrec postbuild
+
+all: $(targets)
+
+oct:
+	# Compile the backend lib, no dependency is resolved here since we compile
+	# a static library
+	$(MAKE) -f Makefile_libltfat build/libltfat.a OPTCFLAGS=-DLTFAT_LARGEARRAYS
+	# Copy to the common place.
+	mv build/libltfat.a ../lib/
+	# Compile oct and mex files
+	$(MAKE) -C ../oct -f Makefile_unix 
+	# Do postbuild explicitly so it is not called before
+	# oct files are finished
+	$(MAKE) postbuild
+
+playrec:
+	$(MAKE) -C ../thirdparty/Playrec -f Makefile_unixoct
+	mv ../thirdparty/Playrec/playrec.mex .
+
+polyboolclipper:
+	$(MAKE) -C ../thirdparty/polyboolclipper -f Makefile_unixoct
+	mv ../thirdparty/polyboolclipper/polyboolmex.mex .
+
+postbuild:
+	# OCT files here
+	mv ../oct/*.oct .
+	# mv ../oct/*.m .
+	# Compilation of MEX files has been disabled
+	# mv ../oct/*.mex .
+	# Delete corresponding m-files
+	ls -1 *.oct | cut -d . -f 1 | xargs -I {} rm -f ../inst/comp/{}.m
+	# ls -1 *.mex | cut -d . -f 1 | xargs -I {} rm -f ../inst/comp/{}.m
+	# rm -f ../inst/ltfatarghelper.m
+	## Copy extra help files for mex files
+	#ls -1 *.mex | cut -d . -f 1 | xargs -I {} cp ../oct/mexhelp/{} ./{}.m
+
