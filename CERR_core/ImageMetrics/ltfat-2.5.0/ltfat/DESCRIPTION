@@ -1,0 +1,9 @@
+Name: ltfat
+Version: 2.5.0
+Date: 2022-05-23
+Author: Zdenek Prusa,Peter Soendergaard,Clara Hollomey,Nicki Holighaus,Christoph Wiesmeyr,Peter Balazs,Bruno Torresani
+Categories: Image
+Title: Large Time Frequency Analysis Toolbox
+Url: https://github.com/ltfat/ltfat
+Description: Open source toolbox for audio signal processing and harmonic analysis.
+License: LGPLv3+
