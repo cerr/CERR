@@ -1,0 +1,61 @@
+# To run this makefile, you must provide your system specific EXT and MATLABROOT
+# variables on the command line e.g.:
+#
+# make -f Makefile_mingw64 MATLABROOT="C:\Program Files\MATLAB\R2011b"  EXT=mexw64 ARCH=win64
+
+ifndef MATLABROOT
+  $(warning MATLABROOT variable is undefined. Using default MATLABROOT="C:\Program Files\MATLAB\R2011b" )
+  MATLABROOT=C:\Program Files\MATLAB\R2011b
+endif
+
+ifndef EXT
+  $(warning EXT variable is undefined. Using default EXT=mexw64 )
+  EXT=mexw64
+endif
+
+ifndef ARCH
+  $(warning ARCH variable is undefined. Using default ARCH=win64 )
+  ARCH=win64
+endif
+
+ifndef DFFTW
+   DFFTW=-lfftw3-3
+endif
+
+ifndef SFFTW
+   SFFTW=-lfftw3f-3
+endif
+
+CFLAGS=-shared -s -Wall -std=c99 -I../libltfat/modules/libltfat/include -fvisibility=hidden -DLTFAT_LARGEARRAYS 
+
+ifndef POST2018a
+CFLAGS+=-DMATLAB_MEXCMD_RELEASE=R2017b
+else
+CFLAGS+=-DMATLAB_MEXCMD_RELEASE=R2018a
+endif
+
+# the following adds parameters to CFLAGS
+include ../libltfat/comptarget.mk
+
+include filedefs.mk
+include ../libltfat/ostools.mk
+
+MEXBASE = $(MEXBASESAFE) $(MEXBASEMORE)
+MEXS    = $(addsuffix .$(EXT),$(MEXBASE))
+
+MEXCOMPFLAGS=-I"$(MATLABROOT)\extern\include" 
+MEXLINKFLAGS=-static-libgcc -Wl,--dll -L"$(MATLABROOT)\bin\$(ARCH)" \
+			 -lmex -lmx -lmwlapack -lmwblas 
+
+all: $(MEXS)
+
+$(MEXS): %.$(EXT): %.c 
+	$(CC) $(CFLAGS) $(MEXCOMPFLAGS) $< -o $@ -L./ $(DFFTW) $(SFFTW) -lltfat $(MEXLINKFLAGS)
+
+ltfatarghelper.$(EXT):
+	$(CC) $(CFLAGS) $(MEXCOMPFLAGS) -o $@ ltfatarghelper.c ../libltfat/ltfatcompat/utils/list.c -lc -lm $(MEXLINKFLAGS)
+
+clean: 
+	$(RM) *.$(EXT)
+
+.PHONY: all clean

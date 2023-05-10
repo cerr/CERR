@@ -1,0 +1,28 @@
+# Use GNU Make to process this file.
+MKOCTFILE ?= mkoctfile
+
+ifndef EXT
+  EXT=mex
+endif
+
+ifndef PORTAUDIO
+  ifdef HAVE_PORTAUDIO
+    PORTAUDIO=-lportaudio
+  endif
+endif
+
+include ../../libltfat/ostools.mk
+
+ADDITIONALFLAGS = -L. $(PORTAUDIO) -I. -DIS_OCTAVE
+ifdef HAVE_PORTAUDIO
+  ADDITIONALFLAGS += -DHAVE_PORTAUDIO
+endif
+
+all:
+	$(MKOCTFILE) -Wall -mex mex_dll_core.c pa_dll_playrec.c ltfatresample.c \
+	             $(ADDITIONALFLAGS)	-o playrec.$(EXT)
+
+clean:
+	$(RM) *.o *.$(EXT)
+
+.PHONY: all clean
