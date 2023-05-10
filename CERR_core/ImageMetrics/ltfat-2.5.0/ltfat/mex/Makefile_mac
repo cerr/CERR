@@ -1,0 +1,62 @@
+# To run this makefile, you must provide the EXT and MATLABROOT
+# variables on the command line, i.e. as in
+#
+# make -f Makefile_unix MATLABROOT=/usr/local/MATLAB/R2011a  EXT=$(mexext)
+
+ifndef MATLABROOT
+  $(warning MATLABROOT variable is undefined. Using default MATLABROOT="Applications/MATLAB_R2013a.app/")
+  MATLABROOT=Applications/MATLAB_R2013a.app/
+endif
+
+ifndef EXT
+  $(warning EXT variable is undefined. Using default EXT=mexa64)
+  EXT=mexmaci64
+endif
+
+ifndef ARCH
+  $(warning ARCH variable is undefined. Using default ARCH=maci64 )
+  ARCH=maci64
+endif
+
+ifndef DFFTW
+   DFFTW=-lfftw3
+endif
+
+ifndef SFFTW
+   SFFTW=-lfftw3f
+endif
+
+
+CFLAGS=-shared -fPIC -Wall -std=c99 -DMATLAB_MEX_FILE -DLTFAT_LARGEARRAYS -DMATLAB_MEXCMD_RELEASE=R2017b
+SEARCHPATHS=-I../libltfat/modules/libltfat/include -I$(MATLABROOT)/extern/include 
+
+# the following adds parameters to CFLAGS
+include ../libltfat/comptarget.mk
+
+include filedefs.mk
+
+MEXBASE = $(MEXBASESAFE) $(MEXBASEMORE) 
+MEXS     = $(addsuffix .$(EXT),$(MEXBASE))
+
+LINKFLAGS=-L"$(MATLABROOT)/bin/$(ARCH)" \
+		  -lmex -lmx -lmwblas -lmwlapack $(DFFTW) $(SFFTW) 
+		  
+# -L../lib -l:libltfat.a does not work with clang
+LTFATLIBSTATIC=../lib/libltfat.a
+
+# Setting relative paths 
+#LTFATLIBDYNAMIC=-L../lib -lltfat -lltfatf -Wl,-R,'$$ORIGIN/../lib'
+ 
+LTFATLIB=$(LTFATLIBSTATIC) -lc -lm 
+
+all: $(MEXS)
+
+%.$(EXT): %.c Makefile_unix config.h
+	$(CC) $(CFLAGS) $(SEARCHPATHS) -o $@ $< $(LTFATLIB) $(LINKFLAGS) 
+
+
+clean:
+	-rm *.o
+	-rm *.$(EXT)
+
+.PHONY: all clean

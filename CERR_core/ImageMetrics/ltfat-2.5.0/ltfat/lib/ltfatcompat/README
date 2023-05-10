@@ -1,0 +1,10 @@
+This directory contains the source for the C-library.
+
+On Unix, type
+
+  make
+
+to compile the C-library. The library is called libltfat.a
+
+
+

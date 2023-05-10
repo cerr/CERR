@@ -1,0 +1,23 @@
+# Use MinGW Make to process this file. Y must provide your sytem system specific MATLABROOT
+# variable on the command line e.g.:
+#
+# make -f Makefile_mingw64 MATLABROOT="C:\Program Files\MATLAB\R2011b" ARCH=win64
+#
+# REMARK: When compiling dll, all dependencies need to be resolved
+# This is not the case when compiled as a static lib.
+
+MATLABROOT?=C:\Program Files\MATLAB\R2011b
+ARCH?=win64
+
+MATLABLINKFLAGS=-L\"$(MATLABROOT)\bin\$(ARCH)\" $(MATLABLIBS) -lmwlapack -lmwblas
+OPTCFLAGS=-DMATLABFORTRAN -DDLL_EXPORT_SYMBOLS -DLTFAT_LARGEARRAYS
+
+.PHONY: all clean
+
+all: 
+	mingw32-make -C ..\..\libltfat build/libltfat.dll OPTCFLAGS="$(OPTCFLAGS)" BLASLAPACKLIBS="$(MATLABLINKFLAGS)" FFTWLIBS="-L../mex $(DFFTW) $(SFFTW)" MINGW=1
+	copy /Y ..\..\libltfat\build\libltfat.dll ..\..\mex
+
+clean:
+	mingw32-make -C ..\..\libltfat clean
+	del /Q /F ..\..\mex\libltfat.dll

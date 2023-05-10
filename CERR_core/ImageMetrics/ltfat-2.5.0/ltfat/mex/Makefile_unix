@@ -1,0 +1,77 @@
+# To run this makefile, you must provide the EXT and MATLABROOT
+# variables on the command line, i.e. as in
+#
+# make -f Makefile_unix MATLABROOT=/usr/local/MATLAB/R2011a  EXT=$(mexext)
+
+ifndef MATLABROOT
+  $(warning MATLABROOT variable is undefined. Using default MATLABROOT="/usr/local/MATLAB/R2011a/")
+  MATLABROOT=/usr/local/MATLAB/R2011a/
+endif
+
+ifndef EXT
+  $(warning EXT variable is undefined. Using default EXT=mexa64)
+  EXT=mexa64
+endif
+
+ifndef ARCH
+  $(warning ARCH variable is undefined. Using default ARCH=glnxa64 )
+  ARCH=glnxa64
+endif
+
+ifndef DFFTW
+   DFFTW=-lfftw3
+endif
+
+ifndef SFFTW
+   SFFTW=-lfftw3f
+endif
+
+# += to allow user defined values for CFLAGS
+CFLAGS+=-shared -fPIC -g -Wall -Wextra -std=c99 -DMATLAB_MEX_FILE -DLTFAT_LARGEARRAYS
+
+ifndef POST2018a
+CFLAGS+=-DMATLAB_MEXCMD_RELEASE=R2017b
+else
+CFLAGS+=-DMATLAB_MEXCMD_RELEASE=R2018a
+endif
+
+COMPTARGET?=release
+# the following adds parameters to CFLAGS
+include ../libltfat/comptarget.mk
+
+SEARCHPATHS=-I../libltfat/modules/libltfat/include -I$(MATLABROOT)/extern/include
+
+include filedefs.mk
+
+MEXBASE = $(MEXBASESAFE) $(MEXBASEMORE) 
+MEXS     = $(addsuffix .$(EXT),$(MEXBASE))
+
+# Without -Wl,--no-undefined, the compilation is always sucessfull
+# but one can get into problems in runtime.
+LINKFLAGS=-Wl,--no-undefined -L"$(MATLABROOT)/bin/$(ARCH)" \
+		  -lmex -lmx -lmwblas -lmwlapack $(DFFTW) $(SFFTW) '-Wl,-rpath,$$ORIGIN/../lib'
+#          -Wl,-rpath-link='$$ORIGIN/../lib'  \
+		  -Wl,-rpath='$$ORIGIN/../lib'
+		  
+# -L../lib -l:libltfat.a does not work with clang
+LTFATLIBSTATIC=../lib/libltfat.a
+
+# Setting relative paths 
+#LTFATLIBDYNAMIC=-L../lib -lltfat -lltfatf -Wl,-R,'$$ORIGIN/../lib'
+
+LTFATLIB=$(LTFATLIBSTATIC) -lc -lm
+
+# Use optimization by default
+all: $(MEXS) ltfatarghelper.$(EXT)
+
+%.$(EXT): %.c Makefile_unix config.h
+	$(CC) $(CFLAGS) $(SEARCHPATHS) -o $@ $< $(LTFATLIB) $(LINKFLAGS) 
+
+ltfatarghelper.$(EXT):
+	$(CC) $(CFLAGS) $(SEARCHPATHS) -o $@ ltfatarghelper.c ../lib/ltfatcompat/utils/list.c -lc -lm $(LINKFLAGS)
+
+clean:
+	-rm *.o
+	-rm *.$(EXT)
+
+.PHONY: all clean

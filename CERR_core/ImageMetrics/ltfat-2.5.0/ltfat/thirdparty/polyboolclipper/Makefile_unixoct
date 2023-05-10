@@ -1,0 +1,15 @@
+# Use GNU Make to process this file.
+MKOCTFILE ?= mkoctfile
+EXT?=mex
+
+include ../../libltfat/ostools.mk
+
+export CXXFLAGS := $(shell $(MKOCTFILE) -p CXXFLAGS) -std=c++11
+
+all:
+	$(MKOCTFILE) -Wall -mex polyboolmex.cpp clipper.cpp
+
+clean:
+	$(RM) *.o *.$(EXT)
+
+.PHONY: all clean
