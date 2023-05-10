@@ -1,0 +1,4 @@
+# Use GNU Make to process this file.
+# mingw32-make -f Makefile_mingw32
+
+include Makefile_unixoct

@@ -1,0 +1,38 @@
+ifndef MATLABROOT
+  $(warning MATLABROOT variable is undefined. Using default MATLABROOT="/Applications/MATLAB_R2013a.app/")
+  MATLABROOT=/Applications/MATLAB_R2013a.app/
+endif
+
+ifndef EXT
+  $(warning EXT variable is undefined. Using default EXT=mexmaci64)
+  EXT=mexmaci64
+endif
+
+ifndef ARCH
+  $(warning ARCH variable is undefined. Using default ARCH=maci64 )
+  ARCH=maci64
+endif
+
+# To run this makefile, you must provide your system specific EXT and MATLABROOT
+# variables on the command line e.g.:
+#
+# make -f Makefile_unix MATLABROOT="/usr/local/MATLAB/R2011a"  EXT=mexa64 ARCH=glnxa64
+
+
+include ../../libltfat/ostools.mk
+
+MEXTGT=polyboolmex.$(EXT)
+MEXSRC=polyboolmex.cpp clipper.cpp
+LIBS=-L. -L"$(MATLABROOT)/bin/$(ARCH)" -lmex -lmx -lm
+	  
+INCLUDES= -I"$(MATLABROOT)/extern/include" -I.
+CXXFLAGS=-fPIC -O3 -Wall -shared -DMATLAB_MEX_FILE -DMATLAB_MEXCMD_RELEASE=R2017b
+
+all:
+	$(CXX) $(CXXFLAGS) $(INCLUDES) $(MEXSRC) $(LIBS) -o $(MEXTGT) 
+
+clean:
+	$(RM) $(MEXTGT)
+
+.PHONY: all clean
+

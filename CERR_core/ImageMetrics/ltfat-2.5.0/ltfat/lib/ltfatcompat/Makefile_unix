@@ -1,0 +1,14 @@
+# To run this makefile, you must provide the ARCH and MATLABROOT
+# variables on the command line, i.e. as in
+#
+
+.PHONY: all clean
+
+all:
+	make -C ../../libltfat build/libltfat.a OPTCFLAGS=-DLTFAT_LARGEARRAYS
+	cp ../../libltfat/build/libltfat.a ../
+
+clean:
+	make -C ../../libltfat clean
+	@rm ../libltfat.a
+
