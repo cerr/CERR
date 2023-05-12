@@ -125,6 +125,8 @@ end
 %Update uniformized data.
 if strcmpi(stateS.optS.createUniformizedDataset,'yes')
     planC = updateStructureMatrices(planC, numStructs+1);
+else
+    planC = getRasterSegs(planC, numStructs + 1);
 end
 
 %Set varargout if requested.
