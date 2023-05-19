@@ -1,37 +1,25 @@
 {
-
-"register" : [{
-    "baseScan":{"identifier":{"imageType":"CT SCAN","assocStructure":"none"}},
-    "movingScan":{"identifier": {"assocStructure":["GTV"]}},
-    "tool": "plastimatch",
-    "method": "affine",
-    "inputCmdFile": "bspline_register_cmd_rigid.txt",
-    "copyStr": "GTV",
-    "renameStr":"GTV_copy"
-   },
-   {        
-    "baseScan":{"identifier": {"assocStructure":["GTV_copy"]}},
-    "movingScan":{"identifier":{"imageType":"PT SCAN"}},
-    "method": "none",
-    "copyStr": "GTV_copy",
-    "renameStr":"GTV_PET"
-   }
-],
+"dataFormat": "CERR",
 "input":{    
     "scan": {
          "identifier": {"imageType":"PT SCAN"}, 
          "view": ["axial"],
+         "resample": {"resolutionXCm": 0.195, "resolutionYCm":0.195, "method":"linear"},
          "crop": {     
                     "method": "crop_to_str_2d",
                     "params": { "structureName": "GTV_PET"},
                     "operator": ""
                   },
-         "resize": {"method": "nearest",
+         "resize": {"method": "pad2d",
             	    "size" : [32,32]
                     },
-         "channels" :{"imageType": "original", "slice": "current"}
-       },
-   "structure": {"name": "GTV_PET"}
+         "channels" :{ "imageType":{
+                                      "assignBkgIntensity": {"assignVal":0}
+                                   },
+                        "slice": "current"
+                     }
+    },
+    "structure": {"name": "GTV_PET"}
 },
 
 "passedScanDim" : "3D",    
