@@ -18,10 +18,11 @@
                                    },
                         "slice": "current"
                      }
-    }
+    },
+    "structure": {"name": "GTV_PET"}
 },
 
-"passedScanDim" : "2D",    
+"passedScanDim" : "3D",    
 
 "batchSize" : 1,
 
