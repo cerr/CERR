@@ -230,6 +230,11 @@ switch fieldname
             end
         end
         
+    case 'philipsImageUnits'
+        if attr.contains(537203723)
+            dataS = char(attr.getString(537203723,0));
+        end
+        
     case 'grid1Units'
         %modality = getTagValue(attr, '00080060');
         %modality = char(attr.getStrings(org.dcm4che3.data.Tag.Modality)); %vr=CS
@@ -887,7 +892,7 @@ switch fieldname
             %dataS = char(radiopharmaInfoObj.getString(1577074,0)); %TM
             %dataS = char(radiopharmaInfoObj.getStrings(org.dcm4che3.data.Tag.RadiopharmaceuticalStartDateTime));
             dataS = char(radiopharmaInfoObj.getString(1577080,0)); %DateTime
-            if ~isempty(dataS)
+            if length(dataS) > 8
                 dataS = dataS(9:end);
             else
                 dataS = char(radiopharmaInfoObj.getString(1577074,0)); %TM

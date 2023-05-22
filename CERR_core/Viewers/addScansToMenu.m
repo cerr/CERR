@@ -56,6 +56,8 @@ if numScans > maxScansPerGroup
                 isfield(planC{indexS.scan}(currentScan).scanInfo(1).DICOMHeaders,'SeriesDescription')
             seriesDescription = planC{indexS.scan}(currentScan).scanInfo(1)...
                 .DICOMHeaders.SeriesDescription;
+        elseif ~isempty(planC{indexS.scan}(currentScan).scanInfo(1).seriesDescription)
+            seriesDescription = planC{indexS.scan}(currentScan).scanInfo(1).seriesDescription;
         else
             seriesDescription = planC{indexS.scan}(currentScan).scanType;
         end
@@ -104,8 +106,8 @@ if numScans > maxScansPerGroup
             end
         end
         
-        scanDescription = planC{indexS.scan}(currentScan).scanInfo(1).scanDescription; %AI 5/9/17 Display series description    
-        scanTitle = [scanType,': ',scanDescription];
+        %scanDescription = planC{indexS.scan}(currentScan).scanInfo(1).scanDescription; %AI 5/9/17 Display series description    
+        scanTitle = [scanType,': ',seriesDescription];
 
         str2 = num2str(currentScan);
         if topMenuFlag

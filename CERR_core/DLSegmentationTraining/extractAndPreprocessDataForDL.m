@@ -19,7 +19,7 @@ function [scanOutC, maskOutC, origScanNumV, scanNumV, optS, coordInfoS, planC] =
 
 %% Get processing directives from optS
 filtS = optS.filter;
-regS = optS.register;
+regC = optS.register;
 scanOptS = optS.input.scan;
 resampleS = [scanOptS.resample];
 resizeS = [scanOptS.resize];
@@ -65,8 +65,9 @@ if ~exist('scanNumV','var') || isempty(scanNumV)
 
             % Copy structures required for registration/cropping
             copyStrsC = {};
-            if isfield(regS,'copyStr')
-                copyStrsC = [copyStrsC;regS.copyStr];
+            toCpyC = cellfun(@(x)isfield(x,'copyStr'),regC,'un',0);
+            if any([toCpyC{:}])
+                copyStrsC = [copyStrsC;regC([toCpyC{:}]).copyStr];
                 if ~iscell(copyStrsC)
                     copyStrsC = {copyStrsC};
                 end
@@ -106,52 +107,67 @@ end
 %% Register scans 
 indexS = planC{end};
 allStrC = {planC{indexS.structures}.structureName};
-if ~isempty(fieldnames(regS))
-    %Get base scan index
-    identifierS = regS.baseScan.identifier;
-    baseScanNum = getScanNumFromIdentifiers(identifierS,planC);
-    regScanNumV(1) = baseScanNum;
-    %Get moving scan index
-    identifierS = regS.movingScan.identifier;
-    movScan = getScanNumFromIdentifiers(identifierS,planC);
-    regScanNumV(2) = movScan;
-    %Get list of structures to deform
-    if isempty(copyStrsC) && isfield(regS,'copyStr')
-        copyStrsC = [regS.copyStr];
-        if ~iscell(copyStrsC)
-            copyStrsC = {copyStrsC};
-        end
+%Loop over registration steps
+for nReg = 1:length(regC)
+
+    if iscell(regC)
+        regS = regC{nReg};
+    else
+        regS = regC;
     end
 
-    %Handle pre-registered scans
-    if strcmp(regS.method,'none')
-        if isfield(regS,'copyStr')
-            if isfield(regS,'renameStr')
-                renameC = regS.renameStr;
-                if ~iscell(renameC)
-                    renameC = {renameC};
-                end
-            end
-            for nStr = 1:length(copyStrsC)
-                cpyStrV = getMatchingIndex(copyStrsC{nStr},allStrC,'exact');
-                assocScanV = getStructureAssociatedScan(cpyStrV,planC);
-                cpyStr = cpyStrV(assocScanV==regScanNumV(1));
-                dstStr = cpyStrV(assocScanV==regScanNumV(2));
-                if isempty(dstStr) && ~isempty(cpyStr)
-                    planC = copyStrToScan(cpyStr,regScanNumV(2),planC);
-                    if isfield(regS,'renameStr')
-                        planC{indexS.structures}(end).structureName = ...
-                            renameC{nStr};
-                    end
-                end
+    if ~isempty(fieldnames(regS))
+
+        %Get base scan index
+        identifierS = regS.baseScan.identifier;
+        baseScanNum = getScanNumFromIdentifiers(identifierS,planC);
+        regScanNumV(1) = baseScanNum;
+        %Get moving scan index
+        identifierS = regS.movingScan.identifier;
+        movScan = getScanNumFromIdentifiers(identifierS,planC);
+        regScanNumV(2) = movScan;
+        %Get list of structures to deform
+        if isempty(copyStrsC) && isfield(regS,'copyStr')
+            copyStrsC = [regS.copyStr];
+            if ~iscell(copyStrsC)
+                copyStrsC = {copyStrsC};
             end
         end
-    else
-        %Register scans
-        planC = registerScansForDLS(planC,regScanNumV,...
-            regS.method,regS);
+
+        %Handle pre-registered scans
+        if strcmp(regS.method,'none')
+            if isfield(regS,'copyStr')
+                if isfield(regS,'renameStr')
+                    renameC = regS.renameStr;
+                    if ~iscell(renameC)
+                        renameC = {renameC};
+                    end
+                end
+                for nStr = 1:length(copyStrsC)
+                    cpyStrV = getMatchingIndex(copyStrsC{nStr},allStrC,'exact');
+                    assocScanV = getStructureAssociatedScan(cpyStrV,planC);
+                    cpyStr = cpyStrV(assocScanV==regScanNumV(1));
+                    dstStr = cpyStrV(assocScanV==regScanNumV(2));
+                    if isempty(dstStr) && ~isempty(cpyStr)
+                        planC = copyStrToScan(cpyStr,regScanNumV(2),planC);
+                        if isfield(regS,'renameStr')
+                            planC{indexS.structures}(end).structureName = ...
+                                renameC{nStr};
+                        end
+                    end
+                    allStrC = {planC{indexS.structures}.structureName};
+                end
+            end
+        else
+            %Register scans
+            planC = registerScansForDLS(planC,regScanNumV,...
+                regS.method,regS);
+            allStrC = {planC{indexS.structures}.structureName};
+        end
+        copyStrsC = {};
     end
 end
+
 
 %% Get scan nos. matching identifiers
 if ~isempty(scanOptS)
@@ -208,9 +224,11 @@ UIDc = {planC{indexS.structures}.assocScanUID};
 for scanIdx = 1:numScans
         
     %Extract scan array from planC
-    scan3M = double(getScanArray(scanNumV(scanIdx),planC));
-    CTOffset = double(planC{indexS.scan}(scanNumV(scanIdx)).scanInfo(1).CTOffset);
-    scan3M = scan3M - CTOffset;
+    imageUnits = '';
+    if isfield(scanOptS(n),'scanUnits')
+        imageUnits = scanOptS(n).scanUnits;
+    end
+    scan3M = transformScanUnits(scanNumV(scanIdx),planC,imageUnits);
     
     %Extract masks from planC
     strC = {planC{indexS.structures}.structureName};
@@ -481,7 +499,7 @@ for scanIdx = 1:numScans
         %affineOutM = getAffineMatrixforTransform(affineOutM,operation,varargin);
     else % case: 1 view, 'axial'
         viewOutC = {scanC{scanIdx}};
-        maskOutC{scanIdx} = {maskC{scanIdx}};
+        maskOutC{scanIdx} = {maskC(scanIdx)};
         cropStrC = {cropStr3M};
     end
     

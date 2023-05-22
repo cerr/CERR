@@ -1,0 +1,39 @@
+{
+"dataFormat": "CERR",
+"input":{    
+    "scan": {
+         "identifier": {"imageType":"PT SCAN"}, 
+         "view": ["axial"],
+         "resample": {"resolutionXCm": 0.195, "resolutionYCm":0.195, "method":"linear"},
+         "crop": {     
+                    "method": "crop_to_str_2d",
+                    "params": { "structureName": "GTV_PET"},
+                    "operator": ""
+                  },
+         "resize": {"method": "pad2d",
+            	    "size" : [32,32]
+                    },
+         "channels" :{ "imageType":{
+                                      "assignBkgIntensity": {"assignVal":0}
+                                   },
+                        "slice": "current"
+                     }
+    },
+    "structure": {"name": "GTV_PET"}
+},
+
+"passedScanDim" : "3D",    
+
+"batchSize" : 1,
+
+"output":{   
+    "derivedImage":{ 
+                    "outputFormat" : "H5",
+                    "imageType": "FMISO"
+                   }
+},
+
+"outputAssocScan": {"identifier":{"imageType":"PT SCAN"}},    
+
+"reference" : ""
+}

@@ -2238,7 +2238,7 @@ switch upper(instr)
         if ~isempty(structureIndex)
             sliceCallBack('TOGGLESINGLESTRUCT',num2str(structAssocToScanV(structsToShow+structureIndex)))
         end
-        hMoreStruct = findobj('label', 'More Structures...');
+        hMoreStruct = findobj(stateS.handle.CERRStructMenu,'label', 'More Structures...');
         set(hMoreStruct,'checked','off')
 
 
