@@ -121,85 +121,102 @@ for nOut = 1:length(outputC)
             %Read output image
             outFmt = outputS.derivedImage.outputFormat;
             outputImgType = outputS.derivedImage.imageType;
-            imgPath = fullfile(sessionPath,'outputH5');
-            imgFile = dir([imgPath,filesep,'*.h5']);
-            outFile = fullfile(imgFile,DVFfile.name);
+            imgPath = fullfile(sessionPath,outFmt,'derivedImage');
+            imgFile = dir(imgPath);
+            imgFile(1:2) = [];
+
             switch(lower(outFmt))
+
                 case 'h5'
-                    img3M = h5read(outFile,'/scan'); %Dataset name for derived images?
-                otherwise
+
+                    %Get unique dataset names
+                    datasetsC = {};
+                    for nFile = 1:length(imgFile)  %Note: Assumes 3D output
+                        outFile =  fullfile(imgPath,imgFile(nFile).name);
+                        I = h5info(outFile);
+                        if ~ismember(I.Datasets,datasetsC)
+                            datasetsC{end+1} = I.Datasets;
+                        end
+
+                        %Read output
+                        img3M = h5read(outFile,['/',I.Datasets]);
+
+                        %Import to CERR as texture map
+                        indexS = planC{end};
+                        initTextureS = initializeCERR('texture');
+                        initTextureS(end+1).textureUID = createUID('texture');
+                        planC{indexS.texture} = ...
+                            dissimilarInsert(planC{indexS.texture},initTextureS);
+                        currentTexture = length(planC{indexS.texture});
+                        planC{indexS.texture}(currentTexture).textureUID = ...
+                            createUID('TEXTURE');
+
+                        %Get associated scan index
+                        identifierS = userOptS.outputAssocScan.identifier;
+                        idS = rmfield(identifierS,{'warped','filtered'});
+                        idC = fieldnames(idS);
+                        if ~isempty(idC)
+                            assocScanNum = getScanNumFromIdentifiers(identifierS,planC);
+                        else
+                            assocScanNum = 1; %Assoc with first scan by default
+                        end
+                        assocScanUID = planC{indexS.scan}(assocScanNum).scanUID;
+                        planC{indexS.texture}(currentTexture).assocScanUID = assocScanUID;
+
+                        %Get associated structure index
+                        sizeV = size(getScanArray(assocScanNum,planC));
+                        minc = 1;
+                        maxr = sizeV(1);
+                        uniqueSlicesV = 1:sizeV(3);
+                        if isfield(userOptS.input,'structure')
+                            strC = {planC{indexS.structures}.structureName};
+                            if isfield(userOptS.input.structure,'name')
+                                strName =  userOptS.input.structure.name;
+                            else
+                                if isfield(userOptS.input.structure,'strNameToLabelMap')
+                                    strName =  userOptS.input.structure.strNameToLabelMap.structureName;
+                                end
+                            end
+                            strIdx = getMatchingIndex(strName,strC,'EXACT');
+                            if ~isempty(strIdx)
+                                assocStrUID = planC{indexS.structures}(strIdx).strUID;
+                                planC{indexS.texture}(currentTexture).assocStructUID = assocStrUID;
+                                mask3M = getStrMask(strIdx,planC);
+                                [~,maxr,minc,~,~,~] = compute_boundingbox(mask3M);
+                                uniqueSlicesV = find(sum(sum(mask3M))>0);
+                            end
+                        end
+
+                        % Assign parameters based on category of texture
+                        planC{indexS.texture}(currentTexture).parameters = ...
+                            userOptS;
+                        planC{indexS.texture}(currentTexture).description = ...
+                            [algorithm,'_',I.Datasets];
+
+                        % Create Texture Scans
+                        [xValsV, yValsV] = ...
+                            getScanXYZVals(planC{indexS.scan}(assocScanNum));
+                        dx = median(diff(xValsV));
+                        dy = median(diff(yValsV));
+                        zV = zVals(uniqueSlicesV);
+                        regParamsS.horizontalGridInterval = dx;
+                        regParamsS.verticalGridInterval = dy;
+                        regParamsS.coord1OFFirstPoint = xVals(minc);
+                        regParamsS.coord2OFFirstPoint   = yVals(maxr);
+                        regParamsS.zValues  = zV;
+                        regParamsS.sliceThickness = ...
+                            [planC{indexS.scan}(assocScanNum).scanInfo(uniqueSlicesV).sliceThickness];
+                        assocTextureUID = planC{indexS.texture}(currentTexture).textureUID;
+
+                        %Save to planC
+                        planC = scan2CERR(img3M,outputImgType,'Passed',regParamsS,...
+                            assocTextureUID,planC);
+
+                    end
+
+                otherwise %TBD extend to support other formats
                     error('Invalid model output format %s.',outFmt)
             end
-
-            indexS = planC{end};
-            initTextureS = initializeCERR('texture');
-            initTextureS(end+1).textureUID = createUID('texture');
-            planC{indexS.texture} = ...
-                dissimilarInsert(planC{indexS.texture},initTextureS);
-            currentTexture = length(planC{indexS.texture});
-            planC{indexS.texture}(currentTexture).textureUID = ...
-                createUID('TEXTURE');
-
-            %Get associated scan index
-            identifierS = userOptS.outputAssocScan.identifier;
-            idS = rmfield(identifierS,{'warped','filtered'});
-            idC = fieldnames(idS);
-            if ~isempty(idC)
-                assocScanNum = getScanNumFromIdentifiers(identifierS,planC);
-            else
-                assocScanNum = 1; %Assoc with first scan by default
-            end
-            assocScanUID = planC{indexS.scan}(assocScanNum).scanUID;
-            planC{indexS.texture}(currentTexture).assocScanUID = assocScanUID;
-
-            %Get associated structure index
-            sizeV = size(getScanArray(assocScanNum,planC));
-            minc = 1;
-            maxr = sizeV(1);
-            uniqueSlicesV = 1:sizeV(3);
-            if isfield(userOptS.input,'structure')
-                strC = {planC{indexS.structures}.structureName};
-                if isfield(userOptS.input.structure,'name')
-                    strName =  userOptS.input.structure.name;
-                else
-                    if isfield(userOptS.input.structure,'strNameToLabelMap')
-                        strName =  userOptS.input.structure.strNameToLabelMap.structureName;
-                    end
-                end
-                strIdx = getMatchingIndex(strName,strC,'EXACT');
-                if ~isempty(strIdx)
-                    assocStrUID = planC{indexS.structures}(strIdx).strUID;
-                    planC{indexS.texture}(currentTexture).assocStructUID = assocStrUID;
-                    mask3M = getStrMask(strIdx,planC);
-                    [~,maxr,minc,~,~,~] = compute_boundingbox(mask3M);
-                    uniqueSlicesV = find(sum(sum(mask3M))>0);
-                end
-            end
-
-            % Assign parameters based on category of texture
-            planC{indexS.texture}(currentTexture).parameters = ...
-                userOptS;
-            planC{indexS.texture}(currentTexture).description = algorithm;
-
-            % Create Texture Scans
-            [xValsV, yValsV] = ...
-                getScanXYZVals(planC{indexS.scan}(assocScanNum));
-            dx = median(diff(xValsV));
-            dy = median(diff(yValsV));
-            zV = zVals(uniqueSlicesV);
-            regParamsS.horizontalGridInterval = dx;
-            regParamsS.verticalGridInterval = dy;
-            regParamsS.coord1OFFirstPoint = xVals(minc);
-            regParamsS.coord2OFFirstPoint   = yVals(maxr);
-            regParamsS.zValues  = zV;
-            regParamsS.sliceThickness = ...
-            [planC{indexS.scan}(assocScanNum).scanInfo(uniqueSlicesV).sliceThickness];
-            assocTextureUID = planC{indexS.texture}(currentTexture).textureUID;
-
-            %Save to planC
-            planC = scan2CERR(img3M,outputImgType,'Passed',regParamsS,...
-                assocTextureUID,planC);
-
 
         otherwise
             error('Invalid output type '' %s ''.',outType)
