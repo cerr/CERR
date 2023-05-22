@@ -74,7 +74,7 @@ switch(lower(method))
         else
             resizeMethod = 'pad2d';
         end
-        [scanOut3M, maskOut3M] = resizeScanAndMask(scan3M,mask3M,outputImgSizeV,resizeMethod,varargin);
+        [scanOut3M, maskOut3M] = resizeScanAndMask(scan3M,mask3M,outputImgSizeV,resizeMethod,varargin{:});
         
     case 'pad3d'
         
