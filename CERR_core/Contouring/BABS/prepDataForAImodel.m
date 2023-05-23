@@ -1,6 +1,6 @@
 function [activate_cmd,run_cmd,userOptS,outFile,origScanNumV,scanNumV,planC] = ...
     prepDataForAImodel(planC,fullSessionPath,algorithm,cmdFlag,newSessionFlag,...
-    containerPath,wrapperFunction,skipMaskExport,scanNumV)
+    containerPath,wrapperFunction,skipMaskExport,inputIdxS)
 % [activate_cmd,run_cmd,userOptS,outFile,scanNumV,planC] =
 % prepDataForSeg(planC,sessionPath,algorithm,cmdFlag,containerPath,...
 % wrapperFunction,batchSize)
@@ -33,8 +33,9 @@ function [activate_cmd,run_cmd,userOptS,outFile,origScanNumV,scanNumV,planC] = .
 % skipMaskExport (optional)
 %              - Set to false if model requires segmentation masks as input.
 %                Default: true.
-% scanNumV (optional)
-%              - Vector of scan nos. Default: Use scan identifiers from optS. 
+% inputIdxS (optional)
+%              - Dictionary of scan/structure nos. 
+%                Default: Use identifiers from optS. 
 %--------------------------------------------------------------------------------
 % AI, 09/21/2021
 
@@ -104,6 +105,22 @@ mkdir(modOutputPath);
 inputS = userOptS.input;
 inputC = fieldnames(inputS);
 
+inputScanNumV = [];
+inputStrV = [];
+if ~isempty(inputIdxS)
+    if isfield(inputIdxS,'scan')
+        val = inputIdxS.scan.scanNum;
+        if all(isnumeric(val)) && ~any(isnan(val))
+            inputScanNumV = val;
+        end
+    end
+    if isfield(inputIdxS,'structure')
+        val = inputIdxS.structure.strNum;
+        if all(isnumeric(val)) && ~any(isnan(val))
+            inputStrV = val;
+        end
+    end
+end
 
 %% Pre-process data and export to model input fmt
 if iscell(planC)
@@ -119,12 +136,15 @@ if iscell(planC)
                 exportScan = 1;
                 if strcmpi(inputType,'structure')
                     indexS = planC{end};
-                    if isfield(inputS.structure,'name')
-                    strNameC = inputS.structure.name;
+                    if ~isempty(inputStrV)
+                        strNameC = {planC{indexS.structures}(inputStrV).structureName};
+                    elseif isfield(inputS.structure,'name')
+                        strNameC = inputS.structure.name;
                     elseif isfield(inputS.structure,'strNameToLabelMap')
                         strNameC = ...
                             {inputS.structure.strNameToLabelMap.structureName};
                     end
+
                     if ~iscell(strNameC)
                         strNameC = {strNameC};
                     end
@@ -138,7 +158,7 @@ if iscell(planC)
                         strNumV(nStr) = strNum(1);
                     end
                     assocScanV = getStructureAssociatedScan(strNumV,planC);
-                    skipIdxV = ismember(assocScanV,scanNumV);
+                    skipIdxV = ismember(assocScanV,inputScanNumV);
                     strNumV = strNumV(~skipIdxV);
                     if sum(skipIdxV)==length(assocScanV)
                         exportScan = 0;
@@ -154,12 +174,16 @@ if iscell(planC)
                 end
 
                 if exportScan
+
                     %Pre-process data and export to model input fmt
                     fprintf('\nPre-processing data...\n');
+                    assocScanV = getStructureAssociatedScan(inputStrV,planC);
+                    keepIdxV = ismember(assocScanV,inputScanNumV);
+                    expStrV = inputStrV(keepIdxV);
                     [scanC, maskC, origScanNumV, scanNumV, userOptS,...
                         coordInfoS, planC] = ...
                         extractAndPreprocessDataForDL(userOptS,planC,...
-                        skipMaskExport,scanNumV);
+                        skipMaskExport,inputScanNumV,expStrV);
                 end
 
                 %Export to model input format
