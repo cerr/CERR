@@ -1,0 +1,27 @@
+{
+
+"structures": ["wholeScan"],
+
+"imageType": {
+  		  "Wavelets": {
+			    	       "Direction": "HHL",
+				           "Wavelets":"coif",
+				           "Index": "1",
+                           "Level": 1,
+                           "RotationInvariance": {
+				       						    "Dim": "3D",
+				       						    "AggregationMethod": "avg"
+				       					     }
+			 	     }
+	    },
+
+"settings": {		   
+
+                   "padding": [{
+                                "method": "periodic",  
+                                "size": [2,2,2] 
+			       }
+                              ]
+	    }
+
+}
