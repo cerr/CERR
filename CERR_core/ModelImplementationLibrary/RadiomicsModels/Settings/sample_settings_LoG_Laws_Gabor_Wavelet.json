@@ -1,0 +1,96 @@
+{
+
+"structures": ["Tumor_cpy"],
+
+"imageType": {
+
+  		  "LoG_IBSI": {
+		  			    "Sigma_mm": [3,3,3],
+		                  	    "CutOff_mm":[6,6,6]
+			  },
+			  
+	 	 "LawsEnergy": [{
+			    	   "Direction": "3d",
+				   "Type": "S5S5S5",
+				   "Normalize": "yes",
+			 	   "EnergyKernelSize": [3,3,3],
+				   "EnergyPadMethod": "mirror",
+               			   "EnergyPadSize" : [1,1,1]
+               			},
+               			{
+	       			    	   "Direction": "3d",
+	       				   "Type": "R5R5R5",
+	       				   "Normalize": "yes",
+	       			 	   "EnergyKernelSize": [3,3,3],
+	       				   "EnergyPadMethod": "mirror",
+	                      		   "EnergyPadSize" : [1,1,1]
+			 	},
+			 	{
+					"Direction": "3d",
+					"Type": "E5E5E5",
+					"Normalize": "yes",
+					"EnergyKernelSize": [3,3,3],
+				       "EnergyPadMethod": "mirror",
+				       "EnergyPadSize" : [1,1,1]
+			 	}],
+			 	
+		 "Gabor": {
+  		  		       "Radius_mm": 5,
+				       "Sigma_mm": 4,
+				       "Wavlength_mm": 8,
+                       		       "SpatialAspectRatio": 1.5,
+                       		       "Orientation":[30,60,90,120,150,180,210,240,270,300,330,360],
+                       		       "OrientationAggregation": "average",
+                       		       "ImagePlane": ["Axial","Sagittal","Coronal"],
+                       		       "PlaneAggregation": "average"
+			        },
+			        
+		 "Wavelets": {
+			    	       "Direction": "HHL",
+				       "Wavelets":"coif",
+				       "Index": "1",
+                           	       "Level": 1,
+                           	       "RotationInvariance": {
+				       						    "Dim": "3D",
+				       						    "AggregationMethod": "avg"
+				       					     }
+			 	     }	        
+	    },
+
+"settings": {		   
+
+
+ 		"resample": {
+				 	"resolutionXCm": 0.1,
+				 	"resolutionYCm": 0.1,
+				 	"resolutionZCm": 0.1,
+					"interpMethod": "linear"
+				  },
+				  
+  		"padding": [{
+                  		"cropToMaskBounds": "yes",
+                                "method": "expand",  
+                                "size": [6,6,6]
+			       }],
+			       	               
+                "firstOrder": { 
+                            		    "binNumEntropy":64
+                  		   }
+		   		
+	},
+		   
+		   
+"featureClass":{
+		   		
+		   
+		           "firstOrder": {
+		   			    	  "featureList": ["all"]
+		   		     	      }
+		   
+            	       },
+            	       
+ "Author" : { "name": "Aditi Iyer",
+ 		  "email": "iyera@mskcc.org",
+ 		  "date": "01/26/23"
+                }
+}
