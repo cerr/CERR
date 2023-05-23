@@ -1,5 +1,5 @@
 function [scanOutC, maskOutC, origScanNumV, scanNumV, optS, coordInfoS, planC] = ...
-    extractAndPreprocessDataForDL(optS,planC,skipMaskExport,scanNumV)
+    extractAndPreprocessDataForDL(optS,planC,skipMaskExport,scanNumV,strNumV)
 %
 % Script to extract scan and mask and perform user-defined pre-processing.
 %
@@ -12,7 +12,7 @@ function [scanOutC, maskOutC, origScanNumV, scanNumV, optS, coordInfoS, planC] =
 % varargin{1}: skipMaskExportf flag. Set to false to export structure masks. 
 %              Default:true.
 % varargin{2}: Vector of scan nos. Default: Use scan identifiers from optS. 
-%varargin{2}: Vector of scan nos. Default: Use scan identifiers from optS.
+% varargin{3}: Vector of structure nos. Default: Use scan identifiers from optS.
 % -------------------------------------------------------------------------
 % AI 9/18/19
 % AI 9/18/20  Extended to handle multiple scans
@@ -24,22 +24,32 @@ scanOptS = optS.input.scan;
 resampleS = [scanOptS.resample];
 resizeS = [scanOptS.resize];
 
-if isfield(optS.input,'structure')
-    if isfield(optS.input.structure,'strNameToLabelMap')
-        exportStrS = optS.input.structure.strNameToLabelMap;
-        strListC = {exportStrS.structureName};
-        labelV = [exportStrS.value];
-    else
-        strListC = optS.input.structure.name;
-        if ~iscell(strListC)
-            strListC = {strListC};
-        end
-        exportStrS.structureName = strListC;
-        labelV = 1:length(strListC);
-        exportStrS.value = labelV;
+indexS = planC{end};
+
+if exist('strNumV','var') && ~isempty(strNumV)
+    strListC = planC{indexS.structures}(strNumV).structureName;
+    if ~iscell(strListC)
+        strListC = {strListC};
     end
+    labelV = 1:length(strListC);
 else
-    strListC = {};
+    if isfield(optS.input,'structure')
+        if isfield(optS.input.structure,'strNameToLabelMap')
+            exportStrS = optS.input.structure.strNameToLabelMap;
+            strListC = {exportStrS.structureName};
+            labelV = [exportStrS.value];
+        else
+            strListC = optS.input.structure.name;
+            if ~iscell(strListC)
+                strListC = {strListC};
+            end
+            exportStrS.structureName = strListC;
+            labelV = 1:length(strListC);
+            exportStrS.value = labelV;
+        end
+    else
+        strListC = {};
+    end
 end
 
 if ~exist('skipMaskExport','var')
@@ -47,7 +57,6 @@ if ~exist('skipMaskExport','var')
 end
 
 %% Filter image
-indexS = planC{end};
 strC = {planC{indexS.structures}.structureName};
 copyStrsC = {};
 origScanNumV = nan(1,length(scanOptS));
@@ -360,8 +369,6 @@ for scanIdx = 1:numScans
             planC{indexS.scan}(origScanIdx).scanInfo(1).(copyInfoC{nCpy});
         end
    
-
-        
         planC = scan2CERR(scan3M,['Resamp_scan',num2str(scanNumV(scanIdx))],...
             '',scanInfoS,'',planC);
         resampScanNum = length(planC{indexS.scan});
