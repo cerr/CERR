@@ -29,7 +29,7 @@
 "output":{   
     "derivedImage":{ 
                     "outputFormat" : "H5",
-                    "imageType": "FMISO"
+                    "imageType": "TBR"
                    }
 },
 
