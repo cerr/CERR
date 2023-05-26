@@ -381,7 +381,8 @@ for index = 1:numRotations
             end
 
             %Set default filter size (IBSI-2 recommendation)
-            if paramS.padding.flag
+            if isfield(paramS,'padding') && isfield(paramS.padding,'flag') && ...
+                    paramS.padding.flag
                 padV = reshape(paramS.padding.size,1,[]);
             else
                 padV = zeros(1,3);
@@ -662,7 +663,8 @@ for index = 1:numRotations
 
                 %Remove padding for Laws response map
                 cropFlag = 1; %remove padding used for Law's filter
-                if isfield(paramS,'padding') && paramS.padding.flag
+                if isfield(paramS,'padding') && isfield(paramS.padding,'flag') && ...
+                        paramS.padding.flag
                     origPadV = reshape(paramS.padding.size,1,[]);
                 else
                     origPadV = [0,0,0];
