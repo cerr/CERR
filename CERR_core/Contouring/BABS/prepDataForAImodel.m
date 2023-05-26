@@ -64,6 +64,8 @@ if ~exist('skipMaskExport','var')
     skipMaskExport = true;
 end
 
+indexS = planC{end};
+
 %% Get conda installation path
 optS = opts4Exe([getCERRPath,'CERROptions.json']);
 condaPath = optS.condaPath;
@@ -118,6 +120,29 @@ if ~isempty(inputIdxS)
         val = inputIdxS.structure.strNum;
         if all(isnumeric(val)) && ~any(isnan(val))
             inputStrV = val;
+        end
+        
+        %Update cropping structure index where needed
+        maskStrC = {userOptS.input.structure.name};
+        allStrC = {planC{indexS.structures}.structureName};
+        if isfield(userOptS.input.scan,'crop')
+            for nScan = 1:length(userOptS.input.scan)
+                cropS = userOptS.input.scan(nScan).crop;
+                if ~(length(cropS) == 1 && strcmpi(cropS(1).method,'none'))
+                    cropStrListC = arrayfun(@(x)x.params.structureName,cropS,'un',0);
+                    cropParS = [cropS.params];
+                    if ~isempty(cropStrListC)
+                        for nCropStr = 1:length(cropStrListC)
+                            if strcmpi(cropStrListC{nCropStr},maskStrC{nCropStr})
+                                outStrName = allStrC{inputStrV(nCropStr)};
+                                cropParS(nCropStr).structureName = outStrName;
+                            end
+                        end
+                        cropS.params = cropParS;
+                    end
+                end
+                userOptS.input.scan(nScan).crop = cropS;
+            end
         end
     end
 end
