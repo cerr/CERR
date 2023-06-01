@@ -51,17 +51,23 @@ for nMethod = length(resizeS):-1:1
         data3M = dataOut3M;
     end
     switch lower(resizeMethod)
-
+        
         case 'pad2d'
-
-            dataOut3M = zeros(sizV, 'uint32');
+            
             limitsM = [minr, maxr, minc, maxc];
             resizeMethod = 'unpad2d';
             originImageSizV = [sizV(1:2), length(slcV)];
-            [~, dataOut3M(:,:,slcV)] = ...
-                resizeScanAndMask([],data3M,originImageSizV,...
-                resizeMethod,limitsM);
-
+            if strcmpi(output, 'labelmap')                
+                dataOut3M = zeros(sizV, 'uint32');
+                [~, dataOut3M(:,:,slcV)] = ...
+                    resizeScanAndMask([],data3M,originImageSizV,...
+                    resizeMethod,limitsM);                
+            else
+                [dataOut3M(:,:,slcV),~] = ...
+                    resizeScanAndMask(data3M,[],originImageSizV,...
+                    resizeMethod,limitsM);                
+            end
+            
         case 'pad3d'
             resizeMethod = 'unpad3d';
             [~, tempData3M] = ...
