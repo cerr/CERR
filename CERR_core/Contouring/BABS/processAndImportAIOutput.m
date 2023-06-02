@@ -171,12 +171,12 @@ for nOut = 1:length(outputC)
                         end
                         
                         userOptS.input.scan(outScanNum) = userOptS.input.scan(origScanNum);
-                        userOptS.input.scan(outScanNum).origScan = origScanNum;
+                        userOptS.input.scan(outScanNum).origScan = origScanNumV;
                         [procData3M,planC] = joinH5planC(outScanNum,modelOut3M,...
                             scanName,userOptS,planC);
                         
                         % Add the new "derived" scan to planC
-                        planC = addDerivedScan(origScanNum,procData3M,scanName,planC);
+                        planC = addDerivedScan(origScanNumV,procData3M,scanName,planC);
                         
                     end
                     
