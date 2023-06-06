@@ -369,8 +369,10 @@ switch lower(cmdFlag)
             condaEnvPath = fullfile(condaPath,'envs',condaEnvC{1});
         end
 
-        newPth = [condaBinPath,pth];
-        setenv('PATH',newPth)
+        if isempty(strfind(pth,condaBinPath))
+            newPth = [condaBinPath,pth];
+            setenv('PATH',newPth)
+        end
         if ispc
             activate_cmd = sprintf('call activate %s',condaEnvC{1});
         else
