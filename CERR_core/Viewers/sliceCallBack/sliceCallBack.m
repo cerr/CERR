@@ -265,8 +265,8 @@ switch upper(instr)
         %mainBody      = uicontrol(hCSV,'units', 'pixels', 'Position',[leftMarginWidth bottomMarginHeight figureWidth-leftMarginWidth figureHeight-bottomMarginHeight],...
         %    'Style', 'frame', 'Tag', 'mainBody', 'visible', 'off');
         bottomMargin  = uipanel(hCSV,'units', 'pixels', 'Position',[leftMarginWidth 0 1600 bottomMarginHeight], 'Tag', 'bottomMargin', 'visible', 'off');
-        mainBody      = uipanel(hCSV,'units', 'pixels', 'Position',[leftMarginWidth bottomMarginHeight figureWidth-leftMarginWidth figureHeight-bottomMarginHeight],...
-            'Tag', 'mainBody', 'visible', 'off');
+        %mainBody      = uipanel(hCSV,'units', 'pixels', 'Position',[leftMarginWidth bottomMarginHeight figureWidth-leftMarginWidth figureHeight-bottomMarginHeight],...
+        %    'Tag', 'mainBody', 'visible', 'off');
 
         x  = 25; %position of buttons
         dx = 50;
