@@ -11,6 +11,12 @@ function convertedM = convertCoordinates(coordM, imgOri)
 convertedM = coordM;
 convertedM(:,3) = -convertedM(:,3); %Z is always negative to match RTOG spec
 
+% sign if z-coordinate is flippped based on slice normal (similar to
+% populate_planC_scan_field). For FFS and FFP this results in original
+% value from image position patient.
+%sliceNormV = imgOri([2 3 1]) .* imgOri([6 4 5]) ...
+%    - imgOri([3 1 2]) .* imgOri([5 6 4]);
+
 if ~isempty(imgOri)
     if max(abs((imgOri(:) - [1 0 0 0 1 0]'))) < 1e-3
         %'HFS' %+x,-y,-z
@@ -19,12 +25,13 @@ if ~isempty(imgOri)
         %'FFS' %-x,-y,-z
         convertedM(:,2) = -convertedM(:,2);
         convertedM(:,1) = -convertedM(:,1);
+        convertedM(:,3) = -convertedM(:,3);
     elseif max(abs((imgOri(:) - [-1 0 0 0 -1 0]'))) < 1e-3
         %'HFP' %-x,+y,-z
         convertedM(:,1) = -convertedM(:,1);
     elseif max(abs((imgOri(:) - [1 0 0 0 -1 0]'))) < 1e-3
         %'FFP' %+x,+y,-z
-        %skip
+        convertedM(:,3) = -convertedM(:,3);
     else
         %OBLIQUE
         %skip

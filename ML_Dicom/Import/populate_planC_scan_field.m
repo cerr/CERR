@@ -51,7 +51,7 @@ dataS = '';
 switch fieldname
     case 'scanArray'
         %dataS   = uint16([]);
-        zValues = [];
+        %zValues = [];
         
         %Determine number of images
         nImages = length(SERIES.Data);
@@ -108,7 +108,10 @@ switch fieldname
         switch multiFrameFlag
             
             case 'No'
-                
+            
+                %readerSpi = javaObject('org.dcm4che3.imageio.plugins.dcm.DicomImageReaderSpi');
+                %dcmImgReader = javaObject('org.dcm4che3.imageio.plugins.dcm.DicomImageReader',readerSpi);
+
                 %Iterate over slices.
                 zValues = nan([1,nImages]);
                 for imageNum = 1:nImages
@@ -167,6 +170,23 @@ switch fieldname
                     %samplesPerPixel = imgobj.getInt(org.dcm4che3.data.Tag.SamplesPerPixel,0);
                     samplesPerPixel = imgobj.getInt(2621442,0);
                     
+%                     % Read image (to do - use
+%                     % org.dcm4che3.imageio.plugins.dcm.DicomImageReader)
+%                     inputStreamObj = javaObject("java.io.FileInputStream",IMAGE.file);
+%                     in = javaObject("org.dcm4che3.io.DicomInputStream",inputStreamObj);
+%                     dcmImgReader.setInput(in)
+%                     param = dcmImgReader.getDefaultReadParam;
+%                     raster = dcmImgReader.readRaster(0, param); % only one image. hence image index of 0.
+%                     h = raster.getHeight;
+%                     w = raster.getWidth;
+%                     numBands = raster.getNumBands;
+%                     if numBands > 1
+%                         error('Multi-band image not supported')
+%                     end
+%                     b = 0; % 1st band
+%                     sliceV = raster.getSamples(0,0,w,h,b,[]);
+
+                    
                     % Photometric Interpretation
                     %PhotometricInterpretation = getTagValue(imgobj ,'00280004');
                     %PhotometricInterpretation = char(imgobj.getStrings(org.dcm4che3.data.Tag.PhotometricInterpretation));
@@ -196,7 +216,8 @@ switch fieldname
                         otherwise
                             sliceV = typecast(sliceV,'int16');
                             
-                    end
+                    end                    
+                    
                     %Shape the slice.
                     if samplesPerPixel == 3 %rgb
                         slice2D = reshape(sliceV, [samplesPerPixel,nCols,nRows]);
@@ -260,13 +281,20 @@ switch fieldname
                     
                     %Store zValue for sorting, converting DICOM mm to CERR cm and
                     %inverting to match CERR's z direction.
-                    if all(abs((abs(imgOriV) - [1;0;0;0;0;1])) < 1e-5) % Coronal
-                        zValues(imageNum) = imgpos(2) / 10;
-                    elseif all(abs((abs(imgOriV) - [0;1;0;0;0;1])) < 1e-5) % Sagittal
-                        zValues(imageNum) = imgpos(1) / 10;
-                    else
-                        zValues(imageNum) = - imgpos(3) / 10;
-                    end
+                                        
+                    % Compute slice normal
+                    sliceNormV = imgOriV([2 3 1]) .* imgOriV([6 4 5]) ...
+                        - imgOriV([3 1 2]) .* imgOriV([5 6 4]);
+                    
+                    zValues(imageNum) = - sum(sliceNormV .* imgpos) / 10;
+                    
+                    %if all(abs((abs(imgOriV) - [1;0;0;0;0;1])) < 1e-5) % Coronal
+                    %    zValues(imageNum) = imgpos(2) / 10;
+                    %elseif all(abs((abs(imgOriV) - [0;1;0;0;0;1])) < 1e-5) % Sagittal
+                    %    zValues(imageNum) = imgpos(1) / 10;
+                    %else
+                    %    zValues(imageNum) = - imgpos(3) / 10;
+                    %end
                     
                     %Store the slice in the 3D matrix.
                     dataS(:,:,imageNum) = slice2D';
@@ -589,17 +617,16 @@ switch fieldname
                         imgpos = [0 0 0];
                         imgOriV = zeros(6,1);
                     end
+                                        
                     
                     %Store zValue for sorting, converting DICOM mm to CERR cm and
                     %inverting to match CERR's z direction.
-                    if all(abs((abs(imgOriV) - [1;0;0;0;0;1])) < 1e-5) % Coronal
-                        zValues(imageNum) = imgpos(2) / 10;
-                    elseif all(abs((abs(imgOriV) - [0;1;0;0;0;1])) < 1e-5) % Sagittal
-                        zValues(imageNum) = imgpos(1) / 10;
-                    else
-                        zValues(imageNum) = - imgpos(3) / 10;
-                    end
+                    % Compute slice normal
+                    sliceNormV = imgOriV([2 3 1]) .* imgOriV([6 4 5]) ...
+                        - imgOriV([3 1 2]) .* imgOriV([5 6 4]);
                     
+                    zValues(imageNum) = - sum(sliceNormV .* imgpos) / 10;
+
                     for i = 1:length(names)
                         dataS(imageNum).(names{i}) = ...
                             populate_planC_scan_scanInfo_field(names{i}, IMAGE, imgobj, optS);

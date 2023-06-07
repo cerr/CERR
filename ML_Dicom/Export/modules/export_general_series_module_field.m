@@ -92,7 +92,7 @@ switch tag
                 
         %Class 3 Tags -- presence is optional
     case  528446    %0008,103E Series Description
-        data = scanInfo.scanDescription;
+        data = scanInfo.seriesDescription;
         %el = template.get(tag);
         %el = ml2dcm_Element(el, data);
         el = data2dcmElement(data, tag);

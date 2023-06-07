@@ -95,7 +95,7 @@ elseif strcmpi(optS.uniformizedDataType,'uint16')
   CTScale = 65535 / (CTMax - CTMin);
 end
 
-waitbar(tMin, hBar);
+%waitbar(tMin, hBar);
 for k = 1 : length(ziValues)
   zi = ziValues(k);
   
@@ -118,7 +118,7 @@ for k = 1 : length(ziValues)
   elseif  strcmpi(optS.uniformizedDataType,'uint16')
       uniformScan(:,:,k) = uint16((interpSlice - CTMin) * CTScale);
   end  
-  waitbar(tMin + (k/length(ziValues))*tDelta, hBar);
+  %waitbar(tMin + (k/length(ziValues))*tDelta, hBar);
 end
 
 return

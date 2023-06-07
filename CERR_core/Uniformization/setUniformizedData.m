@@ -67,7 +67,8 @@ if ~isfield(cerr_optS,'uniformizeExcludeStructs')
     cerr_optS.uniformizeExcludeStructs = opt_S.uniformizeExcludeStructs;
 end
 
-hBar = waitbar(0, 'Creation of uniformized CT scan and structures...');
+%hBar = waitbar(0, 'Creation of uniformized CT scan and structures...');
+hBar = NaN;
 
 planC = findAndSetMinCTSpacing(planC, cerr_optS.lowerLimitUniformCTSliceSpacing, cerr_optS.upperLimitUniformCTSliceSpacing, cerr_optS.alternateLimitUniformCTSliceSpacing,scanNumV);
 planC = uniformizeScanSupInf(planC, 0, 1/2, cerr_optS, hBar, scanNumV);
@@ -79,6 +80,6 @@ if ~isempty(planC{indexS.structures})
     end
 end
 
-if ishandle(hBar)
-    close(hBar);
-end
+%if ishandle(hBar)
+%    close(hBar);
+%end

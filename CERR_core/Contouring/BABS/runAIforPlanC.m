@@ -17,7 +17,10 @@ function [planC,origScanNumV,allLabelNamesC,dcmExportOptS] = ...
 % hWait 
 % --Optional inputs---
 % varargin{1}: Path to singularity container OR conda env
-% varargin{2}: Scan no. (replaces input scan identifier)
+% varargin{2}: Dictionary specifying  scan (replaces input scan identifier)
+%              and/or structure indices.
+%              E.g.:  inputS.scan.scanNum = 1;
+%                     inputS.structure.strNum = 4;
 % varargin{3}: Output assoc. scan no. (replaces output scan identifier)
 % varargin{4}: Flag to skip export of structure masks (Default:true (off))
 %--------------------------------------------------------------------------
@@ -120,23 +123,23 @@ if length(algorithmC) > 1 || ...
     createSessionFlag = false;
     for k=1:length(algorithmC)
 
-        if nargin>=9 && all(isnumeric(varargin{2})) && ~any(isnan(varargin{2})) 
-            inputScanNumV = varargin{2};
-        else
-            inputScanNumV = [];
+        inputIdxS = struct([]);
+        if nargin>=9
+            inputIdxS = varargin{2};
         end
 
+        outputScanNumV = [];
         if nargin>=10 && all(isnumeric(varargin{3})) && ~any(isnan(varargin{3}))
-            outputScanNum = varargin{3};
+            outputScanNumV = varargin{3};
         else
-            outputScanNum = [];
+            outputScanNumV = [];
         end
 
         %Pre-process data for segmentation
         [activate_cmd,run_cmd,userOptS,~,origScanNumV,procScanNumV,planC] = ...
             prepDataForAImodel(planC, fullClientSessionPath ,algorithmC(k), ...
             cmdFlag,createSessionFlag,containerPathC{k},{},skipMaskExport,...
-            inputScanNumV);
+            inputIdxS);
 
         %Flag indicating if container runs on client or remote server
         if ishandle(hWait)
@@ -166,7 +169,8 @@ if length(algorithmC) > 1 || ...
             cmd = [activate_cmd,' && ',run_cmd];
             disp(cmd)
             status = system(cmd);
-            if ~isfield(userOptS.output.labelMap,'roiGenerationDescription')
+            if isfield(userOptS.output,'labelMap') && ...
+                    ~isfield(userOptS.output.labelMap,'roiGenerationDescription')
                 userOptS.output.labelMap.roiGenerationDescription = roiDescrpt;
             end
             gitHash = 'unavailable';
@@ -177,8 +181,8 @@ if length(algorithmC) > 1 || ...
         %Process model outputs
         [planC,labelNamesC,dcmExportOptS] = ...
             processAndImportAIOutput(planC,userOptS,origScanNumV,...
-            procScanNumV,outputScanNum,algorithmC(k),gitHash,...
-            fullClientSessionPath,cmdFlag,hWait);
+            procScanNumV,outputScanNumV,algorithmC(k),gitHash,...
+            fullClientSessionPath,cmdFlag,inputIdxS);
         allLabelNamesC = [allLabelNamesC,labelNamesC];
 
     end
