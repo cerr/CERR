@@ -100,7 +100,7 @@ switch cellName
                     realWorldValueIntercept = dataS(scansAdded+1).scanInfo(slcNum).realWorldValueIntercept;
                     realWorldMeasurCodeMeaning = dataS(scansAdded+1).scanInfo(slcNum).realWorldMeasurCodeMeaning;
                     if ~isempty(realWorldValueSlope) && strcmpi(typeC{seriesNum}, 'MR') && ...
-                            ~strcmpi(realWorldMeasurCodeMeaning,'no units')
+                             ~isempty(realWorldMeasurCodeMeaning) && ~strcmpi(realWorldMeasurCodeMeaning,'no units')
                         realWorldImageFlag = true;
                         scanArray3M(:,:,slcNum) = ...
                             single(dataS(scansAdded+1).scanArray(:,:,slcNum)) * single(realWorldValueSlope) + single(realWorldValueIntercept);

@@ -206,19 +206,28 @@ switch tag
                 % so that the first slice of doseArray in DICOM corresponds
                 % to where imagePositionPatient is defined.
                 
-                zDicomV = convertCerrToDcmDosZGrid(doseS,scanS);
+                %zDicomV = convertCerrToDcmDosZGrid(doseS,scanS);
                 
                 imagePositionPatient = doseS.imagePositionPatient/10; % this is already in DICOM Patient coordinates
-                if isempty(imagePositionPatient)
-                    imagePositionPatient = zDicomV(1);
-                else
-                    imagePositionPatient = imagePositionPatient(3);
-                end
-                diffFromImgPatPosV = (zDicomV - imagePositionPatient).^2;
-                indImgPosition = find(diffFromImgPatPosV < 1e-5);
-                if ~isempty(indImgPosition) && indImgPosition == length(zDicomV)
+                imgOriV = doseS.imageOrientationPatient;
+                sliceNormV = imgOriV([2 3 1]) .* imgOriV([6 4 5]) ...
+                    - imgOriV([3 1 2]) .* imgOriV([5 6 4]);
+                doseZstart = -sum(sliceNormV .* imagePositionPatient);
+                startSlc = find((doseS.zValues - doseZstart).^2 < 1e-3);
+                if startSlc ~= 1
                     data = flip(data, 3);
                 end
+                
+%                 if isempty(imagePositionPatient)
+%                     imagePositionPatient = zDicomV(1);
+%                 else
+%                     imagePositionPatient = imagePositionPatient(3);
+%                 end
+%                 diffFromImgPatPosV = (zDicomV - imagePositionPatient).^2;
+%                 indImgPosition = find(diffFromImgPatPosV < 1e-5);
+%                 if ~isempty(indImgPosition) && indImgPosition == length(zDicomV)
+%                     data = flip(data, 3);
+%                 end
 
                 %Flatten the data into a vector.
                 data = data(:);
