@@ -1,5 +1,5 @@
-function planC = flipAlongZ(scanNum,planC)
-% function planC = flipAlongZ(scanNum,planC)
+function planC = flipAlongZ(scanNum,featFirstFlag,planC)
+% function planC = flipAlongZ(scanNum,featFirstFlag,planC)
 %
 % Flip scan, structures and doses along Z direction
 %
@@ -39,6 +39,10 @@ end
 indexS = planC{end};
 
 [xVals, yVals, zVals] = getScanXYZVals(planC{indexS.scan}(scanNum));
+if exist('featFirstFlag','var') && featFirstFlag
+    [xdV,ydV,zdV] = getDoseXYZVals(planC{indexS.dose}(1));
+    newZVals = -flip(zVals);
+end
 
 zMin = min(zVals);
 zMax = max(zVals);
@@ -58,7 +62,8 @@ for strNum = 1:length(strV)
     end    
     numSlices = length(contourS);
     for slcNum = 1:numSlices
-        zVal = zMin + zMax - zVals(numSlices-slcNum+1);
+        %zVal = zMin + zMax - zVals(numSlices-slcNum+1);
+        zVal = newZVals(slcNum);
         for segNum = 1:length(contourS(slcNum).segments)
             pointsM = contourS(slcNum).segments(segNum).points;
             if ~isempty(pointsM)                               
@@ -80,7 +85,8 @@ else
 end
 numSlices = length(planC{indexS.scan}(scanNum).scanInfo);
 for slcNum = 1:numSlices
-    planC{indexS.scan}(scanNum).scanInfo(slcNum).zValue = zMin + zMax - zVals(numSlices-slcNum+1);
+    %planC{indexS.scan}(scanNum).scanInfo(slcNum).zValue = zMin + zMax - zVals(numSlices-slcNum+1);
+    planC{indexS.scan}(scanNum).scanInfo(slcNum).zValue = newZVals(slcNum);
 end
 
 %% Flip Dose
@@ -88,7 +94,8 @@ for doseNum = 1:length(planC{indexS.dose})
     assocScanNum = getAssociatedScan(planC{indexS.dose}(doseNum).assocScanUID,planC);
     if scanNum == assocScanNum
         doseZValues = planC{indexS.dose}(doseNum).zValues;
-        doseZValues = zMin + zMax - doseZValues;
+        %doseZValues = zMin + zMax - doseZValues;
+        doseZValues = -flip(doseZValues);
         [numRows, numCols] = size(doseZValues);
         if numRows == 1
             planC{indexS.dose}(doseNum).zValues = fliplr(doseZValues);
