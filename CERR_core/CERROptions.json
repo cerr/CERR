@@ -33,7 +33,7 @@
 
 "structuresImportMatchCriteria" : "regex",
 
-"createUniformizedDataset" : "no",
+"createUniformizedDataset" : "yes",
 
 "uniformizeExcludeStructs"  : ["normaltissue", "CT_EXTERNAL"],
 
@@ -155,7 +155,7 @@
 
 "DVHBinWidth" : 0.1,
 
-"DVHBlockSize" : 5000, 
+"DVHBlockSize" : 5000,
 
 "DVHLineWidth"  : 1.5,
 
@@ -235,7 +235,7 @@
 
 "linePoolSize" : 30,
 
-"ROEProtocolPath" : "M:/Aditi/OutcomesModels/ROE/forTesting/batchEvalUltracentralLung/For_ROE_display/Protocols", 
+"ROEProtocolPath" : "M:/Aditi/OutcomesModels/ROE/forTesting/batchEvalUltracentralLung/For_ROE_display/Protocols",
 "ROEModelPath" : "M:/Aditi/OutcomesModels/ROE/forTesting/batchEvalUltracentralLung/For_ROE_display/Models",
 "ROECriteriaPath" : "M:/Aditi/OutcomesModels/ROE/forTesting/batchEvalUltracentralLung/For_ROE_display/Crtieria",
 
