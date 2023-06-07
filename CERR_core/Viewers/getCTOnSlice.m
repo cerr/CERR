@@ -70,7 +70,7 @@ zLims = [zV(1) zV(end)];
 
 %Check for transM, and if it has any rotation component.
 rotation = 0; xT = 0; yT = 0; zT = 0;
-if isfield(planC{indexS.scan}(scanSet), 'transM') & ~isempty(planC{indexS.scan}(scanSet).transM);
+if isfield(planC{indexS.scan}(scanSet), 'transM') && ~isempty(planC{indexS.scan}(scanSet).transM)
     [rotation, xT, yT, zT] = isrotation(planC{indexS.scan}(scanSet).transM);
 end
 
