@@ -25,9 +25,6 @@ for nOut = 1:length(outputC)
             %Segmentations
             
             % Import segmentations
-            if ishandle(hWait)
-                waitbar(0.9,hWait,'Importing segmentation results to CERR');
-            end
             [planC,allLabelNamesC,dcmExportOptS] = ...
                 processAndImportSeg(planC,origScanNumV,scanNumV,...
                 outputScanNum,sessionPath,userOptS);
