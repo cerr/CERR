@@ -40,7 +40,7 @@ function varargout = maskToCERRStructure(maskM, isUniform, scanNum, strname, pla
 % You should have received a copy of the GNU General Public License
 % along with CERR.  If not, see <http://www.gnu.org/licenses/>.
 
-global stateS
+%global stateS
 
 if ~exist('planC','var') 
     global planC
@@ -123,16 +123,19 @@ else
 end
 
 %Update uniformized data.
-if strcmpi(stateS.optS.createUniformizedDataset,'yes')
-    planC = updateStructureMatrices(planC, numStructs+1);
-end
+planC = updateStructureMatrices(planC, numStructs+1);
+% if strcmpi(stateS.optS.createUniformizedDataset,'yes')
+%     planC = updateStructureMatrices(planC, numStructs+1);
+% else
+%     planC = getRasterSegs(planC, numStructs + 1);
+% end
 
 %Set varargout if requested.
 if nargout > 0
     varargout{1} = planC;
 end
 
-if isfield(stateS,'handle') && ishandle(stateS.handle.CERRSliceViewer)
-    stateS.structsChanged = 1;
-    sliceCallBack('refresh');
-end
+% if isfield(stateS,'handle') && ishandle(stateS.handle.CERRSliceViewer)
+%     stateS.structsChanged = 1;
+%     sliceCallBack('refresh');
+% end

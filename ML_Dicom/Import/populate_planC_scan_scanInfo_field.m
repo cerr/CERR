@@ -355,21 +355,32 @@ switch fieldname
             dataS = 0;
             return;
         end
+                        
+        imgOriV = attr.getDoubles(2097207);
         
-        % seriesDescription =  getTagValue(attr, '0008103E');
-        %seriesDescription = attr.getStrings(org.dcm4che3.data.Tag.SeriesDescription);
-        seriesDescription = char(attr.getString(528446,0));
+        % Compute slice normal
+        sliceNormV = imgOriV([2 3 1]) .* imgOriV([6 4 5]) ...
+            - imgOriV([3 1 2]) .* imgOriV([5 6 4]);
         
-        %Modified AI 10/20/16
-        if ~isempty(strfind(upper(seriesDescription),'CORONAL'))
-            dataS = - imgpos(2) / 10;
-        elseif ~isempty(strfind(upper(seriesDescription),'SAGITTAL'))
-            dataS = - imgpos(1) / 10;
-        else
-            %Convert from DICOM mm to CERR cm, invert to match CERR z dir
-            dataS = - imgpos(3) / 10; %z is always negative
-        end
-        %End modified
+        dataS = - sum(sliceNormV .* imgpos) / 10;
+        
+        %dataS = - imgpos(3) / 10; %z is always negative
+                
+        
+%         % seriesDescription =  getTagValue(attr, '0008103E');
+%         %seriesDescription = attr.getStrings(org.dcm4che3.data.Tag.SeriesDescription);
+%         seriesDescription = char(attr.getString(528446,0));
+%         
+%         %Modified AI 10/20/16
+%         if ~isempty(strfind(upper(seriesDescription),'CORONAL'))
+%             dataS = - imgpos(2) / 10;
+%         elseif ~isempty(strfind(upper(seriesDescription),'SAGITTAL'))
+%             dataS = - imgpos(1) / 10;
+%         else
+%             %Convert from DICOM mm to CERR cm, invert to match CERR z dir
+%             dataS = - imgpos(3) / 10; %z is always negative
+%         end
+%         %End modified
         
     case 'imageOrientationPatient'
         %Image Orientation
@@ -661,6 +672,8 @@ switch fieldname
         %Type 3 field, may not exist.
         if attr.contains(528446) %
             dataS = char(attr.getString(528446,0));
+        elseif attr.contains(528432) % 0008,1030
+            dataS = char(attr.getString(528432,0));
         else
             dataS = 'Unknown';
         end

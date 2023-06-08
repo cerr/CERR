@@ -79,6 +79,11 @@ for algoNum = 1:numAlgoritms
             functionNameC{algoNum} = fullfile(condaEnvListC{algoNum},...
                 'CT_CBCT_Lung_Fullshot_AnatomicCtxShape','model_wrapper',...
                 'run_code.py');
+            
+        case 'FDGPET_HEADANDNECK_PIX2PIX'
+            functionNameC{algoNum} = fullfile(condaEnvListC{algoNum},...
+                'fdg2fmiso_hn_pix2pix', 'infer_tbr.py');
+            
                        
     end
     

@@ -251,6 +251,19 @@ for scanNum = 1:numScans
                     end
                     planC{indexS.dose}(doseNum).coord2OFFirstPoint = newCoord2OFFirstPoint;                    
                 end
+                % check slice normal
+                scanOriV = planC{indexS.scan}(scanNum).scanInfo(1).imageOrientationPatient;
+                doseOriV = planC{indexS.dose}(doseNum).imageOrientationPatient;
+                scanSliceNormV = scanOriV([2 3 1]) .* scanOriV([6 4 5]) ...
+                    - scanOriV([3 1 2]) .* scanOriV([5 6 4]);
+                doseSliceNormV = doseOriV([2 3 1]) .* doseOriV([6 4 5]) ...
+                    - doseOriV([3 1 2]) .* doseOriV([5 6 4]);
+                if scanSliceNormV(3) ~= doseSliceNormV(3)
+                    newDoseZvalsV = -flip(planC{indexS.dose}(doseNum).zValues);
+                    planC{indexS.dose}(doseNum).zValues = newDoseZvalsV;
+                    planC{indexS.dose}(doseNum).doseArray = ...
+                        flip(planC{indexS.dose}(doseNum).doseArray,3);
+                end
             end
         end
         
@@ -279,13 +292,14 @@ for scanNum = 1:numScans
     %sorted in populate_planC_scan_field.m
     %slice_distance = zV(2) - zV(1);
     slice_distance = distV(1) - distV(2);
-    for i=1:length(planC{indexS.scan}(scanNum).scanInfo)
-        planC{indexS.scan}(scanNum).scanInfo(i).zValue = -distV(i)/10; % (-)ve since CERR z-axis is opposite to DICOM %zV(i) / 10;
-    end
+    %for i=1:length(planC{indexS.scan}(scanNum).scanInfo)
+    %    planC{indexS.scan}(scanNum).scanInfo(i).zValue = -distV(i)/10; % (-)ve since CERR z-axis is opposite to DICOM %zV(i) / 10;
+    %end
     pos1V = info1S.imagePositionPatient/10; %cm
     pos2V = info2S.imagePositionPatient/10; %cm
     deltaPosV = pos2V-pos1V;
     pixelSpacing = [info1S.grid2Units, info1S.grid1Units];
+    slice_distance = (info1S.zValue - info2S.zValue)*10; %distV(1) - distV(2);
     
     %Pt coordinate to DICOM image coordinate mapping
     %Based on ref: https://nipy.org/nibabel/dicom/dicom_orientation.html
@@ -390,6 +404,19 @@ for scanNum = 1:numScans
         vecsout = positionMatrix \ vecsout;  % to MR image index (not dose voxel index)
         vecsout = virPosMtx * vecsout; % to the virtual coordinates
         
+%         % z-values
+%         imgOriV = dose.imageOrientationPatient;
+%         doseSliceNormV = imgOriV([2 3 1]) .* imgOriV([6 4 5]) ...
+%             - imgOriV([3 1 2]) .* imgOriV([5 6 4]);
+%         doseZstart = sum(doseSliceNormV .* dose.imagePositionPatient);
+%         doseZValuesV = -(doseZstart + dose.DICOMHeaders.GridFrameOffsetVector);
+%         doseZValuesV = doseZValuesV / 10;
+%         dose.zValues = doseZValuesV;
+%         [doseZValuesV,zOrderDoseV] = sort(doseZValuesV);
+%         dose.zValues = doseZValuesV;
+%         dose.doseArray = dose.doseArray(:,:,zOrderDoseV);
+        
+        
         % dose.coord1OFFirstPoint = vecsout(1,3);
         % dose.coord2OFFirstPoint = vecsout(2,3);
         dose.coord1OFFirstPoint = vecsout(1,1);
@@ -398,19 +425,19 @@ for scanNum = 1:numScans
         dose.verticalGridInterval = vecsout(2,2) - vecsout(2,1);
         
         % APA commented ====== get z-grid using GridFrameOffset
-        % vecs = [zeros(2,dosedim(3));0:(dosedim(3)-1);ones(1,dosedim(3))];
-        % vecsout = (dosePositionMatrix*vecs); % to physical coordinates
-        % vecsout(1:3,:) = vecsout(1:3,:)/10;
-        % vecsout = positionMatrix \ vecsout;  % to MR image index (not dose voxel index)
-        % vecsout = virPosMtx * vecsout; % to the virtual coordinates
-        % zValuesV = vecsout(3,:)';
+%         vecs = [zeros(2,dosedim(3));0:(dosedim(3)-1);ones(1,dosedim(3))];
+%         vecsout = (dosePositionMatrix*vecs); % to physical coordinates
+%         vecsout(1:3,:) = vecsout(1:3,:)/10;
+%         vecsout = positionMatrix \ vecsout;  % to MR image index (not dose voxel index)
+%         vecsout = virPosMtx * vecsout; % to the virtual coordinates
+%         zValuesV = vecsout(3,:)';
         % APA commented ends
         
         % APA added to get zValues in virtual coordinates
-        zValuesV = vecsout(3,1) + dose.zValues - dose.imagePositionPatient(3)/10;
-        
-        [zdoseV,zOrderV] = sort(zValuesV);
-        dose.zValues = zdoseV;
+%         zValuesV = vecsout(3,1) + dose.zValues - dose.imagePositionPatient(3)/10;
+%         
+%         [zdoseV,zOrderV] = sort(zValuesV);
+%         dose.zValues = zdoseV;
         %[zdoseV,zOrderV] = sort(dose.zValues);
         %dose.zValues = zdoseV;
         
@@ -421,7 +448,7 @@ for scanNum = 1:numScans
         
         % slice is towards the head
         %[~,zOrderV] = sort(dose.zValues,'descend'); % flip dose
-        dose.doseArray = dose.doseArray(:,:,flip(zOrderV));
+%         dose.doseArray = dose.doseArray(:,:,flip(zOrderV));
         
         planC{indexS.dose}(doseNum) = dose;
     end

@@ -667,6 +667,71 @@ switch fieldname
 %         if max(abs((imgOriV(:) - [-1 0 0 0 -1 0]'))) < 1e-3 %HFP
 %             dataS = flip(dataS, 2); % 1/3/2017
 %         end
+
+        % Re-order scan based on z-values
+        iPP = attr.getDoubles(2097202);
+        %imgOriV = attr.getDoubles(org.dcm4che3.data.Tag.ImageOrientationPatient);
+        imgOriV = attr.getDoubles(2097207);
+        
+        
+        gFOV = attr.getDoubles(805568524);
+        if gFOV(1) == 0
+            %Relative Grid Frame, add to zValue from patient position.
+            sliceNormV = imgOriV([2 3 1]) .* imgOriV([6 4 5]) ...
+                - imgOriV([3 1 2]) .* imgOriV([5 6 4]);
+            doseZstart = sum(sliceNormV .* iPP);
+            doseZValuesV = -(doseZstart + gFOV);
+        else % iPP(3)==gFOV(1)
+            %Absolute Grid Frame, use zValues directly.
+            doseZValuesV = -gFOV; % as per DICOM documentation, this case is valid only for HFS [1,0,0,0,1,0]
+        end
+        doseZValuesV = doseZValuesV / 10;
+        [doseZValuesV,zOrderDoseV] = sort(doseZValuesV);
+        dataS = dataS(:,:,zOrderDoseV);
+        
+%         % Check if oblique
+%         isOblique = 0;
+%         if max(abs(abs(imgOriV(:)) - [1 0 0 0 1 0]')) > 1e-3
+%             isOblique = 1;
+%         end
+%         
+%         %Follow pointer to attribute containing zValues, usually Grid Frame Offset Vector
+%         
+%         try
+%             % Assume that dose distribution is encoded as a multi-frame
+%             % image and GridFrameOffsetVector is present
+%             % (http://dicom.nema.org/medical/Dicom/2017c/output/chtml/part03/sect_C.8.8.3.2.html)
+%             %gFOV = getTagValue(attr, fIP);
+%             %gFOV = attr.getDoubles(org.dcm4che3.data.Tag.GridFrameOffsetVector);
+%             gFOV = attr.getDoubles(805568524);
+%             %slcDir = cross(imgOriV(1:3),imgOriV(4:6));
+%             %if slcDir(3) < 0 %((imgOriV(1)==-1) || (imgOriV(5)==-1)) && ~(max(abs((imgOriV(:) - [-1 0 0 0 -1 0]'))) < 1e-3) %Not HFP
+%             %    gFOV = - gFOV;
+%             %end
+%         catch
+%             gFOV = 0;
+%         end
+%         
+%         if gFOV(1) == 0
+%             %Relative Grid Frame, add to zValue from patient position.
+%             zValueV = iPP(3) + gFOV;
+%         else % iPP(3)==gFOV(1)
+%             %Absolute Grid Frame, use zValues directly.
+%             zValueV = gFOV;
+%         end
+%         
+%         %Convert from DICOM mm to CERR cm, invert Z to match CERR Zdir.
+%         if ~isOblique
+%             sliceNormV = imgOriV([2 3 1]) .* imgOriV([6 4 5]) ...
+%                 - imgOriV([3 1 2]) .* imgOriV([5 6 4]);
+%             if sliceNormV(3) > 0
+%                 zValueV = - zValueV / 10; % HFS, HFP
+%             else
+%                 zValueV = zValueV / 10; % FFS, FFP
+%             end
+%             [~,indSortV] = sort(zValueV); % same sorting happens in zValues case
+%             dataS = dataS(:,:,indSortV);
+%         end        
         
         maxDose = max(dataS(:));
         
@@ -679,58 +744,83 @@ switch fieldname
         %imgOriV = attr.getDoubles(org.dcm4che3.data.Tag.ImageOrientationPatient);
         imgOriV = attr.getDoubles(2097207);
         
-        % Check if oblique
-        isOblique = 0;
-        if max(abs(abs(imgOriV(:)) - [1 0 0 0 1 0]')) > 1e-3
-            isOblique = 1;
-        end
+%         % Check if oblique
+%         isOblique = 0;
+%         if max(abs(abs(imgOriV(:)) - [1 0 0 0 1 0]')) > 1e-3
+%             isOblique = 1;
+%         end
+%         
+%         %APA commented begins
+%         %         if ~isequal(pPos,'HFP')
+%         %             if (imgOri(1)==-1) || (imgOri(5)==-1)
+%         %                 iPP(3) = -- iPP(3);
+%         %             end
+%         %         end
+%         %APA commented ends
+%         %Frame Increment Pointer
+%         %fIP = getTagValue(attr, '00280009');
+%         %fIP = attr.getValue(org.dcm4che3.data.Tag.FrameIncrementPointer); % check this
+%         
+%         %if size(fIP,1) == 2
+%         %    fIP = [fIP(1,:) fIP(2,:)]; %added DK to make fIP a size of 1.
+%         %end
+%         
+%         %Follow pointer to attribute containing zValues, usually Grid Frame Offset Vector
+%         
+%         try
+%             % Assume that dose distribution is encoded as a multi-frame
+%             % image and GridFrameOffsetVector is present
+%             % (http://dicom.nema.org/medical/Dicom/2017c/output/chtml/part03/sect_C.8.8.3.2.html)
+%             %gFOV = getTagValue(attr, fIP);
+%             %gFOV = attr.getDoubles(org.dcm4che3.data.Tag.GridFrameOffsetVector);
+%             gFOV = attr.getDoubles(805568524);
+%             %slcDir = cross(imgOriV(1:3),imgOriV(4:6));
+%             %if slcDir(3) < 0 %((imgOriV(1)==-1) || (imgOriV(5)==-1)) && ~(max(abs((imgOriV(:) - [-1 0 0 0 -1 0]'))) < 1e-3) %Not HFP
+%             %    gFOV = - gFOV;
+%             %end
+%         catch
+%             gFOV = 0;
+%         end
+%         
+%         if gFOV(1) == 0
+%             %Relative Grid Frame, add to zValue from patient position.
+%             dataS = iPP(3) + gFOV;
+%         else % iPP(3)==gFOV(1)
+%             %Absolute Grid Frame, use zValues directly.
+%             dataS = gFOV;
+%         end
         
-        %APA commented begins
-        %         if ~isequal(pPos,'HFP')
-        %             if (imgOri(1)==-1) || (imgOri(5)==-1)
-        %                 iPP(3) = -- iPP(3);
-        %             end
-        %         end
-        %APA commented ends
-        %Frame Increment Pointer
-        %fIP = getTagValue(attr, '00280009');
-        %fIP = attr.getValue(org.dcm4che3.data.Tag.FrameIncrementPointer); % check this
-        
-        %if size(fIP,1) == 2
-        %    fIP = [fIP(1,:) fIP(2,:)]; %added DK to make fIP a size of 1.
-        %end
-        
-        %Follow pointer to attribute containing zValues, usually Grid Frame Offset Vector
-        
-        try
-            % Assume that dose distribution is encoded as a multi-frame
-            % image and GridFrameOffsetVector is present
-            % (http://dicom.nema.org/medical/Dicom/2017c/output/chtml/part03/sect_C.8.8.3.2.html)
-            %gFOV = getTagValue(attr, fIP);
-            %gFOV = attr.getDoubles(org.dcm4che3.data.Tag.GridFrameOffsetVector);
-            gFOV = attr.getDoubles(805568524);
-            slcDir = cross(imgOriV(1:3),imgOriV(4:6));
-            if slcDir(3) < 0 %((imgOriV(1)==-1) || (imgOriV(5)==-1)) && ~(max(abs((imgOriV(:) - [-1 0 0 0 -1 0]'))) < 1e-3) %Not HFP
-                gFOV = - gFOV;
-            end
-        catch
-            gFOV = 0;
-        end
-        
+        % z-values
+        gFOV = attr.getDoubles(805568524);
         if gFOV(1) == 0
             %Relative Grid Frame, add to zValue from patient position.
-            dataS = iPP(3) + gFOV;
+            sliceNormV = imgOriV([2 3 1]) .* imgOriV([6 4 5]) ...
+                - imgOriV([3 1 2]) .* imgOriV([5 6 4]);
+            doseZstart = sum(sliceNormV .* iPP);
+            doseZValuesV = -(doseZstart + gFOV);
         else % iPP(3)==gFOV(1)
             %Absolute Grid Frame, use zValues directly.
-            dataS = gFOV;
+            doseZValuesV = -gFOV; % as per DICOM documentation, this case is valid only for HFS [1,0,0,0,1,0]
         end
+        doseZValuesV = doseZValuesV / 10;
+        [doseZValuesV,zOrderDoseV] = sort(doseZValuesV);
+        dataS = doseZValuesV;
+        %dose.doseArray = dose.doseArray(:,:,zOrderDoseV);
         
-        %Convert from DICOM mm to CERR cm, invert Z to match CERR Zdir.
-        if ~isOblique
-            dataS = - dataS / 10;
-        else
-            dataS = dataS / 10;
-        end
+        
+%         %Convert from DICOM mm to CERR cm, invert Z to match CERR Zdir.
+%         if ~isOblique
+%             sliceNormV = imgOriV([2 3 1]) .* imgOriV([6 4 5]) ...
+%                 - imgOriV([3 1 2]) .* imgOriV([5 6 4]);
+%             if sliceNormV(3) > 0
+%                 dataS = - dataS / 10; % HFS, HFP
+%             else
+%                 dataS = dataS / 10; % FFS, FFP
+%             end
+%             dataS = sort(dataS); % sort in ascending order (doseArray id re-ordered baased on this)
+%         else
+%             dataS = dataS / 10;
+%         end
         
     case 'delivered'
         %Currently unimplemented.

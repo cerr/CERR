@@ -93,10 +93,7 @@ AIoutputPath = fullfile(fullSessionPath,'AIoutput');
 mkdir(AIoutputPath);
 
 %% Import DICOM to CERR
-tic
-recursiveFlag = true;
-importDICOM(inputDicomPath,cerrPath,recursiveFlag);
-toc
+importDICOM(inputDicomPath,cerrPath);
 
 % Get container path
 containerPath = varargin{1};

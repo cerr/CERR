@@ -166,16 +166,25 @@ switch tag
         %numZ   = length(doseS.zValues);      
         %data   = linspace(firstZ, lastZ, numZ) - firstZ;
         
-        zDicomV = convertCerrToDcmDosZGrid(doseS,scanS);
+%         zDicomV = convertCerrToDcmDosZGrid(doseS,scanS);
         
         % Compute offset from imagePositionPatient                
-        imagePositionPatient = doseS.imagePositionPatient/10; % this is already in DICOM Patient coordinates
-        if isempty(imagePositionPatient)
-            imagePositionPatient = zDicomV(1);
-        else
-           imagePositionPatient = imagePositionPatient(3); 
-        end        
-        data = zDicomV - imagePositionPatient;
+%         imagePositionPatient = doseS.imagePositionPatient/10; % this is already in DICOM Patient coordinates
+        imgOriV = doseS.imageOrientationPatient;
+        sliceNormV = imgOriV([2 3 1]) .* imgOriV([6 4 5]) ...
+            - imgOriV([3 1 2]) .* imgOriV([5 6 4]);
+        zValsV = doseS.zValues;
+        data = zValsV - zValsV(1);
+        if sliceNormV(3) < 0          
+            data = zValsV - zValsV(1);
+        end
+        
+%         if isempty(imagePositionPatient)
+%             imagePositionPatient = zDicomV(1);
+%         else
+%            imagePositionPatient = imagePositionPatient(3); 
+%         end        
+%         data = zDicomV - imagePositionPatient;
         
         %Convert from CERR cm to DICOM mm.                
         data = data * 10;
