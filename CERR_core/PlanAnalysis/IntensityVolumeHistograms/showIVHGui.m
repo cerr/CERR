@@ -4,24 +4,24 @@ function showIVHGui(command, varargin)
 % DK 07/25/2006
 %
 % Copyright 2010, Joseph O. Deasy, on behalf of the CERR development team.
-% 
+%
 % This file is part of The Computational Environment for Radiotherapy Research (CERR).
-% 
+%
 % CERR development has been led by:  Aditya Apte, Divya Khullar, James Alaly, and Joseph O. Deasy.
-% 
+%
 % CERR has been financially supported by the US National Institutes of Health under multiple grants.
-% 
-% CERR is distributed under the terms of the Lesser GNU Public License. 
-% 
+%
+% CERR is distributed under the terms of the Lesser GNU Public License.
+%
 %     This version of CERR is free software: you can redistribute it and/or modify
 %     it under the terms of the GNU General Public License as published by
 %     the Free Software Foundation, either version 3 of the License, or
 %     (at your option) any later version.
-% 
+%
 % CERR is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
 % without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 % See the GNU General Public License for more details.
-% 
+%
 % You should have received a copy of the GNU General Public License
 % along with CERR.  If not, see <http://www.gnu.org/licenses/>.
 %
@@ -40,10 +40,10 @@ end
 hFig = findobj('Tag', 'IVHGui');
 
 %If old figure exists, refresh it.
-if isempty(hFig) & ~strcmpi(command, 'INIT')
+if isempty(hFig) && ~strcmpi(command, 'INIT')
     error('IVHGui no longer exists. Callback failed.');
     return;
-elseif ~isempty(hFig) & strcmpi(command, 'INIT')
+elseif ~isempty(hFig) && strcmpi(command, 'INIT')
     figure(hFig);
     showIVHGui('REFRESH')
     return;
@@ -68,17 +68,18 @@ switch upper(command)
         %Set up add frame
         afX = 10; afW = w - 2*afX; afH = 50; afY = h - 10 - afH;
         ud.af.X = afX; ud.af.W = afW; ud.af.H = afH; ud.af.Y = afY;
-        uicontrol(hFig, 'style', 'frame', 'units', units, 'position', [afX afY-15 afW afH+15], 'enable', 'inactive');
+        %uicontrol(hFig, 'style', 'frame', 'units', units, 'position', [afX afY-15 afW afH+15], 'enable', 'inactive');
         uicontrol(hFig, 'style', 'text', 'units', units, 'position', [w/2-50 afY+afH-5 100 15], 'string', 'Control Panel',...
             'FontWeight', 'bold','fontsize',9.2);
 
         %Set up IVH list frame
         dfX = 10; dfW = w - 2*dfX; dfY = 10; dfH = afY - 10 - dfY;
         ud.df.X = dfX; ud.df.W = dfW; ud.df.Y = dfY; ud.df.H = dfH;
-        hDf = uicontrol(hFig, 'style', 'frame', 'units', units, 'position', [dfX dfY dfW dfH-30], 'enable', 'inactive');
+        %hDf = uicontrol(hFig, 'style', 'frame', 'units', units, 'position', [dfX dfY dfW dfH-30], 'enable', 'inactive');
         uicontrol(hFig, 'style', 'text', 'units', units, 'position', [w/2-50 dfY+dfH-35 100 15], 'string', 'Intensity Volume',...
             'FontWeight', 'bold','fontsize',9.2);
-        frameColor = get(hDf, 'backgroundcolor');
+        %frameColor = get(hDf, 'backgroundcolor');
+        frameColor = [0.9,0.9,0.9];
 
         %Setup Scan list item and tag.
         for i = 1:length(planC{indexS.scan})
@@ -488,7 +489,7 @@ switch upper(command)
             else
                 colorNum = indIVH;
                 BGColor = getColor(colorNum, stateS.optS.colorOrder, 'loop');
-            end            
+            end
             FGColor = setCERRLabelColor(colorNum);
 
             barColor = get(ud.df.handles.bgTxt(i), 'backgroundcolor');
