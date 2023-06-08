@@ -40,12 +40,11 @@ indexS = planC{end};
 
 [xVals, yVals, zVals] = getScanXYZVals(planC{indexS.scan}(scanNum));
 if exist('featFirstFlag','var') && featFirstFlag
-    [xdV,ydV,zdV] = getDoseXYZVals(planC{indexS.dose}(1));
     newZVals = -flip(zVals);
 end
 
-zMin = min(zVals);
-zMax = max(zVals);
+% zMin = min(zVals);
+% zMax = max(zVals);
 
 [assocScansV, relStructNumV] = getStructureAssociatedScan(1:length(planC{indexS.structures}),planC);
 
@@ -107,7 +106,7 @@ for doseNum = 1:length(planC{indexS.dose})
 end
 
 %ReRaster and ReUniformize
-planC = reRasterAndUniformize(planC);
-if isfield(stateS,'planLoaded') && stateS.planLoaded
-    CERRRefresh
-end
+planC = reRasterAndUniformize(planC,scanNum);
+% if isfield(stateS,'planLoaded') && stateS.planLoaded
+%     CERRRefresh
+% end
