@@ -720,7 +720,13 @@ for index = 1:numRotations
                     drawnow;
                 end
             end
-
+            
+        case 'zScore'
+            
+            scanV = scan3M(mask3M);
+            meanVal = mean(scanV);
+            stdVal = std(scanV);
+            outS.zScore = (scan3M - meanVal) / stdVal;
 
         case 'CoLlage'
 
