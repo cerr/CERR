@@ -140,6 +140,9 @@ switch(lower(imageType))
         fieldName = [imageType,'_kernelSize',num2str(kernelSize),...
             '_voxelSize_mm',num2str(voxelSize_mm)];
         
+    case 'zscore'
+        fieldName = 'zScore';
+        
 end
 
 %Ensure valid fieldname
