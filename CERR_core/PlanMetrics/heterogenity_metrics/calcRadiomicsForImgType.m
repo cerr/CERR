@@ -167,25 +167,13 @@ for k = 1:length(imageTypeC)
             offsetForEnergy = paramS.firstOrderParamS.offsetForEnergy;
         end
         if isfield(paramS.firstOrderParamS,'binWidthEntropy') && ...
-            ~isempty(paramS.firstOrderParamS.offsetForEnergy)
+            ~isempty(paramS.firstOrderParamS.binWidthEntropy)
             binWidthEntropy = paramS.firstOrderParamS.binWidthEntropy;
         end
         if isfield(paramS.firstOrderParamS,'binNumEntropy') && ...
                 ~isempty(paramS.firstOrderParamS.binNumEntropy)
             binNumEntropy = paramS.firstOrderParamS.binNumEntropy;
-        end
-        if isfield(imageTypeC{k}.paramS,'firstOrderParamS') && ...
-                isfield(imageTypeC{k}.paramS.firstOrderParamS,'offsetForEnergy')
-            offsetForEnergy = imageTypeC{k}.paramS.firstOrderParamS.offsetForEnergy;
-        end
-        if isfield(imageTypeC{k}.paramS,'binWidthEntropy') && ...
-                isfield(imageTypeC{k}.paramS.firstOrderParamS,'binWidthEntropy')
-            binWidthEntropy = imageTypeC{k}.paramS.firstOrderParamS.binWidthEntropy;
-        end
-        if isfield(imageTypeC{k}.paramS,'binNumEntropy') && ...
-                isfield(imageTypeC{k}.paramS.firstOrderParamS,'binNumEntropy')
-            binNumEntropy = imageTypeC{k}.paramS.firstOrderParamS.binNumEntropy;
-        end
+        end       
         volV = volToEval(logical(maskBoundingBox3M));
         volV = volV(:);
         featureS.(outFieldName).firstOrderS = radiomics_first_order_stats...
