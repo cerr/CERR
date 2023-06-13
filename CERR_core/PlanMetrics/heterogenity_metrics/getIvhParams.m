@@ -49,21 +49,21 @@ if nnz(scansV)<2
     ivhFeaturesS.minHist = NaN;
     ivhFeaturesS.I50 = NaN;
     ivhFeaturesS.rangeHist = NaN;
-    ivhFeaturesS.IVHBinWidth = NaN;
+    %ivhFeaturesS.IVHBinWidth = NaN;
     
     for i = 1:length(xForIxV)
-        ivhFeaturesS.(['Ix',num2str(xForIxV(i))]) = NaN;
-        ivhFeaturesS.(['MOHx',num2str(xForIxV(i))]) = NaN;
-        ivhFeaturesS.(['MOCx',num2str(xForIxV(i))]) = NaN;
+        ivhFeaturesS.(repSpaceHyp(['Ix',num2str(xForIxV(i))])) = NaN;
+        ivhFeaturesS.(repSpaceHyp(['MOHx',num2str(xForIxV(i))])) = NaN;
+        ivhFeaturesS.(repSpaceHyp(['MOCx',num2str(xForIxV(i))])) = NaN;
     end
     for i = 1:length(xAbsForIxV)
-        ivhFeaturesS.(['IabsX',num2str(xAbsForIxV(i))]) = NaN;
+        ivhFeaturesS.(repSpaceHyp(['IabsX',num2str(xAbsForIxV(i))])) = NaN;
     end
     for i = 1:length(xForVxV)
-        ivhFeaturesS.(['Vx',num2str(xForVxV(i))]) = NaN;
+        ivhFeaturesS.(repSpaceHyp(['Vx',num2str(xForVxV(i))])) = NaN;
     end
     for i = 1:length(xAbsForVxV)
-        ivhFeaturesS.(['VabsX',num2str(xAbsForVxV(i))]) = NaN;
+        ivhFeaturesS.(repSpaceHyp(['VabsX',num2str(xAbsForVxV(i))])) = NaN;
     end
     return
 end
