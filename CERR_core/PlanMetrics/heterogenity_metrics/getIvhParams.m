@@ -84,21 +84,21 @@ normalizeVxByVolumeFlag = 1; % pass as input arg?
 
 for i = 1:length(xForIxV)
     xString = num2str(xForIxV(i));
-    ivhFeaturesS.(['Ix',xString]) = calc_Dx(scanBinsV, volsHistV, xForIxV(i));
-    ivhFeaturesS.(['MOHx',xString]) = calc_MOHx(scanBinsV, volsHistV, xForIxV(i));
-    ivhFeaturesS.(['MOCx',xString]) = calc_MOCx(scanBinsV, volsHistV, xForIxV(i));
+    ivhFeaturesS.(repSpaceHyp(['Ix',xString])) = calc_Dx(scanBinsV, volsHistV, xForIxV(i));
+    ivhFeaturesS.(repSpaceHyp(['MOHx',xString])) = calc_MOHx(scanBinsV, volsHistV, xForIxV(i));
+    ivhFeaturesS.(repSpaceHyp(['MOCx',xString])) = calc_MOCx(scanBinsV, volsHistV, xForIxV(i));
 end
 absFlag = 1;
 for i = 1:length(xAbsForIxV)
-    ivhFeaturesS.(['IabsX',strrep(num2str(xAbsForIxV(i)),'-','Minus')]) = calc_Dx(scanBinsV, volsHistV, xAbsForIxV(i), absFlag);
+    ivhFeaturesS.(repSpaceHyp(['IabsX',strrep(num2str(xAbsForIxV(i)),'-','Minus')])) = calc_Dx(scanBinsV, volsHistV, xAbsForIxV(i), absFlag);
 end
 for i = 1:length(xForVxV)
     absImgVal = xForVxV(i)*ivhFeaturesS.rangeHist/100 + ivhFeaturesS.minHist;    
-    ivhFeaturesS.(['Vx',num2str(xForVxV(i))]) = calc_Vx(scanBinsV, ...
+    ivhFeaturesS.(repSpaceHyp(['Vx',num2str(xForVxV(i))])) = calc_Vx(scanBinsV, ...
         volsHistV, absImgVal, normalizeVxByVolumeFlag);
 end
 for i = 1:length(xAbsForVxV)
-    ivhFeaturesS.(['VabsX',num2str(xAbsForVxV(i))]) = calc_Vx(scanBinsV, ...
+    ivhFeaturesS.(repSpaceHyp(['VabsX',num2str(xAbsForVxV(i))])) = calc_Vx(scanBinsV, ...
         volsHistV, xAbsForVxV(i), normalizeVxByVolumeFlag);
 end
 
