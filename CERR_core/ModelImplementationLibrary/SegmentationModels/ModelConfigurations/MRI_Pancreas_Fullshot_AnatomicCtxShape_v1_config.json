@@ -1,9 +1,10 @@
 {
+
 "input":{    
         
     "scan": [{
 
-         "identifier" : {"seriesDate":"first"}, 
+         "identifier" : {"studyDate":"first"}, 
          "view" : ["axial"],
          "crop" : {     
                     "method": "crop_pt_outline",
@@ -27,7 +28,7 @@
          "channels" :{"imageType": "original", "slice": "current"}
        },
        {
-        "identifier":{"seriesDate":"last"},
+        "identifier":{"studyDate":"last"},
         "view" : ["axial"],
         "crop": {
                     "method": "crop_pt_outline",
@@ -64,20 +65,21 @@
  }
 },
 
-"output":{
-    "labelMap":{
-        "strNameToLabelMap":[ 
-                {"structureName": "Liver","value": 1},
-                {"structureName": "Bowel_lg","value": 2},
-                {"structureName": "Bowel_sm","value": 3},
-                {"structureName": "Duostomach","value": 4}
-        ]
-    }
-},
-
 "passedScanDim" : "3D",
 
-"outputAssocScan": {"identifier": {"studyDate":"last"}},    
+"output":{   
+    "labelMap":{"strNameToLabelMap" : [
+            {"structureName": "Liver",
+             "value": 1},
+            {"structureName": "Bowel_lg",
+            "value": 2},
+            {"structureName": "Bowel_sm",
+             "value": 3},
+            {"structureName": "Duostomach",
+            "value": 4}]},
+    "DVF":{"outputFormat" : "H5", "outputDir":"/cluster/home/clinSegData/temp_sessions"}
+},
+"outputAssocScan": {"identifier" : {"studyDate":"last"}},  
 
 "reference" : ""
 }
