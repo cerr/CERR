@@ -64,8 +64,6 @@ if ~exist('skipMaskExport','var')
     skipMaskExport = true;
 end
 
-indexS = planC{end};
-
 %% Get conda installation path
 optS = opts4Exe([getCERRPath,'CERROptions.json']);
 condaPath = optS.condaPath;
@@ -121,37 +119,40 @@ if ~isempty(inputIdxS)
         if all(isnumeric(val)) && ~any(isnan(val))
             inputStrV = val;
         end
-        
-        %Update cropping structure index where needed
-        maskStrC = {userOptS.input.structure.name};
-        allStrC = {planC{indexS.structures}.structureName};
-        if isfield(userOptS.input.scan,'crop')
-            for nScan = 1:length(userOptS.input.scan)
-                cropS = userOptS.input.scan(nScan).crop;
-                if ~(length(cropS) == 1 && strcmpi(cropS(1).method,'none'))
-                    cropStrListC = arrayfun(@(x)x.params.structureName,cropS,'un',0);
-                    cropParS = [cropS.params];
-                    if ~isempty(cropStrListC)
-                        for nCropStr = 1:length(cropStrListC)
-                            if strcmpi(cropStrListC{nCropStr},maskStrC{nCropStr})
-                                outStrName = allStrC{inputStrV(nCropStr)};
-                                cropParS(nCropStr).structureName = outStrName;
-                            end
-                        end
-                        cropS.params = cropParS;
-                    end
-                end
-                userOptS.input.scan(nScan).crop = cropS;
-            end
-        end
     end
 end
-
+        
+ 
 %% Pre-process data and export to model input fmt
 if iscell(planC)
+    indexS = planC{end};
     filePrefixForHDF5 = 'cerrFile';
+    
+    %Update cropping structure index where needed
+    maskStrC = {userOptS.input.structure.name};
+    allStrC = {planC{indexS.structures}.structureName};
+    if isfield(userOptS.input.scan,'crop')
+        for nScan = 1:length(userOptS.input.scan)
+            cropS = userOptS.input.scan(nScan).crop;
+            if ~(length(cropS) == 1 && strcmpi(cropS(1).method,'none'))
+                cropStrListC = arrayfun(@(x)x.params.structureName,cropS,'un',0);
+                cropParS = [cropS.params];
+                if ~isempty(cropStrListC)
+                    for nCropStr = 1:length(cropStrListC)
+                        if strcmpi(cropStrListC{nCropStr},maskStrC{nCropStr})
+                            outStrName = allStrC{inputStrV(nCropStr)};
+                            cropParS(nCropStr).structureName = outStrName;
+                        end
+                    end
+                    cropS.params = cropParS;
+                end
+            end
+            userOptS.input.scan(nScan).crop = cropS;
+        end
+    end    
+    
     for nIn = 1:length(inputC)
-
+        
         inputType = inputC{nIn};
 
         switch(inputType)
@@ -250,6 +251,38 @@ else
         fileNam = fullfile(cerrFilePath,planCfiles{nFile});
         planC = loadPlanC(fileNam, tempdir);
         planC = quality_assure_planC(fileNam,planC);
+        
+        %Update cropping structure index where needed
+        if isfield(userOptS.input.structure,'name')
+            maskStrC = {userOptS.input.structure.name};
+        else
+            if isfield(userOptS.input.structure,'strNameToLabelMap')
+                maskStrC = {userOptS.input.structure.strNameToLabelMap.structureName};
+            else
+                maskStrC = {};
+            end
+        end
+        indexS = planC{end};
+        allStrC = {planC{indexS.structures}.structureName};
+        if isfield(userOptS.input.scan,'crop')
+            for nScan = 1:length(userOptS.input.scan)
+                cropS = userOptS.input.scan(nScan).crop;
+                if ~(length(cropS) == 1 && strcmpi(cropS(1).method,'none'))
+                    cropStrListC = arrayfun(@(x)x.params.structureName,cropS,'un',0);
+                    cropParS = [cropS.params];
+                    if ~isempty(cropStrListC)
+                        for nCropStr = 1:length(cropStrListC)
+                            if strcmpi(cropStrListC{nCropStr},maskStrC{nCropStr})
+                                outStrName = allStrC{inputStrV(nCropStr)};
+                                cropParS(nCropStr).structureName = outStrName;
+                            end
+                        end
+                        cropS.params = cropParS;
+                    end
+                end
+                userOptS.input.scan(nScan).crop = cropS;
+            end
+        end
 
         %Pre-process data and export to model input fmt
         filePrefixForHDF5 = ['cerrFile^',ptName];
@@ -305,7 +338,7 @@ else
                         [scanC, maskC, origScanNumV, scanNumV, userOptS,...
                             coordInfoS, planC] = ...
                             extractAndPreprocessDataForDL(userOptS,planC,...
-                            skipMaskExport,scanNumV);
+                            skipMaskExport,inputScanNumV);
                     end
 
                     %Export to model input format
