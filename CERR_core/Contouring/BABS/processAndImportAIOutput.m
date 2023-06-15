@@ -73,27 +73,20 @@ for nOut = 1:length(outputC)
             dvfOnOrigScan4M = zeros([origScanSizV,3]);
             for nDim = 1:size(DVF4M,1)
                 DVF3M = squeeze(DVF4M(nDim,:,:,:));
-                DVF3M = permute(DVF3M,[2,3,1]);
                 [DVF3M,planC] = joinH5planC(assocScan,DVF3M,[DVFfilename,'_'...
                     dimsC{nDim}],tempOptS,planC);
                 dvfOnOrigScan4M(:,:,:,nDim) = DVF3M;
-                %niiFileNameC{nDim} = fullfile(niiOutDir,[DVFfilename,'_'...
-                %    dimsC{nDim},'.nii.gz']);
-                %DVF3M_nii = make_nii(DVF3M);
-                %save_nii(DVF3M_nii, niiFileNameC{nDim}, 0);
             end
             fprintf('\n Writing DVF to file %s\n',niiFileNameC{nDim});
-            exportScanToNii(niiOutDir,DVF4M,{DVFfilename},...
+            exportScanToNii(niiOutDir,dvfOnOrigScan4M,{DVFfilename},...
                 [],{},planC,assocScan);
             
-            
             %Calc. deformation magnitude
-            DVFmag3M = zeros(size(DVF3M));
+            DVFmag3M = zeros(origScanSizV);
             assocScanUID = planC{indexS.scan}(assocScan).scanUID;
-            for nDim = 1:size(DVF4M,1)
-                doseNum = length(planC{indexS.dose})-nDim+1;
-                doseArray3M = double(getDoseArray(doseNum,planC));
-                DVFmag3M = DVFmag3M + doseArray3M.^2;
+            for nDim = 1:size(dvfOnOrigScan4M,4)
+                dvfDim3M = dvfOnOrigScan4M(:,:,:,nDim);
+                DVFmag3M = DVFmag3M + dvfDim3M.^2;
             end
             DVFmag3M = sqrt(DVFmag3M);
             description = 'Deformation magnitude';

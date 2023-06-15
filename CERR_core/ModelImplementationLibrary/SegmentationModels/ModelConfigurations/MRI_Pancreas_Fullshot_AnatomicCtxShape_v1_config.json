@@ -77,7 +77,7 @@
              "value": 3},
             {"structureName": "Duostomach",
             "value": 4}]},
-    "DVF":{"outputFormat" : "H5", "outputDir":"/cluster/home/clinSegData/temp_sessions"}
+    "DVF":{"outputFormat" : "H5", "outputDir":"/cluster/home/clinSegData/outNii"}
 },
 "outputAssocScan": {"identifier" : {"studyDate":"last"}},  
 
