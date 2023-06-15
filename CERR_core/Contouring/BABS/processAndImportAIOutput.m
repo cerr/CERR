@@ -70,17 +70,23 @@ for nOut = 1:length(outputC)
             DVFfilename = strrep(DVFfile.name,'.h5','');
             dimsC = {'dx','dy','dz'};
             niiFileNameC = cell(1,length(dimsC));
+            origScanSizV = size(planC{indexS.scan}(assocScan).scanArray);
+            dvfOnOrigScan4M = zeros([origScanSizV,3]);
             for nDim = 1:size(DVF4M,1)
                 DVF3M = squeeze(DVF4M(nDim,:,:,:));
                 DVF3M = permute(DVF3M,[2,3,1]);
                 [DVF3M,planC] = joinH5planC(assocScan,DVF3M,[DVFfilename,'_'...
                     dimsC{nDim}],tempOptS,planC);
-                niiFileNameC{nDim} = fullfile(niiOutDir,[DVFfilename,'_'...
-                    dimsC{nDim},'.nii.gz']);
-                fprintf('\n Writing DVF to file %s\n',niiFileNameC{nDim});
-                DVF3M_nii = make_nii(DVF3M);
-                save_nii(DVF3M_nii, niiFileNameC{nDim}, 0);
+                dvfOnOrigScan4M(:,:,:,nDim) = DVF3M;
+                %niiFileNameC{nDim} = fullfile(niiOutDir,[DVFfilename,'_'...
+                %    dimsC{nDim},'.nii.gz']);
+                %DVF3M_nii = make_nii(DVF3M);
+                %save_nii(DVF3M_nii, niiFileNameC{nDim}, 0);
             end
+            fprintf('\n Writing DVF to file %s\n',niiFileNameC{nDim});
+            exportScanToNii(niiOutDir,DVF4M,{DVFfilename},...
+                [],{},planC,assocScan);
+            
             
             %Calc. deformation magnitude
             DVFmag3M = zeros(size(DVF3M));
