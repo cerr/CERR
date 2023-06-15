@@ -41,10 +41,13 @@ switch(lower(outputType))
         end
 
     case 'dvf'
-        assocScanUID = planC{indexS.scan}(scanNum).scanUID;
-        description = labelPath;
-        planC = dose2CERR(dataOut3M,[],description,'',description,'CT',[],...
-            'no',assocScanUID, planC);
+        if isfield(userOptS.output.(outputType),'saveToPlanC') &&...
+                strcmpi(userOptS.output.(outputType).saveToPlanC,'yes')
+            assocScanUID = planC{indexS.scan}(scanNum).scanUID;
+            description = labelPath;
+            planC = dose2CERR(dataOut3M,[],description,'',description,'CT',[],...
+                'no',assocScanUID, planC);
+        end
 end
 
 end
