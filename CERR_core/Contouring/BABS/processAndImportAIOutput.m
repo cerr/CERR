@@ -103,16 +103,21 @@ for nOut = 1:length(outputC)
             
             % Store to deformS
             indexS = planC{end};
-            idS = userOptS.register.baseScan.identifier;
-            baseScanNum = getScanNumFromIdentifiers(idS,planC,1);
-            idS = userOptS.register.movingScan.identifier;
-            movScanNum = getScanNumFromIdentifiers(idS,planC,1);
-            
-            planC{indexS.deform}(end+1).baseScanUID = ...
-                planC{indexS.scan}(baseScanNum).scanUID;
-            planC{indexS.deform}(end+1).movScanUID = ...
-                planC{indexS.scan}(movScanNum).scanUID;
-            
+            if isfield(userOptS,'register') && isfield(userOptS.register,'baseScan')
+                idS = userOptS.register.baseScan.identifier;
+                baseScanNum = getScanNumFromIdentifiers(idS,planC,1);
+                idS = userOptS.register.movingScan.identifier;
+                movScanNum = getScanNumFromIdentifiers(idS,planC,1);
+                planC{indexS.deform}(end+1).baseScanUID = ...
+                    planC{indexS.scan}(baseScanNum).scanUID;
+                planC{indexS.deform}(end+1).movScanUID = ...
+                    planC{indexS.scan}(movScanNum).scanUID;
+            else
+                idS = userOptS.outputAssocScan.identifier;
+                baseScanNum = getScanNumFromIdentifiers(idS,planC,1);
+                planC{indexS.deform}(end+1).baseScanUID = ...
+                    planC{indexS.scan}(baseScanNum).scanUID;
+            end
             planC{indexS.deform}(end+1).algorithm = algorithm;
             planC{indexS.deform}(end+1).registrationTool = 'CNN';
             planC{indexS.deform}(end+1).algorithmParamsS.singContainerHash = ...
