@@ -39,6 +39,7 @@ for nOut = 1:length(outputC)
             switch(lower(outFmt))
                 case 'h5'
                     DVF4M = h5read(outFile,'/dvf');
+                    DVF4M =  permute(DVF4M,[1,4,3,2]);
                 otherwise
                     error('Invalid model output format %s.',outFmt)
             end
@@ -69,13 +70,30 @@ for nOut = 1:length(outputC)
             DVFfilename = strrep(DVFfile.name,'.h5','');
             dimsC = {'dx','dy','dz'};
             niiFileNameC = cell(1,length(dimsC));
+            outputSizeV = size(DVF4M);
             origScanSizV = size(planC{indexS.scan}(assocScan).scanArray);
             dvfOnOrigScan4M = zeros([origScanSizV,3]);
             for nDim = 1:size(DVF4M,1)
                 DVF3M = squeeze(DVF4M(nDim,:,:,:));
-                [DVF3M,planC] = joinH5planC(assocScan,DVF3M,[DVFfilename,'_'...
+                %DVF3M = permute(DVF3M,[2,3,1]);
+                [DVF3M,physExtentsV,planC] = joinH5planC(assocScan,DVF3M,[DVFfilename,'_'...
                     dimsC{nDim}],tempOptS,planC);
+                if nDim == 1
+                    scaleFactor = abs(physExtentsV(2)-physExtentsV(1))./(outputSizeV(2)-1);
+                else 
+                    if nDim == 2
+                       scaleFactor = abs(physExtentsV(4)-physExtentsV(3))./(outputSizeV(3)-1);
+                    else
+                        %nDim == 3
+                        scaleFactor = abs(physExtentsV(6)-physExtentsV(5))./(outputSizeV(4)-1);
+                    end
+                end
+                DVF3M = DVF3M.*scaleFactor*10;
                 dvfOnOrigScan4M(:,:,:,nDim) = DVF3M;
+                %niiFileNameC{nDim} = fullfile(niiOutDir,[DVFfilename,'_'...
+                %    dimsC{nDim},'.nii.gz']);
+                %DVF3M_nii = make_nii(DVF3M);
+                %save_nii(DVF3M_nii, niiFileNameC{nDim}, 0);
             end
             fprintf('\n Writing DVF to file %s\n',niiFileNameC{nDim});
             exportScanToNii(niiOutDir,dvfOnOrigScan4M,{DVFfilename},...
@@ -173,7 +191,7 @@ for nOut = 1:length(outputC)
                         
                         userOptS.input.scan(outScanNum) = userOptS.input.scan(origScanNum);
                         userOptS.input.scan(outScanNum).origScan = origScanNumV;
-                        [procData3M,planC] = joinH5planC(outScanNum,modelOut3M,...
+                        [procData3M,physExtentsV,planC] = joinH5planC(outScanNum,modelOut3M,...
                             scanName,userOptS,planC);
                         
                         % Add the new "derived" scan to planC
