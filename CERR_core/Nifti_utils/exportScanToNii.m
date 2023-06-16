@@ -39,9 +39,16 @@ for slc = 1:length(planC{indexS.scan}(headerScanNum).scanInfo)
     headerS.Manufacturer = '';
     h{1}{slc} = headerS;    
 end
+
 % Flip to change order such that slices increase from inf to sup
 h{1} = flip(h{1});
-scan3M = flip(permute(scan3M,[2,1,3]),3);
+if numel(size(scan3M)) == 4
+    scan3M = flip(permute(scan3M,[2,1,3,4]),3);
+else
+    %3d
+    scan3M = flip(permute(scan3M,[2,1,3]),3);
+end
+
 if exist('outScanNiiFileNameC','var') && ~isempty(outScanNiiFileNameC)
     if ischar(outScanNiiFileNameC)
         outScanNiiFileNameC = {outScanNiiFileNameC};
