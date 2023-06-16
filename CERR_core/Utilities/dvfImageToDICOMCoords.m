@@ -18,5 +18,10 @@ numSlcVoxels = length(onesV);
 xyzM = zeros(numSlcVoxels*baseSizV(3),4);
 for slc = 1:baseSizV(3)
     rowColSlcM = [rowColM,onesV*(slc-1),onesV];
+    rowColSlcDeformedM = rowColM + dvf;
     xyzM(1+(slc-1)*numSlcVoxels:slc*numSlcVoxels,1:4) = (basePositionMatrix * rowColSlcM')';
+    xyzDeforedM(1+(slc-1)*numSlcVoxels:slc*numSlcVoxels,1:4) = (basePositionMatrix * rowColSlcDeformedM')';
+    dvfXYZM = xyzDeforedM - xyzM; % size of dvfXYZM will be nVoxels x 4    
 end
+
+%reshape dvfXYZM to xyz4M
