@@ -13,6 +13,7 @@
 
     "scan":{
         "identifier" : {"seriesDescription": "ADC"},
+        "scanUnits": "10^-3 mm^2/s",
 	    "view" : "axial",
         "resample": {   
                         "resolutionXCm": 0.0625,
