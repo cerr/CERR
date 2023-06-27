@@ -73,6 +73,7 @@ for nOut = 1:length(outputC)
             %outputSizeV = size(DVF4M);
             origScanSizV = size(planC{indexS.scan}(assocScan).scanArray);
             dvfOnOrigScan4M = zeros([origScanSizV,3]);
+<<<<<<< HEAD
 
             % Note: Expected ordering of components is: DVF_, DVF_y,DVF_z
             % i.e., deformation along cols, rows, slices.
@@ -94,6 +95,30 @@ for nOut = 1:length(outputC)
                     DVF3M = -DVF3M;
                 end
 
+=======
+            %DVF4M = DVF4M([3,2,1],:,:,:);  %To match 
+            % Re-order components in order: DVF_x, DVF_y,DVF_z.
+            DVF4M = DVF4M([2,1,3],:,:,:); 
+            % Convert to physical dimensions
+            for nDim = 1:size(DVF4M,1)
+                % Reverse pre-processing operations
+                DVF3M = squeeze(DVF4M(nDim,:,:,:));
+                [DVF3M,imgExtentsV,physExtentsV,planC] = ...
+                    joinH5planC(assocScan,DVF3M,[DVFfilename,'_'...
+                    dimsC{nDim}],tempOptS,planC);
+                % Scale by voxel resolution
+                if nDim == 1
+                    scaleFactor = abs(physExtentsV(2)-physExtentsV(1))./(imgExtentsV(2)-imgExtentsV(1));
+                else
+                    if nDim == 2
+                        scaleFactor = abs(physExtentsV(4)-physExtentsV(3))./(imgExtentsV(4)-imgExtentsV(3));
+                    else
+                        %nDim == 3
+                        scaleFactor = -abs(physExtentsV(6)-physExtentsV(5))./(imgExtentsV(6)-imgExtentsV(5));
+                    end
+                end
+                DVF3M = DVF3M.*scaleFactor*10; %Conver to mm
+>>>>>>> Return cropped image extents
                 dvfOnOrigScan4M(:,:,:,nDim) = DVF3M;
 
             end
