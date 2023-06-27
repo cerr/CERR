@@ -70,25 +70,31 @@ for nOut = 1:length(outputC)
             DVFfilename = strrep(DVFfile.name,'.h5','');
             dimsC = {'dx','dy','dz'};
             niiFileNameC = cell(1,length(dimsC));
-            outputSizeV = size(DVF4M);
+            %outputSizeV = size(DVF4M);
             origScanSizV = size(planC{indexS.scan}(assocScan).scanArray);
             dvfOnOrigScan4M = zeros([origScanSizV,3]);
+            %DVF4M = DVF4M([3,2,1],:,:,:);  %To match 
+            % Re-order components in order: DVF_x, DVF_y,DVF_z.
+            DVF4M = DVF4M([2,1,3],:,:,:); 
+            % Convert to physical dimensions
             for nDim = 1:size(DVF4M,1)
+                % Reverse pre-processing operations
                 DVF3M = squeeze(DVF4M(nDim,:,:,:));
-                %DVF3M = permute(DVF3M,[2,3,1]);
-                [DVF3M,physExtentsV,planC] = joinH5planC(assocScan,DVF3M,[DVFfilename,'_'...
+                [DVF3M,imgExtentsV,physExtentsV,planC] = ...
+                    joinH5planC(assocScan,DVF3M,[DVFfilename,'_'...
                     dimsC{nDim}],tempOptS,planC);
+                % Scale by voxel resolution
                 if nDim == 1
-                    scaleFactor = abs(physExtentsV(2)-physExtentsV(1))./(outputSizeV(2)-1);
-                else 
+                    scaleFactor = abs(physExtentsV(2)-physExtentsV(1))./(imgExtentsV(2)-imgExtentsV(1));
+                else
                     if nDim == 2
-                       scaleFactor = abs(physExtentsV(4)-physExtentsV(3))./(outputSizeV(3)-1);
+                        scaleFactor = abs(physExtentsV(4)-physExtentsV(3))./(imgExtentsV(4)-imgExtentsV(3));
                     else
                         %nDim == 3
-                        scaleFactor = abs(physExtentsV(6)-physExtentsV(5))./(outputSizeV(4)-1);
+                        scaleFactor = -abs(physExtentsV(6)-physExtentsV(5))./(imgExtentsV(6)-imgExtentsV(5));
                     end
                 end
-                DVF3M = DVF3M.*scaleFactor*10;
+                DVF3M = DVF3M.*scaleFactor*10; %Conver to mm
                 dvfOnOrigScan4M(:,:,:,nDim) = DVF3M;
                 %niiFileNameC{nDim} = fullfile(niiOutDir,[DVFfilename,'_'...
                 %    dimsC{nDim},'.nii.gz']);
@@ -107,11 +113,12 @@ for nOut = 1:length(outputC)
                 DVFmag3M = DVFmag3M + dvfDim3M.^2;
             end
             DVFmag3M = sqrt(DVFmag3M);
+            % Store to planC as pseudo-dose 
             description = 'Deformation magnitude';
             planC = dose2CERR(DVFmag3M,[],description,'',description,...
                 'CT',[],'no',assocScanUID, planC);
             
-            % Store to deformS
+            % Store metadata to deformS
             indexS = planC{end};
             if isfield(userOptS,'register') && isfield(userOptS.register,'baseScan')
                 idS = userOptS.register.baseScan.identifier;
@@ -176,7 +183,7 @@ for nOut = 1:length(outputC)
                                 origScanNum = getScanNumFromIdentifiers(identifierS,planC);
                                 origScanNum = find(origScanNumV==origScanNum);
                                 %if ismember(origScanNum,scanNumV)
-                                    outScanNum = scanNumV(origScanNum);
+                                outScanNum = scanNumV(origScanNum);
                                 %else
                                 %   outScanNum = origScanNum;
                                 %end
@@ -191,7 +198,7 @@ for nOut = 1:length(outputC)
                         
                         userOptS.input.scan(outScanNum) = userOptS.input.scan(origScanNum);
                         userOptS.input.scan(outScanNum).origScan = origScanNumV;
-                        [procData3M,physExtentsV,planC] = joinH5planC(outScanNum,modelOut3M,...
+                        [procData3M,~,~,planC] = joinH5planC(outScanNum,modelOut3M,...
                             scanName,userOptS,planC);
                         
                         % Add the new "derived" scan to planC
