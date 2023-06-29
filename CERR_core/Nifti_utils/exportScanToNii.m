@@ -1,4 +1,4 @@
-function exportScanToNii(niiFolder,scanArrayScanNum,outScanNiiFileNameC,...
+function success = exportScanToNii(niiFolder,scanArrayScanNum,outScanNiiFileNameC,...
     structNumV,outMaskNiiFileNameC,planC,headerScanNum)
 % function exportScanToNii(scanNum,niiFolder,outNiiFnameC,planC)
 %
@@ -90,4 +90,6 @@ for iStr = 1:length(structNumV)
     outStrMaskNiiFileNameC = {[strName,'_',outMaskNiiFileNameC{1}]};
     createNifti(uint16(mask3M),h,niiFolder,outStrMaskNiiFileNameC,ext)
 end
+
+success = 0;
 
