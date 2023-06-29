@@ -362,7 +362,7 @@ elseif strcmpi(cmd, 'save')
         end
         return;
     end
-        
+      
     % re-arrange img for special datatype: RGB/RGBA/Complex.
     if any(nii.hdr.datatype == [128 511 2304]) % RGB or RGBA
         if para.rgb_dim == 1 % AFNI style
@@ -624,6 +624,9 @@ elseif strcmpi(cmd, 'update') % old img2datatype subfunction
         
         dim(8) = []; % remove color-dim so numel(dim)=7 for nii.hdr
         ndim = find(dim>1, 1, 'last'); % update it
+    elseif ndim == 5
+        typ = 'RGB';
+        valpix = dim(5);
     elseif isreal(nii.img)
         typ = 'real';
         valpix = 1;
@@ -663,6 +666,14 @@ elseif strcmpi(cmd, 'update') % old img2datatype subfunction
     if isfield(nii, 'ext')
         try swap = nii.hdr.swap_endian; catch, swap = false; end
         nii.ext = decode_ext(nii.ext, swap);
+    end
+    
+    % Set intent_code based on shape of nii.img
+    if length(size(nii.img)) == 5
+        nii.hdr.intent_code = 1007;
+        nii.hdr.intent_name = 'DISPVECT';
+    else
+        nii.hdr.intent_code = 0;
     end
     
     varargout{1} = nii;
@@ -801,6 +812,7 @@ D = {
     'double'    1792    128     2 % complex
 %   'float128'  2048    256     2 % long double complex
     'uint8'     2304    32      4 % RGBA
+    'double'    64      64      3
     };
 
 para.format   =  D(:,1)';
@@ -808,6 +820,7 @@ para.datatype = [D{:,2}];
 para.bitpix   = [D{:,3}];
 para.valpix   = [D{:,4}];
 para.rgb_dim  = pf.rgb_dim; % dim of RGB/RGBA in NIfTI FILE
+para.intent_code  = pf.intent_code; % for example, 3D image vs DVF
 para.version  = niiVer;
 
 %% Subfunction: use pigz or system gzip if available (faster)

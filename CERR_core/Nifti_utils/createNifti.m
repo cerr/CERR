@@ -24,6 +24,7 @@ pf.use_parfor = 0;
 pf.use_seriesUID = 1;
 pf.lefthand = 1;
 pf.scale_16bit = 0;
+pf.version = 1;
          
 i = 1;
 bids = 0;
@@ -78,6 +79,11 @@ end
 %     dim(3:4) = [nSL dim(3)/nSL]; % verified integer earlier
 %     img = reshape(img, dim);
 % end
+
+pf.intent_code = 0;
+if ndims(img) == 5 % deformable vector field
+    pf.intent_code = 1007;
+end
 
 if any(~isfield(s, flds(6:8))) || ~any(isfield(s, flds(9:10)))
     h{i}{1} = csa2pos(h{i}{1}, size(img,3));
