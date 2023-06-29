@@ -73,16 +73,21 @@ for nOut = 1:length(outputC)
             %outputSizeV = size(DVF4M);
             origScanSizV = size(planC{indexS.scan}(assocScan).scanArray);
             dvfOnOrigScan4M = zeros([origScanSizV,3]);
-            %DVF4M = DVF4M([3,2,1],:,:,:);  %To match 
-            % Re-order components in order: DVF_x, DVF_y,DVF_z.
-            DVF4M = DVF4M([2,1,3],:,:,:); 
+                        
+            % Note: Expected ordering of components is: DVF_, DVF_y,DVF_z 
+            % i.e., deformation along cols, rows, slices.
+            %DVF4M = DVF4M([2,1,3],:,:,:); 
+            
             % Convert to physical dimensions
             for nDim = 1:size(DVF4M,1)
+                
                 % Reverse pre-processing operations
                 DVF3M = squeeze(DVF4M(nDim,:,:,:));
+                
                 [DVF3M,imgExtentsV,physExtentsV,planC] = ...
                     joinH5planC(assocScan,DVF3M,[DVFfilename,'_'...
                     dimsC{nDim}],tempOptS,planC);
+                
                 % Scale by voxel resolution
                 if nDim == 1
                     scaleFactor = abs(physExtentsV(2)-physExtentsV(1))./(imgExtentsV(2)-imgExtentsV(1));
@@ -96,14 +101,12 @@ for nOut = 1:length(outputC)
                 end
                 DVF3M = DVF3M.*scaleFactor*10; %Conver to mm
                 dvfOnOrigScan4M(:,:,:,nDim) = DVF3M;
-                %niiFileNameC{nDim} = fullfile(niiOutDir,[DVFfilename,'_'...
-                %    dimsC{nDim},'.nii.gz']);
-                %DVF3M_nii = make_nii(DVF3M);
-                %save_nii(DVF3M_nii, niiFileNameC{nDim}, 0);
             end
+            
+            %Write DVF to NIfTI file
             fprintf('\n Writing DVF to file %s\n',niiFileNameC{nDim});
             exportScanToNii(niiOutDir,dvfOnOrigScan4M,{DVFfilename},...
-                [],{},planC,assocScan);
+               [],{},planC,assocScan);
             
             %Calc. deformation magnitude
             DVFmag3M = zeros(origScanSizV);
