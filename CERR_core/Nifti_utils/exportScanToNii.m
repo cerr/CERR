@@ -32,7 +32,7 @@ for slc = 1:length(planC{indexS.scan}(headerScanNum).scanInfo)
     pixelSpacingV = [planC{indexS.scan}(headerScanNum).scanInfo(slc).grid1Units; ...
         planC{indexS.scan}(1).scanInfo(slc).grid2Units]*10;
     headerS.PixelSpacing = pixelSpacingV;
-    [xV,yV,zV] = getScanXYZVals(planC{indexS.scan}(1));
+    [xV,yV,zV] = getScanXYZVals(planC{indexS.scan}(headerScanNum));
     headerS.SliceThickness = abs(zV(2)-zV(1))*10; % assume isotropic
     headerS.BitsAllocated = bitsAllocated;
     headerS.isDTI = 0;
@@ -42,8 +42,8 @@ end
 
 % Flip to change order such that slices increase from inf to sup
 h{1} = flip(h{1});
-if numel(size(scan3M)) == 4
-    scan3M = flip(permute(scan3M,[2,1,3,4]),3);
+if numel(size(scan3M)) == 5
+    scan3M = flip(permute(scan3M,[2,1,3,4,5]),3);
 else
     %3d
     scan3M = flip(permute(scan3M,[2,1,3]),3);
