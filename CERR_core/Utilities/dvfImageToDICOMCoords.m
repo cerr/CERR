@@ -11,7 +11,7 @@ function xyz4M = dvfImageToDICOMCoords(rcs4M,scanNum,planC)
 
 % Get row & col indices of base scan
 indexS = planC{end};
-basePositionMatrix = planC{indexS.scan}(scanNum).Image2PhysicalTransM;   
+basePositionMatrix = planC{indexS.scan}(scanNum).Image2PhysicalTransM * 10; %Convert to mm  
 baseSizV = size(planC{indexS.scan}(scanNum).scanArray);
 [rowM,colM] = meshgrid(1:baseSizV(1), 1:baseSizV(2));
 rowColM = [rowM(:),colM(:)] - 1;
