@@ -88,25 +88,26 @@ for nOut = 1:length(outputC)
                     joinH5planC(assocScan,DVF3M,[DVFfilename,'_'...
                     dimsC{nDim}],tempOptS,planC);
                 
-                % Scale by voxel resolution
-                if nDim == 1
-                    scaleFactor = abs(physExtentsV(2)-physExtentsV(1))./(imgExtentsV(2)-imgExtentsV(1));
-                else
-                    if nDim == 2
-                        scaleFactor = abs(physExtentsV(4)-physExtentsV(3))./(imgExtentsV(4)-imgExtentsV(3));
-                    else
-                        %nDim == 3
-                        scaleFactor = -abs(physExtentsV(6)-physExtentsV(5))./(imgExtentsV(6)-imgExtentsV(5));
-                    end
-                end
-                DVF3M = DVF3M.*scaleFactor*10; %Conver to mm
+%                 % Scale by voxel resolution
+%                 if nDim == 1
+%                     scaleFactor = abs(physExtentsV(2)-physExtentsV(1))./(imgExtentsV(2)-imgExtentsV(1));
+%                 else
+%                     if nDim == 2
+%                         scaleFactor = abs(physExtentsV(4)-physExtentsV(3))./(imgExtentsV(4)-imgExtentsV(3));
+%                     else
+%                         %nDim == 3
+%                         scaleFactor = -abs(physExtentsV(6)-physExtentsV(5))./(imgExtentsV(6)-imgExtentsV(5));
+%                     end
+%                 end
+%                 DVF3M = DVF3M.*scaleFactor*10; %Conver to mm
                 dvfOnOrigScan4M(:,:,:,nDim) = DVF3M;
             end
-            
+            dvfDcm4M = dvfImageToDICOMCoords(dvfOnOrigScan4M,assocScan,planC);
+
             %Write DVF to NIfTI file
-            fprintf('\n Writing DVF to file %s\n',niiFileNameC{nDim});
-            exportScanToNii(niiOutDir,dvfOnOrigScan4M,{DVFfilename},...
-               [],{},planC,assocScan);
+%            fprintf('\n Writing DVF to file %s\n',niiFileNameC{nDim});
+%             exportScanToNii(niiOutDir,dvfDcm4M,{DVFfilename},...
+%                [],{},planC,assocScan);
             
             %Calc. deformation magnitude
             DVFmag3M = zeros(origScanSizV);
