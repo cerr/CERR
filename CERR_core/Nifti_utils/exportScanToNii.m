@@ -10,11 +10,6 @@ function success = exportScanToNii(niiFolder,scanArrayScanNum,outScanNiiFileName
 
 indexS = planC{end};
 
-if isfield(planC{indexS.scan}(headerScanNum).scanInfo(1),'DICOMHeaders')
-    bitsAllocated = planC{indexS.scan}(headerScanNum).scanInfo(1).DICOMHeaders.BitsAllocated;
-else
-    bitsAllocated = 16;
-end
 if numel(scanArrayScanNum) == 1
     %scan3M = double(planC{indexS.scan}(headerScanNum).scanArray) - planC{indexS.scan}(headerScanNum).scanInfo(1).CTOffset;
     scan3M = double(planC{indexS.scan}(scanArrayScanNum).scanArray) - planC{indexS.scan}(scanArrayScanNum).scanInfo(1).CTOffset;
@@ -22,6 +17,20 @@ else
     scan3M = scanArrayScanNum;
     clear scanArrayScanNum
 end
+scanDataType = class(scan3M);
+if strcmpi(scanDataType,'double')
+    bitsAllocated = 64;
+elseif strcmpi(scanDataType,'single')
+    bitsAllocated = 32;
+else
+    bitsAllocated = 16;
+end
+%if isfield(planC{indexS.scan}(headerScanNum).scanInfo(1),'DICOMHeaders')
+%    bitsAllocated = planC{indexS.scan}(headerScanNum).scanInfo(1).DICOMHeaders.BitsAllocated;
+%else
+%    bitsAllocated = 16;
+%end
+
 sizV = size(scan3M);
 for slc = 1:length(planC{indexS.scan}(headerScanNum).scanInfo)
     headerS.Rows = sizV(1);
