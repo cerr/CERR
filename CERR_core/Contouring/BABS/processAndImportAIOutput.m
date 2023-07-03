@@ -60,7 +60,7 @@ for nOut = 1:length(outputC)
             % Get associated scan num
             idS = userOptS.outputAssocScan.identifier;
             assocScan = getScanNumFromIdentifiers(idS,planC);
-            
+
             tempOptS = userOptS;
             outTypesC = fieldnames(userOptS.output);
             matchIdx = strcmpi(outTypesC,'DVF');
@@ -73,42 +73,37 @@ for nOut = 1:length(outputC)
             %outputSizeV = size(DVF4M);
             origScanSizV = size(planC{indexS.scan}(assocScan).scanArray);
             dvfOnOrigScan4M = zeros([origScanSizV,3]);
-                        
-            % Note: Expected ordering of components is: DVF_, DVF_y,DVF_z 
+
+            % Note: Expected ordering of components is: DVF_, DVF_y,DVF_z
             % i.e., deformation along cols, rows, slices.
-            %DVF4M = DVF4M([2,1,3],:,:,:); 
-            
+            %DVF4M = DVF4M([2,1,3],:,:,:);
+
             % Convert to physical dimensions
             for nDim = 1:size(DVF4M,1)
-                
+
                 % Reverse pre-processing operations
                 DVF3M = squeeze(DVF4M(nDim,:,:,:));
-                
+
                 [DVF3M,imgExtentsV,physExtentsV,planC] = ...
                     joinH5planC(assocScan,DVF3M,[DVFfilename,'_'...
                     dimsC{nDim}],tempOptS,planC);
-                
-%                 % Scale by voxel resolution
-%                 if nDim == 1
-%                     scaleFactor = abs(physExtentsV(2)-physExtentsV(1))./(imgExtentsV(2)-imgExtentsV(1));
-%                 else
-%                     if nDim == 2
-%                         scaleFactor = abs(physExtentsV(4)-physExtentsV(3))./(imgExtentsV(4)-imgExtentsV(3));
-%                     else
-%                         %nDim == 3
-%                         scaleFactor = -abs(physExtentsV(6)-physExtentsV(5))./(imgExtentsV(6)-imgExtentsV(5));
-%                     end
-%                 end
-%                 DVF3M = DVF3M.*scaleFactor*10; %Conver to mm
-                dvfOnOrigScan4M(:,:,:,nDim) = DVF3M;
-            end
-            dvfDcm4M = dvfImageToDICOMCoords(dvfOnOrigScan4M,assocScan,planC);
 
+                if nDim == 3
+                    % Account for reversed slice direction (CERR convention vs.
+                    % DICOM) passed to model.
+                    DVF3M = -DVF3M;
+                end
+
+                dvfOnOrigScan4M(:,:,:,nDim) = DVF3M;
+
+            end
+
+            dvfDcm4M = dvfImageToDICOMCoords(dvfOnOrigScan4M,assocScan,planC);
             %Write DVF to NIfTI file
-%            fprintf('\n Writing DVF to file %s\n',niiFileNameC{nDim});
-%             exportScanToNii(niiOutDir,dvfDcm4M,{DVFfilename},...
-%                [],{},planC,assocScan);
-            
+            fprintf('\n Writing DVF to file %s\n',niiFileNameC{nDim});
+            exportScanToNii(niiOutDir,dvfDcm4M,{DVFfilename},...
+                [],{},planC,assocScan);
+
             %Calc. deformation magnitude
             DVFmag3M = zeros(origScanSizV);
             assocScanUID = planC{indexS.scan}(assocScan).scanUID;
