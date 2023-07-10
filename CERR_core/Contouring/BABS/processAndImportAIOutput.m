@@ -67,7 +67,7 @@ for nOut = 1:length(outputC)
             outTypesC = outTypesC(~matchIdx);
             tempOptS.output = rmfield(tempOptS.output,outTypesC);
             niiOutDir = tempOptS.output.DVF.outputDir;
-            DVFfilename = strrep(DVFfile.name,'.h5','');
+            DVFfilename = strrep(strrep(DVFfile.name,' ','_'),'.h5','');
             dimsC = {'dx','dy','dz'};
             niiFileNameC = cell(1,length(dimsC));
             %outputSizeV = size(DVF4M);
@@ -98,17 +98,18 @@ for nOut = 1:length(outputC)
 
             end
 
-            dvfDcm4M = dvfImageToDICOMCoords(dvfOnOrigScan4M,assocScan,planC);
+            dvfDcmM = dvfImageToDICOMCoords(dvfOnOrigScan4M,assocScan,planC);  %4D array
+            dvfDcmM = permute(dvfDcmM, [1:3 5 4]); %5D array as reqd by exportScanToNii.m
             %Write DVF to NIfTI file
             fprintf('\n Writing DVF to file %s\n',niiFileNameC{nDim});
-            exportScanToNii(niiOutDir,dvfDcm4M,{DVFfilename},...
+            exportScanToNii(niiOutDir,dvfDcmM,{DVFfilename},...
                 [],{},planC,assocScan);
 
             %Calc. deformation magnitude
             DVFmag3M = zeros(origScanSizV);
             assocScanUID = planC{indexS.scan}(assocScan).scanUID;
             for nDim = 1:size(dvfOnOrigScan4M,4)
-                dvfDim3M = dvfOnOrigScan4M(:,:,:,nDim);
+                dvfDim3M = squeeze(dvfDcmM(:,:,:,1,nDim));
                 DVFmag3M = DVFmag3M + dvfDim3M.^2;
             end
             DVFmag3M = sqrt(DVFmag3M);
