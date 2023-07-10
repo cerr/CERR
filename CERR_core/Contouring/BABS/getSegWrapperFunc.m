@@ -83,8 +83,12 @@ for algoNum = 1:numAlgoritms
         case 'FDGPET_HEADANDNECK_PIX2PIX'
             functionNameC{algoNum} = fullfile(condaEnvListC{algoNum},...
                 'fdg2fmiso_hn_pix2pix', 'infer_tbr.py');
-            
-                       
+
+        case 'MRI_PANCREAS_FULLSHOT_ANATOMICCTXSHAPE_V1'
+            functionNameC{algoNum} = fullfile(condaEnvListC{algoNum},...
+                'MRI_Pancreas_Fullshot_AnatomicCtxShape_v1','model_wrapper',...
+                'run_inference.py');
+
     end
     
 end
