@@ -59,38 +59,39 @@ switch fieldname
         
         multiFrameFlag = 'No';
         
-        % Uncompress files if transferSyntaxUID other than '1.2.840.10008.1.2'
-        IMAGE   = SERIES(1).Data;
-        [imgobj, ~]  = scanfile_mldcm(IMAGE(1).file,true);
-        transferSyntaxUID = imgobj.getString(131088); % 00020010
-        tempDirPathC = {};
-        if ~strcmpi(transferSyntaxUID,'1.2.840.10008.1.2')
-            fileC = {SERIES.Data.file};
-            dcmPathC = cellfun(@fileparts,fileC,...
-                'UniformOutput',false);
-            uniqDcmPathC = unique(dcmPathC);
-            numDirs = length(uniqDcmPathC);
-            tempDirPathC = cell(1,numDirs);
-            dcm2dcmPath = fullfile(getDcm4cheBinPath,'dcm2dcm');
-            for iDir = 1:numDirs
-                dcmPath = dcmPathC{iDir};
-                [~,dirName,ext] = fileparts(dcmPath);
-                randStr = num2str(randi(1e6));
-                tempDirPathC{iDir} = fullfile(tempdir,[dirName,ext,randStr]);
-                if ~exist(tempDirPathC{iDir},'dir')
-                    mkdir(tempDirPathC{iDir})
-                end
-                evalStr = ['"',dcm2dcmPath,'" -t 1.2.840.10008.1.2 "',dcmPath,'" "',tempDirPathC{iDir},'"'];
-                err = system(evalStr);
-                if err
-                    error(['Filed command: ', evalStr]);
-                end                
-                indSeriesC = strfind(fileC,dcmPath);
-                indSeriesV = ~cellfun(@isempty,indSeriesC);
-                newFileNamC = strrep(fileC(indSeriesV),dcmPath,tempDirPathC{iDir});
-                [SERIES.Data(indSeriesV).file] = deal(newFileNamC{:});
-            end
-        end
+%         % Uncompress files if transferSyntaxUID other than '1.2.840.10008.1.2'
+%         % decompression handled by "ImageReader" class
+%         IMAGE   = SERIES(1).Data;
+%         [imgobj, ~]  = scanfile_mldcm(IMAGE(1).file,true);
+%         transferSyntaxUID = imgobj.getString(131088); % 00020010
+%         tempDirPathC = {};
+%         if ~strcmpi(transferSyntaxUID,'1.2.840.10008.1.2')
+%             fileC = {SERIES.Data.file};
+%             dcmPathC = cellfun(@fileparts,fileC,...
+%                 'UniformOutput',false);
+%             uniqDcmPathC = unique(dcmPathC);
+%             numDirs = length(uniqDcmPathC);
+%             tempDirPathC = cell(1,numDirs);
+%             dcm2dcmPath = fullfile(getDcm4cheBinPath,'dcm2dcm');
+%             for iDir = 1:numDirs
+%                 dcmPath = dcmPathC{iDir};
+%                 [~,dirName,ext] = fileparts(dcmPath);
+%                 randStr = num2str(randi(1e6));
+%                 tempDirPathC{iDir} = fullfile(tempdir,[dirName,ext,randStr]);
+%                 if ~exist(tempDirPathC{iDir},'dir')
+%                     mkdir(tempDirPathC{iDir})
+%                 end
+%                 evalStr = ['"',dcm2dcmPath,'" -t 1.2.840.10008.1.2 "',dcmPath,'" "',tempDirPathC{iDir},'"'];
+%                 err = system(evalStr);
+%                 if err
+%                     error(['Filed command: ', evalStr]);
+%                 end                
+%                 indSeriesC = strfind(fileC,dcmPath);
+%                 indSeriesV = ~cellfun(@isempty,indSeriesC);
+%                 newFileNamC = strrep(fileC(indSeriesV),dcmPath,tempDirPathC{iDir});
+%                 [SERIES.Data(indSeriesV).file] = deal(newFileNamC{:});
+%             end
+%         end
         
         if nImages == 1
             IMAGE   = SERIES.Data;
@@ -109,15 +110,15 @@ switch fieldname
             
             case 'No'
             
-                %readerSpi = javaObject('org.dcm4che3.imageio.plugins.dcm.DicomImageReaderSpi');
-                %dcmImgReader = javaObject('org.dcm4che3.imageio.plugins.dcm.DicomImageReader',readerSpi);
+                readerSpi = javaObject('org.dcm4che3.imageio.plugins.dcm.DicomImageReaderSpi');
+                dcmImgReader = javaObject('org.dcm4che3.imageio.plugins.dcm.DicomImageReader',readerSpi);
 
                 %Iterate over slices.
                 zValues = nan([1,nImages]);
                 for imageNum = 1:nImages
                     
                     IMAGE   = SERIES.Data(imageNum); % wy {} --> ()
-                    [imgobj, ~]  = scanfile_mldcm(IMAGE.file,false);
+                    [imgobj, ~]  = scanfile_mldcm(IMAGE.file,true);
                     
                     %Pixel Data
                     %wy sliceV = getTagValue(imgobj.get(hex2dec('7FE00010')));
@@ -135,7 +136,12 @@ switch fieldname
                     %sliceV = cast(imgobj.getInts(org.dcm4che3.data.Tag.PixelData),'int16'); %OW
                     % Get value representation for image data
                     %vr = javaMethod('vrOf','org.dcm4che3.data.ElementDictionary',2.145386512000000e+09, []);
-                    sliceV = cast(imgobj.getInts(2.145386512000000e+09),'int16'); %OW
+                    
+                    %%% ===== read sliceV by applying decompression
+                    %%% directly using "dcmImgReader" class
+                    %sliceV = cast(imgobj.getInts(2.145386512000000e+09),'int16'); %OW
+                    
+                    
                     % sliceV =
                     % dcm2ml_Element(imgobj,'7FE00010',transferSyntaxUID);
                     % ====== TO DO ===== incorporate changes related to transferSyntaxUID into getTagValue
@@ -170,53 +176,56 @@ switch fieldname
                     %samplesPerPixel = imgobj.getInt(org.dcm4che3.data.Tag.SamplesPerPixel,0);
                     samplesPerPixel = imgobj.getInt(2621442,0);
                     
-%                     % Read image (to do - use
-%                     % org.dcm4che3.imageio.plugins.dcm.DicomImageReader)
-%                     inputStreamObj = javaObject("java.io.FileInputStream",IMAGE.file);
-%                     in = javaObject("org.dcm4che3.io.DicomInputStream",inputStreamObj);
-%                     dcmImgReader.setInput(in)
-%                     param = dcmImgReader.getDefaultReadParam;
-%                     raster = dcmImgReader.readRaster(0, param); % only one image. hence image index of 0.
-%                     h = raster.getHeight;
-%                     w = raster.getWidth;
-%                     numBands = raster.getNumBands;
-%                     if numBands > 1
-%                         error('Multi-band image not supported')
-%                     end
-%                     b = 0; % 1st band
-%                     sliceV = raster.getSamples(0,0,w,h,b,[]);
-
+                    % Read image (to do - use
+                    % org.dcm4che3.imageio.plugins.dcm.DicomImageReader)
+                    inputStreamObj = javaObject("java.io.FileInputStream",IMAGE.file);
+                    in = javaObject("org.dcm4che3.io.DicomInputStream",inputStreamObj);
+                    dcmImgReader.setInput(in,false)
+                    param = dcmImgReader.getDefaultReadParam;
+                    raster = dcmImgReader.readRaster(0, param); % only one image. hence image index of 0.
+                    %h = raster.getHeight;
+                    %w = raster.getWidth;
+                    %numBands = raster.getNumBands;
+                    %if numBands > 1
+                    %    error('Multi-band image not supported')
+                    %end
+                    %b = 0; % 1st band
+                    %sliceV = raster.getSamples(0,0,w,h,b,[]);
+                    sliceV = raster.getDataBuffer().getData();
+                    
+                    %Close input stream.
+                    in.close();
                     
                     % Photometric Interpretation
                     %PhotometricInterpretation = getTagValue(imgobj ,'00280004');
                     %PhotometricInterpretation = char(imgobj.getStrings(org.dcm4che3.data.Tag.PhotometricInterpretation));
                     %PhotometricInterpretation = char(imgobj.getStrings(2621444));
                     
-                    if bitsAllocated > 32
-                        error('Maximum 32 bits per scan pixel are supported')
-                    end
-                    
-                    switch pixRep
-                        case 0
-                            if bitsAllocated == 8
-                                sliceV = typecast(sliceV,'uint8');
-                            elseif bitsAllocated == 16
-                                sliceV = typecast(sliceV,'uint16');
-                            elseif bitsAllocated == 32
-                                sliceV = typecast(sliceV,'uint32');
-                            end
-                        case 1
-                            if bitsAllocated == 8
-                                sliceV = typecast(sliceV,'int8');
-                            elseif bitsAllocated == 16
-                                sliceV = typecast(sliceV,'int16');
-                            elseif bitsAllocated == 32
-                                sliceV = typecast(sliceV,'int32');
-                            end
-                        otherwise
-                            sliceV = typecast(sliceV,'int16');
-                            
-                    end                    
+%                     if bitsAllocated > 32
+%                         error('Maximum 32 bits per scan pixel are supported')
+%                     end
+%                     
+%                     switch pixRep
+%                         case 0
+%                             if bitsAllocated == 8
+%                                 sliceV = typecast(sliceV,'uint8');
+%                             elseif bitsAllocated == 16
+%                                 sliceV = typecast(sliceV,'uint16');
+%                             elseif bitsAllocated == 32
+%                                 sliceV = typecast(sliceV,'uint32');
+%                             end
+%                         case 1
+%                             if bitsAllocated == 8
+%                                 sliceV = typecast(sliceV,'int8');
+%                             elseif bitsAllocated == 16
+%                                 sliceV = typecast(sliceV,'int16');
+%                             elseif bitsAllocated == 32
+%                                 sliceV = typecast(sliceV,'int32');
+%                             end
+%                         otherwise
+%                             sliceV = typecast(sliceV,'int16');
+%                             
+%                     end                    
                     
                     %Shape the slice.
                     if samplesPerPixel == 3 %rgb
@@ -548,14 +557,14 @@ switch fieldname
                 
         end
         
-        if ~isempty(tempDirPathC)
-            if ~isempty(ver('OCTAVE'))
-                confirm_recursive_rmdir(0)
-            end
-            for iDir = 1:length(tempDirPathC)
-                rmdir(tempDirPathC{iDir},'s')
-            end
-        end
+%         if ~isempty(tempDirPathC)
+%             if ~isempty(ver('OCTAVE'))
+%                 confirm_recursive_rmdir(0)
+%             end
+%             for iDir = 1:length(tempDirPathC)
+%                 rmdir(tempDirPathC{iDir},'s')
+%             end
+%         end
         
         %close(hWaitbar);
         %pause(1);
