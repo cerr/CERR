@@ -93,6 +93,7 @@ AIoutputPath = fullfile(fullSessionPath,'AIoutput');
 mkdir(AIoutputPath);
 
 %% Import DICOM to CERR
+init_ML_DICOM
 importDICOM(inputDicomPath,cerrPath);
 
 % Get container path
