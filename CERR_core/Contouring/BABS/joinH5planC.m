@@ -1,4 +1,4 @@
-function [dataOut3M,planC] = joinH5planC(scanNum,data3M,labelPath,...
+function [dataOut3M,imgExtentsV,physExtentsV,planC] = joinH5planC(scanNum,data3M,labelPath,...
     userOptS,planC)
 % function [dataOut3M,planC]  = joinH5planC(scanNum,segMask3M,labelPath,...
 %                               userOptS,planC)
@@ -9,7 +9,7 @@ end
 indexS = planC{end};
 
 %% Reverse pre-processing operations
-[dataOut3M,scanNum,planC] = reverseTransformAIOutput(scanNum,data3M,...
+[dataOut3M,imgExtentsV,physExtentsV,scanNum,planC] = reverseTransformAIOutput(scanNum,data3M,...
     userOptS,planC);
 
 %% Import model output to CERR
@@ -41,10 +41,13 @@ switch(lower(outputType))
         end
 
     case 'dvf'
-        assocScanUID = planC{indexS.scan}(scanNum).scanUID;
-        description = labelPath;
-        planC = dose2CERR(dataOut3M,[],description,'',description,'CT',[],...
-            'no',assocScanUID, planC);
+        if isfield(userOptS.output.(outputType),'saveToPlanC') &&...
+                strcmpi(userOptS.output.(outputType).saveToPlanC,'yes')
+            assocScanUID = planC{indexS.scan}(scanNum).scanUID;
+            description = labelPath;
+            planC = dose2CERR(dataOut3M,[],description,'',description,'CT',[],...
+                'no',assocScanUID, planC);
+        end
 end
 
 end

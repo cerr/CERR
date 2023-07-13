@@ -1,4 +1,4 @@
-function [dataOut3M,physExtentsV,scanNum,planC] = reverseTransformAIOutput(scanNum,data3M,...
+function [dataOut3M,imgExtentsV,physExtentsV,scanNum,planC] = reverseTransformAIOutput(scanNum,data3M,...
                              userOptS,planC)
 % Undo pre-processing transformations (cropping, resampling, registration)
 % AI 09/01/22
@@ -19,7 +19,7 @@ output = outputsC{1};
 %% Resize/pad mask to original dimensions
 
 %Get parameters for resizing & cropping
-cropS = scanOptS.crop; 
+cropS = scanOptS.crop;
 if ~isempty(cropS) && isfield(cropS(1),'params')
     for cropNum = 1:length(cropS)
         cropS(cropNum).params.saveStrToPlanCFlag = 0;
@@ -38,7 +38,8 @@ scanS = planC{indexS.scan}(scanNum);
 [xValsV,yValsV,zValsV] = getScanXYZVals(scanS);
 physExtentsV = [yValsV(minr),yValsV(maxr),...
     xValsV(minc),xValsV(maxc),...
-    zValsV(slcV(1)),xValsV(slcV(end))];
+    zValsV(slcV(1)),zValsV(slcV(end))];
+imgExtentsV = [minr,maxr,minc,maxc,slcV(1),slcV(end)];
 
 %Undo resizing & cropping
 resizeS = scanOptS.resize;
@@ -56,23 +57,23 @@ for nMethod = length(resizeS):-1:1
         data3M = dataOut3M;
     end
     switch lower(resizeMethod)
-        
+
         case 'pad2d'
-            
+
             limitsM = [minr, maxr, minc, maxc];
             resizeMethod = 'unpad2d';
             originImageSizV = [sizV(1:2), length(slcV)];
-            if strcmpi(output, 'labelmap')                
+            if strcmpi(output, 'labelmap')
                 dataOut3M = zeros(sizV, 'uint32');
                 [~, dataOut3M(:,:,slcV)] = ...
                     resizeScanAndMask([],data3M,originImageSizV,...
-                    resizeMethod,limitsM);                
+                    resizeMethod,limitsM);
             else
                 [dataOut3M(:,:,slcV),~] = ...
                     resizeScanAndMask(data3M,[],originImageSizV,...
-                    resizeMethod,limitsM);                
+                    resizeMethod,limitsM);
             end
-            
+
         case 'pad3d'
             resizeMethod = 'unpad3d';
             [~, tempData3M] = ...

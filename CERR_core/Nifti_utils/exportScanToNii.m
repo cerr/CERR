@@ -46,13 +46,13 @@ for slc = 1:length(planC{indexS.scan}(headerScanNum).scanInfo)
     headerS.BitsAllocated = bitsAllocated;
     headerS.isDTI = 0;
     headerS.Manufacturer = '';
-    h{1}{slc} = headerS;    
+    h{1}{slc} = headerS;
 end
 
 % Flip to change order such that slices increase from inf to sup
 h{1} = flip(h{1});
-if numel(size(scan3M)) == 4
-    scan3M = flip(permute(scan3M,[2,1,3,4]),3);
+if numel(size(scan3M)) == 5
+    scan3M = flip(permute(scan3M,[2,1,3,4,5]),3);
 else
     %3d
     scan3M = flip(permute(scan3M,[2,1,3]),3);
@@ -62,7 +62,7 @@ if exist('outScanNiiFileNameC','var') && ~isempty(outScanNiiFileNameC)
     if ischar(outScanNiiFileNameC)
         outScanNiiFileNameC = {outScanNiiFileNameC};
     end
-else    
+else
     ptId = planC{indexS.scan}(headerScanNum).scanInfo(1).patientID;
     if isempty(ptId)
         outScanNiiFileNameC = {'scan'};
@@ -74,7 +74,7 @@ if exist('outMaskNiiFileNameC','var') && ~isempty(outMaskNiiFileNameC)
     if ischar(outScanNiiFileNameC)
         outMaskNiiFileNameC = {outMaskNiiFileNameC};
     end
-else    
+else
     ptId = planC{indexS.scan}(headerScanNum).scanInfo(1).patientID;
     if isempty(ptId)
         outMaskNiiFileNameC = {'scan'};

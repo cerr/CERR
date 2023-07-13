@@ -91,15 +91,18 @@ path6 = fullfile(ML_dcm_path,'dcm4che-imageio-5.17.0.jar');
 path7 = fullfile(ML_dcm_path,'dcm4che-imageio-rle-5.17.0.jar');
 %path8 = fullfile(ML_dcm.path,'dcm4che-iod-3.3.8.jar');
 path9 = fullfile(ML_dcm_path,'dcm4che-net-5.17.0.jar');
+path10 = fullfile(ML_dcm_path,'weasis-opencv-core-3.0.4.jar');
+path11 = fullfile(ML_dcm_path,'dcm4che-imageio-opencv-5.17.0.jar');
+path12 = fullfile(ML_dcm_path,'jai_imageio-1.2-pre-dr-b04.jar');
 %cd(oldpath);
 % end
 
 mlVer = ver('Matlab');
 octVer = ver('Octave');
 if ~isempty(octVer)
-    javaaddpath(path1,path2, path3, path4, path5,path6,path7,path9);
+    javaaddpath(path1,path2, path3, path4, path5,path6,path7,path9,path10,path11,path12);
 elseif ~isempty(mlVer)
-    javaaddpath({path1,path2, path5,path6,path7,path9});
+    javaaddpath({path1,path2,path3, path4, path5,path6,path7,path9,path10,path11,path12});
 end
-addPathC = {path1,path2, path5,path6,path7,path9};
+addPathC = {path1,path2, path3, path4, path5,path6,path7,path9,path10,path11,path12};
 
