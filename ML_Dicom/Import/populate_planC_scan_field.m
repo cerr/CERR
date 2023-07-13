@@ -59,39 +59,42 @@ switch fieldname
         
         multiFrameFlag = 'No';
         
-%         % Uncompress files if transferSyntaxUID other than '1.2.840.10008.1.2'
-%         % decompression handled by "ImageReader" class
-%         IMAGE   = SERIES(1).Data;
-%         [imgobj, ~]  = scanfile_mldcm(IMAGE(1).file,true);
-%         transferSyntaxUID = imgobj.getString(131088); % 00020010
-%         tempDirPathC = {};
-%         if ~strcmpi(transferSyntaxUID,'1.2.840.10008.1.2')
-%             fileC = {SERIES.Data.file};
-%             dcmPathC = cellfun(@fileparts,fileC,...
-%                 'UniformOutput',false);
-%             uniqDcmPathC = unique(dcmPathC);
-%             numDirs = length(uniqDcmPathC);
-%             tempDirPathC = cell(1,numDirs);
-%             dcm2dcmPath = fullfile(getDcm4cheBinPath,'dcm2dcm');
-%             for iDir = 1:numDirs
-%                 dcmPath = dcmPathC{iDir};
-%                 [~,dirName,ext] = fileparts(dcmPath);
-%                 randStr = num2str(randi(1e6));
-%                 tempDirPathC{iDir} = fullfile(tempdir,[dirName,ext,randStr]);
-%                 if ~exist(tempDirPathC{iDir},'dir')
-%                     mkdir(tempDirPathC{iDir})
-%                 end
-%                 evalStr = ['"',dcm2dcmPath,'" -t 1.2.840.10008.1.2 "',dcmPath,'" "',tempDirPathC{iDir},'"'];
-%                 err = system(evalStr);
-%                 if err
-%                     error(['Filed command: ', evalStr]);
-%                 end                
-%                 indSeriesC = strfind(fileC,dcmPath);
-%                 indSeriesV = ~cellfun(@isempty,indSeriesC);
-%                 newFileNamC = strrep(fileC(indSeriesV),dcmPath,tempDirPathC{iDir});
-%                 [SERIES.Data(indSeriesV).file] = deal(newFileNamC{:});
-%             end
-%         end
+        % Uncompress files if transferSyntaxUID other than '1.2.840.10008.1.2'
+        % decompression handled by "ImageReader" class
+        IMAGE   = SERIES(1).Data;
+        [imgobj, ~]  = scanfile_mldcm(IMAGE(1).file,true);
+        transferSyntaxUID = imgobj.getString(131088); % 00020010
+        tempDirPathC = {};
+        % decompression begins
+        if ~strcmpi(transferSyntaxUID,'1.2.840.10008.1.2') && ...
+                ~strcmpi(transferSyntaxUID,'1.2.840.10008.1.2.1')
+            fileC = {SERIES.Data.file};
+            dcmPathC = cellfun(@fileparts,fileC,...
+                'UniformOutput',false);
+            uniqDcmPathC = unique(dcmPathC);
+            numDirs = length(uniqDcmPathC);
+            tempDirPathC = cell(1,numDirs);
+            dcm2dcmPath = fullfile(getDcm4cheBinPath,'dcm2dcm');
+            for iDir = 1:numDirs
+                dcmPath = dcmPathC{iDir};
+                [~,dirName,ext] = fileparts(dcmPath);
+                randStr = num2str(randi(1e6));
+                tempDirPathC{iDir} = fullfile(tempdir,[dirName,ext,randStr]);
+                if ~exist(tempDirPathC{iDir},'dir')
+                    mkdir(tempDirPathC{iDir})
+                end
+                evalStr = ['"',dcm2dcmPath,'" -t 1.2.840.10008.1.2 "',dcmPath,'" "',tempDirPathC{iDir},'"'];
+                err = system(evalStr);
+                if err
+                    error(['Filed command: ', evalStr]);
+                end                
+                indSeriesC = strfind(fileC,dcmPath);
+                indSeriesV = ~cellfun(@isempty,indSeriesC);
+                newFileNamC = strrep(fileC(indSeriesV),dcmPath,tempDirPathC{iDir});
+                [SERIES.Data(indSeriesV).file] = deal(newFileNamC{:});
+            end
+        end
+        % decompression ends
         
         if nImages == 1
             IMAGE   = SERIES.Data;
@@ -557,14 +560,14 @@ switch fieldname
                 
         end
         
-%         if ~isempty(tempDirPathC)
-%             if ~isempty(ver('OCTAVE'))
-%                 confirm_recursive_rmdir(0)
-%             end
-%             for iDir = 1:length(tempDirPathC)
-%                 rmdir(tempDirPathC{iDir},'s')
-%             end
-%         end
+        if ~isempty(tempDirPathC)
+            if ~isempty(ver('OCTAVE'))
+                confirm_recursive_rmdir(0)
+            end
+            for iDir = 1:length(tempDirPathC)
+                rmdir(tempDirPathC{iDir},'s')
+            end
+        end
         
         %close(hWaitbar);
         %pause(1);
