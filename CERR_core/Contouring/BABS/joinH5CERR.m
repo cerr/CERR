@@ -21,7 +21,7 @@ planC = planC.planC;
 indexS = planC{end};
 
 %% Import mask
-planC  = joinH5planC(scanNum,segMask3M,labelPath,userOptS,planC);
+[~,~,planC]  = joinH5planC(scanNum,segMask3M,labelPath,userOptS,planC);
 
 %% Post-process segmentations
 if sum(segMask3M(:))>0 

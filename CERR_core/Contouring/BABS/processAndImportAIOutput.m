@@ -38,8 +38,8 @@ for nOut = 1:length(outputC)
             outFile = fullfile(DVFpath,DVFfile.name);
             switch(lower(outFmt))
                 case 'h5'
-                    loadDataS = load(outFile);
-                    DVF4M = loadDataS.dvf;
+                    DVF4M = h5read(outFile,'/dvf');
+                    DVF4M =  permute(DVF4M,[1,4,3,2]);
                 otherwise
                     error('Invalid model output format %s.',outFmt)
             end
@@ -60,7 +60,7 @@ for nOut = 1:length(outputC)
             % Get associated scan num
             idS = userOptS.outputAssocScan.identifier;
             assocScan = getScanNumFromIdentifiers(idS,planC);
-            
+
             tempOptS = userOptS;
             outTypesC = fieldnames(userOptS.output);
             matchIdx = strcmpi(outTypesC,'DVF');
@@ -70,18 +70,40 @@ for nOut = 1:length(outputC)
             DVFfilename = strrep(DVFfile.name,'.h5','');
             dimsC = {'dx','dy','dz'};
             niiFileNameC = cell(1,length(dimsC));
+            %outputSizeV = size(DVF4M);
             origScanSizV = size(planC{indexS.scan}(assocScan).scanArray);
             dvfOnOrigScan4M = zeros([origScanSizV,3]);
+
+            % Note: Expected ordering of components is: DVF_, DVF_y,DVF_z
+            % i.e., deformation along cols, rows, slices.
+            %DVF4M = DVF4M([2,1,3],:,:,:);
+
+            % Convert to physical dimensions
             for nDim = 1:size(DVF4M,1)
+
+                % Reverse pre-processing operations
                 DVF3M = squeeze(DVF4M(nDim,:,:,:));
-                [DVF3M,planC] = joinH5planC(assocScan,DVF3M,[DVFfilename,'_'...
+
+                [DVF3M,imgExtentsV,physExtentsV,planC] = ...
+                    joinH5planC(assocScan,DVF3M,[DVFfilename,'_'...
                     dimsC{nDim}],tempOptS,planC);
+
+                if nDim == 3
+                    % Account for reversed slice direction (CERR convention vs.
+                    % DICOM) passed to model.
+                    DVF3M = -DVF3M;
+                end
+
                 dvfOnOrigScan4M(:,:,:,nDim) = DVF3M;
+
             end
+
+            dvfDcm4M = dvfImageToDICOMCoords(dvfOnOrigScan4M,assocScan,planC);
+            %Write DVF to NIfTI file
             fprintf('\n Writing DVF to file %s\n',niiFileNameC{nDim});
-            exportScanToNii(niiOutDir,dvfOnOrigScan4M,{DVFfilename},...
+            exportScanToNii(niiOutDir,dvfDcm4M,{DVFfilename},...
                 [],{},planC,assocScan);
-            
+
             %Calc. deformation magnitude
             DVFmag3M = zeros(origScanSizV);
             assocScanUID = planC{indexS.scan}(assocScan).scanUID;
@@ -90,11 +112,12 @@ for nOut = 1:length(outputC)
                 DVFmag3M = DVFmag3M + dvfDim3M.^2;
             end
             DVFmag3M = sqrt(DVFmag3M);
+            % Store to planC as pseudo-dose 
             description = 'Deformation magnitude';
             planC = dose2CERR(DVFmag3M,[],description,'',description,...
                 'CT',[],'no',assocScanUID, planC);
             
-            % Store to deformS
+            % Store metadata to deformS
             indexS = planC{end};
             if isfield(userOptS,'register') && isfield(userOptS.register,'baseScan')
                 idS = userOptS.register.baseScan.identifier;
@@ -159,7 +182,7 @@ for nOut = 1:length(outputC)
                                 origScanNum = getScanNumFromIdentifiers(identifierS,planC);
                                 origScanNum = find(origScanNumV==origScanNum);
                                 %if ismember(origScanNum,scanNumV)
-                                    outScanNum = scanNumV(origScanNum);
+                                outScanNum = scanNumV(origScanNum);
                                 %else
                                 %   outScanNum = origScanNum;
                                 %end
@@ -174,7 +197,7 @@ for nOut = 1:length(outputC)
                         
                         userOptS.input.scan(outScanNum) = userOptS.input.scan(origScanNum);
                         userOptS.input.scan(outScanNum).origScan = origScanNumV;
-                        [procData3M,planC] = joinH5planC(outScanNum,modelOut3M,...
+                        [procData3M,~,~,planC] = joinH5planC(outScanNum,modelOut3M,...
                             scanName,userOptS,planC);
                         
                         % Add the new "derived" scan to planC
