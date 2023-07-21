@@ -1,4 +1,4 @@
-function [dataOut3M,scanNum,planC] = reverseTransformAIOutput(scanNum,data3M,...
+function [dataOut3M,imgExtentsV,physExtentsV,scanNum,planC] = reverseTransformAIOutput(scanNum,data3M,...
                              userOptS,planC)
 % Undo pre-processing transformations (cropping, resampling, registration)
 % AI 09/01/22
@@ -34,6 +34,12 @@ sizV = size(scanArray3M);
 %dataOut3M = zeros(sizV, 'uint32');
 dataOut3M = zeros(sizV,class(data3M));
 originImageSizV = [sizV(1:2), length(slcV)];
+scanS = planC{indexS.scan}(scanNum);
+[xValsV,yValsV,zValsV] = getScanXYZVals(scanS);
+physExtentsV = [yValsV(minr),yValsV(maxr),...
+    xValsV(minc),xValsV(maxc),...
+    zValsV(slcV(1)),zValsV(slcV(end))];
+imgExtentsV = [minr,maxr,minc,maxc,slcV(1),slcV(end)];
 
 %Undo resizing & cropping
 resizeS = scanOptS.resize;
@@ -95,7 +101,7 @@ for nMethod = length(resizeS):-1:1
                 resizeMethod);
 
         case { 'bilinear', 'sinc', 'bicubic'}
-            dataOut3M = zeros(sizV, 'uint32');
+            dataOut3M = zeros(sizV, class(data3M));
             limitsM = [minr, maxr, minc, maxc];
 
             outSizeV = [maxr-minr+1,maxc-minc+1,originImageSizV(3)];
@@ -154,4 +160,3 @@ end
 
 
 end
-

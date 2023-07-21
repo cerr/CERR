@@ -82,6 +82,7 @@ if ~exist(ML_dcm_path,'dir')
     initFlag = 0;
     return;
 end
+
 path1 = fullfile(ML_dcm_path,'dcm4che-core-5.17.0.jar');
 path2 = fullfile(ML_dcm_path,'log4j-1.2.17.jar');
 path3 = fullfile(ML_dcm_path,'slf4j-api-1.7.25.jar');
@@ -89,17 +90,26 @@ path4 = fullfile(ML_dcm_path,'slf4j-log4j12-1.7.25.jar');
 path5 = fullfile(ML_dcm_path,'dcm4che-image-5.17.0.jar');
 path6 = fullfile(ML_dcm_path,'dcm4che-imageio-5.17.0.jar');
 path7 = fullfile(ML_dcm_path,'dcm4che-imageio-rle-5.17.0.jar');
-%path8 = fullfile(ML_dcm.path,'dcm4che-iod-3.3.8.jar');
+path8 = fullfile(ML_dcm_path,'dcm4che-tool-common-5.17.0.jar');
 path9 = fullfile(ML_dcm_path,'dcm4che-net-5.17.0.jar');
+path10 = fullfile(ML_dcm_path,'weasis-opencv-core-3.0.4.jar');
+path11 = fullfile(ML_dcm_path,'dcm4che-imageio-opencv-5.17.0.jar');
+path12 = fullfile(ML_dcm_path,'jai_imageio-1.2-pre-dr-b04.jar');
+path13 = fullfile(ML_dcm_path,'dcm4che-net-5.17.0.jar');
+path14 = fullfile(ML_dcm_path,'clibwrapper_jiio-1.2-pre-dr-b04.jar');
+path15 = fullfile(ML_dcm_path,'commons-cli-1.4.jar');
 %cd(oldpath);
 % end
 
 mlVer = ver('Matlab');
 octVer = ver('Octave');
 if ~isempty(octVer)
-    javaaddpath(path1,path2, path3, path4, path5,path6,path7,path9);
+    javaaddpath(path1,path2, path3, path4, path5,path6,path7,path8,...
+        path9,path10,path11,path12,path13,path14,path15);
 elseif ~isempty(mlVer)
-    javaaddpath({path1,path2, path5,path6,path7,path9});
+    javaaddpath({path1,path2, path3, path4, path5,path6,path7,path8,...
+        path9,path10,path11,path12,path13,path14,path15});
 end
-addPathC = {path1,path2, path5,path6,path7,path9};
+addPathC = {path1,path2, path3, path4, path5,path6,path7,path8,...
+        path9,path10,path11,path12,path13,path14,path15};
 

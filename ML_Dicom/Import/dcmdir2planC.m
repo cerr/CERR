@@ -266,11 +266,27 @@ for scanNum = 1:numScans
                 end
             end
         end
-        
+
+        %Pt coordinate to DICOM image coordinate mapping
+        %Based on ref: https://nipy.org/nibabel/dicom/dicom_orientation.html
+
+        info1S = planC{indexS.scan}(scanNum).scanInfo(end);
+        info2S = planC{indexS.scan}(scanNum).scanInfo(end-1);
+        pos1V = info1S.imagePositionPatient/10; %cm
+        pos2V = info2S.imagePositionPatient/10; %cm
+        deltaPosV = pos2V-pos1V;
+        pixelSpacing = [info1S.grid2Units, info1S.grid1Units];
+        slice_distance = (info1S.zValue - info2S.zValue)*10; 
+
+        positionMatrix = [reshape(ImageOrientationPatientV,[3 2])*diag(pixelSpacing)...
+            [deltaPosV(1) pos1V(1); deltaPosV(2) pos1V(2); deltaPosV(3) pos1V(3)]];
+        positionMatrix = [positionMatrix; 0 0 0 1];
+        planC{indexS.scan}(scanNum).Image2PhysicalTransM = positionMatrix;
+
         isObliqScanV(scanNum) = 0;
         continue;
     end
-    
+
     % Compute slice normal
     sliceNormV = ImageOrientationPatientV([2 3 1]) .* ImageOrientationPatientV([6 4 5]) ...
         - ImageOrientationPatientV([3 1 2]) .* ImageOrientationPatientV([5 6 4]);

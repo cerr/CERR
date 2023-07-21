@@ -24,6 +24,7 @@ pf.use_parfor = 0;
 pf.use_seriesUID = 1;
 pf.lefthand = 1;
 pf.scale_16bit = 0;
+pf.version = 1;
          
 i = 1;
 bids = 0;
@@ -79,6 +80,11 @@ end
 %     img = reshape(img, dim);
 % end
 
+pf.intent_code = 0;
+if ndims(img) == 5 % deformable vector field
+    pf.intent_code = 1007;
+end
+
 if any(~isfield(s, flds(6:8))) || ~any(isfield(s, flds(9:10)))
     h{i}{1} = csa2pos(h{i}{1}, size(img,3));
 end
@@ -87,6 +93,7 @@ if isa(img, 'uint16') && max(img(:))<32768, img = int16(img); end % lossless
 
 converter = 'CERR_dcm2nii';
 h{i}{1}.ConversionSoftware = converter;
+setpref('nii_tool_para', 'intent_code', pf.intent_code);
 nii = nii_tool('init', img); % create nii struct based on img
 [nii, h{i}] = set_nii_hdr(nii, h{i}, pf, bids); % set most nii hdr
 
