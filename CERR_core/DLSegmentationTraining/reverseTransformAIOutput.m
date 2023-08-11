@@ -1,4 +1,4 @@
-function [dataOut3M,physExtentsV,scanNum,planC] = reverseTransformAIOutput(scanNum,data3M,...
+function [dataOut3M,imgExtentsV,physExtentsV,scanNum,planC] = reverseTransformAIOutput(scanNum,data3M,...
                              userOptS,planC)
 % Undo pre-processing transformations (cropping, resampling, registration)
 % AI 09/01/22
@@ -38,7 +38,8 @@ scanS = planC{indexS.scan}(scanNum);
 [xValsV,yValsV,zValsV] = getScanXYZVals(scanS);
 physExtentsV = [yValsV(minr),yValsV(maxr),...
     xValsV(minc),xValsV(maxc),...
-    zValsV(slcV(1)),xValsV(slcV(end))];
+    zValsV(slcV(1)),zValsV(slcV(end))];
+imgExtentsV = [minr,maxr,minc,maxc,slcV(1),slcV(end)];
 
 %Undo resizing & cropping
 resizeS = scanOptS.resize;
