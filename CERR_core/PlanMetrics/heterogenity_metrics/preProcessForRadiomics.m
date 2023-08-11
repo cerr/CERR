@@ -168,6 +168,7 @@ if whichFeatS.resample.flag
         PixelSpacingZ = whichFeatS.resample.resolutionZCm;
     end
     
+
     % Interpolate using the method defined in settings file
     roiInterpMethod = 'linear';
     scanInterpMethod = whichFeatS.resample.interpMethod;

@@ -57,7 +57,6 @@ newScanS = planC{indexS.scan}(scanNum);
 
 %obtain r,c,s coordinates of structure based on its associated (old) scan
 [rStructValsV, cStructValsV, sStructValsV] = getUniformStr(structNum, planC);
-[oldMask] = getUniformStr(structNum, planC);
 
 %obtain x,y,z coordinates of voxels included within structure considering
 %transM for old and new scan
@@ -78,24 +77,20 @@ end
 transM = inv(transMold)*transMnew;
 [xStructValsV, yStructValsV, zStructValsV] = applyTransM(transM, xStructValsV, yStructValsV, zStructValsV);
 
-
-%create x,y,z mesh grids for both old and new scans, in the coordinate system of the new scan
-[XOld,YOld,ZOld] = meshgrid(xOldScanValsV, yOldScanValsV, zOldScanValsV);
-[XOldT, YOldT, ZOldT] = applyTransM(transM, XOld(:), YOld(:), ZOld(:));
-XOld(:) = XOldT;
-YOld(:) = YOldT;
-ZOld(:) = ZOldT;
-[XNew,YNew,ZNew] = meshgrid(xNewScanValsV, yNewScanValsV, zNewScanValsV);
-
-%create new mask by interpolating between the x,y,z positions of the old mask
-oldMaskDoubles = zeros(size(oldMask));
-oldMaskDoubles(oldMask) = 1;
-newMask = interp3(XOld,YOld,ZOld,oldMaskDoubles,XNew,YNew,ZNew);
+%convert x,y,z vals of structure to r,c,s of scanNum (new)
+[rStructValsV, cStructValsV, sStructValsV] = xyztom(xStructValsV, yStructValsV, zStructValsV, scanNum, planC, 1);
+rStructValsV = round(rStructValsV);
+rStructValsV = clip(rStructValsV,ceil(min(rNewScanValsV)),floor(max(rNewScanValsV)),'limits');
+cStructValsV = round(cStructValsV);
+cStructValsV = clip(cStructValsV,ceil(min(cNewScanValsV)),floor(max(cNewScanValsV)),'limits');
+sStructValsV = round(sStructValsV);
+sStructValsV = clip(sStructValsV,ceil(min(sNewScanValsV)),floor(max(sNewScanValsV)),'limits');
 
 %generate uniformized mask for this new structure
 newScanUnifSiz = getUniformScanSize(newScanS);
 maskM = zeros(newScanUnifSiz,'uint8');
-maskM(newMask>=0.5) = 1;
+indicesWithinSkinV = sub2ind(newScanUnifSiz,rStructValsV,cStructValsV,sStructValsV);
+maskM(indicesWithinSkinV) = 1;
 
 %generate contours on slices out of uniform mask and add to planC
 if any(strncmp(strName,strNamC,inf))

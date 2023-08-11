@@ -40,24 +40,24 @@ function sliceCallBack(instr, varargin)
 % Viewers\sliceCallBack.m
 %
 % Copyright 2010, Joseph O. Deasy, on behalf of the CERR development team.
-% 
+%
 % This file is part of The Computational Environment for Radiotherapy Research (CERR).
-% 
+%
 % CERR development has been led by:  Aditya Apte, Divya Khullar, James Alaly, and Joseph O. Deasy.
-% 
+%
 % CERR has been financially supported by the US National Institutes of Health under multiple grants.
-% 
-% CERR is distributed under the terms of the Lesser GNU Public License. 
-% 
+%
+% CERR is distributed under the terms of the Lesser GNU Public License.
+%
 %     This version of CERR is free software: you can redistribute it and/or modify
 %     it under the terms of the GNU General Public License as published by
 %     the Free Software Foundation, either version 3 of the License, or
 %     (at your option) any later version.
-% 
+%
 % CERR is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
 % without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 % See the GNU General Public License for more details.
-% 
+%
 % You should have received a copy of the GNU General Public License
 % along with CERR.  If not, see <http://www.gnu.org/licenses/>.
 
@@ -72,7 +72,7 @@ else
     if ~isempty(varargin) && iscell(varargin{1})
         planC = varargin{1};
         indexS = planC{end};
-    end    
+    end
 end
 
 %For GUI units:
@@ -92,15 +92,15 @@ switch upper(instr)
             figure(hCSV);
             return;
         end
-        
+
         %This is a linux issue where the GUI option of uigetfile doesnot work.
         %Setting the UseNativeSystemDialogs to False lets the user select the files
         %uising the GUI
-                
+
         if isempty(planC)
             clear global planC;
         end
-        
+
         if ~exist('planC','var') || (exist('planC','var')  && isempty(planC))
             %Check java version and add DCM4CHE libraries to Matlab path
             %dcm_init_flag = init_ML_DICOM;
@@ -108,11 +108,11 @@ switch upper(instr)
         else
             dcm_init_flag = 0;
         end
-        
+
         %Need to redefine stateS as global since init_ML_Dicom clears all
         %globals
-        %global stateS 
-        
+        %global stateS
+
         stateS.initDicomFlag = dcm_init_flag;
         stateS.fusion = 0;
         stateS.planLoaded   = 0;
@@ -120,14 +120,14 @@ switch upper(instr)
         stateS.toggle_rotation = 0;
         stateS.webtrev.isOn = 0;
         stateS.currentKeyPress = 0;
-        
+
         stateS.imageFusion.lockMoving = 1; % 1:lock, 0:unlock
-        
+
         %Store Matlab version under stateS
         stateS.MLVersion = getMLVersion;
 
         %Set Keypressfunction call back for ALL subsequent figures.
-        set(0,'DefaultFigureCreateFcn','set(gcbo,''WindowKeyPressFcn'',''CERRHotKeys'',''keyReleaseFcn'',''CERRHotKeyRelease'')')
+        %set(0,'DefaultFigureCreateFcn','set(gcbo,''WindowKeyPressFcn'',''CERRHotKeys'',''keyReleaseFcn'',''CERRHotKeyRelease'')')
 
         %Detect and store working directory, in case this is the compiled version.
         %This must go before any calls to getCERRPath
@@ -180,7 +180,7 @@ switch upper(instr)
         stateS.contourState     = 0;
         stateS.scanWindowState  = 0;
         stateS.annotToggle      = -1;
-        
+
         %Later used for zooming
         stateS.initial_xLims.trans = [];
         stateS.initial_yLims.trans = [];
@@ -202,7 +202,7 @@ switch upper(instr)
         stateS.colorbarFrameMin = [];
         stateS.colorbarFrameMinCompare = [];
         %DK
-                
+
         % Handle for IMRTP GUI
         stateS.handle.IMRTMenuFig = [];
 
@@ -214,10 +214,11 @@ switch upper(instr)
         %    'sliceCallBack(''closeRequest'')','backingstore','off','tag',...
         %   'CERRSliceViewer', 'renderer', 'zbuffer');
         hCSV = figure('tag','CERRSliceViewer','name',str1,'numbertitle','off',...
-            'position',position, 'CloseRequestFcn',...
+            'position',position,'CloseRequestFcn',...
             'sliceCallBack(''closeRequest'')','tag',...
-            'CERRSliceViewer');
-                
+            'CERRSliceViewer','KeyPressFcn',{@CERRHotKeys},...
+            'keyReleaseFcn',{@CERRHotKeyRelease});
+
         figureColor = get(hCSV, 'Color');
         stateS.handle.CERRSliceViewer = hCSV;
 
@@ -230,14 +231,14 @@ switch upper(instr)
         stateS.doseProfileState = 0;
         stateS.zoomState = 0;
         stateS.clipState = 0; %wy
-        
+
         % Set states for the controlFrame
         stateS.rotateView = 0;
         stateS.anotationDisplay = 0;
-        
+
         %rkp Set state for Segment Labeler
         stateS.segmentLabelerState = 0;
-        
+
         %Turn off default menubar, configure manually.
         set(hCSV,'menubar','none');
         stateS.handle.CERRFileMenu          = putFileMenu(hCSV);
@@ -286,12 +287,12 @@ switch upper(instr)
         
         % Scan name text
         stateS.handle.ScanTxtWindow = uicontrol(hCSV,'units','pixels','BackgroundColor',uicolor, 'Position',[20 585 (frameWidth-30) 27],'String','', 'Style','text', 'enable', 'inactive','ForegroundColor',[0.1 0.5 0.1]);
-        
+
         %CT Window text
         stateS.handle.CTWindow = uicontrol(hCSV,'units','pixels','BackgroundColor',uicolor, 'Position',[20 555 (frameWidth-30)/2 25],'String','Window', 'Style','text', 'enable', 'inactive', 'Tag','CTWindow' ,'ForegroundColor',[0.1 0.4 0.1]);
         %Scan ColorMap
         uicontrol(hCSV,'units','pixels','BackgroundColor',uicolor, 'Position',[(frameWidth-30)/2+20+10 555 (frameWidth-30)/2 25],'String','Colormap', 'Style','text', 'enable', 'inactive'  ,'Tag','CTWindow', 'ForegroundColor',[0.1 0.4 0.1]);
-        
+
         %CT Center Text
         uicontrol(hCSV,'units','pixels','BackgroundColor',uicolor, 'Position',[20 510 (frameWidth-50)/2 25], 'String','Center','Style','text', 'enable', 'inactive', 'Tag','CTWindow','ForegroundColor',[0.1 0.4 0.1]);
         %CT Width Text
@@ -306,7 +307,7 @@ switch upper(instr)
         %CT Width edit box.
         stateS.handle.CTWidth = uicontrol(hCSV,'units','pixels','BackgroundColor',uicolor, 'Position',[(frameWidth-50)/2+10+15 500 (frameWidth-50)/2 20], 'String',num2str(stateS.optS.CTWidth),'Style','edit','Tag','CTWidth', 'callback','sliceCallBack(''CTWidth'');','tooltipstring','Change CT window width');
         %CT Level/Width pushbutton
-        stateS.handle.CTLevelWidthInteractive = uicontrol(hCSV,'units','pixels','BackgroundColor',uicolor, 'Position',[(frameWidth-50)+35 500 20 20], 'String','L','Style','toggle','Tag','CTInteractiveWindowing', 'callback','sliceCallBack(''TOGGLESCANWINDOWING'');','tooltipstring','Drag mouse on view to change display window');
+        stateS.handle.CTLevelWidthInteractive = uicontrol(hCSV,'units','pixels','BackgroundColor',uicolor, 'Position',[(frameWidth-50)+35 500 20 20], 'String','L','Style','togglebutton','Tag','CTInteractiveWindowing', 'callback','sliceCallBack(''TOGGLESCANWINDOWING'');','tooltipstring','Drag mouse on view to change display window');
         %CT Colorbar
         stateS.handle.scanColorbar = axes('parent', hCSV, 'units', 'pixels', 'position', [30, 470 dx*3-20, 14], 'xTickLabel', [], 'yTickLabel', [], 'xTick', [], 'yTick', [], 'Tag', 'scanColorbar', 'visible', 'off','fontsize',10,'nextplot','add');
 
@@ -319,7 +320,7 @@ switch upper(instr)
         %stateS.handle.unloopTrans = uicontrol(hCSV,'units',units,'pos',[0.11*512, 375 dx, 20]/512,'string','Stop loop','fontsize',fontsize, 'BackgroundColor',uicolor,'callback','set(gcbo,''userdata'',0)','userdata',1,'visible','off');
         %Ruler Control.
         %stateS.handle.rulerTrans = uicontrol(hCSV,'units',units,'pos',[0.11*512, 345 dx - 25, 20]/512,'string','Ruler','fontsize',fontsize, 'BackgroundColor',uicolor, 'callback','sliceCallBack(''toggleRuler'');','Style','checkbox','value',0,'max',1,'min',0,'tooltipstring','Draw ruler line.');
-        
+
         %Zoom Controls.
         if isdeployed
             [I,map] = imread(fullfile(getCERRPath,'pics','Icons','tool_zoom.gif'),'gif');
@@ -372,7 +373,7 @@ switch upper(instr)
             'color', [0 0 0], 'xTickLabel', [], 'yTickLabel', [], 'xTick', [],...
             'yTick', [], 'buttondownfcn', 'sliceCallBack(''axisClicked'')',...
             'nextplot', 'add', 'linewidth', 2, 'Interruptible','on', 'ZLim',[-2 2]);
-        
+
         stateS.handle.CERRAxis(1) = stateS.handle.CERRSliceViewerAxis;
         stateS.handle.aI(1) = aI;
         aI.view    = 'sagittal';
@@ -387,14 +388,14 @@ switch upper(instr)
         %stateS.handle.CERRAxis(4) = axes('userdata', aI,'parent', hCSV, 'units', 'pixels', 'position', [figureWidth-wid-10 bottomMarginHeight+10 wid hig], 'color', [0 0 0], 'xTickLabel', [], 'yTickLabel', [], 'xTick', [], 'yTick', [], 'buttondownfcn', 'sliceCallBack(''axisClicked'')', 'nextplot', 'add', 'yDir', 'reverse', 'linewidth', 2);
         stateS.handle.CERRAxis(4) = axes('parent', hCSV, 'units', 'pixels', 'position', [figureWidth-wid-10 bottomMarginHeight+10 wid hig], 'color', [0 0 0], 'xTickLabel', [], 'yTickLabel', [], 'xTick', [], 'yTick', [], 'buttondownfcn', 'sliceCallBack(''axisClicked'')', 'nextplot', 'add', 'yDir', 'reverse', 'linewidth', 2, 'ZLim',[-2 2]);
         stateS.handle.aI(4) = aI;
-                
+
         % Waitbar to show Viewer loading progress
         %hWait = waitbar(0.02,'Starting Viewer...', 'WindowStyle', 'modal');
-        
+
         %Create in-axis labels for each axis.
         tickV = linspace(0.02,0.1,6);
         for i=1:length(stateS.handle.CERRAxis)
-            
+
             stateS.handle.CERRAxisLabel1(i) = text('parent', stateS.handle.CERRAxis(i), 'string', '', 'position', [.02 .98 0], 'color', [1 0 0], 'units', 'normalized', 'visible', 'off', 'horizontalAlignment', 'left', 'verticalAlignment', 'top');
             stateS.handle.CERRAxisLabel2(i) = text('parent', stateS.handle.CERRAxis(i), 'string', '', 'position', [.90 .98 0], 'color', [1 0 0], 'units', 'normalized', 'visible', 'off', 'horizontalAlignment', 'left', 'verticalAlignment', 'top');
             for j = 1:6
@@ -411,13 +412,13 @@ switch upper(instr)
             stateS.handle.CERRAxisScreenRightLabel(i)  = text('parent', stateS.handle.CERRAxis(i), 'string', 'R', 'position', [0.1 0.02 2], 'color', 'y', 'units', 'data', 'visible', 'off', 'hittest', 'off','fontSize',10);
             stateS.handle.CERRAxisScreenTopLabel(i)  = text('parent', stateS.handle.CERRAxis(i), 'string', 'A', 'position', [0.1 0.02 2], 'color', 'y', 'units', 'data', 'visible', 'off', 'hittest', 'off','fontSize',10);
             stateS.handle.CERRAxisScreenBottomLabel(i)  = text('parent', stateS.handle.CERRAxis(i), 'string', 'P', 'position', [0.1 0.02 2], 'color', 'y', 'units', 'data', 'visible', 'off', 'hittest', 'off','fontSize',10);
-            
+
             %aI = get(stateS.handle.CERRAxis(i), 'userdata');
             aI = stateS.handle.aI(i);
             stateS.handle.CERRAxisPlnLoc{i} = [];
             stateS.handle.CERRAxisPlnLocSdw{i} = [];
             if ~strcmpi(aI.view, 'Legend')
-                
+
                 for count = 1:20
                     if stateS.MLVersion < 8.4
                         stateS.handle.CERRAxisPlnLocSdw{i}(count) = line([0.02 0.1], [0.02 0.02], [2 2], 'parent', stateS.handle.CERRAxis(i), 'Color', [0 0 0], 'tag', 'planeLocatorShadow', 'userdata', {'horz', 'trans', i}, 'hittest', 'off', 'linewidth', 1, 'erasemode','xor');
@@ -427,9 +428,9 @@ switch upper(instr)
                         stateS.handle.CERRAxisPlnLoc{i}(count) = line([0.02 0.1], [0.02 0.02], [2 2], 'parent', stateS.handle.CERRAxis(i), 'Color', [0 0 0], 'tag', 'planeLocator',  'buttondownfcn', 'sliceCallBack(''locatorClicked'')', 'userdata', {'vert', 'trans', i}, 'linewidth', 1);
                     end
                 end
-                
+
             end
-            
+
             aI.miscHandles = [aI.miscHandles, stateS.handle.CERRAxisLabel1(i), ...
                 stateS.handle.CERRAxisLabel2(i), stateS.handle.CERRAxisLabel3(i), ...
                 stateS.handle.CERRAxisLabel4(i), stateS.handle.CERRAxisScale1(i), ...
@@ -441,7 +442,7 @@ switch upper(instr)
             %set(stateS.handle.CERRAxis(i), 'userdata', aI);
             stateS.handle.aI(i) = aI;
         end
-        
+
         % Create a pool of line objects to display contours
         numAxes = length(stateS.handle.CERRAxis);
         for axNum = 1:numAxes
@@ -453,17 +454,17 @@ switch upper(instr)
             end
             aI.lineHandlePool(1).currentHandle = 0;
             stateS.handle.aI(axNum) = aI;
-        end   
-        
+        end
+
         %Close the waitbar
-        %close(hWait)        
-        
+        %close(hWait)
+
         if stateS.MLVersion >= 8.4
             set(stateS.handle.CERRAxis,'ClippingStyle','rectangle')
         end
         stateS.layout = stateS.optS.layout;
         stateS.Oldlayout = stateS.optS.layout;
-               
+
         %The NUMBER of the currentAxis. NOT handle.
         stateS.currentAxis = 1;
         stateS.lastAxis    = 1;
@@ -471,7 +472,7 @@ switch upper(instr)
 
         %Populate bottom margin Gui Objects.
         %Command line editbox.
-        stateS.handle.commandLine = uicontrol(hCSV,'units',units,'BackgroundColor',[1 1 1], 'position',[145 30 90 18]/512, 'String','help','Style','edit','Tag','command', 'callback','sliceCallBack(''command'');','horizontalalignment','left');
+        stateS.handle.commandLine = uicontrol(hCSV,'units',units,'BackgroundColor',[1 1 1], 'position',[145 30 90 18]/512, 'String','help','Style','edit','Tag','command', 'keypressfcn','sliceCallBack(''command'');','horizontalalignment','left');
         hCmd = uicontrol(hCSV,'units',units,'Position',[110 25 30 20]/512,'Style','text', 'enable', 'inactive'  ,'String','Command:', 'horizontalAlignment', 'left', 'Backgroundcolor', figureColor);
         set([stateS.handle.commandLine, hCmd], 'units', 'pixels');
 
@@ -484,41 +485,41 @@ switch upper(instr)
             set(stateS.handle.patientName,'Visible', 'off');
         end
         set(0,'CurrentFigure',stateS.handle.CERRSliceViewer);
-        
+
         % Initialize ruler line handles
         stateS.handle.rulerLine = [];
-        
+
         % Initialize dose query handle
         stateS.handle.doseQueryPoint = [];
-        
+
         % Initialize scan query handle
         stateS.handle.scanQueryPoint = [];
-        
+
         % Initialize profile line handles
         stateS.handle.profileLine = [];
-        
+
         % Initialize beam line handles
         stateS.handle.beamLine = [];
-        
+
         % Initialize handle for deep-learning segmentation GUI
         stateS.handle.deepLearnSegFig = [];
-        
+
         % Initialize list of structures available on current views
-        stateS.structsOnViews = [];    
-        
+        stateS.structsOnViews = [];
+
         % Initialize spotlight handles
         stateS.handle.spotLightS = [];
-        
+
         % Initialize rotation handles
         stateS.handle.rotationS = [];
-        
+
         %Change Panel-Layout according to CERROptions
         sliceCallBack('layout',stateS.optS.layout)
-        
+
         % Set resize and scrollWheel callbacks
         set(hCSV,'WindowScrollWheelFcn', @scrollWheel,...
             'ResizeFcn','sliceCallBack(''resize'')');
-        
+
         return
 
         %Reinitalize variables, a new planC has been loaded.
@@ -526,7 +527,7 @@ switch upper(instr)
 
         planC = updatePlanFields(planC);
         indexS = planC{end};
-        
+
         % Quality assure
         quality_assure_planC;
 
@@ -542,7 +543,7 @@ switch upper(instr)
         try
             delete(findobj('Tag','CERR_splashAxis'));
         end
-        
+
         %Check for remotely stored variables
         flag = checkAndSetRemotePath;
         if flag
@@ -560,7 +561,7 @@ switch upper(instr)
                 stateS.reqdRemoteFiles{i} = fullfile(reqdRemoteFiles(i).remotePath,reqdRemoteFiles(i).filename);
             end
         end
-        
+
         %Check whether uniformized data is in cellArray format.
         if ~isempty(planC{indexS.structureArray}) && iscell(planC{indexS.structureArray}(1).indicesArray)
             planC = setUniformizedData(planC,planC{indexS.CERROptions});
@@ -583,7 +584,7 @@ switch upper(instr)
                 end
             end
         end
-        
+
         stateS                      = getDoseSet(stateS, planC);
         stateS.scanSet              = 1; %Implemented for multiple scans.
         stateS.scanChkFlag          = 1; %DK Added for scan menu manual flag
@@ -594,10 +595,10 @@ switch upper(instr)
         stateS.doseDisplayChanged   = 1;
         stateS.CTDisplayChanged     = 1;
         stateS.colorbarRange        = [];
-        stateS.doseDisplayRange     = [];        
+        stateS.doseDisplayRange     = [];
         stateS.doseChanged          = 1;
         stateS.structsChanged       = 1;
-        
+
         %Set default imageRegistration state.
         stateS.imageRegistrationBaseDataset = 1;
         stateS.imageRegistrationBaseDatasetType = 'scan';
@@ -606,7 +607,7 @@ switch upper(instr)
         stateS.showPlaneLocators = 1;
         stateS.showNavMontage = 0;
         stateS.showPatientOrientation = 1;
-        
+
         structureSet = getStructureSetAssociatedScan(stateS.scanSet);
 
         if isempty(structureSet)
@@ -622,10 +623,10 @@ switch upper(instr)
         else
             stateS.doseSet = doseNum;
             %stateS.doseSetChanged = 1;
-        end        
-        
+        end
+
         if ~(stateS.planLoaded && stateS.layout == 8)
-            
+
             %Reinitalize menus.
             stateS.handle.CERRFileMenu    = putFileMenu(hCSV);
             stateS.handle.CERRViewMenu    = putViewMenu(hCSV);
@@ -636,13 +637,13 @@ switch upper(instr)
             end
             stateS.handle.CERRMetricMenu  = putMetricsMenu(hCSV);
             stateS.handle.CERRScanMenu    = putScanMenu(hCSV);
-            stateS.handle.CERRStructMenu  = putStructMenu(hCSV);          
+            stateS.handle.CERRStructMenu  = putStructMenu(hCSV);
             BMfileFlag = exist('putPETASsetMenu.m','file'); % B.B. 15/09/2014 replaced putBMmenu.m with putPETASsetMenu.m
-            if BMfileFlag 
+            if BMfileFlag
                 stateS.handle.CERRBMMenu        = putPETASsetMenu(hCSV);% B.B. 15/09/2014 replaced putBMmenu with putPETASsetMenu
-            end                
+            end
             stateS.handle.CERRHelpMenu    = putHelpMenu(hCSV);
-            
+
             %Wipe out the contents of all axes except the pool of structure handles
             for i = 1:length(stateS.handle.CERRAxis)
                 hAxis       = stateS.handle.CERRAxis(i);
@@ -664,9 +665,9 @@ switch upper(instr)
                     stateS.handle.CERRAxisPlnLocSdw{i}, stateS.handle.CERRAxisScreenLeftLabel(i), ...
                     stateS.handle.CERRAxisScreenRightLabel(i), stateS.handle.CERRAxisScreenTopLabel(i),...
                     stateS.handle.CERRAxisScreenBottomLabel(i)];
-                        
-                stateS.handle.aI = dissimilarInsert(stateS.handle.aI, aI, i);                
-                stateS.handle.aI(i).lineHandlePool = lineHandlePool; 
+
+                stateS.handle.aI = dissimilarInsert(stateS.handle.aI, aI, i);
+                stateS.handle.aI(i).lineHandlePool = lineHandlePool;
                 stateS.handle.aI(i).lineHandlePool.currentHandle = 0;
                 kids = get(stateS.handle.CERRAxis(i), 'children');
                 toDelete = setdiff(kids,keepV);
@@ -674,17 +675,17 @@ switch upper(instr)
                     delete(toDelete(j))
                 end
             end
-            
+
             %Reset axis scaling in case an old plan was in axes. Must be done
             %before in-axis labels are created, else scaling is incorrect when
             %plans are sequentially loaded.
             set(stateS.handle.CERRAxis, 'xLim', [0 1], 'yLim', [0 1]);
             set(stateS.handle.CERRAxis, 'XLimMode', 'auto', 'YLimMode', 'auto');
-            
+
 %             %Create in-axis labels for each axis.
 %             tickV = linspace(0.02,0.1,6);
 %             for i=1:length(stateS.handle.CERRAxis)
-%                 
+%
 %                 stateS.handle.CERRAxisLabel1(i) = text('parent', stateS.handle.CERRAxis(i), 'string', '', 'position', [.02 .98 0], 'color', [1 0 0], 'units', 'normalized', 'visible', 'off', 'horizontalAlignment', 'left', 'verticalAlignment', 'top');
 %                 stateS.handle.CERRAxisLabel2(i) = text('parent', stateS.handle.CERRAxis(i), 'string', '', 'position', [.90 .98 0], 'color', [1 0 0], 'units', 'normalized', 'visible', 'off', 'horizontalAlignment', 'left', 'verticalAlignment', 'top');
 %                 for j = 1:6
@@ -692,18 +693,18 @@ switch upper(instr)
 %                     ticks2V(j) = line([0.01 0.03], [tickV(j) tickV(j)], [2 2], 'parent', stateS.handle.CERRAxis(i), 'color', 'y', 'hittest', 'off', 'visible', 'off');
 %                 end
 %                 stateS.handle.CERRAxisTicks1(i,:) = ticks1V;
-%                 stateS.handle.CERRAxisTicks2(i,:) = ticks2V; 
+%                 stateS.handle.CERRAxisTicks2(i,:) = ticks2V;
 %                 stateS.handle.CERRAxisScale1(i) = line([0.02 0.1], [0.02 0.02], [2 2], 'parent', stateS.handle.CERRAxis(i), 'color', [0.7 0.7 0.7], 'hittest', 'off', 'visible', 'off');
 %                 stateS.handle.CERRAxisScale2(i) = line([0.02 0.02], [0.02 0.1], [2 2], 'parent', stateS.handle.CERRAxis(i), 'color', [0.7 0.7 0.7], 'hittest', 'off', 'visible', 'off');
 %                 stateS.handle.CERRAxisLabel3(i) = text('parent', stateS.handle.CERRAxis(i), 'string', '5', 'position', [0.02 0.1 0], 'color', 'y', 'units', 'data', 'visible', 'off', 'hittest', 'off','fontSize',8);
 %                 stateS.handle.CERRAxisLabel4(i) = text('parent', stateS.handle.CERRAxis(i), 'string', '5', 'position', [0.1 0.02 0], 'color', 'y', 'units', 'data', 'visible', 'off', 'hittest', 'off','fontSize',8);
-% 
+%
 %                 %aI = get(stateS.handle.CERRAxis(i), 'userdata');
 %                 aI = stateS.handle.aI(i);
 %                 stateS.handle.CERRAxisPlnLoc{i} = [];
 %                 stateS.handle.CERRAxisPlnLocSdw{i} = [];
 %                 if ~strcmpi(aI.view, 'Legend')
-%                     
+%
 %                     for count = 1:10
 %                         if stateS.MLVersion < 8.4
 %                             stateS.handle.CERRAxisPlnLocSdw{i}(count) = line([0.02 0.1], [0.02 0.02], [2 2], 'parent', stateS.handle.CERRAxis(i), 'Color', [0 0 0], 'tag', 'planeLocatorShadow', 'userdata', {'horz', 'trans', i}, 'hittest', 'off', 'linewidth', 1, 'erasemode','xor');
@@ -713,9 +714,9 @@ switch upper(instr)
 %                             stateS.handle.CERRAxisPlnLoc{i}(count) = line([0.02 0.1], [0.02 0.02], [2 2], 'parent', stateS.handle.CERRAxis(i), 'Color', [0 0 0], 'tag', 'planeLocator',  'buttondownfcn', 'sliceCallBack(''locatorClicked'')', 'userdata', {'vert', 'trans', i}, 'linewidth', 1);
 %                         end
 %                     end
-%                     
+%
 %                 end
-%                 
+%
 %                 aI.miscHandles = [aI.miscHandles stateS.handle.CERRAxisLabel1(i) ...
 %                     stateS.handle.CERRAxisLabel2(i) stateS.handle.CERRAxisLabel3(i) ...
 %                     stateS.handle.CERRAxisLabel4(i) stateS.handle.CERRAxisScale1(i) ...
@@ -725,18 +726,18 @@ switch upper(instr)
 %                 %set(stateS.handle.CERRAxis(i), 'userdata', aI);
 %                 stateS.handle.aI(i) = aI;
 %             end
-            
+
             if ~isfield(stateS, 'doseAlphaValue')
                 stateS.doseAlphaValue.trans = stateS.optS.initialTransparency;
             end
-            
+
             %Handle case of no scan.
             if isempty(planC{indexS.scan})
                 warning('Scan not present, creating dummy scan based on structures and dose.')
                 planC = createDummyScan(planC);
                 planC = setUniformizedData(planC);
             end
-            
+
             %%Uniformize the plan if necessary.
             %for i=1:length(planC{indexS.scan})
             %    if ~isUniformized(i, planC)
@@ -745,7 +746,7 @@ switch upper(instr)
             %    end
             %end
             % DK
-            
+
             %Clear cache if it was saved in planC.
             try
                 for i=1:length(planC{indexS.dose})
@@ -753,14 +754,14 @@ switch upper(instr)
                 end
             end
             numSlices = length(planC{indexS.scan}(stateS.scanSet).scanInfo);
-            
+
             %Display warning for non-square voxels
             nonSquareVoxelWarn(planC)
-            
+
         else % FOR COHORT REVIEW
-            
+
             setAxisInfo(stateS.handle.CERRAxis(1), 'xRange', [], 'yRange', []);
-            
+
         end
 
         %Display middle slice in each dimension first.
@@ -809,14 +810,14 @@ switch upper(instr)
         stateS.supInfScansCreated = 0; %the superior and inferior portions of the CT scan for sag/cor viewing have not yet been created.
         %Fire up Navigation.  Marked for removal-> pane.
         try
-            if strcmpi(stateS.optS.navigationMontage,'yes')                
+            if strcmpi(stateS.optS.navigationMontage,'yes')
                 navigationMontage('init',1);
                 stateS.showNavMontage = 1;
             end
         catch
             delete(findobj('Tag', 'TMWWaitbar'));
         end
-        
+
         % Save scan statistics for fast image rendering
         colorMapIndex = get(stateS.handle.BaseCMap,'value');
         for scanNum = 1:length(planC{indexS.scan})
@@ -828,10 +829,10 @@ switch upper(instr)
             stateS.scanStats.windowPresets.(scanUID) = 1;
             stateS.scanStats.Colormap.(scanUID) = stateS.optS.scanColorMap(colorMapIndex).name;
         end
-        
+
         % Update scan colormap
         updateScanColorbar(stateS.scanSet);
-        
+
         %If any duplicates, remove them and make new entry first.
         if any(strcmpi(stateS.planHistory, stateS.CERRFile))
             ind = find(strcmpi(stateS.planHistory, stateS.CERRFile));
@@ -854,7 +855,7 @@ switch upper(instr)
         catch
             warning('Unable to save plan history.  No history will be shown in file menu.');
         end
-               
+
         % Set Window and Width from DICOM header, if available
         for scanNum = 1:length(planC{indexS.scan})
             if ~isempty(planC{indexS.scan}(scanNum).scanInfo(1).windowCenter)...
@@ -883,20 +884,20 @@ switch upper(instr)
         windowPreset = stateS.scanStats.windowPresets.(scanUID);
         scanColormap = stateS.scanStats.Colormap.(scanUID);
         colorC = get(stateS.handle.BaseCMap,'string');
-        baseMapVal = find(~cellfun(@isempty,strfind(colorC,scanColormap)));        
+        baseMapVal = find(~cellfun(@isempty,strfind(colorC,scanColormap)));
         set(stateS.handle.CTLevel,'string',num2str(CTLevel))
         set(stateS.handle.CTWidth,'string',num2str(CTWidth))
         set(stateS.handle.CTPreset,'value',windowPreset)
         set(stateS.handle.BaseCMap,'value',baseMapVal)
         updateScanColorbar(stateS.scanSet)
         %%%%%%%%%%%%%%%%%%%% End added %%%%%%%%%%%%%
-        
+
         %Update status string
         [pathstr, name, ext] = fileparts(stateS.CERRFile);
         CERRStatusString(['Loaded ' name ext '. Ready.']);
         %Place filename in window title.
         set(hCSV, 'name', ['CERR:  ' stateS.CERRFile]);
-        stateS.planLoaded = 1;        
+        stateS.planLoaded = 1;
         %Refresh.
         CERRRefresh
         %sliceCallBack('resize');
@@ -922,7 +923,7 @@ switch upper(instr)
                 return
             elseif isequal(stateS.Oldlayout,9) && ~isequal(stateS.layout,9)
                 perfDiffusion('exit');
-                return                
+                return
             end
 
             switch stateS.layout
@@ -973,7 +974,7 @@ switch upper(instr)
                     set(stateS.handle.CERRAxisLabel2(1),'position', [(((figureWidth-leftMarginWidth-70-wid-10)-40)/(figureWidth-leftMarginWidth-70-wid-10)) .98 0]);
                     set(stateS.handle.CERRAxisLabel2(2),'position', [(wid-40)/wid .98 0]);
                     set(stateS.handle.CERRAxisLabel2(3),'position', [(wid-40)/wid .98 0]);
-                    
+
                 case {6,7} % Tomotherapy comparison mode
                     wid = (figureWidth-leftMarginWidth-70-10)/5;
                     hig = (figureHeight-bottomMarginHeight-20)/2;
@@ -999,16 +1000,16 @@ switch upper(instr)
                         set(stateS.handle.CERRAxis(7), 'position', [leftMarginWidth+60+2*wid+5 bottomMarginHeight+10 2*wid-5 hig]);
                         bottomAxes = setdiff(1:nAxes, [1 4 5 6 7]);
                         xPosStr = (2*wid-5);
-                        set(stateS.handle.CERRAxisLabel2([1,5,6,7]),'position', [(xPosStr-40)/xPosStr .98 0]);                        
+                        set(stateS.handle.CERRAxisLabel2([1,5,6,7]),'position', [(xPosStr-40)/xPosStr .98 0]);
                     end
-                    
+
                     % Axis for legend bar
                     set(stateS.handle.CERRAxis(4), 'position', [leftMarginWidth+60+wid*4+10 bottomMarginHeight+10+10+hig wid-5 hig]);
                     % Axis for colorbar
                     if isfield(stateS.handle.doseColorbar,'Compare')
                         set(stateS.handle.doseColorbar.Compare, 'position', [leftMarginWidth+60+wid*4+20 bottomMarginHeight+30 50 hig-40]);
                     end
-                    
+
                 case 8 % Cohort review
                     wid = (figureWidth-leftMarginWidth-70-4*10)/4;
                     hig = (figureHeight-bottomMarginHeight-20-2*10)/4;
@@ -1034,12 +1035,12 @@ switch upper(instr)
                         set(stateS.handle.CERRAxis(15), 'position', [leftMarginWidth+60+2*10+2*wid bottomMarginHeight+1*10+0*hig wid hig]);
                         set(stateS.handle.CERRAxis(16), 'position', [leftMarginWidth+60+3*10+3*wid bottomMarginHeight+1*10+0*hig wid hig]);
                     end
-                    
+
                     bottomAxes = setdiff(1:nAxes, 1:16);
                     for indAxis = 1:nAxes
                         set(stateS.handle.CERRAxisLabel2(indAxis),'position', [(wid-40)/wid .98 0]);
                     end
-                    
+
                 case 9 % 1 Large, 4 Medium panels
                     wid = (figureWidth-leftMarginWidth-70-10)/3;
                     hig = (figureHeight-bottomMarginHeight-20-20)/2;
@@ -1062,20 +1063,20 @@ switch upper(instr)
                     bottomAxes = setdiff(1:nAxes, [1 2 3 5 6]);
                     set(stateS.handle.CERRAxisLabel2(1),'position', [(((figureWidth-leftMarginWidth-70-wid-10)-40)/(figureWidth-leftMarginWidth-70-wid-10)) .98 0]);
                     set(stateS.handle.CERRAxisLabel2(2),'position', [(wid-40)/wid .98 0]);
-                    set(stateS.handle.CERRAxisLabel2(3),'position', [(wid-40)/wid .98 0]);  
-                    set(stateS.handle.CERRAxisLabel2(5),'position', [(wid-40)/wid .98 0]);                    
-                    set(stateS.handle.CERRAxisLabel2(6),'position', [(wid-40)/wid .98 0]);    
+                    set(stateS.handle.CERRAxisLabel2(3),'position', [(wid-40)/wid .98 0]);
+                    set(stateS.handle.CERRAxisLabel2(5),'position', [(wid-40)/wid .98 0]);
+                    set(stateS.handle.CERRAxisLabel2(6),'position', [(wid-40)/wid .98 0]);
                     %if stateS.planLoaded
                     %    perfDiffusion('init')
-                    %end                    
-                    
+                    %end
+
             end
 
             spacing = 55;
             for i=1:length(bottomAxes)
                 set(stateS.handle.CERRAxis(bottomAxes(i)), 'position', [leftMarginWidth+205+55*i bottomMarginHeight-45 50 50]);
             end
-            
+
             if ~stateS.planLoaded
                 return;
             end
@@ -1099,7 +1100,7 @@ switch upper(instr)
             showPlaneLocators;
             showPatientOrientation;
         %end
-        
+
         % Resize dose and scan colorbars
         if isfield(stateS,'colorbarFrameMax') && ~isempty(stateS.colorbarFrameMax)
             CERRColorBar('refresh',stateS.handle.doseColorbar.trans)
@@ -1107,10 +1108,10 @@ switch upper(instr)
         if length(stateS.scanSet) == 1 % non image fusion mode
             updateScanColorbar(stateS.scanSet)
         end
-        
+
         return;
 
-    case 'LAYOUT'        
+    case 'LAYOUT'
         if stateS.layout == 6 && varargin{1} ~= 6
             scanCompare('exit')
         end
@@ -1120,10 +1121,10 @@ switch upper(instr)
         if stateS.layout == 10 && varargin{1} ~= 10 % exit segment labeler
             dualEnergyCTLabelerLayout('exit')
         end
-        
+
         if isfield(stateS,'planLoaded') && stateS.planLoaded
             if stateS.layout ~= 9 && varargin{1} == 9 % perfusion/diffusion layout
-                
+
                 numAxes = length(stateS.handle.CERRAxis);
                 if numAxes > 6
                     delete(stateS.handle.CERRAxis(7:end));
@@ -1132,17 +1133,17 @@ switch upper(instr)
                     stateS.handle.CERRAxis(7:end) = [];
                     stateS.handle.aI(7:end) = [];
                 elseif numAxes <= 6
-                    
+
                     % Create two new axes
                     numNewAxes = 6-numAxes;
                     createNewCERRAxes(numNewAxes);
-                    
+
                 end
-                
+
                 perfDiffusion('init')
-                
+
             elseif stateS.layout ~= 10 && varargin{1} == 10 % dual energy Ct segment labeler layout
-                
+
                 numAxes = length(stateS.handle.CERRAxis);
                 if numAxes > 5
                     delete(stateS.handle.CERRAxis(6:end));
@@ -1151,50 +1152,50 @@ switch upper(instr)
                     stateS.handle.CERRAxis(6:end) = [];
                     stateS.handle.aI(6:end) = [];
                 elseif numAxes <= 5
-                    
+
                     % Create two new axes
                     numNewAxes = 5-numAxes;
                     createNewCERRAxes(numNewAxes);
-                    
-                end        
-                
+
+                end
+
                 dualEnergyCTLabelerLayout('init')
-                
+
             end
-            
+
             stateS.layout = varargin{1};
-            
+
             sliceCallBack('resize');
-            
+
         end
-        
+
         return;
 
     case 'DUPLICATEAXIS'
         hAxis = varargin{1};
-        %axisInfo = getAxisInfo(hAxis);        
-        axisInfo = getAxisInfo(hAxis);  
+        %axisInfo = getAxisInfo(hAxis);
+        axisInfo = getAxisInfo(hAxis);
         % clear axisInfo
         axisInfo.scanObj(1:end) = [];
         axisInfo.doseObj(1:end) = [];
         axisInfo.structureGroup(1:end) = [];
-        axisInfo.miscHandles = [];     
+        axisInfo.miscHandles = [];
         axisInfo.lineHandlePool = [];
         if strcmpi(axisInfo.view, 'Legend')
             return
         end
-        
+
         stateS.handle.CERRAxis(end+1) = axes('parent', hCSV, 'units', 'pixels',...
             'position', [1 1 1 1], ...
             'color', [0 0 0], 'xTickLabel', [], 'yTickLabel', [], 'xTick', [],...
             'yTick', [], 'buttondownfcn', 'sliceCallBack(''axisClicked'')', ...
             'nextplot', 'add', 'yDir', 'reverse', 'linewidth', 2, 'ZLim',[-2 2]);
-                       
+
         axisNum = length(stateS.handle.CERRAxis);
-        
+
         %Create in-axis labels for each axis.
         tickV = linspace(0.02,0.1,6);
-        
+
         stateS.handle.CERRAxisLabel1(axisNum) = text('parent', ...
             stateS.handle.CERRAxis(axisNum), 'string', '', 'position', ...
             [.02 .98 0], 'color', [1 0 0], 'units', 'normalized', ...
@@ -1217,10 +1218,10 @@ switch upper(instr)
         stateS.handle.CERRAxisScreenRightLabel(axisNum) = text('parent', stateS.handle.CERRAxis(axisNum), 'string', '5', 'position', [0.02 0.1 0], 'color', 'y', 'units', 'data', 'visible', 'off', 'hittest', 'off','fontSize',8);
         stateS.handle.CERRAxisScreenTopLabel(axisNum) = text('parent', stateS.handle.CERRAxis(axisNum), 'string', '5', 'position', [0.02 0.1 0], 'color', 'y', 'units', 'data', 'visible', 'off', 'hittest', 'off','fontSize',8);
         stateS.handle.CERRAxisScreenBottomLabel(axisNum) = text('parent', stateS.handle.CERRAxis(axisNum), 'string', '5', 'position', [0.02 0.1 0], 'color', 'y', 'units', 'data', 'visible', 'off', 'hittest', 'off','fontSize',8);
-        
+
         stateS.handle.CERRAxisPlnLoc{axisNum} = [];
         stateS.handle.CERRAxisPlnLocSdw{axisNum} = [];
-        
+
         for count = 1:10
             if stateS.MLVersion < 8.4
                 stateS.handle.CERRAxisPlnLocSdw{axisNum}(count) = line([0.02 0.1], [0.02 0.02], [2 2], 'parent', stateS.handle.CERRAxis(axisNum), 'Color', [0 0 0], 'tag', 'planeLocatorShadow', 'userdata', {'horz', 'trans', axisNum}, 'hittest', 'off', 'linewidth', 1, 'erasemode','xor');
@@ -1230,8 +1231,8 @@ switch upper(instr)
                 stateS.handle.CERRAxisPlnLoc{axisNum}(count) = line([0.02 0.1], [0.02 0.02], [2 2], 'parent', stateS.handle.CERRAxis(axisNum), 'Color', [0 0 0], 'tag', 'planeLocator',  'buttondownfcn', 'sliceCallBack(''locatorClicked'')', 'userdata', {'vert', 'trans', axisNum}, 'linewidth', 1);
             end
         end
-        
-        
+
+
         axisInfo.miscHandles = [axisInfo.miscHandles, stateS.handle.CERRAxisLabel1(axisNum), ...
             stateS.handle.CERRAxisLabel2(axisNum), stateS.handle.CERRAxisLabel3(axisNum), ...
             stateS.handle.CERRAxisLabel4(axisNum), stateS.handle.CERRAxisScale1(axisNum), ...
@@ -1239,7 +1240,7 @@ switch upper(instr)
             stateS.handle.CERRAxisTicks2(axisNum,:), stateS.handle.CERRAxisPlnLoc{axisNum}, ...
             stateS.handle.CERRAxisPlnLocSdw{axisNum}, stateS.handle.CERRAxisScreenLeftLabel(axisNum),...
             stateS.handle.CERRAxisScreenRightLabel(axisNum), stateS.handle.CERRAxisScreenTopLabel(axisNum),...
-            stateS.handle.CERRAxisScreenBottomLabel(axisNum)];                    
+            stateS.handle.CERRAxisScreenBottomLabel(axisNum)];
 
         % Create a pool of line objects to display contours
         for i = 1:stateS.optS.linePoolSize
@@ -1252,7 +1253,7 @@ switch upper(instr)
         end
         axisInfo.lineHandlePool(1).currentHandle = 0;
         stateS.handle.aI = dissimilarInsert(stateS.handle.aI,axisInfo);
-        
+
         % Create right click menus on this axis
         CERRAxisMenu(stateS.handle.CERRAxis(axisNum));
         sliceCallBack('RESIZE');
@@ -1261,30 +1262,30 @@ switch upper(instr)
         return;
 
     case 'DUPLICATELINKAXIS'
-        
+
         hAxis = varargin{1};
-        %axisInfo = getAxisInfo(hAxis);        
-        axisInfo = getAxisInfo(hAxis);  
+        %axisInfo = getAxisInfo(hAxis);
+        axisInfo = getAxisInfo(hAxis);
         % clear axisInfo
         axisInfo.scanObj(1:end) = [];
         axisInfo.doseObj(1:end) = [];
         axisInfo.structureGroup(1:end) = [];
-        axisInfo.miscHandles = [];        
+        axisInfo.miscHandles = [];
         if strcmpi(axisInfo.view, 'Legend')
             return
         end
-        
+
         stateS.handle.CERRAxis(end+1) = axes('parent', hCSV, 'units', 'pixels',...
             'position', [1 1 1 1], ...
             'color', [0 0 0], 'xTickLabel', [], 'yTickLabel', [], 'xTick', [],...
             'yTick', [], 'buttondownfcn', 'sliceCallBack(''axisClicked'')', ...
             'nextplot', 'add', 'yDir', 'reverse', 'linewidth', 2, 'ZLim',[-2 2]);
-                       
+
         axisNum = length(stateS.handle.CERRAxis);
-        
+
         %Create in-axis labels for each axis.
         tickV = linspace(0.02,0.1,6);
-        
+
         stateS.handle.CERRAxisLabel1(axisNum) = text('parent', ...
             stateS.handle.CERRAxis(axisNum), 'string', '', 'position', ...
             [.02 .98 0], 'color', [1 0 0], 'units', 'normalized', ...
@@ -1302,15 +1303,15 @@ switch upper(instr)
         stateS.handle.CERRAxisScale1(axisNum) = line([0.02 0.1], [0.02 0.02], [2 2], 'parent', stateS.handle.CERRAxis(axisNum), 'color', [1 0.5 0.5], 'hittest', 'off', 'visible', 'off');
         stateS.handle.CERRAxisScale2(axisNum) = line([0.02 0.02], [0.02 0.1], [2 2], 'parent', stateS.handle.CERRAxis(axisNum), 'color', [1 0.5 0.5], 'hittest', 'off', 'visible', 'off');
         stateS.handle.CERRAxisLabel3(axisNum) = text('parent', stateS.handle.CERRAxis(axisNum), 'string', '5', 'position', [0.02 0.1 0], 'color', 'y', 'units', 'data', 'visible', 'off', 'hittest', 'off','fontSize',8);
-        stateS.handle.CERRAxisLabel4(axisNum) = text('parent', stateS.handle.CERRAxis(axisNum), 'string', '5', 'position', [0.1 0.02 0], 'color', 'y', 'units', 'data', 'visible', 'off', 'hittest', 'off','fontSize',8);        
+        stateS.handle.CERRAxisLabel4(axisNum) = text('parent', stateS.handle.CERRAxis(axisNum), 'string', '5', 'position', [0.1 0.02 0], 'color', 'y', 'units', 'data', 'visible', 'off', 'hittest', 'off','fontSize',8);
         stateS.handle.CERRAxisScreenLeftLabel(axisNum) = text('parent', stateS.handle.CERRAxis(axisNum), 'string', '5', 'position', [0.1 0.02 0], 'color', 'y', 'units', 'data', 'visible', 'off', 'hittest', 'off','fontSize',8);
         stateS.handle.CERRAxisScreenRightLabel(axisNum) = text('parent', stateS.handle.CERRAxis(axisNum), 'string', '5', 'position', [0.1 0.02 0], 'color', 'y', 'units', 'data', 'visible', 'off', 'hittest', 'off','fontSize',8);
         stateS.handle.CERRAxisScreenTopLabel(axisNum) = text('parent', stateS.handle.CERRAxis(axisNum), 'string', '5', 'position', [0.1 0.02 0], 'color', 'y', 'units', 'data', 'visible', 'off', 'hittest', 'off','fontSize',8);
         stateS.handle.CERRAxisScreenBottomLabel(axisNum) = text('parent', stateS.handle.CERRAxis(axisNum), 'string', '5', 'position', [0.1 0.02 0], 'color', 'y', 'units', 'data', 'visible', 'off', 'hittest', 'off','fontSize',8);
-        
+
         stateS.handle.CERRAxisPlnLoc{axisNum} = [];
         stateS.handle.CERRAxisPlnLocSdw{axisNum} = [];
-        
+
         for count = 1:20
             if stateS.MLVersion < 8.4
                 stateS.handle.CERRAxisPlnLocSdw{axisNum}(count) = line([0.02 0.1], [0.02 0.02], [2 2], 'parent', stateS.handle.CERRAxis(axisNum), 'Color', [0 0 0], 'tag', 'planeLocatorShadow', 'userdata', {'horz', 'trans', axisNum}, 'hittest', 'off', 'linewidth', 1, 'erasemode','xor');
@@ -1320,8 +1321,8 @@ switch upper(instr)
                 stateS.handle.CERRAxisPlnLoc{axisNum}(count) = line([0.02 0.1], [0.02 0.02], [2 2], 'parent', stateS.handle.CERRAxis(axisNum), 'Color', [0 0 0], 'tag', 'planeLocator',  'buttondownfcn', 'sliceCallBack(''locatorClicked'')', 'userdata', {'vert', 'trans', axisNum}, 'linewidth', 1);
             end
         end
-        
-        
+
+
         axisInfo.miscHandles = [axisInfo.miscHandles, stateS.handle.CERRAxisLabel1(axisNum), ...
             stateS.handle.CERRAxisLabel2(axisNum), stateS.handle.CERRAxisLabel3(axisNum), ...
             stateS.handle.CERRAxisLabel4(axisNum), stateS.handle.CERRAxisScale1(axisNum), ...
@@ -1331,7 +1332,7 @@ switch upper(instr)
             stateS.handle.CERRAxisScreenRightLabel(axisNum), stateS.handle.CERRAxisScreenTopLabel(axisNum), ...
             stateS.handle.CERRAxisScreenBottomLabel(axisNum)];
 
-            
+
         % Create a pool of line objects to display contours
         for i = 1:stateS.optS.linePoolSize
             axisInfo.lineHandlePool(1).lineV(i) = line(NaN, NaN, 'parent', ...
@@ -1345,15 +1346,15 @@ switch upper(instr)
         axisInfo.coord       = {'Linked', hAxis};
         axisInfo.view        = {'Linked', hAxis};
         axisInfo.xRange      = {'Linked', hAxis};
-        axisInfo.yRange      = {'Linked', hAxis};        
-        stateS.handle.aI = dissimilarInsert(stateS.handle.aI,axisInfo);        
-     
+        axisInfo.yRange      = {'Linked', hAxis};
+        stateS.handle.aI = dissimilarInsert(stateS.handle.aI,axisInfo);
+
         % Create right click menus on this axis
         CERRAxisMenu(stateS.handle.CERRAxis(axisNum));
         sliceCallBack('RESIZE');
         stateS.CTDisplayChanged = 1;
         CERRRefresh
-        return;        
+        return;
 
     case 'AXISCLICKED'
         hAxis = gca;
@@ -1428,7 +1429,7 @@ switch upper(instr)
                     set(stateS.handle.CERRAxisLabel1(stateS.currentAxis), 'color', 'green');
                     sliceCallBack('resize');
                 end
-                
+
             case 'normal'
                 sliceCallBack('focus', hAxis);
 
@@ -1436,23 +1437,23 @@ switch upper(instr)
                     sliceCallBack('zoomIn',hAxis);
                     return;
                 end
-                
+
                 if stateS.clipState
                     set(hFig, 'WindowButtonMotionFcn', 'sliceCallBack(''clipMotion'')', 'WindowButtonUpFcn', 'sliceCallBack(''clipMotionDone'')');
                     sliceCallBack('clipStart');
                     return;
                 end
-                
+
                 if stateS.gridState
                     set(hFig, 'WindowButtonMotionFcn', 'sliceCallBack(''rulerMotion'')', 'WindowButtonUpFcn', 'sliceCallBack(''rulerMotionDone'')');
                     sliceCallBack('rulerStart');
                     return;
                 end
-                
+
                 if stateS.spotlightState
                     set(hFig, 'WindowButtonMotionFcn', 'sliceCallBack(''spotlightMotion'')', 'WindowButtonUpFcn', 'sliceCallBack(''spotlightMotionDone'')');
                     sliceCallBack('spotlightStart');
-                    return;                    
+                    return;
                 end
 
                 if stateS.scanQueryState
@@ -1472,14 +1473,14 @@ switch upper(instr)
                     sliceCallBack('doseProfileStart');
                     return;
                 end
-                
+
                 %Setup axis for motion for Segment Labeler
-                if stateS.segmentLabelerState                    
-                    set(hFig, 'WindowButtonMotionFcn', 'segmentLabelerControl(''segmentLabeler'', ''motionInFigure'');');                 
-                    %set(hFig, 'doublebuffer', 'on');   
+                if stateS.segmentLabelerState
+                    set(hFig, 'WindowButtonMotionFcn', 'segmentLabelerControl(''segmentLabeler'', ''motionInFigure'');');
+                    %set(hFig, 'doublebuffer', 'on');
                     return;
                 end
-                
+
                 % wy
                 %                 if stateS.imageRegistration & isequal(stateS.handle.CERRAxis(stateS.lastAxis),hAxis)
                 %                     CTImageRotation('init', hAxis, stateS.imageRegistrationMovDataset);
@@ -1496,26 +1497,26 @@ switch upper(instr)
                     CTImageRotation('down', hAxis);
                     return;
                 end %wy
-                
+
                 if stateS.scanWindowState
                     set(hFig, 'WindowButtonMotionFcn', 'sliceCallBack(''scanWindowMotion'')', 'WindowButtonUpFcn', 'sliceCallBack(''scanWindowMotionDone'')');
                     sliceCallBack('scanWindowStart');
                     return;
                 end
-                
+
                 if stateS.contourState
                     contourControl('Axis_Focus_Changed');
                     return;
                 end
-                
+
                 if isfield(stateS.optS,'mirrorscope') && stateS.optS.mirrorscope
                     return;
                 end
-                
-                set(hFig, 'WindowButtonMotionFcn', 'sliceCallBack(''sliceMotion'')', 'WindowButtonUpFcn', 'sliceCallBack(''sliceMotionDone'')');
-                sliceCallBack('sliceMotionStart');                
 
-                
+                set(hFig, 'WindowButtonMotionFcn', 'sliceCallBack(''sliceMotion'')', 'WindowButtonUpFcn', 'sliceCallBack(''sliceMotionDone'')');
+                sliceCallBack('sliceMotionStart');
+
+
             case {'alt' 'extend'}
                 if ~stateS.gridState && ~stateS.spotlightState ...
                         && ~stateS.doseQueryState && ~stateS.doseProfileState ...
@@ -1572,7 +1573,7 @@ switch upper(instr)
     case 'FOCUS'
         %Sets current cerr focus to a new axis, varargin.
         hAxis = varargin{1};
-        hFig = get(hAxis, 'parent');        
+        hFig = get(hAxis, 'parent');
         stateS.lastAxis = stateS.currentAxis;
         stateS.currentAxis = find(stateS.handle.CERRAxis == hAxis);
         % planeLocators = findobj(hFig, 'tag', 'planeLocator');
@@ -1581,7 +1582,7 @@ switch upper(instr)
         pLUD = get(planeLocators, 'userdata');
         for i = 1:size(pLUD,1)
             parentAxis = pLUD{i}{3};
-            if parentAxis == stateS.currentAxis                
+            if parentAxis == stateS.currentAxis
                 set(planeLocators(i), 'Color', [0.5 1 0.5]);
             else
                 set(planeLocators(i), 'Color', [0.9 0.9 0.5]);
@@ -1593,7 +1594,7 @@ switch upper(instr)
         %end
         set(stateS.handle.CERRAxisLabel1(stateS.currentAxis), 'color', [0.5 1 0.5]);
         set(stateS.handle.CERRAxisLabel2(stateS.currentAxis), 'color', [0.5 1 0.5]);
-        
+
         if stateS.contourAxis > 0
             set(stateS.handle.CERRAxisLabel1(stateS.contourAxis), 'color', [1 0 0]);
             set(stateS.handle.CERRAxisLabel2(stateS.contourAxis), 'color', [1 0 0]);
@@ -1605,21 +1606,22 @@ switch upper(instr)
             scanNum = scanNum(1);
             set(stateS.handle.ScanTxtWindow, 'String', [num2str(scanNum) '.  ' planC{indexS.scan}(scanNum).scanType])
             scanUID = ['c',repSpaceHyp(planC{indexS.scan}(scanNum).scanUID(max(1,end-61):end))];
-            
+
             %stateS.scanStats.CTLevel.(scanUID) = str2double(get(stateS.handle.CTLevel,'String'));
             %stateS.scanStats.CTWidth.(scanUID) = str2double(get(stateS.handle.CTWidth,'String'));
-            
+
             % Update Center, Width and Colormap strings on the GUI
             set(stateS.handle.CTPreset, 'Value', stateS.scanStats.windowPresets.(scanUID));
             set(stateS.handle.CTLevel, 'String', num2str(stateS.scanStats.CTLevel.(scanUID)));
             set(stateS.handle.CTWidth, 'String', num2str(stateS.scanStats.CTWidth.(scanUID)));
             ind = find(strcmpi({stateS.optS.scanColorMap.name},stateS.scanStats.Colormap.(scanUID)));
             set(stateS.handle.BaseCMap,'value',ind);
-            
+
             % Update scan colormap
             updateScanColorbar(scanNum);
         end
-        
+        axes(hAxis)
+
         return;
 
     case 'OPENWORKSPACEPLANC'
@@ -1710,12 +1712,12 @@ switch upper(instr)
             [pathstr, name, ext] = fileparts(fullfile(pathstr, name));
             tarFile = 1;
         end
-      
+
         if strcmpi(ext, '.bz2')
             zipFile = 1;
             CERRStatusString(['Decompressing ' name ext '...']);
             outstr = gnuCERRCompression(file, 'uncompress',tmpExtractDir);
-            if ispc            
+            if ispc
                 loadfile = fullfile(tmpExtractDir, name);
             else
                 loadfile = fullfile(pathstr, name);
@@ -1729,7 +1731,7 @@ switch upper(instr)
             else
                 unzip(file,pathstr)
                 loadfile = fullfile(pathstr, name);
-            end            
+            end
             [pathstr, name, ext] = fileparts(fullfile(pathstr, name));
         else
             zipFile = 0;
@@ -1755,7 +1757,7 @@ switch upper(instr)
         %             loadfile = fullfile(tempdir, name);
         %         end
 
-        planC           = load(loadfile,'planC');
+        planC = load(loadfile,'planC');
         try
             if zipFile
                 delete(loadfile);
@@ -1810,17 +1812,17 @@ switch upper(instr)
         return
 
     case 'CHANGESLC'
-        
+
         %Rotation active message
         if stateS.toggle_rotation
             msgbox('Please get out of rotation mode before moving to next slice','Rotation Active','modal');
             return;
         end
-        
+
         if stateS.annotToggle == 1
             return;
         end
-        
+
         %     case {'NEXTSLICE', 'PREVSLICE'}
         %figure(hCSV); %Remove uicontrol focus.
         %hAxis = stateS.handle.CERRAxis(stateS.currentAxis);
@@ -1831,9 +1833,9 @@ switch upper(instr)
 
         else % if scan is turned off from the view menu
             if ~isempty(stateS.scanSet)
-                scanSet = stateS.scanSet(1); 
+                scanSet = stateS.scanSet(1);
             else
-                scanSet = 1; 
+                scanSet = 1;
             end
         end
         [xs, ys, zs] = getScanXYZVals(planC{indexS.scan}(scanSet));
@@ -1861,12 +1863,12 @@ switch upper(instr)
                 else
                     newSlice = 1;
                 end
-                %if ~newSlice < 1 | ~newSlice > length(zs)                
+                %if ~newSlice < 1 | ~newSlice > length(zs)
                 if (newSlice > 0 && newSlice <= length(zs)) && (isempty(transM) || max(abs(transM(:) - I(:))) < 1e-8)
                     newCoord = zs(newSlice);
                     setAxisInfo(uint8(stateS.currentAxis), 'coord', newCoord);
                 else
-                    uniqZs = unique(diff(zs));                    
+                    uniqZs = unique(diff(zs));
                     sliceSpacing = min(uniqZs(uniqZs ~= 0));
                     setAxisInfo(uint8(stateS.currentAxis), 'coord', lastcoord+sliceSpacing*delta);
                 end
@@ -1925,7 +1927,7 @@ switch upper(instr)
         hAxis = gca;
         hFig = get(hAxis,'parent');
         movData = stateS.imageRegistrationMovDataset;
-        transM = eye(3);        
+        transM = eye(3);
         %axisInfo = get(hAxis, 'userdata');
         axInd = stateS.handle.CERRAxis == hAxis;
         axisInfo = stateS.handle.aI(axInd);
@@ -1970,20 +1972,20 @@ switch upper(instr)
                 set(hToggleBasMov,'string','M','fontWeight','bold','foregroundColor',clrM(clrVal,:))
             elseif ~isempty(hToggleBasMov) && stateS.doseAlphaValue.trans == 0
                 set(hToggleBasMov,'string','B','fontWeight','bold','foregroundColor',[0 0 0])
-            end        
+            end
         end
-                
+
         return
-        
+
     case 'TOGGLEBASEMOVING'
         %figure(hCSV); %Remove uicontrol focus.
-        stateS.doseAlphaValue.trans = get(gcbo,'value');        
+        stateS.doseAlphaValue.trans = get(gcbo,'value');
         udFrame = stateS.handle.controlFrameUd ;
-        clrVal = get(udFrame.handles.displayModeColor,'value');        
+        clrVal = get(udFrame.handles.displayModeColor,'value');
         clrM = [0 0 0; 1 0.8 0.5; 1 0 0; 0 1 0; 0 0 1; 1 0.5 0.5; 1 0.5 0.5];
         if stateS.doseAlphaValue.trans == 1
             set(gcbo,'string','M','fontWeight','bold','foregroundColor',clrM(clrVal,:))
-        else 
+        else
             set(gcbo,'string','B','fontWeight','bold','foregroundColor',[0 0 0])
         end
         set(stateS.handle.sliderTransAlpha,'value',stateS.doseAlphaValue.trans)
@@ -1994,11 +1996,11 @@ switch upper(instr)
         if stateS.planLoaded
             CERRRefresh
         end
-        return       
-        
+        return
+
     case 'TOGGLELOCKMOVING'
-        stateS.imageFusion.lockMoving = get(gcbo,'value'); 
-        
+        stateS.imageFusion.lockMoving = get(gcbo,'value');
+
         if stateS.imageFusion.lockMoving == 1
             if isdeployed
                 [I,map] = imread(fullfile(getCERRPath,'pics','Icons','lock.gif'),'gif');
@@ -2008,7 +2010,7 @@ switch upper(instr)
             lockImg = ind2rgb(I,map);
             set(gcbo,'cdata',lockImg,'fontWeight','bold','foregroundColor', [1 0 0]);
             set(stateS.handle.CERRAxis,'buttondownfcn', 'sliceCallBack(''axisClicked'')')
-        else 
+        else
             if isdeployed
                 [I,map] = imread(fullfile(getCERRPath,'pics','Icons','unlock.gif'),'gif');
             else
@@ -2044,13 +2046,13 @@ switch upper(instr)
             hWarn = warndlg('Please turn on the scan');
             waitfor(hWarn);
             return;
-        end      
-        
+        end
+
         scanSet = getAxisInfo(stateS.handle.CERRAxis(stateS.currentAxis),'scanSets');
         if isempty(scanSet)
             return;
         end
-        
+
         msgString{1} = 'Contouring enabled on the active window.';
         msgString{2} = ['Scan: ',planC{indexS.scan}(scanSet).scanType];
         ButtonName = questdlg(msgString, ...
@@ -2059,9 +2061,9 @@ switch upper(instr)
         if ~strcmpi(ButtonName,'Yes')
             return;
         end
-        
+
         stateS.contourAxis = stateS.currentAxis;
-        
+
         %     Check if its transverse view, else display errr.
         %ud = get(stateS.handle.CERRAxis(1),'userdata');
         ud = stateS.handle.aI(stateS.contourAxis);
@@ -2069,16 +2071,16 @@ switch upper(instr)
             stateS.contourAxis = [];
             herror = errordlg({'Contouring can be done only on Transverse Views',...
                 'Please Select 1st view to be transverse for contouring'},...
-                'Not a transverse view','on');            
+                'Not a transverse view','on');
             return
         end
-        
+
         % Get out of other modes, if any
         controlFrame('default');
-        
+
         %Disable all right click menus;
-        set(stateS.handle.CERRAxis, 'uicontextmenu', []);        
-        
+        set(stateS.handle.CERRAxis, 'uicontextmenu', []);
+
         stateS.contourState = 1;
         controlFrame('contour', 'init');
 
@@ -2139,9 +2141,9 @@ switch upper(instr)
         if any(find(structsV>length(planC{indexS.structures})))
             error('Incorrect input. Please specify valid structure numbers to copy.')
             return;
-        end        
+        end
         pause(0.05)
-        drawnow;        
+        drawnow;
         CERRStatusString('Copying structure/s from one scan to other. Please wait...')
         scanNumsV = getStructureAssociatedScan(structsV,planC);
         count = 1;
@@ -2150,30 +2152,30 @@ switch upper(instr)
                 copyStrToScan_noMesh(structNum,scanNum);
             end
             count = count + 1;
-        end        
+        end
         CERRStatusString('Done copying structure/s')
-        
+
     case 'STRUCTCONSENSUS'
         prompt = {'Input structures to check consensus separated by spaces: e.g. 2 3 6 7'};
         name = 'Consensus';
         numlines = 1;
         defaultanswer = {''};
-        answer = inputdlg(prompt,name,numlines,defaultanswer);        
+        answer = inputdlg(prompt,name,numlines,defaultanswer);
         if isempty(answer)
             return;
         end
-        structsV = str2num(answer{1});        
+        structsV = str2num(answer{1});
         if isempty(structsV)
             error('Incorrect input. Input must be numeric. Please try again.')
             return;
         end
         scanNumV = getStructureAssociatedScan(structsV,planC);
-        
+
         if length(unique(scanNumV)) > 1
             error('All structures must be associated with same scan. Please try again.')
             return;
         end
-        
+
         runCERRCommand(['structCompare ',answer{1}]);
 
 
@@ -2181,7 +2183,7 @@ switch upper(instr)
         stateS.showPlaneLocators = xor(stateS.showPlaneLocators, 1);
         CERRRefresh
         return;
-        
+
     case 'NAVMONTAGETOGGLE'
         stateS.showNavMontage = xor(stateS.showNavMontage, 1);
         if stateS.showNavMontage
@@ -2205,7 +2207,7 @@ switch upper(instr)
 
     case 'TOGGLESINGLESTRUCT'
         structNum = str2double(varargin{1});
-        planC{indexS.structures}(structNum).visible = xor(planC{indexS.structures}(structNum).visible, 1);        
+        planC{indexS.structures}(structNum).visible = xor(planC{indexS.structures}(structNum).visible, 1);
         %if planC{indexS.structures}(structNum).visible
         %    checked = 'on';
             %toggleStructSagCor(structNum)
@@ -2217,17 +2219,17 @@ switch upper(instr)
         %end
         stateS.structsChanged = 1;
         CERRRefresh
-        
-    case 'SELECTSTRUCTMORE'        
+
+    case 'SELECTSTRUCTMORE'
         structsToShow = 25;
         numStructs = length(planC{indexS.structures});
         structStrC = {};
         assocScanV = getStructureAssociatedScan(1 : numStructs);
         scanNum = varargin{1};
-        assocScanV = assocScanV == scanNum;   
+        assocScanV = assocScanV == scanNum;
         structAssocToScanV = find(assocScanV);
         count = 1;
-        for i = structAssocToScanV(structsToShow+1:end)        
+        for i = structAssocToScanV(structsToShow+1:end)
             structStrC{count} = [num2str(i) '.  ' planC{indexS.structures}(i).structureName];
             count = count + 1;
         end
@@ -2238,8 +2240,8 @@ switch upper(instr)
         end
         hMoreStruct = findobj(stateS.handle.CERRStructMenu,'label', 'More Structures...');
         set(hMoreStruct,'checked','off')
-        
-        
+
+
     case 'VIEWALLSTRUCTURES'
         scanSet = varargin;
         if isempty(scanSet)
@@ -2280,12 +2282,12 @@ switch upper(instr)
 
         %FOLLOWING FUNCTIONS HAD TO BE BROKEN OUT FOR COMPILATION:
     case 'CLOSEREQUEST'
-        
+
         force_close_flag = false;
         if ~isempty(varargin)
             force_close_flag = varargin{1};
         end
-        
+
         %Clear the persistent variable in getDoseArray when CERR exists.
         try
             controlFrame('default');
@@ -2364,7 +2366,7 @@ switch upper(instr)
         hLine = getappdata(hCSV, 'locPlaneHandle');
         setappdata(hCSV, 'locPlaneHandle', []);
         ud = get(hLine, 'userdata');
-        %type = ud{1}; view = ud{2}; 
+        %type = ud{1}; view = ud{2};
         linkedAxis = ud{3};
         %transAxis = []; sagAxis = []; corAxis = [];
         hAxis = stateS.handle.CERRAxis(linkedAxis);
@@ -2403,12 +2405,12 @@ switch upper(instr)
             cData(1:2:16,8) = 2;
             %set(hCSV,'pointer','crosshair');
             set(hCSV,'pointerShapeCData',cData,'pointer','custom','PointerShapeHotSpot',[8,8]);
-            set(stateS.handle.zoom,'background','red');
+            set(stateS.handle.zoom,'backgroundcolor','red');
             set(stateS.handle.fractionGroupIDTrans,'String','Left Click: ZOOMIN');
 
             set(stateS.handle.doseDescriptionTrans,'String','Right Click: ZOOMOUT');
         else
-            set(stateS.handle.zoom,'background','white');
+            set(stateS.handle.zoom,'backgroundcolor','white');
             % Define Pointer
             set(hCSV,'pointer','arrow');
             set(stateS.handle.fractionGroupIDTrans,'String','');
@@ -2427,11 +2429,11 @@ switch upper(instr)
             hAxisParent = ud.view{2};
         else
             hAxisParent = hAxis;
-        end        
+        end
         % Find linked axes
         hAxisV = [];
         for hAx = stateS.handle.CERRAxis
-            %ud = get(hAx,'userdata'); 
+            %ud = get(hAx,'userdata');
             axInd = stateS.handle.CERRAxis == hAx;
             ud = stateS.handle.aI(axInd);
             if iscell(ud.view)
@@ -2445,7 +2447,7 @@ switch upper(instr)
         hFig = get(hAxis(1), 'parent');
         startPt  = get(hAxis(1), 'currentPoint');
         %rbbox([get(hFig,'currentpoint') 0 0],get(hFig,'currentpoint'),hFig);
-        rbbox([get(hFig,'currentpoint') 0 0],get(hFig,'currentpoint'));
+        %rbbox([get(hFig,'currentpoint') 0 0],get(hFig,'currentpoint'));
         endPt = get(hAxis(1), 'currentPoint');
         xLim = get(hAxis(1), 'xLim');
         yLim = get(hAxis(1), 'yLim');
@@ -2474,13 +2476,13 @@ switch upper(instr)
         %Redraw locators
         showPlaneLocators;
         showPatientOrientation;
-        %Update scale        
+        %Update scale
         for hAxis = allhAxis
             indAxis = find(hAxis == stateS.handle.CERRAxis);
             showScale(hAxis, indAxis)
         end
         return
-        
+
     case 'ZOOMOUT'
         hAxis = varargin{1};
         % Get the parent axis in case of linked axis
@@ -2491,14 +2493,14 @@ switch upper(instr)
             hAxisParent = ud.view{2};
         else
             hAxisParent = hAxis;
-        end        
+        end
         % Find linked axes
         hAxisV = [];
         for hAx = stateS.handle.CERRAxis
             %ud = get(hAx,'userdata');
             axInd = stateS.handle.CERRAxis == hAx;
             ud = stateS.handle.aI(axInd);
-            
+
             if iscell(ud.view)
                 hAxisV = [hAxisV, ud.view{2}];
             else
@@ -2518,11 +2520,11 @@ switch upper(instr)
         for hAxis = allhAxis
             setAxisInfo(hAxis, 'xRange', newXLim, 'yRange', newYLim);
             zoomToXYRange(hAxis);
-        end        
+        end
         %Redraw locators
         showPlaneLocators;
         showPatientOrientation;
-        %Update scale        
+        %Update scale
         for hAxis = allhAxis
             indAxis = find(hAxis == stateS.handle.CERRAxis);
             showScale(hAxis, indAxis)
@@ -2537,19 +2539,19 @@ switch upper(instr)
         %ud = get(hAxis,'userdata');
         axInd = stateS.handle.CERRAxis == hAxis;
         ud = stateS.handle.aI(axInd);
-        
+
         if iscell(ud.view)
             hAxisParent = ud.view{2};
         else
             hAxisParent = hAxis;
-        end        
+        end
         % Find linked axes
         hAxisV = [];
         for hAx = stateS.handle.CERRAxis
             %ud = get(hAx,'userdata');
             axInd = stateS.handle.CERRAxis == hAx;
             ud = stateS.handle.aI(axInd);
-            
+
             if iscell(ud.view)
                 hAxisV = [hAxisV, ud.view{2}];
             else
@@ -2562,9 +2564,9 @@ switch upper(instr)
             zoomToXYRange(stateS.handle.CERRAxis(axisNum));
         end
         %Redraw locators
-        %showPlaneLocators;   
+        %showPlaneLocators;
         showPatientOrientation;
-        CERRRefresh        
+        CERRRefresh
         return;
 
         %CALLBACKS TO QUERY SCAN.
@@ -2600,7 +2602,7 @@ switch upper(instr)
             CERRStatusString('');
             %delete([findobj('tag', 'profileLine')]);
             delete(stateS.handle.profileLine)
-            stateS.handle.profileLine = []; 
+            stateS.handle.profileLine = [];
             stateS.doseProfileState = 0;
             try
                 delete(stateS.handle.doseProfileFigure);
@@ -2675,9 +2677,9 @@ switch upper(instr)
         set(hFig, 'WindowButtonMotionFcn', '', 'WindowButtonUpFcn', '');
         return;
         %%%%%
-        
-        
-        %CALLBACKS TO SCAN WINDOW            
+
+
+        %CALLBACKS TO SCAN WINDOW
     case 'TOGGLESCANWINDOWING'
         toggleState = get(stateS.handle.CTLevelWidthInteractive,'value');
         if toggleState == 1
@@ -2695,7 +2697,7 @@ switch upper(instr)
                     sliceCallBack('structToggle')
                 end
             end
-            
+
             if stateS.contourState
                 % In contouring mode, switch to nonemode
                 hAxis = stateS.handle.CERRAxis(stateS.contourAxis);
@@ -2708,18 +2710,18 @@ switch upper(instr)
                 set(stateS.handle.CERRSliceViewer, 'WindowButtonUpFcn','')
                 set(hAxis, 'ButtonDownFcn', 'sliceCallBack(''axisClicked'')')
             end
-            
+
         else
             CERRStatusString('')
             stateS.scanWindowState = 0;
             if stateS.turnDoseOnInteractiveWindowing
                 stateS = rmfield(stateS,'turnDoseOnInteractiveWindowing');
                 sliceCallBack('doseToggle')
-            end   
+            end
             if stateS.turnStructOnInteractiveWindowing
                 stateS = rmfield(stateS,'turnStructOnInteractiveWindowing');
                 sliceCallBack('structToggle')
-            end    
+            end
             % In contouring mode, set windowMotion and buttonUp fcns
             if stateS.contourState
                 hAxis = stateS.handle.CERRAxis(stateS.contourAxis);
@@ -2730,15 +2732,15 @@ switch upper(instr)
                 set(hAxis,'ButtonDownFcn', 'drawContour(''btnDownInAxis'')')
             end
         end
-        
+
     case 'SCANWINDOWSTART'
         hAxis = gca;
         hFig  = get(hAxis, 'parent');
         cP    = get(hAxis, 'CurrentPoint');
         set(hFig, 'interruptible', 'on', 'busyaction', 'cancel');
         stateS.scanWindowCurrentPoint = cP(1,1:2);
-        return;     
-                
+        return;
+
     case 'SCANWINDOWMOTION'
         hAxis = gca;
         %hFig  = get(hAxis, 'parent');
@@ -2748,16 +2750,16 @@ switch upper(instr)
         percentMov = abs(pointDiff./[dX(2)-dX(1)+eps dY(2)-dY(1)+eps]);
         percentMov = percentMov/max(percentMov);
         pointDiff = sign(pointDiff);
-        stateS.scanWindowCurrentPoint = cP(1,1:2);   
+        stateS.scanWindowCurrentPoint = cP(1,1:2);
         scanNum = getAxisInfo(gca,'scanSets');
         scanUID = ['c',repSpaceHyp(planC{indexS.scan}(scanNum).scanUID(max(1,end-61):end))];
         %minScanVal = stateS.scanStats.minScanVal.(scanUID);
         %maxScanVal = stateS.scanStats.maxScanVal.(scanUID);
         %dMov = maxScanVal - minScanVal;
         dMov = stateS.scanStats.CTWidth.(scanUID); % move by fraction of CT width
-        
-        stateS.scanStats.CTLevel.(scanUID) = stateS.scanStats.CTLevel.(scanUID) + pointDiff(2)*dMov*2.0/100*percentMov(2);        
-        stateS.scanStats.CTWidth.(scanUID) = stateS.scanStats.CTWidth.(scanUID) + pointDiff(1)*dMov*1/100*percentMov(1); 
+
+        stateS.scanStats.CTLevel.(scanUID) = stateS.scanStats.CTLevel.(scanUID) + pointDiff(2)*dMov*2.0/100*percentMov(2);
+        stateS.scanStats.CTWidth.(scanUID) = stateS.scanStats.CTWidth.(scanUID) + pointDiff(1)*dMov*1/100*percentMov(1);
         stateS.scanStats.CTWidth.(scanUID) = max([0.1 stateS.scanStats.CTWidth.(scanUID)]);
         set(stateS.handle.CTLevel,'String',num2str(stateS.scanStats.CTLevel.(scanUID)))
         set(stateS.handle.CTWidth,'String',num2str(stateS.scanStats.CTWidth.(scanUID)))
@@ -2769,24 +2771,24 @@ switch upper(instr)
         end
         updateScanColorbar(scanNum);
         return;
-        
-    case 'SCANWINDOWMOTIONDONE' 
+
+    case 'SCANWINDOWMOTIONDONE'
         hFig = gcf;
         set(hFig, 'interruptible', 'on', 'busyaction', 'queue');
         set(hFig, 'WindowButtonMotionFcn', '', 'WindowButtonUpFcn', '');
-        return;        
-        
+        return;
+
     case 'SLICEMOTIONSTART'
         hAxis = gca;
-        %hFig  = get(hAxis, 'parent');
-        hFig = hAxis.Parent;
-        %cP    = get(hAxis, 'CurrentPoint');
-        cP = hAxis.CurrentPoint;
+        hFig  = get(hAxis, 'parent');
+        %hFig = hAxis.Parent;
+        cP    = get(hAxis, 'CurrentPoint');
+        %cP = hAxis.CurrentPoint;
         set(hFig, 'interruptible', 'on', 'busyaction', 'cancel');
         stateS.scanWindowCurrentPoint = cP(1,1:2);
-        return;     
+        return;
 
-    case 'SLICEMOTION'        
+    case 'SLICEMOTION'
         hAxis = gca;
         hFig  = get(hAxis, 'parent');
         cP    = get(hAxis, 'CurrentPoint');
@@ -2795,20 +2797,20 @@ switch upper(instr)
         %percentMov = abs(pointDiff(2)./(dY(2)-dY(1)+eps));
         %percentMov = percentMov/percentMov;
         %pointDiff = sign(pointDiff);
-        stateS.scanWindowCurrentPoint = cP(1,1:2);   
+        stateS.scanWindowCurrentPoint = cP(1,1:2);
         if pointDiff(2) < 0
             sliceCallBack('ChangeSlc','prevslice')
         else
             sliceCallBack('ChangeSlc','nextslice')
         end
-        
-    case 'SLICEMOTIONDONE' 
+
+    case 'SLICEMOTIONDONE'
         hFig = gcf;
         set(hFig, 'interruptible', 'on', 'busyaction', 'queue');
         set(hFig, 'WindowButtonMotionFcn', '', 'WindowButtonUpFcn', '');
-        return;        
-        
-        
+        return;
+
+
         %CALLBACKS TO QUERY DOSE.
     case 'TOGGLEDOSEQUERY'
         if ~stateS.doseQueryState
@@ -2840,7 +2842,7 @@ switch upper(instr)
         return;
 
     case 'DOSEQUERYMOTION'
-        %dQP = findobj('tag', 'doseQueryPoint');        
+        %dQP = findobj('tag', 'doseQueryPoint');
         hAxis = get(stateS.handle.doseQueryPoint, 'userdata');
         [view, coord, doseSets] = getAxisInfo(hAxis, 'view', 'coord', 'doseSets');
 
@@ -2882,7 +2884,7 @@ switch upper(instr)
 
     case 'DOSEQUERYMOTIONDONE'
         hFig = gcbo;
-        set(hFig, 'WindowButtonMotionFcn', '', 'WindowButtonUpFcn', '');        
+        set(hFig, 'WindowButtonMotionFcn', '', 'WindowButtonUpFcn', '');
         return;
 
         %CALLBACKS TO OPERATE RULER.
@@ -2948,8 +2950,8 @@ switch upper(instr)
         set(hFig, 'WindowButtonMotionFcn', '', 'WindowButtonUpFcn', '');
         return;
         %%%%%
-        
-    case 'TOGGLESPOTLIGHT' 
+
+    case 'TOGGLESPOTLIGHT'
         spotLightS = stateS.handle.spotLightS;
         if isfield(spotLightS,'base_spotlight_xcrosshair') && ...
                 ~isempty(spotLightS.base_spotlight_xcrosshair) && ...
@@ -2967,14 +2969,14 @@ switch upper(instr)
         spotLightS.base_spotlight_ycrosshair = [];
         spotLightS.mov_spotlight_xcrosshair = [];
         spotLightS.base_spotlight_ycrosshair = [];
-        
+
         if stateS.spotlightState
             stateS.spotlightState = 0;
         else
             stateS.spotlightState = 1;
         end
         if stateS.spotlightState
-            
+
             deformS = planC{indexS.deform}(end);
             scanUIDc = {planC{indexS.scan}.scanUID};
             baseUID = deformS.baseScanUID;
@@ -2986,7 +2988,7 @@ switch upper(instr)
 
             spotLightS.baseScanNum = baseScanNum;
             spotLightS.movScanNum = movScanNum;
-            spotLightS.indScanNum = indScanNum;            
+            spotLightS.indScanNum = indScanNum;
 
             % Change panel layout to 2 medium
             sliceCallBack('layout', 3)
@@ -2994,7 +2996,7 @@ switch upper(instr)
             % Link the three views and display Transverse view on the three axes
             Ax1 = stateS.handle.CERRAxis(1);
             Ax2 = stateS.handle.CERRAxis(2);
-            
+
             spotLightS.baseAxis = Ax1;
             spotLightS.movAxis = Ax2;
 
@@ -3014,28 +3016,28 @@ switch upper(instr)
             setAxisInfo(Ax2,'coord',median(zMovV),...
                 'xRange',[xMovV(1) xMovV(end)],...
             'yRange',[yMovV(end) yMovV(1)])
-        
+
             stateS.CTChanged = 1;
             stateS.doseChanged = 1;
             stateS.doseDisplayChanged = 1;
             CERRRefresh
-            
+
             toggleOffDrawModes;
             CERRStatusString('Click in axis. Right click to end.');
             %stateS.spotlightState = 1;
             %Disable all right click menus;
             set(stateS.handle.CERRAxis, 'uicontextmenu', []);
-            
+
             stateS.handle.spotLightS = spotLightS;
-                        
+
         else
             CERRStatusString('');
-            %delete([findobj('tag', 'spotlight_patch'); findobj('tag', 'spotlight_xcrosshair'); findobj('tag', 'spotlight_ycrosshair')]);            
-        end        
-        
-        
+            %delete([findobj('tag', 'spotlight_patch'); findobj('tag', 'spotlight_xcrosshair'); findobj('tag', 'spotlight_ycrosshair')]);
+        end
+
+
     case 'SPOTLIGHTSTART'
-       
+
 %         hAxis = gcbo;
 %         cP = get(hAxis, 'CurrentPoint');
 %         %delete([findobj('tag', 'spotlight_patch'); findobj('tag', 'spotlight_xcrosshair'); findobj('tag', 'spotlight_ycrosshair')]);
@@ -3048,18 +3050,18 @@ switch upper(instr)
 %             end
 %         end
 %         spotLightS.axesToDraw = axesToDraw;
-        
+
         spotLightS = stateS.handle.spotLightS;
-        
+
         hAxis = spotLightS.baseAxis;
-        
+
         if ~isequal(gcbo,hAxis)
             return;
         end
-        
+
         coord = getAxisInfo(hAxis, 'coord');
         cP = get(hAxis, 'CurrentPoint');
-        
+
         cross_hair_delta = 2;
 %         delta = 0.2;
 %         thetaV = linspace(0,2*pi,30);
@@ -3076,7 +3078,7 @@ switch upper(instr)
         %[~,~,zBaseV] = getUniformScanXYZVals(...
         %    planC{indexS.scan}(spotLightS.baseScanNum));
         %sliceNum = findnearest(coord,zBaseV);
-        xV = [xV,...         
+        xV = [xV,...
             cP(1,1)-cross_hair_delta,...
             cP(1,1)+cross_hair_delta,...
             cP(1,1),...
@@ -3088,15 +3090,15 @@ switch upper(instr)
             cP(2,2)-cross_hair_delta,...
             cP(2,2)+cross_hair_delta,...
             cP(2,2)];
-%             
+%
 %         [rowV, colV] = xytom(xV, yV, sliceNum, planC,spotLightS.baseScanNum);
 %         rowV = round(rowV);
 %         colV = round(colV);
 %         indBaseV = sub2ind(sizUnifBase,rowV, colV, sliceNum*colV.^0);
-%         
+%
 %         [movRowV,movColV,movSlcV] = ind2sub(sizUnifBase,indBaseV);
 %         indCtOffset = planC{indexS.scan}(spotLightS.indScanNum).scanInfo(1).CTOffset;
-%         indMovV = planC{indexS.scan}(spotLightS.indScanNum).scanArray - indCtOffset;        
+%         indMovV = planC{indexS.scan}(spotLightS.indScanNum).scanArray - indCtOffset;
 %         indMovV = indMovV(indBaseV);
 %         [xUnifMovV,yUnifMovV,zUnifMovV] = getUniformScanXYZVals(...
 %             planC{indexS.scan}(spotLightS.movScanNum));
@@ -3104,12 +3106,12 @@ switch upper(instr)
 %         xmV = xUnifMovM(indMovV);
 %         ymV = yUnifMovM(indMovV);
 %         zmV = zUnifMovM(indMovV);
-%         
+%
         [xmV,ymV,zmV] = getMovScanCoords(xV, yV, coord, ...
             spotLightS.baseScanNum, spotLightS.movScanNum, ...
             spotLightS.indScanNum, planC);
-        
-        
+
+
         crossHairHorXv = xmV(end-4:end-3);
         crossHairHorYv = ymV(end-4:end-3);
         %crossHairHorZv = zmV(end-4:end-3);
@@ -3137,10 +3139,10 @@ switch upper(instr)
 %                 %patch(xmV, ymV, [0 1 0], 'tag', 'spotlight_patch', 'userdata', hAxis, 'parent', axesToDraw(i), 'edgeColor', 'none', 'faceColor', [1 1 0], 'faceAlpha', 0.9, 'hittest', 'off');
 %                 spotLightS.mov_spotlight_xcrosshair = line(crossHairHorXv, crossHairHorYv, 'tag', 'spotlight_xcrosshair', 'userdata', hAxis, 'parent', axesToDraw(i),  'color', [1 1 0], 'hittest', 'off','linewidth',3);
 %                 spotLightS.mov_spotlight_ycrosshair = line(crossHairVerXv, crossHairVerYv, 'tag', 'spotlight_ycrosshair', 'userdata', hAxis, 'parent', axesToDraw(i),  'color', [1 1 0], 'hittest', 'off','linewidth',3);
-%                 %line(crossHairX, crossHairY, 'tag', 'spotlight_trail', 'userdata', hAxis, 'parent', axesToDraw(i),  'color', [1 0.4 0.2], 'hittest', 'off','linewidth',3);                
+%                 %line(crossHairX, crossHairY, 'tag', 'spotlight_trail', 'userdata', hAxis, 'parent', axesToDraw(i),  'color', [1 0.4 0.2], 'hittest', 'off','linewidth',3);
 %             end
 %         end
-                
+
         setAxisInfo(spotLightS.movAxis,'coord',crossHairZ)
         %setAxisInfo(spotLightS.movAxis,'coord',crossHairZ,...
         %    'xRange',[crossHairX-1 crossHairX+1],...
@@ -3152,17 +3154,17 @@ switch upper(instr)
         spotLightS.base_spotlight_ycrosshair = line([cP(1,1) cP(1,1)], [cP(2,2)-cross_hair_delta cP(2,2)+cross_hair_delta], 'tag', 'spotlight_xcrosshair', 'parent', spotLightS.baseAxis,  'color', [1 1 0], 'hittest', 'off','linewidth',3);
         spotLightS.mov_spotlight_xcrosshair = line(crossHairHorXv, crossHairHorYv, 'tag', 'spotlight_xcrosshair', 'parent', spotLightS.movAxis,  'color', [1 1 0], 'hittest', 'off','linewidth',3);
         spotLightS.mov_spotlight_ycrosshair = line(crossHairVerXv, crossHairVerYv, 'tag', 'spotlight_ycrosshair', 'parent', spotLightS.movAxis,  'color', [1 1 0], 'hittest', 'off','linewidth',3);
-        
+
         stateS.handle.spotLightS = spotLightS;
         doseNum = 2;
         doseVal = getDoseAt(doseNum, crossHairX, crossHairY, crossHairZ, planC);
         strDose = ['Mov Dose = ',num2str(doseVal)];
         CERRStatusString(strDose,'gui')
-        
-        
+
+
         return;
-        
-        
+
+
     case'SPOTLIGHTMOTION'
         %         spotlight = findobj(gcbo,'tag', 'spotlight_patch');
         %         if isempty(spotlight)
@@ -3192,7 +3194,7 @@ switch upper(instr)
         %         spotlight_y_hair = findobj(gcbo, 'tag', 'spotlight_ycrosshair');
         %         set(spotlight_x_hair,'XData',[cP(1,1)-cross_hair_delta cP(1,1)+cross_hair_delta], 'YData',[cP(2,2) cP(2,2)])
         %         set(spotlight_y_hair,'YData',[cP(2,2)-cross_hair_delta cP(2,2)+cross_hair_delta], 'XData',[cP(1,1) cP(1,1)])
-        
+
         cross_hair_delta = 2;
         spotLightS = stateS.handle.spotLightS;
         % hAxis = get(spotLightS.base_spotlight_xcrosshair(1), 'userdata');
@@ -3201,7 +3203,7 @@ switch upper(instr)
         if ~isequal(guiObj.CurrentObject,hAxis)
             return;
         end
-        
+
         [~, coord] = getAxisInfo(hAxis, 'view', 'coord');
         cP = get(hAxis, 'CurrentPoint');
         xV = [];
@@ -3239,37 +3241,37 @@ switch upper(instr)
 %             'yRange',[crossHairY+1 crossHairY-1])
         %zoomToXYRange(spotLightS.movAxis)
         %CERRRefresh
-        
-        
+
+
         setAxisInfo(spotLightS.movAxis,'coord',crossHairZ)
-        CERRRefresh        
-        
+        CERRRefresh
+
         set(spotLightS.base_spotlight_xcrosshair,'XData',[cP(1,1)-cross_hair_delta cP(1,1)+cross_hair_delta], 'YData',[cP(2,2) cP(2,2)])
         set(spotLightS.base_spotlight_ycrosshair,'YData',[cP(2,2)-cross_hair_delta cP(2,2)+cross_hair_delta], 'XData',[cP(1,1) cP(1,1)])
         set(spotLightS.mov_spotlight_xcrosshair,'YData',crossHairHorYv, 'XData',crossHairHorXv)
         set(spotLightS.mov_spotlight_ycrosshair,'YData',crossHairVerYv, 'XData',crossHairVerXv)
-        
+
         return;
-        
+
     case 'SPOTLIGHTMOTIONDONE'
         hFig = gcbo;
         set(hFig, 'WindowButtonMotionFcn', '', 'WindowButtonUpFcn', '');
         delete([findobj('tag', 'spotlight_patch'); findobj('tag', 'spotlight_xcrosshair'); findobj('tag', 'spotlight_ycrosshair'); findobj('tag', 'spotlight_trail')]);
         return;
-        
-        
+
+
     case 'CTPRESET'
         %figure(hCSV); %Remove uicontrol focus.
         scanSet = stateS.handle.aI(stateS.currentAxis).scanSets;
         scanSet = scanSet(1);
-        
+
         if stateS.imageRegistration
             value = get(stateS.handle.basePreset, 'Value');
         else
             value = get(stateS.handle.CTPreset, 'Value');
-        end        
+        end
         scanUID = ['c',repSpaceHyp(planC{indexS.scan}(scanSet).scanUID(max(1,end-61):end))];
-        
+
         if value == length(stateS.optS.windowPresets)
             %Show top 90% of scan
             sAv = planC{indexS.scan}(scanSet).scanArray(:);
@@ -3281,44 +3283,44 @@ switch upper(instr)
             %stateS.optS.CTLevel = (intensityMax - intensity90)/2;
             %stateS.optS.CTWidth = (intensityMax - intensity90)/2;
             stateS.scanStats.CTLevel.(scanUID) = (intensityMax - intensity90)/2;
-            stateS.scanStats.CTWidth.(scanUID) = (intensityMax - intensity90)/2;            
-            
+            stateS.scanStats.CTWidth.(scanUID) = (intensityMax - intensity90)/2;
+
             %intensity10 = double(sA_no_empty(round(0.1*length(indV))));
             %intensityMin = double(sA_no_empty(1));
             %stateS.optS.CTLevel = (intensity10 - intensityMin)/2;
             %glostateS.optS.CTWidth = (intensity10 - intensityMin)/2;
 %             set(stateS.handle.CTLevel, 'String', stateS.scanStats.CTLevel.(scanUID));
-%             set(stateS.handle.CTWidth, 'String', stateS.scanStats.CTWidth.(scanUID));                                
+%             set(stateS.handle.CTWidth, 'String', stateS.scanStats.CTWidth.(scanUID));
         elseif value ~= 1
             stateS.scanStats.CTLevel.(scanUID) = stateS.optS.windowPresets(value).center;
             stateS.scanStats.CTWidth.(scanUID) = stateS.optS.windowPresets(value).width;
 
 %             if stateS.imageRegistration
 %                 set(stateS.handle.baseCTLevel, 'String', stateS.scanStats.CTLevel.(scanUID));
-%                 set(stateS.handle.baseCTWidth, 'String', stateS.scanStats.CTWidth.(scanUID));                                
+%                 set(stateS.handle.baseCTWidth, 'String', stateS.scanStats.CTWidth.(scanUID));
 %             else
 %                 set(stateS.handle.CTLevel, 'String', stateS.scanStats.CTLevel.(scanUID));
 %                 set(stateS.handle.CTWidth, 'String', stateS.scanStats.CTWidth.(scanUID));
 %             end
-            
+
             %stateS.optS.CTLevel = stateS.optS.windowPresets(value).center;
             %stateS.optS.CTWidth = stateS.optS.windowPresets(value).width;
             %set(stateS.handle.CTLevel, 'String', stateS.optS.CTLevel);
-            %set(stateS.handle.CTWidth, 'String', stateS.optS.CTWidth);                    
+            %set(stateS.handle.CTWidth, 'String', stateS.optS.CTWidth);
         end
-        
+
         stateS.scanStats.windowPresets.(scanUID) = value;
-        
+
         updateScanColorbar(scanSet);
-        
+
         if stateS.imageRegistration
-            set(stateS.handle.baseCTLevel, 'String', stateS.scanStats.CTLevel.(scanUID));
-            set(stateS.handle.baseCTWidth, 'String', stateS.scanStats.CTWidth.(scanUID));
+            set(stateS.handle.baseCTLevel, 'String', num2str(stateS.scanStats.CTLevel.(scanUID)));
+            set(stateS.handle.baseCTWidth, 'String', num2str(stateS.scanStats.CTWidth.(scanUID)));
         else
-            set(stateS.handle.CTLevel, 'String', stateS.scanStats.CTLevel.(scanUID));
-            set(stateS.handle.CTWidth, 'String', stateS.scanStats.CTWidth.(scanUID));            
+            set(stateS.handle.CTLevel, 'String', num2str(stateS.scanStats.CTLevel.(scanUID)));
+            set(stateS.handle.CTWidth, 'String', num2str(stateS.scanStats.CTWidth.(scanUID)));
         end
-        
+
         stateS.CTDisplayChanged = 1;
         %         stateS.doseChanged = 1; %CT Level changed, so colorwash must be redrawn
         if isempty(planC)
@@ -3338,13 +3340,13 @@ switch upper(instr)
             scanSet = stateS.handle.aI(stateS.currentAxis).scanSets;
             scanSet = scanSet(1);
         end
-        stateS.optS.CTLevel = str2num(str);        
+        stateS.optS.CTLevel = str2num(str);
         scanUID = ['c',repSpaceHyp(planC{indexS.scan}(scanSet).scanUID(max(1,end-61):end))];
         stateS.scanStats.CTLevel.(scanUID) = str2num(str);
         stateS.scanStats.windowPresets.(scanUID) = 1;
-        
+
         updateScanColorbar(scanSet);
-        
+
         %stateS.scanStats.CTWidth.(scanUID) = stateS.optS.windowPresets(value).width;
 
         %         stateS.doseChanged = 1; %CT Level changed, so colorwash must be redrawn
@@ -3364,16 +3366,16 @@ switch upper(instr)
             scanSet = stateS.handle.aI(stateS.currentAxis).scanSets;
             scanSet = scanSet(1);
         end
-        
+
         stateS.optS.CTWidth = str2num(str);
         %         stateS.doseChanged = 1; %CT Level changed, so colorwash must be
         %         redrawn
-        
+
         scanUID = ['c',repSpaceHyp(planC{indexS.scan}(scanSet).scanUID(max(1,end-61):end))];
-        stateS.scanStats.CTWidth.(scanUID) = str2num(str);      
+        stateS.scanStats.CTWidth.(scanUID) = str2num(str);
         stateS.scanStats.windowPresets.(scanUID) = 1;
         updateScanColorbar(scanSet);
-        
+
         stateS.CTDisplayChanged =1;
         CERRRefresh
         return
@@ -3543,7 +3545,7 @@ switch upper(instr)
 
         %hFigure = findobj('tag', 'navigationFigure');
         if isfield('stateS.handle','navigationMontage') && ...
-                ishandle(stateS.handle.navigationMontage)            
+                ishandle(stateS.handle.navigationMontage)
             navigationMontage('init',stateS.scanSet) % initialize montage
         end
 
@@ -3561,18 +3563,18 @@ switch upper(instr)
         windowPreset = stateS.scanStats.windowPresets.(scanUID);
         scanColormap = stateS.scanStats.Colormap.(scanUID);
         colorC = get(stateS.handle.BaseCMap,'string');
-        baseMapVal = find(~cellfun(@isempty,strfind(colorC,scanColormap)));        
+        baseMapVal = find(~cellfun(@isempty,strfind(colorC,scanColormap)));
         set(stateS.handle.CTLevel,'string',num2str(CTLevel))
         set(stateS.handle.CTWidth,'string',num2str(CTWidth))
         set(stateS.handle.CTPreset,'value',windowPreset)
         set(stateS.handle.BaseCMap,'value',baseMapVal)
         updateScanColorbar(stateS.scanSet)
-        
+
         stateS.scanChkFlag = 1;
 
         CERRRefresh
         showPatientOrientation
-        
+
         return;
 
     case 'SELECTIMRTP'
@@ -3593,7 +3595,7 @@ switch upper(instr)
         stateS.doseSetChanged = 1;
         CERRRefresh
         return;
-        
+
     case 'SELECTDOSEMORE'
         dosesToShow = 25;
         numDoses = length(planC{indexS.dose});
@@ -3610,7 +3612,7 @@ switch upper(instr)
         doseIndex = listdlg('PromptString','Toggle Dose', 'SelectionMode','single','ListString',doseStrC,'InitialValue',initialValue);
         if ~isempty(doseIndex)
             sliceCallBack('selectDose',num2str(dosesToShow+doseIndex))
-        end                
+        end
 
     case 'SELECTAXISVIEW'
         hAxis = varargin{1};
@@ -3657,18 +3659,18 @@ switch upper(instr)
                 %axisInfo.yRange      = {'Linked', hAxis};
                 % Move handles up one axis
                 stateS.handle.CERRAxisPlnLocSdw(ind) = [];
-                stateS.handle.CERRAxisPlnLoc(ind)    = [];                
+                stateS.handle.CERRAxisPlnLoc(ind)    = [];
                 delete(stateS.handle.aI(ind).lineHandlePool.lineV)
                 delete(stateS.handle.aI(ind).lineHandlePool.dotsV)
                 stateS.handle.aI(ind) = [];
-                
+
                 stateS.currentAxis = 1;
                 sliceCallBack('resize')
                 return;
         end
         setAxisInfo(hAxis, 'coord', coord, 'view', view, 'xRange', [], 'yRange', []);
-        updateAxisRange(hAxis,0)        
-        CERRRefresh        
+        updateAxisRange(hAxis,0)
+        CERRRefresh
         zoomToXYRange(hAxis)
         return
 
@@ -3711,7 +3713,7 @@ switch upper(instr)
             stateS.scanSet = [stateS.scanSet movData];
             stateS.structSet = [stateS.structSet getStructureSetAssociatedScan(movData)];
         end
-        
+
         % Change the renderer
         set(stateS.handle.CERRSliceViewer,'renderer','opengl')
 
@@ -3739,12 +3741,12 @@ switch upper(instr)
             aI = stateS.handle.aI(i);
             if ~isempty(aI.scanObj)
                 delete([aI.scanObj(2:end).handles]);
-                aI.scanObj(2:end) = []; 
+                aI.scanObj(2:end) = [];
                 [aI.scanObj.redraw] = deal(1);
             end
             if ~isempty(aI.doseObj)
                 delete([aI.doseObj(2:end).handles]);
-                aI.doseObj(2:end) = [];                 
+                aI.doseObj(2:end) = [];
                 [aI.doseObj.redraw] = deal(1);
             end
             %set(stateS.handle.CERRAxis(i), 'userdata', aI);
@@ -3759,9 +3761,9 @@ switch upper(instr)
         else
             stateS.doseSet = 1;
         end
-        
+
         %set(stateS.handle.CERRSliceViewer,'renderer','zbuffer')
-        
+
         CERRRefresh
         return
 
@@ -3816,9 +3818,9 @@ switch upper(instr)
         view = getAxisInfo(hAxis,'view');
         cP = get(hAxis, 'CurrentPoint');
         axesToDraw = hAxis;
-        
+
         switch stateS.ROIcreationMode
-            
+
             case 1 % Rectangular
                 %Delete current clipbox to redraw
                 delete(findobj('tag', 'clipBox', 'userdata', view));
@@ -3833,8 +3835,8 @@ switch upper(instr)
                         indToDelete = ~ismember(viewTypeC,view);
                         delete(hClip(indToDelete))
                     end
-                end                
-                
+                end
+
                 switch view
                     case 'transverse'
                         line([cP(1,1) cP(1,1),cP(1,1) cP(1,1) cP(1,1)], [cP(2,2) cP(2,2) cP(2,2) cP(2,2) cP(2,2)], ...
@@ -3849,12 +3851,12 @@ switch upper(instr)
                             'tag', 'clipBox', 'userdata', 'coronal', ...
                             'parent', axesToDraw, 'marker', 's', 'markerFaceColor', 'r', 'linestyle', '-', 'color', [.8 .8 .1], 'hittest', 'off');
                 end
-                
+
             case 2 % Free-hand
-                allLines = findobj(gcbo, 'tag', 'clipBox', 'userdata', view);                
-                
+                allLines = findobj(gcbo, 'tag', 'clipBox', 'userdata', view);
+
                 if isempty(allLines)
-                    
+
                     switch view
                         case 'transverse'
                             line(cP(1,1), cP(2,2), ...
@@ -3869,38 +3871,38 @@ switch upper(instr)
                                 'tag', 'clipBox', 'userdata', 'coronal', ...
                                 'parent', axesToDraw, 'linestyle', '-', 'color', [.8 .8 .1], 'linewidth', 2, 'hittest', 'off');
                     end
-                    
+
                 else
                     p0 = allLines(1);
                     xD = get(p0, 'XData');
                     yD = get(p0, 'YData');
                     xData = [xD, cP(1,1)];
                     yData = [yD, cP(2,2)];
-                    set(p0, 'XData', xData, 'YData', yData);                    
-                    
+                    set(p0, 'XData', xData, 'YData', yData);
+
                 end
-                
+
         end
-        
+
 
     case 'CLIPMOTION'
         hAxis = gca;
         %ud = get(hAxis, 'userdata');
-        view = getAxisInfo(hAxis,'view'); 
-        cP = get(hAxis, 'CurrentPoint');        
+        view = getAxisInfo(hAxis,'view');
+        cP = get(hAxis, 'CurrentPoint');
         allLines = findobj(gcbo, 'tag', 'clipBox', 'userdata', view);
         p0 = allLines(1);
         xD = get(p0, 'XData');
         yD = get(p0, 'YData');
-        
+
         switch stateS.ROIcreationMode
-            
+
             case 1 % Rectangle
                 switch view
                     case 'transverse'
                         set(allLines, 'XData', [xD(1), xD(1),   cP(1,1), cP(1,1), xD(1)]);
                         set(allLines, 'YData', [yD(1), cP(2,2), cP(2,2), yD(1),   yD(1)]);
-                        
+
                     case 'sagittal'
                         set(allLines, 'XData', [xD(1), cP(1,1), cP(1,1), xD(1), xD(1)]);
                         set(allLines, 'YData', [yD(1), yD(1),   cP(2,2), cP(2,2), yD(1)]);
@@ -3910,13 +3912,13 @@ switch upper(instr)
                 end
                 %CERRStatusString(['(' num2str(xD(1)) ',' num2str(yD(1)) ') to (' num2str(cP(1,1)) ',' num2str(cP(2,2)) ') Dist: ' num2str(sqrt(sepsq([xD(1) yD(1)]', [cP(1,1) cP(2,2)]')), '%0.3g') ' cm'], 'gui');
                 return;
-                
-            case 2 % Free-hand                
+
+            case 2 % Free-hand
                 xData = [xD, cP(1,1)];
                 yData = [yD, cP(2,2)];
                 set(p0, 'XData', xData, 'YData', yData);
         end
-        
+
     case 'CLIPMOTIONDONE'
         hFig = gcbo;
         set(hFig, 'WindowButtonMotionFcn', '', 'WindowButtonUpFcn', '');
@@ -3924,8 +3926,8 @@ switch upper(instr)
         %save line handles to miscHandle;
         oldMiscHandles = getAxisInfo(gca, 'miscHandles');
         hBox = findobj(gca, 'tag', 'clipBox');
-        setAxisInfo(gca, 'miscHandles', [oldMiscHandles reshape(hBox, 1, [])]);   
-        
+        setAxisInfo(gca, 'miscHandles', [oldMiscHandles reshape(hBox, 1, [])]);
+
         return;
 
     case 'SETCLIPSTATE'
@@ -3940,35 +3942,35 @@ switch upper(instr)
         else
             ButtonName = questdlg('Choose next step:', 'Next step?', 'Finalize this view', 'Redo this view', 'Exit', 'Redo this view');
         end
-        
+
         switch ButtonName
-            case 'Finalize this view'        
-                createROI('clipBoxDrawn')                
-        
+            case 'Finalize this view'
+                createROI('clipBoxDrawn')
+
             case 'Redo this view'
                 delete(findobj('tag', 'clipBox', 'userdata', view));
-                
+
             case 'Create 3D ROI'
                 createROI('createROI')
-                
+
             case 'Exit'
                 delete(findobj('tag', 'clipBox', 'userdata', view));
-                stateS.clipState = 0;                
-        end        
+                stateS.clipState = 0;
+        end
         return
-        
-        
+
+
     case 'BASECOLORMAP'
         % change display mode to different color maps for moving set
         hAxes = stateS.handle.CERRAxis;
-        
+
         % Get scan associated with the current axis
         scanSet = stateS.handle.aI(stateS.currentAxis).scanSets;
         if isempty(scanSet)
             return;
         end
-        scanSet = scanSet(1);        
-        
+        scanSet = scanSet(1);
+
         % Set the new colormap
         colorMapIndex = get(stateS.handle.BaseCMap,'value');
         stateS.optS.CTColormap = stateS.optS.scanColorMap(colorMapIndex).name;
@@ -3976,14 +3978,14 @@ switch upper(instr)
         stateS.scanStats.CTLevel.(scanUID) = str2double(get(stateS.handle.CTLevel,'String'));
         stateS.scanStats.CTWidth.(scanUID) = str2double(get(stateS.handle.CTWidth,'String'));
         stateS.scanStats.Colormap.(scanUID) = stateS.optS.scanColorMap(colorMapIndex).name;
-        
+
         % Update scan colormap
         updateScanColorbar(scanSet);
 
         stateS.optS.fusionDisplayMode = 'colorblend';
-        
+
         stateS.CTDisplayChanged = 1;
-        
+
         CERRRefresh;
 
 %         for i=1:length(hAxes);
@@ -3994,7 +3996,7 @@ switch upper(instr)
 %             end
 %             for j=1:length(ud.doseObj);
 %                 ud.doseObj(j).redraw = 1;
-%             end            
+%             end
 %             %set(hAxes(i), 'userdata', ud);
 %             stateS.handle.aI(i) = ud;
 %             showCT(hAxes(i));

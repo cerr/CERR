@@ -273,14 +273,14 @@ switch command
                         uicontrol(hFig,'style','text','String','Select Options for Overlaid Scan','units',units,'fontWeight','bold','position',[0.05 0.850 0.9 0.1]);
                         uicontrol(hFig,'style','frame','units', units, 'Position',[0.05 0.35 0.9 0.45]);
                         ud.handle.ovrlayWindowTxt       = uicontrol(hFig,'style','text','String','CT Window','units',units,'position',[0.1 0.65 0.3 0.1]);
-                        ud.handle.ovrlayWindowChoices   = uicontrol(hFig,'style','popup','string',{stateS.optS.windowPresets.name},'units',units,'position',[0.45 0.65 0.4 0.1],'value',1, 'callback', 'controlFrame(''contour'', ''selectOverlayOptions'',''windowpreset'')');
+                        ud.handle.ovrlayWindowChoices   = uicontrol(hFig,'style','popupmenu','string',{stateS.optS.windowPresets.name},'units',units,'position',[0.45 0.65 0.4 0.1],'value',1, 'callback', 'controlFrame(''contour'', ''selectOverlayOptions'',''windowpreset'')');
                         ud.handle.ovrlayWindowCenterTxt = uicontrol(hFig,'style','text','string','Center','units',units,'position',[0.1 0.50 0.35 0.1]);
                         ud.handle.ovrlayWindowCenterEdt = uicontrol(hFig,'style','edit','string','0','units',units,'position',[0.1 0.40 0.35 0.1], 'callback', 'controlFrame(''contour'', ''selectOverlayOptions'',''setManualWindow'')');
                         ud.handle.ovrlayWindowWidthTxt  = uicontrol(hFig,'style','text','string','Width','units',units,'position',[0.55 0.50 0.35 0.1]);
                         ud.handle.ovrlayWindowWidthEdt  = uicontrol(hFig,'style','edit','string','300','units',units,'position',[0.55 0.40 0.35 0.1], 'callback', 'controlFrame(''contour'', ''selectOverlayOptions'',''setManualWindow'')');                        
                         colorbarStrC = {'Gray256','Copper','Red','Green','Blue','StarInterp','hotCold'};
                         ud.handle.ovrlayMapTxt          = uicontrol(hFig,'style','text','string','Colorbar','units',units,'position',[0.05 0.20 0.3 0.1]);
-                        ud.handle.ovrlayMapChoices      = uicontrol(hFig,'style','popup','string',colorbarStrC,'units',units,'position',[0.40 0.20 0.45 0.1],'value',1, 'callback', 'controlFrame(''contour'', ''selectOverlayOptions'',''fieldClicked'')');
+                        ud.handle.ovrlayMapChoices      = uicontrol(hFig,'style','popupmenu','string',colorbarStrC,'units',units,'position',[0.40 0.20 0.45 0.1],'value',1, 'callback', 'controlFrame(''contour'', ''selectOverlayOptions'',''fieldClicked'')');
                         
                         ud.handle.ovrlayApply           = uicontrol(hFig,'style','push','string','Apply','units',units,'position',[0.25 0.05 0.20 0.1], 'callback', 'controlFrame(''contour'', ''selectOverlayOptions'',''apply'')');
                         ud.handle.ovrlayExit           = uicontrol(hFig,'style','push','string','Exit','units',units,'position',[0.55 0.05 0.20 0.1], 'callback', 'controlFrame(''contour'', ''selectOverlayOptions'',''exit'')');
@@ -784,31 +784,31 @@ switch command
                 SCBTipText = 'Do not rescale colorbar when changing doses.';
                 ud.handles.SCBCheck = uicontrol(hFig, 'style', 'checkbox', 'units', units, 'position', absPos([.20 .42 .7 .05], posFrame),...
                     'string', 'Constant Colorbar', 'value', stateS.optS.staticColorbar, 'tag', 'controlFrameItem', 'horizontalAlignment',...
-                    'center', 'callback', 'controlFrame(''colorbar'', ''field_clicked'')', 'tooltip', SCBTipText);
+                    'center', 'callback', 'controlFrame(''colorbar'', ''field_clicked'')', 'TooltipString', SCBTipText);
                 
                 NTTipText = 'Display a texture pattern over negative values.';
                 ud.handles.negativeTexture = uicontrol(hFig, 'style', 'checkbox', 'units', units, ...
                     'position', absPos([.20 .35 .7 .05], posFrame), 'string', 'Negative Texture', ...
                     'value', stateS.optS.negativeTexture, 'tag', 'controlFrameItem', 'horizontalAlignment',...
-                    'center', 'callback', 'controlFrame(''colorbar'', ''field_clicked'')', 'tooltip', NTTipText);
+                    'center', 'callback', 'controlFrame(''colorbar'', ''field_clicked'')', 'TooltipString', NTTipText);
                 
                 dSCTipText = 'Use max color for both max and min.  Useful for viewing absolute value of negative dose.';
                 ud.handles.doubleSidedColorbar = uicontrol(hFig, 'style', 'checkbox', 'units', units, ...
                     'position', absPos([.20 .28 .7 .05], posFrame), 'string', 'Two Headed Colorbar',...
                     'value', stateS.optS.doubleSidedColorbar, 'tag', 'controlFrameItem', ...
-                    'horizontalAlignment', 'center', 'callback', 'controlFrame(''colorbar'', ''field_clicked'')', 'tooltip', dSCTipText);
+                    'horizontalAlignment', 'center', 'callback', 'controlFrame(''colorbar'', ''field_clicked'')', 'TooltipString', dSCTipText);
                 
                 tZTipText = 'Display zero as transparent, instead as the color where zero falls on the colorbar.';
                 ud.handles.transparentZerodose = uicontrol(hFig, 'style', 'checkbox', 'units', units,...
                     'position', absPos([.20 .21 .7 .05], posFrame), 'string', 'Zero is Transparent',...
                     'value', stateS.optS.transparentZeroDose, 'tag', 'controlFrameItem', ...
-                    'horizontalAlignment', 'center', 'callback', 'controlFrame(''colorbar'', ''field_clicked'')', 'tooltip', tZTipText);
+                    'horizontalAlignment', 'center', 'callback', 'controlFrame(''colorbar'', ''field_clicked'')', 'TooltipString', tZTipText);
                 
                 SkinTipText = 'Only calculate and display dose inside the skin structure, if it exists.';
                 ud.handles.calcDoseInSkin = uicontrol(hFig, 'style', 'checkbox', 'units', units,...
                     'position', absPos([.20 .14 .7 .05], posFrame), 'string', 'Zero Dose outside Skin', ...
                     'value', stateS.optS.calcDoseInsideSkinOnly, 'tag', 'controlFrameItem', 'horizontalAlignment', 'center',...
-                    'callback', 'controlFrame(''colorbar'', ''field_clicked'')', 'tooltip', SkinTipText);
+                    'callback', 'controlFrame(''colorbar'', ''field_clicked'')', 'TooltipString', SkinTipText);
                 
                 ud.handles.applyButton = uicontrol(hFig, 'style', 'pushbutton', 'units', units,...
                     'position', absPos([.1 .05 .35 .05], posFrame), 'string', 'Apply', 'tag', 'controlFrameItem', 'callback',...
@@ -893,19 +893,19 @@ switch command
                 ud.handles.CBSPopup= uicontrol(hFig, 'style', 'popupmenu', 'units', units, 'position', absPos([.05 .52 .9 .05], posFrame), 'value', value, 'string', colorbarChoices, 'tag', 'controlFrameItem', 'horizontalAlignment', 'center', 'callback', 'controlFrame(''colorbarcompare'', ''field_clicked'')');
                 
                 SCBTipText = 'Do not rescale colorbar when changing doses.';
-                ud.handles.SCBCheck = uicontrol(hFig, 'style', 'checkbox', 'units', units, 'position', absPos([.20 .42 .7 .05], posFrame), 'string', 'Constant Colorbar', 'value', stateS.optS.staticColorbar, 'tag', 'controlFrameItem', 'horizontalAlignment', 'center', 'callback', 'controlFrame(''colorbarcompare'', ''field_clicked'')', 'tooltip', SCBTipText);
+                ud.handles.SCBCheck = uicontrol(hFig, 'style', 'checkbox', 'units', units, 'position', absPos([.20 .42 .7 .05], posFrame), 'string', 'Constant Colorbar', 'value', stateS.optS.staticColorbar, 'tag', 'controlFrameItem', 'horizontalAlignment', 'center', 'callback', 'controlFrame(''colorbarcompare'', ''field_clicked'')', 'TooltipString', SCBTipText);
                 
                 NTTipText = 'Display a texture pattern over negative values.';
-                ud.handles.negativeTexture = uicontrol(hFig, 'style', 'checkbox', 'units', units, 'position', absPos([.20 .35 .7 .05], posFrame), 'string', 'Negative Texture', 'value', stateS.optS.negativeTexture, 'tag', 'controlFrameItem', 'horizontalAlignment', 'center', 'callback', 'controlFrame(''colorbarcompare'', ''field_clicked'')', 'tooltip', NTTipText);
+                ud.handles.negativeTexture = uicontrol(hFig, 'style', 'checkbox', 'units', units, 'position', absPos([.20 .35 .7 .05], posFrame), 'string', 'Negative Texture', 'value', stateS.optS.negativeTexture, 'tag', 'controlFrameItem', 'horizontalAlignment', 'center', 'callback', 'controlFrame(''colorbarcompare'', ''field_clicked'')', 'TooltipString', NTTipText);
                 
                 dSCTipText = 'Use max color for both max and min.  Useful for viewing absolute value of negative dose.';
-                ud.handles.doubleSidedColorbar = uicontrol(hFig, 'style', 'checkbox', 'units', units, 'position', absPos([.20 .28 .7 .05], posFrame), 'string', 'Two Headed Colorbar', 'value', stateS.optS.doubleSidedColorbar, 'tag', 'controlFrameItem', 'horizontalAlignment', 'center', 'callback', 'controlFrame(''colorbarcompare'', ''field_clicked'')', 'tooltip', dSCTipText);
+                ud.handles.doubleSidedColorbar = uicontrol(hFig, 'style', 'checkbox', 'units', units, 'position', absPos([.20 .28 .7 .05], posFrame), 'string', 'Two Headed Colorbar', 'value', stateS.optS.doubleSidedColorbar, 'tag', 'controlFrameItem', 'horizontalAlignment', 'center', 'callback', 'controlFrame(''colorbarcompare'', ''field_clicked'')', 'TooltipString', dSCTipText);
                 
                 tZTipText = 'Display zero as transparent, instead as the color where zero falls on the colorbar.';
-                ud.handles.transparentZerodose = uicontrol(hFig, 'style', 'checkbox', 'units', units, 'position', absPos([.20 .21 .7 .05], posFrame), 'string', 'Zero is Transparent', 'value', stateS.optS.transparentZeroDose, 'tag', 'controlFrameItem', 'horizontalAlignment', 'center', 'callback', 'controlFrame(''colorbarcompare'', ''field_clicked'')', 'tooltip', tZTipText);
+                ud.handles.transparentZerodose = uicontrol(hFig, 'style', 'checkbox', 'units', units, 'position', absPos([.20 .21 .7 .05], posFrame), 'string', 'Zero is Transparent', 'value', stateS.optS.transparentZeroDose, 'tag', 'controlFrameItem', 'horizontalAlignment', 'center', 'callback', 'controlFrame(''colorbarcompare'', ''field_clicked'')', 'TooltipString', tZTipText);
                 
                 SkinTipText = 'Only calculate and display dose inside the skin structure, if it exists.';
-                ud.handles.calcDoseInSkin = uicontrol(hFig, 'style', 'checkbox', 'units', units, 'position', absPos([.20 .14 .7 .05], posFrame), 'string', 'Zero Dose outside Skin', 'value', stateS.optS.calcDoseInsideSkinOnly, 'tag', 'controlFrameItem', 'horizontalAlignment', 'center', 'callback', 'controlFrame(''colorbarcompare'', ''field_clicked'')', 'tooltip', SkinTipText);
+                ud.handles.calcDoseInSkin = uicontrol(hFig, 'style', 'checkbox', 'units', units, 'position', absPos([.20 .14 .7 .05], posFrame), 'string', 'Zero Dose outside Skin', 'value', stateS.optS.calcDoseInsideSkinOnly, 'tag', 'controlFrameItem', 'horizontalAlignment', 'center', 'callback', 'controlFrame(''colorbarcompare'', ''field_clicked'')', 'TooltipString', SkinTipText);
                 
                 ud.handles.applyButton = uicontrol(hFig, 'style', 'pushbutton', 'units', units, 'position', absPos([.1 .05 .35 .05], posFrame), 'string', 'Apply', 'tag', 'controlFrameItem', 'callback', 'controlFrame(''colorbarcompare'', ''apply'')');
                 ud.handles.cancelButton = uicontrol(hFig, 'style', 'pushbutton', 'units', units, 'position', absPos([.55 .05 .35 .05], posFrame), 'string', 'Exit', 'tag', 'controlFrameItem', 'callback', 'controlFrame(''colorbarcompare'', ''cancel'')');
@@ -1362,7 +1362,7 @@ switch command
                 
                 controlFrame('default');
                 
-                if length(planC{planC{end}.scan}) < 2 & length(planC{planC{end}.dose})< 1
+                if length(planC{planC{end}.scan}) < 2 && length(planC{planC{end}.dose})< 1
                     hWarn = warndlg('At least two scans or one scan and one dose are needed for image fusion.', 'Not enough data for fusion.');
                     waitfor(hWarn);
                     return;
@@ -1371,7 +1371,7 @@ switch command
                 clBarPos = get(stateS.handle.doseColorbar.trans,'position');
                 clBarPosNew = clBarPos;
                 clBarPosNew(4) = clBarPosNew(4) - 50;
-                set(stateS.handle.doseColorbar.trans,'pos',clBarPosNew)
+                set(stateS.handle.doseColorbar.trans,'position',clBarPosNew)
                 
                 colorbarShildBgClr = get(hFig,'color');
                 
@@ -1386,71 +1386,71 @@ switch command
                 set(stateS.handle.CTLevelWidthInteractive, 'visible', 'off');
                 set(stateS.handle.ScanTxtWindow,'visible','off')
                 
-                %tempControlPos = get(stateS.handle.controlFrame, 'pos');
-                set(stateS.handle.controlFrame, 'pos', [0 0 195 600-270]);
+                %tempControlPos = get(stateS.handle.controlFrame, 'position');
+                set(stateS.handle.controlFrame, 'position', [0 0 195 600-270]);
                 
                 
                 %move the zoom/slice buttons
-                fPos = get(gcf, 'pos');
+                fPos = get(gcf, 'position');
                 dPos1 = [fPos(3)-250 -384   0 0];
                 dPos2 = [fPos(3)-250 -384+8 0 0];
                 
-                %temploopTrans = get(stateS.handle.loopTrans, 'pos');
+                %temploopTrans = get(stateS.handle.loopTrans, 'position');
                 %ud.handle.loopTransPos = temploopTrans;
-                %set(stateS.handle.loopTrans, 'pos', dPos1+temploopTrans);
+                %set(stateS.handle.loopTrans, 'position', dPos1+temploopTrans);
                 
-                %tempunloopTrans = get(stateS.handle.unloopTrans, 'pos');
+                %tempunloopTrans = get(stateS.handle.unloopTrans, 'position');
                 %ud.handle.unloopTransPos = tempunloopTrans;
-                %set(stateS.handle.unloopTrans, 'pos', dPos1+tempunloopTrans);
+                %set(stateS.handle.unloopTrans, 'position', dPos1+tempunloopTrans);
                 
-                tempZoom = get(stateS.handle.zoom, 'pos');
+                tempZoom = get(stateS.handle.zoom, 'position');
                 ud.handle.zoomPos = tempZoom;
-                set(stateS.handle.zoom, 'pos', dPos1+tempZoom);
+                set(stateS.handle.zoom, 'position', dPos1+tempZoom);
                 
-                tempresetZoom = get(stateS.handle.resetZoom, 'pos');
+                tempresetZoom = get(stateS.handle.resetZoom, 'position');
                 ud.handle.resetZoomPos = tempresetZoom;
-                set(stateS.handle.resetZoom, 'pos', dPos1+tempresetZoom);
+                set(stateS.handle.resetZoom, 'position', dPos1+tempresetZoom);
                 
-                %temprulerTrans = get(stateS.handle.rulerTrans, 'pos');
+                %temprulerTrans = get(stateS.handle.rulerTrans, 'position');
                 %ud.handle.rulerTransPos = temprulerTrans;
-                %set(stateS.handle.rulerTrans, 'pos', dPos2+temprulerTrans);
+                %set(stateS.handle.rulerTrans, 'position', dPos2+temprulerTrans);
                 
-                tempbuttonUp = get(stateS.handle.buttonUp, 'pos');
+                tempbuttonUp = get(stateS.handle.buttonUp, 'position');
                 ud.handle.buttonUpPos = tempbuttonUp;
-                set(stateS.handle.buttonUp, 'pos', dPos1+tempbuttonUp);
+                set(stateS.handle.buttonUp, 'position', dPos1+tempbuttonUp);
                 
-                tempbuttonDwn = get(stateS.handle.buttonDwn, 'pos');
+                tempbuttonDwn = get(stateS.handle.buttonDwn, 'position');
                 ud.handle.buttonDwnPos = tempbuttonDwn;
-                set(stateS.handle.buttonDwn, 'pos', dPos1+tempbuttonDwn);
+                set(stateS.handle.buttonDwn, 'position', dPos1+tempbuttonDwn);
                 
                 % hide the scan colorbar in fusion mode
-                tempScanColorbar = get(stateS.handle.scanColorbar, 'pos');
+                tempScanColorbar = get(stateS.handle.scanColorbar, 'position');
                 ud.handle.scanColorbarPos = tempScanColorbar;
-                set(stateS.handle.scanColorbar, 'pos', [0 0 0.01 0.01]);
+                set(stateS.handle.scanColorbar, 'position', [0 0 0.01 0.01]);
                 
                 
-                %tempcapture = get(stateS.handle.capture, 'pos');
+                %tempcapture = get(stateS.handle.capture, 'position');
                 %ud.handle.capturePos = tempcapture;
-                %set(stateS.handle.capture, 'pos', dPos2+tempcapture);
+                %set(stateS.handle.capture, 'position', dPos2+tempcapture);
                 
                 
                 %                 % Set Color Bar Invisible
                 uicontrol(hFig,'style','frame','position', [clBarPos(1)-5 clBarPos(2)-30 clBarPos(3)+9 clBarPos(4)+55],...
-                    'tag', 'colorbarShild','Background',colorbarShildBgClr,'ForegroundColor',colorbarShildBgClr);
+                    'tag', 'colorbarShild','backgroundcolor',colorbarShildBgClr,'ForegroundColor',colorbarShildBgClr);
                 
                 % Set control toggling between base and moving scan
                 %
                 leftMarginWidth = 195; %obtained from from sliceCallback.m
-                uicontrol(hFig,'style','toggle','units','pixels',...
+                uicontrol(hFig,'style','togglebutton','units','pixels',...
                     'Position',[leftMarginWidth+10 490 25 20], 'tag','toggleBasMov',...
                     'string','B/M','fontWeight','normal','callBack','sliceCallBack(''toggleBaseMoving'');');
                 if isdeployed
                     [I,map] = imread(fullfile(getCERRPath,'pics','Icons','lock.gif'),'gif');
                 else
-                    [I,map] = imread('lock.gif','gif');
+                    [I,map] = imread(fullfile(getCERRPath,'Icons','lock.gif'),'gif');
                 end
                 lockImg = ind2rgb(I,map);
-                uicontrol(hFig,'style','toggle','value',1,'units','pixels',...
+                uicontrol(hFig,'style','togglebutton','value',1,'units','pixels',...
                     'cdata',lockImg,'Position',[leftMarginWidth+10 460 25 20],...
                     'tag','toggleLockMoving','string','','fontWeight','normal',...
                     'callBack','sliceCallBack(''toggleLockMoving'');');
@@ -1603,16 +1603,16 @@ switch command
                 presetValue = get(stateS.handle.CTPreset,'value');                
                 ud.handles.basePreset = uicontrol(gcf,'units','pixels', 'BackgroundColor',uicolor, ...
                     'Position',[20 600-90-dy (frameWidth-30)/2 20], 'String',stringPresetC, ...
-                    'Style','popup','Tag','controlFrameItem', 'value', presetValue, ...
+                    'Style','popupmenu','Tag','controlFrameItem', 'value', presetValue, ...
                     'callback','controlFrame(''fusion'', ''basepreset'')', ...
-                    'tooltipstring','Select Preset Window');
+                    'TooltipString','Select Preset Window');
                 %Base Colormap Presets dropdown.
                 stringCmapC = get(stateS.handle.BaseCMap,'string');
                 cmapValue = get(stateS.handle.BaseCMap,'value');
                 ud.handles.basedisplayModeColor = uicontrol(gcf,'units','pixels', 'BackgroundColor',uicolor, ...
                     'Position',[(frameWidth-30)/2+20+10 600-90-dy (frameWidth-30)/2 20], ...
-                    'String',stringCmapC,'value',cmapValue,'Style','popup','Tag','controlFrameItem', ...
-                    'callback','controlFrame(''fusion'', ''basecolormap'')','tooltipstring','Select Scan Color Map','Enable','On');
+                    'String',stringCmapC,'value',cmapValue,'Style','popupmenu','Tag','controlFrameItem', ...
+                    'callback','controlFrame(''fusion'', ''basecolormap'')','TooltipString','Select Scan Color Map','Enable','On');
                 %CTLevel edit box
                 ud.handles.baseCTLevel = uicontrol(gcf,'units','pixels', 'BackgroundColor',uicolor, ...
                     'Position',[20 600-130-dy (frameWidth-30)/2 20], 'String',num2str(stateS.optS.CTLevel),'Style','edit', ...
@@ -1621,7 +1621,7 @@ switch command
                 ud.handles.baseCTWidth = uicontrol(gcf,'units','pixels','BackgroundColor',uicolor, ...
                     'Position',[(frameWidth-30)/2+20+10 600-130-dy (frameWidth-30)/2 20], 'String',num2str(stateS.optS.CTWidth), ...
                     'Style','edit','Tag','controlFrameItem', 'callback','controlFrame(''fusion'', ''basectwidth'')', ...
-                    'tooltipstring', 'Change CT window width');                
+                    'TooltipString', 'Change CT window width');                
                 
                 
                 %Select moving set.
@@ -1656,9 +1656,9 @@ switch command
                 
                 %Presets dropdown.
                 ud.handles.MovPresets = uicontrol(hFig,'units','pixels','Position',[20 600-205-dy (frameWidth-30)/2 20],...
-                    'String',stringPresetC,'value',presetValue,'Style','popup','Tag','controlFrameItem', ...
+                    'String',stringPresetC,'value',presetValue,'Style','popupmenu','Tag','controlFrameItem', ...
                     'callback','controlFrame(''fusion'', ''movpreset'')',...
-                    'tooltipstring','Select Moving Data Preset Window');
+                    'TooltipString','Select Moving Data Preset Window');
                 
                 %Select display mode.
                 ud.handles.displayModeColor= uicontrol(hFig, 'style', 'popupmenu', 'units', units, ...
@@ -1697,7 +1697,7 @@ switch command
                 if isdeployed
                     [I,map] = imread(fullfile(getCERRPath,'pics','Icons','tool_rotate_3d.gif'),'gif');
                 else
-                    [I,map] = imread('tool_rotate_3d.gif','gif');
+                    [I,map] = imread(fullfile(getCERRPath,'Icons','tool_rotate_3d.gif'),'gif');
                 end
                 rotateImg = ind2rgb(I,map);
                 
@@ -1721,23 +1721,23 @@ switch command
                 
                 ud.handles.differToggle= uicontrol(hFig, 'style',  'togglebutton','units', units, 'position', absPos([.05 .34+dy .45 .05], posFrame),...
                     'string', 'Difference', 'tag', 'controlFrameItem', 'callback', 'controlFrame(''fusion'', ''difference'')', ... %'registerAnalysis(''difference'')',...
-                    'tooltipstring','View 2 image difference', 'interrupt', 'off');
+                    'tooltipstring','View 2 image difference', 'interruptible', 'off');
                 
                 
                 % Mirror Checkerboard
                 ud.handles.mirror_checkerToggle= uicontrol(hFig, 'style',  'togglebutton','units', units, 'position', absPos([.50 .34+dy .45 .05], posFrame),...
                     'string', 'Mirror ChkBd', 'tag', 'controlFrameItem', 'callback', 'controlFrame(''fusion'', ''mirror_checker_board'')',...
-                    'tooltipstring','Mirror CheckerBoard', 'fontsize', 7, 'interrupt', 'off');
+                    'tooltipstring','Mirror CheckerBoard', 'fontsize', 7, 'interruptible', 'off');
                 
                 %-------------------------
                 ud.handles.checkerToggle= uicontrol(hFig, 'style',  'togglebutton','units', units, 'position', absPos([.05 .28+dy .45 .05], posFrame),...
                     'string', 'Blended ChkBd', 'tag', 'controlFrameItem', 'callback', 'controlFrame(''fusion'', ''checker_board'')',...
-                    'tooltipstring','View Overlay in CheckerBoard', 'fontsize', 7, 'interrupt', 'off');
+                    'tooltipstring','View Overlay in CheckerBoard', 'fontsize', 7, 'interruptible', 'off');
                 
                 %------------new checkerboard-------------
                 ud.handles.newcheckerToggle= uicontrol(hFig, 'style',  'togglebutton','units', units, 'position', absPos([.50 .28+dy .45 .05], posFrame),...
                     'string', 'standard ChkBd', 'tag', 'controlFrameItem', 'callback', 'controlFrame(''fusion'', ''newchecker_board'')',...
-                    'tooltipstring','View in CheckerBoard', 'fontsize', 7, 'interrupt', 'off');
+                    'tooltipstring','View in CheckerBoard', 'fontsize', 7, 'interruptible', 'off');
                 
                 ud.handles.ckSizeText = uicontrol(hFig, 'style',  'text','units', units, 'position', absPos([.05 .205+dy .15 .05], posFrame),...
                     'string', 'Size:', 'tag', 'controlFrameItem', ...
@@ -1778,10 +1778,10 @@ switch command
                 
                 ud.handles.mirrorToggle= uicontrol(hFig, 'style',  'togglebutton','units', units, 'position', absPos([.05 .22+dy .45 .05], posFrame),...
                     'string', 'Image Mirror', 'tag', 'controlFrameItem', 'callback', 'controlFrame(''fusion'', ''imagemirror'')',...
-                    'tooltipstring','image mirror', 'interrupt', 'off');
+                    'tooltipstring','image mirror', 'interruptible', 'off');
                 ud.handles.mirrorScopeToggle= uicontrol(hFig, 'style',  'togglebutton','units', units, 'position', absPos([.5 .22+dy .45 .05], posFrame),...
                     'string', 'Mirror Scope', 'tag', 'controlFrameItem', 'callback', 'controlFrame(''fusion'', ''mirrorscope'')',...
-                    'tooltipstring','mirror scope', 'interrupt', 'off');
+                    'tooltipstring','mirror scope', 'interruptible', 'off');
                 
                 ud.handles.mirrScopeText = uicontrol(hFig, 'style',  'text','units', units, 'position', absPos([.05 .145+dy .25 .05], posFrame),...
                     'string', 'Size(cm):', 'tag', 'controlFrameItem', ...
@@ -1799,12 +1799,12 @@ switch command
                 %----------------blockmatch------------------
                 ud.handles.blockMatchToggle= uicontrol(hFig, 'style',  'togglebutton','units', units, 'position', absPos([.05 .16+dy .9 .05], posFrame),...
                     'string', 'BlockMatch', 'tag', 'controlFrameItem', 'callback', 'controlFrame(''fusion'', ''blockmatch'')',...
-                    'tooltipstring','block match comparison', 'interrupt', 'off', 'visible','off');
+                    'tooltipstring','block match comparison', 'interruptible', 'off', 'visible','off');
                 
                 %----------------mirrorcheckerboard------------------
                 %                 ud.handles.mirrcheckerToggle= uicontrol(hFig, 'style',  'togglebutton','units', units, 'position', absPos([.1 .111 .8 .05], posFrame),...
                 %                     'string', 'Mirror CheckerBoard', 'tag', 'controlFrameItem', 'callback', 'controlFrame(''fusion'', ''mirrchecker_board'')',...
-                %                     'tooltipstring','View in CheckerBoard', 'interrupt', 'off');
+                %                     'tooltipstring','View in CheckerBoard', 'interruptible', 'off');
                 
                 %               -----------------save, select, and copy---------------
                 ud.handles.seperator3 = uicontrol(hFig,'style','frame','units',units,'position',absPos([0 .13+dy 1 .002], posFrame), ...
@@ -3142,7 +3142,7 @@ switch command
                 
                 delete(findobj('tag','rotSpeedBar'));
                 
-                set(hFig, 'renderer', 'zbuffer');
+                %set(hFig, 'renderer', 'zbuffer');
                 %wy
                 
                 %recover the control frame left tool bar
@@ -3156,23 +3156,23 @@ switch command
                 set(stateS.handle.CTLevelWidthInteractive, 'visible', 'on');
                 set(stateS.handle.ScanTxtWindow,'visible','on')
                 
-                %set(stateS.handle.controlFrame, 'pos', tempControlPos);
+                %set(stateS.handle.controlFrame, 'position', tempControlPos);
                 leftMarginWidth = 195;
-                set(stateS.handle.controlFrame, 'pos', [0 0 leftMarginWidth 400]);
+                set(stateS.handle.controlFrame, 'position', [0 0 leftMarginWidth 400]);
                 
                 ud = stateS.handle.controlFrameUd ;
                 
                 %move back the zoom/slice buttons
-                %set(stateS.handle.loopTrans, 'pos', ud.handle.loopTransPos);
-                %set(stateS.handle.unloopTrans, 'pos', ud.handle.unloopTransPos);
-                set(stateS.handle.zoom, 'pos', ud.handle.zoomPos);
-                set(stateS.handle.resetZoom, 'pos', ud.handle.resetZoomPos);
-                %set(stateS.handle.rulerTrans, 'pos', ud.handle.rulerTransPos);
-                set(stateS.handle.buttonUp, 'pos', ud.handle.buttonUpPos);
-                set(stateS.handle.buttonDwn, 'pos', ud.handle.buttonDwnPos);
-                set(stateS.handle.scanColorbar, 'pos', ud.handle.scanColorbarPos);
+                %set(stateS.handle.loopTrans, 'position', ud.handle.loopTransPos);
+                %set(stateS.handle.unloopTrans, 'position', ud.handle.unloopTransPos);
+                set(stateS.handle.zoom, 'position', ud.handle.zoomPos);
+                set(stateS.handle.resetZoom, 'position', ud.handle.resetZoomPos);
+                %set(stateS.handle.rulerTrans, 'position', ud.handle.rulerTransPos);
+                set(stateS.handle.buttonUp, 'position', ud.handle.buttonUpPos);
+                set(stateS.handle.buttonDwn, 'position', ud.handle.buttonDwnPos);
+                set(stateS.handle.scanColorbar, 'position', ud.handle.scanColorbarPos);
                 
-                %set(stateS.handle.capture, 'pos', ud.handle.capturePos);
+                %set(stateS.handle.capture, 'position', ud.handle.capturePos);
                 
                 set(stateS.handle.doseColorbar.trans,'position',ud.clBarPos)
                 set(gcf,'Pointer','arrow');
@@ -3212,7 +3212,7 @@ switch command
                 %create UI controls
                 
                 %rotate toggle button
-                %funStateS.handle.rotate = uicontrol(hFig,'units', units, 'Position',absPos([.05 .87 0.8 .05], posFrame), 'Style', 'toggle', 'String', 'Rotate View', 'visible', 'on', 'callBack','controlFrame(''rotate_axis'',''rotateViewPlane'')','tag', 'controlFrameItem');
+                %funStateS.handle.rotate = uicontrol(hFig,'units', units, 'Position',absPos([.05 .87 0.8 .05], posFrame), 'Style', 'togglebutton', 'String', 'Rotate View', 'visible', 'on', 'callBack','controlFrame(''rotate_axis'',''rotateViewPlane'')','tag', 'controlFrameItem');
                 %reset push button
                 ud.handles.reset = uicontrol(hFig,'units', units, 'Position',absPos([.05 .8 0.8 .05], posFrame), 'Style', 'push', 'String', 'Reset View', 'visible', 'on', 'callBack','controlFrame(''rotate_axis'',''resetViewPlane'')','tag', 'controlFrameItem');
                 %exit push button
@@ -3440,7 +3440,7 @@ switch command
                 ud.handles.prevSlcPush = uicontrol(hFig, 'style', 'push', 'units', units, 'position', absPos([.05 .75 .2 .05], posFrame), 'string', '<<', 'tag', 'controlFrameItem', 'visible', 'on', 'callBack','controlFrame(''ANNOTATION'',''prevSlc'')', 'horizontalAlignment', 'center','fontsize',14);
                 ud.handles.nextSlcPush = uicontrol(hFig, 'style', 'push', 'units', units, 'position', absPos([.8 .75 .15 .05], posFrame), 'string', '>>', 'tag', 'controlFrameItem', 'visible', 'on', 'callBack','controlFrame(''ANNOTATION'',''nextSlc'')', 'horizontalAlignment', 'center','fontsize',14);
                 ud.handles.AnnotSelectTxt = uicontrol(hFig, 'style', 'text', 'enable', 'inactive', 'units', units, 'position', absPos([.05 .65 .35 .05], posFrame), 'string', 'Item #', 'tag', 'controlFrameItem', 'visible', 'on', 'horizontalAlignment', 'center','fontsize',14);
-                ud.handles.AnnotSelect = uicontrol(hFig, 'style', 'popup', 'units', units, 'position', absPos([.4 .65 .55 .05], posFrame), 'string', '','value',1, 'tag', 'controlFrameItem', 'visible', 'on', 'callBack','controlFrame(''ANNOTATION'',''show'')', 'horizontalAlignment', 'center','fontsize',14);
+                ud.handles.AnnotSelect = uicontrol(hFig, 'style', 'popupmenu', 'units', units, 'position', absPos([.4 .65 .55 .05], posFrame), 'string', '','value',1, 'tag', 'controlFrameItem', 'visible', 'on', 'callBack','controlFrame(''ANNOTATION'',''show'')', 'horizontalAlignment', 'center','fontsize',14);
                 ud.handles.AnnotStat1 = uicontrol(hFig, 'style', 'text', 'enable', 'inactive', 'units', units, 'position', absPos([.06 .50 .9 .08], posFrame), 'string', '', 'tag', 'controlFrameItem', 'visible', 'on', 'horizontalAlignment', 'left','fontsize',14);
                 ud.handles.quitPush = uicontrol(hFig, 'style', 'push', 'units', units, 'position', absPos([.35 .1 .3 .05], posFrame), 'string', 'Quit', 'tag', 'controlFrameItem', 'visible', 'on', 'callBack','controlFrame(''ANNOTATION'',''quit'')', 'horizontalAlignment', 'center','fontsize',14);
                 

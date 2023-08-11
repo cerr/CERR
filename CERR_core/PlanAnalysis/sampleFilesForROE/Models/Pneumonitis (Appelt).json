@@ -7,7 +7,7 @@
 	"abRatio": 3,
 	"parameters": {
 
-   			"structures": "Lung_GTV",
+   			"structures": "LUNG_GTV",
 	
 			"appeltMod": {
 				       "val": "Yes",

@@ -12,7 +12,7 @@
 				       		"modelFile": "Pneumonitis (Appelt).json"
 		                         }, 
 	  	"TCP":  {
-		  	    "modelFile": "Lung TCP.json"
+		  	    "modelFile": "Lung TCP (Jeong).json"
 			}
 		  },
 	"criteriaFile": "LungCriteria_4x15.json",

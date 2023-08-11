@@ -14,11 +14,12 @@ function radiomicsParamS = getRadiomicsParamTemplate(paramFilename,dictS)
 % APA, 2/27/2019
 % AI, 3/22/19     Modified for compatibility with JSON input
 
-feature accel off
+%feature accel off
 
 %% Read JSON file
 if ~isempty(paramFilename)
-    userInS = jsondecode(fileread(paramFilename));
+    %userInS = jsondecode(fileread(paramFilename));
+    userInS = loadjson(paramFilename);
 else
     userInS = dictS;
 end
@@ -65,13 +66,13 @@ if isfield(userInS,'settings')
     shapeParamS = struct;
     peakValleyParamS = struct;
     ivhParamS = struct;
-    
+
     % Structure names
     if isfield(userInS,'structures')
         radiomicsParamS.structuresC = userInS.structures;
     end
     %Otherwise, use entire scan
-    
+
     % ---1. First-order features ---
     idx = strcmpi(settingsC,'firstOrder');
     if any(idx)
@@ -81,7 +82,7 @@ if isfield(userInS,'settings')
         end
         radiomicsParamS.firstOrderParamS = firstOrderParamS;
     end
-    
+
     %---2. Shape features ----
     idx = strcmpi(settingsC,'shape');
     if any(idx)
@@ -91,7 +92,7 @@ if isfield(userInS,'settings')
         end
         radiomicsParamS.shapeParamS = shapeParamS;
     end
-    
+
     %---3. Higher-order (texture) features ----
     idx = strcmpi(settingsC,'texture');
     if any(idx)
@@ -101,7 +102,7 @@ if isfield(userInS,'settings')
         end
         radiomicsParamS.textureParamS = textureParamS;
     end
-    
+
     %---4. Peak-valley features ----
     idx = strcmpi(settingsC,'peakvalley');
     if any(idx)
@@ -111,7 +112,7 @@ if isfield(userInS,'settings')
         end
         radiomicsParamS.peakValleyParamS = peakValleyParamS;
     end
-    
+
     %---5. IVH features ----
     idx = strcmpi(settingsC,'ivh');
     if any(idx)
@@ -121,18 +122,21 @@ if isfield(userInS,'settings')
         end
         radiomicsParamS.ivhParamS = ivhParamS;
     end
-    
-    
+
+
     %% Set flags for sub-classes of features to be extracted
     for k = 1:length(settingsC)
-        fieldNamC = fieldnames(userInS.settings.(settingsC{k}));
-        if ~isempty(fieldNamC)
+       userSetingsS = userInS.settings.(settingsC{k});
+       if ~isempty(userSetingsS)
+       fieldNamC = fieldnames(userSetingsS);
+         if ~isempty(fieldNamC)
             whichFeatS.(settingsC{k}).flag = 1;
             for iField = 1:length(fieldNamC)
                 whichFeatS.(settingsC{k}).(fieldNamC{iField}) = userInS.settings...
                     .(settingsC{k}).(fieldNamC{iField});
             end
         end
+       end
     end
 end
 
@@ -148,7 +152,7 @@ if isfield(userInS,'featureClass')
         end
     end
     radiomicsParamS.whichFeatS = whichFeatS;
-    
+
     if isfield(userInS,'toQuantizeFlag')
         %% Flag to quantize input data
         radiomicsParamS.toQuantizeFlag = userInS.toQuantizeFlag;
@@ -159,4 +163,4 @@ else
     radiomicsParamS.whichFeatS = whichFeatS;
 end
 
-feature accel on
+%feature accel on

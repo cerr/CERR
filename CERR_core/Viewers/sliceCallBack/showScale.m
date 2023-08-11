@@ -27,6 +27,9 @@ global planC
 
 % check for comparemode if selected
 compareMode = getappdata(hAxis,'compareMode');
+if isempty(compareMode)
+    compareMode = '';
+end
 
 pos = get(hAxis, 'position');
 wid = pos(3); hgt = pos(4);

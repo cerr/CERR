@@ -36,9 +36,32 @@ dose1M = dose1M(rMin:rMax,cMin:cMax,sMin:sMax);
 dose2M = dose2M(rMin:rMax,cMin:cMax,sMin:sMax);
 
 % Downsample if required
-disp('Downsampling...')
-disp(downsampleFactor)
-disp('done downsampling.')
+[xValsV, yValsV, zValsV] = getScanXYZVals(planC{indexS.scan}(scanNum));
+
+if downsampleFactor~=1
+    
+    disp('Downsampling...')
+    disp(downsampleFactor)
+    
+    xValsV = xValsV(cMin:cMax);
+    yValsV = yValsV(rMin:rMax);
+    zValsV = zValsV(sMin:sMax);
+    
+    xResampleV = linspace(xValsV(1),xValsV(end),ceil(length(xValsV)/downsampleFactor));
+    yResampleV = linspace(yValsV(1),yValsV(end),ceil(length(yValsV)/downsampleFactor));
+    zResampleV = linspace(zValsV(1),zValsV(end),ceil(length(zValsV)));
+    
+    resampDose1M = imgResample3d(dose1M,xValsV,yValsV,zValsV,...
+        xResampleV,yResampleV,zResampleV,'linear');
+    resampDose2M = imgResample3d(dose2M,xValsV,yValsV,zValsV,...
+        xResampleV,yResampleV,zResampleV,'linear');
+    
+    disp('done downsampling.')
+else
+    resampDose1M = dose1M;
+    resampDose2M = dose2M;
+end
+
 
 % Get the voxel size (scan grid since dose is interpolated to scan grid)
 [xValsV, yValsV, zValsV] = getScanXYZVals(planC{indexS.scan}(scanNum));
@@ -49,4 +72,4 @@ H.Hx = Hx;
 H.Hy = Hy;
 H.Hz = Hz;
 
-[c,s] = unbalance3d_dose_2(dose1M,dose2M,gamma,H,'n'); %unbalance3d_dose_n
+[c,s] = unbalance3d_dose_2(resampDose1M,resampDose2M,gamma,H,'n'); %unbalance3d_dose_n

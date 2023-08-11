@@ -13,7 +13,7 @@ function optS = readDLConfigFile(paramFilename)
 % -------------------------------------------------------------------------
 
 %% Get user inputs from JSON
-userInS = jsondecode(fileread(paramFilename));
+userInS = loadjson(paramFilename);
 if ~isfield(userInS,'dataSplit')
     dataSplitV = [0,0,100]; %Assumes testing if not speciifed otherwise.
     userInS.dataSplit = dataSplitV;

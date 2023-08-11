@@ -108,5 +108,3 @@ lastScanArray           = scanArraySuperior;
 lastScanStruct          = scanStruct;
 isLastScanCompressed    = isCompress;
 isLastScanRemote        = isRemote;
-
-%temp

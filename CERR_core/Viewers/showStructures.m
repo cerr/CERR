@@ -107,7 +107,9 @@ axisInfo.lineHandlePool.currentHandle = axisInfo.lineHandlePool.currentHandle - 
 %     structToRemoveV = [structToRemoveV find(assocScansV == scanSet)];
 % end
 % % Set structures to view
-axisInfo.structureGroup(toRemove) = [];
+if ~isempty(toRemove)
+    axisInfo.structureGroup(toRemove) = [];
+end
 % stateS.structsOnViews = setdiff(stateS.structsOnViews,structToRemoveV);
 
 % % Set visibility of structures to be updates to off
@@ -139,6 +141,7 @@ for i=1:length(structureSets)
         axisInfo.structureGroup(numObjs+1).dispMode     = 'contourLines';
         axisInfo.structureGroup(numObjs+1).redraw       = 1;
         axisInfo.structureGroup(numObjs+1).handles      = [];
+        axisInfo.structureGroup(numObjs+1).structNumsV  = [];
     end
 end
 
@@ -279,7 +282,7 @@ for i=1:length(axisInfo.structureGroup)
                                     set(axisInfo.lineHandlePool.dotsV(handleIndex),'XData',xCoords,...
                                         'YData',yCoords, 'parent', hAxis,...
                                         'color', [dotColor dotColor dotColor], ...
-                                        'visible','on')
+                                        'visible','off')
                                     %stateS.handleAssocStructNum(handleIndex) = structsInThisScan(structNum);
                                 end
                                 % Increse the last handle value
@@ -484,7 +487,7 @@ for i=1:length(axisInfo.structureGroup)
                                 set(axisInfo.lineHandlePool.dotsV(handleIndex),'XData',xDataV,...
                                     'YData',yDataV,'parent',hAxis,...
                                     'color', [dotColor dotColor dotColor],...
-                                    'visible','on')
+                                    'visible','off')
                                 %stateS.handleAssocStructNum(handleIndex) = structsInThisScan(structNum);
                             end                            
                             % Increse the last handle value
