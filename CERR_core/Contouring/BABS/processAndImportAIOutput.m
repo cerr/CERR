@@ -58,8 +58,12 @@ for nOut = 1:length(outputC)
             indexS = planC{end};
 
             % Get associated scan num
-            idS = userOptS.outputAssocScan.identifier;
-            assocScan = getScanNumFromIdentifiers(idS,planC);
+            if ~isempty(outputScanNum)
+                assocScan = outputScanNum;
+            else
+                idS = userOptS.outputAssocScan.identifier;
+                assocScan = getScanNumFromIdentifiers(idS,planC);
+            end
 
             tempOptS = userOptS;
             outTypesC = fieldnames(userOptS.output);
@@ -130,11 +134,21 @@ for nOut = 1:length(outputC)
                 planC{indexS.deform}(end+1).movScanUID = ...
                     planC{indexS.scan}(movScanNum).scanUID;
             else
+
+                % Get associated scan num
+                if ~isempty(outputScanNum)
+                    baseScanNum = outputScanNum;
+                else
+                    idS = userOptS.outputAssocScan.identifier;
+                    baseScanNum = getScanNumFromIdentifiers(idS,plan,1C);
+                end
+
                 idS = userOptS.outputAssocScan.identifier;
                 baseScanNum = getScanNumFromIdentifiers(idS,planC,1);
                 planC{indexS.deform}(end+1).baseScanUID = ...
                     planC{indexS.scan}(baseScanNum).scanUID;
             end
+
             planC{indexS.deform}(end+1).algorithm = algorithm;
             planC{indexS.deform}(end+1).registrationTool = 'CNN';
             planC{indexS.deform}(end+1).algorithmParamsS.singContainerHash = ...
