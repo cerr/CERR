@@ -129,27 +129,29 @@ if iscell(planC)
     filePrefixForHDF5 = 'cerrFile';
     
     %Update cropping structure index where needed
-    maskStrC = {userOptS.input.structure.name};
-    allStrC = {planC{indexS.structures}.structureName};
-    if isfield(userOptS.input.scan,'crop')
-        for nScan = 1:length(userOptS.input.scan)
-            cropS = userOptS.input.scan(nScan).crop;
-            if ~(length(cropS) == 1 && strcmpi(cropS(1).method,'none'))
-                cropStrListC = arrayfun(@(x)x.params.structureName,cropS,'un',0);
-                cropParS = [cropS.params];
-                if ~isempty(cropStrListC)
-                    for nCropStr = 1:length(cropStrListC)
-                        if strcmpi(cropStrListC{nCropStr},maskStrC{nCropStr})
-                            outStrName = allStrC{inputStrV(nCropStr)};
-                            cropParS(nCropStr).structureName = outStrName;
+    if isfield(userOptS.input,'structure')
+        maskStrC = {userOptS.input.structure.name};
+        allStrC = {planC{indexS.structures}.structureName};
+        if isfield(userOptS.input.scan,'crop')
+            for nScan = 1:length(userOptS.input.scan)
+                cropS = userOptS.input.scan(nScan).crop;
+                if ~(length(cropS) == 1 && strcmpi(cropS(1).method,'none'))
+                    cropStrListC = arrayfun(@(x)x.params.structureName,cropS,'un',0);
+                    cropParS = [cropS.params];
+                    if ~isempty(cropStrListC)
+                        for nCropStr = 1:length(cropStrListC)
+                            if strcmpi(cropStrListC{nCropStr},maskStrC{nCropStr})
+                                outStrName = allStrC{inputStrV(nCropStr)};
+                                cropParS(nCropStr).structureName = outStrName;
+                            end
                         end
+                        cropS.params = cropParS;
                     end
-                    cropS.params = cropParS;
                 end
+                userOptS.input.scan(nScan).crop = cropS;
             end
-            userOptS.input.scan(nScan).crop = cropS;
-        end
-    end    
+            end
+    end
     
     for nIn = 1:length(inputC)
         
@@ -253,13 +255,15 @@ else
         planC = quality_assure_planC(fileNam,planC);
         
         %Update cropping structure index where needed
-        if isfield(userOptS.input.structure,'name')
-            maskStrC = {userOptS.input.structure.name};
-        else
-            if isfield(userOptS.input.structure,'strNameToLabelMap')
-                maskStrC = {userOptS.input.structure.strNameToLabelMap.structureName};
+        if isfield(userOptS.input,'structure')
+            if isfield(userOptS.input.structure,'name')
+                maskStrC = {userOptS.input.structure.name};
             else
-                maskStrC = {};
+                if isfield(userOptS.input.structure,'strNameToLabelMap')
+                    maskStrC = {userOptS.input.structure.strNameToLabelMap.structureName};
+                else
+                    maskStrC = {};
+                end
             end
         end
         indexS = planC{end};
