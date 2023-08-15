@@ -140,7 +140,7 @@ for nOut = 1:length(outputC)
                     baseScanNum = outputScanNum;
                 else
                     idS = userOptS.outputAssocScan.identifier;
-                    baseScanNum = getScanNumFromIdentifiers(idS,plan,1C);
+                    baseScanNum = getScanNumFromIdentifiers(idS,planC,1);
                 end
 
                 idS = userOptS.outputAssocScan.identifier;
