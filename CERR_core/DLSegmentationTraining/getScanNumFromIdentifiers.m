@@ -41,9 +41,9 @@ for n = 1:length(identifierC)
             idV = strcmpi(matchValC,imTypeC);
             
         case 'seriesDescription'
-            
             seriesDescC =  arrayfun(@(x)x.scanInfo(1).seriesDescription,...
                 planC{indexS.scan},'un',0);
+            seriesDescC = cellfun(@char,seriesDescC,'un',0);
             idV = ~cellfun('isempty', strfind(seriesDescC, matchValC));
             
         case 'scanType'
