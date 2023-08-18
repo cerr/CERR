@@ -26,8 +26,7 @@ for p = 1:length(ptListC)
         case '3D'
             
             fileName = fullfile(outPath,'outputH5',fileNameC{1});
-            loadDataS = load(fileName);
-            mask3M = loadDataS.mask;
+            mask3M = h5read(fileName,'/mask');
             mask3M = permute(mask3M,[3 2 1]);
             
         case '2D'
@@ -39,9 +38,8 @@ for p = 1:length(ptListC)
                           fileNameC{matchIdxV(s)});
                 idx = strfind(slcName,'_slice');
                 slcNum = str2double(slcName(idx+7:end-3));
-                loadDataS = load(slcName);
-                labelM = loadDataS.mask;
-                mask3M(:,:,slcNum) = labelM.';
+                labelM = h5read(slcName,'/mask').';
+                mask3M(:,:,slcNum) = labelM;
                 
                 
             end
