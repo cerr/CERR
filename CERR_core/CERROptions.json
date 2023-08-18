@@ -198,7 +198,7 @@
 "cachingEnabled" : 0,
 "colorWashCacheSize" : 64,
 
-"saveFormat" : "-mat-binary",
+"saveFormat" : "-mat",
 
 "plotObjFormat" : "v6",
 
