@@ -31,14 +31,14 @@ for nOut = 1:length(outputC)
 
         case 'dvf'
             %Deformation vector field
-
             outFmt = outputS.DVF.outputFormat;
             DVFpath = fullfile(sessionPath,'outputH5','DVF');
             DVFfile = dir([DVFpath,filesep,'*.h5']);
             outFile = fullfile(DVFpath,DVFfile.name);
             switch(lower(outFmt))
                 case 'h5'
-                    DVF4M = h5read(outFile,'/dvf');
+                    loadDataS = load(outFile);
+                    DVF4M = loadDataS.dvf;
                     DVF4M =  permute(DVF4M,[1,4,3,2]);
                 otherwise
                     error('Invalid model output format %s.',outFmt)
@@ -142,9 +142,6 @@ for nOut = 1:length(outputC)
                     idS = userOptS.outputAssocScan.identifier;
                     baseScanNum = getScanNumFromIdentifiers(idS,planC,1);
                 end
-
-                idS = userOptS.outputAssocScan.identifier;
-                baseScanNum = getScanNumFromIdentifiers(idS,planC,1);
                 planC{indexS.deform}(end+1).baseScanUID = ...
                     planC{indexS.scan}(baseScanNum).scanUID;
             end
