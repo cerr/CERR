@@ -51,11 +51,6 @@ scanThreshV = scan3M(scan3M>outThreshold);
 threshold = prctile(scanThreshV,5);
 minInt = min(scan3M(:));
 
-% Define morphological structuring element 
-str1S = makeDiskStrel(5,4); %Equivalent to strel('disk',5)
-str2S = makeDiskStrel(3,4); %Equivalent to strel('disk',3)
-
-
 %Iterate over slices
 ptMask3M = false([sizV(1:2),length(slicesV)]);
 for n = 1:numel(slicesV)
@@ -68,7 +63,7 @@ for n = 1:numel(slicesV)
     binM = threshM & ~couchMaskM;
     
     % Separate pt outline from table
-    binM = imopen(binM,str1S);
+    binM = imopen(binM,strel('disk',5));
     
     % Fill holes in pt outline
     maskM = false(size(binM));
@@ -92,7 +87,7 @@ for n = 1:numel(slicesV)
             thresh2M = sliceM > 1.5*threshold;
             thresh2M = imfill(thresh2M,'holes');
             thresh2M = bwareaopen(thresh2M,200,8);
-            thresh2M = morphClose(thresh2M,str2S);
+            thresh2M = morphClose(thresh2M,strel('disk',3));
             smoothedlabel3M = imboxfilt(double(thresh2M),5);
             maskM = smoothedlabel3M > 0.5;
             
@@ -114,13 +109,13 @@ conn3dPtMask3M(idxV) = true;
 connPtMask3M = conn3dPtMask3M;
 
 %% 2D connected component filter to separate arms and other artifacts
-%[numRows,numCols,numSlcs] = size(conn3dPtMask3M);
-%connPtMask3M = false(numRows,numCols,numSlcs);
-%str3S = makeDiskStrel(10,4); %Equivalent to strel('disk',10)
-%for slc = 1:numSlcs
-%    erodedSlc2M = imopen(conn3dPtMask3M(:,:,slc),str3S);
-%    ccS = bwconncomp(erodedSlc2M,8);
-%    ccSiz = cellfun(@numel,[ccS.PixelIdxList]);
+% [numRows,numCols,numSlcs] = size(conn3dPtMask3M);
+% connPtMask3M = false(numRows,numCols,numSlcs);
+
+% for slc = 1:numSlcs
+%     erodedSlc2M = imopen(conn3dPtMask3M(:,:,slc),strel('disk',10));
+%     ccS = bwconncomp(erodedSlc2M,8);
+%    cSiz = cellfun(@numel,[ccS.PixelIdxList]);
 %    ccNumObjs = ccS.NumObjects;
 %    fractionSizV = ccSiz/max(ccSiz);
 %    if ccNumObjs > 1 && any(fractionSizV < 0.25)
