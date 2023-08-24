@@ -29,32 +29,33 @@ matchIdxV = true(1,numScan);
 
 %Loop over identifiers
 for n = 1:length(identifierC)
-    
+
     matchValC = idS.(identifierC{n});
-    
+
     %Match against metadata in planC
     switch(identifierC{n})
-        
+
         case 'imageType'
             imTypeC =  arrayfun(@(x)x.scanInfo(1).imageType,...
                 planC{indexS.scan},'un',0);
             idV = strcmpi(matchValC,imTypeC);
-            
+
         case 'seriesDescription'
-            
+
             seriesDescC =  arrayfun(@(x)x.scanInfo(1).seriesDescription,...
                 planC{indexS.scan},'un',0);
+            seriesDescC = cellfun(@char,seriesDescC,'un',0);
             idV = ~cellfun('isempty', strfind(seriesDescC, matchValC));
-            
+
         case 'scanType'
-            
+
             scanTypeC = {planC{indexS.scan}.scanType};
             idV = strcmpi(matchValC,scanTypeC);
-            
+
         case 'scanNum'
             idV = false(size(matchIdxV));
             idV(matchValC) = true;
-            
+
         case 'seriesDate'
             seriesDatesC =  arrayfun(@(x)x.scanInfo(1).seriesDate,...
                 planC{indexS.scan},'un',0);
@@ -103,13 +104,13 @@ for n = 1:length(identifierC)
                     idV = idV & ismember(scanNumV,matchScan);
                 end
             end
-            
+
         otherwise
             error('Identifier %s not supported.',identifierC{n});
     end
-    
+
     matchIdxV = matchIdxV & idV;
-    
+
 end
 
 
