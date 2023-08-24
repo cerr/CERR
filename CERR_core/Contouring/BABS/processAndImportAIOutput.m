@@ -91,10 +91,10 @@ for nOut = 1:length(outputC)
                     joinH5planC(assocScan,DVF3M,[DVFfilename,'_'...
                     dimsC{nDim}],tempOptS,planC);
                 
-                if nDim == 1
+                if nDim == 2
                     scaleFactor = abs(physExtentsV(2)-physExtentsV(1))./(outputSizeV(2)-1);
                 else
-                    if nDim == 2
+                    if nDim == 1
                         scaleFactor = abs(physExtentsV(4)-physExtentsV(3))./(outputSizeV(3)-1);
                     else
                         %nDim == 3
