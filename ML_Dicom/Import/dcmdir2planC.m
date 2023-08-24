@@ -338,10 +338,20 @@ for scanNum = 1:numScans
         planC{indexS.scan}(scanNum).scanInfo(i).yOffset = yOffset;
     end
     
+    % Figure out whether CERR and dicom slice directions are opposite.
+    % (CERR slice direction is +vs from head to toe)
+    lastCerrZ = planC{indexS.scan}(scanNum).scanInfo(end).zValue;
+    firstCerrZ = planC{indexS.scan}(scanNum).scanInfo(1).zValue;
+    cerrDcmSliceDirMatch = sign(distV(end) - distV(1)) == sign(lastCerrZ - firstCerrZ);
+    
     [xs,ys,zs] = getScanXYZVals(planC{indexS.scan}(scanNum));
     dx = xs(2)-xs(1);
     dy = ys(2)-ys(1);
-    virPosMtx = [dx 0 0 xs(1);0 dy 0 ys(1); 0 0 slice_distance/10 zs(1); 0 0 0 1];
+    if cerrDcmSliceDirMatch
+        virPosMtx = [dx 0 0 xs(1);0 dy 0 ys(1); 0 0 slice_distance/10 zs(1); 0 0 0 1];
+    else
+        virPosMtx = [dx 0 0 xs(1);0 dy 0 ys(1); 0 0 -slice_distance/10 zs(end); 0 0 0 1];
+    end
     planC{indexS.scan}(scanNum).Image2VirtualPhysicalTransM = virPosMtx;
     
     % Find structures associated with scanNum and update
