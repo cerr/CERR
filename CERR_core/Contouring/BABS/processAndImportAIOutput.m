@@ -74,35 +74,44 @@ for nOut = 1:length(outputC)
             DVFfilename = strrep(strrep(DVFfile.name,' ','_'),'.h5','');
             dimsC = {'dx','dy','dz'};
             niiFileNameC = cell(1,length(dimsC));
-            %outputSizeV = size(DVF4M);
+            outputSizeV = size(DVF4M);
             origScanSizV = size(planC{indexS.scan}(assocScan).scanArray);
             dvfOnOrigScan4M = zeros([origScanSizV,3]);
 
-            % Note: Expected ordering of components is: DVF_, DVF_y,DVF_z
+            % Note: Expected ordering of components is: DVF_x, DVF_y,DVF_z
             % i.e., deformation along cols, rows, slices.
-            %DVF4M = DVF4M([2,1,3],:,:,:);
-
+            
             % Convert to physical dimensions
             for nDim = 1:size(DVF4M,1)
 
                 % Reverse pre-processing operations
                 DVF3M = squeeze(DVF4M(nDim,:,:,:));
-
+                
                 [DVF3M,imgExtentsV,physExtentsV,planC] = ...
                     joinH5planC(assocScan,DVF3M,[DVFfilename,'_'...
                     dimsC{nDim}],tempOptS,planC);
-
-                if nDim == 3
-                    % Account for reversed slice direction (CERR convention vs.
-                    % DICOM) passed to model.
-                    DVF3M = -DVF3M;
+                
+                if nDim == 1
+                    scaleFactor = abs(physExtentsV(2)-physExtentsV(1))./(outputSizeV(2)-1);
+                else
+                    if nDim == 2
+                        scaleFactor = abs(physExtentsV(4)-physExtentsV(3))./(outputSizeV(3)-1);
+                    else
+                        %nDim == 3
+                        % Account for reversed slice direction (CERR convention vs.
+                        % DICOM) passed to model.
+                        DVF3M = -DVF3M;
+                        scaleFactor = abs(physExtentsV(6)-physExtentsV(5))./(outputSizeV(4)-1);
+                    end
                 end
-
+                
+                DVF3M = DVF3M.*scaleFactor*10;
+                
                 dvfOnOrigScan4M(:,:,:,nDim) = DVF3M;
-
+               
             end
-
-            dvfDcmM = dvfImageToDICOMCoords(dvfOnOrigScan4M,assocScan,planC);  %4D array
+            dvfDcmM = dvfOnOrigScan4M;
+            %dvfDcmM = dvfImageToDICOMCoords(dvfOnOrigScan4M,assocScan,planC);  %4D array
             dvfDcmM = permute(dvfDcmM, [1:3 5 4]); %5D array as reqd by exportScanToNii.m
             %Write DVF to NIfTI file
             fprintf('\n Writing DVF to file %s\n',niiFileNameC{nDim});
