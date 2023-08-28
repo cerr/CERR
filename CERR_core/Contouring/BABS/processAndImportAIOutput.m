@@ -168,6 +168,20 @@ for nOut = 1:length(outputC)
                 save_planC(planC,[],'PASSED',cerrFile);
                 planC = cerrFile;
             end
+            
+            % Get DICOM export settings
+            if isfield(userOptS.output.(outType), 'dicomExportOptS')
+                if isempty(dcmExportOptS)
+                    dcmExportOptS = userOptS.output.(outType).dicomExportOptS;
+                else
+                    dcmExportOptS = dissimilarInsert(dcmExportOptS,...
+                        userOptS.output.(outType).dicomExportOptS);
+                end
+            else
+                if ~exist('dcmExportOptS','var')
+                    dcmExportOptS = [];
+                end
+            end
 
         case 'derivedimage'
 
