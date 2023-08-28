@@ -107,17 +107,45 @@ if strcmpi(savePlanc,'yes')
 end
 if ~any(strcmpi(algorithm,'BABS'))
 
-    % Get segmentations
-    [~,origScanNumV,allLabelNamesC,dcmExportOptS] = runAIforPlanC(cerrPath,...
-        fullSessionPath,algorithm,cmdFlag,newSessionFlag,[],[],...
+    %%  Run AI model
+    [~,origScanNumV,outputScanNumV,allLabelNamesC,userOptS,dcmExportOptS] =...
+        runAIforPlanC(cerrPath,fullSessionPath,algorithm,cmdFlag,newSessionFlag,[],[],...
         containerPath,scanNumV,assocScanNumV,skipMaskExport);
 
-    % Export segmentations to DICOM RTSTRUCT files
-    fprintf('\nExporting to DICOM format...');
-    tic
-    batchExportAISegToDICOM(cerrPath,origScanNumV,allLabelNamesC,outputCERRPath,...
-        outputDicomPath,dcmExportOptS,savePlancFlag)
-    toc
+    %% Export result(s) to DICOM
+    
+    %Loop over model outputs
+    outputC = fieldnames(userOptS.output);
+    for nOut = 1:length(outputC)
+        
+        outType = outputC{nOut};
+        
+        switch(lower(outType))
+            
+            case 'labelmap'
+                % Export segmentations to DICOM RTSTRUCT files
+                fprintf('\nExporting to DICOM format...');
+                tic
+                batchExportAISegToDICOM(cerrPath,origScanNumV,allLabelNamesC,outputCERRPath,...
+                    outputDicomPath,dcmExportOptS,savePlancFlag)
+                toc
+                
+            case 'dvf'
+                % Export segmentations to DICOM RTSTRUCT files
+                
+                dvfPath = userOptS.output.(outType).outputDir;
+                dirS = dir(dvfPath);
+                dvfFile = fullfile(dvfPath, dirS(3).name);
+                
+                fprintf('\nExporting to DICOM format...');
+                tic
+                batchExportAIRegToDICOM(cerrPath,origScanNumV,outputScanNumV,...
+                    cmdFlag, containerPath, dvfFile, outputDicomPath,dcmExportOptS);
+                toc
+                
+        end
+        
+    end
     
 else
     
