@@ -91,10 +91,10 @@ for nOut = 1:length(outputC)
                     joinH5planC(assocScan,DVF3M,[DVFfilename,'_'...
                     dimsC{nDim}],tempOptS,planC);
                 
-                if nDim == 1
+                if nDim == 2
                     scaleFactor = abs(physExtentsV(2)-physExtentsV(1))./(outputSizeV(2)-1);
                 else
-                    if nDim == 2
+                    if nDim == 1
                         scaleFactor = abs(physExtentsV(4)-physExtentsV(3))./(outputSizeV(3)-1);
                     else
                         %nDim == 3
@@ -164,6 +164,20 @@ for nOut = 1:length(outputC)
             if ~isempty(cerrFile)
                 save_planC(planC,[],'PASSED',cerrFile);
                 planC = cerrFile;
+            end
+            
+            % Get DICOM export settings
+            if isfield(userOptS.output.(outType), 'dicomExportOptS')
+                if isempty(dcmExportOptS)
+                    dcmExportOptS = userOptS.output.(outType).dicomExportOptS;
+                else
+                    dcmExportOptS = dissimilarInsert(dcmExportOptS,...
+                        userOptS.output.(outType).dicomExportOptS);
+                end
+            else
+                if ~exist('dcmExportOptS','var')
+                    dcmExportOptS = [];
+                end
             end
 
         case 'derivedimage'
