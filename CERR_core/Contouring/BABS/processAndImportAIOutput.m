@@ -115,6 +115,9 @@ for nOut = 1:length(outputC)
             dvfDcmM = permute(dvfDcmM, [1:3 5 4]); %5D array as reqd by exportScanToNii.m
             %Write DVF to NIfTI file
             fprintf('\n Writing DVF to file %s\n',niiFileNameC{nDim});
+            if exist(niiOutDir,'dir')
+                rmdir(niiOutDir,'s');
+            end
             exportScanToNii(niiOutDir,dvfDcmM,{DVFfilename},...
                 [],{},planC,assocScan);
 
