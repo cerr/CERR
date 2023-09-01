@@ -78,7 +78,7 @@ for nOut = 1:length(outputC)
             origScanSizV = size(planC{indexS.scan}(assocScan).scanArray);
             dvfOnOrigScan4M = zeros([origScanSizV,3]);
 
-            % Note: Expected ordering of components is: DVF_x, DVF_y,DVF_z
+            % Note: Expected ordering of components is: DVF_, DVF_y,DVF_z
             % i.e., deformation along cols, rows, slices.
             
             % Convert to physical dimensions
@@ -106,7 +106,6 @@ for nOut = 1:length(outputC)
                 end
                 
                 DVF3M = DVF3M.*scaleFactor*10;
-                
                 dvfOnOrigScan4M(:,:,:,nDim) = DVF3M;
                
             end
