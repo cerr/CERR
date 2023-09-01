@@ -7,9 +7,11 @@
          "identifier" : {"studyDate":"first"}, 
          "view" : ["axial"],
          "crop" : {     
-                    "method": "crop_pt_outline",
-                    "params": { "structureName": "generated_pt_outline",
-                                "outStrName":"generated_pt_outline",
+                    "method": "crop_pt_outline_on_scan",
+                    "params": { 
+                            "scanIdentifier": {"studyDate":"last"},
+                            "structureName": "generated_pt_outline",
+                            "outStrName":"generated_pt_outline",
 	                        "saveStrToPlanCFlag": 1,
                                 "outlineThreshold": 0.03,
                                 "normFlag": 1},
@@ -33,11 +35,11 @@
         "crop": {
                     "method": "crop_pt_outline",
                     "params": { "structureName": "generated_pt_outline",
-                                "outStrName":"generated_pt_outline",
-	                        "saveStrToPlanCFlag": 1,
-                                "outlineThreshold": 0.03,
-                                "normFlag": 1},
-                    "operator": ""
+                                        "outStrName":"generated_pt_outline",
+                                        "saveStrToPlanCFlag": 1,
+                                        "outlineThreshold": 0.03,
+                                        "normFlag": 1},
+                                        "operator": ""
                 },
         "resize": [{  "method" : "bicubic",
                        "size" : [128,192],
