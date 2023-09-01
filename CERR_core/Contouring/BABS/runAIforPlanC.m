@@ -1,20 +1,20 @@
-function [planC,origScanNumV,outputScanNumV,allLabelNamesC,...
-    userOptS,dcmExportOptS] = runAIforPlanC(planC,clientSessionPath,...
-    algorithm,cmdFlag,newSessionFlag,sshConfigFile,hWait,varargin)
-%function [planC,origScanNumV,allLabelNamesC,dcmExportOptS] = ...
-% runAIForPlanC(planC,clientSessionPath,algorithm,cmdFlag,...
-% newSessionFlag,sshConfigFile,hWait,varargin)
+function  [planC,origScanNumV,outputScanNumV,allLabelNamesC,userOptS,...
+    dcmExportOptS] =runAIforPlanC(planC,clientSessionPath,algorithm,...
+    cmdFlag,newSessionFlag,sshConfigFile,hWait,varargin)
+% function  [planC,origScanNumV,outputScanNumV,allLabelNamesC,userOptS,dcmExportOptS] =...
+% runAIforPlanC(planC,clientSessionPath,algorithm,cmdFlag,newSessionFlag,sshConfigFile,hWait,...
+% varargin)
 % This function serves as a wrapper for different types of AI models.
 %--------------------------------------------------------------------------
 % INPUTS:
-% planC             : planC 
+% planC             : planC
 % clientSessionPath : path to write temporary segmentation metadata.
 % algorithm         : string which specifies segmentation algorithm
 % cmdFlag           : "condaEnv" or "singContainer"
 % newSessionFlag    : Set to false to use existing session dir
 %                     (default:true).
 % sshConfigFile
-% hWait 
+% hWait
 % --Optional inputs---
 % varargin{1}: Path to singularity container OR conda env
 % varargin{2}: Dictionary specifying  scan (replaces input scan identifier)
