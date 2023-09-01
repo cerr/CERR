@@ -37,7 +37,7 @@ for nFile = 1:length(dirS)
     indexS = planC{end};
     
     %Get paths to DICOMs for base and moving scans
-    baseScan = origScanNumV(origScanNumV==outputScanNum);
+    baseScan = outputScanNum;
     movScan = origScanNumV(origScanNumV~=outputScanNum);
     baseSlcPath = planC{indexS.scan}(baseScan).scanInfo(1).scanFileName;
     [baseImgPath,~,~] = fileparts(baseSlcPath);
