@@ -108,7 +108,7 @@ end
 if ~any(strcmpi(algorithm,'BABS'))
 
     %%  Run AI model
-    [~,origScanNumV,outputScanNumV,allLabelNamesC,userOptS,dcmExportOptS] =...
+    [~,origScanNumV,outputScanNum,allLabelNamesC,userOptS,dcmExportOptS] =...
         runAIforPlanC(cerrPath,fullSessionPath,algorithm,cmdFlag,newSessionFlag,[],[],...
         containerPath,scanNumV,assocScanNumV,skipMaskExport);
 
@@ -139,7 +139,7 @@ if ~any(strcmpi(algorithm,'BABS'))
                 
                 fprintf('\nExporting to DICOM format...');
                 tic
-                batchExportAIRegToDICOM(cerrPath,origScanNumV,outputScanNumV,...
+                batchExportAIRegToDICOM(cerrPath,origScanNumV,outputScanNum,...
                     cmdFlag, containerPath, dvfFile, outputDicomPath,dcmExportOptS);
                 toc
                 

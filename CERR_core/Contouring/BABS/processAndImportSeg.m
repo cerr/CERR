@@ -1,4 +1,4 @@
-function [planC,allLabelNamesC,dcmExportOptS,success] = ...
+function [planC,outScanNum,allLabelNamesC,dcmExportOptS,success] = ...
     processAndImportSeg(planC,origScanNumV,scanNumV,outputScanNum,...
     fullSessionPath,userOptS)
 % planC = processAndImportSeg(planC,origScanNumV,scanNumV,fullSessionPath,userOptS);
@@ -39,7 +39,7 @@ if ~iscell(planC)
         ptIdx = ~cellfun(@isempty, strfind(ptListC, strtok(ptName,'_')));
         segMask3M = outC{ptIdx};
 
-        planC = importLabelMap(userOptS,origScanNumV,scanNumV,...
+        [planC,outScanNum] = importLabelMap(userOptS,origScanNumV,scanNumV,...
                               outputScanNum,segMask3M,labelPath,planC);
         %origScanNumV(nFile) = origScanNum;
 
@@ -53,7 +53,7 @@ if ~iscell(planC)
 else
     segMask3M = outC{1};
     tic
-    planC = importLabelMap(userOptS,origScanNumV,scanNumV,outputScanNum,...
+    [planC,outScanNum] = importLabelMap(userOptS,origScanNumV,scanNumV,outputScanNum,...
             segMask3M,labelPath,planC);
     toc
 end
@@ -88,8 +88,9 @@ end
 
 
 %% ----- Supporting functions ----
-    function planC = importLabelMap(userOptS,origScanNumV,scanNumV,...
-                     outputScanNum,segMask3M,labelPath,planC)
+    function [planC,outScanNum] = importLabelMap(userOptS,...
+            origScanNumV,scanNumV,outputScanNum,...
+            segMask3M,labelPath,planC)
 
         indexS = planC{end};
         
