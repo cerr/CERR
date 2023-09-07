@@ -12,7 +12,8 @@ function [outMask3M, planC] = getMaskForModelConfig(planC,mask3M,scanNum,cropS)
 %                Supported methods: 'crop_fixed_amt','crop_to_bounding_box',
 %                'crop_around_center', 'crop_to_str', 'crop_to_str_on_scan', 
 %                'crop_pt_outline', 'crop_pt_outline_on_scan',
-%                'crop_around_structure_center','none'.
+%                'crop_around_structure_center',
+%                'crop_around_center_of_mass_on_scan','none'.
 %--------------------------------------------------------------------------
 % AI 7/23/19
 % RKP 9/13/19 
@@ -152,18 +153,48 @@ for m = 1:length(methodC)
             maskC{m} = outMask3M;
             
 
-        case 'crop_around_center_of_mass'
+        case {'crop_around_center_of_mass','crop_around_center_of_mass_on_scan'}
 
             cropStr = paramS.structureName;
-            outputImgSizeV = reshape(paramS.margins,1,[]);
+
+            % Get margin units
+            marginUnits = 'voxels'; %default if not specified
+            if isfield(paramS,'marginUnits')
+                marginUnits = paramS.marginUnits;
+            end
+            marginV = paramS.margins;
+
+            %Compute output image dimensions
+            if ismember(marginUnits,{'mm','cm'})
+                %Convert to voxel units
+                dx = median(diff(xValsV));
+                dy = median(diff(yValsV));
+                dz = median(diff(zValsV));
+                inputResV = [dx,dy,dz];
+                if strcmpi(marginUnits,'mm')
+                    inputResV = inputResV*10; %Convert scan resolution to mm
+                end
+                marginV = round(marginV./inputResV(1:length(marginV)));
+            end
+            outputImgSizeV = reshape(marginV,1,[]);
+
             if isfield(paramS,'assignBkgIntensity')
                 bkgVal = paramS.assignBkgIntensity.assignVal;
             else
                 bkgVal = [];
             end
 
+            if ~isempty(strfind(method,'scan')) %octave compatible
+                %Crop around structure on (another) scan
+                % specified through valid identifier
+                idS = paramS.scanIdentifier;
+                scanId = getScanNumFromIdentifiers(idS,planC);
+            else
+                scanId  = scanNum;
+            end
+
             %Crop around COM
-            [~,outMask3M] = cropAroundCOM(scanNum,cropStr,...
+            [~,outMask3M] = cropAroundCOM(scanId,cropStr,...
                 outputImgSizeV,bkgVal,planC);
             maskC{m} = outMask3M;
 
