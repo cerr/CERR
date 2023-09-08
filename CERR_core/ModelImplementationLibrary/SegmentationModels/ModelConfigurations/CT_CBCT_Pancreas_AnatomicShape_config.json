@@ -5,19 +5,33 @@
 "input":{    
     "scan": [{
          "identifier" : {"studyDate":"first"}, 
+         "resample": {"resolutionXCm":0.1,
+                      "resolutionYCm":0.1,
+                      "resolutionZCm":0.1,
+                      "method":"linear"},
          "crop" : {     
-                    "method": "crop_to_str",
-                    "params": { "structureName": "ROI-10"},
+                    "method": "crop_around_center_of_mass",
+                    "params": { "structureName": "ROI-10",
+                                "marginUnits": "mm",
+                                "margins": [105,210,180]
+                              },
                     "operator": ""
                   },
          "channels" :{"imageType": "original", "slice": "current"}
        },
        {
         "identifier" : {"studyDate":"last"}, 
+        "resample": {"resolutionXCm":0.1,
+                      "resolutionYCm":0.1,
+                      "resolutionZCm":0.1,
+                      "method":"linear"},
         "crop": {
-                    "method": "crop_to_str_on_scan",
+                    "method": "crop_around_center_of_mass_on_scan",
                     "params": { "scanIdentifier": {"studyDate":"first"},
-                                "structureName": "ROI-10"},
+                                "structureName": "ROI-10",
+                                "marginUnits": "mm",
+                                "margins": [105,210,180]
+                              },
                     "operator": ""
                 },
         "channels": {"imageType":"original", "slice": "current"}
@@ -31,7 +45,9 @@
                     {"structureName": "Lung_L",
                      "value": 3},
                     {"structureName": "Lung_R",
-                     "value": 4}]
+                     "value": 4},
+                    {"structureName": "ROI-10",
+                     "value": 5}]
                 }
 },
 

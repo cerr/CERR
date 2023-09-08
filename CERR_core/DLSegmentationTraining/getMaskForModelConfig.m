@@ -162,28 +162,9 @@ for m = 1:length(methodC)
             if isfield(paramS,'marginUnits')
                 marginUnits = paramS.marginUnits;
             end
-            marginV = paramS.margins;
+            marginV = reshape(paramS.margins,1,[]);
 
-            %Compute output image dimensions
-            if ismember(marginUnits,{'mm','cm'})
-                %Convert to voxel units
-                dx = median(diff(xValsV));
-                dy = median(diff(yValsV));
-                dz = median(diff(zValsV));
-                inputResV = [dx,dy,dz];
-                if strcmpi(marginUnits,'mm')
-                    inputResV = inputResV*10; %Convert scan resolution to mm
-                end
-                marginV = round(marginV./inputResV(1:length(marginV)));
-            end
-            outputImgSizeV = reshape(marginV,1,[]);
-
-            if isfield(paramS,'assignBkgIntensity')
-                bkgVal = paramS.assignBkgIntensity.assignVal;
-            else
-                bkgVal = [];
-            end
-
+            %Get structure-associated scan
             if ~isempty(strfind(method,'scan')) %octave compatible
                 %Crop around structure on (another) scan
                 % specified through valid identifier
@@ -191,6 +172,32 @@ for m = 1:length(methodC)
                 scanId = getScanNumFromIdentifiers(idS,planC);
             else
                 scanId  = scanNum;
+            end
+
+            %Compute output image dimensions
+            if ismember(marginUnits,{'mm','cm'})
+                %Convert input margins to voxel units
+                [xValsV, yValsV, zValsV] = ...
+                    getScanXYZVals(planC{indexS.scan}(scanId));
+                if yValsV(1) > yValsV(2)
+                    yValsV = fliplr(yValsV);
+                end
+                dx = median(diff(xValsV));
+                dy = median(diff(yValsV));
+                dz = median(diff(zValsV));
+                inputResV = [dx,dy,dz];
+                if strcmpi(marginUnits,'mm')
+                    inputResV = inputResV*10; %Convert scan resolution to mm
+                end
+                outputImgSizeV = round(marginV./inputResV(1:length(marginV)));
+            else
+                outputImgSizeV = marginV;
+            end
+
+            if isfield(paramS,'assignBkgIntensity')
+                bkgVal = paramS.assignBkgIntensity.assignVal;
+            else
+                bkgVal = [];
             end
 
             %Crop around COM
