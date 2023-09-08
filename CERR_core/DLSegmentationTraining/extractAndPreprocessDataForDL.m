@@ -369,25 +369,21 @@ for scanIdx = 1:numScans
             planC{indexS.scan}(origScanIdx).scanInfo(1).(copyInfoC{nCpy});
         end
    
-        planC = scan2CERR(scan3M,['Resamp_scan',num2str(scanNumV(scanIdx))],...
-            '',scanInfoS,'',planC);
+        planC = scan2CERR(scan3M,['Resamp_scan',origScanIdx],'',...
+            scanInfoS,'',planC);
         resampScanNum = length(planC{indexS.scan});
         scanNumV(scanIdx) = resampScanNum;
         planC{indexS.scan}(resampScanNum).assocBaseScanUID = ...
-        planC{indexS.scan}(scanNumV(scanIdx)).scanUID;
+        planC{indexS.scan}(origScanIdx).scanUID;
         for strNum = 1:length(validStrIdxV)
             strMask3M = mask3M == validExportLabelV(strNum);
             outStrName = [exportStrC{strNum},'_resamp'];
-            planC = maskToCERRStructure(strMask3M,0,scanNumV(scanIdx),...
+            planC = maskToCERRStructure(strMask3M,0,resampScanNum,...
                 outStrName,planC);
         end
 
         toc
-        
-        % Resample structures required for training
-        
-        %Resample reqd structures
-        % TBD: add structures reqd for training
+        %Resample reqd structures associated with scan
         if ~(length(cropS) == 1 && strcmpi(cropS(1).method,'none'))
             cropStrListC = arrayfun(@(x)x.params.structureName,cropS,'un',0);
             cropParS = [cropS.params];
@@ -414,8 +410,28 @@ for scanIdx = 1:numScans
                 end
             end
         end
+
+        %Update relevant scan identifiers to point to the resampled scan
+        allCropS = [scanOptS(:).crop];
+        candidateIdxC = arrayfun(@(x) isfield(x.params,'scanIdentifier'),...
+            allCropS,'un',0);
+        candidateIdxV = find([candidateIdxC{:}]);
+        relScanIdxV = false(1,length(candidateIdxV));
+        for nCd = 1:length(candidateIdxV)
+            cdIdentifierS = allCropS(candidateIdxV(nCd)).params.scanIdentifier;
+            relScan = getScanNumFromIdentifiers(cdIdentifierS,planC);
+            if relScan == origScanIdx
+                relScanIdxV(nCd) = true;
+            end
+        end
+        dependentIdxV = candidateIdxV(relScanIdxV);
+
+        for nDep = 1:length(dependentIdxV)
+            newParamS = scanOptS(dependentIdxV(nDep)).crop.params;
+            newParamS.scanIdentifier.resampled = 1;
+            scanOptS(dependentIdxV(nDep)).crop.params = newParamS;
+        end
     
-        
         %Update affine matrix
         %[affineOutM,~,voxSizV] = getPlanCAffineMat(planC, scanNumV(scanIdx), 1);
         [affineOutM,~,voxSizV] = getPlanCAffineMat(planC, origScanNumV(scanIdx), 1);
