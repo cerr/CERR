@@ -235,9 +235,10 @@
 
 "linePoolSize" : 30,
 
-"ROEProtocolPath" : "M:/Aditi/OutcomesModels/ROE/forTesting/batchEvalUltracentralLung/For_ROE_display/Protocols",
-"ROEModelPath" : "M:/Aditi/OutcomesModels/ROE/forTesting/batchEvalUltracentralLung/For_ROE_display/Models",
-"ROECriteriaPath" : "M:/Aditi/OutcomesModels/ROE/forTesting/batchEvalUltracentralLung/For_ROE_display/Crtieria",
+"ROEProtocolPath" : "fullfile(getCERRPath,'PlanAnalysis/sampleFilesForROE/Protocols')",
+"ROEModelPath" : "fullfile(getCERRPath,'PlanAnalysis/sampleFilesForROE/Models')",
+"ROECriteriaPath" : "fullfile(getCERRPath,'PlanAnalysis/sampleFilesForROE/Criteria')",
+"ROEDoseScaleRange": [0.5,1.5],
 
 "sitkLibPath" : "C:\\Program Files\\Python38\\Lib\\site-packages",
 
