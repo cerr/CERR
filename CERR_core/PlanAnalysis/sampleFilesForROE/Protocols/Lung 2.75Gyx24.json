@@ -6,14 +6,14 @@
 	"models": {
 
 		"Esophagitis (Wijsman)": {
-				         	"modelFile": "Esophagitis (Huang).json"
-					 },
+						         	"modelFile": "Esophagitis (Huang).json"
+							},
 		"Pneumonitis(Appelt)":   {
-				       		"modelFile": "Pneumonitis (Appelt).json"
-		                         }, 
-	  	"TCP":  {
-		  	    "modelFile": "Lung TCP.json"
-			}
+						       		"modelFile": "Pneumonitis (Appelt).json"
+				                      }, 
+		"TCP":  {
+				  	    "modelFile": "Lung TCP (Jeong).json"
+			    }
 		  },
 	"criteriaFile": "LungCriteria_4x15.json",
         "created_by": "Aditi Iyer",
