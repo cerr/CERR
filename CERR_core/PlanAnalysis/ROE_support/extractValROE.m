@@ -14,6 +14,8 @@ function [columnFormat,dispVal] = extractValROE(parS)
     case 'bin'
       descV = parS.desc;
       descC = cellstr(descV);
+      %Reshape to row vector as required for uitable display
+      descC = reshape(descC,1,[]);  
       columnFormat = {'char',descC};
       dispVal = parS.desc{val+1};
     end
