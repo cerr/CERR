@@ -15,11 +15,13 @@ switch(ud.plotMode)
     case {1,2} %NTCP vs. TCP/BED
         y1PlotAxis = ud.handle.modelsAxis(1); %NTCP axis
         y2PlotAxis = [];
-        maxDelFrx = round(max([protS.numFractions])/2); %rounded
+        %maxDelFrx = round(max([protS.numFractions])/2); %rounded
+        nfrxV = ud.scaleFactors;
     case 3
         y1PlotAxis = ud.handle.modelsAxis(2); %NTCP axis (left)
         y2PlotAxis = ud.handle.modelsAxis(3); %TCP/BED axis (right)
-        fxSizScaleV = linspace(0.5,1.5,99);
+        %fxSizScaleV = linspace(0.5,1.5,99);
+        fxSizScaleV = ud.scaleFactors;
         xIdx = abs(fxSizScaleV-userScale) < eps;
         if isempty(xIdx)
             return %Invalid scale factor entered
@@ -27,7 +29,8 @@ switch(ud.plotMode)
     case 4
         y1PlotAxis = ud.handle.modelsAxis(4); %NTCP axis
         y2PlotAxis = ud.handle.modelsAxis(5); %TCP/BED axis
-        maxDelFrx = round(max([protS.numFractions])/2);
+        %maxDelFrx = round(max([protS.numFractions])/2);
+        nfrxV = ud.scaleFactors;
 end
 hScaled_y1 = findall(y1PlotAxis,'type','line','LineStyle','-.');
 delete(hScaled_y1);
@@ -66,8 +69,7 @@ end
 
 
 %Set color order
-colorM = [0 229 238;123 104 238;255 131 250;0 238 118;218 165 32;...
-    28 134 238;255 153 153;196 196 196;0 139 0;238 223 204]/255;
+colorM = ud.plotColorOrderM;
 
 %Scale plots as selected
 modNum = 0;
@@ -118,7 +120,7 @@ for l = 1:numel(ud.Protocols)
             else
                 nFProtocol = paramsS.numFractions.val;
                 scNumFrx = userScale + nFProtocol;
-                nfrxV = linspace(-maxDelFrx,maxDelFrx,99);
+                %nfrxV = linspace(-maxDelFrx,maxDelFrx,99);
                 [~,xIdx] = min(abs(nfrxV-userScale));
                 if isempty(xIdx)
                     return %Invalid scale factor entered
