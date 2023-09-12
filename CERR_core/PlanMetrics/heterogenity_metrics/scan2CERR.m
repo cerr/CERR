@@ -154,6 +154,14 @@ elseif nargin > 3 && ~strcmpi(register,'UniformCT') && ~strcmpi(register,'CT')
   scanInfo(1).imageType = scanType;
   scanInfo(1).CTOffset = CTOffset;
   scanInfo(1).zValue = 0;
+
+  optionalFieldsC = {'imageType','seriesDescription','seriesDate','studyDate'};
+  for nOpt = 1:length(optionalFieldsC)
+      if isfield(regParamsS,optionalFieldsC{nOpt})
+          scanInfo(1).(optionalFieldsC{nOpt}) = ...
+              regParamsS.(optionalFieldsC{nOpt});
+      end
+  end
   
   scanInfo(1).xOffset = regParamsS.coord1OFFirstPoint + (scanInfo(1).sizeOfDimension2-1)*scanInfo(1).grid2Units/2;
   scanInfo(1).yOffset = regParamsS.coord2OFFirstPoint + (scanInfo(1).sizeOfDimension1-1)*scanInfo(1).grid1Units/2;
