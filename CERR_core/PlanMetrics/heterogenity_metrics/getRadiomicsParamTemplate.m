@@ -18,8 +18,7 @@ function radiomicsParamS = getRadiomicsParamTemplate(paramFilename,dictS)
 
 %% Read JSON file
 if ~isempty(paramFilename)
-    %userInS = jsondecode(fileread(paramFilename));
-    userInS = loadjson(paramFilename);
+    userInS = jsondecode(fileread(paramFilename));
 else
     userInS = dictS;
 end
