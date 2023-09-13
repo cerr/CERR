@@ -68,7 +68,6 @@ dim = '2d';
 numRotations = 1;
 rotFlag = 0;
 skipRotC = {'LawsEnergy'}; %multi-stage filters or rotation not supported
-contains = @(str, pattern) ~cellfun('isempty', strfind(str, pattern));
 if isfield(paramS,'RotationInvariance') && ...
         ~isempty(paramS.RotationInvariance) ...
         && ~contains(filterType,skipRotC)
