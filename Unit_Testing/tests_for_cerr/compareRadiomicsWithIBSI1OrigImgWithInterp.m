@@ -3,7 +3,7 @@ function [cerrFeatS,IBSIfeatS,pctDiffS] = compareRadiomicsWithIBSI1OrigImgWithIn
 % the IBSI benchmark for configuration C.
 
 %% 1. Calc. features for configuration 'C' using CERR
-cerrFeatS = calcIBSIPhantomRadiomics('C');
+cerrFeatS = calcIBSI1PhantomRadiomics('C');
 
 %% Get IBSI benchmarks
 ibsiConfigCResult = fullfile(fileparts(fileparts(getCERRPath)),...
