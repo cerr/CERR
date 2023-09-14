@@ -1,11 +1,12 @@
 function [cerrFeatS,pyFeatS] = compareCerrWithPyrad(cerrParamFile,...
-    pyradParamFile,strName,imageType,featureClass,planC)
+    pyradParamFile,pyradPath,strName,imageType,featureClass,planC)
 %----------------------------------------------------------------------
 % INPUTS
 % strName     : Structure name. Leave empty ('') to use structure from param files
 % imageType   : Filtered image type. E.g.: 'original','LoG',{'wavelet','HHH'}
 % featureClass: Scalar feature class. E.g.: 'firstorder', 'shape','glcm',
-%               'gldm','rlm','szm'.
+%               'gldm','rlm','szm'. Specify 'all' to return all feature
+%               classes.
 % 
 %----------------------------------------------------------------------
 % Example
@@ -59,18 +60,27 @@ else
         imgClassIdx = contains(lower(cerrFieldsC),lower(imageType));
     end
     imgClassS = cerrCalcS.(structFieldName).(cerrFieldsC{imgClassIdx});
-    featClassC = fieldnames(imgClassS);
-    featClassIdx = contains(lower(featClassC),lower(featureClass));
-    cerrFeatS = imgClassS.(featClassC{featClassIdx});
+    if strcmpi(featureClass,'all')
+        cerrFeatS = imgClassS;
+    else
+        featClassC = fieldnames(imgClassS);
+        featClassIdx = contains(lower(featClassC),lower(featureClass));
+        cerrFeatS = imgClassS.(featClassC{featClassIdx});
+    end
 end
 
 %% 2. Compute features using Pyradiomics
 
-pyCalcS = calcRadiomicsFeatUsingPyradiomics(planC,strName,pyradParamFile);
+pyCalcS = calcRadiomicsFeatUsingPyradiomics(planC,strName,...
+                 pyradParamFile,pyradPath);
 
 if strcmpi(featureClass,'shape')
     retFieldsC = {'shape'};
 else
+    if strcmpi(featureClass,'all')
+        featureClass = {'shape','firstorder','glcm','glrlm',...
+                        'glszm','gldm'};
+    end
     if iscell(imageType)
         retFieldsC = [lower(imageType),{lower(featureClass)}];
     else
