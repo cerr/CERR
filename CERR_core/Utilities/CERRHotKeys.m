@@ -49,6 +49,12 @@ figureName = get(gcbf, 'Tag');
 %%effects depending on the figure it originates from, switch on the
 %%figureName to decide on action.
 %switch(keyValue)
+
+if ismember(figureName,{'ROEFig','Verify structure selection'})
+    %do nothing
+    return
+end
+
 switch(e.Key)
 
     case 'up' %{30, 119} %up arrow

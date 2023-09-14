@@ -22,7 +22,6 @@ setting:
   label: 1
   interpolator: 'sitkLinear' # This is an enumerated value, here None is not allowed
   resampledPixelSpacing: [1,1,1] #Specify spacing in x, y, z in mm
-  weightingNorm: # If no value is specified, it is interpreted as None
   padDistance: 5
   preCrop: True
   # First order-specific settings:

@@ -1,12 +1,13 @@
-function checkInputStrROE(hFig,planC)
+function status = checkInputStrROE(hFig,planC)
 % function checkInputStrROE(hFig,planC)
 % Display interface for structure selection/verification. 
 % AI 08/11/22 
 
 ud = guidata(hFig);
 protocolS = ud.Protocols;
+status = 0;
 
-if isfield(ud.handle,'strCheckH') && ~isempty(ud.handle.strCheckH)
+if isfield(ud.handle,'strCheckH') && isgraphics(ud.handle.strCheckH)
 
     hStrCheckFig = ud.handle.strCheckH;
     figure(hStrCheckFig);
@@ -34,10 +35,11 @@ else
             length(inputStructC)])];
         reqStrC = [reqStrC,inputStructC{:}];
         strIdxV = modelsC{m}.strNum;
-        if any(strIdxV)
+        if all(strIdxV)
             selStrC = [selStrC,strC(strIdxV)];
         else
-            missingC = repmat({'Select structure'},[1,length(inputStructC)]);
+            numMissing = ~strIdxV;
+            missingC = repmat({'Select structure'},[1,length(numMissing)]);
             selStrC = [selStrC,missingC];
         end
     end
@@ -64,6 +66,8 @@ else
         'Position',[0.88,0.01,0.1,0.07]);
 
     ud.handle.strCheckH = hStrCheckFig;
+    waitfor(hStrCheckFig);
+    status = 1;
     guidata(hFig,ud);
 end
 
@@ -102,6 +106,7 @@ end
 
         userdata.Protocols = protS;
         guidata(hFig,userdata);
+        status = 1;
 
     end
 
@@ -156,8 +161,8 @@ end
         userdata.structsChecked = 1;
         userdata.handle.strCheckH = [];
         guidata(hFig,userdata);
+        status = 1;
         closereq;
-
     end
 
 end
