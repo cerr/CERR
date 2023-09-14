@@ -1,33 +1,26 @@
-function featS = calcRadiomicsFeatUsingPyradiomics(planC,strName,paramFilePath)
-% calcRadiomicsFeatUsingPyradiomics
+function featS = calcRadiomicsFeatUsingPyradiomics(planC,structIn,...
+                 paramFilePath,pyradPath)
+% Compute radiomic features from PlanC using Pyradiomics
+% ----------------------------------------------------------------------
+% planC
+% structIn      :  structure index (numeric) or structure name (string)
+% paramFilePath : Path to .yaml settings
+% pyradPath     : Path to Radiomics pkg installation
+%----------------------------------------------------------------------
 % AI 06/12/2020
 
 %% Get scan & mask
 indexS = planC{end};
 strC = {planC{indexS.structures}.structureName};
-if isnumeric(strName)
-    strNum = strName;
+if isnumeric(structIn)
+    strNum = structIn;
 else
-    strNum = getMatchingIndex(strName,strC,'exact');    
+    strNum = getMatchingIndex(structIn,strC,'exact');    
 end
-mask3M = getStrMask(strNum,planC);
-
 scanNum = getStructureAssociatedScan(strNum,planC);
-scan3M = double(getScanArray(scanNum,planC));
-CToffset = planC{indexS.scan}(scanNum).scanInfo(1).CTOffset;
-scan3M = scan3M - CToffset;
-
-
-%% Get voxel size
-scanS = planC{indexS.scan}(scanNum);
-[xV,yV,zV] = getScanXYZVals(scanS);
-dx = median(abs(diff(xV)));
-dy = median(abs(diff(yV)));
-dz = median(diff(zV));
-voxelSizeV = [dx, dy, dz]*10; %convert to mm
 
 %% Calc features
-featS = PyradWrapper(scan3M, mask3M, voxelSizeV, paramFilePath);
+featS = PyradWrapper(scanNum, strNum, paramFilePath, pyradPath, planC);
 fieldsC = fieldnames(featS);
 for n=1:length(fieldsC)
    if isa(featS.(fieldsC{n}),'py.numpy.ndarray')

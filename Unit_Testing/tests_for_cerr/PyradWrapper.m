@@ -1,19 +1,33 @@
-function featS = PyradWrapper(scan3M, mask3M, voxelSizeV, paramFilePath)
-
-% This is a wrapper function to create a .nrrd file from CERR and call
+function featS = PyradWrapper(scanNum, strNum, paramFilePath,...
+                 pyradPath,planC)
+% This is a wrapper function to create a NIfTI file from CERR and call
 % pyradiomics.
-% Requires specifying path to Pyradiomics
-%
+%-----------------------------------------------------------------------
+% INPUTS
+% scanNum       : Index to scan in planC
+% strNum        : Index to structure in planC 
+% paramFilePath : Path to PyRadiomics settings file
+% pyradPath     : Path to Python packages including Pyradiomics & Scipy
+%                 Typically 'C:\Miniconda3\Lib\site-packages\'
+% planC
+%-----------------------------------------------------------------------
 % RKP, 03/22/2018
 % AI, 06/10/2020
+% AI, 09/14/23    Export files to NIfTI to preserve metadata.
+
+indexS = planC{end};
+
+%Get struct name
+strName = planC{indexS.structures}(strNum).structureName;
 
 %Get path to pyradiomics wrapper
 CERRPath = getCERRPath;
 CERRPathSlashes = strfind(getCERRPath,filesep);
 topLevelCERRDir = CERRPath(1:CERRPathSlashes(end-1));
-pyradiomicsWrapperPath = fullfile(topLevelCERRDir,'Unit_Testing','tests_for_cerr', 'pyFeatureExtraction.py');
+pyradiomicsWrapperPath = fullfile(topLevelCERRDir,'Unit_Testing',...
+    'tests_for_cerr', 'pyFeatureExtraction.py');
 
-%Add python module to system path & iImport
+%% Add python module to system path & import
 pyModule = 'pyFeatureExtraction';
 
 P = py.sys.path;
@@ -23,39 +37,35 @@ cd(fullfile(topLevelCERRDir,'Unit_Testing','tests_for_cerr'));
 try
     if count(P,pyradiomicsWrapperPath) == 0
         %Insert paths to scipy and pyradiomics.
-        insert(P,int64(0),'C:\Miniconda3\Lib\site-packages\radiomics'); %Replace with path to pyradiomic pkg
+        insert(P,int64(0), fullfile(pyradPath,'radiomics'));%path to pyradiomic pkg
         P = py.sys.path;
-        insert(P,int64(0),'C:\Miniconda3\Lib\site-packages\scipy'); %Replace with path to scipy pkg
+        insert(P,int64(0),fullfile(pyradPath,'scipy'));%path to scipy pkg
         P = py.sys.path;
         insert(P,int64(0),pyradiomicsWrapperPath);
     end
+    %py.importlib.reload(py.importlib.import_module(pyModule));
     py.importlib.import_module(pyModule);
 catch e 
     error('Python module %s could not be imported. %s',pyModule,e.message);
 end
 
-%Write scan & mask to NRRD format
-fprintf('\nWriting scan and mask to NRRD format...\n');
+%% Write scan & mask to NIfTI files
+fprintf('\nWriting scan and mask to NIfTI format...\n');
 cd(currentPath);
+%Create unique filenames
+dateTimeV = clock;
+randStr = [num2str(dateTimeV(4)), num2str(dateTimeV(5)),...
+    num2str(dateTimeV(6)),sprintf('%6.3f',rand*1000)];
+niiScanName = ['scan_',randStr];
+scanFilename = fullfile(tempdir,[niiScanName,'.nii.gz']);
 
-originV = [0,0,0];
-encoding = 'raw';
+niiMaskPostfix = ['mask_',randStr];
+maskFilename = fullfile(tempdir,[strName,'_',niiMaskPostfix,'.nii.gz']);
 
-mask3M = uint16(mask3M);
-mask3M = permute(mask3M, [2 1 3]);
-%mask3M = flip(mask3M,3);
+exportScanToNii(tempdir,scanNum,{niiScanName},...
+strNum,{niiMaskPostfix},planC,scanNum);
 
-scan3M = permute(scan3M, [2 1 3]);
-%scan3M = flip(scan3M,3);
-
-scanFilename = strcat(tempdir,'scan.nrrd');
-scanRes = nrrdWriter(scanFilename, scan3M, voxelSizeV, originV, encoding);
-
-maskFilename = strcat(tempdir, 'mask.nrrd');
-maskRes = nrrdWriter(maskFilename, mask3M, voxelSizeV, originV, encoding);
-
-
-%Call feature extractor
+%% Call feature extractor
 try
     
     pyFeatDict = py.pyFeatureExtraction.extract(scanFilename, maskFilename,...
