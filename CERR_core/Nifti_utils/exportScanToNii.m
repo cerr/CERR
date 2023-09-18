@@ -92,19 +92,21 @@ createNifti(scan3M,h,niiFolder,outScanNiiFileNameC,ext)
 
 %niiFolder = 'M:\Data\soft_tissue_sarcoma_DrBozzo\n4corrected\test';
 ext = '.nii.gz';
-if isvector(structNumV)
-    %Get masks from structure indices
-    for iStr = 1:length(structNumV)
-        mask3M = getStrMask(structNumV(iStr),planC);
-        mask3M = flip(permute(mask3M,[2,1,3]),3);
-        strName = planC{indexS.structures}(structNumV(iStr)).structureName;
-        outStrMaskNiiFileNameC = {[strName,'_',outMaskNiiFileNameC{1}]};
-        createNifti(uint16(mask3M),h,niiFolder,outStrMaskNiiFileNameC,ext)
+if ~isempty(structNumV)
+    if isvector(structNumV)
+        %Get masks from structure indices
+        for iStr = 1:length(structNumV)
+            mask3M = getStrMask(structNumV(iStr),planC);
+            mask3M = flip(permute(mask3M,[2,1,3]),3);
+            strName = planC{indexS.structures}(structNumV(iStr)).structureName;
+            outStrMaskNiiFileNameC = {[strName,'_',outMaskNiiFileNameC]};
+            createNifti(uint16(mask3M),h,niiFolder,outStrMaskNiiFileNameC,ext)
+        end
+    else
+        %Mask is directly input
+        mask3M = flip(permute(structNumV,[2,1,3]),3);
+        createNifti(uint16(mask3M),h,niiFolder,outMaskNiiFileNameC,ext);
     end
-else
-    %Mask is directly input
-    mask3M = flip(permute(structNumV,[2,1,3]),3);
-    createNifti(uint16(mask3M),h,niiFolder,outMaskNiiFileNameC{1},ext);
 end
 
 success = 0;
