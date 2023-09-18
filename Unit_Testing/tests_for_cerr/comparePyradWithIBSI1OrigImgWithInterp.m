@@ -1,4 +1,5 @@
-function diffS = comparePyradWithIBSI1OrigImgWithInterp
+function [diffS,pctDiffS,pyFeat1S,pyFeat2S] = ...
+    comparePyradWithIBSI1OrigImgWithInterp(pyradPath)
 % Compare pyradiomics features against IBSI benchmark for config C. 
 %--------------------------------------------------------------------------
 % AI 7/1/2020
@@ -13,10 +14,12 @@ strName='GTV-1';
 
 configPath_avg = fullfile(fileparts(fileparts(getCERRPath)),...
     'Unit_Testing/settings_for_comparisons/pyRadConfigC_avg.yaml');
-pyFeat1S = calcRadiomicsFeatUsingPyradiomics(planC,strName,configPath_avg);
+pyFeat1S = calcRadiomicsFeatUsingPyradiomics(planC,strName,...
+    configPath_avg,pyradPath);
 configPath_merge = fullfile(fileparts(fileparts(getCERRPath)),...
     'Unit_Testing/settings_for_comparisons/pyRadConfigC_merge.yaml');
-pyFeat2S = calcRadiomicsFeatUsingPyradiomics(planC,strName,configPath_merge);
+pyFeat2S = calcRadiomicsFeatUsingPyradiomics(planC,strName,...
+    configPath_merge,pyradPath);
 
 %% Compare with IBSI
 
@@ -27,6 +30,8 @@ temp = load(ibsiConfigCResult);
 IBSIfeatS = temp.IBSIfeatS;
 
 % Shape features
+diffS = struct();
+pctDiffS = struct();
 pyShapeS = getPyradFeatDict(pyFeat1S,{'original_shape'});
 pyShapeS = mapPyradFieldnames(pyShapeS,'original','shape');
 shapeFeatC = fieldnames(IBSIfeatS.shapeS);
@@ -34,8 +39,10 @@ for n = 1:length(shapeFeatC)
     ibsiVal = IBSIfeatS.shapeS.(shapeFeatC{n});
     if isfield(pyShapeS,shapeFeatC{n})
         pyRadVal = pyShapeS.(shapeFeatC{n});
-        pctDiff = (pyRadVal-ibsiVal)*100/ibsiVal;
-        diffS.Shape.(shapeFeatC{n}) = pctDiff;
+        diffVal = pyRadVal-ibsiVal;
+        pctDiff = diffVal*100/ibsiVal;
+        diffS.Shape.(shapeFeatC{n}) = diffVal;
+        pctDiffS.Shape.(shapeFeatC{n}) = pctDiff;
     end
 end
 
@@ -49,8 +56,10 @@ for n = 1:length(firstOrdFeatC)
     ibsiVal = IBSIfeatS.Original.firstOrderS.(firstOrdFeatC{n});
     if isfield(pyFirstOrdS,firstOrdFeatC{n})
         pyRadVal = pyFirstOrdS.(firstOrdFeatC{n});
-        pctDiff = (pyRadVal-ibsiVal)*100/ibsiVal;
-        diffS.FirstOrder.(firstOrdFeatC{n}) = pctDiff;
+        diffVal = pyRadVal-ibsiVal;
+        pctDiff = diffVal*100/ibsiVal;
+        diffS.FirstOrder.(firstOrdFeatC{n}) = diffVal;
+        pctDiffS.FirstOrder.(firstOrdFeatC{n}) = pctDiff;
     end
 end
 
@@ -64,8 +73,10 @@ for n = 1:length(glcmFeatC)
     ibsiVal = IBSIfeatS.Original.glcmFeatS.AvgS.(glcmFeatC{n});
     if isfield(pyGlcmS,glcmFeatC{n})
         pyRadVal = pyGlcmS.(glcmFeatC{n});
-        pctDiff = (pyRadVal-ibsiVal)*100/ibsiVal;
-        diffS.GLCM.Avg.(glcmFeatC{n}) = pctDiff;
+        diffVal = pyRadVal-ibsiVal;
+        pctDiff = diffVal*100/ibsiVal;
+        diffS.GLCM.Avg.(glcmFeatC{n}) = diffVal;
+        pctDiffS.GLCM.Avg.(glcmFeatC{n}) = pctDiff;
     end
 end
 %Merge
@@ -76,8 +87,10 @@ for n = 1:length(glcmFeat2C)
     ibsiVal = IBSIfeatS.Original.glcmFeatS.CombS.(glcmFeat2C{n});
     if isfield(pyGlcm2S,glcmFeat2C{n})
         pyRadVal = pyGlcm2S.(glcmFeat2C{n});
-        pctDiff = (pyRadVal-ibsiVal)*100/ibsiVal;
-        diffS.GLCM.Merge.(glcmFeat2C{n}) = pctDiff;
+        diffVal = pyRadVal-ibsiVal;
+        pctDiff = diffVal*100/ibsiVal;
+        diffS.GLCM.Merge.(glcmFeat2C{n}) = diffVal;
+        pctDiffS.GLCM.Merge.(glcmFeat2C{n}) = pctDiff;
     end
 end
 
@@ -90,8 +103,10 @@ for n = 1:length(glrlmFeatC)
     ibsiVal = IBSIfeatS.Original.rlmFeatS.AvgS.(glrlmFeatC{n});
     if isfield(pyGlrlmS,glrlmFeatC{n})
         pyRadVal = pyGlrlmS.(glrlmFeatC{n});
-        pctDiff = (pyRadVal-ibsiVal)*100/ibsiVal;
-        diffS.GLRLM.Avg.(glrlmFeatC{n}) = pctDiff;
+        diffVal = pyRadVal-ibsiVal;
+        pctDiff = diffVal*100/ibsiVal;
+        diffS.GLRLM.Avg.(glrlmFeatC{n})= diffVal;
+        pctDiffS.GLRLM.Avg.(glrlmFeatC{n}) = pctDiff;
     end
 end
 %Merge
@@ -102,8 +117,10 @@ for n = 1:length(glrlm2FeatC)
     ibsiVal = IBSIfeatS.Original.rlmFeatS.CombS.(glrlm2FeatC{n});
     if isfield(pyGlrlm2S,glrlm2FeatC{n})
         pyRadVal = pyGlrlm2S.(glrlm2FeatC{n});
-        pctDiff = (pyRadVal-ibsiVal)*100/ibsiVal;
-        diffS.GLRLM.Merge.(glrlm2FeatC{n}) = pctDiff;
+        diffVal = pyRadVal-ibsiVal;
+        pctDiff = diffVal*100/ibsiVal;
+        diffS.GLRLM.Merge.(glrlm2FeatC{n}) = diffVal;
+        pctDiffS.GLRLM.Merge.(glrlm2FeatC{n}) = pctDiff;
     end
 end
 
@@ -115,8 +132,10 @@ for n = 1:length(ngtdmFeatC)
     ibsiVal = IBSIfeatS.Original.ngtdmFeatS.(ngtdmFeatC{n});
     if isfield(pyNgtdmS,ngtdmFeatC{n})
         pyRadVal = pyNgtdmS.(ngtdmFeatC{n});
-        pctDiff = (pyRadVal-ibsiVal)*100/ibsiVal;
-        diffS.NGTDM.(ngtdmFeatC{n}) = pctDiff;
+        diffVal = pyRadVal-ibsiVal;
+        pctDiff = diffVal*100/ibsiVal;
+        diffS.NGTDM.(ngtdmFeatC{n})  = diffVal;
+        pctDiffS.NGTDM.(ngtdmFeatC{n}) = pctDiff;
     end
 end
 
@@ -128,8 +147,10 @@ for n = 1:length(glszmFeatC)
     ibsiVal = IBSIfeatS.Original.szmFeatS.(glszmFeatC{n});
     if isfield(pyGlszmS,glszmFeatC{n})
         pyRadVal = pyGlszmS.(glszmFeatC{n});
-        pctDiff = (pyRadVal-ibsiVal)*100/ibsiVal;
-        diffS.GLSZM.(glszmFeatC{n}) = pctDiff;
+        diffVal = pyRadVal-ibsiVal;
+        pctDiff = diffVal*100/ibsiVal;
+        diffS.GLSZM.(glszmFeatC{n}) = diffVal;
+        pctDiffS.GLSZM.(glszmFeatC{n}) = pctDiff;
     end
 end
 
