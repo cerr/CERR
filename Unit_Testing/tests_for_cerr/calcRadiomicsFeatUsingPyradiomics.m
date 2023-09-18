@@ -21,6 +21,7 @@ scanNum = getStructureAssociatedScan(strNum,planC);
 
 %% Calc features
 featS = PyradWrapper(scanNum, strNum, paramFilePath, pyradPath, planC);
+
 fieldsC = fieldnames(featS);
 for n=1:length(fieldsC)
    if isa(featS.(fieldsC{n}),'py.numpy.ndarray')

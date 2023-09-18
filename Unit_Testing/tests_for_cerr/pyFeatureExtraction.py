@@ -11,7 +11,7 @@ from radiomics import getTestCase, featureextractor, imageoperations, firstorder
 
 
 # import matlab
-
+success = False
 
 def extract(imagePath, maskPath, paramfilepath, tempDir):
     """
@@ -46,7 +46,8 @@ def extract(imagePath, maskPath, paramfilepath, tempDir):
 
     # Adjust fieldnames
     newResult = adjustKeyNames(result)
-    return newResult
+    success = True
+    return newResult, success
 
 
 def adjustKeyNames(py_dict):
@@ -65,7 +66,8 @@ def adjustKeyNames(py_dict):
             strval = strval.replace("-", "_")
             strval = strval.replace("-", "_")
             out_dict[strval] = out_dict.pop(key)
-    return out_dict
+    success = True
+    return out_dict, success
 
 
 def main():

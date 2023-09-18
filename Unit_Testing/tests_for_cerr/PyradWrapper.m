@@ -43,8 +43,8 @@ try
         P = py.sys.path;
         insert(P,int64(0),pyradiomicsWrapperPath);
     end
-    %py.importlib.reload(py.importlib.import_module(pyModule));
-    py.importlib.import_module(pyModule);
+    py.importlib.reload(py.importlib.import_module(pyModule));
+    %py.importlib.import_module(pyModule);
 catch e 
     error('Python module %s could not be imported. %s',pyModule,e.message);
 end
@@ -67,10 +67,14 @@ strNum,{niiMaskPostfix},planC,scanNum);
 
 %% Call feature extractor
 try
-    
-    pyFeatDict = py.pyFeatureExtraction.extract(scanFilename, maskFilename,...
+    status = 0;
+    pyOutC = py.pyFeatureExtraction.extract(scanFilename, maskFilename,...
         paramFilePath, tempdir);
-    
+    pyFeatDict = pyOutC{1};
+    status = logical(pyOutC{2});
+
+    while(~status) pause(0.1); end
+
     %Convert python dictionary to matlab struct
     featS = struct(pyFeatDict);
     

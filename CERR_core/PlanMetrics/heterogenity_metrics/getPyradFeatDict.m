@@ -6,9 +6,10 @@ function pySelFeatS = getPyradFeatDict(pyFeatAllS,fieldListC)
 pyFieldsC = fieldnames(pyFeatAllS);
 
 %Get indices of relevant fields
-selFeatClassIdxV = true(length(pyFieldsC),1);
+selFeatClassIdxV = false(length(pyFieldsC),1);
 for n = 1:length(fieldListC)
-    selFeatClassIdxV = selFeatClassIdxV & contains(pyFieldsC,fieldListC{n});
+     calcIdxV = contains(pyFieldsC,fieldListC{n});
+     selFeatClassIdxV(calcIdxV) = true;
 end
 
 %Create feature dictionary
