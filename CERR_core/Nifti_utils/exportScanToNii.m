@@ -99,13 +99,13 @@ if ~isempty(structNumV)
             mask3M = getStrMask(structNumV(iStr),planC);
             mask3M = flip(permute(mask3M,[2,1,3]),3);
             strName = planC{indexS.structures}(structNumV(iStr)).structureName;
-            outStrMaskNiiFileNameC = {[strName,'_',outMaskNiiFileNameC]};
-            createNifti(uint16(mask3M),h,niiFolder,outStrMaskNiiFileNameC,ext)
+            outStrMaskNiiFileName = [strName,'_',outMaskNiiFileNameC{1}];
+            createNifti(uint16(mask3M),h,niiFolder,{outStrMaskNiiFileName},ext)
         end
     else
         %Mask is directly input
         mask3M = flip(permute(structNumV,[2,1,3]),3);
-        createNifti(uint16(mask3M),h,niiFolder,outMaskNiiFileNameC,ext);
+        createNifti(uint16(mask3M),h,niiFolder,outStrMaskNiiFileNameC,ext);
     end
 end
 

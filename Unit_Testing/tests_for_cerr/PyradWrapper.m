@@ -76,7 +76,7 @@ try
     while(~status) pause(0.1); end
 
     %Convert python dictionary to matlab struct
-    featS = struct(pyFeatDict);
+    featS = struct(pyFeatDict{1});
     
 catch e
     error('Feature extraction failed with message %s',e.message)
