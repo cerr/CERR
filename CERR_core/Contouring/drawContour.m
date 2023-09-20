@@ -69,7 +69,7 @@ switch command
         set(hAxis, 'buttonDownFcn', 'drawContour(''btnDownInAxis'')');
         set(hFig, 'WindowButtonUpFcn', 'drawContour(''btnUp'')');
         set(hFig, 'WindowButtonMotionFcn', 'drawContour(''motionInFigure'')');
-        %set(hFig, 'doublebuffer', 'on');
+        set(hFig, 'doublebuffer', 'on');
 
     case 'quit'
         %Removed passed axis from drawContour mode.
@@ -102,7 +102,7 @@ switch command
         end
         stateS.contouringMetaDataS.oldBtnDown = [];
         set(hFig, 'WindowButtonUpFcn', '');
-        %set(hFig, 'doublebuffer', 'on');
+        set(hFig, 'doublebuffer', 'on');
 
     case 'getState'
         varargout{1} = stateS.contouringMetaDataS;
@@ -1413,10 +1413,8 @@ maskM = logical(maskM);
 % threshM = false(size(maskM));
 % threshM(r-100:r+100,c-100:c+100) = activecontour(imgM(r-100:r+100,c-100:c+100), maskM(r-100:r+100,c-100:c+100), 20, 'Chan-Vese','ContractionBias',ContractionBias);
 %threshM = activecontour(imgM, maskM, 30, 'Chan-Vese','ContractionBias',ContractionBias);
-imgM = imgM./max(imgM(:)); %normalize
-outM = histeq(imgM);       %enchance constrast
-threshM = activecontour(outM, maskM, 20, 'edge');
-
+imgM = histeq(imgM);
+threshM = activecontour(imgM, maskM, 50, 'Chan-Vese'); %,'ContractionBias',ContractionBias);
 
 labelM = labelmatrix(bwconncomp(threshM,4));
 % labelVal = labelM(r,c);

@@ -31,7 +31,7 @@ global stateS
 pos = 1;  %position of menu
 
 %Create new menu if necessary.
-if isfield(stateS, 'handle') && isfield(stateS.handle, 'CERRFileMenu') && ishandle(stateS.handle.CERRFileMenu)
+if isfield(stateS, 'handle') && isfield(stateS.handle, 'CERRFileMenu') && ishandle(stateS.handle.CERRFileMenu);
     hMenu = stateS.handle.CERRFileMenu;
 else    
     hMenu = uimenu(stateS.handle.CERRSliceViewer, 'label', '&File', 'callback', 'putFileMenu;', 'Interruptible', 'off');
@@ -40,10 +40,10 @@ else
     uimenu(hMenu, 'label', '&Open...', 'callback','sliceCallBack(''openNewPlanC'')','interruptible','on');
     uimenu(hMenu, 'label', '&Workspace planC', 'callback','sliceCallBack(''openWorkspacePlanC'')','interruptible','on', 'tag', 'WorkspaceLoadOption');
     uimenu(hMenu, 'label', '&Anonymize...', 'callback','anonymize_script','interruptible','on', 'tag', 'AnonymizeOption', 'Separator', 'on');
-    uimenu(hMenu, 'label', '&Save', 'callback','sliceCallBack(''saveplanc'');','interruptible','on', 'tag', 'SaveOption', 'Separator', 'on');
-    uimenu(hMenu, 'label', 'Save &As...', 'callback','sliceCallBack(''saveasplanc'');','interruptible','on', 'tag', 'SaveAsOption');
+    uimenu(hMenu, 'label', '&Save', 'callback',['sliceCallBack(''saveplanc'');'],'interruptible','on', 'tag', 'SaveOption', 'Separator', 'on');
+    uimenu(hMenu, 'label', 'Save &As...', 'callback',['sliceCallBack(''saveasplanc'');'],'interruptible','on', 'tag', 'SaveAsOption');
     
-    hMerge  = uimenu(hMenu, 'label', '&Merge Plans', 'callback','sliceCallBack(''mergePlans'');', 'interruptible','on', 'Separator', 'on', 'tag', 'Merge');       
+    hMerge  = uimenu(hMenu, 'label', '&Merge Plans', 'callback',['sliceCallBack(''mergePlans'');'], 'interruptible','on', 'Separator', 'on', 'tag', 'Merge');       
 
     hInsert = uimenu(hMenu, 'label', '&Insert CERR...','interruptible','on', 'Separator', 'on', 'tag', 'insertPlan');
     uimenu(hInsert, 'label', '&plan(s) from another study', 'interruptible','on', 'callback', 'insertPlan');
@@ -86,15 +86,15 @@ else
    set(findobj('tag', 'importPlan'), 'enable', 'on'); 
 end
 
-if stateS.workspacePlan & stateS.planLoaded
+if stateS.workspacePlan && stateS.planLoaded
     set(findobj(hMenu, 'tag', 'SaveOption'), 'enable', 'off');
     set(findobj(hMenu, 'tag', 'AnonymizeOption'), 'enable', 'off');
-elseif ~stateS.workspacePlan & stateS.planLoaded
+elseif ~stateS.workspacePlan && stateS.planLoaded
     set(findobj(hMenu, 'tag', 'SaveOption'), 'enable', 'on');
     set(findobj(hMenu, 'tag', 'AnonymizeOption'), 'enable', 'on');
 end
 
-if ~stateS.planLoaded & ~isempty(planC) & iscell(planC)
+if ~stateS.planLoaded && ~isempty(planC) && iscell(planC)
     set(findobj('tag', 'WorkspaceLoadOption'), 'enable', 'on'); 
 else
     set(findobj('tag', 'WorkspaceLoadOption'), 'enable', 'off');

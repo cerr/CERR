@@ -1,7 +1,11 @@
-function [cerrFeatS,pyFeatS] = compareRadiomicsWithPyradWaveletImgNoInterp
+function [cerrFeatS,pyFeatS] = compareRadiomicsWithPyradWaveletImgNoInterp(pyradPath)
 % Compare radiomics features between CERR & Pyradiomics following Wavelet
 % filtering of the IBSI1 lung CT phantom.
 %--------------------------------------------------------------------------
+% Inputs
+% pyradPath : Path to Python packages incl. Pyradiomics & Scipy
+%             Typically 'C:\Miniconda3\lib\site-packages'
+%------------------------------------------------------------------------
 % AI 07/02/2020
 
 %% Load sample data
@@ -30,7 +34,8 @@ filtName = filtName{1};
 %% 2. Compute features using Pyradiomics
 pyParamFilePath = fullfile(fileparts(fileparts(getCERRPath)),...
     'Unit_Testing/settings_for_comparisons/pyWaveletNoInterp.yaml');
-pyCalcS = calcRadiomicsFeatUsingPyradiomics(planC,strName,pyParamFilePath);
+pyCalcS = calcRadiomicsFeatUsingPyradiomics(planC,strName,...
+                 pyParamFilePath,pyradPath);
 
 %Map to cerr fieldnames
 pyFeatS = struct();

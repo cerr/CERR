@@ -71,7 +71,7 @@ end
 if isfield(optS, 'DVHBlockSize') && ~isempty(optS.DVHBlockSize)
     DVHBlockSize = optS.DVHBlockSize;
 else
-    DVHBlockSize = 5000;    
+    DVHBlockSize = 50;    
 end
 
 blocks = ceil(length(indFullV)/DVHBlockSize);
@@ -84,7 +84,7 @@ for b = 1 : blocks
 
   %Build the interpolation points matrix
 
-  dummy = zeros(1,DVHBlockSize * ROIImageSize(1));
+  dummy = zeros(1,DVHBlockSize * ROIImageSize(2));
   x1V = dummy;
   y1V = dummy;
   z1V = dummy;

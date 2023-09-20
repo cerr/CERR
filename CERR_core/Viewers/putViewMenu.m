@@ -36,7 +36,7 @@ end
 pos = 2;  %position of menu               
 
 %Create new menu if necessary.
-if isfield(stateS, 'handle') & isfield(stateS.handle, 'CERRViewMenu') & ishandle(stateS.handle.CERRViewMenu);
+if isfield(stateS, 'handle') && isfield(stateS.handle, 'CERRViewMenu') && ishandle(stateS.handle.CERRViewMenu)
     hMenu = stateS.handle.CERRViewMenu;
 else    
     %Create root menu.

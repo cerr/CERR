@@ -120,10 +120,12 @@ slcV = unique(surfPoints(:,3));
 dmax = 0;
 for i = 1:length(slcV)
     slc = slcV(i);
-    xV = xValsV(surfPoints(surfPoints(:,3)==slc,2));
-    yV = yValsV(surfPoints(surfPoints(:,3)==slc,1));
-    distM = sepsq([xV;yV], [xV;yV]);
-    dmax = max(dmax,max(distM(:)));
+    indV = surfPoints(:,3)==slc;
+    %xV = xValsV(surfPoints(surfPoints(:,3)==slc,2));
+    %yV = yValsV(surfPoints(surfPoints(:,3)==slc,1));
+    %distM = sepsq([xV;yV], [xV;yV]);
+    distSlcM = distM(indV,indV);
+    dmax = max(dmax,max(distSlcM(:)));
 end
 shapeS.max2dDiameterAxialPlane = sqrt(dmax);
 
@@ -131,10 +133,12 @@ shapeS.max2dDiameterAxialPlane = sqrt(dmax);
 dmax = 0;
 for i = 1:length(colV)
     col = colV(i);
-    zV = zValsV(surfPoints(surfPoints(:,2)==col,3));
-    yV = yValsV(surfPoints(surfPoints(:,2)==col,1));
-    distM = sepsq([zV;yV], [zV;yV]);
-    dmax = max(dmax,max(distM(:)));
+    indV = surfPoints(:,2)==col;
+    %zV = zValsV(surfPoints(surfPoints(:,2)==col,3));
+    %yV = yValsV(surfPoints(surfPoints(:,2)==col,1));
+    %distM = sepsq([zV;yV], [zV;yV]);
+    distColM = distM(indV,indV);
+    dmax = max(dmax,max(distColM(:)));
 end
 shapeS.max2dDiameterSagittalPlane = sqrt(dmax);
 
@@ -142,10 +146,12 @@ shapeS.max2dDiameterSagittalPlane = sqrt(dmax);
 dmax = 0;
 for i = 1:length(rowV)
     row = rowV(i);
-    xV = xValsV(surfPoints(surfPoints(:,1)==row,2));
-    zV = zValsV(surfPoints(surfPoints(:,1)==row,3));
-    distM = sepsq([xV;zV], [xV;zV]);
-    dmax = max(dmax,max(distM(:)));
+    indV = surfPoints(:,1)==row;
+    %xV = xValsV(surfPoints(surfPoints(:,1)==row,2));
+    %zV = zValsV(surfPoints(surfPoints(:,1)==row,3));
+    %distM = sepsq([xV;zV], [xV;zV]);
+    distRowM = distM(indV,indV);
+    dmax = max(dmax,max(distRowM(:)));
 end
 shapeS.max2dDiameterCoronalPlane = sqrt(dmax);
 

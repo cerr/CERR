@@ -12,14 +12,16 @@ xScale = userScale;
 
 %Get scale & clear any previous markers
 switch(ud.plotMode)
-    case {1,2}
+    case {1,2} %NTCP vs. TCP/BED
         y1PlotAxis = ud.handle.modelsAxis(1); %NTCP axis
         y2PlotAxis = [];
-        maxDelFrx = round(max([protS.numFractions])/2); %rounded
+        %maxDelFrx = round(max([protS.numFractions])/2); %rounded
+        nfrxV = ud.scaleFactors;
     case 3
-        y1PlotAxis = ud.handle.modelsAxis(2); %NTCP axis
-        y2PlotAxis = ud.handle.modelsAxis(3); %TCP/BED axis
-        fxSizScaleV = linspace(0.5,1.5,99);
+        y1PlotAxis = ud.handle.modelsAxis(2); %NTCP axis (left)
+        y2PlotAxis = ud.handle.modelsAxis(3); %TCP/BED axis (right)
+        %fxSizScaleV = linspace(0.5,1.5,99);
+        fxSizScaleV = ud.scaleFactors;
         xIdx = abs(fxSizScaleV-userScale) < eps;
         if isempty(xIdx)
             return %Invalid scale factor entered
@@ -27,7 +29,8 @@ switch(ud.plotMode)
     case 4
         y1PlotAxis = ud.handle.modelsAxis(4); %NTCP axis
         y2PlotAxis = ud.handle.modelsAxis(5); %TCP/BED axis
-        maxDelFrx = round(max([protS.numFractions])/2);
+        %maxDelFrx = round(max([protS.numFractions])/2);
+        nfrxV = ud.scaleFactors;
 end
 hScaled_y1 = findall(y1PlotAxis,'type','line','LineStyle','-.');
 delete(hScaled_y1);
@@ -117,7 +120,7 @@ for l = 1:numel(ud.Protocols)
             else
                 nFProtocol = paramsS.numFractions.val;
                 scNumFrx = userScale + nFProtocol;
-                nfrxV = linspace(-maxDelFrx,maxDelFrx,99);
+                %nfrxV = linspace(-maxDelFrx,maxDelFrx,99);
                 [~,xIdx] = min(abs(nfrxV-userScale));
                 if isempty(xIdx)
                     return %Invalid scale factor entered
@@ -148,7 +151,7 @@ for l = 1:numel(ud.Protocols)
                 count = y1;
                 hDisp_y1(count) = text(xLmtV(1),0,'','Parent',y1PlotAxis,...
                    'FontSize',8,'Color',[0 0 0],'BackgroundColor',[1 1 1],...
-                   'EdgeColor',pColorM(clrIdx,:),'LineWidth',1.5,...
+                   'EdgeColor',pColorM(clrIdx,:),'LineWidth',2,...
                    'FontWeight','Bold','Tag','NTCPreadout');
                 txtPos = xLmtV(1) - 0.15*abs(xLmtV(1));
                 if ud.plotMode==1 || ud.plotMode==2
@@ -168,8 +171,8 @@ for l = 1:numel(ud.Protocols)
                     hDisp_y2(count) = text(xLmtV(2),0,'','Parent',y2PlotAxis,...
                         'FontSize',8,'Color',[0 0 0],'BackgroundColor',...
                         [1 1 1],'EdgeColor',pColorM(clrIdx,:),'LineWidth',...
-                        1.5,'FontWeight','Bold','Tag','TCPBEDreadout');
-                    txtPos = xLmtV(2)+.02;
+                        2,'FontWeight','Bold','Tag','TCPBEDreadout');
+                    txtPos = xLmtV(2)+.05;
                     skip=0;
                 end
             end
@@ -177,9 +180,9 @@ for l = 1:numel(ud.Protocols)
             if ~skip %Error here: TO DO! Check!
                 
                 plot([xScale xScale],[0 cpNew],'Color',pColorM(clrIdx,:),...
-                    'LineStyle','-.','linewidth',1.5,'parent',hplotAx);
+                    'LineStyle','-.','linewidth',2,'parent',hplotAx);
                 plot([loc xScale],[cpNew cpNew],'Color',pColorM(clrIdx,:),...
-                    'LineStyle','-.','linewidth',1.5,'parent',hplotAx);
+                    'LineStyle','-.','linewidth',2,'parent',hplotAx);
                 
                 if strcmp(currAx,'y1')
                     set(hDisp_y1(count),'Position',[txtPos,cpNew],'String',sprintf('%.3f',...

@@ -43,7 +43,7 @@ prob = 1./(1+exp(4*gamma50*(1-meanDose/D50)));
     function [coeff,par] = getParCoeff(paramS,fieldName,doseBinsV,volHistV)
         
         %Extract relevant parameters
-        genFieldC = fields(paramS);
+        genFieldC = fieldnames(paramS);
         for i = 1:numel(genFieldC)
             if strcmpi(genFieldC{i},'structures')
                 if isstruct(paramS.(genFieldC{i}))
@@ -53,7 +53,7 @@ prob = 1./(1+exp(4*gamma50*(1-meanDose/D50)));
                         strParamS = structS.(structListC{j});
                         strParamListC = fieldnames(strParamS);
                         for k = 1 : numel(strParamListC)
-                            if isfield(strParamS.(strParamListC{k}),'cteg') |  isfield(strParamS.(strParamListC{k}),'weight')
+                            if isfield(strParamS.(strParamListC{k}),'cteg') ||  isfield(strParamS.(strParamListC{k}),'weight')
                                 parName = [structListC{j},strParamListC{k}];
                                 keepParS.(parName) = strParamS.(strParamListC{k});
                             end
@@ -61,7 +61,7 @@ prob = 1./(1+exp(4*gamma50*(1-meanDose/D50)));
                     end
                 end
             else
-                if isfield(paramS.(genFieldC{i}),'cteg') |  isfield(paramS.(genFieldC{i}),'weight')
+                if isfield(paramS.(genFieldC{i}),'cteg') ||  isfield(paramS.(genFieldC{i}),'weight')
                     parName = genFieldC{i};
                     keepParS.(parName) = paramS.(genFieldC{i});
                 end

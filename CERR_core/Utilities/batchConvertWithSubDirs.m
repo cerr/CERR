@@ -43,7 +43,12 @@ if isempty(ver('OCTAVE'))
     feature accel off
 end
 
-saveDcmHeaderFlag = '';
+% Read options file
+pathStr = getCERRPath;
+optName = [pathStr 'CERROptions.json'];
+optS = opts4Exe(optName);
+
+persistent convertedC planNameC
 if isempty(varargin)
     %init_ML_DICOM
     convertedC = {'Source Directory:'};
@@ -58,7 +63,7 @@ if isempty(varargin)
     end
     zipFlag = questdlg('Do you want to bz2 zip output CERR files?', 'bz2 Zip files?', 'Yes','No','No');
     mergeScansFlag = 'no';
-    singleCerrFileFlag = questdlg('Do you want to import all directories to single CERR file?', 'Single CERR file?', 'Yes','No','No');    
+    singleCerrFileFlag = questdlg('Do you want to import all directories to single CERR file?', 'Single CERR file?', 'Yes','No','No');
 else
     convertedC = {'Source Directory:'};
     planNameC = {'Converted Plan Name:'};
@@ -70,17 +75,6 @@ else
     if length(varargin) > 4
         singleCerrFileFlag = varargin{5};
     end
-    if length(varargin) > 5
-        saveDcmHeaderFlag = varargin{6};
-    end
-end
-
-% Read options file
-pathStr = getCERRPath;
-optName = [pathStr 'CERROptions.json'];
-optS = opts4Exe(optName);
-if any(strcmpi(saveDcmHeaderFlag,{'no','yes'}))
-    optS.saveDICOMheaderInPlanC = saveDcmHeaderFlag;
 end
 
 if ispc

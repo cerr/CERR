@@ -25,7 +25,7 @@ switch(sel)
         if isfield(ud,'modelTree')
             set(ud.modelTree,'visible',true);
         end
-        if isfield(ud,'currentPar') && all(isvalid(ud.currentPar))
+        if isfield(ud,'currentPar') && all(isgraphics(ud.currentPar))
             set(ud.currentPar,'visible','on');
         end
         set(hObj,'backgroundcolor',bkgColorOn,'foregroundColor',fgColorOn)
@@ -50,7 +50,7 @@ switch(sel)
         set(settingsH,'visible','off');
         settingsTabH = ud.handle.inputH(3);
         set(ud.modelTree,'visible',false);
-        if isfield(ud,'currentPar') && all(isvalid(ud.currentPar))
+        if isfield(ud,'currentPar') && all(isgraphics(ud.currentPar))
             set(ud.currentPar,'visible','off');
         end
         set(settingsTabH,'backgroundcolor',bkgColorOff,'foregroundColor',...

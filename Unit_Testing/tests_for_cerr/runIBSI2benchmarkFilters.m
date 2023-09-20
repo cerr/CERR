@@ -3,34 +3,32 @@ function runIBSI2benchmarkFilters(outDir,config)
 % -----------------------------------------------------------------------
 % Inputs
 % outDir : Path to output directory.
-% config : 
+% config :
 % -----------------------------------------------------------------------
 % AI 10/06/2020
 % Ref: https://arxiv.org/pdf/2006.05470.pdf (Table 6.1)
 
 if ~exist('config','var')
-    config = 'all';
+    config = 'all'
 end
 
 %% Paths to IBSI phase-2 datasets & calc. parameters
 cerrPath = getCERRPath;
 idxV = strfind(getCERRPath,filesep);
 dataDirName = fullfile(cerrPath(1:idxV(end-1)),...
-    'Unit_Testing\data_for_cerr_tests\IBSI2_synthetic_phantoms');
+    'Unit_Testing','data_for_cerr_tests','IBSI2_synthetic_phantoms');
 configDirName = fullfile(cerrPath(1:idxV(end-1)),...
-    'Unit_Testing\settings_for_comparisons');
+    'Unit_Testing','settings_for_comparisons');
 
 %% Get metadata
 niiDataDir = fullfile(cerrPath(1:idxV(end-1)),...
-    'Unit_Testing\data_for_cerr_tests\IBSI2_synthetic_phantoms');
-metadataS.checkerboard = getMetadata(niiDataDir,'checkerboard');
-metadataS.impulse = getMetadata(niiDataDir,'impulse');
-metadataS.sphere = getMetadata(niiDataDir,'sphere');
+    'Unit_Testing','data_for_cerr_tests','IBSI2_synthetic_phantoms');
 
 %% Compute response maps
 switch(config)
 
     case '1a'
+        testsC = {'1a1','1a2','1a3','1a4'};
         fileName = fullfile(dataDirName,'checkerboard.mat');
         [planC,structNum] = preparePlanC(fileName);
         indexS = planC{end};
@@ -62,9 +60,13 @@ switch(config)
 
         planName = fullfile(outDir,'1a.mat');
         save_planC(planC,[],'PASSED',planName);
-        exportScans(planName,outDir,'1a',metadataS.checkerboard);
+        for scanIdx = 2:length(planC{indexS.scan})
+          outFileName = testsC{scanIdx-1};
+          cerrToNii(scanIdx,[],outDir,planC,outFileName);
+        end
 
     case '1b'
+        testsC = {'1b1'};
         fileName = fullfile(dataDirName,'impulse.mat');
         [planC,structNum] = preparePlanC(fileName);
         indexS = planC{end};
@@ -77,9 +79,13 @@ switch(config)
 
         planName = fullfile(outDir,'1b1.mat');
         save_planC(planC,[],'PASSED',planName);
-        exportScans(planName,outDir,'1b',metadataS.impulse);
+        for scanIdx = 2:length(planC{indexS.scan})
+          outFileName = testsC{scanIdx-1};
+          cerrToNii(scanIdx,[],outDir,planC,outFileName);
+        end
 
-    case '2a'
+      case '2a'
+        testsC = {'2a1'};
         fileName = fullfile(dataDirName,'impulse.mat');
         [planC,structNum] = preparePlanC(fileName);
         indexS = planC{end};
@@ -88,13 +94,18 @@ switch(config)
         planC = generateTextureMapFromPlanC(planC,[],structNum,paramFile);
         scanNum = length(planC{indexS.scan});
         planC{indexS.scan}(scanNum).scanType = ...
-            [planC{indexS.scan}(scanNum).scanType,'_2a'];
+        [planC{indexS.scan}(scanNum).scanType,'_2a'];
 
         planName = fullfile(outDir,'2a.mat');
         save_planC(planC,[],'PASSED',planName);
-        exportScans(planName,outDir,'2a',metadataS.impulse);
+        for scanIdx = 2:length(planC{indexS.scan})
+          outFileName = testsC{scanIdx-1};
+          cerrToNii(scanIdx,[],outDir,planC,outFileName);
+        end
+
 
     case '2b'
+        testsC = {'2b1'};
         fileName = fullfile(dataDirName,'checkerboard.mat');
         [planC,structNum] = preparePlanC(fileName);
         indexS = planC{end};
@@ -107,9 +118,14 @@ switch(config)
 
         planName = fullfile(outDir,'2b.mat');
         save_planC(planC,[],'PASSED',planName);
-        exportScans(planName,outDir,'2b',metadataS.checkerboard);
+        for scanIdx = 2:length(planC{indexS.scan})
+          outFileName = testsC{scanIdx-1};
+          cerrToNii(scanIdx,[],outDir,planC,outFileName);
+        end
+
 
     case '2c'
+        testsC = {'2c1'};
         fileName = fullfile(dataDirName,'checkerboard.mat');
         [planC,structNum] = preparePlanC(fileName);
         indexS = planC{end};
@@ -122,9 +138,14 @@ switch(config)
 
         planName = fullfile(outDir,'2c.mat');
         save_planC(planC,[],'PASSED',planName);
-        exportScans(planName,outDir,'2c',metadataS.checkerboard);
+        for scanIdx = 2:length(planC{indexS.scan})
+          outFileName = testsC{scanIdx-1};
+          cerrToNii(scanIdx,[],outDir,planC,outFileName);
+        end
+
 
     case '3a'
+        testsC = {'3a1','3a2','3a3'};
         % 3.a.1
         fileName = fullfile(dataDirName,'impulse.mat');
         [planC,structNum] = preparePlanC(fileName);
@@ -154,9 +175,14 @@ switch(config)
 
         planName = fullfile(outDir,'3a.mat');
         save_planC(planC,[],'PASSED',planName);
-        exportScans(planName,outDir,'3a',metadataS.impulse);
+        for scanIdx = 2:length(planC{indexS.scan})
+          outFileName = testsC{scanIdx-1};
+          cerrToNii(scanIdx,[],outDir,planC,outFileName);
+        end
+
 
     case '3b'
+        testsC = {'3b1','3b2','3b3'};
         % 3.b.1
         fileName = fullfile(dataDirName,'checkerboard.mat');
         [planC,structNum] = preparePlanC(fileName);
@@ -184,9 +210,13 @@ switch(config)
 
         planName = fullfile(outDir,'3b.mat');
         save_planC(planC,[],'PASSED',planName);
-        exportScans(planName,outDir,'3b',metadataS.impulse);
+        for scanIdx = 2:length(planC{indexS.scan})
+          outFileName = testsC{scanIdx-1};
+          cerrToNii(scanIdx,[],outDir,planC,outFileName);
+        end
 
     case '3c'
+        testsC = {'3c1','3c2','3c3'};
         % 3.c.1
         fileName = fullfile(dataDirName,'checkerboard.mat');
         [planC,structNum] = preparePlanC(fileName);
@@ -214,9 +244,13 @@ switch(config)
 
         planName = fullfile(outDir,'3c.mat');
         save_planC(planC,[],'PASSED',planName);
-        exportScans(planName,outDir,'3c',metadataS.impulse);
+        for scanIdx = 2:length(planC{indexS.scan})
+          outFileName = testsC{scanIdx-1};
+          cerrToNii(scanIdx,[],outDir,planC,outFileName);
+        end
 
     case '4a'
+        testsC = {'4a1','4a2','4a3'};
         % 4.a.1
         fileName = fullfile(dataDirName,'impulse.mat');
         [planC,structNum] = preparePlanC(fileName);
@@ -237,9 +271,13 @@ switch(config)
 
         planName = fullfile(outDir,'4a.mat');
         save_planC(planC,[],'PASSED',planName);
-        exportScans(planName,outDir,'4a',metadataS.impulse);
+        for scanIdx = 2:length(planC{indexS.scan})
+          outFileName = testsC{scanIdx-1};
+          cerrToNii(scanIdx,[],outDir,planC,outFileName);
+        end
 
     case '4b'
+        testsC = {'4b1','4b2','4b3'};
         %4.b.1
         fileName = fullfile(dataDirName,'sphere.mat');
         [planC,structNum] = preparePlanC(fileName);
@@ -260,9 +298,13 @@ switch(config)
 
         planName = fullfile(outDir,'4b.mat');
         save_planC(planC,[],'PASSED',planName);
-        exportScans(planName,outDir,'4b',metadataS.sphere);
+        for scanIdx = 2:length(planC{indexS.scan})
+          outFileName = testsC{scanIdx-1};
+          cerrToNii(scanIdx,[],outDir,planC,outFileName);
+        end
 
     case '5a'
+        testsC = {'5a1','5a2','5a3'};
         % 5.a.1
         fileName = fullfile(dataDirName,'impulse.mat');
         [planC,structNum] = preparePlanC(fileName);
@@ -283,9 +325,13 @@ switch(config)
 
         planName = fullfile(outDir,'5a.mat');
         save_planC(planC,[],'PASSED',planName);
-        exportScans(planName,outDir,'5a',metadataS.impulse);
+        for scanIdx = 2:length(planC{indexS.scan})
+          outFileName = testsC{scanIdx-1};
+          cerrToNii(scanIdx,[],outDir,planC,outFileName);
+        end
 
     case '6a'
+        testsC = {'6a1','6a2'};
         % 6.a.1
         fileName = fullfile(dataDirName,'sphere.mat');
         [planC,structNum] = preparePlanC(fileName);
@@ -306,7 +352,10 @@ switch(config)
 
         planName = fullfile(outDir,'6a.mat');
         save_planC(planC,[],'PASSED',planName);
-        exportScans(planName,outDir,'6a',metadataS.sphere);
+        for scanIdx = 2:length(planC{indexS.scan})
+          outFileName = testsC{scanIdx-1};
+          cerrToNii(scanIdx,[],outDir,planC,outFileName);
+        end
 
 %     case '7a'
 %         %7.a.1
@@ -314,12 +363,12 @@ switch(config)
 %         [planC,structNum] = preparePlanC(fileName);
 %         indexS = planC{end};
 %         paramFile = fullfile(configDirName,'IBSIPhase2-1ID7a1.json');
-% 
+%
 %         planC = generateTextureMapFromPlanC(planC,[],structNum,paramFile);
 %         scanNum = length(planC{indexS.scan});
 %         planC{indexS.scan}(scanNum).scanType = ...
 %             [planC{indexS.scan}(scanNum).scanType,'7a1'];
-% 
+%
 %         planName = fullfile(outDir,'7a.mat');
 %         save_planC(planC,[],'PASSED',planName);
 %         exportScans(planName,outDir,'7a',metadataS.sphere);
@@ -337,22 +386,9 @@ switch(config)
 
 end
 
-
 %% -- Supporting functions --
 
-    function infoS = getMetadata(niftiDataDir,phantom)
-        infoS = struct();
-        I = niftiinfo(fullfile(niftiDataDir,[phantom,'.nii']));
-        keepFieldsC = {'ImageSize','PixelDimensions','SpaceUnits',...
-            'TimeUnits','Qfactor','Version','SliceCode',...
-            'FrequencyDimension','PhaseDimension','SpatialDimension'};
-        for n = 1:length(keepFieldsC)
-            infoS.(keepFieldsC{n}) = I.(keepFieldsC{n});
-        end
-        infoS.Datatype = 'double';
-        infoS.Description = 'Response map';
 
-    end
 
     function [planC,structNum] = preparePlanC(fileName)
         planC = loadPlanC(fileName,tempdir);

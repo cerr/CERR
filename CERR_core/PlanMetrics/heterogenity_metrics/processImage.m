@@ -5,7 +5,7 @@ function outS = processImage(filterType,scan3M,mask3M,paramS,hWait)
 % filterType -  Supported textures: 'HaralickCooccurance','Wavelets','Sobel',
 %               'LoG' (ITK-compliant),'LoG_IBSI' (IBSI-compliant),'Gabor'
 %               (IBSI compliant), 'Gabor_deprecated', 'Mean','LawsEnergy'
-%               'LawsConvolution','CoLlage','FirstOrderStatistics', 
+%               'LawsConvolution','CoLlage','FirstOrderStatistics',
 %               or 'SimpleITK'.
 %               Other filters: 'suv', 'assignBkgIntensity'.
 % scan3M     - 3-D scan array, cropped around ROI and padded if specified
@@ -227,7 +227,7 @@ for index = 1:numRotations
             if length(dir) == 3
                 dim = '3d';
             elseif length(dir) == 2
-                dim = '2d'; 
+                dim = '2d';
             end
 
             if strcmpi(dim,'3d')
@@ -276,9 +276,9 @@ for index = 1:numRotations
 
                 %Get all sub-bands
                 subbandsS = getWaveletSubbands(vol3M,wavType,level,dim);
-                
+
                 if rotFlag
-                    %Compute average of all permutations of 
+                    %Compute average of all permutations of
                     %selected decomposition
                     permDirC = cellstr(unique(perms(dir),'rows'));
                     matchDir = [permDirC{1},'_',wavType];
@@ -293,7 +293,7 @@ for index = 1:numRotations
                     matchDir = [dir,'_',wavType];
                     out3M = subbandsS.(matchDir);
                 end
-                
+
 
                 if ishandle(hWait)
                     set(hWait, 'Vertices', [[0 0 1 1]' [0 1 1 0]']);

@@ -14,6 +14,9 @@
 
 						"NTCP":{
 							  "function": "ntcp",
+							   "parameters":{
+							  				"modelFile": "Esophagitis (Huang).json"
+					                		      	},
 						          "limit":0.45
 
 						       }
@@ -23,6 +26,9 @@
 						
 						"NTCP":{
 							  "function": "ntcp",
+							  "parameters":{
+							  			 	"modelFile": "Esophagitis (Huang).json"
+					                		      	},
 						          "limit":0.35
 
 						       },
@@ -58,6 +64,9 @@
 
 					  "NTCP":{
 					             "function": "ntcp",
+					             "parameters":{
+						     				"modelFile": "Pneumonitis (Appelt).json"
+					                		   },
 						     "limit":0.2
 
 						 }

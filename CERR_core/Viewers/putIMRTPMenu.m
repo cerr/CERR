@@ -41,7 +41,7 @@ end
 pos = 4;  %position of menu
 
 %Create new menu if necessary.
-if isfield(stateS, 'handle') & isfield(stateS.handle, 'CERRIMRTPMenu') & ishandle(stateS.handle.CERRIMRTPMenu);
+if isfield(stateS, 'handle') && isfield(stateS.handle, 'CERRIMRTPMenu') && ishandle(stateS.handle.CERRIMRTPMenu)
     hIMRTPMenu = stateS.handle.CERRIMRTPMenu;
 else    
     hIMRTPMenu = uimenu(stateS.handle.CERRSliceViewer, 'label', '&IMRT', 'callback', 'putIMRTPMenu;', 'Interruptible', 'off');

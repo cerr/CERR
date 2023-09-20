@@ -1,6 +1,6 @@
 function [outMask3M, planC] = getMaskForModelConfig(planC,mask3M,scanNum,cropS)
 % getMaskForModelConfig.m
-% Create mask for deep learning based on input configuration file.
+% Create mask for deep learning based on input configuration ftile.
 %
 % AI 7/23/19
 %--------------------------------------------------------------------------
@@ -10,8 +10,10 @@ function [outMask3M, planC] = getMaskForModelConfig(planC,mask3M,scanNum,cropS)
 % scanNum        
 % cropS        : Dictionary of parameters for cropping
 %                Supported methods: 'crop_fixed_amt','crop_to_bounding_box',
-%                'crop_to_str', 'crop_around_center','crop_pt_outline',
-%                'crop_around_structure_center','crop_shoulders','none'.
+%                'crop_around_center', 'crop_to_str', 'crop_to_str_on_scan', 
+%                'crop_pt_outline', 'crop_pt_outline_on_scan',
+%                'crop_around_structure_center',
+%                'crop_around_center_of_mass_on_scan','none'.
 %--------------------------------------------------------------------------
 % AI 7/23/19
 % RKP 9/13/19 
@@ -51,7 +53,7 @@ for m = 1:length(methodC)
             maskC{m} = outMask3M;
 
             
-        case {'crop_to_str', 'crop_to_str_2d'}
+        case {'crop_to_str', 'crop_to_str_2d', 'crop_to_str_on_scan', 'crop_to_str_2d_on_scan'}
             %Use to crop around different structure
             %mask3M = []
             strName = paramS.structureName;
@@ -59,18 +61,27 @@ for m = 1:length(methodC)
             assocScanV = getStructureAssociatedScan(1:numStructs,planC);
             strC = {planC{indexS.structures}.structureName};
             strIdx = getMatchingIndex(strName,strC,'EXACT');
+            
+            if ~isempty(strfind(method,'scan')) %octave compatible
+                %Crop around structure on (another) scan
+                % specified through valid identifier
+                idS = paramS.scanIdentifier;
+                scanId = getScanNumFromIdentifiers(idS,planC);
+            else
+                scanId  = scanNum;
+            end
+            
             % Find structure associated with scanNum
             if ~isempty(strIdx)
-                strIdx = strIdx(assocScanV(strIdx) == scanNum);
+                strIdx = strIdx(assocScanV(strIdx) == scanId);
             end
             if ~isempty(strIdx)
                 [outMask3M, planC] = getStrMask(strIdx,planC);
             else
                 warning(['Missing structure ', strName]); 
-                outMask3M = false(size(getScanArray(scanNum,planC)));
+                outMask3M = false(size(getScanArray(scanId,planC)));
             end
             maskC{m} = outMask3M;
-
             
         case 'crop_around_center'
             % Use to crop around center
@@ -92,7 +103,7 @@ for m = 1:length(methodC)
             outMask3M(minr:maxr,minc:maxc,mins:maxs) = true;
             maskC{m} = outMask3M;
 
-        case 'crop_around_structure_center'
+        case {'crop_around_structure_center', 'crop_around_structure_center_on_scan'}
             strName = paramS.structureName;
             cropDimV = paramS.margins;
 
@@ -103,9 +114,19 @@ for m = 1:length(methodC)
             assocScanV = getStructureAssociatedScan(1:numStructs,planC);
             strC = {planC{indexS.structures}.structureName};
             strIdx = getMatchingIndex(strName,strC,'EXACT');
+            
+            if ~isempty(strfind(method,'scan')) %octave compatible
+                %Crop around structure on (another) scan
+                % specified through valid identifier
+                idS = paramS.scanIdentifier;
+                scanId = getScanNumFromIdentifiers(idS,planC);
+            else
+                scanId  = scanNum;
+            end
+            
             % Find structure associated with scanNum
             if ~isempty(strIdx)
-                strIdx = strIdx(assocScanV(strIdx) == scanNum);
+                strIdx = strIdx(assocScanV(strIdx) == scanId);
             end
             if ~isempty(strIdx)
                 [strMask3M, planC] = getStrMask(strIdx,planC);
@@ -126,16 +147,53 @@ for m = 1:length(methodC)
                     minc:minc+cropDimV(2)-1,slcV) = true;
             else
                 warning(['Missing structure ', strName]);
-                outMask3M = false(size(getScanArray(scanNum,planC)));
+                outMask3M = false(size(getScanArray(scanId,planC)));
             end
             
             maskC{m} = outMask3M;
+            
 
-
-        case 'crop_around_center_of_mass'
+        case {'crop_around_center_of_mass','crop_around_center_of_mass_on_scan'}
 
             cropStr = paramS.structureName;
-            outputImgSizeV = reshape(paramS.margins,1,[]);
+
+            % Get margin units
+            marginUnits = 'voxels'; %default if not specified
+            if isfield(paramS,'marginUnits')
+                marginUnits = paramS.marginUnits;
+            end
+            marginV = reshape(paramS.margins,1,[]);
+
+            %Get structure-associated scan
+            if ~isempty(strfind(method,'scan')) %octave compatible
+                %Crop around structure on (another) scan
+                % specified through valid identifier
+                idS = paramS.scanIdentifier;
+                scanId = getScanNumFromIdentifiers(idS,planC);
+            else
+                scanId  = scanNum;
+            end
+
+            %Compute output image dimensions
+            if ismember(marginUnits,{'mm','cm'})
+                %Convert input margins to voxel units
+                [xValsV, yValsV, zValsV] = ...
+                    getScanXYZVals(planC{indexS.scan}(scanId));
+                if yValsV(1) > yValsV(2)
+                    yValsV = fliplr(yValsV);
+                end
+                dx = median(diff(xValsV));
+                dy = median(diff(yValsV));
+                dz = median(diff(zValsV));
+                inputResV = [dx,dy,dz];
+                if strcmpi(marginUnits,'mm')
+                    inputResV = inputResV*10; %Convert scan resolution to mm
+                end
+                outputImgSizeV = round(marginV./inputResV(1:length(marginV)));
+            else
+                outputImgSizeV = marginV;
+            end
+
             if isfield(paramS,'assignBkgIntensity')
                 bkgVal = paramS.assignBkgIntensity.assignVal;
             else
@@ -143,11 +201,11 @@ for m = 1:length(methodC)
             end
 
             %Crop around COM
-            [~,outMask3M] = cropAroundCOM(scanNum,cropStr,...
+            [~,outMask3M] = cropAroundCOM(scanId,cropStr,...
                 outputImgSizeV,bkgVal,planC);
             maskC{m} = outMask3M;
 
-        case {'crop_pt_outline', 'crop_pt_outline_2d'}
+        case {'crop_pt_outline', 'crop_pt_outline_2d', 'crop_pt_outline_on_scan', 'crop_pt_outline_on_scan_2d'}
             
             structureName = paramS.structureName;
             outThreshold = paramS.outlineThreshold;  
@@ -162,18 +220,29 @@ for m = 1:length(methodC)
                 normFlag = 0;
             end
             
-            % Check for outline structure associated with scanNum
+            if ~isempty(strfind(method,'scan')) %octave compatible
+                %Crop around structure on (another) scan
+                % specified through valid identifier
+                idS = paramS.scanIdentifier;
+                scanId = getScanNumFromIdentifiers(idS,planC);
+            else
+                scanId  = scanNum;
+            end
+            
+            % Check for outline structure associated with scanId
             outlineIndex = getMatchingIndex(structureName,...
                 {planC{indexS.structures}.structureName},'exact');
-            assocScanV = getStructureAssociatedScan(outlineIndex,planC);
+            numStructs = length(planC{indexS.structures});
+            assocScanV = getStructureAssociatedScan(1:numStructs,planC);
             if ~isempty(outlineIndex)
-                outlineIndex = outlineIndex(assocScanV == scanNum);
+                outlineIndex = outlineIndex(assocScanV(outlineIndex) == scanId);
+                outlineIndex = outlineIndex(end);
             end
-
+            
             %Get mask of pt outline
             if isempty(outlineIndex)
-                scan3M = getScanArray(scanNum,planC);
-                CToffset = double(planC{indexS.scan}(scanNum).scanInfo(1).CTOffset);
+                scan3M = getScanArray(scanId,planC);
+                CToffset = double(planC{indexS.scan}(scanId).scanInfo(1).CTOffset);
                 scan3M = double(scan3M);
                 scan3M = scan3M - CToffset;
                 sliceV = 1:size(scan3M,3);
@@ -216,7 +285,7 @@ for m = 1:length(methodC)
             
         case 'none'
             %Skip
-            
+            in
             maskC{m} = [];
             
         otherwise
@@ -231,7 +300,13 @@ for m = 1:length(methodC)
         else
             outStrName = method;
         end
-        planC = maskToCERRStructure(maskC{m}, 0, scanNum, outStrName,planC);
+        if isfield(paramS,'scanIdentifier')
+            idS = paramS.scanIdentifier;
+            scanId = getScanNumFromIdentifiers(idS,planC);
+        else
+            scanId = scanNum;
+        end
+        planC = maskToCERRStructure(maskC{m}, 0, scanId, outStrName,planC);
     end
     
     if m>1

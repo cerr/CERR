@@ -1,4 +1,4 @@
-function [axisLabelCell,orientationStr,imgOriV] = returnViewerAxisLabels(planC,scanNum)
+function [axisLabelCell,orientationStr,iop] = returnViewerAxisLabels(planC,scanNum)
 
 indexS = planC{end};
 
@@ -7,61 +7,93 @@ if ~exist('scanNum','var') || isempty(scanNum)
 end
 
 try
-    imgOriV = planC{indexS.scan}(scanNum).scanInfo(1).imageOrientationPatient;
+    iop = planC{indexS.scan}(scanNum).scanInfo(1).imageOrientationPatient;
     
-    if isempty(imgOriV)
-        imgOriV = [1,0,0,0,1,0]'; % temporary. assign this during loading planC
+    if isempty(iop)
+        iop = [1,0,0,0,1,0]'; % temporary. assign this during loading planC
     end
     
-    % Dominant direction for image row
-    [~,idx2] = max(abs(imgOriV(1:3)));
+    [~,idx2] = max(abs(iop(1:3)));
+    [~,idx1] = max(abs(iop(4:end)));
     
-    % Dominant direction for image column
-    [~,idx1] = max(abs(imgOriV(4:end)));
+    iopProj = zeros(size(iop));
+    iopProj(idx1 + 3) = iop(idx1 + 3);
+    iopProj(idx2) = iop(idx2);
     
-    iopProj = zeros(size(imgOriV));
-    iopProj(idx1 + 3) = imgOriV(idx1 + 3);
-    iopProj(idx2) = imgOriV(idx2);
-    
-    iopProjSign = iopProj ./ abs(imgOriV);
+    iopProjSign = iopProj ./ abs(iop);
     
     iopProjSign(isnan(iopProjSign)) = 0;
+    
+    if isequal(abs(iopProjSign),[1; 0; 0; 0; 1; 0])
+        sliceType = 'axial';
+    elseif isequal(abs(iopProjSign),[1; 0; 0; 0; 0; 1])
+        sliceType = 'coronal';
+    else
+        sliceType = 'sagittal';
+    end
+    
+    switch sliceType
         
-    positiveRCS = {'L','P','S'};
-    negativeRCS = {'R','A','I'};
-    if any(iopProjSign(4:6) > 0)
-        colDir{1} = negativeRCS{iopProjSign(4:6) > 0};
-        colDir{2} = positiveRCS{iopProjSign(4:6) > 0};
-    else
-        colDir{1} = negativeRCS{iopProjSign(4:6) < 0};
-        colDir{2} = positiveRCS{iopProjSign(4:6) < 0};
+        case 'axial'
+            % definitions            
+            HFS = [1; 0; 0; 0; 1; 0];
+            HFP = [-1; 0; 0; 0; -1; 0];
+            FFS = [-1; 0; 0; 0; 1; 0];
+            FFP = [1; 0; 0; 0; -1; 0];
+            
+            if isequal(iopProjSign(:), HFS)
+                axisLabelCell = {'A','P';'R','L';'S','I'};
+                orientationStr = 'HFS';
+            elseif isequal(iopProjSign(:), HFP)
+                axisLabelCell = {'P','A';'L','R';'S','I'};
+                orientationStr = 'HFP';
+            elseif isequal(iopProjSign(:), FFS)
+                axisLabelCell = {'A','P';'L','R';'S','I'};
+                orientationStr = 'FFS';
+            else %FFP
+                axisLabelCell = {'P','A';'R','L';'S','I'};
+                orientationStr = 'FFP';
+            end
+        case 'coronal'
+            HFS = [1; 0; 0; 0; 0; 1];
+            HFP = [-1; 0; 0; 0; 0; 1];
+            FFS = [-1; 0; 0; 0; 0; -1];
+            FFP = [1; 0; 0; 0; 0; -1];
+            
+            if isequal(iopProjSign(:), HFS)
+                axisLabelCell = {'S','I';'R','L';'A','P'};
+                orientationStr = 'HFS';
+            elseif isequal(iopProjSign(:), HFP)
+                axisLabelCell = {'S','I';'R','L';'A','P'};
+                orientationStr = 'HFP';
+            elseif isequal(iopProjSign(:), FFS)
+                axisLabelCell = {'S','I';'R','L';'A','P'};
+                orientationStr = 'FFS';
+            else %FFP
+                axisLabelCell = {'S','I';'R','L';'A','P'};
+                orientationStr = 'FFP';
+            end
+            
+        case 'sagittal' % eg [0; 1; 0; 0; 0; -1]
+            HFS = [0; 1; 0; 0; 0; 1];
+            HFP = [0; -1; 0; 0; 0; 1];
+            FFS = [0; -1; 0; 0; 0; -1];
+            FFP = [0; 1; 0; 0; 0; -1];
+            
+            if isequal(iopProjSign(:), HFS)
+                axisLabelCell = {'A','P';'S','I';'R','L'};
+                orientationStr = 'HFS';
+            elseif isequal(iopProjSign(:), HFP)
+                axisLabelCell = {'A','P';'I','S';'R','L'};
+                orientationStr = 'HFP';
+            elseif isequal(iopProjSign(:), FFS)
+                axisLabelCell = {'P','A';'S','I';'R','L'};
+                orientationStr = 'FFS';
+            else %FFP
+                axisLabelCell = {'P','A';'I','S';'R','L'};
+                orientationStr = 'FFP';
+            end
     end
-    if any(iopProjSign(1:3) > 0)
-        rowDir{1} = negativeRCS{iopProjSign(1:3) > 0};
-        rowDir{2} = positiveRCS{iopProjSign(1:3) > 0};
-    else
-        rowDir{1} = negativeRCS{iopProjSign(1:3) < 0};
-        rowDir{2} = positiveRCS{iopProjSign(1:3) < 0};
-    end
-    sliceNormV = imgOriV([2 3 1]) .* imgOriV([6 4 5]) ...
-            - imgOriV([3 1 2]) .* imgOriV([5 6 4]);
-    [~,idx3] = max(abs(sliceNormV));
-    
-    imgpos1 = planC{indexS.scan}(scanNum).scanInfo(1).imagePositionPatient;
-    imgpos2 = planC{indexS.scan}(scanNum).scanInfo(end).imagePositionPatient;
-    z1 = - sum(sliceNormV .* imgpos1);
-    zlast = - sum(sliceNormV .* imgpos2);    
-    if z1 < zlast
-        slcDir{1} = positiveRCS{idx3};
-        slcDir{2} = negativeRCS{idx3};
-    else
-        slcDir{1} = positiveRCS{idx3};
-        slcDir{2} = negativeRCS{idx3};
-    end
-    
-    axisLabelCell = [colDir;rowDir;slcDir];
-    orientationStr = '';
-    
 catch err
     %default HFS
     disp(err);

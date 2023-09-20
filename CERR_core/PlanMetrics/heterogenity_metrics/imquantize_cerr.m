@@ -11,6 +11,8 @@ function q = imquantize_cerr(x,nL,xmin,xmax,binwidth)
 % bin width using the binwidth argument
 %
 % APA, 2/26/2018
+% AI, 9/18/2023 Updated to follow IBSI definitions.
+%     Ref: https://ibsi.readthedocs.io/en/latest/02_Image_processing.html
 
 if exist('xmin','var') && ~isempty(xmin)
     x(x<xmin) = xmin;
@@ -31,18 +33,7 @@ if ~isempty(nL)
     q = round(imlincomb(slope,x,intercept,'double'));
     
 elseif exist('binwidth','var') && ~isempty(binwidth)
-    if xmin < 0
-        edgeMin = xmin - rem(xmin,binwidth) - binwidth;
-    else
-        edgeMin = xmin - rem(xmin,binwidth);
-    end
-    if xmax < 0
-        edgeMax = xmax - rem(xmax,binwidth);
-    else
-        edgeMax = xmax - rem(xmax,binwidth) + binwidth;        
-    end
-    edgeV = edgeMin:binwidth:edgeMax;
-    q = discretize(x,edgeV);
+    q = floor((x - xmin)/binwidth) + 1;
 else
     %No quantization
     warning('Returning input image. Specify the number of bins or the binwidth to quantize.')

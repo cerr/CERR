@@ -74,13 +74,15 @@ end
 scanArray = scanStruct.scanArray;
 
 %If remote or compressed, and struct is same as last time, return cached array.
-if (isCompressed(scanArray) || ~isLocal(scanArray)) && isequal(scanStruct, lastScanStruct)
+if (isCompressed(scanArray) || ~isLocal(scanArray)) && ...
+  isequal(scanStruct, lastScanStruct)
     scanArray = lastScanArray;    
     isCompress = isLastScanCompressed;
     isRemote = isLastScanRemote;
     return;
 %If remote or compressed and NOT the same as last time, clear cache.    
-elseif (isCompressed(scanArray) || ~isLocal(scanArray)) && ~isequal(scanStruct, lastScanStruct)
+elseif (isCompressed(scanArray) || ~isLocal(scanArray)) && ...
+~isequal(scanStruct, lastScanStruct)
 	lastScanArray           = [];
 	lastScanStruct          = [];
 	isLastScanCompressed    = [];

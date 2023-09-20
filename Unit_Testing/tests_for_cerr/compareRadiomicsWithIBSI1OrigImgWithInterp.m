@@ -1,9 +1,10 @@
-function [cerrFeatS,IBSIfeatS,pctDiffS] = compareRadiomicsWithIBSI1OrigImgWithInterp
+function [cerrFeatS,IBSIfeatS,diffS,...
+    pctDiffS] = compareRadiomicsWithIBSI1OrigImgWithInterp
 % Function to compare radiomics features computed using CERR against
 % the IBSI benchmark for configuration C.
 
 %% 1. Calc. features for configuration 'C' using CERR
-cerrFeatS = calcIBSIPhantomRadiomics('C');
+cerrFeatS = calcIBSI1PhantomRadiomics('C');
 
 %% Get IBSI benchmarks
 ibsiConfigCResult = fullfile(fileparts(fileparts(getCERRPath)),...
@@ -12,6 +13,7 @@ temp = load(ibsiConfigCResult);
 IBSIfeatS = temp.IBSIfeatS;
 
 %% Compare results for each feature class
+diffS = struct();
 pctDiffS = struct();
 %Shape features
 shapeFeatC = fieldnames(IBSIfeatS.shapeS);
@@ -28,7 +30,9 @@ for n = 1:length(shapeFeatC)
     elseif strcmp(shapeFeatC{n},'surfToVolRatio')
         cerrVal = cerrVal/10; %cm^-1 to mm^-1
     end
-    pctDiff =(cerrVal-ibsiVal)*100/ibsiVal;
+    diffVal = cerrVal-ibsiVal;
+    pctDiff = diffVal*100/ibsiVal;
+    diffS.Shape.(shapeFeatC{n}) = diffVal;
     pctDiffS.Shape.(shapeFeatC{n}) = pctDiff;
 end
 
@@ -37,7 +41,9 @@ IVHfeatC = fieldnames(IBSIfeatS.Original.ivhFeaturesS);
 for n = 1:length(IVHfeatC)
     ibsiVal = IBSIfeatS.Original.ivhFeaturesS.(IVHfeatC{n});
     cerrVal = cerrFeatS.Original.ivhFeaturesS.(IVHfeatC{n});
-    pctDiff =(cerrVal-ibsiVal)*100/ibsiVal;
+    diffVal = cerrVal-ibsiVal;
+    pctDiff = diffVal*100/ibsiVal;
+    diffS.IVH.(IVHfeatC{n}) = diffVal;
     pctDiffS.IVH.(IVHfeatC{n}) = pctDiff;
 end
 
@@ -46,7 +52,9 @@ firstOrdFeatC = fieldnames(IBSIfeatS.Original.firstOrderS);
 for n = 1:length(firstOrdFeatC)
     ibsiVal = IBSIfeatS.Original.firstOrderS.(firstOrdFeatC{n});
     cerrVal = cerrFeatS.Original.firstOrderS.(firstOrdFeatC{n});
-    pctDiff =(cerrVal-ibsiVal)*100/ibsiVal;
+    diffVal = cerrVal-ibsiVal;
+    pctDiff = diffVal*100/ibsiVal;
+    diffS.FirstOrder.(firstOrdFeatC{n}) = diffVal;
     pctDiffS.FirstOrder.(firstOrdFeatC{n}) = pctDiff;
 end
 
@@ -56,7 +64,9 @@ glcmFeatC = fieldnames(IBSIfeatS.Original.glcmFeatS.AvgS);
 for n = 1:length(glcmFeatC)
     ibsiVal = IBSIfeatS.Original.glcmFeatS.AvgS.(glcmFeatC{n});
     cerrVal = cerrFeatS.Original.glcmFeatS.AvgS.(glcmFeatC{n});
-    pctDiff =(cerrVal-ibsiVal)*100/ibsiVal;
+    diffVal = cerrVal-ibsiVal;
+    pctDiff = diffVal*100/ibsiVal;
+    diffS.GLCM.Avg.(glcmFeatC{n}) = diffVal;
     pctDiffS.GLCM.Avg.(glcmFeatC{n}) = pctDiff;
 end
 %Merge
@@ -64,7 +74,9 @@ glcmFeatC = fieldnames(IBSIfeatS.Original.glcmFeatS.AvgS);
 for n = 1:length(glcmFeatC)
     ibsiVal = IBSIfeatS.Original.glcmFeatS.AvgS.(glcmFeatC{n});
     cerrVal = cerrFeatS.Original.glcmFeatS.AvgS.(glcmFeatC{n});
-    pctDiff =(cerrVal-ibsiVal)*100/ibsiVal;
+    diffVal = cerrVal-ibsiVal;
+    pctDiff = diffVal*100/ibsiVal;
+    diffS.GLCM.Merge.(glcmFeatC{n}) = diffVal;
     pctDiffS.GLCM.Merge.(glcmFeatC{n}) = pctDiff;
 end
 
@@ -74,7 +86,9 @@ rlmFeatC = fieldnames(IBSIfeatS.Original.rlmFeatS.AvgS);
 for n = 1:length(rlmFeatC)
     ibsiVal = IBSIfeatS.Original.rlmFeatS.AvgS.(rlmFeatC{n});
     cerrVal = cerrFeatS.Original.rlmFeatS.AvgS.(rlmFeatC{n});
-    pctDiff =(cerrVal-ibsiVal)*100/ibsiVal;
+    diffVal = cerrVal-ibsiVal;
+    pctDiff = diffVal*100/ibsiVal;
+    diffS.RLM.Avg.(rlmFeatC{n}) = diffVal;
     pctDiffS.RLM.Avg.(rlmFeatC{n}) = pctDiff;
 end
 %Merge
@@ -82,7 +96,9 @@ rlmFeatC = fieldnames(IBSIfeatS.Original.rlmFeatS.CombS);
 for n = 1:length(rlmFeatC)
     ibsiVal = IBSIfeatS.Original.rlmFeatS.CombS.(rlmFeatC{n});
     cerrVal = cerrFeatS.Original.rlmFeatS.CombS.(rlmFeatC{n});
-    pctDiff =(cerrVal-ibsiVal)*100/ibsiVal;
+    diffVal = cerrVal-ibsiVal;
+    pctDiff = diffVal*100/ibsiVal;
+    diffS.RLM.Merge.(rlmFeatC{n}) = diffVal;
     pctDiffS.RLM.Merge.(rlmFeatC{n}) = pctDiff;
 end
 
@@ -91,7 +107,9 @@ ngtdmFeatC = fieldnames(IBSIfeatS.Original.ngtdmFeatS);
 for n = 1:length(ngtdmFeatC)
     ibsiVal = IBSIfeatS.Original.ngtdmFeatS.(ngtdmFeatC{n});
     cerrVal = cerrFeatS.Original.ngtdmFeatS.(ngtdmFeatC{n});
-    pctDiff =(cerrVal-ibsiVal)*100/ibsiVal;
+    diffVal = cerrVal-ibsiVal;
+    pctDiff = diffVal*100/ibsiVal;
+    diffS.NGTDM.(ngtdmFeatC{n}) = diffVal;
     pctDiffS.NGTDM.(ngtdmFeatC{n}) = pctDiff;
 end
 
@@ -101,6 +119,8 @@ szmFeatC = fieldnames(IBSIfeatS.Original.szmFeatS);
 for n = 1:length(szmFeatC)
     ibsiVal = IBSIfeatS.Original.szmFeatS.(szmFeatC{n});
     cerrVal = cerrFeatS.Original.szmFeatS.(szmFeatC{n});
-    pctDiff =(cerrVal-ibsiVal)*100/ibsiVal;
+    diffVal = cerrVal-ibsiVal;
+    pctDiff = diffVal*100/ibsiVal;
+    diffS.GLSZM.(szmFeatC{n}) = diffVal;
     pctDiffS.GLSZM.(szmFeatC{n}) = pctDiff;
 end

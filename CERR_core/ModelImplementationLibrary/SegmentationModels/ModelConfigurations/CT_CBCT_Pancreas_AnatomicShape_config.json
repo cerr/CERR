@@ -1,0 +1,69 @@
+{
+
+"dataFormat": "DICOM",
+
+"input":{    
+    "scan": [{
+         "identifier" : {"studyDate":"first"}, 
+         "resample": {"resolutionXCm":0.1,
+                      "resolutionYCm":0.1,
+                      "resolutionZCm":0.1,
+                      "method":"linear"},
+         "crop" : {     
+                    "method": "crop_around_center_of_mass",
+                    "params": { "structureName": "ROI-10",
+                                "marginUnits": "mm",
+                                "margins": [105,210,180]
+                              },
+                    "operator": ""
+                  },
+         "channels" :{"imageType": "original", "slice": "current"}
+       },
+       {
+        "identifier" : {"studyDate":"last"}, 
+        "resample": {"resolutionXCm":0.1,
+                      "resolutionYCm":0.1,
+                      "resolutionZCm":0.1,
+                      "method":"linear"},
+        "crop": {
+                    "method": "crop_around_center_of_mass_on_scan",
+                    "params": { "scanIdentifier": {"studyDate":"first"},
+                                "structureName": "ROI-10",
+                                "marginUnits": "mm",
+                                "margins": [105,210,180]
+                              },
+                    "operator": ""
+                },
+        "channels": {"imageType":"original", "slice": "current"}
+       }],
+   "structure": {
+                "strNameToLabelMap" : [
+                    {"structureName": "Bowel_sm_planCT",
+                    "value": 1},
+                    {"structureName": "Stomach_duo_planCT",
+                    "value": 2},
+                    {"structureName": "Lung_L",
+                     "value": 3},
+                    {"structureName": "Lung_R",
+                     "value": 4},
+                    {"structureName": "ROI-10",
+                     "value": 5}]
+                }
+},
+
+"passedScanDim" : "3D",    
+
+"batchSize" : 1,
+
+"output":{   
+    "labelMap":{"strNameToLabelMap" : [
+                    {"structureName": "Bowel_sm_CBCT",
+                    "value": 1},
+                    {"structureName": "Stomach_duo_CBCT",
+                    "value": 2}]
+                },
+    "DVF":{"outputFormat" : "H5", "outputDir":"/cluster/home/clinSegData/outNii"}
+},
+"outputAssocScan": {"identifier" : {"studyDate":"last"}},    
+"reference" : ""
+}

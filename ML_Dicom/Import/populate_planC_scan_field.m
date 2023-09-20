@@ -183,7 +183,7 @@ switch fieldname
                     % org.dcm4che3.imageio.plugins.dcm.DicomImageReader)
                     inputStreamObj = javaObject("java.io.FileInputStream",IMAGE.file);
                     in = javaObject("org.dcm4che3.io.DicomInputStream",inputStreamObj);
-                    dcmImgReader.setInput(in,false);
+                    dcmImgReader.setInput(in,false)
                     param = dcmImgReader.getDefaultReadParam;
                     raster = dcmImgReader.readRaster(0, param); % only one image. hence image index of 0.
                     %h = raster.getHeight;

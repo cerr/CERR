@@ -1,4 +1,4 @@
-function CERRHotKeys()
+function CERRHotKeys(h,e)
 %Routing function called by all CERR figures on keypress
 %
 % Copyright 2010, Joseph O. Deasy, on behalf of the CERR development team.
@@ -31,26 +31,33 @@ else
     return;
 end
 
-%get Tag of figure making callback.
+%%get Tag of figure making callback.
 figureName = get(gcbf, 'Tag');
-keyPressed = get(gcbf, 'CurrentCharacter');
-keyValue = uint8(keyPressed);
+%keyPressed = get(gcbf, 'CurrentCharacter');
+%keyValue = uint8(keyPressed);
+%%
+%if isfield(stateS, 'currentKeyPress') && ~isempty(stateS.currentKeyPress)
+%    stateS.currentKeyPress = keyValue;
+%end
 %
-if isfield(stateS, 'currentKeyPress') && ~isempty(stateS.currentKeyPress)
-    stateS.currentKeyPress = keyValue;
+%%if key pressed has no ASCII analogue, quit. He's dead Jim.
+%if(isempty(keyValue))
+%    return;
+%end
+%
+%%Else, switch based on the key value.  If the same key has different
+%%effects depending on the figure it originates from, switch on the
+%%figureName to decide on action.
+%switch(keyValue)
+
+if ismember(figureName,{'ROEFig','Verify structure selection'})
+    %do nothing
+    return
 end
 
-%if key pressed has no ASCII analogue, quit. He's dead Jim.
-if(isempty(keyValue))
-    return;
-end
+switch(e.Key)
 
-%Else, switch based on the key value.  If the same key has different
-%effects depending on the figure it originates from, switch on the
-%figureName to decide on action.
-switch(keyValue)
-
-    case {30, 119} %up arrow
+    case 'up' %{30, 119} %up arrow
         
         if stateS.layout == 6 && isempty(stateS.currentKeyPress)
             hAxis = gca;
@@ -68,7 +75,7 @@ switch(keyValue)
             otherwise
         end
 
-    case {31, 115} %down arrow
+    case 'down' %{31, 115} %down arrow
         if stateS.layout == 6 && isempty(stateS.currentKeyPress)
             hAxis = gca;
             if ~ismember(hAxis,stateS.handle.CERRAxis);
@@ -85,27 +92,27 @@ switch(keyValue)
             otherwise
         end
 
-    case 28 %left arrow
+    case 'left' %28 %left arrow
         switch(upper(figureName))
             case 'NAVIGATIONFIGURE'
                 navigationMontage('left');
             otherwise
         end
 
-    case 29 %right arrow
+    case 'right' %29 %right arrow
         switch(upper(figureName))
             case 'NAVIGATIONFIGURE'
                 navigationMontage('right');
             otherwise
         end
         
-    case 66 %'B' Toggles bookmark on current Slice
+    case 'B' %66 %'B' Toggles bookmark on current Slice
         if isfield(stateS.handle,'navigationMontage')            
             navigationMontage('togglebookmark');
         end
         
 
-    case 98 %'b' Cycles through bookmarked slices.
+    case 'b' %98 %'b' Cycles through bookmarked slices.
         try
             %sN = stateS.sliceNum;
             aI = getAxisInfo(stateS.handle.CERRAxis(stateS.currentAxis));
@@ -129,45 +136,45 @@ switch(keyValue)
                 errordlg('Current slice must be transverse')
             end
         end
-    case 96 % ` key, next to the 1.  Always calls LabBook.
+    case '`' %96 % ` key, next to the 1.  Always calls LabBook.
         LabBookGui('CAPTURE');
 
-    case 127 % delete key.  If in contour mode, deletes contour? think about it.        
+    case 'delete' %127 % delete key.  If in contour mode, deletes contour? think about it.        
         if isfield(stateS,'contourState') && stateS.contourState
             % delete all segments on the slice
             hAxis = stateS.handle.CERRAxis(stateS.contourAxis);
             contourControl('deleteAllSegments', hAxis)
         end
 
-    case 122 % 'z' key, toggles zoom.
+    case 'z' %122 % 'z' key, toggles zoom.
         %         val = get(stateS.handle.zoom, 'value');
         %         set(stateS.handle.zoom, 'value', xor(val, 1));
         sliceCallBack('TOGGLEZOOM');
 
-    case 101 % 'e' key
+    case 'e' %101 % 'e' key
         if ~isfield(stateS,'contourState') || ~stateS.contourState %Check for contouring mode
             return
         end
         contourControl('editMode');
         controlFrame('contour', 'refresh');
 
-    case 100 % 'd' key
+    case 'd' %100 % 'd' key
         if ~isfield(stateS,'contourState') || ~stateS.contourState %Check for contouring mode
             return
         end
         contourControl('drawMode');
         controlFrame('contour', 'refresh');
 
-    case 27 % 'esc' key
+    case 'esc' %27 % 'esc' key
 
-    case 116 %'t' key
+    case 't' %116 %'t' key
         if ~isfield(stateS,'contourState') || ~stateS.contourState %Check for contouring mode
             return
         end
         contourControl('threshMode');
         controlFrame('contour', 'refresh');
 
-    case 114 %'r' key;
+    case 'r' %114 %'r' key;
         if ~isfield(stateS,'contourState') || ~stateS.contourState %Check for contouring mode
             return
         end
@@ -231,7 +238,7 @@ switch(keyValue)
         stateS.contouringMetaDataS.contourV = contourV;
         contourControl('copySl',hAxis,destSlice);
         
-    case {43,61} %'+' key to increase brush size in contouring mode
+    case '+' %{43,61} %'+' key to increase brush size in contouring mode
         if ~stateS.contourAxis %Check for contouring mode
             return
         end
@@ -259,7 +266,7 @@ switch(keyValue)
                 getThreshold(hAxis);
         end
         
-    case 45 %'-' key to decrease brush size in contouring mode
+    case '-' %45 %'-' key to decrease brush size in contouring mode
         if ~stateS.contourAxis %Check for contouring mode
             return
         end

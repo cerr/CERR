@@ -94,6 +94,8 @@ if isa(img, 'uint16') && max(img(:))<32768, img = int16(img); end % lossless
 converter = 'CERR_dcm2nii';
 h{i}{1}.ConversionSoftware = converter;
 setpref('nii_tool_para', 'intent_code', pf.intent_code);
+setpref('nii_tool_para', 'rgb_dim', 1);
+setpref('nii_tool_para', 'version', 1);
 nii = nii_tool('init', img); % create nii struct based on img
 [nii, h{i}] = set_nii_hdr(nii, h{i}, pf, bids); % set most nii hdr
 

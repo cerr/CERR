@@ -37,7 +37,7 @@ if ~exist('planC')
 end
 indexS = planC{end};
 
-if exist('uniflag') & strcmpi(uniflag, 'nonuniform')
+if exist('uniflag') && strcmpi(uniflag, 'nonuniform')
     [xVals, yVals, zVals] = getScanXYZVals(planC{indexS.scan}(scanNum));
 else
     [xVals, yVals, zVals] = getUniformScanXYZVals(planC{indexS.scan}(scanNum));    

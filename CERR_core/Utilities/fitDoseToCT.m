@@ -74,10 +74,10 @@ if ~isempty(scanStruct)
      	%Get the z values of the scan set, slightly more complicated
 		nCTSlices = abs(uniformScanInfo.sliceNumSup - uniformScanInfo.sliceNumInf) + 1;
 		[nSupSlices] = size(getScanArraySuperior(scanStruct), 3);
-		if isempty(getScanArraySuperior(scanStruct)), nSupSlices = 0; end
+		if isempty(getScanArraySuperior(scanStruct)), nSupSlices = 0;, end
 		
 		[nInfSlices] = size(getScanArrayInferior(scanStruct), 3);
-		if isempty(getScanArrayInferior(scanStruct)), nInfSlices = 0; end
+		if isempty(getScanArrayInferior(scanStruct)), nInfSlices = 0;, end
 		
 		nZSlices = nCTSlices + nSupSlices + nInfSlices;
 		ctZVals = uniformScanInfo.firstZValue : uniformScanInfo.sliceThickness : uniformScanInfo.sliceThickness * (nZSlices-1) + uniformScanInfo.firstZValue;       

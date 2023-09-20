@@ -1,4 +1,4 @@
-function [planC,allLabelNamesC,dcmExportOptS,success] = ...
+function [planC,outScanNum,allLabelNamesC,dcmExportOptS,success] = ...
     processAndImportSeg(planC,origScanNumV,scanNumV,outputScanNum,...
     fullSessionPath,userOptS)
 % planC = processAndImportSeg(planC,origScanNumV,scanNumV,fullSessionPath,userOptS);
@@ -39,7 +39,7 @@ if ~iscell(planC)
         ptIdx = ~cellfun(@isempty, strfind(ptListC, strtok(ptName,'_')));
         segMask3M = outC{ptIdx};
 
-        planC = importLabelMap(userOptS,origScanNumV,scanNumV,...
+        [planC,outScanNum] = importLabelMap(userOptS,origScanNumV,scanNumV,...
                               outputScanNum,segMask3M,labelPath,planC);
         %origScanNumV(nFile) = origScanNum;
 
@@ -53,7 +53,7 @@ if ~iscell(planC)
 else
     segMask3M = outC{1};
     tic
-    planC = importLabelMap(userOptS,origScanNumV,scanNumV,outputScanNum,...
+    [planC,outScanNum] = importLabelMap(userOptS,origScanNumV,scanNumV,outputScanNum,...
             segMask3M,labelPath,planC);
     toc
 end
@@ -88,28 +88,32 @@ end
 
 
 %% ----- Supporting functions ----
-    function planC = importLabelMap(userOptS,origScanNumV,scanNumV,...
-                     outputScanNum,segMask3M,labelPath,planC)
+    function [planC,outScanNum] = importLabelMap(userOptS,...
+            origScanNumV,scanNumV,outputScanNum,...
+            segMask3M,labelPath,planC)
 
         indexS = planC{end};
+        
         if isempty(outputScanNum) || isnan(outputScanNum)
+            %Identify output scan
             identifierS = userOptS.outputAssocScan.identifier;
             idS = rmfield(identifierS,{'warped','filtered'});
             idC = fieldnames(idS);
+                       
             if ~isempty(idC)
-                origScanNum = getScanNumFromIdentifiers(identifierS,planC);
-                if ismember(origScanNum,scanNumV)
-                    origScanNum = find(origScanNumV==origScanNum);
-                end
+                origScanIdx = getScanNumFromIdentifiers(identifierS,planC);
+                %if ismember(origScanNum,scanNumV)
+                    origScanIdx = find(origScanNumV==origScanIdx);
+                %end
             else
-                origScanNum = 1; %Assoc with first scan by default
+                origScanIdx = 1; %Assoc with first scan by default
             end
         else
-            origScanNum = find(origScanNumV==outputScanNum);
+            origScanIdx = find(origScanNumV==outputScanNum);
         end
-        outScanNum = scanNumV(origScanNum);
-        userOptS.input.scan(outScanNum) = userOptS.input.scan(origScanNum);
-        userOptS.input.scan(outScanNum).origScan = origScanNum;
+        outScanNum = scanNumV(origScanIdx);
+        userOptS.input.scan(outScanNum) = userOptS.input.scan(origScanIdx);
+        userOptS.input.scan(outScanNum).origScan = origScanNumV(origScanIdx);
         [segMask3M,~,~,planC]  = joinH5planC(outScanNum,segMask3M,labelPath,...
             userOptS,planC);
 
@@ -123,7 +127,7 @@ end
 
         % Delete intermediate (resampled) scans if any
         scanListC = arrayfun(@(x)x.scanType, planC{indexS.scan},'un',0);
-        resampScanName = ['Resamp_scan',num2str(origScanNum)];
+        resampScanName = ['Resamp_scan',num2str(origScanNumV(origScanIdx))];
         matchIdxV = ismember(scanListC,resampScanName);
         if any(matchIdxV)
             deleteScanNum = find(matchIdxV);

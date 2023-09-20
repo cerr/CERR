@@ -227,12 +227,24 @@ switch fieldname
             if ~isempty(measurementSeq) && ~measurementSeq.isEmpty
                 measurementObj = measurementSeq.get(0);
                 dataS = measurementObj.getString(524548,0); % 0008,0104
+                dataS = measurementObj.getString(524544,0); % 0008,0100
+                dataS = measurementObj.getString(524569,0); % 0008,0119 (Long Code Value)
             end
         end
         
     case 'philipsImageUnits'
         if attr.contains(537203723)
             dataS = char(attr.getString(537203723,0));
+        end
+        
+    case 'philipsRescaleSlope'
+        if attr.contains(537203722)
+            dataS = attr.getDoubles(537203722);
+        end
+        
+    case 'philipsRescaleIntercept'
+        if attr.contains(537203721)
+            dataS = attr.getDoubles(537203721);
         end
         
     case 'grid1Units'

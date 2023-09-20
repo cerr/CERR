@@ -280,7 +280,7 @@ switch upper(command)
     case 'FIGUREBUTTONUP'
         %Mouse up, if in preview window disable motion fcn.
         ud = get(h, 'userdata');
-        if ~isfield(ud, 'previewDown') | ud.previewDown == 1;
+        if ~isfield(ud, 'previewDown') || ud.previewDown == 1;
             ud.previewDown = 0;
             set(h, 'WindowButtonMotionFcn', '');
             set(h, 'userdata', ud);
@@ -665,7 +665,7 @@ thumbImage = dA(:,:,s(1));
 imagesc(thumbImage, 'hittest', 'off', 'parent', hAxis);
 set(hAxis, 'ytick',[],'xtick',[]);
 
-if isCompress & isRemote
+if isCompress && isRemote
     text(.1, .1, 'Compressed', 'units', 'normalized', 'fontsize', 8, 'color', 'white', 'horizontalAlignment', 'left', 'hittest', 'off', 'parent', hAxis);
     text(.1, .2, 'Remote', 'units', 'normalized', 'fontsize', 8, 'color', 'white', 'horizontalAlignment', 'left', 'hittest', 'off', 'parent', hAxis);
 elseif isRemote

@@ -1,4 +1,4 @@
-function [planC,allLabelNamesC,dcmExportOptS] = ...
+function [planC,assocScan,allLabelNamesC,dcmExportOptS] = ...
     processAndImportAIOutput(planC,userOptS,origScanNumV,scanNumV,...
     outputScanNum,algorithm,hashID,sessionPath,cmdFlag,inputIdxS)
 %[planC,,origScanNumV,allLabelNamesC,dcmExportOptS] = ...
@@ -16,22 +16,22 @@ dcmExportOptS = struct([]);
 
 outputC = fieldnames(outputS);
 for nOut = 1:length(outputC)
-    
+
     outType = outputC{nOut};
-    
+
     switch(lower(outType))
-        
+
         case 'labelmap'
             %Segmentations
-            
+
             % Import segmentations
-            [planC,allLabelNamesC,dcmExportOptS] = ...
+            [planC,assocScan,allLabelNamesC,dcmExportOptS] = ...
                 processAndImportSeg(planC,origScanNumV,scanNumV,...
                 outputScanNum,sessionPath,userOptS);
-            
+
         case 'dvf'
             %Deformation vector field
-            
+
             outFmt = outputS.DVF.outputFormat;
             DVFpath = fullfile(sessionPath,'outputH5','DVF');
             DVFfile = dir([DVFpath,filesep,'*.h5']);
@@ -43,10 +43,10 @@ for nOut = 1:length(outputC)
                 otherwise
                     error('Invalid model output format %s.',outFmt)
             end
-            
-            
+
+
             % Convert to CERR coordinate sytem
-            
+
             if ~iscell(planC)
                 cerrDir = planC;
                 cerrDirS = dir(cerrDir);
@@ -56,10 +56,14 @@ for nOut = 1:length(outputC)
                 cerrFile = '';
             end
             indexS = planC{end};
-            
+
             % Get associated scan num
-            idS = userOptS.outputAssocScan.identifier;
-            assocScan = getScanNumFromIdentifiers(idS,planC);
+            if ~isempty(outputScanNum)
+                assocScan = outputScanNum;
+            else
+                idS = userOptS.outputAssocScan.identifier;
+                assocScan = getScanNumFromIdentifiers(idS,planC);
+            end
 
             tempOptS = userOptS;
             outTypesC = fieldnames(userOptS.output);
@@ -70,38 +74,49 @@ for nOut = 1:length(outputC)
             DVFfilename = strrep(strrep(DVFfile.name,' ','_'),'.h5','');
             dimsC = {'dx','dy','dz'};
             niiFileNameC = cell(1,length(dimsC));
-            %outputSizeV = size(DVF4M);
+            outputSizeV = size(DVF4M);
             origScanSizV = size(planC{indexS.scan}(assocScan).scanArray);
             dvfOnOrigScan4M = zeros([origScanSizV,3]);
 
             % Note: Expected ordering of components is: DVF_, DVF_y,DVF_z
             % i.e., deformation along cols, rows, slices.
-            %DVF4M = DVF4M([2,1,3],:,:,:);
-
+            
             % Convert to physical dimensions
             for nDim = 1:size(DVF4M,1)
 
                 % Reverse pre-processing operations
                 DVF3M = squeeze(DVF4M(nDim,:,:,:));
-
+                
                 [DVF3M,imgExtentsV,physExtentsV,planC] = ...
                     joinH5planC(assocScan,DVF3M,[DVFfilename,'_'...
                     dimsC{nDim}],tempOptS,planC);
-
-                if nDim == 3
-                    % Account for reversed slice direction (CERR convention vs.
-                    % DICOM) passed to model.
-                    DVF3M = -DVF3M;
+                
+                if nDim == 2
+                    scaleFactor = abs(physExtentsV(2)-physExtentsV(1))./(outputSizeV(2)-1);
+                else
+                    if nDim == 1
+                        scaleFactor = abs(physExtentsV(4)-physExtentsV(3))./(outputSizeV(3)-1);
+                    else
+                        %nDim == 3
+                        % Account for reversed slice direction (CERR convention vs.
+                        % DICOM) passed to model.
+                        DVF3M = -DVF3M;
+                        scaleFactor = abs(physExtentsV(6)-physExtentsV(5))./(outputSizeV(4)-1);
+                    end
                 end
-
+                
+                DVF3M = DVF3M.*scaleFactor*10;
                 dvfOnOrigScan4M(:,:,:,nDim) = DVF3M;
-
+               
             end
-
-            dvfDcmM = dvfImageToDICOMCoords(dvfOnOrigScan4M,assocScan,planC);  %4D array
+            dvfDcmM = dvfOnOrigScan4M;
+            %dvfDcmM = dvfImageToDICOMCoords(dvfOnOrigScan4M,assocScan,planC);  %4D array
             dvfDcmM = permute(dvfDcmM, [1:3 5 4]); %5D array as reqd by exportScanToNii.m
             %Write DVF to NIfTI file
             fprintf('\n Writing DVF to file %s\n',niiFileNameC{nDim});
+            if exist(niiOutDir,'dir')
+                rmdir(niiOutDir,'s');
+            end
             exportScanToNii(niiOutDir,dvfDcmM,{DVFfilename},...
                 [],{},planC,assocScan);
 
@@ -113,11 +128,11 @@ for nOut = 1:length(outputC)
                 DVFmag3M = DVFmag3M + dvfDim3M.^2;
             end
             DVFmag3M = sqrt(DVFmag3M);
-            % Store to planC as pseudo-dose 
+            % Store to planC as pseudo-dose
             description = 'Deformation magnitude';
             planC = dose2CERR(DVFmag3M,[],description,'',description,...
                 'CT',[],'no',assocScanUID, planC);
-            
+
             % Store metadata to deformS
             indexS = planC{end};
             if isfield(userOptS,'register') && isfield(userOptS.register,'baseScan')
@@ -130,35 +145,59 @@ for nOut = 1:length(outputC)
                 planC{indexS.deform}(end+1).movScanUID = ...
                     planC{indexS.scan}(movScanNum).scanUID;
             else
+
+                % Get associated scan num
+                if ~isempty(outputScanNum)
+                    baseScanNum = outputScanNum;
+                else
+                    idS = userOptS.outputAssocScan.identifier;
+                    baseScanNum = getScanNumFromIdentifiers(idS,planC,1);
+                end
+
                 idS = userOptS.outputAssocScan.identifier;
                 baseScanNum = getScanNumFromIdentifiers(idS,planC,1);
                 planC{indexS.deform}(end+1).baseScanUID = ...
                     planC{indexS.scan}(baseScanNum).scanUID;
             end
+
             planC{indexS.deform}(end+1).algorithm = algorithm;
             planC{indexS.deform}(end+1).registrationTool = 'CNN';
             planC{indexS.deform}(end+1).algorithmParamsS.singContainerHash = ...
                 hashID;
             planC{indexS.deform}(end+1).DVFfileName = niiFileNameC;
-            
+
             if ~isempty(cerrFile)
                 save_planC(planC,[],'PASSED',cerrFile);
                 planC = cerrFile;
             end
             
+            % Get DICOM export settings
+            if isfield(userOptS.output.(outType), 'dicomExportOptS')
+                if isempty(dcmExportOptS)
+                    dcmExportOptS = userOptS.output.(outType).dicomExportOptS;
+                else
+                    dcmExportOptS = dissimilarInsert(dcmExportOptS,...
+                        userOptS.output.(outType).dicomExportOptS);
+                end
+            else
+                if ~exist('dcmExportOptS','var')
+                    dcmExportOptS = [];
+                end
+            end
+
         case 'derivedimage'
-            
+
             %Read output image
             outFmt = outputS.derivedImage.outputFormat;
             outputImgType = outputS.derivedImage.imageType;
             imgPath = fullfile(sessionPath,['output',outFmt],'derivedImage');
             imgFile = dir(imgPath);
             imgFile(1:2) = [];
-            
+
             switch(lower(outFmt))
-                
+
                 case 'h5'
-                    
+
                     %Get unique dataset names
                     datasetsC = {};
                     for nFile = 1:length(imgFile)  %Note: Assumes 3D output
@@ -169,11 +208,11 @@ for nOut = 1:length(outputC)
                         elseif ~ismember(I.Datasets,datasetsC)
                             datasetsC{end+1} = I.Datasets.Name;
                         end
-                        
+
                         %Read output
                         modelOut3M = h5read(outFile,['/',I.Datasets.Name]);
                         scanName = I.Datasets.Name;
-                        
+
                         % Reverse transform img3M to match orig scan grid
                         if isempty(outputScanNum) || isnan(outputScanNum)
                             identifierS = userOptS.outputAssocScan.identifier;
@@ -195,28 +234,28 @@ for nOut = 1:length(outputC)
                             origScanNum = find(origScanNumV==outputScanNum);
                             outScanNum = scanNumV(origScanNum);
                         end
-                        
+
                         userOptS.input.scan(outScanNum) = userOptS.input.scan(origScanNum);
                         userOptS.input.scan(outScanNum).origScan = origScanNumV;
                         [procData3M,~,~,planC] = joinH5planC(outScanNum,modelOut3M,...
                             scanName,userOptS,planC);
-                        
+
                         % Add the new "derived" scan to planC
                         planC = addDerivedScan(origScanNumV,procData3M,scanName,planC);
-                        
+
                     end
-                    
+
                 otherwise %TBD extend to support other formats
                     error('Invalid model output format %s.',outFmt)
             end
-            
+
         otherwise
             error('Invalid output type '' %s ''.',outType)
-            
-            
+
+
     end
     userOptS.output.(outType) =  outputS;
-    
+
 end
 
 

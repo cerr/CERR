@@ -55,15 +55,15 @@ bbox3M = false(origSizV);
 COMv = round(mean([rV; cV; sV],2));
 
 %Compute crop extents around COM
-rStart = max(1,COMv(1)-outputImgSizeV(1)/2);
-cStart = max(1,COMv(2)-outputImgSizeV(2)/2);
+rStart = max(1, COMv(1) - round(outputImgSizeV(1)/2));
+cStart = max(1, COMv(2) - round(outputImgSizeV(2)/2));
 
-rEnd = min(COMv(1)+outputImgSizeV(1)/2, origSizV(1));
-cEnd = min(COMv(2)+outputImgSizeV(2)/2, origSizV(2));
+rEnd = min(COMv(1) + round(outputImgSizeV(1)/2), origSizV(1));
+cEnd = min(COMv(2) + round(outputImgSizeV(2)/2), origSizV(2));
 
 if ~isequal(outputImgSizeV(3),origSizV(3))
-    sEnd = min(COMv(3)+outputImgSizeV(3)/2,origSizV(3));
-    sStart = max(1,COMv(3)-outputImgSizeV(3)/2);
+    sEnd = min(COMv(3) + round(outputImgSizeV(3)/2), origSizV(3));
+    sStart = max(1,COMv(3) - round(outputImgSizeV(3)/2));
 else
     sStart = 1;
     sEnd = outputImgSizeV(3) + 1;

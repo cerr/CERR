@@ -85,5 +85,13 @@ yAAPMShifted = yAAPMShifted/voxelSizeV(1);
 
   Row=-yAAPMReshifted;
   Col=xAAPMReshifted;
+  
+  tol = 1e-3;
+  roundedRow = round(Row);
+  roundedCol = round(Col);
+  indRowSnapV = abs(Row-roundedRow) < tol;
+  indColSnapV = abs(Col-roundedCol) < tol;
+  Row(indRowSnapV) = roundedRow(indRowSnapV);
+  Col(indColSnapV) = roundedCol(indColSnapV);
 
 % end
