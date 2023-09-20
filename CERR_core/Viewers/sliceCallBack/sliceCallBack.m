@@ -127,7 +127,7 @@ switch upper(instr)
         stateS.MLVersion = getMLVersion;
 
         %Set Keypressfunction call back for ALL subsequent figures.
-        %set(0,'DefaultFigureCreateFcn','set(gcbo,''WindowKeyPressFcn'',''CERRHotKeys'',''keyReleaseFcn'',''CERRHotKeyRelease'')')
+        set(0,'DefaultFigureCreateFcn','set(gcbo,''WindowKeyPressFcn'',''CERRHotKeys'',''keyReleaseFcn'',''CERRHotKeyRelease'')')
 
         %Detect and store working directory, in case this is the compiled version.
         %This must go before any calls to getCERRPath
@@ -216,8 +216,7 @@ switch upper(instr)
         hCSV = figure('tag','CERRSliceViewer','name',str1,'numbertitle','off',...
             'position',position,'CloseRequestFcn',...
             'sliceCallBack(''closeRequest'')','tag',...
-            'CERRSliceViewer','KeyPressFcn',{@CERRHotKeys},...
-            'keyReleaseFcn',{@CERRHotKeyRelease});
+            'CERRSliceViewer');
 
         figureColor = get(hCSV, 'Color');
         stateS.handle.CERRSliceViewer = hCSV;
