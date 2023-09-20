@@ -1,4 +1,4 @@
-function CERRHotKeyRelease(hsrc,evt)
+function CERRHotKeyRelease()
 %Routing function called by all CERR figures on keypress release
 %
 % Copyright 2010, Joseph O. Deasy, on behalf of the CERR development team.
@@ -39,5 +39,4 @@ keyValue = uint8(keyPressed);
 if isempty(stateS.currentKeyPress) && isempty(keyValue)
     stateS.currentKeyPress = 0;
 end
-
 
