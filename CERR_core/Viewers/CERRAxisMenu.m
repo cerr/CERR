@@ -35,7 +35,7 @@ global planC;
 global stateS;
 indexS = planC{end};
 
-if ishandle(command) && strcmpi(get(command, 'type'), 'axes')
+if ~ischar(command) && ishandle(command) && strcmpi(get(command, 'type'), 'axes')
     varargin{1} = command;
     command     = 'init';
 elseif ~ischar(command)
