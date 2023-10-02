@@ -59,10 +59,20 @@ for n = 1:length(identifierC)
             seriesDatesC =  arrayfun(@(x)x.scanInfo(1).seriesDate,...
                 planC{indexS.scan},'un',0);
             emptyIdxC = cellfun(@isempty,seriesDatesC,'un',0);
-            seriesDatesC([emptyIdxC{:}]) = '';
-            seriesDatesC = datetime(seriesDatesC,'InputFormat','yyyyMMdd');
-            [~,ordV] = sort(seriesDatesC,'ascend');
-
+            seriesDatesC([emptyIdxC{:}]) = '00000000';
+            
+            seriesTimesC =  arrayfun(@(x) strtok(x.scanInfo(1).seriesTime,'.'),...
+                planC{indexS.scan},'un',0);
+            emptyIdxC = cellfun(@isempty,seriesTimesC,'un',0);
+            seriesTimesC([emptyIdxC{:}]) = '000000.00';
+            
+            seriesDateTimesC = cellfun(@(x,y) [x,':',y], seriesDatesC, ...
+                seriesTimesC,'un',0);
+            
+            seriesDateTimesC = datetime(seriesDateTimesC,'InputFormat','yyyyMMdd:HHmmss');
+                        
+            [~,ordV] = sort(seriesDateTimesC,'ascend');
+            
             idV = false(size(matchIdxV));
             if strcmp(matchValC,'first')
                 idV(ordV(1)) = true;
@@ -76,9 +86,19 @@ for n = 1:length(identifierC)
             studyDatesC =  arrayfun(@(x)x.scanInfo(1).studyDate,...
                 planC{indexS.scan},'un',0);
             emptyIdxC = cellfun(@isempty,studyDatesC,'un',0);
-            studyDatesC([emptyIdxC{:}]) = '';
-            studyDatesC = datetime(studyDatesC,'InputFormat','yyyyMMdd');
-            [~,ordV] = sort(studyDatesC,'ascend');
+            studyDatesC([emptyIdxC{:}]) = '00000000';
+            
+            studyTimesC =  arrayfun(@(x) strtok(x.scanInfo(1).studyTime,'.'),...
+                planC{indexS.scan},'un',0);
+            emptyIdxC = cellfun(@isempty,studyTimesC,'un',0);
+            studyTimesC([emptyIdxC{:}]) = '000000.00';
+            
+            studyDateTimesC = cellfun(@(x,y) [x,':',y], studyDatesC, ...
+                studyTimesC,'un',0);
+            
+            studyDateTimesC = datetime(studyDateTimesC,'InputFormat','yyyyMMdd:HHmmss');
+            
+            [~,ordV] = sort(studyDateTimesC,'ascend');
 
             idV = false(size(matchIdxV));
             if strcmp(matchValC,'first')
