@@ -1,5 +1,5 @@
 function [minr, maxr, minc, maxc, slcV, modelMask3M, planC] = ...
-    getCropLimits(planC,mask3M,scanNum,cropS)
+    getCropLimits(planC,mask4M,scanNum,cropS)
 % getCropLimits.m
 % Get limits of bounding box for various cropping options.
 %
@@ -7,8 +7,8 @@ function [minr, maxr, minc, maxc, slcV, modelMask3M, planC] = ...
 %--------------------------------------------------------------------------
 %INPUTS:
 % planC
-% scan3M       : Scan array
-% mask3M       : Mask
+% scan3M       : 3-D scan array
+% mask4M       : 4-D array with 3D structure masks stacked along 
 % cropS        : Dictionary of parameters for cropping
 %                Supported methods: 'crop_fixed_amt','crop_to_bounding_box',
 %                'crop_to_str', 'crop_around_center', 'none'
@@ -17,7 +17,8 @@ function [minr, maxr, minc, maxc, slcV, modelMask3M, planC] = ...
 % AI 7/23/19
 
 %Get mask for model config
-[modelMask3M, planC] = getMaskForModelConfig(planC,mask3M,scanNum,cropS);
+[modelMask3M, planC] = getMaskForModelConfig(planC,mask4M,...
+                       scanNum,cropS);
 
 %Compute bounding box
 methodC = lower({cropS.method});
