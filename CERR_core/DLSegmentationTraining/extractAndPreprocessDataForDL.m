@@ -242,10 +242,9 @@ for scanIdx = 1:numScans
     %Extract masks from planC
     strC = {planC{indexS.structures}.structureName};
     if isempty(exportStrC) && skipMaskExport
-        mask3M = [];
+        mask4M = [];
         validStrIdxV = [];
     else
-        mask3M = zeros(size(scan3M));
         assocStrIdxV = strcmpi(planC{indexS.scan}(scanNumV(scanIdx)).scanUID,UIDc);
         strIdxV = [strIdxC{:}];
         strIdxV = reshape(strIdxV,1,[]);
@@ -253,21 +252,21 @@ for scanIdx = 1:numScans
         validStrIdxV = strIdxV(validStrIdxV);
         keepLabelIdxV = assocStrIdxV(validStrIdxV);
         validExportLabelV = exportLabelV(keepLabelIdxV);
+        maskSizeV = [size(scan3M),length(validExportLabelV)];
+        mask4M = zeros(maskSizeV);
     end
     
     if length(validStrIdxV)==0
-        mask3M = [];
+        mask4M = [];
     else
         for strNum = 1:length(validStrIdxV)
-            
             strIdx = validStrIdxV(strNum);
-            
             %Update labels
-            tempMask3M = false(size(mask3M));
+            tempMask3M = false(size(scan3M));
             [rasterSegM, planC] = getRasterSegments(strIdx,planC);
             [maskSlicesM, uniqueSlices] = rasterToMask(rasterSegM, scanNumV(scanIdx), planC);
             tempMask3M(:,:,uniqueSlices) = maskSlicesM;
-            mask3M(tempMask3M) = validExportLabelV(strNum);
+            mask4M(:,:,:,validExportLabelV(strNum)) = tempMask3M;
         end
     end
     
@@ -348,7 +347,7 @@ for scanIdx = 1:numScans
         [xResampleV,yResampleV,zResampleV] = ...
             getResampledGrid(outResV,xValsV,yValsV,zValsV,...
             originV,gridAlignMethod);
-        [scan3M,mask3M] = resampleScanAndMask(double(scan3M),double(mask3M),...
+        [scan3M,mask4M] = resampleScanAndMask(double(scan3M),double(mask4M),...
             xValsV,yValsV,zValsV,xResampleV,yResampleV,zResampleV,...
             resampleMethod);
 
@@ -376,7 +375,7 @@ for scanIdx = 1:numScans
         planC{indexS.scan}(resampScanNum).assocBaseScanUID = ...
         planC{indexS.scan}(origScanIdx).scanUID;
         for strNum = 1:length(validStrIdxV)
-            strMask3M = mask3M == validExportLabelV(strNum);
+            strMask3M = squeeze(mask4M(:,:,:,validExportLabelV(strNum)));
             outStrName = [exportStrC{strNum},'_resamp'];
             planC = maskToCERRStructure(strMask3M,0,resampScanNum,...
                 outStrName,planC);
@@ -445,7 +444,7 @@ for scanIdx = 1:numScans
         fprintf('\nCropping to region of interest...\n');
         tic
         [minr, maxr, minc, maxc, slcV, cropStr3M, planC] = ...
-            getCropLimits(planC,mask3M,scanNumV(scanIdx),cropS);
+            getCropLimits(planC,mask4M,scanNumV(scanIdx),cropS);
         %- Crop scan
         if ~isempty(scan3M) && numel(minr)==1
             scan3M = scan3M(minr:maxr,minc:maxc,slcV);
@@ -458,13 +457,13 @@ for scanIdx = 1:numScans
         %- Crop mask
         if numel(minr)==1
             cropStr3M = cropStr3M(minr:maxr,minc:maxc,slcV);
-            if ~isempty(mask3M)
-                mask3M = mask3M(minr:maxr,minc:maxc,slcV);
+            if ~isempty(mask4M)
+                mask4M = mask4M(minr:maxr,minc:maxc,slcV,:);
             end
         else
             cropStr3M = cropStr3M(:,:,slcV);
-            if ~isempty(mask3M)
-                mask3M = mask3M(:,:,slcV);
+            if ~isempty(mask4M)
+                mask4M = mask4M(:,:,slcV,:);
             end
         end
         toc
@@ -484,7 +483,7 @@ for scanIdx = 1:numScans
         for nMethod = 1:length(resizeMethodS)
             resizeMethod = resizeMethodS(nMethod).method;
             outSizeV = resizeMethodS(nMethod).size;
-            [scan3M, mask3M] = resizeScanAndMask(scan3M,mask3M,outSizeV,...
+            [scan3M, mask4M] = resizeScanAndMask(scan3M,mask4M,outSizeV,...
                 resizeMethod,limitsM,preserveAspectFlag);
             % obtain patient outline in view if background adjustment is needed
             if adjustBackgroundVoxFlag || transformViewFlag
@@ -505,7 +504,7 @@ for scanIdx = 1:numScans
     end
     
     scanC{scanIdx} = scan3M;
-    maskC{scanIdx} = mask3M;
+    maskC{scanIdx} = mask4M;
     
     
     %4. Transform view
@@ -534,7 +533,7 @@ for scanIdx = 1:numScans
     for i = 1:length(viewC)
         
         scanView3M = viewOutC{i};
-        maskView3M = logical(cropStrC{i});
+        cropStrView3M = logical(cropStrC{i});
         
         for c = 1:numChannels
             
@@ -553,7 +552,8 @@ for scanIdx = 1:numScans
                     fprintf('\nApplying %s filter...\n',imType);
                     paramS = channelParS(c);
                     filterParS = paramS.imageType.(imType);
-                    outS = processImage(imType, scanView3M, maskView3M, filterParS);
+                    outS = processImage(imType, scanView3M,...
+                        cropStrView3M, filterParS);
                     fieldName = fieldnames(outS);
                     fieldName = fieldName{1};
                     procScanC{c} = outS.(fieldName);

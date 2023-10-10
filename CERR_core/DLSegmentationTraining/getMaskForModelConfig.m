@@ -1,4 +1,5 @@
-function [outMask3M, planC] = getMaskForModelConfig(planC,mask3M,scanNum,cropS)
+function [outMask3M, planC] = getMaskForModelConfig(planC,...
+                              mask4M,scanNum,cropS)
 % getMaskForModelConfig.m
 % Create mask for deep learning based on input configuration ftile.
 %
@@ -6,7 +7,7 @@ function [outMask3M, planC] = getMaskForModelConfig(planC,mask3M,scanNum,cropS)
 %--------------------------------------------------------------------------
 %INPUTS:
 % planC
-% mask3M       
+% mask4M       : 4-D array with 3D structure masks stacked along 
 % scanNum        
 % cropS        : Dictionary of parameters for cropping
 %                Supported methods: 'crop_fixed_amt','crop_to_bounding_box',
@@ -20,7 +21,7 @@ function [outMask3M, planC] = getMaskForModelConfig(planC,mask3M,scanNum,cropS)
 
 indexS = planC{end};
 
-origMask3M = mask3M;
+origMask4M = mask4M;
 methodC = {cropS.method};
 maskC = cell(length(methodC),1);
 
@@ -37,7 +38,8 @@ for m = 1:length(methodC)
         case 'crop_fixed_amt'
             cropDimV = paramS.margins;
             outMask3M = false(size(getScanArray(scanNum,planC)));
-            outMask3M(cropDimV(1):cropDimV(2),cropDimV(3):cropDimV(4),cropDimV(5):cropDimV(6)) = true;
+            outMask3M(cropDimV(1):cropDimV(2),...
+                cropDimV(3):cropDimV(4),cropDimV(5):cropDimV(6)) = true;
             maskC{m} = outMask3M;
             
         case {'crop_to_bounding_box','crop_to_bounding_box_2d'}
@@ -45,8 +47,8 @@ for m = 1:length(methodC)
             %(bounding box computed for 3D mask)
             label = paramS.label;
             outMask3M = false(size(getScanArray(scanNum,planC)));
-            if ~isempty(origMask3M)
-                outMask3M = origMask3M == label;
+            if ~isempty(origMask4M)
+                outMask3M = squeeze(origMask4M(:,:,:,label));
             else
                warning(['Missing label = ', num2str(label)]); 
             end
@@ -273,9 +275,11 @@ for m = 1:length(methodC)
             maskC{m} = outMask3M;
             
         case 'crop_sup_inf'
-            if ~isempty(origMask3M)
-                [~, ~, ~, ~, mins, maxs] = compute_boundingbox(origMask3M);
-                outMask3M = false(size(mask3M));
+            if ~isempty(origMask4M)
+                sumMask3M = sum(origMask4M,4) > 0;
+                [~, ~, ~, ~, mins, maxs] = ...
+                    compute_boundingbox(sumMask3M);
+                outMask3M = false(size(sumMask3M));
                 outMask3M(:,:,mins:maxs) = true;
             else
                 warning('Input ''mask3M'' is empty.'); 
@@ -290,11 +294,14 @@ for m = 1:length(methodC)
             
         otherwise
             %Custom crop function
-            [maskC{m},planC] = feval(method,planC,paramS,mask3M,scanNum);
+            [maskC{m},planC] = feval(method,planC,paramS,...
+                               mask3M,scanNum);
     end
     
     %Save to planC if reqd
-    if isfield(paramS,'saveStrToPlanCFlag') && paramS.saveStrToPlanCFlag
+    if isfield(paramS,'saveStrToPlanCFlag') && ...
+            paramS.saveStrToPlanCFlag
+
         if isfield(paramS,'outStrName')
             outStrName = paramS.outStrName;
         else
@@ -306,7 +313,8 @@ for m = 1:length(methodC)
         else
             scanId = scanNum;
         end
-        planC = maskToCERRStructure(maskC{m}, 0, scanId, outStrName,planC);
+        planC = maskToCERRStructure(maskC{m}, 0, scanId,...
+                outStrName,planC);
     end
     
     if m>1
