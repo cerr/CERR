@@ -1,4 +1,4 @@
-function [outScan3M,outMask3M] = resampleScanAndMask(scan3M,mask3M,...
+function [outScan3M,outMask4M] = resampleScanAndMask(scan3M,mask4M,...
     xValsV,yValsV,zValsV,xResampleV,yResampleV,zResampleV,method)
 % resampleScanAndMask.m
 %
@@ -9,7 +9,8 @@ function [outScan3M,outMask3M] = resampleScanAndMask(scan3M,mask3M,...
 %--------------------------------------------------------------------------
 % INPUTS:
 % scan3M         :  Scan array (leave empty to skip)
-% mask3M         :  Mask (leave empty to skip)
+% mask4M         :  4-D array with 3D structure masks stacked along 
+%                   the 4th dimension (leave empty to skip)
 % xValsV         :  Input x grid vals (cm)
 % yValsV         :  Input y grid vals (cm)
 % zValsV         :  Input z grid vals (cm)
@@ -36,11 +37,15 @@ else
 end
 
 %Resample mask
-if ~isempty(mask3M)
-    outMask3M = imgResample3d(mask3M,xValsV,yValsV,zValsV,xResampleV,...
-        yResampleV,zResampleV,'nearest',extrapVal);
+if ~isempty(mask4M)
+    for nStr = 1:size(mask4M,4)
+        mask3M = squeeze(mask4M(:,:,:,nStr));
+        outMask3M = imgResample3d(mask3M,xValsV,yValsV,zValsV,...
+            xResampleV,yResampleV,zResampleV,'nearest',extrapVal);
+        outMask4M(:,:,:,nStr) = outMask3M;
+    end
 else
-    outMask3M = [];
+    outMask4M = [];
 end
 
 end
