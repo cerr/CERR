@@ -1,5 +1,5 @@
-function [dataOut3M,imgExtentsV,physExtentsV,planC] = joinH5planC(scanNum,data3M,labelPath,...
-    userOptS,planC)
+function [dataOut4M,imgExtentsV,physExtentsV,planC] = ...
+    joinH5planC(scanNum,data4M,labelPath,userOptS,planC)
 % function [dataOut3M,planC]  = joinH5planC(scanNum,segMask3M,labelPath,...
 %                               userOptS,planC)
 
@@ -9,8 +9,8 @@ end
 indexS = planC{end};
 
 %% Reverse pre-processing operations
-[dataOut3M,imgExtentsV,physExtentsV,scanNum,planC] = reverseTransformAIOutput(scanNum,data3M,...
-    userOptS,planC);
+[dataOut4M,imgExtentsV,physExtentsV,scanNum,planC] = ...
+    reverseTransformAIOutput(scanNum,data4M,userOptS,planC);
 
 %% Import model output to CERR
 outputTypeC = fieldnames(userOptS.output);
@@ -32,7 +32,7 @@ switch(lower(outputType))
         isUniform = 0;
         for i = 1 : length(labelMapS)
             labelVal = labelMapS(i).value;
-            maskForStr3M = dataOut3M == labelVal;
+            maskForStr3M = squeeze(dataOut4M(:,:,:,labelVal));
             planC = maskToCERRStructure(maskForStr3M, isUniform, scanNum,...
                 outStrListC{i}, planC);
             planC{indexS.structures}(end).roiGenerationAlgorithm = 'AUTOMATIC';
@@ -45,8 +45,9 @@ switch(lower(outputType))
                 strcmpi(userOptS.output.(outputType).saveToPlanC,'yes')
             assocScanUID = planC{indexS.scan}(scanNum).scanUID;
             description = labelPath;
-            planC = dose2CERR(dataOut3M,[],description,'',description,'CT',[],...
-                'no',assocScanUID, planC);
+             dataOut3M = dataOut4M;
+             planC = dose2CERR(dataOut3M,[],description,'',description,...
+                    'CT',[],'no',assocScanUID, planC);
         end
 end
 
