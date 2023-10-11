@@ -30,16 +30,16 @@ switch (passedScanDim)
 
         %Write mask
         if ~isempty(maskC{1}) && ~testFlag
-            mask3M = maskC{1}{1};
-            if ~isempty(mask3M)
+            mask4M = maskC{1}{1};
+            if ~isempty(mask4M)
                 if ~exist(fullfile(outDirC{1},'Masks'),'dir')
                     mkdir(fullfile(outDirC{1},'Masks'))
                 end
-                mask3M = uint8(mask3M);
-                maskFilename = fullfile(outDirC{1},'Masks',[filePrefix,'_3D.h5']);
-                h5create(maskFilename,'/mask',size(mask3M));
+                mask4M = uint8(mask4M);
+                maskFilename = fullfile(outDirC{1},'Masks',[filePrefix,'_4D.h5']);
+                h5create(maskFilename,'/mask',size(mask4M));
                 pause(0.1)
-                h5write(maskFilename,'/mask',mask3M);
+                h5write(maskFilename,'/mask',mask4M);
             end
         end
 
@@ -78,16 +78,16 @@ switch (passedScanDim)
 
                 %Write mask
                 if ~isempty(maskC) && ~isempty(maskC{i}{1}) && ~testFlag
-                    mask3M = maskC{i}{1};
+                    mask4M = maskC{i}{1};
 
                     if slIdx == 1
                         if ~exist(fullfile(outDirC{i},'Masks'),'dir')
                             mkdir(fullfile(outDirC{i},'Masks'))
                         end
                     end
-                    maskM = uint8(mask3M(:,:,slIdx));
-                    maskFilename = fullfile(outDirC{i},'Masks',[filePrefix,'_slice',...
-                        num2str(slIdx),'.h5']);
+                    maskM = uint8(squeeze(mask4M(:,:,slIdx,:)));
+                    maskFilename = fullfile(outDirC{i},'Masks',...
+                        [filePrefix,'_slice',num2str(slIdx),'.h5']);
 
                     % Low-level h5 write
                     dims = size(maskM);
