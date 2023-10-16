@@ -48,13 +48,15 @@ if ~isempty(postS)
                 case 'getLargestConnComps'
                     
                     numConnComponents = methodC{iMethod}.params.numCC;
-                    [maskC{iMethod}, planC]= getLargestConnComps(strNum,numConnComponents,planC);
+                    [maskC{iMethod}, planC]= getLargestConnComps(strNum,...
+                        numConnComponents,planC);
                     
                 case 'getLargestOverlappingComp'
                     
                     roiName = methodC{iMethod}.params.roiName;
                     roiStrNum = getMatchingIndex(roiName,strListC,'EXACT');
-                    [maskC{iMethod}, planC] = getLargestOverlappingComp(strNum,roiStrNum,planC);
+                    [maskC{iMethod}, planC] = ...
+                        getLargestOverlappingComp(strNum,roiStrNum,planC);
                     
                 case 'getSegInROI'
                     
@@ -70,7 +72,8 @@ if ~isempty(postS)
                     ctOffset = planC{indexS.scan}(scanNum).scanInfo(1).CTOffset;
                     scan3M = double(getScanArray(scanNum,planC)) - ctOffset;
                     threshold = -400; % default for CT
-                    if isfield(methodC{iMethod},'params') && isfield(methodC{iMethod}.params,'threshold')
+                    if isfield(methodC{iMethod},'params') && ...
+                            isfield(methodC{iMethod}.params,'threshold')
                         threshold = methodC{iMethod}.params.threshold;
                     end
                     connPtMask3M = getPatientOutline(scan3M,[],threshold);
@@ -90,7 +93,8 @@ if ~isempty(postS)
                     else
                         paramS = [];
                     end
-                    [maskC{iMethod},planC] = feval(customMethod.method,strNum,paramS,planC);
+                    [maskC{iMethod},planC] = feval(customMethod.method,...
+                        strNum,paramS,planC);
                    
             end
             
@@ -108,7 +112,7 @@ if ~isempty(postS)
             
             %Replace original structure
             outMask3M = maskC{iMethod};
-            planC = maskToCERRStructure(outMask3M,0,scanNum,strC{iStr},planC);
+            planC = maskToCERRStructure(outMask3M,0,scanNum,...strC{iStr},planC);
             roiGenAlg = planC{indexS.structures}(strNum).roiGenerationAlgorithm;
             roiGenDesc = planC{indexS.structures}(strNum).roiGenerationDescription;
             planC{indexS.structures}(end).roiGenerationAlgorithm = roiGenAlg;
