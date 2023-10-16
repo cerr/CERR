@@ -1,7 +1,11 @@
 function [planC,outScanNum,allLabelNamesC,dcmExportOptS,success] = ...
     processAndImportSeg(planC,origScanNumV,scanNumV,outputScanNum,...
     fullSessionPath,userOptS)
-% planC = processAndImportSeg(planC,origScanNumV,scanNumV,fullSessionPath,userOptS);
+% Function to process and import AI segmentaitons to CERR. 
+% Note: 4-D segmentation maps are expected (4th dim corresponds to
+% structure label)
+% planC = processAndImportSeg(planC,origScanNumV,scanNumV,...
+%         fullSessionPath,userOptS);
 %-------------------------------------------------------------------------
 % INPUTS
 % planC           : planC OR path to directory containing CERR files.
@@ -37,10 +41,10 @@ if ~iscell(planC)
         planC = loadPlanC(planCfilename,tempdir);
         
         ptIdx = ~cellfun(@isempty, strfind(ptListC, strtok(ptName,'_')));
-        segMask3M = outC{ptIdx};
+        segMask4M = outC{ptIdx};
 
         [planC,outScanNum] = importLabelMap(userOptS,origScanNumV,scanNumV,...
-                              outputScanNum,segMask3M,labelPath,planC);
+                              outputScanNum,segMask4M,labelPath,planC);
         %origScanNumV(nFile) = origScanNum;
 
         %Save planC
@@ -51,10 +55,10 @@ if ~iscell(planC)
     end
     planC = cerrPath;
 else
-    segMask3M = outC{1};
+    segMask4M = outC{1};
     tic
     [planC,outScanNum] = importLabelMap(userOptS,origScanNumV,scanNumV,outputScanNum,...
-            segMask3M,labelPath,planC);
+            segMask4M,labelPath,planC);
     toc
 end
 
@@ -90,7 +94,7 @@ end
 %% ----- Supporting functions ----
     function [planC,outScanNum] = importLabelMap(userOptS,...
             origScanNumV,scanNumV,outputScanNum,...
-            segMask3M,labelPath,planC)
+            segMask4M,labelPath,planC)
 
         indexS = planC{end};
         
@@ -114,11 +118,11 @@ end
         outScanNum = scanNumV(origScanIdx);
         userOptS.input.scan(outScanNum) = userOptS.input.scan(origScanIdx);
         userOptS.input.scan(outScanNum).origScan = origScanNumV(origScanIdx);
-        [segMask3M,~,~,planC]  = joinH5planC(outScanNum,segMask3M,labelPath,...
+        [segMask4M,~,~,planC]  = joinH5planC(outScanNum,segMask4M,labelPath,...
             userOptS,planC);
 
         % Post-process segmentation
-        if sum(segMask3M(:))>0
+        if sum(segMask4M(:))>0
             fprintf('\nPost-processing results...\n');
             tic
             planC = postProcStruct(planC,userOptS);
