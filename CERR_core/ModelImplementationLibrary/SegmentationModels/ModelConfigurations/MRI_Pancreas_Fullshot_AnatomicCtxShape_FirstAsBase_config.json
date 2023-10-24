@@ -1,0 +1,87 @@
+{
+
+"input":{    
+        
+    "scan": [{
+
+         "identifier" : {"studyDate":"last"}, 
+         "view" : ["axial"],
+         "crop" : {     
+                    "method": "crop_pt_outline_on_scan",
+                    "params": { 
+                            "scanIdentifier": {"studyDate":"first"},
+                            "structureName": "generated_pt_outline",
+                            "outStrName":"generated_pt_outline",
+	                        "saveStrToPlanCFlag": 1,
+                                "outlineThreshold": 0.03,
+                                "normFlag": 1},
+                                "operator": ""
+                  },
+         "resize": [{  "method" : "bicubic",
+                       "size" : [128,192],
+                       "preserveAspectRatio": "No"
+                    },
+                    {
+                       "method" : "padSlices",
+                       "size" : 128,
+                       "preserveAspectRatio": "No"
+                    }
+                   ],
+         "channels" :{"imageType": "original", "slice": "current"}
+       },
+       {
+        "identifier":{"studyDate":"first"},
+        "view" : ["axial"],
+        "crop": {
+                    "method": "crop_pt_outline",
+                    "params": { "structureName": "generated_pt_outline",
+                                        "outStrName":"generated_pt_outline",
+                                        "saveStrToPlanCFlag": 1,
+                                        "outlineThreshold": 0.03,
+                                        "normFlag": 1},
+                                        "operator": ""
+                },
+        "resize": [{  "method" : "bicubic",
+                       "size" : [128,192],
+                       "preserveAspectRatio": "No"
+                    },
+                    {
+                       "method" : "padSlices",
+                       "size" : 128,
+                       "preserveAspectRatio": "No"
+                    }
+                   ],
+        "channels": {"imageType":"original", "slice": "current"}
+       }
+ ],
+ "structure": {
+     "strNameToLabelMap" : [
+            {"structureName": "Liver",
+             "value": 1},
+            {"structureName": "Bowel_lg",
+            "value": 2},
+            {"structureName": "Bowel_sm",
+             "value": 3},
+            {"structureName": "Duostomach",
+            "value": 4}]
+ }
+},
+
+"passedScanDim" : "3D",
+
+"output":{   
+    "labelMap":{"strNameToLabelMap" : [
+            {"structureName": "Liver",
+             "value": 1},
+            {"structureName": "Bowel_lg",
+            "value": 2},
+            {"structureName": "Bowel_sm",
+             "value": 3},
+            {"structureName": "Duostomach",
+            "value": 4}]},
+    "DVF":{"outputFormat" : "H5", "outputDir":"/cluster/home/clinSegData/outNii"}
+},
+"outputAssocScan": {"identifier" : {"studyDate":"first"}},  
+
+"reference" : ""
+}
