@@ -227,8 +227,8 @@ switch fieldname
             if ~isempty(measurementSeq) && ~measurementSeq.isEmpty
                 measurementObj = measurementSeq.get(0);
                 dataS = measurementObj.getString(524548,0); % 0008,0104
-                dataS = measurementObj.getString(524544,0); % 0008,0100
-                dataS = measurementObj.getString(524569,0); % 0008,0119 (Long Code Value)
+                dataS = measurementObj.getString(524544,0); % 0008,0100 (Code Value)
+                %dataS = measurementObj.getString(524569,0); % 0008,0119 (Long Code Value)
             end
         end
         
