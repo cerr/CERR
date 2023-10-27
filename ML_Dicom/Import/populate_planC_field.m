@@ -109,6 +109,7 @@ switch cellName
                             ~isempty(philipsImageUnits) && ...
                             ~any(ismember(philipsImageUnits,{'no units','normalized'})) % REAL WORLD VALUE
                         realWorldImageFlag = true;
+                        %Apply rescale slope and intercept
                         scanArray3M(:,:,slcNum) = ...
                             single(dataS(scansAdded+1).scanArray(:,:,slcNum)) * single(realWorldValueSlope) + single(realWorldValueIntercept);
                     else % DISPLAY VALUE
@@ -116,6 +117,31 @@ switch cellName
                             single(dataS(scansAdded+1).scanArray(:,:,slcNum)) * single(rescaleSlope) + single(rescaleIntrcpt);                        
                     end
                     rescaleSlopeV(slcNum) = rescaleSlope;
+                end
+
+                %Convert to philipsImageUnits
+                if realWorldImageFlag
+                    idx1  = find(isletter(philipsImageUnits),1);
+                    desiredUnits = strtok(philipsImageUnits(idx1:end), '_');
+                    desiredScale = str2num(strtok(philipsImageUnits(1:idx1-1), '_'));
+                    realWorldMeasurCodeMeaning = char(realWorldMeasurCodeMeaning);
+                    idx2  = find(isletter(realWorldMeasurCodeMeaning),1);
+                    realWorldUnits = strtok(realWorldMeasurCodeMeaning(idx2:end), '_');
+                    if isempty(idx2) || idx2==1
+                        realWorldScale = 1;
+                    else
+                        realWorldScale = str2num(strtok(realWorldMeasurCodeMeaning(1:idx2-1), '_'));
+                    end
+                    if isempty(realWorldUnits)
+                        realWorldUnits = desiredUnits;
+                    end
+                    if ismember(realWorldUnits,{'mm2/s','mm^2/s'}) && ...
+                            ismember(desiredUnits,{'mm2/s','mm^2/s'})
+                        correctionFactor = desiredScale/realWorldScale;
+                        scanArray3M = scanArray3M .* correctionFactor;
+                    else
+                        error('philipsImageUnits currently not supported.')
+                    end
                 end
                 minScanVal = min(scanArray3M(:));
                 ctOffset = max(0,-minScanVal);
