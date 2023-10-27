@@ -39,8 +39,9 @@ for p = 1:length(ptListC)
                           fileNameC{matchIdxV(s)});
                 idx = strfind(slcName,'_slice');
                 slcNum = str2double(slcName(idx+7:end-3));
-                labelM = h5read(slcName,'/mask').';
-                mask4M(:,:,slcNum,:) = labelM;
+                mask3M = h5read(slcName,'/mask');
+                mask3M = permute(mask3M,[3,2,1]);
+                mask4M(:,:,slcNum,:) = mask3M;
                 
             end
             

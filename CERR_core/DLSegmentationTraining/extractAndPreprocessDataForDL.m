@@ -233,11 +233,9 @@ UIDc = {planC{indexS.structures}.assocScanUID};
 for scanIdx = 1:numScans
         
     %Extract scan array from planC
-    imageUnits = '';
-    if isfield(scanOptS(n),'scanUnits')
-        imageUnits = scanOptS(n).scanUnits;
-    end
-    scan3M = transformScanUnits(scanNumV(scanIdx),planC,imageUnits);
+    scan3M = double(getScanArray(scanNumV(scanIdx),planC));
+    CTOffset = double(planC{indexS.scan}(scanNumV(scanIdx)).scanInfo(1).CTOffset);
+    scan3M = scan3M - CTOffset;
     
     %Extract masks from planC
     strC = {planC{indexS.structures}.structureName};
