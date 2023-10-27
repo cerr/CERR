@@ -123,16 +123,6 @@ if length(algorithmC) > 1 || ...
     createSessionFlag = false;
     for k=1:length(algorithmC)
 
-<<<<<<< HEAD
-        if nargin>=9 && all(isnumeric(varargin{2})) && ~any(isnan(varargin{2})) 
-            inputScanNumV = varargin{2};
-        else
-            inputScanNumV = [];
-        end
-
-        if nargin>=10 && all(isnumeric(varargin{3})) && ~any(isnan(varargin{3}))
-            outputScanNum = varargin{3};
-=======
         inputIdxS = struct([]);
         if nargin>=9
             inputIdxS = varargin{2};
@@ -141,7 +131,6 @@ if length(algorithmC) > 1 || ...
         outputScanNumV = [];
         if nargin>=10 && all(isnumeric(varargin{3})) && ~any(isnan(varargin{3}))
             outputScanNumV = varargin{3};
->>>>>>> origin/testing
         else
             outputScanNumV = [];
         end
