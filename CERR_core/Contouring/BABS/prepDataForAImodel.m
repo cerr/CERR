@@ -255,14 +255,13 @@ else
         planC = quality_assure_planC(fileNam,planC);
         
         %Update cropping structure index where needed
+        maskStrC = {};
         if isfield(userOptS.input,'structure')
             if isfield(userOptS.input.structure,'name')
                 maskStrC = {userOptS.input.structure.name};
             else
                 if isfield(userOptS.input.structure,'strNameToLabelMap')
                     maskStrC = {userOptS.input.structure.strNameToLabelMap.structureName};
-                else
-                    maskStrC = {};
                 end
             end
         end
@@ -276,7 +275,7 @@ else
                     cropParS = [cropS.params];
                     if ~isempty(cropStrListC)
                         for nCropStr = 1:length(cropStrListC)
-                            if strcmpi(cropStrListC{nCropStr},maskStrC{nCropStr})
+                            if ~isempty(maskStrC) && strcmpi(cropStrListC{nCropStr},maskStrC{nCropStr})
                                 outStrName = allStrC{inputStrV(nCropStr)};
                                 cropParS(nCropStr).structureName = outStrName;
                             end
