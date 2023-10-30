@@ -11,6 +11,8 @@ function [scanOut3M, maskOut4M] = resizeScanAndMask(scan3M,mask4M,...
 % outputImgSizeV :  Required output size [height, width]
 % method         :  Supported methods: 'none','pad2d', 'pad3d',
 %                   'bilinear', 'sinc', 'bicubic', 'nearest'.
+%
+% OPTIONAL:
 % limitsM        :  Matrix with rows listing indices of rows & cols defining
 %                   ROI extents on each slice [minr, maxr, minc, maxc] 
 % preserveAspectFlag : Set to 1 to preserve aspect ratio when reszing (default:0)
@@ -102,9 +104,9 @@ switch(lower(method))
         if isempty(mask4M)
             maskOut4M = [];
         else
-            maskOut4M = zeros(outputImgSizeV);
+            maskOut4M = zeros([outputImgSizeV,numStr]);
             maskOut4M(xPad+1:xPad+origSizV(1), yPad+1:yPad+origSizV(2),...
-                1:origSizV(3),:) = mask4M;
+                1:origSizV(3),:,:) = mask4M;
         end
         
     case 'unpad3d'
@@ -259,7 +261,7 @@ switch(lower(method))
             end
             
             if ~isempty(mask4M)
-                maskOut4M(outRmin:outRmax,outCmin:outCmax,slcNum) = mask4M(rMin:rMax,cMin:cMax,slcNum);
+                maskOut4M(outRmin:outRmax,outCmin:outCmax,slcNum,:) = mask4M(rMin:rMax,cMin:cMax,slcNum,:);
             end
             
         end
@@ -275,8 +277,8 @@ switch(lower(method))
 
         maskOut4M = [];
         if ~isempty(mask4M)
-            maskOut4M = zeros(size(scan3M,1),size(scan3M,2),numSlices);
-            maskOut4M(:,:,1:origSizV(3)) = mask4M;
+            maskOut4M = zeros(size(scan3M,1),size(scan3M,2),numSlices,numStr);
+            maskOut4M(:,:,1:origSizV(3),:) = mask4M;
         end
 
     case 'unpadslices'
@@ -289,7 +291,7 @@ switch(lower(method))
 
         maskOut4M = [];
         if ~isempty(mask4M)
-            maskOut4M = mask4M(:,:,1:numSlices);
+            maskOut4M = mask4M(:,:,1:numSlices,:);
         end
         
     case {'bilinear','sinc','bicubic','nearest'}
@@ -358,10 +360,10 @@ switch(lower(method))
                         croppedSliceM = scanSliceM(minr:maxr, minc:maxc);
                     end
                     %Resize slice
-                    resizedSliceM = imresize(croppedSliceM, outputImgSizeV(1:2),...
+                    resizedSlice3M = imresize(croppedSliceM, outputImgSizeV(1:2),...
                         methodName);
                     
-                    scanOut3M(:,:,slcNum) = resizedSliceM;
+                    scanOut3M(:,:,slcNum) = resizedSlice3M;
                 end
             end
         end
@@ -379,10 +381,10 @@ switch(lower(method))
 %                 slcV = limitsM(6) - limitsM(5) + 1;                
                 if preserveAspectFlag  %%add case for non-square outputImgSizeV?
                     paddedSize = max(cropDim(1:2))*[1, 1];
-                    maskResize3M = zeros([paddedSize,size(mask4M,3)]);
+                    maskResize4M = zeros([paddedSize,size(mask4M,3),numStr]);
                     for nSlc = 1:size(mask4M,3)
-                        maskResize3M(:,:,nSlc) = imresize(squeeze(...
-                            mask4M(:,:,nSlc)),paddedSize, 'nearest');
+                        maskResize4M(:,:,nSlc,:) = imresize(squeeze(...
+                            mask4M(:,:,nSlc,:)),paddedSize, 'nearest');
                     end
                     %padded3M = bgMean * ones(paddedSize,paddedSize,size(scan3M,3));
                     idx11 = 1 + round((paddedSize - cropDim(1))/2);
@@ -392,24 +394,22 @@ switch(lower(method))
                     
 %                     maskOut3M = zeros([outputImgSizeV(1:2), origSizV(3)]);
 %                     maskOut3M(minr:maxr,minc:maxc,:) = maskResize3M(idx11:idx12,idx21:idx11,:);
-                    maskOut4M = maskResize3M(idx11:idx12,idx21:idx22,:);
+                    maskOut4M = maskResize4M(idx11:idx12,idx21:idx22,:);
                 else
-                    maskOut4M = zeros([outputImgSizeV(1:2),size(mask4M,3)]);
+                    maskOut4M = zeros([outputImgSizeV(1:2),size(mask4M,3),size(mask4M,4)]);
                     for nSlc = 1:size(mask4M,3)
-                        maskOut4M(:,:,nSlc) = imresize(squeeze(...
-                            mask4M(:,:,nSlc)),outputImgSizeV(1:2), 'nearest');
+                        maskOut4M(:,:,nSlc,:) = imresize(squeeze(...
+                            mask4M(:,:,nSlc,:)),outputImgSizeV(1:2), 'nearest');
                     end
                 end
             else %2-D cropping and resizing
-                maskOut4M = zeros([outputImgSizeV(1:2),origSizV(3)]);
+                maskOut4M = zeros([outputImgSizeV(1:2),origSizV(3),origSizV(4)]);
                 limitsM = varargin{1};
                 
-                maskOut4M = zeros([outputImgSizeV(1:2),origSizV(3)]);
-
                 %Loop over slices
                 for slcNum = 1:origSizV(3)
                     
-                    maskSliceM = mask4M(:,:,slcNum);
+                    maskSlice3M = mask4M(:,:,slcNum,:);
                     
                     %Get bounds
                     minr = limitsM(slcNum,1);
@@ -421,25 +421,25 @@ switch(lower(method))
                     
                     if preserveAspectFlag
                         paddedSize = max(cropDim(1:2))*[1, 1];
-                        maskSliceResize = imresize(maskSliceM,paddedSize,'nearest');
+                        maskSliceResize = imresize(maskSlice3M,paddedSize,'nearest');
                     %Un-crop slice
 %                         paddedSize = max(cropDim);
                         idx11 = 1 + floor((paddedSize(1) - cropDim(1)) / 2);
                         idx12 = idx11 + cropDim(1) - 1;
                         idx21 = 1 + floor((paddedSize(2) - cropDim(2)) / 2);
                         idx22 = idx21 + cropDim(2)-1;
-                        resizedSliceM = zeros(outputImgSizeV(1:2));
-                        resizedSliceM(minr:maxr,minc:maxc) = maskSliceResize(idx11:idx12,idx21:idx22);
+                        resizedSlice3M = zeros([outputImgSizeV(1:2),origSizV(4)]);
+                        resizedSlice3M(minr:maxr,minc:maxc,:) = maskSliceResize(idx11:idx12,idx21:idx22,:);
 %                       resizedSliceM = maskSliceResize(idx11:idx12,idx21:idx22);
                     else
 
-                        croppedSliceM = maskSliceM(minr:maxr, minc:maxc);
+                        croppedSlice3M = maskSlice3M(minr:maxr, minc:maxc,:);
 
                         %Resize slice
-                        resizedSliceM = imresize(croppedSliceM, outputImgSizeV,...
+                        resizedSlice3M = imresize(croppedSlice3M, outputImgSizeV,...
                             'nearest');
                     end
-                    maskOut4M(:,:,slcNum) = resizedSliceM;
+                    maskOut4M(:,:,slcNum,:) = resizedSlice3M;
                 end
             end
         end
