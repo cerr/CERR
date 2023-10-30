@@ -26,26 +26,28 @@ for p = 1:length(ptListC)
         case '3D'
             
             fileName = fullfile(outPath,'outputH5',fileNameC{1});
-            mask3M = h5read(fileName,'/mask');
-            mask3M = permute(mask3M,[3 2 1]);
+            mask4M = h5read(fileName,'/mask');
+            %mask3M = permute(mask3M,[3 2 1]);
+            mask4M = permute(mask4M,[4 3 2 1]); %?
             
         case '2D'
             %Stack files
-            mask3M = [];
+            mask4M = [];
             for s = 1: length(matchIdxV)
                 
                 slcName = fullfile(outPath,'outputH5',...
                           fileNameC{matchIdxV(s)});
                 idx = strfind(slcName,'_slice');
                 slcNum = str2double(slcName(idx+7:end-3));
-                labelM = h5read(slcName,'/mask').';
-                mask3M(:,:,slcNum) = labelM;
-                
+                mask3M = h5read(slcName,'/mask');
+                mask3M = permute(mask3M,[3,2,1]);
+                mask4M(:,:,slcNum,:) = mask3M;
                 
             end
+            
     end
     
-    outC{p} = mask3M;
+    outC{p} = mask4M;
     
 end
 

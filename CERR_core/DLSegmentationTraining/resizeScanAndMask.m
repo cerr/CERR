@@ -1,4 +1,4 @@
-function [scanOut3M, maskOut3M] = resizeScanAndMask(scan3M,mask3M,...
+function [scanOut3M, maskOut4M] = resizeScanAndMask(scan3M,mask4M,...
                                   outputImgSizeV,method,varargin)
 % resizeScanAndMask.m
 % Script to resize images and masks for deep learning.
@@ -7,10 +7,12 @@ function [scanOut3M, maskOut3M] = resizeScanAndMask(scan3M,mask3M,...
 %--------------------------------------------------------------------------
 %INPUTS:
 % scan3M         :  Scan array
-% mask3M         :  Mask
+% mask4M         : 4-D array with 3D structure masks stacked along 
 % outputImgSizeV :  Required output size [height, width]
 % method         :  Supported methods: 'none','pad2d', 'pad3d',
 %                   'bilinear', 'sinc', 'bicubic', 'nearest'.
+%
+% OPTIONAL:
 % limitsM        :  Matrix with rows listing indices of rows & cols defining
 %                   ROI extents on each slice [minr, maxr, minc, maxc] 
 % preserveAspectFlag : Set to 1 to preserve aspect ratio when reszing (default:0)
@@ -36,8 +38,9 @@ outputImgSizeV = outputImgSizeV(:)';
 if ~isempty(scan3M)
     origSizV = [size(scan3M,1), size(scan3M,2), size(scan3M,3)];
 else
-    origSizV = [size(mask3M,1), size(mask3M,2), size(mask3M,3)];
+    origSizV = [size(mask4M,1), size(mask4M,2), size(mask4M,3)];
 end
+numStr = size(mask4M,4);
 
 %Resize image by method
 switch(lower(method))
@@ -65,7 +68,8 @@ switch(lower(method))
         else
             resizeMethod = 'pad3d';
         end
-        [scanOut3M, maskOut3M] = resizeScanAndMask(scan3M,mask3M,outputImgSizeV,resizeMethod,varargin);
+        [scanOut3M, maskOut4M] = resizeScanAndMask(scan3M,...
+            mask4M,outputImgSizeV,resizeMethod,varargin);
         
     case 'padorcrop2d'
         xPad = floor((outputImgSizeV(1) - origSizV(1))/2);
@@ -74,7 +78,8 @@ switch(lower(method))
         else
             resizeMethod = 'pad2d';
         end
-        [scanOut3M, maskOut3M] = resizeScanAndMask(scan3M,mask3M,outputImgSizeV,resizeMethod,varargin{:});
+        [scanOut3M, maskOut4M] = resizeScanAndMask(scan3M,...
+            mask4M,outputImgSizeV,resizeMethod,varargin{:});
         
     case 'pad3d'
         
@@ -96,11 +101,12 @@ switch(lower(method))
         end
         
         %Pad mask
-        if isempty(mask3M)
-            maskOut3M = [];
+        if isempty(mask4M)
+            maskOut4M = [];
         else
-            maskOut3M = zeros(outputImgSizeV);
-            maskOut3M(xPad+1:xPad+origSizV(1), yPad+1:yPad+origSizV(2), 1:origSizV(3)) = mask3M;
+            maskOut4M = zeros([outputImgSizeV,numStr]);
+            maskOut4M(xPad+1:xPad+origSizV(1), yPad+1:yPad+origSizV(2),...
+                1:origSizV(3),:,:) = mask4M;
         end
         
     case 'unpad3d'
@@ -114,14 +120,15 @@ switch(lower(method))
         if isempty(scan3M)
             scanOut3M = [];
         else
-            scanOut3M = scan3M(xPad+1:xPad+outputImgSizeV(1), yPad+1:yPad+outputImgSizeV(2), :);
+            scanOut3M = scan3M(xPad+1:xPad+outputImgSizeV(1),...
+                yPad+1:yPad+outputImgSizeV(2), :);
         end
         
-        if isempty(mask3M)
-            maskOut3M = [];
+        if isempty(mask4M)
+            maskOut4M = [];
         else
-%             maskOut3M = mask3M(xPad+1:xPad+origSizV(1), yPad+1:yPad+origSizV(2), :);
-            maskOut3M = mask3M(xPad+1:xPad+outputImgSizeV(1), yPad+1:yPad+outputImgSizeV(2), :);
+            maskOut4M = mask4M(xPad+1:xPad+outputImgSizeV(1),...
+                yPad+1:yPad+outputImgSizeV(2),:,:);
         end
         
     case 'unpad2d'
@@ -136,10 +143,10 @@ switch(lower(method))
             scanOut3M = zeros(outputImgSizeV,class(scan3M)) + minScanVal;
         end
         
-        if isempty(mask3M)
-            maskOut3M = [];
+        if isempty(mask4M)
+            maskOut4M = [];
         else
-            maskOut3M = zeros(outputImgSizeV,'uint32');
+            maskOut4M = zeros([outputImgSizeV,numStr],'uint32');
         end
         
         % Min/max row and col limits for each slice
@@ -186,9 +193,9 @@ switch(lower(method))
                 scanOut3M(rMin:rMax,cMin:cMax,slcNum)= ...
                     scan3M(outRmin:outRmax,outCmin:outCmax,slcNum);
             end
-            if ~isempty(mask3M)
-                maskOut3M(rMin:rMax,cMin:cMax,slcNum)= ...
-                    mask3M(outRmin:outRmax,outCmin:outCmax,slcNum);
+            if ~isempty(mask4M)
+                maskOut4M(rMin:rMax,cMin:cMax,slcNum,:)= ...
+                    mask4M(outRmin:outRmax,outCmin:outCmax,slcNum,:);
             end
             
         end
@@ -206,10 +213,10 @@ switch(lower(method))
             scanOut3M = zeros(outputImgSizeV,class(scan3M)) + minScanVal;
         end
         
-        if isempty(mask3M)
-            maskOut3M = [];
+        if isempty(mask4M)
+            maskOut4M = [];
         else
-            maskOut3M = zeros(outputImgSizeV,'uint32');
+            maskOut4M = zeros([outputImgSizeV,numStr],'uint32');
         end
         
         % Min/max row and col limits for each slice
@@ -253,8 +260,8 @@ switch(lower(method))
                 scanOut3M(outRmin:outRmax,outCmin:outCmax,slcNum) = scan3M(rMin:rMax,cMin:cMax,slcNum);
             end
             
-            if ~isempty(mask3M)
-                maskOut3M(outRmin:outRmax,outCmin:outCmax,slcNum) = mask3M(rMin:rMax,cMin:cMax,slcNum);
+            if ~isempty(mask4M)
+                maskOut4M(outRmin:outRmax,outCmin:outCmax,slcNum,:) = mask4M(rMin:rMax,cMin:cMax,slcNum,:);
             end
             
         end
@@ -268,10 +275,10 @@ switch(lower(method))
             scanOut3M(:,:,1:origSizV(3)) = scan3M;
         end
 
-        maskOut3M = [];
-        if ~isempty(mask3M)
-            maskOut3M = zeros(size(scan3M,1),size(scan3M,2),numSlices);
-            maskOut3M(:,:,1:origSizV(3)) = mask3M;
+        maskOut4M = [];
+        if ~isempty(mask4M)
+            maskOut4M = zeros(size(scan3M,1),size(scan3M,2),numSlices,numStr);
+            maskOut4M(:,:,1:origSizV(3),:) = mask4M;
         end
 
     case 'unpadslices'
@@ -282,9 +289,9 @@ switch(lower(method))
             scanOut3M = scan3M(:,:,1:numSlices);
         end
 
-        maskOut3M = [];
-        if ~isempty(mask3M)
-            maskOut3M = mask3M(:,:,1:numSlices);
+        maskOut4M = [];
+        if ~isempty(mask4M)
+            maskOut4M = mask4M(:,:,1:numSlices,:);
         end
         
     case {'bilinear','sinc','bicubic','nearest'}
@@ -353,16 +360,16 @@ switch(lower(method))
                         croppedSliceM = scanSliceM(minr:maxr, minc:maxc);
                     end
                     %Resize slice
-                    resizedSliceM = imresize(croppedSliceM, outputImgSizeV(1:2),...
+                    resizedSlice3M = imresize(croppedSliceM, outputImgSizeV(1:2),...
                         methodName);
                     
-                    scanOut3M(:,:,slcNum) = resizedSliceM;
+                    scanOut3M(:,:,slcNum) = resizedSlice3M;
                 end
             end
         end
         
-        if isempty(mask3M)
-            maskOut3M = [];
+        if isempty(mask4M)
+            maskOut4M = [];
             
         else
             if nargin > 3 && size(limitsM,1)==1 % cropped 3D
@@ -374,10 +381,10 @@ switch(lower(method))
 %                 slcV = limitsM(6) - limitsM(5) + 1;                
                 if preserveAspectFlag  %%add case for non-square outputImgSizeV?
                     paddedSize = max(cropDim(1:2))*[1, 1];
-                    maskResize3M = zeros([paddedSize,size(mask3M,3)]);
-                    for nSlc = 1:size(mask3M,3)
-                        maskResize3M(:,:,nSlc) = imresize(squeeze(...
-                            mask3M(:,:,nSlc)),paddedSize, 'nearest');
+                    maskResize4M = zeros([paddedSize,size(mask4M,3),numStr]);
+                    for nSlc = 1:size(mask4M,3)
+                        maskResize4M(:,:,nSlc,:) = imresize(squeeze(...
+                            mask4M(:,:,nSlc,:)),paddedSize, 'nearest');
                     end
                     %padded3M = bgMean * ones(paddedSize,paddedSize,size(scan3M,3));
                     idx11 = 1 + round((paddedSize - cropDim(1))/2);
@@ -387,24 +394,22 @@ switch(lower(method))
                     
 %                     maskOut3M = zeros([outputImgSizeV(1:2), origSizV(3)]);
 %                     maskOut3M(minr:maxr,minc:maxc,:) = maskResize3M(idx11:idx12,idx21:idx11,:);
-                    maskOut3M = maskResize3M(idx11:idx12,idx21:idx22,:);
+                    maskOut4M = maskResize4M(idx11:idx12,idx21:idx22,:);
                 else
-                    maskOut3M = zeros([outputImgSizeV(1:2),size(mask3M,3)]);
-                    for nSlc = 1:size(mask3M,3)
-                        maskOut3M(:,:,nSlc) = imresize(squeeze(...
-                            mask3M(:,:,nSlc)),outputImgSizeV(1:2), 'nearest');
+                    maskOut4M = zeros([outputImgSizeV(1:2),size(mask4M,3),size(mask4M,4)]);
+                    for nSlc = 1:size(mask4M,3)
+                        maskOut4M(:,:,nSlc,:) = imresize(squeeze(...
+                            mask4M(:,:,nSlc,:)),outputImgSizeV(1:2), 'nearest');
                     end
                 end
             else %2-D cropping and resizing
-                maskOut3M = zeros([outputImgSizeV(1:2),origSizV(3)]);
+                maskOut4M = zeros([outputImgSizeV(1:2),origSizV(3),origSizV(4)]);
                 limitsM = varargin{1};
                 
-                maskOut3M = zeros([outputImgSizeV(1:2),origSizV(3)]);
-
                 %Loop over slices
                 for slcNum = 1:origSizV(3)
                     
-                    maskSliceM = mask3M(:,:,slcNum);
+                    maskSlice3M = mask4M(:,:,slcNum,:);
                     
                     %Get bounds
                     minr = limitsM(slcNum,1);
@@ -416,25 +421,25 @@ switch(lower(method))
                     
                     if preserveAspectFlag
                         paddedSize = max(cropDim(1:2))*[1, 1];
-                        maskSliceResize = imresize(maskSliceM,paddedSize,'nearest');
+                        maskSliceResize = imresize(maskSlice3M,paddedSize,'nearest');
                     %Un-crop slice
 %                         paddedSize = max(cropDim);
                         idx11 = 1 + floor((paddedSize(1) - cropDim(1)) / 2);
                         idx12 = idx11 + cropDim(1) - 1;
                         idx21 = 1 + floor((paddedSize(2) - cropDim(2)) / 2);
                         idx22 = idx21 + cropDim(2)-1;
-                        resizedSliceM = zeros(outputImgSizeV(1:2));
-                        resizedSliceM(minr:maxr,minc:maxc) = maskSliceResize(idx11:idx12,idx21:idx22);
+                        resizedSlice3M = zeros([outputImgSizeV(1:2),origSizV(4)]);
+                        resizedSlice3M(minr:maxr,minc:maxc,:) = maskSliceResize(idx11:idx12,idx21:idx22,:);
 %                       resizedSliceM = maskSliceResize(idx11:idx12,idx21:idx22);
                     else
 
-                        croppedSliceM = maskSliceM(minr:maxr, minc:maxc);
+                        croppedSlice3M = maskSlice3M(minr:maxr, minc:maxc,:);
 
                         %Resize slice
-                        resizedSliceM = imresize(croppedSliceM, outputImgSizeV,...
+                        resizedSlice3M = imresize(croppedSlice3M, outputImgSizeV,...
                             'nearest');
                     end
-                    maskOut3M(:,:,slcNum) = resizedSliceM;
+                    maskOut4M(:,:,slcNum,:) = resizedSlice3M;
                 end
             end
         end
@@ -443,7 +448,7 @@ switch(lower(method))
         
     case 'none'
         scanOut3M = scan3M;
-        maskOut3M = mask3M;
+        maskOut4M = mask4M;
         
 end
 

@@ -1,5 +1,5 @@
-function [dataOut3M,imgExtentsV,physExtentsV,scanNum,planC] = reverseTransformAIOutput(scanNum,data3M,...
-                             userOptS,planC)
+function [dataOut4M,imgExtentsV,physExtentsV,scanNum,planC] = ...
+    reverseTransformAIOutput(scanNum,data4M,userOptS,planC)
 % Undo pre-processing transformations (cropping, resampling, registration)
 % AI 09/01/22
 
@@ -27,12 +27,12 @@ if ~isempty(cropS) && isfield(cropS(1),'params')
 end
 
 % cropS.params.saveStrToPlanCFlag=0;
-[minr, maxr, minc, maxc, slcV, ~, planC] = getCropLimits(planC,data3M,...
+[minr, maxr, minc, maxc, slcV, ~, planC] = getCropLimits(planC,data4M,...
     scanNum,cropS);
 scanArray3M = planC{indexS.scan}(scanNum).scanArray;
 sizV = size(scanArray3M);
 %dataOut3M = zeros(sizV, 'uint32');
-dataOut3M = zeros(sizV,class(data3M));
+dataOut4M = zeros([sizV,size(data4M,4)],class(data4M));
 originImageSizV = [sizV(1:2), length(slcV)];
 scanS = planC{indexS.scan}(scanNum);
 [xValsV,yValsV,zValsV] = getScanXYZVals(scanS);
@@ -54,7 +54,7 @@ for nMethod = length(resizeS):-1:1
     end
 
     if nMethod<length(resizeS)
-        data3M = dataOut3M;
+        data4M = dataOut4M;
     end
     switch lower(resizeMethod)
         
@@ -64,69 +64,68 @@ for nMethod = length(resizeS):-1:1
             resizeMethod = 'unpad2d';
             originImageSizV = [sizV(1:2), length(slcV)];
             if strcmpi(output, 'labelmap')                
-                dataOut3M = zeros(sizV, 'uint32');
-                [~, dataOut3M(:,:,slcV)] = ...
-                    resizeScanAndMask([],data3M,originImageSizV,...
+                dataOut4M = zeros(sizV, 'uint32');
+                [~, dataOut4M(:,:,slcV,:)] = ...
+                    resizeScanAndMask([],data4M,originImageSizV,...
                     resizeMethod,limitsM);                
             else
-                [dataOut3M(:,:,slcV),~] = ...
-                    resizeScanAndMask(data3M,[],originImageSizV,...
+                [dataOut4M(:,:,slcV,:),~] = ...
+                    resizeScanAndMask(data4M,[],originImageSizV,...
                     resizeMethod,limitsM);                
             end
             
         case 'pad3d'
             resizeMethod = 'unpad3d';
-            [~, tempData3M] = ...
-                resizeScanAndMask([],data3M,sizV,resizeMethod);
-            dataOut3M(:,:,slcV) = tempData3M;
+            [~, tempData4M] = ...
+                resizeScanAndMask([],data4M,sizV,resizeMethod);
+            dataOut4M(:,:,slcV,:) = tempData4M;
 
         case 'padorcrop3d'
             resizeMethod = 'padorcrop3d';
-            [~, tempData3M] = ...
-                resizeScanAndMask([],data3M,sizV,resizeMethod);
-            dataOut3M(:,:,slcV) = tempData3M;
+            [~, tempData4M] = ...
+                resizeScanAndMask([],data4M,sizV,resizeMethod);
+            dataOut4M(:,:,slcV,:) = tempData4M;
 
         case 'padorcrop2d'
             resizeMethod = 'padorcrop2d';
             limitsM = [minr, maxr, minc, maxc];
             originImageSizV = [sizV(1:2), length(slcV)];
-            [~, dataOut3M(:,:,slcV)] = ...
-                resizeScanAndMask([],data3M,originImageSizV,...
+            [~, dataOut4M(:,:,slcV,:)] = ...
+                resizeScanAndMask([],data4M,originImageSizV,...
                 resizeMethod,limitsM);
 
         case 'padslices'
             resizeMethod = 'unpadslices';
-            [~, dataOut3M] = ...
-                resizeScanAndMask([],data3M,originImageSizV(3),...
+            [~, dataOut4M] = ...
+                resizeScanAndMask([],data4M,originImageSizV(3),...
                 resizeMethod);
 
         case { 'bilinear', 'sinc', 'bicubic'}
-            dataOut3M = zeros(sizV, class(data3M));
+            dataOut4M = zeros([sizV,size(data4M,4)], class(data4M));
             limitsM = [minr, maxr, minc, maxc];
 
             outSizeV = [maxr-minr+1,maxc-minc+1,originImageSizV(3)];
             if strcmpi(output,'labelmap')
                 % resize currData3M using nearest neighbor interpolation
-                [~,tempData3M] = ...
-                    resizeScanAndMask([],data3M,outSizeV,resizeMethod,...
+                [~,tempData4M] = ...
+                    resizeScanAndMask([],data4M,outSizeV,'nearest',...
                     limitsM,preserveAspectFlag);
             else
-                % resize currData3M using nearest neighbor interpolation
-                tempData3M = ...
-                    resizeScanAndMask(data3M,[],outSizeV,resizeMethod,...
+                tempData4M = ...
+                    resizeScanAndMask(data4M,[],outSizeV,resizeMethod,...
                     limitsM,preserveAspectFlag);
             end
 
             if size(limitsM,1)>1
                 %2-D resize methods
-                dataOut3M(:,:,slcV) = tempData3M;
+                dataOut4M(:,:,slcV,:) = tempData4M;
             else
                 %3-D resize methods
-                dataOut3M(minr:maxr, minc:maxc, slcV) = tempData3M;
+                dataOut4M(minr:maxr, minc:maxc, slcV, :) = tempData4M;
             end
 
         case 'none'
-            dataOut3M(minr:maxr,minc:maxc,slcV) = data3M;
+            dataOut4M(minr:maxr,minc:maxc,slcV,:) = data4M;
     end
 end
 
@@ -148,10 +147,10 @@ if ~strcmpi(resampleS.method,'none')
 
     if strcmpi(output,'labelmap')
         %Resample mask ('nearest' interpolation)
-        [~,dataOut3M] = resampleScanAndMask([],double(dataOut3M),xValsV,...
+        [~,dataOut4M] = resampleScanAndMask([],double(dataOut4M),xValsV,...
             yValsV,zValsV,xVals0V,yVals0V,zVals0V);
     else
-        dataOut3M = resampleScanAndMask(double(dataOut3M),[],xValsV,...
+        dataOut4M = resampleScanAndMask(double(dataOut4M),[],xValsV,...
             yValsV,zValsV,xVals0V,yVals0V,zVals0V);
     end
 

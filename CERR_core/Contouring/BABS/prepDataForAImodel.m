@@ -255,14 +255,13 @@ else
         planC = quality_assure_planC(fileNam,planC);
         
         %Update cropping structure index where needed
+        maskStrC = {};
         if isfield(userOptS.input,'structure')
             if isfield(userOptS.input.structure,'name')
                 maskStrC = {userOptS.input.structure.name};
             else
                 if isfield(userOptS.input.structure,'strNameToLabelMap')
                     maskStrC = {userOptS.input.structure.strNameToLabelMap.structureName};
-                else
-                    maskStrC = {};
                 end
             end
         end
@@ -276,7 +275,7 @@ else
                     cropParS = [cropS.params];
                     if ~isempty(cropStrListC)
                         for nCropStr = 1:length(cropStrListC)
-                            if strcmpi(cropStrListC{nCropStr},maskStrC{nCropStr})
+                            if ~isempty(maskStrC) && strcmpi(cropStrListC{nCropStr},maskStrC{nCropStr})
                                 outStrName = allStrC{inputStrV(nCropStr)};
                                 cropParS(nCropStr).structureName = outStrName;
                             end
@@ -295,9 +294,9 @@ else
             inputType = inputC{nIn};
 
             switch(inputType)
-
+                
                 case {'scan','structure'}
-
+                    
                     exportScan = 1;
                     if strcmpi(inputType,'structure')
                         indexS = planC{end};
@@ -327,15 +326,15 @@ else
                             exportScan = 0;
                             continue
                         end
-
+                        
                         scanC = {};
                         for nStr = 1:length(strNumV)
                             strMaskC{nStr} = getStrMask(strNumV(nStr),planC);
                         end
                         maskC{1} = strMaskC;
-
+                        
                     end
-
+                    
                     if exportScan
                         %Pre-process data and export to model input fmt
                         fprintf('\nPre-processing data...\n');
@@ -344,33 +343,33 @@ else
                             extractAndPreprocessDataForDL(userOptS,planC,...
                             skipMaskExport,inputScanNumV);
                     end
-
+                    
                     %Export to model input format
                     tic
                     fprintf('\nWriting to %s format...\n',modelFmt);
-                  passedScanDim = userOptS.passedScanDim;
-                  scanOptS = userOptS.input.scan;
-
-                  %Loop over scan types
-                  for nScan = 1:size(scanC,1)
-
-                      %Append identifiers to o/p name
-                      idOut = getOutputFileNameForDL(filePrefixForHDF5,...
-                          scanOptS(nScan),scanNumV(nScan),planC);
-
-                      %Get o/p dirs & dim
-                      outDirC = getOutputH5Dir(modInputPath,scanOptS(nScan),'');
-
-                      %Write to model input fmt
-                      writeDataForDL(scanC{nScan},maskC{nScan},coordInfoS,...
-                      passedScanDim,modelFmt,outDirC,idOut,skipMaskExport);
-                  end
-
-                %case 'dose'
-
+                    passedScanDim = userOptS.passedScanDim;
+                    scanOptS = userOptS.input.scan;
+                    
+                    %Loop over scan types
+                    for nScan = 1:size(scanC,1)
+                        
+                        %Append identifiers to o/p name
+                        idOut = getOutputFileNameForDL(filePrefixForHDF5,...
+                            scanOptS(nScan),scanNumV(nScan),planC);
+                        
+                        %Get o/p dirs & dim
+                        outDirC = getOutputH5Dir(modInputPath,scanOptS(nScan),'');
+                        
+                        %Write to model input fmt
+                        writeDataForDL(scanC{nScan},maskC{nScan},coordInfoS,...
+                            passedScanDim,modelFmt,outDirC,idOut,skipMaskExport);
+                    end
+                    
+                    %case 'dose'
+                    
                 otherwise
                     error('Invalid input type '' %s ''.')
-          end
+            end
 
         end
 
