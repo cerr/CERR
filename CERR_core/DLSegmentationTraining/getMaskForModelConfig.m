@@ -238,7 +238,9 @@ for m = 1:length(methodC)
             assocScanV = getStructureAssociatedScan(1:numStructs,planC);
             if ~isempty(outlineIndex)
                 outlineIndex = outlineIndex(assocScanV(outlineIndex) == scanId);
-                outlineIndex = outlineIndex(end);
+                 if length(outlineIndex)>1
+                    outlineIndex = outlineIndex(end);
+                end
             end
             
             %Get mask of pt outline
