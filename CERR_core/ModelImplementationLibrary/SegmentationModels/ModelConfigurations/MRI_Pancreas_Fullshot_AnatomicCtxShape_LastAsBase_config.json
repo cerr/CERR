@@ -63,7 +63,8 @@
             {"structureName": "Bowel_sm",
              "value": 3},
             {"structureName": "Duostomach",
-            "value": 4}]
+            "value": 4}],
+    "assocScan":{"identifier":{"studyDate":"first"}}
  }
 },
 

@@ -25,7 +25,7 @@ resampleS = [scanOptS.resample];
 resizeS = [scanOptS.resize];
 
 indexS = planC{end};
-
+strAssocScan = [];
 if exist('strNumV','var') && ~isempty(strNumV)
     strListC = planC{indexS.structures}(strNumV).structureName;
     if ~iscell(strListC)
@@ -46,6 +46,9 @@ else
             exportStrS.structureName = strListC;
             labelV = 1:length(strListC);
             exportStrS.value = labelV;
+        end
+        if isfield(optS.input.structure,'assocScan')
+               strAssocScan = getScanNumFromIdentifiers(optS.input.structure.assocScan.identifier,planC);
         end
     else
         strListC = {};
@@ -209,15 +212,50 @@ if any(strNotAvailableV) && ~skipMaskExport
 end
 exportStrC = strListC(~strNotAvailableV);
 
+exportStrNum = 0;
 if ~isempty(exportStrC) || ~skipMaskExport
     exportLabelV = labelV(~strNotAvailableV);
     %Get structure ID and assoc scan
     strIdxC = cell(length(exportStrC),1);
     for strNum = 1:length(exportStrC)
         currentLabelName = exportStrC{strNum};
-        strIdxC{strNum} = getMatchingIndex(currentLabelName,allStrC,'exact');
+         strMatchIdx = getMatchingIndex(currentLabelName,allStrC,'exact');
+         skipFlag = 0;
+         if length(strMatchIdx)>1
+             if ~isempty(strAssocScan)
+                 scanMatchIdx = getStructureAssociatedScan(strMatchIdx,planC);
+                 strMatchIdx = strMatchIdx(scanMatchIdx==strAssocScan);
+                 if isempty(strMatchIdx)
+                     skipFlag = 1;
+                     warning(['SMissing structure: ',currentLabelName]);
+                 elseif length(strMatchIdx)>1
+                     error('Multiple structures found matching %s',currentLabelName);
+                 end
+             else
+                 error('Multiple structures found matching %s',currentLabelName);
+             end
+         end
+         if ~skipFlag
+             exportStrNum = exportStrNum+1;
+             strIdxC{exportStrNum} = strMatchIdx;
+         else
+             exportLabelV(strNum) = [];
+         end
     end
 end
+
+if ~isempty(strAssocScan)
+    strIdxV = [strIdxC{:}];
+    scanMatchIdxV = getStructureAssociatedScan(strIdxV,planC);
+    keepIdxV = scanMatchIdxV==strAssocScan;
+    strIdxC(~keepIdxV) = [];
+    exportLabelV = exportLabelV(keepIdxV);
+    if any(~keepIdxV)
+        warning([' Missing structures: ',...
+            strjoin(exportStrC(~keepIdxV),',')]);
+    end
+end
+
 
 %% Extract & preprocess data
 numScans = length(scanNumV);
@@ -233,11 +271,9 @@ UIDc = {planC{indexS.structures}.assocScanUID};
 for scanIdx = 1:numScans
         
     %Extract scan array from planC
-    imageUnits = '';
-    if isfield(scanOptS(n),'scanUnits')
-        imageUnits = scanOptS(n).scanUnits;
-    end
-    scan3M = transformScanUnits(scanNumV(scanIdx),planC,imageUnits);
+    scan3M = double(getScanArray(scanNumV(scanIdx),planC));
+    CTOffset = double(planC{indexS.scan}(scanNumV(scanIdx)).scanInfo(1).CTOffset);
+    scan3M = scan3M - CTOffset;
     
     %Extract masks from planC
     strC = {planC{indexS.structures}.structureName};
