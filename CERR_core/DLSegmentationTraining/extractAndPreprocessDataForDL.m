@@ -213,8 +213,9 @@ end
 exportStrC = strListC(~strNotAvailableV);
 
 exportStrNum = 0;
+strIdxC = {};
+exportLabelV = labelV(~strNotAvailableV);
 if ~isempty(exportStrC) || ~skipMaskExport
-    exportLabelV = labelV(~strNotAvailableV);
     %Get structure ID and assoc scan
     strIdxC = cell(length(exportStrC),1);
     for strNum = 1:length(exportStrC)
@@ -227,7 +228,7 @@ if ~isempty(exportStrC) || ~skipMaskExport
                  strMatchIdx = strMatchIdx(scanMatchIdx==strAssocScan);
                  if isempty(strMatchIdx)
                      skipFlag = 1;
-                     warning(['SMissing structure: ',currentLabelName]);
+                     warning(['Missing structure: ',currentLabelName]);
                  elseif length(strMatchIdx)>1
                      error('Multiple structures found matching %s',currentLabelName);
                  end
@@ -245,11 +246,15 @@ if ~isempty(exportStrC) || ~skipMaskExport
 end
 
 if ~isempty(strAssocScan)
-    strIdxV = [strIdxC{:}];
-    scanMatchIdxV = getStructureAssociatedScan(strIdxV,planC);
-    keepIdxV = scanMatchIdxV==strAssocScan;
-    strIdxC(~keepIdxV) = [];
-    exportLabelV = exportLabelV(keepIdxV);
+    if ~isempty(strIdxC)
+        strIdxV = [strIdxC{:}];
+        scanMatchIdxV = getStructureAssociatedScan(strIdxV,planC);
+        keepIdxV = scanMatchIdxV==strAssocScan;
+        strIdxC(~keepIdxV) = [];
+        exportLabelV = exportLabelV(keepIdxV);
+    else
+        keepIdxV = false(1,length(exportLabelV));
+    end
     if any(~keepIdxV)
         warning([' Missing structures: ',...
             strjoin(exportStrC(~keepIdxV),',')]);
