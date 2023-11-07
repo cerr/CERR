@@ -35,7 +35,7 @@ if ~isempty(imageUnits)
         if ~ismember(currUnits,{'mm2/s','mm^2/s'})
             error('Invalid intensity units %s. Expected units: mm^2/s',imageUnits);
         else
-            scaleFactor = desiredScale/currScale;
+            scaleFactor = currScale/desiredScale;
         end
         scan3M = scan3M .* scaleFactor;
     else

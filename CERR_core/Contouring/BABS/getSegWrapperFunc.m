@@ -98,6 +98,11 @@ for algoNum = 1:numAlgoritms
             functionNameC{algoNum} = fullfile(condaEnvListC{algoNum},...
                 'ADC_ProstDIL_MRRNDS','BasicSegmentation.py');
 
+        case 'CT_CBCT_PANCREAS_ANATOMICSHAPE'
+            functionNameC{algoNum} = fullfile(condaEnvListC{algoNum},...
+                'CT_CBCT_Pancreas_AnatomicShape','model_wrapper',...
+                'run_inference.py');
+
     end
     
 end

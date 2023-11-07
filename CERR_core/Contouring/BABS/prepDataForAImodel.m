@@ -298,6 +298,8 @@ else
                 case {'scan','structure'}
                     
                     exportScan = 1;
+                    
+                    %Get list of structures required as inputs to AI model
                     if strcmpi(inputType,'structure')
                         indexS = planC{end};
                         if isfield(inputS.structure,'name')
@@ -310,9 +312,10 @@ else
                         if ~iscell(strNameC)
                             strNameC = {strNameC};
                         end
-                        %For structures associated with scans input to the
-                        %model export is handled in extractAndPreprocessDataForDL
-                        %below
+                        
+                        %For structures associated with scans
+                        % input to the model, mask export is 
+                        % handled in `extractAndPreprocessDataForDL`
                         strC = {planC{indexS.structures}.structureName};
                         strNumV = nan(1,length(strNameC));
                         for nStr = 1:length(strNameC)
@@ -327,6 +330,8 @@ else
                             continue
                         end
                         
+                        %Extract any additional structure masks
+                        % required to run the model
                         scanC = {};
                         for nStr = 1:length(strNumV)
                             strMaskC{nStr} = getStrMask(strNumV(nStr),planC);
@@ -335,13 +340,16 @@ else
                         
                     end
                     
+                    %Pre-process data (scans & associated 
+                    % structure masks) for export to fmt 
+                    % required by model
                     if exportScan
-                        %Pre-process data and export to model input fmt
                         fprintf('\nPre-processing data...\n');
                         [scanC, maskC, origScanNumV, scanNumV, userOptS,...
                             coordInfoS, planC] = ...
                             extractAndPreprocessDataForDL(userOptS,planC,...
                             skipMaskExport,inputScanNumV);
+                        inputS = userOptS.input;
                     end
                     
                     %Export to model input format

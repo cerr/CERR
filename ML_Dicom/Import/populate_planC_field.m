@@ -137,7 +137,7 @@ switch cellName
                     end
                     if ismember(realWorldUnits,{'mm2/s','mm^2/s'}) && ...
                             ismember(desiredUnits,{'mm2/s','mm^2/s'})
-                        correctionFactor = desiredScale/realWorldScale;
+                        correctionFactor = realWorldScale/desiredScale;
                         scanArray3M = scanArray3M .* correctionFactor;
                     else
                         error('philipsImageUnits currently not supported.')
