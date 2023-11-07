@@ -233,7 +233,7 @@ if ~isempty(exportStrC) || ~skipMaskExport
                      error('Multiple structures found matching %s',currentLabelName);
                  end
              else
-                 error('Multiple structures found matching %s',currentLabelName);
+                 strMatchIdx = strMatchIdx(end);
              end
          end
          if ~skipFlag
@@ -292,6 +292,7 @@ for scanIdx = 1:numScans
         strIdxV = [strIdxC{:}];
         strIdxV = reshape(strIdxV,1,[]);
         validStrIdxV = ismember(strIdxV,find(assocStrIdxV));
+        scanExportStrC = exportStrC(validStrIdxV);
         validStrIdxV = strIdxV(validStrIdxV);
         keepLabelIdxV = assocStrIdxV(validStrIdxV);
         validExportLabelV = exportLabelV(keepLabelIdxV);
@@ -419,9 +420,11 @@ for scanIdx = 1:numScans
         planC{indexS.scan}(origScanIdx).scanUID;
         for strNum = 1:length(validStrIdxV)
             strMask3M = squeeze(mask4M(:,:,:,validExportLabelV(strNum)));
-            outStrName = [exportStrC{strNum},'_resamp'];
+            outStrName = [scanExportStrC{strNum},'_resamp'];
             planC = maskToCERRStructure(strMask3M,0,resampScanNum,...
                 outStrName,planC);
+            replaceStrIdx = strcmpi(scanExportStrC{strNum},strListC);
+            optS.input.structure.strNameToLabelMap(replaceStrIdx).structureName = outStrName;
         end
 
         toc
