@@ -71,12 +71,22 @@ for n = 1:length(identifierC)
             
             seriesDateTimesC = datetime(seriesDateTimesC,'InputFormat','yyyyMMdd:HHmmss');
                         
-            [~,ordV] = sort(seriesDateTimesC,'ascend');
+            [sortSeriesDateTimesC,ordV] = sort(seriesDateTimesC,'ascend');
             
             idV = false(size(matchIdxV));
             if strcmp(matchValC,'first')
+                if length(ordV)>1 && ordV(1)==ordV(2)
+                    error(['Error identifiying first scan. Scans ',...
+                          '%d and %d have identical series dates/times:' ...
+                        ' %s '],ordV(1),ordV(2),sortSeriesDateTimesC{1})
+                end
                 idV(ordV(1)) = true;
             elseif strcmp(matchValC,'last')
+                if length(ordV)>1 && ordV(end)==ordV(end-1)
+                    error(['Error identifiying last scan. Scans ',...
+                          '%d and %d have identical series date & time:' ...
+                        ' %s '],ordV(end-1),ordV(end),sortSeriesDateTimesC{end})
+                end
                 idV(ordV(end)) = true;
             else
                 error(['seriesDate value ''',matchValC,''' is not supported.'])
@@ -98,12 +108,24 @@ for n = 1:length(identifierC)
             
             studyDateTimesC = datetime(studyDateTimesC,'InputFormat','yyyyMMdd:HHmmss');
             
-            [~,ordV] = sort(studyDateTimesC,'ascend');
+            [sortStudyDateTimesC,ordV] = sort(studyDateTimesC,'ascend');
 
             idV = false(size(matchIdxV));
             if strcmp(matchValC,'first')
+                if length(ordV)>1 && isequal(sortStudyDateTimesC(ordV(1)),...
+                        sortStudyDateTimesC(ordV(2)))
+                    error(['Error identifiying first scan. Scans ',...
+                        '%d and %d have identical study dates & time:' ...
+                        ' %s '],ordV(1),ordV(2),sortStudyDateTimesC(1))
+                end
                 idV(ordV(1)) = true;
             elseif strcmp(matchValC,'last')
+                if length(ordV)>1  && isequal(sortStudyDateTimesC(ordV(end-1)),...
+                        sortStudyDateTimesC(ordV(end)))
+                    error(['Error identifiying first scan. Scans ',...
+                        '%d and %d have identical series dates/times:' ...
+                        ' %s '],ordV(end-1),ordV(end),sortStudyDateTimesC(end))
+                end
                 idV(ordV(end)) = true;
             else
                 error(['studyDate value ''',matchValC,''' is not supported.'])
