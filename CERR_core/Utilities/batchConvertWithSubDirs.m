@@ -151,8 +151,8 @@ for dirNum = 1:length(allDirS)
         planNameC{dirNum} = [sourceDirName,'.mat.bz2'];
         
     catch
-        convertedC{end+1} = sourceDir;
-        planNameC{end+1} = 'NOT CONVERTED';
+        convertedC{dirNum} = sourceDir;
+        planNameC{dirNum} = 'NOT CONVERTED';
         disp(['NOT CONVERTED ',sourceDir,' ...'])
     end
     %elseif allDirS(dirNum).isdir && ~strcmp(allDirS(dirNum).name,'.') && ~strcmp(allDirS(dirNum).name,'..')
