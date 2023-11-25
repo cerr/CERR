@@ -51,7 +51,10 @@ end
 lq = nL + 1;
 q(isnan(q)) = lq;
 
-q = uint16(q); % q is the quantized image
+q = uint32(q); % q is the quantized image
+if max(q(:)) > 65535
+    error('Number of quantized levels greater than 65535. Increase binWidth to reduce discretized levels')
+end
 
 % Number of offsets
 numOffsets = size(offsetsM,1);
