@@ -114,7 +114,14 @@ for y = ceil(minY):floor(maxY)
             togglelist = [togglelist (p1x + (invslope * (y - p1y)))];
         end
     end
-
+    
+    % Snap to center if less than tolerance
+    snap_tol = 1e-6;
+    togglelistRound = round(togglelist);
+    ind_snap = abs(togglelistRound - togglelist) < snap_tol;
+    togglelist(ind_snap) = togglelistRound(ind_snap);
+    
+    
     % In order to pair start stop points correctly, need to make sure
     % we consider our toggle points in order
     togglelist = sort(togglelist);

@@ -48,11 +48,11 @@ pathStr = getCERRPath;
 optName = [pathStr 'CERROptions.json'];
 optS = opts4Exe(optName);
 
-persistent convertedC planNameC
+%persistent convertedC planNameC
 if isempty(varargin)
     %init_ML_DICOM
-    convertedC = {'Source Directory:'};
-    planNameC = {'Converted Plan Name:'};
+    %convertedC = {'Source Directory:'};
+    %planNameC = {'Converted Plan Name:'};
     sourceDir = uigetdir(cd, 'Select Source directory');
     if isnumeric(sourceDir)
         return;
@@ -65,8 +65,8 @@ if isempty(varargin)
     mergeScansFlag = 'no';
     singleCerrFileFlag = questdlg('Do you want to import all directories to single CERR file?', 'Single CERR file?', 'Yes','No','No');
 else
-    convertedC = {'Source Directory:'};
-    planNameC = {'Converted Plan Name:'};
+    %convertedC = {'Source Directory:'};
+    %planNameC = {'Converted Plan Name:'};
     sourceDir = varargin{1};
     destinationDir = varargin{2};
     zipFlag = varargin{3};
@@ -96,7 +96,8 @@ else
     allDirS(indRemoveV) = [];
 end
 
-
+convertedC = cell(length(allDirS),1);
+planNameC = cell(length(allDirS),1);
 for dirNum = 1:length(allDirS)
     [pathStr,nameStr,extStr] = fileparts(allDirS(dirNum).name);
     %[pathStr,nameStr,extStr] = fileparts(allDirS(dirNum).name);
@@ -143,12 +144,15 @@ for dirNum = 1:length(allDirS)
             mkdir(fileparts(saved_fullFileName))
         end
         save_planC(planC,[], 'passed', saved_fullFileName);
-        clear planC
-        convertedC{end+1} = sourceDir;
-        planNameC{end+1} = [sourceDirName,'.mat.bz2'];
+        %clear planC
+        %convertedC{end+1} = sourceDir;
+        %planNameC{end+1} = [sourceDirName,'.mat.bz2'];
+        convertedC{dirNum} = sourceDir;
+        planNameC{dirNum} = [sourceDirName,'.mat.bz2'];
+        
     catch
-        convertedC{end+1} = sourceDir;
-        planNameC{end+1} = 'NOT CONVERTED';
+        convertedC{dirNum} = sourceDir;
+        planNameC{dirNum} = 'NOT CONVERTED';
         disp(['NOT CONVERTED ',sourceDir,' ...'])
     end
     %elseif allDirS(dirNum).isdir && ~strcmp(allDirS(dirNum).name,'.') && ~strcmp(allDirS(dirNum).name,'..')
