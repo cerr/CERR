@@ -116,17 +116,15 @@ for nType = 1: length(filterTypeC)
             init_ML_DICOM
             orgRoot = '1.3.6.1.4.1.9590.100.1.2';
             newSeriesInstanceUID = javaMethod('createUID','org.dcm4che3.util.UIDUtils',orgRoot);
-            imgOriV = planC{indexS.scan}(scanNum).scanInfo(1).imageOrientationPatient;
+            %imgOriV = planC{indexS.scan}(scanNum).scanInfo(1).imageOrientationPatient;
             for k = 1:length(planC{indexS.scan}(newScanNum).scanInfo)
                 planC{indexS.scan}(newScanNum).scanInfo(k).seriesInstanceUID = newSeriesInstanceUID;
                 %Handled in scan2CERR
-                %5CToffset = 0;
-                %datamin = min(filtScan3M(:));
-                %if datamin < 0
-                %    CToffset = -datamin;
-                %end
-                %planC{indexS.scan}(newScanNum).scanInfo(k).CTOffset = CToffset;
-                planC{indexS.scan}(newScanNum).scanInfo(k).imageOrientationPatient = imgOriV;
+                %planC{indexS.scan}(newScanNum).scanInfo(k).imageOrientationPatient = imgOriV;
+                planC{indexS.scan}(newScanNum).scanInfo(k).imageOrientationPatient = ...
+                    planC{indexS.scan}(scanNum).scanInfo(uniqueSlicesV(k)).imageOrientationPatient;
+                planC{indexS.scan}(newScanNum).scanInfo(k).imagePositionPatient = ...
+                    planC{indexS.scan}(scanNum).scanInfo(uniqueSlicesV(k)).imagePositionPatient;
             end
         end
     end
