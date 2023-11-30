@@ -15,7 +15,7 @@ function [cerrFeatS,pyFeatS,diffS,pctDiffS] = ...
 % AI 09/14/2023
 
 %Load sample data
-if ischar(fpath)
+if ischar(planC)
     fpath = planC;
     planC = loadPlanC(fpath,tempdir);
     planC = updatePlanFields(planC);
