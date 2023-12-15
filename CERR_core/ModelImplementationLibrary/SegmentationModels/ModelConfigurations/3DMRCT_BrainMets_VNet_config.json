@@ -8,28 +8,29 @@
                     "copyStr": ["brain"]
                  },
 
-"scan": [{
+"input": {
+    "scan": [{
 
-         "identifier" : {"imageType": "CT SCAN"},
+             "identifier" : {"imageType": "CT SCAN"},
 
-         "required" : "no",
+            "required" : "no",
                 
-         "view" : ["axial"],
+            "view" : ["axial"],
 
-         "crop" : {     
+            "crop" : {     
                     "method": "crop_to_str",
                     "params": {"structureName": "brain"},
                     "operator": ""
                   },
 
-         "channels" : {
+             "channels" : {
                                      "imageType": {
                                         "assignBkgIntensity": {
                                                "assignVal":0}},
                                      "slice": "current"
                      }
-       },
-       {
+    },
+    {
          "identifier" : { "imageType": "MR SCAN"},
 
          "required" : "yes",
@@ -48,14 +49,14 @@
                                                "assignVal":0}},
                                      "slice": "current"
                       }
-   }
-],
+    }]
+}, 
 
 "passedScanDim" : "3D",
 
 "batchSize" : 1,
 
-"structAssocScan": {"identifier" : { "imageType": "CT SCAN"}},
+"outputAssocScan": {"identifier" : {"imageType": "CT SCAN"}},
 
 "roiGenerationDescription": "Brain Mets Candidates - AI generated",
 
