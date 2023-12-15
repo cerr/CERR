@@ -1,5 +1,5 @@
 function [cerrFeatS,pyFeatS,diffS,pctDiffS] = ...
-    compareCerrWithPyradAllFeatures(fpath,...
+    compareCerrWithPyradAllFeatures(planC,...
     strName,cerrParamFile,pyradParamFile,pyradPath)
 % Compute features using settings for CERR & Pyradiomics, map feature
 % names, and return % differences in values.
@@ -15,9 +15,12 @@ function [cerrFeatS,pyFeatS,diffS,pctDiffS] = ...
 % AI 09/14/2023
 
 %Load sample data
-planC = loadPlanC(fpath,tempdir);
-planC = updatePlanFields(planC);
-planC = quality_assure_planC(fpath,planC);
+if ischar(planC)
+    fpath = planC;
+    planC = loadPlanC(fpath,tempdir);
+    planC = updatePlanFields(planC);
+    planC = quality_assure_planC(fpath,planC);
+end
 
 %% Compare features derived from resamples images using CERR & Pyradiomics
 [cerrFeatS,pyFeatS] = compareCerrWithPyrad(cerrParamFile,...

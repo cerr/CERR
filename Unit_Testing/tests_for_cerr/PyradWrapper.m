@@ -75,8 +75,13 @@ try
 
     while(~status) pause(0.1); end
 
-    %Convert python dictionary to matlab struct
-    featS = struct(pyFeatDict{1});
+    %Convert python dictionary to matlab struct    
+    featS = struct(pyFeatDict);
+    if isempty(fieldnames(featS))
+        featS = cell(pyFeatDict); %pyFeatDict is tuple
+        featS = struct(featS{1});
+    end
+    
     
 catch e
     error('Feature extraction failed with message %s',e.message)

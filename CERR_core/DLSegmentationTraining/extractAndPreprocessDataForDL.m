@@ -214,9 +214,9 @@ exportStrC = strListC(~strNotAvailableV);
 
 exportStrNum = 0;
 strIdxC = {};
-exportLabelV = labelV(~strNotAvailableV);
 if ~isempty(exportStrC) || ~skipMaskExport
     %Get structure ID and assoc scan
+    exportLabelV = labelV(~strNotAvailableV);
     strIdxC = cell(length(exportStrC),1);
     for strNum = 1:length(exportStrC)
         currentLabelName = exportStrC{strNum};
