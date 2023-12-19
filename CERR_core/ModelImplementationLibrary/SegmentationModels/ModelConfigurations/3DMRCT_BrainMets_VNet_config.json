@@ -1,6 +1,4 @@
 {
-"strNameToLabelMap": "userDefinedStrLabelMap.json",
-
 "register": {
                     "baseScan":{"identifier":{"imageType":"CT SCAN"}},
                     "movingScan":{"identifier":{"imageType":"MR SCAN"}},
@@ -55,6 +53,10 @@
 "passedScanDim" : "3D",
 
 "batchSize" : 1,
+
+"output":{   
+    "labelMap":{"strNameToLabelMap": "userDefinedStrLabelMap.json"}
+},
 
 "outputAssocScan": {"identifier" : {"imageType": "CT SCAN"}},
 

@@ -65,10 +65,10 @@ end
 success = 1;
 
 % Get list of auto-segmented structures
-AIoutputPath = fullfile(fullSessionPath,'AIoutput');
+AIoutputPath = fullfile(fullSessionPath,'outputLabelMap');
 if ischar(userOptS.output.labelMap.strNameToLabelMap)
-    labelDatS = readDLConfigFile(fullfile(AIoutputPath,...
-        userOptS.strNameToLabelMap));
+    labelDatS = jsondecode(filread(fullfile(AIoutputPath,...
+        userOptS.output.labelMap.strNameToLabelMap)));
     labelMapS = labelDatS.strNameToLabelMap;
 else
     labelMapS = userOptS.output.labelMap.strNameToLabelMap;
