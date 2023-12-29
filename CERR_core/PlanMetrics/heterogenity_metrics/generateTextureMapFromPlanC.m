@@ -27,7 +27,7 @@ else
     mask3M(:,:,uniqueSlicesV) = slMask3M;
     % end temp
 end
-[minr, maxr, minc, maxc] = compute_boundingbox(mask3M);
+%[minOrigr, maxOrigr, minOrigc, maxOrigc] = compute_boundingbox(mask3M);
 %maskBoundingBox3M = mask3M(minr:maxr,minc:maxc,uniqueSlicesV);
 
 
@@ -37,7 +37,7 @@ paramS = getRadiomicsParamTemplate(configFilePath);
 %% Apply pre-processing
 [procScan3M,procMask3M,gridS] = preProcessForRadiomics(scanNum,...
     strNum, paramS, planC);
-[minr, maxr, minc, maxc] = compute_boundingbox(procMask3M);
+[minr, maxr, minc, maxc, mins, maxs] = compute_boundingbox(procMask3M);
 maskSlcV = sum(sum(procMask3M))>0;
 maskBoundingBox3M = procMask3M(minr:maxr,minc:maxc,maskSlcV);
 
@@ -75,10 +75,20 @@ for nType = 1: length(filterTypeC)
                 %padSizV = [5,5,5]; %For resampling
                 padSizV = [0,0,0];
             end
-            filtScan3M = filtScan3M(padSizV(1)+1 : texSizV(1)-padSizV(1),...
-                padSizV(2)+1 : texSizV(2)-padSizV(2),...
-                padSizV(3)+1 : texSizV(3)-padSizV(3));
-            [~, maxr, minc, ~] = compute_boundingbox(mask3M);
+            validPadSizV = [min(padSizV(1), minr),...
+                            min(padSizV(1), size(procMask3M,1)-maxr),...
+                            min(padSizV(2), minc), ...
+                            min(padSizV(2), size(procMask3M,2)-maxc),...
+                            min(padSizV(3), mins),...
+                            min(padSizV(3), size(procMask3M,3)-maxs)];
+
+            filtScan3M = filtScan3M(validPadSizV(1)+1 : texSizV(1)-validPadSizV(2),...
+                validPadSizV(3)+1 : texSizV(2)-validPadSizV(4),...
+                validPadSizV(5)+1 : texSizV(3)-validPadSizV(6));
+            filtMask3M = procMask3M(validPadSizV(1)+1 : texSizV(1)-validPadSizV(2),...
+                validPadSizV(3)+1 : texSizV(2)-validPadSizV(4),...
+                validPadSizV(5)+1 : texSizV(3)-validPadSizV(6));
+            %[~, maxr, minc, ~] = compute_boundingbox(mask3M);
 
             %Create texture object
             assocScanUID = planC{indexS.scan}(scanNum).scanUID;
@@ -95,16 +105,19 @@ for nType = 1: length(filterTypeC)
             planC{indexS.texture}(nTexture).textureUID = createUID('TEXTURE');
 
             %Create new scan
-            scanS = planC{indexS.scan}(scanNum);
-            [xVals,yVals,zVals] = getScanXYZVals(scanS);
-            zV = zVals(uniqueSlicesV);
+            %scanS = planC{indexS.scan}(scanNum);
+            %[xVals,yVals,zVals] = getScanXYZVals(scanS);
+            xVals = gridS.xValsV;
+            yVals = gridS.yValsV;
+            zVals = gridS.zValsV;
+            zV = zVals(maskSlcV);
 
             regParamsS.horizontalGridInterval = voxSizV(1);
             regParamsS.verticalGridInterval = voxSizV(2);
             regParamsS.coord1OFFirstPoint = xVals(minc);
             regParamsS.coord2OFFirstPoint = yVals(maxr);
             regParamsS.zValues = zV;
-            regParamsS.sliceThickness = ...
+            regParamsS.sliceThickness = repmat(voxSizV,1,length(zV));
                 [planC{indexS.scan}(scanNum).scanInfo(uniqueSlicesV).sliceThickness];
             assocTextureUID = planC{indexS.texture}(nTexture).textureUID;
             planC = scan2CERR(filtScan3M,'CT','Passed',regParamsS,assocTextureUID,planC);
@@ -116,16 +129,15 @@ for nType = 1: length(filterTypeC)
             init_ML_DICOM
             orgRoot = '1.3.6.1.4.1.9590.100.1.2';
             newSeriesInstanceUID = javaMethod('createUID','org.dcm4che3.util.UIDUtils',orgRoot);
-            %imgOriV = planC{indexS.scan}(scanNum).scanInfo(1).imageOrientationPatient;
+            imgOriV = planC{indexS.scan}(scanNum).scanInfo(1).imageOrientationPatient;
+            imgPosV = planC{indexS.scan}(scanNum).scanInfo(1).imagePositionPatient;
             for k = 1:length(planC{indexS.scan}(newScanNum).scanInfo)
                 planC{indexS.scan}(newScanNum).scanInfo(k).seriesInstanceUID = newSeriesInstanceUID;
-                %Handled in scan2CERR
-                %planC{indexS.scan}(newScanNum).scanInfo(k).imageOrientationPatient = imgOriV;
-                planC{indexS.scan}(newScanNum).scanInfo(k).imageOrientationPatient = ...
-                    planC{indexS.scan}(scanNum).scanInfo(uniqueSlicesV(k)).imageOrientationPatient;
-                planC{indexS.scan}(newScanNum).scanInfo(k).imagePositionPatient = ...
-                    planC{indexS.scan}(scanNum).scanInfo(uniqueSlicesV(k)).imagePositionPatient;
+                planC{indexS.scan}(newScanNum).scanInfo(k).imageOrientationPatient = imgOriV;
+                planC{indexS.scan}(newScanNum).scanInfo(k).imagePositionPatient = imgPosV;
             end
+            strName = [planC{indexS.structures}(strNum).structureName,'_cpy'];
+            planC = maskToCERRStructure(filtMask3M,0,newScanNum,strName,planC);
         end
     end
 end
