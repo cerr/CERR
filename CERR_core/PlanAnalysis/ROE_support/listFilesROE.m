@@ -9,7 +9,8 @@ dirListC = dirListC(~ismember(dirListC,{'.','..'}));
 
 if listProtocolsFlag
     [dirIdx,selected] = listdlg('ListString',dirListC,...
-        'ListSize',[300 100],'Name','Select protocols','SelectionMode','Multiple');
+        'ListSize',[300 100],'Name','Select protocols',...
+        'SelectionMode','Multiple');
 else
     %Select all
     dirIdx = 1:length(dirListC);

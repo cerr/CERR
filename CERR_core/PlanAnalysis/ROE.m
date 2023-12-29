@@ -92,29 +92,51 @@ switch upper(command)
             return
         end
 
-        % Define GUI size, margins, position, color & title
+        % Define GUI size, margins, position, colors, fonts, & title
         ud = guidata(hFig);
+        size_pixels = get(gcf,'Position');
+        set(gcf,'Units','characters')
+        size_characters = get(gcf,'Position');
+        scaleV = size_pixels(3:4)./size_characters(3:4);
+
         ud.FigSettings = struct();
-        ud.FigSettings.leftMarginWidth = 360;
-        ud.FigSettings.topMarginHeight = 60;
-        
         screenSizeV = get( 0, 'Screensize' );
-        ud.FigSettings.GUIWidth = 1200;
-        ud.FigSettings.GUIHeight = 750;
-        ud.FigSettings.position = [(screenSizeV(3)-ud.FigSettings.GUIWidth)/2,...
-            (screenSizeV(4)-ud.FigSettings.GUIHeight)/2,...
-            ud.FigSettings.GUIWidth,ud.FigSettings.GUIHeight];
+        GUIWidth = 1200;
+        GUIHeight = 750;
+        ud.FigSettings.charScale = scaleV;
+        ud.FigSettings.screenSize = screenSizeV(3:4)./scaleV;
+        ud.FigSettings.leftMarginWidth = 360/scaleV(1);
+        ud.FigSettings.topMarginHeight = 60/scaleV(2);
+        
+        ud.FigSettings.GUIWidth = GUIWidth/scaleV(1);
+        ud.FigSettings.GUIHeight = GUIHeight/scaleV(2);
+        ud.FigSettings.position = [(ud.FigSettings.screenSize(1)-...
+            ud.FigSettings.GUIWidth)/2, (ud.FigSettings.screenSize(2)- ...
+            ud.FigSettings.GUIHeight)/2, ud.FigSettings.GUIWidth,...
+            ud.FigSettings.GUIHeight];
         ud.FigSettings.defaultColor = [0.8 0.9 0.9];
         ud.FigSettings.figColor = [.6 .75 .75];
 
-        stateS.leftMarginWidth = ud.FigSettings.leftMarginWidth;
-        stateS.topMarginHeight = ud.FigSettings.topMarginHeight;
+        if ispc
+            ud.FigSettings.fontSize = 10;
+            ud.FigSettings.smFontSize = 9;
+            ud.FigSettings.lgFontSize = 11;
+        else
+            if ismac
+                ud.FigSettings.fontSize = 12;
+                ud.FigSettings.smFontSize = 10;
+                ud.FigSettings.lgFontSize = 14;
+            end
+        end
+
+        %stateS.leftMarginWidth = ud.FigSettings.leftMarginWidth;
+        %stateS.topMarginHeight = ud.FigSettings.topMarginHeight;
 
         %Store (user-input) range of dose scale factors
         ud.userScaleRange = doseScaleRangeV;
 
-        set(hFig,'position',ud.FigSettings.position,'color',...
-            ud.FigSettings.figColor);
+        set(hFig,'color',ud.FigSettings.figColor);
+        set(hFig,'position',ud.FigSettings.position,'units','characters');
         guidata(hFig,ud);
 
         %Draw uicontrols
@@ -227,7 +249,8 @@ switch upper(command)
         end
 
         % List available protocols for user selection
-        [protocolListC,protocolIdx,ok] = listFilesROE(protocolPath,listProtocolsFlag);
+        [protocolListC,protocolIdx,ok] = listFilesROE(protocolPath,...
+            listProtocolsFlag);
         if ~ok
             return
         end
@@ -269,13 +292,14 @@ switch upper(command)
         end
 
         %Create tree to list models by protocol
-        shift = 10;
-        pos = get(hFig,'Position');
-        GUIWidth = pos(3);
-        GUIHeight = pos(4);
+        scaleV = ud.FigSettings.charScale;
+        shiftV = [10,10]./scaleV;
+        GUIWidth = ud.FigSettings.GUIWidth;
+        GUIHeight = ud.FigSettings.GUIHeight; 
         mtree = uitree('v0', 'Root', root, 'SelectionChangeFcn',...
             @(hObj,hEvt)getParamsROE(hObj,hEvt,hFig,planC));
-        set(mtree,'Position',[2*shift 5*shift .16*GUIWidth .68*GUIHeight],...
+        set(mtree,'units','characters','Position',...
+            [2*shiftV(1) 5*shiftV(2) .16*GUIWidth .68*GUIHeight],...
             'Visible',false);
         drawnow;
         set(ud.handle.tab1H(1),'string','Fractionation & Models'); %Tree title
@@ -343,6 +367,9 @@ switch upper(command)
                 ud.foreground = 1;
             end
             ud.plotColorOrderM = colorOrderM;
+
+            %% Font sizes
+            fontSize = ud.FigSettings.fontSize;
 
             %% Define loop variables
             protocolS = ud.Protocols;
@@ -454,8 +481,8 @@ switch upper(command)
 
                             %Scale dose bins
                             newNumFrx = xScaleV(n) + numFrxProtocol;
-                            scale = newNumFrx/numFrxProtocol;
-                            scaledDoseBinsC = cellfun(@(x) x*scale,doseBinsC,'un',0);
+                            scaleV = newNumFrx/numFrxProtocol;
+                            scaledDoseBinsC = cellfun(@(x) x*scaleV,doseBinsC,'un',0);
 
 
                             %Apply fractionation correction as required
@@ -522,9 +549,9 @@ switch upper(command)
                     typesC = cellfun(@(x) x.type,protocolS(1).model,'un',0);
                     if any(strcmpi(typesC,'BED'))
                         set(hTCPAxis,'yLim',[0 200]);
-                        ylabel(hTCPAxis,'BED (Gy)');
+                        ylabel(hTCPAxis,'BED (Gy)','fontsize',fontSize);
                     else
-                        ylabel(hTCPAxis,'TCP');
+                        ylabel(hTCPAxis,'TCP','fontsize',fontSize);
                     end
 
                     hSlider = ud.handle.modelsAxis(6);
@@ -549,9 +576,9 @@ switch upper(command)
                     typesC = cellfun(@(x) x.type,protocolS(1).model,'un',0);
                     if any(strcmpi(typesC,'BED'))
                         set(hTCPAxis,'yLim',[0 200]);
-                        ylabel(hTCPAxis,'BED (Gy)');
+                        ylabel(hTCPAxis,'BED (Gy)','fontsize',fontSize);
                     else
-                        ylabel(hTCPAxis,'TCP');
+                        ylabel(hTCPAxis,'TCP','fontsize',fontSize);
                     end
 
                     hSlider = ud.handle.modelsAxis(7);
@@ -674,14 +701,14 @@ switch upper(command)
                         for n = 1 : numel(xScaleV)
 
                             %Scale dose bins
-                            scale = xScaleV(n);
-                            scaledDoseBinsC = cellfun(@(x) x*scale,doseBinsC,'un',0);
+                            scaleV = xScaleV(n);
+                            scaledDoseBinsC = cellfun(@(x) x*scaleV,doseBinsC,'un',0);
 
                             %Apply fractionation correction as required
                             correctedScaledDoseC = frxCorrectROE(modelC{modIdxV(j)},structNumV,numFrxProtocol,scaledDoseBinsC);
 
                             %Correct frxSize parameter
-                            paramS.frxSize.val = scale*dpfProtocol;
+                            paramS.frxSize.val = scaleV*dpfProtocol;
 
                             %Compute TCP/NTCP
                             if numel(structNumV)==1
@@ -738,8 +765,8 @@ switch upper(command)
 
                             %Scale dose bins
                             newNumFrx = xScaleV(n) + numFrxProtocol;
-                            scale = newNumFrx/numFrxProtocol;
-                            scaledDoseBinsC = cellfun(@(x) x*scale,doseBinsC,'un',0);
+                            scaleV = newNumFrx/numFrxProtocol;
+                            scaledDoseBinsC = cellfun(@(x) x*scaleV,doseBinsC,'un',0);
 
                             %Apply fractionation correction as required
                             correctedScaledDoseC = frxCorrectROE(modelC{j},structNumV,newNumFrx,scaledDoseBinsC);
@@ -1168,19 +1195,20 @@ switch upper(command)
             close(hWait);
 
             %Add plot labels
-            ylabel(hNTCPAxis,'NTCP');
+            ylabel(hNTCPAxis,'NTCP','fontsize',fontSize);
             if plotMode == 1
-                xlabel(hNTCPAxis,'BED (Gy)');
+                xlabel(hNTCPAxis,'BED (Gy)','fontsize',fontSize);
             elseif plotMode == 2
-                xlabel(hNTCPAxis,'TCP');
+                xlabel(hNTCPAxis,'TCP','fontsize',fontSize);
             else
-                xlabel(hNTCPAxis,xlab);
+                xlabel(hNTCPAxis,xlab,'fontsize',fontSize);
             end
 
             %Add legend
             NTCPLegendC = arrayfun(@(x)x.DisplayName,ud.NTCPCurve,'un',0);
             hax = ud.NTCPCurve;
             key = NTCPLegendC;
+            legFontSize = ud.FigSettings.lgFontSize;    
 
             constraintS = protocolS(ud.foreground);
             if isfield(constraintS,'criteria') && ~isempty(constraintS.criteria)
@@ -1208,14 +1236,14 @@ switch upper(command)
                         key = [key,BEDlegendC,'Clinical limits'];
                     end
                 end
-                [legH,lineObjH] = legend(hax,key,'Location','northwest','Color','none',...
-                    'FontName','Arial','FontWeight','normal','FontSize',10.5,...
-                    'AutoUpdate','off');
+                [legH,lineObjH] = legend(hax,key,'Location','northwest',...
+                    'Color','none','FontName','Arial','FontWeight',...
+                    'normal','FontSize',legFontSize,'AutoUpdate','off');
 
             else
-                [legH,lineObjH] = legend(hax,key,...
-                    'Location','northwest','Color','none','FontName','Arial',...
-                    'FontWeight','normal','FontSize',10.5,'AutoUpdate','off');
+                [legH,lineObjH] = legend(hax,key,'Location','northwest',...
+                    'Color','none','FontName','Arial','FontWeight',...
+                    'normal','FontSize',legFontSize,'AutoUpdate','off');
 
             end
 

@@ -185,7 +185,8 @@ else
                 %Store tables to userdata
                 ud.handle.tab1H(3) = hTab1;
                 set(ud.handle.tab1H(5),'Visible','On'); %Parameters header
-                set(ud.handle.tab1H(6),'String',['Current model:  ',modName],'Visible','On'); %Display name of currently selected model
+                set(ud.handle.tab1H(6),'String',['Current model:  ',...
+                    modName],'Visible','On'); %Display name of currently selected model
                 %ud.handle.tab1H(7) = hTab3; %decomissioned
             end
 
