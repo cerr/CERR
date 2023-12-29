@@ -20,9 +20,9 @@ if isempty(hEvt)                 %Initialize (display 1st violation)
 else
     %Update (display selected limit)
     cLine = hEvt.Target;
-    xVal = cLine.XData(1);
-    pNum = cLine.UserData.protocol;
-    lscale = cLine.UserData.scale;
+    xVal = cLine(1).XData(1);
+    pNum = cLine(1).UserData.protocol;
+    lscale = cLine(1).UserData.scale;
 end
 
 %Get protocol info
