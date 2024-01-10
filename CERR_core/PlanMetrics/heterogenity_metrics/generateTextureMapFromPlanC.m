@@ -38,8 +38,8 @@ paramS = getRadiomicsParamTemplate(configFilePath);
 [procScan3M,procMask3M,gridS] = preProcessForRadiomics(scanNum,...
     strNum, paramS, planC);
 [minr, maxr, minc, maxc, mins, maxs] = compute_boundingbox(procMask3M);
-maskSlcV = sum(sum(procMask3M))>0;
-maskBoundingBox3M = procMask3M(minr:maxr,minc:maxc,maskSlcV);
+%maskSlcV = sum(sum(procMask3M))>0;
+%maskBoundingBox3M = procMask3M(minr:maxr,minc:maxc,maskSlcV);
 
 %% Get filtered image
 filterTypeC = fieldnames(paramS.imageType);
@@ -88,8 +88,9 @@ for nType = 1: length(filterTypeC)
             filtMask3M = procMask3M(validPadSizV(1)+1 : texSizV(1)-validPadSizV(2),...
                 validPadSizV(3)+1 : texSizV(2)-validPadSizV(4),...
                 validPadSizV(5)+1 : texSizV(3)-validPadSizV(6));
-            %[~, maxr, minc, ~] = compute_boundingbox(mask3M);
-
+            [minr, maxr, minc, maxc, mins, maxs] = compute_boundingbox(filtMask3M);
+            maskSlcV = sum(sum(filtMask3M))>0;
+            
             %Create texture object
             assocScanUID = planC{indexS.scan}(scanNum).scanUID;
             nTexture = length(planC{indexS.texture}) + 1;
