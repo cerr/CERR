@@ -17,15 +17,19 @@ stdDir = fullfile(topLevelCERRDir,'Unit_Testing','data_for_cerr_tests',...
 %Create temp output dir
 testDir = fullfile(topLevelCERRDir,'Unit_Testing','tests_for_cerr');
 tmpDir = fullfile(testDir,'IBSI2');
+if exist(tmpDir,'dir')
+    rmdir(tmpDir,'s')
+end
 mkdir(tmpDir)
+
 
 %Compute filter response maps (IBSI 2 -phase1)
 runIBSI2benchmarkFilters(tmpDir,'all');
 
 %Assess deviation from standard
 configC = { '1a1','1a2','1a3','1a4','1b1','2a1','2b1','2c1','3a1','3a2',...
-    '3a3','3b1','3b2','3b3','3c1','3c2','3c3','4a1','4a2','4b1','4b2'}%,...
-    %'5a1','5a2','6a1','6a2'};
+    '3a3','3b1','3b2','3b3','3c1','3c2','3c3','4a1','4a2','4b1','4b2',...
+    '5a1','5a2','6a1','6a2'};
 assertTOL = 1e-5;
 
 disp(['========= Maximum difference for filt config. =========='])
@@ -36,7 +40,6 @@ for n = 1:length(configC)
     maxDiff = max(diff3M(:));
     assertAlmostEqual(currResponse3M,stdResponse3M,assertTOL);
     disp([configC{n},': ', sprintf('%0.1g',maxDiff)])
-
 end
 
 rmdir(tmpDir,'s')
