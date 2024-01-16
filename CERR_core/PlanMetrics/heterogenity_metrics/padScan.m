@@ -29,12 +29,12 @@ if cropFlag
     [minr, maxr, minc, maxc, mins, maxs] = compute_boundingbox(mask3M);
     croppedScan3M = scan3M(minr:maxr,minc:maxc,mins:maxs);
     croppedMask3M = mask3M(minr:maxr,minc:maxc,mins:maxs);
-    minr = max(minr-marginV(1),1);
-    maxr = min(maxr+marginV(1),size(mask3M,1));
-    minc = max(minc-marginV(2),1);
-    maxc = min(maxc+marginV(2),size(mask3M,2));
-    mins = max(mins-marginV(3),1);
-    maxs = min(maxs+marginV(3),size(mask3M,3));
+    minr = minr-marginV(1);
+    maxr = maxr+marginV(1);
+    minc = minc-marginV(2);
+    maxc = maxc+marginV(2);
+    mins = mins-marginV(3);
+    maxs = maxs+marginV(3);
 else
     inputSizeV = size(scan3M);
     [minr,minc,mins] = deal(1);
@@ -62,6 +62,18 @@ switch lower(method)
         if ~cropFlag
             error('padScan.m: Set cropFlag=1 to use method ''expand''');
         end
+        minr = max(minr,1);
+        maxr = min(maxr,size(mask3M,1));
+        minc = max(minc,1);
+        maxc = min(maxc,size(mask3M,2));
+        mins = max(mins,1);
+        maxs = min(maxs,size(mask3M,3));
+        %     minr = max(minr-marginV(1),1);
+        %     maxr = min(maxr+marginV(1),size(mask3M,1));
+        %     minc = max(minc-marginV(2),1);
+        %     maxc = min(maxc+marginV(2),size(mask3M,2));
+        %     mins = max(mins-marginV(3),1);
+        %     maxs = min(maxs+marginV(3),size(mask3M,3));
         outScan3M = scan3M(minr:maxr,minc:maxc,mins:maxs);
         outMask3M = mask3M(minr:maxr,minc:maxc,mins:maxs);
         
