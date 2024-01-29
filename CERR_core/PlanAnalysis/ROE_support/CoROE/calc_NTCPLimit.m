@@ -1,4 +1,5 @@
-function [scale1V,scaledCPv] = calc_NTCPLimit(paramS,modelC,scaleMode,maxDeltaFrx)   
+function [scale1V,scaledCPv] = calc_NTCPLimit(paramS,modelC,...
+                                       scaleMode,maxDeltaFrx)   
 % calc_NTCPLimit.m
 % Returns scale factor at first violation
 %-------------------------------------------------------------------------------
@@ -55,8 +56,7 @@ end
 %Record 1st violation of constraints
 if ~isempty(limitV)
     violIdxV = inf(1,numel(limitV));
-    if numel(limitV)==2
-        %For ranges
+    if numel(limitV)==2 %For ranges
         %Compare against lower limit (guideline)
         isViolationV = scaledCPv > limitV(1);
         lowIdx = max(1,find(isViolationV,1,'first') - 1);
