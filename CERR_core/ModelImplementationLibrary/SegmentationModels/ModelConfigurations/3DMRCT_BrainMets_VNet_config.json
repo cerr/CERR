@@ -55,20 +55,18 @@
 "batchSize" : 1,
 
 "output":{   
-    "labelMap":{"strNameToLabelMap": "userDefinedStrLabelMap.json"}
-},
-
-"outputAssocScan": {"identifier" : {"imageType": "CT SCAN"}},
-
-"roiGenerationDescription": "Brain Mets Candidates - AI generated",
-
-"dicomExportOptS": {
+    "labelMap":{"strNameToLabelMap": "userDefinedStrLabelMap.json"},
+    "roiGenerationDescription": "Brain Mets Candidates - AI generated",
+    "dicomExportOptS": {
                      "rt_struct": {
                          "referencedFrameOfReference": 
                                  {"toStructureName": "all",
                                   "fromStructureName": "brain"}
                                    }
-                 },
+    }
+},
+
+"outputAssocScan": {"identifier" : {"imageType": "CT SCAN"}},
 
 "reference" : ""
 
