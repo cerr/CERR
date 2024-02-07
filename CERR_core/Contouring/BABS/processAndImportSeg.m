@@ -1,6 +1,6 @@
 function [planC,outScanNum,allLabelNamesC,dcmExportOptS,success] = ...
     processAndImportSeg(planC,origScanNumV,scanNumV,outputScanNum,...
-    fullSessionPath,userOptS)
+    fullSessionPath,userOptS,dcmExportOptS)
 % Function to process and import AI segmentaitons to CERR. 
 % Note: 4-D segmentation maps are expected (4th dim corresponds to
 % structure label)
@@ -83,13 +83,7 @@ if isfield(userOptS.output.labelMap, 'dicomExportOptS')
         dcmExportOptS = dissimilarInsert(dcmExportOptS,...
             userOptS.output.labelMap.dicomExportOptS);
     end
-else
-    if ~exist('dcmExportOptS','var')
-        dcmExportOptS = [];
-    end
 end
-
-
 
 %% ----- Supporting functions ----
     function [planC,outScanNum] = importLabelMap(userOptS,...

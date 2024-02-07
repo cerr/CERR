@@ -1,6 +1,7 @@
 function [planC,assocScan,allLabelNamesC,dcmExportOptS] = ...
     processAndImportAIOutput(planC,userOptS,origScanNumV,scanNumV,...
-    outputScanNum,algorithm,hashID,sessionPath,cmdFlag,inputIdxS)
+    outputScanNum,algorithm,hashID,sessionPath,cmdFlag,inputIdxS,...
+    dcmExportOptS)
 %[planC,,origScanNumV,allLabelNamesC,dcmExportOptS] = ...
 %processAndImportAIOutput(planC,userOptS,origScanNumV,scanNumV,...
 % outputScanNum,algorithm,hashID,sessionPath,cmdFlag,inputIdxS)
@@ -9,11 +10,8 @@ function [planC,assocScan,allLabelNamesC,dcmExportOptS] = ...
 
 outputS = userOptS.output;
 allLabelNamesC = {};
-dcmExportOptS = struct([]);
-
 
 %Loop over model outputs
-
 outputC = fieldnames(outputS);
 for nOut = 1:length(outputC)
 
@@ -27,7 +25,7 @@ for nOut = 1:length(outputC)
             % Import segmentations
             [planC,assocScan,allLabelNamesC,dcmExportOptS] = ...
                 processAndImportSeg(planC,origScanNumV,scanNumV,...
-                outputScanNum,sessionPath,userOptS);
+                outputScanNum,sessionPath,userOptS,dcmExportOptS);
 
         case 'dvf'
             %Deformation vector field

@@ -120,6 +120,7 @@ if length(algorithmC) > 1 || ...
     %% Run AI model
     % Loop over algorithms
     allLabelNamesC = {};
+    dcmExportOptS = struct([]);
     createSessionFlag = false;
     for k=1:length(algorithmC)
 
@@ -180,12 +181,10 @@ if length(algorithmC) > 1 || ...
         toc
 
         %Process model outputs
-        [planC,assocScan,labelNamesC,dcmExportOptS] = ...
-            processAndImportAIOutput(planC,userOptS,origScanNumV,...
+        processAndImportAIOutput(planC,userOptS,origScanNumV,...
             procScanNumV,outputScanNumV,algorithmC(k),gitHash,...
-            fullClientSessionPath,cmdFlag,inputIdxS);
-        allLabelNamesC = [allLabelNamesC,labelNamesC];
-
+            fullClientSessionPath,cmdFlag,inputIdxS,dcmExportOptS);
+         allLabelNamesC = [allLabelNamesC,labelNamesC];
     end
 
     if ishandle(hWait)
