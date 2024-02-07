@@ -38,8 +38,9 @@ paramS = getRadiomicsParamTemplate(configFilePath);
 [procScan3M,procMask3M,gridS] = preProcessForRadiomics(scanNum,...
     strNum, paramS, planC);
 [minr, maxr, minc, maxc, mins, maxs] = compute_boundingbox(procMask3M);
-maskSlcV = sum(sum(procMask3M))>0;
-maskBoundingBox3M = procMask3M(minr:maxr,minc:maxc,maskSlcV);
+padFiltSizeV = size(procMask3M);
+%maskSlcV = sum(sum(procMask3M))>0;
+%maskBoundingBox3M = procMask3M(minr:maxr,minc:maxc,maskSlcV);
 
 %% Get filtered image
 filterTypeC = fieldnames(paramS.imageType);
@@ -75,12 +76,18 @@ for nType = 1: length(filterTypeC)
                 %padSizV = [5,5,5]; %For resampling
                 padSizV = [0,0,0];
             end
-            validPadSizV = [min(padSizV(1), minr),...
-                            min(padSizV(1), size(procMask3M,1)-maxr),...
-                            min(padSizV(2), minc), ...
-                            min(padSizV(2), size(procMask3M,2)-maxc),...
-                            min(padSizV(3), mins),...
-                            min(padSizV(3), size(procMask3M,3)-maxs)];
+
+            if strcmpi(currFiltParamS.padding.method,'expand')
+                validPadSizV = [min(padSizV(1), minr),...
+                    min(padSizV(1), padFiltSizeV(1)-maxr),...
+                    min(padSizV(2), minc), ...
+                    min(padSizV(2), padFiltSizeV(2)-maxc),...
+                    min(padSizV(3), mins),...
+                    min(padSizV(3), padFiltSizeV(3)-maxs)];
+            else
+                validPadSizV = [padSizV(1),padSizV(1),padSizV(2),padSizV(2),...
+                    padSizV(3),padSizV(3)];
+            end
 
             filtScan3M = filtScan3M(validPadSizV(1)+1 : texSizV(1)-validPadSizV(2),...
                 validPadSizV(3)+1 : texSizV(2)-validPadSizV(4),...
@@ -88,8 +95,9 @@ for nType = 1: length(filterTypeC)
             filtMask3M = procMask3M(validPadSizV(1)+1 : texSizV(1)-validPadSizV(2),...
                 validPadSizV(3)+1 : texSizV(2)-validPadSizV(4),...
                 validPadSizV(5)+1 : texSizV(3)-validPadSizV(6));
-            %[~, maxr, minc, ~] = compute_boundingbox(mask3M);
-
+            %[minr, maxr, minc, maxc, mins, maxs] = compute_boundingbox(filtMask3M);
+            %maskSlcV = sum(sum(filtMask3M))>0;
+            
             %Create texture object
             assocScanUID = planC{indexS.scan}(scanNum).scanUID;
             nTexture = length(planC{indexS.texture}) + 1;
@@ -110,7 +118,7 @@ for nType = 1: length(filterTypeC)
             xVals = gridS.xValsV;
             yVals = gridS.yValsV;
             zVals = gridS.zValsV;
-            zV = zVals(maskSlcV);
+            zV = zVals(mins:maxs);
 
             regParamsS.horizontalGridInterval = voxSizV(1);
             regParamsS.verticalGridInterval = voxSizV(2);
