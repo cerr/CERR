@@ -153,6 +153,10 @@ if length(algorithmC) > 1 || ...
         %Call container and execute model
         tic
         roiDescrpt = '';
+        if isfield(userOptS.output,'labelMap') && ...
+                ~isfield(userOptS.output.labelMap,'roiGenerationDescription')
+            roiDescrpt = userOptS.output.labelMap.roiGenerationDescription;
+        end
         if strcmpi(cmdFlag,'singcontainer') && exist('sshConfigS','var')...
                 && isempty(sshConfigS)
             callDeepLearnSegContainer(algorithmC{k}, ...
@@ -165,19 +169,14 @@ if length(algorithmC) > 1 || ...
                 [~,gitHash] = system(['singularity run --app get_hash ',...
                     containerPathC{k}],'-echo');
             end
-            roiDescrpt = [roiDescrpt, '  __git_hash:',gitHash];
-            userOptS.output.labelMap.roiGenerationDescription = roiDescrpt;
+            roiDescrpt = [roiDescrpt,'  __git_hash:',gitHash];
         else
             cmd = [activate_cmd,' && ',run_cmd];
             disp(cmd)
             status = system(cmd);
-            if isfield(userOptS.output,'labelMap') && ...
-                    ~isfield(userOptS.output.labelMap,'roiGenerationDescription')
-                userOptS.output.labelMap.roiGenerationDescription = roiDescrpt;
-            end
             gitHash = 'unavailable';
-
         end
+        userOptS.output.labelMap.roiGenerationDescription = roiDescrpt;
         toc
 
         %Process model outputs
