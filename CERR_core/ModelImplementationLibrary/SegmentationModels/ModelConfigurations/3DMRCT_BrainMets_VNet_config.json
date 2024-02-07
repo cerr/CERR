@@ -55,7 +55,8 @@
 "batchSize" : 1,
 
 "output":{   
-    "labelMap":{"strNameToLabelMap": "userDefinedStrLabelMap.json"},
+    "labelMap":{
+    "strNameToLabelMap": "userDefinedStrLabelMap.json",
     "roiGenerationDescription": "Brain Mets Candidates - AI generated",
     "dicomExportOptS": {
                      "rt_struct": {
@@ -63,6 +64,7 @@
                                  {"toStructureName": "all",
                                   "fromStructureName": "brain"}
                                    }
+        }
     }
 },
 
