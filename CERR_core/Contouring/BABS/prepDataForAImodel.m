@@ -145,7 +145,9 @@ if iscell(planC)
                                 cropParS(nCropStr).structureName = outStrName;
                             end
                         end
-                        cropS.params = cropParS;
+                        for i = 1:length(cropS)
+                            cropS(i).params = cropParS(i);
+                        end
                     end
                 end
                 userOptS.input.scan(nScan).crop = cropS;
@@ -280,7 +282,9 @@ else
                                 cropParS(nCropStr).structureName = outStrName;
                             end
                         end
-                        cropS.params = cropParS;
+                        for i = 1:length(cropS)
+                            cropS(i).params = cropParS(i);
+                        end
                     end
                 end
                 userOptS.input.scan(nScan).crop = cropS;

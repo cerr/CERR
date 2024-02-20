@@ -1,4 +1,5 @@
-function [outC,ptListC] = stackDLMaskFiles(outPath,outFmt,passedScanDim)
+function [outC,ptListC] = stackDLMaskFiles(outPath,outFmt,...
+                          passedScanDim,labelMapS)
 % stackDLMaskFiles.m Reads output mask files and returns 3D stack.
 %--------------------------------------------------------------------------
 %INPUTS:
@@ -8,13 +9,19 @@ function [outC,ptListC] = stackDLMaskFiles(outPath,outFmt,passedScanDim)
 %                 prefix_3D if passedScanDim = '3D'.
 % outFmt        : Output format ('H5' or 'NRRD').
 % passedScanDim : '2D' or '3D'.
+% ---- Optional---
+%labelMapS  : Stucture name to label# dictionary
 %------------------------------------------------------------------------
 % AI 6/29/21
+
+if ~exist('labelMapS','var')
+    labelMapS = struct([]);
+end
 
 switch outFmt
     
     case 'H5'
-        [outC,ptListC] = stackHDF5Files(outPath,passedScanDim);
+        [outC,ptListC] = stackHDF5Files(outPath,passedScanDim,labelMapS);
         
     case 'NRRD'
         
