@@ -24,7 +24,13 @@ labelPath = fullfile(fullSessionPath,'outputLabelMap');
 % Read structure masks
 outFmt = userOptS.modelOutputFormat;
 passedScanDim = userOptS.passedScanDim;
-[outC,ptListC] = stackDLMaskFiles(fullSessionPath,outFmt,passedScanDim);
+lableMapS = struct([]);
+if isfield(userOptS.output,'labelMap') &&...
+        isfield(userOptS.output.labelMap,'strNameToLabelMap') 
+    lableMapS = userOptS.output.labelMap.strNameToLabelMap;
+end
+[outC,ptListC] = stackDLMaskFiles(fullSessionPath,outFmt,...
+                            passedScanDim,lableMapS);
 
 % Import to CERR
 success = 0;
