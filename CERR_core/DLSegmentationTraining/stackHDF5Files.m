@@ -49,7 +49,7 @@ for p = 1:length(ptListC)
                 maskM = permute(maskM,[3,2,1]);
                 mask3M(:,:,slcNum) = maskM;
             end
-            if len(labelMapS)>1
+            if ~isempty(labelMapS)
                 labelsV = [labelMapS.value];
             else
                 labelsV = unique(mask3M(:));
