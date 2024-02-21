@@ -163,13 +163,16 @@ if length(algorithmC) > 1 || ...
                 containerPathC{k}, fullClientSessionPath, sshConfigS,...
                 userOptS.batchSize); % different workflow for client or session
             gitHash = 'unavailable';
-            [~,hashChk] = system(['singularity apps ' containerPathC{k},...
-                ' | grep get_hash'],'-echo');
-            if ~isempty(hashChk)
-                [~,sysOut] = system(['singularity run --app get_hash ',...
-                    containerPathC{k}],'-echo');
-                sysOutC = regexp(sysOut, '\n','split');
-                gitHash = sysOutC{1};
+            try
+                [~,hashChk] = system(['singularity apps ' containerPathC{k},...
+                    ' | grep get_hash'],'-echo');
+                if ~isempty(hashChk)
+                    [~,sysOut] = system(['singularity run --app get_hash ',...
+                        containerPathC{k}],'-echo');
+                    sysOutC = regexp(sysOut, '\n','split');
+                    gitHash = sysOutC{1};
+                end
+            catch
             end
             roiDescrpt = [roiDescrpt,'  __git_hash:',gitHash];
         else

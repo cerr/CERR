@@ -22,10 +22,13 @@ if ~exist('sshConfigS','var') || (exist('sshConfigS','var') && isempty(sshConfig
     status = system(command);
     
     % Run container app to get hash (placeholder for now)
-    [~,hashChk] = system(['singularity apps ' containerPath ' | grep get_hash'],'-echo');    
-    if ~isempty(hashChk)
-        [~,gitHash] = system(['singularity run --app get_hash ' containerPath],'-echo');
-    end    
+    try
+        [~,hashChk] = system(['singularity apps ' containerPath ' | grep get_hash'],'-echo');
+        if ~isempty(hashChk)
+            [~,gitHash] = system(['singularity run --app get_hash ' containerPath],'-echo');
+        end
+    catch
+    end
 
 else
     %call .bat file with correct inputs

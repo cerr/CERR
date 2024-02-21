@@ -59,9 +59,12 @@ toc
 
 % Run container app to get git_hash
 gitHash = 'unavailable';
-[~,hashChk] = system(['singularity exec ' containerPath ' ls /scif/apps | grep get_hash'],'-echo');
-if ~isempty(hashChk)
-    [~,gitHash] = system(['singularity run --app get_hash ' containerPath],'-echo');
+try
+    [~,hashChk] = system(['singularity exec ' containerPath ' ls /scif/apps | grep get_hash'],'-echo');
+    if ~isempty(hashChk)
+        [~,gitHash] = system(['singularity run --app get_hash ' containerPath],'-echo');
+    end
+catch
 end
 roiDescrpt = '';
 if isfield(userOptS,'roiGenerationDescription')
