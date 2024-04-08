@@ -475,7 +475,7 @@ switch upper(command)
                             modelC{xIndx}.dv = {doseBinsC,volHistC};
                         end
 
-                        xScaleV = nfrxScaleV(nfrxScaleVnumFrxProtocol>=1);
+                        xScaleV = nfrxScaleV(nfrxScaleV+numFrxProtocol>=1);
 
                         for n = 1 : numel(xScaleV)
 
@@ -533,8 +533,8 @@ switch upper(command)
                             %---------------------------------END TEMP-----------------------------------%
                         end
                         planC{indexS.dose}(plnNum).doseArray = dA;
+                        protocolS(p).model = modelC;
                     end
-                    protocolS(p).model = modelC;
                     hSlider = ud.handle.modelsAxis(7); %Invisible; just for readout at scale=1
                     ud.scaleFactors = xScaleV;
 

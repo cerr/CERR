@@ -106,7 +106,7 @@ switch(tag)
         else
             modelsC{modelNum}.parameters.(parName).val = val2num;
         end
-        set(ud.handle.inputH(9),'Enable','On');  %Enable save
+        set(ud.handle.tab1H(8),'Enable','On');  %Enable save
 end
 ud.Protocols(prtcNum).model = modelsC;
 guidata(hFig,ud);
