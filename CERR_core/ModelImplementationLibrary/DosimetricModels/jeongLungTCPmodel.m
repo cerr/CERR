@@ -23,8 +23,8 @@ nFrx = paramS.numFractions.val;
 
 %% Get treatment days
 schedule_in = paramS.treatmentSchedule.val;
-if  isfield(paramS,'scheduleType')
-    scheduleType = paramS.scheduleType;
+if  isfield(paramS.treatmentSchedule,'scheduleType')
+    scheduleType = paramS.treatmentSchedule.scheduleType;
 else
     scheduleType = 'weekday';
 end
