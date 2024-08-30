@@ -71,7 +71,16 @@ if length(zFieldV) > 1;
     %25% faster compared to finterp1.
     indNaN = zInterpV < min(zFieldV) | zInterpV > max(zFieldV);
     zInterpV(indNaN) = zFieldV(1); %assign DUMMY value
-    [jnk,binIndex] = histc(zInterpV,zFieldV);
+    % distinguish between increasing and decreasing zFieldV
+    if zFieldV(1)>zFieldV(end)
+    	% flip zFieldV if decreasing
+        [jnk,binIndex] = histc(zInterpV,fliplr(zFieldV));
+        jnk = flipud(jnk);
+        % recalc the index positions due to histc calculation with flipped zFieldV
+        binIndex = length(zFieldV)-binIndex;
+    else
+        [jnk,binIndex] = histc(zInterpV,zFieldV);
+    end
     yV = (1:length(zFieldV))';
     dxV = [diff(zFieldV) 1]'; %DUMMY 1
     zFieldTransposedV = zFieldV';
