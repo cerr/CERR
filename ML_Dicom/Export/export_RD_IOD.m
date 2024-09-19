@@ -108,7 +108,7 @@ for i = 1:length(planC{indexS.dose})
     %being exported, they are exported in the rt_dvh module.
     dInd = [];
     for dvhNum = 1:length(DVHS)
-        if DVHS(dvhNum).doseIndex == i && ~isempty(DVHS(dvhNum).doseIndex)
+        if ~isempty(DVHS(dvhNum).doseIndex) && DVHS(dvhNum).doseIndex == i
             dInd = [dInd dvhNum];
         end
     end
