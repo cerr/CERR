@@ -73,8 +73,9 @@ for i=1:nbeams
     beamGeometryInitS(1,i).beamModality       = getfield(beamsInitS, 'BeamSequence',['Item_', num2str(i)],'RadiationType');
     beamGeometryInitS(1,i).beamEnergyMeV      = getfield(beamsInitS, 'BeamSequence',['Item_', num2str(i)], 'ControlPointSequence','Item_1','NominalBeamEnergy');
     beamGeometryInitS(1,i).beamType           = getfield(beamsInitS, 'BeamSequence',['Item_', num2str(i)],'BeamType');
-    beamGeometryInitS(1,i).nominalIsocenterDistance = getfield(beamsInitS, 'BeamSequence',['Item_', num2str(i)],'SourceAxisDistance');
-    
+    if isfield(getfield(beamsInitS, 'BeamSequence',['Item_', num2str(i)]),'SourceAxisDistance')
+        beamGeometryInitS(1,i).nominalIsocenterDistance = getfield(beamsInitS, 'BeamSequence',['Item_', num2str(i)],'SourceAxisDistance');
+    end
     %get isocenter position
     string = num2str((beamsInitS.BeamSequence.Item_1.ControlPointSequence.Item_1.IsocenterPosition)');
     beamGeometryInitS(1,i).file{1,1}          = ['"Isocenter coordinate" ' string];
