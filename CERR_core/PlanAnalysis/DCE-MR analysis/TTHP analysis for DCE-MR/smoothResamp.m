@@ -30,9 +30,16 @@ if ~(smoothFlag || resampFlag)
 else
     if smoothFlag
         peakIdxV = findFirstPeak(sigM);
-        %Pad signal
+        skipIdxV = sum(isnan(sigM),2);
+        selPadSigM = padSigM(~skipIdxV,:);
+        peakIdxV = peakIdxV(~skipIdxV);
         %Smooth signal follg. first peak
-        padSigM(:,nPad+peakIdxV+1:end) = conv2(1,filtV,padSigM(:,nPad+peakIdxV+1:end),'same');
+        for vox = 1:size(selPadSigM,1)
+            selSegV = selPadSigM(vox, nPad+peakIdxV(vox)+1:end);
+            selPadSigM(vox, nPad+peakIdxV(vox)+1:end) = ...
+                conv(selSegV,filtV,'same');
+        end
+        padSigM(~skipIdxV,:) = selPadSigM;
     end
     if resampFlag         
         resampSigM = resample(padSigM.',padTimeV,1/ts).'; %Resample
