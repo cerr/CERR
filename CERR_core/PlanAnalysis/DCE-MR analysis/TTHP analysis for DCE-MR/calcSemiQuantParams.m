@@ -6,6 +6,9 @@ function paramS = calcSemiQuantParams(resampSigM,timeOutV,TTHPv,SHPv)
 % timeOutV   : (Resampled) time points
 % TTHPm      : Time to half peak
 % SHPm       : Signal at half-peak
+% Ref.
+% Lee, S.H., et al. (2017) "Correlation Between Tumor Metabolism and Semiquantitative Perfusion
+% MRI Metrics in Non–small Cell Lung Cancer." IJROBP 99.2:S83-S84.
 % ----------------------------------------------------------------
 % AI 11/12/2020
 
@@ -32,16 +35,17 @@ WOSv = (PEv - RSEendV)./(TTPv - Tend); %WOS = (PE - RSE(Tend)) /(TTP – Tend),
 WOSv(peakAtEndIdx) = 0;                %Otherwise set to zero.
 
 %5. Initial gradient (IG)
-%Gradient estimated by linear regression of all RSEs between 20% and 80% PE
-cond_20v = bsxfun(@ge,relSigEnhM,.2*PEv);
-[~,id_20v] = max(cond_20v,[],2);
-cond_80v = bsxfun(@gt,relSigEnhM,.8*PEv);
-[~,id_80v] = max(cond_80v,[],2);
-id_80v = id_80v-1;
+%Gradient estimated by linear regression of all RSEs between 10% and 70% PE
+%cond_10v = bsxfun(@ge,relSigEnhM,.1*PEv);
+%[~,id_10v] = max(cond_10v,[],2);
+% cond_70v = bsxfun(@gt,relSigEnhM,.7*PEv);
+% [~,id_70v] = max(cond_70v,[],2);
+[~,id_10v] = min(abs(relSigEnhM - .1*PEv));
+[~,id_70v] = min(abs(relSigEnhM - .7*PEv));
 IGv = nan(nVox,1);
 igIdxV = false(size(relSigEnhM));
 for i = 1:nVox
-    idxV = id_20v(i):id_80v(i);
+    idxV = id_10v(i):id_70v(i);
     y = relSigEnhM(i,idxV).';
     x = [ ones(length(idxV),1) , timeOutV(idxV).'];
     b = x\y;
@@ -60,7 +64,7 @@ WOGv = nan(nVox,1);
 for i = 1:nVox
     if ~isnan(t1(i))
         x = [ ones(t1(i)-t0(i)+1,1),timeOutV(t0(i):t1(i)).'];
-        y = relSigEnhM(:,t0(i):t1(i)).';
+        y = relSigEnhM(i, t0(i):t1(i)).';
         b = x\y;
         WOGv(i) = b(2);
     else
