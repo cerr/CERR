@@ -42,6 +42,9 @@ if ~isempty(imageUnits)
         error('Image units %s not supported.',imageUnits);
     end
 
+else
+    %Skip transformation
+    warning('Unknown image units. Skipping transformation.')
 end
 
 end

@@ -1,5 +1,4 @@
-function planC = copyStrToScan(structNum,scanNum,planC)
-%function planC = copyStrToScan(structNum,scanNum,planC)
+function planC = copyStrToScan(structNum,scanNum,planC,cuttingMask)
 %
 %This function derives a new structure from structNum which is associated
 %to scanNum. The naming convention for this new structure is 
@@ -7,6 +6,7 @@ function planC = copyStrToScan(structNum,scanNum,planC)
 %the unchanged planC is returned back. 
 %
 %APA, 8/18/06
+%Adapted by MCO, 4/19/17
 %
 % Copyright 2010, Joseph O. Deasy, on behalf of the CERR development team.
 % 
@@ -30,8 +30,12 @@ function planC = copyStrToScan(structNum,scanNum,planC)
 % You should have received a copy of the GNU General Public License
 % along with CERR.  If not, see <http://www.gnu.org/licenses/>.
 
-if ~exist('planC')
+if ~exist('planC', 'var')
     global planC
+end
+
+if ~exist('cuttingMask', 'var')
+    cuttingMask = ones(size(getScanArray(scanNum, planC)));
 end
 
 indexS = planC{end};
@@ -43,13 +47,6 @@ if assocScanNum == scanNum
     return;
 end
 
-% Structure names of all the structures in existing plan
-strNamC = {planC{indexS.structures}.structureName};
-strNamC(structNum) = [];
-
-% Structure name of the one to be copied.
-strName = planC{indexS.structures}(structNum).structureName;
-
 %obtain r,c,s coordinates of scanNum's (new) x,y,z vals
 newScanS = planC{indexS.scan}(scanNum);
 [xNewScanValsV, yNewScanValsV, zNewScanValsV] = getScanXYZVals(newScanS);
@@ -57,19 +54,22 @@ newScanS = planC{indexS.scan}(scanNum);
 
 %obtain r,c,s coordinates of structure based on its associated (old) scan
 [rStructValsV, cStructValsV, sStructValsV] = getUniformStr(structNum, planC);
+[oldMask] = getUniformStr(structNum, planC);
 
 %obtain x,y,z coordinates of voxels included within structure considering
 %transM for old and new scan
 [xOldScanValsV, yOldScanValsV, zOldScanValsV] = getUniformScanXYZVals(planC{indexS.scan}(assocScanNum));
+
 xStructValsV = xOldScanValsV(cStructValsV);
 yStructValsV = yOldScanValsV(rStructValsV);
 zStructValsV = zOldScanValsV(sStructValsV);
-if ~isfield(planC{indexS.scan}(scanNum),'transM') || isempty(planC{indexS.scan}(scanNum).transM) 
+
+if ~isfield(planC{indexS.scan}(scanNum),'transM') | isempty(planC{indexS.scan}(scanNum).transM) 
     transMold = eye(4);
 else    
     transMold = planC{indexS.scan}(scanNum).transM;
 end
-if ~isfield(planC{indexS.scan}(assocScanNum),'transM') || isempty(planC{indexS.scan}(assocScanNum).transM) 
+if ~isfield(planC{indexS.scan}(assocScanNum),'transM') | isempty(planC{indexS.scan}(assocScanNum).transM) 
     transMnew = eye(4);
 else    
     transMnew = planC{indexS.scan}(assocScanNum).transM;
@@ -77,24 +77,25 @@ end
 transM = inv(transMold)*transMnew;
 [xStructValsV, yStructValsV, zStructValsV] = applyTransM(transM, xStructValsV, yStructValsV, zStructValsV);
 
-%convert x,y,z vals of structure to r,c,s of scanNum (new)
-[rStructValsV, cStructValsV, sStructValsV] = xyztom(xStructValsV, yStructValsV, zStructValsV, scanNum, planC, 1);
-rStructValsV = round(rStructValsV);
-rStructValsV = clip(rStructValsV,ceil(min(rNewScanValsV)),floor(max(rNewScanValsV)),'limits');
-cStructValsV = round(cStructValsV);
-cStructValsV = clip(cStructValsV,ceil(min(cNewScanValsV)),floor(max(cNewScanValsV)),'limits');
-sStructValsV = round(sStructValsV);
-sStructValsV = clip(sStructValsV,ceil(min(sNewScanValsV)),floor(max(sNewScanValsV)),'limits');
+%create x,y,z mesh grids for both old and new scans, in the coordinate system of the new scan
+[XOld,YOld,ZOld] = meshgrid(xOldScanValsV, yOldScanValsV, zOldScanValsV);
+[XOldT, YOldT, ZOldT] = applyTransM(transM, XOld(:), YOld(:), ZOld(:));
+XOld(:) = XOldT;
+YOld(:) = YOldT;
+ZOld(:) = ZOldT;
+[XNew,YNew,ZNew] = meshgrid(xNewScanValsV, yNewScanValsV, zNewScanValsV);
+
+%create new mask by interpolating between the x,y,z positions of the old mask
+oldMaskDoubles = zeros(size(oldMask));
+oldMaskDoubles(oldMask) = 1;
+newMask = interp3(XOld,YOld,ZOld,oldMaskDoubles,XNew,YNew,ZNew);
 
 %generate uniformized mask for this new structure
 newScanUnifSiz = getUniformScanSize(newScanS);
 maskM = zeros(newScanUnifSiz,'uint8');
-indicesWithinSkinV = sub2ind(newScanUnifSiz,rStructValsV,cStructValsV,sStructValsV);
-maskM(indicesWithinSkinV) = 1;
+maskM(newMask>=0.5) = 1;
+maskM(~cuttingMask) = 0; % eliminate voxels outside of a reference mask given as input argument
 
 %generate contours on slices out of uniform mask and add to planC
-if any(strncmp(strName,strNamC,inf))
-    % strname = [planC{indexS.structures}(structNum).structureName,' asoc ',num2str(scanNum)];
-    strName = [strName,' asoc ',num2str(scanNum)];
-end
-planC = maskToCERRStructure(maskM, 1, scanNum, strName, planC);
+strname = [planC{indexS.structures}(structNum).structureName,' asoc ',num2str(scanNum)];
+planC = maskToCERRStructure(maskM, 1, scanNum, strname, planC);

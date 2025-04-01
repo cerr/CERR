@@ -3,7 +3,8 @@
                     "baseScan":{"identifier":{"imageType":"CT SCAN"}},
                     "movingScan":{"identifier":{"imageType":"MR SCAN"}},
                     "method": "none",
-                    "copyStr": ["brain"]
+                    "copyStr": ["brain"],
+                    "renameStr": "brain"
                  },
 
 "input": {
