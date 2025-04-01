@@ -90,8 +90,16 @@ else
     
     for i=1:normsiz(3)
         zVal = zSca(i);
-        uB = find(zUni > zVal, 1 );
-        lB = find(zUni <= zVal, 1, 'last' );
+        if any(zUni > zVal)
+            uB = find(zUni > zVal, 1 );
+        else
+            uB = length(zUni);
+        end
+        if any(zUni <= zVal)
+            lB = find(zUni <= zVal, 1, 'last' );
+        else
+            lB = 1;
+        end
         if normsiz(3) > 1 && (isempty(uB) || isempty(lB))
             continue
         end
