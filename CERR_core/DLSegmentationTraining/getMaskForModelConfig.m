@@ -284,7 +284,7 @@ for m = 1:length(methodC)
                 outMask3M = false(size(sumMask3M));
                 outMask3M(:,:,mins:maxs) = true;
             else
-                warning('Input ''mask3M'' is empty.'); 
+                warning('Input ''mask4M'' is empty.'); 
                 outMask3M = false(size(getScanArray(scanNum,planC)));
             end
             maskC{m} = outMask3M;
@@ -297,7 +297,7 @@ for m = 1:length(methodC)
         otherwise
             %Custom crop function
             [maskC{m},planC] = feval(method,planC,paramS,...
-                               mask3M,scanNum);
+                               mask4M,scanNum);
     end
     
     %Save to planC if reqd
