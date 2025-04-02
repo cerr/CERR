@@ -43,5 +43,3 @@ if ~isempty(imageUnits)
     end
 
 end
-
-end

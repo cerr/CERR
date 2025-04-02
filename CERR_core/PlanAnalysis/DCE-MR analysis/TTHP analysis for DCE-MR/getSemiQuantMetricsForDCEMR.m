@@ -184,10 +184,12 @@ end
 
 %% -- Sub-functions --
     function shift = getShift(maskedDCE3M,maskM)
-        [i,j] = find(maskM);
-        ROISigM = (maskedDCE3M(i,j,:));
-        avgROIsigV = squeeze(sum(sum(ROISigM)))/size(maskedDCE3M,3);
-        
+        nTimePts = size(maskedDCE3M,3);
+        nVox = nnz(maskM);
+        repMask3M = repmat(maskM,[1,1,nTimePts]);
+        ROISigV = maskedDCE3M(repMask3M);
+        ROISigM = reshape(ROISigV,nVox,nTimePts);
+        avgROIsigV = sum(ROISigM,1)/nVox;
         screenSizeV = get(0,'ScreenSize') ;
       
         h = figure('Name','ROI avg signal','Position',screenSizeV);

@@ -19,8 +19,9 @@ relSigEnhM = resampSigM - normalizedBaseline;
 
 %% Compute TTHP, SHP
 %Identify first time point where changeSig > half-peak
-gts50 = bsxfun(@ge,relSigEnhM,(max(resampSigM,[],2) - normalizedBaseline)/2);
-[~,SHPcolIdx] = max(gts50,[],2);
+%gts50 = bsxfun(@ge,relSigEnhM,(max(resampSigM,[],2) - normalizedBaseline)/2);
+%[~,SHPcolIdx] = max(gts50,[],2);
+[~, SHPcolIdx] = min(abs(relSigEnhM - 0.5*max(relSigEnhM,[],2)));
 SHProwIdx = (1:nVox).';
 SHPidx = sub2ind([nVox,numel(timeOutV)],SHProwIdx,SHPcolIdx);
 %Get signal at half-peak
