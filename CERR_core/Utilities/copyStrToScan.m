@@ -77,6 +77,14 @@ end
 transM = inv(transMold)*transMnew;
 [xStructValsV, yStructValsV, zStructValsV] = applyTransM(transM, xStructValsV, yStructValsV, zStructValsV);
 
+% Pad old grid to avoid errors due to small differences in grids
+dxOld = median(diff(xOldScanValsV));
+dyOld = median(diff(yOldScanValsV));
+dzOld = median(diff(zOldScanValsV));
+xOldScanValsV = [xOldScanValsV(1)-dxOld, xOldScanValsV, xOldScanValsV(end)+dxOld];
+yOldScanValsV = [yOldScanValsV(1)-dyOld, yOldScanValsV, yOldScanValsV(end)+dyOld];
+zOldScanValsV = [zOldScanValsV(1)-dzOld, zOldScanValsV, zOldScanValsV(end)+dzOld];
+
 %create x,y,z mesh grids for both old and new scans, in the coordinate system of the new scan
 [XOld,YOld,ZOld] = meshgrid(xOldScanValsV, yOldScanValsV, zOldScanValsV);
 [XOldT, YOldT, ZOldT] = applyTransM(transM, XOld(:), YOld(:), ZOld(:));
@@ -88,6 +96,8 @@ ZOld(:) = ZOldT;
 %create new mask by interpolating between the x,y,z positions of the old mask
 oldMaskDoubles = zeros(size(oldMask));
 oldMaskDoubles(oldMask) = 1;
+% Pad old mask to match padded grid
+oldMaskDoubles = padarray(oldMaskDoubles,[1,1,1] ,0,'both');
 newMask = interp3(XOld,YOld,ZOld,oldMaskDoubles,XNew,YNew,ZNew);
 
 %generate uniformized mask for this new structure
