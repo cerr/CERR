@@ -73,7 +73,7 @@ success = 1;
 % Get list of auto-segmented structures
 AIoutputPath = fullfile(fullSessionPath,'outputLabelMap');
 if ischar(userOptS.output.labelMap.strNameToLabelMap)
-    labelDatS = jsondecode(filread(fullfile(AIoutputPath,...
+    labelDatS = jsondecode(fileread(fullfile(AIoutputPath,...
         userOptS.output.labelMap.strNameToLabelMap)));
     labelMapS = labelDatS.strNameToLabelMap;
 else
