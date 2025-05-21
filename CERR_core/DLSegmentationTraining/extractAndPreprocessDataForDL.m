@@ -412,7 +412,7 @@ for scanIdx = 1:numScans
             planC{indexS.scan}(origScanIdx).scanInfo(1).(copyInfoC{nCpy});
         end
    
-        planC = scan2CERR(scan3M,['Resamp_scan',origScanIdx],'',...
+        planC = scan2CERR(scan3M,['Resamp_scan',num2str(origScanIdx)],'',...
             scanInfoS,'',planC);
         resampScanNum = length(planC{indexS.scan});
         scanNumV(scanIdx) = resampScanNum;
