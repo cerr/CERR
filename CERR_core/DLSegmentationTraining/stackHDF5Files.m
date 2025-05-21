@@ -32,9 +32,16 @@ for p = 1:length(ptListC)
         case '3D'
             
             fileName = fullfile(outPath,'outputH5',fileNameC{1});
-            mask4M = h5read(fileName,'/mask');
-            %mask3M = permute(mask3M,[3 2 1]);
-            mask4M = permute(mask4M,[4 3 2 1]); %?
+            maskArr = h5read(fileName,'/mask');
+            if ndims(maskArr)==3
+                maskArr = permute(maskArr,[3 2 1]);
+                labelsV = unique(maskArr(:));
+                for n = 2:length(labelsV)
+                    mask4M(:,:,:,n-1) = maskArr==labelsV(n);
+                end
+            else
+                mask4M = permute(maskArr,[4 3 2 1]); 
+            end
             
         case '2D'
             %Stack files
