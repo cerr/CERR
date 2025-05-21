@@ -85,7 +85,7 @@ for nOut = 1:length(outputC)
                 % Reverse pre-processing operations
                 DVF3M = squeeze(DVF4M(nDim,:,:,:));
                 
-                [DVF3M,imgExtentsV,physExtentsV,planC] = ...
+                [DVF3M,physExtentsV,planC] = ...
                     joinH5planC(assocScan,DVF3M,[DVFfilename,'_'...
                     dimsC{nDim}],tempOptS,planC);
                 
@@ -235,7 +235,7 @@ for nOut = 1:length(outputC)
 
                         userOptS.input.scan(outScanNum) = userOptS.input.scan(origScanNum);
                         userOptS.input.scan(outScanNum).origScan = origScanNumV;
-                        [procData3M,~,~,planC] = joinH5planC(outScanNum,modelOut3M,...
+                        [procData3M,~,planC] = joinH5planC(outScanNum,modelOut3M,...
                             scanName,userOptS,planC);
 
                         % Add the new "derived" scan to planC

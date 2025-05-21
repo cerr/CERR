@@ -1,4 +1,4 @@
-function [dataOut4M,imgExtentsV,physExtentsV,scanNum,planC] = ...
+function [dataOut4M,physExtentsV,scanNum,planC] = ...
     reverseTransformAIOutput(scanNum,data4M,userOptS,planC)
 % Undo pre-processing transformations (cropping, resampling, registration)
 % AI 09/01/22
@@ -39,7 +39,7 @@ scanS = planC{indexS.scan}(scanNum);
 physExtentsV = [yValsV(minr),yValsV(maxr),...
     xValsV(minc),xValsV(maxc),...
     zValsV(slcV(1)),zValsV(slcV(end))];
-imgExtentsV = [minr,maxr,minc,maxc,slcV(1),slcV(end)];
+%imgExtentsV = [minr,maxr,minc,maxc,slcV(1),slcV(end)];
 
 %Undo resizing & cropping
 resizeS = scanOptS.resize;
@@ -64,7 +64,7 @@ for nMethod = length(resizeS):-1:1
             resizeMethod = 'unpad2d';
             originImageSizV = [sizV(1:2), length(slcV)];
             if strcmpi(output, 'labelmap')                
-                dataOut4M = zeros(sizV, 'uint32');
+                %dataOut4M = zeros(sizV,, 'uint32');
                 [~, dataOut4M(:,:,slcV,:)] = ...
                     resizeScanAndMask([],data4M,originImageSizV,...
                     resizeMethod,limitsM);                

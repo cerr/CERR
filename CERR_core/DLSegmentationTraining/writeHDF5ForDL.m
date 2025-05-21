@@ -77,7 +77,7 @@ switch (passedScanDim)
             for slIdx = 1:size(scanC{i}{1},3)
 
                 %Write mask
-                if ~isempty(maskC) && ~isempty(maskC{i}{1}) && ~testFlag
+                if ~isempty(maskC) && ~isempty(maskC{i}) && ~testFlag
                     mask4M = maskC{i}{1};
 
                     if slIdx == 1

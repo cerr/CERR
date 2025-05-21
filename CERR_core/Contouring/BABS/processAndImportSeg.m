@@ -118,7 +118,7 @@ end
         outScanNum = scanNumV(origScanIdx);
         userOptS.input.scan(outScanNum) = userOptS.input.scan(origScanIdx);
         userOptS.input.scan(outScanNum).origScan = origScanNumV(origScanIdx);
-        [segMask4M,~,~,planC]  = joinH5planC(outScanNum,segMask4M,labelPath,...
+        [segMask4M,~,planC]  = joinH5planC(outScanNum,segMask4M,labelPath,...
             userOptS,planC);
 
         % Post-process segmentation
