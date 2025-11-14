@@ -15,8 +15,8 @@
 
     <script src="jeongTCP/multidatespicker.js" type="text/javascript"></script>
 
-    <script src="jeho_tcp_ui.js" type="text/javascript"></script>
 	<script src='https://cdn.plot.ly/plotly-latest.min.js'></script>
+	<script src="jeho_tcp_ui_new.js" type="text/javascript"></script>
 
 </head>
 <body>
@@ -84,15 +84,21 @@
             </table>
         </div>
 
+		<br>
+		<br>
         Uniform Fraction size (Gy):
-        <input type="number"  id="fxsiz" value="2" class="date-values">
+        <input type="number"  id="fxSizFixed" value="2" class="date-values">
         <button onclick="applyUniformFxSize()">Apply</button>
 
         <br>
 		<br>
-        <button onclick="toggleFxSelectionDiv()">Select Variable Fx sizes</button>
-        <div id="fxSizeDIV" style="display:none">
 
+		OR
+		<br>
+		<br>
+        <button onclick="startFractionEntry()">Enter Variable Fx sizes</button>
+        <div id="fxSizeVar" style="display:block; margin-top:10px;">
+                <!-- Dynamic fields for var frx entry here -->
         </div>
 
         <br>

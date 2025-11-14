@@ -1,219 +1,351 @@
+// Global variables
+let fxValuesV = [];
+let currentFractionIndex = 0;
+
 function applyUniformFxSize() {
-	let fxDiv = document.getElementById("fxSizeDIV");
-	let table = fxDiv.querySelector("table");
-	var fxsize = document.getElementById("fxsiz").value;
-	for (var i = 1; i <= table.getElementsByTagName("tr").length-1; i++) {
-		//table.rows[i].cells[1].innerHTML = '<input type="number" value="' +  fxsize + '">';
-		table.rows[i].cells[1].getElementsByTagName("input")[0].value = fxsize
+
+	// Clear variable fraction input if any
+	const fxDiv = document.getElementById("fxSizeVar");
+	fxDiv.style.display = "block";
+	fxDiv.innerHTML = "";
+	fxValuesV = []; // reset variable fractions
+	currentFractionIndex = 0;
+	document.getElementById('tcpPlotDiv').innerHTML = ""; // Clear existing plot
+
+	const uniformFx = parseFloat(document.getElementById("fxSizFixed").value) || 2;
+	let datevals = document.getElementById("txday").value.trim();
+	if (!datevals) {
+			alert("Please select treatment days first.");
+			return;
 	}
+
+	const txDays = datevals.split(/\s*,\s*|\s+/).filter(d => d);
+	fxValuesV = new Array(txDays.length).fill(uniformFx);
+	currentFractionIndex = txDays.length
+	showFxSizeTable()
 }
 
-function toggleFxSelectionDiv() {
-	let fxDiv = document.getElementById("fxSizeDIV");
-	if (fxDiv.style.display === "none") {
-	  fxDiv.style.display = "block";
+/*
+Dynamic fields to input variable fraction sizes
+AI, 11/14/2025
+*/
+function clearFxSizeTable() {
+	const fxDiv = document.getElementById("fxSizeVar");
+	let table = fxDiv.querySelector("#fxSummaryTable");
+	if (table) table.remove();
+}
+
+function showFractionInput() {
+	const fxDiv = document.getElementById("fxSizeVar");
+	fxDiv.innerHTML = "";
+
+	// Row container
+	let rowDiv = document.createElement("div");
+	rowDiv.style.display = "flex";
+	rowDiv.style.alignItems = "center";
+	rowDiv.style.gap = "10px"; //
+	fxDiv.appendChild(rowDiv);
+
+	// Go to prev date
+	if (currentFractionIndex > 0) {
+		let backBtn = document.createElement("button");
+		backBtn.textContent = "< Prev";
+		backBtn.className = "btn btn-secondary";
+		backBtn.onclick = () => {
+			fxValuesV[currentFractionIndex] = input.value;
+			currentFractionIndex--;
+			showFractionInput();
+		};
+		rowDiv.appendChild(backBtn);
 	} else {
-	  fxDiv.style.display = "none";
+			 let spacer = document.createElement("div");
+			spacer.style.width = "75px";
+			rowDiv.appendChild(spacer);
 	}
+
+
+	// Input label
+	let label = document.createElement("label");
+	label.textContent = `Fraction size (Gy) for Fx${currentFractionIndex + 1}: `;
+	rowDiv.appendChild(label);
+
+	// Input box
+	let input = document.createElement("input");
+	input.type = "number";
+	input.style.width = "80px";
+	// Auto-populate from previous fraction if exists
+	 if (fxValuesV[currentFractionIndex] !== "") {
+		 input.value = fxValuesV[currentFractionIndex];
+	} else if (currentFractionIndex > 0) {
+		input.value = fxValuesV[currentFractionIndex - 1];
+	} else {
+		input.value = "";
+	}
+
+	input.oninput = () => {
+		input.style.border = (input.value === "" || isNaN(input.value)) ? "2px solid red" : "";
+		clearFxSizeTable();
+		document.getElementById('tcpPlotDiv').innerHTML = ""; // clear plot
+	};
+	rowDiv.appendChild(input);
+
+	// Got to next/end date
+	let nextBtn = document.createElement("button");
+	nextBtn.className = "btn btn-primary";
+	if (currentFractionIndex < fxValuesV.length - 1) {
+		nextBtn.textContent = "Next >";
+		nextBtn.onclick = () => {
+			if (input.value === "" || isNaN(input.value)) {
+				alert("Please enter a value before continuing.");
+				input.style.border = "2px solid red";
+				return;
+		}
+		fxValuesV[currentFractionIndex] = parseFloat(input.value);
+		currentFractionIndex++;
+		showFractionInput();
+		};
+	} else {
+		nextBtn.textContent = "Done";
+		 nextBtn.onclick = () => {
+			if (input.value === "" || isNaN(input.value)) {
+				alert("Please enter a value before finishing.");
+				input.style.border = "2px solid red";
+				return;
+			}
+		fxValuesV[currentFractionIndex] = parseFloat(input.value);
+		showFxSizeTable();
+		};
+	}
+	rowDiv.appendChild(nextBtn);
 }
 
+function startFractionEntry() {
+	clearFxSizeTable()
+	const fxDiv = document.getElementById("fxSizeVar");
+	fxDiv.style.display = "block";
+	fxDiv.innerHTML = ""; // clear previous controls
 
-function createFxSizeTableFromDates() {
-  var datevals = document.getElementById("txday").value;
-  var txDatesV = datevals.split(",");
-  var txDates = []
-  for (var i = 0; i <= txDatesV.length-1; i++) {
-      //var currDate = new Date(txDatesV[i])
-      var dateDict = {}
-      var fxEditbox = document.createElement("input");
-      fxEditbox.setAttribute("type", "number");
-      fxEditbox.setAttribute("value", "");
-      dateDict["day"] = txDatesV[i];
-      dateDict["Fx size"] = fxEditbox;
-	  //txDaysV[i] = (currDate.getTime()-refDate.getTime())/ dayFactor + 1
-	  txDates.push(dateDict);
-  }
-  let fxDiv = document.getElementById("fxSizeDIV");
-  let table = fxDiv.querySelector("table");
-  if (table == null) {
-	  table = document.createElement("table")
-	  fxDiv.append(table);
-      let data = Object.keys(txDates[0]);
-      generateFxSizeTableHead(table, data);
-      generateFxSizeTable(table, txDates);
-  }
+	// Get no. fractions from treatment days
+	const datevals = document.getElementById("txday").value.trim()
+	if (!datevals) {
+	        alert("Please select treatment days first.");
+	        return;
+	}
 
+	const txDays = datevals.split(/\s*,\s*|\s+/).filter(d => d);
+	if (txDays.length === 0) {
+	        alert("Please select treatment days first.");
+	        return;
+	}
+	fxValuesV = new Array(txDays.length).fill("");
+	currentFractionIndex = 0;
+	showFractionInput();
 }
 
-function generateFxSizeTableHead(table, data) {
-  let thead = table.createTHead();
-  let row = thead.insertRow();
-  for (let key of data) {
-    let th = document.createElement("th");
-    let text = document.createTextNode(key);
-    th.appendChild(text);
-    row.appendChild(th);
-  }
-}
+function showFxSizeTable() {
+	// Clear previous
+	let fxDiv = document.getElementById("fxSizeVar");
+	let oldTable = fxDiv.querySelector("#fxSummaryTable");
+	if (oldTable) {
+			oldTable.remove();
+	}
 
-function generateFxSizeTable(table, data) {
-  for (let element of data) {
-    let row = table.insertRow();
-    for (key in element) {
-      let cell = row.insertCell();
-      if (typeof(element["Fx size"]) == "object"){
-		  cell.append(element[key]);
-		  }
-      else {
-          let text = document.createTextNode(element[key]);
-          cell.appendChild(element[key]);
-      }
-    }
-  }
-}
+	let fractionsToShow = [];
+	if (fxValuesV && fxValuesV.length > 0) {
+		 fractionsToShow = fxValuesV.slice();
+	} else {
+		const uniformFx = parseFloat(document.getElementById("fxSizFixed").value) || 2;
+		const txDays = document.getElementById("txday").value.trim().split(/\s*,\s*|\s+/).filter(d => d);
+		fractionsToShow = new Array(txDays.length).fill(uniformFx);
+	}
 
+	// Create a new table
+	let table = document.createElement("table");
+	table.id = "fxSummaryTable";
+	table.className = "table table-bordered table-striped mt-3";
+
+	// Header
+	let thead = table.createTHead();
+	let headerRow = thead.insertRow();
+	let th1 = document.createElement("th");
+	th1.textContent = "Fraction #";
+	headerRow.appendChild(th1);
+	let th2 = document.createElement("th");
+	th2.textContent = "Fraction Size (Gy)";
+	headerRow.appendChild(th2);
+
+	// Body
+	let tbody = document.createElement("tbody");
+	fractionsToShow.forEach((fx, idx) => {
+		let row = tbody.insertRow();
+		let cell1 = row.insertCell();
+		cell1.textContent = idx + 1; // Fraction number
+		let cell2 = row.insertCell();
+		cell2.textContent = fx;      // Fraction size
+		tbody.appendChild(row);
+	});
+
+	table.appendChild(tbody);
+	fxDiv.appendChild(table);
+}
+/* End var frx support */
 
 function plotTcpCurve(){
 	/* This function plots the EQD2 vs TCP curve.
 	APA, 11/22/2020
 	*/
 	// Plot TCP curve
-   var eqd2V = [];
-   for (var i = 0; i <= 300; i++) {
-       eqd2V.push(i);
-   }
-   var TD_50 = 62.1
-   var gamma_50 = 1.5
-   var TCP_upper_bound = 0.95
-   let tcpV = new Array(eqd2V.length-1)
-   for (var i = 0; i <= eqd2V.length-1; i++) {
-	   tcpV[i] = TCP_upper_bound / (1+Math.pow(TD_50/eqd2V[i],4*gamma_50));
-   }
-   var tcpCurve = {
-     x: eqd2V,
-     y: tcpV,
-     type: 'lines',
-     showlegend: false
-   };
-
-	var tcpPoint = {
-	  x: [],
-	  y: [],
-	  type: 'scatter',
-	  mode: 'markers',
-	  marker: {
-	    color: 'rgb(17, 157, 255)',
-	    size: 20,
-	    line: {
-	      color: 'rgb(231, 99, 250)',
-	      width: 2
-	          }
-	    },
-	  showlegend: false
+	var eqd2V = [];
+	for (var i = 0; i <= 300; i++) {
+		eqd2V.push(i);
+	}
+	var TD_50 = 62.1
+	var gamma_50 = 1.5
+	var TCP_upper_bound = 0.95
+	let tcpV = new Array(eqd2V.length-1)
+	for (var i = 0; i <= eqd2V.length-1; i++) {
+		tcpV[i] = TCP_upper_bound / (1+Math.pow(TD_50/eqd2V[i],4*gamma_50));
+	}
+	var tcpCurve = {
+	x: eqd2V,
+	y: tcpV,
+	type: 'lines',
+	showlegend: false
 	};
 
-var layout = {
-  title: {
-    text:'',
-    font: {
-      family: 'Courier New, monospace',
-      size: 32,
-      color: '#ff6961'
-    },
-    xref: 'paper',
-    x: 0.05
-  },
-  xaxis: {
-    title: {
-      text: 'EQD2-model',
-      font: {
-        family: 'Courier New, monospace',
-        size: 32,
-        color: '#7f7f7f'
-      }
-    },
-      tickfont: {
-	        family: 'Courier New, monospace',
-	        size: 24,
-	        color: 'black'
-	    }
-  },
-  yaxis: {
-    title: {
-      text: 'TCP',
-      font: {
-        family: 'Courier New, monospace',
-        size: 30,
-        color: '#7f7f7f'
-      }
-    },
-      tickfont: {
-	        family: 'Courier New, monospace',
-	        size: 24,
-	        color: 'black'
-	    }
-  }
+	var tcpPoint = {
+		x: [],
+		y: [],
+		type: 'scatter',
+		mode: 'markers',
+		marker: {
+		color: 'rgb(17, 157, 255)',
+		size: 20,
+		line: {
+			color: 'rgb(231, 99, 250)',
+			width: 2
+			}
+	},
+	showlegend: false
+	};
 
-  };
+	var layout = {
+	title: {
+		text:'',
+		font: {
+			family: 'Courier New, monospace',
+			size: 32,
+			color: '#ff6961'
+	},
+	xref: 'paper',
+	x: 0.05
+	},
+	xaxis: {
+		title: {
+		text: 'EQD2-model',
+		font: {
+			family: 'Courier New, monospace',
+			size: 32,
+			color: '#7f7f7f'
+		}
+	},
+	tickfont: {
+		family: 'Courier New, monospace',
+		size: 24,
+		color: 'black'
+		}
+	},
+	yaxis: {
+		title: {
+		text: 'TCP',
+		font: {
+			family: 'Courier New, monospace',
+			size: 30,
+			color: '#7f7f7f'
+		}
+	},
+		tickfont: {
+			family: 'Courier New, monospace',
+			size: 24,
+			color: 'black'
+		}
+	}
+
+	};
 
 	var data = [ tcpCurve, tcpPoint ];
 
-   Plotly.newPlot('tcpPlotDiv', data, layout);
+	Plotly.newPlot('tcpPlotDiv', data, layout);
 
-   return;
+	return;
 };
 
 function calculateTCP(){
 	/*
-	This function calculates TCP for the input fractionation and shows the marker on TCP curve
+	This function returns TCP for the input fractionation and shows the marker on TCP curve
 	APA, 11/22/2020
+	AI, 11/14/2025
 	*/
-	let fxDiv = document.getElementById("fxSizeDIV");
-	let table = fxDiv.querySelector("table");
-    //var fxsize = document.getElementById("fxsiz").value;
-    fxValuesV = [];
-	for (var i = 1; i <= table.getElementsByTagName("tr").length-1; i++) {
-		//table.rows[i].cells[1].innerHTML = '<input type="number" value="' +  fxsize + '">';
-		d = parseFloat(table.rows[i].cells[1].getElementsByTagName("input")[0].value);
-		fxValuesV.push(d);
-	}
 
-
-	var fxsize = document.getElementById("fxsiz").value;
-	var datevals = document.getElementById("txday").value;
-	// var res = val1 + val2;
-	//var txdays = val2.split(" ");
-	var txDatesV = datevals.split(",");
+	// Get treatment days
+	var datevals = document.getElementById("txday").value.trim();
+	var txDatesV = datevals.split(/\s*,\s*|\s+/).filter(d => d);
 	let txDaysV = new Array(txDatesV.length-1)
 	var refDate = new Date(txDatesV[0])
 	var dayFactor = 1000 * 3600 * 24
 	for (var i = 0; i <= txDatesV.length-1; i++) {
-	   var currDate = new Date(txDatesV[i])
-	   txDaysV[i] = (currDate.getTime()-refDate.getTime())/ dayFactor + 1
-   }
-	//tcp = Lung_TCP_Jeho(fxsize,txDaysV)
-	tcp = Lung_TCP_Jeho(fxValuesV,txDaysV)
-    //document.getElementById("tcp").innerHTML = "TCP = " + tcp[1];
-    var data_update =  {
-		x: [[tcp[0]]],
-	    y: [[tcp[1]]]
-	    }
+		var currDate = new Date(txDatesV[i])
+		txDaysV[i] = (currDate.getTime()-refDate.getTime())/ dayFactor + 1
+	}
 
-    var layout_update = {
+	// Get fraction sizes
+	let fractions = [];
+	if (fxValuesV.length > 0) {
+		// Variable fractions
+		fractions= fxValuesV.slice();
+	} else {
+			// Uniform fractions
+			const uniformFx = parseFloat(document.getElementById("fxSizFixed").value) || 2;
+			fractions = new Array(txDaysV.length).fill(uniformFx);
+	 }
+
+	 if (fractions.length !== txDaysV.length) {
+			alert("Number of fractions must match number of treatment days.");
+			return;
+	}
+
+	//Display fraction sizes for review
+	showFxSizeTable();
+
+	//Calc TCP
+	console.log(`Treatment days:  ${txDaysV}`);
+	console.log(`fx sizes:  ${fractions}`);
+	[eqd2, TCP] = Lung_TCP_Jeho(fractions, txDaysV);
+	console.log(`TCP:  ${TCP}`);
+
+	plotTcpCurve();
+
+	// Update TCP plot marker
+	var data_update = {
+			x: [[eqd2]],
+			 y: [[TCP]]
+	};
+
+	var layout_update = {
 			title: {
-    		text:'TCP = ' + Math.round(tcp[1] * 10000) / 10000.00,
-    		 font: {
-			      family: 'Courier New, monospace',
-			      size: 32,
-			      color: '#ff6961'
-			    },
-			    xref: 'paper',
-    			x: 0.05
-  			}
-  		};
+			text:'TCP = ' + Math.round(TCP * 10000) / 10000.00,
+			font: {
+					family: 'Courier New, monospace',
+					size: 32,
+					color: '#ff6961'
+			},
+			xref: 'paper',
+			x: 0.05
+			}
+	};
 
-    Plotly.update('tcpPlotDiv', data_update, layout_update,[1])
-    return;
+	Plotly.update('tcpPlotDiv', data_update, layout_update,[1])
+	return;
 
 };
 

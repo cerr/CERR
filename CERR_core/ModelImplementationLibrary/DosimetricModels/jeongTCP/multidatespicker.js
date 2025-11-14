@@ -230,7 +230,7 @@ resetCalendar = function resetCalendar() {
             $(this).removeClass(highlightClass);
         });
     });
-    let fxDiv = document.getElementById("fxSizeDIV");
+    let fxDiv = document.getElementById("fxSizFixed");
     let table = fxDiv.querySelector("table");
 	if (table != null) {
 		table.remove()
@@ -244,12 +244,12 @@ function datesToString(dates) {
 
 function endSelection() {
     $('#txdayparent').hide();
-    let fxDiv = document.getElementById("fxSizeDIV");
+    let fxDiv = document.getElementById("fxSizFixed");
 	let table = fxDiv.querySelector("table");
 	if (table != null) {
 		table.remove()
 	}
-    createFxSizeTableFromDates()
+    clearFxSizeTable()
 }
 
 
