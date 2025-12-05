@@ -4,7 +4,7 @@ function ans = calc_medianDose(doseBinsV, volsHistV, volumeType)
 %
 %  MODIFICATION ALERT:  THIS FUNCTION IS UTILIZED BY THE DREXLER CODEBASE
 %
-%  Last modified: IEN 10/09
+%  Last modified: IEN 01/16
 % 
 %  Usage:  calc_medianDose(doseBinsV, volsHistV)
 %
@@ -30,8 +30,6 @@ function ans = calc_medianDose(doseBinsV, volsHistV, volumeType)
 % You should have received a copy of the GNU General Public License
 % along with CERR.  If not, see <http://www.gnu.org/licenses/>.
 
-      ind = median(find([volsHistV~=0]));
-      ind1 = floor(ind);
-      ind2 = ceil(ind);
-      ans = (doseBinsV(ind1) + doseBinsV(ind2))/2;
+      % the D50 in the cumulative DVH is correct calculation for the median dose from doseBinV & volsHistV
+      ans = calc_Dx(doseBinsV, volsHistV, 50)
 return;
